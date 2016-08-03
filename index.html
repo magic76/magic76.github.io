@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://code.jquery.com/jquery-3.0.0.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Bin</title>
+  <script>
+function QQ(){
+  alert('g');
+  $.get('http://winnieskinny.corp.sg3.yahoo.com:3000/',function(){alert('gg')})
+
+  $.ajax({
+    method:'GET',
+    url:'http://www.google.com',
+    headers:{
+      'X-ssl':1
+    },
+    success: function(){alert('ggg');}
+  });
+}
+  </script>
+  <style>
+  .outerbox{
+    height: 200px;
+    width: 500px;
+    background-color: black;
+  }
+  .innbox{
+    float:left;
+    height:80px;
+    width:80px;
+    border-width: 10px;
+    border-color: black;
+    border-style: solid;
+    background-color: red;
+    text-align: center;
+    line-height: 80px;
+  }
+      </style>
+</head>
+<body>
+<div onclick="QQ();">QQQQQQ</div>
+<div class="outerbox">
+<div class="innbox">1</div>
+<div class="innbox">2</div>
+<div class="innbox">3</div>
+<div class="innbox">4</div>
+<div class="innbox">5</div>
+</div>
+</body>
+</html>
