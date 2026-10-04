@@ -9,7 +9,7 @@ class CrewLiveOutputProcessor extends AudioWorkletProcessor {
     this.playing=false;
     this.forceOutput=false;
     this.fadeRemaining=0;
-    this.startThresholdSamples=Math.max(256,Math.round(sampleRate*0.08));
+    this.startThresholdSamples=Math.max(256,Math.round(sampleRate*0.12));
 
     this.port.onmessage=(event)=>{
       const message=event.data||{};
