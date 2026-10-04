@@ -87,6 +87,8 @@ test("all React Live products use shared manual-interrupt session hook",()=>{
   assert.ok(source.includes("useLiveSession"),page+" should use shared Live state");
   assert.ok(!source.includes("liveModel"),page+" should not expose model UI");
   assert.ok(!source.includes("底層仍沿用"),page+" should not show implementation copy");
+  assert.ok(!source.includes("畫面跟著 Live state"),page+" should not show implementation copy");
+  assert.ok(!source.includes("liveModel"),page+" should not expose model UI");
  }
 });
 
@@ -108,4 +110,24 @@ test("React build toolchain is the primary Web toolchain",()=>{
  const config=fs.readFileSync(path.join(root,"vite.web.config.ts"),"utf8");
  assert.ok(config.includes('root: "web-spa"'));
  assert.ok(config.includes('outDir: "../crew-app"'));
+});
+
+
+test("superseded Teacher-only SPA is removed",()=>{
+ assert.ok(!fs.existsSync(path.join(root,"teacher-spa")),"teacher-spa should be replaced by web-spa");
+ assert.ok(!fs.existsSync(path.join(root,"teacher-app")),"teacher-app should be replaced by crew-app");
+ assert.ok(!fs.existsSync(path.join(root,"vite.teacher.config.ts")),"Teacher-only Vite config should be removed");
+ const pkg=JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8"));
+ assert.equal(pkg.scripts["build:teacher"],undefined);
+ assert.equal(pkg.scripts["check:teacher"],undefined);
+});
+
+test("Live model names stay internal",()=>{
+ const core=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ assert.ok(!core.includes('this._status("正在連線 "+model'));
+ assert.ok(!core.includes('this._status(attempt.model+'));
+ assert.ok(hook.includes('replace(/gemini-'));
+ assert.ok(settings.includes('replace(/gemini-'));
 });
