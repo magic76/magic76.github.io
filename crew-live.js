@@ -439,6 +439,67 @@
     }
   };
 
+  LiveSession.prototype.sendImage=function(image,options){
+    options=options||{};
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt))return false;
+
+    var data="";
+    var mimeType="image/jpeg";
+    if(typeof image==="string"){
+      data=image;
+    }else if(image&&typeof image==="object"){
+      data=image.data||image.base64||"";
+      mimeType=image.mimeType||image.mime_type||mimeType;
+    }
+
+    data=String(data||"").trim();
+    mimeType=String(mimeType||"image/jpeg").trim().toLowerCase();
+    if(!data)return false;
+    if(data.indexOf("data:")===0){
+      var match=data.match(/^data:([^;]+);base64,(.+)$/s);
+      if(!match)return false;
+      mimeType=String(match[1]||mimeType).toLowerCase();
+      data=match[2]||"";
+    }
+    if(!/^image\/(?:jpeg|jpg|png|webp)$/.test(mimeType))return false;
+    if(mimeType==="image/jpg")mimeType="image/jpeg";
+
+    try{
+      attempt.socket.send(JSON.stringify({
+        realtimeInput:{
+          video:{
+            data:data,
+            mimeType:mimeType
+          }
+        }
+      }));
+
+      if(this.options.onVisionSent){
+        this.options.onVisionSent({
+          mimeType:mimeType,
+          bytes:Math.floor(data.length*3/4),
+          ts:new Date(this._deps.now()).toISOString()
+        });
+      }
+
+      var prompt=String(options.prompt||"").trim();
+      if(prompt){
+        attempt.socket.send(JSON.stringify({
+          clientContent:{
+            turns:[{role:"user",parts:[{text:prompt}]}],
+            turnComplete:true
+          }
+        }));
+      }
+      this._status(options.statusText||"圖片已送給 Live AI");
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"vision-send",error);
+      return false;
+    }
+  };
+
   LiveSession.prototype._startCapture=function(){
     if(!this.mediaStream||this.processor)return;
     if(!this.inputContext)this.inputContext=this._deps.createAudioContext();

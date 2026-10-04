@@ -37,7 +37,8 @@ CrewAI.nav("home");
   var duration=x.durationMs?CrewLiveUI.durationText(x.durationMs):"";
   var turns=Array.isArray(x.turns)?x.turns.length:0;
   var meta=[duration,turns?turns+" 回合":""].filter(Boolean).join(" · ");
-  return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc((x.preview||"").slice(0,92))+(meta?'<br>'+CrewAI.esc(meta):'')+'</small></div><span>›</span></a>'
+  var detail=(x.resultCard||x.preview||"").slice(0,120);
+  return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc(detail)+(meta?'<br>'+CrewAI.esc(meta):'')+'</small></div><span>›</span></a>'
  }).join("");
 })();
 </script></body></html>
