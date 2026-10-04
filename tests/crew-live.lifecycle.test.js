@@ -696,3 +696,47 @@ test("output worklet prebuffers 120ms before the first spoken audio",()=>{
   const source=fs.readFileSync(path.resolve(__dirname,"../crew-live-output-worklet.js"),"utf8");
   assert.match(source,/sampleRate\*0\.12/);
 });
+
+
+test("teacher playback ignores mic noise until explicit interrupt button",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  const pcm=Buffer.alloc(2400).toString("base64");
+  socket.message({
+    serverContent:{
+      modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}
+    }
+  });
+  assert.equal(session.modelSpeaking,true);
+
+  const beforeNoise=socket.sent.length;
+  session.processor.onaudioprocess({
+    inputBuffer:{getChannelData(){return new Float32Array(2048).fill(0.2)}}
+  });
+  assert.equal(socket.sent.length,beforeNoise,"mic frames must be suppressed while teacher audio is playing");
+
+  assert.equal(session.interrupt(),true);
+  assert.equal(session.modelSpeaking,false);
+  const afterInterrupt=socket.sent.length;
+
+  session.processor.onaudioprocess({
+    inputBuffer:{getChannelData(){return new Float32Array(2048).fill(0.2)}}
+  });
+  assert.equal(socket.sent.length,afterInterrupt+1,"mic frames resume only after explicit interrupt");
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
