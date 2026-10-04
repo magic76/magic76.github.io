@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew · Gemini 設定</title><link rel="stylesheet" href="crew.css"></head><body>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew · Gemini 設定</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
 <header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header><main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Settings</span><h1>Gemini 設定</h1><p class="lead">跟 APK 一樣採 BYOK。使用自己的 Google 帳戶建立 key，Crew 不會內建共用 key。</p></section>
 
 <section class="panel"><h3>第一次設定</h3><div class="setup-steps">
@@ -12,13 +12,13 @@
 <div class="result empty" id="status">尚未測試。</div></section>
 
 <section class="section"><div class="notice"><div><b>模型策略</b><p>Teacher / Story / Fortune 的主要體驗只在 Live 模型之間 fallback；不會因為 Live 失敗就默默切成慢的文字模式。文字模型只用在各頁收起來的「其他工具」。</p></div></div></section>
-</main><nav class="bottom-nav"><div class="inner">
+</main><div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div><nav class="bottom-nav"><div class="inner">
 <a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
 <a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
 <a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
 <a class="navitem active" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script src="crew-live.js"></script><script>
+</div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("settings");
 var key=document.getElementById("key"),remember=document.getElementById("remember"),status=document.getElementById("status"),liveTest=null;
 key.value=CrewAI.key();remember.checked=!!localStorage.getItem("crew_gemini_api_key");
