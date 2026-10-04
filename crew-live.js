@@ -174,6 +174,7 @@
     this.startedAt=0;
     this.turns=[];
     this.resumptionHandle="";
+    this.openingSent=false;
     this.resumeAttempts=0;
     this.maxResumeAttempts=Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
@@ -497,7 +498,7 @@
   };
 
   LiveSession.prototype._sendOpening=function(attempt){
-    if(!this._isActiveAttempt(attempt))return;
+    if(!this._isActiveAttempt(attempt)||this.openingSent)return;
     var prompt=(this.options.openingPrompt||"").trim();
     if(!prompt)return;
     try{
@@ -507,6 +508,7 @@
           turnComplete:true
         }
       }));
+      this.openingSent=true;
     }catch(error){
       this._beginRecovery(attempt,"opening-send",error);
     }
