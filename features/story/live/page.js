@@ -6,6 +6,9 @@ CrewAI.nav("story");
  el.addEventListener(eventName,function(){localStorage.setItem(key,el.value)});
 });
 var continueContext=null;
+var storyBookContext=null;
+try{storyBookContext=JSON.parse(localStorage.getItem("crew_story_book_live_context")||"null")}catch(_){}
+if(storyBookContext&&storyBookContext.title)document.getElementById("topic").value=storyBookContext.title;
 var pendingStoryImage=null;
 var storyResultText="";
 var storyResultCard=document.getElementById("storyResultCard");
@@ -115,12 +118,16 @@ function storySystem(){
  return "你是 Crew Story 的說書人阿奇。風格："+document.getElementById("style").value+"。"+
   paceInstruction()+interactionInstruction()+
   "直接用繁體中文生動說故事。使用者任何時候插話，立即回應他的問題或改劇情要求，回答後自然回到主線。"+
-  "角色個性和世界設定要前後一致，不要重新解釋你是 AI。";
+  "角色個性和世界設定要前後一致，不要重新解釋你是 AI。"+
+  (storyBookContext?"目前正在陪讀使用者書架裡的既有故事，不可擅自重寫已經發生的內容。":"");
 }
 function openingPrompt(){
  if(pendingStoryImage)return "";
  if(continueContext){
   return "這是上次故事最後幾輪。請直接從最後情節接著說，不要重講開頭：\n"+storyContext(continueContext);
+ }
+ if(storyBookContext){
+  return "我們正在讀書架故事《"+storyBookContext.title+"》，目前第 "+(storyBookContext.currentPage+1)+" 頁附近。以下是附近頁面內容：\n"+(storyBookContext.pages||[]).join("\n---\n")+"\n請先針對目前情節說 1-2 句，再問我要繼續聽、討論角色，還是改走向。";
  }
  return "故事主題："+document.getElementById("topic").value+"。現在直接像陪伴式說書人一樣開場，先講第一小段，留下後續發展空間。";
 }
