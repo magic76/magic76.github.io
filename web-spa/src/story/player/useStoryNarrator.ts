@@ -12,7 +12,7 @@ export function useStoryNarrator(book:StoryBook,index:number,page:StoryPage,imag
   pageKey:"story_player",
   title:book.title||"Story Player",
   system,
-  openingPrompt,
+  openingPrompt:image?"":openingPrompt,
   voice:voice()
  });
 
