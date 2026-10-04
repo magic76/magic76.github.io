@@ -6,7 +6,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;teacherReport?:boolean;
 };
-function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務").replace(/models\\/[^\\s]+/gi,"語音服務")}
+function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 export function useLiveSession(config:Config){
  const configRef=useRef(config);configRef.current=config;
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
