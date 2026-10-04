@@ -120,7 +120,12 @@
       createAudioContext:deps.createAudioContext||function(){
         var AudioCtx=global.AudioContext||global.webkitAudioContext;
         if(!AudioCtx)throw new Error("瀏覽器不支援 Web Audio");
-        return new AudioCtx();
+        try{return new AudioCtx({latencyHint:"interactive",sampleRate:48000});}
+        catch(_){return new AudioCtx();}
+      },
+      createAudioWorkletNode:deps.createAudioWorkletNode||function(ctx,name,options){
+        if(!global.AudioWorkletNode)return null;
+        return new global.AudioWorkletNode(ctx,name,options);
       },
       getKey:deps.getKey||function(){
         return global.CrewAI&&global.CrewAI.key?global.CrewAI.key():"";
@@ -155,6 +160,10 @@
 
     this.outputContext=null;
     this.outputGain=null;
+    this.outputWorkletNode=null;
+    this.outputWorkletReady=false;
+    this.outputWorkletPending=false;
+    this.outputWorkletQueuedMs=0;
     this.nextPlayTime=0;
     this.sources=[];
 
@@ -325,6 +334,11 @@
   };
 
   LiveSession.prototype._clearPlayback=function(){
+    if(this.outputWorkletNode){
+      try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
+      this.outputWorkletPending=false;
+      this.outputWorkletQueuedMs=0;
+    }
     this.sources.forEach(function(source){
       try{source.stop();}catch(_){}
     });
@@ -333,12 +347,14 @@
   };
 
   LiveSession.prototype.hasPendingPlayback=function(){
+    if(this.outputWorkletPending)return true;
     if(this.sources.length>0)return true;
     if(!this.outputContext)return false;
     return (this.nextPlayTime-(this.outputContext.currentTime||0))>0.03;
   };
 
   LiveSession.prototype.getPlaybackRemainingMs=function(){
+    if(this.outputWorkletPending)return Math.max(1,Math.round(this.outputWorkletQueuedMs||1));
     if(!this.outputContext)return 0;
     return Math.max(0,Math.round((this.nextPlayTime-(this.outputContext.currentTime||0))*1000));
   };
@@ -357,6 +373,46 @@
     });
   };
 
+  LiveSession.prototype._initOutputWorklet=async function(){
+    var ctx=this.outputContext;
+    if(!ctx||!ctx.audioWorklet||typeof ctx.audioWorklet.addModule!=="function")return false;
+    try{
+      await ctx.audioWorklet.addModule(this.options.outputWorkletUrl||"crew-live-output-worklet.js?v=20261004a");
+      var node=this._deps.createAudioWorkletNode(ctx,"crew-live-output",{
+        numberOfInputs:0,
+        numberOfOutputs:1,
+        outputChannelCount:[1]
+      });
+      if(!node||!node.port)return false;
+      var self=this;
+      node.port.onmessage=function(event){
+        var message=event&&event.data||{};
+        if(message.type==="output-started"){
+          self.outputWorkletPending=true;
+          if(self.options.onSpeaking)self.options.onSpeaking(true);
+        }else if(message.type==="queue-state"){
+          var samples=Math.max(0,Number(message.samples)||0);
+          var rate=ctx.sampleRate||48000;
+          self.outputWorkletQueuedMs=samples/rate*1000;
+        }else if(message.type==="output-drained"){
+          self.outputWorkletPending=false;
+          self.outputWorkletQueuedMs=0;
+        }
+      };
+      node.connect(this.outputGain||ctx.destination);
+      this.outputWorkletNode=node;
+      this.outputWorkletReady=true;
+      return true;
+    }catch(error){
+      this.outputWorkletNode=null;
+      this.outputWorkletReady=false;
+      if(this._deps.logger&&this._deps.logger.info){
+        this._deps.logger.info("[CrewLive output worklet fallback]",{detail:sanitizeDetail(error&&error.message||error)});
+      }
+      return false;
+    }
+  };
+
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt))return;
     var rate=24000;
@@ -373,6 +429,25 @@
     var view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
     for(var i=0;i<samples;i++)floats[i]=view.getInt16(i*2,true)/32768;
 
+    if(this.outputWorkletNode&&this.outputWorkletReady){
+      this.outputWorkletPending=true;
+      this.outputWorkletQueuedMs+=samples/rate*1000;
+      try{
+        this.outputWorkletNode.port.postMessage(
+          {type:"output",samples:floats.buffer,sampleRate:rate},
+          [floats.buffer]
+        );
+        return;
+      }catch(error){
+        this.outputWorkletReady=false;
+        this.outputWorkletPending=false;
+        this.outputWorkletQueuedMs=0;
+        if(this._deps.logger&&this._deps.logger.info){
+          this._deps.logger.info("[CrewLive output worklet send fallback]",{detail:sanitizeDetail(error&&error.message||error)});
+        }
+      }
+    }
+
     var buffer=this.outputContext.createBuffer(1,samples,rate);
     buffer.copyToChannel(floats,0);
 
@@ -385,7 +460,7 @@
       self.sources=self.sources.filter(function(x){return x!==source;});
     };
 
-    var start=Math.max((this.outputContext.currentTime||0)+0.02,this.nextPlayTime||0);
+    var start=Math.max((this.outputContext.currentTime||0)+0.06,this.nextPlayTime||0);
     source.start(start);
     this.nextPlayTime=start+buffer.duration;
     this.sources.push(source);
@@ -585,6 +660,9 @@
     }
 
     if(server.turnComplete||server.turn_complete){
+      if(this.outputWorkletNode){
+        try{this.outputWorkletNode.port.postMessage({type:"turn-complete"});}catch(_){}
+      }
       var result={
         input:this.inputTurn,
         output:this.outputTurn,
@@ -990,16 +1068,9 @@
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
 
-    this.outputContext=this._deps.createAudioContext();
-    this.inputContext=this._deps.createAudioContext();
-
-    this.outputGain=this.outputContext.createGain();
-    this.outputGain.gain.value=this.volume/100;
-    this.outputGain.connect(this.outputContext.destination);
-
-    if(this.outputContext.resume)await this.outputContext.resume();
-    if(this.inputContext.resume)await this.inputContext.resume();
-
+    // Android Chrome/WebView can switch into a communication audio route when
+    // getUserMedia opens. Acquire the mic first, then build the output graph so
+    // the speaker route is already stable before Gemini sends its first audio.
     this.mediaStream=await this._deps.getUserMedia({
       audio:{
         echoCancellation:true,
@@ -1008,6 +1079,21 @@
         channelCount:1
       }
     });
+
+    this.outputContext=this._deps.createAudioContext();
+    this.inputContext=this.outputContext;
+
+    this.outputGain=this.outputContext.createGain();
+    this.outputGain.gain.value=this.volume/100;
+    this.outputGain.connect(this.outputContext.destination);
+
+    if(this.outputContext.resume)await this.outputContext.resume();
+
+    // Prefer a continuously connected AudioWorklet. It renders silence while
+    // idle, keeping the device output route warm so the first spoken words are
+    // not consumed while the speaker wakes up. Old BufferSource playback stays
+    // as a compatibility fallback.
+    await this._initOutputWorklet();
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
@@ -1033,14 +1119,25 @@
 
     this._clearPlayback();
 
+    if(this.outputWorkletNode){
+      try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
+      try{this.outputWorkletNode.disconnect();}catch(_){}
+      this.outputWorkletNode.port.onmessage=null;
+      this.outputWorkletNode=null;
+    }
+    this.outputWorkletReady=false;
+    this.outputWorkletPending=false;
+    this.outputWorkletQueuedMs=0;
+
+    var sharedContext=this.inputContext&&this.outputContext&&this.inputContext===this.outputContext;
     if(this.inputContext){
       try{if(this.inputContext.close)await this.inputContext.close();}catch(_){}
       this.inputContext=null;
     }
-    if(this.outputContext){
+    if(this.outputContext&&!sharedContext){
       try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
-      this.outputContext=null;
     }
+    this.outputContext=null;
     this.outputGain=null;
     this.nextPlayTime=0;
   };
