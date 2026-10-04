@@ -1,4 +1,4 @@
-export type StoryPage={text:string;imageIndex?:number;emotion?:string;characterName?:string;dialogue?:string;context?:any};
+export type StoryPage={text:string;imageIndex?:number;emotion?:string;characterName?:string;dialogue?:string;context?:{currentEvent?:string;characters?:string[];revealedFacts?:string[];interactionHints?:string[];spoilerBoundary?:string}};
 export type StoryBook={id:string;title:string;summary?:string;coverEmoji?:string;coverIndex?:number;images?:any[];pages:StoryPage[];currentPage?:number;createdAt?:string;updatedAt?:string;sourceType?:"user"|"built-in";readingMode?:"generated"|"physical";language?:string;tags?:string[];ageGroup?:string;estimatedMinutes?:number};
 
 export const BUILT_IN_STORIES:StoryBook[]=[
