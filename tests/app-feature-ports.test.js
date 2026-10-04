@@ -57,7 +57,7 @@ test("every public legacy entry routes into the unified React SPA",()=>{
 
 test("unified React router owns all Crew product surfaces",()=>{
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
- const routes=["/","/settings","/teacher","practice","learn","tutor","me","vocabulary","course","pronunciation","textbook","/teacher/live","/story","shelf","create","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
+ const routes=["/","/settings","/teacher","practice","learn","tutor","me","vocabulary","course","pronunciation","textbook","/teacher/live","/story","shelf","create","edit/:id","physical","physical/:id","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
  for(const route of routes)assert.ok(app.includes(route),"missing React route "+route);
 });
 
@@ -172,4 +172,48 @@ test("Teacher session openings stay natural across new sessions and reconnects",
  assert.ok(core.includes("this.openingSent=false"));
  assert.ok(core.includes("this.openingSent=true"));
  assert.ok(core.includes("||this.openingSent"),"core should prevent repeated proactive openings");
+});
+
+
+test("Story React mirrors native shelf editor player and physical-book flows",()=>{
+ const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
+ const shelf=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
+ const editor=fs.readFileSync(path.join(root,"web-spa/src/story/EditorPage.tsx"),"utf8");
+ const reader=fs.readFileSync(path.join(root,"web-spa/src/story/ReaderPage.tsx"),"utf8");
+ const physical=fs.readFileSync(path.join(root,"web-spa/src/story/PhysicalBookPage.tsx"),"utf8");
+ const mine=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const analyzer=fs.readFileSync(path.join(root,"features/story/physical/analyzer.js"),"utf8");
+ for(const route of ["edit/:id","physical","physical/:id"])assert.ok(app.includes(route));
+ for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
+ for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
+ for(const label of ["播放","story-page-slider","跟阿奇聊這一頁"])assert.ok(reader.includes(label));
+ for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
+ for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
+ assert.ok(analyzer.includes("visibleText"));
+ assert.ok(analyzer.includes("spoilerBoundary"));
+});
+
+test("Fortune React exposes APK-style result tabs and deterministic evidence",()=>{
+ const reading=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ const bazi=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/BaZiTabs.tsx"),"utf8");
+ const tarot=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/TarotTabs.tsx"),"utf8");
+ const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
+ const bzCalc=fs.readFileSync(path.join(root,"features/fortune/bazi/calculator.js"),"utf8");
+ const tarotCalc=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
+ const vedicEnrich=fs.readFileSync(path.join(root,"features/fortune/vedic/enrich.js"),"utf8");
+ assert.ok(reading.includes("shareFortuneReading"));
+ for(const label of ["總覽","大運流年","主題分析","完整解讀"])assert.ok(bazi.includes(label));
+ for(const label of ["總覽","時間軸","主題分析","完整解讀"])assert.ok(tarot.includes(label));
+ for(const label of ["總覽","本命","Dasha・Gochar","主題分析","完整解讀"])assert.ok(vedic.includes(label));
+ for(const key of ["annualTimeline","wealthProfile","careerProfile","relationshipProfile"])assert.ok(bzCalc.includes(key));
+ assert.ok(tarotCalc.includes("personalMonthTimeline"));
+ for(const key of ["currentTransits","majorTransitTimeline","houseLords","familyChildrenProfile"])assert.ok(vedicEnrich.includes(key));
+});
+
+test("Fortune history is reopenable instead of summary-only",()=>{
+ const historyPage=fs.readFileSync(path.join(root,"web-spa/src/fortune/HistoryPage.tsx"),"utf8");
+ const store=fs.readFileSync(path.join(root,"features/fortune/shared/profile.js"),"utf8");
+ assert.ok(historyPage.includes("/fortune/reading?history="));
+ assert.ok(store.includes("function get(id)"));
+ assert.ok(store.includes("filter(function(x){return !x||x.id!==id})"),"history updates should upsert by reading id");
 });
