@@ -1,4 +1,5 @@
 import{useEffect,useRef,useState}from"react";import{clearGeminiKey,ensureLive,geminiKey,saveGeminiKey}from"../lib/runtime";
+function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務").replace(/models\\/[^\\s]+/gi,"語音服務")}
 export function SettingsPage(){
  const[key,setKey]=useState(geminiKey()),[remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key"))),[status,setStatus]=useState("尚未測試。");
  const[testing,setTesting]=useState(false),[volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));const liveRef=useRef<any>(null);
@@ -7,8 +8,8 @@ export function SettingsPage(){
  async function test(){
   if(!key.trim()){setStatus("先貼上 API key");return}setTesting(true);saveGeminiKey(key,remember);setStatus("正在測試語音連線…");
   try{await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   const session=new window.CrewLive.Session({system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,onStatus:setStatus,onTurnComplete:async(turn:any)=>{if(!turn.hasValidOutput)return;await session.waitForPlaybackDrain(6500);await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});liveRef.current=null;setStatus("語音連線成功。");setTesting(false)},onError:(e:Error)=>{setStatus("語音測試失敗："+e.message);setTesting(false)}});liveRef.current=session;await session.start();
-  }catch(e){liveRef.current=null;setStatus("語音測試失敗："+(e instanceof Error?e.message:String(e)));setTesting(false)}
+   const session=new window.CrewLive.Session({system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,onStatus:v=>setStatus(uiMessage(v)),onTurnComplete:async(turn:any)=>{if(!turn.hasValidOutput)return;await session.waitForPlaybackDrain(6500);await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});liveRef.current=null;setStatus("語音連線成功。");setTesting(false)},onError:(e:Error)=>{setStatus("語音測試失敗："+uiMessage(e.message));setTesting(false)}});liveRef.current=session;await session.start();
+  }catch(e){liveRef.current=null;setStatus("語音測試失敗："+uiMessage(e instanceof Error?e.message:e));setTesting(false)}
  }
  return <><section className="hero"><span className="kicker">Settings</span><h1>Gemini 設定</h1><p>設定一次，Teacher、Story、Fortune 共用。</p></section>
  <section className="section panel"><h3>第一次設定</h3><div className="setup-steps"><div className="step"><b>1</b><span><strong>開啟 Google AI Studio</strong><small>使用自己的 Google 帳戶登入。</small></span></div><div className="step"><b>2</b><span><strong>Create API key</strong><small>建立 Gemini API key 並複製。</small></span></div><div className="step"><b>3</b><span><strong>回到 Crew 貼上</strong><small>儲存後三個產品共用。</small></span></div></div>
