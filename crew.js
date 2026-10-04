@@ -166,5 +166,6 @@
   function historyGet(name){try{return JSON.parse(localStorage.getItem("crew_history_"+name)||"[]")}catch(_){return[]}}
   function historyAdd(name,item){var arr=historyGet(name);arr.unshift(Object.assign({id:Date.now(),ts:new Date().toISOString()},item));arr=arr.slice(0,20);localStorage.setItem("crew_history_"+name,JSON.stringify(arr));return arr}
   function esc(s){return String(s||"").replace(/[&<>"']/g,function(ch){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[ch]})}
-  global.CrewAI={key:key,saveKey:saveKey,clearKey:clearKey,refreshStatus:refreshStatus,requireKey:requireKey,call:call,test:test,lastModel:function(){return lastModel},toast:toast,busy:busy,nav:nav,historyGet:historyGet,historyAdd:historyAdd,esc:esc}
+  global.CrewAI={key:key,saveKey:saveKey,clearKey:clearKey,refreshStatus:refreshStatus,requireKey:requireKey,call:call,test:test,lastModel:function(){return lastModel},toast:toast,busy:busy,nav:nav,historyGet:historyGet,historyAdd:historyAdd,esc:esc};
+  refreshStatus();
 })(window);
