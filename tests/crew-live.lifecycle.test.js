@@ -740,3 +740,47 @@ test("teacher playback ignores mic noise until explicit interrupt button",async(
 
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+
+test("proactive opening is sent only once across fallback reconnects",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1","m2"],
+    maxLiveAttempts:2,
+    connectTimeoutMs:100,
+    openingPrompt:"start this session once",
+    deps
+  });
+
+  const starting=session.start();
+  const first=await waitForSocket(0);
+  first.open();
+  first.message({setupComplete:{}});
+  await starting;
+
+  const firstOpenings=first.sent.filter(item=>
+    item.clientContent&&
+    item.clientContent.turns&&
+    item.clientContent.turns[0]?.parts?.[0]?.text==="start this session once"
+  );
+  assert.equal(firstOpenings.length,1);
+
+  first.message({error:{code:500,status:"INTERNAL",message:"retry another candidate"}});
+
+  const second=await waitForSocket(1);
+  second.open();
+  second.message({setupComplete:{}});
+  await wait(10);
+
+  const secondOpenings=second.sent.filter(item=>
+    item.clientContent&&
+    item.clientContent.turns&&
+    item.clientContent.turns[0]?.parts?.[0]?.text==="start this session once"
+  );
+  assert.equal(secondOpenings.length,0,"fallback reconnect must not restart the tutor greeting");
+  assert.equal(session.openingSent,true);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
