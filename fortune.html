@@ -1,26 +1,57 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Fortune Live</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}"></head><body>
-<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1>先算清楚，再問老師</h1><p class="lead">和 App 一樣：八字、塔羅生命靈數、印度星盤先用固定算法得到結果；看不懂或想深入，再進 Live 問老師。</p></section><section class="section"><div class="section-head"><h2>選一種解讀</h2><small>deterministic first</small></div><div class="fortune-mode-grid"><a class="fortune-mode-card" href="fortune-reading.html?mode=bazi"><span class="mode-mark">BA ZI</span><h3>八字</h3><p>四柱、十神、五行旺衰、大運。</p></a><a class="fortune-mode-card" href="fortune-reading.html?mode=tarot"><span class="mode-mark">TAROT</span><h3>塔羅生命靈數</h3><p>人格牌、靈魂牌、生命道路與流年。</p></a><a class="fortune-mode-card" href="fortune-reading.html?mode=vedic"><span class="mode-mark">VEDIC</span><h3>印度星盤</h3><p>Lahiri sidereal、Whole Sign、Nakshatra、Dasha。</p></a></div></section>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f4">
+<title>Crew Fortune</title>
+<link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}">
+</head>
+<body class="product-page fortune-product">
+<header class="product-topbar"><div class="shell inner">
+<div class="product-brand"><a class="product-back" href="index.html" aria-label="回 Crew 首頁">‹</a><div class="product-title"><strong>Crew Fortune</strong><small>命盤探索</small></div></div>
+<a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a>
+</div></header>
 
-<section class="live-stage" id="liveStage" data-state="idle">
+<main class="shell product-main">
+<section class="product-hero" id="fortuneHome">
+<span class="product-kicker">Crew Fortune</span>
+<h1>今天想看看什麼？</h1>
+<p>先用固定算法算清楚，再讓 AI 用白話解讀；看不懂的地方可以直接問老師。</p>
+</section>
+
+<section class="product-section" id="fortuneModes">
+<div class="product-section-head"><h2>選一種解讀</h2><small>固定計算結果</small></div>
+<div class="fortune-home-grid">
+<a class="fortune-home-mode bazi" href="fortune-reading.html?mode=bazi"><span class="mode-icon">八</span><strong>八字</strong><span>四柱、十神、五行與大運</span></a>
+<a class="fortune-home-mode tarot" href="fortune-reading.html?mode=tarot"><span class="mode-icon">✦</span><strong>塔羅生命靈數</strong><span>出生牌、生命道路與流年</span></a>
+<a class="fortune-home-mode vedic" href="fortune-reading.html?mode=vedic"><span class="mode-icon">◎</span><strong>印度星盤</strong><span>Nakshatra、宮位與 Dasha</span></a>
+</div>
+</section>
+
+<section class="product-section" id="fortuneHistory">
+<div class="product-section-head"><h2>最近解讀</h2><small>保存在這台裝置</small></div>
+<div class="fortune-history-list" id="fortuneRecent"><div class="fortune-home-empty"><strong>正在讀取紀錄…</strong><span>完成第一份命盤後會顯示在這裡。</span></div></div>
+</section>
+
+<section class="product-section">
+<div class="product-section-head"><h2>老師</h2><small>看不懂再問</small></div>
+<div class="product-teacher-card product-card fortune-teacher-card">
+<div class="product-avatar">F</div>
+<h2>命理老師幫你講白話</h2>
+<p>老師只根據已經算好的結果回答，不重新亂算。適合追問工作、關係、近況與你真正卡住的地方。</p>
+<a class="product-primary" href="#liveStage" style="display:block;text-align:center">問老師這份結果</a>
+</div>
+</section>
+
+<section class="live-stage product-section" id="liveStage" data-state="idle">
 <div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live teacher</span></div>
 <h2 class="live-title">命理老師 Live</h2>
-<p class="live-sub">以出生資料做娛樂性、自我反思型對話。主要價值是即時追問，不是一次產生一大篇報告。</p>
-
-<div class="live-setup-grid" style="margin-top:14px">
-<div><label class="label" style="color:#c8c8c0">稱呼（選填）</label><input class="field" id="profileName" placeholder="例如：Liyang"></div>
-<div><label class="label" style="color:#c8c8c0">出生日期</label><input class="field" id="birth" type="date"></div>
-<div><label class="label" style="color:#c8c8c0">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div>
-<div><label class="label" style="color:#c8c8c0">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div>
-<div><label class="label" style="color:#c8c8c0">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option><option>未來一年</option></select></div>
-<div><label class="label" style="color:#c8c8c0">回答方式</label><select class="field" id="tone"><option value="direct">直接、有重點</option><option value="gentle">溫和提醒</option><option value="evidence">驗證式 · 多問背景</option></select></div>
-<div><label class="label" style="color:#c8c8c0">老師音色</label><select class="field" id="voice"><option value="Charon">Charon</option><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Fenrir">Fenrir</option></select></div>
-<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次問老師</button></div>
-</div>
-<div class="pref-note">出生資料與偏好只保存在這台裝置。娛樂與自我反思用途。</div>
+<p class="live-sub">有正式計算結果時，老師會直接接著那份結果聊；沒有的話，也可以先用出生資料做反思型對話。</p>
 
 <div class="live-orb"><span>F</span></div>
 <div class="live-status" id="liveStatus">填完日期後，按開始直接跟老師聊。</div>
@@ -34,6 +65,21 @@
 
 <div class="live-presets"><button data-live-prompt="請直接講我現在工作上最值得注意的一件事，講完讓我追問。">工作</button><button data-live-prompt="請用務實的方式談最近的財務節奏，不要提供投資指令。">財運</button><button data-live-prompt="請談談接下來一個月最適合把力氣放在哪裡。">近一個月</button><button data-live-prompt="請談未來一年比較值得注意的節奏與選擇，不要把它說成命定事實。">未來一年</button><button data-live-prompt="請反過來問我一個關鍵問題，幫你更精準理解我現在卡住的地方。">問我</button></div>
 
+<details class="live-settings" id="fortuneSettings">
+<summary>出生資料與老師設定</summary>
+<div class="live-setup-grid">
+<div><label class="label">稱呼（選填）</label><input class="field" id="profileName" placeholder="例如：Liyang"></div>
+<div><label class="label">出生日期</label><input class="field" id="birth" type="date"></div>
+<div><label class="label">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div>
+<div><label class="label">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div>
+<div><label class="label">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option><option>未來一年</option></select></div>
+<div><label class="label">回答方式</label><select class="field" id="tone"><option value="direct">直接、有重點</option><option value="gentle">溫和提醒</option><option value="evidence">驗證式 · 多問背景</option></select></div>
+<div><label class="label">老師音色</label><select class="field" id="voice"><option value="Charon">Charon</option><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次問老師</button></div>
+</div>
+<div class="pref-note">出生資料與偏好只保存在這台裝置。娛樂與自我反思用途。</div>
+</details>
+
 <div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
 <details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
 <div class="live-note">不要把回答當成醫療、法律、投資或重大人生決策依據。</div>
@@ -43,13 +89,19 @@
 <div class="panel" style="margin-top:14px"><h3>快速文字整理</h3><p class="meta">不方便講話時才使用。</p><label class="label">想問什麼？</label><textarea class="field" id="textQ" placeholder="例如：最近工作有點卡，我該先看哪個方向？"></textarea><div class="actions"><button class="btn secondary" id="textAsk">文字整理</button></div><div class="result empty" id="textResult">Live 才是主要入口。</div></div>
 </details>
 </main>
+
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="bottom-nav"><div class="inner">
-<a class="navitem" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem active" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+<nav class="product-bottom-nav"><div class="inner">
+<a class="product-nav-item active" href="#fortuneHome"><b>⌂</b><span>首頁</span></a>
+<a class="product-nav-item" href="#fortuneModes"><b>✦</b><span>探索</span></a>
+<a class="product-nav-item" href="#fortuneHistory"><b>≡</b><span>歷史</span></a>
+<a class="product-nav-item" href="settings.html"><b>○</b><span>我的</span></a>
 </div></nav>
 <div class="toast" id="toast"></div>
-<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script src="features/fortune/live/page.js?v={{ site.github.build_revision }}"></script></body></html>
+<script src="crew.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/shared/profile.js?v={{ site.github.build_revision }}"></script>
+<script src="crew-live.js?v={{ site.github.build_revision }}"></script>
+<script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/live/page.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/home/page.js?v={{ site.github.build_revision }}"></script>
+</body></html>
