@@ -1,0 +1,27 @@
+.story-shelf-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.story-book{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.story-cover{aspect-ratio:4/3;background:#efefe9;display:grid;place-items:center;overflow:hidden}
+.story-cover img{width:100%;height:100%;object-fit:cover}
+.story-cover span{font-size:34px;font-weight:900;color:#aaa}
+.story-book-body{padding:14px;display:grid;gap:7px}
+.story-book h3{margin:0;font-size:17px}
+.story-book p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.story-book-actions{display:flex;gap:8px;margin-top:6px}
+.story-create-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px}
+.story-photo-list{display:grid;gap:10px}
+.story-photo-row{display:grid;grid-template-columns:88px 1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:16px;padding:9px;background:var(--soft)}
+.story-photo-row img{width:88px;height:88px;object-fit:cover;border-radius:12px}
+.story-photo-actions{display:grid;gap:5px}
+.story-photo-actions button{border:1px solid var(--line);background:#fff;border-radius:9px;height:32px;min-width:36px;font-weight:800}
+.story-photo-row.cover{outline:2px solid #171714}
+.story-reader{display:grid;grid-template-columns:minmax(0,420px) 1fr;gap:22px;align-items:start}
+.story-reader-media{background:#fff;border:1px solid var(--line);border-radius:22px;padding:12px;box-shadow:var(--shadow)}
+.story-reader-media img{width:100%;max-height:560px;object-fit:contain;border-radius:16px;background:#efefe9}
+.story-reader-copy{background:#fff;border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow)}
+.story-reader-copy h1{margin:0 0 6px;font-size:28px}
+.story-reader-copy .page-text{font-size:18px;line-height:1.9;white-space:pre-wrap;margin:22px 0}
+.story-reader-nav{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.story-empty{padding:28px;border:1px dashed var(--line);border-radius:18px;text-align:center;color:var(--muted)}
+.story-create-progress{margin-top:14px;padding:13px;border-radius:14px;background:#fff4e5;border:1px solid #f0d6ad;display:none}
+.story-create-progress.show{display:block}
+@media(max-width:720px){.story-shelf-grid{grid-template-columns:1fr}.story-create-grid,.story-reader{grid-template-columns:1fr}.story-photo-row{grid-template-columns:72px 1fr auto}.story-photo-row img{width:72px;height:72px}.story-reader-copy .page-text{font-size:17px}}

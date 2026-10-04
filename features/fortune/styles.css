@@ -1,0 +1,24 @@
+.fortune-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.fortune-mode-card{display:block;background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
+.fortune-mode-card h3{margin:10px 0 5px;font-size:18px}
+.fortune-mode-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
+.fortune-mode-card .mode-mark{font-size:12px;font-weight:900;letter-spacing:.05em}
+.fortune-reading-grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
+.fortune-result{display:grid;gap:12px}
+.fortune-result-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow)}
+.fortune-result-card h2,.fortune-result-card h3{margin:0 0 8px}
+.fortune-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fortune-fact{background:var(--soft);border-radius:13px;padding:11px}
+.fortune-fact small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
+.fortune-fact strong{font-size:14px;line-height:1.4}
+.fortune-pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.fortune-pillar{background:#171714;color:#fff;border-radius:14px;padding:12px;text-align:center}
+.fortune-pillar small{display:block;color:#aaa99f;font-size:10px;margin-bottom:4px}
+.fortune-pillar strong{font-size:19px}
+.fortune-timeline{display:grid;gap:7px;max-height:360px;overflow:auto}
+.fortune-timeline-row{display:grid;grid-template-columns:70px 70px 1fr;gap:8px;padding:9px 10px;background:var(--soft);border-radius:12px;font-size:12px}
+.fortune-planets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.fortune-planet{padding:9px 10px;border-radius:12px;background:var(--soft);font-size:12px}
+.fortune-ai{white-space:pre-wrap;line-height:1.7;font-size:14px}
+.fortune-history{display:grid;gap:8px}
+@media(max-width:800px){.fortune-mode-grid{grid-template-columns:1fr}.fortune-reading-grid{grid-template-columns:1fr}.fortune-facts,.fortune-planets{grid-template-columns:1fr}.fortune-pillars{grid-template-columns:repeat(2,1fr)}}

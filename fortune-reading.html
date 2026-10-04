@@ -1,0 +1,38 @@
+---
+---
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Fortune · 解讀</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="fortune.html"><span class="brandmark">F</span><span>Fortune 解讀</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1 id="modeTitle">正式解讀</h1><p class="lead" id="modeLead">先由固定算法計算，再交給 AI 做白話解讀。</p></section>
+<div class="fortune-reading-grid">
+<section class="panel">
+<label class="label">模式</label><select class="field" id="fortuneMode"><option value="bazi">八字</option><option value="tarot">塔羅生命靈數</option><option value="vedic">印度星盤</option></select>
+<label class="label">生日</label><input class="field" id="birthDate" type="date">
+<div id="timeWrap"><label class="label">出生時間</label><input class="field" id="birthTime" type="time"></div>
+<div id="genderWrap"><label class="label">性別</label><select class="field" id="gender"><option value="1">男</option><option value="0">女</option></select></div>
+<div id="vedicFields" hidden>
+<label class="label">出生城市</label><input class="field" id="city" placeholder="例如：新北市">
+<div class="two"><div><label class="label">Latitude</label><input class="field" id="latitude" inputmode="decimal" placeholder="25.0169"></div><div><label class="label">Longitude</label><input class="field" id="longitude" inputmode="decimal" placeholder="121.4628"></div></div>
+<label class="label">出生當時 UTC offset</label><input class="field" id="utcOffset" placeholder="+08:00" value="+08:00"><p class="meta">Web 版先用明確 UTC offset，避免瀏覽器對歷史 DST 推算不一致。</p>
+</div>
+<label class="label">AI 解讀風格</label><select class="field" id="aiStyle"><option value="normal">白話</option><option value="strict">嚴謹</option><option value="funny">風趣</option></select>
+<div class="actions"><button class="btn" id="calculateFortune">開始解讀</button></div>
+</section>
+<section class="fortune-result" id="resultArea"><div class="fortune-result-card"><h3>還沒有結果</h3><p class="meta">選好資料後開始計算。命盤計算與 AI 解讀會分開顯示。</p></div></section>
+</div>
+</main>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="bottom-nav"><div class="inner"><a class="navitem" href="index.html"><b>⌂</b><span>首頁</span></a><a class="navitem" href="teacher.html"><b>A</b><span>語言</span></a><a class="navitem" href="story.html"><b>S</b><span>故事</span></a><a class="navitem active" href="fortune.html"><b>F</b><span>探索</span></a><a class="navitem" href="settings.html"><b>⚙</b><span>設定</span></a></div></nav>
+<div class="toast" id="toast"></div>
+<script src="crew.js?v={{ site.github.build_revision }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/astronomy-engine@2.1.19/astronomy.browser.min.js"></script>
+<script src="features/fortune/shared/profile.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/bazi/calculator.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/tarot/calculator.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/vedic/calculator.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/bazi/render.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/tarot/render.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/vedic/render.js?v={{ site.github.build_revision }}"></script>
+<script src="features/fortune/reading/page.js?v={{ site.github.build_revision }}"></script>
+</body></html>
