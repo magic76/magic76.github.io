@@ -1,107 +1,32 @@
 ---
 ---
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f4">
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
 <title>Crew Fortune</title>
-<link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}">
-<link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}">
-<link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}">
-</head>
-<body class="product-page fortune-product">
-<header class="product-topbar"><div class="shell inner">
-<div class="product-brand"><a class="product-back" href="index.html" aria-label="回 Crew 首頁">‹</a><div class="product-title"><strong>Crew Fortune</strong><small>命盤探索</small></div></div>
-<a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a>
-</div></header>
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}">
+</head><body class="fortune-theme">
+<header class="app-header"><div class="shell inner"><div class="app-brand"><span class="app-mark fortune">F</span><div class="app-title"><strong>Crew Fortune</strong><small>命盤探索</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="kicker">Crew Fortune</span><h1>今天想看看什麼？</h1><p>先用固定算法得到結果，再用 AI 做白話解讀；想深入時才進老師對話。</p></section>
+<nav class="subnav" aria-label="Fortune 分頁"><a class="active" href="#reading">解讀</a><a href="#history">歷史</a><a href="#teacher">老師</a></nav>
 
-<main class="shell product-main">
-<section class="product-hero" id="fortuneHome">
-<span class="product-kicker">Crew Fortune</span>
-<h1>今天想看看什麼？</h1>
-<p>先用固定算法算清楚，再讓 AI 用白話解讀；看不懂的地方可以直接問老師。</p>
-</section>
-
-<section class="product-section" id="fortuneModes">
-<div class="product-section-head"><h2>選一種解讀</h2><small>固定計算結果</small></div>
-<div class="fortune-home-grid">
+<section class="section" id="reading"><div class="section-head"><h2>選一種解讀</h2><small>固定算法</small></div><div class="fortune-home-grid">
 <a class="fortune-home-mode bazi" href="fortune-reading.html?mode=bazi"><span class="mode-icon">八</span><strong>八字</strong><span>四柱、十神、五行與大運</span></a>
 <a class="fortune-home-mode tarot" href="fortune-reading.html?mode=tarot"><span class="mode-icon">✦</span><strong>塔羅生命靈數</strong><span>出生牌、生命道路與流年</span></a>
 <a class="fortune-home-mode vedic" href="fortune-reading.html?mode=vedic"><span class="mode-icon">◎</span><strong>印度星盤</strong><span>Nakshatra、宮位與 Dasha</span></a>
-</div>
-</section>
+</div></section>
 
-<section class="product-section" id="fortuneHistory">
-<div class="product-section-head"><h2>最近解讀</h2><small>保存在這台裝置</small></div>
-<div class="fortune-history-list" id="fortuneRecent"><div class="fortune-home-empty"><strong>正在讀取紀錄…</strong><span>完成第一份命盤後會顯示在這裡。</span></div></div>
-</section>
+<section class="section" id="history"><div class="section-head"><h2>最近解讀</h2><small>保存在這台裝置</small></div><div class="fortune-history-list" id="fortuneRecent"><div class="notice"><div><b>正在讀取紀錄…</b><p>完成第一份命盤後會顯示在這裡。</p></div></div></div></section>
 
-<section class="product-section">
-<div class="product-section-head"><h2>老師</h2><small>看不懂再問</small></div>
-<div class="product-teacher-card product-card fortune-teacher-card">
-<div class="product-avatar">F</div>
-<h2>命理老師幫你講白話</h2>
-<p>老師只根據已經算好的結果回答，不重新亂算。適合追問工作、關係、近況與你真正卡住的地方。</p>
-<a class="product-primary" href="#liveStage" style="display:block;text-align:center">問老師這份結果</a>
-</div>
-</section>
-
-<section class="live-stage product-section" id="liveStage" data-state="idle">
-<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live teacher</span></div>
-<h2 class="live-title">命理老師 Live</h2>
-<p class="live-sub">有正式計算結果時，老師會直接接著那份結果聊；沒有的話，也可以先用出生資料做反思型對話。</p>
-
-<div class="live-orb"><span>F</span></div>
-<div class="live-status" id="liveStatus">填完日期後，按開始直接跟老師聊。</div>
-<div class="live-controls"><button class="live-btn" id="startLive">開始問老師</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
-
-<div class="live-callbar">
-<div class="live-timer" id="liveTimer">0:00</div>
-<div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div>
-<label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label>
-</div>
-
-<div class="live-presets"><button data-live-prompt="請直接講我現在工作上最值得注意的一件事，講完讓我追問。">工作</button><button data-live-prompt="請用務實的方式談最近的財務節奏，不要提供投資指令。">財運</button><button data-live-prompt="請談談接下來一個月最適合把力氣放在哪裡。">近一個月</button><button data-live-prompt="請談未來一年比較值得注意的節奏與選擇，不要把它說成命定事實。">未來一年</button><button data-live-prompt="請反過來問我一個關鍵問題，幫你更精準理解我現在卡住的地方。">問我</button></div>
-
-<details class="live-settings" id="fortuneSettings">
-<summary>出生資料與老師設定</summary>
-<div class="live-setup-grid">
-<div><label class="label">稱呼（選填）</label><input class="field" id="profileName" placeholder="例如：Liyang"></div>
-<div><label class="label">出生日期</label><input class="field" id="birth" type="date"></div>
-<div><label class="label">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div>
-<div><label class="label">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div>
-<div><label class="label">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option><option>未來一年</option></select></div>
-<div><label class="label">回答方式</label><select class="field" id="tone"><option value="direct">直接、有重點</option><option value="gentle">溫和提醒</option><option value="evidence">驗證式 · 多問背景</option></select></div>
-<div><label class="label">老師音色</label><select class="field" id="voice"><option value="Charon">Charon</option><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Fenrir">Fenrir</option></select></div>
-<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次問老師</button></div>
-</div>
-<div class="pref-note">出生資料與偏好只保存在這台裝置。娛樂與自我反思用途。</div>
-</details>
-
-<div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
-<details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
-<div class="live-note">不要把回答當成醫療、法律、投資或重大人生決策依據。</div>
-</section>
-
-<details class="secondary-zone"><summary>其他工具</summary>
-<div class="panel" style="margin-top:14px"><h3>快速文字整理</h3><p class="meta">不方便講話時才使用。</p><label class="label">想問什麼？</label><textarea class="field" id="textQ" placeholder="例如：最近工作有點卡，我該先看哪個方向？"></textarea><div class="actions"><button class="btn secondary" id="textAsk">文字整理</button></div><div class="result empty" id="textResult">Live 才是主要入口。</div></div>
-</details>
+<section class="section" id="teacher"><div class="section-head"><h2>老師</h2><small>看不懂再問</small></div><div class="person-card card"><div class="avatar">F</div><h2>命理老師</h2><p>老師會優先使用你剛算好的結果，不重新亂算；適合追問工作、關係與你真正卡住的地方。</p><a class="primary-wide" href="fortune-live.html">開始對話</a></div></section>
 </main>
-
-<div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="product-bottom-nav"><div class="inner">
-<a class="product-nav-item active" href="#fortuneHome"><b>⌂</b><span>首頁</span></a>
-<a class="product-nav-item" href="#fortuneModes"><b>✦</b><span>探索</span></a>
-<a class="product-nav-item" href="#fortuneHistory"><b>≡</b><span>歷史</span></a>
-<a class="product-nav-item" href="settings.html"><b>○</b><span>我的</span></a>
-</div></nav>
-<div class="toast" id="toast"></div>
-<script src="crew.js?v={{ site.github.build_revision }}"></script>
-<script src="features/fortune/shared/profile.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script>
-<script src="features/fortune/live/page.js?v={{ site.github.build_revision }}"></script>
-<script src="features/fortune/home/page.js?v={{ site.github.build_revision }}"></script>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a>
+<a class="navitem" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a>
+<a class="navitem active" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
+</div></nav><div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="features/fortune/shared/profile.js?v={{ site.github.build_revision }}"></script><script src="features/fortune/home/page.js?v={{ site.github.build_revision }}"></script>
 </body></html>
