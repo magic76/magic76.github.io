@@ -1,0 +1,12 @@
+---
+---
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Story · 建立故事</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/story/styles.css?v={{ site.github.build_revision }}"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="story-shelf.html"><span class="brandmark">‹</span><span>新故事</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page"><section class="hero"><span class="eyebrow"><i></i> ARCHIE'S STUDIO</span><h1>把靈感變成一本故事</h1><p class="lead">可以只寫一句想法，也可以加入多張照片。照片順序就是故事發展順序，並可指定封面。</p></section>
+<div class="story-create-grid"><section class="panel"><label class="label">故事靈感</label><textarea class="field" id="storyIdea" placeholder="例如：一隻在森林裡尋找星星的小刺蝟…"></textarea>
+<div class="section-head" style="margin-top:18px"><h3>故事照片</h3><small id="photoCount">0 張</small></div>
+<div class="actions"><button class="btn secondary" id="addPhotos">＋ 加入照片</button><input type="file" id="photoInput" accept="image/*" multiple hidden></div>
+<p class="meta">用 ↑ / ↓ 排序；點「封面」指定封面。最多 8 張。</p><div class="story-photo-list" id="photoList"><div class="story-empty">沒有照片也可以只用文字靈感創作。</div></div></section>
+<aside class="panel"><h3>建立故事</h3><p class="meta">AI 會按照照片順序建立逐頁內容。故事完成後會直接存入你的 Story 書架。</p><button class="btn" id="generateStory">生成故事</button><div class="story-create-progress" id="progress">阿奇正在整理角色、圖片與故事節奏…</div></aside></div>
+</main><div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script src="features/shared/db.js?v={{ site.github.build_revision }}"></script><script src="features/shared/gemini-vision.js?v={{ site.github.build_revision }}"></script><script src="features/story/shelf/store.js?v={{ site.github.build_revision }}"></script><script src="features/story/create/generator.js?v={{ site.github.build_revision }}"></script><script src="features/story/create/page.js?v={{ site.github.build_revision }}"></script></body></html>
