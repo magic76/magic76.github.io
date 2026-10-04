@@ -57,7 +57,7 @@ test("every public legacy entry routes into the unified React SPA",()=>{
 
 test("unified React router owns all Crew product surfaces",()=>{
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
- const routes=["/","/settings","/teacher/practice","/teacher/learn","/teacher/tutor","/teacher/me","/teacher/live","vocabulary","course","pronunciation","textbook","/story","shelf","create","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
+ const routes=["/","/settings","/teacher","practice","learn","tutor","me","vocabulary","course","pronunciation","textbook","/teacher/live","/story","shelf","create","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
  for(const route of routes)assert.ok(app.includes(route),"missing React route "+route);
 });
 
