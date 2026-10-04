@@ -6,7 +6,7 @@
 })(typeof window!=="undefined"?window:globalThis,function(global){
   "use strict";
 
-  var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
+  var DEFAULT_MODELS=["gemini-3.1-flash-live-preview","gemini-3.8-live"];
 
   function sanitizeDetail(value){
     var text=String(value==null?"":value);
@@ -56,6 +56,24 @@
       view.setInt16(i*2,sample<0?sample*32768:sample*32767,true);
     }
     return bytesToBase64(bytes);
+  }
+
+  async function decodeWsData(data){
+    if(typeof data==="string")return data;
+    if(data==null)return "";
+    if(typeof Blob!=="undefined"&&data instanceof Blob){
+      return await data.text();
+    }
+    if(data instanceof ArrayBuffer){
+      return new TextDecoder("utf-8").decode(new Uint8Array(data));
+    }
+    if(ArrayBuffer.isView&&ArrayBuffer.isView(data)){
+      return new TextDecoder("utf-8").decode(new Uint8Array(data.buffer,data.byteOffset,data.byteLength));
+    }
+    if(typeof data.text==="function"){
+      return await data.text();
+    }
+    return String(data);
   }
 
   function mergeTranscript(base,chunk){
@@ -504,7 +522,7 @@
 
     return new Promise(function(resolve,reject){
       var finished=false;
-      var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
+      var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
       var socket=new WSCtor(url);
       attempt.socket=socket;
       self.ws=socket;
@@ -544,13 +562,10 @@
                   }
                 }
               },
-              realtimeInputConfig:{
-                automaticActivityDetection:{disabled:false},
-                activityHandling:"START_OF_ACTIVITY_INTERRUPTS"
-              },
+              contextWindowCompression:{slidingWindow:{}},
+              sessionResumption:{},
               inputAudioTranscription:{},
               outputAudioTranscription:{},
-              contextWindowCompression:{slidingWindow:{}},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
               }
@@ -563,10 +578,33 @@
 
       socket.onmessage=function(event){
         if(!self._isActiveAttempt(attempt))return;
-        var message;
-        try{message=JSON.parse(event.data);}catch(_){return;}
-        self._handleMessage(message,attempt,resolveSetup,function(error){
-          failBeforeSetup(error,"setup-api-error");
+        Promise.resolve(decodeWsData(event.data)).then(function(text){
+          if(!self._isActiveAttempt(attempt))return;
+          var message;
+          try{message=JSON.parse(text);}catch(error){
+            if(self._deps.logger&&self._deps.logger.warn){
+              self._deps.logger.warn("[CrewLive unreadable frame]",{
+                attemptId:attempt.id,
+                model:attempt.model,
+                dataType:Object.prototype.toString.call(event.data),
+                detail:sanitizeDetail(error&&error.message||error)
+              });
+            }
+            return;
+          }
+          self._handleMessage(message,attempt,resolveSetup,function(error){
+            failBeforeSetup(error,"setup-api-error");
+          });
+        }).catch(function(error){
+          if(!self._isActiveAttempt(attempt))return;
+          if(self._deps.logger&&self._deps.logger.warn){
+            self._deps.logger.warn("[CrewLive frame decode failed]",{
+              attemptId:attempt.id,
+              model:attempt.model,
+              dataType:Object.prototype.toString.call(event.data),
+              detail:sanitizeDetail(error&&error.message||error)
+            });
+          }
         });
       };
 
@@ -836,7 +874,8 @@
     sanitizeDetail:sanitizeDetail,
     __test:{
       mergeTranscript:mergeTranscript,
-      safeApiError:safeApiError
+      safeApiError:safeApiError,
+      decodeWsData:decodeWsData
     }
   };
 });
