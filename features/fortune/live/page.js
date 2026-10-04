@@ -66,7 +66,14 @@ fortuneUI=CrewLiveUI.bind({
  speakingLabel:"老師說話中",
  notStartedText:"先開始問老師",
  endedText:"已結束。",
- validate:function(){return (deterministicContext&&deterministicContext.result)||document.getElementById("birth").value?"":"先填出生日期"},
+ validate:function(){
+  var ok=(deterministicContext&&deterministicContext.result)||document.getElementById("birth").value;
+  if(!ok){
+   var settings=document.getElementById("fortuneSettings");
+   if(settings){settings.open=true;setTimeout(function(){settings.scrollIntoView({behavior:"smooth",block:"center"})},20)}
+  }
+  return ok?"":"先填出生日期";
+ },
  voice:function(){return document.getElementById("voice").value},
  system:fortuneSystem,
  openingPrompt:openingPrompt,
