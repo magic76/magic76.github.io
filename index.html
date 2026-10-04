@@ -1,31 +1,34 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f6f6f2"><title>Crew</title><link rel="stylesheet" href="crew.css"></head><body>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f6f6f2"><title>Crew · Live AI</title><link rel="stylesheet" href="crew.css"></head><body>
 <header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
 <main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Playground</span><h1>今天想跟 AI<br>做什麼？</h1><p class="lead">不要先選產品。先做一件事，Crew 會把你帶到最適合的工作區。</p>
-<div class="quick-ask"><input id="ask" placeholder="例如：幫我修一句英文、寫故事、看看最近工作方向…"><button class="btn" id="askBtn">開始</button></div></section>
+<section class="hero"><span class="eyebrow"><i></i> Crew Live</span><h1>不要等 AI 生成。<br>直接跟它聊。</h1><p class="lead">三個 Crew 最有價值的能力都搬到 Web：按開始才連 Live，接著直接用聲音互動，直到你自己結束。</p></section>
 
-<section class="section"><div class="section-head"><h2>開始一件事</h2><small>每個功能都有自己的頁面</small></div>
+<section class="section">
 <div class="grid cards">
-<a class="card" href="teacher.html"><div class="icon">A</div><h3>語言教練</h3><p>修一句話、出情境題、直接進行短對話，不只是一題選擇題。</p><span class="go">打開 Teacher →</span></a>
-<a class="card" href="story.html"><div class="icon">S</div><h3>故事工作室</h3><p>生成故事後可以續寫、換風格、改長短，並保存最近作品。</p><span class="go">打開 Story →</span></a>
-<a class="card" href="fortune.html"><div class="icon">F</div><h3>今日探索</h3><p>除了今日分析，也可以問一件事、看近期方向，保留歷史。</p><span class="go">打開 Fortune →</span></a>
+<a class="card" href="teacher.html"><div class="icon">T</div><span class="pill" style="width:max-content">Live voice</span><h3 style="margin-top:12px">跟老師直接練</h3><p>老師先開口。你直接回答，說錯就當場 recast、重說、繼續聊。</p><span class="go">開始語言 Live →</span></a>
+<a class="card" href="story.html"><div class="icon">A</div><span class="pill" style="width:max-content">Interactive story</span><h3 style="margin-top:12px">讓阿奇說故事</h3><p>故事不是一次生成完。阿奇邊講，你可以隨時插話、問問題、改劇情。</p><span class="go">開始故事 Live →</span></a>
+<a class="card" href="fortune.html"><div class="icon">F</div><span class="pill" style="width:max-content">Live teacher</span><h3 style="margin-top:12px">直接問命理老師</h3><p>給基本出生資料，老師先講一個重點；接著像聊天一樣一路追問。</p><span class="go">開始 Fortune Live →</span></a>
 </div></section>
 
-<section class="section"><div class="section-head"><h2>最近使用</h2><small>保存在這台裝置</small></div><div class="list" id="recent"></div></section>
+<section class="section"><div class="notice"><div><b>一次設定，三個 Crew 共用</b><p>使用自己的 Gemini API key。第一次使用時設定一次即可；Live 對話只有按下開始後才會使用麥克風與建立連線。</p></div><a class="btn secondary small" href="settings.html">設定</a></div></section>
+
+<section class="section"><div class="section-head"><h2>最近聊過</h2><small>保存在這台裝置</small></div><div class="list" id="recent"></div></section>
 </main>
 <nav class="bottom-nav"><div class="inner">
 <a class="navitem active" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script>
+<a class="navitem" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
+<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+</div></nav>
+<div class="toast" id="toast"></div><script src="crew.js"></script><script>
 CrewAI.nav("home");
-function route(){var q=document.getElementById("ask").value.trim().toLowerCase();if(!q){CrewAI.toast("先說你想做什麼");return}
-if(/英|日|韓|法|西班牙|語言|翻譯|口說|發音|句子|單字/.test(q))location.href="teacher.html?q="+encodeURIComponent(q);
-else if(/故事|繪本|角色|童話|小說|續寫/.test(q))location.href="story.html?q="+encodeURIComponent(q);
-else if(/運勢|算命|工作運|財運|方向|命盤|出生/.test(q))location.href="fortune.html?q="+encodeURIComponent(q);
-else CrewAI.toast("先選語言、故事或探索其中一個工作區")}
-document.getElementById("askBtn").onclick=route;document.getElementById("ask").addEventListener("keydown",function(e){if(e.key==="Enter")route()});
-(function(){var all=[];["teacher","story","fortune"].forEach(function(name){CrewAI.historyGet(name).slice(0,3).forEach(function(x){all.push(Object.assign({kind:name},x))})});all.sort(function(a,b){return new Date(b.ts)-new Date(a.ts)});var el=document.getElementById("recent");if(!all.length){el.innerHTML='<div class="notice"><div><b>還沒有紀錄</b><p>第一次使用任何 Crew 功能後，最近紀錄會出現在這裡。</p></div></div>';return}el.innerHTML=all.slice(0,5).map(function(x){var map={teacher:"語言",story:"故事",fortune:"探索"};var href=x.kind+".html";return '<a class="list-item" href="'+href+'"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"最近結果")+'</strong><small>'+CrewAI.esc((x.preview||"").slice(0,70))+'</small></div><span>›</span></a>'}).join("")})();
+(function(){
+ var all=[];
+ ["teacher","story","fortune"].forEach(function(name){CrewAI.historyGet(name).slice(0,4).forEach(function(x){all.push(Object.assign({kind:name},x))})});
+ all.sort(function(a,b){return new Date(b.ts)-new Date(a.ts)});
+ var el=document.getElementById("recent");
+ if(!all.length){el.innerHTML='<div class="notice"><div><b>還沒有 Live 紀錄</b><p>開始任何一個 Live 對話後，最近內容會出現在這裡。</p></div></div>';return}
+ el.innerHTML=all.slice(0,6).map(function(x){var map={teacher:"Teacher",story:"Story",fortune:"Fortune"};return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc((x.preview||"").slice(0,80))+'</small></div><span>›</span></a>'}).join("");
+})();
 </script></body></html>

@@ -1,23 +1,49 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Story</title><link rel="stylesheet" href="crew.css"></head><body><header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Crew Story</span><h1>故事工作室</h1><p class="lead">先生成，再繼續改。這裡不是一次性故事按鈕。</p></section>
-<div class="tabs"><button class="tab active" data-tab="create">建立故事</button><button class="tab" data-tab="edit">繼續加工</button><button class="tab" data-tab="history">歷史</button></div>
-<section class="view active section" id="create"><div class="panel"><div class="two"><div><label class="label">主角</label><input class="field" id="hero" value="一隻怕水的小恐龍"></div><div><label class="label">場景</label><input class="field" id="place" value="會發光的海邊"></div></div><label class="label">一定要出現的東西</label><input class="field" id="item" value="一把會唱歌的雨傘"><div class="two"><div><label class="label">風格</label><select class="field" id="style"><option>溫暖</option><option>搞笑</option><option>冒險</option><option>懸疑</option><option>睡前故事</option></select></div><div><label class="label">長度</label><select class="field" id="length"><option>短</option><option selected>中等</option><option>長</option></select></div></div><div class="actions"><button class="btn" id="makeStory">生成故事</button><button class="btn secondary" id="random">幫我亂入</button></div><div class="result empty" id="storyResult">Live 會先寫一個短段落，你可以再續寫或修改。</div></div></section>
-<section class="view section" id="edit"><div class="panel"><div class="notice"><div><b>目前故事</b><p id="currentHint">先生成一篇故事，再來續寫或改風格。</p></div></div><div class="actions"><button class="btn secondary" data-edit="續寫下一段，保留原本角色與語氣。">續寫</button><button class="btn secondary" data-edit="把整篇改得更幽默，但保留事件。">變搞笑</button><button class="btn secondary" data-edit="把故事縮短成約原本一半，保留轉折。">縮短</button><button class="btn secondary" data-edit="加入一個意外反轉，讓結尾更有記憶點。">加反轉</button></div><label class="label">自訂修改</label><input class="field" id="customEdit" placeholder="例如：把主角換成小機器人"><div class="actions"><button class="btn" id="customEditBtn">套用修改</button></div><div class="result empty" id="editResult">修改後版本會出現在這裡。</div></div></section>
-<section class="view section" id="history"><div class="list" id="storyHistory"></div></section>
-</main><nav class="bottom-nav"><div class="inner">
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Story Live</title><link rel="stylesheet" href="crew.css"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="eyebrow"><i></i> Crew Story</span><h1>讓阿奇直接說故事</h1><p class="lead">不是先生成一大篇文字。按開始後阿奇直接講，你任何時候都可以插話、問角色、改劇情，再自然回到故事。</p></section>
+
+<section class="live-stage" id="liveStage" data-state="idle">
+<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live storyteller</span></div>
+<h2 class="live-title">互動說故事</h2><p class="live-sub">把 App 裡「跟阿奇說話」的核心搬到 Web：故事講到一半，你直接開口就能改變或詢問故事。</p>
+<label class="label" style="color:#c8c8c0">今天想聽什麼？</label><input class="field" id="topic" value="一隻怕水的小恐龍，在會發光的海邊找到一把會唱歌的雨傘">
+<div class="two" style="margin-top:8px"><div><label class="label" style="color:#c8c8c0">風格</label><select class="field" id="style"><option>溫暖冒險</option><option>搞笑</option><option>睡前故事</option><option>神秘</option></select></div><div><label class="label" style="color:#c8c8c0">節奏</label><select class="field" id="pace"><option>短段落，常停下來互動</option><option>連續講，但可以插話</option></select></div></div>
+<div class="live-orb"><span>A</span></div><div class="live-status" id="liveStatus">按開始，阿奇會立刻開場。</div>
+<div class="live-controls"><button class="live-btn" id="startLive">開始聽故事</button><button class="live-btn end" id="stopLive" hidden>結束故事</button></div>
+<div class="live-presets"><button data-live-prompt="請自然繼續故事，下一段加入一個意外的小轉折。">繼續</button><button data-live-prompt="從現在開始讓故事更搞笑，但保留目前角色。">變搞笑</button><button data-live-prompt="先停一下，用一句話問我要不要自己決定接下來發生什麼。">讓我選</button><button data-live-prompt="換一個新故事，保留同樣溫暖的說書語氣。">換故事</button></div>
+<div class="live-transcript"><div class="live-line user" id="userLine"><small>你插話</small><span></span></div><div class="live-line" id="aiLine"><small>阿奇</small><span></span></div></div>
+</section>
+
+<details class="secondary-zone"><summary>其他工具</summary>
+<div class="panel" style="margin-top:14px"><h3>文字故事</h3><p class="meta">需要複製文字時再用。</p><div class="actions"><button class="btn secondary" id="textStory">產生一篇短故事</button></div><div class="result empty" id="textResult">Live 才是這頁的主要體驗。</div></div>
+</details>
+</main>
+<nav class="bottom-nav"><div class="inner">
 <a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
 <a class="navitem active" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
 <a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
 <a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script>
-CrewAI.nav("story");var currentStory="";
-document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active");if(b.dataset.tab==="history")renderHistory()}});
-var q=new URLSearchParams(location.search).get("q");if(q)document.getElementById("item").value=q;
-function storyPrompt(){var map={短:"80-120",中等:"140-200",長:"220-320"};return "請用繁體中文寫一篇 "+map[document.getElementById("length").value]+" 字左右的故事。\n主角："+document.getElementById("hero").value+"\n場景："+document.getElementById("place").value+"\n一定要出現："+document.getElementById("item").value+"\n風格："+document.getElementById("style").value+"\n要有明確轉折，不要說教，不要加標題，只輸出正文。"}
-document.getElementById("makeStory").onclick=async function(){if(!CrewAI.requireKey())return;var res=document.getElementById("storyResult");CrewAI.busy(this,true,"創作中…");res.classList.remove("empty");res.textContent="正在寫故事…";try{currentStory=await CrewAI.call(storyPrompt(),{system:"你是 Crew Story 的故事作者，文字有畫面、節奏自然。",temperature:1,maxOutputTokens:700});res.textContent=currentStory;document.getElementById("currentHint").textContent=currentStory.slice(0,80)+"…";CrewAI.historyAdd("story",{title:document.getElementById("hero").value,preview:currentStory.slice(0,120),full:currentStory})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(this,false)}};
-var heroes=["一個把影子弄丟的小孩","一隻想當廚師的鯨魚","一台會害羞的機器人"],places=["沒有重力的圖書館","每天換顏色的森林","只在星期三出現的車站"],items=["一張會改寫明天的車票","一顆只說真話的石頭","一個裝得下月光的玻璃瓶"];function pick(a){return a[Math.floor(Math.random()*a.length)]}document.getElementById("random").onclick=function(){document.getElementById("hero").value=pick(heroes);document.getElementById("place").value=pick(places);document.getElementById("item").value=pick(items)};
-async function editStory(instruction,btn){if(!currentStory){CrewAI.toast("先生成一篇故事");return}if(!CrewAI.requireKey())return;var res=document.getElementById("editResult");CrewAI.busy(btn,true,"修改中…");res.classList.remove("empty");try{currentStory=await CrewAI.call("原故事：\n"+currentStory+"\n\n修改要求："+instruction+"\n只輸出修改後完整故事。",{system:"你是故事編輯，保留好的部分，只改使用者要求的地方。",temperature:.9,maxOutputTokens:700});res.textContent=currentStory;document.getElementById("storyResult").textContent=currentStory;CrewAI.historyAdd("story",{title:"修改後故事",preview:currentStory.slice(0,120),full:currentStory})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(btn,false)}}
-document.querySelectorAll("[data-edit]").forEach(function(b){b.onclick=function(){editStory(b.dataset.edit,b)}});document.getElementById("customEditBtn").onclick=function(){var v=document.getElementById("customEdit").value.trim();if(!v){CrewAI.toast("先輸入修改要求");return}editStory(v,this)};
-function renderHistory(){var a=CrewAI.historyGet("story"),el=document.getElementById("storyHistory");el.innerHTML=a.length?a.map(function(x,i){return '<button class="list-item" data-i="'+i+'"><div><strong>'+CrewAI.esc(x.title)+'</strong><small>'+CrewAI.esc(x.preview)+'</small></div><span>›</span></button>'}).join(""):'<div class="notice"><div><b>還沒有故事</b><p>生成後會保存在這台裝置。</p></div></div>';el.querySelectorAll("button").forEach(function(b){b.onclick=function(){var x=a[Number(b.dataset.i)];currentStory=x.full||x.preview;document.getElementById("storyResult").textContent=currentStory;document.querySelector('[data-tab="create"]').click();CrewAI.toast("已載入故事")}})}
+</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script src="crew-live.js"></script><script>
+CrewAI.nav("story");
+var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
+function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"阿奇說故事中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
+function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
+function storySystem(){return "你是 Crew Story 的說書人阿奇。你正在和使用者進行即時語音互動故事。風格："+document.getElementById("style").value+"。節奏："+document.getElementById("pace").value+"。規則：直接用繁體中文生動說故事；一次講 2-5 句，不要一次把整篇講完；使用者任何時候插話時立刻回應他的問題或改劇情要求，回答簡短，然後自然回到故事；常給使用者簡單選擇；不要解釋你是 AI。";}
+function openingPrompt(){return "主題："+document.getElementById("topic").value+"。現在直接像陪伴式說書人一樣開場，先講第一小段，留下可以繼續發展的空間。";}
+startBtn.onclick=async function(){
+ if(!CrewAI.requireKey())return;startBtn.disabled=true;setState("requesting-mic");
+ live=new CrewLive.Session({system:storySystem(),openingPrompt:openingPrompt(),voice:"Aoede",
+  onStatus:function(s){statusEl.textContent=s},onState:setState,
+  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
+  onInputTranscript:function(t){setTranscript(userLine,t)},onOutputTranscript:function(t){setTranscript(aiLine,t)},
+  onTurnComplete:function(turn){if(turn.output)CrewAI.historyAdd("story",{title:"阿奇 Live 故事",preview:turn.output.slice(0,120)})},
+  onError:function(e){setState("error");statusEl.textContent="Live 連線問題："+e.message}
+ });
+ try{await live.start();modelEl.textContent=live.model;startBtn.hidden=true;stopBtn.hidden=false}catch(e){setState("error");statusEl.textContent=e.message;startBtn.disabled=false}
+};
+stopBtn.onclick=async function(){if(live)await live.stop();live=null;setState("idle");startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;modelEl.textContent="Live storyteller";statusEl.textContent="故事結束。你可以再開一個新的。"};
+document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始故事");return}live.sendText(b.dataset.livePrompt)}});
+addEventListener("pagehide",function(){if(live)live.stop()});
+document.getElementById("textStory").onclick=async function(){if(!CrewAI.requireKey())return;var res=document.getElementById("textResult");CrewAI.busy(this,true,"生成中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call("請用繁中寫 250 字內短故事。主題："+document.getElementById("topic").value+"。風格："+document.getElementById("style").value+"。",{preferLive:false,maxOutputTokens:650})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>

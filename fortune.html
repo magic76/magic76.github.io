@@ -1,25 +1,54 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Fortune</title><link rel="stylesheet" href="crew.css"></head><body><header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1>今日探索</h1><p class="lead">把它當成反思工具：看今天、問一件事，或整理近期方向。</p></section>
-<div class="panel"><label class="label">出生日期</label><input class="field" id="birth" type="date"><p class="meta">只存在這台裝置。娛樂與自我反思用途，不替代重大決策。</p></div>
-<div class="tabs section"><button class="tab active" data-tab="today">今天</button><button class="tab" data-tab="ask">問一件事</button><button class="tab" data-tab="direction">近期方向</button><button class="tab" data-tab="history">歷史</button></div>
-<section class="view active section" id="today"><div class="panel"><div class="two"><div><label class="label">主題</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>關係</option><option>整體</option></select></div><div><label class="label">今天想要</label><select class="field" id="tone"><option>簡短直接</option><option>溫和提醒</option><option>具體行動</option></select></div></div><div class="actions"><button class="btn" id="todayGo">看今天</button></div><div class="result empty" id="todayResult">結果會出現在這裡。</div></div></section>
-<section class="view section" id="ask"><div class="panel"><label class="label">你最近卡在哪一件事？</label><textarea class="field" id="askInput" placeholder="例如：最近有個工作機會，我不知道該不該接"></textarea><div class="actions"><button class="btn" id="askGo">幫我整理</button></div><div class="result empty" id="askResult">會用反思型方式回答，不會把結果說成命定事實。</div></div></section>
-<section class="view section" id="direction"><div class="panel"><div class="two"><div><label class="label">時間範圍</label><select class="field" id="range"><option>接下來 7 天</option><option selected>接下來 30 天</option><option>接下來 3 個月</option></select></div><div><label class="label">想看</label><select class="field" id="directionFocus"><option>工作</option><option>財務節奏</option><option>家庭</option><option>整體</option></select></div></div><div class="actions"><button class="btn" id="directionGo">看方向</button></div><div class="result empty" id="directionResult">會整理成「可以推進 / 先觀察 / 一個行動」。</div></div></section>
-<section class="view section" id="history"><div class="list" id="fortuneHistory"></div></section>
-</main><nav class="bottom-nav"><div class="inner">
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Fortune Live</title><link rel="stylesheet" href="crew.css"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1>直接問老師</h1><p class="lead">App 裡最有價值的其實不是長報告，而是看不懂或想追問時，直接跟老師聊。Web 也改成這個體驗。</p></section>
+
+<section class="live-stage" id="liveStage" data-state="idle">
+<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live teacher</span></div>
+<h2 class="live-title">命理老師 Live</h2><p class="live-sub">先給基本出生資料與你在意的方向。老師會先講一個重點，接著你可以像聊天一樣一直追問。</p>
+<div class="two" style="margin-top:14px"><div><label class="label" style="color:#c8c8c0">出生日期</label><input class="field" id="birth" type="date"></div><div><label class="label" style="color:#c8c8c0">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div></div>
+<div class="two"><div><label class="label" style="color:#c8c8c0">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div><div><label class="label" style="color:#c8c8c0">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option></select></div></div>
+<div class="live-orb"><span>F</span></div><div class="live-status" id="liveStatus">填完日期後，按開始直接跟老師聊。</div>
+<div class="live-controls"><button class="live-btn" id="startLive">開始問老師</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
+<div class="live-presets"><button data-live-prompt="請直接講我現在工作上最值得注意的一件事，講完讓我追問。">工作</button><button data-live-prompt="請用務實的方式談最近的財務節奏，不要提供投資指令。">財運</button><button data-live-prompt="請談談接下來一個月最適合把力氣放在哪裡。">近一個月</button><button data-live-prompt="請反過來問我一個問題，幫你更精準理解我現在卡住的地方。">問我</button></div>
+<div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
+<div class="live-note">娛樂與自我反思用途；不要把語音回答當成醫療、法律、投資或重大人生決策依據。</div>
+</section>
+
+<details class="secondary-zone"><summary>其他工具</summary>
+<div class="panel" style="margin-top:14px"><h3>快速文字整理</h3><p class="meta">不方便講話時才使用。</p><label class="label">想問什麼？</label><textarea class="field" id="textQ" placeholder="例如：最近工作有點卡，我該先看哪個方向？"></textarea><div class="actions"><button class="btn secondary" id="textAsk">文字整理</button></div><div class="result empty" id="textResult">Live 才是主要入口。</div></div>
+</details>
+</main>
+<nav class="bottom-nav"><div class="inner">
 <a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
 <a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
 <a class="navitem active" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
 <a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script>
-CrewAI.nav("fortune");var birth=document.getElementById("birth");birth.value=localStorage.getItem("crew_birth_date")||"";birth.onchange=function(){localStorage.setItem("crew_birth_date",birth.value)};
-document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active");if(b.dataset.tab==="history")renderHistory()}});
-function needBirth(){if(!birth.value){CrewAI.toast("先輸入出生日期");return false}if(!CrewAI.requireKey())return false;return true}
-async function run(btn,res,prompt,title){if(!needBirth())return;CrewAI.busy(btn,true,"分析中…");res.classList.remove("empty");res.textContent="Gemini 正在整理…";try{var out=await CrewAI.call(prompt,{system:"你是 Crew Fortune 的反思型分析助手。不要宣稱預測事實，不做醫療、投資或重大決策建議。語氣成熟、具體、不神神叨叨。",temperature:.8,maxOutputTokens:420});res.textContent=out;CrewAI.historyAdd("fortune",{title:title,preview:out.slice(0,120)})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(btn,false)}}
-document.getElementById("todayGo").onclick=function(){run(this,document.getElementById("todayResult"),"今天日期："+new Date().toISOString().slice(0,10)+"\n出生日期："+birth.value+"\n主題："+document.getElementById("focus").value+"\n語氣："+document.getElementById("tone").value+"\n請用繁中給 120 字內的今日反思。格式：今日主軸 / 適合做 / 先別急 / 一個小行動。","今日 · "+document.getElementById("focus").value)};
-document.getElementById("askGo").onclick=function(){var q=document.getElementById("askInput").value.trim();if(!q){CrewAI.toast("先寫下問題");return}run(this,document.getElementById("askResult"),"出生日期："+birth.value+"\n問題："+q+"\n不要替使用者做決定。請在 150 字內，從盲點、優先順序、可以驗證的小步驟三個角度整理。","問一件事 · "+q.slice(0,24))};
-document.getElementById("directionGo").onclick=function(){run(this,document.getElementById("directionResult"),"出生日期："+birth.value+"\n範圍："+document.getElementById("range").value+"\n主題："+document.getElementById("directionFocus").value+"\n請在 150 字內做娛樂與反思型的近期方向整理。格式：可以推進 / 先觀察 / 可能的摩擦 / 一個行動。","近期方向 · "+document.getElementById("directionFocus").value)};
-var q=new URLSearchParams(location.search).get("q");if(q){document.querySelector('[data-tab="ask"]').click();document.getElementById("askInput").value=q}
-function renderHistory(){var a=CrewAI.historyGet("fortune"),el=document.getElementById("fortuneHistory");el.innerHTML=a.length?a.map(function(x){return '<div class="list-item"><div><strong>'+CrewAI.esc(x.title)+'</strong><small>'+CrewAI.esc(x.preview)+'</small></div></div>'}).join(""):'<div class="notice"><div><b>還沒有紀錄</b><p>分析後會保存在這台裝置。</p></div></div>'}
+</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script src="crew-live.js"></script><script>
+CrewAI.nav("fortune");
+var birth=document.getElementById("birth"),birthTime=document.getElementById("birthTime"),city=document.getElementById("city");
+birth.value=localStorage.getItem("crew_birth_date")||"";birthTime.value=localStorage.getItem("crew_birth_time")||"";city.value=localStorage.getItem("crew_birth_city")||"";
+[birth,birthTime,city].forEach(function(el){el.onchange=function(){localStorage.setItem("crew_birth_date",birth.value);localStorage.setItem("crew_birth_time",birthTime.value);localStorage.setItem("crew_birth_city",city.value)}});
+var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
+function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"老師說話中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
+function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
+function profile(){return "出生日期："+birth.value+"；出生時間："+(birthTime.value||"未提供")+"；出生城市："+(city.value||"未提供")+"；主題："+document.getElementById("focus").value}
+function fortuneSystem(){return "你是 Crew Fortune 的 Live 命理老師。以使用者提供的出生資料與當下問題做娛樂性、自我反思型對話。不要宣稱命定事實，不做醫療、法律、投資或重大決策指令。語氣成熟、直接、有洞察。一次只講 2-4 句，先講一個重點，再讓使用者追問。使用者插話時立即回應，不要長篇報告。";}
+function openingPrompt(){return profile()+"。現在請先用繁體中文講一個和「"+document.getElementById("focus").value+"」最相關的觀察，控制在 3 句內，最後問我想先深入哪一點。";}
+startBtn.onclick=async function(){
+ if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;startBtn.disabled=true;setState("requesting-mic");
+ live=new CrewLive.Session({system:fortuneSystem(),openingPrompt:openingPrompt(),voice:"Charon",
+  onStatus:function(s){statusEl.textContent=s},onState:setState,
+  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
+  onInputTranscript:function(t){setTranscript(userLine,t)},onOutputTranscript:function(t){setTranscript(aiLine,t)},
+  onTurnComplete:function(turn){if(turn.output)CrewAI.historyAdd("fortune",{title:document.getElementById("focus").value+" Live",preview:turn.output.slice(0,120)})},
+  onError:function(e){setState("error");statusEl.textContent="Live 連線問題："+e.message}
+ });
+ try{await live.start();modelEl.textContent=live.model;startBtn.hidden=true;stopBtn.hidden=false}catch(e){setState("error");statusEl.textContent=e.message;startBtn.disabled=false}
+};
+stopBtn.onclick=async function(){if(live)await live.stop();live=null;setState("idle");startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;modelEl.textContent="Live teacher";statusEl.textContent="已結束。"};
+document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始問老師");return}live.sendText(b.dataset.livePrompt)}});
+addEventListener("pagehide",function(){if(live)live.stop()});
+document.getElementById("textAsk").onclick=async function(){if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;var q=document.getElementById("textQ").value.trim(),res=document.getElementById("textResult");if(!q){CrewAI.toast("先輸入問題");return}CrewAI.busy(this,true,"整理中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call(profile()+"\n問題："+q+"\n請在 180 字內做務實的反思型整理。",{preferLive:false,maxOutputTokens:450})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>
