@@ -616,3 +616,83 @@ test("Android-safe startup opens mic before warm output worklet and queues first
   await session.stop({silentStatus:true,emitTerminal:false});
   assert.equal(track.stopped,true);
 });
+
+
+test("browser Live socket requests ordered ArrayBuffer binary frames",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  assert.equal(socket.binaryType,"arraybuffer");
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("first Gemini PCM resumes a transiently suspended Android output context",async()=>{
+  resetSockets();
+  const logs=[];
+  const track={stopped:false,stop(){this.stopped=true;}};
+  const stream={getTracks(){return [track];}};
+  let context=null;
+
+  class SuspendedAudioContext extends FakeAudioContext{
+    constructor(){
+      super();
+      this.state="running";
+      this.resumeCalls=0;
+    }
+    async resume(){
+      this.resumeCalls++;
+      this.state="running";
+    }
+  }
+
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps:{
+      WebSocket:MockWebSocket,
+      getKey:()=>"test-key",
+      getUserMedia:async()=>stream,
+      createAudioContext:()=>{context=new SuspendedAudioContext();return context;},
+      logger:{info:(label,data)=>logs.push({label,data})}
+    }
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  const before=context.resumeCalls;
+  context.state="suspended";
+
+  const pcm=Buffer.alloc(4800).toString("base64");
+  socket.message({
+    serverContent:{
+      modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}
+    }
+  });
+  await wait(0);
+
+  assert.equal(context.state,"running");
+  assert.equal(context.resumeCalls,before+1);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("output worklet prebuffers 120ms before the first spoken audio",()=>{
+  const fs=require("node:fs");
+  const path=require("node:path");
+  const source=fs.readFileSync(path.resolve(__dirname,"../crew-live-output-worklet.js"),"utf8");
+  assert.match(source,/sampleRate\*0\.12/);
+});
