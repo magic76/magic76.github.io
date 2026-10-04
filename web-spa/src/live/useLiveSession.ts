@@ -53,8 +53,9 @@ export function useLiveSession(config:Config){
  const interrupt=useCallback(()=>sessionRef.current?.interrupt()??false,[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
- const sendImageFile=useCallback(async(file:File,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;await ensureLive();const image=await window.CrewLiveUI?.prepareImage(file,{maxSide:1600,quality:.84});return image?s.sendImage(image,{prompt,statusText:"圖片已送出"}):false},[]);
+ const sendPreparedImage=useCallback((image:unknown,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;return s.sendImage(image,{prompt,statusText:"圖片已送出"})},[]);
+ const sendImageFile=useCallback(async(file:File,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;await ensureLive();const image=await window.CrewLiveUI?.prepareImage(file,{maxSide:1600,quality:.84});return image?sendPreparedImage(image,prompt):false},[sendPreparedImage]);
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{if(sessionRef.current)void sessionRef.current.stop({reason:"page-leave",silentStatus:true,emitTerminal:false})},[]);
- return{state,status,turns,input,output,muted,durationMs,report,volume,start,stop,interrupt,toggleMute,sendText,sendImageFile,setVolume};
+ return{state,status,turns,input,output,muted,durationMs,report,volume,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,setVolume};
 }
