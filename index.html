@@ -1,44 +1,49 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f6f6f2"><title>Crew · Live AI</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
-<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
+<title>Crew</title>
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}">
+</head><body>
+<header class="app-header"><div class="shell inner"><div class="app-brand"><span class="app-mark">C</span><div class="app-title"><strong>Crew</strong><small>AI tools that work like apps</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
 <main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Live</span><h1>不要等 AI 生成。<br>直接跟它聊。</h1><p class="lead">三個 Crew 最有價值的能力都搬到 Web：按開始才連 Live，接著直接用聲音互動，直到你自己結束。</p></section>
+<section class="hero"><span class="kicker">Crew</span><h1>你要做什麼？</h1><p>三個產品，一套體驗。進入後直接做事；Live、Vision 與 AI 都是能力，不再拿技術名詞當首頁。</p></section>
 
-<section class="section">
-<div class="grid cards">
-<a class="card" href="teacher.html"><div class="icon">T</div><span class="pill" style="width:max-content">Live voice</span><h3 style="margin-top:12px">跟老師直接練</h3><p>老師先開口。你直接回答，說錯就當場 recast、重說、繼續聊。</p><span class="go">開始語言 Live →</span></a>
-<a class="card" href="story.html"><div class="icon">A</div><span class="pill" style="width:max-content">Interactive story</span><h3 style="margin-top:12px">讓阿奇說故事</h3><p>故事不是一次生成完。阿奇邊講，你可以隨時插話、問問題、改劇情。</p><span class="go">開始故事 Live →</span></a>
-<a class="card" href="fortune.html"><div class="icon">F</div><span class="pill" style="width:max-content">Live teacher</span><h3 style="margin-top:12px">直接問命理老師</h3><p>給基本出生資料，老師先講一個重點；接著像聊天一樣一路追問。</p><span class="go">開始 Fortune Live →</span></a>
+<section class="section"><div class="hub-grid">
+<a class="hub-card teacher" href="teacher.html"><span class="feature-icon" data-icon="teacher"></span><h2>Crew Teacher</h2><p>語言學習、教材陪讀與真人感口說練習。</p><span class="hub-go">開始學習 →</span></a>
+<a class="hub-card story" href="story.html"><span class="feature-icon" data-icon="story"></span><h2>Crew Story</h2><p>從自己的照片與靈感建立故事，再和阿奇一起講。</p><span class="hub-go">打開故事 →</span></a>
+<a class="hub-card fortune" href="fortune.html"><span class="feature-icon" data-icon="fortune"></span><h2>Crew Fortune</h2><p>固定算法先算清楚，再用 AI 做白話解讀與追問。</p><span class="hub-go">開始探索 →</span></a>
 </div></section>
 
-<section class="section"><div class="notice"><div><b>一次設定，三個 Crew 共用</b><p>使用自己的 Gemini API key。第一次使用時設定一次即可；Live 對話只有按下開始後才會使用麥克風與建立連線。</p></div><a class="btn secondary small" href="settings.html">設定</a></div></section>
+<section class="section"><div class="notice"><div><b>Gemini 只需要設定一次</b><p>Teacher、Story、Fortune 共用同一把 API key；沒有設定時再引導你處理。</p></div><a class="btn secondary small" href="settings.html">設定</a></div></section>
 
-<section class="section"><div class="section-head"><h2>最近聊過</h2><small>保存在這台裝置</small></div><div class="list" id="recent"></div></section>
+<section class="section"><div class="section-head"><h2>最近使用</h2><small>保存在這台裝置</small></div><div class="list" id="recent"></div></section>
 </main>
-<div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="bottom-nav"><div class="inner">
-<a class="navitem active" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem active" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a>
+<a class="navitem" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
 </div></nav>
-<div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script>
+<div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script>
+<script src="crew.js?v={{ site.github.build_revision }}"></script>
+<script>
 CrewAI.nav("home");
 (function(){
  var all=[];
  ["teacher","story","fortune"].forEach(function(name){CrewAI.historyGet(name).slice(0,4).forEach(function(x){all.push(Object.assign({kind:name},x))})});
  all.sort(function(a,b){return new Date(b.ts)-new Date(a.ts)});
  var el=document.getElementById("recent");
- if(!all.length){el.innerHTML='<div class="notice"><div><b>還沒有 Live 紀錄</b><p>開始任何一個 Live 對話後，最近內容會出現在這裡。</p></div></div>';return}
+ if(!all.length){el.innerHTML='<div class="notice"><div><b>還沒有使用紀錄</b><p>完成一次 Live 對話後，最近內容會出現在這裡。</p></div></div>';return}
+ var labels={teacher:"Teacher",story:"Story",fortune:"Fortune"};
+ var icons={teacher:"teacher",story:"story",fortune:"fortune"};
  el.innerHTML=all.slice(0,6).map(function(x){
-  var map={teacher:"Teacher",story:"Story",fortune:"Fortune"};
-  var duration=x.durationMs?CrewLiveUI.durationText(x.durationMs):"";
-  var turns=Array.isArray(x.turns)?x.turns.length:0;
-  var meta=[duration,turns?turns+" 回合":""].filter(Boolean).join(" · ");
-  var detail=(x.resultCard||x.preview||"").slice(0,120);
-  return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc(detail)+(meta?'<br>'+CrewAI.esc(meta):'')+'</small></div><span>›</span></a>'
+   var detail=(x.resultCard||x.preview||x.title||"").slice(0,96);
+   return '<a class="recent-item" href="'+x.kind+'.html"><span class="list-icon" data-icon="'+icons[x.kind]+'"></span><span><strong>'+labels[x.kind]+' · '+CrewAI.esc(x.title||"最近使用")+'</strong><small>'+CrewAI.esc(detail)+'</small></span><span class="chevron">›</span></a>'
  }).join("");
+ if(window.CrewIcons)CrewIcons.render(el);
 })();
 </script></body></html>
