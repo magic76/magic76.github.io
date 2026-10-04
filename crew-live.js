@@ -137,7 +137,6 @@
     this.model="";
     this.running=false;
     this.ready=false;
-    this.modelSpeaking=false;
     this.stopping=false;
     this.recovering=false;
 
@@ -791,7 +790,7 @@
     this.activeModelIndex=index;
     this.model=model;
     this.ready=false;
-    this._status("正在連線 "+model+"…");
+    this._status("正在連線語音服務…");
     this._state("connecting");
 
     return new Promise(function(resolve,reject){
@@ -1073,7 +1072,7 @@
     }
 
     this._state("connecting");
-    this._status(attempt.model+" 無法完成 Live，改連下一個 Live 模型…");
+    this._status("語音連線未完成，正在重新連線…");
 
     var self=this;
     this._connectFrom(nextIndex).then(function(){
