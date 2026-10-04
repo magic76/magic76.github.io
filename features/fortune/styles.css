@@ -1,36 +1,6 @@
-.fortune-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.fortune-mode-card{display:block;background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow)}
-.fortune-mode-card h3{margin:10px 0 5px;font-size:18px}
-.fortune-mode-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.5}
-.fortune-mode-card .mode-mark{font-size:12px;font-weight:900;letter-spacing:.05em}
-.fortune-reading-grid{display:grid;grid-template-columns:340px 1fr;gap:18px}
-.fortune-result{display:grid;gap:12px}
-.fortune-result-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:17px;box-shadow:var(--shadow)}
-.fortune-result-card h2,.fortune-result-card h3{margin:0 0 8px}
-.fortune-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.fortune-fact{background:var(--soft);border-radius:13px;padding:11px}
-.fortune-fact small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}
-.fortune-fact strong{font-size:14px;line-height:1.4}
-.fortune-pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-.fortune-pillar{background:#171714;color:#fff;border-radius:14px;padding:12px;text-align:center}
-.fortune-pillar small{display:block;color:#aaa99f;font-size:10px;margin-bottom:4px}
-.fortune-pillar strong{font-size:19px}
-.fortune-timeline{display:grid;gap:7px;max-height:360px;overflow:auto}
-.fortune-timeline-row{display:grid;grid-template-columns:70px 70px 1fr;gap:8px;padding:9px 10px;background:var(--soft);border-radius:12px;font-size:12px}
-.fortune-planets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-.fortune-planet{padding:9px 10px;border-radius:12px;background:var(--soft);font-size:12px}
-.fortune-ai{white-space:pre-wrap;line-height:1.7;font-size:14px}
-.fortune-history{display:grid;gap:8px}
-@media(max-width:800px){.fortune-mode-grid{grid-template-columns:1fr}.fortune-reading-grid{grid-template-columns:1fr}.fortune-facts,.fortune-planets{grid-template-columns:1fr}.fortune-pillars{grid-template-columns:repeat(2,1fr)}}
-
-/* App-parity home shell */
-body.fortune-product{--product-accent:#6a5ae0;--product-accent-2:#8178f4;--product-soft:#eeecff}
-.fortune-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.fortune-home-mode{padding:16px;min-height:150px;background:#fff;border:1px solid var(--product-line);border-radius:20px;display:flex;flex-direction:column}
-.fortune-home-mode .mode-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:900}
-.fortune-home-mode strong{font-size:15px;margin-top:auto;padding-top:18px}.fortune-home-mode span{font-size:11px;line-height:1.45;color:var(--product-muted);margin-top:4px}
-.fortune-home-mode.bazi .mode-icon{background:#fff3e8;color:#c77725}.fortune-home-mode.tarot .mode-icon{background:#eaf7f0;color:#2ba471}.fortune-home-mode.vedic .mode-icon{background:#eaf2ff;color:#3f78d7}
-.fortune-history-list{display:grid;gap:8px}.fortune-history-row{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:13px 14px;background:#fff;border:1px solid var(--product-line);border-radius:17px}.fortune-history-mark{width:10px;height:10px;border-radius:50%;background:var(--product-accent)}.fortune-history-mark.bazi{background:#c77725}.fortune-history-mark.tarot{background:#2ba471}.fortune-history-mark.vedic{background:#3f78d7}.fortune-history-row strong{display:block;font-size:13px}.fortune-history-row small{display:block;color:var(--product-muted);font-size:10px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}.fortune-history-row>b{color:#aaa;font-size:20px}
-.fortune-home-empty{padding:16px;background:#fff;border:1px dashed var(--product-line);border-radius:18px}.fortune-home-empty strong{display:block;font-size:13px}.fortune-home-empty span{display:block;color:var(--product-muted);font-size:11px;margin-top:4px}
-.fortune-teacher-card .product-avatar{background:#eeecff;color:#6a5ae0}.fortune-teacher-card .product-primary{background:#6a5ae0}
-@media(max-width:700px){.fortune-home-grid{grid-template-columns:1fr}.fortune-home-mode{min-height:112px}.fortune-home-mode strong{padding-top:14px}}
+.fortune-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.fortune-home-mode{padding:16px;min-height:148px;background:#fff;border:1px solid var(--line);border-radius:20px;display:flex;flex-direction:column}.fortune-home-mode .mode-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:900}.fortune-home-mode strong{font-size:15px;margin-top:auto;padding-top:17px}.fortune-home-mode span{font-size:10px;line-height:1.45;color:var(--muted);margin-top:4px}.fortune-home-mode.bazi .mode-icon{background:#fff3e8;color:#c77725}.fortune-home-mode.tarot .mode-icon{background:#eaf7f0;color:#2ba471}.fortune-home-mode.vedic .mode-icon{background:#eaf2ff;color:#3f78d7}
+.fortune-reading-grid{display:grid;grid-template-columns:320px 1fr;gap:14px}.fortune-result{display:grid;gap:10px}.fortune-result-card{background:#fff;border:1px solid var(--line);border-radius:19px;padding:16px}.fortune-result-card h2,.fortune-result-card h3{margin:0 0 8px}.fortune-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.fortune-fact{background:var(--surface-alt);border-radius:12px;padding:10px}.fortune-fact small{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.fortune-fact strong{font-size:13px;line-height:1.4}
+.fortune-pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.fortune-pillar{background:#fff3e8;color:#7f511e;border-radius:13px;padding:11px;text-align:center}.fortune-pillar small{display:block;color:#a16b32;font-size:9px;margin-bottom:4px}.fortune-pillar strong{font-size:18px}.fortune-timeline{display:grid;gap:6px;max-height:350px;overflow:auto}.fortune-timeline-row{display:grid;grid-template-columns:68px 68px 1fr;gap:7px;padding:8px 9px;background:var(--surface-alt);border-radius:11px;font-size:11px}.fortune-planets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.fortune-planet{padding:8px 9px;border-radius:11px;background:var(--surface-alt);font-size:11px}.fortune-ai{white-space:pre-wrap;line-height:1.65;font-size:13px}
+.fortune-history-list{display:grid;gap:8px}.fortune-history-row{display:grid;grid-template-columns:10px 1fr auto;gap:9px;align-items:center;padding:12px 13px;background:#fff;border:1px solid var(--line);border-radius:16px}.fortune-history-mark{width:9px;height:9px;border-radius:50%;background:var(--accent)}.fortune-history-mark.bazi{background:#c77725}.fortune-history-mark.tarot{background:#2ba471}.fortune-history-mark.vedic{background:#3f78d7}.fortune-history-row strong{display:block;font-size:12px}.fortune-history-row small{display:block;color:var(--muted);font-size:9px;margin-top:3px}.fortune-history-row>b{color:#aaa}
+.fortune-home-empty{padding:15px;background:#fff;border:1px dashed var(--line);border-radius:17px}.fortune-home-empty strong{display:block;font-size:12px}.fortune-home-empty span{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+@media(max-width:800px){.fortune-home-grid{grid-template-columns:1fr}.fortune-home-mode{min-height:108px}.fortune-reading-grid{grid-template-columns:1fr}.fortune-facts,.fortune-planets{grid-template-columns:1fr}.fortune-pillars{grid-template-columns:repeat(2,1fr)}}
