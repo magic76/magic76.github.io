@@ -1,0 +1,10 @@
+---
+---
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Story · 書架</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/story/styles.css?v={{ site.github.build_revision }}"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="story.html"><span class="brandmark">S</span><span>Story 書架</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Crew Story</span><h1>今天想讀什麼故事？</h1><p class="lead">和 App 一樣：建立自己的故事、保存到書架，再逐頁閱讀；Live 阿奇留在播放器之外，不把所有功能塞在同一頁。</p></section>
+<section class="section"><div class="actions"><a class="btn" href="story-create.html">＋ 建立新故事</a><a class="btn secondary" href="story.html">直接跟阿奇說故事</a></div></section>
+<section class="section"><div class="section-head"><h2>我的故事</h2><small id="storyCount">0 本</small></div><div class="story-shelf-grid" id="storyShelf"><div class="story-empty">還沒有自己的故事。</div></div></section>
+</main><div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="bottom-nav"><div class="inner"><a class="navitem" href="index.html"><b>⌂</b><span>首頁</span></a><a class="navitem" href="teacher.html"><b>A</b><span>語言</span></a><a class="navitem active" href="story.html"><b>S</b><span>故事</span></a><a class="navitem" href="fortune.html"><b>F</b><span>探索</span></a><a class="navitem" href="settings.html"><b>⚙</b><span>設定</span></a></div></nav>
+<div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="features/shared/db.js?v={{ site.github.build_revision }}"></script><script src="features/story/shelf/store.js?v={{ site.github.build_revision }}"></script><script src="features/story/shelf/page.js?v={{ site.github.build_revision }}"></script></body></html>
