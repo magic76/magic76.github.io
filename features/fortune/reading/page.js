@@ -76,7 +76,7 @@
     resultArea.insertAdjacentHTML("beforeend",action);
     document.getElementById("askTeacher").onclick=function(){
       localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));
-      location.href="fortune.html?from=reading";
+      location.href="fortune-live.html?from=reading";
     };
     document.getElementById("shareReading").onclick=async function(){
       var text=modeCopy[reading.mode][0]+"\n"+(reading.ai||reading.summary||"")+"\n\nCrew Fortune";

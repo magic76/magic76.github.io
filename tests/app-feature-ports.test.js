@@ -66,37 +66,47 @@ test("main product pages expose the app-derived entry points",()=>{
   assert.ok(fortune.includes("fortune-reading.html?mode=vedic"));
 });
 
-test("product surfaces use their app-aligned shells",()=>{
-  const pages={
-    "teacher.html":"teacher-product",
-    "teacher-textbook.html":"teacher-product",
-    "story.html":"story-product",
-    "story-shelf.html":"story-product",
-    "story-create.html":"story-product",
-    "story-reader.html":"story-product",
-    "fortune.html":"fortune-product",
-    "fortune-reading.html":"fortune-product"
-  };
-  for(const [page,productClass] of Object.entries(pages)){
+
+test("core surfaces use one Crew Web design system",()=>{
+  const globalPages=[
+    "index.html","settings.html","teacher.html","teacher-textbook.html",
+    "story.html","story-shelf.html","story-create.html","story-reader.html",
+    "fortune.html","fortune-reading.html"
+  ];
+  for(const page of globalPages){
     const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("features/shared/product-shell.css"),page+" should load the shared product shell");
-    assert.ok(source.includes('class="product-page '+productClass+'"'),page+" should use "+productClass);
-    assert.ok(source.includes("product-topbar"),page+" should use product-owned top navigation");
+    assert.ok(source.includes("features/shared/design-system.css"),page+" should load the unified design system");
+    assert.ok(source.includes("global-nav"),page+" should use the one global navigation");
+    assert.ok(!source.includes("crew.css"),page+" should not depend on the legacy Crew stylesheet");
+    assert.ok(!source.includes("product-shell.css"),page+" should not depend on the superseded product shell");
   }
-  for(const page of ["teacher.html","teacher-textbook.html","story.html","story-shelf.html","story-create.html","story-reader.html","fortune.html","fortune-reading.html"]){
+  for(const page of ["teacher.html","story.html","fortune.html"]){
     const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("product-bottom-nav"),page+" should stay inside product navigation");
+    assert.ok(source.includes("subnav"),page+" should use product-local secondary navigation");
+    assert.ok(!source.includes('id="liveStage"'),page+" should not embed the Live console on its home surface");
   }
 });
 
-test("Live product redesign keeps required runtime controls",()=>{
+test("Live experiences are dedicated session pages",()=>{
   const required={
-    "teacher.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","scene","level","pace","correction","accent","voice"],
-    "story.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","topic","style","pace","interaction","voice"],
-    "fortune.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","birth","focus","tone","voice"]
+    "teacher-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","scene","level","pace","correction","accent","voice"],
+    "story-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","topic","style","pace","interaction","voice"],
+    "fortune-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","birth","focus","tone","voice"]
   };
   for(const [page,ids] of Object.entries(required)){
     const source=fs.readFileSync(path.join(root,page),"utf8");
+    assert.ok(source.includes("features/shared/design-system.css"),page+" should use the unified design system");
+    assert.ok(source.includes("session-page"),page+" should present Live as a dedicated session state");
+    assert.ok(!source.includes("global-nav"),page+" should remove global navigation during an active session surface");
     for(const id of ids)assert.ok(source.includes('id="'+id+'"'),page+" should retain #"+id);
   }
+});
+
+test("deep links enter the dedicated Live sessions",()=>{
+  const reader=fs.readFileSync(path.join(root,"features/story/reader/page.js"),"utf8");
+  const reading=fs.readFileSync(path.join(root,"features/fortune/reading/page.js"),"utf8");
+  const teacher=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  assert.ok(reader.includes('story-live.html?from=book'));
+  assert.ok(reading.includes('fortune-live.html?from=reading'));
+  assert.ok(teacher.includes('teacher-live.html'));
 });

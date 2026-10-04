@@ -1,58 +1,39 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4"><title>Crew Teacher · 教材陪讀</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/teacher/styles.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/teacher/textbook/styles.css?v={{ site.github.build_revision }}"></head><body class="product-page teacher-product">
-<header class="product-topbar"><div class="shell inner"><div class="product-brand"><a class="product-back" href="teacher.html" aria-label="回 Crew Teacher">‹</a><div class="product-title"><strong>教材陪讀</strong><small>Crew Teacher</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell product-main">
-<section class="product-hero"><span class="product-kicker">Crew Teacher</span><h1>拿你自己的教材來上課</h1><p>一次加入 1–4 張，排好順序後先讓 AI 備課，再由 Live 老師逐頁帶你讀、問你、陪你練。</p></section>
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
+<title>Crew Teacher · 教材陪讀</title>
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/teacher/styles.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/teacher/textbook/styles.css?v={{ site.github.build_revision }}">
+</head><body class="teacher-theme">
+<header class="app-header"><div class="shell inner"><div class="app-brand"><a class="back-btn" href="teacher.html" aria-label="回 Crew Teacher">‹</a><div class="app-title"><strong>教材陪讀</strong><small>Crew Teacher</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="kicker">教材陪讀</span><h1>拿你的教材直接上課</h1><p>加入 1–4 張，排好順序後先讓 AI 備課，再逐頁讀、問、練。</p></section>
 
 <div class="textbook-shell">
 <section id="resumeWrap" hidden></section>
-
 <section class="textbook-panel" id="setupPanel">
 <div class="section-head"><h2>今天的素材</h2><small id="materialCount">0 / 4</small></div>
-<div class="two">
-<div><label class="label">目標語言</label><select class="field" id="targetLanguage"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
-<div><label class="label">程度</label><select class="field" id="level"><option>A1-A2</option><option selected>B1-B2</option><option>C1+</option></select></div>
-</div>
-<div class="textbook-toolbar">
-<button class="btn secondary" id="takePhoto">拍一張</button><button class="btn secondary" id="pickPhotos">選圖片</button>
-<input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
-<input type="file" id="galleryInput" accept="image/*" multiple hidden>
-</div>
+<div class="two"><div><label class="label">目標語言</label><select class="field" id="targetLanguage"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div><div><label class="label">程度</label><select class="field" id="level"><option>A1-A2</option><option selected>B1-B2</option><option>C1+</option></select></div></div>
+<div class="textbook-toolbar"><button class="btn secondary" id="takePhoto">拍一張</button><button class="btn secondary" id="pickPhotos">選圖片</button><input type="file" id="cameraInput" accept="image/*" capture="environment" hidden><input type="file" id="galleryInput" accept="image/*" multiple hidden></div>
 <div class="textbook-pages" id="draftPages"><div class="textbook-empty">加入 1–4 張教材或照片。順序就是老師上課的順序。</div></div>
 <div class="actions"><button class="btn" id="prepareLesson" disabled>讓老師備課</button></div>
 </section>
 
 <section class="textbook-panel" id="studyPanel" hidden>
-<div class="textbook-plan-head"><div><span class="eyebrow"><i></i> LESSON READY</span><h2 id="lessonTitle">教材陪讀</h2><p class="textbook-objective" id="lessonObjective"></p></div><button class="btn secondary small" id="backToSetup">重新選素材</button></div>
-<div class="textbook-study">
-<div><img id="studyImage" alt="教材頁面"><div class="textbook-stepnav"><button class="btn secondary small" id="prevPage">上一頁</button><span class="pill" id="pageIndicator">1 / 1</span><button class="btn secondary small" id="nextPage">下一頁</button></div></div>
+<div class="textbook-plan-head"><div><span class="kicker">Lesson ready</span><h2 id="lessonTitle">教材陪讀</h2><p class="textbook-objective" id="lessonObjective"></p></div><button class="btn secondary small" id="backToSetup">重新選素材</button></div>
+<div class="textbook-study"><div><img id="studyImage" alt="教材頁面"><div class="textbook-stepnav"><button class="btn secondary small" id="prevPage">上一頁</button><span class="pill" id="pageIndicator">1 / 1</span><button class="btn secondary small" id="nextPage">下一頁</button></div></div>
 <div class="textbook-notes">
 <div class="textbook-note"><b>這頁重點</b><p id="pageSummary"></p></div>
 <div class="textbook-note"><b>關鍵詞</b><div class="keyword-row" id="pageKeywords"></div></div>
 <div class="textbook-note"><b>老師會問</b><p id="pageQuestion"></p></div>
 <div class="textbook-note"><b>這頁練習</b><p id="pagePractice"></p></div>
-<div class="live-stage" id="liveStage" data-state="idle">
-<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live tutor</span></div>
-<div class="live-status" id="liveStatus">按開始後，老師會看目前這一頁並直接帶你學。</div>
-<div class="live-controls"><button class="live-btn" id="startLive">開始陪讀</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
-<div class="live-callbar"><div class="live-timer" id="liveTimer">0:00</div><div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div><label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label></div>
-<div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
-<details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
-</div>
-</div>
-</section>
-</div>
+<section class="live-stage" id="liveStage" data-state="idle"><div class="live-top"><span id="liveBadge">READY</span><span id="liveModel">Live tutor</span></div><h3 class="live-title">陪讀老師</h3><p class="live-sub">老師會直接看目前這一頁，換頁時也會跟著切換。</p><div class="live-status" id="liveStatus">按開始後，老師會從這一頁帶你學。</div><div class="live-controls"><button class="live-btn" id="startLive">開始陪讀</button><button class="live-btn end" id="stopLive" hidden>結束</button></div><div class="live-callbar"><div class="live-timer" id="liveTimer">0:00</div><div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div><label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label></div><div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div><details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details></section>
+</div></div>
+</section></div>
 </main>
-<div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="product-bottom-nav"><div class="inner"><a class="product-nav-item" href="teacher.html#teacherHome"><b>⌂</b><span>首頁</span></a><a class="product-nav-item active" href="teacher.html#teacherLearn"><b>◇</b><span>學習</span></a><a class="product-nav-item" href="teacher.html#teacherLive"><b>◌</b><span>老師</span></a><a class="product-nav-item" href="settings.html"><b>○</b><span>我的</span></a></div></nav>
-<div class="toast" id="toast"></div>
-<script src="crew.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script>
-<script src="features/shared/db.js?v={{ site.github.build_revision }}"></script>
-<script src="features/shared/gemini-vision.js?v={{ site.github.build_revision }}"></script>
-<script src="features/teacher/textbook/store.js?v={{ site.github.build_revision }}"></script>
-<script src="features/teacher/textbook/lesson.js?v={{ site.github.build_revision }}"></script>
-<script src="features/teacher/textbook/page.js?v={{ site.github.build_revision }}"></script>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a><a class="navitem active" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a><a class="navitem" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a><a class="navitem" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a><a class="navitem" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
+</div></nav><div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script src="features/shared/db.js?v={{ site.github.build_revision }}"></script><script src="features/shared/gemini-vision.js?v={{ site.github.build_revision }}"></script><script src="features/teacher/textbook/store.js?v={{ site.github.build_revision }}"></script><script src="features/teacher/textbook/lesson.js?v={{ site.github.build_revision }}"></script><script src="features/teacher/textbook/page.js?v={{ site.github.build_revision }}"></script>
 </body></html>

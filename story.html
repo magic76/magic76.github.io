@@ -1,123 +1,33 @@
 ---
 ---
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#f7f7f4">
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
 <title>Crew Story</title>
-<link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}">
-<link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}">
 <link rel="stylesheet" href="features/story/styles.css?v={{ site.github.build_revision }}">
-</head>
-<body class="product-page story-product">
-<header class="product-topbar"><div class="shell inner">
-<div class="product-brand"><a class="product-back" href="index.html" aria-label="回 Crew 首頁">‹</a><div class="product-title"><strong>Crew Story</strong><small>AI 互動說書人</small></div></div>
-<a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a>
-</div></header>
+</head><body class="story-theme">
+<header class="app-header"><div class="shell inner"><div class="app-brand"><span class="app-mark story">S</span><div class="app-title"><strong>Crew Story</strong><small>故事創作</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="kicker">Crew Story</span><h1>今天想讀哪個故事？</h1><p>從書架繼續、建立一本新故事，或直接讓阿奇陪你一起講。</p></section>
+<nav class="subnav" aria-label="Story 分頁"><a class="active" href="#shelf">書架</a><a href="#create">創作</a><a href="#archie">阿奇</a></nav>
 
-<main class="shell product-main">
-<section class="product-hero" id="storyHome">
-<span class="product-kicker">Crew Story</span>
-<h1>今天想聽哪一本故事？</h1>
-<p>從書架繼續、用照片建立一本新故事，或直接讓阿奇陪你一起講。</p>
-</section>
+<section class="section" id="shelf"><div class="section-head"><h2>繼續故事</h2><small>最近閱讀</small></div><div id="storyRecent"><div class="notice"><div><b>正在讀取書架…</b><p>故事只保存在這台裝置。</p></div></div></div></section>
 
-<section class="product-section">
-<div class="product-section-head"><h2>繼續故事</h2><small>最近閱讀</small></div>
-<div id="storyRecent"><div class="story-home-empty"><strong>正在讀取書架…</strong><span>故事只保存在這台裝置。</span></div></div>
-</section>
+<section class="section" id="create"><div class="section-head"><h2>故事工具</h2><small>讀與創作</small></div><div class="grid two-col">
+<a class="feature-card story-shelf-card" href="story-shelf.html"><span class="feature-icon" data-icon="story"></span><strong>我的故事書架</strong><span>保存、繼續與逐頁閱讀</span></a>
+<a class="feature-card story-create-card" href="story-create.html"><span class="feature-icon" data-icon="plus"></span><strong>建立新故事</strong><span>一句靈感 + 多張照片</span></a>
+</div></section>
 
-<section class="product-section">
-<div class="product-section-head"><h2>故事</h2><small>書架與創作</small></div>
-<div class="product-grid">
-<a class="product-tile shelf" href="story-shelf.html"><span class="product-tile-icon">▣</span><strong>我的故事書架</strong><span>保存、繼續與逐頁閱讀</span></a>
-<a class="product-tile create" href="story-create.html"><span class="product-tile-icon">＋</span><strong>建立新故事</strong><span>一句靈感 + 多張照片</span></a>
-</div>
-</section>
-
-<section class="product-section" id="storyTalk">
-<div class="product-section-head"><h2>阿奇</h2><small>互動說故事</small></div>
-<div class="product-teacher-card product-card story-archie-card">
-<div class="product-avatar">A</div>
-<h2>阿奇準備好說故事了</h2>
-<p>直接開始聽，也可以中途插話、改角色、改劇情，或把照片放進故事裡。</p>
-<div class="teacher-live-actions">
-<button class="product-primary" id="storyHeroStart">開始說故事</button>
-<button class="teacher-quick" id="storyQuickSettings">故事設定</button>
-</div>
-</div>
-</section>
-
-<section class="live-stage product-section" id="liveStage" data-state="idle">
-<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live storyteller</span></div>
-<h2 class="live-title">互動說故事</h2>
-<p class="live-sub">阿奇會先講一小段，再把空間留給你。任何時候開口都可以改變故事。</p>
-
-<label class="label">今天想聽什麼？</label>
-<input class="field" id="topic" value="一隻怕水的小恐龍，在會發光的海邊找到一把會唱歌的雨傘">
-
-<div class="live-orb"><span>A</span></div>
-<div class="live-status" id="liveStatus">按開始，阿奇會立刻開場。</div>
-<div class="live-controls"><button class="live-btn" id="startLive">開始聽故事</button><button class="live-btn end" id="stopLive" hidden>結束故事</button></div>
-
-<div class="live-callbar">
-<div class="live-timer" id="liveTimer">0:00</div>
-<div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷阿奇</button></div>
-<label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label>
-</div>
-
-<div class="live-presets"><button data-live-prompt="請自然繼續故事，下一段加入一個意外的小轉折。">繼續</button><button data-live-prompt="從現在開始讓故事更搞笑，但保留目前角色與世界觀。">變搞笑</button><button data-live-prompt="先停一下，給我兩個簡短選項，讓我決定下一步。">讓我選</button><button data-live-prompt="加入一個新角色，但不要破壞目前主線。">新角色</button><button data-live-prompt="把現在這一幕收尾，然後開啟下一個小章節。">下一章</button></div>
-
-<details class="live-settings" id="storySettings">
-<summary>故事設定</summary>
-<div class="live-setup-grid">
-<div><label class="label">風格</label><select class="field" id="style"><option>溫暖冒險</option><option>搞笑</option><option>睡前故事</option><option>神秘</option><option>奇幻</option></select></div>
-<div><label class="label">敘事節奏</label><select class="field" id="pace"><option value="short">短段落 · 常停下</option><option value="normal" selected>自然段落 · 可插話</option><option value="long">長一點 · 少停頓</option></select></div>
-<div><label class="label">互動頻率</label><select class="field" id="interaction"><option value="high">常讓我選</option><option value="medium" selected>偶爾讓我選</option><option value="low">以聽故事為主</option></select></div>
-<div><label class="label">阿奇音色</label><select class="field" id="voice"><option value="Aoede">Aoede</option><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
-<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次故事</button></div>
-</div>
-<div class="pref-note">上次故事會只保存在這台裝置，可以直接從最後幾輪繼續。</div>
-</details>
-
-<div class="vision-box">
-<div class="vision-head"><strong>把一張圖放進故事</strong><span>故事書 · 插圖 · 手繪 · 照片</span></div>
-<div class="vision-actions"><button class="vision-btn" id="takeStoryPhoto">拍照</button><button class="vision-btn" id="pickStoryPhoto">從相簿選</button></div>
-<input id="storyCameraInput" type="file" accept="image/*" capture="environment" hidden>
-<input id="storyGalleryInput" type="file" accept="image/*" hidden>
-<div class="vision-preview" id="storyVisionPreview"><img id="storyVisionImage" alt="準備送給阿奇的圖片"><div><b id="storyVisionTitle">圖片已準備</b><small id="storyVisionStatus">開始 Live 後會自動成為故事素材。</small></div></div>
-</div>
-
-<div class="live-transcript"><div class="live-line user" id="userLine"><small>你插話</small><span></span></div><div class="live-line" id="aiLine"><small>阿奇</small><span></span></div></div>
-<details class="live-history"><summary><span>完整故事對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
-</section>
-
-<section class="session-result" id="storyResultCard" hidden>
-<div class="session-result-top"><div><span class="eyebrow"><i></i> Story Progress</span><h3>故事講到哪裡了</h3></div><span class="result-status" id="storyResultStatus"></span></div>
-<div class="session-result-body" id="storyResultBody"></div>
-<div class="session-result-actions"><button class="btn secondary small" id="copyStoryResult">複製故事進度</button></div>
-</section>
-
-<details class="secondary-zone"><summary>其他工具</summary>
-<div class="panel" style="margin-top:14px"><h3>文字故事</h3><p class="meta">需要複製完整文字時再用。</p><div class="actions"><button class="btn secondary" id="textStory">產生一篇短故事</button></div><div class="result empty" id="textResult">互動說故事才是主要入口。</div></div>
-</details>
+<section class="section" id="archie"><div class="section-head"><h2>阿奇</h2><small>互動說故事</small></div>
+<div class="person-card card"><div class="avatar">A</div><h2>阿奇準備好了</h2><p>直接開始聽，也可以中途插話、改角色、改劇情，或把照片放進故事裡。</p><a class="primary-wide" href="story-live.html">開始說故事</a></div></section>
 </main>
-
-<div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="product-bottom-nav"><div class="inner">
-<a class="product-nav-item active" href="#storyHome"><b>⌂</b><span>首頁</span></a>
-<a class="product-nav-item" href="story-shelf.html"><b>▣</b><span>書架</span></a>
-<a class="product-nav-item" href="story-create.html"><b>＋</b><span>創作</span></a>
-<a class="product-nav-item" href="settings.html"><b>○</b><span>設定</span></a>
-</div></nav>
-<div class="toast" id="toast"></div>
-<script src="crew.js?v={{ site.github.build_revision }}"></script>
-<script src="features/shared/db.js?v={{ site.github.build_revision }}"></script>
-<script src="features/story/shelf/store.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live.js?v={{ site.github.build_revision }}"></script>
-<script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script>
-<script src="features/story/live/page.js?v={{ site.github.build_revision }}"></script>
-<script src="features/story/home/page.js?v={{ site.github.build_revision }}"></script>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a>
+<a class="navitem active" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
+</div></nav><div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="features/shared/db.js?v={{ site.github.build_revision }}"></script><script src="features/story/shelf/store.js?v={{ site.github.build_revision }}"></script><script src="features/story/home/page.js?v={{ site.github.build_revision }}"></script>
 </body></html>
