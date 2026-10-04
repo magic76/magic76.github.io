@@ -1,11 +1,11 @@
-import{useEffect,useMemo,useState}from"react";import{Link,useNavigate,useParams}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{builtInStory,StoryBook}from"./catalog";
+import{useEffect,useMemo,useState}from"react";import{Link,useNavigate,useParams}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{builtInStory,StoryBook,StoryPage}from"./catalog";
 
 export function StoryReaderPage(){
  const{id=""}=useParams(),[book,setBook]=useState<StoryBook|null|undefined>(undefined),[index,setIndex]=useState(0),[playing,setPlaying]=useState(false),nav=useNavigate();
  useEffect(()=>{void ensureStoryServices().then(async()=>{const key=decodeURIComponent(id),stored=await window.CrewStoryStore!.get(key),b=(stored||builtInStory(key)) as StoryBook|null;setBook(b);if(b)setIndex(Math.max(0,Math.min(Number(b.currentPage)||0,(b.pages||[]).length-1)))})},[id]);
  useEffect(()=>{if(book&&book.sourceType!=="built-in"){book.currentPage=index;void window.CrewStoryStore?.save(book as any)}},[book,index]);
  useEffect(()=>()=>window.speechSynthesis?.cancel(),[]);
- const page=book?.pages?.[index]||{},image=book?(book.images||[])[Number(page.imageIndex)]:null;
+ const page:StoryPage=book?.pages?.[index]||{text:""},image=book?(book.images||[])[Number(page.imageIndex)]:null;
  const spoken=useMemo(()=>[page.text,page.dialogue].filter(Boolean).join(" "),[page.text,page.dialogue]);
  if(book===undefined)return <div className="spa-loading">正在打開故事…</div>;
  if(!book)return <div className="story-empty">找不到這本故事。</div>;
