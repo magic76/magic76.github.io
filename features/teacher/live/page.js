@@ -146,6 +146,17 @@ teacherUI=CrewLiveUI.bind({
   if(pendingTeacherImage&&sendTeacherImage(pendingTeacherImage))pendingTeacherImage=null;
  }
 });
+var teacherHeroStart=document.getElementById("teacherHeroStart");
+if(teacherHeroStart)teacherHeroStart.onclick=function(){
+ document.getElementById("liveStage").scrollIntoView({behavior:"smooth",block:"center"});
+ setTimeout(function(){if(teacherUI)teacherUI.start()},180);
+};
+var teacherQuickSettings=document.getElementById("teacherQuickSettings");
+if(teacherQuickSettings)teacherQuickSettings.onclick=function(){
+ var settings=document.getElementById("teacherSettings");
+ if(settings){settings.open=true;settings.scrollIntoView({behavior:"smooth",block:"center"})}
+};
+
 document.getElementById("coachGo").onclick=async function(){
  if(!CrewAI.requireKey())return;
  var input=document.getElementById("coachInput").value.trim(),res=document.getElementById("coachResult");
