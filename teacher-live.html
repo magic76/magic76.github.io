@@ -1,0 +1,36 @@
+---
+---
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
+<title>Crew Teacher · Emma</title>
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/teacher/styles.css?v={{ site.github.build_revision }}">
+</head><body class="teacher-theme session-page">
+<header class="app-header"><div class="shell inner"><div class="app-brand"><a class="back-btn" href="teacher.html" aria-label="回 Crew Teacher">‹</a><div class="app-title"><strong>Emma</strong><small>Crew Teacher</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="session-shell">
+<section class="session-person"><div class="avatar"><img src="https://raw.githubusercontent.com/magic76/crew-teacher/main/app/src/main/res/drawable-nodpi/teacher_emma.webp" alt="Emma"></div><h1>Emma 老師</h1><p>直接說就好，我會先開口。</p></section>
+<section class="live-stage" id="liveStage" data-state="idle">
+<div class="live-top"><span id="liveBadge">READY</span><span id="liveModel">Live voice</span></div>
+<h2 class="live-title">1 對 1 語言練習</h2><p class="live-sub">可以隨時插話；設定、圖片與完整對話都放在次層。</p>
+<div class="live-orb"><span>E</span></div><div class="live-status" id="liveStatus">按開始後，Emma 會先開口。</div>
+<div class="live-controls"><button class="live-btn" id="startLive">開始聊天</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
+<div class="live-callbar"><div class="live-timer" id="liveTimer">0:00</div><div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div><label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label></div>
+<div class="live-presets"><button data-live-prompt="換一個更生活化的話題，直接問我一個短問題。">換話題</button><button data-live-prompt="請糾正我剛剛最明顯的一個錯誤，給我正確說法後讓我重說一次。">糾正我</button><button data-live-prompt="現在進入角色扮演，請你扮演這個情境裡的真人角色，不要像老師講解。">角色扮演</button><button data-live-prompt="請把接下來的語速再慢一點，但保持自然發音。">說慢一點</button></div>
+<details class="live-settings" id="teacherSettings"><summary>練習設定</summary><div class="live-setup-grid">
+<div><label class="label">我要練</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
+<div><label class="label">情境</label><select class="field" id="scene"><option>自由對話</option><option>旅遊</option><option>工作</option><option>面試</option><option>餐廳</option><option>飯店</option></select></div>
+<div><label class="label">程度</label><select class="field" id="level"><option value="A1-A2">初級 · A1–A2</option><option value="B1-B2" selected>中級 · B1–B2</option><option value="C1+">進階 · C1+</option></select></div>
+<div><label class="label">老師語速</label><select class="field" id="pace"><option value="slow">慢一點</option><option value="normal" selected>正常</option><option value="fast">自然偏快</option></select></div>
+<div><label class="label">糾錯</label><select class="field" id="correction"><option value="light">輕度</option><option value="normal" selected>即時</option><option value="strict">嚴格</option></select></div>
+<div><label class="label">口音</label><select class="field" id="accent"><option>自然 / 不指定</option><option>美式</option><option>英式</option><option>澳洲</option></select></div>
+<div><label class="label">老師音色</label><select class="field" id="voice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次練習</button></div></div><div class="pref-note">偏好會保存在這台裝置。</div></details>
+<div class="vision-box"><div class="vision-head"><strong>讓 Emma 看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div><div class="vision-actions"><button class="vision-btn" id="takeTeacherPhoto">拍照</button><button class="vision-btn" id="pickTeacherPhoto">從相簿選</button></div><input id="teacherCameraInput" type="file" accept="image/*" capture="environment" hidden><input id="teacherGalleryInput" type="file" accept="image/*" hidden><div class="vision-preview" id="teacherVisionPreview"><img id="teacherVisionImage" alt=""><div><b id="teacherVisionTitle">圖片已準備</b><small id="teacherVisionStatus">開始後會自動送給老師。</small></div></div></div>
+<div class="live-transcript"><div class="live-line user" id="userLine"><small>你剛剛說</small><span></span></div><div class="live-line" id="aiLine"><small>Emma</small><span></span></div></div>
+<details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
+</section>
+<section class="session-result" id="teacherResultCard" hidden><div class="session-result-top"><h3>這次學到了什麼</h3><span class="result-status" id="teacherResultStatus"></span></div><div class="session-result-body" id="teacherResultBody"></div><div class="actions"><button class="btn secondary small" id="copyTeacherResult">複製成果</button></div></section>
+<details class="secondary-zone" id="coachTool"><summary>一句話表達教練</summary><div class="panel" style="margin-top:10px"><label class="label">你想怎麼說？</label><textarea class="field" id="coachInput" placeholder="例如：我想問飯店能不能晚一點退房"></textarea><div class="actions"><button class="btn secondary" id="coachGo">快速修正</button></div><div class="result empty" id="coachResult">結果會出現在這裡。</div></div></details>
+</main><div class="toast" id="toast"></div>
+<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script src="features/teacher/live/page.js?v={{ site.github.build_revision }}"></script>
+</body></html>
