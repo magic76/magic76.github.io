@@ -6,6 +6,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;teacherReport?:boolean;
 };
+function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務").replace(/models\\/[^\\s]+/gi,"語音服務")}
 export function useLiveSession(config:Config){
  const configRef=useRef(config);configRef.current=config;
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
@@ -37,17 +38,17 @@ export function useLiveSession(config:Config){
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     manualInterruptOnly:true,maxLiveAttempts:2,maxResumeAttempts:2,
-    onStatus:setStatus,
+    onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>setState(v?"speaking":"listening"),
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:setInput,onOutputTranscript:setOutput,
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
-    onError:e=>{setState("error");setStatus(e.message)},
+    onError:e=>{setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{const item=snapshot(info?.status||"terminal");sessionRef.current=null;void finish(item)}
    });
    sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
-  }catch(e){sessionRef.current=null;setState("error");setStatus(e instanceof Error?e.message:String(e))}
+  }catch(e){sessionRef.current=null;setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async()=>{const s=sessionRef.current;if(!s)return;setState("ending");setStatus("正在結束…");const item=snapshot("user-stop");try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}finally{sessionRef.current=null}await finish(item)},[finish,snapshot]);
  const interrupt=useCallback(()=>sessionRef.current?.interrupt()??false,[]);
