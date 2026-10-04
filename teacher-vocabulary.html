@@ -1,0 +1,37 @@
+---
+---
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
+<title>Crew Teacher · 單字練習</title>
+<link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/teacher/styles.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/teacher/practice/styles.css?v={{ site.github.build_revision }}">
+</head><body class="teacher-theme">
+<header class="app-header"><div class="shell inner"><div class="app-brand"><a class="back-btn" href="teacher.html" aria-label="回 Crew Teacher">‹</a><div class="app-title"><strong>單字練習</strong><small>Crew Teacher</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="teacher-practice-head"><div><span class="kicker">Vocabulary</span><h1>快速作答，難度跟著你走</h1><p>答對會往上探測；答錯會停留一下，讓你看例句並重聽發音。</p></div><span class="practice-stat" id="levelBadge">估算中</span></section>
+<section class="section panel">
+<div class="row" style="justify-content:space-between"><div><strong>今日進度</strong><div class="meta" id="vocabStatus">0 / 20</div></div><span class="pill" id="streakBadge">0 連擊</span></div>
+<div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+</section>
+<section class="section quiz-card">
+<div class="quiz-meta"><span class="pill" id="wordLevel">A1</span><span class="pill" id="wordTopic">日常</span></div>
+<div class="quiz-word" id="wordText">ready</div>
+<button class="btn secondary small" id="speakWord">聽發音</button>
+<p class="quiz-example" id="wordExample">準備題目中…</p>
+<div class="quiz-list" id="choices"></div>
+<div class="quiz-feedback" id="feedback">選出最接近的中文意思。</div>
+</section>
+</main>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a>
+<a class="navitem active" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a>
+<a class="navitem" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
+</div></nav><div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script>
+<script src="crew.js?v={{ site.github.build_revision }}"></script>
+<script src="features/teacher/vocabulary/page.js?v={{ site.github.build_revision }}"></script>
+</body></html>
