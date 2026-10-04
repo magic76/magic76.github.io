@@ -377,7 +377,7 @@
     var ctx=this.outputContext;
     if(!ctx||!ctx.audioWorklet||typeof ctx.audioWorklet.addModule!=="function")return false;
     try{
-      await ctx.audioWorklet.addModule(this.options.outputWorkletUrl||"crew-live-output-worklet.js?v=20261004a");
+      await ctx.audioWorklet.addModule(this.options.outputWorkletUrl||"crew-live-output-worklet.js?v=20261004b");
       var node=this._deps.createAudioWorkletNode(ctx,"crew-live-output",{
         numberOfInputs:0,
         numberOfOutputs:1,
