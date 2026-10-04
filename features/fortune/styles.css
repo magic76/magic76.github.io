@@ -22,3 +22,15 @@
 .fortune-ai{white-space:pre-wrap;line-height:1.7;font-size:14px}
 .fortune-history{display:grid;gap:8px}
 @media(max-width:800px){.fortune-mode-grid{grid-template-columns:1fr}.fortune-reading-grid{grid-template-columns:1fr}.fortune-facts,.fortune-planets{grid-template-columns:1fr}.fortune-pillars{grid-template-columns:repeat(2,1fr)}}
+
+/* App-parity home shell */
+body.fortune-product{--product-accent:#6a5ae0;--product-accent-2:#8178f4;--product-soft:#eeecff}
+.fortune-home-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fortune-home-mode{padding:16px;min-height:150px;background:#fff;border:1px solid var(--product-line);border-radius:20px;display:flex;flex-direction:column}
+.fortune-home-mode .mode-icon{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-weight:900}
+.fortune-home-mode strong{font-size:15px;margin-top:auto;padding-top:18px}.fortune-home-mode span{font-size:11px;line-height:1.45;color:var(--product-muted);margin-top:4px}
+.fortune-home-mode.bazi .mode-icon{background:#fff3e8;color:#c77725}.fortune-home-mode.tarot .mode-icon{background:#eaf7f0;color:#2ba471}.fortune-home-mode.vedic .mode-icon{background:#eaf2ff;color:#3f78d7}
+.fortune-history-list{display:grid;gap:8px}.fortune-history-row{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:13px 14px;background:#fff;border:1px solid var(--product-line);border-radius:17px}.fortune-history-mark{width:10px;height:10px;border-radius:50%;background:var(--product-accent)}.fortune-history-mark.bazi{background:#c77725}.fortune-history-mark.tarot{background:#2ba471}.fortune-history-mark.vedic{background:#3f78d7}.fortune-history-row strong{display:block;font-size:13px}.fortune-history-row small{display:block;color:var(--product-muted);font-size:10px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px}.fortune-history-row>b{color:#aaa;font-size:20px}
+.fortune-home-empty{padding:16px;background:#fff;border:1px dashed var(--product-line);border-radius:18px}.fortune-home-empty strong{display:block;font-size:13px}.fortune-home-empty span{display:block;color:var(--product-muted);font-size:11px;margin-top:4px}
+.fortune-teacher-card .product-avatar{background:#eeecff;color:#6a5ae0}.fortune-teacher-card .product-primary{background:#6a5ae0}
+@media(max-width:700px){.fortune-home-grid{grid-template-columns:1fr}.fortune-home-mode{min-height:112px}.fortune-home-mode strong{padding-top:14px}}
