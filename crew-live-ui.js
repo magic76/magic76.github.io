@@ -66,6 +66,101 @@
     area.remove();
   }
 
+  function bytesToBase64(bytes){
+    var binary="",chunk=0x8000;
+    for(var i=0;i<bytes.length;i+=chunk){
+      binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunk,bytes.length)));
+    }
+    return btoa(binary);
+  }
+
+  async function prepareImage(file,options){
+    options=options||{};
+    if(!file||!/^image\//i.test(file.type||""))throw new Error("請選擇圖片檔");
+    var maxSide=Math.max(480,Number(options.maxSide)||1600);
+    var quality=Math.max(.45,Math.min(.92,Number(options.quality)||.82));
+    var source=null,objectUrl="";
+    try{
+      if(global.createImageBitmap){
+        try{
+          source=await global.createImageBitmap(file,{imageOrientation:"from-image"});
+        }catch(_){
+          try{source=await global.createImageBitmap(file);}catch(__){}
+        }
+      }
+      if(!source){
+        objectUrl=URL.createObjectURL(file);
+        source=await new Promise(function(resolve,reject){
+          var img=new Image();
+          img.onload=function(){resolve(img)};
+          img.onerror=function(){reject(new Error("圖片讀取失敗"))};
+          img.src=objectUrl;
+        });
+      }
+
+      var width=source.width||source.naturalWidth||1;
+      var height=source.height||source.naturalHeight||1;
+      var scale=Math.min(1,maxSide/Math.max(width,height));
+      var outW=Math.max(1,Math.round(width*scale));
+      var outH=Math.max(1,Math.round(height*scale));
+      var canvas=document.createElement("canvas");
+      canvas.width=outW;canvas.height=outH;
+      var ctx=canvas.getContext("2d",{alpha:false});
+      ctx.fillStyle="#fff";ctx.fillRect(0,0,outW,outH);
+      ctx.drawImage(source,0,0,outW,outH);
+
+      var blob=await new Promise(function(resolve,reject){
+        canvas.toBlob(function(value){
+          if(value)resolve(value);else reject(new Error("圖片壓縮失敗"));
+        },"image/jpeg",quality);
+      });
+      var bytes=new Uint8Array(await blob.arrayBuffer());
+      var base64=bytesToBase64(bytes);
+      return {
+        data:base64,
+        mimeType:"image/jpeg",
+        preview:"data:image/jpeg;base64,"+base64,
+        width:outW,
+        height:outH,
+        bytes:bytes.byteLength,
+        name:file.name||"photo.jpg"
+      };
+    }finally{
+      if(source&&typeof source.close==="function"){
+        try{source.close()}catch(_){}
+      }
+      if(objectUrl){
+        try{URL.revokeObjectURL(objectUrl)}catch(_){}
+      }
+    }
+  }
+
+  function patchSession(pageKey,ts,patch){
+    patch=patch||{};
+    var last=readLast(pageKey);
+    var updatedLast=null;
+    if(last&&(!ts||last.ts===ts)){
+      updatedLast=Object.assign({},last,patch);
+      writeLast(pageKey,updatedLast);
+    }
+
+    try{
+      var key="crew_history_"+pageKey;
+      var arr=JSON.parse(localStorage.getItem(key)||"[]");
+      var changed=false;
+      arr=arr.map(function(item){
+        if(!changed&&item&&(!ts||item.ts===ts)){
+          changed=true;
+          return Object.assign({},item,patch);
+        }
+        return item;
+      });
+      if(changed)localStorage.setItem(key,JSON.stringify(arr));
+    }catch(_){}
+
+    return updatedLast;
+  }
+
   function bind(config){
     config=config||{};
     var pageKey=config.pageKey||"live";
@@ -163,7 +258,7 @@
     }
 
     function saveSession(reason){
-      if(saved||!latestTurns.length)return;
+      if(saved||!latestTurns.length)return null;
       saved=true;
       var snapshot={
         title:titleForSession(),
@@ -177,6 +272,10 @@
       writeLast(pageKey,snapshot);
       if(global.CrewAI&&CrewAI.historyAdd)CrewAI.historyAdd(pageKey,snapshot);
       if(lastSessionBtn)lastSessionBtn.hidden=false;
+      if(typeof config.onSessionSaved==="function"){
+        try{config.onSessionSaved(snapshot)}catch(_){}
+      }
+      return snapshot;
     }
 
     function restore(){
@@ -354,6 +453,8 @@
   global.CrewLiveUI={
     bind:bind,
     last:readLast,
+    patchSession:patchSession,
+    prepareImage:prepareImage,
     durationText:durationText,
     transcriptText:transcriptText
   };
