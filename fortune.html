@@ -32,23 +32,26 @@ birth.value=localStorage.getItem("crew_birth_date")||"";birthTime.value=localSto
 [birth,birthTime,city].forEach(function(el){el.onchange=function(){localStorage.setItem("crew_birth_date",birth.value);localStorage.setItem("crew_birth_time",birthTime.value);localStorage.setItem("crew_birth_city",city.value)}});
 var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
 function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"老師說話中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
+function restoreControls(){startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;stopBtn.disabled=false;modelEl.textContent="Live teacher"}
+function handleState(s){setState(s);if(s==="ready"||s==="speaking"){startBtn.hidden=true;stopBtn.hidden=false;stopBtn.disabled=false}else if(s==="connecting"||s==="requesting-mic"){startBtn.disabled=true}else if(s==="error"){startBtn.disabled=true}}
 function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
 function profile(){return "出生日期："+birth.value+"；出生時間："+(birthTime.value||"未提供")+"；出生城市："+(city.value||"未提供")+"；主題："+document.getElementById("focus").value}
 function fortuneSystem(){return "你是 Crew Fortune 的 Live 命理老師。以使用者提供的出生資料與當下問題做娛樂性、自我反思型對話。不要宣稱命定事實，不做醫療、法律、投資或重大決策指令。語氣成熟、直接、有洞察。一次只講 2-4 句，先講一個重點，再讓使用者追問。使用者插話時立即回應，不要長篇報告。";}
 function openingPrompt(){return profile()+"。現在請先用繁體中文講一個和「"+document.getElementById("focus").value+"」最相關的觀察，控制在 3 句內，最後問我想先深入哪一點。";}
 startBtn.onclick=async function(){
  if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;startBtn.disabled=true;setState("requesting-mic");
- live=new CrewLive.Session({system:fortuneSystem(),openingPrompt:openingPrompt(),voice:"Charon",
-  onStatus:function(s){statusEl.textContent=s},onState:setState,
+ live=new CrewLive.Session({system:fortuneSystem(),openingPrompt:openingPrompt(),voice:"Charon",maxLiveAttempts:2,
+  onStatus:function(s){statusEl.textContent=s},onState:handleState,
   onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
   onInputTranscript:function(t){setTranscript(userLine,t)},onOutputTranscript:function(t){setTranscript(aiLine,t)},
   onTurnComplete:function(turn){if(turn.output)CrewAI.historyAdd("fortune",{title:document.getElementById("focus").value+" Live",preview:turn.output.slice(0,120)})},
-  onError:function(e){setState("error");statusEl.textContent="Live 連線問題："+e.message}
+  onError:function(e){statusEl.textContent="Live 連線問題："+e.message},
+  onTerminal:function(){live=null;restoreControls()}
  });
- try{await live.start();modelEl.textContent=live.model;startBtn.hidden=true;stopBtn.hidden=false}catch(e){setState("error");statusEl.textContent=e.message;startBtn.disabled=false}
+ try{await live.start();modelEl.textContent=live.model}catch(e){setState("error");statusEl.textContent=e.message;live=null;restoreControls()}
 };
-stopBtn.onclick=async function(){if(live)await live.stop();live=null;setState("idle");startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;modelEl.textContent="Live teacher";statusEl.textContent="已結束。"};
+stopBtn.onclick=async function(){var session=live;if(!session)return;stopBtn.disabled=true;await session.stop({reason:"user-stop",silentStatus:true});if(live===session)live=null;setState("idle");restoreControls();statusEl.textContent="已結束。"};
 document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始問老師");return}live.sendText(b.dataset.livePrompt)}});
-addEventListener("pagehide",function(){if(live)live.stop()});
+addEventListener("pagehide",function(){if(live)live.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})});
 document.getElementById("textAsk").onclick=async function(){if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;var q=document.getElementById("textQ").value.trim(),res=document.getElementById("textResult");if(!q){CrewAI.toast("先輸入問題");return}CrewAI.busy(this,true,"整理中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call(profile()+"\n問題："+q+"\n請在 180 字內做務實的反思型整理。",{preferLive:false,maxOutputTokens:450})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>
