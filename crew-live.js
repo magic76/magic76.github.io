@@ -862,7 +862,16 @@
       });
     }).catch(function(error){
       self.recovering=false;
-      self._beginRecovery(self.activeAttempt||attempt,"resume-failed",error);
+      var nextIndex=index+1;
+      if(nextIndex<self.models.length&&self.attemptsUsed<self.maxLiveAttempts){
+        self._state("connecting");
+        self._status("續接失敗，改連下一個 Live 模型…");
+        self._connectFrom(nextIndex).catch(function(nextError){
+          self._terminal("error",nextError||error,"Live 續接失敗");
+        });
+        return;
+      }
+      self._terminal("error",error,"Live 續接失敗");
     });
   };
 
