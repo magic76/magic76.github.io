@@ -8,6 +8,6 @@ export default defineConfig({
   build: {
     outDir: "../teacher-app",
     emptyOutDir: true,
-    sourcemap: true
+    sourcemap: false
   }
 });
