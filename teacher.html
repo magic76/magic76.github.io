@@ -1,63 +1,62 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Teacher</title><link rel="stylesheet" href="crew.css"></head><body><header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Crew Teacher</span><h1>語言教練</h1><p class="lead">不是只做一題。你可以修一句話、讓 AI 出題，或直接聊幾輪。</p></section>
-<div class="tabs"><button class="tab active" data-tab="coach">一句話教練</button><button class="tab" data-tab="challenge">情境挑戰</button><button class="tab" data-tab="chat">短對話</button><button class="tab" data-tab="history">歷史</button></div>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Teacher Live</title><link rel="stylesheet" href="crew.css"></head><body>
+<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell page">
+<section class="hero"><span class="eyebrow"><i></i> Crew Teacher</span><h1>直接跟老師說話</h1><p class="lead">選一個情境，按開始。老師會先開口，你直接回答；說錯時會自然修正，不用先打字。</p></section>
 
-<section class="view active section" id="coach"><div class="panel"><div class="two"><div><label class="label">我要學</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div><div><label class="label">用途</label><select class="field" id="purpose"><option>自然口語</option><option>旅遊</option><option>工作</option><option>禮貌表達</option></select></div></div>
-<label class="label">你想怎麼說？</label><textarea class="field" id="coachInput" placeholder="例如：我想問飯店能不能晚一點退房"></textarea><div class="actions"><button class="btn" id="coachGo">幫我說自然一點</button></div><div class="result empty" id="coachResult">結果會出現在這裡。</div><div class="actions"><button class="btn secondary" id="speakResult">朗讀主要句子</button></div></div></section>
+<section class="live-stage" id="liveStage" data-state="idle">
+<div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live voice</span></div>
+<h2 class="live-title">1 對 1 即時語言練習</h2><p class="live-sub">跟 APK 一樣，只有按下開始後才連 Gemini Live。連上後維持同一個 session，直到你按結束。</p>
+<div class="two" style="margin-top:16px">
+<div><label class="label" style="color:#c8c8c0">我要練</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
+<div><label class="label" style="color:#c8c8c0">情境</label><select class="field" id="scene"><option>自由對話</option><option>旅遊</option><option>工作</option><option>面試</option><option>餐廳</option><option>飯店</option></select></div>
+</div>
+<div class="live-orb"><span>T</span></div>
+<div class="live-status" id="liveStatus">按開始後，老師會先開口。</div>
+<div class="live-controls"><button class="live-btn" id="startLive">開始 Live 對話</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
+<div class="live-presets"><button data-live-prompt="換一個更生活化的話題，直接問我一個短問題。">換話題</button><button data-live-prompt="請糾正我剛剛最明顯的一個錯誤，然後讓我重說一次。">糾正我</button><button data-live-prompt="請稍微說慢一點，但保持自然。">說慢一點</button></div>
+<div class="live-transcript"><div class="live-line user" id="userLine"><small>你剛剛說</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
+<div class="live-note">麥克風只在 Live session 期間使用。離開頁面或按「結束」會關閉。</div>
+</section>
 
-<section class="view section" id="challenge"><div class="panel"><div class="row"><select class="field" id="challengeLevel" style="max-width:150px"><option>A2</option><option selected>B1</option><option>B2</option></select><button class="btn" id="newChallenge">AI 出一題</button></div><div class="result empty" id="challengeQ">按「AI 出一題」開始。</div><div class="list" id="challengeOptions"></div><div class="result empty" id="challengeExplain">答題後會解釋。</div></div></section>
-
-<section class="view section" id="chat"><div class="panel"><div class="chat" id="chatBox"><div class="bubble ai">告訴我你想練什麼，我會像老師一樣跟你聊幾輪。</div></div><div class="quick-ask"><input id="chatInput" placeholder="例如：陪我練飯店 check-in"><button class="btn" id="chatSend">送出</button></div></div></section>
-
-<section class="view section" id="history"><div class="list" id="teacherHistory"></div></section>
-</main><nav class="bottom-nav"><div class="inner">
+<details class="secondary-zone"><summary>其他工具</summary>
+<div class="panel" style="margin-top:14px"><h3>一句話教練</h3><p class="meta">不方便開麥克風時，再用文字模式。</p>
+<label class="label">你想怎麼說？</label><textarea class="field" id="coachInput" placeholder="例如：我想問飯店能不能晚一點退房"></textarea>
+<div class="actions"><button class="btn secondary" id="coachGo">文字快速修正</button></div><div class="result empty" id="coachResult">結果會出現在這裡。</div></div>
+</details>
+</main>
+<nav class="bottom-nav"><div class="inner">
 <a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem active" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
 <a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
 <a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
 <a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script>
-CrewAI.nav("teacher");var lastSpeak="";
-function tabs(){document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active");if(b.dataset.tab==="history")renderHistory()}})}tabs();
-var q=new URLSearchParams(location.search).get("q");if(q)document.getElementById("coachInput").value=q;
-document.getElementById("coachGo").onclick=async function(){if(!CrewAI.requireKey())return;var input=document.getElementById("coachInput").value.trim();if(!input){CrewAI.toast("先輸入一句話");return}var lang=document.getElementById("lang").value,purpose=document.getElementById("purpose").value,res=document.getElementById("coachResult");CrewAI.busy(this,true,"老師思考中…");res.classList.remove("empty");res.textContent="整理更自然的說法…";try{var out=await CrewAI.call("使用者想表達："+input+"\n目標語言："+lang+"\n用途："+purpose+"\n請用繁體中文回答，格式：\n最自然：...\n更口語：...\n為什麼：...\n只要精簡實用。",{system:"你是 Crew Teacher，專門把使用者的意思改成自然、真的會說出口的外語。",temperature:.5,maxOutputTokens:320});res.textContent=out;lastSpeak=(out.match(/最自然[:：]\s*(.+)/)||[])[1]||"";CrewAI.historyAdd("teacher",{title:input.slice(0,28),preview:out.slice(0,90)})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(this,false)}};
-document.getElementById("speakResult").onclick=function(){if(!lastSpeak){CrewAI.toast("先產生一句話");return}if(!speechSynthesis){CrewAI.toast("瀏覽器不支援朗讀");return}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(lastSpeak);speechSynthesis.speak(u)};
-function parseChallenge(t){
-  var lines=String(t||"").split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
-  function pick(prefix){
-    var x=lines.find(function(line){return line.toUpperCase().indexOf(prefix)===0});
-    return x?x.slice(prefix.length).trim():""
-  }
-  var d={
-    question:pick("Q:"),
-    options:[pick("A:"),pick("B:"),pick("C:")],
-    answer:pick("ANSWER:").toUpperCase(),
-    explanation:pick("WHY:")
-  };
-  if(!d.question||d.options.some(function(x){return !x})||!/^[ABC]$/.test(d.answer))throw new Error("題目格式不完整");
-  d.answer={A:0,B:1,C:2}[d.answer];
-  return d
+</div></nav><div class="toast" id="toast"></div><script src="crew.js"></script><script src="crew-live.js"></script><script>
+CrewAI.nav("teacher");
+var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
+function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"老師說話中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
+function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
+function teacherSystem(){
+ var lang=document.getElementById("lang").value,scene=document.getElementById("scene").value;
+ return "你是 Crew Teacher 的真人感 Live 語言老師。目標語言："+lang+"。情境："+scene+"。規則：老師先開口；一次只說 1-3 句；以目標語言為主；學生卡住才用繁體中文短解釋；學生有明顯錯誤時先自然 recast 正確說法，再讓他重說或回答下一句；不要長篇講課；每回合最後都留一個可直接回答的短問題。";
 }
-document.getElementById("newChallenge").onclick=async function(){
-  if(!CrewAI.requireKey())return;
-  var btn=this,level=document.getElementById("challengeLevel").value,qel=document.getElementById("challengeQ"),ops=document.getElementById("challengeOptions"),exp=document.getElementById("challengeExplain");
-  CrewAI.busy(btn,true,"Live 出題中…");
-  try{
-    var raw=await CrewAI.call(
-      "請出一題實用英文情境選擇題，程度 "+level+"。只能用以下 6 行格式，不要 Markdown：\nQ: 中文題目\nA: 英文選項\nB: 英文選項\nC: 英文選項\nANSWER: A\nWHY: 繁中短解釋",
-      {system:"你是 Crew Teacher。題目自然、實用，而且只有一個最佳答案。",temperature:.8,maxOutputTokens:260}
-    );
-    var d=parseChallenge(raw);
-    qel.classList.remove("empty");qel.textContent=d.question;exp.textContent="先選答案。";
-    ops.innerHTML=d.options.map(function(x,i){return '<button class="list-item" data-i="'+i+'"><strong>'+CrewAI.esc(x)+'</strong><span>›</span></button>'}).join("");
-    ops.querySelectorAll("button").forEach(function(b){b.onclick=function(){var i=Number(b.dataset.i);exp.classList.remove("empty");exp.textContent=(i===d.answer?"答對了。\n":"再看一次。\n")+d.explanation}})
-  }catch(e){
-    qel.textContent="Live 出題失敗：\n"+e.message
-  }finally{
-    CrewAI.busy(btn,false)
-  }
+function openingPrompt(){return "現在開始一對一 Live 練習。請直接用自然的老師語氣先開口，根據「"+document.getElementById("scene").value+"」情境問我第一個簡短問題。";}
+startBtn.onclick=async function(){
+ if(!CrewAI.requireKey())return;
+ startBtn.disabled=true;setState("requesting-mic");
+ live=new CrewLive.Session({
+  system:teacherSystem(),openingPrompt:openingPrompt(),voice:"Kore",
+  onStatus:function(s){statusEl.textContent=s},
+  onState:function(s){setState(s)},
+  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
+  onInputTranscript:function(t){setTranscript(userLine,t)},
+  onOutputTranscript:function(t){setTranscript(aiLine,t)},
+  onTurnComplete:function(turn){if(turn.input||turn.output)CrewAI.historyAdd("teacher",{title:document.getElementById("scene").value+" Live",preview:(turn.input+" / "+turn.output).slice(0,120)})},
+  onError:function(e){setState("error");statusEl.textContent="Live 連線問題："+e.message}
+ });
+ try{await live.start();modelEl.textContent=live.model;startBtn.hidden=true;stopBtn.hidden=false}catch(e){setState("error");statusEl.textContent=e.message;startBtn.disabled=false}
 };
-var chat=[];document.getElementById("chatSend").onclick=sendChat;document.getElementById("chatInput").addEventListener("keydown",function(e){if(e.key==="Enter")sendChat()});
-async function sendChat(){if(!CrewAI.requireKey())return;var inp=document.getElementById("chatInput"),v=inp.value.trim();if(!v)return;var box=document.getElementById("chatBox");chat.push({role:"user",text:v});box.insertAdjacentHTML("beforeend",'<div class="bubble user">'+CrewAI.esc(v)+'</div>');inp.value="";var btn=document.getElementById("chatSend");CrewAI.busy(btn,true,"…");try{var context=chat.slice(-6).map(function(m){return m.role+": "+m.text}).join("\n");var out=await CrewAI.call("以下是對話：\n"+context+"\n請用目標語言為主、必要時用繁中糾正。回覆短一點，最後留一個可以直接回答的問題。",{system:"你是 Crew Teacher 的即時口說老師，不要長篇教學。",temperature:.7,maxOutputTokens:320});chat.push({role:"assistant",text:out});box.insertAdjacentHTML("beforeend",'<div class="bubble ai">'+CrewAI.esc(out)+'</div>');box.scrollTop=box.scrollHeight}catch(e){box.insertAdjacentHTML("beforeend",'<div class="bubble ai">失敗：'+CrewAI.esc(e.message)+'</div>')}finally{CrewAI.busy(btn,false)}}
-function renderHistory(){var a=CrewAI.historyGet("teacher"),el=document.getElementById("teacherHistory");el.innerHTML=a.length?a.map(function(x){return '<div class="list-item"><div><strong>'+CrewAI.esc(x.title)+'</strong><small>'+CrewAI.esc(x.preview)+'</small></div></div>'}).join(""):'<div class="notice"><div><b>還沒有紀錄</b><p>使用一句話教練後會保存在這台裝置。</p></div></div>'}
+stopBtn.onclick=async function(){if(live)await live.stop();live=null;setState("idle");startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;modelEl.textContent="Live voice";statusEl.textContent="已結束。按開始可再開一個新 session。"};
+document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始 Live 對話");return}live.sendText(b.dataset.livePrompt)}});
+addEventListener("pagehide",function(){if(live)live.stop()});
+document.getElementById("coachGo").onclick=async function(){if(!CrewAI.requireKey())return;var input=document.getElementById("coachInput").value.trim(),res=document.getElementById("coachResult");if(!input){CrewAI.toast("先輸入一句話");return}CrewAI.busy(this,true,"修正中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call("目標語言："+document.getElementById("lang").value+"\n使用者想表達："+input+"\n只給：最自然說法 + 一句繁中說明。",{preferLive:false,maxOutputTokens:250})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>
