@@ -415,6 +415,17 @@
 
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt))return;
+
+    // Android can transiently suspend Web Audio when the communication route
+    // changes after getUserMedia. Resume as soon as Gemini audio arrives; the
+    // worklet keeps queued PCM intact until rendering actually starts.
+    if(this.outputContext.state==="suspended"&&this.outputContext.resume){
+      try{
+        var resumeResult=this.outputContext.resume();
+        if(resumeResult&&typeof resumeResult.catch==="function")resumeResult.catch(function(){});
+      }catch(_){}
+    }
+
     var rate=24000;
     var match=String(mime||"").match(/rate=(\d+)/i);
     if(match)rate=Number(match[1])||24000;
@@ -779,6 +790,7 @@
       var finished=false;
       var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
       var socket=new WSCtor(url);
+      try{socket.binaryType="arraybuffer";}catch(_){}
       attempt.socket=socket;
       self.ws=socket;
 
