@@ -3,21 +3,41 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Teacher Live</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
 <header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
 <main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Teacher</span><h1>直接跟老師說話</h1><p class="lead">選一個情境，按開始。老師會先開口，你直接回答；說錯時會自然修正，不用先打字。</p></section>
+<section class="hero"><span class="eyebrow"><i></i> Crew Teacher</span><h1>直接跟老師說話</h1><p class="lead">選情境後就開始。老師會依你的程度、語速與糾錯偏好陪你練，過程中可以直接插話。</p></section>
 
 <section class="live-stage" id="liveStage" data-state="idle">
 <div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live voice</span></div>
-<h2 class="live-title">1 對 1 即時語言練習</h2><p class="live-sub">跟 APK 一樣，只有按下開始後才連 Gemini Live。連上後維持同一個 session，直到你按結束。</p>
-<div class="two" style="margin-top:16px">
+<h2 class="live-title">1 對 1 即時語言練習</h2>
+<p class="live-sub">按開始才連 Gemini Live；連上後同一個 session 持續練習，長通話遇到 GoAway 會自動續接。</p>
+
+<div class="live-setup-grid" style="margin-top:16px">
 <div><label class="label" style="color:#c8c8c0">我要練</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
 <div><label class="label" style="color:#c8c8c0">情境</label><select class="field" id="scene"><option>自由對話</option><option>旅遊</option><option>工作</option><option>面試</option><option>餐廳</option><option>飯店</option></select></div>
+<div><label class="label" style="color:#c8c8c0">程度</label><select class="field" id="level"><option value="A1-A2">初級 · A1–A2</option><option value="B1-B2" selected>中級 · B1–B2</option><option value="C1+">進階 · C1+</option></select></div>
+<div><label class="label" style="color:#c8c8c0">老師語速</label><select class="field" id="pace"><option value="slow">慢一點</option><option value="normal" selected>正常</option><option value="fast">自然偏快</option></select></div>
+<div><label class="label" style="color:#c8c8c0">糾錯</label><select class="field" id="correction"><option value="light">輕度 · 不打斷流暢度</option><option value="normal" selected>即時 · 明顯錯誤就修</option><option value="strict">嚴格 · 用字文法都修</option></select></div>
+<div><label class="label" style="color:#c8c8c0">口音</label><select class="field" id="accent"><option>自然 / 不指定</option><option>美式</option><option>英式</option><option>澳洲</option></select></div>
+<div><label class="label" style="color:#c8c8c0">老師音色</label><select class="field" id="voice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次練習</button></div>
 </div>
+<div class="pref-note">這些偏好會保存在這台裝置，下次不用重選。</div>
+
 <div class="live-orb"><span>T</span></div>
 <div class="live-status" id="liveStatus">按開始後，老師會先開口。</div>
 <div class="live-controls"><button class="live-btn" id="startLive">開始 Live 對話</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
-<div class="live-presets"><button data-live-prompt="換一個更生活化的話題，直接問我一個短問題。">換話題</button><button data-live-prompt="請糾正我剛剛最明顯的一個錯誤，然後讓我重說一次。">糾正我</button><button data-live-prompt="請稍微說慢一點，但保持自然。">說慢一點</button></div>
+
+<div class="live-callbar">
+<div class="live-timer" id="liveTimer">0:00</div>
+<div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div>
+<label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label>
+</div>
+
+<div class="live-presets"><button data-live-prompt="換一個更生活化的話題，直接問我一個短問題。">換話題</button><button data-live-prompt="請糾正我剛剛最明顯的一個錯誤，給我正確說法後讓我重說一次。">糾正我</button><button data-live-prompt="現在進入角色扮演，請你扮演這個情境裡的真人角色，不要像老師講解。">角色扮演</button><button data-live-prompt="請把接下來的語速再慢一點，但保持自然發音。">說慢一點</button></div>
+
 <div class="live-transcript"><div class="live-line user" id="userLine"><small>你剛剛說</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
-<div class="live-note">麥克風只在 Live session 期間使用。離開頁面或按「結束」會關閉。</div>
+
+<details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
+<div class="live-note">Live 期間會保持螢幕喚醒（瀏覽器支援時）。離開頁面或按結束會關閉麥克風與音訊資源。</div>
 </section>
 
 <details class="secondary-zone"><summary>其他工具</summary>
@@ -28,45 +48,80 @@
 </main>
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
 <nav class="bottom-nav"><div class="inner">
-<a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
+<a class="navitem" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem active" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
+<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+</div></nav>
+<div class="toast" id="toast"></div>
+<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("teacher");
-var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
-function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"老師說話中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
-function restoreControls(){startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;stopBtn.disabled=false;modelEl.textContent="Live voice"}
-function handleState(s){setState(s);if(s==="ready"||s==="speaking"){startBtn.hidden=true;stopBtn.hidden=false;stopBtn.disabled=false}else if(s==="connecting"||s==="requesting-mic"){startBtn.disabled=true}else if(s==="error"){startBtn.disabled=true}}
-function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
-function teacherSystem(){
- var lang=document.getElementById("lang").value,scene=document.getElementById("scene").value;
- return "你是 Crew Teacher 的真人感 Live 語言老師。目標語言："+lang+"。情境："+scene+"。規則：老師先開口；一次只說 1-3 句；以目標語言為主；學生卡住才用繁體中文短解釋；學生有明顯錯誤時先自然 recast 正確說法，再讓他重說或回答下一句；不要長篇講課；每回合最後都留一個可直接回答的短問題。";
+var prefIds=["lang","scene","level","pace","correction","accent","voice"];
+prefIds.forEach(function(id){
+ var el=document.getElementById(id),key="crew_teacher_"+id;
+ var saved=localStorage.getItem(key);if(saved)el.value=saved;
+ el.onchange=function(){localStorage.setItem(key,el.value)};
+});
+var continueContext=null;
+function lastContext(last){
+ if(!last||!last.turns||!last.turns.length)return "";
+ return last.turns.slice(-4).map(function(t){
+  return (t.input?"學生："+t.input+"\n":"")+(t.output?"老師："+t.output:"");
+ }).join("\n");
 }
-function openingPrompt(){return "現在開始一對一 Live 練習。請直接用自然的老師語氣先開口，根據「"+document.getElementById("scene").value+"」情境問我第一個簡短問題。";}
-startBtn.onclick=async function(){
+function paceInstruction(){
+ var v=document.getElementById("pace").value;
+ if(v==="slow")return "語速明顯慢一點，短句、清楚停頓，但不要機器人式拉長音。";
+ if(v==="fast")return "使用自然偏快的母語者日常語速，不要刻意放慢。";
+ return "使用清楚自然的正常語速。";
+}
+function correctionInstruction(){
+ var v=document.getElementById("correction").value;
+ if(v==="light")return "只糾正會造成誤解的錯誤，優先保持對話流暢。";
+ if(v==="strict")return "文法、用字、搭配詞與不自然表達都要短暫糾正，讓學生重說後再繼續。";
+ return "明顯錯誤時用 recast 給正確說法，必要時讓學生重說一次。";
+}
+function teacherSystem(){
+ return "你是 Crew Teacher 的真人感 Live 語言老師。"+
+  "目標語言："+document.getElementById("lang").value+"。"+
+  "學生程度："+document.getElementById("level").value+"。"+
+  "情境："+document.getElementById("scene").value+"。"+
+  "口音偏好："+document.getElementById("accent").value+"。"+
+  paceInstruction()+correctionInstruction()+
+  "以目標語言為主，學生卡住時才用繁體中文短解釋。一次 1-3 句，不要長篇講課；每回合留一個可直接回答的短問題。";
+}
+function openingPrompt(){
+ if(continueContext){
+  return "以下是上次練習最後幾輪，請自然接著聊，不要重新自我介紹：\n"+lastContext(continueContext);
+ }
+ return "現在開始一對一 Live 練習。請根據「"+document.getElementById("scene").value+"」情境，以符合 "+document.getElementById("level").value+" 程度的方式先開口，問我第一個簡短問題。";
+}
+var teacherUI;
+teacherUI=CrewLiveUI.bind({
+ pageKey:"teacher",
+ labels:{user:"你",ai:"老師"},
+ idleModelLabel:"Live voice",
+ speakingLabel:"老師說話中",
+ notStartedText:"先開始 Live 對話",
+ endedText:"已結束。按開始可再開一個新 session。",
+ voice:function(){return document.getElementById("voice").value},
+ system:teacherSystem,
+ openingPrompt:openingPrompt,
+ historyTitle:function(){return document.getElementById("scene").value+" · "+document.getElementById("lang").value},
+ onContinueLast:function(last){continueContext=last;CrewAI.toast("將延續上次練習");teacherUI.start()},
+ onStarted:function(){continueContext=null}
+});
+document.getElementById("coachGo").onclick=async function(){
  if(!CrewAI.requireKey())return;
- startBtn.disabled=true;setState("requesting-mic");
- live=new CrewLive.Session({
-  system:teacherSystem(),openingPrompt:openingPrompt(),voice:"Kore",maxLiveAttempts:2,
-  onStatus:function(s){statusEl.textContent=s},
-  onState:handleState,
-  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
-  onInputTranscript:function(t){setTranscript(userLine,t)},
-  onOutputTranscript:function(t){setTranscript(aiLine,t)},
-  onTurnComplete:function(turn){if(turn.input||turn.output)CrewAI.historyAdd("teacher",{title:document.getElementById("scene").value+" Live",preview:(turn.input+" / "+turn.output).slice(0,120)})},
-  onError:function(e){statusEl.textContent="Live 連線問題："+e.message},
-  onTerminal:function(){live=null;restoreControls()}
- });
- try{await live.start();modelEl.textContent=live.model}catch(e){setState("error");statusEl.textContent=e.message;live=null;restoreControls()}
+ var input=document.getElementById("coachInput").value.trim(),res=document.getElementById("coachResult");
+ if(!input){CrewAI.toast("先輸入一句話");return}
+ CrewAI.busy(this,true,"修正中…");res.classList.remove("empty");
+ try{
+  res.textContent=await CrewAI.call(
+   "目標語言："+document.getElementById("lang").value+"\n程度："+document.getElementById("level").value+"\n使用者想表達："+input+"\n只給：最自然說法 + 一句繁中說明。",
+   {preferLive:false,maxOutputTokens:250}
+  )
+ }catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}
 };
-stopBtn.onclick=async function(){
- var session=live;if(!session)return;stopBtn.disabled=true;
- await session.stop({reason:"user-stop",silentStatus:true});
- if(live===session)live=null;setState("idle");restoreControls();statusEl.textContent="已結束。按開始可再開一個新 session。"
-};
-document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始 Live 對話");return}live.sendText(b.dataset.livePrompt)}});
-addEventListener("pagehide",function(){if(live)live.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})});
-document.getElementById("coachGo").onclick=async function(){if(!CrewAI.requireKey())return;var input=document.getElementById("coachInput").value.trim(),res=document.getElementById("coachResult");if(!input){CrewAI.toast("先輸入一句話");return}CrewAI.busy(this,true,"修正中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call("目標語言："+document.getElementById("lang").value+"\n使用者想表達："+input+"\n只給：最自然說法 + 一句繁中說明。",{preferLive:false,maxOutputTokens:250})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>

@@ -157,6 +157,15 @@
     this.outputGain=null;
     this.nextPlayTime=0;
     this.sources=[];
+
+    this.micMuted=false;
+    this.volume=Math.max(0,Math.min(100,Number(this.options.volume)||100));
+    this.startedAt=0;
+    this.turns=[];
+    this.resumptionHandle="";
+    this.resumeAttempts=0;
+    this.maxResumeAttempts=Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
+    this.wakeLock=null;
   }
 
   LiveSession.prototype._status=function(value){
@@ -169,6 +178,84 @@
 
   LiveSession.prototype._error=function(error){
     if(this.options.onError)this.options.onError(error instanceof Error?error:new Error(String(error)));
+  };
+
+  LiveSession.prototype.getDurationMs=function(){
+    return this.startedAt?Math.max(0,this._deps.now()-this.startedAt):0;
+  };
+
+  LiveSession.prototype.getTranscript=function(){
+    return this.turns.slice();
+  };
+
+  LiveSession.prototype.setVolume=function(value){
+    var percent=Math.max(0,Math.min(100,Number(value)||0));
+    this.volume=percent;
+    if(this.outputGain)this.outputGain.gain.value=percent/100;
+    if(this.options.onVolumeChange)this.options.onVolumeChange(percent);
+    return percent;
+  };
+
+  LiveSession.prototype.setMicMuted=function(muted){
+    this.micMuted=!!muted;
+    if(this.mediaStream){
+      try{
+        var tracks=typeof this.mediaStream.getAudioTracks==="function"
+          ?this.mediaStream.getAudioTracks()
+          :(typeof this.mediaStream.getTracks==="function"?this.mediaStream.getTracks():[]);
+        tracks.forEach(function(track){
+          if(!track.kind||track.kind==="audio")track.enabled=!this.micMuted;
+        },this);
+      }catch(_){}
+    }
+    if(this.options.onMicMuted)this.options.onMicMuted(this.micMuted);
+    this._status(this.micMuted?"麥克風已靜音":"麥克風已開啟");
+    return this.micMuted;
+  };
+
+  LiveSession.prototype.toggleMic=function(){
+    return this.setMicMuted(!this.micMuted);
+  };
+
+  LiveSession.prototype.interrupt=function(){
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt))return false;
+    this._clearPlayback();
+    if(this.options.onSpeaking)this.options.onSpeaking(false);
+    try{
+      var silence=new Uint8Array(3200);
+      attempt.socket.send(JSON.stringify({
+        realtimeInput:{
+          audio:{
+            data:bytesToBase64(silence),
+            mimeType:"audio/pcm;rate=16000"
+          }
+        }
+      }));
+      this._status("已打斷，請直接說話");
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"interrupt-send",error);
+      return false;
+    }
+  };
+
+  LiveSession.prototype._requestWakeLock=async function(){
+    try{
+      if(global.navigator&&global.navigator.wakeLock&&global.navigator.wakeLock.request){
+        this.wakeLock=await global.navigator.wakeLock.request("screen");
+      }
+    }catch(_){
+      this.wakeLock=null;
+    }
+  };
+
+  LiveSession.prototype._releaseWakeLock=async function(){
+    var lock=this.wakeLock;
+    this.wakeLock=null;
+    if(lock&&lock.release){
+      try{await lock.release();}catch(_){}
+    }
   };
 
   LiveSession.prototype._isActiveAttempt=function(attempt){
@@ -447,6 +534,18 @@
 
       if(this.currentTurnHadValidOutput)this.completedTurns++;
 
+      if(result.input||result.output){
+        var savedTurn={
+          id:this._deps.now()+"-"+this.completedTurns,
+          input:result.input||"",
+          output:result.output||"",
+          model:result.model||this.model,
+          ts:new Date(this._deps.now()).toISOString()
+        };
+        this.turns.push(savedTurn);
+        if(this.options.onTranscriptTurn)this.options.onTranscriptTurn(savedTurn,this.turns.slice());
+      }
+
       if(this.options.onTurnComplete)this.options.onTurnComplete(result);
 
       this.inputTurn="";
@@ -464,6 +563,21 @@
 
   LiveSession.prototype._handleMessage=function(message,attempt,resolveSetup,rejectSetup){
     if(!this._isActiveAttempt(attempt))return;
+
+    var resumptionUpdate=message.sessionResumptionUpdate||message.session_resumption_update;
+    if(resumptionUpdate){
+      var handle=resumptionUpdate.newHandle||resumptionUpdate.new_handle||resumptionUpdate.handle||"";
+      if(resumptionUpdate.resumable&&handle){
+        this.resumptionHandle=String(handle);
+        if(this.options.onResumptionHandle)this.options.onResumptionHandle(this.resumptionHandle);
+      }
+    }
+
+    var goAway=message.goAway||message.go_away;
+    if(goAway){
+      this._resumeAfterGoAway(attempt,goAway);
+      return;
+    }
 
     if(message.error){
       var messageText=safeApiError(message.error);
@@ -490,12 +604,13 @@
     if(server)this._handleServer(server,attempt);
   };
 
-  LiveSession.prototype._connectCandidate=function(model,index){
+  LiveSession.prototype._connectCandidate=function(model,index,connectOptions){
+    connectOptions=connectOptions||{};
     var self=this;
     var WSCtor=this._deps.WebSocket;
     if(!WSCtor)return Promise.reject(new Error("瀏覽器不支援 WebSocket"));
 
-    this.attemptsUsed++;
+    if(connectOptions.countAttempt!==false)this.attemptsUsed++;
     this.attemptSeq++;
 
     var attempt={
@@ -510,7 +625,8 @@
       closedByClient:"",
       setupTimer:null,
       replyTimer:null,
-      socket:null
+      socket:null,
+      resumed:!!connectOptions.resumeHandle
     };
 
     this.activeAttempt=attempt;
@@ -563,7 +679,7 @@
                 }
               },
               contextWindowCompression:{slidingWindow:{}},
-              sessionResumption:{},
+              sessionResumption:connectOptions.resumeHandle?{handle:connectOptions.resumeHandle}:{},
               inputAudioTranscription:{},
               outputAudioTranscription:{},
               systemInstruction:{
@@ -712,8 +828,56 @@
     this._state("ready");
     this._status("Live 已連線，可以直接說話");
     this._startCapture();
-    this._sendOpening(attempt);
+    if(!attempt.resumed)this._sendOpening(attempt);
     this._armReplyTimeout(attempt);
+  };
+
+  LiveSession.prototype._resumeAfterGoAway=function(attempt,goAway){
+    if(!this._isActiveAttempt(attempt)||this.stopping||this.recovering)return;
+
+    if(!this.resumptionHandle||this.resumeAttempts>=this.maxResumeAttempts){
+      this._terminal(
+        "stopped",
+        null,
+        this.resumptionHandle?"Live 長通話已達續接上限":"Live 長通話已結束"
+      );
+      return;
+    }
+
+    this.recovering=true;
+    this.ready=false;
+    this.resumeAttempts++;
+    this._state("connecting");
+    this._status("正在無縫延續 Live 對話…");
+
+    var model=attempt.model;
+    var index=attempt.index;
+    var handle=this.resumptionHandle;
+    var shouldClose=attempt.socket&&attempt.socket.readyState===1;
+    this._abandonAttempt(attempt,"goaway-resume",shouldClose);
+
+    var self=this;
+    this._connectCandidate(model,index,{resumeHandle:handle,countAttempt:false}).then(function(nextAttempt){
+      self._activateAttempt(nextAttempt);
+      self.recovering=false;
+      self._status("Live 已延續，可以繼續說");
+      if(self.options.onResumed)self.options.onResumed({
+        model:model,
+        resumeCount:self.resumeAttempts
+      });
+    }).catch(function(error){
+      self.recovering=false;
+      var nextIndex=index+1;
+      if(nextIndex<self.models.length&&self.attemptsUsed<self.maxLiveAttempts){
+        self._state("connecting");
+        self._status("續接失敗，改連下一個 Live 模型…");
+        self._connectFrom(nextIndex).catch(function(nextError){
+          self._terminal("error",nextError||error,"Live 續接失敗");
+        });
+        return;
+      }
+      self._terminal("error",error,"Live 續接失敗");
+    });
   };
 
   LiveSession.prototype._connectFrom=function(startIndex){
@@ -769,6 +933,7 @@
     this.inputContext=this._deps.createAudioContext();
 
     this.outputGain=this.outputContext.createGain();
+    this.outputGain.gain.value=this.volume/100;
     this.outputGain.connect(this.outputContext.destination);
 
     if(this.outputContext.resume)await this.outputContext.resume();
@@ -845,6 +1010,7 @@
     }
 
     await this._cleanupMedia();
+    await this._releaseWakeLock();
 
     this.running=false;
     this.ready=false;
@@ -885,9 +1051,17 @@
     this.currentTurnHadValidOutput=false;
     this.inputTurn="";
     this.outputTurn="";
+    this.turns=[];
+    this.resumptionHandle="";
+    this.resumeAttempts=0;
+    this.startedAt=this._deps.now();
+    this.micMuted=false;
 
     try{
+      await this._requestWakeLock();
       await this._openMedia();
+      this.setVolume(this.volume);
+      this.setMicMuted(false);
       await this._connectFrom(0);
       return this;
     }catch(error){

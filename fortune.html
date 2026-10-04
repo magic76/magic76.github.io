@@ -3,18 +3,40 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Fortune Live</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
 <header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
 <main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1>直接問老師</h1><p class="lead">App 裡最有價值的其實不是長報告，而是看不懂或想追問時，直接跟老師聊。Web 也改成這個體驗。</p></section>
+<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1>直接問老師</h1><p class="lead">先存一次基本資料，之後直接進 Live。老師先講重點，你可以一路追問、換主題，或接著上次對話。</p></section>
 
 <section class="live-stage" id="liveStage" data-state="idle">
 <div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live teacher</span></div>
-<h2 class="live-title">命理老師 Live</h2><p class="live-sub">先給基本出生資料與你在意的方向。老師會先講一個重點，接著你可以像聊天一樣一直追問。</p>
-<div class="two" style="margin-top:14px"><div><label class="label" style="color:#c8c8c0">出生日期</label><input class="field" id="birth" type="date"></div><div><label class="label" style="color:#c8c8c0">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div></div>
-<div class="two"><div><label class="label" style="color:#c8c8c0">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div><div><label class="label" style="color:#c8c8c0">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option></select></div></div>
-<div class="live-orb"><span>F</span></div><div class="live-status" id="liveStatus">填完日期後，按開始直接跟老師聊。</div>
+<h2 class="live-title">命理老師 Live</h2>
+<p class="live-sub">以出生資料做娛樂性、自我反思型對話。主要價值是即時追問，不是一次產生一大篇報告。</p>
+
+<div class="live-setup-grid" style="margin-top:14px">
+<div><label class="label" style="color:#c8c8c0">稱呼（選填）</label><input class="field" id="profileName" placeholder="例如：Liyang"></div>
+<div><label class="label" style="color:#c8c8c0">出生日期</label><input class="field" id="birth" type="date"></div>
+<div><label class="label" style="color:#c8c8c0">出生時間（選填）</label><input class="field" id="birthTime" type="time"></div>
+<div><label class="label" style="color:#c8c8c0">出生城市（選填）</label><input class="field" id="city" placeholder="例如：新北市"></div>
+<div><label class="label" style="color:#c8c8c0">今天想聊</label><select class="field" id="focus"><option>工作</option><option>財運</option><option>家庭</option><option>關係</option><option>整體</option><option>未來一年</option></select></div>
+<div><label class="label" style="color:#c8c8c0">回答方式</label><select class="field" id="tone"><option value="direct">直接、有重點</option><option value="gentle">溫和提醒</option><option value="evidence">驗證式 · 多問背景</option></select></div>
+<div><label class="label" style="color:#c8c8c0">老師音色</label><select class="field" id="voice"><option value="Charon">Charon</option><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次問老師</button></div>
+</div>
+<div class="pref-note">出生資料與偏好只保存在這台裝置。娛樂與自我反思用途。</div>
+
+<div class="live-orb"><span>F</span></div>
+<div class="live-status" id="liveStatus">填完日期後，按開始直接跟老師聊。</div>
 <div class="live-controls"><button class="live-btn" id="startLive">開始問老師</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
-<div class="live-presets"><button data-live-prompt="請直接講我現在工作上最值得注意的一件事，講完讓我追問。">工作</button><button data-live-prompt="請用務實的方式談最近的財務節奏，不要提供投資指令。">財運</button><button data-live-prompt="請談談接下來一個月最適合把力氣放在哪裡。">近一個月</button><button data-live-prompt="請反過來問我一個問題，幫你更精準理解我現在卡住的地方。">問我</button></div>
+
+<div class="live-callbar">
+<div class="live-timer" id="liveTimer">0:00</div>
+<div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷老師</button></div>
+<label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label>
+</div>
+
+<div class="live-presets"><button data-live-prompt="請直接講我現在工作上最值得注意的一件事，講完讓我追問。">工作</button><button data-live-prompt="請用務實的方式談最近的財務節奏，不要提供投資指令。">財運</button><button data-live-prompt="請談談接下來一個月最適合把力氣放在哪裡。">近一個月</button><button data-live-prompt="請談未來一年比較值得注意的節奏與選擇，不要把它說成命定事實。">未來一年</button><button data-live-prompt="請反過來問我一個關鍵問題，幫你更精準理解我現在卡住的地方。">問我</button></div>
+
 <div class="live-transcript"><div class="live-line user" id="userLine"><small>你</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
-<div class="live-note">娛樂與自我反思用途；不要把語音回答當成醫療、法律、投資或重大人生決策依據。</div>
+<details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
+<div class="live-note">不要把回答當成醫療、法律、投資或重大人生決策依據。</div>
 </section>
 
 <details class="secondary-zone"><summary>其他工具</summary>
@@ -23,38 +45,82 @@
 </main>
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
 <nav class="bottom-nav"><div class="inner">
-<a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
+<a class="navitem" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
+<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
 <a class="navitem active" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
+<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+</div></nav>
+<div class="toast" id="toast"></div>
+<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("fortune");
-var birth=document.getElementById("birth"),birthTime=document.getElementById("birthTime"),city=document.getElementById("city");
-birth.value=localStorage.getItem("crew_birth_date")||"";birthTime.value=localStorage.getItem("crew_birth_time")||"";city.value=localStorage.getItem("crew_birth_city")||"";
-[birth,birthTime,city].forEach(function(el){el.onchange=function(){localStorage.setItem("crew_birth_date",birth.value);localStorage.setItem("crew_birth_time",birthTime.value);localStorage.setItem("crew_birth_city",city.value)}});
-var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
-function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"老師說話中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
-function restoreControls(){startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;stopBtn.disabled=false;modelEl.textContent="Live teacher"}
-function handleState(s){setState(s);if(s==="ready"||s==="speaking"){startBtn.hidden=true;stopBtn.hidden=false;stopBtn.disabled=false}else if(s==="connecting"||s==="requesting-mic"){startBtn.disabled=true}else if(s==="error"){startBtn.disabled=true}}
-function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
-function profile(){return "出生日期："+birth.value+"；出生時間："+(birthTime.value||"未提供")+"；出生城市："+(city.value||"未提供")+"；主題："+document.getElementById("focus").value}
-function fortuneSystem(){return "你是 Crew Fortune 的 Live 命理老師。以使用者提供的出生資料與當下問題做娛樂性、自我反思型對話。不要宣稱命定事實，不做醫療、法律、投資或重大決策指令。語氣成熟、直接、有洞察。一次只講 2-4 句，先講一個重點，再讓使用者追問。使用者插話時立即回應，不要長篇報告。";}
-function openingPrompt(){return profile()+"。現在請先用繁體中文講一個和「"+document.getElementById("focus").value+"」最相關的觀察，控制在 3 句內，最後問我想先深入哪一點。";}
-startBtn.onclick=async function(){
- if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;startBtn.disabled=true;setState("requesting-mic");
- live=new CrewLive.Session({system:fortuneSystem(),openingPrompt:openingPrompt(),voice:"Charon",maxLiveAttempts:2,
-  onStatus:function(s){statusEl.textContent=s},onState:handleState,
-  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
-  onInputTranscript:function(t){setTranscript(userLine,t)},onOutputTranscript:function(t){setTranscript(aiLine,t)},
-  onTurnComplete:function(turn){if(turn.output)CrewAI.historyAdd("fortune",{title:document.getElementById("focus").value+" Live",preview:turn.output.slice(0,120)})},
-  onError:function(e){statusEl.textContent="Live 連線問題："+e.message},
-  onTerminal:function(){live=null;restoreControls()}
+var fields=["profileName","birth","birthTime","city","focus","tone","voice"];
+fields.forEach(function(id){
+ var el=document.getElementById(id),key="crew_fortune_"+id;
+ var legacy={birth:"crew_birth_date",birthTime:"crew_birth_time",city:"crew_birth_city"}[id];
+ var saved=localStorage.getItem(key)||(legacy?localStorage.getItem(legacy):"");
+ if(saved)el.value=saved;
+ var eventName=el.tagName==="SELECT"?"change":"input";
+ el.addEventListener(eventName,function(){
+  localStorage.setItem(key,el.value);
+  if(legacy)localStorage.setItem(legacy,el.value);
  });
- try{await live.start();modelEl.textContent=live.model}catch(e){setState("error");statusEl.textContent=e.message;live=null;restoreControls()}
+});
+var continueContext=null;
+function profile(){
+ return "稱呼："+(document.getElementById("profileName").value||"未提供")+"；"+
+  "出生日期："+document.getElementById("birth").value+"；"+
+  "出生時間："+(document.getElementById("birthTime").value||"未提供")+"；"+
+  "出生城市："+(document.getElementById("city").value||"未提供")+"；"+
+  "主題："+document.getElementById("focus").value;
+}
+function lastContext(last){
+ if(!last||!last.turns||!last.turns.length)return "";
+ return last.turns.slice(-6).map(function(t){
+  return (t.input?"使用者："+t.input+"\n":"")+(t.output?"老師："+t.output:"");
+ }).join("\n");
+}
+function toneInstruction(){
+ var v=document.getElementById("tone").value;
+ if(v==="gentle")return "語氣溫和但不要空泛安慰，仍要給具體觀察。";
+ if(v==="evidence")return "不要急著下結論，多用問題確認使用者真實背景，再提出可驗證的小步驟。";
+ return "先講結論，再補一兩個理由，保持直接。";
+}
+function fortuneSystem(){
+ return "你是 Crew Fortune 的 Live 命理老師。以使用者提供的出生資料與當下問題做娛樂性、自我反思型對話。"+
+  toneInstruction()+
+  "不要宣稱命定事實，不做醫療、法律、投資或重大決策指令。一次只講 2-4 句，先講一個重點，再讓使用者追問。";
+}
+function openingPrompt(){
+ if(continueContext){
+  return profile()+"。以下是上次最後幾輪，請自然接著聊，不要重新做整份分析：\n"+lastContext(continueContext);
+ }
+ return profile()+"。現在請先用繁體中文講一個和「"+document.getElementById("focus").value+"」最相關的觀察，控制在 3 句內，最後問我想先深入哪一點。";
+}
+var fortuneUI;
+fortuneUI=CrewLiveUI.bind({
+ pageKey:"fortune",
+ labels:{user:"你",ai:"老師"},
+ idleModelLabel:"Live teacher",
+ speakingLabel:"老師說話中",
+ notStartedText:"先開始問老師",
+ endedText:"已結束。",
+ validate:function(){return document.getElementById("birth").value?"":"先填出生日期"},
+ voice:function(){return document.getElementById("voice").value},
+ system:fortuneSystem,
+ openingPrompt:openingPrompt,
+ historyTitle:function(){return document.getElementById("focus").value+" · Live"},
+ onContinueLast:function(last){continueContext=last;CrewAI.toast("接著上次對話");fortuneUI.start()},
+ onStarted:function(){continueContext=null}
+});
+document.getElementById("textAsk").onclick=async function(){
+ if(!document.getElementById("birth").value){CrewAI.toast("先填出生日期");return}
+ if(!CrewAI.requireKey())return;
+ var q=document.getElementById("textQ").value.trim(),res=document.getElementById("textResult");
+ if(!q){CrewAI.toast("先輸入問題");return}
+ CrewAI.busy(this,true,"整理中…");res.classList.remove("empty");
+ try{
+  res.textContent=await CrewAI.call(profile()+"\n問題："+q+"\n請在 180 字內做務實的反思型整理。",{preferLive:false,maxOutputTokens:450})
+ }catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}
 };
-stopBtn.onclick=async function(){var session=live;if(!session)return;stopBtn.disabled=true;await session.stop({reason:"user-stop",silentStatus:true});if(live===session)live=null;setState("idle");restoreControls();statusEl.textContent="已結束。"};
-document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始問老師");return}live.sendText(b.dataset.livePrompt)}});
-addEventListener("pagehide",function(){if(live)live.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})});
-document.getElementById("textAsk").onclick=async function(){if(!birth.value){CrewAI.toast("先填出生日期");return}if(!CrewAI.requireKey())return;var q=document.getElementById("textQ").value.trim(),res=document.getElementById("textResult");if(!q){CrewAI.toast("先輸入問題");return}CrewAI.busy(this,true,"整理中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call(profile()+"\n問題："+q+"\n請在 180 字內做務實的反思型整理。",{preferLive:false,maxOutputTokens:450})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>

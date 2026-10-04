@@ -3,53 +3,116 @@
 <!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Story Live</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
 <header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
 <main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Story</span><h1>讓阿奇直接說故事</h1><p class="lead">不是先生成一大篇文字。按開始後阿奇直接講，你任何時候都可以插話、問角色、改劇情，再自然回到故事。</p></section>
+<section class="hero"><span class="eyebrow"><i></i> Crew Story</span><h1>讓阿奇直接說故事</h1><p class="lead">故事不是一次生成完。阿奇邊講，你可以隨時插話、改角色、改劇情，或從上次的最後一段接著講。</p></section>
 
 <section class="live-stage" id="liveStage" data-state="idle">
 <div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live storyteller</span></div>
-<h2 class="live-title">互動說故事</h2><p class="live-sub">把 App 裡「跟阿奇說話」的核心搬到 Web：故事講到一半，你直接開口就能改變或詢問故事。</p>
-<label class="label" style="color:#c8c8c0">今天想聽什麼？</label><input class="field" id="topic" value="一隻怕水的小恐龍，在會發光的海邊找到一把會唱歌的雨傘">
-<div class="two" style="margin-top:8px"><div><label class="label" style="color:#c8c8c0">風格</label><select class="field" id="style"><option>溫暖冒險</option><option>搞笑</option><option>睡前故事</option><option>神秘</option></select></div><div><label class="label" style="color:#c8c8c0">節奏</label><select class="field" id="pace"><option>短段落，常停下來互動</option><option>連續講，但可以插話</option></select></div></div>
-<div class="live-orb"><span>A</span></div><div class="live-status" id="liveStatus">按開始，阿奇會立刻開場。</div>
+<h2 class="live-title">互動說故事</h2>
+<p class="live-sub">按開始後阿奇直接開場。中途講話會打斷故事，阿奇回答後再自然接回去。</p>
+
+<label class="label" style="color:#c8c8c0">今天想聽什麼？</label>
+<input class="field" id="topic" value="一隻怕水的小恐龍，在會發光的海邊找到一把會唱歌的雨傘">
+
+<div class="live-setup-grid" style="margin-top:8px">
+<div><label class="label" style="color:#c8c8c0">風格</label><select class="field" id="style"><option>溫暖冒險</option><option>搞笑</option><option>睡前故事</option><option>神秘</option><option>奇幻</option></select></div>
+<div><label class="label" style="color:#c8c8c0">敘事節奏</label><select class="field" id="pace"><option value="short">短段落 · 常停下</option><option value="normal" selected>自然段落 · 可插話</option><option value="long">長一點 · 少停頓</option></select></div>
+<div><label class="label" style="color:#c8c8c0">互動頻率</label><select class="field" id="interaction"><option value="high">常讓我選</option><option value="medium" selected>偶爾讓我選</option><option value="low">以聽故事為主</option></select></div>
+<div><label class="label" style="color:#c8c8c0">阿奇音色</label><select class="field" id="voice"><option value="Aoede">Aoede</option><option value="Kore">Kore</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次故事</button></div>
+</div>
+<div class="pref-note">上次故事會只保存在這台裝置，可以直接從最後幾輪繼續。</div>
+
+<div class="live-orb"><span>A</span></div>
+<div class="live-status" id="liveStatus">按開始，阿奇會立刻開場。</div>
 <div class="live-controls"><button class="live-btn" id="startLive">開始聽故事</button><button class="live-btn end" id="stopLive" hidden>結束故事</button></div>
-<div class="live-presets"><button data-live-prompt="請自然繼續故事，下一段加入一個意外的小轉折。">繼續</button><button data-live-prompt="從現在開始讓故事更搞笑，但保留目前角色。">變搞笑</button><button data-live-prompt="先停一下，用一句話問我要不要自己決定接下來發生什麼。">讓我選</button><button data-live-prompt="換一個新故事，保留同樣溫暖的說書語氣。">換故事</button></div>
+
+<div class="live-callbar">
+<div class="live-timer" id="liveTimer">0:00</div>
+<div class="live-call-actions"><button class="live-tool-btn" id="muteLive" hidden>麥克風靜音</button><button class="live-tool-btn" id="interruptLive" hidden>打斷阿奇</button></div>
+<label class="live-volume">音量 <input id="liveVolume" type="range" min="0" max="100" value="100"><span id="liveVolumeValue">100%</span></label>
+</div>
+
+<div class="live-presets"><button data-live-prompt="請自然繼續故事，下一段加入一個意外的小轉折。">繼續</button><button data-live-prompt="從現在開始讓故事更搞笑，但保留目前角色與世界觀。">變搞笑</button><button data-live-prompt="先停一下，給我兩個簡短選項，讓我決定下一步。">讓我選</button><button data-live-prompt="加入一個新角色，但不要破壞目前主線。">新角色</button><button data-live-prompt="把現在這一幕收尾，然後開啟下一個小章節。">下一章</button></div>
+
 <div class="live-transcript"><div class="live-line user" id="userLine"><small>你插話</small><span></span></div><div class="live-line" id="aiLine"><small>阿奇</small><span></span></div></div>
+<details class="live-history"><summary><span>完整故事對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
 </section>
 
 <details class="secondary-zone"><summary>其他工具</summary>
-<div class="panel" style="margin-top:14px"><h3>文字故事</h3><p class="meta">需要複製文字時再用。</p><div class="actions"><button class="btn secondary" id="textStory">產生一篇短故事</button></div><div class="result empty" id="textResult">Live 才是這頁的主要體驗。</div></div>
+<div class="panel" style="margin-top:14px"><h3>文字故事</h3><p class="meta">需要複製完整文字時再用。</p><div class="actions"><button class="btn secondary" id="textStory">產生一篇短故事</button></div><div class="result empty" id="textResult">Live 才是這頁的主要體驗。</div></div>
 </details>
 </main>
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
 <nav class="bottom-nav"><div class="inner">
-<a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
+<a class="navitem" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
 <a class="navitem active" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem " data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
+<a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
+<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+</div></nav>
+<div class="toast" id="toast"></div>
+<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("story");
-var live=null,stage=document.getElementById("liveStage"),statusEl=document.getElementById("liveStatus"),badge=document.getElementById("liveBadge"),modelEl=document.getElementById("liveModel"),startBtn=document.getElementById("startLive"),stopBtn=document.getElementById("stopLive"),userLine=document.getElementById("userLine"),aiLine=document.getElementById("aiLine");
-function setState(s){stage.dataset.state=s;badge.textContent=s==="ready"?"LIVE":s==="speaking"?"阿奇說故事中":s==="connecting"||s==="requesting-mic"?"CONNECTING":s==="error"?"ERROR":"READY"}
-function restoreControls(){startBtn.hidden=false;startBtn.disabled=false;stopBtn.hidden=true;stopBtn.disabled=false;modelEl.textContent="Live storyteller"}
-function handleState(s){setState(s);if(s==="ready"||s==="speaking"){startBtn.hidden=true;stopBtn.hidden=false;stopBtn.disabled=false}else if(s==="connecting"||s==="requesting-mic"){startBtn.disabled=true}else if(s==="error"){startBtn.disabled=true}}
-function setTranscript(el,text){el.querySelector("span").textContent=text;el.classList.toggle("show",!!text)}
-function storySystem(){return "你是 Crew Story 的說書人阿奇。你正在和使用者進行即時語音互動故事。風格："+document.getElementById("style").value+"。節奏："+document.getElementById("pace").value+"。規則：直接用繁體中文生動說故事；一次講 2-5 句，不要一次把整篇講完；使用者任何時候插話時立刻回應他的問題或改劇情要求，回答簡短，然後自然回到故事；常給使用者簡單選擇；不要解釋你是 AI。";}
-function openingPrompt(){return "主題："+document.getElementById("topic").value+"。現在直接像陪伴式說書人一樣開場，先講第一小段，留下可以繼續發展的空間。";}
-startBtn.onclick=async function(){
- if(!CrewAI.requireKey())return;startBtn.disabled=true;setState("requesting-mic");
- live=new CrewLive.Session({system:storySystem(),openingPrompt:openingPrompt(),voice:"Aoede",maxLiveAttempts:2,
-  onStatus:function(s){statusEl.textContent=s},onState:handleState,
-  onSpeaking:function(v){if(v)setState("speaking");else if(live&&live.ready)setState("ready")},
-  onInputTranscript:function(t){setTranscript(userLine,t)},onOutputTranscript:function(t){setTranscript(aiLine,t)},
-  onTurnComplete:function(turn){if(turn.output)CrewAI.historyAdd("story",{title:"阿奇 Live 故事",preview:turn.output.slice(0,120)})},
-  onError:function(e){statusEl.textContent="Live 連線問題："+e.message},
-  onTerminal:function(){live=null;restoreControls()}
- });
- try{await live.start();modelEl.textContent=live.model}catch(e){setState("error");statusEl.textContent=e.message;live=null;restoreControls()}
+["topic","style","pace","interaction","voice"].forEach(function(id){
+ var el=document.getElementById(id),key="crew_story_"+id;
+ var saved=localStorage.getItem(key);if(saved)el.value=saved;
+ var eventName=el.tagName==="INPUT"?"input":"change";
+ el.addEventListener(eventName,function(){localStorage.setItem(key,el.value)});
+});
+var continueContext=null;
+function storyContext(last){
+ if(!last||!last.turns||!last.turns.length)return "";
+ return last.turns.slice(-6).map(function(t){
+  return (t.input?"使用者插話："+t.input+"\n":"")+(t.output?"阿奇："+t.output:"");
+ }).join("\n");
+}
+function interactionInstruction(){
+ var v=document.getElementById("interaction").value;
+ if(v==="high")return "每 1-2 個小段落就停下來給使用者兩個簡短選項。";
+ if(v==="low")return "以連續敘事為主，除非使用者插話，否則少主動提問。";
+ return "每幾個段落偶爾給使用者選擇，但不要太頻繁。";
+}
+function paceInstruction(){
+ var v=document.getElementById("pace").value;
+ if(v==="short")return "每次只講 2-3 句就停一下。";
+ if(v==="long")return "每次可以講 6-9 句，但仍要讓使用者可隨時插話。";
+ return "每次講 3-5 句，自然停頓。";
+}
+function storySystem(){
+ return "你是 Crew Story 的說書人阿奇。風格："+document.getElementById("style").value+"。"+
+  paceInstruction()+interactionInstruction()+
+  "直接用繁體中文生動說故事。使用者任何時候插話，立即回應他的問題或改劇情要求，回答後自然回到主線。"+
+  "角色個性和世界設定要前後一致，不要重新解釋你是 AI。";
+}
+function openingPrompt(){
+ if(continueContext){
+  return "這是上次故事最後幾輪。請直接從最後情節接著說，不要重講開頭：\n"+storyContext(continueContext);
+ }
+ return "故事主題："+document.getElementById("topic").value+"。現在直接像陪伴式說書人一樣開場，先講第一小段，留下後續發展空間。";
+}
+var storyUI;
+storyUI=CrewLiveUI.bind({
+ pageKey:"story",
+ labels:{user:"你",ai:"阿奇"},
+ idleModelLabel:"Live storyteller",
+ speakingLabel:"阿奇說故事中",
+ notStartedText:"先開始故事",
+ endedText:"故事結束。你可以再開一個新的。",
+ voice:function(){return document.getElementById("voice").value},
+ system:storySystem,
+ openingPrompt:openingPrompt,
+ historyTitle:function(){return document.getElementById("topic").value.slice(0,36)},
+ onContinueLast:function(last){continueContext=last;CrewAI.toast("接著上次故事");storyUI.start()},
+ onStarted:function(){continueContext=null}
+});
+document.getElementById("textStory").onclick=async function(){
+ if(!CrewAI.requireKey())return;
+ var res=document.getElementById("textResult");CrewAI.busy(this,true,"生成中…");res.classList.remove("empty");
+ try{
+  res.textContent=await CrewAI.call(
+   "請用繁中寫 300 字內短故事。主題："+document.getElementById("topic").value+"。風格："+document.getElementById("style").value+"。",
+   {preferLive:false,maxOutputTokens:700}
+  )
+ }catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}
 };
-stopBtn.onclick=async function(){var session=live;if(!session)return;stopBtn.disabled=true;await session.stop({reason:"user-stop",silentStatus:true});if(live===session)live=null;setState("idle");restoreControls();statusEl.textContent="故事結束。你可以再開一個新的。"};
-document.querySelectorAll("[data-live-prompt]").forEach(function(b){b.onclick=function(){if(!live||!live.ready){CrewAI.toast("先開始故事");return}live.sendText(b.dataset.livePrompt)}});
-addEventListener("pagehide",function(){if(live)live.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})});
-document.getElementById("textStory").onclick=async function(){if(!CrewAI.requireKey())return;var res=document.getElementById("textResult");CrewAI.busy(this,true,"生成中…");res.classList.remove("empty");try{res.textContent=await CrewAI.call("請用繁中寫 250 字內短故事。主題："+document.getElementById("topic").value+"。風格："+document.getElementById("style").value+"。",{preferLive:false,maxOutputTokens:650})}catch(e){res.textContent=e.message}finally{CrewAI.busy(this,false)}};
 </script></body></html>

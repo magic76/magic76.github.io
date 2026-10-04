@@ -24,7 +24,7 @@
 <a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
 <a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
 </div></nav>
-<div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script>
+<div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("home");
 (function(){
  var all=[];
@@ -32,6 +32,12 @@ CrewAI.nav("home");
  all.sort(function(a,b){return new Date(b.ts)-new Date(a.ts)});
  var el=document.getElementById("recent");
  if(!all.length){el.innerHTML='<div class="notice"><div><b>還沒有 Live 紀錄</b><p>開始任何一個 Live 對話後，最近內容會出現在這裡。</p></div></div>';return}
- el.innerHTML=all.slice(0,6).map(function(x){var map={teacher:"Teacher",story:"Story",fortune:"Fortune"};return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc((x.preview||"").slice(0,80))+'</small></div><span>›</span></a>'}).join("");
+ el.innerHTML=all.slice(0,6).map(function(x){
+  var map={teacher:"Teacher",story:"Story",fortune:"Fortune"};
+  var duration=x.durationMs?CrewLiveUI.durationText(x.durationMs):"";
+  var turns=Array.isArray(x.turns)?x.turns.length:0;
+  var meta=[duration,turns?turns+" 回合":""].filter(Boolean).join(" · ");
+  return '<a class="list-item" href="'+x.kind+'.html"><div><strong>'+map[x.kind]+' · '+CrewAI.esc(x.title||"Live")+'</strong><small>'+CrewAI.esc((x.preview||"").slice(0,92))+(meta?'<br>'+CrewAI.esc(meta):'')+'</small></div><span>›</span></a>'
+ }).join("");
 })();
 </script></body></html>

@@ -352,3 +352,97 @@ test("binary setupComplete frame is decoded instead of timing out",async()=>{
 
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+
+test("GoAway resumes same Live model with session handle",async()=>{
+  resetSockets();
+  const logs=[],resumed=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["gemini-3.1-flash-live-preview","gemini-3.8-live"],
+    maxLiveAttempts:2,
+    maxResumeAttempts:2,
+    connectTimeoutMs:100,
+    deps,
+    onResumed:info=>resumed.push(info)
+  });
+
+  const starting=session.start();
+  const first=await waitForSocket(0);
+  first.open();
+  first.message({setupComplete:{}});
+  await starting;
+
+  first.message({
+    sessionResumptionUpdate:{
+      resumable:true,
+      newHandle:"resume-123"
+    }
+  });
+  first.message({goAway:{timeLeft:"5s"}});
+
+  const second=await waitForSocket(1);
+  second.open();
+
+  const setup=second.sent[0].setup;
+  assert.equal(setup.model,"models/gemini-3.1-flash-live-preview");
+  assert.deepEqual(setup.sessionResumption,{handle:"resume-123"});
+
+  second.message({setupComplete:{}});
+  await wait(5);
+
+  assert.equal(session.ready,true);
+  assert.equal(session.model,"gemini-3.1-flash-live-preview");
+  assert.equal(session.resumeAttempts,1);
+  assert.equal(resumed.length,1);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("mic mute volume interrupt and transcript controls stay inside active Live session",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps,track}=makeDeps(logs);
+  const turns=[];
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps,
+    onTranscriptTurn:turn=>turns.push(turn)
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  assert.equal(session.setVolume(35),35);
+  assert.equal(session.outputGain.gain.value,0.35);
+
+  assert.equal(session.setMicMuted(true),true);
+  assert.equal(track.enabled,false);
+  assert.equal(session.toggleMic(),false);
+  assert.equal(track.enabled,true);
+
+  assert.equal(session.interrupt(),true);
+  const interruptMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.audio);
+  assert.ok(interruptMessage);
+
+  socket.message({
+    serverContent:{
+      inputTranscription:{text:"你好"},
+      outputTranscription:{text:"你好，很高興見到你"},
+      turnComplete:true
+    }
+  });
+
+  assert.equal(turns.length,1);
+  assert.equal(session.getTranscript().length,1);
+  assert.equal(session.getTranscript()[0].input,"你好");
+  assert.equal(session.getTranscript()[0].output,"你好，很高興見到你");
+  assert.ok(session.getDurationMs()>=0);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});

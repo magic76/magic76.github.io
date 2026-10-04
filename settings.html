@@ -13,7 +13,16 @@
 <div class="actions"><button class="btn" id="save">儲存 Key</button><button class="btn secondary" id="testLive">測試 Live 語音</button><button class="btn danger" id="clear">清除 key</button></div>
 <div class="result empty" id="status">尚未測試。</div></section>
 
-<section class="section"><div class="notice"><div><b>模型策略</b><p>Teacher / Story / Fortune 的主要體驗只在 Live 模型之間 fallback；不會因為 Live 失敗就默默切成慢的文字模式。文字模型只用在各頁收起來的「其他工具」。</p></div></div></section>
+<section class="section"><div class="panel"><h3>Live 體驗</h3>
+<div class="settings-grid">
+<div><label class="label">預設播放音量</label><div class="range-row"><input class="field" id="defaultVolume" type="range" min="0" max="100" value="100"><strong id="defaultVolumeValue">100%</strong></div></div>
+<div><label class="label">瀏覽器能力</label><div class="result" id="liveCapabilities" style="min-height:0;margin-top:0">檢查中…</div></div>
+</div>
+<div class="actions"><button class="btn danger" id="clearLiveHistory">清除三個 Crew 的 Live 紀錄</button></div>
+<p class="meta">清除紀錄不會刪除 Gemini API key，也不會改變三個頁面的偏好設定。</p>
+</div></section>
+
+<section class="section"><div class="notice"><div><b>模型策略</b><p>主要 Live 路徑優先使用 <code>gemini-3.1-flash-live-preview</code>，若需要才嘗試下一個 Live 模型；不會因為 Live 失敗就默默切成慢的文字模式。</p></div></div></section>
 </main><div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div><nav class="bottom-nav"><div class="inner">
 <a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
 <a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
@@ -105,6 +114,35 @@ document.getElementById("clear").onclick=function(){
  if(liveTest)liveTest.stop({reason:"user-stop",silentStatus:true,emitTerminal:false});
  liveTest=null;testPhase="idle";
  CrewAI.clearKey();key.value="";remember.checked=false;status.textContent="已清除。";CrewAI.toast("已清除 Gemini key")
+};
+
+var volumeInput=document.getElementById("defaultVolume"),volumeValue=document.getElementById("defaultVolumeValue");
+var savedVolume=Math.max(0,Math.min(100,Number(localStorage.getItem("crew_live_volume")||100)));
+volumeInput.value=String(savedVolume);volumeValue.textContent=savedVolume+"%";
+volumeInput.oninput=function(){
+ var value=Math.max(0,Math.min(100,Number(volumeInput.value)||0));
+ localStorage.setItem("crew_live_volume",String(value));
+ volumeValue.textContent=value+"%";
+};
+
+(function renderCapabilities(){
+ var items=[
+  ["麥克風",!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)],
+  ["WebSocket",typeof WebSocket!=="undefined"],
+  ["Web Audio",!!(window.AudioContext||window.webkitAudioContext)],
+  ["Wake Lock",!!(navigator.wakeLock&&navigator.wakeLock.request)]
+ ];
+ document.getElementById("liveCapabilities").innerHTML=items.map(function(item){
+  return (item[1]?"✓ ":"— ")+item[0];
+ }).join("<br>");
+})();
+
+document.getElementById("clearLiveHistory").onclick=function(){
+ ["teacher","story","fortune"].forEach(function(name){
+  localStorage.removeItem("crew_history_"+name);
+  localStorage.removeItem("crew_live_last_"+name);
+ });
+ CrewAI.toast("已清除 Live 紀錄");
 };
 
 addEventListener("pagehide",function(){
