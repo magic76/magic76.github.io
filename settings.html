@@ -20,26 +20,92 @@
 <a class="navitem active" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
 </div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("settings");
-var key=document.getElementById("key"),remember=document.getElementById("remember"),status=document.getElementById("status"),liveTest=null;
+var key=document.getElementById("key"),remember=document.getElementById("remember"),status=document.getElementById("status"),liveTest=null,testPhase="idle",lastTestOutput="";
 key.value=CrewAI.key();remember.checked=!!localStorage.getItem("crew_gemini_api_key");
+
 document.getElementById("save").onclick=function(){
  var v=key.value.trim();if(!v){CrewAI.toast("先貼上 API key");return}
  CrewAI.saveKey(v,remember.checked);status.classList.remove("empty");status.textContent="已儲存。主要功能會在你按開始時連 Gemini Live。";CrewAI.toast("Gemini key 已儲存")
 };
+
 document.getElementById("testLive").onclick=async function(){
  var v=key.value.trim();if(!v){CrewAI.toast("先貼上 API key");return}
- CrewAI.saveKey(v,remember.checked);var btn=this;CrewAI.busy(btn,true,"測試 Live…");status.classList.remove("empty");status.textContent="會開啟麥克風並測試 Gemini Live 語音。";
- liveTest=new CrewLive.Session({
+ if(testPhase==="running"||testPhase==="finalizing")return;
+
+ CrewAI.saveKey(v,remember.checked);
+ var btn=this;
+ CrewAI.busy(btn,true,"測試 Live…");
+ status.classList.remove("empty");
+ status.textContent="正在建立 Live、等待有效語音回覆…";
+ testPhase="running";
+ lastTestOutput="";
+
+ var session=new CrewLive.Session({
   system:"這是 Live 連線測試。請只用繁體中文說一句「Live 連線成功」，不要延伸聊天。",
   openingPrompt:"請現在說出測試句。",
   voice:"Kore",
-  onStatus:function(s){status.textContent=s},
-  onOutputTranscript:function(t){status.textContent="Live 回覆："+t},
-  onTurnComplete:async function(){status.textContent="Live 連線成功 · "+liveTest.model;await liveTest.stop();liveTest=null;CrewAI.busy(btn,false);CrewAI.toast("Live 測試成功")},
-  onError:async function(e){status.textContent="Live 測試失敗："+e.message;if(liveTest)await liveTest.stop();liveTest=null;CrewAI.busy(btn,false)}
+  maxLiveAttempts:2,
+  connectTimeoutMs:8000,
+  replyTimeoutMs:10000,
+  onStatus:function(s){
+    if(testPhase==="running")status.textContent=s
+  },
+  onOutputTranscript:function(t){
+    lastTestOutput=t||lastTestOutput;
+    if(testPhase==="running"&&t)status.textContent="收到 Live 回覆，等待語音播放完成…\n"+t
+  },
+  onTurnComplete:async function(turn){
+    if(testPhase!=="running"||!turn.hasValidOutput)return;
+    testPhase="finalizing";
+    var model=session.model;
+    var output=turn.output||lastTestOutput||"已收到有效語音輸出";
+    await session.waitForPlaybackDrain(6500);
+    if(liveTest!==session||testPhase!=="finalizing")return;
+    await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});
+    liveTest=null;
+    testPhase="success";
+    status.textContent="Live 連線成功 · "+model+"\n"+output;
+    CrewAI.busy(btn,false);
+    CrewAI.toast("Live 測試成功")
+  },
+  onError:function(e){
+    if(testPhase!=="running")return;
+    testPhase="error";
+    status.textContent="Live 測試失敗："+e.message;
+    CrewAI.busy(btn,false)
+  },
+  onTerminal:function(info){
+    if(liveTest===session&&testPhase!=="finalizing"&&testPhase!=="success"){
+      liveTest=null;
+      if(testPhase==="running"){
+        testPhase="error";
+        status.textContent="Live 測試提前結束，沒有取得有效輸出。";
+        CrewAI.busy(btn,false)
+      }
+    }
+  }
  });
- try{await liveTest.start()}catch(e){status.textContent="Live 測試失敗："+e.message;liveTest=null;CrewAI.busy(btn,false)}
+
+ liveTest=session;
+ try{
+  await session.start()
+ }catch(e){
+  if(liveTest===session)liveTest=null;
+  if(testPhase==="running"){
+    testPhase="error";
+    status.textContent="Live 測試失敗："+e.message;
+    CrewAI.busy(btn,false)
+  }
+ }
 };
-document.getElementById("clear").onclick=function(){CrewAI.clearKey();key.value="";remember.checked=false;status.textContent="已清除。";CrewAI.toast("已清除 Gemini key")};
-addEventListener("pagehide",function(){if(liveTest)liveTest.stop()});
+
+document.getElementById("clear").onclick=function(){
+ if(liveTest)liveTest.stop({reason:"user-stop",silentStatus:true,emitTerminal:false});
+ liveTest=null;testPhase="idle";
+ CrewAI.clearKey();key.value="";remember.checked=false;status.textContent="已清除。";CrewAI.toast("已清除 Gemini key")
+};
+
+addEventListener("pagehide",function(){
+ if(liveTest)liveTest.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})
+});
 </script></body></html>
