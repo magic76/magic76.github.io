@@ -264,6 +264,156 @@
     }
     .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
+    .key-status {
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .key-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b5b5ae;
+      flex: 0 0 auto;
+    }
+    .key-status.connected .key-dot,
+    .gemini-hint.connected .key-dot { background: #238a5b; }
+    .gemini-hint {
+      margin: 16px auto 0;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 14px;
+    }
+    .gemini-hint:hover { background: rgba(255,255,255,.75); color: var(--ink); }
+    .gemini-hint b { display: block; font-size: 12px; color: var(--ink); }
+    .gemini-hint small { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      background: rgba(18,18,16,.48);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal-card {
+      width: min(520px, 100%);
+      background: white;
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: 0 28px 80px rgba(0,0,0,.2);
+      position: relative;
+    }
+    .modal-card h3 { font-size: 28px; letter-spacing: -.04em; margin: 18px 0 8px; }
+    .modal-x {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--line);
+      background: var(--bg);
+      border-radius: 14px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+    .key-input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .key-guide {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0 18px;
+    }
+    .key-guide > div {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8f8f4;
+    }
+    .key-guide > div > b {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+    .key-guide strong {
+      display: block;
+      font-size: 13px;
+    }
+    .key-guide small {
+      display: block;
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 11px;
+      line-height: 1.45;
+    }
+    .remember-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .security-note {
+      margin-top: 14px;
+      background: #f5f5f0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .modal-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .modal-actions .secondary { display: inline-flex; align-items: center; }
+    .danger-link {
+      margin-top: 14px;
+      border: 0;
+      background: transparent;
+      color: #9f4c46;
+      padding: 0;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .status-line {
+      min-height: 20px;
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .is-loading { opacity: .65; pointer-events: none; }
+
     @media (max-width: 900px) {
       .tools { grid-template-columns: 1fr; }
       .tool { min-height: 220px; }
@@ -273,7 +423,8 @@
     }
     @media (max-width: 620px) {
       .shell { width: min(100% - 20px, 1120px); }
-      .nav-links a:not(:last-child) { display: none; }
+      .nav-links a { display: none; }
+      .nav-links .key-status { display: inline-flex; }
       .hero { padding-top: 58px; }
       .ask { border-radius: 18px; }
       .ask input { padding: 12px 10px; font-size: 15px; }
@@ -300,6 +451,7 @@
       <nav class="nav-links">
         <a href="#play">Playground</a>
         <a href="#products">Crew Apps</a>
+        <button class="key-status" id="geminiSettings" type="button"><span class="key-dot"></span><span id="geminiStatusText">Gemini · 未連線</span></button>
         <a href="legacy-connect4.html">Legacy</a>
       </nav>
     </div>
@@ -320,6 +472,11 @@
         <button class="chip" data-route="幫我說一個睡前故事">生成小故事</button>
         <button class="chip" data-route="看看最近工作運">看看運勢</button>
       </div>
+      <button class="gemini-hint" id="heroGeminiSetup" type="button">
+        <span class="key-dot"></span>
+        <span><b>Powered by Gemini 3.8 Flash</b><small id="heroGeminiText">連接自己的 Gemini API key，就能使用 AI 生成。</small></span>
+        <span aria-hidden="true">→</span>
+      </button>
     </section>
 
     <section class="shell section" id="play">
@@ -369,7 +526,7 @@
             <p class="muted">選一個答案後，這裡會解釋語氣與更自然的說法。</p>
             <div class="result" id="langResult">先選一個答案。</div>
             <div class="row" style="margin-top:14px">
-              <button class="secondary" id="nextLang">換一題</button>
+              <button class="secondary" id="nextLang">AI 換一題</button>
               <button class="secondary" id="speakLang">朗讀答案</button>
             </div>
             <div class="cta">
@@ -395,7 +552,7 @@
             <label class="label" for="storyItem">神奇物件</label>
             <input class="field" id="storyItem" value="一把會唱歌的雨傘" />
             <div class="row" style="margin-top:16px">
-              <button class="primary" id="makeStory">生成故事</button>
+              <button class="primary" id="makeStory">用 Gemini 生成</button>
               <button class="secondary" id="surpriseStory">幫我亂入</button>
             </div>
           </div>
@@ -427,7 +584,7 @@
               <option value="關係">關係</option>
               <option value="整體">整體</option>
             </select>
-            <button class="primary" id="makeFortune" style="margin-top:16px">產生今日分析</button>
+            <button class="primary" id="makeFortune" style="margin-top:16px">用 Gemini 分析</button>
           </div>
           <div class="panel">
             <h4>今日節奏</h4>
@@ -464,6 +621,40 @@
     <span>MVP · Static demo · No account required</span>
   </footer>
 
+  <div class="modal-backdrop" id="geminiModal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="geminiModalTitle">
+      <button class="modal-x" id="closeGeminiModal" aria-label="關閉">×</button>
+      <span class="eyebrow"><span class="dot"></span> Gemini connection</span>
+      <h3 id="geminiModalTitle">連接你的 Gemini</h3>
+      <p class="muted">使用自己的 Google 帳戶建立 Gemini API key。Crew 不會提供或內建共用 key。</p>
+
+      <div class="key-guide">
+        <div><b>1</b><span><strong>開啟 Google AI Studio</strong><small>使用你的 Google 帳戶登入。</small></span></div>
+        <div><b>2</b><span><strong>建立 API key</strong><small>選擇「Create API key」，建立後複製。</small></span></div>
+        <div><b>3</b><span><strong>回到 Crew 貼上</strong><small>貼到下方欄位，Crew 會立即測試連線。</small></span></div>
+      </div>
+
+      <label class="label" for="geminiKeyInput">Gemini API key</label>
+      <input class="field key-input" id="geminiKeyInput" type="password" autocomplete="off" placeholder="貼上你的 API key" />
+
+      <label class="remember-row">
+        <input id="rememberGeminiKey" type="checkbox" />
+        <span>記住在這台裝置（localStorage）</span>
+      </label>
+
+      <div class="security-note">
+        Key 不會寫入 GitHub 或送到 Crew 伺服器；瀏覽器會直接呼叫 Google Gemini API。共用裝置不建議勾選「記住」。
+      </div>
+
+      <div class="modal-actions">
+        <a class="secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">取得 API key</a>
+        <button class="primary" id="saveGeminiKey" type="button">儲存並測試</button>
+      </div>
+      <button class="danger-link" id="clearGeminiKey" type="button">清除已儲存的 key</button>
+      <p class="status-line" id="geminiTestStatus"></p>
+    </div>
+  </div>
+
   <div class="toast" id="toast"></div>
 
   <script>
@@ -472,6 +663,112 @@
       var toastTimer = null;
       var langIndex = 0;
       var streak = 0;
+      var GEMINI_MODEL = "gemini-3.8-flash";
+      var GEMINI_KEY_STORAGE = "crew_gemini_api_key";
+      var GEMINI_KEY_SESSION = "crew_gemini_api_key_session";
+
+      function getGeminiKey() {
+        return (localStorage.getItem(GEMINI_KEY_STORAGE) || sessionStorage.getItem(GEMINI_KEY_SESSION) || "").trim();
+      }
+
+      function updateGeminiStatus() {
+        var connected = !!getGeminiKey();
+        var status = document.getElementById("geminiSettings");
+        var hint = document.getElementById("heroGeminiSetup");
+        status.classList.toggle("connected", connected);
+        hint.classList.toggle("connected", connected);
+        document.getElementById("geminiStatusText").textContent = connected ? "Gemini · 已連線" : "Gemini · 未連線";
+        document.getElementById("heroGeminiText").textContent = connected
+          ? "已連線，可直接使用 AI 生成。"
+          : "連接自己的 Gemini API key，就能使用 AI 生成。";
+      }
+
+      function openGeminiModal() {
+        var modal = document.getElementById("geminiModal");
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+        var key = getGeminiKey();
+        document.getElementById("geminiKeyInput").value = key;
+        document.getElementById("rememberGeminiKey").checked = !!localStorage.getItem(GEMINI_KEY_STORAGE);
+        document.getElementById("geminiTestStatus").textContent = key ? "已找到這台裝置上的 key。" : "";
+        setTimeout(function () { document.getElementById("geminiKeyInput").focus(); }, 60);
+      }
+
+      function closeGeminiModal() {
+        var modal = document.getElementById("geminiModal");
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+
+      function ensureGeminiKey() {
+        if (getGeminiKey()) return true;
+        openGeminiModal();
+        showToast("先連接 Gemini API key");
+        return false;
+      }
+
+      async function callGemini(prompt, options) {
+        options = options || {};
+        var key = getGeminiKey();
+        if (!key) throw new Error("尚未設定 Gemini API key");
+
+        var body = {
+          systemInstruction: {
+            parts: [{ text: options.system || "你是 Crew 的 AI 助手。回答精準、自然、實用。" }]
+          },
+          contents: [{
+            role: "user",
+            parts: [{ text: prompt }]
+          }],
+          generationConfig: {
+            temperature: typeof options.temperature === "number" ? options.temperature : 0.8,
+            maxOutputTokens: options.maxOutputTokens || 900
+          }
+        };
+        if (options.json) body.generationConfig.responseMimeType = "application/json";
+
+        var response = await fetch(
+          "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_MODEL) + ":generateContent",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": key
+            },
+            body: JSON.stringify(body)
+          }
+        );
+
+        var data;
+        try { data = await response.json(); } catch (_) { data = null; }
+        if (!response.ok) {
+          var message = data && data.error && data.error.message ? data.error.message : ("Gemini API error " + response.status);
+          throw new Error(message);
+        }
+
+        var parts = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts;
+        var text = (parts || []).map(function (p) { return p.text || ""; }).join("").trim();
+        if (!text) throw new Error("Gemini 沒有回傳文字內容");
+        return text;
+      }
+
+      function parseGeminiJson(text) {
+        var cleaned = text.trim().replace(/^\x60\x60\x60(?:json)?\s*/i, "").replace(/\s*\x60\x60\x60$/, "");
+        return JSON.parse(cleaned);
+      }
+
+      function setBusy(button, busy, busyText) {
+        if (!button) return;
+        if (busy) {
+          button.setAttribute("data-label", button.textContent);
+          button.textContent = busyText || "Gemini 思考中…";
+          button.classList.add("is-loading");
+        } else {
+          button.textContent = button.getAttribute("data-label") || button.textContent;
+          button.classList.remove("is-loading");
+          button.removeAttribute("data-label");
+        }
+      }
 
       var questions = [
         {
@@ -601,9 +898,32 @@
         wrap.setAttribute("data-done", "0");
       }
 
-      document.getElementById("nextLang").addEventListener("click", function () {
-        langIndex = (langIndex + 1) % questions.length;
-        renderLanguage();
+      document.getElementById("nextLang").addEventListener("click", async function () {
+        if (!ensureGeminiKey()) return;
+        var button = this;
+        setBusy(button, true, "AI 出題中…");
+        try {
+          var raw = await callGemini(
+            "請出一題實用的英文情境選擇題給繁體中文使用者。難度約 A2-B1，偏旅遊、生活或工作。只能輸出 JSON，格式：{\"scene\":\"情境名稱\",\"q\":\"中文題目，要求選最自然英文\",\"options\":[\"英文選項1\",\"英文選項2\",\"英文選項3\"],\"answer\":0,\"note\":\"繁中解釋，包含正確句與一個更自然替代說法\"}。answer 必須是 0、1 或 2。",
+            {
+              system: "你是 Crew Teacher 的出題老師。題目要實用、自然、沒有陷阱，且只有一個最佳答案。",
+              json: true,
+              temperature: 0.9,
+              maxOutputTokens: 500
+            }
+          );
+          var q = parseGeminiJson(raw);
+          if (!q || !Array.isArray(q.options) || q.options.length !== 3 || typeof q.answer !== "number") throw new Error("題目格式不完整");
+          questions.push(q);
+          langIndex = questions.length - 1;
+          renderLanguage();
+          showToast("Gemini 已生成新題目");
+        } catch (err) {
+          showToast("Gemini 出題失敗");
+          document.getElementById("langResult").textContent = "Gemini 連線失敗：\n" + err.message;
+        } finally {
+          setBusy(button, false);
+        }
       });
       document.getElementById("speakLang").addEventListener("click", function () {
         var q = questions[langIndex];
@@ -622,15 +942,30 @@
 
       function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-      function generateStory() {
+      async function generateStory() {
+        if (!ensureGeminiKey()) return;
         var hero = document.getElementById("storyHero").value.trim() || "一位意外的旅人";
         var place = document.getElementById("storyPlace").value.trim() || "一個陌生的地方";
         var item = document.getElementById("storyItem").value.trim() || "一件奇怪的東西";
-        var story =
-          hero + "一直以為自己最不擅長的，就是面對不知道會發生什麼的事情。\n\n" +
-          "有一天，牠來到" + place + "，在角落發現了" + item + "。奇怪的是，這個東西沒有告訴牠答案，只在每次想放棄時，發出一個很小、很小的聲音，提醒牠再往前一步。\n\n" +
-          "最後，" + hero + "沒有變成世界上最勇敢的人，但牠學會了一件更重要的事：勇敢不是不害怕，而是害怕的時候，還願意多走一步。";
-        document.getElementById("storyResult").textContent = story;
+        var button = document.getElementById("makeStory");
+        setBusy(button, true, "故事生成中…");
+        document.getElementById("storyResult").textContent = "Gemini 正在把三個元素組成故事…";
+        try {
+          var story = await callGemini(
+            "請用繁體中文寫一篇約 250-400 字、適合大人與小孩都能讀的小故事。\n主角：" + hero + "\n地點：" + place + "\n神奇物件：" + item +
+            "\n要求：有明確起承轉合、不要說教味太重、最後留一個有餘韻的收尾。不要加標題或解釋，只輸出故事正文。",
+            {
+              system: "你是 Crew Story 的故事作者。文字有畫面、節奏自然、溫暖但不要幼稚。",
+              temperature: 1.0,
+              maxOutputTokens: 1200
+            }
+          );
+          document.getElementById("storyResult").textContent = story;
+        } catch (err) {
+          document.getElementById("storyResult").textContent = "Gemini 連線失敗：\n" + err.message;
+        } finally {
+          setBusy(button, false);
+        }
       }
 
       document.getElementById("makeStory").addEventListener("click", generateStory);
@@ -656,23 +991,44 @@
         return focus + "今天比較適合觀察與整理，不需要急著對所有事情做結論。";
       }
 
-      document.getElementById("makeFortune").addEventListener("click", function () {
+      document.getElementById("makeFortune").addEventListener("click", async function () {
         var birth = document.getElementById("birthDate").value;
         var focus = document.getElementById("fortuneFocus").value;
         if (!birth) { showToast("先選出生日期"); return; }
+        if (!ensureGeminiKey()) return;
+
+        var button = this;
+        setBusy(button, true, "Gemini 分析中…");
+        document.getElementById("fortuneText").textContent = "Gemini 正在整理今天的節奏…";
+
         var today = new Date();
         var key = birth + "-" + today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
         var base = hashString(key);
         var work = 45 + (base % 51);
         var money = 45 + ((base >> 3) % 51);
         var energy = 45 + ((base >> 6) % 51);
-        var focusScore = focus === "工作" ? work : focus === "財運" ? money : Math.round((work + money + energy) / 3);
-        document.getElementById("fortuneText").textContent =
-          fortuneLine(focusScore, focus) + "\n\n今天的關鍵字：先做最容易驗證的一步。結果是娛樂版 Demo，完整產品會提供更完整的命盤與延伸解讀。";
         var data = [["工作", work], ["財運", money], ["能量", energy]];
         document.getElementById("fortuneBars").innerHTML = data.map(function (x) {
           return '<div class="bar-row"><span>' + x[0] + '</span><div class="bar"><i style="width:' + x[1] + '%"></i></div><b>' + x[1] + '</b></div>';
         }).join("");
+
+        try {
+          var result = await callGemini(
+            "今天日期：" + today.toISOString().slice(0,10) + "\n出生日期：" + birth + "\n使用者想看的主題：" + focus +
+            "\n請寫一段 180-260 字的繁體中文『今日反思型運勢』。這是娛樂用途，不要宣稱能預測事實，也不要提供醫療、投資或重大人生決策建議。" +
+            "\n結構：先一句今日主軸，再分成『適合做』『先別急』『一個小行動』三小段。不要使用 Markdown 表格。",
+            {
+              system: "你是 Crew Fortune 的文字分析助手。語氣像成熟的生活觀察，不神神叨叨、不絕對化。",
+              temperature: 0.85,
+              maxOutputTokens: 700
+            }
+          );
+          document.getElementById("fortuneText").textContent = result;
+        } catch (err) {
+          document.getElementById("fortuneText").textContent = "Gemini 連線失敗：\n" + err.message;
+        } finally {
+          setBusy(button, false);
+        }
       });
 
       document.querySelectorAll(".product-more").forEach(function (btn) {
@@ -681,6 +1037,61 @@
           document.getElementById("products").scrollIntoView({ behavior: "smooth" });
         });
       });
+
+      document.getElementById("geminiSettings").addEventListener("click", openGeminiModal);
+      document.getElementById("heroGeminiSetup").addEventListener("click", openGeminiModal);
+      document.getElementById("closeGeminiModal").addEventListener("click", closeGeminiModal);
+      document.getElementById("geminiModal").addEventListener("click", function (e) {
+        if (e.target === this) closeGeminiModal();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") closeGeminiModal();
+      });
+
+      document.getElementById("clearGeminiKey").addEventListener("click", function () {
+        localStorage.removeItem(GEMINI_KEY_STORAGE);
+        sessionStorage.removeItem(GEMINI_KEY_SESSION);
+        document.getElementById("geminiKeyInput").value = "";
+        document.getElementById("geminiTestStatus").textContent = "已清除 Gemini API key。";
+        updateGeminiStatus();
+      });
+
+      document.getElementById("saveGeminiKey").addEventListener("click", async function () {
+        var input = document.getElementById("geminiKeyInput");
+        var key = input.value.trim();
+        var remember = document.getElementById("rememberGeminiKey").checked;
+        var status = document.getElementById("geminiTestStatus");
+        if (!key) {
+          status.textContent = "請先貼上 API key。";
+          return;
+        }
+
+        localStorage.removeItem(GEMINI_KEY_STORAGE);
+        sessionStorage.removeItem(GEMINI_KEY_SESSION);
+        if (remember) localStorage.setItem(GEMINI_KEY_STORAGE, key);
+        else sessionStorage.setItem(GEMINI_KEY_SESSION, key);
+        updateGeminiStatus();
+
+        var button = this;
+        setBusy(button, true, "測試中…");
+        status.textContent = "正在連線 Gemini 3.8 Flash…";
+        try {
+          var pong = await callGemini("只回覆 OK", {
+            system: "這是一個 API 連線測試。只回覆 OK。",
+            temperature: 0,
+            maxOutputTokens: 20
+          });
+          status.textContent = "連線成功 · Gemini 3.8 Flash";
+          showToast("Gemini 已連線");
+          setTimeout(closeGeminiModal, 450);
+        } catch (err) {
+          status.textContent = "連線失敗：" + err.message;
+        } finally {
+          setBusy(button, false);
+        }
+      });
+
+      updateGeminiStatus();
     })();
   </script>
 </body>
