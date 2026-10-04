@@ -110,3 +110,12 @@ test("deep links enter the dedicated Live sessions",()=>{
   assert.ok(reading.includes('fortune-live.html?from=reading'));
   assert.ok(teacher.includes('teacher-live.html'));
 });
+
+test("Teacher avatar is served from public site assets",()=>{
+  for(const page of ["teacher.html","teacher-live.html"]){
+    const source=fs.readFileSync(path.join(root,page),"utf8");
+    assert.ok(source.includes("assets/teacher/teacher-emma.webp"),page+" should use the local public Teacher avatar");
+    assert.ok(!source.includes("raw.githubusercontent.com/magic76/crew-teacher"),page+" must not reference the private app repository");
+  }
+  assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")),"public Teacher avatar asset should exist");
+});
