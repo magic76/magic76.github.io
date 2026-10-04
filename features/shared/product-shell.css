@@ -202,11 +202,8 @@ body.product-page{
   .product-page .live-btn{width:100%}
 }
 @media(min-width:900px){
-  body.product-page{padding-bottom:0}
-  .product-bottom-nav{position:sticky;top:58px;bottom:auto;border-top:0;border-bottom:1px solid var(--product-line)}
-  .product-bottom-nav .inner{height:54px}
-  .product-nav-item{flex-direction:row;font-size:12px}
-  .product-page .toast{bottom:24px}
+  .product-bottom-nav .inner{max-width:620px}
+  .product-nav-item{font-size:11px}
 }
 
 .product-page .btn{background:var(--product-accent);color:#fff}
