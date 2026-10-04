@@ -24,11 +24,19 @@
     var ms=reduceSingle(m),ds=reduceSingle(d),ys=reduceSingle(digitSum(y));
     var c1=Math.abs(ms-ds),c2=Math.abs(ds-ys),c3=Math.abs(c1-c2),c4=Math.abs(ms-ys);
     var firstEnd=36-reduceSingle(life);
-    var timeline=[];
+    var timeline=[],monthTimeline=[];
     for(var yrx=current-1;yrx<=current+9;yrx++){
       var n=reduceSingle(reduceSingle(m)+reduceSingle(d)+reduceSingle(digitSum(yrx)));
       timeline.push({year:yrx,personalYear:n,cardName:NAMES[cardIndex(n)],keywords:KEYWORDS[cardIndex(n)],plainSummary:yearSummary(n)});
     }
+    for(var mm=1;mm<=12;mm++){
+      var pm=reduceSingle(personalYear+mm);
+      monthTimeline.push({month:mm,personalMonth:pm,cardName:NAMES[cardIndex(pm)],keywords:KEYWORDS[cardIndex(pm)],plainSummary:yearSummary(pm)});
+    }
+    var identityProfile={rule:"人格牌、靈魂牌、生命道路與態度數描述主要內外在節奏。",evidence:["人格牌 "+personality+" "+NAMES[cardIndex(personality)],"靈魂牌 "+soul+" "+NAMES[cardIndex(soul)],"生命道路 "+((life===11||life===22||life===33)?life+"/"+reduceSingle(life):life),"態度數 "+attitude]};
+    var careerProfile={rule:"工作主題只從生命道路、人格牌、目前流年與 Pinnacle 節奏整理。",evidence:["生命道路 "+life,"人格牌 "+NAMES[cardIndex(personality)],current+" 流年 "+personalYear+" "+NAMES[cardIndex(personalYear)],"Pinnacles "+[p1,p2,p3,p4].join(" → ")]};
+    var wealthProfile={rule:"財務只談資源與現實節奏，不做投資預測。",evidence:["目前流年 "+personalYear+" "+NAMES[cardIndex(personalYear)],"目前月份 "+personalMonth+" "+NAMES[cardIndex(personalMonth)],"Challenges "+[c1,c2,c3,c4].join(" → ")]};
+    var relationshipProfile={rule:"關係主題以人格/靈魂差異、態度數與目前流年作自我反思。",evidence:["人格牌 "+NAMES[cardIndex(personality)],"靈魂牌 "+NAMES[cardIndex(soul)],"態度數 "+attitude,current+" 流年 "+personalYear]};
     return {
       methodVersion:"tarot-personality-soul-birthday-v6-timeline",
       lifePathNumber:life,
@@ -41,7 +49,8 @@
       personalMonth:personalMonth,birthCards:birthCards,
       birthCardDisplay:birthCards.map(function(x){return x.number+" "+x.name}).join(" × "),
       pinnacles:[p1,p2,p3,p4],pinnacleTiming:["0–"+firstEnd,(firstEnd+1)+"–"+(firstEnd+9),(firstEnd+10)+"–"+(firstEnd+18),(firstEnd+19)+"+"],
-      challenges:[c1,c2,c3,c4],periodCycles:[mr,dr,yr],personalYearTimeline:timeline,
+      challenges:[c1,c2,c3,c4],periodCycles:[mr,dr,yr],personalYearTimelineStartYear:current-1,personalYearTimelineEndYear:current+9,personalYearTimeline:timeline,personalMonthTimeline:monthTimeline,
+      identityProfile:identityProfile,careerProfile:careerProfile,wealthProfile:wealthProfile,relationshipProfile:relationshipProfile,
       note:cards.indexOf(13)>=0?"死神牌在此代表轉化與階段更替，不是死亡預測。":"塔羅生命靈數作為娛樂與自我反思用途，不代表必然命運。"
     };
   }
