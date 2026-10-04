@@ -2,9 +2,6 @@
   "private": true,
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "dev:teacher": "vite --config vite.teacher.config.ts",
-    "check:teacher": "tsc --noEmit -p teacher-spa/tsconfig.json",
-    "build:teacher": "vite build --config vite.teacher.config.ts",
     "dev:web": "vite --config vite.web.config.ts",
     "check:web": "tsc --noEmit -p web-spa/tsconfig.json",
     "build:web": "vite build --config vite.web.config.ts"
