@@ -18,7 +18,7 @@ declare global{interface Window{
  CrewAI?:any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession};CrewLiveUI?:any;CrewTeacherReport?:any;
  CrewDB?:any;CrewGeminiVision?:any;CrewTextbookStore?:any;CrewTextbookLesson?:any;
  CrewStoryStore?:{save(book:StoryBook):Promise<StoryBook>;get(id:string):Promise<StoryBook|null>;list():Promise<StoryBook[]>;remove(id:string):Promise<void>;last():Promise<StoryBook|null>};
- CrewStoryGenerator?:any;CrewBookAnalyzer?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;
+ CrewStoryGenerator?:any;CrewBookAnalyzer?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;CrewFortuneVedicEnrich?:any;
  CrewFortuneBaZiRender?:any;CrewFortuneTarotRender?:any;CrewFortuneVedicRender?:any;
  Astronomy?:any;Lunar?:any;
 }}
@@ -44,6 +44,7 @@ export async function ensureFortuneServices(){
  if(!window.CrewFortuneBaZi)await loadScript("/features/fortune/bazi/calculator.js");
  if(!window.CrewFortuneTarot)await loadScript("/features/fortune/tarot/calculator.js");
  if(!window.CrewFortuneVedic)await loadScript("/features/fortune/vedic/calculator.js");
+ if(!window.CrewFortuneVedicEnrich)await loadScript("/features/fortune/vedic/enrich.js");
  if(!window.CrewFortuneBaZiRender)await loadScript("/features/fortune/bazi/render.js");
  if(!window.CrewFortuneTarotRender)await loadScript("/features/fortune/tarot/render.js");
  if(!window.CrewFortuneVedicRender)await loadScript("/features/fortune/vedic/render.js");
