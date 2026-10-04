@@ -578,7 +578,8 @@
 
       socket.onmessage=function(event){
         if(!self._isActiveAttempt(attempt))return;
-        Promise.resolve(decodeWsData(event.data)).then(function(text){
+
+        function consumeFrame(text){
           if(!self._isActiveAttempt(attempt))return;
           var message;
           try{message=JSON.parse(text);}catch(error){
@@ -595,8 +596,47 @@
           self._handleMessage(message,attempt,resolveSetup,function(error){
             failBeforeSetup(error,"setup-api-error");
           });
-        }).catch(function(error){
-          if(!self._isActiveAttempt(attempt))return;
+        }
+
+        try{
+          if(typeof event.data==="string"){
+            consumeFrame(event.data);
+            return;
+          }
+          if(event.data instanceof ArrayBuffer){
+            consumeFrame(new TextDecoder("utf-8").decode(new Uint8Array(event.data)));
+            return;
+          }
+          if(ArrayBuffer.isView&&ArrayBuffer.isView(event.data)){
+            consumeFrame(new TextDecoder("utf-8").decode(new Uint8Array(event.data.buffer,event.data.byteOffset,event.data.byteLength)));
+            return;
+          }
+          if(typeof Blob!=="undefined"&&event.data instanceof Blob){
+            event.data.text().then(consumeFrame).catch(function(error){
+              if(!self._isActiveAttempt(attempt))return;
+              if(self._deps.logger&&self._deps.logger.warn){
+                self._deps.logger.warn("[CrewLive frame decode failed]",{
+                  attemptId:attempt.id,
+                  model:attempt.model,
+                  dataType:"Blob",
+                  detail:sanitizeDetail(error&&error.message||error)
+                });
+              }
+            });
+            return;
+          }
+          decodeWsData(event.data).then(consumeFrame).catch(function(error){
+            if(!self._isActiveAttempt(attempt))return;
+            if(self._deps.logger&&self._deps.logger.warn){
+              self._deps.logger.warn("[CrewLive frame decode failed]",{
+                attemptId:attempt.id,
+                model:attempt.model,
+                dataType:Object.prototype.toString.call(event.data),
+                detail:sanitizeDetail(error&&error.message||error)
+              });
+            }
+          });
+        }catch(error){
           if(self._deps.logger&&self._deps.logger.warn){
             self._deps.logger.warn("[CrewLive frame decode failed]",{
               attemptId:attempt.id,
@@ -605,7 +645,7 @@
               detail:sanitizeDetail(error&&error.message||error)
             });
           }
-        });
+        }
       };
 
       socket.onerror=function(){
