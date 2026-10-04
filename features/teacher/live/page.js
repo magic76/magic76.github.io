@@ -5,6 +5,8 @@ prefIds.forEach(function(id){
  var saved=localStorage.getItem(key);if(saved)el.value=saved;
  el.onchange=function(){localStorage.setItem(key,el.value)};
 });
+var requestedScene=new URLSearchParams(location.search).get("scene");
+if(requestedScene){var sceneEl=document.getElementById("scene");for(var si=0;si<sceneEl.options.length;si++){if(sceneEl.options[si].value===requestedScene||sceneEl.options[si].text===requestedScene){sceneEl.selectedIndex=si;break}}}
 var continueContext=null;
 var pendingTeacherImage=null;
 var teacherResultText="";
