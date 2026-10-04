@@ -1,5 +1,5 @@
 import{useEffect,useRef,useState}from"react";import{clearGeminiKey,ensureLive,geminiKey,saveGeminiKey}from"../lib/runtime";
-function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務").replace(/models\\/[^\\s]+/gi,"語音服務")}
+function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 export function SettingsPage(){
  const[key,setKey]=useState(geminiKey()),[remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key"))),[status,setStatus]=useState("尚未測試。");
  const[testing,setTesting]=useState(false),[volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));const liveRef=useRef<any>(null);
