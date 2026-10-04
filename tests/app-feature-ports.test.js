@@ -119,3 +119,38 @@ test("Teacher avatar is served from public site assets",()=>{
   }
   assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")),"public Teacher avatar asset should exist");
 });
+
+test("Teacher Web mirrors native app feature names instead of invented tools",()=>{
+  const home=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  for(const text of ["跟老師聊","教材陪讀","單字練習","情境課程","朗讀糾音"]){
+    assert.ok(home.includes(text),"Teacher should expose native feature: "+text);
+  }
+  assert.ok(!home.includes("表達教練"),"Teacher should not invent a one-line expression coach");
+  assert.ok(!home.includes("工作情境"),"Teacher should not promote an invented standalone work-scenario feature");
+  for(const page of ["teacher-vocabulary.html","teacher-course.html","teacher-pronunciation.html"]){
+    assert.ok(fs.existsSync(path.join(root,page)),page+" should exist");
+    const source=fs.readFileSync(path.join(root,page),"utf8");
+    assert.ok(source.includes("features/shared/design-system.css"),page+" should use Crew Web design system");
+    assert.ok(source.includes("global-nav"),page+" should remain inside Crew Web navigation");
+  }
+});
+
+test("Teacher Live uses app-style controls and gated reports",()=>{
+  const page=fs.readFileSync(path.join(root,"teacher-live.html"),"utf8");
+  const live=fs.readFileSync(path.join(root,"features/teacher/live/page.js"),"utf8");
+  const report=fs.readFileSync(path.join(root,"features/teacher/reports/session-report.js"),"utf8");
+  for(const id of ["chatMode","guidance","voice","languageStyle"])assert.ok(page.includes('id="'+id+'"'));
+  for(const oldId of ["coachInput","coachGo","coachResult"])assert.ok(!page.includes('id="'+oldId+'"'));
+  assert.ok(!live.includes("coachGo"));
+  assert.ok(report.includes("MIN_DURATION=60000"));
+  assert.ok(report.includes("MIN_TURNS=3"));
+  assert.ok(report.includes("MIN_WORDS=20"));
+  assert.ok(report.includes("禁止根據 transcript 評估 pronunciation"));
+});
+
+test("Teacher vocabulary preserves adaptive and review behavior",()=>{
+  const source=fs.readFileSync(path.join(root,"features/teacher/vocabulary/page.js"),"utf8");
+  assert.ok(source.includes("crew_vocab_score"));
+  assert.ok(source.includes("setTimeout(next,3000)"),"wrong answers should remain visible for review");
+  assert.ok(source.includes("speechSynthesis"),"vocabulary should provide pronunciation");
+});
