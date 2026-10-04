@@ -55,7 +55,7 @@ test("Tarot numerology port matches known deterministic values",()=>{
 });
 
 test("main product pages expose the app-derived entry points",()=>{
-  const teacher=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  const teacher=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
   const story=fs.readFileSync(path.join(root,"story.html"),"utf8");
   const fortune=fs.readFileSync(path.join(root,"fortune.html"),"utf8");
   assert.ok(teacher.includes("teacher-textbook.html"));
@@ -69,7 +69,7 @@ test("main product pages expose the app-derived entry points",()=>{
 
 test("core surfaces use one Crew Web design system",()=>{
   const globalPages=[
-    "index.html","settings.html","teacher.html","teacher-textbook.html",
+    "index.html","settings.html","teacher-textbook.html",
     "story.html","story-shelf.html","story-create.html","story-reader.html",
     "fortune.html","fortune-reading.html"
   ];
@@ -80,7 +80,7 @@ test("core surfaces use one Crew Web design system",()=>{
     assert.ok(!source.includes("crew.css"),page+" should not depend on the legacy Crew stylesheet");
     assert.ok(!source.includes("product-shell.css"),page+" should not depend on the superseded product shell");
   }
-  for(const page of ["teacher.html","story.html","fortune.html"]){
+  for(const page of ["story.html","fortune.html"]){
     const source=fs.readFileSync(path.join(root,page),"utf8");
     assert.ok(source.includes("subnav"),page+" should use product-local secondary navigation");
     assert.ok(!source.includes('id="liveStage"'),page+" should not embed the Live console on its home surface");
@@ -105,23 +105,28 @@ test("Live experiences are dedicated session pages",()=>{
 test("deep links enter the dedicated Live sessions",()=>{
   const reader=fs.readFileSync(path.join(root,"features/story/reader/page.js"),"utf8");
   const reading=fs.readFileSync(path.join(root,"features/fortune/reading/page.js"),"utf8");
-  const teacher=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  const teacher=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
+  const course=fs.readFileSync(path.join(root,"teacher-course.html"),"utf8");
   assert.ok(reader.includes('story-live.html?from=book'));
   assert.ok(reading.includes('fortune-live.html?from=reading'));
-  assert.ok(teacher.includes('teacher-live.html'));
+  assert.ok(teacher.includes('to="/live"'));
+  assert.ok(course.includes('teacher-app/#/live?mode=course'));
 });
 
 test("Teacher avatar is served from public site assets",()=>{
-  for(const page of ["teacher.html","teacher-live.html"]){
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("assets/teacher/teacher-emma.webp"),page+" should use the local public Teacher avatar");
-    assert.ok(!source.includes("raw.githubusercontent.com/magic76/crew-teacher"),page+" must not reference the private app repository");
-  }
+  const legacy=fs.readFileSync(path.join(root,"teacher-live.html"),"utf8");
+  const reactTutor=fs.readFileSync(path.join(root,"teacher-spa/src/pages/TutorPage.tsx"),"utf8");
+  assert.ok(legacy.includes("assets/teacher/teacher-emma.webp"));
+  assert.ok(reactTutor.includes("assets/teacher/teacher-emma.webp"));
+  assert.ok(!legacy.includes("raw.githubusercontent.com/magic76/crew-teacher"));
+  assert.ok(!reactTutor.includes("raw.githubusercontent.com/magic76/crew-teacher"));
   assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")),"public Teacher avatar asset should exist");
 });
 
 test("Teacher Web mirrors native app feature names instead of invented tools",()=>{
-  const home=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  const practice=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
+  const learn=fs.readFileSync(path.join(root,"teacher-spa/src/pages/LearnPage.tsx"),"utf8");
+  const home=practice+"\n"+learn;
   for(const text of ["跟老師聊","教材陪讀","單字練習","情境課程","朗讀糾音"]){
     assert.ok(home.includes(text),"Teacher should expose native feature: "+text);
   }
@@ -153,4 +158,32 @@ test("Teacher vocabulary preserves adaptive and review behavior",()=>{
   assert.ok(source.includes("crew_vocab_score"));
   assert.ok(source.includes("setTimeout(next,3000)"),"wrong answers should remain visible for review");
   assert.ok(source.includes("speechSynthesis"),"vocabulary should provide pronunciation");
+});
+
+
+test("Teacher entry is now a stateful React application",()=>{
+  const entry=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
+  const app=fs.readFileSync(path.join(root,"teacher-spa/src/App.tsx"),"utf8");
+  const store=fs.readFileSync(path.join(root,"teacher-spa/src/store/teacherStore.ts"),"utf8");
+  const live=fs.readFileSync(path.join(root,"teacher-spa/src/live/useLiveSession.ts"),"utf8");
+  const pkg=JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8"));
+  assert.ok(entry.includes("teacher-app/#/practice"),"legacy Teacher URL should enter the React SPA");
+  for(const route of ["/practice","/learn","/tutor","/me","/live"])assert.ok(app.includes(route),"React Teacher should define "+route);
+  assert.ok(store.includes('from "zustand"'),"Teacher product state should use Zustand");
+  assert.ok(live.includes("requesting-mic")&&live.includes("reporting")&&live.includes("ended"),"Live should expose explicit lifecycle states");
+  assert.equal(pkg.dependencies.react,"19.3.0");
+  assert.equal(pkg.dependencies["react-router-dom"],"7.18.4");
+  assert.equal(pkg.dependencies.zustand,"5.0.15");
+  assert.ok(pkg.scripts["build:teacher"]);
+});
+
+
+test("Teacher Pages build output is tracked",()=>{
+  const built=path.join(root,"teacher-app");
+  const index=fs.readFileSync(path.join(built,"index.html"),"utf8");
+  const assets=fs.readdirSync(path.join(built,"assets"));
+  assert.ok(index.includes("./assets/"),"Teacher build should reference local static assets");
+  assert.ok(assets.some((name)=>/^index-.*\.js$/.test(name)),"Teacher build should contain the Vite JS bundle");
+  assert.ok(assets.some((name)=>/^index-.*\.css$/.test(name)),"Teacher build should contain the Vite CSS bundle");
+  assert.ok(assets.some((name)=>/^teacher-emma-.*\.webp$/.test(name)),"Teacher build should contain the local tutor avatar");
 });
