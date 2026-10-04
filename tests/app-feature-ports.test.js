@@ -217,3 +217,24 @@ test("Fortune history is reopenable instead of summary-only",()=>{
  assert.ok(store.includes("function get(id)"));
  assert.ok(store.includes("filter(function(x){return !x||x.id!==id})"),"history updates should upsert by reading id");
 });
+
+
+test("Fortune keeps Live as secondary help instead of a primary product surface",()=>{
+ const layout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
+ const home=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ const reading=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ const common=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/Common.tsx"),"utf8");
+ const bazi=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/BaZiTabs.tsx"),"utf8");
+ const tarot=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/TarotTabs.tsx"),"utf8");
+ const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
+ assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
+ assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
+ assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
+ assert.ok(reading.includes("看不懂這些資料？"),"Live help should be collapsed behind a data-help affordance");
+ assert.ok(reading.includes("/fortune/live?from=reading"),"the optional result follow-up should still exist");
+ assert.ok(!common.includes("問老師"),"topic evidence cards should remain data-only");
+ for(const source of [bazi,tarot,vedic]){
+  assert.ok(!source.includes("onAsk"),"result timelines should not route individual facts into Live");
+  assert.ok(!source.includes("問老師"),"result tabs should not promote Live");
+ }
+});
