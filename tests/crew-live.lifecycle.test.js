@@ -446,3 +446,76 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
 
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+
+test("still image is sent as Gemini Live realtimeInput.video with an optional prompt",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const vision=[];
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps,
+    onVisionSent:info=>vision.push(info)
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  const ok=session.sendImage(
+    {data:"YWJj",mimeType:"image/jpeg"},
+    {prompt:"請看這張圖並問我一個問題。"}
+  );
+
+  assert.equal(ok,true);
+
+  const videoMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.video);
+  assert.ok(videoMessage);
+  assert.equal(videoMessage.realtimeInput.video.data,"YWJj");
+  assert.equal(videoMessage.realtimeInput.video.mimeType,"image/jpeg");
+
+  const promptMessage=socket.sent.find(item=>
+    item.clientContent&&
+    item.clientContent.turns&&
+    item.clientContent.turns[0]&&
+    item.clientContent.turns[0].parts[0].text==="請看這張圖並問我一個問題。"
+  );
+  assert.ok(promptMessage);
+  assert.equal(promptMessage.clientContent.turnComplete,true);
+  assert.equal(vision.length,1);
+  assert.equal(vision[0].mimeType,"image/jpeg");
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("data URL image input is normalized before Live send",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  assert.equal(session.sendImage("data:image/png;base64,eHl6"),true);
+  const videoMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.video);
+  assert.equal(videoMessage.realtimeInput.video.data,"eHl6");
+  assert.equal(videoMessage.realtimeInput.video.mimeType,"image/png");
+
+  assert.equal(session.sendImage({data:"abc",mimeType:"application/pdf"}),false);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
