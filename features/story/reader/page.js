@@ -23,7 +23,7 @@
       id:book.id,title:book.title,currentPage:index,
       pages:pages.slice(Math.max(0,index-2),Math.min(pages.length,index+3)).map(function(p){return p.text||""})
     }));
-    location.href="story.html?from=book";
+    location.href="story-live.html?from=book";
   };
   document.getElementById("deleteStory").onclick=async function(){if(!book||!confirm("刪除這本故事？"))return;await CrewStoryStore.remove(book.id);location.href="story-shelf.html"};
   CrewStoryStore.get(id).then(function(value){
