@@ -1,7 +1,30 @@
 
-(function(global){
+(function(root,factory){
+  var api=factory(root);
+  root.CrewLive=api;
+  if(typeof module==="object"&&module.exports)module.exports=api;
+})(typeof window!=="undefined"?window:globalThis,function(global){
   "use strict";
-  var MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
+
+  var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
+
+  function sanitizeDetail(value){
+    var text=String(value==null?"":value);
+    text=text.replace(/AIza[0-9A-Za-z_-]{16,}/g,"[redacted-key]");
+    text=text.replace(/([?&](?:key|api_key)=)[^&\s]+/gi,"$1[redacted]");
+    text=text.replace(/(wss?:\/\/[^\s?]+)\?[^\s]+/gi,"$1?[redacted]");
+    text=text.replace(/\s+/g," ").trim();
+    return text.slice(0,240);
+  }
+
+  function safeApiError(error){
+    if(!error)return "Gemini Live error";
+    var bits=[];
+    if(error.code!=null)bits.push(String(error.code));
+    if(error.status)bits.push(String(error.status));
+    if(error.message)bits.push(String(error.message));
+    return sanitizeDetail(bits.join(" · ")||"Gemini Live error");
+  }
 
   function bytesToBase64(bytes){
     var binary="",chunk=0x8000;
@@ -55,25 +78,67 @@
 
   function LiveSession(options){
     this.options=options||{};
+    this.models=(this.options.models||DEFAULT_MODELS).slice();
+    this.maxLiveAttempts=Math.max(1,Math.min(
+      Number(this.options.maxLiveAttempts)||this.models.length,
+      this.models.length
+    ));
+    this.connectTimeoutMs=Math.max(100,Number(this.options.connectTimeoutMs)||8000);
+    this.replyTimeoutMs=Math.max(0,Number(this.options.replyTimeoutMs)||0);
+    this.earlyCloseMs=Math.max(1000,Number(this.options.earlyCloseMs)||12000);
+
+    var deps=this.options.deps||{};
+    this._deps={
+      WebSocket:deps.WebSocket||global.WebSocket,
+      now:deps.now||function(){return Date.now();},
+      setTimeout:deps.setTimeout||global.setTimeout.bind(global),
+      clearTimeout:deps.clearTimeout||global.clearTimeout.bind(global),
+      getUserMedia:deps.getUserMedia||function(constraints){
+        if(!global.navigator||!global.navigator.mediaDevices||!global.navigator.mediaDevices.getUserMedia){
+          return Promise.reject(new Error("瀏覽器不支援麥克風 Live 對話"));
+        }
+        return global.navigator.mediaDevices.getUserMedia(constraints);
+      },
+      createAudioContext:deps.createAudioContext||function(){
+        var AudioCtx=global.AudioContext||global.webkitAudioContext;
+        if(!AudioCtx)throw new Error("瀏覽器不支援 Web Audio");
+        return new AudioCtx();
+      },
+      getKey:deps.getKey||function(){
+        return global.CrewAI&&global.CrewAI.key?global.CrewAI.key():"";
+      },
+      logger:deps.logger||global.console
+    };
+
     this.ws=null;
     this.model="";
-    this.ready=false;
     this.running=false;
+    this.ready=false;
     this.stopping=false;
+    this.recovering=false;
+
+    this.attemptSeq=0;
+    this.attemptsUsed=0;
+    this.activeAttempt=null;
+    this.activeModelIndex=-1;
+
+    this.completedTurns=0;
+    this.validOutputSeen=false;
+    this.currentTurnHadAudio=false;
+    this.currentTurnHadValidOutput=false;
+    this.inputTurn="";
+    this.outputTurn="";
+
     this.mediaStream=null;
     this.inputContext=null;
     this.inputSource=null;
     this.processor=null;
     this.silentGain=null;
+
     this.outputContext=null;
     this.outputGain=null;
     this.nextPlayTime=0;
     this.sources=[];
-    this.inputTurn="";
-    this.outputTurn="";
-    this.connectTimer=null;
-    this.connectedAt=0;
-    this.recovering=false;
   }
 
   LiveSession.prototype._status=function(value){
@@ -88,16 +153,107 @@
     if(this.options.onError)this.options.onError(error instanceof Error?error:new Error(String(error)));
   };
 
+  LiveSession.prototype._isActiveAttempt=function(attempt){
+    return !!attempt&&
+      this.running&&
+      !this.stopping&&
+      this.activeAttempt===attempt&&
+      this.ws===attempt.socket&&
+      attempt.id===this.attemptSeq;
+  };
+
+  LiveSession.prototype._clearAttemptTimers=function(attempt){
+    if(!attempt)return;
+    if(attempt.setupTimer){
+      this._deps.clearTimeout(attempt.setupTimer);
+      attempt.setupTimer=null;
+    }
+    if(attempt.replyTimer){
+      this._deps.clearTimeout(attempt.replyTimer);
+      attempt.replyTimer=null;
+    }
+  };
+
+  LiveSession.prototype._classifyClose=function(attempt,event){
+    if(attempt&&attempt.closedByClient==="user-stop")return "user-stop";
+    if(attempt&&attempt.closedByClient==="test-complete")return "test-complete";
+    if(attempt&&attempt.closedByClient)return "client-"+attempt.closedByClient;
+    if(event&&event.code===1000&&attempt&&attempt.setupComplete&&!attempt.validOutputSeen){
+      return "server-early";
+    }
+    if(event&&event.code===1000)return "server-normal";
+    return "server-abnormal";
+  };
+
+  LiveSession.prototype._logClose=function(attempt,event){
+    var logger=this._deps.logger;
+    if(!logger||!logger.info)return;
+    var now=this._deps.now();
+    var started=attempt?(attempt.openedAt||attempt.startedAt||now):now;
+    logger.info("[CrewLive close]",{
+      attemptId:attempt?attempt.id:null,
+      model:attempt?attempt.model:"",
+      code:event&&event.code!=null?event.code:null,
+      reason:sanitizeDetail(event&&event.reason||""),
+      wasClean:!!(event&&event.wasClean),
+      setupComplete:!!(attempt&&attempt.setupComplete),
+      livedMs:Math.max(0,now-started),
+      classification:this._classifyClose(attempt,event)
+    });
+  };
+
+  LiveSession.prototype._abandonAttempt=function(attempt,reason,closeSocket){
+    if(!attempt)return;
+    this._clearAttemptTimers(attempt);
+    if(reason)attempt.closedByClient=reason;
+    if(this.activeAttempt===attempt){
+      this.activeAttempt=null;
+      this.ws=null;
+    }
+    if(closeSocket&&attempt.socket){
+      try{
+        if(attempt.socket.readyState===1){
+          attempt.socket.close(1000,sanitizeDetail(reason||"candidate abandoned").slice(0,80));
+        }
+      }catch(_){}
+    }
+  };
+
   LiveSession.prototype._clearPlayback=function(){
     this.sources.forEach(function(source){
       try{source.stop();}catch(_){}
     });
     this.sources=[];
-    if(this.outputContext)this.nextPlayTime=this.outputContext.currentTime;
+    if(this.outputContext)this.nextPlayTime=this.outputContext.currentTime||0;
   };
 
-  LiveSession.prototype._playPcm=function(base64,mime){
-    if(!base64||!this.outputContext)return;
+  LiveSession.prototype.hasPendingPlayback=function(){
+    if(this.sources.length>0)return true;
+    if(!this.outputContext)return false;
+    return (this.nextPlayTime-(this.outputContext.currentTime||0))>0.03;
+  };
+
+  LiveSession.prototype.getPlaybackRemainingMs=function(){
+    if(!this.outputContext)return 0;
+    return Math.max(0,Math.round((this.nextPlayTime-(this.outputContext.currentTime||0))*1000));
+  };
+
+  LiveSession.prototype.waitForPlaybackDrain=function(maxMs){
+    var self=this;
+    var limit=Math.max(100,Number(maxMs)||6000);
+    var started=this._deps.now();
+    return new Promise(function(resolve){
+      function check(){
+        if(!self.hasPendingPlayback()){resolve();return;}
+        if(self._deps.now()-started>=limit){resolve();return;}
+        self._deps.setTimeout(check,25);
+      }
+      check();
+    });
+  };
+
+  LiveSession.prototype._playPcm=function(base64,mime,attempt){
+    if(!base64||!this.outputContext||!this._isActiveAttempt(attempt))return;
     var rate=24000;
     var match=String(mime||"").match(/rate=(\d+)/i);
     if(match)rate=Number(match[1])||24000;
@@ -105,6 +261,8 @@
     var bytes=base64ToBytes(base64);
     var samples=Math.floor(bytes.length/2);
     if(!samples)return;
+
+    this._markValidOutput(attempt,true);
 
     var floats=new Float32Array(samples);
     var view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
@@ -122,7 +280,7 @@
       self.sources=self.sources.filter(function(x){return x!==source;});
     };
 
-    var start=Math.max(this.outputContext.currentTime+0.02,this.nextPlayTime||0);
+    var start=Math.max((this.outputContext.currentTime||0)+0.02,this.nextPlayTime||0);
     source.start(start);
     this.nextPlayTime=start+buffer.duration;
     this.sources.push(source);
@@ -130,28 +288,56 @@
     if(this.options.onSpeaking)this.options.onSpeaking(true);
   };
 
-  LiveSession.prototype._sendOpening=function(){
+  LiveSession.prototype._markValidOutput=function(attempt,isAudio){
+    if(!this._isActiveAttempt(attempt))return;
+    attempt.validOutputSeen=true;
+    this.validOutputSeen=true;
+    this.currentTurnHadValidOutput=true;
+    if(isAudio)this.currentTurnHadAudio=true;
+    if(attempt.replyTimer){
+      this._deps.clearTimeout(attempt.replyTimer);
+      attempt.replyTimer=null;
+    }
+  };
+
+  LiveSession.prototype._sendOpening=function(attempt){
+    if(!this._isActiveAttempt(attempt))return;
     var prompt=(this.options.openingPrompt||"").trim();
-    if(!prompt||!this.ws||this.ws.readyState!==WebSocket.OPEN)return;
-    this.ws.send(JSON.stringify({
-      clientContent:{
-        turns:[{role:"user",parts:[{text:prompt}]}],
-        turnComplete:true
-      }
-    }));
+    if(!prompt)return;
+    try{
+      attempt.socket.send(JSON.stringify({
+        clientContent:{
+          turns:[{role:"user",parts:[{text:prompt}]}],
+          turnComplete:true
+        }
+      }));
+    }catch(error){
+      this._beginRecovery(attempt,"opening-send",error);
+    }
   };
 
   LiveSession.prototype.sendText=function(text){
     text=String(text||"").trim();
-    if(!text||!this.ready||!this.ws||this.ws.readyState!==WebSocket.OPEN)return false;
-    this.ws.send(JSON.stringify({realtimeInput:{text:text}}));
-    return true;
+    var attempt=this.activeAttempt;
+    if(!text||!this.ready||!this._isActiveAttempt(attempt))return false;
+    try{
+      attempt.socket.send(JSON.stringify({
+        clientContent:{
+          turns:[{role:"user",parts:[{text:text}]}],
+          turnComplete:true
+        }
+      }));
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"text-send",error);
+      return false;
+    }
   };
 
   LiveSession.prototype._startCapture=function(){
     if(!this.mediaStream||this.processor)return;
-    var AudioCtx=global.AudioContext||global.webkitAudioContext;
-    if(!this.inputContext)this.inputContext=new AudioCtx();
+    if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
+
     this.inputSource=this.inputContext.createMediaStreamSource(this.mediaStream);
     this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.silentGain=this.inputContext.createGain();
@@ -164,41 +350,42 @@
     var self=this;
     var rate=this.inputContext.sampleRate;
     this.processor.onaudioprocess=function(event){
-      if(!self.running||!self.ready||!self.ws||self.ws.readyState!==WebSocket.OPEN)return;
-      var data=event.inputBuffer.getChannelData(0);
-      self.ws.send(JSON.stringify({
-        realtimeInput:{
-          audio:{
-            data:pcm16Base64(data,rate,16000),
-            mimeType:"audio/pcm;rate=16000"
+      var attempt=self.activeAttempt;
+      if(!self.ready||!self._isActiveAttempt(attempt))return;
+      try{
+        var data=event.inputBuffer.getChannelData(0);
+        attempt.socket.send(JSON.stringify({
+          realtimeInput:{
+            audio:{
+              data:pcm16Base64(data,rate,16000),
+              mimeType:"audio/pcm;rate=16000"
+            }
           }
-        }
-      }));
+        }));
+      }catch(error){
+        self._beginRecovery(attempt,"audio-send",error);
+      }
     };
   };
 
-  LiveSession.prototype._handle=function(message){
+  LiveSession.prototype._armReplyTimeout=function(attempt){
+    if(!this.replyTimeoutMs||!this._isActiveAttempt(attempt)||attempt.validOutputSeen)return;
     var self=this;
+    if(attempt.replyTimer)this._deps.clearTimeout(attempt.replyTimer);
+    attempt.replyTimer=this._deps.setTimeout(function(){
+      if(!self._isActiveAttempt(attempt)||attempt.validOutputSeen)return;
+      self._beginRecovery(
+        attempt,
+        "reply-timeout",
+        new Error("Live 已完成 setup，但在期限內沒有收到有效回覆")
+      );
+    },this.replyTimeoutMs);
+  };
 
-    if(message.error){
-      this._error(new Error(message.error.message||"Gemini Live error"));
-      this.stop();
-      return;
-    }
+  LiveSession.prototype._handleServer=function(server,attempt){
+    if(!this._isActiveAttempt(attempt))return;
 
-    if(message.setupComplete||message.setup_complete){
-      clearTimeout(this.connectTimer);
-      this.ready=true;
-      this.connectedAt=Date.now();
-      this._status("Live 已連線，可以直接說話");
-      this._state("ready");
-      this._startCapture();
-      this._sendOpening();
-      return;
-    }
-
-    var server=message.serverContent||message.server_content;
-    if(!server)return;
+    var self=this;
 
     if(server.interrupted){
       this._clearPlayback();
@@ -215,6 +402,7 @@
     var output=server.outputTranscription||server.output_transcription;
     if(output&&output.text){
       this.outputTurn=mergeTranscript(this.outputTurn,output.text);
+      this._markValidOutput(attempt,false);
       if(this.options.onOutputTranscript)this.options.onOutputTranscript(this.outputTurn);
     }
 
@@ -225,248 +413,430 @@
         var inline=part&&(part.inlineData||part.inline_data);
         var mime=inline&&(inline.mimeType||inline.mime_type||"");
         if(inline&&inline.data&&String(mime).indexOf("audio/pcm")===0){
-          self._playPcm(inline.data,mime);
+          self._playPcm(inline.data,mime,attempt);
         }
       });
     }
 
     if(server.turnComplete||server.turn_complete){
-      if(this.options.onSpeaking)this.options.onSpeaking(false);
-      if(this.options.onTurnComplete){
-        this.options.onTurnComplete({input:this.inputTurn,output:this.outputTurn});
-      }
+      var result={
+        input:this.inputTurn,
+        output:this.outputTurn,
+        hasValidOutput:this.currentTurnHadValidOutput,
+        hadAudio:this.currentTurnHadAudio,
+        model:this.model
+      };
+
+      if(this.currentTurnHadValidOutput)this.completedTurns++;
+
+      if(this.options.onTurnComplete)this.options.onTurnComplete(result);
+
       this.inputTurn="";
       this.outputTurn="";
-      this._status("你可以直接繼續說");
+      this.currentTurnHadAudio=false;
+      this.currentTurnHadValidOutput=false;
+
+      this.waitForPlaybackDrain().then(function(){
+        if(!self._isActiveAttempt(attempt))return;
+        if(self.options.onSpeaking)self.options.onSpeaking(false);
+        self._status("你可以直接繼續說");
+      });
     }
   };
 
-  LiveSession.prototype._connectModel=function(model){
+  LiveSession.prototype._handleMessage=function(message,attempt,resolveSetup,rejectSetup){
+    if(!this._isActiveAttempt(attempt))return;
+
+    if(message.error){
+      var messageText=safeApiError(message.error);
+      if(!attempt.setupComplete){
+        rejectSetup(new Error(messageText));
+      }else{
+        this._beginRecovery(attempt,"api-error",new Error(messageText));
+      }
+      return;
+    }
+
+    if(message.setupComplete||message.setup_complete){
+      if(attempt.setupComplete)return;
+      attempt.setupComplete=true;
+      attempt.setupCompletedAt=this._deps.now();
+      this._clearAttemptTimers(attempt);
+      resolveSetup(attempt);
+      return;
+    }
+
+    if(!attempt.setupComplete)return;
+
+    var server=message.serverContent||message.server_content;
+    if(server)this._handleServer(server,attempt);
+  };
+
+  LiveSession.prototype._connectCandidate=function(model,index){
     var self=this;
+    var WSCtor=this._deps.WebSocket;
+    if(!WSCtor)return Promise.reject(new Error("瀏覽器不支援 WebSocket"));
+
+    this.attemptsUsed++;
+    this.attemptSeq++;
+
+    var attempt={
+      id:this.attemptSeq,
+      model:model,
+      index:index,
+      startedAt:this._deps.now(),
+      openedAt:0,
+      setupCompletedAt:0,
+      setupComplete:false,
+      validOutputSeen:false,
+      closedByClient:"",
+      setupTimer:null,
+      replyTimer:null,
+      socket:null
+    };
+
+    this.activeAttempt=attempt;
+    this.activeModelIndex=index;
+    this.model=model;
+    this.ready=false;
+    this._status("正在連線 "+model+"…");
+    this._state("connecting");
+
     return new Promise(function(resolve,reject){
-      var settled=false;
-      self.model=model;
-      self._status("正在連線 "+model+"…");
-      self._state("connecting");
+      var finished=false;
+      var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
+      var socket=new WSCtor(url);
+      attempt.socket=socket;
+      self.ws=socket;
 
-      var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(global.CrewAI.key());
-      var ws=new WebSocket(url);
-      self.ws=ws;
+      function failBeforeSetup(error,closeReason){
+        if(finished)return;
+        finished=true;
+        self._clearAttemptTimers(attempt);
+        self._abandonAttempt(attempt,closeReason||"candidate-failed",true);
+        reject(error instanceof Error?error:new Error(String(error)));
+      }
 
-      self.connectTimer=setTimeout(function(){
-        if(settled)return;
-        settled=true;
-        ws.__crewAbandoned=true;
-        if(self.ws===ws)self.ws=null;
-        try{ws.close(1000,"candidate timeout");}catch(_){}
-        reject(new Error(model+" connect timeout"));
-      },8000);
+      function resolveSetup(activeAttempt){
+        if(finished||!self._isActiveAttempt(activeAttempt))return;
+        finished=true;
+        self._clearAttemptTimers(activeAttempt);
+        resolve(activeAttempt);
+      }
 
-      ws.onopen=function(){
-        ws.send(JSON.stringify({
-          setup:{
-            model:"models/"+model,
-            generationConfig:{
-              responseModalities:["AUDIO"],
-              speechConfig:{
-                voiceConfig:{
-                  prebuiltVoiceConfig:{voiceName:self.options.voice||"Kore"}
+      attempt.setupTimer=self._deps.setTimeout(function(){
+        if(!self._isActiveAttempt(attempt)||attempt.setupComplete)return;
+        failBeforeSetup(new Error(model+" setup timeout"),"setup-timeout");
+      },self.connectTimeoutMs);
+
+      socket.onopen=function(){
+        if(!self._isActiveAttempt(attempt))return;
+        attempt.openedAt=self._deps.now();
+        try{
+          socket.send(JSON.stringify({
+            setup:{
+              model:"models/"+model,
+              generationConfig:{
+                responseModalities:["AUDIO"],
+                speechConfig:{
+                  voiceConfig:{
+                    prebuiltVoiceConfig:{voiceName:self.options.voice||"Kore"}
+                  }
                 }
+              },
+              realtimeInputConfig:{
+                automaticActivityDetection:{disabled:false},
+                activityHandling:"START_OF_ACTIVITY_INTERRUPTS"
+              },
+              inputAudioTranscription:{},
+              outputAudioTranscription:{},
+              contextWindowCompression:{slidingWindow:{}},
+              systemInstruction:{
+                parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
               }
-            },
-            realtimeInputConfig:{
-              automaticActivityDetection:{disabled:false},
-              activityHandling:"START_OF_ACTIVITY_INTERRUPTS"
-            },
-            inputAudioTranscription:{},
-            outputAudioTranscription:{},
-            contextWindowCompression:{slidingWindow:{}},
-            systemInstruction:{
-              parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
             }
-          }
-        }));
+          }));
+        }catch(error){
+          failBeforeSetup(error,"setup-send-failed");
+        }
       };
 
-      ws.onmessage=function(event){
+      socket.onmessage=function(event){
+        if(!self._isActiveAttempt(attempt))return;
         var message;
         try{message=JSON.parse(event.data);}catch(_){return;}
-
-        if((message.setupComplete||message.setup_complete)&&!settled){
-          settled=true;
-          clearTimeout(self.connectTimer);
-          self._handle(message);
-          resolve(model);
-          return;
-        }
-
-        if(settled)self._handle(message);
+        self._handleMessage(message,attempt,resolveSetup,function(error){
+          failBeforeSetup(error,"setup-api-error");
+        });
       };
 
-      ws.onerror=function(){
-        if(ws.__crewAbandoned||self.ws!==ws)return;
-        if(!settled){
-          settled=true;
-          clearTimeout(self.connectTimer);
-          reject(new Error(model+" WebSocket error"));
-        }else{
-          self._error(new Error(model+" WebSocket error"));
+      socket.onerror=function(){
+        if(!self._isActiveAttempt(attempt))return;
+        if(!attempt.setupComplete){
+          failBeforeSetup(new Error(model+" WebSocket error"),"socket-error");
+          return;
         }
+        self._beginRecovery(attempt,"socket-error",new Error(model+" WebSocket error"));
       };
 
-      ws.onclose=function(event){
-        clearTimeout(self.connectTimer);
+      socket.onclose=function(event){
+        self._logClose(attempt,event);
+        if(!self._isActiveAttempt(attempt))return;
 
-        if(ws.__crewAbandoned||self.ws!==ws||self.stopping)return;
+        self._clearAttemptTimers(attempt);
 
-        if(!settled){
-          settled=true;
-          reject(new Error(model+" closed "+(event.code||"")));
+        if(!attempt.setupComplete){
+          failBeforeSetup(
+            new Error(model+" closed before setup ["+(event.code||0)+"] "+sanitizeDetail(event.reason||"")),
+            "pre-setup-close"
+          );
           return;
         }
 
-        if(!self.running)return;
+        var classification=self._classifyClose(attempt,event);
 
-        self.ready=false;
-        var modelIndex=MODELS.indexOf(model);
-        var livedMs=self.connectedAt?Date.now()-self.connectedAt:0;
-        var canLiveFallback=modelIndex>=0&&modelIndex+1<MODELS.length&&livedMs<12000&&!self.recovering;
-
-        if(canLiveFallback){
-          var nextModel=MODELS[modelIndex+1];
-          self.recovering=true;
-          self._state("connecting");
-          self._status(model+" 已結束，改連 "+nextModel+"…");
-          self._connectModel(nextModel).then(function(){
-            self.recovering=false;
-          }).catch(function(error){
-            self.recovering=false;
-            self._state("error");
-            self._status("Live 模型都無法連線");
-            self._error(error);
-          });
+        if(classification==="user-stop"||classification==="test-complete"){
           return;
         }
 
-        self._state("disconnected");
+        if(classification==="server-early"){
+          self._beginRecovery(
+            attempt,
+            "server-early-close",
+            new Error(model+" ended before a valid reply ["+(event.code||0)+"]")
+          );
+          return;
+        }
+
         if(event.code===1000){
-          self._status("Live session 已正常結束");
-        }else{
-          self._status("Live 已中斷");
-          self._error(new Error(model+" disconnected "+(event.code||"")));
+          self._terminal(
+            "stopped",
+            null,
+            "Live session 已由伺服器正常結束"
+          );
+          return;
         }
+
+        self._terminal(
+          "error",
+          new Error(model+" disconnected ["+(event.code||0)+"] "+sanitizeDetail(event.reason||"")),
+          "Live 已中斷"
+        );
       };
     });
   };
 
-  LiveSession.prototype.start=async function(){
-    if(this.running)return this;
-    if(!global.CrewAI||!global.CrewAI.key())throw new Error("尚未設定 Gemini API key");
-    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-      throw new Error("瀏覽器不支援麥克風 Live 對話");
+  LiveSession.prototype._activateAttempt=function(attempt){
+    if(!this._isActiveAttempt(attempt))throw new Error("Live attempt is no longer active");
+    this.ready=true;
+    this.model=attempt.model;
+    this.activeModelIndex=attempt.index;
+    this._state("ready");
+    this._status("Live 已連線，可以直接說話");
+    this._startCapture();
+    this._sendOpening(attempt);
+    this._armReplyTimeout(attempt);
+  };
+
+  LiveSession.prototype._connectFrom=function(startIndex){
+    var self=this;
+    return (async function(){
+      var errors=[];
+      for(var i=startIndex;i<self.models.length&&self.attemptsUsed<self.maxLiveAttempts;i++){
+        try{
+          var attempt=await self._connectCandidate(self.models[i],i);
+          self._activateAttempt(attempt);
+          return attempt;
+        }catch(error){
+          errors.push(sanitizeDetail(error&&error.message||error));
+        }
+      }
+      throw new Error("Live 模型都無法使用："+errors.join(" | "));
+    })();
+  };
+
+  LiveSession.prototype._beginRecovery=function(attempt,cause,error){
+    if(!this._isActiveAttempt(attempt)||this.recovering||this.stopping)return;
+
+    this.recovering=true;
+    this.ready=false;
+
+    var nextIndex=attempt.index+1;
+    var shouldClose=attempt.socket&&attempt.socket.readyState===1;
+    this._abandonAttempt(attempt,"fallback-"+cause,shouldClose);
+
+    if(nextIndex>=this.models.length||this.attemptsUsed>=this.maxLiveAttempts){
+      this.recovering=false;
+      this._terminal("error",error,"Live 模型都無法繼續");
+      return;
     }
 
-    this.running=true;
-    this.stopping=false;
+    this._state("connecting");
+    this._status(attempt.model+" 無法完成 Live，改連下一個 Live 模型…");
+
+    var self=this;
+    this._connectFrom(nextIndex).then(function(){
+      self.recovering=false;
+    }).catch(function(nextError){
+      self.recovering=false;
+      self._terminal("error",nextError||error,"Live 模型都無法連線");
+    });
+  };
+
+  LiveSession.prototype._openMedia=async function(){
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
 
-    try{
-      var AudioCtx=global.AudioContext||global.webkitAudioContext;
-      this.outputContext=new AudioCtx();
-      this.inputContext=new AudioCtx();
-      this.outputGain=this.outputContext.createGain();
-      this.outputGain.connect(this.outputContext.destination);
-      await this.outputContext.resume();
-      await this.inputContext.resume();
+    this.outputContext=this._deps.createAudioContext();
+    this.inputContext=this._deps.createAudioContext();
 
-      this.mediaStream=await navigator.mediaDevices.getUserMedia({
-        audio:{
-          echoCancellation:true,
-          noiseSuppression:true,
-          autoGainControl:true,
-          channelCount:1
-        }
-      });
+    this.outputGain=this.outputContext.createGain();
+    this.outputGain.connect(this.outputContext.destination);
 
-      var errors=[];
-      for(var i=0;i<MODELS.length;i++){
-        try{
-          await this._connectModel(MODELS[i]);
-          return this;
-        }catch(error){
-          errors.push(error.message);
-          var failedSocket=this.ws;
-          this.ws=null;
-          if(failedSocket){
-            failedSocket.__crewAbandoned=true;
-            try{failedSocket.close(1000,"model fallback");}catch(_){}
-          }
-        }
+    if(this.outputContext.resume)await this.outputContext.resume();
+    if(this.inputContext.resume)await this.inputContext.resume();
+
+    this.mediaStream=await this._deps.getUserMedia({
+      audio:{
+        echoCancellation:true,
+        noiseSuppression:true,
+        autoGainControl:true,
+        channelCount:1
       }
-
-      throw new Error("Live 模型都連不上："+errors.join(" | "));
-    }catch(error){
-      await this.stop();
-      throw error;
-    }
+    });
   };
 
-  LiveSession.prototype.stop=async function(){
-    if(!this.running&&!this.ws&&!this.mediaStream)return;
-
-    this.stopping=true;
-    this.ready=false;
-    clearTimeout(this.connectTimer);
-
-    try{
-      if(this.ws&&this.ws.readyState===WebSocket.OPEN){
-        this.ws.send(JSON.stringify({realtimeInput:{audioStreamEnd:true}}));
-        this.ws.close(1000,"user stopped");
-      }
-    }catch(_){}
-
-    this.ws=null;
-
+  LiveSession.prototype._cleanupMedia=async function(){
     if(this.processor){
       try{this.processor.disconnect();}catch(_){}
       this.processor.onaudioprocess=null;
       this.processor=null;
     }
-
     if(this.inputSource){
       try{this.inputSource.disconnect();}catch(_){}
       this.inputSource=null;
     }
-
     if(this.silentGain){
       try{this.silentGain.disconnect();}catch(_){}
       this.silentGain=null;
     }
-
     if(this.mediaStream){
-      this.mediaStream.getTracks().forEach(function(track){track.stop();});
+      try{
+        this.mediaStream.getTracks().forEach(function(track){track.stop();});
+      }catch(_){}
       this.mediaStream=null;
     }
 
     this._clearPlayback();
 
     if(this.inputContext){
-      try{await this.inputContext.close();}catch(_){}
+      try{if(this.inputContext.close)await this.inputContext.close();}catch(_){}
       this.inputContext=null;
     }
-
     if(this.outputContext){
-      try{await this.outputContext.close();}catch(_){}
+      try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
       this.outputContext=null;
     }
-
-    this.running=false;
-    this.stopping=false;
-    this._state("stopped");
-    this._status("已結束 Live 對話");
-    if(this.options.onSpeaking)this.options.onSpeaking(false);
+    this.outputGain=null;
+    this.nextPlayTime=0;
   };
 
-  global.CrewLive={Session:LiveSession,models:MODELS.slice()};
-})(window);
+  LiveSession.prototype._shutdown=async function(options){
+    options=options||{};
+    var reason=options.reason||"user-stop";
+    var attempt=this.activeAttempt;
+
+    this.stopping=true;
+    this.ready=false;
+    this.recovering=false;
+
+    if(attempt){
+      attempt.closedByClient=reason;
+      this._clearAttemptTimers(attempt);
+      this.activeAttempt=null;
+      this.ws=null;
+
+      try{
+        if(attempt.socket&&attempt.socket.readyState===1){
+          try{
+            attempt.socket.send(JSON.stringify({realtimeInput:{audioStreamEnd:true}}));
+          }catch(_){}
+          attempt.socket.close(1000,reason.slice(0,80));
+        }
+      }catch(_){}
+    }
+
+    await this._cleanupMedia();
+
+    this.running=false;
+    this.ready=false;
+    this.stopping=false;
+  };
+
+  LiveSession.prototype._terminal=function(state,error,status){
+    if(!this.running&&state!=="error")return;
+    var self=this;
+    this._state(state);
+    if(status)this._status(status);
+    if(error)this._error(error);
+
+    this._shutdown({
+      reason:state==="error"?"terminal-error":"server-complete"
+    }).then(function(){
+      if(self.options.onTerminal)self.options.onTerminal({
+        state:state,
+        error:error||null,
+        status:status||""
+      });
+    });
+  };
+
+  LiveSession.prototype.start=async function(){
+    if(this.running)return this;
+    var key=this._deps.getKey();
+    if(!key)throw new Error("尚未設定 Gemini API key");
+
+    this.running=true;
+    this.ready=false;
+    this.stopping=false;
+    this.recovering=false;
+    this.attemptsUsed=0;
+    this.completedTurns=0;
+    this.validOutputSeen=false;
+    this.currentTurnHadAudio=false;
+    this.currentTurnHadValidOutput=false;
+    this.inputTurn="";
+    this.outputTurn="";
+
+    try{
+      await this._openMedia();
+      await this._connectFrom(0);
+      return this;
+    }catch(error){
+      await this._shutdown({reason:"start-failed"});
+      this._state("error");
+      throw error;
+    }
+  };
+
+  LiveSession.prototype.stop=async function(options){
+    options=options||{};
+    var reason=options.reason||"user-stop";
+    await this._shutdown({reason:reason});
+    if(options.emitState!==false)this._state("stopped");
+    if(!options.silentStatus)this._status(reason==="test-complete"?"Live 測試已完成":"已結束 Live 對話");
+    if(this.options.onTerminal&&options.emitTerminal!==false){
+      this.options.onTerminal({state:"stopped",error:null,status:reason});
+    }
+  };
+
+  return {
+    Session:LiveSession,
+    models:DEFAULT_MODELS.slice(),
+    sanitizeDetail:sanitizeDetail,
+    __test:{
+      mergeTranscript:mergeTranscript,
+      safeApiError:safeApiError
+    }
+  };
+});
