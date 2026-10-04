@@ -19,22 +19,126 @@
   function timeout(p,ms,label){return Promise.race([p,new Promise(function(_,rej){setTimeout(function(){rej(new Error((label||"Gemini")+" timeout"))},ms)})])}
 
   function liveCall(model,prompt,opt){
-    opt=opt||{};return new Promise(function(resolve,reject){
-      var done=false,text="",ws,t=setTimeout(function(){fail(new Error(model+" timeout"))},15000);
-      function cleanup(){clearTimeout(t);if(ws&&ws.readyState===WebSocket.OPEN){try{ws.close(1000,"done")}catch(_){}}}
-      function ok(v){if(done)return;done=true;cleanup();lastModel=model;resolve(v)}
-      function fail(e){if(done)return;done=true;cleanup();reject(e instanceof Error?e:new Error(String(e)))}
+    opt=opt||{};
+    return new Promise(function(resolve,reject){
+      var done=false;
+      var transcript="";
+      var textFallback="";
+      var ws=null;
+      var timer=null;
+
+      function armTimeout(ms,label){
+        clearTimeout(timer);
+        timer=setTimeout(function(){
+          fail(new Error(model+" "+label));
+        },ms);
+      }
+
+      function cleanup(){
+        clearTimeout(timer);
+        if(ws&&ws.readyState===WebSocket.OPEN){
+          try{ws.close(1000,"done")}catch(_){}
+        }
+      }
+
+      function ok(value){
+        if(done)return;
+        done=true;
+        cleanup();
+        lastModel=model;
+        resolve(value);
+      }
+
+      function fail(err){
+        if(done)return;
+        done=true;
+        cleanup();
+        reject(err instanceof Error?err:new Error(String(err)));
+      }
+
       try{
-        ws=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(key()));
-        ws.onopen=function(){ws.send(JSON.stringify({setup:{model:"models/"+model,generationConfig:{responseModalities:["TEXT"],temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000},systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]}}}))};
-        ws.onmessage=function(ev){var m;try{m=JSON.parse(ev.data)}catch(_){return}
-          if(m.setupComplete){ws.send(JSON.stringify({clientContent:{turns:[{role:"user",parts:[{text:prompt}]}],turnComplete:true}}));return}
-          if(m.serverContent){var p=m.serverContent.modelTurn&&m.serverContent.modelTurn.parts;if(Array.isArray(p))p.forEach(function(x){if(x&&x.text)text+=x.text});if(m.serverContent.turnComplete){text=text.trim();text?ok(text):fail(new Error(model+" empty"))}}
+        armTimeout(8000,"connect timeout");
+        ws=new WebSocket(
+          "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(key())
+        );
+
+        ws.onopen=function(){
+          ws.send(JSON.stringify({
+            setup:{
+              model:"models/"+model,
+              generationConfig:{
+                responseModalities:["AUDIO"],
+                speechConfig:{
+                  voiceConfig:{
+                    prebuiltVoiceConfig:{voiceName:"Kore"}
+                  }
+                },
+                temperature:typeof opt.temperature==="number"?opt.temperature:.8,
+                maxOutputTokens:opt.maxOutputTokens||800
+              },
+              outputAudioTranscription:{},
+              systemInstruction:{
+                parts:[{text:opt.system||"你是 Crew 的 AI 助手。回答精準、自然、簡短。"}]
+              }
+            }
+          }));
         };
-        ws.onerror=function(){fail(new Error(model+" WebSocket error"))};ws.onclose=function(e){if(!done)fail(new Error(model+" closed "+(e.code||"")))}
-      }catch(e){fail(e)}
+
+        ws.onmessage=function(ev){
+          var m;
+          try{m=JSON.parse(ev.data)}catch(_){return}
+
+          if(m.setupComplete){
+            armTimeout(22000,"response timeout");
+            ws.send(JSON.stringify({
+              clientContent:{
+                turns:[{
+                  role:"user",
+                  parts:[{text:prompt}]
+                }],
+                turnComplete:true
+              }
+            }));
+            return;
+          }
+
+          if(m.serverContent){
+            var s=m.serverContent;
+            var ot=s.outputTranscription||s.output_transcription;
+            if(ot&&ot.text) transcript+=ot.text;
+
+            var turn=s.modelTurn||s.model_turn;
+            var parts=turn&&turn.parts;
+            if(Array.isArray(parts)){
+              parts.forEach(function(part){
+                if(part&&part.text) textFallback+=part.text;
+              });
+            }
+
+            if(s.turnComplete||s.turn_complete){
+              var out=(transcript||textFallback).trim();
+              if(out) ok(out);
+              else fail(new Error(model+" empty transcription"));
+            }
+          }
+        };
+
+        ws.onerror=function(){
+          fail(new Error(model+" WebSocket error"));
+        };
+
+        ws.onclose=function(e){
+          if(done)return;
+          var out=(transcript||textFallback).trim();
+          if(out) ok(out);
+          else fail(new Error(model+" closed "+(e&&e.code?e.code:"")));
+        };
+      }catch(e){
+        fail(e);
+      }
     })
   }
+
   async function discover(){
     if(Array.isArray(discovered))return discovered;
     try{var r=await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key="+encodeURIComponent(key()));if(!r.ok)throw new Error("models "+r.status);var d=await r.json();
