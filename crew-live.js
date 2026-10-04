@@ -149,7 +149,7 @@
   LiveSession.prototype._startCapture=function(){
     if(!this.mediaStream||this.processor)return;
     var AudioCtx=global.AudioContext||global.webkitAudioContext;
-    this.inputContext=new AudioCtx();
+    if(!this.inputContext)this.inputContext=new AudioCtx();
     this.inputSource=this.inputContext.createMediaStreamSource(this.mediaStream);
     this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.silentGain=this.inputContext.createGain();
@@ -269,6 +269,10 @@
                 }
               }
             },
+            realtimeInputConfig:{
+              automaticActivityDetection:{disabled:false},
+              activityHandling:"START_OF_ACTIVITY_INTERRUPTS"
+            },
             inputAudioTranscription:{},
             outputAudioTranscription:{},
             contextWindowCompression:{slidingWindow:{}},
@@ -332,6 +336,14 @@
     this._status("正在開啟麥克風…");
 
     try{
+      var AudioCtx=global.AudioContext||global.webkitAudioContext;
+      this.outputContext=new AudioCtx();
+      this.inputContext=new AudioCtx();
+      this.outputGain=this.outputContext.createGain();
+      this.outputGain.connect(this.outputContext.destination);
+      await this.outputContext.resume();
+      await this.inputContext.resume();
+
       this.mediaStream=await navigator.mediaDevices.getUserMedia({
         audio:{
           echoCancellation:true,
@@ -340,12 +352,6 @@
           channelCount:1
         }
       });
-
-      var AudioCtx=global.AudioContext||global.webkitAudioContext;
-      this.outputContext=new AudioCtx();
-      this.outputGain=this.outputContext.createGain();
-      this.outputGain.connect(this.outputContext.destination);
-      await this.outputContext.resume();
 
       var errors=[];
       for(var i=0;i<MODELS.length;i++){
