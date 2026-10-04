@@ -474,7 +474,7 @@
       </div>
       <button class="gemini-hint" id="heroGeminiSetup" type="button">
         <span class="key-dot"></span>
-        <span><b>Powered by Gemini 3.8 Flash</b><small id="heroGeminiText">連接自己的 Gemini API key，就能使用 AI 生成。</small></span>
+        <span><b>Powered by Gemini Live</b><small id="heroGeminiText">連接自己的 Gemini API key，就能使用 AI 生成。</small></span>
         <span aria-hidden="true">→</span>
       </button>
     </section>
@@ -663,9 +663,26 @@
       var toastTimer = null;
       var langIndex = 0;
       var streak = 0;
-      var GEMINI_MODEL = "gemini-3.8-flash";
+      var GEMINI_LIVE_MODELS = [
+        "gemini-3.8-live",
+        "gemini-3.1-flash-live-preview"
+      ];
+      var GEMINI_TEXT_MODELS = [
+        "gemini-3.5-flash-lite",
+        "gemini-3.1-flash-lite",
+        "gemini-3.5-flash",
+        "gemini-3.6-flash",
+        "gemini-3.7-flash",
+        "gemini-3.8-flash",
+        "gemini-2.5-flash-lite",
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash"
+      ];
       var GEMINI_KEY_STORAGE = "crew_gemini_api_key";
       var GEMINI_KEY_SESSION = "crew_gemini_api_key_session";
+      var discoveredGeminiModels = null;
+      var lastGeminiModel = "";
 
       function getGeminiKey() {
         return (localStorage.getItem(GEMINI_KEY_STORAGE) || sessionStorage.getItem(GEMINI_KEY_SESSION) || "").trim();
@@ -707,10 +724,151 @@
         return false;
       }
 
-      async function callGemini(prompt, options) {
+      function withTimeout(promise, ms, label) {
+        return Promise.race([
+          promise,
+          new Promise(function (_, reject) {
+            setTimeout(function () { reject(new Error((label || "Gemini") + " timeout")); }, ms);
+          })
+        ]);
+      }
+
+      function callGeminiLiveWithModel(model, prompt, options) {
         options = options || {};
         var key = getGeminiKey();
-        if (!key) throw new Error("尚未設定 Gemini API key");
+        return new Promise(function (resolve, reject) {
+          var settled = false;
+          var text = "";
+          var ws;
+          var timeout = setTimeout(function () {
+            finishError(new Error(model + " timeout"));
+          }, 18000);
+
+          function cleanup() {
+            clearTimeout(timeout);
+            if (ws && ws.readyState === WebSocket.OPEN) {
+              try { ws.close(1000, "done"); } catch (_) {}
+            }
+          }
+
+          function finishOk(value) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            lastGeminiModel = model;
+            resolve(value);
+          }
+
+          function finishError(err) {
+            if (settled) return;
+            settled = true;
+            cleanup();
+            reject(err instanceof Error ? err : new Error(String(err)));
+          }
+
+          try {
+            var url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContent?key=" + encodeURIComponent(key);
+            ws = new WebSocket(url);
+
+            ws.onopen = function () {
+              ws.send(JSON.stringify({
+                setup: {
+                  model: "models/" + model,
+                  generationConfig: {
+                    responseModalities: ["TEXT"],
+                    temperature: typeof options.temperature === "number" ? options.temperature : 0.8,
+                    maxOutputTokens: options.maxOutputTokens || 900
+                  },
+                  systemInstruction: {
+                    parts: [{ text: options.system || "你是 Crew 的 AI 助手。回答精準、自然、實用。" }]
+                  }
+                }
+              }));
+            };
+
+            ws.onmessage = function (event) {
+              var message;
+              try { message = JSON.parse(event.data); } catch (_) { return; }
+
+              if (message.setupComplete) {
+                ws.send(JSON.stringify({
+                  clientContent: {
+                    turns: [{
+                      role: "user",
+                      parts: [{ text: prompt }]
+                    }],
+                    turnComplete: true
+                  }
+                }));
+                return;
+              }
+
+              if (message.serverContent) {
+                var server = message.serverContent;
+                var parts = server.modelTurn && server.modelTurn.parts;
+                if (Array.isArray(parts)) {
+                  parts.forEach(function (part) {
+                    if (part && part.text) text += part.text;
+                  });
+                }
+                if (server.turnComplete) {
+                  var result = text.trim();
+                  if (!result) finishError(new Error(model + " returned empty response"));
+                  else finishOk(result);
+                }
+              }
+            };
+
+            ws.onerror = function () {
+              finishError(new Error(model + " WebSocket error"));
+            };
+
+            ws.onclose = function (event) {
+              if (!settled) {
+                finishError(new Error(model + " closed" + (event && event.code ? " [" + event.code + "]" : "")));
+              }
+            };
+          } catch (err) {
+            finishError(err);
+          }
+        });
+      }
+
+      async function discoverGenerateModels() {
+        if (Array.isArray(discoveredGeminiModels)) return discoveredGeminiModels;
+        var key = getGeminiKey();
+        if (!key) return [];
+
+        try {
+          var response = await fetch(
+            "https://generativelanguage.googleapis.com/v1beta/models?pageSize=100&key=" + encodeURIComponent(key)
+          );
+          if (!response.ok) throw new Error("models.list " + response.status);
+          var data = await response.json();
+
+          discoveredGeminiModels = (data.models || [])
+            .filter(function (m) {
+              return Array.isArray(m.supportedGenerationMethods) &&
+                m.supportedGenerationMethods.indexOf("generateContent") >= 0;
+            })
+            .map(function (m) {
+              return String(m.name || "").replace(/^models\//, "");
+            })
+            .filter(function (name) {
+              return /^gemini-/i.test(name) &&
+                !/image|tts|live|transcribe|embed/i.test(name);
+            });
+
+          return discoveredGeminiModels;
+        } catch (_) {
+          discoveredGeminiModels = [];
+          return [];
+        }
+      }
+
+      async function callGeminiTextWithModel(model, prompt, options) {
+        options = options || {};
+        var key = getGeminiKey();
 
         var body = {
           systemInstruction: {
@@ -725,10 +883,13 @@
             maxOutputTokens: options.maxOutputTokens || 900
           }
         };
-        if (options.json) body.generationConfig.responseMimeType = "application/json";
+
+        if (options.json) {
+          body.generationConfig.responseMimeType = "application/json";
+        }
 
         var response = await fetch(
-          "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(GEMINI_MODEL) + ":generateContent",
+          "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(model) + ":generateContent",
           {
             method: "POST",
             headers: {
@@ -741,15 +902,75 @@
 
         var data;
         try { data = await response.json(); } catch (_) { data = null; }
+
         if (!response.ok) {
-          var message = data && data.error && data.error.message ? data.error.message : ("Gemini API error " + response.status);
+          var message = data && data.error && data.error.message
+            ? data.error.message
+            : (model + " HTTP " + response.status);
           throw new Error(message);
         }
 
-        var parts = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts;
-        var text = (parts || []).map(function (p) { return p.text || ""; }).join("").trim();
-        if (!text) throw new Error("Gemini 沒有回傳文字內容");
+        var parts = data &&
+          data.candidates &&
+          data.candidates[0] &&
+          data.candidates[0].content &&
+          data.candidates[0].content.parts;
+
+        var text = (parts || [])
+          .map(function (p) { return p.text || ""; })
+          .join("")
+          .trim();
+
+        if (!text) throw new Error(model + " returned empty response");
+
+        lastGeminiModel = model;
         return text;
+      }
+
+      async function callGemini(prompt, options) {
+        options = options || {};
+        if (!getGeminiKey()) throw new Error("尚未設定 Gemini API key");
+
+        var errors = [];
+
+        if (options.preferLive !== false) {
+          for (var i = 0; i < GEMINI_LIVE_MODELS.length; i++) {
+            var liveModel = GEMINI_LIVE_MODELS[i];
+            try {
+              var liveText = await callGeminiLiveWithModel(liveModel, prompt, options);
+              if (options.json) parseGeminiJson(liveText);
+              return liveText;
+            } catch (err) {
+              errors.push(liveModel + ": " + err.message);
+            }
+          }
+        }
+
+        var discovered = await discoverGenerateModels();
+        var seen = {};
+        var textModels = GEMINI_TEXT_MODELS.concat(discovered).filter(function (model) {
+          if (!model || seen[model]) return false;
+          seen[model] = true;
+          return true;
+        });
+
+        for (var j = 0; j < textModels.length; j++) {
+          var model = textModels[j];
+          try {
+            return await withTimeout(
+              callGeminiTextWithModel(model, prompt, options),
+              16000,
+              model
+            );
+          } catch (err) {
+            errors.push(model + ": " + err.message);
+          }
+        }
+
+        throw new Error(
+          "所有 Gemini 模型都失敗。最後錯誤：" +
+          errors.slice(-3).join(" | ")
+        );
       }
 
       function parseGeminiJson(text) {
@@ -1051,6 +1272,7 @@
       document.getElementById("clearGeminiKey").addEventListener("click", function () {
         localStorage.removeItem(GEMINI_KEY_STORAGE);
         sessionStorage.removeItem(GEMINI_KEY_SESSION);
+        discoveredGeminiModels = null;
         document.getElementById("geminiKeyInput").value = "";
         document.getElementById("geminiTestStatus").textContent = "已清除 Gemini API key。";
         updateGeminiStatus();
@@ -1068,20 +1290,21 @@
 
         localStorage.removeItem(GEMINI_KEY_STORAGE);
         sessionStorage.removeItem(GEMINI_KEY_SESSION);
+        discoveredGeminiModels = null;
         if (remember) localStorage.setItem(GEMINI_KEY_STORAGE, key);
         else sessionStorage.setItem(GEMINI_KEY_SESSION, key);
         updateGeminiStatus();
 
         var button = this;
         setBusy(button, true, "測試中…");
-        status.textContent = "正在連線 Gemini 3.8 Flash…";
+        status.textContent = "正在測試 Gemini Live，失敗時會自動 fallback…";
         try {
           var pong = await callGemini("只回覆 OK", {
             system: "這是一個 API 連線測試。只回覆 OK。",
             temperature: 0,
             maxOutputTokens: 20
           });
-          status.textContent = "連線成功 · Gemini 3.8 Flash";
+          status.textContent = "連線成功 · " + (lastGeminiModel || "Gemini");
           showToast("Gemini 已連線");
           setTimeout(closeGeminiModal, 450);
         } catch (err) {
