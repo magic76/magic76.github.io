@@ -77,7 +77,7 @@
       methodVersion:"vedic-lahiri-whole-sign-v1-web",
       ephemeris:"Astronomy Engine JS 2.1.19",zodiac:"Sidereal",ayanamsa:"Lahiri / Chitrapaksha",ayanamsaDegrees:round(aya,6),houseSystem:"Whole Sign",nodeType:"Mean Node",
       birthPlaceDisplay:profile.city||"",birthLatitude:lat,birthLongitude:lon,birthUtc:birth.toISOString(),birthUtcOffset:profile.utcOffset,
-      lagnaLongitude:round(asc,6),lagnaSign:lagna.sign,lagnaDegreeInSign:round(lagna.degreeInSign,4),lagnaNakshatra:lagna.nakshatra,lagnaPada:lagna.pada,
+      lagnaLongitude:round(asc,6),lagnaSignIndex:lagna.signIndex,lagnaSign:lagna.sign,lagnaDegreeInSign:round(lagna.degreeInSign,4),lagnaNakshatra:lagna.nakshatra,lagnaPada:lagna.pada,
       moonSign:moon.sign,moonNakshatra:moon.nakshatra,moonPada:moon.pada,sunSign:planets[0].sign,planets:planets,
       currentMahadasha:dasha.currentMahadasha,currentAntardasha:dasha.currentAntardasha,importantPeriods:dasha.importantPeriods,mahadashaTimeline:dasha.mahadashaTimeline,
       note:"Web 與 App 同用 Astronomy Engine 2.1.19、Lahiri sidereal、Whole Sign、Mean Node。Web 版目前以使用者明確輸入 UTC offset 解析出生時間。"

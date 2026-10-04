@@ -18,7 +18,7 @@ declare global{interface Window{
  CrewAI?:any;CrewLive?:{Session:new(options:LiveSessionOptions)=>LiveSession};CrewLiveUI?:any;CrewTeacherReport?:any;
  CrewDB?:any;CrewGeminiVision?:any;CrewTextbookStore?:any;CrewTextbookLesson?:any;
  CrewStoryStore?:{save(book:StoryBook):Promise<StoryBook>;get(id:string):Promise<StoryBook|null>;list():Promise<StoryBook[]>;remove(id:string):Promise<void>;last():Promise<StoryBook|null>};
- CrewStoryGenerator?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;
+ CrewStoryGenerator?:any;CrewBookAnalyzer?:any;CrewFortuneProfile?:any;CrewFortuneBaZi?:any;CrewFortuneTarot?:any;CrewFortuneVedic?:any;CrewFortuneVedicEnrich?:any;
  CrewFortuneBaZiRender?:any;CrewFortuneTarotRender?:any;CrewFortuneVedicRender?:any;
  Astronomy?:any;Lunar?:any;
 }}
@@ -35,7 +35,7 @@ export async function ensureCore(){if(!window.CrewAI)await loadScript("/crew.js"
 export async function ensureLive(){await ensureCore();if(!window.CrewLive)await loadScript("/crew-live.js");if(!window.CrewLiveUI)await loadScript("/crew-live-ui.js")}
 export async function ensureVision(){await ensureLive();if(!window.CrewDB)await loadScript("/features/shared/db.js");if(!window.CrewGeminiVision)await loadScript("/features/shared/gemini-vision.js")}
 export async function ensureTeacherServices(){await ensureVision();if(!window.CrewTextbookStore)await loadScript("/features/teacher/textbook/store.js");if(!window.CrewTextbookLesson)await loadScript("/features/teacher/textbook/lesson.js");if(!window.CrewTeacherReport)await loadScript("/features/teacher/reports/session-report.js")}
-export async function ensureStoryServices(){await ensureVision();if(!window.CrewStoryStore)await loadScript("/features/story/shelf/store.js");if(!window.CrewStoryGenerator)await loadScript("/features/story/create/generator.js")}
+export async function ensureStoryServices(){await ensureVision();if(!window.CrewStoryStore)await loadScript("/features/story/shelf/store.js");if(!window.CrewStoryGenerator)await loadScript("/features/story/create/generator.js");if(!window.CrewBookAnalyzer)await loadScript("/features/story/physical/analyzer.js")}
 export async function ensureFortuneServices(){
  await ensureCore();
  if(!window.CrewFortuneProfile)await loadScript("/features/fortune/shared/profile.js");
@@ -44,6 +44,7 @@ export async function ensureFortuneServices(){
  if(!window.CrewFortuneBaZi)await loadScript("/features/fortune/bazi/calculator.js");
  if(!window.CrewFortuneTarot)await loadScript("/features/fortune/tarot/calculator.js");
  if(!window.CrewFortuneVedic)await loadScript("/features/fortune/vedic/calculator.js");
+ if(!window.CrewFortuneVedicEnrich)await loadScript("/features/fortune/vedic/enrich.js");
  if(!window.CrewFortuneBaZiRender)await loadScript("/features/fortune/bazi/render.js");
  if(!window.CrewFortuneTarotRender)await loadScript("/features/fortune/tarot/render.js");
  if(!window.CrewFortuneVedicRender)await loadScript("/features/fortune/vedic/render.js");
