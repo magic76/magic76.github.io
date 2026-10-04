@@ -3,187 +3,109 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const vm=require("node:vm");
-
 const root=path.resolve(__dirname,"..");
 
-function featureFiles(dir){
-  const out=[];
-  for(const name of fs.readdirSync(dir,{withFileTypes:true})){
-    const full=path.join(dir,name.name);
-    if(name.isDirectory())out.push(...featureFiles(full));
-    else if(name.isFile()&&name.name.endsWith(".js"))out.push(full);
-  }
-  return out;
+function files(dir,ext){
+ const out=[];
+ for(const entry of fs.readdirSync(dir,{withFileTypes:true})){
+  const full=path.join(dir,entry.name);
+  if(entry.isDirectory())out.push(...files(full,ext));
+  else if(entry.isFile()&&entry.name.endsWith(ext))out.push(full);
+ }
+ return out;
 }
 
-test("ported app features stay modular and syntactically valid",()=>{
-  const files=featureFiles(path.join(root,"features"));
-  assert.ok(files.length>=10);
-  for(const file of files){
-    const source=fs.readFileSync(file,"utf8");
-    assert.doesNotThrow(()=>new Function(source),path.relative(root,file));
-    assert.ok(Buffer.byteLength(source,"utf8")<18000,path.relative(root,file)+" should stay under 18KB; split by responsibility");
-  }
+test("legacy service modules stay modular and syntactically valid",()=>{
+ const list=files(path.join(root,"features"),".js");
+ assert.ok(list.length>=10);
+ for(const file of list){
+  const source=fs.readFileSync(file,"utf8");
+  assert.doesNotThrow(()=>new Function(source),path.relative(root,file));
+  assert.ok(Buffer.byteLength(source,"utf8")<18000,path.relative(root,file)+" should stay under 18KB");
+ }
 });
 
-test("core port pages exist and are composed from feature modules",()=>{
-  const expected={
-    "teacher-textbook.html":["features/teacher/textbook/store.js","features/teacher/textbook/lesson.js","features/teacher/textbook/page.js"],
-    "story-shelf.html":["features/story/shelf/store.js","features/story/shelf/page.js"],
-    "story-create.html":["features/story/create/generator.js","features/story/create/page.js"],
-    "story-reader.html":["features/story/reader/page.js"],
-    "fortune-reading.html":["features/fortune/bazi/calculator.js","features/fortune/tarot/calculator.js","features/fortune/vedic/calculator.js","features/fortune/reading/page.js"]
-  };
-  for(const [page,modules] of Object.entries(expected)){
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    for(const mod of modules)assert.ok(source.includes(mod),page+" should load "+mod);
-  }
+test("React surfaces stay split by product and responsibility",()=>{
+ const list=files(path.join(root,"web-spa","src"),".tsx");
+ assert.ok(list.length>=18);
+ for(const file of list){
+  const bytes=Buffer.byteLength(fs.readFileSync(file,"utf8"),"utf8");
+  assert.ok(bytes<26000,path.relative(root,file)+" should stay under 26KB");
+ }
 });
 
-test("Tarot numerology port matches known deterministic values",()=>{
-  const source=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
-  const context={window:{}};
-  vm.createContext(context);
-  vm.runInContext(source,context);
-  const result=context.window.CrewFortuneTarot.calculate("1985-07-06",new Date("2026-10-04T00:00:00Z"));
-  assert.equal(result.lifePathNumber,9);
-  assert.equal(result.personalityCardNumber,9);
-  assert.equal(result.soulCardNumber,9);
-  assert.equal(result.attitudeNumber,4);
-  assert.equal(result.birthCardDisplay,"9 隱者");
-  assert.equal(result.personalYearCalendarYear,2026);
+test("Tarot numerology deterministic service keeps known values",()=>{
+ const source=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
+ const context={window:{}};vm.createContext(context);vm.runInContext(source,context);
+ const result=context.window.CrewFortuneTarot.calculate("1985-07-06",new Date("2026-10-04T00:00:00Z"));
+ assert.equal(result.lifePathNumber,9);
+ assert.equal(result.personalityCardNumber,9);
+ assert.equal(result.soulCardNumber,9);
+ assert.equal(result.attitudeNumber,4);
+ assert.equal(result.birthCardDisplay,"9 隱者");
+ assert.equal(result.personalYearCalendarYear,2026);
 });
 
-test("main product pages expose the app-derived entry points",()=>{
-  const teacher=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
-  const story=fs.readFileSync(path.join(root,"story.html"),"utf8");
-  const fortune=fs.readFileSync(path.join(root,"fortune.html"),"utf8");
-  assert.ok(teacher.includes("teacher-textbook.html"));
-  assert.ok(story.includes("story-shelf.html"));
-  assert.ok(story.includes("story-create.html"));
-  assert.ok(fortune.includes("fortune-reading.html?mode=bazi"));
-  assert.ok(fortune.includes("fortune-reading.html?mode=tarot"));
-  assert.ok(fortune.includes("fortune-reading.html?mode=vedic"));
+test("every public legacy entry routes into the unified React SPA",()=>{
+ const pages=["index.html","settings.html","teacher.html","teacher-live.html","teacher-textbook.html","teacher-vocabulary.html","teacher-course.html","teacher-pronunciation.html","story.html","story-shelf.html","story-create.html","story-reader.html","story-live.html","fortune.html","fortune-reading.html","fortune-live.html"];
+ for(const page of pages){
+  const source=fs.readFileSync(path.join(root,page),"utf8");
+  assert.ok(source.includes("crew-app/#/"),page+" should forward to Crew React");
+  assert.ok(!source.includes("features/shared/design-system.css"),page+" should no longer render a legacy UI");
+ }
 });
 
-
-test("core surfaces use one Crew Web design system",()=>{
-  const globalPages=[
-    "index.html","settings.html","teacher-textbook.html",
-    "story.html","story-shelf.html","story-create.html","story-reader.html",
-    "fortune.html","fortune-reading.html"
-  ];
-  for(const page of globalPages){
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("features/shared/design-system.css"),page+" should load the unified design system");
-    assert.ok(source.includes("global-nav"),page+" should use the one global navigation");
-    assert.ok(!source.includes("crew.css"),page+" should not depend on the legacy Crew stylesheet");
-    assert.ok(!source.includes("product-shell.css"),page+" should not depend on the superseded product shell");
-  }
-  for(const page of ["story.html","fortune.html"]){
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("subnav"),page+" should use product-local secondary navigation");
-    assert.ok(!source.includes('id="liveStage"'),page+" should not embed the Live console on its home surface");
-  }
+test("unified React router owns all Crew product surfaces",()=>{
+ const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
+ const routes=["/","/settings","/teacher/practice","/teacher/learn","/teacher/tutor","/teacher/me","/teacher/live","vocabulary","course","pronunciation","textbook","/story","shelf","create","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
+ for(const route of routes)assert.ok(app.includes(route),"missing React route "+route);
 });
 
-test("Live experiences are dedicated session pages",()=>{
-  const required={
-    "teacher-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","chatMode","guidance","languageStyle","voice"],
-    "story-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","topic","style","pace","interaction","voice"],
-    "fortune-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","birth","focus","tone","voice"]
-  };
-  for(const [page,ids] of Object.entries(required)){
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("features/shared/design-system.css"),page+" should use the unified design system");
-    assert.ok(source.includes("session-page"),page+" should present Live as a dedicated session state");
-    assert.ok(!source.includes("global-nav"),page+" should remove global navigation during an active session surface");
-    for(const id of ids)assert.ok(source.includes('id="'+id+'"'),page+" should retain #"+id);
-  }
+test("Teacher React mirrors native app feature names",()=>{
+ const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
+ const learn=fs.readFileSync(path.join(root,"web-spa/src/teacher/LearnPage.tsx"),"utf8");
+ const combined=practice+"\n"+learn;
+ for(const label of ["跟老師聊","教材陪讀","單字練習","情境課程","朗讀糾音"])assert.ok(combined.includes(label));
+ assert.ok(!combined.includes("表達教練"));
+ assert.ok(!combined.includes("工作情境"));
 });
 
-test("deep links enter the dedicated Live sessions",()=>{
-  const reader=fs.readFileSync(path.join(root,"features/story/reader/page.js"),"utf8");
-  const reading=fs.readFileSync(path.join(root,"features/fortune/reading/page.js"),"utf8");
-  const teacher=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
-  const course=fs.readFileSync(path.join(root,"teacher-course.html"),"utf8");
-  assert.ok(reader.includes('story-live.html?from=book'));
-  assert.ok(reading.includes('fortune-live.html?from=reading'));
-  assert.ok(teacher.includes('to="/live"'));
-  assert.ok(course.includes('teacher-app/#/live?mode=course'));
+test("Teacher React keeps adaptive vocabulary review behavior",()=>{
+ const source=fs.readFileSync(path.join(root,"web-spa/src/teacher/VocabularyPage.tsx"),"utf8");
+ assert.ok(source.includes("crew_vocab_score"));
+ assert.ok(source.includes("3000"));
+ assert.ok(source.includes("speechSynthesis"));
 });
 
-test("Teacher avatar is served from public site assets",()=>{
-  const legacy=fs.readFileSync(path.join(root,"teacher-live.html"),"utf8");
-  const reactTutor=fs.readFileSync(path.join(root,"teacher-spa/src/pages/TutorPage.tsx"),"utf8");
-  assert.ok(legacy.includes("assets/teacher/teacher-emma.webp"));
-  assert.ok(reactTutor.includes("assets/teacher/teacher-emma.webp"));
-  assert.ok(!legacy.includes("raw.githubusercontent.com/magic76/crew-teacher"));
-  assert.ok(!reactTutor.includes("raw.githubusercontent.com/magic76/crew-teacher"));
-  assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")),"public Teacher avatar asset should exist");
+test("all React Live products use shared manual-interrupt session hook",()=>{
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const controls=fs.readFileSync(path.join(root,"web-spa/src/live/LiveControls.tsx"),"utf8");
+ assert.ok(hook.includes("manualInterruptOnly:true"));
+ assert.ok(controls.includes('live.state!=="speaking"'));
+ for(const page of ["teacher/LivePage.tsx","teacher/PronunciationPage.tsx","teacher/TextbookPage.tsx","story/LivePage.tsx","fortune/LivePage.tsx"]){
+  const source=fs.readFileSync(path.join(root,"web-spa/src",page),"utf8");
+  assert.ok(source.includes("useLiveSession"),page+" should use shared Live state");
+  assert.ok(!source.includes("liveModel"),page+" should not expose model UI");
+  assert.ok(!source.includes("底層仍沿用"),page+" should not show implementation copy");
+ }
 });
 
-test("Teacher Web mirrors native app feature names instead of invented tools",()=>{
-  const practice=fs.readFileSync(path.join(root,"teacher-spa/src/pages/PracticePage.tsx"),"utf8");
-  const learn=fs.readFileSync(path.join(root,"teacher-spa/src/pages/LearnPage.tsx"),"utf8");
-  const home=practice+"\n"+learn;
-  for(const text of ["跟老師聊","教材陪讀","單字練習","情境課程","朗讀糾音"]){
-    assert.ok(home.includes(text),"Teacher should expose native feature: "+text);
-  }
-  assert.ok(!home.includes("表達教練"),"Teacher should not invent a one-line expression coach");
-  assert.ok(!home.includes("工作情境"),"Teacher should not promote an invented standalone work-scenario feature");
-  for(const page of ["teacher-vocabulary.html","teacher-course.html","teacher-pronunciation.html"]){
-    assert.ok(fs.existsSync(path.join(root,page)),page+" should exist");
-    const source=fs.readFileSync(path.join(root,page),"utf8");
-    assert.ok(source.includes("features/shared/design-system.css"),page+" should use Crew Web design system");
-    assert.ok(source.includes("global-nav"),page+" should remain inside Crew Web navigation");
-  }
+test("Teacher avatar is local public asset",()=>{
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ assert.ok(tutor.includes("assets/teacher/teacher-emma.webp"));
+ assert.ok(live.includes("assets/teacher/teacher-emma.webp"));
+ assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")));
 });
 
-test("Teacher Live uses app-style controls and gated reports",()=>{
-  const page=fs.readFileSync(path.join(root,"teacher-live.html"),"utf8");
-  const live=fs.readFileSync(path.join(root,"features/teacher/live/page.js"),"utf8");
-  const report=fs.readFileSync(path.join(root,"features/teacher/reports/session-report.js"),"utf8");
-  for(const id of ["chatMode","guidance","voice","languageStyle"])assert.ok(page.includes('id="'+id+'"'));
-  for(const oldId of ["coachInput","coachGo","coachResult"])assert.ok(!page.includes('id="'+oldId+'"'));
-  assert.ok(!live.includes("coachGo"));
-  assert.ok(report.includes("MIN_DURATION=60000"));
-  assert.ok(report.includes("MIN_TURNS=3"));
-  assert.ok(report.includes("MIN_WORDS=20"));
-  assert.ok(report.includes("禁止根據 transcript 評估 pronunciation"));
-});
-
-test("Teacher vocabulary preserves adaptive and review behavior",()=>{
-  const source=fs.readFileSync(path.join(root,"features/teacher/vocabulary/page.js"),"utf8");
-  assert.ok(source.includes("crew_vocab_score"));
-  assert.ok(source.includes("setTimeout(next,3000)"),"wrong answers should remain visible for review");
-  assert.ok(source.includes("speechSynthesis"),"vocabulary should provide pronunciation");
-});
-
-
-test("Teacher entry is now a stateful React application",()=>{
-  const entry=fs.readFileSync(path.join(root,"teacher.html"),"utf8");
-  const app=fs.readFileSync(path.join(root,"teacher-spa/src/App.tsx"),"utf8");
-  const store=fs.readFileSync(path.join(root,"teacher-spa/src/store/teacherStore.ts"),"utf8");
-  const live=fs.readFileSync(path.join(root,"teacher-spa/src/live/useLiveSession.ts"),"utf8");
-  const pkg=JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8"));
-  assert.ok(entry.includes("teacher-app/#/practice"),"legacy Teacher URL should enter the React SPA");
-  for(const route of ["/practice","/learn","/tutor","/me","/live"])assert.ok(app.includes(route),"React Teacher should define "+route);
-  assert.ok(store.includes('from "zustand"'),"Teacher product state should use Zustand");
-  assert.ok(live.includes("requesting-mic")&&live.includes("reporting")&&live.includes("ended"),"Live should expose explicit lifecycle states");
-  assert.equal(pkg.dependencies.react,"19.3.0");
-  assert.equal(pkg.dependencies["react-router-dom"],"7.18.4");
-  assert.equal(pkg.dependencies.zustand,"5.0.15");
-  assert.ok(pkg.scripts["build:teacher"]);
-});
-
-
-test("Teacher Pages build output is tracked",()=>{
-  const built=path.join(root,"teacher-app");
-  const index=fs.readFileSync(path.join(built,"index.html"),"utf8");
-  const assets=fs.readdirSync(path.join(built,"assets"));
-  assert.ok(index.includes("./assets/"),"Teacher build should reference local static assets");
-  assert.ok(assets.some((name)=>/^index-.*\.js$/.test(name)),"Teacher build should contain the Vite JS bundle");
-  assert.ok(assets.some((name)=>/^index-.*\.css$/.test(name)),"Teacher build should contain the Vite CSS bundle");
-  assert.ok(assets.some((name)=>/^teacher-emma-.*\.webp$/.test(name)),"Teacher build should contain the local tutor avatar");
+test("React build toolchain is the primary Web toolchain",()=>{
+ const pkg=JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8"));
+ assert.equal(pkg.dependencies.react,"19.3.0");
+ assert.equal(pkg.dependencies["react-router-dom"],"7.18.4");
+ assert.equal(pkg.dependencies.zustand,"5.0.15");
+ assert.ok(pkg.scripts["check:web"]);
+ assert.ok(pkg.scripts["build:web"]);
+ const config=fs.readFileSync(path.join(root,"vite.web.config.ts"),"utf8");
+ assert.ok(config.includes('root: "web-spa"'));
+ assert.ok(config.includes('outDir: "../crew-app"'));
 });
