@@ -72,6 +72,8 @@
     this.inputTurn="";
     this.outputTurn="";
     this.connectTimer=null;
+    this.connectedAt=0;
+    this.recovering=false;
   }
 
   LiveSession.prototype._status=function(value){
@@ -187,6 +189,7 @@
     if(message.setupComplete||message.setup_complete){
       clearTimeout(this.connectTimer);
       this.ready=true;
+      this.connectedAt=Date.now();
       this._status("Live 已連線，可以直接說話");
       this._state("ready");
       this._startCapture();
@@ -253,7 +256,9 @@
       self.connectTimer=setTimeout(function(){
         if(settled)return;
         settled=true;
-        try{ws.close();}catch(_){}
+        ws.__crewAbandoned=true;
+        if(self.ws===ws)self.ws=null;
+        try{ws.close(1000,"candidate timeout");}catch(_){}
         reject(new Error(model+" connect timeout"));
       },8000);
 
@@ -299,6 +304,7 @@
       };
 
       ws.onerror=function(){
+        if(ws.__crewAbandoned||self.ws!==ws)return;
         if(!settled){
           settled=true;
           clearTimeout(self.connectTimer);
@@ -310,12 +316,42 @@
 
       ws.onclose=function(event){
         clearTimeout(self.connectTimer);
+
+        if(ws.__crewAbandoned||self.ws!==ws||self.stopping)return;
+
         if(!settled){
           settled=true;
           reject(new Error(model+" closed "+(event.code||"")));
-        }else if(self.running&&!self.stopping){
-          self.ready=false;
-          self._state("disconnected");
+          return;
+        }
+
+        if(!self.running)return;
+
+        self.ready=false;
+        var modelIndex=MODELS.indexOf(model);
+        var livedMs=self.connectedAt?Date.now()-self.connectedAt:0;
+        var canLiveFallback=modelIndex>=0&&modelIndex+1<MODELS.length&&livedMs<12000&&!self.recovering;
+
+        if(canLiveFallback){
+          var nextModel=MODELS[modelIndex+1];
+          self.recovering=true;
+          self._state("connecting");
+          self._status(model+" 已結束，改連 "+nextModel+"…");
+          self._connectModel(nextModel).then(function(){
+            self.recovering=false;
+          }).catch(function(error){
+            self.recovering=false;
+            self._state("error");
+            self._status("Live 模型都無法連線");
+            self._error(error);
+          });
+          return;
+        }
+
+        self._state("disconnected");
+        if(event.code===1000){
+          self._status("Live session 已正常結束");
+        }else{
           self._status("Live 已中斷");
           self._error(new Error(model+" disconnected "+(event.code||"")));
         }
@@ -360,8 +396,12 @@
           return this;
         }catch(error){
           errors.push(error.message);
-          try{if(this.ws)this.ws.close();}catch(_){}
+          var failedSocket=this.ws;
           this.ws=null;
+          if(failedSocket){
+            failedSocket.__crewAbandoned=true;
+            try{failedSocket.close(1000,"model fallback");}catch(_){}
+          }
         }
       }
 
