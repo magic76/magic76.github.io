@@ -16,6 +16,15 @@
   }
   document.getElementById("prevStoryPage").onclick=function(){if(index>0){index--;render()}};
   document.getElementById("nextStoryPage").onclick=function(){if(book&&index<(book.pages||[]).length-1){index++;render()}};
+  document.getElementById("talkArchie").onclick=function(){
+    if(!book)return;
+    var pages=book.pages||[];
+    localStorage.setItem("crew_story_book_live_context",JSON.stringify({
+      id:book.id,title:book.title,currentPage:index,
+      pages:pages.slice(Math.max(0,index-2),Math.min(pages.length,index+3)).map(function(p){return p.text||""})
+    }));
+    location.href="story.html?from=book";
+  };
   document.getElementById("deleteStory").onclick=async function(){if(!book||!confirm("刪除這本故事？"))return;await CrewStoryStore.remove(book.id);location.href="story-shelf.html"};
   CrewStoryStore.get(id).then(function(value){
     if(!value){missing.hidden=false;return}
