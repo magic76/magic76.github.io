@@ -1,35 +1,35 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew · Gemini 設定</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
-<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header><main class="shell page"><section class="hero"><span class="eyebrow"><i></i> Settings</span><h1>Gemini 設定</h1><p class="lead">跟 APK 一樣採 BYOK。使用自己的 Google 帳戶建立 key，Crew 不會內建共用 key。</p></section>
-
-<section class="panel"><h3>第一次設定</h3><div class="setup-steps">
+<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4">
+<title>Crew · 設定</title><link rel="stylesheet" href="features/shared/design-system.css?v={{ site.github.build_revision }}">
+</head><body>
+<header class="app-header"><div class="shell inner"><div class="app-brand"><span class="app-mark">C</span><div class="app-title"><strong>Crew</strong><small>設定</small></div></div><span></span></div></header>
+<main class="shell page">
+<section class="hero"><span class="kicker">Settings</span><h1>Gemini 設定</h1><p>使用自己的 Gemini API key。一次設定後，Teacher、Story、Fortune 共用。</p></section>
+<section class="section panel"><h3>第一次設定</h3><div class="setup-steps">
 <div class="step"><b>1</b><span><strong>開啟 Google AI Studio</strong><small>使用自己的 Google 帳戶登入。</small></span></div>
 <div class="step"><b>2</b><span><strong>Create API key</strong><small>建立一把 Gemini API key 並複製。</small></span></div>
-<div class="step"><b>3</b><span><strong>回到這裡貼上</strong><small>儲存後三個主要功能都會優先使用 Live。需要時可另外執行 Live 語音測試。</small></span></div></div>
+<div class="step"><b>3</b><span><strong>回到 Crew 貼上</strong><small>儲存後三個產品都能使用。</small></span></div></div>
 <div class="actions"><a class="btn secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">開啟 Google AI Studio</a></div>
 <label class="label" for="key">Gemini API key</label><input class="field" id="key" type="password" autocomplete="off" placeholder="貼上 API key">
 <label class="row" style="margin-top:10px"><input type="checkbox" id="remember"><span class="meta">記住在這台裝置</span></label>
-<div class="actions"><button class="btn" id="save">儲存 Key</button><button class="btn secondary" id="testLive">測試 Live 語音</button><button class="btn danger" id="clear">清除 key</button></div>
+<div class="actions"><button class="btn" id="save">儲存 Key</button><button class="btn secondary" id="testLive">測試語音</button><button class="btn danger" id="clear">清除 key</button></div>
 <div class="result empty" id="status">尚未測試。</div></section>
-
-<section class="section"><div class="panel"><h3>Live 體驗</h3>
-<div class="settings-grid">
-<div><label class="label">預設播放音量</label><div class="range-row"><input class="field" id="defaultVolume" type="range" min="0" max="100" value="100"><strong id="defaultVolumeValue">100%</strong></div></div>
-<div><label class="label">瀏覽器能力</label><div class="result" id="liveCapabilities" style="min-height:0;margin-top:0">檢查中…</div></div>
-</div>
-<div class="actions"><button class="btn danger" id="clearLiveHistory">清除三個 Crew 的 Live 紀錄</button></div>
-<p class="meta">清除紀錄不會刪除 Gemini API key，也不會改變三個頁面的偏好設定。</p>
-</div></section>
-
-<section class="section"><div class="notice"><div><b>模型策略</b><p>主要 Live 路徑優先使用 <code>gemini-3.1-flash-live-preview</code>，若需要才嘗試下一個 Live 模型；不會因為 Live 失敗就默默切成慢的文字模式。</p></div></div></section>
-</main><div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div><nav class="bottom-nav"><div class="inner">
-<a class="navitem " data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem " data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem " data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem " data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem active" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
-</div></nav><div class="toast" id="toast"></div><script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
+<section class="section panel"><div class="section-head"><h2>語音體驗</h2><small>共用設定</small></div>
+<div class="settings-grid"><div><label class="label">預設播放音量</label><div class="range-row"><input class="field" id="defaultVolume" type="range" min="0" max="100" value="100"><strong id="defaultVolumeValue">100%</strong></div></div><div><label class="label">瀏覽器能力</label><div class="result" id="liveCapabilities" style="min-height:0;margin-top:0">檢查中…</div></div></div>
+<div class="actions"><button class="btn danger" id="clearLiveHistory">清除 Live 紀錄</button></div></section>
+</main>
+<div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
+<nav class="global-nav"><div class="inner">
+<a class="navitem" data-nav="home" href="index.html"><span class="nav-icon" data-icon="home"></span><span>首頁</span></a>
+<a class="navitem" data-nav="teacher" href="teacher.html"><span class="nav-icon" data-icon="teacher"></span><span>Teacher</span></a>
+<a class="navitem" data-nav="story" href="story.html"><span class="nav-icon" data-icon="story"></span><span>Story</span></a>
+<a class="navitem" data-nav="fortune" href="fortune.html"><span class="nav-icon" data-icon="fortune"></span><span>Fortune</span></a>
+<a class="navitem active" data-nav="settings" href="settings.html"><span class="nav-icon" data-icon="settings"></span><span>設定</span></a>
+</div></nav><div class="toast" id="toast"></div>
+<script src="features/shared/icons.js?v={{ site.github.build_revision }}"></script>
+<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script>
 CrewAI.nav("settings");
 var key=document.getElementById("key"),remember=document.getElementById("remember"),status=document.getElementById("status"),liveTest=null,testPhase="idle",lastTestOutput="";
 key.value=CrewAI.key();remember.checked=!!localStorage.getItem("crew_gemini_api_key");
