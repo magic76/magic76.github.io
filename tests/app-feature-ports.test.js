@@ -180,13 +180,15 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  const shelf=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
  const editor=fs.readFileSync(path.join(root,"web-spa/src/story/EditorPage.tsx"),"utf8");
  const reader=fs.readFileSync(path.join(root,"web-spa/src/story/ReaderPage.tsx"),"utf8");
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
  const physical=fs.readFileSync(path.join(root,"web-spa/src/story/PhysicalBookPage.tsx"),"utf8");
  const mine=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
  const analyzer=fs.readFileSync(path.join(root,"features/story/physical/analyzer.js"),"utf8");
  for(const route of ["edit/:id","physical","physical/:id"])assert.ok(app.includes(route));
  for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
  for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
- for(const label of ["播放","story-page-slider","跟阿奇聊這一頁"])assert.ok(reader.includes(label));
+ assert.ok(reader.includes("StoryPlayerView"));
+ for(const label of ["播放","story-page-slider","打斷阿奇","Live 已開啟"])assert.ok(player.includes(label));
  for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
  for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
  assert.ok(analyzer.includes("visibleText"));
