@@ -28,6 +28,12 @@ class MockWebSocket{
   close(code=1000,reason=""){this.clientClose={code,reason};this.readyState=3;}
   open(){this.readyState=1;if(this.onopen)this.onopen();}
   message(value){if(this.onmessage)this.onmessage({data:JSON.stringify(value)});}
+  binaryMessage(value){
+    if(!this.onmessage)return;
+    const bytes=Buffer.from(JSON.stringify(value),"utf8");
+    const arrayBuffer=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength);
+    this.onmessage({data:arrayBuffer});
+  }
   error(){if(this.onerror)this.onerror({});}
   serverClose(code=1000,reason="",wasClean=true){
     this.readyState=3;
@@ -284,4 +290,65 @@ test("fallback second socket keeps its own setup timeout",async()=>{
   assert.equal(MockWebSocket.instances.length,2);
   assert.equal(session.running,false);
   assert.equal(session.ready,false);
+});
+
+
+test("default handshake matches Crew Teacher v1alpha path and model priority",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+
+  assert.match(socket.url,/google\.ai\.generativelanguage\.v1alpha\.GenerativeService\.BidiGenerateContent/);
+  assert.doesNotMatch(socket.url,/v1beta/);
+
+  socket.open();
+
+  const setup=socket.sent[0].setup;
+  assert.equal(setup.model,"models/gemini-3.1-flash-live-preview");
+  assert.deepEqual(setup.generationConfig.responseModalities,["AUDIO"]);
+  assert.deepEqual(setup.contextWindowCompression,{slidingWindow:{}});
+  assert.deepEqual(setup.sessionResumption,{});
+  assert.deepEqual(setup.inputAudioTranscription,{});
+  assert.deepEqual(setup.outputAudioTranscription,{});
+  assert.equal("realtimeInputConfig" in setup,false);
+
+  socket.message({setupComplete:{}});
+  await starting;
+
+  assert.equal(session.model,"gemini-3.1-flash-live-preview");
+  assert.equal(session.ready,true);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("binary setupComplete frame is decoded instead of timing out",async()=>{
+  resetSockets();
+  const logs=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["gemini-3.1-flash-live-preview"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.binaryMessage({setupComplete:{}});
+
+  await starting;
+
+  assert.equal(session.ready,true);
+  assert.equal(session.model,"gemini-3.1-flash-live-preview");
+
+  await session.stop({silentStatus:true,emitTerminal:false});
 });
