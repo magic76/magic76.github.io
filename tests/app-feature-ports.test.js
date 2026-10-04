@@ -238,3 +238,21 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
   assert.ok(!source.includes("問老師"),"result tabs should not promote Live");
  }
 });
+
+
+test("Story Player narration is Gemini Live, not browser speechSynthesis",()=>{
+ const reader=fs.readFileSync(path.join(root,"web-spa/src/story/ReaderPage.tsx"),"utf8");
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ const narrator=fs.readFileSync(path.join(root,"web-spa/src/story/player/useStoryNarrator.ts"),"utf8");
+ const prompt=fs.readFileSync(path.join(root,"web-spa/src/story/player/narration.ts"),"utf8");
+ assert.ok(reader.includes("StoryPlayerView"));
+ assert.ok(player.includes("useStoryNarrator"));
+ assert.ok(narrator.includes("useLiveSession"));
+ assert.ok(narrator.includes("sendPreparedImage"));
+ assert.ok(narrator.includes("sendText"));
+ assert.ok(prompt.includes("每次只講目前頁"));
+ assert.ok(!reader.includes("speechSynthesis"));
+ assert.ok(!player.includes("speechSynthesis"));
+ assert.ok(!reader.includes("SpeechSynthesisUtterance"));
+ assert.ok(!player.includes("SpeechSynthesisUtterance"));
+});
