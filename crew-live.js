@@ -137,6 +137,7 @@
     this.model="";
     this.running=false;
     this.ready=false;
+    this.modelSpeaking=false;
     this.stopping=false;
     this.recovering=false;
 
@@ -168,6 +169,8 @@
     this.sources=[];
 
     this.micMuted=false;
+    this.manualInterruptOnly=this.options.manualInterruptOnly!==false;
+    this.modelSpeaking=false;
     this.volume=Math.max(0,Math.min(100,Number(this.options.volume)||100));
     this.startedAt=0;
     this.turns=[];
@@ -230,6 +233,7 @@
     var attempt=this.activeAttempt;
     if(!this.ready||!this._isActiveAttempt(attempt))return false;
     this._clearPlayback();
+    this.modelSpeaking=false;
     if(this.options.onSpeaking)this.options.onSpeaking(false);
     try{
       var silence=new Uint8Array(3200);
@@ -334,6 +338,7 @@
   };
 
   LiveSession.prototype._clearPlayback=function(){
+    this.modelSpeaking=false;
     if(this.outputWorkletNode){
       try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
       this.outputWorkletPending=false;
@@ -415,6 +420,7 @@
 
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt))return;
+    this.modelSpeaking=true;
 
     // Android can transiently suspend Web Audio when the communication route
     // changes after getUserMedia. Resume as soon as Gemini audio arrives; the
@@ -604,6 +610,7 @@
     this.processor.onaudioprocess=function(event){
       var attempt=self.activeAttempt;
       if(!self.ready||!self._isActiveAttempt(attempt))return;
+      if(self.manualInterruptOnly&&self.modelSpeaking)return;
       try{
         var data=event.inputBuffer.getChannelData(0);
         attempt.socket.send(JSON.stringify({
@@ -705,6 +712,7 @@
 
       this.waitForPlaybackDrain().then(function(){
         if(!self._isActiveAttempt(attempt))return;
+        self.modelSpeaking=false;
         if(self.options.onSpeaking)self.options.onSpeaking(false);
         self._status("你可以直接繼續說");
       });
@@ -1226,6 +1234,7 @@
     this.resumeAttempts=0;
     this.startedAt=this._deps.now();
     this.micMuted=false;
+    this.modelSpeaking=false;
 
     try{
       await this._requestWakeLock();
