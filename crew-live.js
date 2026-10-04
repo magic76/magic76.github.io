@@ -200,7 +200,12 @@
     this.micMuted=!!muted;
     if(this.mediaStream){
       try{
-        this.mediaStream.getAudioTracks().forEach(function(track){track.enabled=!this.micMuted;},this);
+        var tracks=typeof this.mediaStream.getAudioTracks==="function"
+          ?this.mediaStream.getAudioTracks()
+          :(typeof this.mediaStream.getTracks==="function"?this.mediaStream.getTracks():[]);
+        tracks.forEach(function(track){
+          if(!track.kind||track.kind==="audio")track.enabled=!this.micMuted;
+        },this);
       }catch(_){}
     }
     if(this.options.onMicMuted)this.options.onMicMuted(this.micMuted);
