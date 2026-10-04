@@ -519,3 +519,100 @@ test("data URL image input is normalized before Live send",async()=>{
 
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+
+test("Android-safe startup opens mic before warm output worklet and queues first audio there",async()=>{
+  resetSockets();
+  const order=[];
+  const track={stopped:false,stop(){this.stopped=true;}};
+  const stream={getTracks(){return [track];}};
+  let context=null,node=null;
+
+  class WarmAudioContext extends FakeAudioContext{
+    constructor(){
+      super();
+      this.bufferSourceCalls=0;
+      this.audioWorklet={
+        addModule:async url=>{order.push("worklet:"+url);}
+      };
+    }
+    createBufferSource(){
+      this.bufferSourceCalls++;
+      return super.createBufferSource();
+    }
+  }
+
+  class FakeWorkletNode{
+    constructor(){
+      this.connected=false;
+      this.messages=[];
+      const self=this;
+      this.port={
+        onmessage:null,
+        postMessage(message){
+          self.messages.push(message);
+          if(message.type==="output"){
+            if(self.port.onmessage)self.port.onmessage({data:{type:"queue-state",samples:4800}});
+            if(self.port.onmessage)self.port.onmessage({data:{type:"output-started"}});
+          }
+          if(message.type==="turn-complete"){
+            setTimeout(()=>{
+              if(self.port.onmessage)self.port.onmessage({data:{type:"output-drained"}});
+            },15);
+          }
+          if(message.type==="clear-output"){
+            if(self.port.onmessage)self.port.onmessage({data:{type:"output-drained"}});
+          }
+        }
+      };
+    }
+    connect(){this.connected=true;}
+    disconnect(){this.connected=false;}
+  }
+
+  const session=new CrewLive.Session({
+    models:["m1"],
+    maxLiveAttempts:1,
+    connectTimeoutMs:100,
+    deps:{
+      WebSocket:MockWebSocket,
+      getKey:()=>"test-key",
+      getUserMedia:async()=>{order.push("mic");return stream;},
+      createAudioContext:()=>{order.push("audio-context");context=new WarmAudioContext();return context;},
+      createAudioWorkletNode:()=>{node=new FakeWorkletNode();return node;},
+      logger:{info(){}}
+    }
+  });
+
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  assert.equal(order[0],"mic");
+  assert.equal(order[1],"audio-context");
+  assert.match(order[2],/^worklet:/);
+  assert.equal(session.outputWorkletReady,true);
+  assert.equal(node.connected,true);
+
+  const pcm=Buffer.alloc(4800).toString("base64");
+  socket.message({
+    serverContent:{
+      modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]},
+      turnComplete:true
+    }
+  });
+
+  const output=node.messages.find(message=>message.type==="output");
+  assert.ok(output);
+  assert.equal(output.sampleRate,24000);
+  assert.equal(context.bufferSourceCalls,0);
+  assert.equal(session.hasPendingPlayback(),true);
+
+  await session.waitForPlaybackDrain(500);
+  assert.equal(session.hasPendingPlayback(),false);
+
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(track.stopped,true);
+});
