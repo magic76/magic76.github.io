@@ -92,12 +92,18 @@ test("all React Live products use shared manual-interrupt session hook",()=>{
  }
 });
 
-test("Teacher avatar is local public asset",()=>{
+test("Teacher profiles use local public avatar assets",()=>{
+ const profiles=fs.readFileSync(path.join(root,"web-spa/src/teacher/teacherProfiles.ts"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- assert.ok(tutor.includes("assets/teacher/teacher-emma.webp"));
- assert.ok(live.includes("assets/teacher/teacher-emma.webp"));
- assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-emma.webp")));
+ for(const name of ["emma","alex","james","mia"]){
+  assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-"+name+".webp")),"missing public avatar for "+name);
+  assert.ok(profiles.includes("teacher-"+name+".webp"),"profile registry should import "+name+" avatar");
+ }
+ assert.ok(tutor.includes("getTeacherProfile"));
+ assert.ok(live.includes("getTeacherProfile"));
+ assert.ok(!tutor.includes("raw.githubusercontent.com/magic76/crew-teacher"));
+ assert.ok(!live.includes("raw.githubusercontent.com/magic76/crew-teacher"));
 });
 
 test("React build toolchain is the primary Web toolchain",()=>{
@@ -130,4 +136,40 @@ test("Live model names stay internal",()=>{
  assert.ok(!core.includes('this._status(attempt.model+'));
  assert.ok(hook.includes('replace(/gemini-'));
  assert.ok(settings.includes('replace(/gemini-'));
+});
+
+
+test("Teacher Web mirrors native selectable tutor profiles",()=>{
+ const profiles=fs.readFileSync(path.join(root,"web-spa/src/teacher/teacherProfiles.ts"),"utf8");
+ const store=fs.readFileSync(path.join(root,"web-spa/src/store/teacherStore.ts"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ for(const name of ["Emma","Alex","James","Mia"])assert.ok(profiles.includes('name:"'+name+'"'),"missing tutor "+name);
+ for(const voice of ["Kore","Hyperion","Prospero","Leda"])assert.ok(profiles.includes('recommendedVoice:"'+voice+'"'),"missing recommended voice "+voice);
+ assert.ok(store.includes("teacherProfile"));
+ assert.ok(store.includes("setTeacherProfile"));
+ assert.ok(store.includes("profile.recommendedVoice"),"changing tutor should apply the recommended voice");
+ assert.ok(picker.includes("TEACHER_PROFILES"));
+ assert.ok(tutor.includes("TeacherProfilePicker"));
+ assert.ok(live.includes("TeacherProfilePicker"));
+ assert.ok(live.includes("teacherIdentityPrompt(profile)"));
+});
+
+test("Teacher session openings stay natural across new sessions and reconnects",()=>{
+ const profiles=fs.readFileSync(path.join(root,"web-spa/src/teacher/teacherProfiles.ts"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const pronunciation=fs.readFileSync(path.join(root,"web-spa/src/teacher/PronunciationPage.tsx"),"utf8");
+ const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
+ const core=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
+ assert.ok(profiles.includes("Hi there"));
+ assert.ok(profiles.includes("after an interruption, reconnect, session resumption, or topic transition"));
+ assert.ok(live.includes("This is the only proactive opening for this session"));
+ assert.ok(live.includes("Do not greet, re-introduce yourself, or restart the session"));
+ assert.ok(live.includes("Skip generic greetings"));
+ assert.ok(pronunciation.includes("Do not greet"));
+ assert.ok(textbook.includes("Do not greet or restart the conversation"));
+ assert.ok(core.includes("this.openingSent=false"));
+ assert.ok(core.includes("this.openingSent=true"));
+ assert.ok(core.includes("||this.openingSent"),"core should prevent repeated proactive openings");
 });
