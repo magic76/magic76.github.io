@@ -176,3 +176,14 @@ test("Teacher entry is now a stateful React application",()=>{
   assert.equal(pkg.dependencies.zustand,"5.0.15");
   assert.ok(pkg.scripts["build:teacher"]);
 });
+
+
+test("Teacher Pages build output is tracked",()=>{
+  const built=path.join(root,"teacher-app");
+  const index=fs.readFileSync(path.join(built,"index.html"),"utf8");
+  const assets=fs.readdirSync(path.join(built,"assets"));
+  assert.ok(index.includes("./assets/"),"Teacher build should reference local static assets");
+  assert.ok(assets.some((name)=>/^index-.*\.js$/.test(name)),"Teacher build should contain the Vite JS bundle");
+  assert.ok(assets.some((name)=>/^index-.*\.css$/.test(name)),"Teacher build should contain the Vite CSS bundle");
+  assert.ok(assets.some((name)=>/^teacher-emma-.*\.webp$/.test(name)),"Teacher build should contain the local tutor avatar");
+});
