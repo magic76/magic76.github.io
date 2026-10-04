@@ -25,3 +25,14 @@
 .story-create-progress{margin-top:14px;padding:13px;border-radius:14px;background:#fff4e5;border:1px solid #f0d6ad;display:none}
 .story-create-progress.show{display:block}
 @media(max-width:720px){.story-shelf-grid{grid-template-columns:1fr}.story-create-grid,.story-reader{grid-template-columns:1fr}.story-photo-row{grid-template-columns:72px 1fr auto}.story-photo-row img{width:72px;height:72px}.story-reader-copy .page-text{font-size:17px}}
+
+/* App-parity home shell */
+body.story-product{--product-accent:#e5962b;--product-accent-2:#f0b35c;--product-soft:#fff2df}
+.story-product .product-tile.shelf .product-tile-icon{background:#fff2df;color:#b66a18}
+.story-product .product-tile.create .product-tile-icon{background:#eaf2ff;color:#4b78c2}
+.story-home-empty{display:grid;gap:5px;padding:16px;background:#fff;border:1px solid var(--product-line);border-radius:20px}
+.story-home-empty strong{font-size:14px}.story-home-empty span{font-size:11px;color:var(--product-muted)}.story-home-empty .product-chip{justify-self:start;margin-top:6px}
+.story-home-recent{display:grid;grid-template-columns:82px 1fr auto;gap:12px;align-items:center;padding:10px;background:#fff;border:1px solid var(--product-line);border-radius:20px}
+.story-home-cover{width:82px;height:82px;border-radius:15px;overflow:hidden;background:var(--product-soft);display:grid;place-items:center}.story-home-cover img{width:100%;height:100%;object-fit:cover}.story-home-letter{font-size:28px;font-weight:900;color:var(--product-accent)}
+.story-home-copy{min-width:0}.story-home-copy small{display:block;color:var(--product-accent);font-size:10px;font-weight:800}.story-home-copy strong{display:block;font-size:15px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.story-home-copy span{display:block;color:var(--product-muted);font-size:11px;margin-top:5px}.story-home-recent>b{font-size:22px;color:#aaa}
+.story-archie-card .product-avatar{background:#fff2df;color:#b66a18}.story-archie-card .product-primary{background:#e5962b}

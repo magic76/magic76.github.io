@@ -1,9 +1,9 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Crew Fortune · 解讀</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}"></head><body>
-<header class="topbar"><div class="shell inner"><a class="brand" href="fortune.html"><span class="brandmark">F</span><span>Fortune 解讀</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Fortune</span><h1 id="modeTitle">正式解讀</h1><p class="lead" id="modeLead">先由固定算法計算，再交給 AI 做白話解讀。</p></section>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f7f7f4"><title>Crew Fortune · 解讀</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}"><link rel="stylesheet" href="features/fortune/styles.css?v={{ site.github.build_revision }}"></head><body class="product-page fortune-product">
+<header class="product-topbar"><div class="shell inner"><div class="product-brand"><a class="product-back" href="fortune.html" aria-label="回 Crew Fortune">‹</a><div class="product-title"><strong>正式解讀</strong><small>Crew Fortune</small></div></div><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
+<main class="shell product-main">
+<section class="product-hero"><span class="product-kicker">Crew Fortune</span><h1 id="modeTitle">正式解讀</h1><p class="lead" id="modeLead">先由固定算法計算，再交給 AI 做白話解讀。</p></section>
 <div class="fortune-reading-grid">
 <section class="panel">
 <label class="label">模式</label><select class="field" id="fortuneMode"><option value="bazi">八字</option><option value="tarot">塔羅生命靈數</option><option value="vedic">印度星盤</option></select>
@@ -22,7 +22,7 @@
 </div>
 </main>
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice:0,8 }}</code></div>
-<nav class="bottom-nav"><div class="inner"><a class="navitem" href="index.html"><b>⌂</b><span>首頁</span></a><a class="navitem" href="teacher.html"><b>A</b><span>語言</span></a><a class="navitem" href="story.html"><b>S</b><span>故事</span></a><a class="navitem active" href="fortune.html"><b>F</b><span>探索</span></a><a class="navitem" href="settings.html"><b>⚙</b><span>設定</span></a></div></nav>
+<nav class="product-bottom-nav"><div class="inner"><a class="product-nav-item" href="fortune.html#fortuneHome"><b>⌂</b><span>首頁</span></a><a class="product-nav-item active" href="fortune.html#fortuneModes"><b>✦</b><span>探索</span></a><a class="product-nav-item" href="fortune.html#fortuneHistory"><b>≡</b><span>歷史</span></a><a class="product-nav-item" href="settings.html"><b>○</b><span>我的</span></a></div></nav>
 <div class="toast" id="toast"></div>
 <script src="crew.js?v={{ site.github.build_revision }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.min.js"></script>

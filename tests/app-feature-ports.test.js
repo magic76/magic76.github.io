@@ -65,3 +65,38 @@ test("main product pages expose the app-derived entry points",()=>{
   assert.ok(fortune.includes("fortune-reading.html?mode=tarot"));
   assert.ok(fortune.includes("fortune-reading.html?mode=vedic"));
 });
+
+test("product surfaces use their app-aligned shells",()=>{
+  const pages={
+    "teacher.html":"teacher-product",
+    "teacher-textbook.html":"teacher-product",
+    "story.html":"story-product",
+    "story-shelf.html":"story-product",
+    "story-create.html":"story-product",
+    "story-reader.html":"story-product",
+    "fortune.html":"fortune-product",
+    "fortune-reading.html":"fortune-product"
+  };
+  for(const [page,productClass] of Object.entries(pages)){
+    const source=fs.readFileSync(path.join(root,page),"utf8");
+    assert.ok(source.includes("features/shared/product-shell.css"),page+" should load the shared product shell");
+    assert.ok(source.includes('class="product-page '+productClass+'"'),page+" should use "+productClass);
+    assert.ok(source.includes("product-topbar"),page+" should use product-owned top navigation");
+  }
+  for(const page of ["teacher.html","teacher-textbook.html","story.html","story-shelf.html","story-create.html","story-reader.html","fortune.html","fortune-reading.html"]){
+    const source=fs.readFileSync(path.join(root,page),"utf8");
+    assert.ok(source.includes("product-bottom-nav"),page+" should stay inside product navigation");
+  }
+});
+
+test("Live product redesign keeps required runtime controls",()=>{
+  const required={
+    "teacher.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","scene","level","pace","correction","accent","voice"],
+    "story.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","topic","style","pace","interaction","voice"],
+    "fortune.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","birth","focus","tone","voice"]
+  };
+  for(const [page,ids] of Object.entries(required)){
+    const source=fs.readFileSync(path.join(root,page),"utf8");
+    for(const id of ids)assert.ok(source.includes('id="'+id+'"'),page+" should retain #"+id);
+  }
+});

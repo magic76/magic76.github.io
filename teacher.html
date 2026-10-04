@@ -1,36 +1,74 @@
 ---
 ---
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#11110f"><title>Crew Teacher Live</title><link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}"></head><body>
-<header class="topbar"><div class="shell inner"><a class="brand" href="index.html"><span class="brandmark">C</span><span>Crew</span></a><a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a></div></header>
-<main class="shell page">
-<section class="hero"><span class="eyebrow"><i></i> Crew Teacher</span><h1>直接跟老師說話</h1><p class="lead">選情境後就開始。老師會依你的程度、語速與糾錯偏好陪你練，過程中可以直接插話。</p></section><section class="section"><div class="section-head"><h2>學習方式</h2><small>從 App 搬過來</small></div><div class="grid cards"><a class="card" href="teacher-textbook.html"><div class="icon">▤</div><h3>教材陪讀</h3><p>1–4 張教材或照片 → 排順序 → AI 備課 → Live 老師逐頁帶讀。</p><span class="go">開始教材陪讀 →</span></a><a class="card" href="#liveStage"><div class="icon">T</div><h3>跟老師聊</h3><p>直接進入目前的 Live 對話與情境練習。</p><span class="go">開始 Live →</span></a></div></section>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f7f7f4">
+<title>Crew Teacher</title>
+<link rel="stylesheet" href="crew.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/shared/product-shell.css?v={{ site.github.build_revision }}">
+<link rel="stylesheet" href="features/teacher/styles.css?v={{ site.github.build_revision }}">
+</head>
+<body class="product-page teacher-product">
+<header class="product-topbar"><div class="shell inner">
+<div class="product-brand"><a class="product-back" href="index.html" aria-label="回 Crew 首頁">‹</a><div class="product-title"><strong>Crew Teacher</strong><small>AI 語言老師</small></div></div>
+<a class="status" data-gemini-status href="settings.html"><i class="status-dot"></i><span data-gemini-status-text>設定 Gemini</span></a>
+</div></header>
 
-<section class="live-stage" id="liveStage" data-state="idle">
+<main class="shell product-main">
+<section class="product-hero" id="teacherHome">
+<span class="product-kicker">Crew Teacher</span>
+<h1>今天想學點什麼？</h1>
+<p>Crew Teacher 幫你把下一步準備好。直接聊天、讀教材，或進入更有目標的練習。</p>
+</section>
+
+<section class="product-section">
+<div class="product-resume product-card">
+<div class="product-resume-copy"><strong>繼續你的語言練習</strong><span>上次 Live 對話與教材進度都會保留在這台裝置。</span></div>
+<a class="product-chip" href="#teacherLive">繼續 →</a>
+</div>
+</section>
+
+<section class="product-section" id="teacherLearn">
+<div class="product-section-head"><h2>和老師練習</h2><small>選一種方式</small></div>
+<div class="product-grid">
+<a class="product-tile teacher-tile talk" href="#teacherLive"><span class="product-tile-icon">◌</span><strong>跟老師聊</strong><span>直接開口，老師主動接話</span></a>
+<a class="product-tile teacher-tile material" href="teacher-textbook.html"><span class="product-tile-icon">▤</span><strong>教材陪讀</strong><span>拍教材，老師逐頁帶你讀</span></a>
+<div class="product-tile teacher-tile vocab is-muted"><span class="product-tile-icon">A</span><strong>單字練習</strong><span>自動難度與間隔複習 · 下一階段</span></div>
+<a class="product-tile teacher-tile course" href="#teacherLive"><span class="product-tile-icon">◇</span><strong>情境課程</strong><span>旅遊、工作與真實任務</span></a>
+</div>
+</section>
+
+<section class="product-section">
+<div class="product-section-head"><h2>學習</h2><small>和 App 一樣集中管理</small></div>
+<div class="product-list">
+<a class="product-row" href="teacher-textbook.html"><span class="product-row-icon">▤</span><span class="product-row-copy"><strong>教材陪讀</strong><span>1–4 張教材或照片，AI 備課後逐頁陪讀</span></span><span class="product-row-go">›</span></a>
+<a class="product-row" href="#teacherLive"><span class="product-row-icon" style="background:#eaf2ff;color:#3f78d7">◇</span><span class="product-row-copy"><strong>情境對話</strong><span>旅遊、工作、面試、餐廳與飯店</span></span><span class="product-row-go">›</span></a>
+<a class="product-row teacher-tile pronunciation" href="#coachTool"><span class="product-row-icon">◉</span><span class="product-row-copy"><strong>快速表達教練</strong><span>先用一句話修正最自然的說法</span></span><span class="product-row-go">›</span></a>
+</div>
+</section>
+
+<section class="product-section teacher-live-intro" id="teacherLive">
+<div class="product-section-head"><h2>老師</h2><small>直接開始說</small></div>
+<div class="product-teacher-card product-card">
+<div class="product-avatar"><img src="https://raw.githubusercontent.com/magic76/crew-teacher/main/app/src/main/res/drawable-nodpi/teacher_emma.webp" alt="Emma"></div>
+<h2>Emma 老師準備好了</h2>
+<p>耐心、溫和、好開口。直接說就好，老師會主動帶話題，你卡住時再接住你。</p>
+<div class="teacher-live-actions">
+<button class="product-primary" id="teacherHeroStart">開始聊天</button>
+<button class="teacher-quick" id="teacherQuickSettings">練習設定</button>
+</div>
+</div>
+</section>
+
+<section class="live-stage product-section" id="liveStage" data-state="idle">
 <div class="live-top"><span class="live-badge"><i></i><span id="liveBadge">READY</span></span><span class="pill" id="liveModel">Live voice</span></div>
 <h2 class="live-title">1 對 1 即時語言練習</h2>
-<p class="live-sub">按開始才連 Gemini Live；連上後同一個 session 持續練習，長通話遇到 GoAway 會自動續接。</p>
+<p class="live-sub">開始後老師會先開口。你可以隨時插話；設定留在下面，需要時再調。</p>
 
-<div class="live-setup-grid" style="margin-top:16px">
-<div><label class="label" style="color:#c8c8c0">我要練</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
-<div><label class="label" style="color:#c8c8c0">情境</label><select class="field" id="scene"><option>自由對話</option><option>旅遊</option><option>工作</option><option>面試</option><option>餐廳</option><option>飯店</option></select></div>
-<div><label class="label" style="color:#c8c8c0">程度</label><select class="field" id="level"><option value="A1-A2">初級 · A1–A2</option><option value="B1-B2" selected>中級 · B1–B2</option><option value="C1+">進階 · C1+</option></select></div>
-<div><label class="label" style="color:#c8c8c0">老師語速</label><select class="field" id="pace"><option value="slow">慢一點</option><option value="normal" selected>正常</option><option value="fast">自然偏快</option></select></div>
-<div><label class="label" style="color:#c8c8c0">糾錯</label><select class="field" id="correction"><option value="light">輕度 · 不打斷流暢度</option><option value="normal" selected>即時 · 明顯錯誤就修</option><option value="strict">嚴格 · 用字文法都修</option></select></div>
-<div><label class="label" style="color:#c8c8c0">口音</label><select class="field" id="accent"><option>自然 / 不指定</option><option>美式</option><option>英式</option><option>澳洲</option></select></div>
-<div><label class="label" style="color:#c8c8c0">老師音色</label><select class="field" id="voice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
-<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次練習</button></div>
-</div>
-<div class="pref-note">這些偏好會保存在這台裝置，下次不用重選。</div>
-
-<div class="vision-box">
-<div class="vision-head"><strong>讓老師看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div>
-<div class="vision-actions"><button class="vision-btn" id="takeTeacherPhoto">拍照</button><button class="vision-btn" id="pickTeacherPhoto">從相簿選</button></div>
-<input id="teacherCameraInput" type="file" accept="image/*" capture="environment" hidden>
-<input id="teacherGalleryInput" type="file" accept="image/*" hidden>
-<div class="vision-preview" id="teacherVisionPreview"><img id="teacherVisionImage" alt="準備送給老師的照片"><div><b id="teacherVisionTitle">圖片已準備</b><small id="teacherVisionStatus">開始 Live 後會自動送給老師。</small></div></div>
-</div>
-
-<div class="live-orb"><span>T</span></div>
+<div class="live-orb"><span>E</span></div>
 <div class="live-status" id="liveStatus">按開始後，老師會先開口。</div>
 <div class="live-controls"><button class="live-btn" id="startLive">開始 Live 對話</button><button class="live-btn end" id="stopLive" hidden>結束</button></div>
 
@@ -42,8 +80,30 @@
 
 <div class="live-presets"><button data-live-prompt="換一個更生活化的話題，直接問我一個短問題。">換話題</button><button data-live-prompt="請糾正我剛剛最明顯的一個錯誤，給我正確說法後讓我重說一次。">糾正我</button><button data-live-prompt="現在進入角色扮演，請你扮演這個情境裡的真人角色，不要像老師講解。">角色扮演</button><button data-live-prompt="請把接下來的語速再慢一點，但保持自然發音。">說慢一點</button></div>
 
-<div class="live-transcript"><div class="live-line user" id="userLine"><small>你剛剛說</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
+<details class="live-settings" id="teacherSettings">
+<summary>練習設定</summary>
+<div class="live-setup-grid">
+<div><label class="label">我要練</label><select class="field" id="lang"><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></div>
+<div><label class="label">情境</label><select class="field" id="scene"><option>自由對話</option><option>旅遊</option><option>工作</option><option>面試</option><option>餐廳</option><option>飯店</option></select></div>
+<div><label class="label">程度</label><select class="field" id="level"><option value="A1-A2">初級 · A1–A2</option><option value="B1-B2" selected>中級 · B1–B2</option><option value="C1+">進階 · C1+</option></select></div>
+<div><label class="label">老師語速</label><select class="field" id="pace"><option value="slow">慢一點</option><option value="normal" selected>正常</option><option value="fast">自然偏快</option></select></div>
+<div><label class="label">糾錯</label><select class="field" id="correction"><option value="light">輕度 · 不打斷流暢度</option><option value="normal" selected>即時 · 明顯錯誤就修</option><option value="strict">嚴格 · 用字文法都修</option></select></div>
+<div><label class="label">口音</label><select class="field" id="accent"><option>自然 / 不指定</option><option>美式</option><option>英式</option><option>澳洲</option></select></div>
+<div><label class="label">老師音色</label><select class="field" id="voice"><option value="Kore">Kore</option><option value="Aoede">Aoede</option><option value="Puck">Puck</option><option value="Charon">Charon</option><option value="Fenrir">Fenrir</option></select></div>
+<div style="display:flex;align-items:end"><button class="continue-last" id="continueLast" hidden>繼續上次練習</button></div>
+</div>
+<div class="pref-note">這些偏好會保存在這台裝置，下次不用重選。</div>
+</details>
 
+<div class="vision-box">
+<div class="vision-head"><strong>讓老師看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div>
+<div class="vision-actions"><button class="vision-btn" id="takeTeacherPhoto">拍照</button><button class="vision-btn" id="pickTeacherPhoto">從相簿選</button></div>
+<input id="teacherCameraInput" type="file" accept="image/*" capture="environment" hidden>
+<input id="teacherGalleryInput" type="file" accept="image/*" hidden>
+<div class="vision-preview" id="teacherVisionPreview"><img id="teacherVisionImage" alt="準備送給老師的照片"><div><b id="teacherVisionTitle">圖片已準備</b><small id="teacherVisionStatus">開始 Live 後會自動送給老師。</small></div></div>
+</div>
+
+<div class="live-transcript"><div class="live-line user" id="userLine"><small>你剛剛說</small><span></span></div><div class="live-line" id="aiLine"><small>老師</small><span></span></div></div>
 <details class="live-history"><summary><span>完整對話</span><span>逐輪保留</span></summary><div class="live-history-actions"><button class="live-tool-btn" id="copyTranscript">複製全部</button></div><div class="live-history-list" id="liveTranscriptList"></div></details>
 <div class="live-note">Live 期間會保持螢幕喚醒（瀏覽器支援時）。離開頁面或按結束會關閉麥克風與音訊資源。</div>
 </section>
@@ -54,19 +114,23 @@
 <div class="session-result-actions"><button class="btn secondary small" id="copyTeacherResult">複製成果</button></div>
 </section>
 
-<details class="secondary-zone"><summary>其他工具</summary>
+<details class="secondary-zone" id="coachTool"><summary>其他工具</summary>
 <div class="panel" style="margin-top:14px"><h3>一句話教練</h3><p class="meta">不方便開麥克風時，再用文字模式。</p>
 <label class="label">你想怎麼說？</label><textarea class="field" id="coachInput" placeholder="例如：我想問飯店能不能晚一點退房"></textarea>
 <div class="actions"><button class="btn secondary" id="coachGo">文字快速修正</button></div><div class="result empty" id="coachResult">結果會出現在這裡。</div></div>
 </details>
 </main>
+
 <div class="build-meta">Build <code>{{ site.github.build_revision | slice: 0, 8 }}</code></div>
-<nav class="bottom-nav"><div class="inner">
-<a class="navitem" data-nav="home" href="index.html"><b>⌂</b><span>首頁</span></a>
-<a class="navitem active" data-nav="teacher" href="teacher.html"><b>A</b><span>語言</span></a>
-<a class="navitem" data-nav="story" href="story.html"><b>S</b><span>故事</span></a>
-<a class="navitem" data-nav="fortune" href="fortune.html"><b>F</b><span>探索</span></a>
-<a class="navitem" data-nav="settings" href="settings.html"><b>⚙</b><span>設定</span></a>
+<nav class="product-bottom-nav"><div class="inner">
+<a class="product-nav-item active" href="#teacherHome"><b>⌂</b><span>首頁</span></a>
+<a class="product-nav-item" href="#teacherLearn"><b>◇</b><span>學習</span></a>
+<a class="product-nav-item" href="#teacherLive"><b>◌</b><span>老師</span></a>
+<a class="product-nav-item" href="settings.html"><b>○</b><span>我的</span></a>
 </div></nav>
 <div class="toast" id="toast"></div>
-<script src="crew.js?v={{ site.github.build_revision }}"></script><script src="crew-live.js?v={{ site.github.build_revision }}"></script><script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script><script src="features/teacher/live/page.js?v={{ site.github.build_revision }}"></script></body></html>
+<script src="crew.js?v={{ site.github.build_revision }}"></script>
+<script src="crew-live.js?v={{ site.github.build_revision }}"></script>
+<script src="crew-live-ui.js?v={{ site.github.build_revision }}"></script>
+<script src="features/teacher/live/page.js?v={{ site.github.build_revision }}"></script>
+</body></html>
