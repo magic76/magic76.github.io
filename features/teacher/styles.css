@@ -1,0 +1,33 @@
+body.teacher-product{
+  --product-accent:#6257e7;
+  --product-accent-2:#8178f4;
+  --product-soft:#eeecff;
+}
+.teacher-tile.material .product-tile-icon{background:#fff3e8;color:#c77725}
+.teacher-tile.vocab .product-tile-icon{background:#eaf7f0;color:#2ba471}
+.teacher-tile.course .product-tile-icon{background:#eaf2ff;color:#3f78d7}
+.teacher-tile.pronunciation .product-row-icon{background:#f2eafb;color:#9a6bd8}
+.teacher-today{
+  display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:15px 16px
+}
+.teacher-today strong{font-size:13px}
+.teacher-today p{margin:5px 0 0;color:var(--product-muted);font-size:11px;line-height:1.45}
+.teacher-streak{
+  min-width:58px;text-align:center;background:var(--product-soft);color:var(--product-accent);
+  padding:9px 10px;border-radius:15px
+}
+.teacher-streak b{display:block;font-size:18px}
+.teacher-streak span{display:block;font-size:9px;font-weight:800;margin-top:2px}
+.teacher-live-intro{margin-top:10px}
+.teacher-live-intro .product-avatar{width:96px;height:96px}
+.teacher-live-intro .product-avatar img{border-radius:50%}
+.teacher-live-actions{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:16px}
+.teacher-live-actions .product-primary{margin:0}
+.teacher-quick{
+  border:1px solid var(--product-line);background:#fff;border-radius:15px;padding:0 14px;
+  color:var(--product-text);font-weight:800
+}
+@media(max-width:560px){
+  .teacher-live-actions{grid-template-columns:1fr}
+  .teacher-quick{min-height:46px}
+}
