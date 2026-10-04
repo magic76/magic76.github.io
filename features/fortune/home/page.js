@@ -15,9 +15,4 @@
       }).join("");
     }
   }
-  var settings=document.getElementById("fortuneQuickSettings");
-  if(settings)settings.onclick=function(){
-    var el=document.getElementById("fortuneSettings");
-    if(el){el.open=true;el.scrollIntoView({behavior:"smooth",block:"center"})}
-  };
 })();
