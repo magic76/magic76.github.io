@@ -10,8 +10,8 @@
       recent.innerHTML=list.map(function(item){
         var label=labels[item.mode]||"解讀";
         var d=item.createdAt?new Date(item.createdAt).toLocaleDateString():"";
-        return '<a class="fortune-history-row" href="fortune-reading.html?mode='+encodeURIComponent(item.mode||"bazi")+'">'+
-          '<span class="fortune-history-mark '+(item.mode||"")+'"></span><span><strong>'+label+'</strong><small>'+CrewAI.esc(item.summary||d)+'</small></span><b>›</b></a>';
+        return '<div class="fortune-history-row">'+
+          '<span class="fortune-history-mark '+(item.mode||"")+'"></span><span><strong>'+label+'</strong><small>'+CrewAI.esc(item.summary||d)+'</small></span><b>·</b></div>';
       }).join("");
     }
   }
