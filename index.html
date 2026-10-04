@@ -1,242 +1,687 @@
-<html>
-    <head>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#f7f7f4" />
+  <meta name="description" content="Crew — 用 AI 學習、創作、探索。先玩一個小工具，再找到適合你的 Crew。" />
+  <title>Crew — AI tools for everyday life</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --paper: #ffffff;
+      --ink: #151515;
+      --muted: #777772;
+      --line: #e8e8e2;
+      --soft: #efefea;
+      --accent: #181818;
+      --radius: 24px;
+      --shadow: 0 18px 50px rgba(24,24,20,.07);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Noto Sans TC", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    a { color: inherit; text-decoration: none; }
+    .shell { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: rgba(247,247,244,.84);
+      border-bottom: 1px solid rgba(232,232,226,.85);
+    }
+    .nav {
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -.03em; }
+    .brand-mark {
+      width: 34px; height: 34px; border-radius: 12px; background: var(--ink); color: white;
+      display: grid; place-items: center; font-size: 15px; font-weight: 800;
+    }
+    .nav-links { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; }
+    .nav-links a { padding: 9px 12px; border-radius: 12px; }
+    .nav-links a:hover { background: white; color: var(--ink); }
 
-    </head>
-    <body>
-        <div id="root"></div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
-        <script type="text/babel">
-        function checkResult(arr, player) {
-            var lenX = 7;
-            var lenY = 6;
-            var count = 0;
-            var result = false;
-            for (var i = 0; i<lenY; i++){
-                if(checkRow(arr[i], player)){
-                    result = true;
-                    break;
-                };
-            }
-            if (!result) {
-                for (var j = 0; j<lenX; j++){
-                    var a = [];
-                    for (var i = 0; i<lenY; i++){
-                        a.push(arr[i][j]);
-                    }
-                    if(checkRow(a, player)){
-                        result = true;
-                        break;
-                    };
-                }
-            }
-            if (!result) {
-                for (var j = 0; j<lenX; j++){
-                    var b = [];
-                    for (var i = 0; i<lenY; i++){
-                        if (!arr[j+i]) {
-                            break;
-                        }
-                        b.push(arr[j+i][i])
-                    }
-                    if(checkRow(b, player)){
-                        result = true;
-                        break;
-                    };
-                }
-            }
-            if (!result) {
-                for (var j = 3; j<lenX; j++){
-                    var b = [];
-                    for (var i = 0; i<lenY; i++){
-                        if (!arr[j-i]) {
-                            break;
-                        }
-                        b.push(arr[j-i][i])
-                    }
-                    if(checkRow(b, player)){
-                        result = true;
-                        break;
-                    };
-                }
-            }
-            
-            return result;
+    .hero { padding: 88px 0 44px; text-align: center; }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px;
+      border: 1px solid var(--line); border-radius: 999px; background: rgba(255,255,255,.7);
+      color: #5f5f59; font-size: 13px; font-weight: 650;
+    }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #3b3b39; }
+    h1 {
+      margin: 22px auto 14px;
+      max-width: 800px;
+      font-size: clamp(42px, 7vw, 78px);
+      line-height: .98;
+      letter-spacing: -.06em;
+    }
+    .hero p {
+      margin: 0 auto;
+      max-width: 650px;
+      color: var(--muted);
+      font-size: clamp(16px, 2.2vw, 20px);
+      line-height: 1.65;
+    }
+    .ask {
+      margin: 34px auto 0;
+      max-width: 760px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 8px;
+      display: flex;
+      align-items: center;
+      box-shadow: var(--shadow);
+    }
+    .ask input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      padding: 14px 14px;
+      font-size: 16px;
+    }
+    .primary {
+      border: 0;
+      background: var(--ink);
+      color: white;
+      border-radius: 16px;
+      padding: 13px 18px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .primary:hover { opacity: .9; }
+    .chips { margin: 14px auto 0; display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; }
+    .chip {
+      border: 1px solid var(--line); background: transparent; color: #686863;
+      padding: 8px 11px; border-radius: 999px; font-size: 13px; cursor: pointer;
+    }
+    .chip:hover { background: white; color: var(--ink); }
+
+    .section { padding: 48px 0 84px; }
+    .section-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+    .section-head h2 { margin: 0; font-size: clamp(28px,4vw,42px); letter-spacing: -.045em; }
+    .section-head p { margin: 0; color: var(--muted); max-width: 520px; line-height: 1.6; }
+    .tools { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .tool {
+      min-height: 310px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .tool:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .tool-kicker { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .12em; font-weight: 750; }
+    .tool-icon {
+      margin: 22px 0 auto;
+      width: 58px; height: 58px; border-radius: 18px; background: var(--soft);
+      display: grid; place-items: center; font-size: 24px; font-weight: 800;
+    }
+    .tool h3 { margin: 26px 0 8px; font-size: 24px; letter-spacing: -.035em; }
+    .tool p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .arrow { margin-top: 20px; font-weight: 750; font-size: 14px; }
+
+    .playground {
+      margin-top: 20px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      overflow: hidden;
+      display: none;
+      box-shadow: var(--shadow);
+    }
+    .playground.active { display: block; }
+    .play-top {
+      min-height: 76px; padding: 16px 20px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+    .play-title strong { display: block; font-size: 18px; }
+    .play-title span { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; }
+    .close {
+      border: 1px solid var(--line); background: var(--bg); border-radius: 14px;
+      width: 40px; height: 40px; cursor: pointer;
+    }
+    .play-body { padding: 24px; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      min-height: 250px;
+    }
+    .panel h4 { margin: 0 0 8px; font-size: 16px; }
+    .muted { color: var(--muted); line-height: 1.55; }
+    .label { display: block; margin: 14px 0 7px; font-size: 13px; font-weight: 700; }
+    .field, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fbfbf8;
+      border-radius: 14px;
+      padding: 12px 13px;
+      outline: 0;
+      color: var(--ink);
+    }
+    .field:focus, select:focus { border-color: #a6a69d; background: white; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .secondary {
+      border: 1px solid var(--line);
+      background: #f6f6f1;
+      color: var(--ink);
+      border-radius: 14px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .secondary:hover { background: #eeeeea; }
+    .result {
+      margin-top: 14px;
+      border-radius: 16px;
+      background: #f5f5f0;
+      padding: 16px;
+      line-height: 1.65;
+      white-space: pre-wrap;
+    }
+    .answers { display: grid; gap: 9px; margin-top: 16px; }
+    .answer {
+      text-align: left; border: 1px solid var(--line); background: #fbfbf8;
+      border-radius: 14px; padding: 12px 14px; cursor: pointer;
+    }
+    .answer:hover { background: white; border-color: #c8c8bf; }
+    .answer.correct { border-color: #1d7a51; background: #eef8f3; }
+    .answer.wrong { border-color: #b65c55; background: #fbf0ef; }
+    .scoreline { font-size: 13px; color: var(--muted); margin-top: 14px; }
+    .bars { display: grid; gap: 12px; margin-top: 16px; }
+    .bar-row { display: grid; grid-template-columns: 64px 1fr 42px; align-items: center; gap: 10px; font-size: 13px; }
+    .bar { height: 8px; background: #e5e5df; border-radius: 99px; overflow: hidden; }
+    .bar > i { display: block; height: 100%; background: #2f2f2d; border-radius: 99px; }
+    .cta {
+      margin-top: 18px;
+      padding: 16px;
+      border: 1px dashed #cecec6;
+      border-radius: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+    .cta b { display: block; margin-bottom: 4px; }
+    .cta small { color: var(--muted); line-height: 1.45; }
+
+    .products {
+      background: #181818;
+      color: white;
+      border-radius: 32px;
+      padding: 30px;
+    }
+    .products .section-head p { color: #aaa; }
+    .product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .product {
+      min-height: 190px;
+      border: 1px solid #353535;
+      border-radius: 20px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      background: #1e1e1e;
+    }
+    .product b { font-size: 17px; }
+    .product p { color: #a9a9a9; font-size: 13px; line-height: 1.55; }
+    .product a, .product span { margin-top: auto; font-size: 13px; font-weight: 700; }
+    .product a:hover { text-decoration: underline; }
+
+    footer {
+      padding: 36px 0 48px;
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .toast {
+      position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+      background: #181818; color: white; padding: 11px 16px; border-radius: 999px;
+      font-size: 13px; opacity: 0; pointer-events: none; transition: .2s ease; z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    @media (max-width: 900px) {
+      .tools { grid-template-columns: 1fr; }
+      .tool { min-height: 220px; }
+      .tool-icon { margin-top: 18px; }
+      .grid2 { grid-template-columns: 1fr; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 620px) {
+      .shell { width: min(100% - 20px, 1120px); }
+      .nav-links a:not(:last-child) { display: none; }
+      .hero { padding-top: 58px; }
+      .ask { border-radius: 18px; }
+      .ask input { padding: 12px 10px; font-size: 15px; }
+      .ask .primary { padding: 12px 14px; }
+      .section { padding: 36px 0 62px; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 8px; }
+      .play-body { padding: 14px; }
+      .panel { padding: 16px; }
+      .cta { align-items: flex-start; flex-direction: column; }
+      .products { padding: 20px; border-radius: 24px; }
+      .product-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell nav">
+      <a class="brand" href="#">
+        <span class="brand-mark">C</span>
+        <span>Crew</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#play">Playground</a>
+        <a href="#products">Crew Apps</a>
+        <a href="legacy-connect4.html">Legacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="shell hero">
+      <span class="eyebrow"><span class="dot"></span> Crew Playground · MVP</span>
+      <h1>今天想跟 AI<br>做什麼？</h1>
+      <p>先玩一個小工具。需要更完整的體驗時，再交給最適合你的 Crew。</p>
+
+      <div class="ask">
+        <input id="routerInput" aria-label="Ask Crew" placeholder="例如：我想練旅遊英文、幫我說個故事、看看最近運勢…" />
+        <button class="primary" id="routeBtn">Ask Crew</button>
+      </div>
+      <div class="chips">
+        <button class="chip" data-route="我想練英文">練一句英文</button>
+        <button class="chip" data-route="幫我說一個睡前故事">生成小故事</button>
+        <button class="chip" data-route="看看最近工作運">看看運勢</button>
+      </div>
+    </section>
+
+    <section class="shell section" id="play">
+      <div class="section-head">
+        <div><h2>Try something</h2></div>
+        <p>不是產品目錄。先讓使用者得到一個結果，再自然發現完整 Crew App。</p>
+      </div>
+
+      <div class="tools">
+        <article class="tool" data-tool="language" tabindex="0">
+          <span class="tool-kicker">Crew Teacher</span>
+          <div class="tool-icon">A</div>
+          <h3>語言快練</h3>
+          <p>30 秒完成一題真實情境練習，立即知道哪一句更自然。</p>
+          <span class="arrow">開始練習 →</span>
+        </article>
+        <article class="tool" data-tool="story" tabindex="0">
+          <span class="tool-kicker">Crew Story</span>
+          <div class="tool-icon">S</div>
+          <h3>故事製造機</h3>
+          <p>給角色、地點和一個物件，立刻生成一篇可以念給人聽的小故事。</p>
+          <span class="arrow">創造故事 →</span>
+        </article>
+        <article class="tool" data-tool="fortune" tabindex="0">
+          <span class="tool-kicker">Crew Fortune</span>
+          <div class="tool-icon">F</div>
+          <h3>今日小分析</h3>
+          <p>輸入出生日期，用輕量結果看看今天適合把注意力放在哪裡。</p>
+          <span class="arrow">看看今天 →</span>
+        </article>
+      </div>
+
+      <div class="playground" id="language">
+        <div class="play-top">
+          <div class="play-title"><strong>語言快練</strong><span>一題就能感受到 Crew Teacher 的核心體驗</span></div>
+          <button class="close" data-close aria-label="關閉">×</button>
+        </div>
+        <div class="play-body grid2">
+          <div class="panel">
+            <h4 id="langScenario">飯店情境</h4>
+            <p class="muted" id="langQuestion">你想問櫃檯：「可以延後退房嗎？」哪一句最自然？</p>
+            <div class="answers" id="langAnswers"></div>
+            <div class="scoreline" id="langScore">連續答對 0 題</div>
+          </div>
+          <div class="panel">
+            <h4>Teacher note</h4>
+            <p class="muted">選一個答案後，這裡會解釋語氣與更自然的說法。</p>
+            <div class="result" id="langResult">先選一個答案。</div>
+            <div class="row" style="margin-top:14px">
+              <button class="secondary" id="nextLang">換一題</button>
+              <button class="secondary" id="speakLang">朗讀答案</button>
+            </div>
+            <div class="cta">
+              <div><b>想直接跟 AI 老師對話？</b><small>Crew Teacher 有即時口說、教材陪讀、單字與情境課程。</small></div>
+              <button class="primary product-more" data-product="Crew Teacher">完整功能</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="playground" id="story">
+        <div class="play-top">
+          <div class="play-title"><strong>故事製造機</strong><span>不用登入，填三個東西就能玩</span></div>
+          <button class="close" data-close aria-label="關閉">×</button>
+        </div>
+        <div class="play-body grid2">
+          <div class="panel">
+            <h4>給故事三個元素</h4>
+            <label class="label" for="storyHero">主角</label>
+            <input class="field" id="storyHero" value="一隻怕水的小恐龍" />
+            <label class="label" for="storyPlace">地點</label>
+            <input class="field" id="storyPlace" value="會發光的海邊" />
+            <label class="label" for="storyItem">神奇物件</label>
+            <input class="field" id="storyItem" value="一把會唱歌的雨傘" />
+            <div class="row" style="margin-top:16px">
+              <button class="primary" id="makeStory">生成故事</button>
+              <button class="secondary" id="surpriseStory">幫我亂入</button>
+            </div>
+          </div>
+          <div class="panel">
+            <h4>你的故事</h4>
+            <div class="result" id="storyResult">填完左邊三個元素，按「生成故事」。</div>
+            <div class="cta">
+              <div><b>想用照片和繪本直接做故事？</b><small>Crew Story 支援多張照片、排序與逐頁故事體驗。</small></div>
+              <button class="primary product-more" data-product="Crew Story">完整功能</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="playground" id="fortune">
+        <div class="play-top">
+          <div class="play-title"><strong>今日小分析</strong><span>娛樂版 Demo，不取代專業或重要決策建議</span></div>
+          <button class="close" data-close aria-label="關閉">×</button>
+        </div>
+        <div class="play-body grid2">
+          <div class="panel">
+            <h4>今天想看哪一面？</h4>
+            <label class="label" for="birthDate">出生日期</label>
+            <input class="field" id="birthDate" type="date" />
+            <label class="label" for="fortuneFocus">主題</label>
+            <select id="fortuneFocus">
+              <option value="工作">工作</option>
+              <option value="財運">財運</option>
+              <option value="關係">關係</option>
+              <option value="整體">整體</option>
+            </select>
+            <button class="primary" id="makeFortune" style="margin-top:16px">產生今日分析</button>
+          </div>
+          <div class="panel">
+            <h4>今日節奏</h4>
+            <div class="result" id="fortuneText">輸入出生日期後產生結果。</div>
+            <div class="bars" id="fortuneBars"></div>
+            <div class="cta">
+              <div><b>想看完整命盤與長期趨勢？</b><small>Crew Fortune 提供更完整的分析、歷史紀錄與延伸解讀。</small></div>
+              <a class="primary" href="https://github.com/magic76/crew-fortune" target="_blank" rel="noreferrer">Crew Fortune</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="shell section" id="products">
+      <div class="products">
+        <div class="section-head">
+          <div><h2>More from Crew</h2></div>
+          <p>工具先解決眼前需求；完整 App 再處理更長、更深、更持續的任務。</p>
+        </div>
+        <div class="product-grid">
+          <div class="product"><b>Crew Teacher</b><p>AI 語言老師：對話、發音、教材陪讀、單字與情境學習。</p><span>Language companion</span></div>
+          <div class="product"><b>Crew Story</b><p>照片與繪本變成互動故事，支援排序與逐頁閱讀。</p><span>Story companion</span></div>
+          <div class="product"><b>Crew Fortune</b><p>把個人資料轉成可閱讀、可延伸追問的命理分析。</p><a href="https://github.com/magic76/crew-fortune" target="_blank" rel="noreferrer">View project →</a></div>
+          <div class="product"><b>Crew Helper</b><p>讓 AI 真的操作 Android 手機：導航、音樂與跨 App 任務。</p><a href="https://github.com/magic76/crew-helper" target="_blank" rel="noreferrer">View project →</a></div>
+          <div class="product"><b>Crew Pocket</b><p>把 agent 開發環境帶進手機，隨時執行與管理工作。</p><a href="https://github.com/magic76/crew-pocket" target="_blank" rel="noreferrer">View project →</a></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <span>© 2026 Crew · Built as a small useful thing first.</span>
+    <span>MVP · Static demo · No account required</span>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var activeTool = null;
+      var toastTimer = null;
+      var langIndex = 0;
+      var streak = 0;
+
+      var questions = [
+        {
+          scene: "飯店情境",
+          q: "你想問櫃檯：「可以延後退房嗎？」哪一句最自然？",
+          options: ["Can I check out more late?", "Could I get a late checkout?", "Can my checkout delay?"],
+          answer: 1,
+          note: "Could I get a late checkout? 是飯店最自然的說法。想更客氣可以說：Would it be possible to get a late checkout?"
+        },
+        {
+          scene: "餐廳情境",
+          q: "你想問：「這道菜會很辣嗎？」哪一句最自然？",
+          options: ["Is this dish very spicy?", "Does this dish very spicy?", "This food has spicy?"],
+          answer: 0,
+          note: "Is this dish very spicy? 最直接自然。若想更口語，也可以問：How spicy is this dish?"
+        },
+        {
+          scene: "問路情境",
+          q: "你想問：「走路大概要多久？」哪一句最自然？",
+          options: ["How long does it take to walk there?", "How many time to walk?", "How long walking it?"],
+          answer: 0,
+          note: "How long does it take to walk there? 很自然。若地點已經很明確，也可以說：How long is the walk?"
+        },
+        {
+          scene: "工作情境",
+          q: "你想說：「我晚點再確認一次。」哪一句最自然？",
+          options: ["I will check again later.", "I check it after.", "Later I am checking again it."],
+          answer: 0,
+          note: "I will check again later. 很清楚。更工作口吻可以說：I’ll double-check it later."
         }
-        function checkRow(arr, player) {
-            var str = arr.join('@');
-            player = [player,player,player,player].join('@');
-            if (str.indexOf(player) >= 0){
-                return true;
-            }
-            return false;
+      ];
+
+      function showToast(message) {
+        var el = document.getElementById("toast");
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.classList.remove("show"); }, 2200);
+      }
+
+      function openTool(id) {
+        document.querySelectorAll(".playground").forEach(function (el) {
+          el.classList.toggle("active", el.id === id);
+        });
+        activeTool = id;
+        var target = document.getElementById(id);
+        if (target) setTimeout(function () { target.scrollIntoView({ behavior: "smooth", block: "start" }); }, 40);
+      }
+
+      function closeTools() {
+        document.querySelectorAll(".playground").forEach(function (el) { el.classList.remove("active"); });
+        activeTool = null;
+      }
+
+      document.querySelectorAll(".tool").forEach(function (card) {
+        function open() { openTool(card.getAttribute("data-tool")); }
+        card.addEventListener("click", open);
+        card.addEventListener("keydown", function (e) {
+          if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); }
+        });
+      });
+
+      document.querySelectorAll("[data-close]").forEach(function (btn) {
+        btn.addEventListener("click", closeTools);
+      });
+
+      function routeCrew(text) {
+        var value = (text || "").trim().toLowerCase();
+        if (!value) { showToast("先告訴 Crew 你想做什麼"); return; }
+        if (/英|日文|韓文|語言|單字|口說|發音|翻譯|飯店|旅遊/.test(value)) {
+          openTool("language");
+          showToast("這個需求先交給 Crew Teacher");
+        } else if (/故事|繪本|照片|睡前|角色|童話/.test(value)) {
+          openTool("story");
+          showToast("這個需求適合 Crew Story");
+        } else if (/算命|運勢|財運|工作運|命盤|出生|八字/.test(value)) {
+          openTool("fortune");
+          showToast("這個需求適合 Crew Fortune");
+        } else {
+          showToast("MVP 目前先支援：語言、故事、運勢");
+          document.getElementById("play").scrollIntoView({ behavior: "smooth" });
         }
+      }
 
+      document.getElementById("routeBtn").addEventListener("click", function () {
+        routeCrew(document.getElementById("routerInput").value);
+      });
+      document.getElementById("routerInput").addEventListener("keydown", function (e) {
+        if (e.key === "Enter") routeCrew(e.target.value);
+      });
+      document.querySelectorAll("[data-route]").forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          var value = chip.getAttribute("data-route");
+          document.getElementById("routerInput").value = value;
+          routeCrew(value);
+        });
+      });
 
-        class UnitCell extends React.Component {
-            render() {
-                var player = this.props.player;
-                var color ='';
-                if (player === 'o') {
-                    color = 'blue';
-                } else if (player === 'x') {
-                    color = 'red';
-                }
-                var style = {
-                    height:'40px', 
-                    width:'calc(100%/7)', 
-                    backgroundColor:color,
-                    display: 'inline-block',
-                    textAlign: 'center',
-                    borderRadius: '55px'
-                }
-                return (<div style={style}>{player||'-'}</div>);
+      function renderLanguage() {
+        var q = questions[langIndex];
+        document.getElementById("langScenario").textContent = q.scene;
+        document.getElementById("langQuestion").textContent = q.q;
+        document.getElementById("langResult").textContent = "先選一個答案。";
+        var wrap = document.getElementById("langAnswers");
+        wrap.innerHTML = "";
+        q.options.forEach(function (text, i) {
+          var btn = document.createElement("button");
+          btn.className = "answer";
+          btn.textContent = text;
+          btn.addEventListener("click", function () {
+            if (wrap.getAttribute("data-done") === "1") return;
+            wrap.setAttribute("data-done", "1");
+            var all = wrap.querySelectorAll(".answer");
+            all[q.answer].classList.add("correct");
+            if (i === q.answer) {
+              streak += 1;
+              document.getElementById("langResult").textContent = "答對了。\n\n" + q.note;
+            } else {
+              streak = 0;
+              btn.classList.add("wrong");
+              document.getElementById("langResult").textContent = "再看一次比較自然的版本。\n\n" + q.note;
             }
+            document.getElementById("langScore").textContent = "連續答對 " + streak + " 題";
+          });
+          wrap.appendChild(btn);
+        });
+        wrap.setAttribute("data-done", "0");
+      }
+
+      document.getElementById("nextLang").addEventListener("click", function () {
+        langIndex = (langIndex + 1) % questions.length;
+        renderLanguage();
+      });
+      document.getElementById("speakLang").addEventListener("click", function () {
+        var q = questions[langIndex];
+        if (!("speechSynthesis" in window)) { showToast("這個瀏覽器不支援朗讀"); return; }
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(q.options[q.answer]);
+        u.lang = "en-US";
+        u.rate = 0.9;
+        speechSynthesis.speak(u);
+      });
+      renderLanguage();
+
+      var surpriseHeroes = ["一隻只敢在晚上飛的小鳥", "一個總是忘記名字的小機器人", "一位把影子弄丟的郵差", "一隻想當廚師的鯨魚"];
+      var surprisePlaces = ["沒有重力的圖書館", "每天換顏色的森林", "藏在雲裡的小鎮", "只有星期三才出現的車站"];
+      var surpriseItems = ["一張會改寫明天的車票", "一顆只會說真話的石頭", "一雙會帶路的襪子", "一個裝得下月光的玻璃瓶"];
+
+      function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+      function generateStory() {
+        var hero = document.getElementById("storyHero").value.trim() || "一位意外的旅人";
+        var place = document.getElementById("storyPlace").value.trim() || "一個陌生的地方";
+        var item = document.getElementById("storyItem").value.trim() || "一件奇怪的東西";
+        var story =
+          hero + "一直以為自己最不擅長的，就是面對不知道會發生什麼的事情。\n\n" +
+          "有一天，牠來到" + place + "，在角落發現了" + item + "。奇怪的是，這個東西沒有告訴牠答案，只在每次想放棄時，發出一個很小、很小的聲音，提醒牠再往前一步。\n\n" +
+          "最後，" + hero + "沒有變成世界上最勇敢的人，但牠學會了一件更重要的事：勇敢不是不害怕，而是害怕的時候，還願意多走一步。";
+        document.getElementById("storyResult").textContent = story;
+      }
+
+      document.getElementById("makeStory").addEventListener("click", generateStory);
+      document.getElementById("surpriseStory").addEventListener("click", function () {
+        document.getElementById("storyHero").value = pick(surpriseHeroes);
+        document.getElementById("storyPlace").value = pick(surprisePlaces);
+        document.getElementById("storyItem").value = pick(surpriseItems);
+        generateStory();
+      });
+
+      function hashString(str) {
+        var h = 2166136261;
+        for (var i = 0; i < str.length; i++) {
+          h ^= str.charCodeAt(i);
+          h += (h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24);
         }
-        class Container extends React.Component {
-            constructor(props) {
-                super(props);
-                this.state = {
-                    arr: [[],[],[],[],[],[],[]],
-                    player1: 'o',
-                    player2: 'x',
-                    finished: false,
-                    msg: '',
-                    player: 'player1'
-                };
-                this.autoRun = this.autoRun.bind(this);
-                this.playerPlay = this.playerPlay.bind(this);
-            }
+        return Math.abs(h >>> 0);
+      }
 
-            playRun(arr, x, player) {
-                var arr = this.state.arr;
-                arr[x].push(player);
-                this.setState({arr:arr});
-                return checkResult(arr, player);
-            }
-            playerPlay(x) {
-                var arr = this.state.arr;
-                arr[x].push(this.state[this.state.player]);
+      function fortuneLine(score, focus) {
+        if (score >= 78) return focus + "節奏偏順，適合把一直拖著的事情往前推一步。";
+        if (score >= 60) return focus + "屬於穩定型的一天，先完成明確的小目標，比同時開很多線有效。";
+        return focus + "今天比較適合觀察與整理，不需要急著對所有事情做結論。";
+      }
 
-                if (checkResult(arr, this.state[this.state.player])) {
-                    this.setState({
-                        arr: arr,
-                        player: this.state.player,
-                        msg: this.state.player + ' win'
-                    });
-                } else {
-                    var changeName = this.state.player === 'player1' ? 'player2' : 'player1';
-                    this.setState({
-                        arr:arr,
-                        player: changeName
-                    });
-                }
-            }
-            autoRun() {
-                
-                var player1 = this.state.player1;
-                var player2 = this.state.player2;
-                var nowPlay = player1;
-                var count=1;
-                this.setState({arr:[[],[],[],[],[],[],[]]});
-                var inte = setInterval(()=> {
-                    var target = null;
-                    var arr = this.state.arr;
-                    var testedTarget = [];
-                    while (target === null || (arr[target].length > 6 && testedTarget.length < 7)) {
-                        target = Math.floor(Math.random()*7);
-                        if (testedTarget.indexOf(target)<0) {
-                            testedTarget.push(target);
-                        }
-                    }
+      document.getElementById("makeFortune").addEventListener("click", function () {
+        var birth = document.getElementById("birthDate").value;
+        var focus = document.getElementById("fortuneFocus").value;
+        if (!birth) { showToast("先選出生日期"); return; }
+        var today = new Date();
+        var key = birth + "-" + today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
+        var base = hashString(key);
+        var work = 45 + (base % 51);
+        var money = 45 + ((base >> 3) % 51);
+        var energy = 45 + ((base >> 6) % 51);
+        var focusScore = focus === "工作" ? work : focus === "財運" ? money : Math.round((work + money + energy) / 3);
+        document.getElementById("fortuneText").textContent =
+          fortuneLine(focusScore, focus) + "\n\n今天的關鍵字：先做最容易驗證的一步。結果是娛樂版 Demo，完整產品會提供更完整的命盤與延伸解讀。";
+        var data = [["工作", work], ["財運", money], ["能量", energy]];
+        document.getElementById("fortuneBars").innerHTML = data.map(function (x) {
+          return '<div class="bar-row"><span>' + x[0] + '</span><div class="bar"><i style="width:' + x[1] + '%"></i></div><b>' + x[1] + '</b></div>';
+        }).join("");
+      });
 
-                    if (this.playRun(arr, target, nowPlay)){
-                        var name;
-                        if (nowPlay === 'x') {
-                            name = 'player1';
-                        } else {
-                            name = 'player2';
-                        }
-                        this.setState({msg:name + ' win with round ' + (count)});
-                        clearInterval(inte);
-                    } else if (testedTarget.length === 7) {
-                        this.setState({msg:'draw'});
-                        clearInterval(inte);
-                    };
-                    if (nowPlay === player1) {
-                        nowPlay = player2;
-                    } else {
-                        count++;
-                        nowPlay = player1;
-                    }
-                },100);
-                
-            }
-            componentDidMount() {
-
-            }
-            render() {
-                var arr = this.state.arr;
-                var result = [];
-                for(var i = 5; i >= 0 ; i--){
-                    var rowCell = [];
-                    for (var j = 0;j < 7; j++){
-                        if(!arr[j][i]){
-                            rowCell.push(<UnitCell key={`${i}_${j}`} player='' />);
-                        } else {
-                            rowCell.push(<UnitCell key={`${i}_${j}`} player={arr[j][i]} />);
-                        }
-                    }
-                    result.push(<div key={'unit' + i}>{rowCell}</div>);
-                }
-                var btnStyle = {
-                                width: '60px',
-                                height: '20px',
-                                borderWidth: '1px',
-                                borderStyle: 'solid',
-                                borderRadius: '3px',
-                                textAlign: 'center',
-                                cursor: 'pointer'
-                            };
-                var selectBtnStyle = Object.assign({backgroundColor: 'green'}, btnStyle);
-                return (
-                    <div style={{
-                        width: '300px'
-                    }}>
-                        {result}
-                        <div style={{paddingTop: '10px'}}>click green block to put token.</div>
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between'
-                        }}>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(0)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(1)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(2)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(3)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(4)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(5)}}></div>
-                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(6)}}></div>
-                        </div>
-                        <div style={{
-                            display: 'flex',
-                            paddingTop: '10px',
-                            justifyContent: 'space-between'
-                        }}>
-                            <div style={this.state.player === 'player1' ? Object.assign({backgroundColor: 'yellow'}, btnStyle) : btnStyle}>player1</div>
-                            <div style={this.state.player === 'player2' ? Object.assign({backgroundColor: 'yellow'}, btnStyle) : btnStyle}>player2</div>
-                            <div onClick={this.autoRun} style={btnStyle}>auto</div>
-                            <div style={btnStyle} onClick={()=>{this.setState({
-                                arr:[[],[],[],[],[],[],[]],
-                                msg:''
-                                })}}>clear</div>
-                        </div>
-                        <div>{this.state.msg}</div>
-                    </div>
-                );
-            }
-        }
-        ReactDOM.render(<Container />, document.getElementById('root'));
-        </script>       
-    </body>
+      document.querySelectorAll(".product-more").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          showToast(btn.getAttribute("data-product") + "：MVP 下一步接正式下載入口");
+          document.getElementById("products").scrollIntoView({ behavior: "smooth" });
+        });
+      });
+    })();
+  </script>
+</body>
 </html>

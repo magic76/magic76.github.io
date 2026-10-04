@@ -1,0 +1,242 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <div id="root"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.21.1/babel.min.js"></script>
+        <script type="text/babel">
+        function checkResult(arr, player) {
+            var lenX = 7;
+            var lenY = 6;
+            var count = 0;
+            var result = false;
+            for (var i = 0; i<lenY; i++){
+                if(checkRow(arr[i], player)){
+                    result = true;
+                    break;
+                };
+            }
+            if (!result) {
+                for (var j = 0; j<lenX; j++){
+                    var a = [];
+                    for (var i = 0; i<lenY; i++){
+                        a.push(arr[i][j]);
+                    }
+                    if(checkRow(a, player)){
+                        result = true;
+                        break;
+                    };
+                }
+            }
+            if (!result) {
+                for (var j = 0; j<lenX; j++){
+                    var b = [];
+                    for (var i = 0; i<lenY; i++){
+                        if (!arr[j+i]) {
+                            break;
+                        }
+                        b.push(arr[j+i][i])
+                    }
+                    if(checkRow(b, player)){
+                        result = true;
+                        break;
+                    };
+                }
+            }
+            if (!result) {
+                for (var j = 3; j<lenX; j++){
+                    var b = [];
+                    for (var i = 0; i<lenY; i++){
+                        if (!arr[j-i]) {
+                            break;
+                        }
+                        b.push(arr[j-i][i])
+                    }
+                    if(checkRow(b, player)){
+                        result = true;
+                        break;
+                    };
+                }
+            }
+            
+            return result;
+        }
+        function checkRow(arr, player) {
+            var str = arr.join('@');
+            player = [player,player,player,player].join('@');
+            if (str.indexOf(player) >= 0){
+                return true;
+            }
+            return false;
+        }
+
+
+        class UnitCell extends React.Component {
+            render() {
+                var player = this.props.player;
+                var color ='';
+                if (player === 'o') {
+                    color = 'blue';
+                } else if (player === 'x') {
+                    color = 'red';
+                }
+                var style = {
+                    height:'40px', 
+                    width:'calc(100%/7)', 
+                    backgroundColor:color,
+                    display: 'inline-block',
+                    textAlign: 'center',
+                    borderRadius: '55px'
+                }
+                return (<div style={style}>{player||'-'}</div>);
+            }
+        }
+        class Container extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    arr: [[],[],[],[],[],[],[]],
+                    player1: 'o',
+                    player2: 'x',
+                    finished: false,
+                    msg: '',
+                    player: 'player1'
+                };
+                this.autoRun = this.autoRun.bind(this);
+                this.playerPlay = this.playerPlay.bind(this);
+            }
+
+            playRun(arr, x, player) {
+                var arr = this.state.arr;
+                arr[x].push(player);
+                this.setState({arr:arr});
+                return checkResult(arr, player);
+            }
+            playerPlay(x) {
+                var arr = this.state.arr;
+                arr[x].push(this.state[this.state.player]);
+
+                if (checkResult(arr, this.state[this.state.player])) {
+                    this.setState({
+                        arr: arr,
+                        player: this.state.player,
+                        msg: this.state.player + ' win'
+                    });
+                } else {
+                    var changeName = this.state.player === 'player1' ? 'player2' : 'player1';
+                    this.setState({
+                        arr:arr,
+                        player: changeName
+                    });
+                }
+            }
+            autoRun() {
+                
+                var player1 = this.state.player1;
+                var player2 = this.state.player2;
+                var nowPlay = player1;
+                var count=1;
+                this.setState({arr:[[],[],[],[],[],[],[]]});
+                var inte = setInterval(()=> {
+                    var target = null;
+                    var arr = this.state.arr;
+                    var testedTarget = [];
+                    while (target === null || (arr[target].length > 6 && testedTarget.length < 7)) {
+                        target = Math.floor(Math.random()*7);
+                        if (testedTarget.indexOf(target)<0) {
+                            testedTarget.push(target);
+                        }
+                    }
+
+                    if (this.playRun(arr, target, nowPlay)){
+                        var name;
+                        if (nowPlay === 'x') {
+                            name = 'player1';
+                        } else {
+                            name = 'player2';
+                        }
+                        this.setState({msg:name + ' win with round ' + (count)});
+                        clearInterval(inte);
+                    } else if (testedTarget.length === 7) {
+                        this.setState({msg:'draw'});
+                        clearInterval(inte);
+                    };
+                    if (nowPlay === player1) {
+                        nowPlay = player2;
+                    } else {
+                        count++;
+                        nowPlay = player1;
+                    }
+                },100);
+                
+            }
+            componentDidMount() {
+
+            }
+            render() {
+                var arr = this.state.arr;
+                var result = [];
+                for(var i = 5; i >= 0 ; i--){
+                    var rowCell = [];
+                    for (var j = 0;j < 7; j++){
+                        if(!arr[j][i]){
+                            rowCell.push(<UnitCell key={`${i}_${j}`} player='' />);
+                        } else {
+                            rowCell.push(<UnitCell key={`${i}_${j}`} player={arr[j][i]} />);
+                        }
+                    }
+                    result.push(<div key={'unit' + i}>{rowCell}</div>);
+                }
+                var btnStyle = {
+                                width: '60px',
+                                height: '20px',
+                                borderWidth: '1px',
+                                borderStyle: 'solid',
+                                borderRadius: '3px',
+                                textAlign: 'center',
+                                cursor: 'pointer'
+                            };
+                var selectBtnStyle = Object.assign({backgroundColor: 'green'}, btnStyle);
+                return (
+                    <div style={{
+                        width: '300px'
+                    }}>
+                        {result}
+                        <div style={{paddingTop: '10px'}}>click green block to put token.</div>
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(0)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(1)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(2)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(3)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(4)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(5)}}></div>
+                            <div style={selectBtnStyle} onClick={()=>{this.playerPlay(6)}}></div>
+                        </div>
+                        <div style={{
+                            display: 'flex',
+                            paddingTop: '10px',
+                            justifyContent: 'space-between'
+                        }}>
+                            <div style={this.state.player === 'player1' ? Object.assign({backgroundColor: 'yellow'}, btnStyle) : btnStyle}>player1</div>
+                            <div style={this.state.player === 'player2' ? Object.assign({backgroundColor: 'yellow'}, btnStyle) : btnStyle}>player2</div>
+                            <div onClick={this.autoRun} style={btnStyle}>auto</div>
+                            <div style={btnStyle} onClick={()=>{this.setState({
+                                arr:[[],[],[],[],[],[],[]],
+                                msg:''
+                                })}}>clear</div>
+                        </div>
+                        <div>{this.state.msg}</div>
+                    </div>
+                );
+            }
+        }
+        ReactDOM.render(<Container />, document.getElementById('root'));
+        </script>       
+    </body>
+</html>
