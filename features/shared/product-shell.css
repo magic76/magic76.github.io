@@ -208,3 +208,12 @@ body.product-page{
   .product-nav-item{flex-direction:row;font-size:12px}
   .product-page .toast{bottom:24px}
 }
+
+.product-page .btn{background:var(--product-accent);color:#fff}
+.product-page .btn.secondary,.product-page .btn.ghost{background:#fff;color:var(--product-text);border-color:var(--product-line)}
+.product-page .btn.danger{background:#fff3f1;color:var(--product-danger);border-color:#efd8d4}
+.product-page .field{border-color:var(--product-line);background:#fff;color:var(--product-text)}
+.teacher-live-actions{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:16px}
+.teacher-live-actions .product-primary{margin:0}
+.teacher-quick{border:1px solid var(--product-line);background:#fff;border-radius:15px;padding:0 14px;color:var(--product-text);font-weight:800}
+@media(max-width:560px){.teacher-live-actions{grid-template-columns:1fr}.teacher-quick{min-height:46px}}
