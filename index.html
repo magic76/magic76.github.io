@@ -336,6 +336,42 @@
       font-size: 20px;
     }
     .key-input { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .key-guide {
+      display: grid;
+      gap: 8px;
+      margin: 16px 0 18px;
+    }
+    .key-guide > div {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8f8f4;
+    }
+    .key-guide > div > b {
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      background: var(--ink);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+    }
+    .key-guide strong {
+      display: block;
+      font-size: 13px;
+    }
+    .key-guide small {
+      display: block;
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 11px;
+      line-height: 1.45;
+    }
     .remember-row {
       display: flex;
       align-items: center;
@@ -590,7 +626,13 @@
       <button class="modal-x" id="closeGeminiModal" aria-label="關閉">×</button>
       <span class="eyebrow"><span class="dot"></span> Gemini connection</span>
       <h3 id="geminiModalTitle">連接你的 Gemini</h3>
-      <p class="muted">這個 MVP 是純 GitHub Pages，沒有後端，所以不會把站長的共用 key 寫進前端。請使用你自己的 Gemini API key。</p>
+      <p class="muted">使用自己的 Google 帳戶建立 Gemini API key。Crew 不會提供或內建共用 key。</p>
+
+      <div class="key-guide">
+        <div><b>1</b><span><strong>開啟 Google AI Studio</strong><small>使用你的 Google 帳戶登入。</small></span></div>
+        <div><b>2</b><span><strong>建立 API key</strong><small>選擇「Create API key」，建立後複製。</small></span></div>
+        <div><b>3</b><span><strong>回到 Crew 貼上</strong><small>貼到下方欄位，Crew 會立即測試連線。</small></span></div>
+      </div>
 
       <label class="label" for="geminiKeyInput">Gemini API key</label>
       <input class="field key-input" id="geminiKeyInput" type="password" autocomplete="off" placeholder="貼上你的 API key" />
@@ -605,7 +647,7 @@
       </div>
 
       <div class="modal-actions">
-        <a class="secondary" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">取得 API key</a>
+        <a class="secondary" href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">取得 API key</a>
         <button class="primary" id="saveGeminiKey" type="button">儲存並測試</button>
       </div>
       <button class="danger-link" id="clearGeminiKey" type="button">清除已儲存的 key</button>
