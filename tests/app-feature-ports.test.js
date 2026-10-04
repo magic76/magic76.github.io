@@ -89,7 +89,7 @@ test("core surfaces use one Crew Web design system",()=>{
 
 test("Live experiences are dedicated session pages",()=>{
   const required={
-    "teacher-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","scene","level","pace","correction","accent","voice"],
+    "teacher-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","lang","chatMode","guidance","languageStyle","voice"],
     "story-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","topic","style","pace","interaction","voice"],
     "fortune-live.html":["liveStage","liveBadge","liveModel","startLive","stopLive","muteLive","interruptLive","liveVolume","userLine","aiLine","continueLast","birth","focus","tone","voice"]
   };
