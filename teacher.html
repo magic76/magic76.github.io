@@ -20,11 +20,44 @@
 CrewAI.nav("teacher");var lastSpeak="";
 function tabs(){document.querySelectorAll(".tab").forEach(function(b){b.onclick=function(){document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active")});document.querySelectorAll(".view").forEach(function(x){x.classList.remove("active")});b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active");if(b.dataset.tab==="history")renderHistory()}})}tabs();
 var q=new URLSearchParams(location.search).get("q");if(q)document.getElementById("coachInput").value=q;
-document.getElementById("coachGo").onclick=async function(){if(!CrewAI.requireKey())return;var input=document.getElementById("coachInput").value.trim();if(!input){CrewAI.toast("先輸入一句話");return}var lang=document.getElementById("lang").value,purpose=document.getElementById("purpose").value,res=document.getElementById("coachResult");CrewAI.busy(this,true,"老師思考中…");res.classList.remove("empty");res.textContent="整理更自然的說法…";try{var out=await CrewAI.call("使用者想表達："+input+"\n目標語言："+lang+"\n用途："+purpose+"\n請用繁體中文回答，格式：\n最自然：...\n更口語：...\n為什麼：...\n只要精簡實用。",{system:"你是 Crew Teacher，專門把使用者的意思改成自然、真的會說出口的外語。",temperature:.5,maxOutputTokens:600});res.textContent=out;lastSpeak=(out.match(/最自然[:：]\s*(.+)/)||[])[1]||"";CrewAI.historyAdd("teacher",{title:input.slice(0,28),preview:out.slice(0,90)})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(this,false)}};
+document.getElementById("coachGo").onclick=async function(){if(!CrewAI.requireKey())return;var input=document.getElementById("coachInput").value.trim();if(!input){CrewAI.toast("先輸入一句話");return}var lang=document.getElementById("lang").value,purpose=document.getElementById("purpose").value,res=document.getElementById("coachResult");CrewAI.busy(this,true,"老師思考中…");res.classList.remove("empty");res.textContent="整理更自然的說法…";try{var out=await CrewAI.call("使用者想表達："+input+"\n目標語言："+lang+"\n用途："+purpose+"\n請用繁體中文回答，格式：\n最自然：...\n更口語：...\n為什麼：...\n只要精簡實用。",{system:"你是 Crew Teacher，專門把使用者的意思改成自然、真的會說出口的外語。",temperature:.5,maxOutputTokens:320});res.textContent=out;lastSpeak=(out.match(/最自然[:：]\s*(.+)/)||[])[1]||"";CrewAI.historyAdd("teacher",{title:input.slice(0,28),preview:out.slice(0,90)})}catch(e){res.textContent="失敗：\n"+e.message}finally{CrewAI.busy(this,false)}};
 document.getElementById("speakResult").onclick=function(){if(!lastSpeak){CrewAI.toast("先產生一句話");return}if(!speechSynthesis){CrewAI.toast("瀏覽器不支援朗讀");return}speechSynthesis.cancel();var u=new SpeechSynthesisUtterance(lastSpeak);speechSynthesis.speak(u)};
-function parseJson(t){return JSON.parse(t.replace(/^```json\s*/i,"").replace(/\s*```$/,"").trim())}
-document.getElementById("newChallenge").onclick=async function(){if(!CrewAI.requireKey())return;var btn=this,level=document.getElementById("challengeLevel").value,qel=document.getElementById("challengeQ"),ops=document.getElementById("challengeOptions"),exp=document.getElementById("challengeExplain");CrewAI.busy(btn,true,"出題中…");try{var raw=await CrewAI.call("出一題繁體中文說明的實用英文情境選擇題，程度 "+level+"。只輸出 JSON：{\"question\":\"...\",\"options\":[\"...\",\"...\",\"...\"],\"answer\":0,\"explanation\":\"...\"}",{system:"你是語言老師，題目只能有一個最佳答案。",temperature:.9,maxOutputTokens:500});var d;try{d=parseJson(raw)}catch(_){raw=await CrewAI.call("出一題實用英文選擇題，只輸出合法 JSON：{\"question\":\"...\",\"options\":[\"...\",\"...\",\"...\"],\"answer\":0,\"explanation\":\"...\"}",{preferLive:false,json:true,temperature:.7,maxOutputTokens:500});d=parseJson(raw)}qel.classList.remove("empty");qel.textContent=d.question;exp.textContent="先選答案。";ops.innerHTML=d.options.map(function(x,i){return '<button class="list-item" data-i="'+i+'"><strong>'+CrewAI.esc(x)+'</strong><span>›</span></button>'}).join("");ops.querySelectorAll("button").forEach(function(b){b.onclick=function(){var i=Number(b.dataset.i);exp.classList.remove("empty");exp.textContent=(i===d.answer?"答對了。\n":"再看一次。\n")+d.explanation}})}catch(e){qel.textContent="出題失敗：\n"+e.message}finally{CrewAI.busy(btn,false)}};
+function parseChallenge(t){
+  var lines=String(t||"").split(/\r?\n/).map(function(x){return x.trim()}).filter(Boolean);
+  function pick(prefix){
+    var x=lines.find(function(line){return line.toUpperCase().indexOf(prefix)===0});
+    return x?x.slice(prefix.length).trim():""
+  }
+  var d={
+    question:pick("Q:"),
+    options:[pick("A:"),pick("B:"),pick("C:")],
+    answer:pick("ANSWER:").toUpperCase(),
+    explanation:pick("WHY:")
+  };
+  if(!d.question||d.options.some(function(x){return !x})||!/^[ABC]$/.test(d.answer))throw new Error("題目格式不完整");
+  d.answer={A:0,B:1,C:2}[d.answer];
+  return d
+}
+document.getElementById("newChallenge").onclick=async function(){
+  if(!CrewAI.requireKey())return;
+  var btn=this,level=document.getElementById("challengeLevel").value,qel=document.getElementById("challengeQ"),ops=document.getElementById("challengeOptions"),exp=document.getElementById("challengeExplain");
+  CrewAI.busy(btn,true,"Live 出題中…");
+  try{
+    var raw=await CrewAI.call(
+      "請出一題實用英文情境選擇題，程度 "+level+"。只能用以下 6 行格式，不要 Markdown：\nQ: 中文題目\nA: 英文選項\nB: 英文選項\nC: 英文選項\nANSWER: A\nWHY: 繁中短解釋",
+      {system:"你是 Crew Teacher。題目自然、實用，而且只有一個最佳答案。",temperature:.8,maxOutputTokens:260}
+    );
+    var d=parseChallenge(raw);
+    qel.classList.remove("empty");qel.textContent=d.question;exp.textContent="先選答案。";
+    ops.innerHTML=d.options.map(function(x,i){return '<button class="list-item" data-i="'+i+'"><strong>'+CrewAI.esc(x)+'</strong><span>›</span></button>'}).join("");
+    ops.querySelectorAll("button").forEach(function(b){b.onclick=function(){var i=Number(b.dataset.i);exp.classList.remove("empty");exp.textContent=(i===d.answer?"答對了。\n":"再看一次。\n")+d.explanation}})
+  }catch(e){
+    qel.textContent="Live 出題失敗：\n"+e.message
+  }finally{
+    CrewAI.busy(btn,false)
+  }
+};
 var chat=[];document.getElementById("chatSend").onclick=sendChat;document.getElementById("chatInput").addEventListener("keydown",function(e){if(e.key==="Enter")sendChat()});
-async function sendChat(){if(!CrewAI.requireKey())return;var inp=document.getElementById("chatInput"),v=inp.value.trim();if(!v)return;var box=document.getElementById("chatBox");chat.push({role:"user",text:v});box.insertAdjacentHTML("beforeend",'<div class="bubble user">'+CrewAI.esc(v)+'</div>');inp.value="";var btn=document.getElementById("chatSend");CrewAI.busy(btn,true,"…");try{var context=chat.slice(-6).map(function(m){return m.role+": "+m.text}).join("\n");var out=await CrewAI.call("以下是對話：\n"+context+"\n請用目標語言為主、必要時用繁中糾正。回覆短一點，最後留一個可以直接回答的問題。",{system:"你是 Crew Teacher 的即時口說老師，不要長篇教學。",temperature:.7,maxOutputTokens:450});chat.push({role:"assistant",text:out});box.insertAdjacentHTML("beforeend",'<div class="bubble ai">'+CrewAI.esc(out)+'</div>');box.scrollTop=box.scrollHeight}catch(e){box.insertAdjacentHTML("beforeend",'<div class="bubble ai">失敗：'+CrewAI.esc(e.message)+'</div>')}finally{CrewAI.busy(btn,false)}}
+async function sendChat(){if(!CrewAI.requireKey())return;var inp=document.getElementById("chatInput"),v=inp.value.trim();if(!v)return;var box=document.getElementById("chatBox");chat.push({role:"user",text:v});box.insertAdjacentHTML("beforeend",'<div class="bubble user">'+CrewAI.esc(v)+'</div>');inp.value="";var btn=document.getElementById("chatSend");CrewAI.busy(btn,true,"…");try{var context=chat.slice(-6).map(function(m){return m.role+": "+m.text}).join("\n");var out=await CrewAI.call("以下是對話：\n"+context+"\n請用目標語言為主、必要時用繁中糾正。回覆短一點，最後留一個可以直接回答的問題。",{system:"你是 Crew Teacher 的即時口說老師，不要長篇教學。",temperature:.7,maxOutputTokens:320});chat.push({role:"assistant",text:out});box.insertAdjacentHTML("beforeend",'<div class="bubble ai">'+CrewAI.esc(out)+'</div>');box.scrollTop=box.scrollHeight}catch(e){box.insertAdjacentHTML("beforeend",'<div class="bubble ai">失敗：'+CrewAI.esc(e.message)+'</div>')}finally{CrewAI.busy(btn,false)}}
 function renderHistory(){var a=CrewAI.historyGet("teacher"),el=document.getElementById("teacherHistory");el.innerHTML=a.length?a.map(function(x){return '<div class="list-item"><div><strong>'+CrewAI.esc(x.title)+'</strong><small>'+CrewAI.esc(x.preview)+'</small></div></div>'}).join(""):'<div class="notice"><div><b>還沒有紀錄</b><p>使用一句話教練後會保存在這台裝置。</p></div></div>'}
 </script></body></html>
