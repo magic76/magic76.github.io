@@ -1,0 +1,17 @@
+body{min-height:100vh}
+.route-tabs{position:sticky;top:66px;z-index:25}
+.page-enter{animation:page-in .14s ease-out}
+@keyframes page-in{from{opacity:.72;transform:translateY(4px)}to{opacity:1;transform:none}}
+.teacher-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.teacher-stats>div{background:var(--surface-alt);border-radius:14px;padding:14px;text-align:center}
+.teacher-stats strong{display:block;font-size:22px;letter-spacing:-.03em}
+.teacher-stats span{display:block;color:var(--muted);font-size:10px;margin-top:4px}
+.live-history-list>div{display:grid;gap:7px}
+.live-stage .technical-copy{display:none}
+.spa-loading{padding:28px;text-align:center;color:var(--muted);font-size:12px}
+.spa-error{padding:16px;border:1px solid #efd8d4;background:#fff3f1;color:#9a514a;border-radius:16px;font-size:12px}
+.story-recent-cover{width:76px;height:76px;border-radius:14px;overflow:hidden;background:var(--accent-soft);display:grid;place-items:center}
+.story-recent-cover img{width:100%;height:100%;object-fit:cover}
+.inline-link{color:var(--accent);font-weight:800}
+.settings-capabilities{line-height:1.8}
+@media(max-width:620px){.route-tabs{top:62px}}
