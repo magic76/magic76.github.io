@@ -1,4 +1,4 @@
-name: Teacher SPA build
+name: Crew SPA build
 
 on:
   push:
@@ -22,22 +22,22 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci
-      - run: npm run check:teacher
-      - run: npm run build:teacher
+      - run: npm run check:web
+      - run: npm run build:web
       - run: npm test
-      - name: Commit Teacher Pages build
+      - name: Commit Crew Pages build
         if: github.event_name == 'push'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A teacher-app package-lock.json
+          git add -A crew-app package-lock.json
           if git diff --cached --quiet; then
-            echo "Teacher build already current"
+            echo "Crew build already current"
           else
-            git commit -m "build: update Teacher SPA"
+            git commit -m "build: update Crew SPA"
             git push origin HEAD:${GITHUB_REF_NAME}
           fi
       - uses: actions/upload-artifact@v4
         with:
-          name: teacher-app
-          path: teacher-app
+          name: crew-app
+          path: crew-app
