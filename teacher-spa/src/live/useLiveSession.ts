@@ -35,9 +35,9 @@ export function useLiveSession(config: Config) {
     return () => window.clearInterval(id);
   }, []);
 
-  const save = useCallback(async (reason: string) => {
+  const captureSnapshot = useCallback((reason: string) => {
     const session = sessionRef.current;
-    if (savedRef.current || !turnsRef.current.length) return;
+    if (savedRef.current || !turnsRef.current.length) return null;
     savedRef.current = true;
     const text = turnsRef.current
       .map((t) => [t.input ? "你：" + t.input : "", t.output ? "Emma：" + t.output : ""].filter(Boolean).join("\n"))
@@ -47,12 +47,21 @@ export function useLiveSession(config: Config) {
       title: configRef.current.title,
       preview: text.slice(0, 180),
       turns: turnsRef.current.slice(),
-      durationMs: session?.getDurationMs() || durationMs,
+      durationMs: session?.getDurationMs() || 0,
       model: session?.model || "",
       reason,
       ts: new Date().toISOString()
     };
     saveTeacherSnapshot(snapshot);
+    return snapshot;
+  }, []);
+
+  const finishSession = useCallback(async (snapshot: TeacherSnapshot | null) => {
+    if (!snapshot) {
+      setState("ended");
+      setStatus("這次練習已結束。");
+      return;
+    }
     try {
       await ensureReportRuntime();
       if (window.CrewTeacherReport?.eligible(snapshot)) {
@@ -65,7 +74,7 @@ export function useLiveSession(config: Config) {
       setState("ended");
       setStatus("這次練習已結束。");
     }
-  }, [durationMs]);
+  }, []);
 
   const start = useCallback(async () => {
     if (sessionRef.current) return;
@@ -82,6 +91,7 @@ export function useLiveSession(config: Config) {
       savedRef.current = false;
       setInput("");
       setOutput("");
+      setMuted(false);
       setDurationMs(0);
       setState("requesting-mic");
       setStatus("正在準備麥克風…");
@@ -112,8 +122,9 @@ export function useLiveSession(config: Config) {
         },
         onError: (error) => { setState("error"); setStatus("Live 連線問題：" + error.message); },
         onTerminal: (info) => {
-          void save(info?.status || "terminal");
+          const snapshot = captureSnapshot(info?.status || "terminal");
           sessionRef.current = null;
+          void finishSession(snapshot);
         }
       });
       sessionRef.current = session;
@@ -125,20 +136,21 @@ export function useLiveSession(config: Config) {
       setState("error");
       setStatus(error instanceof Error ? error.message : String(error));
     }
-  }, [save, volume]);
+  }, [captureSnapshot, finishSession, volume]);
 
   const stop = useCallback(async () => {
     const session = sessionRef.current;
     if (!session) return;
     setState("ending");
-    await save("user-stop");
+    setStatus("正在結束通話…");
+    const snapshot = captureSnapshot("user-stop");
     try {
       await session.stop({ reason: "user-stop", silentStatus: true, emitTerminal: false });
     } finally {
       sessionRef.current = null;
-      setState("ended");
     }
-  }, [save]);
+    await finishSession(snapshot);
+  }, [captureSnapshot, finishSession]);
 
   const toggleMute = useCallback(() => {
     const session = sessionRef.current;
