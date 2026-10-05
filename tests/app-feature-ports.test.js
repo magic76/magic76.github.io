@@ -324,3 +324,57 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
  assert.ok(play.includes("GET IT ON Google Play"));
  assert.ok(!play.includes("<strong>Google Play</strong>"),"Google Play should not be the primary card title");
 });
+
+
+test("Teacher Web mirrors Android learning coordinator and authored course map",()=>{
+ const catalog=fs.readFileSync(path.join(root,"web-spa/src/teacher/courseCatalog.ts"),"utf8");
+ const course=fs.readFileSync(path.join(root,"web-spa/src/teacher/CoursePage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const coordinator=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningCoordinator.ts"),"utf8");
+ const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
+ assert.equal((catalog.match(/"id": "travel_u\d_l\d"/g)||[]).length>0,true);
+ assert.equal((catalog.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
+ assert.equal((catalog.match(/"trackId":/g)||[]).length>=41,true);
+ assert.ok(course.includes("COURSE_TRACKS"));
+ assert.ok(course.includes("lessonUnlocked"));
+ assert.ok(course.includes("31 堂課"));
+ assert.ok(live.includes("scoreCourseSession"));
+ assert.ok(live.includes("saveLessonProgress"));
+ assert.ok(practice.includes("ContinueLearningCard"));
+ const textbookIndex=coordinator.indexOf('action:"textbook"');
+ const vocabIndex=coordinator.indexOf('action:"vocabulary"');
+ const courseIndex=coordinator.indexOf('action:"course"');
+ const conversationIndex=coordinator.indexOf('action:"conversation"');
+ assert.ok(textbookIndex>=0&&textbookIndex<vocabIndex&&vocabIndex<courseIndex&&courseIndex<conversationIndex,"daily coordinator priority must follow Android order");
+});
+
+test("Teacher vocabulary uses spaced review and date-aware daily progress",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/teacher/VocabularyPage.tsx"),"utf8");
+ const progress=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyProgress.ts"),"utf8");
+ const queue=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyQueue.ts"),"utf8");
+ assert.ok(page.includes("recordVocab"));
+ assert.ok(page.includes("incrementTodayVocabulary"));
+ assert.ok(progress.includes("nextReviewAt"));
+ for(const days of ["return 7","return 14","return 30","return 60","return 120"])assert.ok(progress.includes(days));
+ assert.ok(queue.includes("slot%10"));
+ assert.ok(queue.includes("flowRecovery"));
+ assert.ok(!page.includes("const WORDS:"));
+});
+
+test("Teacher My page exposes full reports and phrasebook like Android",()=>{
+ const mine=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const reports=fs.readFileSync(path.join(root,"web-spa/src/teacher/SessionReports.tsx"),"utf8");
+ const phrasebook=fs.readFileSync(path.join(root,"web-spa/src/teacher/phrasebook.ts"),"utf8");
+ assert.ok(mine.includes("PhrasebookPanel"));
+ assert.ok(mine.includes("SessionReports"));
+ for(const key of ["recasts","takeaways","next_focus","strengths"])assert.ok(reports.includes(key));
+ assert.ok(reports.includes("收藏全部精選"));
+ assert.ok(phrasebook.includes("crew_teacher_phrasebook_v1"));
+});
+
+test("Teacher textbook completion clears the resumable checkpoint",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
+ assert.ok(page.includes("completeMaterial"));
+ assert.ok(page.includes("CrewTextbookStore?.remove"));
+ assert.ok(page.includes("完成教材"));
+});
