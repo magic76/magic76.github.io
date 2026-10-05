@@ -299,7 +299,14 @@ test("Teacher and Story expose Google Play links while Fortune stays unlisted",(
 
 test("Crew Web hides scrollbars without disabling scrolling",()=>{
  const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
- assert.ok(styles.includes("scrollbar-width:none"));
- assert.ok(styles.includes("-ms-overflow-style:none"));
- assert.ok(styles.includes("*::-webkit-scrollbar{width:0;height:0;display:none}"));
+ const legacy=fs.readFileSync(path.join(root,"crew.css"),"utf8");
+ for(const source of [styles,legacy]){
+  assert.ok(source.includes("scrollbar-width:none"));
+  assert.ok(source.includes("-ms-overflow-style:none"));
+  assert.ok(source.includes("::-webkit-scrollbar"));
+  assert.ok(source.includes("width:0"));
+  assert.ok(source.includes("height:0"));
+ }
+ assert.ok(styles.includes("overflow:auto")||styles.includes("overflow-x:auto"),"SPA must keep scrollable surfaces");
+ assert.ok(legacy.includes("overflow:auto")||legacy.includes("overflow-x:auto"),"legacy surfaces must keep scrolling enabled");
 });
