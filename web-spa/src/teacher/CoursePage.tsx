@@ -1,3 +1,20 @@
-import{Link}from"react-router-dom";import{Icon}from"../components/Icon";
-const courses=[["飯店入住","你剛抵達飯店，要完成入住並確認早餐與退房時間。",["說出訂房姓名","確認早餐時間","詢問退房時間"],"飯店","hotel_checkin"],["餐廳點餐","從入座到點餐，練習詢問推薦、飲食限制與結帳。",["詢問推薦菜色","說明飲食限制","請服務生結帳"],"餐廳","restaurant_order"],["工作會議","在會議中提出風險、給建議，再確認下一步。",["表達一個風險","提出替代方案","確認 action item"],"工作","work_meeting"],["問路與交通","向當地人確認方向、月台與是否搭對車。",["問目的地方向","確認月台","確認這班車是否正確"],"旅遊","transport"]] as const;
-export function CoursePage(){return <><section className="hero"><span className="kicker">Scenario lessons</span><h1>用任務練真實對話</h1><p>每一課都有明確目標，老師會扮演真人角色。</p></section><section className="section course-grid">{courses.map(c=><article className="course-card" key={c[4]}><span className="feature-icon"><Icon name="scene"/></span><h3>{c[0]}</h3><p>{c[1]}</p><div className="mission-list">{c[2].map(x=><span className="mission" key={x}>{x}</span>)}</div><Link className="btn" to={"/teacher/live?mode=course&scene="+encodeURIComponent(c[3])+"&mission="+c[4]}>開始任務</Link></article>)}</section></>}
+import{useMemo,useState}from"react";
+import{Link,useSearchParams}from"react-router-dom";
+import{COURSE_TRACKS,courseLesson,lessonsForUnit,unitsForTrack}from"./courseCatalog";
+import{completedLessons,lessonProgress,lessonUnlocked,totalStars}from"./courseProgress";
+
+export function CoursePage(){
+ const[p]=useSearchParams(),requested=courseLesson(p.get("lesson")||"");
+ const[trackId,setTrackId]=useState(requested?.trackId||localStorage.getItem("crew_teacher_course_track")||COURSE_TRACKS[0].id);
+ const track=COURSE_TRACKS.find(x=>x.id===trackId)||COURSE_TRACKS[0],units=useMemo(()=>unitsForTrack(track.id),[track.id]);
+ const completed=completedLessons(track.id),total=units.reduce((n,u)=>n+lessonsForUnit(u.id).length,0);
+
+ function select(id:string){localStorage.setItem("crew_teacher_course_track",id);setTrackId(id)}
+
+ return <><section className="hero"><span className="kicker">Scenario lessons</span><h1>用任務練真實對話</h1><p>直接沿用 App 的課程架構：3 個 Track、10 個 Unit、31 堂課；完成前一課才會解鎖下一課。</p></section>
+ <section className="section panel"><div className="course-map-summary"><div><strong>{completed} / {total}</strong><span>{track.titleZh}</span></div><div><strong>★ {totalStars()}</strong><span>累積星星</span></div></div><div className="progress-track"><div className="progress-fill" style={{width:(total?completed/total*100:0)+"%"}}/></div></section>
+ <section className="section"><div className="course-track-tabs">{COURSE_TRACKS.map(x=><button key={x.id} className={x.id===track.id?"active":""} onClick={()=>select(x.id)}><span>{x.emoji}</span><strong>{x.titleZh}</strong><small>{completedLessons(x.id)} / {unitsForTrack(x.id).reduce((n,u)=>n+lessonsForUnit(u.id).length,0)}</small></button>)}</div></section>
+ <section className="section course-map"><div className="course-track-intro"><span className="course-track-emoji">{track.emoji}</span><div><h2>{track.titleZh}</h2><p>{track.descZh}</p></div></div>
+ {units.map((unit,ui)=><section className="course-unit" key={unit.id}><div className="course-unit-head"><span>{ui+1}</span><div><h3>{unit.titleZh}</h3><p>{unit.descZh}</p></div></div><div className="course-lesson-list">{lessonsForUnit(unit.id).map((lesson,li)=>{const prog=lessonProgress(lesson.id),unlocked=lessonUnlocked(lesson.id),highlight=requested?.id===lesson.id;return <article className={"course-lesson "+(prog.completed?"completed ":unlocked?"unlocked ":"locked ")+(highlight?"highlight":"")} key={lesson.id}><div className="course-lesson-index">{prog.completed?"✓":unlocked?li+1:"🔒"}</div><div className="course-lesson-copy"><strong>{lesson.titleZh}</strong><p>{lesson.descZh}</p><div className="course-lesson-meta"><span>{lesson.scene}</span>{prog.completed&&<span>★ {prog.stars} · Best {prog.bestScore}</span>}</div></div>{unlocked?<Link className="btn small" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>{prog.completed?"再練一次":"開始"}</Link>:<span className="pill">未解鎖</span>}</article>})}</div></section>)}
+ </section></>;
+}
