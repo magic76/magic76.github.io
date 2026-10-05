@@ -277,3 +277,29 @@ test("published Android apps expose verified Google Play links while Fortune sta
  assert.ok(!fortuneHome.includes("PlayStoreLink"));
  assert.ok(!fortuneLayout.includes("PlayStoreLink"));
 });
+
+
+test("Teacher and Story expose Google Play links while Fortune stays unlisted",()=>{
+ const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const fortuneHome=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
+ assert.ok(play.includes("com.crewpocket.teacher"));
+ assert.ok(play.includes("com.crewpocket.story"));
+ assert.ok(home.includes('PlayStoreLink product="teacher"'));
+ assert.ok(home.includes('PlayStoreLink product="story"'));
+ assert.ok(teacher.includes('PlayStoreLink product="teacher"'));
+ assert.ok(story.includes('PlayStoreLink product="story"'));
+ assert.ok(!play.includes("com.crewpocket.fortune"),"Fortune is not published on Google Play yet");
+ assert.ok(!fortuneHome.includes("PlayStoreLink"));
+ assert.ok(!fortuneLayout.includes("PlayStoreLink"));
+});
+
+test("Crew Web hides scrollbars without disabling scrolling",()=>{
+ const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ assert.ok(styles.includes("scrollbar-width:none"));
+ assert.ok(styles.includes("-ms-overflow-style:none"));
+ assert.ok(styles.includes("*::-webkit-scrollbar{width:0;height:0;display:none}"));
+});
