@@ -11,7 +11,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
    <div className="teacher-picker-list">
     {TEACHER_PROFILES.map(profile=><button className={"teacher-profile-option "+(profile.id===active?"active":"")} key={profile.id} onClick={()=>{setTeacherProfile(profile.id as TeacherProfileId);onClose()}}>
      <img src={profile.avatar} alt={profile.name}/>
-     <span className="teacher-profile-copy"><strong>{profile.name}{profile.id===active?<em>使用中</em>:null}</strong><b>{profile.title}</b><small>{profile.description}</small><small>推薦音色 · {profile.recommendedVoice}</small></span>
+     <span className="teacher-profile-copy"><strong>{profile.name}{profile.id===active?<em>使用中</em>:null}</strong><b>{profile.title}</b><small><strong>{profile.bestFor}</strong></small><small>{profile.description}</small><small>推薦音色 · {profile.recommendedVoice}</small></span>
     </button>)}
    </div>
   </section>
