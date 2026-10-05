@@ -2,7 +2,7 @@ import{Link}from"react-router-dom";
 import{Icon}from"../components/Icon";
 import{history}from"../lib/runtime";
 import{ContinueLearningCard}from"./ContinueLearningCard";
-import{PracticeTutorStrip}from"./PracticeContinueCard";
+import{PracticeTutorStrip}from"./PracticeTutorStrip";
 import{todayVocabulary}from"./vocabularyProgress";
 
 export function PracticePage(){
