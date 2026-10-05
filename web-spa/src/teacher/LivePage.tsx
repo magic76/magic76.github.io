@@ -4,7 +4,7 @@ import{lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from
 import{getTeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{saveLessonProgress,scoreCourseSession}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
-const VOICES=["Kore","Hyperion","Prospero","Leda","Aoede","Puck","Charon","Fenrir"];
+const VOICES=["Kore","Hyperion","Prospero","Leda","Callisto","Europa","Aoede","Puck","Charon","Fenrir"];
 
 export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),file=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null);
