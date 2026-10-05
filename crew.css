@@ -1,4 +1,8 @@
 
+/* Hide scrollbar chrome globally while retaining touch, wheel, trackpad and keyboard scrolling. */
+html,body,*{scrollbar-width:none;-ms-overflow-style:none}
+html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+
 :root{
   --bg:#f6f6f2;--paper:#fff;--ink:#171715;--muted:#77776f;--line:#e7e7df;
   --soft:#efefe9;--accent:#171715;--good:#217653;--danger:#a14f49;
