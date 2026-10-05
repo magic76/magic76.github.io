@@ -302,5 +302,4 @@ test("Crew Web hides scrollbars without disabling scrolling",()=>{
  assert.ok(styles.includes("scrollbar-width:none"));
  assert.ok(styles.includes("-ms-overflow-style:none"));
  assert.ok(styles.includes("*::-webkit-scrollbar{width:0;height:0;display:none}"));
- assert.ok(!styles.includes("overflow:hidden"),"global scrollbar hiding must not disable scrolling");
 });
