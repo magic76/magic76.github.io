@@ -7,12 +7,12 @@ Source: `magic76/crew-teacher`
 
 Web must preserve the Android information architecture:
 - 練習
-  - 目前老師
-  - 今天下一步 / Continue Learning
+  - 目前老師（同步 Android 固定 tutor roster；目前含 Emma / Alex / James / Mia / Sophie / Lina）
+  - 今天下一步 / Continue Learning（教材續學 → 到期單字 → 下一堂課 → 自由對話）
   - 跟老師聊
   - 教材陪讀
-  - 單字練習
-  - 情境課程
+  - 單字練習（到期複習、7/14/30/60/120 天間隔、6/3/1 難度節奏、答錯後 3 題 recovery）
+  - 情境課程（3 Tracks / 10 Units / 31 Lessons，逐課解鎖、星等與 best score）
   - 今天 / 學習紀錄
 - 學習
   - 教材陪讀
@@ -24,6 +24,7 @@ Web must preserve the Android information architecture:
   - 聊天模式
   - 練習方式
   - 音色 / 語言風格
+- 教材陪讀完成最後一頁後，完成教材會清除 resumable checkpoint
 - 我的
   - 學習狀態
   - 紀錄與設定
