@@ -277,3 +277,20 @@ test("published Android apps expose verified Google Play links while Fortune sta
  assert.ok(!fortuneHome.includes("PlayStoreLink"));
  assert.ok(!fortuneLayout.includes("PlayStoreLink"));
 });
+
+
+test("Crew Web hides scrollbar chrome without disabling scrolling",()=>{
+ const spa=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ const legacy=fs.readFileSync(path.join(root,"crew.css"),"utf8");
+ for(const source of [spa,legacy]){
+  assert.ok(source.includes("scrollbar-width:none"));
+  assert.ok(source.includes("-ms-overflow-style:none"));
+  assert.ok(source.includes("::-webkit-scrollbar"));
+  assert.ok(source.includes("width:0"));
+  assert.ok(source.includes("height:0"));
+ }
+ // Scrollable surfaces must remain scrollable; only the chrome is hidden.
+ for(const token of ["overflow:auto","overflow-x:auto"]){
+  assert.ok(spa.includes(token)||legacy.includes(token),"expected existing scrollable surfaces to remain "+token);
+ }
+});
