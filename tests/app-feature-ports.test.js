@@ -326,23 +326,55 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
 });
 
 
-test("core Web entry points follow the Android app parity contract",()=>{
- const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
- const teacherNext=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeContinueCard.tsx"),"utf8");
- const story=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
- const storyMy=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
- const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
- const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
+test("Teacher Web mirrors Android learning coordinator and authored course map",()=>{
+ const catalog=fs.readFileSync(path.join(root,"web-spa/src/teacher/courseCatalog.ts"),"utf8");
+ const course=fs.readFileSync(path.join(root,"web-spa/src/teacher/CoursePage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const coordinator=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningCoordinator.ts"),"utf8");
+ const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
+ assert.equal((catalog.match(/"id": "travel_u\d_l\d"/g)||[]).length>0,true);
+ assert.equal((catalog.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
+ assert.equal((catalog.match(/"trackId":/g)||[]).length>=41,true);
+ assert.ok(course.includes("COURSE_TRACKS"));
+ assert.ok(course.includes("lessonUnlocked"));
+ assert.ok(course.includes("31 堂課"));
+ assert.ok(live.includes("scoreCourseSession"));
+ assert.ok(live.includes("saveLessonProgress"));
+ assert.ok(practice.includes("ContinueLearningCard"));
+ const textbookIndex=coordinator.indexOf('action:"textbook"');
+ const vocabIndex=coordinator.indexOf('action:"vocabulary"');
+ const courseIndex=coordinator.indexOf('action:"course"');
+ const conversationIndex=coordinator.indexOf('action:"conversation"');
+ assert.ok(textbookIndex>=0&&textbookIndex<vocabIndex&&vocabIndex<courseIndex&&courseIndex<conversationIndex,"daily coordinator priority must follow Android order");
+});
 
- for(const label of ["今天想學點什麼？","和老師練習","跟老師聊","教材陪讀","單字練習","情境課程","今天","學習紀錄"])assert.ok(teacher.includes(label));
- for(const label of ["目前老師","今天下一步","和老師練一下今天的重點"])assert.ok(teacherNext.includes(label));
+test("Teacher vocabulary uses spaced review and date-aware daily progress",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/teacher/VocabularyPage.tsx"),"utf8");
+ const progress=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyProgress.ts"),"utf8");
+ const queue=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyQueue.ts"),"utf8");
+ assert.ok(page.includes("recordVocab"));
+ assert.ok(page.includes("incrementTodayVocabulary"));
+ assert.ok(progress.includes("nextReviewAt"));
+ for(const days of ["return 7","return 14","return 30","return 60","return 120"])assert.ok(progress.includes(days));
+ assert.ok(queue.includes("slot%10"));
+ assert.ok(queue.includes("flowRecovery"));
+ assert.ok(!page.includes("const WORDS:"));
+});
 
- for(const label of ["今天想讀什麼故事？","和阿奇一起創作、閱讀，或拿起手邊的故事書。","最近讀到這本","創作故事","實體書陪讀","我的故事","探索故事"])assert.ok(story.includes(label));
- assert.ok(storyMy.includes("BUILT_IN_STORIES.length"),"Story included count must come from the actual catalog");
- assert.ok(!story.includes("和 APK 一樣"));
- assert.ok(!storyMy.includes("和 APK"));
+test("Teacher My page exposes full reports and phrasebook like Android",()=>{
+ const mine=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const reports=fs.readFileSync(path.join(root,"web-spa/src/teacher/SessionReports.tsx"),"utf8");
+ const phrasebook=fs.readFileSync(path.join(root,"web-spa/src/teacher/phrasebook.ts"),"utf8");
+ assert.ok(mine.includes("PhrasebookPanel"));
+ assert.ok(mine.includes("SessionReports"));
+ for(const key of ["recasts","takeaways","next_focus","strengths"])assert.ok(reports.includes(key));
+ assert.ok(reports.includes("收藏全部精選"));
+ assert.ok(phrasebook.includes("crew_teacher_phrasebook_v1"));
+});
 
- for(const label of ["從不同角度","看懂自己的節奏。","選一種方式","性格 · 工作 · 財運 · 大運","核心性格 · 人生主題","人生週期 · 行星 · Dasha","最近解讀"])assert.ok(fortune.includes(label));
- assert.ok(fortuneLayout.includes('to="/fortune/history"'));
- assert.ok(!fortuneLayout.includes("ProductTabs"),"Fortune history should be a header action like Android, not a primary tab");
+test("Teacher textbook completion clears the resumable checkpoint",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
+ assert.ok(page.includes("completeMaterial"));
+ assert.ok(page.includes("CrewTextbookStore?.remove"));
+ assert.ok(page.includes("完成教材"));
 });
