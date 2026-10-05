@@ -15,7 +15,11 @@ export function PlayStoreLink({product,compact=false}:{product:Product;compact?:
   aria-label={app.name+" - Google Play"}
  >
   <span className="play-store-mark" aria-hidden="true">▶</span>
-  <span className="play-store-copy"><small>{compact?"Android App":"GET IT ON"}</small><strong>Google Play</strong></span>
+  <span className="play-store-copy">
+   <small>{compact?"Android App":"GET IT ON Google Play"}</small>
+   <strong>{app.name}</strong>
+   {!compact&&<span className="play-store-platform">Google Play</span>}
+  </span>
   <span className="play-store-arrow" aria-hidden="true">↗</span>
  </a>;
 }

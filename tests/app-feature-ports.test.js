@@ -310,3 +310,13 @@ test("Crew Web hides scrollbars without disabling scrolling",()=>{
  assert.ok(styles.includes("overflow:auto")||styles.includes("overflow-x:auto"),"SPA must keep scrollable surfaces");
  assert.ok(legacy.includes("overflow:auto")||legacy.includes("overflow-x:auto"),"legacy surfaces must keep scrolling enabled");
 });
+
+
+test("Google Play cards visibly name the app instead of only the store",()=>{
+ const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
+ assert.ok(play.includes("<strong>{app.name}</strong>"));
+ assert.ok(play.includes("Crew Teacher"));
+ assert.ok(play.includes("Crew Story"));
+ assert.ok(play.includes("GET IT ON Google Play"));
+ assert.ok(!play.includes("<strong>Google Play</strong>"),"Google Play should not be the primary card title");
+});
