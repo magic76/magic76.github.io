@@ -1,5 +1,8 @@
-html,body,*{scrollbar-width:none;-ms-overflow-style:none}
-*::-webkit-scrollbar{width:0;height:0;display:none}
+/* Hide scrollbar chrome, including the root viewport scrollbar. Scrolling remains enabled. */
+html,body,#root,*{scrollbar-width:none!important;-ms-overflow-style:none!important;scrollbar-gutter:auto!important}
+::-webkit-scrollbar,html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
+::-webkit-scrollbar-thumb,::-webkit-scrollbar-track{background:transparent!important;border:0!important}
+
 body{min-height:100vh}
 .route-tabs{position:sticky;top:66px;z-index:25}
 .page-enter{animation:page-in .14s ease-out}
