@@ -1,7 +1,7 @@
-import{Link}from"react-router-dom";import{Icon}from"../components/Icon";import{history,lastLive}from"../lib/runtime";
-export function PracticePage(){const last=lastLive("teacher"),h=history("teacher"),v=Number(localStorage.getItem("crew_vocab_today")||0);return <>
+import{Link}from"react-router-dom";import{Icon}from"../components/Icon";import{history}from"../lib/runtime";import{PracticeContinueCard,PracticeTutorStrip}from"./PracticeContinueCard";
+export function PracticePage(){const h=history("teacher"),v=Number(localStorage.getItem("crew_vocab_today")||0);return <>
 <section className="hero"><span className="kicker">Crew Teacher</span><h1>今天想學點什麼？</h1><p>Crew Teacher 幫你把下一步準備好。</p></section>
-{last&&<section className="section"><div className="notice"><div><b>繼續上次學習</b><p>{last.title||"上次口說練習"} · 可直接接著聊</p></div><Link className="btn small" to="/teacher/live?resume=1">繼續</Link></div></section>}
+<section className="section"><PracticeTutorStrip/><PracticeContinueCard/></section>
 <section className="section"><div className="section-head"><h2>和老師練習</h2><small>選一種方式</small></div><div className="grid two-col">
 <Link className="feature-card" to="/teacher/live"><span className="feature-icon"><Icon name="chat"/></span><strong>跟老師聊</strong><span>直接開口，老師主動接話</span></Link>
 <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>教材陪讀</strong><span>拍教材，老師逐頁帶你讀</span></Link>
