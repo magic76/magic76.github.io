@@ -12,14 +12,14 @@ const meta={
  settings:["C","Crew","設定"]
 } as const;
 
-export function AppChrome({product,children}:{product:Product;children?:React.ReactNode}){
+export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const m=meta[product];
  useEffect(()=>{
   document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":"";
   return()=>{document.body.className=""};
  },[product]);
  return <>
-  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{m[2]}</small></div></div>{product!=="settings"&&<NavLink className={"status "+(geminiKey()?"connected":"")} to="/settings"><i className="status-dot"/><span>{geminiKey()?"Gemini 已設定":"設定 Gemini"}</span></NavLink>}</div></header>
+  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{m[2]}</small></div></div>{headerAction}<>{product!=="settings"&&<NavLink className={"status "+(geminiKey()?"connected":"")} to="/settings"><i className="status-dot"/><span>{geminiKey()?"Gemini 已設定":"設定 Gemini"}</span></NavLink>}</></div></header>
   <main className="shell page page-enter">{children||<Outlet/>}</main>
   <GlobalNav active={product}/>
  </>;
