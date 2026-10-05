@@ -57,7 +57,7 @@ test("every public legacy entry routes into the unified React SPA",()=>{
 
 test("unified React router owns all Crew product surfaces",()=>{
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
- const routes=["/","/settings","/teacher","practice","learn","tutor","me","vocabulary","course","pronunciation","textbook","/teacher/live","/story","shelf","create","edit/:id","physical","physical/:id","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
+ const routes=["/","/settings","/teacher","practice","learn","tutor","me","vocabulary","course","pronunciation","textbook","phrasebook","reports","reading-library","/teacher/live","/story","shelf","create","edit/:id","physical","physical/:id","read/:id","/story/live","/fortune","history","reading","/fortune/live"];
  for(const route of routes)assert.ok(app.includes(route),"missing React route "+route);
 });
 
@@ -323,4 +323,49 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
  assert.ok(play.includes("Crew Story"));
  assert.ok(play.includes("GET IT ON Google Play"));
  assert.ok(!play.includes("<strong>Google Play</strong>"),"Google Play should not be the primary card title");
+});
+
+
+test("Teacher Web mirrors app learning deck reports and reading library",()=>{
+ const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
+ const mine=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const deck=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningDeck.ts"),"utf8");
+ const phrasebook=fs.readFileSync(path.join(root,"web-spa/src/teacher/PhrasebookPage.tsx"),"utf8");
+ const reports=fs.readFileSync(path.join(root,"web-spa/src/teacher/ReportsPage.tsx"),"utf8");
+ const library=fs.readFileSync(path.join(root,"web-spa/src/teacher/readingLibrary.ts"),"utf8");
+ const pronunciation=fs.readFileSync(path.join(root,"web-spa/src/teacher/PronunciationPage.tsx"),"utf8");
+ for(const route of ["phrasebook","reports","reading-library"])assert.ok(app.includes(route));
+ for(const label of ["收藏片語","練習報告","閱讀素材庫"])assert.ok(mine.includes(label));
+ assert.ok(deck.includes("saveReportLearning"));
+ assert.ok(deck.includes("nextReviewAt"));
+ assert.ok(phrasebook.includes("我複習過了"));
+ assert.ok(reports.includes("道地修正"));
+ assert.ok(reports.includes("帶走的表達"));
+ assert.ok(library.includes("classic_aesop_north_wind"));
+ assert.ok(library.includes("classic_twain_river"));
+ assert.ok(pronunciation.includes("CLASSIC_READING_LIBRARY"));
+});
+
+test("Fortune Web mirrors app profile presets birth-place search and year highlights",()=>{
+ const reading=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ const profile=fs.readFileSync(path.join(root,"web-spa/src/fortune/profileStore.ts"),"utf8");
+ const place=fs.readFileSync(path.join(root,"web-spa/src/fortune/birthPlaceSearch.ts"),"utf8");
+ const highlights=fs.readFileSync(path.join(root,"web-spa/src/fortune/yearHighlights.ts"),"utf8");
+ const tools=fs.readFileSync(path.join(root,"web-spa/src/fortune/ProfileTools.tsx"),"utf8");
+ assert.ok(reading.includes("FortuneProfileTools"));
+ assert.ok(reading.includes("FortuneYearHighlights"));
+ assert.ok(profile.includes("crew_fortune_presets_v1"));
+ assert.ok(profile.includes("presetKey"));
+ assert.ok(place.includes("https://geocoding-api.open-meteo.com/v1/search"));
+ assert.ok(place.includes("utcOffsetForBirth"));
+ assert.ok(tools.includes("儲存常用資料"));
+ assert.ok(tools.includes("選擇常用資料"));
+ for(const token of ["wealthProfile","careerProfile","relationshipProfile","personalYearTimeline","majorTransitTimeline","mahadashaTimeline"])assert.ok(highlights.includes(token));
+});
+
+test("Story Player keeps in-session interaction history like the app player",()=>{
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ assert.ok(player.includes("互動紀錄"));
+ assert.ok(player.includes("live.turns"));
+ assert.ok(player.includes("阿奇"));
 });
