@@ -395,12 +395,13 @@ test("Story Player keeps in-session interaction history like the app player",()=
 
 test("Teacher Web mirrors Android authored course map and daily coordinator",()=>{
  const catalog=fs.readFileSync(path.join(root,"web-spa/src/teacher/courseCatalog.ts"),"utf8");
+ const catalogData=["courseCatalogTravel.ts","courseCatalogBusiness.ts","courseCatalogDaily.ts"].map(file=>fs.readFileSync(path.join(root,"web-spa/src/teacher",file),"utf8")).join("\n");
  const course=fs.readFileSync(path.join(root,"web-spa/src/teacher/CoursePage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const coordinator=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningCoordinator.ts"),"utf8");
  const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
  assert.equal((catalog.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
- assert.ok(course.includes("COURSE_TRACKS"));
+ assert.ok(catalog.includes("TRAVEL_COURSE_LESSONS"));\n assert.ok(course.includes("COURSE_TRACKS"));
  assert.ok(course.includes("lessonUnlocked"));
  assert.ok(course.includes("31 堂課"));
  assert.ok(live.includes("scoreCourseSession"));
