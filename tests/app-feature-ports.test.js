@@ -403,7 +403,7 @@ test("Teacher Web mirrors Android authored course map and daily coordinator",()=
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const coordinator=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningCoordinator.ts"),"utf8");
  const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
- assert.equal((catalog.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
+ assert.equal((catalogData.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
  assert.ok(catalog.includes("TRAVEL_COURSE_LESSONS"));
  assert.ok(course.includes("COURSE_TRACKS"));
  assert.ok(course.includes("lessonUnlocked"));
