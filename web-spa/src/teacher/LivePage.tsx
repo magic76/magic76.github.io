@@ -30,7 +30,8 @@ export function TeacherLivePage(){
   if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
   setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
  },[course,live.state,live.turns]);
- const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);\n const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
+ const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to="/teacher/practice">‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
  <main className="session-shell"><section className="session-person"><div className={"avatar teacher-presence "+presenceState}><img src={profile.avatar} alt={profile.name}/></div><h1>{mission?.title||profile.name+" 老師"}</h1><p>{mission?"完成任務即可，不必背整段對話。":profile.description}</p></section>
  {mission&&<div className="notice"><div><b>情境任務</b><p>{mission.goals.join(" · ")}</p></div><span className="pill">任務模式</span></div>}
