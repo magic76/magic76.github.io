@@ -258,3 +258,22 @@ test("Story Player narration is Gemini Live, not browser speechSynthesis",()=>{
  assert.ok(!reader.includes("SpeechSynthesisUtterance"));
  assert.ok(!player.includes("SpeechSynthesisUtterance"));
 });
+
+
+test("published Android apps expose verified Google Play links while Fortune stays unpublished",()=>{
+ const component=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const fortuneHome=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
+ assert.ok(component.includes("id=com.crewpocket.teacher"));
+ assert.ok(component.includes("id=com.crewpocket.story"));
+ assert.ok(!component.includes("com.crewpocket.fortune"));
+ assert.ok(home.includes('product="teacher"'));
+ assert.ok(home.includes('product="story"'));
+ assert.ok(teacher.includes('product="teacher"'));
+ assert.ok(story.includes('product="story"'));
+ assert.ok(!fortuneHome.includes("PlayStoreLink"));
+ assert.ok(!fortuneLayout.includes("PlayStoreLink"));
+});
