@@ -1,7 +1,8 @@
 
-/* Hide scrollbar chrome without disabling wheel, touch, trackpad or keyboard scrolling. */
-html,body,*{scrollbar-width:none;-ms-overflow-style:none}
-html::-webkit-scrollbar,body::-webkit-scrollbar,*::-webkit-scrollbar{width:0;height:0;display:none}
+/* Hide scrollbar chrome, including the root viewport scrollbar. Scrolling remains enabled. */
+html,body,#root,*{scrollbar-width:none!important;-ms-overflow-style:none!important;scrollbar-gutter:auto!important}
+::-webkit-scrollbar,html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
+::-webkit-scrollbar-thumb,::-webkit-scrollbar-track{background:transparent!important;border:0!important}
 
 :root{
   --bg:#f6f6f2;--paper:#fff;--ink:#171715;--muted:#77776f;--line:#e7e7df;
