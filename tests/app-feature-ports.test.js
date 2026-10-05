@@ -439,3 +439,19 @@ test("Teacher Web keeps Android course progress alongside existing reports and p
  assert.ok(textbook.includes("CrewTextbookStore?.remove"));
  assert.ok(textbook.includes("完成教材"));
 });
+
+
+test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const strip=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeTutorStrip.tsx"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ assert.ok(!live.includes("live-header-avatar"),"Live header should not duplicate the tutor portrait");
+ assert.ok(live.includes("teacher-presence"));
+ assert.ok(live.includes("presenceState"));
+ assert.ok(strip.includes("profile.bestFor"));
+ assert.ok(strip.includes("更換 ›"));
+ assert.ok(picker.includes("profile.bestFor"));
+ assert.ok(styles.includes("teacher-presence-speaking"));
+ assert.ok(styles.includes(".teacher-profile-option img{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
+});
