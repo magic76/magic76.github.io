@@ -324,3 +324,25 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
  assert.ok(play.includes("GET IT ON Google Play"));
  assert.ok(!play.includes("<strong>Google Play</strong>"),"Google Play should not be the primary card title");
 });
+
+
+test("core Web entry points follow the Android app parity contract",()=>{
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
+ const teacherNext=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeContinueCard.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
+ const storyMy=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
+
+ for(const label of ["今天想學點什麼？","和老師練習","跟老師聊","教材陪讀","單字練習","情境課程","今天","學習紀錄"])assert.ok(teacher.includes(label));
+ for(const label of ["目前老師","今天下一步","和老師練一下今天的重點"])assert.ok(teacherNext.includes(label));
+
+ for(const label of ["今天想讀什麼故事？","和阿奇一起創作、閱讀，或拿起手邊的故事書。","最近讀到這本","創作故事","實體書陪讀","我的故事","探索故事"])assert.ok(story.includes(label));
+ assert.ok(storyMy.includes("BUILT_IN_STORIES.length"),"Story included count must come from the actual catalog");
+ assert.ok(!story.includes("和 APK 一樣"));
+ assert.ok(!storyMy.includes("和 APK"));
+
+ for(const label of ["從不同角度","看懂自己的節奏。","選一種方式","性格 · 工作 · 財運 · 大運","核心性格 · 人生主題","人生週期 · 行星 · Dasha","最近解讀"])assert.ok(fortune.includes(label));
+ assert.ok(fortuneLayout.includes('to="/fortune/history"'));
+ assert.ok(!fortuneLayout.includes("ProductTabs"),"Fortune history should be a header action like Android, not a primary tab");
+});
