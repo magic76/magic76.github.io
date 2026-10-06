@@ -485,3 +485,45 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
  for(const voice of ["Callisto","Europa"])assert.ok(tutor.includes('"'+voice+'"'));
 });
+
+
+test("home page explains product value and guides Gemini setup",()=>{
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ assert.ok(home.includes("語言陪讀、說故事、命盤解讀"));
+ assert.ok(home.includes("用自己的 Gemini Key"));
+ assert.ok(home.includes("先花 1 分鐘設定 Gemini Key"));
+ assert.ok(home.includes("geminiKey()"));
+ assert.ok(!home.includes("切換不再重新載入不同頁面"));
+ assert.ok(home.includes("從第一件事開始"));
+});
+
+test("mobile chrome keeps key actions reachable and Fortune header actions grouped",()=>{
+ const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
+ const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ assert.ok(chrome.includes("app-header-actions"));
+ assert.ok(styles.includes("padding-bottom:calc(var(--nav-h) + 34px + env(safe-area-inset-bottom))"));
+ assert.ok(styles.includes(".fortune-header-history"));
+ assert.ok(styles.includes("min-height:44px"));
+ assert.ok(styles.includes(".fortune-result-tabs button"));
+ assert.ok(styles.includes(".btn.small"));
+});
+
+test("wide desktop layout uses a side rail instead of a stretched phone nav",()=>{
+ const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ assert.ok(styles.includes("@media(min-width:1100px)"));
+ assert.ok(styles.includes("width:min(1040px,calc(100% - 200px))"));
+ assert.ok(styles.includes(".global-nav{left:18px;right:auto;top:88px;bottom:auto"));
+});
+
+test("Crew source does not ship SOLVING debug markers",()=>{
+ const sourceFiles=[
+  ...files(path.join(root,"web-spa","src"),".ts"),
+  ...files(path.join(root,"web-spa","src"),".tsx"),
+  ...files(path.join(root,"features"),".js"),
+  path.join(root,"crew-live.js")
+ ];
+ for(const file of sourceFiles){
+  const source=fs.readFileSync(file,"utf8");
+  assert.ok(!source.includes("SOLVING"),path.relative(root,file)+" should not contain SOLVING debug output");
+ }
+});
