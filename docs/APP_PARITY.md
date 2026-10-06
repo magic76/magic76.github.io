@@ -20,7 +20,7 @@ Web must preserve the Android information architecture:
   - 情境課程
   - 朗讀糾音
 - 老師
-  - 老師角色
+  - 老師角色（固定單張人像；Emma / Alex / James / Mia 使用 Android HQ portrait sprite，Sophie / Lina 使用 Android 原圖）
   - 聊天模式
   - 練習方式
   - 音色 / 語言風格
@@ -46,6 +46,7 @@ Web must preserve:
 - Story Player uses Gemini Live narration
 - Story Editor remains page-centric
 - 我的 Story manages story preferences, voice/language, and AI setup
+- 未設定 Gemini Key 時要提供明確的取得教學；Web 共用 `/settings`，不複製 Android dialog
 
 ## Crew Fortune
 Source: `magic76/crew-fortune`
@@ -62,6 +63,8 @@ Web must preserve:
 - 最近解讀
 - 歷史 is a header-level action, not a primary product tab
 - deterministic result data is primary; Live teacher is secondary help only
+- Gemini Key is optional for deterministic chart/basic results; AI interpretation and teacher conversation require it
+- Web reuses the shared `/settings` Gemini guide rather than creating a Fortune-only key flow
 
 ## Review rule
 For a meaningful Android product change:
