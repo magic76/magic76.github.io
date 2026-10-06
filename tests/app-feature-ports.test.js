@@ -96,7 +96,7 @@ test("Teacher profiles use local public avatar assets",()=>{
  const profiles=fs.readFileSync(path.join(root,"web-spa/src/teacher/teacherProfiles.ts"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- for(const name of ["emma","alex","james","mia"]){
+ for(const name of ["emma","alex","james","mia","sophie","lina"]){
   assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-"+name+".webp")),"missing public avatar for "+name);
   assert.ok(profiles.includes("teacher-"+name+".webp"),"profile registry should import "+name+" avatar");
  }
@@ -145,8 +145,8 @@ test("Teacher Web mirrors native selectable tutor profiles",()=>{
  const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
- for(const name of ["Emma","Alex","James","Mia"])assert.ok(profiles.includes('name:"'+name+'"'),"missing tutor "+name);
- for(const voice of ["Kore","Hyperion","Prospero","Leda"])assert.ok(profiles.includes('recommendedVoice:"'+voice+'"'),"missing recommended voice "+voice);
+ for(const name of ["Emma","Alex","James","Mia","Sophie","Lina"])assert.ok(profiles.includes('name:"'+name+'"'),"missing tutor "+name);
+ for(const voice of ["Kore","Hyperion","Prospero","Leda","Callisto","Europa"])assert.ok(profiles.includes('recommendedVoice:"'+voice+'"'),"missing recommended voice "+voice);
  assert.ok(store.includes("teacherProfile"));
  assert.ok(store.includes("setTeacherProfile"));
  assert.ok(store.includes("profile.recommendedVoice"),"changing tutor should apply the recommended voice");
@@ -328,14 +328,17 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
 
 test("core Web entry points follow the Android app parity contract",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
- const teacherNext=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeContinueCard.tsx"),"utf8");
+ const teacherTutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeTutorStrip.tsx"),"utf8");
+ const teacherNext=fs.readFileSync(path.join(root,"web-spa/src/teacher/ContinueLearningCard.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
  const storyMy=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
  const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
 
  for(const label of ["今天想學點什麼？","和老師練習","跟老師聊","教材陪讀","單字練習","情境課程","今天","學習紀錄"])assert.ok(teacher.includes(label));
- for(const label of ["目前老師","今天下一步","和老師練一下今天的重點"])assert.ok(teacherNext.includes(label));
+ assert.ok(teacherTutor.includes("目前老師"));
+ assert.ok(teacherNext.includes("今天下一步"));
+ assert.ok(teacherNext.includes("buildDailyLearningPlan"));
 
  for(const label of ["今天想讀什麼故事？","和阿奇一起創作、閱讀，或拿起手邊的故事書。","最近讀到這本","創作故事","實體書陪讀","我的故事","探索故事"])assert.ok(story.includes(label));
  assert.ok(storyMy.includes("BUILT_IN_STORIES.length"),"Story included count must come from the actual catalog");
@@ -390,4 +393,95 @@ test("Story Player keeps in-session interaction history like the app player",()=
  assert.ok(player.includes("互動紀錄"));
  assert.ok(player.includes("live.turns"));
  assert.ok(player.includes("阿奇"));
+});
+
+
+test("Teacher Web mirrors Android authored course map and daily coordinator",()=>{
+ const catalog=fs.readFileSync(path.join(root,"web-spa/src/teacher/courseCatalog.ts"),"utf8");
+ const catalogData=["courseCatalogTravel.ts","courseCatalogBusiness.ts","courseCatalogDaily.ts"].map(file=>fs.readFileSync(path.join(root,"web-spa/src/teacher",file),"utf8")).join("\n");
+ const course=fs.readFileSync(path.join(root,"web-spa/src/teacher/CoursePage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const coordinator=fs.readFileSync(path.join(root,"web-spa/src/teacher/learningCoordinator.ts"),"utf8");
+ const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
+ assert.equal((catalogData.match(/"id": "(?:travel|biz|daily)_u\d_l\d"/g)||[]).length,31);
+ assert.ok(catalog.includes("TRAVEL_COURSE_LESSONS"));
+ assert.ok(course.includes("COURSE_TRACKS"));
+ assert.ok(course.includes("lessonUnlocked"));
+ assert.ok(course.includes("31 堂課"));
+ assert.ok(live.includes("scoreCourseSession"));
+ assert.ok(live.includes("saveLessonProgress"));
+ assert.ok(practice.includes("ContinueLearningCard"));
+ assert.ok(practice.includes("PracticeTutorStrip"));
+ const textbookIndex=coordinator.indexOf('action:"textbook"');
+ const vocabIndex=coordinator.indexOf('action:"vocabulary"');
+ const courseIndex=coordinator.indexOf('action:"course"');
+ const conversationIndex=coordinator.indexOf('action:"conversation"');
+ assert.ok(textbookIndex>=0&&textbookIndex<vocabIndex&&vocabIndex<courseIndex&&courseIndex<conversationIndex);
+});
+
+test("Teacher vocabulary uses spaced review recovery and date-aware progress",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/teacher/VocabularyPage.tsx"),"utf8");
+ const progress=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyProgress.ts"),"utf8");
+ const queue=fs.readFileSync(path.join(root,"web-spa/src/teacher/vocabularyQueue.ts"),"utf8");
+ assert.ok(page.includes("recordVocab"));
+ assert.ok(page.includes("incrementTodayVocabulary"));
+ assert.ok(progress.includes("nextReviewAt"));
+ for(const days of ["return 7","return 14","return 30","return 60","return 120"])assert.ok(progress.includes(days));
+ assert.ok(queue.includes("slot%10"));
+ assert.ok(queue.includes("flowRecovery"));
+});
+
+test("Teacher Web keeps Android course progress alongside existing reports and phrasebook",()=>{
+ const mine=fs.readFileSync(path.join(root,"web-spa/src/teacher/MyPage.tsx"),"utf8");
+ const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
+ for(const token of ["completedLessons","totalStars","learningDeck","reading-library"])assert.ok(mine.includes(token));
+ assert.ok(textbook.includes("completeMaterial"));
+ assert.ok(textbook.includes("CrewTextbookStore?.remove"));
+ assert.ok(textbook.includes("完成教材"));
+});
+
+
+test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const strip=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticeTutorStrip.tsx"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ assert.ok(!live.includes("live-header-avatar"),"Live header should not duplicate the tutor portrait");
+ assert.ok(live.includes("teacher-presence"));
+ assert.ok(live.includes("presenceState"));
+ assert.ok(strip.includes("profile.bestFor"));
+ assert.ok(strip.includes("更換 ›"));
+ assert.ok(picker.includes("profile.bestFor"));
+ assert.ok(styles.includes("teacher-presence-speaking"));
+ assert.ok(styles.includes(".teacher-profile-option img,.teacher-profile-image{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
+});
+
+
+test("Story and Fortune reuse one Web Gemini setup flow while preserving Android semantics",()=>{
+ const notice=fs.readFileSync(path.join(root,"web-spa/src/components/GeminiSetupNotice.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ assert.ok(story.includes('GeminiSetupNotice product="story"'));
+ assert.ok(fortune.includes('GeminiSetupNotice product="fortune"'));
+ assert.ok(notice.includes("故事創作、實體書陪讀與 AI 功能需要 Key"));
+ assert.ok(notice.includes("命盤計算與基本結果不需要 Key"));
+ assert.ok(notice.includes("AI 解讀與老師對話才需要"));
+ assert.ok(settings.includes("https://aistudio.google.com/apikey"));
+ assert.ok(settings.includes("Google 專案管理"));
+ assert.ok(!story.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
+ assert.ok(!fortune.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
+});
+
+
+test("Teacher Web uses Android HQ portrait sprite through one shared avatar component",()=>{
+ const avatar=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherAvatar.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-portraits-hq.webp")));
+ assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
+ for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
+ for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
+ for(const voice of ["Callisto","Europa"])assert.ok(tutor.includes('"'+voice+'"'));
 });

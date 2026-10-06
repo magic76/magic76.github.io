@@ -1,17 +1,29 @@
 import{useMemo,useState}from"react";
-type Word=[string,string,string,string,string,number];
-const WORDS:Word[]=[
-["borrow","借用","Can I borrow your charger for a minute?","A2","日常",24],["receipt","收據","Could I get a receipt, please?","A2","購物",28],["available","可用的／有空的","Is this seat available?","A2","日常",32],["recommend","推薦","What would you recommend here?","A2","餐廳",35],["appointment","預約","I need to make an appointment.","A2","生活",38],["deadline","截止期限","We need to meet the deadline.","B1","工作",45],["priority","優先事項","This task is our top priority.","B1","工作",48],["confirm","確認","Could you confirm the booking?","B1","旅遊",50],["approach","做法／方法","We need a different approach.","B1","工作",53],["concern","擔憂／關切","My main concern is the schedule.","B1","工作",55],["flexible","有彈性的","The plan is flexible.","B1","日常",56],["clarify","釐清","Could you clarify what you mean?","B1","工作",58],["efficient","有效率的","This is a more efficient process.","B1","工作",60],["estimate","估計","Can you give me an estimate?","B1","工作",62],["negotiate","協商","We may need to negotiate the terms.","B2","工作",67],["constraint","限制條件","Time is our biggest constraint.","B2","工作",70],["trade-off","取捨","There is a trade-off between speed and quality.","B2","工作",72],["subtle","細微的","There is a subtle difference in tone.","B2","表達",74],["perspective","觀點","I understand your perspective.","B2","表達",76],["feasible","可行的","Is this solution feasible by Friday?","B2","工作",78],["allocate","分配","We should allocate more time to testing.","B2","工作",80],["ambiguous","模糊不清的","The requirement is still ambiguous.","B2","工作",82],["mitigate","降低／緩解","This change should mitigate the risk.","C1","工作",86],["counterpart","對應的人／單位","I spoke with my counterpart in London.","C1","工作",87],["nuance","細微差異","That translation misses an important nuance.","C1","表達",88],["articulate","清楚表達","She articulated the idea clearly.","C1","表達",90],["concede","承認／讓步","He conceded that the timeline was unrealistic.","C1","表達",92],["pragmatic","務實的","We need a pragmatic solution.","C1","工作",93],["scrutinize","仔細審查","The team will scrutinize the proposal.","C1","工作",95],["ubiquitous","無所不在的","Smartphones have become ubiquitous.","C1","一般",97]];
-const cefr=(s:number)=>s<30?"A1":s<45?"A2":s<62?"B1":s<82?"B2":"C1";
-const shuffle=<T,>(a:T[])=>a.map(v=>[Math.random(),v]as const).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
-function choose(score:number,current?:Word){let pool=WORDS.filter(w=>Math.abs(w[5]-score)<=14);if(pool.length<4)pool=WORDS;const list=shuffle(pool.filter(w=>w!==current));return list[0]||WORDS[0]}
+import{VOCABULARY_WORDS,type VocabularyWord,cefrForScore}from"./vocabularyCatalog";
+import{chooseVocabulary,recordFlow,vocabularyChoices}from"./vocabularyQueue";
+import{incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats}from"./vocabularyProgress";
+
 function speak(t:string){if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.9;speechSynthesis.speak(u)}
+
 export function VocabularyPage(){
- const[score,setScore]=useState(Number(localStorage.getItem("crew_vocab_score")||50)),[done,setDone]=useState(Number(localStorage.getItem("crew_vocab_today")||0)),[streak,setStreak]=useState(0),[word,setWord]=useState<Word>(()=>choose(Number(localStorage.getItem("crew_vocab_score")||50))),[locked,setLocked]=useState(false),[feedback,setFeedback]=useState("選出最接近的中文意思。"),[picked,setPicked]=useState("");
- const options=useMemo(()=>shuffle([word[1],...shuffle(WORDS.filter(w=>w[0]!==word[0]&&Math.abs(w[5]-word[5])<20)).slice(0,2).map(w=>w[1])]),[word]);
- const save=(s:number,d:number)=>{localStorage.setItem("crew_vocab_score",String(Math.round(s)));localStorage.setItem("crew_vocab_today",String(d))};
- const answer=(choice:string)=>{if(locked)return;setLocked(true);setPicked(choice);const correct=choice===word[1];const ns=correct?Math.min(100,score+Math.min(8,4+Math.floor((streak+1)/4))):Math.max(0,score-10),nd=done+1;setScore(ns);setDone(nd);setStreak(correct?streak+1:0);setFeedback(correct?"答對了。"+word[2]:"正確是「"+word[1]+"」。例句："+word[2]+"　可以再聽一次發音。");save(ns,nd);speak(word[0]);setTimeout(()=>{setWord(w=>choose(ns,w));setLocked(false);setPicked("");setFeedback("選出最接近的中文意思。")},correct?1100:3000)};
- return <><section className="hero"><span className="kicker">Vocabulary</span><h1>快速作答，難度跟著你走</h1><p>答錯會停留 3 秒，讓你看例句並重聽發音。</p></section>
- <section className="section panel"><div className="row" style={{justifyContent:"space-between"}}><div><strong>今日進度</strong><div className="meta">{done} / 20</div></div><span className="pill">{streak>=2?"⚡ ":""}{streak} 連擊</span></div><div className="progress-track"><div className="progress-fill" style={{width:Math.min(100,done/20*100)+"%"}}/></div></section>
- <section className="section quiz-card"><div className="quiz-meta"><span className="pill">{done<6?cefr(score)+" · 探測中":cefr(score)}</span><span className="pill">{word[4]}</span></div><div className="quiz-word">{word[0]}</div><button className="btn secondary small" onClick={()=>speak(word[0])}>聽發音</button><p className="quiz-example">{word[2]}</p><div className="quiz-list">{options.map(x=><button key={x} className={"quiz-choice "+(locked?(x===word[1]?"correct":x===picked?"wrong":""):"")} disabled={locked} onClick={()=>answer(x)}>{x}</button>)}</div><div className="quiz-feedback">{feedback}</div></section></>;
+ const initialScore=Number(localStorage.getItem("crew_vocab_score")||50);
+ const[score,setScore]=useState(initialScore),[done,setDone]=useState(todayVocabulary()),[streak,setStreak]=useState(0),[word,setWord]=useState<VocabularyWord>(()=>chooseVocabulary(initialScore,undefined,0)),[locked,setLocked]=useState(false),[feedback,setFeedback]=useState("選出最接近的中文意思。"),[picked,setPicked]=useState("");
+ const options=useMemo(()=>vocabularyChoices(word),[word]);
+ const stats=vocabStats(VOCABULARY_WORDS.map(x=>x[0]));
+ const saveScore=(v:number)=>localStorage.setItem("crew_vocab_score",String(Math.round(v)));
+
+ function answer(choice:string){
+  if(locked)return;setLocked(true);setPicked(choice);
+  const correct=choice===word[1],nextStreak=correct?streak+1:0;
+  const gain=correct?Math.min(5,2+Math.floor((nextStreak+1)/4)):word[5]<=score+4?-2:0;
+  const ns=Math.max(0,Math.min(100,score+gain)),nd=incrementTodayVocabulary();
+  recordVocab(word[0],correct);recordFlow(correct);setScore(ns);setDone(nd);setStreak(nextStreak);saveScore(ns);
+  setFeedback(correct?"答對了。"+word[2]:"正確是「"+word[1]+"」。例句："+word[2]+"　可以再聽一次發音。");
+  speak(word[0]);
+  window.setTimeout(()=>{setWord(w=>chooseVocabulary(ns,w,nd));setLocked(false);setPicked("");setFeedback("選出最接近的中文意思。")},correct?1100:3000);
+ }
+
+ return <><section className="hero"><span className="kicker">Vocabulary</span><h1>快速作答，難度跟著你走</h1><p>和 App 一樣：到期複習優先，平常維持舒適 / 邊界 / 挑戰節奏；答錯後先回到較穩定的題目。</p></section>
+ <section className="section panel"><div className="row" style={{justifyContent:"space-between"}}><div><strong>今日進度</strong><div className="meta">{done} / 20 · 到期 {stats.due} · 已熟悉 {stats.mastered}</div></div><span className="pill">{streak>=2?"⚡ ":""}{streak} 連擊</span></div><div className="progress-track"><div className="progress-fill" style={{width:Math.min(100,done/20*100)+"%"}}/></div></section>
+ <section className="section quiz-card"><div className="quiz-meta"><span className="pill">{done<6?cefrForScore(score)+" · 校準中":cefrForScore(score)}</span><span className="pill">{word[4]}</span></div><div className="quiz-word">{word[0]}</div><button className="btn secondary small" onClick={()=>speak(word[0])}>聽發音</button><p className="quiz-example">{word[2]}</p><div className="quiz-list">{options.map(x=><button key={x} className={"quiz-choice "+(locked?(x===word[1]?"correct":x===picked?"wrong":""):"")} disabled={locked} onClick={()=>answer(x)}>{x}</button>)}</div><div className="quiz-feedback">{feedback}</div></section></>;
 }
