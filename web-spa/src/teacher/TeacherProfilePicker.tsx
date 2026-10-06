@@ -1,5 +1,5 @@
 import{TEACHER_PROFILES,type TeacherProfileId}from"./teacherProfiles";
-import{useTeacherStore}from"../store/teacherStore";
+import{useTeacherStore}from"../store/teacherStore";import{TeacherAvatar}from"./TeacherAvatar";
 
 export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
  const active=useTeacherStore(s=>s.teacherProfile);
@@ -10,7 +10,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
    <p className="meta">選一位你想長期互動的老師。切換時會套用推薦音色，之後仍可另外微調。</p>
    <div className="teacher-picker-list">
     {TEACHER_PROFILES.map(profile=><button className={"teacher-profile-option "+(profile.id===active?"active":"")} key={profile.id} onClick={()=>{setTeacherProfile(profile.id as TeacherProfileId);onClose()}}>
-     <img src={profile.avatar} alt={profile.name}/>
+     <TeacherAvatar profile={profile} className="teacher-profile-image"/>
      <span className="teacher-profile-copy"><strong>{profile.name}{profile.id===active?<em>使用中</em>:null}</strong><b>{profile.title}</b><small><strong>{profile.bestFor}</strong></small><small>{profile.description}</small><small>推薦音色 · {profile.recommendedVoice}</small></span>
     </button>)}
    </div>
