@@ -472,3 +472,16 @@ test("Story and Fortune reuse one Web Gemini setup flow while preserving Android
  assert.ok(!story.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
  assert.ok(!fortune.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
 });
+
+
+test("Teacher Web uses Android HQ portrait sprite through one shared avatar component",()=>{
+ const avatar=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherAvatar.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-portraits-hq.webp")));
+ assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
+ for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
+ for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
+ for(const voice of ["Callisto","Europa"])assert.ok(tutor.includes('"'+voice+'"'));
+});
