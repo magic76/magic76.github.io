@@ -81,3 +81,5 @@ body{min-height:100vh}
 @keyframes teacher-presence-connecting{from{transform:scale(.99);opacity:.72}to{transform:scale(1.01);opacity:1}}
 @keyframes teacher-presence-idle{from{transform:scale(1);opacity:.96}to{transform:scale(1.008);opacity:1}}
 @media(prefers-reduced-motion:reduce){.session-person .teacher-presence{animation:none!important;transform:none!important;opacity:1!important}}
+
+.gemini-setup-notice{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--text);text-decoration:none}.gemini-setup-notice>span{display:grid;gap:3px}.gemini-setup-notice strong{font-size:12px}.gemini-setup-notice small{font-size:10px;color:var(--accent);font-weight:800}.gemini-setup-notice em{font-size:10px;line-height:1.45;color:var(--muted);font-style:normal}.gemini-setup-notice>b{font-size:10px;color:var(--accent);white-space:nowrap}.gemini-setup-notice.story{background:var(--surface-alt)}.gemini-setup-notice.fortune{background:var(--accent-soft)}
