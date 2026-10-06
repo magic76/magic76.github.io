@@ -15,7 +15,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  const[book,setBook]=useState(initialBook),[index,setIndex]=useState(Math.max(0,Math.min(Number(initialBook.currentPage)||0,(initialBook.pages||[]).length-1))),nav=useNavigate();
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
- const live=useStoryNarrator(book,index,page,image);
+ const live=useStoryNarrator(book,index,page,image,nextIndex=>setIndex(nextIndex));
 
  useEffect(()=>{if(book.sourceType!=="built-in"){const next={...book,currentPage:index};setBook(next);void window.CrewStoryStore?.save(next as any)}},[index]);
  
@@ -46,7 +46,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
    {active(live.state)&&<div className="story-player-live-tools"><button className={"live-tool-btn "+(live.muted?"active":"")} onClick={live.toggleMute}>{live.muted?"開啟麥克風":"麥克風靜音"}</button><button className="live-tool-btn" disabled={live.state!=="speaking"} onClick={live.interrupt}>打斷阿奇</button><label className="live-volume">音量 <input type="range" min="0" max="100" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/><span>{live.volume}%</span></label><button className="live-tool-btn" onClick={()=>void live.stop()}>結束 Live</button></div>}
    <div className="story-player-transcript">{live.input&&<div><small>你</small><span>{live.input}</span></div>}{live.output&&<div><small>阿奇</small><span>{live.output}</span></div>}</div>
    {live.turns.length>0&&<details className="story-interaction-history"><summary>互動紀錄 · {live.turns.length} 輪</summary><div>{live.turns.map((t,i)=><section key={i}>{t.input&&<p><b>你</b><span>{t.input}</span></p>}{t.output&&<p><b>阿奇</b><span>{t.output}</span></p>}</section>)}</div></details>}
-   <p className="meta">說故事由 Gemini Live 阿奇負責。Live 開啟後可直接說話；阿奇說話時可按「暫停 / 打斷阿奇」再插話。</p>
+   <p className="meta">阿奇會逐頁說故事，念完會自動翻到下一頁。想插話時可先暫停或打斷阿奇。</p>
    <div className="actions">{book.sourceType==="built-in"&&<Link className="btn secondary" to={"/story/edit/"+encodeURIComponent(book.id)}>建立我的版本</Link>}{book.sourceType!=="built-in"&&<button className="btn danger small" onClick={()=>void remove()}>刪除故事</button>}</div>
   </section>
  </div></>
