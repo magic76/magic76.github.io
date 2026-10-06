@@ -232,7 +232,7 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
  assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
- assert.ok(reading.includes("看不懂這些資料？"),"Live help should be collapsed behind a data-help affordance");
+ assert.ok(reading.includes("想再問清楚一點？"),"Live help should stay collapsed behind a follow-up affordance");
  assert.ok(reading.includes("/fortune/live?from=reading"),"the optional result follow-up should still exist");
  assert.ok(!common.includes("問老師"),"topic evidence cards should remain data-only");
  for(const source of [bazi,tarot,vedic]){
@@ -491,7 +491,9 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
- for(const voice of ["Callisto","Europa"])assert.ok(tutor.includes('"'+voice+'"'));
+ assert.ok(tutor.includes("推薦聲音"));
+ assert.ok(!tutor.includes("Callisto"));
+ assert.ok(!tutor.includes("Europa"));
 });
 
 
