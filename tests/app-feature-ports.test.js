@@ -455,3 +455,20 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
  assert.ok(styles.includes("teacher-presence-speaking"));
  assert.ok(styles.includes(".teacher-profile-option img{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
 });
+
+
+test("Story and Fortune reuse one Web Gemini setup flow while preserving Android semantics",()=>{
+ const notice=fs.readFileSync(path.join(root,"web-spa/src/components/GeminiSetupNotice.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
+ const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
+ assert.ok(story.includes('GeminiSetupNotice product="story"'));
+ assert.ok(fortune.includes('GeminiSetupNotice product="fortune"'));
+ assert.ok(notice.includes("故事創作、實體書陪讀與 AI 功能需要 Key"));
+ assert.ok(notice.includes("命盤計算與基本結果不需要 Key"));
+ assert.ok(notice.includes("AI 解讀與老師對話才需要"));
+ assert.ok(settings.includes("https://aistudio.google.com/apikey"));
+ assert.ok(settings.includes("Google 專案管理"));
+ assert.ok(!story.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
+ assert.ok(!fortune.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
+});
