@@ -453,7 +453,7 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
  assert.ok(strip.includes("更換 ›"));
  assert.ok(picker.includes("profile.bestFor"));
  assert.ok(styles.includes("teacher-presence-speaking"));
- assert.ok(styles.includes(".teacher-profile-option img{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
+ assert.ok(styles.includes(".teacher-profile-option img,.teacher-profile-image{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
 });
 
 
