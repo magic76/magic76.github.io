@@ -5,6 +5,7 @@ export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;teacherReport?:boolean;
+ onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 export function useLiveSession(config:Config){
@@ -44,6 +45,7 @@ export function useLiveSession(config:Config){
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:setInput,onOutputTranscript:setOutput,
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
+    onTurnComplete:turn=>configRef.current.onTurnComplete?.(turn),
     onError:e=>{setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{const item=snapshot(info?.status||"terminal");sessionRef.current=null;void finish(item)}
    });

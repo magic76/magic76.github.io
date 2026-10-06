@@ -188,7 +188,7 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
  for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
  assert.ok(reader.includes("StoryPlayerView"));
- for(const label of ["播放","story-page-slider","打斷阿奇","Live 已開啟"])assert.ok(player.includes(label));
+ for(const label of ["播放","story-page-slider","打斷阿奇","可以直接跟阿奇說話"])assert.ok(player.includes(label));
  for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
  for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
  assert.ok(analyzer.includes("visibleText"));
@@ -204,9 +204,9 @@ test("Fortune React exposes APK-style result tabs and deterministic evidence",()
  const tarotCalc=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
  const vedicEnrich=fs.readFileSync(path.join(root,"features/fortune/vedic/enrich.js"),"utf8");
  assert.ok(reading.includes("shareFortuneReading"));
- for(const label of ["總覽","大運流年","主題分析","完整解讀"])assert.ok(bazi.includes(label));
- for(const label of ["總覽","時間軸","主題分析","完整解讀"])assert.ok(tarot.includes(label));
- for(const label of ["總覽","本命","Dasha・Gochar","主題分析","完整解讀"])assert.ok(vedic.includes(label));
+ for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(bazi.includes(label));
+ for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(tarot.includes(label));
+ for(const label of ["先看重點","出生底盤","人生週期","生活主題","完整解讀"])assert.ok(vedic.includes(label));
  for(const key of ["annualTimeline","wealthProfile","careerProfile","relationshipProfile"])assert.ok(bzCalc.includes(key));
  assert.ok(tarotCalc.includes("personalMonthTimeline"));
  for(const key of ["currentTransits","majorTransitTimeline","houseLords","familyChildrenProfile"])assert.ok(vedicEnrich.includes(key));
@@ -232,7 +232,7 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
  assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
- assert.ok(reading.includes("看不懂這些資料？"),"Live help should be collapsed behind a data-help affordance");
+ assert.ok(reading.includes("想再問清楚一點？"),"Live help should stay collapsed behind a follow-up affordance");
  assert.ok(reading.includes("/fortune/live?from=reading"),"the optional result follow-up should still exist");
  assert.ok(!common.includes("問老師"),"topic evidence cards should remain data-only");
  for(const source of [bazi,tarot,vedic]){
@@ -252,7 +252,11 @@ test("Story Player narration is Gemini Live, not browser speechSynthesis",()=>{
  assert.ok(narrator.includes("useLiveSession"));
  assert.ok(narrator.includes("sendPreparedImage"));
  assert.ok(narrator.includes("sendText"));
- assert.ok(prompt.includes("每次只講目前頁"));
+ assert.ok(prompt.includes("turnComplete 自動翻到下一頁"));
+ assert.ok(prompt.includes("不要主動停下來等孩子回答"));
+ assert.ok(narrator.includes("onTurnComplete"));
+ assert.ok(narrator.includes('book.readingMode==="physical"'));
+ assert.ok(player.includes("nextIndex=>setIndex(nextIndex)"));
  assert.ok(!reader.includes("speechSynthesis"));
  assert.ok(!player.includes("speechSynthesis"));
  assert.ok(!reader.includes("SpeechSynthesisUtterance"));
@@ -272,6 +276,7 @@ test("published Android apps expose verified Google Play links while Fortune sta
  assert.ok(!component.includes("com.crewpocket.fortune"));
  assert.ok(home.includes('product="teacher"'));
  assert.ok(home.includes('product="story"'));
+ assert.ok(home.includes('product="fortune"'));
  assert.ok(teacher.includes('product="teacher"'));
  assert.ok(story.includes('product="story"'));
  assert.ok(!fortuneHome.includes("PlayStoreLink"));
@@ -290,6 +295,7 @@ test("Teacher and Story expose Google Play links while Fortune stays unlisted",(
  assert.ok(play.includes("com.crewpocket.story"));
  assert.ok(home.includes('PlayStoreLink product="teacher"'));
  assert.ok(home.includes('PlayStoreLink product="story"'));
+ assert.ok(home.includes('PlayStoreLink product="fortune"'));
  assert.ok(teacher.includes('PlayStoreLink product="teacher"'));
  assert.ok(story.includes('PlayStoreLink product="story"'));
  assert.ok(!play.includes("com.crewpocket.fortune"),"Fortune is not published on Google Play yet");
@@ -321,6 +327,8 @@ test("Google Play cards visibly name the app instead of only the store",()=>{
  assert.ok(play.includes("<strong>{app.name}</strong>"));
  assert.ok(play.includes("Crew Teacher"));
  assert.ok(play.includes("Crew Story"));
+ assert.ok(play.includes("Crew Fortune"));
+ assert.ok(play.includes("COMING SOON"));
  assert.ok(play.includes("GET IT ON Google Play"));
  assert.ok(!play.includes("<strong>Google Play</strong>"),"Google Play should not be the primary card title");
 });
@@ -483,7 +491,9 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
- for(const voice of ["Callisto","Europa"])assert.ok(tutor.includes('"'+voice+'"'));
+ assert.ok(tutor.includes("推薦聲音"));
+ assert.ok(!tutor.includes("Callisto"));
+ assert.ok(!tutor.includes("Europa"));
 });
 
 
@@ -526,4 +536,33 @@ test("Crew source does not ship SOLVING debug markers",()=>{
   const source=fs.readFileSync(file,"utf8");
   assert.ok(!source.includes("SOLVING"),path.relative(root,file)+" should not contain SOLVING debug output");
  }
+});
+
+
+test("Crew Web hides implementation details from primary product UI",()=>{
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ assert.ok(settings.includes("瀏覽器診斷"));
+ assert.ok(settings.includes("只有語音連線異常時才需要查看"));
+ assert.ok(!tutor.includes("VOICES"));
+ assert.ok(!live.includes("VOICES"));
+ assert.ok(!tutor.includes("老師音色"));
+ assert.ok(!live.includes("老師音色"));
+ assert.ok(textbook.includes("教材已準備好"));
+ assert.ok(!player.includes("Live Story Player"));
+ assert.ok(!player.includes("Gemini Live 阿奇負責"));
+});
+
+test("Crew home distinguishes Web entry from Android app availability",()=>{
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
+ assert.ok(home.includes("一個入口搞定"));
+ assert.ok(!home.includes("一個 App 搞定"));
+ assert.ok(home.includes('product="fortune"'));
+ assert.ok(play.includes("Google Play 準備中"));
+ assert.ok(play.includes("url:null"));
+ assert.ok(!play.includes("com.crewpocket.fortune"));
 });

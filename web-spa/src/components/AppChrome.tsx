@@ -5,7 +5,7 @@ import { geminiKey } from "../lib/runtime";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings";
 const meta={
- home:["C","Crew","AI tools that work like apps"],
+ home:["C","Crew","語言・故事・命理"],
  teacher:["T","Crew Teacher","語言學習"],
  story:["S","Crew Story","故事創作"],
  fortune:["F","Crew Fortune","命盤探索"],
