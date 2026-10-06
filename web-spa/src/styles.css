@@ -3,7 +3,7 @@ html,body,#root,*{scrollbar-width:none!important;-ms-overflow-style:none!importa
 ::-webkit-scrollbar,html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
 ::-webkit-scrollbar-thumb,::-webkit-scrollbar-track{background:transparent!important;border:0!important}
 
-body{min-height:100vh}
+body{min-height:100vh;padding-bottom:0}
 .route-tabs{position:sticky;top:66px;z-index:25}
 .page-enter{animation:page-in .14s ease-out}
 @keyframes page-in{from{opacity:.72;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -83,3 +83,39 @@ body{min-height:100vh}
 @media(prefers-reduced-motion:reduce){.session-person .teacher-presence{animation:none!important;transform:none!important;opacity:1!important}}
 
 .gemini-setup-notice{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:13px 14px;border:1px solid var(--line);border-radius:16px;background:#fff;color:var(--text);text-decoration:none}.gemini-setup-notice>span{display:grid;gap:3px}.gemini-setup-notice strong{font-size:12px}.gemini-setup-notice small{font-size:10px;color:var(--accent);font-weight:800}.gemini-setup-notice em{font-size:10px;line-height:1.45;color:var(--muted);font-style:normal}.gemini-setup-notice>b{font-size:10px;color:var(--accent);white-space:nowrap}.gemini-setup-notice.story{background:var(--surface-alt)}.gemini-setup-notice.fortune{background:var(--accent-soft)}
+
+
+/* UX polish: onboarding, safe mobile navigation, and desktop use of space. */
+:root{--muted:#686868}
+.page{padding-bottom:calc(var(--nav-h) + 34px + env(safe-area-inset-bottom))}
+.app-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;margin-left:auto}
+.status,.fortune-header-history,.subnav a,.fortune-result-tabs button,.btn,.teacher-picker-close,.live-tool-btn,.live-presets button,.vision-btn,.continue-last{min-height:44px}
+.status{padding-top:0;padding-bottom:0}
+.fortune-header-history{min-width:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
+.btn{display:inline-flex;align-items:center;justify-content:center}
+.btn.small{min-height:44px;padding:0 12px}
+.feature-card span,.hub-card p,.notice p,.meta,.list-copy small,.recent-item small{font-size:12px;line-height:1.55}
+.gemini-setup-notice em{font-size:11px;line-height:1.55}
+
+.home-key-banner{margin-top:18px;min-height:64px;display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:13px 15px;border:1px solid #ddd8ff;border-radius:18px;background:#f0eeff;color:var(--text)}
+.home-key-banner>span{display:grid;gap:4px}.home-key-banner strong{font-size:13px}.home-key-banner small{font-size:11px;color:var(--muted);line-height:1.45}.home-key-banner>b{min-height:44px;display:inline-flex;align-items:center;color:#5b4fd2;font-size:11px;white-space:nowrap}
+.recent-empty{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:15px;background:#fff;border:1px solid var(--line);border-radius:18px}.recent-empty b{font-size:13px}.recent-empty p{margin:4px 0 0;color:var(--muted);font-size:12px;line-height:1.5}.recent-empty-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.recent-empty-actions a{min-height:44px;display:inline-flex;align-items:center;padding:0 11px;border-radius:12px;background:var(--surface-alt);font-size:11px;font-weight:800;color:var(--text)}
+
+@media(max-width:620px){
+ .app-header .inner{gap:8px}
+ .app-header-actions{gap:6px}
+ .status,.fortune-header-history{padding-left:10px;padding-right:10px}
+ .home-key-banner,.recent-empty{grid-template-columns:1fr}
+ .home-key-banner>b{justify-self:start}
+ .recent-empty-actions{justify-content:flex-start}
+}
+@media(min-width:1100px){
+ body{padding-bottom:0}
+ .shell{width:min(1040px,calc(100% - 200px))}
+ .page{padding-bottom:48px}
+ .global-nav{left:18px;right:auto;top:88px;bottom:auto;width:82px;padding:8px;border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.96)}
+ .global-nav .inner{width:100%;height:auto;display:grid;grid-template-columns:1fr;gap:4px}
+ .navitem{min-height:60px;border-radius:14px}
+ .hub-grid{gap:14px}
+ .hub-card{min-height:240px;padding:22px}
+}
