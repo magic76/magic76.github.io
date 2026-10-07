@@ -1,13 +1,13 @@
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
-import{lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
+import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{saveLessonProgress,scoreCourseSession}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),file=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null);
- const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",previous=p.get("resume")==="1"?lastLive("teacher"):null;
+ const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const system=useMemo(()=>{
   const guidance=s.guidance==="light"?"優先保持流暢，只修正會造成誤解的錯誤。":s.guidance==="strict"?"文法、用字與不自然表達都短暫指出，給自然說法後讓學生重說一次。":"明顯錯誤時用簡短 recast 修正，不要長篇講課。";
