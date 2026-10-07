@@ -1,4 +1,4 @@
-import{useEffect,useState}from"react";import{useNavigate,useSearchParams}from"react-router-dom";import{ensureFortuneServices,geminiKey}from"../lib/runtime";import{BaZiTabs}from"./result/BaZiTabs";import{TarotTabs}from"./result/TarotTabs";import{VedicTabs}from"./result/VedicTabs";import{shareFortuneReading}from"./shareCard";import{FortuneProfileTools}from"./ProfileTools";import{FortuneYearHighlights}from"./YearHighlights";import type{FortuneMode,FortuneProfile,FortuneReading}from"./types";
+import{useEffect,useState}from"react";import{useNavigate,useSearchParams}from"react-router-dom";import{addHistory,ensureFortuneServices,geminiKey}from"../lib/runtime";import{BaZiTabs}from"./result/BaZiTabs";import{TarotTabs}from"./result/TarotTabs";import{VedicTabs}from"./result/VedicTabs";import{shareFortuneReading}from"./shareCard";import{FortuneProfileTools}from"./ProfileTools";import{FortuneYearHighlights}from"./YearHighlights";import type{FortuneMode,FortuneProfile,FortuneReading}from"./types";
 
 const copy:Record<FortuneMode,[string,string]>={bazi:["八字","看懂你的基本性格、做事方式，以及目前正走到哪一段。"],tarot:["塔羅生命靈數","從核心性格、人生主題與時間節奏，整理現在最值得看的重點。"],vedic:["印度星盤","從出生底盤、人生週期與目前行運，整理現在最值得看的重點。"]};
 const EMPTY:FortuneProfile={birthDate:"",birthTime:"",gender:"1",city:"",latitude:"",longitude:"",utcOffset:"+08:00",timeZoneId:"",aiStyle:"normal"};
@@ -20,14 +20,14 @@ export function FortuneReadingPage(){
   const style=p.aiStyle==="strict"?"語氣嚴謹，清楚區分固定 facts 與主觀解讀。":p.aiStyle==="funny"?"可以輕鬆一點，但不要拿疾病、死亡、災難或重大損失開玩笑。":"白話、直接、有重點。";
   try{
    const text=await window.CrewAI.call("你是 Crew Fortune 的命理解讀者。模式："+copy[item.mode][0]+"。"+style+"只能根據後面的 deterministic facts 解讀，不可自行重算或補不存在資料。輸出：核心重點 / 工作與現實節奏 / 關係與內在 / 接下來值得觀察的 3 件事 / 一句提醒。娛樂與自我反思用途。\nfacts："+JSON.stringify(item.result).slice(0,24000),{preferLive:false,temperature:.4,maxOutputTokens:1500});
-   const updated={...item,ai:text};setReading(updated);window.CrewFortuneProfile.addHistory(updated);localStorage.setItem("crew_fortune_live_context",JSON.stringify(updated));
-  }catch{const updated={...item,ai:"AI 解讀暫時失敗，但固定計算結果仍有效。"};setReading(updated);window.CrewFortuneProfile.addHistory(updated)}
+   const updated={...item,ai:text};setReading(updated);window.CrewFortuneProfile.addHistory(updated);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:copy[item.mode][0],summary:item.summary,preview:text.slice(0,180)});localStorage.setItem("crew_fortune_live_context",JSON.stringify(updated));
+  }catch{const updated={...item,ai:"AI 解讀暫時失敗，但固定計算結果仍有效。"};setReading(updated);window.CrewFortuneProfile.addHistory(updated);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:copy[item.mode][0],summary:item.summary,preview:"固定計算結果已完成，可回來繼續查看。"})}
  }
  async function run(){
   if(!ready)return;const error=validate();if(error){alert(error);return}setBusy(true);window.CrewFortuneProfile.save(p);
   try{
    const result=calculate(),item:FortuneReading={id:"reading_"+Date.now(),mode,createdAt:new Date().toISOString(),profile:p,result,summary:copy[mode][0]+" · "+(result.fourPillars||result.birthCardDisplay||("Lagna "+result.lagnaSign))};
-   setReading(item);setShowInput(false);window.CrewFortuneProfile.addHistory(item);localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));void interpret(item);
+   setReading(item);setShowInput(false);window.CrewFortuneProfile.addHistory(item);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:copy[mode][0],summary:item.summary,preview:"固定計算結果已完成。"});localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));void interpret(item);
   }finally{setBusy(false)}
  }
  function ask(){if(!reading)return;localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
