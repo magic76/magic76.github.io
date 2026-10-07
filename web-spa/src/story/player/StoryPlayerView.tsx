@@ -1,4 +1,4 @@
-import{useEffect,useState}from"react";
+import{useCallback,useEffect,useState}from"react";
 import{Link,useNavigate}from"react-router-dom";
 import type{StoryBook,StoryPage}from"../catalog";
 import{useStoryNarrator}from"./useStoryNarrator";
@@ -17,7 +17,8 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  const[book,setBook]=useState(initialBook),[index,setIndex]=useState(Math.max(0,Math.min(Number(initialBook.currentPage)||0,(initialBook.pages||[]).length-1))),nav=useNavigate();
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
- const live=useStoryNarrator(book,index,page,image,nextIndex=>setIndex(nextIndex));
+ const handlePageAdvance=useCallback((nextIndex:number)=>setIndex(nextIndex),[]);
+ const live=useStoryNarrator(book,index,page,image,handlePageAdvance);
 
  useEffect(()=>{if(book.sourceType!=="built-in"){const next={...book,currentPage:index};setBook(next);void window.CrewStoryStore?.save(next as any)}},[index]);
  
