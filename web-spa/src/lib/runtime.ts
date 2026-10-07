@@ -53,7 +53,7 @@ export function geminiKey(){return(localStorage.getItem("crew_gemini_api_key")||
 export function saveGeminiKey(value:string,remember:boolean){localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session");(remember?localStorage:sessionStorage).setItem(remember?"crew_gemini_api_key":"crew_gemini_api_key_session",value.trim())}
 export function clearGeminiKey(){localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session")}
 export function history(name:string){try{return JSON.parse(localStorage.getItem("crew_history_"+name)||"[]")}catch{return[]}}
-export function addHistory(name:string,item:any){const list=history(name);list.unshift({...item,id:item.id||Date.now(),ts:item.ts||new Date().toISOString()});localStorage.setItem("crew_history_"+name,JSON.stringify(list.slice(0,30)));return list}
+export function addHistory(name:string,item:any){const id=item.id||Date.now(),list=history(name).filter((x:any)=>String(x?.id)!==String(id));list.unshift({...item,id,ts:item.ts||new Date().toISOString()});localStorage.setItem("crew_history_"+name,JSON.stringify(list.slice(0,30)));return list}
 export function lastLive(name:string){try{return JSON.parse(localStorage.getItem("crew_live_last_"+name)||"null")}catch{return null}}
 export function saveLive(name:string,item:any){localStorage.setItem("crew_live_last_"+name,JSON.stringify(item));addHistory(name,item)}
 export function vocabularyLevel(){const s=Number(localStorage.getItem("crew_vocab_score")||50);return s<30?"A1":s<45?"A2":s<62?"B1":s<82?"B2":"C1"}

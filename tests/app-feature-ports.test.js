@@ -188,7 +188,7 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
  for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
  assert.ok(reader.includes("StoryPlayerView"));
- for(const label of ["播放","story-page-slider","跟阿奇說話","暫停","繼續","再聽一次"])assert.ok(player.includes(label));
+ for(const label of ["播放","story-page-progress","跟阿奇說話","暫停","繼續","再聽一次","更多"])assert.ok(player.includes(label));
  assert.ok(!player.includes("繼續本頁"));
  for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
  for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
@@ -423,7 +423,7 @@ test("Teacher Web mirrors Android authored course map and daily coordinator",()=
  assert.ok(live.includes("scoreCourseSession"));
  assert.ok(live.includes("saveLessonProgress"));
  assert.ok(practice.includes("ContinueLearningCard"));
- assert.ok(practice.includes("PracticeTutorStrip"));
+ assert.ok(!practice.includes("PracticeTutorStrip"));
  const textbookIndex=coordinator.indexOf('action:"textbook"');
  const vocabIndex=coordinator.indexOf('action:"vocabulary"');
  const courseIndex=coordinator.indexOf('action:"course"');
@@ -549,7 +549,7 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
  const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
- assert.ok(settings.includes("瀏覽器診斷"));
+ assert.ok(settings.includes("連線診斷"));
  assert.ok(settings.includes("只有語音連線異常時才需要查看"));
  assert.ok(!tutor.includes("VOICES"));
  assert.ok(!live.includes("VOICES"));
@@ -578,10 +578,29 @@ test("Story Web mirrors Android playback state UX",()=>{
  assert.ok(player.includes('if(finished)return"再聽一次"'));
  assert.ok(player.includes('if(paused)return"繼續"'));
  assert.ok(player.includes('if(state==="speaking"||state==="listening")return"暫停"'));
- assert.ok(player.includes("有問題嗎？點「跟阿奇說話」"));
- assert.ok(player.includes("播放設定"));
+ assert.ok(player.includes("想插話時按一下，阿奇會停下來聽你說。"));
+ assert.ok(player.includes("story-player-more-controls"));
  assert.ok(!player.includes("▶ 繼續本頁"));
  assert.ok(narrator.includes('if(live.state!=="listening"||pausedRef.current)return'));
  assert.ok(narrator.includes("pendingFinishRef"));
  assert.ok(narrator.includes("window.setTimeout"));
+});
+
+
+test("Crew Web recent activity resumes real product state and keeps secondary controls secondary",()=>{
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ assert.ok(home.includes("/teacher/live?history="));
+ assert.ok(home.includes("?page="));
+ assert.ok(home.indexOf("繼續上次")<home.indexOf("Android 版"));
+ assert.ok(!chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'));
+ assert.ok(player.includes("story-page-progress"));
+ assert.ok(player.includes("<summary>更多</summary>"));
+ assert.ok(!player.includes("story-page-slider"));
+ assert.ok(settings.includes("儲存並測試"));
+ assert.ok(settings.includes("進階與清除"));
+ assert.ok(fortune.includes('surface:"reading"'));
 });
