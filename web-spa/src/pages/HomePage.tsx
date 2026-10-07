@@ -3,7 +3,7 @@ import{Link}from"react-router-dom";import{Icon}from"../components/Icon";import{P
 function recentLink(x:any){
  if(x.kind==="teacher")return"/teacher/live?history="+encodeURIComponent(String(x.id));
  if(x.kind==="story"){
-  if(x.surface==="reader"&&x.bookId)return"/story/read/"+encodeURIComponent(String(x.bookId));
+  if(x.surface==="reader"&&x.bookId)return"/story/read/"+encodeURIComponent(String(x.bookId))+"?page="+encodeURIComponent(String(Number(x.currentPage)||0));
   return x.id?"/story/live?history="+encodeURIComponent(String(x.id)):"/story";
  }
  if(x.kind==="fortune"&&x.historyId)return"/fortune/reading?history="+encodeURIComponent(String(x.historyId));
