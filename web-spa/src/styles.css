@@ -175,3 +175,68 @@ body{min-height:100vh;padding-bottom:0}
 }
 
 @media(min-width:1100px){.global-nav .inner{grid-template-columns:1fr}}
+
+
+/* Product polish: one character focal point per Live session. */
+.live-identity{text-align:center;display:grid;justify-items:center;gap:5px;margin-bottom:8px}
+.live-identity h1{font-size:23px;letter-spacing:-.035em;margin:8px 0 0}
+.live-identity p{margin:0;max-width:460px;color:var(--muted);font-size:12px;line-height:1.5}
+.teacher-live-avatar{position:relative;width:126px;height:126px;border-radius:50%;overflow:hidden;background:var(--accent-soft);box-shadow:0 0 0 8px var(--accent-soft);transform-origin:center;will-change:transform,opacity,box-shadow}
+.teacher-live-avatar img,.teacher-live-avatar>.teacher-avatar-image{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.teacher-live-avatar>.teacher-avatar-image{background-size:400% 100%;background-repeat:no-repeat}
+.teacher-live-avatar .live-presence-dot{position:absolute;right:8px;bottom:8px;width:15px;height:15px;border-radius:50%;background:#aaa;border:3px solid #fff}
+.teacher-live-avatar.teacher-presence.speaking{animation:teacher-presence-speaking .65s ease-in-out infinite alternate;box-shadow:0 0 0 12px var(--accent-soft)}
+.teacher-live-avatar.teacher-presence.listening{animation:teacher-presence-listening 1.2s ease-in-out infinite alternate}
+.teacher-live-avatar.teacher-presence.connecting{animation:teacher-presence-connecting .8s ease-in-out infinite alternate}
+.teacher-live-avatar.teacher-presence.idle{animation:teacher-presence-idle 1.8s ease-in-out infinite alternate}
+.teacher-live-avatar.speaking .live-presence-dot{background:var(--accent)}
+.teacher-live-avatar.listening .live-presence-dot{background:#4b9b67}
+.teacher-live-avatar.connecting .live-presence-dot{background:#d49a37}
+.story-live-avatar{margin:4px auto 8px;width:112px;height:112px}
+.live-mission{margin-bottom:12px}
+.story-live-topic{margin:12px 0}
+.live-callbar{grid-template-columns:auto 1fr}
+.live-audio-settings{margin-top:8px;text-align:center}
+.live-audio-settings>summary{cursor:pointer;list-style:none;color:var(--muted);font-size:11px;font-weight:750}
+.live-audio-settings>summary::-webkit-details-marker{display:none}
+.live-audio-settings .live-volume{justify-content:center;margin-top:8px}
+.live-audio-settings .live-volume input{width:min(260px,65vw)}
+.live-more{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.live-more>summary{cursor:pointer;list-style:none;color:var(--muted);font-size:12px;font-weight:800;display:flex;justify-content:space-between}
+.live-more>summary:after{content:"＋"}.live-more[open]>summary:after{content:"−"}
+.live-more>summary::-webkit-details-marker{display:none}
+.live-more-body{display:grid;gap:10px;margin-top:10px}
+.teacher-live-stage .vision-box,.story-live-stage .vision-box{margin-top:0}
+@media(prefers-reduced-motion:reduce){.teacher-live-avatar.teacher-presence{animation:none!important;transform:none!important;opacity:1!important}}
+
+/* Completed setup becomes a status card instead of repeating onboarding. */
+.settings-connected-card{display:grid;grid-template-columns:1fr auto auto;gap:14px;align-items:center}
+.settings-connected-main{display:flex;align-items:center;gap:10px}
+.settings-connected-main>span:last-child{display:grid;gap:3px}
+.settings-connected-main strong{font-size:14px}.settings-connected-main small{font-size:11px;color:var(--muted)}
+.settings-connected-mark{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#e5f5ea;color:#25754e;font-weight:900}
+.settings-connected-card code{font-size:13px;color:var(--muted);letter-spacing:.05em}
+
+/* Shelf cards: open is primary, destructive actions stay secondary. */
+.story-book{position:relative}
+.story-book-open{display:flex;flex:1;flex-direction:column;color:inherit;text-decoration:none}
+.story-book-open .story-book-body{flex:1}
+.story-book-open-label{margin-top:7px;color:var(--accent);font-size:11px}
+.story-book-secondary{min-height:42px;border-top:1px solid var(--line);padding:5px 10px;display:flex;align-items:center;justify-content:flex-end;gap:8px}
+.story-book-edit{padding:8px 10px;color:var(--muted);font-size:11px;font-weight:800}
+.story-book-menu{position:relative}
+.story-book-menu>summary{list-style:none;cursor:pointer;min-width:38px;min-height:34px;display:grid;place-items:center;border-radius:10px;color:var(--muted);font-weight:900;letter-spacing:.08em}
+.story-book-menu>summary::-webkit-details-marker{display:none}
+.story-book-menu[open]>summary{background:var(--surface-alt)}
+.story-book-menu button{position:absolute;right:0;bottom:40px;z-index:5;white-space:nowrap;border:1px solid #ead4d1;background:#fff;color:var(--danger);border-radius:11px;padding:10px 12px;font-size:11px;font-weight:800;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+
+/* Vedic detail is intentionally technical; overview stays plain-language. */
+.fortune-result-card>.meta{line-height:1.6}
+
+@media(max-width:620px){
+ .settings-connected-card{grid-template-columns:1fr}
+ .settings-connected-card code{display:none}
+ .settings-connected-card .actions{margin-top:0}
+ .teacher-live-avatar{width:116px;height:116px}
+ .live-stage{padding:16px}
+}

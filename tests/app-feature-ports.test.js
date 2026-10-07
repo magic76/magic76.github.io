@@ -207,7 +207,7 @@ test("Fortune React exposes APK-style result tabs and deterministic evidence",()
  assert.ok(reading.includes("shareFortuneReading"));
  for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(bazi.includes(label));
  for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(tarot.includes(label));
- for(const label of ["先看重點","出生底盤","人生週期","生活主題","完整解讀"])assert.ok(vedic.includes(label));
+ for(const label of ["先看重點","生活主題","詳細資料","完整解讀"])assert.ok(vedic.includes(label));
  for(const key of ["annualTimeline","wealthProfile","careerProfile","relationshipProfile"])assert.ok(bzCalc.includes(key));
  assert.ok(tarotCalc.includes("personalMonthTimeline"));
  for(const key of ["currentTransits","majorTransitTimeline","houseLords","familyChildrenProfile"])assert.ok(vedicEnrich.includes(key));
@@ -603,4 +603,33 @@ test("Crew Web recent activity resumes real product state and keeps secondary co
  assert.ok(settings.includes("儲存並測試"));
  assert.ok(settings.includes("進階與清除"));
  assert.ok(fortune.includes('surface:"reading"'));
+});
+
+
+test("Live product polish keeps one focal character and secondary tools collapsed",()=>{
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/LivePage.tsx"),"utf8");
+ const controls=fs.readFileSync(path.join(root,"web-spa/src/live/LiveControls.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const shelf=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
+ const learn=fs.readFileSync(path.join(root,"web-spa/src/teacher/LearnPage.tsx"),"utf8");
+ const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
+ assert.ok(teacher.includes("teacher-live-avatar"));
+ assert.ok(teacher.includes("TeacherAvatar profile={profile}"));
+ assert.ok(!teacher.includes('<section className="session-person">'));
+ assert.ok(!teacher.includes('<div className="live-orb"><span>{profile.name.slice(0,1)}</span></div>'));
+ assert.ok(story.includes("story-live-avatar"));
+ assert.ok(!story.includes('<section className="session-person">'));
+ assert.ok(teacher.includes("<summary>更多功能</summary>"));
+ assert.ok(story.includes("<summary>更多功能</summary>"));
+ assert.ok(controls.includes("live-audio-settings"));
+ assert.ok(settings.includes("Gemini 已連線"));
+ assert.ok(settings.includes("重新設定"));
+ assert.ok(settings.includes("showSetup"));
+ assert.ok(shelf.includes("story-book-open"));
+ assert.ok(shelf.includes("story-book-menu"));
+ assert.ok(!learn.includes("與 App 同步"));
+ assert.ok(!learn.includes("3 個 Track"));
+ assert.ok(vedic.includes("目前大章節"));
+ assert.ok(vedic.includes("出生星宿、行星、宮位與完整週期都保留在"));
 });
