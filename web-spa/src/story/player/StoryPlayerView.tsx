@@ -1,5 +1,5 @@
 import{useCallback,useEffect,useState}from"react";
-import{Link,useNavigate}from"react-router-dom";
+import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{addHistory}from"../../lib/runtime";
 import type{StoryBook,StoryPage}from"../catalog";
 import{useStoryNarrator}from"./useStoryNarrator";
@@ -15,7 +15,9 @@ function playLabel(state:string,paused:boolean,finished:boolean){
 }
 
 export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
- const[book,setBook]=useState(initialBook),[index,setIndex]=useState(Math.max(0,Math.min(Number(initialBook.currentPage)||0,(initialBook.pages||[]).length-1))),nav=useNavigate();
+ const[params]=useSearchParams(),requestedPage=Number(params.get("page"));
+ const startPage=Number.isFinite(requestedPage)&&params.has("page")?requestedPage:Number(initialBook.currentPage)||0;
+ const[book,setBook]=useState(initialBook),[index,setIndex]=useState(Math.max(0,Math.min(startPage,(initialBook.pages||[]).length-1))),nav=useNavigate();
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
  const handlePageAdvance=useCallback((nextIndex:number)=>setIndex(nextIndex),[]);
