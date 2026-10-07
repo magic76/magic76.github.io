@@ -188,7 +188,8 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
  for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
  assert.ok(reader.includes("StoryPlayerView"));
- for(const label of ["播放","story-page-slider","打斷阿奇","可以直接跟阿奇說話"])assert.ok(player.includes(label));
+ for(const label of ["播放","story-page-slider","跟阿奇說話","暫停","繼續","再聽一次"])assert.ok(player.includes(label));
+ assert.ok(!player.includes("繼續本頁"));
  for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
  for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
  assert.ok(analyzer.includes("visibleText"));
@@ -256,7 +257,10 @@ test("Story Player narration is Gemini Live, not browser speechSynthesis",()=>{
  assert.ok(prompt.includes("不要主動停下來等孩子回答"));
  assert.ok(narrator.includes("onTurnComplete"));
  assert.ok(narrator.includes('book.readingMode==="physical"'));
- assert.ok(player.includes("nextIndex=>setIndex(nextIndex)"));
+ assert.ok(narrator.includes('live.state!=="listening"'));
+ assert.ok(narrator.includes("pendingAdvanceRef"));
+ assert.ok(narrator.includes("650"));
+ assert.ok(player.includes("handlePageAdvance"));
  assert.ok(!reader.includes("speechSynthesis"));
  assert.ok(!player.includes("speechSynthesis"));
  assert.ok(!reader.includes("SpeechSynthesisUtterance"));
@@ -565,4 +569,19 @@ test("Crew home distinguishes Web entry from Android app availability",()=>{
  assert.ok(play.includes("Google Play 準備中"));
  assert.ok(play.includes("url:null"));
  assert.ok(!play.includes("com.crewpocket.fortune"));
+});
+
+
+test("Story Web mirrors Android playback state UX",()=>{
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ const narrator=fs.readFileSync(path.join(root,"web-spa/src/story/player/useStoryNarrator.ts"),"utf8");
+ assert.ok(player.includes('if(finished)return"再聽一次"'));
+ assert.ok(player.includes('if(paused)return"繼續"'));
+ assert.ok(player.includes('if(state==="speaking"||state==="listening")return"暫停"'));
+ assert.ok(player.includes("有問題嗎？點「跟阿奇說話」"));
+ assert.ok(player.includes("播放設定"));
+ assert.ok(!player.includes("▶ 繼續本頁"));
+ assert.ok(narrator.includes('if(live.state!=="listening"||pausedRef.current)return'));
+ assert.ok(narrator.includes("pendingFinishRef"));
+ assert.ok(narrator.includes("window.setTimeout"));
 });
