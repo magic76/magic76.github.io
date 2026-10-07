@@ -136,3 +136,40 @@ body{min-height:100vh;padding-bottom:0}
 .story-player-more-controls>summary{cursor:pointer;text-align:center;color:var(--muted);font-size:12px;font-weight:700;list-style:none}
 .story-player-more-controls>summary::-webkit-details-marker{display:none}
 .story-player-more-controls[open]>summary{margin-bottom:8px}
+
+
+/* Reading-first polish: reduce control density and keep secondary text readable. */
+.global-nav .inner{grid-template-columns:repeat(4,minmax(0,1fr))}
+.story-page-progress{height:4px;border-radius:999px;background:var(--surface-alt);overflow:hidden;margin:2px 0 16px}
+.story-page-progress>i{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .18s ease}
+.story-player-controls{grid-template-columns:1fr minmax(120px,1.4fr) 1fr}
+.story-play-primary{font-weight:900}
+.story-player-secondary{display:grid;gap:10px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.story-player-secondary-actions{display:flex;gap:14px;align-items:center;justify-content:flex-end}
+.story-player-clone{margin-top:12px}
+.settings-primary-action .btn{min-width:180px}
+.settings-connection-result.success{background:#eef8f1;color:#25754e;border-color:#cfe7d6}
+.settings-danger-zone{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.settings-danger-zone>summary{cursor:pointer;font-size:12px;font-weight:800;color:var(--muted)}
+.android-promo{margin-top:32px}
+
+/* Do not make supporting information microscopic on phones. */
+.play-store-copy small,.play-store-platform,
+.practice-tutor-strip small,.practice-tutor-copy em,.practice-tutor-strip>b,
+.fortune-place-results small,.fortune-place-selected small,.fortune-advanced-place summary,
+.fortune-highlight-card small,.report-history-summary small,.report-learning-row small,
+.story-player-transcript small,.story-interaction-history summary,
+.course-track-tabs small,.course-unit-head p,.course-lesson-copy p,.course-lesson-meta span{
+ font-size:11px;
+ line-height:1.45;
+}
+.fortune-topic-card p,.fortune-topic-card small,.fortune-evidence-list span,
+.fortune-house-grid small,.fortune-planet small,.fortune-help-zone p,
+.story-interaction-history p{font-size:12px;line-height:1.5}
+.fortune-month-grid small{font-size:11px}
+.fortune-highlight-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media(max-width:720px){
+ .fortune-highlight-grid{grid-template-columns:1fr}
+ .story-player-controls{grid-template-columns:1fr 1.35fr 1fr;gap:8px}
+ .story-player-secondary-actions{justify-content:flex-start}
+}
