@@ -585,3 +585,22 @@ test("Story Web mirrors Android playback state UX",()=>{
  assert.ok(narrator.includes("pendingFinishRef"));
  assert.ok(narrator.includes("window.setTimeout"));
 });
+
+
+test("Crew Web recent activity resumes real product state and keeps secondary controls secondary",()=>{
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
+ const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ assert.ok(home.includes("/teacher/live?history="));
+ assert.ok(home.includes("?page="));
+ assert.ok(home.indexOf("繼續上次")<home.indexOf("Android 版"));
+ assert.ok(!chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'));
+ assert.ok(player.includes("story-page-progress"));
+ assert.ok(player.includes("<summary>更多</summary>"));
+ assert.ok(!player.includes("story-page-slider"));
+ assert.ok(settings.includes("儲存並測試"));
+ assert.ok(settings.includes("進階與清除"));
+ assert.ok(fortune.includes('surface:"reading"'));
+});
