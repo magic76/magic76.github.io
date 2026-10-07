@@ -29,5 +29,4 @@ export function GlobalNav({active}:{active:Product}){return <nav className="glob
  <NavLink className={"navitem "+(active==="teacher"?"active":"")} to="/teacher/practice"><span className="nav-icon"><Icon name="teacher"/></span><span>Teacher</span></NavLink>
  <NavLink className={"navitem "+(active==="story"?"active":"")} to="/story"><span className="nav-icon"><Icon name="story"/></span><span>Story</span></NavLink>
  <NavLink className={"navitem "+(active==="fortune"?"active":"")} to="/fortune"><span className="nav-icon"><Icon name="fortune"/></span><span>Fortune</span></NavLink>
- <NavLink className={"navitem "+(active==="settings"?"active":"")} to="/settings"><span className="nav-icon"><Icon name="settings"/></span><span>設定</span></NavLink>
  </div></nav>}
