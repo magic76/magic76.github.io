@@ -50,8 +50,10 @@ export async function ensureFortuneServices(){
  if(!window.CrewFortuneVedicRender)await loadScript("/features/fortune/vedic/render.js");
 }
 export function geminiKey(){return(localStorage.getItem("crew_gemini_api_key")||sessionStorage.getItem("crew_gemini_api_key_session")||"").trim()}
-export function saveGeminiKey(value:string,remember:boolean){localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session");(remember?localStorage:sessionStorage).setItem(remember?"crew_gemini_api_key":"crew_gemini_api_key_session",value.trim())}
-export function clearGeminiKey(){localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session")}
+export function geminiVerified(){return Boolean(geminiKey())&&localStorage.getItem("crew_gemini_key_verified")==="1"}
+export function setGeminiVerified(value:boolean){if(value)localStorage.setItem("crew_gemini_key_verified","1");else localStorage.removeItem("crew_gemini_key_verified")}
+export function saveGeminiKey(value:string,remember:boolean){setGeminiVerified(false);localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session");(remember?localStorage:sessionStorage).setItem(remember?"crew_gemini_api_key":"crew_gemini_api_key_session",value.trim())}
+export function clearGeminiKey(){setGeminiVerified(false);localStorage.removeItem("crew_gemini_api_key");sessionStorage.removeItem("crew_gemini_api_key_session")}
 export function history(name:string){try{return JSON.parse(localStorage.getItem("crew_history_"+name)||"[]")}catch{return[]}}
 export function addHistory(name:string,item:any){const id=item.id||Date.now(),list=history(name).filter((x:any)=>String(x?.id)!==String(id));list.unshift({...item,id,ts:item.ts||new Date().toISOString()});localStorage.setItem("crew_history_"+name,JSON.stringify(list.slice(0,30)));return list}
 export function lastLive(name:string){try{return JSON.parse(localStorage.getItem("crew_live_last_"+name)||"null")}catch{return null}}
