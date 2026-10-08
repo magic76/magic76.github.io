@@ -641,3 +641,18 @@ test("Teacher HQ portrait sprite uses six exact crops for all tutors",()=>{
  for(const pair of ['emma:"0%"','alex:"20%"','james:"40%"','mia:"60%"','sophie:"80%"','lina:"100%"'])assert.ok(avatar.includes(pair));
  assert.ok(!avatar.includes('backgroundSize:"400% 100%"'));
 });
+
+
+test("Live still photos keep the newest frame and prompt in one realtime input",()=>{
+ const live=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const start=live.indexOf("LiveSession.prototype.sendImage");
+ const end=live.indexOf("LiveSession.prototype._startCapture",start);
+ const sendImage=live.slice(start,end);
+ assert.ok(sendImage.includes("this.visionSeq+=1"));
+ assert.ok(sendImage.includes("video:{"));
+ assert.ok(sendImage.includes("text:visionText"));
+ assert.ok(sendImage.includes("Ignore all earlier photos"));
+ assert.ok(!sendImage.includes("clientContent:{"),"still-photo prompt must not race a realtime image through clientContent");
+ assert.ok(hook.includes("最新照片已送出"));
+});

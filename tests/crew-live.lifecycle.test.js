@@ -448,7 +448,7 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
 });
 
 
-test("still image is sent as Gemini Live realtimeInput.video with an optional prompt",async()=>{
+test("still image and prompt are sent together as the newest Gemini Live realtime input",async()=>{
   resetSockets();
   const logs=[];
   const {deps}=makeDeps(logs);
@@ -474,20 +474,16 @@ test("still image is sent as Gemini Live realtimeInput.video with an optional pr
 
   assert.equal(ok,true);
 
-  const videoMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.video);
-  assert.ok(videoMessage);
-  assert.equal(videoMessage.realtimeInput.video.data,"YWJj");
-  assert.equal(videoMessage.realtimeInput.video.mimeType,"image/jpeg");
-
-  const promptMessage=socket.sent.find(item=>
-    item.clientContent&&
-    item.clientContent.turns&&
-    item.clientContent.turns[0]&&
-    item.clientContent.turns[0].parts[0].text==="請看這張圖並問我一個問題。"
-  );
-  assert.ok(promptMessage);
-  assert.equal(promptMessage.clientContent.turnComplete,true);
+  const message=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.video&&item.realtimeInput.text);
+  assert.ok(message);
+  assert.equal(message.realtimeInput.video.data,"YWJj");
+  assert.equal(message.realtimeInput.video.mimeType,"image/jpeg");
+  assert.match(message.realtimeInput.text,/\[NEW PHOTO 1\]/);
+  assert.match(message.realtimeInput.text,/Ignore all earlier photos/);
+  assert.match(message.realtimeInput.text,/請看這張圖並問我一個問題。/);
+  assert.equal(socket.sent.some(item=>item.clientContent&&JSON.stringify(item.clientContent).includes("請看這張圖並問我一個問題。")),false);
   assert.equal(vision.length,1);
+  assert.equal(vision[0].seq,1);
   assert.equal(vision[0].mimeType,"image/jpeg");
 
   await session.stop({silentStatus:true,emitTerminal:false});
