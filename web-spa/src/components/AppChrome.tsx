@@ -21,6 +21,10 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  return <>
   <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{m[2]}</small></div></div><div className="app-header-actions">{headerAction}<>{product!=="settings"&&<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?"Gemini 已連線":hasKey?"Gemini 待驗證":"設定 Gemini"}</span></NavLink>}</></div></div></header>
   <main className="shell page page-enter">{children||<Outlet/>}</main>
+  <footer className="crew-contact-footer shell" aria-label="聯絡資訊">
+   <span>聯絡我們</span>
+   <a href="mailto:ly@hicrewapps.com">ly@hicrewapps.com</a>
+  </footer>
   <GlobalNav active={product}/>
  </>;
 }
