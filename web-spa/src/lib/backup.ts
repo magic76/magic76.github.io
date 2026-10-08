@@ -53,12 +53,17 @@ export async function importBackup(file:File){
   if(!story||typeof story!=="object"||typeof story.id!=="string"||!story.id||story.id.length>200||!Array.isArray(story.pages)||story.pages.length>1000)throw new Error("故事資料格式不正確。");
  }
  await ensureStoryServices();
+ const previousLastBook=localStorage.getItem("crew_story_last_book_id");
  let restored=0,stories=0,skipped=0;
  // Restore books first. Browser quota errors stop import and keep existing data intact.
  for(const story of backup.stories){
   if(await window.CrewStoryStore!.get(story.id as string)){skipped++;continue}
   await window.CrewStoryStore!.save({...story,id:story.id as string} as any);
   stories++;
+ }
+ if(!previousLastBook&&typeof backup.entries.crew_story_last_book_id==="string"){
+  const savedLast=backup.entries.crew_story_last_book_id;
+  if(await window.CrewStoryStore!.get(savedLast))localStorage.setItem("crew_story_last_book_id",savedLast);
  }
  for(const [key,value] of entries){
   if(!isBackupKey(key)){skipped++;continue}
