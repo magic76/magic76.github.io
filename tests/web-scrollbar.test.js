@@ -27,3 +27,11 @@ test("Scroll surfaces retain their independent scrolling behavior", () => {
   assert.ok(css.includes(".fortune-result-tabs"));
   assert.ok(shared.includes("overflow:auto"));
 });
+
+test("Shared product chrome exposes the contact email as a mail link", () => {
+  const chrome = fs.readFileSync(path.join(root, "web-spa/src/components/AppChrome.tsx"), "utf8");
+  const styles = fs.readFileSync(path.join(root, "web-spa/src/styles.css"), "utf8");
+  assert.ok(chrome.includes('href="mailto:ly@hicrewapps.com"'));
+  assert.ok(chrome.includes("聯絡我們"));
+  assert.ok(styles.includes(".crew-contact-footer"));
+});
