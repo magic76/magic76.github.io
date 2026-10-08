@@ -20,7 +20,7 @@ export async function buildBackup():Promise<CrewBackup>{
   if(k&&isBackupKey(k)){const value=localStorage.getItem(k);if(value!==null)entries[k]=value}
  }
  await ensureStoryServices();
- const stories=await window.CrewStoryStore!.list() as Array<Record<string,unknown>>;
+ const stories=await window.CrewStoryStore!.list() as unknown as Array<Record<string,unknown>>;
  return {format:"crew-web-backup",version:BACKUP_VERSION,exportedAt:new Date().toISOString(),entries,stories};
 }
 export async function downloadBackup(){
@@ -57,7 +57,7 @@ export async function importBackup(file:File){
  // Restore books first. Browser quota errors stop import and keep existing data intact.
  for(const story of backup.stories){
   if(await window.CrewStoryStore!.get(story.id as string)){skipped++;continue}
-  await window.CrewStoryStore!.save({...story});
+  await window.CrewStoryStore!.save({...story,id:story.id as string} as any);
   stories++;
  }
  for(const [key,value] of entries){
