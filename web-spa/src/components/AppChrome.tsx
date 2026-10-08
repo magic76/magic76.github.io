@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { NavLink,Outlet } from "react-router-dom";
 import { Icon } from "./Icon";
-import { geminiKey } from "../lib/runtime";
+import { geminiKey,geminiVerified } from "../lib/runtime";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings";
 const meta={
@@ -13,13 +13,13 @@ const meta={
 } as const;
 
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
- const m=meta[product];
+ const m=meta[product],hasKey=Boolean(geminiKey()),verified=geminiVerified();
  useEffect(()=>{
   document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":"";
   return()=>{document.body.className=""};
  },[product]);
  return <>
-  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{m[2]}</small></div></div><div className="app-header-actions">{headerAction}<>{product!=="settings"&&<NavLink className={"status "+(geminiKey()?"connected":"")} to="/settings"><i className="status-dot"/><span>{geminiKey()?"Gemini 已設定":"設定 Gemini"}</span></NavLink>}</></div></div></header>
+  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{m[2]}</small></div></div><div className="app-header-actions">{headerAction}<>{product!=="settings"&&<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?"Gemini 已連線":hasKey?"Gemini 待驗證":"設定 Gemini"}</span></NavLink>}</></div></div></header>
   <main className="shell page page-enter">{children||<Outlet/>}</main>
   <GlobalNav active={product}/>
  </>;
