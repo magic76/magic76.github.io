@@ -34,6 +34,7 @@ export function useLiveSession(config:Config){
   saveLive(configRef.current.pageKey,item);return item;
  },[]);
  const finish=useCallback(async(item:any)=>{
+  let reportFailed=false;
   try{
    if(item&&configRef.current.teacherReport){
     await ensureTeacherServices();
@@ -44,8 +45,10 @@ export function useLiveSession(config:Config){
     }
    }
   }catch(_){
+   reportFailed=true;
    setStatus("練習已保存，但課後報告產生失敗，可從歷史紀錄繼續練習。");
   }finally{
+   if(!reportFailed)setStatus("已結束。");
    setState("ended");
   }
  },[]);
