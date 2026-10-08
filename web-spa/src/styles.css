@@ -240,3 +240,23 @@ body{min-height:100vh;padding-bottom:0}
  .teacher-live-avatar{width:116px;height:116px}
  .live-stage{padding:16px}
 }
+
+
+/* Trust UX: verified connections, actionable recovery, and visible photo handoff. */
+.status.pending{background:#fff8e8;color:#8a6418}
+.status.pending .status-dot{background:#d49a37}
+.home-key-banner.pending{background:#fff8e8;border-color:#ead9ad}
+.settings-connected-card.pending .settings-connected-mark{background:#fff1cf;color:#9a701d}
+.settings-connected-card.pending{border-color:#ead9ad}
+.live-status.error{color:var(--danger);font-weight:750}
+.live-recovery{display:grid;justify-items:center;gap:8px;margin-top:12px}
+.live-recovery .live-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
+.live-recovery small{max-width:440px;text-align:center;color:var(--muted);font-size:11px;line-height:1.5}
+.live-config.locked .field:disabled{opacity:.62;cursor:not-allowed;background:var(--surface-alt)}
+.live-config-note{margin:8px 0 0;color:var(--muted);font-size:11px;line-height:1.5}
+.vision-actions{flex-wrap:wrap}
+.vision-btn:disabled{opacity:.5;cursor:not-allowed}
+.vision-latest{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;margin-top:10px;padding:8px;border-radius:13px;background:#fff;border:1px solid var(--line)}
+.vision-latest img{width:64px;height:64px;object-fit:cover;border-radius:10px;background:var(--surface-alt)}
+.vision-latest span{display:grid;gap:3px}.vision-latest b{font-size:12px}.vision-latest small{font-size:10px;color:var(--muted)}
+.vision-error{margin:8px 0 0;color:var(--danger);font-size:11px;line-height:1.45}
