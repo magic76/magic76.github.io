@@ -178,6 +178,7 @@
     this.resumeAttempts=0;
     this.maxResumeAttempts=Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
+    this.visionSeq=0;
   }
 
   LiveSession.prototype._status=function(value){
@@ -559,33 +560,37 @@
     if(mimeType==="image/jpg")mimeType="image/jpeg";
 
     try{
+      this.visionSeq+=1;
+      var prompt=String(options.prompt||"").trim();
+      var visionText=prompt
+        ?"[NEW PHOTO "+this.visionSeq+"] This photo is the newest visual input. Ignore all earlier photos in this session and answer only from this newly attached photo. "+prompt
+        :"[NEW PHOTO "+this.visionSeq+"] This photo is the newest visual input. Ignore all earlier photos in this session.";
+
+      // Keep the still image and its instruction in the same realtimeInput.
+      // Gemini Live processes realtime modalities concurrently and does not
+      // guarantee ordering when realtimeInput is mixed with clientContent.
+      // Sending one atomic realtime message prevents a new prompt from being
+      // paired with the previous visual frame.
       attempt.socket.send(JSON.stringify({
         realtimeInput:{
           video:{
             data:data,
             mimeType:mimeType
-          }
+          },
+          text:visionText
         }
       }));
 
       if(this.options.onVisionSent){
         this.options.onVisionSent({
+          seq:this.visionSeq,
           mimeType:mimeType,
           bytes:Math.floor(data.length*3/4),
           ts:new Date(this._deps.now()).toISOString()
         });
       }
 
-      var prompt=String(options.prompt||"").trim();
-      if(prompt){
-        attempt.socket.send(JSON.stringify({
-          clientContent:{
-            turns:[{role:"user",parts:[{text:prompt}]}],
-            turnComplete:true
-          }
-        }));
-      }
-      this._status(options.statusText||"圖片已送給 Live AI");
+      this._status(options.statusText||"最新照片已送出");
       return true;
     }catch(error){
       this._beginRecovery(attempt,"vision-send",error);
