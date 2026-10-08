@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useRef,useState} from "react";
-import {ensureLive,ensureTeacherServices,geminiKey,saveLive,type LiveSession,type LiveTurn} from "../lib/runtime";
+import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 
 export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking"|"ending"|"reporting"|"ended"|"error";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
@@ -57,11 +57,11 @@ export function useLiveSession(config:Config){
     onInputTranscript:setInput,onOutputTranscript:setOutput,
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
     onTurnComplete:turn=>configRef.current.onTurnComplete?.(turn),
-    onError:e=>{setErrorKind(classifyError(e.message));setState("error");setStatus(uiMessage(e.message))},
+    onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
    sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
-  }catch(e){sessionRef.current=null;setErrorKind(classifyError(e instanceof Error?e.message:e));setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
+  }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async()=>{const s=sessionRef.current;if(!s)return;setState("ending");setStatus("正在結束…");const item=snapshot("user-stop");try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}finally{sessionRef.current=null}await finish(item)},[finish,snapshot]);
  const interrupt=useCallback(()=>sessionRef.current?.interrupt()??false,[]);
