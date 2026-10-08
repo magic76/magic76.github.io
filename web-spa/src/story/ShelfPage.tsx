@@ -1,10 +1,11 @@
 import{useEffect,useState}from"react";import{Link}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
 
 export function StoryShelfPage(){
- const[books,setBooks]=useState<any[]|null>(null),[last,setLast]=useState<any|null>(null);
- async function load(){await ensureStoryServices();const list=await window.CrewStoryStore!.list();setBooks(list);setLast(await window.CrewStoryStore!.last())}
+ const[books,setBooks]=useState<any[]|null>(null),[last,setLast]=useState<any|null>(null),[error,setError]=useState("");
+ async function load(){setError("");try{await ensureStoryServices();const list=await window.CrewStoryStore!.list();setBooks(list);setLast(await window.CrewStoryStore!.last())}catch(_){setError("書架暫時無法讀取，請確認瀏覽器儲存空間後重試。")}}
  useEffect(()=>{void load()},[]);
- if(!books)return <div className="spa-loading">正在讀取書架…</div>;
+ if(error)return <div className="spa-error" role="alert"><p>{error}</p><button className="btn secondary" onClick={()=>void load()}>重新讀取書架</button></div>;
+ if(!books)return <div className="spa-loading" role="status">正在讀取書架…</div>;
  const card=(book:any,builtin=false)=>{
   const cover=(book.images||[])[Number(book.coverIndex)||0],readTo="/story/read/"+encodeURIComponent(book.id);
   return <article className="story-book" key={book.id}>
