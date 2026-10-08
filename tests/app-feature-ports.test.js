@@ -495,7 +495,7 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
- assert.ok(tutor.includes("推薦聲音"));
+ assert.ok(tutor.includes("profile.voiceLabel"));
  assert.ok(!tutor.includes("Callisto"));
  assert.ok(!tutor.includes("Europa"));
 });
