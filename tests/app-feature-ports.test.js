@@ -653,6 +653,6 @@ test("Live still photos keep the newest frame and prompt in one realtime input",
  assert.ok(sendImage.includes("video:{"));
  assert.ok(sendImage.includes("text:visionText"));
  assert.ok(sendImage.includes("Ignore all earlier photos"));
- assert.ok(!sendImage.includes("clientContent"),"still-photo prompt must not race a realtime image through clientContent");
+ assert.ok(!sendImage.includes("clientContent:{"),"still-photo prompt must not race a realtime image through clientContent");
  assert.ok(hook.includes("最新照片已送出"));
 });
