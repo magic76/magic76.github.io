@@ -260,3 +260,23 @@ body{min-height:100vh;padding-bottom:0}
 .vision-latest img{width:64px;height:64px;object-fit:cover;border-radius:10px;background:var(--surface-alt)}
 .vision-latest span{display:grid;gap:3px}.vision-latest b{font-size:12px}.vision-latest small{font-size:10px;color:var(--muted)}
 .vision-error{margin:8px 0 0;color:var(--danger);font-size:11px;line-height:1.45}
+
+/* Mobile legibility and comfortable actions without changing Android product flows. */
+@media(max-width:620px){
+ .teacher-current-row small,.teacher-profile-copy small,.story-book-body p,
+ .story-tag-row span,.story-book-edit,.story-book-open-label,
+ .fortune-result-tabs button,.fortune-year-card small,
+ .vision-latest small,.vision-error,.live-recovery small,.live-config-note{
+  font-size:12px;
+  line-height:1.5;
+ }
+ .story-player-controls button,.live-presets button,
+ .fortune-result-tabs button,.story-book-menu>summary,.story-book-edit{
+  min-height:44px;
+ }
+ .spa-error{display:grid;gap:10px;line-height:1.6}
+ .spa-error button{justify-self:start}
+}
+@media(prefers-reduced-motion:reduce){
+ .page-enter{animation:none!important}
+}
