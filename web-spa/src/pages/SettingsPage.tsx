@@ -3,14 +3,67 @@ function uiMessage(value:unknown){return String(value||"語音連線發生問題
 export function SettingsPage(){
  const initial=geminiKey(),initialVerified=geminiVerified();
  const[key,setKey]=useState(initial),[remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key"))),[verified,setVerified]=useState(initialVerified),[status,setStatus]=useState(initialVerified?"✓ Gemini 已連線":initial?"Gemini 已設定，尚未驗證。":"尚未設定 Gemini。"),[showSetup,setShowSetup]=useState(!Boolean(initial));
- const[testing,setTesting]=useState(false),[volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));const liveRef=useRef<any>(null);
+ const[testing,setTesting]=useState(false),[volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));const liveRef=useRef<any>(null),pendingRollbackRef=useRef<null|(()=>void)>(null),mountedRef=useRef(true);
  const caps=[["麥克風",!!navigator.mediaDevices?.getUserMedia],["WebSocket",typeof WebSocket!=="undefined"],["Web Audio",!!(window.AudioContext||(window as any).webkitAudioContext)],["Wake Lock",!!(navigator as any).wakeLock?.request]];
- useEffect(()=>()=>{if(liveRef.current)void liveRef.current.stop({silentStatus:true,emitTerminal:false})},[]);
+ useEffect(()=>{mountedRef.current=true;return()=>{mountedRef.current=false;if(liveRef.current)void liveRef.current.stop({silentStatus:true,emitTerminal:false});pendingRollbackRef.current?.();pendingRollbackRef.current=null}},[]);
  async function saveAndTest(){
-  if(!key.trim()){setStatus("先貼上 API key。");return}setTesting(true);saveGeminiKey(key,remember);setVerified(false);setStatus("正在確認連線…");
-  try{await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   const session=new window.CrewLive.Session({system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,onStatus:v=>setStatus(uiMessage(v)),onTurnComplete:async(turn:any)=>{if(!turn.hasValidOutput)return;await session.waitForPlaybackDrain(6500);await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});liveRef.current=null;setGeminiVerified(true);setVerified(true);setStatus("✓ Gemini 已連線");setShowSetup(false);setTesting(false)},onError:(e:Error)=>{setGeminiVerified(false);setVerified(false);setStatus("連線失敗："+uiMessage(e.message)+"。請檢查 Key 或網路後再試一次。");setTesting(false)}});liveRef.current=session;await session.start();
-  }catch(e){liveRef.current=null;setGeminiVerified(false);setVerified(false);setStatus("連線失敗："+uiMessage(e instanceof Error?e.message:e)+"。請檢查 Key 或網路後再試一次。");setTesting(false)}
+  const candidate=key.trim();
+  if(!candidate){setStatus("先貼上 API key。");return}
+  if(testing)return;
+  const existingKey=geminiKey(),existingRemember=Boolean(localStorage.getItem("crew_gemini_api_key")),existingVerified=geminiVerified();
+  const restore=()=>{
+   if(existingKey)saveGeminiKey(existingKey,existingRemember);else clearGeminiKey();
+   setGeminiVerified(existingVerified);
+   if(mountedRef.current)setVerified(existingVerified);
+  };
+  setTesting(true);setStatus("正在驗證新的 Gemini Key…");
+  // Do not replace the working key until Google accepts the candidate.
+  const controller=new AbortController();
+  const timeout=window.setTimeout(()=>controller.abort(),10000);
+  try{
+   const response=await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=1",{
+    headers:{"x-goog-api-key":candidate},signal:controller.signal
+   });
+   if(!response.ok)throw new Error(response.status===400||response.status===401||response.status===403?"Key 無效或沒有權限（"+response.status+"）":"金鑰驗證失敗（"+response.status+"）");
+  }catch(e){
+   if(mountedRef.current){setStatus("新 Key 尚未儲存："+(e instanceof Error?uiMessage(e.message):"連線失敗")+"。原本的 Key 保持不變。");setTesting(false)}
+   return;
+  }finally{window.clearTimeout(timeout)}
+  if(!mountedRef.current)return;
+  saveGeminiKey(candidate,remember);
+  pendingRollbackRef.current=restore;
+  setVerified(false);setStatus("正在測試語音連線…");
+  try{
+   await ensureLive();
+   if(!window.CrewLive)throw new Error("Live runtime 未載入");
+   if(!mountedRef.current){restore();pendingRollbackRef.current=null;return}
+   const session=new window.CrewLive.Session({
+    system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",
+    openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,
+    maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,
+    onStatus:v=>{if(mountedRef.current)setStatus(uiMessage(v))},
+    onTurnComplete:async(turn:any)=>{
+     if(!turn.hasValidOutput)return;
+     await session.waitForPlaybackDrain(6500);
+     await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});
+     liveRef.current=null;
+     if(!mountedRef.current)return;
+     pendingRollbackRef.current=null;
+     setGeminiVerified(true);setVerified(true);
+     setStatus("✓ Gemini 已連線");setShowSetup(false);setTesting(false);
+    },
+    onError:(e:Error)=>{
+     if(!pendingRollbackRef.current)return;
+     pendingRollbackRef.current();pendingRollbackRef.current=null;liveRef.current=null;
+     if(mountedRef.current){setStatus("新 Key 語音測試失敗："+uiMessage(e.message)+"。已保留原本的 Key。");setTesting(false)}
+    }
+   });
+   liveRef.current=session;
+   await session.start();
+  }catch(e){
+   pendingRollbackRef.current?.();pendingRollbackRef.current=null;liveRef.current=null;
+   if(mountedRef.current){setStatus("新 Key 測試失敗："+uiMessage(e instanceof Error?e.message:e)+"。已保留原本的 Key。");setTesting(false)}
+  }
  }
  const configured=Boolean(geminiKey());
  return <><section className="hero"><span className="kicker">設定</span><h1>Gemini 設定</h1><p>設定一次，Teacher、Story、Fortune 共用。</p></section>
