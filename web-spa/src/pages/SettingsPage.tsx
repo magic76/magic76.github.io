@@ -39,23 +39,30 @@ export function SettingsPage(){
    await ensureLive();
    if(!window.CrewLive)throw new Error("Live runtime 未載入");
    if(!mountedRef.current){restore();pendingRollbackRef.current=null;return}
+   let completing=false;
    const session=new window.CrewLive.Session({
     system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",
     openingPrompt:"請現在說出測試句。",voice:"Kore",volume,manualInterruptOnly:true,
     maxLiveAttempts:2,connectTimeoutMs:8000,replyTimeoutMs:10000,
     onStatus:v=>{if(mountedRef.current)setStatus(uiMessage(v))},
     onTurnComplete:async(turn:any)=>{
-     if(!turn.hasValidOutput)return;
-     await session.waitForPlaybackDrain(6500);
-     await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});
-     liveRef.current=null;
-     if(!mountedRef.current)return;
-     pendingRollbackRef.current=null;
-     setGeminiVerified(true);setVerified(true);
-     setStatus("✓ Gemini 已連線");setShowSetup(false);setTesting(false);
+     if(!turn.hasValidOutput||completing)return;
+     completing=true;
+     try{
+      await session.waitForPlaybackDrain(6500);
+      await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});
+      liveRef.current=null;
+      if(!mountedRef.current)return;
+      pendingRollbackRef.current=null;
+      setGeminiVerified(true);setVerified(true);
+      setStatus("✓ Gemini 已連線");setShowSetup(false);setTesting(false);
+     }catch(e){
+      pendingRollbackRef.current?.();pendingRollbackRef.current=null;liveRef.current=null;
+      if(mountedRef.current){setStatus("語音測試尚未完成："+uiMessage(e instanceof Error?e.message:e)+"。已還原原本的 Key。");setTesting(false)}
+     }
     },
     onError:(e:Error)=>{
-     if(!pendingRollbackRef.current)return;
+     if(completing||!pendingRollbackRef.current)return;
      pendingRollbackRef.current();pendingRollbackRef.current=null;liveRef.current=null;
      if(mountedRef.current){setStatus("新 Key 語音測試失敗："+uiMessage(e.message)+"。已保留原本的 Key。");setTesting(false)}
     }
