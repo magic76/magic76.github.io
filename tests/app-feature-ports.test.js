@@ -311,15 +311,16 @@ test("Crew Web hides root and nested scrollbar chrome without disabling scrollin
  const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
  const legacy=fs.readFileSync(path.join(root,"crew.css"),"utf8");
  for(const source of [styles,legacy]){
-  assert.ok(source.includes("scrollbar-width:none!important"));
-  assert.ok(source.includes("-ms-overflow-style:none!important"));
-  assert.ok(source.includes("scrollbar-gutter:auto!important"));
-  assert.ok(source.includes("html::-webkit-scrollbar"));
-  assert.ok(source.includes("body::-webkit-scrollbar"));
-  assert.ok(source.includes("#root::-webkit-scrollbar"));
-  assert.ok(source.includes("width:0!important"));
-  assert.ok(source.includes("height:0!important"));
-  assert.ok(source.includes("background:transparent!important"));
+  const css=source.replace(/\s+/g,"");
+  assert.ok(css.includes("scrollbar-width:none!important"));
+  assert.ok(css.includes("-ms-overflow-style:none!important"));
+  assert.ok(css.includes("scrollbar-gutter:auto!important"));
+  assert.ok(css.includes("html::-webkit-scrollbar"));
+  assert.ok(css.includes("body::-webkit-scrollbar"));
+  assert.ok(css.includes("#root::-webkit-scrollbar"));
+  assert.ok(css.includes("width:0!important"));
+  assert.ok(css.includes("height:0!important"));
+  assert.ok(css.includes("background:transparent!important"));
  }
  assert.ok(styles.includes("overflow:auto")||styles.includes("overflow-x:auto"),"SPA must keep scrollable surfaces");
  assert.ok(legacy.includes("overflow:auto")||legacy.includes("overflow-x:auto"),"legacy surfaces must keep scrolling enabled");
