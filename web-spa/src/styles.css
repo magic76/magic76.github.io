@@ -1,7 +1,36 @@
-/* Hide scrollbar chrome, including the root viewport scrollbar. Scrolling remains enabled. */
-html,body,#root,*{scrollbar-width:none!important;-ms-overflow-style:none!important;scrollbar-gutter:auto!important}
-::-webkit-scrollbar,html::-webkit-scrollbar,body::-webkit-scrollbar,#root::-webkit-scrollbar,*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important;background:transparent!important}
-::-webkit-scrollbar-thumb,::-webkit-scrollbar-track{background:transparent!important;border:0!important}
+/*
+ * Hide native scrollbar tracks in all Crew views, including nested modal,
+ * timeline, horizontal tabs, and the root viewport. Do not change overflow:
+ * mousewheel, keyboard, trackpad and touch scrolling must keep working.
+ */
+html,
+body,
+#root,
+* {
+  scrollbar-width: none !important;            /* Firefox and modern Chromium */
+  -ms-overflow-style: none !important;         /* legacy Edge */
+  scrollbar-gutter: auto !important;           /* avoid reserved scrollbar space */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+#root *::-webkit-scrollbar,
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-thumb,
+*::-webkit-scrollbar-corner,
+*::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+}
 
 body{min-height:100vh;padding-bottom:0}
 .route-tabs{position:sticky;top:66px;z-index:25}
