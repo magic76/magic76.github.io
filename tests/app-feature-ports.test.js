@@ -656,3 +656,53 @@ test("Live still photos keep the newest frame and prompt in one realtime input",
  assert.ok(!sendImage.includes("clientContent:{"),"still-photo prompt must not race a realtime image through clientContent");
  assert.ok(hook.includes("最新照片已送出"));
 });
+
+
+test("Live trust UX locks session config and confirms the actual latest photo",()=>{
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const story=fs.readFileSync(path.join(root,"web-spa/src/story/LivePage.tsx"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ for(const source of [teacher,story]){
+  assert.ok(source.includes("disabled={sessionActive}"),"active Live config should not pretend to apply immediately");
+  assert.ok(source.includes('capture="environment"'),"mobile Live should expose a camera capture path");
+  assert.ok(source.includes("visionSending"));
+  assert.ok(source.includes("lastImage"));
+  assert.ok(source.includes("vision-latest"));
+ }
+ assert.ok(teacher.includes("這些設定會套用到下一次對話"));
+ assert.ok(story.includes("故事設定會套用到下一次"));
+ assert.ok(hook.includes("visionSendingRef"));
+ assert.ok(hook.includes("sessionRef.current!==s"),"a photo prepared for an old session must never leak into a new session");
+ assert.ok(hook.includes("照片處理失敗"));
+});
+
+test("Gemini saved and verified states stay separate with actionable Live recovery",()=>{
+ const runtime=fs.readFileSync(path.join(root,"web-spa/src/lib/runtime.ts"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const controls=fs.readFileSync(path.join(root,"web-spa/src/live/LiveControls.tsx"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ assert.ok(runtime.includes("geminiVerified"));
+ assert.ok(runtime.includes("setGeminiVerified(false)"));
+ assert.ok(settings.includes("Gemini 已設定 · 尚未驗證"));
+ assert.ok(settings.includes("setGeminiVerified(true)"));
+ assert.ok(chrome.includes("Gemini 待驗證"));
+ assert.ok(home.includes("Gemini Key 尚未驗證"));
+ assert.ok(controls.includes("前往 Gemini 設定"));
+ assert.ok(controls.includes("重新允許麥克風"));
+ assert.ok(controls.includes("重新連線"));
+ assert.ok(hook.includes('errorKind'));
+ assert.ok(hook.includes('if(kind==="key")setGeminiVerified(false)'));
+});
+
+test("Tutor picker keeps provider voice IDs internal",()=>{
+ const profiles=fs.readFileSync(path.join(root,"web-spa/src/teacher/teacherProfiles.ts"),"utf8");
+ const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ assert.ok(profiles.includes("voiceLabel"));
+ assert.ok(picker.includes("profile.voiceLabel"));
+ assert.ok(tutor.includes("profile.voiceLabel"));
+ assert.ok(!picker.includes("profile.recommendedVoice"));
+ for(const id of ["Kore","Hyperion","Prospero","Callisto","Europa"])assert.ok(!picker.includes(id));
+});
