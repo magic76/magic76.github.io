@@ -1,4 +1,4 @@
-import{Link}from"react-router-dom";import{Icon}from"../components/Icon";import{PlayStoreLink}from"../components/PlayStoreLink";import{geminiKey,history}from"../lib/runtime";
+import{Link}from"react-router-dom";import{Icon}from"../components/Icon";import{PlayStoreLink}from"../components/PlayStoreLink";import{geminiKey,geminiVerified,history}from"../lib/runtime";
 
 function recentLink(x:any){
  if(x.kind==="teacher")return"/teacher/live?history="+encodeURIComponent(String(x.id));
@@ -13,9 +13,9 @@ function recentLink(x:any){
 export function HomePage(){
  const all=["teacher","story","fortune"].flatMap(kind=>history(kind).slice(0,4).map((x:any)=>({...x,kind}))).sort((a:any,b:any)=>new Date(b.ts).getTime()-new Date(a.ts).getTime()).slice(0,6);
  const meta:any={teacher:["Teacher","teacher"],story:["Story","story"],fortune:["Fortune","fortune"]};
- const configured=Boolean(geminiKey());
+ const configured=Boolean(geminiKey()),verified=geminiVerified();
  return <><section className="hero"><span className="kicker">Crew</span><h1>你要做什麼？</h1><p>語言陪讀、說故事、命盤解讀，一個入口搞定。用自己的 Gemini Key，免註冊 Crew 帳號。</p></section>
- {!configured&&<Link className="home-key-banner" to="/settings"><span><strong>先花 1 分鐘設定 Gemini Key</strong><small>設定一次，Teacher、Story、Fortune 共用。</small></span><b>開始設定 ›</b></Link>}
+ {!configured?<Link className="home-key-banner" to="/settings"><span><strong>先花 1 分鐘設定 Gemini Key</strong><small>設定一次，Teacher、Story、Fortune 共用。</small></span><b>開始設定 ›</b></Link>:!verified?<Link className="home-key-banner pending" to="/settings"><span><strong>Gemini Key 尚未驗證</strong><small>測試一次語音連線，確認這個 Key 可以正常使用。</small></span><b>測試連線 ›</b></Link>:null}
  <section className="section"><div className="hub-grid">
   <Link className="hub-card teacher" to="/teacher/practice"><span className="feature-icon"><Icon name="teacher"/></span><h2>Crew Teacher</h2><p>語言學習、教材陪讀與真人感口說練習。</p><span className="hub-go">開始學習 →</span></Link>
   <Link className="hub-card story" to="/story"><span className="feature-icon"><Icon name="story"/></span><h2>Crew Story</h2><p>從照片與靈感建立故事，再和阿奇一起講。</p><span className="hub-go">打開故事 →</span></Link>
