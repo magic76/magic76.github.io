@@ -183,7 +183,7 @@ body{min-height:100vh;padding-bottom:0}
 .live-identity p{margin:0;max-width:460px;color:var(--muted);font-size:12px;line-height:1.5}
 .teacher-live-avatar{position:relative;width:126px;height:126px;border-radius:50%;overflow:hidden;background:var(--accent-soft);box-shadow:0 0 0 8px var(--accent-soft);transform-origin:center;will-change:transform,opacity,box-shadow}
 .teacher-live-avatar img,.teacher-live-avatar>.teacher-avatar-image{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
-.teacher-live-avatar>.teacher-avatar-image{background-size:400% 100%;background-repeat:no-repeat}
+.teacher-live-avatar>.teacher-avatar-image{background-repeat:no-repeat}
 .teacher-live-avatar .live-presence-dot{position:absolute;right:8px;bottom:8px;width:15px;height:15px;border-radius:50%;background:#aaa;border:3px solid #fff}
 .teacher-live-avatar.teacher-presence.speaking{animation:teacher-presence-speaking .65s ease-in-out infinite alternate;box-shadow:0 0 0 12px var(--accent-soft)}
 .teacher-live-avatar.teacher-presence.listening{animation:teacher-presence-listening 1.2s ease-in-out infinite alternate}
