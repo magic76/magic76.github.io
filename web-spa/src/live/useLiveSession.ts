@@ -30,15 +30,27 @@ export function useLiveSession(config:Config){
  const snapshot=useCallback((reason:string)=>{
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
   const text=turnsRef.current.map(t=>[t.input?"你："+t.input:"",t.output?"AI："+t.output:""].filter(Boolean).join("\n")).filter(Boolean).join("\n\n");
-  const item={title:configRef.current.title,preview:text.slice(0,180),turns:turnsRef.current.slice(),durationMs:s?.getDurationMs()||0,reason,ts:new Date().toISOString()};
+  const item={id:Date.now(),title:configRef.current.title,preview:text.slice(0,180),turns:turnsRef.current.slice(),durationMs:s?.getDurationMs()||0,reason,ts:new Date().toISOString()};
   saveLive(configRef.current.pageKey,item);return item;
  },[]);
  const finish=useCallback(async(item:any)=>{
-  if(item&&configRef.current.teacherReport){
-   await ensureTeacherServices();
-   if(window.CrewTeacherReport?.eligible(item)){setState("reporting");setStatus("正在整理課後學習報告…");const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文"});if(r)setReport(r)}
+  let reportFailed=false;
+  try{
+   if(item&&configRef.current.teacherReport){
+    await ensureTeacherServices();
+    if(window.CrewTeacherReport?.eligible(item)){
+     setState("reporting");setStatus("正在整理課後學習報告…");
+     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文"});
+     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r})}
+    }
+   }
+  }catch(_){
+   reportFailed=true;
+   setStatus("練習已保存，但課後報告產生失敗，可從歷史紀錄繼續練習。");
+  }finally{
+   if(!reportFailed)setStatus("已結束。");
+   setState("ended");
   }
-  setState("ended");setStatus("已結束。");
  },[]);
  const start=useCallback(async()=>{
   if(sessionRef.current)return;
@@ -87,6 +99,13 @@ export function useLiveSession(config:Config){
   }
  },[]);
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
- useEffect(()=>()=>{if(sessionRef.current)void sessionRef.current.stop({reason:"page-leave",silentStatus:true,emitTerminal:false})},[]);
+ useEffect(()=>()=>{
+  const session=sessionRef.current;
+  if(!session)return;
+  // Preserve the final completed transcript before closing the active transport.
+  snapshot("page-leave");
+  sessionRef.current=null;
+  void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
+ },[snapshot]);
  return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,setVolume};
 }
