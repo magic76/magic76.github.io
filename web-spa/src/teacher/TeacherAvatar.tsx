@@ -1,20 +1,15 @@
 import type{TeacherProfile}from"./teacherProfiles";
 
-const HQ_POSITION:Record<TeacherProfile["id"],string>={
- emma:"0%",alex:"20%",james:"40%",mia:"60%",sophie:"80%",lina:"100%"
-};
-
+/** Vite resolves these profile imports under /crew-app/ as hashed public assets.
+ * Avoid root-absolute sprite URLs: they break on GitHub Pages subpaths.
+ */
 export function TeacherAvatar({profile,className="",decorative=false}:{profile:TeacherProfile;className?:string;decorative?:boolean}){
- return <span
+ return <img
   className={"teacher-avatar-image "+className}
-  role={decorative?undefined:"img"}
+  src={profile.avatar}
+  alt={decorative?"":profile.name}
   aria-hidden={decorative||undefined}
-  aria-label={decorative?undefined:profile.name}
-  style={{
-   backgroundImage:'url("/assets/teacher/teacher-portraits-hq.webp")',
-   backgroundPosition:HQ_POSITION[profile.id]+" center",
-   backgroundSize:"600% 100%",
-   backgroundRepeat:"no-repeat"
-  }}
+  loading="eager"
+  decoding="async"
  />;
 }
