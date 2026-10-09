@@ -616,6 +616,22 @@
     }
   };
 
+  // Camera observations share the existing Live socket; unlike photos they
+  // do not create a user text turn or force an AI response every few seconds.
+  LiveSession.prototype.sendVideoFrame=function(frame){
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt))return false;
+    var data=frame&&frame.data,kind=frame&&frame.mimeType||"image/jpeg";
+    if(typeof data!=="string"||!data||!/^image\\/(?:jpeg|png|webp)$/.test(kind))return false;
+    try{
+      attempt.socket.send(JSON.stringify({realtimeInput:{video:{data:data,mimeType:kind}}}));
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"camera-frame",error);
+      return false;
+    }
+  };
+
   LiveSession.prototype._startCapture=function(){
     if(!this.mediaStream||this.processor)return;
     if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
