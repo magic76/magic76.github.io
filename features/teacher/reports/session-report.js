@@ -53,17 +53,19 @@ async function generate(snapshot,options){
  if(!eligible(snapshot))return null;
  var transcript=global.CrewLiveUI.transcriptText(snapshot.turns,{user:"Student",ai:"Tutor"});
  var target=options.language||"英文";
+ var nativeLang=options.nativeLanguage||"zh-TW",prior=String(options.priorMemory||"").slice(0,1300);
  var missions=Array.isArray(options.missions)?options.missions:[];
  var allowPersonal=localStorage.getItem("crew_teacher_personal_memory_opt_in_v2")==="1";
  var prompt=
   "你是 Crew Teacher 的課後學習報告評估器。請根據學生真正說過的內容做嚴謹、具體的診斷。\n"+
-  "目標語言："+target+"\n"+
+  "目標語言："+target+"，學生母語："+nativeLang+"。報告的自然語言文字使用學生母語。\n"+
+  "已知學習記憶鍵（僅為待驗證線索，不能當本次證據）：\n"+prior+"\n"+
   "禁止根據 transcript 評估 pronunciation，因為文字沒有聲學證據。\n"+
   "不要空泛鼓勵；評分使用真實 CEFR 程度尺度。\n"+
   "只輸出 JSON，鍵包含 overall_score, fluency_score, vocab_score, grammar_score, summary, strengths, recasts, takeaways, next_focus。"+
   "recasts 是 original/corrected/explanation 陣列；takeaways 是 phrase/translation 陣列。\n"+
   "此外回傳 memory_updates:{weaknesses:[{key,detail,confidence}],strengths:[...],wins:[...],next_focus:[...],resolved_weaknesses:[{key}],goals:[{key,detail,evidence_quote}],interests:[...],preferences:[...]}。"+
-  "每種類型最多 2 筆。必須從學生說過的話提取，不能從老師的話推斷；不能從文字推斷發音。"+
+  "相似的持續性概念請沿用上述既有 key，避免每次對話新增一筆重複記憶。每種類型最多 2 筆。必須從學生說過的話提取，不能從老師的話推斷；不能從文字推斷發音。"+
   "個人資訊擷取："+(allowPersonal?"只允許學生明確提及、與學習有關且附其原話的目標/興趣/偏好。":"關閉。goals,interests,preferences 必須全是空陣列。")+
   "如果沒有明確證據，對應陣列設為空，不要杜撰。"+
   "如果提供情境任務，額外輸出 mission_results:[{completed:boolean,evidence:string}]，每個任務依順序判斷。只能根據 Student 發言的語意和場景互動判斷，允許不同自然說法；絕不可把 Tutor 的話算成學生完成，也不可要求逐字匹配。未完成時 evidence 設空字串。"+
@@ -77,7 +79,7 @@ async function generate(snapshot,options){
   data.fluency_score=safeScore(data.fluency_score,70);
   data.vocab_score=safeScore(data.vocab_score,70);
   data.grammar_score=safeScore(data.grammar_score,70);
-  global.CrewLiveUI.patchSession("teacher",snapshot.ts,{report:data,preview:data.summary||snapshot.preview});
+  global.CrewLiveUI.patchSession(options.pageKey||"teacher",snapshot.ts,{report:data,preview:data.summary||snapshot.preview});
   return data;
  }catch(_){return null}
 }
