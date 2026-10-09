@@ -36,7 +36,7 @@ export function TeacherLivePage(){
  {mission&&<div className="notice live-mission"><div><b>這次要完成</b><p>{mission.goals.join(" · ")}</p></div></div>}
  <section className="live-stage teacher-live-stage" data-state={live.state}>
   <div className="live-identity">
-   <div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div>
+   <div className="teacher-presence-shell" data-state={presenceState}><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>
