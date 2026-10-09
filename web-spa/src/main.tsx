@@ -8,6 +8,7 @@ import "../../features/teacher/textbook/styles.css";
 import "../../features/story/styles.css";
 import "../../features/fortune/styles.css";
 import "./styles.css";
+import "./motion.css";
 import { App } from "./App";
 
 const root = document.getElementById("root");

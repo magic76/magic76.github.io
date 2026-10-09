@@ -1,0 +1,56 @@
+/* Shared Crew Web motion layer. */
+
+:root{--crew-motion-fast:150ms;--crew-motion-normal:240ms;--crew-motion-ease:cubic-bezier(.2,.75,.3,1)}
+.page.page-enter{animation:crew-route-in 240ms var(--crew-motion-ease) both}
+@keyframes crew-route-in{from{opacity:.72;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.hub-grid .hub-card{animation:crew-card-in 360ms var(--crew-motion-ease) both}
+.hub-grid .hub-card:nth-child(2){animation-delay:45ms}
+.hub-grid .hub-card:nth-child(3){animation-delay:90ms}
+@keyframes crew-card-in{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}
+.hub-card,.feature-card,.story-book-open,.story-action-tile,.recent-item,.story-continue-card,.teacher-profile-option,.btn,.vision-btn,.live-presets button{transition:transform 150ms ease,box-shadow 240ms ease,border-color 240ms ease,background-color 240ms ease}
+@media(hover:hover) and (pointer:fine){
+ .hub-card:hover,.feature-card:hover,.story-book-open:hover,a.story-action-tile:hover,.recent-item:hover,a.story-continue-card:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(25,25,30,.07)}
+ .btn:not(:disabled):hover,.vision-btn:not(:disabled):hover{transform:translateY(-1px)}
+}
+.hub-card:active,.feature-card:active,.story-book-open:active,a.story-action-tile:active,.recent-item:active,.btn:not(:disabled):active,.vision-btn:not(:disabled):active{transform:scale(.985)}
+.hub-card:focus-visible,.feature-card:focus-visible,.story-book-open:focus-visible,.btn:focus-visible,.navitem:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.global-nav .inner{position:relative}
+.global-nav .navitem{position:relative;z-index:1;transition:color 240ms ease}
+.global-nav .navitem .nav-icon{background:transparent;transition:transform 240ms var(--crew-motion-ease)}
+.global-nav .navitem.active .nav-icon{background:transparent;transform:translateY(-2px) scale(1.06)}
+.global-nav .nav-indicator{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:25%;background:var(--accent-soft);border-radius:15px;pointer-events:none;transform:translateX(calc(var(--nav-index) * 100%));transition:transform 240ms var(--crew-motion-ease),background-color 240ms ease,opacity 150ms ease}
+.global-nav .nav-indicator[data-inactive="true"]{opacity:0}
+.subnav a{transition:color 150ms ease,background-color 240ms ease,box-shadow 240ms ease}
+.teacher-picker-backdrop{animation:crew-overlay-in 180ms ease-out both}
+.teacher-picker{animation:crew-sheet-in 320ms var(--crew-motion-ease) both}
+@keyframes crew-overlay-in{from{opacity:0}to{opacity:1}}
+@keyframes crew-sheet-in{from{opacity:.7;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
+
+/* Live ring is driven by the actual state, not fake audio amplitude. */
+.teacher-presence-shell{position:relative;width:126px;height:126px;isolation:isolate}
+.teacher-presence-shell>.teacher-live-avatar{width:100%;height:100%}
+.teacher-presence-shell::after{content:"";position:absolute;inset:-10px;z-index:-1;border:2px solid var(--accent);border-radius:50%;opacity:0;pointer-events:none}
+.teacher-presence-shell[data-state="speaking"]::after{animation:crew-speaking-ring 1.35s ease-out infinite}
+.teacher-presence-shell[data-state="listening"]::after{opacity:.22;animation:crew-listening-ring 1.8s ease-in-out infinite alternate}
+.teacher-presence-shell[data-state="connecting"]::after{opacity:.35;border-style:dashed;animation:crew-connecting-ring 1.9s linear infinite}
+@keyframes crew-speaking-ring{from{opacity:.48;transform:scale(.94)}to{opacity:0;transform:scale(1.12)}}
+@keyframes crew-listening-ring{from{opacity:.15;transform:scale(.99)}to{opacity:.4;transform:scale(1.03)}}
+@keyframes crew-connecting-ring{to{transform:rotate(360deg)}}
+.story-player .story-page-motion{animation-duration:280ms;animation-timing-function:var(--crew-motion-ease);animation-fill-mode:both}
+.story-player[data-direction="forward"] .story-page-motion{animation-name:crew-story-forward}
+.story-player[data-direction="backward"] .story-page-motion{animation-name:crew-story-backward}
+@keyframes crew-story-forward{from{opacity:.3;transform:translateX(11px)}to{opacity:1;transform:translateX(0)}}
+@keyframes crew-story-backward{from{opacity:.3;transform:translateX(-11px)}to{opacity:1;transform:translateX(0)}}
+.story-player .story-page-progress>i{transition:width 320ms var(--crew-motion-ease)}
+/* A new calculation reveals itself; restored history skips the entrance. */
+.fortune-result-page[data-new-reveal="true"] .fortune-result-header{animation:crew-fortune-in 300ms var(--crew-motion-ease) both}
+.fortune-result-page[data-new-reveal="true"] .fortune-highlight-section,.fortune-result-page[data-new-reveal="true"] .fortune-result-tabs{animation:crew-fortune-in 340ms var(--crew-motion-ease) 60ms both}
+.fortune-result-page[data-new-reveal="true"] .fortune-result-stack,.fortune-result-page[data-new-reveal="true"] .fortune-topic-grid{animation:crew-fortune-in 360ms var(--crew-motion-ease) 100ms both}
+.fortune-result-page[data-ai-new="true"] .fortune-ai{animation:crew-fortune-in 300ms var(--crew-motion-ease) both}
+@keyframes crew-fortune-in{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:620px){.teacher-presence-shell{width:116px;height:116px}}
+@media(prefers-reduced-motion:reduce){
+ *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;animation-delay:0ms!important;transition-duration:.01ms!important;transition-delay:0ms!important}
+ .hub-grid .hub-card{translate:none!important}
+ .teacher-presence-shell::after{opacity:0!important}
+}
