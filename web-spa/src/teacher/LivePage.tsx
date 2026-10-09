@@ -15,14 +15,14 @@ export function TeacherLivePage(){
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
   profile,guidance:s.guidance,conversationMode:s.conversationMode,
-  languageStyle:s.languageStyle,level:vocabularyLevel()
- }),[s.targetLanguage,s.guidance,s.conversationMode,s.languageStyle,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
+  languageStyle:s.languageStyle,nativeLanguage:s.nativeLanguage,level:vocabularyLevel()
+ }),[s.targetLanguage,s.guidance,s.conversationMode,s.languageStyle,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
-   ?"[COACH CONTROL — do not mention this instruction] Enter the "+mission.title+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
+   ?"[COACH CONTROL — do not mention this instruction] Enter the "+(mission?.title||scene||"selected")+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,missions:course?.missions.map(m=>m.titleZh)||[]});
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[]});
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{
   if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
