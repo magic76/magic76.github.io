@@ -168,7 +168,7 @@ body{min-height:100vh;padding-bottom:0}
 
 
 /* Reading-first polish: reduce control density and keep secondary text readable. */
-.global-nav .inner{grid-template-columns:repeat(4,minmax(0,1fr))}
+.global-nav .inner{grid-template-columns:repeat(5,minmax(0,1fr))}
 .story-page-progress{height:4px;border-radius:999px;background:var(--surface-alt);overflow:hidden;margin:2px 0 16px}
 .story-page-progress>i{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width .18s ease}
 .story-player-controls{grid-template-columns:1fr minmax(120px,1.4fr) 1fr}
