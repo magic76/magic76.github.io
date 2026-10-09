@@ -46,7 +46,7 @@
 .fortune-result-page[data-new-reveal="true"] .fortune-result-header{animation:crew-fortune-in 300ms var(--crew-motion-ease) both}
 .fortune-result-page[data-new-reveal="true"] .fortune-highlight-section,.fortune-result-page[data-new-reveal="true"] .fortune-result-tabs{animation:crew-fortune-in 340ms var(--crew-motion-ease) 60ms both}
 .fortune-result-page[data-new-reveal="true"] .fortune-result-stack,.fortune-result-page[data-new-reveal="true"] .fortune-topic-grid{animation:crew-fortune-in 360ms var(--crew-motion-ease) 100ms both}
-.fortune-result-page[data-ai-status="ready"] .fortune-ai{animation:crew-fortune-in 300ms var(--crew-motion-ease) both}
+.fortune-result-page[data-ai-new="true"] .fortune-ai{animation:crew-fortune-in 300ms var(--crew-motion-ease) both}
 @keyframes crew-fortune-in{from{opacity:.35;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:620px){.teacher-presence-shell{width:116px;height:116px}}
 @media(prefers-reduced-motion:reduce){
