@@ -23,7 +23,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label="聯絡資訊">
    <span>聯絡我們</span>
-   <a href="mailto:ly@hicrewapps.com">ly@hicrewapps.com</a>
+   <a href="mailto:crew@3sssi.com">crew@3sssi.com</a>
   </footer>
  </>;
 }
