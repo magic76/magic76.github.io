@@ -6,7 +6,7 @@
 })(typeof window!=="undefined"?window:globalThis,function(global){
   "use strict";
 
-  var DEFAULT_MODELS=["gemini-3.1-flash-live-preview","gemini-3.8-live"];
+  var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
 
   function sanitizeDetail(value){
     var text=String(value==null?"":value);
