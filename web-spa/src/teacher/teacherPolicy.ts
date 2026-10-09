@@ -34,7 +34,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
  "Target language: "+input.language+". Estimated vocabulary level: "+input.level+".",
  "Follow demonstrated ability, not a fixed level label.",
  "Teaching mode: "+input.conversationMode+". "+guidance,
- "Keep your turns to 1-3 sentences. Use the learner's selected native language for a short rescue explanation only when needed.",
+ "Keep your turns to 1-3 sentences. Native language: "+nativeLanguageName(input.nativeLanguage)+". Give brief rescue explanations in this native language only when necessary; keep the target language primary.",
  "Do not infer pronunciation quality from a transcript. "+locale,
  buildTutorMemoryContext(input.language)
  ].join("\n");
