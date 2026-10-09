@@ -7,7 +7,7 @@ export function FortuneLivePage(){
  useEffect(()=>{if(context?.profile){if(context.profile.birthDate)setBirth(context.profile.birthDate);if(context.profile.birthTime)setBirthTime(context.profile.birthTime);if(context.profile.city)setCity(context.profile.city)}},[]);
  const profile=()=>("稱呼："+(name||"未提供")+"；出生日期："+(birth||"未提供")+"；出生時間："+(birthTime||"未提供")+"；出生城市："+(city||"未提供")+"；主題："+focus);
  const facts=context?.result?("已固定計算的模式："+context.mode+"；以下 JSON 是唯一可用的命盤/牌卡事實，不可自行重算或補資料："+JSON.stringify(context.result).slice(0,16000)):"";
- const system=useMemo(()=>{const t=tone==="gentle"?"語氣溫和但不要空泛安慰。":tone==="evidence"?"多用問題確認真實背景，再提出可驗證的小步驟。":"先講結論，再補一兩個理由。";return"你是 Crew Fortune 的命理老師。以固定計算結果與當下問題做娛樂性、自我反思型對話。"+t+"若有 deterministic 結果，它是唯一事實來源；不可自行重算或補不存在資料。不要宣稱命定，不做醫療、法律、投資或重大決策指令。一次 2-4 句。"},[tone]);
+ const system=useMemo(()=>{const t=tone==="gentle"?"語氣溫和但不要空泛安慰。":tone==="evidence"?"多用問題確認真實背景，再提出可驗證的小步驟。":"直接自然回答問題，先說最重要的觀察，再視需要補一兩個理由。";return"你是 Crew Fortune 的命理老師，正在進行真人感語音對話，不是在唸書面報告。以固定計算結果與當下問題做娛樂性、自我反思型對話。"+t+"不要以「結論」「首先」「重點是」等固定詞語開始每次回答，也不要逐句加標題、編號或重複起手式；接續前一句自然談話。收到 [INTERRUPT CONTROL] 時立即停止正在說的內容，保持安靜，不回答或確認打斷指令，直到使用者下一次真正發問。若有 deterministic 結果，它是唯一事實來源；不可自行重算或補不存在資料。不要宣稱命定，不做醫療、法律、投資或重大決策指令。一次 2-4 句。"},[tone]);
  const opening=context?.result?profile()+"。"+facts+"。使用者剛從正式結果頁過來。不要重新算。"+(queuedPrompt?"請先回答這個指定問題："+queuedPrompt:"先指出最值得注意的一點，再問他想深入哪個部分。"):profile()+"。請先講一個和「"+focus+"」最相關的觀察，控制在 3 句內，最後讓我追問。";
  const live=useLiveSession({pageKey:"fortune",title:focus+" · 對話",system,openingPrompt:opening,voice});
  const persist=(k:string,v:string,set:(x:string)=>void)=>{localStorage.setItem("crew_fortune_"+k,v);set(v)};

@@ -426,17 +426,20 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
   assert.equal(session.toggleMic(),false);
   assert.equal(track.enabled,true);
 
+  const pcm=Buffer.alloc(2400).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
   assert.equal(session.interrupt(),true);
-  const interruptMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.audio);
+  const interruptMessage=socket.sent.find(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text?.includes("[INTERRUPT CONTROL]"));
   assert.ok(interruptMessage);
-
-  socket.message({
-    serverContent:{
-      inputTranscription:{text:"你好"},
-      outputTranscription:{text:"你好，很高興見到你"},
-      turnComplete:true
-    }
-  });
+  assert.equal(interruptMessage.clientContent.turnComplete,true);
+  socket.message({serverContent:{interrupted:true}});
+  socket.message({serverContent:{turnComplete:true}});
+  socket.message({serverContent:{inputTranscription:{text:"你好"}}});
+  socket.message({serverContent:{
+    outputTranscription:{text:"你好，很高興見到你"},
+    turnComplete:false
+  }});
+  socket.message({serverContent:{turnComplete:true}});
 
   assert.equal(turns.length,1);
   assert.equal(session.getTranscript().length,1);
@@ -779,4 +782,125 @@ test("proactive opening is sent only once across fallback reconnects",async()=>{
   assert.equal(session.openingSent,true);
 
   await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+
+test("manual interrupt cancels the server turn and rejects late audio until new user speech",async()=>{
+  resetSockets();
+  const logs=[],speaking=[],outputs=[],completed=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,
+    onSpeaking:v=>speaking.push(v),
+    onOutputTranscript:v=>outputs.push(v),
+    onTurnComplete:t=>completed.push(t)
+  });
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  const pcm=Buffer.alloc(4800).toString("base64");
+  const audio=()=>({modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}});
+  socket.message({serverContent:audio()});
+  assert.equal(session.modelSpeaking,true);
+  assert.equal(session.interrupt(),true);
+  assert.equal(session.modelSpeaking,false);
+  assert.equal(session.hasPendingPlayback(),false);
+  assert.equal(session.interrupt(),true,"repeat tap should not send another control");
+
+  const controls=socket.sent.filter(x=>x.clientContent?.turns?.[0]?.parts?.[0]?.text?.includes("[INTERRUPT CONTROL]"));
+  assert.equal(controls.length,1);
+  assert.equal(controls[0].clientContent.turnComplete,true);
+  assert.equal(socket.sent.filter(x=>x.realtimeInput?.audio).length,0,"do not synthesize silence instead of real interrupt");
+
+  socket.message({serverContent:{...audio(),outputTranscription:{text:"Stale speech"}}});
+  assert.equal(session.modelSpeaking,false);
+  assert.equal(session.hasPendingPlayback(),false);
+  assert.deepEqual(outputs,[]);
+
+  socket.message({serverContent:{interrupted:true}});
+  socket.message({serverContent:{...audio(),outputTranscription:{text:"Still stale"}}});
+  socket.message({serverContent:{turnComplete:true}});
+  assert.equal(session.modelSpeaking,false);
+  assert.deepEqual(completed,[],"canceled answer must not enter saved history");
+  assert.deepEqual(outputs,[],"canceled transcripts must not be displayed");
+
+  socket.message({serverContent:{inputTranscription:{text:"Tell me about the next period."}}});
+  socket.message({serverContent:audio()});
+  assert.equal(session.modelSpeaking,true,"new real question must unlock the next response");
+  socket.message({serverContent:{outputTranscription:{text:"A fresh answer"},turnComplete:true}});
+  assert.deepEqual(outputs,["A fresh answer"]);
+  assert.equal(completed.length,1);
+  assert.equal(completed[0].output,"A fresh answer");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("Fortune voice prompt avoids leading every reply with conclusion headers",()=>{
+ const fs=require("node:fs");
+ const path=require("node:path");
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/fortune/LivePage.tsx"),"utf8");
+ assert.ok(!source.includes("先講結論，再補"));
+ assert.match(source,/不要以「結論」/);
+ assert.match(source,/真人感語音對話/);
+ assert.match(source,/\[INTERRUPT CONTROL\]/);
+});
+
+
+test("interrupt also accepts a new explicit preset question without voice transcription",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const spoken=[];
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  const pcm=Buffer.alloc(2400).toString("base64");
+  const audio={modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}};
+  socket.message({serverContent:audio});
+  assert.equal(session.interrupt(),true);
+  socket.message({serverContent:{turnComplete:true}});
+  assert.equal(session.interruptPending,true);
+  assert.equal(session.sendText("請談財運"),true);
+  assert.equal(session.interruptInputSeen,true);
+  socket.message({serverContent:audio});
+  assert.equal(session.interruptPending,false);
+  assert.equal(session.modelSpeaking,true);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("late worklet output-started event cannot restart canceled teacher speech",async()=>{
+  resetSockets();
+  let node=null;
+  class Context extends FakeAudioContext{
+    constructor(){super();this.audioWorklet={addModule:async()=>{}};}
+  }
+  class Node{
+    constructor(){
+      this.port={onmessage:null,postMessage(){}};
+    }
+    connect(){}
+    disconnect(){}
+  }
+  const {track,deps}=makeDeps([]);
+  const spoken=[];
+  deps.createAudioContext=()=>new Context();
+  deps.createAudioWorkletNode=()=>{node=new Node();return node;};
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  const pcm=Buffer.alloc(2400).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
+  assert.equal(session.interrupt(),true);
+  node.port.onmessage({data:{type:"output-started"}});
+  assert.equal(spoken.at(-1),false);
+  assert.equal(session.hasPendingPlayback(),false);
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(track.stopped,true);
 });
