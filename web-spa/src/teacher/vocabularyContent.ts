@@ -20,6 +20,7 @@ export function localizedVocabulary(native:NativeLanguage):VocabularyWord[]{
  }
  return[...unique.values()];
 }
+export function hasLocalizedGloss(native:NativeLanguage,word:string){return native==="zh-TW"||Boolean(read(native).translations[wordId(word)])}
 export function contentReady(native:NativeLanguage,score:number){
  if(native==="zh-TW")return true;
  const translated=read(native).translations;
@@ -32,6 +33,7 @@ export async function ensureVocabularyContent(native:NativeLanguage,score:number
  const unknown=near.filter(w=>native!=="zh-TW"&&!data.translations[wordId(w[0])]).slice(0,45);
  const missing=near.filter(w=>!data.examples[wordId(w[0])]&&!w[2]).slice(0,18);
  const growth=near.length<32;
+ if(Date.now()-data.updatedAt<24*3600000)return;
  if(!unknown.length&&!missing.length&&!growth)return;
  const job=(async()=>{
   await ensureCore();if(!window.CrewAI?.call)throw new Error("Gemini 暫時無法使用");
