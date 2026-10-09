@@ -58,4 +58,4 @@ export function history(name:string){try{return JSON.parse(localStorage.getItem(
 export function addHistory(name:string,item:any){const id=item.id||Date.now(),list=history(name).filter((x:any)=>String(x?.id)!==String(id));list.unshift({...item,id,ts:item.ts||new Date().toISOString()});localStorage.setItem("crew_history_"+name,JSON.stringify(list.slice(0,30)));return list}
 export function lastLive(name:string){try{return JSON.parse(localStorage.getItem("crew_live_last_"+name)||"null")}catch{return null}}
 export function saveLive(name:string,item:any){localStorage.setItem("crew_live_last_"+name,JSON.stringify(item));addHistory(name,item)}
-export function vocabularyLevel(){const s=Number(localStorage.getItem("crew_vocab_score")||50);return s<30?"A1":s<45?"A2":s<62?"B1":s<82?"B2":"C1"}
+export function vocabularyLevel(){const s=Number(localStorage.getItem("crew_vocab_score")||50);return s<=20?"Pre-A1":s<=40?"A1":s<=60?"A2":s<=80?"B1":"B2+"}
