@@ -1,5 +1,5 @@
 import{type TeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";
-import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";
+import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
 export type TeacherSessionMode="tutor"|"roleplay";
 
 export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string}){
@@ -22,7 +22,7 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
 }
 export function buildTeacherSessionPolicy(input:{language:string;scene:string;goals:string[];rolePrompt?:string;
  mode:TeacherSessionMode;profile:TeacherProfile;guidance:"light"|"normal"|"strict";
- conversationMode:string;languageStyle:string;level:string}){
+ conversationMode:string;languageStyle:string;level:string;nativeLanguage:NativeLanguage}){
  if(input.mode==="roleplay")return roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)});
  const guidance=input.guidance==="light"?"Only correct misunderstandings.":
  input.guidance==="strict"?"Point out the 1-2 most valuable grammar or phrasing problems and invite a retry.":
@@ -34,7 +34,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
  "Target language: "+input.language+". Estimated vocabulary level: "+input.level+".",
  "Follow demonstrated ability, not a fixed level label.",
  "Teaching mode: "+input.conversationMode+". "+guidance,
- "Keep your turns to 1-3 sentences. Use the learner's selected native language for a short rescue explanation only when needed.",
+ "Keep your turns to 1-3 sentences. Native language: "+nativeLanguageName(input.nativeLanguage)+". Give brief rescue explanations in this native language only when necessary; keep the target language primary.",
  "Do not infer pronunciation quality from a transcript. "+locale,
  buildTutorMemoryContext(input.language)
  ].join("\n");

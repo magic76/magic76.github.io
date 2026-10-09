@@ -362,3 +362,23 @@ body{min-height:100vh;padding-bottom:0}
  .material-live-camera .material-camera-conversation .live-transcript{max-height:min(50vh,420px)}
 }
 @media(max-width:600px){.material-camera-actions .btn{min-height:40px}}
+
+/* Teacher camera modes and optional one-time learner memory consent */
+.teacher-material-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:14px 0 18px;background:var(--surface-alt);padding:5px;border-radius:16px}
+.teacher-material-tabs button{border:0;border-radius:12px;background:transparent;color:var(--muted);padding:13px 10px;font:inherit;font-weight:700;cursor:pointer;min-height:44px}
+.teacher-material-tabs button.selected{background:var(--surface);color:var(--text);box-shadow:0 2px 10px #0000000a}
+.teacher-material-tabs button:disabled{opacity:.6;cursor:not-allowed}
+.teacher-consent-backdrop{position:fixed;inset:0;z-index:1000;background:#101c2c9e;display:grid;place-items:center;padding:18px;overscroll-behavior:contain}
+.teacher-consent-dialog{width:min(100%,460px);max-height:min(88dvh,680px);overflow-y:auto;border-radius:22px;background:var(--surface);color:var(--text);padding:24px;box-shadow:0 20px 70px #0003;line-height:1.7}
+.teacher-consent-dialog h2{font-size:22px;margin:0 0 12px}
+.teacher-consent-dialog p{margin:10px 0;color:var(--text)}
+.teacher-consent-dialog .meta{color:var(--muted)}
+.teacher-consent-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.teacher-consent-actions .btn{flex:1;min-width:145px;min-height:44px}
+.material-camera-conversation .live-transcript{height:min(34dvh,320px);max-height:320px;overflow-y:auto;overscroll-behavior:contain;padding:10px;scrollbar-width:none}
+.material-camera-conversation .live-transcript:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.material-camera-conversation .material-camera-turn{padding:7px 0;border-top:1px solid var(--line)}
+.material-camera-conversation .material-camera-turn p{margin:4px 0 8px;overflow-wrap:anywhere;line-height:1.55}
+.material-camera-conversation .material-camera-turn small{color:var(--muted)}
+@media(min-width:720px) and (orientation:landscape){.material-live-camera:has(.material-camera-conversation) .material-camera-layout{display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr)}.material-camera-conversation .live-transcript{height:min(58dvh,480px);max-height:480px}}
+@media(max-width:650px) and (orientation:landscape){.material-camera-layout{grid-template-columns:minmax(0,54fr) minmax(0,46fr)}.material-camera-conversation .live-transcript{max-height:42dvh}.material-camera-actions{display:flex;flex-wrap:wrap}}

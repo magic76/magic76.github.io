@@ -51,7 +51,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
   const frame=capture(videoRef.current);if(!frame){setError("影像尚未準備完成");return}
   const ok=live.sendPreparedImage(frame,"請依這張最新教材照片，引導我理解與練習。不要重新打招呼。");
   if(!ok){setError("請先開始語音對話，再使用「看這頁」。");return}
-  setError("");setStill(frame.preview);setLocked(true);
+  setError("");setStill(frame.preview);setLocked(true);setPaused(false);
  };
  return <section className={"section panel material-live-camera "+(expanded?"expanded":"")}>
  <div className="section-head"><div><h2>即時相機陪讀</h2><p className="meta">讓老師邊看教材邊陪你練習；相機需手動開啟。</p></div><small>{active?(locked?"已鎖定本頁":paused?"影像已暫停":"相機已開啟"):"未啟用"}</small></div>
@@ -65,7 +65,10 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
   <div className="actions material-camera-actions">
   {!active?<button className="btn" onClick={()=>void openCamera()}>開啟相機</button>:<>
    <button className="btn secondary small" onClick={snap} disabled={live.state!=="listening"&&live.state!=="speaking"}>看這頁</button>
-   <button className="btn secondary small" onClick={()=>{setLocked(v=>!v);setStill("")}}>{locked?"解除鎖定":"鎖定本頁"}</button>
+   <button className="btn secondary small" onClick={()=>{
+    if(locked){setLocked(false);setStill("");setError("");return}
+    snap();
+   }} disabled={!locked&&live.state!=="listening"&&live.state!=="speaking"}>{locked?"解除鎖定":"鎖定本頁"}</button>
    <button className="btn secondary small" onClick={()=>setPaused(v=>!v)}>{paused?"繼續同步":"暫停同步"}</button>
    <button className="btn secondary small" onClick={stopCamera}>關閉相機</button>
    <button className="btn secondary small" onClick={()=>setExpanded(v=>!v)}>{expanded?"還原":"放大"}</button>
@@ -74,7 +77,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
  </div>
  {withConversation&&<div className="material-camera-conversation"><h3>和老師一起看</h3>
   <LiveControls live={live}/>
-  <div className="live-transcript" aria-live="polite"><div className="live-line user show"><small>你</small><span>{live.input||"語音開始後，可以直接問老師眼前的教材。"}</span></div><div className="live-line show"><small>老師</small><span>{live.output||"老師的回答會顯示在這裡。"}</span></div></div>
+  <div className="live-transcript" role="log" aria-label="課堂逐字紀錄" tabIndex={0}><div className="live-line user show"><small>你</small><span>{live.input||"語音開始後，可以直接問老師眼前的教材。"}</span></div><div className="live-line show"><small>老師</small><span>{live.output||"老師的回答會顯示在這裡。"}</span></div>{live.turns.slice(-8).map((turn,i)=><div className="material-camera-turn" key={i}><small>你</small><p>{turn.input}</p><small>老師</small><p>{turn.output}</p></div>)}</div>
  </div>}
  </div></section>;
 }

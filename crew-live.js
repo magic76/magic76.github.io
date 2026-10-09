@@ -1055,6 +1055,7 @@
     this._startCapture();
     if(!attempt.resumed)this._sendOpening(attempt);
     this._armReplyTimeout(attempt);
+    if(this.recoveryStarted){this.recoveryStarted=false;if(this.options.onRecovered)this.options.onRecovered({model:this.model,resumed:!!attempt.resumed});}
   };
 
   LiveSession.prototype._resumeAfterGoAway=function(attempt,goAway){
@@ -1071,6 +1072,7 @@
 
     this.recovering=true;
     this.ready=false;
+    this.recoveryStarted=true;
     this.interruptPending=false;
     this.resumeAttempts++;
     this._state("connecting");
@@ -1128,6 +1130,7 @@
 
     this.recovering=true;
     this.ready=false;
+    this.recoveryStarted=true;
 
     var nextIndex=attempt.index+1;
     var shouldClose=attempt.socket&&attempt.socket.readyState===1;
