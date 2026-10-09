@@ -846,3 +846,61 @@ test("Fortune voice prompt avoids leading every reply with conclusion headers",(
  assert.match(source,/真人感語音對話/);
  assert.match(source,/\[INTERRUPT CONTROL\]/);
 });
+
+
+test("interrupt also accepts a new explicit preset question without voice transcription",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const spoken=[];
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  const pcm=Buffer.alloc(2400).toString("base64");
+  const audio={modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}};
+  socket.message({serverContent:audio});
+  assert.equal(session.interrupt(),true);
+  socket.message({serverContent:{turnComplete:true}});
+  assert.equal(session.interruptPending,true);
+  assert.equal(session.sendText("請談財運"),true);
+  assert.equal(session.interruptInputSeen,true);
+  socket.message({serverContent:audio});
+  assert.equal(session.interruptPending,false);
+  assert.equal(session.modelSpeaking,true);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("late worklet output-started event cannot restart canceled teacher speech",async()=>{
+  resetSockets();
+  let node=null;
+  class Context extends FakeAudioContext{
+    constructor(){super();this.audioWorklet={addModule:async()=>{}};}
+  }
+  class Node{
+    constructor(){
+      this.port={onmessage:null,postMessage(){}};
+    }
+    connect(){}
+    disconnect(){}
+  }
+  const {track,deps}=makeDeps([]);
+  const spoken=[];
+  deps.createAudioContext=()=>new Context();
+  deps.createAudioWorkletNode=()=>{node=new Node();return node;};
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  const pcm=Buffer.alloc(2400).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
+  assert.equal(session.interrupt(),true);
+  node.port.onmessage({data:{type:"output-started"}});
+  assert.equal(spoken.at(-1),false);
+  assert.equal(session.hasPendingPlayback(),false);
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(track.stopped,true);
+});
