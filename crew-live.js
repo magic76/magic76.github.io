@@ -622,7 +622,7 @@
     var attempt=this.activeAttempt;
     if(!this.ready||!this._isActiveAttempt(attempt))return false;
     var data=frame&&frame.data,kind=frame&&frame.mimeType||"image/jpeg";
-    if(typeof data!=="string"||!data||!/^image\\/(?:jpeg|png|webp)$/.test(kind))return false;
+    if(typeof data!=="string"||!data||!/^image\/(?:jpeg|png|webp)$/.test(kind))return false;
     try{
       attempt.socket.send(JSON.stringify({realtimeInput:{video:{data:data,mimeType:kind}}}));
       return true;
