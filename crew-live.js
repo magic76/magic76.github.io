@@ -170,6 +170,10 @@
     this.micMuted=false;
     this.manualInterruptOnly=this.options.manualInterruptOnly!==false;
     this.modelSpeaking=false;
+    this.interruptPending=false;
+    this.interruptStopSeen=false;
+    this.interruptInputSeen=false;
+    this.playbackEpoch=0;
     this.volume=Math.max(0,Math.min(100,Number(this.options.volume)||100));
     this.startedAt=0;
     this.turns=[];
@@ -230,25 +234,31 @@
     return this.setMicMuted(!this.micMuted);
   };
 
+  // An explicit clientContent turn interrupts server generation. A silent
+  // realtimeInput audio frame does not: auto-VAD treats it as silence.
+  // Ignore late chunks from the canceled answer until a new utterance is
+  // recognized. This also prevents the worklet from restarting old speech.
   LiveSession.prototype.interrupt=function(){
     var attempt=this.activeAttempt;
     if(!this.ready||!this._isActiveAttempt(attempt))return false;
+    if(this.interruptPending)return true;
+    if(!this.modelSpeaking&&!this.hasPendingPlayback())return false;
+    this.interruptPending=true;
+    this.interruptStopSeen=false;
+    this.interruptInputSeen=false;
     this._clearPlayback();
-    this.modelSpeaking=false;
     if(this.options.onSpeaking)this.options.onSpeaking(false);
     try{
-      var silence=new Uint8Array(3200);
       attempt.socket.send(JSON.stringify({
-        realtimeInput:{
-          audio:{
-            data:bytesToBase64(silence),
-            mimeType:"audio/pcm;rate=16000"
-          }
+        clientContent:{
+          turns:[{role:"user",parts:[{text:"[INTERRUPT CONTROL] Stop the current response. Do not acknowledge or continue speaking. Wait silently until I finish my next spoken question."}]}],
+          turnComplete:true
         }
       }));
       this._status("已打斷，請直接說話");
       return true;
     }catch(error){
+      this.interruptPending=false;
       this._beginRecovery(attempt,"interrupt-send",error);
       return false;
     }
@@ -339,6 +349,7 @@
   };
 
   LiveSession.prototype._clearPlayback=function(){
+    this.playbackEpoch++;
     this.modelSpeaking=false;
     if(this.outputWorkletNode){
       try{this.outputWorkletNode.port.postMessage({type:"clear-output"});}catch(_){}
@@ -394,7 +405,7 @@
       node.port.onmessage=function(event){
         var message=event&&event.data||{};
         if(message.type==="output-started"){
-          self.outputWorkletPending=true;
+          if(self.interruptPending||!self.outputWorkletPending)return;
           if(self.options.onSpeaking)self.options.onSpeaking(true);
         }else if(message.type==="queue-state"){
           var samples=Math.max(0,Number(message.samples)||0);
@@ -420,7 +431,7 @@
   };
 
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
-    if(!base64||!this.outputContext||!this._isActiveAttempt(attempt))return;
+    if(!base64||!this.outputContext||!this._isActiveAttempt(attempt)||this.interruptPending)return;
     this.modelSpeaking=true;
 
     // Android can transiently suspend Web Audio when the communication route
@@ -651,21 +662,39 @@
     if(!this._isActiveAttempt(attempt))return;
 
     var self=this;
+    var turnComplete=!!(server.turnComplete||server.turn_complete);
+    var interrupted=!!server.interrupted;
 
-    if(server.interrupted){
+    if(interrupted){
       this._clearPlayback();
       if(this.options.onSpeaking)this.options.onSpeaking(false);
+      if(this.interruptPending)this.interruptStopSeen=true;
       this._status("已打斷，正在聽你說");
     }
+    if(turnComplete&&this.interruptPending)this.interruptStopSeen=true;
 
     var input=server.inputTranscription||server.input_transcription;
     if(input&&input.text){
       this.inputTurn=mergeTranscript(this.inputTurn,input.text);
       if(this.options.onInputTranscript)this.options.onInputTranscript(this.inputTurn);
+      if(this.interruptPending)this.interruptInputSeen=true;
+    }
+
+    // Server messages from the canceled response may arrive after the button
+    // clears local playback. Do not admit them to audio, transcripts or history.
+    // The next answer is allowed only after BOTH the canceled turn has ended
+    // and the server has transcribed new user speech.
+    var suppressOutput=this.interruptPending||interrupted;
+    if(this.interruptPending&&this.interruptStopSeen&&this.interruptInputSeen&&!turnComplete&&!interrupted){
+      this.interruptPending=false;
+      suppressOutput=false;
+      this.outputTurn="";
+      this.currentTurnHadAudio=false;
+      this.currentTurnHadValidOutput=false;
     }
 
     var output=server.outputTranscription||server.output_transcription;
-    if(output&&output.text){
+    if(!suppressOutput&&output&&output.text){
       this.outputTurn=mergeTranscript(this.outputTurn,output.text);
       this._markValidOutput(attempt,false);
       if(this.options.onOutputTranscript)this.options.onOutputTranscript(this.outputTurn);
@@ -673,7 +702,7 @@
 
     var turn=server.modelTurn||server.model_turn;
     var parts=turn&&turn.parts;
-    if(Array.isArray(parts)){
+    if(!suppressOutput&&Array.isArray(parts)){
       parts.forEach(function(part){
         var inline=part&&(part.inlineData||part.inline_data);
         var mime=inline&&(inline.mimeType||inline.mime_type||"");
@@ -683,7 +712,14 @@
       });
     }
 
-    if(server.turnComplete||server.turn_complete){
+    if(turnComplete){
+      if(suppressOutput){
+        this.outputTurn="";
+        this.currentTurnHadAudio=false;
+        this.currentTurnHadValidOutput=false;
+        if(!this.interruptInputSeen)this.inputTurn="";
+        return;
+      }
       if(this.outputWorkletNode){
         try{this.outputWorkletNode.port.postMessage({type:"turn-complete"});}catch(_){}
       }
@@ -716,8 +752,9 @@
       this.currentTurnHadAudio=false;
       this.currentTurnHadValidOutput=false;
 
+      var playbackEpoch=this.playbackEpoch;
       this.waitForPlaybackDrain().then(function(){
-        if(!self._isActiveAttempt(attempt))return;
+        if(!self._isActiveAttempt(attempt)||self.interruptPending||self.playbackEpoch!==playbackEpoch)return;
         self.modelSpeaking=false;
         if(self.options.onSpeaking)self.options.onSpeaking(false);
         self._status("你可以直接繼續說");
@@ -1011,6 +1048,7 @@
 
     this.recovering=true;
     this.ready=false;
+    this.interruptPending=false;
     this.resumeAttempts++;
     this._state("connecting");
     this._status("正在無縫延續 Live 對話…");
@@ -1241,6 +1279,9 @@
     this.startedAt=this._deps.now();
     this.micMuted=false;
     this.modelSpeaking=false;
+    this.interruptPending=false;
+    this.interruptStopSeen=false;
+    this.interruptInputSeen=false;
 
     try{
       await this._requestWakeLock();
