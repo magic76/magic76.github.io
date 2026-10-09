@@ -99,6 +99,7 @@ export function useLiveSession(config:Config){
    visionSendingRef.current=false;setVisionSending(false);
   }
  },[]);
+ const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
@@ -108,5 +109,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,setVolume};
+ return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
