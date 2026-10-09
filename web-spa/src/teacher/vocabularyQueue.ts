@@ -6,8 +6,8 @@ export function flowRecovery(){return placementState().recovery}
 export function recordFlow(_correct:boolean){return placementState().recovery}
 function select(pool:VocabularyWord[],score:number){return shuffle(pool).sort((a,b)=>Math.abs(a[5]-score)-Math.abs(b[5]-score))[0]}
 export function chooseVocabulary(score:number,current:VocabularyWord|undefined,slot:number,native:NativeLanguage="zh-TW"){
- const pool=localizedVocabulary(native).filter(w=>hasLocalizedGloss(native,w[0]));
- const s=placementState(),others=(pool.length?pool:VOCABULARY_WORDS).filter(w=>w[0]!==current?.[0]);
+ const available=localizedVocabulary(native).filter(w=>hasLocalizedGloss(native,w[0]));
+ const s=placementState(),others=(available.length?available:VOCABULARY_WORDS).filter(w=>w[0]!==current?.[0]);
  // A pending next-band probe is tested right away, before revisits or easy questions.
  const stretch=others.filter(w=>w[5]>=nextBandFloor(score)&&w[5]<=Math.min(100,nextBandFloor(score)+14));
  const wantProbe=s.forceProbe||(s.calibrationRemaining>0&&slot%4===3)||(s.calibrationRemaining===0&&slot%7===5);
