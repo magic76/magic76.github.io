@@ -2,12 +2,12 @@ import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams
 import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
-import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{saveLessonProgress,scoreCourseSession}from"./courseProgress";
+import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
- const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null);
+ const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
@@ -22,15 +22,20 @@ export function TeacherLivePage(){
   :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+mission.title+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true});
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,missions:course?.missions.map(m=>m.titleZh)||[]});
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{
-  if(!course||live.state!=="ended"||courseSavedRef.current||!live.turns.length)return;
+  if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
   courseSavedRef.current=true;
-  const result=scoreCourseSession(course,live.turns);
-  if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
-  setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
- },[course,live.state,live.turns]);
+  let cancelled=false;setEvaluating(true);setEvaluationError("");
+  void evaluateCourseSession(course,live.turns,live.report).then(result=>{
+   if(cancelled)return;
+   if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
+   setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
+  }).catch(error=>{if(!cancelled)setEvaluationError(error instanceof Error?error.message:"課程評估失敗")})
+  .finally(()=>{if(!cancelled)setEvaluating(false)});
+  return()=>{cancelled=true};
+ },[course?.id,live.state,live.report,live.turns,assessmentRetry]);
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to="/teacher/practice">‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
@@ -56,6 +61,6 @@ export function TeacherLivePage(){
   </div></details>
  </section>
  {live.report&&<section className="report-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">學習回顧</span><h3>課後學習報告</h3></div><div className="report-score">{String(live.report.overall_score??"--")}</div></div><div className="report-grid"><div className="report-stat"><b>{String(live.report.fluency_score??"--")}</b><span>流暢度</span></div><div className="report-stat"><b>{String(live.report.vocab_score??"--")}</b><span>詞彙</span></div><div className="report-stat"><b>{String(live.report.grammar_score??"--")}</b><span>文法</span></div></div><div className="report-body">{String(live.report.summary??"")}</div></section>}
- {course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">課程進度</span><h3>{course.titleZh}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>任務</span></div><div className="report-stat"><b>{courseResult.score}</b><span>完成度</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>星等</span></div></div><div className="report-body">{courseResult.stars?"這堂已記錄完成，可以回課程地圖繼續下一堂。":"這次還沒有完成足夠任務；可再練一次，不會鎖住目前這堂。"}</div><div className="actions"><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>回課程地圖</Link></div></section>}
+ {course&&evaluating&&<div className="notice"><div><b>正在評估情境任務…</b><p>依你的實際回答判斷，不只比對關鍵字。</p></div></div>}{course&&evaluationError&&<div className="notice"><div><b>課程評估暫時無法完成</b><p>{evaluationError}</p><button className="btn secondary small" onClick={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setAssessmentRetry(x=>x+1)}}>重新評估</button></div></div>}{course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">課程進度</span><h3>{course.titleZh}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>任務</span></div><div className="report-stat"><b>{courseResult.score}</b><span>完成度</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>星等</span></div></div><div className="report-body">{courseResult.stars?"這堂已記錄完成，可以回課程地圖繼續下一堂。":"這次還沒有完成足夠任務；可再練一次，不會鎖住目前這堂。"}</div><div className="actions"><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>回課程地圖</Link></div></section>}
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>
 }
