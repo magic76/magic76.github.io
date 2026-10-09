@@ -497,7 +497,9 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-portraits-hq.webp")));
- assert.ok(avatar.includes("/assets/teacher/teacher-portraits-hq.webp"));
+ assert.ok(avatar.includes('import portraitSprite from "../../../assets/teacher/teacher-portraits-hq.webp"'));
+ assert.ok(avatar.includes('backgroundImage:"url("+portraitSprite+")"'));
+ assert.ok(!avatar.includes('url("/assets/teacher/'),"portrait URL must be Vite-resolved on /crew-app/");
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
  assert.ok(tutor.includes("profile.voiceLabel"));
