@@ -20,6 +20,7 @@ export function normalizeLearningLanguage(language:string){
 }
 const storageKey=(language:string)=>PREFIX+encodeURIComponent(normalizeLearningLanguage(language));
 export function personalMemoryEnabled(){return localStorage.getItem(CONSENT)==="1"}
+export function hasPersonalMemoryDecision(){return localStorage.getItem(CONSENT)!==null}
 export function setPersonalMemoryEnabled(enabled:boolean){localStorage.setItem(CONSENT,enabled?"1":"0")}
 export function studentMemories(language:string):MemoryItem[]{
  try{
@@ -57,11 +58,22 @@ export function updateStudentMemory(language:string,id:string,patch:Partial<Pick
 }
 export function deleteStudentMemory(language:string,id:string){const list=studentMemories(language),item=list.find(m=>m.id===id);if(item)markErased(language,item.key);return persist(language,list.filter(m=>m.id!==id))}
 export function clearStudentMemory(language:string){for(const item of studentMemories(language))markErased(language,item.key);localStorage.removeItem(storageKey(language))}
+export function keysLikelyEquivalent(first:string,second:string){
+ const normalize=(v:string)=>v.normalize("NFKC").toLocaleLowerCase().replace(/[.,!?。，！？]/g," ").replace(/\s+/g," ").trim();
+ const a=normalize(first),b=normalize(second);if(!a||!b)return false;
+ if(a===b)return true;
+ if(Math.min(a.length,b.length)>=6&&Math.max(a.length,b.length)-Math.min(a.length,b.length)<=5&&(a.includes(b)||b.includes(a)))return true;
+ const drop=new Set(["english","learn","learning","practice","about","want","with","like","student","teacher"]);
+ const tokens=(v:string)=>new Set(v.split(" ").filter(t=>t.length>2&&!drop.has(t)));
+ const left=tokens(a),right=tokens(b);if(left.size<2||right.size<2)return false;
+ const common=[...left].filter(t=>right.has(t)).length;
+ return common>=2&&common*3>=2*Math.max(left.size,right.size);
+}
 function reportEntry(language:string,kind:MemoryKind,detail:string,key?:string,confidence=.65){
  const value=short(detail);if(!value)return;
  const list=studentMemories(language),k=short(key,90)||keyFor(kind,value),now=Date.now();
- if(erasedKeys(language).includes(k))return;
- const existing=list.find(x=>x.key===k&&x.type===kind);
+ if(erasedKeys(language).some(x=>x===k||(isPersonal(kind)&&keysLikelyEquivalent(x,k))))return;
+ const existing=list.find(x=>x.type===kind&&(x.key===k||(x.source==="report"&&isPersonal(kind)&&keysLikelyEquivalent(x.key,k))));
  if(existing){
   // A learner's explicit resolution/deletion always beats an inferred reappearance.
   if(!existing.active||existing.source==="self")return;
@@ -128,3 +140,11 @@ function context(language:string,roleplay:boolean){
 }
 export function buildTutorMemoryContext(language:string){return context(language,false)}
 export function buildRoleplayMemoryContext(language:string){return context(language,true)}
+
+/** Only existing stable keys travel to the already scheduled report request; no extra model call. */
+export function reportMemoryContext(language:string){
+ const items=studentMemories(language).filter(x=>x.active&&x.confidence>=0.45);
+ const weaknesses=items.filter(x=>x.type==="weakness").slice(0,5);
+ const personal=personalMemoryEnabled()?items.filter(x=>isPersonal(x.type)).slice(0,4):[];
+ return[...weaknesses,...personal].map(x=>x.type+" key="+short(x.key,85)+"; observations="+x.observations).join("\n").slice(0,1300);
+}
