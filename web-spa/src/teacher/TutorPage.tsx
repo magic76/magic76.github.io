@@ -1,6 +1,6 @@
 import{useState}from"react";import{Link}from"react-router-dom";
 import{useTeacherStore}from"../store/teacherStore";
-import{getTeacherProfile}from"./teacherProfiles";
+import{NATIVE_LANGUAGES,teacherText}from"./teacherLocale";import{getTeacherProfile}from"./teacherProfiles";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";import{TeacherAvatar}from"./TeacherAvatar";
 
 
@@ -14,7 +14,8 @@ export function TutorPage(){
  </div></section>
  <section className="section"><div className="section-head"><h2>快捷設定</h2><small>立即生效</small></div><div className="settings-grid">
  <button className="panel teacher-current-row" onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">目前老師</span><strong>{profile.name} · {profile.title}</strong><small>點擊切換</small></span></button>
- <label className="panel"><span className="label">目標語言</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
+ <label className="panel"><span className="label">{teacherText(s.nativeLanguage,"nativeLanguage")}</span><select className="field" value={s.nativeLanguage} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value,label])=><option value={value} key={value}>{label}</option>)}</select><small className="meta">{teacherText(s.nativeLanguage,"languageHelp")}</small></label>
+ <label className="panel"><span className="label">{teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
  <label className="panel"><span className="label">聊天模式</span><select className="field" value={s.conversationMode} onChange={e=>s.setConversationMode(e.target.value as typeof s.conversationMode)}><option value="natural">自然聊天</option><option value="scenario">情境聊天</option><option value="practice">練習聊天</option></select></label>
  <label className="panel"><span className="label">練習方式</span><select className="field" value={s.guidance} onChange={e=>s.setGuidance(e.target.value as typeof s.guidance)}><option value="light">輕度引導</option><option value="normal">適時修正</option><option value="strict">積極糾正</option></select></label>
  <div className="panel"><span className="label">老師聲音</span><strong>{profile.voiceLabel}</strong><p className="meta">切換老師時會自動套用適合這個角色的聲音。</p></div>
