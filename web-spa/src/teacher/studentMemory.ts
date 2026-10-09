@@ -110,7 +110,7 @@ export function ingestStudentReport(language:string,report:any,turns:Array<{inpu
  }
 }
 function context(language:string,roleplay:boolean){
- const eligible=studentMemories(language).filter(m=>m.active&&m.confidence>=(roleplay?.5:.4)
+ const eligible=studentMemories(language).filter(m=>m.active&&m.confidence>=(roleplay?0.5:0.4)
  &&(!isPersonal(m.type)||m.source==="self"||personalMemoryEnabled()));
  const selected=roleplay?eligible.filter(m=>isPersonal(m.type)).slice(0,3):
  [...eligible.filter(m=>isPersonal(m.type)).slice(0,3),...eligible.filter(m=>!isPersonal(m.type))].slice(0,8);
