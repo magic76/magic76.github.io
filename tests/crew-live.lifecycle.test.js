@@ -780,3 +780,66 @@ test("proactive opening is sent only once across fallback reconnects",async()=>{
 
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+
+test("manual interrupt cancels the server turn and rejects late audio until new user speech",async()=>{
+  resetSockets();
+  const logs=[],speaking=[],outputs=[],completed=[];
+  const {deps}=makeDeps(logs);
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,
+    onSpeaking:v=>speaking.push(v),
+    onOutputTranscript:v=>outputs.push(v),
+    onTurnComplete:t=>completed.push(t)
+  });
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+
+  const pcm=Buffer.alloc(4800).toString("base64");
+  const audio=()=>({modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}});
+  socket.message({serverContent:audio()});
+  assert.equal(session.modelSpeaking,true);
+  assert.equal(session.interrupt(),true);
+  assert.equal(session.modelSpeaking,false);
+  assert.equal(session.hasPendingPlayback(),false);
+  assert.equal(session.interrupt(),true,"repeat tap should not send another control");
+
+  const controls=socket.sent.filter(x=>x.clientContent?.turns?.[0]?.parts?.[0]?.text?.includes("[INTERRUPT CONTROL]"));
+  assert.equal(controls.length,1);
+  assert.equal(controls[0].clientContent.turnComplete,true);
+  assert.equal(socket.sent.filter(x=>x.realtimeInput?.audio).length,0,"do not synthesize silence instead of real interrupt");
+
+  socket.message({serverContent:{...audio(),outputTranscription:{text:"Stale speech"}}});
+  assert.equal(session.modelSpeaking,false);
+  assert.equal(session.hasPendingPlayback(),false);
+  assert.deepEqual(outputs,[]);
+
+  socket.message({serverContent:{interrupted:true}});
+  socket.message({serverContent:{...audio(),outputTranscription:{text:"Still stale"}}});
+  socket.message({serverContent:{turnComplete:true}});
+  assert.equal(session.modelSpeaking,false);
+  assert.deepEqual(completed,[],"canceled answer must not enter saved history");
+  assert.deepEqual(outputs,[],"canceled transcripts must not be displayed");
+
+  socket.message({serverContent:{inputTranscription:{text:"Tell me about the next period."}}});
+  socket.message({serverContent:audio()});
+  assert.equal(session.modelSpeaking,true,"new real question must unlock the next response");
+  socket.message({serverContent:{outputTranscription:{text:"A fresh answer"},turnComplete:true}});
+  assert.deepEqual(outputs,["A fresh answer"]);
+  assert.equal(completed.length,1);
+  assert.equal(completed[0].output,"A fresh answer");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("Fortune voice prompt avoids leading every reply with conclusion headers",()=>{
+ const fs=require("node:fs");
+ const path=require("node:path");
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/fortune/LivePage.tsx"),"utf8");
+ assert.ok(!source.includes("先講結論，再補"));
+ assert.match(source,/不要以「結論」/);
+ assert.match(source,/真人感語音對話/);
+ assert.match(source,/\[INTERRUPT CONTROL\]/);
+});
