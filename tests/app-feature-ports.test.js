@@ -443,7 +443,7 @@ test("Teacher vocabulary uses spaced review recovery and date-aware progress",()
  assert.ok(page.includes("incrementTodayVocabulary"));
  assert.ok(progress.includes("nextReviewAt"));
  for(const days of ["return 7","return 14","return 30","return 60","return 120"])assert.ok(progress.includes(days));
- assert.ok(queue.includes("slot%10"));
+ assert.ok(queue.includes("slot%7"));
  assert.ok(queue.includes("flowRecovery"));
 });
 
