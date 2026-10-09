@@ -25,7 +25,7 @@ export function useLiveSession(config:Config){
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
- const visionSendingRef=useRef(false);
+ const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
  const [volume,setVolumeValue]=useState(Number(localStorage.getItem("crew_live_volume")||100));
  useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs())},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
@@ -58,7 +58,7 @@ export function useLiveSession(config:Config){
   if(!geminiKey()){setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   turnsRef.current=[];savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
+   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
@@ -67,9 +67,18 @@ export function useLiveSession(config:Config){
     onState:v=>{if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>setState(v?"speaking":"listening"),
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
-    onInputTranscript:setInput,onOutputTranscript:setOutput,
+    onInputTranscript:v=>{setInput(v);if(v.trim())awaitingTutorRef.current=true},onOutputTranscript:setOutput,
+    onRecovered:()=>{if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
+      recoveryRequestRef.current=true;
+      const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
+      const prompt=roleplay
+      ?"[SCENE CONTROL — silent reconnect recovery] Your previous in-character reply was interrupted. Continue the unanswered response without greeting or explaining grammar. Do not repeat parts already spoken."
+      :"[COACH CONTROL — silent reconnect recovery] The connection interrupted a reply. Answer or finish the learner's previous utterance naturally from the next unsaid point. Do not greet, repeat previous sentences, or ask the learner to repeat.";
+      if(session.sendText(prompt))setStatus("已恢復連線，老師接續剛才的回答…");
+      else recoveryRequestRef.current=false;
+    },
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
-    onTurnComplete:turn=>configRef.current.onTurnComplete?.(turn),
+    onTurnComplete:turn=>{if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}configRef.current.onTurnComplete?.(turn)},
     onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
@@ -77,7 +86,7 @@ export function useLiveSession(config:Config){
   }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async()=>{const s=sessionRef.current;if(!s)return;setState("ending");setStatus("正在結束…");const item=snapshot("user-stop");try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}finally{sessionRef.current=null}await finish(item)},[finish,snapshot]);
- const interrupt=useCallback(()=>sessionRef.current?.interrupt()??false,[]);
+ const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
  const sendPreparedImage=useCallback((image:unknown,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;return s.sendImage(image,{prompt,statusText:"最新照片已送出"})},[]);
