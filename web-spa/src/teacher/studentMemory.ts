@@ -9,6 +9,9 @@ export type MemoryItem={
 };
 const PREFIX="crew_teacher_student_memory_v2_";
 const CONSENT="crew_teacher_personal_memory_opt_in_v2";
+const ERASED="crew_teacher_student_memory_erased_v2_";
+function erasedKeys(language:string):string[]{try{return JSON.parse(localStorage.getItem(ERASED+encodeURIComponent(normalizeLearningLanguage(language)))||"[]")}catch{return[]}}
+function markErased(language:string,key:string){const keys=erasedKeys(language);localStorage.setItem(ERASED+encodeURIComponent(normalizeLearningLanguage(language)),JSON.stringify([...new Set([...keys,key])].slice(-256)))}
 const PERSONAL=new Set<MemoryKind>(["goal","interest","preference"]);
 const MAX_ITEMS=64;
 const short=(v:unknown,n=180)=>String(v??"").trim().slice(0,n);
@@ -38,6 +41,7 @@ function keyFor(type:MemoryKind,detail:string){
 export function saveStudentMemory(language:string,type:MemoryKind,detail:string){
  const value=short(detail,180);if(!value)return studentMemories(language);
  const list=studentMemories(language),key=keyFor(type,value),now=Date.now();
+ const restore=erasedKeys(language).filter(k=>k!==key);localStorage.setItem(ERASED+encodeURIComponent(normalizeLearningLanguage(language)),JSON.stringify(restore));
  const item=list.find(m=>m.key===key);
  if(item){item.detail=value;item.source="self";item.confidence=1;item.active=true;item.updatedAt=now}
  else list.unshift({id:"sm_"+now+"_"+Math.random().toString(36).slice(2,8),type,key,detail:value,
@@ -51,11 +55,12 @@ export function updateStudentMemory(language:string,id:string,patch:Partial<Pick
  if(patch.active!==undefined)item.active=patch.active;
  item.updatedAt=Date.now();return persist(language,list);
 }
-export function deleteStudentMemory(language:string,id:string){return persist(language,studentMemories(language).filter(m=>m.id!==id))}
-export function clearStudentMemory(language:string){localStorage.removeItem(storageKey(language))}
+export function deleteStudentMemory(language:string,id:string){const list=studentMemories(language),item=list.find(m=>m.id===id);if(item)markErased(language,item.key);return persist(language,list.filter(m=>m.id!==id))}
+export function clearStudentMemory(language:string){for(const item of studentMemories(language))markErased(language,item.key);localStorage.removeItem(storageKey(language))}
 function reportEntry(language:string,kind:MemoryKind,detail:string,key?:string,confidence=.65){
  const value=short(detail);if(!value)return;
  const list=studentMemories(language),k=short(key,90)||keyFor(kind,value),now=Date.now();
+ if(erasedKeys(language).includes(k))return;
  const existing=list.find(x=>x.key===k&&x.type===kind);
  if(existing){
   // A learner's explicit resolution/deletion always beats an inferred reappearance.
