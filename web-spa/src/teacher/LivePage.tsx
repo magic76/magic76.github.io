@@ -1,7 +1,8 @@
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
-import{getTeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{saveLessonProgress,scoreCourseSession}from"./courseProgress";
+import{getTeacherProfile}from"./teacherProfiles";
+import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{saveLessonProgress,scoreCourseSession}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
@@ -9,15 +10,16 @@ export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null);
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
- const system=useMemo(()=>{
-  const guidance=s.guidance==="light"?"優先保持流暢，只修正會造成誤解的錯誤。":s.guidance==="strict"?"文法、用字與不自然表達都短暫指出，給自然說法後讓學生重說一次。":"明顯錯誤時用簡短 recast 修正，不要長篇講課。";
-  const mode=mission?"你正在帶結構化情境任務。扮演真人角色，不先給答案。逐步完成："+mission.goals.join("、")+"。":s.conversationMode==="scenario"?"使用情境角色扮演方式聊天。":s.conversationMode==="practice"?"偏向口說教練模式，多一點具體修正與重說。":"使用自然聊天模式，不要每回合都糾正。";
-  const style=s.targetLanguage==="英文"&&s.languageStyle!=="auto"?"英文使用自然的"+(s.languageStyle==="gb"?"英國":s.languageStyle==="au"?"澳洲":"美國")+"當代日常口音與措辭。":"";
-  return"你是 Crew Teacher 的真人感語言老師。"+teacherIdentityPrompt(profile)+" 目標語言："+s.targetLanguage+"。學生推估程度："+vocabularyLevel()+"。"+(scene?"目前情境："+scene+"。":"")+(mission?.rolePrompt?"角色設定："+mission.rolePrompt+"。":"")+mode+guidance+style+"以目標語言為主，學生卡住時才用繁中短解釋。一次 1-3 句。"
- },[mission,scene,s.targetLanguage,s.guidance,s.conversationMode,s.languageStyle,profile]);
+ const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
+ const system=useMemo(()=>buildTeacherSessionPolicy({
+  language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
+  rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
+  profile,guidance:s.guidance,conversationMode:s.conversationMode,
+  languageStyle:s.languageStyle,level:vocabularyLevel()
+ }),[s.targetLanguage,s.guidance,s.conversationMode,s.languageStyle,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
-  :mission
+  :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+mission.title+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
  const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true});
@@ -41,7 +43,7 @@ export function TeacherLivePage(){
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>
   <LiveControls live={live}/>
-  <div className="live-presets"><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button><button onClick={()=>live.sendText("現在進入角色扮演，請直接扮演情境裡的真人角色，不要重新打招呼。")}>角色扮演</button><button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
+  <div className="live-presets">{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button><button onClick={()=>live.sendText("現在進入角色扮演，請直接扮演情境裡的真人角色，不要重新打招呼。")}>角色扮演</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
    <button className="teacher-current-row live-teacher-row" disabled={sessionActive} onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">老師</span><strong>{profile.name} · {profile.title}</strong><small>{sessionActive?"結束這次練習後可切換":"點擊切換"}</small></span></button>
