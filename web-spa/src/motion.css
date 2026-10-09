@@ -18,7 +18,7 @@
 .global-nav .navitem{position:relative;z-index:1;transition:color 240ms ease}
 .global-nav .navitem .nav-icon{background:transparent;transition:transform 240ms var(--crew-motion-ease)}
 .global-nav .navitem.active .nav-icon{background:transparent;transform:translateY(-2px) scale(1.06)}
-.global-nav .nav-indicator{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:25%;background:var(--accent-soft);border-radius:15px;pointer-events:none;transform:translateX(calc(var(--nav-index) * 100%));transition:transform 240ms var(--crew-motion-ease),background-color 240ms ease,opacity 150ms ease}
+.global-nav .nav-indicator{position:absolute;z-index:0;top:6px;bottom:6px;left:0;width:20%;background:var(--accent-soft);border-radius:15px;pointer-events:none;transform:translateX(calc(var(--nav-index) * 100%));transition:transform 240ms var(--crew-motion-ease),background-color 240ms ease,opacity 150ms ease}
 .global-nav .nav-indicator[data-inactive="true"]{opacity:0}
 .subnav a{transition:color 150ms ease,background-color 240ms ease,box-shadow 240ms ease}
 .teacher-picker-backdrop{animation:crew-overlay-in 180ms ease-out both}
@@ -54,3 +54,6 @@
  .hub-grid .hub-card{translate:none!important}
  .teacher-presence-shell::after{opacity:0!important}
 }
+
+/* On desktop the main navigation becomes a vertical rail. */
+@media(min-width:1100px){.global-nav .nav-indicator{display:none}.global-nav .navitem.active{background:var(--accent-soft);border-radius:14px}}

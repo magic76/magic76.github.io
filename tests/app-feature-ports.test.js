@@ -470,20 +470,21 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
 });
 
 
-test("Story and Fortune reuse one Web Gemini setup flow while preserving Android semantics",()=>{
- const notice=fs.readFileSync(path.join(root,"web-spa/src/components/GeminiSetupNotice.tsx"),"utf8");
+test("Story and Fortune use shared global Gemini settings without duplicate Key cards",()=>{
  const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
- assert.ok(story.includes('GeminiSetupNotice product="story"'));
- assert.ok(fortune.includes('GeminiSetupNotice product="fortune"'));
- assert.ok(notice.includes("故事創作、實體書陪讀與 AI 功能需要 Key"));
- assert.ok(notice.includes("命盤計算與基本結果不需要 Key"));
- assert.ok(notice.includes("AI 解讀與老師對話才需要"));
+ const create=fs.readFileSync(path.join(root,"web-spa/src/story/CreatePage.tsx"),"utf8");
+ const reading=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ assert.ok(!story.includes("GeminiSetupNotice"));
+ assert.ok(!fortune.includes("GeminiSetupNotice"));
+ assert.ok(create.includes("需要先設定 Gemini Key 才能創作故事。"));
+ assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
+ assert.ok(settings.includes("Teacher、Story、Fortune 共用同一組 Key"));
  assert.ok(settings.includes("https://aistudio.google.com/apikey"));
  assert.ok(settings.includes("Google 專案管理"));
- assert.ok(!story.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
- assert.ok(!fortune.includes("aistudio.google.com"),"product pages should reuse the shared setup flow");
+ assert.ok(!story.includes("aistudio.google.com"),"Story should not have separate Key setup");
+ assert.ok(!fortune.includes("aistudio.google.com"),"Fortune should not have separate Key setup");
 });
 
 
@@ -597,7 +598,7 @@ test("Crew Web recent activity resumes real product state and keeps secondary co
  assert.ok(home.includes("/teacher/live?history="));
  assert.ok(home.includes("?page="));
  assert.ok(home.indexOf("繼續上次")<home.indexOf("Android 版"));
- assert.ok(!chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'));
+ assert.ok(chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'),"Settings must be visible in the primary navigation");
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
  assert.ok(!player.includes("story-page-slider"));

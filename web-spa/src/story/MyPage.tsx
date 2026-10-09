@@ -1,13 +1,13 @@
-import{useEffect,useState}from"react";import{Link}from"react-router-dom";import{PlayStoreLink}from"../components/PlayStoreLink";import{GeminiSetupNotice}from"../components/GeminiSetupNotice";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
+import{useEffect,useState}from"react";import{Link}from"react-router-dom";import{PlayStoreLink}from"../components/PlayStoreLink";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
 const LANGS=[["zh-TW","繁體中文"],["en","English"],["ja","日本語"],["ko","한국어"],["fr","Français"],["de","Deutsch"],["es","Español"]];
 const VOICES=["Leda","Kore","Aoede","Puck","Charon","Fenrir"];
 export function StoryMyPage(){
  const[count,setCount]=useState(0),[language,setLanguage]=useState(localStorage.getItem("crew_story_language")||"zh-TW"),[voice,setVoice]=useState(localStorage.getItem("crew_story_voice")||"Leda"),[style,setStyle]=useState(localStorage.getItem("crew_story_style")||"溫暖冒險");
  useEffect(()=>{void ensureStoryServices().then(async()=>setCount((await window.CrewStoryStore!.list()).length))},[]);
  const save=(key:string,value:string,set:(v:string)=>void)=>{localStorage.setItem("crew_story_"+key,value);set(value)};
- return <><section className="hero"><span className="kicker">My Story</span><h1>我的 Story</h1><p>管理故事偏好、聲線與 AI 設定。</p></section>
+ return <><section className="hero"><span className="kicker">My Story</span><h1>我的 Story</h1><p>管理故事偏好、說書語言與聲線。</p></section>
  <section className="section"><div className="teacher-stats"><div><strong>{count}</strong><span>我的故事</span></div><div><strong>{BUILT_IN_STORIES.length}</strong><span>內建故事</span></div><div><strong>{language}</strong><span>說書語言</span></div></div></section>
  <section className="section panel"><div className="section-head"><h2>故事偏好</h2></div><label className="label">說書語言</label><select className="field" value={language} onChange={e=>save("language",e.target.value,setLanguage)}>{LANGS.map(x=><option key={x[0]} value={x[0]}>{x[1]}</option>)}</select><label className="label">阿奇聲線</label><select className="field" value={voice} onChange={e=>save("voice",e.target.value,setVoice)}>{VOICES.map(x=><option key={x} value={x}>{x}</option>)}</select><label className="label">預設故事風格</label><select className="field" value={style} onChange={e=>save("style",e.target.value,setStyle)}><option>溫暖冒險</option><option>睡前故事</option><option>搞笑</option><option>神秘</option><option>奇幻</option></select></section>
  <section className="section panel"><div className="section-head"><h2>Android 版</h2><small>Google Play</small></div><p className="meta">想在手機上使用完整的 Crew Story，可以直接安裝 Android App。</p><PlayStoreLink product="story" compact/></section>
- <section className="section panel"><div className="section-head"><h2>AI 與進階</h2></div><GeminiSetupNotice product="story"/><div className="notice" style={{marginTop:12}}><div><b>關於照片與語音</b><p>只上傳你願意送到已設定 AI 服務的照片、語音與故事內容。</p></div></div></section></>
+ <section className="section panel"><div className="section-head"><h2>隱私與內容</h2></div><div className="notice"><div><b>關於照片與語音</b><p>只上傳你願意送到 AI 服務的照片、語音與故事內容。Gemini Key 由全站設定統一管理。</p></div></div></section></>
 }
