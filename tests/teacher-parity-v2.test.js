@@ -1,7 +1,7 @@
 const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 function storage(){
  const data=new Map();
@@ -9,9 +9,10 @@ function storage(){
 }
 function load(modulePath,localStorage){
  const source=fs.readFileSync(path.join(root,modulePath),"utf8");
- const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ const js=stripTypeScriptTypes(source,{mode:"transform"}).replace(/\bexport\s+(?=(?:function|const|let|class))/g,"");
+ const names=modulePath.includes("adaptivePlacement")?["placementState","recordPlacement"]:["personalMemoryEnabled","saveStudentMemory","studentMemories","buildTutorMemoryContext","buildRoleplayMemoryContext","ingestStudentReport","setPersonalMemoryEnabled","deleteStudentMemory"];
  const exports={},ctx={exports,localStorage,Date,Math,JSON};
- vm.runInNewContext(js,ctx,{filename:modulePath});return exports;
+ vm.runInNewContext(js+"\nObject.assign(exports,{"+names.join(",")+"});",ctx,{filename:modulePath});return exports;
 }
 test("verified next-band vocabulary requires two correct probes and ignores failed stretch guesses",()=>{
  const store=storage(),p=load("web-spa/src/teacher/adaptivePlacement.ts",store);
