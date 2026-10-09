@@ -1,3 +1,4 @@
+import{ingestStudentReport}from"../teacher/studentMemory";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 
@@ -6,7 +7,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
- language?:string;teacherReport?:boolean;
+ language?:string;teacherReport?:boolean;missions?:string[];
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
@@ -40,8 +41,8 @@ export function useLiveSession(config:Config){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
-     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文"});
-     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r})}
+     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[]});
+     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
     }
    }
   }catch(_){
@@ -98,6 +99,7 @@ export function useLiveSession(config:Config){
    visionSendingRef.current=false;setVisionSending(false);
   }
  },[]);
+ const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
@@ -107,5 +109,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,setVolume};
+ return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }

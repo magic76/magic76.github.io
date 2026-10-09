@@ -6,7 +6,7 @@
 })(typeof window!=="undefined"?window:globalThis,function(global){
   "use strict";
 
-  var DEFAULT_MODELS=["gemini-3.1-flash-live-preview","gemini-3.8-live"];
+  var DEFAULT_MODELS=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
 
   function sanitizeDetail(value){
     var text=String(value==null?"":value);
@@ -612,6 +612,22 @@
       return true;
     }catch(error){
       this._beginRecovery(attempt,"vision-send",error);
+      return false;
+    }
+  };
+
+  // Camera observations share the existing Live socket; unlike photos they
+  // do not create a user text turn or force an AI response every few seconds.
+  LiveSession.prototype.sendVideoFrame=function(frame){
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt))return false;
+    var data=frame&&frame.data,kind=frame&&frame.mimeType||"image/jpeg";
+    if(typeof data!=="string"||!data||!/^image\/(?:jpeg|png|webp)$/.test(kind))return false;
+    try{
+      attempt.socket.send(JSON.stringify({realtimeInput:{video:{data:data,mimeType:kind}}}));
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"camera-frame",error);
       return false;
     }
   };
