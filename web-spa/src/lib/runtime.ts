@@ -10,7 +10,7 @@ export type LiveSessionOptions={
 export interface LiveSession{
  ready:boolean;running:boolean;model:string;micMuted:boolean;
  start():Promise<void>;stop(options?:Record<string,unknown>):Promise<void>;setVolume(value:number):void;
- toggleMic():void;interrupt():boolean;sendText(text:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;
+ toggleMic():void;interrupt():boolean;sendText(text:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
  getDurationMs():number;waitForPlaybackDrain(maxMs?:number):Promise<void>;
 }
 type StoryBook={id:string;title?:string;summary?:string;idea?:string;coverIndex?:number;images?:any[];pages?:any[];currentPage?:number;updatedAt?:string};
