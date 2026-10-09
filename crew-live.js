@@ -246,6 +246,10 @@
     this.interruptPending=true;
     this.interruptStopSeen=false;
     this.interruptInputSeen=false;
+    this.inputTurn="";
+    this.outputTurn="";
+    this.currentTurnHadAudio=false;
+    this.currentTurnHadValidOutput=false;
     this._clearPlayback();
     if(this.options.onSpeaking)this.options.onSpeaking(false);
     try{
@@ -432,6 +436,7 @@
 
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt)||this.interruptPending)return;
+    if(!this.modelSpeaking)this.playbackEpoch++;
     this.modelSpeaking=true;
 
     // Android can transiently suspend Web Audio when the communication route
@@ -537,6 +542,7 @@
           turnComplete:true
         }
       }));
+      if(this.interruptPending)this.interruptInputSeen=true;
       return true;
     }catch(error){
       this._beginRecovery(attempt,"text-send",error);
@@ -602,6 +608,7 @@
       }
 
       this._status(options.statusText||"最新照片已送出");
+      if(this.interruptPending)this.interruptInputSeen=true;
       return true;
     }catch(error){
       this._beginRecovery(attempt,"vision-send",error);
