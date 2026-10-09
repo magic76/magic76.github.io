@@ -7,7 +7,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
- language?:string;teacherReport?:boolean;
+ language?:string;teacherReport?:boolean;missions?:string[];
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
@@ -41,7 +41,7 @@ export function useLiveSession(config:Config){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
-     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文"});
+     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[]});
      if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
     }
    }
