@@ -17,9 +17,12 @@ test("all tutor avatar slots use Vite-bundled profile assets",()=>{
  const avatar=read("web-spa/src/teacher/TeacherAvatar.tsx");
  const profiles=read("web-spa/src/teacher/teacherProfiles.ts");
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
- assert.match(avatar,/src=\{profile\.avatar\}/);
+ assert.match(avatar,/import portraitSprite from/);
+ assert.match(avatar,/backgroundImage:"url\("\+portraitSprite\+"\)"/);
  assert.doesNotMatch(avatar,/url\("\/assets\/teacher/);
- assert.match(avatar,/alt=\{decorative\?"":profile\.name\}/);
+ assert.match(avatar,/aria-label=\{decorative\?undefined:profile\.name\}/);
+ const css=read("web-spa/src/styles.css");
+ assert.match(css,/\.teacher-avatar-image\{display:block;width:100%;height:100%/);
  assert.match(tutor,/className="avatar"><TeacherAvatar profile=\{profile\}/);
  for(const id of ["emma","alex","james","mia","sophie","lina"]){
   assert.match(profiles,new RegExp("teacher-"+id+"\\.webp"));
