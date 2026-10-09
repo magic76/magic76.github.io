@@ -72,7 +72,10 @@ test("Teacher React mirrors native app feature names",()=>{
 
 test("Teacher React keeps adaptive vocabulary review behavior",()=>{
  const source=fs.readFileSync(path.join(root,"web-spa/src/teacher/VocabularyPage.tsx"),"utf8");
- assert.ok(source.includes("crew_vocab_score"));
+ assert.ok(source.includes("recordPlacement"));
+ const placement=fs.readFileSync(path.join(root,"web-spa/src/teacher/adaptivePlacement.ts"),"utf8");
+ assert.ok(placement.includes("crew_vocab_score"));
+ assert.ok(placement.includes("probeWins>=2"));
  assert.ok(source.includes("3000"));
  assert.ok(source.includes("speechSynthesis"));
 });
@@ -153,7 +156,7 @@ test("Teacher Web mirrors native selectable tutor profiles",()=>{
  assert.ok(picker.includes("TEACHER_PROFILES"));
  assert.ok(tutor.includes("TeacherProfilePicker"));
  assert.ok(live.includes("TeacherProfilePicker"));
- assert.ok(live.includes("teacherIdentityPrompt(profile)"));
+ assert.ok(live.includes("buildTeacherSessionPolicy"));
 });
 
 test("Teacher session openings stay natural across new sessions and reconnects",()=>{
@@ -421,7 +424,7 @@ test("Teacher Web mirrors Android authored course map and daily coordinator",()=
  assert.ok(course.includes("COURSE_TRACKS"));
  assert.ok(course.includes("lessonUnlocked"));
  assert.ok(course.includes("31 堂課"));
- assert.ok(live.includes("scoreCourseSession"));
+ assert.ok(live.includes("evaluateCourseSession"));
  assert.ok(live.includes("saveLessonProgress"));
  assert.ok(practice.includes("ContinueLearningCard"));
  assert.ok(!practice.includes("PracticeTutorStrip"));
