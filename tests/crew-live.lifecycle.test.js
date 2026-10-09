@@ -312,7 +312,7 @@ test("default handshake matches Crew Teacher v1alpha path and model priority",as
   socket.open();
 
   const setup=socket.sent[0].setup;
-  assert.equal(setup.model,"models/gemini-3.1-flash-live-preview");
+  assert.equal(setup.model,"models/gemini-3.8-live");
   assert.deepEqual(setup.generationConfig.responseModalities,["AUDIO"]);
   assert.deepEqual(setup.contextWindowCompression,{slidingWindow:{}});
   assert.deepEqual(setup.sessionResumption,{});
@@ -323,7 +323,7 @@ test("default handshake matches Crew Teacher v1alpha path and model priority",as
   socket.message({setupComplete:{}});
   await starting;
 
-  assert.equal(session.model,"gemini-3.1-flash-live-preview");
+  assert.equal(session.model,"gemini-3.8-live");
   assert.equal(session.ready,true);
 
   await session.stop({silentStatus:true,emitTerminal:false});
