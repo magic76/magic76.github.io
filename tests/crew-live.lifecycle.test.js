@@ -426,17 +426,20 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
   assert.equal(session.toggleMic(),false);
   assert.equal(track.enabled,true);
 
+  const pcm=Buffer.alloc(2400).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
   assert.equal(session.interrupt(),true);
-  const interruptMessage=socket.sent.find(item=>item.realtimeInput&&item.realtimeInput.audio);
+  const interruptMessage=socket.sent.find(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text?.includes("[INTERRUPT CONTROL]"));
   assert.ok(interruptMessage);
-
-  socket.message({
-    serverContent:{
-      inputTranscription:{text:"你好"},
-      outputTranscription:{text:"你好，很高興見到你"},
-      turnComplete:true
-    }
-  });
+  assert.equal(interruptMessage.clientContent.turnComplete,true);
+  socket.message({serverContent:{interrupted:true}});
+  socket.message({serverContent:{turnComplete:true}});
+  socket.message({serverContent:{inputTranscription:{text:"你好"}}});
+  socket.message({serverContent:{
+    outputTranscription:{text:"你好，很高興見到你"},
+    turnComplete:false
+  }});
+  socket.message({serverContent:{turnComplete:true}});
 
   assert.equal(turns.length,1);
   assert.equal(session.getTranscript().length,1);
