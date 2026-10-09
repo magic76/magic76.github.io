@@ -1,3 +1,4 @@
+import{ingestStudentReport}from"../teacher/studentMemory";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 
@@ -41,7 +42,7 @@ export function useLiveSession(config:Config){
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
      const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文"});
-     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r})}
+     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
     }
    }
   }catch(_){
