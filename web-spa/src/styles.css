@@ -417,3 +417,99 @@ body{min-height:100vh;padding-bottom:0}
 .teacher-detail-actions{align-self:stretch;display:flex;flex-direction:column;gap:9px;margin-top:10px;padding-bottom:2px}
 .teacher-detail-actions .btn{min-height:44px}.teacher-preview-error{font-size:12px;color:var(--danger);margin:0}
 @media(max-width:420px){.teacher-gallery-dialog{padding:13px}.teacher-gallery-card .teacher-profile-image{width:72px;height:72px}.teacher-profile-option.teacher-gallery-card{min-height:180px}.teacher-gallery-footer p{font-size:10px}}
+
+
+// Crew Motion System — short, state-driven transitions shared by all products.
+:root{--crew-motion-fast:150ms;--crew-motion-normal:240ms;--crew-motion-slow:340ms;--crew-motion-ease:cubic-bezier(.22,1,.36,1)}
+.page-enter{animation:crew-page-arrive var(--crew-motion-normal) var(--crew-motion-ease) both}
+@keyframes crew-page-arrive{from{opacity:.65;transform:translate3d(0,9px,0)}to{opacity:1;transform:translateZ(0)}}
+.nav-indicator{transition:transform var(--crew-motion-normal) var(--crew-motion-ease),opacity var(--crew-motion-fast) ease}
+.navitem,.subnav a,.route-tabs a{transition:color var(--crew-motion-fast) ease,background-color var(--crew-motion-fast) ease}
+.navitem .nav-icon{transition:transform var(--crew-motion-normal) var(--crew-motion-ease)}
+.navitem.active .nav-icon{transform:translateY(-2px)}
+.feature-card,.story-action-tile,.fortune-home-mode,.continue-learning-card,.teacher-current-row,.course-track-tabs button{transition:transform var(--crew-motion-normal) var(--crew-motion-ease),box-shadow var(--crew-motion-normal) ease,border-color var(--crew-motion-fast) ease}
+@media(hover:hover) and (pointer:fine){.feature-card:hover,.story-action-tile:hover,.fortune-home-mode:hover,.continue-learning-card:hover{transform:translateY(-3px);box-shadow:0 12px 34px rgba(40,40,70,.12)}}
+.feature-card:active,.story-action-tile:active,.fortune-home-mode:active,.continue-learning-card:active,.teacher-current-row:active,.course-track-tabs button:active{transform:scale(.985)}
+button,.btn{touch-action:manipulation}
+button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+/* Presence represents REAL transport / playback state; no simulated audio amplitude. */
+.teacher-presence-shell{position:relative;display:grid;place-items:center;isolation:isolate}
+.teacher-presence-orbit{position:absolute;inset:-13px;border:2px solid transparent;border-radius:50%;pointer-events:none;opacity:0;transform:scale(.94);transition:opacity var(--crew-motion-normal) ease,border-color var(--crew-motion-normal) ease}
+.teacher-presence-shell[data-state="connecting"] .teacher-presence-orbit{opacity:.85;border-color:#d49a37;animation:crew-connecting-ring 1.4s ease-in-out infinite}
+.teacher-presence-shell[data-state="listening"] .teacher-presence-orbit{opacity:1;border-color:#4b9b67;animation:crew-listening-ring 2s ease-in-out infinite}
+.teacher-presence-shell[data-state="speaking"] .teacher-presence-orbit{opacity:1;border-color:var(--accent);animation:crew-speaking-ring 1.1s ease-in-out infinite}
+@keyframes crew-connecting-ring{0%,100%{transform:scale(.93);opacity:.35}50%{transform:scale(1.02);opacity:.9}}
+@keyframes crew-listening-ring{0%,100%{transform:scale(.97);opacity:.48}50%{transform:scale(1.01);opacity:.8}}
+@keyframes crew-speaking-ring{0%,100%{transform:scale(.96);opacity:.55}50%{transform:scale(1.05);opacity:1}}
+.live-line.show{animation:crew-copy-reveal var(--crew-motion-normal) var(--crew-motion-ease) both}
+@keyframes crew-copy-reveal{from{opacity:.45;transform:translateY(5px)}to{opacity:1;transform:none}}
+.live-presets button,.live-tool-btn,.story-player-controls button{transition:transform var(--crew-motion-fast) var(--crew-motion-ease),background-color var(--crew-motion-fast) ease}
+.live-presets button:active,.live-tool-btn:active,.story-player-controls button:active{transform:scale(.96)}
+
+/* Portrait gallery: modal + detail transitions and playback feedback. */
+.teacher-picker-backdrop{animation:crew-backdrop-in var(--crew-motion-normal) ease both}
+.teacher-gallery-dialog{view-transition-name:crew-teacher-gallery;animation:crew-panel-rise var(--crew-motion-slow) var(--crew-motion-ease) both}
+::view-transition-old(crew-teacher-gallery){animation:crew-view-old .16s ease both}
+::view-transition-new(crew-teacher-gallery){animation:crew-view-new .24s var(--crew-motion-ease) both}
+@keyframes crew-backdrop-in{from{background-color:rgba(20,20,20,0)}to{background-color:rgba(20,20,20,.48)}}
+@keyframes crew-panel-rise{from{opacity:.55;transform:translateY(14px) scale(.975)}to{opacity:1;transform:none}}
+@keyframes crew-view-old{to{opacity:.2;transform:scale(.98)}}
+@keyframes crew-view-new{from{opacity:.2;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.teacher-gallery-card{animation:crew-card-appear .24s var(--crew-motion-ease) both;transition:transform var(--crew-motion-normal) var(--crew-motion-ease),border-color var(--crew-motion-fast),box-shadow var(--crew-motion-normal)}
+.teacher-gallery-card:nth-child(2n){animation-delay:28ms}
+@keyframes crew-card-appear{from{opacity:.25;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media(hover:hover) and (pointer:fine){.teacher-gallery-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(50,40,90,.12)}}
+.teacher-gallery-card:active{transform:scale(.97)}
+.teacher-gallery-card .teacher-profile-image,.teacher-detail-portrait{transition:transform var(--crew-motion-normal) var(--crew-motion-ease)}
+.teacher-gallery-card:hover .teacher-profile-image{transform:scale(1.035)}
+.teacher-detail-portrait[data-preview="playing"],.teacher-detail-portrait[data-preview="connecting"]{box-shadow:0 0 0 6px var(--accent-soft);animation:crew-listening-ring 1.3s ease-in-out infinite}
+.teacher-detail-scroll{animation:crew-copy-reveal var(--crew-motion-slow) var(--crew-motion-ease) both}
+
+/* Vocabulary: feedback is tied to the real answer and the queued next word. */
+.quiz-card[data-feedback="correct"] .quiz-word{animation:crew-answer-correct .44s var(--crew-motion-ease)}
+.quiz-card[data-feedback="wrong"] .quiz-word{animation:crew-answer-wrong .26s ease}
+.quiz-card[data-streak="high"] .quiz-meta .pill:first-child{box-shadow:0 0 0 3px var(--accent-soft)}
+.quiz-choice{transition:transform var(--crew-motion-fast) var(--crew-motion-ease),box-shadow var(--crew-motion-fast),background-color var(--crew-motion-fast),border-color var(--crew-motion-fast)}
+.quiz-choice:active:not(:disabled){transform:scale(.985)}
+.quiz-word[data-word]{animation:crew-word-enter var(--crew-motion-normal) var(--crew-motion-ease) both}
+@keyframes crew-word-enter{from{opacity:.4;transform:translateX(12px)}to{opacity:1;transform:none}}
+@keyframes crew-answer-correct{40%{transform:scale(1.04)}100%{transform:scale(1)}}
+@keyframes crew-answer-wrong{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}100%{transform:none}}
+.progress-fill{transition:width .48s var(--crew-motion-ease)}
+.quiz-feedback{transition:opacity var(--crew-motion-fast)}
+.course-map{animation:crew-page-arrive var(--crew-motion-slow) var(--crew-motion-ease) both}
+.course-lesson.unlocked{transition:border-color var(--crew-motion-normal) ease,background-color var(--crew-motion-normal) ease,transform var(--crew-motion-normal) var(--crew-motion-ease)}
+.course-lesson.unlocked:focus-within{transform:translateX(3px)}
+
+/* Story: current page and narration state move together, including swipe navigation. */
+.story-reader-media{touch-action:pan-y}
+.story-page-motion{transform-origin:center;animation:crew-story-next .34s var(--crew-motion-ease) both}
+.story-reader[data-direction="backward"] .story-page-motion{animation-name:crew-story-previous}
+@keyframes crew-story-next{from{opacity:.3;transform:translate3d(24px,0,0) rotateY(-5deg)}to{opacity:1;transform:none}}
+@keyframes crew-story-previous{from{opacity:.3;transform:translate3d(-24px,0,0) rotateY(5deg)}to{opacity:1;transform:none}}
+.story-player-live-status[data-state="speaking"] i{animation:crew-listening-ring 1.25s ease-in-out infinite}
+.story-player-controls .story-play-primary{transition:transform var(--crew-motion-fast),box-shadow var(--crew-motion-normal)}
+.story-player-controls .story-play-primary:active{transform:scale(.97)}
+
+/* Fortune: reveal calculated data in order and highlight only factual cross-links. */
+.fortune-result-page[data-new-reveal="true"] .fortune-result-card,
+.fortune-result-page[data-new-reveal="true"] .fortune-highlight-card{animation:crew-page-arrive .42s var(--crew-motion-ease) both}
+.fortune-result-page[data-new-reveal="true"] .fortune-result-card:nth-child(2),
+.fortune-result-page[data-new-reveal="true"] .fortune-highlight-card:nth-child(2){animation-delay:90ms}
+.fortune-result-page[data-new-reveal="true"] .fortune-result-card:nth-child(3),
+.fortune-result-page[data-new-reveal="true"] .fortune-highlight-card:nth-child(3){animation-delay:170ms}
+.fortune-result-stack,.fortune-topic-grid,.fortune-ai{animation:crew-page-arrive var(--crew-motion-normal) var(--crew-motion-ease) both}
+.fortune-result-tabs button{transition:background-color var(--crew-motion-fast),color var(--crew-motion-fast),box-shadow var(--crew-motion-normal)}
+.fortune-planet.fortune-selectable,.fortune-house-grid .fortune-selectable{cursor:pointer;width:100%;font:inherit;text-align:left;transition:transform var(--crew-motion-fast),box-shadow var(--crew-motion-fast),border-color var(--crew-motion-fast)}
+.fortune-selectable:active{transform:scale(.985)}
+.fortune-selectable[data-highlighted="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);background:var(--accent-soft)}
+.fortune-astro-selection{padding:12px 14px;border:1px solid var(--accent);border-radius:14px;background:var(--accent-soft);display:grid;gap:5px;animation:crew-copy-reveal var(--crew-motion-normal) var(--crew-motion-ease)}
+.fortune-astro-selection strong{color:var(--accent)}
+.fortune-astro-selection span{font-size:12px;line-height:1.55}
+
+@media(prefers-reduced-motion:reduce){
+ .page-enter,.teacher-gallery-dialog,.teacher-picker-backdrop,.teacher-gallery-card,.teacher-detail-scroll,.quiz-word[data-word],.quiz-card .quiz-word,.course-map,.story-page-motion,.fortune-result-stack,.fortune-topic-grid,.fortune-ai,.fortune-result-page .fortune-result-card,.fortune-result-page .fortune-highlight-card,.live-line.show,.teacher-presence-orbit{animation:none!important}
+ .nav-indicator,.navitem .nav-icon,.progress-fill,.teacher-gallery-card,.feature-card,.story-action-tile,.fortune-home-mode,.continue-learning-card,.quiz-choice,.story-player-controls button,.fortune-selectable{transition:none!important}
+ .teacher-presence-orbit{opacity:0!important}
+}
