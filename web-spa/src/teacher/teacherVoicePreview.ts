@@ -1,16 +1,10 @@
 import{geminiKey}from"../lib/runtime";
 import type{TeacherProfile}from"./teacherProfiles";
+import type{AccentStrength,SpeakingPace}from"../store/teacherStore";
+import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
 
 export type PreviewState="connecting"|"playing"|"finished"|"error";
 export type PreviewStatus={state:PreviewState;message?:string};
-
-const SUPPORTED_VOICE:Record<string,string>={
- kore:"Kore",aoede:"Aoede",leda:"Aoede",europa:"Aoede",io:"Aoede",tethys:"Aoede",ariel:"Aoede",sycorax:"Aoede",titania:"Aoede",despina:"Aoede",
- puck:"Puck",zephyr:"Puck",hyperion:"Puck",enceladus:"Puck",mimas:"Puck",
- charon:"Charon",orus:"Charon",ganymede:"Charon",iapetus:"Charon",aegaeon:"Charon",umbriel:"Charon",prospero:"Charon",
- fenrir:"Fenrir",titan:"Fenrir",caliban:"Fenrir"
-};
-function supportedVoice(name:string){return SUPPORTED_VOICE[name.trim().toLowerCase()]||"Kore"}
 
 function previewLine(language:string){
  const lang=language.toLowerCase();
@@ -29,7 +23,7 @@ function previewLine(language:string){
 }
 
 /** One response only, no microphone and no conversation/history side effects. */
-export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string,onStatus:(status:PreviewStatus)=>void):()=>void{
+export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string,onStatus:(status:PreviewStatus)=>void,opts?:{voice?:string;languageStyle?:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace}):()=>void{
  const key=geminiKey();
  if(!key){onStatus({state:"error",message:"請先到設定新增 Gemini Key，再使用試聽。"});return()=>{}}
  const AudioCtor=window.AudioContext;
@@ -75,8 +69,8 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
    socket.onopen=()=>{
     if(closed)return;
     socket?.send(JSON.stringify({setup:{model:"models/"+model,
-     generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:supportedVoice(profile.recommendedVoice)}}}},
-     systemInstruction:{parts:[{text:"You are "+profile.name+", a fictional Crew Teacher tutor. " + profile.personality + " Teaching strategy: " + profile.teachingStrategy + " Give exactly one natural, short spoken response in the target language. Never claim real credentials or introduce yourself."}]}}}));
+     generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:opts?.voice||profile.recommendedVoice}}}},
+     systemInstruction:{parts:[{text:"You are "+profile.name+", a fictional Crew Teacher tutor. " + profile.personality + " Teaching strategy: " + profile.teachingStrategy + " "+buildAccentPrompt(targetLanguage,opts?.languageStyle||"auto",opts?.accentStrength,opts?.customAccent)+" "+buildPacePrompt(opts?.speakingPace)+" Give exactly one natural, short spoken response in the target language. Never claim real credentials or introduce yourself."}]}}}));
    };
    socket.onmessage=async(event:MessageEvent)=>{
     if(closed)return;
