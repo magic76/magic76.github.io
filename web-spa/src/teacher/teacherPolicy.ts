@@ -2,7 +2,8 @@ import{type TeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";
 import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";
 import{verifiedTutorHistoryContext}from"./teacherPracticeHistory";
 import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
-import type{ConversationMode,TeachingMode}from"../store/teacherStore";
+import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode}from"../store/teacherStore";
+import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
 export type TeacherSessionMode="tutor"|"roleplay";
 
 export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string;profile?:TeacherProfile}){
@@ -28,11 +29,10 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
 /** Android App parity: teachingMode controls language scaffolding; conversationMode controls correction cadence. */
 export function buildTeacherSessionPolicy(input:{language:string;scene:string;goals:string[];rolePrompt?:string;
  mode:TeacherSessionMode;profile:TeacherProfile;teachingMode:TeachingMode;
- conversationMode:ConversationMode;languageStyle:string;level:string;nativeLanguage:NativeLanguage}){
+ conversationMode:ConversationMode;languageStyle:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;level:string;nativeLanguage:NativeLanguage}){
  if(input.mode==="roleplay")return roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)});
  const nativeLang=nativeLanguageName(input.nativeLanguage);
- const locale=input.language==="英文"&&input.languageStyle!=="auto"
-  ?"Use natural "+({gb:"British",au:"Australian",us:"American"} as Record<string,string>)[input.languageStyle]+" English.":"";
+ const locale=buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent);
  const teaching=input.teachingMode==="beginner"?[
   "[TEACHING MODE: BEGINNER — native-language step-by-step support]",
   "Lead with brief explanations in "+nativeLang+" and model one very short, useful sentence in "+input.language+".",
@@ -63,6 +63,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "You are a Crew Teacher language tutor.",teacherIdentityPrompt(input.profile),
   "Target language: "+input.language+". Estimated vocabulary level: "+input.level+". Follow demonstrated ability, not a fixed level label.",
   "Native language: "+nativeLang+". "+locale,
+  buildPacePrompt(input.speakingPace),
   ...teaching,
   ...conversation,
   "[PROACTIVE SPEAKING LOOP]",
