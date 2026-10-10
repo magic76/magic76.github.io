@@ -383,3 +383,37 @@ body{min-height:100vh;padding-bottom:0}
 .material-camera-conversation .material-camera-turn small{color:var(--muted)}
 @media(min-width:720px) and (orientation:landscape){.material-live-camera:has(.material-camera-conversation) .material-camera-layout{display:grid;grid-template-columns:minmax(0,55fr) minmax(0,45fr)}.material-camera-conversation .live-transcript{height:min(58dvh,480px);max-height:480px}}
 @media(max-width:650px) and (orientation:landscape){.material-camera-layout{grid-template-columns:minmax(0,54fr) minmax(0,46fr)}.material-camera-conversation .live-transcript{max-height:42dvh}.material-camera-actions{display:flex;flex-wrap:wrap}}
+
+/* Android v1.9.30 parity: filtered 16-teacher gallery and compact detail surface. */
+.teacher-gallery-dialog{display:flex;flex-direction:column;overflow:hidden;width:min(600px,100%);max-height:min(88dvh,740px);padding:16px 16px 14px}
+.teacher-gallery-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex:none}
+.teacher-gallery-header h2{font-size:21px;letter-spacing:-.02em;margin:3px 0 4px}
+.teacher-gallery-header p{line-height:1.55;margin:0 0 5px}
+.teacher-gallery-filter{display:flex;overflow-x:auto;gap:7px;padding:12px 0 9px;scrollbar-width:none;flex:none}
+.teacher-gallery-filter::-webkit-scrollbar{display:none}
+.teacher-gallery-filter button{white-space:nowrap;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--text);font-size:12px;font-weight:650;min-height:36px;padding:8px 12px}
+.teacher-gallery-filter button.selected{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.teacher-gallery-scroll{overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1;scrollbar-width:none}
+.teacher-gallery-scroll::-webkit-scrollbar{display:none}
+.teacher-picker-list.teacher-gallery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:4px 0 10px}
+.teacher-profile-option.teacher-gallery-card{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;min-width:0;min-height:193px;text-align:center;padding:13px 9px 11px;position:relative}
+.teacher-gallery-card .teacher-profile-image{width:82px;height:82px;flex:none;border-radius:50%;overflow:hidden;background:#e8e5f7}
+.teacher-gallery-card>strong{font-size:16px;margin-top:3px}
+.teacher-gallery-type{color:var(--accent);font-size:11px;font-weight:700}
+.teacher-gallery-tagline{font-size:11px;color:var(--muted);line-height:1.4;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden}
+.teacher-gallery-selected{color:var(--accent);font-size:10px;font-weight:700}
+.teacher-gallery-footer{flex:none;border-top:1px solid var(--line);padding-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.teacher-gallery-footer p{margin:0;max-width:330px}.teacher-gallery-footer .btn{min-height:40px}
+.teacher-detail-scroll{overflow-y:auto;overscroll-behavior:contain;min-height:0;scrollbar-width:none;display:flex;flex-direction:column;align-items:center;text-align:center;padding:6px 8px 0}
+.teacher-detail-scroll::-webkit-scrollbar{display:none}
+.teacher-detail-portrait{width:108px;height:108px;border-radius:50%;overflow:hidden;background:var(--accent-soft);flex:none}
+.teacher-detail-portrait .teacher-avatar-image{width:100%;height:100%;border-radius:50%}
+.teacher-detail-scroll h3{font-size:21px;margin:11px 0 0}.teacher-detail-scroll h3 span{display:block;font-size:13px;color:var(--accent);margin-top:4px}
+.teacher-detail-scroll>p{font-size:13px;line-height:1.65;margin:7px 0;color:var(--text)}
+.teacher-detail-scroll .teacher-detail-tagline{font-weight:600;font-size:14px}
+.teacher-detail-facts{align-self:stretch;background:var(--surface-alt);border-radius:14px;padding:12px;margin:8px 0 4px}
+.teacher-detail-facts strong{display:block;color:var(--accent);font-size:11px}.teacher-detail-facts p{margin:5px 0 10px;font-size:12px}.teacher-detail-facts p:last-child{margin-bottom:0}
+.teacher-detail-history{color:var(--accent)!important}
+.teacher-detail-actions{align-self:stretch;display:flex;flex-direction:column;gap:9px;margin-top:10px;padding-bottom:2px}
+.teacher-detail-actions .btn{min-height:44px}.teacher-preview-error{font-size:12px;color:var(--danger);margin:0}
+@media(max-width:420px){.teacher-gallery-dialog{padding:13px}.teacher-gallery-card .teacher-profile-image{width:72px;height:72px}.teacher-profile-option.teacher-gallery-card{min-height:180px}.teacher-gallery-footer p{font-size:10px}}

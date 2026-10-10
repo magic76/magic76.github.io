@@ -467,7 +467,7 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
  assert.ok(live.includes("presenceState"));
  assert.ok(strip.includes("profile.bestFor"));
  assert.ok(strip.includes("更換 ›"));
- assert.ok(picker.includes("profile.bestFor"));
+ assert.ok(picker.includes("detail.bestFor"));
  assert.ok(styles.includes("teacher-presence-speaking"));
  assert.ok(styles.includes(".teacher-profile-option img,.teacher-profile-image{width:68px;height:68px;object-fit:cover;border-radius:50%}"));
 });
@@ -498,7 +498,8 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-portraits-hq.webp")));
  assert.ok(avatar.includes('import portraitSprite from "../../../assets/teacher/teacher-portraits-hq.webp"'));
- assert.ok(avatar.includes('backgroundImage:"url("+portraitSprite+")"'));
+ assert.ok(avatar.includes('backgroundImage:"url("+(hq!==undefined?portraitSprite:profile.avatar)+")"'));
+ assert.ok(avatar.includes('const hq=HQ_POSITION[profile.id]'));
  assert.ok(!avatar.includes('url("/assets/teacher/'),"portrait URL must be Vite-resolved on /crew-app/");
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
@@ -644,7 +645,7 @@ test("Live product polish keeps one focal character and secondary tools collapse
 
 test("Teacher HQ portrait sprite uses six exact crops for all tutors",()=>{
  const avatar=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherAvatar.tsx"),"utf8");
- assert.ok(avatar.includes('backgroundSize:"600% 100%"'));
+ assert.ok(avatar.includes('backgroundSize:hq!==undefined?"600% 100%":"cover"'));
  for(const pair of ['emma:"0%"','alex:"20%"','james:"40%"','mia:"60%"','sophie:"80%"','lina:"100%"'])assert.ok(avatar.includes(pair));
  assert.ok(!avatar.includes('backgroundSize:"400% 100%"'));
 });
@@ -708,7 +709,7 @@ test("Tutor picker keeps provider voice IDs internal",()=>{
  const picker=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherProfilePicker.tsx"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  assert.ok(profiles.includes("voiceLabel"));
- assert.ok(picker.includes("profile.voiceLabel"));
+ assert.ok(picker.includes("detail.voiceLabel"));
  assert.ok(tutor.includes("profile.voiceLabel"));
  assert.ok(!picker.includes("profile.recommendedVoice"));
  for(const id of ["Kore","Hyperion","Prospero","Callisto","Europa"])assert.ok(!picker.includes(id));

@@ -1,3 +1,4 @@
+import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
@@ -36,6 +37,14 @@ export function TeacherLivePage(){
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
  },[course?.id,live.state,live.report,live.turns,assessmentRetry]);
+ const tutorHistoryRecorded=useRef(false);
+ useEffect(()=>{
+  if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
+  if(live.state!=="ended"||tutorHistoryRecorded.current)return;
+  tutorHistoryRecorded.current=true;
+  recordCompletedTutorSession(profile.id,s.targetLanguage,live.durationMs,
+   live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
+ },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay]);
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to="/teacher/practice">‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
