@@ -534,3 +534,53 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 @media(prefers-reduced-motion:reduce){
  .fortune-selectable,.fortune-astro-selection{animation:none!important;transition:none!important}
 }
+
+
+/* Crew Teacher v1.9.32 — direct home and native-feeling mode controls. */
+.teacher-home-heading{margin-bottom:8px}
+.teacher-home{margin-bottom:18px}
+.teacher-home-hero{display:grid;gap:16px;padding:19px;border-radius:23px}
+.teacher-home-identity{display:flex;align-items:center;gap:17px;min-width:0}
+.teacher-home-avatar{width:96px;height:96px;flex:none;border-radius:50%;overflow:hidden;background:var(--accent-soft);box-shadow:0 0 0 6px var(--accent-soft)}
+.teacher-home-avatar .teacher-avatar-image{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.teacher-home-copy{flex:1;min-width:0}.teacher-home-copy h2{font-size:24px;margin:2px 0 1px;letter-spacing:-.035em}
+.teacher-home-copy>strong{font-size:13px;color:var(--accent)}
+.teacher-home-copy p{color:var(--muted);font-size:13px;line-height:1.6;margin:7px 0 0}
+.teacher-home-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.teacher-home-actions button,.teacher-home-start{min-height:48px}
+.teacher-home-start{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;transition:transform var(--crew-motion-fast) ease,box-shadow var(--crew-motion-normal) ease}
+.teacher-home-start:active{transform:scale(.985)}
+.teacher-home-start span{transition:transform var(--crew-motion-normal) var(--crew-motion-ease)}
+.teacher-home-start:hover span{transform:translateX(3px)}
+.teacher-quick-config{margin-bottom:20px}
+.teacher-quick-config .settings-grid{gap:10px}
+.teacher-choice-panel{display:grid;gap:9px;min-width:0;padding:15px}
+.teacher-choice-panel>.meta{margin:0;font-size:12px;line-height:1.55}
+.teacher-setting-inline{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center}
+.teacher-setting-inline strong{font-size:13px;white-space:nowrap}
+.teacher-segmented{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border-radius:15px;background:var(--surface-alt);padding:5px}
+.teacher-segmented button{font:inherit;font-size:12px;font-weight:750;color:var(--muted);min-height:44px;padding:7px 4px;border:1px solid transparent;border-radius:11px;background:transparent;cursor:pointer;transition:color var(--crew-motion-fast),background-color var(--crew-motion-fast),transform var(--crew-motion-fast),box-shadow var(--crew-motion-fast)}
+.teacher-segmented button.selected{background:var(--surface);color:var(--accent);border-color:var(--line);box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.teacher-segmented button:active{transform:scale(.965)}
+.teacher-setting-advanced>summary,.teacher-learning-language>summary{cursor:pointer;color:var(--muted);font-size:12px;font-weight:700;padding:7px 0;list-style-position:inside}
+.teacher-setting-advanced .teacher-segmented{margin-top:10px}
+.teacher-scene-selection{display:grid;gap:8px;margin-top:8px;border-top:1px solid var(--line);padding-top:12px;animation:crew-copy-reveal var(--crew-motion-normal) ease both}
+.teacher-scene-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.teacher-scene-choices button{min-height:44px;padding:8px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;cursor:pointer;font-size:12px;font-weight:700;transition:background-color var(--crew-motion-fast),border-color var(--crew-motion-fast)}
+.teacher-scene-choices button.selected{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.teacher-learning-language{padding:12px 17px}.teacher-learning-language .settings-grid{margin-top:12px}
+.live-manual-interrupt{width:100%;min-height:52px;margin:12px 0 10px;border:1px solid var(--accent);border-radius:16px;background:var(--accent);color:#fff;cursor:pointer;font-size:16px;font-weight:850;box-shadow:0 8px 20px rgba(67,55,132,.17);animation:crew-panel-rise var(--crew-motion-normal) var(--crew-motion-ease) both;transition:transform var(--crew-motion-fast),box-shadow var(--crew-motion-fast)}
+.live-manual-interrupt:active{transform:scale(.97)}
+.live-mode-shortcut{display:inline-flex;align-items:center;min-height:40px;border-radius:12px;padding:9px 12px;border:1px solid var(--line);color:var(--accent);font-size:12px;font-weight:750;text-decoration:none;background:var(--surface)}
+@media(max-width:620px){
+ .teacher-home-hero{padding:14px}.teacher-home-identity{gap:13px}
+ .teacher-home-avatar{width:76px;height:76px}
+ .teacher-home-copy h2{font-size:21px}
+ .teacher-home-copy p{font-size:12px}
+ .teacher-home-actions{gap:8px}
+ .teacher-segmented button{font-size:11px}
+ .teacher-setting-inline{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){
+ .teacher-home-start,.teacher-home-start span,.teacher-segmented button,.teacher-scene-choices button,.live-manual-interrupt{animation:none!important;transition:none!important}
+}
