@@ -30,7 +30,7 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
 export function buildTeacherSessionPolicy(input:{language:string;scene:string;goals:string[];rolePrompt?:string;
  mode:TeacherSessionMode;profile:TeacherProfile;teachingMode:TeachingMode;
  conversationMode:ConversationMode;languageStyle:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;level:string;nativeLanguage:NativeLanguage}){
- if(input.mode==="roleplay")return roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)});
+ if(input.mode==="roleplay")return [roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)}),buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent),buildPacePrompt(input.speakingPace)].filter(Boolean).join("\n");
  const nativeLang=nativeLanguageName(input.nativeLanguage);
  const locale=buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent);
  const teaching=input.teachingMode==="beginner"?[
