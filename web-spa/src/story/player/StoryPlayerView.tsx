@@ -1,4 +1,4 @@
-import{useCallback,useEffect,useState}from"react";
+import{useCallback,useEffect,useRef,useState}from"react";
 import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{addHistory}from"../../lib/runtime";
 import type{StoryBook,StoryPage}from"../catalog";
@@ -21,6 +21,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
  const[direction,setDirection]=useState<"forward"|"backward">("forward");
+ const touchStart=useRef<{x:number;y:number}|null>(null);
  const handlePageAdvance=useCallback((nextIndex:number)=>{setDirection("forward");setIndex(nextIndex)},[]);
  const live=useStoryNarrator(book,index,page,image,handlePageAdvance);
 
@@ -43,8 +44,8 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  }
 
  return <><section className="story-player-head"><div><span className="kicker">{book.readingMode==="physical"?"實體書陪讀":"說故事"}</span><h1>{book.title}</h1></div><div className="actions">{book.readingMode==="physical"&&<Link className="btn secondary small" to={"/story/physical/"+encodeURIComponent(book.id)}>拍下一頁</Link>}<Link className="btn secondary small" to="/story/shelf">回書架</Link></div></section>
- <div className="story-reader story-player" data-direction={direction}>
-  <div className="story-reader-media story-page-motion" key={"image-"+index}>{image?<img src={image.preview} alt="故事頁面"/>:<div className="story-player-placeholder"><span>{book.coverEmoji||"S"}</span></div>}</div>
+ <div className="story-reader story-player" data-direction={direction} data-narrating={live.state==="speaking"&&!live.paused?"true":"false"}>
+  <div className="story-reader-media story-page-motion" key={"image-"+index} onTouchStart={event=>{const t=event.changedTouches[0];if(t)touchStart.current={x:t.clientX,y:t.clientY}}} onTouchCancel={()=>{touchStart.current=null}} onTouchEnd={event=>{const start=touchStart.current,t=event.changedTouches[0];touchStart.current=null;if(!start||!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>64&&Math.abs(dx)>Math.abs(dy)*1.5)go(index+(dx<0?1:-1))}}>{image?<img src={image.preview} alt="故事頁面"/>:<div className="story-player-placeholder"><span>{book.coverEmoji||"S"}</span></div>}</div>
   <section className="story-reader-copy">
    <div className="story-player-meta"><span className="kicker">{index+1} / {Math.max(1,book.pages.length)}</span>{page.emotion&&<span className="pill">{page.emotion}</span>}</div>
    <div className="story-page-progress" aria-label={"第 "+(index+1)+" 頁，共 "+Math.max(1,book.pages.length)+" 頁"}><i style={{width:((index+1)/Math.max(1,book.pages.length)*100)+"%"}}/></div>

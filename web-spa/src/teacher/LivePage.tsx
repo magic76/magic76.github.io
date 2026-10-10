@@ -50,9 +50,9 @@ export function TeacherLivePage(){
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to="/teacher/practice">‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
  <main className="session-shell">
  {mission&&<div className="notice live-mission"><div><b>這次要完成</b><p>{mission.goals.join(" · ")}</p></div></div>}
- <section className="live-stage teacher-live-stage" data-state={live.state}>
+ <section className="live-stage teacher-live-stage" data-state={live.state} aria-label="語音練習">
   <div className="live-identity">
-   <div className="teacher-presence-shell" data-state={presenceState}><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
+   <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>

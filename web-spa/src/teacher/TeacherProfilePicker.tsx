@@ -5,6 +5,7 @@ import{useTeacherStore}from"../store/teacherStore";
 import{TeacherAvatar}from"./TeacherAvatar";
 import{completedTutorSessions}from"./teacherPracticeHistory";
 import{previewTeacherVoice,type PreviewStatus}from"./teacherVoicePreview";
+import{transitionUI}from"../lib/motion";
 
 /** Matches Android's 16-profile gallery, without creating chat sessions for audition. */
 export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
@@ -16,7 +17,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
  const closeButton=useRef<HTMLButtonElement>(null),onCloseRef=useRef(onClose);
  onCloseRef.current=onClose;
  const cancelPreview=useCallback(()=>{previewStop.current?.();previewStop.current=null;setPreview(null)},[]);
- const goBack=useCallback(()=>{cancelPreview();setDetail(null)},[cancelPreview]);
+ const goBack=useCallback(()=>{cancelPreview();transitionUI(()=>setDetail(null))},[cancelPreview]);
  useEffect(()=>{
   // Portal prevents route-transform animations from changing the fixed viewport origin.
   const oldOverflow=document.body.style.overflow,lastFocused=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -28,7 +29,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
   return()=>{document.body.style.overflow=oldOverflow;document.removeEventListener("keydown",onKeyDown);previewStop.current?.();if(lastFocused?.isConnected)lastFocused.focus()};
  },[detail,goBack]);
  const filtered=TEACHER_PROFILES.filter(p=>category==="all"||p.categoryId===category);
- function changeCategory(value:TeacherCategory){setCategory(value);galleryScroll.current?.scrollTo({top:0,behavior:"auto"})}
+ function changeCategory(value:TeacherCategory){transitionUI(()=>setCategory(value));galleryScroll.current?.scrollTo({top:0,behavior:"auto"})}
  function playPreview(){
   if(!detail)return;
   cancelPreview();
@@ -48,7 +49,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     </nav>
     <div className="teacher-gallery-scroll" ref={galleryScroll}>
      <div className="teacher-picker-list teacher-gallery-grid">
-      {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();setDetail(profile)}} aria-label={"查看 "+profile.name+" 老師"}>
+      {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={"查看 "+profile.name+" 老師"}>
        <TeacherAvatar profile={profile} className="teacher-profile-image"/>
        <strong>{profile.name}</strong><span className="teacher-gallery-type">{profile.title}</span>
        <small className="teacher-gallery-tagline">{profile.tagline}</small>
@@ -58,7 +59,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     </div>
     <div className="teacher-gallery-footer"><p className="meta">選擇後會自動套用推薦聲線；可在老師設定中調整。</p><button type="button" className="btn secondary" onClick={()=>onCloseRef.current()}>關閉</button></div>
    </>:<div className="teacher-detail-scroll">
-    <div className="teacher-detail-portrait"><TeacherAvatar profile={detail}/></div>
+    <div className="teacher-detail-portrait" data-preview={preview?.state||"idle"}><TeacherAvatar profile={detail}/></div>
     <h3>{detail.name} <span>{detail.title}</span></h3>
     <p className="teacher-detail-tagline">「{detail.tagline}」</p>
     <p>{detail.description}</p>
