@@ -503,7 +503,8 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
  assert.ok(!avatar.includes('url("/assets/teacher/'),"portrait URL must be Vite-resolved on /crew-app/");
  for(const id of ["emma","alex","james","mia"])assert.ok(avatar.includes(id+':"'));
  for(const source of [tutor,picker,live])assert.ok(source.includes("TeacherAvatar"));
- assert.ok(tutor.includes("profile.voiceLabel"));
+ assert.ok(tutor.includes("試聽老師"));
+ assert.ok(tutor.includes("teacher-home-identity"));
  assert.ok(!tutor.includes("Callisto"));
  assert.ok(!tutor.includes("Europa"));
 });
@@ -710,7 +711,8 @@ test("Tutor picker keeps provider voice IDs internal",()=>{
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  assert.ok(profiles.includes("voiceLabel"));
  assert.ok(picker.includes("detail.voiceLabel"));
- assert.ok(tutor.includes("profile.voiceLabel"));
- assert.ok(!picker.includes("profile.recommendedVoice"));
+ assert.ok(tutor.includes("試聽老師"));
+ assert.ok(tutor.includes("teacher-home-identity"));
+ assert.ok(picker.includes("detail.id===active?activeVoice:detail.recommendedVoice"));
  for(const id of ["Kore","Hyperion","Prospero","Callisto","Europa"])assert.ok(!picker.includes(id));
 });
