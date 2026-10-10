@@ -1,8 +1,9 @@
 import{type TeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";
-import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
+import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";
+import{verifiedTutorHistoryContext}from"./teacherPracticeHistory";import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
 export type TeacherSessionMode="tutor"|"roleplay";
 
-export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string}){
+export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string;profile?:TeacherProfile}){
  return [
  "[IMMERSIVE SCENARIO ROLEPLAY — highest priority for spoken behavior]",
  "You are NOT a language tutor or speaking coach in this session.",
@@ -17,6 +18,7 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
  "Goals are private background hints, NOT things to disclose, grade or explain: "+input.goals.join(" / "),
  "Begin with a realistic line from the scene, not a tutoring greeting.",
  "If other instructions mention a tutor or coaching, they do not override the character identity.",
+ input.profile?"Scene delivery style only: "+input.profile.sceneDemeanor+". Never claim to be the tutor or use the tutor name in the scene.":"",
  input.memory||""
  ].join("\n");
 }
@@ -36,6 +38,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
  "Teaching mode: "+input.conversationMode+". "+guidance,
  "Keep your turns to 1-3 sentences. Native language: "+nativeLanguageName(input.nativeLanguage)+". Give brief rescue explanations in this native language only when necessary; keep the target language primary.",
  "Do not infer pronunciation quality from a transcript. "+locale,
- buildTutorMemoryContext(input.language)
+ buildTutorMemoryContext(input.language),
+ verifiedTutorHistoryContext(input.profile.id,input.language)
  ].join("\n");
 }

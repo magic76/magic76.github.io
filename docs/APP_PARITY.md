@@ -7,7 +7,7 @@ Source: `magic76/crew-teacher`
 
 Web must preserve the Android information architecture:
 - 練習
-  - 目前老師（同步 Android 固定 tutor roster；目前含 Emma / Alex / James / Mia / Sophie / Lina）
+  - 目前老師（同步 Android 固定 tutor roster；含 16 位獨立個性老師，依 Android TeacherProfile / TeacherPersonaPolicy）
   - 今天下一步 / Continue Learning（教材續學 → 到期單字 → 下一堂課 → 自由對話）
   - 跟老師聊
   - 教材陪讀
@@ -20,7 +20,7 @@ Web must preserve the Android information architecture:
   - 情境課程
   - 朗讀糾音
 - 老師
-  - 老師角色（固定單張人像；Emma / Alex / James / Mia 使用 Android HQ portrait sprite，Sophie / Lina 使用 Android 原圖）
+  - 老師角色（Android 1.9.30 共 16 位老師；前六位共用 HQ sprite，新增十位使用 Android 真人風格照片；依原生分類篩選、單次試聽、練習次數）
   - 聊天模式
   - 練習方式
   - 音色 / 語言風格
