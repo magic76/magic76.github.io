@@ -14,9 +14,9 @@ test("Tutor picker has filters, portrait gallery, role style, preview and ground
  const preview=read("web-spa/src/teacher/teacherVoicePreview.ts"),history=read("web-spa/src/teacher/teacherPracticeHistory.ts");
  assert.match(picker,/createPortal/);assert.match(picker,/TEACHER_CATEGORIES/);assert.match(picker,/teacher-gallery-grid/);
  assert.match(picker,/previewTeacherVoice/);assert.match(picker,/completedTutorSessions/);
- assert.match(picker,/試聽失敗 · 點擊重試/);assert.doesNotMatch(picker,/profile\.recommendedVoice/);
+ assert.match(picker,/試聽失敗 · 點擊重試/);assert.match(picker,/detail\.id===active\?activeVoice:detail\.recommendedVoice/);
  assert.match(preview,/generationConfig/);assert.match(preview,/turnComplete:true/);
- assert.match(preview,/SUPPORTED_VOICE/);assert.match(preview,/function previewLine/);
+ assert.match(preview,/voiceName:opts\?\.voice\|\|profile\.recommendedVoice/);assert.match(preview,/function previewLine/);
  assert.match(preview,/GenerativeService\.BidiGenerateContent/);assert.match(preview,/v1alpha/);
  assert.match(policy,/sceneDemeanor/);assert.match(history,/durationMs<25000/);
 });

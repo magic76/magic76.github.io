@@ -2,7 +2,7 @@ import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
-import{getTeacherProfile}from"./teacherProfiles";
+import{getTeacherProfile}from"./teacherProfiles";import{accentOptions,normalizedAccent}from"./teacherAccent";
 import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
@@ -16,8 +16,8 @@ export function TeacherLivePage(){
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
   profile,teachingMode:s.teachingMode,conversationMode:s.conversationMode,
-  languageStyle:s.languageStyle,nativeLanguage:s.nativeLanguage,level:vocabularyLevel()
- }),[s.targetLanguage,s.teachingMode,s.conversationMode,s.languageStyle,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
+  languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel()
+ }),[s.targetLanguage,s.teachingMode,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
@@ -56,8 +56,8 @@ export function TeacherLivePage(){
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>
-  <LiveControls live={live}/>
-  <div className="live-presets">{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button><button onClick={()=>live.sendText("現在進入角色扮演，請直接扮演情境裡的真人角色，不要重新打招呼。")}>角色扮演</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
+  <LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
+  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/tutor">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
    <button className="teacher-current-row live-teacher-row" disabled={sessionActive} onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">老師</span><strong>{profile.name} · {profile.title}</strong><small>{sessionActive?"結束這次練習後可切換":"點擊切換"}</small></span></button>
@@ -65,6 +65,8 @@ export function TeacherLivePage(){
     <label><span className="label">目標語言</span><select className="field" disabled={sessionActive} value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
     <label><span className="label">聊天模式</span><select className="field" disabled={sessionActive} value={s.conversationMode} onChange={e=>s.setConversationMode(e.target.value as any)}><option value="natural">自然聊天</option><option value="scenario">情境聊天</option><option value="practice">練習聊天</option></select></label>
     <label><span className="label">教學模式</span><select className="field" disabled={sessionActive} value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as any)}><option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option></select></label>
+    <label><span className="label">語速</span><select className="field" disabled={sessionActive} value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as any)}><option value="slow">慢</option><option value="normal">正常</option><option value="fast">快</option></select></label>
+    <label><span className="label">地區口音</span><select className="field" disabled={sessionActive} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as any)}>{accentOptions(s.targetLanguage).map(a=><option key={a.value} value={a.value}>{a.label}</option>)}</select></label>
    </div>{sessionActive&&<p className="live-config-note">這些設定會套用到下一次對話；目前這次不會中途改變。</p>}</div>
    <div className="vision-box"><div className="vision-head"><strong>讓 {profile.name} 看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div><div className="vision-actions"><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>cameraFile.current?.click()}>{live.visionSending?"正在送出…":"拍照"}</button><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>galleryFile.current?.click()}>從相簿選</button></div><input ref={cameraFile} type="file" accept="image/*" capture="environment" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/><input ref={galleryFile} type="file" accept="image/*" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/>{live.lastImage&&<div className="vision-latest"><img src={live.lastImage.preview} alt="最新送出的照片"/><span><b>已送給 {profile.name}</b><small>最新照片{live.lastImage.width&&live.lastImage.height?" · "+live.lastImage.width+"×"+live.lastImage.height:""}</small></span></div>}{live.visionError&&<p className="vision-error">{live.visionError}</p>}</div>
   </div></details>

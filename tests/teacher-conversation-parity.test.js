@@ -14,7 +14,9 @@ function buildPolicy(){
   buildRoleplayMemoryContext:()=>"roleplay background",
   buildTutorMemoryContext:()=>"learner context",
   verifiedTutorHistoryContext:()=>"tutor history",
-  nativeLanguageName:()=>"Traditional Chinese"
+  nativeLanguageName:()=>"Traditional Chinese",
+  buildAccentPrompt:()=>"",
+  buildPacePrompt:()=>""
  };
  vm.runInNewContext(js+"\nthis.buildTeacherSessionPolicy=buildTeacherSessionPolicy;",context);
  return context.buildTeacherSessionPolicy;
