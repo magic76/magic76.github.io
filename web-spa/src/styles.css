@@ -419,7 +419,7 @@ body{min-height:100vh;padding-bottom:0}
 @media(max-width:420px){.teacher-gallery-dialog{padding:13px}.teacher-gallery-card .teacher-profile-image{width:72px;height:72px}.teacher-profile-option.teacher-gallery-card{min-height:180px}.teacher-gallery-footer p{font-size:10px}}
 
 
-// Crew Motion System — short, state-driven transitions shared by all products.
+/* Crew Motion System — short, state-driven transitions shared by all products. */
 :root{--crew-motion-fast:150ms;--crew-motion-normal:240ms;--crew-motion-slow:340ms;--crew-motion-ease:cubic-bezier(.22,1,.36,1)}
 .page-enter{animation:crew-page-arrive var(--crew-motion-normal) var(--crew-motion-ease) both}
 @keyframes crew-page-arrive{from{opacity:.65;transform:translate3d(0,9px,0)}to{opacity:1;transform:translateZ(0)}}
