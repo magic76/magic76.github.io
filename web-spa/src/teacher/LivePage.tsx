@@ -15,9 +15,9 @@ export function TeacherLivePage(){
  const system=useMemo(()=>buildTeacherSessionPolicy({
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
-  profile,guidance:s.guidance,conversationMode:s.conversationMode,
+  profile,teachingMode:s.teachingMode,conversationMode:s.conversationMode,
   languageStyle:s.languageStyle,nativeLanguage:s.nativeLanguage,level:vocabularyLevel()
- }),[s.targetLanguage,s.guidance,s.conversationMode,s.languageStyle,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
+ }),[s.targetLanguage,s.teachingMode,s.conversationMode,s.languageStyle,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
@@ -64,7 +64,7 @@ export function TeacherLivePage(){
    <div className={"live-config "+(sessionActive?"locked":"")}><div className="live-setup-grid">
     <label><span className="label">目標語言</span><select className="field" disabled={sessionActive} value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
     <label><span className="label">聊天模式</span><select className="field" disabled={sessionActive} value={s.conversationMode} onChange={e=>s.setConversationMode(e.target.value as any)}><option value="natural">自然聊天</option><option value="scenario">情境聊天</option><option value="practice">練習聊天</option></select></label>
-    <label><span className="label">練習方式</span><select className="field" disabled={sessionActive} value={s.guidance} onChange={e=>s.setGuidance(e.target.value as any)}><option value="light">輕度引導</option><option value="normal">適時修正</option><option value="strict">積極糾正</option></select></label>
+    <label><span className="label">教學模式</span><select className="field" disabled={sessionActive} value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as any)}><option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option></select></label>
    </div>{sessionActive&&<p className="live-config-note">這些設定會套用到下一次對話；目前這次不會中途改變。</p>}</div>
    <div className="vision-box"><div className="vision-head"><strong>讓 {profile.name} 看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div><div className="vision-actions"><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>cameraFile.current?.click()}>{live.visionSending?"正在送出…":"拍照"}</button><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>galleryFile.current?.click()}>從相簿選</button></div><input ref={cameraFile} type="file" accept="image/*" capture="environment" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/><input ref={galleryFile} type="file" accept="image/*" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/>{live.lastImage&&<div className="vision-latest"><img src={live.lastImage.preview} alt="最新送出的照片"/><span><b>已送給 {profile.name}</b><small>最新照片{live.lastImage.width&&live.lastImage.height?" · "+live.lastImage.width+"×"+live.lastImage.height:""}</small></span></div>}{live.visionError&&<p className="vision-error">{live.visionError}</p>}</div>
   </div></details>
