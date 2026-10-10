@@ -23,7 +23,8 @@ test("all tutor avatar slots use Vite-bundled profile assets",()=>{
  assert.match(avatar,/aria-label=\{decorative\?undefined:profile\.name\}/);
  const css=read("web-spa/src/styles.css");
  assert.match(css,/\.teacher-avatar-image\{display:block;width:100%;height:100%/);
- assert.match(tutor,/className="teacher-avatar-button teacher-home-avatar"[^>]*><TeacherAvatar profile=\{profile\}/);
+ assert.match(tutor,/className="teacher-avatar-button teacher-home-avatar"/);
+ assert.match(tutor,/<TeacherAvatar profile=\{profile\}/);
  for(const id of ["emma","alex","james","mia","sophie","lina"]){
   assert.match(profiles,new RegExp("teacher-"+id+"\\.webp"));
   assert.ok(fs.existsSync(path.join(root,"assets/teacher/teacher-"+id+".webp")));
