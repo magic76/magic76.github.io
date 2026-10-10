@@ -9,7 +9,7 @@ import{transitionUI}from"../lib/motion";
 
 /** Matches Android's 16-profile gallery, without creating chat sessions for audition. */
 export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
- const active=useTeacherStore(s=>s.teacherProfile),targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const active=useTeacherStore(s=>s.teacherProfile),targetLanguage=useTeacherStore(s=>s.targetLanguage),activeVoice=useTeacherStore(s=>s.voice),languageStyle=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent),speakingPace=useTeacherStore(s=>s.speakingPace);
  const select=useTeacherStore(s=>s.setTeacherProfile);
  const[category,setCategory]=useState<TeacherCategory>("all"),[detail,setDetail]=useState<TeacherProfile|null>(null);
  const[preview,setPreview]=useState<PreviewStatus|null>(null);
@@ -33,7 +33,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
  function playPreview(){
   if(!detail)return;
   cancelPreview();
-  previewStop.current=previewTeacherVoice(detail,targetLanguage,setPreview);
+  previewStop.current=previewTeacherVoice(detail,targetLanguage,setPreview,{voice:detail.id===active?activeVoice:detail.recommendedVoice,languageStyle,accentStrength,customAccent,speakingPace});
  }
  function choose(profile:TeacherProfile){cancelPreview();select(profile.id);onCloseRef.current()}
  return createPortal(<div className="teacher-picker-backdrop" role="presentation" onClick={()=>onCloseRef.current()}>
