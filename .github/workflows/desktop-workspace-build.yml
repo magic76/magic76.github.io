@@ -1,0 +1,29 @@
+name: Verify and build Crew Web workspace
+on:
+  push:
+    branches:
+      - feat/desktop-live-workspace-20261011
+permissions:
+  contents: write
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run check:web
+      - run: npm run build:web
+      - name: Commit built Crew Web assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A crew-app
+          if ! git diff --cached --quiet; then
+            git commit -m "build: compile desktop workspace assets [skip ci]"
+            git push
+          fi
