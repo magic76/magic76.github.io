@@ -513,3 +513,24 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
  .nav-indicator,.navitem .nav-icon,.progress-fill,.teacher-gallery-card,.feature-card,.story-action-tile,.fortune-home-mode,.continue-learning-card,.quiz-choice,.story-player-controls button,.fortune-selectable{transition:none!important}
  .teacher-presence-orbit{opacity:0!important}
 }
+
+
+/* Native buttons in chart facts retain their information-card appearance. */
+.fortune-pillars button.fortune-selectable,
+.fortune-facts button.fortune-selectable,
+.fortune-planets button.fortune-selectable,
+.fortune-house-grid button.fortune-selectable{
+ display:grid;gap:4px;min-width:0;min-height:48px;padding:10px;
+ border:1px solid var(--line);border-radius:12px;background:var(--surface-alt);
+ color:var(--text);font:inherit;text-align:left;align-content:start;
+}
+.fortune-pillars button.fortune-selectable{justify-items:center;text-align:center}
+.fortune-planets button.fortune-selectable strong,.fortune-house-grid button.fortune-selectable strong{font-size:12px}
+.fortune-selectable[data-highlighted="true"]{border-color:var(--accent)!important;background:var(--accent-soft)!important;box-shadow:0 0 0 2px var(--accent-soft)}
+.fortune-astro-selection .btn{justify-self:start;min-height:40px}
+@media(hover:hover) and (pointer:fine){
+ .fortune-selectable:hover{border-color:var(--accent)!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .fortune-selectable,.fortune-astro-selection{animation:none!important;transition:none!important}
+}
