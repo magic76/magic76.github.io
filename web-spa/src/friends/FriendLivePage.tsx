@@ -1,6 +1,6 @@
-import {useEffect,useMemo} from "react";
+import {useEffect,useMemo,useRef} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
-import {Link,useSearchParams} from "react-router-dom";
+import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
@@ -12,6 +12,7 @@ import "./friends.css";
 
 export function FriendLivePage(){
  const [params]=useSearchParams();
+ const navigate=useNavigate(),closingRef=useRef(false);
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -32,13 +33,18 @@ export function FriendLivePage(){
    }
   }
  });
+ const endAndReturn=async()=>{
+  if(closingRef.current)return;
+  closingRef.current=true;
+  try{await live.stop(true)}finally{navigate("/teacher/roles?mode=friends")}
+ };
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" aria-label="返回 Crew 朋友">‹</Link>
+   <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友</small></div>
    </div>
    <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
@@ -49,7 +55,7 @@ export function FriendLivePage(){
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{friend.bioZh}</p>
     </div>
-    <LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
+    <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>
