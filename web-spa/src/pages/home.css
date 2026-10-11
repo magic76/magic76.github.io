@@ -14,7 +14,6 @@
 .crew-home-recent{display:grid;grid-template-columns:66px minmax(0,1fr) 24px;gap:15px;align-items:center;text-decoration:none;color:var(--text);min-height:108px;padding:16px;border-radius:21px;background:#fff;border:1px solid var(--line);box-shadow:0 6px 22px rgba(28,33,46,.035);transition:transform .18s ease,box-shadow .18s ease}
 .crew-home-recent:hover{transform:translateY(-2px);box-shadow:0 12px 26px rgba(28,33,46,.09)}
 .crew-home-recent-art{display:grid;place-items:center;width:66px;height:66px;border-radius:17px;background:#f0eeff;overflow:hidden;color:#6a57de}
-.crew-home-recent-art .teacher-avatar-image{width:100%;height:100%;border-radius:0}
 .crew-home-recent-art img{height:100%;width:100%;object-fit:cover}
 .crew-home-recent-art svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.5}
 .crew-home-recent-story .crew-home-recent-art{background:#fff1db;color:#ac6d23}
@@ -30,8 +29,7 @@
 .crew-home-product:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(34,40,55,.08);border-color:#d8d6e2}
 .crew-home-product:active{transform:scale(.985)}
 .crew-home-product-art{height:92px;width:100%;border-radius:13px;display:grid;place-items:center;overflow:hidden;margin-bottom:13px}
-.crew-home-product-teacher{background:linear-gradient(135deg,#f2efff,#e4dcff)}
-.crew-home-product-teacher{color:#6853b9}
+.crew-home-product-teacher{background:linear-gradient(135deg,#f2efff,#e4dcff);color:#6853b9}
 .crew-home-teacher-emblem{display:grid;place-items:center;width:70px;height:70px;border-radius:20px;background:rgba(255,255,255,.72);border:1px solid #c9bdeb;box-shadow:0 6px 18px rgba(86,66,157,.09)}
 .crew-home-teacher-emblem svg{width:42px;height:42px;stroke:currentColor;stroke-width:1.5;fill:none}
 .crew-home-product-story{background:radial-gradient(circle at 80% 24%,#fff8e9 0 14%,transparent 15%),linear-gradient(135deg,#ffe7bc,#fff3df);color:#a66b27}
