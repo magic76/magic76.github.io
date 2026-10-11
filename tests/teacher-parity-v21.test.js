@@ -1,11 +1,11 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const root=path.resolve(__dirname,".."),read=name=>fs.readFileSync(path.join(root,name),"utf8");
-test("Teacher native language and memory consent V2.1",()=>{
- const store=read("web-spa/src/store/teacherStore.ts"),consent=read("web-spa/src/teacher/TeacherMemoryConsent.tsx"),memory=read("web-spa/src/teacher/studentMemory.ts"),policy=read("web-spa/src/teacher/teacherPolicy.ts");
+test("Teacher native language and default-on memory settings V2.1",()=>{
+ const store=read("web-spa/src/store/teacherStore.ts"),layout=read("web-spa/src/teacher/TeacherLayout.tsx"),settings=read("web-spa/src/pages/SettingsPage.tsx"),memory=read("web-spa/src/teacher/studentMemory.ts"),policy=read("web-spa/src/teacher/teacherPolicy.ts");
  assert.ok(store.includes("nativeLanguage")&&store.includes("detectNativeLanguage"));
- assert.ok(consent.includes("hasPersonalMemoryDecision"));
- assert.ok(consent.includes("setPersonalMemoryEnabled(true)")&&consent.includes("setPersonalMemoryEnabled(false)"));
- assert.ok(memory.includes("keysLikelyEquivalent")&&memory.includes("reportMemoryContext"));
+ assert.ok(!layout.includes("TeacherMemoryConsent"));
+ assert.ok(settings.includes("setPersonalMemoryEnabled")&&settings.includes("setFriendMemoryEnabled"));
+ assert.ok(memory.includes("personalMemoryEnabled")&&memory.includes("keysLikelyEquivalent")&&memory.includes("reportMemoryContext"));
  assert.ok(policy.includes("nativeLanguageName(input.nativeLanguage)"));
 });
 test("Teacher has separate camera mode and photo preparation mode",()=>{
