@@ -1,0 +1,172 @@
+{
+  "date": "2026-10-11",
+  "generatedAt": "2026-10-11T09:29:30.586Z",
+  "edition": "public",
+  "notes": "首期報告僅收錄已核實的公開 GitHub Commit；後續每日排程會加入公開研究與技術情報。",
+  "items": [
+    {
+      "id": "gh-5a7a4b826483",
+      "title": "Crew Pocket：世界地圖成為主要工作入口",
+      "summary": "公開 commit 顯示，Crew World 已改成首頁主要檢視，Dashboard 改為次要切換。這個方向可以用來檢驗 Role-centric 工作流程是否更順暢。",
+      "publishedAt": "2026-10-11T09:21:36Z",
+      "topic": "Crew World",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "Crew Pocket 的地圖不再只是視覺化背景，而是要承接 Role 切換和工作流程；Crew Deck 也可以參照其多角色導航方式。",
+      "actions": [
+        "實測地圖啟動、返回與 Role 恢復的完整流程",
+        "比較地圖優先和 Dashboard 優先的任務完成時間",
+        "整理可移植到 Crew Deck 的導航模式"
+      ],
+      "score": 94,
+      "sources": [
+        {
+          "title": "crew-pocket · 5a7a4b8",
+          "url": "https://github.com/magic76/crew-pocket/commit/5a7a4b826483a263a2127eddb575e9c0e6903cd3",
+          "publishedAt": "2026-10-11T09:21:36Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    },
+    {
+      "id": "gh-261cd26dabb9",
+      "title": "Crew Pocket：中斷後訊息可靠傳送與佇列回復",
+      "summary": "公開合併紀錄包含 interrupt-and-send、per-Role delivery coordinator、idempotent ack 與 retry。可以作為訊息可靠性回歸測試的起點。",
+      "publishedAt": "2026-10-11T09:05:35Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "多角色平台需要明確區分訊息已排隊、已接受和已完成，避免使用者誤認為任務已經送達。",
+      "actions": [
+        "審閱 queue coordinator 的重送與冪等邊界",
+        "測試中斷回覆後新訊息在網路異常情境是否遺失",
+        "評估 Crew Deck 是否需要共用傳送狀態語意"
+      ],
+      "score": 92,
+      "sources": [
+        {
+          "title": "crew-pocket · 261cd26",
+          "url": "https://github.com/magic76/crew-pocket/commit/261cd26dabb92d0b29741d5daea32819f02d7bde",
+          "publishedAt": "2026-10-11T09:05:35Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    },
+    {
+      "id": "gh-964a7ea93df1",
+      "title": "Crew Teacher：Live 斷線保留學生語音並接續未完對話",
+      "summary": "公開合併紀錄包含有限度的語音回復緩衝、WebSocket 重連以及未收到回覆時的一鍵重送備援。這個問題直接影響語音練習連續性。",
+      "publishedAt": "2026-10-11T06:10:02Z",
+      "topic": "Conversational Learning",
+      "projects": [
+        "Crew Teacher",
+        "Crew Web"
+      ],
+      "relevance": "原本重連後要重新說話會破壞沉浸體驗；Web 也應核對 Live reconnect 的相同契約。",
+      "actions": [
+        "比對 App 與 Web 的重連緩衝策略",
+        "測試背景切換與短暫斷網後的最後一段語音",
+        "檢查重送是否可能造成雙重回覆"
+      ],
+      "score": 90,
+      "sources": [
+        {
+          "title": "crew-teacher · 964a7ea",
+          "url": "https://github.com/magic76/crew-teacher/commit/964a7ea93df18bcaca66f8f7baf532c85fcb8d69",
+          "publishedAt": "2026-10-11T06:10:02Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    },
+    {
+      "id": "gh-ad0f51bdd853",
+      "title": "Crew Teacher：單字能力測級導入離線 A1–C1 題庫",
+      "summary": "公開 commit 顯示加入離線測級題庫、可重新校正等級，避免在太簡單的級別反覆測試卻沒有有效提升。",
+      "publishedAt": "2026-10-11T00:19:40Z",
+      "topic": "Adaptive Learning",
+      "projects": [
+        "Crew Teacher",
+        "Crew Web"
+      ],
+      "relevance": "此變更可以和 Web 單字練習做 App parity 核對，重點是減少使用者回答太多無效的簡單題。",
+      "actions": [
+        "檢查 Web 的測級觸發條件與 App 是否一致",
+        "驗證連續答對時是否逐級提升測試難度",
+        "確認重測不會清空原本的學習進度"
+      ],
+      "score": 87,
+      "sources": [
+        {
+          "title": "crew-teacher · ad0f51b",
+          "url": "https://github.com/magic76/crew-teacher/commit/ad0f51bdd8536fee872a2b7c8e3c2f4c3cb20321",
+          "publishedAt": "2026-10-11T00:19:40Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    },
+    {
+      "id": "gh-c5f5b29703f9",
+      "title": "Crew Story：驗證 Gemini 設定與 Live 相機讀書",
+      "summary": "公開 PR 合併紀錄顯示新增 Gemini 設定驗證，以及 Live 相機陪讀。這是跨 App 共用金鑰和連續影像體驗的研究線索。",
+      "publishedAt": "2026-10-10T01:27:35Z",
+      "topic": "Multimodal Experience",
+      "projects": [
+        "Crew Story",
+        "Crew Teacher",
+        "Crew Web"
+      ],
+      "relevance": "Web 已整合共用 Gemini Key，但仍需要對照 App 相機讀書、權限與內容連續性。",
+      "actions": [
+        "對照 Story 相機讀書在 Web 與 App 的差異",
+        "檢查相機權限撤銷後的恢復 UX",
+        "確保連續畫面不會誤用舊頁面內容"
+      ],
+      "score": 83,
+      "sources": [
+        {
+          "title": "crew-story · c5f5b29",
+          "url": "https://github.com/magic76/crew-story/commit/c5f5b29703f9592843f555647aa7f5ce2ebccd7f",
+          "publishedAt": "2026-10-10T01:27:35Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    },
+    {
+      "id": "gh-e8e7c0fbd8dd",
+      "title": "Crew Web：Teacher 與 Story 桌面版工作區布局",
+      "summary": "公開 PR 已合併桌面版 Teacher / Story 響應式工作區，適合進一步驗證寬螢幕、手機與 Live 通話的版面切換。",
+      "publishedAt": "2026-10-10T22:14:29Z",
+      "topic": "Web Experience",
+      "projects": [
+        "Crew Web",
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "Web 的 desktop workspace 是最新改動；報告頁面應沿用這種響應式思路，而不是另外建立拼接式介面。",
+      "actions": [
+        "比較桌面雙欄與手機單欄的操作效率",
+        "測試 Live 切換時不會重置對話或遮擋控制",
+        "回歸測試 sticky navigation 與底部安全區"
+      ],
+      "score": 81,
+      "sources": [
+        {
+          "title": "magic76.github.io · e8e7c0f",
+          "url": "https://github.com/magic76/magic76.github.io/commit/e8e7c0fbd8dd149a555c9c3e35f83cac946ad74e",
+          "publishedAt": "2026-10-10T22:14:29Z",
+          "kind": "公開 GitHub Commit"
+        }
+      ],
+      "body": "這則報告根據公開 GitHub commit 整理，目前屬於專案進度觀察，需進一步閱讀實際程式碼與測試結果才能確認功能表現。"
+    }
+  ]
+}
