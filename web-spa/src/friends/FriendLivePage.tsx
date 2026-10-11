@@ -1,0 +1,68 @@
+import {useEffect,useMemo,useRef} from "react";
+import {Link,useSearchParams} from "react-router-dom";
+import {useTeacherStore} from "../store/teacherStore";
+import {useLiveSession} from "../live/useLiveSession";
+import {LiveControls} from "../live/LiveControls";
+import {FriendAvatar} from "./FriendAvatar";
+import {getCrewFriend} from "./friendProfiles";
+import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
+import "./friends.css";
+
+export function FriendLivePage(){
+ const [params]=useSearchParams();
+ const friend=getCrewFriend(params.get("id"));
+ const language=useTeacherStore(s=>s.targetLanguage);
+ const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const sessionId=friend.id;
+ const started=useRef(false);
+ const system=useMemo(()=>buildFriendSystem(friend,language),[friend,language]);
+ const live=useLiveSession({
+  pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
+  system,
+  openingPrompt:"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
+   " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
+  voice:friend.voice,language,nativeLanguage,teacherReport:false,
+  persistHistory:false,sessionKind:"friend",
+  onSessionFinished:item=>{
+   if(!item)return;
+   if(recordFriendChat(sessionId,language,item.turns,item.durationMs)){
+    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
+   }
+  }
+ });
+ useEffect(()=>{if(started.current)return;started.current=true;void live.start()},[live.start]);
+ useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
+ const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ return <>
+  <header className="app-header"><div className="shell inner">
+   <div className="app-brand"><Link className="back-btn" to="/teacher/friends" aria-label="返回 Crew 朋友">‹</Link>
+    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友</small></div>
+   </div>
+   <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
+  </div></header>
+  <main className="session-shell friend-live-page">
+   <section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
+    <div className="live-identity">
+     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
+     <h1>{friend.name}</h1><p>{friend.bioZh}</p>
+    </div>
+    <LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
+    <div className="live-presets">
+     {active?<><button type="button" onClick={()=>live.sendText("延續剛才的聊天，換個更生活化的話題問我，不用重新打招呼。")}>換個話題</button>
+      <button type="button" onClick={()=>live.sendText("請稍微放慢語速，繼續我們剛才的話題。")}>說慢一點</button></>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
+    </div>
+    <div className="live-transcript" aria-live="polite">
+     <div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div>
+     <div className={"live-line "+(live.output?"show":"")}><small>{friend.name}</small><span>{live.output}</span></div>
+    </div>
+    {live.turns.length?<details className="friend-chat-history"><summary>這次聊過的內容</summary>
+     <div className="friend-chat-history-scroll">{live.turns.map((turn,index)=><div key={index} className="friend-chat-turn">
+       {turn.input?<p><strong>你：</strong>{turn.input}</p>:null}
+       {turn.output?<p><strong>{friend.name}：</strong>{turn.output}</p>:null}
+      </div>)}</div>
+    </details>:null}
+    <p className="friend-live-footnote">聊天內容僅在這次頁面顯示。最近聊天只記錄日期；共同話題需要你自行同意。</p>
+   </section>
+  </main>
+ </>;
+}
