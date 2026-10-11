@@ -1,12 +1,11 @@
 import{useState}from"react";
 import{Link}from"react-router-dom";
 import{useTeacherStore}from"../store/teacherStore";
-import{type MemoryKind,type MemoryItem,studentMemories,saveStudentMemory,updateStudentMemory,
+import{type MemoryKind,studentMemories,saveStudentMemory,updateStudentMemory,
  deleteStudentMemory,clearStudentMemory,personalMemoryEnabled}from"./studentMemory";
 
 const LABELS:Record<MemoryKind,string>={goal:"學習目標",interest:"興趣",preference:"教學偏好",weakness:"待加強",strength:"做得好",win:"已進步",focus:"下次重點"};
 const TYPES:MemoryKind[]=["goal","interest","preference","weakness","focus"];
-const personal=(m:MemoryItem)=>["goal","interest","preference"].includes(m.type);
 export function StudentMemoryPage(){
  const lang=useTeacherStore(s=>s.targetLanguage);
  const [items,setItems]=useState(()=>studentMemories(lang));
