@@ -1,6 +1,7 @@
 import{geminiKey,type LiveTurn}from"../lib/runtime";
 import{normalizeLearningLanguage,personalMemoryEnabled,studentMemories}from"../teacher/studentMemory";
 import{CREW_FRIENDS,getCrewFriend,type FriendProfile}from"./friendProfiles";
+import{friendLanguageRule}from"./friendLanguage";
 
 /** Local timestamps and explicitly opted-in, per-friend topic notes. No transcript storage. */
 export type FriendTopic={id:string;key:string;title:string;summary:string;followUp:string;updatedAt:number;pinned:boolean;manual:boolean};
@@ -110,12 +111,13 @@ export function friendTopicContext(id:string,language:string){
 }
 export function buildFriendSystem(friend:FriendProfile,language:string){
  return "You are "+friend.name+", a Crew Friend, a fictional conversational partner. You are NOT a language tutor or coach.\n"+
+  friendLanguageRule(language)+
   "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+
   "Speak naturally in the selected target language ("+clean(language,35)+") while adapting to the person's actual comprehension. "+
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
-  friendPersonalContext(language)+friendTopicContext(friend.id,language);
+  friendPersonalContext(language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
 }
 export async function rememberFriendConversation(id:string,language:string,turns:LiveTurn[],durationMs:number){
  if(!friendMemoryEnabled()||!validFriend(id)||!realExchange(turns,durationMs))return;

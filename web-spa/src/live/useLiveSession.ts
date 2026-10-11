@@ -7,7 +7,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
- language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];
+ language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend";onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
@@ -79,7 +79,8 @@ export function useLiveSession(config:Config){
       :roleplay
       ?"[SCENE CONTROL — silent reconnect recovery] Your previous in-character reply was interrupted. Continue the unanswered response without greeting or explaining grammar. Do not repeat parts already spoken."
       :"[COACH CONTROL — silent reconnect recovery] The connection interrupted a reply. Answer or finish the learner's previous utterance naturally from the next unsaid point. Do not greet, repeat previous sentences, or ask the learner to repeat.";
-      if(session.sendText(prompt))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
+      const reminder=configRef.current.sessionKind==="friend"?"\n"+(configRef.current.languageDirective||""):"";
+      if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
