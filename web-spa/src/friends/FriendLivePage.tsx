@@ -6,6 +6,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
+import {friendLanguageReminder} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import "./friends.css";
 
@@ -16,10 +17,11 @@ export function FriendLivePage(){
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const sessionId=friend.id;
  const system=useMemo(()=>buildFriendSystem(friend,language),[friend,language]);
+ const languageDirective=useMemo(()=>friendLanguageReminder(language),[language]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-  system,
-  openingPrompt:"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
+  system,languageDirective,
+  openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
    " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
   voice:friend.voice,language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",
@@ -49,8 +51,9 @@ export function FriendLivePage(){
     </div>
     <LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
     <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText("延續剛才的聊天，換個更生活化的話題問我，不用重新打招呼。")}>換個話題</button>
-      <button type="button" onClick={()=>live.sendText("請稍微放慢語速，繼續我們剛才的話題。")}>說慢一點</button></>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
+      <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>
+      <button type="button" onClick={()=>live.sendText(languageDirective+"\nContinue our conversation with one brief natural question.")}>用{language}說</button></>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
     </div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div>
