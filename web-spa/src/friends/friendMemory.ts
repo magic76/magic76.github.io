@@ -48,6 +48,17 @@ export function saveFriendTopic(id:string,language:string,title:string,summary="
   key,title:name,summary:body,followUp:"",updatedAt:Date.now(),pinned:false,manual:true});
  saveTopics(id,language,topics);bump();return true;
 }
+export function editFriendTopic(id:string,language:string,topicId:string,newTitle:string){
+ if(!validFriend(id))return false;
+ const title=clean(newTitle,65);
+ if(!title)return false;
+ const topics=getFriendTopics(id,language);
+ const note=topics.find(t=>t.id===topicId);
+ if(!note)return false;
+ note.title=title;note.key=title.normalize("NFKC").toLowerCase();
+ note.manual=true;note.updatedAt=Date.now();
+ saveTopics(id,language,topics);bump();return true;
+}
 export function deleteFriendTopic(id:string,language:string,topicId:string){
  if(!validFriend(id))return;
  bump();saveTopics(id,language,getFriendTopics(id,language).filter(t=>t.id!==topicId));

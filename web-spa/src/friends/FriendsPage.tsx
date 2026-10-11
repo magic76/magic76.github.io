@@ -4,7 +4,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {hasPersonalMemoryDecision,personalMemoryEnabled,setPersonalMemoryEnabled} from "../teacher/studentMemory";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {FriendAvatar} from "./FriendAvatar";
-import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,friendMemoryEnabled,getFriendLastChat,
+import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
  getFriendTopics,hasFriendMemoryDecision,pinFriendTopic,recentFriends,saveFriendTopic,setFriendMemoryEnabled} from "./friendMemory";
 import "./friends.css";
 
@@ -82,6 +82,10 @@ export function FriendsPage(){
        {memories.length?memories.map(item=><div className="friends-memory-row" key={item.id}>
         <div><strong>{item.title}</strong><small>{item.summary}</small></div>
         <button type="button" aria-label="釘選話題" onClick={()=>{pinFriendTopic(selected.id,language,item.id);refresh()}}>{item.pinned?"取消釘選":"釘選"}</button>
+        <button type="button" aria-label="編輯話題" onClick={()=>{
+          const title=window.prompt("修改話題名稱",item.title);
+          if(title!==null&&editFriendTopic(selected.id,language,item.id,title))refresh();
+        }}>編輯</button>
         <button type="button" aria-label="刪除話題" onClick={()=>{deleteFriendTopic(selected.id,language,item.id);refresh()}}>刪除</button>
        </div>):<p>目前還沒有共同話題，聊過幾次後可以慢慢累積，也可以自行新增。</p>}
        <form className="friends-add-memory" onSubmit={e=>{e.preventDefault();if(saveFriendTopic(selected.id,language,draft)){setDraft("");refresh()}}}><input value={draft} onChange={e=>setDraft(e.target.value)} maxLength={65} placeholder="手動新增一個話題"/><button type="submit" disabled={!draft.trim()}>新增</button></form>
