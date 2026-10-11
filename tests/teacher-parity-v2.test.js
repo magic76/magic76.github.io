@@ -25,17 +25,20 @@ test("verified next-band vocabulary requires two correct probes and ignores fail
  const farAbove=["hypothesis","假設","","C1","business",90];
  assert.equal(p.recordPlacement(farAbove,false).score,61);
 });
-test("learner memory scopes by language, opt-in verifies student speech, and erased facts stay erased",()=>{
+test("learner memory defaults on, respects opt-out, verifies speech and erasures",()=>{
  const store=storage(),m=load("web-spa/src/teacher/studentMemory.ts",store);
- assert.equal(m.personalMemoryEnabled(),false);
+ assert.equal(m.personalMemoryEnabled(),true);
  m.saveStudentMemory("英文","goal","I want to improve speaking");
- // Even manually saved personal notes are not injected until consent is granted.
+ assert.ok(m.buildTutorMemoryContext("英文").includes("improve speaking"));
+ m.setPersonalMemoryEnabled(false);
+ assert.equal(m.personalMemoryEnabled(),false);
  assert.equal(m.buildTutorMemoryContext("英文").includes("improve speaking"),false);
  m.setPersonalMemoryEnabled(true);
  assert.ok(m.buildTutorMemoryContext("英文").includes("improve speaking"));
- m.setPersonalMemoryEnabled(false);
- assert.equal(m.buildTutorMemoryContext("英文").includes("improve speaking"),false);
  assert.equal(m.studentMemories("日文").length,0);
+ m.setPersonalMemoryEnabled(false);
+ assert.equal(m.personalMemoryEnabled(),false);
+ assert.equal(store.getItem("crew_teacher_personal_memory_opt_in_v2"),"0");
  const report={memory_updates:{
   weaknesses:[{key:"tense:error",detail:"過去式用法",confidence:.7}],
   goals:[{key:"goal:meetings",detail:"Practice meetings",evidence_quote:"I want to practice meetings"}]}};
