@@ -38,13 +38,14 @@ export function useLiveSession(config:Config){
  },[]);
  const finish=useCallback(async(item:any)=>{
   let reportFailed=false;
+  let completedReport:Record<string,unknown>|null=null;
   try{
    if(item&&configRef.current.teacherReport){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
      const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[],nativeLanguage:configRef.current.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(configRef.current.language||"英文"),pageKey:configRef.current.pageKey});
-     if(r){setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
+     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
     }
    }
   }catch(_){
@@ -55,6 +56,7 @@ export function useLiveSession(config:Config){
    setState("ended");
    configRef.current.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
   }
+  return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),report:completedReport};
  },[]);
  const start=useCallback(async()=>{
   if(sessionRef.current)return;
@@ -91,7 +93,7 @@ export function useLiveSession(config:Config){
    sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
   }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
- const stop=useCallback(async()=>{const s=sessionRef.current;if(!s)return;setState("ending");setStatus("正在結束…");const item=snapshot("user-stop");try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}finally{sessionRef.current=null}await finish(item)},[finish,snapshot]);
+ const stop=useCallback(async()=>{const s=sessionRef.current;if(!s)return null;setState("ending");setStatus("正在結束…");const item=snapshot("user-stop");try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}catch{/* Still finalize saved speech when the transport is already closed. */}finally{sessionRef.current=null}return finish(item)},[finish,snapshot]);
  const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
