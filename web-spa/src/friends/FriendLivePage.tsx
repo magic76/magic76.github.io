@@ -53,7 +53,7 @@ export function FriendLivePage(){
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>
-      <button type="button" onClick={()=>live.sendText(languageDirective+"\nContinue our conversation with one brief natural question.")}>用{language}說</button></>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
+</>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
     </div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div>
