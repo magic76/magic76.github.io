@@ -4,6 +4,7 @@ import {fetchDay,fetchIndex,rankItems} from "../briefing/data";
 import type {BriefingDay,BriefingItem} from "../briefing/types";
 import {Icon} from "../components/Icon";
 import {PlayStoreLink} from "../components/PlayStoreLink";
+import {HomeAtmosphere} from "./HomeAtmosphere";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import "./home.css";
 
@@ -102,9 +103,12 @@ export function HomePage(){
  },[]);
  return <div className="crew-home">
   <header className="crew-home-intro">
-   <span className="crew-home-eyebrow">YOUR CREW SPACE</span>
-   <h1>今天想做些什麼？</h1>
-   <p>繼續上次的進度，或開始一段新的探索。</p>
+   <HomeAtmosphere/>
+   <div className="crew-home-intro-copy">
+    <span className="crew-home-eyebrow">YOUR CREW SPACE</span>
+    <h1>今天想做些什麼？</h1>
+    <p>繼續上次的進度，或開始一段新的探索。</p>
+   </div>
   </header>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
@@ -137,7 +141,7 @@ export function HomePage(){
    </div>
    <BriefingPreview/>
   </div>
-  <details className="crew-home-android">
+  <details className="crew-home-android" open>
    <summary>在 Android 上使用 Crew <span aria-hidden="true">＋</span></summary>
    <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
   </details>
