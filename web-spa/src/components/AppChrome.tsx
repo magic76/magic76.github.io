@@ -3,13 +3,14 @@ import { NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import { geminiKey,geminiVerified } from "../lib/runtime";
 
-export type Product="home"|"teacher"|"story"|"fortune"|"settings";
+export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
 const meta={
  home:["C","Crew","語言・故事・命理"],
  teacher:["T","Crew Teacher","語言學習"],
  story:["S","Crew Story","故事創作"],
  fortune:["F","Crew Fortune","命盤探索"],
- settings:["C","Crew","設定"]
+ settings:["C","Crew","設定"],
+ briefing:["C","Crew Briefing","每日研發情報"]
 } as const;
 
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
