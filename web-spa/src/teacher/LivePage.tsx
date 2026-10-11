@@ -38,6 +38,8 @@ export function TeacherLivePage(){
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
  },[course?.id,live.state,live.report,live.turns,assessmentRetry]);
+ // The selected teacher starts when the session page opens. Deferral avoids a StrictMode double-mount call.
+ useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  const tutorHistoryRecorded=useRef(false);
  useEffect(()=>{
   if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
@@ -58,7 +60,7 @@ export function TeacherLivePage(){
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>
   <LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
-  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/tutor">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
+  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
    <button className="teacher-current-row live-teacher-row" disabled={sessionActive} onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">老師</span><strong>{profile.name} · {profile.title}</strong><small>{sessionActive?"結束這次練習後可切換":"點擊切換"}</small></span></button>
