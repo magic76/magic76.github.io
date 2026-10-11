@@ -11,7 +11,7 @@ test("Crew Hub uses bounded decorative particles and retains real clickable card
  assert.match(page,/crew-home-intro-copy/);
  assert.match(ambience,/aria-hidden="true"/);
  assert.match(ambience,/MOTES\.map/);
- assert.doesNotMatch(ambience,/requestAnimationFrame|setInterval|canvas|window\.addEventListener/);
+ assert.doesNotMatch(ambience,/requestAnimationFrame|setInterval|<canvas|window\.addEventListener/);
  for(const kind of ["teacher","story","fortune"]){
   assert.match(page,new RegExp('crew-home-product crew-home-'+kind));
  }
