@@ -117,6 +117,12 @@ export async function run(){
  await writeFile(join(out,date+".json"),JSON.stringify(edition,null,2)+"\n");
  index={days:unique([date,...(index.days||[])]).sort().reverse().slice(0,90),updatedAt:edition.generatedAt};
  await writeFile(join(out,"index.json"),JSON.stringify(index,null,2)+"\n");
+ const escapeXml=v=>String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+ const records=[edition,...history].slice(0,7).flatMap(x=>(x.items||[]).map(item=>({date:x.date,item}))).slice(0,35);
+ const feed='<?xml version="1.0" encoding="UTF-8"?>\\n<rss version="2.0"><channel><title>Crew Briefing</title><link>https://magic76.github.io/crew-app/#/briefing</link><description>Public AI engineering and Crew project research</description><language>zh-TW</language>'+
+ records.map(({date,item})=>'<item><title>'+escapeXml(item.title)+'</title><link>https://magic76.github.io/crew-app/#/briefing/'+date+'/'+encodeURIComponent(item.id)+'</link><guid isPermaLink="false">'+escapeXml(item.id)+'</guid><pubDate>'+new Date(item.publishedAt).toUTCString()+'</pubDate><description>'+escapeXml(item.summary)+'</description></item>').join("")+'</channel></rss>\\n';
+ await writeFile(join(out,"feed.xml"),feed);
+
  console.log("Crew Briefing",date,items.length,"items (public sources only)");
 }
 if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1])run().catch(e=>{console.error(e);process.exitCode=1});
