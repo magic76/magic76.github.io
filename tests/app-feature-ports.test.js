@@ -576,13 +576,13 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  assert.ok(!player.includes("Gemini Live 阿奇負責"));
 });
 
-test("Crew home distinguishes product entry from collapsed Android downloads",()=>{
+test("Crew home separates product entry from default-expanded Android downloads",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
  assert.ok(home.includes('to="/teacher/practice"'));
  assert.ok(home.includes('to="/story"'));
  assert.ok(home.includes('to="/fortune"'));
- assert.ok(home.includes('<details className="crew-home-android">'));
+ assert.ok(home.includes('<details className="crew-home-android" open>'));
  assert.ok(home.includes('product="fortune"'));
  assert.ok(!home.includes("一個 App 搞定"));
  assert.ok(play.includes("Google Play 準備中"));
