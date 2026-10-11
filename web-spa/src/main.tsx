@@ -10,6 +10,7 @@ import "../../features/fortune/styles.css";
 import "./styles.css";
 import "./motion.css";
 import "./desktop-workspace.css";
+import "./briefing/briefing.css";
 import { App } from "./App";
 
 const root = document.getElementById("root");
