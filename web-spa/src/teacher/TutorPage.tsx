@@ -64,7 +64,7 @@ export function TutorPage(){
      <label><span className="label">{teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(l=><option key={l}>{l}</option>)}</select></label>
      <label><span className="label">{teacherText(s.nativeLanguage,"nativeLanguage")}</span><select className="field" value={s.nativeLanguage} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
      <label><span className="label">地區口音</span><select className="field" aria-label="選擇地區口音" value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as typeof s.languageStyle)}>{accentOptions(s.targetLanguage).map(a=><option value={a.value} key={a.value}>{a.label}</option>)}</select></label>
-     <label><span className="label" htmlFor="teacher-guidance">教學引導</span><select id="teacher-guidance" className="field" value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as typeof s.teachingMode)}>
+     <label><span className="label">教學引導</span><select id="teacher-guidance" className="field" value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as typeof s.teachingMode)}>
       <option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option>
      </select></label>
     </div>
