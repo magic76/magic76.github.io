@@ -1,4 +1,5 @@
-import {useState} from "react";
+import {useEffect,useRef,useState} from "react";
+import {createPortal} from "react-dom";
 import {Link,useNavigate} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
@@ -21,9 +22,28 @@ export function FriendsPage(){
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState<string>("all");
  const [selected,setSelected]=useState<FriendProfile|null>(null);
+ const closeButton=useRef<HTMLButtonElement>(null);
  const [memoryPanel,setMemoryPanel]=useState(false);
  const [draft,setDraft]=useState("");
  const [revision,setRevision]=useState(0);
+ // The profile modal must be rendered at the viewport root, outside route transitions.
+ // Freeze background scrolling while the dialog is open, and restore focus on close.
+ useEffect(()=>{
+  if(!selected)return;
+  const oldOverflow=document.body.style.overflow;
+  const lastFocused=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  document.body.style.overflow="hidden";
+  closeButton.current?.focus();
+  const onKeyDown=(event:KeyboardEvent)=>{
+   if(event.key==="Escape"){event.preventDefault();setSelected(null);setMemoryPanel(false)}
+  };
+  document.addEventListener("keydown",onKeyDown);
+  return()=>{
+   document.body.style.overflow=oldOverflow;
+   document.removeEventListener("keydown",onKeyDown);
+   if(lastFocused?.isConnected)lastFocused.focus();
+  };
+ },[selected]);
  const refresh=()=>setRevision(x=>x+1);
  const recent=recentFriends(language);
  const visible=CREW_FRIENDS.filter(friend=>(category==="all"||friend.category===category)&&
@@ -54,9 +74,9 @@ export function FriendsPage(){
     </button>):<p className="friends-empty">沒有符合的朋友，試試別的名字或興趣。</p>}</div>
   </section>
   <p className="friends-privacy-note">最近互動只記錄真實聊天日期；話題記憶預設開啟，可到設定關閉或清除。朋友是虛構的 AI 角色，不會聲稱真實線上狀態。</p>
-  {selected?<div className="friends-modal-backdrop" role="presentation" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>
+  {selected?createPortal(<div className="friends-modal-backdrop" role="presentation" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>
    <section className="friends-modal" role="dialog" aria-modal="true" aria-label={selected.name} onClick={e=>e.stopPropagation()}>
-    <button type="button" className="friends-modal-close" aria-label="關閉" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>×</button>
+    <button ref={closeButton} type="button" className="friends-modal-close" aria-label="關閉" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>×</button>
     <FriendAvatar friend={selected} className="friends-detail-avatar"/><h2>{selected.name}</h2><strong className="friends-detail-title">{selected.titleZh}</strong><p>{selected.bioZh}</p>
     {getFriendLastChat(selected.id,language)>0?<small className="friends-detail-time">{relativeDate(getFriendLastChat(selected.id,language))}</small>:null}
     {memoryPanel?<div className="friends-memories">
@@ -80,6 +100,6 @@ export function FriendsPage(){
      <button type="button" className="friends-secondary" onClick={()=>setMemoryPanel(v=>!v)}>{memoryPanel?"返回人物介紹":"共同回憶"}</button>
     </div>
    </section>
-  </div>:null}
+  </div>,document.body):null}
  </div>;
 }
