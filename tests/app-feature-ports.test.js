@@ -64,8 +64,10 @@ test("unified React router owns all Crew product surfaces",()=>{
 test("Teacher React mirrors native app feature names",()=>{
  const practice=fs.readFileSync(path.join(root,"web-spa/src/teacher/PracticePage.tsx"),"utf8");
  const learn=fs.readFileSync(path.join(root,"web-spa/src/teacher/LearnPage.tsx"),"utf8");
- const combined=practice+"\n"+learn;
- for(const label of ["跟老師聊","教材陪讀","單字練習","情境課程","朗讀糾音"])assert.ok(combined.includes(label));
+ const roles=fs.readFileSync(path.join(root,"web-spa/src/teacher/RolesPage.tsx"),"utf8");
+ const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
+ const combined=practice+"\n"+learn+"\n"+roles+"\n"+tutor;
+ for(const label of ["Crew 老師","Crew 朋友","教材陪讀","單字練習","情境課程","朗讀糾音"])assert.ok(combined.includes(label));
  assert.ok(!combined.includes("表達教練"));
  assert.ok(!combined.includes("工作情境"));
 });
@@ -351,7 +353,7 @@ test("core Web entry points follow the Android app parity contract",()=>{
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
  const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
 
- for(const label of ["今天想學點什麼？","和老師練習","跟老師聊","教材陪讀","單字練習","情境課程","今天","學習紀錄"])assert.ok(teacher.includes(label));
+ for(const label of ["今天想和誰聊聊？","Crew 朋友","Crew 老師","教材陪讀","單字練習","情境課程","快速練習","接續上次學習"])assert.ok(teacher.includes(label));
  assert.ok(teacherTutor.includes("目前老師"));
  assert.ok(teacherNext.includes("今天下一步"));
  assert.ok(teacherNext.includes("buildDailyLearningPlan"));

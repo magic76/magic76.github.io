@@ -11,7 +11,7 @@ export function SettingsPage(){
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
  const caps=[["麥克風",!!navigator.mediaDevices?.getUserMedia],["WebSocket",typeof WebSocket!=="undefined"],["Web Audio",!!(window.AudioContext||(window as any).webkitAudioContext)],["Wake Lock",!!(navigator as any).wakeLock?.request]];
  useEffect(()=>{mountedRef.current=true;return()=>{mountedRef.current=false;if(liveRef.current)void liveRef.current.stop({silentStatus:true,emitTerminal:false});pendingRollbackRef.current?.();pendingRollbackRef.current=null}},[]);
- useEffect(()=>{if(window.location.hash==="#memory-settings")document.getElementById("memory-settings")?.scrollIntoView({block:"start"})},[]);
+ useEffect(()=>{if(window.location.hash.endsWith("#memory-settings"))document.getElementById("memory-settings")?.scrollIntoView({block:"start"})},[]);
  async function saveAndTest(){
   const candidate=key.trim();
   if(!candidate){setStatus("先貼上 API key。");return}

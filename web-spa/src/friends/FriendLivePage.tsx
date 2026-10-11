@@ -1,4 +1,5 @@
-import {useEffect,useMemo,useRef} from "react";
+import {useEffect,useMemo} from "react";
+import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
@@ -14,7 +15,6 @@ export function FriendLivePage(){
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const sessionId=friend.id;
- const started=useRef(false);
  const system=useMemo(()=>buildFriendSystem(friend,language),[friend,language]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
@@ -30,18 +30,19 @@ export function FriendLivePage(){
    }
   }
  });
- useEffect(()=>{if(started.current)return;started.current=true;void live.start()},[live.start]);
+ // Start once after mounting, without double-starting under React StrictMode.
+ useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to="/teacher/friends" aria-label="返回 Crew 朋友">‹</Link>
+   <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友</small></div>
    </div>
    <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
-   <section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{friend.bioZh}</p>
@@ -61,8 +62,8 @@ export function FriendLivePage(){
        {turn.output?<p><strong>{friend.name}：</strong>{turn.output}</p>:null}
       </div>)}</div>
     </details>:null}
-    <p className="friend-live-footnote">聊天內容僅在這次頁面顯示。最近聊天只記錄日期；共同話題需要你自行同意。</p>
-   </section>
+    <p className="friend-live-footnote">聊天內容僅在這次頁面顯示。最近聊天只記錄日期；話題記憶預設開啟，可隨時在設定關閉。</p>
+   </section><DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/></div>
   </main>
  </>;
 }

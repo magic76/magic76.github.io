@@ -1,0 +1,40 @@
+const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
+const root=path.resolve(__dirname,".."),read=p=>fs.readFileSync(path.join(root,p),"utf8");
+
+test("Crew Teacher home is a neutral friends/teachers choice without avatar icons",()=>{
+ const home=read("web-spa/src/teacher/PracticePage.tsx");
+ const layout=read("web-spa/src/teacher/TeacherLayout.tsx");
+ const roles=read("web-spa/src/teacher/RolesPage.tsx");
+ assert.match(home,/今天想和誰聊聊/);
+ assert.match(home,/crew-role-entry friend/);
+ assert.match(home,/crew-role-entry teacher/);
+ assert.doesNotMatch(home,/TeacherAvatar|FriendAvatar|今天想學點什麼/);
+ assert.ok(layout.includes('"/teacher/roles","角色"'));
+ assert.ok(!layout.includes('"/teacher/friends","朋友"'));
+ assert.ok(roles.includes("Crew 老師")&&roles.includes("Crew 朋友"));
+ assert.ok(roles.includes("crew_teacher_last_role_v1"));
+});
+test("old tutor/friend urls redirect and relationship starts remain separate",()=>{
+ const app=read("web-spa/src/App.tsx");
+ const tutor=read("web-spa/src/teacher/TutorPage.tsx");
+ const teacher=read("web-spa/src/teacher/LivePage.tsx");
+ const friend=read("web-spa/src/friends/FriendLivePage.tsx");
+ assert.ok(app.includes('path="roles" element={<RolesPage/>}'));
+ assert.ok(app.includes('to="/teacher/roles?mode=friends"'));
+ assert.ok(app.includes('to="/teacher/roles?mode=teacher"'));
+ assert.match(tutor,/teacher-advanced-settings/);
+ assert.match(tutor,/teacher-home-start/);
+ assert.match(teacher,/setTimeout\(\(\)=>\{void live\.start\(\)\},0\)/);
+ assert.match(friend,/setTimeout\(\(\)=>\{void live\.start\(\)\},0\)/);
+ assert.ok(friend.includes('kind="friend"'));
+});
+test("default-on memory remains in settings and links work with HashRouter",()=>{
+ const personal=read("web-spa/src/teacher/studentMemory.ts");
+ const friend=read("web-spa/src/friends/friendMemory.ts");
+ const settings=read("web-spa/src/pages/SettingsPage.tsx");
+ const my=read("web-spa/src/teacher/MyPage.tsx");
+ assert.match(personal,/getItem\(CONSENT\)!=="0"/);
+ assert.match(friend,/getItem\(CONSENT\)!=="0"/);
+ assert.match(settings,/hash\.endsWith\("#memory-settings"\)/);
+ assert.match(my,/to="\/settings#memory-settings"/);
+});

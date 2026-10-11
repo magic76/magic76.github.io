@@ -3,7 +3,7 @@ import {ensureCore,geminiKey} from "../lib/runtime";
 
 type Turn={input?:string;output?:string};
 type Props={
- kind:"teacher"|"story";label:string;language:string;state:string;
+ kind:"teacher"|"story"|"friend";label:string;language:string;state:string;
  turns:ReadonlyArray<Turn>;input:string;output:string;
 };
 function readNotes(key:string){
@@ -50,16 +50,16 @@ export function DesktopLivePanel({kind,label,language,state,turns,input,output}:
   }catch{setTranslateError("翻譯暫時失敗，可以再試一次。")}
   finally{setBusy(false)}
  }
- return <aside className="desktop-live-panel" aria-label={kind==="teacher"?"學習工作台":"故事互動工作台"}>
+ return <aside className="desktop-live-panel" aria-label={kind==="teacher"?"學習工作台":kind==="friend"?"朋友對話工作台":"故事互動工作台"}>
   <header className="workspace-panel-header">
-   <div><span className="kicker">{kind==="teacher"?"Crew Teacher":"Crew Story"} · Workspace</span>
-    <h2>{kind==="teacher"?"對話與學習筆記":"故事互動與筆記"}</h2>
-    <p>{kind==="teacher"?"練口說時不需要離開老師畫面。":"一邊聽故事，一邊留下想法。"}</p></div>
+   <div><span className="kicker">{kind==="teacher"?"Crew Teacher":kind==="friend"?"Crew Friends":"Crew Story"} · Workspace</span>
+    <h2>{kind==="teacher"?"對話與學習筆記":kind==="friend"?"對話與隨手筆記":"故事互動與筆記"}</h2>
+    <p>{kind==="teacher"?"練口說時不需要離開老師畫面。":kind==="friend"?"自在接續話題，對話紀錄只保留在這次會話。":"一邊聽故事，一邊留下想法。"}</p></div>
    <span className="workspace-state" data-state={state}>{state==="speaking"?"說話中":state==="listening"?"聆聽中":state==="connecting"?"連線中":state==="ended"?"已結束":"待開始"}</span>
   </header>
   <div className="workspace-tabs" aria-label="切換工作台內容">
    <button type="button" aria-pressed={tab==="transcript"} className={tab==="transcript"?"active":""} onClick={()=>setTab("transcript")}>逐字稿</button>
-   <button type="button" aria-pressed={tab==="notes"} className={tab==="notes"?"active":""} onClick={()=>setTab("notes")}>{kind==="teacher"?"學習筆記":"故事筆記"}{notes.trim()?" · 已記錄":""}</button>
+   <button type="button" aria-pressed={tab==="notes"} className={tab==="notes"?"active":""} onClick={()=>setTab("notes")}>{kind==="teacher"?"學習筆記":kind==="friend"?"我的筆記":"故事筆記"}{notes.trim()?" · 已記錄":""}</button>
   </div>
   {tab==="transcript"?<>
    <div className="workspace-dialogue" tabIndex={0} aria-label="完整對話紀錄">
@@ -84,8 +84,8 @@ export function DesktopLivePanel({kind,label,language,state,turns,input,output}:
    </div>
   </>:<div className="workspace-note-area">
    <label htmlFor={"workspace-notes-"+kind}>隨手記下重點</label>
-   <textarea id={"workspace-notes-"+kind} value={notes} onChange={e=>setNotes(e.target.value)} maxLength={12000} placeholder={kind==="teacher"?"今天學到的說法、單字、下次想練的句子…":"喜歡的角色、故事靈感、想問阿奇的問題…"} />
-   <small>自動儲存在這個瀏覽器，可在 Crew 設定中備份；不會傳給老師或阿奇。</small>
+   <textarea id={"workspace-notes-"+kind} value={notes} onChange={e=>setNotes(e.target.value)} maxLength={12000} placeholder={kind==="teacher"?"今天學到的說法、單字、下次想練的句子…":kind==="friend"?"下次想聊的電影、旅行或共同話題…":"喜歡的角色、故事靈感、想問阿奇的問題…"} />
+   <small>自動儲存在這個瀏覽器，可在 Crew 設定中備份；這份筆記不會自動傳給對話角色。</small>
   </div>}
  </aside>;
 }
