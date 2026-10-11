@@ -9,6 +9,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
+ persistHistory?:boolean;sessionKind?:"teacher"|"friend";onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
@@ -32,7 +33,8 @@ export function useLiveSession(config:Config){
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
   const text=turnsRef.current.map(t=>[t.input?"你："+t.input:"",t.output?"AI："+t.output:""].filter(Boolean).join("\n")).filter(Boolean).join("\n\n");
   const item={id:Date.now(),title:configRef.current.title,preview:text.slice(0,180),turns:turnsRef.current.slice(),durationMs:s?.getDurationMs()||0,reason,ts:new Date().toISOString()};
-  saveLive(configRef.current.pageKey,item);return item;
+  if(configRef.current.persistHistory!==false)saveLive(configRef.current.pageKey,item);
+  return item;
  },[]);
  const finish=useCallback(async(item:any)=>{
   let reportFailed=false;
@@ -51,6 +53,7 @@ export function useLiveSession(config:Config){
   }finally{
    if(!reportFailed)setStatus("已結束。");
    setState("ended");
+   configRef.current.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
   }
  },[]);
  const start=useCallback(async()=>{
@@ -71,10 +74,12 @@ export function useLiveSession(config:Config){
     onRecovered:()=>{if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
-      const prompt=roleplay
+      const prompt=configRef.current.sessionKind==="friend"
+      ?"[FRIEND CONTINUITY — silent recovery] Continue your unfinished answer naturally as the same friend. Never reintroduce yourself, become a teacher, or ask the user to repeat."
+      :roleplay
       ?"[SCENE CONTROL — silent reconnect recovery] Your previous in-character reply was interrupted. Continue the unanswered response without greeting or explaining grammar. Do not repeat parts already spoken."
       :"[COACH CONTROL — silent reconnect recovery] The connection interrupted a reply. Answer or finish the learner's previous utterance naturally from the next unsaid point. Do not greet, repeat previous sentences, or ask the learner to repeat.";
-      if(session.sendText(prompt))setStatus("已恢復連線，老師接續剛才的回答…");
+      if(session.sendText(prompt))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
     onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},

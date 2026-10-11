@@ -29,7 +29,12 @@ test("learner memory scopes by language, opt-in verifies student speech, and era
  const store=storage(),m=load("web-spa/src/teacher/studentMemory.ts",store);
  assert.equal(m.personalMemoryEnabled(),false);
  m.saveStudentMemory("英文","goal","I want to improve speaking");
+ // Even manually saved personal notes are not injected until consent is granted.
+ assert.equal(m.buildTutorMemoryContext("英文").includes("improve speaking"),false);
+ m.setPersonalMemoryEnabled(true);
  assert.ok(m.buildTutorMemoryContext("英文").includes("improve speaking"));
+ m.setPersonalMemoryEnabled(false);
+ assert.equal(m.buildTutorMemoryContext("英文").includes("improve speaking"),false);
  assert.equal(m.studentMemories("日文").length,0);
  const report={memory_updates:{
   weaknesses:[{key:"tense:error",detail:"過去式用法",confidence:.7}],
