@@ -510,14 +510,19 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 });
 
 
-test("home page explains product value and guides Gemini setup",()=>{
+test("Crew home puts the next activity first and keeps Gemini setup secondary",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
- assert.ok(home.includes("語言陪讀、說故事、命盤解讀"));
- assert.ok(home.includes("用自己的 Gemini Key"));
- assert.ok(home.includes("先花 1 分鐘設定 Gemini Key"));
+ const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
+ assert.ok(home.includes("今天想做些什麼？"));
+ assert.ok(home.includes("繼續上次"));
+ assert.ok(home.includes("探索 Crew"));
+ assert.ok(home.includes("語言與口說")&&home.includes("故事與陪讀")&&home.includes("探索命盤"));
+ assert.ok(home.includes("設定 Gemini Key，開始 AI 互動"));
  assert.ok(home.includes("geminiKey()"));
+ assert.ok(home.includes("geminiVerified()"));
  assert.ok(!home.includes("切換不再重新載入不同頁面"));
- assert.ok(home.includes("從第一件事開始"));
+ assert.ok(css.includes("grid-template-columns:repeat(3,minmax(0,1fr))"));
+ assert.ok(css.includes("@media(max-width:620px)"));
 });
 
 test("mobile chrome keeps key actions reachable and Fortune header actions grouped",()=>{
@@ -569,12 +574,15 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  assert.ok(!player.includes("Gemini Live 阿奇負責"));
 });
 
-test("Crew home distinguishes Web entry from Android app availability",()=>{
+test("Crew home distinguishes product entry from collapsed Android downloads",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
- assert.ok(home.includes("一個入口搞定"));
- assert.ok(!home.includes("一個 App 搞定"));
+ assert.ok(home.includes('to="/teacher/practice"'));
+ assert.ok(home.includes('to="/story"'));
+ assert.ok(home.includes('to="/fortune"'));
+ assert.ok(home.includes('<details className="crew-home-android">'));
  assert.ok(home.includes('product="fortune"'));
+ assert.ok(!home.includes("一個 App 搞定"));
  assert.ok(play.includes("Google Play 準備中"));
  assert.ok(play.includes("url:null"));
  assert.ok(!play.includes("com.crewpocket.fortune"));
@@ -596,7 +604,7 @@ test("Story Web mirrors Android playback state UX",()=>{
 });
 
 
-test("Crew Web recent activity resumes real product state and keeps secondary controls secondary",()=>{
+test("Crew Web resumes a single recent activity across Live, Story Shelf and Fortune",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
  const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
@@ -604,7 +612,10 @@ test("Crew Web recent activity resumes real product state and keeps secondary co
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
  assert.ok(home.includes("/teacher/live?history="));
  assert.ok(home.includes("?page="));
- assert.ok(home.indexOf("繼續上次")<home.indexOf("Android 版"));
+ assert.ok(home.includes("CrewStoryStore?.last()"));
+ assert.ok(home.includes("crew_fortune_readings_v2"));
+ assert.ok(home.includes("sort((a,b)=>b.timestamp-a.timestamp)"));
+ assert.ok(home.indexOf("繼續上次")<home.indexOf("在 Android 上使用 Crew"));
  assert.ok(chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'),"Settings must be visible in the primary navigation");
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
@@ -612,6 +623,20 @@ test("Crew Web recent activity resumes real product state and keeps secondary co
  assert.ok(settings.includes("儲存並測試"));
  assert.ok(settings.includes("進階與清除"));
  assert.ok(fortune.includes('surface:"reading"'));
+});
+
+test("Crew home shows real dated Briefing content and keeps its route distinct",()=>{
+ const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
+ const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
+ const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
+ assert.ok(home.includes("fetchIndex()"));
+ assert.ok(home.includes("fetchDay(x.days[0])"));
+ assert.ok(home.includes('rankItems(day.items,"","all"'));
+ assert.ok(home.includes("edition?.item?.title"));
+ assert.ok(home.includes("latestDate(edition.day.date)"));
+ assert.ok(home.includes('to="/briefing/board"'));
+ assert.ok(app.includes('<AppChrome product="briefing"><BriefingPage/>'));
+ assert.ok(chrome.includes('briefing:["C","Crew Briefing","每日研發情報"]'));
 });
 
 
