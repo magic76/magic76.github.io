@@ -16,7 +16,7 @@ const recentKey=(language:string)=>DATES+langKey(language);
 const epoch=()=>Number(localStorage.getItem(EPOCH)||0);
 const bump=()=>localStorage.setItem(EPOCH,String(epoch()+1));
 const validFriend=(id:string)=>CREW_FRIENDS.some(f=>f.id===id);
-export const friendMemoryEnabled=()=>localStorage.getItem(CONSENT)==="1";
+export const friendMemoryEnabled=()=>localStorage.getItem(CONSENT)!=="0";
 export const hasFriendMemoryDecision=()=>localStorage.getItem(CONSENT)!==null;
 export function setFriendMemoryEnabled(enabled:boolean){localStorage.setItem(CONSENT,enabled?"1":"0");bump()}
 export function getFriendTopics(id:string,language:string):FriendTopic[]{

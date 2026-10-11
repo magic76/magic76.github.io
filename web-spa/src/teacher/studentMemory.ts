@@ -1,5 +1,5 @@
 /* Crew Teacher parity: local, language-scoped learner memory V2.
- * Android is the behavioral reference; no automatic personal extraction without consent.
+ * Android is the behavioral reference: enabled by default, explicit opt-out persists.
  */
 export type MemoryKind="weakness"|"strength"|"win"|"focus"|"goal"|"interest"|"preference";
 export type MemoryItem={
@@ -19,7 +19,7 @@ export function normalizeLearningLanguage(language:string){
  return short(language||"英文",36).normalize("NFKC").toLocaleLowerCase();
 }
 const storageKey=(language:string)=>PREFIX+encodeURIComponent(normalizeLearningLanguage(language));
-export function personalMemoryEnabled(){return localStorage.getItem(CONSENT)==="1"}
+export function personalMemoryEnabled(){return localStorage.getItem(CONSENT)!=="0"}
 export function hasPersonalMemoryDecision(){return localStorage.getItem(CONSENT)!==null}
 export function setPersonalMemoryEnabled(enabled:boolean){localStorage.setItem(CONSENT,enabled?"1":"0")}
 export function studentMemories(language:string):MemoryItem[]{

@@ -2,7 +2,7 @@ import{useState}from"react";
 import{Link}from"react-router-dom";
 import{useTeacherStore}from"../store/teacherStore";
 import{type MemoryKind,type MemoryItem,studentMemories,saveStudentMemory,updateStudentMemory,
- deleteStudentMemory,clearStudentMemory,personalMemoryEnabled,setPersonalMemoryEnabled}from"./studentMemory";
+ deleteStudentMemory,clearStudentMemory,personalMemoryEnabled}from"./studentMemory";
 
 const LABELS:Record<MemoryKind,string>={goal:"學習目標",interest:"興趣",preference:"教學偏好",weakness:"待加強",strength:"做得好",win:"已進步",focus:"下次重點"};
 const TYPES:MemoryKind[]=["goal","interest","preference","weakness","focus"];
@@ -11,13 +11,13 @@ export function StudentMemoryPage(){
  const lang=useTeacherStore(s=>s.targetLanguage);
  const [items,setItems]=useState(()=>studentMemories(lang));
  const [type,setType]=useState<MemoryKind>("goal"),[text,setText]=useState("");
- const [consent,setConsent]=useState(personalMemoryEnabled);
+ const consent=personalMemoryEnabled();
  const [edit,setEdit]=useState(""),[draft,setDraft]=useState("");
  const refresh=()=>setItems(studentMemories(lang));
  // Re-read storage whenever language changes; no cross-language leakage.
  const [currentLang,setCurrentLang]=useState(lang);
  if(currentLang!==lang){setCurrentLang(lang);setItems(studentMemories(lang));setEdit("")}
- const display=items.filter(x=>!personal(x)||x.source==="self"||consent);
+ const display=items;
  return <><section className="hero"><span className="kicker">Personalized Learning</span><h1>老師對我的了解</h1>
  <p>老師會在符合條件的課後自動更新學習進步與待加強項目，你可以隨時編輯或刪除。這些資訊只保存在目前瀏覽器，依學習語言分開儲存。</p></section>
  <section className="section panel teacher-memory-panel">
@@ -26,13 +26,9 @@ export function StudentMemoryPage(){
  <textarea className="field" rows={3} value={text} onChange={e=>setText(e.target.value)} maxLength={180} placeholder="例如：希望能用英文主持工作會議；講解時少用中文"/>
  <button className="btn" disabled={!text.trim()} onClick={()=>{saveStudentMemory(lang,type,text);setText("");refresh()}}>儲存給老師</button></div>
  </section>
- <section className="section panel teacher-memory-panel"><h2>個人資訊由你決定</h2>
- <label className="teacher-memory-consent"><input type="checkbox" checked={consent} onChange={e=>{
- const enabled=e.target.checked;
- if(enabled&&!window.confirm("允許課後 AI 從你明確說過的話中整理學習相關目標、興趣與偏好？可隨時關閉。"))return;
- setPersonalMemoryEnabled(enabled);setConsent(enabled);refresh();
- }}/><span>允許課後自動整理我明確說過的目標、興趣與偏好</span></label>
- <p className="meta">預設關閉。關閉後不會把過去自動提取的個人資訊提供給老師；手動新增的資訊仍會使用。課後弱點及進步紀錄不受此開關影響。</p>
+ <section className="section panel teacher-memory-panel"><h2>個人化記憶</h2>
+ <p className="meta">目前：{consent?"已開啟":"已關閉"}。記憶預設開啟，可到設定關閉；關閉後不再自動整理或提供個人偏好給老師與朋友，已保存的記憶仍可在此編輯或刪除。</p>
+ <Link className="inline-link" to="/settings#memory-settings">前往設定調整記憶 →</Link>
  </section>
  <section className="section"><div className="section-head"><h2>目前記憶</h2><small>{display.length} 筆</small></div>
  {display.length?<div className="teacher-memory-list">{display.map(m=><article className="panel teacher-memory-item" key={m.id}>
