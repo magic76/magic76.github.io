@@ -9,6 +9,25 @@ export function updateReview(id:string,patch:Partial<LocalReview>):ReviewMap {
  try {localStorage.setItem(KEY,JSON.stringify(after));window.dispatchEvent(new Event("crew-briefing-updated"));}catch{/* local mode can still read the report */}
  return after;
 }
+export function importReviews(json:string):number {
+ const data:unknown=JSON.parse(json);
+ if(!data||typeof data!=="object"||(data as any).version!==1||typeof (data as any).reviews!=="object"||!(data as any).reviews||Array.isArray((data as any).reviews))throw Error("這不是 Crew Briefing 研究狀態備份。");
+ const allowed=new Set(["unread","reading","researching","delegated","adopted","dismissed"]);
+ const reviews=readReviews();let count=0;
+ for(const [id,v] of Object.entries((data as any).reviews)){
+  if(!/^[a-zA-Z0-9_-]{3,100}$/.test(id)||!v||typeof v!=="object"||count>5000)continue;
+  const item=v as LocalReview;
+  const safe:LocalReview={
+   saved:item.saved===true,status:allowed.has(item.status||"")?item.status:"unread",
+   notes:typeof item.notes==="string"?item.notes.slice(0,5000):"",
+   draft:typeof item.draft==="string"?item.draft.slice(0,10000):"",
+   updatedAt:new Date().toISOString()
+  };
+  reviews[id]={...reviews[id],...safe};count++;
+ }
+ localStorage.setItem(KEY,JSON.stringify(reviews));
+ window.dispatchEvent(new Event("crew-briefing-updated"));return count;
+}
 export function getStatus(review?:LocalReview):ReviewStatus{return review?.status||"unread";}
 export function agentPrompt(item:BriefingItem) {
  return ["你是 Crew 專案的研究 Agent。請先核實以下資料，再評估是否值得實作。不要直接改程式或合併。",
