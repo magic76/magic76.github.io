@@ -3,7 +3,7 @@ import type{ReturnTypeOfLive}from"./types";
 
 function clock(ms:number){const s=Math.floor(ms/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 
-export function LiveControls({live,interruptLabel="打斷老師",prominentInterrupt=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean}){
+export function LiveControls({live,interruptLabel="打斷老師",prominentInterrupt=false,onEnd}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>}){
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const error=live.state==="error";
  return <>
@@ -14,7 +14,7 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
    {live.errorKind==="mic"&&<small>若瀏覽器已封鎖麥克風，請先在網址列或瀏覽器網站設定中允許。</small>}
    {live.errorKind==="network"&&<small>會保留目前頁面；網路恢復後可直接重新連線。</small>}
   </div>:
-  <div className="live-controls">{!active?<button className="live-btn" onClick={()=>void live.start()}>{live.state==="ended"?"再開始":"開始"}</button>:<button className="live-btn end" onClick={()=>void live.stop()} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?"整理中…":"結束"}</button>}</div>}
+  <div className="live-controls">{!active?<button className="live-btn" onClick={()=>void live.start()}>{live.state==="ended"?"再開始":"開始"}</button>:<button className="live-btn end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?"整理中…":"結束"}</button>}</div>}
   {active&&<>{prominentInterrupt&&live.state==="speaking"&&<button type="button" className="live-manual-interrupt" onClick={()=>live.interrupt()}>{interruptLabel}</button>}<div className="live-callbar">
    <div className="live-timer">{clock(live.durationMs)}</div>
    <div className="live-call-actions">
