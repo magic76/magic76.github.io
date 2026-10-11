@@ -1,0 +1,44 @@
+name: Crew Briefing daily
+on:
+  schedule:
+    - cron: "0 23 * * *" # 07:00 Asia/Taipei (UTC+8)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crew-briefing-publish
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci
+      - name: Generate from public sources only
+        run: node scripts/generate-briefing.mjs
+        env:
+          CREW_BRIEFING_GEMINI_KEY: ${{ secrets.CREW_BRIEFING_GEMINI_KEY }}
+          CREW_BRIEFING_MODEL: gemini-2.5-flash
+      - run: npm run check:web
+      - run: npm run build:web
+      - run: npm test
+      - name: Commit the report and compiled site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add web-spa/public/briefings crew-app
+          if git diff --cached --quiet; then
+            echo "Crew Briefing is already current"
+          else
+            git commit -m "chore(briefing): publish daily public report"
+            git pull --rebase origin master
+            git push origin HEAD:master
+          fi
