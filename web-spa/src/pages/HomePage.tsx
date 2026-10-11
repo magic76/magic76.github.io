@@ -5,9 +5,6 @@ import type {BriefingDay,BriefingItem} from "../briefing/types";
 import {Icon} from "../components/Icon";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
-import {useTeacherStore} from "../store/teacherStore";
-import {getTeacherProfile} from "../teacher/teacherProfiles";
-import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import "./home.css";
 
 type Kind="teacher"|"story"|"fortune";
@@ -88,7 +85,6 @@ function BriefingPreview(){
 }
 
 export function HomePage(){
- const teacher=getTeacherProfile(useTeacherStore(state=>state.teacherProfile));
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>activities(book)[0]||null,[book]);
  const configured=Boolean(geminiKey()),verified=geminiVerified();
@@ -115,7 +111,7 @@ export function HomePage(){
     {recent?<section className="crew-home-continue" aria-label="繼續上次">
      <div className="crew-home-section-heading"><h2>繼續上次</h2><span>保存在這台裝置</span></div>
      <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
-      <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:recent.kind==="teacher"?<TeacherAvatar profile={teacher} decorative/>:<Icon name={recent.kind}/>}</span>
+      <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind}/>}</span>
       <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"CREW TEACHER":recent.kind==="story"?"CREW STORY":"CREW FORTUNE"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
      </Link>
@@ -124,7 +120,7 @@ export function HomePage(){
      <div className="crew-home-section-heading"><h2>探索 Crew</h2><span>選一件事開始</span></div>
      <div className="crew-home-product-grid">
       <Link className="crew-home-product crew-home-teacher" to="/teacher/practice">
-       <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><TeacherAvatar profile={teacher} decorative/></span>
+       <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>語言與口說</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
       <Link className="crew-home-product crew-home-story" to="/story">
