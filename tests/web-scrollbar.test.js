@@ -25,7 +25,8 @@ test("Global policy is imported last and includes body portals while leaving scr
   const css = fs.readFileSync(path.join(root, "web-spa/src/scrollbar-policy.css"), "utf8");
   const imports = [...main.matchAll(/import ["'](\.[^"']+\.css)["']/g)].map(match => match[1]);
   assert.equal(imports.at(-1), "./scrollbar-policy.css");
-  assert.ok(css.includes("body * {"));
+  assert.ok(css.includes("body *,"));
+  assert.ok(css.includes("#root * {"));
   assert.ok(css.includes("body *::-webkit-scrollbar"));
   assert.ok(css.includes("scrollbar-gutter: auto !important"));
   assert.doesNotMatch(css, /overflow(?:-x|-y)?\s*:\s*(?:hidden|clip)/);

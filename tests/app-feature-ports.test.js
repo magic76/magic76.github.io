@@ -314,8 +314,9 @@ test("Teacher and Story expose Google Play links while Fortune stays unlisted",(
 
 test("Crew Web hides root and nested scrollbar chrome without disabling scrolling",()=>{
  const styles=fs.readFileSync(path.join(root,"web-spa/src/styles.css"),"utf8");
+ const policy=fs.readFileSync(path.join(root,"web-spa/src/scrollbar-policy.css"),"utf8");
  const legacy=fs.readFileSync(path.join(root,"crew.css"),"utf8");
- for(const source of [styles,legacy]){
+ for(const source of [policy,legacy]){
   const css=source.replace(/\s+/g,"");
   assert.ok(css.includes("scrollbar-width:none!important"));
   assert.ok(css.includes("-ms-overflow-style:none!important"));
