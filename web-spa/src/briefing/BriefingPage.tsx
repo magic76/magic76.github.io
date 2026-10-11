@@ -13,7 +13,7 @@ export function BriefingPage(){
  const filtered=useMemo(()=>rankItems(day?.items||[],query,project,id=>Boolean(reviews[id]?.saved),onlySaved),[day,query,project,onlySaved,reviews]);
  const total=day?.items.length||0;const saved=day?.items.filter(x=>reviews[x.id]?.saved).length||0;
  return <div className="briefing">
-  <section className="briefing-head"><div><span className="kicker">CREW BRIEFING · 每日研發情報</span><h1>今天值得研究什麼？</h1><p>只看值得你花時間的研究。從情報走到專案實驗，不再只是收藏文章。</p></div><div className="briefing-head-actions"><Link to="/briefing/board" className="btn secondary">研究看板 ↗</Link></div></section>
+  <section className="briefing-head"><div><span className="kicker">CREW BRIEFING · 每日研發情報</span><h1>今天值得研究什麼？</h1><p>只看值得你花時間的研究。從情報走到專案實驗，不再只是收藏文章。</p></div><div className="briefing-head-actions"><a className="btn secondary" href={import.meta.env.BASE_URL+"briefings/feed.xml"} target="_blank" rel="noopener noreferrer">訂閱 RSS</a><Link to="/briefing/board" className="btn secondary">研究看板 ↗</Link></div></section>
   <section className="briefing-summary">
    <div><b>{total}</b><span>當期研究</span></div><div><b>{saved}</b><span>已收藏</span></div><div><b>{day?.items.filter(x=>x.actions.length>0).length||0}</b><span>可研究方向</span></div>
    <div className="briefing-sync"><span>資料範圍：公開研究來源</span><small>個人標記保存在此瀏覽器</small></div>
