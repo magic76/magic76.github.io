@@ -28,11 +28,14 @@ test("voice selection stays inside active profile and next-session accent and pa
  assert.match(picker,/detail\.id===active\?activeVoice:detail\.recommendedVoice/);
  assert.match(preview,/voiceName:opts\?\.voice\|\|profile\.recommendedVoice/);
 });
-test("manual interrupt is a primary action only while teacher is actually speaking",()=>{
+test("manual interrupt remains in its dock position but can only be used while speaking",()=>{
  const controls=read("web-spa/src/live/LiveControls.tsx");
  const live=read("web-spa/src/teacher/LivePage.tsx");
  assert.match(live,/prominentInterrupt interruptLabel="換我說/);
- assert.match(controls,/prominentInterrupt&&live\.state==="speaking"/);
+ assert.match(controls,/prominentInterrupt&&<button/);
+ assert.match(controls,/disabled={live\.state!=="speaking"}/);
+ assert.match(controls,/crew-voice-dock/);
+ assert.match(controls,/crew-voice-end/);
 });
 test("roleplay changes only through scene setting and fresh session instead of silent text prompt",()=>{
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");

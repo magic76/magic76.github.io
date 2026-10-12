@@ -66,3 +66,24 @@ body.teacher-theme .teacher-gallery-search{display:block;padding:0 18px 12px}
 body.teacher-theme .teacher-gallery-search input{box-sizing:border-box;width:100%;min-height:44px;border:1px solid var(--line,#d9dfe8);background:var(--surface,#fff);border-radius:12px;padding:10px 13px;color:var(--text,#202637);font:inherit}
 body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:var(--muted,#667085)}
 @media(max-width:640px){body.teacher-theme .teacher-precall-settings{padding:12px;gap:9px}body.teacher-theme .crew-role-entry .crew-role-portrait{width:56px;height:56px}body.teacher-theme .crew-target-shortcut a{margin-left:0}}
+
+/* Crew Teacher Android UI parity: predictable mobile voice controls. */
+.crew-voice-dock{display:grid;gap:8px;width:100%;min-width:0}
+.crew-voice-dock-main{display:grid;gap:8px;min-width:0}
+.crew-voice-dock .live-manual-interrupt{margin:0;animation:none;box-shadow:none}
+.crew-voice-dock .live-manual-interrupt:disabled{opacity:.48;cursor:not-allowed;transform:none}
+.crew-voice-dock .live-callbar{margin:0;min-width:0}
+.crew-voice-dock .live-audio-settings{margin-top:0}
+@media(max-width:640px){
+ body.teacher-theme.session-page .live-stage{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+ body.teacher-theme.session-page .crew-voice-dock{position:fixed;z-index:55;bottom:0;left:0;right:0;box-sizing:border-box;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));background:var(--surface,#fff);border-top:1px solid var(--line,#ddd);box-shadow:0 -8px 28px rgba(20,20,40,.08)}
+ body.teacher-theme.session-page .crew-voice-dock-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
+ body.teacher-theme.session-page .crew-voice-dock .live-manual-interrupt{min-height:48px;font-size:14px}
+ body.teacher-theme.session-page .crew-voice-dock .live-callbar{grid-template-columns:1fr;gap:4px}
+ body.teacher-theme.session-page .crew-voice-dock .live-timer{display:none}
+ body.teacher-theme.session-page .crew-voice-dock .live-tool-btn{min-height:48px;width:100%}
+ body.teacher-theme.session-page .crew-voice-dock .live-audio-settings{display:none}
+}
+
+.crew-voice-dock .crew-voice-end{min-height:48px;margin:0}
+@media(max-width:640px){body.teacher-theme.session-page .crew-voice-dock .crew-voice-end{grid-column:1/-1;min-height:44px}}
