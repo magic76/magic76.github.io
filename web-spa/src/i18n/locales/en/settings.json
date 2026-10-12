@@ -8,7 +8,7 @@
     "tagline": "On by default · Turn off anytime",
     "intro": "Crew Teachers and Friends can remember conversations. Data stays in this browser, but relevant memories may be shared with Gemini in future conversations. Turning memory off stops further use and collection; it does not delete saved memories.",
     "personal": "Personal memory",
-    "personalDesc": "Remember learning goals, interests, and preferences for Crew Teachers and Friends.",
+    "personalDesc": "Remember explicitly shared everyday facts, learning goals, interests and preferences for Teachers and Friends.",
     "friend": "Shared topics with Crew Friends",
     "friendDesc": "Each friend and learning language has separate topics. Turning this off stops saving and reusing them.",
     "footnote": "Previously disabled settings stay off. Manage or delete existing memories in your Teacher's knowledge or each Friend's shared memories."
