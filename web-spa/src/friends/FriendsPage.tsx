@@ -7,7 +7,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {FriendAvatar} from "./FriendAvatar";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
- getFriendTopics,pinFriendTopic,recentFriends,saveFriendTopic} from "./friendMemory";
+ getFriendTopics,getFriendCaptureStatus,pinFriendTopic,recentFriends,saveFriendTopic} from "./friendMemory";
 import "./friends.css";
 
 function relativeDate(timestamp:number) {
@@ -50,6 +50,7 @@ export function FriendsPage(){
   };
  },[selected]);
  const refresh=()=>setRevision(x=>x+1);
+ useEffect(()=>{const listener=()=>setRevision(x=>x+1);window.addEventListener("crew-friend-memory-changed",listener);return()=>window.removeEventListener("crew-friend-memory-changed",listener)},[]);
  const recent=recentFriends(language);
  const visible=CREW_FRIENDS.filter(friend=>(category==="all"||friend.category===category)&&
   [friend.name,friend.titleZh,friend.bioZh,friend.titleEn,friend.bioEn].join(" ").toLowerCase().includes(query.trim().toLowerCase()));
@@ -58,6 +59,7 @@ export function FriendsPage(){
   navigate("/friend/live?id="+encodeURIComponent(friend.id));
  }
  const memories=selected?getFriendTopics(selected.id,language):[];
+ const captureStatus=selected?getFriendCaptureStatus(selected.id,language):"";
  return <div className="crew-friends-page" data-revision={revision}>
   <header className="hero friends-intro">
    <span className="kicker">CREW FRIENDS</span><h1>{t("title")}</h1>
@@ -88,6 +90,7 @@ export function FriendsPage(){
     {getFriendLastChat(selected.id,language)>0?<small className="friends-detail-time">{relativeDate(getFriendLastChat(selected.id,language))}</small>:null}
     {memoryPanel?<div className="friends-memories">
      <h3>{t("topicsWith",{name:selected.name})}</h3>
+     {captureStatus?<p className="meta" role="status">{t("capture."+captureStatus)}</p>:null}
      {!friendMemoryEnabled()?<p>{t("disabled")}</p>:<>
        {memories.length?memories.map(item=><div className="friends-memory-row" key={item.id}>
         <div><strong>{item.title}</strong><small>{item.summary}</small></div>
