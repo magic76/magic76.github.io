@@ -1,0 +1,42 @@
+{
+  "eyebrow": "YOUR CREW SPACE",
+  "headline": "What would you like to do today?",
+  "intro": "Pick up where you left off, or start something new.",
+  "continue": "Continue where you left off",
+  "localOnly": "Saved on this device",
+  "explore": "Explore Crew",
+  "start": "Choose something to try",
+  "product": {
+    "teacher": "Languages & speaking",
+    "story": "Stories & reading",
+    "fortune": "Explore your chart"
+  },
+  "setup": {
+    "title": "Set up a Gemini Key to use AI features",
+    "desc": "One key for all three products. Takes about a minute.",
+    "verify": "Gemini Key not yet verified",
+    "verifyDesc": "Verify your key to make sure it works."
+  },
+  "android": "Get Crew on Android",
+  "briefing": {
+    "heading": "Daily R&D briefing",
+    "today": "What's worth exploring today?",
+    "summary": "A daily selection of worthwhile AI research and ideas to test.",
+    "read": "Read the briefing",
+    "readingList": "My reading list",
+    "report": "Briefing home",
+    "loading": "Loading latest edition…"
+  },
+  "recent": {
+    "teacher": "Speaking practice",
+    "story": "Interactive story",
+    "fortune": "Chart exploration",
+    "fallback": "Return to your last activity",
+    "reader": "Continue on page {{page}}",
+    "physical": "Continue reading your book",
+    "book": "My story",
+    "bazi": "BaZi reading",
+    "tarot": "Tarot numerology",
+    "vedic": "Vedic astrology"
+  }
+}
