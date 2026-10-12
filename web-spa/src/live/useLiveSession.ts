@@ -1,4 +1,4 @@
-import{ingestStudentReport,reportMemoryContext}from"../teacher/studentMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
+import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch}from"../teacher/studentMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 
@@ -39,13 +39,14 @@ export function useLiveSession(config:Config){
  const finish=useCallback(async(item:any)=>{
   let reportFailed=false;
   let completedReport:Record<string,unknown>|null=null;
+  const personalEpoch=getPersonalMemoryEpoch();
   try{
    if(item&&configRef.current.teacherReport){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
      const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[],nativeLanguage:configRef.current.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(configRef.current.language||"英文"),pageKey:configRef.current.pageKey});
-     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[])}
+     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[],personalEpoch)}
     }
    }
   }catch(_){
