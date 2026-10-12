@@ -2,34 +2,35 @@ import {readFile,writeFile,mkdir} from "node:fs/promises";
 import {createHash} from "node:crypto";
 import {fileURLToPath} from "node:url";
 import {dirname,join} from "node:path";
+import {RESEARCH_AXES,classify as classifyResearch,matchingAxes,researchScore,selectResearch} from "./briefing-research-axes.mjs";
 const root=join(dirname(fileURLToPath(import.meta.url)),"..");
 const out=join(root,"web-spa/public/briefings");
-const topics=[
- {query:"agent memory",topic:"Agent Memory",projects:["Crew Pocket","Crew Deck"],keywords:/agent|memory|context|rag|retrieval|llm|mcp/i},
- {query:"AI coding agent",topic:"Agent Engineering",projects:["Crew Pocket","Crew Deck"],keywords:/coding|agent|tool|claude|codex|model/i},
- {query:"speech language learning AI",topic:"Conversational Learning",projects:["Crew Teacher"],keywords:/speech|language|learning|tutor|voice|conversation/i},
- {query:"multimodal generative AI",topic:"Multimodal Experience",projects:["Crew Story","Crew Teacher"],keywords:/multimodal|image|story|voice|video|vision/i},
- {query:"web frontend performance AI",topic:"Web Experience",projects:["Crew Web"],keywords:/web|frontend|react|performance|browser|ui/i}
-];
+const topics=RESEARCH_AXES.map(axis=>({...axis}));
 const today=()=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
 const checksum=(v)=>createHash("sha256").update(v).digest("hex").slice(0,16);
 const clean=(v,n=500)=>String(v||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().slice(0,n);
 const https=(url)=>{try {const u=new URL(url);return u.protocol==="https:"?u.href:null}catch{return null}};
-const fresh=(date)=>{const t=Date.parse(date);return Number.isFinite(t)&&Date.now()-t<=7*86400000&&t<=Date.now()+3600000};
-export const classify=(text)=>topics.filter(t=>t.keywords.test(text)).map(t=>t.projects).flat();
+const fresh=(date)=>{const t=Date.parse(date);return Number.isFinite(t)&&Date.now()-t<=21*86400000&&t<=Date.now()+3600000};
+export const classify=classifyResearch;
 export const unique=(arr)=>[...new Set(arr)];
 export function normalizeCandidate(c){
  if(!c||!c.title||!c.url||!fresh(c.publishedAt))return null;
  const url=https(c.url);if(!url)return null;
- const title=clean(c.title,150);if(title.length<12)return null;
- const projects=unique(c.projects?.length?c.projects:classify(title+" "+clean(c.abstract,300)));
- if(!projects.length)return null;
- const topic=c.topic||"AI Research";
- return {id:checksum(url),title,summary:clean(c.abstract||("公開資料："+title+"。請先閱讀來源再評估是否採用。"),400),publishedAt:c.publishedAt,
-  topic,projects,relevance:"與 "+projects.join("、")+" 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-  actions:["閱讀原始來源，辨認可重現的技術與限制","檢查相關 Crew 專案現有程式和功能，列出差異","提出低風險 PoC、測試指標與成本比較"],
-  sources:[{title:c.sourceTitle||title,url,publishedAt:c.publishedAt,kind:c.kind||"公開來源"}],score:Math.min(100,Math.max(1,Math.round(c.score||60))),body:clean(c.abstract,1000)};
+ const title=clean(c.title,170);if(title.length<12)return null;
+ const related=matchingAxes(title);
+ if(!related.length)return null;
+ const score=researchScore(c);
+ if(score<68)return null;
+ const projects=unique(related.flatMap(axis=>axis.projects));
+ const topic=related[0].topic;
+ const abstract=clean(c.abstract,1000);
+ const summary=abstract||("近期公開研究線索："+title+"。需先閱讀原文核實方法及結果。");
+ return {id:checksum(url),title,summary:clean(summary,400),publishedAt:c.publishedAt,
+  topic,projects,relevance:"這個議題涉及 "+projects.join("、")+" 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+  actions:["閱讀原文，確認它解決的問題、實驗方法及適用限制","檢查相關功能現有做法，找出可比較的差異","用小型 PoC 驗證成功率、品質、延遲和實際成本"],
+  sources:[{title:c.sourceTitle||title,url,publishedAt:c.publishedAt,kind:c.kind||"公開來源"}],score,body:abstract||undefined};
 }
+
 const req=async(url)=>{const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),15000);
  try {const r=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"CrewBriefing/1.0 (+https://magic76.github.io/)"},signal:ctrl.signal});if(!r.ok)throw Error(String(r.status));return await r.json()}finally{clearTimeout(timer)}};
 async function hackerNews(){
@@ -46,7 +47,7 @@ async function hackerNews(){
 }
 async function openAlex(){
  const results=await Promise.allSettled(topics.map(async cfg=>{
-  const since=new Date(Date.now()-6*86400000).toISOString().slice(0,10);
+  const since=new Date(Date.now()-20*86400000).toISOString().slice(0,10);
   const data=await req("https://api.openalex.org/works?search="+encodeURIComponent(cfg.query)+"&filter=from_publication_date:"+since+",type:article&sort=publication_date:desc&per-page=5");
   return (data.results||[]).filter(w=>w.title&&w.publication_date&&fresh(w.publication_date+"T00:00:00Z")).map(w=>({
    title:w.title,url:w.doi||w.primary_location?.landing_page_url||w.id,
@@ -57,27 +58,9 @@ async function openAlex(){
  }));
  return results.flatMap(v=>v.status==="fulfilled"?v.value:[]);
 }
-async function githubPulse(){
- const repos=[["magic76/crew-pocket",["Crew Pocket"]],["magic76/crew-teacher",["Crew Teacher"]],["magic76/crew-story",["Crew Story"]],["magic76/crew-fortune",["Crew Fortune"]],["magic76/magic76.github.io",["Crew Web"]]];
- const results=await Promise.allSettled(repos.map(async ([repo,projects])=>{
-  const since=new Date(Date.now()-3*86400000).toISOString();
-  const data=await req("https://api.github.com/repos/"+repo+"/commits?per_page=5&since="+encodeURIComponent(since));
-  return (Array.isArray(data)?data:[]).filter(c=>c.commit?.message).map(c=>({
-   title:clean(c.commit.message.split("\n")[0],150),url:c.html_url,
-   publishedAt:c.commit.committer?.date,sourceTitle:repo+" "+c.sha.slice(0,7),
-   topic:"Project Pulse",projects,kind:"公開 GitHub Commit",score:62,
-   abstract:"公開 GitHub 程式進度："+repo+" — "+clean(c.commit.message.split("\n")[0],200)+ "。請以實際 diff 與測試為準。"
-  }));
- }));
- return results.flatMap(v=>v.status==="fulfilled"?v.value:[]);
-}
 export function select(candidates,history=[]){
- const recent=new Set(history.flatMap(d=>(d.items||[]).map(i=>i.sources?.[0]?.url||i.title)));
- const seen=new Set();
- return candidates.map(normalizeCandidate).filter(Boolean).filter(item=>{
-  const key=item.sources[0].url;
-  if(seen.has(key)||recent.has(key))return false;seen.add(key);return true;
- }).sort((a,b)=>b.score-a.score||b.publishedAt.localeCompare(a.publishedAt)).slice(0,8);
+ return selectResearch(candidates.filter(c=>c&&https(c.url)&&fresh(c.publishedAt)),history,8)
+  .map(normalizeCandidate).filter(Boolean);
 }
 async function enhance(items){
  const key=process.env.CREW_BRIEFING_GEMINI_KEY;
@@ -109,11 +92,11 @@ export async function run(){
  for(const previous of (index.days||[]).filter(d=>d<date).slice(0,7)){
   try{history.push(JSON.parse(await readFile(join(out,previous+".json"),"utf8")))}catch{}
  }
- const raw=[...(await hackerNews()),...(await openAlex()),...(await githubPulse())];
+ const raw=[...(await hackerNews()),...(await openAlex())];
  let items=select(raw,history);
  if(!items.length)throw Error("No fresh verifiable sources: keeping the existing report unchanged");
  try{items=await enhance(items)}catch(e){console.warn("AI enrichment skipped:",e.message)}
- const edition={date,generatedAt:new Date().toISOString(),edition:"public",notes:"自動整理的公開來源線索；人工驗證後再採用。",items};
+ const edition={date,generatedAt:new Date().toISOString(),edition:"public",notes:"今日研究依 Agent 可靠性、記憶與 Context、多 Agent 協作、即時語音、學習體驗、模型效率和 AI 產品落地選題。資訊基於公開來源，摘要為研究線索而非實測結論；請參照原文。",items};
  await writeFile(join(out,date+".json"),JSON.stringify(edition,null,2)+"\n");
  index={days:unique([date,...(index.days||[])]).sort().reverse().slice(0,90),updatedAt:edition.generatedAt};
  await writeFile(join(out,"index.json"),JSON.stringify(index,null,2)+"\n");
