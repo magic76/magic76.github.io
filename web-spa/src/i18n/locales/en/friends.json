@@ -43,7 +43,15 @@
   "back": "Back to profile",
   "sharedMemories": "Shared memories",
   "category": {
-    "all": "All"
+    "all": "All",
+    "banter": "Humor",
+    "thoughtful": "Deep talks",
+    "creative": "Creative",
+    "active": "Energetic",
+    "calm": "Calm",
+    "ideas": "Ideas",
+    "culture": "Culture",
+    "adventure": "Travel"
   },
   "languages": {
     "英文": "English",
