@@ -112,5 +112,35 @@
       "fast": "快"
     },
     "nativeLanguage": "母語"
+  },
+  "picker": {
+    "choose": "選擇你的老師",
+    "intro": "16 位個性鮮明的老師，各有不同教學風格。點擊照片了解更多。",
+    "close": "關閉",
+    "search": "搜尋老師",
+    "searchPlaceholder": "搜尋老師姓名、風格或擅長領域",
+    "categoriesLabel": "老師分類",
+    "categories": {
+      "all": "全部 16 位",
+      "chat": "輕鬆聊天",
+      "challenge": "挑戰突破",
+      "study": "深入學習",
+      "explore": "探索世界",
+      "work": "專業表達"
+    },
+    "empty": "沒有符合的老師，試試其他關鍵字。",
+    "view": "查看 {{name}} 老師",
+    "current": "✓ 使用中",
+    "footer": "選擇後會自動套用推薦聲線；可在老師設定中調整。",
+    "bestFor": "擅長",
+    "voice": "推薦聲線",
+    "history": "你們已經一起完成 {{count}} 次練習。",
+    "connecting": "正在連線…",
+    "playing": "正在播放…",
+    "previewError": "試聽失敗 · 點擊重試",
+    "preview": "▶ 試聽教學風格",
+    "continue": "繼續由 {{name}} 教學",
+    "select": "選擇 {{name}}",
+    "back": "返回老師列表"
   }
 }
