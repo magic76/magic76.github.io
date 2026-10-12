@@ -77,11 +77,11 @@ function BriefingPreview(){
   <Link className="crew-home-briefing-card" to="/briefing">
    <span className="crew-home-briefing-top"><span className="crew-home-briefing-emblem" aria-hidden="true"><Icon name="sparkles"/></span><span className="crew-home-briefing-date">{edition?latestDate(edition.day.date):unavailable?"報告入口":"讀取最新一期…"}</span></span>
    <strong>{edition?.item?.title||"今天值得研究什麼？"}</strong>
-   <p>{edition?.item?.summary||"研究、專案關聯與下一步行動，集中在一份報告中。"}</p>
+   <p>{edition?.item?.summary||"每一天，精選值得深入的 AI 研究與實作方向。"}</p>
    {edition?.item?.projects?.length?<span className="crew-home-briefing-tags">{edition.item.projects.slice(0,2).map(tag=><span key={tag}>{tag}</span>)}</span>:null}
    <span className="crew-home-card-cta">查看研究報告 <span aria-hidden="true">↗</span></span>
   </Link>
-  <Link className="crew-home-briefing-board" to="/briefing/board">繼續研究看板 <span aria-hidden="true">→</span></Link>
+  <Link className="crew-home-briefing-board" to="/briefing/board">我的閱讀清單 <span aria-hidden="true">→</span></Link>
  </section>;
 }
 
