@@ -31,6 +31,15 @@ export function normalizeCandidate(c){
   sources:[{title:c.sourceTitle||title,url,publishedAt:c.publishedAt,kind:c.kind||"公開來源"}],score,body:abstract||undefined};
 }
 
+export function abstractPreview(inverted,limit=320){
+ if(!inverted||typeof inverted!=="object")return "";
+ const tokens=[];
+ for(const [word,positions] of Object.entries(inverted)){
+  if(!Array.isArray(positions))continue;
+  for(const pos of positions){if(Number.isInteger(pos)&&pos>=0&&pos<400)tokens[pos]=word;}
+ }
+ return clean(tokens.filter(Boolean).join(" "),limit);
+}
 const req=async(url)=>{const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),15000);
  try {const r=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"CrewBriefing/1.0 (+https://magic76.github.io/)"},signal:ctrl.signal});if(!r.ok)throw Error(String(r.status));return await r.json()}finally{clearTimeout(timer)}};
 async function hackerNews(){
@@ -40,7 +49,7 @@ async function hackerNews(){
   return (data.hits||[]).filter(h=>h.title&&fresh(h.created_at)).map(h=>({
    title:h.title,url:https(h.url)||"https://news.ycombinator.com/item?id="+h.objectID,sourceTitle:h.title,
    publishedAt:h.created_at,abstract:"Hacker News 社群近期討論："+h.title+"。社群熱度不等於技術已經驗證。",
-   projects:cfg.projects,topic:cfg.topic,kind:"社群觀察",score:Math.min(92,55+Math.log2(1+Number(h.points||0))*5)
+   projects:cfg.projects,topic:cfg.topic,kind:"社群觀察",points:Number(h.points||0)
   }));
  }));
  return results.flatMap(v=>v.status==="fulfilled"?v.value:[]);
@@ -52,7 +61,7 @@ async function openAlex(){
   return (data.results||[]).filter(w=>w.title&&w.publication_date&&fresh(w.publication_date+"T00:00:00Z")).map(w=>({
    title:w.title,url:w.doi||w.primary_location?.landing_page_url||w.id,
    publishedAt:w.publication_date+"T00:00:00Z",sourceTitle:w.title,topic:cfg.topic,projects:cfg.projects,
-   abstract:"研究論文資料庫收錄："+w.title+"。內容需檢查論文原文、方法與實驗結果。",
+   abstract:abstractPreview(w.abstract_inverted_index,320)||("研究論文索引："+w.title+"。詳細方法及結果請閱讀原文。"),
    kind:"研究論文索引",score:70+Math.min(12,Number(w.cited_by_count||0))
   }));
  }));
