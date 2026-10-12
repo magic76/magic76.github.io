@@ -14,12 +14,17 @@ test("Live exit persists conversation and report failure still terminates",()=>{
  assert.ok(hook.includes('setState("ended")'));
 });
 
-test("Gemini candidate is validated before replacing the working key",()=>{
- const settings=read("pages/SettingsPage.tsx");
- assert.ok(settings.includes('"x-goog-api-key":candidate'));
- assert.ok(settings.indexOf("if(!response.ok)")<settings.indexOf("saveGeminiKey(candidate,remember)"));
- assert.ok(settings.includes("pendingRollbackRef.current=restore"));
- assert.ok(settings.includes("pendingRollbackRef.current?.()"));
+test("Gemini candidate is validated and saved independently of microphone or Live",()=>{
+ const panel=read("pages/GeminiConnectionPanel.tsx");
+ assert.ok(panel.includes('"x-goog-api-key":candidate'));
+ assert.ok(panel.indexOf("if(!response.ok)")<panel.indexOf("saveGeminiKey(candidate,remember)"));
+ assert.ok(panel.includes("setGeminiVerified(true)"));
+ assert.ok(panel.indexOf("saveGeminiKey(candidate,remember)")<panel.indexOf("async function testVoice()"));
+ assert.ok(!panel.includes("pendingRollbackRef"));
+ assert.ok(!panel.includes("restore()"));
+ assert.ok(panel.includes("isMicrophoneDenied(error)"));
+ assert.ok(panel.includes("micPermission"));
+ assert.ok(panel.includes("不影響已儲存的 Key"));
 });
 
 test("Story and Fortune show recovery actions for failure states",()=>{
@@ -52,12 +57,13 @@ test("global navigation always exposes all five tabs including Settings",()=>{
 test("Gemini Key is managed once globally, not separately per product",()=>{
  const runtime=read("lib/runtime.ts");
  const settings=read("pages/SettingsPage.tsx");
+ const panel=read("pages/GeminiConnectionPanel.tsx");
  const story=read("story/MyPage.tsx");
  const fortune=read("fortune/HomePage.tsx");
  const create=read("story/CreatePage.tsx");
  assert.ok(runtime.includes('export function geminiKey()'));
  assert.ok(runtime.includes('export function saveGeminiKey('));
- assert.ok(settings.includes("saveGeminiKey(candidate,remember)"));
+ assert.ok(panel.includes("saveGeminiKey(candidate,remember)"));
  assert.ok(settings.includes("Teacher、Story、Fortune 共用同一組 Key"));
  assert.ok(create.includes("geminiKey()"),"Story must read the shared key");
  for(const source of [story,fortune]){
