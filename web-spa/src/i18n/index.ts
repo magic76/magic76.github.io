@@ -13,7 +13,7 @@ export const UI_LOCALES:readonly UiLocale[]=["zh-TW","en"];
 
 export function normalizeUiLocale(value:unknown):UiLocale|null {
  if(typeof value!=="string")return null;
- if(value==="zh-TW"||/^zh[-_]Hant(?:[-_]|$)/i.test(value)||/^zh[-_]TW(?:[-_]|$)/i.test(value))return "zh-TW";
+ if(value==="zh-TW"||/^zh(?:[-_]|$)/i.test(value))return "zh-TW";
  if(value==="en"||/^en[-_]/i.test(value))return "en";
  return null;
 }
