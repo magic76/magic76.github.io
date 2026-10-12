@@ -25,8 +25,8 @@ export async function fetchDay(date:string):Promise<BriefingDay> {
  const day=v as BriefingDay;
  return {...day,edition:"public",items:day.items.filter(validItem)};
 }
-export function rankItems(items:BriefingItem[],query:string,project:string,saved:(id:string)=>boolean,onlySaved:boolean) {
+export function rankItems(items:BriefingItem[],query:string,topic:string,saved:(id:string)=>boolean,onlySaved:boolean) {
  const q=query.trim().toLocaleLowerCase();
- return [...items].filter(x=>(project==="all"||x.projects.includes(project))&&(!onlySaved||saved(x.id))&&(!q||[x.title,x.summary,x.topic,...x.projects].join(" ").toLocaleLowerCase().includes(q)))
+ return [...items].filter(x=>(topic==="all"||x.topic===topic)&&(!onlySaved||saved(x.id))&&(!q||[x.title,x.summary,x.topic,...x.projects].join(" ").toLocaleLowerCase().includes(q)))
   .sort((a,b)=>b.score-a.score);
 }
