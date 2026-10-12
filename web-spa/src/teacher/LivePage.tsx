@@ -1,3 +1,4 @@
+import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";
@@ -9,7 +10,7 @@ import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
- const navigate=useNavigate(),endRequestedRef=useRef(false);
+ const navigate=useNavigate(),endRequestedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
@@ -25,7 +26,20 @@ export function TeacherLivePage(){
   :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+(mission?.title||scene||"selected")+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[]});
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],
+  onTurnComplete:()=>{
+   if(isRoleplay||memoryCheckpointRef.current)return;
+   const snapshot=live.turns;
+   if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
+   memoryCheckpointRef.current=true;
+   void rememberTeacherConversation(s.targetLanguage,snapshot);
+  },
+  onSessionFinished:item=>{
+   if(!item||isRoleplay)return;
+   // Long sessions have a richer report; short conversations still retain explicit facts.
+   if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
+    void rememberTeacherConversation(s.targetLanguage,item.turns);
+  }});
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{
   if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
