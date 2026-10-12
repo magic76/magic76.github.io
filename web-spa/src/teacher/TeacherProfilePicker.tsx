@@ -68,7 +68,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     <h3>{detail.name} <span>{english?t("picker.categories."+detail.categoryId):detail.title}</span></h3>
     <p className="teacher-detail-tagline">「{english?detail.taglineEn:detail.tagline}」</p>
     <p>{english?detail.taglineEn:detail.description}</p>
-    <div className="teacher-detail-facts"><strong>{t("picker.bestFor")}</strong><p>{english?t("picker.categories."+detail.categoryId):detail.bestFor}</p><strong>{t("picker.voice")}</strong><p>{english?detail.recommendedVoice:detail.voiceLabel}</p></div>
+    <div className="teacher-detail-facts"><strong>{t("picker.bestFor")}</strong><p>{english?t("picker.categories."+detail.categoryId):detail.bestFor}</p><strong>{t("picker.voice")}</strong><p>{english?t("picker.voiceSuggested"):detail.voiceLabel}</p></div>
     {completedTutorSessions(detail.id,targetLanguage)>0&&<p className="teacher-detail-history">{t("picker.history",{count:completedTutorSessions(detail.id,targetLanguage)})}</p>}
     <div className="teacher-detail-actions">
      <button type="button" className="btn secondary" onClick={playPreview} disabled={preview?.state==="connecting"||preview?.state==="playing"}>{preview?.state==="connecting"?t("picker.connecting"):preview?.state==="playing"?t("picker.playing"):preview?.state==="error"?t("picker.previewError"):t("picker.preview")}</button>
