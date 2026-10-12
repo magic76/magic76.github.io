@@ -115,6 +115,9 @@
     "pricingLink": "See Google's official pricing",
     "setupNoticeTitle": "No Gemini Key yet? Create one for free",
     "setupNoticeDesc": "Get a key with your Google account in about a minute. One key works across all three products; free usage varies by model.",
-    "setupNoticeAction": "See free setup steps"
+    "setupNoticeAction": "See free setup steps",
+    "setupInvalidTitle": "Your Gemini Key may not be working",
+    "setupInvalidDesc": "Check or re-verify your key, or create another one for free. You'll return to your chat after setup.",
+    "setupInvalidAction": "Check Gemini Key"
   }
 }
