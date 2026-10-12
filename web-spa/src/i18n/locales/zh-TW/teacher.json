@@ -143,5 +143,31 @@
     "select": "選擇 {{name}}",
     "back": "返回老師列表",
     "voiceSuggested": "已選用推薦聲線"
+  },
+  "my": {
+    "kicker": "學習紀錄",
+    "title": "我的",
+    "intro": "學習進度、收藏與個人設定。",
+    "speaking": "口說練習",
+    "level": "目前程度",
+    "today": "今日單字",
+    "completed": "完成課程",
+    "stars": "課程星星",
+    "phrases": "收藏片語",
+    "records": "紀錄與設定",
+    "localOnly": "保存在這台瀏覽器",
+    "personal": "記憶與個人化",
+    "personalDesc": "管理個人偏好、老師與朋友的聊天記憶",
+    "memory": "個人化學習記憶",
+    "memoryDesc": "檢視、編輯與刪除老師對你的了解",
+    "friends": "與 Crew 朋友的共同話題",
+    "friendsDesc": "選擇朋友後可管理各自的對話記憶",
+    "phraseDesc": "{{count}} 張學習卡 · {{due}} 張待複習",
+    "reports": "練習報告",
+    "reportDesc": "{{count}} 份課後學習報告",
+    "library": "閱讀素材庫",
+    "libraryDesc": "經典短文與朗讀素材",
+    "android": "Android 版",
+    "androidDesc": "想在手機上使用完整的 Crew Teacher，可以直接安裝 Android App。"
   }
 }
