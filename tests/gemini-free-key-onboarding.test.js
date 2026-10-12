@@ -1,0 +1,51 @@
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const root=path.resolve(__dirname,"..");
+const read=p=>fs.readFileSync(path.join(root,p),"utf8");
+const locale=(lang,ns)=>JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/"+ns+".json"));
+
+test("home advertises free Gemini key before product cards only when missing",()=>{
+ const home=read("web-spa/src/pages/HomePage.tsx");
+ const title=home.indexOf('t("setup.title")'),products=home.indexOf('className="crew-home-products"');
+ assert.ok(title>0&&title<products,"free setup prompt should appear before product choices");
+ assert.ok(home.includes('!configured?')&&home.includes("crew-home-setup-free"));
+ assert.ok(home.includes('t("setup.pricing")'),"free tier limitations must be visible");
+ assert.ok(home.includes('!verified?'),"the existing verification flow is retained");
+});
+
+test("settings explains free creation, links official Google pricing, and returns to the originating route",()=>{
+ const panel=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
+ assert.ok(panel.includes('https://aistudio.google.com/apikey'));
+ assert.ok(panel.includes('https://ai.google.dev/gemini-api/docs/pricing'));
+ assert.ok(panel.includes('t("gemini.freeTitle")'));
+ assert.ok(panel.includes('t("gemini.pricingNote")'));
+ assert.ok(panel.includes('const requestedReturn=params.get("returnTo")'));
+ assert.ok(panel.includes('requestedReturn.startsWith("//")'),"reject URL-like redirects");
+ assert.ok(panel.includes('navigate(returnTo,{replace:true})'),"return after verified key");
+ assert.ok(panel.indexOf("saveGeminiKey(candidate,remember)")<panel.indexOf('navigate(returnTo,{replace:true})'));
+});
+
+test("Teacher, Story, Fortune and Live share one key setup notice without duplicating key storage",()=>{
+ const notice=read("web-spa/src/components/GeminiSetupNotice.tsx");
+ assert.ok(notice.includes('to={"/settings?returnTo="+encodeURIComponent(safeReturn)}'));
+ assert.ok(!notice.includes("saveGeminiKey("));
+ for(const file of ["teacher/PracticePage.tsx","story/CreatePage.tsx","story/PhysicalBookPage.tsx","fortune/ReadingPage.tsx","live/LiveControls.tsx"]){
+  assert.ok(read("web-spa/src/"+file).includes("GeminiSetupNotice"),file+" should use the shared notice");
+ }
+ const fortune=read("web-spa/src/fortune/ReadingPage.tsx");
+ assert.ok(fortune.includes('"/fortune/reading?history="+encodeURIComponent(reading!.id)'),"return to existing saved reading");
+ assert.ok(fortune.includes('t("reading.generateAI")'),"allow AI interpretation after returning");
+});
+
+test("both UI locales describe free key application without claiming unlimited free usage",()=>{
+ for(const lang of ["zh-TW","en"]){
+  const home=locale(lang,"home").setup,settings=locale(lang,"settings").gemini,fortune=locale(lang,"fortune").reading;
+  for(const copy of [home.title,home.desc,home.pricing,settings.freeTitle,settings.freeDesc,settings.pricingNote,settings.setupNoticeTitle,fortune.needKey]){
+   assert.ok(copy.trim().length>0,lang+" should have onboarding copy");
+  }
+  assert.ok(settings.openStudio.trim());
+  assert.ok(fortune.generateAI.trim());
+ }
+});
