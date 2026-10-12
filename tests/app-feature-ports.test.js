@@ -136,11 +136,11 @@ test("superseded Teacher-only SPA is removed",()=>{
 test("Live model names stay internal",()=>{
  const core=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
- const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const panel=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  assert.ok(!core.includes('this._status("正在連線 "+model'));
  assert.ok(!core.includes('this._status(attempt.model+'));
  assert.ok(hook.includes('replace(/gemini-'));
- assert.ok(settings.includes('replace(/gemini-'));
+ assert.ok(panel.includes('replace(/gemini-'));
 });
 
 
@@ -478,6 +478,7 @@ test("Teacher Live follows latest Android tutor portrait hierarchy",()=>{
 
 test("Story and Fortune use shared global Gemini settings without duplicate Key cards",()=>{
  const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const panel=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
  const create=fs.readFileSync(path.join(root,"web-spa/src/story/CreatePage.tsx"),"utf8");
@@ -487,8 +488,8 @@ test("Story and Fortune use shared global Gemini settings without duplicate Key 
  assert.ok(create.includes("需要先設定 Gemini Key 才能創作故事。"));
  assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
  assert.ok(settings.includes("Teacher、Story、Fortune 共用同一組 Key"));
- assert.ok(settings.includes("https://aistudio.google.com/apikey"));
- assert.ok(settings.includes("Google 專案管理"));
+ assert.ok(panel.includes("https://aistudio.google.com/apikey"));
+ assert.ok(panel.includes("Google 專案管理"));
  assert.ok(!story.includes("aistudio.google.com"),"Story should not have separate Key setup");
  assert.ok(!fortune.includes("aistudio.google.com"),"Fortune should not have separate Key setup");
 });
@@ -561,13 +562,13 @@ test("Crew source does not ship SOLVING debug markers",()=>{
 
 
 test("Crew Web hides implementation details from primary product UI",()=>{
- const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
  const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
  assert.ok(settings.includes("連線診斷"));
- assert.ok(settings.includes("只有語音連線異常時才需要查看"));
+ assert.ok(settings.includes("瀏覽器支援麥克風 API，不代表作業系統已授權"));
  assert.ok(!tutor.includes("VOICES"));
  assert.ok(!live.includes("VOICES"));
  assert.ok(!tutor.includes("老師音色"));
@@ -611,7 +612,7 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
  const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
- const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
  assert.ok(home.includes("/teacher/live?history="));
  assert.ok(home.includes("?page="));
@@ -623,7 +624,7 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
  assert.ok(!player.includes("story-page-slider"));
- assert.ok(settings.includes("儲存並測試"));
+ assert.ok(settings.includes("驗證並儲存 Key"));
  assert.ok(settings.includes("進階與清除"));
  assert.ok(fortune.includes('surface:"reading"'));
 });
@@ -647,7 +648,7 @@ test("Live product polish keeps one focal character and secondary tools collapse
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/LivePage.tsx"),"utf8");
  const controls=fs.readFileSync(path.join(root,"web-spa/src/live/LiveControls.tsx"),"utf8");
- const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  const shelf=fs.readFileSync(path.join(root,"web-spa/src/story/ShelfPage.tsx"),"utf8");
  const learn=fs.readFileSync(path.join(root,"web-spa/src/teacher/LearnPage.tsx"),"utf8");
  const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
@@ -660,7 +661,7 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.ok(teacher.includes("<summary>更多功能</summary>"));
  assert.ok(story.includes("<summary>更多功能</summary>"));
  assert.ok(controls.includes("live-audio-settings"));
- assert.ok(settings.includes("Gemini 已連線"));
+ assert.ok(settings.includes("Gemini Key 已驗證"));
  assert.ok(settings.includes("重新設定"));
  assert.ok(settings.includes("showSetup"));
  assert.ok(shelf.includes("story-book-open"));
@@ -715,14 +716,14 @@ test("Live trust UX locks session config and confirms the actual latest photo",(
 
 test("Gemini saved and verified states stay separate with actionable Live recovery",()=>{
  const runtime=fs.readFileSync(path.join(root,"web-spa/src/lib/runtime.ts"),"utf8");
- const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/GeminiConnectionPanel.tsx"),"utf8");
  const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const controls=fs.readFileSync(path.join(root,"web-spa/src/live/LiveControls.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  assert.ok(runtime.includes("geminiVerified"));
  assert.ok(runtime.includes("setGeminiVerified(false)"));
- assert.ok(settings.includes("Gemini 已設定 · 尚未驗證"));
+ assert.ok(settings.includes("Gemini Key 已設定，尚未驗證"));
  assert.ok(settings.includes("setGeminiVerified(true)"));
  assert.ok(chrome.includes("Gemini 待驗證"));
  assert.ok(home.includes("Gemini Key 尚未驗證"));
