@@ -1,0 +1,31 @@
+{
+  "home": {
+    "titleLine1": "從不同角度，",
+    "titleLine2": "看懂自己的節奏。",
+    "intro": "先選一種方式。出生資料只要設定一次，之後可以直接開始解讀。",
+    "choose": "選一種方式",
+    "bazi": "八字",
+    "baziDesc": "性格 · 工作 · 財運 · 大運",
+    "tarot": "塔羅生命靈數",
+    "tarotDesc": "核心性格 · 人生主題",
+    "vedic": "印度星盤",
+    "vedicDesc": "人生週期 · 行星 · Dasha",
+    "recent": "最近解讀",
+    "loadError": "暫時無法讀取命盤歷史，請重試。",
+    "retry": "重新載入",
+    "loading": "讀取中…",
+    "reading": "解讀",
+    "empty": "還沒有解讀紀錄",
+    "emptyDesc": "完成第一份命盤後會出現在這裡。",
+    "historyButton": "歷史"
+  },
+  "history": {
+    "title": "解讀紀錄",
+    "intro": "和 APK 一樣，可以重新打開當時的固定計算結果與 AI 解讀，不需要重算。",
+    "label": "歷史",
+    "clear": "清除",
+    "confirm": "清除所有解讀紀錄？",
+    "empty": "還沒有紀錄",
+    "emptyDesc": "完成第一份解讀後會出現在這裡。"
+  }
+}
