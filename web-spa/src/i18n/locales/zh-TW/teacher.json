@@ -51,5 +51,65 @@
     "pronunciationDesc": "開口讀一段，老師抓最值得改善的發音",
     "library": "閱讀素材庫",
     "libraryDesc": "挑一篇短文閱讀，再接著做朗讀練習"
+  },
+  "tutor": {
+    "title": "和老師練習",
+    "intro": "選一位適合你的老師，照自己的步調開口。",
+    "change": "更換老師",
+    "current": "目前的 Crew 老師",
+    "listen": "試聽老師",
+    "connecting": "正在連線…",
+    "stop": "停止試聽",
+    "again": "再次試聽",
+    "retry": "重試試聽",
+    "start": "和 {{name}} 開始口說",
+    "language": "對話語言",
+    "pace": "說話速度",
+    "interaction": "互動方式",
+    "nextChat": "下次對話生效",
+    "interactionDesc": "自然聊天不會每句糾錯；口說練習重視回饋；情境練習直接進入角色。",
+    "modes": {
+      "natural": "自然聊天",
+      "practice": "口說練習",
+      "scenario": "情境練習"
+    },
+    "scenes": {
+      "title": "選擇情境",
+      "hotel_checkin": "飯店入住",
+      "restaurant_order": "餐廳點餐",
+      "work_meeting": "工作會議",
+      "transport": "交通問路"
+    },
+    "advanced": "老師與語言偏好",
+    "accent": "地區口音",
+    "accentSelect": "選擇地區口音",
+    "guidance": "教學引導",
+    "guidanceChoices": {
+      "beginner": "零基礎引導",
+      "bilingual": "雙語輔助",
+      "immersion": "全外語沉浸"
+    },
+    "customAccent": "自訂口音",
+    "customPlaceholder": "例如：清晰、自然的加拿大英語",
+    "paceLabel": "語速",
+    "teacherPace": "老師語速",
+    "advancedAccent": "進階 · 口音強度",
+    "accentStrength": "口音強度",
+    "strength": {
+      "subtle": "輕微",
+      "natural": "自然",
+      "noticeable": "明顯"
+    },
+    "preferences": "偏好會套用到下一次對話；實際聲音表現由語音模型控制。",
+    "speed": {
+      "slow": "慢速",
+      "normal": "正常語速",
+      "fast": "快速"
+    },
+    "shortSpeed": {
+      "slow": "慢",
+      "normal": "正常",
+      "fast": "快"
+    }
   }
 }
