@@ -1,223 +1,115 @@
 {
   "date": "2026-10-12",
-  "generatedAt": "2026-10-12T00:58:16.279Z",
+  "generatedAt": "2026-10-12T01:19:43.340Z",
   "edition": "public",
-  "notes": "自動整理的公開來源線索；人工驗證後再採用。",
+  "notes": "今日研究依 Agent 可靠性、記憶與 Context、多 Agent 協作、即時語音、學習體驗、模型效率和 AI 產品落地選題。資訊基於公開來源，摘要為研究線索而非實測結論；請參照原文。",
   "items": [
     {
-      "id": "500d9b290f2c9620",
-      "title": "Ask HN: Are there AI models for generating sounds based on a text and reference?",
-      "summary": "Hacker News 社群近期討論：Ask HN: Are there AI models for generating sounds based on a text and reference?。社群熱度不等於技術已經驗證。",
-      "publishedAt": "2026-10-05T23:24:44Z",
-      "topic": "Multimodal Experience",
-      "projects": [
-        "Crew Story",
-        "Crew Teacher"
-      ],
-      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "Ask HN: Are there AI models for generating sounds based on a text and reference?",
-          "url": "https://news.ycombinator.com/item?id=49972125",
-          "publishedAt": "2026-10-05T23:24:44Z",
-          "kind": "社群觀察"
-        }
-      ],
-      "score": 81,
-      "body": "Hacker News 社群近期討論：Ask HN: Are there AI models for generating sounds based on a text and reference?。社群熱度不等於技術已經驗證。"
-    },
-    {
-      "id": "13a86554d2a39789",
-      "title": "Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"",
-      "summary": "Hacker News 社群近期討論：Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"。社群熱度不等於技術已經驗證。",
-      "publishedAt": "2026-10-10T07:55:10Z",
-      "topic": "Agent Engineering",
-      "projects": [
-        "Crew Pocket",
-        "Crew Deck"
-      ],
-      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"",
-          "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/",
-          "publishedAt": "2026-10-10T07:55:10Z",
-          "kind": "社群觀察"
-        }
-      ],
-      "score": 72,
-      "body": "Hacker News 社群近期討論：Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"。社群熱度不等於技術已經驗證。"
-    },
-    {
-      "id": "056371e333ad52f9",
-      "title": "Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python",
-      "summary": "Hacker News 社群近期討論：Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python。社群熱度不等於技術已經驗證。",
-      "publishedAt": "2026-10-10T22:33:30Z",
-      "topic": "Agent Engineering",
-      "projects": [
-        "Crew Pocket",
-        "Crew Deck"
-      ],
-      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python",
-          "url": "https://github.com/academa-labs/manimgx",
-          "publishedAt": "2026-10-10T22:33:30Z",
-          "kind": "社群觀察"
-        }
-      ],
-      "score": 71,
-      "body": "Hacker News 社群近期討論：Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python。社群熱度不等於技術已經驗證。"
-    },
-    {
-      "id": "da21175d30ec314d",
-      "title": "Paint outside the box: synthesizing and selecting training data for visual grounding",
-      "summary": "研究論文資料庫收錄：Paint outside the box: synthesizing and selecting training data for visual grounding。內容需檢查論文原文、方法與實驗結果。",
-      "publishedAt": "2026-10-10T00:00:00Z",
-      "topic": "Multimodal Experience",
-      "projects": [
-        "Crew Story",
-        "Crew Teacher"
-      ],
-      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "Paint outside the box: synthesizing and selecting training data for visual grounding",
-          "url": "https://doi.org/10.1007/s00138-026-01928-4",
-          "publishedAt": "2026-10-10T00:00:00Z",
-          "kind": "研究論文索引"
-        }
-      ],
-      "score": 70,
-      "body": "研究論文資料庫收錄：Paint outside the box: synthesizing and selecting training data for visual grounding。內容需檢查論文原文、方法與實驗結果。"
-    },
-    {
-      "id": "cb7541a114c12104",
-      "title": "A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays",
-      "summary": "研究論文資料庫收錄：A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays。內容需檢查論文原文、方法與實驗結果。",
-      "publishedAt": "2026-10-10T00:00:00Z",
-      "topic": "Multimodal Experience",
-      "projects": [
-        "Crew Story",
-        "Crew Teacher"
-      ],
-      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays",
-          "url": "https://doi.org/10.35882/jeeemi.v8i4.1882",
-          "publishedAt": "2026-10-10T00:00:00Z",
-          "kind": "研究論文索引"
-        }
-      ],
-      "score": 70,
-      "body": "研究論文資料庫收錄：A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays。內容需檢查論文原文、方法與實驗結果。"
-    },
-    {
-      "id": "10598121d66c7948",
-      "title": "Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review",
-      "summary": "研究論文資料庫收錄：Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review。內容需檢查論文原文、方法與實驗結果。",
-      "publishedAt": "2026-10-10T00:00:00Z",
-      "topic": "Multimodal Experience",
-      "projects": [
-        "Crew Story",
-        "Crew Teacher"
-      ],
-      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
-      "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
-      ],
-      "sources": [
-        {
-          "title": "Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review",
-          "url": "https://doi.org/10.54963/ia.v2i2.103039",
-          "publishedAt": "2026-10-10T00:00:00Z",
-          "kind": "研究論文索引"
-        }
-      ],
-      "score": 70,
-      "body": "研究論文資料庫收錄：Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review。內容需檢查論文原文、方法與實驗結果。"
-    },
-    {
-      "id": "382544a71ccb09f7",
-      "title": "OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Manage",
-      "summary": "研究論文資料庫收錄：OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management。內容需檢查論文原文、方法與實驗結果。",
+      "id": "34c1526655ad6a3f",
+      "title": "An Efficient Multimodal Causal Attention Architecture for Real-Time Mobile Educational Content Interpretation",
+      "summary": "The increasing adoption of mobile learning requires efficient multimodal models capable of real-time educational content analysis under resource constraints. However, existing multimodal architectures often involve high inference latency and memory requirements, limiting their deployment on mobile and edge devices. Thi",
       "publishedAt": "2026-10-09T00:00:00Z",
-      "topic": "Web Experience",
+      "topic": "Realtime Multimodal",
       "projects": [
-        "Crew Web"
+        "Crew Teacher",
+        "Crew Story"
       ],
-      "relevance": "與 Crew Web 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
       "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
       ],
       "sources": [
         {
-          "title": "OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management",
-          "url": "https://doi.org/10.55041/ijcope.v2i10.034",
+          "title": "An Efficient Multimodal Causal Attention Architecture for Real-Time Mobile Educational Content Interpretation",
+          "url": "https://doi.org/10.3991/ijim.v20i19.63224",
           "publishedAt": "2026-10-09T00:00:00Z",
           "kind": "研究論文索引"
         }
       ],
-      "score": 70,
-      "body": "研究論文資料庫收錄：OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management。內容需檢查論文原文、方法與實驗結果。"
+      "score": 87,
+      "body": "The increasing adoption of mobile learning requires efficient multimodal models capable of real-time educational content analysis under resource constraints. However, existing multimodal architectures often involve high inference latency and memory requirements, limiting their deployment on mobile and edge devices. Thi"
     },
     {
-      "id": "ac2e97d6c9e5f231",
-      "title": "Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory",
-      "summary": "Hacker News 社群近期討論：Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory。社群熱度不等於技術已經驗證。",
-      "publishedAt": "2026-10-08T18:50:13Z",
-      "topic": "Agent Memory",
+      "id": "36a0a26f3a265615",
+      "title": "Leveraging LiveKit for Real-Time AI-Driven Conversational Agents",
+      "summary": "Recent progress in real-time communication frameworks has significantly advanced the development of multimodal intelligent assistants that can interact with users in a natural, human-like manner.This paper introduces a LiveKit-based AI Assistant designed to enable seamless, low-latency human-computer interaction by int",
+      "publishedAt": "2026-10-09T00:00:00Z",
+      "topic": "Realtime Multimodal",
       "projects": [
-        "Crew Pocket",
-        "Crew Deck"
+        "Crew Teacher",
+        "Crew Story"
       ],
-      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
       "actions": [
-        "閱讀原始來源，辨認可重現的技術與限制",
-        "檢查相關 Crew 專案現有程式和功能，列出差異",
-        "提出低風險 PoC、測試指標與成本比較"
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
       ],
       "sources": [
         {
-          "title": "Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory",
-          "url": "https://github.com/chetto1983/Aura",
-          "publishedAt": "2026-10-08T18:50:13Z",
-          "kind": "社群觀察"
+          "title": "Leveraging LiveKit for Real-Time AI-Driven Conversational Agents",
+          "url": "https://doi.org/10.25258/ijddt.16.58s.131",
+          "publishedAt": "2026-10-09T00:00:00Z",
+          "kind": "研究論文索引"
         }
       ],
-      "score": 70,
-      "body": "Hacker News 社群近期討論：Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory。社群熱度不等於技術已經驗證。"
+      "score": 87,
+      "body": "Recent progress in real-time communication frameworks has significantly advanced the development of multimodal intelligent assistants that can interact with users in a natural, human-like manner.This paper introduces a LiveKit-based AI Assistant designed to enable seamless, low-latency human-computer interaction by int"
+    },
+    {
+      "id": "4444d9502e75f51f",
+      "title": "Integrating Artificial Intelligence into Early Childhood Education in Nigeria: A Critical Inquiry into Pedagogical Opportunities, Systemic Challenges and Policy Imperativ",
+      "summary": "Introduction: The integration of Artificial Intelligence (AI) into Early Childhood Education (ECE) represents a transformative paradigm shift globally, yet Nigeria's ECE sector remains critically underexplored in this domain.  Problem: Despite AI's demonstrated potential to enhance foundational literacy, numeracy, and",
+      "publishedAt": "2026-10-07T00:00:00Z",
+      "topic": "AI Learning",
+      "projects": [
+        "Crew Teacher"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Integrating Artificial Intelligence into Early Childhood Education in Nigeria: A Critical Inquiry into Pedagogical Opportunities, Systemic Challenges and Policy Imperatives",
+          "url": "https://doi.org/10.38124/ijisrt/26sep998",
+          "publishedAt": "2026-10-07T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 85,
+      "body": "Introduction: The integration of Artificial Intelligence (AI) into Early Childhood Education (ECE) represents a transformative paradigm shift globally, yet Nigeria's ECE sector remains critically underexplored in this domain.  Problem: Despite AI's demonstrated potential to enhance foundational literacy, numeracy, and"
+    },
+    {
+      "id": "e4db26e6211387c1",
+      "title": "ARTIFICIAL INTELLIGENCE IN RETAIL: CONSUMER ATTITUDES TOWARD VOICE COMMERCE",
+      "summary": "The global volume of e-commerce has been steadily increasing, prompting retailers to adopt online sales channels alongside traditional physical stores. A similar trend is observed in the adoption of artificial intelligence in retail, where AI is becoming a key prerequisite for market competitiveness. E-commerce encompa",
+      "publishedAt": "2026-10-08T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "ARTIFICIAL INTELLIGENCE IN RETAIL: CONSUMER ATTITUDES TOWARD VOICE COMMERCE",
+          "url": "https://doi.org/10.56497/etj2671306",
+          "publishedAt": "2026-10-08T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 87,
+      "body": "The global volume of e-commerce has been steadily increasing, prompting retailers to adopt online sales channels alongside traditional physical stores. A similar trend is observed in the adoption of artificial intelligence in retail, where AI is becoming a key prerequisite for market competitiveness. E-commerce encompa"
     }
   ]
 }
