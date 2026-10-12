@@ -16,6 +16,7 @@ const clean=(value:unknown,max=180)=>String(value??"").replace(/[\r\n\t]+/g," ")
 const langKey=(lang:string)=>encodeURIComponent(normalizeLearningLanguage(lang));
 const scope=(id:string,language:string)=>TOPICS+id+"_"+langKey(language);
 const captureKey=(id:string,language:string)=>id+"_"+langKey(language);
+function emitMemoryChange(){if(typeof window!=="undefined")window.dispatchEvent(new Event("crew-friend-memory-changed"))}
 export type FriendCaptureStatus=""|"pending"|"saved"|"updated"|"empty"|"error";
 export function getFriendCaptureStatus(id:string,language:string):FriendCaptureStatus{
  if(!friendMemoryEnabled()||!validFriend(id))return "";
@@ -24,13 +25,13 @@ export function getFriendCaptureStatus(id:string,language:string):FriendCaptureS
 function captureStarted(id:string,language:string){
  const k=captureKey(id,language),key=CAPTURE_REQUEST+k;
  const request=Number(localStorage.getItem(key)||0)+1;
- localStorage.setItem(key,String(request));localStorage.setItem(CAPTURE_STATUS+k,"pending");
+ localStorage.setItem(key,String(request));localStorage.setItem(CAPTURE_STATUS+k,"pending");emitMemoryChange();
  return request;
 }
 function captureFinished(id:string,language:string,request:number,status:FriendCaptureStatus){
  const k=captureKey(id,language);
  if(Number(localStorage.getItem(CAPTURE_REQUEST+k)||0)===request)
-  localStorage.setItem(CAPTURE_STATUS+k,status);
+  {localStorage.setItem(CAPTURE_STATUS+k,status);emitMemoryChange()}
 }
 const recentKey=(language:string)=>DATES+langKey(language);
 const epoch=()=>Number(localStorage.getItem(EPOCH)||0);
