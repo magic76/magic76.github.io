@@ -2,7 +2,7 @@ name: Prepare i18n lockfile
 on:
   push:
     branches: ["feat/web-i18n-foundation"]
-    paths: ["package.json"]
+    paths: ["package.json", ".npmrc", ".github/workflows/i18n-lock.yml"]
 permissions:
   contents: write
 jobs:
