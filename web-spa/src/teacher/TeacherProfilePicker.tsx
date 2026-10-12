@@ -1,5 +1,6 @@
 import{useCallback,useEffect,useRef,useState}from"react";
 import{createPortal}from"react-dom";
+import{useTranslation}from"react-i18next";
 import{TEACHER_PROFILES,TEACHER_CATEGORIES,type TeacherProfile,type TeacherCategory}from"./teacherProfiles";
 import{useTeacherStore}from"../store/teacherStore";
 import{TeacherAvatar}from"./TeacherAvatar";
@@ -9,6 +10,7 @@ import{transitionUI}from"../lib/motion";
 
 /** Matches Android's 16-profile gallery, without creating chat sessions for audition. */
 export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
+ const {t,i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
  const active=useTeacherStore(s=>s.teacherProfile),targetLanguage=useTeacherStore(s=>s.targetLanguage),activeVoice=useTeacherStore(s=>s.voice),languageStyle=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent),speakingPace=useTeacherStore(s=>s.speakingPace);
  const select=useTeacherStore(s=>s.setTeacherProfile);
  const[category,setCategory]=useState<TeacherCategory>("all"),[detail,setDetail]=useState<TeacherProfile|null>(null),[query,setQuery]=useState("");
@@ -29,7 +31,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
   return()=>{document.body.style.overflow=oldOverflow;document.removeEventListener("keydown",onKeyDown);previewStop.current?.();if(lastFocused?.isConnected)lastFocused.focus()};
  },[detail,goBack]);
  const needle=query.trim().toLocaleLowerCase();
- const filtered=TEACHER_PROFILES.filter(p=>(category==="all"||p.categoryId===category)&&[p.name,p.title,p.description,p.bestFor,p.tagline].join(" ").toLocaleLowerCase().includes(needle));
+ const filtered=TEACHER_PROFILES.filter(p=>(category==="all"||p.categoryId===category)&&[p.name,p.title,p.description,p.bestFor,p.tagline,p.taglineEn].join(" ").toLocaleLowerCase().includes(needle));
  function changeCategory(value:TeacherCategory){transitionUI(()=>setCategory(value));galleryScroll.current?.scrollTo({top:0,behavior:"auto"})}
  function playPreview(){
   if(!detail)return;
@@ -41,38 +43,38 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
   <section className="teacher-picker teacher-gallery-dialog" role="dialog" aria-modal="true" aria-labelledby="teacher-picker-title" onClick={event=>event.stopPropagation()}>
    <header className="teacher-gallery-header"><div>
     <span className="kicker">Crew Teacher</span>
-    <h2 id="teacher-picker-title">{detail?detail.name:"選擇你的老師"}</h2>
-    {!detail&&<p className="meta">16 位個性鮮明的老師，各有不同教學風格。點擊照片了解更多。</p>}
-   </div><button ref={closeButton} className="teacher-picker-close" onClick={()=>onCloseRef.current()} aria-label="關閉">×</button></header>
+    <h2 id="teacher-picker-title">{detail?detail.name:t("picker.choose")}</h2>
+    {!detail&&<p className="meta">{t("picker.intro")}</p>}
+   </div><button ref={closeButton} className="teacher-picker-close" onClick={()=>onCloseRef.current()} aria-label={t("picker.close")}>×</button></header>
    {!detail?<>
-    <label className="teacher-gallery-search"><span className="sr-only">搜尋老師</span><input type="search" placeholder="搜尋老師姓名、風格或擅長領域" value={query} onChange={e=>{setQuery(e.target.value);galleryScroll.current?.scrollTo({top:0})}}/></label>
-     <nav className="teacher-gallery-filter" aria-label="老師分類">
-     {TEACHER_CATEGORIES.map(c=><button key={c.id} type="button" aria-pressed={category===c.id} className={category===c.id?"selected":""} onClick={()=>changeCategory(c.id)}>{c.label}</button>)}
+    <label className="teacher-gallery-search"><span className="sr-only">{t("picker.search")}</span><input type="search" placeholder={t("picker.searchPlaceholder")} value={query} onChange={e=>{setQuery(e.target.value);galleryScroll.current?.scrollTo({top:0})}}/></label>
+     <nav className="teacher-gallery-filter" aria-label={t("picker.categoriesLabel")}>
+     {TEACHER_CATEGORIES.map(c=><button key={c.id} type="button" aria-pressed={category===c.id} className={category===c.id?"selected":""} onClick={()=>changeCategory(c.id)}>{t("picker.categories."+c.id)}</button>)}
     </nav>
     <div className="teacher-gallery-scroll" ref={galleryScroll}>
      <div className="teacher-picker-list teacher-gallery-grid">
-      {filtered.length===0&&<p className="teacher-gallery-empty" role="status">沒有符合的老師，試試其他關鍵字。</p>}
-       {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={"查看 "+profile.name+" 老師"}>
+      {filtered.length===0&&<p className="teacher-gallery-empty" role="status">{t("picker.empty")}</p>}
+       {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={t("picker.view",{name:profile.name})}>
        <TeacherAvatar profile={profile} className="teacher-profile-image"/>
-       <strong>{profile.name}</strong><span className="teacher-gallery-type">{profile.title}</span>
-       <small className="teacher-gallery-tagline">{profile.tagline}</small>
-       {profile.id===active&&<span className="teacher-gallery-selected">✓ 使用中</span>}
+       <strong>{profile.name}</strong><span className="teacher-gallery-type">{english?t("picker.categories."+profile.categoryId):profile.title}</span>
+       <small className="teacher-gallery-tagline">{english?profile.taglineEn:profile.tagline}</small>
+       {profile.id===active&&<span className="teacher-gallery-selected">{t("picker.current")}</span>}
       </button>)}
      </div>
     </div>
-    <div className="teacher-gallery-footer"><p className="meta">選擇後會自動套用推薦聲線；可在老師設定中調整。</p><button type="button" className="btn secondary" onClick={()=>onCloseRef.current()}>關閉</button></div>
+    <div className="teacher-gallery-footer"><p className="meta">{t("picker.footer")}</p><button type="button" className="btn secondary" onClick={()=>onCloseRef.current()}>{t("picker.close")}</button></div>
    </>:<div className="teacher-detail-scroll">
     <div className="teacher-detail-portrait" data-preview={preview?.state||"idle"}><TeacherAvatar profile={detail}/></div>
-    <h3>{detail.name} <span>{detail.title}</span></h3>
-    <p className="teacher-detail-tagline">「{detail.tagline}」</p>
-    <p>{detail.description}</p>
-    <div className="teacher-detail-facts"><strong>擅長</strong><p>{detail.bestFor}</p><strong>推薦聲線</strong><p>{detail.voiceLabel}</p></div>
-    {completedTutorSessions(detail.id,targetLanguage)>0&&<p className="teacher-detail-history">你們已經一起完成 {completedTutorSessions(detail.id,targetLanguage)} 次練習。</p>}
+    <h3>{detail.name} <span>{english?t("picker.categories."+detail.categoryId):detail.title}</span></h3>
+    <p className="teacher-detail-tagline">「{english?detail.taglineEn:detail.tagline}」</p>
+    <p>{english?detail.taglineEn:detail.description}</p>
+    <div className="teacher-detail-facts"><strong>{t("picker.bestFor")}</strong><p>{english?t("picker.categories."+detail.categoryId):detail.bestFor}</p><strong>{t("picker.voice")}</strong><p>{english?detail.recommendedVoice:detail.voiceLabel}</p></div>
+    {completedTutorSessions(detail.id,targetLanguage)>0&&<p className="teacher-detail-history">{t("picker.history",{count:completedTutorSessions(detail.id,targetLanguage)})}</p>}
     <div className="teacher-detail-actions">
-     <button type="button" className="btn secondary" onClick={playPreview} disabled={preview?.state==="connecting"||preview?.state==="playing"}>{preview?.state==="connecting"?"正在連線…":preview?.state==="playing"?"正在播放…":preview?.state==="error"?"試聽失敗 · 點擊重試":"▶ 試聽教學風格"}</button>
+     <button type="button" className="btn secondary" onClick={playPreview} disabled={preview?.state==="connecting"||preview?.state==="playing"}>{preview?.state==="connecting"?t("picker.connecting"):preview?.state==="playing"?t("picker.playing"):preview?.state==="error"?t("picker.previewError"):t("picker.preview")}</button>
      {preview?.message&&<p className="teacher-preview-error" role="alert">{preview.message}</p>}
-     <button type="button" className="btn" onClick={()=>choose(detail)}>{detail.id===active?"繼續由 "+detail.name+" 教學":"選擇 "+detail.name}</button>
-     <button type="button" className="btn secondary" onClick={goBack}>返回老師列表</button>
+     <button type="button" className="btn" onClick={()=>choose(detail)}>{detail.id===active?t("picker.continue",{name:detail.name}):t("picker.select",{name:detail.name})}</button>
+     <button type="button" className="btn secondary" onClick={goBack}>{t("picker.back")}</button>
     </div>
    </div>}
   </section>
