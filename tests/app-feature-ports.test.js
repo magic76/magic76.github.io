@@ -68,7 +68,12 @@ test("Teacher React mirrors native app feature names",()=>{
  const roles=fs.readFileSync(path.join(root,"web-spa/src/teacher/RolesPage.tsx"),"utf8");
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const combined=practice+"\n"+learn+"\n"+roles+"\n"+tutor;
- for(const label of ["Crew 老師","Crew 朋友","教材陪讀","單字練習","情境課程","朗讀糾音"])assert.ok(combined.includes(label));
+ const zh=readUiLocale("teacher");
+ for(const label of ["practice.teacher","practice.friend","practice.textbook","practice.vocab","practice.course","practice.pronunciation"]){
+  const [section,key]=label.split(".");
+  assert.ok(zh[section][key],label+" should be translated");
+  assert.ok(combined.includes('t("'+label+'")'),label+" should be used");
+ }
  assert.ok(!combined.includes("表達教練"));
  assert.ok(!combined.includes("工作情境"));
 });
@@ -191,7 +196,10 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  const mine=fs.readFileSync(path.join(root,"web-spa/src/story/MyPage.tsx"),"utf8");
  const analyzer=fs.readFileSync(path.join(root,"features/story/physical/analyzer.js"),"utf8");
  for(const route of ["edit/:id","physical","physical/:id"])assert.ok(app.includes(route));
- for(const label of ["繼續閱讀","創作故事","實體書陪讀","探索故事"])assert.ok(shelf.includes(label));
+ for(const key of ["shelf.resume","shelf.create","shelf.physical","shelf.explore"]){
+  assert.ok(shelf.includes('t("'+key+'")'),key+" should be translated");
+ }
+ const storyUi=readUiLocale("story");assert.equal(storyUi.shelf.resume,"繼續閱讀");
  for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
  assert.ok(reader.includes("StoryPlayerView"));
  for(const label of ["播放","story-page-progress","跟阿奇說話","暫停","繼續","再聽一次","更多"])assert.ok(player.includes(label));
@@ -355,17 +363,26 @@ test("core Web entry points follow the Android app parity contract",()=>{
  const fortune=fs.readFileSync(path.join(root,"web-spa/src/fortune/HomePage.tsx"),"utf8");
  const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
 
- for(const label of ["今天想和誰聊聊？","Crew 朋友","Crew 老師","教材陪讀","單字練習","情境課程","快速練習","接續上次學習"])assert.ok(teacher.includes(label));
+ const teacherUi=readUiLocale("teacher");
+ assert.equal(teacherUi.practice.title,"今天想和誰聊聊？");
+ for(const key of ["title","friend","teacher","textbook","vocab","course","quick","continue"])
+  assert.ok(teacher.includes('t("practice.'+key+'")'),key);
  assert.ok(teacherTutor.includes("目前老師"));
  assert.ok(teacherNext.includes("今天下一步"));
  assert.ok(teacherNext.includes("buildDailyLearningPlan"));
 
- for(const label of ["今天想讀什麼故事？","和阿奇一起創作、閱讀，或拿起手邊的故事書。","最近讀到這本","創作故事","實體書陪讀","我的故事","探索故事"])assert.ok(story.includes(label));
+ const storyUi=readUiLocale("story");
+ assert.equal(storyUi.shelf.title,"今天想讀什麼故事？");
+ for(const key of ["title","intro","recent","create","physical","myStory","explore"])
+  assert.ok(story.includes('t("shelf.'+key+'")'),key);
  assert.ok(storyMy.includes("BUILT_IN_STORIES.length"),"Story included count must come from the actual catalog");
  assert.ok(!story.includes("和 APK 一樣"));
  assert.ok(!storyMy.includes("和 APK"));
 
- for(const label of ["從不同角度","看懂自己的節奏。","選一種方式","性格 · 工作 · 財運 · 大運","核心性格 · 人生主題","人生週期 · 行星 · Dasha","最近解讀"])assert.ok(fortune.includes(label));
+ const fortuneUi=readUiLocale("fortune");
+ assert.equal(fortuneUi.home.titleLine2,"看懂自己的節奏。");
+ for(const key of ["titleLine1","titleLine2","choose","baziDesc","tarotDesc","vedicDesc","recent"])
+  assert.ok(fortune.includes('t("home.'+key+'")'),key);
  assert.ok(fortuneLayout.includes('to="/fortune/history"'));
  assert.ok(!fortuneLayout.includes("ProductTabs"),"Fortune history should be a header action like Android, not a primary tab");
 });
@@ -486,7 +503,8 @@ test("Story and Fortune use shared global Gemini settings without duplicate Key 
  const reading=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingPage.tsx"),"utf8");
  assert.ok(!story.includes("GeminiSetupNotice"));
  assert.ok(!fortune.includes("GeminiSetupNotice"));
- assert.ok(create.includes("需要先設定 Gemini Key 才能創作故事。"));
+ assert.ok(create.includes('t("create.keyError")'));
+ assert.equal(readUiLocale("story").create.keyError,"需要先設定 Gemini Key 才能創作故事。");
  assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
  assert.ok(readUiLocale("settings").hero.desc.includes("Teacher、Story、Fortune 共用同一組 Key"));
  assert.ok(panel.includes("https://aistudio.google.com/apikey"));
