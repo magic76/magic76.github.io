@@ -84,3 +84,6 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
  body.teacher-theme.session-page .crew-voice-dock .live-tool-btn{min-height:48px;width:100%}
  body.teacher-theme.session-page .crew-voice-dock .live-audio-settings{display:none}
 }
+
+.crew-voice-dock .crew-voice-end{min-height:48px;margin:0}
+@media(max-width:640px){body.teacher-theme.session-page .crew-voice-dock .crew-voice-end{grid-column:1/-1;min-height:44px}}
