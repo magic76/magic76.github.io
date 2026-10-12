@@ -12,7 +12,7 @@ export function updateReview(id:string,patch:Partial<LocalReview>):ReviewMap {
 export function importReviews(json:string):number {
  const data:unknown=JSON.parse(json);
  if(!data||typeof data!=="object"||(data as any).version!==1||typeof (data as any).reviews!=="object"||!(data as any).reviews||Array.isArray((data as any).reviews))throw Error("這不是 Crew Briefing 研究狀態備份。");
- const allowed=new Set(["unread","reading","researching","delegated","adopted","dismissed"]);
+ const allowed=new Set(["unread","reading","researching","delegated","adopted","dismissed","finished"]);
  const reviews=readReviews();let count=0;
  for(const [id,v] of Object.entries((data as any).reviews)){
   if(!/^[a-zA-Z0-9_-]{3,100}$/.test(id)||!v||typeof v!=="object"||count>5000)continue;
