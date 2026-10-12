@@ -205,7 +205,9 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
  for(const label of ["播放","story-page-progress","跟阿奇說話","暫停","繼續","再聽一次","更多"])assert.ok(player.includes(label));
  assert.ok(!player.includes("繼續本頁"));
  for(const label of ["拍故事書封面","拍第一頁","拍下一頁"])assert.ok(physical.includes(label));
- for(const label of ["說書語言","阿奇聲線","故事偏好"])assert.ok(mine.includes(label));
+ for(const key of ["my.narrationLanguage","my.voice","my.preferences"])assert.ok(mine.includes('t("'+key+'")'));
+ const storyLabels=readUiLocale("story").my;
+ assert.equal(storyLabels.narrationLanguage,"說書語言");
  assert.ok(analyzer.includes("visibleText"));
  assert.ok(analyzer.includes("spoilerBoundary"));
 });
