@@ -7,8 +7,8 @@ const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 test("teacher home matches native direct-entry UX instead of nested tutor settings",()=>{
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
  assert.match(tutor,/teacher-home-identity/);
- assert.match(tutor,/更換老師/);
- assert.match(tutor,/試聽老師/);
+ assert.match(tutor,/t\("tutor\.change"\)/);
+ assert.match(tutor,/t\("tutor\.listen"\)/);
  assert.match(tutor,/teacher-home-start/);
  assert.match(tutor,/teacher-segmented/);
  for(const value of ['"natural"','"practice"','"scenario"'])
