@@ -110,6 +110,7 @@
       "slow": "慢",
       "normal": "正常",
       "fast": "快"
-    }
+    },
+    "nativeLanguage": "母語"
   }
 }
