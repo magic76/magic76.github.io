@@ -143,5 +143,31 @@
     "select": "Select {{name}}",
     "back": "Back to teachers",
     "voiceSuggested": "Automatically selected"
+  },
+  "my": {
+    "kicker": "Learning history",
+    "title": "My learning",
+    "intro": "Your progress, saved items, and personal settings.",
+    "speaking": "Speaking practice",
+    "level": "Current level",
+    "today": "Words today",
+    "completed": "Completed lessons",
+    "stars": "Lesson stars",
+    "phrases": "Saved phrases",
+    "records": "History & settings",
+    "localOnly": "Stored in this browser",
+    "personal": "Memory & personalization",
+    "personalDesc": "Manage your preferences and memories with Teachers and Friends",
+    "memory": "Personal learning memory",
+    "memoryDesc": "Review, edit, or delete what your Teacher knows about you",
+    "friends": "Shared topics with Crew Friends",
+    "friendsDesc": "Choose a Friend to manage your conversation memories",
+    "phraseDesc": "{{count}} cards · {{due}} due for review",
+    "reports": "Practice reports",
+    "reportDesc": "{{count}} session reports",
+    "library": "Reading library",
+    "libraryDesc": "Short classics and reading-aloud materials",
+    "android": "Android app",
+    "androidDesc": "Get the full Crew Teacher experience on Android."
   }
 }
