@@ -51,5 +51,65 @@
     "pronunciationDesc": "Read aloud and focus on your biggest improvements",
     "library": "Reading library",
     "libraryDesc": "Pick a short article, then practice reading aloud"
+  },
+  "tutor": {
+    "title": "Practice with a teacher",
+    "intro": "Choose a teacher who fits your style and speak at your own pace.",
+    "change": "Change teacher",
+    "current": "Your Crew Teacher",
+    "listen": "Preview voice",
+    "connecting": "Connecting…",
+    "stop": "Stop preview",
+    "again": "Preview again",
+    "retry": "Retry preview",
+    "start": "Start speaking with {{name}}",
+    "language": "Conversation language",
+    "pace": "Speaking pace",
+    "interaction": "Interaction style",
+    "nextChat": "Applies to your next conversation",
+    "interactionDesc": "Natural chat won't correct every sentence. Practice adds feedback. Scenarios take you straight into a role.",
+    "modes": {
+      "natural": "Natural chat",
+      "practice": "Speaking practice",
+      "scenario": "Role-play"
+    },
+    "scenes": {
+      "title": "Choose a scenario",
+      "hotel_checkin": "Hotel check-in",
+      "restaurant_order": "Restaurant ordering",
+      "work_meeting": "Work meeting",
+      "transport": "Asking for directions"
+    },
+    "advanced": "Teacher & language preferences",
+    "accent": "Regional accent",
+    "accentSelect": "Choose regional accent",
+    "guidance": "Teaching approach",
+    "guidanceChoices": {
+      "beginner": "Beginner guidance",
+      "bilingual": "Bilingual support",
+      "immersion": "Full immersion"
+    },
+    "customAccent": "Custom accent",
+    "customPlaceholder": "For example: clear, natural Canadian English",
+    "paceLabel": "Pace",
+    "teacherPace": "Teacher pace",
+    "advancedAccent": "Advanced · Accent strength",
+    "accentStrength": "Accent strength",
+    "strength": {
+      "subtle": "Subtle",
+      "natural": "Natural",
+      "noticeable": "Noticeable"
+    },
+    "preferences": "Changes apply to your next conversation. Actual voice output is controlled by the speech model.",
+    "speed": {
+      "slow": "Slow",
+      "normal": "Normal pace",
+      "fast": "Fast"
+    },
+    "shortSpeed": {
+      "slow": "Slow",
+      "normal": "Normal",
+      "fast": "Fast"
+    }
   }
 }
