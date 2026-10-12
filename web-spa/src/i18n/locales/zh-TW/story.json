@@ -56,5 +56,27 @@
     "emptyError": "先輸入故事靈感，或加入至少一張照片。",
     "keyError": "需要先設定 Gemini Key 才能創作故事。",
     "generateError": "故事生成或儲存失敗，內容與照片仍保留在這頁，請重試。"
+  },
+  "my": {
+    "title": "我的 Story",
+    "intro": "管理故事偏好、說書語言與聲線。",
+    "stories": "我的故事",
+    "builtIn": "內建故事",
+    "narrationLanguage": "說書語言",
+    "preferences": "故事偏好",
+    "voice": "阿奇聲線",
+    "style": "預設故事風格",
+    "styles": {
+      "warm": "溫暖冒險",
+      "bedtime": "睡前故事",
+      "funny": "搞笑",
+      "mystery": "神秘",
+      "fantasy": "奇幻"
+    },
+    "android": "Android 版",
+    "androidDesc": "想在手機上使用完整的 Crew Story，可以直接安裝 Android App。",
+    "privacy": "隱私與內容",
+    "media": "關於照片與語音",
+    "privacyDesc": "只上傳你願意送到 AI 服務的照片、語音與故事內容。Gemini Key 由全站設定統一管理。"
   }
 }
