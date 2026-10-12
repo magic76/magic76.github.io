@@ -141,6 +141,7 @@
     "preview": "▶ Preview teaching style",
     "continue": "Continue with {{name}}",
     "select": "Select {{name}}",
-    "back": "Back to teachers"
+    "back": "Back to teachers",
+    "voiceSuggested": "Automatically selected"
   }
 }
