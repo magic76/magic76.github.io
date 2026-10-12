@@ -1,4 +1,6 @@
 import {useEffect,useRef,useState} from "react";
+import {useTranslation} from "react-i18next";
+import i18n from "../i18n";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
 
 type MicPermission = PermissionState|"unknown"|"unsupported";
@@ -14,34 +16,35 @@ function isMicrophoneMissing(value:unknown){
  return /NotFoundError|DevicesNotFoundError|Requested device not found/i.test(String(error?.name||"")+" "+String(error?.message||""));
 }
 function safeDetail(value:unknown){
- const message=value instanceof Error?value.message:String(value||"語音連線發生問題");
- return message.replace(/AIza[0-9A-Za-z_-]+/g,"[已隱藏的金鑰]").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務").slice(0,180);
+ const message=value instanceof Error?value.message:String(value||i18n.t("settings:gemini.mediaError"));
+ return message.replace(/AIza[0-9A-Za-z_-]+/g,i18n.t("settings:gemini.hideKey")).replace(/gemini-[0-9A-Za-z.-]+/gi,i18n.t("settings:gemini.voiceService")).slice(0,180);
 }
 function microphoneHelp(){
  const agent=navigator.userAgent;
- if(/Macintosh|Mac OS X/.test(agent))return "Mac：系統設定 → 隱私權與安全性 → 麥克風，允許 Microsoft Edge／Chrome；再確認網址列左側的網站權限。修改後請完全結束瀏覽器並重新開啟。";
- if(/Windows/.test(agent))return "Windows：設定 → 隱私權與安全性 → 麥克風，啟用麥克風存取與桌面應用程式存取；再確認 Edge／Chrome 的網站麥克風權限。";
- return "請在裝置的隱私權設定允許瀏覽器使用麥克風，並在網站權限中允許麥克風，然後重新測試。";
+ if(/Macintosh|Mac OS X/.test(agent))return i18n.t("settings:gemini.macHelp");
+ if(/Windows/.test(agent))return i18n.t("settings:gemini.windowsHelp");
+ return i18n.t("settings:gemini.genericHelp");
 }
 function microphoneLabel(permission:MicPermission,blocked:boolean){
- if(blocked||permission==="denied")return "已拒絕（請檢查系統及網站權限）";
- if(permission==="granted")return "已允許";
- if(permission==="prompt")return "尚未授權（測試時才會要求）";
- if(permission==="unsupported")return "瀏覽器不支援查詢權限";
- return "尚未確認";
+ if(blocked||permission==="denied")return i18n.t("settings:gemini.micStateDenied");
+ if(permission==="granted")return i18n.t("settings:gemini.micStateAllowed");
+ if(permission==="prompt")return i18n.t("settings:gemini.micStatePrompt");
+ if(permission==="unsupported")return i18n.t("settings:gemini.micStateUnsupported");
+ return i18n.t("settings:gemini.micStateUnknown");
 }
 function voiceFailure(value:unknown){
- if(isMicrophoneDenied(value))return "麥克風存取遭拒，請先調整裝置與網站權限。已儲存的 Key 不受影響。";
- if(isMicrophoneMissing(value))return "找不到可用的麥克風，請檢查輸入裝置。已儲存的 Key 不受影響。";
- return "Gemini Live 測試失敗："+safeDetail(value)+"。已儲存的 Key 不受影響。";
+ if(isMicrophoneDenied(value))return i18n.t("settings:gemini.voiceDenied");
+ if(isMicrophoneMissing(value))return i18n.t("settings:gemini.voiceMissing");
+ return i18n.t("settings:gemini.voiceError",{reason:safeDetail(value)});
 }
 
 export function GeminiConnectionPanel(){
+ const {t}=useTranslation("settings");
  const initialKey=geminiKey(),initialVerified=geminiVerified();
  const [key,setKey]=useState(initialKey);
  const [remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key")));
  const [verified,setVerified]=useState(initialVerified);
- const [keyStatus,setKeyStatus]=useState(initialVerified?"✓ Gemini Key 已驗證":initialKey?"Gemini Key 已設定，尚未驗證。":"尚未設定 Gemini Key。");
+ const [keyStatus,setKeyStatus]=useState(initialVerified?t("gemini.initialVerified"):initialKey?t("gemini.initialPending"):t("gemini.initialMissing"));
  const [showSetup,setShowSetup]=useState(!initialKey||!initialVerified);
  const [validating,setValidating]=useState(false);
  const [micPermission,setMicPermission]=useState<MicPermission>("unknown");
@@ -49,7 +52,7 @@ export function GeminiConnectionPanel(){
  const [micChecking,setMicChecking]=useState(false);
  const [micStatus,setMicStatus]=useState("");
  const [voiceResult,setVoiceResult]=useState<VoiceResult>("idle");
- const [voiceStatus,setVoiceStatus]=useState("尚未測試語音連線");
+ const [voiceStatus,setVoiceStatus]=useState(t("gemini.initialVoice"));
  const [volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));
  const [voiceBusy,setVoiceBusy]=useState(false);
  const mounted=useRef(true);
@@ -81,9 +84,9 @@ export function GeminiConnectionPanel(){
 
  async function saveAndVerify(){
   const candidate=key.trim();
-  if(!candidate){setKeyStatus("請先貼上 Gemini API Key。");return}
+  if(!candidate){setKeyStatus(t("gemini.keyEmpty"));return}
   if(validating||voiceBusy)return;
-  setValidating(true);setKeyStatus("正在驗證 Gemini Key…");
+  setValidating(true);setKeyStatus(t("gemini.validating"));
   const controller=new AbortController();validationRef.current=controller;
   const timeout=window.setTimeout(()=>controller.abort(),10000);
   try{
@@ -91,10 +94,10 @@ export function GeminiConnectionPanel(){
     headers:{"x-goog-api-key":candidate},signal:controller.signal
    });
    if(!response.ok)throw new Error(response.status===400||response.status===401||response.status===403
-    ?"Key 無效或沒有 API 存取權限（"+response.status+"）":"Google 驗證失敗（"+response.status+"）");
+    ?t("gemini.invalid",{status:response.status}):t("gemini.httpFailure",{status:response.status}));
   }catch(error){
    if(mounted.current){
-    setKeyStatus("Key 尚未更換："+(error instanceof Error&&error.name==="AbortError"?"驗證逾時，請重試":safeDetail(error))+"。原有 Key 保持不變。");
+    setKeyStatus(t("gemini.keyError",{reason:error instanceof Error&&error.name==="AbortError"?t("gemini.timeout"):safeDetail(error)}));
     setValidating(false);
    }
    return;
@@ -107,36 +110,36 @@ export function GeminiConnectionPanel(){
    saveGeminiKey(candidate,remember);
    setGeminiVerified(true);
   }catch(_){
-   setKeyStatus("Key 已通過 Google 驗證，但瀏覽器儲存失敗。請檢查儲存空間後重試。");
+   setKeyStatus(t("gemini.storageError"));
    setValidating(false);return;
   }
   setVerified(true);
-  setKeyStatus("✓ Gemini Key 已驗證並儲存（語音需另外測試）");
-  setVoiceResult("idle");setVoiceStatus("尚未測試語音連線");
+  setKeyStatus(t("gemini.keySaved"));
+  setVoiceResult("idle");setVoiceStatus(t("gemini.initialVoice"));
   setShowSetup(false);setValidating(false);
  }
 
  async function checkMicrophone(){
   if(micChecking||voiceBusy||validating)return;
-  setMicChecking(true);setMicStatus("正在確認麥克風…");
+  setMicChecking(true);setMicStatus(t("gemini.micChecking"));
   try{
-   if(!navigator.mediaDevices?.getUserMedia)throw new Error("瀏覽器不支援麥克風");
+   if(!navigator.mediaDevices?.getUserMedia)throw new Error(t("gemini.micStateUnsupported"));
    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
    stream.getTracks().forEach(track=>track.stop());
    if(mounted.current){
-    setMicPermission("granted");setMicBlocked(false);setMicStatus("✓ 麥克風可正常使用");
+    setMicPermission("granted");setMicBlocked(false);setMicStatus(t("gemini.micSuccess"));
    }
   }catch(error){
    if(mounted.current){
     if(isMicrophoneDenied(error)){setMicBlocked(true);setMicPermission("denied")}
-    setMicStatus(isMicrophoneDenied(error)?"麥克風存取遭拒。":isMicrophoneMissing(error)?"找不到可用的麥克風。":"麥克風檢查失敗："+safeDetail(error));
+    setMicStatus(isMicrophoneDenied(error)?t("gemini.micDenied"):isMicrophoneMissing(error)?t("gemini.micMissing"):t("gemini.micError",{reason:safeDetail(error)}));
    }
   }finally{if(mounted.current)setMicChecking(false)}
  }
 
  async function testVoice(){
   if(voiceBusy||validating||!geminiKey())return;
-  setVoiceBusy(true);setVoiceResult("testing");setVoiceStatus("正在啟動 Gemini Live…");
+  setVoiceBusy(true);setVoiceResult("testing");setVoiceStatus(t("gemini.startingLive"));
   let finished=false;
   const fail=(error:unknown)=>{
    if(finished)return;
@@ -151,7 +154,7 @@ export function GeminiConnectionPanel(){
   };
   try{
    await ensureLive();
-   if(!window.CrewLive)throw new Error("Live runtime 未載入");
+   if(!window.CrewLive)throw new Error(t("gemini.missingRuntime"));
    if(!mounted.current)return;
    const session=new window.CrewLive.Session({
     system:"這是語音連線測試。請只用繁體中文說一句「連線成功」，不要延伸聊天。",
@@ -165,7 +168,7 @@ export function GeminiConnectionPanel(){
       await session.waitForPlaybackDrain(6500);
       await session.stop({reason:"test-complete",silentStatus:true,emitTerminal:false,emitState:false});
       liveRef.current=null;
-      if(mounted.current){setMicBlocked(false);setMicPermission("granted");setVoiceResult("success");setVoiceStatus("✓ Gemini Live 語音連線正常");setVoiceBusy(false)}
+      if(mounted.current){setMicBlocked(false);setMicPermission("granted");setVoiceResult("success");setVoiceStatus(t("gemini.voiceSuccess"));setVoiceBusy(false)}
      }catch(error){
       liveRef.current=null;
       if(mounted.current){setVoiceResult("failed");setVoiceStatus(voiceFailure(error));setVoiceBusy(false)}
@@ -182,7 +185,7 @@ export function GeminiConnectionPanel(){
  const configured=Boolean(geminiKey());
  const micDenied=micBlocked||micPermission==="denied";
  const caps:[string,boolean][]=[
-  ["麥克風 API",!!navigator.mediaDevices?.getUserMedia],
+  [t("gemini.micAPI"),!!navigator.mediaDevices?.getUserMedia],
   ["WebSocket",typeof WebSocket!=="undefined"],
   ["Web Audio",!!(window.AudioContext||(window as any).webkitAudioContext)],
   ["Wake Lock",!!(navigator as any).wakeLock?.request]
@@ -191,72 +194,72 @@ export function GeminiConnectionPanel(){
   {!showSetup&&configured?
    <section className={"section panel settings-connected-card "+(verified?"verified":"pending")}>
     <div className="settings-connected-main"><span className="settings-connected-mark">{verified?"✓":"!"}</span>
-     <span><strong>{verified?"Gemini Key 已驗證":"Gemini Key 尚未驗證"}</strong>
-      <small>{verified?"Google API 驗證成功；語音連線可另行測試":"請先驗證此 Key，無須開啟麥克風"}</small></span></div>
+     <span><strong>{verified?t("gemini.configured"):t("gemini.unverified")}</strong>
+      <small>{verified?t("gemini.verifiedDesc"):t("gemini.unverifiedDesc")}</small></span></div>
     <code>••••••••••••</code>
-    <div className="actions"><button className="btn secondary" disabled={validating||voiceBusy} onClick={()=>setShowSetup(true)}>重新設定 Key</button></div>
+    <div className="actions"><button className="btn secondary" disabled={validating||voiceBusy} onClick={()=>setShowSetup(true)}>{t("gemini.reconfigure")}</button></div>
     <div className={"result settings-connection-result "+(verified?"success":"")} role="status">{keyStatus}</div>
    </section>:
    <section className="section panel">
-    <h3>{configured?"重新設定 Gemini Key":"設定 Gemini Key"}</h3>
-    <p className="meta">Teacher、Story、Fortune 共用同一組 Key。Google 驗證成功即可儲存，無須授權麥克風。</p>
+    <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
+    <p className="meta">{t("gemini.intro")}</p>
     <div className="setup-steps">
-     <div className="step"><b>1</b><span><strong>開啟 Google AI Studio</strong><small>使用自己的 Google 帳戶登入。</small></span></div>
-     <div className="step"><b>2</b><span><strong>Create API key</strong><small>建立 Gemini API Key 並複製。</small></span></div>
-     <div className="step"><b>3</b><span><strong>貼回這裡</strong><small>驗證並儲存；有需要再測試語音。</small></span></div>
+     <div className="step"><b>1</b><span><strong>{t("gemini.step1")}</strong><small>{t("gemini.step1Desc")}</small></span></div>
+     <div className="step"><b>2</b><span><strong>{t("gemini.step2")}</strong><small>{t("gemini.step2Desc")}</small></span></div>
+     <div className="step"><b>3</b><span><strong>{t("gemini.step3")}</strong><small>{t("gemini.step3Desc")}</small></span></div>
     </div>
-    <div className="actions"><a className="btn secondary" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">開啟 Google AI Studio</a></div>
+    <div className="actions"><a className="btn secondary" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">{t("gemini.openStudio")}</a></div>
     <label className="label" htmlFor="crew-gemini-key">Gemini API Key</label>
-    <input id="crew-gemini-key" className="field" type="password" value={key} onChange={event=>setKey(event.target.value)} placeholder="貼上 API key" autoComplete="off"/>
-    <p className="meta" style={{marginTop:8}}>Key 僅儲存在這台瀏覽器。用量與費用由你的 Google 專案管理。</p>
-    <label className="row" style={{marginTop:10}}><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/><span className="meta">記住在這台裝置</span></label>
+    <input id="crew-gemini-key" className="field" type="password" value={key} onChange={event=>setKey(event.target.value)} placeholder={t("gemini.keyPlaceholder")} autoComplete="off"/>
+    <p className="meta" style={{marginTop:8}}>{t("gemini.privacy")}</p>
+    <label className="row" style={{marginTop:10}}><input type="checkbox" checked={remember} onChange={event=>setRemember(event.target.checked)}/><span className="meta">{t("gemini.remember")}</span></label>
     <div className="actions settings-primary-action">
-     <button className="btn" disabled={validating||voiceBusy} onClick={()=>void saveAndVerify()}>{validating?"正在驗證…":"驗證並儲存 Key"}</button>
-     {configured&&<button className="btn secondary" disabled={validating} onClick={()=>{setKey(geminiKey());setShowSetup(false)}}>取消</button>}
+     <button className="btn" disabled={validating||voiceBusy} onClick={()=>void saveAndVerify()}>{validating?t("gemini.saving"):t("gemini.save")}</button>
+     {configured&&<button className="btn secondary" disabled={validating} onClick={()=>{setKey(geminiKey());setShowSetup(false)}}>{t("gemini.cancel")}</button>}
     </div>
     <div className={"result settings-connection-result "+(verified?"success":"")} role="status">{keyStatus}</div>
    </section>
   }
   <section className="section panel settings-voice-check">
-   <div className="section-head"><h2>語音連線</h2><small>獨立測試 · 不影響已儲存的 Key</small></div>
-   <p className="meta">只有要使用語音時才需要麥克風權限。Key 驗證成功並不代表 Gemini Live 可使用。</p>
+   <div className="section-head"><h2>{t("gemini.voiceTitle")}</h2><small>{t("gemini.voiceTagline")}</small></div>
+   <p className="meta">{t("gemini.voiceIntro")}</p>
    <div className="settings-check-list">
-    <div><strong>1 · Gemini API Key</strong><span>{configured?(verified?"✓ 已驗證":"尚未驗證"):"尚未設定"}</span></div>
-    <div><strong>2 · 麥克風權限</strong><span>{microphoneLabel(micPermission,micBlocked)}</span></div>
-    <div><strong>3 · Gemini Live</strong><span>{voiceResult==="success"?"✓ 已連線":voiceResult==="testing"?"測試中":voiceResult==="failed"?"連線失敗":"尚未測試"}</span></div>
+    <div><strong>{t("gemini.stepKey")}</strong><span>{configured?(verified?t("gemini.stateVerified"):t("gemini.stateUnverified")):t("gemini.stateMissing")}</span></div>
+    <div><strong>{t("gemini.stepMic")}</strong><span>{microphoneLabel(micPermission,micBlocked)}</span></div>
+    <div><strong>{t("gemini.stepLive")}</strong><span>{voiceResult==="success"?t("gemini.stateLiveSuccess"):voiceResult==="testing"?t("gemini.stateTesting"):voiceResult==="failed"?t("gemini.stateFailed"):t("gemini.stateNotTested")}</span></div>
    </div>
    <div className="actions">
-    <button className="btn secondary" disabled={micChecking||voiceBusy||validating} onClick={()=>void checkMicrophone()}>{micChecking?"檢查中…":"檢查麥克風"}</button>
-    <button className="btn" disabled={!configured||!verified||voiceBusy||micChecking||validating} onClick={()=>void testVoice()}>{voiceBusy?"語音測試中…":"測試 Gemini Live"}</button>
+    <button className="btn secondary" disabled={micChecking||voiceBusy||validating} onClick={()=>void checkMicrophone()}>{micChecking?t("gemini.checkingMic"):t("gemini.checkMic")}</button>
+    <button className="btn" disabled={!configured||!verified||voiceBusy||micChecking||validating} onClick={()=>void testVoice()}>{voiceBusy?t("gemini.testingLive"):t("gemini.testLive")}</button>
    </div>
    {micStatus&&<p className="meta" role="status">{micStatus}</p>}
    <div className={"result settings-connection-result "+(voiceResult==="success"?"success":"")} role="status">{voiceStatus}</div>
    {micDenied&&<p className="meta settings-mic-advice" role="alert">{microphoneHelp()}</p>}
-   <div><label className="label">預設播放音量</label><div className="range-row">
+   <div><label className="label">{t("gemini.volume")}</label><div className="range-row">
     <input className="field" type="range" min="0" max="100" value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);localStorage.setItem("crew_live_volume",String(value))}}/>
     <strong>{volume}%</strong>
    </div></div>
    <details className="settings-diagnostics">
-    <summary>連線診斷</summary>
-    <p className="meta">瀏覽器支援麥克風 API，不代表作業系統已授權；只有按「檢查麥克風」才會要求存取權限。</p>
+    <summary>{t("gemini.diagnostics")}</summary>
+    <p className="meta">{t("gemini.diagnosticsDesc")}</p>
     <div className="result settings-capabilities">
-     <div>麥克風授權：{microphoneLabel(micPermission,micBlocked)}</div>
+     <div>{t("gemini.micAuthorization")}：{microphoneLabel(micPermission,micBlocked)}</div>
      {caps.map(([name,ok])=><div key={name}>{ok?"✓ ":"— "}{name}</div>)}
     </div>
    </details>
    <details className="settings-danger-zone">
-    <summary>進階與清除</summary>
+    <summary>{t("gemini.advanced")}</summary>
     <div className="actions">
      <button className="btn secondary" disabled={voiceBusy||validating} onClick={()=>{
-      clearGeminiKey();setKey("");setRemember(false);setVerified(false);setKeyStatus("已清除 Gemini Key。");setShowSetup(true);
+      clearGeminiKey();setKey("");setRemember(false);setVerified(false);setKeyStatus(t("gemini.clearedKey"));setShowSetup(true);
       setVoiceResult("idle");setVoiceStatus("尚未測試語音連線");
-     }}>清除 Gemini Key</button>
+     }}>{t("gemini.clearKey")}</button>
      <button className="btn secondary" onClick={()=>{
       ["teacher","story","fortune","teacher_pronunciation","teacher_textbook"].forEach(name=>{
        localStorage.removeItem("crew_history_"+name);localStorage.removeItem("crew_live_last_"+name);
       });
-      setVoiceStatus("已清除語音紀錄。");
-     }}>清除語音紀錄</button>
+      setVoiceStatus(t("gemini.clearedRecord"));
+     }}>{t("gemini.clearRecord")}</button>
     </div>
    </details>
   </section>
