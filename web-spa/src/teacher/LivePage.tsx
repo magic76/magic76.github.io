@@ -3,7 +3,7 @@ import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
-import{history,lastLive,vocabularyLevel}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
+import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";import{accentOptions,normalizedAccent}from"./teacherAccent";
 import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
 
@@ -32,13 +32,13 @@ export function TeacherLivePage(){
    const snapshot=live.turns;
    if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
    memoryCheckpointRef.current=true;
-   void rememberTeacherConversation(s.targetLanguage,snapshot);
+   void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
   },
   onSessionFinished:item=>{
    if(!item||isRoleplay)return;
    // Long sessions have a richer report; short conversations still retain explicit facts.
    if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
-    void rememberTeacherConversation(s.targetLanguage,item.turns);
+    void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
   }});
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{

@@ -1,4 +1,3 @@
-import {geminiKey} from "../lib/runtime";
 /* Crew Teacher parity: local, language-scoped learner memory V2.
  * Android is the behavioral reference: enabled by default, explicit opt-out persists.
  */
@@ -175,7 +174,7 @@ export function reportMemoryContext(language:string){
 }
 
 /** Short natural chats do not meet the report threshold, but may contain lasting facts. */
-export async function rememberTeacherConversation(language:string,turns:Array<{input?:string}>){
+export async function rememberTeacherConversation(language:string,turns:Array<{input?:string}>,apiKey:string){
  if(!personalMemoryEnabled())return;
  const speech=turns.map(t=>short(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
  if(!hasMeaningfulLearnerSpeech(speech))return;

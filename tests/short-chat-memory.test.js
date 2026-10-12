@@ -43,7 +43,7 @@ test("one meaningful student utterance is sufficient for durable profile memory"
  assert.equal(learner.personalMemoryEnabled(),true);
  assert.equal(learner.hasMeaningfulLearnerSpeech("Hi"),false);
  assert.equal(learner.hasMeaningfulLearnerSpeech("I have a cat named Momo"),true);
- await learner.rememberTeacherConversation("英文",[{input:"I have a cat named Momo"}]);
+ await learner.rememberTeacherConversation("英文",[{input:"I have a cat named Momo"}],"test-key");
  const items=learner.studentMemories("英文");
  assert.equal(items.length,1);
  assert.equal(items[0].type,"fact");
@@ -65,7 +65,7 @@ test("opt-out or clearing memory invalidates a pending AI response",async()=>{
  let complete;
  const pending=new Promise(resolve=>complete=resolve);
  const {learner}=learnerSetup(async()=>({ok:true,json:()=>pending}));
- const task=learner.rememberTeacherConversation("英文",[{input:"I have a cat named Momo"}]);
+ const task=learner.rememberTeacherConversation("英文",[{input:"I have a cat named Momo"}],"test-key");
  learner.setPersonalMemoryEnabled(false);
  complete(payload({facts:[{key:"pet",detail:"My cat is Momo",explicit:true,evidence:"I have a cat named Momo"}]}));
  await task;
