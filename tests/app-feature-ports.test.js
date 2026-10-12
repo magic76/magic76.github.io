@@ -247,7 +247,8 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
  assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
- assert.ok(reading.includes("想再問清楚一點？"),"Live help should stay collapsed behind a follow-up affordance");
+ assert.ok(reading.includes('t("reading.askMore")'),"Live help should stay collapsed behind a follow-up affordance");
+ assert.equal(readUiLocale("fortune").reading.askMore,"想再問清楚一點？");
  assert.ok(reading.includes("/fortune/live?from=reading"),"the optional result follow-up should still exist");
  assert.ok(!common.includes("問老師"),"topic evidence cards should remain data-only");
  for(const source of [bazi,tarot,vedic]){
