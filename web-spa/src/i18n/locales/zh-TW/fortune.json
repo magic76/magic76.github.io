@@ -27,5 +27,48 @@
     "confirm": "清除所有解讀紀錄？",
     "empty": "還沒有紀錄",
     "emptyDesc": "完成第一份解讀後會出現在這裡。"
+  },
+  "reading": {
+    "intro": {
+      "bazi": "看懂你的基本性格、做事方式，以及目前正走到哪一段。",
+      "tarot": "從核心性格、人生主題與時間節奏，整理現在最值得看的重點。",
+      "vedic": "從出生底盤、人生週期與目前行運，整理現在最值得看的重點。"
+    },
+    "moduleError": "命盤計算模組載入失敗，請重新整理後再試。",
+    "birthdayRequired": "請選擇生日",
+    "timeRequired": "請填出生時間",
+    "locationRequired": "印度星盤需要出生地經緯度與 UTC offset",
+    "retry": "重新載入",
+    "yourProfile": "你的資料",
+    "once": "只需設定一次",
+    "mode": "模式",
+    "birthday": "生日",
+    "birthTime": "出生時間",
+    "gender": "性別",
+    "male": "男",
+    "female": "女",
+    "advancedBirth": "進階出生地資料",
+    "timeZone": "時區",
+    "offset": "出生當時 UTC offset",
+    "aiStyle": "AI 解讀風格",
+    "style": {
+      "normal": "白話",
+      "strict": "嚴謹",
+      "funny": "風趣"
+    },
+    "calculating": "計算中…",
+    "calculate": "開始解讀",
+    "edit": "← 修改資料",
+    "share": "分享卡",
+    "aiLoading": "命盤已完成，AI 解讀中…",
+    "aiLoadingDesc": "先查看下面的固定計算結果，解讀完成會自動更新。",
+    "aiFailed": "固定命盤已保存，AI 解讀暫時失敗。",
+    "aiRetry": "重試 AI 解讀",
+    "fixedDone": "基本命盤已完成",
+    "needKey": "想取得 AI 解讀，需要先設定 Gemini Key。",
+    "setAI": "設定 AI 服務 →",
+    "askMore": "想再問清楚一點？",
+    "askDesc": "先看上面的重點、時間節奏與生活主題；還想深入時，再用語音追問這份結果。",
+    "ask": "問老師這份結果"
   }
 }
