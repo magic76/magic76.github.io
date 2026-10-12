@@ -112,5 +112,35 @@
       "fast": "Fast"
     },
     "nativeLanguage": "Native language"
+  },
+  "picker": {
+    "choose": "Choose your teacher",
+    "intro": "Meet 16 teachers with different personalities and teaching styles. Select a portrait to learn more.",
+    "close": "Close",
+    "search": "Search teachers",
+    "searchPlaceholder": "Search teachers by name, style, or interest",
+    "categoriesLabel": "Teacher categories",
+    "categories": {
+      "all": "All 16 teachers",
+      "chat": "Relaxed chat",
+      "challenge": "Challenges",
+      "study": "Focused study",
+      "explore": "Explore the world",
+      "work": "Professional speaking"
+    },
+    "empty": "No matching teachers. Try a different keyword.",
+    "view": "View teacher {{name}}",
+    "current": "✓ Selected",
+    "footer": "Choosing a teacher sets the suggested voice. You can adjust it in teacher settings.",
+    "bestFor": "Best for",
+    "voice": "Recommended voice",
+    "history": "You've completed {{count}} practice sessions together.",
+    "connecting": "Connecting…",
+    "playing": "Playing…",
+    "previewError": "Preview failed · Retry",
+    "preview": "▶ Preview teaching style",
+    "continue": "Continue with {{name}}",
+    "select": "Select {{name}}",
+    "back": "Back to teachers"
   }
 }
