@@ -1,0 +1,38 @@
+{
+  "language": {
+    "label": "Interface language",
+    "zh": "繁體中文",
+    "en": "English"
+  },
+  "nav": {
+    "home": "Home",
+    "teacher": "Teacher",
+    "story": "Story",
+    "fortune": "Fortune",
+    "settings": "Settings"
+  },
+  "brand": {
+    "home": "Language · Stories · Fortune",
+    "teacher": "Language learning",
+    "story": "Story creation",
+    "fortune": "Fortune insights",
+    "settings": "Settings",
+    "briefing": "Daily research briefing"
+  },
+  "gemini": {
+    "connected": "Gemini connected",
+    "pending": "Gemini needs verification",
+    "setup": "Set up Gemini"
+  },
+  "contact": {
+    "label": "Contact"
+  },
+  "seo": {
+    "home": "Crew — AI Language Learning, Stories & Fortune",
+    "teacher": "Crew Teacher — Learn Languages with AI",
+    "story": "Crew Story — Interactive AI Stories",
+    "fortune": "Crew Fortune — Explore Your Chart",
+    "settings": "Crew — Settings",
+    "briefing": "Crew Briefing — Daily AI Research"
+  }
+}
