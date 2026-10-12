@@ -1,8 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://www.3sssi.com/</loc></url>
-  <url><loc>https://www.3sssi.com/teacher/</loc></url>
-  <url><loc>https://www.3sssi.com/story/</loc></url>
-  <url><loc>https://www.3sssi.com/fortune/</loc></url>
-  <url><loc>https://www.3sssi.com/research/</loc></url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://www.3sssi.com/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/story/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/story/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/story/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/story/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/story/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/story/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/story/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/story/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/fortune/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/fortune/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/fortune/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/fortune/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/fortune/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/fortune/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/fortune/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/fortune/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/research/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/research/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/research/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/research/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/research/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/research/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/research/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/research/"/>
+  </url>
 </urlset>
