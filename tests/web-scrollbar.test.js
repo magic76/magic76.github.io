@@ -45,6 +45,8 @@ test("Shared product chrome exposes the contact email as a mail link", () => {
   const chrome = fs.readFileSync(path.join(root, "web-spa/src/components/AppChrome.tsx"), "utf8");
   const styles = fs.readFileSync(path.join(root, "web-spa/src/styles.css"), "utf8");
   assert.ok(chrome.includes('href="mailto:crew@3sssi.com"'));
-  assert.ok(chrome.includes("聯絡我們"));
+  assert.ok(chrome.includes('t("contact.label")'));
+ const common=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/common.json"),"utf8"));
+ assert.equal(common.contact.label,"聯絡我們");
   assert.ok(styles.includes(".crew-contact-footer"));
 });
