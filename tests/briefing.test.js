@@ -26,6 +26,14 @@ test("rejects generic Ask HN questions and project commit noise",()=>{
  assert.equal(selectResearch([{...sample,title:"chore: prepare v2.4.1 release"}]).length,0);
 });
 
+test("rejects tangential voice commerce and general education policy studies",()=>{
+ const retail={...sample,title:"ARTIFICIAL INTELLIGENCE IN RETAIL: CONSUMER ATTITUDES TOWARD VOICE COMMERCE"};
+ const policy={...sample,title:"Integrating Artificial Intelligence into Early Childhood Education in Nigeria: Policy Imperatives"};
+ assert.equal(researchScore(retail),0);
+ assert.equal(researchScore(policy),0);
+ assert.ok(researchScore({...sample,title:"Leveraging LiveKit for Real-Time AI-Driven Conversational Agents"})>=68);
+});
+
 test("supports eight practical research themes and deduplicates projects",()=>{
  assert.equal(RESEARCH_AXES.length,8);
  assert.ok(matchingAxes("Multi-agent collaboration and task coordination").length>=1);
