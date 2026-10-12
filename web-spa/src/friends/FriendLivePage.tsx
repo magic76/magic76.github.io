@@ -45,7 +45,7 @@ export function FriendLivePage(){
  return <>
   <header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
-    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友</small></div>
+    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
    <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
   </div></header>
