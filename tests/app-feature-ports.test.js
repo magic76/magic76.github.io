@@ -400,7 +400,8 @@ test("Teacher Web mirrors app learning deck reports and reading library",()=>{
  const library=fs.readFileSync(path.join(root,"web-spa/src/teacher/readingLibrary.ts"),"utf8");
  const pronunciation=fs.readFileSync(path.join(root,"web-spa/src/teacher/PronunciationPage.tsx"),"utf8");
  for(const route of ["phrasebook","reports","reading-library"])assert.ok(app.includes(route));
- for(const label of ["收藏片語","練習報告","閱讀素材庫"])assert.ok(mine.includes(label));
+ for(const key of ["phrases","reports","library"])assert.ok(mine.includes('t("my.'+key+'")'),key);
+ const ui=readUiLocale("teacher").my;assert.equal(ui.phrases,"收藏片語");
  assert.ok(deck.includes("saveReportLearning"));
  assert.ok(deck.includes("nextReviewAt"));
  assert.ok(phrasebook.includes("我複習過了"));
