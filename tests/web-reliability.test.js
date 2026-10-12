@@ -33,7 +33,8 @@ test("Story and Fortune show recovery actions for failure states",()=>{
  assert.equal(JSON.parse(read("i18n/locales/zh-TW/story.json")).shelf.retry,"重新讀取書架");
  assert.ok(read("story/CreatePage.tsx").includes('t("create.generateError")'));
  assert.ok(JSON.parse(read("i18n/locales/zh-TW/story.json")).create.generateError.includes("故事生成或儲存失敗"));
- assert.ok(read("fortune/ReadingPage.tsx").includes("重試 AI 解讀"));
+ assert.ok(read("fortune/ReadingPage.tsx").includes('t("reading.aiRetry")'));
+ assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).reading.aiRetry,"重試 AI 解讀");
  assert.ok(read("fortune/ReadingPage.tsx").includes('aiStatus==="loading"'));
  assert.ok(read("fortune/HomePage.tsx").includes('t("home.retry")'));
  assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).home.retry,"重新載入");
