@@ -179,7 +179,6 @@ export async function rememberTeacherConversation(language:string,turns:Array<{i
  const speech=turns.map(t=>short(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
  if(!hasMeaningfulLearnerSpeech(speech))return;
  // Do not transmit speech without a configured Gemini API key.
- const apiKey=geminiKey();
  if(!apiKey)return;
  const expectedEpoch=getPersonalMemoryEpoch();
  const prompt=[
