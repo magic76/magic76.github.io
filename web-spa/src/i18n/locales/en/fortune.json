@@ -70,5 +70,21 @@
     "askMore": "Want to explore further?",
     "askDesc": "Review the key points and life themes above. You can also ask follow-up questions by voice.",
     "ask": "Ask about this reading"
+  },
+  "profile": {
+    "birthdayRequired": "Choose a birth date before saving",
+    "birthTimeRequired": "Birth time is required for this mode",
+    "vedicRequired": "Vedic astrology requires complete birth location details",
+    "saved": "Saved your details",
+    "noCity": "No matching city found",
+    "save": "Save these details",
+    "select": "Select saved details",
+    "cleared": "Saved details cleared",
+    "clear": "Clear saved details",
+    "city": "City of birth",
+    "cityPlaceholder": "For example: London or New Taipei City",
+    "searching": "Searching…",
+    "search": "Search",
+    "selectedCity": "Birth location selected"
   }
 }
