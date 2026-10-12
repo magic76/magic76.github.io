@@ -39,7 +39,7 @@ function voiceFailure(value:unknown){
 }
 
 export function GeminiConnectionPanel(){
- const {t}=useTranslation("settings");
+ const {t,i18n:locale}=useTranslation("settings");
  const initialKey=geminiKey(),initialVerified=geminiVerified();
  const [key,setKey]=useState(initialKey);
  const [remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key")));
