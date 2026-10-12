@@ -8,11 +8,12 @@ import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
 import {friendLanguageReminder} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
+import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import "./friends.css";
 
 export function FriendLivePage(){
  const [params]=useSearchParams();
- const navigate=useNavigate(),closingRef=useRef(false);
+ const navigate=useNavigate(),closingRef=useRef(false),memoryCheckpointRef=useRef(false);
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -26,11 +27,17 @@ export function FriendLivePage(){
    " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
   voice:friend.voice,language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",
+  onTurnComplete:()=>{
+   if(memoryCheckpointRef.current)return;
+   const snapshot=live.turns;
+   if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
+   memoryCheckpointRef.current=true;
+   void rememberFriendConversation(sessionId,language,snapshot,live.durationMs);
+  },
   onSessionFinished:item=>{
    if(!item)return;
-   if(recordFriendChat(sessionId,language,item.turns,item.durationMs)){
-    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
-   }
+   recordFriendChat(sessionId,language,item.turns,item.durationMs);
+   void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
  const endAndReturn=async()=>{
