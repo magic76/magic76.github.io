@@ -169,5 +169,31 @@
     "libraryDesc": "經典短文與朗讀素材",
     "android": "Android 版",
     "androidDesc": "想在手機上使用完整的 Crew Teacher，可以直接安裝 Android App。"
+  },
+  "vocabulary": {
+    "title": "快速作答，難度跟著你走",
+    "intro": "依你的回答調整難度；答對高一級的單字還會再驗證一次，不會因猜對一題就跳級。",
+    "progress": "今日進度",
+    "progressStats": "{{done}} / 20 · 到期 {{due}} · 已熟悉 {{mastered}}",
+    "streak": "{{count}} 連擊",
+    "listen": "聽發音",
+    "contentFailed": "翻譯暫時無法準備：{{reason}}",
+    "contentError": "單字內容無法取得",
+    "preparing": "正在準備你的母語詞義…",
+    "retry": "再試一次"
+  },
+  "course": {
+    "title": "用任務練真實對話",
+    "intro": "沿用 App 的課程架構：3 個 Track、10 個 Unit、31 堂課；完成前一課才會解鎖下一課。",
+    "stars": "累積星星",
+    "review": "再練一次",
+    "start": "開始",
+    "locked": "未解鎖",
+    "best": "最佳 {{score}}"
+  },
+  "continue": {
+    "next": "今天下一步",
+    "loading": "正在整理下一步…",
+    "focus": "近期重點：{{focus}}"
   }
 }
