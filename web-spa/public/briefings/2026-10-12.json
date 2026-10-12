@@ -1,0 +1,223 @@
+{
+  "date": "2026-10-12",
+  "generatedAt": "2026-10-12T00:58:16.279Z",
+  "edition": "public",
+  "notes": "自動整理的公開來源線索；人工驗證後再採用。",
+  "items": [
+    {
+      "id": "500d9b290f2c9620",
+      "title": "Ask HN: Are there AI models for generating sounds based on a text and reference?",
+      "summary": "Hacker News 社群近期討論：Ask HN: Are there AI models for generating sounds based on a text and reference?。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-10-05T23:24:44Z",
+      "topic": "Multimodal Experience",
+      "projects": [
+        "Crew Story",
+        "Crew Teacher"
+      ],
+      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Ask HN: Are there AI models for generating sounds based on a text and reference?",
+          "url": "https://news.ycombinator.com/item?id=49972125",
+          "publishedAt": "2026-10-05T23:24:44Z",
+          "kind": "社群觀察"
+        }
+      ],
+      "score": 81,
+      "body": "Hacker News 社群近期討論：Ask HN: Are there AI models for generating sounds based on a text and reference?。社群熱度不等於技術已經驗證。"
+    },
+    {
+      "id": "13a86554d2a39789",
+      "title": "Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"",
+      "summary": "Hacker News 社群近期討論：Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-10-10T07:55:10Z",
+      "topic": "Agent Engineering",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"",
+          "url": "https://arstechnica.com/ai/2026/10/ai-coding-agents-generate-more-code-but-not-more-software/",
+          "publishedAt": "2026-10-10T07:55:10Z",
+          "kind": "社群觀察"
+        }
+      ],
+      "score": 72,
+      "body": "Hacker News 社群近期討論：Study on AI coding agents finds gains \"absorbed\" by human review \"bottleneck.\"。社群熱度不等於技術已經驗證。"
+    },
+    {
+      "id": "056371e333ad52f9",
+      "title": "Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python",
+      "summary": "Hacker News 社群近期討論：Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-10-10T22:33:30Z",
+      "topic": "Agent Engineering",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python",
+          "url": "https://github.com/academa-labs/manimgx",
+          "publishedAt": "2026-10-10T22:33:30Z",
+          "kind": "社群觀察"
+        }
+      ],
+      "score": 71,
+      "body": "Hacker News 社群近期討論：Show HN: ManimGX – Manim's API on a Rust/wgpu engine, for 3D videos in Python。社群熱度不等於技術已經驗證。"
+    },
+    {
+      "id": "da21175d30ec314d",
+      "title": "Paint outside the box: synthesizing and selecting training data for visual grounding",
+      "summary": "研究論文資料庫收錄：Paint outside the box: synthesizing and selecting training data for visual grounding。內容需檢查論文原文、方法與實驗結果。",
+      "publishedAt": "2026-10-10T00:00:00Z",
+      "topic": "Multimodal Experience",
+      "projects": [
+        "Crew Story",
+        "Crew Teacher"
+      ],
+      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Paint outside the box: synthesizing and selecting training data for visual grounding",
+          "url": "https://doi.org/10.1007/s00138-026-01928-4",
+          "publishedAt": "2026-10-10T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 70,
+      "body": "研究論文資料庫收錄：Paint outside the box: synthesizing and selecting training data for visual grounding。內容需檢查論文原文、方法與實驗結果。"
+    },
+    {
+      "id": "cb7541a114c12104",
+      "title": "A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays",
+      "summary": "研究論文資料庫收錄：A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays。內容需檢查論文原文、方法與實驗結果。",
+      "publishedAt": "2026-10-10T00:00:00Z",
+      "topic": "Multimodal Experience",
+      "projects": [
+        "Crew Story",
+        "Crew Teacher"
+      ],
+      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays",
+          "url": "https://doi.org/10.35882/jeeemi.v8i4.1882",
+          "publishedAt": "2026-10-10T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 70,
+      "body": "研究論文資料庫收錄：A Disease-Memory Guided Framework for Radiology Report Generation from Multi-View Chest X-rays。內容需檢查論文原文、方法與實驗結果。"
+    },
+    {
+      "id": "10598121d66c7948",
+      "title": "Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review",
+      "summary": "研究論文資料庫收錄：Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review。內容需檢查論文原文、方法與實驗結果。",
+      "publishedAt": "2026-10-10T00:00:00Z",
+      "topic": "Multimodal Experience",
+      "projects": [
+        "Crew Story",
+        "Crew Teacher"
+      ],
+      "relevance": "與 Crew Story、Crew Teacher 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review",
+          "url": "https://doi.org/10.54963/ia.v2i2.103039",
+          "publishedAt": "2026-10-10T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 70,
+      "body": "研究論文資料庫收錄：Artificial Intelligence, Foundation Models, and Digital Twins for Climate-Resilient Agriculture: A Review。內容需檢查論文原文、方法與實驗結果。"
+    },
+    {
+      "id": "382544a71ccb09f7",
+      "title": "OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Manage",
+      "summary": "研究論文資料庫收錄：OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management。內容需檢查論文原文、方法與實驗結果。",
+      "publishedAt": "2026-10-09T00:00:00Z",
+      "topic": "Web Experience",
+      "projects": [
+        "Crew Web"
+      ],
+      "relevance": "與 Crew Web 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management",
+          "url": "https://doi.org/10.55041/ijcope.v2i10.034",
+          "publishedAt": "2026-10-09T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 70,
+      "body": "研究論文資料庫收錄：OMNI_BUILD INTELLIGENCE An LLM-Based Framework for Constraint-Aware Architectural Floor-Plan Generation, Visualization, and Interactive Project Management。內容需檢查論文原文、方法與實驗結果。"
+    },
+    {
+      "id": "ac2e97d6c9e5f231",
+      "title": "Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory",
+      "summary": "Hacker News 社群近期討論：Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-10-08T18:50:13Z",
+      "topic": "Agent Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "與 Crew Pocket、Crew Deck 有關；目前是公開來源線索，導入前需驗證內容與現有實作差異。",
+      "actions": [
+        "閱讀原始來源，辨認可重現的技術與限制",
+        "檢查相關 Crew 專案現有程式和功能，列出差異",
+        "提出低風險 PoC、測試指標與成本比較"
+      ],
+      "sources": [
+        {
+          "title": "Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory",
+          "url": "https://github.com/chetto1983/Aura",
+          "publishedAt": "2026-10-08T18:50:13Z",
+          "kind": "社群觀察"
+        }
+      ],
+      "score": 70,
+      "body": "Hacker News 社群近期討論：Show HN: Aura – a self-hosted, multi-user AI agent with per-person graph memory。社群熱度不等於技術已經驗證。"
+    }
+  ]
+}
