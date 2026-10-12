@@ -89,12 +89,12 @@ function reportEntry(language:string,kind:MemoryKind,detail:string,key?:string,c
  persist(language,list);
 }
 /** Evidence must come from the learner's words, not the model's own suggestions. */
-const evidenceText=(s:string)=>String(s||"").normalize("NFKC").toLocaleLowerCase().replace(/[^\\p{L}\\p{N}]/gu,"");
+const evidenceText=(s:string)=>String(s||"").normalize("NFKC").toLocaleLowerCase().replace(/[^\p{L}\p{N}]/gu,"");
 export function verifiedLearnerEvidence(speech:string,quote:string){
  const raw=String(quote||"").normalize("NFKC").trim();
  const normalized=evidenceText(raw);
- const cjk=/[\\p{Script=Han}\\p{Script=Hiragana}\\p{Script=Katakana}\\p{Script=Hangul}]/u.test(raw);
- if(normalized.length<(cjk?5:6)||(!cjk&&!/\\s/.test(raw)))return false;
+ const cjk=/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(raw);
+ if(normalized.length<(cjk?5:6)||(!cjk&&!/\s/.test(raw)))return false;
  return evidenceText(speech).includes(normalized);
 }
 export function hasMeaningfulLearnerSpeech(speech:string){
@@ -103,7 +103,7 @@ export function hasMeaningfulLearnerSpeech(speech:string){
  if(norm.length<6)return false;
  return !/^(hi|hello|hey|bye|goodbye|thankyou|thanks|okay|ok|yes|no|sure|你好|謝謝|再見|こんにちは|ありがとう|안녕하세요)$/iu.test(norm);
 }
-const sensitiveMemory=/(passport|password|bank account|credit card|social security|identity card|my name is|home address|street address|phone number|email address|diagnos|health condition|religion|religious belief|politic|sexual|medical record|\\bssn\\b|護照|密碼|身分證|身份證|家庭住址|手機號碼|電話號碼|電子郵件|我的名字是|宗教|政治|性傾向|疾病|病史|診斷|醫療紀錄)/iu;
+const sensitiveMemory=/(passport|password|bank account|credit card|social security|identity card|my name is|home address|street address|phone number|email address|diagnos|health condition|religion|religious belief|politic|sexual|medical record|\bssn\b|護照|密碼|身分證|身份證|家庭住址|手機號碼|電話號碼|電子郵件|我的名字是|宗教|政治|性傾向|疾病|病史|診斷|醫療紀錄)/iu;
 /** Shared profile for Crew Teacher and Crew Friends, scoped by learning language. */
 export function ingestStudentPersonalUpdates(language:string,updates:any,speech:string,expectedEpoch=getPersonalMemoryEpoch()){
  if(!personalMemoryEnabled()||getPersonalMemoryEpoch()!==expectedEpoch||!updates||typeof updates!=="object")return;
@@ -177,7 +177,7 @@ export function reportMemoryContext(language:string){
 /** Short natural chats do not meet the report threshold, but may contain lasting facts. */
 export async function rememberTeacherConversation(language:string,turns:Array<{input?:string}>){
  if(!personalMemoryEnabled())return;
- const speech=turns.map(t=>short(t.input,450)).filter(Boolean).join("\\n").slice(0,3500);
+ const speech=turns.map(t=>short(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
  if(!hasMeaningfulLearnerSpeech(speech))return;
  // Do not transmit speech without a configured Gemini API key.
  const apiKey=geminiKey();
