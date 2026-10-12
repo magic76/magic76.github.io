@@ -1,7 +1,12 @@
 name: Crew Briefing daily
 on:
+  # Validate the new/updated scheduled workflow as soon as it lands on master.
+  push:
+    branches: [master]
+    paths:
+      - ".github/workflows/crew-briefing-daily.yml"
   schedule:
-    - cron: "0 23 * * *" # 07:00 Asia/Taipei (UTC+8)
+    - cron: "53 22 * * *" # 06:53 Asia/Taipei (UTC+8); deliver around 07:00
   workflow_dispatch:
 
 permissions:
