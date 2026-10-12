@@ -24,7 +24,8 @@ test("Gemini candidate is validated and saved independently of microphone or Liv
  assert.ok(!panel.includes("restore()"));
  assert.ok(panel.includes("isMicrophoneDenied(error)"));
  assert.ok(panel.includes("micPermission"));
- assert.ok(panel.includes("不影響已儲存的 Key"));
+ assert.ok(panel.includes('t("gemini.voiceTagline")'));
+ assert.ok(JSON.parse(read("i18n/locales/zh-TW/settings.json")).gemini.voiceTagline.includes("不影響已儲存的 Key"));
 });
 
 test("Story and Fortune show recovery actions for failure states",()=>{
@@ -41,7 +42,10 @@ test("Backup omits keys and restores only nonexisting records",()=>{
  assert.ok(backup.includes("isBackupKey(key)"));
  assert.ok(backup.includes("localStorage.getItem(key)!==null"));
  assert.ok(backup.includes("CrewStoryStore!.get"));
- assert.ok(settings.includes("匯出備份")&&settings.includes("匯入備份"));
+ assert.ok(settings.includes('t("backup.export")')&&settings.includes('t("backup.import")'));
+ const zh=JSON.parse(read("i18n/locales/zh-TW/settings.json"));
+ assert.equal(zh.backup.export,"匯出備份");
+ assert.equal(zh.backup.import,"匯入備份");
 });
 
 test("global navigation always exposes all five tabs including Settings",()=>{
@@ -64,7 +68,8 @@ test("Gemini Key is managed once globally, not separately per product",()=>{
  assert.ok(runtime.includes('export function geminiKey()'));
  assert.ok(runtime.includes('export function saveGeminiKey('));
  assert.ok(panel.includes("saveGeminiKey(candidate,remember)"));
- assert.ok(settings.includes("Teacher、Story、Fortune 共用同一組 Key"));
+ assert.ok(settings.includes('t("hero.desc")'));
+ assert.ok(JSON.parse(read("i18n/locales/zh-TW/settings.json")).hero.desc.includes("Teacher、Story、Fortune 共用同一組 Key"));
  assert.ok(create.includes("geminiKey()"),"Story must read the shared key");
  for(const source of [story,fortune]){
   assert.ok(!source.includes("GeminiSetupNotice"),"products should not show a second API-key settings card");

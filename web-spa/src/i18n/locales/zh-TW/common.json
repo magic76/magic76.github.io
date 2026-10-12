@@ -1,0 +1,38 @@
+{
+  "language": {
+    "label": "介面語言",
+    "zh": "繁體中文",
+    "en": "English"
+  },
+  "nav": {
+    "home": "首頁",
+    "teacher": "Teacher",
+    "story": "Story",
+    "fortune": "Fortune",
+    "settings": "設定"
+  },
+  "brand": {
+    "home": "語言・故事・命理",
+    "teacher": "語言學習",
+    "story": "故事創作",
+    "fortune": "命盤探索",
+    "settings": "設定",
+    "briefing": "每日研發情報"
+  },
+  "gemini": {
+    "connected": "Gemini 已連線",
+    "pending": "Gemini 待驗證",
+    "setup": "設定 Gemini"
+  },
+  "contact": {
+    "label": "聯絡我們"
+  },
+  "seo": {
+    "home": "Crew — AI 語言學習、故事與命盤探索",
+    "teacher": "Crew Teacher — AI 語言學習",
+    "story": "Crew Story — AI 互動故事",
+    "fortune": "Crew Fortune — 命盤探索",
+    "settings": "Crew — 設定",
+    "briefing": "Crew Briefing — 每日 AI 研究"
+  }
+}

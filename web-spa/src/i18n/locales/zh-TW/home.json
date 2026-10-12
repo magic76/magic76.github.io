@@ -1,0 +1,42 @@
+{
+  "eyebrow": "YOUR CREW SPACE",
+  "headline": "今天想做些什麼？",
+  "intro": "繼續上次的進度，或開始一段新的探索。",
+  "continue": "繼續上次",
+  "localOnly": "保存在這台裝置",
+  "explore": "探索 Crew",
+  "start": "選一件事開始",
+  "product": {
+    "teacher": "語言與口說",
+    "story": "故事與陪讀",
+    "fortune": "探索命盤"
+  },
+  "setup": {
+    "title": "設定 Gemini Key，開始 AI 互動",
+    "desc": "三個產品共用，約 1 分鐘完成。",
+    "verify": "Gemini Key 尚未驗證",
+    "verifyDesc": "驗證後即可確認 Key 是否正常使用。"
+  },
+  "android": "在 Android 上使用 Crew",
+  "briefing": {
+    "heading": "每日研發情報",
+    "today": "今天值得研究什麼？",
+    "summary": "每一天，精選值得深入的 AI 研究與實作方向。",
+    "read": "查看研究報告",
+    "readingList": "我的閱讀清單",
+    "report": "報告入口",
+    "loading": "讀取最新一期…"
+  },
+  "recent": {
+    "teacher": "口說練習",
+    "story": "互動故事",
+    "fortune": "命盤探索",
+    "fallback": "回到上次的進度",
+    "reader": "繼續閱讀第 {{page}} 頁",
+    "physical": "繼續實體書陪讀",
+    "book": "我的故事",
+    "bazi": "八字解讀",
+    "tarot": "塔羅生命靈數",
+    "vedic": "印度星盤"
+  }
+}

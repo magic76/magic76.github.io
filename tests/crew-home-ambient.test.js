@@ -26,7 +26,9 @@ test("motion respects reduced-motion, cannot catch taps and never covers the tex
 test("Google Play area starts expanded but stays collapsible",()=>{
  const page=read("web-spa/src/pages/HomePage.tsx");
  assert.match(page,/<details className="crew-home-android" open>/);
- assert.match(page,/<summary>在 Android 上使用 Crew/);
+ assert.match(page,/<summary>\{t\("android"\)\}/);
+ const home=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
+ assert.equal(home.android,"在 Android 上使用 Crew");
  for(const kind of ["teacher","story","fortune"]){
   assert.match(page,new RegExp('<PlayStoreLink product="'+kind+'"'));
  }

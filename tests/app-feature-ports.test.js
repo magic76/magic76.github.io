@@ -4,6 +4,7 @@ const fs=require("node:fs");
 const path=require("node:path");
 const vm=require("node:vm");
 const root=path.resolve(__dirname,"..");
+const readUiLocale=(section)=>JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/"+section+".json"),"utf8"));
 
 function files(dir,ext){
  const out=[];
@@ -487,9 +488,9 @@ test("Story and Fortune use shared global Gemini settings without duplicate Key 
  assert.ok(!fortune.includes("GeminiSetupNotice"));
  assert.ok(create.includes("需要先設定 Gemini Key 才能創作故事。"));
  assert.ok(reading.includes('if(!geminiKey()||!window.CrewAI)'));
- assert.ok(settings.includes("Teacher、Story、Fortune 共用同一組 Key"));
+ assert.ok(readUiLocale("settings").hero.desc.includes("Teacher、Story、Fortune 共用同一組 Key"));
  assert.ok(panel.includes("https://aistudio.google.com/apikey"));
- assert.ok(panel.includes("Google 專案管理"));
+ assert.ok(readUiLocale("settings").gemini.privacy.includes("Google 專案管理"));
  assert.ok(!story.includes("aistudio.google.com"),"Story should not have separate Key setup");
  assert.ok(!fortune.includes("aistudio.google.com"),"Fortune should not have separate Key setup");
 });
@@ -517,11 +518,16 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 test("Crew home puts the next activity first and keeps Gemini setup secondary",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
- assert.ok(home.includes("今天想做些什麼？"));
- assert.ok(home.includes("繼續上次"));
- assert.ok(home.includes("探索 Crew"));
- assert.ok(home.includes("語言與口說")&&home.includes("故事與陪讀")&&home.includes("探索命盤"));
- assert.ok(home.includes("設定 Gemini Key，開始 AI 互動"));
+ assert.equal(readUiLocale("home").headline,"今天想做些什麼？");
+ assert.ok(home.includes('t("headline")'));
+ assert.ok(home.includes('t("continue")'));
+ assert.equal(readUiLocale("home").continue,"繼續上次");
+ assert.ok(home.includes('t("explore")'));
+ assert.equal(readUiLocale("home").explore,"探索 Crew");
+ assert.ok(home.includes('t("product.teacher")')&&home.includes('t("product.story")')&&home.includes('t("product.fortune")'));
+ assert.equal(readUiLocale("home").product.teacher,"語言與口說");
+ assert.ok(home.includes('t("setup.title")'));
+ assert.ok(readUiLocale("home").setup.title.includes("Gemini Key"));
  assert.ok(home.includes("geminiKey()"));
  assert.ok(home.includes("geminiVerified()"));
  assert.ok(!home.includes("切換不再重新載入不同頁面"));
@@ -567,8 +573,9 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const textbook=fs.readFileSync(path.join(root,"web-spa/src/teacher/TextbookPage.tsx"),"utf8");
  const player=fs.readFileSync(path.join(root,"web-spa/src/story/player/StoryPlayerView.tsx"),"utf8");
- assert.ok(settings.includes("連線診斷"));
- assert.ok(settings.includes("瀏覽器支援麥克風 API，不代表作業系統已授權"));
+ assert.ok(settings.includes('t("gemini.diagnostics")'));
+ assert.ok(readUiLocale("settings").gemini.diagnostics==="連線診斷");
+ assert.ok(readUiLocale("settings").gemini.diagnosticsDesc.includes("瀏覽器支援麥克風 API"));
  assert.ok(!tutor.includes("VOICES"));
  assert.ok(!live.includes("VOICES"));
  assert.ok(!tutor.includes("老師音色"));
@@ -619,13 +626,14 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  assert.ok(home.includes("CrewStoryStore?.last()"));
  assert.ok(home.includes("crew_fortune_readings_v2"));
  assert.ok(home.includes("sort((a,b)=>b.timestamp-a.timestamp)"));
- assert.ok(home.indexOf("繼續上次")<home.indexOf("在 Android 上使用 Crew"));
+ assert.ok(home.indexOf('t("continue")')<home.indexOf('t("android")'));
  assert.ok(chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'),"Settings must be visible in the primary navigation");
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
  assert.ok(!player.includes("story-page-slider"));
- assert.ok(settings.includes("驗證並儲存 Key"));
- assert.ok(settings.includes("進階與清除"));
+ assert.ok(settings.includes('t("gemini.save")'));
+ assert.ok(readUiLocale("settings").gemini.save.includes("儲存 Key"));
+ assert.ok(settings.includes('t("gemini.advanced")'));
  assert.ok(fortune.includes('surface:"reading"'));
 });
 
@@ -661,8 +669,9 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.ok(teacher.includes("<summary>更多功能</summary>"));
  assert.ok(story.includes("<summary>更多功能</summary>"));
  assert.ok(controls.includes("live-audio-settings"));
- assert.ok(settings.includes("Gemini Key 已驗證"));
- assert.ok(settings.includes("重新設定"));
+ assert.ok(settings.includes('t("gemini.configured")'));
+ assert.ok(readUiLocale("settings").gemini.configured.includes("Gemini Key"));
+ assert.ok(settings.includes('t("gemini.reconfigure")'));
  assert.ok(settings.includes("showSetup"));
  assert.ok(shelf.includes("story-book-open"));
  assert.ok(shelf.includes("story-book-menu"));
@@ -723,10 +732,13 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  assert.ok(runtime.includes("geminiVerified"));
  assert.ok(runtime.includes("setGeminiVerified(false)"));
- assert.ok(settings.includes("Gemini Key 已設定，尚未驗證"));
+ assert.ok(settings.includes('t("gemini.initialPending")'));
+ assert.ok(readUiLocale("settings").gemini.initialPending.includes("尚未驗證"));
  assert.ok(settings.includes("setGeminiVerified(true)"));
- assert.ok(chrome.includes("Gemini 待驗證"));
- assert.ok(home.includes("Gemini Key 尚未驗證"));
+ assert.ok(chrome.includes('t("gemini.pending")'));
+ assert.equal(readUiLocale("common").gemini.pending,"Gemini 待驗證");
+ assert.ok(home.includes('t("setup.verify")'));
+ assert.equal(readUiLocale("home").setup.verify,"Gemini Key 尚未驗證");
  assert.ok(controls.includes("前往 Gemini 設定"));
  assert.ok(controls.includes("重新允許麥克風"));
  assert.ok(controls.includes("重新連線"));
