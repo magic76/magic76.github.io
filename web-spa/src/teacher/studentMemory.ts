@@ -174,7 +174,7 @@ export function reportMemoryContext(language:string){
 }
 
 /** Short natural chats do not meet the report threshold, but may contain lasting facts. */
-export async function rememberTeacherConversation(language:string,turns:Array<{input?:string}>,apiKey:string){
+export const rememberTeacherConversation=async (language:string,turns:Array<{input?:string}>,apiKey:string)=>{
  if(!personalMemoryEnabled())return;
  const speech=turns.map(t=>short(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
  if(!hasMeaningfulLearnerSpeech(speech))return;
@@ -200,4 +200,4 @@ export async function rememberTeacherConversation(language:string,turns:Array<{i
   const extracted=JSON.parse(raw);
   ingestStudentPersonalUpdates(language,extracted.memory_updates||{},speech,expectedEpoch);
  }catch{/* Optional memory extraction never interrupts the conversation. */}
-}
+};
