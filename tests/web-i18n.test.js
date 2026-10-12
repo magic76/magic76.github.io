@@ -75,3 +75,31 @@ test("product pages translate visible UI without rewriting conversation language
  assert.ok(friends.includes('setTargetLanguage'),"friend session language still controlled by its own store");
  assert.ok(story.includes('book.title||t("shelf.myStory")'),"saved story content must remain intact");
 });
+
+
+test("inner practice, editor and birth-place forms translate UI without mutating user data",()=>{
+ const vocab=read("web-spa/src/teacher/VocabularyPage.tsx");
+ const course=read("web-spa/src/teacher/CoursePage.tsx");
+ const next=read("web-spa/src/teacher/ContinueLearningCard.tsx");
+ const editor=read("web-spa/src/story/EditorPage.tsx");
+ const profile=read("web-spa/src/fortune/ProfileTools.tsx");
+ const reader=read("web-spa/src/story/ReaderPage.tsx");
+ for(const source of [vocab,course,next,editor,profile,reader])assert.ok(source.includes("useTranslation"));
+ assert.ok(vocab.includes('t("vocabulary.title")'));
+ assert.ok(vocab.includes("recordPlacement(word,correct)"),"adaptive placement stays in control");
+ assert.ok(vocab.includes("teacherText(native"),"feedback still uses the learner's native language");
+ assert.ok(course.includes('english?lesson.titleEn:lesson.titleZh'),"course IDs and localized catalogs stay separate");
+ assert.ok(course.includes('lessonUnlocked(lesson.id)'),"unlocking is unchanged");
+ assert.ok(next.includes('course?.titleEn'),"next-step title should follow UI language");
+ assert.ok(next.includes("plan.primaryFocus"),"personal learning focus is not overwritten");
+ assert.ok(editor.includes('t("editor.emotions."+emotion)'),"display emotion translated but stored IDs unchanged");
+ assert.ok(editor.includes("value={emotion}"),"emotion storage uses stable IDs");
+ assert.ok(editor.includes("patchPage({emotion:e.target.value})"));
+ assert.ok(profile.includes('t("profile.city")'));
+ assert.ok(profile.includes("utcOffsetForBirth"),"birthplace timezone arithmetic unchanged");
+ assert.ok(profile.includes("saveFortunePreset(mode,profile)"));
+ assert.ok(reader.includes("StoryPlayerView"),"narration remains in the existing player");
+ assert.equal(load("en","teacher").vocabulary.listen,"Listen to pronunciation");
+ assert.equal(load("zh-TW","story").editor.emotions.warm,"溫暖");
+ assert.equal(load("en","fortune").profile.searching,"Searching…");
+});

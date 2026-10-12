@@ -169,5 +169,39 @@
     "libraryDesc": "Short classics and reading-aloud materials",
     "android": "Android app",
     "androidDesc": "Get the full Crew Teacher experience on Android."
+  },
+  "vocabulary": {
+    "title": "Learn words at your own pace",
+    "intro": "Vocabulary difficulty adapts as you answer. Higher-level words are checked again, so one lucky guess won't advance your level.",
+    "progress": "Today's progress",
+    "progressStats": "{{done}} / 20 · Due {{due}} · Mastered {{mastered}}",
+    "streak": "{{count}} streak",
+    "listen": "Listen to pronunciation",
+    "contentFailed": "Definitions aren't ready yet: {{reason}}",
+    "contentError": "Could not load vocabulary content",
+    "preparing": "Preparing definitions in your native language…",
+    "retry": "Try again"
+  },
+  "course": {
+    "title": "Practice real conversations through missions",
+    "intro": "Follow the app's learning path: 3 tracks, 10 units, 31 lessons. Complete each lesson to unlock the next.",
+    "stars": "Total stars",
+    "review": "Practice again",
+    "start": "Start",
+    "locked": "Locked",
+    "best": "Best {{score}}"
+  },
+  "continue": {
+    "next": "Your next step today",
+    "loading": "Preparing your next step…",
+    "focus": "Recent focus: {{focus}}",
+    "textbookTitle": "Continue reading with your teacher",
+    "textbookFallback": "Previous textbook",
+    "textbookNote": "{{title}} · Page {{page}} of {{total}}",
+    "vocabularyTitle": "Review {{count}} words before you forget",
+    "vocabularyNote": "Finish your due words before moving on.",
+    "courseTitle": "Next lesson: {{name}}",
+    "conversationTitle": "Practice today's focus with your teacher",
+    "conversationNote": "No reviews or lessons are due. Start a speaking session."
   }
 }

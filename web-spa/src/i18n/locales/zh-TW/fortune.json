@@ -70,5 +70,21 @@
     "askMore": "想再問清楚一點？",
     "askDesc": "先看上面的重點、時間節奏與生活主題；還想深入時，再用語音追問這份結果。",
     "ask": "問老師這份結果"
+  },
+  "profile": {
+    "birthdayRequired": "先選生日再儲存",
+    "birthTimeRequired": "這個模式需要出生時間",
+    "vedicRequired": "印度星盤需要完整出生地資料",
+    "saved": "已儲存常用資料",
+    "noCity": "找不到符合的城市",
+    "save": "儲存常用資料",
+    "select": "選擇常用資料",
+    "cleared": "已清除常用資料",
+    "clear": "清除常用資料",
+    "city": "出生城市",
+    "cityPlaceholder": "例如：新北市、London",
+    "searching": "搜尋中…",
+    "search": "搜尋",
+    "selectedCity": "已設定出生地"
   }
 }

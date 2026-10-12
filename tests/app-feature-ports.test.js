@@ -200,7 +200,10 @@ test("Story React mirrors native shelf editor player and physical-book flows",()
   assert.ok(shelf.includes('t("'+key+'")'),key+" should be translated");
  }
  const storyUi=readUiLocale("story");assert.equal(storyUi.shelf.resume,"繼續閱讀");
- for(const label of ["編輯繪本","刪除此頁","說故事的感覺","角色台詞"])assert.ok(editor.includes(label));
+ for(const key of ["title","deletePage","emotion","dialogue"])assert.ok(editor.includes('t("editor.'+key+'")'));
+ const storyEditorLabels=readUiLocale("story").editor;
+ assert.equal(storyEditorLabels.title,"編輯繪本");
+ assert.equal(storyEditorLabels.deletePage,"刪除此頁");
  assert.ok(reader.includes("StoryPlayerView"));
  for(const label of ["播放","story-page-progress","跟阿奇說話","暫停","繼續","再聽一次","更多"])assert.ok(player.includes(label));
  assert.ok(!player.includes("繼續本頁"));
@@ -371,7 +374,8 @@ test("core Web entry points follow the Android app parity contract",()=>{
  for(const key of ["title","friend","teacher","textbook","vocab","course","quick","continue"])
   assert.ok(teacher.includes('t("practice.'+key+'")'),key);
  assert.ok(teacherTutor.includes("目前老師"));
- assert.ok(teacherNext.includes("今天下一步"));
+ assert.ok(teacherNext.includes('t("continue.next")'));
+ assert.equal(readUiLocale("teacher").continue.next,"今天下一步");
  assert.ok(teacherNext.includes("buildDailyLearningPlan"));
 
  const storyUi=readUiLocale("story");
@@ -424,8 +428,9 @@ test("Fortune Web mirrors app profile presets birth-place search and year highli
  assert.ok(profile.includes("presetKey"));
  assert.ok(place.includes("https://geocoding-api.open-meteo.com/v1/search"));
  assert.ok(place.includes("utcOffsetForBirth"));
- assert.ok(tools.includes("儲存常用資料"));
- assert.ok(tools.includes("選擇常用資料"));
+ assert.ok(tools.includes('t("profile.save")'));
+ assert.equal(readUiLocale("fortune").profile.save,"儲存常用資料");
+ assert.ok(tools.includes('t("profile.select")'));
  for(const token of ["wealthProfile","careerProfile","relationshipProfile","personalYearTimeline","majorTransitTimeline","mahadashaTimeline"])assert.ok(highlights.includes(token));
 });
 
@@ -448,7 +453,8 @@ test("Teacher Web mirrors Android authored course map and daily coordinator",()=
  assert.ok(catalog.includes("TRAVEL_COURSE_LESSONS"));
  assert.ok(course.includes("COURSE_TRACKS"));
  assert.ok(course.includes("lessonUnlocked"));
- assert.ok(course.includes("31 堂課"));
+ assert.ok(course.includes('t("course.intro")'));
+ assert.ok(readUiLocale("teacher").course.intro.includes("31 堂課"));
  assert.ok(live.includes("evaluateCourseSession"));
  assert.ok(live.includes("saveLessonProgress"));
  assert.ok(practice.includes("ContinueLearningCard"));

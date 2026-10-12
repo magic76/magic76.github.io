@@ -78,5 +78,40 @@
     "privacy": "隱私與內容",
     "media": "關於照片與語音",
     "privacyDesc": "只上傳你願意送到 AI 服務的照片、語音與故事內容。Gemini Key 由全站設定統一管理。"
+  },
+  "reader": {
+    "loading": "正在打開故事…",
+    "notFound": "找不到這本故事。"
+  },
+  "editor": {
+    "kicker": "Story editor",
+    "title": "編輯繪本",
+    "intro": "以一頁為單位調整旁白、角色、對話、情緒與圖片。",
+    "copySuffix": "（我的版本）",
+    "loading": "正在打開編輯器…",
+    "notFound": "找不到這本故事。",
+    "name": "故事名稱",
+    "summary": "一句話介紹",
+    "page": "第 {{page}} 頁",
+    "deletePage": "刪除此頁",
+    "noImage": "這一頁還沒有圖片",
+    "choosePhoto": "選擇本機相片",
+    "pageText": "這一頁發生了什麼？",
+    "character": "角色",
+    "emotion": "說故事的感覺",
+    "dialogue": "角色台詞",
+    "saving": "儲存中…",
+    "save": "儲存故事",
+    "cancel": "取消",
+    "addPage": "新增一頁",
+    "emotions": {
+      "warm": "溫暖",
+      "excited": "興奮",
+      "mysterious": "神秘",
+      "joyful": "開心",
+      "dramatic": "戲劇",
+      "whisper": "輕聲",
+      "tender": "柔和"
+    }
   }
 }

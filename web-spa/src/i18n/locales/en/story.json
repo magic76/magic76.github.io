@@ -78,5 +78,40 @@
     "privacy": "Privacy & content",
     "media": "About photos and audio",
     "privacyDesc": "Only submit photos, audio, and story content you're comfortable sending to an AI service. Your Gemini Key is managed in global Settings."
+  },
+  "reader": {
+    "loading": "Opening story…",
+    "notFound": "Story not found."
+  },
+  "editor": {
+    "kicker": "Story editor",
+    "title": "Edit your storybook",
+    "intro": "Edit narration, characters, dialogue, emotions and illustrations one page at a time.",
+    "copySuffix": " (my version)",
+    "loading": "Opening story editor…",
+    "notFound": "Story not found.",
+    "name": "Story title",
+    "summary": "Short description",
+    "page": "Page {{page}}",
+    "deletePage": "Delete this page",
+    "noImage": "No illustration on this page",
+    "choosePhoto": "Choose a photo",
+    "pageText": "What happens on this page?",
+    "character": "Character",
+    "emotion": "Narration style",
+    "dialogue": "Character dialogue",
+    "saving": "Saving…",
+    "save": "Save story",
+    "cancel": "Cancel",
+    "addPage": "Add page",
+    "emotions": {
+      "warm": "Warm",
+      "excited": "Excited",
+      "mysterious": "Mysterious",
+      "joyful": "Joyful",
+      "dramatic": "Dramatic",
+      "whisper": "Whisper",
+      "tender": "Gentle"
+    }
   }
 }
