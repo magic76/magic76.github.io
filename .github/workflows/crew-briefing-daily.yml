@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - ".github/workflows/crew-briefing-daily.yml"
+      - "scripts/briefing-research-axes.mjs"
   schedule:
     - cron: "53 22 * * *" # 06:53 Asia/Taipei (UTC+8); deliver around 07:00
   workflow_dispatch:
