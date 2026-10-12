@@ -2,6 +2,7 @@ import{Link}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import{Icon}from"../components/Icon";
 import{geminiKey,history}from"../lib/runtime";
+import{GeminiSetupNotice}from"../components/GeminiSetupNotice";
 import{ContinueLearningCard}from"./ContinueLearningCard";
 import{todayVocabulary}from"./vocabularyProgress";
 import{useTeacherStore}from"../store/teacherStore";
@@ -20,7 +21,7 @@ export function PracticePage(){
  const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=todayVocabulary();
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
- {!geminiKey()&&<section className="section"><Link className="crew-setup-warning" to="/settings"><strong>{t("practice.keyTitle")}</strong><span>{t("practice.keyDesc")}</span><b aria-hidden="true">→</b></Link></section>}
+ {!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
   <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">

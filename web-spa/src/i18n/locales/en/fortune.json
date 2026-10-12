@@ -65,11 +65,13 @@
     "aiFailed": "Your chart is saved, but AI interpretation failed.",
     "aiRetry": "Retry AI interpretation",
     "fixedDone": "Your chart is ready",
-    "needKey": "Set up a Gemini Key to get AI interpretation.",
+    "needKey": "AI interpretation needs a Gemini Key, which you can create for free with a Google account.",
     "setAI": "Set up AI →",
     "askMore": "Want to explore further?",
     "askDesc": "Review the key points and life themes above. You can also ask follow-up questions by voice.",
-    "ask": "Ask about this reading"
+    "ask": "Ask about this reading",
+    "aiNotGenerated": "Your chart is ready. You can generate an AI interpretation now.",
+    "generateAI": "Generate AI interpretation"
   },
   "profile": {
     "birthdayRequired": "Choose a birth date before saving",

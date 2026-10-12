@@ -12,8 +12,10 @@
     "fortune": "Explore your chart"
   },
   "setup": {
-    "title": "Set up a Gemini Key to use AI features",
-    "desc": "One key for all three products. Takes about a minute.",
+    "title": "Create a Gemini API Key for free",
+    "desc": "Use your Google account to get a key in about a minute. One key works across Teacher, Story, and Fortune.",
+    "cta": "See free setup steps",
+    "pricing": "Free usage limits vary by model. Paid tiers may incur charges.",
     "verify": "Gemini Key not yet verified",
     "verifyDesc": "Verify your key to make sure it works."
   },

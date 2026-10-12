@@ -1,4 +1,4 @@
-import{Link}from"react-router-dom";
+import{GeminiSetupNotice}from"../components/GeminiSetupNotice";
 import type{ReturnTypeOfLive}from"./types";
 
 function clock(ms:number){const s=Math.floor(ms/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
@@ -9,7 +9,7 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
  return <>
   <div className={"live-status "+(error?"error":"")}>{live.status}</div>
   {error?<div className="live-recovery">
-   {live.errorKind==="key"?<Link className="live-btn" to="/settings">前往 Gemini 設定</Link>:
+   {live.errorKind==="key"?<GeminiSetupNotice force className="crew-gemini-setup-live"/>:
     <button className="live-btn" onClick={()=>void live.start()}>{live.errorKind==="mic"?"重新允許麥克風":"重新連線"}</button>}
    {live.errorKind==="mic"&&<small>若瀏覽器已封鎖麥克風，請先在網址列或瀏覽器網站設定中允許。</small>}
    {live.errorKind==="network"&&<small>會保留目前頁面；網路恢復後可直接重新連線。</small>}

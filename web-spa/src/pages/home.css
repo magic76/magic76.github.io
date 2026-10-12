@@ -49,6 +49,15 @@
 .crew-home-setup strong{font-size:12px}
 .crew-home-setup small{font-size:10px;color:var(--muted)}
 .crew-home-setup b{color:#6555c9}
+.crew-home-setup-free{grid-template-columns:42px minmax(0,1fr);gap:12px;margin:0 0 22px;padding:17px;border-color:#d9dffb;background:linear-gradient(112deg,#f5f3ff 0%,#f0f6ff 100%);transition:border-color .18s ease,box-shadow .18s ease}
+.crew-home-setup-free:hover{border-color:#b8bcf1;box-shadow:0 8px 22px rgba(93,92,158,.09)}
+.crew-home-setup-free>.crew-home-setup-symbol{width:42px;height:42px;border-radius:13px;background:#e4e3ff}
+.crew-home-setup-free>.crew-home-setup-copy{display:grid;gap:5px;min-width:0}
+.crew-home-setup-free strong{font-size:15px;line-height:1.35}
+.crew-home-setup-free small{font-size:12px;line-height:1.6}
+.crew-home-setup-free em{font-size:11px;font-style:normal;line-height:1.5;color:#686e86}
+.crew-home-setup-free>.crew-home-setup-action{grid-column:2;display:inline-flex;align-items:center;justify-content:space-between;gap:12px;width:max-content;max-width:100%;border-radius:11px;background:#5148bd;color:#fff;padding:10px 13px;font-size:12px;font-weight:800;min-height:41px}
+.crew-home-setup-free .crew-home-setup-action b{color:inherit;font-size:16px}
 .crew-home-briefing-card{display:flex;flex-direction:column;gap:12px;min-height:285px;padding:19px;text-decoration:none;color:#fff;border-radius:22px;border:1px solid #3c505f;background:linear-gradient(140deg,#273541,#354958);box-shadow:0 7px 20px rgba(24,41,54,.09);transition:transform .18s ease,box-shadow .18s ease}
 .crew-home-briefing-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(24,41,54,.18)}
 .crew-home-briefing-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -80,6 +89,10 @@
  .crew-home-intro p{font-size:12px}
  .crew-home-layout{margin-top:19px;gap:23px}
  .crew-home-continue{margin-bottom:19px}
+ .crew-home-setup-free{padding:14px;grid-template-columns:36px minmax(0,1fr);margin-bottom:19px}
+ .crew-home-setup-free>.crew-home-setup-symbol{width:36px;height:36px}
+ .crew-home-setup-free strong{font-size:14px}
+ .crew-home-setup-free small{font-size:11px}
  .crew-home-recent{min-height:92px;padding:12px;gap:11px;grid-template-columns:56px minmax(0,1fr) 20px}
  .crew-home-recent-art{width:56px;height:56px;border-radius:14px}
  .crew-home-recent-copy strong{font-size:14px}

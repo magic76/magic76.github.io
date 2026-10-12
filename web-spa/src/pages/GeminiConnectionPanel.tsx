@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
+import {useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
 
@@ -40,6 +41,9 @@ function voiceFailure(value:unknown){
 
 export function GeminiConnectionPanel(){
  const {t,i18n:locale}=useTranslation("settings");
+ const navigate=useNavigate(),[params]=useSearchParams();
+ const requestedReturn=params.get("returnTo")||"";
+ const returnTo=requestedReturn.startsWith("/")&&!requestedReturn.startsWith("//")&&!requestedReturn.startsWith("/\\")&&!/^\/settings(?:[/?#]|$)/.test(requestedReturn)?requestedReturn:null;
  const initialKey=geminiKey(),initialVerified=geminiVerified();
  const [key,setKey]=useState(initialKey);
  const [remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key")));
@@ -117,6 +121,7 @@ export function GeminiConnectionPanel(){
   setKeyStatus(t("gemini.keySaved"));
   setVoiceResult("idle");setVoiceStatus(t("gemini.initialVoice"));
   setShowSetup(false);setValidating(false);
+  if(returnTo)navigate(returnTo,{replace:true});
  }
 
  async function checkMicrophone(){
@@ -203,12 +208,14 @@ export function GeminiConnectionPanel(){
    <section className="section panel">
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
+    {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}
     <div className="setup-steps">
      <div className="step"><b>1</b><span><strong>{t("gemini.step1")}</strong><small>{t("gemini.step1Desc")}</small></span></div>
      <div className="step"><b>2</b><span><strong>{t("gemini.step2")}</strong><small>{t("gemini.step2Desc")}</small></span></div>
      <div className="step"><b>3</b><span><strong>{t("gemini.step3")}</strong><small>{t("gemini.step3Desc")}</small></span></div>
     </div>
-    <div className="actions"><a className="btn secondary" href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">{t("gemini.openStudio")}</a></div>
+    <div className="actions"><a className="btn settings-gemini-open" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">{t("gemini.openStudio")}</a></div>
+    <p className="meta settings-gemini-pricing">{t("gemini.pricingNote")} <a href="https://ai.google.dev/gemini-api/docs/pricing" target="_blank" rel="noopener noreferrer">{t("gemini.pricingLink")}</a></p>
     <label className="label" htmlFor="crew-gemini-key">Gemini API Key</label>
     <input id="crew-gemini-key" className="field" type="password" value={key} onChange={event=>setKey(event.target.value)} placeholder={t("gemini.keyPlaceholder")} autoComplete="off"/>
     <p className="meta" style={{marginTop:8}}>{t("gemini.privacy")}</p>
