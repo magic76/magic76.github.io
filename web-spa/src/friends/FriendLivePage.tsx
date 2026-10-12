@@ -51,7 +51,7 @@ export function FriendLivePage(){
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
-    <div className="live-identity">
+    <div className="crew-session-language" aria-label={"本次聊天語言："+language}>{language} · Crew 朋友</div><div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{friend.bioZh}</p>
     </div>

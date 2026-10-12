@@ -11,7 +11,7 @@ import{transitionUI}from"../lib/motion";
 export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
  const active=useTeacherStore(s=>s.teacherProfile),targetLanguage=useTeacherStore(s=>s.targetLanguage),activeVoice=useTeacherStore(s=>s.voice),languageStyle=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent),speakingPace=useTeacherStore(s=>s.speakingPace);
  const select=useTeacherStore(s=>s.setTeacherProfile);
- const[category,setCategory]=useState<TeacherCategory>("all"),[detail,setDetail]=useState<TeacherProfile|null>(null);
+ const[category,setCategory]=useState<TeacherCategory>("all"),[query,setQuery]=useState(""),[detail,setDetail]=useState<TeacherProfile|null>(null);
  const[preview,setPreview]=useState<PreviewStatus|null>(null);
  const galleryScroll=useRef<HTMLDivElement>(null),previewStop=useRef<null|(()=>void)>(null);
  const closeButton=useRef<HTMLButtonElement>(null),onCloseRef=useRef(onClose);
@@ -28,7 +28,8 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
   document.addEventListener("keydown",onKeyDown);
   return()=>{document.body.style.overflow=oldOverflow;document.removeEventListener("keydown",onKeyDown);previewStop.current?.();if(lastFocused?.isConnected)lastFocused.focus()};
  },[detail,goBack]);
- const filtered=TEACHER_PROFILES.filter(p=>category==="all"||p.categoryId===category);
+ const needle=query.trim().toLocaleLowerCase();
+ const filtered=TEACHER_PROFILES.filter(p=>(category==="all"||p.categoryId===category)&&[p.name,p.title,p.tagline,p.description,p.bestFor].join(" ").toLocaleLowerCase().includes(needle));
  function changeCategory(value:TeacherCategory){transitionUI(()=>setCategory(value));galleryScroll.current?.scrollTo({top:0,behavior:"auto"})}
  function playPreview(){
   if(!detail)return;
@@ -44,12 +45,14 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     {!detail&&<p className="meta">16 位個性鮮明的老師，各有不同教學風格。點擊照片了解更多。</p>}
    </div><button ref={closeButton} className="teacher-picker-close" onClick={()=>onCloseRef.current()} aria-label="關閉">×</button></header>
    {!detail?<>
-    <nav className="teacher-gallery-filter" aria-label="老師分類">
+    <label className="teacher-gallery-search"><span className="sr-only">搜尋老師</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋老師、教學風格或擅長領域"/></label>
+     <nav className="teacher-gallery-filter" aria-label="老師分類">
      {TEACHER_CATEGORIES.map(c=><button key={c.id} type="button" aria-pressed={category===c.id} className={category===c.id?"selected":""} onClick={()=>changeCategory(c.id)}>{c.label}</button>)}
     </nav>
     <div className="teacher-gallery-scroll" ref={galleryScroll}>
      <div className="teacher-picker-list teacher-gallery-grid">
-      {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={"查看 "+profile.name+" 老師"}>
+      {!filtered.length&&<p className="teacher-gallery-empty">找不到符合的老師，試試其他關鍵字。</p>}
+       {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={"查看 "+profile.name+" 老師"}>
        <TeacherAvatar profile={profile} className="teacher-profile-image"/>
        <strong>{profile.name}</strong><span className="teacher-gallery-type">{profile.title}</span>
        <small className="teacher-gallery-tagline">{profile.tagline}</small>

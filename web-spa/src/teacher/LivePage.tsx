@@ -77,7 +77,7 @@ export function TeacherLivePage(){
  <main className="session-shell">
  {mission&&<div className="notice live-mission"><div><b>這次要完成</b><p>{mission.goals.join(" · ")}</p></div></div>}
  <div className="desktop-live-workspace teacher-desktop-workspace"><section className="live-stage teacher-live-stage" data-state={live.state} aria-label="語音練習">
-  <div className="live-identity">
+  <div className="crew-session-language" aria-label={"本次練習語言："+s.targetLanguage}>{s.targetLanguage} · {isRoleplay?"情境練習":"Crew 老師"}</div><div className="live-identity">
    <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>

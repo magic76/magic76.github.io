@@ -48,7 +48,8 @@ export function TutorPage(){
    <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>和 {profile.name} 開始口說 <span aria-hidden="true">→</span></Link>
   </div>
  </section>
- <section className="section teacher-quick-config">
+ <section className="section teacher-precall-options"><div className="section-head"><h2>對話前設定</h2><small>老師與朋友共用</small></div><div className="panel teacher-precall-grid"><label><span className="label">目標語言</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(value=><option key={value}>{value}</option>)}</select></label><label><span className="label">說話速度</span><select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}>{PACE_OPTIONS.map(value=><option key={value.value} value={value.value}>{value.label}</option>)}</select></label></div></section>
+  <section className="section teacher-quick-config">
   <div className="section-head"><h2>互動方式</h2><small>下次對話生效</small></div>
   <div className="panel teacher-choice-panel">
    <p className="meta">自然聊天不會每句糾錯；口說練習重視回饋；情境練習直接進入角色。</p>

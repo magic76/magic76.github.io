@@ -4,23 +4,30 @@ import{geminiKey,history}from"../lib/runtime";
 import{ContinueLearningCard}from"./ContinueLearningCard";
 import{todayVocabulary}from"./vocabularyProgress";
 import{useTeacherStore}from"../store/teacherStore";
+import{getTeacherProfile}from"./teacherProfiles";
+import{TeacherAvatar}from"./TeacherAvatar";
+import{CREW_FRIENDS}from"../friends/friendProfiles";
+import{FriendAvatar}from"../friends/FriendAvatar";
 
 export function PracticePage(){
- const target=useTeacherStore(s=>s.targetLanguage);
+ const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
+ const teacherId=useTeacherStore(s=>s.teacherProfile),teacher=getTeacherProfile(teacherId);
+ const friend=CREW_FRIENDS.find(x=>x.id===localStorage.getItem("crew_web_selected_friend_v1"))||CREW_FRIENDS[0];
  const h=history("teacher"),today=new Date().toDateString();
  const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=todayVocabulary();
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>今天想和誰聊聊？</h1><p>找朋友自在聊天，或跟老師練習表達。</p></section>
+ <section className="section crew-target-language"><label htmlFor="crew-home-target">目前學習語言</label><select id="crew-home-target" className="field" value={target} onChange={e=>setTarget(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(value=><option key={value}>{value}</option>)}</select></section>
  {!geminiKey()&&<section className="section"><Link className="crew-setup-warning" to="/settings"><strong>先設定 Gemini Key</strong><span>完成設定後，就能和 Crew 老師、朋友直接語音對話。</span><b aria-hidden="true">→</b></Link></section>}
  <section className="section crew-role-gateway" aria-label="選擇 Crew 角色">
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
-   <span className="crew-role-symbol"><Icon name="chat"/></span>
-   <strong>Crew 朋友</strong><span>16 位個性不同的朋友，自然聊天、不評分。</span>
+   <span className="crew-role-portrait"><FriendAvatar friend={friend} decorative/></span>
+   <strong>Crew 朋友 · {friend.name}</strong><span>16 位個性不同的朋友，自然聊天、不評分。</span>
    <small>找朋友聊聊 <b aria-hidden="true">↗</b></small>
   </Link>
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
-   <span className="crew-role-symbol"><Icon name="teacher"/></span>
-   <strong>Crew 老師</strong><span>16 位專屬老師，口說、情境與表達練習。</span>
+   <span className="crew-role-portrait"><TeacherAvatar profile={teacher} decorative/></span>
+   <strong>Crew 老師 · {teacher.name}</strong><span>16 位專屬老師，口說、情境與表達練習。</span>
    <small>找老師練習 <b aria-hidden="true">↗</b></small>
   </Link>
  </section>
