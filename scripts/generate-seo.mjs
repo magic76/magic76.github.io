@@ -1,10 +1,8 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-
-// Run: node scripts/generate-seo.mjs [--check]
-// Static landing pages are intentionally independent of the HashRouter app.
-const SITE_URL = "https://www.3sssi.com";
+// Public static landing pages are separate from the Web App HashRouter.
+const ORIGIN = "https://www.3sssi.com";
 const PAGES = [
   {
     "slug": "",
@@ -340,20 +338,366 @@ const PAGES = [
     ]
   }
 ];
-const CSS = ":root{color-scheme:light;--ink:#172034;--muted:#687185;--line:#e4e8ef;--paper:#f7f8fb;--accent:#5267eb;--accent2:#8a65dc;--white:#fff}\n*{box-sizing:border-box}html{scroll-behavior:smooth;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}body{margin:0;background:var(--white);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Noto Sans TC\",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:5px}h1,h2,h3,p{margin-top:0}h1,h2,h3{line-height:1.23;letter-spacing:-.045em}p{color:var(--muted)}.shell{width:min(1120px,calc(100% - 48px));margin-inline:auto}\n.skip-link{position:absolute;left:16px;top:-80px;padding:10px 16px;background:var(--ink);color:white;z-index:99}.skip-link:focus{top:10px}\n.site-header{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line)}.header-inner{width:min(1180px,calc(100% - 48px));margin:auto;min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:inline-flex;align-items:center;gap:10px;font-size:23px;font-weight:850;letter-spacing:-.055em;white-space:nowrap}.brand-symbol{display:grid;place-items:center;background:var(--ink);color:white;border-radius:12px;width:36px;height:36px;font-size:25px;font-weight:400;letter-spacing:0}.brand-dot{color:var(--accent)}nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:23px}nav a,.footer-nav a{font-size:13px;color:#5e6778;font-weight:650;transition:color .2s}nav a:hover,nav a[aria-current],.footer-nav a:hover{color:var(--accent)}.header-cta{white-space:nowrap;border:1px solid var(--line);padding:9px 15px;border-radius:999px;font-size:12px;font-weight:750}.header-cta:hover{border-color:var(--accent);color:var(--accent)}\n.hero{display:grid;grid-template-columns:1fr .95fr;gap:62px;align-items:center;min-height:610px;padding-block:80px 90px}.eyebrow,.section-kicker{display:inline-flex;align-items:center;gap:11px;letter-spacing:.15em;font-size:10px;font-weight:850;color:var(--accent)}.eyebrow-line{height:2px;width:26px;background:var(--accent)}.hero h1{font-size:clamp(38px,4.3vw,62px);margin:23px 0}.hero-desc{max-width:580px;font-size:16px;line-height:1.95}.actions{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 16px}.button{min-height:48px;display:inline-flex;gap:26px;align-items:center;justify-content:space-between;padding:12px 20px;border-radius:12px;font-weight:760;font-size:13px;transition:transform .2s,box-shadow .2s}.button:hover{transform:translateY(-2px)}.button.primary{background:var(--ink);color:white;box-shadow:0 12px 30px rgba(31,42,70,.13)}.button.secondary{background:#f0f2f8;color:var(--ink)}.hint{font-size:11px;margin:0;line-height:1.8}\n.hero-visual{position:relative;min-height:400px;display:grid;place-items:center;isolation:isolate}.hero-visual:before{content:\"\";position:absolute;inset:2% 0;background:linear-gradient(142deg,#f3f6ff,#f7f2fc 74%);border:1px solid #ebeefa;border-radius:40px;z-index:-2}.visual-orb{position:absolute;border-radius:50%;filter:blur(3px);z-index:-1}.visual-orb.one{width:180px;height:180px;background:#dce6ff;top:4%;right:0}.visual-orb.two{width:120px;height:120px;background:#e8dafa;bottom:4%;left:4%}.visual-card{width:min(340px,82%);min-height:292px;padding:28px;background:rgba(255,255,255,.88);backdrop-filter:blur(9px);border:1px solid white;border-radius:25px;box-shadow:0 32px 66px rgba(72,78,119,.12);display:flex;flex-direction:column;align-items:flex-start}.visual-tag{font-size:10px;letter-spacing:.13em;font-weight:800;color:#5c6980}.status-dot{display:inline-block;width:7px;height:7px;background:#6fcaaa;border-radius:50%;margin-right:7px}.visual-icon{display:grid;place-items:center;width:80px;height:80px;margin-top:30px;border-radius:26px;background:linear-gradient(145deg,#dfe6ff,#f0e8fd);color:#616bdd;font-size:46px}.visual-card strong{font-size:22px;margin-top:18px;letter-spacing:-.035em}.visual-card p{font-size:12px;margin:8px 0 auto}.visual-foot{font-size:9px;letter-spacing:.14em;font-weight:800;color:#8992a4;margin-top:15px}\n.section{padding-block:90px}.section-lead{max-width:720px;margin-bottom:30px}.section h2,.final-cta h2{font-size:clamp(28px,3vw,40px);margin:13px 0}.section-lead p{font-size:14px;line-height:1.85}.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.feature-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.feature{border:1px solid var(--line);border-radius:20px;background:white;padding:28px 24px;min-height:235px;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}.feature:hover{border-color:#bbc4fa;transform:translateY(-2px)}.feature-label{font-size:10px;letter-spacing:.12em;font-weight:800;color:var(--accent)}.feature h3{font-size:20px;margin:18px 0 10px}.feature p{font-size:13px;line-height:1.85}.text-link{font-size:12px;color:var(--accent);font-weight:800;margin-top:auto;padding-top:12px}.text-link:hover{text-decoration:underline}\n.section-muted{background:var(--paper)}.steps-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:80px}.steps-intro h2{max-width:400px}.steps-intro p{font-size:13px}.steps{list-style:none;margin:0;padding:0}.steps li{display:flex;gap:22px;padding:21px 0;border-bottom:1px solid #dfe3ec}.steps li:first-child{padding-top:0}.steps li:last-child{border-bottom:0}.step-num{font-size:12px;font-weight:900;letter-spacing:.09em;color:var(--accent);padding-top:3px}.steps h3{font-size:17px;margin:0 0 7px}.steps p{font-size:13px;margin:0;line-height:1.85}.questions{display:grid;grid-template-columns:.7fr 1.3fr;gap:70px}.faq details{border-bottom:1px solid var(--line);padding:19px 0}.faq summary{font-size:15px;font-weight:750;cursor:pointer;list-style-position:outside}.faq p{font-size:13px;line-height:1.9;margin:13px 0 0}.final-cta{background:linear-gradient(125deg,#eff2ff,#f7f1fc);border:1px solid #e8e9fb;border-radius:26px;margin-block:20px 100px;padding:50px;text-align:center}.final-cta p{font-size:13px}.final-cta .button{margin-top:18px}\n.site-footer{background:#f8f9fc;border-top:1px solid var(--line);padding-block:58px 30px}.site-footer .shell{display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap}.site-footer p{font-size:12px;margin-top:9px}.footer-nav{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}.footer-bottom{width:100%;border-top:1px solid var(--line);margin-top:35px;padding-top:18px;display:flex;gap:22px;color:#7f8797;font-size:11px}.footer-bottom a:hover{text-decoration:underline}\n@media(max-width:1040px){.header-inner{flex-wrap:wrap;padding:14px 0}nav{order:3;width:100%;justify-content:flex-start;gap:18px}.hero{gap:30px}.feature-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}\n@media(max-width:700px){.shell,.header-inner{width:min(100% - 32px,1120px)}.header-inner{gap:12px}nav{gap:14px;overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;padding:3px 0 8px;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{font-size:12px}.brand{font-size:20px}.brand-symbol{width:33px;height:33px}.header-cta{margin-left:auto;font-size:11px}.hero{grid-template-columns:1fr;min-height:0;padding-block:62px 48px;gap:30px}.hero h1{font-size:38px}.hero-desc{font-size:14px}.hero-visual{min-height:315px}.hero-visual:before{border-radius:28px}.visual-card{min-height:240px}.visual-icon{margin-top:18px;width:60px;height:60px;font-size:36px}.section{padding-block:58px}.feature-grid,.feature-grid.four{grid-template-columns:1fr}.feature{min-height:0;padding:22px}.steps-wrap,.questions{grid-template-columns:1fr;gap:24px}.steps-intro h2{max-width:none}.final-cta{margin-block:0 55px;padding:36px 18px}.footer-nav{gap:15px}.site-footer{padding-top:42px}}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.feature{transition:none}}\n";
-
+const EN_PAGES = [
+  {
+    "slug": "",
+    "nav": "Home",
+    "title": "Crew | AI Language Learning, Stories and Self-Discovery",
+    "description": "Explore Crew Teacher, Crew Story, Crew Fortune, and daily AI research. Practice languages, create stories and explore new ideas in your browser using your own Gemini API key.",
+    "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
+    "heading": "Your AI companions for learning and exploring.",
+    "intro": "Practice speaking with a Crew teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
+    "primary": {
+      "text": "Open Crew Web",
+      "href": "/crew-app/#/"
+    },
+    "secondary": {
+      "text": "Explore language learning",
+      "href": "/en/teacher/"
+    },
+    "visualLabel": "CREW SPACE",
+    "visualTitle": "Choose what to explore today",
+    "visualDetail": "Language · Stories · Reflection · AI research",
+    "sectionTitle": "Four ways to explore, one Crew experience",
+    "sectionIntro": "Find something you enjoy, then jump straight into the interactive Web App.",
+    "features": [
+      {
+        "label": "LANGUAGE",
+        "title": "Crew Teacher",
+        "body": "AI tutors and conversational friends for speaking practice, vocabulary, and guided reading.",
+        "href": "/en/teacher/",
+        "link": "Explore language learning"
+      },
+      {
+        "label": "STORIES",
+        "title": "Crew Story",
+        "body": "Create stories, enjoy narrated reading, or bring a physical book to your reading session.",
+        "href": "/en/story/",
+        "link": "Explore stories"
+      },
+      {
+        "label": "SELF-DISCOVERY",
+        "title": "Crew Fortune",
+        "body": "Reflect on BaZi, numerology, and Vedic astrology as different perspectives on personal themes.",
+        "href": "/en/fortune/",
+        "link": "Explore personal charts"
+      },
+      {
+        "label": "RESEARCH",
+        "title": "Crew Research",
+        "body": "Selected AI papers, technical reports, and practical engineering research to investigate.",
+        "href": "/en/research/",
+        "link": "Read the research briefing"
+      }
+    ],
+    "stepsTitle": "Getting started is straightforward",
+    "steps": [
+      {
+        "title": "Choose what interests you",
+        "body": "Start with Teacher, Story, or Fortune, depending on what you want to do."
+      },
+      {
+        "title": "Set up your Gemini API key",
+        "body": "Create an API key with Google AI Studio. Free-tier eligibility and pricing depend on Google's current terms."
+      },
+      {
+        "title": "Explore in your browser",
+        "body": "Continue to Crew Web. Interface language and conversation or learning language are managed separately."
+      }
+    ],
+    "faq": [
+      {
+        "q": "Do I need to sign up for a Crew account?",
+        "a": "You can open the Web App without creating a Crew account. Gemini-powered features require you to configure your own API key."
+      },
+      {
+        "q": "Can I get a Gemini API key for free?",
+        "a": "Google AI Studio provides API key creation, but free-tier quotas vary by model and usage. Paid access may incur charges."
+      }
+    ]
+  },
+  {
+    "slug": "teacher",
+    "nav": "Teacher",
+    "title": "Crew Teacher | AI Language Tutor and Conversation Partners",
+    "description": "Practice spoken languages with Crew Teacher's AI tutors and Crew Friends. Explore vocabulary, guided lessons, pronunciation feedback, and reading support in your browser.",
+    "eyebrow": "CREW TEACHER",
+    "heading": "Language practice that feels like a real conversation.",
+    "intro": "Choose a Crew teacher when you want guided learning and feedback. Pick a Crew Friend when you'd rather chat naturally with a character who has their own personality and background.",
+    "primary": {
+      "text": "Start language practice",
+      "href": "/crew-app/#/teacher/practice"
+    },
+    "secondary": {
+      "text": "Meet Crew Friends",
+      "href": "/crew-app/#/teacher/roles?mode=friends"
+    },
+    "visualLabel": "SPEAK & LEARN",
+    "visualTitle": "Learn with teachers. Talk with friends.",
+    "visualDetail": "Voice chat · Vocabulary · Practical situations",
+    "sectionTitle": "From speaking up to building steady progress",
+    "sectionIntro": "Switch between teaching and casual conversation to match how you want to practice.",
+    "features": [
+      {
+        "label": "01 / TUTOR",
+        "title": "Crew Teachers",
+        "body": "Practice speaking with an AI tutor, receive pronunciation and phrasing feedback, and follow your learning goals."
+      },
+      {
+        "label": "02 / FRIENDS",
+        "title": "Crew Friends",
+        "body": "Meet characters with different personalities and enjoy more immersive conversations in your target language."
+      },
+      {
+        "label": "03 / PRACTICE",
+        "title": "Vocabulary and guided lessons",
+        "body": "Build vocabulary, practice real-world situations, and bring reading material into learning sessions."
+      }
+    ],
+    "stepsTitle": "Choose a pace that works for you",
+    "steps": [
+      {
+        "title": "Choose a teacher or friend",
+        "body": "Use a teacher for structured learning and feedback, or a Crew Friend for relaxed conversation."
+      },
+      {
+        "title": "Set your language and speaking pace",
+        "body": "Adjust your target language, speed, and interaction preferences as needed."
+      },
+      {
+        "title": "Start with your Gemini API key",
+        "body": "Verify your key in the shared settings page before using live voice features."
+      }
+    ],
+    "faq": [
+      {
+        "q": "What is the difference between Crew Teachers and Crew Friends?",
+        "a": "Crew Teachers focus on learning support and feedback. Crew Friends prioritize natural conversations and character-based experiences."
+      },
+      {
+        "q": "Can I change the language I practice?",
+        "a": "Yes. Your interface language and the language used for speaking practice are separate settings."
+      }
+    ]
+  },
+  {
+    "slug": "story",
+    "nav": "Story",
+    "title": "Crew Story | AI Storytelling, Narration and Family Reading",
+    "description": "Create stories, enjoy AI narration, and read together with Crew Story. You can also photograph pages from a physical book and explore a guided reading experience.",
+    "eyebrow": "CREW STORY",
+    "heading": "Turn a simple idea into a story worth sharing.",
+    "intro": "Create a new story, browse your reading shelf, or pick up a book you already own. Crew Story brings voice interaction into reading time.",
+    "primary": {
+      "text": "Open the story shelf",
+      "href": "/crew-app/#/story/shelf"
+    },
+    "secondary": {
+      "text": "Create a story",
+      "href": "/crew-app/#/story/create"
+    },
+    "visualLabel": "READ & IMAGINE",
+    "visualTitle": "Make room for imagination",
+    "visualDetail": "Story creation · Reading shelf · Voice",
+    "sectionTitle": "Make your own stories or read what you love",
+    "sectionIntro": "Move between digital stories and familiar printed books without losing the joy of reading together.",
+    "features": [
+      {
+        "label": "01 / CREATE",
+        "title": "AI-assisted story creation",
+        "body": "Begin with an idea and create a story you can come back to and read."
+      },
+      {
+        "label": "02 / READ",
+        "title": "Stories and narration",
+        "body": "Choose a story from your shelf and follow the pages along with spoken narration."
+      },
+      {
+        "label": "03 / BOOKS",
+        "title": "Read physical books together",
+        "body": "Photograph pages from a book you own and use them in a guided reading flow."
+      }
+    ],
+    "stepsTitle": "What story will you read today?",
+    "steps": [
+      {
+        "title": "Pick a reading mode",
+        "body": "Browse the story shelf, create a new story, or bring a physical book."
+      },
+      {
+        "title": "Prepare your story",
+        "body": "Select a story or provide readable photos of your book's pages."
+      },
+      {
+        "title": "Read and interact",
+        "body": "Use the reading controls to move through the story and manage narration."
+      }
+    ],
+    "faq": [
+      {
+        "q": "Do I need to bring my own story?",
+        "a": "No. You can explore stories in Crew Story or create new content."
+      },
+      {
+        "q": "Can I use a printed children's book?",
+        "a": "Yes. The physical-book flow uses photos of pages. Results depend on image quality and how well the AI interprets the content."
+      }
+    ]
+  },
+  {
+    "slug": "fortune",
+    "nav": "Fortune",
+    "title": "Crew Fortune | BaZi, Numerology and Vedic Astrology",
+    "description": "Explore BaZi, tarot-inspired life-path numerology, and Vedic astrology with Crew Fortune. Consider personality themes, life cycles, and different traditions of self-reflection.",
+    "eyebrow": "CREW FORTUNE",
+    "heading": "Explore your story from different perspectives.",
+    "intro": "Look at personality, life themes, and personal cycles through three different interpretive traditions. Use the readings as prompts for reflection rather than certain predictions.",
+    "primary": {
+      "text": "Explore your chart",
+      "href": "/crew-app/#/fortune"
+    },
+    "secondary": {
+      "text": "See the three approaches",
+      "href": "#approaches"
+    },
+    "visualLabel": "PATTERNS & REFLECTION",
+    "visualTitle": "Three perspectives, one place to explore",
+    "visualDetail": "BaZi · Life-path numerology · Vedic astrology",
+    "sectionTitle": "Find a perspective that interests you",
+    "sectionIntro": "Each tradition has a different framework for reflecting on personal experiences and life themes.",
+    "features": [
+      {
+        "label": "01 / BAZI",
+        "title": "BaZi",
+        "body": "Explore traditional themes around personality, career, finances, and longer life cycles."
+      },
+      {
+        "label": "02 / NUMEROLOGY",
+        "title": "Life-path numerology",
+        "body": "Reflect on core traits and personal themes using tarot-inspired numerology."
+      },
+      {
+        "label": "03 / VEDIC",
+        "title": "Vedic astrology",
+        "body": "Consider planets, astrological cycles, and Dasha periods within the Vedic tradition."
+      }
+    ],
+    "stepsTitle": "Start with your details, explore at your pace",
+    "steps": [
+      {
+        "title": "Choose a reading approach",
+        "body": "Explore BaZi, life-path numerology, or Vedic astrology."
+      },
+      {
+        "title": "Enter the relevant details",
+        "body": "Provide birth information and other details requested by the selected approach."
+      },
+      {
+        "title": "Reflect on the interpretation",
+        "body": "Treat readings as cultural exploration and personal reflection, not guaranteed forecasts."
+      }
+    ],
+    "faq": [
+      {
+        "q": "Is Crew Fortune available on Android?",
+        "a": "The Web version is available. Check official product announcements for any future Google Play release."
+      },
+      {
+        "q": "Can I use a reading as medical or financial advice?",
+        "a": "No. These readings are for cultural exploration and reflection, not a substitute for qualified medical, legal, or financial advice."
+      }
+    ]
+  },
+  {
+    "slug": "research",
+    "nav": "Research",
+    "title": "Crew Research | Daily AI Papers and Engineering Briefings",
+    "description": "Read selected AI research papers, technical reports, and deeper engineering analysis covering AI agents, memory, context management, real-time voice, and practical product development.",
+    "eyebrow": "CREW RESEARCH",
+    "heading": "Find the AI research that's worth your time.",
+    "intro": "Explore selected papers, technical reports, and engineering lessons. Beyond news headlines, focus on evidence and ideas that could improve real products.",
+    "primary": {
+      "text": "Read the daily AI briefing",
+      "href": "/crew-app/#/briefing"
+    },
+    "secondary": {
+      "text": "Open the reading list",
+      "href": "/crew-app/#/briefing/board"
+    },
+    "visualLabel": "RESEARCH BRIEFING",
+    "visualTitle": "From research to real-world work",
+    "visualDetail": "AI Agents · Context · Real-time voice",
+    "sectionTitle": "Research grounded in real engineering questions",
+    "sectionIntro": "Dig into emerging techniques and their usefulness rather than chasing headlines.",
+    "features": [
+      {
+        "label": "01 / AGENTS",
+        "title": "AI agents and workflows",
+        "body": "Follow agent coordination, tool use, execution reliability, and verifiable workflows."
+      },
+      {
+        "label": "02 / MEMORY",
+        "title": "Memory and context management",
+        "body": "Study long-term memory, context compression, provenance, and AI operating costs."
+      },
+      {
+        "label": "03 / VOICE",
+        "title": "Real-time voice and interaction",
+        "body": "Look into voice latency, conversational models, language practice, and product UX."
+      }
+    ],
+    "stepsTitle": "Turn research into useful direction",
+    "steps": [
+      {
+        "title": "Read the curated highlights",
+        "body": "See which research directions may be worth a closer look today."
+      },
+      {
+        "title": "Check the original sources",
+        "body": "Review cited papers and official technical documentation for evidence and limits."
+      },
+      {
+        "title": "Find something worth testing",
+        "body": "Connect the research back to concrete problems in the Crew product family."
+      }
+    ],
+    "faq": [
+      {
+        "q": "Does Crew Research publish a report every day?",
+        "a": "Crew Briefing is designed as a daily research selection. Check the briefing itself for its latest published edition."
+      },
+      {
+        "q": "Do the research summaries replace original papers?",
+        "a": "No. The summaries are starting points; consult the original publications and experiments before drawing conclusions."
+      }
+    ]
+  }
+];
+const CSS = ":root{color-scheme:light;--ink:#172034;--muted:#687185;--line:#e4e8ef;--paper:#f7f8fb;--accent:#5267eb;--accent2:#8a65dc;--white:#fff}\n*{box-sizing:border-box}html{scroll-behavior:smooth;scrollbar-width:none}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none}body{margin:0;background:var(--white);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",\"Noto Sans TC\",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}a:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px;border-radius:5px}h1,h2,h3,p{margin-top:0}h1,h2,h3{line-height:1.23;letter-spacing:-.045em}p{color:var(--muted)}.shell{width:min(1120px,calc(100% - 48px));margin-inline:auto}\n.skip-link{position:absolute;left:16px;top:-80px;padding:10px 16px;background:var(--ink);color:white;z-index:99}.skip-link:focus{top:10px}\n.site-header{background:rgba(255,255,255,.94);border-bottom:1px solid var(--line)}.header-inner{width:min(1180px,calc(100% - 48px));margin:auto;min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:22px}.brand{display:inline-flex;align-items:center;gap:10px;font-size:23px;font-weight:850;letter-spacing:-.055em;white-space:nowrap}.brand-symbol{display:grid;place-items:center;background:var(--ink);color:white;border-radius:12px;width:36px;height:36px;font-size:25px;font-weight:400;letter-spacing:0}.brand-dot{color:var(--accent)}nav{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:23px}nav a,.footer-nav a{font-size:13px;color:#5e6778;font-weight:650;transition:color .2s}nav a:hover,nav a[aria-current],.footer-nav a:hover{color:var(--accent)}.header-cta{white-space:nowrap;border:1px solid var(--line);padding:9px 15px;border-radius:999px;font-size:12px;font-weight:750}.header-cta:hover{border-color:var(--accent);color:var(--accent)}\n.hero{display:grid;grid-template-columns:1fr .95fr;gap:62px;align-items:center;min-height:610px;padding-block:80px 90px}.eyebrow,.section-kicker{display:inline-flex;align-items:center;gap:11px;letter-spacing:.15em;font-size:10px;font-weight:850;color:var(--accent)}.eyebrow-line{height:2px;width:26px;background:var(--accent)}.hero h1{font-size:clamp(38px,4.3vw,62px);margin:23px 0}.hero-desc{max-width:580px;font-size:16px;line-height:1.95}.actions{display:flex;flex-wrap:wrap;gap:12px;margin:28px 0 16px}.button{min-height:48px;display:inline-flex;gap:26px;align-items:center;justify-content:space-between;padding:12px 20px;border-radius:12px;font-weight:760;font-size:13px;transition:transform .2s,box-shadow .2s}.button:hover{transform:translateY(-2px)}.button.primary{background:var(--ink);color:white;box-shadow:0 12px 30px rgba(31,42,70,.13)}.button.secondary{background:#f0f2f8;color:var(--ink)}.hint{font-size:11px;margin:0;line-height:1.8}\n.hero-visual{position:relative;min-height:400px;display:grid;place-items:center;isolation:isolate}.hero-visual:before{content:\"\";position:absolute;inset:2% 0;background:linear-gradient(142deg,#f3f6ff,#f7f2fc 74%);border:1px solid #ebeefa;border-radius:40px;z-index:-2}.visual-orb{position:absolute;border-radius:50%;filter:blur(3px);z-index:-1}.visual-orb.one{width:180px;height:180px;background:#dce6ff;top:4%;right:0}.visual-orb.two{width:120px;height:120px;background:#e8dafa;bottom:4%;left:4%}.visual-card{width:min(340px,82%);min-height:292px;padding:28px;background:rgba(255,255,255,.88);backdrop-filter:blur(9px);border:1px solid white;border-radius:25px;box-shadow:0 32px 66px rgba(72,78,119,.12);display:flex;flex-direction:column;align-items:flex-start}.visual-tag{font-size:10px;letter-spacing:.13em;font-weight:800;color:#5c6980}.status-dot{display:inline-block;width:7px;height:7px;background:#6fcaaa;border-radius:50%;margin-right:7px}.visual-icon{display:grid;place-items:center;width:80px;height:80px;margin-top:30px;border-radius:26px;background:linear-gradient(145deg,#dfe6ff,#f0e8fd);color:#616bdd;font-size:46px}.visual-card strong{font-size:22px;margin-top:18px;letter-spacing:-.035em}.visual-card p{font-size:12px;margin:8px 0 auto}.visual-foot{font-size:9px;letter-spacing:.14em;font-weight:800;color:#8992a4;margin-top:15px}\n.section{padding-block:90px}.section-lead{max-width:720px;margin-bottom:30px}.section h2,.final-cta h2{font-size:clamp(28px,3vw,40px);margin:13px 0}.section-lead p{font-size:14px;line-height:1.85}.feature-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.feature-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.feature{border:1px solid var(--line);border-radius:20px;background:white;padding:28px 24px;min-height:235px;display:flex;flex-direction:column;transition:border-color .2s,transform .2s}.feature:hover{border-color:#bbc4fa;transform:translateY(-2px)}.feature-label{font-size:10px;letter-spacing:.12em;font-weight:800;color:var(--accent)}.feature h3{font-size:20px;margin:18px 0 10px}.feature p{font-size:13px;line-height:1.85}.text-link{font-size:12px;color:var(--accent);font-weight:800;margin-top:auto;padding-top:12px}.text-link:hover{text-decoration:underline}\n.section-muted{background:var(--paper)}.steps-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:80px}.steps-intro h2{max-width:400px}.steps-intro p{font-size:13px}.steps{list-style:none;margin:0;padding:0}.steps li{display:flex;gap:22px;padding:21px 0;border-bottom:1px solid #dfe3ec}.steps li:first-child{padding-top:0}.steps li:last-child{border-bottom:0}.step-num{font-size:12px;font-weight:900;letter-spacing:.09em;color:var(--accent);padding-top:3px}.steps h3{font-size:17px;margin:0 0 7px}.steps p{font-size:13px;margin:0;line-height:1.85}.questions{display:grid;grid-template-columns:.7fr 1.3fr;gap:70px}.faq details{border-bottom:1px solid var(--line);padding:19px 0}.faq summary{font-size:15px;font-weight:750;cursor:pointer;list-style-position:outside}.faq p{font-size:13px;line-height:1.9;margin:13px 0 0}.final-cta{background:linear-gradient(125deg,#eff2ff,#f7f1fc);border:1px solid #e8e9fb;border-radius:26px;margin-block:20px 100px;padding:50px;text-align:center}.final-cta p{font-size:13px}.final-cta .button{margin-top:18px}\n.site-footer{background:#f8f9fc;border-top:1px solid var(--line);padding-block:58px 30px}.site-footer .shell{display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap}.site-footer p{font-size:12px;margin-top:9px}.footer-nav{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}.footer-bottom{width:100%;border-top:1px solid var(--line);margin-top:35px;padding-top:18px;display:flex;gap:22px;color:#7f8797;font-size:11px}.footer-bottom a:hover{text-decoration:underline}\n@media(max-width:1040px){.header-inner{flex-wrap:wrap;padding:14px 0}nav{order:3;width:100%;justify-content:flex-start;gap:18px}.hero{gap:30px}.feature-grid.four{grid-template-columns:repeat(2,minmax(0,1fr))}}\n@media(max-width:700px){.shell,.header-inner{width:min(100% - 32px,1120px)}.header-inner{gap:12px}nav{gap:14px;overflow-x:auto;flex-wrap:nowrap;white-space:nowrap;padding:3px 0 8px;scrollbar-width:none}nav::-webkit-scrollbar{display:none}nav a{font-size:12px}.brand{font-size:20px}.brand-symbol{width:33px;height:33px}.header-cta{margin-left:auto;font-size:11px}.hero{grid-template-columns:1fr;min-height:0;padding-block:62px 48px;gap:30px}.hero h1{font-size:38px}.hero-desc{font-size:14px}.hero-visual{min-height:315px}.hero-visual:before{border-radius:28px}.visual-card{min-height:240px}.visual-icon{margin-top:18px;width:60px;height:60px;font-size:36px}.section{padding-block:58px}.feature-grid,.feature-grid.four{grid-template-columns:1fr}.feature{min-height:0;padding:22px}.steps-wrap,.questions{grid-template-columns:1fr;gap:24px}.steps-intro h2{max-width:none}.final-cta{margin-block:0 55px;padding:36px 18px}.footer-nav{gap:15px}.site-footer{padding-top:42px}}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.button,.feature{transition:none}}\n\n.language-switch{display:inline-flex;gap:5px;padding:4px;background:#f1f3f8;border-radius:999px;white-space:nowrap}\n.language-switch a{padding:4px 9px;border-radius:999px;color:#6b768c;font-weight:800;font-size:11px}\n.language-switch a[aria-current=\"page\"]{background:white;color:#263556;box-shadow:0 2px 8px #23304912}\n@media(max-width:700px){.language-switch{margin-left:auto}.header-cta{margin-left:0}.header-inner{justify-content:space-between}}\n";
 function escapeHTML(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;")}
-function pageUrl(slug){return SITE_URL+"/"+(slug?slug+"/":"")}
-function renderPage(p){
-const isHome=!p.slug;
-const nav=PAGES.map(item=>`<a href="${pageUrl(item.slug)}"${item.slug===p.slug?' aria-current="page"':""}>${escapeHTML(item.nav)}</a>`).join("");
+
+function pageUrl(slug,locale){return ORIGIN+"/"+(locale==="en"?"en/":"")+(slug?slug+"/":"")}
+
+function jsonScript(data){return JSON.stringify(data).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026")}
+
+function jsonld(p,locale){const url=pageUrl(p.slug,locale),home=pageUrl("",locale),name=p.slug==="teacher"?"Crew Teacher":p.slug==="story"?"Crew Story":p.slug==="fortune"?"Crew Fortune":p.slug==="research"?"Crew Research":"Crew";const data=[
+{"@type":"WebSite","@id":ORIGIN+"/#website","url":ORIGIN+"/","name":"Crew","inLanguage":["zh-Hant","en"]},
+{"@type":p.slug==="research"?"CollectionPage":"WebPage","@id":url+"#webpage","url":url,"name":p.title,"description":p.description,"inLanguage":locale==="en"?"en":"zh-Hant","isPartOf":{"@id":ORIGIN+"/#website"}},
+];if(p.slug){data.push({"@type":"BreadcrumbList","@id":url+"#breadcrumbs","itemListElement":[{"@type":"ListItem","position":1,"name":locale==="en"?"Home":"首頁","item":home},{"@type":"ListItem","position":2,"name":name,"item":url}]});}
+if(["teacher","story","fortune"].includes(p.slug)){data.push({"@type":"SoftwareApplication","@id":ORIGIN+"/#app-"+p.slug,"name":name,"applicationCategory":p.slug==="teacher"?"EducationalApplication":p.slug==="story"?"EntertainmentApplication":"LifestyleApplication","operatingSystem":"Web","url":ORIGIN+"/crew-app/#/"+p.slug,"description":p.description});}
+return jsonScript({"@context":"https://schema.org","@graph":data});
+}
+
+function renderPage(p,locale){
+const en=locale==="en", dict={home:en?"Home":"首頁",open:en?"Open Web App":"開啟 Web App",faq:en?"Frequently asked questions":"常見問題",stepHint:en?"Start with what matters to you and explore at your own pace.":"從想法到實際體驗，依自己的步調開始。",ctaTitle:en?"Ready to begin?":"準備好開始了嗎？",ctaBody:en?"Explore the interactive Crew Web App whenever you're ready.":"不需要在介紹頁停留，直接進入原本的 Crew Web 體驗。",skip:en?"Skip to main content":"跳至主要內容",researchHint:en?"Focused on technical research and practical applications.":"聚焦技術研究與應用實作。",usageHint:en?"Use your own Gemini API key. Free quotas and pricing are subject to Google's terms.":"使用自己的 Gemini API Key；免費額度與收費依 Google 規定。"};
+const isHome=!p.slug;const nav=(en?EN_PAGES:PAGES).map(item=>`<a href="${pageUrl(item.slug,locale)}"${item.slug===p.slug?' aria-current="page"':""}>${escapeHTML(item.nav)}</a>`).join("");
 const features=p.features.map(f=>`<article class="feature"><span class="feature-label">${escapeHTML(f.label)}</span><h3>${escapeHTML(f.title)}</h3><p>${escapeHTML(f.body)}</p>${f.href?`<a class="text-link" href="${escapeHTML(f.href)}">${escapeHTML(f.link)} <span aria-hidden="true">↗</span></a>`:""}</article>`).join("");
 const steps=p.steps.map((s,i)=>`<li><span class="step-num">${String(i+1).padStart(2,"0")}</span><div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p></div></li>`).join("");
 const faq=p.faq.map(f=>`<details><summary>${escapeHTML(f.q)}</summary><p>${escapeHTML(f.a)}</p></details>`).join("");
-const related=PAGES.filter(item=>item.slug!==p.slug).map(item=>`<a href="${pageUrl(item.slug)}">${escapeHTML(item.nav)} <span aria-hidden="true">↗</span></a>`).join("");
-const url=pageUrl(p.slug);
+const related=(en?EN_PAGES:PAGES).filter(item=>item.slug!==p.slug).map(item=>`<a href="${pageUrl(item.slug,locale)}">${escapeHTML(item.nav)} <span aria-hidden="true">↗</span></a>`).join("");
+const url=pageUrl(p.slug,locale),zhURL=pageUrl(p.slug,"zh"),enURL=pageUrl(p.slug,"en"), ogImage=ORIGIN+"/social/"+(p.slug||"crew")+".png";
 return `<!doctype html>
-<html lang="zh-Hant">
+<html lang="${en?"en":"zh-Hant"}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -362,28 +706,41 @@ return `<!doctype html>
   <title>${escapeHTML(p.title)}</title>
   <meta name="description" content="${escapeHTML(p.description)}">
   <link rel="canonical" href="${url}">
+  <link rel="alternate" hreflang="zh-Hant" href="${zhURL}">
+  <link rel="alternate" hreflang="en" href="${enURL}">
+  <link rel="alternate" hreflang="x-default" href="${zhURL}">
   <meta property="og:type" content="website">
-  <meta property="og:locale" content="zh_TW">
+  <meta property="og:locale" content="${en?"en_US":"zh_TW"}">
+  <meta property="og:locale:alternate" content="${en?"zh_TW":"en_US"}">
   <meta property="og:site_name" content="Crew">
   <meta property="og:title" content="${escapeHTML(p.title)}">
   <meta property="og:description" content="${escapeHTML(p.description)}">
   <meta property="og:url" content="${url}">
-  <meta name="twitter:card" content="summary">
+  <meta property="og:image" content="${ogImage}">
+  <meta property="og:image:secure_url" content="${ogImage}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Crew ${escapeHTML(p.slug||"AI companion")}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="${ogImage}">
   <link rel="stylesheet" href="/seo.css">
+  <script type="application/ld+json">${jsonld(p,locale)}</script>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳至主要內容</a>
+  <a class="skip-link" href="#main">${dict.skip}</a>
   <header class="site-header"><div class="header-inner">
-    <a class="brand" href="${SITE_URL}/" aria-label="Crew 首頁"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a>
-    <nav aria-label="主選單">${nav}</nav>
-    <a class="header-cta" href="/crew-app/#/">開啟 Web App <span aria-hidden="true">↗</span></a>
+    <a class="brand" href="${pageUrl("",locale)}" aria-label="Crew ${dict.home}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a>
+    <nav aria-label="${en?"Main navigation":"主選單"}">${nav}</nav>
+    <div class="language-switch" aria-label="${en?"Site language":"網站語言"}"><a lang="zh-Hant" href="${zhURL}"${!en?' aria-current="page"':""}>中文</a><a lang="en" href="${enURL}"${en?' aria-current="page"':""}>EN</a></div>
+    <a class="header-cta" href="/crew-app/#/">${dict.open} <span aria-hidden="true">↗</span></a>
   </div></header>
   <main id="main">
     <section class="hero shell">
       <div class="hero-content"><span class="eyebrow"><span class="eyebrow-line"></span>${escapeHTML(p.eyebrow)}</span>
         <h1>${escapeHTML(p.heading)}</h1><p class="hero-desc">${escapeHTML(p.intro)}</p>
         <div class="actions"><a class="button primary" href="${escapeHTML(p.primary.href)}">${escapeHTML(p.primary.text)} <span aria-hidden="true">↗</span></a><a class="button secondary" href="${escapeHTML(p.secondary.href)}">${escapeHTML(p.secondary.text)} <span aria-hidden="true">→</span></a></div>
-        <p class="hint">${p.slug==="research"?"聚焦技術研究與應用實作。":"使用自己的 Gemini API Key；免費額度與收費依 Google 規定。"}</p>
+        <p class="hint">${p.slug==="research"?dict.researchHint:dict.usageHint}</p>
       </div>
       <div class="hero-visual" aria-label="${escapeHTML(p.visualLabel)}">
         <div class="visual-orb one" aria-hidden="true"></div><div class="visual-orb two" aria-hidden="true"></div>
@@ -396,38 +753,37 @@ return `<!doctype html>
       <div class="feature-grid ${isHome?"four":""}">${features}</div>
     </section>
     <section class="section section-muted"><div class="shell steps-wrap">
-      <div class="steps-intro"><span class="section-kicker">GET STARTED / 02</span><h2>${escapeHTML(p.stepsTitle)}</h2><p>從想法到實際體驗，依自己的步調開始。</p></div>
+      <div class="steps-intro"><span class="section-kicker">GET STARTED / 02</span><h2>${escapeHTML(p.stepsTitle)}</h2><p>${dict.stepHint}</p></div>
       <ol class="steps">${steps}</ol>
     </div></section>
-    <section class="section shell questions"><div class="section-lead"><span class="section-kicker">GOOD TO KNOW / 03</span><h2>常見問題</h2></div><div class="faq">${faq}</div></section>
-    <section class="shell final-cta"><span class="section-kicker">YOUR CREW SPACE</span><h2>準備好開始了嗎？</h2><p>不需要在介紹頁停留，直接進入原本的 Crew Web 體驗。</p><a class="button primary" href="${escapeHTML(p.primary.href)}">${escapeHTML(p.primary.text)} <span aria-hidden="true">↗</span></a></section>
+    <section class="section shell questions"><div class="section-lead"><span class="section-kicker">GOOD TO KNOW / 03</span><h2>${dict.faq}</h2></div><div class="faq">${faq}</div></section>
+    <section class="shell final-cta"><span class="section-kicker">YOUR CREW SPACE</span><h2>${dict.ctaTitle}</h2><p>${dict.ctaBody}</p><a class="button primary" href="${escapeHTML(p.primary.href)}">${escapeHTML(p.primary.text)} <span aria-hidden="true">↗</span></a></section>
   </main>
-  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${SITE_URL}/"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Crew</span><a href="mailto:crew@3sssi.com">crew@3sssi.com</a><a href="/crew-app/#/">Web App</a></div></div></footer>
+  <footer class="site-footer"><div class="shell"><div><a class="brand footer-brand" href="${pageUrl("",locale)}"><span class="brand-symbol" aria-hidden="true">✳</span><span>Crew<span class="brand-dot">.</span></span></a><p>Learn, imagine, explore.</p></div><div class="footer-nav">${related}</div><div class="footer-bottom"><span>© Crew</span><a href="mailto:crew@3sssi.com">crew@3sssi.com</a><a href="/crew-app/#/">Web App</a></div></div></footer>
 </body>
 </html>
 `;
 }
-function renderSitemap(){return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${PAGES.map(p=>`  <url><loc>${pageUrl(p.slug)}</loc></url>`).join("\n")}\n</urlset>\n`}
-function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${SITE_URL}/sitemap.xml\n`}
-function outputs(){
-const items={"index.html":renderPage(PAGES[0]),"seo.css":CSS,"robots.txt":renderRobots(),"sitemap.xml":renderSitemap()};
-for(const p of PAGES.slice(1))items[p.slug+"/index.html"]=renderPage(p);
-return items;
-}
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const checkOnly = process.argv.includes("--check");
-let failed = false;
-for (const [path, content] of Object.entries(outputs())) {
-  const absolute = join(root, path);
-  if (checkOnly) {
-    let actual = "";
-    try { actual = readFileSync(absolute, "utf8"); } catch { /* Missing output fails below. */ }
-    if (actual !== content) { console.error("SEO output is stale: " + path); failed = true; }
-  } else {
-    mkdirSync(dirname(absolute), {recursive:true});
-    writeFileSync(absolute, content, "utf8");
-    console.log("Wrote " + path);
+function renderSitemap(){const xml=(slug,locale)=>`    <xhtml:link rel="alternate" hreflang="zh-Hant" href="${pageUrl(slug,"zh")}"/>\n    <xhtml:link rel="alternate" hreflang="en" href="${pageUrl(slug,"en")}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(slug,"zh")}"/>`;
+return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.flatMap(p=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(p.slug,locale)}</loc>\n${xml(p.slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
+
+function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`}
+
+function outputs(){const items={"seo.css":CSS,"robots.txt":renderRobots(),"sitemap.xml":renderSitemap()};for(const p of PAGES){items[p.slug?p.slug+"/index.html":"index.html"]=renderPage(p,"zh");items["en/"+(p.slug?p.slug+"/":"")+"index.html"]=renderPage(EN_PAGES.find(q=>q.slug===p.slug),"en");}return items}
+const root=resolve(dirname(fileURLToPath(import.meta.url)),"..");
+const checkOnly=process.argv.includes("--check");
+let failed=false;
+for(const [path,content] of Object.entries(outputs())){
+  const absolute=join(root,path);
+  if(checkOnly){
+    let actual="";
+    try{actual=readFileSync(absolute,"utf8")}catch{/* missing output */}
+    if(actual!==content){console.error("SEO output is stale: "+path);failed=true}
+  }else{
+    mkdirSync(dirname(absolute),{recursive:true});
+    writeFileSync(absolute,content,"utf8");
+    console.log("Wrote "+path);
   }
 }
-if (failed) process.exitCode = 1;
+if(failed)process.exitCode=1;
