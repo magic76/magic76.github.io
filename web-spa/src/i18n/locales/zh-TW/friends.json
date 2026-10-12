@@ -43,7 +43,15 @@
   "back": "返回人物介紹",
   "sharedMemories": "共同回憶",
   "category": {
-    "all": "全部"
+    "all": "全部",
+    "banter": "幽默",
+    "thoughtful": "深聊",
+    "creative": "創意",
+    "active": "活力",
+    "calm": "慢聊",
+    "ideas": "觀點",
+    "culture": "文化",
+    "adventure": "旅行"
   },
   "languages": {
     "英文": "英文",
