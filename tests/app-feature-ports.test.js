@@ -544,7 +544,7 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 });
 
 
-test("Crew home puts the next activity first and keeps Gemini setup secondary",()=>{
+test("Crew home highlights free Gemini setup for unconfigured visitors",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
  assert.equal(readUiLocale("home").headline,"今天想做些什麼？");
@@ -556,7 +556,8 @@ test("Crew home puts the next activity first and keeps Gemini setup secondary",(
  assert.ok(home.includes('t("product.teacher")')&&home.includes('t("product.story")')&&home.includes('t("product.fortune")'));
  assert.equal(readUiLocale("home").product.teacher,"語言與口說");
  assert.ok(home.includes('t("setup.title")'));
- assert.ok(readUiLocale("home").setup.title.includes("Gemini Key"));
+ assert.ok(readUiLocale("home").setup.title.includes("免費"));
+ assert.ok(home.indexOf("crew-home-setup-free")<home.indexOf("crew-home-products"),"onboarding should precede product entry");
  assert.ok(home.includes("geminiKey()"));
  assert.ok(home.includes("geminiVerified()"));
  assert.ok(!home.includes("切換不再重新載入不同頁面"));
@@ -768,7 +769,7 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.equal(readUiLocale("common").gemini.pending,"Gemini 待驗證");
  assert.ok(home.includes('t("setup.verify")'));
  assert.equal(readUiLocale("home").setup.verify,"Gemini Key 尚未驗證");
- assert.ok(controls.includes("前往 Gemini 設定"));
+ assert.ok(controls.includes("GeminiSetupNotice"),"key recovery should use shared onboarding");
  assert.ok(controls.includes("重新允許麥克風"));
  assert.ok(controls.includes("重新連線"));
  assert.ok(hook.includes('errorKind'));
