@@ -56,5 +56,27 @@
     "emptyError": "Enter a story idea or add at least one photo.",
     "keyError": "Set up a Gemini Key before creating a story.",
     "generateError": "Couldn't generate or save the story. Your idea and photos are still here; try again."
+  },
+  "my": {
+    "title": "My Story",
+    "intro": "Manage your story preferences, narration language, and voice.",
+    "stories": "My stories",
+    "builtIn": "Included stories",
+    "narrationLanguage": "Narration language",
+    "preferences": "Story preferences",
+    "voice": "Archie's voice",
+    "style": "Default story style",
+    "styles": {
+      "warm": "Warm adventure",
+      "bedtime": "Bedtime story",
+      "funny": "Funny",
+      "mystery": "Mystery",
+      "fantasy": "Fantasy"
+    },
+    "android": "Android app",
+    "androidDesc": "Get the full Crew Story experience on Android.",
+    "privacy": "Privacy & content",
+    "media": "About photos and audio",
+    "privacyDesc": "Only submit photos, audio, and story content you're comfortable sending to an AI service. Your Gemini Key is managed in global Settings."
   }
 }
