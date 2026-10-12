@@ -1,20 +1,20 @@
 {
   "date": "2026-10-12",
-  "generatedAt": "2026-10-12T01:19:43.340Z",
+  "generatedAt": "2026-10-12T01:21:46.952Z",
   "edition": "public",
   "notes": "今日研究依 Agent 可靠性、記憶與 Context、多 Agent 協作、即時語音、學習體驗、模型效率和 AI 產品落地選題。資訊基於公開來源，摘要為研究線索而非實測結論；請參照原文。",
   "items": [
     {
-      "id": "34c1526655ad6a3f",
-      "title": "An Efficient Multimodal Causal Attention Architecture for Real-Time Mobile Educational Content Interpretation",
-      "summary": "The increasing adoption of mobile learning requires efficient multimodal models capable of real-time educational content analysis under resource constraints. However, existing multimodal architectures often involve high inference latency and memory requirements, limiting their deployment on mobile and edge devices. Thi",
+      "id": "38c1c1ffd5697df1",
+      "title": "Cost-effective on-premises multimodal RAG deployment with Kubernetes: a GroundX case study",
+      "summary": "Introduction: Multimodal systems increasingly run on public cloud infrastructure because it scales on demand. For workloads that are predictable and not time-critical, that convenience carries recurring fees and limited visibility into the platform, and the case for repatriating such workloads to local hardware is unde",
       "publishedAt": "2026-10-09T00:00:00Z",
-      "topic": "Realtime Multimodal",
+      "topic": "Context & Memory",
       "projects": [
-        "Crew Teacher",
-        "Crew Story"
+        "Crew Pocket",
+        "Crew Deck"
       ],
-      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
       "actions": [
         "閱讀原文，確認它解決的問題、實驗方法及適用限制",
         "檢查相關功能現有做法，找出可比較的差異",
@@ -22,26 +22,26 @@
       ],
       "sources": [
         {
-          "title": "An Efficient Multimodal Causal Attention Architecture for Real-Time Mobile Educational Content Interpretation",
-          "url": "https://doi.org/10.3991/ijim.v20i19.63224",
+          "title": "Cost-effective on-premises multimodal RAG deployment with Kubernetes: a GroundX case study",
+          "url": "https://doi.org/10.20935/acadai8571",
           "publishedAt": "2026-10-09T00:00:00Z",
           "kind": "研究論文索引"
         }
       ],
-      "score": 87,
-      "body": "The increasing adoption of mobile learning requires efficient multimodal models capable of real-time educational content analysis under resource constraints. However, existing multimodal architectures often involve high inference latency and memory requirements, limiting their deployment on mobile and edge devices. Thi"
+      "score": 95,
+      "body": "Introduction: Multimodal systems increasingly run on public cloud infrastructure because it scales on demand. For workloads that are predictable and not time-critical, that convenience carries recurring fees and limited visibility into the platform, and the case for repatriating such workloads to local hardware is unde"
     },
     {
-      "id": "36a0a26f3a265615",
-      "title": "Leveraging LiveKit for Real-Time AI-Driven Conversational Agents",
-      "summary": "Recent progress in real-time communication frameworks has significantly advanced the development of multimodal intelligent assistants that can interact with users in a natural, human-like manner.This paper introduces a LiveKit-based AI Assistant designed to enable seamless, low-latency human-computer interaction by int",
-      "publishedAt": "2026-10-09T00:00:00Z",
-      "topic": "Realtime Multimodal",
+      "id": "1eaec5c1369c5d11",
+      "title": "Entropy-Based Guided Collaboration in Heterogeneous LLM Multi-Agent Systems",
+      "summary": "Hacker News 社群近期討論：Entropy-Based Guided Collaboration in Heterogeneous LLM Multi-Agent Systems。社群熱度不等於技術已經驗證。",
+      "publishedAt": "2026-09-25T14:12:31Z",
+      "topic": "Multi-Agent Systems",
       "projects": [
-        "Crew Teacher",
-        "Crew Story"
+        "Crew Deck",
+        "Crew Pocket"
       ],
-      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "relevance": "這個議題涉及 Crew Deck、Crew Pocket 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
       "actions": [
         "閱讀原文，確認它解決的問題、實驗方法及適用限制",
         "檢查相關功能現有做法，找出可比較的差異",
@@ -49,67 +49,14 @@
       ],
       "sources": [
         {
-          "title": "Leveraging LiveKit for Real-Time AI-Driven Conversational Agents",
-          "url": "https://doi.org/10.25258/ijddt.16.58s.131",
-          "publishedAt": "2026-10-09T00:00:00Z",
-          "kind": "研究論文索引"
+          "title": "Entropy-Based Guided Collaboration in Heterogeneous LLM Multi-Agent Systems",
+          "url": "https://arxiv.org/abs/2602.13639",
+          "publishedAt": "2026-09-25T14:12:31Z",
+          "kind": "社群觀察"
         }
       ],
-      "score": 87,
-      "body": "Recent progress in real-time communication frameworks has significantly advanced the development of multimodal intelligent assistants that can interact with users in a natural, human-like manner.This paper introduces a LiveKit-based AI Assistant designed to enable seamless, low-latency human-computer interaction by int"
-    },
-    {
-      "id": "4444d9502e75f51f",
-      "title": "Integrating Artificial Intelligence into Early Childhood Education in Nigeria: A Critical Inquiry into Pedagogical Opportunities, Systemic Challenges and Policy Imperativ",
-      "summary": "Introduction: The integration of Artificial Intelligence (AI) into Early Childhood Education (ECE) represents a transformative paradigm shift globally, yet Nigeria's ECE sector remains critically underexplored in this domain.  Problem: Despite AI's demonstrated potential to enhance foundational literacy, numeracy, and",
-      "publishedAt": "2026-10-07T00:00:00Z",
-      "topic": "AI Learning",
-      "projects": [
-        "Crew Teacher"
-      ],
-      "relevance": "這個議題涉及 Crew Teacher 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
-      "actions": [
-        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
-        "檢查相關功能現有做法，找出可比較的差異",
-        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
-      ],
-      "sources": [
-        {
-          "title": "Integrating Artificial Intelligence into Early Childhood Education in Nigeria: A Critical Inquiry into Pedagogical Opportunities, Systemic Challenges and Policy Imperatives",
-          "url": "https://doi.org/10.38124/ijisrt/26sep998",
-          "publishedAt": "2026-10-07T00:00:00Z",
-          "kind": "研究論文索引"
-        }
-      ],
-      "score": 85,
-      "body": "Introduction: The integration of Artificial Intelligence (AI) into Early Childhood Education (ECE) represents a transformative paradigm shift globally, yet Nigeria's ECE sector remains critically underexplored in this domain.  Problem: Despite AI's demonstrated potential to enhance foundational literacy, numeracy, and"
-    },
-    {
-      "id": "e4db26e6211387c1",
-      "title": "ARTIFICIAL INTELLIGENCE IN RETAIL: CONSUMER ATTITUDES TOWARD VOICE COMMERCE",
-      "summary": "The global volume of e-commerce has been steadily increasing, prompting retailers to adopt online sales channels alongside traditional physical stores. A similar trend is observed in the adoption of artificial intelligence in retail, where AI is becoming a key prerequisite for market competitiveness. E-commerce encompa",
-      "publishedAt": "2026-10-08T00:00:00Z",
-      "topic": "Realtime Multimodal",
-      "projects": [
-        "Crew Teacher",
-        "Crew Story"
-      ],
-      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
-      "actions": [
-        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
-        "檢查相關功能現有做法，找出可比較的差異",
-        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
-      ],
-      "sources": [
-        {
-          "title": "ARTIFICIAL INTELLIGENCE IN RETAIL: CONSUMER ATTITUDES TOWARD VOICE COMMERCE",
-          "url": "https://doi.org/10.56497/etj2671306",
-          "publishedAt": "2026-10-08T00:00:00Z",
-          "kind": "研究論文索引"
-        }
-      ],
-      "score": 87,
-      "body": "The global volume of e-commerce has been steadily increasing, prompting retailers to adopt online sales channels alongside traditional physical stores. A similar trend is observed in the adoption of artificial intelligence in retail, where AI is becoming a key prerequisite for market competitiveness. E-commerce encompa"
+      "score": 78,
+      "body": "Hacker News 社群近期討論：Entropy-Based Guided Collaboration in Heterogeneous LLM Multi-Agent Systems。社群熱度不等於技術已經驗證。"
     }
   ]
 }
