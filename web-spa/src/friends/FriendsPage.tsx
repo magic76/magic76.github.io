@@ -1,5 +1,7 @@
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
+import {useTranslation} from "react-i18next";
+import i18n from "../i18n";
 import {Link,useNavigate} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
@@ -11,12 +13,14 @@ import "./friends.css";
 function relativeDate(timestamp:number) {
  if(!timestamp)return "";
  const days=Math.floor((Date.now()-timestamp)/86400000);
- if(days<1)return "今天聊過";
- if(days===1)return "昨天聊過";
- return days<30?days+" 天前聊過":new Date(timestamp).toLocaleDateString("zh-TW");
+ if(days<1)return i18n.t("friends:today");
+ if(days===1)return i18n.t("friends:yesterday");
+ return days<30?i18n.t("friends:days",{count:days}):new Date(timestamp).toLocaleDateString(i18n.language==="en"?"en-US":"zh-TW");
 }
 
 export function FriendsPage(){
+ const {t,i18n:locale}=useTranslation("friends");
+ const english=locale.language==="en";
  const navigate=useNavigate();
  const pace=useTeacherStore(s=>s.speakingPace),setPace=useTeacherStore(s=>s.setSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const language=useTeacherStore(s=>s.targetLanguage);
@@ -56,51 +60,51 @@ export function FriendsPage(){
  const memories=selected?getFriendTopics(selected.id,language):[];
  return <div className="crew-friends-page" data-revision={revision}>
   <header className="hero friends-intro">
-   <span className="kicker">CREW FRIENDS</span><h1>今天，找誰聊聊？</h1>
-   <p>這裡不用上課。挑個聊得來的人，從生活、旅行到各種突發奇想都能聊。</p>
+   <span className="kicker">CREW FRIENDS</span><h1>{t("title")}</h1>
+   <p>{t("intro")}</p>
   </header>
-  <section className="section teacher-precall-settings panel"><label>對話語言<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v}>{v}</option>)}</select></label><label>說話速度<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">慢速</option><option value="normal">正常</option><option value="fast">快速</option></select></label></section>
-  <div className="friends-top-actions"><span>16 位不同個性的朋友</span><Link to="/settings#memory-settings">記憶設定 →</Link></div>
+  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label></section>
+  <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} →</Link></div>
   {recent.length?<section className="section friends-recent">
-   <div className="section-head"><h2>最近聊過</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm("清除最近聊天日期？已儲存的共同話題不會刪除。")){clearFriendRecent(language);refresh()}}}>清除最近</button></div>
+   <div className="section-head"><h2>{t("recent")}</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm(t("clearRecentConfirm"))){clearFriendRecent(language);refresh()}}}>{t("clearRecent")}</button></div>
    <div className="friends-recent-list">{recent.slice(0,8).map(friend=><button type="button" key={friend.id} className="friends-recent-card" onClick={()=>begin(friend)}>
-     <FriendAvatar friend={friend}/><strong>{friend.name}</strong><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><span>接著聊 →</span>
+     <FriendAvatar friend={friend}/><strong>{friend.name}</strong><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><span>{t("resume")} →</span>
    </button>)}</div>
-  </section>:<div className="friends-recent-empty">聊過的朋友會出現在這裡，方便下次直接接著聊。</div>}
+  </section>:<div className="friends-recent-empty">{t("recentEmpty")}</div>}
   <section className="section friends-directory">
-   <div className="section-head"><h2>所有朋友</h2><small>{CREW_FRIENDS.length} 位</small></div>
-   <label className="friends-search"><span className="sr-only">搜尋朋友</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋名字、興趣或個性"/></label>
-   <div className="friends-categories" role="group" aria-label="朋友分類">{FRIEND_CATEGORIES.map(cat=><button type="button" key={cat} className={category===cat?"active":""} aria-pressed={category===cat} onClick={()=>setCategory(cat)}>{FRIEND_CATEGORY_LABELS[cat]}</button>)}</div>
+   <div className="section-head"><h2>{t("all")}</h2><small>{t("people",{count:CREW_FRIENDS.length})}</small></div>
+   <label className="friends-search"><span className="sr-only">{t("search")}</span><input type="search" value={query} onChange={e=>setQuery(e.target.value)} placeholder={t("searchPlaceholder")}/></label>
+   <div className="friends-categories" role="group" aria-label={t("categories")}>{FRIEND_CATEGORIES.map(cat=><button type="button" key={cat} className={category===cat?"active":""} aria-pressed={category===cat} onClick={()=>setCategory(cat)}>{t("category."+cat,{defaultValue:FRIEND_CATEGORY_LABELS[cat]})}</button>)}</div>
    <div className="friends-contact-list">{visible.length?visible.map(friend=><button type="button" className="friends-contact" key={friend.id} onClick={()=>{setSelected(friend);setMemoryPanel(false)}}>
-     <FriendAvatar friend={friend}/><span className="friends-contact-copy"><strong>{friend.name}<small>{friend.titleZh}</small></strong><span>{friendMemoryEnabled()&&getFriendTopics(friend.id,language)[0]?.title?"聊過的事："+getFriendTopics(friend.id,language)[0].title:friend.bioZh}</span></span>
+     <FriendAvatar friend={friend}/><span className="friends-contact-copy"><strong>{friend.name}<small>{english?friend.titleEn:friend.titleZh}</small></strong><span>{friendMemoryEnabled()&&getFriendTopics(friend.id,language)[0]?.title?t("lastTopic")+getFriendTopics(friend.id,language)[0].title:(english?friend.bioEn:friend.bioZh)}</span></span>
      <span className="friends-contact-tail"><small>{relativeDate(getFriendLastChat(friend.id,language))}</small><b aria-hidden="true">›</b></span>
-    </button>):<p className="friends-empty">沒有符合的朋友，試試別的名字或興趣。</p>}</div>
+    </button>):<p className="friends-empty">{t("noMatches")}</p>}</div>
   </section>
-  <p className="friends-privacy-note">最近互動只記錄真實聊天日期；話題記憶預設開啟，可到設定關閉或清除。朋友是虛構的 AI 角色，不會聲稱真實線上狀態。</p>
+  <p className="friends-privacy-note">{t("privacy")}</p>
   {selected?createPortal(<div className="friends-modal-backdrop" role="presentation" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>
    <section className="friends-modal" role="dialog" aria-modal="true" aria-label={selected.name} onClick={e=>e.stopPropagation()}>
-    <button ref={closeButton} type="button" className="friends-modal-close" aria-label="關閉" onClick={()=>{setSelected(null);setMemoryPanel(false)}}>×</button>
-    <FriendAvatar friend={selected} className="friends-detail-avatar"/><h2>{selected.name}</h2><strong className="friends-detail-title">{selected.titleZh}</strong><p>{selected.bioZh}</p>
+    <button ref={closeButton} type="button" className="friends-modal-close" aria-label={t("close")} onClick={()=>{setSelected(null);setMemoryPanel(false)}}>×</button>
+    <FriendAvatar friend={selected} className="friends-detail-avatar"/><h2>{selected.name}</h2><strong className="friends-detail-title">{english?selected.titleEn:selected.titleZh}</strong><p>{english?selected.bioEn:selected.bioZh}</p>
     {getFriendLastChat(selected.id,language)>0?<small className="friends-detail-time">{relativeDate(getFriendLastChat(selected.id,language))}</small>:null}
     {memoryPanel?<div className="friends-memories">
-     <h3>和 {selected.name} 的共同話題</h3>
-     {!friendMemoryEnabled()?<p>已關閉聊天話題記憶，可到「設定 → 記憶」重新開啟。</p>:<>
+     <h3>{t("topicsWith",{name:selected.name})}</h3>
+     {!friendMemoryEnabled()?<p>{t("disabled")}</p>:<>
        {memories.length?memories.map(item=><div className="friends-memory-row" key={item.id}>
         <div><strong>{item.title}</strong><small>{item.summary}</small></div>
-        <button type="button" aria-label="釘選話題" onClick={()=>{pinFriendTopic(selected.id,language,item.id);refresh()}}>{item.pinned?"取消釘選":"釘選"}</button>
-        <button type="button" aria-label="編輯話題" onClick={()=>{
-          const title=window.prompt("修改話題名稱",item.title);
+        <button type="button" aria-label={t("pin")} onClick={()=>{pinFriendTopic(selected.id,language,item.id);refresh()}}>{item.pinned?t("unpin"):t("pin")}</button>
+        <button type="button" aria-label={t("edit")} onClick={()=>{
+          const title=window.prompt(t("editPrompt"),item.title);
           if(title!==null&&editFriendTopic(selected.id,language,item.id,title))refresh();
-        }}>編輯</button>
-        <button type="button" aria-label="刪除話題" onClick={()=>{deleteFriendTopic(selected.id,language,item.id);refresh()}}>刪除</button>
-       </div>):<p>目前還沒有共同話題，聊過幾次後可以慢慢累積，也可以自行新增。</p>}
-       <form className="friends-add-memory" onSubmit={e=>{e.preventDefault();if(saveFriendTopic(selected.id,language,draft)){setDraft("");refresh()}}}><input value={draft} onChange={e=>setDraft(e.target.value)} maxLength={65} placeholder="手動新增一個話題"/><button type="submit" disabled={!draft.trim()}>新增</button></form>
-       {memories.length?<button type="button" className="friends-clear-memory" onClick={()=>{if(window.confirm("清除和這位朋友的所有共同話題？")){clearFriendTopics(selected.id,language);refresh()}}}>清除這位朋友的話題</button>:null}
+        }}>{t("edit")}</button>
+        <button type="button" aria-label={t("delete")} onClick={()=>{deleteFriendTopic(selected.id,language,item.id);refresh()}}>{t("delete")}</button>
+       </div>):<p>{t("noTopics")}</p>}
+       <form className="friends-add-memory" onSubmit={e=>{e.preventDefault();if(saveFriendTopic(selected.id,language,draft)){setDraft("");refresh()}}}><input value={draft} onChange={e=>setDraft(e.target.value)} maxLength={65} placeholder={t("addPlaceholder")}/><button type="submit" disabled={!draft.trim()}>{t("add")}</button></form>
+       {memories.length?<button type="button" className="friends-clear-memory" onClick={()=>{if(window.confirm(t("clearTopicsConfirm"))){clearFriendTopics(selected.id,language);refresh()}}}>{t("clearTopics")}</button>:null}
       </>}
-    </div>:<div className="friends-detail-topics">{friendMemoryEnabled()&&memories.length?<><h3>我們聊過的話題</h3>{memories.slice(0,3).map(topic=><span key={topic.id}>{topic.title}</span>)}</>:!friendMemoryEnabled()?<small>聊天記憶已關閉，可在「設定 → 記憶」開啟。</small>:null}</div>}
+    </div>:<div className="friends-detail-topics">{friendMemoryEnabled()&&memories.length?<><h3>{t("topics")}</h3>{memories.slice(0,3).map(topic=><span key={topic.id}>{topic.title}</span>)}</>:!friendMemoryEnabled()?<small>{t("disabledHint")}</small>:null}</div>}
     <div className="friends-modal-actions">
-     <button type="button" className="friends-primary" onClick={()=>begin(selected)}>{getFriendLastChat(selected.id,language)?"接著聊":"開始聊天"}</button>
-     <button type="button" className="friends-secondary" onClick={()=>setMemoryPanel(v=>!v)}>{memoryPanel?"返回人物介紹":"共同回憶"}</button>
+     <button type="button" className="friends-primary" onClick={()=>begin(selected)}>{getFriendLastChat(selected.id,language)?t("resume"):t("start")}</button>
+     <button type="button" className="friends-secondary" onClick={()=>setMemoryPanel(v=>!v)}>{memoryPanel?t("back"):t("sharedMemories")}</button>
     </div>
    </section>
   </div>,document.body):null}
