@@ -1,9 +1,11 @@
 import{Outlet}from"react-router-dom";
+import{useTranslation}from"react-i18next";
 import{AppChrome}from"../components/AppChrome";
 import{ProductTabs}from"../components/ProductTabs";
 export function TeacherLayout(){
+ const {t}=useTranslation("teacher");
  return <AppChrome product="teacher">
-  <ProductTabs items={[["/teacher/practice","練習"],["/teacher/learn","學習"],["/teacher/roles","角色"],["/teacher/me","我的"]]}/>
+  <ProductTabs items={[["/teacher/practice",t("tabs.practice")],["/teacher/learn",t("tabs.learn")],["/teacher/roles",t("tabs.roles")],["/teacher/me",t("tabs.me")]]}/>
   <Outlet/>
  </AppChrome>;
 }

@@ -1,4 +1,4 @@
-import{useEffect,useRef,useState}from"react";
+import{useEffect,useRef,useState}from"react";import{useTranslation}from"react-i18next";
 import{Link}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
 import{NATIVE_LANGUAGES,teacherText}from"./teacherLocale";
@@ -20,6 +20,7 @@ const SCENES=[
 ];
 
 export function TutorPage(){
+ const {t,i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
  const s=useTeacherStore(),[picker,setPicker]=useState(false),profile=getTeacherProfile(s.teacherProfile);
  const[preview,setPreview]=useState<PreviewStatus|null>(null),stopRef=useRef<null|(()=>void)>(null);
  const[scene,setScene]=useState(()=>localStorage.getItem("crew_teacher_scenario")||"hotel_checkin");
@@ -32,48 +33,48 @@ export function TutorPage(){
  }
  const startPath="/teacher/live"+(s.conversationMode==="scenario"?"?mission="+encodeURIComponent(scene):"");
  return <>
- <section className="hero teacher-home-heading"><span className="kicker">CREW TEACHER</span><h1>和老師練習</h1><p>選一位適合你的老師，照自己的步調開口。</p></section>
+ <section className="hero teacher-home-heading"><span className="kicker">CREW TEACHER</span><h1>{t("tutor.title")}</h1><p>{t("tutor.intro")}</p></section>
  <section className="section teacher-home">
   <div className="panel teacher-home-hero">
    <div className="teacher-home-identity">
-    <button type="button" className="teacher-avatar-button teacher-home-avatar" aria-label="更換老師" onClick={()=>{stopPreview();setPicker(true)}}><TeacherAvatar profile={profile}/></button>
-    <div className="teacher-home-copy"><span className="kicker">目前的 Crew 老師</span><h2>{profile.name}</h2><strong>{profile.title}</strong><p>{profile.description}</p></div>
+    <button type="button" className="teacher-avatar-button teacher-home-avatar" aria-label={t("tutor.change")} onClick={()=>{stopPreview();setPicker(true)}}><TeacherAvatar profile={profile}/></button>
+    <div className="teacher-home-copy"><span className="kicker">{t("tutor.current")}</span><h2>{profile.name}</h2><strong>{english?"Crew Teacher":profile.title}</strong><p>{english?profile.taglineEn:profile.description}</p></div>
    </div>
    <div className="teacher-home-actions">
-    <button className="btn secondary" type="button" onClick={()=>{stopPreview();setPicker(true)}}>更換老師</button>
+    <button className="btn secondary" type="button" onClick={()=>{stopPreview();setPicker(true)}}>{t("tutor.change")}</button>
     <button className="btn secondary" type="button" onClick={preview?.state==="connecting"||preview?.state==="playing"?stopPreview:audition}
-      aria-live="polite">{preview?.state==="connecting"?"正在連線…":preview?.state==="playing"?"停止試聽":preview?.state==="finished"?"再次試聽":preview?.state==="error"?"重試試聽":"試聽老師"}</button>
+      aria-live="polite">{preview?.state==="connecting"?t("tutor.connecting"):preview?.state==="playing"?t("tutor.stop"):preview?.state==="finished"?t("tutor.again"):preview?.state==="error"?t("tutor.retry"):t("tutor.listen")}</button>
    </div>
    {preview?.state==="error"&&<p className="teacher-preview-error" role="alert">{preview.message}</p>}
-   <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>和 {profile.name} 開始口說 <span aria-hidden="true">→</span></Link>
+   <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>{t("tutor.start",{name:profile.name})} <span aria-hidden="true">→</span></Link>
   </div>
  </section>
- <section className="section teacher-precall-settings panel"><label>對話語言<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v}>{v}</option>)}</select></label><label>說話速度<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">慢速</option><option value="normal">正常</option><option value="fast">快速</option></select></label></section>
+ <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label></section>
   <section className="section teacher-quick-config">
-  <div className="section-head"><h2>互動方式</h2><small>下次對話生效</small></div>
+  <div className="section-head"><h2>{t("tutor.interaction")}</h2><small>{t("tutor.nextChat")}</small></div>
   <div className="panel teacher-choice-panel">
-   <p className="meta">自然聊天不會每句糾錯；口說練習重視回饋；情境練習直接進入角色。</p>
-   <div className="teacher-segmented" role="group" aria-label="聊天模式">{CHAT_OPTIONS.map(a=><button type="button" key={a.value} aria-pressed={s.conversationMode===a.value} className={s.conversationMode===a.value?"selected":""} onClick={()=>s.setConversationMode(a.value)}>{a.label}</button>)}</div>
-   {s.conversationMode==="scenario"&&<div className="teacher-scene-selection"><span className="label">選擇情境</span><div className="teacher-scene-choices">{SCENES.map(x=><button type="button" key={x.id} aria-pressed={scene===x.id} className={scene===x.id?"selected":""} onClick={()=>{setScene(x.id);localStorage.setItem("crew_teacher_scenario",x.id)}}>{x.title}</button>)}</div></div>}
+   <p className="meta">{t("tutor.interactionDesc")}</p>
+   <div className="teacher-segmented" role="group" aria-label={t("tutor.interaction")}>{CHAT_OPTIONS.map(a=><button type="button" key={a.value} aria-pressed={s.conversationMode===a.value} className={s.conversationMode===a.value?"selected":""} onClick={()=>s.setConversationMode(a.value)}>{t("tutor.modes."+a.value)}</button>)}</div>
+   {s.conversationMode==="scenario"&&<div className="teacher-scene-selection"><span className="label">{t("tutor.scenes.title")}</span><div className="teacher-scene-choices">{SCENES.map(x=><button type="button" key={x.id} aria-pressed={scene===x.id} className={scene===x.id?"selected":""} onClick={()=>{setScene(x.id);localStorage.setItem("crew_teacher_scenario",x.id)}}>{t("tutor.scenes."+x.id)}</button>)}</div></div>}
   </div>
  </section>
  <section className="section teacher-advanced-section">
   <details className="panel teacher-advanced-settings">
-   <summary><span><strong>老師與語言偏好</strong><small>{s.targetLanguage} · {accentLabel(s.targetLanguage,s.languageStyle)} · {s.speakingPace==="normal"?"正常語速":s.speakingPace==="slow"?"慢速":"快速"}</small></span><span className="teacher-advanced-chevron" aria-hidden="true">⌄</span></summary>
+   <summary><span><strong>{t("tutor.advanced")}</strong><small>{s.targetLanguage} · {accentLabel(s.targetLanguage,s.languageStyle)} · {t("tutor.speed."+s.speakingPace)}</small></span><span className="teacher-advanced-chevron" aria-hidden="true">⌄</span></summary>
    <div className="teacher-advanced-body">
     <div className="settings-grid">
-     <label><span className="label">{teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(l=><option key={l}>{l}</option>)}</select></label>
-     <label><span className="label">{teacherText(s.nativeLanguage,"nativeLanguage")}</span><select className="field" value={s.nativeLanguage} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
-     <label><span className="label">地區口音</span><select className="field" aria-label="選擇地區口音" value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as typeof s.languageStyle)}>{accentOptions(s.targetLanguage).map(a=><option value={a.value} key={a.value}>{a.label}</option>)}</select></label>
-     <label><span className="label">教學引導</span><select id="teacher-guidance" className="field" value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as typeof s.teachingMode)}>
-      <option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option>
+     <label><span className="label">{english?t("tutor.language"):teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(l=><option key={l} value={l}>{t("friends:languages."+l)}</option>)}</select></label>
+     <label><span className="label">{english?t("tutor.nativeLanguage"):teacherText(s.nativeLanguage,"nativeLanguage")}</span><select className="field" value={s.nativeLanguage} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
+     <label><span className="label">{t("tutor.accent")}</span><select className="field" aria-label={t("tutor.accentSelect")} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as typeof s.languageStyle)}>{accentOptions(s.targetLanguage).map(a=><option value={a.value} key={a.value}>{a.label}</option>)}</select></label>
+     <label><span className="label">{t("tutor.guidance")}</span><select id="teacher-guidance" className="field" value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as typeof s.teachingMode)}>
+      <option value="beginner">{t("tutor.guidanceChoices.beginner")}</option><option value="bilingual">{t("tutor.guidanceChoices.bilingual")}</option><option value="immersion">{t("tutor.guidanceChoices.immersion")}</option>
      </select></label>
     </div>
-    {s.languageStyle==="custom"&&<label><span className="label">自訂口音</span><input className="field" value={s.customAccent} onChange={e=>s.setCustomAccent(e.target.value)} placeholder="例如：清晰、自然的加拿大英語"/></label>}
-    <span className="label">語速</span>
-    <div className="teacher-segmented" role="group" aria-label="老師語速">{PACE_OPTIONS.map(a=><button type="button" key={a.value} aria-pressed={s.speakingPace===a.value} className={s.speakingPace===a.value?"selected":""} onClick={()=>s.setSpeakingPace(a.value)}>{a.label}</button>)}</div>
-    <details className="teacher-setting-advanced"><summary>進階 · 口音強度</summary><div className="teacher-segmented" role="group" aria-label="口音強度">{([{value:"subtle",label:"輕微"},{value:"natural",label:"自然"},{value:"noticeable",label:"明顯"}] as const).map(a=><button key={a.value} type="button" aria-pressed={s.accentStrength===a.value} className={s.accentStrength===a.value?"selected":""} onClick={()=>s.setAccentStrength(a.value)}>{a.label}</button>)}</div></details>
-    <p className="meta">偏好會套用到下一次對話；實際聲音表現由語音模型控制。</p>
+    {s.languageStyle==="custom"&&<label><span className="label">{t("tutor.customAccent")}</span><input className="field" value={s.customAccent} onChange={e=>s.setCustomAccent(e.target.value)} placeholder={t("tutor.customPlaceholder")}/></label>}
+    <span className="label">{t("tutor.paceLabel")}</span>
+    <div className="teacher-segmented" role="group" aria-label={t("tutor.teacherPace")}>{PACE_OPTIONS.map(a=><button type="button" key={a.value} aria-pressed={s.speakingPace===a.value} className={s.speakingPace===a.value?"selected":""} onClick={()=>s.setSpeakingPace(a.value)}>{t("tutor.shortSpeed."+a.value)}</button>)}</div>
+    <details className="teacher-setting-advanced"><summary>{t("tutor.advancedAccent")}</summary><div className="teacher-segmented" role="group" aria-label={t("tutor.accentStrength")}>{([{value:"subtle",label:"輕微"},{value:"natural",label:"自然"},{value:"noticeable",label:"明顯"}] as const).map(a=><button key={a.value} type="button" aria-pressed={s.accentStrength===a.value} className={s.accentStrength===a.value?"selected":""} onClick={()=>s.setAccentStrength(a.value)}>{t("tutor.strength."+a.value)}</button>)}</div></details>
+    <p className="meta">{t("tutor.preferences")}</p>
    </div>
   </details>
  </section>

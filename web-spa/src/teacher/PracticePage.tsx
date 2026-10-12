@@ -1,4 +1,5 @@
 import{Link}from"react-router-dom";
+import{useTranslation}from"react-i18next";
 import{Icon}from"../components/Icon";
 import{geminiKey,history}from"../lib/runtime";
 import{ContinueLearningCard}from"./ContinueLearningCard";
@@ -10,6 +11,7 @@ import{CREW_FRIENDS}from"../friends/friendProfiles";
 import{FriendAvatar}from"../friends/FriendAvatar";
 
 export function PracticePage(){
+ const {t}=useTranslation("teacher");
  const target=useTeacherStore(s=>s.targetLanguage);
  const profile=getTeacherProfile(useTeacherStore(s=>s.teacherProfile));
  const friendId=localStorage.getItem("crew_web_selected_friend_v1");
@@ -17,28 +19,28 @@ export function PracticePage(){
  const h=history("teacher"),today=new Date().toDateString();
  const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=todayVocabulary();
  return <>
- <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>今天想和誰聊聊？</h1><p>找朋友自在聊天，或跟老師練習表達。</p></section>
- {!geminiKey()&&<section className="section"><Link className="crew-setup-warning" to="/settings"><strong>先設定 Gemini Key</strong><span>完成設定後，就能和 Crew 老師、朋友直接語音對話。</span><b aria-hidden="true">→</b></Link></section>}
- <section className="section crew-target-shortcut" aria-label="目前學習語言"><span>目前學習語言</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">調整語言與語速 →</Link></section>
-  <section className="section crew-role-gateway" aria-label="選擇 Crew 角色">
+ <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
+ {!geminiKey()&&<section className="section"><Link className="crew-setup-warning" to="/settings"><strong>{t("practice.keyTitle")}</strong><span>{t("practice.keyDesc")}</span><b aria-hidden="true">→</b></Link></section>}
+ <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
+  <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
    <span className="crew-role-symbol crew-role-portrait"><FriendAvatar friend={friend}/></span>
-   <strong>Crew 朋友 <span className="crew-role-name">· {friend.name}</span></strong><span>16 位個性不同的朋友，自然聊天、不評分。</span>
-   <small>找朋友聊聊 <b aria-hidden="true">↗</b></small>
+   <strong>{t("practice.friend")} <span className="crew-role-name">· {friend.name}</span></strong><span>{t("practice.friendDesc")}</span>
+   <small>{t("practice.friendAction")} <b aria-hidden="true">↗</b></small>
   </Link>
   <Link className="crew-role-entry teacher" to="/teacher/roles?mode=teacher">
    <span className="crew-role-symbol crew-role-portrait"><TeacherAvatar profile={profile}/></span>
-   <strong>Crew 老師 <span className="crew-role-name">· {profile.name}</span></strong><span>16 位專屬老師，口說、情境與表達練習。</span>
-   <small>找老師練習 <b aria-hidden="true">↗</b></small>
+   <strong>{t("practice.teacher")} <span className="crew-role-name">· {profile.name}</span></strong><span>{t("practice.teacherDesc")}</span>
+   <small>{t("practice.teacherAction")} <b aria-hidden="true">↗</b></small>
   </Link>
  </section>
- <section className="section crew-continue-section"><div className="section-head"><h2>接續上次學習</h2><small>你的下一步</small></div><ContinueLearningCard compact/></section>
- <section className="section crew-practice-shortcuts"><div className="section-head"><h2>快速練習</h2><small>選一種方式</small></div><div className="grid two-col">
-  <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>教材陪讀</strong><span>拍下教材，跟著老師逐頁讀</span></Link>
-  {target==="英文"&&<Link className="feature-card teacher-vocab" to="/teacher/vocabulary"><span className="feature-icon"><Icon name="cards"/></span><strong>單字練習</strong><span>練習和複習不熟的字</span></Link>}
-  {target==="英文"&&<Link className="feature-card teacher-scene" to="/teacher/course"><span className="feature-icon"><Icon name="scene"/></span><strong>情境課程</strong><span>從生活到工作場合逐步練習</span></Link>}
-  <Link className="feature-card" to="/teacher/pronunciation"><span className="feature-icon"><Icon name="mic"/></span><strong>朗讀糾音</strong><span>練習發音、節奏與流暢度</span></Link>
+ <section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><small>{t("practice.next")}</small></div><ContinueLearningCard compact/></section>
+ <section className="section crew-practice-shortcuts"><div className="section-head"><h2>{t("practice.quick")}</h2><small>{t("practice.choose")}</small></div><div className="grid two-col">
+  <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>{t("practice.textbook")}</strong><span>{t("practice.textbookDesc")}</span></Link>
+  {target==="英文"&&<Link className="feature-card teacher-vocab" to="/teacher/vocabulary"><span className="feature-icon"><Icon name="cards"/></span><strong>{t("practice.vocab")}</strong><span>{t("practice.vocabDesc")}</span></Link>}
+  {target==="英文"&&<Link className="feature-card teacher-scene" to="/teacher/course"><span className="feature-icon"><Icon name="scene"/></span><strong>{t("practice.course")}</strong><span>{t("practice.courseDesc")}</span></Link>}
+  <Link className="feature-card" to="/teacher/pronunciation"><span className="feature-icon"><Icon name="mic"/></span><strong>{t("practice.pronunciation")}</strong><span>{t("practice.pronunciationDesc")}</span></Link>
  </div></section>
- {(todaySessions>0||v>0)&&<section className="section crew-today-summary"><div className="section-head"><h2>今天</h2><small>學習紀錄</small></div><div className="notice"><div><b>今天已經開始學習</b><p>{[todaySessions?todaySessions+" 次口說練習":"",v?v+" 題單字":""].filter(Boolean).join(" · ")}</p></div></div></section>}
+ {(todaySessions>0||v>0)&&<section className="section crew-today-summary"><div className="section-head"><h2>{t("practice.today")}</h2><small>{t("practice.record")}</small></div><div className="notice"><div><b>{t("practice.done")}</b><p>{[todaySessions?t("practice.sessions",{count:todaySessions}):"",v?t("practice.words",{count:v}):""].filter(Boolean).join(" · ")}</p></div></div></section>}
  </>;
 }

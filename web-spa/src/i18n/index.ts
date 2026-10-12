@@ -3,9 +3,17 @@ import {initReactI18next} from "react-i18next";
 import zhCommon from "./locales/zh-TW/common.json";
 import zhHome from "./locales/zh-TW/home.json";
 import zhSettings from "./locales/zh-TW/settings.json";
+import zhFortune from "./locales/zh-TW/fortune.json";
+import zhStory from "./locales/zh-TW/story.json";
+import zhFriends from "./locales/zh-TW/friends.json";
+import zhTeacher from "./locales/zh-TW/teacher.json";
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
 import enSettings from "./locales/en/settings.json";
+import enFortune from "./locales/en/fortune.json";
+import enStory from "./locales/en/story.json";
+import enFriends from "./locales/en/friends.json";
+import enTeacher from "./locales/en/teacher.json";
 
 export type UiLocale="zh-TW"|"en";
 export const UI_LOCALE_KEY="crew_ui_locale_v1";
@@ -34,11 +42,11 @@ void i18n.use(initReactI18next).init({
  lng:activeLocale,
  fallbackLng:"zh-TW",
  supportedLngs:[...UI_LOCALES],
- ns:["common","home","settings"],
+ ns:["common","home","settings","teacher","friends","story","fortune"],
  defaultNS:"common",
  resources:{
-  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings},
-  en:{common:enCommon,home:enHome,settings:enSettings}
+  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
+  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune}
  },
  interpolation:{escapeValue:false},
  react:{useSuspense:false},

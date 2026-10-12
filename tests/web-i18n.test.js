@@ -13,7 +13,7 @@ function keys(value,prefix=""){
 }
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
- for(const ns of ["common","home","settings"]){
+ for(const ns of ["common","home","settings","teacher","friends","story","fortune"]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
   for(const value of [zh,en]){
@@ -58,4 +58,20 @@ test("English switches the shell, dashboard and settings without changing the Ha
  assert.ok(panel.includes('t("gemini.micAuthorization")'));
  assert.equal(load("en","home").headline,"What would you like to do today?");
  assert.equal(load("en","settings").gemini.micStateDenied,"Denied (check system and site permissions)");
+});
+
+test("product pages translate visible UI without rewriting conversation language",()=>{
+ const teacher=read("web-spa/src/teacher/PracticePage.tsx");
+ const roles=read("web-spa/src/teacher/RolesPage.tsx");
+ const friends=read("web-spa/src/friends/FriendsPage.tsx");
+ const story=read("web-spa/src/story/ShelfPage.tsx");
+ const create=read("web-spa/src/story/CreatePage.tsx");
+ const fortune=read("web-spa/src/fortune/HomePage.tsx");
+ for(const page of [teacher,roles,friends,story,create,fortune])
+  assert.ok(page.includes("useTranslation"),"product entry page must use i18n");
+ assert.ok(teacher.includes('target==="英文"'),"learning language rule must not change");
+ assert.ok(friends.includes('value={v}'),"option value must stay in original learning language");
+ assert.ok(friends.includes('english?friend.titleEn:friend.titleZh'),"friend profile localized separately from chat language");
+ assert.ok(friends.includes('setTargetLanguage'),"friend session language still controlled by its own store");
+ assert.ok(story.includes('book.title||t("shelf.myStory")'),"saved story content must remain intact");
 });
