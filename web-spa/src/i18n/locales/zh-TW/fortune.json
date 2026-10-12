@@ -65,11 +65,13 @@
     "aiFailed": "固定命盤已保存，AI 解讀暫時失敗。",
     "aiRetry": "重試 AI 解讀",
     "fixedDone": "基本命盤已完成",
-    "needKey": "想取得 AI 解讀，需要先設定 Gemini Key。",
+    "needKey": "AI 解讀需要 Gemini Key，可以使用 Google 帳號免費建立。",
     "setAI": "設定 AI 服務 →",
     "askMore": "想再問清楚一點？",
     "askDesc": "先看上面的重點、時間節奏與生活主題；還想深入時，再用語音追問這份結果。",
-    "ask": "問老師這份結果"
+    "ask": "問老師這份結果",
+    "aiNotGenerated": "你已完成基本命盤，可以現在產生 AI 解讀。",
+    "generateAI": "產生 AI 解讀"
   },
   "profile": {
     "birthdayRequired": "先選生日再儲存",
