@@ -110,6 +110,7 @@
       "slow": "Slow",
       "normal": "Normal",
       "fast": "Fast"
-    }
+    },
+    "nativeLanguage": "Native language"
   }
 }
