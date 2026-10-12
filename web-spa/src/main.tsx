@@ -14,6 +14,7 @@ import "./teacher/parity.css";
 import "./briefing/briefing.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
+import "./i18n";
 import { App } from "./App";
 
 const root = document.getElementById("root");
