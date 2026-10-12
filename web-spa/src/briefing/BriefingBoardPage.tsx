@@ -1,15 +1,49 @@
-import {useEffect,useState} from "react";
+import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
 import {fetchDay,fetchIndex} from "./data";
-import {getStatus,readReviews,updateReview,downloadText,importReviews} from "./storage";
-import type {BriefingItem,ReviewMap,ReviewStatus} from "./types";
-const STAGES:[ReviewStatus,string][]=[["reading","閱讀中"],["researching","研究中"],["delegated","已交給 Agent"],["adopted","已採用"],["dismissed","暫不採用"]];
-type Entry={date:string,item:BriefingItem};
+import {downloadText,getStatus,importReviews,readReviews,updateReview} from "./storage";
+import type {BriefingItem,ReviewMap} from "./types";
+type Entry={date:string;item:BriefingItem};
+type Tab="saved"|"reading"|"finished";
+const dateLabel=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString("zh-TW",{month:"long",day:"numeric"});
 export function BriefingBoardPage(){
- const[entries,setEntries]=useState<Entry[]>([]),[reviews,setReviews]=useState<ReviewMap>(()=>readReviews()),[busy,setBusy]=useState(true),[error,setError]=useState("");
- useEffect(()=>{let alive=true;fetchIndex().then(async index=>{const results=await Promise.allSettled(index.days.slice(0,35).map(date=>fetchDay(date)));if(!alive)return;setEntries(results.flatMap(v=>v.status==="fulfilled"?v.value.items.map(item=>({date:v.value.date,item})):[]));setBusy(false)}).catch(e=>{if(alive){setBusy(false);setError(String(e))}});return()=>{alive=false}},[]);
- function change(id:string,status:ReviewStatus){setReviews(updateReview(id,{status}))}
- const [importNote,setImportNote]=useState("");
+ const [entries,setEntries]=useState<Entry[]>([]),[reviews,setReviews]=useState<ReviewMap>(()=>readReviews());
+ const [busy,setBusy]=useState(true),[error,setError]=useState(""),[note,setNote]=useState(""),[tab,setTab]=useState<Tab>("saved");
+ useEffect(()=>{
+  let active=true;
+  fetchIndex().then(async index=>{
+   const result=await Promise.allSettled(index.days.slice(0,35).map(date=>fetchDay(date)));
+   if(!active)return;
+   setEntries(result.flatMap(v=>v.status==="fulfilled"?v.value.items.map(item=>({date:v.value.date,item})):[]));setBusy(false);
+  }).catch(e=>{if(active){setError(e instanceof Error?e.message:"資料載入失敗");setBusy(false)}});
+  const onChange=()=>setReviews(readReviews());
+  window.addEventListener("crew-briefing-updated",onChange);
+  return()=>{active=false;window.removeEventListener("crew-briefing-updated",onChange)};
+ },[]);
+ const matches=(entry:Entry,view:Tab)=>{
+  const review=reviews[entry.item.id];const status=getStatus(review);
+  return view==="saved"?!!review?.saved:view==="reading"?["reading","researching","delegated"].includes(status):["finished","adopted"].includes(status);
+ };
+ const items=useMemo(()=>entries.filter(entry=>matches(entry,tab)),[entries,reviews,tab]);
+ const counts=({saved:entries.filter(x=>matches(x,"saved")).length,reading:entries.filter(x=>matches(x,"reading")).length,finished:entries.filter(x=>matches(x,"finished")).length});
  const exportReviews=()=>downloadText("crew-briefing-reviews.json",JSON.stringify({version:1,exportedAt:new Date().toISOString(),reviews},null,2),"application/json");
- return <div className="briefing"><header className="briefing-head"><div><span className="kicker">CREW BRIEFING · ACTION BOARD</span><h1>研究進度</h1><p>報告不是讀完就結束。這裡集中你收藏、正在研究、已採用的方向。</p></div><div className="briefing-head-actions"><Link className="btn secondary" to="/briefing">返回報告</Link><button className="btn secondary" onClick={exportReviews}>備份研究狀態</button><label className="btn secondary" style={{cursor:"pointer"}}>匯入備份<input hidden type="file" accept=".json,application/json" onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;try{const n=importReviews(await file.text());setReviews(readReviews());setImportNote("已匯入 "+n+" 筆研究狀態")}catch(err){setImportNote(err instanceof Error?err.message:"匯入失敗")}}}/></label></div></header>{importNote&&<p className="briefing-toast" role="status">{importNote}</p>}{busy?<div className="briefing-empty">讀取研究進度中…</div>:error?<div className="briefing-empty">{error}</div>:<div className="briefing-board">{STAGES.map(([stage,name])=><section className="briefing-board-col" key={stage}><h2>{name} <small>{entries.filter(x=>getStatus(reviews[x.item.id])===stage).length}</small></h2>{entries.filter(x=>getStatus(reviews[x.item.id])===stage).map(({date,item})=><article key={item.id} className="briefing-board-card"><Link to={"/briefing/"+date+"/"+encodeURIComponent(item.id)}><strong>{item.title}</strong></Link><small>{item.projects.join(" · ")} · {date}</small><select aria-label={"變更 "+item.title+" 狀態"} value={stage} onChange={e=>change(item.id,e.target.value as ReviewStatus)}><option value="reading">閱讀中</option><option value="researching">研究中</option><option value="delegated">已交給 Agent</option><option value="adopted">已採用</option><option value="dismissed">暫不採用</option></select></article>)}{!entries.some(x=>getStatus(reviews[x.item.id])===stage)&&<p className="meta">目前沒有項目</p>}</section>)}</div>}</div>
+ return <div className="briefing briefing-reading-list">
+  <header className="briefing-head"><div><Link className="briefing-back-link" to="/briefing">← 每日研究</Link><h1>我的閱讀清單</h1><p>把值得回頭看的文章放在一起。收藏與閱讀紀錄只存在這台裝置。</p></div></header>
+  <div className="briefing-reading-tabs" role="group" aria-label="閱讀清單分類">
+   {([["saved","已收藏"],["reading","閱讀中"],["finished","已讀完"]] as const).map(([key,title])=><button key={key} className={tab===key?"active":""} aria-pressed={tab===key} onClick={()=>setTab(key)}>{title}<small>{counts[key]}</small></button>)}
+  </div>
+  {busy?<div className="briefing-empty">正在載入閱讀清單…</div>:error?<div className="briefing-empty" role="alert">{error}</div>:items.length?
+   <div className="briefing-reading-items">{items.map(({item,date})=><article key={item.id} className="briefing-reading-item">
+    <div><span className="briefing-topic">{item.topic}</span><small>{dateLabel(date)}</small></div>
+    <h2><Link to={"/briefing/"+date+"/"+encodeURIComponent(item.id)}>{item.title}</Link></h2>
+    <p>{item.summary}</p>
+    <div className="briefing-reading-item-actions"><Link to={"/briefing/"+date+"/"+encodeURIComponent(item.id)}>繼續閱讀 →</Link>
+     {tab==="saved"&&<button onClick={()=>setReviews(updateReview(item.id,{saved:false}))}>移出收藏</button>}
+     {tab==="reading"&&<button onClick={()=>setReviews(updateReview(item.id,{status:"finished"}))}>標為已讀完</button>}
+    </div>
+   </article>)}</div>:
+   <div className="briefing-empty"><h2>{tab==="saved"?"還沒有收藏的文章":tab==="reading"?"目前沒有閱讀中的文章":"還沒有完成閱讀的文章"}</h2><p>閱讀報告時可以點選收藏或標記已讀完。</p><Link className="btn secondary" to="/briefing">探索每日研究</Link></div>}
+  <details className="briefing-backup"><summary>匯出／匯入閱讀紀錄</summary><p className="meta">更換瀏覽器時可使用備份檔；備份可能包含你的私人筆記，請自行保管。</p>
+   <div className="briefing-actions"><button className="btn secondary" onClick={exportReviews}>匯出備份</button><label className="btn secondary" style={{cursor:"pointer"}}>匯入備份<input hidden type="file" accept=".json,application/json" onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;try{const n=importReviews(await file.text());setReviews(readReviews());setNote("已匯入 "+n+" 筆閱讀紀錄")}catch(err){setNote(err instanceof Error?err.message:"匯入失敗")}}}/></label></div>{note&&<p className="meta" role="status">{note}</p>}</details>
+ </div>;
 }
