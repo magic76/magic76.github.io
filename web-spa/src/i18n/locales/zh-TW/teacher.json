@@ -141,6 +141,7 @@
     "preview": "▶ 試聽教學風格",
     "continue": "繼續由 {{name}} 教學",
     "select": "選擇 {{name}}",
-    "back": "返回老師列表"
+    "back": "返回老師列表",
+    "voiceSuggested": "已選用推薦聲線"
   }
 }
