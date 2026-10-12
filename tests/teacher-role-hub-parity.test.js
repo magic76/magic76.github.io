@@ -5,16 +5,16 @@ test("Crew Teacher home shows the selected people while preserving neutral globa
  const home=read("web-spa/src/teacher/PracticePage.tsx");
  const layout=read("web-spa/src/teacher/TeacherLayout.tsx");
  const roles=read("web-spa/src/teacher/RolesPage.tsx");
- assert.match(home,/今天想和誰聊聊/);
+ assert.match(home,/t\("practice\.title"\)/);
  assert.match(home,/crew-role-entry friend/);
  assert.match(home,/crew-role-entry teacher/);
  assert.match(home,/TeacherAvatar/);
  assert.match(home,/FriendAvatar/);
  assert.match(home,/crew_web_selected_friend_v1/);
  assert.doesNotMatch(home,/今天想學點什麼/);
- assert.ok(layout.includes('"/teacher/roles","角色"'));
+ assert.ok(layout.includes('"/teacher/roles",t("tabs.roles")'));
  assert.ok(!layout.includes('"/teacher/friends","朋友"'));
- assert.ok(roles.includes("Crew 老師")&&roles.includes("Crew 朋友"));
+ assert.ok(roles.includes('t("practice.teacher")')&&roles.includes('t("practice.friend")'));
  assert.ok(roles.includes("crew_teacher_last_role_v1"));
 });
 test("old tutor/friend urls redirect and relationship starts remain separate",()=>{
