@@ -1,14 +1,17 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const root=path.resolve(__dirname,".."),read=p=>fs.readFileSync(path.join(root,p),"utf8");
 
-test("Crew Teacher home is a neutral friends/teachers choice without avatar icons",()=>{
+test("Crew Teacher home shows the selected people while preserving neutral global app icons",()=>{
  const home=read("web-spa/src/teacher/PracticePage.tsx");
  const layout=read("web-spa/src/teacher/TeacherLayout.tsx");
  const roles=read("web-spa/src/teacher/RolesPage.tsx");
  assert.match(home,/今天想和誰聊聊/);
  assert.match(home,/crew-role-entry friend/);
  assert.match(home,/crew-role-entry teacher/);
- assert.doesNotMatch(home,/TeacherAvatar|FriendAvatar|今天想學點什麼/);
+ assert.match(home,/TeacherAvatar/);
+ assert.match(home,/FriendAvatar/);
+ assert.match(home,/crew_web_selected_friend_v1/);
+ assert.doesNotMatch(home,/今天想學點什麼/);
  assert.ok(layout.includes('"/teacher/roles","角色"'));
  assert.ok(!layout.includes('"/teacher/friends","朋友"'));
  assert.ok(roles.includes("Crew 老師")&&roles.includes("Crew 朋友"));

@@ -18,6 +18,7 @@ function relativeDate(timestamp:number) {
 
 export function FriendsPage(){
  const navigate=useNavigate();
+ const pace=useTeacherStore(s=>s.speakingPace),setPace=useTeacherStore(s=>s.setSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const language=useTeacherStore(s=>s.targetLanguage);
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState<string>("all");
@@ -49,6 +50,7 @@ export function FriendsPage(){
  const visible=CREW_FRIENDS.filter(friend=>(category==="all"||friend.category===category)&&
   [friend.name,friend.titleZh,friend.bioZh,friend.titleEn,friend.bioEn].join(" ").toLowerCase().includes(query.trim().toLowerCase()));
  function begin(friend:FriendProfile){
+  localStorage.setItem("crew_web_selected_friend_v1",friend.id);
   navigate("/friend/live?id="+encodeURIComponent(friend.id));
  }
  const memories=selected?getFriendTopics(selected.id,language):[];
@@ -57,6 +59,7 @@ export function FriendsPage(){
    <span className="kicker">CREW FRIENDS</span><h1>今天，找誰聊聊？</h1>
    <p>這裡不用上課。挑個聊得來的人，從生活、旅行到各種突發奇想都能聊。</p>
   </header>
+  <section className="section teacher-precall-settings panel"><label>對話語言<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v}>{v}</option>)}</select></label><label>說話速度<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">慢速</option><option value="normal">正常</option><option value="fast">快速</option></select></label></section>
   <div className="friends-top-actions"><span>16 位不同個性的朋友</span><Link to="/settings#memory-settings">記憶設定 →</Link></div>
   {recent.length?<section className="section friends-recent">
    <div className="section-head"><h2>最近聊過</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm("清除最近聊天日期？已儲存的共同話題不會刪除。")){clearFriendRecent(language);refresh()}}}>清除最近</button></div>
