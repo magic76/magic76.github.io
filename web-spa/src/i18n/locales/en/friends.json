@@ -65,6 +65,11 @@
     "saved": "New conversation memory saved.",
     "updated": "Conversation reviewed; existing memory updated.",
     "empty": "No lasting topic was found in the latest conversation.",
-    "error": "Could not save memory. Check your Gemini Key and network connection."
+    "error": "This memory capture failed. Previously saved memories are safe.",
+    "error-key": "The Gemini Key cannot access memory extraction. Check text-model permissions in Settings (separate from live voice).",
+    "error-quota": "The Gemini text-model rate or usage limit was reached. Try later or review quota in AI Studio.",
+    "error-network": "The memory request could not connect. Previously saved memories are safe.",
+    "error-service": "Gemini memory extraction is temporarily unavailable. Try again later.",
+    "error-response": "Gemini returned an unreadable memory response. No new memory was added this time."
   }
 }
