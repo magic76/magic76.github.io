@@ -16,8 +16,27 @@ const clean=(value:unknown,max=180)=>String(value??"").replace(/[\r\n\t]+/g," ")
 const langKey=(lang:string)=>encodeURIComponent(normalizeLearningLanguage(lang));
 const scope=(id:string,language:string)=>TOPICS+id+"_"+langKey(language);
 const captureKey=(id:string,language:string)=>id+"_"+langKey(language);
+const pendingCaptures=new Map<string,Promise<void>>();
+const recentCaptures=new Map<string,{fingerprint:string;at:number;status:FriendCaptureStatus}>();
+const recentSaved=new Map<string,{status:"saved"|"updated";at:number}>();
+class MemoryCaptureError extends Error{
+ constructor(readonly status:FriendCaptureStatus){super("Memory capture: "+status)}
+}
+const fingerprint=(text:string)=>{
+ let hash=2166136261;
+ for(let i=0;i<text.length;i++)hash=Math.imul(hash^text.charCodeAt(i),16777619);
+ return text.length+":"+(hash>>>0).toString(36);
+};
+/** Text generation and live voice use different quotas; distinguish their failures. */
+export function classifyFriendMemoryHttpError(code:number,reason="",message=""):FriendCaptureStatus{
+ if(code===429||reason==="RESOURCE_EXHAUSTED")return "error-quota";
+ if(code===401||code===403||reason==="UNAUTHENTICATED"||reason==="PERMISSION_DENIED"||
+  /api.?key.*(invalid|expired|not valid)|invalid.*api.?key/i.test(message))return "error-key";
+ if(code===408||code===500||code===502||code===503||code===504)return "error-service";
+ return "error-service";
+}
 function emitMemoryChange(){if(typeof window!=="undefined")window.dispatchEvent(new Event("crew-friend-memory-changed"))}
-export type FriendCaptureStatus=""|"pending"|"saved"|"updated"|"empty"|"error";
+export type FriendCaptureStatus=""|"pending"|"saved"|"updated"|"empty"|"error"|"error-key"|"error-quota"|"error-network"|"error-service"|"error-response";
 export function getFriendCaptureStatus(id:string,language:string):FriendCaptureStatus{
  if(!friendMemoryEnabled()||!validFriend(id))return "";
  return (localStorage.getItem(CAPTURE_STATUS+captureKey(id,language))||"") as FriendCaptureStatus;
@@ -30,8 +49,12 @@ function captureStarted(id:string,language:string){
 }
 function captureFinished(id:string,language:string,request:number,status:FriendCaptureStatus){
  const k=captureKey(id,language);
- if(Number(localStorage.getItem(CAPTURE_REQUEST+k)||0)===request)
-  {localStorage.setItem(CAPTURE_STATUS+k,status);emitMemoryChange()}
+ if(Number(localStorage.getItem(CAPTURE_REQUEST+k)||0)!==request)return;
+ // A later end-of-chat capture finding no *new* topic must not hide a prior successful save.
+ const saved=recentSaved.get(k);
+ if(status==="empty"&&saved&&Date.now()-saved.at<120000)status=saved.status;
+ if(status==="saved"||status==="updated")recentSaved.set(k,{status,at:Date.now()});
+ localStorage.setItem(CAPTURE_STATUS+k,status);emitMemoryChange();
 }
 const recentKey=(language:string)=>DATES+langKey(language);
 const epoch=()=>Number(localStorage.getItem(EPOCH)||0);
@@ -94,6 +117,7 @@ export function clearFriendTopics(id:string,language:string){
  if(!validFriend(id))return;
  bump();localStorage.removeItem(scope(id,language));
  const k=captureKey(id,language);
+ recentSaved.delete(k);
  localStorage.removeItem(CAPTURE_STATUS+k);
  localStorage.setItem(CAPTURE_REQUEST+k,String(Number(localStorage.getItem(CAPTURE_REQUEST+k)||0)+1));
 }
@@ -143,7 +167,7 @@ export function buildFriendSystem(friend:FriendProfile,language:string){
   friendPersonalContext(language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
 }
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
-export async function rememberFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
+async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
  if(!validFriend(id))return;
  const saveTopicsEnabled=friendMemoryEnabled(),savePersonal=personalMemoryEnabled();
  if(!saveTopicsEnabled&&!savePersonal)return;
@@ -153,7 +177,7 @@ export async function rememberFriendConversation(id:string,language:string,turns
  const consentEpoch=epoch(),personalEpoch=getPersonalMemoryEpoch();
  const key=geminiKey();
  if(!key){
-  if(saveTopicsEnabled)captureFinished(id,language,token,"error");
+  if(saveTopicsEnabled)captureFinished(id,language,token,"error-key");
   return;
  }
  const known=saveTopicsEnabled?getFriendTopics(id,language).slice(0,8).map(t=>t.key).join(", "):"";
@@ -177,10 +201,21 @@ export async function rememberFriendConversation(id:string,language:string,turns
    method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
    body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json"}})
   });
-  if(!response.ok)throw Error("Memory request failed");
+  if(!response.ok){
+   let reason="",message="";
+   try{
+    const body=await response.json();
+    reason=String(body?.error?.status||"");
+    message=String(body?.error?.message||"").slice(0,240);
+   }catch{/* HTTP status is still sufficient for a useful diagnosis. */}
+   throw new MemoryCaptureError(classifyFriendMemoryHttpError(response.status,reason,message));
+  }
   const result=await response.json();
   const raw=String(result?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+  if(!raw)throw new MemoryCaptureError("error-response");
   const extracted=JSON.parse(raw);
+  if(!extracted||typeof extracted!=="object"||Array.isArray(extracted))
+   throw new MemoryCaptureError("error-response");
   // These are two independent consents. A revoked setting must never be undone by a late AI response.
   if(saveTopicsEnabled&&friendMemoryEnabled()&&epoch()===consentEpoch){
    const notes=getFriendTopics(id,language),rows=Array.isArray(extracted.topics)?extracted.topics:[];
@@ -201,8 +236,34 @@ export async function rememberFriendConversation(id:string,language:string,turns
   }
   if(savePersonal&&personalMemoryEnabled()&&getPersonalMemoryEpoch()===personalEpoch)
    ingestStudentPersonalUpdates(language,extracted.memory_updates,speech,personalEpoch);
- }catch{
+ }catch(error){
+  const message=error instanceof Error?error.message:"";
+  const status:FriendCaptureStatus=error instanceof MemoryCaptureError?error.status:
+   error instanceof SyntaxError?"error-response":
+   error instanceof TypeError||/network|failed to fetch|timeout/i.test(message)?"error-network":"error";
   if(saveTopicsEnabled&&friendMemoryEnabled()&&epoch()===consentEpoch)
-   captureFinished(id,language,token,"error");
+   captureFinished(id,language,token,status);
+ }
+}
+
+/** First meaningful turn and conversation end may race. Coalesce identical requests
+ * and serialize changed transcripts without storing raw dialogue outside the call. */
+export async function rememberFriendConversation(id:string,language:string,turns:LiveTurn[],durationMs:number){
+ if(!validFriend(id)||(!friendMemoryEnabled()&&!personalMemoryEnabled()))return;
+ const speech=turns.map(t=>clean(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
+ if(!hasMeaningfulLearnerSpeech(speech))return;
+ const scopeId=captureKey(id,language)+":"+epoch()+":"+getPersonalMemoryEpoch();
+ const signature=fingerprint(speech);
+ const pending=pendingCaptures.get(scopeId);
+ if(pending)await pending;
+ const recent=recentCaptures.get(scopeId);
+ if(recent&&recent.fingerprint===signature&&Date.now()-recent.at<(recent.status.startsWith("error")?10000:120000))return;
+ const task=captureFriendConversation(id,language,turns,durationMs);
+ pendingCaptures.set(scopeId,task);
+ try{
+  await task;
+  recentCaptures.set(scopeId,{fingerprint:signature,at:Date.now(),status:getFriendCaptureStatus(id,language)});
+ }finally{
+  if(pendingCaptures.get(scopeId)===task)pendingCaptures.delete(scopeId);
  }
 }
