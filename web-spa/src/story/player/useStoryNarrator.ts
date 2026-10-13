@@ -34,7 +34,7 @@ export function useStoryNarrator(book:StoryBook,index:number,page:StoryPage,imag
  turnCompleteRef.current=turn=>{
   const completedPage=narrationPageRef.current;
   narrationPageRef.current=null;
-  if(!turn?.hasValidOutput||pausedRef.current||completedPage===null||book.readingMode==="physical")return;
+  if(!turn?.hasValidOutput||pausedRef.current||completedPage===null||completedPage!==index||book.readingMode==="physical")return;
   const nextIndex=completedPage+1;
   if(nextIndex>=book.pages.length){
    pendingFinishRef.current=true;

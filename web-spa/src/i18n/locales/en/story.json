@@ -55,7 +55,17 @@
     "imageError": "Couldn't process these photos. Your story idea is still here; select the photos again.",
     "emptyError": "Enter a story idea or add at least one photo.",
     "keyError": "Set up a Gemini Key before creating a story.",
-    "generateError": "Couldn't generate or save the story. Your idea and photos are still here; try again."
+    "generateError": "Couldn't generate or save the story. Your idea and photos are still here; try again.",
+    "age": "Reading age",
+    "length": "Story length",
+    "theme": "Story theme",
+    "short": "4 pages · Short",
+    "medium": "6 pages · Medium",
+    "long": "8 pages · Long",
+    "bedtime": "Bedtime",
+    "adventure": "Adventure",
+    "friendship": "Friendship",
+    "fantasy": "Fantasy"
   },
   "my": {
     "title": "My Story",

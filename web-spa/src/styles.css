@@ -595,3 +595,15 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 .crew-product-about .notice p{margin:0;color:var(--muted);font-size:13px}
 .crew-product-about-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
 @media(max-width:620px){.crew-product-about .notice{min-height:0}.crew-product-about-links .btn{flex:1;text-align:center;min-width:130px}}
+
+/* Crew Story: guided story setup and reading-time bedtime mode */
+.story-wizard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:18px}
+.story-wizard-grid label{display:grid;gap:6px}
+.story-bedtime-control{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:14px 0;padding:12px;border-radius:16px;background:var(--surface-alt);border:1px solid var(--line)}
+.story-bedtime-control span{font-size:12px;font-weight:700}
+.story-bedtime-control .actions{display:flex;gap:7px;flex-wrap:wrap}
+.story-player[data-bedtime="true"]{background:#181c29;color:#f1e9e2;transition:background .4s ease,color .4s ease}
+.story-player[data-bedtime="true"] .story-reader-copy{color:#f1e9e2}
+.story-player[data-bedtime="true"] .story-reader-copy .page-text{color:#f1e9e2}
+.story-player[data-bedtime="true"] .story-bedtime-control{background:#2b3040;border-color:#51556b}
+@media(max-width:640px){.story-wizard-grid{grid-template-columns:1fr 1fr}.story-wizard-grid label:last-child{grid-column:1/-1}}
