@@ -55,7 +55,8 @@
         "gemini-3.8-live",
         "gemini-3.1-flash-live-preview"
       ],
-      "explicitModelNoFallback": true
+      "explicitModelNoFallback": true,
+      "otherProductsRetainFallback": true
     }
   },
   "featureMatrix": [
@@ -491,8 +492,8 @@
         {
           "path": "web-spa/src/live/useLiveSession.ts",
           "contains": [
-            "models:[useTeacherStore.getState().liveModel]",
-            "maxLiveAttempts:1"
+            "models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined",
+            "maxLiveAttempts:teacherVoiceSession?1:2"
           ]
         },
         {
