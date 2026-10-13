@@ -104,6 +104,36 @@ check("React SSG hydration keeps one app and uses client-side routing for deep l
  assert.ok(headline(r)&&headline(en),"SSR must include product h1");
  assert.notEqual(headline(r),headline(en),"localized headings must differ");
 });
+
+check("production SEO metadata, sitemap and preview noindex are consistent",()=>{
+ const robots=read("robots.txt"),sitemap=read("sitemap.xml"),headers=read("_headers");
+ const domain="https://www.3sssi.com";
+ assert.ok(robots.includes("Sitemap: "+domain+"/sitemap.xml"),"robots must point to production sitemap");
+ const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(x=>x[1]);
+ const expected=[];
+ for(const locale of ["zh","en"])for(const slug of pages){
+  const prefix=locale==="en"?"/en":"";
+  const route=(slug?"/"+slug:"")+"/";
+  const canonical=domain+prefix+route;
+  expected.push(canonical);
+  const pathname=(locale==="en"?"en/":"")+(slug?slug+"/":"")+"index.html";
+  const html=read(pathname);
+  const zhHref=domain+route,enHref=domain+"/en"+route;
+  assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"canonical mismatch: "+pathname);
+  assert.ok(html.includes('<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">'),"Chinese alternate mismatch: "+pathname);
+  assert.ok(html.includes('<link rel="alternate" hreflang="en" href="'+enHref+'">'),"English alternate mismatch: "+pathname);
+  assert.ok(html.includes('<meta name="robots" content="index,follow">'),"public page must remain indexable: "+pathname);
+  assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"sitemap missing: "+canonical);
+ }
+ assert.equal(urls.length,expected.length,"sitemap should include only public SSG routes");
+ assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
+ assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
+ assert.ok(headers.includes("https://:version.magic76-github-io.pages.dev/*"),"branch preview missing noindex");
+ assert.ok(headers.trim().split(/\n\s*\n/).every(rule=>rule.includes("X-Robots-Tag: noindex")),"each preview host needs noindex");
+ assert.ok(!headers.includes("https://www.3sssi.com/"),"production must remain indexable");
+ assert.ok(!headers.includes("no-transform"),"Cloudflare automatic Web Analytics needs unmodified HTML");
+});
+
 check("old HashRouter links resolve to clean URLs with query strings",()=>{
  const html=read("crew-app/index.html");
  assert.ok(html.includes('name="robots" content="noindex,follow"'));
