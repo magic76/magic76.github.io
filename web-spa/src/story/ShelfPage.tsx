@@ -1,4 +1,5 @@
 import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
+import{ProductDiscoverability}from"../components/ProductDiscoverability";
 
 export function StoryShelfPage(){
  const {t}=useTranslation("story");
@@ -12,7 +13,8 @@ export function StoryShelfPage(){
   <Link className="story-action-tile create" to="/story/create"><strong>{t("shelf.create")}</strong><span>{t("shelf.createDesc")}</span></Link>
   <Link className="story-action-tile physical" to="/story/physical"><strong>{t("shelf.physicalAction")}</strong><span>{t("shelf.physicalDesc")}</span></Link>
  </div></section>
- <div className="spa-loading" role="status">{t("shelf.loading")}</div></>;
+ <div className="spa-loading" role="status">{t("shelf.loading")}</div>
+ <ProductDiscoverability product="story"/></>;
  const card=(book:any,builtin=false)=>{
   const cover=(book.images||[])[Number(book.coverIndex)||0],readTo="/story/read/"+encodeURIComponent(book.id);
   return <article className="story-book" key={book.id}>
