@@ -37,8 +37,8 @@ export function parsePublicFeed(xml){
   const href=block.match(/<link\b[^>]*\bhref=["']([^"']+)["'][^>]*\/?>/i)?.[1];
   const url=secureUrl(href||linkText);
   const rawDate=feedField(block,"pubDate")||feedField(block,"published")||feedField(block,"updated");
-  const publishedAt=new Date(rawDate).toISOString?.();
-  if(!title||!url||!rawDate||publishedAt==="Invalid Date"||Number.isNaN(Date.parse(rawDate)))continue;
+  if(!title||!url||!rawDate||Number.isNaN(Date.parse(rawDate)))continue;
+  const publishedAt=new Date(rawDate).toISOString();
   const abstract=feedField(block,"description")||feedField(block,"summary")||feedField(block,"content:encoded");
   entries.push({title,url,publishedAt,abstract,sourceTitle:title,kind:"官方技術文章"});
  }
@@ -57,7 +57,7 @@ export function parseReleaseNotes(releases,name){
   const lines=String(release.body||"").split(/\r?\n/).map(x=>textOnly(x,350))
     .filter(x=>x.length>=30&&signal.test(x));
   if(!lines.length)continue;
-  const title=name+": "+lines[0].slice(0,145);
+  const title=name+" coding agent: "+lines[0].slice(0,130);
   output.push({title,url,publishedAt:release.published_at,
    abstract:lines.slice(0,4).join(" ").slice(0,850),
    sourceTitle:name+" "+String(release.tag_name||"release").slice(0,70),
