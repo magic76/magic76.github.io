@@ -77,14 +77,14 @@ function BriefingPreview(){
  },[]);
  return <section className="crew-home-briefing" aria-label="每日研發情報">
   <div className="crew-home-section-heading"><span>CREW BRIEFING</span><span>{t("briefing.heading")}</span></div>
-  <Link className="crew-home-briefing-card" to="/briefing">
+  <Link className="crew-home-briefing-card" to="/research">
    <span className="crew-home-briefing-top"><span className="crew-home-briefing-emblem" aria-hidden="true"><Icon name="sparkles"/></span><span className="crew-home-briefing-date">{edition?latestDate(edition.day.date):unavailable?t("briefing.report"):t("briefing.loading")}</span></span>
    <strong>{edition?.item?.title||t("briefing.today")}</strong>
    <p>{edition?.item?.summary||t("briefing.summary")}</p>
    {edition?.item?.projects?.length?<span className="crew-home-briefing-tags">{edition.item.projects.slice(0,2).map(tag=><span key={tag}>{tag}</span>)}</span>:null}
    <span className="crew-home-card-cta">{t("briefing.read")} <span aria-hidden="true">↗</span></span>
   </Link>
-  <Link className="crew-home-briefing-board" to="/briefing/board">{t("briefing.readingList")} <span aria-hidden="true">→</span></Link>
+  <Link className="crew-home-briefing-board" to="/research/board">{t("briefing.readingList")} <span aria-hidden="true">→</span></Link>
  </section>;
 }
 
