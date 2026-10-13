@@ -5,8 +5,8 @@ import {readReviews,updateReview} from "./storage";
 import type {BriefingDay,ReviewMap} from "./types";
 import {usePublicResearchSeed} from "./PublicResearchContext";
 
-const dateLabel=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short"});
-const sourceDate=(date:string)=>{const t=Date.parse(date);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"}):""};
+const dateLabel=(date:string)=>new Date(date+"T12:00:00Z").toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short",timeZone:"UTC"});
+const sourceDate=(date:string)=>{const t=Date.parse(date);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric",timeZone:"UTC"}):""};
 export function BriefingPage(){
  const seed=usePublicResearchSeed();
  const [dates,setDates]=useState<string[]>(seed?.index?.days||[]),[selected,setSelected]=useState(seed?.day?.date||""),[day,setDay]=useState<BriefingDay|null>(seed?.day||null);
@@ -27,7 +27,7 @@ export function BriefingPage(){
    <nav className="briefing-side" aria-label="選擇報告日期"><h3>歷史報告</h3>{dates.length?dates.map((date,i)=><button key={date} className={"briefing-date "+(date===selected?"active":"")} aria-current={date===selected?"date":undefined} onClick={()=>setSelected(date)}><strong>{dateLabel(date)}</strong>{i===0&&<small>最新一期</small>}</button>):<p className="meta">目前還沒有報告。</p>}</nav>
    <section className="briefing-main" aria-label="研究精選">
     {busy?<div className="briefing-empty">正在讀取最新研究…</div>:error?<div className="briefing-empty" role="alert">{error}，請重整再試。</div>:!day?<div className="briefing-empty"><h2>新一期研究正在準備中</h2><p>這裡只刊登有公開來源的研究，不會顯示虛構內容。</p></div>:<>
-     <div className="briefing-edition"><div><span className="briefing-edition-label">DAILY EDITION</span><h2>{dateLabel(day.date)} · 今日精選</h2></div><small>{day.items.length} 篇研究 · {new Date(day.generatedAt).toLocaleString("zh-TW")} 整理</small></div>
+     <div className="briefing-edition"><div><span className="briefing-edition-label">DAILY EDITION</span><h2>{dateLabel(day.date)} · 今日精選</h2></div><small>{day.items.length} 篇研究 · {new Date(day.generatedAt).toLocaleString("zh-TW",{timeZone:"Asia/Taipei"})} 整理</small></div>
      {day.notes&&<div className="briefing-editor-note"><strong>本期導讀</strong><p>{day.notes}</p></div>}
      <div className="briefing-toolbar">
       <label className="briefing-search"><span aria-hidden="true">⌕</span><input aria-label="搜尋文章" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋研究主題或關鍵字"/></label>
