@@ -26,7 +26,7 @@ export function FriendLivePage(){
   openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
    " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
   voice:friend.voice,language,nativeLanguage,teacherReport:false,
-  persistHistory:false,sessionKind:"friend",
+  persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:()=>{
    if(memoryCheckpointRef.current)return;
    const snapshot=live.turns;

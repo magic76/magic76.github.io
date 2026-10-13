@@ -550,6 +550,21 @@
     }
   };
 
+  // Background conversation guidance, like Android's sendTutorControl. Unlike
+  // clientContent this does not impersonate a learner utterance in transcript history.
+  LiveSession.prototype.sendControl=function(instruction){
+    instruction=String(instruction||"").trim();
+    var attempt=this.activeAttempt;
+    if(!instruction||!this.ready||!this._isActiveAttempt(attempt))return false;
+    try{
+      attempt.socket.send(JSON.stringify({realtimeInput:{text:instruction}}));
+      return true;
+    }catch(error){
+      this._beginRecovery(attempt,"control-send",error);
+      return false;
+    }
+  };
+
   LiveSession.prototype.sendImage=function(image,options){
     options=options||{};
     var attempt=this.activeAttempt;

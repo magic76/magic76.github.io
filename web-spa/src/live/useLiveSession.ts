@@ -1,6 +1,7 @@
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch}from"../teacher/studentMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
+import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
 
 export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking"|"ending"|"reporting"|"ended"|"error";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
@@ -9,7 +10,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
- persistHistory?:boolean;sessionKind?:"teacher"|"friend";onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
+ persistHistory?:boolean;sessionKind?:"teacher"|"friend";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
@@ -27,6 +28,9 @@ export function useLiveSession(config:Config){
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
+ const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0);
+ const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(Number(localStorage.getItem("crew_live_volume")||100));
  useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs())},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
@@ -64,17 +68,32 @@ export function useLiveSession(config:Config){
   if(!geminiKey()){setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
+   cancelRescue();cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
+   // Maximum two nudges per pause; never synthesize a transcript "user" turn.
+   // The timeout starts only AFTER the model has finished speaking.
+   const scheduleRescue=()=>{
+    cancelRescue();
+    const kind=configRef.current.conversationFlow;
+    if(!kind||rescueCountRef.current>=2)return;
+    rescueTimerRef.current=window.setTimeout(()=>{
+     rescueTimerRef.current=null;
+     if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted)return;
+     const directive=kind==="friend"?"\n"+(configRef.current.languageDirective||""):"";
+     if(session.sendControl?.(cadenceRef.current.rescue(kind)+directive))
+      rescueCountRef.current+=1;
+    },rescueCountRef.current===0?14000:20000);
+   };
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     manualInterruptOnly:true,maxLiveAttempts:2,maxResumeAttempts:2,
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
-    onSpeaking:v=>setState(v?"speaking":"listening"),
+    onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
-    onInputTranscript:v=>{setInput(v);if(v.trim())awaitingTutorRef.current=true},onOutputTranscript:setOutput,
-    onRecovered:()=>{if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
+    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
+    onRecovered:()=>{cancelRescue();if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
       const prompt=configRef.current.sessionKind==="friend"
@@ -86,17 +105,17 @@ export function useLiveSession(config:Config){
       if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
-    onTranscriptTurn:(_t,all)=>{turnsRef.current=all.slice();setTurns(all.slice())},
+    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
     onTurnComplete:turn=>{if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}configRef.current.onTurnComplete?.(turn)},
     onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
-    onTerminal:info=>{const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
+    onTerminal:info=>{cancelRescue();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
    sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
   }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
-  setState("ending");setStatus("正在結束…");
+  cancelRescue();setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
   try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}
   catch{/* Still finalize saved speech when the transport is already closed. */}
@@ -134,6 +153,7 @@ export function useLiveSession(config:Config){
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
+  cancelRescue();
   if(!session)return;
   // Preserve the final completed transcript before closing the active transport.
   snapshot("page-leave");
