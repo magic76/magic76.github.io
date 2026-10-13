@@ -15,6 +15,6 @@ export function teacherLanguageGuidance(level:LearnerSpeakingLevel,native:Native
     ?"B1: Mostly target language; use brief native-language support for confusing details."
     :level==="B2"
      ?"B2+: Nearly all target language; native-language clarification only when genuinely needed."
-     :"Auto: Do NOT invent or claim a CEFR level. Start with short target examples and brief native-language help, adapting to demonstrated speaking/comprehension rather than vocabulary quiz placement.";
+     :"Auto: Do NOT invent or claim a CEFR level. Start with short target examples and brief native-language help, adapting to demonstrated speaking/comprehension rather than vocabulary quiz placement. If the learner asks for native-language help, explain briefly and return to a useful target example; never treat a request for help as a proficiency score.";
  return "[CREW TEACHER LANGUAGE SCAFFOLDING — teacher only] Use "+support+" as native language for EXPLANATIONS and "+target+" as target language for MODELING and PRACTICE. "+hint+" Do not enforce spoken language ratios. Respect the learner's correction style, lesson and scenario. Never apply teacher instructions to Crew Friends.";
 }

@@ -1,6 +1,6 @@
 import {buildAccentPrompt} from "../teacher/teacherAccent";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
-import {useEffect,useMemo,useRef} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
@@ -8,7 +8,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
-import {friendLanguageReminder} from "./friendLanguage";
+import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import "./friends.css";
@@ -19,7 +19,8 @@ export function FriendLivePage(){
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
- const friendChatMode=useRef(useTeacherStore.getState().friendChatMode).current; // session-pinned
+ const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>useTeacherStore.getState().friendChatMode);
+ const [modeNote,setModeNote]=useState("");
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
  const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,nativeLanguage,friendChatMode,region,accentStrength,customAccent]);
@@ -53,6 +54,16 @@ export function FriendLivePage(){
  useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
+  if(chosen===friendChatMode)return;
+  const connected=["listening","speaking"].includes(live.state);
+  const pending=["requesting-mic","connecting"].includes(live.state);
+  // Silent control never creates an artificial learner utterance.
+  const applied=connected&&live.sendControl(friendLanguageTransition(language,nativeLanguage,chosen));
+  useTeacherStore.getState().setFriendChatMode(chosen);
+  if(applied||(!connected&&!pending))setActiveFriendChatMode(chosen);
+  setModeNote(applied?"已切換，下一句開始套用。":"已儲存，下次對話將使用新模式。");
+ };
  return <>
   <header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
@@ -65,6 +76,15 @@ export function FriendLivePage(){
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{friend.bioZh}</p>
+    </div>
+    <div className="friend-language-switch" role="group" aria-label="朋友聊天語言模式">
+     <span className="friend-language-switch-title">聊天語言</span>
+     <div className="friend-language-options">
+      {([["natural","自然聊天"],["bilingual","輕鬆雙語"],["immersion","完全沉浸"]] as const).map(([value,label])=>
+       <button key={value} type="button" className={friendChatMode===value?"selected":""}
+        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{label}</button>)}
+     </div>
+     {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
     <div className="live-presets">
