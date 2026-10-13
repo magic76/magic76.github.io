@@ -88,3 +88,13 @@
  .friends-modal{max-height:88dvh}
  .friend-live-avatar{width:120px;height:120px}
 }
+
+/* One-tap chat language choice inside the live conversation. */
+.friend-language-switch{display:flex;flex-direction:column;align-items:center;gap:7px;margin:0 auto 12px;padding:8px 10px;max-width:100%}
+.friend-language-switch-title{font-size:11px;color:var(--muted);font-weight:650}
+.friend-language-options{display:flex;align-items:center;gap:5px;max-width:100%;padding:4px;background:var(--surface,#fff);border:1px solid var(--line);border-radius:16px}
+.friend-language-options button{white-space:nowrap;border:0;border-radius:12px;background:transparent;color:var(--muted);padding:8px 11px;font-size:12px;font-weight:650;cursor:pointer}
+.friend-language-options button.selected{background:#485eb0;color:#fff}
+.friend-language-options button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.friend-language-switch>small{font-size:11px;color:var(--muted);line-height:1.4}
+@media(max-width:420px){.friend-language-options{gap:2px}.friend-language-options button{padding:8px 7px;font-size:11px}}

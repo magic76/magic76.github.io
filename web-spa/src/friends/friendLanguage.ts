@@ -11,6 +11,15 @@ export function friendLanguageReminder(language:string,nativeLanguage="en",mode:
  return "[FRIEND LANGUAGE CONTROL — silent instruction] The selected conversation language is "+target+
  ". Speak in "+target+" for the ENTIRE next reply. Do not switch languages or use another language's pronunciation or accent because of a topic, quoted phrase, a previous turn, a memory, or the learner's input. If you drifted into another language, return to "+target+" naturally without announcing a correction.";
 }
+/** Silent control: a deliberate in-call learner choice supersedes the original language mode. */
+export function friendLanguageTransition(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="natural"){
+ return "[FRIEND LANGUAGE MODE CHANGE — EXPLICIT USER ACTION] The learner JUST changed chat language mode in the UI to "+mode+
+ ". This latest user setting supersedes ALL earlier fixed-language and bilingual rules for this SAME conversation. "+
+ "Apply the new setting from the NEXT spoken reply without restarting or announcing the change. "+
+ "Keep the existing friendship, topic and memory context; do not greet again. "+
+ "On reconnect the updated learner choice remains authoritative.\\n"+
+ friendLanguageReminder(language,nativeLanguage,mode);
+}
 export function friendLanguageRule(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="natural"){
  const target=friendSpokenLanguage(language),native=nativeName(nativeLanguage);
  if(mode==="bilingual")return "[RELAXED BILINGUAL SPOKEN LANGUAGE — applies to every response and reconnect]\n"+

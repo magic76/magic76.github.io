@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.5",
+  "revision": "2026-10-13.6",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -33,7 +33,9 @@
       ],
       "defaultChatLanguageMode": "natural",
       "explicitBilingualIsNotLanguageDrift": true,
-      "chatModeSurvivesReconnect": true
+      "chatModeSurvivesReconnect": true,
+      "explicitModeChangeDuringLive": true,
+      "switchAppliesToNextReplyWithoutRestart": true
     },
     "memory": {
       "personalDefaultOn": true,

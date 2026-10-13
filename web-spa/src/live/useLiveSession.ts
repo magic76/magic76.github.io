@@ -100,7 +100,13 @@ export function useLiveSession(config:Config){
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
-    onRecovered:()=>{cancelRescue();if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
+    onRecovered:()=>{
+      cancelRescue();
+      // Reconnected transports can reuse an older system instruction: reassert
+      // the learner's latest friend language mode without a fabricated turn.
+      if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
+        session.sendControl?.("[FRIEND RECONNECT MODE — latest user setting wins]\\n"+configRef.current.languageDirective);
+      if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
       const prompt=configRef.current.sessionKind==="friend"
@@ -148,6 +154,7 @@ export function useLiveSession(config:Config){
  const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
+ const sendControl=useCallback((text:string)=>sessionRef.current?.sendControl?.(text)??false,[]);
  const sendPreparedImage=useCallback((image:unknown,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;return s.sendImage(image,{prompt,statusText:"最新照片已送出"})},[]);
  const sendImageFile=useCallback(async(file:File,prompt:string)=>{
   const s=sessionRef.current;if(!s?.ready||visionSendingRef.current)return false;
@@ -178,5 +185,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,turns,input,output,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
