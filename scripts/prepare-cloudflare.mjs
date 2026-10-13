@@ -54,7 +54,20 @@ for(const locale of ["zh","en"]){
  for(const [name,slug] of routes){
   const prefix=locale==="en"?"en/":"";
   const relative=prefix+(slug?slug+"/":"")+"index.html";
-  const marketing=read(relative);
+  // The marketing fallback must also link to the clean functional routes.
+  // Apply the longest paths first so generic /crew-app/#/ doesn't eat subroutes.
+  const redirectTargets=[
+   ["/crew-app/#/teacher/practice","/teacher/"],
+   ["/crew-app/#/teacher/roles?mode=friends","/teacher/roles?mode=friends"],
+   ["/crew-app/#/story/shelf","/story/"],
+   ["/crew-app/#/story/create","/story/create"],
+   ["/crew-app/#/briefing/board","/research/board"],
+   ["/crew-app/#/briefing","/research/"],
+   ["/crew-app/#/fortune","/fortune/"],
+   ["/crew-app/#/","/"]
+  ];
+  let marketing=read(relative);
+  for(const [previous,next] of redirectTargets)marketing=marketing.replaceAll(previous,next);
   if(!marketing.includes("<main id=\"main\">")||!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO content: "+relative);
   const html=marketing
    .replace('<link rel="stylesheet" href="/seo.css">',fallbackStyle+"\n  "+appTags)
