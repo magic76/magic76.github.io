@@ -1,0 +1,378 @@
+{
+  "schemaVersion": 1,
+  "revision": "2026-10-13.1",
+  "owner": "magic76/crew-teacher",
+  "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
+  "platforms": [
+    "android",
+    "web"
+  ],
+  "rules": {
+    "freeChat": {
+      "questionRequiredEachTurn": false,
+      "pivotAfterShortReplies": 2,
+      "pivotAfterConsecutiveQuestions": 3,
+      "firstSilenceMs": 14000,
+      "secondSilenceMs": 20000,
+      "maxSilentRescueNudges": 2,
+      "sessionCadenceIsEphemeral": true
+    },
+    "friends": {
+      "inCharacter": true,
+      "noUnsolicitedCoaching": true,
+      "selectedSpokenLanguageLocked": true,
+      "languageLockSurvivesReconnect": true
+    },
+    "memory": {
+      "personalDefaultOn": true,
+      "friendTopicDefaultOn": true,
+      "explicitOptOutPreserved": true,
+      "doNotFabricateMemories": true
+    },
+    "practice": {
+      "mayPromptForRepetition": true,
+      "roleplayStaysInCharacter": true,
+      "freeChatRulesDoNotOverrideLessons": true
+    },
+    "release": {
+      "androidPlayAabManual": true,
+      "webDeployAfterMerge": true
+    }
+  },
+  "featureMatrix": [
+    {
+      "id": "friend_profiles",
+      "label": "16 Crew Friends; stable identity, avatar and voice",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/CrewFriendProfile.java",
+      "webEntry": "web-spa/src/friends/friendProfiles.ts"
+    },
+    {
+      "id": "teacher_profiles",
+      "label": "16 Crew Teachers; stable teaching personas",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/TeacherPersonaPolicy.java",
+      "webEntry": "web-spa/src/teacher/teacherProfiles.ts"
+    },
+    {
+      "id": "free_chat",
+      "label": "Teacher natural chat and Friend natural chat",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+      "webEntry": "web-spa/src/live/conversationFlow.ts"
+    },
+    {
+      "id": "target_language_lock",
+      "label": "Friend stays in learner-selected language after reconnect",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+      "webEntry": "web-spa/src/friends/friendLanguage.ts"
+    },
+    {
+      "id": "memory_consent",
+      "label": "Personal and friend topic memory default on, explicit opt-out",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/MemoryConsentPolicy.java",
+      "webEntry": "web-spa/src/teacher/studentMemory.ts"
+    },
+    {
+      "id": "memory_provenance",
+      "label": "Only evidence-backed learner memories; no fabricated history",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/CompanionMemoryManager.java",
+      "webEntry": "web-spa/src/friends/friendMemory.ts"
+    },
+    {
+      "id": "live_recovery",
+      "label": "Voice reconnect preserves unfinished answer",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+      "webEntry": "web-spa/src/live/useLiveSession.ts"
+    },
+    {
+      "id": "roleplay",
+      "label": "Scene character stays in role; no unsolicited coaching",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/RoleplayPromptPolicy.java",
+      "webEntry": "web-spa/src/teacher/teacherPolicy.ts"
+    },
+    {
+      "id": "textbook_camera",
+      "label": "Camera-aided material discussion; permission and privacy controls",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/MaterialCameraController.java",
+      "webEntry": "web-spa/src/teacher/MaterialLiveCamera.tsx"
+    },
+    {
+      "id": "vocabulary",
+      "label": "Vocabulary practice and adaptive learning",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/VocabularyModeDialog.java",
+      "webEntry": "web-spa/src/teacher/LearnPage.tsx"
+    },
+    {
+      "id": "floating_service",
+      "label": "Android OS floating Live overlay",
+      "android": "supported",
+      "web": "not-applicable",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/FloatingBubbleManager.java",
+      "webEntry": null
+    },
+    {
+      "id": "play_updates",
+      "label": "Google Play in-app updates and AAB release pipeline",
+      "android": "supported",
+      "web": "not-applicable",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/CrewAppUpdateManager.java",
+      "webEntry": null
+    },
+    {
+      "id": "web_seo",
+      "label": "Search-indexable Web landing pages and deployment",
+      "android": "not-applicable",
+      "web": "supported",
+      "androidEntry": null,
+      "webEntry": "web-spa/src/App.tsx"
+    }
+  ],
+  "invariants": [
+    {
+      "id": "free_chat_rhythm",
+      "why": "Ask questions when helpful, not every turn; short replies or interview loops pivot",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+          "contains": [
+            "Questions are OPTIONAL",
+            "shortReplyStreak >= 2 || questionStreak >= 3",
+            "never turn into a tutor"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/live/conversationFlow.ts",
+          "contains": [
+            "You do NOT have to ask a question",
+            "this.shortReplies>=2||this.questions>=3",
+            "NEVER switch to teaching"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "free_chat_scoping",
+      "why": "Do not alter focused drills or immersive roleplay",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "isCompanionConversation() || isTeacherCasualConversation()",
+            "freeChatFlow.silenceRescue",
+            "isRoleplaySession()"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/LivePage.tsx",
+          "contains": [
+            "conversationFlow:!isRoleplay&&s.conversationMode===\"natural\""
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "conversationFlow:\"friend\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "friend_language_lock",
+      "why": "Selected spoken language survives topic changes and reconnections",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+          "contains": [
+            "NON-NEGOTIABLE SESSION RULE",
+            "including after reconnection"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/friends/friendLanguage.ts",
+          "contains": [
+            "FIXED SPOKEN LANGUAGE",
+            "every response and every reconnect"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "friend_not_tutor",
+      "why": "A friend stays a conversational partner rather than scoring, drilling or recasting",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+          "contains": [
+            "No drills, grading, repetition demands"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/friends/friendMemory.ts",
+          "contains": [
+            "You are NOT a language tutor or coach."
+          ]
+        }
+      ]
+    },
+    {
+      "id": "memory_defaults",
+      "why": "Both personal and friend memories default on; explicit opt-outs honored",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/StudentMemoryManager.java",
+          "contains": [
+            "MemoryConsentPolicy.isEnabled("
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/CompanionMemoryManager.java",
+          "contains": [
+            "MemoryConsentPolicy.isEnabled("
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/studentMemory.ts",
+          "contains": [
+            "return localStorage.getItem(CONSENT)!==\"0\""
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/friendMemory.ts",
+          "contains": [
+            "friendMemoryEnabled=()=>localStorage.getItem(CONSENT)!==\"0\""
+          ]
+        }
+      ]
+    },
+    {
+      "id": "consent_and_evidence",
+      "why": "Do not invent prior events; memory capture requires learner evidence",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/CompanionMemoryManager.java",
+          "contains": [
+            "hasVerbatimEvidence",
+            "isEnabled(context)"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/friends/friendMemory.ts",
+          "contains": [
+            "verifiedLearnerEvidence",
+            "friendMemoryEnabled()"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "web_rescue_bounded",
+      "why": "Automatic Web nudges stop after two; do not create fake learner turns",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "silenceRescueLevel >= 2",
+            "14000L",
+            "20000L"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/live/useLiveSession.ts",
+          "contains": [
+            "rescueCountRef.current>=2",
+            "14000:20000",
+            "sendControl"
+          ]
+        },
+        {
+          "path": "crew-live.js",
+          "contains": [
+            "realtimeInput:{text:instruction}"
+          ]
+        }
+      ]
+    }
+  ],
+  "manualAcceptance": [
+    {
+      "id": "short_replies",
+      "steps": "Speak to Zoe: Yes → Okay → No. Friend shares or pivots instead of interrogating.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "teacher_recovery",
+      "steps": "In natural chat give an incomplete answer, pause; teacher encourages gently without demanding repetition.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "immersion_language",
+      "steps": "Select English, speak Chinese once, and reconnect. Friend keeps replying in English.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "roleplay",
+      "steps": "Open a restaurant scenario. The character stays in scene, never provides unsought grammar coaching.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "memory_off",
+      "steps": "Disable friend topic and personal memory; reconnect and verify no saved topics are injected.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "camera",
+      "steps": "Grant/deny camera, check aspect ratio, pause image sharing, background/foreground, and transcript scroll.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    }
+  ]
+}
