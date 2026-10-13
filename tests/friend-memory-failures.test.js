@@ -35,7 +35,7 @@ function setup(fetcher,key="test-key"){
    "ingestStudentPersonalUpdates","hasMeaningfulLearnerSpeech","verifiedLearnerEvidence"],
   {localStorage,fetch:fetcher});
  const friends=extract("web-spa/src/friends/friendMemory.ts",
-  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic"],
+  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic","allowFriendTopicAutoUpdate"],
   {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"},{id:"yuna"}],
    normalizeLearningLanguage:learner.normalizeLearningLanguage,
    personalMemoryEnabled:learner.personalMemoryEnabled,
@@ -150,4 +150,22 @@ test("voice memory uses the completed turn snapshot, not a stale React render",(
  assert.match(friendPage,/onTurnComplete:\(_turn,latestTurns\)=>/);
  assert.match(friendPage,/rememberFriendConversation\(sessionId,language,latestTurns/);
  assert.doesNotMatch(friendPage,/const snapshot=live\.turns/);
+});
+
+test("legacy manually flagged topics can explicitly opt into future AI updates",()=>{
+ const {friends}=setup(async()=>response({topics:[]}));
+ assert.equal(friends.saveFriendTopic("zoe","英文","Movies we discussed","A saved manual topic"),true);
+ const topic=friends.getFriendTopics("zoe","英文")[0];
+ friends.pinFriendTopic("zoe","英文",topic.id);
+ assert.equal(friends.getFriendTopics("zoe","英文")[0].manual,true);
+ assert.equal(friends.allowFriendTopicAutoUpdate("zoe","英文",topic.id),true);
+ const unlocked=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(unlocked.manual,false);
+ assert.equal(unlocked.pinned,true);
+ const page=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendsPage.tsx"),"utf8");
+ assert.match(page,/allowFriendTopicAutoUpdate/);
+ for(const lang of ["zh-TW","en"]){
+  const labels=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",lang,"friends.json"),"utf8"));
+  assert.ok(labels.autoUpdate&&labels.autoUpdateConfirm);
+ }
 });
