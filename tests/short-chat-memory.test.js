@@ -18,9 +18,18 @@ function evaluateFile(file,names,context){
   .replace(/^import.*(?:\n|$)/gm,"")
   .replace(/\bexport\s+(?=(?:const|function|async\s+function))/g,"");
  const exports={};
+ // Match the public CrewAI.call contract used by both memory extractors.
+ const call=async()=>{
+  const response=await context.fetch();
+  if(!response.ok)throw Object.assign(new Error("Gemini text request failed"),
+   {kind:response.status===429?"quota":response.status===401?"key":"service",status:response.status});
+  const json=await response.json();
+  return String(json?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+ };
  vm.runInNewContext(source+"\nObject.assign(exports,{"+names.join(",")+"});",
   {exports,Date,Math,JSON,fetch:context.fetch,localStorage:context.localStorage,
-   geminiKey:context.geminiKey,...context},{filename:file});
+   geminiKey:context.geminiKey,ensureCore:async()=>{},
+   window:{CrewAI:{call},dispatchEvent:()=>{}},Event:class Event{},...context},{filename:file});
  return exports;
 }
 const payload=memory_updates=>({

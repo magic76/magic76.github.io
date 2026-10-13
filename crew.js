@@ -2,7 +2,8 @@
 (function(global){
   var KEY_LOCAL="crew_gemini_api_key",KEY_SESSION="crew_gemini_api_key_session";
   var LIVE=["gemini-3.8-live","gemini-3.1-flash-live-preview"];
-  var TEXT=["gemini-3.5-flash-lite","gemini-3.1-flash-lite","gemini-3.5-flash","gemini-3.6-flash","gemini-3.7-flash","gemini-3.8-flash","gemini-2.5-flash-lite","gemini-2.5-flash","gemini-2.0-flash","gemini-1.5-flash"];
+  // Match the Android GeminiApiClient.CANDIDATE_MODELS order for all text tasks.
+  var TEXT=["gemini-3.6-flash","gemini-3.5-flash-lite","gemini-3.5-flash","gemini-3.0-flash","gemini-3-flash","gemini-2.5-flash","gemini-2.0-flash","gemini-1.5-flash"];
   var discovered=null,lastModel="",toastTimer;
 
   function key(){return (localStorage.getItem(KEY_LOCAL)||sessionStorage.getItem(KEY_SESSION)||"").trim()}
@@ -146,19 +147,58 @@
       return discovered
     }catch(_){discovered=[];return[]}
   }
+  function modelError(kind,message,code){
+    var e=new Error(message||"Gemini model request failed");e.kind=kind;e.status=code||0;return e;
+  }
+  function classifyTextFailure(status,reason,message){
+    if(status===401||/api.?key.*(invalid|expired|not valid)|invalid.*api.?key/i.test(message))return"key";
+    if(status===403&&/api key|api_key|permission_denied|key not authorized/i.test(reason+" "+message))return"key";
+    if(status===429||reason==="RESOURCE_EXHAUSTED")return"quota";
+    if(status===400||status===404||status===501||reason==="NOT_FOUND")return"model";
+    return"service";
+  }
   async function textCall(model,prompt,opt){
-    opt=opt||{};var body={systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000}};
+    opt=opt||{};
+    var body={systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000}};
     if(opt.json)body.generationConfig.responseMimeType="application/json";
-    var r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body)});
-    var d;try{d=await r.json()}catch(_){d=null}if(!r.ok)throw new Error(d&&d.error&&d.error.message?d.error.message:model+" HTTP "+r.status);
-    var parts=d&&d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;var out=(parts||[]).map(function(p){return p.text||""}).join("").trim();if(!out)throw new Error(model+" empty");lastModel=model;return out
+    var r;
+    try{
+      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body)});
+    }catch(_){throw modelError("network",model+" network request failed")}
+    var d;try{d=await r.json()}catch(_){d=null}
+    if(!r.ok){
+      var reason=String(d&&d.error&&d.error.status||"");
+      var msg=String(d&&d.error&&d.error.message||"");
+      throw modelError(classifyTextFailure(r.status,reason,msg),model+" HTTP "+r.status,r.status);
+    }
+    var parts=d&&d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;
+    var out=(parts||[]).map(function(p){return p.text||""}).join("").trim();
+    if(!out)throw modelError("response",model+" empty response");
+    if(opt.json){
+      try{var parsed=JSON.parse(out);if(!parsed||typeof parsed!=="object"||Array.isArray(parsed))throw new Error("Invalid object")}
+      catch(_){throw modelError("response",model+" invalid JSON")}
+    }
+    lastModel=model;return out;
   }
   async function call(prompt,opt){
-    opt=opt||{};if(!key())throw new Error("尚未設定 Gemini API key");var errs=[];
+    opt=opt||{};if(!key())throw modelError("key","尚未設定 Gemini API key");
+    var errs=[],lastFailure=null,quotaFailure=null,networkFailure=null;
     if(opt.preferLive!==false){for(var i=0;i<LIVE.length;i++){try{return await liveCall(LIVE[i],prompt,opt)}catch(e){errs.push(LIVE[i]+": "+e.message)}}}
-    var found=await discover(),seen={},models=TEXT.concat(found).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
-    for(var j=0;j<models.length;j++){try{return await timeout(textCall(models[j],prompt,opt),15000,models[j])}catch(e){errs.push(models[j]+": "+e.message)}}
-    throw new Error("所有模型都失敗："+errs.slice(-3).join(" | "))
+    var found=opt.strictModels?[]:await discover(),seen={},models=TEXT.concat(found).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
+    for(var j=0;j<models.length;j++){
+      try{return await timeout(textCall(models[j],prompt,opt),15000,models[j])}
+      catch(e){
+        var failure=e&&e.kind?e:modelError("network",models[j]+" request timeout");
+        if(failure.kind==="key")throw failure; // A bad key is not repaired by another model.
+        if(failure.kind==="quota")quotaFailure=failure;
+        if(failure.kind==="network")networkFailure=failure;
+        lastFailure=failure;
+        errs.push(models[j]+": "+failure.message);
+      }
+    }
+    var terminal=quotaFailure||networkFailure||lastFailure||modelError("service","Gemini models unavailable");
+    // Preserve only a safe reason and a bounded list of attempted model IDs.
+    throw modelError(terminal.kind,"所有 Gemini 文字模型都未成功："+models.slice(0,8).join(" → "),terminal.status);
   }
   async function test(){var out=await call("只回覆 OK",{system:"這是連線測試，只回覆 OK。",temperature:0,maxOutputTokens:20});return{ok:/ok/i.test(out),model:lastModel||"Gemini"}}
   function busy(btn,on,label){if(!btn)return;if(on){btn.dataset.old=btn.textContent;btn.textContent=label||"處理中…";btn.disabled=true;btn.classList.add("busy")}else{btn.textContent=btn.dataset.old||btn.textContent;btn.disabled=false;btn.classList.remove("busy");delete btn.dataset.old}}
