@@ -5,7 +5,7 @@ import{LiveControls}from"../live/LiveControls";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";import{accentOptions,normalizedAccent}from"./teacherAccent";
-import{buildTeacherSessionPolicy}from"./teacherPolicy";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
+import{buildTeacherSessionPolicy}from"./teacherPolicy";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
@@ -15,6 +15,7 @@ export function TeacherLivePage(){
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
+ const languageDirective=useMemo(()=>teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),[s.targetLanguage,s.nativeLanguage,s.teachingMode,isRoleplay]);
  const system=useMemo(()=>buildTeacherSessionPolicy({
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
@@ -26,7 +27,7 @@ export function TeacherLivePage(){
   :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+(mission?.title||scene||"selected")+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:opening,voice:s.voice,language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&s.conversationMode==="natural"?"teacher":undefined,
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:s.voice,language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&s.conversationMode==="natural"?"teacher":undefined,
   onTurnComplete:()=>{
    if(isRoleplay||memoryCheckpointRef.current)return;
    const snapshot=live.turns;
@@ -97,7 +98,7 @@ export function TeacherLivePage(){
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
   </div>
   <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
-  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText("換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText("請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText("請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
+  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
    <button className="teacher-current-row live-teacher-row" disabled={sessionActive} onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">老師</span><strong>{profile.name} · {profile.title}</strong><small>{sessionActive?"結束這次練習後可切換":"點擊切換"}</small></span></button>
