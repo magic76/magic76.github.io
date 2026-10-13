@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.4",
+  "revision": "2026-10-13.5",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -25,7 +25,15 @@
       "inCharacter": true,
       "noUnsolicitedCoaching": true,
       "selectedSpokenLanguageLocked": true,
-      "languageLockSurvivesReconnect": true
+      "languageLockSurvivesReconnect": true,
+      "chatModeDefault": "natural",
+      "chatModes": [
+        "natural",
+        "bilingual",
+        "immersion"
+      ],
+      "nativeLanguageHelpInNaturalChat": true,
+      "noThirdLanguageInBilingual": true
     },
     "memory": {
       "personalDefaultOn": true,
@@ -57,6 +65,11 @@
       ],
       "explicitModelNoFallback": true,
       "otherProductsRetainFallback": true
+    },
+    "teacher": {
+      "bilingualNativeLanguageTeaching": true,
+      "scaffoldingFollowsDemonstratedAbility": true,
+      "immersionRemainsTargetOnly": true
     }
   },
   "featureMatrix": [
@@ -171,6 +184,14 @@
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/LiveVoiceCatalog.java",
       "webEntry": "web-spa/src/live/voiceIdentity.ts"
+    },
+    {
+      "id": "friend_chat_modes",
+      "label": "Natural, relaxed bilingual and full immersion friend conversation modes",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+      "webEntry": "web-spa/src/friends/friendLanguage.ts"
     }
   ],
   "invariants": [
@@ -515,6 +536,65 @@
           ]
         }
       ]
+    },
+    {
+      "id": "friend_chat_modes",
+      "why": "Friend can use native support by choice, no unintended third-language drift and immersion survives reconnect",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+          "contains": [
+            "CREW FRIEND RELAXED BILINGUAL",
+            "CREW FRIEND IMMERSION",
+            "ONE short"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/AppConfig.java",
+          "contains": [
+            "KEY_FRIEND_CHAT_MODE",
+            "getFriendChatMode(Context context)"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/friends/friendLanguage.ts",
+          "contains": [
+            "RELAXED BILINGUAL",
+            "FULL IMMERSION",
+            "friendChatMode"
+          ]
+        },
+        {
+          "path": "web-spa/src/store/teacherStore.ts",
+          "contains": [
+            "friendChatMode",
+            "setFriendChatMode"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "teacher_native_scaffolding",
+      "why": "Teacher proactively explains in learner native language; friend does not become a tutor",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "ADAPTIVE LANGUAGE SCAFFOLDING",
+            "BILINGUAL TEACHING"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/teacherPolicy.ts",
+          "contains": [
+            "ADAPTIVE LANGUAGE SCAFFOLDING"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -561,6 +641,14 @@
     {
       "id": "camera",
       "steps": "Grant/deny camera, check aspect ratio, pause image sharing, background/foreground, and transcript scroll.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_three_modes",
+      "steps": "Start Zoe in natural, relaxed bilingual and immersion: native rescue only in natural; native replies allowed in relaxed bilingual; immersion replies only in target language, including after reconnect.",
       "platforms": [
         "android",
         "web"
