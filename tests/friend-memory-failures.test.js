@@ -25,7 +25,7 @@ function extract(file,names,context){
  };
  vm.runInNewContext(source+"\nObject.assign(exports,{"+names.join(",")+"});",
   {exports,Date,Math,JSON,localStorage:context.localStorage,fetch:context.fetch,
-   ensureCore:async()=>{},window:{CrewAI:{call}},...context},{filename:file});
+   ensureCore:async()=>{},window:{CrewAI:{call},dispatchEvent:()=>{}},Event:class Event{},...context},{filename:file});
  return exports;
 }
 function setup(fetcher,key="test-key"){
@@ -60,6 +60,7 @@ test("first turn and identical end snapshot share one memory request",async()=>{
  const {friends}=setup(async()=>{calls++;await gate;return response(valid)});
  const first=friends.rememberFriendConversation("zoe","英文",turns,11000);
  const final=friends.rememberFriendConversation("zoe","英文",turns,11000);
+ await Promise.resolve();await Promise.resolve();
  assert.equal(calls,1);
  release();
  await Promise.all([first,final]);
