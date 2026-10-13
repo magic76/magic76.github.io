@@ -1,0 +1,34 @@
+name: One-time Zoe avatar parity
+on:
+  push:
+    branches:
+      - fix/web-zoe-avatar-android-parity
+    paths:
+      - .github/workflows/_sync-zoe-once.yml
+
+permissions:
+  contents: write
+
+jobs:
+  sync-zoe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/web-zoe-avatar-android-parity
+      - name: Copy the exact Android Zoe image to Web
+        run: |
+          curl --fail --location --retry 3 --silent --show-error \
+            "https://raw.githubusercontent.com/magic76/crew-teacher/935657be20baa078306fa3e3c95aaecc5ea122da/app/src/main/res/drawable-nodpi/crew_friend_zoe.webp" \
+            -o assets/friends/crew_friend_zoe.webp
+          test "$(git hash-object assets/friends/crew_friend_zoe.webp)" = "6612db4b80aac87a8b2fc44d15a3044910c39223"
+      - name: Commit synchronized image
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/friends/crew_friend_zoe.webp
+          if ! git diff --cached --quiet; then
+            git commit -m "fix(web): use exact Android Zoe avatar"
+            git pull --rebase origin fix/web-zoe-avatar-android-parity
+            git push origin HEAD:fix/web-zoe-avatar-android-parity
+          fi
