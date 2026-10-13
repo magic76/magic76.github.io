@@ -6,11 +6,16 @@ import{LiveControls}from"../live/LiveControls";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";import{accentOptions,normalizedAccent}from"./teacherAccent";
-import{buildTeacherSessionPolicy}from"./teacherPolicy";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
+import{buildTeacherSessionPolicy}from"./teacherPolicy";
+import{teacherLanguageLiveHint}from"./teacherLanguageUx";
+import{nativeLanguageName}from"./teacherLocale";
+import{friendSpokenLanguage}from"../friends/friendLanguage";
+import{useTranslation}from"react-i18next";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress}from"./courseProgress";
 
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
+ const {i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
  const navigate=useNavigate(),endRequestedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
@@ -97,6 +102,9 @@ export function TeacherLivePage(){
    <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
+   {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
+    s.teachingMode,s.learnerSpeakingLevel,nativeLanguageName(s.nativeLanguage),
+    english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
   <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
   <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>

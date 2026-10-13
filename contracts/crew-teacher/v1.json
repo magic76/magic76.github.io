@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.6",
+  "revision": "2026-10-13.7",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -35,7 +35,8 @@
       "explicitBilingualIsNotLanguageDrift": true,
       "chatModeSurvivesReconnect": true,
       "explicitModeChangeDuringLive": true,
-      "switchAppliesToNextReplyWithoutRestart": true
+      "switchAppliesToNextReplyWithoutRestart": true,
+      "roleUxPromiseWithoutUnsolicitedCorrections": true
     },
     "memory": {
       "personalDefaultOn": true,
@@ -81,7 +82,11 @@
       "targetLanguageForExamples": true,
       "levelNotInferredFromVocabularyAlone": true,
       "explicitImmersionWins": true,
-      "teacherFriendModeSeparated": true
+      "teacherFriendModeSeparated": true,
+      "nativeLanguageQuestionsWelcomed": true,
+      "responseScaffoldingVariesBySpeakingLevel": true,
+      "modeSpecificUxPromise": true,
+      "noManualLanguageRatio": true
     }
   },
   "featureMatrix": [
@@ -196,6 +201,14 @@
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/LiveVoiceCatalog.java",
       "webEntry": "web-spa/src/live/voiceIdentity.ts"
+    },
+    {
+      "id": "role_language_ux",
+      "label": "Role-specific native-help and immersion hints at entry and Live",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/TeacherLanguageUx.java",
+      "webEntry": "web-spa/src/teacher/teacherLanguageUx.ts"
     }
   ],
   "invariants": [
@@ -641,6 +654,38 @@
       ]
     },
     "Set native Chinese, target English: A1 tutor explains primarily in Chinese and models short English; B2 tutor uses mostly English.",
-    "Zoe in natural mode stays in English when learner replies Chinese; relaxed bilingual allows Chinese and English; immersion never switches from English across reconnect."
+    "Zoe in natural mode stays in English when learner replies Chinese; relaxed bilingual allows Chinese and English; immersion never switches from English across reconnect.",
+    {
+      "id": "teacher_a1_native_help",
+      "steps": "Native Chinese + English A1: ask in Chinese what a sentence means; teacher explains in Chinese and gives a short English model.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "teacher_b2_target_first",
+      "steps": "Native Chinese + English B2: teacher uses mostly English with short Chinese help when needed.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "teacher_explicit_immersion",
+      "steps": "Native Chinese + English + teacher immersion: Chinese question does not produce spoken Chinese; only English explanation.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_role_independence",
+      "steps": "Zoe keeps her persona and selected natural/bilingual/immersion language mode, without unsolicited coaching, across reconnect; teacher level changes do not affect friend.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    }
   ]
 }

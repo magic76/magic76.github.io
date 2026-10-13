@@ -1,7 +1,9 @@
 import{useEffect,useRef,useState}from"react";import{useTranslation}from"react-i18next";
 import{Link}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
-import{NATIVE_LANGUAGES,teacherText}from"./teacherLocale";
+import{NATIVE_LANGUAGES,teacherText,nativeLanguageName}from"./teacherLocale";
+import{friendSpokenLanguage}from"../friends/friendLanguage";
+import{teacherLanguageHomeHint}from"./teacherLanguageUx";
 import{getTeacherProfile}from"./teacherProfiles";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";
 import{TeacherAvatar}from"./TeacherAvatar";
@@ -40,6 +42,9 @@ export function TutorPage(){
     <button type="button" className="teacher-avatar-button teacher-home-avatar" aria-label={t("tutor.change")} onClick={()=>{stopPreview();setPicker(true)}}><TeacherAvatar profile={profile}/></button>
     <div className="teacher-home-copy"><span className="kicker">{t("tutor.current")}</span><h2>{profile.name}</h2><strong>{english?"Crew Teacher":profile.title}</strong><p>{english?profile.taglineEn:profile.description}</p></div>
    </div>
+   <p className="teacher-native-help" role="note">{teacherLanguageHomeHint(
+     s.teachingMode,s.learnerSpeakingLevel,nativeLanguageName(s.nativeLanguage),
+     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>
    <div className="teacher-home-actions">
     <button className="btn secondary" type="button" onClick={()=>{stopPreview();setPicker(true)}}>{t("tutor.change")}</button>
     <button className="btn secondary" type="button" onClick={preview?.state==="connecting"||preview?.state==="playing"?stopPreview:audition}

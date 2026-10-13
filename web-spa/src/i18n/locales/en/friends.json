@@ -1,6 +1,6 @@
 {
   "title": "Who would you like to chat with?",
-  "intro": "No lessons here. Find someone you click with and talk about life, travel, or anything unexpected.",
+  "intro": "No lessons here: share everyday moments, continue remembered topics and chat without unsolicited corrections.",
   "language": "Conversation language",
   "pace": "Speaking pace",
   "slow": "Slow",
@@ -71,5 +71,13 @@
     "error-network": "The memory request could not connect. Previously saved memories are safe.",
     "error-service": "Gemini memory extraction is temporarily unavailable. Try again later.",
     "error-response": "Gemini returned an unreadable memory response. No new memory was added this time."
-  }
+  },
+  "rolePromise": "A friend, not a teacher · no grading or surprise corrections.",
+  "liveRolePromise": "A natural conversation, not a lesson. Your friend won't correct you unless asked.",
+  "chatModeTitle": "Chat language mode",
+  "chatModeNatural": "Natural · target first",
+  "chatModeBilingual": "Relaxed bilingual",
+  "chatModeImmersion": "Full immersion",
+  "chatModeChanged": "Changed · applies from the next reply.",
+  "chatModeSavedNext": "Saved · applies from the next conversation."
 }

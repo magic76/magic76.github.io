@@ -87,3 +87,7 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 
 .crew-voice-dock .crew-voice-end{min-height:48px;margin:0}
 @media(max-width:640px){body.teacher-theme.session-page .crew-voice-dock .crew-voice-end{grid-column:1/-1;min-height:44px}}
+
+/* Native-language help uses the existing Teacher surface, compact on Live. */
+body.teacher-theme .teacher-native-help{max-width:100%;box-sizing:border-box;margin:12px 0;padding:11px 13px;border-radius:14px;border:1px solid #d8e7fd;background:#edf5ff;color:#34527a;font-size:12px;line-height:1.6}
+body.teacher-theme .teacher-live-language-hint{width:min(100%,570px);margin:10px auto 0;text-align:center;font-weight:600}

@@ -1,6 +1,6 @@
 {
   "title": "今天，找誰聊聊？",
-  "intro": "這裡不用上課。挑個聊得來的人，從生活、旅行到各種突發奇想都能聊。",
+  "intro": "這裡不用上課。聊生活、延續共同回憶，不主動糾錯。",
   "language": "對話語言",
   "pace": "說話速度",
   "slow": "慢速",
@@ -71,5 +71,13 @@
     "error-network": "記憶整理連線失敗，請檢查網路。之前儲存的回憶不受影響。",
     "error-service": "Gemini 記憶整理服務暫時無法使用，請稍後再試。",
     "error-response": "Gemini 回傳的記憶資料格式異常，這次尚未新增回憶。"
-  }
+  },
+  "rolePromise": "朋友陪你聊，不評分，也不會突然糾正你。",
+  "liveRolePromise": "這是自然聊天，不是上課；除非你主動提出，朋友不會糾錯。",
+  "chatModeTitle": "聊天語言",
+  "chatModeNatural": "自然聊天 · 目標語言優先",
+  "chatModeBilingual": "輕鬆雙語",
+  "chatModeImmersion": "完全沉浸",
+  "chatModeChanged": "已切換，下一句開始套用。",
+  "chatModeSavedNext": "已儲存，下次對話將使用新模式。"
 }
