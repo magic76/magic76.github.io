@@ -28,7 +28,7 @@ for(const folder of ["features","assets","social"]){
  if(!existsSync(join(root,folder)))throw Error("Required public asset folder is missing: "+folder);
  cpSync(join(root,folder),join(out,folder),{recursive:true,force:false,errorOnExist:false});
 }
-for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml"]){
+for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css"]){
  if(!existsSync(join(root,filename)))throw Error("Required static runtime file is missing: "+filename);
  cpSync(join(root,filename),join(out,filename));
 }
@@ -49,7 +49,10 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 const routes=[
  ["", ""],["teacher","teacher"],["story","story"],["fortune","fortune"],["research","research"]
 ];
-const fallbackStyle='<style>.seo-fallback{max-width:1040px;margin:0 auto;padding:32px 24px;font:16px/1.6 system-ui,sans-serif;color:#172034}.seo-fallback .header-inner,.seo-fallback nav,.seo-fallback .actions,.seo-fallback .feature-grid,.seo-fallback .footer-nav{display:flex;flex-wrap:wrap;gap:18px}.seo-fallback a{color:#3549bd}.seo-fallback h1{font-size:clamp(28px,4vw,48px)}.seo-fallback .hero,.seo-fallback .section{padding:20px 0}.seo-fallback .feature{flex:1 1 180px;padding:16px;border:1px solid #e6e9f1;border-radius:14px}.seo-fallback .steps li{margin:12px 0}.seo-fallback .hero-visual{display:none}@media(max-width:640px){.seo-fallback{padding:20px 16px}}</style>';
+// Keep the fully designed SEO page visible while the React bundle loads.
+// The app removes this stylesheet only *after* React commits, so a failed JS
+// load can never strand visitors on an unstyled static page.
+const fallbackStylesheet = '<link rel="stylesheet" href="/seo.css" data-crew-seo-fallback>';
 for(const locale of ["zh","en"]){
  for(const [name,slug] of routes){
   const prefix=locale==="en"?"en/":"";
@@ -70,7 +73,7 @@ for(const locale of ["zh","en"]){
   for(const [previous,next] of redirectTargets)marketing=marketing.replaceAll(previous,next);
   if(!marketing.includes("<main id=\"main\">")||!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO content: "+relative);
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',fallbackStyle+"\n  "+appTags)
+   .replace('<link rel="stylesheet" href="/seo.css">',fallbackStylesheet+"\n  "+appTags)
    .replace("<body>","<body>\n<div id=\"root\"><div class=\"seo-fallback\">")
    .replace("</body>","</div></div>\n</body>");
   const target=join(out,relative);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
