@@ -585,3 +585,13 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
  .crew-gemini-setup-notice{flex-direction:column;align-items:stretch}
  .crew-gemini-setup-notice>.btn{width:100%}
 }
+
+/* Evergreen product explanations live inside the actual React screens, not
+   a second SEO-only landing page. Keep these quiet and below core actions. */
+.crew-product-about{margin-top:24px;padding-bottom:28px}
+.crew-product-about>p{max-width:72ch;color:var(--muted);line-height:1.85;margin:10px 0 18px}
+.crew-product-about .notice{display:block;min-height:120px;line-height:1.7}
+.crew-product-about .notice strong{display:block;color:var(--text);margin-bottom:8px;font-size:15px}
+.crew-product-about .notice p{margin:0;color:var(--muted);font-size:13px}
+.crew-product-about-links{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}
+@media(max-width:620px){.crew-product-about .notice{min-height:0}.crew-product-about-links .btn{flex:1;text-align:center;min-width:130px}}

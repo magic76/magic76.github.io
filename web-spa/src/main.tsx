@@ -16,6 +16,7 @@ import "./briefing/briefing.css";
 import "./scrollbar-policy.css";
 import "./i18n";
 import { App } from "./App";
+import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
 const root = document.getElementById("root");
 if (!root) throw new Error("Crew root not found");
@@ -33,10 +34,15 @@ function FinishSsgMount() {
   return null;
 }
 
+// Only a published public research seed is ever embedded into SSG HTML.
+let researchSeed:PublicResearchSeed|null=null;
+try{const element=document.getElementById("crew-research-seed");if(element?.textContent)researchSeed=JSON.parse(element.textContent) as PublicResearchSeed}catch{/* Invalid or absent seed falls back to the public JSON feed. */}
 const app = (
   <React.StrictMode>
-    {legacy ? <HashRouter><App/><FinishSsgMount/></HashRouter> :
-      <BrowserRouter basename={languagePrefix}><App/><FinishSsgMount/></BrowserRouter>}
+    <PublicResearchProvider seed={researchSeed}>
+      {legacy ? <HashRouter><App/><FinishSsgMount/></HashRouter> :
+        <BrowserRouter basename={languagePrefix}><App/><FinishSsgMount/></BrowserRouter>}
+    </PublicResearchProvider>
   </React.StrictMode>
 );
 const pathname=window.location.pathname.replace(/\/+$/,"")||"/";

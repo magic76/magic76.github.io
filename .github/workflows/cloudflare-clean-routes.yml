@@ -5,6 +5,8 @@ on:
     paths:
       - "web-spa/**"
       - "scripts/ssg-renderer.mjs"
+      - "scripts/research-seo.mjs"
+      - "crew-app/briefings/**"
       - "scripts/prepare-cloudflare.mjs"
       - "vite.web.config.ts"
       - "package.json"

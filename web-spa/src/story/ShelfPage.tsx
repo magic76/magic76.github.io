@@ -1,4 +1,5 @@
 import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{ensureStoryServices}from"../lib/runtime";import{BUILT_IN_STORIES}from"./catalog";
+import{ProductDiscoverability}from"../components/ProductDiscoverability";
 
 export function StoryShelfPage(){
  const {t}=useTranslation("story");
@@ -12,7 +13,8 @@ export function StoryShelfPage(){
   <Link className="story-action-tile create" to="/story/create"><strong>{t("shelf.create")}</strong><span>{t("shelf.createDesc")}</span></Link>
   <Link className="story-action-tile physical" to="/story/physical"><strong>{t("shelf.physicalAction")}</strong><span>{t("shelf.physicalDesc")}</span></Link>
  </div></section>
- <div className="spa-loading" role="status">{t("shelf.loading")}</div></>;
+ <div className="spa-loading" role="status">{t("shelf.loading")}</div>
+ <ProductDiscoverability product="story"/></>;
  const card=(book:any,builtin=false)=>{
   const cover=(book.images||[])[Number(book.coverIndex)||0],readTo="/story/read/"+encodeURIComponent(book.id);
   return <article className="story-book" key={book.id}>
@@ -27,5 +29,5 @@ export function StoryShelfPage(){
  {last&&<section className="section"><div className="story-continue-card"><div className="story-recent-cover">{(last.images||[])[Number(last.coverIndex)||0]?<img src={(last.images||[])[Number(last.coverIndex)||0].preview}/>:<span>{last.coverEmoji||"S"}</span>}</div><div><span className="kicker">{t("shelf.recent")}</span><h2>{last.title}</h2><p>{last.readingMode==="physical"?t("shelf.physical"):t("shelf.nearPage",{page:(Number(last.currentPage)||0)+1})}</p></div><Link className="btn" to={last.readingMode==="physical"?"/story/physical/"+encodeURIComponent(last.id):"/story/read/"+encodeURIComponent(last.id)}>{t("shelf.continue")} →</Link></div></section>}
  <section className="section"><div className="story-action-grid"><Link className="story-action-tile create" to="/story/create"><strong>{t("shelf.create")}</strong><span>{t("shelf.createDesc")}</span></Link><Link className="story-action-tile physical" to="/story/physical"><strong>{t("shelf.physicalAction")}</strong><span>{t("shelf.physicalDesc")}</span></Link></div></section>
  <section className="section"><div className="section-head"><h2>{t("shelf.myStory")}</h2><small>{t("shelf.books",{count:books.length})}</small></div><div className="story-shelf-grid">{books.length?books.map(x=>card(x,false)):<div className="story-empty">{t("shelf.empty")}</div>}</div></section>
- <section className="section"><div className="section-head"><h2>{t("shelf.explore")}</h2><small>{t("shelf.builtInLabel")}</small></div><div className="story-explore-row">{BUILT_IN_STORIES.map(x=>card(x,true))}</div></section></>
+ <section className="section"><div className="section-head"><h2>{t("shelf.explore")}</h2><small>{t("shelf.builtInLabel")}</small></div><div className="story-explore-row">{BUILT_IN_STORIES.map(x=>card(x,true))}</div></section><ProductDiscoverability product="story"/></>
 }

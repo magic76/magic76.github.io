@@ -3,18 +3,28 @@ import {Link,useParams} from "react-router-dom";
 import {fetchDay} from "./data";
 import {getStatus,readReviews,updateReview} from "./storage";
 import type {BriefingItem,LocalReview} from "./types";
+import {usePublicResearchSeed} from "./PublicResearchContext";
 
 function safeSource(url:string){
  try{const u=new URL(url);return u.protocol==="https:"?u.href:null}catch{return null}
 }
-function sourceDate(value:string){const t=Date.parse(value);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{year:"numeric",month:"long",day:"numeric"}):""}
+function sourceDate(value:string){const t=Date.parse(value);return Number.isFinite(t)?(()=>{const d=new Date(t);return d.getUTCFullYear()+"年"+(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日"})():""}
 export function BriefingDetailPage(){
  const {date="",id=""}=useParams();
- const [item,setItem]=useState<BriefingItem|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState("");
- const [review,setReview]=useState<LocalReview>(()=>readReviews()[id]||{});
+ const seed=usePublicResearchSeed();
+ const initial=seed?.day?.date===date&&seed.article?.id===id?seed.article:null;
+ const [item,setItem]=useState<BriefingItem|null>(initial),[loading,setLoading]=useState(!initial),[error,setError]=useState("");
+ // Review state is private to the browser and must not enter build-time HTML.
+ const [review,setReview]=useState<LocalReview>({});
  useEffect(()=>{
-  let alive=true;setLoading(true);setError("");setItem(null);
+  let alive=true;
   const previous=readReviews()[id]||{};setReview(previous);
+  if(initial){
+   setItem(initial);setLoading(false);setError("");
+   if(getStatus(previous)==="unread")setReview(updateReview(id,{status:"reading"})[id]);
+   return()=>{alive=false};
+  }
+  setLoading(true);setError("");setItem(null);
   fetchDay(date).then(day=>{
    if(!alive)return;
    const found=day.items.find(value=>value.id===id);if(!found)throw Error("找不到這篇文章");
@@ -22,7 +32,7 @@ export function BriefingDetailPage(){
    if(getStatus(previous)==="unread")setReview(updateReview(id,{status:"reading"})[id]);
   }).catch(e=>{if(alive){setError(e instanceof Error?e.message:"讀取失敗");setLoading(false)}});
   return()=>{alive=false};
- },[date,id]);
+ },[date,id,initial]);
  function change(patch:Partial<LocalReview>){setReview(updateReview(id,patch)[id])}
  if(loading)return <div className="briefing briefing-empty">正在載入文章…</div>;
  if(!item)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;

@@ -11,6 +11,7 @@ import{TeacherAvatar}from"./TeacherAvatar";
 import{CREW_FRIENDS}from"../friends/friendProfiles";
 import{FriendAvatar}from"../friends/FriendAvatar";
 import{useClientReady}from"../lib/useClientReady";
+import{ProductDiscoverability}from"../components/ProductDiscoverability";
 
 export function PracticePage(){
  const {t}=useTranslation("teacher");
@@ -47,5 +48,6 @@ export function PracticePage(){
   <Link className="feature-card" to="/teacher/pronunciation"><span className="feature-icon"><Icon name="mic"/></span><strong>{t("practice.pronunciation")}</strong><span>{t("practice.pronunciationDesc")}</span></Link>
  </div></section>
  {(todaySessions>0||v>0)&&<section className="section crew-today-summary"><div className="section-head"><h2>{t("practice.today")}</h2><small>{t("practice.record")}</small></div><div className="notice"><div><b>{t("practice.done")}</b><p>{[todaySessions?t("practice.sessions",{count:todaySessions}):"",v?t("practice.words",{count:v}):""].filter(Boolean).join(" · ")}</p></div></div></section>}
+ <ProductDiscoverability product="teacher"/>
  </>;
 }

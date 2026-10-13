@@ -113,7 +113,7 @@ check("React SSG hydration keeps one app and uses client-side routing for deep l
  assert.notEqual(headline(r),headline(en),"localized headings must differ");
 });
 
-check("production SEO metadata, sitemap and preview noindex are consistent",()=>{
+check("production SEO metadata, sitemap and preview noindex are consistent",async()=>{
  const robots=read("robots.txt"),sitemap=read("sitemap.xml"),headers=read("_headers");
  const domain="https://www.3sssi.com";
  assert.ok(robots.includes("Sitemap: "+domain+"/sitemap.xml"),"robots must point to production sitemap");
@@ -133,6 +133,42 @@ check("production SEO metadata, sitemap and preview noindex are consistent",()=>
   assert.ok(html.includes('<meta name="robots" content="index,follow">'),"public page must remain indexable: "+pathname);
   assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"sitemap missing: "+canonical);
  }
+ const {readPublishedResearch,articlePath,articleCanonical,indexableArticle}=await import("../scripts/research-seo.mjs");
+ const {days}=readPublishedResearch(ROOT);
+ let total=0,indexed=0;
+ for(const [date,day] of days)for(const item of day.items){
+  total++;
+  const route=articlePath(date,item);
+  const html=read(route.slice(1)+"index.html");
+  const canonical=articleCanonical(date,item);
+  assert.ok(html.includes('<div id="root" data-crew-ssg-path="'+route.slice(0,-1)+'">'),"missing article hydration marker: "+route);
+  assert.ok(html.includes('<article class="briefing briefing-detail">'),"must render actual React article: "+route);
+  assert.ok(html.includes(item.title.replaceAll("&","&amp;")),"article title missing in HTML: "+route);
+  assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"article canonical incorrect: "+route);
+  assert.ok(html.includes('<meta property="og:url" content="'+canonical+'">'),"article og URL incorrect: "+route);
+  assert.ok(html.includes('<script id="crew-research-seed" type="application/json">'),"missing hydration public seed: "+route);
+  const rawSeed=html.split('<script id="crew-research-seed" type="application/json">')[1]?.split("</script>")[0];
+  const seed=JSON.parse(rawSeed);
+  assert.equal(seed.article.id,item.id,"wrong article seed: "+route);
+  assert.equal(seed.day.date,date);
+  assert.ok(!html.includes("seo-fallback"),"duplicate SEO landing: "+route);
+  assert.ok(!html.includes("crew_teacher_spa_state"),"user state must not be embedded: "+route);
+  const structured=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)?.[1];
+  assert.ok(structured,"missing Article structured data: "+route);
+  const ld=JSON.parse(structured);
+  assert.equal(ld["@type"],"BlogPosting");
+  assert.equal(ld.mainEntityOfPage["@id"],canonical);
+  assert.equal(ld.datePublished,day.generatedAt,"should distinguish published research edition from cited paper date");
+  if(indexableArticle(item)){
+   indexed++;expected.push(canonical);
+   assert.ok(html.includes('<meta name="robots" content="index,follow">'),"substantial article must be indexable: "+route);
+   assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"curated article absent from sitemap: "+route);
+  }else{
+   assert.ok(html.includes('<meta name="robots" content="noindex,follow">'),"thin article should not be indexed: "+route);
+   assert.ok(!sitemap.includes("<loc>"+canonical+"</loc>"),"thin article must not enter sitemap: "+route);
+  }
+ }
+ assert.ok(total>0&&indexed>0,"research SSG should publish actual articles and index substantial ones");
  assert.equal(urls.length,expected.length,"sitemap should include only public SSG routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
@@ -143,6 +179,16 @@ check("production SEO metadata, sitemap and preview noindex are consistent",()=>
  assert.match(headers,/\/version\.json\s*\n\s*Cache-Control: no-store/,"live version feed must not be cached");
  assert.ok(!headers.includes("https://www.3sssi.com/"),"production must remain indexable");
  assert.ok(!headers.includes("no-transform"),"Cloudflare automatic Web Analytics needs unmodified HTML");
+});
+
+check("public product SEO content is visible in the real React SSG screens",()=>{
+ for(const slug of ["teacher","story","fortune"]){
+  const html=read(slug+"/index.html"),en=read("en/"+slug+"/index.html");
+  assert.ok(html.includes('class="section crew-product-about"'),"public explainer missing: "+slug);
+  assert.ok(en.includes('class="section crew-product-about"'),"English explainer missing: "+slug);
+  assert.ok(html.includes('<a')&&en.includes('<a'),"explainers must link to real product actions");
+  assert.ok(!html.includes('class="seo-fallback"'),"avoid extra marketing page");
+ }
 });
 
 check("old HashRouter links resolve to clean URLs with query strings",()=>{

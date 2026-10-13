@@ -3,16 +3,25 @@ import {Link} from "react-router-dom";
 import {fetchDay,fetchIndex,rankItems} from "./data";
 import {readReviews,updateReview} from "./storage";
 import type {BriefingDay,ReviewMap} from "./types";
+import {usePublicResearchSeed} from "./PublicResearchContext";
 
-const dateLabel=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short"});
-const sourceDate=(date:string)=>{const t=Date.parse(date);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"}):""};
+// Build-time SSG and browsers have different Intl/ICU versions. Keep every
+// first-paint date string deterministic to prevent React hydration mismatch.
+const dateLabel=(date:string)=>{
+ const t=Date.parse(date+"T00:00:00Z");if(!Number.isFinite(t))return date;
+ const weekdays=["週日","週一","週二","週三","週四","週五","週六"];
+ return Number(date.slice(5,7))+"月"+Number(date.slice(8,10))+"日 "+weekdays[new Date(t).getUTCDay()];
+};
+const sourceDate=(date:string)=>{const t=Date.parse(date);if(!Number.isFinite(t))return "";const d=new Date(t);return (d.getUTCMonth()+1)+"/"+d.getUTCDate()};
+const editionDate=(value:string)=>{const time=Date.parse(value);if(!Number.isFinite(time))return "";const iso=new Date(time+8*3600000).toISOString();return iso.slice(0,16).replace("T"," ")+" UTC+8"};
 export function BriefingPage(){
- const [dates,setDates]=useState<string[]>([]),[selected,setSelected]=useState(""),[day,setDay]=useState<BriefingDay|null>(null);
- const [busy,setBusy]=useState(true),[error,setError]=useState(""),[query,setQuery]=useState(""),[topic,setTopic]=useState("all"),[onlySaved,setOnlySaved]=useState(false);
+ const seed=usePublicResearchSeed();
+ const [dates,setDates]=useState<string[]>(seed?.index?.days||[]),[selected,setSelected]=useState(seed?.day?.date||""),[day,setDay]=useState<BriefingDay|null>(seed?.day||null);
+ const [busy,setBusy]=useState(!seed?.day),[error,setError]=useState(""),[query,setQuery]=useState(""),[topic,setTopic]=useState("all"),[onlySaved,setOnlySaved]=useState(false);
  const [reviews,setReviews]=useState<ReviewMap>({});
  useEffect(()=>setReviews(readReviews()),[]);
  useEffect(()=>{let alive=true;fetchIndex().then(index=>{if(!alive)return;setDates(index.days);setSelected(index.days[0]||"");setBusy(false)}).catch(e=>{if(alive){setError(String(e));setBusy(false)}});return()=>{alive=false}},[]);
- useEffect(()=>{if(!selected){setDay(null);return}let alive=true;setBusy(true);setError("");setTopic("all");fetchDay(selected).then(data=>{if(alive){setDay(data);setBusy(false)}}).catch(e=>{if(alive){setDay(null);setError(String(e));setBusy(false)}});return()=>{alive=false}},[selected]);
+ useEffect(()=>{if(!selected){setDay(null);return}if(day?.date===selected)return;let alive=true;setBusy(true);setError("");setTopic("all");fetchDay(selected).then(data=>{if(alive){setDay(data);setBusy(false)}}).catch(e=>{if(alive){setDay(null);setError(String(e));setBusy(false)}});return()=>{alive=false}},[selected,day?.date]);
  useEffect(()=>{const listener=()=>setReviews(readReviews());window.addEventListener("crew-briefing-updated",listener);return()=>window.removeEventListener("crew-briefing-updated",listener)},[]);
  const topics=useMemo(()=>[...new Set((day?.items||[]).map(item=>item.topic))].sort(),[day]);
  const filtered=useMemo(()=>rankItems(day?.items||[],query,topic,id=>!!reviews[id]?.saved,onlySaved),[day,query,topic,onlySaved,reviews]);
@@ -25,7 +34,7 @@ export function BriefingPage(){
    <nav className="briefing-side" aria-label="選擇報告日期"><h3>歷史報告</h3>{dates.length?dates.map((date,i)=><button key={date} className={"briefing-date "+(date===selected?"active":"")} aria-current={date===selected?"date":undefined} onClick={()=>setSelected(date)}><strong>{dateLabel(date)}</strong>{i===0&&<small>最新一期</small>}</button>):<p className="meta">目前還沒有報告。</p>}</nav>
    <section className="briefing-main" aria-label="研究精選">
     {busy?<div className="briefing-empty">正在讀取最新研究…</div>:error?<div className="briefing-empty" role="alert">{error}，請重整再試。</div>:!day?<div className="briefing-empty"><h2>新一期研究正在準備中</h2><p>這裡只刊登有公開來源的研究，不會顯示虛構內容。</p></div>:<>
-     <div className="briefing-edition"><div><span className="briefing-edition-label">DAILY EDITION</span><h2>{dateLabel(day.date)} · 今日精選</h2></div><small>{day.items.length} 篇研究 · {new Date(day.generatedAt).toLocaleString("zh-TW")} 整理</small></div>
+     <div className="briefing-edition"><div><span className="briefing-edition-label">DAILY EDITION</span><h2>{dateLabel(day.date)} · 今日精選</h2></div><small>{day.items.length} 篇研究 · {editionDate(day.generatedAt)} 整理</small></div>
      {day.notes&&<div className="briefing-editor-note"><strong>本期導讀</strong><p>{day.notes}</p></div>}
      <div className="briefing-toolbar">
       <label className="briefing-search"><span aria-hidden="true">⌕</span><input aria-label="搜尋文章" value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋研究主題或關鍵字"/></label>
