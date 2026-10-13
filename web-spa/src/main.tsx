@@ -25,8 +25,18 @@ if (!root) throw new Error("Crew root not found");
 const legacy = window.location.pathname.startsWith("/crew-app/");
 const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname) ? "/en" : undefined;
 
+// Landing HTML serves complete SEO content until the real app commits.
+// Keep /seo.css while JavaScript is pending or broken, then remove it
+// synchronously after React has rendered so product styles never conflict.
+function RemoveSeoFallbackStyles() {
+  React.useLayoutEffect(() => {
+    document.querySelector('link[data-crew-seo-fallback]')?.remove();
+  }, []);
+  return null;
+}
+
 createRoot(root).render(
   <React.StrictMode>
-    {legacy ? <HashRouter><App /></HashRouter> : <BrowserRouter basename={languagePrefix}><App /></BrowserRouter>}
+    {legacy ? <HashRouter><App /><RemoveSeoFallbackStyles /></HashRouter> : <BrowserRouter basename={languagePrefix}><App /><RemoveSeoFallbackStyles /></BrowserRouter>}
   </React.StrictMode>
 );

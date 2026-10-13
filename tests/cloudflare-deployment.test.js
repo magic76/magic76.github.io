@@ -37,7 +37,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('<h1>'),pathname);
   assert.ok(html.includes('hreflang="en"'),pathname);
   assert.ok(html.includes('hreflang="zh-Hant"'),pathname);
-  assert.ok(!html.includes('<link rel="stylesheet" href="/seo.css">'),pathname);
+  assert.ok(html.includes('<link rel="stylesheet" href="/seo.css" data-crew-seo-fallback>'),"SEO fallback must have full CSS: "+pathname);
   assert.ok(!html.includes('href="/crew-app/#/'),"Public links must stay on clean product routes: "+pathname);
   assert.ok(!html.includes('location.replace("crew-app/#/') ,pathname);
  }
@@ -47,11 +47,24 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
-  "sitemap.xml","robots.txt","social/teacher.png"]){
+  "sitemap.xml","robots.txt","seo.css","social/teacher.png"]){
   assert.ok(fs.existsSync(path.join(DIST,file)),"missing required asset: "+file);
  }
  const index=JSON.parse(read("briefings/index.json"));
  assert.ok(Array.isArray(index.days));
+});
+check("fallback CSS is designed, copied and removed only after React mount",()=>{
+ const fallbackCSS=read("seo.css");
+ assert.ok(fallbackCSS.includes(".hero{display:grid"),"expected original landing design styles");
+ assert.ok(fallbackCSS.includes(".feature-grid"),"expected original grid styles");
+ const main=fs.readFileSync(path.join(ROOT,"web-spa/src/main.tsx"),"utf8");
+ assert.ok(main.includes("React.useLayoutEffect"),"cleanup must run after successful React commit");
+ assert.ok(main.includes("link[data-crew-seo-fallback]"),"cleanup must target only fallback CSS");
+ for(const locale of ["", "en/"]){
+  const html=read(locale+"index.html");
+  assert.equal((html.match(/data-crew-seo-fallback/g)||[]).length,1);
+  assert.ok(html.indexOf('href="/seo.css"')<html.indexOf('href="/assets/'),"fallback CSS must load before the app stylesheet");
+ }
 });
 check("old HashRouter links resolve to clean URLs with query strings",()=>{
  const html=read("crew-app/index.html");
