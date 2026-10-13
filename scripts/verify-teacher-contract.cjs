@@ -25,7 +25,7 @@ function validate(){
  const contract=JSON.parse(fs.readFileSync(contractPath,"utf8"));
  assert.equal(contract.schemaVersion,1,"Unrecognized contract schema");
  assert.equal(contract.owner,"magic76/crew-teacher","Unexpected contract owner");
- assert.ok(/^\\d{4}-\\d{2}-\\d{2}\\.\\d+$/.test(contract.revision),"Revision must be yyyy-mm-dd.N");
+ assert.ok(/^\d{4}-\d{2}-\d{2}\.\d+$/.test(contract.revision),"Revision must be yyyy-mm-dd.N");
  assert.ok(Array.isArray(contract.featureMatrix)&&contract.featureMatrix.length>=8);
  assert.ok(Array.isArray(contract.invariants)&&contract.invariants.length>=5);
  assert.ok(Array.isArray(contract.manualAcceptance)&&contract.manualAcceptance.length>=4);
