@@ -35,8 +35,8 @@ function setup(fetcher,key="test-key"){
    "ingestStudentPersonalUpdates","hasMeaningfulLearnerSpeech","verifiedLearnerEvidence"],
   {localStorage,fetch:fetcher});
  const friends=extract("web-spa/src/friends/friendMemory.ts",
-  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError"],
-  {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"}],
+  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic"],
+  {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"},{id:"yuna"}],
    normalizeLearningLanguage:learner.normalizeLearningLanguage,
    personalMemoryEnabled:learner.personalMemoryEnabled,
    getPersonalMemoryEpoch:learner.getPersonalMemoryEpoch,
@@ -107,4 +107,47 @@ test("all user-facing capture statuses have Traditional Chinese and English tran
   for(const key of ["pending","saved","updated","empty","error","error-key","error-quota","error-network","error-service","error-response"])
    assert.ok(names[key],lang+" missing "+key);
  }
+});
+
+
+test("Zoe and Yuna record separately; one friend's topics never update another's",async()=>{
+ const {friends}=setup(async()=>response({topics:[{key:"movie-plan",title:"Movie tomorrow",summary:"The learner plans to watch a movie tomorrow",followUp:"What kind of movie?",
+  evidence:"I am planning to watch a movie tomorrow"}],memory_updates:{}}));
+ const turns=[{input:"I am planning to watch a movie tomorrow",output:"Sounds fun"}];
+ await friends.rememberFriendConversation("zoe","英文",turns,14000);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+ assert.equal(friends.getFriendTopics("yuna","英文").length,0);
+ await friends.rememberFriendConversation("yuna","英文",turns,14000);
+ assert.equal(friends.getFriendTopics("yuna","英文").length,1);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+ assert.equal(friends.getFriendTopics("zoe","日文").length,0);
+});
+
+test("pinning a generated shared topic must not prevent later AI updates",async()=>{
+ let count=0;
+ const {friends}=setup(async()=>{
+  const first=count++===0;
+  return response({topics:[{key:"movie-plan",title:"Our movie conversation",
+   summary:first?"Learner plans a movie tomorrow":"Learner wants to see a comedy tomorrow",
+   followUp:"Which film?",evidence:first?"I will watch a movie tomorrow":"I think a comedy will be good tomorrow"}]});
+ });
+ await friends.rememberFriendConversation("zoe","英文",[{input:"I will watch a movie tomorrow",output:"Fun!"}],11000);
+ const initial=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(initial.manual,false);
+ friends.pinFriendTopic("zoe","英文",initial.id);
+ assert.equal(friends.getFriendTopics("zoe","英文")[0].manual,false);
+ await friends.rememberFriendConversation("zoe","英文",[{input:"I think a comedy will be good tomorrow",output:"Great pick!"}],15000);
+ const updated=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(updated.pinned,true);
+ assert.match(updated.summary,/comedy/);
+ assert.equal(updated.id,initial.id);
+});
+
+test("voice memory uses the completed turn snapshot, not a stale React render",()=>{
+ const rootFile=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const friendPage=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ assert.match(rootFile,/onTurnComplete\?\.\(turn,turnsRef\.current\.slice\(\)\)/);
+ assert.match(friendPage,/onTurnComplete:\(_turn,latestTurns\)=>/);
+ assert.match(friendPage,/rememberFriendConversation\(sessionId,language,latestTurns/);
+ assert.doesNotMatch(friendPage,/const snapshot=live\.turns/);
 });
