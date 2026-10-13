@@ -17,7 +17,8 @@ function buildPolicy(){
   nativeLanguageName:()=>"Traditional Chinese",
   buildAccentPrompt:()=>"",
   buildPacePrompt:()=>"",
-  freeChatRhythmPrompt:()=>"[NATURAL CONVERSATION RHYTHM] Questions are optional."
+  freeChatRhythmPrompt:()=>"[NATURAL CONVERSATION RHYTHM] Questions are optional.",
+  teacherLanguageRule:()=>"[CREW TEACHER SPOKEN LANGUAGE] Speak English unless support is needed."
  };
  vm.runInNewContext(js+"\nthis.buildTeacherSessionPolicy=buildTeacherSessionPolicy;",context);
  return context.buildTeacherSessionPolicy;
