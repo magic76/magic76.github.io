@@ -31,6 +31,8 @@ const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname)
 function RemoveSeoFallbackStyles() {
   React.useLayoutEffect(() => {
     document.querySelector('link[data-crew-seo-fallback]')?.remove();
+    // Clear the first-paint watchdog only after React has committed.
+    window.dispatchEvent(new Event("crew:mounted"));
   }, []);
   return null;
 }

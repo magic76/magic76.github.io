@@ -1,6 +1,7 @@
 const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
+const vm=require("node:vm");
 const path=require("node:path");
 
 const ROOT=path.resolve(__dirname,"..");
@@ -36,7 +37,17 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   const canonical="https://www.3sssi.com/"+(locale==="en"?"en/":"")+(slug?slug+"/":"");
   assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),pathname);
   assert.ok(html.includes('<html lang="'+(locale==="en"?"en":"zh-Hant")+'">'),pathname);
-  assert.match(html,/<div id="root"><div class="seo-fallback">/);
+  assert.match(html,/<div id="root"><div class="crew-bootstrap-shell"/,"functional loading shell must appear before SEO fallback");
+  assert.ok(html.includes('<div class="seo-fallback">'),"non-JS SEO fallback must remain available");
+  assert.ok(html.indexOf('<div class="crew-bootstrap-shell"')<html.indexOf('<div class="seo-fallback">'));
+  assert.ok(html.includes('<style data-crew-bootstrap>'));
+  assert.ok(html.includes('<script data-crew-bootstrap>'));
+  assert.ok(html.indexOf('<script data-crew-bootstrap>')<html.indexOf("</head>"),"boot script must execute before first paint");
+  const bootStyles=html.split('<style data-crew-bootstrap>')[1]?.split("</style>")[0];
+  assert.ok(bootStyles.includes("html.crew-js .seo-fallback{display:none!important}"),"JS users must not see separate SEO marketing UI");
+  assert.ok(bootStyles.includes("html.crew-js.crew-boot-failed .seo-fallback{display:block!important}"),"app failure must preserve static content");
+  assert.ok(bootStyles.includes(".crew-bootstrap-shell"));
+  assert.ok(html.indexOf("<style data-crew-react-css>")<html.indexOf("<script data-crew-bootstrap>"),"app styles are present before boot");
   assert.ok(html.includes(script[1]),pathname);
   const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
   assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
@@ -72,6 +83,36 @@ check("fallback CSS is designed, copied and removed only after React mount",()=>
   assert.equal((html.match(/data-crew-seo-fallback/g)||[]).length,1);
   assert.ok(html.indexOf("<style data-crew-react-css>")<html.indexOf('href="/seo.css"'),"Full React CSS must be available before SEO fallback overrides it");
  }
+});
+check("first-paint watchdog avoids marketing flash, then recovers after JS failure",()=>{
+ const html=read("index.html");
+ const startup=html.split('<script data-crew-bootstrap>')[1]?.split("</script>")[0];
+ assert.ok(startup,"missing boot watchdog");
+ const execute=()=>{
+  const set=new Set(),listeners={};
+  let callback,wait,cleared=false;
+  const document={documentElement:{classList:{
+   add(...values){for(const v of values)set.add(v)},
+   remove(...values){for(const v of values)set.delete(v)}
+  }}};
+  const window={addEventListener(type,listener){listeners[type]=listener}};
+  vm.runInNewContext(startup,{
+   document,window,
+   setTimeout(fn,ms){callback=fn;wait=ms;return 12},
+   clearTimeout(id){if(id===12)cleared=true}
+  });
+  return {set,listeners,get callback(){return callback},get wait(){return wait},get cleared(){return cleared}};
+ };
+ const success=execute();
+ assert.ok(success.set.has("crew-js"));
+ assert.ok(!success.set.has("crew-boot-failed"));
+ assert.equal(success.wait,8000);
+ success.listeners["crew:mounted"]();
+ assert.ok(success.cleared);
+ assert.ok(!success.set.has("crew-js"),"React commit must clear boot-only CSS rules");
+ const failure=execute();
+ failure.callback();
+ assert.ok(failure.set.has("crew-boot-failed"),"on JS failure SEO content must become readable");
 });
 check("old HashRouter links resolve to clean URLs with query strings",()=>{
  const html=read("crew-app/index.html");
