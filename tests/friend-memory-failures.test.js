@@ -60,7 +60,7 @@ test("first turn and identical end snapshot share one memory request",async()=>{
  const {friends}=setup(async()=>{calls++;await gate;return response(valid)});
  const first=friends.rememberFriendConversation("zoe","英文",turns,11000);
  const final=friends.rememberFriendConversation("zoe","英文",turns,11000);
- await Promise.resolve();await Promise.resolve();
+ await new Promise(resolve=>setImmediate(resolve));
  assert.equal(calls,1);
  release();
  await Promise.all([first,final]);
