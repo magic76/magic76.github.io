@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.1",
+  "revision": "2026-10-13.2",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -12,10 +12,14 @@
       "questionRequiredEachTurn": false,
       "pivotAfterShortReplies": 2,
       "pivotAfterConsecutiveQuestions": 3,
-      "firstSilenceMs": 14000,
-      "secondSilenceMs": 20000,
+      "firstSilenceMs": 9000,
+      "secondSilenceMs": 16000,
       "maxSilentRescueNudges": 2,
-      "sessionCadenceIsEphemeral": true
+      "sessionCadenceIsEphemeral": true,
+      "lowEngagementFirstSilenceMs": 8000,
+      "highEngagementFirstSilenceMs": 11000,
+      "noNudgeAfterGoodbye": true,
+      "topicContinuationHook": true
     },
     "friends": {
       "inCharacter": true,
