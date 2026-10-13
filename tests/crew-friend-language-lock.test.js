@@ -14,9 +14,24 @@ test("Crew Friends language policy names the selected language explicitly",()=>{
  const p=policy();
  for(const [selected,expected] of [["英文","English"],["日文","Japanese"],["韓文","Korean"],["西班牙文","Spanish"],["法文","French"]]){
   assert.equal(p.friendSpokenLanguage(selected),expected);
-  assert.match(p.friendLanguageRule(selected),new RegExp("The user chose "+expected));
-  assert.match(p.friendLanguageReminder(selected),new RegExp("Speak in "+expected));
+  assert.match(p.friendLanguageRule(selected,"zh-TW","natural"),/Start in Traditional Chinese/);
+  assert.match(p.friendLanguageRule(selected,"zh-TW","bilingual"),new RegExp("Speak only "+expected));
+  assert.match(p.friendLanguageReminder(selected,"zh-TW","immersion"),new RegExp("Speak in "+expected));
  }
+});
+test("natural and assisted friends never mix languages in the same spoken reply",()=>{
+ const p=policy();
+ const natural=p.friendLanguageRule("英文","zh-TW","natural");
+ assert.match(natural,/Speak only ONE language per whole reply/);
+ assert.match(natural,/isolated OK, Yes/);
+ assert.match(natural,/preserve the current conversational language/);
+ const assisted=p.friendLanguageRule("英文","zh-TW","bilingual");
+ assert.match(assisted,/answer that entire spoken reply in Traditional Chinese only/);
+ assert.match(assisted,/Never weave languages/);
+ const immersed=p.friendLanguageRule("英文","zh-TW","immersion");
+ assert.match(immersed,/Only speak English/);
+ const reminder=p.friendLanguageReminder("英文","zh-TW","natural");
+ assert.match(reminder,/Start in Traditional Chinese/);
 });
 test("Zoe and every Crew Friend have language anchoring in system, opening, quick actions, and reconnect",()=>{
  const profile=read("web-spa/src/friends/friendProfiles.ts");

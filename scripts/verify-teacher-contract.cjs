@@ -64,7 +64,7 @@ function validate(){
  if(contract.rules.freeChat.questionRequiredEachTurn!==false)fail("Free chat must not require a question each turn");
  if(contract.rules.memory.personalDefaultOn!==true||contract.rules.memory.explicitOptOutPreserved!==true)
   fail("Default-on and opt-out are both required");
- if(contract.rules.friends.selectedSpokenLanguageLocked!==true)fail("Friend language lock required");
+ if(contract.rules.friends.singleLanguagePerSpokenReply!==true||contract.rules.friends.immersionAlwaysTargetOnly!==true||contract.rules.friends.friendMaxSilentNudges!==1)fail("Friend single-language and recovery limits required");
  if(contract.rules.practice.roleplayStaysInCharacter!==true)fail("Roleplay behavior required");
  if(contract.rules.freeChat.pivotAfterShortReplies!==2||contract.rules.freeChat.pivotAfterConsecutiveQuestions!==3)
   fail("Update both platform cadence thresholds and tests before updating the contract");
@@ -89,7 +89,7 @@ function validate(){
   ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java","boolean shouldRescue() { return !ended; }"],
   ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java","freeChatFlow.silenceDelayMs(silenceRescueLevel)"],
   ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
-   "silenceRescueLevel >= "+cadence.maxSilentRescueNudges]
+   "silenceRescueLevel >= (isCompanionConversation() ? "+contract.rules.friends.friendMaxSilentNudges+" : "+cadence.maxSilentRescueNudges+")"]
  ]:[
   ["web-spa/src/live/conversationFlow.ts",
    "this.shortReplies>="+cadence.pivotAfterShortReplies+"||this.questions>="+cadence.pivotAfterConsecutiveQuestions],
@@ -100,7 +100,7 @@ function validate(){
   ["web-spa/src/live/conversationFlow.ts","shouldRescue(){return !this.ended}"],
   ["web-spa/src/live/useLiveSession.ts","cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind)"],
   ["web-spa/src/live/useLiveSession.ts",
-   "rescueCountRef.current>="+cadence.maxSilentRescueNudges]
+   "rescueCountRef.current>=(kind===\"friend\"?"+contract.rules.friends.friendMaxSilentNudges+":"+cadence.maxSilentRescueNudges+")"]
  ];
  for(const [filename,needle] of checks){
   try{if(!readSource(filename).includes(needle))fail("Cadence contract differs from "+filename+": "+needle)}

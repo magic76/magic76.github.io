@@ -77,7 +77,7 @@ export function useLiveSession(config:Config){
    const scheduleRescue=()=>{
     cancelRescue();
     const kind=configRef.current.conversationFlow;
-    if(!kind||rescueCountRef.current>=2||!cadenceRef.current.shouldRescue())return;
+    if(!kind||rescueCountRef.current>=(kind==="friend"?1:2)||!cadenceRef.current.shouldRescue())return;
     rescueTimerRef.current=window.setTimeout(()=>{
      rescueTimerRef.current=null;
      if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted||awaitingTutorRef.current||!cadenceRef.current.shouldRescue())return;

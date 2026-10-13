@@ -33,7 +33,9 @@ test("teacher contract keeps default-on memories, conversation boundaries and ma
  assert.equal(spec.rules.freeChat.questionRequiredEachTurn,false);
  assert.equal(spec.rules.freeChat.pivotAfterShortReplies,2);
  assert.equal(spec.rules.freeChat.pivotAfterConsecutiveQuestions,3);
- assert.equal(spec.rules.friends.selectedSpokenLanguageLocked,true);
+ assert.equal(spec.rules.friends.singleLanguagePerSpokenReply,true);
+ assert.equal(spec.rules.friends.immersionAlwaysTargetOnly,true);
+ assert.equal(spec.rules.friends.friendMaxSilentNudges,1);
  assert.equal(spec.rules.practice.roleplayStaysInCharacter,true);
  for(const id of ["short_replies","immersion_language","roleplay","memory_off"])
   assert.ok(spec.manualAcceptance.some(s=>s.id===id));

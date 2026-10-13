@@ -31,7 +31,7 @@ export function FriendLivePage(){
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
   openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-   " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
+   " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.",
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:()=>{
@@ -84,8 +84,9 @@ export function FriendLivePage(){
      <div className="friend-language-options">
       {([["natural","自然聊天"],["bilingual","輕鬆雙語"],["immersion","完全沉浸"]] as const).map(([value,label])=>
        <button key={value} type="button" className={friendChatMode===value?"selected":""}
-        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t("chatMode"+(value==="natural"?"Natural":value==="bilingual"?"Bilingual":"Immersion"))}</button>)}
+        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t(value==="natural"?"chatModeNatural":value==="bilingual"?"chatModeBilingual":"chatModeImmersion")}</button>)}
      </div>
+     <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>

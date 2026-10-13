@@ -51,7 +51,9 @@ export class ConversationFlowState{
   * First nudge is sooner if interest has faded; a detailed reply earns more thinking time.
   * Second nudge is deliberately slower. No third automatic attempt until fresh user speech.
   */
- silenceDelayMs(attempt:number,_kind:ConversationFlowKind){
+ silenceDelayMs(attempt:number,kind:ConversationFlowKind){
+  // Friends aren't tutors: give a real conversational pause, and only one gentle nudge.
+  if(kind==="friend")return attempt>0?30000:20000;
   if(attempt>0)return 16000;
   if(this.needsPivot())return 8000;
   return this.detailedReplies>0?11000:9000;

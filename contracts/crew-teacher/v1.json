@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.8",
+  "revision": "2026-10-13.9",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -24,7 +24,7 @@
     "friends": {
       "inCharacter": true,
       "noUnsolicitedCoaching": true,
-      "selectedSpokenLanguageLocked": true,
+      "selectedSpokenLanguageLocked": false,
       "languageLockSurvivesReconnect": true,
       "chatLanguageModes": [
         "natural",
@@ -36,7 +36,21 @@
       "chatModeSurvivesReconnect": true,
       "explicitModeChangeDuringLive": true,
       "switchAppliesToNextReplyWithoutRestart": true,
-      "roleUxPromiseWithoutUnsolicitedCorrections": true
+      "roleUxPromiseWithoutUnsolicitedCorrections": true,
+      "singleLanguagePerSpokenReply": true,
+      "naturalDefaultsToNativeLanguage": true,
+      "naturalFollowsSustainedLanguage": true,
+      "naturalIgnoresOneWordLanguageSwitch": true,
+      "assistedTargetFirstNativeHelpWholeReply": true,
+      "immersionAlwaysTargetOnly": true,
+      "friendFirstSilenceMs": 20000,
+      "friendMaxSilentNudges": 1,
+      "noCompulsoryOpeningQuestion": true,
+      "chatModeLabels": {
+        "natural": "Natural chat / 自然聊天",
+        "bilingual": "Target chat + native help / 外語聊天・母語求助",
+        "immersion": "Full immersion / 完全沉浸"
+      }
     },
     "memory": {
       "personalDefaultOn": true,
@@ -120,7 +134,7 @@
     },
     {
       "id": "target_language_lock",
-      "label": "Friend stays in learner-selected language after reconnect",
+      "label": "Friend natural native-follow, assisted target chat, and target-only immersion; reconnect preserves mode",
       "android": "supported",
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
@@ -272,13 +286,23 @@
     },
     {
       "id": "friend_language_lock",
-      "why": "Selected spoken language survives topic changes and reconnections",
+      "why": "Crew Friend uses one language per spoken reply; natural follows native/sustained language, assisted is target-first with whole-turn native help, immersion stays target-only on reconnect",
       "android": [
         {
           "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
           "contains": [
-            "NON-NEGOTIABLE SESSION RULE",
-            "including after reconnection"
+            "NATURAL SINGLE-LANGUAGE SESSION RULE",
+            "TARGET CHAT WITH NATIVE HELP",
+            "FULL IMMERSION SESSION RULE",
+            "On reconnection keep the current conversation language"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "外語聊天 · 母語求助",
+            "isCompanionConversation() ? 20000L",
+            "If a verified recent unfinished topic fits"
           ]
         }
       ],
@@ -286,8 +310,22 @@
         {
           "path": "web-spa/src/friends/friendLanguage.ts",
           "contains": [
-            "FIXED SPOKEN LANGUAGE",
-            "every response and every reconnect"
+            "NATURAL SINGLE LANGUAGE",
+            "TARGET CHAT WITH NATIVE HELP",
+            "FULL IMMERSION SPOKEN LANGUAGE"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "one easy conversational observation",
+            "chatModeBilingual"
+          ]
+        },
+        {
+          "path": "web-spa/src/live/useLiveSession.ts",
+          "contains": [
+            "kind===\"friend\"?1:2"
           ]
         }
       ]
@@ -368,12 +406,12 @@
     },
     {
       "id": "web_rescue_bounded",
-      "why": "Automatic Web nudges stop after two; do not create fake learner turns",
+      "why": "Tutor free-chat silence recovery retains two nudges; Friends get one nudge after a longer pause. No fabricated learner turns.",
       "android": [
         {
           "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
           "contains": [
-            "silenceRescueLevel >= 2",
+            "silenceRescueLevel >= (isCompanionConversation() ? 1 : 2)",
             "freeChatFlow.silenceDelayMs(silenceRescueLevel)",
             "freeChatFlow.shouldRescue()"
           ]
@@ -383,7 +421,7 @@
         {
           "path": "web-spa/src/live/useLiveSession.ts",
           "contains": [
-            "rescueCountRef.current>=2",
+            "rescueCountRef.current>=(kind===\"friend\"?1:2)",
             "cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind)",
             "sendControl"
           ]
@@ -572,7 +610,7 @@
         {
           "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
           "contains": [
-            "RELAXED BILINGUAL SESSION RULE",
+            "TARGET CHAT WITH NATIVE HELP",
             "FULL IMMERSION SESSION RULE"
           ]
         },
@@ -595,8 +633,8 @@
         {
           "path": "web-spa/src/friends/friendLanguage.ts",
           "contains": [
-            "bilingual",
-            "immersion"
+            "TARGET CHAT WITH NATIVE HELP",
+            "FULL IMMERSION SPOKEN LANGUAGE"
           ]
         },
         {
@@ -700,7 +738,7 @@
       ]
     },
     "Set native Chinese, target English: A1 tutor explains primarily in Chinese and models short English; B2 tutor uses mostly English.",
-    "Zoe in natural mode stays in English when learner replies Chinese; relaxed bilingual allows Chinese and English; immersion never switches from English across reconnect.",
+    "Zoe in natural mode speaks Chinese to a Chinese-speaking learner and stays within one language per reply; target chat with native help speaks English unless asked for a whole Chinese explanation; immersion stays English after reconnect.",
     {
       "id": "teacher_a1_native_help",
       "steps": "Native Chinese + English A1: ask in Chinese what a sentence means; teacher explains in Chinese and gives a short English model.",
@@ -744,6 +782,22 @@
     {
       "id": "a1_full_immersion_override",
       "steps": "Teacher with Chinese native, English target, A1 speaking, explicit full immersion: all spoken replies remain English (Chinese questions and reconnect included).",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_natural_language_and_rhythm",
+      "steps": "Native Chinese + target English + natural Friend: Zoe opens in Chinese, uses one language per reply, replies to Chinese in Chinese, stays Chinese after isolated OK/Yes, switches to English only after sustained substantive English; she shares observations, does not interrogate, and may prompt at most once after 20 seconds of silence.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_assisted_native_help",
+      "steps": "Native Chinese + target English + assisted Friend: Zoe uses only English initially; user explicitly asks what a phrase means in Chinese, she explains for one whole Chinese reply without mixing, then resumes English. Full immersion remains exclusively English; switching mode mid-call and reconnect preserve selection.",
       "platforms": [
         "android",
         "web"
