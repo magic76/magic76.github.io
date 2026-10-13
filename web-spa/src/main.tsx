@@ -1,5 +1,5 @@
 import React from "react";
-import { createRoot } from "react-dom/client";
+import {createRoot,hydrateRoot} from "react-dom/client";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import "../../features/shared/design-system.css";
 import "../../features/teacher/styles.css";
@@ -30,15 +30,22 @@ const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname)
 // synchronously after React has rendered so product styles never conflict.
 function RemoveSeoFallbackStyles() {
   React.useLayoutEffect(() => {
-    document.querySelector('link[data-crew-seo-fallback]')?.remove();
-    // Clear the first-paint watchdog only after React has committed.
+    document.documentElement.classList.remove("crew-dynamic-route");
+    // Legacy startup notices, if any, are only dismissed after React commits.
     window.dispatchEvent(new Event("crew:mounted"));
   }, []);
   return null;
 }
 
-createRoot(root).render(
+const app = (
   <React.StrictMode>
-    {legacy ? <HashRouter><App /><RemoveSeoFallbackStyles /></HashRouter> : <BrowserRouter basename={languagePrefix}><App /><RemoveSeoFallbackStyles /></BrowserRouter>}
+    {legacy ? <HashRouter><App/><RemoveSeoFallbackStyles/></HashRouter> :
+      <BrowserRouter basename={languagePrefix}><App/><RemoveSeoFallbackStyles/></BrowserRouter>}
   </React.StrictMode>
 );
+const pathname=window.location.pathname.replace(/\/+$/,"")||"/";
+const prerenderedPath=root.dataset.crewSsgPath;
+// Only hydrate when the delivered SSG HTML belongs to this exact route.
+// The root-index SPA fallback is intentionally NOT hydrated for deep links.
+if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
+else createRoot(root).render(app);
