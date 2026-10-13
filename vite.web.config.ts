@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -33,7 +34,7 @@ function createBuildInfo(isBuild: boolean): BuildInfo {
   if (!isBuild) return { schema: 1, buildId: null, builtAt: null, commit: null, version: null, environment };
   const builtAt = new Date().toISOString();
   const commit = resolveCommit();
-  const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version?: string };
+  const pkg = JSON.parse(readFileSync(resolve(process.cwd(), "package.json"), "utf8")) as { version?: string };
   // The repo has no release version; never invent a semantic version.
   const version = typeof pkg.version === "string" && pkg.version.trim() ? pkg.version : null;
   return {
