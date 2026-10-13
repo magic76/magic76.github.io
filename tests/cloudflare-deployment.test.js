@@ -23,8 +23,13 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
 check("ten static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
- const stylesheet=root.match(/<link[^>]*href="(\/assets\/[^"]+\.css)"/);
- assert.ok(script,"missing app JS");assert.ok(stylesheet,"missing app CSS");
+ const inlineCss=root.match(/<style data-crew-react-css>([\\s\\S]*?)<\\/style>/);
+ const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>file.endsWith(".css"));
+ assert.equal(cssFiles.length,1,"expected one Vite CSS bundle");
+ const compiledCss=read("assets/"+cssFiles[0]);
+ assert.ok(script,"missing app JS");assert.ok(inlineCss,"missing inline React stylesheet");
+ assert.ok(compiledCss.length>10000&&compiledCss.includes(".global-nav"));
+ assert.equal(inlineCss[1],compiledCss,"inlined stylesheet must exactly match the Vite CSS build");
  for(const locale of ["zh","en"])for(const slug of pages){
   const pathname=(locale==="en"?"en/":"")+(slug?slug+"/":"")+"index.html";
   const html=read(pathname);
@@ -33,7 +38,9 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('<html lang="'+(locale==="en"?"en":"zh-Hant")+'">'),pathname);
   assert.match(html,/<div id="root"><div class="seo-fallback">/);
   assert.ok(html.includes(script[1]),pathname);
-  assert.ok(html.includes(stylesheet[1]),pathname);
+  const actualInline=html.match(/<style data-crew-react-css>([\\s\\S]*?)<\\/style>/);
+  assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
+  assert.equal(actualInline[1],compiledCss,"style is stale: "+pathname);
   assert.ok(html.includes('<h1>'),pathname);
   assert.ok(html.includes('hreflang="en"'),pathname);
   assert.ok(html.includes('hreflang="zh-Hant"'),pathname);
@@ -42,7 +49,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(!html.includes('location.replace("crew-app/#/') ,pathname);
  }
  assert.ok(fs.existsSync(path.join(DIST,script[1].slice(1))));
- assert.ok(fs.existsSync(path.join(DIST,stylesheet[1].slice(1))));
+ assert.ok(fs.existsSync(path.join(DIST,"assets",cssFiles[0])));
 });
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
@@ -63,7 +70,7 @@ check("fallback CSS is designed, copied and removed only after React mount",()=>
  for(const locale of ["", "en/"]){
   const html=read(locale+"index.html");
   assert.equal((html.match(/data-crew-seo-fallback/g)||[]).length,1);
-  assert.ok(html.indexOf('href="/seo.css"')<html.indexOf('href="/assets/'),"fallback CSS must load before the app stylesheet");
+  assert.ok(html.indexOf("<style data-crew-react-css>")<html.indexOf('href="/seo.css"'),"Full React CSS must be available before SEO fallback overrides it");
  }
 });
 check("old HashRouter links resolve to clean URLs with query strings",()=>{
