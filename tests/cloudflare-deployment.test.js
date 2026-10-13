@@ -43,7 +43,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(!html.includes('class="seo-fallback"'),"old marketing fallback is not SSG: "+pathname);
   assert.ok(!html.includes("crew-bootstrap-shell"),"no duplicate bootstrap page: "+pathname);
   assert.ok(!html.includes('class="site-header"'),"must not ship marketing HTML: "+pathname);
-  assert.ok(html.includes('class="crew-home"')||html.includes('class="hero"')||html.includes('class="briefing'),"product screen missing: "+pathname);
+  assert.ok(html.includes('class="crew-home"')||html.includes('class="hero"')||html.includes('class="hero ')||html.includes('class="briefing'),"product screen missing: "+pathname);
   assert.ok(html.includes('html.crew-dynamic-route #root{visibility:hidden!important}'),"deep-route fallback must hide wrong SSG");
   assert.ok(!html.includes('/@fs/'),"Vite dev-only image URL leaked into deployment");
   assert.ok(html.includes(script[1]),pathname);
