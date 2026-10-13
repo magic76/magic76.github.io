@@ -1,3 +1,4 @@
+import {assessResearchQuality} from "./research-quality.mjs";
 import {readFileSync,existsSync} from "node:fs";
 import {join} from "node:path";
 
@@ -9,11 +10,7 @@ export const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&a
 export const safeJson=value=>JSON.stringify(value).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");
 
 /** Only editorial pages with enough original analysis enter search indexing. */
-export function indexableArticle(item){
- return typeof item.body==="string"&&item.body.trim().length>=270
-  &&typeof item.relevance==="string"&&item.relevance.trim().length>=75
-  &&Array.isArray(item.sources)&&item.sources.some(s=>/^https:\/\//.test(s?.url||""));
-}
+export function indexableArticle(item){return assessResearchQuality(item).indexable;}
 
 export function readPublishedResearch(root){
  const folder=join(root,"crew-app","briefings");
