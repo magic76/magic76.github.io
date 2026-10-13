@@ -3,7 +3,8 @@ import {Link,useParams} from "react-router-dom";
 import {fetchDay} from "./data";
 import {getStatus,readReviews,updateReview} from "./storage";
 import type {BriefingItem,LocalReview} from "./types";
-import {usePublicResearchSeed} from "./PublicResearchContext";
+import {usePublicResearchSeed,type RelatedResearch} from "./PublicResearchContext";
+import {ResearchDiscovery} from "./ResearchDiscovery";
 
 function safeSource(url:string){
  try{const u=new URL(url);return u.protocol==="https:"?u.href:null}catch{return null}
@@ -16,6 +17,21 @@ export function BriefingDetailPage(){
  const [item,setItem]=useState<BriefingItem|null>(initial),[loading,setLoading]=useState(!initial),[error,setError]=useState("");
  // Review state is private to the browser and must not enter build-time HTML.
  const [review,setReview]=useState<LocalReview>({});
+ const [related,setRelated]=useState<RelatedResearch[]>(initial?seed?.related||[]:[]);
+ useEffect(()=>{
+  if(initial){setRelated(seed?.related||[]);return}
+  const controller=new AbortController();
+  setRelated([]);
+  const root=import.meta.env.BASE_URL.endsWith("/")?import.meta.env.BASE_URL:import.meta.env.BASE_URL+"/";
+  fetch(root+"briefings/discovery.json",{signal:controller.signal})
+   .then(response=>{if(!response.ok)throw Error("Related research unavailable");return response.json()})
+   .then((catalog:Record<string,RelatedResearch[]>)=>{
+    const list=catalog["/research/"+date+"/"+id+"/"];
+    if(!controller.signal.aborted)setRelated(Array.isArray(list)?list:[]);
+   }).catch(()=>{if(!controller.signal.aborted)setRelated([])});
+  return()=>controller.abort();
+ },[date,id,initial,seed?.related]);
+
  useEffect(()=>{
   let alive=true;
   const previous=readReviews()[id]||{};setReview(previous);
@@ -35,7 +51,7 @@ export function BriefingDetailPage(){
  },[date,id,initial]);
  function change(patch:Partial<LocalReview>){setReview(updateReview(id,patch)[id])}
  if(loading)return <div className="briefing briefing-empty">正在載入文章…</div>;
- if(!item)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
+ if(!item||item.id!==id)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
  const done=getStatus(review)==="finished"||getStatus(review)==="adopted";
  return <article className="briefing briefing-detail">
   <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research">← 返回每日研究</Link></nav>
@@ -55,6 +71,7 @@ export function BriefingDetailPage(){
      return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer">{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
     }):<p className="meta">目前沒有可驗證的原始來源。</p>}
    </section>
+   <ResearchDiscovery item={item} related={related}/>
   </main>
   <aside className="briefing-detail-aside" aria-label="閱讀工具">
    <div className="briefing-action-panel">
