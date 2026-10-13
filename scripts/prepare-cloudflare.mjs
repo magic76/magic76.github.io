@@ -47,7 +47,7 @@ for(const folder of ["features","assets","social"]){
  if(!existsSync(join(root,folder)))throw Error("Required public asset folder is missing: "+folder);
  cpSync(join(root,folder),join(out,folder),{recursive:true,force:false,errorOnExist:false});
 }
-for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css"]){
+for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css","_headers"]){
  if(!existsSync(join(root,filename)))throw Error("Required static runtime file is missing: "+filename);
  cpSync(join(root,filename),join(out,filename));
 }
@@ -72,11 +72,16 @@ const routes=["","teacher","story","fortune","research"];
 const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
 // from the real URL, hide the wrong screen before first paint until React mounts.
+// Avoid regex backslash escapes inside the HTML-generating template string:
+// \/ turns into / in a JS template literal and breaks the emitted JS.
 const dynamicGuard=`<style>html.crew-dynamic-route #root{visibility:hidden!important}</style>
-<script>(function(){var canonical=document.querySelector('link[rel="canonical"]');if(!canonical)return;
-var expected=new URL(canonical.href).pathname.replace(/\/+$/,"")||"/";
-var current=location.pathname.replace(/\/+$/,"")||"/";
-if(current!==expected)document.documentElement.classList.add("crew-dynamic-route")
+<script>(function(){
+var canonical=document.querySelector('link[rel="canonical"]');if(!canonical)return;
+var expected=new URL(canonical.href).pathname;
+if(expected.length>1&&expected.endsWith("/"))expected=expected.slice(0,-1);
+var current=location.pathname;
+if(current.length>1&&current.endsWith("/"))current=current.slice(0,-1);
+if(current!==expected)document.documentElement.classList.add("crew-dynamic-route");
 })();</script>`;
 for(const locale of ["zh","en"]){
  for(const slug of routes){
