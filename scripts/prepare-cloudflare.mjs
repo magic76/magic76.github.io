@@ -47,7 +47,7 @@ for(const folder of ["features","assets","social"]){
  if(!existsSync(join(root,folder)))throw Error("Required public asset folder is missing: "+folder);
  cpSync(join(root,folder),join(out,folder),{recursive:true,force:false,errorOnExist:false});
 }
-for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css"]){
+for(const filename of ["crew.js","crew-live.js","crew-live-ui.js","robots.txt","sitemap.xml","seo.css","_headers"]){
  if(!existsSync(join(root,filename)))throw Error("Required static runtime file is missing: "+filename);
  cpSync(join(root,filename),join(out,filename));
 }
