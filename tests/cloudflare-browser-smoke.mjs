@@ -5,6 +5,7 @@
 import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
 import {setTimeout as sleep} from "node:timers/promises";
+import {readFileSync} from "node:fs";
 import {chromium} from "playwright";
 
 const origin="http://127.0.0.1:4179";
@@ -93,6 +94,24 @@ async function run(){
     assert.deepEqual(errors,[],"Settings page error on "+route);
     await page.close();
     process.stdout.write("PASS settings-only build version "+route+"\n");
+  }
+  const sitemap=readFileSync("dist/sitemap.xml","utf8");
+  const researchRoutes=[...sitemap.matchAll(/<loc>https:\/\/www\.3sssi\.com(\/research\/\d{4}-\d{2}-\d{2}\/[^<]+)<\/loc>/g)].map(x=>x[1]);
+  assert.ok(researchRoutes.length>0,"at least one substantial research article must be indexed");
+  for(const route of researchRoutes.slice(0,3)){
+   const errors=[];
+   const page=await context.newPage();
+   checkConsole(page,errors);
+   const response=await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:30000});
+   assert.equal(response?.status(),200,"article route should serve real HTML: "+route);
+   const article=page.locator("article.briefing-detail");
+   await article.waitFor({state:"visible",timeout:15000});
+   assert.ok(await article.locator("h1").textContent(),"article title missing: "+route);
+   assert.ok(await article.locator("a[href^='https://']").count(),"article must cite public source: "+route);
+   await page.waitForTimeout(180);
+   assert.deepEqual(errors,[],"hydration mismatch on research article "+route);
+   await page.close();
+   process.stdout.write("PASS indexed research article "+route+"\\n");
   }
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
