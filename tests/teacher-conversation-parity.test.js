@@ -16,7 +16,8 @@ function buildPolicy(){
   verifiedTutorHistoryContext:()=>"tutor history",
   nativeLanguageName:()=>"Traditional Chinese",
   buildAccentPrompt:()=>"",
-  buildPacePrompt:()=>""
+  buildPacePrompt:()=>"",
+  freeChatRhythmPrompt:()=>"[NATURAL CONVERSATION RHYTHM] Questions are optional."
  };
  vm.runInNewContext(js+"\nthis.buildTeacherSessionPolicy=buildTeacherSessionPolicy;",context);
  return context.buildTeacherSessionPolicy;
