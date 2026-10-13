@@ -134,7 +134,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",()=>
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
  assert.ok(headers.includes("https://:version.magic76-github-io.pages.dev/*"),"branch preview missing noindex");
- const previewRules=headers.trim().split(/\n\s*\n/).filter(rule=>rule.startsWith("https://"));
+ const previewRules=headers.trim().split(/\n\s*\n/).filter(rule=>rule.includes("https://"));
  assert.equal(previewRules.length,2,"two Cloudflare preview aliases");
  assert.ok(previewRules.every(rule=>rule.includes("X-Robots-Tag: noindex")),"each preview host needs noindex");
  assert.match(headers,/\/version\.json\s*\n\s*Cache-Control: no-store/,"live version feed must not be cached");
