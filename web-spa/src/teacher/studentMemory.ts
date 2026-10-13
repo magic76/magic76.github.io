@@ -103,7 +103,12 @@ export function hasMeaningfulLearnerSpeech(speech:string){
  return !/^(hi|hello|hey|bye|goodbye|thankyou|thanks|okay|ok|yes|no|sure|你好|謝謝|再見|こんにちは|ありがとう|안녕하세요)$/iu.test(norm);
 }
 const sensitiveMemory=/(passport|password|bank account|credit card|social security|identity card|my name is|home address|street address|phone number|email address|diagnos|health condition|religion|religious belief|politic|sexual|medical record|\bssn\b|護照|密碼|身分證|身份證|家庭住址|手機號碼|電話號碼|電子郵件|我的名字是|宗教|政治|性傾向|疾病|病史|診斷|醫療紀錄)/iu;
-/** Shared profile for Crew Teacher and Crew Friends, scoped by learning language. */
+/** Do not promote dated plans into a lasting personal profile, including legacy AI notes. */
+export function isTimeBoundPersonalMemory(text:string){
+ const value=String(text||"").normalize("NFKC").toLowerCase();
+ return /\b(tomorrow|today|tonight|next\s+(?:week|month|year|weekend|monday|tuesday|wednesday|thursday|friday|saturday|sunday)|this\s+(?:week|weekend|evening))\b|明天|後天|今天|今晚|明晚|這週|下週|下個月|本週末|今週末|明日|明後日|来週|来月|내일|모레|다음\s*주|demain|mañana/i.test(value);
+}
+/** Personal learner profile for the tutor; friend dialogue uses private topic notes. */
 export function ingestStudentPersonalUpdates(language:string,updates:any,speech:string,expectedEpoch=getPersonalMemoryEpoch()){
  if(!personalMemoryEnabled()||getPersonalMemoryEpoch()!==expectedEpoch||!updates||typeof updates!=="object")return;
  let count=0;
@@ -113,7 +118,7 @@ export function ingestStudentPersonalUpdates(language:string,updates:any,speech:
    if(!v||typeof v!=="object"||v.explicit===false)continue;
    const quote=short(v.evidence||v.evidence_quote,240);
    const detail=short(v.detail,180),stableKey=short(v.key,90);
-   if(!verifiedLearnerEvidence(speech,quote)||!detail||sensitiveMemory.test(detail+" "+stableKey))continue;
+   if(!verifiedLearnerEvidence(speech,quote)||!detail||isTimeBoundPersonalMemory(detail)||isTimeBoundPersonalMemory(quote)||sensitiveMemory.test(detail+" "+stableKey))continue;
    const confidence=Number(v.confidence);
    reportEntry(language,kind,detail,stableKey,Number.isFinite(confidence)?Math.min(.9,Math.max(.6,confidence)):.65);
    if(++count>=3)return;
@@ -152,7 +157,7 @@ export function ingestStudentReport(language:string,report:any,turns:Array<{inpu
 }
 function context(language:string,roleplay:boolean){
  const eligible=studentMemories(language).filter(m=>m.active&&m.confidence>=(roleplay?0.5:0.4)
- &&(!isPersonal(m.type)||personalMemoryEnabled()));
+ &&(!isPersonal(m.type)||personalMemoryEnabled())&&(m.source==="self"||!isTimeBoundPersonalMemory(m.detail)));
  const selected=roleplay?eligible.filter(m=>isPersonal(m.type)).slice(0,3):
  [...eligible.filter(m=>isPersonal(m.type)).slice(0,3),...eligible.filter(m=>!isPersonal(m.type))].slice(0,8);
  if(!selected.length)return"";
@@ -167,7 +172,7 @@ export function buildRoleplayMemoryContext(language:string){return context(langu
 
 /** Only existing stable keys travel to the already scheduled report request; no extra model call. */
 export function reportMemoryContext(language:string){
- const items=studentMemories(language).filter(x=>x.active&&x.confidence>=0.45);
+ const items=studentMemories(language).filter(x=>x.active&&x.confidence>=0.45&&(x.source==="self"||!isTimeBoundPersonalMemory(x.detail)));
  const weaknesses=items.filter(x=>x.type==="weakness").slice(0,5);
  const personal=personalMemoryEnabled()?items.filter(x=>isPersonal(x.type)).slice(0,4):[];
  return[...weaknesses,...personal].map(x=>x.type+" key="+short(x.key,85)+"; observations="+x.observations).join("\n").slice(0,1300);

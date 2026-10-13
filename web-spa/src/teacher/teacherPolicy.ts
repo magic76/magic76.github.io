@@ -5,6 +5,7 @@ import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
 import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode}from"../store/teacherStore";
 import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
 import {freeChatRhythmPrompt} from "../live/conversationFlow";
+import {teacherLanguageRule} from "./teacherLanguage";
 export type TeacherSessionMode="tutor"|"roleplay";
 
 export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string;profile?:TeacherProfile}){
@@ -31,7 +32,7 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
 export function buildTeacherSessionPolicy(input:{language:string;scene:string;goals:string[];rolePrompt?:string;
  mode:TeacherSessionMode;profile:TeacherProfile;teachingMode:TeachingMode;
  conversationMode:ConversationMode;languageStyle:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;level:string;nativeLanguage:NativeLanguage}){
- if(input.mode==="roleplay")return [roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)}),buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent),buildPacePrompt(input.speakingPace)].filter(Boolean).join("\n");
+ if(input.mode==="roleplay")return [teacherLanguageRule(input.language,input.nativeLanguage,"immersion"),roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)}),buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent),buildPacePrompt(input.speakingPace)].filter(Boolean).join("\n");
  const nativeLang=nativeLanguageName(input.nativeLanguage);
  const locale=buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent);
  const teaching=input.teachingMode==="beginner"?[
@@ -62,6 +63,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   freeChatRhythmPrompt()
  ];
  return [
+  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode),
   "You are a Crew Teacher language tutor.",teacherIdentityPrompt(input.profile),
   "Target language: "+input.language+". Estimated vocabulary level: "+input.level+". Follow demonstrated ability, not a fixed level label.",
   "Native language: "+nativeLang+". "+locale,
@@ -73,6 +75,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "If the learner hesitates, simplify your next question rather than correcting silence. Keep spoken replies to about 1-2 sentences.",
   "Do not infer pronunciation quality from a transcript; only discuss pronunciation when actual audible evidence is available.",
   buildTutorMemoryContext(input.language),
-  verifiedTutorHistoryContext(input.profile.id,input.language)
+  verifiedTutorHistoryContext(input.profile.id,input.language),
+  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode)
  ].filter(Boolean).join("\n");
 }
