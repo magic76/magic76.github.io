@@ -16,8 +16,16 @@ function extract(file,names,context){
   .replace(/^import.*(?:\n|$)/gm,"")
   .replace(/\bexport\s+(?=(?:const|function|async\s+function))/g,"");
  const exports={};
+ const call=async()=>{
+  const response=await context.fetch();
+  if(!response.ok)throw Object.assign(new Error("Gemini text request failed"),
+   {kind:response.status===429?"quota":response.status===401?"key":"service",status:response.status});
+  const json=await response.json();
+  return String(json?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+ };
  vm.runInNewContext(source+"\nObject.assign(exports,{"+names.join(",")+"});",
-  {exports,Date,Math,JSON,localStorage:context.localStorage,fetch:context.fetch,...context},{filename:file});
+  {exports,Date,Math,JSON,localStorage:context.localStorage,fetch:context.fetch,
+   ensureCore:async()=>{},window:{CrewAI:{call}},...context},{filename:file});
  return exports;
 }
 function setup(fetcher,key="test-key"){
