@@ -112,7 +112,7 @@ async function run(){
    assert.ok(await article.locator("a[href^='https://']").count(),"article must cite public source: "+route);
    const expectedRelated=discovery[route]||[];
    if(expectedRelated.length){
-    assert.equal(await article.locator("a[href^=\"/research/\"]").count(),expectedRelated.length,"related links must survive SSG hydration: "+route);
+    assert.equal(await article.locator(".briefing-discovery-group ul a").count(),expectedRelated.length,"related links must survive SSG hydration: "+route);
    }
    await page.waitForTimeout(180);
    assert.deepEqual(errors,[],"hydration mismatch on research article "+route);
