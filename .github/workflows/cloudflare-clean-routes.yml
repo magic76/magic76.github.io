@@ -30,7 +30,7 @@ jobs:
       - run: npm run build:cloudflare
       - run: npm run test:cloudflare
       # Use Chrome preinstalled on Ubuntu runners; no browser code in production.
-      - run: npm install --no-save --package-lock=false playwright@1.56.1
+      - run: npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
       - run: npm run test:browser:cloudflare
       - uses: actions/upload-artifact@v4
         with:
