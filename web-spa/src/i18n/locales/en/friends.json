@@ -71,5 +71,7 @@
     "error-network": "The memory request could not connect. Previously saved memories are safe.",
     "error-service": "Gemini memory extraction is temporarily unavailable. Try again later.",
     "error-response": "Gemini returned an unreadable memory response. No new memory was added this time."
-  }
+  },
+  "autoUpdate": "Enable AI updates",
+  "autoUpdateConfirm": "Allow AI to update this topic after future conversations? This may overwrite manually edited details."
 }
