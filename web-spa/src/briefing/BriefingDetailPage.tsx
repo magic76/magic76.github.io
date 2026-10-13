@@ -8,7 +8,7 @@ import {usePublicResearchSeed} from "./PublicResearchContext";
 function safeSource(url:string){
  try{const u=new URL(url);return u.protocol==="https:"?u.href:null}catch{return null}
 }
-function sourceDate(value:string){const t=Date.parse(value);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{year:"numeric",month:"long",day:"numeric",timeZone:"UTC"}):""}
+function sourceDate(value:string){const t=Date.parse(value);return Number.isFinite(t)?(()=>{const d=new Date(t);return d.getUTCFullYear()+"年"+(d.getUTCMonth()+1)+"月"+d.getUTCDate()+"日"})():""}
 export function BriefingDetailPage(){
  const {date="",id=""}=useParams();
  const seed=usePublicResearchSeed();
