@@ -202,7 +202,7 @@ async function captureFriendConversation(id:string,language:string,turns:LiveTur
   if(!window.CrewAI?.call)throw new MemoryCaptureError("error-service");
   // Reuse the same Android-parity model cascade as other Crew text tasks.
   const raw=String(await window.CrewAI.call(prompt,{
-   preferLive:false,temperature:0.2,maxOutputTokens:1100,json:true
+   preferLive:false,temperature:0.2,maxOutputTokens:1800,json:true,strictModels:true
   })||"");
   if(!raw)throw new MemoryCaptureError("error-response");
   const extracted=JSON.parse(raw);
