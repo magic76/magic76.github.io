@@ -20,6 +20,9 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
  assert.match(main,/HashRouter/);
  const routes=fs.readFileSync(path.join(ROOT,"web-spa/src/App.tsx"),"utf8");
  for(const slug of ["teacher","story","fortune","research","settings"])assert.ok(routes.includes('path="/'+slug+'"'));
+ assert.ok(!routes.includes("<BuildVersion/>"),"BuildVersion must not render globally");
+ const settings=fs.readFileSync(path.join(ROOT,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
+ assert.ok(settings.includes("<BuildVersion/>"),"BuildVersion must be rendered within Settings");
 });
 check("ten static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
@@ -40,7 +43,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('data-crew-ssg-path="'),"must contain route-specific SSG marker");
   assert.ok(html.includes('<header class="app-header">'),"HTML must contain actual React app shell: "+pathname);
   assert.ok(html.includes('class="global-nav"'),"SSG must include actual React navigation: "+pathname);
-  assert.ok(html.includes('class="crew-build-badge"'),"SSG must include persistent version badge: "+pathname);
+  assert.ok(!html.includes('crew-build-section'),"Build version must not appear on non-settings routes: "+pathname);
   assert.ok(html.includes("<h1"),"SSG must contain real product heading: "+pathname);
   assert.ok(!html.includes('class="seo-fallback"'),"old marketing fallback is not SSG: "+pathname);
   assert.ok(!html.includes("crew-bootstrap-shell"),"no duplicate bootstrap page: "+pathname);
