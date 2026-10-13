@@ -6,6 +6,9 @@ on:
     paths:
       - ".github/workflows/crew-briefing-daily.yml"
       - "scripts/briefing-research-axes.mjs"
+      - "scripts/briefing-public-sources.mjs"
+      - "scripts/generate-briefing.mjs"
+      - "scripts/research-quality.mjs"
   schedule:
     - cron: "53 22 * * *" # 06:53 Asia/Taipei (UTC+8); deliver around 07:00
   workflow_dispatch:
@@ -33,8 +36,11 @@ jobs:
         env:
           CREW_BRIEFING_GEMINI_KEY: ${{ secrets.CREW_BRIEFING_GEMINI_KEY }}
           CREW_BRIEFING_MODEL: gemini-2.5-flash
+          CREW_BRIEFING_GITHUB_TOKEN: ${{ github.token }}
       - run: npm run check:web
       - run: npm run build:web
+      - name: Report research SEO eligibility
+        run: node scripts/research-quality-report.mjs
       - run: npm test
       - name: Commit the report and compiled site
         run: |
