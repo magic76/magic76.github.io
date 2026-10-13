@@ -9,7 +9,7 @@ type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
- onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
+ onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string},turns:LiveTurn[])=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
@@ -116,7 +116,7 @@ export function useLiveSession(config:Config){
       }else if(turn.hasValidOutput&&!configRef.current.languageDriftGuard?.(turn.output||"")){
        languageRepairRef.current=false;
       }
-      configRef.current.onTurnComplete?.(turn);
+      configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
     onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{cancelRescue();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
