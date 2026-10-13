@@ -57,6 +57,7 @@ async function run(){
    await page.locator("header.app-header").waitFor({state:"visible",timeout:15000});
    await page.locator("nav.global-nav").waitFor({state:"visible",timeout:15000});
    assert.ok(await page.locator("main h1").count(),"Missing SSG heading: "+route);
+   assert.equal(await page.locator(".crew-build-section").count(),0,"Version info must not appear outside settings: "+route);
    const computed=await page.locator("header.app-header").evaluate(el=>{
     const css=getComputedStyle(el);
     return {height:el.getBoundingClientRect().height,display:css.display};
@@ -68,6 +69,23 @@ async function run(){
    assert.deepEqual(errors,[],"Browser hydration error on "+route);
    await page.close();
    process.stdout.write("PASS prerender + hydrate "+route+"\n");
+  }
+  // Version details only render within Settings, not as a fixed overlay.
+  for (const route of ["/settings", "/en/settings"]) {
+    const page=await context.newPage();
+    const errors=[];
+    checkConsole(page,errors);
+    await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:30000});
+    const card=page.locator(".crew-build-section");
+    await card.waitFor({state:"visible",timeout:15000});
+    assert.equal(await page.locator(".crew-build-section").count(),1,"One settings build card: "+route);
+    const positioning=await card.evaluate(el=>getComputedStyle(el).position);
+    assert.notEqual(positioning,"fixed","Settings version card must follow page layout");
+    await card.locator(".crew-build-toggle").click();
+    assert.ok(await card.locator("#crew-build-details").isVisible(),"Build details should expand on "+route);
+    assert.deepEqual(errors,[],"Settings page error on "+route);
+    await page.close();
+    process.stdout.write("PASS settings-only build version "+route+"\n");
   }
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
