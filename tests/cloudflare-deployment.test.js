@@ -7,8 +7,11 @@ const ROOT=path.resolve(__dirname,"..");
 const DIST=path.join(ROOT,"dist");
 const read=p=>fs.readFileSync(path.join(DIST,p),"utf8");
 const pages=["","teacher","story","fortune","research"];
+// Normal npm test is source-only and does not produce dist. The dedicated
+// Cloudflare build job sets this flag after building the deployment artifact.
+const check=process.env.CREW_CLOUDFLARE_TEST==="1"?test:test.skip;
 
-test("Cloudflare build uses clean React routes and avoids a 404 SPA fallback blocker",()=>{
+check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback blocker",()=>{
  assert.ok(fs.existsSync(path.join(DIST,"index.html")));
  assert.ok(!fs.existsSync(path.join(DIST,"404.html")));
  const main=fs.readFileSync(path.join(ROOT,"web-spa/src/main.tsx"),"utf8");
@@ -17,7 +20,7 @@ test("Cloudflare build uses clean React routes and avoids a 404 SPA fallback blo
  const routes=fs.readFileSync(path.join(ROOT,"web-spa/src/App.tsx"),"utf8");
  for(const slug of ["teacher","story","fortune","research","settings"])assert.ok(routes.includes('path="/'+slug+'"'));
 });
-test("ten static SEO entry points boot the same functional React bundle",()=>{
+check("ten static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
  const stylesheet=root.match(/<link[^>]*href="(\/assets\/[^"]+\.css)"/);
@@ -40,7 +43,7 @@ test("ten static SEO entry points boot the same functional React bundle",()=>{
  assert.ok(fs.existsSync(path.join(DIST,script[1].slice(1))));
  assert.ok(fs.existsSync(path.join(DIST,stylesheet[1].slice(1))));
 });
-test("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
+check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
   "sitemap.xml","robots.txt","social/teacher.png"]){
@@ -49,7 +52,7 @@ test("existing runtime scripts, shared services and daily research feed are avai
  const index=JSON.parse(read("briefings/index.json"));
  assert.ok(Array.isArray(index.days));
 });
-test("old HashRouter links resolve to clean URLs with query strings",()=>{
+check("old HashRouter links resolve to clean URLs with query strings",()=>{
  const html=read("crew-app/index.html");
  assert.ok(html.includes('name="robots" content="noindex,follow"'));
  assert.ok(html.includes("location.hash"));
