@@ -31,7 +31,7 @@ export function FriendLivePage(){
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
   openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-   " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
+   " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.",
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:()=>{
