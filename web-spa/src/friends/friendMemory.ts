@@ -159,7 +159,7 @@ export function friendTopicContext(id:string,language:string){
   topics.map(t=>"- "+t.title+": "+t.summary).join("\n")+
   "\nThese are learner-mentioned subjects. Do not pretend to remember exact quotes, invent outcomes or repeatedly revisit them.\n";
 }
-export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage="en",mode:"natural"|"bilingual"|"immersion"="natural"){
+export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage="en",mode:"natural"|"bilingual"|"immersion"="bilingual"){
  return "You are "+friend.name+", a Crew Friend, a fictional conversational partner. You are NOT a language tutor or coach.\n"+
   friendLanguageRule(language,nativeLanguage,mode)+
   "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+
