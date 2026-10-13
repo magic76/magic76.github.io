@@ -98,3 +98,6 @@
 .friend-language-options button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .friend-language-switch>small{font-size:11px;color:var(--muted);line-height:1.4}
 @media(max-width:420px){.friend-language-options{gap:2px}.friend-language-options button{padding:8px 7px;font-size:11px}}
+
+/* Friend dialogue remains visibly distinct from a tutor session. */
+.friends-role-promise,.friend-live-role-promise{display:block;max-width:580px;margin:8px auto;color:var(--muted,#667085);font-size:12px;line-height:1.55;text-align:center}

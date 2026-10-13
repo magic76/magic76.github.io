@@ -6,6 +6,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import{useTranslation}from"react-i18next";
 import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
@@ -14,6 +15,7 @@ import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import "./friends.css";
 
 export function FriendLivePage(){
+ const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
  const navigate=useNavigate(),closingRef=useRef(false),memoryCheckpointRef=useRef(false);
  const friend=getCrewFriend(params.get("id"));
@@ -62,7 +64,7 @@ export function FriendLivePage(){
   const applied=connected&&live.sendControl(friendLanguageTransition(language,nativeLanguage,chosen));
   useTeacherStore.getState().setFriendChatMode(chosen);
   if(applied||(!connected&&!pending))setActiveFriendChatMode(chosen);
-  setModeNote(applied?"已切換，下一句開始套用。":"已儲存，下次對話將使用新模式。");
+  setModeNote(applied?t("chatModeChanged"):t("chatModeSavedNext"));
  };
  return <>
   <header className="app-header"><div className="shell inner">
@@ -75,14 +77,14 @@ export function FriendLivePage(){
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
-     <h1>{friend.name}</h1><p>{friend.bioZh}</p>
+     <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
-    <div className="friend-language-switch" role="group" aria-label="朋友聊天語言模式">
-     <span className="friend-language-switch-title">聊天語言</span>
+    <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
+     <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
       {([["natural","自然聊天"],["bilingual","輕鬆雙語"],["immersion","完全沉浸"]] as const).map(([value,label])=>
        <button key={value} type="button" className={friendChatMode===value?"selected":""}
-        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{label}</button>)}
+        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t("chatMode"+(value==="natural"?"Natural":value==="bilingual"?"Bilingual":"Immersion"))}</button>)}
      </div>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
