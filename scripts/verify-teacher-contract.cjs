@@ -68,6 +68,29 @@ function validate(){
  if(contract.rules.practice.roleplayStaysInCharacter!==true)fail("Roleplay behavior required");
  if(contract.rules.freeChat.pivotAfterShortReplies!==2||contract.rules.freeChat.pivotAfterConsecutiveQuestions!==3)
   fail("Update both platform cadence thresholds and tests before updating the contract");
+ const cadence=contract.rules.freeChat;
+ for(const value of ["pivotAfterShortReplies","pivotAfterConsecutiveQuestions","firstSilenceMs","secondSilenceMs","maxSilentRescueNudges"]){
+  if(!Number.isInteger(cadence[value])||cadence[value]<1)fail("Invalid cadence value: "+value);
+ }
+ const checks=platform==="android"?[
+  ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+   "shortReplyStreak >= "+cadence.pivotAfterShortReplies+" || questionStreak >= "+cadence.pivotAfterConsecutiveQuestions],
+  ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+   "? "+cadence.firstSilenceMs+"L : "+cadence.secondSilenceMs+"L"],
+  ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+   "silenceRescueLevel >= "+cadence.maxSilentRescueNudges]
+ ]:[
+  ["web-spa/src/live/conversationFlow.ts",
+   "this.shortReplies>="+cadence.pivotAfterShortReplies+"||this.questions>="+cadence.pivotAfterConsecutiveQuestions],
+  ["web-spa/src/live/useLiveSession.ts",
+   "rescueCountRef.current===0?"+cadence.firstSilenceMs+":"+cadence.secondSilenceMs],
+  ["web-spa/src/live/useLiveSession.ts",
+   "rescueCountRef.current>="+cadence.maxSilentRescueNudges]
+ ];
+ for(const [filename,needle] of checks){
+  try{if(!readSource(filename).includes(needle))fail("Cadence contract differs from "+filename+": "+needle)}
+  catch(e){fail(e.message)}
+ }
  if(problems.length)throw Error(problems.join("\n"));
  console.log("[Crew Teacher contract] "+platform+" anchors OK; "+contract.featureMatrix.length+
   " features, "+contract.invariants.length+" invariants, revision "+contract.revision);
