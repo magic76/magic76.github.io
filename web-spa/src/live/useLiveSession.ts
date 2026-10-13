@@ -8,7 +8,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
- language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;
+ language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
@@ -28,7 +28,7 @@ export function useLiveSession(config:Config){
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
- const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0);
+ const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0),languageRepairRef=useRef(false);
  const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(Number(localStorage.getItem("crew_live_volume")||100));
@@ -69,7 +69,7 @@ export function useLiveSession(config:Config){
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    cancelRescue();cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
-   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
+   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
    // The timeout starts only AFTER the model has finished speaking.
@@ -80,7 +80,7 @@ export function useLiveSession(config:Config){
     rescueTimerRef.current=window.setTimeout(()=>{
      rescueTimerRef.current=null;
      if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted)return;
-     const directive=kind==="friend"?"\n"+(configRef.current.languageDirective||""):"";
+     const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
      if(session.sendControl?.(cadenceRef.current.rescue(kind)+directive))
       rescueCountRef.current+=1;
     },rescueCountRef.current===0?14000:20000);
@@ -92,7 +92,7 @@ export function useLiveSession(config:Config){
     onState:v=>{if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
-    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
+    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
     onRecovered:()=>{cancelRescue();if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
@@ -101,12 +101,23 @@ export function useLiveSession(config:Config){
       :roleplay
       ?"[SCENE CONTROL — silent reconnect recovery] Your previous in-character reply was interrupted. Continue the unanswered response without greeting or explaining grammar. Do not repeat parts already spoken."
       :"[COACH CONTROL — silent reconnect recovery] The connection interrupted a reply. Answer or finish the learner's previous utterance naturally from the next unsaid point. Do not greet, repeat previous sentences, or ask the learner to repeat.";
-      const reminder=configRef.current.sessionKind==="friend"?"\n"+(configRef.current.languageDirective||""):"";
+      const reminder=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
       if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
     onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
-    onTurnComplete:turn=>{if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}configRef.current.onTurnComplete?.(turn)},
+    onTurnComplete:turn=>{
+      if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}
+      if(turn.hasValidOutput&&configRef.current.languageDriftGuard?.(turn.output||"")&&!languageRepairRef.current){
+       languageRepairRef.current=true;
+       // Silent control, not a fabricated learner turn. One repair per learner reply.
+       const rule=configRef.current.languageDirective||"";
+       session.sendControl?.(rule+"\n[LANGUAGE RECOVERY] Your last spoken reply was in an unintended language. Restate that answer briefly in the selected target language. Do not greet or change subjects.");
+      }else if(turn.hasValidOutput&&!configRef.current.languageDriftGuard?.(turn.output||"")){
+       languageRepairRef.current=false;
+      }
+      configRef.current.onTurnComplete?.(turn);
+     },
     onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{cancelRescue();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
