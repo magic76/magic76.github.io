@@ -192,7 +192,7 @@ export const rememberTeacherConversation=async (language:string,turns:Array<{inp
  try{
   if(!window.CrewAI?.call)return;
   const raw=String(await window.CrewAI.call(prompt,{
-   preferLive:false,temperature:0.2,maxOutputTokens:850,json:true
+   preferLive:false,temperature:0.2,maxOutputTokens:1500,json:true,strictModels:true
   })||"");
   if(getPersonalMemoryEpoch()!==expectedEpoch||!personalMemoryEnabled())return;
   const extracted=JSON.parse(raw);
