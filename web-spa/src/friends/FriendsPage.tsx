@@ -3,7 +3,7 @@ import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
 import {Link,useNavigate} from "react-router-dom";
-import {useTeacherStore} from "../store/teacherStore";
+import {useTeacherStore,type FriendChatLanguageMode} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {FriendAvatar} from "./FriendAvatar";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
@@ -24,6 +24,7 @@ export function FriendsPage(){
  const navigate=useNavigate();
  const pace=useTeacherStore(s=>s.speakingPace),setPace=useTeacherStore(s=>s.setSpeakingPace),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const language=useTeacherStore(s=>s.targetLanguage);
+ const friendChatMode=useTeacherStore(s=>s.friendChatMode),setFriendChatMode=useTeacherStore(s=>s.setFriendChatMode);
  const [query,setQuery]=useState("");
  const [category,setCategory]=useState<string>("all");
  const [selected,setSelected]=useState<FriendProfile|null>(null);
@@ -65,7 +66,7 @@ export function FriendsPage(){
    <span className="kicker">CREW FRIENDS</span><h1>{t("title")}</h1>
    <p>{t("intro")}</p>
   </header>
-  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label></section>
+  <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{english?"Friend chat language":"朋友聊天語言"}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{english?"Natural · target first":"自然聊天 · 目標語言優先"}</option><option value="bilingual">{english?"Relaxed bilingual":"輕鬆雙語"}</option><option value="immersion">{english?"Full immersion":"完全沉浸"}</option></select></label></section>
   <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} →</Link></div>
   {recent.length?<section className="section friends-recent">
    <div className="section-head"><h2>{t("recent")}</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm(t("clearRecentConfirm"))){clearFriendRecent(language);refresh()}}}>{t("clearRecent")}</button></div>
