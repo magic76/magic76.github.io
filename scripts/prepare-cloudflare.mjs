@@ -65,7 +65,9 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // The actual React App is rendered at build time for public routes. Vite handles
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
-const {pages:prerendered,articles,research}=await prerenderPublicRoutes(root);
+const {pages:prerendered,articles,research,related}=await prerenderPublicRoutes(root);
+// Public editorial recommendations are available for client-side navigation.
+writeFileSync(join(out,"briefings","discovery.json"),JSON.stringify(related));
 // Head fragments must be separated by real whitespace. A literal backslash-n
 // between tags makes the browser close <head> early and visibly render "\\n".
 const newline=String.fromCharCode(10);

@@ -97,8 +97,10 @@ async function run(){
   }
   const sitemap=readFileSync("dist/sitemap.xml","utf8");
   const researchRoutes=[...sitemap.matchAll(/<loc>https:\/\/www\.3sssi\.com(\/research\/\d{4}-\d{2}-\d{2}\/[^<]+)<\/loc>/g)].map(x=>x[1]);
-  assert.ok(researchRoutes.length>0,"at least one substantial research article must be indexed");
-  for(const route of researchRoutes.slice(0,3)){
+  const discovery=JSON.parse(readFileSync("dist/briefings/discovery.json","utf8"));
+  const samples=researchRoutes.length?researchRoutes.slice(0,3):Object.keys(discovery).slice(0,3);
+  assert.ok(samples.length>0,"public Research needs at least one article");
+  for(const route of samples){
    const errors=[];
    const page=await context.newPage();
    checkConsole(page,errors);
@@ -108,6 +110,10 @@ async function run(){
    await article.waitFor({state:"visible",timeout:15000});
    assert.ok(await article.locator("h1").textContent(),"article title missing: "+route);
    assert.ok(await article.locator("a[href^='https://']").count(),"article must cite public source: "+route);
+   const expectedRelated=discovery[route]||[];
+   if(expectedRelated.length){
+    assert.equal(await article.locator(".briefing-discovery-group ul a").count(),expectedRelated.length,"related links must survive SSG hydration: "+route);
+   }
    await page.waitForTimeout(180);
    assert.deepEqual(errors,[],"hydration mismatch on research article "+route);
    await page.close();

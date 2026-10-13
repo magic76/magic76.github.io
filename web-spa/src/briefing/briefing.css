@@ -174,3 +174,15 @@
  .briefing-reading-item{padding:16px}
  .briefing-reading-tabs button{font-size:12px;padding:12px 6px;gap:5px}
 }
+
+/* Related research uses the same compact reader cards, never a separate SEO UI. */
+.briefing-discovery{gap:16px}
+.briefing-discovery-group{display:grid;gap:10px}
+.briefing-discovery-group h3{margin:0;font-size:13px}
+.briefing-discovery-group ul{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.briefing-discovery-group li{border:1px solid var(--brief-border);background:var(--surface-alt);border-radius:12px;padding:12px;display:grid;gap:6px}
+.briefing-discovery-group li a{font-size:13px;line-height:1.5;font-weight:700;color:var(--text)}
+.briefing-discovery-group li a:hover,.briefing-discovery-products a:hover{color:var(--accent)}
+.briefing-discovery-group li small{font-size:10px;color:var(--brief-muted)}
+.briefing-discovery-products{display:flex;flex-wrap:wrap;gap:9px}
+.briefing-discovery-products a{border:1px solid var(--brief-border);background:var(--surface-alt);padding:10px 12px;border-radius:11px;font-size:12px;font-weight:700}

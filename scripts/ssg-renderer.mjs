@@ -1,6 +1,7 @@
 import {createServer} from "vite";
 import {join} from "node:path";
 import {readPublishedResearch} from "./research-seo.mjs";
+import {recommendPublishedResearch} from "./research-discovery.mjs";
 
 /**
  * Build-time only. No Cloudflare Worker, Node server or user data is deployed.
@@ -33,6 +34,7 @@ export async function prerenderPublicRoutes(root){
   const {renderStaticRoute}=await vite.ssrLoadModule("/src/ssg-entry.tsx");
   const result=new Map();
   const research=readPublishedResearch(root);
+  const related= recommendPublishedResearch(research.days);
   const latest=research.days.get(research.index.days[0]);
   for(const locale of ["zh-TW","en"]){
    for(const path of ["/","/teacher","/story","/fortune","/research"]){
@@ -49,14 +51,14 @@ export async function prerenderPublicRoutes(root){
   for(const [date,day] of research.days){
    for(const item of day.items){
     const path="/research/"+date+"/"+item.id;
-    const seed={day,article:item};
+    const seed={day,article:item,related:related[path+"/"]||[]};
     const html=await renderStaticRoute(path,"zh-TW",seed);
     if(!html.includes("<h1>")||!html.includes(item.title.replaceAll("&","&amp;")))throw Error("Article prerender missing heading: "+path);
     result.set("zh-TW:"+path,html);
     articles.set(path,{day,item,seed});
    }
   }
-  return {pages:result,articles,research};
+  return {pages:result,articles,research,related};
  }finally{
   if(vite)await vite.close();
   for(const [key,value] of Object.entries(saved)){
