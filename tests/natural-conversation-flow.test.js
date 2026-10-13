@@ -51,7 +51,7 @@ test("only free chat gets automatic silence rescue",()=>{
  const policy=read("web-spa/src/teacher/teacherPolicy.ts");
  assert.match(friend,/conversationFlow:"friend"/);
  assert.match(teacher,/conversationFlow:!isRoleplay&&s\.conversationMode==="natural"/);
- assert.match(hook,/rescueCountRef\.current>=2/);
+ assert.match(hook,/rescueCountRef\.current>=\(kind==="friend"\?1:2\)/);
  assert.match(hook,/onInputTranscript:v=>\{if\(v\.trim\(\)\)\{cancelRescue\(\)/);
  assert.match(transport,/realtimeInput:\{text:instruction\}/);
  assert.match(policy,/freeChatRhythmPrompt\(\)/);
@@ -69,10 +69,10 @@ test("conversation momentum offers one natural hook without mandatory question l
 test("engagement adapts the first pause; second nudge is delayed and bounded",()=>{
  const {ConversationFlowState}=conversationFlow();
  const state=new ConversationFlowState();
- assert.equal(state.silenceDelayMs(0,"friend"),9000);
- assert.equal(state.silenceDelayMs(1,"friend"),16000);
+ assert.equal(state.silenceDelayMs(0,"friend"),20000);
+ assert.equal(state.silenceDelayMs(1,"friend"),30000);
  state.observe({input:"I had a wonderful time at the cinema with my family.",output:"What did you see?"});
- assert.equal(state.silenceDelayMs(0,"friend"),11000);
+ assert.equal(state.silenceDelayMs(0,"friend"),20000);
  state.observe({input:"Yes.",output:"Was it fun?"});
  state.observe({input:"Okay.",output:"Which part was your favorite?"});
  assert.equal(state.needsPivot(),true);
@@ -106,5 +106,5 @@ test("short meaningful replies stay on topic, unlike repeated empty acknowledgem
  state.observe({input:"Comedy",output:"That would be fun."});
  state.observe({input:"I love it",output:"It sounds like your style."});
  assert.equal(state.needsPivot(),false);
- assert.equal(state.silenceDelayMs(0,"friend"),9000);
+ assert.equal(state.silenceDelayMs(0,"friend"),20000);
 });
