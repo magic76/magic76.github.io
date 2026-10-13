@@ -28,7 +28,7 @@ export function seoBootHead(){
  // The inline script executes in <head> before the browser paints the body.
  // If the module fails (offline, CSP, JS error), reveal the complete SEO page.
  const js=`(function(){var html=document.documentElement;html.classList.add("crew-js");var timer=setTimeout(function(){html.classList.add("crew-boot-failed")},8000);window.addEventListener("crew:mounted",function(){clearTimeout(timer);html.classList.remove("crew-js","crew-boot-failed")},{once:true})})();`;
- return '<style data-crew-bootstrap>'+css+'</style>\\n  <script data-crew-bootstrap>'+js+'</script>';
+ return '<style data-crew-bootstrap>'+css+'</style>'+String.fromCharCode(10)+'  <script data-crew-bootstrap>'+js+'</script>';
 }
 export function seoBootShell({locale,product}){
  const labels=locale==="en"
