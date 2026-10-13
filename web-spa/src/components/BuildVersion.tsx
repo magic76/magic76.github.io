@@ -49,22 +49,19 @@ export function BuildVersion() {
   const [expanded, setExpanded] = useState(false);
   const outdated = Boolean(currentBuild.buildId && latest?.buildId && latest.buildId !== currentBuild.buildId);
   const c = english ? {
-    label: "Updated", unknown: "Build info", development: "Development",
-    available: "New version available", details: "Build details", close: "Close",
-    builtAt: "Build time", version: "Version", commit: "Commit", environment: "Environment",
-    status: "Status", current: "Latest version", unverified: "Not checked yet",
-    old: "Update available", refresh: "Refresh to update", latestAt: "Latest build",
+    label: "Updated", unknown: "Build info", details: "Website version",
+    builtAt: "Build time", version: "Version", refresh: "Refresh to update",
     timezone: "Taipei time (UTC+8)", missing: "Unavailable",
     showDetails: "Details", hideDetails: "Hide details"
   } : {
-    label: "更新", unknown: "版本資訊", development: "開發版本",
-    available: "有新版本", details: "網站版本資訊", close: "關閉",
-    builtAt: "建置時間", version: "版本", commit: "Git Commit", environment: "環境",
-    status: "更新狀態", current: "已是最新版本", unverified: "尚未確認",
-    old: "偵測到新版本", refresh: "重新整理以更新", latestAt: "最新建置",
+    label: "更新", unknown: "版本資訊", details: "網站版本資訊",
+    builtAt: "建置時間", version: "版本", refresh: "重新整理以更新",
     timezone: "台灣時間 (UTC+8)", missing: "無資料",
     showDetails: "查看詳細資訊", hideDetails: "收起詳細資訊"
   };
+  // No semantic version is configured; use the non-Git portion of the build ID.
+  const versionLabel = currentBuild.version ||
+    (currentBuild.buildId ? "Build " + currentBuild.buildId.split("-").at(-1) : c.missing);
   const builtTime = ready ? formatTime(currentBuild.builtAt, false, english) : null;
 
   useEffect(() => {
@@ -106,16 +103,9 @@ export function BuildVersion() {
   return <section className="section panel crew-build-section" aria-label={c.details}>
     <div className="section-head crew-build-heading">
       <h2>{c.details}</h2>
-      <small>{currentBuild.environment}</small>
     </div>
     <div className="crew-build-row">
-      <div className="crew-build-overview">
-        <strong>
-          <span className={"crew-build-dot" + (outdated ? " has-update" : "")} aria-hidden="true"/>
-          {outdated ? c.available : builtTime ? c.label + " " + builtTime : currentBuild.environment === "Development" && ready ? c.development : c.unknown}
-        </strong>
-        <span className="crew-build-status">{outdated ? c.old : latest ? c.current : c.unverified}</span>
-      </div>
+      <strong className="crew-build-summary">{builtTime ? c.label + " " + builtTime : c.unknown}</strong>
       <button type="button" className="crew-build-toggle" aria-expanded={expanded} aria-controls="crew-build-details" onClick={() => setExpanded(v => !v)}>
         {expanded ? c.hideDetails : c.showDetails}
       </button>
@@ -124,11 +114,7 @@ export function BuildVersion() {
     <div id="crew-build-details" className="crew-build-details" hidden={!expanded}>
       <dl>
         <dt>{c.builtAt}</dt><dd>{formatTime(currentBuild.builtAt, true, english) || c.missing}<small>{c.timezone}</small></dd>
-        <dt>{c.version}</dt><dd>{currentBuild.version || currentBuild.buildId || c.development}</dd>
-        <dt>{c.commit}</dt><dd><code>{currentBuild.commit?.slice(0, 10) || c.missing}</code></dd>
-        <dt>{c.environment}</dt><dd>{currentBuild.environment}</dd>
-        <dt>{c.status}</dt><dd>{outdated ? c.old : latest ? c.current : c.unverified}</dd>
-        {outdated && <><dt>{c.latestAt}</dt><dd>{formatTime(latest?.builtAt || null, true, english) || c.missing}</dd></>}
+        <dt>{c.version}</dt><dd>{versionLabel}</dd>
       </dl>
     </div>
   </section>;

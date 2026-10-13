@@ -83,6 +83,13 @@ async function run(){
     assert.notEqual(positioning,"fixed","Settings version card must follow page layout");
     await card.locator(".crew-build-toggle").click();
     assert.ok(await card.locator("#crew-build-details").isVisible(),"Build details should expand on "+route);
+    const fields=await card.locator("#crew-build-details dt").allTextContents();
+    assert.deepEqual(fields,route.startsWith("/en")?["Build time","Version"]:["建置時間","版本"],
+      "Only build time and version should be visible on "+route);
+    assert.equal(await card.locator(".crew-build-status,.crew-build-dot").count(),0,
+      "Update status must not appear on "+route);
+    assert.equal(await card.locator(".crew-build-heading small").count(),0,
+      "Environment badge must not appear on "+route);
     assert.deepEqual(errors,[],"Settings page error on "+route);
     await page.close();
     process.stdout.write("PASS settings-only build version "+route+"\n");
