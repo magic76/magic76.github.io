@@ -1,4 +1,4 @@
-import{geminiKey,type LiveTurn}from"../lib/runtime";
+import{geminiKey,ensureCore,type LiveTurn}from"../lib/runtime";
 import{normalizeLearningLanguage,personalMemoryEnabled,studentMemories,getPersonalMemoryEpoch,ingestStudentPersonalUpdates,hasMeaningfulLearnerSpeech,verifiedLearnerEvidence}from"../teacher/studentMemory";
 import{CREW_FRIENDS,getCrewFriend,type FriendProfile}from"./friendProfiles";
 import{friendLanguageRule}from"./friendLanguage";
@@ -198,21 +198,12 @@ async function captureFriendConversation(id:string,language:string,turns:LiveTur
   "Learner speech:\n"+speech
  ].join("\n");
  try{
-  const response=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{
-   method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key},
-   body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json"}})
-  });
-  if(!response.ok){
-   let reason="",message="";
-   try{
-    const body=await response.json();
-    reason=String(body?.error?.status||"");
-    message=String(body?.error?.message||"").slice(0,240);
-   }catch{/* HTTP status is still sufficient for a useful diagnosis. */}
-   throw new MemoryCaptureError(classifyFriendMemoryHttpError(response.status,reason,message));
-  }
-  const result=await response.json();
-  const raw=String(result?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+  await ensureCore();
+  if(!window.CrewAI?.call)throw new MemoryCaptureError("error-service");
+  // Reuse the same Android-parity model cascade as other Crew text tasks.
+  const raw=String(await window.CrewAI.call(prompt,{
+   preferLive:false,temperature:0.2,maxOutputTokens:1100,json:true
+  })||"");
   if(!raw)throw new MemoryCaptureError("error-response");
   const extracted=JSON.parse(raw);
   if(!extracted||typeof extracted!=="object"||Array.isArray(extracted))
@@ -241,7 +232,13 @@ async function captureFriendConversation(id:string,language:string,turns:LiveTur
   // Cross-realm errors (e.g. an injected runtime) do not always pass instanceof.
   const detail=error as {name?:string;message?:string}|null;
   const message=String(detail?.message||"");
+  const kind=String((detail as {kind?:string}|null)?.kind||"");
+  const code=Number((detail as {status?:number}|null)?.status||0);
   const status:FriendCaptureStatus=error instanceof MemoryCaptureError?error.status:
+   kind==="key"?"error-key":kind==="quota"?"error-quota":
+   kind==="network"?"error-network":kind==="response"?"error-response":
+   kind==="model"||kind==="service"?"error-service":
+   code?classifyFriendMemoryHttpError(code):
    detail?.name==="SyntaxError"?"error-response":
    detail?.name==="TypeError"||/network|failed to fetch|timeout/i.test(message)?"error-network":"error";
   if(saveTopicsEnabled&&friendMemoryEnabled()&&epoch()===consentEpoch)
