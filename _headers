@@ -1,0 +1,7 @@
+# Keep Cloudflare Pages preview/deployment aliases out of Google results.
+# www.3sssi.com remains indexable and continues to advertise its canonical URLs.
+https://magic76-github-io.pages.dev/*
+  X-Robots-Tag: noindex
+
+https://:version.magic76-github-io.pages.dev/*
+  X-Robots-Tag: noindex
