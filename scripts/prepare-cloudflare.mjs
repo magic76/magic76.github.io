@@ -63,13 +63,13 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
 const prerendered=await prerenderPublicRoutes(root);
 const routes=["","teacher","story","fortune","research"];
-const normalizePath=path=>path.replace(/\\/+$/,"")||"/";
+const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
 // from the real URL, hide the wrong screen before first paint until React mounts.
 const dynamicGuard=`<style>html.crew-dynamic-route #root{visibility:hidden!important}</style>
 <script>(function(){var canonical=document.querySelector('link[rel="canonical"]');if(!canonical)return;
-var expected=new URL(canonical.href).pathname.replace(/\\/+$/,"")||"/";
-var current=location.pathname.replace(/\\/+$/,"")||"/";
+var expected=new URL(canonical.href).pathname.replace(/\/+$/,"")||"/";
+var current=location.pathname.replace(/\/+$/,"")||"/";
 if(current!==expected)document.documentElement.classList.add("crew-dynamic-route")
 })();</script>`;
 for(const locale of ["zh","en"]){
@@ -86,7 +86,7 @@ for(const locale of ["zh","en"]){
   const html=marketing
    .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\\n  "+appTags)
    .replace("</head>",dynamicGuard+"\\n</head>")
-   .replace(/<body>[\\s\\S]*?<\\/body>/,
+   .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
   const target=join(out,relative);
   mkdirSync(dirname(target),{recursive:true});
