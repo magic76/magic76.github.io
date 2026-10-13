@@ -31,6 +31,8 @@ npm run test:cloudflare
 npm test
 ```
 
+SEO landing HTML now keeps its full `/seo.css` while React is loading. After React commits, a `useLayoutEffect` hook removes only the tagged fallback stylesheet, preventing style collisions. If JavaScript fails, the visitor retains the complete styled landing instead of an unstyled page. If product UI still does not appear, inspect the browser Network/Console for missing `/assets/*.js` and `/assets/*.css` requests.
+
 The build copies legacy publicly served scripts `crew.js`, `crew-live.js`, `crew-live-ui.js`, and the required `features/` folder into `dist`. It also copies the published `crew-app/briefings/` feed to `dist/briefings/`, plus public images and sitemap. Do **not** deploy the full repository directory or unreviewed drafts.
 
 Smoke-test these URLs at Pages preview domain:
