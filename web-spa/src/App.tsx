@@ -1,5 +1,6 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{GlobalNav,type Product}from"./components/AppChrome";
+import {BuildVersion} from "./components/BuildVersion";
 import{AppChrome}from"./components/AppChrome";
 import{HomePage}from"./pages/HomePage";import{SettingsPage}from"./pages/SettingsPage";
 import{TeacherLayout}from"./teacher/TeacherLayout";import{PracticePage}from"./teacher/PracticePage";import{LearnPage}from"./teacher/LearnPage";import{TutorPage}from"./teacher/TutorPage";import{MyPage}from"./teacher/MyPage";import{VocabularyPage}from"./teacher/VocabularyPage";import{CoursePage}from"./teacher/CoursePage";import{PronunciationPage}from"./teacher/PronunciationPage";import{TextbookPage}from"./teacher/TextbookPage";import{PhrasebookPage}from"./teacher/PhrasebookPage";import{ReportsPage}from"./teacher/ReportsPage";import{ReadingLibraryPage}from"./teacher/ReadingLibraryPage";import{TeacherLivePage}from"./teacher/LivePage";
@@ -30,4 +31,4 @@ export function App(){const {pathname}=useLocation();const section=pathname.spli
 <Route path="/fortune" element={<FortuneLayout/>}><Route index element={<FortuneHomePage/>}/><Route path="history" element={<FortuneHistoryPage/>}/><Route path="reading" element={<FortuneReadingPage/>}/></Route>
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes>{!pathname.endsWith("/live")&&<GlobalNav active={active}/>}</>}
+</Routes>{!pathname.endsWith("/live")&&<GlobalNav active={active}/>}<BuildVersion/></>}
