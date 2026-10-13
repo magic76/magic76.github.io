@@ -40,3 +40,44 @@ test("explicit live mode changes override prior mode and reconnect keeps latest 
  assert.match(live,/sessionKind==="friend"&&configRef\.current\.languageDirective/);
  assert.match(live,/session\.sendControl\?\./);
 });
+
+test("untouched Friend installs default to target chat; explicit modes survive old snapshots",()=>{
+ const store=read("web-spa/src/store/teacherStore.ts");
+ assert.match(store,/DEFAULT_FRIEND_CHAT_LANGUAGE_MODE:FriendChatLanguageMode="bilingual"/);
+ assert.match(store,/merge:\(persisted,current\)=>/);
+ assert.match(store,/friendChatMode:explicitFriendChatMode\(\)/);
+ // Exercise the actual preference resolver independently of the Zustand runtime.
+ const src=store.split("\n");
+ const normalized=src.find(line=>line.startsWith("export const normalizeFriendChatLanguageMode="));
+ const fallback=src.find(line=>line.startsWith("export const DEFAULT_FRIEND_CHAT_LANGUAGE_MODE:"));
+ const start=store.indexOf("const explicitFriendChatMode=");
+ const end=store.indexOf("const initialProfile=",start);
+ assert.ok(normalized&&fallback&&start>=0&&end>start);
+ const helper=stripTypeScriptTypes(
+  fallback.replace("export ","")+"\n"+normalized.replace("export ","")+"\n"+
+  store.slice(start,end)+"\nthis.readMode=explicitFriendChatMode;",{mode:"strip"});
+ let value=null;
+ const local={getItem:key=>{assert.equal(key,"crew_teacher_friendChatMode");return value}};
+ const scope={localStorage:local};
+ vm.runInNewContext(helper,scope);
+ assert.equal(scope.readMode(),"bilingual");
+ value="natural";assert.equal(scope.readMode(),"natural");
+ value="immersion";assert.equal(scope.readMode(),"immersion");
+ value="bilingual";assert.equal(scope.readMode(),"bilingual");
+ value="garbage";assert.equal(scope.readMode(),"bilingual");
+});
+
+test("Friend adjusts actual target conversations, never CEFR-tests or bilingual-mixes",()=>{
+ const source=read("web-spa/src/friends/friendLanguage.ts");
+ assert.match(source,/FRIEND ADAPTIVE TARGET CHAT/);
+ assert.match(source,/across multiple actual exchanges/);
+ assert.match(source,/Never announce a CEFR level/);
+ assert.match(source,/voice-recognition errors/);
+ const {friendLanguageRule,friendLanguageReminder}=ctx.api;
+ const p=friendLanguageRule("英文","zh-TW","bilingual");
+ assert.match(p,/friend/i);
+ assert.match(p,/FRIEND ADAPTIVE TARGET CHAT/);
+ assert.match(p,/one reply/i);
+ assert.match(friendLanguageReminder("英文","zh-TW","immersion"),/FRIEND ADAPTIVE TARGET CHAT/);
+ assert.match(friendLanguageRule("英文","zh-TW","natural"),/Start in Traditional Chinese/);
+});
