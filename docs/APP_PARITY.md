@@ -73,3 +73,13 @@ For a meaningful Android product change:
 3. Port product behavior and data structure first.
 4. Adapt only platform mechanics, not the product concept.
 5. Update parity tests when the source-of-truth flow changes.
+
+## Machine-readable Crew Teacher parity (P0)
+
+The Crew Teacher cross-platform contract is maintained on Android `main` at `contracts/crew-teacher/v1.json` and mirrored at the same path in this Web repository.
+
+- Run `node scripts/verify-teacher-contract.cjs --upstream` to validate Web behavior anchors and compare the snapshot to Android `main`.
+- Web `crew-spa.yml` enforces the check in PR/build CI. The scheduled `teacher-cross-repo-parity.yml` detects changes in Android even without a new Web commit.
+- The contract includes the current feature matrix, scoped behavior invariants, and manual voice acceptance scenarios. It does **not** claim UI/Java/TypeScript implementation identity.
+- When a shared behavior changes, merge the updated Android canonical contract first, then its Web port. Preserve platform-only exceptions for native floating services, Play updates, and Web SEO.
+- Full policy, statuses, and release procedure: https://github.com/magic76/crew-teacher/blob/main/docs/TEACHER_MAINTENANCE.md
