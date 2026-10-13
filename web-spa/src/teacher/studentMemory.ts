@@ -1,4 +1,3 @@
-import {ensureCore} from "../lib/runtime";
 /* Crew Teacher parity: local, language-scoped learner memory V2.
  * Android is the behavioral reference: enabled by default, explicit opt-out persists.
  */
@@ -191,7 +190,6 @@ export const rememberTeacherConversation=async (language:string,turns:Array<{inp
   "Use empty arrays when no enduring facts exist. Write details in the learner's language."
  ].join(" ")+"\nLearner speech:\n"+speech;
  try{
-  await ensureCore();
   if(!window.CrewAI?.call)return;
   const raw=String(await window.CrewAI.call(prompt,{
    preferLive:false,temperature:0.2,maxOutputTokens:850,json:true
