@@ -64,7 +64,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(!head.includes("</style>"+literalEscape),"escaped \\n leaked after CSS: "+pathname);
   assert.ok(!head.includes("</script>"+literalEscape),"escaped \\n leaked after script: "+pathname);
   assert.ok(head.includes("html.crew-dynamic-route #root"),"early deep-route guard must remain in head: "+pathname);
-  const inlineGuard=head.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+  const inlineGuard=head.split("<script>")[1]?.split("</script>")[0];
   assert.ok(inlineGuard,"missing inline route guard: "+pathname);
   assert.doesNotThrow(()=>new vm.Script(inlineGuard),"route guard must be valid browser JavaScript: "+pathname);
 
