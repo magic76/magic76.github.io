@@ -38,7 +38,8 @@ export class ConversationFlowState{
   const user=String(turn.input||"").trim(),ai=String(turn.output||"").trim();
   if(user){
    this.ended=wantsToEndConversation(user);
-   const brief=isBriefAcknowledgement(user)||(/^\p{L}+(?:\s+\p{L}+)?[.!?。！？]?$/u.test(user)&&user.length<=10);
+   // A concise but meaningful answer still shows interest; only acknowledgement loops count as disengagement.
+   const brief=isBriefAcknowledgement(user);
    this.shortReplies=brief?this.shortReplies+1:0;
    this.detailedReplies=!brief&&user.length>=25?Math.min(3,this.detailedReplies+1):0;
   }
