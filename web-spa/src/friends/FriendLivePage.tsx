@@ -19,10 +19,11 @@ export function FriendLivePage(){
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const chatMode=useTeacherStore(s=>s.friendChatMode);
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
- const system=useMemo(()=>buildFriendSystem(friend,language)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,region,accentStrength,customAccent]);
- const languageDirective=useMemo(()=>friendLanguageReminder(language),[language]);
+ const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,chatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,nativeLanguage,chatMode,region,accentStrength,customAccent]);
+ const languageDirective=useMemo(()=>friendLanguageReminder(language,chatMode,nativeLanguage),[language,chatMode,nativeLanguage]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
@@ -55,7 +56,7 @@ export function FriendLivePage(){
  return <>
   <header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
-    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
+    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language} · {chatMode==="natural"?"自然聊天":chatMode==="bilingual"?"輕鬆雙語":"完全沉浸"}</small></div>
    </div>
    <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
   </div></header>
