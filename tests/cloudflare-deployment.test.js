@@ -55,7 +55,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   const bodyStart=html.indexOf("<body");
   assert.ok(headStart>=0&&headEnd>headStart&&bodyStart>headEnd,"valid head/body order: "+pathname);
   const head=html.slice(headStart,headEnd);
-  const moduleOpen=html.match(/<script[^>]*src="\\/assets\\/[^"]+\\.js"[^>]*>/)?.[0];
+  const moduleOpen=html.match(/<script[^>]*src="\/assets\/[^"]+\.js"[^>]*>/)?.[0];
   assert.ok(moduleOpen,"missing Vite module opening tag: "+pathname);
   assert.ok(head.includes(moduleOpen+"</script>"),"Vite script must be explicitly closed inside <head>: "+pathname);
   assert.ok(head.indexOf("<style data-crew-react-css>")<head.indexOf(moduleOpen),"compiled CSS must precede the app JS: "+pathname);
