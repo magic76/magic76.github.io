@@ -34,3 +34,15 @@ On Pages preview or `www.3sssi.com`, check the page source for `data-crew-ssg-pa
 - Story shelf/user records and the newest research data are loaded by the browser; future article-level SSG is optional.
 - Dynamic paths still use the Vite SPA fallback, not request-time rendering.
 - When an app route lacks a dedicated prerendered HTML file, Cloudflare serves the root SPA HTML. The first-paint guard suppresses the incorrect snapshot until the correct React route mounts.
+
+## Search discoverability: product pages and daily articles
+
+The Teacher, Story and Fortune React pages now render concise, user-facing bilingual explanations **below the interactive features**, using the same components for SSG and client-side navigation. No separate SEO-only landing page is maintained.
+
+At build time, `scripts/research-seo.mjs` reads the published `crew-app/briefings/index.json` and each listed `YYYY-MM-DD.json` edition. Vite renders the actual `BriefingDetailPage` at `/research/YYYY-MM-DD/:id/` and embeds only the public edition/article seed into an application/json script. Browser hydration reads that seed to render the exact same first frame, while private reading status/notes are loaded afterward from browser storage. The `/research/` index is also pre-rendered with the latest public edition and article links.
+
+Article HTML includes unique title, description, canonical, OG details, and BlogPosting JSON-LD. Short scraped abstracts and thin reports are still accessible as SSG pages but marked `noindex,follow` and excluded from the generated sitemap. This avoids creating indexable low-information copies of third-party research. The quality gate is conservative (substantial analysis/relevance and at least one HTTPS source) and should be reviewed when editorial standards evolve.
+
+The sitemap is generated from published data **every build**; adding a new public date to `crew-app/briefings/index.json` automatically creates detail HTML on the next Cloudflare deployment. Invalid dates, unsafe article IDs, or duplicate IDs fail the build instead of writing unsafe files.
+
+`npm run test:cloudflare` checks every article/metadata/sitemap entry, and the Chrome smoke test opens selected published articles to check page hydration and source links. Route-level SSR/Workers are not required.
