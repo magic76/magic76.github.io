@@ -17,12 +17,12 @@ export function TeacherLivePage(){
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
  const languageDirective=useMemo(()=>teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),[s.targetLanguage,s.nativeLanguage,s.teachingMode,isRoleplay]);
- const system=useMemo(()=>buildTeacherSessionPolicy({
+ const system=useMemo(()=>(buildTeacherSessionPolicy({
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
   profile,teachingMode:s.teachingMode,conversationMode:s.conversationMode,
   languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel()
- }),[s.targetLanguage,s.teachingMode,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
+ })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage))),[s.targetLanguage,s.teachingMode,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
