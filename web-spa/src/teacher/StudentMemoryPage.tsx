@@ -4,9 +4,9 @@ import{useTeacherStore}from"../store/teacherStore";
 import{type MemoryKind,type MemoryItem,studentMemories,saveStudentMemory,updateStudentMemory,
  deleteStudentMemory,clearStudentMemory,personalMemoryEnabled}from"./studentMemory";
 
-const LABELS:Record<MemoryKind,string>={goal:"學習目標",interest:"興趣",preference:"教學偏好",weakness:"待加強",strength:"做得好",win:"已進步",focus:"下次重點"};
-const TYPES:MemoryKind[]=["goal","interest","preference","weakness","focus"];
-const personal=(m:MemoryItem)=>["goal","interest","preference"].includes(m.type);
+const LABELS:Record<MemoryKind,string>={fact:"生活事實",goal:"學習目標",interest:"興趣",preference:"教學偏好",weakness:"待加強",strength:"做得好",win:"已進步",focus:"下次重點"};
+const TYPES:MemoryKind[]=["fact","goal","interest","preference","weakness","focus"];
+const personal=(m:MemoryItem)=>["fact","goal","interest","preference"].includes(m.type);
 export function StudentMemoryPage(){
  const lang=useTeacherStore(s=>s.targetLanguage);
  const [items,setItems]=useState(()=>studentMemories(lang));
@@ -19,7 +19,7 @@ export function StudentMemoryPage(){
  if(currentLang!==lang){setCurrentLang(lang);setItems(studentMemories(lang));setEdit("")}
  const display=items;
  return <><section className="hero"><span className="kicker">Personalized Learning</span><h1>老師對我的了解</h1>
- <p>老師會在符合條件的課後自動更新學習進步與待加強項目，你可以隨時編輯或刪除。這些資訊只保存在目前瀏覽器，依學習語言分開儲存。</p></section>
+ <p>老師會在有意義的對話中或課後，自動整理明確提及的生活事實、學習進步與待加強項目，你可以隨時編輯或刪除。這些資訊只保存在目前瀏覽器，依學習語言分開儲存。</p></section>
  <section className="section panel teacher-memory-panel">
  <div className="section-head"><h2>自己補充記憶（選填）</h2><small>{lang}</small></div>
  <div className="teacher-memory-form"><select aria-label="記憶類型" className="field" value={type} onChange={e=>setType(e.target.value as MemoryKind)}>{TYPES.map(x=><option key={x} value={x}>{LABELS[x]}</option>)}</select>
@@ -38,7 +38,7 @@ export function StudentMemoryPage(){
  {edit!==m.id&&<button className="btn secondary small" onClick={()=>{setEdit(m.id);setDraft(m.detail)}}>編輯</button>}
  {!personal(m)&&<button className="btn secondary small" onClick={()=>{updateStudentMemory(lang,m.id,{active:!m.active});refresh()}}>{m.active?"標記已掌握":"重新練習"}</button>}
  <button className="btn secondary small" onClick={()=>{deleteStudentMemory(lang,m.id);refresh()}}>刪除</button>
- </div></article>)}</div>:<div className="notice"><div><b>還沒有記憶</b><p>完成一堂符合分析條件的口說或情境練習後，老師會自動整理你的學習狀況。也可以手動補充目標。</p></div></div>}
+ </div></article>)}</div>:<div className="notice"><div><b>還沒有記憶</b><p>分享有意義的事情，即使只是一次簡短對話，也有機會自動留下記憶。也可以手動補充目標。</p></div></div>}
  </section>
  <section className="section teacher-memory-footer"><button className="btn secondary small" onClick={()=>{if(window.confirm("確定清空「"+lang+"」的老師記憶？其他語言、單字及課程進度不受影響。")){clearStudentMemory(lang);refresh()}}}>清空這個語言的記憶</button>
  <Link className="inline-link" to="/teacher/me">返回我的</Link></section>
