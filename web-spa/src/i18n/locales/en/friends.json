@@ -75,9 +75,12 @@
   "rolePromise": "A friend, not a teacher · no grading or surprise corrections.",
   "liveRolePromise": "A natural conversation, not a lesson. Your friend won't correct you unless asked.",
   "chatModeTitle": "Chat language mode",
-  "chatModeNatural": "Natural · target first",
-  "chatModeBilingual": "Relaxed bilingual",
+  "chatModeNatural": "Natural · your language",
+  "chatModeBilingual": "Target chat · native help",
   "chatModeImmersion": "Full immersion",
   "chatModeChanged": "Changed · applies from the next reply.",
-  "chatModeSavedNext": "Saved · applies from the next conversation."
+  "chatModeSavedNext": "Saved · applies from the next conversation.",
+  "chatModeHintNatural": "One language per reply. Starts in your language and follows the language you keep using.",
+  "chatModeHintBilingual": "Chat in your target language; ask for help in your language whenever needed. No mixed-language replies.",
+  "chatModeHintImmersion": "Only your target language, even when you ask in another language."
 }
