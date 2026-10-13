@@ -38,6 +38,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('hreflang="en"'),pathname);
   assert.ok(html.includes('hreflang="zh-Hant"'),pathname);
   assert.ok(!html.includes('<link rel="stylesheet" href="/seo.css">'),pathname);
+  assert.ok(!html.includes('href="/crew-app/#/'),"Public links must stay on clean product routes: "+pathname);
   assert.ok(!html.includes('location.replace("crew-app/#/') ,pathname);
  }
  assert.ok(fs.existsSync(path.join(DIST,script[1].slice(1))));
