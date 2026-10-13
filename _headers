@@ -5,3 +5,9 @@ https://magic76-github-io.pages.dev/*
 
 https://:version.magic76-github-io.pages.dev/*
   X-Robots-Tag: noindex
+
+# The version endpoint must bypass browser and Cloudflare caches so open tabs
+# can detect a newly deployed build without reloading the whole app.
+/version.json
+  Cache-Control: no-store, max-age=0, must-revalidate
+
