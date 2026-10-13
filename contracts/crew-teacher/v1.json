@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.4",
+  "revision": "2026-10-13.5",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -25,7 +25,15 @@
       "inCharacter": true,
       "noUnsolicitedCoaching": true,
       "selectedSpokenLanguageLocked": true,
-      "languageLockSurvivesReconnect": true
+      "languageLockSurvivesReconnect": true,
+      "chatLanguageModes": [
+        "natural",
+        "bilingual",
+        "immersion"
+      ],
+      "defaultChatLanguageMode": "natural",
+      "explicitBilingualIsNotLanguageDrift": true,
+      "chatModeSurvivesReconnect": true
     },
     "memory": {
       "personalDefaultOn": true,
@@ -57,6 +65,21 @@
       ],
       "explicitModelNoFallback": true,
       "otherProductsRetainFallback": true
+    },
+    "teacherLanguageSupport": {
+      "levelOptions": [
+        "auto",
+        "A1",
+        "A2",
+        "B1",
+        "B2"
+      ],
+      "defaultLevel": "auto",
+      "nativeLanguageForExplanations": true,
+      "targetLanguageForExamples": true,
+      "levelNotInferredFromVocabularyAlone": true,
+      "explicitImmersionWins": true,
+      "teacherFriendModeSeparated": true
     }
   },
   "featureMatrix": [
@@ -515,6 +538,55 @@
           ]
         }
       ]
+    },
+    {
+      "id": "role_based_language_modes",
+      "why": "Teacher native-language scaffolding and friend selected chat language mode stay separate across reconnect",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/TeacherLanguageGuidance.java",
+          "contains": [
+            "CREW TEACHER LANGUAGE SCAFFOLDING",
+            "Do NOT invent or claim a CEFR score"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+          "contains": [
+            "RELAXED BILINGUAL SESSION RULE",
+            "FULL IMMERSION SESSION RULE"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "friendChatLanguageMode",
+            "TeacherLanguageGuidance.instruction("
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/teacherLanguageGuidance.ts",
+          "contains": [
+            "teacherLanguageGuidance",
+            "native language"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/friendLanguage.ts",
+          "contains": [
+            "bilingual",
+            "immersion"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "friendChatMode"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -565,6 +637,8 @@
         "android",
         "web"
       ]
-    }
+    },
+    "Set native Chinese, target English: A1 tutor explains primarily in Chinese and models short English; B2 tutor uses mostly English.",
+    "Zoe in natural mode stays in English when learner replies Chinese; relaxed bilingual allows Chinese and English; immersion never switches from English across reconnect."
   ]
 }

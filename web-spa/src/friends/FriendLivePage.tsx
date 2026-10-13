@@ -19,10 +19,11 @@ export function FriendLivePage(){
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const friendChatMode=useRef(useTeacherStore.getState().friendChatMode).current; // session-pinned
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
- const system=useMemo(()=>buildFriendSystem(friend,language)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,region,accentStrength,customAccent]);
- const languageDirective=useMemo(()=>friendLanguageReminder(language),[language]);
+ const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,nativeLanguage,friendChatMode,region,accentStrength,customAccent]);
+ const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,friendChatMode),[language,nativeLanguage,friendChatMode]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
