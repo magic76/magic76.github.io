@@ -5,6 +5,7 @@ on:
     paths:
       - "web-spa/**"
       - "scripts/prepare-cloudflare.mjs"
+      - "scripts/seo-first-paint.mjs"
       - "vite.web.config.ts"
       - "package.json"
       - "tests/cloudflare-deployment.test.js"
