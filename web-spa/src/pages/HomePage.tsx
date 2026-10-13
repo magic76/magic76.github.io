@@ -8,6 +8,7 @@ import {Icon} from "../components/Icon";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {HomeAtmosphere} from "./HomeAtmosphere";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
+import {useClientReady} from "../lib/useClientReady";
 import "./home.css";
 
 type Kind="teacher"|"story"|"fortune";
@@ -90,9 +91,10 @@ function BriefingPreview(){
 
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
+ const ready=useClientReady();
  const [book,setBook]=useState<Book|null>(null);
- const recent=useMemo(()=>activities(book)[0]||null,[book,locale.resolvedLanguage]);
- const configured=Boolean(geminiKey()),verified=geminiVerified();
+ const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
+ const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
   let live=true;
