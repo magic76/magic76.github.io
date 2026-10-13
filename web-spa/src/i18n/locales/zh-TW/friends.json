@@ -71,5 +71,12 @@
     "error-network": "記憶整理連線失敗，請檢查網路。之前儲存的回憶不受影響。",
     "error-service": "Gemini 記憶整理服務暫時無法使用，請稍後再試。",
     "error-response": "Gemini 回傳的記憶資料格式異常，這次尚未新增回憶。"
+  },
+  "chatMode": "聊天方式",
+  "chatModeHint": "下次對話開始時套用",
+  "chatModes": {
+    "natural": "自然聊天 · 外語為主，母語協助",
+    "bilingual": "輕鬆雙語 · 自由切換",
+    "immersion": "完全沉浸 · 只用目標語言"
   }
 }
