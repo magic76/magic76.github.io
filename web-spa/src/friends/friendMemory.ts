@@ -166,12 +166,12 @@ export function buildFriendSystem(friend:FriendProfile,language:string){
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
-  freeChatRhythmPrompt()+"\n"+friendPersonalContext(language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
+  freeChatRhythmPrompt()+"\n"+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
 }
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
  if(!validFriend(id))return;
- const saveTopicsEnabled=friendMemoryEnabled(),savePersonal=personalMemoryEnabled();
+ const saveTopicsEnabled=friendMemoryEnabled(),savePersonal=false;
  if(!saveTopicsEnabled&&!savePersonal)return;
  const speech=turns.map(t=>clean(t.input,450)).filter(Boolean).join("\n").slice(0,3500);
  if(!hasMeaningfulLearnerSpeech(speech))return;
