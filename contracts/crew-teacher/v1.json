@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.9",
+  "revision": "2026-10-14.1",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -31,7 +31,7 @@
         "bilingual",
         "immersion"
       ],
-      "defaultChatLanguageMode": "natural",
+      "defaultChatLanguageMode": "bilingual",
       "explicitBilingualIsNotLanguageDrift": true,
       "chatModeSurvivesReconnect": true,
       "explicitModeChangeDuringLive": true,
@@ -47,10 +47,14 @@
       "friendMaxSilentNudges": 1,
       "noCompulsoryOpeningQuestion": true,
       "chatModeLabels": {
-        "natural": "Natural chat / 自然聊天",
-        "bilingual": "Target chat + native help / 外語聊天・母語求助",
+        "natural": "Native-language chat / 母語聊天",
+        "bilingual": "Easy target-language chat / 輕鬆外語聊天",
         "immersion": "Full immersion / 完全沉浸"
-      }
+      },
+      "savedExplicitChatModePreserved": true,
+      "newUserTargetLanguageFirst": true,
+      "adaptiveDifficultyWithoutCefrOrCorrections": true,
+      "adaptiveBasedOnSustainedConversationNotSingleWords": true
     },
     "memory": {
       "personalDefaultOn": true,
@@ -286,7 +290,7 @@
     },
     {
       "id": "friend_language_lock",
-      "why": "Crew Friend uses one language per spoken reply; natural follows native/sustained language, assisted is target-first with whole-turn native help, immersion stays target-only on reconnect",
+      "why": "Crew Friend uses one language per spoken reply; natural follows native/sustained language, assisted is target-first with whole-turn native help, immersion stays target-only on reconnect; new users default to target-language chat, saved explicit modes remain intact",
       "android": [
         {
           "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
@@ -300,7 +304,8 @@
         {
           "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
           "contains": [
-            "外語聊天 · 母語求助",
+            "輕鬆外語聊天",
+            "母語聊天",
             "isCompanionConversation() ? 20000L",
             "If a verified recent unfinished topic fits"
           ]
@@ -686,6 +691,52 @@
           ]
         }
       ]
+    },
+    {
+      "id": "friend_target_default_and_adaptive",
+      "why": "New users enter accessible target-language chat while explicit native/immersion settings persist and conversation-only adaptive difficulty never becomes assessment",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/AppConfig.java",
+          "contains": [
+            "DEFAULT_FRIEND_CHAT_LANGUAGE_MODE = \"bilingual\"",
+            "KEY_FRIEND_CHAT_LANGUAGE_MODE, DEFAULT_FRIEND_CHAT_LANGUAGE_MODE"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/FriendLanguagePolicy.java",
+          "contains": [
+            "FRIEND ADAPTIVE TARGET CHAT",
+            "across multiple actual exchanges",
+            "Never announce a CEFR level"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/store/teacherStore.ts",
+          "contains": [
+            "DEFAULT_FRIEND_CHAT_LANGUAGE_MODE",
+            "crew_teacher_friendChatMode",
+            "merge:(persisted,current)"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/friendLanguage.ts",
+          "contains": [
+            "FRIEND ADAPTIVE TARGET CHAT",
+            "across multiple actual exchanges",
+            "Never announce a CEFR level"
+          ]
+        },
+        {
+          "path": "web-spa/src/i18n/locales/zh-TW/friends.json",
+          "contains": [
+            "輕鬆外語聊天",
+            "母語聊天"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -798,6 +849,22 @@
     {
       "id": "friend_assisted_native_help",
       "steps": "Native Chinese + target English + assisted Friend: Zoe uses only English initially; user explicitly asks what a phrase means in Chinese, she explains for one whole Chinese reply without mixing, then resumes English. Full immersion remains exclusively English; switching mode mid-call and reconnect preserve selection.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_new_user_default_saved_mode",
+      "steps": "Fresh Android install or Web localStorage selects easy target-language chat by default. After explicitly choosing native chat or immersion and restarting the app/browser, that selection persists. Existing Web snapshots without an explicit friendChatMode key do not force legacy natural default.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "friend_adaptive_no_assessment",
+      "steps": "In target chat, use short answers across several turns: Zoe responds with simpler target-language sentences and no tests; sustain several detailed replies: language grows gradually richer. Yes/Okay once, a noisy transcript and explicit native help do not assign a level or trigger corrections; one whole language per reply.",
       "platforms": [
         "android",
         "web"
