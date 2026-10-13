@@ -121,6 +121,14 @@ export async function enhance(items){
  finally{clearTimeout(timer)}
 }
 
+/** Two verified analyses at most; remaining slots are clearly source-only briefs. */
+export function composeEdition(candidates,reviewed,maxItems=6){
+ const deep=reviewed.filter(item=>assessResearchQuality(item).indexable).slice(0,2);
+ const deepIds=new Set(deep.map(item=>item.id));
+ const items=[...deep,...candidates.filter(item=>!deepIds.has(item.id))].slice(0,maxItems);
+ return {items,deepCount:deep.filter(item=>items.some(x=>x.id===item.id)).length};
+}
+
 export async function run(){
  await mkdir(out,{recursive:true});
  const date=today();
@@ -135,13 +143,10 @@ export async function run(){
  if(!candidates.length)throw Error("No fresh verifiable sources: keeping the existing report unchanged");
  // Limit editorial effort to three likely analyses; don't inflate short source excerpts.
  const reviewed=await enhance(candidates.slice(0,3));
- const deep=reviewed.filter(x=>assessResearchQuality(x).indexable).slice(0,2);
- const deepIds=new Set(deep.map(x=>x.id));
- const briefs=candidates.filter(x=>!deepIds.has(x.id));
- const items=[...deep,...briefs].slice(0,6);
+ const {items,deepCount}=composeEdition(candidates,reviewed);
  if(items.length<4)console.warn("Below editorial target (4-6): only",items.length,"verifiable topics available");
- const briefCount=items.length-deep.length;
- const edition={date,generatedAt:new Date().toISOString(),edition:"public",notes:"今日從公開研究與官方更新挑選主題，包含 "+deep.length+" 篇繁中研究分析與 "+briefCount+" 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",items};
+ const briefCount=items.length-deepCount;
+ const edition={date,generatedAt:new Date().toISOString(),edition:"public",notes:"今日從公開研究與官方更新挑選主題，包含 "+deepCount+" 篇繁中研究分析與 "+briefCount+" 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",items};
  await writeFile(join(out,date+".json"),JSON.stringify(edition,null,2)+"\n");
  index={days:unique([date,...(index.days||[])]).sort().reverse().slice(0,90),updatedAt:edition.generatedAt};
  await writeFile(join(out,"index.json"),JSON.stringify(index,null,2)+"\n");
@@ -151,6 +156,6 @@ export async function run(){
  records.map(({date,item})=>'<item><title>'+escapeXml(item.title)+'</title><link>https://www.3sssi.com/research/'+date+'/'+encodeURIComponent(item.id)+'</link><guid isPermaLink="false">'+escapeXml(item.id)+'</guid><pubDate>'+new Date(item.publishedAt).toUTCString()+'</pubDate><description>'+escapeXml(item.summary)+'</description></item>').join("")+'</channel></rss>\n';
  await writeFile(join(out,"feed.xml"),feed);
 
- console.log("Crew Briefing",date,":",items.length,"published;",deep.length,"editorially enriched,",briefCount,"source briefs; candidates:",candidates.length);
+ console.log("Crew Briefing",date,":",items.length,"published;",deepCount,"editorially enriched,",briefCount,"source briefs; candidates:",candidates.length);
 }
 if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1])run().catch(e=>{console.error(e);process.exitCode=1});
