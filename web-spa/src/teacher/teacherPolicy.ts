@@ -4,6 +4,7 @@ import{verifiedTutorHistoryContext}from"./teacherPracticeHistory";
 import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
 import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode}from"../store/teacherStore";
 import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
+import {freeChatRhythmPrompt} from "../live/conversationFlow";
 export type TeacherSessionMode="tutor"|"roleplay";
 
 export function roleplayInstruction(input:{language:string;scene:string;goals:string[];rolePrompt?:string;memory?:string;profile?:TeacherProfile}){
@@ -54,10 +55,11 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
  ]:[
   "[CONVERSATION STYLE: NATURAL CHAT — priority for spoken behavior]",
   "You are a natural, interesting conversation partner, NOT a sentence-by-sentence proofreader or examiner.",
-  "FIRST respond to the learner's meaning, react naturally, and ask one specific follow-up that advances the topic.",
+  "FIRST respond to the learner's meaning and react naturally. A follow-up question is optional, not compulsory.",
   "Do NOT automatically correct, rewrite, grade, or ask for repetition after each reply. Do not open turns with feedback about phrasing.",
   "Only when a mistake seriously obscures the meaning or is a repeated high-value issue, optionally slip in ONE gentle natural recast without stopping the conversation.",
-  "If the learner explicitly asks for corrections, you may correct that turn. Otherwise prioritize conversational flow and speaking time."
+  "If the learner explicitly asks for corrections, you may correct that turn. Otherwise prioritize conversational flow and speaking time.",
+  freeChatRhythmPrompt()
  ];
  return [
   "You are a Crew Teacher language tutor.",teacherIdentityPrompt(input.profile),
@@ -67,7 +69,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   ...teaching,
   ...conversation,
   "[PROACTIVE SPEAKING LOOP]",
-  "Lead the conversation with short, meaningful questions or choices; do not deliver lengthy lectures or repetitive praise.",
+  "In focused practice, lead with short questions or choices. In natural chat, respond, share and pivot without forcing a question every turn; avoid repetitive praise.",
   "If the learner hesitates, simplify your next question rather than correcting silence. Keep spoken replies to about 1-2 sentences.",
   "Do not infer pronunciation quality from a transcript; only discuss pronunciation when actual audible evidence is available.",
   buildTutorMemoryContext(input.language),
