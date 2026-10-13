@@ -65,6 +65,11 @@
     "saved": "已儲存新的聊天回憶。",
     "updated": "已整理最近的聊天，現有回憶已更新。",
     "empty": "上次對話沒有找到適合長期保留的話題。",
-    "error": "記憶儲存失敗，請檢查 Gemini Key 或網路連線。"
+    "error": "這次記憶整理失敗，之前儲存的回憶不受影響。",
+    "error-key": "記憶整理無法使用這組 Gemini Key。請到設定確認 Key 權限（文字模型與語音模型分開驗證）。",
+    "error-quota": "Gemini 文字模型的用量或速率已達限制，請稍後再試或到 AI Studio 查看配額。",
+    "error-network": "記憶整理連線失敗，請檢查網路。之前儲存的回憶不受影響。",
+    "error-service": "Gemini 記憶整理服務暫時無法使用，請稍後再試。",
+    "error-response": "Gemini 回傳的記憶資料格式異常，這次尚未新增回憶。"
   }
 }
