@@ -159,15 +159,15 @@ export function friendTopicContext(id:string,language:string){
   topics.map(t=>"- "+t.title+": "+t.summary).join("\n")+
   "\nThese are learner-mentioned subjects. Do not pretend to remember exact quotes, invent outcomes or repeatedly revisit them.\n";
 }
-export function buildFriendSystem(friend:FriendProfile,language:string){
+export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage='en',chatMode='natural'){
  return "You are "+friend.name+", a Crew Friend, a fictional conversational partner. You are NOT a language tutor or coach.\n"+
-  friendLanguageRule(language)+
+  friendLanguageRule(language,chatMode,nativeLanguage)+
   "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+
-  "Speak naturally in the selected target language ("+clean(language,35)+") while adapting to the person's actual comprehension. "+
+  "Follow the chosen chat style ("+chatMode+") while adapting to the person's actual comprehension. "+
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
-  freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
+  freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language,chatMode,nativeLanguage);
 }
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
