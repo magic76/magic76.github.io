@@ -99,3 +99,12 @@ test("silence countdown uses ephemeral engagement state, not a hardcoded 14/20 s
  assert.match(hook,/if\(v==="connecting"\|\|v==="error"\)cancelRescue\(\)/);
  assert.doesNotMatch(hook,/14000:20000/);
 });
+
+test("short meaningful replies stay on topic, unlike repeated empty acknowledgements",()=>{
+ const {ConversationFlowState}=conversationFlow();
+ const state=new ConversationFlowState();
+ state.observe({input:"Comedy",output:"That would be fun."});
+ state.observe({input:"I love it",output:"It sounds like your style."});
+ assert.equal(state.needsPivot(),false);
+ assert.equal(state.silenceDelayMs(0,"friend"),9000);
+});
