@@ -1,7 +1,7 @@
 {
   "title": "Who would you like to chat with?",
   "intro": "No lessons here: share everyday moments, continue remembered topics and chat without unsolicited corrections.",
-  "language": "Target language",
+  "language": "Language to learn",
   "pace": "Speaking pace",
   "slow": "Slow",
   "normal": "Normal",
@@ -74,13 +74,13 @@
   },
   "rolePromise": "A friend, not a teacher · no grading or surprise corrections.",
   "liveRolePromise": "A natural conversation, not a lesson. Your friend won't correct you unless asked.",
-  "chatModeTitle": "Chat mode",
-  "chatModeNatural": "Natural · your language",
-  "chatModeBilingual": "Target chat · native help",
+  "chatModeTitle": "Friend chat mode",
+  "chatModeNatural": "Native-language chat",
+  "chatModeBilingual": "Easy target-language chat",
   "chatModeImmersion": "Full immersion",
   "chatModeChanged": "Changed · applies from the next reply.",
   "chatModeSavedNext": "Saved · applies from the next conversation.",
-  "chatModeHintNatural": "One language per reply. Starts in your language and follows the language you keep using.",
-  "chatModeHintBilingual": "Chat in your target language; ask for help in your language whenever needed. No mixed-language replies.",
-  "chatModeHintImmersion": "Only your target language, even when you ask in another language."
+  "chatModeHintNatural": "Chat mainly in your own language; your friend follows when you consistently switch to the target language.",
+  "chatModeHintBilingual": "Recommended: chat mainly in the language you're learning. Ask in your own language if you're stuck. One language per reply; your friend adapts naturally.",
+  "chatModeHintImmersion": "Always chat in the language you're learning. Your friend adjusts clarity but won't switch to your native language."
 }
