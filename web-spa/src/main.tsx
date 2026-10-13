@@ -25,22 +25,18 @@ if (!root) throw new Error("Crew root not found");
 const legacy = window.location.pathname.startsWith("/crew-app/");
 const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname) ? "/en" : undefined;
 
-// Landing HTML serves complete SEO content until the real app commits.
-// Keep /seo.css while JavaScript is pending or broken, then remove it
-// synchronously after React has rendered so product styles never conflict.
-function RemoveSeoFallbackStyles() {
+// Only deep links with no dedicated SSG snapshot require a temporary hide.
+function FinishSsgMount() {
   React.useLayoutEffect(() => {
     document.documentElement.classList.remove("crew-dynamic-route");
-    // Legacy startup notices, if any, are only dismissed after React commits.
-    window.dispatchEvent(new Event("crew:mounted"));
   }, []);
   return null;
 }
 
 const app = (
   <React.StrictMode>
-    {legacy ? <HashRouter><App/><RemoveSeoFallbackStyles/></HashRouter> :
-      <BrowserRouter basename={languagePrefix}><App/><RemoveSeoFallbackStyles/></BrowserRouter>}
+    {legacy ? <HashRouter><App/><FinishSsgMount/></HashRouter> :
+      <BrowserRouter basename={languagePrefix}><App/><FinishSsgMount/></BrowserRouter>}
   </React.StrictMode>
 );
 const pathname=window.location.pathname.replace(/\/+$/,"")||"/";
