@@ -25,7 +25,7 @@ if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=
 // Retain hashed .css in dist for diagnostics and possible future optimization.
 const viteCSS=viteAssetTags.filter(tag=>tag.includes('rel="stylesheet"'));
 if(viteCSS.length!==1)throw Error("Expected exactly one Vite stylesheet; got "+viteCSS.length);
-const cssHref=viteCSS[0].match(/\\bhref="(\\/assets\\/[^"]+\\.css)"/)?.[1];
+const cssHref=viteCSS[0].match(/\bhref="(\/assets\/[^"]+\.css)"/)?.[1];
 if(!cssHref)throw Error("Could not identify Vite stylesheet filename");
 const compiledCssPath=join(out,cssHref.slice(1));
 if(!existsSync(compiledCssPath))throw Error("Vite CSS file missing: "+cssHref);
@@ -33,7 +33,7 @@ const compiledCss=readFileSync(compiledCssPath,"utf8");
 if(compiledCss.length<10000||!compiledCss.includes(".app-header")||!compiledCss.includes(".global-nav")){
  throw Error("Compiled CSS is missing the functional Crew UI styles");
 }
-if(/<\\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in compiled CSS");
+if(/<\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in compiled CSS");
 const inlineAppStylesheet='<style data-crew-react-css>'+compiledCss+'</style>';
 const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
