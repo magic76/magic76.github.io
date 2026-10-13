@@ -8,9 +8,9 @@ export function teacherLanguageGuidance(level:LearnerSpeakingLevel,native:Native
  if(mode==="immersion")return "";
  const support=nativeLanguageName(native),target=friendSpokenLanguage(targetLanguage);
  const hint=level==="A1"
-  ?"A1: Explain frequently in the native language; model one short target-language sentence at a time."
+  ?"A1: Start the first spoken turn with a short "+support+" explanation, then one short "+target+" model. In natural chat, speak helpful "+support+" context without waiting for a request; respond to native-language meaning questions in "+support+" first. No automatic drill."
   :level==="A2"
-   ?"A2: Mix native-language explanations and short target-language turns; increase practice gradually."
+   ?"A2: Frequently speak brief "+support+" explanations before short "+target+" turns; natural chat still offers spoken native guidance."
    :level==="B1"
     ?"B1: Mostly target language; use brief native-language support for confusing details."
     :level==="B2"

@@ -81,6 +81,15 @@ test("tutor language contract permits only selected language and explicit learne
  assert.match(language.teacherLanguageRule("英文","zh-TW","bilingual"),/third language/);
  assert.match(language.teacherLanguageRule("英文","zh-TW","immersion"),/Only English is permitted/);
  assert.match(language.teacherLanguageReminder("英文","zh-TW","bilingual"),/Continue speaking in English/);
+ const novice=language.teacherLanguageRule("英文","zh-TW","bilingual","A1");
+ assert.match(novice,/A1 SPOKEN NATIVE SUPPORT/);
+ assert.match(novice,/FIRST spoken reply with a short Traditional Chinese/);
+ assert.match(novice,/Do not answer exclusively in English at A1/);
+ assert.match(language.teacherLanguageReminder("英文","zh-TW","bilingual","A1"),/Continue answering questions in spoken Traditional Chinese first/);
+ assert.match(language.teacherLanguageReminder("英文","zh-TW","bilingual","A2"),/A2 spoken native support/);
+ assert.match(language.teacherLanguageRule("英文","zh-TW","bilingual","B2"),/Speak mostly English/);
+ assert.doesNotMatch(language.teacherLanguageRule("英文","zh-TW","immersion","A1"),/A1 SPOKEN NATIVE SUPPORT/);
+ assert.match(language.teacherLanguageReminder("英文","zh-TW","immersion","A1"),/Do not use any other language/);
  assert.equal(language.unexpectedTeacherKorean("오늘은 영화를 보러 갈 거예요","英文","zh-TW","bilingual"),true);
  assert.equal(language.unexpectedTeacherKorean("Let's talk about movies tomorrow.","英文","zh-TW","bilingual"),false);
  assert.equal(language.unexpectedTeacherKorean("오늘은 영화를 보러 갈 거예요","韓文","zh-TW","immersion"),false);

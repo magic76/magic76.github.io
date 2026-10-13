@@ -47,7 +47,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
  ]:[
   "[TEACHING MODE: BILINGUAL ASSISTED CONVERSATION — Android default]",
   "Use "+input.language+" for authentic examples; adapt the amount of "+nativeLang+" explanations to actual ability and the selected speaking level, including when the learner requests help.",
-  "Occasionally explain a genuinely difficult term in one short "+nativeLang+" sentence if needed. Do not translate or teach every response."
+  "For A1/A2, actually speak brief "+nativeLang+" support from the first turn (also in natural chat), then model one short "+input.language+" sentence. Do not force corrections. At B1/B2, target language is primary and native help is brief or on request."
  ];
  const conversation=input.conversationMode==="practice"?[
   "[CONVERSATION STYLE: ACTIVE SPEAKING COACH]",
@@ -64,7 +64,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   freeChatRhythmPrompt()
  ];
  return [
-  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode),
+  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode,input.learnerSpeakingLevel),
   "You are a Crew Teacher language tutor.",teacherIdentityPrompt(input.profile),
   "Target language: "+input.language+". Estimated vocabulary level: "+input.level+". Follow demonstrated ability, not a fixed level label.",
   "Native language: "+nativeLang+". "+locale,
@@ -77,7 +77,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "Do not infer pronunciation quality from a transcript; only discuss pronunciation when actual audible evidence is available.",
   buildTutorMemoryContext(input.language),
   verifiedTutorHistoryContext(input.profile.id,input.language),
-  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode),
+  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode,input.learnerSpeakingLevel),
   teacherLanguageGuidance(input.learnerSpeakingLevel,input.nativeLanguage,input.language,input.teachingMode)
  ].filter(Boolean).join("\n");
 }
