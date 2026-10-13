@@ -81,7 +81,7 @@ export function VoiceLabPage(){
   <section style={panelStyle}><h2 style={{fontSize:19,marginTop:0}}>2. Live 試聽</h2>
    <div style={{display:"flex",gap:18,flexWrap:"wrap"}}><label><input type="radio" disabled={active} checked={mode==="sample"} onChange={()=>setMode("sample")}/> 固定英文台詞</label><label><input type="radio" disabled={active} checked={mode==="conversation"} onChange={()=>setMode("conversation")}/> 20 秒自由對話</label></div>
    <blockquote style={{margin:"12px 0",padding:12,background:"#f1f5f9",borderLeft:"3px solid #64748b"}}>{TEST_LINE}</blockquote>
-   <p>固定台詞使用相同文字，便於聽口音；自由對話會啟用麥克風，20 秒自動停止。實際輸出仍由 Live 模型生成。</p>
+   <p>固定台詞使用相同文字，便於比較聲音；兩種模式都透過 Gemini Live，需要麥克風授權。自由對話在 20 秒後自動停止。模型輸出可能不完全遵守台詞與口音指令。</p>
    <div style={{display:"flex",gap:12,alignItems:"center"}}>
     <button type="button" disabled={active||!geminiKey()} style={{...selectStyle,width:"auto",cursor:"pointer"}} onClick={()=>{setMessage("");void live.start()}}>▶ 開始試聽</button>
     <button type="button" disabled={!active} style={{...selectStyle,width:"auto",cursor:"pointer"}} onClick={()=>void live.stop(true)}>■ 結束</button>
