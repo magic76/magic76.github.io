@@ -8,7 +8,7 @@ const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 function conversationFlow(){
  const source=read("web-spa/src/live/conversationFlow.ts").replace(/^import type .*;\s*$/gm,"");
  const js=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:function|class))/g,"");
- const context={};vm.runInNewContext(js+"\nthis.flow={freeChatRhythmPrompt,ConversationFlowState,isBriefAcknowledgement};",context);
+ const context={};vm.runInNewContext(js+"\nthis.flow={freeChatRhythmPrompt,ConversationFlowState,isBriefAcknowledgement,wantsToEndConversation};",context);
  return context.flow;
 }
 
@@ -56,4 +56,46 @@ test("only free chat gets automatic silence rescue",()=>{
  assert.match(transport,/realtimeInput:\{text:instruction\}/);
  assert.match(policy,/freeChatRhythmPrompt\(\)/);
  assert.match(policy,/\[CONVERSATION STYLE: ACTIVE SPEAKING COACH\]/);
+});
+
+test("conversation momentum offers one natural hook without mandatory question loops",()=>{
+ const p=conversationFlow().freeChatRhythmPrompt();
+ assert.match(p,/conversational hook/);
+ assert.match(p,/detailed answer/);
+ assert.match(p,/respect silence/);
+ assert.match(p,/not unsolicited correction/i);
+});
+
+test("engagement adapts the first pause; second nudge is delayed and bounded",()=>{
+ const {ConversationFlowState}=conversationFlow();
+ const state=new ConversationFlowState();
+ assert.equal(state.silenceDelayMs(0,"friend"),9000);
+ assert.equal(state.silenceDelayMs(1,"friend"),16000);
+ state.observe({input:"I had a wonderful time at the cinema with my family.",output:"What did you see?"});
+ assert.equal(state.silenceDelayMs(0,"friend"),11000);
+ state.observe({input:"Yes.",output:"Was it fun?"});
+ state.observe({input:"Okay.",output:"Which part was your favorite?"});
+ assert.equal(state.needsPivot(),true);
+ assert.equal(state.silenceDelayMs(0,"teacher"),8000);
+ assert.match(state.rescue("friend",0),/WITHOUT requiring an answer/);
+ assert.match(state.rescue("teacher",0),/no drills or compulsory repetition/);
+ assert.equal(state.silenceDelayMs(1,"teacher"),16000);
+});
+
+test("farewell stops silence recovery without stopping a new learner turn",()=>{
+ const {ConversationFlowState,wantsToEndConversation}=conversationFlow();
+ const state=new ConversationFlowState();
+ state.observe({input:"Goodbye!",output:"See you next time."});
+ assert.equal(state.shouldRescue(),false);
+ assert.equal(wantsToEndConversation("Bye."),true);
+ state.observe({input:"Actually, what was the movie called?",output:"It was a comedy."});
+ assert.equal(state.shouldRescue(),true);
+});
+
+test("silence countdown uses ephemeral engagement state, not a hardcoded 14/20 second timer",()=>{
+ const hook=read("web-spa/src/live/useLiveSession.ts");
+ assert.match(hook,/cadenceRef\.current\.silenceDelayMs\(rescueCountRef\.current,kind\)/);
+ assert.match(hook,/!cadenceRef\.current\.shouldRescue\(\)/);
+ assert.match(hook,/if\(v==="connecting"\|\|v==="error"\)cancelRescue\(\)/);
+ assert.doesNotMatch(hook,/14000:20000/);
 });
