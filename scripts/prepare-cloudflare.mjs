@@ -20,7 +20,22 @@ const viteAssetTags=[...viteHtml.matchAll(/<(?:script|link)\b[^>]*>/g)]
 if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=>tag.includes('rel="stylesheet"'))){
  throw Error("Cannot locate the Vite JS/CSS entries in dist/index.html");
 }
-const appTags=viteAssetTags.join("\n  ");
+// Cloudflare Pages must not rely solely on a separate CSS request.
+// Inline the Vite-compiled stylesheet to keep the React UI styled on every route.
+// Retain hashed .css in dist for diagnostics and possible future optimization.
+const viteCSS=viteAssetTags.filter(tag=>tag.includes('rel="stylesheet"'));
+if(viteCSS.length!==1)throw Error("Expected exactly one Vite stylesheet; got "+viteCSS.length);
+const cssHref=viteCSS[0].match(/\bhref="(\/assets\/[^"]+\.css)"/)?.[1];
+if(!cssHref)throw Error("Could not identify Vite stylesheet filename");
+const compiledCssPath=join(out,cssHref.slice(1));
+if(!existsSync(compiledCssPath))throw Error("Vite CSS file missing: "+cssHref);
+const compiledCss=readFileSync(compiledCssPath,"utf8");
+if(compiledCss.length<10000||!compiledCss.includes(".app-header")||!compiledCss.includes(".global-nav")){
+ throw Error("Compiled CSS is missing the functional Crew UI styles");
+}
+if(/<\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in compiled CSS");
+const inlineAppStylesheet='<style data-crew-react-css>'+compiledCss+'</style>';
+const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
 // Copy only confirmed public assets, not the entire repo (which could contain
 // source code, config, tooling or secrets). Imported images are handled by Vite.
@@ -73,7 +88,7 @@ for(const locale of ["zh","en"]){
   for(const [previous,next] of redirectTargets)marketing=marketing.replaceAll(previous,next);
   if(!marketing.includes("<main id=\"main\">")||!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO content: "+relative);
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',fallbackStylesheet+"\n  "+appTags)
+   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\n  "+fallbackStylesheet+"\n  "+appTags)
    .replace("<body>","<body>\n<div id=\"root\"><div class=\"seo-fallback\">")
    .replace("</body>","</div></div>\n</body>");
   const target=join(out,relative);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
@@ -95,4 +110,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 10 public React routes, legacy redirect and static runtime assets.");
+console.log("Prepared Cloudflare Pages: 10 React routes, inline app CSS ("+compiledCss.length+" chars) and runtime assets.");
