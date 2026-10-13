@@ -1,4 +1,5 @@
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
+import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -64,7 +65,7 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // The actual React App is rendered at build time for public routes. Vite handles
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
-const prerendered=await prerenderPublicRoutes(root);
+const {pages:prerendered,articles,research}=await prerenderPublicRoutes(root);
 // Head fragments must be separated by real whitespace. A literal backslash-n
 // between tags makes the browser close <head> early and visibly render "\\n".
 const newline=String.fromCharCode(10);
@@ -98,9 +99,12 @@ for(const locale of ["zh","en"]){
   if(!page||!page.includes("app-header"))throw Error("React SSG failed: "+relative);
   const publicPath=normalizePath((locale==="en"?"/en":"")+path);
   const bodyTheme=slug==="teacher"?"teacher-theme":slug==="story"?"story-theme":slug==="fortune"?"fortune-theme":"";
+  const seed=slug==="research"&&research.days.get(research.index.days[0])
+   ?{index:research.index,day:research.days.get(research.index.days[0])}:null;
+  const seedTag=seed?'<script id="crew-research-seed" type="application/json">'+safeJson(seed)+'</script>':"";
   const html=marketing
    .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags)
-   .replace("</head>",dynamicGuard+newline+"</head>")
+   .replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
   const target=join(out,relative);
@@ -108,6 +112,52 @@ for(const locale of ["zh","en"]){
   writeFileSync(target,html);
  }
 }
+
+// Article documents use the *same* React detail page and public build-time data,
+// with per-article metadata. The old research template contributes only head SEO.
+const researchTemplate=read("research/index.html");
+const replaceMeta=(html,attr,name,value)=>{
+ const matcher=new RegExp('<meta '+attr+'="'+name+'" content="[^"]*">');
+ if(!matcher.test(html))throw Error("Missing meta "+name+" on research template");
+ return html.replace(matcher,'<meta '+attr+'="'+name+'" content="'+escapeHtml(value)+'">');
+};
+for(const [route,{day,item,seed}] of articles){
+ const path=articlePath(day.date,item);
+ if(path.slice(0,-1)!==route)throw Error("Article route disagreement: "+route);
+ const meta=articleHead(item,day);
+ let head=researchTemplate.split("</head>")[0]+"</head>";
+ head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
+ head=head.replace(/<title>[\s\S]*?<\/title>/,'<title>'+escapeHtml(meta.title)+'</title>');
+ head=head.replace(/<link rel="canonical" href="[^"]*">/,'<link rel="canonical" href="'+meta.canonical+'">');
+ head=replaceMeta(head,"name","description",meta.description);
+ head=replaceMeta(head,"name","robots",meta.robots);
+ head=replaceMeta(head,"property","og:title",meta.title);
+ head=replaceMeta(head,"property","og:description",meta.description);
+ head=replaceMeta(head,"property","og:url",meta.canonical);
+ head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+  '<script type="application/ld+json">'+safeJson(meta.ld)+'</script>');
+ // Ensure the article is the first meaningful content, not a loading spinner.
+ const rendered=prerendered.get("zh-TW:"+route);
+ if(!rendered||!rendered.includes('<article class="briefing briefing-detail">'))throw Error("SSG article missing actual detail: "+route);
+ const page=rendered.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const seedTag='<script id="crew-research-seed" type="application/json">'+safeJson(seed)+'</script>';
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags);
+ head=head.replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>");
+ const html=researchTemplate.replace(/<head>[\s\S]*?<\/head>/,head)
+  .replace(/<body>[\s\S]*?<\/body>/,
+   '<body><div id="root" data-crew-ssg-path="'+route+'">'+page+'</div></body>');
+ const target=join(out,route.slice(1),"index.html");
+ mkdirSync(dirname(target),{recursive:true});
+ writeFileSync(target,html);
+}
+// Only substantial original commentary is indexable. Thin extracted abstracts
+// remain available via normal links, but are excluded from Google Sitemap.
+const sitemapEntries=[...articles.values()].filter(({item})=>indexableArticle(item))
+ .map(({item,day})=>'  <url><loc>https://www.3sssi.com'+articlePath(day.date,item)+'</loc><lastmod>'+day.generatedAt.slice(0,10)+'</lastmod></url>').join(newline);
+const sitemap=read("sitemap.xml");
+if(!sitemap.includes("</urlset>"))throw Error("Missing sitemap closing tag");
+writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",sitemapEntries+newline+"</urlset>"));
+
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
 // Cloudflare deploys a redirect-only compatibility document, not a second app.
 const oldPath=join(out,"crew-app");mkdirSync(oldPath,{recursive:true});
@@ -124,4 +174,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 10 React SSG routes, inline app CSS ("+compiledCss.length+" chars), no runtime SSR.");
+console.log("Prepared Cloudflare Pages: 10 public SSG routes and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
