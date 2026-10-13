@@ -6,7 +6,7 @@
     "check:web": "tsc --noEmit -p web-spa/tsconfig.json",
     "build:web": "vite build --config vite.web.config.ts",
     "build:cloudflare": "CREW_DEPLOY_TARGET=cloudflare vite build --config vite.web.config.ts && node scripts/prepare-cloudflare.mjs",
-    "test:cloudflare": "node --test tests/cloudflare-deployment.test.js"
+    "test:cloudflare": "CREW_CLOUDFLARE_TEST=1 node --test tests/cloudflare-deployment.test.js"
   },
   "dependencies": {
     "i18next": "^25.0.0",
