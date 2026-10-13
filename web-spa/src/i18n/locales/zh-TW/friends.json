@@ -1,7 +1,7 @@
 {
   "title": "今天，找誰聊聊？",
   "intro": "這裡不用上課。聊生活、延續共同回憶，不主動糾錯。",
-  "language": "想用的外語",
+  "language": "想學的語言",
   "pace": "說話速度",
   "slow": "慢速",
   "normal": "正常",
@@ -74,13 +74,13 @@
   },
   "rolePromise": "朋友陪你聊，不評分，也不會突然糾正你。",
   "liveRolePromise": "這是自然聊天，不是上課；除非你主動提出，朋友不會糾錯。",
-  "chatModeTitle": "聊天模式",
-  "chatModeNatural": "自然聊天 · 跟著你的語言",
-  "chatModeBilingual": "外語聊天 · 母語求助",
+  "chatModeTitle": "朋友聊天模式",
+  "chatModeNatural": "母語聊天",
+  "chatModeBilingual": "輕鬆外語聊天",
   "chatModeImmersion": "完全沉浸",
   "chatModeChanged": "已切換，下一句開始套用。",
   "chatModeSavedNext": "已儲存，下次對話將使用新模式。",
-  "chatModeHintNatural": "每次只說一種語言。預設用你的母語，持續改用外語時才跟著切換。",
-  "chatModeHintBilingual": "平常用外語聊，聽不懂時可用母語求助；整句不混搭。",
-  "chatModeHintImmersion": "全程只使用目標語言，即使你改用母語提問。"
+  "chatModeHintNatural": "主要用你的母語聊；持續改用外語時，朋友才會跟著切換。",
+  "chatModeHintBilingual": "推薦：主要用想學的語言聊天，聽不懂時可以用母語問；每次只說一種語言，朋友會自然調整難度。",
+  "chatModeHintImmersion": "全程只用想學的語言；朋友會配合你的理解程度，但不切回母語。"
 }

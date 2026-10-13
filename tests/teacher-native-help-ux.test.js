@@ -28,7 +28,7 @@ test("teacher explanations and Friend mode stay separate",()=>{
 });
 test("localized role promises and Android canonical contract revision",()=>{
  const contract=JSON.parse(read("contracts/crew-teacher/v1.json"));
- assert.equal(contract.revision,"2026-10-13.9");
+ assert.equal(contract.revision,"2026-10-14.1");
  assert.equal(contract.rules.teacherLanguageSupport.nativeLanguageQuestionsWelcomed,true);
  assert.equal(contract.rules.friends.chatModeSurvivesReconnect,true);
  for(const lang of ["en","zh-TW"]){
