@@ -105,6 +105,17 @@ export function editFriendTopic(id:string,language:string,topicId:string,newTitl
  note.manual=true;note.updatedAt=Date.now();
  saveTopics(id,language,topics);bump();return true;
 }
+/** Legacy pins were marked manual; allow explicit opt-in to AI updates without overwriting edits silently. */
+export function allowFriendTopicAutoUpdate(id:string,language:string,topicId:string){
+ if(!friendMemoryEnabled()||!validFriend(id))return false;
+ const topics=getFriendTopics(id,language);
+ const topic=topics.find(t=>t.id===topicId);
+ if(!topic)return false;
+ topic.manual=false;
+ saveTopics(id,language,topics);
+ bump();emitMemoryChange();
+ return true;
+}
 export function deleteFriendTopic(id:string,language:string,topicId:string){
  if(!validFriend(id))return;
  bump();saveTopics(id,language,getFriendTopics(id,language).filter(t=>t.id!==topicId));
