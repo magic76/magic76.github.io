@@ -23,13 +23,13 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
 check("ten static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
- const inlineCss=root.match(/<style data-crew-react-css>([\\s\\S]*?)<\\/style>/);
+ const inlineCss=root.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
  const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>file.endsWith(".css"));
  assert.equal(cssFiles.length,1,"expected one Vite CSS bundle");
  const compiledCss=read("assets/"+cssFiles[0]);
  assert.ok(script,"missing app JS");assert.ok(inlineCss,"missing inline React stylesheet");
  assert.ok(compiledCss.length>10000&&compiledCss.includes(".global-nav"));
- assert.equal(inlineCss[1],compiledCss,"inlined stylesheet must exactly match the Vite CSS build");
+ assert.equal(inlineCss,compiledCss,"inlined stylesheet must exactly match the Vite CSS build");
  for(const locale of ["zh","en"])for(const slug of pages){
   const pathname=(locale==="en"?"en/":"")+(slug?slug+"/":"")+"index.html";
   const html=read(pathname);
@@ -38,9 +38,9 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('<html lang="'+(locale==="en"?"en":"zh-Hant")+'">'),pathname);
   assert.match(html,/<div id="root"><div class="seo-fallback">/);
   assert.ok(html.includes(script[1]),pathname);
-  const actualInline=html.match(/<style data-crew-react-css>([\\s\\S]*?)<\\/style>/);
+  const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
   assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
-  assert.equal(actualInline[1],compiledCss,"style is stale: "+pathname);
+  assert.equal(actualInline,compiledCss,"style is stale: "+pathname);
   assert.ok(html.includes('<h1>'),pathname);
   assert.ok(html.includes('hreflang="en"'),pathname);
   assert.ok(html.includes('hreflang="zh-Hant"'),pathname);
