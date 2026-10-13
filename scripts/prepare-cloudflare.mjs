@@ -1,3 +1,4 @@
+import {seoBootHead,seoBootShell} from "./seo-first-paint.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -65,8 +66,8 @@ const routes=[
  ["", ""],["teacher","teacher"],["story","story"],["fortune","fortune"],["research","research"]
 ];
 // Keep the fully designed SEO page visible while the React bundle loads.
-// The app removes this stylesheet only *after* React commits, so a failed JS
-// load can never strand visitors on an unstyled static page.
+// The app removes this stylesheet after React commits. The bootstrap shell
+// prevents a marketing-to-app flash, while preserving the non-JS landing.
 const fallbackStylesheet = '<link rel="stylesheet" href="/seo.css" data-crew-seo-fallback>';
 for(const locale of ["zh","en"]){
  for(const [name,slug] of routes){
@@ -89,7 +90,8 @@ for(const locale of ["zh","en"]){
   if(!marketing.includes("<main id=\"main\">")||!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO content: "+relative);
   const html=marketing
    .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\n  "+fallbackStylesheet+"\n  "+appTags)
-   .replace("<body>","<body>\n<div id=\"root\"><div class=\"seo-fallback\">")
+   .replace("</head>",seoBootHead()+"\n</head>")
+   .replace("<body>","<body>\n<div id=\"root\">"+seoBootShell({locale,product:name||"home"})+"\n<div class=\"seo-fallback\">")
    .replace("</body>","</div></div>\n</body>");
   const target=join(out,relative);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
  }
