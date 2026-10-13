@@ -76,20 +76,20 @@ export function useLiveSession(config:Config){
    const scheduleRescue=()=>{
     cancelRescue();
     const kind=configRef.current.conversationFlow;
-    if(!kind||rescueCountRef.current>=2)return;
+    if(!kind||rescueCountRef.current>=2||!cadenceRef.current.shouldRescue())return;
     rescueTimerRef.current=window.setTimeout(()=>{
      rescueTimerRef.current=null;
-     if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted)return;
+     if(sessionRef.current!==session||!session.ready||!session.running||session.micMuted||awaitingTutorRef.current||!cadenceRef.current.shouldRescue())return;
      const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
-     if(session.sendControl?.(cadenceRef.current.rescue(kind)+directive))
+     if(session.sendControl?.(cadenceRef.current.rescue(kind,rescueCountRef.current)+directive))
       rescueCountRef.current+=1;
-    },rescueCountRef.current===0?14000:20000);
+    },cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind));
    };
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     manualInterruptOnly:true,maxLiveAttempts:2,maxResumeAttempts:2,
     onStatus:v=>setStatus(uiMessage(v)),
-    onState:v=>{if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
+    onState:v=>{if(v==="connecting"||v==="error")cancelRescue();if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},

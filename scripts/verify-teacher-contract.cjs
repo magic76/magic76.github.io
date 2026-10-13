@@ -72,18 +72,33 @@ function validate(){
  for(const value of ["pivotAfterShortReplies","pivotAfterConsecutiveQuestions","firstSilenceMs","secondSilenceMs","maxSilentRescueNudges"]){
   if(!Number.isInteger(cadence[value])||cadence[value]<1)fail("Invalid cadence value: "+value);
  }
+ if(cadence.topicContinuationHook!==true||cadence.noNudgeAfterGoodbye!==true)
+  fail("Topic continuation and farewell boundaries are required");
+ for(const value of ["lowEngagementFirstSilenceMs","highEngagementFirstSilenceMs"]){
+  if(!Number.isInteger(cadence[value])||cadence[value]<1)fail("Invalid cadence value: "+value);
+ }
  const checks=platform==="android"?[
   ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
    "shortReplyStreak >= "+cadence.pivotAfterShortReplies+" || questionStreak >= "+cadence.pivotAfterConsecutiveQuestions],
-  ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
-   "? "+cadence.firstSilenceMs+"L : "+cadence.secondSilenceMs+"L"],
+  ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+   "if (rescueLevel > 0) return "+cadence.secondSilenceMs+"L"],
+  ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+   "if (needsPivot()) return "+cadence.lowEngagementFirstSilenceMs+"L"],
+  ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java",
+   "return detailedReplyStreak > 0 ? "+cadence.highEngagementFirstSilenceMs+"L : "+cadence.firstSilenceMs+"L"],
+  ["app/src/main/java/com/crewpocket/teacher/ConversationFlowPolicy.java","boolean shouldRescue() { return !ended; }"],
+  ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java","freeChatFlow.silenceDelayMs(silenceRescueLevel)"],
   ["app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
    "silenceRescueLevel >= "+cadence.maxSilentRescueNudges]
  ]:[
   ["web-spa/src/live/conversationFlow.ts",
    "this.shortReplies>="+cadence.pivotAfterShortReplies+"||this.questions>="+cadence.pivotAfterConsecutiveQuestions],
-  ["web-spa/src/live/useLiveSession.ts",
-   "rescueCountRef.current===0?"+cadence.firstSilenceMs+":"+cadence.secondSilenceMs],
+  ["web-spa/src/live/conversationFlow.ts","if(attempt>0)return "+cadence.secondSilenceMs],
+  ["web-spa/src/live/conversationFlow.ts","if(this.needsPivot())return "+cadence.lowEngagementFirstSilenceMs],
+  ["web-spa/src/live/conversationFlow.ts",
+   "return this.detailedReplies>0?"+cadence.highEngagementFirstSilenceMs+":"+cadence.firstSilenceMs],
+  ["web-spa/src/live/conversationFlow.ts","shouldRescue(){return !this.ended}"],
+  ["web-spa/src/live/useLiveSession.ts","cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind)"],
   ["web-spa/src/live/useLiveSession.ts",
    "rescueCountRef.current>="+cadence.maxSilentRescueNudges]
  ];

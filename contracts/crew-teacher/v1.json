@@ -12,10 +12,14 @@
       "questionRequiredEachTurn": false,
       "pivotAfterShortReplies": 2,
       "pivotAfterConsecutiveQuestions": 3,
-      "firstSilenceMs": 14000,
-      "secondSilenceMs": 20000,
+      "firstSilenceMs": 9000,
+      "secondSilenceMs": 16000,
       "maxSilentRescueNudges": 2,
-      "sessionCadenceIsEphemeral": true
+      "sessionCadenceIsEphemeral": true,
+      "lowEngagementFirstSilenceMs": 8000,
+      "highEngagementFirstSilenceMs": 11000,
+      "noNudgeAfterGoodbye": true,
+      "topicContinuationHook": true
     },
     "friends": {
       "inCharacter": true,
@@ -172,7 +176,8 @@
           "contains": [
             "Questions are OPTIONAL",
             "shortReplyStreak >= 2 || questionStreak >= 3",
-            "never turn into a tutor"
+            "never turn into a tutor",
+            "conversational hook"
           ]
         }
       ],
@@ -182,7 +187,8 @@
           "contains": [
             "You do NOT have to ask a question",
             "this.shortReplies>=2||this.questions>=3",
-            "NEVER switch to teaching"
+            "NEVER switch to teaching",
+            "conversational hook"
           ]
         }
       ]
@@ -319,8 +325,8 @@
           "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
           "contains": [
             "silenceRescueLevel >= 2",
-            "14000L",
-            "20000L"
+            "freeChatFlow.silenceDelayMs(silenceRescueLevel)",
+            "freeChatFlow.shouldRescue()"
           ]
         }
       ],
@@ -329,7 +335,7 @@
           "path": "web-spa/src/live/useLiveSession.ts",
           "contains": [
             "rescueCountRef.current>=2",
-            "14000:20000",
+            "cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind)",
             "sendControl"
           ]
         },
