@@ -159,7 +159,8 @@
           "contains": [
             "Questions are OPTIONAL",
             "shortReplyStreak >= 2 || questionStreak >= 3",
-            "never turn into a tutor"
+            "never turn into a tutor",
+            "conversational hook"
           ]
         }
       ],
@@ -169,7 +170,8 @@
           "contains": [
             "You do NOT have to ask a question",
             "this.shortReplies>=2||this.questions>=3",
-            "NEVER switch to teaching"
+            "NEVER switch to teaching",
+            "conversational hook"
           ]
         }
       ]
@@ -306,8 +308,8 @@
           "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
           "contains": [
             "silenceRescueLevel >= 2",
-            "14000L",
-            "20000L"
+            "freeChatFlow.silenceDelayMs(silenceRescueLevel)",
+            "freeChatFlow.shouldRescue()"
           ]
         }
       ],
@@ -316,7 +318,7 @@
           "path": "web-spa/src/live/useLiveSession.ts",
           "contains": [
             "rescueCountRef.current>=2",
-            "14000:20000",
+            "cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind)",
             "sendControl"
           ]
         },
