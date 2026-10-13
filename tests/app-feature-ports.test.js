@@ -158,7 +158,7 @@ test("Teacher Web mirrors native selectable tutor profiles",()=>{
  const tutor=fs.readFileSync(path.join(root,"web-spa/src/teacher/TutorPage.tsx"),"utf8");
  const live=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  for(const name of ["Emma","Alex","James","Mia","Sophie","Lina"])assert.ok(profiles.includes('name:"'+name+'"'),"missing tutor "+name);
- for(const voice of ["Kore","Hyperion","Prospero","Leda","Callisto","Europa"])assert.ok(profiles.includes('recommendedVoice:"'+voice+'"'),"missing recommended voice "+voice);
+ for(const voice of ["Sulafat","Sadachbia","Algieba","Leda","Gacrux","Callirrhoe"])assert.ok(profiles.includes('recommendedVoice:"'+voice+'"'),"missing recommended voice "+voice);
  assert.ok(store.includes("teacherProfile"));
  assert.ok(store.includes("setTeacherProfile"));
  assert.ok(store.includes("profile.recommendedVoice"),"changing tutor should apply the recommended voice");
