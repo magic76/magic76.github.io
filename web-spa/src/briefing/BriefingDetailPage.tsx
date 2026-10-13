@@ -25,10 +25,10 @@ export function BriefingDetailPage(){
  },[date,id]);
  function change(patch:Partial<LocalReview>){setReview(updateReview(id,patch)[id])}
  if(loading)return <div className="briefing briefing-empty">正在載入文章…</div>;
- if(!item)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/briefing">返回每日研究</Link></div>;
+ if(!item)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
  const done=getStatus(review)==="finished"||getStatus(review)==="adopted";
  return <article className="briefing briefing-detail">
-  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/briefing">← 返回每日研究</Link></nav>
+  <nav className="briefing-breadcrumb" aria-label="返回"><Link to="/research">← 返回每日研究</Link></nav>
   <header className="briefing-detail-head">
    <div className="briefing-detail-meta"><span className="briefing-topic">{item.topic}</span><span>{sourceDate(item.publishedAt)}</span><span>{item.sources.length} 個來源</span></div>
    <h1>{item.title}</h1>
@@ -55,7 +55,7 @@ export function BriefingDetailPage(){
     <details className="briefing-notes"><summary>我的筆記（選填）</summary>
       <textarea aria-label="我的研究筆記" value={review.notes||""} onChange={e=>change({notes:e.target.value})} placeholder="記下值得回頭看的想法…" rows={4}/>
     </details>
-    <Link className="briefing-side-link" to="/briefing/board">前往我的閱讀清單 →</Link>
+    <Link className="briefing-side-link" to="/research/board">前往我的閱讀清單 →</Link>
    </div>
   </aside></div>
  </article>;
