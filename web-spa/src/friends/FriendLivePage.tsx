@@ -1,3 +1,4 @@
+import {buildAccentPrompt} from "../teacher/teacherAccent";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
@@ -18,8 +19,9 @@ export function FriendLivePage(){
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
- const system=useMemo(()=>buildFriendSystem(friend,language),[friend,language]);
+ const system=useMemo(()=>buildFriendSystem(friend,language)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,region,accentStrength,customAccent]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language),[language]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,

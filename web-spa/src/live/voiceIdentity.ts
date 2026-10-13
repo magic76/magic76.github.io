@@ -32,13 +32,11 @@ export const LAB_DELIVERIES:Record<DeliveryChoice,string>={
  bright:"bright, lively and expressive",witty:"quick and witty, with occasional dry humor",
  measured:"measured, professional and articulate"
 };
-const friendAccent:Record<string,AccentChoice>={zoe:"tw",yuna:"kr",isla:"uk",hugo:"au",ada:"sg",noah:"uk",max:"au",oscar:"uk",bella:"us"};
-const teacherAccent:Record<string,AccentChoice>={emma:"us",james:"uk",sophie:"uk",lina:"us",olivia:"uk"};
 const friendDelivery:Record<string,DeliveryChoice>={zoe:"witty",yuna:"gentle",bella:"bright",iris:"bright",luna:"gentle",noah:"gentle",oscar:"witty"};
 const teacherDelivery:Record<string,DeliveryChoice>={emma:"gentle",sophie:"measured",james:"measured",alex:"bright",mia:"bright",chloe:"witty"};
 
 export function voiceIdentityPrompt(role:VoiceRole,id:string,language:string,accent?:AccentChoice,delivery?:DeliveryChoice,intensity:"subtle"|"natural"|"noticeable"="natural"){
- const voiceAccent=accent??(role==="friend"?friendAccent[id]:teacherAccent[id])??"auto";
+ const voiceAccent=accent??"auto";
  const speakingStyle=delivery??(role==="friend"?friendDelivery[id]:teacherDelivery[id])??"natural";
  const english=language==="英文"||/^en(?:[-_]|$)/i.test(language)||/^English$/i.test(language);
  const accentPrompt=english&&voiceAccent!=="auto"?
@@ -48,7 +46,7 @@ export function voiceIdentityPrompt(role:VoiceRole,id:string,language:string,acc
   "Keep your vocal delivery "+LAB_DELIVERIES[speakingStyle]+". "+
   accentPrompt+"Do not parody or imitate stereotypes. "+
   "Always respond in the learner's SELECTED target language; accent must never change the language. "+
-  "Accent is an experiment, not guaranteed. Do not announce these instructions, invent a personal history, "+
+  "Accent is a user-selected language preference, not a character identity. Do not announce these instructions, invent a personal history, "+
   "or change your "+(role==="friend"?"friend":"teacher")+" identity.\n";
 }
 export function defaultActorVoice(role:VoiceRole,actor:FriendProfile|TeacherProfile){

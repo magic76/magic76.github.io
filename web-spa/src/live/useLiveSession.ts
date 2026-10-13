@@ -1,3 +1,4 @@
+import {useTeacherStore} from "../store/teacherStore";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch}from"../teacher/studentMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
@@ -85,9 +86,15 @@ export function useLiveSession(config:Config){
       rescueCountRef.current+=1;
     },cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind));
    };
+   // Only Crew Teacher/Friends and their Voice Lab use this experimental selection.
+   // Crew Story/Fortune keep their existing automatic fallback behavior.
+   const teacherVoiceSession=configRef.current.pageKey==="teacher"
+     ||configRef.current.pageKey==="voice-lab"
+     ||configRef.current.pageKey.startsWith("friend-");
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
-    manualInterruptOnly:true,maxLiveAttempts:2,maxResumeAttempts:2,
+    models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
+    manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{if(v==="connecting"||v==="error")cancelRescue();if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},

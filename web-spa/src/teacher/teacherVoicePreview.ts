@@ -1,3 +1,4 @@
+import {useTeacherStore} from "../store/teacherStore";
 import {normalizeLiveVoice,voiceIdentityPrompt} from "../live/voiceIdentity";
 import{geminiKey}from"../lib/runtime";
 import type{TeacherProfile}from"./teacherProfiles";
@@ -65,7 +66,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
   try{
    ctx=new AudioCtor({sampleRate:48000});await ctx.resume();
    if(closed)return;
-   const model="gemini-3.8-live";
+   const model=useTeacherStore.getState().liveModel;
    socket=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(key));
    socket.onopen=()=>{
     if(closed)return;

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.3",
+  "revision": "2026-10-13.4",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -49,7 +49,14 @@
       "accentDoesNotOverrideSelectedLanguage": true,
       "voiceLabAndroidDebugOnly": true,
       "voiceLabWebOptIn": true,
-      "ratingsStoredLocally": true
+      "ratingsStoredLocally": true,
+      "languageNeutralCharacterAccent": true,
+      "modelSelector": [
+        "gemini-3.8-live",
+        "gemini-3.1-flash-live-preview"
+      ],
+      "explicitModelNoFallback": true,
+      "otherProductsRetainFallback": true
     }
   },
   "featureMatrix": [
@@ -377,8 +384,8 @@
         {
           "path": "app/src/main/java/com/crewpocket/teacher/VoiceIdentityPolicy.java",
           "contains": [
-            "SELECTED target language",
-            "Taiwanese-English"
+            "selected target language",
+            "Never infer an English accent"
           ]
         },
         {
@@ -394,7 +401,7 @@
           "path": "web-spa/src/live/voiceIdentity.ts",
           "contains": [
             "LIVE_VOICES",
-            "Taiwanese-influenced English accent",
+            "const voiceAccent=accent??\"auto\"",
             "SELECTED target language"
           ]
         },
@@ -417,6 +424,94 @@
             "teacherReport:false",
             "lab",
             "crew_voice_lab_ratings_v1"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "live_model_selection",
+      "why": "Explicit 3.8/3.1 choice is used by real sessions and previews in Android and Web; characters never force English accent",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/AppConfig.java",
+          "contains": [
+            "LIVE_MODEL_38",
+            "LIVE_MODEL_31",
+            "getLiveModel(Context context)",
+            "setLiveModel(Context context"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/MainActivity.java",
+          "contains": [
+            "showLiveModelDialog()",
+            "Gemini Live Model"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "AppConfig.getLiveModel(context)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/GeminiVoicePreviewClient.java",
+          "contains": [
+            "AppConfig.getLiveModel(app)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/VoiceIdentityPolicy.java",
+          "contains": [
+            "Never infer an English accent"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "if (!languageStylePrompt.isEmpty())"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/store/teacherStore.ts",
+          "contains": [
+            "LiveModel=",
+            "setLiveModel:v=>",
+            "validateLiveModel"
+          ]
+        },
+        {
+          "path": "web-spa/src/pages/SettingsPage.tsx",
+          "contains": [
+            "live-model-settings",
+            "gemini-3.1-flash-live-preview"
+          ]
+        },
+        {
+          "path": "web-spa/src/live/useLiveSession.ts",
+          "contains": [
+            "models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined",
+            "maxLiveAttempts:teacherVoiceSession?1:2"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/teacherVoicePreview.ts",
+          "contains": [
+            "useTeacherStore.getState().liveModel"
+          ]
+        },
+        {
+          "path": "web-spa/src/live/voiceIdentity.ts",
+          "contains": [
+            "const voiceAccent=accent??\"auto\""
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "buildAccentPrompt(language,region,accentStrength,customAccent)"
           ]
         }
       ]

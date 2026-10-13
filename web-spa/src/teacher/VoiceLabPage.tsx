@@ -1,3 +1,4 @@
+import {useTeacherStore} from "../store/teacherStore";
 import {useEffect,useMemo,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useLiveSession} from "../live/useLiveSession";
@@ -23,6 +24,7 @@ function readRatings():Record<string,Ratings>{
 export function VoiceLabPage(){
  const[params]=useSearchParams();
  const enabled=params.get("lab")==="1";
+ const liveModel=useTeacherStore(s=>s.liveModel);
  const[role,setRole]=useState<VoiceRole>("friend"),[actorId,setActorId]=useState("zoe");
  const[voice,setVoice]=useState("Leda"),[accent,setAccent]=useState<AccentChoice>("tw");
  const[style,setStyle]=useState<DeliveryChoice>("witty"),[strength,setStrength]=useState<Strength>("subtle");
@@ -68,6 +70,7 @@ export function VoiceLabPage(){
  return <main style={{maxWidth:960,margin:"32px auto",padding:20,color:"#172337",display:"grid",gap:18}}>
   <header><Link to="/teacher/roles">← Crew Teacher</Link><h1 style={{margin:"14px 0 5px"}}>Voice Lab <small style={{fontSize:14,fontWeight:400}}>Experimental · Gemini Live</small></h1>
    <p>同模型比較 30 種聲線、角色個性和英文口音。口音是提示控制，不保證精確呈現。試聽使用你自己的 Gemini Key 與配額。</p></header>
+  <p>目前 Live 模型：<strong>{liveModel}</strong> · <Link to="/settings#live-model-settings">到設定切換模型</Link>。模型設定會套用到下一次連線，測試不會暗中降級。</p>
   <section style={panelStyle}><h2 style={{fontSize:19,marginTop:0}}>1. 選擇角色與聲音</h2>
    <div style={rowStyle}>
     <label style={fieldStyle}>身分<select style={selectStyle} disabled={active} value={role} onChange={e=>{const next=e.target.value as VoiceRole;setRole(next);changeActor(next==="friend"?"zoe":"emma",next)}}><option value="friend">Crew 朋友</option><option value="teacher">Crew 老師</option></select></label>
