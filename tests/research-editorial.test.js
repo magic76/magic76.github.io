@@ -22,7 +22,7 @@ test("research SEO requires project-specific commentary, limits, and source refe
   const reasons=assessResearchQuality(excerpt).reasons;
   assert.ok(reasons.includes("copied_excerpt")&&reasons.includes("generic_application"),"raw excerpts and boilerplate must be excluded");
   assert.ok(assessResearchQuality({...detailed,sources:[]}).reasons.includes("missing_https_source"),"a source is required");
-  assert.ok(assessResearchQuality({...detailed,body:detailed.body.replace("研究限制：","")}).reasons.includes("missing_limitations"),"must identify limitations");
+  assert.ok(assessResearchQuality({...detailed,body:detailed.body.split("\n\n").slice(0,2).join("\n\n")}).reasons.includes("missing_limitations"),"must identify limitations");
  }
 });
 test("related articles are real published routes, not self links or guessed products",async()=>{
