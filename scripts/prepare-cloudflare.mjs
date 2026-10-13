@@ -62,6 +62,9 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
 const prerendered=await prerenderPublicRoutes(root);
+// Head fragments must be separated by real whitespace. A literal backslash-n
+// between tags makes the browser close <head> early and visibly render "\\n".
+const newline=String.fromCharCode(10);
 const routes=["","teacher","story","fortune","research"];
 const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
@@ -88,8 +91,8 @@ for(const locale of ["zh","en"]){
   const publicPath=normalizePath((locale==="en"?"/en":"")+path);
   const bodyTheme=slug==="teacher"?"teacher-theme":slug==="story"?"story-theme":slug==="fortune"?"fortune-theme":"";
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\\n  "+appTags)
-   .replace("</head>",dynamicGuard+"\\n</head>")
+   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags)
+   .replace("</head>",dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
   const target=join(out,relative);
