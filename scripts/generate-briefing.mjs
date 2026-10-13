@@ -79,6 +79,7 @@ export function select(candidates,history=[]){
  * A failed/absent key leaves a visible source-only brief (noindex by policy).
  */
 const hasChinese=(text,min)=>((String(text).match(/[\u3400-\u9fff]/g)||[]).length>=min);
+const cleanEditorialBody=(value)=>String(value||"").replace(/<[^>]*>/g," ").replace(/\r/g,"").replace(/[ \t]+/g," ").replace(/\n{3,}/g,"\n\n").trim().slice(0,2500);
 export async function enhance(items){
  const key=process.env.CREW_BRIEFING_GEMINI_KEY;
  if(!key||!items.length){if(!key)console.warn("CREW_BRIEFING_GEMINI_KEY unavailable; publishing source-only briefs (noindex)");return items}
@@ -111,7 +112,7 @@ export async function enhance(items){
    if(!draft||!hasChinese(draft.body,110)||!hasChinese(draft.summary,20)||!hasChinese(draft.relevance,30))
     return item;
    const edited={...item,summary:clean(draft.summary,500),relevance:clean(draft.relevance,600),
-    body:clean(draft.body,2500),
+    body:cleanEditorialBody(draft.body),
     actions:Array.isArray(draft.actions)?draft.actions.slice(0,3).map(x=>clean(x,230)).filter(Boolean):item.actions};
    // The SEO gate is shared by generation, site build and report.
    return assessResearchQuality(edited).indexable?edited:item;
