@@ -20,7 +20,8 @@ const pendingCaptures=new Map<string,Promise<void>>();
 const recentCaptures=new Map<string,{fingerprint:string;at:number;status:FriendCaptureStatus}>();
 const recentSaved=new Map<string,{status:"saved"|"updated";at:number}>();
 class MemoryCaptureError extends Error{
- constructor(readonly status:FriendCaptureStatus){super("Memory capture: "+status)}
+ readonly status:FriendCaptureStatus;
+ constructor(status:FriendCaptureStatus){super("Memory capture: "+status);this.status=status}
 }
 const fingerprint=(text:string)=>{
  let hash=2166136261;
