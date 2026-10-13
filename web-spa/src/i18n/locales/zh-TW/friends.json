@@ -71,5 +71,7 @@
     "error-network": "記憶整理連線失敗，請檢查網路。之前儲存的回憶不受影響。",
     "error-service": "Gemini 記憶整理服務暫時無法使用，請稍後再試。",
     "error-response": "Gemini 回傳的記憶資料格式異常，這次尚未新增回憶。"
-  }
+  },
+  "autoUpdate": "改由 AI 自動更新",
+  "autoUpdateConfirm": "允許 AI 在下次聊天後更新這個話題？之前手動修改的內容也可能被覆寫。"
 }
