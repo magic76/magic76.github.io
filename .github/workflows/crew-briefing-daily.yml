@@ -53,6 +53,9 @@ jobs:
             echo "Crew Briefing is already current"
           else
             git commit -m "chore(briefing): publish daily public report"
+            # Build only validates; discard unstaged compiled SPA output before rebasing.
+            git restore --worktree -- crew-app
+            git clean -fd -- crew-app/assets
             git pull --rebase origin master
             git push origin HEAD:master
           fi
