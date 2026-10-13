@@ -1,0 +1,31 @@
+name: Cloudflare clean-route preview build
+
+on:
+  pull_request:
+    paths:
+      - "web-spa/**"
+      - "scripts/prepare-cloudflare.mjs"
+      - "vite.web.config.ts"
+      - "package.json"
+      - "tests/cloudflare-deployment.test.js"
+      - ".github/workflows/cloudflare-clean-routes.yml"
+  workflow_dispatch:
+
+jobs:
+  cloudflare-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run check:web
+      - run: npm run build:cloudflare
+      - run: npm run test:cloudflare
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cloudflare-pages-preview
+          path: dist/
+          retention-days: 2
