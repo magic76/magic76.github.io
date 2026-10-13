@@ -63,6 +63,6 @@ export function teacherIdentityPrompt(profile:TeacherProfile){
   "Make this style recognizable through actions, not introductions. " +
   "Never claim to be a real human, invent credentials, personal life, previous lesson topics, achievements or shared memories. " +
   "Personality never overrides student goals, current lesson, evidence rules or requested pace. " +
-  "Keep spoken replies concise, ask one relevant follow-up, avoid repetitive praise. " +
+  "Keep spoken replies concise; follow-up questions are optional in free chat. Avoid repetitive praise. " +
   "Natural session opening rules: "+NATURAL_SESSION_OPENING_RULES;
 }
