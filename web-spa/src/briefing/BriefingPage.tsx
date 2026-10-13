@@ -3,16 +3,18 @@ import {Link} from "react-router-dom";
 import {fetchDay,fetchIndex,rankItems} from "./data";
 import {readReviews,updateReview} from "./storage";
 import type {BriefingDay,ReviewMap} from "./types";
+import {usePublicResearchSeed} from "./PublicResearchContext";
 
 const dateLabel=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString("zh-TW",{month:"long",day:"numeric",weekday:"short"});
 const sourceDate=(date:string)=>{const t=Date.parse(date);return Number.isFinite(t)?new Date(t).toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"}):""};
 export function BriefingPage(){
- const [dates,setDates]=useState<string[]>([]),[selected,setSelected]=useState(""),[day,setDay]=useState<BriefingDay|null>(null);
- const [busy,setBusy]=useState(true),[error,setError]=useState(""),[query,setQuery]=useState(""),[topic,setTopic]=useState("all"),[onlySaved,setOnlySaved]=useState(false);
+ const seed=usePublicResearchSeed();
+ const [dates,setDates]=useState<string[]>(seed?.index?.days||[]),[selected,setSelected]=useState(seed?.day?.date||""),[day,setDay]=useState<BriefingDay|null>(seed?.day||null);
+ const [busy,setBusy]=useState(!seed?.day),[error,setError]=useState(""),[query,setQuery]=useState(""),[topic,setTopic]=useState("all"),[onlySaved,setOnlySaved]=useState(false);
  const [reviews,setReviews]=useState<ReviewMap>({});
  useEffect(()=>setReviews(readReviews()),[]);
  useEffect(()=>{let alive=true;fetchIndex().then(index=>{if(!alive)return;setDates(index.days);setSelected(index.days[0]||"");setBusy(false)}).catch(e=>{if(alive){setError(String(e));setBusy(false)}});return()=>{alive=false}},[]);
- useEffect(()=>{if(!selected){setDay(null);return}let alive=true;setBusy(true);setError("");setTopic("all");fetchDay(selected).then(data=>{if(alive){setDay(data);setBusy(false)}}).catch(e=>{if(alive){setDay(null);setError(String(e));setBusy(false)}});return()=>{alive=false}},[selected]);
+ useEffect(()=>{if(!selected){setDay(null);return}if(day?.date===selected)return;let alive=true;setBusy(true);setError("");setTopic("all");fetchDay(selected).then(data=>{if(alive){setDay(data);setBusy(false)}}).catch(e=>{if(alive){setDay(null);setError(String(e));setBusy(false)}});return()=>{alive=false}},[selected,day?.date]);
  useEffect(()=>{const listener=()=>setReviews(readReviews());window.addEventListener("crew-briefing-updated",listener);return()=>window.removeEventListener("crew-briefing-updated",listener)},[]);
  const topics=useMemo(()=>[...new Set((day?.items||[]).map(item=>item.topic))].sort(),[day]);
  const filtered=useMemo(()=>rankItems(day?.items||[],query,topic,id=>!!reviews[id]?.saved,onlySaved),[day,query,topic,onlySaved,reviews]);
