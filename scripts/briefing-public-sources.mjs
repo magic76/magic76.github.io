@@ -57,7 +57,7 @@ export function parseReleaseNotes(releases,name){
   const lines=String(release.body||"").split(/\r?\n/).map(x=>textOnly(x,350))
     .filter(x=>x.length>=30&&signal.test(x));
   if(!lines.length)continue;
-  const title=name+" coding agent: "+lines[0].slice(0,130);
+  const title=name+" AI agent update: "+lines[0].slice(0,130);
   output.push({title,url,publishedAt:release.published_at,
    abstract:lines.slice(0,4).join(" ").slice(0,850),
    sourceTitle:name+" "+String(release.tag_name||"release").slice(0,70),
