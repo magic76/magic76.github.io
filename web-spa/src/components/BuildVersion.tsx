@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./build-version.css";
 
@@ -40,14 +40,13 @@ function formatTime(value: string | null, full: boolean, english: boolean): stri
   }).format(new Date(value));
 }
 
-/** Quiet corner badge; expands on demand. Not part of any route's scrolling layout. */
+/** Version information lives only in Settings, not as a global floating badge. */
 export function BuildVersion() {
   const { i18n } = useTranslation();
   const english = i18n.resolvedLanguage?.startsWith("en") ?? false;
   const [ready, setReady] = useState(false);
   const [latest, setLatest] = useState<BuildInfo | null>(null);
   const [expanded, setExpanded] = useState(false);
-  const anchor = useRef<HTMLDivElement>(null);
   const outdated = Boolean(currentBuild.buildId && latest?.buildId && latest.buildId !== currentBuild.buildId);
   const c = english ? {
     label: "Updated", unknown: "Build info", development: "Development",
@@ -55,14 +54,16 @@ export function BuildVersion() {
     builtAt: "Build time", version: "Version", commit: "Commit", environment: "Environment",
     status: "Status", current: "Latest version", unverified: "Not checked yet",
     old: "Update available", refresh: "Refresh to update", latestAt: "Latest build",
-    timezone: "Taipei time (UTC+8)", missing: "Unavailable"
+    timezone: "Taipei time (UTC+8)", missing: "Unavailable",
+    showDetails: "Details", hideDetails: "Hide details"
   } : {
     label: "更新", unknown: "版本資訊", development: "開發版本",
     available: "有新版本", details: "網站版本資訊", close: "關閉",
     builtAt: "建置時間", version: "版本", commit: "Git Commit", environment: "環境",
     status: "更新狀態", current: "已是最新版本", unverified: "尚未確認",
     old: "偵測到新版本", refresh: "重新整理以更新", latestAt: "最新建置",
-    timezone: "台灣時間 (UTC+8)", missing: "無資料"
+    timezone: "台灣時間 (UTC+8)", missing: "無資料",
+    showDetails: "查看詳細資訊", hideDetails: "收起詳細資訊"
   };
   const builtTime = ready ? formatTime(currentBuild.builtAt, false, english) : null;
 
@@ -102,27 +103,25 @@ export function BuildVersion() {
     };
   }, []);
 
-  useEffect(() => {
-    if (!expanded) return;
-    const onOutside = (event: PointerEvent) => {
-      if (!anchor.current?.contains(event.target as Node)) setExpanded(false);
-    };
-    const onEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setExpanded(false);
-    };
-    document.addEventListener("pointerdown", onOutside);
-    document.addEventListener("keydown", onEscape);
-    return () => {
-      document.removeEventListener("pointerdown", onOutside);
-      document.removeEventListener("keydown", onEscape);
-    };
-  }, [expanded]);
-
-  return <div ref={anchor} className="crew-build-anchor">
-    {expanded && <section className="crew-build-popover" id="crew-build-details" aria-label={c.details}>
-      <div className="crew-build-heading"><strong>{c.details}</strong>
-        <button type="button" aria-label={c.close} onClick={() => setExpanded(false)}>×</button>
+  return <section className="section panel crew-build-section" aria-label={c.details}>
+    <div className="section-head crew-build-heading">
+      <h2>{c.details}</h2>
+      <small>{currentBuild.environment}</small>
+    </div>
+    <div className="crew-build-row">
+      <div className="crew-build-overview">
+        <strong>
+          <span className={"crew-build-dot" + (outdated ? " has-update" : "")} aria-hidden="true"/>
+          {outdated ? c.available : builtTime ? c.label + " " + builtTime : currentBuild.environment === "Development" && ready ? c.development : c.unknown}
+        </strong>
+        <span className="crew-build-status">{outdated ? c.old : latest ? c.current : c.unverified}</span>
       </div>
+      <button type="button" className="crew-build-toggle" aria-expanded={expanded} aria-controls="crew-build-details" onClick={() => setExpanded(v => !v)}>
+        {expanded ? c.hideDetails : c.showDetails}
+      </button>
+    </div>
+    {outdated && <button type="button" className="crew-build-refresh" onClick={() => window.location.reload()}>{c.refresh} ↗</button>}
+    <div id="crew-build-details" className="crew-build-details" hidden={!expanded}>
       <dl>
         <dt>{c.builtAt}</dt><dd>{formatTime(currentBuild.builtAt, true, english) || c.missing}<small>{c.timezone}</small></dd>
         <dt>{c.version}</dt><dd>{currentBuild.version || currentBuild.buildId || c.development}</dd>
@@ -131,12 +130,6 @@ export function BuildVersion() {
         <dt>{c.status}</dt><dd>{outdated ? c.old : latest ? c.current : c.unverified}</dd>
         {outdated && <><dt>{c.latestAt}</dt><dd>{formatTime(latest?.builtAt || null, true, english) || c.missing}</dd></>}
       </dl>
-      {outdated && <button type="button" className="crew-build-refresh" onClick={() => window.location.reload()}>{c.refresh} ↗</button>}
-    </section>}
-    <button type="button" className={"crew-build-badge" + (outdated ? " has-update" : "")}
-      aria-expanded={expanded} aria-controls="crew-build-details" onClick={() => setExpanded(v => !v)}>
-      <span className="crew-build-dot" aria-hidden="true"/>
-      {outdated ? c.available : builtTime ? c.label + " " + builtTime : currentBuild.environment === "Development" && ready ? c.development : c.unknown}
-    </button>
-  </div>;
+    </div>
+  </section>;
 }
