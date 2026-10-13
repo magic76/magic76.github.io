@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.7",
+  "revision": "2026-10-13.8",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -86,7 +86,11 @@
       "nativeLanguageQuestionsWelcomed": true,
       "responseScaffoldingVariesBySpeakingLevel": true,
       "modeSpecificUxPromise": true,
-      "noManualLanguageRatio": true
+      "noManualLanguageRatio": true,
+      "a1SpokenNativeScaffoldingFromFirstTurn": true,
+      "nativeHelpAppliesToNaturalChat": true,
+      "nativeQuestionsAnsweredInNativeWhenNotImmersion": true,
+      "levelOverridesTargetFirstExceptImmersion": true
     }
   },
   "featureMatrix": [
@@ -602,6 +606,48 @@
           ]
         }
       ]
+    },
+    {
+      "id": "teacher_native_support_spoken",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/TeacherLanguageGuidance.java",
+          "contains": [
+            "START the first spoken turn",
+            "In natural chat as well as focused practice",
+            "This native-language help MUST be audible speech"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "A1/A2 should audibly explain"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/teacherLanguage.ts",
+          "contains": [
+            "A1 SPOKEN NATIVE SUPPORT",
+            "teacherLanguageReminder"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/teacherLanguageGuidance.ts",
+          "contains": [
+            "A1: Start the first spoken turn",
+            "natural chat"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/LivePage.tsx",
+          "contains": [
+            "s.learnerSpeakingLevel",
+            "openingPrompt:languageDirective"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -682,6 +728,22 @@
     {
       "id": "friend_role_independence",
       "steps": "Zoe keeps her persona and selected natural/bilingual/immersion language mode, without unsolicited coaching, across reconnect; teacher level changes do not affect friend.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "a1_native_natural_spoken",
+      "steps": "Teacher with Chinese native, English target, A1 speaking + natural chat + bilingual guidance: first spoken answer contains Chinese help and one short English model. Ask 這句話是什麼意思？ and expect Chinese meaning explanation before English practice, also after reconnect.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "a1_full_immersion_override",
+      "steps": "Teacher with Chinese native, English target, A1 speaking, explicit full immersion: all spoken replies remain English (Chinese questions and reconnect included).",
       "platforms": [
         "android",
         "web"
