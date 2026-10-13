@@ -13,7 +13,7 @@ import "./friends.css";
 
 export function FriendLivePage(){
  const [params]=useSearchParams();
- const navigate=useNavigate(),closingRef=useRef(false),memoryCheckpointRef=useRef(false);
+ const navigate=useNavigate(),closingRef=useRef(false),lastCheckpointTurnRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -27,12 +27,14 @@ export function FriendLivePage(){
    " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
   voice:friend.voice,language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  onTurnComplete:()=>{
-   if(memoryCheckpointRef.current)return;
-   const snapshot=live.turns;
-   if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
-   memoryCheckpointRef.current=true;
-   void rememberFriendConversation(sessionId,language,snapshot,live.durationMs);
+  onTurnComplete:(_turn,latestTurns)=>{
+   // The complete Live turn is available before React has rendered updated `live.turns`.
+   // Checkpoint after the first meaningful exchange, then every 3 learner turns.
+   const learnerTurns=latestTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
+   if(!learnerTurns||learnerTurns<=lastCheckpointTurnRef.current||
+     (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
+   lastCheckpointTurnRef.current=learnerTurns;
+   void rememberFriendConversation(sessionId,language,latestTurns,0);
   },
   onSessionFinished:item=>{
    if(!item)return;
