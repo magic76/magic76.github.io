@@ -134,7 +134,7 @@ export function HomePage(){
     <section className="crew-home-products" aria-label="探索 Crew 產品">
      <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
      <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" to="/teacher/practice">
+      <Link className="crew-home-product crew-home-teacher" to="/teacher">
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
