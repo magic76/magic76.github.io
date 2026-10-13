@@ -56,7 +56,7 @@ test("global navigation always exposes all five tabs including Settings",()=>{
  const app=read("App.tsx"),chrome=read("components/AppChrome.tsx"),styles=read("styles.css"),motion=read("motion.css");
  assert.ok(app.includes('path="/settings"'));
  assert.ok(chrome.includes('["home","teacher","story","fortune","settings"]'));
- for(const route of ['to="/"','to="/teacher/practice"','to="/story"','to="/fortune"','to="/settings"'])assert.ok(chrome.includes(route),"missing global link "+route);
+ for(const route of ['to="/"','to="/teacher"','to="/story"','to="/fortune"','to="/settings"'])assert.ok(chrome.includes(route),"missing global link "+route);
  assert.ok(chrome.includes('active==="settings"'));
  assert.ok(styles.includes("grid-template-columns:repeat(5,minmax(0,1fr))"));
  assert.ok(motion.includes("width:20%"),"sliding indicator should match five tabs");

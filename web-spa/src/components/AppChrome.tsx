@@ -34,7 +34,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
 }
 export function GlobalNav({active}:{active:Product}){const {t}=useTranslation("common");const index=["home","teacher","story","fortune","settings"].indexOf(active);return <nav className="global-nav" aria-label="主要導覽"><div className="inner"><span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"} style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
  <NavLink className={"navitem "+(active==="home"?"active":"")} to="/"><span className="nav-icon"><Icon name="home"/></span><span>{t("nav.home")}</span></NavLink>
- <NavLink className={"navitem "+(active==="teacher"?"active":"")} to="/teacher/practice"><span className="nav-icon"><Icon name="teacher"/></span><span>{t("nav.teacher")}</span></NavLink>
+ <NavLink className={"navitem "+(active==="teacher"?"active":"")} to="/teacher"><span className="nav-icon"><Icon name="teacher"/></span><span>{t("nav.teacher")}</span></NavLink>
  <NavLink className={"navitem "+(active==="story"?"active":"")} to="/story"><span className="nav-icon"><Icon name="story"/></span><span>{t("nav.story")}</span></NavLink>
  <NavLink className={"navitem "+(active==="fortune"?"active":"")} to="/fortune"><span className="nav-icon"><Icon name="fortune"/></span><span>{t("nav.fortune")}</span></NavLink>
  <NavLink className={"navitem "+(active==="settings"?"active":"")} to="/settings"><span className="nav-icon"><Icon name="settings"/></span><span>{t("nav.settings")}</span></NavLink>

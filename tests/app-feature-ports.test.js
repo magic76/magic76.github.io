@@ -126,7 +126,8 @@ test("React build toolchain is the primary Web toolchain",()=>{
  assert.ok(pkg.scripts["build:web"]);
  const config=fs.readFileSync(path.join(root,"vite.web.config.ts"),"utf8");
  assert.ok(config.includes('root: "web-spa"'));
- assert.ok(config.includes('outDir: "../crew-app"'));
+ assert.ok(config.includes('"../crew-app"'),"keep legacy GitHub Pages build");
+ assert.ok(config.includes('"../dist"'),"Cloudflare build should serve the React app from root");
 });
 
 
@@ -618,7 +619,7 @@ test("Crew Web hides implementation details from primary product UI",()=>{
 test("Crew home separates product entry from default-expanded Android downloads",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
- assert.ok(home.includes('to="/teacher/practice"'));
+ assert.ok(home.includes('to="/teacher"'));
  assert.ok(home.includes('to="/story"'));
  assert.ok(home.includes('to="/fortune"'));
  assert.ok(home.includes('<details className="crew-home-android" open>'));
@@ -676,7 +677,7 @@ test("Crew home shows real dated Briefing content and keeps its route distinct",
  assert.ok(home.includes('rankItems(day.items,"","all"'));
  assert.ok(home.includes("edition?.item?.title"));
  assert.ok(home.includes("latestDate(edition.day.date)"));
- assert.ok(home.includes('to="/briefing/board"'));
+ assert.ok(home.includes('to="/research/board"'));
  assert.ok(app.includes('<AppChrome product="briefing"><BriefingPage/>'));
  assert.ok(chrome.includes('briefing:["C","Crew Briefing","每日研發情報"]'));
 });

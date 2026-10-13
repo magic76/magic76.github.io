@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter, HashRouter } from "react-router-dom";
 import "../../features/shared/design-system.css";
 import "../../features/teacher/styles.css";
 import "../../features/teacher/practice/styles.css";
@@ -20,10 +20,13 @@ import { App } from "./App";
 const root = document.getElementById("root");
 if (!root) throw new Error("Crew root not found");
 
+// Dual deployment during migration: GitHub Pages retains legacy links;
+// Cloudflare serves clean BrowserRouter URLs from the website root.
+const legacy = window.location.pathname.startsWith("/crew-app/");
+const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname) ? "/en" : undefined;
+
 createRoot(root).render(
   <React.StrictMode>
-    <HashRouter>
-      <App />
-    </HashRouter>
+    {legacy ? <HashRouter><App /></HashRouter> : <BrowserRouter basename={languagePrefix}><App /></BrowserRouter>}
   </React.StrictMode>
 );

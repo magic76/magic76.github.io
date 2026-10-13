@@ -77,14 +77,14 @@ function BriefingPreview(){
  },[]);
  return <section className="crew-home-briefing" aria-label="每日研發情報">
   <div className="crew-home-section-heading"><span>CREW BRIEFING</span><span>{t("briefing.heading")}</span></div>
-  <Link className="crew-home-briefing-card" to="/briefing">
+  <Link className="crew-home-briefing-card" to="/research">
    <span className="crew-home-briefing-top"><span className="crew-home-briefing-emblem" aria-hidden="true"><Icon name="sparkles"/></span><span className="crew-home-briefing-date">{edition?latestDate(edition.day.date):unavailable?t("briefing.report"):t("briefing.loading")}</span></span>
    <strong>{edition?.item?.title||t("briefing.today")}</strong>
    <p>{edition?.item?.summary||t("briefing.summary")}</p>
    {edition?.item?.projects?.length?<span className="crew-home-briefing-tags">{edition.item.projects.slice(0,2).map(tag=><span key={tag}>{tag}</span>)}</span>:null}
    <span className="crew-home-card-cta">{t("briefing.read")} <span aria-hidden="true">↗</span></span>
   </Link>
-  <Link className="crew-home-briefing-board" to="/briefing/board">{t("briefing.readingList")} <span aria-hidden="true">→</span></Link>
+  <Link className="crew-home-briefing-board" to="/research/board">{t("briefing.readingList")} <span aria-hidden="true">→</span></Link>
  </section>;
 }
 
@@ -134,7 +134,7 @@ export function HomePage(){
     <section className="crew-home-products" aria-label="探索 Crew 產品">
      <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
      <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" to="/teacher/practice">
+      <Link className="crew-home-product crew-home-teacher" to="/teacher">
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
