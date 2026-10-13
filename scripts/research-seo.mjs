@@ -10,7 +10,7 @@ export const safeJson=value=>JSON.stringify(value).replace(/</g,"\\u003c").repla
 
 /** Only editorial pages with enough original analysis enter search indexing. */
 export function indexableArticle(item){
- return typeof item.body==="string"&&item.body.trim().length>=350
+ return typeof item.body==="string"&&item.body.trim().length>=270
   &&typeof item.relevance==="string"&&item.relevance.trim().length>=75
   &&Array.isArray(item.sources)&&item.sources.some(s=>/^https:\/\//.test(s?.url||""));
 }
