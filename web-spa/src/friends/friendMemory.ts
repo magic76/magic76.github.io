@@ -238,10 +238,12 @@ async function captureFriendConversation(id:string,language:string,turns:LiveTur
   if(savePersonal&&personalMemoryEnabled()&&getPersonalMemoryEpoch()===personalEpoch)
    ingestStudentPersonalUpdates(language,extracted.memory_updates,speech,personalEpoch);
  }catch(error){
-  const message=error instanceof Error?error.message:"";
+  // Cross-realm errors (e.g. an injected runtime) do not always pass instanceof.
+  const detail=error as {name?:string;message?:string}|null;
+  const message=String(detail?.message||"");
   const status:FriendCaptureStatus=error instanceof MemoryCaptureError?error.status:
-   error instanceof SyntaxError?"error-response":
-   error instanceof TypeError||/network|failed to fetch|timeout/i.test(message)?"error-network":"error";
+   detail?.name==="SyntaxError"?"error-response":
+   detail?.name==="TypeError"||/network|failed to fetch|timeout/i.test(message)?"error-network":"error";
   if(saveTopicsEnabled&&friendMemoryEnabled()&&epoch()===consentEpoch)
    captureFinished(id,language,token,status);
  }
