@@ -83,7 +83,9 @@ check("React SSG hydration keeps one app and uses client-side routing for deep l
  assert.ok(!r.includes('data-crew-seo-fallback'),"SSG must not load a separate SEO CSS");
  const en=read("en/teacher/index.html");
  assert.ok(en.includes('data-crew-ssg-path="/en/teacher"'));
- assert.notEqual(r.match(/<h1[^>]*>([\\s\\S]*?)<\\/h1>/)?.[1],en.match(/<h1[^>]*>([\\s\\S]*?)<\\/h1>/)?.[1],"expected localized product heading");
+ const headline=html=>html.split("<h1>")[1]?.split("</h1>")[0];
+ assert.ok(headline(r)&&headline(en),"SSR must include product h1");
+ assert.notEqual(headline(r),headline(en),"localized headings must differ");
 });
 check("old HashRouter links resolve to clean URLs with query strings",()=>{
  const html=read("crew-app/index.html");
