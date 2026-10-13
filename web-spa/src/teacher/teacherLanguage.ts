@@ -9,7 +9,7 @@ export function teacherLanguageRule(target:string,native:NativeLanguage,mode:Tea
   ?"Only "+spoken+" is permitted in speech, including after reconnect."
   :mode==="beginner"
    ?"Speak mainly "+spoken+" when modeling target phrases. You may explain briefly in "+support+" for beginner support."
-   :"Speak mainly "+spoken+". Use only brief "+support+" explanations when the learner asks for help or genuinely struggles.";
+   :"Use "+spoken+" for examples and practice; adapt the amount of "+support+" explanation to selected speaking level and demonstrated comprehension. Never switch to a third language.";
  return "[CREW TEACHER SPOKEN LANGUAGE — session priority, applies to every turn and reconnect]\n"+
   "Selected target language is "+spoken+". "+scaffolding+" "+
   "NEVER switch into an unrelated third language (including Korean unless Korean is selected as target or native support). "+
@@ -21,7 +21,7 @@ export function teacherLanguageReminder(target:string,native:NativeLanguage,mode
  const spoken=friendSpokenLanguage(target),support=nativeLanguageName(native);
  return "[CREW TEACHER LANGUAGE CONTROL — silent instruction] Continue speaking in "+spoken+
   (mode==="immersion"||spoken===support?". Do not use any other language.":
-    ". A short explanation in "+support+" is allowed only when teaching requires it.")+
+    ". Use "+support+" for explanations when helpful, and "+spoken+" for modeling and practice.")+
   " Do not use Korean or another third language by accident. Stay with the same topic and persona.";
 }
 /** Conservative guard: re-anchor only when the completed AI turn is predominantly Hangul. */

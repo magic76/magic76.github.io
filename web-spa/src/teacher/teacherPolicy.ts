@@ -2,7 +2,8 @@ import{type TeacherProfile,teacherIdentityPrompt}from"./teacherProfiles";
 import{buildRoleplayMemoryContext,buildTutorMemoryContext}from"./studentMemory";
 import{verifiedTutorHistoryContext}from"./teacherPracticeHistory";
 import{nativeLanguageName,type NativeLanguage}from"./teacherLocale";
-import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode}from"../store/teacherStore";
+import type{AccentStrength,ConversationMode,SpeakingPace,TeachingMode,LearnerSpeakingLevel}from"../store/teacherStore";
+import{teacherLanguageGuidance}from"./teacherLanguageGuidance";
 import{buildAccentPrompt,buildPacePrompt}from"./teacherAccent";
 import {freeChatRhythmPrompt} from "../live/conversationFlow";
 import {teacherLanguageRule} from "./teacherLanguage";
@@ -31,7 +32,7 @@ export function roleplayInstruction(input:{language:string;scene:string;goals:st
 /** Android App parity: teachingMode controls language scaffolding; conversationMode controls correction cadence. */
 export function buildTeacherSessionPolicy(input:{language:string;scene:string;goals:string[];rolePrompt?:string;
  mode:TeacherSessionMode;profile:TeacherProfile;teachingMode:TeachingMode;
- conversationMode:ConversationMode;languageStyle:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;level:string;nativeLanguage:NativeLanguage}){
+ conversationMode:ConversationMode;languageStyle:string;accentStrength?:AccentStrength;customAccent?:string;speakingPace?:SpeakingPace;level:string;nativeLanguage:NativeLanguage;learnerSpeakingLevel:LearnerSpeakingLevel}){
  if(input.mode==="roleplay")return [teacherLanguageRule(input.language,input.nativeLanguage,"immersion"),roleplayInstruction({...input,memory:buildRoleplayMemoryContext(input.language)}),buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent),buildPacePrompt(input.speakingPace)].filter(Boolean).join("\n");
  const nativeLang=nativeLanguageName(input.nativeLanguage);
  const locale=buildAccentPrompt(input.language,input.languageStyle,input.accentStrength,input.customAccent);
@@ -45,7 +46,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "Use simple "+input.language+" when the learner struggles, and keep spoken replies short."
  ]:[
   "[TEACHING MODE: BILINGUAL ASSISTED CONVERSATION — Android default]",
-  "Speak mainly "+input.language+" (about 80-90%). When the learner asks what something means, asks for translation or explanation, or uses "+nativeLang+" to request help, answer briefly in "+nativeLang+" and return to "+input.language+".",
+  "Use "+input.language+" for authentic examples; adapt the amount of "+nativeLang+" explanations to actual ability and the selected speaking level, including when the learner requests help.",
   "Occasionally explain a genuinely difficult term in one short "+nativeLang+" sentence if needed. Do not translate or teach every response."
  ];
  const conversation=input.conversationMode==="practice"?[
@@ -76,6 +77,7 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "Do not infer pronunciation quality from a transcript; only discuss pronunciation when actual audible evidence is available.",
   buildTutorMemoryContext(input.language),
   verifiedTutorHistoryContext(input.profile.id,input.language),
-  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode)
+  teacherLanguageRule(input.language,input.nativeLanguage,input.teachingMode),
+  teacherLanguageGuidance(input.learnerSpeakingLevel,input.nativeLanguage,input.language,input.teachingMode)
  ].filter(Boolean).join("\n");
 }
