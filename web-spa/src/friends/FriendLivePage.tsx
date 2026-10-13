@@ -86,6 +86,7 @@ export function FriendLivePage(){
        <button key={value} type="button" className={friendChatMode===value?"selected":""}
         aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t("chatMode"+(value==="natural"?"Natural":value==="bilingual"?"Bilingual":"Immersion"))}</button>)}
      </div>
+     <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
