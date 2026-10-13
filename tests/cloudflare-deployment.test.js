@@ -47,6 +47,23 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('html.crew-dynamic-route #root{visibility:hidden!important}'),"deep-route fallback must hide wrong SSG");
   assert.ok(!html.includes('/@fs/'),"Vite dev-only image URL leaked into deployment");
   assert.ok(html.includes(script[1]),pathname);
+  // Guard browser HTML parsing, not just the presence of a Vite URL.
+  // <script src="/assets/..."> needs a closing </script>. A literal
+  // backslash+n outside a tag can terminate <head> and become visible text.
+  const headStart=html.indexOf("<head>");
+  const headEnd=html.indexOf("</head>");
+  const bodyStart=html.indexOf("<body");
+  assert.ok(headStart>=0&&headEnd>headStart&&bodyStart>headEnd,"valid head/body order: "+pathname);
+  const head=html.slice(headStart,headEnd);
+  const moduleOpen=html.match(/<script[^>]*src="\/assets\/[^"]+\.js"[^>]*>/)?.[0];
+  assert.ok(moduleOpen,"missing Vite module opening tag: "+pathname);
+  assert.ok(head.includes(moduleOpen+"</script>"),"Vite script must be explicitly closed inside <head>: "+pathname);
+  assert.ok(head.indexOf("<style data-crew-react-css>")<head.indexOf(moduleOpen),"compiled CSS must precede the app JS: "+pathname);
+  const literalEscape=String.fromCharCode(92)+"n";
+  assert.ok(!head.includes("</style>"+literalEscape),"escaped \\n leaked after CSS: "+pathname);
+  assert.ok(!head.includes("</script>"+literalEscape),"escaped \\n leaked after script: "+pathname);
+  assert.ok(head.includes("html.crew-dynamic-route #root"),"early deep-route guard must remain in head: "+pathname);
+
   const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
   assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
   assert.equal(actualInline,compiledCss,"style is stale: "+pathname);

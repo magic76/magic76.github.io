@@ -17,7 +17,10 @@ if(!existsSync(join(out,"index.html")))throw Error("Missing Vite output. Run CRE
 
 const viteHtml=readFileSync(join(out,"index.html"),"utf8");
 const viteAssetTags=[...viteHtml.matchAll(/<(?:script|link)\b[^>]*>/g)]
-  .map(x=>x[0]).filter(tag=>/\b(?:src|href)="\/assets\//.test(tag));
+  .map(x=>x[0]).filter(tag=>/\b(?:src|href)="\/assets\//.test(tag))
+  // The regex above extracts only opening tags. Script tags are NOT void:
+  // leaving out </script> breaks the document head and SPA module execution.
+  .map(tag=>tag.startsWith("<script")?tag+"</script>":tag);
 if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=>tag.includes('rel="stylesheet"'))){
  throw Error("Cannot locate the Vite JS/CSS entries in dist/index.html");
 }
@@ -62,6 +65,9 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
 const prerendered=await prerenderPublicRoutes(root);
+// Head fragments must be separated by real whitespace. A literal backslash-n
+// between tags makes the browser close <head> early and visibly render "\\n".
+const newline=String.fromCharCode(10);
 const routes=["","teacher","story","fortune","research"];
 const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
@@ -88,8 +94,8 @@ for(const locale of ["zh","en"]){
   const publicPath=normalizePath((locale==="en"?"/en":"")+path);
   const bodyTheme=slug==="teacher"?"teacher-theme":slug==="story"?"story-theme":slug==="fortune"?"fortune-theme":"";
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\\n  "+appTags)
-   .replace("</head>",dynamicGuard+"\\n</head>")
+   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags)
+   .replace("</head>",dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
   const target=join(out,relative);
