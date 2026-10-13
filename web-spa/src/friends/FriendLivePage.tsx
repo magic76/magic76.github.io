@@ -84,7 +84,7 @@ export function FriendLivePage(){
      <div className="friend-language-options">
       {([["natural","自然聊天"],["bilingual","輕鬆雙語"],["immersion","完全沉浸"]] as const).map(([value,label])=>
        <button key={value} type="button" className={friendChatMode===value?"selected":""}
-        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t("chatMode"+(value==="natural"?"Natural":value==="bilingual"?"Bilingual":"Immersion"))}</button>)}
+        aria-pressed={friendChatMode===value} onClick={()=>changeFriendChatMode(value)}>{t(value==="natural"?"chatModeNatural":value==="bilingual"?"chatModeBilingual":"chatModeImmersion")}</button>)}
      </div>
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
