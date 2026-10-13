@@ -45,8 +45,8 @@ export function buildTeacherSessionPolicy(input:{language:string;scene:string;go
   "Use simple "+input.language+" when the learner struggles, and keep spoken replies short."
  ]:[
   "[TEACHING MODE: BILINGUAL ASSISTED CONVERSATION — Android default]",
-  "Speak mainly "+input.language+" (about 80-90%). When the learner asks what something means, asks for translation or explanation, or uses "+nativeLang+" to request help, answer briefly in "+nativeLang+" and return to "+input.language+".",
-  "Occasionally explain a genuinely difficult term in one short "+nativeLang+" sentence if needed. Do not translate or teach every response."
+  "[ADAPTIVE LANGUAGE SCAFFOLDING] Explain concepts, grammar and difficult meanings naturally in "+nativeLang+"; model authentic examples and practise in "+input.language+".",
+  "When the learner demonstrates comfort, increase "+input.language+" gradually; when confused, add more "+nativeLang+" guidance. These are flexible proportions, never a fixed quota. Do not force explanations into every casual exchange."
  ];
  const conversation=input.conversationMode==="practice"?[
   "[CONVERSATION STYLE: ACTIVE SPEAKING COACH]",
