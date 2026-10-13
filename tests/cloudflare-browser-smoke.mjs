@@ -119,7 +119,10 @@ async function run(){
   await home.locator('.global-nav a[href="/teacher"]').click();
   await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/teacher");
   await home.locator("header.app-header").waitFor({state:"visible"});
-  assert.ok(await home.locator(".hero").count(),"Navigation did not render Teacher");
+  // Client-side React navigation is asynchronous; wait for the routed screen,
+  // not only for the URL (the global header is already present on the home page).
+  await home.locator(".hero").waitFor({state:"visible",timeout:15000});
+  assert.ok(await home.locator(".hero h1").textContent(),"Navigation did not render Teacher");
   await home.close();
   process.stdout.write("PASS React client navigation\n");
   // BrowserRouter deep-link refresh uses root SPA fallback rather than SSG hydration.
