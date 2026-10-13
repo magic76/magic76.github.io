@@ -1,3 +1,4 @@
+import {ensureCore} from "../lib/runtime";
 /* Crew Teacher parity: local, language-scoped learner memory V2.
  * Android is the behavioral reference: enabled by default, explicit opt-out persists.
  */
@@ -190,13 +191,12 @@ export const rememberTeacherConversation=async (language:string,turns:Array<{inp
   "Use empty arrays when no enduring facts exist. Write details in the learner's language."
  ].join(" ")+"\nLearner speech:\n"+speech;
  try{
-  const response=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",{
-   method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKey},
-   body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{responseMimeType:"application/json"}})
-  });
-  if(!response.ok||getPersonalMemoryEpoch()!==expectedEpoch||!personalMemoryEnabled())return;
-  const json=await response.json();
-  const raw=String(json?.candidates?.[0]?.content?.parts?.[0]?.text||"");
+  await ensureCore();
+  if(!window.CrewAI?.call)return;
+  const raw=String(await window.CrewAI.call(prompt,{
+   preferLive:false,temperature:0.2,maxOutputTokens:850,json:true
+  })||"");
+  if(getPersonalMemoryEpoch()!==expectedEpoch||!personalMemoryEnabled())return;
   const extracted=JSON.parse(raw);
   ingestStudentPersonalUpdates(language,extracted.memory_updates||{},speech,expectedEpoch);
  }catch{/* Optional memory extraction never interrupts the conversation. */}
