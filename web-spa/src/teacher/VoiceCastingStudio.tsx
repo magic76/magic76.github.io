@@ -29,11 +29,13 @@ export function VoiceCastingStudio(){
  const [language,setLanguage]=useState<CastingLanguage>("en");
  const [known,setKnown]=useState<Set<string>>(new Set());
  const [busy,setBusy]=useState(false),[status,setStatus]=useState("");
+ const [playlistActive,setPlaylistActive]=useState(false);
  const [batch,setBatch]=useState<BatchState|null>(null);
  const [pairIndex,setPairIndex]=useState(0),[reveal,setReveal]=useState(false);
  const [votes,setVotes]=useState<SavedVote[]>(()=>loadVotes(model,"en"));
  const abortRef=useRef<AbortController|null>(null),busyRef=useRef(false);
  const playingRef=useRef<{audio:HTMLAudioElement;url:string}|null>(null);
+ const playlistRef=useRef(false);
  const stillMounted=useRef(true);
  const current=PAIRS[pairIndex];
  const flipped=pairIndex%2===1; // Counterbalance labels without revealing them before the vote.
@@ -58,10 +60,36 @@ export function VoiceCastingStudio(){
   setVotes(loadVotes(model,language));setReveal(false);
   return()=>{valid=false};
  },[model,language]);
- function stopAudio(){
+ function releaseAudio(){
   const current=playingRef.current;if(!current)return;
   current.audio.pause();current.audio.removeAttribute("src");current.audio.load();
   URL.revokeObjectURL(current.url);playingRef.current=null;
+ }
+ function stopAudio(){playlistRef.current=false;setPlaylistActive(false);releaseAudio()}
+ /** Play cached samples in order without 30 separate play clicks. No new API calls. */
+ async function playPlaylist(voices:readonly string[]){
+  if(busy||playlistRef.current)return;
+  stopAudio();playlistRef.current=true;setPlaylistActive(true);
+  try{
+   for(const voice of voices){
+    if(!playlistRef.current)break;
+    const blob=await readCastingSample(keyFor(voice));
+    if(!blob)continue;
+    if(!playlistRef.current)break;
+    releaseAudio();
+    const url=URL.createObjectURL(blob),audio=new Audio(url);
+    playingRef.current={audio,url};
+    setStatus("連續播放："+voice+"（"+CASTING_LINES[language].label+"）");
+    await new Promise<void>((resolve,reject)=>{
+     audio.onended=()=>resolve();
+     audio.onerror=()=>resolve();
+     void audio.play().catch(reject);
+    });
+    if(playingRef.current?.audio===audio)releaseAudio();
+    if(playlistRef.current)await new Promise(r=>window.setTimeout(r,300));
+   }
+  }catch(e){setStatus("連續播放被瀏覽器中斷："+(e instanceof Error?e.message:String(e)))}
+  finally{playlistRef.current=false;releaseAudio();if(stillMounted.current)setPlaylistActive(false)}
  }
  async function playback(voice:string){
   try{
@@ -154,6 +182,9 @@ export function VoiceCastingStudio(){
     <button style={button} disabled={busy||!geminiKey()} onClick={()=>void runBatch(quickChoices)}>準備 {quickChoices.length} 種共用聲線</button>
     <button style={button} disabled={busy||!geminiKey()} onClick={()=>void runBatch(LIVE_VOICES)}>準備全部 30 種</button>
     {busy?<button style={button} onClick={()=>abortRef.current?.abort()}>■ 停止批次生成</button>:null}
+    {playlistActive
+     ?<button style={button} onClick={stopAudio}>■ 停止連續播放</button>
+     :<button style={button} disabled={busy||cached.length===0} onClick={()=>void playPlaylist(sortedVoices.filter(v=>known.has(keyFor(v))))}>▶ 自動連播 {cached.length} 段</button>}
     <button style={button} disabled={busy||cached.length===0} onClick={()=>{
      if(!window.confirm("清除這個工作台的所有本地語音快取？不影響角色設定或評分。"))return;
      stopAudio();void clearCastingSamples().then(()=>{setKnown(new Set());setStatus("語音快取已清除")}).catch(e=>setStatus(String(e)));
