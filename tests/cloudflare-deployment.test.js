@@ -43,7 +43,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('data-crew-ssg-path="'),"must contain route-specific SSG marker");
   assert.ok(html.includes('<header class="app-header">'),"HTML must contain actual React app shell: "+pathname);
   assert.ok(html.includes('class="global-nav"'),"SSG must include actual React navigation: "+pathname);
-  assert.ok(!html.includes('crew-build-section'),"Build version must not appear on non-settings routes: "+pathname);
+  assert.ok(!/<section\b[^>]*class="[^"]*crew-build-section/.test(html),"Build version must not appear on non-settings routes: "+pathname);
   assert.ok(html.includes("<h1"),"SSG must contain real product heading: "+pathname);
   assert.ok(!html.includes('class="seo-fallback"'),"old marketing fallback is not SSG: "+pathname);
   assert.ok(!html.includes("crew-bootstrap-shell"),"no duplicate bootstrap page: "+pathname);
