@@ -19,7 +19,7 @@ export function friendAdaptiveTargetChatRule(target:string){
   "Keep the same friend's personality, topic, one-language-per-reply boundary and easygoing rhythm.";
 }
 
-export function friendLanguageReminder(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="natural"){
+export function friendLanguageReminder(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="bilingual"){
  const target=friendSpokenLanguage(language),native=nativeName(nativeLanguage);
  if(mode==="immersion")return "[FRIEND LANGUAGE CONTROL — FULL IMMERSION, silent instruction] "+
   "Speak in "+target+" for the ENTIRE next reply, after reconnection too. Never speak "+
@@ -41,7 +41,7 @@ export function friendLanguageReminder(language:string,nativeLanguage="en",mode:
   "never teach, recast, give bilingual recaps or switch to a third language.";
 }
 /** Latest explicitly selected mode overrides earlier prompt and stays after reconnect. */
-export function friendLanguageTransition(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="natural"){
+export function friendLanguageTransition(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="bilingual"){
  return "[FRIEND LANGUAGE MODE CHANGE — EXPLICIT USER ACTION] The learner JUST changed chat language mode in the UI to "+mode+
  ". This latest user setting supersedes ALL earlier fixed-language and bilingual rules for this SAME conversation. "+
  "Apply the new setting from the NEXT spoken reply without restarting or announcing the change. "+
@@ -49,7 +49,7 @@ export function friendLanguageTransition(language:string,nativeLanguage="en",mod
  "On reconnect the updated learner choice remains authoritative.\n"+
  friendLanguageReminder(language,nativeLanguage,mode);
 }
-export function friendLanguageRule(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="natural"){
+export function friendLanguageRule(language:string,nativeLanguage="en",mode:FriendChatLanguageMode="bilingual"){
  const target=friendSpokenLanguage(language),native=nativeName(nativeLanguage);
  if(mode==="immersion")return "[FULL IMMERSION SPOKEN LANGUAGE — applies to every response and reconnect]\n"+
   "The user chose "+target+" as the conversation language. Only speak "+target+
