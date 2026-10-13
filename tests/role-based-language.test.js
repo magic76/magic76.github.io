@@ -6,9 +6,9 @@ const src=stripTypeScriptTypes(read("web-spa/src/friends/friendLanguage.ts"),{mo
 const ctx={};vm.runInNewContext(src+"\nthis.api={friendLanguageRule,friendLanguageReminder,friendLanguageTransition};",ctx);
 test("friend natural, bilingual and immersion modes keep distinct language boundaries",()=>{
  const {friendLanguageRule,friendLanguageReminder}=ctx.api;
- assert.match(friendLanguageRule("英文","zh-TW","natural"),/MUST use English/);
- assert.match(friendLanguageRule("英文","zh-TW","bilingual"),/BOTH languages/);
- assert.match(friendLanguageReminder("英文","zh-TW","bilingual"),/avoid a third language/);
+ assert.match(friendLanguageRule("英文","zh-TW","natural"),/Start in Traditional Chinese/);
+ assert.match(friendLanguageRule("英文","zh-TW","bilingual"),/TARGET CHAT WITH NATIVE HELP/);
+ assert.match(friendLanguageReminder("英文","zh-TW","bilingual"),/Each reply uses ONE language/);
  assert.match(friendLanguageRule("日文","en","immersion"),/Only speak Japanese/);
  assert.match(friendLanguageReminder("日文","en","immersion"),/after reconnection/);
 });
@@ -32,7 +32,7 @@ test("explicit live mode changes override prior mode and reconnect keeps latest 
  const bilingual=friendLanguageTransition("英文","zh-TW","bilingual");
  assert.match(bilingual,/JUST changed/);
  assert.match(bilingual,/supersedes ALL earlier/);
- assert.match(bilingual,/RELAXED BILINGUAL/);
+ assert.match(bilingual,/TARGET CHAT WITH NATIVE HELP/);
  const immersion=friendLanguageTransition("英文","zh-TW","immersion");
  assert.match(immersion,/FULL IMMERSION/);
  assert.match(immersion,/NEXT spoken reply/);
