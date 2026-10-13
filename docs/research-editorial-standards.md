@@ -14,6 +14,12 @@ Prefer clear paragraphs headed `研究發現：`, `Crew 應用：`, and `研究�
 
 The automatic check `scripts/research-quality.mjs` blocks **SEO indexing only** if a source is missing, the body resembles an excerpt, Crew applicability is generic, limitations are absent, or no actionable test plan exists. It cannot determine factual accuracy, copyright compliance, authorship, originality, scientific validity or source authenticity; manual editorial review remains necessary. Publication itself is not blocked. A short source-only item can still be read and cited by humans while marked `noindex,follow`.
 
+## Daily volume is a ceiling, not a quota
+
+The automatic daily issue selects up to 12 diversified recent leads and publishes up to 6, targeting 4–6 when verifiable sources are available. Only up to 3 leads are submitted to Gemini for detailed traditional-Chinese analysis; at most 2 passing the same SEO eligibility rules enter the issue as deep analyses. Remaining slots show clearly identified source-only briefs, which should not enter the sitemap. Official RSS/Atom engineering blogs and selected GitHub release notes supplement HN/OpenAlex. Relevant release notes must actually mention a technical change. Missing Gemini API credentials, invalid output, and source/network failures must not be hidden: keep source briefs, log warnings, and avoid implying the analysis was performed.
+
+No automatic tool can establish factual accuracy or true originality. An SEO-eligible article is a candidate for indexing, not proof of external verification, ranking, or traffic; human review and Search Console remain decisive.
+
 ## Daily build / feedback
 
 ```sh
