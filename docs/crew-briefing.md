@@ -26,7 +26,7 @@ Source-of-truth: `scripts/briefing-research-axes.mjs`. Curated around eight ques
 7. **AI Product Economics**: pricing, BYOK, privacy and sustainable operations.
 8. **AI Product Experience**: human/agent workflows, usable product patterns.
 
-Ranking is **heuristic and not an AI-assessed relevance score**. It evaluates title signals and source kind rather than accepting the search query as evidence; source metadata and recent papers are prioritized. Broad HN questions and commit-style noise are filtered. No more than eight research picks per issue, diversified by topic. Current implementation pulls public HN/OpenAlex sources only; GitHub commits are not used as automatically published research articles. No source is invented to fill an issue.
+Ranking is **heuristic and not an AI-assessed relevance score**. It evaluates title signals and source kind rather than accepting the search query as evidence; source metadata and recent papers are prioritized. Broad HN questions and commit-style noise are filtered. A daily issue targets 4–6 published items, with no more than two model-enriched, SEO-eligible traditional-Chinese analyses and the remaining source-only briefs. Discovery may rank up to twelve candidates, diversified by topic; fewer than four are published when valid sources are scarce. Current discovery uses public HN and OpenAlex metadata plus official engineering RSS/Atom feeds and select official GitHub releases. A release must contain a relevant change in its own release notes; arbitrary GitHub commits are not automatically published. No source is invented to fill an issue.
 
 Reader-facing reporting should answer: (1) what problem is being solved; (2) where could it apply; (3) how would one validate it? Headlines, abstracts, age and limitations must be verified before claiming a result.
 
@@ -39,7 +39,7 @@ Reader-facing reporting should answer: (1) what problem is being solved; (2) whe
 - RSS: `web-spa/public/briefings/feed.xml`.
 - Published by Vite to `crew-app/briefings/`.
 
-Repository secret `CREW_BRIEFING_GEMINI_KEY` optionally enables AI-assisted editing. A user's browser Gemini key is **never** sent to this job. If there is no server key, the output uses short, source-derived research metadata and explicitly avoids invented conclusions. The output should never claim that title-level heuristics or article abstracts constitute an experiment.
+Repository secret `CREW_BRIEFING_GEMINI_KEY` enables evidence-constrained traditional-Chinese analysis for at most three candidates, of which at most two passing the shared editorial-quality gate are included. `CREW_BRIEFING_MODEL` defaults to Gemini 2.5 Flash. If the secret is absent, the model fails, or outputs are unfit, the job retains source-only briefs; these are available to read but remain `noindex` under the editorial rules. A user's browser Gemini key is **never** sent to this job. The public GitHub token is used only for the official releases API. The build prints the count of eligible reports and briefs; it does not claim Google has indexed them.
 
 ## Privacy and states
 

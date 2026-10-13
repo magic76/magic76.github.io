@@ -1,8 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {abstractPreview,normalizeCandidate,select,unique,classify} from "../scripts/generate-briefing.mjs";
+import {abstractPreview,normalizeCandidate,select,unique,classify,composeEdition} from "../scripts/generate-briefing.mjs";
 import {RESEARCH_AXES,matchingAxes,researchScore,selectResearch} from "../scripts/briefing-research-axes.mjs";
+import {parsePublicFeed,parseReleaseNotes} from "../scripts/briefing-public-sources.mjs";
+import {assessResearchQuality} from "../scripts/research-quality.mjs";
 const now=new Date().toISOString();
 const sample={title:"A new approach to agent memory and context retrieval",url:"https://example.org/paper",publishedAt:now,topic:"Agent Memory",projects:["Crew Pocket"],abstract:"An LLM memory retrieval study.",kind:"研究論文索引"};
 
@@ -59,4 +61,39 @@ test("public reader doesn't present owner's GitHub or social editor utilities",(
  assert.doesNotMatch(landing,/優先度 \{item\.score\}|GitHub Actions 手動執行/);
  assert.match(article,/參考資料/);
  assert.match(landing,/每日 AI 研究/);
+});
+
+
+test("RSS/Atom metadata is parsed safely, with invalid dates and links excluded",()=>{
+ const xml='<rss><channel><item><title>Agent memory retrieval update</title><link>https://example.org/a</link><pubDate>Tue, 13 Oct 2026 10:00:00 GMT</pubDate><description><![CDATA[Improved retrieval.]]></description></item>'+
+  '<item><title>Invalid time</title><link>https://example.org/b</link><pubDate>unknown</pubDate></item>'+
+  '<item><title>Unsafe URL</title><link>http://example.org/c</link><pubDate>Tue, 13 Oct 2026 10:00:00 GMT</pubDate></item></channel></rss>';
+ const items=parsePublicFeed(xml);
+ assert.equal(items.length,1);
+ assert.equal(items[0].url,"https://example.org/a");
+ assert.equal(items[0].abstract,"Improved retrieval.");
+ const atom='<feed><entry><title>Agent evaluation methods</title><link rel="alternate" href="https://example.org/atom"/><updated>2026-10-13T09:00:00Z</updated><summary>Benchmark methods.</summary></entry></feed>';
+ assert.equal(parsePublicFeed(atom)[0].url,"https://example.org/atom");
+});
+
+test("release leads require relevant real note lines and reject draft releases",()=>{
+ const notes=[
+  {html_url:"https://github.com/openai/codex/releases/tag/v1",tag_name:"v1",published_at:now,body:"- Improve agent recovery after intermittent API connection errors, with explicit retry handling"},
+  {html_url:"https://github.com/openai/codex/releases/tag/v2",tag_name:"v2",published_at:now,body:"- Update documentation links and dependency metadata only"},
+  {html_url:"https://github.com/openai/codex/releases/tag/v3",tag_name:"v3",published_at:now,draft:true,body:"- Improve agent recovery after interrupted requests"}
+ ];
+ const items=parseReleaseNotes(notes,"Codex");
+ assert.equal(items.length,1);
+ assert.match(items[0].title,/agent recovery/);
+ assert.equal(items[0].kind,"官方產品更新");
+ assert.ok(researchScore({...sample,...items[0]})>=68);
+});
+
+test("compose up to six public items, and keep raw excerpts out of SEO indexing",()=>{
+ const raw=Array.from({length:10},(_,i)=>({...normalizeCandidate(sample),id:"source-"+i,title:"Agent memory retrieval "+i}));
+ const {items,deepCount}=composeEdition(raw,[]);
+ assert.equal(items.length,6);
+ assert.equal(deepCount,0);
+ assert.equal(assessResearchQuality(items[0]).indexable,false);
+ assert.deepEqual(composeEdition([],[]),{items:[],deepCount:0});
 });
