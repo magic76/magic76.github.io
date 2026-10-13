@@ -35,7 +35,7 @@ test("friend movie plans stay in Zoe's topic notes, never tutor personal memory"
    studentMemories:learner.studentMemories,
    verifiedLearnerEvidence:learner.verifiedLearnerEvidence,
    hasMeaningfulLearnerSpeech:learner.hasMeaningfulLearnerSpeech,
-   friendLanguageRule:()=>"[language: English]",freeChatRhythmPrompt:()=>""});
+   friendLanguageRule:()=>"[language: English]",freeChatRhythmPrompt:()=>"",voiceIdentityPrompt:()=>"[voice delivery]"});
  const turns=[{input:"I am going to see a movie tomorrow",output:"Sounds interesting"}];
  await friend.rememberFriendConversation("zoe",language,turns,12000);
  assert.equal(friend.getFriendTopics("zoe",language).length,1);

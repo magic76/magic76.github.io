@@ -26,7 +26,7 @@ test("voice selection stays inside active profile and next-session accent and pa
   assert.ok(store.includes(key)&&tutor.includes("s."+key)&&live.includes("s."+key),key);
  assert.match(live,/speakingPace:s\.speakingPace/);
  assert.match(picker,/detail\.id===active\?activeVoice:detail\.recommendedVoice/);
- assert.match(preview,/voiceName:opts\?\.voice\|\|profile\.recommendedVoice/);
+ assert.match(preview,/voiceName:normalizeLiveVoice\(opts\?\.voice\|\|profile\.recommendedVoice\)/);
 });
 test("manual interrupt remains in its dock position but can only be used while speaking",()=>{
  const controls=read("web-spa/src/live/LiveControls.tsx");

@@ -1,3 +1,4 @@
+import {voiceIdentityPrompt} from "../live/voiceIdentity";
 import{geminiKey,ensureCore,type LiveTurn}from"../lib/runtime";
 import{normalizeLearningLanguage,personalMemoryEnabled,studentMemories,getPersonalMemoryEpoch,ingestStudentPersonalUpdates,hasMeaningfulLearnerSpeech,verifiedLearnerEvidence}from"../teacher/studentMemory";
 import{CREW_FRIENDS,getCrewFriend,type FriendProfile}from"./friendProfiles";
@@ -166,7 +167,7 @@ export function buildFriendSystem(friend:FriendProfile,language:string){
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
   "Be open about being fictional when asked; do not imply real-world meetings or online presence.\n"+
-  freeChatRhythmPrompt()+"\n"+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
+  freeChatRhythmPrompt()+"\n"+voiceIdentityPrompt("friend",friend.id,language)+friendTopicContext(friend.id,language)+"\n"+friendLanguageRule(language);
 }
 /** Extract after one meaningful student turn; saving is independent of recent-chat duration. */
 async function captureFriendConversation(id:string,language:string,turns:LiveTurn[],_durationMs:number){
