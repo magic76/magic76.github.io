@@ -71,7 +71,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
     if(closed)return;
     socket?.send(JSON.stringify({setup:{model:"models/"+model,
      generationConfig:{responseModalities:["AUDIO"],speechConfig:{voiceConfig:{prebuiltVoiceConfig:{voiceName:normalizeLiveVoice(opts?.voice||profile.recommendedVoice)}}}},
-     systemInstruction:{parts:[{text:"You are "+profile.name+", a fictional Crew Teacher tutor. " + profile.personality + " Teaching strategy: " + profile.teachingStrategy + " "+voiceIdentityPrompt("teacher",profile.id,targetLanguage)+" "+buildAccentPrompt(targetLanguage,opts?.languageStyle||"auto",opts?.accentStrength,opts?.customAccent)+" "+buildPacePrompt(opts?.speakingPace)+" Give exactly one natural, short spoken response in the target language. Never claim real credentials or introduce yourself."}]}}}));
+     systemInstruction:{parts:[{text:"You are "+profile.name+", a fictional Crew Teacher tutor. " + profile.personality + " Teaching strategy: " + profile.teachingStrategy + " "+voiceIdentityPrompt("teacher",profile.id,targetLanguage,(opts?.languageStyle||"auto")==="auto"?undefined:"auto")+" "+buildAccentPrompt(targetLanguage,opts?.languageStyle||"auto",opts?.accentStrength,opts?.customAccent)+" "+buildPacePrompt(opts?.speakingPace)+" Give exactly one natural, short spoken response in the target language. Never claim real credentials or introduce yourself."}]}}}));
    };
    socket.onmessage=async(event:MessageEvent)=>{
     if(closed)return;
