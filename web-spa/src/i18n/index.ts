@@ -26,6 +26,10 @@ export function normalizeUiLocale(value:unknown):UiLocale|null {
  return null;
 }
 function initialLocale():UiLocale {
+ // Clean public URLs are authoritative for SEO language; legacy HashRouter keeps stored preference.
+ if(typeof window!=="undefined"&&!window.location.pathname.startsWith("/crew-app/")){
+  return /^\/en(?:\/|$)/.test(window.location.pathname)?"en":"zh-TW";
+ }
  try {
   const saved=normalizeUiLocale(localStorage.getItem(UI_LOCALE_KEY));
   if(saved)return saved;
