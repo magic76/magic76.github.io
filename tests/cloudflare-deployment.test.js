@@ -40,6 +40,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(html.includes('data-crew-ssg-path="'),"must contain route-specific SSG marker");
   assert.ok(html.includes('<header class="app-header">'),"HTML must contain actual React app shell: "+pathname);
   assert.ok(html.includes('class="global-nav"'),"SSG must include actual React navigation: "+pathname);
+  assert.ok(html.includes('class="crew-build-badge"'),"SSG must include persistent version badge: "+pathname);
   assert.ok(html.includes("<h1"),"SSG must contain real product heading: "+pathname);
   assert.ok(!html.includes('class="seo-fallback"'),"old marketing fallback is not SSG: "+pathname);
   assert.ok(!html.includes("crew-bootstrap-shell"),"no duplicate bootstrap page: "+pathname);
@@ -133,7 +134,10 @@ check("production SEO metadata, sitemap and preview noindex are consistent",()=>
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
  assert.ok(headers.includes("https://:version.magic76-github-io.pages.dev/*"),"branch preview missing noindex");
- assert.ok(headers.trim().split(/\n\s*\n/).every(rule=>rule.includes("X-Robots-Tag: noindex")),"each preview host needs noindex");
+ const previewRules=headers.trim().split(/\n\s*\n/).filter(rule=>rule.startsWith("https://"));
+ assert.equal(previewRules.length,2,"two Cloudflare preview aliases");
+ assert.ok(previewRules.every(rule=>rule.includes("X-Robots-Tag: noindex")),"each preview host needs noindex");
+ assert.match(headers,/\/version\.json\s*\n\s*Cache-Control: no-store/,"live version feed must not be cached");
  assert.ok(!headers.includes("https://www.3sssi.com/"),"production must remain indexable");
  assert.ok(!headers.includes("no-transform"),"Cloudflare automatic Web Analytics needs unmodified HTML");
 });
@@ -145,4 +149,16 @@ check("old HashRouter links resolve to clean URLs with query strings",()=>{
  assert.ok(html.includes("location.replace("));
  assert.ok(html.includes("parsed.search"));
  assert.ok(html.includes("crew_ui_locale_v1"));
+});
+
+
+check("Cloudflare build emits version metadata matching the currently shipped JavaScript",()=>{
+ const metadata=JSON.parse(read("version.json"));
+ assert.equal(metadata.schema,1);
+ assert.ok(typeof metadata.buildId==="string"&&metadata.buildId.length>8,"missing build ID");
+ assert.ok(typeof metadata.builtAt==="string"&&Number.isFinite(Date.parse(metadata.builtAt)),"missing build time");
+ assert.ok(metadata.commit===null||/^[a-f0-9]{7,40}$/i.test(metadata.commit),"invalid SHA");
+ assert.ok(["Production","Preview","Cloudflare Pages"].includes(metadata.environment));
+ const jsFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>file.endsWith(".js"));
+ assert.ok(jsFiles.some(file=>read("assets/"+file).includes(metadata.buildId)),"version feed differs from running app build");
 });
