@@ -18,7 +18,8 @@ function buildPolicy(){
   buildAccentPrompt:()=>"",
   buildPacePrompt:()=>"",
   freeChatRhythmPrompt:()=>"[NATURAL CONVERSATION RHYTHM] Questions are optional.",
-  teacherLanguageRule:()=>"[CREW TEACHER SPOKEN LANGUAGE] Speak English unless support is needed."
+  teacherLanguageRule:()=>"[CREW TEACHER SPOKEN LANGUAGE] Speak English unless support is needed.",
+  teacherLanguageGuidance:()=>"[CREW TEACHER LANGUAGE SCAFFOLDING] Use native language for explanation."
  };
  vm.runInNewContext(js+"\nthis.buildTeacherSessionPolicy=buildTeacherSessionPolicy;",context);
  return context.buildTeacherSessionPolicy;
