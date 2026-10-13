@@ -83,7 +83,7 @@ for(const locale of ["zh","en"]){
   // Vite's build-time SSR importer expresses image URLs as /@fs/<cwd>/assets/..
   // but Pages serves those same first-party assets at /assets/... (copied above).
   // Never publish dev-server file-system paths in an SSG document.
-  if(page)page=page.replace(/\\/@fs\\/[^"'\\s<>)]*?\\/assets\\/([A-Za-z0-9_.\\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+  if(page)page=page.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
   if(!page||!page.includes("app-header"))throw Error("React SSG failed: "+relative);
   const publicPath=normalizePath((locale==="en"?"/en":"")+path);
   const bodyTheme=slug==="teacher"?"teacher-theme":slug==="story"?"story-theme":slug==="fortune"?"fortune-theme":"";
