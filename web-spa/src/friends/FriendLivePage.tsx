@@ -1,3 +1,4 @@
+import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
@@ -25,7 +26,7 @@ export function FriendLivePage(){
   system,languageDirective,
   openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
    " with one natural, brief opening question that suits your personality. Never act as a teacher or lecture.",
-  voice:friend.voice,language,nativeLanguage,teacherReport:false,
+  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:()=>{
    if(memoryCheckpointRef.current)return;
