@@ -1,16 +1,70 @@
-import { defineConfig } from "vite";
+import { execFileSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
 const isCloudflareBuild = process.env.CREW_DEPLOY_TARGET === "cloudflare";
 
-export default defineConfig({
-  root: "web-spa",
-  // GitHub Pages continues serving the legacy HashRouter build until DNS cutover.
-  base: isCloudflareBuild ? "/" : "./",
-  plugins: [react()],
-  build: {
-    outDir: isCloudflareBuild ? "../dist" : "../crew-app",
-    emptyOutDir: true,
-    sourcemap: false
+type BuildInfo = {
+  schema: 1;
+  buildId: string | null;
+  builtAt: string | null;
+  commit: string | null;
+  version: string | null;
+  environment: string;
+};
+
+function resolveCommit(): string | null {
+  const fromEnv = process.env.CF_PAGES_COMMIT_SHA || process.env.GITHUB_SHA;
+  if (fromEnv && /^[0-9a-f]{7,40}$/i.test(fromEnv)) return fromEnv;
+  try {
+    const sha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim();
+    return /^[0-9a-f]{7,40}$/i.test(sha) ? sha : null;
+  } catch {
+    return null;
   }
+}
+
+function createBuildInfo(isBuild: boolean): BuildInfo {
+  const branch = process.env.CF_PAGES_BRANCH || process.env.GITHUB_REF_NAME;
+  const environment = isCloudflareBuild
+    ? branch ? (branch === "master" || branch === "main" ? "Production" : "Preview") : "Cloudflare Pages"
+    : isBuild ? "GitHub Pages" : "Development";
+  if (!isBuild) return { schema: 1, buildId: null, builtAt: null, commit: null, version: null, environment };
+  const builtAt = new Date().toISOString();
+  const commit = resolveCommit();
+  const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version?: string };
+  // The repo has no release version; never invent a semantic version.
+  const version = typeof pkg.version === "string" && pkg.version.trim() ? pkg.version : null;
+  return {
+    schema: 1,
+    buildId: (commit?.slice(0, 8) || "unknown") + "-" + Date.now().toString(36),
+    builtAt,
+    commit,
+    version,
+    environment
+  };
+}
+
+export default defineConfig(({ command }) => {
+  const buildInfo = createBuildInfo(command === "build");
+  const versionAsset: Plugin = {
+    name: "crew-version-asset",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({ type: "asset", fileName: "version.json", source: JSON.stringify(buildInfo, null, 2) + "\n" });
+    }
+  };
+  return {
+    root: "web-spa",
+    // GitHub Pages continues serving the legacy HashRouter build until DNS cutover.
+    base: isCloudflareBuild ? "/" : "./",
+    plugins: [react(), versionAsset],
+    define: { __CREW_BUILD_INFO__: JSON.stringify(buildInfo) },
+    build: {
+      outDir: isCloudflareBuild ? "../dist" : "../crew-app",
+      emptyOutDir: true,
+      sourcemap: false
+    }
+  };
 });
