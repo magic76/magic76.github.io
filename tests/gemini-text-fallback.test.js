@@ -15,9 +15,9 @@ function harness(reply){
  const window={};
  async function fetch(url){
   if(url.includes("?pageSize="))return{ok:true,json:async()=>({models:[]})};
-  const match=url.match(/\\/models\\/([^/:]+):generateContent/);
+  const match=url.split("/models/")[1]?.split(":")[0];
   assert.ok(match,"Expected a Gemini text-generation request");
-  const model=decodeURIComponent(match[1]);calls.push(model);
+  const model=decodeURIComponent(match);calls.push(model);
   const result=reply(model,calls.length);
   if(typeof result==="string")return{ok:true,status:200,json:async()=>({
    candidates:[{content:{parts:[{text:result}]}}]
