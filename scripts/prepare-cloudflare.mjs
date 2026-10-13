@@ -17,7 +17,10 @@ if(!existsSync(join(out,"index.html")))throw Error("Missing Vite output. Run CRE
 
 const viteHtml=readFileSync(join(out,"index.html"),"utf8");
 const viteAssetTags=[...viteHtml.matchAll(/<(?:script|link)\b[^>]*>/g)]
-  .map(x=>x[0]).filter(tag=>/\b(?:src|href)="\/assets\//.test(tag));
+  .map(x=>x[0]).filter(tag=>/\b(?:src|href)="\/assets\//.test(tag))
+  // The regex above extracts only opening tags. Script tags are NOT void:
+  // leaving out </script> breaks the document head and SPA module execution.
+  .map(tag=>tag.startsWith("<script")?tag+"</script>":tag);
 if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=>tag.includes('rel="stylesheet"'))){
  throw Error("Cannot locate the Vite JS/CSS entries in dist/index.html");
 }
