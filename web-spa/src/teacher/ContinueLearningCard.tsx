@@ -3,12 +3,15 @@ import{Link}from"react-router-dom";
 import{buildDailyLearningPlan,type DailyLearningPlan}from"./learningCoordinator";
 import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
+import{useClientReady}from"../lib/useClientReady";
 import{courseLesson}from"./courseCatalog";
 
 export function ContinueLearningCard({compact=false}:{compact?:boolean}){
  const {t,i18n}=useTranslation("teacher");
  const[plan,setPlan]=useState<DailyLearningPlan|null>(null);
- const teacher=getTeacherProfile(useTeacherStore(s=>s.teacherProfile));
+ const ready=useClientReady();
+ const selectedProfile=useTeacherStore(s=>s.teacherProfile);
+ const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  useEffect(()=>{let alive=true;void buildDailyLearningPlan().then(x=>{if(alive)setPlan(x)});return()=>{alive=false}},[]);
  const english=i18n.resolvedLanguage==="en";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;

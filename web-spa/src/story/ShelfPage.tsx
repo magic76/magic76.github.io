@@ -6,7 +6,13 @@ export function StoryShelfPage(){
  async function load(){setError("");try{await ensureStoryServices();const list=await window.CrewStoryStore!.list();setBooks(list);setLast(await window.CrewStoryStore!.last())}catch(_){setError(t("shelf.loadError"))}}
  useEffect(()=>{void load()},[]);
  if(error)return <div className="spa-error" role="alert"><p>{error}</p><button className="btn secondary" onClick={()=>void load()}>{t("shelf.retry")}</button></div>;
- if(!books)return <div className="spa-loading" role="status">{t("shelf.loading")}</div>;
+ if(!books)return <>
+ <section className="hero"><span className="kicker">Crew Story</span><h1>{t("shelf.title")}</h1><p>{t("shelf.intro")}</p></section>
+ <section className="section"><div className="story-action-grid">
+  <Link className="story-action-tile create" to="/story/create"><strong>{t("shelf.create")}</strong><span>{t("shelf.createDesc")}</span></Link>
+  <Link className="story-action-tile physical" to="/story/physical"><strong>{t("shelf.physicalAction")}</strong><span>{t("shelf.physicalDesc")}</span></Link>
+ </div></section>
+ <div className="spa-loading" role="status">{t("shelf.loading")}</div></>;
  const card=(book:any,builtin=false)=>{
   const cover=(book.images||[])[Number(book.coverIndex)||0],readTo="/story/read/"+encodeURIComponent(book.id);
   return <article className="story-book" key={book.id}>

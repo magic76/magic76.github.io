@@ -1,4 +1,4 @@
-import {seoBootHead,seoBootShell} from "./seo-first-paint.mjs";
+import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -58,42 +58,43 @@ const briefing=join(root,"crew-app","briefings");
 if(!existsSync(join(briefing,"index.json")))throw Error("Published briefing feed is missing (crew-app/briefings/index.json)");
 cpSync(briefing,join(out,"briefings"),{recursive:true});
 
-// Public SEO data is sourced from the existing bilingual content generator,
-// but the *same URL* now boots the functional React app. The original content
-// is visible before React starts / with JavaScript off, never hidden for bots.
-// Once JS loads, React replaces only #root children with the actual product.
-const routes=[
- ["", ""],["teacher","teacher"],["story","story"],["fortune","fortune"],["research","research"]
-];
-// Keep the fully designed SEO page visible while the React bundle loads.
-// The app removes this stylesheet after React commits. The bootstrap shell
-// prevents a marketing-to-app flash, while preserving the non-JS landing.
-const fallbackStylesheet = '<link rel="stylesheet" href="/seo.css" data-crew-seo-fallback>';
+// The actual React App is rendered at build time for public routes. Vite handles
+// TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
+// canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
+const prerendered=await prerenderPublicRoutes(root);
+const routes=["","teacher","story","fortune","research"];
+const normalizePath=path=>path.replace(/\/+$/,"")||"/";
+// Fallback deep routes receive /index.html from Pages. If its SSG route differs
+// from the real URL, hide the wrong screen before first paint until React mounts.
+const dynamicGuard=`<style>html.crew-dynamic-route #root{visibility:hidden!important}</style>
+<script>(function(){var canonical=document.querySelector('link[rel="canonical"]');if(!canonical)return;
+var expected=new URL(canonical.href).pathname.replace(/\/+$/,"")||"/";
+var current=location.pathname.replace(/\/+$/,"")||"/";
+if(current!==expected)document.documentElement.classList.add("crew-dynamic-route")
+})();</script>`;
 for(const locale of ["zh","en"]){
- for(const [name,slug] of routes){
+ for(const slug of routes){
   const prefix=locale==="en"?"en/":"";
   const relative=prefix+(slug?slug+"/":"")+"index.html";
-  // The marketing fallback must also link to the clean functional routes.
-  // Apply the longest paths first so generic /crew-app/#/ doesn't eat subroutes.
-  const redirectTargets=[
-   ["/crew-app/#/teacher/practice","/teacher/"],
-   ["/crew-app/#/teacher/roles?mode=friends","/teacher/roles?mode=friends"],
-   ["/crew-app/#/story/shelf","/story/"],
-   ["/crew-app/#/story/create","/story/create"],
-   ["/crew-app/#/briefing/board","/research/board"],
-   ["/crew-app/#/briefing","/research/"],
-   ["/crew-app/#/fortune","/fortune/"],
-   ["/crew-app/#/","/"]
-  ];
-  let marketing=read(relative);
-  for(const [previous,next] of redirectTargets)marketing=marketing.replaceAll(previous,next);
-  if(!marketing.includes("<main id=\"main\">")||!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO content: "+relative);
+  const path=slug?"/"+slug:"/";
+  const marketing=read(relative);
+  if(!marketing.includes('name="robots" content="index,follow"'))throw Error("Missing SEO metadata: "+relative);
+  let page=prerendered.get((locale==="en"?"en":"zh-TW")+":"+path);
+  // Vite's build-time SSR importer expresses image URLs as /@fs/<cwd>/assets/..
+  // but Pages serves those same first-party assets at /assets/... (copied above).
+  // Never publish dev-server file-system paths in an SSG document.
+  if(page)page=page.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+  if(!page||!page.includes("app-header"))throw Error("React SSG failed: "+relative);
+  const publicPath=normalizePath((locale==="en"?"/en":"")+path);
+  const bodyTheme=slug==="teacher"?"teacher-theme":slug==="story"?"story-theme":slug==="fortune"?"fortune-theme":"";
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\n  "+fallbackStylesheet+"\n  "+appTags)
-   .replace("</head>",seoBootHead()+"\n</head>")
-   .replace("<body>","<body>\n<div id=\"root\">"+seoBootShell({locale,product:name||"home"})+"\n<div class=\"seo-fallback\">")
-   .replace("</body>","</div></div>\n</body>");
-  const target=join(out,relative);mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
+   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+"\\n  "+appTags)
+   .replace("</head>",dynamicGuard+"\\n</head>")
+   .replace(/<body>[\s\S]*?<\/body>/,
+    '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
+  const target=join(out,relative);
+  mkdirSync(dirname(target),{recursive:true});
+  writeFileSync(target,html);
  }
 }
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
@@ -112,4 +113,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 10 React routes, inline app CSS ("+compiledCss.length+" chars) and runtime assets.");
+console.log("Prepared Cloudflare Pages: 10 React SSG routes, inline app CSS ("+compiledCss.length+" chars), no runtime SSR.");

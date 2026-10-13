@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import {useClientReady} from "../lib/useClientReady";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { NavLink,Outlet,useLocation } from "react-router-dom";
@@ -17,7 +18,8 @@ const meta={
 
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
- const m=meta[product],hasKey=Boolean(geminiKey()),verified=geminiVerified(),location=useLocation();
+ const ready=useClientReady();
+ const m=meta[product],hasKey=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified(),location=useLocation();
  useEffect(()=>{
   document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":"";
   return()=>{document.body.className=""};

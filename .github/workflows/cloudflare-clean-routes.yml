@@ -4,8 +4,9 @@ on:
   pull_request:
     paths:
       - "web-spa/**"
+      - "scripts/ssg-renderer.mjs"
       - "scripts/prepare-cloudflare.mjs"
-      - "scripts/seo-first-paint.mjs"
+      - "scripts/ssg-renderer.mjs"
       - "vite.web.config.ts"
       - "package.json"
       - "tests/cloudflare-deployment.test.js"

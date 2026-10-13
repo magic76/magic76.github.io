@@ -10,18 +10,22 @@ import{getTeacherProfile}from"./teacherProfiles";
 import{TeacherAvatar}from"./TeacherAvatar";
 import{CREW_FRIENDS}from"../friends/friendProfiles";
 import{FriendAvatar}from"../friends/FriendAvatar";
+import{useClientReady}from"../lib/useClientReady";
 
 export function PracticePage(){
  const {t}=useTranslation("teacher");
- const target=useTeacherStore(s=>s.targetLanguage);
- const profile=getTeacherProfile(useTeacherStore(s=>s.teacherProfile));
- const friendId=localStorage.getItem("crew_web_selected_friend_v1");
+ const ready=useClientReady();
+ const storedTarget=useTeacherStore(s=>s.targetLanguage);
+ const target=ready?storedTarget:"英文";
+ const storedProfile=useTeacherStore(s=>s.teacherProfile);
+ const profile=getTeacherProfile(ready?storedProfile:"emma");
+ const friendId=ready?localStorage.getItem("crew_web_selected_friend_v1"):null;
  const friend=CREW_FRIENDS.find(x=>x.id===friendId)||CREW_FRIENDS[0];
- const h=history("teacher"),today=new Date().toDateString();
- const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=todayVocabulary();
+ const h=ready?history("teacher"):[],today=new Date().toDateString();
+ const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=(ready?todayVocabulary():0);
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
- {!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
+ {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
   <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
