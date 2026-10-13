@@ -2,6 +2,7 @@ const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
+const vm=require("node:vm");
 
 const ROOT=path.resolve(__dirname,"..");
 const DIST=path.join(ROOT,"dist");
@@ -63,6 +64,9 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(!head.includes("</style>"+literalEscape),"escaped \\n leaked after CSS: "+pathname);
   assert.ok(!head.includes("</script>"+literalEscape),"escaped \\n leaked after script: "+pathname);
   assert.ok(head.includes("html.crew-dynamic-route #root"),"early deep-route guard must remain in head: "+pathname);
+  const inlineGuard=head.match(/<script>([\\s\\S]*?)<\\/script>/)?.[1];
+  assert.ok(inlineGuard,"missing inline route guard: "+pathname);
+  assert.doesNotThrow(()=>new vm.Script(inlineGuard),"route guard must be valid browser JavaScript: "+pathname);
 
   const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
   assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
