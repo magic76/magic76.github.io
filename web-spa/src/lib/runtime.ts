@@ -1,6 +1,6 @@
 export type LiveTurn={input?:string;output?:string};
 export type LiveSessionOptions={
- system:string;openingPrompt:string;voice:string;volume:number;manualInterruptOnly?:boolean;
+ system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
