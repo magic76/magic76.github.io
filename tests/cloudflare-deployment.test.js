@@ -168,7 +168,19 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
    assert.ok(!sitemap.includes("<loc>"+canonical+"</loc>"),"thin article must not enter sitemap: "+route);
   }
  }
- assert.ok(total>0&&indexed>0,"research SSG should publish actual articles and index substantial ones");
+ assert.ok(total>0,"public research feed must produce article pages, even when no articles qualify for indexing");
+ const discovery=JSON.parse(read("briefings/discovery.json"));
+ assert.equal(Object.keys(discovery).length,total,"every public article must appear in discovery manifest");
+ for(const [pagePath,entries] of Object.entries(discovery)){
+  assert.ok(Array.isArray(entries)&&entries.length<=3,"maximum 3 recommendations");
+  for(const entry of entries){
+   assert.ok(fs.existsSync(path.join(DIST,entry.path.slice(1),"index.html")),"unpublished recommendation: "+entry.path);
+   assert.notEqual(pagePath,entry.path,"article must not recommend itself");
+   const expectedSeed=JSON.parse(read(pagePath.slice(1)+"index.html").split('<script id="crew-research-seed" type="application/json">')[1].split("</script>")[0]);
+   assert.deepEqual(expectedSeed.related,entries,"hydration data and discovery manifest disagree: "+pagePath);
+  }
+ }
+
  assert.equal(urls.length,expected.length,"sitemap should include only public SSG routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
