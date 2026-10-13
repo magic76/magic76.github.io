@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-13.1",
+  "revision": "2026-10-13.2",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -37,6 +37,15 @@
     "release": {
       "androidPlayAabManual": true,
       "webDeployAfterMerge": true
+    },
+    "voiceDiversity": {
+      "officialLiveVoiceCount": 30,
+      "previewUsesLiveModel": true,
+      "accentIsBestEffort": true,
+      "accentDoesNotOverrideSelectedLanguage": true,
+      "voiceLabAndroidDebugOnly": true,
+      "voiceLabWebOptIn": true,
+      "ratingsStoredLocally": true
     }
   },
   "featureMatrix": [
@@ -143,6 +152,14 @@
       "web": "supported",
       "androidEntry": null,
       "webEntry": "web-spa/src/App.tsx"
+    },
+    {
+      "id": "voice_diversity",
+      "label": "30 Live voice identities, character delivery, experimental accent and internal Voice Lab",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/LiveVoiceCatalog.java",
+      "webEntry": "web-spa/src/live/voiceIdentity.ts"
     }
   ],
   "invariants": [
@@ -320,6 +337,80 @@
           "path": "crew-live.js",
           "contains": [
             "realtimeInput:{text:instruction}"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "voice_identity_parity",
+      "why": "Preview and actual Live sessions use the same named voices; accent does not change selected language",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/LiveVoiceCatalog.java",
+          "contains": [
+            "\"Zephyr\"",
+            "\"Leda\"",
+            "\"Achernar\"",
+            "\"Sulafat\"",
+            "return \"Kore\""
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "LiveVoiceCatalog.normalize(name)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/GeminiVoicePreviewClient.java",
+          "contains": [
+            "NativeGeminiLiveClient.mapToSupportedVoice",
+            "playLab("
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/VoiceIdentityPolicy.java",
+          "contains": [
+            "SELECTED target language",
+            "Taiwanese-English"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/VoiceLabDialog.java",
+          "contains": [
+            "FLAG_DEBUGGABLE",
+            "crew_voice_lab_ratings"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/live/voiceIdentity.ts",
+          "contains": [
+            "LIVE_VOICES",
+            "Taiwanese-influenced English accent",
+            "SELECTED target language"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "normalizeLiveVoice(friend.voice)"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/LivePage.tsx",
+          "contains": [
+            "voiceIdentityPrompt(\"teacher\""
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/VoiceLabPage.tsx",
+          "contains": [
+            "persistHistory:false",
+            "teacherReport:false",
+            "lab",
+            "crew_voice_lab_ratings_v1"
           ]
         }
       ]
