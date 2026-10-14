@@ -2,7 +2,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import {Link, useSearchParams} from "react-router-dom";
 import {geminiKey} from "../lib/runtime";
 import {
-  connectGuestLive, guestManualPreviewAvailable, configureGuestManualPreview,
+  connectGuestLive, probeGuestFirebaseHttp, guestManualPreviewAvailable, configureGuestManualPreview,
   guestTrialConfigured, guestTrialMissingSetup, guestSessionsRemaining, recordGuestSession,
   GUEST_SESSION_SECONDS, startPreparedGuestAudio, type GuestAudioController, type GuestLiveSession,
 } from "../lib/firebaseGuest";
@@ -23,6 +23,8 @@ export function FirebaseGuestLivePage() {
   const [manualAppId, setManualAppId] = useState("");
   const [manualProjectId, setManualProjectId] = useState("crew-e13f9");
   const [manualStatus, setManualStatus] = useState("");
+  const [httpProbe, setHttpProbe] = useState<"idle"|"testing"|"success"|"error">("idle");
+  const [httpProbeMessage, setHttpProbeMessage] = useState("");
   const [manualActivated, setManualActivated] = useState(false);
   const sessionRef = useRef<GuestLiveSession|null>(null);
   const audioRef = useRef<GuestAudioController|null>(null);
@@ -85,7 +87,12 @@ export function FirebaseGuestLivePage() {
       await cleanup();
       if (mountedRef.current && !cancelledRef.current) {
         setPhase("idle");
-        setStatus("Firebase 試用無法連線：" + (error instanceof Error ? error.message : String(error)));
+        const message = error instanceof Error ? error.message : String(error);
+        const safe = message.replace(/AIza[0-9A-Za-z_-]+/g, "[API Key 已隱藏]").slice(0, 350);
+        const handshakeFailure = /setupComplete|handshake failed/i.test(message);
+        setStatus(handshakeFailure
+          ? "Firebase Live WebSocket 握手失敗。這與 Firebase 官方已確認的 App Check Token 傳輸問題（firebase-js-sdk #10018）一致；可先測試下方 HTTPS 文字 API 區分是否為 SDK 已知問題。原始錯誤：" + safe
+          : "Firebase 試用無法連線：" + safe);
       }
     } finally {
       busyRef.current = false;
@@ -133,6 +140,24 @@ export function FirebaseGuestLivePage() {
       }
     }).finally(() => { busyRef.current = false; });
   }, [cleanup, role, stop]);
+
+  const checkHttp = useCallback(async () => {
+    if (phase !== "idle" || httpProbe === "testing" || !guestTrialConfigured()) return;
+    setHttpProbe("testing");
+    setHttpProbeMessage("正在透過 Firebase AI Logic HTTPS 測試 Gemini 文字回應與 App Check…");
+    try {
+      await probeGuestFirebaseHttp();
+      if (!mountedRef.current) return;
+      setHttpProbe("success");
+      setHttpProbeMessage("成功：Firebase Web 設定、AI Logic 文字 API 與 App Check HTTPS 通道正常。若 Live 語音仍無法連線，可能是 Firebase Web SDK 的已知 WebSocket App Check 問題（#10018），不是 Preview 網域。");
+    } catch (error) {
+      if (!mountedRef.current) return;
+      setHttpProbe("error");
+      const message = error instanceof Error ? error.message : String(error);
+      const safe = message.replace(/AIza[0-9A-Za-z_-]+/g, "[API Key 已隱藏]").slice(0, 350);
+      setHttpProbeMessage("文字 API 也失敗，請先確認 App Check Debug Token 已註冊、AI Logic 已啟用與模型配額。錯誤：" + safe);
+    }
+  }, [phase, httpProbe]);
 
   const available = guestTrialConfigured();
   const active = phase !== "idle";
@@ -182,6 +207,15 @@ export function FirebaseGuestLivePage() {
             <p className="meta">Cloudflare Pages 的 Preview 環境變數需重新部署才會生效；請使用 PR #125 對應的分支 Preview 網址。設定值不會顯示在此頁面。</p>
           </div>
         : <>
+          <section style={{display:"grid",gap:8,borderBottom:"1px solid var(--border, #ddd)",paddingBottom:16}} aria-label="Firebase App Check 診斷">
+            <h3 style={{margin:0}}>先測 Firebase 文字 API（不開麥克風）</h3>
+            <p className="meta">這會發送一則極短的 Gemini 文字請求，驗證 Web 設定、Firebase AI Logic 與 App Check 的 HTTPS 通道。HTTPS 成功不代表 Live WebSocket 一定能連線。</p>
+            <div className="actions">
+              <button className="btn secondary" disabled={active || httpProbe === "testing"} onClick={() => void checkHttp()}>{httpProbe === "testing" ? "正在檢測…" : "檢查 Firebase / App Check"}</button>
+              <a href="https://github.com/firebase/firebase-js-sdk/issues/10018" target="_blank" rel="noopener noreferrer" className="btn secondary">Firebase Live 已知問題</a>
+            </div>
+            {httpProbeMessage && <p role="status" className="meta">{httpProbeMessage}</p>}
+          </section>
           <div className="actions">
             <button className={"btn " + (role === "teacher" ? "" : "secondary")} disabled={active} onClick={() => setRole("teacher")}>Crew 老師</button>
             <button className={"btn " + (role === "friend" ? "" : "secondary")} disabled={active} onClick={() => setRole("friend")}>Crew 朋友 · Zoe</button>
