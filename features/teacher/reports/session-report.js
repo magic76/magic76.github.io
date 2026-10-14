@@ -68,6 +68,9 @@ async function generate(snapshot,options){
   "相似的持續性概念請沿用上述既有 key，避免每次對話新增一筆重複記憶。每種類型最多 2 筆。必須從學生說過的話提取，不能從老師的話推斷；不能從文字推斷發音。"+
   "個人資訊擷取："+(allowPersonal?"只允許學生明確提及、不敏感且有長期價值的生活事實、目標、興趣、偏好。必須有 exact evidence、explicit=true，禁止推測。":"關閉。facts,goals,interests,preferences 必須全是空陣列。")+
   "如果沒有明確證據，對應陣列設為空，不要杜撰。"+
+  (options.trackSpeakingLevel&&allowPersonal
+   ?"另外輸出 speaking_evidence:{level:'A1|A2|B1|B2',quote:'Student 逐字原話'}，只依學生真正使用目標語言的完整回答估計，至少三個詞，若證據不足輸出 null。不是正式 CEFR 認證；不要用單字測驗、母語求助、老師話語或逐字稿猜發音。"
+   :"speaking_evidence 設為 null。")+
   "如果提供情境任務，額外輸出 mission_results:[{completed:boolean,evidence_quote:string}]，每個任務依順序判斷。只能根據 Student 發言的語意和場景互動判斷，允許不同自然說法；絕不可把 Tutor 的話算成學生完成，也不可要求逐字匹配。evidence_quote 必須是 Student 發言中逐字連續的短句，不可意譯、不可引用角色發言；未完成時設空字串。"+
   "任務："+JSON.stringify(missions)+"。"+
   "對話：\n"+transcript.slice(-12000);
