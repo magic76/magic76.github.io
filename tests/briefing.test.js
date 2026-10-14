@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
-import {abstractPreview,normalizeCandidate,select,unique,classify,composeEdition} from "../scripts/generate-briefing.mjs";
+import {abstractPreview,normalizeCandidate,select,unique,classify,composeEdition,renderRssFeed} from "../scripts/generate-briefing.mjs";
 import {RESEARCH_AXES,matchingAxes,researchScore,selectResearch} from "../scripts/briefing-research-axes.mjs";
 import {parsePublicFeed,parseReleaseNotes} from "../scripts/briefing-public-sources.mjs";
 import {assessResearchQuality} from "../scripts/research-quality.mjs";
@@ -96,4 +96,21 @@ test("compose up to six public items, and keep raw excerpts out of SEO indexing"
  assert.equal(deepCount,0);
  assert.equal(assessResearchQuality(items[0]).indexable,false);
  assert.deepEqual(composeEdition([],[]),{items:[],deepCount:0});
+});
+
+test("published RSS and future generated article links use the canonical 3sssi domain",()=>{
+ const expectedOrigin="https://www.3sssi.com";
+ const generated=renderRssFeed([{date:"2026-10-14",item:{id:"sample",title:"Example & research",summary:"Research summary",publishedAt:"2026-10-14T00:00:00Z"}}]);
+ const expectedLinks=[expectedOrigin+"/research/",expectedOrigin+"/research/2026-10-14/sample"];
+ const extractLinks=xml=>[...xml.matchAll(/<link>([^<]+)<\\/link>/g)].map(match=>match[1]);
+ assert.deepEqual(extractLinks(generated),expectedLinks);
+ assert.match(generated,/<title>Example &amp; research<\\/title>/);
+ for(const file of ["../web-spa/public/briefings/feed.xml","../crew-app/briefings/feed.xml"]){
+  const feed=readFileSync(new URL(file,import.meta.url),"utf8");
+  assert.doesNotMatch(feed,/https?:\\/\\/magic76\\.github\\.io/);
+  const links=extractLinks(feed);
+  assert.ok(links.length>1,"feed must include channel and articles: "+file);
+  assert.equal(links[0],expectedOrigin+"/research/");
+  assert.ok(links.slice(1).every(link=>link.startsWith(expectedOrigin+"/research/")),"article links must use canonical production URLs: "+file);
+ }
 });
