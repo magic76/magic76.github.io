@@ -74,6 +74,17 @@ Debug-mode tokens are a trusted-testing escape hatch, **not** a substitute for r
 6. Only after steps 1–5 and small-scale manual checks, set `VITE_CREW_GUEST_TRIAL_ENABLED=1` in Cloudflare Pages and redeploy. With the flag unset, the new entry is hidden; direct pilot URL displays an unavailable message.
 7. Test Safari/Chrome on desktop and Android Chrome: App Check verification, microphone prompt, teacher and Zoe speaking, stop + microphone release, 3-minute timeout, a 4th local session blocked, no-key vs BYOK settings, Android/Web teacher contract tests, preview host behavior and error handling. Verify AI costs remain on the trial Firebase project and existing BYOK remains untouched.
 
+## Known upstream blocker: Web Live and enforced App Check (2026-10-14)
+
+**Do not interpret the Live WebSocket handshake error as proof that the Cloudflare Preview host needs registration.** Firebase's maintainers confirmed an unresolved Firebase JS SDK/backend issue: the browser Live WebSocket does not send the App Check token. In October 2026 the identical failure was reproduced with `GoogleAIBackend`, `gemini-3.1-flash-live-preview`, `firebase@13.0.0` and a registered Debug Token; HTTPS `generateContent` succeeds with App Check, but `LiveModel.connect()` fails before `setupComplete`.
+
+- https://github.com/firebase/firebase-js-sdk/issues/10018
+- Do **not** bypass this by publishing the private Gemini key, embedding a debug token, or disabling App Check enforcement. Firebase AI Logic enforcement becomes mandatory on November 2, 2026.
+- The Preview guest page now has a separate **檢查 Firebase / App Check** control. It invokes a tiny **HTTPS** `getGenerativeModel(...).generateContent("Reply with only OK.")` request with the supported `gemini-3.5-flash-lite` model. No audio is captured and no guest Live session count is consumed. The HTTP result is only a diagnostic.
+- If HTTP succeeds but Live handshake still fails with `setupComplete`, report this as the known upstream WebSocket App Check issue and keep the PR in Draft. No amount of Preview hostname changes will fix the SDK's missing App Check token in the WebSocket.
+- If HTTP fails, investigate the Firebase debug token registration, selected Firebase project/Web app, AI Logic provider/API configuration, quotas, and any API key referrer restrictions. Don't assume the upstream WebSocket bug until HTTP has succeeded.
+- For a production guest **voice** tier, evaluate a separate trusted server-side transport using Cloudflare Workers and a short-lived session/token approach with reliable abuse/cost controls, or wait for Firebase's supported SDK/server fix. Existing user-provided Gemini-key Live continues unaffected.
+
 ## Security & budget limitations
 
 Firebase Web config keys are *public identifiers*, NOT developer Gemini secrets. Firebase AI Logic is a provider proxy: the developer's provider credential must never be shipped to the browser.
