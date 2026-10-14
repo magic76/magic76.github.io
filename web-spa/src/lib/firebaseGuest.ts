@@ -28,18 +28,40 @@ function localDebug() {
     && typeof window !== "undefined"
     && ["localhost", "127.0.0.1"].includes(window.location.hostname);
 }
-function previewDebug() {
+function onAllowedPreviewHost() {
   if (typeof window === "undefined") return false;
-  const host = window.location.hostname.toLowerCase();
+  return /^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/.test(
+    window.location.hostname.toLowerCase()
+  );
+}
+function previewDebug() {
   return import.meta.env.VITE_CREW_FIREBASE_PREVIEW_DEBUG === "1"
-    && /^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/.test(host);
+    && onAllowedPreviewHost();
 }
 function appCheckDebug() { return localDebug() || previewDebug(); }
 
-export function guestTrialConfigured() {
+/** Build-time configuration diagnostics, never expose API key/token values. */
+export function guestTrialMissingSetup(): string[] {
+  const missing: string[] = [];
   const c = config();
-  return import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED === "1"
-    && Boolean(c.apiKey && c.appId && c.projectId && (siteKey() || appCheckDebug()));
+  if (import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED !== "1")
+    missing.push("未設定 VITE_CREW_GUEST_TRIAL_ENABLED=1");
+  if (!c.apiKey) missing.push("缺少 VITE_FIREBASE_API_KEY");
+  if (!c.appId) missing.push("缺少 VITE_FIREBASE_APP_ID");
+  if (!c.projectId) missing.push("缺少 VITE_FIREBASE_PROJECT_ID");
+  if (!siteKey() && !appCheckDebug()) {
+    if (onAllowedPreviewHost()) {
+      missing.push("Preview 未設定 VITE_CREW_FIREBASE_PREVIEW_DEBUG=1");
+    } else if (typeof window !== "undefined" && window.location.hostname === "www.3sssi.com") {
+      missing.push("正式網站不允許 Debug 模式；請使用 Cloudflare Preview，正式公開則需要 App Check 網站金鑰");
+    } else {
+      missing.push("請從 Cloudflare Pages 的分支 Preview 網址開啟（或設定正式 App Check Site Key）");
+    }
+  }
+  return missing;
+}
+export function guestTrialConfigured() {
+  return guestTrialMissingSetup().length === 0;
 }
 
 function today() {
