@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
+import {guestTrialConfigured} from "../lib/firebaseGuest";
 
 type MicPermission = PermissionState|"unknown"|"unsupported";
 type VoiceResult = "idle"|"testing"|"success"|"failed";
@@ -196,6 +197,12 @@ export function GeminiConnectionPanel(){
   ["Wake Lock",!!(navigator as any).wakeLock?.request]
  ];
  return <>
+  {guestTrialConfigured() && !configured && <section className="section panel" aria-label="Firebase 免費試用">
+    <h3>{locale.language.startsWith("en") ? "Try Crew without an API key" : "不用 Gemini Key，先試試 Crew"}</h3>
+    <p className="meta">{locale.language.startsWith("en") ? "Preview voice chat with a Crew Teacher or Zoe. Up to 3 sessions per day, 3 minutes each." : "先跟 Crew 老師或 Zoe 語音聊天。每日最多 3 次，每次 3 分鐘（預覽功能）。"}</p>
+    <div className="actions"><button className="btn" onClick={() => navigate("/teacher/guest-live")}>{locale.language.startsWith("en") ? "Start free voice trial" : "開始免費語音體驗"}</button></div>
+    <small className="meta">{locale.language.startsWith("en") ? "Trial does not include memories, reports or full controls. Quota shown is a device-local guide." : "試用不含對話記憶、報告與完整控制；次數是裝置端提醒。"}</small>
+  </section>}
   {!showSetup&&configured?
    <section className={"section panel settings-connected-card "+(verified?"verified":"pending")}>
     <div className="settings-connected-main"><span className="settings-connected-mark">{verified?"✓":"!"}</span>
