@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { defineConfig, type Plugin } from "vite";
+import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 
 const isCloudflareBuild = process.env.CREW_DEPLOY_TARGET === "cloudflare";
@@ -47,8 +47,28 @@ function createBuildInfo(isBuild: boolean): BuildInfo {
   };
 }
 
-export default defineConfig(({ command }) => {
+export default defineConfig(({ command, mode }) => {
   const buildInfo = createBuildInfo(command === "build");
+  if (isCloudflareBuild && command === "build") {
+    // Build-time only; never log variable values or debug tokens.
+    // Vite reads env files relative to root=web-spa and merges process.env.
+    const loaded = loadEnv(mode, resolve(process.cwd(), "web-spa"), "VITE_");
+    const names = [
+      "VITE_FIREBASE_API_KEY",
+      "VITE_FIREBASE_APP_ID",
+      "VITE_FIREBASE_PROJECT_ID",
+      "VITE_FIREBASE_APP_CHECK_SITE_KEY",
+      "VITE_CREW_GUEST_TRIAL_ENABLED",
+      "VITE_CREW_FIREBASE_PREVIEW_DEBUG"
+    ];
+    console.info("[Crew Firebase] Build configuration check");
+    console.info("[Crew Firebase] Environment:", buildInfo.environment);
+    for (const name of names) {
+      const cloudflare = process.env[name]?.trim() ? "PRESENT" : "MISSING";
+      const vite = loaded[name]?.trim() ? "PRESENT" : "MISSING";
+      console.info(`[Crew Firebase] ${name}: Cloudflare=${cloudflare}, Vite=${vite}`);
+    }
+  }
   const versionAsset: Plugin = {
     name: "crew-version-asset",
     apply: "build",
