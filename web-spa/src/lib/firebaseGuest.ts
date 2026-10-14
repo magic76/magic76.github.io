@@ -19,18 +19,27 @@ function config() {
   };
 }
 function siteKey() { return String(import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY || ""); }
-// Firebase App Check debug provider is available ONLY on the Vite localhost
-// development server, never in Cloudflare production or preview deployments.
+// Debug App Check is allowed only in Vite localhost or a Cloudflare Pages
+// PREVIEW subdomain with an explicit preview-only build flag. Configure the
+// Pages preview environment behind Cloudflare Access BEFORE enabling the flag.
+// No registered debug tokens are ever bundled or sent to other visitors.
 function localDebug() {
   return import.meta.env.DEV
     && typeof window !== "undefined"
     && ["localhost", "127.0.0.1"].includes(window.location.hostname);
 }
+function previewDebug() {
+  if (typeof window === "undefined") return false;
+  const host = window.location.hostname.toLowerCase();
+  return import.meta.env.VITE_CREW_FIREBASE_PREVIEW_DEBUG === "1"
+    && /^[a-z0-9-]+\\.magic76-github-io\\.pages\\.dev$/.test(host);
+}
+function appCheckDebug() { return localDebug() || previewDebug(); }
 
 export function guestTrialConfigured() {
   const c = config();
   return import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED === "1"
-    && Boolean(c.apiKey && c.appId && c.projectId && (siteKey() || localDebug()));
+    && Boolean(c.apiKey && c.appId && c.projectId && (siteKey() || appCheckDebug()));
 }
 
 function today() {
@@ -94,7 +103,7 @@ let aiPromise: Promise<{sdk: SDK; ai: unknown}> | null = null;
 async function initialize() {
   if (!guestTrialConfigured()) throw new Error("Firebase 免費試用尚未啟用。");
   if (!aiPromise) aiPromise = (async () => {
-    if (localDebug()) {
+    if (appCheckDebug()) {
       // The SDK will print a browser-specific debug token to the console.
       // The owner must register it under Firebase App Check -> Manage debug
       // tokens before the Firebase AI Logic backend will accept requests.
@@ -107,8 +116,8 @@ async function initialize() {
     preparedAudioStarter = modules.startAudioConversation;
     const app = modules.initializeApp(config(), "crew-web-guest");
     modules.initializeAppCheck(app, {
-      // The dummy provider string is ignored by the SDK while the debug
-      // provider is active. This path is hard-gated to Vite localhost only.
+      // The dummy provider string is ignored while the debug provider is active.
+      // Hostname + compile-time flags constrain the debug path to local/preview.
       provider: new modules.ReCaptchaEnterpriseProvider(siteKey() || "dev-only-no-site-key"),
       isTokenAutoRefreshEnabled: true,
     });
