@@ -1,6 +1,6 @@
 {
   "date": "2026-10-14",
-  "generatedAt": "2026-10-13T16:39:33.649Z",
+  "generatedAt": "2026-10-14T01:26:50.409Z",
   "edition": "public",
   "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
   "items": [
@@ -109,7 +109,34 @@
           "kind": "官方技術文章"
         }
       ],
-      "score": 78
+      "score": 76
+    },
+    {
+      "id": "dbb95ff3d456141d",
+      "title": "Gemini CLI AI agent update: * fix(cli): persist state atomically and recover from backup on corruption by @urielefrenvirtusa in https://github.com/google-gemi",
+      "summary": "* fix(cli): persist state atomically and recover from backup on corruption by @urielefrenvirtusa in https://github.com/google-gemini/gemini-cli/pull/29558 * fix(cli): retry directory removal on Windows locking errors during extension updates by @jesussamuel-byte in https://github.com/google-gemini/gemini-cli/pull/29540 * fix(cli): ensure Enter and Spacebar reliably confirm selection list options b",
+      "publishedAt": "2026-10-13T20:44:46Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Gemini CLI v0.64.0",
+          "url": "https://github.com/google-gemini/gemini-cli/releases/tag/v0.64.0",
+          "publishedAt": "2026-10-13T20:44:46Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 90,
+      "body": "* fix(cli): persist state atomically and recover from backup on corruption by @urielefrenvirtusa in https://github.com/google-gemini/gemini-cli/pull/29558 * fix(cli): retry directory removal on Windows locking errors during extension updates by @jesussamuel-byte in https://github.com/google-gemini/gemini-cli/pull/29540 * fix(cli): ensure Enter and Spacebar reliably confirm selection list options by @ugorla-dev in https://github.com/google-gemini/gemini-cli/pull/29502"
     },
     {
       "id": "0ba886b07133e21d",
@@ -137,32 +164,6 @@
       ],
       "score": 88,
       "body": "- Added Claude Haiku 5.5 (`claude-haiku-5-5`), now the default Haiku model on the Anthropic API — 1M context, $0.10/$0.50 per Mtok ($0.50/$2.50 for prompts over 100K) - Added `agentType` to the `subagentStatusLine` payload, so scripts can tell custom subagent types apart - Fixed Claude sometimes treating its own last actions before a context compaction as done after it, and retracting or redoing finished work - Fixed a memory leak where an HTTP MCP connection kept every request it had sent until it closed"
-    },
-    {
-      "id": "afa8c33f8eb7996a",
-      "title": "Getting the Source Right, Not Just the Fact: Source-Aware Verification for MCP Agents",
-      "summary": "近期公開研究線索：Getting the Source Right, Not Just the Fact: Source-Aware Verification for MCP Agents。需先閱讀原文核實方法及結果。",
-      "publishedAt": "2026-09-29T13:07:00.000Z",
-      "topic": "Agent Reliability",
-      "projects": [
-        "Crew Pocket",
-        "Crew Deck"
-      ],
-      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
-      "actions": [
-        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
-        "檢查相關功能現有做法，找出可比較的差異",
-        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
-      ],
-      "sources": [
-        {
-          "title": "Getting the Source Right, Not Just the Fact: Source-Aware Verification for MCP Agents",
-          "url": "https://huggingface.co/blog/MultiverseComputingCAI/getting-the-source-right-not-just-the-fact-source",
-          "publishedAt": "2026-09-29T13:07:00.000Z",
-          "kind": "官方技術文章"
-        }
-      ],
-      "score": 84
     }
   ]
 }
