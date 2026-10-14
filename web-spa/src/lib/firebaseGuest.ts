@@ -117,6 +117,9 @@ type SDK = {
   ReCaptchaEnterpriseProvider: new (key: string) => unknown;
   getAI: (app: unknown, options: Record<string, unknown>) => unknown;
   GoogleAIBackend: new () => unknown;
+  getGenerativeModel: (ai: unknown, options: Record<string, unknown>) => {
+    generateContent: (prompt: string) => Promise<unknown>;
+  };
   getLiveGenerativeModel: (ai: unknown, options: Record<string, unknown>) => {connect: () => Promise<GuestLiveSession>};
   startAudioConversation: (session: GuestLiveSession) => Promise<GuestAudioController>;
 };
@@ -170,6 +173,18 @@ async function initialize() {
     return {sdk: modules, ai: modules.getAI(app, {backend: new modules.GoogleAIBackend()})};
   })().catch(err => { aiPromise = null; throw err; });
   return aiPromise;
+}
+
+/**
+ * Independent HTTPS smoke test. HTTPS sends Firebase App Check tokens via its
+ * request headers; browser WebSocket Live currently has a known upstream
+ * missing-token bug (firebase/firebase-js-sdk#10018).
+ * This call does not open the microphone or consume a Live guest session.
+ */
+export async function probeGuestFirebaseHttp(): Promise<void> {
+  const {sdk: modules, ai} = await initialize();
+  const model = modules.getGenerativeModel(ai, {model: "gemini-3.5-flash-lite"});
+  await model.generateContent("Reply with only OK.");
 }
 
 export async function connectGuestLive(system: string) {
