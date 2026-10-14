@@ -15,6 +15,12 @@ const https=(url)=>{try {const u=new URL(url);return u.protocol==="https:"?u.hre
 const fresh=(date)=>{const t=Date.parse(date);return Number.isFinite(t)&&Date.now()-t<=21*86400000&&t<=Date.now()+3600000};
 export const classify=classifyResearch;
 export const unique=(arr)=>[...new Set(arr)];
+const RSS_ORIGIN="https://www.3sssi.com";
+export function renderRssFeed(records){
+ const escapeXml=v=>String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+ return '<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>Crew Briefing</title><link>'+RSS_ORIGIN+'/research/</link><description>Public AI engineering and Crew project research</description><language>zh-TW</language>'+
+  records.map(({date,item})=>'<item><title>'+escapeXml(item.title)+'</title><link>'+RSS_ORIGIN+'/research/'+date+'/'+encodeURIComponent(item.id)+'</link><guid isPermaLink="false">'+escapeXml(item.id)+'</guid><pubDate>'+new Date(item.publishedAt).toUTCString()+'</pubDate><description>'+escapeXml(item.summary)+'</description></item>').join("")+'</channel></rss>\n';
+}
 export function normalizeCandidate(c){
  if(!c||!c.title||!c.url||!fresh(c.publishedAt))return null;
  const url=https(c.url);if(!url)return null;
@@ -43,7 +49,7 @@ export function abstractPreview(inverted,limit=320){
  return clean(tokens.filter(Boolean).join(" "),limit);
 }
 const req=async(url)=>{const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),15000);
- try {const r=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"CrewBriefing/1.0 (+https://magic76.github.io/)"},signal:ctrl.signal});if(!r.ok)throw Error(String(r.status));return await r.json()}finally{clearTimeout(timer)}};
+ try {const r=await fetch(url,{headers:{"Accept":"application/json","User-Agent":"CrewBriefing/1.0 (+https://www.3sssi.com/research/)"},signal:ctrl.signal});if(!r.ok)throw Error(String(r.status));return await r.json()}finally{clearTimeout(timer)}};
 async function hackerNews(){
  const results=await Promise.allSettled(topics.map(async cfg=>{
   const url="https://hn.algolia.com/api/v1/search_by_date?tags=story&hitsPerPage=12&query="+encodeURIComponent(cfg.query);
@@ -150,11 +156,8 @@ export async function run(){
  await writeFile(join(out,date+".json"),JSON.stringify(edition,null,2)+"\n");
  index={days:unique([date,...(index.days||[])]).sort().reverse().slice(0,90),updatedAt:edition.generatedAt};
  await writeFile(join(out,"index.json"),JSON.stringify(index,null,2)+"\n");
- const escapeXml=v=>String(v||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
  const records=[edition,...history].slice(0,7).flatMap(x=>(x.items||[]).map(item=>({date:x.date,item}))).slice(0,35);
- const feed='<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0"><channel><title>Crew Briefing</title><link>https://magic76.github.io/crew-app/#/briefing</link><description>Public AI engineering and Crew project research</description><language>zh-TW</language>'+
- records.map(({date,item})=>'<item><title>'+escapeXml(item.title)+'</title><link>https://www.3sssi.com/research/'+date+'/'+encodeURIComponent(item.id)+'</link><guid isPermaLink="false">'+escapeXml(item.id)+'</guid><pubDate>'+new Date(item.publishedAt).toUTCString()+'</pubDate><description>'+escapeXml(item.summary)+'</description></item>').join("")+'</channel></rss>\n';
- await writeFile(join(out,"feed.xml"),feed);
+ await writeFile(join(out,"feed.xml"),renderRssFeed(records));
 
  console.log("Crew Briefing",date,":",items.length,"published;",deepCount,"editorially enriched,",briefCount,"source briefs; candidates:",candidates.length);
 }
