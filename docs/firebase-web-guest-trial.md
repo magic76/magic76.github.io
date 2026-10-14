@@ -12,6 +12,18 @@ Owner: Crew Web (`magic76/magic76.github.io`); existing Teacher/Friend behavior 
 
 The demo does **not** yet support recording transcripts, lesson reports, long-term memories, exact role voice parity or the existing strict button-only interruption mode. Do not advertise those capabilities on this route.
 
+## Local-only smoke test without reCAPTCHA on the deployed site
+
+This PR supports Firebase App Check **debug mode only under Vite's `localhost` or `127.0.0.1` development server**. It cannot be enabled on production or Cloudflare Preview. To test before setting up a production reCAPTCHA Enterprise site key:
+
+1. Under the Firebase Console's **Security > App Check > Apps**, ensure your Firebase **Web app is registered** with App Check. If it is not registered, the Console may require you to complete Web-provider registration first; just enabling Firebase AI Logic is not enough.
+2. Create `web-spa/.env.local` (or run Vite with equivalent environment variables) with your public `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_PROJECT_ID=crew-e13f9` and `VITE_CREW_GUEST_TRIAL_ENABLED=1`. Do **not** add a `VITE_FIREBASE_APP_CHECK_SITE_KEY` just for local debug. Ensure the env file is gitignored and **never** store your private Gemini API key here.
+3. From the repository root run `npm ci && npm run dev:web`. Open the localhost URL printed by Vite, then navigate to `/teacher/guest-live`, open DevTools Console and click Start.
+4. Look for `AppCheck debug token: ...`. In Firebase Console > Security > App Check > Apps, use the Web app's **⋮ > Manage debug tokens** to register that **private** token. Do not put it in GitHub, this repo, Cloudflare, or a public chat.
+5. Retry in the same browser and verify microphone capture, Gemini voice response, stop/cleanup, and local trial limit. Confirm Firebase AI Logic's App Check API status is **Enforced**.
+
+Debug-mode tokens are a trusted-testing escape hatch, **not** a substitute for real-site App Check. On www.3sssi.com the pilot remains **disabled** while the reCAPTCHA site key is missing, regardless of `VITE_CREW_GUEST_TRIAL_ENABLED`. Do not disable enforcement or publish a debug token to work around it.
+
 ## Configuration (manual; NOT completed by this PR)
 
 1. Create a **separate Firebase project on Spark (no billing account)** for the pilot. Firebase Console → Build → AI Logic → Get started → **Gemini Developer API** backend. Firebase AI Logic handles the Gemini provider integration behind its gateway. Do **not** paste your private Gemini Developer API key into Vite env, GitHub, HTML, `localStorage` or a public Firebase document.
