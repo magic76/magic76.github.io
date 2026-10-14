@@ -10,8 +10,8 @@ function storage(){
 function load(modulePath,localStorage){
  const source=fs.readFileSync(path.join(root,modulePath),"utf8");
  const js=stripTypeScriptTypes(source,{mode:"strip"})
-  .replace(/^import.*(?:\\n|$)/gm,"")
-  .replace(/\\bexport\\s+(?=(?:function|const|let|class))/g,"");
+  .replace(/^import.*(?:\n|$)/gm,"")
+  .replace(/\bexport\s+(?=(?:function|const|let|class))/g,"");
  const names=modulePath.includes("adaptivePlacement")?["placementState","recordPlacement"]:["personalMemoryEnabled","saveStudentMemory","studentMemories","buildTutorMemoryContext","buildRoleplayMemoryContext","ingestStudentReport","setPersonalMemoryEnabled","deleteStudentMemory"];
  const exports={},ctx={exports,localStorage,Date,Math,JSON,clearAllSpeakingLevels:()=>{},clearSpeakingLevel:()=>{}};
  vm.runInNewContext(js+"\nObject.assign(exports,{"+names.join(",")+"});",ctx,{filename:modulePath});return exports;
