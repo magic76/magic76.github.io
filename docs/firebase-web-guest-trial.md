@@ -12,9 +12,25 @@ Owner: Crew Web (`magic76/magic76.github.io`); existing Teacher/Friend behavior 
 
 The demo does **not** yet support recording transcripts, lesson reports, long-term memories, exact role voice parity or the existing strict button-only interruption mode. Do not advertise those capabilities on this route.
 
-## Local-only smoke test without reCAPTCHA on the deployed site
+## Cloudflare Preview smoke test (no local environment, no production reCAPTCHA)
 
-This PR supports Firebase App Check **debug mode only under Vite's `localhost` or `127.0.0.1` development server**. It cannot be enabled on production or Cloudflare Preview. To test before setting up a production reCAPTCHA Enterprise site key:
+Cloudflare Pages preview deployments **are public by default**. **Before enabling any App Check debug functionality, restrict ALL preview deployments behind Cloudflare Access:** Cloudflare Dashboard > Workers & Pages > `magic76-github-io` > Settings > General > **Enable access policy**. Restrict the policy to the owner's email/account. Verify an incognito visitor is denied access to the preview URL. This is mandatory: Google's debug-provider documentation says never publish a debug build or token.
+
+1. Firebase Console > project `crew-e13f9` > **Security > App Check > APIs**: confirm Firebase AI Logic is **Enforced**. For a **debug-only pre-production** Firebase AI Logic flow, Google says registering a production Web attestation provider is not required. You can defer reCAPTCHA until public launch.
+2. Cloudflare Pages > Settings > Environment variables > **Preview** environment (not Production): set the already-known public `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_PROJECT_ID=crew-e13f9`. If those three exist only under Production, **copy them to Preview**. Then set:
+   - `VITE_CREW_GUEST_TRIAL_ENABLED=1`
+   - `VITE_CREW_FIREBASE_PREVIEW_DEBUG=1`
+   Never set `VITE_CREW_FIREBASE_PREVIEW_DEBUG=1` under Production. Never place any Firebase App Check debug token in Cloudflare env, GitHub or JS source.
+3. Trigger a **new Preview deployment** of branch `feat/firebase-web-guest-trial`, which contains PR #125. Obtain its actual `https://<preview-alias>.magic76-github-io.pages.dev` URL from Pages > Deployments; do not assume an arbitrary alias exists. Use the **preview hostname**, not `https://www.3sssi.com` or the root production `https://magic76-github-io.pages.dev`.
+4. Sign in through Cloudflare Access in the browser you intend to test. Open `https://<preview-alias>.magic76-github-io.pages.dev/teacher/guest-live` in a desktop browser, open Developer Tools Console, click **準備連線**. Firebase initializes its App Check debug provider and prints `AppCheck debug token: ...`. The first connection may fail because that particular browser's token is not yet allowlisted.
+5. Firebase Console > Security > App Check > Apps > Web app > **⋮ > Manage debug tokens**: register the generated token. This token is private — DO NOT paste it into chats or share the preview browser's local storage. Reopen/retry from **that same browser** and click **準備連線**, then **啟動麥克風**. The audio button is separate because browser audio capture must start from a user gesture.
+6. Test teacher voice, Zoe voice, manual stop and microphone release, 3-minute automatic stop and 4th trial blocked. Ensure normal BYOK paths are unchanged. Review Firebase quota and error metrics. When finished, revoke the debug token in Firebase Console and switch off the two `VITE_CREW_*` Preview flags if not continuing internal tests.
+
+Guardrails: preview debug is allowed **only** on `<subdomain>.magic76-github-io.pages.dev` and only when the Preview-only build flag is set. The root Pages domain and `www.3sssi.com` never qualify, even if an operator accidentally copies the preview flag to Production. Debug tokens are **never** committed or embedded in the Vite bundle. **This is still an experimental, private preview**; do not merge or advertise the guest mode publicly as a protected 3/day benefit. Local counters can be reset and do not enforce costs.
+
+## Optional localhost smoke test
+
+In addition to the protected Cloudflare Preview procedure above, the App Check debug provider is available on Vite's `localhost` or `127.0.0.1` development server. To test before setting up a production reCAPTCHA Enterprise site key:
 
 1. Under the Firebase Console's **Security > App Check > Apps**, ensure your Firebase **Web app is registered** with App Check. If it is not registered, the Console may require you to complete Web-provider registration first; just enabling Firebase AI Logic is not enough.
 2. Create `web-spa/.env.local` (or run Vite with equivalent environment variables) with your public `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_PROJECT_ID=crew-e13f9` and `VITE_CREW_GUEST_TRIAL_ENABLED=1`. Do **not** add a `VITE_FIREBASE_APP_CHECK_SITE_KEY` just for local debug. Ensure the env file is gitignored and **never** store your private Gemini API key here.
@@ -22,7 +38,7 @@ This PR supports Firebase App Check **debug mode only under Vite's `localhost` o
 4. Look for `AppCheck debug token: ...`. In Firebase Console > Security > App Check > Apps, use the Web app's **⋮ > Manage debug tokens** to register that **private** token. Do not put it in GitHub, this repo, Cloudflare, or a public chat.
 5. Retry in the same browser: click **準備連線**, wait for **啟動麥克風**, then click that second button. Two clicks are intentional so microphone activation happens directly within a user gesture. Verify capture, Gemini voice response, stop/cleanup, and local trial limit. Confirm Firebase AI Logic's App Check API status is **Enforced**.
 
-Debug-mode tokens are a trusted-testing escape hatch, **not** a substitute for real-site App Check. On www.3sssi.com the pilot remains **disabled** while the reCAPTCHA site key is missing, regardless of `VITE_CREW_GUEST_TRIAL_ENABLED`. Do not disable enforcement or publish a debug token to work around it.
+Debug-mode tokens are a trusted-testing escape hatch, **not** a substitute for real-site App Check. On www.3sssi.com the pilot remains **disabled** while the reCAPTCHA site key is missing, regardless of `VITE_CREW_GUEST_TRIAL_ENABLED`. Always enforce App Check and never publish a registered debug token.
 
 ## Configuration (manual; NOT completed by this PR)
 
