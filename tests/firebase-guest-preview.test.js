@@ -36,3 +36,13 @@ test("Cloudflare build diagnostics report presence only, never actual values", (
   assert.doesNotMatch(vite, /console\.(?:info|log)\([^\n]*process\.env\[name\]/);
   assert.doesNotMatch(vite, /console\.(?:info|log)\([^\n]*loaded\[name\]/);
 });
+
+test("HTTP model probe isolates App Check configuration from upstream Live WebSocket issue", () => {
+  assert.match(guest, /export async function probeGuestFirebaseHttp\(\)/);
+  assert.match(guest, /getGenerativeModel\(ai, \{model: "gemini-3\.5-flash-lite"\}\)/);
+  assert.match(guest, /model\.generateContent\("Reply with only OK\."\)/);
+  assert.match(page, /檢查 Firebase \/ App Check/);
+  assert.match(page, /probeGuestFirebaseHttp\(\)/);
+  assert.match(page, /setupComplete\|handshake failed/);
+  assert.match(page, /firebase-js-sdk\/issues\/10018/);
+});
