@@ -12,6 +12,27 @@ Owner: Crew Web (`magic76/magic76.github.io`); existing Teacher/Friend behavior 
 
 The demo does **not** yet support recording transcripts, lesson reports, long-term memories, exact role voice parity or the existing strict button-only interruption mode. Do not advertise those capabilities on this route.
 
+## Preview form testing without Cloudflare build variables
+
+This variant is suitable when Cloudflare Pages shows the Preview branch but the compiled site says the `VITE_*` variables are missing:
+
+1. Make sure **all Cloudflare Pages Preview deployments are protected using Cloudflare Access** and verify an incognito visitor cannot open the branch Preview. The debug build must not be shared publicly.
+2. Open the deployed PR branch `https://<branch>.magic76-github-io.pages.dev/teacher/guest-live`. On a matching branch Preview host, a **Preview 手動連線測試** form appears even when no Firebase environment variables were injected at build time.
+3. In Firebase Console `crew-e13f9` > Project Settings > General > Your Apps > Web app, copy **only the public firebaseConfig values** into the form:
+   - `apiKey` into **Firebase Web apiKey** (NOT a personal Gemini Developer API key).
+   - `appId` into **Firebase Web appId**.
+   - `projectId` into **Firebase projectId**.
+4. Click **使用這組設定測試** and then **準備連線**. This flow does not require `VITE_CREW_GUEST_TRIAL_ENABLED` or `VITE_CREW_FIREBASE_PREVIEW_DEBUG` to be present at build time: manual activation is in-memory, and App Check's Firebase debug provider is enabled only for the branch Preview hostname.
+5. The Firebase SDK prints `AppCheck debug token: ...` into the browser DevTools Console. Register that **private** token in Firebase Console > App Check > Web app > **Manage debug tokens**. Retry `準備連線`, then click **啟動麥克風**.
+6. The three form fields are **not persisted**, not included in page URLs and never displayed in console output. Refreshing erases them. Firebase keeps its own App Check debug token in the same browser profile; revoke it in Firebase Console after testing.
+7. If real Firebase errors are returned (quota, App Check, model unavailable, etc.), note only the error **code/type**, not any secrets. The developer's real Gemini key is **never** pasted here.
+
+If the form does **not** appear, verify the browser is on a branch Preview (`<branch>.magic76-github-io.pages.dev`), not `www.3sssi.com` or the production `magic76-github-io.pages.dev`.
+
+## Cloudflare build variable diagnostics
+
+Cloudflare Pages build command is `npm run build:cloudflare`. In the **Deployments > branch Preview > View build log**, search for `[Crew Firebase]`. The build prints **only** `PRESENT`/`MISSING` for six variable names, separately for `Cloudflare` (`process.env`) and `Vite` (`loadEnv`). No values, Web API keys, Gemini secrets, or Debug Tokens are printed. The browser's missing-config panel reads Vite's built JS output; diagnostic `Cloudflare=PRESENT, Vite=PRESENT` with a browser saying MISSING usually means a stale deployment or wrong URL. `Cloudflare=MISSING, Vite=MISSING` indicates the variables weren't available to that build, regardless of the dashboard edit view.
+
 ## Cloudflare Preview smoke test (no local environment, no production reCAPTCHA)
 
 Cloudflare Pages preview deployments **are public by default**. **Before enabling any App Check debug functionality, restrict ALL preview deployments behind Cloudflare Access:** Cloudflare Dashboard > Workers & Pages > `magic76-github-io` > Settings > General > **Enable access policy**. Restrict the policy to the owner's email/account. Verify an incognito visitor is denied access to the preview URL. This is mandatory: Google's debug-provider documentation says never publish a debug build or token.
