@@ -3,7 +3,7 @@ import {Link, useSearchParams} from "react-router-dom";
 import {geminiKey} from "../lib/runtime";
 import {
   connectGuestLive, guestTrialConfigured, guestSessionsRemaining, recordGuestSession,
-  GUEST_SESSION_SECONDS, type GuestAudioController, type GuestLiveSession,
+  GUEST_SESSION_SECONDS, startPreparedGuestAudio, type GuestAudioController, type GuestLiveSession,
 } from "../lib/firebaseGuest";
 
 /**
@@ -15,7 +15,7 @@ export function FirebaseGuestLivePage() {
   const [params] = useSearchParams();
   const [role, setRole] = useState<"teacher"|"friend">(params.get("mode") === "friend" ? "friend" : "teacher");
   const [status, setStatus] = useState("按下開始後即可直接用語音對話。");
-  const [phase, setPhase] = useState<"idle"|"connecting"|"connected"|"ending">("idle");
+  const [phase, setPhase] = useState<"idle"|"connecting"|"ready"|"starting"|"connected"|"ending">("idle");
   const [remaining, setRemaining] = useState(() => guestSessionsRemaining());
   const [seconds, setSeconds] = useState(GUEST_SESSION_SECONDS);
   const sessionRef = useRef<GuestLiveSession|null>(null);
@@ -51,33 +51,59 @@ export function FirebaseGuestLivePage() {
     return () => {mountedRef.current = false; cancelledRef.current = true; void cleanup();};
   }, [cleanup]);
 
-  const start = useCallback(async () => {
-    if (busyRef.current || !guestTrialConfigured()) return;
+  // Two gestures are deliberate: the Firebase Web SDK explicitly requires
+  // startAudioConversation() to be called within a user click handler. Doing
+  // async SDK loading and WebSocket connect first can lose browser activation.
+  const prepare = useCallback(async () => {
+    if (busyRef.current || !guestTrialConfigured() || sessionRef.current) return;
     if (guestSessionsRemaining() <= 0) {
-      setRemaining(0); setStatus("今天的體驗次數已用完，明天再來，或使用自己的 Gemini Key。"); return;
+      setRemaining(0);
+      setStatus("今天的體驗次數已用完，明天再來，或使用自己的 Gemini Key。");
+      return;
     }
     busyRef.current = true;
     cancelledRef.current = false;
-    setPhase("connecting"); setStatus("正在安全連線 Firebase AI Logic…");
+    setPhase("connecting");
+    setStatus("正在安全連線 Firebase AI Logic…");
     setSeconds(GUEST_SESSION_SECONDS);
     const system = role === "friend"
       ? "You are Zoe, the user's friendly, natural conversational companion. Speak primarily in the user's language (Traditional Chinese by default), follow their topic, and do not act like a teacher or constantly ask questions. This is a brief voice demonstration."
       : "You are a friendly Crew language teacher. Speak Traditional Chinese to guide the learner, introduce one practical English sentence, then invite them to say it. Stay concise and encouraging. This is a brief voice demonstration.";
     try {
-      const {session, startAudio} = await connectGuestLive(system);
+      const {session} = await connectGuestLive(system);
       if (cancelledRef.current) {await session.close(); return;}
       sessionRef.current = session;
-      // Firebase's audio helper owns capture/playback in this preview path.
-      // Do not silently substitute Crew's full BYOK audio controls.
-      const audio = await startAudio();
+      setPhase("ready");
+      setStatus("已準備好。再按「啟動麥克風」開始說話。");
+    } catch (error) {
+      await cleanup();
+      if (mountedRef.current && !cancelledRef.current) {
+        setPhase("idle");
+        setStatus("Firebase 試用無法連線：" + (error instanceof Error ? error.message : String(error)));
+      }
+    } finally {
+      busyRef.current = false;
+    }
+  }, [cleanup, role]);
+
+  const activateAudio = useCallback(() => {
+    const session = sessionRef.current;
+    if (busyRef.current || !session || cancelledRef.current) return;
+    busyRef.current = true;
+    setPhase("starting");
+    setStatus("正在取得麥克風權限…");
+    // Important: Call the SDK microphone helper synchronously from onClick,
+    // BEFORE the first await or another task queue turn.
+    const audioPromise = startPreparedGuestAudio(session);
+    void audioPromise.then(async audio => {
       if (cancelledRef.current) {await audio.stop(); await cleanup(); return;}
       audioRef.current = audio;
       if (!recordGuestSession()) {
         await cleanup();
-        setStatus("本日試用額度已用完。");
-        setPhase("idle");
+        if (mountedRef.current) {setRemaining(0); setPhase("idle"); setStatus("本日試用額度已用完。");}
         return;
       }
+      if (!mountedRef.current) {await cleanup(); return;}
       setRemaining(guestSessionsRemaining());
       setPhase("connected");
       setStatus("語音已連線，可以開始說話。");
@@ -85,7 +111,7 @@ export function FirebaseGuestLivePage() {
       timerRef.current = window.setInterval(() => {
         const left = Math.max(0, Math.ceil((until - Date.now()) / 1000));
         if (mountedRef.current) setSeconds(left);
-        if (left <= 0) {void stop();}
+        if (left <= 0) void stop();
       }, 300);
       void session.send(
         role === "friend"
@@ -93,22 +119,17 @@ export function FirebaseGuestLivePage() {
           : "Start a short, natural language practice now. No generic intro.",
         true
       ).catch(() => {if (mountedRef.current) setStatus("已連線；你可以先開口說話。");});
-    } catch (error) {
+    }).catch(async error => {
       await cleanup();
       if (mountedRef.current && !cancelledRef.current) {
         setPhase("idle");
-        setStatus("Firebase 試用無法啟動：" + (error instanceof Error ? error.message : String(error)));
+        setStatus("無法啟動麥克風：" + (error instanceof Error ? error.message : String(error)));
       }
-    } finally {
-      if (!audioRef.current) {
-        busyRef.current = false;
-        if (mountedRef.current) setPhase("idle");
-      }
-    }
+    }).finally(() => { busyRef.current = false; });
   }, [cleanup, role, stop]);
 
   const available = guestTrialConfigured();
-  const active = phase === "connected" || phase === "connecting";
+  const active = phase !== "idle";
   return <main className="shell" style={{maxWidth:820,padding:"32px 16px 100px"}}>
     <div className="actions"><Link className="btn secondary small" to="/teacher">← 返回 Crew Teacher</Link></div>
     <section className="hero">
@@ -128,9 +149,9 @@ export function FirebaseGuestLivePage() {
           <p role="status" aria-live="polite">{status}</p>
           {phase === "connected" && <p style={{fontSize:28,fontWeight:700}} aria-label="剩餘時間">{Math.floor(seconds/60)}:{String(seconds%60).padStart(2,"0")}</p>}
           <div className="actions">
-            {!active
-              ? <button className="btn" disabled={remaining === 0 || phase === "ending"} onClick={() => void start()}>開始語音體驗</button>
-              : <button className="btn secondary" onClick={() => void stop()}>{phase === "connecting" ? "取消連線" : "結束體驗"}</button>}
+            {phase === "idle" && <button className="btn" disabled={remaining === 0} onClick={() => void prepare()}>準備連線</button>}
+            {phase === "ready" && <button className="btn" onClick={activateAudio}>啟動麥克風</button>}
+            {active && <button className="btn secondary" onClick={() => void stop()} disabled={phase === "ending"}>{phase === "connected" ? "結束體驗" : "取消連線"}</button>}
           </div>
         </>}
       <p className="meta">目前是獨立的 Firebase 語音預覽：不儲存對話記憶、不產生課後報告，也不支援完整的手動打斷、教材相機與 Agent 功能。試用次數是裝置端提醒，不是防刷或費用上限。</p>
