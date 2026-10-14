@@ -102,12 +102,12 @@ test("published RSS and future generated article links use the canonical 3sssi d
  const expectedOrigin="https://www.3sssi.com";
  const generated=renderRssFeed([{date:"2026-10-14",item:{id:"sample",title:"Example & research",summary:"Research summary",publishedAt:"2026-10-14T00:00:00Z"}}]);
  const expectedLinks=[expectedOrigin+"/research/",expectedOrigin+"/research/2026-10-14/sample"];
- const extractLinks=xml=>[...xml.matchAll(/<link>([^<]+)<\\/link>/g)].map(match=>match[1]);
+ const extractLinks=xml=>[...xml.matchAll(/<link>([^<]+)<\/link>/g)].map(match=>match[1]);
  assert.deepEqual(extractLinks(generated),expectedLinks);
- assert.match(generated,/<title>Example &amp; research<\\/title>/);
+ assert.match(generated,/<title>Example &amp; research<\/title>/);
  for(const file of ["../web-spa/public/briefings/feed.xml","../crew-app/briefings/feed.xml"]){
   const feed=readFileSync(new URL(file,import.meta.url),"utf8");
-  assert.doesNotMatch(feed,/https?:\\/\\/magic76\\.github\\.io/);
+  assert.doesNotMatch(feed,/https?:\/\/magic76\.github\.io/);
   const links=extractLinks(feed);
   assert.ok(links.length>1,"feed must include channel and articles: "+file);
   assert.equal(links[0],expectedOrigin+"/research/");
