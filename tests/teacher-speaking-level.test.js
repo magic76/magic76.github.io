@@ -6,12 +6,12 @@ const vm=require("node:vm");
 const {stripTypeScriptTypes}=require("node:module");
 function subject(){
  const src=fs.readFileSync("web-spa/src/teacher/speakingLevelMemory.ts","utf8");
- const compiled=stripTypeScriptTypes(src,{mode:"strip"}).replace(/\\bexport\\s+(?=(?:function|const))/g,"");
+ const compiled=stripTypeScriptTypes(src,{mode:"strip"}).replace(/\bexport\s+(?=(?:function|const))/g,"");
  const data=new Map();
  const storage={getItem:k=>data.has(k)?data.get(k):null,setItem:(k,v)=>data.set(k,String(v)),
   removeItem:k=>data.delete(k),key:i=>[...data.keys()][i]??null,get length(){return data.size}};
  const module={exports:{}};
- vm.runInNewContext(compiled+"\\nObject.assign(exports,{verifiedSpeakingQuote,nextStableSpeakingLevel,recordSpeakingLevel,storedSpeakingLevel,effectiveSpeakingLevel,clearSpeakingLevel});",{module,exports:module.exports,localStorage:storage});
+ vm.runInNewContext(compiled+"\nObject.assign(exports,{verifiedSpeakingQuote,nextStableSpeakingLevel,recordSpeakingLevel,storedSpeakingLevel,effectiveSpeakingLevel,clearSpeakingLevel});",{module,exports:module.exports,localStorage:storage});
  return module.exports;
 }
 test("evidence from one student turn, not tutor or split turns",()=>{
