@@ -61,7 +61,7 @@ const sampleGlyph=(product:HomeProduct,count:number):Vertex[]=>{
   for(const {a,b,length} of segments){
    if(distance<=length){
     const t=distance/length;
-    return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+    return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t] as const;
    }
    distance-=length;
   }
