@@ -54,18 +54,18 @@ test("product hover morphs the same particle network into the corresponding card
  const ambience=read("web-spa/src/pages/HomeAtmosphere.tsx");
  const css=read("web-spa/src/pages/home.css");
  for(const kind of ["teacher","story","fortune"]){
-  assert.match(ambience,new RegExp(kind+":\\\\["));
-  assert.match(home,new RegExp('onPointerEnter=\\\\{\\\\(\\\\)=>setActiveProduct\\\\("'+kind+'"\\\\)'));
-  assert.match(home,new RegExp('onFocus=\\\\{\\\\(\\\\)=>setActiveProduct\\\\("'+kind+'"\\\\)'));
+  assert.ok(ambience.includes(kind+":["));
+  assert.ok(home.includes('onPointerEnter={()=>setActiveProduct("'+kind+'")}'));
+  assert.ok(home.includes('onFocus={()=>setActiveProduct("'+kind+'")}'));
  }
- assert.match(ambience,/GLYPH_STROKES/);
- assert.match(ambience,/sampleGlyph\\(active,particles.length\\)/);
- assert.match(ambience,/fromNodes=\\(renderedNodes.length===idleNodes.length/);
- assert.match(ambience,/const duration=active\\?420:620/);
- assert.match(ambience,/smoothstep\\(progress\\)/);
- assert.match(ambience,/const progress=reduced\\?1:/);
- assert.match(ambience,/refreshRef.current=\\(\\)=>\\{draw\\(performance.now\\(\\)\\);schedule\\(\\)\\}/);
- assert.match(css,/\\.crew-home-atmosphere:not\\(\\[data-product="idle"\\]\\) \\.crew-home-atmosphere-core/);
+ assert.ok(ambience.includes("GLYPH_STROKES"));
+ assert.ok(ambience.includes("sampleGlyph(active,particles.length)"));
+ assert.ok(ambience.includes("fromNodes=(renderedNodes.length===idleNodes.length"));
+ assert.ok(ambience.includes("const duration=active?420:620"));
+ assert.ok(ambience.includes("smoothstep(progress)"));
+ assert.ok(ambience.includes("const progress=reduced?1:"));
+ assert.ok(ambience.includes("refreshRef.current=()=>{draw(performance.now());schedule()}"));
+ assert.ok(css.includes('.crew-home-atmosphere:not([data-product="idle"]) .crew-home-atmosphere-core'));
 });
 
 test("Google Play area starts expanded but stays collapsible",()=>{
