@@ -18,9 +18,9 @@ This PR supports Firebase App Check **debug mode only under Vite's `localhost` o
 
 1. Under the Firebase Console's **Security > App Check > Apps**, ensure your Firebase **Web app is registered** with App Check. If it is not registered, the Console may require you to complete Web-provider registration first; just enabling Firebase AI Logic is not enough.
 2. Create `web-spa/.env.local` (or run Vite with equivalent environment variables) with your public `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_APP_ID`, `VITE_FIREBASE_PROJECT_ID=crew-e13f9` and `VITE_CREW_GUEST_TRIAL_ENABLED=1`. Do **not** add a `VITE_FIREBASE_APP_CHECK_SITE_KEY` just for local debug. Ensure the env file is gitignored and **never** store your private Gemini API key here.
-3. From the repository root run `npm ci && npm run dev:web`. Open the localhost URL printed by Vite, then navigate to `/teacher/guest-live`, open DevTools Console and click Start.
+3. From the repository root run `npm ci && npm run dev:web`. Open the localhost URL printed by Vite, then navigate to `/teacher/guest-live`, open DevTools Console, and click **準備連線**. Firebase should log a debug token during the initialization.
 4. Look for `AppCheck debug token: ...`. In Firebase Console > Security > App Check > Apps, use the Web app's **⋮ > Manage debug tokens** to register that **private** token. Do not put it in GitHub, this repo, Cloudflare, or a public chat.
-5. Retry in the same browser and verify microphone capture, Gemini voice response, stop/cleanup, and local trial limit. Confirm Firebase AI Logic's App Check API status is **Enforced**.
+5. Retry in the same browser: click **準備連線**, wait for **啟動麥克風**, then click that second button. Two clicks are intentional so microphone activation happens directly within a user gesture. Verify capture, Gemini voice response, stop/cleanup, and local trial limit. Confirm Firebase AI Logic's App Check API status is **Enforced**.
 
 Debug-mode tokens are a trusted-testing escape hatch, **not** a substitute for real-site App Check. On www.3sssi.com the pilot remains **disabled** while the reCAPTCHA site key is missing, regardless of `VITE_CREW_GUEST_TRIAL_ENABLED`. Do not disable enforcement or publish a debug token to work around it.
 
