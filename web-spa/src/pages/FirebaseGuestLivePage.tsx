@@ -2,7 +2,7 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import {Link, useSearchParams} from "react-router-dom";
 import {geminiKey} from "../lib/runtime";
 import {
-  connectGuestLive, guestTrialConfigured, guestSessionsRemaining, recordGuestSession,
+  connectGuestLive, guestTrialConfigured, guestTrialMissingSetup, guestSessionsRemaining, recordGuestSession,
   GUEST_SESSION_SECONDS, startPreparedGuestAudio, type GuestAudioController, type GuestLiveSession,
 } from "../lib/firebaseGuest";
 
@@ -139,7 +139,11 @@ export function FirebaseGuestLivePage() {
     </section>
     <section className="section panel" style={{display:"grid",gap:16}}>
       {!available
-        ? <p role="status">網站尚未啟用 Firebase 試用。請先完成 Firebase AI Logic、App Check 與 Cloudflare 環境設定。</p>
+        ? <div role="status" style={{display:"grid",gap:8}}>
+            <p>Firebase 試用目前尚未啟用，以下是此部署未通過的檢查：</p>
+            <ul style={{paddingLeft:22,margin:0}}>{guestTrialMissingSetup().map(item => <li key={item}>{item}</li>)}</ul>
+            <p className="meta">Cloudflare Pages 的 Preview 環境變數需重新部署才會生效；請使用 PR #125 對應的分支 Preview 網址。設定值不會顯示在此頁面。</p>
+          </div>
         : <>
           <div className="actions">
             <button className={"btn " + (role === "teacher" ? "" : "secondary")} disabled={active} onClick={() => setRole("teacher")}>Crew 老師</button>
