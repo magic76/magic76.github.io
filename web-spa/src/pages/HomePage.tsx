@@ -6,7 +6,7 @@ import {fetchDay,fetchIndex,rankItems} from "../briefing/data";
 import type {BriefingDay,BriefingItem} from "../briefing/types";
 import {Icon} from "../components/Icon";
 import {PlayStoreLink} from "../components/PlayStoreLink";
-import {HomeAtmosphere} from "./HomeAtmosphere";
+import {HomeAtmosphere,type HomeProduct} from "./HomeAtmosphere";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import "./home.css";
@@ -93,6 +93,7 @@ export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [book,setBook]=useState<Book|null>(null);
+ const [activeProduct,setActiveProduct]=useState<HomeProduct|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  useEffect(()=>{
@@ -109,7 +110,7 @@ export function HomePage(){
  },[]);
  return <div className="crew-home">
   <header className="crew-home-intro">
-   <HomeAtmosphere/>
+   <HomeAtmosphere activeProduct={activeProduct}/>
    <div className="crew-home-intro-copy">
     <span className="crew-home-eyebrow">{t("eyebrow")}</span>
     <h1>{t("headline")}</h1>
@@ -136,15 +137,15 @@ export function HomePage(){
     <section className="crew-home-products" aria-label="探索 Crew 產品">
      <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
      <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" to="/teacher">
+      <Link className="crew-home-product crew-home-teacher" to="/teacher" onPointerEnter={()=>setActiveProduct("teacher")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("teacher")} onBlur={()=>setActiveProduct(null)}>
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-story" to="/story">
+      <Link className="crew-home-product crew-home-story" to="/story" onPointerEnter={()=>setActiveProduct("story")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("story")} onBlur={()=>setActiveProduct(null)}>
        <span className="crew-home-product-art crew-home-product-story" aria-hidden="true"><span className="crew-home-book"><Icon name="story"/><i>✦</i></span></span>
        <strong>Story</strong><small>{t("product.story")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-fortune" to="/fortune">
+      <Link className="crew-home-product crew-home-fortune" to="/fortune" onPointerEnter={()=>setActiveProduct("fortune")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("fortune")} onBlur={()=>setActiveProduct(null)}>
        <span className="crew-home-product-art crew-home-product-fortune" aria-hidden="true"><span className="crew-home-orbit"><Icon name="fortune"/></span></span>
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
