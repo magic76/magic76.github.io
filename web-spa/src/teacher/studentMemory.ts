@@ -1,3 +1,4 @@
+import{clearAllSpeakingLevels,clearSpeakingLevel}from"./speakingLevelMemory";
 /* Crew Teacher parity: local, language-scoped learner memory V2.
  * Android is the behavioral reference: enabled by default, explicit opt-out persists.
  */
@@ -24,7 +25,7 @@ export function personalMemoryEnabled(){return localStorage.getItem(CONSENT)!=="
 export function hasPersonalMemoryDecision(){return localStorage.getItem(CONSENT)!==null}
 export function getPersonalMemoryEpoch(){return Number(localStorage.getItem(PERSONAL_EPOCH)||0)}
 function invalidatePersonalMemoryRequests(){localStorage.setItem(PERSONAL_EPOCH,String(getPersonalMemoryEpoch()+1))}
-export function setPersonalMemoryEnabled(enabled:boolean){localStorage.setItem(CONSENT,enabled?"1":"0");invalidatePersonalMemoryRequests()}
+export function setPersonalMemoryEnabled(enabled:boolean){localStorage.setItem(CONSENT,enabled?"1":"0");invalidatePersonalMemoryRequests();if(!enabled)clearAllSpeakingLevels()}
 export function studentMemories(language:string):MemoryItem[]{
  try{
   const value=JSON.parse(localStorage.getItem(storageKey(language))||"[]");
@@ -60,7 +61,7 @@ export function updateStudentMemory(language:string,id:string,patch:Partial<Pick
  item.updatedAt=Date.now();return persist(language,list);
 }
 export function deleteStudentMemory(language:string,id:string){const list=studentMemories(language),item=list.find(m=>m.id===id);if(item)markErased(language,item.key);return persist(language,list.filter(m=>m.id!==id))}
-export function clearStudentMemory(language:string){invalidatePersonalMemoryRequests();for(const item of studentMemories(language))markErased(language,item.key);localStorage.removeItem(storageKey(language))}
+export function clearStudentMemory(language:string){invalidatePersonalMemoryRequests();clearSpeakingLevel(language);for(const item of studentMemories(language))markErased(language,item.key);localStorage.removeItem(storageKey(language))}
 export function keysLikelyEquivalent(first:string,second:string){
  const normalize=(v:string)=>v.normalize("NFKC").toLocaleLowerCase().replace(/[.,!?。，！？]/g," ").replace(/\s+/g," ").trim();
  const a=normalize(first),b=normalize(second);if(!a||!b)return false;
