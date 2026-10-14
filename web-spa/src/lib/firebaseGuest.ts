@@ -19,11 +19,18 @@ function config() {
   };
 }
 function siteKey() { return String(import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY || ""); }
+// Firebase App Check debug provider is available ONLY on the Vite localhost
+// development server, never in Cloudflare production or preview deployments.
+function localDebug() {
+  return import.meta.env.DEV
+    && typeof window !== "undefined"
+    && ["localhost", "127.0.0.1"].includes(window.location.hostname);
+}
 
 export function guestTrialConfigured() {
   const c = config();
   return import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED === "1"
-    && Boolean(c.apiKey && c.appId && c.projectId && siteKey());
+    && Boolean(c.apiKey && c.appId && c.projectId && (siteKey() || localDebug()));
 }
 
 function today() {
@@ -81,10 +88,21 @@ let aiPromise: Promise<{sdk: SDK; ai: unknown}> | null = null;
 async function initialize() {
   if (!guestTrialConfigured()) throw new Error("Firebase 免費試用尚未啟用。");
   if (!aiPromise) aiPromise = (async () => {
+    if (localDebug()) {
+      // The SDK will print a browser-specific debug token to the console.
+      // The owner must register it under Firebase App Check -> Manage debug
+      // tokens before the Firebase AI Logic backend will accept requests.
+      // NEVER include the token in code, env or Cloudflare deployments.
+      (globalThis as typeof globalThis & {
+        FIREBASE_APPCHECK_DEBUG_TOKEN?: boolean;
+      }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+    }
     const modules = await sdk();
     const app = modules.initializeApp(config(), "crew-web-guest");
     modules.initializeAppCheck(app, {
-      provider: new modules.ReCaptchaEnterpriseProvider(siteKey()),
+      // The dummy provider string is ignored by the SDK while the debug
+      // provider is active. This path is hard-gated to Vite localhost only.
+      provider: new modules.ReCaptchaEnterpriseProvider(siteKey() || "dev-only-no-site-key"),
       isTokenAutoRefreshEnabled: true,
     });
     return {sdk: modules, ai: modules.getAI(app, {backend: new modules.GoogleAIBackend()})};
