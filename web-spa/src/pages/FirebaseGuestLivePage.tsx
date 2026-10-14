@@ -2,7 +2,8 @@ import {useCallback, useEffect, useRef, useState} from "react";
 import {Link, useSearchParams} from "react-router-dom";
 import {geminiKey} from "../lib/runtime";
 import {
-  connectGuestLive, guestTrialConfigured, guestTrialMissingSetup, guestSessionsRemaining, recordGuestSession,
+  connectGuestLive, guestManualPreviewAvailable, configureGuestManualPreview,
+  guestTrialConfigured, guestTrialMissingSetup, guestSessionsRemaining, recordGuestSession,
   GUEST_SESSION_SECONDS, startPreparedGuestAudio, type GuestAudioController, type GuestLiveSession,
 } from "../lib/firebaseGuest";
 
@@ -18,6 +19,11 @@ export function FirebaseGuestLivePage() {
   const [phase, setPhase] = useState<"idle"|"connecting"|"ready"|"starting"|"connected"|"ending">("idle");
   const [remaining, setRemaining] = useState(() => guestSessionsRemaining());
   const [seconds, setSeconds] = useState(GUEST_SESSION_SECONDS);
+  const [manualApiKey, setManualApiKey] = useState("");
+  const [manualAppId, setManualAppId] = useState("");
+  const [manualProjectId, setManualProjectId] = useState("crew-e13f9");
+  const [manualStatus, setManualStatus] = useState("");
+  const [manualActivated, setManualActivated] = useState(false);
   const sessionRef = useRef<GuestLiveSession|null>(null);
   const audioRef = useRef<GuestAudioController|null>(null);
   const timerRef = useRef<number|null>(null);
@@ -130,6 +136,20 @@ export function FirebaseGuestLivePage() {
 
   const available = guestTrialConfigured();
   const active = phase !== "idle";
+  const manualPreview = guestManualPreviewAvailable();
+  const activateManualPreview = () => {
+    if (active) return;
+    try {
+      configureGuestManualPreview({
+        apiKey: manualApiKey, appId: manualAppId, projectId: manualProjectId
+      });
+      setManualActivated(true);
+      setManualStatus("已啟用此分頁的臨時 Firebase Web 設定。請按「準備連線」測試；若 App Check 尚未註冊 Debug Token，第一次連線可能失敗。");
+      setStatus("已準備使用手動 Firebase 設定。");
+    } catch (error) {
+      setManualStatus(error instanceof Error ? error.message : String(error));
+    }
+  };
   return <main className="shell" style={{maxWidth:820,padding:"32px 16px 100px"}}>
     <div className="actions"><Link className="btn secondary small" to="/teacher">← 返回 Crew Teacher</Link></div>
     <section className="hero">
@@ -137,6 +157,23 @@ export function FirebaseGuestLivePage() {
       <h1>免費語音體驗</h1>
       <p>不用申請 Gemini Key，就能試著和 Crew 老師或 Zoe 聊天。</p>
     </section>
+    {manualPreview && <section className="section panel" style={{display:"grid",gap:12}} aria-label="Firebase Preview 手動設定">
+      <h2 style={{margin:0}}>Preview 手動連線測試</h2>
+      <p className="meta">Cloudflare 環境變數尚未讀到時，可先手動輸入 Firebase Web 的公開設定來測試流程。僅限分支 Preview，不會寫入瀏覽器儲存空間，也不會影響正式網站。重新整理就會清除。</p>
+      <p className="meta">請確認這個 Preview 已由 Cloudflare Access 限制只有你能進入。<strong>不要輸入私人 Gemini API Key、服務帳戶私鑰或 Debug Token。</strong></p>
+      <label className="label" htmlFor="firebase-preview-api-key">Firebase Web apiKey</label>
+      <input className="field" id="firebase-preview-api-key" value={manualApiKey} onChange={event => {setManualApiKey(event.target.value); setManualStatus("");}} placeholder="AIza..." autoComplete="off" spellCheck={false} disabled={active || manualActivated} />
+      <label className="label" htmlFor="firebase-preview-app-id">Firebase Web appId</label>
+      <input className="field" id="firebase-preview-app-id" value={manualAppId} onChange={event => {setManualAppId(event.target.value); setManualStatus("");}} placeholder="1:123456789:web:abcdef" autoComplete="off" spellCheck={false} disabled={active || manualActivated} />
+      <label className="label" htmlFor="firebase-preview-project-id">Firebase projectId</label>
+      <input className="field" id="firebase-preview-project-id" value={manualProjectId} onChange={event => {setManualProjectId(event.target.value); setManualStatus("");}} placeholder="crew-e13f9" autoComplete="off" spellCheck={false} disabled={active || manualActivated} />
+      <div className="actions">
+        <button className="btn" onClick={activateManualPreview} disabled={active || manualActivated}>使用這組設定測試</button>
+        {manualActivated && <button className="btn secondary" onClick={() => window.location.reload()} disabled={active}>清除並重新輸入</button>}
+      </div>
+      {manualStatus && <p role="status" className="meta">{manualStatus}</p>}
+      <p className="meta">Firebase AI Logic 的 App Check 仍需要有效權杖：按「準備連線」後，從開發者工具 Console 複製本機產生的 Debug Token，至 Firebase App Check 管理頁註冊，再重新測試。請勿分享 Token。</p>
+    </section>}
     <section className="section panel" style={{display:"grid",gap:16}}>
       {!available
         ? <div role="status" style={{display:"grid",gap:8}}>
