@@ -32,7 +32,7 @@ function previewDebug() {
   if (typeof window === "undefined") return false;
   const host = window.location.hostname.toLowerCase();
   return import.meta.env.VITE_CREW_FIREBASE_PREVIEW_DEBUG === "1"
-    && /^[a-z0-9-]+\\.magic76-github-io\\.pages\\.dev$/.test(host);
+    && /^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/.test(host);
 }
 function appCheckDebug() { return localDebug() || previewDebug(); }
 
