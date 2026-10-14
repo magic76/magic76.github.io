@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-14.1",
+  "revision": "2026-10-14.2",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -109,6 +109,24 @@
       "nativeHelpAppliesToNaturalChat": true,
       "nativeQuestionsAnsweredInNativeWhenNotImmersion": true,
       "levelOverridesTargetFirstExceptImmersion": true
+    },
+    "teacherSpeakingProgress": {
+      "source": "eligibleTeacherSessionReportsOnly",
+      "minDurationSeconds": 60,
+      "minUserTurns": 3,
+      "minStudentWords": 20,
+      "minEvidenceSessions": 3,
+      "recentMedianWindow": 5,
+      "maxChangePerNewReport": 1,
+      "verbatimStudentQuoteRequired": true,
+      "notCertifiedCefr": true,
+      "vocabularyQuizDoesNotDetermineSpeakingLevel": true,
+      "manualLevelWins": true,
+      "roleplayAndFriendsExcluded": true,
+      "perLanguageLocalOnly": true,
+      "personalMemoryOptOutDisablesAndClears": true,
+      "clearingLearningMemoryClearsProfile": true,
+      "noAdditionalModelCalls": true
     }
   },
   "featureMatrix": [
@@ -231,6 +249,14 @@
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/TeacherLanguageUx.java",
       "webEntry": "web-spa/src/teacher/teacherLanguageUx.ts"
+    },
+    {
+      "id": "teacher_longitudinal_speaking",
+      "label": "Evidence-backed speaking difficulty carried across teacher sessions (auto only)",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/SpeakingLevelMemory.java",
+      "webEntry": "web-spa/src/teacher/speakingLevelMemory.ts"
     }
   ],
   "invariants": [
@@ -737,6 +763,59 @@
           ]
         }
       ]
+    },
+    {
+      "id": "teacher_longitudinal_speaking",
+      "why": "Only corroborated student quotes from eligible teacher reports produce stable locally stored teaching guidance; manual levels and consent win, and friends/roleplay stay out.",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/SpeakingLevelMemory.java",
+          "contains": [
+            "verifiedQuote(",
+            "nextStable(",
+            "effectiveLevel(",
+            "getPersonalMemoryEpoch(context)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/SessionReportGenerator.java",
+          "contains": [
+            "speaking_evidence",
+            "SpeakingLevelMemory.record("
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "SpeakingLevelMemory.effectiveLevel("
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/speakingLevelMemory.ts",
+          "contains": [
+            "verifiedSpeakingQuote(",
+            "nextStableSpeakingLevel(",
+            "effectiveSpeakingLevel(",
+            "recordSpeakingLevel("
+          ]
+        },
+        {
+          "path": "web-spa/src/live/useLiveSession.ts",
+          "contains": [
+            "recordSpeakingLevel(",
+            "getPersonalMemoryEpoch()===personalEpoch"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/LivePage.tsx",
+          "contains": [
+            "effectiveSpeakingLevel(",
+            "trackSpeakingLevel:!isRoleplay"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -865,6 +944,14 @@
     {
       "id": "friend_adaptive_no_assessment",
       "steps": "In target chat, use short answers across several turns: Zoe responds with simpler target-language sentences and no tests; sustain several detailed replies: language grows gradually richer. Yes/Okay once, a noisy transcript and explicit native help do not assign a level or trigger corrections; one whole language per reply.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "teacher_longitudinal_speaking",
+      "steps": "With personal memory on and level Auto, finish 3 eligible teacher conversations in a target language with substantial real target-language speech. Confirm next session uses stable guidance. One contrary report must not jump multiple levels. Verify forced A1 still wins; Friends and roleplay do not collect speaking evidence; changing target language isolates history; turning personal memory off and clearing learner memories removes saved guidance. This is not a CEFR certificate.",
       "platforms": [
         "android",
         "web"
