@@ -55,7 +55,17 @@
     "imageError": "照片處理失敗，原本的故事內容仍在，請重新選擇照片。",
     "emptyError": "先輸入故事靈感，或加入至少一張照片。",
     "keyError": "需要先設定 Gemini Key 才能創作故事。",
-    "generateError": "故事生成或儲存失敗，內容與照片仍保留在這頁，請重試。"
+    "generateError": "故事生成或儲存失敗，內容與照片仍保留在這頁，請重試。",
+    "age": "適讀年齡",
+    "length": "故事長度",
+    "theme": "故事主題",
+    "short": "4 頁 · 短篇",
+    "medium": "6 頁 · 中篇",
+    "long": "8 頁 · 長篇",
+    "bedtime": "睡前",
+    "adventure": "冒險",
+    "friendship": "友情",
+    "fantasy": "奇幻"
   },
   "my": {
     "title": "我的 Story",
