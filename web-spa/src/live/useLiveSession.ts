@@ -1,5 +1,6 @@
 import {useTeacherStore} from "../store/teacherStore";
-import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch}from"../teacher/studentMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
+import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
+import{recordSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
@@ -9,7 +10,7 @@ export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
- language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
+ language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
@@ -50,8 +51,13 @@ export function useLiveSession(config:Config){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
-     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[],nativeLanguage:configRef.current.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(configRef.current.language||"英文"),pageKey:configRef.current.pageKey});
-     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[],personalEpoch)}
+     const r=await window.CrewTeacherReport.generate(item,{language:configRef.current.language||"英文",missions:configRef.current.missions||[],nativeLanguage:configRef.current.nativeLanguage||"zh-TW",priorMemory:reportMemoryContext(configRef.current.language||"英文"),pageKey:configRef.current.pageKey,trackSpeakingLevel:configRef.current.trackSpeakingLevel&&personalMemoryEnabled()});
+     if(r){completedReport=r;setReport(r);saveLive(configRef.current.pageKey,{...item,report:r});ingestStudentReport(configRef.current.language||"英文",r,item.turns||[],personalEpoch);
+      if(configRef.current.trackSpeakingLevel)recordSpeakingLevel(
+       configRef.current.language||"英文",String(item.id||item.ts||""),
+       r.speaking_evidence,(item.turns||[]).map((t:LiveTurn)=>t.input||"").filter(Boolean),
+       personalMemoryEnabled(),()=>personalMemoryEnabled()&&getPersonalMemoryEpoch()===personalEpoch);
+     }
     }
    }
   }catch(_){
