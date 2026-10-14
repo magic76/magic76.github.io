@@ -1,3 +1,5 @@
+import{effectiveSpeakingLevel,storedSpeakingLevel}from"./speakingLevelMemory";
+import{personalMemoryEnabled}from"./studentMemory";
 import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
 import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
@@ -21,19 +23,20 @@ export function TeacherLivePage(){
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
- const languageDirective=useMemo(()=>teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode,s.learnerSpeakingLevel),[s.targetLanguage,s.nativeLanguage,s.teachingMode,s.learnerSpeakingLevel,isRoleplay]);
+ const effectiveLevel=effectiveSpeakingLevel(s.targetLanguage,s.learnerSpeakingLevel,personalMemoryEnabled());
+ const languageDirective=useMemo(()=>teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode,effectiveLevel),[s.targetLanguage,s.nativeLanguage,s.teachingMode,effectiveLevel,isRoleplay]);
  const system=useMemo(()=>(buildTeacherSessionPolicy({
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
   profile,teachingMode:s.teachingMode,conversationMode:s.conversationMode,
-  languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel(),learnerSpeakingLevel:s.learnerSpeakingLevel
- })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage,s.languageStyle==="auto"?undefined:"auto"))),[s.targetLanguage,s.teachingMode,s.learnerSpeakingLevel,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
+  languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel(),learnerSpeakingLevel:effectiveLevel
+ })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage,s.languageStyle==="auto"?undefined:"auto"))),[s.targetLanguage,s.teachingMode,effectiveLevel,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+(mission?.title||scene||"selected")+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&s.conversationMode==="natural"?"teacher":undefined,
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&s.conversationMode==="natural"?"teacher":undefined,
   onTurnComplete:()=>{
    if(isRoleplay||memoryCheckpointRef.current)return;
    const snapshot=live.turns;
@@ -103,7 +106,7 @@ export function TeacherLivePage(){
    <h1>{mission?mission.title:profile.name+" 老師"}</h1>
    <p>{mission?"直接進入情境，完成任務即可。":profile.description}</p>
    {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
-    s.teachingMode,s.learnerSpeakingLevel,nativeLanguageName(s.nativeLanguage),
+    s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
   <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
@@ -114,7 +117,9 @@ export function TeacherLivePage(){
    <div className={"live-config "+(sessionActive?"locked":"")}><div className="live-setup-grid">
     <label><span className="label">目標語言</span><select className="field" disabled={sessionActive} value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
     <label><span className="label">聊天模式</span><select className="field" disabled={sessionActive} value={s.conversationMode} onChange={e=>s.setConversationMode(e.target.value as any)}><option value="natural">自然聊天</option><option value="scenario">情境聊天</option><option value="practice">練習聊天</option></select></label>
-    <label><span className="label">我的口說程度</span><select className="field" disabled={sessionActive} value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">自動 · 依口說調整</option><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option><option value="B2">B2+</option></select></label><label><span className="label">教學模式</span><select className="field" disabled={sessionActive} value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as any)}><option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option></select></label>
+    <label><span className="label">我的口說程度</span><select className="field" disabled={sessionActive} value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">自動 · 依長期口說調整</option><option value="A1">A1</option><option value="A2">A2</option><option value="B1">B1</option><option value="B2">B2+</option></select></label>{s.learnerSpeakingLevel==="auto"&&storedSpeakingLevel(s.targetLanguage,personalMemoryEnabled())&&
+       <p className="live-config-note">長期對話引導：目前偏 {storedSpeakingLevel(s.targetLanguage,personalMemoryEnabled())}（非正式檢定，下一次對話生效）</p>}
+      <label><span className="label">教學模式</span><select className="field" disabled={sessionActive} value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as any)}><option value="beginner">零基礎引導</option><option value="bilingual">雙語輔助</option><option value="immersion">全外語沉浸</option></select></label>
     <label><span className="label">語速</span><select className="field" disabled={sessionActive} value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as any)}><option value="slow">慢</option><option value="normal">正常</option><option value="fast">快</option></select></label>
     <label><span className="label">地區口音</span><select className="field" disabled={sessionActive} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as any)}>{accentOptions(s.targetLanguage).map(a=><option key={a.value} value={a.value}>{a.label}</option>)}</select></label>
    </div>{sessionActive&&<p className="live-config-note">這些設定會套用到下一次對話；目前這次不會中途改變。</p>}</div>
