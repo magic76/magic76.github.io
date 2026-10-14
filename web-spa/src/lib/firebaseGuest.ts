@@ -84,6 +84,12 @@ async function sdk(): Promise<SDK> {
   })().catch(err => { sdkPromise = null; throw err; });
   return sdkPromise;
 }
+let preparedAudioStarter: SDK["startAudioConversation"] | null = null;
+export function startPreparedGuestAudio(session: GuestLiveSession): Promise<GuestAudioController> {
+  if (!preparedAudioStarter) throw new Error("Firebase Live 尚未完成連線準備。");
+  // Called directly in the user click handler, not after an async import.
+  return preparedAudioStarter(session);
+}
 let aiPromise: Promise<{sdk: SDK; ai: unknown}> | null = null;
 async function initialize() {
   if (!guestTrialConfigured()) throw new Error("Firebase 免費試用尚未啟用。");
@@ -98,6 +104,7 @@ async function initialize() {
       }).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
     const modules = await sdk();
+    preparedAudioStarter = modules.startAudioConversation;
     const app = modules.initializeApp(config(), "crew-web-guest");
     modules.initializeAppCheck(app, {
       // The dummy provider string is ignored by the SDK while the debug
