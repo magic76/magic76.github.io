@@ -11,12 +11,36 @@ export const GUEST_SESSION_SECONDS = 180;
 const sdkVersion = "12.19.0";
 const cdn = `https://www.gstatic.com/firebasejs/${sdkVersion}/`;
 
-function config() {
+type GuestWebConfig = {apiKey: string; appId: string; projectId: string};
+// Preview-only values stay in memory; never serialize to localStorage, URL,
+// Firebase documents, GitHub, or Cloudflare runtime configuration.
+let previewOverrides: GuestWebConfig | null = null;
+function config(): GuestWebConfig {
+  if (previewOverrides && onAllowedPreviewHost()) return previewOverrides;
   return {
     apiKey: String(import.meta.env.VITE_FIREBASE_API_KEY || ""),
     appId: String(import.meta.env.VITE_FIREBASE_APP_ID || ""),
     projectId: String(import.meta.env.VITE_FIREBASE_PROJECT_ID || ""),
   };
+}
+export function guestManualPreviewAvailable() {
+  return onAllowedPreviewHost();
+}
+export function configureGuestManualPreview(input: GuestWebConfig) {
+  if (!guestManualPreviewAvailable()) throw new Error("手動測試僅允許 Cloudflare 分支 Preview 網址。");
+  if (aiPromise) throw new Error("Firebase 已初始化，請重新整理頁面後再修改設定。");
+  const next: GuestWebConfig = {
+    apiKey: input.apiKey.trim(),
+    appId: input.appId.trim(),
+    projectId: input.projectId.trim()
+  };
+  if (!/^AIza[0-9A-Za-z_-]{15,}$/.test(next.apiKey))
+    throw new Error("請填入 Firebase Web config 的 apiKey（不是私人 Gemini API Key）。");
+  if (!/^1:\d+:web:[0-9a-z]+$/i.test(next.appId))
+    throw new Error("請填入 Firebase Web App ID，例如 1:123456789:web:abcdef。");
+  if (!/^[a-z][a-z0-9-]{4,38}[a-z0-9]$/.test(next.projectId))
+    throw new Error("請填入 Firebase Project ID，例如 crew-e13f9。");
+  previewOverrides = next;
 }
 function siteKey() { return String(import.meta.env.VITE_FIREBASE_APP_CHECK_SITE_KEY || ""); }
 // Debug App Check is allowed only in Vite localhost or a Cloudflare Pages
@@ -35,8 +59,8 @@ function onAllowedPreviewHost() {
   );
 }
 function previewDebug() {
-  return import.meta.env.VITE_CREW_FIREBASE_PREVIEW_DEBUG === "1"
-    && onAllowedPreviewHost();
+  return onAllowedPreviewHost()
+    && (import.meta.env.VITE_CREW_FIREBASE_PREVIEW_DEBUG === "1" || previewOverrides !== null);
 }
 function appCheckDebug() { return localDebug() || previewDebug(); }
 
@@ -44,14 +68,14 @@ function appCheckDebug() { return localDebug() || previewDebug(); }
 export function guestTrialMissingSetup(): string[] {
   const missing: string[] = [];
   const c = config();
-  if (import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED !== "1")
+  if (import.meta.env.VITE_CREW_GUEST_TRIAL_ENABLED !== "1" && !previewOverrides)
     missing.push("未設定 VITE_CREW_GUEST_TRIAL_ENABLED=1");
   if (!c.apiKey) missing.push("缺少 VITE_FIREBASE_API_KEY");
   if (!c.appId) missing.push("缺少 VITE_FIREBASE_APP_ID");
   if (!c.projectId) missing.push("缺少 VITE_FIREBASE_PROJECT_ID");
   if (!siteKey() && !appCheckDebug()) {
     if (onAllowedPreviewHost()) {
-      missing.push("Preview 未設定 VITE_CREW_FIREBASE_PREVIEW_DEBUG=1");
+      missing.push("Preview 未設定 VITE_CREW_FIREBASE_PREVIEW_DEBUG=1（或使用下方手動測試表單）");
     } else if (typeof window !== "undefined" && window.location.hostname === "www.3sssi.com") {
       missing.push("正式網站不允許 Debug 模式；請使用 Cloudflare Preview，正式公開則需要 App Check 網站金鑰");
     } else {
