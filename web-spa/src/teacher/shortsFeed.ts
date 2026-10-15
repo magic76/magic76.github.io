@@ -8,30 +8,37 @@ export type ShortFeed={schema:1;kind:"crew-shorts";generatedAt:string;posts:Shor
 const PUBLIC_FEED="/features/teacher/shorts/posts.json";
 const CONFIG_URL="/features/teacher/shorts/config.json";
 const MAX_POSTS=100;
+const CREW_FRIEND_IDS=new Set("zoe noah iris max yuna felix luna theo isla hugo ada finn maya oscar bella ryan".split(" "));
+const FIRST_PARTY_PHOTO=/^\/features\/teacher\/shorts\/media\/[a-f0-9]{24}\.webp$/;
+const ISO_DATE=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/;
 const text=(v:unknown,max:number)=>typeof v==="string"?v.trim().slice(0,max):"";
 const safeHttpsOrPath=(value:string)=>value.startsWith("/")&&!value.startsWith("//")&&!value.includes("..")
  || /^https:\/\/[^\s/?#]+(?:[/?#][^\s]*)?$/i.test(value);
-export function validShortPost(value:unknown):value is ShortPost{
+export function validShortPost(value:unknown,source:ShortFeed["source"]="seed"):value is ShortPost{
  if(!value||typeof value!=="object")return false;
  const p=value as Partial<ShortPost>;
  return /^[a-z0-9][a-z0-9_-]{2,95}$/i.test(text(p.id,100))
-  && /^[a-z][a-z0-9-]{1,30}$/.test(text(p.friendId,40))
+  && CREW_FRIEND_IDS.has(text(p.friendId,40))
+  && text(p.friendName,65)===text(p.friendId,40).replace(/^./,first=>first.toUpperCase())
   && Boolean(text(p.friendName,65)&&text(p.caption,500)&&text(p.imageAlt,180))
   && Boolean(text(p.storyId,110))
-  && safeHttpsOrPath(text(p.image,1000))
+  && (source==="demo"?safeHttpsOrPath(text(p.image,1000)):FIRST_PARTY_PHOTO.test(text(p.image,1000)))
   && /^[a-z]{2}(?:-[A-Za-z]{2,5})?$/.test(text(p.language,30))
-  && /^\d{4}-\d{2}-\d{2}T/.test(text(p.publishedAt,40));
+  && ISO_DATE.test(text(p.publishedAt,40))
+  && Number.isFinite(Date.parse(text(p.publishedAt,40)));
 }
-export function normalizeShortFeed(value:unknown):ShortFeed{
+export function normalizeShortFeed(value:unknown,nowMs=Date.now()):ShortFeed{
  if(!value||typeof value!=="object")throw Error("Invalid Shorts feed");
  const raw=value as Partial<ShortFeed>;
  if(raw.kind!=="crew-shorts"||raw.schema!==1||!Array.isArray(raw.posts)||raw.posts.length>MAX_POSTS)throw Error("Unsupported Shorts feed");
+ const source:ShortFeed["source"]=raw.source==="seed"||raw.source==="daily"?raw.source:"demo";
  const ids=new Set<string>();
  const posts:ShortPost[]=[];
  for(const candidate of raw.posts){
-  if(!validShortPost(candidate))continue;
-  if(ids.has(candidate.id))continue;
+  if(!validShortPost(candidate,source)||ids.has(candidate.id))continue;
   ids.add(candidate.id);
+  // Match Android: never expose future posts, even if Pages deploys early.
+  if(Date.parse(candidate.publishedAt)>nowMs)continue;
   posts.push({
    id:text(candidate.id,96),friendId:text(candidate.friendId,32),
    friendName:text(candidate.friendName,65),caption:text(candidate.caption,500),
@@ -43,8 +50,9 @@ export function normalizeShortFeed(value:unknown):ShortFeed{
    mediaCredit:text(candidate.mediaCredit,160)||undefined
   });
  }
- if(!posts.length)throw Error("No valid Shorts");
- return {schema:1,kind:"crew-shorts",generatedAt:text(raw.generatedAt,60),source:raw.source==="daily"||raw.source==="seed"?"seed"===raw.source?"seed":"daily":"demo",notes:text(raw.notes,200),posts};
+ if(!ids.size)throw Error("No valid Shorts");
+ posts.sort((a,b)=>Date.parse(b.publishedAt)-Date.parse(a.publishedAt));
+ return {schema:1,kind:"crew-shorts",generatedAt:text(raw.generatedAt,60),source,notes:text(raw.notes,200),posts};
 }
 async function jsonAt(url:string,signal:AbortSignal):Promise<unknown>{
  const response=await fetch(url,{signal,cache:"no-cache"});

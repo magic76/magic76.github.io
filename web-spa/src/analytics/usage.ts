@@ -5,10 +5,11 @@
 export type UsageEvent=
   |"app_opened"|"visitor_first_seen"|"user_returned"
   |"teacher_conversation"|"friend_conversation"
+  |"shorts_view"|"shorts_chat_click"|"shorts_conversation"
   |"story_reading"|"story_narration"|"story_created"
   |"fortune_calculated"|"fortune_ai_interpreted"
   |"gemini_key_missing"|"gemini_key_verified";
-type Detail=""|"bazi"|"tarot"|"vedic";
+type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed";
 const KEY="crew_usage_visitor_v1",SESSION="crew_usage_session_v1",
       LAST="crew_usage_last_day_v1",OPT_OUT="crew_usage_opt_out_v1",
       DEV="crew_usage_dev_mode_v1";

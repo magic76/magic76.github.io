@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./shorts.css";
 import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
+import {trackUsageEvent} from "../analytics/usage";
 
 const LIKE_KEY="crew_shorts_demo_likes_v1";
 function readLikes():string[]{
@@ -23,7 +24,7 @@ export function ShortsPage(){
   const abort=new AbortController();
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
-   .then(data=>{if(!abort.signal.aborted){setFeed(data);setBusy(false)}})
+   .then(data=>{if(!abort.signal.aborted){setFeed(data);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry]);
@@ -70,7 +71,7 @@ export function ShortsPage(){
         {likes.includes(post.id)?"♥":"♡"} {en?"Like":"喜歡"}
        </button>
        {post.translationZh?<button type="button" onClick={()=>setTranslated(x=>x===post.id?null:post.id)} aria-expanded={translated===post.id}>{en?"Translation":"翻譯"}</button>:null}
-       <Link to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
+       <Link onClick={()=>trackUsageEvent("shorts_chat_click","shorts_feed")} to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
         {en?"Chat with "+post.friendName:"和 "+post.friendName+" 聊天"} →
        </Link>
       </div>

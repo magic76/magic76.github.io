@@ -7,6 +7,7 @@ on:
       - "content/crew-shorts/approved/**"
       - ".github/workflows/crew-shorts-pages.yml"
       - "tests/shorts-feed.test.js"
+      - "scripts/check-shorts-inventory.mjs"
   pull_request:
     paths:
       - "content/crew-shorts/approved/**"
@@ -73,6 +74,9 @@ jobs:
             echo "::error::Original approved Crew Shorts content and WebP files must be imported first."
             exit 1
           }
+      - name: Warn before the approved content queue runs out
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        run: node scripts/check-shorts-inventory.mjs
       - name: Prepare release (or dry run)
         env:
           DRY_RUN: ${{ inputs.dry_run || false }}
