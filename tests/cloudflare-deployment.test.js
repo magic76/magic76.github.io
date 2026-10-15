@@ -214,6 +214,14 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   }
  }
 
+ // Five dedicated search-intent pages are also public SSG routes in both locales.
+ for(const slug of [
+  "ai-english-speaking","ai-conversation-partner","travel-english-dialogues",
+  "english-pronunciation","gemini-key-for-ai-practice"
+ ]){
+  expected.push(domain+"/guides/"+slug+"/");
+  expected.push(domain+"/en/guides/"+slug+"/");
+ }
  assert.equal(urls.length,expected.length,"sitemap should include only public SSG routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
