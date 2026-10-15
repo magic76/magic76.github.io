@@ -1,4 +1,5 @@
 import {useTeacherStore} from "../store/teacherStore";
+import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import {useCallback,useEffect,useRef,useState} from "react";
@@ -72,7 +73,7 @@ export function useLiveSession(config:Config){
  },[]);
  const start=useCallback(async()=>{
   if(sessionRef.current)return;
-  if(!geminiKey()){setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
+  if(!geminiKey()){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    cancelRescue();cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
