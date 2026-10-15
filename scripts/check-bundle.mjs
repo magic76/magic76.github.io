@@ -29,5 +29,5 @@ const kib=bytes=>(bytes/1024).toFixed(1)+" KiB";
 console.log("Entry + statically imported JS (gzip): "+kib(initialGzip));
 console.log("Crew Shorts route chunk (gzip): "+kib(shortsGzip));
 console.log("JS route chunks: "+Object.values(manifest).filter(x=>x.isDynamicEntry).length);
-if(initialGzip>450*1024)throw Error("Initial JS exceeds 450 KiB gzip budget: "+kib(initialGzip));
+if(initialGzip>180*1024)throw Error("Initial JS exceeds 180 KiB gzip budget: "+kib(initialGzip));
 if(shortsGzip>30*1024)throw Error("Crew Shorts page exceeds 30 KiB gzip budget: "+kib(shortsGzip));
