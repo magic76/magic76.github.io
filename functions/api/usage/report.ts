@@ -63,7 +63,7 @@ export async function onRequestGet({request,env}:Context){
  const activeEvents="'teacher_conversation','friend_conversation','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
  try{
   const [daily,active]=await Promise.all([
-   sql(env,"SELECT toDate(timestamp) AS day, blob1 AS event, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event ORDER BY day ASC, event ASC LIMIT 700"),
+   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event ORDER BY day ASC, event ASC LIMIT 700"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),
