@@ -6,6 +6,7 @@ on:
     paths:
       - "content/crew-shorts/approved/**"
       - ".github/workflows/crew-shorts-pages.yml"
+      - "tests/shorts-feed.test.js"
   pull_request:
     paths:
       - "content/crew-shorts/approved/**"
