@@ -56,7 +56,7 @@ test("Chinese and English choices all have labels; every Android regional langua
   越南文:["north","south","central"],泰文:["central","north","isan"],中文:["tw","cn","sg"],
   葡萄牙文:["br","pt"],印尼文:["standard","jakarta"]};
  for(const [language,regions] of Object.entries(variants)){
-  const available=scope.value.accentOptions(language).map(x=>x.value);
+  const available=Array.from(scope.value.accentOptions(language),x=>x.value);
   assert.deepEqual(available,["auto",...regions,"custom"],language);
   for(const region of regions)assert.equal(scope.value.normalizedAccent(language,region),region);
  }
