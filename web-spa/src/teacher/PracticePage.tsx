@@ -12,6 +12,7 @@ import{CREW_FRIENDS}from"../friends/friendProfiles";
 import{FriendAvatar}from"../friends/FriendAvatar";
 import{useClientReady}from"../lib/useClientReady";
 import{ProductDiscoverability}from"../components/ProductDiscoverability";
+import {GuideHub} from "../guides/GuideHub";
 
 export function PracticePage(){
  const {t,i18n}=useTranslation("teacher");
@@ -52,6 +53,7 @@ export function PracticePage(){
   </Link>
  </section>
  <section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><small>{t("practice.next")}</small></div><ContinueLearningCard compact/></section>
+ <GuideHub/>
  <section className="section crew-practice-shortcuts"><div className="section-head"><h2>{t("practice.quick")}</h2><small>{t("practice.choose")}</small></div><div className="grid two-col">
   <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>{t("practice.textbook")}</strong><span>{t("practice.textbookDesc")}</span></Link>
   {target==="英文"&&<Link className="feature-card teacher-vocab" to="/teacher/vocabulary"><span className="feature-icon"><Icon name="cards"/></span><strong>{t("practice.vocab")}</strong><span>{t("practice.vocabDesc")}</span></Link>}

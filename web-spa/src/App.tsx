@@ -15,8 +15,9 @@ const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
+const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>
@@ -26,6 +27,7 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLoc
 <Route path="/briefing/board" element={<Navigate to="/research/board" replace/>}/>
 <Route path="/briefing/:date/:id" element={<BriefingLegacyRedirect/>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
+<Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<LearnPage/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
