@@ -2,14 +2,12 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
-// Exercise the actual TS feed parser without a browser or external network.
+const {stripTypeScriptTypes}=require("node:module");
+// Exercise the actual TS feed parser without requiring npm dependencies.
 const filename=path.resolve(__dirname,"../web-spa/src/teacher/shortsFeed.ts");
 const source=readFileSync(filename,"utf8");
-const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-const mod={exports:{}};
-new Function("exports","require","module",compiled)(mod.exports,require,mod);
-const {normalizeShortFeed,validShortPost}=mod.exports;
+const compiled=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport (function|const) /g,"$1 ");
+const {normalizeShortFeed,validShortPost}=new Function(compiled+";return {normalizeShortFeed,validShortPost};")();
 const post=(id,date,friendId="zoe")=>({
  id,friendId,friendName:friendId[0].toUpperCase()+friendId.slice(1),
  caption:"A surprising coffee.",imageAlt:"Friend holding coffee.",
