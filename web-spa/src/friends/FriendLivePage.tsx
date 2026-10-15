@@ -69,6 +69,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
+     if(shortsPost)trackUsageEvent("shorts_conversation");
    }
    // The Live ref contains the completed exchange before React updates live.turns.
    // Capture the first meaningful turn and every three more (up to three checkpoints).
