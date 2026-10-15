@@ -34,6 +34,25 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Validate all 15 approved WebP and story posts
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/publish-shorts-pages.mjs --feed content/crew-shorts/approved/posts.json --as-of 2026-10-18 --dry-run > /tmp/crew-shorts-preflight.txt
+          grep -F "DRY RUN: 15 due posts, 15 optimized images" /tmp/crew-shorts-preflight.txt
+      - run: npm ci
+      - run: npm run check:web
+      - run: npm test
+
   publish:
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
