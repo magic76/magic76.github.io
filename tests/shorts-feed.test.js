@@ -28,7 +28,7 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.match(loader,/fetch\(url,\{signal,cache:"no-cache"\}\)/);
  assert.match(loader,/FIRST_PARTY_PHOTO/);
  assert.match(loader,/CREW_FRIEND_IDS/);
- assert.match(loader,/Date\.parse\(candidate\.publishedAt\)>nowMs/);
+ assert.doesNotMatch(loader,/Date\\.parse\\(candidate\\.publishedAt\\)>nowMs/);
  assert.doesNotMatch(page,/import .*posts\.json/);
  assert.doesNotMatch(loader,/import .*posts\.json/);
 });
