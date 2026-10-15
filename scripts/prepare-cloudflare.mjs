@@ -115,6 +115,22 @@ for(const locale of ["zh","en"]){
  }
 }
 
+// Preview UI locales intentionally have NO SEO alternate, canonical, or sitemap.
+// Cloudflare Pages rewrites their deep links to locale-specific noindex app shells.
+const uiLocales=JSON.parse(read("config/ui-locales.json")).locales;
+const previewLocales=uiLocales.filter(locale=>locale.stage!=="published");
+for(const {code,stage} of previewLocales){
+ const directory=join(out,code);
+ mkdirSync(directory,{recursive:true});
+ const lang=code==="zh-CN"?"zh-Hans":code;
+ const html=viteHtml.replace(/<html lang="[^"]*">/,'<html lang="'+lang+'">')
+  .replace("</head>",'<meta name="crew-i18n-stage" content="'+stage+'">'+newline+"</head>");
+ if(!html.includes('name="robots" content="noindex,follow"'))throw Error("Preview must be noindex: "+code);
+ writeFileSync(join(directory,"index.html"),html);
+}
+writeFileSync(join(out,"_redirects"),previewLocales.map(({code})=>
+ "/"+code+"/* /"+code+"/index.html 200").join(newline)+newline);
+
 // Article documents use the *same* React detail page and public build-time data,
 // with per-article metadata. The old research template contributes only head SEO.
 const researchTemplate=read("research/index.html");
