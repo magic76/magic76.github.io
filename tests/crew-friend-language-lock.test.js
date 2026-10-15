@@ -5,9 +5,12 @@ const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 
 function policy(){
+ const target=stripTypeScriptTypes(read("web-spa/src/teacher/targetLanguages.ts"),{mode:"strip"})
+  .replace(/\bexport\s+(?=(?:function|const))/g,"");
  const source=read("web-spa/src/friends/friendLanguage.ts");
- const js=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:function|const))/g,"");
- const ctx={};vm.runInNewContext(js+"\nthis.value={friendSpokenLanguage,friendLanguageReminder,friendLanguageRule};",ctx);
+ const js=stripTypeScriptTypes(source,{mode:"strip"}).replace(/^import .*\n/g,"")
+  .replace(/\bexport\s+(?=(?:function|const))/g,"");
+ const ctx={};vm.runInNewContext(target+"\n"+js+"\nthis.value={friendSpokenLanguage,friendLanguageReminder,friendLanguageRule};",ctx);
  return ctx.value;
 }
 test("Crew Friends language policy names the selected language explicitly",()=>{
