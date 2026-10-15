@@ -60,7 +60,14 @@
     "日文": "Japanese",
     "韓文": "Korean",
     "西班牙文": "Spanish",
-    "法文": "French"
+    "法文": "French",
+    "德文": "German",
+    "義大利文": "Italian",
+    "越南文": "Vietnamese",
+    "泰文": "Thai",
+    "中文": "Mandarin Chinese",
+    "葡萄牙文": "Portuguese",
+    "印尼文": "Indonesian"
   },
   "capture": {
     "pending": "Organizing the most recent conversation…",
