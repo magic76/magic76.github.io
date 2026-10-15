@@ -27,7 +27,7 @@ export function validShortPost(value:unknown,source:ShortFeed["source"]="seed"):
   && ISO_DATE.test(text(p.publishedAt,40))
   && Number.isFinite(Date.parse(text(p.publishedAt,40)));
 }
-export function normalizeShortFeed(value:unknown,nowMs=Date.now()):ShortFeed{
+export function normalizeShortFeed(value:unknown):ShortFeed{
  if(!value||typeof value!=="object")throw Error("Invalid Shorts feed");
  const raw=value as Partial<ShortFeed>;
  if(raw.kind!=="crew-shorts"||raw.schema!==1||!Array.isArray(raw.posts)||raw.posts.length>MAX_POSTS)throw Error("Unsupported Shorts feed");
@@ -37,8 +37,8 @@ export function normalizeShortFeed(value:unknown,nowMs=Date.now()):ShortFeed{
  for(const candidate of raw.posts){
   if(!validShortPost(candidate,source)||ids.has(candidate.id))continue;
   ids.add(candidate.id);
-  // Match Android: never expose future posts, even if Pages deploys early.
-  if(Date.parse(candidate.publishedAt)>nowMs)continue;
+  // The public Pages feed is already an approved, released collection.
+  // Show all entries delivered by that feed, including seed posts scheduled for later today.
   posts.push({
    id:text(candidate.id,96),friendId:text(candidate.friendId,32),
    friendName:text(candidate.friendName,65),caption:text(candidate.caption,500),
