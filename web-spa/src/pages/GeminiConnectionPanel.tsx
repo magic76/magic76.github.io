@@ -1,4 +1,5 @@
 import {useEffect,useRef,useState} from "react";
+import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import {useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
@@ -117,6 +118,7 @@ export function GeminiConnectionPanel(){
    setKeyStatus(t("gemini.storageError"));
    setValidating(false);return;
   }
+  trackUsageEvent("gemini_key_verified");
   setVerified(true);
   setKeyStatus(t("gemini.keySaved"));
   setVoiceResult("idle");setVoiceStatus(t("gemini.initialVoice"));
