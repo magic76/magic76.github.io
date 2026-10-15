@@ -1,0 +1,55 @@
+/**
+ * Privacy-limited product analytics ingestion.
+ * Client-provided event names are allowlisted; no chat content, keys, IP or URLs are persisted.
+ */
+type Dataset={writeDataPoint(point:{indexes:string[];blobs:string[];doubles:number[]}):void};
+type Context={request:Request;env:{ANALYTICS_ENGINE?:Dataset}};
+const events=new Set([
+  "app_opened","visitor_first_seen","user_returned",
+  "teacher_conversation","friend_conversation",
+  "story_reading","story_narration","story_created",
+  "fortune_calculated","fortune_ai_interpreted",
+  "gemini_key_missing","gemini_key_verified"
+]);
+const details=new Set(["","bazi","tarot","vedic"]);
+const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
+  status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}
+});
+export async function onRequestPost({request,env}:Context):Promise<Response>{
+  // Unconfigured deployments should fail closed, without affecting product workflows.
+  if(!env.ANALYTICS_ENGINE)return json({error:"Analytics binding unavailable"},503);
+  const url=new URL(request.url);
+  if(url.hostname!=="www.3sssi.com")return json({error:"Production only"},403);
+  const origin=request.headers.get("origin");
+  if(origin!==url.origin||request.headers.get("sec-fetch-site")==="cross-site")return json({error:"Origin rejected"},403);
+  if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type")||""))return json({error:"JSON required"},415);
+  const length=Number(request.headers.get("content-length")||"0");
+  if(length>1024)return json({error:"Payload too large"},413);
+  const agent=request.headers.get("user-agent")||"";
+  if(/bot\b|spider|crawler|curl|wget|headless|lighthouse|playwright|puppeteer/i.test(agent))return new Response(null,{status:204});
+  if(typeof request.cf?.botManagement?.score==="number"&&request.cf.botManagement.score<20)return new Response(null,{status:204});
+  let body:unknown;
+  try{
+    const raw=await request.text();
+    if(raw.length>1024)return json({error:"Payload too large"},413);
+    body=JSON.parse(raw);
+  }catch{return json({error:"Invalid JSON"},400)}
+  if(!body||typeof body!=="object"||Array.isArray(body))return json({error:"Invalid event"},400);
+  const value=body as Record<string,unknown>;
+  if(typeof value.event!=="string"||!events.has(value.event)||
+     typeof value.visitorId!=="string"||!identifier.test(value.visitorId)||
+     typeof value.sessionId!=="string"||!identifier.test(value.sessionId)||
+     typeof value.detail!=="string"||!details.has(value.detail)){
+    return json({error:"Invalid event"},400);
+  }
+  env.ANALYTICS_ENGINE.writeDataPoint({
+    indexes:[value.visitorId],
+    blobs:[value.event,value.visitorId,value.detail,value.sessionId],
+    doubles:[1]
+  });
+  return new Response(null,{status:204,headers:{"Cache-Control":"no-store"}});
+}
+export async function onRequest():Promise<Response>{
+  return new Response(null,{status:405,headers:{Allow:"POST","Cache-Control":"no-store"}});
+}
