@@ -12,7 +12,7 @@
 import {execFileSync} from "node:child_process";
 import {createHash} from "node:crypto";
 import {existsSync, readFileSync, realpathSync, statSync, writeFileSync, mkdirSync, mkdtempSync, rmSync} from "node:fs";
-import {basename, dirname, isAbsolute, join, relative, resolve, sep} from "node:path";
+import {dirname, join, resolve, sep} from "node:path";
 import {tmpdir} from "node:os";
 
 function arg(name, fallback=""){
@@ -84,7 +84,8 @@ if(!selected.length){
 }
 const published={
  schema:1,kind:"crew-shorts",source:source.source,
- generatedAt:new Date().toISOString(),
+ // Stable per editorial day so repeated publishes produce the same version digest.
+ generatedAt:asOf+"T00:00:00+08:00",
  posts:selected
 };
 const json=JSON.stringify(published,null,2)+"\n";
@@ -102,6 +103,7 @@ if(dryRun){
  console.log("DRY RUN — R2 was not touched.");
  process.exit(0);
 }
+check(!origin.endsWith(".invalid"),"configure a real public R2 custom domain before publishing");
 check(/^[a-f0-9]{32}$/.test(account),"CREW_SHORTS_R2_ACCOUNT_ID required");
 check(/^[a-z0-9][a-z0-9-]{1,61}[a-z0-9]$/.test(bucket),"CREW_SHORTS_R2_BUCKET required");
 check(Boolean(process.env.AWS_ACCESS_KEY_ID&&process.env.AWS_SECRET_ACCESS_KEY),"R2 S3 credentials required");
