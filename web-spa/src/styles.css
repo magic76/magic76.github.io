@@ -87,6 +87,8 @@ body{min-height:100vh;padding-bottom:0}
 .app-header-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;min-width:0;margin-left:auto}
 .status,.fortune-header-history,.subnav a,.fortune-result-tabs button,.btn,.teacher-picker-close,.live-tool-btn,.live-presets button,.vision-btn,.continue-last{min-height:44px}
 .status{padding-top:0;padding-bottom:0}
+/* No false "Set Gemini Key" badge in public SSG HTML. Hold header space until client storage is readable. */
+.crew-key-status-placeholder{visibility:hidden;box-sizing:border-box;width:106px;flex-shrink:0;pointer-events:none}
 .fortune-header-history{min-width:44px;display:inline-flex;align-items:center;justify-content:center;padding:0 12px}
 .btn{display:inline-flex;align-items:center;justify-content:center}
 .btn.small{min-height:44px;padding:0 12px}

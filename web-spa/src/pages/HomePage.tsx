@@ -119,13 +119,13 @@ export function HomePage(){
   </header>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
-    {!configured?
+    {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
       <span className="crew-home-setup-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
-     !verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
+     ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
     {recent?<section className="crew-home-continue" aria-label="繼續上次">
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
