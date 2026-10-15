@@ -1,8 +1,8 @@
 /** Crew Friends speak one language per reply. Their modes are independent of Teacher levels. */
+import {targetSpokenLanguage} from "../teacher/targetLanguages";
 export type FriendChatLanguageMode="natural"|"bilingual"|"immersion";
-const SPOKEN_LANGUAGES:Record<string,string>={"英文":"English","日文":"Japanese","韓文":"Korean","西班牙文":"Spanish","法文":"French"};
 const NATIVE_NAMES:Record<string,string>={"zh-TW":"Traditional Chinese","zh-CN":"Simplified Chinese","en":"English","ja":"Japanese","ko":"Korean","es":"Spanish","fr":"French","vi":"Vietnamese","id":"Indonesian","th":"Thai","pt":"Portuguese"};
-export function friendSpokenLanguage(language:string){return SPOKEN_LANGUAGES[language]||"English";}
+export function friendSpokenLanguage(language:string){return targetSpokenLanguage(language);}
 const nativeName=(v:string)=>NATIVE_NAMES[v]||v||"English";
 
 /** Adjust phrase complexity, never the friendship or language selection; no level inference. */
