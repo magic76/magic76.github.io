@@ -7,12 +7,14 @@ import{friendMemoryEnabled,setFriendMemoryEnabled}from"../friends/friendMemory";
 import{downloadBackup,importBackup}from"../lib/backup";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 import {BuildVersion} from "../components/BuildVersion";
+import {usageDisabled,developerUsageMode,setUsageDisabled,setDeveloperUsageMode} from "../analytics/usage";
 
 export function SettingsPage(){
  const {t,i18n}=useTranslation("settings");
  const english=i18n.language.startsWith("en");
  const liveModel=useTeacherStore(s=>s.liveModel),setLiveModel=useTeacherStore(s=>s.setLiveModel);
  const[backupBusy,setBackupBusy]=useState(false),[backupStatus,setBackupStatus]=useState("");
+ const[analyticsOff,setAnalyticsOff]=useState(usageDisabled),[devMode,setDevMode]=useState(developerUsageMode);
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
  useEffect(()=>{if(window.location.hash.endsWith("#memory-settings"))document.getElementById("memory-settings")?.scrollIntoView({block:"start"})},[]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
@@ -45,6 +47,18 @@ export function SettingsPage(){
   <p className="meta" style={{marginTop:14}}>{t("memory.footnote")}</p>
  </section>
  <section className="section panel"><div className="section-head"><h2>{t("backup.title")}</h2><small>{t("backup.tagline")}</small></div><p className="meta">{t("backup.intro")}</p><div className="actions"><button className="btn secondary" disabled={backupBusy} onClick={async()=>{setBackupBusy(true);setBackupStatus("");try{const r=await downloadBackup();setBackupStatus(t("backup.exportSuccess",{stories:r.stories,keys:r.keys}))}catch(_){setBackupStatus(t("backup.exportError"))}finally{setBackupBusy(false)}}}>{t("backup.export")}</button><label className={"btn secondary"+(backupBusy?" disabled":"")}>{t("backup.import")}<input type="file" accept=".json,application/json" hidden disabled={backupBusy} onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;setBackupBusy(true);setBackupStatus("");try{const r=await importBackup(file);setBackupStatus(t("backup.importSuccess",{stories:r.stories,entries:r.entries,skipped:r.skipped}))}catch(err){setBackupStatus(t("backup.importError",{reason:err instanceof Error?err.message:t("backup.importFallback")}))}finally{setBackupBusy(false)}}}/></label></div>{backupStatus&&<p className="meta" role="status">{backupStatus}</p>}<p className="meta">{t("backup.footnote")}</p></section>
+ <section className="section panel" id="usage-privacy">
+  <div className="section-head"><h2>{english?"Anonymous product usage":"匿名產品使用統計"}</h2></div>
+  <label className="row" style={{gap:12,alignItems:"flex-start"}}>
+   <input type="checkbox" checked={!analyticsOff} onChange={e=>{setUsageDisabled(!e.target.checked);setAnalyticsOff(!e.target.checked)}}/>
+   <span><strong>{english?"Share anonymous feature usage":"允許匿名功能使用統計"}</strong>
+    <small className="meta" style={{display:"block",marginTop:4}}>{english?"Records successful actions only, without chat content, birth details, recordings or Gemini keys. No tracking when GPC/Do Not Track is enabled.":"僅記錄成功使用的功能事件與隨機瀏覽器識別碼，不包含聊天、生日、錄音或 Gemini Key；啟用 GPC／Do Not Track 時不追蹤。"}</small></span>
+  </label>
+  {new URLSearchParams(window.location.search).has("crewDev")&&<label className="row" style={{gap:12,marginTop:14}}>
+    <input type="checkbox" checked={devMode} onChange={e=>{setDeveloperUsageMode(e.target.checked);setDevMode(e.target.checked)}}/>
+    <span>{english?"Developer test mode (exclude my usage)":"開發測試模式（排除自己的操作）"}</span>
+  </label>}
+ </section>
  <BuildVersion/>
 </>;
 }
