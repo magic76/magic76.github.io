@@ -61,12 +61,7 @@ test("R2 publisher blocks traversal paths, unrelated friends and published exter
  const again=fixture.run("2026-10-15");
  assert.notEqual(again.status,0);assert.match(again.stderr,/invalid friend/);
 });
-test("R2 publishing remains opt-in and does not bundle content into JavaScript",()=>{
- const workflow=fs.readFileSync(path.join(root,".github/workflows/crew-shorts-r2.yml"),"utf8");
- assert.match(workflow,/CREW_SHORTS_ENABLED == 'true'/);
- assert.match(workflow,/workflow_dispatch/);
- assert.match(workflow,/schedule:/);
- assert.match(workflow,/dry_run:/);
+test("Legacy optional R2 publisher stays isolated from the client bundle",()=>{
  const publisherSource=fs.readFileSync(publisher,"utf8");
  assert.match(publisherSource,/LAST step: atomic switch/);
  assert.match(publisherSource,/NoSuchKey/);

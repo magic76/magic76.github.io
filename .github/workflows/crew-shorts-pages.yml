@@ -1,0 +1,83 @@
+name: Crew Shorts Pages publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate approved posts without committing"
+        type: boolean
+        required: true
+        default: true
+      as_of:
+        description: "Optional editorial release date YYYY-MM-DD (Asia/Taipei)"
+        type: string
+        required: false
+        default: ""
+  # Daily release of approved content only. No image generation or R2 required.
+  schedule:
+    - cron: "0 0 * * *" # 08:00 Asia/Taipei
+
+permissions:
+  contents: write
+
+concurrency:
+  group: crew-shorts-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Safe default: schedule disabled until original seed and WebP media are committed.
+    if: github.event_name == 'workflow_dispatch' || vars.CREW_SHORTS_PAGES_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify reviewed seed exists
+        run: |
+          test -f content/crew-shorts/approved/posts.json || {
+            echo "::error::Original approved Crew Shorts content and WebP files must be imported first."
+            exit 1
+          }
+      - name: Prepare release (or dry run)
+        env:
+          DRY_RUN: ${{ inputs.dry_run || false }}
+          INPUT_AS_OF: ${{ inputs.as_of || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--feed content/crew-shorts/approved/posts.json --out-dir features/teacher/shorts)
+          if [[ -n "$INPUT_AS_OF" ]]; then args+=(--as-of "$INPUT_AS_OF"); fi
+          if [[ "$DRY_RUN" == "true" ]]; then args+=(--dry-run); fi
+          node scripts/publish-shorts-pages.mjs "${args[@]}"
+      - name: Validate published feed and regression suite
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        run: |
+          set -euo pipefail
+          node scripts/check-shorts-feed.mjs features/teacher/shorts/posts.json
+          npm ci
+          npm run check:web
+          npm test
+      - name: Commit to Git-connected Cloudflare Pages source
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- features/teacher/shorts
+          if git diff --cached --quiet; then
+            echo "Crew Shorts content unchanged; skipping deploy."
+            exit 0
+          fi
+          git commit -m "content(shorts): publish approved daily photo stories"
+          # Only new content paths are staged; fail on conflicts instead of overwriting work.
+          git pull --rebase origin master
+          git push origin HEAD:master
+          echo "Published content commit. Cloudflare Pages Git integration should deploy this push."
