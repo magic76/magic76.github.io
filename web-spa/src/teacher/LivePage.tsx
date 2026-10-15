@@ -1,4 +1,5 @@
 import{effectiveSpeakingLevel,storedSpeakingLevel}from"./speakingLevelMemory";
+import{trackUsageEvent}from"../analytics/usage";
 import {conversationIntent,conversationOpening} from "./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
 import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
@@ -19,7 +20,7 @@ const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goa
 
 export function TeacherLivePage(){
  const {i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
- const navigate=useNavigate(),endRequestedRef=useRef(false),memoryCheckpointRef=useRef(false);
+ const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
@@ -41,7 +42,10 @@ export function TeacherLivePage(){
     ?conversationOpening(intent,"teacher")
     :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
  const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":undefined,
-  onTurnComplete:()=>{
+  onTurnComplete:(_turn,completedTurns)=>{
+   if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
+    usageSentRef.current=true;trackUsageEvent("teacher_conversation");
+   }
    if(isRoleplay||memoryCheckpointRef.current)return;
    const snapshot=live.turns;
    if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
