@@ -6,7 +6,7 @@ const {stripTypeScriptTypes}=require("node:module");
 // Exercise the actual TS feed parser without requiring npm dependencies.
 const filename=path.resolve(__dirname,"../web-spa/src/teacher/shortsFeed.ts");
 const source=readFileSync(filename,"utf8");
-const compiled=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport (function|const) /g,"$1 ");
+const compiled=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport (async )?(function|const) /g,"$1$2 ");
 const {normalizeShortFeed,validShortPost}=new Function(compiled+";return {normalizeShortFeed,validShortPost};")();
 const post=(id,date,friendId="zoe")=>({
  id,friendId,friendName:friendId[0].toUpperCase()+friendId.slice(1),
