@@ -2,8 +2,11 @@ const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
-const src=stripTypeScriptTypes(read("web-spa/src/friends/friendLanguage.ts"),{mode:"strip"}).replace(/\bexport\s+(?=(?:function|const))/g,"");
-const ctx={};vm.runInNewContext(src+"\nthis.api={friendLanguageRule,friendLanguageReminder,friendLanguageTransition};",ctx);
+const target=stripTypeScriptTypes(read("web-spa/src/teacher/targetLanguages.ts"),{mode:"strip"})
+ .replace(/\bexport\s+(?=(?:function|const))/g,"");
+const src=stripTypeScriptTypes(read("web-spa/src/friends/friendLanguage.ts"),{mode:"strip"})
+ .replace(/^import .*\n/g,"").replace(/\bexport\s+(?=(?:function|const))/g,"");
+const ctx={};vm.runInNewContext(target+"\n"+src+"\nthis.api={friendLanguageRule,friendLanguageReminder,friendLanguageTransition};",ctx);
 test("friend natural, bilingual and immersion modes keep distinct language boundaries",()=>{
  const {friendLanguageRule,friendLanguageReminder}=ctx.api;
  assert.match(friendLanguageRule("英文","zh-TW","natural"),/Start in Traditional Chinese/);
