@@ -63,6 +63,7 @@ export default defineConfig(({ command }) => {
     plugins: [react(), versionAsset],
     define: { __CREW_BUILD_INFO__: JSON.stringify(buildInfo) },
     build: {
+      manifest: true,
       outDir: isCloudflareBuild ? "../dist" : "../crew-app",
       emptyOutDir: true,
       sourcemap: false
