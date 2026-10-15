@@ -91,3 +91,15 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 /* Native-language help uses the existing Teacher surface, compact on Live. */
 body.teacher-theme .teacher-native-help{max-width:100%;box-sizing:border-box;margin:12px 0;padding:11px 13px;border-radius:14px;border:1px solid #d8e7fd;background:#edf5ff;color:#34527a;font-size:12px;line-height:1.6}
 body.teacher-theme .teacher-live-language-hint{width:min(100%,570px);margin:10px auto 0;text-align:center;font-weight:600}
+
+/* Low-friction, intent-first daily conversations. Role pickers remain available below. */
+body.teacher-theme .crew-daily-intents{margin-bottom:18px}
+body.teacher-theme .crew-intent-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+body.teacher-theme .crew-intent-card{display:flex;flex-direction:column;align-items:flex-start;gap:8px;padding:16px;min-height:144px;border-radius:18px;background:var(--surface,#fff);border:1px solid var(--line,#e5e7eb);color:var(--text,#202637);text-decoration:none;transition:border-color .16s ease,transform .16s ease}
+body.teacher-theme .crew-intent-card:hover{border-color:#76a4db;transform:translateY(-2px)}
+body.teacher-theme .crew-intent-card:focus-visible{outline:3px solid #75a3ed;outline-offset:2px}
+body.teacher-theme .crew-intent-icon{display:grid;place-items:center;width:36px;height:36px;border-radius:11px;background:#edf5ff;color:#4174c1}
+body.teacher-theme .crew-intent-card strong{font-size:15px;line-height:1.4}
+body.teacher-theme .crew-intent-card small{color:var(--muted,#667085);font-size:12px;line-height:1.5}
+@media(max-width:640px){body.teacher-theme .crew-intent-grid{grid-template-columns:1fr;gap:8px}body.teacher-theme .crew-intent-card{min-height:0;padding:13px 15px;gap:5px}body.teacher-theme .crew-intent-icon{display:none}}
+@media(prefers-reduced-motion:reduce){body.teacher-theme .crew-intent-card{transition:none}}
