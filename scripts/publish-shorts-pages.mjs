@@ -64,7 +64,8 @@ if(posts.length===0){console.log("No approved posts due on "+asOf+"; retaining e
 const dest=join(outDir,"posts.json");
 let old=null;
 if(existsSync(dest)){try{old=JSON.parse(readFileSync(dest,"utf8"))}catch{fail("existing published feed is not JSON; refuse to overwrite")}}
-const same=old&&old.kind==="crew-shorts"&&old.source===source.source&&JSON.stringify(old.posts)===JSON.stringify(posts);
+const same=old&&old.kind==="crew-shorts"&&old.source===source.source&&JSON.stringify(old.posts)===JSON.stringify(posts)
+ &&[...images.keys()].every(filename=>existsSync(join(outDir,"media",filename)));
 if(same){console.log("No feed changes: "+posts.length+" due posts. No deployment needed.");process.exit(0)}
 const feed={schema:1,kind:"crew-shorts",source:source.source,generatedAt:asOf+"T00:00:00+08:00",posts};
 if(dryRun){
