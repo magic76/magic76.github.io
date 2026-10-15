@@ -1,4 +1,5 @@
 import {buildAccentPrompt} from "../teacher/teacherAccent";
+import {trackUsageEvent} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
@@ -18,7 +19,7 @@ import "./friends.css";
 export function FriendLivePage(){
  const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
- const navigate=useNavigate(),closingRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
+ const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const intent=conversationIntent(params.get("intent"),"friend");
  const language=useTeacherStore(s=>s.targetLanguage);
@@ -37,6 +38,9 @@ export function FriendLivePage(){
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:(_turn,completedTurns)=>{
+   if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
+    usageSentRef.current=true;trackUsageEvent("friend_conversation");
+   }
    // The Live ref contains the completed exchange before React updates live.turns.
    // Capture the first meaningful turn and every three more (up to three checkpoints).
    const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
