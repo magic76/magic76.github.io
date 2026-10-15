@@ -1,5 +1,5 @@
 import React from "react";
-import {renderToString} from "react-dom/server";
+import {prerender} from "react-dom/static";
 import {StaticRouter} from "react-router-dom";
 import i18n from "./i18n";
 import {App} from "./App";
@@ -11,9 +11,10 @@ export async function renderStaticRoute(path:string,locale:"zh-TW"|"en",seed:Pub
  const prefix=locale==="en"?"/en":"";
  const location=prefix+(path==="/"?"/":path);
  const basename=prefix||"/";
- return renderToString(
+ const {prelude}=await prerender(
   <StaticRouter basename={basename} location={location}>
    <PublicResearchProvider seed={seed}><App/></PublicResearchProvider>
   </StaticRouter>
  );
+ return new Response(prelude).text();
 }

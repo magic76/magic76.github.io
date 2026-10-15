@@ -8,7 +8,7 @@ test("friend End and toolbar Back both close after saving conversation",()=>{
  const live=source("web-spa/src/friends/FriendLivePage.tsx");
  assert.match(live,/const endAndReturn=async\(\)=>/);
  assert.match(live,/await live\.stop\(true\)/);
- assert.match(live,/finally\{navigate\("\/teacher\/roles\?mode=friends"\)\}/);
+ assert.match(live,/finally\{navigate\(shortsPost\?"\/teacher\/shorts":"\/teacher\/roles\?mode=friends"\)\}/);
  assert.match(live,/onEnd=\{endAndReturn\}/);
  assert.match(live,/preventDefault\(\);void endAndReturn\(\)/);
  assert.match(live,/recordFriendChat\(sessionId,language,item\.turns,item\.durationMs\)/);

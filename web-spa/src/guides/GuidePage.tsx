@@ -2,7 +2,7 @@ import {useEffect} from "react";
 import {Link,useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {getGuide,guideSlugs,type GuideSlug} from "./catalog";
-import "./guides.css";
+
 
 const getLocale=(value:string)=>value==="zh-TW"?"zh":"en";
 const url=(slug:GuideSlug)=>"/guides/"+slug;

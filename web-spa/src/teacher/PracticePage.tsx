@@ -31,6 +31,7 @@ export function PracticePage(){
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
  {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
+ <section className="section"><Link to="/teacher/shorts" className="notice" style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:12,textDecoration:"none"}}><span><strong>CREW SHORTS · DEMO</strong><span style={{display:"block",fontSize:12,marginTop:5}}>{english?"See what your friends posted today":"今天朋友發了什麼？看照片、聽英文、自然開聊"}</span></span><b aria-hidden="true">→</b></Link></section>
  <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
   <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
   <div className="crew-intent-grid">

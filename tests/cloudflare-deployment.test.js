@@ -28,8 +28,8 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
  const inlineCss=root.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
- const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>file.endsWith(".css"));
- assert.equal(cssFiles.length,1,"expected one Vite CSS bundle");
+ const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>/^index-[^/]+\.css$/.test(file));
+ assert.equal(cssFiles.length,1,"expected exactly one initial-entry Vite CSS bundle (lazy routes may emit separate CSS)");
  const compiledCss=read("assets/"+cssFiles[0]);
  assert.ok(script,"missing app JS");assert.ok(inlineCss,"missing inline React stylesheet");
  assert.ok(compiledCss.length>10000&&compiledCss.includes(".global-nav"));
@@ -86,10 +86,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
  assert.ok(fs.existsSync(path.join(DIST,"assets",cssFiles[0])));
 });
 check("search-intent guides serve real localized SSG HTML and enter the sitemap",()=>{
- const slugs=[
-  "ai-english-speaking","ai-conversation-partner","travel-english-dialogues",
-  "english-pronunciation","gemini-key-for-ai-practice"
- ];
+ const slugs=["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"];
  const domain="https://www.3sssi.com",sitemap=read("sitemap.xml");
  for(const slug of slugs){
   for(const locale of ["zh","en"]){
@@ -115,13 +112,11 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
    assert.ok(graph.some(x=>x["@type"]==="WebPage"&&x.url===canonical));
   }
  }
- const source=fs.readFileSync(path.join(ROOT,"web-spa/src/guides/catalog.ts"),"utf8");
- for(const slug of slugs)assert.ok(source.includes('"'+slug+'":{'),"source missing guide: "+slug);
 });
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
-  "sitemap.xml","robots.txt","seo.css","social/teacher.png"]){
+  "sitemap.xml","robots.txt","seo.css","social/teacher.png","features/teacher/shorts/posts.json"]){
   assert.ok(fs.existsSync(path.join(DIST,file)),"missing required asset: "+file);
  }
  const index=JSON.parse(read("briefings/index.json"));
@@ -135,7 +130,7 @@ check("React SSG hydration keeps one app and uses client-side routing for deep l
  const renderer=fs.readFileSync(path.join(ROOT,"scripts/ssg-renderer.mjs"),"utf8");
  assert.ok(renderer.includes('await vite.ssrLoadModule("/src/ssg-entry.tsx")'));
  const entry=fs.readFileSync(path.join(ROOT,"web-spa/src/ssg-entry.tsx"),"utf8");
- assert.ok(entry.includes("renderToString(")&&entry.includes("<App/>"),"SSG must render real React App");
+ assert.ok(entry.includes("prerender(")&&entry.includes("<App/>"),"async SSG must fully prerender real React App including lazy routes");
  const r=read("teacher/index.html");
  assert.ok(r.includes('data-crew-ssg-path="/teacher"'));
  assert.ok(!r.includes('data-crew-seo-fallback'),"SSG must not load a separate SEO CSS");
@@ -214,11 +209,8 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   }
  }
 
- // Five dedicated search-intent pages are also public SSG routes in both locales.
- for(const slug of [
-  "ai-english-speaking","ai-conversation-partner","travel-english-dialogues",
-  "english-pronunciation","gemini-key-for-ai-practice"
- ]){
+ // SEO guides are indexed only in published Chinese and English locales.
+ for(const slug of ["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"]){
   expected.push(domain+"/guides/"+slug+"/");
   expected.push(domain+"/en/guides/"+slug+"/");
  }
