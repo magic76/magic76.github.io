@@ -11,9 +11,10 @@ export async function renderStaticRoute(path:string,locale:"zh-TW"|"en",seed:Pub
  const prefix=locale==="en"?"/en":"";
  const location=prefix+(path==="/"?"/":path);
  const basename=prefix||"/";
- return renderToString(
+ const {prelude}=await prerender(
   <StaticRouter basename={basename} location={location}>
    <PublicResearchProvider seed={seed}><App/></PublicResearchProvider>
   </StaticRouter>
  );
+ return new Response(prelude).text();
 }
