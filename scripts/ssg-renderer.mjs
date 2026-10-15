@@ -32,6 +32,7 @@ export async function prerenderPublicRoutes(root){
    logLevel:"warn"
   });
   const {renderStaticRoute}=await vite.ssrLoadModule("/src/ssg-entry.tsx");
+  const {guideSlugs,getGuide}=await vite.ssrLoadModule("/src/guides/catalog.ts");
   const result=new Map();
   const research=readPublishedResearch(root);
   const related= recommendPublishedResearch(research.days);
@@ -47,6 +48,17 @@ export async function prerenderPublicRoutes(root){
     result.set(locale+":"+path,html);
    }
   }
+  const guides=new Map();
+  for(const locale of ["zh-TW","en"]){
+   for(const slug of guideSlugs){
+    const path="/guides/"+slug,guide=getGuide(slug,locale==="en"?"en":"zh");
+    if(!guide)throw Error("Guide missing content: "+locale+" "+slug);
+    const html=await renderStaticRoute(path,locale);
+    if(!html.includes("<h1")||!html.includes(guide.headline))throw Error("Guide SSG missing content: "+locale+" "+slug);
+    result.set(locale+":"+path,html);
+    guides.set(locale+":"+path,{slug,locale,content:guide});
+   }
+  }
   const articles=new Map();
   for(const [date,day] of research.days){
    for(const item of day.items){
@@ -58,7 +70,7 @@ export async function prerenderPublicRoutes(root){
     articles.set(path,{day,item,seed});
    }
   }
-  return {pages:result,articles,research,related};
+  return {pages:result,articles,research,related,guides};
  }finally{
   if(vite)await vite.close();
   for(const [key,value] of Object.entries(saved)){
