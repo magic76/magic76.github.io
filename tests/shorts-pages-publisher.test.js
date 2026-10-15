@@ -81,9 +81,11 @@ test("Pages publisher rejects unsafe image paths, invalid roles and placeholders
  result=f.run("2026-10-15");
  assert.notEqual(result.status,0);assert.match(result.stderr,/unknown friend/);
 });
-test("Scheduled Pages release is opt-in and remains independent of R2",()=>{
+test("Scheduled Pages release activates after seed approval and remains independent of R2",()=>{
  const workflow=fs.readFileSync(path.join(root,".github/workflows/crew-shorts-pages.yml"),"utf8");
- assert.match(workflow,/CREW_SHORTS_PAGES_ENABLED == 'true'/);
+ assert.match(workflow,/github.event_name != 'pull_request'/);
+ assert.match(workflow,/pull_request:/);
+ assert.match(workflow,/branches: \[master\]/);
  assert.match(workflow,/workflow_dispatch/);
  assert.match(workflow,/schedule:/);
  assert.match(workflow,/git push origin HEAD:master/);
