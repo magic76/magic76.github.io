@@ -54,7 +54,7 @@ export function SettingsPage(){
    <span><strong>{english?"Share anonymous feature usage":"允許匿名功能使用統計"}</strong>
     <small className="meta" style={{display:"block",marginTop:4}}>{english?"Records successful actions only, without chat content, birth details, recordings or Gemini keys. No tracking when GPC/Do Not Track is enabled.":"僅記錄成功使用的功能事件與隨機瀏覽器識別碼，不包含聊天、生日、錄音或 Gemini Key；啟用 GPC／Do Not Track 時不追蹤。"}</small></span>
   </label>
-  {new URLSearchParams(window.location.search).has("crewDev")&&<label className="row" style={{gap:12,marginTop:14}}>
+  {new URLSearchParams(typeof window==="undefined"?"":window.location.search).has("crewDev")&&<label className="row" style={{gap:12,marginTop:14}}>
     <input type="checkbox" checked={devMode} onChange={e=>{setDeveloperUsageMode(e.target.checked);setDevMode(e.target.checked)}}/>
     <span>{english?"Developer test mode (exclude my usage)":"開發測試模式（排除自己的操作）"}</span>
   </label>}
