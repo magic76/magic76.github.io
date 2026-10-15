@@ -35,7 +35,15 @@
     "record": "Learning activity",
     "done": "You've started learning today",
     "sessions": "{{count}} speaking sessions",
-    "words": "{{count}} vocabulary questions"
+    "words": "{{count}} vocabulary questions",
+    "shortsTitle": "Friends’ latest moments",
+    "shortsIntro": "See what your Crew has been up to. A photo is an easy way to start talking.",
+    "shortsAll": "View all",
+    "shortsChat": "Chat with {{name}}",
+    "shortsLoading": "Loading stories…",
+    "shortsUnavailable": "Stories are unavailable. Open Crew Shorts to try again.",
+    "shortsDisclosure": "Fictional stories created by Crew.",
+    "shortsDemo": "Preview content"
   },
   "learn": {
     "title": "Learn",

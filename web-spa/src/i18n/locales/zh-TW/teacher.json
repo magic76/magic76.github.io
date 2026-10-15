@@ -35,7 +35,15 @@
     "record": "學習紀錄",
     "done": "今天已經開始學習",
     "sessions": "{{count}} 次口說練習",
-    "words": "{{count}} 題單字"
+    "words": "{{count}} 題單字",
+    "shortsTitle": "朋友最新動態",
+    "shortsIntro": "看看朋友的生活，一張照片就能開始話題。",
+    "shortsAll": "查看全部",
+    "shortsChat": "跟 {{name}} 聊聊",
+    "shortsLoading": "正在載入朋友動態…",
+    "shortsUnavailable": "動態暫時無法載入，前往 Crew Shorts 重試",
+    "shortsDisclosure": "Crew 創作的虛構角色生活故事",
+    "shortsDemo": "示範內容"
   },
   "learn": {
     "title": "學習",

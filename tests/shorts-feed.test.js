@@ -57,5 +57,7 @@ test("Crew Shorts remains lazy and linked from Teacher",()=>{
  const home=load("web-spa/src/teacher/PracticePage.tsx");
  assert.match(app,/ShortsPage=lazy/);
  assert.match(app,/path="shorts"/);
- assert.match(home,/\/teacher\/shorts/);
+ assert.match(home,/HomeShortsPreview/);
+ const preview=load("web-spa/src/teacher/HomeShortsPreview.tsx");
+ assert.match(preview,/\/teacher\/shorts/);
 });
