@@ -14,7 +14,8 @@ import{useClientReady}from"../lib/useClientReady";
 import{ProductDiscoverability}from"../components/ProductDiscoverability";
 
 export function PracticePage(){
- const {t}=useTranslation("teacher");
+ const {t,i18n}=useTranslation("teacher");
+ const english=i18n.language.startsWith("en");
  const ready=useClientReady();
  const storedTarget=useTeacherStore(s=>s.targetLanguage);
  const target=ready?storedTarget:"英文";
@@ -22,13 +23,22 @@ export function PracticePage(){
  const profile=getTeacherProfile(ready?storedProfile:"emma");
  const friendId=ready?localStorage.getItem("crew_web_selected_friend_v1"):null;
  const friend=CREW_FRIENDS.find(x=>x.id===friendId)||CREW_FRIENDS[0];
+ const selectedFriend=encodeURIComponent(friend.id);
  const h=ready?history("teacher"):[],today=new Date().toDateString();
  const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=(ready?todayVocabulary():0);
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
  {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
-  <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
+ <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
+  <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
+  <div className="crew-intent-grid">
+   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=share"}><span className="crew-intent-icon"><Icon name="chat"/></span><strong>{english?"Share something from today":"跟朋友說說今天的事"}</strong><small>{english?"Just talk. No lesson or pressure.":"自然聊天、不必準備話題"}</small></Link>
+   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=speak"}><span className="crew-intent-icon"><Icon name="mic"/></span><strong>{english?"Chat for 3 minutes":"隨便聊 3 分鐘外語"}</strong><small>{english?"A relaxed target-language conversation.":"外語陪聊，不考試不強迫糾錯"}</small></Link>
+   <Link className="crew-intent-card" to="/teacher/live?intent=continue"><span className="crew-intent-icon"><Icon name="book"/></span><strong>{english?"Continue speaking practice":"接續上次的練習"}</strong><small>{english?"Your tutor adapts to known progress.":"老師依已知學習進度引導"}</small></Link>
+  </div>
+ </section>
+   <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
    <span className="crew-role-symbol crew-role-portrait"><FriendAvatar friend={friend}/></span>
    <strong>{t("practice.friend")} <span className="crew-role-name">· {friend.name}</span></strong><span>{t("practice.friendDesc")}</span>
