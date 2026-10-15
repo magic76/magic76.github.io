@@ -50,7 +50,7 @@ test("Pages publisher is idempotent and does not generate daily commits without 
  const f=fixture(t);
  assert.equal(f.run("2026-10-14").status,0);
  const before=fs.readFileSync(path.join(f.target,"posts.json"),"utf8");
- const result=f.run("2026-10-14");
+ const result=f.run("2026-10-15");
  assert.notEqual(result.status,0,"due image is absent so the old feed must not be replaced");
  assert.equal(fs.readFileSync(path.join(f.target,"posts.json"),"utf8"),before);
  const again=f.run("2026-10-14");
