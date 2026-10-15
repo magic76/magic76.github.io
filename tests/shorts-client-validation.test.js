@@ -15,12 +15,12 @@ const post=(id,date,friendId="zoe")=>({
  publishedAt:date,language:"en",storyId:friendId+"-coffee"
 });
 const feed=posts=>({schema:1,kind:"crew-shorts",source:"seed",generatedAt:"2026-10-16T00:00:00+08:00",posts});
-const instant="2026-10-16T07:59:59+08:00";
 const release="2026-10-16T08:00:00+08:00";
-test("Crew Web and Android hide future-dated posts until release",()=>{
+test("Crew Web displays all approved public feed posts before editorial release time",()=>{
  const raw=feed([post("zoe-day1",release)]);
- assert.equal(normalizeShortFeed(raw,Date.parse(instant)).posts.length,0);
- assert.equal(normalizeShortFeed(raw,Date.parse(release)).posts.length,1);
+ // Publishing is controlled upstream; the client must not erase seeded content.
+ assert.equal(normalizeShortFeed(raw).posts.length,1);
+ assert.equal(normalizeShortFeed(raw).posts[0].id,"zoe-day1");
 });
 test("Crew Web rejects invalid owner, non-first-party image, and malformed date",()=>{
  const invalid=post("zoe-day1",release);
@@ -33,10 +33,10 @@ test("Crew Web rejects invalid owner, non-first-party image, and malformed date"
  assert.equal(validShortPost(unknown),false);
  const malformed=post("zoe-day3","2026-10-16T08:00:00");
  assert.equal(validShortPost(malformed),false);
- assert.throws(()=>normalizeShortFeed(feed([invalid,outside,unknown,malformed]),Date.parse(release)),/No valid Shorts/);
+ assert.throws(()=>normalizeShortFeed(feed([invalid,outside,unknown,malformed])),/No valid Shorts/);
 });
 test("latest public posts remain ordered and distinct IDs cannot overwrite each other",()=>{
  const raw=feed([post("zoe-day1","2026-10-15T08:00:00+08:00"),post("bella-day1",release,"bella"),post("zoe-day1",release)]);
- const posts=normalizeShortFeed(raw,Date.parse(release)).posts;
+ const posts=normalizeShortFeed(raw).posts;
  assert.deepEqual(posts.map(p=>p.id),["bella-day1","zoe-day1"]);
 });
