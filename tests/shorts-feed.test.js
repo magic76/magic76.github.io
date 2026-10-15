@@ -17,7 +17,7 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.match(config.feedUrl,/^\//);
  for(const post of feed.posts){
   assert.match(post.friendId,/^[a-z0-9-]+$/);
-  assert.match(post.image,/^https:\/\//);
+  assert.match(post.image,/^(?:https:\/\/|\/features\/teacher\/shorts\/media\/)/);
   assert.ok(post.caption&&post.storyId&&post.language);
  }
  const page=load("web-spa/src/teacher/ShortsPage.tsx");
