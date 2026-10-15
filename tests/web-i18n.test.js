@@ -33,7 +33,7 @@ test("global UI locale is persisted separately from spoken learning languages",(
  assert.ok(main.includes('import "./i18n"'));
  assert.ok(index.includes("crew_ui_locale_v1"));
  assert.ok(index.includes('document.documentElement.lang=locale'));
- assert.ok(index.includes('fallbackLng:"zh-TW"'));
+ assert.ok(index.includes('default:["en","zh-TW"]'));
  assert.ok(index.includes('window.addEventListener("storage"'));
  assert.ok(switcher.includes('i18n.changeLanguage(next)'));
  assert.ok(!switcher.includes("setTargetLanguage"));
@@ -102,4 +102,24 @@ test("inner practice, editor and birth-place forms translate UI without mutating
  assert.equal(load("en","teacher").vocabulary.listen,"Listen to pronunciation");
  assert.equal(load("zh-TW","story").editor.emotions.warm,"溫暖");
  assert.equal(load("en","fortune").profile.searching,"Searching…");
+});
+
+test("global UI locale options and search index publication gates",()=>{
+ const options=JSON.parse(read("config/ui-locales.json")).locales;
+ assert.equal(options.length,18);
+ assert.equal(new Set(options.map(x=>x.code)).size,18);
+ assert.deepEqual(options.filter(x=>x.stage!=="preview").map(x=>x.code),
+  ["zh-TW","en","ja","es","pt-BR","id"]);
+ assert.deepEqual(options.filter(x=>x.stage==="published").map(x=>x.code),["zh-TW","en"]);
+ const routes=read("web-spa/src/main.tsx");
+ const selector=read("web-spa/src/i18n/LanguageSwitcher.tsx");
+ const deploy=read("scripts/prepare-cloudflare.mjs");
+ const translations=read("web-spa/src/i18n/previewTranslations.ts");
+ assert.ok(routes.includes("localeFromPublicPath(window.location.pathname)"));
+ assert.ok(selector.includes("localePrefix(next)"));
+ assert.ok(selector.includes("English fallback"));
+ assert.ok(deploy.includes('locale.stage!=="published"'));
+ assert.ok(deploy.includes('name="robots" content="noindex,follow"'));
+ assert.ok(deploy.includes('"_redirects"'));
+ for(const language of ["ja","es","pt-BR","id"])assert.ok(translations.includes('"'+language+'":'));
 });
