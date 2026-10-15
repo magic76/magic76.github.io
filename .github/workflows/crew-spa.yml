@@ -26,6 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run check:web
       - run: npm run build:web
+      - run: npm run check:bundle
       - run: npm test
       - name: Commit Crew Pages build
         if: github.event_name == 'push' && github.ref_name == 'master'
