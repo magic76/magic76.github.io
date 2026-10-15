@@ -2,18 +2,16 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 
 function compile(file){
  const source=fs.readFileSync(path.join(root,file),"utf8");
- const result=ts.transpileModule(source,{
-  compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022},
-  reportDiagnostics:true,fileName:file
- });
- assert.equal((result.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error).length,0);
+ const stripped=stripTypeScriptTypes(source,{mode:"strip"});
+ const exports=[...source.matchAll(/export async function (\w+)/g)].map(match=>match[1]);
+ const js=stripped.replace(/export async function /g,"async function ")+"\nmodule.exports={"+exports.join(",")+"};";
  const mod={exports:{}};
- const load=new Function("module","exports","require","Response","Request","fetch","crypto","atob","TextEncoder","TextDecoder",result.outputText);
+ const load=new Function("module","exports","require","Response","Request","fetch","crypto","atob","TextEncoder","TextDecoder",js);
  load(mod,mod.exports,require,Response,Request,fetch,globalThis.crypto,atob,TextEncoder,TextDecoder);
  return mod.exports;
 }
