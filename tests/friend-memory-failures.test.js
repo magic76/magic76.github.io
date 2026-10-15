@@ -35,8 +35,8 @@ function setup(fetcher,key="test-key"){
    "ingestStudentPersonalUpdates","hasMeaningfulLearnerSpeech","verifiedLearnerEvidence"],
   {localStorage,fetch:fetcher});
  const friends=extract("web-spa/src/friends/friendMemory.ts",
-  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError"],
-  {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"}],
+  ["rememberFriendConversation","getFriendTopics","getFriendCaptureStatus","classifyFriendMemoryHttpError","pinFriendTopic","saveFriendTopic","allowFriendTopicAutoUpdate"],
+  {localStorage,fetch:fetcher,geminiKey:()=>key,CREW_FRIENDS:[{id:"zoe"},{id:"yuna"}],
    normalizeLearningLanguage:learner.normalizeLearningLanguage,
    personalMemoryEnabled:learner.personalMemoryEnabled,
    getPersonalMemoryEpoch:learner.getPersonalMemoryEpoch,
@@ -108,3 +108,83 @@ test("all user-facing capture statuses have Traditional Chinese and English tran
    assert.ok(names[key],lang+" missing "+key);
  }
 });
+
+test("Zoe and Yuna have separate memories for every target language",async()=>{
+ const {friends}=setup(async()=>response({topics:[{key:"movie-plan",title:"Movie tomorrow",
+  summary:"The learner plans to watch a movie tomorrow",followUp:"Which movie?",
+  evidence:"I am planning to watch a movie tomorrow"}],memory_updates:{}}));
+ const exchange=[{input:"I am planning to watch a movie tomorrow",output:"Sounds fun"}];
+ await friends.rememberFriendConversation("zoe","英文",exchange,1000);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+ assert.equal(friends.getFriendTopics("yuna","英文").length,0);
+ assert.equal(friends.getFriendTopics("zoe","日文").length,0);
+ await friends.rememberFriendConversation("yuna","英文",exchange,1000);
+ assert.equal(friends.getFriendTopics("yuna","英文").length,1);
+ assert.equal(friends.getFriendTopics("zoe","英文").length,1);
+});
+
+test("AI-generated pinned topics continue to update from verified learner speech",async()=>{
+ let calls=0;
+ const {friends}=setup(async()=>response({topics:[{
+  key:"movie-plan",title:"Our movie chat",
+  summary:calls++?"Learner wants to see a comedy tomorrow":"Learner will watch a movie tomorrow",
+  followUp:"Which movie?",
+  evidence:calls>1?"I want to see a comedy tomorrow":"I will watch a movie tomorrow"
+ }]}));
+ await friends.rememberFriendConversation("zoe","英文",
+  [{input:"I will watch a movie tomorrow",output:"Great!"}],1000);
+ const initial=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(initial.manual,false);
+ friends.pinFriendTopic("zoe","英文",initial.id);
+ assert.equal(friends.getFriendTopics("zoe","英文")[0].manual,false);
+ await friends.rememberFriendConversation("zoe","英文",
+  [{input:"I want to see a comedy tomorrow",output:"Nice choice!"}],1000);
+ const updated=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(updated.pinned,true);
+ assert.equal(updated.manual,false);
+ assert.equal(updated.id,initial.id);
+ assert.match(updated.summary,/comedy/);
+});
+
+test("legacy manual topics require explicit permission before later AI updates",async()=>{
+ const {friends}=setup(async()=>response({topics:[]}));
+ assert.equal(friends.saveFriendTopic("zoe","英文","Movies discussed","A note I edited"),true);
+ const before=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(before.manual,true);
+ friends.pinFriendTopic("zoe","英文",before.id);
+ assert.equal(friends.getFriendTopics("zoe","英文")[0].manual,true);
+ assert.equal(friends.allowFriendTopicAutoUpdate("zoe","英文",before.id),true);
+ const updated=friends.getFriendTopics("zoe","英文")[0];
+ assert.equal(updated.manual,false);
+ assert.equal(updated.pinned,true);
+ assert.equal(friends.allowFriendTopicAutoUpdate("zoe","英文",before.id),false);
+ const page=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendsPage.tsx"),"utf8");
+ assert.match(page,/item.manual\?<button/);
+ assert.match(page,/autoUpdateConfirm/);
+ for(const lang of ["zh-TW","en"]){
+  const labels=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",lang,"friends.json"),"utf8"));
+  assert.ok(labels.autoUpdate&&labels.autoUpdateConfirm);
+ }
+});
+
+test("Live completion saves the finished transcript, not stale React state",()=>{
+ const shared=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ assert.match(shared,/onTurnComplete\?\.\(turn,turnsRef\.current\.slice\(\)\)/);
+ assert.match(friend,/onTurnComplete:\(_turn,completedTurns\)=>/);
+ assert.match(friend,/rememberFriendConversation\(sessionId,language,completedTurns,0\)/);
+ assert.match(friend,/checkpointCountRef\.current>=3/);
+ assert.match(friend,/learnerTurns-lastCheckpointTurnRef\.current<3/);
+ assert.match(friend,/rememberFriendConversation\(sessionId,language,item\.turns,item\.durationMs\)/);
+ assert.doesNotMatch(friend,/const snapshot=live\.turns/);
+});
+
+test("memory prompt accepts temporary conversation plans but preserves evidence and safety guards",()=>{
+ const source=fs.readFileSync(path.join(root,"web-spa/src/friends/friendMemory.ts"),"utf8");
+ assert.match(source,/Everyday plans such as watching a movie tomorrow/);
+ assert.match(source,/evidence copied verbatim from learner speech/);
+ assert.match(source,/verifiedLearnerEvidence\(speech,quote\)/);
+ assert.match(source,/epoch\(\)===consentEpoch/);
+ assert.match(source,/if\(existing\?\.manual\)continue/);
+});
+
