@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "locales": [
+    {
+      "code": "zh-TW",
+      "label": "繁體中文",
+      "stage": "published"
+    },
+    {
+      "code": "en",
+      "label": "English",
+      "stage": "published"
+    },
+    {
+      "code": "ja",
+      "label": "日本語",
+      "stage": "priority"
+    },
+    {
+      "code": "es",
+      "label": "Español",
+      "stage": "priority"
+    },
+    {
+      "code": "pt-BR",
+      "label": "Português (Brasil)",
+      "stage": "priority"
+    },
+    {
+      "code": "id",
+      "label": "Bahasa Indonesia",
+      "stage": "priority"
+    },
+    {
+      "code": "fr",
+      "label": "Français",
+      "stage": "preview"
+    },
+    {
+      "code": "de",
+      "label": "Deutsch",
+      "stage": "preview"
+    },
+    {
+      "code": "ko",
+      "label": "한국어",
+      "stage": "preview"
+    },
+    {
+      "code": "vi",
+      "label": "Tiếng Việt",
+      "stage": "preview"
+    },
+    {
+      "code": "th",
+      "label": "ภาษาไทย",
+      "stage": "preview"
+    },
+    {
+      "code": "hi",
+      "label": "हिन्दी",
+      "stage": "preview"
+    },
+    {
+      "code": "ar",
+      "label": "العربية",
+      "stage": "preview"
+    },
+    {
+      "code": "ru",
+      "label": "Русский",
+      "stage": "preview"
+    },
+    {
+      "code": "it",
+      "label": "Italiano",
+      "stage": "preview"
+    },
+    {
+      "code": "tr",
+      "label": "Türkçe",
+      "stage": "preview"
+    },
+    {
+      "code": "nl",
+      "label": "Nederlands",
+      "stage": "preview"
+    },
+    {
+      "code": "zh-CN",
+      "label": "简体中文",
+      "stage": "preview"
+    }
+  ]
+}

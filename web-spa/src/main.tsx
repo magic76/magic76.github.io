@@ -15,6 +15,7 @@ import "./briefing/briefing.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";
+import {localeFromPublicPath,localePrefix} from "./i18n/localeCatalog";
 import { App } from "./App";
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
@@ -24,7 +25,7 @@ if (!root) throw new Error("Crew root not found");
 // Dual deployment during migration: GitHub Pages retains legacy links;
 // Cloudflare serves clean BrowserRouter URLs from the website root.
 const legacy = window.location.pathname.startsWith("/crew-app/");
-const languagePrefix = !legacy && /^\/en(?:\/|$)/.test(window.location.pathname) ? "/en" : undefined;
+const languagePrefix = !legacy ? (localePrefix(localeFromPublicPath(window.location.pathname)||"zh-TW")||undefined) : undefined;
 
 // Only deep links with no dedicated SSG snapshot require a temporary hide.
 function FinishSsgMount() {

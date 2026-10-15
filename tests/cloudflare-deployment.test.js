@@ -233,3 +233,20 @@ check("home SSG starts with neutral Gemini key status and no false setup banner"
   assert.doesNotMatch(body,/class="[^"]*status (?:connected|pending)"/,"personal connection state in public SSG: "+page);
  }
 });
+
+check("preview language routes serve noindex HTML and are excluded from the sitemap",()=>{
+ const locales=JSON.parse(fs.readFileSync(path.join(ROOT,"config/ui-locales.json"),"utf8")).locales;
+ const sitemap=read("sitemap.xml");
+ const rewrites=read("_redirects");
+ for(const {code,stage} of locales){
+  if(stage==="published")continue;
+  const preview=read(code+"/index.html");
+  assert.ok(preview.includes('<html lang="'+(code==="zh-CN"?"zh-Hans":code)+'">'));
+  assert.ok(preview.includes('name="robots" content="noindex,follow"'));
+  assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
+  assert.ok(!preview.includes('rel="canonical"'));
+  assert.ok(!sitemap.includes("https://www.3sssi.com/"+code+"/"));
+  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/index.html 200"));
+ }
+ assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
+});
