@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-14.2",
+  "revision": "2026-10-15.1",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -127,6 +127,22 @@
       "personalMemoryOptOutDisablesAndClears": true,
       "clearingLearningMemoryClearsProfile": true,
       "noAdditionalModelCalls": true
+    },
+    "conversationIntents": {
+      "choices": [
+        "share",
+        "speak",
+        "continue"
+      ],
+      "intentIsOptional": true,
+      "originalRoleSelectorsRemain": true,
+      "noFictionalMemoryOrPastEvents": true,
+      "noUnsolicitedFriendCoaching": true,
+      "informalThreeMinuteTargetNotHardTimer": true,
+      "speakingEntryUsesSessionOnlyLanguageAssistance": true,
+      "teacherUsesVerifiedMemoryOrFreshFallback": true,
+      "neitherModeNorPreferencePersistedByQuickEntry": true,
+      "sameGeminiLiveAndNoAdditionalCalls": true
     }
   },
   "featureMatrix": [
@@ -257,6 +273,14 @@
       "web": "supported",
       "androidEntry": "app/src/main/java/com/crewpocket/teacher/SpeakingLevelMemory.java",
       "webEntry": "web-spa/src/teacher/speakingLevelMemory.ts"
+    },
+    {
+      "id": "conversation_intents",
+      "label": "Intent-first optional speaking entry: share, three-minute chat, verified tutor continuation",
+      "android": "supported",
+      "web": "supported",
+      "androidEntry": "app/src/main/java/com/crewpocket/teacher/CrewConversationIntent.java",
+      "webEntry": "web-spa/src/teacher/conversationIntent.ts"
     }
   ],
   "invariants": [
@@ -303,7 +327,7 @@
         {
           "path": "web-spa/src/teacher/LivePage.tsx",
           "contains": [
-            "conversationFlow:!isRoleplay&&s.conversationMode===\"natural\""
+            "conversationFlow:!isRoleplay&&(intent===\"continue\"||s.conversationMode===\"natural\")"
           ]
         },
         {
@@ -816,6 +840,67 @@
           ]
         }
       ]
+    },
+    {
+      "id": "conversation_intents",
+      "why": "Daily intent never forces fictional events or mutates saved friend language choice; both platforms launch real Live sessions",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/MainActivity.java",
+          "contains": [
+            "startHomeConversation(\"share\")",
+            "startHomeConversation(\"speak\")",
+            "startHomeConversation(\"continue\")"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "CrewConversationIntent.valid",
+            "CrewConversationIntent.opening",
+            "setFriendChatLanguageModeOverride"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/CrewConversationIntent.java",
+          "contains": [
+            "never fabricate",
+            "Without verified memory"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/teacher/PracticePage.tsx",
+          "contains": [
+            "&intent=share",
+            "&intent=speak",
+            "/teacher/live?intent=continue"
+          ]
+        },
+        {
+          "path": "web-spa/src/friends/FriendLivePage.tsx",
+          "contains": [
+            "conversationIntent(params.get",
+            "conversationOpening(intent",
+            "setActiveFriendChatMode"
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/LivePage.tsx",
+          "contains": [
+            "conversationOpening(intent",
+            "intent!==\"continue\""
+          ]
+        },
+        {
+          "path": "web-spa/src/teacher/conversationIntent.ts",
+          "contains": [
+            "Do NOT pretend",
+            "Never stored as learner facts"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -952,6 +1037,14 @@
     {
       "id": "teacher_longitudinal_speaking",
       "steps": "With personal memory on and level Auto, finish 3 eligible teacher conversations in a target language with substantial real target-language speech. Confirm next session uses stable guidance. One contrary report must not jump multiple levels. Verify forced A1 still wins; Friends and roleplay do not collect speaking evidence; changing target language isolates history; turning personal memory off and clearing learner memories removes saved guidance. This is not a CEFR certificate.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "conversation_intents",
+      "steps": "From Home: share opens selected Crew Friend and allows user-led topic changes; 3-minute entry uses assisted target language if saved mode was natural without saving a new preference, never forces timer/tests; tutor Continue opens current teacher and uses verified learning notes or explicitly falls back to a new task. No fictional previous chats, no forced interview loop, role selection still accessible. End returns properly; verify both platforms and reconnect.",
       "platforms": [
         "android",
         "web"
