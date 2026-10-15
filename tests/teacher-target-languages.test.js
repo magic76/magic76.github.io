@@ -5,7 +5,7 @@ const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 function moduleSource(file){
  return stripTypeScriptTypes(read(file),{mode:"strip"})
-  .replace(/^import .*\n/g,"").replace(/\bexport\s+(?=(?:const|function))/g,"");
+  .replace(/^import .*\n/gm,"").replace(/\bexport\s+(?=(?:const|function))/g,"");
 }
 const targetSource=moduleSource("web-spa/src/teacher/targetLanguages.ts");
 const languages={};
