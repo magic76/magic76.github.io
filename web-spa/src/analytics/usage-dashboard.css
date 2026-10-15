@@ -1,0 +1,25 @@
+.usage-dashboard{max-width:1100px;margin:0 auto;padding:12px 24px 70px}
+.usage-dashboard .hero{padding:38px 0 26px}
+.usage-dashboard .hero h1{margin:10px 0}
+.usage-toolbar{display:flex;gap:10px;margin-top:22px}
+.usage-toolbar button{border:1px solid var(--border,#d5d7df);border-radius:999px;background:var(--surface,#fff);color:inherit;padding:10px 18px;cursor:pointer}
+.usage-toolbar button[aria-pressed=true]{background:#172338;color:white;border-color:#172338}
+.usage-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:12px 0 20px}
+.usage-cards .panel{padding:20px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.usage-cards small,.usage-cards span{color:var(--text-muted,#627088)}
+.usage-cards strong{font-size:clamp(25px,3vw,37px);line-height:1.2;font-variant-numeric:tabular-nums}
+.usage-cards span{font-size:12px;line-height:1.6}
+.usage-dashboard .section{margin-top:20px;padding:22px}
+.usage-bars{display:flex;gap:4px;align-items:end;min-height:178px;margin-top:12px}
+.usage-bar-column{display:flex;flex:1;min-width:0;height:170px;align-items:center;flex-direction:column;justify-content:end;gap:4px}
+.usage-bar-value{height:15px;font-size:10px;color:var(--text-muted,#627088)}
+.usage-bar-track{height:130px;width:100%;display:flex;align-items:end}
+.usage-bar{min-height:0;width:100%;background:linear-gradient(180deg,#47b6c4,#6274c9);border-radius:4px 4px 0 0}
+.usage-bar-column small{white-space:nowrap;font-size:10px;color:var(--text-muted,#627088)}
+.usage-feature-list{display:grid;gap:0}
+.usage-feature{display:flex;justify-content:space-between;align-items:center;gap:14px;border-top:1px solid var(--border,#e5e7ef);padding:12px 0}
+.usage-feature:first-child{border-top:0}
+.usage-feature strong{font-variant-numeric:tabular-nums}
+.usage-note{font-size:12px;line-height:1.8;color:var(--text-muted,#627088);margin-top:25px}
+@media(max-width:800px){.usage-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.usage-dashboard{padding:8px 15px 80px}.usage-cards{gap:10px}.usage-cards .panel{padding:14px}.usage-dashboard .section{padding:16px}}
