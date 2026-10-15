@@ -18,7 +18,7 @@ import "./friends.css";
 export function FriendLivePage(){
  const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
- const navigate=useNavigate(),closingRef=useRef(false),memoryCheckpointRef=useRef(false);
+ const navigate=useNavigate(),closingRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const intent=conversationIntent(params.get("intent"),"friend");
  const language=useTeacherStore(s=>s.targetLanguage);
@@ -36,12 +36,15 @@ export function FriendLivePage(){
    " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+conversationOpening(intent,"friend"),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  onTurnComplete:()=>{
-   if(memoryCheckpointRef.current)return;
-   const snapshot=live.turns;
-   if(!hasMeaningfulLearnerSpeech(snapshot.map(t=>t.input||"").join(" ")))return;
-   memoryCheckpointRef.current=true;
-   void rememberFriendConversation(sessionId,language,snapshot,live.durationMs);
+  onTurnComplete:(_turn,completedTurns)=>{
+   // The Live ref contains the completed exchange before React updates live.turns.
+   // Capture the first meaningful turn and every three more (up to three checkpoints).
+   const learnerTurns=completedTurns.filter(t=>hasMeaningfulLearnerSpeech(t.input||"")).length;
+   if(!learnerTurns||checkpointCountRef.current>=3||learnerTurns<=lastCheckpointTurnRef.current||
+      (lastCheckpointTurnRef.current>0&&learnerTurns-lastCheckpointTurnRef.current<3))return;
+   lastCheckpointTurnRef.current=learnerTurns;
+   checkpointCountRef.current++;
+   void rememberFriendConversation(sessionId,language,completedTurns,0);
   },
   onSessionFinished:item=>{
    if(!item)return;
