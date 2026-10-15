@@ -3,6 +3,7 @@ import{Link}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
 import{NATIVE_LANGUAGES,teacherText,nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
+import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import{teacherLanguageHomeHint}from"./teacherLanguageUx";
 import{getTeacherProfile}from"./teacherProfiles";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";
@@ -54,7 +55,7 @@ export function TutorPage(){
    <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>{t("tutor.start",{name:profile.name})} <span aria-hidden="true">→</span></Link>
   </div>
  </section>
- <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label><label>{english?"Your speaking level":"我的口說程度"}<select className="field" value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">{english?"Auto · adapt to speaking":"自動 · 依口說調整"}</option><option value="A1">A1 · 初學</option><option value="A2">A2 · 基礎</option><option value="B1">B1 · 中階</option><option value="B2">B2+ · 中高階</option></select></label></section>
+ <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label><label>{english?"Your speaking level":"我的口說程度"}<select className="field" value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">{english?"Auto · adapt to speaking":"自動 · 依口說調整"}</option><option value="A1">A1 · 初學</option><option value="A2">A2 · 基礎</option><option value="B1">B1 · 中階</option><option value="B2">B2+ · 中高階</option></select></label></section>
   <section className="section teacher-quick-config">
   <div className="section-head"><h2>{t("tutor.interaction")}</h2><small>{t("tutor.nextChat")}</small></div>
   <div className="panel teacher-choice-panel">
@@ -68,7 +69,7 @@ export function TutorPage(){
    <summary><span><strong>{t("tutor.advanced")}</strong><small>{s.targetLanguage} · {accentLabel(s.targetLanguage,s.languageStyle)} · {t("tutor.speed."+s.speakingPace)}</small></span><span className="teacher-advanced-chevron" aria-hidden="true">⌄</span></summary>
    <div className="teacher-advanced-body">
     <div className="settings-grid">
-     <label><span className="label">{english?t("tutor.language"):teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{["英文","日文","韓文","西班牙文","法文"].map(l=><option key={l} value={l}>{t("friends:languages."+l)}</option>)}</select></label>
+     <label><span className="label">{english?t("tutor.language"):teacherText(s.nativeLanguage,"targetLanguage")}</span><select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(l=><option key={l} value={l}>{t("friends:languages."+l)}</option>)}</select></label>
      <label><span className="label">{english?t("tutor.nativeLanguage"):teacherText(s.nativeLanguage,"nativeLanguage")}</span><select className="field" value={s.nativeLanguage} onChange={e=>s.setNativeLanguage(e.target.value as typeof s.nativeLanguage)}>{NATIVE_LANGUAGES.map(([value,label])=><option key={value} value={value}>{label}</option>)}</select></label>
      <label><span className="label">{t("tutor.accent")}</span><select className="field" aria-label={t("tutor.accentSelect")} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as typeof s.languageStyle)}>{accentOptions(s.targetLanguage).map(a=><option value={a.value} key={a.value}>{a.label}</option>)}</select></label>
      <label><span className="label">{t("tutor.guidance")}</span><select id="teacher-guidance" className="field" value={s.teachingMode} onChange={e=>s.setTeachingMode(e.target.value as typeof s.teachingMode)}>
