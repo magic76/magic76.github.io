@@ -65,7 +65,7 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // The actual React App is rendered at build time for public routes. Vite handles
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
-const {pages:prerendered,articles,research,related}=await prerenderPublicRoutes(root);
+const {pages:prerendered,articles,research,related,guides}=await prerenderPublicRoutes(root);
 // Public editorial recommendations are available for client-side navigation.
 writeFileSync(join(out,"briefings","discovery.json"),JSON.stringify(related));
 // Head fragments must be separated by real whitespace. A literal backslash-n
@@ -123,6 +123,56 @@ const replaceMeta=(html,attr,name,value)=>{
  if(!matcher.test(html))throw Error("Missing meta "+name+" on research template");
  return html.replace(matcher,'<meta '+attr+'="'+name+'" content="'+escapeHtml(value)+'">');
 };
+// The first five search-intent guides are genuine React SSG pages (zh-Hant + en).
+// Reuse the verified teacher template's HEAD only, never its old marketing BODY.
+const guideUrl=(slug,locale)=>"https://www.3sssi.com"+(locale==="en"?"/en":"")+"/guides/"+slug+"/";
+for(const [id,{slug,locale,content:guide}] of guides){
+ const route="/guides/"+slug;
+ const canonical=guideUrl(slug,locale),zhHref=guideUrl(slug,"zh-TW"),enHref=guideUrl(slug,"en");
+ const publicPath=(locale==="en"?"/en":"")+route;
+ const template=read(locale==="en"?"en/teacher/index.html":"teacher/index.html");
+ let head=template.split("</head>")[0]+"</head>";
+ head=head.replace(/<title>[\s\S]*?<\/title>/,'<title>'+escapeHtml(guide.title)+'</title>');
+ head=head.replace(/<link rel="canonical" href="[^"]*">/,'<link rel="canonical" href="'+canonical+'">');
+ head=replaceMeta(head,"name","description",guide.description);
+ head=replaceMeta(head,"property","og:title",guide.title);
+ head=replaceMeta(head,"property","og:description",guide.description);
+ head=replaceMeta(head,"property","og:url",canonical);
+ head=head.replace(/<meta property="og:type" content="[^"]*">/,'<meta property="og:type" content="article">');
+ head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
+ const languageLinks=[
+  '<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">',
+  '<link rel="alternate" hreflang="en" href="'+enHref+'">',
+  '<link rel="alternate" hreflang="x-default" href="'+zhHref+'">'
+ ].join(newline+"  ");
+ head=head.replace("</head>","  "+languageLinks+newline+"</head>");
+ const language=locale==="en"?"en":"zh-Hant";
+ const ld={
+  "@context":"https://schema.org","@graph":[
+   {"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:guide.title,
+    description:guide.description,inLanguage:language,isPartOf:{"@id":"https://www.3sssi.com/#website"}},
+   {"@type":"BreadcrumbList",itemListElement:[
+    {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://www.3sssi.com"+(locale==="en"?"/en/":"/")},
+    {"@type":"ListItem",position:2,name:"Crew Teacher",item:"https://www.3sssi.com"+(locale==="en"?"/en/teacher/":"/teacher/")},
+    {"@type":"ListItem",position:3,name:guide.label,item:canonical}
+   ]}
+  ]
+ };
+ head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+  '<script type="application/ld+json">'+safeJson(ld)+'</script>');
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags);
+ head=head.replace("</head>",dynamicGuard+newline+"</head>");
+ let body=prerendered.get(id);
+ if(!body||!body.includes(guide.headline)||!body.includes("crew-guide-section"))throw Error("Guide SSG failed: "+id);
+ body=body.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const html=template.replace(/<head>[\s\S]*?<\/head>/,head)
+  .replace(/<body>[\s\S]*?<\/body>/,
+   '<body class="teacher-theme"><div id="root" data-crew-ssg-path="'+publicPath+'">'+body+'</div></body>');
+ const target=join(out,(locale==="en"?"en/":"")+"guides/"+slug+"/index.html");
+ mkdirSync(dirname(target),{recursive:true});
+ writeFileSync(target,html);
+}
+
 for(const [route,{day,item,seed}] of articles){
  const path=articlePath(day.date,item);
  if(path.slice(0,-1)!==route)throw Error("Article route disagreement: "+route);
@@ -156,9 +206,19 @@ for(const [route,{day,item,seed}] of articles){
 // remain available via normal links, but are excluded from Google Sitemap.
 const sitemapEntries=[...articles.values()].filter(({item})=>indexableArticle(item))
  .map(({item,day})=>'  <url><loc>https://www.3sssi.com'+articlePath(day.date,item)+'</loc><lastmod>'+day.generatedAt.slice(0,10)+'</lastmod></url>').join(newline);
+const guideSitemapEntries=[...new Set([...guides.values()].map(({slug})=>slug))].flatMap(slug=>
+ ["zh-TW","en"].map(locale=>{
+  const canonical=guideUrl(slug,locale),zhHref=guideUrl(slug,"zh-TW"),enHref=guideUrl(slug,"en");
+  return '  <url><loc>'+canonical+'</loc>'+
+   '<xhtml:link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'"/>'+
+   '<xhtml:link rel="alternate" hreflang="en" href="'+enHref+'"/>'+
+   '<xhtml:link rel="alternate" hreflang="x-default" href="'+zhHref+'"/>'+
+   '</url>';
+ })
+).join(newline);
 const sitemap=read("sitemap.xml");
 if(!sitemap.includes("</urlset>"))throw Error("Missing sitemap closing tag");
-writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",sitemapEntries+newline+"</urlset>"));
+writeFileSync(join(out,"sitemap.xml"),sitemap.replace("</urlset>",guideSitemapEntries+newline+sitemapEntries+newline+"</urlset>"));
 
 // Preserve bookmarks shared from GitHub Pages, including HashRouter query string.
 // Cloudflare deploys a redirect-only compatibility document, not a second app.
@@ -176,4 +236,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 10 public SSG routes and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
+console.log("Prepared Cloudflare Pages: 20 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
