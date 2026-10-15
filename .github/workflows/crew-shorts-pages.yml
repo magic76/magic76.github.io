@@ -71,7 +71,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- features/teacher/shorts/posts.json features/teacher/shorts/media/
+          git add -A -- features/teacher/shorts
           if git diff --cached --quiet; then
             echo "Crew Shorts content unchanged; skipping deploy."
             exit 0
