@@ -1,6 +1,7 @@
 import{useCallback,useEffect,useRef,useState}from"react";
 import{Link,useNavigate,useSearchParams}from"react-router-dom";
 import{addHistory}from"../../lib/runtime";
+import{trackUsageEvent}from"../../analytics/usage";
 import type{StoryBook,StoryPage}from"../catalog";
 import{useStoryNarrator}from"./useStoryNarrator";
 
@@ -21,7 +22,9 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  const page:StoryPage=book.pages[index]||{text:""};
  const image=(book.images||[])[Number(page.imageIndex)];
  const[direction,setDirection]=useState<"forward"|"backward">("forward");
- const touchStart=useRef<{x:number;y:number}|null>(null);
+ const touchStart=useRef<{x:number;y:number}|null>(null),readTracked=useRef(false);
+ const markReading=()=>{if(readTracked.current)return;readTracked.current=true;trackUsageEvent("story_reading")};
+ useEffect(()=>{const timer=window.setTimeout(markReading,15000);return()=>window.clearTimeout(timer)},[book.id]);
  const handlePageAdvance=useCallback((nextIndex:number)=>{setDirection("forward");setIndex(nextIndex)},[]);
  const live=useStoryNarrator(book,index,page,image,handlePageAdvance);
  const[sleepMinutes,setSleepMinutes]=useState(0);
@@ -42,6 +45,7 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
  function go(next:number){
   const target=Math.max(0,Math.min(next,book.pages.length-1));
   if(target===index)return;
+  markReading();
   const nextPage=book.pages[target]||{text:""};
   const nextImage=(book.images||[])[Number(nextPage.imageIndex)];
   setDirection(target>index?"forward":"backward");
