@@ -7,7 +7,7 @@ import {useTeacherStore,type FriendChatLanguageMode} from "../store/teacherStore
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {FriendAvatar} from "./FriendAvatar";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
- getFriendTopics,getFriendCaptureStatus,pinFriendTopic,recentFriends,saveFriendTopic} from "./friendMemory";
+ getFriendTopics,getFriendCaptureStatus,pinFriendTopic,allowFriendTopicAutoUpdate,recentFriends,saveFriendTopic} from "./friendMemory";
 import "./friends.css";
 
 function relativeDate(timestamp:number) {
@@ -101,6 +101,9 @@ export function FriendsPage(){
           const title=window.prompt(t("editPrompt"),item.title);
           if(title!==null&&editFriendTopic(selected.id,language,item.id,title))refresh();
         }}>{t("edit")}</button>
+        {item.manual?<button type="button" onClick={()=>{
+         if(window.confirm(t("autoUpdateConfirm"))&&allowFriendTopicAutoUpdate(selected.id,language,item.id))refresh();
+        }}>{t("autoUpdate")}</button>:null}
         <button type="button" aria-label={t("delete")} onClick={()=>{deleteFriendTopic(selected.id,language,item.id);refresh()}}>{t("delete")}</button>
        </div>):<p>{t("noTopics")}</p>}
        <form className="friends-add-memory" onSubmit={e=>{e.preventDefault();if(saveFriendTopic(selected.id,language,draft)){setDraft("");refresh()}}}><input value={draft} onChange={e=>setDraft(e.target.value)} maxLength={65} placeholder={t("addPlaceholder")}/><button type="submit" disabled={!draft.trim()}>{t("add")}</button></form>
