@@ -12,6 +12,7 @@ import {getCrewFriend} from "./friendProfiles";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
+import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import "./friends.css";
 
 export function FriendLivePage(){
@@ -19,9 +20,10 @@ export function FriendLivePage(){
  const [params]=useSearchParams();
  const navigate=useNavigate(),closingRef=useRef(false),memoryCheckpointRef=useRef(false);
  const friend=getCrewFriend(params.get("id"));
+ const intent=conversationIntent(params.get("intent"),"friend");
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
- const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>useTeacherStore.getState().friendChatMode);
+ const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return intent==="speak"&&saved==="natural"?"bilingual":saved});
  const [modeNote,setModeNote]=useState("");
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
@@ -31,7 +33,7 @@ export function FriendLivePage(){
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
   openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-   " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.",
+   " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+conversationOpening(intent,"friend"),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:()=>{
