@@ -50,7 +50,7 @@ test("only free chat gets automatic silence rescue",()=>{
  const transport=read("crew-live.js");
  const policy=read("web-spa/src/teacher/teacherPolicy.ts");
  assert.match(friend,/conversationFlow:"friend"/);
- assert.match(teacher,/conversationFlow:!isRoleplay&&s\.conversationMode==="natural"/);
+ assert.match(teacher,/conversationFlow:!isRoleplay&&\(intent==="continue"\|\|s\.conversationMode==="natural"\)/);
  assert.match(hook,/rescueCountRef\.current>=\(kind==="friend"\?1:2\)/);
  assert.match(hook,/onInputTranscript:v=>\{if\(v\.trim\(\)\)\{cancelRescue\(\)/);
  assert.match(transport,/realtimeInput:\{text:instruction\}/);

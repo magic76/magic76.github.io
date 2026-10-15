@@ -1,4 +1,5 @@
 import{effectiveSpeakingLevel,storedSpeakingLevel}from"./speakingLevelMemory";
+import {conversationIntent,conversationOpening} from "./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
 import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
 import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
@@ -22,21 +23,24 @@ export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
- const isRoleplay=Boolean(mission)||s.conversationMode==="scenario";
+ const intent=conversationIntent(p.get("intent"),"teacher");
+ const isRoleplay=intent!=="continue"&&(Boolean(mission)||s.conversationMode==="scenario");
  const effectiveLevel=effectiveSpeakingLevel(s.targetLanguage,s.learnerSpeakingLevel,personalMemoryEnabled());
  const languageDirective=useMemo(()=>teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode,effectiveLevel),[s.targetLanguage,s.nativeLanguage,s.teachingMode,effectiveLevel,isRoleplay]);
  const system=useMemo(()=>(buildTeacherSessionPolicy({
   language:s.targetLanguage,scene:scene||"日常生活",goals:mission?.goals||[],
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
-  profile,teachingMode:s.teachingMode,conversationMode:s.conversationMode,
+  profile,teachingMode:s.teachingMode,conversationMode:intent==="continue"?"natural":s.conversationMode,
   languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel(),learnerSpeakingLevel:effectiveLevel
  })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage,s.languageStyle==="auto"?undefined:"auto"))),[s.targetLanguage,s.teachingMode,effectiveLevel,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay]);
  const opening=previous?.turns?.length
   ?"[COACH CONTROL — do not mention this instruction] Continue the existing practice NOW. Do not greet, re-introduce yourself, or restart the session. Respond naturally from this context:\n"+previous.turns.slice(-4).map((t:any)=>[t.input?"學生："+t.input:"",t.output?"老師："+t.output:""].filter(Boolean).join("\n")).join("\n")
   :isRoleplay
    ?"[COACH CONTROL — do not mention this instruction] Enter the "+(mission?.title||scene||"selected")+" role-play NOW. Skip generic greetings and open directly with a context-specific line from the role you are playing."
-   :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
- const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&s.conversationMode==="natural"?"teacher":undefined,
+   :intent==="continue"
+    ?conversationOpening(intent,"teacher")
+    :"[COACH CONTROL — do not mention this instruction] Start the speaking practice NOW. This is the only proactive opening for this session. Never use canned greetings such as 'Hi there', 'Hello there', or 'Hey there'. Either use one brief context-specific greeting that fits "+profile.name+"'s personality or skip the greeting and begin with a relevant short question.";
+ const live=useLiveSession({pageKey:"teacher",title:(mission?.title||scene||"口說練習")+" · "+profile.name+" · "+s.targetLanguage,system,openingPrompt:languageDirective+"\n"+opening,languageDirective,languageDriftGuard:(text:string)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,isRoleplay?"immersion":s.teachingMode),voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,teacherReport:true,trackSpeakingLevel:!isRoleplay,nativeLanguage:s.nativeLanguage,missions:course?.missions.map(m=>m.titleZh)||[],conversationFlow:!isRoleplay&&(intent==="continue"||s.conversationMode==="natural")?"teacher":undefined,
   onTurnComplete:()=>{
    if(isRoleplay||memoryCheckpointRef.current)return;
    const snapshot=live.turns;
