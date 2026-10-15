@@ -1,12 +1,11 @@
-# Crew Shorts demo (P1)
+# Crew Shorts — Web / Android parity and publishing
 
-- Web: `/teacher/shorts` (lazy route), linked from the Teacher landing page.
-- Content: `features/teacher/shorts/posts.json`, delivered as plain static JSON, not bundled into JS. Cloudflare Pages' existing copy of `features/` publishes this path.
-- Feed schema v1: `id`, `friendId`, `friendName`, `caption`, `image`, `imageAlt`, `publishedAt`, `language`, `storyId`.
-- Preview uses third-party Unsplash photos, visibly marked **DEMO**. These photos are not claimed to be photos taken by AI friends, nor AI-generated. Self-hosted generated media is deferred to P2.
-- Interaction: local-only likes, optional Traditional Chinese translation, and `post=<id>` link into existing Friend Live. Live resolves that ID against the current public feed, checks the selected friend, and uses bounded fictional story background in the opening; ordinary friend conversation behavior and memory consent are preserved.
-- Images load from remote URLs and are only requested when visible. They must never be embedded into the SPA JavaScript bundle.
-- No new Gemini key or backend API is needed to browse. Generic browser text-to-speech is intentionally disabled in Shorts because it does not match each Friend's voice; for character audio, start the existing Friend Live conversation instead.
-- Pages-first P2 publishes vetted, date-scoped content under `features/teacher/shorts/` via the daily GitHub Action. Cloudflare Pages Git integration deploys the commit; R2 remains an optional future migration. Never publish unreviewed AI content. See `content/crew-shorts/README.md`.
-- Data must eventually match the user's target language; the demo is explicitly English-only. `scripts/check-shorts-feed.mjs` validates content before publishing.
-- Keep this separate from Android's canonical behavioral contract until a shared feature is defined.
+- The approved 15-photo seed publishes five stories per day on October 16–18, 2026 (08:00 Asia/Taipei). **These are the only approved posts**; no automatic story writing or image generation is running.
+- Public Cloudflare Pages JSON and fingerprinted WebP images are shared by the browser and Android. Feed media remain outside the JavaScript bundle/APK.
+- The publisher runs at 08:00 Asia/Taipei and enforces the **exact** `publishedAt` instant on real releases, including early manual runs. `--as-of` on a dry-run simulates the specified editorial day's end.
+- Browser and Android enforce known Crew Friend identities, first-party production WebP media, timestamp validation and future-post filtering. Draft/demo content is not treated as production content.
+- Web Teacher homepage previews **up to five unique friends** (latest available story per friend) in a mobile scrollable strip. Photos keep their 3:4 composition. Full stories live at `/teacher/shorts`.
+- Users can browse without a Gemini Key; launching Friend Live follows the verified `post=<id>` path with bounded fictional context. The friend voice, language choices, memory consent and conversation behavior stay unchanged. Browser TTS in Shorts remains disabled.
+- Cloudflare Analytics receives only aggregate allowlisted `shorts_view`, `shorts_chat_click` (with `shorts_home`/`shorts_feed` source), and `shorts_conversation` after a meaningful exchange. No post IDs, personal data or conversation text.
+- The daily publisher checks `scripts/check-shorts-inventory.mjs`, emitting a workflow warning/summary when the approved content runway has two days or less. **To continue after Oct 18, review and import new captions/photos under `content/crew-shorts/approved/`.** When nothing is approved, the publisher preserves the last good feed and does not invent posts.
+- Run `npm run check:web`, `npm test`, `npm run build:web`, `npm run check:bundle`, `npm run build:cloudflare` before merge. For editorial details see `content/crew-shorts/README.md`.
