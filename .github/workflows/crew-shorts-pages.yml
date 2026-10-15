@@ -1,6 +1,15 @@
 name: Crew Shorts Pages publish
 
 on:
+  push:
+    branches: [master]
+    paths:
+      - "content/crew-shorts/approved/**"
+      - ".github/workflows/crew-shorts-pages.yml"
+  pull_request:
+    paths:
+      - "content/crew-shorts/approved/**"
+      - ".github/workflows/crew-shorts-pages.yml"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -26,8 +35,7 @@ concurrency:
 
 jobs:
   publish:
-    # Safe default: schedule disabled until original seed and WebP media are committed.
-    if: github.event_name == 'workflow_dispatch' || vars.CREW_SHORTS_PAGES_ENABLED == 'true'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
