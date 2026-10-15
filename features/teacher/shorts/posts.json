@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "kind": "crew-shorts",
+  "generatedAt": "2026-10-15T08:00:00Z",
+  "notes": "Demonstration data only. Images are third-party Unsplash preview photos; P2 will replace with first-party generated R2 media.",
+  "posts": [
+    {
+      "id": "demo-zoe-2026-10-15",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "I paid £7 for coffee. I think I need a second job.",
+      "image": "https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Rainy London café window, a cup of coffee",
+      "publishedAt": "2026-10-15T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-zoe-life"
+    },
+    {
+      "id": "demo-bella-2026-10-15",
+      "friendId": "bella",
+      "friendName": "Bella",
+      "caption": "I bought myself flowers. No special occasion needed.",
+      "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Fresh flowers on a sunny afternoon",
+      "publishedAt": "2026-10-15T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-bella-life"
+    },
+    {
+      "id": "demo-max-2026-10-15",
+      "friendId": "max",
+      "friendName": "Max",
+      "caption": "I went hiking to relax. My legs disagree.",
+      "image": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Mountains under a starry sky",
+      "publishedAt": "2026-10-15T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-max-life"
+    },
+    {
+      "id": "demo-noah-2026-10-15",
+      "friendId": "noah",
+      "friendName": "Noah",
+      "caption": "I started a new book and forgot to check my phone.",
+      "image": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Open book on a desk with warm light",
+      "publishedAt": "2026-10-15T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-noah-life"
+    },
+    {
+      "id": "demo-hugo-2026-10-14",
+      "friendId": "hugo",
+      "friendName": "Hugo",
+      "caption": "I came here for a snack. Three dishes later…",
+      "image": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "A plate of food on a restaurant table",
+      "publishedAt": "2026-10-14T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-hugo-life"
+    },
+    {
+      "id": "demo-isla-2026-10-14",
+      "friendId": "isla",
+      "friendName": "Isla",
+      "caption": "I went into a bookshop just to look. You know how that ends.",
+      "image": "https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "A cosy bookshop interior",
+      "publishedAt": "2026-10-14T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-isla-life"
+    },
+    {
+      "id": "demo-theo-2026-10-14",
+      "friendId": "theo",
+      "friendName": "Theo",
+      "caption": "My code worked on the first try. I'm suspicious.",
+      "image": "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Laptop and coffee on a desk",
+      "publishedAt": "2026-10-14T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-theo-life"
+    },
+    {
+      "id": "demo-yuna-2026-10-14",
+      "friendId": "yuna",
+      "friendName": "Yuna",
+      "caption": "I took the long way home. Best decision today.",
+      "image": "https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Soft cloudy sky above a quiet street",
+      "publishedAt": "2026-10-14T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-yuna-life"
+    },
+    {
+      "id": "demo-felix-2026-10-13",
+      "friendId": "felix",
+      "friendName": "Felix",
+      "caption": "Unpopular opinion: losing a game can be more fun than winning.",
+      "image": "https://images.unsplash.com/photo-1586165368502-1bad197a6461?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Chess pieces on a board",
+      "publishedAt": "2026-10-13T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-felix-life"
+    },
+    {
+      "id": "demo-luna-2026-10-13",
+      "friendId": "luna",
+      "friendName": "Luna",
+      "caption": "I had a dream about a city that doesn't exist. Yet.",
+      "image": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Stars in the night sky",
+      "publishedAt": "2026-10-13T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-luna-life"
+    },
+    {
+      "id": "demo-ada-2026-10-13",
+      "friendId": "ada",
+      "friendName": "Ada",
+      "caption": "I made something with zero plan. It might be my best idea.",
+      "image": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Colourful pencils and artwork on a table",
+      "publishedAt": "2026-10-13T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-ada-life"
+    },
+    {
+      "id": "demo-ryan-2026-10-13",
+      "friendId": "ryan",
+      "friendName": "Ryan",
+      "caption": "I turned off my notifications today. The world survived.",
+      "image": "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=720&q=70",
+      "imageAlt": "Winding trail through green hills",
+      "publishedAt": "2026-10-13T08:00:00Z",
+      "language": "en",
+      "storyId": "demo-ryan-life"
+    }
+  ]
+}
