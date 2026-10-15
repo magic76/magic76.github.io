@@ -2,9 +2,9 @@
 
 Crew Shorts uses the existing Git-connected Cloudflare Pages project. No R2 bucket, Cloudflare payment method, or R2 API key is needed. This job publishes only approved captions and WebP images: it does not generate AI content or call Gemini.
 
-## Original seed (not yet imported)
+## Original seed (imported)
 
-The other conversation reportedly prepared crew-shorts-seed-v1.zip containing 15 English posts, Traditional Chinese translations and image prompts for Zoe, Bella, Hugo, Theo and Yuna. The archive itself and finished character photos are NOT available in this repository. Do not invent or rewrite any of those originals.
+The original Crew Shorts seed has been imported with 15 approved English posts, Traditional Chinese translations, original image prompts and individual WebP lifestyle photos for Zoe, Bella, Hugo, Theo and Yuna. The original captions and translations were preserved; imageAlt metadata was updated to reflect the final photos showing the characters.
 
 When the files are available, review them and add the approved content to:
 
@@ -38,17 +38,13 @@ No one-time change to config.json is necessary; it already points at this first-
 
 Note: Commits created by GitHub Actions using GITHUB_TOKEN do not trigger other GitHub Actions push workflows. This publisher runs tests BEFORE committing. Cloudflare Pages Git integration deploys on GitHub pushes independently; verify the first bot-triggered deployment in the Cloudflare dashboard.
 
-## Enable daily schedule
+## Automatic release
 
-In GitHub Settings → Secrets and variables → Actions → Variables, set:
-
-    CREW_SHORTS_PAGES_ENABLED=true
-
-Only do this after the first manual Pages deployment succeeds. The schedule runs daily at 00:00 UTC / 08:00 Taipei. It publishes already approved content with publishedAt dates up to today. It is NOT a content or image generator; keep adding reviewed source images/captions to the approved directory.
+The publisher now runs when approved source files or this workflow are merged into master, and daily at 00:00 UTC / 08:00 Taipei. A pull request dry-run validates all 15 original images and posts before merge. No special GitHub variable is needed; no R2 service is used. It publishes already approved content with publishedAt dates up to today. It is NOT a content or image generator; keep adding reviewed source images/captions to the approved directory.
 
 ## Rollback
 
-Set CREW_SHORTS_PAGES_ENABLED=false if broken images or an invalid seed are found. Revert the automatically generated content(shorts): publish approved daily photo stories commit and let Cloudflare Pages deploy the reverted git state. Git history preserves prior published JSON and images.
+Disable the workflow schedule by reverting the activation change if broken images or an invalid seed are found. Revert the automatically generated content(shorts): publish approved daily photo stories commit and let Cloudflare Pages deploy the reverted git state. Git history preserves prior published JSON and images.
 
 ## Limits and future R2 migration
 
