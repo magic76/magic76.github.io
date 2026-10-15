@@ -31,7 +31,7 @@ test("global UI locale is persisted separately from spoken learning languages",(
  const switcher=read("web-spa/src/i18n/LanguageSwitcher.tsx");
  const main=read("web-spa/src/main.tsx");
  assert.ok(main.includes('import "./i18n"'));
- assert.ok(index.includes("crew_ui_locale_v1"));
+ assert.ok(read("web-spa/src/i18n/localeCatalog.ts").includes("crew_ui_locale_v1"));
  assert.ok(index.includes('document.documentElement.lang=locale'));
  assert.ok(index.includes('default:["en","zh-TW"]'));
  assert.ok(index.includes('window.addEventListener("storage"'));
