@@ -8,7 +8,7 @@ function policy(){
  const target=stripTypeScriptTypes(read("web-spa/src/teacher/targetLanguages.ts"),{mode:"strip"})
   .replace(/\bexport\s+(?=(?:function|const))/g,"");
  const source=read("web-spa/src/friends/friendLanguage.ts");
- const js=stripTypeScriptTypes(source,{mode:"strip"}).replace(/^import .*\n/g,"")
+ const js=stripTypeScriptTypes(source,{mode:"strip"}).replace(/^import .*\n/gm,"")
   .replace(/\bexport\s+(?=(?:function|const))/g,"");
  const ctx={};vm.runInNewContext(target+"\n"+js+"\nthis.value={friendSpokenLanguage,friendLanguageReminder,friendLanguageRule};",ctx);
  return ctx.value;
