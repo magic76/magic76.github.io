@@ -1,0 +1,90 @@
+name: Crew Shorts R2 publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Validate and preview without touching R2"
+        type: boolean
+        required: true
+        default: true
+      as_of:
+        description: "Optional release date YYYY-MM-DD (Asia/Taipei editorial day)"
+        type: string
+        required: false
+        default: ""
+  # Publish already-approved content daily. This does NOT generate AI images.
+  schedule:
+    - cron: "0 0 * * *" # 08:00 Asia/Taipei
+
+permissions:
+  contents: read
+
+concurrency:
+  group: crew-shorts-r2-publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    # Scheduled job stays dormant until the approved seed, R2, and public domain are configured.
+    if: github.event_name == 'workflow_dispatch' || vars.CREW_SHORTS_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify approved source exists
+        run: |
+          test -f content/crew-shorts/approved/posts.json || {
+            echo "::error::No approved posts.json. Import the prepared seed and reviewed WebP files first."
+            exit 1
+          }
+      - name: Build and validate scheduled release
+        env:
+          CREW_SHORTS_MEDIA_ORIGIN: ${{ vars.CREW_SHORTS_MEDIA_ORIGIN || 'https://media.example.invalid' }}
+          INPUT_AS_OF: ${{ inputs.as_of || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          params=(--feed content/crew-shorts/approved/posts.json --origin "$CREW_SHORTS_MEDIA_ORIGIN" --dry-run --output "${RUNNER_TEMP}/crew-shorts-preview.json")
+          if [[ -n "$INPUT_AS_OF" ]]; then params+=(--as-of "$INPUT_AS_OF"); fi
+          node scripts/publish-shorts-r2.mjs "${params[@]}"
+      - name: Upload validated preview (no credentials)
+        uses: actions/upload-artifact@v4
+        with:
+          name: crew-shorts-preview
+          path: ${{ runner.temp }}/crew-shorts-preview.json
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Install AWS CLI only for actual publication
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        run: python -m pip install --user --disable-pip-version-check awscli
+      - name: Publish approved feed to Cloudflare R2
+        if: github.event_name == 'schedule' || inputs.dry_run == false
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.CREW_SHORTS_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CREW_SHORTS_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          AWS_EC2_METADATA_DISABLED: "true"
+          CREW_SHORTS_R2_ACCOUNT_ID: ${{ vars.CREW_SHORTS_R2_ACCOUNT_ID }}
+          CREW_SHORTS_R2_BUCKET: ${{ vars.CREW_SHORTS_R2_BUCKET }}
+          CREW_SHORTS_MEDIA_ORIGIN: ${{ vars.CREW_SHORTS_MEDIA_ORIGIN }}
+          INPUT_AS_OF: ${{ inputs.as_of || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CREW_SHORTS_R2_ACCOUNT_ID" && test -n "$CREW_SHORTS_R2_BUCKET" && test -n "$CREW_SHORTS_MEDIA_ORIGIN" || {
+            echo "::error::R2 variables not configured."
+            exit 1
+          }
+          test -n "$AWS_ACCESS_KEY_ID" && test -n "$AWS_SECRET_ACCESS_KEY" || {
+            echo "::error::R2 credentials not configured."
+            exit 1
+          }
+          params=(--feed content/crew-shorts/approved/posts.json --origin "$CREW_SHORTS_MEDIA_ORIGIN")
+          if [[ -n "$INPUT_AS_OF" ]]; then params+=(--as-of "$INPUT_AS_OF"); fi
+          node scripts/publish-shorts-r2.mjs "${params[@]}"
