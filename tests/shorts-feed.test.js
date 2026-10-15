@@ -11,7 +11,7 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  const config=JSON.parse(load("features/teacher/shorts/config.json"));
  assert.equal(feed.schema,1);
  assert.equal(feed.kind,"crew-shorts");
- assert.ok(feed.posts.length>=10);
+ assert.ok(feed.posts.length>=1&&feed.posts.length<=100,"staged daily release may contain only the first 5 due stories");
  assert.equal(new Set(feed.posts.map(p=>p.id)).size,feed.posts.length);
  assert.equal(config.schema,1);
  assert.match(config.feedUrl,/^\//);
