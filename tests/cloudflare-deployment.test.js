@@ -85,6 +85,39 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
  assert.ok(fs.existsSync(path.join(DIST,script[1].slice(1))));
  assert.ok(fs.existsSync(path.join(DIST,"assets",cssFiles[0])));
 });
+check("search-intent guides serve real localized SSG HTML and enter the sitemap",()=>{
+ const slugs=[
+  "ai-english-speaking","ai-conversation-partner","travel-english-dialogues",
+  "english-pronunciation","gemini-key-for-ai-practice"
+ ];
+ const domain="https://www.3sssi.com",sitemap=read("sitemap.xml");
+ for(const slug of slugs){
+  for(const locale of ["zh","en"]){
+   const prefix=locale==="en"?"en/":"",relative=prefix+"guides/"+slug+"/index.html";
+   const html=read(relative),path="/"+prefix+"guides/"+slug;
+   const canonical=domain+path+"/";
+   assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"canonical: "+relative);
+   assert.ok(html.includes('<meta name="robots" content="index,follow">'),"robots: "+relative);
+   assert.ok(html.includes('data-crew-ssg-path="'+path+'"'),"hydration: "+relative);
+   assert.ok(html.includes('<article class="crew-guide">'),"real article HTML: "+relative);
+   assert.ok(html.includes('crew-guide-section'),"substantial guide content: "+relative);
+   assert.ok(html.includes('class="global-nav"'),"same Crew shell: "+relative);
+   assert.ok(html.includes('<h1>'),"heading: "+relative);
+   assert.ok(html.includes('href="'+domain+"/guides/"+slug+'/"'),"Chinese hreflang: "+relative);
+   assert.ok(html.includes('href="'+domain+"/en/guides/"+slug+'/"'),"English hreflang: "+relative);
+   assert.ok(!html.includes('/@fs/'),"Vite file system leak: "+relative);
+   assert.ok(!html.includes('href="/crew-app/#/'),"legacy route leak: "+relative);
+   assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"guide omitted from sitemap: "+relative);
+   const json=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)?.[1];
+   assert.ok(json,"structured data missing: "+relative);
+   const graph=JSON.parse(json)["@graph"];
+   assert.ok(graph.some(x=>x["@type"]==="BreadcrumbList"));
+   assert.ok(graph.some(x=>x["@type"]==="WebPage"&&x.url===canonical));
+  }
+ }
+ const source=fs.readFileSync(path.join(ROOT,"web-spa/src/guides/catalog.ts"),"utf8");
+ for(const slug of slugs)assert.ok(source.includes('"'+slug+'":{'),"source missing guide: "+slug);
+});
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
