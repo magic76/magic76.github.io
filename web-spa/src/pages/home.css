@@ -190,6 +190,13 @@
  content:"";position:absolute;width:7px;height:7px;left:16%;top:13%;
  border-radius:50%;background:#87c3d8;box-shadow:0 0 18px rgba(89,164,205,.65);
 }
+.crew-home-atmosphere:not([data-product="idle"]) .crew-home-atmosphere-core,
+.crew-home-atmosphere:not([data-product="idle"]) .crew-home-atmosphere-ring{
+ opacity:.08;
+}
+.crew-home-atmosphere-ring,.crew-home-atmosphere-core{
+ transition:opacity 220ms ease;
+}
 .crew-home-atmosphere-core{
  position:absolute;right:12%;top:50%;width:84px;height:84px;
  transform:translate(calc(50% + var(--crew-parallax-x,0px)),calc(-50% + var(--crew-parallax-y,0px)));
