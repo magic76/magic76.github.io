@@ -8,14 +8,6 @@ const LIKE_KEY="crew_shorts_demo_likes_v1";
 function readLikes():string[]{
  try{return JSON.parse(localStorage.getItem(LIKE_KEY)||"[]") as string[]}catch{return []}
 }
-function speak(value:string,language:string){
- if(typeof window==="undefined"||!("speechSynthesis" in window))return;
- window.speechSynthesis.cancel();
- const utterance=new SpeechSynthesisUtterance(value);
- utterance.lang=language==="en"?"en-US":language;
- utterance.rate=.9;
- window.speechSynthesis.speak(utterance);
-}
 export function ShortsPage(){
  const {i18n}=useTranslation();
  const en=i18n.language.startsWith("en");
@@ -35,7 +27,6 @@ export function ShortsPage(){
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry]);
- useEffect(()=>()=>{if("speechSynthesis" in window)window.speechSynthesis.cancel()},[]);
  function toggleLike(id:string){
   setLikes(previous=>{
    const next=previous.includes(id)?previous.filter(value=>value!==id):[...previous,id];
@@ -46,7 +37,7 @@ export function ShortsPage(){
  return <div className="crew-shorts-page">
   <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"CREW SHORTS":"CREW SHORTS · DEMO"}</span>
    <h1>{en?"What's happening with your Crew?":"今天 Crew 朋友發生什麼事？"}</h1>
-   <p>{en?"Little photo stories, real phrases, and easy ways to start talking.":"每天一張照片、一句自然外語。不想聊天，也可以只看看、聽聽。"}</p>
+   <p>{en?"Little photo stories, real phrases, and easy ways to start talking.":"每天一張照片、一句自然外語。不想聊天，也可以只看看。"}</p>
   </header>
   <section className="section"><div className="crew-shorts-note" role="note">
    {feed?.source==="seed"||feed?.source==="daily"
@@ -78,7 +69,6 @@ export function ShortsPage(){
        <button type="button" aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
         {likes.includes(post.id)?"♥":"♡"} {en?"Like":"喜歡"}
        </button>
-       <button type="button" onClick={()=>speak(post.caption,post.language)}>🔊 {en?"Listen":"聽發音"}</button>
        {post.translationZh?<button type="button" onClick={()=>setTranslated(x=>x===post.id?null:post.id)} aria-expanded={translated===post.id}>{en?"Translation":"翻譯"}</button>:null}
        <Link to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
         {en?"Chat with "+post.friendName:"和 "+post.friendName+" 聊天"} →
