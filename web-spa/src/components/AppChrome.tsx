@@ -26,7 +26,9 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage]);
  return <>
-  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></div></div><div className="app-header-actions"><LanguageSwitcher/>{headerAction}<>{product!=="settings"&&product!=="briefing"&&<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?t("gemini.connected"):hasKey?t("gemini.pending"):t("gemini.setup")}</span></NavLink>}</></div></div></header>
+  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></div></div><div className="app-header-actions"><LanguageSwitcher/>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
+    ?<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?t("gemini.connected"):hasKey?t("gemini.pending"):t("gemini.setup")}</span></NavLink>
+    :<span className="status crew-key-status-placeholder" aria-hidden="true"/>)} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label="聯絡資訊">
    <span>{t("contact.label")}</span>
