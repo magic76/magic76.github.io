@@ -29,6 +29,13 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.doesNotMatch(page,/import .*posts\.json/);
  assert.doesNotMatch(loader,/import .*posts\.json/);
 });
+test("Crew Shorts never plays a generic browser voice that disagrees with the character",()=>{
+ const page=load("web-spa/src/teacher/ShortsPage.tsx");
+ assert.doesNotMatch(page,/speechSynthesis|SpeechSynthesisUtterance|speak\\(post\\.caption/);
+ assert.doesNotMatch(page,/>聽發音<|>Listen</);
+ assert.match(page,/Chat with /);
+ assert.match(page,/翻譯/);
+});
 test("Crew Shorts Live resolves post ID against friend and safe published feed",()=>{
  const live=load("web-spa/src/friends/FriendLivePage.tsx");
  const parser=load("web-spa/src/teacher/shortsFeed.ts");
