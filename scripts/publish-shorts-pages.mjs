@@ -24,6 +24,10 @@ const feedFile=resolve(get("feed","content/crew-shorts/approved/posts.json"));
 const outDir=resolve(get("out-dir","features/teacher/shorts"));
 const asOf=get("as-of",new Intl.DateTimeFormat("sv-SE",{timeZone:"Asia/Taipei",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date()));
 requireValid(/^\d{4}-\d{2}-\d{2}$/.test(asOf)&&new Date(asOf+"T00:00:00Z").toISOString().slice(0,10)===asOf,"invalid release date");
+// Dry runs simulate the full editorial day. Real publications never expose a
+// post scheduled after the current instant, even when manually dispatched early.
+const dayEndMs=Date.parse(asOf+"T23:59:59.999+08:00");
+const releaseCutoffMs=dryRun?dayEndMs:Math.min(dayEndMs,Date.now());
 requireValid(existsSync(feedFile),"approved posts.json missing; original seed pack and WebP images must be imported first");
 const srcDir=realpathSync(dirname(feedFile));
 const source=JSON.parse(readFileSync(feedFile,"utf8"));
@@ -47,7 +51,7 @@ for(const item of source.posts){
  const owner=stories.get(item.storyId);
  requireValid(!owner||owner===item.friendId,"story belongs to a different friend "+item.id);
  stories.set(item.storyId,item.friendId);
- if(item.publishedAt.slice(0,10)>asOf)continue;
+ if(Date.parse(item.publishedAt)>releaseCutoffMs)continue;
  requireValid(typeof item.image==="string"&&/^(?:media\/)?[A-Za-z0-9][A-Za-z0-9_.\/-]*\.webp$/i.test(item.image)
   &&!item.image.split("/").includes(".."),"due post needs a relative local WebP file "+item.id);
  const imagePath=realpathSync(resolve(srcDir,item.image));
