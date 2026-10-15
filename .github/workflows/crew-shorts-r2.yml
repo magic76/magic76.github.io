@@ -62,7 +62,12 @@ jobs:
           retention-days: 7
       - name: Install AWS CLI only for actual publication
         if: github.event_name == 'schedule' || inputs.dry_run == false
-        run: python -m pip install --user --disable-pip-version-check awscli
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "${RUNNER_TEMP}/shorts-awscli"
+          "${RUNNER_TEMP}/shorts-awscli/bin/pip" install --disable-pip-version-check awscli
+          echo "${RUNNER_TEMP}/shorts-awscli/bin" >> "$GITHUB_PATH"
       - name: Publish approved feed to Cloudflare R2
         if: github.event_name == 'schedule' || inputs.dry_run == false
         env:
