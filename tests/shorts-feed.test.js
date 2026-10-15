@@ -31,7 +31,8 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
 });
 test("Crew Shorts never plays a generic browser voice that disagrees with the character",()=>{
  const page=load("web-spa/src/teacher/ShortsPage.tsx");
- assert.doesNotMatch(page,/speechSynthesis|SpeechSynthesisUtterance|speak\\(post\\.caption/);
+ assert.doesNotMatch(page,/speechSynthesis|SpeechSynthesisUtterance/);
+ assert.equal(page.includes("speak(post.caption"),false);
  assert.doesNotMatch(page,/>聽發音<|>Listen</);
  assert.match(page,/Chat with /);
  assert.match(page,/翻譯/);
