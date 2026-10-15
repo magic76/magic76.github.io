@@ -14,27 +14,56 @@ import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageM
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
+import {fetchShortsFeed,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import "./friends.css";
 
+/**
+ * Resolve a Shorts ID against the published feed before opening Live. The URL
+ * cannot inject a caption, persona, or system prompt, and regular chat remains instant.
+ */
 export function FriendLivePage(){
+ const [params]=useSearchParams();
+ const postId=params.get("post");
+ const friendId=params.get("id");
+ const lookupKey=String(friendId||"")+"::"+String(postId||"");
+ const [lookup,setLookup]=useState<{key:string;post:ShortPost|null}|null>(null);
+ useEffect(()=>{
+  if(!postId)return;
+  const abort=new AbortController();
+  fetchShortsFeed(abort.signal).then(feed=>{
+   if(!abort.signal.aborted){
+    const found=feed.posts.find(post=>post.id===postId&&post.friendId===friendId)||null;
+    setLookup({key:lookupKey,post:found});
+   }
+  }).catch(()=>{if(!abort.signal.aborted)setLookup({key:lookupKey,post:null})});
+  return()=>abort.abort();
+ },[postId,friendId,lookupKey]);
+ if(postId&&(!lookup||lookup.key!==lookupKey))
+  return <main className="session-shell"><p className="spa-loading" role="status">正在準備朋友的照片話題…</p></main>;
+ return <FriendLiveConversation shortsPost={postId?lookup?.post||null:null}
+  postUnavailable={Boolean(postId&&!lookup?.post)}/>;
+}
+function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
- const intent=conversationIntent(params.get("intent"),"friend");
+ const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return intent==="speak"&&saved==="natural"?"bilingual":saved});
  const [modeNote,setModeNote]=useState("");
  const region=useTeacherStore(s=>s.languageStyle),accentStrength=useTeacherStore(s=>s.accentStrength),customAccent=useTeacherStore(s=>s.customAccent);
  const sessionId=friend.id;
- const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent),[friend,language,nativeLanguage,friendChatMode,region,accentStrength,customAccent]);
+ const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,friendChatMode)+"\n"+buildAccentPrompt(language,region,accentStrength,customAccent)+buildShortsFriendContext(shortsPost),[friend,language,nativeLanguage,friendChatMode,region,accentStrength,customAccent,shortsPost]);
  const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,friendChatMode),[language,nativeLanguage,friendChatMode]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
-  openingPrompt:languageDirective+"\n[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-   " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+conversationOpening(intent,"friend"),
+  openingPrompt:languageDirective+"\n"+(shortsPost
+   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."
+   :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
+    " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+conversationOpening(intent,"friend")),
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:(_turn,completedTurns)=>{
@@ -59,7 +88,7 @@ export function FriendLivePage(){
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;
-  try{await live.stop(true)}finally{navigate("/teacher/roles?mode=friends")}
+  try{await live.stop(true)}finally{navigate(shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends")}
  };
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
@@ -77,7 +106,7 @@ export function FriendLivePage(){
  };
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to="/teacher/roles?mode=friends" onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
+   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
    <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
@@ -88,6 +117,12 @@ export function FriendLivePage(){
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
+    {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
+      <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
+      <div><small>CREW SHORTS · {shortsPost.publishedAt.slice(0,10)}</small>
+       <p lang={shortsPost.language}>{shortsPost.caption}</p></div>
+     </section>:null}
+    {postUnavailable?<p className="friend-live-post-unavailable" role="status">找不到原本的動態，已改為一般朋友聊天。</p>:null}
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">

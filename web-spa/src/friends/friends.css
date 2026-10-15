@@ -101,3 +101,11 @@
 
 /* Friend dialogue remains visibly distinct from a tutor session. */
 .friends-role-promise,.friend-live-role-promise{display:block;max-width:580px;margin:8px auto;color:var(--muted,#667085);font-size:12px;line-height:1.55;text-align:center}
+
+/* Source card appears only when opening Friend Live from a verified Crew Shorts post. */
+.friend-live-post{display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:11px;border:1px solid var(--line);border-radius:16px;background:var(--surface-alt);text-align:left}
+.friend-live-post img{width:82px;height:82px;flex:0 0 82px;object-fit:cover;border-radius:12px;background:var(--surface)}
+.friend-live-post div{min-width:0}
+.friend-live-post small{display:block;font-size:10px;color:var(--muted);margin-bottom:4px}
+.friend-live-post p{font-size:13px;line-height:1.6;overflow-wrap:anywhere;margin:0;color:var(--text)}
+.friend-live-post-unavailable{padding:10px;font-size:12px;color:var(--muted)}

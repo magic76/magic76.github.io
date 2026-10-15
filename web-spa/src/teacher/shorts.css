@@ -19,3 +19,5 @@
 .crew-shorts-more{display:block;margin:24px auto 0;padding:12px 20px}
 .crew-shorts-error{padding:16px;border:1px solid var(--line);border-radius:14px}
 @media(max-width:700px){.crew-shorts-grid{grid-template-columns:1fr}.crew-short-image{aspect-ratio:5/4}.crew-short-body p{min-height:unset}}
+
+.crew-short-translation{font-size:13px!important;line-height:1.65!important;font-weight:400!important;color:var(--muted);min-height:0!important}
