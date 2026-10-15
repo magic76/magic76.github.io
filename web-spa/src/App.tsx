@@ -1,4 +1,6 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
+import{useEffect}from"react";
+import{trackAppOpen}from"./analytics/usage";
 import{GlobalNav,type Product}from"./components/AppChrome";
 import{AppChrome}from"./components/AppChrome";
 import{HomePage}from"./pages/HomePage";import{SettingsPage}from"./pages/SettingsPage";
@@ -12,7 +14,7 @@ import {BriefingPage} from "./briefing/BriefingPage";
 import {BriefingDetailPage} from "./briefing/BriefingDetailPage";
 import {BriefingBoardPage} from "./briefing/BriefingBoardPage";
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){const {pathname}=useLocation();const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Routes>
+export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>
