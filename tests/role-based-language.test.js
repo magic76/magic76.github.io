@@ -5,7 +5,7 @@ const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 const target=stripTypeScriptTypes(read("web-spa/src/teacher/targetLanguages.ts"),{mode:"strip"})
  .replace(/\bexport\s+(?=(?:function|const))/g,"");
 const src=stripTypeScriptTypes(read("web-spa/src/friends/friendLanguage.ts"),{mode:"strip"})
- .replace(/^import .*\n/g,"").replace(/\bexport\s+(?=(?:function|const))/g,"");
+ .replace(/^import .*\n/gm,"").replace(/\bexport\s+(?=(?:function|const))/g,"");
 const ctx={};vm.runInNewContext(target+"\n"+src+"\nthis.api={friendLanguageRule,friendLanguageReminder,friendLanguageTransition};",ctx);
 test("friend natural, bilingual and immersion modes keep distinct language boundaries",()=>{
  const {friendLanguageRule,friendLanguageReminder}=ctx.api;
