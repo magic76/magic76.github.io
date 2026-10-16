@@ -102,13 +102,16 @@ test('invalid AI stories fail and encoder rejects nonportrait images when Pillow
  execFileSync('python3',['-c',`from PIL import Image; Image.new('RGB',(1200,900),(55,66,77)).save(${JSON.stringify(wide)})`]);
  assert.throws(()=>encodeWebP(wide,path.join(root,'wide.webp')));
 });
-test('workflow never schedules API calls without explicit enablement',()=>{
+test('AI photo generator is manual-only while preserving preview, QA and artifact export',()=>{
  const s=fs.readFileSync(path.join(__dirname,'../.github/workflows/crew-shorts-daily-generate.yml'),'utf8');
- assert.match(s,/CREW_SHORTS_AUTO_GENERATE_ENABLED/);
+ assert.match(s,/workflow_dispatch:/);
+ assert.doesNotMatch(s,/^\s+schedule:/m);
+ assert.doesNotMatch(s,/^\s+- cron:/m);
+ assert.doesNotMatch(s,/CREW_SHORTS_AUTO_GENERATE_ENABLED/);
+ assert.match(s,/RUN_MODE: \$\{\{ inputs\.mode \}\}/);
  assert.match(s,/GEMINI_API_KEY/);
  assert.match(s,/upload-artifact@v4/);
  assert.match(s,/crew-shorts-pages-publish/);
- assert.match(s,/cron: "30 22 \* \* \*"/);
 });
 test('Bella approved-story private preview only calls image and QA once without publication',async t=>{
  const {root,approved,mock,encode,source}=setup(t);const {generateDaily}=await gen();
