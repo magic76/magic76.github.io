@@ -9,7 +9,7 @@ import {approvedPostScene,storyHistory,FRIENDS} from './generate-shorts-daily.mj
 function assert(value,message){if(!value)throw Error('Crew Shorts preflight: '+message)}
 export function inspectApprovedCharacter({root=resolve(fileURLToPath(new URL('..',import.meta.url))),friend='bella',date='2026-10-17'}={}){
  assert(FRIENDS.includes(friend),'unsupported Shorts Friend');
- assert(/^\\d{4}-\\d{2}-\\d{2}$/.test(date),'invalid YYYY-MM-DD date');
+ assert(/^\d{4}-\d{2}-\d{2}$/.test(date),'invalid YYYY-MM-DD date');
  const feed=JSON.parse(readFileSync(resolve(root,'content/crew-shorts/approved/posts.json'),'utf8'));
  const p=feed.posts.filter(x=>x.friendId===friend&&x.publishedAt.slice(0,10)===date);
  assert(p.length===1,'expected exactly one approved post for '+friend+' on '+date);
