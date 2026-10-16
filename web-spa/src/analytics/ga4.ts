@@ -33,7 +33,7 @@ const consent=(enabled:boolean)=>({
 export function setGa4Enabled(enabled:boolean){
  if(typeof window==="undefined")return false;
  // Google's documented per-property opt-out prevents even cookieless pings.
- (window as Window&Record<string,unknown>)["ga-disable-"+GA4_MEASUREMENT_ID]=!enabled;
+ (window as unknown as Record<string,unknown>)["ga-disable-"+GA4_MEASUREMENT_ID]=!enabled;
  if(enabledState!==enabled){
   if(initialized)command("consent","update",consent(enabled));
   enabledState=enabled;
