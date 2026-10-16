@@ -1,6 +1,6 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{useEffect,lazy,Suspense}from"react";
-import{trackAppOpen}from"./analytics/usage";
+import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav,type Product}from"./components/AppChrome";
 import{AppChrome}from"./components/AppChrome";
 const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
@@ -17,7 +17,7 @@ const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);const section=pathname.split("/")[1];const active:Product=section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>
