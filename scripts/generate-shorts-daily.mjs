@@ -116,14 +116,14 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
  if(mode==='publish'&&today.length===FRIENDS.length){report.status='already-approved';save(reportFile,report);return report}
  if(mode==='plan'){report.status='plan-only';report.friends=friend?[friend]:FRIENDS;report.continuity=Object.fromEntries(report.friends.map(id=>[id,storyHistory(feed,id,date).map(p=>p.id)]));save(reportFile,report);return report}
  const targets=friend?[friend]:FRIENDS;
- // Validate catalog metadata AND each required official portrait Git blob SHA BEFORE paid requests.
- const identities=new Map(targets.map(id=>[id,loadIdentity(root,'friend',id)]));
- report.identities=Object.fromEntries([...identities].map(([id,value])=>[id,{identityId:value.identityId,sha:value.sha}]));
- save(reportFile,report);
- good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
- const ai=client||geminiClient();
- let staged=[];
+ const staged=[];
  try{
+  // Check official portrait integrity BEFORE any paid Gemini calls.
+  const identities=new Map(targets.map(id=>[id,loadIdentity(root,'friend',id)]));
+  report.identities=Object.fromEntries([...identities].map(([id,value])=>[id,{identityId:value.identityId,sha:value.sha}]));
+  save(reportFile,report);
+  good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
+  const ai=client||geminiClient();
   const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>({
    friendId:p.friendId,caption:p.caption,translationZh:p.translationZh,
    scene:p.imageAlt+' Natural candid everyday environment with all story props; the official face clearly visible.',
