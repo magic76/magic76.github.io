@@ -1,5 +1,5 @@
 import {buildAccentPrompt} from "../teacher/teacherAccent";
-import {trackUsageEvent} from "../analytics/usage";
+import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
@@ -46,7 +46,7 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
- const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
+ const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
  const language=useTeacherStore(s=>s.targetLanguage);
@@ -82,6 +82,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   },
   onSessionFinished:item=>{
    if(!item)return;
+   if(item.durationMs>0)trackUsageEvent("friend_session_end",sessionDurationDetail(item.durationMs));
    recordFriendChat(sessionId,language,item.turns,item.durationMs);
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
@@ -91,6 +92,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   closingRef.current=true;
   try{await live.stop(true)}finally{navigate(shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends")}
  };
+ useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
