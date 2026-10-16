@@ -1,17 +1,20 @@
 import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
 
-type Row={day:string;event:string;count:number;users:number};
+type Row={day:string;event:string;detail?:string;count:number;users:number};
 type Report={days:number;activeUsers:number;rows:Row[];generatedAt:string};
 const meaning:Record<string,string>={
  app_opened:"開啟 Crew Web",visitor_first_seen:"新瀏覽器",user_returned:"跨日回訪",
  teacher_conversation:"老師有效對話",friend_conversation:"朋友有效對話",
+ vocabulary_practice:"單字作答",textbook_study:"教材語音開始",
+ teacher_conversation_start:"老師語音連線成功",friend_conversation_start:"朋友語音連線成功",
+ textbook_open:"教材陪讀開啟",shorts_view:"Crew Shorts 瀏覽",
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
  fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",
  gemini_key_missing:"進入語音但缺少 Key",gemini_key_verified:"Key 驗證成功"
 };
 const productEvents=[
- "teacher_conversation","friend_conversation","story_reading",
+ "teacher_conversation","friend_conversation","vocabulary_practice","textbook_study","story_reading",
  "story_narration","story_created","fortune_calculated","fortune_ai_interpreted"
 ];
 const sum=(rows:Row[],name:string)=>rows.filter(row=>row.event===name).reduce((n,row)=>n+row.count,0);
@@ -65,13 +68,13 @@ export function UsageDashboardPage(){
   {loading?<section className="panel section" role="status">正在讀取匿名使用事件…</section>:
    error?<section className="panel section" role="alert"><strong>無法讀取使用資料</strong><p>{error}</p><p className="meta">需要 Cloudflare Access、Analytics Engine Binding 及唯讀 API Token；請參考 docs/CREW_USAGE.md。</p></section>:
    data&&<><section className="usage-cards" aria-label="主要使用指標">
-    <article className="panel"><small>有效使用瀏覽器（不重複）</small><strong>{num(data.activeUsers)}</strong><span>Teacher / Friend / Story / Fortune 成功事件的匿名識別碼數</span></article>
+    <article className="panel"><small>有效使用瀏覽器（不重複）</small><strong>{num(data.activeUsers)}</strong><span>Teacher / Friend / Vocabulary / Textbook / Story / Fortune 互動的匿名識別碼數</span></article>
     <article className="panel"><small>成功功能事件</small><strong>{num(successful)}</strong><span>跨功能成功次數；同一人可有多筆</span></article>
     <article className="panel"><small>開啟 Web App</small><strong>{num(opened)}</strong><span>每個分頁工作階段最多記一次</span></article>
     <article className="panel"><small>跨日回訪</small><strong>{num(sum(data.rows,"user_returned"))}</strong><span>跨日開啟次數，不等於不同真人數</span></article>
    </section>
    <section className="panel section">
-    <div className="section-head"><h2>每日成功使用事件</h2><small>UTC 日期 · 僅成功操作</small></div>
+    <div className="section-head"><h2>每日有效使用事件</h2><small>UTC 日期 · 對話有效互動／單字作答／教材語音開始等</small></div>
     <div className="usage-bars" role="img" aria-label="每日成功使用事件長條圖">
      {daysList.map(item=><div key={item.day} className="usage-bar-column" title={item.day+": "+num(item.count)}>
       <div className="usage-bar-value">{item.count||""}</div>
@@ -84,6 +87,21 @@ export function UsageDashboardPage(){
     <div className="section-head"><h2>功能使用排行</h2><small>次數及每日去重瀏覽器（跨日不可相加成總用戶）</small></div>
     <div className="usage-feature-list">{features.sort((a,b)=>b.count-a.count).map(item=><div className="usage-feature" key={item.event}>
      <span>{meaning[item.event]}</span><strong>{num(item.count)} 次</strong>
+    </div>)}</div>
+   </section>
+   <section className="panel section">
+    <div className="section-head"><h2>Crew Teacher 入口與開始互動</h2><small>僅代表點開或建立連線，不代表對話成功</small></div>
+    <div className="usage-feature-list">{["teacher_conversation_start","friend_conversation_start","textbook_open","shorts_view"].map(event=><div className="usage-feature" key={event}><span>{meaning[event]}</span><strong>{num(sum(data.rows,event))} 次</strong></div>)}</div>
+   </section>
+   <section className="panel section">
+    <div className="section-head"><h2>Crew Teacher 語音時間分布</h2><small>Web 成功記錄結束的語音 session，區間而非精確平均值</small></div>
+    <div className="usage-feature-list">{[
+      {detail:"under_1m",label:"不到 1 分鐘"},
+      {detail:"from_1_to_3m",label:"1–3 分鐘"},
+      {detail:"from_3_to_10m",label:"3–10 分鐘"},
+      {detail:"over_10m",label:"10 分鐘以上"}
+    ].map(item=><div className="usage-feature" key={item.detail}>
+       <span>{item.label}</span><strong>{num(data.rows.filter(row=>["teacher_session_end","friend_session_end"].includes(row.event)&&row.detail===item.detail).reduce((count,row)=>count+row.count,0))} 次</strong>
     </div>)}</div>
    </section>
    <section className="panel section">
