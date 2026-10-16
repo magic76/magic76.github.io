@@ -16,13 +16,13 @@
     "identityAuthority": "canonical master portrait, NOT previously generated Shorts"
   },
   "visualIdentity": {
-    "block": "Warm olive complexion; thick tousled wavy dark-brown hair; brown eyes; strong brows; friendly wide smile, light facial stubble and a gently rounded angular face. Reference-grounded stable details: face: Softly angular oval face, broad smile lifting rounded cheeks and pronounced cheek lines; eyes: Dark brown warm eyes slightly narrowing when smiling; brows: Full dark gently curved brows; nose: Medium straight bridge with softly rounded tip; mouth: Wide tooth-showing smile with expressive corners; hair: Very dark chestnut brown thick loosely curled tousled hair with volume above the forehead; skin: Warm olive complexion with subtle stubble along jaw and upper lip. Distinguishing combination: Relaxed dark curls, wide cheerful smile, easy cheek creases and light stubble.",
+    "block": "Warm olive complexion; thick tousled wavy dark-brown hair; brown eyes; strong brows; friendly wide smile, light facial stubble and a gently rounded angular face. Reference-grounded stable details: face: Softly angular oval face, broad smile lifting rounded cheeks and pronounced cheek lines; eyes: Dark brown warm eyes slightly narrowing when smiling; brows: Full dark brows with a gentle natural curve, expressive when smiling; nose: Medium straight bridge with softly rounded tip; mouth: Wide tooth-showing smile with expressive corners; hair: Very dark chestnut brown thick loosely curled tousled hair with volume above the forehead; skin: Warm olive complexion with subtle stubble along jaw and upper lip. Distinguishing combination: Relaxed dark curls, wide cheerful smile, easy cheek creases and light stubble.",
     "consistencyRule": "The attached approved master image is the ONLY canonical identity source. Preserve the exact person and combination of visible features; describe only what is observable. If the scene angle hides a facial feature, do not invent a new detail.",
     "v1Summary": "Warm olive complexion; thick tousled wavy dark-brown hair; brown eyes; strong brows; friendly wide smile, light facial stubble and a gently rounded angular face.",
     "features": {
       "face": "Softly angular oval face, broad smile lifting rounded cheeks and pronounced cheek lines",
       "eyes": "Dark brown warm eyes slightly narrowing when smiling",
-      "brows": "Full dark gently curved brows",
+      "brows": "Full dark brows with a gentle natural curve, expressive when smiling",
       "nose": "Medium straight bridge with softly rounded tip",
       "mouth": "Wide tooth-showing smile with expressive corners",
       "hair": "Very dark chestnut brown thick loosely curled tousled hair with volume above the forehead",
