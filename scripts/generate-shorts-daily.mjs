@@ -4,6 +4,7 @@ import {readFileSync,writeFileSync,existsSync,mkdirSync,copyFileSync,renameSync}
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {execFileSync} from 'node:child_process';
+import {loadIdentity,imagePrompt,validateIdentityQa} from './shorts-character-identity.mjs';
 
 export const FRIENDS=['zoe','bella','hugo','theo','yuna'];
 const DAY=/^\d{4}-\d{2}-\d{2}$/;
@@ -71,10 +72,10 @@ export function geminiClient({key=process.env.GEMINI_API_KEY,textModel=process.e
  };
  return {
   async stories(feed,date){return generateJSON(createPrompt(feed,date))},
-  async image(story,avatar,previous){
-   const text=`Produce exactly ONE photorealistic candid smartphone photo, portrait 3:4 aspect ratio. The FIRST reference image shows the character's canonical FACE, hair and identity: preserve those features faithfully. The SECOND image, if supplied, shows their previous living environment and continuity props. This is a different day in that same person's believable life, NOT a portrait studio, collage, poster or advertising. Subject: ${story.friendId} appearing naturally in the photo. New moment: ${story.scene}. Photo context: ${story.imageAlt}. Natural candid framing, authentic imperfect details, realistic hands, believable soft light. No captions, words, signs, logos, watermarks, interface, framed inset or extra panels. Exactly one scene.`;
+  async image(story,avatar,identity){
+   const text=imagePrompt(story,identity);
+   // Always attach the real canonical master. Never attach unapproved Shorts pictures.
    const refs=[{text},{inlineData:{mimeType:avatar.mimeType,data:avatar.data.toString('base64')}}];
-   if(previous)refs.push({inlineData:{mimeType:previous.mimeType,data:previous.data.toString('base64')}});
    const res=await postGemini(imageModel,{contents:[{role:'user',parts:refs}],generationConfig:{responseModalities:['TEXT','IMAGE'],responseFormat:{image:{aspectRatio:'3:4'}}}},key,{...options,timeoutMs:140000});
    const img=partsOf(res).find(x=>x.inlineData?.data && /^image\/(?:png|jpeg|webp)$/.test(x.inlineData.mimeType));
    good(img,'image model did not return image data for '+story.friendId);
@@ -83,20 +84,13 @@ export function geminiClient({key=process.env.GEMINI_API_KEY,textModel=process.e
    return {data,mimeType:img.inlineData.mimeType};
   },
   async review(story,photo,avatar){
-   const prompt=`You are a strict visual QA reviewer. First image is the generated photo; second is the canonical face portrait. The generated photo must be ONE real-looking 3:4 smartphone lifestyle shot, with the SAME recognisable character present, scenario matching: ${story.scene}. Reject if person absent, different character, obvious multiple panels/collage/poster, any visible watermark, prominent text/logo, grotesque hands/faces or unrelated scene. If uncertain reject. Return ONLY JSON: {"pass":boolean,"reason":"brief"}.`;
+   const prompt=`You are an independent and conservative visual identity QA reviewer. FIRST image is the new lifestyle photo; SECOND image is the canonical master identity. Compare facial structure, eye shape, hairline, hair color and skin tone. Reject lookalikes, unclear or occluded faces, unnatural anatomy, multiple people, collages, text/logos or unrelated settings. Scene: ${story.scene}. Return ONLY JSON: {"pass":boolean,"reason":"short factual reason","checks":{"sameFace":boolean,"sameEyes":boolean,"sameHair":boolean,"sameSkin":boolean,"faceVisible":boolean,"singleCharacter":boolean,"sceneMatch":boolean,"photorealistic":boolean,"noTextOrLogo":boolean}}. pass must be false whenever ANY check is uncertain or false.`;
    return generateJSON(prompt,[photo,avatar]);
   }
  };
 }
 const mime=p=>p.endsWith('.webp')?'image/webp':p.endsWith('.png')?'image/png':'image/jpeg';
 function readPhoto(p){return {mimeType:mime(p),data:readFileSync(p)}}
-function previousPhoto(feed,friend,root,date){
- const p=storyHistory(feed,friend,date).at(-1);
- if(!p)return null;
- const name=p.image?.startsWith('media/')?p.image.slice(6):'';
- const file=resolve(root,'content/crew-shorts/approved/media',name);
- return name&&existsSync(file)?readPhoto(file):null;
-}
 export function encodeWebP(input,output,{python='python3',script=resolve(dirname(fileURLToPath(import.meta.url)),'shorts-encode-webp.py')}={}){
  execFileSync(python,[script,input,output],{stdio:'pipe',timeout:40000});
  const b=readFileSync(output);
@@ -104,43 +98,56 @@ export function encodeWebP(input,output,{python='python3',script=resolve(dirname
  return b;
 }
 function nowMs(){return Date.now()}
-export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='plan',client,encode=encodeWebP,previewBase='crew-shorts-preview'}={}){
+export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='plan',friend=null,useApprovedStory=false,client,encode=encodeWebP,previewBase='crew-shorts-preview'}={}){
  dateOk(date);good(['plan','preview','publish'].includes(mode),'invalid mode');
- good(mode==='plan'||date<=taipeiDay(),'cannot generate future stories with paid API');
+ good(friend===null||FRIENDS.includes(friend),'invalid selected friend');
+ good(friend===null||mode!=='publish','single-friend operation cannot publish');
+ good(!useApprovedStory||(mode==='preview'&&friend),'approved story requires private friend preview');
+ good(mode==='plan'||date<=taipeiDay()||(mode==='preview'&&useApprovedStory),'cannot generate future unapproved stories with paid API');
  const approvedFile=resolve(root,sourcePath),feed=json(approvedFile);
  good(feed.schema===1&&feed.kind==='crew-shorts'&&Array.isArray(feed.posts),'invalid approved source');
  const today=feed.posts.filter(p=>p.publishedAt.slice(0,10)===date);
  good(!today.length||today.length===FRIENDS.length,'partial source batch detected; require manual review');
  const dir=resolve(root,previewBase,date);
  mkdirSync(dir,{recursive:true});
- const report={date,mode,status:'planning',models:{text:process.env.SHORTS_TEXT_MODEL||'gemini-2.5-flash',image:process.env.SHORTS_IMAGE_MODEL||'gemini-2.5-flash-image'},existing:today.map(x=>x.id),stories:[],errors:[]};
+ const report={date,mode,friend,useApprovedStory,status:'planning',models:{text:process.env.SHORTS_TEXT_MODEL||'gemini-2.5-flash',image:process.env.SHORTS_IMAGE_MODEL||'gemini-2.5-flash-image'},existing:today.map(x=>x.id),stories:[],errors:[]};
  const reportFile=join(dir,'manifest.json');
  save(reportFile,report);
  if(mode==='publish'&&today.length===FRIENDS.length){report.status='already-approved';save(reportFile,report);return report}
- if(mode==='plan'){report.status='plan-only';report.friends=FRIENDS;report.continuity=Object.fromEntries(FRIENDS.map(friend=>[friend,storyHistory(feed,friend,date).map(p=>p.id)]));save(reportFile,report);return report}
- const ai=client||geminiClient();
- let staged=[];
+ if(mode==='plan'){report.status='plan-only';report.friends=friend?[friend]:FRIENDS;report.continuity=Object.fromEntries(report.friends.map(id=>[id,storyHistory(feed,id,date).map(p=>p.id)]));save(reportFile,report);return report}
+ const targets=friend?[friend]:FRIENDS;
+ const staged=[];
  try{
-  const stories=validateStories(await ai.stories(feed,date),feed,date);
+  // Check official portrait integrity BEFORE any paid Gemini calls.
+  const identities=new Map(targets.map(id=>[id,loadIdentity(root,'friend',id)]));
+  report.identities=Object.fromEntries([...identities].map(([id,value])=>[id,{identityId:value.identityId,sha:value.sha}]));
+  save(reportFile,report);
+  good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
+  const ai=client||geminiClient();
+  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>({
+   friendId:p.friendId,caption:p.caption,translationZh:p.translationZh,
+   scene:p.imageAlt+' Natural candid everyday environment with all story props; the official face clearly visible.',
+   imageAlt:p.imageAlt,storyId:p.storyId,storyContext:p.storyContext||storyHistory(feed,friend,date).map(x=>x.caption).join(' ')
+  })):validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
+  good(stories.length===targets.length,'missing selected story');
   for(const story of stories){
-   const avatar=readPhoto(resolve(root,'assets/friends/crew_friend_'+story.friendId+'.webp'));
-   const previous=previousPhoto(feed,story.friendId,root,date);
-   const raw=await ai.image(story,avatar,previous);
+   const anchor=identities.get(story.friendId);
+   const avatar=anchor.reference;
+   const raw=await ai.image(story,avatar,anchor.identity);
    const rawExt=raw.mimeType==='image/png'?'.png':raw.mimeType==='image/jpeg'?'.jpg':'.webp';
    const rawPath=join(dir,story.friendId+'-generated'+rawExt);
    writeFileSync(rawPath,raw.data);
    const dest=join(dir,story.friendId+'.webp');
    encode(rawPath,dest);
    const photo=readPhoto(dest);
-   const qa=await ai.review(story,photo,avatar);
-   good(qa?.pass===true,'visual QA rejected '+story.friendId+': '+cap(qa?.reason,150));
+   const qa=validateIdentityQa(await ai.review(story,photo,avatar),story.friendId);
    const id=story.friendId+'-'+date;
    const post={id,friendId:story.friendId,friendName:expectedTitle(story.friendId),caption:story.caption,translationZh:story.translationZh,
     image:'media/'+id+'.webp',imageAlt:story.imageAlt,publishedAt:date+'T08:00:00+08:00',language:'en',storyId:story.storyId,storyContext:story.storyContext};
    staged.push({post,from:dest});report.stories.push({...post,scene:story.scene,qa:{pass:true,reason:cap(qa.reason,200)}});
    save(reportFile,report);
   }
-  good(staged.length===5,'incomplete image batch');
+  good(staged.length===targets.length,'incomplete image batch');
   if(mode==='preview'){report.status='preview-ready';save(reportFile,report);return report}
   // Perform one all-or-nothing promotion only after all 5 distinct photos pass QA.
   const all=[...feed.posts,...staged.map(x=>x.post)].sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt));
@@ -168,6 +175,6 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
 }
 function opt(name,fallback){const i=process.argv.indexOf('--'+name);return i<0?fallback:process.argv[i+1]}
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
- const mode=opt('mode','plan'),date=opt('date',taipeiDay());
- generateDaily({date,mode}).then(report=>{console.log(JSON.stringify({date,mode,status:report.status,stories:report.stories.map(x=>({id:x.id,caption:x.caption})),artifact:'crew-shorts-preview/'+date},null,2))}).catch(e=>{console.error('Crew Shorts daily failed: '+e.message);process.exitCode=1});
+ const mode=opt('mode','plan'),date=opt('date',taipeiDay()),friend=opt('friend',null),useApprovedStory=process.argv.includes('--use-approved-story');
+ generateDaily({date,mode,friend,useApprovedStory}).then(report=>{console.log(JSON.stringify({date,mode,friend,status:report.status,stories:report.stories.map(x=>({id:x.id,caption:x.caption})),artifact:'crew-shorts-preview/'+date},null,2))}).catch(e=>{console.error('Crew Shorts daily failed: '+e.message);process.exitCode=1});
 }

@@ -37,3 +37,32 @@ The daily release itself is verified separately at:
 - GitHub shared concurrency prevents simultaneous generation and publication jobs. Re-running the same date is idempotent against approved post IDs; no generated image can replace an existing source image.
 - If generation fails, check `manifest.json` and review failed request limits/quota; the publisher keeps previously published feed. For rollback disable the variable and revert the daily content commit while keeping archived originals.
 - Automatic image QA is a useful gate, **not an absolute guarantee** of identical facial features, perfect hands or zero text. Review early Artifact previews before enabling unattended daily publication.
+## Character Identity v1 integration (P0)
+
+The daily photo generator now reads `content/character-identities/manifest.json` plus each selected character's `v1/friends/<id>.json` **before making any Gemini requests**. The generator checks the exact official avatar's Git blob SHA, includes the immutable facial description and style lock, and sends the **actual official avatar bytes as its only image identity reference**.
+
+Previously published Shorts photos are **never sent back as visual references**: older wrong-faced photos (such as seeded Bella) must not teach the model a new identity. Only text captions/story context continue the character's narrative.
+
+The vision reviewer checks nine explicit items: same face, eyes, hair, skin tone, visible face, one person, intended scene, photographic realism, and no text/logo. Any missing/uncertain check rejects the batch; QA is still fallible and **human approval is required before accepting an identity test photo**.
+
+### Bella single-photo acceptance test
+
+1. Free, no image calls: `node scripts/generate-shorts-daily.mjs --mode plan --friend bella --date 2026-10-17`.
+2. GitHub Actions → **Crew Shorts AI daily generate** → **Run workflow**:
+   - `mode: preview`
+   - `date: 2026-10-17`
+   - `friend: bella`
+   - `use_approved_story: true`
+3. This selects the **existing 10/17 indoor-picnic caption and imageAlt**, skips text-story generation, creates **one photo of Bella** with her official master attached, runs a strict identity QA, and outputs only that photo plus a manifest in the artifact. It does not commit or publish anything. **Preview makes paid Gemini image and QA calls**; run only when ready to spend that quota.
+4. Compare the result **visually** with `assets/friends/crew_friend_bella.webp`; verify eyes, nose, face proportions, blonde hair and hairline, skin tone, expression, true 3:4 framing, natural candid single-person picnic scene. Reject any look-alike despite a model QA pass.
+5. After Bella passes, test other scenes. Keep the 32 official master images locked; only add new-angle references following explicit approval. Do not use the generated previews as trusted identity references automatically.
+
+The equivalent private local CLI (with an explicitly configured `GEMINI_API_KEY`) is:
+
+```sh
+node scripts/generate-shorts-daily.mjs --mode preview --date 2026-10-17 --friend bella --use-approved-story
+```
+
+Safety: `--friend` is supported in `plan` and `preview` only and **cannot publish**, even if accidentally paired with `--mode publish`. Future-dated previews are only allowed when `--use-approved-story` selects an already-existing seeded/approved post. Production batch publishing remains all-or-nothing for the five Shorts Friends.
+
+Teacher Identity v1 records are also validated by `node scripts/verify-character-identities.mjs`, but this specific daily Shorts job does not generate Teacher photos.
