@@ -1,3 +1,4 @@
+import{setGa4Enabled,sendGa4Event,sendGa4PageView}from"./ga4";
 /**
  * Minimal first-party analytics. Never send user speech, prompts, Gemini keys,
  * story titles, birth details, profile IDs, or full URLs.
@@ -35,10 +36,14 @@ export const developerUsageMode=()=>local(DEV)==="1";
 export function setUsageDisabled(value:boolean){
  if(value){store(OPT_OUT,"1");try{[KEY,SESSION,LAST].forEach(k=>localStorage.removeItem(k))}catch{/* blocked */}}
  else{try{localStorage.removeItem(OPT_OUT)}catch{/* blocked */}}
+ setGa4Enabled(allowed());
+ if(allowed())sendGa4PageView(location.pathname);
 }
 export function setDeveloperUsageMode(value:boolean){
  if(value)store(DEV,"1");
  else{try{localStorage.removeItem(DEV)}catch{/* blocked */}}
+ setGa4Enabled(allowed());
+ if(allowed())sendGa4PageView(location.pathname);
 }
 const allowed=()=>production()&&!globalPrivacy()&&!usageDisabled()&&!developerUsageMode();
 function visitor(){
@@ -57,6 +62,7 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
  // Protect against React strict-mode effects and accidental rapid duplicate calls.
  if(now-(recent.get(key)||0)<2000)return;
  recent.set(key,now);
+ sendGa4Event(event,detail);
  const payload={event,detail,visitorId:visitor(),sessionId:session()};
  try{void fetch("/api/usage/event",{
    method:"POST",headers:{"Content-Type":"application/json"},
@@ -72,4 +78,10 @@ export function trackAppOpen(){
  else if(previous&&previous!==day)trackUsageEvent("user_returned");
  store(LAST,day);
  trackUsageEvent("app_opened");
+}
+
+/** Manual GA4 pageviews for React Router navigation (no query/hash or dynamic IDs). */
+export function trackPageView(pathname:string){
+ if(!allowed())return;
+ sendGa4PageView(pathname);
 }
