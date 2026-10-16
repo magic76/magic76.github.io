@@ -52,7 +52,7 @@ export function SettingsPage(){
   <label className="row" style={{gap:12,alignItems:"flex-start"}}>
    <input type="checkbox" checked={!analyticsOff} onChange={e=>{setUsageDisabled(!e.target.checked);setAnalyticsOff(!e.target.checked)}}/>
    <span><strong>{english?"Share anonymous feature usage":"允許匿名功能使用統計"}</strong>
-    <small className="meta" style={{display:"block",marginTop:4}}>{english?"Records successful actions only, without chat content, birth details, recordings or Gemini keys. No tracking when GPC/Do Not Track is enabled.":"僅記錄成功使用的功能事件與隨機瀏覽器識別碼，不包含聊天、生日、錄音或 Gemini Key；啟用 GPC／Do Not Track 時不追蹤。"}</small></span>
+    <small className="meta" style={{display:"block",marginTop:4}}>{english?"Cloudflare and Google Analytics (GA4) collect site visits and feature interactions. GA4 may use analytics cookies; no conversation content, birth details, recordings or Gemini keys. Turning this off disables both, as do GPC/Do Not Track.":"Cloudflare 與 Google Analytics（GA4）會統計網站瀏覽與功能互動；GA4 可能使用分析 Cookie。不傳送對話內容、生日資料、錄音或 Gemini Key；關閉後兩者都不追蹤，GPC／Do Not Track 亦同。"}</small></span>
   </label>
   {new URLSearchParams(typeof window==="undefined"?"":window.location.search).has("crewDev")&&<label className="row" style={{gap:12,marginTop:14}}>
     <input type="checkbox" checked={devMode} onChange={e=>{setDeveloperUsageMode(e.target.checked);setDevMode(e.target.checked)}}/>
