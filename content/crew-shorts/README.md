@@ -49,3 +49,7 @@ Disable the workflow schedule by reverting the activation change if broken image
 ## Limits and future R2 migration
 
 The source/published feed is currently limited to 100 posts; a later release should implement archives/pagination. The Pages project has file count and build limits. If the project grows, its feed config allows moving to R2 later without rewriting the product flow. The previous R2 publisher remains an optional historical tool, but there is no active R2 workflow.
+
+## AI generated daily Stories (opt-in)
+
+See [AI-DAILY.md](./AI-DAILY.md) for the upstream `Crew Shorts AI daily generate` job, Gemini API key and Artifact preview. It creates new captions, translations and five separate character-anchored photos; the stable Pages publisher remains independent. AI generation is disabled by default until `CREW_SHORTS_AUTO_GENERATE_ENABLED=true` is set in Actions Variables. No demo images can be promoted from this workflow.

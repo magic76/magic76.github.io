@@ -1,0 +1,102 @@
+name: Crew Shorts AI daily generate
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'plan (free), preview (real photos in Artifact), publish (AI generation + Pages update)'
+        type: choice
+        options: [plan, preview, publish]
+        required: true
+        default: plan
+      date:
+        description: 'Optional Taipei editorial date YYYY-MM-DD. Preview/publish cannot run for future dates.'
+        type: string
+        required: false
+        default: ''
+  # 06:30 Asia/Taipei; seed + daily publisher retains the 08:00 release gate.
+  schedule:
+    - cron: "30 22 * * *"
+
+permissions:
+  contents: write
+
+# Prevent a generated approved batch racing against the separate Pages publisher.
+concurrency:
+  group: crew-shorts-pages-publish
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.event_name == 'workflow_dispatch' || vars.CREW_SHORTS_AUTO_GENERATE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install photo encoder
+        run: python -m pip install --disable-pip-version-check --no-cache-dir 'Pillow==12.0.0'
+      - name: Plan, generate, review and stage batch
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SHORTS_TEXT_MODEL: ${{ vars.SHORTS_TEXT_MODEL || 'gemini-2.5-flash' }}
+          SHORTS_IMAGE_MODEL: ${{ vars.SHORTS_IMAGE_MODEL || 'gemini-2.5-flash-image' }}
+          RUN_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode }}
+          INPUT_DATE: ${{ inputs.date || '' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--mode "$RUN_MODE")
+          if [[ -n "$INPUT_DATE" ]]; then args+=(--date "$INPUT_DATE"); fi
+          node scripts/generate-shorts-daily.mjs "${args[@]}"
+      - name: Validate published JSON and all tests before a source commit
+        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/publish-shorts-pages.mjs
+          node scripts/check-shorts-feed.mjs features/teacher/shorts/posts.json
+          npm ci
+          npm run check:web
+          npm test
+      - name: Commit approved photos and due public feed
+        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A -- content/crew-shorts/approved features/teacher/shorts
+          if git diff --cached --quiet; then
+            echo 'Crew Shorts AI: no new approved posts or due feed changes; no commit.'
+            exit 0
+          fi
+          git commit -m 'content(shorts): generate verified daily AI photo stories'
+          git pull --rebase origin master
+          git push origin HEAD:master
+      - name: Upload generated stories, images and QA manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: crew-shorts-daily-${{ github.run_id }}
+          path: crew-shorts-preview/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Where to inspect this job
+        if: always()
+        shell: bash
+        run: |
+          echo '## Crew Shorts AI generation' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Find Artifact `crew-shorts-daily-${{ github.run_id }}` below this Actions run.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'It contains manifest.json, five independent WebPs on success and intermediate diagnostics on failure.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Plan mode makes no API calls. Preview mode incurs Gemini costs but never commits. Publish mode requires all five images to pass QA.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Published feed: https://www.3sssi.com/features/teacher/shorts/posts.json' >> "$GITHUB_STEP_SUMMARY"
