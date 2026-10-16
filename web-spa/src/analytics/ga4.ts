@@ -59,6 +59,7 @@ export function setGa4Enabled(enabled:boolean){
 }
 
 export function sendGa4PageView(pathname:string){
+ if(enabledState===false)return;
  const path=safeGa4Path(pathname),now=Date.now();
  if(!setGa4Enabled(true))return;
  // React.StrictMode may run mount effects twice; real revisits still count.
@@ -73,7 +74,7 @@ export function sendGa4PageView(pathname:string){
  });
 }
 export function sendGa4Event(event:string,detail:string){
- if(!setGa4Enabled(true))return;
+ if(enabledState===false||!setGa4Enabled(true))return;
  // Event and detail are fixed allowlisted enums from usage.ts.
  command("event","crew_"+event,{
   send_to:GA4_MEASUREMENT_ID,
