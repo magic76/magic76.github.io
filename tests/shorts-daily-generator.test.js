@@ -33,41 +33,44 @@ function setup(t){
   async image(story){if(story.friendId===failImage)throw Error('simulated image outage');return {data:fs.readFileSync(png),mimeType:'image/png'}},
   async review(story){return {pass:story.friendId!==badFriend,reason:'same face and unique candid photo'} }
  });
- return {root,approved,png,source,mock};
+ const encode=(src,dst)=>{fs.copyFileSync(path.join(__dirname,'../content/crew-shorts/approved/media/zoe-day1.webp'),dst);return fs.readFileSync(dst)};
+ return {root,approved,png,source,mock,encode};
 }
 test('daily generator plan is free, nonpublishing and shows prior context',async t=>{const {root,approved}=setup(t);const {generateDaily}=await gen();
  const original=fs.readFileSync(path.join(approved,'posts.json'));
  const r=await generateDaily({root,date:today(),mode:'plan'});
  assert.equal(r.status,'plan-only');assert.equal(r.friends.length,5);assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),original);
 });
-test('preview makes five separately decoded WebPs and never changes approved source',async t=>{const {root,approved,mock}=setup(t);const {generateDaily}=await gen();
+test('preview makes five separately decoded WebPs and never changes approved source',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
  const original=fs.readFileSync(path.join(approved,'posts.json'));
- const r=await generateDaily({root,date:today(),mode:'preview',client:mock()});
+ const r=await generateDaily({root,date:today(),mode:'preview',client:mock(),encode});
  assert.equal(r.status,'preview-ready');assert.equal(r.stories.length,5);
  for(const friend of friends){const name=path.join(root,'crew-shorts-preview',today(),friend+'.webp');assert.ok(fs.statSync(name).size<350*1024)}
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),original);
 });
-test('visual QA or image error refuses all source changes',async t=>{const {root,approved,mock}=setup(t);const {generateDaily}=await gen();
+test('visual QA or image error refuses all source changes',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
  const before=fs.readFileSync(path.join(approved,'posts.json'));
- await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({badFriend:'hugo'})}),/visual QA rejected/);
+ await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({badFriend:'hugo'}),encode}),/visual QA rejected/);
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),before);
  assert.equal(JSON.parse(fs.readFileSync(path.join(root,'crew-shorts-preview',today(),'manifest.json'))).status,'failed');
  assert.equal(fs.readdirSync(path.join(approved,'media')).length,5);
- await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({failImage:'theo'})}),/simulated image outage/);
+ await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({failImage:'theo'}),encode}),/simulated image outage/);
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),before);
 });
-test('approved batch persists 5 originals and is idempotent on retry',async t=>{const {root,approved,mock}=setup(t);const {generateDaily}=await gen();
- const r=await generateDaily({root,date:today(),mode:'publish',client:mock()});
+test('approved batch persists 5 originals and is idempotent on retry',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
+ const r=await generateDaily({root,date:today(),mode:'publish',client:mock(),encode});
  assert.equal(r.status,'approved');
  const feed=JSON.parse(fs.readFileSync(path.join(approved,'posts.json')));
  assert.equal(feed.posts.length,10);assert.equal(feed.source,'daily');
  assert.ok(feed.posts.slice(0,5).every(p=>p.id.endsWith('-first')));
  for(const friend of friends)assert.ok(fs.existsSync(path.join(approved,'media',friend+'-'+today()+'.webp')));
- const again=await generateDaily({root,date:today(),mode:'publish',client:{stories(){throw Error('must not run')}}});
+ const again=await generateDaily({root,date:today(),mode:'publish',client:{stories(){throw Error('must not run')}},encode});
  assert.equal(again.status,'already-approved');assert.equal(JSON.parse(fs.readFileSync(path.join(approved,'posts.json'))).posts.length,10);
 });
-test('invalid/repeated AI story fails, and image converter rejects mosaic-shaped images',async t=>{const {root}=setup(t);const {validateStories,encodeWebP}=await gen();
+test('invalid AI stories fail and encoder rejects nonportrait images when Pillow is installed',async t=>{const {root}=setup(t);const {validateStories,encodeWebP}=await gen();
  assert.throws(()=>validateStories({stories:friends.map(friend=>({friendId:friend,caption:'x',translationZh:'錯',scene:'bad',imageAlt:'bad'}))},{posts:[]}),/invalid English caption/);
+ let pillowAvailable=true;try{execFileSync('python3',['-c','from PIL import Image'],{stdio:'ignore'})}catch{pillowAvailable=false}
+ if(!pillowAvailable)return;
  const wide=path.join(root,'wide.png');
  execFileSync('python3',['-c',`from PIL import Image; Image.new('RGB',(1200,900),(55,66,77)).save(${JSON.stringify(wide)})`]);
  assert.throws(()=>encodeWebP(wide,path.join(root,'wide.webp')));
