@@ -10,10 +10,21 @@ on:
         required: true
         default: plan
       date:
-        description: 'Optional Taipei editorial date YYYY-MM-DD. Preview/publish cannot run for future dates.'
+        description: 'Optional Taipei editorial date YYYY-MM-DD. An approved-story private preview can use a future seeded date.'
         type: string
         required: false
         default: ''
+      friend:
+        description: 'Preview one Friend, or all five. Single-friend mode never publishes.'
+        type: choice
+        options: [all, bella, zoe, hugo, theo, yuna]
+        required: true
+        default: all
+      use_approved_story:
+        description: 'Preview the existing approved story (e.g., Bella on 2026-10-17), without generating another caption.'
+        type: boolean
+        required: false
+        default: false
   # 06:30 Asia/Taipei; seed + daily publisher retains the 08:00 release gate.
   schedule:
     - cron: "30 22 * * *"
@@ -52,11 +63,15 @@ jobs:
           SHORTS_IMAGE_MODEL: ${{ vars.SHORTS_IMAGE_MODEL || 'gemini-2.5-flash-image' }}
           RUN_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode }}
           INPUT_DATE: ${{ inputs.date || '' }}
+          INPUT_FRIEND: ${{ inputs.friend || 'all' }}
+          USE_APPROVED_STORY: ${{ inputs.use_approved_story || 'false' }}
         shell: bash
         run: |
           set -euo pipefail
           args=(--mode "$RUN_MODE")
           if [[ -n "$INPUT_DATE" ]]; then args+=(--date "$INPUT_DATE"); fi
+          if [[ "$INPUT_FRIEND" != "all" ]]; then args+=(--friend "$INPUT_FRIEND"); fi
+          if [[ "$USE_APPROVED_STORY" == "true" ]]; then args+=(--use-approved-story); fi
           node scripts/generate-shorts-daily.mjs "${args[@]}"
       - name: Validate published JSON and all tests before a source commit
         if: github.event_name == 'schedule' || inputs.mode == 'publish'
@@ -97,6 +112,6 @@ jobs:
         run: |
           echo '## Crew Shorts AI generation' >> "$GITHUB_STEP_SUMMARY"
           echo 'Find Artifact `crew-shorts-daily-${{ github.run_id }}` below this Actions run.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'It contains manifest.json, five independent WebPs on success and intermediate diagnostics on failure.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Plan mode makes no API calls. Preview mode incurs Gemini costs but never commits. Publish mode requires all five images to pass QA.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'It contains manifest.json and either one selected Friend WebP or five independent WebPs on success.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Plan mode makes no API calls. Private preview generates only the selected Friend when chosen (costs Gemini API calls), and never commits. Publish mode requires all five to pass strict identity QA.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Published feed: https://www.3sssi.com/features/teacher/shorts/posts.json' >> "$GITHUB_STEP_SUMMARY"
