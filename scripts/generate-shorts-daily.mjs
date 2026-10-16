@@ -83,8 +83,8 @@ export function geminiClient({key=process.env.GEMINI_API_KEY,textModel=process.e
    good(data.length>10_000&&data.length<12_000_000,'suspicious generated image size');
    return {data,mimeType:img.inlineData.mimeType};
   },
-  async review(story,photo,avatar){
-   const prompt=`You are an independent and conservative visual identity QA reviewer. FIRST image is the new lifestyle photo; SECOND image is the canonical master identity. Compare facial structure, eye shape, hairline, hair color and skin tone. Reject lookalikes, unclear or occluded faces, unnatural anatomy, multiple people, collages, text/logos or unrelated settings. Scene: ${story.scene}. Return ONLY JSON: {"pass":boolean,"reason":"short factual reason","checks":{"sameFace":boolean,"sameEyes":boolean,"sameHair":boolean,"sameSkin":boolean,"faceVisible":boolean,"singleCharacter":boolean,"sceneMatch":boolean,"photorealistic":boolean,"noTextOrLogo":boolean}}. pass must be false whenever ANY check is uncertain or false.`;
+  async review(story,photo,avatar,identity){
+   const prompt=`You are an independent and conservative visual identity QA reviewer. FIRST image is the new lifestyle photo; SECOND image is the canonical master identity. Compare facial structure, eye shape, hairline, hair color and skin tone. Reject lookalikes, unclear or occluded faces, unnatural anatomy, multiple people, collages, text/logos or unrelated settings. Scene: ${story.scene}. Confirm against actual master pixels, with these additional person-specific observations (text is NOT proof): ${identity.visualIdentity.block}. Pay special attention to: ${identity.visualIdentity.features.distinctive}. Return ONLY JSON: {"pass":boolean,"reason":"short factual reason","checks":{"sameFace":boolean,"sameEyes":boolean,"sameHair":boolean,"sameSkin":boolean,"faceVisible":boolean,"singleCharacter":boolean,"sceneMatch":boolean,"photorealistic":boolean,"noTextOrLogo":boolean}}. pass must be false whenever ANY check is uncertain or false.`;
    return generateJSON(prompt,[photo,avatar]);
   }
  };
@@ -140,7 +140,7 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
    const dest=join(dir,story.friendId+'.webp');
    encode(rawPath,dest);
    const photo=readPhoto(dest);
-   const qa=validateIdentityQa(await ai.review(story,photo,avatar),story.friendId);
+   const qa=validateIdentityQa(await ai.review(story,photo,avatar,anchor.identity),story.friendId);
    const id=story.friendId+'-'+date;
    const post={id,friendId:story.friendId,friendName:expectedTitle(story.friendId),caption:story.caption,translationZh:story.translationZh,
     image:'media/'+id+'.webp',imageAlt:story.imageAlt,publishedAt:date+'T08:00:00+08:00',language:'en',storyId:story.storyId,storyContext:story.storyContext};

@@ -1,6 +1,6 @@
-# Crew Character Identity Lock v1
+# Crew Character Identity Lock v2
 
-This reference-only catalog is the identity source for **16 Friends + 16 Teachers**. The goal is to prevent everyday Shorts photos from silently turning into unrelated people.
+This reference-only catalog is the identity source for **16 Friends + 16 Teachers**. The active identity version is **v2**, while every v1 file remains available for auditing. The goal is to prevent everyday Shorts photos from silently turning into unrelated people.
 
 ## Important distinction
 
@@ -11,7 +11,7 @@ These JSON records **are not pretrained Character Models**. They lock each chara
 - Friends: `assets/friends/crew_friend_<id>.webp`
 - Teachers: `assets/teacher/teacher-<id>.jpg|webp`
 - The same canonical Git blobs also exist in Android `crew-teacher/app/src/main/res/drawable-nodpi/`.
-- Each character JSON includes the exact immutable Git blob SHA and a commit-pinned source URL. Replacing a master portrait requires **new identity version**, human review, and re-approval. Do not quietly point v1 to a different face.
+- Each character JSON includes the exact immutable Git blob SHA and a commit-pinned source URL. Replacing a master portrait requires **new identity version**, human review, and re-approval. Do not quietly point either version to a different face.
 - Current Crew Shorts lifestyle photos are **story continuity only**, NOT trusted identity anchors. The seeded Bella photos have different facial features/hair from the official Bella portrait and MUST NOT be used as her character identity references.
 
 ## Image generation procedure
@@ -30,3 +30,11 @@ These JSON records **are not pretrained Character Models**. They lock each chara
 Both the natural language identity block and the image reference are important; image anchoring takes priority over any visual descriptors. Character names and personality should come from the existing product profiles rather than generative guesswork.
 
 Validation: `node scripts/verify-character-identities.mjs` (once added as part of this change).
+
+## Version 2 — reference-grounded detailed character descriptions
+
+Every active character uses `v2/friends/<id>.json` or `v2/teachers/<id>.json`, with structured `visualIdentity.features` for face, eyes, brows, nose, mouth, hair, skin and distinctive combinations. A dedicated `negativeIdentity` rule lists changes to reject. `scripts/shorts-character-identity.mjs` reads the v2 manifest and injects the full stable appearance and prohibitions into image prompts. Image QA receives the same details as **secondary observations** while comparing the **real reference pixels**. No trained character model is claimed.
+
+The 32 official portraits and Git blob SHA fingerprints stay exactly the same as v1, and v1 is kept as an immutable historical baseline under `v1/`. The v2 validator compares every official portrait SHA with the corresponding v1 record. Official photos remain the identity authority, not facial adjectives or lookalike prompts. In particular, Alex, Emma, James and Mia have small/circular source portraits; the v2 description marks uncertain details as uncertain rather than fabricating fine geometry.
+
+**Limits:** Richer prompts do not guarantee perfect character consistency without an actual reference image. Any approval, publication, or additional reference set requires human verification. No daily image is generated as part of this v2 change.

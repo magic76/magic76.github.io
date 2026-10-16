@@ -8,7 +8,8 @@ const root=process.cwd();
 const dir=join(root,"content/character-identities");
 const m=JSON.parse(readFileSync(join(dir,"manifest.json"),"utf8"));
 const expectedCounts={friend:16,teacher:16};
-assert.equal(m.schemaVersion,1);
+assert.equal(m.schemaVersion,2);
+assert.equal(m.version,'v2');
 assert.equal(m.characters.length,32);
 assert.equal(new Set(m.characters.map(x=>x.role+":"+x.id)).size,32);
 for(const role of ["friend","teacher"]){
@@ -21,15 +22,25 @@ for(const role of ["friend","teacher"]){
   const file=resolve(dir,entry.identityPath);
   assert.ok(file.startsWith(dir+"/"),"identity path escapes directory");
   const identity=JSON.parse(readFileSync(file,"utf8"));
-  assert.equal(identity.schemaVersion,1);
-  assert.equal(identity.identityId,"crew-"+role+"-"+entry.id+"-v1");
+  assert.equal(identity.schemaVersion,2);
+  assert.equal(identity.identityId,"crew-"+role+"-"+entry.id+"-v2");
   assert.equal(identity.role,role);
   assert.equal(identity.characterId,entry.id);
   assert.equal(identity.state,"canonical_master_bound_not_trained");
   assert.equal(identity.externalCharacterModel.status,"not_created");
   assert.equal(identity.generation.masterImageAttachmentRequired,true);
   assert.equal(identity.generation.promptOnlyGenerationForbidden,true);
-  assert.ok(identity.visualIdentity.block.length>60);
+  assert.ok(identity.visualIdentity.block.length>250);
+  assert.ok(identity.visualIdentity.negativeIdentity.length>80);
+  assert.equal(identity.generation.masterImageAttachmentRequired,true);
+  for(const key of m.visualIdentityFields){
+    assert.ok(typeof identity.visualIdentity.features?.[key]==='string'&&identity.visualIdentity.features[key].length>=30,entry.id+" missing "+key);
+  }
+  assert.ok(identity.identitySource?.authority.includes('portrait pixels'),entry.id+" authority");
+  const v1=JSON.parse(readFileSync(join(dir,"v1",role==="friend"?"friends":"teachers",entry.id+".json"),"utf8"));
+  assert.equal(v1.source.path,identity.source.path,entry.id+" source changed");
+  assert.equal(v1.source.gitBlobSha,identity.source.gitBlobSha,entry.id+" master SHA changed");
+  assert.equal(v1.referenceSet.master.sourcePath,identity.referenceSet.master.sourcePath,entry.id+" reference modified");
   assert.equal(identity.referenceSet.master.status,"canonical_verified");
   assert.equal(identity.referenceSet.master.sourcePath,identity.source.path);
   for(const perspective of ["threeQuarter","sideProfile","naturalSmile","candid"]){

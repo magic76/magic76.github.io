@@ -26,19 +26,19 @@ function setup(t){
  const png=path.join(root,'fixture.png');
  fs.copyFileSync(path.join(__dirname,'../content/crew-shorts/approved/media/zoe-day1.webp'),png);
  const identities=path.join(root,'content/character-identities');
- fs.mkdirSync(path.join(identities,'v1/friends'),{recursive:true});
+ fs.mkdirSync(path.join(identities,'v2/friends'),{recursive:true});
  fs.copyFileSync(path.join(__dirname,'../content/character-identities/manifest.json'),path.join(identities,'manifest.json'));
  for(const friend of friends){
   // Real OFFICIAL reference bytes, but no real image API calls.
   fs.copyFileSync(path.join(__dirname,'../assets/friends/crew_friend_'+friend+'.webp'),path.join(avatars,'crew_friend_'+friend+'.webp'));
-  fs.copyFileSync(path.join(__dirname,'../content/character-identities/v1/friends/'+friend+'.json'),path.join(identities,'v1/friends/'+friend+'.json'));
+  fs.copyFileSync(path.join(__dirname,'../content/character-identities/v2/friends/'+friend+'.json'),path.join(identities,'v2/friends/'+friend+'.json'));
   fs.copyFileSync(png,path.join(approved,'media',friend+'.webp'))
  }
  const mock=({badFriend=null,failImage=null}={})=>({
   async stories(){return {stories:friends.map(friend=>({friendId:friend,caption:'Another little chapter in '+friend+' story feels different today.',translationZh:'今天有一個新的日常故事，和昨天很不一樣。',
    scene:'A candid portrait at home with familiar window and props while '+friend+' is trying something new.',imageAlt:'A candid portrait with a familiar window and personal objects'}))}},
   async image(story,avatar,identity){
-   assert.equal(identity.identityId,'crew-friend-'+story.friendId+'-v1');
+   assert.equal(identity.identityId,'crew-friend-'+story.friendId+'-v2');
    assert.equal(avatar.mimeType,'image/webp');
    if(story.friendId===failImage)throw Error('simulated image outage');
    return {data:fs.readFileSync(png),mimeType:'image/png'}
@@ -164,6 +164,9 @@ test('image client supplies exactly ONE verified reference image with no previou
  assert.equal(parts.filter(x=>x.inlineData).length,1);
  assert.match(parts[0].text,/canonical identity reference/);
  assert.match(parts[0].text,/golden-blonde/);
+ assert.match(parts[0].text,/nose:|nose silhouette|nose bridge/i);
+ assert.match(parts[0].text,/mouth:|open smile/i);
+ assert.match(parts[0].text,/Identity-specific changes to forbid/);
  assert.match(parts[0].text,/Yesterday she abandoned/);
  assert.equal(parts[1].inlineData.mimeType,'image/webp');
  assert.equal(parts[1].inlineData.data,anchor.reference.data.toString('base64'));
@@ -172,4 +175,22 @@ test('single-person generation is preview-only and future unapproved previews re
  const {root,mock,encode}=setup(t);const {generateDaily}=await gen();
  await assert.rejects(generateDaily({root,date:today(),mode:'publish',friend:'bella',client:mock(),encode}),/single-friend operation cannot publish/);
  await assert.rejects(generateDaily({root,date:'2099-12-31',mode:'preview',friend:'bella',client:mock(),encode}),/cannot generate future unapproved stories/);
+});
+
+test('v2 visual descriptions are detailed for every role and never override official reference bytes',async()=>{
+ const {loadIdentity,imagePrompt}=await import(pathToFileURL(path.resolve(__dirname,'../scripts/shorts-character-identity.mjs')));
+ const root=path.resolve(__dirname,'..');
+ for(const [role,id] of [['friend','bella'],['friend','zoe'],['teacher','sophie'],['teacher','alex']]){
+  const anchor=loadIdentity(root,role,id);
+  assert.equal(anchor.identity.schemaVersion,2);
+  assert.equal(anchor.identity.source.gitBlobSha,anchor.sha);
+  assert.ok(anchor.identity.visualIdentity.block.length>250);
+  assert.match(anchor.identity.visualIdentity.negativeIdentity,/Do not change|No replacements/i);
+ }
+ const bella=loadIdentity(root,'friend','bella');
+ const prompt=imagePrompt({friendId:'bella',scene:'Indoor picnic on a blanket',imageAlt:'Bella eats grapes in a cozy apartment'},bella.identity);
+ assert.match(prompt,/blue-green eyes/i);
+ assert.match(prompt,/golden-blonde/i);
+ assert.match(prompt,/reference/i);
+ assert.doesNotMatch(prompt,/SECOND attached image/i);
 });

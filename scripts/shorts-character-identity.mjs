@@ -9,12 +9,14 @@ export function loadIdentity(root,role,id){
  check(['friend','teacher'].includes(role)&&/^[a-z]+$/.test(id),'invalid character');
  const base='content/character-identities/';
  const manifest=JSON.parse(readFileSync(local(root,base+'manifest.json'),'utf8'));
- check(manifest.schemaVersion===1&&manifest.counts?.total===32,'incomplete catalog');
+ check(manifest.schemaVersion===2&&manifest.version==='v2'&&manifest.counts?.total===32,'incomplete v2 catalog');
  const entry=manifest.characters.find(x=>x.role===role&&x.id===id);
  check(entry,'missing character '+id);
  const identity=JSON.parse(readFileSync(local(root,base+entry.identityPath),'utf8'));
- check(identity.identityId==='crew-'+role+'-'+id+'-v1'&&identity.characterId===id,'identity mismatch');
+ check(identity.schemaVersion===2&&identity.identityId==='crew-'+role+'-'+id+'-v2'&&identity.characterId===id,'identity mismatch');
  check(identity.referenceSet?.master?.status==='canonical_verified','unapproved master');
+ const features=identity.visualIdentity?.features;
+ check(features&&['face','eyes','brows','nose','mouth','hair','skin','distinctive'].every(k=>typeof features[k]==='string'&&features[k].length>=30),'incomplete visual details: '+id);
  check(identity.generation?.masterImageAttachmentRequired===true&&identity.generation?.promptOnlyGenerationForbidden===true,'unlocked character');
  const expected=role==='friend'?'assets/friends/crew_friend_'+id+'.webp':'assets/teacher/teacher-'+id;
  const path=identity.source.path;
@@ -30,6 +32,7 @@ export function imagePrompt(story,identity){
  'One 3:4 vertical photorealistic candid smartphone photo, exactly one adult person, face visible and assessable from front or natural three-quarter view.',
  'The FIRST attached image is the canonical identity reference. SAME PERSON, not a similar stranger. Preserve face geometry, eyes, hairline, nose, lips, skin tone and age.',
  'Immutable appearance: '+identity.visualIdentity.block,
+ 'Identity-specific changes to forbid: '+identity.visualIdentity.negativeIdentity,
  'Photo style: '+identity.generation.styleLock,
  'Scene: '+story.scene,
  'Context (not visible text): '+story.imageAlt,
