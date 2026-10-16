@@ -139,7 +139,7 @@ test('official master SHA mismatch fails BEFORE any model request',async t=>{
  fs.writeFileSync(path.join(root,'assets/friends/crew_friend_bella.webp'),Buffer.alloc(12000,65));
  let calls=0;
  const ai={...mock(),stories(){calls++;throw Error('must not call model')}};
- await assert.rejects(generateDaily({root,date:today(),mode:'preview',friend:'bella',client:ai,encode}),/master image changed/);
+ await assert.rejects(generateDaily({root,date:today(),mode:'preview',friend:'bella',client:ai,encode}),/master image SHA mismatch/);
  assert.equal(calls,0);
 });
 test('identity QA fails closed if the model returns pass=true without explicit feature checks',async t=>{
