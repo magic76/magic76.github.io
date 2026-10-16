@@ -5,7 +5,7 @@ import vm from "node:vm";
 import {stripTypeScriptTypes} from "node:module";
 
 const src=fs.readFileSync("web-spa/src/live/turnTiming.ts","utf8");
-const compiled=stripTypeScriptTypes(src,{mode:"strip"}).replace(/\\bexport\\s+(?=function)/g,"");
+const compiled=stripTypeScriptTypes(src,{mode:"strip"}).replace(/\bexport\s+(?=function)/g,"");
 const subject={};
 vm.runInNewContext(compiled+"\nresult.turnTimingForLevel=turnTimingForLevel;",{result:subject});
 test("more speaking time for A1 and A2; same values as Android policy",()=>{
