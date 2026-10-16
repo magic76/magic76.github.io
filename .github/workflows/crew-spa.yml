@@ -4,8 +4,10 @@ on:
   push:
     branches:
       - master
-      - "feat/**"
-      - "fix/**"
+    # A generated crew-app-only commit needs no second CI build.
+    paths-ignore:
+      - "crew-app/**"
+  # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
 
 permissions:
