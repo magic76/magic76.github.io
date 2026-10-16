@@ -1,4 +1,4 @@
-name: Crew Shorts AI daily generate
+name: Crew Shorts AI generate (manual)
 
 on:
   workflow_dispatch:
@@ -25,9 +25,6 @@ on:
         type: boolean
         required: false
         default: false
-  # 06:30 Asia/Taipei; seed + daily publisher retains the 08:00 release gate.
-  schedule:
-    - cron: "30 22 * * *"
 
 permissions:
   contents: write
@@ -39,7 +36,6 @@ concurrency:
 
 jobs:
   generate:
-    if: github.event_name == 'workflow_dispatch' || vars.CREW_SHORTS_AUTO_GENERATE_ENABLED == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -61,7 +57,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           SHORTS_TEXT_MODEL: ${{ vars.SHORTS_TEXT_MODEL || 'gemini-2.5-flash' }}
           SHORTS_IMAGE_MODEL: ${{ vars.SHORTS_IMAGE_MODEL || 'gemini-2.5-flash-image' }}
-          RUN_MODE: ${{ github.event_name == 'schedule' && 'publish' || inputs.mode }}
+          RUN_MODE: ${{ inputs.mode }}
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FRIEND: ${{ inputs.friend || 'all' }}
           USE_APPROVED_STORY: ${{ inputs.use_approved_story || 'false' }}
@@ -74,7 +70,7 @@ jobs:
           if [[ "$USE_APPROVED_STORY" == "true" ]]; then args+=(--use-approved-story); fi
           node scripts/generate-shorts-daily.mjs "${args[@]}"
       - name: Validate published JSON and all tests before a source commit
-        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        if: inputs.mode == 'publish'
         shell: bash
         run: |
           set -euo pipefail
@@ -84,7 +80,7 @@ jobs:
           npm run check:web
           npm test
       - name: Commit approved photos and due public feed
-        if: github.event_name == 'schedule' || inputs.mode == 'publish'
+        if: inputs.mode == 'publish'
         shell: bash
         run: |
           set -euo pipefail
