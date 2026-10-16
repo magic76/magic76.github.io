@@ -3,6 +3,7 @@ import{VOCABULARY_WORDS,type VocabularyWord}from"./vocabularyCatalog";
 import{chooseVocabulary,vocabularyChoices}from"./vocabularyQueue";
 import{placementState,placementLabel,recordPlacement}from"./adaptivePlacement";
 import{incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats}from"./vocabularyProgress";
+import{trackUsageEvent}from"../analytics/usage";
 
 function speak(t:string){if(!("speechSynthesis"in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=.9;speechSynthesis.speak(u)}
 
@@ -17,7 +18,7 @@ export function VocabularyPage(){
  const stats=vocabStats(localizedVocabulary(native).map(x=>x[0]));
 
  function answer(choice:string){
-  if(locked||needsContent)return;setLocked(true);setPicked(choice);
+  if(locked||needsContent)return;trackUsageEvent("vocabulary_practice");setLocked(true);setPicked(choice);
   const correct=choice===word[1],nextStreak=correct?streak+1:0;
   const nextPlacement=recordPlacement(word,correct),ns=nextPlacement.score,nd=incrementTodayVocabulary();
   recordVocab(word[0],correct);setScore(ns);setDone(nd);setStreak(nextStreak);
