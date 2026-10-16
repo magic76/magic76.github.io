@@ -2,7 +2,9 @@ export type LiveTurn={input?:string;output?:string};
 export type LiveSessionOptions={
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
+ turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
+ onListeningPhase?:(phase:"speaking"|"waiting")=>void;
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
  onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  onError?:(error:Error)=>void;onTerminal?:(info?:{status?:string;state?:string})=>void;onRecovered?:(event:{model:string;resumed:boolean})=>void;
