@@ -44,6 +44,11 @@ test("event handler rejects unconfigured deployment and invalid or spoofed event
  assert.equal(points.length,1);
  assert.deepEqual(points[0].blobs,[payload.event,payload.visitorId,"",payload.sessionId]);
  assert.deepEqual(points[0].indexes,[payload.visitorId]);
+ const bucket=await onRequestPost({request:request({...payload,event:"teacher_session_end",detail:"from_3_to_10m"}),env});
+ assert.equal(bucket.status,204);
+ assert.deepEqual(points[1].blobs,["teacher_session_end",payload.visitorId,"from_3_to_10m",payload.sessionId]);
+ assert.equal((await onRequestPost({request:request({...payload,event:"teacher_session_end",detail:"private transcript"}),env})).status,400);
+ assert.equal((await onRequestPost({request:request({...payload,event:"vocabulary_practice"}),env})).status,204);
 });
 
 test("report handler fails closed without verified Cloudflare Access JWT",async()=>{
