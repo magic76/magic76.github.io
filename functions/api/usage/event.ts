@@ -7,12 +7,16 @@ type Context={request:Request;env:{ANALYTICS_ENGINE?:Dataset}};
 const events=new Set([
   "app_opened","visitor_first_seen","user_returned",
   "teacher_conversation","friend_conversation",
+  "teacher_conversation_start","friend_conversation_start",
+  "teacher_session_end","friend_session_end",
+  "vocabulary_practice","textbook_open","textbook_study",
   "shorts_view","shorts_chat_click","shorts_conversation",
   "story_reading","story_narration","story_created",
   "fortune_calculated","fortune_ai_interpreted",
   "gemini_key_missing","gemini_key_verified"
 ]);
-const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed"]);
+const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
+  "under_1m","from_1_to_3m","from_3_to_10m","over_10m"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}

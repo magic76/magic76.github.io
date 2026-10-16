@@ -12,6 +12,10 @@ The first-party tracker sends event names with anonymous random browser UUID and
 - visitor_first_seen: new random browser UUID
 - user_returned: the same browser UUID returned on a later UTC date
 - teacher_conversation / friend_conversation: a completed exchange has BOTH nonempty user and model speech text
+- teacher_conversation_start / friend_conversation_start: connected session, may not yet have exchanged speech
+- teacher_session_end / friend_session_end: duration bucket (under_1m / from_1_to_3m / from_3_to_10m / over_10m); deliberately no raw speech or audio duration beyond bucket
+- vocabulary_practice: a vocabulary answer was submitted, not merely the page opened
+- textbook_open: textbook page opened; textbook_study: Live voice session actually reached connected/listening or speaking state
 - story_reading: dwell 15 seconds on a loaded book or advance to another page
 - story_narration: Live story has model text output
 - story_created: generated story saved
@@ -25,7 +29,7 @@ A random browser UUID is pseudonymous, not a distinct real human. Browsers can c
 
 Browser respects Global Privacy Control and Do Not Track. Settings includes opt-out and deletes usage identifiers. URL /settings?crewDev=1 reveals a persistent Developer Test Mode checkbox. Enable it BEFORE testing to exclude subsequent analytics. It is intentionally not shown to ordinary users. Preview sites, GitHub Pages, localhost, and known automated tools do not send events.
 
-Cloudflare Web Analytics stays installed and continues handling visits/referrals. The Usage Dashboard ONLY displays first-party successful interaction events.
+Cloudflare Web Analytics stays installed and continues handling visits/referrals. The Usage Dashboard displays first-party effective interactions and separate entry/session metrics. Android Firebase Analytics is NOT combined with this Web dashboard, because Android and Web do not share identity or collection backends.
 
 ## Cloudflare production configuration
 
@@ -54,8 +58,8 @@ Review site privacy policy and consent requirements for the intended audience be
 ## Smoke checks
 
 - On production normal browser, Network should show POST /api/usage/event → 204 after opening Web. If Binding missing it returns 503; product still works.
-- Open Live without a key: emits gemini_key_missing. Complete one TWO-SIDED exchange with Teacher/Friend: emits corresponding conversation event, not on merely opening page.
-- Load a book and stay 15 seconds or turn a page: story_reading. Successful Fortune calculation: fortune_calculated.
+- Open Live without a key: emits gemini_key_missing. Connected Live sends teacher_conversation_start/friend_conversation_start; only a TWO-SIDED exchange emits teacher_conversation/friend_conversation. Ending a session sends a duration bucket.
+- Answer a vocabulary question: vocabulary_practice; open textbook: textbook_open; begin connected textbook voice: textbook_study. Load a Story book and stay 15 seconds or turn a page: story_reading. Successful Fortune calculation: fortune_calculated.
 - With /settings?crewDev=1 enable Developer Test Mode, then reload: no further usage requests. With analytics opt-out (Settings) also no requests.
 - Unauthenticated requests to /api/usage/report must return 403, including forged Cf-Access-Jwt-Assertion values. Only signed-in owner should see /usage data. Query returns aggregate counts, not individual UUIDs.
 - Test 7/30 day filters and mobile layout. Preview /pages.dev should never emit events.

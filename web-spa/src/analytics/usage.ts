@@ -5,11 +5,22 @@
 export type UsageEvent=
   |"app_opened"|"visitor_first_seen"|"user_returned"
   |"teacher_conversation"|"friend_conversation"
+  |"teacher_conversation_start"|"friend_conversation_start"
+  |"teacher_session_end"|"friend_session_end"
+  |"vocabulary_practice"|"textbook_open"|"textbook_study"
   |"shorts_view"|"shorts_chat_click"|"shorts_conversation"
   |"story_reading"|"story_narration"|"story_created"
   |"fortune_calculated"|"fortune_ai_interpreted"
   |"gemini_key_missing"|"gemini_key_verified";
-type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed";
+type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
+  |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m";
+export function sessionDurationDetail(durationMs:number):Detail{
+ if(durationMs<60000)return "under_1m";
+ if(durationMs<180000)return "from_1_to_3m";
+ if(durationMs<600000)return "from_3_to_10m";
+ return "over_10m";
+}
+
 const KEY="crew_usage_visitor_v1",SESSION="crew_usage_session_v1",
       LAST="crew_usage_last_day_v1",OPT_OUT="crew_usage_opt_out_v1",
       DEV="crew_usage_dev_mode_v1";
