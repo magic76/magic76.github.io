@@ -67,6 +67,20 @@ test('approved batch persists 5 originals and is idempotent on retry',async t=>{
  const again=await generateDaily({root,date:today(),mode:'publish',client:{stories(){throw Error('must not run')}},encode});
  assert.equal(again.status,'already-approved');assert.equal(JSON.parse(fs.readFileSync(path.join(approved,'posts.json'))).posts.length,10);
 });
+test('seeded days permit private preview but cannot republish, and future story spoilers stay out of context',async t=>{
+ const {root,approved,mock,encode,source}=setup(t);const {generateDaily,createPrompt}=await gen();
+ const d=today();
+ source.posts.push(...friends.map(friend=>({...source.posts.find(p=>p.friendId===friend),id:friend+'-seeded',publishedAt:d+'T08:00:00+08:00'})));
+ source.posts.push({...source.posts[0],id:'zoe-future',caption:'FUTURE SPOILER must never appear in current-day prompt',publishedAt:'2099-12-31T08:00:00+08:00'});
+ fs.writeFileSync(path.join(approved,'posts.json'),JSON.stringify(source));
+ assert.doesNotMatch(createPrompt(source,d),/FUTURE SPOILER/);
+ const prior=fs.readFileSync(path.join(approved,'posts.json'));
+ const preview=await generateDaily({root,date:d,mode:'preview',client:mock(),encode});
+ assert.equal(preview.status,'preview-ready');assert.equal(preview.stories.length,5);
+ const skipped=await generateDaily({root,date:d,mode:'publish',client:{stories(){throw Error('should skip')}}});
+ assert.equal(skipped.status,'already-approved');
+ assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),prior);
+});
 test('invalid AI stories fail and encoder rejects nonportrait images when Pillow is installed',async t=>{const {root}=setup(t);const {validateStories,encodeWebP}=await gen();
  assert.throws(()=>validateStories({stories:friends.map(friend=>({friendId:friend,caption:'x',translationZh:'錯',scene:'bad',imageAlt:'bad'}))},{posts:[]}),/invalid English caption/);
  let pillowAvailable=true;try{execFileSync('python3',['-c','from PIL import Image'],{stdio:'ignore'})}catch{pillowAvailable=false}
