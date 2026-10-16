@@ -39,7 +39,7 @@ async function verifyAccess(request:Request,env:Context["env"]):Promise<boolean>
   return crypto.subtle.verify("RSASSA-PKCS1-v1_5",key,decode(parts[2]),new TextEncoder().encode(parts[0]+"."+parts[1]));
  }catch{return false}
 }
-type Row={day?:string;event?:string;count?:number|string;users?:number|string};
+type Row={day?:string;event?:string;detail?:string;count?:number|string;users?:number|string};
 async function sql(env:Context["env"],query:string){
  const url="https://api.cloudflare.com/client/v4/accounts/"+env.CREW_USAGE_ACCOUNT_ID+"/analytics_engine/sql";
  const reply=await fetch(url,{method:"POST",headers:{
@@ -63,10 +63,10 @@ export async function onRequestGet({request,env}:Context){
  const activeEvents="'teacher_conversation','friend_conversation','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
  try{
   const [daily,active]=await Promise.all([
-   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event ORDER BY day ASC, event ASC LIMIT 700"),
+   sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 1500"),
    sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")")
   ]);
-  const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),
+  const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
     count:Number(row.count||0),users:Number(row.users||0)}));
   return respond({days,activeUsers:Number(active[0]?.users||0),rows,generatedAt:new Date().toISOString()});
  }catch{
