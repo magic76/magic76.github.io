@@ -1,5 +1,5 @@
 import{effectiveSpeakingLevel,storedSpeakingLevel}from"./speakingLevelMemory";
-import{trackUsageEvent}from"../analytics/usage";
+import{trackUsageEvent,sessionDurationDetail}from"../analytics/usage";
 import {conversationIntent,conversationOpening} from "./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
 import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
@@ -20,7 +20,7 @@ const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goa
 
 export function TeacherLivePage(){
  const {i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
- const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),memoryCheckpointRef=useRef(false);
+ const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
@@ -53,11 +53,14 @@ export function TeacherLivePage(){
    void rememberTeacherConversation(s.targetLanguage,snapshot,geminiKey());
   },
   onSessionFinished:item=>{
-   if(!item||isRoleplay)return;
+   if(!item)return;
+   if(item.durationMs>0)trackUsageEvent("teacher_session_end",sessionDurationDetail(item.durationMs));
+   if(isRoleplay)return;
    // Long sessions have a richer report; short conversations still retain explicit facts.
    if(item.durationMs<60000||item.turns.filter(t=>Boolean(t.input?.trim())).length<3)
     void rememberTeacherConversation(s.targetLanguage,item.turns,geminiKey());
   }});
+ useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("teacher_conversation_start")}},[live.state]);
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{
   if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
