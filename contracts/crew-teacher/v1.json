@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-15.1",
+  "revision": "2026-10-16.1",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -143,6 +143,20 @@
       "teacherUsesVerifiedMemoryOrFreshFallback": true,
       "neitherModeNorPreferencePersistedByQuickEntry": true,
       "sameGeminiLiveAndNoAdditionalCalls": true
+    },
+    "turnTaking": {
+      "provider": "Gemini Live automatic server VAD",
+      "sessionSetupOnly": true,
+      "levelsMs": {
+        "A1": 2000,
+        "A2": 1400,
+        "B1": 1000,
+        "B2": 800,
+        "auto": 1200
+      },
+      "endSensitivity": "LOW for A1/A2; HIGH for B1/B2/Auto",
+      "scope": "Crew Teacher and Crew Friends on Android/Web; preserve separate silence rescue and other Crew products",
+      "listeningStatus": "After actual microphone speech, show a gentle waiting hint during a pause; never send client activityEnd for this UI"
     }
   },
   "featureMatrix": [
@@ -901,6 +915,57 @@
           ]
         }
       ]
+    },
+    {
+      "id": "beginner_vad_turn_tolerance",
+      "why": "A1/A2 learners have longer mid-sentence pauses. Gemini server VAD must wait longer before an answer; UI hints must not finalize a learner turn.",
+      "android": [
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/LiveTurnTimingPolicy.java",
+          "contains": [
+            "return 2000",
+            "return 1400",
+            "END_SENSITIVITY_LOW"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeGeminiLiveClient.java",
+          "contains": [
+            "realtimeInputConfig",
+            "LiveTurnTimingPolicy.silenceDurationMs(learnerSpeakingLevel)"
+          ]
+        },
+        {
+          "path": "app/src/main/java/com/crewpocket/teacher/NativeLiveActivity.java",
+          "contains": [
+            "listeningPhase.advance(",
+            "還在聽，可以繼續說"
+          ]
+        }
+      ],
+      "web": [
+        {
+          "path": "web-spa/src/live/turnTiming.ts",
+          "contains": [
+            "silenceDurationMs:2000",
+            "silenceDurationMs:1400"
+          ]
+        },
+        {
+          "path": "web-spa/src/live/useLiveSession.ts",
+          "contains": [
+            "turnTimingForLevel(speakingLevel)",
+            "onListeningPhase:phase=>setStatus("
+          ]
+        },
+        {
+          "path": "crew-live.js",
+          "contains": [
+            "realtimeInputConfig:{automaticActivityDetection:",
+            "self.options.onListeningPhase(\"waiting\")"
+          ]
+        }
+      ]
     }
   ],
   "manualAcceptance": [
@@ -1045,6 +1110,14 @@
     {
       "id": "conversation_intents",
       "steps": "From Home: share opens selected Crew Friend and allows user-led topic changes; 3-minute entry uses assisted target language if saved mode was natural without saving a new preference, never forces timer/tests; tutor Continue opens current teacher and uses verified learning notes or explicitly falls back to a new task. No fictional previous chats, no forced interview loop, role selection still accessible. End returns properly; verify both platforms and reconnect.",
+      "platforms": [
+        "android",
+        "web"
+      ]
+    },
+    {
+      "id": "beginner_turn_tolerance",
+      "steps": "On Android and Web with A1, pause 1-1.5 seconds mid-sentence and finish without early AI reply. A2 pause 1 second. B2 should still feel responsive. Verify waiting hint appears after speech pauses without creating a model response, restarting Live, or stopping the microphone. Check roleplay, friends, reconnects, microphone mute and ordinary Story/Fortune sessions remain unchanged. Measure early cutoffs and response latency.",
       "platforms": [
         "android",
         "web"
