@@ -19,6 +19,16 @@ const expectedTitle=friend=>friend[0].toUpperCase()+friend.slice(1);
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function dateOk(day){good(DAY.test(day)&&!Number.isNaN(Date.parse(day+'T00:00:00Z'))&&new Date(day+'T00:00:00Z').toISOString().slice(0,10)===day,'invalid Taipei day')}
 export function storyHistory(feed,friend,beforeDay){return feed.posts.filter(p=>p.friendId===friend&&(!beforeDay||p.publishedAt.slice(0,10)<beforeDay)).slice().sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)).slice(-3)}
+/** Build exactly the same approved story scene for preview and no-cost preflight. */
+export function approvedPostScene(post,history){
+ good(post&&FRIENDS.includes(post.friendId)&&typeof post.imageAlt==='string','invalid approved character story');
+ return {
+  friendId:post.friendId,caption:post.caption,translationZh:post.translationZh,
+  scene:post.imageAlt+' Natural candid everyday environment with all story props; the official face clearly visible.',
+  imageAlt:post.imageAlt,storyId:post.storyId,
+  storyContext:post.storyContext||history.map(x=>x.caption).join(' ')
+ };
+}
 export function validateStories(raw,feed,date){
  good(raw&&Array.isArray(raw.stories)&&raw.stories.length===FRIENDS.length,'AI must return five stories');
  const ids=new Set();
@@ -124,11 +134,7 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
   save(reportFile,report);
   good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
   const ai=client||geminiClient();
-  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>({
-   friendId:p.friendId,caption:p.caption,translationZh:p.translationZh,
-   scene:p.imageAlt+' Natural candid everyday environment with all story props; the official face clearly visible.',
-   imageAlt:p.imageAlt,storyId:p.storyId,storyContext:p.storyContext||storyHistory(feed,friend,date).map(x=>x.caption).join(' ')
-  })):validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
+  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>approvedPostScene(p,storyHistory(feed,friend,date))):validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
   good(stories.length===targets.length,'missing selected story');
   for(const story of stories){
    const anchor=identities.get(story.friendId);

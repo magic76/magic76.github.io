@@ -38,3 +38,13 @@ Every active character uses `v2/friends/<id>.json` or `v2/teachers/<id>.json`, w
 The 32 official portraits and Git blob SHA fingerprints stay exactly the same as v1, and v1 is kept as an immutable historical baseline under `v1/`. The v2 validator compares every official portrait SHA with the corresponding v1 record. Official photos remain the identity authority, not facial adjectives or lookalike prompts. In particular, Alex, Emma, James and Mia have small/circular source portraits; the v2 description marks uncertain details as uncertain rather than fabricating fine geometry.
 
 **Limits:** Richer prompts do not guarantee perfect character consistency without an actual reference image. Any approval, publication, or additional reference set requires human verification. No daily image is generated as part of this v2 change.
+
+## Read-only v2 prompt preflight (no Gemini charges)
+
+After Character Identity v2, inspect the **exact** Bella story scene, official portrait hash and image-generation prompt on your own computer with:
+
+```sh
+node scripts/inspect-shorts-character.mjs --friend bella --date 2026-10-17
+```
+
+The output confirms `crew-friend-bella-v2`, the official reference asset and its Git SHA, complete eight-facet visual identity and negative constraints, 10/17 indoor picnic scene, and a statement that the old Shorts photo is not used as an image reference. It makes **zero Gemini API calls** and writes no feed, photos or files. It does **not** create a new photo and does **not** prove visual similarity. A real photo still requires a model that genuinely accepts the reference image bytes, plus human visual approval before publishing. This avoids mistaking a detailed text-only lookalike for Bella.
