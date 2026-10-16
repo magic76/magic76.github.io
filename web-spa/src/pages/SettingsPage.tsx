@@ -52,7 +52,7 @@ export function SettingsPage(){
   <label className="row" style={{gap:12,alignItems:"flex-start"}}>
    <input type="checkbox" checked={!analyticsOff} onChange={e=>{setUsageDisabled(!e.target.checked);setAnalyticsOff(!e.target.checked)}}/>
    <span><strong>{english?"Share anonymous feature usage":"允許匿名功能使用統計"}</strong>
-    <small className="meta" style={{display:"block",marginTop:4}}>{english?"Cloudflare and Google Analytics (GA4) collect site visits and feature interactions. GA4 may use analytics cookies; no conversation content, birth details, recordings or Gemini keys. Turning this off disables both, as do GPC/Do Not Track.":"Cloudflare 與 Google Analytics（GA4）會統計網站瀏覽與功能互動；GA4 可能使用分析 Cookie。不傳送對話內容、生日資料、錄音或 Gemini Key；關閉後兩者都不追蹤，GPC／Do Not Track 亦同。"}</small></span>
+    <small className="meta" style={{display:"block",marginTop:4}}>{english?"Controls first-party feature events and Google Analytics (GA4) visits/interactions. GA4 may use analytics cookies; no conversation content, recordings or Gemini keys. Turning this off (or using GPC/DNT) stops these trackers; separate Cloudflare Web Analytics site performance counts may continue.":"控制自有功能事件與 Google Analytics（GA4）的流量統計；GA4 可能使用分析 Cookie，不傳送對話、錄音或 Gemini Key。關閉或啟用 GPC／DNT 後不再送出上述事件；獨立的 Cloudflare Web Analytics 網站效能統計可能仍會運作。"}</small></span>
   </label>
   {new URLSearchParams(typeof window==="undefined"?"":window.location.search).has("crewDev")&&<label className="row" style={{gap:12,marginTop:14}}>
     <input type="checkbox" checked={devMode} onChange={e=>{setDeveloperUsageMode(e.target.checked);setDevMode(e.target.checked)}}/>
