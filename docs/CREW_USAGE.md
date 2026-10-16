@@ -31,6 +31,25 @@ Browser respects Global Privacy Control and Do Not Track. Settings includes opt-
 
 Cloudflare Web Analytics stays installed and continues handling visits/referrals. The Usage Dashboard displays first-party effective interactions and separate entry/session metrics. Android Firebase Analytics is NOT combined with this Web dashboard, because Android and Web do not share identity or collection backends.
 
+## Google Analytics 4 (GA4) Web stream
+
+- Property's **Web** stream Measurement ID: `G-563JSM2X68`. Android retains its separate **Android** Firebase Analytics data stream in the GA4 property. Data streams share the GA4 reports, but no cross-device user identity is inferred.
+- `web-spa/src/analytics/ga4.ts` loads `gtag.js` only on production `www.3sssi.com` when anonymous usage analytics is enabled and GPC/DNT or Developer Test Mode are not active. It does **not** load on local/preview/GitHub Pages sites. Existing Cloudflare Analytics Engine collection remains independent.
+- Analytics setting in `/settings` controls both first-party Cloudflare custom usage events and GA4. Turning it off sets the Google `ga-disable-G-563JSM2X68` flag and denies `analytics_storage`; existing Google Analytics cookies may remain until browser site data is cleared. Google's tag is not added for visitors already opted out.
+- GA4 may use browser analytics cookies and pseudonymous usage/device data. No app-generated visitorId/sessionId is forwarded to Google; GA4 custom events use only the fixed `crew_<event>` name, `crew_platform=web`, optional allowlisted `crew_detail`, and safe page paths. No speech, user-supplied text, API keys, raw dynamic IDs, query strings, or fragments are sent by our custom events.
+- Google advertising data collection features are disabled (`allow_google_signals=false`, `allow_ad_personalization_signals=false`, advertising consent denied).
+- React Router manually sends `page_view` on route changes with sanitized `page_location`. `send_page_view=false` suppresses the Google tag's initial pageview; **GA4 Enhanced Measurement must also have automatic 'Page changes based on browser history events' turned OFF** in the Web stream settings, otherwise GA4 independently sends duplicate pageviews and could transmit unsanitized URLs.
+- This adds a third-party analytics destination; review the site's privacy/cookie notice and any jurisdiction-specific consent requirements before broad promotion. Google's Consent Mode flags alone do not create a visitor consent banner.
+
+### GA4 validation
+
+1. Google Analytics → Admin → Data streams → **Crew Web** (`G-563JSM2X68`) → Enhanced Measurement gear: turn **Page changes based on browser history events** OFF; leave manual `page_view` active via Crew Router.
+2. Open `https://www.3sssi.com/teacher/` in an ordinary non-DNT browser, with **Settings → Anonymous product usage** enabled and Developer Test Mode disabled.
+3. Chrome DevTools → Network: verify request for `googletagmanager.com/gtag/js?id=G-563JSM2X68`, and `google-analytics.com/g/collect` with `tid=G-563JSM2X68`. Blocking extensions may suppress these requests.
+4. GA4 → **Reports → Realtime**, look for Web stream `page_view`. Navigate to `/teacher/vocabulary`, answer a question and verify custom event `crew_vocabulary_practice` appears in Realtime / DebugView (debugging support may need Debugger enabled).
+5. Disable anonymous usage in Settings and confirm new GA4 traffic stops. With DNT/GPC or Developer Test Mode, GA4 should not load at all on a new browser session.
+6. Past Web usage cannot be backfilled; GA4 Web events begin after this code reaches the production deployment. Custom parameters may require GA4 custom dimensions for reporting.
+
 ## Cloudflare production configuration
 
 1. Workers & Pages → magic76-github-io → Settings → Bindings → Add → Analytics Engine:
