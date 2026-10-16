@@ -60,7 +60,7 @@ export async function onRequestGet({request,env}:Context){
  const days=period==="30"?30:7;
  // The period is fixed to 7/30, and no user-provided SQL or identifiers are accepted.
  const bound="timestamp >= NOW() - INTERVAL '"+days+"' DAY";
- const activeEvents="'teacher_conversation','friend_conversation','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
+ const activeEvents="'teacher_conversation','friend_conversation','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
  try{
   const [daily,active]=await Promise.all([
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event ORDER BY day ASC, event ASC LIMIT 700"),
