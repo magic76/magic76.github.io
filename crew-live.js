@@ -168,6 +168,9 @@
     this.sources=[];
 
     this.micMuted=false;
+    // UI-only heuristic; Gemini's automatic VAD decides the real turn boundary.
+    this.lastLearnerVoiceAt=0;
+    this.learnerListeningPhase="";
     this.manualInterruptOnly=this.options.manualInterruptOnly!==false;
     this.modelSpeaking=false;
     this.interruptPending=false;
@@ -438,6 +441,8 @@
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt)||this.interruptPending)return;
     if(!this.modelSpeaking)this.playbackEpoch++;
     this.modelSpeaking=true;
+    this.lastLearnerVoiceAt=0;
+    this.learnerListeningPhase="";
 
     // Android can transiently suspend Web Audio when the communication route
     // changes after getUserMedia. Resume as soon as Gemini audio arrives; the
@@ -668,6 +673,25 @@
       if(self.manualInterruptOnly&&self.modelSpeaking)return;
       try{
         var data=event.inputBuffer.getChannelData(0);
+        // Display a reassuring in-progress pause instead of pretending that
+        // each PCM packet is a completed learner turn. Never send activityEnd.
+        if(self.options.onListeningPhase&&!self.micMuted){
+          var power=0;
+          for(var i=0;i<data.length;i+=8)power+=data[i]*data[i];
+          var rms=Math.sqrt(power/Math.ceil(data.length/8));
+          var now=self._deps.now();
+          if(rms>=0.013){
+            self.lastLearnerVoiceAt=now;
+            if(self.learnerListeningPhase!=="speaking"){
+              self.learnerListeningPhase="speaking";
+              self.options.onListeningPhase("speaking");
+            }
+          }else if(self.lastLearnerVoiceAt>0&&now-self.lastLearnerVoiceAt>=350
+                &&self.learnerListeningPhase!=="waiting"){
+            self.learnerListeningPhase="waiting";
+            self.options.onListeningPhase("waiting");
+          }
+        }
         attempt.socket.send(JSON.stringify({
           realtimeInput:{
             audio:{
@@ -920,6 +944,15 @@
               },
               contextWindowCompression:{slidingWindow:{}},
               sessionResumption:connectOptions.resumeHandle?{handle:connectOptions.resumeHandle}:{},
+              // Only teacher/friend sessions opt into level-aware VAD. Story and
+              // Fortune keep their previous server defaults.
+              ...(self.options.turnTiming?{
+                realtimeInputConfig:{automaticActivityDetection:{
+                  disabled:false,
+                  endOfSpeechSensitivity:self.options.turnTiming.endOfSpeechSensitivity,
+                  silenceDurationMs:self.options.turnTiming.silenceDurationMs
+                }}
+              } : {}),
               inputAudioTranscription:{},
               outputAudioTranscription:{},
               systemInstruction:{
