@@ -1,7 +1,8 @@
 import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
-import{recordSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
+import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
+import{turnTimingForLevel}from"./turnTiming";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
@@ -98,13 +99,22 @@ export function useLiveSession(config:Config){
    const teacherVoiceSession=configRef.current.pageKey==="teacher"
      ||configRef.current.pageKey==="voice-lab"
      ||configRef.current.pageKey.startsWith("friend-");
+   const levelSetting=useTeacherStore.getState();
+   const speakingLevel=effectiveSpeakingLevel(
+    configRef.current.language||levelSetting.targetLanguage,
+    levelSetting.learnerSpeakingLevel,personalMemoryEnabled());
    const session=new window.CrewLive.Session({
     system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
+    // Crew Teacher/Friends only; other Crew products retain their current VAD.
+    turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
     manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{if(v==="connecting"||v==="error")cancelRescue();if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
+    // Presence indicator is informational only. Server VAD owns turn completion.
+    onListeningPhase:phase=>setStatus(phase==="speaking"
+      ?"🎙️ 正在聽你說…":"🎙️ 還在聽，可以繼續說…"),
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
     onRecovered:()=>{

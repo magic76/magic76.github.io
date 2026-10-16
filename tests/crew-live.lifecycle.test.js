@@ -904,3 +904,43 @@ test("late worklet output-started event cannot restart canceled teacher speech",
   await session.stop({silentStatus:true,emitTerminal:false});
   assert.equal(track.stopped,true);
 });
+
+
+test("teacher Live config tolerates beginner pauses and UI waits without client VAD cutoff",async()=>{
+  resetSockets();
+  const logs=[],phases=[];
+  const {deps}=makeDeps(logs);
+  let clock=5000;
+  deps.now=()=>clock;
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,
+    turnTiming:{silenceDurationMs:2000,endOfSpeechSensitivity:"END_SENSITIVITY_LOW"},
+    onListeningPhase:p=>phases.push(p)
+  });
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  assert.deepEqual(socket.sent[0].setup.realtimeInputConfig,{
+    automaticActivityDetection:{
+      disabled:false,
+      endOfSpeechSensitivity:"END_SENSITIVITY_LOW",
+      silenceDurationMs:2000
+    }
+  });
+  socket.message({setupComplete:{}});
+  await starting;
+  const frame=value=>({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(value)}});
+  session.processor.onaudioprocess(frame(0.04));
+  clock+=180;
+  session.processor.onaudioprocess(frame(0));
+  assert.deepEqual(phases,["speaking"]);
+  clock+=180;
+  session.processor.onaudioprocess(frame(0));
+  assert.deepEqual(phases,["speaking","waiting"]);
+  clock+=70;
+  session.processor.onaudioprocess(frame(0.04));
+  assert.deepEqual(phases,["speaking","waiting","speaking"]);
+  assert.equal(socket.sent.some(msg=>msg.realtimeInput?.activityEnd),false,
+    "UI hints must not force client-side turn completion");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
