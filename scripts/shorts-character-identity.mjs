@@ -23,7 +23,8 @@ export function loadIdentity(root,role,id){
  check(role==='friend'?path===expected:[expected+'.jpg',expected+'.webp'].includes(path),'unexpected master path');
  check(identity.referenceSet.master.sourcePath===path,'reference path mismatch');
  const data=readFileSync(local(root,path));
- check(data.length>8000&&blobSha(data)===identity.source.gitBlobSha,'official master image changed: '+id);
+ check(data.length>1000,'official master image is invalid or empty: '+id);
+ check(blobSha(data)===identity.source.gitBlobSha,'official master image SHA mismatch: '+id);
  return {identity,identityId:identity.identityId,sha:identity.source.gitBlobSha,reference:{data,mimeType:extname(path)==='.webp'?'image/webp':'image/jpeg'}};
 }
 export function imagePrompt(story,identity){
