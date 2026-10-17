@@ -24,7 +24,7 @@ function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navi
 export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
-  const game=/^\\/games\\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo)$/.test(pathname);
+  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo)$/.test(pathname);
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}

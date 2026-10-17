@@ -75,7 +75,7 @@ function activities(book:Book|null):Recent[]{
  try{
   const saved=JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY)||"null") as {path?:string;friendId?:string;at?:number}|null;
   if(saved&&typeof saved.at==="number"&&Number.isFinite(saved.at)&&saved.at>0){
-   const gameId=typeof saved.path==="string"?saved.path.match(/^\\/games\\/([a-z0-9-]+)$/)?.[1]:undefined;
+   const gameId=typeof saved.path==="string"?saved.path.match(/^\/games\/([a-z0-9-]+)$/)?.[1]:undefined;
    if(gameId&&GAME_NAMES[gameId]){
     const name=GAME_NAMES[gameId][i18n.language.startsWith("en")?1:0];
     items.push({key:"game:"+gameId,kind:"play",to:"/games/"+gameId,timestamp:saved.at,

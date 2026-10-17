@@ -10,17 +10,17 @@ test("Homepage introduces a direct path to friends and free offline games before
  const games=home.indexOf('className="crew-home-game-pick"');
  const shorts=home.indexOf('<HomeShortsPreview/>');
  assert.ok(actions>=0&&actions<games&&games<shorts&&shorts<setup);
- assert.match(home,/to="\\/teacher\\/roles\\?mode=friends"/);
- assert.match(home,/to="\\/games"/);
- assert.match(home,/to="\\/games\\/1a2b"/);
- assert.match(home,/import \\{HomeShortsPreview\\} from "\\.\\.\\/teacher\\/HomeShortsPreview"/);
+ assert.match(home,/to="\/teacher\/roles\?mode=friends"/);
+ assert.match(home,/to="\/games"/);
+ assert.match(home,/to="\/games\/1a2b"/);
+ assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });
 
 test("Home keeps original four gateways, animation, briefing and app entry",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  for(const product of ["teacher","story","fortune","play"])assert.match(home,new RegExp('crew-home-product crew-home-'+product));
- assert.match(home,/<HomeAtmosphere activeProduct=\\{activeProduct\\}\\/>/);
- assert.match(home,/<BriefingPreview\\/>/);
+ assert.match(home,/<HomeAtmosphere activeProduct=\{activeProduct\}\/>/);
+ assert.match(home,/<BriefingPreview\/>/);
  assert.ok(home.indexOf('<BriefingPreview/>')>home.indexOf('<HomeShortsPreview/>'));
  assert.match(home,/<details className="crew-home-android" open>/);
 });
@@ -28,11 +28,11 @@ test("Home keeps original four gateways, animation, briefing and app entry",()=>
 test("Recent game and friend navigation is recorded without message content",()=>{
  const app=read("web-spa/src/App.tsx"),home=read("web-spa/src/pages/HomePage.tsx");
  assert.match(app,/crew_home_last_activity_v1/);
- assert.match(app,/new URLSearchParams\\(search\\)\\.get\\("id"\\)/);
+ assert.match(app,/new URLSearchParams\(search\)\.get\("id"\)/);
  assert.match(home,/GAME_NAMES/);
  assert.match(home,/crew_home_last_activity_v1/);
  assert.match(home,/games start a new round/);
- assert.doesNotMatch(app,/localStorage\\.setItem\\("crew_home_last_activity_v1"[^\\n]*(transcript|messages|turns)/i);
+ assert.doesNotMatch(app,/localStorage\.setItem\("crew_home_last_activity_v1"[^\n]*(transcript|messages|turns)/i);
 });
 
 test("Interaction-first homepage copy is translated",()=>{
