@@ -204,6 +204,9 @@ async function run(){
   assert.ok((await coordinateError()).every(delta=>delta<1.5),"Mobile coordinate labels must remain aligned");
   await play.locator('[data-coordinate="H10"]').click();
   await play.locator('[data-coordinate="H10"] .friend-gomoku-stone.black').waitFor({timeout:5000});
+  // Silent/keyless play must still return the AI move without a Live speech session.
+  await play.locator(".friend-gomoku-stone.white").first().waitFor({timeout:15000});
+  assert.equal(await play.locator(".friend-gomoku-skip-voice").count(),0);
   process.stdout.write("PASS Gomoku coordinate guides on desktop and mobile\\n");
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
