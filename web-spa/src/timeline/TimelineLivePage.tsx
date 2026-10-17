@@ -6,7 +6,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
-import {validAge,stage,buildSystem,saveNote,olderNotes} from "./timeline";
+import {validAge,stage,buildSystem,saveNote,olderNotes,nextOpening} from "./timeline";
 import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
 export function TimelineLivePage(){
@@ -17,10 +17,11 @@ export function TimelineLivePage(){
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
  const known=useMemo(()=>olderNotes(age),[age]);
  const system=useMemo(()=>buildSystem(age,language),[age,language]);
+ const [opening]=useState(()=>nextOpening(age));
  const live=useLiveSession({
   pageKey:"timeline-mira-"+age,title:"Crew Timeline · Mira · "+age,
   system,language,nativeLanguage,voice:normalizeLiveVoice("Aoede"),
-  openingPrompt:"[TIMELINE OPENING] As Mira age "+age+", offer a short, age-appropriate comment from your current daily life. No future spoilers, tutoring or interviewing.",
+  openingPrompt:opening,
   persistHistory:false,teacherReport:false,trackSpeakingLevel:false,sessionKind:"timeline",
   onSessionFinished:()=>{/* Timeline never updates teacher or friend memories. */}
  });
@@ -47,7 +48,7 @@ export function TimelineLivePage(){
       <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
     </details>}
     <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={en?"My turn":"換我說"}/>
-    <div className="live-presets">{active&&<button type="button" onClick={()=>live.sendText("[TIMELINE CONTROL] Tell one brief story from Mira's life at age "+age+" without any future knowledge.")}>{en?"Tell me a story":"說一個故事"}</button>}</div>
+    <div className="live-presets">{active&&stage(age).conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As Mira age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:stage(age).conversationThreadsZh[i]}</button>)}</div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{en?"You":"你"}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>Mira</small><span>{live.output}</span></div>
