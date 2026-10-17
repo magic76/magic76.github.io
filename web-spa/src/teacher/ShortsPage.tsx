@@ -1,11 +1,12 @@
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./shorts.css";
-import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
+import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
 
 const LIKE_KEY="crew_shorts_demo_likes_v1";
+const PAGE_SIZE=6;
 function readLikes():string[]{
  try{return JSON.parse(localStorage.getItem(LIKE_KEY)||"[]") as string[]}catch{return []}
 }
@@ -16,7 +17,8 @@ export function ShortsPage(){
  const [busy,setBusy]=useState(true);
  const [error,setError]=useState(false);
  const [retry,setRetry]=useState(0);
- const [count,setCount]=useState(6);
+ const [count,setCount]=useState(PAGE_SIZE);
+ const loadMoreRef=useRef<HTMLDivElement|null>(null);
  const [translated,setTranslated]=useState<string|null>(null);
  const [likes,setLikes]=useState<string[]>([]);
  useEffect(()=>{setLikes(readLikes());},[]);
@@ -24,10 +26,24 @@ export function ShortsPage(){
   const abort=new AbortController();
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
-   .then(data=>{if(!abort.signal.aborted){setFeed(data);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
+   .then(data=>{if(!abort.signal.aborted){setFeed({...data,posts:shuffleShortsPosts(data.posts)});setCount(PAGE_SIZE);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry]);
+ // Reveal the next batch before the reader reaches the bottom. Fallback stays accessible
+ // when IntersectionObserver is unavailable; the same visit never reshuffles on scroll.
+ useEffect(()=>{
+  if(typeof IntersectionObserver==="undefined"||busy||error||!feed||count>=feed.posts.length)return;
+  const sentinel=loadMoreRef.current;
+  if(!sentinel)return;
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)){
+    setCount(current=>Math.min(current+PAGE_SIZE,feed.posts.length));
+   }
+  },{rootMargin:"600px 0px"});
+  observer.observe(sentinel);
+  return()=>observer.disconnect();
+ },[feed,busy,error,count]);
  function toggleLike(id:string){
   setLikes(previous=>{
    const next=previous.includes(id)?previous.filter(value=>value!==id):[...previous,id];
@@ -77,9 +93,15 @@ export function ShortsPage(){
       </div>
      </div>
     </article>)}</div>
-   {count<posts.length?<button type="button" className="crew-shorts-more" onClick={()=>setCount(x=>x+6)}>
-    {en?"More stories":"載入更多動態"}
-   </button>:null}
+   {count<posts.length?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
+    {typeof IntersectionObserver==="undefined"
+     ?<button type="button" className="crew-shorts-more" onClick={()=>setCount(x=>Math.min(x+PAGE_SIZE,posts.length))}>
+       {en?"More stories":"載入更多動態"}
+      </button>
+     :<p className="crew-shorts-progress" role="status">
+       {en?`Scroll for more · ${Math.min(count,posts.length)} / ${posts.length}`:`往下滑看更多 · ${Math.min(count,posts.length)} / ${posts.length}`}
+      </p>}
+   </div>:null}
   </section>:null}
  </div>;
 }
