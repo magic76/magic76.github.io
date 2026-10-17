@@ -92,3 +92,33 @@ node scripts/generate-shorts-daily.mjs --mode preview --date 2026-10-20 --friend
 
 
 Teacher Identity v1 records are also validated by `node scripts/verify-character-identities.mjs`, but this specific daily Shorts job does not generate Teacher photos.
+
+## Local Agent CLI workflow
+
+The daily generation system can be operated entirely from the local CLI with unified provider adapters (Gemini API, Local/Agent, and Mock for zero-cost testing):
+
+```bash
+# 1. Plan mode (free, no token usage, inspect continuity & characters)
+npm run shorts:plan -- --date 2026-10-20
+
+# 2. Preview single character draft
+npm run shorts:preview -- --friend zoe --date 2026-10-20
+
+# 3. Generate daily batch for all 5 characters
+npm run shorts:generate -- --date 2026-10-20
+
+# 4. Inspect interactive HTML report and terminal QA summary
+npm run shorts:review -- --date 2026-10-20
+
+# 5. After human approval, submit as GitHub PR
+npm run shorts:submit -- --date 2026-10-20 --approve
+```
+
+### Safety & Guardrails
+
+- Single-character previews can NEVER publish directly (`--friend` blocks publish mode).
+- Master avatar reference bytes are verified with Character Identity v2 Git blob SHA before any generation call.
+- Provider adapters isolate API calls, track estimated costs, and redact credentials.
+- 9-point conservative visual QA gates all results; failure triggers automatic retry (up to `maxRetries`, default 2).
+- Human review via `index.html` report is mandatory before PR creation; no automatic unverified merges.
+

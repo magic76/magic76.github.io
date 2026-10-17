@@ -8,7 +8,12 @@
     "build:web": "vite build --config vite.web.config.ts",
     "build:cloudflare": "CREW_DEPLOY_TARGET=cloudflare vite build --config vite.web.config.ts && node scripts/prepare-cloudflare.mjs",
     "test:cloudflare": "CREW_CLOUDFLARE_TEST=1 node --test tests/cloudflare-deployment.test.js",
-    "test:browser:cloudflare": "node tests/cloudflare-browser-smoke.mjs"
+    "test:browser:cloudflare": "node tests/cloudflare-browser-smoke.mjs",
+    "shorts:plan": "node scripts/generate-shorts-daily.mjs --mode plan",
+    "shorts:preview": "node scripts/generate-shorts-daily.mjs --mode preview",
+    "shorts:generate": "node scripts/generate-shorts-daily.mjs --mode preview",
+    "shorts:review": "node scripts/shorts-review.mjs",
+    "shorts:submit": "node scripts/shorts-submit.mjs"
   },
   "dependencies": {
     "i18next": "^25.0.0",
