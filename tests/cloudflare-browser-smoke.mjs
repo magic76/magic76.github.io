@@ -174,6 +174,63 @@ async function run(){
   await play.locator(".crew-play-question-grid button").first().click();
   await play.locator(".crew-play-reveal").click();
   await play.locator(".crew-play-solution").waitFor({state:"visible",timeout:5000});
+  // Gemini-powered mysteries: mock the existing Crew text API (no paid calls)
+  // and verify each new round fetches a different validated case.
+  const generatedMystery=await context.newPage();
+  const mysteryErrors=[];
+  checkConsole(generatedMystery,mysteryErrors);
+  await generatedMystery.addInitScript(()=>{
+   localStorage.setItem("crew_gemini_api_key","mock-key-for-mystery-smoke");
+   window.__mysteryCalls=0;
+   window.CrewAI={call:async ()=>{
+    const n=++window.__mysteryCalls;
+    await new Promise(resolve=>setTimeout(resolve,100));
+    return JSON.stringify({
+     story:{
+      zh:"一位旅客每天把同一張明信片帶進車站，卻從來不把它寄出去，這是第 "+n+" 次。",
+      en:"Every day a traveler brings the same postcard to the railway station without mailing it. This is round "+n+"."
+     },
+     solution:{
+      zh:"這是一張車站的導覽明信片，他只是拿來確認出入口與旅行方向，並不是要郵寄。",
+      en:"The postcard is a tourist map of the station. The traveler uses it to find the exit, not to mail a letter."
+     },
+     clues:[
+      {question:{zh:"它是一張導覽圖嗎？",en:"Is the postcard used as a map?"},answer:true},
+      {question:{zh:"旅客要把它寄給別人嗎？",en:"Does the traveler intend to mail it?"},answer:false},
+      {question:{zh:"這與找路有關嗎？",en:"Is finding the way involved?"},answer:true},
+      {question:{zh:"旅客迷路在海上嗎？",en:"Is the traveler lost at sea?"},answer:false},
+      {question:{zh:"這張卡片可以重複使用嗎？",en:"Can the card be reused?"},answer:true},
+      {question:{zh:"卡片是食物嗎？",en:"Is the card food?"},answer:false}
+     ]
+    });
+   }};
+  });
+  await generatedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
+  await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
+  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 1 次/);
+  await generatedMystery.locator(".crew-play-question-grid button").first().click();
+  assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),1);
+  await generatedMystery.locator(".crew-play-reveal").click();
+  assert.match(await generatedMystery.locator(".crew-play-solution").textContent(),/導覽明信片/);
+  await generatedMystery.locator(".crew-play-solution button").click();
+  await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
+  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 2 次/);
+  assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
+  assert.deepEqual(mysteryErrors,[],"No errors while generating fresh mystery rounds");
+  await generatedMystery.close();
+  process.stdout.write("PASS Gemini mystery generation and next-round regeneration\n");
+
+  // Invalid model responses must gracefully use the original, offline puzzle bank.
+  const failedMystery=await context.newPage();
+  await failedMystery.addInitScript(()=>{
+   localStorage.setItem("crew_gemini_api_key","mock-key-for-mystery-fallback");
+   window.CrewAI={call:async()=>"{invalid model JSON"};
+  });
+  await failedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
+  await failedMystery.locator(".crew-play-mystery-source").getByText("AI 生成失敗").waitFor({timeout:15000});
+  assert.ok(await failedMystery.locator(".crew-play-question-grid button").count()>0,"Built-in fallback is playable");
+  await failedMystery.close();
+  process.stdout.write("PASS mystery fallback on invalid Gemini output\n");
   // Gomoku: column letters and row numbers align with the exact rendered stone centers.
   await play.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
   await play.locator(".friend-gomoku-setup .btn").waitFor({state:"visible",timeout:15000});
