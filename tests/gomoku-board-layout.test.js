@@ -13,7 +13,7 @@ test("Gomoku stones and drawn intersections share the same 15x15 cell centers",(
   assert.match(page,/y1="0\.5" y2="14\.5" x1=\{index\+0\.5\} x2=\{index\+0\.5\}/);
   assert.match(styles,/grid-template-columns:repeat\(15,minmax\(0,1fr\)\)/);
   assert.match(styles,/grid-template-rows:repeat\(15,minmax\(0,1fr\)\)/);
-  const board=styles.match(/\.friend-gomoku-board\{([^}]*)\}/)?.[1]||"";
+  const board=styles.match(/(?:^|\n)\.friend-gomoku-board\{([^}]*)\}/)?.[1]||"";
   assert.match(board,/padding:0/);
   assert.doesNotMatch(board,/background-(image|size|position)/);
   assert.match(styles,/\.friend-gomoku-grid-lines\{[^}]*position:absolute/);
