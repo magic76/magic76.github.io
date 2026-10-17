@@ -12,7 +12,7 @@ let lastViewAt=0;
 
 const reserved=new Set([
  "en","zh","zh-tw","zh-cn","ja","ko","es","fr","pt","de","vi","id","th",
- "teacher","friend","story","fortune","research","briefing","guides","settings","usage",
+ "teacher","friend","story","fortune","research","briefing","guides","settings","privacy","usage",
  "practice","shorts","friends","roles","learn","tutor","me","vocabulary","course",
  "pronunciation","textbook","phrasebook","reports","memory","reading-library",
  "voice-lab","live","shelf","create","edit","physical","read","history","reading","board"
