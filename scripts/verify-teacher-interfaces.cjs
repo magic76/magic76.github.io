@@ -83,15 +83,15 @@ function checkImplementationRoster(){
  if(android){
   const friendFile="app/src/main/java/com/crewpocket/teacher/CrewFriendProfile.java";
   const tutorFile="app/src/main/java/com/crewpocket/teacher/TeacherPersonaPolicy.java";
-  checkRoster("friend",[...read(friendFile).matchAll(/new Profile\\("([a-z]+)"/g)].map(x=>x[1]),friendFile);
-  checkRoster("teacher",[...read(tutorFile).matchAll(/new Spec\\("([a-z]+)"/g)].map(x=>x[1]),tutorFile);
+  checkRoster("friend",[...read(friendFile).matchAll(/new Profile\("([a-z]+)"/g)].map(x=>x[1]),friendFile);
+  checkRoster("teacher",[...read(tutorFile).matchAll(/new Spec\("([a-z]+)"/g)].map(x=>x[1]),tutorFile);
  }else{
   const friendFile="web-spa/src/friends/friendProfiles.ts";
   const tutorFile="web-spa/src/teacher/teacherProfiles.ts";
   checkRoster("friend",[...read(friendFile).matchAll(/"id":"([a-z]+)"/g)].map(x=>x[1]),friendFile);
   const part=read(tutorFile).split("export const TEACHER_PROFILES:TeacherProfile[]=")[1];
   assert.ok(part,"Web teacher roster not found");
-  checkRoster("teacher",[...part.matchAll(/\\bid:"([a-z]+)"/g)].map(x=>x[1]),tutorFile);
+  checkRoster("teacher",[...part.matchAll(/\bid:"([a-z]+)"/g)].map(x=>x[1]),tutorFile);
   const manifest=JSON.parse(read("content/character-identities/manifest.json"));
   for(const kind of ["friend","teacher"])checkRoster(kind,manifest.characters.filter(x=>x.role===kind).map(x=>x.id),"character identity manifest");
   shortsFeed(JSON.parse(read("content/crew-shorts/approved/posts.json")));
@@ -115,7 +115,7 @@ async function verifyUpstream(){
  try{
   assert.equal(spec.contractVersion,1);
   assert.equal(spec.owner,"magic76/crew-teacher");
-  assert.match(spec.revision,/^\\d{4}-\\d{2}-\\d{2}\\.\\d+$/);
+  assert.match(spec.revision,/^\d{4}-\d{2}-\d{2}\.\d+$/);
   for(const kind of ["friend","teacher"])assert.equal(spec.roster[kind].length,16);
   role(spec.fixtures.validRole);
   assert.throws(()=>role(spec.fixtures.invalidRole));
