@@ -41,7 +41,7 @@ export function TimelineLivePage(){
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
    <section className="live-stage" aria-label={"Mira age "+age}>
     <div className="live-identity"><TimelinePortrait age={age} alt={"Mira at "+age+" years old"} />
-     <h1>Mira · {age}</h1><p>{stage(age).story}</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
+     <h1>Mira · {age}</h1><p>{en?stage(age).story:stage(age).storyZh}</p><p className="timeline-life-quote">“{en?stage(age).quoteEn:stage(age).quoteZh}”</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
     </div>
     {known.length>0&&<details className="timeline-known"><summary>{en?"Mira can remember":"Mira 此時能記得"} · {known.length}</summary>
       <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
