@@ -63,7 +63,8 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue}:{
   voice:normalizeLiveVoice(friend.voice),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
-   const lastIndex=completed.findLastIndex(x=>Boolean(x.input?.trim()));
+   let lastIndex=-1;
+   for(let i=completed.length-1;i>=0;i--){if(completed[i].input?.trim()){lastIndex=i;break;}}
    if(lastIndex>=0){
     const input=completed[lastIndex].input!.trim();
     const id=lastIndex+":"+input;
