@@ -251,6 +251,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    </div>
    <p className="crew-play-voice-presence-reply" role="status" aria-live="polite">{live.output||(english?"I've picked something. Ask me a question!":"我已經想好一個東西了，直接開口問我吧！")}</p>
   </section>:null}
+  {twenty?<section className="crew-play-voice-dock-shell" aria-label={english?"Voice controls":"語音控制"}>
+   {voiceActions}
+   <small>{english?"Voice stays within this game and is not saved to chat history or friend memories.":"語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
+  </section>:null}
   {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
   {kind==="mystery"&&mysteryStatus==="generating"?
    <section className="crew-play-mystery-loading" role="status" aria-live="polite">
@@ -266,13 +270,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    </section>:null}
   {isWord&&(kind!=="mystery"||mysteryStatus!=="generating")&&(kind!=="twenty-questions"||questionStatus!=="generating")?
    <CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound} mysterySource={mysteryStatus} itemSource={questionStatus} voiceTurns={voiceTurns}/>:null}
-  {twenty?<section className="crew-play-voice-dock-shell" aria-label={english?"Voice controls":"語音控制"}>
-   {voiceActions}
-   <small>{english?"Voice stays within this game and is not saved to chat history or friend memories.":"語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
-  </section>:<section className="crew-play-voice">
+  {!twenty?<section className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
    {voiceActions}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
-  </section>}
+  </section>:null}
  </div>;
 }
