@@ -83,8 +83,9 @@ test('approved batch persists 5 originals and is idempotent on retry',async t=>{
 test('complete daily batch stays complete when a Friend has multiple approved posts that day',async t=>{
  const {root,approved}=setup(t);const {generateDaily}=await gen();const date=today();
  const source=JSON.parse(fs.readFileSync(path.join(approved,'posts.json'),'utf8'));
- source.posts.push(...friends.map(friend=>({...source.posts.find(p=>p.friendId===friend),
-  id:friend+'-same-day-extra',publishedAt:date+'T10:45:00+08:00'})));
+ const batch=friends.map(friend=>({...source.posts.find(p=>p.friendId===friend),
+  id:friend+'-same-day-first',publishedAt:date+'T08:00:00+08:00'}));
+ source.posts.push(...batch,...batch.map(p=>({...p,id:p.friendId+'-same-day-extra',publishedAt:date+'T10:45:00+08:00'})));
  fs.writeFileSync(path.join(approved,'posts.json'),JSON.stringify(source));
  const r=await generateDaily({root,date,mode:'publish',client:{stories(){throw Error('must not regenerate a complete daily batch')}}});
  assert.equal(r.status,'already-approved');assert.equal(r.existing.length,10);
