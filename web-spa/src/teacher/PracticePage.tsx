@@ -44,6 +44,11 @@ export function PracticePage(){
    <small>{t("practice.teacherAction")} <b aria-hidden="true">↗</b></small>
   </Link>
  </section>
+ <section className="section"><Link className="feature-card" to="/timeline" style={{background:"linear-gradient(135deg,#f6f0ff,#fff)",borderColor:"#e2d6f4",display:"flex",flexDirection:"column",gap:6}}>
+  <strong>Crew Timeline · Mira</strong>
+  <span>{english?"Meet one person at 7, 16, 25, 40, 55, or 70.":"認識同一個人，從 7 歲到 70 歲的六段人生。"}</span>
+  <small>{english?"Explore Mira's life →":"進入人生時光機 →"}</small>
+ </Link></section>
  <HomeShortsPreview/>
  <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
   <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
