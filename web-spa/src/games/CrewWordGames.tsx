@@ -159,11 +159,24 @@ export function CrewWordGames({
    </span>}
    <span className="crew-play-count" aria-live="polite"><span className="crew-play-count-value" key={count}>{questionMode?`${count} / ${limit}`:`${count} ${english?"clues":"條線索"}`}</span></span>
   </div>
-  <div className="crew-play-riddle">
-   <span className="crew-play-riddle-icon" aria-hidden="true">{questionMode?"?":"✧"}</span>
-   <h2>{questionMode?(english?`${friendName} has picked a secret thing.`:`${friendName} 已經想好一個東西了！`):copy(caseFile.story,english)}</h2>
-   <p>{questionMode?(english?"Ask naturally by voice, choose a prompt or type a guess. Questions and guesses share 20 attempts.":"直接用語音問是非題，或點選提示、輸入猜測；所有提問與猜答案共用 20 次額度。"):(english?"Ask for a clue, then tell your friend your theory. Reveal the solution when ready.":"選線索向朋友提問，也可以直接用語音說你的推理；想知道真相就揭曉答案。")}</p>
-  </div>
+  {questionMode?<div className="crew-play-riddle">
+   <span className="crew-play-riddle-icon" aria-hidden="true">?</span>
+   <h2>{english?`${friendName} has picked a secret thing.`:`${friendName} 已經想好一個東西了！`}</h2>
+   <p>{english?"Ask naturally by voice, choose a prompt or type a guess. Questions and guesses share 20 attempts.":"直接用語音問是非題，或點選提示、輸入猜測；所有提問與猜答案共用 20 次額度。"}</p>
+  </div>:<div className={"crew-play-mystery-flip"+(result==="revealed"?" is-revealed":"")}>
+   <div className="crew-play-mystery-flip-inner">
+    <div className="crew-play-riddle crew-play-mystery-flip-front" aria-hidden={result==="revealed"}>
+     <span className="crew-play-riddle-icon" aria-hidden="true">✧</span>
+     <h2>{copy(caseFile.story,english)}</h2>
+     <p>{english?"Ask a clue, or tell your friend your theory by voice.":"選線索向朋友提問，也可以直接用語音說出你的推理。"}</p>
+    </div>
+    <div className="crew-play-riddle crew-play-mystery-flip-back" aria-hidden={result!=="revealed"}>
+     <span className="crew-play-riddle-icon" aria-hidden="true">✦</span>
+     <h2>{english?"The truth behind the mystery":"原來真相是……"}</h2>
+     <p>{copy(caseFile.solution,english)}</p>
+    </div>
+   </div>
+  </div>}
   {questionMode?<div className="crew-play-voice-tip">
    <strong>{english?"Try saying":"試著開口說"}</strong>
    <span>“Is it something I can eat?”</span>
@@ -195,7 +208,8 @@ export function CrewWordGames({
    <span>{english?"Need a hint?":"需要提示嗎？"}</span><small>{english?"Suggested yes/no questions":"展開預設的英文問句"}</small>
   </summary>{questionOptions}</details>:null}
   {!questionMode&&!ended?<button type="button" className="crew-play-reveal" onClick={reveal}>{english?"Reveal the solution":"揭曉答案"}</button>:null}
-  {ended?<div className="crew-play-solution" role="status">
+  {ended?<div className={"crew-play-solution"+(result==="won"?" crew-play-solution--won":"")+(kind==="mystery"?" crew-play-solution--mystery":"")} role="status">
+   {result==="won"?<div className="crew-play-celebration" aria-hidden="true">{Array.from({length:12},(_,index)=><i key={index}/>)}</div>:null}
    <strong>{questionMode?(result==="won"?(english?"You got it!":"答對了！"):(english?"The answer was…":"正確答案是……")):(english?"The truth":"故事真相")}</strong>
    <p>{questionMode?secret:copy(caseFile.solution,english)}</p>
    <button type="button" onClick={onNext}>{english?"Play another":"下一題 →"}</button>
