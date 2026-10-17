@@ -163,18 +163,11 @@ async function run(){
   await play.locator(".crew-reversi-cell.can-play").first().click();
   await play.locator(".crew-reversi-disc.white").nth(1).waitFor({timeout:5000});
   await play.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
-  await play.locator(".crew-play-question-disclosure summary").click();
-  await play.locator(".crew-play-question-grid button").first().waitFor({timeout:15000});
-  await play.locator(".crew-play-question-grid button").first().click();
-  assert.equal(await play.locator(".crew-play-question-history li").count(),1);
-  await play.locator(".crew-play-guess-form input").fill("a deliberately wrong answer");
-  await play.locator(".crew-play-guess-form button").click();
-  assert.equal(await play.locator(".crew-play-question-history li").count(),2);
+  await play.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await play.locator(".crew-play-word-panel").count(),0,"Voice is required for guessing");
   await play.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
-  await play.locator(".crew-play-question-grid button").first().waitFor({timeout:15000});
-  await play.locator(".crew-play-question-grid button").first().click();
-  await play.locator(".crew-play-reveal").click();
-  await play.locator(".crew-play-solution").waitFor({state:"visible",timeout:5000});
+  await play.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await play.locator(".crew-play-word-panel").count(),0,"Voice is required for Mystery");
   // Gemini-powered mysteries: mock the existing Crew text API (no paid calls)
   // and verify each new round fetches a different validated case.
   const generatedMystery=await context.newPage();
