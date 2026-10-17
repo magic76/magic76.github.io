@@ -293,12 +293,13 @@ async function run(){
    window.CrewLive={Session:MockTwentySession};
   });
   await voiceTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  assert.equal(await voiceTwenty.locator(".crew-play-word-panel").count(),0,"Before Live, do not show guessing UI");
+  await voiceTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   await voiceTwenty.locator(".crew-play-question-disclosure summary").click();
   await voiceTwenty.locator(".crew-play-question-grid button").first().click();
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"1 / 20","On-screen action uses same count");
-  await voiceTwenty.locator(".crew-play-voice-start").click();
   assert.equal(await voiceTwenty.locator(".crew-play-voice-presence").count(),1,"Friend reply should appear above the board");
   assert.equal(await voiceTwenty.locator(".crew-play-voice").count(),0,"Voice should not be duplicated below the game");
   assert.equal(await voiceTwenty.locator(".crew-play-voice-dock-shell .crew-voice-dock").count(),1);
@@ -323,6 +324,7 @@ async function run(){
   await voiceTwenty.locator(".crew-play-solution").waitFor({timeout:6000});
   assert.match(await voiceTwenty.locator(".crew-play-solution").textContent(),/腳踏車/);
   await voiceTwenty.locator(".crew-play-solution button").click();
+  await voiceTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
