@@ -19,7 +19,7 @@ export function TimelineLivePage(){
   pageKey:"timeline-mira-"+age,title:"Crew Timeline · Mira · "+age,
   system,language,nativeLanguage,voice:normalizeLiveVoice("Aoede"),
   openingPrompt:"[TIMELINE OPENING] As Mira age "+age+", offer a short, age-appropriate comment from your current daily life. No future spoilers, tutoring or interviewing.",
-  persistHistory:false,teacherReport:false,trackSpeakingLevel:false,
+  persistHistory:false,teacherReport:false,trackSpeakingLevel:false,sessionKind:"timeline",
   onSessionFinished:()=>{/* Timeline never updates teacher or friend memories. */}
  });
  const end=async()=>{if(closing.current)return;closing.current=true;try{await live.stop(true)}finally{navigate("/timeline")}};
