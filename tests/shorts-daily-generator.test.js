@@ -177,6 +177,58 @@ test('single-person generation is preview-only and future unapproved previews re
  await assert.rejects(generateDaily({root,date:'2099-12-31',mode:'preview',friend:'bella',client:mock(),encode}),/cannot generate future unapproved stories/);
 });
 
+test('future Day 5 draft previews only Zoe with real master identity and never publishes',async t=>{
+ const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
+ const date=new Date(Date.parse(today()+'T00:00:00Z')+3*86400000).toISOString().slice(0,10);
+ const before=fs.readFileSync(path.join(approved,'posts.json'));
+ const draft={
+  friendId:'zoe',
+  caption:'I rescued that vintage lamp. It works, but only if I compliment it first.',
+  translationZh:'我把那盞復古檯燈帶回家了。它會亮，但好像得先稱讚它。',
+  scene:'Zoe in her cozy London apartment checking a newly purchased vintage brass desk lamp on a wooden side table, looking slightly amused in warm afternoon light.',
+  imageAlt:'Zoe adjusting a vintage brass desk lamp on a side table in her London apartment.',
+  storyContext:'Yesterday Zoe found the brass desk lamp in a second-hand shop.'
+ };
+ const normal=mock();let imageCalls=0,reviewCalls=0;
+ const client={...normal,stories(){throw Error('explicit preview must not call text-story model')},
+  image(story,avatar,identity){imageCalls++;assert.equal(story.friendId,'zoe');assert.match(story.scene,/brass desk lamp/);assert.match(story.storyContext,/second-hand shop/);return normal.image(story,avatar,identity)},
+  review(...args){reviewCalls++;return normal.review(...args)}};
+ const report=await generateDaily({root,date,mode:'preview',friend:'zoe',previewStory:draft,client,encode});
+ assert.equal(report.status,'preview-ready');assert.equal(report.customPreviewStory,true);
+ assert.equal(report.stories.length,1);assert.equal(report.stories[0].friendId,'zoe');
+ assert.equal(imageCalls,1);assert.equal(reviewCalls,1);
+ assert.ok(fs.existsSync(path.join(root,'crew-shorts-preview',date,'zoe.webp')));
+ assert.ok(!fs.existsSync(path.join(root,'crew-shorts-preview',date,'bella.webp')));
+ assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),before);
+ assert.deepEqual(fs.readdirSync(path.join(approved,'media')).sort(),friends.map(x=>x+'.webp').sort());
+});
+test('future private drafts reject wrong character, unsafe modes, invalid story and dates beyond 30 days',async t=>{
+ const {root,mock,encode}=setup(t);const {generateDaily}=await gen();
+ const date=new Date(Date.parse(today()+'T00:00:00Z')+3*86400000).toISOString().slice(0,10);
+ const farDate=new Date(Date.parse(today()+'T00:00:00Z')+31*86400000).toISOString().slice(0,10);
+ const draft={
+  friendId:'zoe',
+  caption:'I rescued that vintage lamp. It works, but only if I compliment it first.',
+  translationZh:'我把那盞復古檯燈帶回家了。它會亮，但好像得先稱讚它。',
+  scene:'Zoe tests her second-hand brass lamp beside a rainy London apartment window and looks amused.',
+  imageAlt:'Zoe adjusting a vintage brass desk lamp in her cozy London apartment.'
+ };
+ await assert.rejects(generateDaily({root,date,mode:'preview',friend:'zoe',client:mock(),encode}),/cannot generate future unapproved stories/);
+ await assert.rejects(generateDaily({root,date,mode:'publish',friend:'zoe',previewStory:draft,client:mock(),encode}),/single-friend operation cannot publish/);
+ await assert.rejects(generateDaily({root,date,mode:'publish',previewStory:draft,client:mock(),encode}),/custom story requires single-friend private preview/);
+ await assert.rejects(generateDaily({root,date,mode:'preview',friend:'hugo',previewStory:draft,client:mock(),encode}),/preview story friend mismatch/);
+ await assert.rejects(generateDaily({root,date,mode:'preview',friend:'zoe',previewStory:{...draft,caption:'Too short'},client:mock(),encode}),/invalid English caption/);
+ await assert.rejects(generateDaily({root,date:farDate,mode:'preview',friend:'zoe',previewStory:draft,client:mock(),encode}),/max 30 days/);
+ await assert.rejects(generateDaily({root,date,mode:'preview',friend:'zoe',previewStory:draft,useApprovedStory:true,client:mock(),encode}),/custom story requires single-friend private preview/);
+});
+test('Actions dispatch supports private story JSON but publishing remains a separate all-five gate',()=>{
+ const yaml=fs.readFileSync(path.join(__dirname,'../.github/workflows/crew-shorts-daily-generate.yml'),'utf8');
+ assert.match(yaml,/preview_story_json:/);
+ assert.match(yaml,/PREVIEW_STORY_JSON: \$\{\{ inputs\.preview_story_json/);
+ assert.match(yaml,/--preview-story-json/);
+ assert.match(yaml,/if: inputs\.mode == 'publish'/);
+});
+
 test('v2 visual descriptions are detailed for every role and never override official reference bytes',async()=>{
  const {loadIdentity,imagePrompt}=await import(pathToFileURL(path.resolve(__dirname,'../scripts/shorts-character-identity.mjs')));
  const root=path.resolve(__dirname,'..');

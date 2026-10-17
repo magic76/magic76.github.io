@@ -63,6 +63,32 @@ The equivalent private local CLI (with an explicitly configured `GEMINI_API_KEY`
 node scripts/generate-shorts-daily.mjs --mode preview --date 2026-10-17 --friend bella --use-approved-story
 ```
 
-Safety: `--friend` is supported in `plan` and `preview` only and **cannot publish**, even if accidentally paired with `--mode publish`. Future-dated previews are only allowed when `--use-approved-story` selects an already-existing seeded/approved post. Production batch publishing remains all-or-nothing for the five Shorts Friends.
+Safety: `--friend` is supported in `plan` and `preview` only and **cannot publish**, even if accidentally paired with `--mode publish`. Future-dated previews are allowed either with `--use-approved-story` for a seeded/approved post, or with `--preview-story-json` for a human-authored single-Friend draft **up to 30 days ahead**. The latter cannot be used in `publish` or combined with `--use-approved-story`. Production batch publishing remains all-or-nothing for the five Shorts Friends.
+
+### Day 5 Zoe: future private preview from a written story (no text story-generation call)
+
+Use this when the desired storyline does **not** exist in `content/crew-shorts/approved/posts.json` yet. In GitHub **Actions → Crew Shorts AI generate (manual) → Run workflow**, select `master` after this change is merged:
+
+- `mode`: `preview`
+- `date`: `2026-10-20` (Day 5; Day 1 is October 16)
+- `friend`: `zoe`
+- `use_approved_story`: `false`
+- `preview_story_json`: paste the JSON below **on a single line** in the field:
+
+```json
+{"friendId":"zoe","caption":"I rescued that vintage lamp. It works, but only if I compliment it first.","translationZh":"我把那盞復古檯燈帶回家了。它會亮，但好像得先稱讚它。","scene":"Zoe in her cozy London apartment checking a newly purchased vintage brass desk lamp on a wooden side table, looking slightly amused in warm afternoon light. Natural candid 3:4 single-person photo, clearly visible face, no logos or text.","imageAlt":"Zoe adjusting a vintage brass desk lamp on a side table in her London apartment.","storyContext":"Yesterday Zoe found the brass desk lamp in a second-hand shop."}
+```
+
+**Important:** The current approved repository stores Zoe's coffee stories only through Day 3. The Day 4 second-hand-shop lamp story above is supplied as *unapproved draft continuity* in `storyContext`, not represented as an already-approved post. If the planned Day 4 changes, edit the Day 5 story before previewing.
+
+This generates only **one** candidate photo for Zoe with her SHA-verified official master attached, then runs identity/scene QA and exports one WebP plus `manifest.json` to the run's Artifact. It does **not** call Gemini for captions, alter the approved feed, add photos to the live site, publish posts, or update the main branch. The image-generation and QA calls require `GEMINI_API_KEY` and may incur costs. Human visual acceptance remains required, and a successful Artifact is **not** automatically promoted to approved content.
+
+Equivalent CLI (with `GEMINI_API_KEY` configured):
+
+```sh
+node scripts/generate-shorts-daily.mjs --mode preview --date 2026-10-20 --friend zoe \
+  --preview-story-json '{"friendId":"zoe","caption":"I rescued that vintage lamp. It works, but only if I compliment it first.","translationZh":"我把那盞復古檯燈帶回家了。它會亮，但好像得先稱讚它。","scene":"Zoe in her cozy London apartment checking a newly purchased vintage brass desk lamp on a wooden side table, looking slightly amused in warm afternoon light.","imageAlt":"Zoe adjusting a vintage brass desk lamp on a side table in her London apartment.","storyContext":"Yesterday Zoe found the brass desk lamp in a second-hand shop."}'
+```
+
 
 Teacher Identity v1 records are also validated by `node scripts/verify-character-identities.mjs`, but this specific daily Shorts job does not generate Teacher photos.
