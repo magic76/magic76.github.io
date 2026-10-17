@@ -266,7 +266,11 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     <strong>{english?"Start voice to unlock this game":"開啟語音，才能開始遊戲"}</strong>
     <p>{english?"20 Questions and Mystery are conversation games. You'll need your Gemini Key and microphone.":"20 Questions 和海龜湯是語言對話遊戲，需要 Gemini Key 和麥克風才能遊玩。"}</p>
     {!hasKey?<GeminiSetupNotice/>:null}
-    {wordError?<LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>:
+    {wordError?<div className="crew-play-voice-recovery" role="alert">
+      <p>{live.status|| (english?"Voice connection failed.":"語音連線失敗，請檢查麥克風或網路。")}</p>
+      {live.errorKind==="key"?<GeminiSetupNotice force/>:
+       <button type="button" className="crew-play-voice-start" onClick={()=>void live.start()}>{english?"Retry voice connection":"重新連線語音"}</button>}
+     </div>:
       <button type="button" className="crew-play-voice-start" disabled={!wordCanStart}
        onClick={()=>void live.start()}>{english?"Start voice game with "+friend.name:"開始與 "+friend.name+" 語音遊戲"}</button>}
    </div>:null}
