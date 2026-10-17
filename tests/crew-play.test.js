@@ -122,7 +122,7 @@ test("Mystery generates a new, validated case from the existing Gemini Key with 
  assert.match(page,/void generateCrewMystery\(friend\.name\)\.then\(result=>/);
  assert.match(page,/setMysteryStatus\("generated"\)/);
  assert.match(page,/setMysteryStatus\("fallback"\)/);
- assert.match(page,/setMysteryCase\(fallbackMystery\)/);
+ assert.match(page,/setMysteryCase\(selectMysteryFallback\(\)\)/);
  assert.match(page,/kind==="mystery"&&mysteryStatus==="generating"/);
  assert.match(page,/const voicePreparing=loadedRound!==round\|\|/);
  assert.match(page,/disabled=\{voicePreparing\|\|isWord&&!hasKey\}/);
@@ -141,7 +141,7 @@ test("20 Questions is Gemini-generated, records voice actions, and preserves the
  assert.match(generation,/await ensureCore\(\)/);
  assert.match(generation,/window\.CrewAI\.call\(prompt/);
  assert.match(generation,/validateTwentyItem\(candidate\)/);
- assert.match(generation,/recentAnswers/);
+ assert.match(generation,/rememberPuzzle\("twenty",theme\.id/);
  assert.match(puzzle,/facts\?:\{question:Bilingual;answer:boolean\}\[\]/);
  assert.match(adjudicator,/judgeTwentySpeech/);
  assert.match(adjudicator,/conservative 20 Questions game judge/);
@@ -268,4 +268,23 @@ test("Audio playback rather than transcript completion gates all AI stones",()=>
  assert.doesNotMatch(page,/if\(turn\.graceTimer===null\)/);
  assert.match(gomoku,/MAX_VOICE_TURN_MS=25000/);
  assert.match(page,/BOARD_VOICE_TIMEOUT_MS=25000/);
+});
+
+test("Word-game generation rotates genres, stores recent 50 puzzle fingerprints and retries near duplicates",()=>{
+ const mystery=read("web-spa/src/games/generateMystery.ts");
+ const twenty=read("web-spa/src/games/generateTwentyItem.ts");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const diversity=read("web-spa/src/games/puzzleDiversity.ts");
+ assert.match(mystery,/nextPuzzleTheme\("mystery",attempt\)/);
+ assert.match(twenty,/nextPuzzleTheme\("twenty",attempt\)/);
+ assert.match(mystery,/for\(let attempt=0;attempt<3;attempt\+\+\)/);
+ assert.match(twenty,/for\(let attempt=0;attempt<3;attempt\+\+\)/);
+ assert.match(mystery,/isNearDuplicate\("mystery",candidate\)/);
+ assert.match(twenty,/isNearDuplicate\("twenty",newAnswer\)/);
+ assert.match(mystery,/rememberPuzzle\("mystery",theme\.id/);
+ assert.match(twenty,/rememberPuzzle\("twenty",theme\.id/);
+ assert.match(page,/chooseFallbackPuzzle\("mystery",mysteryCases/);
+ assert.match(page,/chooseFallbackPuzzle\("twenty",twentyItems/);
+ assert.match(diversity,/MAX_HISTORY=50/);
+ assert.match(diversity,/localStorage/);
 });
