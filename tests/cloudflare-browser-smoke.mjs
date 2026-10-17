@@ -179,6 +179,21 @@ async function run(){
    window.CrewAI={call:async ()=>{
     const n=++window.__mysteryCalls;
     await new Promise(resolve=>setTimeout(resolve,100));
+    if(n>1)return JSON.stringify({
+     story:{zh:"一位工程師每次走進辦公室都會先敲桌面三下，卻不是要叫醒任何人。這是第 "+n+" 次。",
+       en:"An engineer taps a desk exactly three times every time they enter the office, but not to wake anyone. This is round "+n+"."},
+     solution:{zh:"桌面下藏有接觸不良的感測器，他用輕敲來啟動自動照明系統，與叫醒人無關。",
+       en:"A loose contact sensor under the desk controls the automatic office lights, so tapping the desk briefly activates it."},
+     twistKey:"touch sensor needs mechanical vibration to reconnect",
+     clues:[
+      {question:{zh:"這和電器有關嗎？",en:"Is an electronic device involved?"},answer:true},
+      {question:{zh:"這是某種秘密暗號嗎？",en:"Is it a secret signal to someone?"},answer:false},
+      {question:{zh:"桌下藏著東西嗎？",en:"Is something installed beneath the desk?"},answer:true},
+      {question:{zh:"他想叫醒同事嗎？",en:"Is he trying to wake a colleague?"},answer:false},
+      {question:{zh:"敲桌子會造成震動嗎？",en:"Does tapping the desk create vibration?"},answer:true},
+      {question:{zh:"這是為了製造音樂嗎？",en:"Is he playing music?"},answer:false}
+     ]
+    });
     return JSON.stringify({
      story:{
       zh:"一位旅客每天把同一張明信片帶進車站，卻從來不把它寄出去，這是第 "+n+" 次。",
@@ -188,6 +203,7 @@ async function run(){
       zh:"這是一張車站的導覽明信片，他只是拿來確認出入口與旅行方向，並不是要郵寄。",
       en:"The postcard is a tourist map of the station. The traveler uses it to find the exit, not to mail a letter."
      },
+     twistKey:"postcard used as printed station navigation map",
      clues:[
       {question:{zh:"它是一張導覽圖嗎？",en:"Is the postcard used as a map?"},answer:true},
       {question:{zh:"旅客要把它寄給別人嗎？",en:"Does the traveler intend to mail it?"},answer:false},
@@ -221,6 +237,7 @@ async function run(){
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
   assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 2 次/);
   assert.match(await generatedMystery.evaluate(()=>window.__mysteryControlMessage||""),/MYSTERY ROUND UPDATE/);
+  assert.equal(await generatedMystery.evaluate(()=>JSON.parse(localStorage.getItem("crew_play_puzzle_diversity_v2")||"[]").filter(x=>x.kind==="mystery").length),2,"Two distinct mysteries are saved for later visits");
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
   assert.deepEqual(mysteryErrors,[],"No errors while generating fresh mystery rounds");
   await generatedMystery.close();
@@ -332,6 +349,7 @@ async function run(){
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
+  assert.equal(await voiceTwenty.evaluate(()=>JSON.parse(localStorage.getItem("crew_play_puzzle_diversity_v2")||"[]").filter(x=>x.kind==="twenty").length),2,"Different secret objects are persisted");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyStartCount),1,"One Live start spans multiple rounds");
   assert.match(await voiceTwenty.evaluate(()=>window.__twentyControlMessage||""),/ROUND UPDATE/,"The continuing model receives the new secret");
   assert.deepEqual(twentyErrors,[],"20 Questions speech synchronization should be error-free");

@@ -13,8 +13,9 @@ import {CrewBoardGames} from "./CrewBoardGames";
 import {matchesBoardNarration,type ExpectedBoardSpeech} from "./boardVoiceTurn";
 import {CrewWordGames} from "./CrewWordGames";
 import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase,type TwentyItem} from "./playPuzzles";
-import {generateCrewMystery} from "./generateMystery";
-import {generateTwentyItem} from "./generateTwentyItem";
+import {generateCrewMystery,rememberGeneratedMystery} from "./generateMystery";
+import {generateTwentyItem,rememberGeneratedTwentyItem} from "./generateTwentyItem";
+import {chooseFallbackPuzzle} from "./puzzleDiversity";
 import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {crewGames} from "./CrewPlayHubPage";
@@ -68,6 +69,9 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const mode=useTeacherStore(s=>s.friendChatMode);
  const [loadedRound,setLoadedRound]=useState(round);
  const fallbackQuestion=twentyItems[round%twentyItems.length];
+ const selectTwentyFallback=()=>chooseFallbackPuzzle("twenty",twentyItems,item=>({
+  name:item.name.en,key:item.name.en,summary:item.name.zh+" / "+item.name.en
+ }));
  const [question,setQuestion]=useState<TwentyItem>(fallbackQuestion);
  const [questionStatus,setQuestionStatus]=useState<"generating"|"generated"|"fallback"|"local">(
   ()=>kind==="twenty-questions"&&typeof window!=="undefined"&&Boolean(geminiKey())?"generating":"local"
@@ -79,18 +83,21 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   if(kind!=="twenty-questions")return;
   let active=true;
   setQuestion(fallbackQuestion);
-  if(!geminiKey()){setQuestionStatus("local");setLoadedRound(round);return()=>{active=false};}
+  if(!geminiKey()){setQuestion(fallbackQuestion);setQuestionStatus("local");setLoadedRound(round);return()=>{active=false};}
   setQuestionStatus("generating");
   void generateTwentyItem().then(item=>{
    if(!active)return;
-   setQuestion(item);setQuestionStatus("generated");setLoadedRound(round);
+   rememberGeneratedTwentyItem(item);setQuestion(item);setQuestionStatus("generated");setLoadedRound(round);
   }).catch(()=>{
    if(!active)return;
-   setQuestion(fallbackQuestion);setQuestionStatus("fallback");setLoadedRound(round);
+   setQuestion(selectTwentyFallback());setQuestionStatus("fallback");setLoadedRound(round);
   });
   return()=>{active=false};
  },[kind,round,friend.id]);
  const fallbackMystery=mysteryCases[round%mysteryCases.length];
+ const selectMysteryFallback=()=>chooseFallbackPuzzle("mystery",mysteryCases,item=>({
+  name:item.story.en,key:item.solution.en,summary:item.solution.en
+ }));
  const [mysteryCase,setMysteryCase]=useState<MysteryCase>(fallbackMystery);
  const [mysteryStatus,setMysteryStatus]=useState<"generating"|"generated"|"fallback"|"local">(
   ()=>kind==="mystery"&&typeof window!=="undefined"&&Boolean(geminiKey())?"generating":"local"
@@ -99,14 +106,14 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   if(kind!=="mystery")return;
   let active=true;
   setMysteryCase(fallbackMystery);
-  if(!geminiKey()){setMysteryStatus("local");setLoadedRound(round);return()=>{active=false};}
+  if(!geminiKey()){setMysteryCase(fallbackMystery);setMysteryStatus("local");setLoadedRound(round);return()=>{active=false};}
   setMysteryStatus("generating");
   void generateCrewMystery(friend.name).then(result=>{
    if(!active)return;
-   setMysteryCase(result);setMysteryStatus("generated");setLoadedRound(round);
+   rememberGeneratedMystery(result);setMysteryCase(result);setMysteryStatus("generated");setLoadedRound(round);
   }).catch(()=>{
    if(!active)return;
-   setMysteryCase(fallbackMystery);setMysteryStatus("fallback");setLoadedRound(round);
+   setMysteryCase(selectMysteryFallback());setMysteryStatus("fallback");setLoadedRound(round);
   });
   return()=>{active=false};
  },[kind,round,friend.id,friend.name]);
