@@ -27,7 +27,7 @@ No credentials or external services required. The publisher validates post ident
 
 Go to GitHub Actions → Crew Shorts Pages publish → Run workflow. Run with dry_run=true, then dry_run=false after reviewing the seed and photos.
 
-The workflow prepares and validates content, runs TypeScript and the full Node test suite, then creates a git commit of only features/teacher/shorts/ on master using the built-in GitHub Actions token. If no new approved posts are due, it does not commit.
+The publisher validates approved content and WebP media, validates the output feed and then commits only features/teacher/shorts/ on master using the built-in GitHub Actions token. Full SPA build/tests run on the content pull request, not on each scheduled release. If no new approved posts are due, it does not commit.
 
 The existing Cloudflare Pages Git integration must be enabled for the production master branch. Verify that Cloudflare builds and deploys the new content commit. The content URLs are:
 
@@ -40,7 +40,18 @@ Note: Commits created by GitHub Actions using GITHUB_TOKEN do not trigger other 
 
 ## Automatic release
 
-The publisher now runs when approved source files or this workflow are merged into master, and daily at 00:00 UTC / 08:00 Taipei. A pull request dry-run validates all 15 original images and posts before merge. No special GitHub variable is needed; no R2 service is used. It publishes already approved content with publishedAt dates up to today. It is NOT a content or image generator; keep adding reviewed source images/captions to the approved directory.
+The publisher runs automatically when approved source files or this workflow are merged into master, and at **08:17, 09:17 and 10:17 Asia/Taipei** every day (three idempotent attempts in case GitHub Actions is delayed or transiently fails). Publication only includes already-approved stories whose `publishedAt` is in the past; the editorial cutoff for new stories should normally be 08:00 Taipei. Extra attempts do **not** make duplicate posts or redeploy unchanged feeds. Pull requests validate **all approved** captions and real WebP photos, regardless of queue length, before merging. No special GitHub variable, paid image service, R2 service or image-generation key is needed. This workflow **never creates** content or images.
+
+## Manual photo creation in a separate ChatGPT conversation
+
+Keep photo generation and approval separate from automatic publishing:
+
+1. In your photo-creation conversation, produce **one independent, verified 3:4 WebP per Friend** with the official character avatar as reference. Verify identity and keep each photo under 350 KiB. No placeholder photos or duplicate face swaps.
+2. Commit new images to `content/crew-shorts/approved/media/<friend>-<date>.webp`, and add matching approved entries to `content/crew-shorts/approved/posts.json` with stable IDs, relative `media/...` paths, English captions, translations, and `publishedAt` in Taipei time (normally `08:00:00+08:00`).
+3. Once approved source and images are merged into `master`, the existing GitHub Action **releases due posts automatically**, and keeps future dates queued. If nothing is approved for a given day, it retains the last good feed rather than inventing a new photo.
+4. Watch `Crew Shorts Pages publish` in GitHub Actions for success/failures. The published feed is read remotely by Android and Web, so **daily stories do not require a new APK release**.
+
+The optional `Crew Shorts AI generate (manual)` workflow is distinct and is **never triggered by this schedule**. Creating your photos in another conversation does not require enabling automatic paid Gemini image generation.
 
 ## Rollback
 
