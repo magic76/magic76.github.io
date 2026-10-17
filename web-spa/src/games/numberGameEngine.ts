@@ -64,7 +64,7 @@ export function parseSpokenNumber(text:string,length:DigitCount):string|null{
  return legalNumber(number,length)?number:null;
 }
 export function parseSpokenAB(text:string,length:DigitCount):AB|null{
- const digits=text.toLowerCase().replace(/\b(zero|oh|one|two|three|four|five|six|seven|eight|nine)\b/g,
+ const digits=text.toLowerCase().replace(/\band\b/g," ").replace(/\b(zero|oh|one|two|three|four|five|six|seven|eight|nine)\b/g,
   word=>spokenDigit[word]||word).replace(/\s+/g,"");
  const match=digits.match(/(\d)a(?:nd)?(\d)b/i);
  if(!match)return null;
