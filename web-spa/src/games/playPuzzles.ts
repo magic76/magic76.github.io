@@ -4,6 +4,7 @@ export const copy=(value:Bilingual,english:boolean)=>value[english?"en":"zh"];
 
 export type TwentyItem={
  id:string;name:Bilingual;aliases:string[];traits:string[];
+ facts?:{question:Bilingual;answer:boolean}[];
 };
 export const twentyQuestions:{id:string;label:Bilingual}[]=[
  {id:"alive",label:{zh:"它是活的嗎？",en:"Is it alive?"}},
