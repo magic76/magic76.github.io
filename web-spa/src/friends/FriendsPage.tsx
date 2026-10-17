@@ -6,6 +6,7 @@ import {Link,useNavigate} from "react-router-dom";
 import {useTeacherStore,type FriendChatLanguageMode} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
 import {FriendAvatar} from "./FriendAvatar";
+import {Icon} from "../components/Icon";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {clearFriendRecent,clearFriendTopics,deleteFriendTopic,editFriendTopic,friendMemoryEnabled,getFriendLastChat,
  getFriendTopics,getFriendCaptureStatus,pinFriendTopic,allowFriendTopicAutoUpdate,recentFriends,saveFriendTopic} from "./friendMemory";
@@ -69,7 +70,7 @@ export function FriendsPage(){
   </header>
   <section className="section teacher-precall-settings panel"><label>{t("language")}<select className="field" value={language} onChange={e=>setLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("languages."+v)}</option>)}</select></label><label>{t("pace")}<select className="field" value={pace} onChange={e=>setPace(e.target.value as typeof pace)}><option value="slow">{t("slow")}</option><option value="normal">{t("normal")}</option><option value="fast">{t("fast")}</option></select></label><label>{t("chatModeTitle")}<select className="field" value={friendChatMode} onChange={e=>setFriendChatMode(e.target.value as FriendChatLanguageMode)}><option value="natural">{t("chatModeNatural")}</option><option value="bilingual">{t("chatModeBilingual")}</option><option value="immersion">{t("chatModeImmersion")}</option></select></label></section>
   <p className="friends-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</p>
-  <Link className="friends-game-entry" to="/games"><span aria-hidden="true">⚫⚪</span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><b aria-hidden="true">→</b></Link>
+  <Link className="friends-game-entry" to="/games"><span aria-hidden="true"><Icon name="play"/></span><span><strong>{t("gameEntryTitle")}</strong><small>{t("gameEntryDescription")}</small></span><b aria-hidden="true">→</b></Link>
   <div className="friends-top-actions"><span>{t("count",{count:CREW_FRIENDS.length})}</span><Link to="/settings#memory-settings">{t("memorySettings")} →</Link></div>
   {recent.length?<section className="section friends-recent">
    <div className="section-head"><h2>{t("recent")}</h2><button type="button" className="friends-subtle" onClick={()=>{if(window.confirm(t("clearRecentConfirm"))){clearFriendRecent(language);refresh()}}}>{t("clearRecent")}</button></div>

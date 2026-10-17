@@ -562,7 +562,11 @@ test("Crew home highlights free Gemini setup for unconfigured visitors",()=>{
  assert.ok(home.includes("geminiKey()"));
  assert.ok(home.includes("geminiVerified()"));
  assert.ok(!home.includes("切換不再重新載入不同頁面"));
- assert.ok(css.includes("grid-template-columns:repeat(3,minmax(0,1fr))"));
+ assert.ok(css.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
+ assert.ok(home.includes('t("product.play")'));
+ assert.ok(home.includes('className="crew-home-product crew-home-play" to="/games"'));
+ assert.ok(!home.includes("crew-home-game-entry"),"Avoid a duplicate secondary Play link beneath the primary grid");
+ assert.equal(readUiLocale("home").product.play,"與 Crew 朋友玩遊戲");
  assert.ok(css.includes("@media(max-width:620px)"));
 });
 

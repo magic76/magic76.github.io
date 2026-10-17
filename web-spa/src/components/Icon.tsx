@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 
-export type IconName = "home"|"teacher"|"story"|"fortune"|"settings"|"chat"|"book"|"cards"|"scene"|"mic"|"sparkles"|"plus"|"history"|"image";
+export type IconName = "home"|"teacher"|"story"|"fortune"|"play"|"settings"|"chat"|"book"|"cards"|"scene"|"mic"|"sparkles"|"plus"|"history"|"image";
 
 const paths:Record<IconName,ReactNode>={
  home:<><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5"/><path d="M9.5 21v-6h5v6"/></>,
  teacher:<><circle cx="12" cy="8" r="3.5"/><path d="M5 21c.6-4 3-6 7-6s6.4 2 7 6"/><path d="M18 5.5 20.5 3"/></>,
  story:<><path d="M4 5.5c2.8-1 5.5-.7 8 1v13c-2.5-1.7-5.2-2-8-1z"/><path d="M20 5.5c-2.8-1-5.5-.7-8 1v13c2.5-1.7 5.2-2 8-1z"/></>,
+ play:<><rect x="3.5" y="3.5" width="17" height="17" rx="3.5"/><path d="M9.2 4v16M14.8 4v16M4 9.2h16M4 14.8h16M5.3 5.3l2.2 2.2m0-2.2-2.2 2.2"/><circle cx="17.7" cy="17.7" r="1.3"/></>,
  fortune:<><circle cx="12" cy="12" r="8"/><path d="M12 4v16M4 12h16M6.5 6.5l11 11M17.5 6.5l-11 11"/></>,
  settings:<><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.5 1a8 8 0 0 0-1.8-1L14.2 3h-4.4L9.4 6a8 8 0 0 0-1.8 1l-2.5-1-2 3.5L5.1 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.5-1a8 8 0 0 0 1.8 1l.4 3h4.4l.4-3a8 8 0 0 0 1.8-1l2.5 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></>,
  chat:<path d="M5 5h14v10H9l-4 4z"/>,
