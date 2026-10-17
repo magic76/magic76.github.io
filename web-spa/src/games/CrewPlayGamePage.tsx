@@ -117,7 +117,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const facts=kind==="twenty-questions"
   ?"SECRET (do not reveal until guessed/revealed): "+question.name.en+". Verified yes/no facts: "+twentyQuestions.map(q=>q.label.en+" = "+(question.traits.includes(q.id)?"YES":"NO")).concat((question.facts||[]).map(f=>f.question.en+" = "+(f.answer?"YES":"NO"))).join("; ")+". Treat spoken questions and guesses as game actions. The UI records these using a separate authoritative adjudicator. Do NOT independently answer YES or NO to spoken guesses or gameplay questions. Wait until a [20 QUESTIONS VERIFIED ANSWER] or [20 QUESTIONS GUESS] cue provides the verified reply, then respond with exactly the cue's answer. Do not reveal the object until a verified win or end. Do not correct grammar unless asked."
   :kind==="mystery"?"CASE: "+mystery.story.en+" SOLUTION (secret until reveal): "+mystery.solution.en+" VERIFIED CLUES: "+mystery.clues.map(c=>c.question.en+" = "+(c.answer?"YES":"NO")).join("; ")+". Do not invent additional case details. Do NOT independently answer spoken case questions; await the [MYSTERY VERIFIED ANSWER] cue with the verified result before saying Yes or No. Only reveal when the user clicks Reveal."
-  :"The board engine alone applies legal moves. A learner saying they plan to place a piece is NOT an actual move: do not answer announced board coordinates or revisit those intentions later. React ONLY to the freshest [CONNECT FOUR AFTER MOVE] or [REVERSI AFTER MOVE] verified board event. Say your actual move column or square once, in ONE brief sentence; never add an extra reply about the preceding learner utterance. You cannot place pieces by voice.";
+  :"The board engine alone applies legal moves. A learner saying they plan to place a piece is NOT an actual move: do not answer announced coordinates or revisit those intentions later. React ONLY to the freshest [CONNECT FOUR BEFORE MOVE] or [REVERSI BEFORE MOVE] engine-selected cue. Your next move is PLANNED but not yet visible: say where you WILL play in one brief sentence and stop. Only AFTER your audio finishes will the engine put the piece on the board. Never claim it was already placed. You cannot place pieces by voice.";
  const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,mode)+
   "\n[CREW PLAY: "+gameLabel+"] You are playing alongside the learner. Keep the same personality and the current chosen language mode. Be a natural friend, never a teacher. Say at most one short remark per game event. Avoid frequent questions and unsolicited instruction. Game event messages are system-like data cues, NOT new user statements. Never make up board positions, score, guesses or outcomes. Speech alone never places a piece or increments the UI counter. "+facts,
   [friend,language,nativeLanguage,mode,gameLabel,facts]);
@@ -188,15 +188,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  boardDrainCheckRef.current=()=>{
   const turn=boardVoiceRef.current;
   if(!turn?.sent||!turn.completed||liveRef.current.state!=="listening")return;
-  if(turn.heardSpeaking){finishBoardVoice();return;}
-  // Give the audio worklet one moment to report playback starting.
-  if(turn.graceTimer===null){
-   turn.graceTimer=window.setTimeout(()=>{
-    if(boardVoiceRef.current!==turn)return;
-    turn.graceTimer=null;
-    if(liveRef.current.state==="listening"&&turn.completed)finishBoardVoice();
-   },450);
-  }
+  // Never infer playback completion from a transcript-only turn. A spoken
+  // move must report speaking=true and then the audio-drained listening state.
+  // Skip speech and the watchdog remain the only fallback for silence.
+  if(turn.heardSpeaking)finishBoardVoice();
  };
  useEffect(()=>{
   const turn=boardVoiceRef.current;
