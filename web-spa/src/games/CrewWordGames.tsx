@@ -27,7 +27,7 @@ export function CrewWordGames({
  const handledRef=useRef<Set<number>>(new Set());
  const voiceQueueRef=useRef<Promise<void>>(Promise.resolve());
  const mountedRef=useRef(true);
- useEffect(()=>()=>{mountedRef.current=false},[]);
+ useEffect(()=>{mountedRef.current=true;return()=>{mountedRef.current=false}},[]);
  const questionMode=kind==="twenty-questions";
  const canAskFree=questionMode&&typeof window!=="undefined"&&Boolean(geminiKey());
  const limit=20;
