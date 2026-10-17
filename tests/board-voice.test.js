@@ -4,7 +4,7 @@ const fs=require("node:fs");
 const path=require("node:path");
 const ts=require("typescript");
 const src=fs.readFileSync(path.join(__dirname,"../web-spa/src/games/boardVoiceTurn.ts"),"utf8");
-const compiled=ts.transpileModule(src,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const compiled=ts.transpileModule(src,{compilerOptions:{module:1,target:9}}).outputText;
 const exportsModule={exports:{}};
 new Function("module","exports",compiled)(exportsModule,exportsModule.exports);
 const {matchesBoardNarration:matches}=exportsModule.exports;
