@@ -9,6 +9,7 @@ import {loadIdentity,imagePrompt,validateIdentityQa} from './shorts-character-id
 export const FRIENDS=['zoe','bella','hugo','theo','yuna'];
 const DAY=/^\d{4}-\d{2}-\d{2}$/;
 const MEDIA_LIMIT=350*1024;
+const MAX_PREVIEW_DAYS_AHEAD=30;
 const sourcePath='content/crew-shorts/approved/posts.json';
 export const taipeiDay=(now=new Date())=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
 const cap=(v,max)=>typeof v==='string'?v.trim().slice(0,max):'';
@@ -29,21 +30,32 @@ export function approvedPostScene(post,history){
   storyContext:post.storyContext||history.map(x=>x.caption).join(' ')
  };
 }
+function validateStory(item,feed,date){
+ good(item&&FRIENDS.includes(item.friendId),'wrong friend');
+ const caption=cap(item.caption,501),translationZh=cap(item.translationZh,501),scene=cap(item.scene,801),imageAlt=cap(item.imageAlt,181);
+ good(caption.length>=20&&caption.length<=500&&/[a-zA-Z]/.test(caption),'invalid English caption for '+item.friendId);
+ good(translationZh.length>=5&&translationZh.length<=500&&/[\u3400-\u9fff]/.test(translationZh),'invalid Traditional Chinese translation '+item.friendId);
+ good(scene.length>=30&&scene.length<=800&&imageAlt.length>=25&&imageAlt.length<=180,'invalid image scene/alt '+item.friendId);
+ good(!/\b(AI|ChatGPT|Gemini) (?:assistant|model)\b/i.test(caption),'out-of-character meta description');
+ const history=storyHistory(feed,item.friendId,date),previous=history.at(-1);
+ good(!history.some(p=>p.caption.toLowerCase()===caption.toLowerCase()),'repeated caption '+item.friendId);
+ return {friendId:item.friendId,caption,translationZh,scene,imageAlt,storyId:previous?.storyId||'life-'+item.friendId,
+  storyContext:history.map(p=>p.caption).join(' ').slice(-650)};
+}
 export function validateStories(raw,feed,date){
  good(raw&&Array.isArray(raw.stories)&&raw.stories.length===FRIENDS.length,'AI must return five stories');
  const ids=new Set();
  return raw.stories.map(item=>{
-  good(item&&FRIENDS.includes(item.friendId)&&!ids.has(item.friendId),'wrong or repeated friend');ids.add(item.friendId);
-  const caption=cap(item.caption,501),translationZh=cap(item.translationZh,501),scene=cap(item.scene,801),imageAlt=cap(item.imageAlt,181);
-  good(caption.length>=20&&caption.length<=500&&/[a-zA-Z]/.test(caption),'invalid English caption for '+item.friendId);
-  good(translationZh.length>=5&&translationZh.length<=500&&/[\u3400-\u9fff]/.test(translationZh),'invalid Traditional Chinese translation '+item.friendId);
-  good(scene.length>=30&&scene.length<=800&&imageAlt.length>=25&&imageAlt.length<=180,'invalid image scene/alt '+item.friendId);
-  good(!/\b(AI|ChatGPT|Gemini) (?:assistant|model)\b/i.test(caption),'out-of-character meta description');
-  const history=storyHistory(feed,item.friendId,date),previous=history.at(-1);
-  good(!history.some(p=>p.caption.toLowerCase()===caption.toLowerCase()),'repeated caption '+item.friendId);
-  return {friendId:item.friendId,caption,translationZh,scene,imageAlt,storyId:previous?.storyId||'life-'+item.friendId,
-   storyContext:history.map(p=>p.caption).join(' ').slice(-650)};
+  good(item&&FRIENDS.includes(item.friendId)&&!ids.has(item.friendId),'wrong or repeated friend');
+  ids.add(item.friendId);
+  return validateStory(item,feed,date);
  });
+}
+/** Explicit draft supplied by a human. Never used in publish mode. */
+export function validatePreviewStory(item,feed,date,friend){
+ good(item&&typeof item==='object'&&!Array.isArray(item)&&item.friendId===friend,'preview story friend mismatch');
+ const story=validateStory(item,feed,date),context=cap(item.storyContext,350);
+ return {...story,storyContext:context?cap([story.storyContext,context].filter(Boolean).join(' '),650):story.storyContext};
 }
 export function createPrompt(feed,date){
  const history=Object.fromEntries(FRIENDS.map(friend=>[friend,storyHistory(feed,friend,date).map(p=>({date:p.publishedAt.slice(0,10),caption:p.caption,photo:p.imageAlt}))]));
@@ -108,19 +120,22 @@ export function encodeWebP(input,output,{python='python3',script=resolve(dirname
  return b;
 }
 function nowMs(){return Date.now()}
-export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='plan',friend=null,useApprovedStory=false,client,encode=encodeWebP,previewBase='crew-shorts-preview'}={}){
+export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='plan',friend=null,useApprovedStory=false,previewStory=null,client,encode=encodeWebP,previewBase='crew-shorts-preview'}={}){
  dateOk(date);good(['plan','preview','publish'].includes(mode),'invalid mode');
  good(friend===null||FRIENDS.includes(friend),'invalid selected friend');
  good(friend===null||mode!=='publish','single-friend operation cannot publish');
  good(!useApprovedStory||(mode==='preview'&&friend),'approved story requires private friend preview');
- good(mode==='plan'||date<=taipeiDay()||(mode==='preview'&&useApprovedStory),'cannot generate future unapproved stories with paid API');
+ good(!previewStory||(mode==='preview'&&friend&&!useApprovedStory),'custom story requires single-friend private preview');
+ const daysAhead=(Date.parse(date+'T00:00:00Z')-Date.parse(taipeiDay()+'T00:00:00Z'))/86400000;
+ const explicitFuturePreview=mode==='preview'&&friend&&previewStory&&daysAhead<=MAX_PREVIEW_DAYS_AHEAD;
+ good(mode==='plan'||daysAhead<=0||(mode==='preview'&&useApprovedStory)||explicitFuturePreview,'cannot generate future unapproved stories without an explicit private draft (max 30 days)');
  const approvedFile=resolve(root,sourcePath),feed=json(approvedFile);
  good(feed.schema===1&&feed.kind==='crew-shorts'&&Array.isArray(feed.posts),'invalid approved source');
  const today=feed.posts.filter(p=>p.publishedAt.slice(0,10)===date);
  good(!today.length||today.length===FRIENDS.length,'partial source batch detected; require manual review');
  const dir=resolve(root,previewBase,date);
  mkdirSync(dir,{recursive:true});
- const report={date,mode,friend,useApprovedStory,status:'planning',models:{text:process.env.SHORTS_TEXT_MODEL||'gemini-2.5-flash',image:process.env.SHORTS_IMAGE_MODEL||'gemini-2.5-flash-image'},existing:today.map(x=>x.id),stories:[],errors:[]};
+ const report={date,mode,friend,useApprovedStory,customPreviewStory:!!previewStory,status:'planning',models:{text:process.env.SHORTS_TEXT_MODEL||'gemini-2.5-flash',image:process.env.SHORTS_IMAGE_MODEL||'gemini-2.5-flash-image'},existing:today.map(x=>x.id),stories:[],errors:[]};
  const reportFile=join(dir,'manifest.json');
  save(reportFile,report);
  if(mode==='publish'&&today.length===FRIENDS.length){report.status='already-approved';save(reportFile,report);return report}
@@ -134,7 +149,7 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
   save(reportFile,report);
   good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
   const ai=client||geminiClient();
-  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>approvedPostScene(p,storyHistory(feed,friend,date))):validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
+  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>approvedPostScene(p,storyHistory(feed,friend,date))):previewStory?[validatePreviewStory(previewStory,feed,date,friend)]:validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
   good(stories.length===targets.length,'missing selected story');
   for(const story of stories){
    const anchor=identities.get(story.friendId);
@@ -181,6 +196,6 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
 }
 function opt(name,fallback){const i=process.argv.indexOf('--'+name);return i<0?fallback:process.argv[i+1]}
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
- const mode=opt('mode','plan'),date=opt('date',taipeiDay()),friend=opt('friend',null),useApprovedStory=process.argv.includes('--use-approved-story');
- generateDaily({date,mode,friend,useApprovedStory}).then(report=>{console.log(JSON.stringify({date,mode,friend,status:report.status,stories:report.stories.map(x=>({id:x.id,caption:x.caption})),artifact:'crew-shorts-preview/'+date},null,2))}).catch(e=>{console.error('Crew Shorts daily failed: '+e.message);process.exitCode=1});
+ const mode=opt('mode','plan'),date=opt('date',taipeiDay()),friend=opt('friend',null),useApprovedStory=process.argv.includes('--use-approved-story'),previewStoryJSON=opt('preview-story-json',null);
+ generateDaily({date,mode,friend,useApprovedStory,previewStory:previewStoryJSON?JSON.parse(previewStoryJSON):null}).then(report=>{console.log(JSON.stringify({date,mode,friend,status:report.status,stories:report.stories.map(x=>({id:x.id,caption:x.caption})),artifact:'crew-shorts-preview/'+date},null,2))}).catch(e=>{console.error('Crew Shorts daily failed: '+e.message);process.exitCode=1});
 }
