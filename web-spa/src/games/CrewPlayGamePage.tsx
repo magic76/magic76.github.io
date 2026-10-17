@@ -35,7 +35,7 @@ export function CrewPlayGamePage(){
  if(!isGame(gameId))return <Navigate to="/games" replace/>;
  const game=crewGames.find(g=>g.id===gameId)!;
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
- return <main className="crew-play-page">
+ return <main className={"crew-play-page"+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
    <Link to="/games" className="crew-play-back">← {english?"All games":"全部遊戲"}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
