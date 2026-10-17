@@ -48,7 +48,7 @@ export function TimelineLivePage(){
       <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
     </details>}
     <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={en?"My turn":"換我說"}/>
-    <div className="live-presets">{active&&stage(age).conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As Mira age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{topic}</button>)}</div>
+    <div className="live-presets">{active&&stage(age).conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As Mira age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:stage(age).conversationThreadsZh[i]}</button>)}</div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{en?"You":"你"}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>Mira</small><span>{live.output}</span></div>

@@ -25,10 +25,10 @@ export function TimelinePage(){
    <div className="timeline-feature-copy"><span className="kicker">MIRA · {age} {en?"YEARS OLD":"歲"}</span>
     <h2>{ageLabel[age][en?1:0]}</h2><p>{en?current.story:current.storyZh}</p>
     <details className="timeline-life-book"><summary>{en?"Discover her life at this age":"這個年紀的 Mira，正在過什麼生活？"}</summary>
-     <p>{current.lifeDetails}</p>
-     <h3>{en?"People in her life":"她身邊的人"}</h3><ul>{current.people.map(item=><li key={item}>{item}</li>)}</ul>
-     <h3>{en?"Her current dilemma":"目前煩惱"}</h3><p>{current.tension}</p>
-     <h3>{en?"What to talk about":"可以跟她聊"}</h3><ul>{current.conversationThreads.map(item=><li key={item}>{item}</li>)}</ul>
+     <p>{en?current.lifeDetails:current.lifeDetailsZh}</p>
+     <h3>{en?"People in her life":"她身邊的人"}</h3><ul>{(en?current.people:current.peopleZh).map(item=><li key={item}>{item}</li>)}</ul>
+     <h3>{en?"Her current dilemma":"目前煩惱"}</h3><p>{en?current.tension:current.tensionZh}</p>
+     <h3>{en?"What to talk about":"可以跟她聊"}</h3><ul>{(en?current.conversationThreads:current.conversationThreadsZh).map(item=><li key={item}>{item}</li>)}</ul>
     </details>
     <blockquote className="timeline-quote">“{en?current.quoteEn:current.quoteZh}”</blockquote>
     <Link className="timeline-primary-cta" to={"/timeline/live?age="+age}>{en?"Speak to Mira at "+age:"和 "+age+" 歲的 Mira 說話"} <span aria-hidden="true">↗</span></Link>
