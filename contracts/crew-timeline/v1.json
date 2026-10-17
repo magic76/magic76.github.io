@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-17.1",
+  "revision": "2026-10-17.2",
   "owner": "magic76/crew-teacher",
   "roleKind": "timeline",
   "character": {
@@ -46,6 +46,44 @@
         "phase": "Reflection",
         "story": "Walks at dawn, shares stories and teaches; brings out grandfather's camera on special occasions."
       }
+    ],
+    "portraits": [
+      {
+        "age": 7,
+        "webPath": "assets/timeline/mira-7.webp",
+        "androidAssetPath": "timeline/mira-7.webp",
+        "status": "p1-review-candidate"
+      },
+      {
+        "age": 16,
+        "webPath": "assets/timeline/mira-16.webp",
+        "androidAssetPath": "timeline/mira-16.webp",
+        "status": "p1-review-candidate"
+      },
+      {
+        "age": 25,
+        "webPath": "assets/timeline/mira-25.webp",
+        "androidAssetPath": "timeline/mira-25.webp",
+        "status": "p1-review-candidate"
+      },
+      {
+        "age": 40,
+        "webPath": "assets/timeline/mira-40.webp",
+        "androidAssetPath": "timeline/mira-40.webp",
+        "status": "p1-review-candidate"
+      },
+      {
+        "age": 55,
+        "webPath": "assets/timeline/mira-55.webp",
+        "androidAssetPath": "timeline/mira-55.webp",
+        "status": "p1-review-candidate"
+      },
+      {
+        "age": 70,
+        "webPath": "assets/timeline/mira-70.webp",
+        "androidAssetPath": "timeline/mira-70.webp",
+        "status": "p1-review-candidate"
+      }
     ]
   },
   "rules": {
@@ -55,7 +93,9 @@
     "namespace": "crew_timeline_mira_v1",
     "isolation": "No teacher or friend persona, learning analytics, memory, or reports",
     "child": "Age-appropriate non-romantic content for minors",
-    "media": "Placeholder until verified same-identity age portraits; voice is best effort"
+    "media": "Six age-specific generated cropped portrait candidates in WebP; same fictional identity. Native and Web use age-matched assets. Age style is best effort on one consistent Live voice; never promise child-like voice pitch.",
+    "scrapbook": "At selected age show only canonical past/present life events; hide future chapter details.",
+    "memoryManagement": "Explicit saves only; list available moments at that age, remove individual moments or clear all; respect opt-out. No cross-device sync."
   },
   "acceptance": [
     "Age-specific persona and six stages",
@@ -63,6 +103,10 @@
     "No future information leaks",
     "Teacher and friend independent",
     "Memory off blocks read/write",
-    "No teacher report for timeline"
+    "No teacher report for timeline",
+    "All six 3:4 portrait files are packaged in Web and Android.",
+    "Timeline rail and scrapbook show no events from future ages.",
+    "Individual saved keepsakes are removable and visible from their age onward.",
+    "Voice age delivery uses same Mira identity and does not imitate a child's vocal pitch."
   ]
 }
