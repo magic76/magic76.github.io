@@ -133,14 +133,14 @@ export function FriendGomokuPage(){
     :engine?.turn==="black"?(english?"Your turn":"輪到你下棋"):english?friend.name+"'s turn":`輪到 ${friend.name}`;
 
   return <div className="friend-gomoku-page">
-    <header className="friend-gomoku-heading">
+    <header className={`friend-gomoku-heading${gameStarted?" is-playing":""}`}>
       <Link to="/teacher/roles?mode=friends" className="friend-gomoku-back">‹ <span>{english?"Crew Friends":"Crew 朋友"}</span></Link>
       <span className="friend-gomoku-kicker">CREW PLAY · GOMOKU</span>
-      <h1>{english?"A game with a friend":"和朋友下一局"}</h1>
-      <p>{english?"The same Gomoku AI plays. Your Crew Friend brings the voice and conversation.":"棋步沿用 Pocket Game 的五子棋 AI，Crew 朋友用自己的聲音陪你玩。"}</p>
+      <h1>{gameStarted?(english?`Gomoku with ${friend.name}`:`和 ${friend.name} 下五子棋`):(english?"A game with a friend":"和朋友下一局")}</h1>
+      {!gameStarted?<p>{english?"Play against the familiar Gomoku AI. Add your Crew Friend’s voice whenever you like.":"棋步沿用 Pocket Game 的五子棋 AI，隨時可以開啟 Crew 朋友語音陪玩。"}</p>:null}
     </header>
 
-    <section className="friend-gomoku-setup">
+    {!gameStarted?<section className="friend-gomoku-setup">
       <div className="friend-gomoku-friend-row">
         <FriendAvatar friend={friend} className="friend-gomoku-avatar"/>
         <div><strong>{friend.name}</strong><small>{english?friend.titleEn:friend.titleZh}</small></div>
@@ -151,7 +151,7 @@ export function FriendGomokuPage(){
       </select>
       {!gameStarted?<button className="btn" type="button" disabled={loading} onClick={()=>void startGame()}>{loading?(english?"Loading board…":"正在載入棋盤…"):english?"Start game":"開始下棋"}</button>:null}
       {engineError?<p role="alert" className="friend-gomoku-error">{engineError}</p>:null}
-    </section>
+    </section>:null}
 
     {gameStarted&&engine&&board?<section className="friend-gomoku-play" aria-label={english?"Gomoku game":"五子棋對局"}>
       <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions"><button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
