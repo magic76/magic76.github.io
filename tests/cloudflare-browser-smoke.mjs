@@ -338,13 +338,12 @@ async function run(){
    sessionStorage.removeItem("crew_gemini_api_key_session");
   });
   await noKeyTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
-  await noKeyTwenty.locator(".crew-play-mystery-source").getByText("內建物品").waitFor({timeout:15000});
-  await noKeyTwenty.locator(".crew-play-question-disclosure summary").click();
-  await noKeyTwenty.locator(".crew-play-question-grid button").first().click();
-  assert.equal(await noKeyTwenty.locator(".crew-play-count").textContent(),"1 / 20");
+  await noKeyTwenty.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await noKeyTwenty.locator(".crew-play-word-panel").count(),0);
+  assert.equal(await noKeyTwenty.locator(".crew-play-voice-dock-shell").count(),0);
+  await noKeyTwenty.locator(".crew-play-voice-entrance .crew-gemini-setup-notice").waitFor({state:"visible"});
   await noKeyTwenty.close();
-  process.stdout.write("PASS keyless offline 20 Questions fallback\n");
-
+  process.stdout.write("PASS keyless word games require voice and show Gemini setup\n");
   // Responsive UX regression: the voice dock stays visible above global nav
   // while users scroll, and the optional question grid stays collapsed.
   const mobileTwenty=await context.newPage();
