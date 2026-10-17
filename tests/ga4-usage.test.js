@@ -84,5 +84,10 @@ test("Web product analytics reuses privacy and source allowlists, and React Rout
  assert.match(usage,/setGa4Enabled\(allowed\(\)\)/);
  assert.match(usage,/sendGa4PageView\(pathname\)/);
  assert.match(app,/useEffect\(\(\)=>\{trackPageView\(pathname\)\},\[pathname\]\)/);
- assert.match(settings,/Google Analytics（GA4）/);
+ const privacy=fs.readFileSync(path.join(root,"web-spa/src/pages/PrivacyPage.tsx"),"utf8");
+ assert.doesNotMatch(settings,/Anonymous product usage|匿名產品使用統計|setUsageDisabled/);
+ assert.match(settings,/<Link to="\/privacy">/);
+ assert.match(privacy,/Google Analytics（GA4）/);
+ assert.match(privacy,/setUsageDisabled/);
+ assert.match(app,/<Route path="\/privacy"/);
 });
