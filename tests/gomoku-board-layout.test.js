@@ -41,3 +41,19 @@ test("Gomoku labels each of the 15 columns and rows using spoken move coordinate
   assert.match(styles,/\.friend-gomoku-axis-left\{[^}]*grid-template-rows:repeat\(15,minmax\(0,1fr\)\)/);
   assert.match(styles,/\.friend-gomoku-coordinate-shell \.friend-gomoku-board\{[^}]*width:100%/);
 });
+
+test("Gomoku waits for the full voice turn before applying the AI move",()=>{
+  assert.match(page,/\[GOMOKU BEFORE MOVE\]/);
+  assert.match(page,/onTurnComplete:\(\)=>\{/);
+  assert.match(page,/waiting\.completed=true/);
+  assert.match(page,/if\(!pending\?\.sent\|\|!pending\.completed\|\|liveRef\.current\.state!=="listening"\)return/);
+  assert.match(page,/if\(pending\.heardSpeaking\)\{commitAiMove\(\);return;\}/);
+  assert.match(page,/setWaitingForVoice\(true\)/);
+  assert.match(page,/MAX_VOICE_TURN_MS=25000/);
+  assert.match(page,/if\(!\["requesting-mic","connecting","listening","speaking"\]\.includes\(state\)\)/);
+  assert.match(page,/friend-gomoku-skip/);
+  assert.match(page,/clearWaitingAi\(\);\s*if\(liveRef\.current\.state==="speaking"\)live\.interrupt\(\)/);
+  assert.match(styles,/\.friend-gomoku-skip\{[^}]+/);
+  const aiTurn=page.slice(page.indexOf("const timer=window.setTimeout"),page.indexOf("},420);",page.indexOf("const timer=window.setTimeout")));
+  assert.doesNotMatch(aiTurn,/active\.makeMove\(/,"AI cannot place a stone before voice turn completes");
+});
