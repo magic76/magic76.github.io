@@ -18,12 +18,14 @@
 .friend-gomoku-setup .btn{grid-column:3;grid-row:1/span 2;min-height:44px;white-space:nowrap;padding:0 14px}
 .friend-gomoku-error{grid-column:1/-1;margin:0;color:#a32138;font-size:12px}
 .friend-gomoku-play{display:grid;justify-items:center;gap:12px}
-.friend-gomoku-status{width:min(100%,520px);display:flex;align-items:center;justify-content:space-between;gap:10px}
+.friend-gomoku-status{width:min(100%,520px);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .friend-gomoku-status>div{display:flex;align-items:center;gap:8px;font-size:14px}
 .friend-gomoku-actions{display:flex;align-items:center;gap:6px;flex:none}
 .friend-gomoku-live-dot{width:9px;height:9px;border-radius:50%;background:#c9ceda;box-shadow:0 0 0 4px #e9ebf1}
 .friend-gomoku-live-dot[data-active="true"]{background:#42a581;box-shadow:0 0 0 4px #42a58124}
 .friend-gomoku-reset{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--surface,#fff);color:var(--text);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.friend-gomoku-skip{border:1px solid #a6a1dc;border-radius:10px;padding:8px 12px;min-height:37px;background:#eeebff;color:#514ba0;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.friend-gomoku-skip:hover,.friend-gomoku-skip:focus-visible{background:#e0dcff}
 .friend-gomoku-coordinate-shell{width:min(100%,548px);display:grid;grid-template-columns:24px minmax(0,1fr);grid-template-rows:18px auto;gap:4px;align-items:stretch}
 .friend-gomoku-axis-top{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));padding-inline:1px}
 .friend-gomoku-axis-left{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(15,minmax(0,1fr));padding-block:1px}
@@ -57,3 +59,5 @@
 @media(max-width:620px){.friend-gomoku-heading.is-playing{padding:40px 0 8px}.friend-gomoku-heading.is-playing h1{margin:0;font-size:20px}}
 
 @media(max-width:620px){.friend-gomoku-coordinate-shell{grid-template-columns:20px minmax(0,1fr);grid-template-rows:16px auto;gap:3px}.friend-gomoku-axis-label{font-size:clamp(8px,2.4vw,10px)}}
+
+@media(max-width:620px){.friend-gomoku-status{row-gap:10px}.friend-gomoku-actions{flex-wrap:wrap;justify-content:flex-end}.friend-gomoku-skip{padding:8px;font-size:11px}}
