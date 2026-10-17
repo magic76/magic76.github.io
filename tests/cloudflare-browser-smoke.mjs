@@ -211,6 +211,45 @@ async function run(){
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
+  // Mock Live speech: the engine must place white only AFTER the audio-drained callback.
+  const speechGame=await context.newPage();
+  const speechErrors=[];
+  checkConsole(speechGame,speechErrors);
+  await speechGame.addInitScript(()=>{
+    localStorage.setItem("crew_gemini_api_key","fake-test-key");
+    window.CrewAI={};
+    window.CrewLiveUI={};
+    window.CrewLive={Session:class MockGameVoiceSession{
+      constructor(options){this.options=options;this.ready=false;this.running=false;this.micMuted=false;this.model="mock";this.timers=[];}
+      async start(){this.ready=true;this.running=true;this.options.onState?.("ready");}
+      setVolume(){}
+      getDurationMs(){return 0;}
+      sendText(){
+        this.options.onSpeaking(true);
+        this.timers.push(setTimeout(()=>this.options.onTurnComplete?.({hasValidOutput:true,output:"I will play J7."}),150));
+        this.timers.push(setTimeout(()=>this.options.onSpeaking(false),1100));
+        return true;
+      }
+      interrupt(){this.timers.forEach(clearTimeout);this.timers=[];this.options.onSpeaking(false);return true;}
+      async stop(){this.interrupt();this.ready=false;this.running=false;}
+    }};
+  });
+  await speechGame.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
+  await speechGame.locator(".friend-gomoku-setup .btn").click();
+  await speechGame.locator(".friend-gomoku-cell").first().waitFor({state:"visible",timeout:15000});
+  await speechGame.locator(".friend-gomoku-start-voice").click();
+  await speechGame.locator(".friend-gomoku-start-voice").waitFor({state:"hidden",timeout:10000});
+  await speechGame.locator('[data-coordinate="H10"]').click();
+  await speechGame.locator(".friend-gomoku-skip-voice").waitFor({state:"visible",timeout:15000});
+  await speechGame.waitForTimeout(300);
+  assert.equal(await speechGame.locator(".friend-gomoku-stone.white").count(),0,
+    "AI must not place the piece while the friend is still speaking");
+  await speechGame.locator(".friend-gomoku-stone.white").first().waitFor({state:"visible",timeout:5000});
+  assert.equal(await speechGame.locator(".friend-gomoku-skip-voice").count(),0,
+    "The waiting indicator must disappear after audio drains");
+  assert.deepEqual(speechErrors,[],"Live-sequenced Gomoku should not throw browser errors");
+  await speechGame.close();
+  process.stdout.write("PASS Gomoku waits for completed voice playback\\n");
   await context.close();
  }finally{
   if(browser)await browser.close();
