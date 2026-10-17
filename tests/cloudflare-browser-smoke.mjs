@@ -472,6 +472,12 @@ async function run(){
     "A stale reply to a planned square must not release a Gomoku move");
   const gomokuTarget=await voiceGame.evaluate(()=>window.__mockGomokuCue.match(/NEXT white stone is planned for ([A-O]\d+)/)?.[1]);
   assert.ok(gomokuTarget,"The authoritative cue must specify the selected AI move");
+  // The old speech has now been replaced: real Live reports the canceled
+  // audio draining, then announces the NEW verified move as a fresh utterance.
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onSpeaking(false));
+  await voiceGame.waitForFunction(()=>Boolean(document.querySelector(".friend-gomoku-skip")));
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onSpeaking(true));
+  await voiceGame.waitForTimeout(80);
   await voiceGame.evaluate(move=>window.__mockGomokuVoice.options.onTurnComplete({
     hasValidOutput:true,output:"I'll place "+move+"."
   }),gomokuTarget);
