@@ -42,11 +42,12 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
   }}
 });
-test("sitemap enumerates ten URLs, each with matching language alternates",()=>{
+test("sitemap enumerates public and game URLs with matching language alternates",()=>{
+  const games=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
   const xml=read("sitemap.xml");
   const actual=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.deepEqual(actual,slugs.flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
-  assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,10);
+  assert.deepEqual(actual,[...slugs,...games].flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
+  assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,(slugs.length+games.length)*2);
   assert.match(xml,/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
   assert.match(read("robots.txt"),/Sitemap: https:\/\/www\.3sssi\.com\/sitemap\.xml/);
 });
