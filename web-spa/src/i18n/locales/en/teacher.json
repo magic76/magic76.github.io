@@ -39,6 +39,8 @@
     "shortsTitle": "Friends’ latest moments",
     "shortsIntro": "See what your Crew has been up to. A photo is an easy way to start talking.",
     "shortsAll": "View all",
+    "shortsPullHint": "Swipe again to explore all moments",
+    "shortsReleaseHint": "Release to open all moments",
     "shortsChat": "Chat with {{name}}",
     "shortsLoading": "Loading stories…",
     "shortsUnavailable": "Stories are unavailable. Open Crew Shorts to try again.",
