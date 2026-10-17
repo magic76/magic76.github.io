@@ -17,12 +17,15 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const [speechPending,setSpeechPending]=useState(false);
  const speechGateRef=useRef(false);
  const roundEpochRef=useRef(0);
- const narrateMove=(cue:string,expected:ExpectedBoardSpeech)=>{
+ const narrateMove=(cue:string,expected:ExpectedBoardSpeech,placeStone:()=>void)=>{
   const epoch=roundEpochRef.current;
+  // The engine decides its next move now, but the board stays unchanged
+  // until the verified commentary has actually finished playing.
   speechGateRef.current=true;
   setSpeechPending(true);
   void onBoardMove(cue,expected).catch(()=>{}).finally(()=>{
-   if(roundEpochRef.current!==epoch)return;
+   if(roundEpochRef.current!==epoch)return; // Reset invalidated this move.
+   placeStone();
    speechGateRef.current=false;
    setSpeechPending(false);
   });
@@ -63,9 +66,9 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    if(column===null)return;
    const next=api.connect4Drop(connect,column,"computer");
    if(!next)return;
-   setConnect(next);
-   const outcome=next.winner===null?"":next.winner==="computer"?"You won.":next.winner==="draw"?"The game is a draw.":"The learner won.";
-   narrateMove("[CONNECT FOUR AFTER MOVE] You (the friend) HAVE JUST PLACED a yellow disc in column "+(column+1)+". The disc is visible now. "+outcome+" Say your column number in exactly one short, natural sentence, and stop. Do not revisit earlier move intentions or explain tactics.",{kind:"connect4",position:String(column+1)});
+   const outcome=next.winner===null?"":next.winner==="computer"?"You will win.":next.winner==="draw"?"This will end in a draw.":"The learner will win.";
+   narrateMove("[CONNECT FOUR BEFORE MOVE] The learner's disc is already on the board. Your NEXT yellow disc has been selected for column "+(column+1)+" but HAS NOT been placed yet. Say 'I'll play column "+(column+1)+"' in one short natural sentence. "+outcome+" Do not claim your disc is already placed. Do not answer older learner move intentions or ask a follow-up question. After your audio finishes, the board will place it.",
+    {kind:"connect4",position:String(column+1)},()=>setConnect(next));
   },60);
   return()=>clearTimeout(timer);
  },[connect,kind,api,onEvent,speechPending]);
@@ -86,10 +89,10 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    if(!move)return;
    const next=api.reversiPlace(reversi,move.x,move.y,"white");
    if(!next)return;
-   setReversi(next);
-   const outcome=next.winner===null?"":next.winner==="draw"?"The game is a draw.":next.winner==="white"?"You won.":"The learner won.";
-   const pass=next.turn==="white"&&!next.winner?" The learner has no legal move; you will play again after speaking.":"";
-   narrateMove("[REVERSI AFTER MOVE] You (the friend) HAVE JUST PLACED white at "+position(move.x,move.y)+" and flipped "+move.flips.length+" discs. The board is updated now. "+outcome+pass+" Say your square "+position(move.x,move.y)+" in exactly one short sentence. Do not revisit earlier player intentions, ask follow-up questions, or continue afterward.",{kind:"reversi",position:position(move.x,move.y)});
+   const outcome=next.winner===null?"":next.winner==="draw"?"The game will be a draw.":next.winner==="white"?"This will win the game.":"The learner will win.";
+   const pass=next.turn==="white"&&!next.winner?" After placement, the learner has no legal move; you will take another turn.":"";
+   narrateMove("[REVERSI BEFORE MOVE] The learner's black move is already on the board. Your NEXT white stone is selected for "+position(move.x,move.y)+" but HAS NOT been placed yet; "+move.flips.length+" discs will flip afterward. Say 'I'll play "+position(move.x,move.y)+"' in one short natural sentence. "+outcome+pass+" Do not claim you have already played. Do not revisit the learner's earlier intentions. After your audio ends, the board will place the white stone.",
+    {kind:"reversi",position:position(move.x,move.y)},()=>setReversi(next));
   },60);
   return()=>clearTimeout(timer);
  },[reversi,kind,api,onEvent,speechPending]);
@@ -123,6 +126,6 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    </div>
    <small className="crew-play-hint">{english?"Small dots mark legal moves; if no moves remain, the turn passes automatically.":"小圓點是合法落點；無棋可下時會自動跳過回合。"}</small>
   </>:null}
-  <small className="crew-play-hint">{english?"Rules and moves are calculated locally. Voice commentary is optional; wait until your friend finishes speaking after each move.":"棋步和勝負都在本機計算；開啟語音後，等朋友說完再輪到你。"}</small>
+  <small className="crew-play-hint">{english?"Rules and moves are calculated locally. Voice is optional. If it is enabled, your friend announces their move before the piece appears.":"棋步和勝負都在本機計算；開啟語音後，朋友會先說出下一步，說完才落子。"}</small>
  </section>;
 }
