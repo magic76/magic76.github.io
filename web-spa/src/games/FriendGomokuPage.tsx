@@ -29,10 +29,12 @@ export function FriendGomokuPage(){
   const [gameStarted,setGameStarted]=useState(false);
   const [revision,setRevision]=useState(0);
   const [thinking,setThinking]=useState(false);
+  const [loading,setLoading]=useState(false);
   const [engineError,setEngineError]=useState("");
   const [lastEvent,setLastEvent]=useState("");
   const engineRef=useRef<GomokuEngine|null>(null);
   const aiBusyRef=useRef(false);
+  const pendingCueRef=useRef<string|null>(null);
   const friend=getCrewFriend(friendId);
   const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,chatMode),[language,nativeLanguage,chatMode]);
   const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,chatMode)+
@@ -40,9 +42,10 @@ export function FriendGomokuPage(){
     [friend,language,nativeLanguage,chatMode]);
   const live=useLiveSession({
     pageKey:"friend-game-"+friend.id,title:"五子棋 · "+friend.name,
-    system,openingPrompt:languageDirective+"\n[GAME OPENING] Greet the learner in your usual Crew Friend style, say you are ready for a relaxed game of Gomoku, then pause so they can make the first move. Do not explain rules or start a lesson.",
+    system,openingPrompt:languageDirective+"\n[GAME OPENING] Greet the learner briefly in your usual Crew Friend style and say you are here to play Gomoku together. The board may already be in progress when voice starts, so do not claim this is the first move or that a new round is starting. Then pause; no rules lesson.",
     voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective,
-    persistHistory:false,sessionKind:"friend",conversationFlow:"friend"
+    // Game silence must not trigger the ordinary friend-conversation follow-up timer.
+    persistHistory:false,sessionKind:"friend"
   });
   const liveRef=useRef(live);liveRef.current=live;
   const engine=engineRef.current;
@@ -50,33 +53,41 @@ export function FriendGomokuPage(){
   const winning=new Set((engine?.winningLine||[]).map(point=>point.y*15+point.x));
 
   const startGame=async()=>{
-    setEngineError("");
-    // Start Live from the user gesture before loading the lazy game engine so
-    // the browser can present its microphone permission prompt reliably.
-    if(live.state==="ended"||live.state==="error"||live.state==="idle")void live.start();
+    if(loading)return;
+    setLoading(true);setEngineError("");
+    // Start the offline board independently of the optional microphone session.
     try{
       await loadScript("/games/gomoku-engine.js");
       if(!window.GomokuEngine)throw new Error("engine unavailable");
       const next=new window.GomokuEngine(15);
-      next.reset();engineRef.current=next;aiBusyRef.current=false;
+      next.reset();engineRef.current=next;aiBusyRef.current=false;pendingCueRef.current=null;
       setGameStarted(true);setThinking(false);setLastEvent("");setRevision(value=>value+1);
       localStorage.setItem(SELECTED_FRIEND_KEY,friend.id);
-      if(live.state==="listening")live.sendText(languageDirective+"\n[NEW GOMOKU GAME] Start a fresh, relaxed round with the learner. They play black and move first. Say one brief friendly line, then wait.");
     }catch{
       setEngineError(english?"The Gomoku game could not load. Please refresh and try again.":"五子棋載入失敗，請重新整理後再試。");
-    }
+    }finally{setLoading(false)}
   };
   const playAt=(x:number,y:number)=>{
     const current=engineRef.current;
     if(!current||!gameStarted||thinking||current.turn!=="black"||!current.makeMove(x,y))return;
-    if(current.winner&&liveRef.current.state==="listening")liveRef.current.sendText(languageDirective+"\n[GOMOKU RESULT] The learner just won the game. React naturally as their friend in one short sentence, then pause.");
+    if(current.winner){
+      const cue="[GOMOKU RESULT] The learner just won the game. React naturally as their friend in one short sentence, then pause.";
+      if(liveRef.current.state!=="listening"||!liveRef.current.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
+    }
     setRevision(value=>value+1);
   };
   const newGame=()=>{
     const current=engineRef.current;
     if(!current)return;
-    current.reset();aiBusyRef.current=false;setThinking(false);setLastEvent("");setRevision(value=>value+1);
-    if(live.state==="listening")live.sendText(languageDirective+"\n[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. Welcome them back briefly, then wait for their first move.");
+    current.reset();aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
+    const cue="[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. React with one short friendly line, then wait for their first move.";
+    if(live.state!=="listening"||!live.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
+  };
+  const changeFriend=async()=>{
+    // A different friend must start with a new voice identity, not inherit the old session.
+    await live.stop();
+    pendingCueRef.current=null;engineRef.current=null;aiBusyRef.current=false;
+    setGameStarted(false);setThinking(false);setLastEvent("");setRevision(value=>value+1);
   };
 
   useEffect(()=>{
@@ -94,16 +105,22 @@ export function FriendGomokuPage(){
       const summary=result
         ? result==="draw"?"The board is full and the game is a draw.":result==="white"?"You won the game.":"The learner won the game."
         :`You just played ${coordinate(move)} after the learner played ${learnerMove?coordinate(learnerMove):"their move"}.`;
-      setLastEvent(summary);setThinking(false);aiBusyRef.current=false;setRevision(value=>value+1);
-      if(liveRef.current.state==="listening"){
-        const cue=result
-          ?`[GOMOKU RESULT] ${summary} The game ended after ${turnNumber} moves. React naturally in character with one short sentence, then pause. Do not explain strategy or ask several questions.`
-          :`[GOMOKU MOVE] ${summary} Say one short, natural in-character reaction to the game moment, then pause for the learner. Avoid explaining strategy or making every turn a lesson. This is turn ${turnNumber}.`;
-        liveRef.current.sendText(languageDirective+"\n"+cue);
-      }
+      setLastEvent(result
+        ?result==="draw"?(english?"Draw — board is full":"平手，棋盤已滿"):(english?`${friend.name} wins`:`${friend.name} 贏了`)
+        :english?`${friend.name}: ${coordinate(move)} · You: ${learnerMove?coordinate(learnerMove):"—"}`:`${friend.name}：${coordinate(move)} · 你：${learnerMove?coordinate(learnerMove):"—"}`);
+      setThinking(false);aiBusyRef.current=false;setRevision(value=>value+1);
+      const cue=result
+        ?`[GOMOKU RESULT] ${summary} The game ended after ${turnNumber} moves. React naturally in character with one short sentence, then pause. Do not explain strategy or ask several questions.`
+        :`[GOMOKU MOVE] ${summary} Say one short, natural in-character reaction to the game moment, then pause for the learner. Avoid explaining strategy or making every turn a lesson. This is turn ${turnNumber}.`;
+      if(liveRef.current.state!=="listening"||!liveRef.current.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
     },420);
     return()=>window.clearTimeout(timer);
-  },[gameStarted,revision,languageDirective]);
+  },[gameStarted,revision,languageDirective,english,friend.name]);
+
+  useEffect(()=>{
+    const cue=pendingCueRef.current;
+    if(live.state==="listening"&&cue&&live.sendText(languageDirective+"\n"+cue))pendingCueRef.current=null;
+  },[live.state,live.sendText,languageDirective,revision]);
 
   useEffect(()=>{
     document.body.className="teacher-theme";
@@ -129,16 +146,20 @@ export function FriendGomokuPage(){
         <div><strong>{friend.name}</strong><small>{english?friend.titleEn:friend.titleZh}</small></div>
       </div>
       <label className="friend-gomoku-select-label" htmlFor="gomoku-friend">{english?"Choose a friend":"選一位朋友"}</label>
-      <select id="gomoku-friend" className="field" value={friend.id} onChange={event=>setFriendId(event.target.value)} disabled={gameStarted}>
+      <select id="gomoku-friend" className="field" value={friend.id} onChange={event=>setFriendId(event.target.value)} disabled={gameStarted||loading}>
         {CREW_FRIENDS.map(person=><option key={person.id} value={person.id}>{person.name} · {english?person.titleEn:person.titleZh}</option>)}
       </select>
-      {!gameStarted?<button className="btn" type="button" onClick={()=>void startGame()}>{english?"Start game and voice chat":"開始遊戲並開啟語音"}</button>:null}
+      {!gameStarted?<button className="btn" type="button" disabled={loading} onClick={()=>void startGame()}>{loading?(english?"Loading board…":"正在載入棋盤…"):english?"Start game":"開始下棋"}</button>:null}
       {engineError?<p role="alert" className="friend-gomoku-error">{engineError}</p>:null}
     </section>
 
     {gameStarted&&engine&&board?<section className="friend-gomoku-play" aria-label={english?"Gomoku game":"五子棋對局"}>
-      <div className="friend-gomoku-status"><div><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button></div>
+      <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions"><button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
       <div className="friend-gomoku-board" role="grid" aria-label={english?"15 by 15 Gomoku board":"15 乘 15 五子棋棋盤"}>
+        <svg className="friend-gomoku-grid-lines" viewBox="0 0 15 15" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+          {Array.from({length:15},(_,index)=><g key={index}><line x1="0.5" x2="14.5" y1={index+0.5} y2={index+0.5}/><line y1="0.5" y2="14.5" x1={index+0.5} x2={index+0.5}/></g>)}
+          {[3,7,11].flatMap(y=>[3,7,11].map(x=><circle key={`${x}-${y}`} cx={x+0.5} cy={y+0.5} r="0.1"/>))}
+        </svg>
         {board.flatMap((row,y)=>row.map((cell,x)=>{
           const index=y*15+x;const move=engine.lastMove?.x===x&&engine.lastMove?.y===y;
           return <button key={index} type="button" role="gridcell" className="friend-gomoku-cell" aria-label={`${String.fromCharCode(65+x)}${y+1}${cell?`, ${cell}`:""}`} disabled={Boolean(cell)||thinking||engine.turn!=="black"||Boolean(engine.winner)} onClick={()=>playAt(x,y)}>
@@ -150,7 +171,7 @@ export function FriendGomokuPage(){
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
         <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><span>{live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}</span></div>
       </div>
-      <LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt/>
+      {live.state==="idle"||live.state==="ended"?<button className="friend-gomoku-start-voice" type="button" onClick={()=>void live.start()}>{english?"Turn on voice chat (optional)":"開啟語音陪玩（選用）"}</button>:<LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt/>}
       {lastEvent?<p className="friend-gomoku-last-event" aria-live="polite">{lastEvent}</p>:null}
     </section>:null}
     <p className="friend-gomoku-note">{english?"The conversation is used for this game session and is not added to your friend’s chat history or memories.":"這次陪玩對話只用於本局，不會寫入朋友的聊天紀錄或共同回憶。"}</p>
