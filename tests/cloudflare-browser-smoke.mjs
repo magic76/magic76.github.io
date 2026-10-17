@@ -237,6 +237,7 @@ async function run(){
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
   assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 2 次/);
   assert.match(await generatedMystery.evaluate(()=>window.__mysteryControlMessage||""),/MYSTERY ROUND UPDATE/);
+  assert.equal(await generatedMystery.evaluate(()=>JSON.parse(localStorage.getItem("crew_play_puzzle_diversity_v2")||"[]").filter(x=>x.kind==="mystery").length),2,"Two distinct mysteries are saved for later visits");
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
   assert.deepEqual(mysteryErrors,[],"No errors while generating fresh mystery rounds");
   await generatedMystery.close();
@@ -348,6 +349,7 @@ async function run(){
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
+  assert.equal(await voiceTwenty.evaluate(()=>JSON.parse(localStorage.getItem("crew_play_puzzle_diversity_v2")||"[]").filter(x=>x.kind==="twenty").length),2,"Different secret objects are persisted");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyStartCount),1,"One Live start spans multiple rounds");
   assert.match(await voiceTwenty.evaluate(()=>window.__twentyControlMessage||""),/ROUND UPDATE/,"The continuing model receives the new secret");
   assert.deepEqual(twentyErrors,[],"20 Questions speech synchronization should be error-free");
