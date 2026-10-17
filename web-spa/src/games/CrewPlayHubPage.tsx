@@ -17,15 +17,15 @@ export function CrewPlayHubPage(){
    <Link to="/" className="crew-play-back">← {en?"Home":"首頁"}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
    <h1>{en?"Play with your Crew Friends":"今天和朋友玩什麼？"}</h1>
-   <p>{en?"Same friends, same voices. Choose a game, then bring a friend along. Board rules run locally; voice is optional.":"熟悉的朋友、熟悉的聲音。選個遊戲一起玩；棋盤規則離線執行，語音可自由開關。"}</p>
+   <p>{en?"Board games work without voice. For 20 Questions and Mystery, start a Gemini voice conversation with your Crew Friend.":"棋類遊戲不開語音也能玩；20 Questions 與海龜湯則需要和 Crew 朋友開啟 Gemini 語音。"}</p>
   </header>
   <div className="crew-play-catalog">
    {crewGames.map((game,index)=><Link className="crew-play-game-card" to={"/games/"+game.id} key={game.id}>
     <div className={`crew-play-game-art game-${index}`} aria-hidden="true"><span>{game.icon}</span></div>
-    <div className="crew-play-game-info"><strong>{game.title[en?"en":"zh"]}</strong><small>{game.desc[en?"en":"zh"]}</small></div>
+    <div className="crew-play-game-info"><strong>{game.title[en?"en":"zh"]}</strong><small>{game.desc[en?"en":"zh"]}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?(en?"Gemini voice required":"需要 Gemini 語音"):(en?"Voice optional":"語音選用")}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>)}
   </div>
-  <p className="crew-play-footer-note">{en?"No multiplayer server or account required. Speech requires your Gemini Key and microphone permission.":"不需要連線對戰或遊戲帳號；開啟語音才需要 Gemini Key 和麥克風權限。"}</p>
+  <p className="crew-play-footer-note">{en?"Word games require your own Gemini Key, microphone permission and an active voice connection; board games do not.":"語言猜謎需要自備 Gemini Key、允許麥克風並保持語音連線；棋類可直接玩。"}</p>
  </main>;
 }

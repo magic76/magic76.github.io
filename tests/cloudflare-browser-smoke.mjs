@@ -163,18 +163,11 @@ async function run(){
   await play.locator(".crew-reversi-cell.can-play").first().click();
   await play.locator(".crew-reversi-disc.white").nth(1).waitFor({timeout:5000});
   await play.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
-  await play.locator(".crew-play-question-disclosure summary").click();
-  await play.locator(".crew-play-question-grid button").first().waitFor({timeout:15000});
-  await play.locator(".crew-play-question-grid button").first().click();
-  assert.equal(await play.locator(".crew-play-question-history li").count(),1);
-  await play.locator(".crew-play-guess-form input").fill("a deliberately wrong answer");
-  await play.locator(".crew-play-guess-form button").click();
-  assert.equal(await play.locator(".crew-play-question-history li").count(),2);
+  await play.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await play.locator(".crew-play-word-panel").count(),0,"Voice is required for guessing");
   await play.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
-  await play.locator(".crew-play-question-grid button").first().waitFor({timeout:15000});
-  await play.locator(".crew-play-question-grid button").first().click();
-  await play.locator(".crew-play-reveal").click();
-  await play.locator(".crew-play-solution").waitFor({state:"visible",timeout:5000});
+  await play.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await play.locator(".crew-play-word-panel").count(),0,"Voice is required for Mystery");
   // Gemini-powered mysteries: mock the existing Crew text API (no paid calls)
   // and verify each new round fetches a different validated case.
   const generatedMystery=await context.newPage();
@@ -206,7 +199,16 @@ async function run(){
     });
    }};
   });
+  await generatedMystery.addInitScript(()=>{
+   window.CrewLiveUI={};
+   window.CrewLive={Session:class {
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
+    async start(){} async stop(){this.running=false}
+    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+   }};
+  });
   await generatedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
+  await generatedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
   assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 1 次/);
   await generatedMystery.locator(".crew-play-question-grid button").first().click();
@@ -214,6 +216,7 @@ async function run(){
   await generatedMystery.locator(".crew-play-reveal").click();
   assert.match(await generatedMystery.locator(".crew-play-solution").textContent(),/導覽明信片/);
   await generatedMystery.locator(".crew-play-solution button").click();
+  await generatedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
   assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 2 次/);
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
@@ -227,7 +230,16 @@ async function run(){
    localStorage.setItem("crew_gemini_api_key","mock-key-for-mystery-fallback");
    window.CrewAI={call:async()=>"{invalid model JSON"};
   });
+  await failedMystery.addInitScript(()=>{
+   window.CrewLiveUI={};
+   window.CrewLive={Session:class{
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
+    async start(){} async stop(){this.running=false}
+    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+   }};
+  });
   await failedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
+  await failedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await failedMystery.locator(".crew-play-mystery-source").getByText("AI 生成失敗").waitFor({timeout:15000});
   assert.ok(await failedMystery.locator(".crew-play-question-grid button").count()>0,"Built-in fallback is playable");
   await failedMystery.close();
@@ -281,12 +293,13 @@ async function run(){
    window.CrewLive={Session:MockTwentySession};
   });
   await voiceTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  assert.equal(await voiceTwenty.locator(".crew-play-word-panel").count(),0,"Before Live, do not show guessing UI");
+  await voiceTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   await voiceTwenty.locator(".crew-play-question-disclosure summary").click();
   await voiceTwenty.locator(".crew-play-question-grid button").first().click();
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"1 / 20","On-screen action uses same count");
-  await voiceTwenty.locator(".crew-play-voice-start").click();
   assert.equal(await voiceTwenty.locator(".crew-play-voice-presence").count(),1,"Friend reply should appear above the board");
   assert.equal(await voiceTwenty.locator(".crew-play-voice").count(),0,"Voice should not be duplicated below the game");
   assert.equal(await voiceTwenty.locator(".crew-play-voice-dock-shell .crew-voice-dock").count(),1);
@@ -311,6 +324,7 @@ async function run(){
   await voiceTwenty.locator(".crew-play-solution").waitFor({timeout:6000});
   assert.match(await voiceTwenty.locator(".crew-play-solution").textContent(),/腳踏車/);
   await voiceTwenty.locator(".crew-play-solution button").click();
+  await voiceTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
@@ -324,25 +338,33 @@ async function run(){
    sessionStorage.removeItem("crew_gemini_api_key_session");
   });
   await noKeyTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
-  await noKeyTwenty.locator(".crew-play-mystery-source").getByText("內建物品").waitFor({timeout:15000});
-  await noKeyTwenty.locator(".crew-play-question-disclosure summary").click();
-  await noKeyTwenty.locator(".crew-play-question-grid button").first().click();
-  assert.equal(await noKeyTwenty.locator(".crew-play-count").textContent(),"1 / 20");
+  await noKeyTwenty.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
+  assert.equal(await noKeyTwenty.locator(".crew-play-word-panel").count(),0);
+  assert.equal(await noKeyTwenty.locator(".crew-play-voice-dock-shell").count(),0);
+  await noKeyTwenty.locator(".crew-play-voice-entrance .crew-gemini-setup-notice").waitFor({state:"visible"});
   await noKeyTwenty.close();
-  process.stdout.write("PASS keyless offline 20 Questions fallback\n");
-
+  process.stdout.write("PASS keyless word games require voice and show Gemini setup\n");
   // Responsive UX regression: the voice dock stays visible above global nav
   // while users scroll, and the optional question grid stays collapsed.
   const mobileTwenty=await context.newPage();
   await mobileTwenty.setViewportSize({width:390,height:844});
   await mobileTwenty.addInitScript(()=>{
-   localStorage.removeItem("crew_gemini_api_key");
-   sessionStorage.removeItem("crew_gemini_api_key_session");
+   localStorage.setItem("crew_gemini_api_key","fake-key-mobile-voice-test");
+   window.CrewAI={call:async()=>"{invalid generation"};
+   window.CrewLiveUI={};
+   window.CrewLive={Session:class{
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
+    async start(){} async stop(){this.running=false}
+    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+   }};
   });
   await mobileTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
   await mobileTwenty.locator(".crew-play-voice-presence").waitFor({state:"visible",timeout:15000});
   assert.equal(await mobileTwenty.locator(".crew-play-friend-bar").count(),0,"Do not duplicate the friend card");
-  assert.equal(await mobileTwenty.locator(".crew-play-voice-dock-shell .crew-play-voice-start").count(),1);
+  assert.equal(await mobileTwenty.locator(".crew-play-voice-dock-shell").count(),0,"Voice start must not be pinned before session");
+  await mobileTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
+  await mobileTwenty.locator(".crew-play-voice-dock-shell").waitFor({state:"visible",timeout:15000});
+  assert.equal(await mobileTwenty.locator(".crew-play-voice-entrance").count(),0,"Start button disappears after connection");
   assert.equal(await mobileTwenty.locator(".crew-play-question-disclosure:not([open])").count(),1,"Hints are initially collapsed");
   const inspectVoiceDock=async()=>{
    return mobileTwenty.evaluate(()=>{

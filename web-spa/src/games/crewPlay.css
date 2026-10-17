@@ -190,7 +190,7 @@
 .crew-play-voice-dock-shell .live-audio-settings{font-size:11px}
 .crew-play-voice-dock-shell .live-status{font-size:11px;line-height:1.5;margin:0;min-height:0}
 @media(max-width:1099px){
- .crew-play-session--twenty{padding-bottom:160px}
+ .crew-play-session--word{padding-bottom:160px}
  .crew-play-voice-dock-shell{position:fixed;z-index:42;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);left:50%;transform:translateX(-50%);width:min(680px,calc(100vw - 18px));backdrop-filter:blur(16px);background:rgba(255,255,255,.97);box-shadow:0 -6px 26px #3e3c671f}
  .crew-play-voice-dock-shell>small{display:none}
  .crew-play-voice-dock-shell .live-audio-settings:not([open]){max-height:24px}
@@ -215,4 +215,28 @@
    Transformed ancestors turn a fixed voice dock into container-relative
    positioning, allowing it to overlap the site's fixed mobile nav.
    Disable ONLY this page transition while the voice-first game is mounted. */
-.page.page-enter:has(.crew-play-page--twenty){animation:none}
+.page.page-enter:has(.crew-play-page--voice-required){animation:none}
+
+/* Voice-first word games: start at the top; game remains locked before a
+   successful Gemini Live session. Board games continue to work offline. */
+.crew-play-voice-entrance{display:grid;justify-items:stretch;gap:9px;padding:15px;border:1px solid #d9d5f2;border-radius:14px;background:linear-gradient(140deg,#f6f4ff,#fff)}
+.crew-play-voice-entrance>strong{font-size:15px;color:#38346d}
+.crew-play-voice-entrance>p{font-size:12px;line-height:1.65;color:var(--muted);margin:0}
+.crew-play-voice-entrance .crew-play-voice-start{min-height:50px;background:#6257e7;color:#fff;border:1px solid #6257e7;font-size:14px}
+.crew-play-voice-entrance .crew-play-voice-start:disabled{opacity:.52;cursor:not-allowed}
+.crew-play-voice-entrance .crew-gemini-setup-notice{margin:0}
+.crew-play-voice-connecting{padding:12px;margin:0;color:#6059a7;background:#f5f3ff;border-radius:12px;font-size:12px}
+.crew-play-voice-recovery{display:grid;gap:9px}
+.crew-play-voice-recovery>p{margin:0;color:#9f4948;font-size:12px}
+.crew-play-word-stage{position:relative;min-width:0}
+.crew-play-word-stage.is-paused{opacity:.55;pointer-events:none;user-select:none}
+.crew-play-voice-paused{padding:13px 15px;background:#fff8ed;border:1px solid #eedfbe;border-radius:14px;color:#756038;display:grid;gap:5px}
+.crew-play-voice-paused strong{font-size:13px}
+.crew-play-voice-paused p{margin:0;font-size:11px;line-height:1.6}
+.crew-play-session--word .crew-play-voice-dock-shell .crew-voice-dock-main{width:100%}
+.crew-play-game-card .crew-play-game-voice-tag{font-size:10px;font-weight:800;letter-spacing:.02em;color:#6157aa}
+@media(max-width:620px){
+ .crew-play-page--voice-required .crew-play-game-header{padding-top:18px;margin-bottom:8px}
+ .crew-play-voice-entrance{padding:12px}
+ .crew-play-session--word .crew-play-voice-presence{padding:11px}
+}
