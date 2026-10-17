@@ -19,8 +19,12 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  const component=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(component,/fetchShortsFeed\(controller.signal\)/);
  assert.match(component,/controller\.abort\(\)/);
- assert.match(component,/\.slice\(0,5\)/);
+ assert.match(component,/\.slice\(0,10\)/);
  assert.match(component,/seen\.has\(post\.friendId\)/);
+ assert.match(component,/gesture\.current/);
+ assert.match(component,/atEnd:element\.scrollWidth-element\.clientWidth-element\.scrollLeft<=3/);
+ assert.match(component,/pullRef\.current>=72/);
+ assert.match(component,/navigate\("\/teacher\/shorts"\)/);
  assert.match(component,/IntersectionObserver/);
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
@@ -33,16 +37,17 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
 
 test("Home Shorts mobile cards scroll horizontally without a large JS gallery",()=>{
  const styles=read("web-spa/src/teacher/homeShorts.css");
- assert.match(styles,/grid-auto-flow:column/);
+ assert.match(styles,/display:flex/);
  assert.match(styles,/overflow-x:auto/);
  assert.match(styles,/scroll-snap-type:x proximity/);
- assert.match(styles,/grid-template-columns:repeat\(5/);
+ assert.match(styles,/crew-home-short-end/);
+ assert.match(styles,/flex:0 0 clamp\(185px,23vw,235px\)/);
  assert.match(styles,/aspect-ratio:3\/4/);
  assert.match(styles,/object-fit:contain/);
  assert.doesNotMatch(styles,/aspect-ratio:4\/3/);
  const en=JSON.parse(read("web-spa/src/i18n/locales/en/teacher.json"));
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/teacher.json"));
- for(const language of [en,zh])for(const key of ["shortsTitle","shortsIntro","shortsAll","shortsChat","shortsLoading","shortsUnavailable","shortsDisclosure","shortsDemo"]){
+ for(const language of [en,zh])for(const key of ["shortsTitle","shortsIntro","shortsAll","shortsChat","shortsLoading","shortsUnavailable","shortsDisclosure","shortsDemo","shortsPullHint","shortsReleaseHint"]){
   assert.ok(language.practice[key],key+" missing");
  }
 });
