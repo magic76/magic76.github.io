@@ -118,3 +118,5 @@
 .friends-game-entry strong{font-size:13px}
 .friends-game-entry small{font-size:11px;color:var(--muted);line-height:1.45}
 .friends-game-entry>b{color:#596db4}
+
+.friends-life-book{width:100%;margin:12px 0 4px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;text-align:left;background:var(--surface,#fff);font-size:12px}.friends-life-book summary{font-weight:700;cursor:pointer;color:var(--text)}.friends-life-book p,.friends-life-book li{line-height:1.65;color:var(--text);overflow-wrap:anywhere}.friends-life-book strong{font-size:12px}.friends-life-book ul{padding-left:19px;margin:6px 0 10px}.friends-life-book small{display:block;color:var(--muted);line-height:1.55}

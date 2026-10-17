@@ -5,6 +5,7 @@ import i18n from "../i18n";
 import {Link,useNavigate} from "react-router-dom";
 import {useTeacherStore,type FriendChatLanguageMode} from "../store/teacherStore";
 import {CREW_FRIENDS,FRIEND_CATEGORIES,FRIEND_CATEGORY_LABELS,type FriendProfile} from "./friendProfiles";
+import {characterLifeView,lifeBookLabels} from "../characters/lifeBookLocale";
 import {FriendAvatar} from "./FriendAvatar";
 import {Icon} from "../components/Icon";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
@@ -92,6 +93,14 @@ export function FriendsPage(){
    <section className="friends-modal" role="dialog" aria-modal="true" aria-label={selected.name} onClick={e=>e.stopPropagation()}>
     <button ref={closeButton} type="button" className="friends-modal-close" aria-label={t("close")} onClick={()=>{setSelected(null);setMemoryPanel(false)}}>×</button>
     <FriendAvatar friend={selected} className="friends-detail-avatar"/><h2>{selected.name}</h2><strong className="friends-detail-title">{english?selected.titleEn:selected.titleZh}</strong><p>{english?selected.bioEn:selected.bioZh}</p><small className="friends-role-promise">{t("rolePromise")}</small>
+    {(()=>{const bio=characterLifeView("friend",selected.id,locale.language),labels=lifeBookLabels("friend",locale.language);return bio?<details className="friends-life-book">
+     <summary>{labels.title}</summary>
+     <p>{bio.summary}</p>
+     {bio.people&&<><strong>{labels.people}</strong><p>{bio.people}</p></>}
+     {bio.current&&<><strong>{labels.current}</strong><p>{bio.current}</p></>}
+     {!!bio.moments.length&&<><strong>{labels.moments}</strong><ul>{bio.moments.map((m,i)=><li key={i}>{m}</li>)}</ul></>}
+     <small>{labels.note}</small>
+    </details>:null})()}
     {getFriendLastChat(selected.id,language)>0?<small className="friends-detail-time">{relativeDate(getFriendLastChat(selected.id,language))}</small>:null}
     {memoryPanel?<div className="friends-memories">
      <h3>{t("topicsWith",{name:selected.name})}</h3>
