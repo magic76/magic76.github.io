@@ -9,7 +9,7 @@ import {readFileSync} from "node:fs";
 import {chromium} from "playwright";
 
 const origin="http://127.0.0.1:4179";
-const routes=["/","/teacher/","/story/","/fortune/","/research/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/"];
+const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
 
 async function waitForPreview(child){
  for(let n=0;n<120;n++){
@@ -119,6 +119,19 @@ async function run(){
    await page.close();
    process.stdout.write("PASS indexed research article "+route+"\\n");
   }
+  for(const path of ["/games/","/en/games/"]){
+   const page=await context.newPage();
+   const errors=[];checkConsole(page,errors);
+   const response=await page.goto(origin+path,{waitUntil:"domcontentloaded",timeout:30000});
+   assert.equal(response?.status(),200,"games SSG landing must respond with 200: "+path);
+   await page.locator(".crew-play-game-card").first().waitFor({timeout:15000});
+   assert.equal(await page.locator(".crew-play-game-card").count(),5,"Crew Play must expose all five games: "+path);
+   const canonical=await page.locator('link[rel="canonical"]').getAttribute("href");
+   assert.equal(canonical,"https://www.3sssi.com"+path,"games canonical must match requested localized route");
+   assert.deepEqual(errors,[],"No hydration errors on games landing "+path);
+   await page.close();
+  }
+  process.stdout.write("PASS localized Crew Play SSG + sitemap landing routes\\n");
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
