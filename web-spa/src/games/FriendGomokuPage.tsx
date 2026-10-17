@@ -135,6 +135,7 @@ export function FriendGomokuPage(){
     return()=>{document.body.className=""};
   },[]);
 
+  const lastCoordinate=engine?.lastMove?coordinate(engine.lastMove):null;
   const turnLabel=engine?.winner
     ?engine.winner==="draw"?(english?"Draw":"平手"):engine.winner==="black"?(english?"You win":"你贏了"): (english?friend.name+" wins":friend.name+" 贏了")
     :thinking?(english?friend.name+" is thinking…":friend.name+" 正在下棋…")
@@ -163,18 +164,30 @@ export function FriendGomokuPage(){
 
     {gameStarted&&engine&&board?<section className="friend-gomoku-play" aria-label={english?"Gomoku game":"五子棋對局"}>
       <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions"><button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
-      <div className="friend-gomoku-board" role="grid" aria-label={english?"15 by 15 Gomoku board":"15 乘 15 五子棋棋盤"}>
+      <div className="friend-gomoku-coordinate-shell" role="group" aria-label={english?"Gomoku board with coordinates":"附有座標標示的五子棋棋盤"}>
+        <div className="friend-gomoku-axis-top" aria-hidden="true">
+          {Array.from({length:15},(_,x)=><span key={x} className={`friend-gomoku-axis-label${engine.lastMove?.x===x?" is-last":""}`}>{String.fromCharCode(65+x)}</span>)}
+        </div>
+        <div className="friend-gomoku-axis-left" aria-hidden="true">
+          {Array.from({length:15},(_,y)=><span key={y} className={`friend-gomoku-axis-label${engine.lastMove?.y===y?" is-last":""}`}>{y+1}</span>)}
+        </div>
+        <div className="friend-gomoku-board" role="grid" aria-label={english?"15 by 15 Gomoku board. Columns A through O from left to right; rows 1 through 15 from top to bottom.":"15 乘 15 五子棋棋盤，橫向 A 到 O，縱向由上至下 1 到 15。"}>
         <svg className="friend-gomoku-grid-lines" viewBox="0 0 15 15" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           {Array.from({length:15},(_,index)=><g key={index}><line x1="0.5" x2="14.5" y1={index+0.5} y2={index+0.5}/><line y1="0.5" y2="14.5" x1={index+0.5} x2={index+0.5}/></g>)}
           {[3,7,11].flatMap(y=>[3,7,11].map(x=><circle key={`${x}-${y}`} cx={x+0.5} cy={y+0.5} r="0.1"/>))}
         </svg>
         {board.flatMap((row,y)=>row.map((cell,x)=>{
           const index=y*15+x;const move=engine.lastMove?.x===x&&engine.lastMove?.y===y;
-          return <button key={index} type="button" role="gridcell" className="friend-gomoku-cell" aria-label={`${String.fromCharCode(65+x)}${y+1}${cell?`, ${cell}`:""}`} disabled={Boolean(cell)||thinking||engine.turn!=="black"||Boolean(engine.winner)} onClick={()=>playAt(x,y)}>
+          return <button key={index} type="button" role="gridcell" className="friend-gomoku-cell" data-coordinate={coordinate({x,y})} aria-label={`${String.fromCharCode(65+x)}${y+1}${cell?`, ${cell}`:""}`} disabled={Boolean(cell)||thinking||engine.turn!=="black"||Boolean(engine.winner)} onClick={()=>playAt(x,y)}>
             {cell?<span className={`friend-gomoku-stone ${cell}${move?" last":""}${winning.has(index)?" winning":""}`}/>:null}
           </button>;
         }))}
+        </div>
       </div>
+      <p className="friend-gomoku-coordinate-hint">
+        <span>{english?"Letters A–O → columns · Numbers 1–15 ↓ rows":"字母 A–O → 欄位 · 數字 1–15 ↓ 列數"}</span>
+        {lastCoordinate?<strong>{english?"Last move":"上一手"}：{lastCoordinate}</strong>:null}
+      </p>
       <div className="friend-gomoku-companion">
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
         <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><span>{live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}</span></div>
