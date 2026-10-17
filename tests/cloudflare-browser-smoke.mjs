@@ -530,8 +530,8 @@ async function run(){
     assert.equal(await boardVoice.locator(".crew-connect-slot:enabled").count(),0,
       "Connect Four must block input while AI is speaking");
    }else{
-    assert.equal(await boardVoice.locator(".crew-reversi-disc.white").count(),2,
-      "The AI white stone must NOT appear before speech finishes");
+    assert.equal(await boardVoice.locator(".crew-reversi-disc.white").count(),1,
+      "The player\'s black capture already flipped one original white stone; AI has not placed its white stone");
     assert.equal(await boardVoice.locator(".crew-reversi-cell.can-play").count(),0,
       "Reversi must block legal moves while AI is speaking");
    }
@@ -542,7 +542,7 @@ async function run(){
    await boardVoice.waitForTimeout(530);
    assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
     "Stale user-intention output must not unlock the board");
-   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:2,
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:1,
     "Stale J7 output must not physically place the next AI stone");
    const expectedSpeech=await boardVoice.evaluate(name=>{
     const cue=window.__mockBoardCue;
@@ -560,7 +560,7 @@ async function run(){
    await boardVoice.waitForTimeout(480);
    assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
      "The model turnComplete callback is too early; wait for actual audio drain");
-   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:2,
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:1,
     "A completed transcript MUST NOT place the AI stone before audio drains");
    await boardVoice.evaluate(()=>window.__mockBoardSession.options.onSpeaking(false));
    await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").nth(gameName==="connect4"?0:2).waitFor({timeout:5000});
