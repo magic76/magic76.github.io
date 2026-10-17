@@ -118,16 +118,10 @@ export function FriendGomokuPage(){
   checkVoiceRef.current=()=>{
     const pending=waitingAiRef.current;
     if(!pending?.sent||!pending.completed||liveRef.current.state!=="listening")return;
-    if(pending.heardSpeaking){commitAiMove();return;}
-    // No speaking event yet: allow worklet/audio state to catch up first.
-    if(pending.graceTimer===null){
-      pending.graceTimer=window.setTimeout(()=>{
-        const waiting=waitingAiRef.current;
-        if(waiting!==pending)return;
-        pending.graceTimer=null;
-        if(liveRef.current.state==="listening"&&pending.completed)finishAiRef.current();
-      },450);
-    }
+    // A matching transcript is not evidence that its audio has started or
+    // finished. Only release after onSpeaking(true) and the playback-drained
+    // onSpeaking(false). The existing timeout/Skip speech cover silent stalls.
+    if(pending.heardSpeaking)commitAiMove();
   };
 
   useEffect(()=>{
