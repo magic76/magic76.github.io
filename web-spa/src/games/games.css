@@ -5,6 +5,9 @@
 .friend-gomoku-kicker{display:inline-block;padding:5px 9px;border-radius:20px;background:#eeeefe;color:#6561a7;font-size:10px;font-weight:850;letter-spacing:.1em}
 .friend-gomoku-heading h1{margin:13px 0 4px;font-size:clamp(25px,5vw,34px);letter-spacing:-.03em}
 .friend-gomoku-heading p{max-width:510px;margin:0 auto;color:var(--muted);font-size:13px;line-height:1.6}
+.friend-gomoku-heading.is-playing{padding:8px 0 10px}
+.friend-gomoku-heading.is-playing .friend-gomoku-kicker{display:none}
+.friend-gomoku-heading.is-playing h1{margin:0;font-size:clamp(19px,4vw,25px)}
 .friend-gomoku-setup{display:grid;grid-template-columns:minmax(0,1fr) minmax(190px,1.1fr) auto;grid-template-rows:auto auto;align-items:center;gap:8px 12px;margin:4px 0 18px;padding:14px;border:1px solid var(--line);border-radius:18px;background:var(--surface,#fff)}
 .friend-gomoku-friend-row{display:flex;align-items:center;gap:10px;min-width:0;grid-column:1;grid-row:1/span 2}
 .friend-gomoku-avatar{width:46px;height:46px;border-radius:50%;object-fit:cover;background:#eef0f8;flex:none}
@@ -42,3 +45,5 @@
 .friend-gomoku-last-event{width:min(100%,520px);margin:0;color:var(--muted);font-size:11px;text-align:center}
 .friend-gomoku-note{max-width:520px;margin:15px auto 0;color:var(--muted);font-size:10px;line-height:1.55;text-align:center}
 @media(max-width:620px){.friend-gomoku-page{padding:0 0 26px}.friend-gomoku-heading{padding:45px 0 14px}.friend-gomoku-heading h1{margin-top:8px}.friend-gomoku-heading p{font-size:12px}.friend-gomoku-setup{grid-template-columns:1fr 1fr;grid-template-rows:auto;align-items:center;gap:10px;padding:12px}.friend-gomoku-friend-row{grid-column:1/-1;grid-row:auto}.friend-gomoku-select-label{grid-column:1;grid-row:2}.friend-gomoku-select-label+.field{grid-column:2;grid-row:2;min-width:0}.friend-gomoku-setup .btn{grid-column:1/-1;grid-row:auto;width:100%}.friend-gomoku-board{border-radius:8px}.friend-gomoku-status{padding:0 2px}.friend-gomoku-status>div{font-size:13px}.friend-gomoku-reset{padding:8px;font-size:11px}}
+
+@media(max-width:620px){.friend-gomoku-heading.is-playing{padding:40px 0 8px}.friend-gomoku-heading.is-playing h1{margin:0;font-size:20px}}
