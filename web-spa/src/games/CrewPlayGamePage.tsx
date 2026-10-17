@@ -13,8 +13,8 @@ import {CrewBoardGames} from "./CrewBoardGames";
 import {matchesBoardNarration,type ExpectedBoardSpeech} from "./boardVoiceTurn";
 import {CrewWordGames} from "./CrewWordGames";
 import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase,type TwentyItem} from "./playPuzzles";
-import {generateCrewMystery} from "./generateMystery";
-import {generateTwentyItem} from "./generateTwentyItem";
+import {generateCrewMystery,rememberGeneratedMystery} from "./generateMystery";
+import {generateTwentyItem,rememberGeneratedTwentyItem} from "./generateTwentyItem";
 import {chooseFallbackPuzzle} from "./puzzleDiversity";
 import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
@@ -87,7 +87,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   setQuestionStatus("generating");
   void generateTwentyItem().then(item=>{
    if(!active)return;
-   setQuestion(item);setQuestionStatus("generated");setLoadedRound(round);
+   rememberGeneratedTwentyItem(item);setQuestion(item);setQuestionStatus("generated");setLoadedRound(round);
   }).catch(()=>{
    if(!active)return;
    setQuestion(selectTwentyFallback());setQuestionStatus("fallback");setLoadedRound(round);
@@ -110,7 +110,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   setMysteryStatus("generating");
   void generateCrewMystery(friend.name).then(result=>{
    if(!active)return;
-   setMysteryCase(result);setMysteryStatus("generated");setLoadedRound(round);
+   rememberGeneratedMystery(result);setMysteryCase(result);setMysteryStatus("generated");setLoadedRound(round);
   }).catch(()=>{
    if(!active)return;
    setMysteryCase(selectMysteryFallback());setMysteryStatus("fallback");setLoadedRound(round);
