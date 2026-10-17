@@ -488,8 +488,9 @@ async function run(){
   assert.deepEqual(voiceErrors,[],"Gomoku mocked voice must not raise browser exceptions");
   await voiceGame.close();
   process.stdout.write("PASS Gomoku voice-drain pacing and manual skip\n");
-  // Both new board games must place the AI's disc first, then block the next
-  // human turn until its audible post-move comment has really drained.
+  // Both voice-enabled board games must announce the chosen move first,
+  // finish real audio playback, and only THEN place the AI's stone.
+  // Without voice they still play the next local engine move immediately.
   for(const gameName of ["connect4","reversi"]){
    const boardVoice=await context.newPage();
    const boardErrors=[];
@@ -516,15 +517,15 @@ async function run(){
     await boardVoice.locator(".crew-reversi-cell.can-play").first().click();
    }
    await boardVoice.waitForFunction(name=>window.__mockBoardCue?.includes(
-    name==="connect4"?"[CONNECT FOUR AFTER MOVE]":"[REVERSI AFTER MOVE]"),gameName,{timeout:8000});
+    name==="connect4"?"[CONNECT FOUR BEFORE MOVE]":"[REVERSI BEFORE MOVE]"),gameName,{timeout:8000});
    if(gameName==="connect4"){
-    assert.equal(await boardVoice.locator(".crew-connect-disc.computer").count(),1,
-      "The yellow AI disc must be present before speech begins");
+    assert.equal(await boardVoice.locator(".crew-connect-disc.computer").count(),0,
+      "The yellow AI disc must NOT appear before speech finishes");
     assert.equal(await boardVoice.locator(".crew-connect-slot:enabled").count(),0,
       "Connect Four must block input while AI is speaking");
    }else{
-    assert.equal(await boardVoice.locator(".crew-reversi-disc.white").count(),3,
-      "The newly flipped board must be visible before speech begins");
+    assert.equal(await boardVoice.locator(".crew-reversi-disc.white").count(),2,
+      "The AI white stone must NOT appear before speech finishes");
     assert.equal(await boardVoice.locator(".crew-reversi-cell.can-play").count(),0,
       "Reversi must block legal moves while AI is speaking");
    }
@@ -534,14 +535,16 @@ async function run(){
    }));
    await boardVoice.waitForTimeout(530);
    assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
-    "Stale user-intention output must not unlock the chessboard");
+    "Stale user-intention output must not unlock the board");
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:2,
+    "Stale J7 output must not physically place the next AI stone");
    const expectedSpeech=await boardVoice.evaluate(name=>{
     const cue=window.__mockBoardCue;
     if(name==="connect4"){
-      const n=cue.match(/yellow disc in column (\d+)/)?.[1];
+      const n=cue.match(/selected for column (\d+)/)?.[1];
       return n?"I played in column "+n+".":"";
     }
-    const square=cue.match(/PLACED white at ([A-H]\d+)/)?.[1];
+    const square=cue.match(/white stone is selected for ([A-H]\d+)/)?.[1];
     return square?"I just played "+square+".":"";
    },gameName);
    assert.ok(expectedSpeech,"Narrator cue must contain its expected move");
@@ -551,7 +554,10 @@ async function run(){
    await boardVoice.waitForTimeout(480);
    assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
      "The model turnComplete callback is too early; wait for actual audio drain");
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").count(),gameName==="connect4"?0:2,
+    "A completed transcript MUST NOT place the AI stone before audio drains");
    await boardVoice.evaluate(()=>window.__mockBoardSession.options.onSpeaking(false));
+   await boardVoice.locator(gameName==="connect4"?".crew-connect-disc.computer":".crew-reversi-disc.white").nth(gameName==="connect4"?0:2).waitFor({timeout:5000});
    await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").first().waitFor({timeout:5000});
    if(gameName==="connect4"){
     await boardVoice.locator(".crew-connect-slot:enabled").first().click();
@@ -565,7 +571,7 @@ async function run(){
    await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").first().waitFor({timeout:8000});
    assert.deepEqual(boardErrors,[],"No browser errors for "+gameName+" voice pacing");
    await boardVoice.close();
-   process.stdout.write("PASS "+gameName+" post-move voice completion, skip, reset\n");
+   process.stdout.write("PASS "+gameName+" voice BEFORE AI stone, verified audio drain, skip, reset\n");
   }
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
