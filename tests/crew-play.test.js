@@ -92,7 +92,7 @@ test("Connect Four and Reversi narrate every AI move only after it is applied",(
  assert.match(board,/roundEpochRef\.current\+=1/);
  assert.match(board,/crew-play-skip-speech/);
  assert.match(page,/BOARD_VOICE_TIMEOUT_MS=25000/);
- assert.match(page,/onTurnComplete:\(\)=>\{/);
+ assert.match(page,/onTurnComplete:\(spokenTurn\)=>\{/);
  assert.match(page,/turn\.completed=true/);
  assert.match(page,/if\(!turn\?\.sent\|\|!turn\.completed\|\|liveRef\.current\.state!=="listening"\)return/);
  assert.match(page,/if\(turn\.heardSpeaking\)\{finishBoardVoice\(\);return;\}/);
@@ -119,7 +119,7 @@ test("Mystery generates a new, validated case from the existing Gemini Key with 
  assert.match(page,/setMysteryStatus\("fallback"\)/);
  assert.match(page,/setMysteryCase\(fallbackMystery\)/);
  assert.match(page,/kind==="mystery"&&mysteryStatus==="generating"/);
- assert.match(page,/disabled=\{kind==="mystery"&&mysteryStatus==="generating"\}/);
+ assert.match(page,/disabled=\{\(kind==="mystery"&&mysteryStatus==="generating"\)\|\|\(kind==="twenty-questions"&&questionStatus==="generating"\)\}/);
  assert.match(page,/const mystery=mysteryCase/);
  assert.match(word,/mysterySource==="generated"/);
  assert.match(word,/Gemini 原創謎題/);
