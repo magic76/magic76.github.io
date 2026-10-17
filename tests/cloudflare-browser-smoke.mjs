@@ -231,6 +231,96 @@ async function run(){
   assert.ok(await failedMystery.locator(".crew-play-question-grid button").count()>0,"Built-in fallback is playable");
   await failedMystery.close();
   process.stdout.write("PASS mystery fallback on invalid Gemini output\n");
+  // 20 Questions P0: Gemini-generated secret + a single 20-attempt budget shared
+  // by screen prompts, spoken free questions and explicit spoken guesses.
+  const voiceTwenty=await context.newPage();
+  const twentyErrors=[];
+  checkConsole(voiceTwenty,twentyErrors);
+  await voiceTwenty.addInitScript(()=>{
+   localStorage.setItem("crew_gemini_api_key","mock-key-for-twenty-smoke");
+   window.__twentyGenerationCalls=0;
+   const facts=[
+    {question:{en:"Does it have two wheels?",zh:"它有兩個輪子嗎？"},answer:true},
+    {question:{en:"Can it float on the ocean?",zh:"它能漂浮在海上嗎？"},answer:false},
+    {question:{en:"Does it have pedals?",zh:"它有踏板嗎？"},answer:true},
+    {question:{en:"Does it need a battery?",zh:"它需要電池嗎？"},answer:false},
+    {question:{en:"Do people ride it outdoors?",zh:"人們會在戶外騎它嗎？"},answer:true},
+    {question:{en:"Does it make coffee?",zh:"它可以煮咖啡嗎？"},answer:false}
+   ];
+   window.CrewAI={call:async prompt=>{
+    if(prompt.includes("choosing ONE secret object")){
+     const n=++window.__twentyGenerationCalls;
+     const name=n===1?{zh:"腳踏車",en:"bicycle"}:{zh:"鍵盤",en:"keyboard"};
+     return JSON.stringify({name,aliases:n===1?["腳踏車","bicycle","bike"]:["鍵盤","keyboard","電腦鍵盤"],
+       traits:n===1?["made","outdoors","transport"]:["made","electric","portable"],
+       facts});
+    }
+    if(prompt.includes("conservative 20 Questions game judge")){
+     const speech=prompt.match(/Learner transcript \(untrusted\): (.+)$/m)?.[1]||"";
+     if(speech.includes("hello")||speech.includes("Hello"))
+      return JSON.stringify({type:"chat"});
+     if(speech.includes("I think it's a bicycle"))
+      return JSON.stringify({type:"guess",guess:"bicycle"});
+     if(speech.includes("made by people"))
+      return JSON.stringify({type:"question",answer:"yes"});
+     return JSON.stringify({type:"question",answer:"unknown"});
+    }
+    return JSON.stringify({type:"chat"});
+   }};
+   window.CrewLiveUI={};
+   class MockTwentySession{
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false;window.__twentyVoice=this}
+    async start(){this.options.onState?.("ready")}
+    async stop(){this.running=false}
+    setVolume(){}
+    sendText(){return true}
+    interrupt(){return true}
+    getDurationMs(){return 0}
+   }
+   window.CrewLive={Session:MockTwentySession};
+  });
+  await voiceTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
+  assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
+  await voiceTwenty.locator(".crew-play-question-grid button").first().click();
+  assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"1 / 20","On-screen action uses same count");
+  await voiceTwenty.locator(".crew-play-voice-start").click();
+  await voiceTwenty.evaluate(()=>window.__twentyVoice.options.onTurnComplete({
+   input:"Hello Bella",output:"Hi!",hasValidOutput:true
+  }));
+  await voiceTwenty.waitForTimeout(180);
+  assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"1 / 20","Small talk must not count");
+  await voiceTwenty.evaluate(()=>window.__twentyVoice.options.onTurnComplete({
+   input:"Is it made by people?",output:"Yes!",hasValidOutput:true
+  }));
+  await voiceTwenty.locator(".crew-play-count").getByText("2 / 20").waitFor({timeout:6000});
+  assert.equal(await voiceTwenty.locator(".crew-play-question-history li").count(),2);
+  assert.match(await voiceTwenty.locator(".crew-play-question-history").textContent(),/Is it made by people/);
+  await voiceTwenty.evaluate(()=>window.__twentyVoice.options.onTurnComplete({
+   input:"I think it's a bicycle",output:"You got it!",hasValidOutput:true
+  }));
+  await voiceTwenty.locator(".crew-play-count").getByText("3 / 20").waitFor({timeout:6000});
+  await voiceTwenty.locator(".crew-play-solution").waitFor({timeout:6000});
+  assert.match(await voiceTwenty.locator(".crew-play-solution").textContent(),/腳踏車/);
+  await voiceTwenty.locator(".crew-play-solution button").click();
+  await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
+  assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
+  assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
+  assert.deepEqual(twentyErrors,[],"20 Questions speech synchronization should be error-free");
+  await voiceTwenty.close();
+  process.stdout.write("PASS 20 Questions generated secrets, voice questions/guesses and shared 20-attempt budget\n");
+
+  const noKeyTwenty=await context.newPage();
+  await noKeyTwenty.addInitScript(()=>{
+   localStorage.removeItem("crew_gemini_api_key");
+   sessionStorage.removeItem("crew_gemini_api_key_session");
+  });
+  await noKeyTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  await noKeyTwenty.locator(".crew-play-mystery-source").getByText("內建物品").waitFor({timeout:15000});
+  await noKeyTwenty.locator(".crew-play-question-grid button").first().click();
+  assert.equal(await noKeyTwenty.locator(".crew-play-count").textContent(),"1 / 20");
+  await noKeyTwenty.close();
+  process.stdout.write("PASS keyless offline 20 Questions fallback\n");
   // Gomoku: column letters and row numbers align with the exact rendered stone centers.
   await play.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
   await play.locator(".friend-gomoku-setup .btn").waitFor({state:"visible",timeout:15000});
