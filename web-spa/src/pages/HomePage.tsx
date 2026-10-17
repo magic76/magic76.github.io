@@ -151,6 +151,11 @@ export function HomePage(){
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
      </div>
+     <Link to="/games/friend-gomoku" className="crew-home-game-entry">
+      <span className="crew-home-game-icon" aria-hidden="true">⚫⚪</span>
+      <span><strong>{locale.language.startsWith("en")?"Play Gomoku with a Crew Friend":"和 Crew 朋友下一局五子棋"}</strong><small>{locale.language.startsWith("en")?"Pocket Game AI, with a friend chatting by voice.":"沿用 Pocket Game AI，朋友用語音陪你玩。"}</small></span>
+      <b aria-hidden="true">→</b>
+     </Link>
     </section>
 
    </div>
