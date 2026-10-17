@@ -29,12 +29,25 @@ export function FriendGomokuPage(){
   const [gameStarted,setGameStarted]=useState(false);
   const [revision,setRevision]=useState(0);
   const [thinking,setThinking]=useState(false);
+  const [awaitingAIReply,setAwaitingAIReply]=useState(false);
   const [loading,setLoading]=useState(false);
   const [engineError,setEngineError]=useState("");
   const [lastEvent,setLastEvent]=useState("");
   const engineRef=useRef<GomokuEngine|null>(null);
   const aiBusyRef=useRef(false);
   const pendingCueRef=useRef<string|null>(null);
+  const pendingAIMoveRef=useRef<{x:number;y:number;cue:string;sent:boolean;turnCompleted:boolean}|null>(null);
+  const speechPlayingRef=useRef(false);
+  const commitAIMoveRef=useRef<()=>void>(()=>{});
+  const onSpeakingChange=useCallback((speaking:boolean)=>{
+    speechPlayingRef.current=speaking;
+    if(!speaking&&pendingAIMoveRef.current?.sent&&pendingAIMoveRef.current.turnCompleted)
+      commitAIMoveRef.current();
+  },[]);
+  const onVoiceTurnComplete=useCallback((turn:{hasValidOutput?:boolean})=>{
+    if(pendingAIMoveRef.current?.sent&&turn.hasValidOutput)
+      pendingAIMoveRef.current.turnCompleted=true;
+  },[]);
   const friend=getCrewFriend(friendId);
   const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,chatMode),[language,nativeLanguage,chatMode]);
   const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,chatMode)+
@@ -46,7 +59,7 @@ export function FriendGomokuPage(){
       (engineRef.current?.moveHistory.length?`\n[CURRENT BOARD] This round already has ${engineRef.current.moveHistory.length} moves. Most recent move: ${engineRef.current.lastMove?.color} at ${engineRef.current.lastMove?coordinate(engineRef.current.lastMove):"unknown"}.`:"\n[CURRENT BOARD] The board is empty."),
     voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective,
     // Game silence must not trigger the ordinary friend-conversation follow-up timer.
-    persistHistory:false,sessionKind:"friend"
+    persistHistory:false,sessionKind:"friend",onSpeakingChange,onTurnComplete:onVoiceTurnComplete
   });
   const liveRef=useRef(live);liveRef.current=live;
   const notifyVoice=useCallback((cue:string)=>{
@@ -56,6 +69,29 @@ export function FriendGomokuPage(){
     if(session.state==="listening"&&session.sendText(languageDirective+"\n"+cue))return;
     pendingCueRef.current=cue;
   },[languageDirective]);
+  const deliverPlannedVoice=useCallback(()=>{
+    const planned=pendingAIMoveRef.current,session=liveRef.current;
+    if(!planned||planned.sent||session.state!=="listening")return;
+    if(session.sendText(languageDirective+"\n"+planned.cue))planned.sent=true;
+  },[languageDirective]);
+  const finishAIMove=()=>{
+    const planned=pendingAIMoveRef.current;
+    if(!planned)return;
+    pendingAIMoveRef.current=null;
+    setAwaitingAIReply(false);
+    const current=engineRef.current;
+    if(!current||current.turn!=="white"||current.winner||!current.makeMove(planned.x,planned.y)){
+      aiBusyRef.current=false;setThinking(false);return;
+    }
+    const learnerMove=current.moveHistory.at(-2);
+    const result=current.winner;
+    setLastEvent(result
+      ?result==="draw"?(english?"Draw — board is full":"平手，棋盤已滿"):(english?`${friend.name} wins`:`${friend.name} 贏了`)
+      :english?`${friend.name}: ${coordinate(planned)} · You: ${learnerMove?coordinate(learnerMove):"—"}`:`${friend.name}：${coordinate(planned)} · 你：${learnerMove?coordinate(learnerMove):"—"}`);
+    setThinking(false);aiBusyRef.current=false;setRevision(value=>value+1);
+    if(result)notifyVoice(`[GOMOKU RESULT] The game ended. ${result==="draw"?"It is a draw.":result==="white"?"You won.":"The learner won."} React briefly and then pause.`);
+  };
+  commitAIMoveRef.current=finishAIMove;
   const engine=engineRef.current;
   const board=engine?.board;
   const winning=new Set((engine?.winningLine||[]).map(point=>point.y*15+point.x));
@@ -68,7 +104,7 @@ export function FriendGomokuPage(){
       await loadScript("/games/gomoku-engine.js");
       if(!window.GomokuEngine)throw new Error("engine unavailable");
       const next=new window.GomokuEngine(15);
-      next.reset();engineRef.current=next;aiBusyRef.current=false;pendingCueRef.current=null;
+      next.reset();engineRef.current=next;aiBusyRef.current=false;pendingCueRef.current=null;pendingAIMoveRef.current=null;speechPlayingRef.current=false;setAwaitingAIReply(false);
       setGameStarted(true);setThinking(false);setLastEvent("");setRevision(value=>value+1);
       localStorage.setItem(SELECTED_FRIEND_KEY,friend.id);
     }catch{
@@ -87,12 +123,16 @@ export function FriendGomokuPage(){
   const newGame=()=>{
     const current=engineRef.current;
     if(!current)return;
+    const interrupted=Boolean(pendingAIMoveRef.current);
+    pendingAIMoveRef.current=null;setAwaitingAIReply(false);
+    if(interrupted)live.interrupt();
     current.reset();aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
     const cue="[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. React with one short friendly line, then wait for their first move.";
     notifyVoice(cue);
   };
   const changeFriend=async()=>{
     // A different friend must start with a new voice identity, not inherit the old session.
+    pendingAIMoveRef.current=null;setAwaitingAIReply(false);
     await live.stop();
     pendingCueRef.current=null;engineRef.current=null;aiBusyRef.current=false;
     setGameStarted(false);setThinking(false);setLastEvent("");setRevision(value=>value+1);
@@ -107,28 +147,42 @@ export function FriendGomokuPage(){
       if(!active||active.turn!=="white"||active.winner){aiBusyRef.current=false;setThinking(false);return;}
       const learnerMove=active.lastMove;
       const move=active.getAIMove("white");
-      active.makeMove(move.x,move.y);
-      const turnNumber=active.moveHistory.length;
-      const result=active.winner;
-      const summary=result
-        ? result==="draw"?"The board is full and the game is a draw.":result==="white"?"You won the game.":"The learner won the game."
-        :`You just played ${coordinate(move)} after the learner played ${learnerMove?coordinate(learnerMove):"their move"}.`;
-      setLastEvent(result
-        ?result==="draw"?(english?"Draw — board is full":"平手，棋盤已滿"):(english?`${friend.name} wins`:`${friend.name} 贏了`)
-        :english?`${friend.name}: ${coordinate(move)} · You: ${learnerMove?coordinate(learnerMove):"—"}`:`${friend.name}：${coordinate(move)} · 你：${learnerMove?coordinate(learnerMove):"—"}`);
-      setThinking(false);aiBusyRef.current=false;setRevision(value=>value+1);
-      const cue=result
-        ?`[GOMOKU RESULT] ${summary} The game ended after ${turnNumber} moves. React naturally in character with one short sentence, then pause. Do not explain strategy or ask several questions.`
-        :`[GOMOKU MOVE] ${summary} Say one short, natural in-character reaction to the game moment, then pause for the learner. Avoid explaining strategy or making every turn a lesson. This is turn ${turnNumber}.`;
-      notifyVoice(cue);
+      const voiceState=liveRef.current.state;
+      if(!["requesting-mic","connecting","listening","speaking"].includes(voiceState)){
+        pendingAIMoveRef.current={...move,cue:"",sent:false,turnCompleted:false};
+        commitAIMoveRef.current();
+        return;
+      }
+      // Announce the next move first. Commit it only after the Live audio playback has drained.
+      const cue=`[GOMOKU PLANNED MOVE] The learner placed ${learnerMove?coordinate(learnerMove):"their piece"}. Your next move WILL be ${coordinate(move)} (white), but the piece HAS NOT been placed yet. Say ONE short, playful sentence naturally in your Crew Friend voice, mentioning your planned coordinate. Do not claim the piece is already on the board, ask unrelated questions, or give a lesson. After your voice playback fully finishes, the board will place this move automatically.`;
+      pendingCueRef.current=null;
+      const planned={...move,cue,sent:false,turnCompleted:false};
+      pendingAIMoveRef.current=planned;
+      setAwaitingAIReply(true);
+      deliverPlannedVoice();
+      // Recover from missing/failed responses, but never cut off audio that is still playing.
+      window.setTimeout(()=>{
+        if(pendingAIMoveRef.current===planned&&!speechPlayingRef.current)
+          commitAIMoveRef.current();
+      },15000);
     },420);
     return()=>window.clearTimeout(timer);
-  },[gameStarted,revision,languageDirective,english,friend.name,notifyVoice]);
+  },[gameStarted,revision,deliverPlannedVoice]);
 
   useEffect(()=>{
+    if(awaitingAIReply)deliverPlannedVoice();
+  },[awaitingAIReply,live.state,deliverPlannedVoice]);
+
+  useEffect(()=>{
+    if(pendingAIMoveRef.current&&["idle","ending","ended","error","reporting"].includes(live.state))
+      commitAIMoveRef.current();
+  },[live.state]);
+
+  useEffect(()=>{
+    if(awaitingAIReply)return;
     const cue=pendingCueRef.current;
     if(live.state==="listening"&&cue&&live.sendText(languageDirective+"\n"+cue))pendingCueRef.current=null;
-  },[live.state,live.sendText,languageDirective,revision]);
+  },[live.state,live.sendText,languageDirective,revision,awaitingAIReply]);
 
   useEffect(()=>{
     document.body.className="teacher-theme";
@@ -138,6 +192,7 @@ export function FriendGomokuPage(){
   const lastCoordinate=engine?.lastMove?coordinate(engine.lastMove):null;
   const turnLabel=engine?.winner
     ?engine.winner==="draw"?(english?"Draw":"平手"):engine.winner==="black"?(english?"You win":"你贏了"): (english?friend.name+" wins":friend.name+" 贏了")
+    :awaitingAIReply?(english?`${friend.name} is speaking, then playing ${pendingAIMoveRef.current?coordinate(pendingAIMoveRef.current):""}…`:`${friend.name} 說完話後下 ${pendingAIMoveRef.current?coordinate(pendingAIMoveRef.current):""}…`)
     :thinking?(english?friend.name+" is thinking…":friend.name+" 正在下棋…")
     :engine?.turn==="black"?(english?"Your turn":"輪到你下棋"):english?friend.name+"'s turn":`輪到 ${friend.name}`;
 
@@ -163,7 +218,7 @@ export function FriendGomokuPage(){
     </section>:null}
 
     {gameStarted&&engine&&board?<section className="friend-gomoku-play" aria-label={english?"Gomoku game":"五子棋對局"}>
-      <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions"><button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
+      <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions">{awaitingAIReply?<button type="button" className="friend-gomoku-skip-voice" onClick={()=>{pendingAIMoveRef.current&&live.interrupt();commitAIMoveRef.current()}}>{english?"Skip voice":"略過語音"}</button>:null}<button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
       <div className="friend-gomoku-coordinate-shell" role="group" aria-label={english?"Gomoku board with coordinates":"附有座標標示的五子棋棋盤"}>
         <div className="friend-gomoku-axis-top" aria-hidden="true">
           {Array.from({length:15},(_,x)=><span key={x} className={`friend-gomoku-axis-label${engine.lastMove?.x===x?" is-last":""}`}>{String.fromCharCode(65+x)}</span>)}
