@@ -151,9 +151,9 @@ export function HomePage(){
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
      </div>
-     <Link to="/games/friend-gomoku" className="crew-home-game-entry">
+     <Link to="/games" className="crew-home-game-entry">
       <span className="crew-home-game-icon" aria-hidden="true">⚫⚪</span>
-      <span><strong>{locale.language.startsWith("en")?"Play Gomoku with a Crew Friend":"和 Crew 朋友下一局五子棋"}</strong><small>{locale.language.startsWith("en")?"Pocket Game AI, with a friend chatting by voice.":"沿用 Pocket Game AI，朋友用語音陪你玩。"}</small></span>
+      <span><strong>{locale.language.startsWith("en")?"Crew Play · games with friends":"和 Crew 朋友一起玩遊戲"}</strong><small>{locale.language.startsWith("en")?"Five games: boards, guessing and mysteries, with optional voice.":"五子棋、四子棋、黑白棋、猜謎與海龜湯，語音陪玩自由開啟。"}</small></span>
       <b aria-hidden="true">→</b>
      </Link>
     </section>
