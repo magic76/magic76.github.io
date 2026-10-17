@@ -38,7 +38,7 @@ export async function prerenderPublicRoutes(root){
   const related= recommendPublishedResearch(research.days);
   const latest=research.days.get(research.index.days[0]);
   for(const locale of ["zh-TW","en"]){
-   for(const path of ["/","/teacher","/story","/fortune","/research"]){
+   for(const path of ["/","/teacher","/story","/fortune","/research","/games"]){
     const seed=path==="/research"&&latest?{index:research.index,day:latest}:null;
     const html=await renderStaticRoute(path,locale,seed);
     if(!html.includes("class=\"app-header\"")||!html.includes("class=\"global-nav\"")){

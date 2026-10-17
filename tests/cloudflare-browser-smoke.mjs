@@ -9,7 +9,7 @@ import {readFileSync} from "node:fs";
 import {chromium} from "playwright";
 
 const origin="http://127.0.0.1:4179";
-const routes=["/","/teacher/","/story/","/fortune/","/research/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/"];
+const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
 
 async function waitForPreview(child){
  for(let n=0;n<120;n++){
@@ -119,6 +119,17 @@ async function run(){
    await page.close();
    process.stdout.write("PASS indexed research article "+route+"\\n");
   }
+  for(const route of ["/games/","/en/games/"]){
+   const page=await context.newPage(),errors=[];checkConsole(page,errors);
+   const response=await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:30000});
+   assert.equal(response?.status(),200,"Crew Play localized SSG must serve 200: "+route);
+   await page.locator(".crew-play-game-card").first().waitFor({timeout:15000});
+   assert.equal(await page.locator(".crew-play-game-card").count(),7,"All current Crew Play games must be visible: "+route);
+   assert.equal(await page.locator('link[rel="canonical"]').getAttribute("href"),"https://www.3sssi.com"+route);
+   assert.deepEqual(errors,[],"Crew Play localized SSG must hydrate cleanly: "+route);
+   await page.close();
+  }
+  process.stdout.write("PASS Crew Play bilingual SSG seven-game directory\\n");
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
