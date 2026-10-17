@@ -256,3 +256,7 @@
  .crew-home-atmosphere-core{transition:none!important}
  .crew-home-android>summary span{transition:none}
 }
+.crew-home-game-entry{display:grid;grid-template-columns:42px minmax(0,1fr) 20px;align-items:center;gap:11px;margin-top:12px;padding:11px 13px;border:1px solid #e0def3;border-radius:16px;background:linear-gradient(110deg,#f6f3ff,#f0f7ff);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}
+.crew-home-game-entry:hover{transform:translateY(-2px);border-color:#c4c1e8}
+.crew-home-game-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#e7e8fa;font-size:21px}
+.crew-home-game-entry>span:nth-child(2){display:grid;gap:3px;min-width:0}.crew-home-game-entry strong{font-size:12px}.crew-home-game-entry small{font-size:10px;color:var(--muted);line-height:1.5}.crew-home-game-entry>b{color:#6d68a9}

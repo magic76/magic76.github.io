@@ -2,6 +2,8 @@
   "title": "Who would you like to chat with?",
   "intro": "No lessons here: share everyday moments, continue remembered topics and chat without unsolicited corrections.",
   "language": "Language to learn",
+  "gameEntryTitle": "Play Gomoku with a friend",
+  "gameEntryDescription": "The familiar game AI plays while your friend chats with you by voice.",
   "pace": "Speaking pace",
   "slow": "Slow",
   "normal": "Normal",
