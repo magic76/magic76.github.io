@@ -60,4 +60,100 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/research/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/research/"/>
   </url>
+  <url>
+    <loc>https://www.3sssi.com/games/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/friend-gomoku/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/friend-gomoku/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/friend-gomoku/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/friend-gomoku/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/friend-gomoku/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/friend-gomoku/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/friend-gomoku/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/friend-gomoku/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/connect4/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/connect4/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/connect4/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/connect4/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/connect4/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/connect4/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/connect4/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/connect4/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/twenty-questions/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/twenty-questions/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/twenty-questions/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/twenty-questions/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/twenty-questions/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/twenty-questions/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/twenty-questions/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/twenty-questions/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/reversi/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/reversi/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/reversi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/reversi/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/reversi/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/reversi/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/reversi/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/reversi/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/mystery/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/mystery/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/mystery/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/mystery/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/mystery/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/mystery/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/mystery/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/mystery/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/1a2b/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/1a2b/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/1a2b/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/1a2b/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/1a2b/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/1a2b/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/1a2b/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/1a2b/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/games/taboo/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/taboo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/taboo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/taboo/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/taboo/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/taboo/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/taboo/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/taboo/"/>
+  </url>
 </urlset>
