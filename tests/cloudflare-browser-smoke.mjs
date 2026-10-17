@@ -470,7 +470,7 @@ async function run(){
   await voiceGame.waitForTimeout(550);
   assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
     "A stale reply to a planned square must not release a Gomoku move");
-  const gomokuTarget=await voiceGame.evaluate(()=>window.__mockGomokuCue.match(/NEXT white stone is planned for ([A-O]\\d+)/)?.[1]);
+  const gomokuTarget=await voiceGame.evaluate(()=>window.__mockGomokuCue.match(/NEXT white stone is planned for ([A-O]\d+)/)?.[1]);
   assert.ok(gomokuTarget,"The authoritative cue must specify the selected AI move");
   await voiceGame.evaluate(move=>window.__mockGomokuVoice.options.onTurnComplete({
     hasValidOutput:true,output:"I'll place "+move+"."
@@ -538,10 +538,10 @@ async function run(){
    const expectedSpeech=await boardVoice.evaluate(name=>{
     const cue=window.__mockBoardCue;
     if(name==="connect4"){
-      const n=cue.match(/yellow disc in column (\\d+)/)?.[1];
+      const n=cue.match(/yellow disc in column (\d+)/)?.[1];
       return n?"I played in column "+n+".":"";
     }
-    const square=cue.match(/PLACED white at ([A-H]\\d+)/)?.[1];
+    const square=cue.match(/PLACED white at ([A-H]\d+)/)?.[1];
     return square?"I just played "+square+".":"";
    },gameName);
    assert.ok(expectedSpeech,"Narrator cue must contain its expected move");
