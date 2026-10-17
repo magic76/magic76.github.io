@@ -25,6 +25,11 @@ on:
         type: boolean
         required: false
         default: false
+      preview_story_json:
+        description: 'Optional single-friend draft JSON for a private preview up to 30 days ahead; not for publishing.'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -61,6 +66,7 @@ jobs:
           INPUT_DATE: ${{ inputs.date || '' }}
           INPUT_FRIEND: ${{ inputs.friend || 'all' }}
           USE_APPROVED_STORY: ${{ inputs.use_approved_story || 'false' }}
+          PREVIEW_STORY_JSON: ${{ inputs.preview_story_json || '' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -68,6 +74,7 @@ jobs:
           if [[ -n "$INPUT_DATE" ]]; then args+=(--date "$INPUT_DATE"); fi
           if [[ "$INPUT_FRIEND" != "all" ]]; then args+=(--friend "$INPUT_FRIEND"); fi
           if [[ "$USE_APPROVED_STORY" == "true" ]]; then args+=(--use-approved-story); fi
+          if [[ -n "$PREVIEW_STORY_JSON" ]]; then args+=(--preview-story-json "$PREVIEW_STORY_JSON"); fi
           node scripts/generate-shorts-daily.mjs "${args[@]}"
       - name: Validate published JSON and all tests before a source commit
         if: inputs.mode == 'publish'
@@ -109,5 +116,5 @@ jobs:
           echo '## Crew Shorts AI generation' >> "$GITHUB_STEP_SUMMARY"
           echo 'Find Artifact `crew-shorts-daily-${{ github.run_id }}` below this Actions run.' >> "$GITHUB_STEP_SUMMARY"
           echo 'It contains manifest.json and either one selected Friend WebP or five independent WebPs on success.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Plan mode makes no API calls. Private preview generates only the selected Friend when chosen (costs Gemini API calls), and never commits. Publish mode requires all five to pass strict identity QA.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Plan mode makes no API calls. Private preview can use one human-authored draft up to 30 days ahead, generates only that Friend (costs Gemini image and QA calls), and never commits. Publish mode requires all five to pass strict identity QA.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Published feed: https://www.3sssi.com/features/teacher/shorts/posts.json' >> "$GITHUB_STEP_SUMMARY"
