@@ -117,3 +117,14 @@
 }
 
 @media(max-width:620px){.crew-play-board-bar{flex-wrap:wrap;row-gap:8px}.crew-play-board-actions{margin-left:auto}}
+
+/* Gemini mystery creation is optional and never blocks fallback puzzle play. */
+.crew-play-mystery-loading{display:grid;justify-items:center;gap:10px;padding:34px 16px;border:1px solid var(--line);border-radius:18px;background:var(--surface,#fff);text-align:center}
+.crew-play-mystery-loading strong{font-size:16px;color:var(--text)}
+.crew-play-mystery-loading p{max-width:360px;margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.crew-play-mystery-spinner{width:36px;height:36px;border-radius:50%;border:3px solid #e3e0fa;border-top-color:#7062bd;animation:crew-mystery-spin .85s linear infinite}
+@keyframes crew-mystery-spin{to{transform:rotate(360deg)}}
+.crew-play-mystery-source{margin-left:auto;font-size:11px;color:#5753a4;background:#eeebff;border-radius:20px;padding:5px 10px;font-weight:700}
+.crew-play-voice-start:disabled{opacity:.55;cursor:wait}
+@media(prefers-reduced-motion:reduce){.crew-play-mystery-spinner{animation:none;border-top-color:#7062bd}}
+@media(max-width:620px){.crew-play-word-heading{flex-wrap:wrap;gap:6px}.crew-play-mystery-source{order:3;margin-left:0}}
