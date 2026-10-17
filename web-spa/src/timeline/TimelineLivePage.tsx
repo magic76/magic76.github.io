@@ -6,7 +6,8 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
-import {validAge,stage,buildSystem,saveNote} from "./timeline";
+import {validAge,stage,buildSystem,saveNote,olderNotes} from "./timeline";
+import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
 export function TimelineLivePage(){
  const[params]=useSearchParams();const number=Number(params.get("age")),age=validAge(number)?number:25;
@@ -14,6 +15,7 @@ export function TimelineLivePage(){
  const navigate=useNavigate(),closing=useRef(false);
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
+ const known=useMemo(()=>olderNotes(age),[age]);
  const system=useMemo(()=>buildSystem(age,language),[age,language]);
  const live=useLiveSession({
   pageKey:"timeline-mira-"+age,title:"Crew Timeline · Mira · "+age,
@@ -38,9 +40,12 @@ export function TimelineLivePage(){
   </div></header>
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
    <section className="live-stage" aria-label={"Mira age "+age}>
-    <div className="live-identity"><span className="timeline-portrait" aria-label="Mira placeholder">M</span>
+    <div className="live-identity"><TimelinePortrait age={age} alt={"Mira at "+age+" years old"} />
      <h1>Mira · {age}</h1><p>{stage(age).story}</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
     </div>
+    {known.length>0&&<details className="timeline-known"><summary>{en?"Mira can remember":"Mira 此時能記得"} · {known.length}</summary>
+      <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
+    </details>}
     <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={en?"My turn":"換我說"}/>
     <div className="live-presets">{active&&<button type="button" onClick={()=>live.sendText("[TIMELINE CONTROL] Tell one brief story from Mira's life at age "+age+" without any future knowledge.")}>{en?"Tell me a story":"說一個故事"}</button>}</div>
     <div className="live-transcript" aria-live="polite">
