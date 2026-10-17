@@ -2,6 +2,7 @@ import{useCallback,useEffect,useRef,useState}from"react";
 import{createPortal}from"react-dom";
 import{useTranslation}from"react-i18next";
 import{TEACHER_PROFILES,TEACHER_CATEGORIES,type TeacherProfile,type TeacherCategory}from"./teacherProfiles";
+import{characterLifeView,lifeBookLabels}from"../characters/lifeBookLocale";
 import{useTeacherStore}from"../store/teacherStore";
 import{TeacherAvatar}from"./TeacherAvatar";
 import{completedTutorSessions}from"./teacherPracticeHistory";
@@ -69,6 +70,12 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     <p className="teacher-detail-tagline">「{english?detail.taglineEn:detail.tagline}」</p>
     <p>{english?detail.taglineEn:detail.description}</p>
     <div className="teacher-detail-facts"><strong>{t("picker.bestFor")}</strong><p>{english?t("picker.categories."+detail.categoryId):detail.bestFor}</p><strong>{t("picker.voice")}</strong><p>{english?t("picker.voiceSuggested"):detail.voiceLabel}</p></div>
+    {(()=>{const bio=characterLifeView("teacher",detail.id,locale.language),labels=lifeBookLabels("teacher",locale.language);return bio?<details className="teacher-character-life" style={{margin:"12px 0",padding:"12px",border:"1px solid var(--line)",borderRadius:12}}>
+     <summary style={{cursor:"pointer",fontWeight:700}}>{labels.title}</summary>
+     <p>{bio.summary}</p><strong>{labels.teaching}</strong><p>{bio.teaching}</p>
+     <strong>{labels.moments}</strong><ul>{bio.moments.map((story,i)=><li key={i}>{story}</li>)}</ul>
+     <small>{labels.note}</small>
+    </details>:null})()}
     {completedTutorSessions(detail.id,targetLanguage)>0&&<p className="teacher-detail-history">{t("picker.history",{count:completedTutorSessions(detail.id,targetLanguage)})}</p>}
     <div className="teacher-detail-actions">
      <button type="button" className="btn secondary" onClick={playPreview} disabled={preview?.state==="connecting"||preview?.state==="playing"}>{preview?.state==="connecting"?t("picker.connecting"):preview?.state==="playing"?t("picker.playing"):preview?.state==="error"?t("picker.previewError"):t("picker.preview")}</button>
