@@ -24,6 +24,14 @@
 .friend-gomoku-live-dot{width:9px;height:9px;border-radius:50%;background:#c9ceda;box-shadow:0 0 0 4px #e9ebf1}
 .friend-gomoku-live-dot[data-active="true"]{background:#42a581;box-shadow:0 0 0 4px #42a58124}
 .friend-gomoku-reset{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--surface,#fff);color:var(--text);font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+.friend-gomoku-coordinate-shell{width:min(100%,548px);display:grid;grid-template-columns:24px minmax(0,1fr);grid-template-rows:18px auto;gap:4px;align-items:stretch}
+.friend-gomoku-axis-top{grid-column:2;grid-row:1;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));padding-inline:1px}
+.friend-gomoku-axis-left{grid-column:1;grid-row:2;display:grid;grid-template-rows:repeat(15,minmax(0,1fr));padding-block:1px}
+.friend-gomoku-axis-label{display:flex;align-items:center;justify-content:center;min-width:0;min-height:0;text-align:center;font-size:11px;line-height:1;font-weight:650;font-variant-numeric:tabular-nums;color:#715439}
+.friend-gomoku-axis-label.is-last{color:#a02b40;font-weight:850;background:#f3e1bf;border-radius:5px}
+.friend-gomoku-coordinate-shell .friend-gomoku-board{grid-column:2;grid-row:2;width:100%}
+.friend-gomoku-coordinate-hint{width:min(100%,548px);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:5px 12px;margin:0;color:var(--muted);text-align:center;font-size:11px;line-height:1.5}
+.friend-gomoku-coordinate-hint strong{font-size:12px;color:var(--text)}
 .friend-gomoku-board{position:relative;width:min(100%,520px);aspect-ratio:1;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));grid-template-rows:repeat(15,minmax(0,1fr));box-sizing:border-box;padding:0;overflow:hidden;border:1px solid #ba874b;border-radius:12px;background:#eacb91;box-shadow:0 8px 24px #49301420;touch-action:manipulation}
 .friend-gomoku-grid-lines{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:#865d32aa;stroke-width:.045;pointer-events:none}
 .friend-gomoku-grid-lines circle{fill:#865d32;stroke:none}
@@ -47,3 +55,5 @@
 @media(max-width:620px){.friend-gomoku-page{padding:0 0 26px}.friend-gomoku-heading{padding:45px 0 14px}.friend-gomoku-heading h1{margin-top:8px}.friend-gomoku-heading p{font-size:12px}.friend-gomoku-setup{grid-template-columns:1fr 1fr;grid-template-rows:auto;align-items:center;gap:10px;padding:12px}.friend-gomoku-friend-row{grid-column:1/-1;grid-row:auto}.friend-gomoku-select-label{grid-column:1;grid-row:2}.friend-gomoku-select-label+.field{grid-column:2;grid-row:2;min-width:0}.friend-gomoku-setup .btn{grid-column:1/-1;grid-row:auto;width:100%}.friend-gomoku-board{border-radius:8px}.friend-gomoku-status{padding:0 2px}.friend-gomoku-status>div{font-size:13px}.friend-gomoku-reset{padding:8px;font-size:11px}}
 
 @media(max-width:620px){.friend-gomoku-heading.is-playing{padding:40px 0 8px}.friend-gomoku-heading.is-playing h1{margin:0;font-size:20px}}
+
+@media(max-width:620px){.friend-gomoku-coordinate-shell{grid-template-columns:20px minmax(0,1fr);grid-template-rows:16px auto;gap:3px}.friend-gomoku-axis-label{font-size:clamp(8px,2.4vw,10px)}}
