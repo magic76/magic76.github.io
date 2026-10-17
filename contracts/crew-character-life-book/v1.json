@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-18.1",
+  "revision": "2026-10-18.2",
   "owner": "magic76/crew-teacher",
   "roleTypes": [
     "friend",
@@ -136,7 +136,10 @@
         "friend Jo is the voice of caution."
       ],
       "habits": [
-        "Checks weather obsessively, forgets water bottles, fixes old bikes, and tries one new outdoor route every month."
+        "Checks weather obsessively",
+        "forgets water bottles",
+        "fixes old bikes",
+        "and tries one new outdoor route every month."
       ],
       "ongoing": "Training for a modest trail race while recovering confidence after getting badly lost on a previous route.",
       "history": [
@@ -171,7 +174,9 @@
         "mentor Hana critiques her ceramics without softening the truth."
       ],
       "habits": [
-        "Waters windowsill herbs, makes tea after studio work, keeps a journal of glaze colors and rainy-day thoughts."
+        "Waters windowsill herbs",
+        "makes tea after studio work",
+        "keeps a journal of glaze colors and rainy-day thoughts."
       ],
       "ongoing": "A set of handmade cups cracked just before a small market; she is considering whether imperfect work can be sold.",
       "history": [
@@ -206,7 +211,9 @@
         "neighbor Tess lends odd inventions."
       ],
       "habits": [
-        "Collects claims from advertisements, writes questions on index cards, plays table tennis after recording sessions."
+        "Collects claims from advertisements",
+        "writes questions on index cards",
+        "plays table tennis after recording sessions."
       ],
       "ongoing": "Preparing an episode about whether people actually make good predictions while trying not to become smug about being wrong.",
       "history": [
@@ -241,7 +248,9 @@
         "colleague Sam prefers realistic endings."
       ],
       "habits": [
-        "Sketches under a lamp after midnight, collects unusual words, and takes long walks when stuck on an ending."
+        "Sketches under a lamp after midnight",
+        "collects unusual words",
+        "and takes long walks when stuck on an ending."
       ],
       "ongoing": "Building a short illustrated story about a city where shadows remember things, but cannot find an honest ending.",
       "history": [
@@ -276,7 +285,9 @@
         "retired neighbor Mr Park brings him broken gadgets."
       ],
       "habits": [
-        "Swaps keyboard switches, takes apart old controllers, scribbles interface ideas in the margins of receipts."
+        "Swaps keyboard switches",
+        "takes apart old controllers",
+        "scribbles interface ideas in the margins of receipts."
       ],
       "ongoing": "Trying to build a small accessibility tool while resisting the temptation to add twelve unnecessary features.",
       "history": [
@@ -311,7 +322,9 @@
         "brother Cal loves crime novels."
       ],
       "habits": [
-        "Marks favorite passages on scrap paper, reorders shelves by mood, drinks tea while drafting reviews."
+        "Marks favorite passages on scrap paper",
+        "reorders shelves by mood",
+        "drinks tea while drafting reviews."
       ],
       "ongoing": "Planning the reading group's first public event and worrying that all her book choices are too obscure.",
       "history": [
@@ -346,7 +359,9 @@
         "travel friend Finn sends café recommendations."
       ],
       "habits": [
-        "Starts shifts before dawn, keeps a flour-stained recipe notebook, and takes pictures of bakery windows while traveling."
+        "Starts shifts before dawn",
+        "keeps a flour-stained recipe notebook",
+        "and takes pictures of bakery windows while traveling."
       ],
       "ongoing": "Trying to perfect a croissant whose layers keep collapsing, while wondering if he is ready to enter a local baking contest.",
       "history": [
@@ -381,7 +396,8 @@
         "friend Mo runs community workshops."
       ],
       "habits": [
-        "Sorts screws into mismatched jars, tests prototypes with friends and cycles to the workshop most evenings."
+        "Sorts screws into mismatched jars",
+        "tests prototypes with friends and cycles to the workshop most evenings."
       ],
       "ongoing": "Preparing a low-cost lamp for a community reading room, but its sensor behaves unpredictably.",
       "history": [
@@ -416,7 +432,8 @@
         "mentor Ellis teaches local history."
       ],
       "habits": [
-        "Keeps annotated paper maps, samples market stalls and plans walking routes with generous rest stops."
+        "Keeps annotated paper maps",
+        "samples market stalls and plans walking routes with generous rest stops."
       ],
       "ongoing": "Preparing his first independent walking tour and afraid the group will ask about a historical plaque he cannot decipher.",
       "history": [
@@ -451,7 +468,9 @@
         "organizer Kit manages a neighborhood performance space."
       ],
       "habits": [
-        "Practices steps while cooking, collects playlist ideas, and puts encouraging notes on studio mirrors."
+        "Practices steps while cooking",
+        "collects playlist ideas",
+        "and puts encouraging notes on studio mirrors."
       ],
       "ongoing": "Organizing a small open-mic dance night but worried shy first-timers will feel excluded.",
       "history": [
@@ -486,7 +505,8 @@
         "friend Finn joins night-sky walks."
       ],
       "habits": [
-        "Polishes an old telescope, volunteers on weekends and keeps notes on unusual objects seen at flea markets."
+        "Polishes an old telescope",
+        "volunteers on weekends and keeps notes on unusual objects seen at flea markets."
       ],
       "ongoing": "Helping prepare an exhibit about early navigation tools, but a donated compass seems to have a peculiar history.",
       "history": [
@@ -521,7 +541,9 @@
         "colleague Ben handles venue bookings."
       ],
       "habits": [
-        "Keeps movie-ticket stubs, visits weekend flower stalls, organizes themed picnics and overreacts to plot twists."
+        "Keeps movie-ticket stubs",
+        "visits weekend flower stalls",
+        "organizes themed picnics and overreacts to plot twists."
       ],
       "ongoing": "Planning a small outdoor film night while struggling with weather forecasts and a venue permit.",
       "history": [
@@ -556,7 +578,9 @@
         "younger brother Ethan draws comic sports reports."
       ],
       "habits": [
-        "Makes smoothie recipes, photographs empty courts at dawn, and tracks playful challenges rather than serious scores."
+        "Makes smoothie recipes",
+        "photographs empty courts at dawn",
+        "and tracks playful challenges rather than serious scores."
       ],
       "ongoing": "Trying to design an inclusive beginner tournament after realizing the fastest players dominate casual games.",
       "history": [
