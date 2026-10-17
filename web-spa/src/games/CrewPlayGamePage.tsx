@@ -83,7 +83,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   if(kind!=="twenty-questions")return;
   let active=true;
   setQuestion(fallbackQuestion);
-  if(!geminiKey()){setQuestion(selectTwentyFallback());setQuestionStatus("local");setLoadedRound(round);return()=>{active=false};}
+  if(!geminiKey()){setQuestion(fallbackQuestion);setQuestionStatus("local");setLoadedRound(round);return()=>{active=false};}
   setQuestionStatus("generating");
   void generateTwentyItem().then(item=>{
    if(!active)return;
@@ -106,7 +106,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   if(kind!=="mystery")return;
   let active=true;
   setMysteryCase(fallbackMystery);
-  if(!geminiKey()){setMysteryCase(selectMysteryFallback());setMysteryStatus("local");setLoadedRound(round);return()=>{active=false};}
+  if(!geminiKey()){setMysteryCase(fallbackMystery);setMysteryStatus("local");setLoadedRound(round);return()=>{active=false};}
   setMysteryStatus("generating");
   void generateCrewMystery(friend.name).then(result=>{
    if(!active)return;
