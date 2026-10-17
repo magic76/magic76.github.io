@@ -8,12 +8,13 @@
   "start": "選一件事開始",
   "product": {
     "teacher": "語言與口說",
+    "play": "與 Crew 朋友玩遊戲",
     "story": "故事與陪讀",
     "fortune": "探索命盤"
   },
   "setup": {
     "title": "Gemini API Key 可以免費建立",
-    "desc": "有 Google 帳號就能申請。約 1 分鐘完成設定，Teacher、Story、Fortune 共用同一組 Key。",
+    "desc": "有 Google 帳號就能申請。約 1 分鐘完成設定，Teacher、Story、Fortune 與 Crew Play 語音遊戲共用同一組 Key。",
     "cta": "查看免費申請步驟",
     "pricing": "免費額度依模型與用量限制而異，使用付費層級可能產生費用。",
     "verify": "Gemini Key 尚未驗證",
