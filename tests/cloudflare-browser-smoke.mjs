@@ -349,13 +349,22 @@ async function run(){
   const mobileTwenty=await context.newPage();
   await mobileTwenty.setViewportSize({width:390,height:844});
   await mobileTwenty.addInitScript(()=>{
-   localStorage.removeItem("crew_gemini_api_key");
-   sessionStorage.removeItem("crew_gemini_api_key_session");
+   localStorage.setItem("crew_gemini_api_key","fake-key-mobile-voice-test");
+   window.CrewAI={call:async()=>"{invalid generation"};
+   window.CrewLiveUI={};
+   window.CrewLive={Session:class{
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
+    async start(){} async stop(){this.running=false}
+    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+   }};
   });
   await mobileTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
   await mobileTwenty.locator(".crew-play-voice-presence").waitFor({state:"visible",timeout:15000});
   assert.equal(await mobileTwenty.locator(".crew-play-friend-bar").count(),0,"Do not duplicate the friend card");
-  assert.equal(await mobileTwenty.locator(".crew-play-voice-dock-shell .crew-play-voice-start").count(),1);
+  assert.equal(await mobileTwenty.locator(".crew-play-voice-dock-shell").count(),0,"Voice start must not be pinned before session");
+  await mobileTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
+  await mobileTwenty.locator(".crew-play-voice-dock-shell").waitFor({state:"visible",timeout:15000});
+  assert.equal(await mobileTwenty.locator(".crew-play-voice-entrance").count(),0,"Start button disappears after connection");
   assert.equal(await mobileTwenty.locator(".crew-play-question-disclosure:not([open])").count(),1,"Hints are initially collapsed");
   const inspectVoiceDock=async()=>{
    return mobileTwenty.evaluate(()=>{
