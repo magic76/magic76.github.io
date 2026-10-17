@@ -230,7 +230,16 @@ async function run(){
    localStorage.setItem("crew_gemini_api_key","mock-key-for-mystery-fallback");
    window.CrewAI={call:async()=>"{invalid model JSON"};
   });
+  await failedMystery.addInitScript(()=>{
+   window.CrewLiveUI={};
+   window.CrewLive={Session:class{
+    constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
+    async start(){} async stop(){this.running=false}
+    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+   }};
+  });
   await failedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
+  await failedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await failedMystery.locator(".crew-play-mystery-source").getByText("AI 生成失敗").waitFor({timeout:15000});
   assert.ok(await failedMystery.locator(".crew-play-question-grid button").count()>0,"Built-in fallback is playable");
   await failedMystery.close();
