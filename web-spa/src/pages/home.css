@@ -24,11 +24,11 @@
 .crew-home-recent-copy small{font-size:11px;line-height:1.45;color:var(--muted);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .crew-home-recent-arrow{font-size:20px;color:var(--accent);transition:transform .18s ease}
 .crew-home-recent:hover .crew-home-recent-arrow{transform:translateX(3px)}
-.crew-home-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.crew-home-product{display:flex;flex-direction:column;position:relative;min-width:0;min-height:190px;padding:13px;text-decoration:none;color:var(--text);border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
+.crew-home-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.crew-home-product{display:flex;flex-direction:column;position:relative;min-width:0;min-height:168px;padding:13px;text-decoration:none;color:var(--text);border:1px solid var(--line);border-radius:20px;background:#fff;overflow:hidden;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}
 .crew-home-product:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(34,40,55,.08);border-color:#d8d6e2}
 .crew-home-product:active{transform:scale(.985)}
-.crew-home-product-art{height:92px;width:100%;border-radius:13px;display:grid;place-items:center;overflow:hidden;margin-bottom:13px}
+.crew-home-product-art{height:83px;width:100%;border-radius:13px;display:grid;place-items:center;overflow:hidden;margin-bottom:13px}
 .crew-home-product-teacher{background:linear-gradient(135deg,#f2efff,#e4dcff);color:#6853b9}
 .crew-home-teacher-emblem{display:grid;place-items:center;width:70px;height:70px;border-radius:20px;background:rgba(255,255,255,.72);border:1px solid #c9bdeb;box-shadow:0 6px 18px rgba(86,66,157,.09)}
 .crew-home-teacher-emblem svg{width:42px;height:42px;stroke:currentColor;stroke-width:1.5;fill:none}
@@ -37,6 +37,9 @@
 .crew-home-book svg{height:32px;width:32px;stroke:currentColor;stroke-width:1.3;fill:none}
 .crew-home-book i{position:absolute;right:9px;top:6px;font:normal 14px serif}
 .crew-home-product-fortune{background:radial-gradient(circle,#e7edff,#dfe8ff);color:#6876b9}
+.crew-home-product-play{background:radial-gradient(circle at 75% 20%,rgba(255,255,255,.8),transparent 35%),linear-gradient(135deg,#d7f5ed,#ebf7ff);color:#248f80}
+.crew-home-play-emblem{display:grid;place-items:center;width:72px;height:72px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid #a4d9d0;box-shadow:0 5px 17px rgba(40,123,109,.12)}
+.crew-home-play-emblem svg{width:44px;height:44px;stroke:currentColor;stroke-width:1.4;fill:none}
 .crew-home-orbit{display:grid;place-items:center;width:72px;height:72px;border-radius:50%;border:2px solid #9eb2dd;box-shadow:0 0 0 7px rgba(157,176,221,.15),inset 0 0 0 6px rgba(255,255,255,.45);background:radial-gradient(circle,#fff 3%,#e4ecff 85%)}
 .crew-home-orbit svg{width:41px;height:41px;stroke:currentColor;stroke-width:1;fill:none}
 .crew-home-product>strong{font-size:15px;line-height:1.25}
@@ -100,7 +103,7 @@
  .crew-home-product{min-height:149px;padding:9px;border-radius:16px}
  .crew-home-product-art{height:75px;margin-bottom:9px;border-radius:11px}
  .crew-home-book{transform:scale(.79) rotate(-9deg)}
- .crew-home-orbit{transform:scale(.8)}
+ .crew-home-orbit,.crew-home-play-emblem{transform:scale(.8)}
  .crew-home-product>strong{font-size:13px}
  .crew-home-product>small{font-size:10px}
  .crew-home-product-arrow{bottom:9px;right:9px}
@@ -256,7 +259,11 @@
  .crew-home-atmosphere-core{transition:none!important}
  .crew-home-android>summary span{transition:none}
 }
-.crew-home-game-entry{display:grid;grid-template-columns:42px minmax(0,1fr) 20px;align-items:center;gap:11px;margin-top:12px;padding:11px 13px;border:1px solid #e0def3;border-radius:16px;background:linear-gradient(110deg,#f6f3ff,#f0f7ff);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}
-.crew-home-game-entry:hover{transform:translateY(-2px);border-color:#c4c1e8}
-.crew-home-game-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:14px;background:#e7e8fa;font-size:21px}
-.crew-home-game-entry>span:nth-child(2){display:grid;gap:3px;min-width:0}.crew-home-game-entry strong{font-size:12px}.crew-home-game-entry small{font-size:10px;color:var(--muted);line-height:1.5}.crew-home-game-entry>b{color:#6d68a9}
+.crew-home-atmosphere[data-product="play"]{
+ --crew-aurora-a:rgba(91,201,158,.34);--crew-aurora-b:rgba(76,182,216,.25);--crew-core-rgb:65,168,144;
+}
+@media(max-width:620px){
+ .crew-home-product-grid{gap:9px}
+ .crew-home-product{min-height:150px}
+ .crew-home-product-art{height:76px}
+}
