@@ -545,10 +545,10 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 });
 
 
-test("Crew home highlights free Gemini setup for unconfigured visitors",()=>{
+test("Crew home prioritizes free play while keeping Gemini onboarding accessible",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
- assert.equal(readUiLocale("home").headline,"今天想做些什麼？");
+ assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
  assert.ok(home.includes('t("headline")'));
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
@@ -558,7 +558,8 @@ test("Crew home highlights free Gemini setup for unconfigured visitors",()=>{
  assert.equal(readUiLocale("home").product.teacher,"語言與口說");
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(readUiLocale("home").setup.title.includes("免費"));
- assert.ok(home.indexOf("crew-home-setup-free")<home.indexOf("crew-home-products"),"onboarding should precede product entry");
+ assert.ok(home.indexOf("crew-home-game-pick")<home.indexOf("crew-home-setup-free"),"Key-free play should precede Gemini onboarding");
+  assert.ok(home.indexOf("crew-home-setup-free")<home.indexOf("crew-home-products"),"onboarding should remain discoverable before product entry");
  assert.ok(home.includes("geminiKey()"));
  assert.ok(home.includes("geminiVerified()"));
  assert.ok(!home.includes("切換不再重新載入不同頁面"));

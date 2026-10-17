@@ -1,7 +1,7 @@
 {
   "eyebrow": "YOUR CREW SPACE",
-  "headline": "今天想做些什麼？",
-  "intro": "繼續上次的進度，或開始一段新的探索。",
+  "headline": "和 Crew 朋友聊聊吧",
+  "intro": "和有個性的 AI 朋友聊天、玩遊戲，也可以學語言、一起聽故事。",
   "continue": "繼續上次",
   "localOnly": "保存在這台裝置",
   "explore": "探索 Crew",
@@ -40,6 +40,22 @@
     "book": "我的故事",
     "bazi": "八字解讀",
     "tarot": "塔羅生命靈數",
-    "vedic": "印度星盤"
+    "vedic": "印度星盤",
+    "play": "再次開啟遊戲，開始新的一局",
+    "friend": "和 Crew 朋友再聊聊",
+    "friendDesc": "回到這位朋友的對話入口"
+  },
+  "actions": {
+    "label": "快速開始",
+    "chat": "找朋友聊天",
+    "chatDesc": "認識 Crew 朋友",
+    "play": "開始玩遊戲",
+    "playDesc": "多款免 Key 遊戲"
+  },
+  "gamePick": {
+    "label": "推薦遊戲",
+    "title": "來玩一局 1A2B 猜數字",
+    "desc": "不用 Gemini Key，打字就能玩。想練外語也能開啟語音。",
+    "cta": "立即試玩"
   }
 }

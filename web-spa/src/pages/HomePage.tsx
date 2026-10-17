@@ -8,13 +8,22 @@ import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {HomeAtmosphere,type HomeProduct} from "./HomeAtmosphere";
+import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import "./home.css";
 
-type Kind="teacher"|"story"|"fortune";
+type Kind="teacher"|"story"|"fortune"|"play"|"friend";
 type Recent={key:string;kind:Kind;title:string;description:string;to:string;timestamp:number;cover?:string};
 type Book={id:string;title?:string;summary?:string;updatedAt?:string;createdAt?:string;readingMode?:string;coverIndex?:number;currentPage?:number;images?:Array<{preview?:string}>};
+
+const LAST_ACTIVITY_KEY="crew_home_last_activity_v1";
+const GAME_NAMES:Record<string,readonly [string,string]>={
+ "friend-gomoku":["五子棋","Gomoku"],connect4:["四子棋","Connect Four"],
+ "twenty-questions":["20 Questions","20 Questions"],reversi:["黑白棋","Reversi"],
+ mystery:["海龜湯","Mystery Stories"],"1a2b":["1A2B 猜數字","Bulls and Cows"],
+ taboo:["Taboo 描述猜詞","Taboo Word Game"]
+};
 
 const time=(value:unknown)=>{const n=Date.parse(typeof value==="string"?value:"");return Number.isFinite(n)?n:0};
 const description=(value:unknown,fallback:string)=>typeof value==="string"&&value.trim()?value.trim():fallback;
@@ -62,7 +71,24 @@ function activities(book:Book|null):Recent[]{
    description:book.readingMode==="physical"?i18n.t("home:recent.physical"):i18n.t("home:recent.reader",{page:(Number(book.currentPage)||0)+1}),
    cover:typeof cover==="string"?cover:undefined});
  }
- return items.sort((a,b)=>b.timestamp-a.timestamp)[0]?[items.sort((a,b)=>b.timestamp-a.timestamp)[0]]:[];
+ // Route shortcuts only: games start a new round, not a restored unfinished game.
+ try{
+  const saved=JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY)||"null") as {path?:string;friendId?:string;at?:number}|null;
+  if(saved&&typeof saved.at==="number"&&Number.isFinite(saved.at)&&saved.at>0){
+   const gameId=typeof saved.path==="string"?saved.path.match(/^\/games\/([a-z0-9-]+)$/)?.[1]:undefined;
+   if(gameId&&GAME_NAMES[gameId]){
+    const name=GAME_NAMES[gameId][i18n.language.startsWith("en")?1:0];
+    items.push({key:"game:"+gameId,kind:"play",to:"/games/"+gameId,timestamp:saved.at,
+     title:name,description:i18n.t("home:recent.play")});
+   }else if(saved.path==="/friend/live"&&typeof saved.friendId==="string"&&/^[a-z0-9-]{1,32}$/.test(saved.friendId)){
+    items.push({key:"friend:"+saved.friendId,kind:"friend",
+     to:"/friend/live?id="+encodeURIComponent(saved.friendId),timestamp:saved.at,
+     title:i18n.t("home:recent.friend"),description:i18n.t("home:recent.friendDesc")});
+   }
+  }
+ }catch{/* Local storage may be disabled or stale. */}
+ items.sort((a,b)=>b.timestamp-a.timestamp);
+ return items.slice(0,1);
 }
 
 function BriefingPreview(){
@@ -118,8 +144,34 @@ export function HomePage(){
     <p>{t("intro")}</p>
    </div>
   </header>
+  <nav className="crew-home-quick-actions" aria-label={t("actions.label")}>
+   <Link className="crew-home-action crew-home-action-chat" to="/teacher/roles?mode=friends">
+    <span className="crew-home-action-icon" aria-hidden="true"><Icon name="chat"/></span>
+    <span><strong>{t("actions.chat")}</strong><small>{t("actions.chatDesc")}</small></span>
+    <span className="crew-home-action-arrow" aria-hidden="true">↗</span>
+   </Link>
+   <Link className="crew-home-action crew-home-action-play" to="/games">
+    <span className="crew-home-action-icon" aria-hidden="true"><Icon name="play"/></span>
+    <span><strong>{t("actions.play")}</strong><small>{t("actions.playDesc")}</small></span>
+    <span className="crew-home-action-arrow" aria-hidden="true">↗</span>
+   </Link>
+  </nav>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
+    {recent?<section className="crew-home-continue" aria-label="繼續上次">
+     <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
+     <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
+      <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
+      <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"CREW TEACHER":recent.kind==="story"?"CREW STORY":recent.kind==="fortune"?"CREW FORTUNE":recent.kind==="play"?"CREW PLAY":"CREW FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
+      <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
+     </Link>
+    </section>:null}
+    <section className="crew-home-game-pick" aria-label={t("gamePick.label")}>
+     <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>
+     <div className="crew-home-game-pick-copy"><span className="crew-home-overline">CREW PLAY</span><strong>{t("gamePick.title")}</strong><small>{t("gamePick.desc")}</small></div>
+     <Link className="crew-home-game-pick-cta" to="/games/1a2b">{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
+    </section>
+    <HomeShortsPreview/>
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
@@ -127,14 +179,6 @@ export function HomePage(){
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
      ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
-    {recent?<section className="crew-home-continue" aria-label="繼續上次">
-     <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
-     <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
-      <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind}/>}</span>
-      <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"CREW TEACHER":recent.kind==="story"?"CREW STORY":"CREW FORTUNE"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
-      <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
-     </Link>
-    </section>:null}
     <section className="crew-home-products" aria-label="探索 Crew 產品">
      <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
      <div className="crew-home-product-grid">

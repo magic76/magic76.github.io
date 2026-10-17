@@ -56,7 +56,7 @@ test("English switches the shell, dashboard and settings without changing the Ha
  assert.ok(settings.includes('<LanguageSwitcher variant="settings"/>'));
  assert.ok(panel.includes('useTranslation("settings")'));
  assert.ok(panel.includes('t("gemini.micAuthorization")'));
- assert.equal(load("en","home").headline,"What would you like to do today?");
+ assert.equal(load("en","home").headline,"Talk, play, and learn with Crew");
  assert.equal(load("en","settings").gemini.micStateDenied,"Denied (check system and site permissions)");
 });
 

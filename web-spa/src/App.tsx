@@ -21,7 +21,14 @@ const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);const section=pathname.split("/")[1];const active:Product=section==="privacy"?"settings":section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
+ useEffect(()=>{
+  // Remember the last opened play/friend destination locally; never persist speech or messages.
+  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo)$/.test(pathname);
+  const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
+  if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
+  try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
+ },[pathname,search]);const section=pathname.split("/")[1];const active:Product=section==="privacy"?"settings":section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>

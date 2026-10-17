@@ -1,7 +1,7 @@
 {
   "eyebrow": "YOUR CREW SPACE",
-  "headline": "What would you like to do today?",
-  "intro": "Pick up where you left off, or start something new.",
+  "headline": "Talk, play, and learn with Crew",
+  "intro": "Chat with AI friends, play games, practice languages, and discover stories.",
   "continue": "Continue where you left off",
   "localOnly": "Saved on this device",
   "explore": "Explore Crew",
@@ -40,6 +40,22 @@
     "book": "My story",
     "bazi": "BaZi reading",
     "tarot": "Tarot numerology",
-    "vedic": "Vedic astrology"
+    "vedic": "Vedic astrology",
+    "play": "Open this game to play a new round",
+    "friend": "Chat with your Crew Friend",
+    "friendDesc": "Return to this friend's chat"
+  },
+  "actions": {
+    "label": "Quick start",
+    "chat": "Meet a Crew Friend",
+    "chatDesc": "Start a conversation",
+    "play": "Play a game",
+    "playDesc": "No key needed for many games"
+  },
+  "gamePick": {
+    "label": "Featured game",
+    "title": "Try a round of Bulls and Cows",
+    "desc": "Play by typing with no Gemini Key. Voice is optional for language practice.",
+    "cta": "Play now"
   }
 }
