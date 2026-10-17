@@ -71,7 +71,7 @@ writeFileSync(join(out,"briefings","discovery.json"),JSON.stringify(related));
 // Head fragments must be separated by real whitespace. A literal backslash-n
 // between tags makes the browser close <head> early and visibly render "\\n".
 const newline=String.fromCharCode(10);
-const routes=["","teacher","story","fortune","research"];
+const routes=["","teacher","story","fortune","research","games"];
 const normalizePath=path=>path.replace(/\/+$/,"")||"/";
 // Fallback deep routes receive /index.html from Pages. If its SSG route differs
 // from the real URL, hide the wrong screen before first paint until React mounts.
@@ -252,4 +252,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 20 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
+console.log("Prepared Cloudflare Pages: 22 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
