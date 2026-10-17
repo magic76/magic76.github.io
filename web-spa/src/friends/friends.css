@@ -112,7 +112,8 @@
 
 .friends-game-entry{display:grid;grid-template-columns:40px minmax(0,1fr) 20px;align-items:center;gap:12px;margin:14px 0;padding:13px 15px;border:1px solid #d9def4;border-radius:16px;background:linear-gradient(110deg,#f3f1ff,#f3f8ff);color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease}
 .friends-game-entry:hover{transform:translateY(-2px);border-color:#aeb9e4}
-.friends-game-entry>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#e3e8fb;font-size:22px}
+.friends-game-entry>span:first-child{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;background:#ddf3eb;color:#308b79}
+.friends-game-entry>span:first-child svg{width:27px;height:27px;stroke:currentColor;stroke-width:1.6;fill:none}
 .friends-game-entry>span:nth-child(2){display:grid;gap:3px;min-width:0}
 .friends-game-entry strong{font-size:13px}
 .friends-game-entry small{font-size:11px;color:var(--muted);line-height:1.45}
