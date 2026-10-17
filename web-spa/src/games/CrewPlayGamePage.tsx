@@ -19,6 +19,7 @@ type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
 const isGame=(value:string|undefined):value is GameKind=>["connect4","reversi","twenty-questions","mystery"].includes(value||"");
 const FRIEND_KEY="crew_web_selected_friend_v1";
 function savedFriend(){
+ if(typeof localStorage==="undefined")return CREW_FRIENDS[0].id;
  const id=localStorage.getItem(FRIEND_KEY);
  return CREW_FRIENDS.find(f=>f.id===id)?.id||CREW_FRIENDS[0].id;
 }
