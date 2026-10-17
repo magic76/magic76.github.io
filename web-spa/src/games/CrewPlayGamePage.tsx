@@ -11,8 +11,9 @@ import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {CrewBoardGames} from "./CrewBoardGames";
 import {CrewWordGames} from "./CrewWordGames";
-import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase} from "./playPuzzles";
+import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase,type TwentyItem} from "./playPuzzles";
 import {generateCrewMystery} from "./generateMystery";
+import {generateTwentyItem} from "./generateTwentyItem";
 import {geminiKey} from "../lib/runtime";
 import {crewGames} from "./CrewPlayHubPage";
 import "./crewPlay.css";
@@ -62,7 +63,28 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const mode=useTeacherStore(s=>s.friendChatMode);
- const question=twentyItems[round%twentyItems.length];
+ const fallbackQuestion=twentyItems[round%twentyItems.length];
+ const [question,setQuestion]=useState<TwentyItem>(fallbackQuestion);
+ const [questionStatus,setQuestionStatus]=useState<"generating"|"generated"|"fallback"|"local">(
+  ()=>kind==="twenty-questions"&&typeof window!=="undefined"&&Boolean(geminiKey())?"generating":"local"
+ );
+ const [voiceTurns,setVoiceTurns]=useState<{id:number;text:string}[]>([]);
+ const voiceSequence=useRef(0);
+ useEffect(()=>{
+  if(kind!=="twenty-questions")return;
+  let active=true;
+  setQuestion(fallbackQuestion);
+  if(!geminiKey()){setQuestionStatus("local");return()=>{active=false};}
+  setQuestionStatus("generating");
+  void generateTwentyItem().then(item=>{
+   if(!active)return;
+   setQuestion(item);setQuestionStatus("generated");
+  }).catch(()=>{
+   if(!active)return;
+   setQuestion(fallbackQuestion);setQuestionStatus("fallback");
+  });
+  return()=>{active=false};
+ },[kind,round,friend.id]);
  const fallbackMystery=mysteryCases[round%mysteryCases.length];
  const [mysteryCase,setMysteryCase]=useState<MysteryCase>(fallbackMystery);
  const [mysteryStatus,setMysteryStatus]=useState<"generating"|"generated"|"fallback"|"local">(
@@ -88,7 +110,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
  const isWord=kind==="twenty-questions"||kind==="mystery";
  const gameLabel={connect4:"Connect Four",reversi:"Reversi","twenty-questions":"20 Questions",mystery:"lateral-thinking mystery"}[kind];
  const facts=kind==="twenty-questions"
-  ?"SECRET (do not reveal until guessed/revealed): "+question.name.en+". Verified yes/no facts: "+twentyQuestions.map(q=>q.label.en+" = "+(question.traits.includes(q.id)?"YES":"NO")).join("; ")+". For other questions, only answer if certain and be brief."
+  ?"SECRET (do not reveal until guessed/revealed): "+question.name.en+". Verified yes/no facts: "+twentyQuestions.map(q=>q.label.en+" = "+(question.traits.includes(q.id)?"YES":"NO")).concat((question.facts||[]).map(f=>f.question.en+" = "+(f.answer?"YES":"NO"))).join("; ")+". Treat questions and guesses in the learner's spoken language as game actions; the interface counts them from transcripts, not from what you say. Only answer with Yes / No when certain; otherwise say you are not sure. Do not reveal the object until the learner guesses or the game ends. Keep each answer brief and natural; do not correct their grammar unless asked."
   :kind==="mystery"?"CASE: "+mystery.story.en+" SOLUTION (secret until reveal): "+mystery.solution.en+" VERIFIED CLUES: "+mystery.clues.map(c=>c.question.en+" = "+(c.answer?"YES":"NO")).join("; ")+". Do not invent additional case details."
   :"The rules and legal moves are exclusively managed by the on-screen game engine. You cannot place pieces through voice. After each computer move is visibly placed, react in ONE brief sentence, then stop speaking; the learner must wait until audio finishes before playing again. Do not claim a move that was not reported in the cue.";
  const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,mode)+
@@ -110,7 +132,14 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective:directive,
   persistHistory:false,sessionKind:"friend",
   // A model turn can finish before its audio stops playing.
-  onTurnComplete:()=>{
+  onTurnComplete:(spokenTurn)=>{
+   if(kind==="twenty-questions"&&questionStatus!=="generating"){
+    const transcript=String((spokenTurn as {input?:string}).input||"").trim();
+    if(transcript){
+     const id=++voiceSequence.current;
+     setVoiceTurns(prev=>[...prev.slice(-24),{id,text:transcript}]);
+    }
+   }
    const turn=boardVoiceRef.current;
    if(!turn?.sent)return;
    turn.completed=true;
@@ -204,11 +233,17 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
     <strong>{english?"Creating a new mystery…":"正在創作全新海龜湯…"}</strong>
     <p>{english?"Your Gemini Key is generating a fresh puzzle and verified clues.":"使用你的 Gemini Key 生成故事、答案與可驗證的線索。"}</p>
    </section>:null}
-  {isWord&&(kind!=="mystery"||mysteryStatus!=="generating")?
-   <CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound} mysterySource={mysteryStatus}/>:null}
+  {kind==="twenty-questions"&&questionStatus==="generating"?
+   <section className="crew-play-mystery-loading" role="status" aria-live="polite">
+    <span className="crew-play-mystery-spinner" aria-hidden="true"/>
+    <strong>{english?"Picking a new secret object…":"正在挑選全新的神秘物品…"}</strong>
+    <p>{english?"Generating a bilingual word and a consistent set of facts.":"使用 Gemini 生成新的物品、雙語名稱與是非題事實。"}</p>
+   </section>:null}
+  {isWord&&(kind!=="mystery"||mysteryStatus!=="generating")&&(kind!=="twenty-questions"||questionStatus!=="generating")?
+   <CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound} mysterySource={mysteryStatus} itemSource={questionStatus} voiceTurns={voiceTurns}/>:null}
   <section className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
-   {live.state==="idle"||live.state==="ended"?<button type="button" className="crew-play-voice-start" disabled={kind==="mystery"&&mysteryStatus==="generating"} onClick={()=>void live.start()}>{english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩"}</button>
+   {live.state==="idle"||live.state==="ended"?<button type="button" className="crew-play-voice-start" disabled={(kind==="mystery"&&mysteryStatus==="generating")||(kind==="twenty-questions"&&questionStatus==="generating")} onClick={()=>void live.start()}>{english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩"}</button>
     :<LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
   </section>
