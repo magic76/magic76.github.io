@@ -88,7 +88,7 @@ test("Connect Four and Reversi narrate every AI move only after it is applied",(
  assert.match(board,/setSpeechPending\(true\)/);
  assert.match(board,/speechPending\|\|speechGateRef\.current/);
  assert.match(board,/speechGateRef\.current\|\|speechPending/);
- assert.match(board,/onBoardMove\(cue\)/);
+ assert.match(board,/onBoardMove\(cue,expected\)/);
  assert.match(board,/roundEpochRef\.current\+=1/);
  assert.match(board,/crew-play-skip-speech/);
  assert.match(page,/BOARD_VOICE_TIMEOUT_MS=25000/);
@@ -237,4 +237,19 @@ test("Word game P1 styles use Live states and provide reduced-motion alternative
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/crew-play-mystery-flip-inner/);
  assert.match(css,/crew-play-confetti/);
+});
+
+test("All board games use engine-selected move IDs to disambiguate stale speech",()=>{
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const gomoku=read("web-spa/src/games/FriendGomokuPage.tsx");
+ const board=read("web-spa/src/games/CrewBoardGames.tsx");
+ assert.match(page,/matchesBoardNarration\(spokenTurn\.output,turn\.expected\)/);
+ assert.match(page,/expected:ExpectedBoardSpeech/);
+ assert.match(page,/session\.state==="listening"\|\|session\.state==="speaking"/);
+ assert.match(gomoku,/matchesBoardNarration\(spokenTurn\.output,\{kind:"gomoku",position:coordinate\(waiting\.move\)\}\)/);
+ assert.match(gomoku,/state!=="listening"&&state!=="speaking"/);
+ assert.match(gomoku,/pendingCueRef\.current=null; \/\/ Retire cues/);
+ assert.match(gomoku,/includes\(liveRef\.current\.state\)\?60:420/);
+ assert.match(board,/kind:"connect4",position:String\(column\+1\)/);
+ assert.match(board,/kind:"reversi",position:position\(move\.x,move\.y\)/);
 });

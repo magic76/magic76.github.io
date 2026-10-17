@@ -458,14 +458,26 @@ async function run(){
   await voiceGame.locator(".friend-gomoku-setup .btn").click();
   await voiceGame.locator(".friend-gomoku-start-voice").click();
   await voiceGame.locator(".friend-gomoku-cell").first().waitFor({state:"visible"});
+  // Simulate a pending reply to the learner announcing J7 before clicking.
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onSpeaking(true));
   await voiceGame.locator('[data-coordinate="H10"]').click();
   await voiceGame.waitForFunction(()=>window.__mockGomokuCue?.includes("[GOMOKU BEFORE MOVE]"));
   assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
     "AI must not move before the friend talks");
-  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onTurnComplete({hasValidOutput:true,output:"I will play here"}));
-  await voiceGame.waitForTimeout(520);
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onTurnComplete({
+    hasValidOutput:true,input:"I want to play J7",output:"You said J7; that seems interesting."
+  }));
+  await voiceGame.waitForTimeout(550);
   assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
-    "Model turn completion is NOT equivalent to finished audio playback");
+    "A stale reply to a planned square must not release a Gomoku move");
+  const gomokuTarget=await voiceGame.evaluate(()=>window.__mockGomokuCue.match(/NEXT white stone is planned for ([A-O]\d+)/)?.[1]);
+  assert.ok(gomokuTarget,"The authoritative cue must specify the selected AI move");
+  await voiceGame.evaluate(move=>window.__mockGomokuVoice.options.onTurnComplete({
+    hasValidOutput:true,output:"I'll place "+move+"."
+  }),gomokuTarget);
+  await voiceGame.waitForTimeout(220);
+  assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
+    "The correct turnComplete still waits until matching speech playback drains");
   await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onSpeaking(false));
   await voiceGame.locator(".friend-gomoku-stone.white").first().waitFor({timeout:5000});
   assert.equal(await voiceGame.locator(".friend-gomoku-skip").count(),0);
@@ -516,9 +528,26 @@ async function run(){
     assert.equal(await boardVoice.locator(".crew-reversi-cell.can-play").count(),0,
       "Reversi must block legal moves while AI is speaking");
    }
+   // Earlier spoken intentions must not finish the new board narration.
    await boardVoice.evaluate(()=>window.__mockBoardSession.options.onTurnComplete({
-    hasValidOutput:true,output:"I have played my move"
+    hasValidOutput:true,input:"I'll put J7",output:"You said J7; got it."
    }));
+   await boardVoice.waitForTimeout(530);
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
+    "Stale user-intention output must not unlock the chessboard");
+   const expectedSpeech=await boardVoice.evaluate(name=>{
+    const cue=window.__mockBoardCue;
+    if(name==="connect4"){
+      const n=cue.match(/yellow disc in column (\d+)/)?.[1];
+      return n?"I played in column "+n+".":"";
+    }
+    const square=cue.match(/PLACED white at ([A-H]\d+)/)?.[1];
+    return square?"I just played "+square+".":"";
+   },gameName);
+   assert.ok(expectedSpeech,"Narrator cue must contain its expected move");
+   await boardVoice.evaluate(output=>window.__mockBoardSession.options.onTurnComplete({
+    hasValidOutput:true,output
+   }),expectedSpeech);
    await boardVoice.waitForTimeout(480);
    assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
      "The model turnComplete callback is too early; wait for actual audio drain");

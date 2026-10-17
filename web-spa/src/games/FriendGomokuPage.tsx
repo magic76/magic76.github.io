@@ -10,6 +10,7 @@ import {LiveControls} from "../live/LiveControls";
 import {useLiveSession} from "../live/useLiveSession";
 import {useTeacherStore} from "../store/teacherStore";
 import {loadScript} from "../lib/runtime";
+import {matchesBoardNarration} from "./boardVoiceTurn";
 import "./games.css";
 
 const SELECTED_FRIEND_KEY="crew_web_selected_friend_v1";
@@ -55,7 +56,7 @@ export function FriendGomokuPage(){
   const friend=getCrewFriend(friendId);
   const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,chatMode),[language,nativeLanguage,chatMode]);
   const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,chatMode)+
-    "\n[CASUAL GOMOKU GAME] You are playing Gomoku with the learner as their Crew Friend. The learner plays black and you play white. The game engine selects and applies every legal move; you speak as the friend and react to the shared game. Keep each game remark short, natural, and in your established language mode. Never teach, grade, explain rules unless asked, or claim a move that is not in the event you receive. The learner can talk about anything while playing; respond as a friend and then let them continue. For [GOMOKU BEFORE MOVE] events, deliver exactly one short sentence, then stop speaking so the app can place your stone. Do not continue chatting unprompted after that sentence.",
+    "\n[CASUAL GOMOKU GAME] You are playing Gomoku with the learner as their Crew Friend. The learner plays black and you play white. The game engine selects and applies every legal move; you speak as the friend and react to the shared game. Keep each game remark short, natural, and in your established language mode. Never teach, grade, explain rules unless asked, or claim a move that is not in the event you receive. The learner may announce a planned coordinate before clicking the board; that is an intention, NOT a confirmed move. Do not reply to move intentions or revisit them later. Wait for the authoritative [GOMOKU BEFORE MOVE] cue with the confirmed black move and your engine-selected white move. Respond to that cue once, then stop. For unrelated conversation, respond naturally. For [GOMOKU BEFORE MOVE] events, deliver exactly one short sentence, then stop speaking so the app can place your stone. Do not continue chatting unprompted after that sentence.",
     [friend,language,nativeLanguage,chatMode]);
   const live=useLiveSession({
     pageKey:"friend-game-"+friend.id,title:"五子棋 · "+friend.name,
@@ -66,9 +67,9 @@ export function FriendGomokuPage(){
     persistHistory:false,sessionKind:"friend",
     // The runtime reports turn completion BEFORE playback drains. Release the move
     // only after the spoken audio has ended (or an explicit skip/timeout).
-    onTurnComplete:()=>{
+    onTurnComplete:(spokenTurn)=>{
       const waiting=waitingAiRef.current;
-      if(!waiting||!waiting.sent)return;
+      if(!waiting||!waiting.sent||!matchesBoardNarration(spokenTurn.output,{kind:"gomoku",position:coordinate(waiting.move)}))return;
       waiting.completed=true;
       checkVoiceRef.current();
     }
@@ -140,9 +141,13 @@ export function FriendGomokuPage(){
     if(state==="speaking"){
       if(pending.sent)pending.heardSpeaking=true;
       if(pending.graceTimer!==null){window.clearTimeout(pending.graceTimer);pending.graceTimer=null;}
-      return;
+      // While the model is still answering an older learner intention, send
+      // the authoritative move cue immediately instead of waiting for silence.
+      if(pending.sent)return;
     }
-    if(state!=="listening")return;
+    // The confirmed engine move supersedes an earlier speculative reply to
+    // spoken coordinate intentions. Send the canonical cue even if speaking.
+    if(state!=="listening"&&state!=="speaking")return;
     if(!pending.sent){
       pending.sent=true;
       const accepted=live.sendText(languageDirective+
@@ -177,6 +182,7 @@ export function FriendGomokuPage(){
   const playAt=(x:number,y:number)=>{
     const current=engineRef.current;
     if(!current||!gameStarted||thinking||current.turn!=="black"||!current.makeMove(x,y))return;
+    pendingCueRef.current=null; // Retire cues from an earlier board state.
     if(current.winner){
       const cue="[GOMOKU RESULT] The learner just won the game. React naturally as their friend in one short sentence, then pause.";
       notifyVoice(cue);
@@ -228,7 +234,7 @@ export function FriendGomokuPage(){
         finishAiRef.current();
       },MAX_VOICE_TURN_MS);
       setWaitingForVoice(true);
-    },420);
+    },["listening","speaking"].includes(liveRef.current.state)?60:420);
     return()=>window.clearTimeout(timer);
   },[gameStarted,revision]);
 

@@ -10,6 +10,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {CrewBoardGames} from "./CrewBoardGames";
+import {matchesBoardNarration,type ExpectedBoardSpeech} from "./boardVoiceTurn";
 import {CrewWordGames} from "./CrewWordGames";
 import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase,type TwentyItem} from "./playPuzzles";
 import {generateCrewMystery} from "./generateMystery";
@@ -57,7 +58,7 @@ export function CrewPlayGamePage(){
 }
 type Friend=ReturnType<typeof getCrewFriend>;
 type BoardVoiceTurn={
- message:string;resolve:()=>void;sent:boolean;completed:boolean;heardSpeaking:boolean;
+ message:string;expected:ExpectedBoardSpeech;resolve:()=>void;sent:boolean;completed:boolean;heardSpeaking:boolean;
  graceTimer:number|null;watchdog:number|null;
 };
 const BOARD_VOICE_TIMEOUT_MS=25000;
@@ -116,7 +117,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const facts=kind==="twenty-questions"
   ?"SECRET (do not reveal until guessed/revealed): "+question.name.en+". Verified yes/no facts: "+twentyQuestions.map(q=>q.label.en+" = "+(question.traits.includes(q.id)?"YES":"NO")).concat((question.facts||[]).map(f=>f.question.en+" = "+(f.answer?"YES":"NO"))).join("; ")+". Treat spoken questions and guesses as game actions. The UI records these using a separate authoritative adjudicator. Do NOT independently answer YES or NO to spoken guesses or gameplay questions. Wait until a [20 QUESTIONS VERIFIED ANSWER] or [20 QUESTIONS GUESS] cue provides the verified reply, then respond with exactly the cue's answer. Do not reveal the object until a verified win or end. Do not correct grammar unless asked."
   :kind==="mystery"?"CASE: "+mystery.story.en+" SOLUTION (secret until reveal): "+mystery.solution.en+" VERIFIED CLUES: "+mystery.clues.map(c=>c.question.en+" = "+(c.answer?"YES":"NO")).join("; ")+". Do not invent additional case details. Do NOT independently answer spoken case questions; await the [MYSTERY VERIFIED ANSWER] cue with the verified result before saying Yes or No. Only reveal when the user clicks Reveal."
-  :"The rules and legal moves are exclusively managed by the on-screen game engine. You cannot place pieces through voice. After each computer move is visibly placed, react in ONE brief sentence, then stop speaking; the learner must wait until audio finishes before playing again. Do not claim a move that was not reported in the cue.";
+  :"The board engine alone applies legal moves. A learner saying they plan to place a piece is NOT an actual move: do not answer announced board coordinates or revisit those intentions later. React ONLY to the freshest [CONNECT FOUR AFTER MOVE] or [REVERSI AFTER MOVE] verified board event. Say your actual move column or square once, in ONE brief sentence; never add an extra reply about the preceding learner utterance. You cannot place pieces by voice.";
  const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,mode)+
   "\n[CREW PLAY: "+gameLabel+"] You are playing alongside the learner. Keep the same personality and the current chosen language mode. Be a natural friend, never a teacher. Say at most one short remark per game event. Avoid frequent questions and unsolicited instruction. Game event messages are system-like data cues, NOT new user statements. Never make up board positions, score, guesses or outcomes. Speech alone never places a piece or increments the UI counter. "+facts,
   [friend,language,nativeLanguage,mode,gameLabel,facts]);
@@ -145,7 +146,9 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     }
    }
    const turn=boardVoiceRef.current;
-   if(!turn?.sent)return;
+   // A completed user-chat response is not necessarily the board-move cue.
+   // Only the narrator actually saying the current AI move can release it.
+   if(!turn?.sent||!matchesBoardNarration(spokenTurn.output,turn.expected))return;
    turn.completed=true;
    boardDrainCheckRef.current();
   }
@@ -159,7 +162,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   if(boardVoiceRef.current&&liveRef.current.state==="speaking")liveRef.current.interrupt();
   finishBoardVoice();
  },[finishBoardVoice]);
- const speakAfterBoardMove=useCallback((cue:string)=>new Promise<void>(resolve=>{
+ const speakAfterBoardMove=useCallback((cue:string,expected:ExpectedBoardSpeech)=>new Promise<void>(resolve=>{
   const session=liveRef.current;
   if(!["requesting-mic","connecting","listening","speaking"].includes(session.state)){
    resolve();return;
@@ -167,7 +170,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   // Any previous board narration belongs to an obsolete turn.
   finishBoardVoice();
   const turn:BoardVoiceTurn={
-   message:directive+"\n"+cue,resolve,sent:false,completed:false,heardSpeaking:false,
+   message:directive+"\n"+cue,expected,resolve,sent:false,completed:false,heardSpeaking:false,
    graceTimer:null,watchdog:null
   };
   boardVoiceRef.current=turn;
@@ -176,7 +179,9 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    if(liveRef.current.state==="speaking")liveRef.current.interrupt();
    finishBoardVoice();
   },BOARD_VOICE_TIMEOUT_MS);
-  if(session.state==="listening"){
+  // An authoritative clientContent event supersedes any delayed reply to a
+  // proposed user move. Do not wait for that obsolete audio to finish.
+  if(session.state==="listening"||session.state==="speaking"){
    turn.sent=session.sendText(turn.message);
   }
  }),[directive,finishBoardVoice]);
