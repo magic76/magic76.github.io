@@ -101,3 +101,26 @@ test("Connect Four and Reversi narrate every AI move only after it is applied",(
  assert.match(page,/onSkipSpeech=\{skipBoardSpeech\}/);
  assert.match(styles,/\.crew-play-board-actions \.crew-play-skip-speech/);
 });
+
+test("Mystery generates a new, validated case from the existing Gemini Key with a safe fallback",()=>{
+ const generator=read("web-spa/src/games/generateMystery.ts");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ assert.match(generator,/geminiKey\(\)/);
+ assert.match(generator,/await ensureCore\(\)/);
+ assert.match(generator,/window\.CrewAI\.call\(prompt/);
+ assert.match(generator,/strictModels:true/);
+ assert.match(generator,/validateGeneratedMystery\(parsed\)/);
+ assert.match(generator,/clues\.length<5\|\|data\.clues\.length>8/);
+ assert.match(generator,/typeof row\.answer!=="boolean"/);
+ assert.match(generator,/seen\.has\(fingerprint\)/);
+ assert.match(page,/void generateCrewMystery\(friend\.name\)\.then\(result=>/);
+ assert.match(page,/setMysteryStatus\("generated"\)/);
+ assert.match(page,/setMysteryStatus\("fallback"\)/);
+ assert.match(page,/setMysteryCase\(fallbackMystery\)/);
+ assert.match(page,/kind==="mystery"&&mysteryStatus==="generating"/);
+ assert.match(page,/disabled=\{kind==="mystery"&&mysteryStatus==="generating"\}/);
+ assert.match(page,/const mystery=mysteryCase/);
+ assert.match(word,/mysterySource==="generated"/);
+ assert.match(word,/Gemini 原創謎題/);
+});
