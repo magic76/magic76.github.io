@@ -18,6 +18,8 @@ test('Bella v2 preflight checks actual immutable master and outputs the complete
  assert.match(result.prompt,/nose:.*tip/i);
  assert.match(result.prompt,/Identity-specific changes to forbid/);
  assert.match(result.prompt,/picnic/i);
+ assert.equal(result.matchingPosts,2);
+ assert.equal(result.caption,'I stopped for one scoop. The second scoop made a very convincing argument.');
  assert.equal(result.paidApiCalls,0);
  assert.equal(result.imagesGenerated,0);
  assert.equal(result.imagesPublished,0);

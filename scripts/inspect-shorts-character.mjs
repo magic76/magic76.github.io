@@ -11,16 +11,18 @@ export function inspectApprovedCharacter({root=resolve(fileURLToPath(new URL('..
  assert(FRIENDS.includes(friend),'unsupported Shorts Friend');
  assert(/^\d{4}-\d{2}-\d{2}$/.test(date),'invalid YYYY-MM-DD date');
  const feed=JSON.parse(readFileSync(resolve(root,'content/crew-shorts/approved/posts.json'),'utf8'));
- const p=feed.posts.filter(x=>x.friendId===friend&&x.publishedAt.slice(0,10)===date);
- assert(p.length===1,'expected exactly one approved post for '+friend+' on '+date);
+ const posts=feed.posts.filter(x=>x.friendId===friend&&x.publishedAt.slice(0,10)===date)
+  .sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt));
+ assert(posts.length>0,'expected an approved post for '+friend+' on '+date);
+ const p=posts.at(-1);
  const master=loadIdentity(root,'friend',friend);
- const scene=approvedPostScene(p[0],storyHistory(feed,friend,date));
+ const scene=approvedPostScene(p,storyHistory(feed,friend,date));
  const prompt=imagePrompt(scene,master.identity);
  assert(prompt.includes(master.identity.visualIdentity.block),'missing locked description');
  assert(prompt.includes(master.identity.visualIdentity.negativeIdentity),'missing identity negative constraints');
  return {
   date,friend,identityId:master.identityId,identityVersion:master.identity.version,
-  caption:p[0].caption,translationZh:p[0].translationZh,scene:scene.scene,
+  caption:p.caption,translationZh:p.translationZh,matchingPosts:posts.length,scene:scene.scene,
   master:{path:master.identity.source.path,gitBlobSha:master.sha,mimeType:master.reference.mimeType,byteLength:master.reference.data.length,integrity:'verified'},
   prompt,referenceImagePolicy:'one authentic canonical master image attached as inlineData when generating',
   previousShortsImageUsedAsReference:false,

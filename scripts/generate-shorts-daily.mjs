@@ -134,13 +134,15 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
  const approvedFile=resolve(root,sourcePath),feed=json(approvedFile);
  good(feed.schema===1&&feed.kind==='crew-shorts'&&Array.isArray(feed.posts),'invalid approved source');
  const today=feed.posts.filter(p=>p.publishedAt.slice(0,10)===date);
- good(!today.length||today.length===FRIENDS.length,'partial source batch detected; require manual review');
+ const todayFriends=new Set(today.map(p=>p.friendId));
+ const todayComplete=FRIENDS.every(id=>todayFriends.has(id));
+ good(!today.length||todayComplete,'partial source batch detected; require manual review');
  const dir=resolve(root,previewBase,date);
  mkdirSync(dir,{recursive:true});
  const report={date,mode,friend,useApprovedStory,customPreviewStory:!!previewStory,status:'planning',models:{text:process.env.SHORTS_TEXT_MODEL||'gemini-2.5-flash',image:process.env.SHORTS_IMAGE_MODEL||'gemini-2.5-flash-image'},existing:today.map(x=>x.id),stories:[],errors:[]};
  const reportFile=join(dir,'manifest.json');
  save(reportFile,report);
- if(mode==='publish'&&today.length===FRIENDS.length){report.status='already-approved';save(reportFile,report);try{renderHtmlReport(report,dir,root)}catch{};return report}
+ if(mode==='publish'&&todayComplete){report.status='already-approved';save(reportFile,report);try{renderHtmlReport(report,dir,root)}catch{};return report}
  if(mode==='plan'){report.status='plan-only';report.friends=friend?[friend]:FRIENDS;report.continuity=Object.fromEntries(report.friends.map(id=>[id,storyHistory(feed,id,date).map(p=>p.id)]));save(reportFile,report);try{renderHtmlReport(report,dir,root)}catch{};return report}
  const targets=friend?[friend]:FRIENDS;
  const staged=[];
@@ -152,7 +154,7 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
   good(!useApprovedStory||today.some(p=>p.friendId===friend),'no approved story for selected preview day');
   const localAvailable = targets.every(id => existsSync(join(dir, id + '.webp')));
   const ai = client || (process.env.GEMINI_API_KEY ? geminiClient() : (localAvailable ? new LocalAgentProviderAdapter({imageMap: Object.fromEntries(targets.map(id => [id, join(dir, id + '.webp')]))}) : geminiClient()));
-  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).map(p=>approvedPostScene(p,storyHistory(feed,friend,date))):previewStory?[validatePreviewStory(previewStory,feed,date,friend)]:validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
+  const stories=useApprovedStory?today.filter(p=>p.friendId===friend).sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt)).slice(-1).map(p=>approvedPostScene(p,storyHistory(feed,friend,date))):previewStory?[validatePreviewStory(previewStory,feed,date,friend)]:validateStories(await ai.stories(feed,date),feed,date).filter(p=>!friend||p.friendId===friend);
   good(stories.length===targets.length,'missing selected story');
   for(const story of stories){
    const anchor=identities.get(story.friendId);
