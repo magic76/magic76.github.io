@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Settings",
-    "desc": "Manage your Gemini Key, voice experience, and backups in one place. Teacher, Story, and Fortune share one key."
+    "desc": "Manage your Gemini Key, voice experience, and backups in one place. Crew's AI-powered features share one key; offline games need no key."
   },
   "memory": {
     "title": "Memory",
@@ -46,7 +46,7 @@
     "reconfigure": "Change Key",
     "titleEdit": "Change Gemini Key",
     "titleNew": "Create a free Gemini API Key to start using Crew AI",
-    "intro": "Teacher, Story, and Fortune share one key. Set it up once and verify it; microphone access is optional until you use voice.",
+    "intro": "Crew's AI-powered features share one key; offline games need no key. Set it up once and verify it; microphone access is optional until you use voice.",
     "step1": "Sign in with Google",
     "step1Desc": "Open Google AI Studio and sign in.",
     "step2": "Create a free API Key",
