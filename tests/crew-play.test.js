@@ -158,3 +158,26 @@ test("20 Questions is Gemini-generated, records voice actions, and preserves the
  assert.match(word,/item\.traits\.includes\(id\)/);
  assert.match(word,/caseFile\.solution/);
 });
+
+test("Voice-first 20 Questions shows the friend at top, a single dock, and compact clues",()=>{
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ const css=read("web-spa/src/games/crewPlay.css");
+ assert.match(page,/crew-play-page--twenty/);
+ assert.match(page,/gameId!=="twenty-questions"\?<section className="crew-play-friend-bar">/);
+ assert.match(page,/crew-play-voice-presence/);
+ assert.match(page,/crew-play-voice-presence-reply/);
+ assert.match(page,/crew-play-voice-dock-shell/);
+ assert.match(page,/const voiceActions=/);
+ assert.equal(page.match(/<LiveControls live=\{live\}/g)?.length,1,"The same Live controls must not render twice");
+ assert.match(page,/\{!twenty\?<section className="crew-play-voice">/);
+ assert.match(word,/crew-play-question-disclosure/);
+ assert.match(word,/crew-play-history-older/);
+ assert.match(word,/asked\.slice\(-3\)/);
+ assert.match(word,/asked\.slice\(0,-3\)/);
+ assert.match(css,/bottom:calc\(var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom\) \+ 8px\)/);
+ assert.match(css,/\.crew-play-voice-dock-shell\{position:fixed;z-index:42/);
+ assert.match(css,/\.crew-play-session--twenty\{padding-bottom:160px\}/);
+ assert.match(css,/\.crew-play-question-disclosure>summary/);
+ assert.match(css,/\.crew-play-voice-presence-reply/);
+});
