@@ -4,9 +4,10 @@ import {copy,correctGuess,twentyQuestions,type TwentyItem,type MysteryCase} from
 type Props={
  kind:"twenty-questions"|"mystery";english:boolean;friendName:string;
  item:TwentyItem;caseFile:MysteryCase;onEvent:(message:string)=>void;onNext:()=>void;
+ mysterySource?:"generating"|"generated"|"fallback"|"local";
 };
 type Asked={id:string;question:string;answer:string};
-export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onNext}:Props){
+export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onNext,mysterySource="local"}:Props){
  const [asked,setAsked]=useState<Asked[]>([]);
  const [guess,setGuess]=useState("");
  const [result,setResult]=useState<"won"|"lost"|"revealed"|null>(null);
@@ -51,6 +52,11 @@ export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onN
  return <section className="crew-play-word-panel">
   <div className="crew-play-word-heading">
    <span className="crew-play-round-label">{questionMode?(english?"Find the secret object":"猜出神秘物品"):(english?"Solve the strange story":"破解離奇事件")}</span>
+   {!questionMode?<span className="crew-play-mystery-source" aria-label={english?"Puzzle source":"謎題來源"}>
+    {mysterySource==="generated"?(english?"AI-original mystery":"Gemini 原創謎題"):
+     mysterySource==="fallback"?(english?"Built-in puzzle · AI unavailable":"AI 生成失敗 · 使用內建題庫"):
+     english?"Built-in puzzle":"內建謎題"}
+   </span>:null}
    <span className="crew-play-count" aria-live="polite">{questionMode?`${count} / ${limit}`:`${count} ${english?"clues":"條線索"}`}</span>
   </div>
   <div className="crew-play-riddle">
@@ -81,6 +87,9 @@ export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onN
    <p>{questionMode?secret:copy(caseFile.solution,english)}</p>
    <button type="button" onClick={onNext}>{english?"Play another":"下一題 →"}</button>
   </div>:null}
-  <p className="crew-play-hint">{english?"Voice lets you talk through your guesses naturally. Only on-screen questions count toward the displayed total.":"語音可以自由和朋友推理；畫面的提問次數只計算你點選或輸入的操作。"}</p>
+  <p className="crew-play-hint">{questionMode
+   ?english?"Voice lets you talk through your guesses naturally. Only on-screen questions count toward the displayed total.":"語音可以自由和朋友推理；畫面的提問次數只計算你點選或輸入的操作。"
+   :english?"Each new round creates a fresh Gemini puzzle when your Key is available; otherwise, a built-in mystery is used.":"有 Gemini Key 時，每次新局都會產生新海龜湯；沒有 Key 或生成失敗則使用內建題庫。"}
+  </p>
  </section>;
 }
