@@ -65,7 +65,7 @@ export function ShortsPage(){
   {error?<section className="section crew-shorts-error" role="alert"><p>{en?"The feed is unavailable. Try again.":"動態暫時無法載入，請再試一次。"}</p>
    <button type="button" onClick={()=>setRetry(x=>x+1)}>{en?"Retry":"重試"}</button></section>:null}
   {posts.length>0?<section className="section" aria-label="Crew Shorts">
-   <div className="section-head"><h2>{en?"Latest moments":"朋友最新動態"}</h2><small>{posts.length} {en?"stories":"則故事"} · {feed?.source==="demo"?"English demo":posts[0]?.language?.toUpperCase()}</small></div>
+   <div className="section-head"><h2>{en?"Friends’ moments":"朋友生活動態"}</h2><small>{posts.length} {en?"stories":"則故事"} · {feed?.source==="demo"?"English demo":posts[0]?.language?.toUpperCase()}</small></div>
    <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>
     <article className="crew-short-card" key={post.id}>
      <div className="crew-short-image">
