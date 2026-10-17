@@ -118,6 +118,16 @@ export function CrewWordGames({
   resultRef.current="revealed";setResult("revealed");
   onEvent("[MYSTERY REVEAL] The solution is: "+caseFile.solution.en+" Respond naturally and briefly.");
  };
+ const questionOptions=<div className="crew-play-word-options">
+  <h3>{questionMode?(english?"Suggested questions":"你可以這樣問"):(english?"Choose a question":"選擇一個問題")}</h3>
+  <div className="crew-play-question-grid">{hints.map(h=>{
+   const visited=asked.find(entry=>entry.id===h.id);
+   const label=copy("label" in h?h.label:h.question,english);
+   return <button type="button" key={h.id} className={visited?"asked":""} disabled={ended||Boolean(visited)} onClick={()=>ask(h.id)}>
+    <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<span className="crew-play-question-arrow">↗</span>}
+   </button>;
+  })}</div>
+ </div>;
  return <section className="crew-play-word-panel">
   <div className="crew-play-word-heading">
    <span className="crew-play-round-label">{questionMode?(english?"Find the secret object":"猜出神秘物品"):(english?"Solve the strange story":"破解離奇事件")}</span>
@@ -148,23 +158,25 @@ export function CrewWordGames({
    <button type="submit" disabled={processing||!freeQuestion.trim()}>{processing?(english?"Checking…":"判斷中…"):(english?"Ask":"提問")}</button></div>
   </form>:null}
   {speechNotice?<p className="crew-play-speech-notice" role="status">{speechNotice}</p>:null}
-  <div className="crew-play-word-options">
-   <h3>{questionMode?(english?"Suggested questions (optional)":"不知道怎麼問？試試這些句子"):(english?"Choose a question":"選擇一個問題")}</h3>
-   <div className="crew-play-question-grid">{hints.map(h=>{
-    const visited=asked.find(entry=>entry.id===h.id);
-    const label=copy("label" in h?h.label:h.question,english);
-    return <button type="button" key={h.id} className={visited?"asked":""} disabled={ended||Boolean(visited)} onClick={()=>ask(h.id)}>
-     <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<span className="crew-play-question-arrow">↗</span>}
-    </button>;
-   })}</div>
-  </div>
-  {asked.length>0?<div className="crew-play-question-history" aria-live="polite"><strong>{english?"Your clues so far":"目前的線索"}</strong>
+  {!questionMode?questionOptions:null}
+  {questionMode&&asked.length>0?<div className="crew-play-question-history crew-play-question-history--compact" aria-live="polite">
+   <div className="crew-play-history-heading"><strong>{english?"Recent questions":"最近的提問"}</strong><span>{english?"Last 3":"最近 3 筆"}</span></div>
+   <ul>{asked.slice(-3).map((row,i)=><li key={row.id+"-"+i}><span>{row.source==="voice"?"🎙️ ":""}{row.question}</span><b>{row.answer}</b></li>)}</ul>
+   {asked.length>3?<details className="crew-play-history-older">
+    <summary>{english?`View ${asked.length-3} earlier questions`:`展開先前 ${asked.length-3} 筆`}</summary>
+    <ul>{asked.slice(0,-3).map((row,i)=><li key={row.id+"-older-"+i}><span>{row.source==="voice"?"🎙️ ":""}{row.question}</span><b>{row.answer}</b></li>)}</ul>
+   </details>:null}
+  </div>:null}
+  {!questionMode&&asked.length>0?<div className="crew-play-question-history" aria-live="polite"><strong>{english?"Your clues so far":"目前的線索"}</strong>
    <ul>{asked.slice(-6).map((row,i)=><li key={row.id+"-"+i}><span>{row.source==="voice"?"🎙️ ":""}{row.question}</span><b>{row.answer}</b></li>)}</ul>
   </div>:null}
   {questionMode&&!ended?<form className="crew-play-guess-form" onSubmit={submitGuess}>
    <label htmlFor="crew-guess">{english?"I think the answer is…":"我猜答案是……"}</label>
    <div><input id="crew-guess" type="text" autoComplete="off" maxLength={60} value={guess} onChange={event=>setGuess(event.target.value)} placeholder={english?"Type an object":"輸入物品名稱"}/><button type="submit" disabled={!guess.trim()}>{english?"Guess":"猜答案"}</button></div>
   </form>:null}
+  {questionMode?<details className="crew-play-question-disclosure"><summary>
+   <span>{english?"Need a hint?":"需要提示嗎？"}</span><small>{english?"Suggested yes/no questions":"展開預設的英文問句"}</small>
+  </summary>{questionOptions}</details>:null}
   {!questionMode&&!ended?<button type="button" className="crew-play-reveal" onClick={reveal}>{english?"Reveal the solution":"揭曉答案"}</button>:null}
   {ended?<div className="crew-play-solution" role="status">
    <strong>{questionMode?(result==="won"?(english?"You got it!":"答對了！"):(english?"The answer was…":"正確答案是……")):(english?"The truth":"故事真相")}</strong>
