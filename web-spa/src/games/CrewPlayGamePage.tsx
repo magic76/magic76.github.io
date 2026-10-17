@@ -11,7 +11,9 @@ import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {CrewBoardGames} from "./CrewBoardGames";
 import {CrewWordGames} from "./CrewWordGames";
-import {copy,mysteryCases,twentyItems,twentyQuestions} from "./playPuzzles";
+import {copy,mysteryCases,twentyItems,twentyQuestions,type MysteryCase} from "./playPuzzles";
+import {generateCrewMystery} from "./generateMystery";
+import {geminiKey} from "../lib/runtime";
 import {crewGames} from "./CrewPlayHubPage";
 import "./crewPlay.css";
 
@@ -61,7 +63,27 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const mode=useTeacherStore(s=>s.friendChatMode);
  const question=twentyItems[round%twentyItems.length];
- const mystery=mysteryCases[round%mysteryCases.length];
+ const fallbackMystery=mysteryCases[round%mysteryCases.length];
+ const [mysteryCase,setMysteryCase]=useState<MysteryCase>(fallbackMystery);
+ const [mysteryStatus,setMysteryStatus]=useState<"generating"|"generated"|"fallback"|"local">(
+  ()=>kind==="mystery"&&typeof window!=="undefined"&&Boolean(geminiKey())?"generating":"local"
+ );
+ useEffect(()=>{
+  if(kind!=="mystery")return;
+  let active=true;
+  setMysteryCase(fallbackMystery);
+  if(!geminiKey()){setMysteryStatus("local");return()=>{active=false};}
+  setMysteryStatus("generating");
+  void generateCrewMystery(friend.name).then(result=>{
+   if(!active)return;
+   setMysteryCase(result);setMysteryStatus("generated");
+  }).catch(()=>{
+   if(!active)return;
+   setMysteryCase(fallbackMystery);setMysteryStatus("fallback");
+  });
+  return()=>{active=false};
+ },[kind,round,friend.id,friend.name]);
+ const mystery=mysteryCase;
  const directive=useMemo(()=>friendLanguageReminder(language,nativeLanguage,mode),[language,nativeLanguage,mode]);
  const isWord=kind==="twenty-questions"||kind==="mystery";
  const gameLabel={connect4:"Connect Four",reversi:"Reversi","twenty-questions":"20 Questions",mystery:"lateral-thinking mystery"}[kind];
@@ -176,10 +198,17 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
  },[]);
  return <div className="crew-play-session">
   {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
-  {isWord?<CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound}/>:null}
+  {kind==="mystery"&&mysteryStatus==="generating"?
+   <section className="crew-play-mystery-loading" role="status" aria-live="polite">
+    <span className="crew-play-mystery-spinner" aria-hidden="true"/>
+    <strong>{english?"Creating a new mystery…":"正在創作全新海龜湯…"}</strong>
+    <p>{english?"Your Gemini Key is generating a fresh puzzle and verified clues.":"使用你的 Gemini Key 生成故事、答案與可驗證的線索。"}</p>
+   </section>:null}
+  {isWord&&(kind!=="mystery"||mysteryStatus!=="generating")?
+   <CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound} mysterySource={mysteryStatus}/>:null}
   <section className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
-   {live.state==="idle"||live.state==="ended"?<button type="button" className="crew-play-voice-start" onClick={()=>void live.start()}>{english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩"}</button>
+   {live.state==="idle"||live.state==="ended"?<button type="button" className="crew-play-voice-start" disabled={kind==="mystery"&&mysteryStatus==="generating"} onClick={()=>void live.start()}>{english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩"}</button>
     :<LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
   </section>
