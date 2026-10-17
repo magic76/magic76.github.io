@@ -2,19 +2,17 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 
 function moduleFromTs(relative){
  const filename=path.join(__dirname,"..",relative);
  const source=fs.readFileSync(filename,"utf8");
- const js=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
- const mod={exports:{}};
- // No network access: the Gemini runtime is stubbed for pure offline tests.
- new Function("require","module","exports",js)((id)=>{
-  if(id==="../lib/runtime")return {geminiKey:()=>"",ensureCore:async()=>{}};
-  throw Error("Unexpected dependency "+id);
- },mod,mod.exports);
- return mod.exports;
+ const withoutImport=source.replace(/^import \{ensureCore,geminiKey\} from "\.\.\/lib\/runtime";\r?\n/m,"");
+ const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
+ const names=relative.includes("numberGameEngine")?
+  ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard"];
+ return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>false);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
 const taboo=moduleFromTs("web-spa/src/games/tabooEngine.ts");
