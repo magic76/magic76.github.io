@@ -2,6 +2,12 @@ import {ensureCore,geminiKey} from "../lib/runtime";
 import {twentyItems,twentyQuestions,type Bilingual,type TwentyItem} from "./playPuzzles";
 import {nextPuzzleTheme,recentPuzzleSummaries,isNearDuplicate,rememberPuzzle} from "./puzzleDiversity";
 
+const pendingDiversity=new WeakMap<TwentyItem,{category:string;name:string;key:string;summary:string}>();
+/** Only shown rounds enter the local last-50 history. */
+export function rememberGeneratedTwentyItem(item:TwentyItem){
+ const meta=pendingDiversity.get(item);
+ if(meta){rememberPuzzle("twenty",meta.category,meta.name,meta.key,meta.summary);pendingDiversity.delete(item)}
+}
 const text=(value:unknown,max:number)=>typeof value==="string"&&value.trim().length<=max?value.trim():"";
 function bilingual(value:unknown,max:number):Bilingual|null{
  if(!value||typeof value!=="object"||Array.isArray(value))return null;
@@ -72,7 +78,7 @@ export async function generateTwentyItem():Promise<TwentyItem>{
    const familyKey=typeof marker==="string"&&marker.trim().length>=5&&marker.length<=120?marker.trim():item.name.en;
    const newAnswer={name:item.name.en,key:familyKey,summary:item.name.zh+" / "+item.name.en};
    if(isNearDuplicate("twenty",newAnswer))throw new Error("Duplicate object or object family");
-   rememberPuzzle("twenty",theme.id,newAnswer.name,newAnswer.key,newAnswer.summary);
+   pendingDiversity.set(item,{category:theme.id,...newAnswer});
    return item;
   }catch(error){lastError=error}
  }
