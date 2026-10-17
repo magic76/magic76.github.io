@@ -46,7 +46,7 @@ export async function generateTwentyItem():Promise<TwentyItem>{
  for(let attempt=0;attempt<3;attempt++){
   const theme=nextPuzzleTheme("twenty",attempt);
   const prompt=[
-   "You are choosing ONE secret physical object for a language-learning game of 20 yes/no questions.",
+   "You are choosing ONE secret object, a physical thing, for a language-learning game of 20 yes/no questions.",
    "REQUIRED CATEGORY THIS ROUND: "+theme.label+". Do not silently change the requested category.",
    "The object must be recognizable and possible to describe truthfully. Vary shapes, functions, materials, habitats and difficulty from previous objects.",
    "Avoid near synonyms or the same object family as recent rounds. A renamed or differently sized variant of a recent answer is NOT new.",
