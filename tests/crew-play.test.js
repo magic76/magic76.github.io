@@ -77,3 +77,27 @@ test("Guessing and mystery games provide locally verified yes-no clues",()=>{
  assert.match(word,/correctGuess\(item,guess\)/);
  assert.match(word,/caseFile\.solution/);
 });
+
+test("Connect Four and Reversi narrate every AI move only after it is applied",()=>{
+ const board=read("web-spa/src/games/CrewBoardGames.tsx");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const styles=read("web-spa/src/games/crewPlay.css");
+ assert.match(board,/setConnect\(next\);\s*const outcome=.*?\s*narrateMove\("\[CONNECT FOUR AFTER MOVE\]/s);
+ assert.match(board,/setReversi\(next\);\s*const outcome=.*?\s*narrateMove\("\[REVERSI AFTER MOVE\]/s);
+ assert.match(board,/speechGateRef\.current=true/);
+ assert.match(board,/setSpeechPending\(true\)/);
+ assert.match(board,/speechPending\|\|speechGateRef\.current/);
+ assert.match(board,/speechGateRef\.current\|\|speechPending/);
+ assert.match(board,/onBoardMove\(cue\)/);
+ assert.match(board,/roundEpochRef\.current\+=1/);
+ assert.match(board,/crew-play-skip-speech/);
+ assert.match(page,/BOARD_VOICE_TIMEOUT_MS=25000/);
+ assert.match(page,/onTurnComplete:\(\)=>\{/);
+ assert.match(page,/turn\.completed=true/);
+ assert.match(page,/if\(!turn\?\.sent\|\|!turn\.completed\|\|liveRef\.current\.state!=="listening"\)return/);
+ assert.match(page,/if\(turn\.heardSpeaking\)\{finishBoardVoice\(\);return;\}/);
+ assert.match(page,/persistHistory:false,sessionKind:"friend"/);
+ assert.match(page,/onBoardMove=\{speakAfterBoardMove\}/);
+ assert.match(page,/onSkipSpeech=\{skipBoardSpeech\}/);
+ assert.match(styles,/\.crew-play-board-actions \.crew-play-skip-speech/);
+});

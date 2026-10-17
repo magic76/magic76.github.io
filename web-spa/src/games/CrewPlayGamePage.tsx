@@ -51,6 +51,11 @@ export function CrewPlayGamePage(){
  </main>;
 }
 type Friend=ReturnType<typeof getCrewFriend>;
+type BoardVoiceTurn={
+ message:string;resolve:()=>void;sent:boolean;completed:boolean;heardSpeaking:boolean;
+ graceTimer:number|null;watchdog:number|null;
+};
+const BOARD_VOICE_TIMEOUT_MS=25000;
 function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;friend:Friend;english:boolean;round:number;nextRound:()=>void}){
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -63,18 +68,98 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
  const facts=kind==="twenty-questions"
   ?"SECRET (do not reveal until guessed/revealed): "+question.name.en+". Verified yes/no facts: "+twentyQuestions.map(q=>q.label.en+" = "+(question.traits.includes(q.id)?"YES":"NO")).join("; ")+". For other questions, only answer if certain and be brief."
   :kind==="mystery"?"CASE: "+mystery.story.en+" SOLUTION (secret until reveal): "+mystery.solution.en+" VERIFIED CLUES: "+mystery.clues.map(c=>c.question.en+" = "+(c.answer?"YES":"NO")).join("; ")+". Do not invent additional case details."
-  :"The rules and legal moves are exclusively managed by the on-screen game engine. You cannot place pieces through voice. Only react to verified [GAME] events.";
+  :"The rules and legal moves are exclusively managed by the on-screen game engine. You cannot place pieces through voice. After each computer move is visibly placed, react in ONE brief sentence, then stop speaking; the learner must wait until audio finishes before playing again. Do not claim a move that was not reported in the cue.";
  const system=useMemo(()=>buildFriendSystem(friend,language,nativeLanguage,mode)+
   "\n[CREW PLAY: "+gameLabel+"] You are playing alongside the learner. Keep the same personality and the current chosen language mode. Be a natural friend, never a teacher. Say at most one short remark per game event. Avoid frequent questions and unsolicited instruction. Game event messages are system-like data cues, NOT new user statements. Never make up board positions, score, guesses or outcomes. Speech alone never places a piece or increments the UI counter. "+facts,
   [friend,language,nativeLanguage,mode,gameLabel,facts]);
+ const boardVoiceRef=useRef<BoardVoiceTurn|null>(null);
+ const boardDrainCheckRef=useRef<()=>void>(()=>{});
+ const finishBoardVoice=useCallback(()=>{
+  const turn=boardVoiceRef.current;
+  if(!turn)return;
+  boardVoiceRef.current=null;
+  if(turn.graceTimer!==null)window.clearTimeout(turn.graceTimer);
+  if(turn.watchdog!==null)window.clearTimeout(turn.watchdog);
+  turn.resolve();
+ },[]);
  const live=useLiveSession({
   pageKey:"crew-play-"+kind+"-"+friend.id,title:gameLabel+" · "+friend.name,
   system,openingPrompt:directive+"\n[GAME OPENING] Say one short, relaxed in-character greeting about "+gameLabel+". Don't give away any secret or solution. Then let the user play.",
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective:directive,
-  persistHistory:false,sessionKind:"friend"
+  persistHistory:false,sessionKind:"friend",
+  // A model turn can finish before its audio stops playing.
+  onTurnComplete:()=>{
+   const turn=boardVoiceRef.current;
+   if(!turn?.sent)return;
+   turn.completed=true;
+   boardDrainCheckRef.current();
+  }
  });
  const liveRef=useRef(live);liveRef.current=live;
  const pending=useRef<string|null>(null);
+ const skipBoardSpeech=useCallback(()=>{
+  if(boardVoiceRef.current&&liveRef.current.state==="speaking")liveRef.current.interrupt();
+  finishBoardVoice();
+ },[finishBoardVoice]);
+ const speakAfterBoardMove=useCallback((cue:string)=>new Promise<void>(resolve=>{
+  const session=liveRef.current;
+  if(!["requesting-mic","connecting","listening","speaking"].includes(session.state)){
+   resolve();return;
+  }
+  // Any previous board narration belongs to an obsolete turn.
+  finishBoardVoice();
+  const turn:BoardVoiceTurn={
+   message:directive+"\n"+cue,resolve,sent:false,completed:false,heardSpeaking:false,
+   graceTimer:null,watchdog:null
+  };
+  boardVoiceRef.current=turn;
+  turn.watchdog=window.setTimeout(()=>{
+   if(boardVoiceRef.current!==turn)return;
+   if(liveRef.current.state==="speaking")liveRef.current.interrupt();
+   finishBoardVoice();
+  },BOARD_VOICE_TIMEOUT_MS);
+  if(session.state==="listening"){
+   turn.sent=session.sendText(turn.message);
+  }
+ }),[directive,finishBoardVoice]);
+ boardDrainCheckRef.current=()=>{
+  const turn=boardVoiceRef.current;
+  if(!turn?.sent||!turn.completed||liveRef.current.state!=="listening")return;
+  if(turn.heardSpeaking){finishBoardVoice();return;}
+  // Give the audio worklet one moment to report playback starting.
+  if(turn.graceTimer===null){
+   turn.graceTimer=window.setTimeout(()=>{
+    if(boardVoiceRef.current!==turn)return;
+    turn.graceTimer=null;
+    if(liveRef.current.state==="listening"&&turn.completed)finishBoardVoice();
+   },450);
+  }
+ };
+ useEffect(()=>{
+  const turn=boardVoiceRef.current;
+  if(!turn)return;
+  if(["idle","ended","error","ending","reporting"].includes(live.state)){
+   finishBoardVoice();return;
+  }
+  if(live.state==="speaking"){
+   if(turn.sent)turn.heardSpeaking=true;
+   if(turn.graceTimer!==null){window.clearTimeout(turn.graceTimer);turn.graceTimer=null;}
+   return;
+  }
+  if(live.state!=="listening")return;
+  if(!turn.sent){
+   turn.sent=live.sendText(turn.message);
+   return;
+  }
+  boardDrainCheckRef.current();
+ },[live.state,live.sendText,finishBoardVoice]);
+ useEffect(()=>()=>{const turn=boardVoiceRef.current;if(!turn)return;
+  boardVoiceRef.current=null;
+  if(turn.graceTimer!==null)window.clearTimeout(turn.graceTimer);
+  if(turn.watchdog!==null)window.clearTimeout(turn.watchdog);
+  turn.resolve();
+ },[]);
+
  const onEvent=useCallback((event:string)=>{
   const current=liveRef.current;
   if(!["requesting-mic","connecting","listening","speaking"].includes(current.state))return;
@@ -83,14 +168,14 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
   pending.current=message;
  },[directive]);
  useEffect(()=>{
-  if(live.state==="listening"&&pending.current&&live.sendText(pending.current))pending.current=null;
+  if(live.state==="listening"&&!boardVoiceRef.current&&pending.current&&live.sendText(pending.current))pending.current=null;
  },[live.state,live.sendText]);
  useEffect(()=>{
   document.body.classList.add("teacher-theme");
   return()=>document.body.classList.remove("teacher-theme");
  },[]);
  return <div className="crew-play-session">
-  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent}/>:null}
+  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
   {isWord?<CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound}/>:null}
   <section className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
