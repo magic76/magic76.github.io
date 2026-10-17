@@ -14,7 +14,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string},completedTurns:LiveTurn[])=>void;
- persistHistory?:boolean;sessionKind?:"teacher"|"friend";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
+ persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
@@ -98,7 +98,8 @@ export function useLiveSession(config:Config){
    // Crew Story/Fortune keep their existing automatic fallback behavior.
    const teacherVoiceSession=configRef.current.pageKey==="teacher"
      ||configRef.current.pageKey==="voice-lab"
-     ||configRef.current.pageKey.startsWith("friend-");
+     ||configRef.current.pageKey.startsWith("friend-")
+      ||configRef.current.pageKey.startsWith("timeline-mira-");
    const levelSetting=useTeacherStore.getState();
    const speakingLevel=effectiveSpeakingLevel(
     configRef.current.language||levelSetting.targetLanguage,
@@ -126,13 +127,15 @@ export function useLiveSession(config:Config){
       if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
-      const prompt=configRef.current.sessionKind==="friend"
+      const prompt=configRef.current.sessionKind==="timeline"
+       ?"[TIMELINE CONTINUITY — silent recovery] Continue the unfinished answer as the SAME fictional Mira at her selected age. Never become a tutor, switch age, reveal future life events or restart."
+       :configRef.current.sessionKind==="friend"
       ?"[FRIEND CONTINUITY — silent recovery] Continue your unfinished answer naturally as the same friend. Never reintroduce yourself, become a teacher, or ask the user to repeat."
       :roleplay
       ?"[SCENE CONTROL — silent reconnect recovery] Your previous in-character reply was interrupted. Continue the unanswered response without greeting or explaining grammar. Do not repeat parts already spoken."
       :"[COACH CONTROL — silent reconnect recovery] The connection interrupted a reply. Answer or finish the learner's previous utterance naturally from the next unsaid point. Do not greet, repeat previous sentences, or ask the learner to repeat.";
       const reminder=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
-      if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
+      if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="timeline"?"連線已恢復，Mira 接著回答…":configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
     onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
