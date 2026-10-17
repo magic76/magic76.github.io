@@ -119,7 +119,8 @@ test("Mystery generates a new, validated case from the existing Gemini Key with 
  assert.match(page,/setMysteryStatus\("fallback"\)/);
  assert.match(page,/setMysteryCase\(fallbackMystery\)/);
  assert.match(page,/kind==="mystery"&&mysteryStatus==="generating"/);
- assert.match(page,/disabled=\{\(kind==="mystery"&&mysteryStatus==="generating"\)\|\|\(kind==="twenty-questions"&&questionStatus==="generating"\)\}/);
+ assert.match(page,/const voicePreparing=\(kind==="mystery"&&mysteryStatus==="generating"\)\|\|\(twenty&&questionStatus==="generating"\)/);
+ assert.match(page,/disabled=\{voicePreparing\}/);
  assert.match(page,/const mystery=mysteryCase/);
  assert.match(word,/mysterySource==="generated"/);
  assert.match(word,/Gemini 原創謎題/);
