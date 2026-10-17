@@ -31,6 +31,7 @@ function storage(){
 }
 function clean(v:unknown,max=210){return typeof v==="string"?v.slice(0,max).trim():""}
 function normal(v:string){return v.toLowerCase().normalize("NFKC").replace(/[\s\p{P}\p{S}]/gu,"")}
+function lastIndex<T>(rows:T[],match:(row:T)=>boolean){for(let i=rows.length-1;i>=0;i--)if(match(rows[i]))return i;return -1}
 function unique(history:PuzzleHistoryRow[]){
  const counts={mystery:0,twenty:0};const output:PuzzleHistoryRow[]=[];
  for(const row of history.slice().reverse()){
@@ -66,7 +67,7 @@ export function nextPuzzleTheme(kind:PuzzleKind,attempt=0){
  const options=themes[kind];
  const recent=historyFor(kind).slice(-12);
  const scored=options.map((theme,index)=>{
-  const last=recent.findLastIndex(r=>r.category===theme.id);
+  const last=lastIndex(recent,r=>r.category===theme.id);
   const used=recent.filter(r=>r.category===theme.id).length;
   return {theme,index,score:used*100+(last<0?-100:last)};
  });
@@ -114,7 +115,7 @@ export function chooseFallbackPuzzle<T>(kind:PuzzleKind,items:T[],describe:(item
  const ordered=items.map((item,index)=>{
   const data=describe(item);
   const key=normal(data.name);
-  const latest=history.findLastIndex(h=>normal(h.name)===key);
+  const latest=lastIndex(history,h=>normal(h.name)===key);
   return {item,index,latest,data};
  }).sort((a,b)=>a.latest-b.latest||a.index-b.index);
  const chosen=ordered[0];
