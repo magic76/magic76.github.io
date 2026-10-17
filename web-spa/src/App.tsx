@@ -13,6 +13,8 @@ const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>import("./friends/FriendLivePage").then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>import("./games/FriendGomokuPage").then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
 const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({default:m.CrewPlayGamePage})));
+const NumberGamePage=lazy(()=>import("./games/NumberGamePage").then(m=>({default:m.NumberGamePage})));
+const TabooGamePage=lazy(()=>import("./games/TabooGamePage").then(m=>({default:m.TabooGamePage})));
 const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:m.BriefingPage})));
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
@@ -34,6 +36,8 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname}=useLoc
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<LearnPage/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/games" element={<AppChrome product="home"><CrewPlayHubPage/></AppChrome>}/>
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><FriendGomokuPage/></AppChrome>}/>
+<Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
+<Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
 <Route path="/teacher/live" element={<TeacherLivePage/>}/><Route path="/friend/live" element={<FriendLivePage/>}/>

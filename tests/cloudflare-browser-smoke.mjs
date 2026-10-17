@@ -140,7 +140,7 @@ async function run(){
   await home.locator(".crew-home-play").click();
   await home.waitForURL(url=>url.pathname==="/games");
   await home.locator(".crew-play-game-card").first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await home.locator(".crew-play-game-card").count(),5,"Homepage Play entry must open all five games");
+  assert.equal(await home.locator(".crew-play-game-card").count(),7,"Homepage Play entry must open all seven games");
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
   await home.setViewportSize({width:1280,height:800});
   await home.locator('.global-nav a[href="/teacher"]').click();
@@ -171,7 +171,7 @@ async function run(){
   checkConsole(play,playErrors);
   await play.goto(origin+"/games",{waitUntil:"domcontentloaded",timeout:30000});
   await play.locator(".crew-play-game-card").first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await play.locator(".crew-play-game-card").count(),5,"Crew Play lobby must include five games");
+  assert.equal(await play.locator(".crew-play-game-card").count(),7,"Crew Play lobby must include seven games");
   await play.goto(origin+"/games/connect4",{waitUntil:"domcontentloaded"});
   await play.locator(".crew-connect-slot:enabled").first().waitFor({timeout:15000});
   assert.equal(await play.locator(".crew-connect-slot").count(),42);
@@ -189,6 +189,51 @@ async function run(){
   await play.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
   await play.locator(".crew-play-voice-entrance").waitFor({state:"visible",timeout:15000});
   assert.equal(await play.locator(".crew-play-word-panel").count(),0,"Voice is required for Mystery");
+  // Actual built-app browser interactions at desktop and 390px phone widths.
+  // These run in Chromium without a Gemini key or a microphone.
+  for(const width of [1280,390]){
+   const mini=await context.newPage();
+   const errors=[];
+   checkConsole(mini,errors);
+   await mini.setViewportSize({width,height:844});
+   await mini.goto(origin+"/games/1a2b",{waitUntil:"domcontentloaded"});
+   await mini.locator("#crew-number").waitFor({state:"visible",timeout:15000});
+   assert.ok(await mini.getByText("無 Key 也能完整打字玩").count(),"1A2B must work without a key");
+   await mini.getByRole("button",{name:"3 位"}).click();
+   await mini.locator("#crew-number").fill("123");
+   await mini.locator(".crew-mini-input-row button[type=submit]").click();
+   assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B offline A/B turn");
+   await mini.getByRole("button",{name:"撤銷上一筆"}).click();
+   assert.equal(await mini.locator(".crew-mini-number-history li").count(),0,"1A2B undo turn");
+   await mini.getByRole("button",{name:"朋友猜我的數字"}).click();
+   await mini.getByRole("button",{name:"回報結果"}).click();
+   assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B reverse feedback");
+   await mini.goto(origin+"/games/taboo",{waitUntil:"domcontentloaded"});
+   await mini.getByRole("button",{name:"開始 5 回合"}).waitFor({state:"visible",timeout:15000});
+   await mini.getByRole("button",{name:"開始 5 回合"}).click();
+   assert.ok(await mini.locator(".crew-mini-target").isVisible(),"Taboo must show offline card");
+   const banned=(await mini.locator(".crew-mini-banned span").first().textContent())?.trim()||"";
+   assert.ok(banned,"Taboo forbidden word required");
+   await mini.locator("#crew-taboo-answer").fill("It is "+banned);
+   await mini.locator(".crew-mini-word-form button[type=submit]").click();
+   assert.ok((await mini.locator(".crew-mini-topline").textContent())?.includes("-5"),"Taboo violation deducts five points");
+   await mini.getByRole("button",{name:"B 朋友描述、我猜"}).click();
+   await mini.getByRole("button",{name:"開始 5 回合"}).click();
+   assert.ok(await mini.locator(".crew-mini-clue").first().isVisible(),"Taboo reverse mode has offline English clue");
+   await mini.locator("#crew-taboo-answer").fill("nottherightword");
+   await mini.locator(".crew-mini-word-form button[type=submit]").click();
+   assert.equal(await mini.locator(".crew-mini-clue").count(),2,"Wrong answer reveals second clue");
+   const bounds=await mini.evaluate(()=>({
+    scrollWidth:document.documentElement.scrollWidth,
+    viewport:window.innerWidth,
+    panelRight:document.querySelector(".crew-mini-panel")?.getBoundingClientRect().right||0
+   }));
+   assert.ok(bounds.scrollWidth<=bounds.viewport+1,"No horizontal overflow at "+width+"px: "+JSON.stringify(bounds));
+   assert.ok(bounds.panelRight<=bounds.viewport+1,"Game panel fits "+width+"px viewport");
+   assert.deepEqual(errors,[],"No runtime errors at "+width+"px");
+   await mini.close();
+   process.stdout.write("PASS offline 1A2B and Taboo desktop/mobile "+width+"px\\n");
+  }
   // Gemini-powered mysteries: mock the existing Crew text API (no paid calls)
   // and verify each new round fetches a different validated case.
   const generatedMystery=await context.newPage();

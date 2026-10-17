@@ -13,6 +13,8 @@
 .crew-play-game-art.game-2{background:radial-gradient(circle at 26% 18%,#9899e4,#525ba4)}
 .crew-play-game-art.game-3{background:radial-gradient(circle at 30% 20%,#7bc5ac,#286f67)}
 .crew-play-game-art.game-4{background:radial-gradient(circle at 30% 20%,#b0a7da,#56537e)}
+.crew-play-game-art.game-5{background:radial-gradient(circle at 28% 18%,#96b8ff,#4658a8);font-size:25px;letter-spacing:-.05em}
+.crew-play-game-art.game-6{background:radial-gradient(circle at 28% 18%,#ffbb8c,#be6177);font-size:35px}
 .crew-play-game-info{display:grid;gap:5px}
 .crew-play-game-info strong{font-size:17px}
 .crew-play-game-info small{font-size:12px;line-height:1.5;color:var(--muted)}
