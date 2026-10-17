@@ -2,6 +2,12 @@ import {ensureCore,geminiKey} from "../lib/runtime";
 import type {Bilingual,MysteryCase,MysteryClue} from "./playPuzzles";
 import {nextPuzzleTheme,recentPuzzleSummaries,isNearDuplicate,rememberPuzzle} from "./puzzleDiversity";
 
+const pendingDiversity=new WeakMap<MysteryCase,{category:string;name:string;key:string;summary:string}>();
+/** Commit only puzzles displayed to the player, not canceled StrictMode requests. */
+export function rememberGeneratedMystery(item:MysteryCase){
+ const meta=pendingDiversity.get(item);
+ if(meta){rememberPuzzle("mystery",meta.category,meta.name,meta.key,meta.summary);pendingDiversity.delete(item)}
+}
 const knownStories=[
  "An elevator passenger gets off on the seventh floor",
  "A person in the rain has no wet hair",
@@ -80,7 +86,7 @@ export async function generateCrewMystery(friendName:string):Promise<MysteryCase
    const twistKey=typeof marker==="string"&&marker.trim().length>=6&&marker.length<=120?marker.trim():result.solution.en;
    const candidate={name:result.story.en,key:twistKey,summary:result.solution.en};
    if(isNearDuplicate("mystery",candidate))throw new Error("Repeated mystery mechanism");
-   rememberPuzzle("mystery",theme.id,candidate.name,candidate.key,candidate.summary);
+   pendingDiversity.set(result,{category:theme.id,...candidate});
    return result;
   }catch(error){lastError=error}
  }
