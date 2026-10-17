@@ -65,7 +65,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   openingPrompt:languageDirective+"\n"+(shortsPost
    ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
-    " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend")),
+    " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+"\n"+languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
   persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onTurnComplete:(_turn,completedTurns)=>{
