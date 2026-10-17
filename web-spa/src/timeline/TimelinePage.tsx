@@ -23,7 +23,8 @@ export function TimelinePage(){
   <section className="section timeline-feature panel" id="timeline-current">
    <TimelinePortrait age={age} className="timeline-feature-photo"/>
    <div className="timeline-feature-copy"><span className="kicker">MIRA · {age} {en?"YEARS OLD":"歲"}</span>
-    <h2>{ageLabel[age][en?1:0]}</h2><p>{current.story}</p>
+    <h2>{ageLabel[age][en?1:0]}</h2><p>{en?current.story:current.storyZh}</p>
+    <blockquote className="timeline-quote">“{en?current.quoteEn:current.quoteZh}”</blockquote>
     <Link className="timeline-primary-cta" to={"/timeline/live?age="+age}>{en?"Speak to Mira at "+age:"和 "+age+" 歲的 Mira 說話"} <span aria-hidden="true">↗</span></Link>
    </div>
   </section>
@@ -36,7 +37,7 @@ export function TimelinePage(){
   <section className="section timeline-storybook">
    <div className="section-head"><h2>{en?"Life scrapbook":"人生相簿"}</h2><small>{en?"What Mira knows at this age":"只顯示當下知道的事"}</small></div>
    <div className="timeline-stories">{AGES.map(a=><div className={"timeline-story "+(a>age?"locked":"")} key={a}>
-    {a<=age?<><TimelinePortrait age={a}/><strong>{a} {en?"years":"歲"} · {ageLabel[a][en?1:0]}</strong><p>{stage(a).story}</p></>
+    {a<=age?<><TimelinePortrait age={a}/><strong>{a} {en?"years":"歲"} · {ageLabel[a][en?1:0]}</strong><p>{en?stage(a).story:stage(a).storyZh}</p></>
      :<><span aria-hidden="true" className="timeline-story-lock">?</span><strong>{a} {en?"years":"歲"}</strong><p>{en?"A chapter not yet lived":"尚未經歷的章節"}</p></>}
    </div>)}</div>
   </section>
