@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useState,type FormEvent} from "react";
 import {copy,correctGuess,twentyQuestions,type TwentyItem,type MysteryCase} from "./playPuzzles";
 
 type Props={
@@ -24,7 +24,7 @@ export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onN
   if(!hint)return;
   const positive=questionMode?item.traits.includes(id):caseFile.clues.find(h=>h.id===id)?.answer===true;
   const answer=positive?yes:no;
-  const question=copy(hint.label??(hint as typeof caseFile.clues[number]).question,english);
+  const question=copy("label" in hint?hint.label:hint.question,english);
   const next=[...asked,{id,question,answer}];
   setAsked(next);
   const exhausted=next.length>=limit;
@@ -32,7 +32,7 @@ export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onN
   onEvent(`[GAME QUESTION] The learner selected "${question}". The verified answer is "${positive?"YES":"NO"}". Say this answer in your selected spoken language, optionally with one short personality reaction. Do not invent extra clues or reveal the secret.`+
    (exhausted?" The learner has used all their questions. Now reveal the answer and congratulate them for playing.":""));
  }
- function submitGuess(event:React.FormEvent<HTMLFormElement>){
+ function submitGuess(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   if(!questionMode||ended||!guess.trim())return;
   const correct=correctGuess(item,guess);
@@ -62,7 +62,7 @@ export function CrewWordGames({kind,english,friendName,item,caseFile,onEvent,onN
    <h3>{english?"Choose a question":"選擇一個問題"}</h3>
    <div className="crew-play-question-grid">{hints.map(h=>{
     const visited=asked.find(entry=>entry.id===h.id);
-    const label=copy(h.label??(h as typeof caseFile.clues[number]).question,english);
+    const label=copy("label" in h?h.label:h.question,english);
     return <button type="button" key={h.id} className={visited?"asked":""} disabled={ended||Boolean(visited)} onClick={()=>ask(h.id)}>
       <span>{label}</span>{visited?<strong>{visited.answer}</strong>:<span className="crew-play-question-arrow">↗</span>}
     </button>;
