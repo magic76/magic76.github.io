@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
@@ -42,12 +42,20 @@ export function FriendGomokuPage(){
     [friend,language,nativeLanguage,chatMode]);
   const live=useLiveSession({
     pageKey:"friend-game-"+friend.id,title:"五子棋 · "+friend.name,
-    system,openingPrompt:languageDirective+"\n[GAME OPENING] Greet the learner briefly in your usual Crew Friend style and say you are here to play Gomoku together. The board may already be in progress when voice starts, so do not claim this is the first move or that a new round is starting. Then pause; no rules lesson.",
+    system,openingPrompt:languageDirective+"\n[GAME OPENING] Greet the learner briefly in your usual Crew Friend style and say you are here to play Gomoku together. The board may already be in progress when voice starts, so do not claim this is the first move or that a new round is starting. Then pause; no rules lesson."+
+      (engineRef.current?.moveHistory.length?`\n[CURRENT BOARD] This round already has ${engineRef.current.moveHistory.length} moves. Most recent move: ${engineRef.current.lastMove?.color} at ${engineRef.current.lastMove?coordinate(engineRef.current.lastMove):"unknown"}.`:"\n[CURRENT BOARD] The board is empty."),
     voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective,
     // Game silence must not trigger the ordinary friend-conversation follow-up timer.
     persistHistory:false,sessionKind:"friend"
   });
   const liveRef=useRef(live);liveRef.current=live;
+  const notifyVoice=useCallback((cue:string)=>{
+    const session=liveRef.current;
+    // No backlog from silent, keyless games: the learner can start voice at any time.
+    if(!["requesting-mic","connecting","listening","speaking"].includes(session.state))return;
+    if(session.state==="listening"&&session.sendText(languageDirective+"\n"+cue))return;
+    pendingCueRef.current=cue;
+  },[languageDirective]);
   const engine=engineRef.current;
   const board=engine?.board;
   const winning=new Set((engine?.winningLine||[]).map(point=>point.y*15+point.x));
@@ -72,7 +80,7 @@ export function FriendGomokuPage(){
     if(!current||!gameStarted||thinking||current.turn!=="black"||!current.makeMove(x,y))return;
     if(current.winner){
       const cue="[GOMOKU RESULT] The learner just won the game. React naturally as their friend in one short sentence, then pause.";
-      if(liveRef.current.state!=="listening"||!liveRef.current.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
+      notifyVoice(cue);
     }
     setRevision(value=>value+1);
   };
@@ -81,7 +89,7 @@ export function FriendGomokuPage(){
     if(!current)return;
     current.reset();aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
     const cue="[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. React with one short friendly line, then wait for their first move.";
-    if(live.state!=="listening"||!live.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
+    notifyVoice(cue);
   };
   const changeFriend=async()=>{
     // A different friend must start with a new voice identity, not inherit the old session.
@@ -112,10 +120,10 @@ export function FriendGomokuPage(){
       const cue=result
         ?`[GOMOKU RESULT] ${summary} The game ended after ${turnNumber} moves. React naturally in character with one short sentence, then pause. Do not explain strategy or ask several questions.`
         :`[GOMOKU MOVE] ${summary} Say one short, natural in-character reaction to the game moment, then pause for the learner. Avoid explaining strategy or making every turn a lesson. This is turn ${turnNumber}.`;
-      if(liveRef.current.state!=="listening"||!liveRef.current.sendText(languageDirective+"\n"+cue))pendingCueRef.current=cue;
+      notifyVoice(cue);
     },420);
     return()=>window.clearTimeout(timer);
-  },[gameStarted,revision,languageDirective,english,friend.name]);
+  },[gameStarted,revision,languageDirective,english,friend.name,notifyVoice]);
 
   useEffect(()=>{
     const cue=pendingCueRef.current;
