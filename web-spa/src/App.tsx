@@ -10,6 +10,8 @@ const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.Sto
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>import("./fortune/LivePage").then(m=>({default:m.FortuneLivePage})));
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
+const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
+const TimelineLivePage=lazy(()=>import("./timeline/TimelineLivePage").then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>import("./friends/FriendLivePage").then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>import("./games/FriendGomokuPage").then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
 const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({default:m.CrewPlayGamePage})));
@@ -28,7 +30,7 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
- },[pathname,search]);const section=pathname.split("/")[1];const active:Product=section==="privacy"?"settings":section==="research"?"briefing":section==="guides"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+ },[pathname,search]);const section=pathname.split("/")[1];const active:Product=section==="privacy"?"settings":section==="research"?"briefing":section==="guides"?"teacher":section==="timeline"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>
@@ -47,6 +49,8 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
 <Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
+<Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
+<Route path="/timeline/live" element={<TimelineLivePage/>}/>
 <Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
 <Route path="/teacher/live" element={<TeacherLivePage/>}/><Route path="/friend/live" element={<FriendLivePage/>}/>
 <Route path="/story" element={<StoryLayout/>}><Route index element={<StoryShelfPage/>}/><Route path="shelf" element={<StoryShelfPage/>}/><Route path="me" element={<StoryMyPage/>}/><Route path="create" element={<StoryCreatePage/>}/><Route path="edit/:id" element={<StoryEditorPage/>}/><Route path="physical" element={<PhysicalBookPage/>}/><Route path="physical/:id" element={<PhysicalBookPage/>}/><Route path="read/:id" element={<StoryReaderPage/>}/></Route>
