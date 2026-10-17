@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "設定",
-    "desc": "Gemini Key、語音體驗與資料備份，都在這裡統一管理。Teacher、Story、Fortune 共用同一組 Key。"
+    "desc": "Gemini Key、語音體驗與資料備份，都在這裡統一管理。Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
   },
   "memory": {
     "title": "記憶",
@@ -46,7 +46,7 @@
     "reconfigure": "重新設定 Key",
     "titleEdit": "重新設定 Gemini Key",
     "titleNew": "免費建立 Gemini API Key，開始使用 Crew AI",
-    "intro": "Teacher、Story、Fortune 共用同一組 Key。只需建立一次，驗證後即可使用，語音權限可以之後再開啟。",
+    "intro": "Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。只需建立一次，驗證後即可使用，語音權限可以之後再開啟。",
     "step1": "使用 Google 帳號登入",
     "step1Desc": "前往 Google AI Studio 登入。",
     "step2": "免費建立 API Key",
@@ -114,7 +114,7 @@
     "pricingNote": "免費申請不等於無限免費使用；免費額度有模型與用量限制。",
     "pricingLink": "查看 Google 官方計費說明",
     "setupNoticeTitle": "還沒有 Gemini Key？可以免費建立",
-    "setupNoticeDesc": "用 Google 帳號約 1 分鐘即可申請。三個產品共用同一組 Key，免費額度依模型而異。",
+    "setupNoticeDesc": "用 Google 帳號約 1 分鐘即可申請。Crew 需要 AI 的功能共用同一組 Key；離線遊戲無需 Key。免費額度依模型而異。",
     "setupNoticeAction": "查看免費申請步驟",
     "setupInvalidTitle": "Gemini Key 可能無法使用",
     "setupInvalidDesc": "請檢查、重新驗證或免費建立新的 Key。設定完成後會返回對話。",
