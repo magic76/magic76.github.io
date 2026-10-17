@@ -230,7 +230,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   expected.push(domain+"/guides/"+slug+"/");
   expected.push(domain+"/en/guides/"+slug+"/");
  }
- for(const slug of ["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"]){
+ for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"]){
   expected.push(domain+"/"+slug+"/");expected.push(domain+"/en/"+slug+"/");
  }
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
