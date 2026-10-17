@@ -205,6 +205,51 @@ async function run(){
   await play.locator('[data-coordinate="H10"]').click();
   await play.locator('[data-coordinate="H10"] .friend-gomoku-stone.black').waitFor({timeout:5000});
   process.stdout.write("PASS Gomoku coordinate guides on desktop and mobile\\n");
+  // Voice pacing: mock Live transport so CI can prove a spoken turn ends
+  // BEFORE the AI places its stone, without a paid API or microphone.
+  const voiceGame=await context.newPage();
+  const voiceErrors=[];
+  checkConsole(voiceGame,voiceErrors);
+  await voiceGame.addInitScript(()=>{
+    try{localStorage.setItem("crew_gemini_api_key","mock-key-for-browser-smoke");}catch{}
+    window.CrewAI={};window.CrewLiveUI={};
+    class MockVoiceSession{
+      constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false;window.__mockGomokuVoice=this;}
+      async start(){this.options.onState?.("ready")}
+      async stop(){this.running=false}
+      setVolume(){}
+      sendText(value){
+        window.__mockGomokuCue=value;
+        this.options.onSpeaking?.(true);
+        return true;
+      }
+      interrupt(){this.options.onSpeaking?.(false);return true}
+      getDurationMs(){return 0}
+    }
+    window.CrewLive={Session:MockVoiceSession};
+  });
+  await voiceGame.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
+  await voiceGame.locator(".friend-gomoku-setup .btn").click();
+  await voiceGame.locator(".friend-gomoku-start-voice").click();
+  await voiceGame.locator(".friend-gomoku-cell").first().waitFor({state:"visible"});
+  await voiceGame.locator('[data-coordinate="H10"]').click();
+  await voiceGame.waitForFunction(()=>window.__mockGomokuCue?.includes("[GOMOKU BEFORE MOVE]"));
+  assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
+    "AI must not move before the friend talks");
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onTurnComplete({hasValidOutput:true,output:"I will play here"}));
+  await voiceGame.waitForTimeout(520);
+  assert.equal(await voiceGame.locator(".friend-gomoku-stone.white").count(),0,
+    "Model turn completion is NOT equivalent to finished audio playback");
+  await voiceGame.evaluate(()=>window.__mockGomokuVoice.options.onSpeaking(false));
+  await voiceGame.locator(".friend-gomoku-stone.white").first().waitFor({timeout:5000});
+  assert.equal(await voiceGame.locator(".friend-gomoku-skip").count(),0);
+  await voiceGame.locator('[data-coordinate="J7"]').click();
+  await voiceGame.locator(".friend-gomoku-skip").waitFor({state:"visible",timeout:5000});
+  await voiceGame.locator(".friend-gomoku-skip").click();
+  await voiceGame.locator(".friend-gomoku-stone.white").nth(1).waitFor({timeout:5000});
+  assert.deepEqual(voiceErrors,[],"Gomoku mocked voice must not raise browser exceptions");
+  await voiceGame.close();
+  process.stdout.write("PASS Gomoku voice-drain pacing and manual skip\n");
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
