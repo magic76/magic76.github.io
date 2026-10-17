@@ -35,7 +35,7 @@ export function CrewPlayGamePage(){
  if(!isGame(gameId))return <Navigate to="/games" replace/>;
  const game=crewGames.find(g=>g.id===gameId)!;
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
- return <main className="crew-play-page">
+ return <main className={"crew-play-page"+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
    <Link to="/games" className="crew-play-back">← {english?"All games":"全部遊戲"}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
@@ -43,13 +43,13 @@ export function CrewPlayGamePage(){
    <p>{game.desc[english?"en":"zh"]}</p>
   </header>
   <div className="crew-play-frame">
-   <section className="crew-play-friend-bar">
+   {gameId!=="twenty-questions"?<section className="crew-play-friend-bar">
     <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{english?"Your Crew Friend":"你的 Crew 朋友"}</small></div></div>
     <label className="crew-play-friend-select">{english?"Change friend":"更換朋友"}
      <select value={friend.id} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
     </label>
-   </section>
-   <CrewPlaySession key={gameId+":"+friend.id+":"+round} kind={gameId} friend={friend} english={english} round={round} nextRound={()=>setRound(x=>x+1)}/>
+   </section>:null}
+   <CrewPlaySession key={gameId+":"+friend.id+":"+round} kind={gameId} friend={friend} english={english} round={round} nextRound={()=>setRound(x=>x+1)} onChangeFriend={changeFriend}/>
   </div>
  </main>;
 }
@@ -59,7 +59,7 @@ type BoardVoiceTurn={
  graceTimer:number|null;watchdog:number|null;
 };
 const BOARD_VOICE_TIMEOUT_MS=25000;
-function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;friend:Friend;english:boolean;round:number;nextRound:()=>void}){
+function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{kind:GameKind;friend:Friend;english:boolean;round:number;nextRound:()=>void;onChangeFriend:(id:string)=>void}){
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const mode=useTeacherStore(s=>s.friendChatMode);
@@ -225,7 +225,36 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
   document.body.classList.add("teacher-theme");
   return()=>document.body.classList.remove("teacher-theme");
  },[]);
- return <div className="crew-play-session">
+ const twenty=kind==="twenty-questions";
+ const voicePreparing=(kind==="mystery"&&mysteryStatus==="generating")||(twenty&&questionStatus==="generating");
+ const voiceActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const voiceStatus=live.state==="speaking"?(english?"Speaking":"正在說話"):
+  live.state==="listening"?(english?"Listening to you":"正在聽你說話"):
+  live.state==="connecting"||live.state==="requesting-mic"?(english?"Connecting":"連線中"):
+  live.state==="error"?(english?"Connection issue":"語音連線異常"):
+  voiceActive?(english?"In a voice session":"語音進行中"):
+  english?"Ready to play":"準備開始";
+ const voiceStartLabel=english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩";
+ const voiceActions=live.state==="idle"||live.state==="ended"?
+  <button type="button" className="crew-play-voice-start" disabled={voicePreparing} onClick={()=>void live.start()}>{voiceStartLabel}</button>:
+  <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>;
+ return <div className={"crew-play-session"+(twenty?" crew-play-session--twenty":"")}>
+  {twenty?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
+   <div className="crew-play-voice-presence-header">
+    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
+    <div className="crew-play-voice-presence-name"><strong>{friend.name}</strong>
+     <small className={"crew-play-voice-presence-state"+(voiceActive?" active":"")} aria-live="polite">{voiceStatus}</small>
+    </div>
+    <label className="crew-play-friend-select">{english?"Change friend":"更換朋友"}
+     <select value={friend.id} onChange={e=>onChangeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
+    </label>
+   </div>
+   <p className="crew-play-voice-presence-reply" role="status" aria-live="polite">{live.output||(english?"I've picked something. Ask me a question!":"我已經想好一個東西了，直接開口問我吧！")}</p>
+  </section>:null}
+  {twenty?<section className="crew-play-voice-dock-shell" aria-label={english?"Voice controls":"語音控制"}>
+   {voiceActions}
+   <small>{english?"Voice stays within this game and is not saved to chat history or friend memories.":"語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
+  </section>:null}
   {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
   {kind==="mystery"&&mysteryStatus==="generating"?
    <section className="crew-play-mystery-loading" role="status" aria-live="polite">
@@ -241,11 +270,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound}:{kind:GameKind;fr
    </section>:null}
   {isWord&&(kind!=="mystery"||mysteryStatus!=="generating")&&(kind!=="twenty-questions"||questionStatus!=="generating")?
    <CrewWordGames kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={nextRound} mysterySource={mysteryStatus} itemSource={questionStatus} voiceTurns={voiceTurns}/>:null}
-  <section className="crew-play-voice">
+  {!twenty?<section className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
-   {live.state==="idle"||live.state==="ended"?<button type="button" className="crew-play-voice-start" disabled={(kind==="mystery"&&mysteryStatus==="generating")||(kind==="twenty-questions"&&questionStatus==="generating")} onClick={()=>void live.start()}>{english?"Turn on voice with "+friend.name:"開啟 "+friend.name+" 的語音陪玩"}</button>
-    :<LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>}
+   {voiceActions}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
-  </section>
+  </section>:null}
  </div>;
 }

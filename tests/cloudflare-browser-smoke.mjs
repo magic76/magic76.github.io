@@ -163,6 +163,7 @@ async function run(){
   await play.locator(".crew-reversi-cell.can-play").first().click();
   await play.locator(".crew-reversi-disc.white").nth(1).waitFor({timeout:5000});
   await play.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  await play.locator(".crew-play-question-disclosure summary").click();
   await play.locator(".crew-play-question-grid button").first().waitFor({timeout:15000});
   await play.locator(".crew-play-question-grid button").first().click();
   assert.equal(await play.locator(".crew-play-question-history li").count(),1);
@@ -282,9 +283,16 @@ async function run(){
   await voiceTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
+  await voiceTwenty.locator(".crew-play-question-disclosure summary").click();
   await voiceTwenty.locator(".crew-play-question-grid button").first().click();
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"1 / 20","On-screen action uses same count");
   await voiceTwenty.locator(".crew-play-voice-start").click();
+  assert.equal(await voiceTwenty.locator(".crew-play-voice-presence").count(),1,"Friend reply should appear above the board");
+  assert.equal(await voiceTwenty.locator(".crew-play-voice").count(),0,"Voice should not be duplicated below the game");
+  assert.equal(await voiceTwenty.locator(".crew-play-voice-dock-shell .crew-voice-dock").count(),1);
+  await voiceTwenty.evaluate(()=>window.__twentyVoice.options.onOutputTranscript?.("Yes, you can find it at home!"));
+  await voiceTwenty.locator(".crew-play-voice-presence-reply").getByText("Yes, you can find it at home!").waitFor({timeout:4000});
+
   await voiceTwenty.evaluate(()=>window.__twentyVoice.options.onTurnComplete({
    input:"Hello Bella",output:"Hi!",hasValidOutput:true
   }));
@@ -317,10 +325,53 @@ async function run(){
   });
   await noKeyTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
   await noKeyTwenty.locator(".crew-play-mystery-source").getByText("內建物品").waitFor({timeout:15000});
+  await noKeyTwenty.locator(".crew-play-question-disclosure summary").click();
   await noKeyTwenty.locator(".crew-play-question-grid button").first().click();
   assert.equal(await noKeyTwenty.locator(".crew-play-count").textContent(),"1 / 20");
   await noKeyTwenty.close();
   process.stdout.write("PASS keyless offline 20 Questions fallback\n");
+
+  // Responsive UX regression: the voice dock stays visible above global nav
+  // while users scroll, and the optional question grid stays collapsed.
+  const mobileTwenty=await context.newPage();
+  await mobileTwenty.setViewportSize({width:390,height:844});
+  await mobileTwenty.addInitScript(()=>{
+   localStorage.removeItem("crew_gemini_api_key");
+   sessionStorage.removeItem("crew_gemini_api_key_session");
+  });
+  await mobileTwenty.goto(origin+"/games/twenty-questions",{waitUntil:"domcontentloaded"});
+  await mobileTwenty.locator(".crew-play-voice-presence").waitFor({state:"visible",timeout:15000});
+  assert.equal(await mobileTwenty.locator(".crew-play-friend-bar").count(),0,"Do not duplicate the friend card");
+  assert.equal(await mobileTwenty.locator(".crew-play-voice-dock-shell .crew-play-voice-start").count(),1);
+  assert.equal(await mobileTwenty.locator(".crew-play-question-disclosure:not([open])").count(),1,"Hints are initially collapsed");
+  const inspectVoiceDock=async()=>{
+   return mobileTwenty.evaluate(()=>{
+    const dock=document.querySelector(".crew-play-voice-dock-shell").getBoundingClientRect();
+    const nav=document.querySelector(".global-nav").getBoundingClientRect();
+    return {dockTop:dock.top,dockBottom:dock.bottom,navTop:nav.top,
+      viewportHeight:window.innerHeight,horizontalOverflow:document.documentElement.scrollWidth-window.innerWidth};
+   });
+  };
+  let bounds=await inspectVoiceDock();
+  assert.ok(bounds.dockBottom<=bounds.navTop-2,"Voice dock must be above fixed navigation");
+  assert.ok(bounds.dockTop>=0&&bounds.dockTop<bounds.viewportHeight,"Voice dock visible on first screen");
+  assert.ok(bounds.horizontalOverflow<=1,"The mobile layout must not overflow sideways");
+  await mobileTwenty.evaluate(()=>window.scrollTo(0,document.body.scrollHeight));
+  await mobileTwenty.waitForTimeout(160);
+  bounds=await inspectVoiceDock();
+  assert.ok(bounds.dockBottom<=bounds.navTop-2,"Voice dock remains above nav at end of the page");
+  assert.ok(bounds.dockTop>=0,"Voice dock remains on-screen while scrolling");
+  await mobileTwenty.locator(".crew-play-question-disclosure summary").click();
+  for(let i=0;i<4;i++)await mobileTwenty.locator(".crew-play-question-grid button:enabled").first().click();
+  assert.equal(await mobileTwenty.locator(".crew-play-question-history--compact > ul > li").count(),3,
+    "Only three most recent questions should remain expanded");
+  assert.equal(await mobileTwenty.locator(".crew-play-history-older summary").count(),1,
+    "Earlier questions remain accessible behind a disclosure");
+  await mobileTwenty.locator(".crew-play-history-older summary").click();
+  assert.equal(await mobileTwenty.locator(".crew-play-history-older li").count(),1);
+  await mobileTwenty.close();
+  process.stdout.write("PASS mobile 20 Questions dock above nav, collapsed hints, recent-three history\n");
+
   // Gomoku: column letters and row numbers align with the exact rendered stone centers.
   await play.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
   await play.locator(".friend-gomoku-setup .btn").waitFor({state:"visible",timeout:15000});
