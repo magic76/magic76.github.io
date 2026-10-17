@@ -78,12 +78,17 @@ test("Guessing and mystery games provide locally verified yes-no clues",()=>{
  assert.match(word,/caseFile\.solution/);
 });
 
-test("Connect Four and Reversi narrate every AI move only after it is applied",()=>{
+test("Connect Four and Reversi narrate planned AI moves before the stone appears",()=>{
  const board=read("web-spa/src/games/CrewBoardGames.tsx");
  const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
  const styles=read("web-spa/src/games/crewPlay.css");
- assert.match(board,/setConnect\(next\);\s*const outcome=.*?\s*narrateMove\("\[CONNECT FOUR AFTER MOVE\]/s);
- assert.match(board,/setReversi\(next\);\s*const outcome=.*?\s*narrateMove\("\[REVERSI AFTER MOVE\]/s);
+ assert.match(board,/narrateMove\("\[CONNECT FOUR BEFORE MOVE\]/);
+ assert.match(board,/narrateMove\("\[REVERSI BEFORE MOVE\]/);
+ assert.match(board,/\{kind:"connect4",position:String\(column\+1\)\},\(\)=>setConnect\(next\)/);
+ assert.match(board,/\{kind:"reversi",position:position\(move\.x,move\.y\)\},\(\)=>setReversi\(next\)/);
+ assert.match(board,/if\(roundEpochRef\.current!==epoch\)return/);
+ assert.match(board,/placeStone\(\);\s*speechGateRef\.current=false/);
+ assert.doesNotMatch(board,/\[CONNECT FOUR AFTER MOVE\]|\[REVERSI AFTER MOVE\]/);
  assert.match(board,/speechGateRef\.current=true/);
  assert.match(board,/setSpeechPending\(true\)/);
  assert.match(board,/speechPending\|\|speechGateRef\.current/);
@@ -95,7 +100,7 @@ test("Connect Four and Reversi narrate every AI move only after it is applied",(
  assert.match(page,/onTurnComplete:\(spokenTurn\)=>\{/);
  assert.match(page,/turn\.completed=true/);
  assert.match(page,/if\(!turn\?\.sent\|\|!turn\.completed\|\|liveRef\.current\.state!=="listening"\)return/);
- assert.match(page,/if\(turn\.heardSpeaking\)\{finishBoardVoice\(\);return;\}/);
+ assert.match(page,/if\(turn\.heardSpeaking\)finishBoardVoice\(\)/);
  assert.match(page,/persistHistory:false,sessionKind:"friend"/);
  assert.match(page,/onBoardMove=\{speakAfterBoardMove\}/);
  assert.match(page,/onSkipSpeech=\{skipBoardSpeech\}/);
@@ -252,4 +257,15 @@ test("All board games use engine-selected move IDs to disambiguate stale speech"
  assert.match(gomoku,/includes\(liveRef\.current\.state\)\?60:420/);
  assert.match(board,/kind:"connect4",position:String\(column\+1\)/);
  assert.match(board,/kind:"reversi",position:position\(move\.x,move\.y\)/);
+});
+
+test("Audio playback rather than transcript completion gates all AI stones",()=>{
+ const gomoku=read("web-spa/src/games/FriendGomokuPage.tsx");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ assert.match(gomoku,/if\(pending\.heardSpeaking\)commitAiMove\(\)/);
+ assert.doesNotMatch(gomoku,/setTimeout\(\(\)=>\{\s*const waiting=waitingAiRef\.current/);
+ assert.match(page,/if\(turn\.heardSpeaking\)finishBoardVoice\(\)/);
+ assert.doesNotMatch(page,/if\(turn\.graceTimer===null\)/);
+ assert.match(gomoku,/MAX_VOICE_TURN_MS=25000/);
+ assert.match(page,/BOARD_VOICE_TIMEOUT_MS=25000/);
 });
