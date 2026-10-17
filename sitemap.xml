@@ -60,4 +60,16 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/research/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/research/"/>
   </url>
+  <url>
+    <loc>https://www.3sssi.com/games/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/games/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/games/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/"/>
+  </url>
 </urlset>
