@@ -210,7 +210,7 @@ async function run(){
   await generatedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
   await generatedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
-  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 1 次/);
+  assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 1 次/);
   await generatedMystery.locator(".crew-play-question-grid button").first().click();
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),1);
   await generatedMystery.locator(".crew-play-reveal").click();
@@ -219,7 +219,7 @@ async function run(){
   await generatedMystery.locator(".crew-play-solution button").click();
   assert.equal(await generatedMystery.locator(".crew-play-voice-entrance").count(),0,"Next mystery must keep Live open");
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
-  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 2 次/);
+  assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 2 次/);
   assert.match(await generatedMystery.evaluate(()=>window.__mysteryControlMessage||""),/MYSTERY ROUND UPDATE/);
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
   assert.deepEqual(mysteryErrors,[],"No errors while generating fresh mystery rounds");
