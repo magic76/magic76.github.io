@@ -41,3 +41,26 @@ test("Gomoku labels each of the 15 columns and rows using spoken move coordinate
   assert.match(styles,/\.friend-gomoku-axis-left\{[^}]*grid-template-rows:repeat\(15,minmax\(0,1fr\)\)/);
   assert.match(styles,/\.friend-gomoku-coordinate-shell \.friend-gomoku-board\{[^}]*width:100%/);
 });
+
+test("Gomoku speaks its planned move before placing the AI stone",()=>{
+  const live=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+  assert.match(page,/\[GOMOKU PLANNED MOVE\]/);
+  assert.match(page,/onSpeakingChange,onTurnComplete:onVoiceTurnComplete/);
+  assert.match(page,/if\(!speaking&&pendingAIMoveRef\.current\?\.sent&&pendingAIMoveRef\.current\.turnCompleted\)/);
+  assert.match(page,/if\(pendingAIMoveRef\.current\?\.sent&&turn\.hasValidOutput\)/);
+  assert.match(page,/pendingAIMoveRef\.current=planned;[\s\S]*?deliverPlannedVoice\(\)/);
+  const planned=page.slice(page.indexOf("const cue=`[GOMOKU PLANNED MOVE]"),page.indexOf("window.setTimeout(()=>{",page.indexOf("const cue=`[GOMOKU PLANNED MOVE]")));
+  assert.doesNotMatch(planned,/active\.makeMove/,"AI should not place a stone before sending the comment");
+  const finish=page.slice(page.indexOf("const finishAIMove="),page.indexOf("commitAIMoveRef.current=finishAIMove"));
+  assert.match(finish,/current\.makeMove\(planned\.x,planned\.y\)/);
+  assert.match(page,/onClick=\{\(\)=>\{pendingAIMoveRef\.current&&live\.interrupt\(\);commitAIMoveRef\.current\(\)\}\}/);
+  assert.match(page,/\["idle","ending","ended","error","reporting"\]/);
+  assert.match(live,/onSpeakingChange\?:\(speaking:boolean\)=>void/);
+  assert.match(live,/configRef\.current\.onSpeakingChange\?\.\(v\)/);
+});
+
+test("Offline Gomoku AI does not wait for an optional voice session",()=>{
+  assert.match(page,/if\(!\["requesting-mic","connecting","listening","speaking"\]\.includes\(voiceState\)\)\{/);
+  assert.match(page,/pendingAIMoveRef\.current=\{\.\.\.move,cue:"",sent:false,turnCompleted:false\};\s*commitAIMoveRef\.current\(\)/);
+  assert.match(page,/!speechPlayingRef\.current/,"only recover stalled output if nothing is still playing");
+});
