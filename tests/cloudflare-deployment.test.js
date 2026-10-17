@@ -7,7 +7,7 @@ const vm=require("node:vm");
 const ROOT=path.resolve(__dirname,"..");
 const DIST=path.join(ROOT,"dist");
 const read=p=>fs.readFileSync(path.join(DIST,p),"utf8");
-const pages=["","teacher","story","fortune","research"];
+const pages=["","teacher","story","fortune","research","games"];
 // Normal npm test is source-only and does not produce dist. The dedicated
 // Cloudflare build job sets this flag after building the deployment artifact.
 const check=process.env.CREW_CLOUDFLARE_TEST==="1"?test:test.skip;
@@ -19,12 +19,12 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
  assert.match(main,/BrowserRouter/);
  assert.match(main,/HashRouter/);
  const routes=fs.readFileSync(path.join(ROOT,"web-spa/src/App.tsx"),"utf8");
- for(const slug of ["teacher","story","fortune","research","settings"])assert.ok(routes.includes('path="/'+slug+'"'));
+ for(const slug of ["teacher","story","fortune","research","games","settings"])assert.ok(routes.includes('path="/'+slug+'"'));
  assert.ok(!routes.includes("<BuildVersion/>"),"BuildVersion must not render globally");
  const settings=fs.readFileSync(path.join(ROOT,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
  assert.ok(settings.includes("<BuildVersion/>"),"BuildVersion must be rendered within Settings");
 });
-check("ten static SEO entry points boot the same functional React bundle",()=>{
+check("twelve static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
  const inlineCss=root.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
@@ -48,7 +48,7 @@ check("ten static SEO entry points boot the same functional React bundle",()=>{
   assert.ok(!html.includes('class="seo-fallback"'),"old marketing fallback is not SSG: "+pathname);
   assert.ok(!html.includes("crew-bootstrap-shell"),"no duplicate bootstrap page: "+pathname);
   assert.ok(!html.includes('class="site-header"'),"must not ship marketing HTML: "+pathname);
-  assert.ok(html.includes('class="crew-home"')||html.includes('class="hero"')||html.includes('class="hero ')||html.includes('class="briefing'),"product screen missing: "+pathname);
+  assert.ok(html.includes('class="crew-home"')||html.includes('class="hero"')||html.includes('class="hero ')||html.includes('class="briefing')||html.includes('class="crew-play-hero"'),"product screen missing: "+pathname);
   assert.ok(html.includes('html.crew-dynamic-route #root{visibility:hidden!important}'),"deep-route fallback must hide wrong SSG");
   assert.ok(!html.includes('/@fs/'),"Vite dev-only image URL leaked into deployment");
   assert.ok(html.includes(script[1]),pathname);
@@ -113,6 +113,25 @@ check("search-intent guides serve real localized SSG HTML and enter the sitemap"
   }
  }
 });
+check("Crew Play sitemap only advertises crawlable localized pages with live React game directory",()=>{
+ const sitemap=read("sitemap.xml"),origin="https://www.3sssi.com";
+ for(const [prefix,locale] of [["","zh-Hant"],["en/","en"]]){
+  const url=origin+"/"+prefix+"games/",html=read(prefix+"games/index.html");
+  assert.ok(sitemap.includes("<loc>"+url+"</loc>"),"Missing games hub sitemap: "+url);
+  assert.ok(html.includes('<link rel="canonical" href="'+url+'">'),"Games canonical mismatch: "+url);
+  assert.ok(html.includes('data-crew-ssg-path="/'+prefix+"games"+'"'),"Games SSG hydration marker: "+url);
+  assert.ok(html.includes('meta name="robots" content="index,follow"'),"Game directory must be indexable: "+url);
+  assert.ok(html.includes('class="crew-play-catalog"'),"Actual Crew Play directory must be server-rendered: "+url);
+  assert.ok(html.includes('class="crew-play-game-card"'),"Game cards must be present without JavaScript: "+url);
+  const data=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)?.[1];
+  assert.ok(data,"Missing Crew Play structured data: "+url);
+  const graph=JSON.parse(data)["@graph"];
+  const itemList=graph.find(x=>x["@type"]==="ItemList");
+  assert.equal(itemList?.itemListElement?.length,5,"Structured list must describe all five Crew games");
+  assert.ok(html.includes('hreflang="'+locale+'"'),"Localized alternate missing: "+url);
+ }
+});
+
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
