@@ -137,7 +137,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   persistHistory:false,sessionKind:"friend",
   // A model turn can finish before its audio stops playing.
   onTurnComplete:(spokenTurn)=>{
-   if(kind==="twenty-questions"&&questionStatus!=="generating"&&syncedRoundRef.current===round){
+   if(isWord&&!(kind==="twenty-questions"&&questionStatus==="generating")&&!(kind==="mystery"&&mysteryStatus==="generating")&&syncedRoundRef.current===round){
     const transcript=String((spokenTurn as {input?:string}).input||"").trim();
     if(transcript){
      const id=++voiceSequence.current;
