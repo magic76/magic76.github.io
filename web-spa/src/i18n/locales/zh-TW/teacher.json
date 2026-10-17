@@ -39,6 +39,8 @@
     "shortsTitle": "朋友最新動態",
     "shortsIntro": "看看朋友的生活，一張照片就能開始話題。",
     "shortsAll": "查看全部",
+    "shortsPullHint": "再往右滑，探索全部動態",
+    "shortsReleaseHint": "放開，前往全部動態",
     "shortsChat": "跟 {{name}} 聊聊",
     "shortsLoading": "正在載入朋友動態…",
     "shortsUnavailable": "動態暫時無法載入，前往 Crew Shorts 重試",
