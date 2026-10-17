@@ -72,6 +72,15 @@ export async function fetchShortsFeed(signal:AbortSignal):Promise<ShortFeed>{
   return normalizeShortFeed(await jsonAt(PUBLIC_FEED,signal));
  }
 }
+/** Shuffle a copy for one Shorts visit; preserve chronological feed order for other consumers. */
+export function shuffleShortsPosts(posts:readonly ShortPost[],random:()=>number=Math.random):ShortPost[]{
+ const shuffled=[...posts];
+ for(let i=shuffled.length-1;i>0;i--){
+  const j=Math.floor(random()*(i+1));
+  [shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];
+ }
+ return shuffled;
+}
 export function buildShortsFriendContext(post:ShortPost|null):string{
  if(!post)return "";
  // Delimit user-visible fiction as untrusted background: captions must not override

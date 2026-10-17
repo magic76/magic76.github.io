@@ -23,6 +23,14 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  const page=load("web-spa/src/teacher/ShortsPage.tsx");
  const loader=load("web-spa/src/teacher/shortsFeed.ts");
  assert.match(page,/fetchShortsFeed\(abort.signal\)/);
+ assert.match(page,/shuffleShortsPosts\(data.posts\)/);
+ assert.match(page,/new IntersectionObserver/);
+ assert.match(page,/rootMargin:"600px 0px"/);
+ assert.match(page,/loadMoreRef/);
+ assert.match(page,/typeof IntersectionObserver==="undefined"/);
+ assert.doesNotMatch(page,/onClick=\{\(\)=>setCount\(x=>x\+6\)\}/);
+ assert.match(loader,/export function shuffleShortsPosts/);
+ assert.match(loader,/const shuffled=\[\.\.\.posts\]/);
  assert.match(page,/loading=\{index>1\?"lazy":"eager"\}/);
  assert.match(page,/&post=/);
  assert.match(loader,/fetch\(url,\{signal,cache:"no-cache"\}\)/);
