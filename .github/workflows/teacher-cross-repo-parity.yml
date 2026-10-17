@@ -18,3 +18,9 @@ jobs:
           node-version: "22"
       - name: Validate Web behavior and latest Android contract
         run: node scripts/verify-teacher-contract.cjs --upstream
+        env:
+          CREW_CONTRACT_READ_TOKEN: ${{ secrets.CREW_CONTRACT_READ_TOKEN }}
+      - name: Validate shared payload and event contract against Android
+        run: node scripts/verify-teacher-interfaces.cjs --upstream
+        env:
+          CREW_CONTRACT_READ_TOKEN: ${{ secrets.CREW_CONTRACT_READ_TOKEN }}
