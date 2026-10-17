@@ -1,11 +1,11 @@
 import {useEffect,useRef} from "react";
 
-export type HomeProduct="teacher"|"story"|"fortune";
+export type HomeProduct="teacher"|"story"|"fortune"|"play";
 type Particle={x:number;y:number;size:number;phase:number;speed:number};
 type Point={x:number;y:number;size:number};
 
 const COLORS:Record<HomeProduct|"idle",readonly [number,number,number]>={
- idle:[110,125,195],teacher:[113,90,211],story:[212,143,63],fortune:[75,123,192]
+ idle:[110,125,195],teacher:[113,90,211],story:[212,143,63],fortune:[75,123,192],play:[57,151,133]
 };
 const noise=(seed:number,salt:number)=>{
  const value=Math.sin((seed+1)*127.1+salt*311.7)*43758.5453;
@@ -44,6 +44,13 @@ const GLYPH_STROKES:Record<HomeProduct,readonly Stroke[]>={
   arc(12,12,8,36),
   [[12,4],[12,20]],[[4,12],[20,12]],
   [[6.5,6.5],[17.5,17.5]],[[17.5,6.5],[6.5,17.5]]
+ ],
+ play:[
+  [[5,4],[19,4],[20,5],[20,19],[19,20],[5,20],[4,19],[4,5],[5,4]],
+  [[9.3,4],[9.3,20]],[[14.7,4],[14.7,20]],
+  [[4,9.3],[20,9.3]],[[4,14.7],[20,14.7]],
+  [[5.5,5.5],[8,8]],[[8,5.5],[5.5,8]],
+  arc(17.4,17.4,1.4,12)
  ]
 };
 // Even arc-length sampling spreads a bounded number of dots along the actual icon strokes.

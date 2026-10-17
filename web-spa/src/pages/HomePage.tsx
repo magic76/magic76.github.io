@@ -150,12 +150,11 @@ export function HomePage(){
        <span className="crew-home-product-art crew-home-product-fortune" aria-hidden="true"><span className="crew-home-orbit"><Icon name="fortune"/></span></span>
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
+      <Link className="crew-home-product crew-home-play" to="/games" onPointerEnter={()=>setActiveProduct("play")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("play")} onBlur={()=>setActiveProduct(null)}>
+       <span className="crew-home-product-art crew-home-product-play" aria-hidden="true"><span className="crew-home-play-emblem"><Icon name="play"/></span></span>
+       <strong>Play</strong><small>{t("product.play")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
+      </Link>
      </div>
-     <Link to="/games" className="crew-home-game-entry">
-      <span className="crew-home-game-icon" aria-hidden="true">⚫⚪</span>
-      <span><strong>{locale.language.startsWith("en")?"Crew Play · games with friends":"和 Crew 朋友一起玩遊戲"}</strong><small>{locale.language.startsWith("en")?"Five games: boards, guessing and mysteries, with optional voice.":"五子棋、四子棋、黑白棋、猜謎與海龜湯，語音陪玩自由開啟。"}</small></span>
-      <b aria-hidden="true">→</b>
-     </Link>
     </section>
 
    </div>
