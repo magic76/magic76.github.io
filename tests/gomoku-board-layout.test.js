@@ -28,3 +28,16 @@ test("Starting a board is independent of voice and preserves temporary game cues
   assert.match(page,/persistHistory:false/);
   assert.doesNotMatch(page,/conversationFlow:"friend"/);
 });
+
+test("Gomoku labels each of the 15 columns and rows using spoken move coordinates",()=>{
+  assert.match(page,/className="friend-gomoku-coordinate-shell"/);
+  assert.match(page,/className="friend-gomoku-axis-top"/);
+  assert.match(page,/className="friend-gomoku-axis-left"/);
+  assert.match(page,/String\.fromCharCode\(65\+x\)/);
+  assert.match(page,/\{y\+1\}<\/span>/);
+  assert.match(page,/data-coordinate=\{coordinate\(\{x,y\}\)\}/);
+  assert.match(page,/const lastCoordinate=engine\?\.lastMove\?coordinate\(engine\.lastMove\):null/);
+  assert.match(styles,/\.friend-gomoku-axis-top\{[^}]*grid-template-columns:repeat\(15,minmax\(0,1fr\)\)/);
+  assert.match(styles,/\.friend-gomoku-axis-left\{[^}]*grid-template-rows:repeat\(15,minmax\(0,1fr\)\)/);
+  assert.match(styles,/\.friend-gomoku-coordinate-shell \.friend-gomoku-board\{[^}]*width:100%/);
+});
