@@ -141,7 +141,9 @@ export function FriendGomokuPage(){
     if(state==="speaking"){
       if(pending.sent)pending.heardSpeaking=true;
       if(pending.graceTimer!==null){window.clearTimeout(pending.graceTimer);pending.graceTimer=null;}
-      return;
+      // While the model is still answering an older learner intention, send
+      // the authoritative move cue immediately instead of waiting for silence.
+      if(pending.sent)return;
     }
     // The confirmed engine move supersedes an earlier speculative reply to
     // spoken coordinate intentions. Send the canonical cue even if speaking.
