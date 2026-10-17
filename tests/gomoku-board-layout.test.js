@@ -47,8 +47,9 @@ test("Gomoku waits for the full voice turn before applying the AI move",()=>{
   assert.match(page,/onTurnComplete:\(spokenTurn\)=>\{/);
   assert.match(page,/matchesBoardNarration\(spokenTurn\.output/);
   assert.match(page,/waiting\.completed=true/);
+  assert.doesNotMatch(page,/No speaking event yet: allow worklet\/audio state/);
   assert.match(page,/if\(!pending\?\.sent\|\|!pending\.completed\|\|liveRef\.current\.state!=="listening"\)return/);
-  assert.match(page,/if\(pending\.heardSpeaking\)\{commitAiMove\(\);return;\}/);
+  assert.match(page,/if\(pending\.heardSpeaking\)commitAiMove\(\)/);
   assert.match(page,/setWaitingForVoice\(true\)/);
   assert.match(page,/MAX_VOICE_TURN_MS=25000/);
   assert.match(page,/if\(!\["requesting-mic","connecting","listening","speaking"\]\.includes\(state\)\)/);
