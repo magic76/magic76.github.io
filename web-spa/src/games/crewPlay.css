@@ -240,3 +240,57 @@
  .crew-play-voice-entrance{padding:12px}
  .crew-play-session--word .crew-play-voice-presence{padding:11px}
 }
+
+/* Crew Play P1: restrained feedback driven by real Live/game states. */
+.crew-play-voice-waves{display:flex;align-items:center;justify-content:center;gap:4px;height:16px;opacity:.45}
+.crew-play-voice-waves i{width:3px;height:4px;border-radius:4px;background:#8983ad;transform-origin:center}
+.crew-play-voice-waves.is-listening i{background:#268d73;animation:crew-play-soft-pulse 1.8s ease-in-out infinite}
+.crew-play-voice-waves.is-speaking i{background:#6257e7;animation:crew-play-voice-bars .7s ease-in-out infinite alternate}
+.crew-play-voice-waves.is-speaking i:nth-child(2),.crew-play-voice-waves.is-listening i:nth-child(2){animation-delay:-.2s}
+.crew-play-voice-waves.is-speaking i:nth-child(3),.crew-play-voice-waves.is-listening i:nth-child(3){animation-delay:-.42s}
+.crew-play-voice-waves.is-speaking i:nth-child(4),.crew-play-voice-waves.is-listening i:nth-child(4){animation-delay:-.16s}
+.crew-play-voice-waves.is-speaking i:nth-child(5),.crew-play-voice-waves.is-listening i:nth-child(5){animation-delay:-.31s}
+@keyframes crew-play-soft-pulse{50%{height:8px;opacity:.8}}
+@keyframes crew-play-voice-bars{from{height:4px}to{height:15px}}
+.crew-play-generation-state{display:flex;align-items:center;gap:10px;padding:9px;border-radius:10px;background:#f2f0ff;font-size:11px;color:#5f5399}
+.crew-play-generation-state .crew-play-mystery-spinner{width:19px;height:19px;border-width:2px;flex:none}
+.crew-play-count-value{display:inline-block;animation:crew-play-count-bump .24s ease-out both}
+@keyframes crew-play-count-bump{0%{transform:scale(.82);opacity:.35}65%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.crew-play-question-history li{animation:crew-play-clue-in .23s ease-out both}
+@keyframes crew-play-clue-in{from{transform:translateY(6px);opacity:.2}to{transform:translateY(0);opacity:1}}
+.crew-play-mystery-flip{perspective:1100px;min-width:0}
+.crew-play-mystery-flip-inner{display:grid;transform-style:preserve-3d;transition:transform .62s cubic-bezier(.25,.8,.3,1)}
+.crew-play-mystery-flip.is-revealed .crew-play-mystery-flip-inner{transform:rotateY(180deg)}
+.crew-play-mystery-flip-front,.crew-play-mystery-flip-back{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden;min-height:142px}
+.crew-play-mystery-flip-back{transform:rotateY(180deg);background:linear-gradient(135deg,#eef7f3,#f9fffa);color:#2d5c49;overflow-wrap:anywhere}
+.crew-play-mystery-flip-back h2{font-size:17px}
+.crew-play-mystery-flip-back p{font-size:13px;line-height:1.6}
+.crew-play-solution--won{position:relative;isolation:isolate;border:1px solid #a6d9c4;animation:crew-play-win-pop .34s ease-out both}
+@keyframes crew-play-win-pop{0%{transform:scale(.96);opacity:.55}65%{transform:scale(1.015)}100%{transform:scale(1);opacity:1}}
+.crew-play-celebration{position:absolute;inset:0;z-index:0;overflow:hidden;border-radius:inherit;pointer-events:none}
+.crew-play-celebration i{position:absolute;top:35%;left:50%;width:6px;height:11px;border-radius:2px;opacity:0;background:#aa93e9;animation:crew-play-confetti 950ms cubic-bezier(.22,.61,.36,1) both}
+.crew-play-celebration i:nth-child(3n){background:#6ac5ad}
+.crew-play-celebration i:nth-child(3n+1){background:#e9bd6f}
+.crew-play-celebration i:nth-child(1){--dx:-145px;--dy:-45px;--rot:65deg}
+.crew-play-celebration i:nth-child(2){--dx:-116px;--dy:53px;--rot:110deg}
+.crew-play-celebration i:nth-child(3){--dx:-83px;--dy:-82px;--rot:200deg}
+.crew-play-celebration i:nth-child(4){--dx:-37px;--dy:87px;--rot:290deg}
+.crew-play-celebration i:nth-child(5){--dx:18px;--dy:-91px;--rot:110deg}
+.crew-play-celebration i:nth-child(6){--dx:59px;--dy:78px;--rot:230deg}
+.crew-play-celebration i:nth-child(7){--dx:98px;--dy:-73px;--rot:150deg}
+.crew-play-celebration i:nth-child(8){--dx:151px;--dy:30px;--rot:300deg}
+.crew-play-celebration i:nth-child(9){--dx:131px;--dy:-22px;--rot:170deg}
+.crew-play-celebration i:nth-child(10){--dx:-136px;--dy:19px;--rot:210deg}
+.crew-play-celebration i:nth-child(11){--dx:43px;--dy:-63px;--rot:100deg}
+.crew-play-celebration i:nth-child(12){--dx:-64px;--dy:61px;--rot:260deg}
+@keyframes crew-play-confetti{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot))}}
+.crew-play-solution--won>strong,.crew-play-solution--won>p,.crew-play-solution--won>button{position:relative;z-index:1}
+@media(prefers-reduced-motion:reduce){
+ .crew-play-voice-waves i,.crew-play-count-value,.crew-play-question-history li,.crew-play-solution--won,.crew-play-celebration i{animation:none!important}
+ .crew-play-mystery-flip-inner{transition:none}
+ .crew-play-mystery-flip.is-revealed .crew-play-mystery-flip-inner{transform:none}
+ .crew-play-mystery-flip.is-revealed .crew-play-mystery-flip-front{display:none}
+ .crew-play-mystery-flip.is-revealed .crew-play-mystery-flip-back{transform:none}
+ .crew-play-mystery-flip:not(.is-revealed) .crew-play-mystery-flip-back{display:none}
+ .crew-play-celebration{display:none}
+}

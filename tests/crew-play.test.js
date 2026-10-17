@@ -119,7 +119,7 @@ test("Mystery generates a new, validated case from the existing Gemini Key with 
  assert.match(page,/setMysteryStatus\("fallback"\)/);
  assert.match(page,/setMysteryCase\(fallbackMystery\)/);
  assert.match(page,/kind==="mystery"&&mysteryStatus==="generating"/);
- assert.match(page,/const voicePreparing=\(kind==="mystery"&&mysteryStatus==="generating"\)\|\|\(twenty&&questionStatus==="generating"\)/);
+ assert.match(page,/const voicePreparing=loadedRound!==round\|\|/);
  assert.match(page,/disabled=\{voicePreparing\|\|isWord&&!hasKey\}/);
  assert.match(page,/const mystery=mysteryCase/);
  assert.match(word,/mysterySource==="generated"/);
@@ -146,7 +146,7 @@ test("20 Questions is Gemini-generated, records voice actions, and preserves the
  assert.match(page,/generateTwentyItem\(\)\.then\(item=>/);
  assert.match(page,/setQuestionStatus\("fallback"\)/);
  assert.match(page,/questionStatus==="generating"/);
- assert.match(page,/voiceTurns=\{voiceTurns\}/);
+ assert.match(page,/voiceTurns=\{voiceTurns\.filter\(turn=>turn\.round===round\)\}/);
  assert.match(word,/handledRef\.current\.has\(turn\.id\)/);
  assert.match(word,/voiceQueueRef\.current=voiceQueueRef\.current\.then/);
  assert.match(word,/await judgeTwentySpeech\(item,speech\)/);
@@ -191,7 +191,7 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(page,/const isWord=kind==="twenty-questions"\|\|kind==="mystery"/);
  assert.match(page,/const wordReady=isWord&&\(live\.state==="listening"\|\|live\.state==="speaking"\)/);
  assert.match(page,/setWordEverReady\(true\)/);
- assert.match(page,/isWord&&wordEverReady&&/);
+ assert.match(page,/isWord&&wordEverReady&&!voicePreparing/);
  assert.match(page,/inert=\{!wordReady\}/);
  assert.match(page,/crew-play-voice-entrance/);
  assert.match(page,/crew-play-voice-recovery/);
@@ -203,4 +203,38 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(hub,/需要 Gemini 語音/);
  assert.match(hub,/語音選用/);
  assert.match(css,/\.page\.page-enter:has\(\.crew-play-page--voice-required\)\{animation:none\}/);
+});
+
+test("Word game P0 keeps a Live transport across rounds and announces authoritative new facts",()=>{
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ const myst=read("web-spa/src/games/judgeMysterySpeech.ts");
+ assert.match(page,/key=\{gameId\+":"\+friend\.id\}/);
+ assert.doesNotMatch(page,/key=\{gameId\+":"\+friend\.id\+":"\+round\}/);
+ assert.match(page,/const syncedRoundRef=useRef\(round\)/);
+ assert.match(page,/setVoiceTurns\(prev=>\[\.\.\.prev\.slice\(-24\),\{id,text:transcript,round\}\]\)/);
+ assert.match(page,/voiceTurns=\{voiceTurns\.filter\(turn=>turn\.round===round\)\}/);
+ assert.match(page,/key=\{round\} kind=\{kind as/);
+ assert.match(page,/syncedRoundRef\.current=round/);
+ assert.match(page,/live\.sendControl\(updated\)/);
+ assert.match(page,/CREW PLAY NEXT ROUND/);
+ assert.match(page,/loadedRound!==round/);
+ assert.match(page,/CREW PLAY NEXT ROUND/);
+ assert.match(word,/await judgeMysterySpeech\(caseFile,speech\)/);
+ assert.match(word,/20 QUESTIONS VERIFIED ANSWER/);
+ assert.match(word,/MYSTERY VERIFIED ANSWER/);
+ assert.match(myst,/Verified clue facts/);
+});
+test("Word game P1 styles use Live states and provide reduced-motion alternatives",()=>{
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ const css=read("web-spa/src/games/crewPlay.css");
+ assert.match(page,/crew-play-voice-waves/);
+ assert.match(page,/crew-play-generation-state/);
+ assert.match(word,/crew-play-count-value/);
+ assert.match(word,/crew-play-mystery-flip/);
+ assert.match(word,/crew-play-celebration/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/crew-play-mystery-flip-inner/);
+ assert.match(css,/crew-play-confetti/);
 });

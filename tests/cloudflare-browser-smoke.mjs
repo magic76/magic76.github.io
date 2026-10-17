@@ -204,21 +204,23 @@ async function run(){
    window.CrewLive={Session:class {
     constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false}
     async start(){} async stop(){this.running=false}
-    setVolume(){} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
+    setVolume(){} sendControl(text){window.__mysteryControlMessage=text;return true} sendText(){return true} interrupt(){return true} getDurationMs(){return 0}
    }};
   });
   await generatedMystery.goto(origin+"/games/mystery",{waitUntil:"domcontentloaded"});
   await generatedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
-  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 1 次/);
+  assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 1 次/);
   await generatedMystery.locator(".crew-play-question-grid button").first().click();
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),1);
   await generatedMystery.locator(".crew-play-reveal").click();
   assert.match(await generatedMystery.locator(".crew-play-solution").textContent(),/導覽明信片/);
+  assert.equal(await generatedMystery.locator(".crew-play-mystery-flip.is-revealed").count(),1,"Revealing flips the story card");
   await generatedMystery.locator(".crew-play-solution button").click();
-  await generatedMystery.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
+  assert.equal(await generatedMystery.locator(".crew-play-voice-entrance").count(),0,"Next mystery must keep Live open");
   await generatedMystery.locator(".crew-play-mystery-source").getByText("Gemini 原創謎題").waitFor({timeout:15000});
-  assert.match(await generatedMystery.locator(".crew-play-riddle h2").textContent(),/第 2 次/);
+  assert.match(await generatedMystery.locator(".crew-play-mystery-flip-front h2").textContent(),/第 2 次/);
+  assert.match(await generatedMystery.evaluate(()=>window.__mysteryControlMessage||""),/MYSTERY ROUND UPDATE/);
   assert.equal(await generatedMystery.locator(".crew-play-question-history li").count(),0);
   assert.deepEqual(mysteryErrors,[],"No errors while generating fresh mystery rounds");
   await generatedMystery.close();
@@ -283,7 +285,8 @@ async function run(){
    window.CrewLiveUI={};
    class MockTwentySession{
     constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false;window.__twentyVoice=this}
-    async start(){this.options.onState?.("ready")}
+    async start(){window.__twentyStartCount=(window.__twentyStartCount||0)+1;this.options.onState?.("ready")}
+    sendControl(text){window.__twentyControlMessage=text;return true}
     async stop(){this.running=false}
     setVolume(){}
     sendText(){return true}
@@ -323,11 +326,14 @@ async function run(){
   await voiceTwenty.locator(".crew-play-count").getByText("3 / 20").waitFor({timeout:6000});
   await voiceTwenty.locator(".crew-play-solution").waitFor({timeout:6000});
   assert.match(await voiceTwenty.locator(".crew-play-solution").textContent(),/腳踏車/);
+  assert.equal(await voiceTwenty.locator(".crew-play-celebration").count(),1,"Winning triggers a single confetti burst");
   await voiceTwenty.locator(".crew-play-solution button").click();
-  await voiceTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
+  assert.equal(await voiceTwenty.locator(".crew-play-voice-entrance").count(),0,"Next round must not ask for voice again");
   await voiceTwenty.locator(".crew-play-mystery-source").getByText("Gemini 全新物品").waitFor({timeout:15000});
   assert.equal(await voiceTwenty.locator(".crew-play-count").textContent(),"0 / 20");
   assert.equal(await voiceTwenty.evaluate(()=>window.__twentyGenerationCalls),2);
+  assert.equal(await voiceTwenty.evaluate(()=>window.__twentyStartCount),1,"One Live start spans multiple rounds");
+  assert.match(await voiceTwenty.evaluate(()=>window.__twentyControlMessage||""),/ROUND UPDATE/,"The continuing model receives the new secret");
   assert.deepEqual(twentyErrors,[],"20 Questions speech synchronization should be error-free");
   await voiceTwenty.close();
   process.stdout.write("PASS 20 Questions generated secrets, voice questions/guesses and shared 20-attempt budget\n");
