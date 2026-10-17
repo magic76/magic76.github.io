@@ -140,7 +140,7 @@ async function run(){
   await home.locator(".crew-home-play").click();
   await home.waitForURL(url=>url.pathname==="/games");
   await home.locator(".crew-play-game-card").first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await home.locator(".crew-play-game-card").count(),5,"Homepage Play entry must open all five games");
+  assert.equal(await home.locator(".crew-play-game-card").count(),7,"Homepage Play entry must open all seven games");
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
   await home.setViewportSize({width:1280,height:800});
   await home.locator('.global-nav a[href="/teacher"]').click();
