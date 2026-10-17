@@ -250,6 +250,68 @@ async function run(){
   assert.deepEqual(voiceErrors,[],"Gomoku mocked voice must not raise browser exceptions");
   await voiceGame.close();
   process.stdout.write("PASS Gomoku voice-drain pacing and manual skip\n");
+  // Both new board games must place the AI's disc first, then block the next
+  // human turn until its audible post-move comment has really drained.
+  for(const gameName of ["connect4","reversi"]){
+   const boardVoice=await context.newPage();
+   const boardErrors=[];
+   checkConsole(boardVoice,boardErrors);
+   await boardVoice.addInitScript(()=>{
+    try{localStorage.setItem("crew_gemini_api_key","mock-key-for-browser-smoke")}catch{}
+    window.CrewAI={};window.CrewLiveUI={};
+    class MockBoardSession{
+     constructor(options){this.options=options;this.ready=true;this.running=true;this.micMuted=false;window.__mockBoardSession=this}
+     async start(){this.options.onState?.("ready")}
+     async stop(){this.running=false}
+     setVolume(){}
+     sendText(text){window.__mockBoardCue=text;this.options.onSpeaking?.(true);return true}
+     interrupt(){this.options.onSpeaking?.(false);return true}
+     getDurationMs(){return 0}
+    }
+    window.CrewLive={Session:MockBoardSession};
+   });
+   await boardVoice.goto(origin+"/games/"+gameName,{waitUntil:"domcontentloaded"});
+   await boardVoice.locator(".crew-play-voice-start").click();
+   if(gameName==="connect4"){
+    await boardVoice.locator(".crew-connect-slot:enabled").first().click();
+   }else{
+    await boardVoice.locator(".crew-reversi-cell.can-play").first().click();
+   }
+   await boardVoice.waitForFunction(name=>window.__mockBoardCue?.includes(
+    name==="connect4"?"[CONNECT FOUR AFTER MOVE]":"[REVERSI AFTER MOVE]"),gameName,{timeout:8000});
+   if(gameName==="connect4"){
+    assert.equal(await boardVoice.locator(".crew-connect-disc.computer").count(),1,
+      "The yellow AI disc must be present before speech begins");
+    assert.equal(await boardVoice.locator(".crew-connect-slot:enabled").count(),0,
+      "Connect Four must block input while AI is speaking");
+   }else{
+    assert.equal(await boardVoice.locator(".crew-reversi-disc.white").count(),3,
+      "The newly flipped board must be visible before speech begins");
+    assert.equal(await boardVoice.locator(".crew-reversi-cell.can-play").count(),0,
+      "Reversi must block legal moves while AI is speaking");
+   }
+   await boardVoice.evaluate(()=>window.__mockBoardSession.options.onTurnComplete({
+    hasValidOutput:true,output:"I have played my move"
+   }));
+   await boardVoice.waitForTimeout(480);
+   assert.equal(await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").count(),0,
+     "The model turnComplete callback is too early; wait for actual audio drain");
+   await boardVoice.evaluate(()=>window.__mockBoardSession.options.onSpeaking(false));
+   await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").first().waitFor({timeout:5000});
+   if(gameName==="connect4"){
+    await boardVoice.locator(".crew-connect-slot:enabled").first().click();
+   }else{
+    await boardVoice.locator(".crew-reversi-cell.can-play").first().click();
+   }
+   await boardVoice.locator(".crew-play-skip-speech").waitFor({state:"visible",timeout:8000});
+   await boardVoice.locator(".crew-play-skip-speech").click();
+   await boardVoice.locator(".crew-play-skip-speech").waitFor({state:"detached",timeout:5000});
+   await boardVoice.locator(".crew-play-board-actions button").last().click();
+   await boardVoice.locator(gameName==="connect4"?".crew-connect-slot:enabled":".crew-reversi-cell.can-play").first().waitFor({timeout:8000});
+   assert.deepEqual(boardErrors,[],"No browser errors for "+gameName+" voice pacing");
+   await boardVoice.close();
+   process.stdout.write("PASS "+gameName+" post-move voice completion, skip, reset\n");
+  }
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
