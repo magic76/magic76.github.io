@@ -765,8 +765,9 @@ return `<!doctype html>
 `;
 }
 
+const GAME_SLUGS=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
 function renderSitemap(){const xml=(slug,locale)=>`    <xhtml:link rel="alternate" hreflang="zh-Hant" href="${pageUrl(slug,"zh")}"/>\n    <xhtml:link rel="alternate" hreflang="en" href="${pageUrl(slug,"en")}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(slug,"zh")}"/>`;
-return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.flatMap(p=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(p.slug,locale)}</loc>\n${xml(p.slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
+return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
 
 function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`}
 
