@@ -210,3 +210,9 @@
  .crew-play-session--twenty .crew-play-voice-tip{padding:8px 10px}
  .crew-play-session--twenty .crew-play-word-panel{padding:10px}
 }
+
+/* The global route entrance uses animation-fill-mode:both with transform.
+   Transformed ancestors turn a fixed voice dock into container-relative
+   positioning, allowing it to overlap the site's fixed mobile nav.
+   Disable ONLY this page transition while the voice-first game is mounted. */
+.page.page-enter:has(.crew-play-page--twenty){animation:none}
