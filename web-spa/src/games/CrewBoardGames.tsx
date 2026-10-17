@@ -1,10 +1,11 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {loadScript} from "../lib/runtime";
+import type {ExpectedBoardSpeech} from "./boardVoiceTurn";
 
 type GameKind="connect4"|"reversi";
 type Props={kind:GameKind;english:boolean;friendName:string;
  onEvent:(message:string)=>void;
- onBoardMove:(message:string)=>Promise<void>;
+ onBoardMove:(message:string,expected:ExpectedBoardSpeech)=>Promise<void>;
  onSkipSpeech:()=>void;
 };
 const position=(x:number,y:number)=>String.fromCharCode(65+x)+(y+1);
@@ -16,11 +17,11 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const [speechPending,setSpeechPending]=useState(false);
  const speechGateRef=useRef(false);
  const roundEpochRef=useRef(0);
- const narrateMove=(cue:string)=>{
+ const narrateMove=(cue:string,expected:ExpectedBoardSpeech)=>{
   const epoch=roundEpochRef.current;
   speechGateRef.current=true;
   setSpeechPending(true);
-  void onBoardMove(cue).catch(()=>{}).finally(()=>{
+  void onBoardMove(cue,expected).catch(()=>{}).finally(()=>{
    if(roundEpochRef.current!==epoch)return;
    speechGateRef.current=false;
    setSpeechPending(false);
@@ -64,8 +65,8 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    if(!next)return;
    setConnect(next);
    const outcome=next.winner===null?"":next.winner==="computer"?"You won.":next.winner==="draw"?"The game is a draw.":"The learner won.";
-   narrateMove("[CONNECT FOUR AFTER MOVE] You (the friend) HAVE JUST PLACED a yellow disc in column "+(column+1)+". The disc is visible now. "+outcome+" React in exactly one short, natural sentence and stop speaking. Do not ask questions or explain tactics.");
-  },520);
+   narrateMove("[CONNECT FOUR AFTER MOVE] You (the friend) HAVE JUST PLACED a yellow disc in column "+(column+1)+". The disc is visible now. "+outcome+" Say your column number in exactly one short, natural sentence, and stop. Do not revisit earlier move intentions or explain tactics.",{kind:"connect4",position:String(column+1)});
+  },60);
   return()=>clearTimeout(timer);
  },[connect,kind,api,onEvent,speechPending]);
  const score=reversi&&api?api.reversiCount(reversi.cells):null;
@@ -88,8 +89,8 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    setReversi(next);
    const outcome=next.winner===null?"":next.winner==="draw"?"The game is a draw.":next.winner==="white"?"You won.":"The learner won.";
    const pass=next.turn==="white"&&!next.winner?" The learner has no legal move; you will play again after speaking.":"";
-   narrateMove("[REVERSI AFTER MOVE] You (the friend) HAVE JUST PLACED white at "+position(move.x,move.y)+" and flipped "+move.flips.length+" discs. The board is updated now. "+outcome+pass+" React in exactly one short, natural sentence and stop speaking. No follow-up questions.");
-  },560);
+   narrateMove("[REVERSI AFTER MOVE] You (the friend) HAVE JUST PLACED white at "+position(move.x,move.y)+" and flipped "+move.flips.length+" discs. The board is updated now. "+outcome+pass+" Say your square "+position(move.x,move.y)+" in exactly one short sentence. Do not revisit earlier player intentions, ask follow-up questions, or continue afterward.",{kind:"reversi",position:position(move.x,move.y)});
+  },60);
   return()=>clearTimeout(timer);
  },[reversi,kind,api,onEvent,speechPending]);
  const c4Status=connect?.winner
