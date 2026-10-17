@@ -174,6 +174,37 @@ async function run(){
   await play.locator(".crew-play-question-grid button").first().click();
   await play.locator(".crew-play-reveal").click();
   await play.locator(".crew-play-solution").waitFor({state:"visible",timeout:5000});
+  // Gomoku: column letters and row numbers align with the exact rendered stone centers.
+  await play.goto(origin+"/games/friend-gomoku",{waitUntil:"domcontentloaded"});
+  await play.locator(".friend-gomoku-setup .btn").waitFor({state:"visible",timeout:15000});
+  await play.locator(".friend-gomoku-setup .btn").click();
+  await play.locator(".friend-gomoku-cell").first().waitFor({state:"visible",timeout:15000});
+  assert.equal(await play.locator(".friend-gomoku-cell").count(),225);
+  assert.equal(await play.locator(".friend-gomoku-axis-top .friend-gomoku-axis-label").count(),15);
+  assert.equal(await play.locator(".friend-gomoku-axis-left .friend-gomoku-axis-label").count(),15);
+  assert.deepEqual(await play.locator(".friend-gomoku-axis-top .friend-gomoku-axis-label").allTextContents(),
+    "ABCDEFGHIJKLMNO".split(""));
+  assert.deepEqual(await play.locator(".friend-gomoku-axis-left .friend-gomoku-axis-label").allTextContents(),
+    Array.from({length:15},(_,i)=>String(i+1)));
+  async function coordinateError(){
+   return play.evaluate(()=>{
+    const letters=[...document.querySelectorAll(".friend-gomoku-axis-top .friend-gomoku-axis-label")];
+    const numbers=[...document.querySelectorAll(".friend-gomoku-axis-left .friend-gomoku-axis-label")];
+    return ["A1","H10","J7","O15"].map(coordinate=>{
+     const cell=document.querySelector('[data-coordinate="'+coordinate+'"]');
+     if(!cell)return Infinity;
+     const x=coordinate.charCodeAt(0)-65,y=Number(coordinate.slice(1))-1;
+     const c=cell.getBoundingClientRect(),a=letters[x].getBoundingClientRect(),b=numbers[y].getBoundingClientRect();
+     return Math.max(Math.abs(c.x+c.width/2-a.x-a.width/2),Math.abs(c.y+c.height/2-b.y-b.height/2));
+    });
+   });
+  }
+  assert.ok((await coordinateError()).every(delta=>delta<1.5),"Desktop coordinate labels must be centered on stones");
+  await play.setViewportSize({width:390,height:844});
+  assert.ok((await coordinateError()).every(delta=>delta<1.5),"Mobile coordinate labels must remain aligned");
+  await play.locator('[data-coordinate="H10"]').click();
+  await play.locator('[data-coordinate="H10"] .friend-gomoku-stone.black').waitFor({timeout:5000});
+  process.stdout.write("PASS Gomoku coordinate guides on desktop and mobile\\n");
   assert.deepEqual(playErrors,[],"Crew Play should not throw browser errors");
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
