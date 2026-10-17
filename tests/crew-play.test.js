@@ -171,7 +171,7 @@ test("Voice-first 20 Questions shows the friend at top, a single dock, and compa
  assert.match(page,/crew-play-voice-dock-shell/);
  assert.match(page,/const voiceActions=/);
  assert.equal(page.match(/<LiveControls live=\{live\}/g)?.length,1,"The same Live controls must not render twice");
- assert.match(page,/\{!twenty\?<section className="crew-play-voice">/);
+ assert.match(page,/\{!isWord\?<section className="crew-play-voice">/);
  assert.match(word,/crew-play-question-disclosure/);
  assert.match(word,/crew-play-history-older/);
  assert.match(word,/asked\.slice\(-3\)/);
