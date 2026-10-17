@@ -8,12 +8,13 @@
   "start": "Choose something to try",
   "product": {
     "teacher": "Languages & speaking",
+    "play": "Games with Crew Friends",
     "story": "Stories & reading",
     "fortune": "Explore your chart"
   },
   "setup": {
     "title": "Create a Gemini API Key for free",
-    "desc": "Use your Google account to get a key in about a minute. One key works across Teacher, Story, and Fortune.",
+    "desc": "Use your Google account to get a key in about a minute. One key works across Teacher, Story, Fortune, and Crew Play voice games.",
     "cta": "See free setup steps",
     "pricing": "Free usage limits vary by model. Paid tiers may incur charges.",
     "verify": "Gemini Key not yet verified",
