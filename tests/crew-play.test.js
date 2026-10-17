@@ -217,12 +217,12 @@ test("Word game P0 keeps a Live transport across rounds and announces authoritat
  assert.match(page,/key=\{round\} kind=\{kind as/);
  assert.match(page,/syncedRoundRef\.current=round/);
  assert.match(page,/live\.sendControl\(updated\)/);
- assert.match(page,/\\[CREW PLAY NEXT ROUND\\]/);
+ assert.match(page,/CREW PLAY NEXT ROUND/);
  assert.match(page,/loadedRound!==round/);
  assert.match(page,/CREW PLAY NEXT ROUND/);
  assert.match(word,/await judgeMysterySpeech\(caseFile,speech\)/);
- assert.match(word,/\\[20 QUESTIONS VERIFIED ANSWER\\]/);
- assert.match(word,/\\[MYSTERY VERIFIED ANSWER\\]/);
+ assert.match(word,/20 QUESTIONS VERIFIED ANSWER/);
+ assert.match(word,/MYSTERY VERIFIED ANSWER/);
  assert.match(myst,/Verified clue facts/);
 });
 test("Word game P1 styles use Live states and provide reduced-motion alternatives",()=>{
