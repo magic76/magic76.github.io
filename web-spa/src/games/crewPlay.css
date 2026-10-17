@@ -141,3 +141,72 @@
 .crew-play-free-form button:disabled{opacity:.55}
 .crew-play-speech-notice{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
 @media(max-width:620px){.crew-play-voice-tip{display:grid;gap:3px}.crew-play-free-form>div{flex-wrap:wrap}.crew-play-free-form button{min-width:76px}}
+
+/* 20 Questions voice-first layout. Keep other Crew Play game pages unchanged. */
+.crew-play-session--twenty{align-content:start;gap:10px}
+.crew-play-voice-presence{display:grid;gap:10px;border-radius:18px;border:1px solid #dcd9f1;background:var(--surface,#fff);padding:13px;box-shadow:0 4px 20px #4840840b}
+.crew-play-voice-presence-header{display:flex;align-items:center;gap:11px;min-width:0}
+.crew-play-voice-presence-header>img,.crew-play-voice-presence-header>.friend-avatar{width:52px;height:52px;min-width:52px;object-fit:cover;border-radius:50%}
+.crew-play-voice-presence-header .is-speaking{outline:3px solid #a39ce6;outline-offset:2px}
+.crew-play-voice-presence-name{flex:1;min-width:0;display:grid;gap:4px}
+.crew-play-voice-presence-name strong{font-size:15px}
+.crew-play-voice-presence-state{font-size:11px;color:var(--muted);display:inline-flex;align-items:center;gap:6px}
+.crew-play-voice-presence-state:before{content:"";width:7px;height:7px;border-radius:50%;background:#a9a9b0}
+.crew-play-voice-presence-state.active:before{background:#29956c}
+.crew-play-voice-presence-header .crew-play-friend-select{min-width:100px}
+.crew-play-voice-presence-reply{min-height:26px;margin:0;padding:10px 12px;border-radius:12px;background:#f2f0ff;color:#343152;line-height:1.55;font-size:13px;overflow-wrap:anywhere}
+.crew-play-session--twenty .crew-play-word-panel{gap:12px}
+.crew-play-session--twenty .crew-play-riddle{padding:12px}
+.crew-play-session--twenty .crew-play-riddle-icon{width:42px;height:42px;font-size:22px}
+.crew-play-session--twenty .crew-play-riddle h2{margin:0}
+.crew-play-question-disclosure{border:1px solid var(--line);border-radius:13px;background:var(--surface,#fff);overflow:hidden}
+.crew-play-question-disclosure>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:13px 14px;min-height:48px;cursor:pointer;color:var(--text);font-size:13px;font-weight:800}
+.crew-play-question-disclosure>summary::-webkit-details-marker{display:none}
+.crew-play-question-disclosure>summary small{margin-left:auto;color:var(--muted);font-weight:500;font-size:11px}
+.crew-play-question-disclosure>summary:after{content:"+";font-size:20px;line-height:1;color:#716ba4}
+.crew-play-question-disclosure[open]>summary:after{content:"−"}
+.crew-play-question-disclosure[open]>summary{border-bottom:1px solid var(--line)}
+.crew-play-question-disclosure .crew-play-word-options{padding:12px}
+.crew-play-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.crew-play-history-heading strong{font-size:12px}
+.crew-play-history-heading span{font-size:10px;color:var(--muted)}
+.crew-play-question-history--compact ul{gap:9px}
+.crew-play-question-history--compact li{align-items:flex-start;line-height:1.5}
+.crew-play-question-history--compact li span{min-width:0;overflow-wrap:anywhere}
+.crew-play-history-older{margin-top:9px;border-top:1px solid var(--line);padding-top:9px}
+.crew-play-history-older summary{cursor:pointer;color:#6760ac;font-size:11px;font-weight:750}
+.crew-play-history-older ul{padding-top:5px}
+.crew-play-voice-dock-shell{display:grid;gap:6px;padding:11px;border-radius:17px;border:1px solid #d8d3ed;background:var(--surface,#fff);box-shadow:0 5px 24px #3030641c}
+.crew-play-voice-dock-shell .crew-play-voice-start{width:100%}
+.crew-play-voice-dock-shell>small{font-size:10px;color:var(--muted);text-align:center;line-height:1.45}
+.crew-play-voice-dock-shell .live-controls{margin:0}
+.crew-play-voice-dock-shell .crew-voice-dock{display:grid;gap:6px}
+.crew-play-voice-dock-shell .crew-voice-dock-main{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:7px}
+.crew-play-voice-dock-shell .live-callbar{margin:0;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 8px;flex:1;min-width:0}
+.crew-play-voice-dock-shell .live-call-actions{min-width:0;gap:5px}
+.crew-play-voice-dock-shell .live-tool-btn{min-height:44px;padding:8px;font-size:11px}
+.crew-play-voice-dock-shell .live-manual-interrupt{min-height:44px;margin:0;padding:8px 10px;white-space:nowrap;font-size:11px}
+.crew-play-voice-dock-shell .crew-voice-end{min-width:64px;min-height:44px;padding:9px 10px;font-size:12px}
+.crew-play-voice-dock-shell .live-audio-settings{font-size:11px}
+.crew-play-voice-dock-shell .live-status{font-size:11px;line-height:1.5;margin:0;min-height:0}
+@media(max-width:1099px){
+ .crew-play-session--twenty{padding-bottom:160px}
+ .crew-play-voice-dock-shell{position:fixed;z-index:42;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);left:50%;transform:translateX(-50%);width:min(680px,calc(100vw - 18px));backdrop-filter:blur(16px);background:rgba(255,255,255,.97);box-shadow:0 -6px 26px #3e3c671f}
+ .crew-play-voice-dock-shell>small{display:none}
+ .crew-play-voice-dock-shell .live-audio-settings:not([open]){max-height:24px}
+}
+@media(max-width:620px){
+ .crew-play-page--twenty .crew-play-game-header{padding-top:18px;margin-bottom:10px}
+ .crew-play-page--twenty .crew-play-game-header .crew-play-eyebrow{display:none}
+ .crew-play-page--twenty .crew-play-game-header h1{font-size:23px}
+ .crew-play-page--twenty .crew-play-game-header p{font-size:11px}
+ .crew-play-voice-presence{padding:10px;gap:8px}
+ .crew-play-voice-presence-header>img,.crew-play-voice-presence-header>.friend-avatar{width:46px;height:46px;min-width:46px}
+ .crew-play-voice-presence-reply{padding:9px 10px;font-size:12px;max-height:112px;overflow-y:auto}
+ .crew-play-voice-dock-shell{padding:8px 9px;gap:4px;border-radius:14px}
+ .crew-play-voice-dock-shell .live-manual-interrupt{padding:8px}
+ .crew-play-voice-dock-shell .live-callbar{padding:5px}
+ .crew-play-voice-dock-shell .live-call-actions .live-tool-btn{font-size:10px;padding:6px}
+ .crew-play-session--twenty .crew-play-voice-tip{padding:8px 10px}
+ .crew-play-session--twenty .crew-play-word-panel{padding:10px}
+}
