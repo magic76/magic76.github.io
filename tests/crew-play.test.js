@@ -124,3 +124,37 @@ test("Mystery generates a new, validated case from the existing Gemini Key with 
  assert.match(word,/mysterySource==="generated"/);
  assert.match(word,/Gemini 原創謎題/);
 });
+
+test("20 Questions is Gemini-generated, records voice actions, and preserves the screen attempt budget",()=>{
+ const generation=read("web-spa/src/games/generateTwentyItem.ts");
+ const adjudicator=read("web-spa/src/games/judgeTwentySpeech.ts");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ const puzzle=read("web-spa/src/games/playPuzzles.ts");
+ assert.match(generation,/generateTwentyItem/);
+ assert.match(generation,/await ensureCore\(\)/);
+ assert.match(generation,/window\.CrewAI\.call\(prompt/);
+ assert.match(generation,/validateTwentyItem\(candidate\)/);
+ assert.match(generation,/recentAnswers/);
+ assert.match(puzzle,/facts\?:\{question:Bilingual;answer:boolean\}\[\]/);
+ assert.match(adjudicator,/judgeTwentySpeech/);
+ assert.match(adjudicator,/conservative 20 Questions game judge/);
+ assert.match(adjudicator,/normalize\(utterance\)\.includes\(normalize\(guess\)\)/);
+ assert.match(page,/onTurnComplete:\(spokenTurn\)=>/);
+ assert.match(page,/setVoiceTurns\(prev=>/);
+ assert.match(page,/generateTwentyItem\(\)\.then\(item=>/);
+ assert.match(page,/setQuestionStatus\("fallback"\)/);
+ assert.match(page,/questionStatus==="generating"/);
+ assert.match(page,/voiceTurns=\{voiceTurns\}/);
+ assert.match(word,/handledRef\.current\.has\(turn\.id\)/);
+ assert.match(word,/voiceQueueRef\.current=voiceQueueRef\.current\.then/);
+ assert.match(word,/await judgeTwentySpeech\(item,speech\)/);
+ assert.match(word,/if\(judgement\.type==="chat"\)/);
+ assert.match(word,/applyGuess\(judgement\.guess,voice\)/);
+ assert.match(word,/if\(!record\(/);
+ assert.match(word,/askedRef\.current=next;setAsked\(next\)/);
+ assert.match(word,/const correct=correctGuess\(item,guess\)/);
+ assert.match(word,/count>=limit/);
+ assert.match(word,/item\.traits\.includes\(id\)/);
+ assert.match(word,/caseFile\.solution/);
+});
