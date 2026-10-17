@@ -128,3 +128,16 @@
 .crew-play-voice-start:disabled{opacity:.55;cursor:wait}
 @media(prefers-reduced-motion:reduce){.crew-play-mystery-spinner{animation:none;border-top-color:#7062bd}}
 @media(max-width:620px){.crew-play-word-heading{flex-wrap:wrap;gap:6px}.crew-play-mystery-source{order:3;margin-left:0}}
+
+/* 20 Questions: voice-first prompts with optional text input. */
+.crew-play-voice-tip{display:flex;align-items:center;flex-wrap:wrap;gap:7px 12px;padding:10px 12px;border-radius:12px;background:#f2f0ff;color:#514b98;font-size:12px;line-height:1.5}
+.crew-play-voice-tip strong{color:#45407d;font-weight:800}
+.crew-play-voice-tip span{font-style:italic}
+.crew-play-free-form{display:grid;gap:8px}
+.crew-play-free-form>label{font-size:12px;font-weight:750;color:var(--text)}
+.crew-play-free-form>div{display:flex;gap:8px}
+.crew-play-free-form input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--surface,#fff);color:var(--text);font:inherit;font-size:13px}
+.crew-play-free-form button{border:1px solid #a19fd1;background:#efedff;color:#46418c;border-radius:11px;min-height:42px;padding:9px 13px;font:inherit;font-size:12px;font-weight:800}
+.crew-play-free-form button:disabled{opacity:.55}
+.crew-play-speech-notice{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+@media(max-width:620px){.crew-play-voice-tip{display:grid;gap:3px}.crew-play-free-form>div{flex-wrap:wrap}.crew-play-free-form button{min-width:76px}}
