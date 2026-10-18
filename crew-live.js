@@ -160,6 +160,7 @@
 
     this.outputContext=null;
     this.outputGain=null;
+    this.outputLimiter=null;
     this.outputWorkletNode=null;
     this.outputWorkletReady=false;
     this.outputWorkletPending=false;
@@ -178,7 +179,7 @@
     this.interruptInputSeen=false;
     this.playbackEpoch=0;
     var initialVolume=Number(this.options.volume);
-    this.volume=Math.max(0,Math.min(100,Number.isFinite(initialVolume)?initialVolume:100));
+    this.volume=Math.max(0,Math.min(300,Number.isFinite(initialVolume)?initialVolume:100));
     this.startedAt=0;
     this.turns=[];
     this.resumptionHandle="";
@@ -210,7 +211,7 @@
   };
 
   LiveSession.prototype.setVolume=function(value){
-    var percent=Math.max(0,Math.min(100,Number(value)||0));
+    var percent=Math.max(0,Math.min(300,Number(value)||0));
     this.volume=percent;
     if(this.outputGain)this.outputGain.gain.value=percent/100;
     if(this.options.onVolumeChange)this.options.onVolumeChange(percent);
@@ -1224,7 +1225,28 @@
 
     this.outputGain=this.outputContext.createGain();
     this.outputGain.gain.value=this.volume/100;
-    this.outputGain.connect(this.outputContext.destination);
+    // A microphone on Android Chrome may keep the device in the call-volume
+    // stream. Web pages cannot switch the hardware volume-key stream, so allow
+    // controlled AI playback boost (100–300%) without touching microphone gain.
+    // Limit peaks to reduce clipping on loud voices; the gain is shared by both
+    // AudioWorklet and AudioBufferSource playback paths.
+    var playbackDestination=this.outputContext.destination;
+    if(typeof this.outputContext.createDynamicsCompressor==="function"){
+      try{
+        var limiter=this.outputContext.createDynamicsCompressor();
+        limiter.threshold.value=-3;
+        limiter.knee.value=0;
+        limiter.ratio.value=20;
+        limiter.attack.value=0.003;
+        limiter.release.value=0.12;
+        limiter.connect(playbackDestination);
+        this.outputLimiter=limiter;
+        playbackDestination=limiter;
+      }catch(_){
+        this.outputLimiter=null;
+      }
+    }
+    this.outputGain.connect(playbackDestination);
 
     if(this.outputContext.resume)await this.outputContext.resume();
 
@@ -1275,6 +1297,13 @@
     }
     if(this.outputContext&&!sharedContext){
       try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
+    }
+    if(this.outputGain){
+      try{this.outputGain.disconnect();}catch(_){}
+    }
+    if(this.outputLimiter){
+      try{this.outputLimiter.disconnect();}catch(_){}
+      this.outputLimiter=null;
     }
     this.outputContext=null;
     this.outputGain=null;

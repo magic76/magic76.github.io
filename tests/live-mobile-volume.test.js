@@ -14,6 +14,11 @@ test("a saved zero AI volume remains muted when a Live session starts",()=>{
   assert.equal(session.outputGain.gain.value,0.5);
   assert.equal(session.setVolume(0),0);
   assert.equal(session.outputGain.gain.value,0);
+  assert.equal(session.setVolume(250),250);
+  assert.equal(session.outputGain.gain.value,2.5);
+  assert.equal(session.setVolume(350),300,"prevent unbounded amplification");
+  assert.equal(session.outputGain.gain.value,3);
+  assert.equal(new CrewLive.Session({volume:200,models:["mock"]}).volume,200);
   assert.equal(new CrewLive.Session({models:["mock"]}).volume,100);
 });
 
@@ -26,14 +31,62 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
 
   assert.match(controls,/className="live-audio-settings"/);
   assert.match(controls,/aria-label="調整 AI 播放音量"/);
-  assert.match(controls,/type="range" min="0" max="100"/);
+  assert.match(controls,/type="range" min="0" max="300"/);
   assert.match(controls,/live\.setVolume\(Number\(e\.target\.value\)\)/);
-  assert.match(controls,/若手機音量鍵顯示通話音量/);
+  assert.match(controls,/實體音量鍵可能控制通話音量/);
+  assert.match(controls,/100% 以上增強播放/);
   assert.match(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:block\}/);
   assert.doesNotMatch(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:none\}/);
   assert.match(css,/\.live-stage\{padding-bottom:calc\(210px/);
   assert.match(teacher,/<LiveControls live=\{live\}/);
   assert.match(friend,/<LiveControls live=\{live\}/);
   assert.match(hook,/crew_live_volume/);
+  assert.match(hook,/Math\.min\(300/);
   assert.match(hook,/sessionRef\.current\?\.setVolume\(n\)/);
+});
+
+test("AI playback boost is peak-limited and does not alter the microphone path",async()=>{
+  const routing=[];
+  const destination={name:"speaker"};
+  const limiter={
+    threshold:{value:0},knee:{value:0},ratio:{value:0},
+    attack:{value:0},release:{value:0},
+    connect:target=>routing.push(["limiter",target]),disconnect(){}
+  };
+  const gain={gain:{value:1},connect:target=>routing.push(["gain",target]),disconnect(){}};
+  const track={stopped:false,stop(){this.stopped=true;}};
+  const events=[];
+  const context={
+    destination,
+    createGain:()=>gain,
+    createDynamicsCompressor:()=>limiter,
+    async resume(){},
+    async close(){}
+  };
+  const session=new CrewLive.Session({
+    volume:225,models:["mock"],
+    deps:{
+      getUserMedia:async()=>{
+        events.push("microphone");
+        return{getTracks:()=>[track]};
+      },
+      createAudioContext:()=>{
+        events.push("playback");
+        return context;
+      }
+    }
+  });
+  await session._openMedia();
+  assert.deepEqual(events,["microphone","playback"]);
+  assert.equal(gain.gain.value,2.25);
+  assert.equal(limiter.threshold.value,-3);
+  assert.equal(limiter.ratio.value,20);
+  assert.equal(session.outputLimiter,limiter);
+  assert.deepEqual(routing,[["limiter",destination],["gain",limiter]]);
+  assert.equal(track.stopped,false);
+  assert.equal(session.setVolume(300),300);
+  assert.equal(gain.gain.value,3);
+  await session._cleanupMedia();
+  assert.equal(track.stopped,true);
+  assert.equal(session.outputLimiter,null);
 });
