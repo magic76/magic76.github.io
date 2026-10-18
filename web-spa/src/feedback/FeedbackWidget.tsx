@@ -66,9 +66,9 @@ export function FeedbackDialog({product,roleId,errorCode,model,kind:initialKind=
  const [message,setMessage]=useState(""),[includeDiagnostics,setIncludeDiagnostics]=useState(true);
  const [website,setWebsite]=useState(""),[state,setState]=useState<"editing"|"sending"|"sent">("editing");
  const [error,setError]=useState("");
- const first=useRef<HTMLSelectElement|HTMLButtonElement>(null),modal=useRef<HTMLDivElement>(null);
+ const firstSelect=useRef<HTMLSelectElement>(null),firstButton=useRef<HTMLButtonElement>(null),modal=useRef<HTMLDivElement>(null);
  useEffect(()=>{
-  const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;first.current?.focus();
+  const previous=document.activeElement instanceof HTMLElement?document.activeElement:null;(initialKind==="rating"?firstButton.current:firstSelect.current)?.focus();
   const key=(event:KeyboardEvent)=>{
    if(event.key==="Escape"){event.preventDefault();onClose()}
    if(event.key!=="Tab")return;
@@ -99,11 +99,11 @@ export function FeedbackDialog({product,roleId,errorCode,model,kind:initialKind=
  if(typeof document==="undefined")return null;
  return createPortal(<div className="crew-feedback-overlay" onMouseDown={e=>{if(e.target===e.currentTarget)onClose()}}>
   <div ref={modal} className="crew-feedback-modal" role="dialog" aria-modal="true" aria-label={t.title}>
-   <div className="crew-feedback-heading"><h2>{t.title}</h2><button ref={first} type="button" aria-label={t.close} onClick={onClose}>×</button></div>
+   <div className="crew-feedback-heading"><h2>{t.title}</h2><button ref={firstButton} type="button" aria-label={t.close} onClick={onClose}>×</button></div>
    {state==="sent"?<div className="crew-feedback-done" role="status">
     <p>{t.success}</p><button type="button" className="crew-feedback-primary" onClick={onClose}>{t.close}</button>
    </div>:<form onSubmit={e=>{void submit(e)}}>
-    {initialKind!=="rating"?<label>{t.kind}<select ref={first} value={kind} onChange={e=>{setKind(e.target.value as FeedbackKind);setReason("")}}>
+    {initialKind!=="rating"?<label>{t.kind}<select ref={firstSelect} value={kind} onChange={e=>{setKind(e.target.value as FeedbackKind);setReason("")}}>
       <option value="bug">{t.bug}</option><option value="idea">{t.idea}</option><option value="other">{t.other}</option>
      </select></label>:<><p className="crew-feedback-selected">{rating===5?"👍 "+t.good:"👎 "+t.bad}</p>
      </>}
