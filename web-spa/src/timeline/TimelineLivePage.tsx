@@ -6,6 +6,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
+import {MIRA_LIVE_VOICE,buildTimelineAgeVoicePrompt,timelineVoiceMode} from "./timelineVoice";
 import {validAge,stage,buildSystem,saveNote,olderNotes,nextOpening} from "./timeline";
 import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
@@ -16,11 +17,12 @@ export function TimelineLivePage(){
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
  const known=useMemo(()=>olderNotes(age),[age]);
- const system=useMemo(()=>buildSystem(age,language),[age,language]);
+ const voiceMode=timelineVoiceMode(params.get("voiceStyle"));
+ const system=useMemo(()=>buildSystem(age,language)+buildTimelineAgeVoicePrompt(age,voiceMode),[age,language,voiceMode]);
  const [opening]=useState(()=>nextOpening(age));
  const live=useLiveSession({
   pageKey:"timeline-mira-"+age,title:"Crew Timeline · Mira · "+age,
-  system,language,nativeLanguage,voice:normalizeLiveVoice("Aoede"),
+  system,language,nativeLanguage,voice:normalizeLiveVoice(MIRA_LIVE_VOICE),
   openingPrompt:opening,
   persistHistory:false,teacherReport:false,trackSpeakingLevel:false,sessionKind:"timeline",
   onSessionFinished:()=>{/* Timeline never updates teacher or friend memories. */}
