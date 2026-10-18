@@ -160,11 +160,11 @@ export default function BooksPage(){
  }
  return <div className="books-root">
   <div className="books-wrap">
-   <header className="books-top"><a href="/" className="books-brand"><span className="books-logo">本</span><span>書友交換板<small>OUR LITTLE BOOK CIRCLE</small></span></a><span className="books-top-label">媽媽友的分享角落</span></header>
-   <section className="books-hero"><div className="books-eyebrow"><span className="books-dot"/> 好書流動，友誼繼續</div>
-    <h1>讀完的書，<br/><em>換個人繼續喜歡。</em></h1>
-    <p>交換、贈送、出售，或許願找一本好書。讓媽媽友們的閒置好書，遇見下一位小讀者。</p>
-    <div className="books-hero-actions"><button type="button" className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 我要分享一本書</button><span>簡單刊登，不用開商店</span></div>
+   <header className="books-top"><a href="/" className="books-brand"><span className="books-logo">圈</span><span>媽媽友小圈圈<small>FAMILY CIRCLE</small></span></a><span className="books-top-label">媽媽友的分享角落</span></header>
+   <section className="books-hero"><div className="books-eyebrow"><span className="books-dot"/> 生活大小事，都能聊</div>
+    <h1>好東西一起分享，<br/><em>大小事一起交流。</em></h1>
+    <p>書籍、玩具、學用品，也可以分享活動情報、詢問生活大小事。這是專屬媽媽友的小小交流角落。</p>
+    <div className="books-hero-actions"><button type="button" className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 發一則消息</button><span>一則貼文，讓資訊在圈圈流動</span></div>
     <div className="books-hero-ornament" aria-hidden="true"><span className="books-book-b1"/><span className="books-book-b2"/><span className="books-book-b3"/><span className="books-hero-spark">✳</span></div>
    </section>
    <div className={"books-mode "+(demo?"is-demo":"is-live")} role="status">
@@ -174,35 +174,37 @@ export default function BooksPage(){
    {access&&demo&&<form className="books-join" onSubmit={join}><label htmlFor="books-invite">群組邀請碼</label><div><input id="books-invite" type="password" value={inviteInput} onChange={e=>setInviteInput(e.target.value)} placeholder="請向群組管理員索取" autoComplete="off"/><button className="books-primary" disabled={loading}>{loading?"連線中":"加入群組"}</button></div><small>僅邀請的朋友能看到正式貼文，不會公開索引。</small>{error&&<p role="alert">{error}</p>}</form>}
    {!access&&error&&<p className="books-error" role="alert">{error}</p>}
    <section className="books-feed" aria-label="書友貼文">
-    <div className="books-feed-heading"><div><span className="books-eyebrow">COMMUNITY BOARD</span><h2>看看大家分享什麼</h2><p>{demo?"這裡是可互動的範例資料":"群組裡最新的交換資訊"}</p></div><div className="books-feed-count">{visible.length}<small>則資訊</small></div></div>
-    <div className="books-filter"><div className="books-chips">{KINDS.map(item=><button key={item.key} className={filter===item.key?"active":""} onClick={()=>setFilter(item.key)}>{item.label}</button>)}</div><label className="books-search"><span aria-hidden="true">⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋書名、內容或媽媽暱稱" aria-label="搜尋書籍"/></label></div>
+    <div className="books-feed-heading"><div><span className="books-eyebrow">COMMUNITY BOARD</span><h2>看看大家分享什麼</h2><p>{demo?"這裡是可互動的範例資料":"群組裡最新的交流資訊"}</p></div><div className="books-feed-count">{visible.length}<small>則資訊</small></div></div>
+    <div className="books-filter"><div className="books-chips" aria-label="交流方式">{KINDS.map(item=><button key={item.key} className={filter===item.key?"active":""} onClick={()=>setFilter(item.key)}>{item.label}</button>)}</div><label className="books-search"><span aria-hidden="true">⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋分享、用品或活動" aria-label="搜尋交流資訊"/></label></div>
+    <div className="books-topics" aria-label="交流主題">{CATEGORIES.map(item=><button key={item.key} className={categoryFilter===item.key?"active":""} onClick={()=>setCategoryFilter(item.key)}>{item.label}</button>)}</div>
     {loading&&!demo&&<div className="books-empty">正在讀取群組資訊…</div>}
     <div className="books-list">{visible.length?visible.map((post,index)=>{
       const own=demo||Boolean(ownerTokens()[post.id]);
       const expanded=selected===post.id;
       return <article className="books-card" key={post.id}>
-       <div className="books-card-media"><BookArt kind={post.kind}/>{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
-       <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{statuses[post.status]}</span></div>
+       <div className="books-card-media"><CircleArt kind={post.kind} category={topicOf(post)}/>{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
+       <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className="books-category">{categoryNames[topicOf(post)]}</span><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{isDiscussion(post.kind)?post.status==="closed"?"已結束":"交流中":statuses[post.status]}</span></div>
         <h3>{post.title}</h3><p>{post.description||"歡迎留言詢問更多資訊。"}</p>
         {post.kind==="sell"&&<div className="books-price">NT$ {post.price?.toLocaleString("zh-TW")}</div>}
-        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded}>♡ 留言詢問 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">開放中</option><option value="reserved">已保留</option><option value="closed">已完成</option></select></div>}</div>
+        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded}>♡ 留言交流 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">{isDiscussion(post.kind)?"交流中":"開放中"}</option>{!isDiscussion(post.kind)&&<option value="reserved">已保留</option>}<option value="closed">{isDiscussion(post.kind)?"已結束":"已完成"}</option></select></div>}</div>
        </div>
-       {expanded&&<div className="books-comments"><h4>留言交流</h4>{comments.filter(c=>c.postId===post.id).map(c=><div className="books-comment" key={c.id}><div className="books-mini-avatar">{c.author.slice(0,1)}</div><div><strong>{c.author}</strong><p>{c.message}</p></div></div>)}{!comments.some(c=>c.postId===post.id)&&<p className="books-comment-empty">還沒有留言，來打個招呼吧。</p>}{post.status!=="closed"?<form onSubmit={comment}><input aria-label="留言暱稱" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="你的暱稱"/><textarea aria-label="留言內容" value={commentText} maxLength={300} onChange={e=>setCommentText(e.target.value)} placeholder="想問書況、交換方式……" rows={2}/><button className="books-primary" disabled={busy}>送出留言</button></form>:<p className="books-comment-empty">這篇已完成，留言已關閉。</p>}</div>}
+       {expanded&&<div className="books-comments"><h4>留言交流</h4>{comments.filter(c=>c.postId===post.id).map(c=><div className="books-comment" key={c.id}><div className="books-mini-avatar">{c.author.slice(0,1)}</div><div><strong>{c.author}</strong><p>{c.message}</p></div></div>)}{!comments.some(c=>c.postId===post.id)&&<p className="books-comment-empty">還沒有留言，來打個招呼吧。</p>}{post.status!=="closed"?<form onSubmit={comment}><input aria-label="留言暱稱" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="你的暱稱"/><textarea aria-label="留言內容" value={commentText} maxLength={300} onChange={e=>setCommentText(e.target.value)} placeholder="交流一下、分享想法……" rows={2}/><button className="books-primary" disabled={busy}>送出留言</button></form>:<p className="books-comment-empty">這篇交流已結束，留言已關閉。</p>}</div>}
       </article>
-    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p><button onClick={()=>setShowForm(true)}>＋ 我要刊登</button></div>}</div>
+    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p><button onClick={()=>setShowForm(true)}>＋ 發布貼文</button></div>}</div>
    </section>
-   <div className="books-bottom"><div><strong>一本書不只一個故事。</strong><p>下一段故事，或許就從你的分享開始。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>分享一本書 →</button></div>
-   <footer className="books-footer">書友交換板 · 小圈圈試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
+   <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 →</button></div>
+   <footer className="books-footer">媽媽友小圈圈 · 邀請制試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
   </div>
   {notice&&<div className="books-toast" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="關閉提示">×</button></div>}
-  {showForm&&<div className="books-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false)}}><section className="books-dialog" role="dialog" aria-modal="true" aria-labelledby="books-dialog-title"><div className="books-dialog-head"><div><span className="books-eyebrow">SHARE A BOOK</span><h2 id="books-dialog-title">分享一本好書</h2></div><button onClick={()=>setShowForm(false)} aria-label="關閉">×</button></div><form onSubmit={publish}>
-   <label>分享類型<div className="books-form-kinds">{KINDS.filter(k=>k.key!=="all").map(k=><button type="button" key={k.key} className={form.kind===k.key?"active":""} onClick={()=>setForm(old=>({...old,kind:k.key as Kind,price:""}))}>{k.label}</button>)}</div></label>
+  {showForm&&<div className="books-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false)}}><section className="books-dialog" role="dialog" aria-modal="true" aria-labelledby="books-dialog-title"><div className="books-dialog-head"><div><span className="books-eyebrow">POST TO CIRCLE</span><h2 id="books-dialog-title">發一則消息</h2></div><button onClick={()=>setShowForm(false)} aria-label="關閉">×</button></div><form onSubmit={publish}>
+   <label>交流主題<select required className="books-topic-select" value={form.category} onChange={e=>setForm(old=>({...old,category:e.target.value as Category}))}>{CATEGORIES.filter(c=>c.key!=="all").map(c=><option key={c.key} value={c.key}>{c.label}</option>)}</select></label>
+   <label>貼文目的<div className="books-form-kinds">{KINDS.filter(k=>k.key!=="all").map(k=><button type="button" key={k.key} className={form.kind===k.key?"active":""} onClick={()=>setForm(old=>({...old,kind:k.key as Kind,price:""}))}>{k.label}</button>)}</div></label>
    <label>媽媽暱稱 <span>必填</span><input required minLength={2} maxLength={20} value={form.author} onChange={e=>setForm(old=>({...old,author:e.target.value}))} placeholder="例如：安安媽媽"/></label>
-   <label>書名 / 主題 <span>必填</span><input required minLength={2} maxLength={80} value={form.title} onChange={e=>setForm(old=>({...old,title:e.target.value}))} placeholder="例如：英文繪本三本"/></label>
-   <label>補充說明 <span>選填</span><textarea maxLength={600} rows={4} value={form.description} onChange={e=>setForm(old=>({...old,description:e.target.value}))} placeholder="書況、適合年齡、交換希望…（請勿寫個人聯絡資訊）"/></label>
+   <label>標題 <span>必填</span><input required minLength={2} maxLength={80} value={form.title} onChange={e=>setForm(old=>({...old,title:e.target.value}))} placeholder="例如：週末親子活動推薦"/></label>
+   <label>補充說明 <span>選填</span><textarea maxLength={600} rows={4} value={form.description} onChange={e=>setForm(old=>({...old,description:e.target.value}))} placeholder="想分享或詢問什麼？（請勿公開個人聯絡資訊）"/></label>
    {form.kind==="sell"&&<label>出售價格（台幣） <span>必填</span><input required inputMode="numeric" pattern="[0-9]+" value={form.price} onChange={e=>setForm(old=>({...old,price:e.target.value}))} placeholder="300"/></label>}
    <p className="books-form-note">{demo?"示範貼文只會保存在目前裝置。":"正式貼文將出現在群組裡；請使用同一瀏覽器修改狀態。"}</p>
-   <button className="books-primary books-submit" disabled={busy}>{busy?"刊登中…":"確認刊登"}</button>
+   <button className="books-primary books-submit" disabled={busy}>{busy?"刊登中…":"發布貼文"}</button>
   </form></section></div>}
  </div>;
 }
