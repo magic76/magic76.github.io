@@ -5,19 +5,6 @@
   "generatedAt": "2026-10-18T00:00:00+08:00",
   "posts": [
     {
-      "id": "zoe-day3",
-      "friendId": "zoe",
-      "friendName": "Zoe",
-      "caption": "The machine won. My kitchen is covered in milk.",
-      "translationZh": "我輸給咖啡機了。廚房到處都是牛奶。",
-      "image": "/features/teacher/shorts/media/37bdb56419cdc9281a0b663e.webp",
-      "imageAlt": "Zoe reacting to frothy milk spilled around the espresso machine on the same kitchen counter.",
-      "publishedAt": "2026-10-18T08:00:00+08:00",
-      "language": "en",
-      "storyId": "coffee-budget",
-      "storyContext": "£7 for a coffee. I hope it comes with financial advice. Bought a coffee machine. This is either a smart move or a very expensive hobby."
-    },
-    {
       "id": "bella-day3",
       "friendId": "bella",
       "friendName": "Bella",
@@ -68,6 +55,19 @@
       "language": "en",
       "storyId": "rainy-windowsill",
       "storyContext": "Rainy morning, warm tea, and absolutely no plans. Perfect. A little sun finally found its way into my room."
+    },
+    {
+      "id": "zoe-day3",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "The machine won. My kitchen is covered in milk.",
+      "translationZh": "我輸給咖啡機了。廚房到處都是牛奶。",
+      "image": "/features/teacher/shorts/media/37bdb56419cdc9281a0b663e.webp",
+      "imageAlt": "Zoe reacting to frothy milk spilled around the espresso machine on the same kitchen counter.",
+      "publishedAt": "2026-10-18T08:00:00+08:00",
+      "language": "en",
+      "storyId": "coffee-budget",
+      "storyContext": "£7 for a coffee. I hope it comes with financial advice. Bought a coffee machine. This is either a smart move or a very expensive hobby."
     },
     {
       "id": "ada-20261017",
@@ -278,19 +278,6 @@
       "storyContext": ""
     },
     {
-      "id": "zoe-day2",
-      "friendId": "zoe",
-      "friendName": "Zoe",
-      "caption": "Bought a coffee machine. This is either a smart move or a very expensive hobby.",
-      "translationZh": "買了一台咖啡機。不知道是明智投資，還是昂貴的新嗜好。",
-      "image": "/features/teacher/shorts/media/f63fd59ca356196a95282185.webp",
-      "imageAlt": "Zoe unpacking a home espresso machine on her cluttered kitchen counter beside a mug and instruction booklet.",
-      "publishedAt": "2026-10-17T08:00:00+08:00",
-      "language": "en",
-      "storyId": "coffee-budget",
-      "storyContext": "£7 for a coffee. I hope it comes with financial advice."
-    },
-    {
       "id": "bella-day2",
       "friendId": "bella",
       "friendName": "Bella",
@@ -343,17 +330,17 @@
       "storyContext": "Rainy morning, warm tea, and absolutely no plans. Perfect."
     },
     {
-      "id": "zoe-day1",
+      "id": "zoe-day2",
       "friendId": "zoe",
       "friendName": "Zoe",
-      "caption": "£7 for a coffee. I hope it comes with financial advice.",
-      "translationZh": "一杯咖啡要 7 英鎊。希望還附贈理財建議。",
-      "image": "/features/teacher/shorts/media/9fff6f180851072ede67db09.webp",
-      "imageAlt": "Zoe reacting to the price of takeaway coffee in a cozy London café beside a rainy window and card terminal.",
-      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "caption": "Bought a coffee machine. This is either a smart move or a very expensive hobby.",
+      "translationZh": "買了一台咖啡機。不知道是明智投資，還是昂貴的新嗜好。",
+      "image": "/features/teacher/shorts/media/f63fd59ca356196a95282185.webp",
+      "imageAlt": "Zoe unpacking a home espresso machine on her cluttered kitchen counter beside a mug and instruction booklet.",
+      "publishedAt": "2026-10-17T08:00:00+08:00",
       "language": "en",
       "storyId": "coffee-budget",
-      "storyContext": ""
+      "storyContext": "£7 for a coffee. I hope it comes with financial advice."
     },
     {
       "id": "bella-day1",
@@ -405,6 +392,19 @@
       "publishedAt": "2026-10-16T08:00:00+08:00",
       "language": "en",
       "storyId": "rainy-windowsill",
+      "storyContext": ""
+    },
+    {
+      "id": "zoe-day1",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "£7 for a coffee. I hope it comes with financial advice.",
+      "translationZh": "一杯咖啡要 7 英鎊。希望還附贈理財建議。",
+      "image": "/features/teacher/shorts/media/9fff6f180851072ede67db09.webp",
+      "imageAlt": "Zoe reacting to the price of takeaway coffee in a cozy London café beside a rainy window and card terminal.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "coffee-budget",
       "storyContext": ""
     }
   ]
