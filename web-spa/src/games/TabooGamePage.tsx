@@ -69,10 +69,32 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   if(mode==="describe"){
    const bad=tabooViolation(card,value);
    if(bad){violate(bad);return;}
-   if(friendGuesses(card,value)){setMessage(friend.name+" 猜到了！");correct();}
-   else{
-    setMessage(friend.name+"：嗯……再給我一個提示？例如用途、形狀或情境。");
-    emit("The player described the secret using: "+JSON.stringify(value.slice(0,160))+". Without knowing the secret, make a brief plausible guess or ask one specific follow-up. Do not declare a correct answer.");
+   if(guessing)return;
+   if(!geminiKey()){
+    if(friendGuesses(card,value)){setMessage("離線關鍵字判定："+friend.name+" 猜到了！");correct();}
+    else setMessage("離線練習：增加更多描述，或在朋友猜中時手動確認。");
+   }else{
+    const request=++guessSerial.current;
+    const targetRound=round;
+    descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
+    setGuessing(true);
+    setMessage(friend.name+" 正在思考你的描述…");
+    void generateTabooGuess(descriptions.current).then(({guess,question})=>{
+     if(guessSerial.current!==request||doneGuard.current===targetRound)return;
+     if(guess&&matchTabooGuess(card,guess)){
+      emit("Your guess was "+JSON.stringify(guess)+". The game has VERIFIED it correct. Celebrate briefly.");
+      correct();
+     }else{
+      const spoken=guess?"我猜是 "+guess+"。":question||"可以再給我一點線索嗎？";
+      setMessage(friend.name+"："+spoken+(guess&&question?" "+question:""));
+      emit("Your verified guess was "+JSON.stringify(guess||"no guess")+
+       ". It was NOT correct. "+(question?"Ask "+JSON.stringify(question):"Ask for another clue.")+
+       " Do not mention the answer or award points.");
+     }
+    }).catch(()=>{
+     if(guessSerial.current===request&&doneGuard.current!==targetRound)
+      setMessage("AI 暫時無法猜詞，請重試或使用「朋友已猜中」確認。");
+    }).finally(()=>{if(guessSerial.current===request)setGuessing(false)});
    }
   }else{
    if(matchTabooGuess(card,value)){setMessage("猜對了！");correct();}
