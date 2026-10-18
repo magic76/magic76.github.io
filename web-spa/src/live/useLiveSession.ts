@@ -34,7 +34,10 @@ export function useLiveSession(config:Config){
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
  const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0),languageRepairRef=useRef(false);
  const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const friendReplyTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const friendReplyRescueSentRef=useRef(false);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
+ const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(()=>{
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
   return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
@@ -80,7 +83,8 @@ export function useLiveSession(config:Config){
   if(!geminiKey()){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   cancelRescue();cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
+   cancelRescue();cancelFriendReplyTimer();friendReplyRescueSentRef.current=false;
+   cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
@@ -96,6 +100,26 @@ export function useLiveSession(config:Config){
      if(session.sendControl?.(cadenceRef.current.rescue(kind,rescueCountRef.current)+directive))
       rescueCountRef.current+=1;
     },cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind));
+   };
+   // One recovery only for each unanswered friend utterance; never create a fake user turn.
+   const scheduleFriendReplyCheck=(delayMs=11000)=>{
+    cancelFriendReplyTimer();
+    if(configRef.current.sessionKind!=="friend")return;
+    friendReplyTimerRef.current=window.setTimeout(()=>{
+     friendReplyTimerRef.current=null;
+     if(sessionRef.current!==session||!session.ready||!session.running
+       ||!awaitingTutorRef.current||session.micMuted)return;
+     if(friendReplyRescueSentRef.current){
+      setStatus("朋友尚未回覆，請再說一次或重新開始對話。");
+      return;
+     }
+     const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
+     if(session.sendControl?.("[FRIEND UNANSWERED TURN — silent recovery] The learner just spoke but did not receive a reply. Answer their latest utterance briefly as the same friend, without greeting, teaching or repeating a finished reply."+directive)){
+      friendReplyRescueSentRef.current=true;
+      setStatus("正在重新取得朋友的回答…");
+      scheduleFriendReplyCheck(10000);
+     }
+    },delayMs);
    };
    // Only Crew Teacher/Friends and their Voice Lab use this experimental selection.
    // Crew Story/Fortune keep their existing automatic fallback behavior.
@@ -116,15 +140,15 @@ export function useLiveSession(config:Config){
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
     manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
     onStatus:v=>setStatus(uiMessage(v)),
-    onState:v=>{if(v==="connecting"||v==="error")cancelRescue();if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
-    onSpeaking:v=>{setState(v?"speaking":"listening");if(v)cancelRescue();else scheduleRescue()},
+    onState:v=>{if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();}if(v==="requesting-mic")setState("requesting-mic");else if(v==="connecting")setState("connecting");else if(v==="ready")setState("listening");else if(v==="error")setState("error")},
+    onSpeaking:v=>{setState(v?"speaking":"listening");if(v){cancelRescue();if(configRef.current.sessionKind==="friend"){awaitingTutorRef.current=false;cancelFriendReplyTimer()}}else scheduleRescue()},
     // Presence indicator is informational only. Server VAD owns turn completion.
     onListeningPhase:phase=>setStatus(phase==="speaking"
       ?"🎙️ 正在聽你說…":"🎙️ 還在聽，可以繼續說…"),
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
-    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
+    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true;if(configRef.current.sessionKind==="friend"){friendReplyRescueSentRef.current=false;scheduleFriendReplyCheck()}}setInput(v)},onOutputTranscript:v=>{cancelRescue();if(v.trim()&&configRef.current.sessionKind==="friend"){awaitingTutorRef.current=false;cancelFriendReplyTimer()}setOutput(v)},
     onRecovered:()=>{
-      cancelRescue();
+      cancelRescue();cancelFriendReplyTimer();
       // Reconnected transports can reuse an older system instruction: reassert
       // the learner's latest friend language mode without a fabricated turn.
       if(tabooEnglish)session.sendControl?.("[TABOO LANGUAGE] Continue in English only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
@@ -146,7 +170,8 @@ export function useLiveSession(config:Config){
     },
     onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
     onTurnComplete:turn=>{
-      if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}
+      if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer()}
+      else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
       const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
        ||(tabooEnglish&&/[\u0400-\u04ff\u0590-\u08ff\u0900-\u097f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(turn.output||""));
       if(turn.hasValidOutput&&drift&&!languageRepairRef.current){
@@ -160,15 +185,15 @@ export function useLiveSession(config:Config){
       // Use the synchronous Live transcript ref; React state can lag behind this callback.
       configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
-    onError:e=>{const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
-    onTerminal:info=>{cancelRescue();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
+    onError:e=>{cancelFriendReplyTimer();const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
+    onTerminal:info=>{cancelRescue();cancelFriendReplyTimer();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
    sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
   }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
-  cancelRescue();setState("ending");setStatus("正在結束…");
+  cancelRescue();cancelFriendReplyTimer();setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
   try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}
   catch{/* Still finalize saved speech when the transport is already closed. */}
@@ -180,7 +205,7 @@ export function useLiveSession(config:Config){
   if(!deferReport)await completion;
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),completion};
  },[finish,snapshot]);
- const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;return sessionRef.current?.interrupt()??false},[]);
+ const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
  const sendControl=useCallback((text:string)=>sessionRef.current?.sendControl?.(text)??false,[]);
@@ -207,7 +232,7 @@ export function useLiveSession(config:Config){
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(300,Number.isFinite(v)?v:100));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
-  cancelRescue();
+  cancelRescue();cancelFriendReplyTimer();
   if(!session)return;
   // Preserve the final completed transcript before closing the active transport.
   snapshot("page-leave");
