@@ -41,6 +41,13 @@ const examples:Comment[]=[
  {id:"sample-c3",postId:"sample-2",author:"樂樂媽媽",message:"請問可以單買其中兩本嗎？",createdAt:now}
 ];
 function readJson<T>(key:string,fallback:T):T{try{const data=localStorage.getItem(key);return data?JSON.parse(data) as T:fallback}catch{return fallback}}
+function readPreview(){
+ const previous=readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:[],comments:[]});
+ // Refresh bundled samples, not user-created local posts. Old /books samples
+ // remain represented by the new /circle topics; custom demos are preserved.
+ return {posts:[...(Array.isArray(previous.posts)?previous.posts:[]).filter(p=>p.id&&!p.id.startsWith("sample-")), ...seed],
+  comments:[...(Array.isArray(previous.comments)?previous.comments:[]).filter(c=>c.id&&!c.id.startsWith("sample-")),...examples]};
+}
 function shortDate(value:string){const date=new Date(value);return Number.isNaN(date.getTime())?"最近":date.toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"})}
 function ownerTokens():Record<string,string>{return readJson(OWNER_STORAGE,{})}
 async function api(invite:string,body?:object,postId?:string) {
@@ -71,8 +78,8 @@ export default function BooksPage(){
  const [access,setAccess]=useState(false);
  const [inviteInput,setInviteInput]=useState("");
  const [name,setName]=useState(()=>{try{return localStorage.getItem(NAME_STORAGE)||""}catch{return ""}});
- const [posts,setPosts]=useState<Post[]>(()=>readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:seed,comments:examples}).posts);
- const [comments,setComments]=useState<Comment[]>(()=>readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:seed,comments:examples}).comments);
+ const [posts,setPosts]=useState<Post[]>(()=>readPreview().posts);
+ const [comments,setComments]=useState<Comment[]>(()=>readPreview().comments);
  const [selected,setSelected]=useState<string|null>(null);
  const [filter,setFilter]=useState<"all"|Kind>("all");
  const [categoryFilter,setCategoryFilter]=useState<"all"|Category>("all");
@@ -112,7 +119,7 @@ export default function BooksPage(){
  }
  function usePreview(){setDemo(true);setAccess(false);setInvite("");setError("");setNotice("目前是示範模式，資料只會留在這台裝置");setSelected(null);
   try{sessionStorage.removeItem(INVITE_STORAGE)}catch{/* optional */}
-  const data=readJson(STORAGE,{posts:seed,comments:examples});setPosts(data.posts);setComments(data.comments);
+  const data=readPreview();setPosts(data.posts);setComments(data.comments);
  }
  async function publish(event:React.FormEvent){event.preventDefault();if(busy)return;
   const author=form.author.trim(),title=form.title.trim(),description=form.description.trim();
