@@ -51,9 +51,12 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   setRound(r=>r+1);setDeadline(Date.now()+60000);setTimeLeft(60);
   setMessage(reason==="correct"?"答對！下一題。":reason==="violation"?"觸犯禁用字，換下一題。":reason==="skip"?"跳過，繼續下一題。":"時間到！下一題。");
  },[round,deck]);
- const correct=useCallback(()=>{
+ const correct=useCallback((guessed?:string)=>{
   if(phase!=="playing"||doneGuard.current===round)return;
-  setScore(s=>s+10);emit("Correct! Awarded 10 points. React as a friend, briefly.");
+  setScore(s=>s+10);
+  emit(guessed?"You guessed "+JSON.stringify(guessed)+
+   ". The game verified it correct. React as the friend in one short sentence."
+   :"Correct! Awarded 10 points. React as a friend, briefly.");
   advance("correct");
  },[phase,round,emit,advance]);
  const violate=useCallback((term:string)=>{
@@ -82,8 +85,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     void generateTabooGuess(descriptions.current).then(({guess,question})=>{
      if(guessSerial.current!==request||doneGuard.current===targetRound)return;
      if(guess&&matchTabooGuess(card,guess)){
-      emit("Your guess was "+JSON.stringify(guess)+". The game has VERIFIED it correct. Celebrate briefly.");
-      correct();
+      correct(guess);
      }else{
       const spoken=guess?"我猜是 "+guess+"。":question||"可以再給我一點線索嗎？";
       setMessage(friend.name+"："+spoken+(guess&&question?" "+question:""));
