@@ -47,7 +47,6 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<LearnPage/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/circle" element={<BooksPage/>}/>
-<Route path="/books" element={<Navigate to="/circle" replace/>}/>
 <Route path="/games" element={<AppChrome product="home"><CrewPlayHubPage/></AppChrome>}/>
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><FriendGomokuPage/></AppChrome>}/>
 <Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
@@ -62,4 +61,4 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
 <Route path="/fortune" element={<FortuneLayout/>}><Route index element={<FortuneHomePage/>}/><Route path="history" element={<FortuneHistoryPage/>}/><Route path="reading" element={<FortuneReadingPage/>}/></Route>
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></RouteErrorBoundary>{!pathname.endsWith("/live")&&!pathname.startsWith("/books")&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}</>}
+</Routes></Suspense></RouteErrorBoundary>{!pathname.endsWith("/live")&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}</>}

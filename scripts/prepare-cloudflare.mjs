@@ -116,13 +116,10 @@ for(const locale of ["zh","en"]){
 }
 
 // The invite-only /circle board remains noindex and separate from Crew SSG.
-// Keep the legacy /books shell so bookmarked links redirect via React Router.
 const circleHtml=viteHtml.replace("<title>Crew</title>","<title>媽媽友小圈圈｜交流板</title>");
 if(!circleHtml.includes('name="robots" content="noindex,follow"'))throw Error("Circle pilot must remain noindex");
-for(const path of ["circle","books"]){
- mkdirSync(join(out,path),{recursive:true});
- writeFileSync(join(out,path,"index.html"),circleHtml);
-}
+mkdirSync(join(out,"circle"),{recursive:true});
+writeFileSync(join(out,"circle","index.html"),circleHtml);
 
 // Preview UI locales intentionally have NO SEO alternate, canonical, or sitemap.
 // Cloudflare Pages rewrites their deep links to locale-specific noindex app shells.
