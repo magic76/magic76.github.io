@@ -11,7 +11,7 @@ test("all twelve Mira ages have distinct standalone full-body production tasks",
  assert.deepEqual(queue.tasks.map(x=>x.age),ages);
  assert.equal(new Set(queue.tasks.map(x=>x.prompt)).size,12);
  for(const task of queue.tasks){
-  assert.equal(task.reviewStatus,"not-generated",String(task.age));
+  assert.ok(["not-generated","needs-review","approved"].includes(task.reviewStatus),String(task.age));
   assert.deepEqual(task.targetPixels,[900,1200]);
   assert.equal(task.aspectRatio,"3:4");
   assert.equal(task.maxBytes,350000);
@@ -19,9 +19,9 @@ test("all twelve Mira ages have distinct standalone full-body production tasks",
   assert.match(task.prompt,/BOTH complete shoes visible/);
   assert.match(task.prompt,/NO text, titles, letters, numerals, panels, grids/);
   assert.match(task.prompt,/OFFICIAL six age-specific Mira portrait files/);
-  assert.equal(task.qc.sourceIsStandalone,false);
-  assert.equal(task.qc.faceConsistent,false);
-  assert.equal(task.qc.webpValidated,false);
+  if(task.reviewStatus==="approved"){
+   for(const [key,value] of Object.entries(task.qc))assert.equal(value,true,task.age+": "+key);
+  }
  }
 });
 
