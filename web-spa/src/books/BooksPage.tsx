@@ -1,27 +1,39 @@
 import {useEffect,useMemo,useState} from "react";
 import "./books.css";
 
-type Kind="swap"|"sell"|"give"|"want";
+type Kind="swap"|"sell"|"give"|"want"|"share"|"ask";
+type Category="books"|"toys"|"school"|"clothes"|"events"|"life"|"other";
 type Status="open"|"reserved"|"closed";
-type Post={id:string;author:string;title:string;description:string;kind:Kind;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number};
+type Post={id:string;author:string;title:string;description:string;kind:Kind;category?:Category;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number};
 type Comment={id:string;postId:string;author:string;message:string;createdAt:string};
-type Form={author:string;title:string;description:string;kind:Kind;price:string};
+type Form={author:string;title:string;description:string;kind:Kind;category:Category;price:string};
 const STORAGE="crew_books_preview_v1";
 const OWNER_STORAGE="crew_books_owner_tokens_v1";
 const INVITE_STORAGE="crew_books_invite";
 const NAME_STORAGE="crew_books_nickname";
-const EMPTY:Form={author:"",title:"",description:"",kind:"swap",price:""};
+const EMPTY:Form={author:"",title:"",description:"",kind:"share",category:"life",price:""};
 const KINDS:{key:"all"|Kind;label:string}[]=[
- {key:"all",label:"全部"},{key:"swap",label:"交換"},{key:"sell",label:"出售"},
+ {key:"all",label:"全部"},{key:"share",label:"分享"},{key:"ask",label:"詢問"},
+ {key:"swap",label:"交換"},{key:"sell",label:"出售"},
  {key:"give",label:"贈送"},{key:"want",label:"徵求"}
 ];
-const names:Record<Kind,string>={swap:"交換",sell:"出售",give:"贈送",want:"徵求"};
+const CATEGORIES:{key:"all"|Category;label:string}[]=[
+ {key:"all",label:"所有主題"},{key:"books",label:"書籍"},{key:"toys",label:"玩具"},
+ {key:"school",label:"學用品"},{key:"clothes",label:"衣物制服"},{key:"events",label:"活動情報"},
+ {key:"life",label:"育兒生活"},{key:"other",label:"其他"}
+];
+const names:Record<Kind,string>={share:"分享",ask:"詢問",swap:"交換",sell:"出售",give:"贈送",want:"徵求"};
+const categoryNames:Record<Category,string>={books:"書籍",toys:"玩具",school:"學用品",clothes:"衣物制服",events:"活動情報",life:"育兒生活",other:"其他"};
+const topicOf=(post:Post):Category=>post.category&&categoryNames[post.category]?post.category:"books";
+const isDiscussion=(kind:Kind)=>kind==="share"||kind==="ask";
 const statuses:Record<Status,string>={open:"開放中",reserved:"已保留",closed:"已完成"};
 const now=new Date().toISOString();
 const seed:Post[]=[
- {id:"sample-1",author:"安安媽媽",title:"英文繪本 3 本",description:"孩子長大了，想換適合小學中年級的英文故事書。書況良好。",kind:"swap",price:null,status:"open",createdAt:now,commentCount:2},
- {id:"sample-2",author:"晴晴媽媽",title:"兒童百科全書 5 冊",description:"家中書櫃整理，一套 5 本，內頁乾淨，可以面交。",kind:"sell",price:300,status:"open",createdAt:now,commentCount:1},
- {id:"sample-3",author:"Emma 媽媽",title:"徵求適合小二的橋梁書",description:"想找小學二年級能自己閱讀的中文橋梁書，歡迎推薦或交換。",kind:"want",price:null,status:"open",createdAt:now,commentCount:0}
+ {id:"sample-1",author:"安安媽媽",title:"英文繪本 3 本",description:"孩子長大了，想換適合小學中年級的英文故事書。書況良好。",kind:"swap",category:"books",price:null,status:"open",createdAt:now,commentCount:2},
+ {id:"sample-2",author:"晴晴媽媽",title:"兒童百科全書 5 冊",description:"家中書櫃整理，一套 5 本，內頁乾淨，可以面交。",kind:"sell",category:"books",price:300,status:"open",createdAt:now,commentCount:1},
+ {id:"sample-3",author:"Emma 媽媽",title:"親子週末活動推薦",description:"這週末有推薦的小朋友戶外活動嗎？想找適合低年級的行程。",kind:"ask",category:"events",price:null,status:"open",createdAt:now,commentCount:0},
+ {id:"sample-4",author:"小悠媽媽",title:"學校運動會用品分享",description:"找到很實用的準備清單，歡迎大家補充自己的經驗。",kind:"share",category:"school",price:null,status:"open",createdAt:now,commentCount:0},
+ {id:"sample-5",author:"樂樂媽媽",title:"拼圖和積木想送給需要的小朋友",description:"整理出幾盒孩子長大後少玩的玩具，希望找到願意繼續玩的家庭。",kind:"give",category:"toys",price:null,status:"open",createdAt:now,commentCount:0}
 ];
 const examples:Comment[]=[
  {id:"sample-c1",postId:"sample-1",author:"小悠媽媽",message:"想請問這三本大概適合幾歲呢？",createdAt:now},
@@ -40,7 +52,8 @@ async function api(invite:string,body?:object,postId?:string) {
  let result:any={};try{result=await response.json()}catch{throw Error("伺服器回應異常")}
  if(!response.ok) {
   const messages:Record<string,string>={
-   BOOKS_NOT_CONFIGURED:"正式交換板尚未設定資料庫與邀請碼，可先使用示範模式。",
+   BOOKS_NOT_CONFIGURED:"正式交流板尚未設定資料庫與邀請碼，可先使用示範模式。",
+   BOOKS_SCHEMA_UPGRADE_REQUIRED:"交流板資料庫尚未升級，請管理員先執行 0002_circle_topics.sql。",
    INVITE_REQUIRED:"邀請碼不正確，請跟群組管理員確認。",
    BOOKS_DATABASE_ERROR:"資料庫暫時無法使用，請稍後再試。",
    ORIGIN_REJECTED:"安全檢查失敗，請重新開啟本網站。",
@@ -51,7 +64,7 @@ async function api(invite:string,body?:object,postId?:string) {
  }
  return result;
 }
-function BookArt({kind}:{kind:Kind}){return <div className={"books-art books-art-"+kind} aria-hidden="true"><span>{kind==="want"?"?":kind==="give"?"♡":kind==="sell"?"↗":"↔"}</span><span className="books-art-book">▰ ▰ ▰</span></div>}
+function CircleArt({kind,category}:{kind:Kind;category:Category}){const symbol:Record<Category,string>={books:"冊",toys:"✳",school:"筆",clothes:"衣",events:"日",life:"話",other:"＋"};return <div className={"books-art books-art-"+kind+" books-art-topic-"+category} aria-hidden="true"><span>{symbol[category]}</span><span className="books-art-book">{names[kind]}</span></div>}
 export default function BooksPage(){
  const [demo,setDemo]=useState(true);
  const [invite,setInvite]=useState(()=>{try{return sessionStorage.getItem(INVITE_STORAGE)||""}catch{return ""}});
@@ -62,6 +75,7 @@ export default function BooksPage(){
  const [comments,setComments]=useState<Comment[]>(()=>readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:seed,comments:examples}).comments);
  const [selected,setSelected]=useState<string|null>(null);
  const [filter,setFilter]=useState<"all"|Kind>("all");
+ const [categoryFilter,setCategoryFilter]=useState<"all"|Category>("all");
  const [query,setQuery]=useState("");
  const [showForm,setShowForm]=useState(false);
  const [form,setForm]=useState<Form>(EMPTY);
@@ -71,7 +85,7 @@ export default function BooksPage(){
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
  useEffect(()=>{
-  const previous=document.title;document.title="書友交換板｜媽媽友的小小交流角落";
+  const previous=document.title;document.title="媽媽友小圈圈｜交流板";
   const meta=document.querySelector('meta[name="robots"]');
   const before=meta?.getAttribute("content")||"";
   meta?.setAttribute("content","noindex,nofollow");
@@ -86,8 +100,8 @@ export default function BooksPage(){
   .finally(()=>{if(alive)setLoading(false)});
   return()=>{alive=false};
  },[invite]);
- const visible=useMemo(()=>posts.filter(post=>(filter==="all"||post.kind===filter)&&
-  (post.title+" "+post.description+" "+post.author).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,filter,query]);
+ const visible=useMemo(()=>posts.filter(post=>(filter==="all"||post.kind===filter)&&(categoryFilter==="all"||topicOf(post)===categoryFilter)&&
+  (post.title+" "+post.description+" "+post.author+" "+categoryNames[topicOf(post)]).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,filter,categoryFilter,query]);
  const selectedPost=selected?posts.find(p=>p.id===selected):undefined;
  async function refreshLive(code=invite){const data=await api(code);setPosts(data.posts);}
  async function join(event:React.FormEvent){event.preventDefault();const code=inviteInput.trim();if(!code)return;
@@ -107,14 +121,14 @@ export default function BooksPage(){
   setBusy(true);
   try{
    const price=form.kind==="sell"?Number(form.price):null;
-   if(demo){const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
+   if(demo){const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,category:form.category,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
     setPosts(current=>[post,...current]);}
    else {
-    const result=await api(invite,{action:"post",author,title,description,kind:form.kind,price});
+    const result=await api(invite,{action:"post",author,title,description,kind:form.kind,category:form.category,price});
     const tokens=ownerTokens();tokens[result.id]=result.ownerToken;localStorage.setItem(OWNER_STORAGE,JSON.stringify(tokens));
     await refreshLive();
    }
-   setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"刊登成功，媽媽友們都能看見！");
+   setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setCategoryFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"發布成功，媽媽友們都能看見！");
   }catch(e){setNotice(e instanceof Error?e.message:"刊登失敗")}
   finally{setBusy(false)}
  }
