@@ -27,5 +27,6 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
  assert.match(page,/friendGuesses\(card,value\)/);
  assert.match(page,/matchTabooGuess\(card,value\)/);
  assert.match(page,/onSubmit=\{handleSubmit\}/);
- assert.match(page,/can/); // stable source presence even if translated copy changes
+ assert.match(page,/setRevealed\(true\)/);
+ assert.match(page,/跳過這題/);
 });
