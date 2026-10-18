@@ -250,7 +250,7 @@ export default function BooksPage(){
       const own=demo||Boolean(ownerTokens()[post.id]);
       const expanded=selected===post.id;
       return <article className="books-card" key={post.id}>
-       <div className="books-card-media">{!demo&&Boolean(post.photoIds?.length)?<CirclePhotoStrip invite={invite} postId={post.id} photoIds={post.photoIds||[]}/>:<CircleArt kind={post.kind} category={topicOf(post)}/>}{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
+       <div className="books-card-media"><CircleArt kind={post.kind} category={topicOf(post)}/>{!demo&&Boolean(post.photoIds?.length)&&<CirclePhotoStrip invite={invite} postId={post.id} photoIds={post.photoIds||[]}/>}{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
        <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className="books-category">{categoryNames[topicOf(post)]}</span><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{isDiscussion(post.kind)?post.status==="closed"?"已結束":"交流中":statuses[post.status]}</span></div>
         <h3>{post.title}</h3><p>{post.description||"歡迎留言詢問更多資訊。"}</p>
         {post.kind==="sell"&&<div className="books-price">NT$ {post.price?.toLocaleString("zh-TW")}</div>}
