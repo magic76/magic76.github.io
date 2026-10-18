@@ -61,7 +61,7 @@ async function jsonAt(url:string,signal:AbortSignal):Promise<unknown>{
 }
 /** Feed location can point to R2/CDN later without shipping a new JS bundle. */
 const V2_INDEX="/features/teacher/shorts/v2/index.json";
-const V2_PAGE=/^\\/features\\/teacher\\/shorts\\/v2\\/pages\\/\\d{5}\\.json$/;
+const V2_PAGE=new RegExp("^/features/teacher/shorts/v2/pages/[0-9]{5}[.]json$");
 type ShortArchiveIndex={schema:2;kind:"crew-short-index";total:number;pages:Array<{url:string;count:number}>;lookup:Record<string,string>};
 async function fetchArchiveIndex(signal:AbortSignal):Promise<ShortArchiveIndex>{
  const value=await jsonAt(V2_INDEX,signal) as Partial<ShortArchiveIndex>;
@@ -102,7 +102,7 @@ export async function fetchShortsFeed(signal:AbortSignal):Promise<ShortFeed>{
 }
 /** Resolve historic Shorts deep links in O(1) page fetches, not a scan of all past posts. */
 export async function fetchShortsPost(postId:string,friendId:string,signal:AbortSignal):Promise<ShortPost|null>{
- if(!/^[a-zA-Z0-9][\\w-]{2,95}$/.test(postId)||!CREW_FRIEND_IDS.has(friendId))return null;
+ if(!/^[a-zA-Z0-9][A-Za-z0-9_-]{2,95}$/.test(postId)||!CREW_FRIEND_IDS.has(friendId))return null;
  try{
   const index=await fetchArchiveIndex(signal);
   const url=index.lookup[postId];
