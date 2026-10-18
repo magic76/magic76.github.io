@@ -22,7 +22,7 @@ test("even human-approved entries require a real standalone WebP file",()=>{
  const first=copy.character.fullBodyPhotoPlan[0];
  first.status="approved";
  first.review={onePerson:true,sameIdentity:true,ageAppearance:true,fullBodyAndFeet:true,noTextOrCollage:true};
- assert.match(check(root,copy).join(" "),/full-body asset missing/);
+ assert.match(check(path.join(root,"tests"),copy).join(" "),/full-body asset missing/);
 });
 
 test("rejects non-WebP images as official stage photographs",()=>{
