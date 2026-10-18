@@ -40,7 +40,7 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.match(loader,/fetchShortsPost/);
  assert.match(loader,/crew-short-index/);
  assert.match(page,/loadNextPage/);
- assert.match(page,/feed\\?\\.nextPage/);
+ assert.ok(page.includes("feed?.nextPage"));
  assert.doesNotMatch(loader,/Date\.parse\(candidate\.publishedAt\)>nowMs/);
  assert.doesNotMatch(page,/import .*posts\.json/);
  assert.doesNotMatch(loader,/import .*posts\.json/);
