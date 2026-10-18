@@ -1,7 +1,9 @@
 {
   "version": 1,
   "include": [
-    "/api/usage/*"
+    "/api/usage/*",
+    "/api/feedback",
+    "/api/feedback/*"
   ],
   "exclude": []
 }
