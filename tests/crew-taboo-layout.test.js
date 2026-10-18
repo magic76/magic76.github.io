@@ -24,7 +24,7 @@ test("Taboo keeps offline gameplay while presenting rounds and outcomes",()=>{
 
 test("Taboo distinguishes guessing from describing and retains keyboard input",()=>{
  assert.match(page,/mode==="describe"/);
- assert.match(page,/friendGuesses\(card,value\)/);
+ assert.match(page,/friendGuesses\(card,descriptions\.current\.join\(" "\)\)/);
  assert.match(page,/matchTabooGuess\(card,value\)/);
  assert.match(page,/onSubmit=\{handleSubmit\}/);
  assert.match(page,/setRevealed\(true\)/);
@@ -32,9 +32,10 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
 });
 
 test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{
- assert.match(page,/generateTabooGuess\(descriptions\.current\)/);
+ assert.match(page,/generateTabooGuess\(descriptions\.current,previousGuesses\.current\)/);
  assert.match(page,/guessSerial\.current!==request/);
  assert.match(page,/matchTabooGuess\(card,guess\)/);
  assert.match(page,/if\(!geminiKey\(\)\)/);
+ assert.match(page,/tabooFollowUp\(freshGuess,question,descriptions\.current\.length\)/);
  assert.doesNotMatch(page,/onReply=\{onReply\}/);
 });
