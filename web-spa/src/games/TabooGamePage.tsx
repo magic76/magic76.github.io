@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
-import {TABOO_CARDS,tabooViolation,friendGuesses,matchTabooGuess,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
+import {TABOO_CARDS,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 
 type Mode="describe"|"guess";
@@ -33,18 +33,19 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const doneGuard=useRef(-1);
  const guessSerial=useRef(0);
  const descriptions=useRef<string[]>([]);
+ const previousGuesses=useRef<string[]>([]);
  const card=deck[round];
  const emit=useCallback((text:string)=>setCue(old=>({id:old.id+1,text})),[]);
  const start=()=>{
   setDeck(drawDeck(level));setRound(0);setTimeLeft(60);setDeadline(Date.now()+60000);
   setSkips(3);setScore(0);setAnswer("");setMessage("");setRevealed(false);
-  ++guessSerial.current;descriptions.current=[];setGuessing(false);
+  ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   setVoiceSamples([]);setFeedback([]);setHistory([]);doneGuard.current=-1;setPhase("playing");
  };
  const advance=useCallback((reason:RoundResult)=>{
   if(doneGuard.current===round)return;
   doneGuard.current=round;
-  ++guessSerial.current;descriptions.current=[];setGuessing(false);
+  ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   if(deck[round])setHistory(old=>[...old,{word:deck[round].word,result:reason}]);
   setAnswer("");setRevealed(false);
   if(round===4){setPhase("done");return;}
@@ -74,24 +75,26 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
    if(bad){violate(bad);return;}
    if(guessing)return;
    if(!geminiKey()){
-    if(friendGuesses(card,value)){setMessage("離線關鍵字判定："+friend.name+" 猜到了！");correct();}
-    else setMessage("離線練習：增加更多描述，或在朋友猜中時手動確認。");
+    descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
+    if(friendGuesses(card,descriptions.current.join(" "))){setMessage("離線關鍵字判定："+friend.name+" 猜到了！");correct();}
+    else setMessage("離線練習："+tabooFollowUp("","",descriptions.current.length)+" 或使用「朋友已猜中」確認。");
    }else{
     const request=++guessSerial.current;
     const targetRound=round;
     descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
     setGuessing(true);
     setMessage(friend.name+" 正在思考你的描述…");
-    void generateTabooGuess(descriptions.current).then(({guess,question})=>{
+    void generateTabooGuess(descriptions.current,previousGuesses.current).then(({guess,question})=>{
      if(guessSerial.current!==request||doneGuard.current===targetRound)return;
      if(guess&&matchTabooGuess(card,guess)){
       correct(guess);
      }else{
-      const spoken=guess?"我猜是 "+guess+"。":question||"可以再給我一點線索嗎？";
-      setMessage(friend.name+"："+spoken+(guess&&question?" "+question:""));
-      emit("Your verified guess was "+JSON.stringify(guess||"no guess")+
-       ". It was NOT correct. "+(question?"Ask "+JSON.stringify(question):"Ask for another clue.")+
-       " Do not mention the answer or award points.");
+      const freshGuess=guess&&!previousGuesses.current.includes(guess)?guess:"";
+      if(guess&&!previousGuesses.current.includes(guess))previousGuesses.current=[...previousGuesses.current,guess].slice(-5);
+      const spoken=tabooFollowUp(freshGuess,question,descriptions.current.length);
+      setMessage(friend.name+"："+spoken);
+      emit("The game has NOT verified a correct answer. Say exactly this ONE English reply, without adding a question: "+
+       JSON.stringify(spoken)+". Then wait for the next learner clue. Never award points or reveal the secret.");
      }
     }).catch(()=>{
      if(guessSerial.current===request&&doneGuard.current!==targetRound)
@@ -151,7 +154,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const generate=async()=>{
   if(phase!=="playing"||!card||!geminiKey()||busy)return;
   setBusy(true);
-  ++guessSerial.current;descriptions.current=[];setGuessing(false);
+  ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   try{
    const created=await generateTabooCard(level,deck.map(x=>x.word));
    if(doneGuard.current===round)return;
