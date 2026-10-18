@@ -55,6 +55,41 @@ function toCards(rows:[string,string,string,string,string][],level:TabooLevel):T
  });
 }
 export const TABOO_CARDS:TabooCard[]=[...toCards(easy,"easy"),...toCards(medium,"medium")];
+
+/** Persistent per-difficulty shuffle bag. Consume the entire deck before recycling; keep boundary cards apart. */
+export type TabooBagState={remaining:string[];recent:string[]};
+export function drawTabooBag(level:TabooLevel,saved:unknown,random:()=>number=Math.random):{cards:TabooCard[];state:TabooBagState}{
+ const pool=TABOO_CARDS.filter(card=>card.level===level);
+ const byWord=new Map(pool.map(card=>[card.word,card]));
+ const raw=saved&&typeof saved==="object"&&!Array.isArray(saved)?saved as Partial<TabooBagState>:{};
+ const valid=(items:unknown):string[]=>{
+  if(!Array.isArray(items))return [];
+  return [...new Set(items.filter((word):word is string=>typeof word==="string"&&byWord.has(word)))];
+ };
+ let remaining=valid(raw.remaining);
+ const recent=valid(raw.recent).slice(-10);
+ const cards:TabooCard[]=[];
+ const shuffle=(words:string[]):string[]=>{
+  for(let i=words.length-1;i>0;i--){
+   const j=Math.min(i,Math.max(0,Math.floor(random()*(i+1))));
+   [words[i],words[j]]=[words[j],words[i]];
+  }
+  return words;
+ };
+ while(cards.length<Math.min(5,pool.length)){
+  if(!remaining.length){
+   const selected=new Set(cards.map(card=>card.word));
+   const candidates=pool.map(card=>card.word).filter(word=>!selected.has(word));
+   const preferred=candidates.filter(word=>!recent.includes(word));
+   const deferred=candidates.filter(word=>recent.includes(word));
+   remaining=[...shuffle(preferred),...shuffle(deferred)];
+  }
+  const word=remaining.shift();
+  if(word&&!cards.some(card=>card.word===word))cards.push(byWord.get(word)!);
+ }
+ return {cards,state:{remaining,recent:[...recent,...cards.map(card=>card.word)].slice(-10)}};
+}
+
 const clean=(s:string)=>s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g," ").replace(/\s+/g," ");
 export function containsTerm(text:string,term:string):boolean{
  return (" "+clean(text)+" ").includes(" "+clean(term)+" ");
