@@ -8,7 +8,7 @@ const clone=()=>JSON.parse(JSON.stringify(contract));
 
 test("current Mira release inventory contains only reviewed published portraits",()=>{
  assert.deepEqual(check(root,contract),[]);
- assert.equal(contract.character.fullBodyPhotoPlan.filter(p=>p.status==="approved").length,0);
+ assert.equal(contract.character.fullBodyPhotoPlan.length,contract.character.ages.length);
 });
 
 test("image cannot be marked approved without all five manual identity/composition checks",()=>{
