@@ -4,15 +4,15 @@ const fs=require("node:fs");
 const path=require("node:path");
 const {stripTypeScriptTypes}=require("node:module");
 
-function moduleFromTs(relative){
+function moduleFromTs(relative,keyPresent=false){
  const filename=path.join(__dirname,"..",relative);
  const source=fs.readFileSync(filename,"utf8");
  const withoutImport=source.replace(/^import \{ensureCore,geminiKey\} from "\.\.\/lib\/runtime";\r?\n/m,"");
  const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
-  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard"];
- return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>false);
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess"];
+ return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>keyPresent);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
 const taboo=moduleFromTs("web-spa/src/games/tabooEngine.ts");
@@ -70,4 +70,21 @@ test("Gemini Taboo card input gets validated before it reaches game rules",()=>{
  assert.ok(taboo.validGeneratedCard(raw,"easy"));
  assert.equal(taboo.validGeneratedCard({...raw,clues:["It creates light","It is useful"]},"easy"),null);
  assert.equal(taboo.validGeneratedCard({...raw,banned:["lantern","night","glow"]},"easy"),null);
+});
+
+test("AI guesser gets only clues and the game engine verifies the answer",async()=>{
+ const game=moduleFromTs("web-spa/src/games/tabooEngine.ts",true);
+ const previous=global.window;
+ let prompt="";
+ global.window={CrewAI:{call:async text=>{
+  prompt=text;
+  return JSON.stringify({guess:"banana",question:"Is it a food?"});
+ }}};
+ try{
+  const reply=await game.generateTabooGuess(["It is long and yellow. You peel it."]);
+  assert.equal(reply.guess,"banana");
+  assert.match(prompt,/It is long and yellow/);
+  assert.equal(game.matchTabooGuess({word:"banana"},reply.guess),true);
+  assert.equal(game.matchTabooGuess({word:"apple"},reply.guess),false);
+ }finally{global.window=previous}
 });
