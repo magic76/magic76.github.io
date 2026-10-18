@@ -73,16 +73,22 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 .crew-voice-dock .live-manual-interrupt{margin:0;animation:none;box-shadow:none}
 .crew-voice-dock .live-manual-interrupt:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .crew-voice-dock .live-callbar{margin:0;min-width:0}
-.crew-voice-dock .live-audio-settings{margin-top:0}
+.crew-voice-dock .live-audio-settings{margin-top:0;min-width:0;padding:8px 12px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface-alt,#f7f8fa)}
+.crew-voice-dock .live-volume{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:0;min-width:0}
+.crew-voice-dock .live-volume-label,.crew-voice-dock .live-volume-value{font-size:12px;font-weight:700;white-space:nowrap}
+.crew-voice-dock .live-volume input{display:block;width:100%;min-width:0;margin:0;accent-color:var(--accent,#6255d6)}
+.crew-voice-dock .live-volume-value{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.crew-voice-dock .live-audio-hint{display:none;color:var(--muted,#667085);font-size:10px;line-height:1.35;text-align:left}
 @media(max-width:640px){
- body.teacher-theme.session-page .live-stage{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+ body.teacher-theme.session-page .live-stage{padding-bottom:calc(210px + env(safe-area-inset-bottom,0px))}
  body.teacher-theme.session-page .crew-voice-dock{position:fixed;z-index:55;bottom:0;left:0;right:0;box-sizing:border-box;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));background:var(--surface,#fff);border-top:1px solid var(--line,#ddd);box-shadow:0 -8px 28px rgba(20,20,40,.08)}
  body.teacher-theme.session-page .crew-voice-dock-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center}
  body.teacher-theme.session-page .crew-voice-dock .live-manual-interrupt{min-height:48px;font-size:14px}
  body.teacher-theme.session-page .crew-voice-dock .live-callbar{grid-template-columns:1fr;gap:4px}
  body.teacher-theme.session-page .crew-voice-dock .live-timer{display:none}
  body.teacher-theme.session-page .crew-voice-dock .live-tool-btn{min-height:48px;width:100%}
- body.teacher-theme.session-page .crew-voice-dock .live-audio-settings{display:none}
+ body.teacher-theme.session-page .crew-voice-dock .live-audio-settings{display:block}
+ body.teacher-theme.session-page .crew-voice-dock .live-audio-hint{display:block;margin-top:4px}
 }
 
 .crew-voice-dock .crew-voice-end{min-height:48px;margin:0}

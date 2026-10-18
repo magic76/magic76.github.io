@@ -22,6 +22,13 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
     {!prominentInterrupt&&<button className="live-tool-btn" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"}>{interruptLabel}</button>}
    </div>
   </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?"整理中…":"結束"}</button></div>
-  <details className="live-audio-settings"><summary>播放音量 · {live.volume}%</summary><label className="live-volume"><input type="range" min="0" max="100" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/><span>{live.volume}%</span></label></details></div>}
+  <div className="live-audio-settings" role="group" aria-label="AI 播放音量">
+   <label className="live-volume">
+    <span className="live-volume-label">AI 音量</span>
+    <input type="range" min="0" max="100" step="1" aria-label="調整 AI 播放音量" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
+    <span className="live-volume-value">{live.volume}%</span>
+   </label>
+   <small className="live-audio-hint">若手機音量鍵顯示通話音量，可在這裡調整 AI 聲音。</small>
+  </div></div>}
  </>;
 }
