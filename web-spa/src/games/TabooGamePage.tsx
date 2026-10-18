@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
-import {TABOO_CARDS,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
+import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 
 type Mode="describe"|"guess";
@@ -8,11 +8,12 @@ type Phase="ready"|"playing"|"done";
 type RoundResult="correct"|"violation"|"skip"|"timeout";
 const resultLabels:Record<RoundResult,string>={correct:"答對 +10",violation:"禁用字 -5",skip:"已跳過",timeout:"時間到"};
 function drawDeck(level:TabooLevel):TabooCard[]{
- const cards=TABOO_CARDS.filter(c=>c.level===level).slice();
- for(let i=cards.length-1;i>0;i--){
-  const j=Math.floor(Math.random()*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];
- }
- return cards.slice(0,5);
+ const key="crew_taboo_shuffle_bag_v1_"+level;
+ let saved:unknown=null;
+ try{saved=JSON.parse(localStorage.getItem(key)||"null")}catch{/* Private mode or damaged state */}
+ const draw=drawTabooBag(level,saved);
+ try{localStorage.setItem(key,JSON.stringify(draw.state))}catch{/* Still playable without persistence */}
+ return draw.cards;
 }
 export function TabooGamePage(){
  const {friend,choose}=useMiniFriend();
