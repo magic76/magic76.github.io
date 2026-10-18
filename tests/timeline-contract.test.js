@@ -2,10 +2,10 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const contract=require("../contracts/crew-timeline/v1.json");
-test("Timeline stays a third, distinct role with six chronological age stages",()=>{
+test("Timeline stays a third, distinct role with twelve chronological age stages",()=>{
  assert.equal(contract.roleKind,"timeline");
  assert.equal(contract.character.id,"mira");
- assert.deepEqual(contract.character.ages,[7,16,25,40,55,70]);
+ assert.deepEqual(contract.character.ages,[7,10,13,16,19,22,25,35,40,50,55,70]);
  assert.deepEqual(contract.character.periods.map(p=>p.age),contract.character.ages);
  assert.ok(contract.rules.isolation.includes("friend"));
 });
