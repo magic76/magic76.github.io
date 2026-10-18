@@ -7,6 +7,7 @@ import{friendMemoryEnabled,setFriendMemoryEnabled}from"../friends/friendMemory";
 import{downloadBackup,importBackup}from"../lib/backup";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 import {BuildVersion} from "../components/BuildVersion";
+import {FeedbackLauncher} from "../feedback/FeedbackWidget";
 import {Link} from "react-router-dom";
 
 export function SettingsPage(){
@@ -47,6 +48,7 @@ export function SettingsPage(){
  </section>
  <section className="section panel"><div className="section-head"><h2>{t("backup.title")}</h2><small>{t("backup.tagline")}</small></div><p className="meta">{t("backup.intro")}</p><div className="actions"><button className="btn secondary" disabled={backupBusy} onClick={async()=>{setBackupBusy(true);setBackupStatus("");try{const r=await downloadBackup();setBackupStatus(t("backup.exportSuccess",{stories:r.stories,keys:r.keys}))}catch(_){setBackupStatus(t("backup.exportError"))}finally{setBackupBusy(false)}}}>{t("backup.export")}</button><label className={"btn secondary"+(backupBusy?" disabled":"")}>{t("backup.import")}<input type="file" accept=".json,application/json" hidden disabled={backupBusy} onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;setBackupBusy(true);setBackupStatus("");try{const r=await importBackup(file);setBackupStatus(t("backup.importSuccess",{stories:r.stories,entries:r.entries,skipped:r.skipped}))}catch(err){setBackupStatus(t("backup.importError",{reason:err instanceof Error?err.message:t("backup.importFallback")}))}finally{setBackupBusy(false)}}}/></label></div>{backupStatus&&<p className="meta" role="status">{backupStatus}</p>}<p className="meta">{t("backup.footnote")}</p></section>
  <p className="meta" style={{marginTop:16}}><Link to="/privacy">{english?"Privacy & data preferences":"隱私與資料偏好"} →</Link></p>
+ <section className="section panel"><div className="section-head"><h2>{english?"Feedback & suggestions":"意見回饋與功能建議"}</h2><small>{english?"Anonymous · No login required":"匿名提交 · 不必登入"}</small></div><p className="meta">{english?"Report an issue or share an idea. No API key or conversation is uploaded.":"回報問題或提出新功能想法，不會上傳 Gemini Key 或對話內容。"}</p><FeedbackLauncher product="site"/></section>
  <BuildVersion/>
 </>;
 }

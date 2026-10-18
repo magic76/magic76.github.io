@@ -11,6 +11,7 @@ const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.Sto
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>import("./fortune/LivePage").then(m=>({default:m.FortuneLivePage})));
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
+const FeedbackAdminPage=lazy(()=>import("./feedback/FeedbackAdminPage").then(m=>({default:m.FeedbackAdminPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
 const TimelineLivePage=lazy(()=>import("./timeline/TimelineLivePage").then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>import("./friends/FriendLivePage").then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>import("./games/FriendGomokuPage").then(m=>({default:m.FriendGomokuPage})));
@@ -44,6 +45,7 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
+<Route path="/admin/feedback" element={<FeedbackAdminPage/>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<LearnPage/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/games" element={<AppChrome product="home"><CrewPlayHubPage/></AppChrome>}/>
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><FriendGomokuPage/></AppChrome>}/>

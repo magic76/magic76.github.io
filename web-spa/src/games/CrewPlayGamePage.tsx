@@ -20,6 +20,7 @@ import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {crewGames} from "./CrewPlayHubPage";
 import "./crewPlay.css";
+import {FeedbackRating} from "../feedback/FeedbackWidget";
 
 type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
 const isGame=(value:string|undefined):value is GameKind=>["connect4","reversi","twenty-questions","mystery"].includes(value||"");
@@ -54,6 +55,7 @@ export function CrewPlayGamePage(){
     </label>
    </section>:null}
    <CrewPlaySession key={gameId+":"+friend.id} kind={gameId} friend={friend} english={english} round={round} nextRound={()=>setRound(x=>x+1)} onChangeFriend={changeFriend}/>
+   <FeedbackRating product="play" roleId={friend.id}/>
   </div>
  </main>;
 }

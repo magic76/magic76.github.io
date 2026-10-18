@@ -3,6 +3,7 @@ import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {useEffect,useMemo,useRef,useState} from "react";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
+import {FeedbackLauncher} from "../feedback/FeedbackWidget";
 import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
@@ -136,6 +137,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
+    <div style={{display:"flex",justifyContent:"center",margin:"10px 0"}}><FeedbackLauncher product="friend" roleId={friend.id}/></div>
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>

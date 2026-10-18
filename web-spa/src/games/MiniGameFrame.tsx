@@ -9,6 +9,7 @@ import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
 import "./miniGames.css";
+import {FeedbackRating} from "../feedback/FeedbackWidget";
 
 export type MiniKind="1a2b"|"taboo";
 export type MiniFriend=ReturnType<typeof getCrewFriend>;
@@ -42,6 +43,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
     </label>
    </section>
    {children}
+   <FeedbackRating product="play" roleId={friend.id}/>
   </div>
  </main>;
 }
