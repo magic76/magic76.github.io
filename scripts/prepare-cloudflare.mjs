@@ -115,12 +115,14 @@ for(const locale of ["zh","en"]){
  }
 }
 
-// The invite-only /books pilot must not inherit the indexable home-page SSG
-// shell or metadata. Use a dedicated, non-indexed SPA entry instead.
-const booksHtml=viteHtml.replace("<title>Crew</title>","<title>書友交換板｜媽媽友的小小交流角落</title>");
-if(!booksHtml.includes('name="robots" content="noindex,follow"'))throw Error("Book pilot must remain noindex");
-mkdirSync(join(out,"books"),{recursive:true});
-writeFileSync(join(out,"books","index.html"),booksHtml);
+// The invite-only /circle board remains noindex and separate from Crew SSG.
+// Keep the legacy /books shell so bookmarked links redirect via React Router.
+const circleHtml=viteHtml.replace("<title>Crew</title>","<title>媽媽友小圈圈｜交流板</title>");
+if(!circleHtml.includes('name="robots" content="noindex,follow"'))throw Error("Circle pilot must remain noindex");
+for(const path of ["circle","books"]){
+ mkdirSync(join(out,path),{recursive:true});
+ writeFileSync(join(out,path,"index.html"),circleHtml);
+}
 
 // Preview UI locales intentionally have NO SEO alternate, canonical, or sitemap.
 // Cloudflare Pages rewrites their deep links to locale-specific noindex app shells.
