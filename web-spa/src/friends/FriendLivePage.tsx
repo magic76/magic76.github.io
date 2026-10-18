@@ -16,6 +16,7 @@ import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./f
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
+import {isShortsHook,shortsHookLabel,shortsOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 
 /**
@@ -47,6 +48,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
+ const urlHook=params.get("hook");
+ const shortsHook=shortsPost&&isShortsHook(urlHook)?urlHook:null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return intent==="speak"&&saved==="natural"?"bilingual":saved});
@@ -60,7 +63,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system,languageDirective,
   openingPrompt:languageDirective+"\n"+(shortsPost
-   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."
+   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
     " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+"\n"+languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
@@ -68,7 +71,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
-     if(shortsPost)trackUsageEvent("shorts_conversation");
+     if(shortsPost){
+      trackUsageEvent("shorts_conversation");
+      rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
+     }
    }
    // The Live ref contains the completed exchange before React updates live.turns.
    // Capture the first meaningful turn and every three more (up to three checkpoints).
@@ -122,7 +128,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
       <div><small>CREW SHORTS · {shortsPost.publishedAt.slice(0,10)}</small>
-       <p lang={shortsPost.language}>{shortsPost.caption}</p></div>
+       <p lang={shortsPost.language}>{shortsPost.caption}</p>
+       {shortsHook?<small className="friend-live-post-hook">{english?"You wanted to ask: ":"你想聊："}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">找不到原本的動態，已改為一般朋友聊天。</p>:null}
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
