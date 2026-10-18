@@ -7,12 +7,15 @@ import {LIVE_VOICES,LAB_ACCENTS,LAB_DELIVERIES,normalizeLiveVoice,voiceIdentityP
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {TEACHER_PROFILES} from "../teacher/teacherProfiles";
 import {geminiKey} from "../lib/runtime";
+import {auditVoiceAssignments} from "./voiceAssignmentAudit";
 
 type Strength="subtle"|"natural"|"noticeable";
 type Mode="sample"|"conversation";
+type VoiceFilter="all"|"unused"|"shared";
 const TEST_LINE="I bought a bottle of water before the meeting. Do you want to watch a movie tomorrow?";
 type Ratings={naturalness:number;distinctiveness:number;accent:number};
 const KEY="crew_voice_lab_ratings_v1";
+const voiceAudit=auditVoiceAssignments(CREW_FRIENDS,TEACHER_PROFILES);
 const selectStyle={padding:"10px 12px",width:"100%",border:"1px solid #cbd5e1",borderRadius:10,background:"#fff",color:"#172337"} as const;
 const fieldStyle={display:"grid",gap:6,fontSize:13,fontWeight:600} as const;
 const panelStyle={border:"1px solid #e2e8f0",borderRadius:16,padding:18,background:"#fff"} as const;
@@ -29,11 +32,20 @@ export function VoiceLabPage(){
  const[voice,setVoice]=useState("Leda"),[accent,setAccent]=useState<AccentChoice>("tw");
  const[style,setStyle]=useState<DeliveryChoice>("witty"),[strength,setStrength]=useState<Strength>("subtle");
  const[mode,setMode]=useState<Mode>("sample");
+ const[voiceFilter,setVoiceFilter]=useState<VoiceFilter>("all");
  const[allRatings,setAllRatings]=useState(readRatings);
  const[score,setScore]=useState<Ratings>({naturalness:3,distinctiveness:3,accent:3});
  const[message,setMessage]=useState("");
  const actors=role==="friend"?CREW_FRIENDS:TEACHER_PROFILES;
  const actor=actors.find(a=>a.id===actorId)||actors[0];
+ const visibleVoices=voiceFilter==="unused"?voiceAudit.unused:
+  voiceFilter==="shared"?voiceAudit.shared:LIVE_VOICES;
+ const voiceUsers=voiceAudit.users.get(normalizeLiveVoice(voice))||[];
+ function changeVoiceFilter(next:VoiceFilter){
+  setVoiceFilter(next);
+  const options=next==="unused"?voiceAudit.unused:next==="shared"?voiceAudit.shared:LIVE_VOICES;
+  if(options.length&&!options.includes(normalizeLiveVoice(voice)))setVoice(options[0]);
+ }
  const system=useMemo(()=>(
   "You are "+actor.name+", a fictional Crew "+(role==="friend"?"Friend":"Teacher")+
   ". Persona: "+actor.personality+". Speak ONLY English in every spoken response. "+
@@ -54,6 +66,7 @@ export function VoiceLabPage(){
   const list=nextRole==="friend"?CREW_FRIENDS:TEACHER_PROFILES;
   const p=list.find(a=>a.id===id)||list[0];
   setActorId(p.id);setVoice(normalizeLiveVoice(nextRole==="friend"?(p as typeof CREW_FRIENDS[number]).voice:(p as typeof TEACHER_PROFILES[number]).recommendedVoice));
+  setVoiceFilter("all"); // A role selection must show its assigned voice, even when a filter was active.
   setAccent(p.id==="zoe"?"tw":p.id==="yuna"?"kr":p.id==="hugo"?"au":p.id==="isla"?"uk":"auto");
   setStyle(p.id==="zoe"?"witty":p.id==="yuna"?"gentle":p.id==="bella"?"bright":"natural");
   setMessage("");
@@ -75,10 +88,24 @@ export function VoiceLabPage(){
    <div style={rowStyle}>
     <label style={fieldStyle}>身分<select style={selectStyle} disabled={active} value={role} onChange={e=>{const next=e.target.value as VoiceRole;setRole(next);changeActor(next==="friend"?"zoe":"emma",next)}}><option value="friend">Crew 朋友</option><option value="teacher">Crew 老師</option></select></label>
     <label style={fieldStyle}>角色<select style={selectStyle} disabled={active} value={actor.id} onChange={e=>changeActor(e.target.value)}>{actors.map(a=><option key={a.id} value={a.id}>{a.name}</option>)}</select></label>
-    <label style={fieldStyle}>Live 聲線<select style={selectStyle} disabled={active} value={voice} onChange={e=>setVoice(e.target.value)}>{LIVE_VOICES.map(v=><option key={v} value={v}>{v}</option>)}</select></label>
+    <label style={fieldStyle}>聲線篩選<select style={selectStyle} disabled={active} value={voiceFilter} onChange={e=>changeVoiceFilter(e.target.value as VoiceFilter)}><option value="all">全部聲線（{LIVE_VOICES.length}）</option><option value="unused">尚未使用（{voiceAudit.unused.length}）</option><option value="shared">角色共用（{voiceAudit.shared.length}）</option></select></label>
+    <label style={fieldStyle}>Live 聲線<select style={selectStyle} disabled={active} value={voice} onChange={e=>setVoice(e.target.value)}>{visibleVoices.map(v=><option key={v} value={v}>{v}</option>)}</select></label>
     <label style={fieldStyle}>英文口音<select style={selectStyle} disabled={active} value={accent} onChange={e=>setAccent(e.target.value as AccentChoice)}>{Object.entries(LAB_ACCENTS).map(([id,name])=><option key={id} value={id}>{id==="auto"?"不指定":name}</option>)}</select></label>
     <label style={fieldStyle}>表演風格<select style={selectStyle} disabled={active} value={style} onChange={e=>setStyle(e.target.value as DeliveryChoice)}>{Object.entries(LAB_DELIVERIES).map(([id,name])=><option key={id} value={id}>{name}</option>)}</select></label>
     <label style={fieldStyle}>口音強度<select style={selectStyle} disabled={active} value={strength} onChange={e=>setStrength(e.target.value as Strength)}><option value="subtle">輕微</option><option value="natural">自然</option><option value="noticeable">明顯（不誇張）</option></select></label>
+   </div>
+   <div style={{marginTop:14,padding:12,borderRadius:12,background:"#f1f5f9",fontSize:13,lineHeight:1.6}}>
+    <strong>目前配置：</strong>{voiceAudit.totalRoles} 位角色、{voiceAudit.assigned.length} 種已使用聲線、
+    {voiceAudit.shared.length} 種共用聲線、{voiceAudit.unused.length} 種尚未使用。
+    <p style={{margin:"6px 0 0"}} aria-live="polite"><strong>{voice}</strong>：
+     {voiceUsers.length===0?"尚未分配給角色，可用來試聽候選聲線。":
+      voiceUsers.length===1?"目前用於 "+voiceUsers[0].name+"（"+(voiceUsers[0].role==="friend"?"朋友":"老師")+"）。":
+      "與 "+voiceUsers.map(u=>u.name+"（"+(u.role==="friend"?"朋友":"老師")+"）").join("、")+" 共用同一個 Gemini 聲線 ID。"}
+    </p>
+    <details style={{marginTop:8}}><summary style={{cursor:"pointer"}}>查看所有角色共用的聲線（{voiceAudit.shared.length}）</summary>
+     <ul style={{margin:"8px 0 0",paddingLeft:20}}>{voiceAudit.shared.map(v=><li key={v}><strong>{v}</strong>：{(voiceAudit.users.get(v)||[]).map(u=>u.name+"（"+(u.role==="friend"?"朋友":"老師")+"）").join("、")}</li>)}</ul>
+    </details>
+    <small>此處只比對 Gemini 聲線 ID 是否相同，不代表實際聲音一定無法區分；試聽不會變更正式角色配置。</small>
    </div>
   </section>
   <section style={panelStyle}><h2 style={{fontSize:19,marginTop:0}}>2. Live 試聽</h2>
