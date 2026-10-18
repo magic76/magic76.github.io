@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "revision": "2026-10-16.1",
+  "revision": "2026-10-18.1",
   "owner": "magic76/crew-teacher",
   "canonical": "https://github.com/magic76/crew-teacher/blob/main/contracts/crew-teacher/v1.json",
   "platforms": [
@@ -60,7 +60,12 @@
       "personalDefaultOn": true,
       "friendTopicDefaultOn": true,
       "explicitOptOutPreserved": true,
-      "doNotFabricateMemories": true
+      "doNotFabricateMemories": true,
+      "verifiedSameCharacterTopicsAreFirsthand": true,
+      "editedTopicsNotProofOfPriorConversation": true,
+      "sharedLearnerProfileNotProofOfPriorConversation": true,
+      "doNotDescribeFirsthandChatsAsHearsay": true,
+      "fictionalLifeBookNotSharedLearnerHistory": true
     },
     "practice": {
       "mayPromptForRepetition": true,
@@ -371,7 +376,7 @@
             "輕鬆外語聊天",
             "母語聊天",
             "isCompanionConversation() ? 20000L",
-            "If a verified recent unfinished topic fits"
+            "If a verified SAME-CHARACTER earlier-chat topic fits"
           ]
         }
       ],
