@@ -91,3 +91,6 @@
 .books-dialog input[type="file"]{padding:10px;font-size:11px;max-width:100%}
 .books-dialog label small{font-size:10px;font-weight:500;color:#768174;overflow-wrap:anywhere}
 @media(max-width:600px){.books-photo-strip{min-height:185px}.books-edit-photos .books-photo-strip{min-height:120px}.books-admin-tools{flex-wrap:wrap}}
+
+.books-card-media>.books-photo-strip{position:absolute;inset:0;height:100%;z-index:1}
+.books-card-media>.books-new{z-index:2}
