@@ -41,7 +41,7 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
   assert.match(teacher,/<LiveControls live=\{live\}/);
   assert.match(friend,/<LiveControls live=\{live\}/);
   assert.match(hook,/crew_live_volume/);
-  assert.match(hook,/Math\\.min\\(300/);
+  assert.match(hook,/Math\.min\(300/);
   assert.match(hook,/sessionRef\.current\?\.setVolume\(n\)/);
 });
 
