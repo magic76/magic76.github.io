@@ -15,7 +15,7 @@ import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageM
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
-import {fetchShortsFeed,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
+import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
 import "./friends.css";
 
 /**
@@ -31,11 +31,8 @@ export function FriendLivePage(){
  useEffect(()=>{
   if(!postId)return;
   const abort=new AbortController();
-  fetchShortsFeed(abort.signal).then(feed=>{
-   if(!abort.signal.aborted){
-    const found=feed.posts.find(post=>post.id===postId&&post.friendId===friendId)||null;
-    setLookup({key:lookupKey,post:found});
-   }
+  fetchShortsPost(postId,friendId||"",abort.signal).then(found=>{
+   if(!abort.signal.aborted)setLookup({key:lookupKey,post:found});
   }).catch(()=>{if(!abort.signal.aborted)setLookup({key:lookupKey,post:null})});
   return()=>abort.abort();
  },[postId,friendId,lookupKey]);
