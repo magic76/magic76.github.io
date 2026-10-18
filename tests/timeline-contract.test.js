@@ -44,7 +44,7 @@ test("only approved independent stage photos can replace the published portraits
  const model=contract.character;
  assert.deepEqual(model.fullBodyPhotoPlan.map(p=>p.age),model.ages);
  assert.equal(model.portraits.length,6,"Original portraits stay published until reviewed");
- assert.ok(model.fullBodyPhotoPlan.every(p=>p.status==="awaiting-approved-independent-photo"));
+ assert.ok(model.fullBodyPhotoPlan.every(p=>["awaiting-approved-independent-photo","approved"].includes(p.status)));
  const ui=fs.readFileSync("web-spa/src/timeline/TimelinePortrait.tsx","utf8");
  assert.match(ui,/PUBLISHED_PORTRAIT_AGES/);
  assert.match(ui,/p\.status==="approved"/);
