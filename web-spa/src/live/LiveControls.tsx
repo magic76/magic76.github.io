@@ -25,10 +25,10 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
   <div className="live-audio-settings" role="group" aria-label="AI 播放音量">
    <label className="live-volume">
     <span className="live-volume-label">AI 音量</span>
-    <input type="range" min="0" max="100" step="1" aria-label="調整 AI 播放音量" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
-    <span className="live-volume-value">{live.volume}%</span>
+    <input type="range" min="0" max="300" step="5" aria-label="調整 AI 播放音量" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
+    <span className="live-volume-value">{live.volume}%{live.volume>100?" ↑":""}</span>
    </label>
-   <small className="live-audio-hint">若手機音量鍵顯示通話音量，可在這裡調整 AI 聲音。</small>
+   <small className="live-audio-hint">Android 語音對話時，實體音量鍵可能控制通話音量。可將 AI 音量調到 100% 以上增強播放；請逐步調高，避免過大聲或失真。</small>
   </div></div>}
  </>;
 }
