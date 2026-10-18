@@ -6,7 +6,7 @@ import {judgeMysterySpeech} from "./judgeMysterySpeech";
 
 type Props={
  kind:"twenty-questions"|"mystery";english:boolean;friendName:string;
- item:TwentyItem;caseFile:MysteryCase;onEvent:(message:string)=>void;onNext:()=>void;
+ item:TwentyItem;caseFile:MysteryCase;onEvent:(message:string)=>void;onNext:()=>void;onFinished?:()=>void;
  mysterySource?:"generating"|"generated"|"fallback"|"local";
  itemSource?:"generating"|"generated"|"fallback"|"local";
  voiceTurns?:{id:number;text:string}[];
@@ -14,7 +14,7 @@ type Props={
 type Asked={id:string;question:string;answer:string;source?:"voice"|"screen"};
 type Outcome="won"|"lost"|"revealed"|null;
 export function CrewWordGames({
- kind,english,friendName,item,caseFile,onEvent,onNext,mysterySource="local",
+ kind,english,friendName,item,caseFile,onEvent,onNext,onFinished,mysterySource="local",
  itemSource="local",voiceTurns=[]
 }:Props){
  const [asked,setAsked]=useState<Asked[]>([]);
@@ -38,13 +38,17 @@ export function CrewWordGames({
  const unknown=english?"Not sure":"不確定";
  const secret=copy(item.name,english);
  const hints=questionMode?twentyQuestions:caseFile.clues;
+ function finish(outcome:Exclude<Outcome,null>){
+  if(resultRef.current)return;
+  resultRef.current=outcome;setResult(outcome);onFinished?.();
+ }
 
  function record(entry:Asked,correct=false){
   if(resultRef.current||askedRef.current.length>=limit)return false;
   const next=[...askedRef.current,entry];
   askedRef.current=next;setAsked(next);
   const outcome:Outcome=correct?"won":next.length>=limit?"lost":null;
-  if(outcome){resultRef.current=outcome;setResult(outcome)}
+  if(outcome)finish(outcome);
   return true;
  }
  function ask(id:string){
@@ -107,9 +111,14 @@ export function CrewWordGames({
    const verdict=await judgeMysterySpeech(caseFile,speech);
    if(!mountedRef.current||resultRef.current||askedRef.current.length>=limit)return;
    if(verdict.type==="chat")return;
+   if(verdict.type==="solved"){
+    finish("won");
+    onEvent("[MYSTERY SOLVED] The learner correctly explained the full mystery. Reveal the established solution and celebrate briefly: "+caseFile.solution.en);
+    return;
+   }
    const answer=verdict.answer==="yes"?yes:verdict.answer==="no"?no:unknown;
    if(!record({id:"mystery-voice-"+(askedRef.current.length+1),question:speech,answer,source:"voice"}))return;
-   onEvent("[MYSTERY VERIFIED ANSWER] The learner asked "+JSON.stringify(speech)+". The verified result is "+verdict.answer.toUpperCase()+". Speak only this answer with a brief natural reaction. UNKNOWN means the established story does not confirm it; never invent additional clues.");
+   onEvent("[MYSTERY VERIFIED ANSWER] The learner asked "+JSON.stringify(speech)+". The verified result is "+verdict.answer.toUpperCase()+". Speak only this answer with a brief natural reaction. UNKNOWN means the established story does not confirm it; never invent additional clues."+(askedRef.current.length>=limit?" The clue limit is exhausted. Now reveal the established solution: "+caseFile.solution.en:""));
   }catch{
    if(mountedRef.current)setSpeechNotice(english?"Could not verify that clue. No question used.":"這條線索暫時無法驗證，不計入提問。");
   }finally{if(mountedRef.current)setProcessing(false)}
@@ -132,7 +141,7 @@ export function CrewWordGames({
  }
  const reveal=()=>{
   if(resultRef.current)return;
-  resultRef.current="revealed";setResult("revealed");
+  finish("revealed");
   onEvent("[MYSTERY REVEAL] The solution is: "+caseFile.solution.en+" Respond naturally and briefly.");
  };
  const questionOptions=<div className="crew-play-word-options">
@@ -163,7 +172,7 @@ export function CrewWordGames({
    <span className="crew-play-riddle-icon" aria-hidden="true">?</span>
    <h2>{english?`${friendName} has picked a secret thing.`:`${friendName} 已經想好一個東西了！`}</h2>
    <p>{english?"Ask naturally by voice, choose a prompt or type a guess. Questions and guesses share 20 attempts.":"直接用語音問是非題，或點選提示、輸入猜測；所有提問與猜答案共用 20 次額度。"}</p>
-  </div>:<div className={"crew-play-mystery-flip"+(result==="revealed"?" is-revealed":"")}>
+  </div>:<div className={"crew-play-mystery-flip"+((result==="revealed"||result==="won")?" is-revealed":"")}>
    <div className="crew-play-mystery-flip-inner">
     <div className="crew-play-riddle crew-play-mystery-flip-front" aria-hidden={result==="revealed"}>
      <span className="crew-play-riddle-icon" aria-hidden="true">✧</span>
@@ -177,6 +186,12 @@ export function CrewWordGames({
     </div>
    </div>
   </div>}
+  {ended?<div className={"crew-play-solution"+(result==="won"?" crew-play-solution--won":"")+(kind==="mystery"?" crew-play-solution--mystery":"")} role="status">
+   {result==="won"?<div className="crew-play-celebration" aria-hidden="true">{Array.from({length:12},(_,index)=><i key={index}/>)}</div>:null}
+   <strong>{questionMode?(result==="won"?(english?"You got it!":"答對了！"):(english?"The answer was…":"正確答案是……")):(result==="won"?(english?"Mystery solved!":"成功破案！"):(english?"The truth":"故事真相"))}</strong>
+   <p>{questionMode?secret:copy(caseFile.solution,english)}</p>
+   <button type="button" onClick={onNext}>{english?"Play another":"下一題 →"}</button>
+  </div>:null}
   {questionMode?<div className="crew-play-voice-tip">
    <strong>{english?"Try saying":"試著開口說"}</strong>
    <span>“Is it something I can eat?”</span>
@@ -188,7 +203,7 @@ export function CrewWordGames({
    <button type="submit" disabled={processing||!freeQuestion.trim()}>{processing?(english?"Checking…":"判斷中…"):(english?"Ask":"提問")}</button></div>
   </form>:null}
   {speechNotice?<p className="crew-play-speech-notice" role="status">{speechNotice}</p>:null}
-  {!questionMode?questionOptions:null}
+  {!questionMode&&!ended?questionOptions:null}
   {questionMode&&asked.length>0?<div className="crew-play-question-history crew-play-question-history--compact" aria-live="polite">
    <div className="crew-play-history-heading"><strong>{english?"Recent questions":"最近的提問"}</strong><span>{english?"Last 3":"最近 3 筆"}</span></div>
    <ul>{asked.slice(-3).map((row,i)=><li key={row.id+"-"+i}><span>{row.source==="voice"?"🎙️ ":""}{row.question}</span><b>{row.answer}</b></li>)}</ul>
@@ -208,12 +223,6 @@ export function CrewWordGames({
    <span>{english?"Need a hint?":"需要提示嗎？"}</span><small>{english?"Suggested yes/no questions":"展開預設的英文問句"}</small>
   </summary>{questionOptions}</details>:null}
   {!questionMode&&!ended?<button type="button" className="crew-play-reveal" onClick={reveal}>{english?"Reveal the solution":"揭曉答案"}</button>:null}
-  {ended?<div className={"crew-play-solution"+(result==="won"?" crew-play-solution--won":"")+(kind==="mystery"?" crew-play-solution--mystery":"")} role="status">
-   {result==="won"?<div className="crew-play-celebration" aria-hidden="true">{Array.from({length:12},(_,index)=><i key={index}/>)}</div>:null}
-   <strong>{questionMode?(result==="won"?(english?"You got it!":"答對了！"):(english?"The answer was…":"正確答案是……")):(english?"The truth":"故事真相")}</strong>
-   <p>{questionMode?secret:copy(caseFile.solution,english)}</p>
-   <button type="button" onClick={onNext}>{english?"Play another":"下一題 →"}</button>
-  </div>:null}
   <p className="crew-play-hint">{questionMode
    ?english?"Voice and on-screen questions share the same 20-attempt counter. Normal conversation is not counted.":"語音提問、語音猜答案與畫面操作都會計入同一個 20 次額度；一般聊天不扣次數。"
    :english?"Each new round creates a fresh Gemini puzzle when your Key is available; otherwise, a built-in mystery is used.":"有 Gemini Key 時，每次新局都會產生新海龜湯；沒有 Key 或生成失敗則使用內建題庫。"}
