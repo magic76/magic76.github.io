@@ -3,13 +3,13 @@
  */
 type Stmt={bind(...values:unknown[]):Stmt;all<T=Record<string,unknown>>():Promise<{results:T[]}>;first<T=Record<string,unknown>>():Promise<T|null>;run():Promise<{meta?:{changes?:number}}>};
 type DB={prepare(sql:string):Stmt};
-type Env={FEEDBACK_DB?:DB;CREW_USAGE_ACCESS_ISS?:string;CREW_USAGE_ACCESS_AUD?:string;CREW_USAGE_ADMIN_EMAIL?:string};
+type Env={FEEDBACK_DB?:DB;CREW_USAGE_ACCESS_ISS?:string;CREW_USAGE_ACCESS_AUD?:string;CREW_FEEDBACK_ACCESS_AUD?:string;CREW_USAGE_ADMIN_EMAIL?:string};
 type Context={request:Request;env:Env};
 const respond=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"}});
 const decode=(value:string)=>Uint8Array.from(atob(value.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(value.length/4)*4,"=")),x=>x.charCodeAt(0));
 async function authorized(request:Request,env:Env):Promise<boolean>{
  const issuer=env.CREW_USAGE_ACCESS_ISS?.replace(/\/+$/,"");
- const audience=env.CREW_USAGE_ACCESS_AUD;
+ const audience=env.CREW_FEEDBACK_ACCESS_AUD||env.CREW_USAGE_ACCESS_AUD;
  const email=env.CREW_USAGE_ADMIN_EMAIL?.toLowerCase();
  if(!issuer||!/^https:\/\/[a-z0-9-]+\.cloudflareaccess\.com$/.test(issuer)||!audience||!email)return false;
  const token=request.headers.get("cf-access-jwt-assertion");

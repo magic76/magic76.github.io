@@ -28,6 +28,7 @@ export function PrivacyPage(){
     <span>{english?"Developer test mode (exclude my usage)":"開發測試模式（排除自己的操作）"}</span>
    </label>}
   </section>
+  <section className="section panel"><div className="section-head"><h2>{english?"Voluntary feedback":"自願提交的意見回饋"}</h2></div><p className="meta">{english?"If you choose to submit feedback, Crew stores your written report and any basic diagnostics you agree to attach in a private Cloudflare database. No Gemini Key, voice recording or conversation transcript is collected automatically. Feedback submission is separate from anonymous usage analytics.":"只有你主動送出意見時，Crew 才會將文字內容及你同意附上的基本診斷資訊存入 Cloudflare 私有資料庫；不會自動收集 Gemini Key、錄音或對話逐字稿。意見回饋與匿名使用統計是兩種不同的資料處理。"}</p></section>
   <p className="meta"><Link to="/settings">← {english?"Back to settings":"返回設定"}</Link></p>
  </>;
 }
