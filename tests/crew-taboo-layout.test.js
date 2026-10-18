@@ -30,3 +30,11 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
  assert.match(page,/setRevealed\(true\)/);
  assert.match(page,/跳過這題/);
 });
+
+test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{
+ assert.match(page,/generateTabooGuess\(descriptions\.current\)/);
+ assert.match(page,/guessSerial\.current!==request/);
+ assert.match(page,/matchTabooGuess\(card,guess\)/);
+ assert.match(page,/if\(!geminiKey\(\)\)/);
+ assert.doesNotMatch(page,/onReply=\{onReply\}/);
+});
