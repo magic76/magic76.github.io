@@ -125,7 +125,7 @@ export function TeacherLivePage(){
     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
   <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
-  <div style={{display:"flex",justifyContent:"center",margin:"10px 0"}}><FeedbackLauncher product="teacher"/></div>
+  <div style={{display:"flex",justifyContent:"center",margin:"10px 0"}}><FeedbackLauncher product="teacher" roleId={profile.id}/></div>
   <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
