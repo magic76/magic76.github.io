@@ -5,7 +5,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {sendFeedback,type FeedbackKind,type FeedbackProduct,type FeedbackReason} from "./api";
 import "./feedback.css";
 type FeedbackProps={product:FeedbackProduct;roleId?:string;errorCode?:string;model?:string};
-const reasonOptions:FeedbackReason[]=["wrong_language","repeated_question","interrupted","bad_response","connection","game_logic","other"];
+const reasonOptions:Exclude<FeedbackReason,"">[]=["wrong_language","repeated_question","interrupted","bad_response","connection","game_logic","other"];
 const zh={
  title:"意見回饋",open:"提供意見",rate:"這次體驗如何？",good:"很好",bad:"需要改善",
  kind:"回饋類型",bug:"遇到問題",idea:"功能建議",other:"其他意見",rating:"體驗評分",
@@ -43,7 +43,7 @@ export function FeedbackRating({product,roleId,model}:FeedbackProps){
   setState("loading");
   try{
    await sendFeedback({kind:"rating",rating:5,reason:"",message:"",product,platform:"web",
-    includeDiagnostics:true,page:location.pathname,roleId,model:model||useTeacherStore.getState().liveModel,locale:i18n.language});
+    includeDiagnostics:false});
    setState("done");
   }catch{setState("error")}
  }
