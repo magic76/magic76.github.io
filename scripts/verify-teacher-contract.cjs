@@ -112,17 +112,22 @@ function validate(){
  return contract;
 }
 async function verifyUpstream(local){
- const url="https://raw.githubusercontent.com/magic76/crew-teacher/main/contracts/crew-teacher/v1.json";
- const response=await fetch(url,{signal:AbortSignal.timeout(15000),headers:{"User-Agent":"crew-teacher-contract-parity/1"}});
- if(response.status===404){
-  // Initial dual-repo bootstrap: canonical file arrives with the Android PR first.
-  console.warn("[Crew Teacher contract] canonical main not published yet; bootstrap only. Merge Android before shipping Web.");
+ const token=process.env.CREW_CONTRACT_READ_TOKEN;
+ const url=token
+  ?"https://api.github.com/repos/magic76/crew-teacher/contents/contracts/crew-teacher/v1.json?ref=main"
+  :"https://raw.githubusercontent.com/magic76/crew-teacher/main/contracts/crew-teacher/v1.json";
+ const headers=token
+  ?{Accept:"application/vnd.github.raw+json",Authorization:"Bearer "+token,"X-GitHub-Api-Version":"2022-11-28"}
+  :{"User-Agent":"crew-teacher-contract-parity/1"};
+ const response=await fetch(url,{signal:AbortSignal.timeout(15000),headers});
+ if(response.status===404&&!token){
+  console.warn("[Crew Teacher contract] SKIP remote parity: private Android main is inaccessible without CREW_CONTRACT_READ_TOKEN. Local anchor verification still enforced.");
   return;
  }
  if(!response.ok)throw Error("Canonical fetch failed: HTTP "+response.status);
  const remote=JSON.parse(await response.text());
  assert.deepEqual(local,remote,"Web contract differs from Android main. Sync contracts/crew-teacher/v1.json and both platform implementations.");
- console.log("[Crew Teacher contract] Web snapshot matches Android main");
+ console.log("[Crew Teacher contract] Web snapshot matches "+(token?"authenticated":"public")+" Android main");
 }
 (async()=>{
  try{

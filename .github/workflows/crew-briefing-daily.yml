@@ -37,6 +37,7 @@ jobs:
           CREW_BRIEFING_GEMINI_KEY: ${{ secrets.CREW_BRIEFING_GEMINI_KEY }}
           CREW_BRIEFING_MODEL: gemini-2.5-flash
           CREW_BRIEFING_GITHUB_TOKEN: ${{ github.token }}
+      - run: node scripts/check-content-hub.mjs
       - run: npm run check:web
       - run: npm run build:web
       - name: Report research SEO eligibility

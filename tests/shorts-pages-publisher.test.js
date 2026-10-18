@@ -93,9 +93,15 @@ test("A future release cannot be published early, but can be simulated in dry-ru
  assert.equal(preview.status,0,preview.stderr);
  assert.match(preview.stdout,/DRY RUN: 1 due posts/);
 });
-test("Content inventory warns before the last approved day",()=>{
+test("Content inventory warns at the two-day threshold",t=>{
  const script=path.join(root,"scripts/check-shorts-inventory.mjs");
- const ok=spawnSync(process.execPath,[script,"--today","2026-10-16"],{cwd:root,encoding:"utf8"});
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),"crew-shorts-inventory-"));
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const feed=path.join(dir,"posts.json");
+ fs.writeFileSync(feed,JSON.stringify({schema:1,kind:"crew-shorts",posts:[
+  {publishedAt:"2026-10-18T08:00:00+08:00"}
+ ]}));
+ const ok=spawnSync(process.execPath,[script,"--feed",feed,"--today","2026-10-16"],{cwd:root,encoding:"utf8"});
  assert.equal(ok.status,0,ok.stderr);
  assert.match(ok.stdout,/final release 2026-10-18/);
  assert.match(ok.stdout,/::warning::/);
@@ -112,4 +118,29 @@ test("Scheduled Pages release activates after seed approval and remains independ
  const loader=fs.readFileSync(path.join(root,"web-spa/src/teacher/shortsFeed.ts"),"utf8");
  assert.match(loader,/fetchShortsFeed/);
  assert.doesNotMatch(loader,/import\s+.*posts\.json/);
+});
+
+test("Publisher keeps all 125 moments in v2 pages while older Android gets latest 100",t=>{
+ const f=fixture(t);
+ const template=f.source.posts[0];
+ f.source.posts=Array.from({length:125},(_,i)=>({...template,
+  id:"zoe-history-"+String(i).padStart(3,"0"),
+  publishedAt:new Date(Date.UTC(2026,9,14,0,i)).toISOString()
+ }));
+ f.save();
+ const result=f.run("2026-10-14");
+ assert.equal(result.status,0,result.stderr);
+ const v1=JSON.parse(fs.readFileSync(path.join(f.target,"posts.json"),"utf8"));
+ const index=JSON.parse(fs.readFileSync(path.join(f.target,"v2/index.json"),"utf8"));
+ assert.equal(v1.posts.length,100);
+ assert.equal(index.total,125);
+ assert.equal(index.pages.length,3);
+ assert.equal(Object.keys(index.lookup).length,125);
+ assert.equal(index.lookup["zoe-history-000"],index.pages[2].url);
+ const last=JSON.parse(fs.readFileSync(path.join(f.target,"v2/pages/00003.json"),"utf8"));
+ assert.equal(last.posts.length,25);
+ assert.equal(last.posts.at(-1).id,"zoe-history-000");
+ const again=f.run("2026-10-14");
+ assert.equal(again.status,0,again.stderr);
+ assert.match(again.stdout,/No feed changes/);
 });

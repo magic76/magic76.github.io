@@ -197,7 +197,7 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(page,/const wordReady=isWord&&\(live\.state==="listening"\|\|live\.state==="speaking"\)/);
  assert.match(page,/setWordEverReady\(true\)/);
  assert.match(page,/isWord&&wordEverReady&&!voicePreparing/);
- assert.match(page,/inert=\{!wordReady\}/);
+ assert.match(page,/inert=\{!wordReady&&!roundEnded\}/);
  assert.match(page,/crew-play-voice-entrance/);
  assert.match(page,/crew-play-voice-recovery/);
  assert.match(page,/GeminiSetupNotice/);
@@ -293,8 +293,36 @@ test("Canceled async puzzle generations are excluded from played history",()=>{
  const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
  const mystery=read("web-spa/src/games/generateMystery.ts");
  const twenty=read("web-spa/src/games/generateTwentyItem.ts");
- assert.match(page,/if\(!active\)return;\s*rememberGeneratedMystery\(result\)/);
+ assert.match(page,/if\(!active\)return;\s*if\(settled\)return;[\s\S]*rememberGeneratedMystery\(result\)/);
  assert.match(page,/if\(!active\)return;\s*rememberGeneratedTwentyItem\(item\)/);
  assert.match(mystery,/pendingDiversity\.set\(result,/);
  assert.match(twenty,/pendingDiversity\.set\(item,/);
+});
+
+test("Mystery completes on a verified solution and keeps Play another accessible on disconnect",()=>{
+ const judge=read("web-spa/src/games/judgeMysterySpeech.ts");
+ const word=read("web-spa/src/games/CrewWordGames.tsx");
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ assert.match(judge,/type:"solved"/);
+ assert.match(judge,/ALL essential causal steps/);
+ assert.match(judge,/caseFile.solution.en/);
+ assert.match(judge,/Mystery judgement timed out/);
+ assert.match(word,/if\(verdict.type==="solved"\)/);
+ assert.match(word,/finish\("won"\)/);
+ assert.match(word,/MYSTERY SOLVED/);
+ assert.match(word,/onFinished\?\.\(\)/);
+ assert.match(word,/!questionMode&&!ended\?questionOptions/);
+ assert.match(page,/onFinished=\{\(\)=>setRoundEnded\(true\)\}/);
+ assert.match(page,/inert=\{!wordReady&&!roundEnded\}/);
+ assert.match(page,/pending.current=null;setRoundEnded\(false\);setVoiceTurns\(\[\]\);nextRound\(\)/);
+});
+
+test("Mystery preparation falls back after a deadline and ignores late generations",()=>{
+ const page=read("web-spa/src/games/CrewPlayGamePage.tsx");
+ assert.match(page,/MYSTERY_GENERATION_TIMEOUT_MS=20000/);
+ assert.match(page,/timer=setTimeout\(useFallback,MYSTERY_GENERATION_TIMEOUT_MS\)/);
+ assert.match(page,/if\(!active\|\|settled\)return/);
+ assert.match(page,/if\(settled\)return/);
+ assert.match(page,/return\(\)=>\{active=false;clearTimer\(\)\}/);
+ assert.match(page,/setMysteryStatus\("fallback"\)/);
 });
