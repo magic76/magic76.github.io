@@ -1,10 +1,11 @@
 import {useEffect,useMemo,useState} from "react";
 import "./books.css";
+import {CirclePhotoStrip,uploadPhoto,removePhoto,MAX_PHOTOS} from "./CirclePhotos";
 
 type Kind="swap"|"sell"|"give"|"want"|"share"|"ask";
 type Category="books"|"toys"|"school"|"clothes"|"events"|"life"|"other";
 type Status="open"|"reserved"|"closed";
-type Post={id:string;author:string;title:string;description:string;kind:Kind;category?:Category;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number};
+type Post={id:string;author:string;title:string;description:string;kind:Kind;category?:Category;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number;photoIds?:string[]};
 type Comment={id:string;postId:string;author:string;message:string;createdAt:string};
 type Form={author:string;title:string;description:string;kind:Kind;category:Category;price:string};
 const STORAGE="crew_books_preview_v1";
@@ -65,7 +66,11 @@ async function api(invite:string,body?:object,postId?:string) {
    BOOKS_DATABASE_ERROR:"資料庫暫時無法使用，請稍後再試。",
    ORIGIN_REJECTED:"安全檢查失敗，請重新開啟本網站。",
    NOT_OWNER:"這篇貼文只能由原刊登裝置修改。",
-   POST_CLOSED:"這篇資訊已完成，無法再留言。"
+   POST_CLOSED:"這篇資訊已完成，無法再留言。",
+   IMAGES_NOT_CONFIGURED:"尚未設定 R2 圖片空間",
+   MEDIA_SCHEMA_REQUIRED:"圖片資料表尚未升級，請執行 0003 migration",
+   ADMIN_REQUIRED:"管理密碼不正確或尚未設定",
+   INVALID_REPORT:"檢舉理由至少 5 個字"
   };
   throw Error(messages[String(result.error)]||"操作失敗，請確認內容後再試。");
  }
@@ -91,6 +96,15 @@ export default function BooksPage(){
  const [busy,setBusy]=useState(false);
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
+ const [mine,setMine]=useState(false);
+ const [editing,setEditing]=useState<string|null>(null);
+ const [files,setFiles]=useState<File[]>([]);
+ const [reporting,setReporting]=useState<string|null>(null);
+ const [reportReason,setReportReason]=useState("");
+ const [showAdmin,setShowAdmin]=useState(false);
+ const [adminCode,setAdminCode]=useState("");
+ const [reports,setReports]=useState<Array<{id:string;postId:string;reason:string;title:string;author:string;createdAt:string}>>([]);
+
  useEffect(()=>{
   const previous=document.title;document.title="媽媽友小圈圈｜交流板";
   const meta=document.querySelector('meta[name="robots"]');
@@ -107,8 +121,8 @@ export default function BooksPage(){
   .finally(()=>{if(alive)setLoading(false)});
   return()=>{alive=false};
  },[invite]);
- const visible=useMemo(()=>posts.filter(post=>(filter==="all"||post.kind===filter)&&(categoryFilter==="all"||topicOf(post)===categoryFilter)&&
-  (post.title+" "+post.description+" "+post.author+" "+categoryNames[topicOf(post)]).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,filter,categoryFilter,query]);
+ const visible=useMemo(()=>posts.filter(post=>(!mine||(!demo&&Boolean(ownerTokens()[post.id]))||(demo&&!post.id.startsWith("sample-")))&&(filter==="all"||post.kind===filter)&&(categoryFilter==="all"||topicOf(post)===categoryFilter)&&
+  (post.title+" "+post.description+" "+post.author+" "+categoryNames[topicOf(post)]).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,mine,demo,filter,categoryFilter,query]);
  const selectedPost=selected?posts.find(p=>p.id===selected):undefined;
  async function refreshLive(code=invite){const data=await api(code);setPosts(data.posts);}
  async function join(event:React.FormEvent){event.preventDefault();const code=inviteInput.trim();if(!code)return;
@@ -121,6 +135,48 @@ export default function BooksPage(){
   try{sessionStorage.removeItem(INVITE_STORAGE)}catch{/* optional */}
   const data=readPreview();setPosts(data.posts);setComments(data.comments);
  }
+ function startCreate(){setEditing(null);setFiles([]);setForm({...EMPTY,author:name});setShowForm(true)}
+ function startEdit(post:Post){setEditing(post.id);setFiles([]);
+  setForm({author:post.author,title:post.title,description:post.description,kind:post.kind,
+   category:topicOf(post),price:post.price===null?"":String(post.price)});setShowForm(true);
+ }
+ async function deletePost(post:Post){
+  if(!window.confirm("確定刪除這篇貼文和所有留言、照片？這項操作無法復原。"))return;
+  setBusy(true);
+  try{
+   if(demo){setPosts(old=>old.filter(p=>p.id!==post.id));setComments(old=>old.filter(c=>c.postId!==post.id));}
+   else{await api(invite,{action:"delete",postId:post.id,ownerToken:ownerTokens()[post.id]});await refreshLive();}
+   if(selected===post.id)setSelected(null);setNotice("已刪除貼文");
+  }catch(e){setNotice(e instanceof Error?e.message:"無法刪除")}
+  finally{setBusy(false)}
+ }
+ async function deleteOnePhoto(post:Post,id:string){
+  const token=ownerTokens()[post.id];if(!token||busy)return;
+  setBusy(true);try{await removePhoto(invite,post.id,token,id);await refreshLive();setNotice("照片已移除")}
+  catch(e){setNotice(e instanceof Error?e.message:"無法刪除照片")}
+  finally{setBusy(false)}
+ }
+ async function reportPost(event:React.FormEvent){event.preventDefault();if(!reporting||busy)return;
+  setBusy(true);
+  try{await api(invite,{action:"report",postId:reporting,reason:reportReason.trim()});setReporting(null);setReportReason("");setNotice("已送出檢舉，管理員可查看")}
+  catch(e){setNotice(e instanceof Error?e.message:"檢舉失敗")}
+  finally{setBusy(false)}
+ }
+ async function loadReports(code=adminCode){
+  try{
+   const response=await fetch("/api/books?view=reports",{headers:{"x-crew-books-invite":invite,"x-crew-circle-admin-code":code}});
+   const result=await response.json();
+   if(!response.ok)throw Error("管理密碼錯誤或報告資料表尚未建立");
+   setReports(result.reports||[]);setNotice("已更新檢舉紀錄");
+  }catch(e){setNotice(e instanceof Error?e.message:"無法讀取檢舉")}
+ }
+ async function adminDelete(postId:string){
+  if(!window.confirm("管理員確定刪除此貼文與所有留言、照片？"))return;
+  setBusy(true);
+  try{await api(invite,{action:"moderateDelete",postId,adminCode});await refreshLive();await loadReports();setNotice("已由管理員移除")}
+  catch(e){setNotice(e instanceof Error?e.message:"管理操作失敗")}
+  finally{setBusy(false)}
+ }
  async function publish(event:React.FormEvent){event.preventDefault();if(busy)return;
   const author=form.author.trim(),title=form.title.trim(),description=form.description.trim();
   if(author.length<2||author.length>20||title.length<2||title.length>80||description.length>600){setNotice("請確認暱稱、標題與內容長度");return}
@@ -128,14 +184,29 @@ export default function BooksPage(){
   setBusy(true);
   try{
    const price=form.kind==="sell"?Number(form.price):null;
-   if(demo){const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,category:form.category,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
-    setPosts(current=>[post,...current]);}
-   else {
-    const result=await api(invite,{action:"post",author,title,description,kind:form.kind,category:form.category,price});
-    const tokens=ownerTokens();tokens[result.id]=result.ownerToken;localStorage.setItem(OWNER_STORAGE,JSON.stringify(tokens));
+   let uploadError="";
+   if(demo){
+    if(editing)setPosts(old=>old.map(p=>p.id===editing?{...p,author,title,description,kind:form.kind,category:form.category,price}:p));
+    else{const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,category:form.category,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
+     setPosts(current=>[post,...current]);}
+    if(files.length)uploadError="示範模式不會儲存照片；開啟正式群組後才能上傳。";
+   }else{
+    const tokens=ownerTokens();
+    let id=editing;
+    if(editing)await api(invite,{action:"edit",postId:editing,ownerToken:tokens[editing],author,title,description,kind:form.kind,category:form.category,price});
+    else{
+     const result=await api(invite,{action:"post",author,title,description,kind:form.kind,category:form.category,price});
+     id=result.id;tokens[id!]=result.ownerToken;localStorage.setItem(OWNER_STORAGE,JSON.stringify(tokens));
+    }
+    if(id&&files.length){
+     for(const file of files){try{await uploadPhoto(invite,id,tokens[id],file)}
+      catch(e){uploadError=e instanceof Error?e.message:"照片上傳失敗";break;}}
+    }
     await refreshLive();
    }
-   setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setCategoryFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"發布成功，媽媽友們都能看見！");
+   setName(author);setShowForm(false);setEditing(null);setFiles([]);setForm({...EMPTY,author});
+   setFilter("all");setCategoryFilter("all");setQuery("");
+   setNotice(uploadError?"貼文已儲存，但 "+uploadError:demo?"已更新示範貼文（只存在本機）":"貼文已儲存，群組成員可以看見");
   }catch(e){setNotice(e instanceof Error?e.message:"刊登失敗")}
   finally{setBusy(false)}
  }
