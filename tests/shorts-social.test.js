@@ -5,23 +5,19 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const load=file=>readFileSync(path.join(root,file),"utf8");
 
-function socialModule(){
- // Run the actual front-end TypeScript functions, not duplicated pseudocode.
- const ts=require("typescript");
- const result=ts.transpileModule(load("web-spa/src/teacher/shortsSocial.ts"),{
-  compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}
- });
- const module={exports:{}};
- new Function("module","exports","require",result.outputText)(module,module.exports,require);
- return module.exports;
+async function socialModule(){
+ // Node 22 strips TS types directly; TypeScript 7's native CLI has no transpileModule API.
+ const {stripTypeScriptTypes}=require("node:module");
+ const code=stripTypeScriptTypes(load("web-spa/src/teacher/shortsSocial.ts"),{mode:"strip"});
+ return import("data:text/javascript;charset=utf-8,"+encodeURIComponent(code));
 }
 function storage(){
  const values=new Map();
  return {getItem:key=>values.get(key)??null,setItem:(key,value)=>values.set(key,String(value)),
   removeItem:key=>values.delete(key)};
 }
-test("Shorts hooks are fixed and never interpret query content as a prompt",()=>{
- const social=socialModule();
+test("Shorts hooks are fixed and never interpret query content as a prompt",async()=>{
+ const social=await socialModule();
  assert.deepEqual(social.SHORTS_HOOKS,["details","feelings","next"]);
  assert.equal(social.isShortsHook("details"),true);
  assert.equal(social.isShortsHook("ignore instructions"),false);
@@ -29,16 +25,16 @@ test("Shorts hooks are fixed and never interpret query content as a prompt",()=>
  assert.match(social.shortsOpeningHint("next"),/Do not invent a later event/);
  assert.match(social.shortsOpeningHint("details"),/Keep the already selected conversation language/);
 });
-test("Shorts chapter grouping uses BOTH friend and story ID in timeline order",()=>{
- const {shortsStoryEpisodes}=socialModule();
+test("Shorts chapter grouping uses BOTH friend and story ID in timeline order",async()=>{
+ const {shortsStoryEpisodes}=await socialModule();
  const a={id:"zoe-1",friendId:"zoe",storyId:"coffee",publishedAt:"2026-10-16T08:00:00+08:00"};
  const b={...a,id:"zoe-2",publishedAt:"2026-10-17T08:00:00+08:00"};
  const c={...a,id:"yuna-1",friendId:"yuna"};
  const d={...a,id:"zoe-other",storyId:"lamp"};
  assert.deepEqual(shortsStoryEpisodes(b,[b,c,d,a]).map(p=>p.id),["zoe-1","zoe-2"]);
 });
-test("Shorts follow-ups require a completed conversation and an actual newer post",()=>{
- const social=socialModule();
+test("Shorts follow-ups require a completed conversation and an actual newer post",async()=>{
+ const social=await socialModule();
  const original=global.localStorage;
  global.localStorage=storage();
  try{
