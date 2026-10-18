@@ -39,3 +39,15 @@ test("scrapbook locks future chapters and allows removal of explicit memories",(
  assert.match(model,/allStored\(\)/);
  assert.match(model,/ageSpeech/);
 });
+
+test("only approved independent stage photos can replace the published portraits",()=>{
+ const model=contract.character;
+ assert.deepEqual(model.fullBodyPhotoPlan.map(p=>p.age),model.ages);
+ assert.equal(model.portraits.length,6,"Original portraits stay published until reviewed");
+ assert.ok(model.fullBodyPhotoPlan.every(p=>p.status==="awaiting-approved-independent-photo"));
+ const ui=fs.readFileSync("web-spa/src/timeline/TimelinePortrait.tsx","utf8");
+ assert.match(ui,/PUBLISHED_PORTRAIT_AGES/);
+ assert.match(ui,/p\.status==="approved"/);
+ assert.match(ui,/url&&!failed/);
+ assert.match(ui,/return PUBLISHED_PORTRAIT_AGES\.has\(age\)/);
+});
