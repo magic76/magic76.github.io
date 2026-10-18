@@ -1,27 +1,39 @@
 import {useEffect,useMemo,useState} from "react";
 import "./books.css";
 
-type Kind="swap"|"sell"|"give"|"want";
+type Kind="swap"|"sell"|"give"|"want"|"share"|"ask";
+type Category="books"|"toys"|"school"|"clothes"|"events"|"life"|"other";
 type Status="open"|"reserved"|"closed";
-type Post={id:string;author:string;title:string;description:string;kind:Kind;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number};
+type Post={id:string;author:string;title:string;description:string;kind:Kind;category?:Category;price:number|null;status:Status;createdAt:string;updatedAt?:string;commentCount:number};
 type Comment={id:string;postId:string;author:string;message:string;createdAt:string};
-type Form={author:string;title:string;description:string;kind:Kind;price:string};
+type Form={author:string;title:string;description:string;kind:Kind;category:Category;price:string};
 const STORAGE="crew_books_preview_v1";
 const OWNER_STORAGE="crew_books_owner_tokens_v1";
 const INVITE_STORAGE="crew_books_invite";
 const NAME_STORAGE="crew_books_nickname";
-const EMPTY:Form={author:"",title:"",description:"",kind:"swap",price:""};
+const EMPTY:Form={author:"",title:"",description:"",kind:"share",category:"life",price:""};
 const KINDS:{key:"all"|Kind;label:string}[]=[
- {key:"all",label:"全部"},{key:"swap",label:"交換"},{key:"sell",label:"出售"},
+ {key:"all",label:"全部"},{key:"share",label:"分享"},{key:"ask",label:"詢問"},
+ {key:"swap",label:"交換"},{key:"sell",label:"出售"},
  {key:"give",label:"贈送"},{key:"want",label:"徵求"}
 ];
-const names:Record<Kind,string>={swap:"交換",sell:"出售",give:"贈送",want:"徵求"};
+const CATEGORIES:{key:"all"|Category;label:string}[]=[
+ {key:"all",label:"所有主題"},{key:"books",label:"書籍"},{key:"toys",label:"玩具"},
+ {key:"school",label:"學用品"},{key:"clothes",label:"衣物制服"},{key:"events",label:"活動情報"},
+ {key:"life",label:"育兒生活"},{key:"other",label:"其他"}
+];
+const names:Record<Kind,string>={share:"分享",ask:"詢問",swap:"交換",sell:"出售",give:"贈送",want:"徵求"};
+const categoryNames:Record<Category,string>={books:"書籍",toys:"玩具",school:"學用品",clothes:"衣物制服",events:"活動情報",life:"育兒生活",other:"其他"};
+const topicOf=(post:Post):Category=>post.category&&categoryNames[post.category]?post.category:"books";
+const isDiscussion=(kind:Kind)=>kind==="share"||kind==="ask";
 const statuses:Record<Status,string>={open:"開放中",reserved:"已保留",closed:"已完成"};
 const now=new Date().toISOString();
 const seed:Post[]=[
- {id:"sample-1",author:"安安媽媽",title:"英文繪本 3 本",description:"孩子長大了，想換適合小學中年級的英文故事書。書況良好。",kind:"swap",price:null,status:"open",createdAt:now,commentCount:2},
- {id:"sample-2",author:"晴晴媽媽",title:"兒童百科全書 5 冊",description:"家中書櫃整理，一套 5 本，內頁乾淨，可以面交。",kind:"sell",price:300,status:"open",createdAt:now,commentCount:1},
- {id:"sample-3",author:"Emma 媽媽",title:"徵求適合小二的橋梁書",description:"想找小學二年級能自己閱讀的中文橋梁書，歡迎推薦或交換。",kind:"want",price:null,status:"open",createdAt:now,commentCount:0}
+ {id:"sample-1",author:"安安媽媽",title:"英文繪本 3 本",description:"孩子長大了，想換適合小學中年級的英文故事書。書況良好。",kind:"swap",category:"books",price:null,status:"open",createdAt:now,commentCount:2},
+ {id:"sample-2",author:"晴晴媽媽",title:"兒童百科全書 5 冊",description:"家中書櫃整理，一套 5 本，內頁乾淨，可以面交。",kind:"sell",category:"books",price:300,status:"open",createdAt:now,commentCount:1},
+ {id:"sample-3",author:"Emma 媽媽",title:"親子週末活動推薦",description:"這週末有推薦的小朋友戶外活動嗎？想找適合低年級的行程。",kind:"ask",category:"events",price:null,status:"open",createdAt:now,commentCount:0},
+ {id:"sample-4",author:"小悠媽媽",title:"學校運動會用品分享",description:"找到很實用的準備清單，歡迎大家補充自己的經驗。",kind:"share",category:"school",price:null,status:"open",createdAt:now,commentCount:0},
+ {id:"sample-5",author:"樂樂媽媽",title:"拼圖和積木想送給需要的小朋友",description:"整理出幾盒孩子長大後少玩的玩具，希望找到願意繼續玩的家庭。",kind:"give",category:"toys",price:null,status:"open",createdAt:now,commentCount:0}
 ];
 const examples:Comment[]=[
  {id:"sample-c1",postId:"sample-1",author:"小悠媽媽",message:"想請問這三本大概適合幾歲呢？",createdAt:now},
@@ -29,6 +41,13 @@ const examples:Comment[]=[
  {id:"sample-c3",postId:"sample-2",author:"樂樂媽媽",message:"請問可以單買其中兩本嗎？",createdAt:now}
 ];
 function readJson<T>(key:string,fallback:T):T{try{const data=localStorage.getItem(key);return data?JSON.parse(data) as T:fallback}catch{return fallback}}
+function readPreview(){
+ const previous=readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:[],comments:[]});
+ // Refresh bundled samples, not user-created local posts. Old /books samples
+ // remain represented by the new /circle topics; custom demos are preserved.
+ return {posts:[...(Array.isArray(previous.posts)?previous.posts:[]).filter(p=>p.id&&!p.id.startsWith("sample-")), ...seed],
+  comments:[...(Array.isArray(previous.comments)?previous.comments:[]).filter(c=>c.id&&!c.id.startsWith("sample-")),...examples]};
+}
 function shortDate(value:string){const date=new Date(value);return Number.isNaN(date.getTime())?"最近":date.toLocaleDateString("zh-TW",{month:"numeric",day:"numeric"})}
 function ownerTokens():Record<string,string>{return readJson(OWNER_STORAGE,{})}
 async function api(invite:string,body?:object,postId?:string) {
@@ -40,7 +59,8 @@ async function api(invite:string,body?:object,postId?:string) {
  let result:any={};try{result=await response.json()}catch{throw Error("伺服器回應異常")}
  if(!response.ok) {
   const messages:Record<string,string>={
-   BOOKS_NOT_CONFIGURED:"正式交換板尚未設定資料庫與邀請碼，可先使用示範模式。",
+   BOOKS_NOT_CONFIGURED:"正式交流板尚未設定資料庫與邀請碼，可先使用示範模式。",
+   BOOKS_SCHEMA_UPGRADE_REQUIRED:"交流板資料庫尚未升級，請管理員先執行 0002_circle_topics.sql。",
    INVITE_REQUIRED:"邀請碼不正確，請跟群組管理員確認。",
    BOOKS_DATABASE_ERROR:"資料庫暫時無法使用，請稍後再試。",
    ORIGIN_REJECTED:"安全檢查失敗，請重新開啟本網站。",
@@ -51,17 +71,18 @@ async function api(invite:string,body?:object,postId?:string) {
  }
  return result;
 }
-function BookArt({kind}:{kind:Kind}){return <div className={"books-art books-art-"+kind} aria-hidden="true"><span>{kind==="want"?"?":kind==="give"?"♡":kind==="sell"?"↗":"↔"}</span><span className="books-art-book">▰ ▰ ▰</span></div>}
+function CircleArt({kind,category}:{kind:Kind;category:Category}){const symbol:Record<Category,string>={books:"冊",toys:"✳",school:"筆",clothes:"衣",events:"日",life:"話",other:"＋"};return <div className={"books-art books-art-"+kind+" books-art-topic-"+category} aria-hidden="true"><span>{symbol[category]}</span><span className="books-art-book">{names[kind]}</span></div>}
 export default function BooksPage(){
  const [demo,setDemo]=useState(true);
  const [invite,setInvite]=useState(()=>{try{return sessionStorage.getItem(INVITE_STORAGE)||""}catch{return ""}});
  const [access,setAccess]=useState(false);
  const [inviteInput,setInviteInput]=useState("");
  const [name,setName]=useState(()=>{try{return localStorage.getItem(NAME_STORAGE)||""}catch{return ""}});
- const [posts,setPosts]=useState<Post[]>(()=>readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:seed,comments:examples}).posts);
- const [comments,setComments]=useState<Comment[]>(()=>readJson<{posts:Post[];comments:Comment[]}>(STORAGE,{posts:seed,comments:examples}).comments);
+ const [posts,setPosts]=useState<Post[]>(()=>readPreview().posts);
+ const [comments,setComments]=useState<Comment[]>(()=>readPreview().comments);
  const [selected,setSelected]=useState<string|null>(null);
  const [filter,setFilter]=useState<"all"|Kind>("all");
+ const [categoryFilter,setCategoryFilter]=useState<"all"|Category>("all");
  const [query,setQuery]=useState("");
  const [showForm,setShowForm]=useState(false);
  const [form,setForm]=useState<Form>(EMPTY);
@@ -71,7 +92,7 @@ export default function BooksPage(){
  const [loading,setLoading]=useState(false);
  const [error,setError]=useState("");
  useEffect(()=>{
-  const previous=document.title;document.title="書友交換板｜媽媽友的小小交流角落";
+  const previous=document.title;document.title="媽媽友小圈圈｜交流板";
   const meta=document.querySelector('meta[name="robots"]');
   const before=meta?.getAttribute("content")||"";
   meta?.setAttribute("content","noindex,nofollow");
@@ -86,8 +107,8 @@ export default function BooksPage(){
   .finally(()=>{if(alive)setLoading(false)});
   return()=>{alive=false};
  },[invite]);
- const visible=useMemo(()=>posts.filter(post=>(filter==="all"||post.kind===filter)&&
-  (post.title+" "+post.description+" "+post.author).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,filter,query]);
+ const visible=useMemo(()=>posts.filter(post=>(filter==="all"||post.kind===filter)&&(categoryFilter==="all"||topicOf(post)===categoryFilter)&&
+  (post.title+" "+post.description+" "+post.author+" "+categoryNames[topicOf(post)]).toLocaleLowerCase().includes(query.trim().toLocaleLowerCase())),[posts,filter,categoryFilter,query]);
  const selectedPost=selected?posts.find(p=>p.id===selected):undefined;
  async function refreshLive(code=invite){const data=await api(code);setPosts(data.posts);}
  async function join(event:React.FormEvent){event.preventDefault();const code=inviteInput.trim();if(!code)return;
@@ -98,7 +119,7 @@ export default function BooksPage(){
  }
  function usePreview(){setDemo(true);setAccess(false);setInvite("");setError("");setNotice("目前是示範模式，資料只會留在這台裝置");setSelected(null);
   try{sessionStorage.removeItem(INVITE_STORAGE)}catch{/* optional */}
-  const data=readJson(STORAGE,{posts:seed,comments:examples});setPosts(data.posts);setComments(data.comments);
+  const data=readPreview();setPosts(data.posts);setComments(data.comments);
  }
  async function publish(event:React.FormEvent){event.preventDefault();if(busy)return;
   const author=form.author.trim(),title=form.title.trim(),description=form.description.trim();
@@ -107,14 +128,14 @@ export default function BooksPage(){
   setBusy(true);
   try{
    const price=form.kind==="sell"?Number(form.price):null;
-   if(demo){const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
+   if(demo){const post:Post={id:crypto.randomUUID(),author,title,description,kind:form.kind,category:form.category,price,status:"open",createdAt:new Date().toISOString(),commentCount:0};
     setPosts(current=>[post,...current]);}
    else {
-    const result=await api(invite,{action:"post",author,title,description,kind:form.kind,price});
+    const result=await api(invite,{action:"post",author,title,description,kind:form.kind,category:form.category,price});
     const tokens=ownerTokens();tokens[result.id]=result.ownerToken;localStorage.setItem(OWNER_STORAGE,JSON.stringify(tokens));
     await refreshLive();
    }
-   setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"刊登成功，媽媽友們都能看見！");
+   setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setCategoryFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"發布成功，媽媽友們都能看見！");
   }catch(e){setNotice(e instanceof Error?e.message:"刊登失敗")}
   finally{setBusy(false)}
  }
@@ -146,11 +167,11 @@ export default function BooksPage(){
  }
  return <div className="books-root">
   <div className="books-wrap">
-   <header className="books-top"><a href="/" className="books-brand"><span className="books-logo">本</span><span>書友交換板<small>OUR LITTLE BOOK CIRCLE</small></span></a><span className="books-top-label">媽媽友的分享角落</span></header>
-   <section className="books-hero"><div className="books-eyebrow"><span className="books-dot"/> 好書流動，友誼繼續</div>
-    <h1>讀完的書，<br/><em>換個人繼續喜歡。</em></h1>
-    <p>交換、贈送、出售，或許願找一本好書。讓媽媽友們的閒置好書，遇見下一位小讀者。</p>
-    <div className="books-hero-actions"><button type="button" className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 我要分享一本書</button><span>簡單刊登，不用開商店</span></div>
+   <header className="books-top"><a href="/" className="books-brand"><span className="books-logo">圈</span><span>媽媽友小圈圈<small>FAMILY CIRCLE</small></span></a><span className="books-top-label">媽媽友的分享角落</span></header>
+   <section className="books-hero"><div className="books-eyebrow"><span className="books-dot"/> 生活大小事，都能聊</div>
+    <h1>好東西一起分享，<br/><em>大小事一起交流。</em></h1>
+    <p>書籍、玩具、學用品，也可以分享活動情報、詢問生活大小事。這是專屬媽媽友的小小交流角落。</p>
+    <div className="books-hero-actions"><button type="button" className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 發一則消息</button><span>一則貼文，讓資訊在圈圈流動</span></div>
     <div className="books-hero-ornament" aria-hidden="true"><span className="books-book-b1"/><span className="books-book-b2"/><span className="books-book-b3"/><span className="books-hero-spark">✳</span></div>
    </section>
    <div className={"books-mode "+(demo?"is-demo":"is-live")} role="status">
@@ -160,35 +181,37 @@ export default function BooksPage(){
    {access&&demo&&<form className="books-join" onSubmit={join}><label htmlFor="books-invite">群組邀請碼</label><div><input id="books-invite" type="password" value={inviteInput} onChange={e=>setInviteInput(e.target.value)} placeholder="請向群組管理員索取" autoComplete="off"/><button className="books-primary" disabled={loading}>{loading?"連線中":"加入群組"}</button></div><small>僅邀請的朋友能看到正式貼文，不會公開索引。</small>{error&&<p role="alert">{error}</p>}</form>}
    {!access&&error&&<p className="books-error" role="alert">{error}</p>}
    <section className="books-feed" aria-label="書友貼文">
-    <div className="books-feed-heading"><div><span className="books-eyebrow">COMMUNITY BOARD</span><h2>看看大家分享什麼</h2><p>{demo?"這裡是可互動的範例資料":"群組裡最新的交換資訊"}</p></div><div className="books-feed-count">{visible.length}<small>則資訊</small></div></div>
-    <div className="books-filter"><div className="books-chips">{KINDS.map(item=><button key={item.key} className={filter===item.key?"active":""} onClick={()=>setFilter(item.key)}>{item.label}</button>)}</div><label className="books-search"><span aria-hidden="true">⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋書名、內容或媽媽暱稱" aria-label="搜尋書籍"/></label></div>
+    <div className="books-feed-heading"><div><span className="books-eyebrow">COMMUNITY BOARD</span><h2>看看大家分享什麼</h2><p>{demo?"這裡是可互動的範例資料":"群組裡最新的交流資訊"}</p></div><div className="books-feed-count">{visible.length}<small>則資訊</small></div></div>
+    <div className="books-filter"><div className="books-chips" aria-label="交流方式">{KINDS.map(item=><button key={item.key} className={filter===item.key?"active":""} onClick={()=>setFilter(item.key)}>{item.label}</button>)}</div><label className="books-search"><span aria-hidden="true">⌕</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜尋分享、用品或活動" aria-label="搜尋交流資訊"/></label></div>
+    <div className="books-topics" aria-label="交流主題">{CATEGORIES.map(item=><button key={item.key} className={categoryFilter===item.key?"active":""} onClick={()=>setCategoryFilter(item.key)}>{item.label}</button>)}</div>
     {loading&&!demo&&<div className="books-empty">正在讀取群組資訊…</div>}
     <div className="books-list">{visible.length?visible.map((post,index)=>{
       const own=demo||Boolean(ownerTokens()[post.id]);
       const expanded=selected===post.id;
       return <article className="books-card" key={post.id}>
-       <div className="books-card-media"><BookArt kind={post.kind}/>{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
-       <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{statuses[post.status]}</span></div>
+       <div className="books-card-media"><CircleArt kind={post.kind} category={topicOf(post)}/>{index===0&&post.status==="open"&&<span className="books-new">最新分享</span>}</div>
+       <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className="books-category">{categoryNames[topicOf(post)]}</span><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{isDiscussion(post.kind)?post.status==="closed"?"已結束":"交流中":statuses[post.status]}</span></div>
         <h3>{post.title}</h3><p>{post.description||"歡迎留言詢問更多資訊。"}</p>
         {post.kind==="sell"&&<div className="books-price">NT$ {post.price?.toLocaleString("zh-TW")}</div>}
-        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded}>♡ 留言詢問 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">開放中</option><option value="reserved">已保留</option><option value="closed">已完成</option></select></div>}</div>
+        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded}>♡ 留言交流 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">{isDiscussion(post.kind)?"交流中":"開放中"}</option>{!isDiscussion(post.kind)&&<option value="reserved">已保留</option>}<option value="closed">{isDiscussion(post.kind)?"已結束":"已完成"}</option></select></div>}</div>
        </div>
-       {expanded&&<div className="books-comments"><h4>留言交流</h4>{comments.filter(c=>c.postId===post.id).map(c=><div className="books-comment" key={c.id}><div className="books-mini-avatar">{c.author.slice(0,1)}</div><div><strong>{c.author}</strong><p>{c.message}</p></div></div>)}{!comments.some(c=>c.postId===post.id)&&<p className="books-comment-empty">還沒有留言，來打個招呼吧。</p>}{post.status!=="closed"?<form onSubmit={comment}><input aria-label="留言暱稱" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="你的暱稱"/><textarea aria-label="留言內容" value={commentText} maxLength={300} onChange={e=>setCommentText(e.target.value)} placeholder="想問書況、交換方式……" rows={2}/><button className="books-primary" disabled={busy}>送出留言</button></form>:<p className="books-comment-empty">這篇已完成，留言已關閉。</p>}</div>}
+       {expanded&&<div className="books-comments"><h4>留言交流</h4>{comments.filter(c=>c.postId===post.id).map(c=><div className="books-comment" key={c.id}><div className="books-mini-avatar">{c.author.slice(0,1)}</div><div><strong>{c.author}</strong><p>{c.message}</p></div></div>)}{!comments.some(c=>c.postId===post.id)&&<p className="books-comment-empty">還沒有留言，來打個招呼吧。</p>}{post.status!=="closed"?<form onSubmit={comment}><input aria-label="留言暱稱" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="你的暱稱"/><textarea aria-label="留言內容" value={commentText} maxLength={300} onChange={e=>setCommentText(e.target.value)} placeholder="交流一下、分享想法……" rows={2}/><button className="books-primary" disabled={busy}>送出留言</button></form>:<p className="books-comment-empty">這篇交流已結束，留言已關閉。</p>}</div>}
       </article>
-    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p><button onClick={()=>setShowForm(true)}>＋ 我要刊登</button></div>}</div>
+    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p><button onClick={()=>setShowForm(true)}>＋ 發布貼文</button></div>}</div>
    </section>
-   <div className="books-bottom"><div><strong>一本書不只一個故事。</strong><p>下一段故事，或許就從你的分享開始。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>分享一本書 →</button></div>
-   <footer className="books-footer">書友交換板 · 小圈圈試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
+   <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 →</button></div>
+   <footer className="books-footer">媽媽友小圈圈 · 邀請制試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
   </div>
   {notice&&<div className="books-toast" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="關閉提示">×</button></div>}
-  {showForm&&<div className="books-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false)}}><section className="books-dialog" role="dialog" aria-modal="true" aria-labelledby="books-dialog-title"><div className="books-dialog-head"><div><span className="books-eyebrow">SHARE A BOOK</span><h2 id="books-dialog-title">分享一本好書</h2></div><button onClick={()=>setShowForm(false)} aria-label="關閉">×</button></div><form onSubmit={publish}>
-   <label>分享類型<div className="books-form-kinds">{KINDS.filter(k=>k.key!=="all").map(k=><button type="button" key={k.key} className={form.kind===k.key?"active":""} onClick={()=>setForm(old=>({...old,kind:k.key as Kind,price:""}))}>{k.label}</button>)}</div></label>
+  {showForm&&<div className="books-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false)}}><section className="books-dialog" role="dialog" aria-modal="true" aria-labelledby="books-dialog-title"><div className="books-dialog-head"><div><span className="books-eyebrow">POST TO CIRCLE</span><h2 id="books-dialog-title">發一則消息</h2></div><button onClick={()=>setShowForm(false)} aria-label="關閉">×</button></div><form onSubmit={publish}>
+   <label>交流主題<select required className="books-topic-select" value={form.category} onChange={e=>setForm(old=>({...old,category:e.target.value as Category}))}>{CATEGORIES.filter(c=>c.key!=="all").map(c=><option key={c.key} value={c.key}>{c.label}</option>)}</select></label>
+   <label>貼文目的<div className="books-form-kinds">{KINDS.filter(k=>k.key!=="all").map(k=><button type="button" key={k.key} className={form.kind===k.key?"active":""} onClick={()=>setForm(old=>({...old,kind:k.key as Kind,price:""}))}>{k.label}</button>)}</div></label>
    <label>媽媽暱稱 <span>必填</span><input required minLength={2} maxLength={20} value={form.author} onChange={e=>setForm(old=>({...old,author:e.target.value}))} placeholder="例如：安安媽媽"/></label>
-   <label>書名 / 主題 <span>必填</span><input required minLength={2} maxLength={80} value={form.title} onChange={e=>setForm(old=>({...old,title:e.target.value}))} placeholder="例如：英文繪本三本"/></label>
-   <label>補充說明 <span>選填</span><textarea maxLength={600} rows={4} value={form.description} onChange={e=>setForm(old=>({...old,description:e.target.value}))} placeholder="書況、適合年齡、交換希望…（請勿寫個人聯絡資訊）"/></label>
+   <label>標題 <span>必填</span><input required minLength={2} maxLength={80} value={form.title} onChange={e=>setForm(old=>({...old,title:e.target.value}))} placeholder="例如：週末親子活動推薦"/></label>
+   <label>補充說明 <span>選填</span><textarea maxLength={600} rows={4} value={form.description} onChange={e=>setForm(old=>({...old,description:e.target.value}))} placeholder="想分享或詢問什麼？（請勿公開個人聯絡資訊）"/></label>
    {form.kind==="sell"&&<label>出售價格（台幣） <span>必填</span><input required inputMode="numeric" pattern="[0-9]+" value={form.price} onChange={e=>setForm(old=>({...old,price:e.target.value}))} placeholder="300"/></label>}
    <p className="books-form-note">{demo?"示範貼文只會保存在目前裝置。":"正式貼文將出現在群組裡；請使用同一瀏覽器修改狀態。"}</p>
-   <button className="books-primary books-submit" disabled={busy}>{busy?"刊登中…":"確認刊登"}</button>
+   <button className="books-primary books-submit" disabled={busy}>{busy?"刊登中…":"發布貼文"}</button>
   </form></section></div>}
  </div>;
 }

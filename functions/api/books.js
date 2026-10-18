@@ -1,9 +1,13 @@
 /**
- * Invite-only, small-group book exchange board. Pages Functions: /api/books.
+ * Invite-only, small-group family circle board (legacy /api/books endpoint retained for compatibility). Pages Functions: /api/books.
  * Bind BOOKS_DB (D1) and BOOKS_INVITE_CODE (secret) before enabling live mode.
  * This API intentionally stores no phone numbers, addresses, emails or payment data.
  */
-const KINDS = new Set(["swap", "sell", "give", "want"]);
+const KINDS = new Set(["swap", "sell", "give", "want", "share", "ask"]);
+const CATEGORIES = new Set(["books", "toys", "school", "clothes", "events", "life", "other"]);
+// The pre-existing D1 kind column has a four-value CHECK constraint. Retain
+// that representation while post_type carries the full new intent.
+const legacyKind = kind => kind === "share" ? "give" : kind === "ask" ? "want" : kind;
 const STATES = new Set(["open", "reserved", "closed"]);
 const reply = (data, status=200) => new Response(JSON.stringify(data), {
   status, headers: {"Content-Type":"application/json; charset=utf-8",
@@ -38,9 +42,15 @@ export async function onRequestGet({request,env}) {
       ).bind(id).all();
       return reply({comments:comments.results||[]});
     }
-    const posts=await env.BOOKS_DB.prepare(
-      "SELECT id,author,title,description,kind,price,status,created_at AS createdAt,updated_at AS updatedAt, (SELECT count(*) FROM book_comments c WHERE c.post_id=p.id) AS commentCount FROM book_posts p ORDER BY created_at DESC LIMIT 100"
-    ).all();
+    let posts;
+    try { posts=await env.BOOKS_DB.prepare(
+      "SELECT id,author,title,description,COALESCE(post_type,kind) AS kind,category,price,status,created_at AS createdAt,updated_at AS updatedAt, (SELECT count(*) FROM book_comments c WHERE c.post_id=p.id) AS commentCount FROM book_posts p ORDER BY created_at DESC LIMIT 100"
+    ).all(); }
+    catch {
+      // Old D1 installations remain readable until migration 0002 runs.
+      const legacy=await env.BOOKS_DB.prepare("SELECT id,author,title,description,kind,price,status,created_at AS createdAt,updated_at AS updatedAt, (SELECT count(*) FROM book_comments c WHERE c.post_id=p.id) AS commentCount FROM book_posts p ORDER BY created_at DESC LIMIT 100").all();
+      return reply({posts:(legacy.results||[]).map(p=>({...p,category:"books"}))});
+    }
     return reply({posts:posts.results||[]});
   } catch {return reply({error:"BOOKS_DATABASE_ERROR"},503);}
 }
@@ -57,16 +67,16 @@ export async function onRequestPost({request,env}) {
   try {
     if(action==="post") {
       const author=str(body.author,20),title=str(body.title,80),description=str(body.description,600);
-      const kind=str(body.kind,10);
+      const kind=str(body.kind,10),category=str(body.category||"books",12);
       const price=body.price === null || body.price === "" || body.price === undefined ? null : Number(body.price);
-      if(!valid(author,20,2)||!valid(title,80,2)||description.length>600||!KINDS.has(kind)
+      if(!valid(author,20,2)||!valid(title,80,2)||description.length>600||!KINDS.has(kind)||!CATEGORIES.has(category)
         || (kind==="sell" && (!Number.isSafeInteger(price)||price<0||price>100000))
         || (kind!=="sell" && price!==null)) return reply({error:"INVALID_POST"},400);
       const id=crypto.randomUUID(),ownerToken=crypto.randomUUID()+crypto.randomUUID();
       const ownerHash=await hash(ownerToken);
       await env.BOOKS_DB.prepare(
-        "INSERT INTO book_posts (id,author,title,description,kind,price,status,owner_hash) VALUES (?,?,?,?,?,?,?,?)"
-      ).bind(id,author,title,description,kind,price,"open",ownerHash).run();
+        "INSERT INTO book_posts (id,author,title,description,kind,post_type,category,price,status,owner_hash) VALUES (?,?,?,?,?,?,?,?,?,?)"
+      ).bind(id,author,title,description,legacyKind(kind),kind,category,price,"open",ownerHash).run();
       return reply({id,ownerToken},201);
     }
     if(action==="comment") {
@@ -90,7 +100,10 @@ export async function onRequestPost({request,env}) {
       return reply({ok:true});
     }
     return reply({error:"UNKNOWN_ACTION"},400);
-  } catch {return reply({error:"BOOKS_DATABASE_ERROR"},503);}
+  } catch (error) {
+    if(/no such column|has no column named/i.test(String(error)))return reply({error:"BOOKS_SCHEMA_UPGRADE_REQUIRED"},503);
+    return reply({error:"BOOKS_DATABASE_ERROR"},503);
+  }
 }
 export async function onRequest() {
   return new Response(null,{status:405,headers:{Allow:"GET, POST",...noStore}});

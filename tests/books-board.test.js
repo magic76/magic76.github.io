@@ -20,8 +20,8 @@ function createDb(){
    bind(...values){args=values;return this},
    async run(){
     if(sql.startsWith("INSERT INTO book_posts")){
-     const [id,author,title,description,kind,price,status,owner_hash]=args;
-     posts.set(id,{id,author,title,description,kind,price,status,owner_hash,createdAt:new Date().toISOString(),commentCount:0});
+     const [id,author,title,description,legacyKind,kind,category,price,status,owner_hash]=args;
+     posts.set(id,{id,author,title,description,kind,category,price,status,owner_hash,createdAt:new Date().toISOString(),commentCount:0});
     } else if(sql.startsWith("INSERT INTO book_comments")){
      const [id,postId,author,message]=args;comments.push({id,postId,author,message,createdAt:new Date().toISOString()});
      posts.get(postId).commentCount++;
@@ -54,11 +54,11 @@ test("book board is opt-in and never public-by-default",async()=>{
 test("members can post, comment and close; only the creator controls status",async()=>{
  const {onRequestGet,onRequestPost}=await imported;
  const env={BOOKS_DB:createDb(),BOOKS_INVITE_CODE:invite};
- const first=await onRequestPost({request:mkReq({action:"post",author:"小安媽媽",title:"三本童書",description:"希望交換",kind:"swap",price:null}),env});
+ const first=await onRequestPost({request:mkReq({action:"post",author:"小安媽媽",title:"三本童書",description:"希望交換",kind:"swap",category:"books",price:null}),env});
  assert.equal(first.status,201);const {id,ownerToken}=await first.json();assert.ok(id&&ownerToken);
  const req=new Request(url,{headers:{"x-crew-books-invite":invite}});
  const list=await (await onRequestGet({request:req,env})).json();
- assert.equal(list.posts.length,1);assert.equal(list.posts[0].owner_hash,undefined);
+ assert.equal(list.posts.length,1);assert.equal(list.posts[0].owner_hash,undefined);assert.equal(list.posts[0].category,"books");
  const comment=await onRequestPost({request:mkReq({action:"comment",postId:id,author:"晴晴媽媽",message:"可以交換嗎？"}),env});
  assert.equal(comment.status,201);
  const threads=await(await onRequestGet({request:new Request(url+"?postId="+id,{headers:{"x-crew-books-invite":invite}}),env})).json();
@@ -70,14 +70,35 @@ test("members can post, comment and close; only the creator controls status",asy
  const closed=await onRequestPost({request:mkReq({action:"comment",postId:id,author:"晴晴媽媽",message:"還能換嗎？"}),env});
  assert.equal(closed.status,409);
 });
+test("circle can publish information and questions across categories without breaking legacy kinds",async()=>{
+ const {onRequestGet,onRequestPost}=await imported;
+ const env={BOOKS_DB:createDb(),BOOKS_INVITE_CODE:invite};
+ for(const item of [
+  {kind:"share",category:"events",title:"週末親子活動",description:"分享活動情報",price:null},
+  {kind:"ask",category:"life",title:"請問親子景點",description:"大家有推薦嗎？",price:null},
+  {kind:"give",category:"toys",title:"贈送玩具",description:"積木一盒",price:null}
+ ]){
+  const res=await onRequestPost({request:mkReq({action:"post",author:"安安媽媽",...item}),env});
+  assert.equal(res.status,201,JSON.stringify(await res.json()));
+ }
+ const data=await(await onRequestGet({request:new Request(url,{headers:{"x-crew-books-invite":invite}}),env})).json();
+ assert.deepEqual(data.posts.map(p=>p.category),["events","life","toys"]);
+ assert.deepEqual(data.posts.map(p=>p.kind),["share","ask","give"]);
+ const invalid=await onRequestPost({request:mkReq({action:"post",author:"安安媽媽",title:"活動",kind:"share",category:"untrusted",price:null}),env});
+ assert.equal(invalid.status,400);
+});
+
 test("private route has no main nav or indexable SEO page",()=>{
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
  const build=fs.readFileSync(path.join(root,"scripts/prepare-cloudflare.mjs"),"utf8");
  const routes=JSON.parse(fs.readFileSync(path.join(root,"_routes.json"),"utf8"));
+ assert.match(app,/path="\/circle"/);
  assert.match(app,/path="\/books"/);
- assert.match(app,/!pathname\.startsWith\("\/books"\)/);
+ assert.match(app,/!pathname\.startsWith\("\/circle"\)/);
  assert.ok(routes.include.includes("/api/books")&&routes.include.includes("/api/usage/*"));
- assert.match(build,/join\(out,"books","index\.html"\)/);
- assert.match(build,/Book pilot must remain noindex/);
+ assert.match(build,/for\(const path of \["circle","books"\]\)/);
+ assert.match(build,/Circle pilot must remain noindex/);
+ assert.ok(!fs.readFileSync(path.join(root,"sitemap.xml"),"utf8").includes("/circle/"));
+ assert.ok(fs.existsSync(path.join(root,"migrations/books/0002_circle_topics.sql")));
  assert.ok(!fs.readFileSync(path.join(root,"sitemap.xml"),"utf8").includes("/books/"));
 });
