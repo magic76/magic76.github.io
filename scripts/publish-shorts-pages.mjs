@@ -100,9 +100,9 @@ for(const [filename,file] of images){
  else requireValid(readFileSync(target).equals(readFileSync(file)),"media digest collision "+filename);
 }
 mkdirSync(outDir,{recursive:true});
-writeFileSync(dest,JSON.stringify(feed,null,2)+"\\n".replace("\\\\n","\\n"));
+writeFileSync(dest,JSON.stringify(feed,null,2)+String.fromCharCode(10));
 mkdirSync(join(v2Dir,"pages"),{recursive:true});
 for(const page of archive.pages)
- writeFileSync(join(v2Dir,"pages",page.file),JSON.stringify(page.data,null,2)+"\\n".replace("\\\\n","\\n"));
-writeFileSync(v2IndexFile,JSON.stringify(archive.index,null,2)+"\\n".replace("\\\\n","\\n"));
+ writeFileSync(join(v2Dir,"pages",page.file),JSON.stringify(page.data,null,2)+String.fromCharCode(10));
+writeFileSync(v2IndexFile,JSON.stringify(archive.index,null,2)+String.fromCharCode(10));
 console.log("Published "+posts.length+" approved posts ("+legacyPosts.length+" v1/latest, "+archive.pages.length+" v2 pages) and "+images.size+" referenced images in "+outDir);
