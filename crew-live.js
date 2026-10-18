@@ -177,7 +177,8 @@
     this.interruptStopSeen=false;
     this.interruptInputSeen=false;
     this.playbackEpoch=0;
-    this.volume=Math.max(0,Math.min(100,Number(this.options.volume)||100));
+    var initialVolume=Number(this.options.volume);
+    this.volume=Math.max(0,Math.min(100,Number.isFinite(initialVolume)?initialVolume:100));
     this.startedAt=0;
     this.turns=[];
     this.resumptionHandle="";
