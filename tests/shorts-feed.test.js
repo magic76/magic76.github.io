@@ -36,6 +36,11 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.match(loader,/fetch\(url,\{signal,cache:"no-cache"\}\)/);
  assert.match(loader,/FIRST_PARTY_PHOTO/);
  assert.match(loader,/CREW_FRIEND_IDS/);
+ assert.match(loader,/fetchShortsPage/);
+ assert.match(loader,/fetchShortsPost/);
+ assert.match(loader,/crew-short-index/);
+ assert.match(page,/loadNextPage/);
+ assert.match(page,/feed\\?\\.nextPage/);
  assert.doesNotMatch(loader,/Date\.parse\(candidate\.publishedAt\)>nowMs/);
  assert.doesNotMatch(page,/import .*posts\.json/);
  assert.doesNotMatch(loader,/import .*posts\.json/);
@@ -51,7 +56,7 @@ test("Crew Shorts never plays a generic browser voice that disagrees with the ch
 test("Crew Shorts Live resolves post ID against friend and safe published feed",()=>{
  const live=load("web-spa/src/friends/FriendLivePage.tsx");
  const parser=load("web-spa/src/teacher/shortsFeed.ts");
- assert.match(live,/feed.posts.find\(post=>post.id===postId&&post.friendId===friendId\)/);
+ assert.match(live,/fetchShortsPost/);
  assert.match(live,/buildShortsFriendContext\(shortsPost\)/);
  assert.match(live,/postUnavailable/);
  assert.match(live,/shorts_conversation/);
