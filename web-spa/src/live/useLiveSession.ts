@@ -107,8 +107,10 @@ export function useLiveSession(config:Config){
    const speakingLevel=effectiveSpeakingLevel(
     configRef.current.language||levelSetting.targetLanguage,
     levelSetting.learnerSpeakingLevel,personalMemoryEnabled());
+   const tabooEnglish=configRef.current.pageKey.startsWith("crew-play-mini-taboo-");
    const session=new window.CrewLive.Session({
-    system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
+    system:configRef.current.system+(tabooEnglish?"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you.":""),
+    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
