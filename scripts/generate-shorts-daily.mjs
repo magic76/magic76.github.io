@@ -199,13 +199,10 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
   if(mode==='preview'){report.status='preview-ready';save(reportFile,report);try{renderHtmlReport(report,dir,root)}catch{};return report}
   // Perform one all-or-nothing promotion only after all 5 distinct photos pass QA.
   const all=[...feed.posts,...staged.map(x=>x.post)].sort((a,b)=>a.publishedAt.localeCompare(b.publishedAt));
-  const dropped=all.slice(0,Math.max(0,all.length-100));
-  const retained=all.slice(-100);
-  const archivedByMonth=new Map();
-  for(const p of dropped){const month=p.publishedAt.slice(0,7);archivedByMonth.set(month,[...(archivedByMonth.get(month)||[]),p])}
-  const archiveWrites=[];
-  for(const [month,oldPosts] of archivedByMonth){const p=resolve(root,'content/crew-shorts/approved/archive/'+month+'.json');const old=existsSync(p)?json(p):{schema:1,kind:'crew-shorts-archive',posts:[]};
-   archiveWrites.push([p,{...old,posts:[...old.posts,...oldPosts]}]);}
+  // Source history is append-only. Public Android v1 is capped by the publisher,
+  // not by deleting old, approved source entries.
+  const retained=all;
+  const dropped=[];
   for(const x of staged){const dest=resolve(root,'content/crew-shorts/approved',x.post.image);good(!existsSync(dest),'image already exists '+dest)}
   // All external API requests and media validation have completed. Stage approval atomically from the feed reader perspective.
   const next={...feed,source:'daily',posts:retained};
@@ -213,7 +210,6 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
   const copies=[];
   try{
    for(const x of staged){const dest=resolve(root,'content/crew-shorts/approved',x.post.image);copyFileSync(x.from,dest);copies.push(dest)}
-   for(const [file,obj] of archiveWrites)save(file,obj);
    const pending=approvedFile+'.next';save(pending,next);renameSync(pending,approvedFile);
   }catch(err){for(const p of copies){try{const {unlinkSync}=await import('node:fs');unlinkSync(p)}catch{}}
    writeFileSync(approvedFile,original);throw err}

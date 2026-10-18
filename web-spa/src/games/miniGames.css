@@ -86,3 +86,57 @@
  .crew-mini-number-history li{padding:9px}
 }
 @media(prefers-reduced-motion:reduce){.crew-mini-page *{scroll-behavior:auto!important}}
+
+/* Taboo mobile round board: the task, clock and outcome stay visually connected. */
+.crew-taboo-stage .crew-mini-config{gap:7px}
+.crew-taboo-stage .crew-mini-config>.crew-mini-label{margin:0 0 1px}
+.crew-taboo-eyebrow{display:block;color:#625aac;font-size:10px;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+.crew-taboo-welcome{display:grid;gap:11px}
+.crew-taboo-welcome h2{margin:0;font-size:21px}
+.crew-taboo-welcome p{margin:0}
+.crew-taboo-rules{display:flex;flex-wrap:wrap;gap:7px}
+.crew-taboo-rules span{font-size:12px;font-weight:750;color:#4e488b;background:#f0eeff;border-radius:30px;padding:7px 10px}
+.crew-taboo-start{width:100%;margin-top:5px}
+.crew-taboo-board{display:grid;gap:10px}
+.crew-taboo-scoreboard{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.crew-taboo-scoreboard>div{display:grid;gap:3px;padding:11px 9px;border-radius:12px;background:#f6f5fd;text-align:center}
+.crew-taboo-scoreboard small{font-size:11px;color:var(--muted)}
+.crew-taboo-scoreboard strong{font-size:24px;color:#403b83;font-variant-numeric:tabular-nums}
+.crew-taboo-scoreboard strong span{font-size:11px;font-weight:650;color:var(--muted)}
+.crew-taboo-steps{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.crew-taboo-steps span{height:5px;background:#e7e5f3;border-radius:6px}
+.crew-taboo-steps .is-complete{background:#6e66b5}
+.crew-taboo-steps .is-current{background:#a7a0e4}
+.crew-taboo-last-result{margin:0;padding:9px 11px;border-radius:10px;background:#f1f0fb;color:#484180;font-size:12px}
+.crew-taboo-timer-line{display:flex;align-items:center;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px}
+.crew-taboo-timer-line strong{color:#554da7;font-weight:900;font-size:28px;line-height:1;font-variant-numeric:tabular-nums}
+.crew-taboo-timer-line strong small{font-size:13px;margin-left:2px}
+.crew-taboo-timer-line strong.urgent{color:#ae3042}
+.crew-taboo-timer-track{height:7px;background:#e9e6f3;border-radius:8px;overflow:hidden}
+.crew-taboo-timer-track>span{display:block;height:100%;border-radius:8px;background:#7067c6;transition:width .25s linear}
+.crew-taboo-timer-track>span.urgent{background:#b83049}
+.crew-taboo-prompt{padding:14px;border:1px solid #e6e2f8;border-radius:15px;background:linear-gradient(145deg,#fff,#f9f8ff)}
+.crew-taboo-prompt .crew-mini-target{margin:8px 0 15px;overflow-wrap:anywhere}
+.crew-taboo-prompt .crew-mini-target small{display:block;margin-top:3px}
+.crew-taboo-prompt .crew-mini-label{margin-top:10px}
+.crew-taboo-prompt .crew-mini-muted{margin-bottom:0}
+.crew-taboo-prompt .crew-mini-clue{margin-top:8px}
+.crew-taboo-stage .crew-mini-banned span{border:1px solid #ffccc6}
+.crew-taboo-stage .crew-mini-word-form{margin:0}
+.crew-taboo-stage .crew-mini-input-row button:disabled{opacity:.45;cursor:not-allowed}
+.crew-taboo-input-tip{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:7px}
+.crew-taboo-actions{margin-top:2px}
+.crew-taboo-actions button{min-width:0;flex:1 1 125px}
+.crew-taboo-result .crew-mini-vocab li{align-items:center}
+.crew-taboo-result .crew-mini-vocab li>span{display:grid;gap:3px}
+.crew-taboo-result .crew-mini-vocab li small{font-size:11px;color:var(--muted);letter-spacing:0}
+.crew-taboo-outcome{font-size:11px;font-weight:750;font-style:normal;text-align:right;color:#6a618c}
+.crew-taboo-outcome.correct{color:#27805e}
+.crew-taboo-outcome.violation,.crew-taboo-outcome.timeout{color:#ab3b4a}
+@media(max-width:430px){
+ .crew-taboo-scoreboard strong{font-size:21px}
+ .crew-taboo-prompt{padding:12px}
+ .crew-taboo-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .crew-taboo-actions button{width:auto;min-width:0;flex:auto}
+ .crew-taboo-actions button:first-child:nth-last-child(3){grid-column:1/-1}
+}

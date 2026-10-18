@@ -71,6 +71,25 @@ async function run(){
    await page.close();
    process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Regression: a cold first click from Home can fail to download the lazy
+  // Crew Play module on a flaky connection or during a Pages deployment.
+  // Recover with a single full-document refresh instead of leaving a blank app.
+  const retryContext=await browser.newContext({viewport:{width:390,height:844}});
+  const retryPage=await retryContext.newPage();
+  let gameChunkRequests=0;
+  await retryPage.route(/\/assets\/CrewPlayHubPage-[^/]+\.js(?:\?.*)?$/,async route=>{
+   gameChunkRequests++;
+   if(gameChunkRequests===1)await route.abort("failed");
+   else await route.continue();
+  });
+  await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
+  await retryPage.locator(".crew-home-action-play").click();
+  await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
+  assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
+  assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
+  assert.equal(await retryPage.getByText("頁面暫時無法載入").count(),0,"No persistent blank/error screen");
+  await retryContext.close();
+  process.stdout.write("PASS recover first Home-to-Game chunk fetch failure\n");
   // Version details only render within Settings, not as a fixed overlay.
   for (const route of ["/settings", "/en/settings"]) {
     const page=await context.newPage();
@@ -220,16 +239,16 @@ async function run(){
    await mini.getByRole("button",{name:"回報結果"}).click();
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B reverse feedback");
    await mini.goto(origin+"/games/taboo",{waitUntil:"domcontentloaded"});
-   await mini.getByRole("button",{name:"開始 5 回合"}).waitFor({state:"visible",timeout:15000});
-   await mini.getByRole("button",{name:"開始 5 回合"}).click();
+   await mini.getByRole("button",{name:/開始挑戰/}).waitFor({state:"visible",timeout:15000});
+   await mini.getByRole("button",{name:/開始挑戰/}).click();
    assert.ok(await mini.locator(".crew-mini-target").isVisible(),"Taboo must show offline card");
    const banned=(await mini.locator(".crew-mini-banned span").first().textContent())?.trim()||"";
    assert.ok(banned,"Taboo forbidden word required");
    await mini.locator("#crew-taboo-answer").fill("It is "+banned);
    await mini.locator(".crew-mini-word-form button[type=submit]").click();
-   assert.ok((await mini.locator(".crew-mini-topline").textContent())?.includes("-5"),"Taboo violation deducts five points");
-   await mini.getByRole("button",{name:"B 朋友描述、我猜"}).click();
-   await mini.getByRole("button",{name:"開始 5 回合"}).click();
+   assert.ok((await mini.locator(".crew-taboo-scoreboard").textContent())?.includes("-5"),"Taboo violation deducts five points");
+   await mini.getByRole("button",{name:"朋友描述 · 我猜"}).click();
+   await mini.getByRole("button",{name:/開始挑戰/}).click();
    assert.ok(await mini.locator(".crew-mini-clue").first().isVisible(),"Taboo reverse mode has offline English clue");
    await mini.locator("#crew-taboo-answer").fill("nottherightword");
    await mini.locator(".crew-mini-word-form button[type=submit]").click();

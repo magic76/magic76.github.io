@@ -2,7 +2,7 @@ import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./shorts.css";
-import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
+import {fetchShortsFeed,fetchShortsPage,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
 
 const LIKE_KEY="crew_shorts_demo_likes_v1";
@@ -19,6 +19,11 @@ export function ShortsPage(){
  const [retry,setRetry]=useState(0);
  const [count,setCount]=useState(PAGE_SIZE);
  const loadMoreRef=useRef<HTMLDivElement|null>(null);
+ const nextAbortRef=useRef<AbortController|null>(null);
+ const loadingNextRef=useRef(false);
+ const [loadingMore,setLoadingMore]=useState(false);
+ const [moreError,setMoreError]=useState(false);
+ useEffect(()=>()=>{nextAbortRef.current?.abort();},[]);
  const [translated,setTranslated]=useState<string|null>(null);
  const [likes,setLikes]=useState<string[]>([]);
  useEffect(()=>{setLikes(readLikes());},[]);
@@ -26,7 +31,7 @@ export function ShortsPage(){
   const abort=new AbortController();
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
-   .then(data=>{if(!abort.signal.aborted){setFeed({...data,posts:shuffleShortsPosts(data.posts)});setCount(PAGE_SIZE);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
+   .then(data=>{if(!abort.signal.aborted){setFeed({...data,posts:shuffleShortsPosts(data.posts)});setCount(PAGE_SIZE);setMoreError(false);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry]);
@@ -44,6 +49,37 @@ export function ShortsPage(){
   observer.observe(sentinel);
   return()=>observer.disconnect();
  },[feed,busy,error,count]);
+ function loadNextPage(){
+  if(!feed?.nextPage||loadingNextRef.current)return;
+  const url=feed.nextPage;
+  loadingNextRef.current=true;setLoadingMore(true);setMoreError(false);
+  const abort=new AbortController();nextAbortRef.current=abort;
+  fetchShortsPage(url,abort.signal).then(next=>{
+   if(abort.signal.aborted)return;
+   setFeed(current=>{
+    if(!current||current.nextPage!==url)return current;
+    const seen=new Set(current.posts.map(p=>p.id));
+    return {...current,posts:[...current.posts,...shuffleShortsPosts(next.posts).filter(p=>!seen.has(p.id))],nextPage:next.nextPage};
+   });
+   setCount(current=>current+PAGE_SIZE);
+  }).catch(()=>{if(!abort.signal.aborted)setMoreError(true)})
+   .finally(()=>{
+    loadingNextRef.current=false;
+    if(!abort.signal.aborted)setLoadingMore(false);
+   });
+ }
+ // V2 archive pages are fetched only after the user reaches the current 50-post page.
+ useEffect(()=>{
+  if(typeof IntersectionObserver==="undefined"||busy||error||!feed?.nextPage
+   ||count<feed.posts.length||loadingMore||moreError)return;
+  const sentinel=loadMoreRef.current;
+  if(!sentinel)return;
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();loadNextPage();}
+  },{rootMargin:"600px 0px"});
+  observer.observe(sentinel);
+  return()=>observer.disconnect();
+ },[feed,busy,error,count,loadingMore,moreError]);
  function toggleLike(id:string){
   setLikes(previous=>{
    const next=previous.includes(id)?previous.filter(value=>value!==id):[...previous,id];
@@ -65,7 +101,7 @@ export function ShortsPage(){
   {error?<section className="section crew-shorts-error" role="alert"><p>{en?"The feed is unavailable. Try again.":"動態暫時無法載入，請再試一次。"}</p>
    <button type="button" onClick={()=>setRetry(x=>x+1)}>{en?"Retry":"重試"}</button></section>:null}
   {posts.length>0?<section className="section" aria-label="Crew Shorts">
-   <div className="section-head"><h2>{en?"Friends’ moments":"朋友生活動態"}</h2><small>{posts.length} {en?"stories":"則故事"} · {feed?.source==="demo"?"English demo":posts[0]?.language?.toUpperCase()}</small></div>
+   <div className="section-head"><h2>{en?"Friends’ moments":"朋友生活動態"}</h2><small>{feed?.total??posts.length} {en?"stories":"則故事"} · {feed?.source==="demo"?"English demo":posts[0]?.language?.toUpperCase()}</small></div>
    <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>
     <article className="crew-short-card" key={post.id}>
      <div className="crew-short-image">
@@ -93,14 +129,20 @@ export function ShortsPage(){
       </div>
      </div>
     </article>)}</div>
-   {count<posts.length?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
+   {(count<posts.length||Boolean(feed?.nextPage))?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
     {typeof IntersectionObserver==="undefined"
-     ?<button type="button" className="crew-shorts-more" onClick={()=>setCount(x=>Math.min(x+PAGE_SIZE,posts.length))}>
-       {en?"More stories":"載入更多動態"}
+     ?<button type="button" className="crew-shorts-more" disabled={loadingMore}
+        onClick={()=>count<posts.length?setCount(x=>Math.min(x+PAGE_SIZE,posts.length)):loadNextPage()}>
+       {loadingMore?(en?"Loading…":"載入中…"):(en?"More stories":"載入更多動態")}
       </button>
      :<p className="crew-shorts-progress" role="status">
-       {en?`Scroll for more · ${Math.min(count,posts.length)} / ${posts.length}`:`往下滑看更多 · ${Math.min(count,posts.length)} / ${posts.length}`}
+       {loadingMore?(en?"Loading more stories…":"正在載入更多動態…")
+       :en?`Scroll for more · ${Math.min(count,posts.length)} / ${feed?.total??posts.length}`
+       :`往下滑看更多 · ${Math.min(count,posts.length)} / ${feed?.total??posts.length}`}
       </p>}
+    {moreError?<button type="button" className="crew-shorts-more" onClick={()=>loadNextPage()}>
+      {en?"Retry loading stories":"重新載入動態"}
+     </button>:null}
    </div>:null}
   </section>:null}
  </div>;

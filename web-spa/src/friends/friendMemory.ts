@@ -1,4 +1,5 @@
 import {voiceIdentityPrompt} from "../live/voiceIdentity";
+import {friendLifeBookPrompt} from "../characters/lifeBook";
 import{geminiKey,ensureCore,type LiveTurn}from"../lib/runtime";
 import{normalizeLearningLanguage,personalMemoryEnabled,studentMemories,getPersonalMemoryEpoch,ingestStudentPersonalUpdates,hasMeaningfulLearnerSpeech,verifiedLearnerEvidence}from"../teacher/studentMemory";
 import{CREW_FRIENDS,getCrewFriend,type FriendProfile}from"./friendProfiles";
@@ -172,7 +173,7 @@ export function friendTopicContext(id:string,language:string){
 export function buildFriendSystem(friend:FriendProfile,language:string,nativeLanguage="en",mode:"natural"|"bilingual"|"immersion"="bilingual"){
  return "You are "+friend.name+", a Crew Friend, a fictional conversational partner. You are NOT a language tutor or coach.\n"+
   friendLanguageRule(language,nativeLanguage,mode)+
-  "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+
+  "Personality: "+friend.personality+"\nConversation style: "+friend.interaction+"\n"+friendLifeBookPrompt(friend.id)+"\n"+
   "Follow the selected Friend language mode: natural uses the learner's sustained conversation language, assisted targets "+clean(language,35)+" with optional whole-reply native help, immersion targets only "+clean(language,35)+". Never mix languages within a reply. "+
   "Be curious, socially natural, concise and age-appropriate. No grading, lesson plan, corrections, CEFR labels or teacher feedback unless explicitly requested. "+
   "Use your assigned voice and name consistently. Do not impersonate any teacher or other Crew Friend. "+
