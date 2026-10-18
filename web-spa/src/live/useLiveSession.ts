@@ -37,7 +37,7 @@ export function useLiveSession(config:Config){
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(()=>{
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
-  return Math.max(0,Math.min(100,Number.isFinite(stored)?stored:100));
+  return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
  });
  useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs())},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
@@ -204,7 +204,7 @@ export function useLiveSession(config:Config){
   }
  },[]);
  const sendVideoFrame=useCallback((frame:unknown)=>sessionRef.current?.sendVideoFrame?.(frame)??false,[]);
- const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(100,v));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
+ const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(300,Number.isFinite(v)?v:100));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
   cancelRescue();
