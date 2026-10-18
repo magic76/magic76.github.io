@@ -107,8 +107,10 @@ export function useLiveSession(config:Config){
    const speakingLevel=effectiveSpeakingLevel(
     configRef.current.language||levelSetting.targetLanguage,
     levelSetting.learnerSpeakingLevel,personalMemoryEnabled());
+   const tabooEnglish=configRef.current.pageKey.startsWith("crew-play-mini-taboo-");
    const session=new window.CrewLive.Session({
-    system:configRef.current.system,openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
+    system:configRef.current.system+(tabooEnglish?"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you.":""),
+    openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
@@ -125,7 +127,8 @@ export function useLiveSession(config:Config){
       cancelRescue();
       // Reconnected transports can reuse an older system instruction: reassert
       // the learner's latest friend language mode without a fabricated turn.
-      if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
+      if(tabooEnglish)session.sendControl?.("[TABOO LANGUAGE] Continue in English only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
+      else if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
         session.sendControl?.("[FRIEND RECONNECT MODE — latest user setting wins]\\n"+configRef.current.languageDirective);
       if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
       recoveryRequestRef.current=true;
@@ -144,12 +147,14 @@ export function useLiveSession(config:Config){
     onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
     onTurnComplete:turn=>{
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}
-      if(turn.hasValidOutput&&configRef.current.languageDriftGuard?.(turn.output||"")&&!languageRepairRef.current){
+      const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
+       ||(tabooEnglish&&/[\u0400-\u04ff\u0590-\u08ff\u0900-\u097f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(turn.output||""));
+      if(turn.hasValidOutput&&drift&&!languageRepairRef.current){
        languageRepairRef.current=true;
        // Silent control, not a fabricated learner turn. One repair per learner reply.
-       const rule=configRef.current.languageDirective||"";
-       session.sendControl?.(rule+"\n[LANGUAGE RECOVERY] Your last spoken reply was in an unintended language. Restate that answer briefly in the selected target language. Do not greet or change subjects.");
-      }else if(turn.hasValidOutput&&!configRef.current.languageDriftGuard?.(turn.output||"")){
+       const rule=tabooEnglish?"[TABOO LANGUAGE REPAIR] Use English only; rephrase briefly once without adding a question.":configRef.current.languageDirective||"";
+       session.sendControl?.(rule+"\n[LANGUAGE RECOVERY] Your last spoken reply used an unintended language. Rephrase briefly in the selected language without changing subjects.");
+      }else if(turn.hasValidOutput&&!drift){
        languageRepairRef.current=false;
       }
       // Use the synchronous Live transcript ref; React state can lag behind this callback.

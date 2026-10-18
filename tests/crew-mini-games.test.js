@@ -11,7 +11,7 @@ function moduleFromTs(relative,keyPresent=false){
  const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
-  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess"];
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp"];
  return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>keyPresent);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
@@ -87,4 +87,13 @@ test("AI guesser gets only clues and the game engine verifies the answer",async(
   assert.equal(game.matchTabooGuess({word:"banana"},reply.guess),true);
   assert.equal(game.matchTabooGuess({word:"apple"},reply.guess),false);
  }finally{global.window=previous}
+});
+
+test("Taboo asks at most one specific question, then switches to varied non-questions",()=>{
+ const first=taboo.tabooFollowUp("banana","Could you give me another clue?",1);
+ assert.equal(first,"I guess banana. What would someone use it for?");
+ assert.equal(taboo.tabooFollowUp("","Is it used at home?",1),"Not sure yet. Is it used at home?");
+ assert.equal(taboo.tabooFollowUp("book","Is it something?",2),"I guess book. Try describing its shape or appearance.");
+ assert.equal(taboo.tabooFollowUp("book","Any clues?",3),"I guess book. Tell me where someone would usually find it.");
+ assert.equal(taboo.tabooFollowUp("","Any clues?",5).endsWith("?"),false);
 });
