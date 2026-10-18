@@ -11,7 +11,7 @@ function moduleFromTs(relative,keyPresent=false){
  const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
-  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp,"drawTabooBag"];
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp","drawTabooBag"];
  return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>keyPresent);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
