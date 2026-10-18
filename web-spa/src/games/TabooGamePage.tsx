@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
-import {TABOO_CARDS,tabooViolation,friendGuesses,matchTabooGuess,generateTabooCard,type TabooLevel,type TabooCard} from "./tabooEngine";
+import {TABOO_CARDS,tabooViolation,friendGuesses,matchTabooGuess,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 
 type Mode="describe"|"guess";
@@ -25,22 +25,26 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const [phase,setPhase]=useState<Phase>("ready"),[deck,setDeck]=useState<TabooCard[]>([]);
  const [round,setRound]=useState(0),[timeLeft,setTimeLeft]=useState(60),[deadline,setDeadline]=useState(0);
  const [skips,setSkips]=useState(3),[score,setScore]=useState(0),[answer,setAnswer]=useState("");
- const [message,setMessage]=useState(""),[revealed,setRevealed]=useState(false),[busy,setBusy]=useState(false);
+ const [message,setMessage]=useState(""),[revealed,setRevealed]=useState(false),[busy,setBusy]=useState(false),[guessing,setGuessing]=useState(false);
  const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
  const [voiceSamples,setVoiceSamples]=useState<string[]>([]);
  const [feedback,setFeedback]=useState<string[]>([]);
  const [history,setHistory]=useState<{word:string;result:RoundResult}[]>([]);
  const doneGuard=useRef(-1);
+ const guessSerial=useRef(0);
+ const descriptions=useRef<string[]>([]);
  const card=deck[round];
  const emit=useCallback((text:string)=>setCue(old=>({id:old.id+1,text})),[]);
  const start=()=>{
   setDeck(drawDeck(level));setRound(0);setTimeLeft(60);setDeadline(Date.now()+60000);
   setSkips(3);setScore(0);setAnswer("");setMessage("");setRevealed(false);
+  ++guessSerial.current;descriptions.current=[];setGuessing(false);
   setVoiceSamples([]);setFeedback([]);setHistory([]);doneGuard.current=-1;setPhase("playing");
  };
  const advance=useCallback((reason:RoundResult)=>{
   if(doneGuard.current===round)return;
   doneGuard.current=round;
+  ++guessSerial.current;descriptions.current=[];setGuessing(false);
   if(deck[round])setHistory(old=>[...old,{word:deck[round].word,result:reason}]);
   setAnswer("");setRevealed(false);
   if(round===4){setPhase("done");return;}
@@ -84,14 +88,6 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   setVoiceSamples(old=>[...old.slice(-14),speech.slice(0,250)]);
   submit(speech);
  };
- const onReply=(speech:string)=>{
-  if(mode==="describe"&&phase==="playing"&&card&&doneGuard.current!==round&&matchTabooGuess(card,speech.replace(/^[^a-z]+/i,"").replace(/[?!.]+$/,""))){
-   correct();
-  }
-  // Also accept a natural-language guess containing the exact target as a whole word.
-  else if(mode==="describe"&&phase==="playing"&&card&&doneGuard.current!==round&&
-   new RegExp("(^|[^a-z])"+card.word+"([^a-z]|$)","i").test(speech))correct();
- };
  const handleSubmit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();submit(answer)};
  useEffect(()=>{
   if(phase!=="playing")return;
@@ -131,6 +127,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const generate=async()=>{
   if(phase!=="playing"||!card||!geminiKey()||busy)return;
   setBusy(true);
+  ++guessSerial.current;descriptions.current=[];setGuessing(false);
   try{
    const created=await generateTabooCard(level,deck.map(x=>x.word));
    if(doneGuard.current===round)return;
