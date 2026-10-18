@@ -54,7 +54,206 @@ function toCards(rows:[string,string,string,string,string][],level:TabooLevel):T
   return {word,zh,level,banned:banned.split(","),clues:[pair[0],pair[1]],keywords:keywords.split(",")};
  });
 }
-export const TABOO_CARDS:TabooCard[]=[...toCards(easy,"easy"),...toCards(medium,"medium")];
+const extraEasy:[string,string,string,string,string][]=[
+ ["strawberry","草莓","berry,red,seed","It is delicious dipped in chocolate.|Tiny dots cover its outer surface.","chocolate,dots"],
+ ["orange","柳橙","citrus,juice,peel","This round snack contains separate segments.|You can remove its bright skin by hand.","segments,skin"],
+ ["sandwich","三明治","bread,ham,lunch","Fillings sit between two flat slices.|This meal can be held in both hands.","fillings,slices"],
+ ["noodles","麵條","pasta,soup,ramen","You may eat these long strands with chopsticks.|They often appear in a steaming dish.","strands,chopsticks"],
+ ["soup","湯","liquid,bowl,spoon","This warm dish comforts people on chilly days.|It is easy to sip slowly.","warm,sip"],
+ ["bread","麵包","bake,flour,toast","A bakery smells wonderful in the morning.|This food may have a soft center and a crust.","bakery,crust"],
+ ["egg","蛋","chicken,breakfast,shell","You can scramble or boil this food.|The inside often has a bright center.","scramble,center"],
+ ["milk","牛奶","cow,drink,white","People pour this onto cereal.|It is kept chilled and contains calcium.","cereal,calcium"],
+ ["rice","米飯","grain,white,asia","This staple becomes soft after steaming.|People commonly serve it alongside vegetables.","steaming,vegetables"],
+ ["cookie","餅乾","biscuit,sweet,bake","This snack is crunchy or chewy.|Many versions contain chocolate chips.","chewy,chips"],
+ ["icecream","冰淇淋","cold,cone,frozen","This dessert melts if you wait too long.|It is often served in scoops.","melts,scoops"],
+ ["carrot","胡蘿蔔","orange,rabbit,vegetable","This crunchy root grows underground.|People sometimes cut it into sticks.","root,sticks"],
+ ["watermelon","西瓜","summer,green,seed","This large food is popular at picnics.|Its juicy inside is served in slices.","picnics,juicy"],
+ ["lemon","檸檬","yellow,sour,citrus","A slice of this adds flavor to tea.|Its sharp taste makes people pucker.","slice,pucker"],
+ ["pancake","鬆餅","breakfast,maple,flat","This round dish is cooked in a pan.|People often stack several with syrup.","pan,syrup"],
+ ["popcorn","爆米花","movie,corn,snack","People enjoy this at a cinema.|Small kernels expand with a popping sound.","cinema,kernels"],
+ ["yogurt","優格","dairy,ferment,milk","This creamy dish tastes slightly tangy.|People often eat it with granola.","tangy,granola"],
+ ["honey","蜂蜜","bee,sweet,jar","This golden ingredient is very sticky.|People drizzle it over toast.","sticky,drizzle"],
+ ["cucumber","小黃瓜","green,salad,vegetable","This crunchy item has a watery center.|You can cut it into thin slices.","watery,slices"],
+ ["pineapple","鳳梨","tropical,fruit,spiky","This has a rough outside and a leafy crown.|The inside is juicy with a sharp taste.","crown,juicy"],
+ ["jacket","夾克","coat,warm,zipper","You wear this when the air turns chilly.|It often has sleeves and pockets.","chilly,pockets"],
+ ["hat","帽子","head,cap,wear","This accessory shields you from sunshine.|It sits above your forehead.","sunshine,forehead"],
+ ["socks","襪子","feet,shoes,pair","These are worn inside footwear.|One often disappears in the laundry.","footwear,laundry"],
+ ["gloves","手套","hands,fingers,winter","These protect skin during chilly weather.|They have separate spaces for digits.","skin,digits"],
+ ["backpack","後背包","school,bag,shoulder","Students carry supplies using two straps.|It spreads weight across your body.","students,straps"],
+ ["wallet","錢包","money,cash,card","This small holder fits inside a pocket.|It often contains receipts and payment items.","pocket,receipts"],
+ ["glasses","眼鏡","eyes,vision,lens","Some people wear these to see clearly.|They rest on the nose and ears.","nose,ears"],
+ ["toothbrush","牙刷","teeth,paste,bathroom","This tool has a handle and soft bristles.|People use it as part of a morning routine.","bristles,routine"],
+ ["towel","毛巾","dry,shower,cloth","You use this after washing your body.|Hotels often fold these neatly.","washing,hotels"],
+ ["pillow","枕頭","sleep,bed,head","This soft item supports you at night.|It usually has a removable fabric cover.","night,cover"],
+ ["blanket","毯子","bed,warm,cover","You pull this over yourself when chilly.|It can be made from wool or cotton.","chilly,wool"],
+ ["mirror","鏡子","reflection,glass,face","This surface lets you see yourself.|People check their hair in front of it.","surface,hair"],
+ ["soap","肥皂","wash,bubble,clean","This helps remove dirt with water.|It comes as a bar or in a pump bottle.","dirt,bar"],
+ ["candle","蠟燭","flame,wax,birthday","This small object creates a soft glow.|People blow it out at celebrations.","glow,celebrations"],
+ ["clock","時鐘","time,hour,minute","This object helps you plan your day.|It may hang on a wall with moving hands.","wall,hands"],
+ ["lamp","檯燈","light,bulb,desk","Switch this on to see better at night.|It may stand next to a sofa.","night,sofa"],
+ ["window","窗戶","glass,view,curtain","Open this to let fresh air in.|You can look outdoors through it.","air,outdoors"],
+ ["door","門","open,close,handle","You pass through this to enter a room.|Guests often knock before coming inside.","enter,knock"],
+ ["fridge","冰箱","cold,food,kitchen","This appliance keeps groceries fresh.|You may hear a quiet humming sound.","groceries,humming"],
+ ["oven","烤箱","bake,heat,kitchen","You slide a tray into this appliance.|Raw dough becomes golden inside.","tray,dough"],
+ ["rabbit","兔子","ears,hop,carrot","This animal moves in quick jumps.|Its soft fur appears in many storybooks.","jumps,fur"],
+ ["elephant","大象","trunk,large,animal","This creature has a very long nose.|It often lives with family members.","nose,family"],
+ ["giraffe","長頸鹿","neck,tall,spots","This animal reaches leaves high above it.|Its legs are unusually long.","leaves,legs"],
+ ["turtle","烏龜","shell,slow,water","This creature has hard protection on its back.|Some types can live for decades.","back,decades"],
+ ["dolphin","海豚","ocean,swim,smart","This mammal leaps above the waves.|It communicates with clicking sounds.","waves,clicking"],
+ ["penguin","企鵝","ice,bird,black","This animal walks with a funny waddle.|It moves brilliantly through chilly seas.","waddle,seas"],
+ ["butterfly","蝴蝶","wing,caterpillar,insect","This colorful creature visits flowers.|Its appearance changes dramatically as it grows.","flowers,grows"],
+ ["horse","馬","ride,stable,hoof","This strong animal can pull a carriage.|People groom its long mane.","carriage,mane"],
+ ["sheep","綿羊","wool,farm,baa","This gentle animal grazes in groups.|Its thick coat can make clothing.","grazes,coat"],
+ ["frog","青蛙","jump,pond,green","This creature makes sounds near water.|It begins its life with a tail.","sounds,tail"],
+ ["forest","森林","trees,wood,nature","Hikers follow quiet paths through this place.|Many creatures live beneath its canopy.","hikers,canopy"],
+ ["river","河流","water,stream,flow","This natural feature winds across the land.|Bridges often cross it near towns.","winds,bridges"],
+ ["beach","海灘","sand,sea,coast","People relax here beside the waves.|You can build castles and collect shells.","waves,shells"],
+ ["mountain","山","hill,peak,climb","This rises above the surrounding land.|Hikers may spend hours reaching the top.","rises,hikers"],
+ ["cloud","雲","sky,white,rain","This can resemble floating cotton.|Its outline changes with the wind.","cotton,wind"],
+ ["snow","雪","winter,cold,white","Soft pieces fall from above on chilly days.|Children often roll them into a round figure.","fall,children"],
+ ["flower","花","petal,bloom,garden","People give these on special occasions.|They often have a pleasant scent.","occasions,scent"],
+ ["tree","樹","leaf,trunk,forest","Birds build nests in its branches.|It offers shade for many years.","nests,shade"],
+ ["island","島嶼","ocean,land,sea","This place is surrounded on every side.|Some can only be reached by boat.","surrounded,boat"],
+ ["waterfall","瀑布","river,drop,cliff","Visitors hear a roar before seeing it.|A huge amount pours downward.","roar,pours"],
+ ["bus","公車","public,stop,driver","Many passengers share this city vehicle.|It follows a fixed route through streets.","passengers,route"],
+ ["taxi","計程車","car,fare,driver","You can hire this for a private trip.|A meter may calculate the cost.","hire,meter"],
+ ["boat","船","water,sail,ship","This vessel carries people across lakes.|Some types require oars.","lakes,oars"],
+ ["suitcase","行李箱","luggage,travel,airport","Pack your clothes inside before leaving home.|It often has wheels for rolling.","clothes,wheels"],
+ ["ticket","票券","entry,train,price","This proves you may attend an event.|You can show it on your phone.","event,phone"],
+ ["hotel","飯店","room,stay,travel","Visitors check in at the front counter.|You may receive a key for a temporary space.","counter,key"],
+ ["bridge","橋","river,cross,road","This construction links two sides of a gap.|Pedestrians and vehicles may use it.","gap,pedestrians"],
+ ["park","公園","grass,play,trees","Families visit this outdoor space on weekends.|Paths and benches are often available.","weekends,benches"],
+ ["elevator","電梯","lift,floor,button","You enter this to move vertically.|Its panels slide shut before movement.","vertically,panels"],
+ ["supermarket","超市","shopping,groceries,store","People push carts past rows of products.|You pay at a checkout area.","carts,checkout"],
+ ["firefighter","消防員","fire,rescue,truck","This worker handles dangerous emergencies.|Protective clothing helps near intense heat.","emergencies,protective"],
+ ["dentist","牙醫","teeth,doctor,clinic","This professional examines your gums.|Regular visits help prevent problems.","gums,visits"],
+ ["chef","主廚","cook,kitchen,restaurant","This professional creates dishes for guests.|An apron is common work clothing.","dishes,apron"],
+ ["farmer","農夫","field,crops,land","This person works outdoors growing produce.|Their daily tasks change with seasons.","produce,seasons"],
+ ["musician","音樂家","instrument,music,play","This person might perform on a stage.|Practice helps improve their sound.","stage,practice"],
+ ["pilot","飛行員","airplane,fly,cockpit","This professional works above the clouds.|They follow checklists before departure.","clouds,checklists"],
+ ["painter","畫家","brush,art,canvas","This person makes colorful works by hand.|Splashes may cover their clothes.","colorful,splashes"],
+ ["dancer","舞者","dance,music,stage","This performer uses movement to tell stories.|They often rehearse with others.","movement,rehearse"],
+ ["cashier","收銀員","shop,payment,counter","This worker scans items in a store.|They give change and receipts.","scans,receipts"],
+ ["photographer","攝影師","camera,photo,picture","This professional captures special moments.|They think about framing and shadows.","moments,framing"],
+];
+const extraMedium:[string,string,string,string,string][]=[
+ ["antenna","天線","signal,radio,wireless","This device receives information through invisible waves.|It is sometimes installed high on a rooftop.","waves,rooftop"],
+ ["fingerprint","指紋","finger,identity,pattern","This unique mark helps identify an individual.|Investigators may find it on smooth surfaces.","unique,investigators"],
+ ["encryption","加密","security,password,secret","This process protects digital information.|A key can restore the original message.","information,key"],
+ ["database","資料庫","data,storage,query","A company organizes millions of records here.|Applications search it to retrieve entries.","records,applications"],
+ ["sensor","感測器","detect,device,measure","This component notices environmental changes.|Automatic lamps sometimes rely on it.","changes,automatic"],
+ ["drone","無人機","flying,remote,camera","This small machine travels above rooftops.|Operators use it to inspect difficult places.","rooftops,inspect"],
+ ["robot","機器人","machine,automation,metal","This device performs repeated physical tasks.|Factories use it to place components precisely.","factories,components"],
+ ["processor","處理器","chip,computer,cpu","This component calculates inside electronics.|Its performance influences program responsiveness.","calculates,performance"],
+ ["bandwidth","頻寬","internet,speed,network","This represents the capacity of a connection.|Streaming several movies requires more of it.","capacity,streaming"],
+ ["browser","瀏覽器","website,internet,tab","This application displays online pages.|It keeps bookmarks for frequent destinations.","pages,bookmarks"],
+ ["firewall","防火牆","security,network,block","This protective system filters unwanted connections.|It can prevent suspicious traffic.","filters,traffic"],
+ ["podcast","播客","audio,episode,listen","People subscribe to this spoken format.|Installments feature interviews or stories.","subscribe,interviews"],
+ ["projector","投影機","screen,light,presentation","This machine shows a large image on a wall.|Teachers use it to display slides.","wall,slides"],
+ ["charger","充電器","battery,electric,phone","Connect this accessory when energy runs low.|It often plugs into an outlet.","energy,outlet"],
+ ["prototype","原型","test,design,model","Engineers build this early version first.|It exposes flaws before production.","engineers,flaws"],
+ ["molecule","分子","atom,chemical,science","This tiny structure consists of connected particles.|Its arrangement affects material properties.","particles,arrangement"],
+ ["ecosystem","生態系","nature,animals,environment","Living things interact within this system.|One changing population affects many others.","interact,population"],
+ ["glacier","冰河","ice,mountain,slow","This enormous frozen mass moves gradually.|It can carve valleys into the landscape.","frozen,valleys"],
+ ["fossil","化石","dinosaur,ancient,rock","This preserved trace reveals distant history.|Scientists discover examples buried underground.","preserved,buried"],
+ ["bacteria","細菌","germ,virus,microscope","These microscopic organisms live everywhere.|Some are useful and others cause illness.","organisms,illness"],
+ ["oxygen","氧氣","air,breathe,gas","Humans need this substance to survive.|Plants release it during a natural process.","survive,plants"],
+ ["photosynthesis","光合作用","plant,sunlight,green","This process helps leaves create energy.|Incoming rays become stored chemical fuel.","leaves,energy"],
+ ["constellation","星座","stars,sky,pattern","People connect bright points into imagined shapes.|Some resemble animals or heroes.","shapes,heroes"],
+ ["meteor","流星","space,fall,star","This bright streak flashes through darkness.|A small object heats up high above us.","streak,flashes"],
+ ["eclipse","日月食","sun,moon,shadow","This event happens when one celestial body blocks another.|Observers may need special protection.","celestial,observers"],
+ ["prism","稜鏡","glass,light,rainbow","This clear object separates a beam into colors.|Its angled sides bend incoming rays.","beam,angled"],
+ ["laboratory","實驗室","science,test,experiment","Researchers investigate questions in this room.|Protective goggles are common here.","researchers,goggles"],
+ ["altitude","海拔高度","height,sea,mountain","Pilots monitor this during a journey.|It measures distance above a reference level.","pilots,reference"],
+ ["humidity","濕度","air,water,weather","This measurement increases as conditions feel sticky.|High values can make warm days uncomfortable.","sticky,uncomfortable"],
+ ["drought","乾旱","rain,water,dry","This long period threatens farms and reservoirs.|Communities may restrict outdoor watering.","reservoirs,restrict"],
+ ["tsunami","海嘯","wave,earthquake,ocean","This destructive event follows an offshore disturbance.|People may need to reach higher ground.","offshore,higher"],
+ ["coral","珊瑚","reef,sea,marine","Tiny animals build complex hard structures.|Underwater communities depend on them.","structures,underwater"],
+ ["negotiation","談判","deal,agreement,discuss","Two sides exchange proposals to settle terms.|Compromise may resolve difficult disagreements.","proposals,compromise"],
+ ["deadline","截止期限","time,due,finish","This is the latest acceptable moment for a task.|Teams work harder as it approaches.","moment,teams"],
+ ["empathy","同理心","feelings,understand,compassion","This quality helps recognize another person's experience.|It matters when someone feels upset.","recognize,upset"],
+ ["resilience","韌性","strength,recover,stress","This ability helps people adapt after setbacks.|It is useful during prolonged challenges.","adapt,setbacks"],
+ ["bias","偏見","opinion,unfair,prejudice","This tendency distorts judgment.|It may influence decisions without notice.","judgment,decisions"],
+ ["irony","反諷","opposite,joke,sarcasm","A situation turns out differently than expected.|Writers use contrast to create humor.","expected,contrast"],
+ ["tradition","傳統","culture,custom,family","People repeat this practice across generations.|Holidays preserve examples of it.","generations,holidays"],
+ ["folklore","民間傳說","legend,stories,people","Tales pass through communities over centuries.|Mythical creatures often appear in them.","tales,creatures"],
+ ["souvenir","紀念品","gift,travel,memory","Visitors take this home after a trip.|It may recall a famous landmark.","visitors,landmark"],
+ ["itinerary","行程表","travel,plan,schedule","This document lists places for each day.|It helps coordinate transport and activities.","document,coordinate"],
+ ["customs","海關","border,passport,tax","Travelers declare goods at this checkpoint.|Officers may inspect luggage on arrival.","declare,officers"],
+ ["embassy","大使館","country,diplomat,visa","Citizens seek assistance at this building abroad.|Staff represent their government overseas.","assistance,government"],
+ ["reservation","預約","booking,table,hotel","This arrangement saves a place for a visit.|You may receive a confirmation number.","arrangement,confirmation"],
+ ["invoice","發票","bill,payment,receipt","Businesses send this document requesting an amount owed.|It lists items and dates.","document,items"],
+ ["subscription","訂閱","monthly,service,payment","This arrangement offers access over repeated periods.|It may renew until you cancel.","access,renew"],
+ ["refund","退款","return,money,store","Customers receive this after canceled purchases.|It reverses an earlier charge.","customers,charge"],
+ ["warranty","保固","repair,guarantee,product","This promise covers certain problems after purchase.|Its terms specify a limited period.","promise,terms"],
+ ["mortgage","房貸","house,loan,bank","People use this financing to purchase property.|Regular installments reduce the balance.","property,installments"],
+ ["dividend","股息","stock,share,profit","Some businesses distribute earnings to owners.|Investors receive it at intervals.","earnings,investors"],
+ ["inflation","通貨膨脹","price,economy,rise","This trend reduces purchasing power.|Household budgets feel pressure as costs climb.","purchasing,budgets"],
+ ["orchestra","管弦樂團","music,instruments,concert","Many performers work under one conductor.|Their combined sound fills a hall.","conductor,hall"],
+ ["sculpture","雕塑","art,stone,statue","This three dimensional work may be carved.|Visitors can walk around it.","carved,visitors"],
+ ["novel","長篇小說","book,fiction,story","Readers follow characters through many chapters.|The plot can explore relationships.","chapters,plot"],
+ ["theater","劇院","stage,actors,play","Audiences gather here for live performances.|Rows of seats face curtains.","audiences,curtains"],
+ ["portrait","肖像","painting,face,person","This artwork focuses on one individual.|Pose and expression convey personality.","individual,expression"],
+ ["choreography","編舞","dance,steps,movement","This creative plan organizes a performance.|People rehearse the sequence carefully.","rehearse,sequence"],
+ ["documentary","紀錄片","film,real,facts","This production examines actual events.|Interviews and archival footage supply evidence.","interviews,footage"],
+ ["auction","拍賣","bid,sell,price","Buyers compete to obtain an item.|The highest offer may win.","buyers,offer"],
+ ["curator","策展人","museum,art,exhibition","This professional organizes works for display.|They explain why a collection matters.","organizes,collection"],
+ ["exhibition","展覽","display,gallery,art","Visitors view a themed collection here.|Information panels explain individual objects.","visitors,panels"],
+ ["innovation","創新","idea,new,technology","This is a useful improvement over existing methods.|It begins by questioning assumptions.","improvement,assumptions"],
+ ["collaboration","協作","team,work,together","People combine efforts toward a shared outcome.|Communication makes the process smoother.","efforts,communication"],
+ ["hypothesis","假設","science,theory,test","Researchers propose this before collecting evidence.|Experiments may support or challenge it.","evidence,experiments"],
+ ["perspective","觀點","view,opinion,angle","Two people interpret the same event differently.|Another viewpoint can change judgment.","interpret,viewpoint"],
+ ["metaphor","隱喻","language,comparison,poetry","Writers describe one thing as another.|This makes abstract ideas vivid.","writers,abstract"],
+ ["paradox","悖論","logic,contradiction,puzzle","A statement seems impossible yet reveals insight.|It challenges common assumptions.","statement,assumptions"],
+ ["probability","機率","chance,math,percent","This indicates how likely an event is.|A coin toss often demonstrates it.","likely,coin"],
+ ["momentum","動量","physics,motion,mass","This quantity depends on moving material.|A heavy vehicle may be hard to stop.","material,vehicle"],
+ ["friction","摩擦力","rub,surface,force","This resistance slows sliding objects.|It helps your shoes grip the floor.","resistance,grip"],
+ ["velocity","速度向量","speed,direction,physics","This measure includes pace and orientation.|Changing course alters it.","orientation,course"],
+ ["frequency","頻率","sound,wave,rate","This describes how often something repeats.|In music it helps determine pitch.","repeats,pitch"],
+ ["diagnosis","診斷","doctor,disease,medical","A professional identifies the cause of symptoms.|Tests support their conclusion.","symptoms,tests"],
+ ["vaccine","疫苗","injection,immune,virus","This preparation trains the body's defenses.|It helps prevent certain illnesses.","defenses,prevent"],
+ ["antibiotic","抗生素","medicine,bacteria,infection","A professional prescribes this for some illnesses.|It does not treat every sickness.","prescribes,illnesses"],
+ ["nutrition","營養","food,health,diet","This concerns what bodies need from meals.|A balanced intake supports growth.","meals,growth"],
+ ["hydration","水分補充","drink,water,thirst","This supports your body during exercise.|Athletes monitor it in hot conditions.","exercise,athletes"],
+ ["meditation","冥想","mind,relax,breathing","People practice this to focus attention.|Quiet sessions help notice passing thoughts.","attention,thoughts"],
+ ["sustainability","永續性","environment,recycle,future","This approach considers long term resources.|It avoids exhausting what later generations need.","resources,generations"],
+];
+export const TABOO_CARDS:TabooCard[]=[...toCards(easy,"easy"),...toCards(extraEasy,"easy"),...toCards(medium,"medium"),...toCards(extraMedium,"medium")];
+
+/** Persistent per-difficulty shuffle bag. Consume the entire deck before recycling; keep boundary cards apart. */
+export type TabooBagState={remaining:string[];recent:string[]};
+export function drawTabooBag(level:TabooLevel,saved:unknown,random:()=>number=Math.random):{cards:TabooCard[];state:TabooBagState}{
+ const pool=TABOO_CARDS.filter(card=>card.level===level);
+ const byWord=new Map(pool.map(card=>[card.word,card]));
+ const raw=saved&&typeof saved==="object"&&!Array.isArray(saved)?saved as Partial<TabooBagState>:{};
+ const valid=(items:unknown):string[]=>{
+  if(!Array.isArray(items))return [];
+  return [...new Set(items.filter((word):word is string=>typeof word==="string"&&byWord.has(word)))];
+ };
+ let remaining=valid(raw.remaining);
+ const recent=valid(raw.recent).slice(-10);
+ const cards:TabooCard[]=[];
+ const shuffle=(words:string[]):string[]=>{
+  for(let i=words.length-1;i>0;i--){
+   const j=Math.min(i,Math.max(0,Math.floor(random()*(i+1))));
+   [words[i],words[j]]=[words[j],words[i]];
+  }
+  return words;
+ };
+ while(cards.length<Math.min(5,pool.length)){
+  if(!remaining.length){
+   const selected=new Set(cards.map(card=>card.word));
+   const candidates=pool.map(card=>card.word).filter(word=>!selected.has(word));
+   const preferred=candidates.filter(word=>!recent.includes(word));
+   const deferred=candidates.filter(word=>recent.includes(word));
+   remaining=[...shuffle(preferred),...shuffle(deferred)];
+  }
+  const word=remaining.shift();
+  if(word&&!cards.some(card=>card.word===word))cards.push(byWord.get(word)!);
+ }
+ return {cards,state:{remaining,recent:[...recent,...cards.map(card=>card.word)].slice(-10)}};
+}
+
 const clean=(s:string)=>s.toLowerCase().trim().replace(/[^a-z0-9\s-]/g," ").replace(/\s+/g," ");
 export function containsTerm(text:string,term:string):boolean{
  return (" "+clean(text)+" ").includes(" "+clean(term)+" ");
