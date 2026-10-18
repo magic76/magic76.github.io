@@ -4,7 +4,7 @@ export type ShortPost={
  imageAlt:string;publishedAt:string;language:string;storyId:string;
  translationZh?:string;storyContext?:string;mediaCredit?:string;
 };
-export type ShortFeed={schema:1;kind:"crew-shorts";generatedAt:string;posts:ShortPost[];notes?:string;source?:"demo"|"seed"|"daily"};
+export type ShortFeed={schema:1;kind:"crew-shorts";generatedAt:string;posts:ShortPost[];notes?:string;source?:"demo"|"seed"|"daily";nextPage?:string|null;total?:number};
 const PUBLIC_FEED="/features/teacher/shorts/posts.json";
 const CONFIG_URL="/features/teacher/shorts/config.json";
 const MAX_POSTS=100;
@@ -60,7 +60,35 @@ async function jsonAt(url:string,signal:AbortSignal):Promise<unknown>{
  return response.json();
 }
 /** Feed location can point to R2/CDN later without shipping a new JS bundle. */
+const V2_INDEX="/features/teacher/shorts/v2/index.json";
+const V2_PAGE=new RegExp("^/features/teacher/shorts/v2/pages/[0-9]{5}[.]json$");
+type ShortArchiveIndex={schema:2;kind:"crew-short-index";total:number;pages:Array<{url:string;count:number}>;lookup:Record<string,string>};
+async function fetchArchiveIndex(signal:AbortSignal):Promise<ShortArchiveIndex>{
+ const value=await jsonAt(V2_INDEX,signal) as Partial<ShortArchiveIndex>;
+ if(value?.schema!==2||value.kind!=="crew-short-index"||!Array.isArray(value.pages)
+   ||!Number.isSafeInteger(value.total)||!value.pages.length
+   ||!value.lookup||typeof value.lookup!=="object"||Array.isArray(value.lookup)
+   ||value.pages.some(p=>!V2_PAGE.test(p?.url)||!Number.isSafeInteger(p.count)||p.count<1||p.count>50))
+  throw Error("Invalid Shorts archive index");
+ return value as ShortArchiveIndex;
+}
+/** A v2 page reuses already-approved v1 post fields; no generic/untrusted media is accepted. */
+export async function fetchShortsPage(url:string,signal:AbortSignal):Promise<ShortFeed>{
+ if(!V2_PAGE.test(url))throw Error("Unsafe Shorts page path");
+ const value=await jsonAt(url,signal) as {schema?:number;kind?:string;posts?:unknown;source?:ShortFeed["source"];generatedAt?:string;nextPage?:unknown};
+ if(value?.schema!==2||value.kind!=="crew-short-page"||!Array.isArray(value.posts)||value.posts.length>50
+  ||(value.nextPage!==null&&value.nextPage!==undefined&&(typeof value.nextPage!=="string"||!V2_PAGE.test(value.nextPage))))
+  throw Error("Invalid Shorts v2 page");
+ const feed=normalizeShortFeed({schema:1,kind:"crew-shorts",posts:value.posts,source:value.source,generatedAt:value.generatedAt});
+ return {...feed,nextPage:typeof value.nextPage==="string"?value.nextPage:null};
+}
 export async function fetchShortsFeed(signal:AbortSignal):Promise<ShortFeed>{
+ try{
+  const index=await fetchArchiveIndex(signal);
+  const feed=await fetchShortsPage(index.pages[0].url,signal);
+  return {...feed,total:index.total};
+ }catch(error){if(signal.aborted)throw error}
+ // Keep the published v1 contract available throughout the Android migration.
  let url=PUBLIC_FEED;
  try{
   const settings=await jsonAt(CONFIG_URL,signal) as {schema?:number;feedUrl?:unknown};
@@ -71,6 +99,19 @@ export async function fetchShortsFeed(signal:AbortSignal):Promise<ShortFeed>{
   if(signal.aborted||url===PUBLIC_FEED)throw error;
   return normalizeShortFeed(await jsonAt(PUBLIC_FEED,signal));
  }
+}
+/** Resolve historic Shorts deep links in O(1) page fetches, not a scan of all past posts. */
+export async function fetchShortsPost(postId:string,friendId:string,signal:AbortSignal):Promise<ShortPost|null>{
+ if(!/^[a-zA-Z0-9][A-Za-z0-9_-]{2,95}$/.test(postId)||!CREW_FRIEND_IDS.has(friendId))return null;
+ try{
+  const index=await fetchArchiveIndex(signal);
+  const url=index.lookup[postId];
+  if(typeof url!=="string"||!V2_PAGE.test(url)||!index.pages.some(p=>p.url===url))return null;
+  const feed=await fetchShortsPage(url,signal);
+  return feed.posts.find(post=>post.id===postId&&post.friendId===friendId)||null;
+ }catch(error){if(signal.aborted)throw error}
+ const feed=await fetchShortsFeed(signal);
+ return feed.posts.find(post=>post.id===postId&&post.friendId===friendId)||null;
 }
 /** Shuffle a copy for one Shorts visit; preserve chronological feed order for other consumers. */
 export function shuffleShortsPosts(posts:readonly ShortPost[],random:()=>number=Math.random):ShortPost[]{
