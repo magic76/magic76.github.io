@@ -93,10 +93,11 @@ test("private route has no main nav or indexable SEO page",()=>{
  const build=fs.readFileSync(path.join(root,"scripts/prepare-cloudflare.mjs"),"utf8");
  const routes=JSON.parse(fs.readFileSync(path.join(root,"_routes.json"),"utf8"));
  assert.match(app,/path="\/circle"/);
- assert.match(app,/path="\/books"/);
+ assert.doesNotMatch(app,/path="\/books"/);
  assert.match(app,/!pathname\.startsWith\("\/circle"\)/);
  assert.ok(routes.include.includes("/api/books")&&routes.include.includes("/api/usage/*"));
- assert.match(build,/for\(const path of \["circle","books"\]\)/);
+ assert.match(build,/writeFileSync\(join\(out,"circle","index\.html"\),circleHtml\)/);
+ assert.doesNotMatch(build,/join\(out,"books","index\.html"\)/);
  assert.match(build,/Circle pilot must remain noindex/);
  assert.ok(!fs.readFileSync(path.join(root,"sitemap.xml"),"utf8").includes("/circle/"));
  assert.ok(fs.existsSync(path.join(root,"migrations/books/0002_circle_topics.sql")));
