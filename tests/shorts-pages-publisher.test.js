@@ -97,7 +97,7 @@ test("Content inventory warns before the last approved day",()=>{
  const script=path.join(root,"scripts/check-shorts-inventory.mjs");
  const ok=spawnSync(process.execPath,[script,"--today","2026-10-16"],{cwd:root,encoding:"utf8"});
  assert.equal(ok.status,0,ok.stderr);
- assert.match(ok.stdout,/final release 2026-10-18/);
+ assert.match(ok.stdout,/final release 2026-10-19/);
  assert.match(ok.stdout,/::warning::/);
 });
 test("Scheduled Pages release activates after seed approval and remains independent of R2",()=>{
