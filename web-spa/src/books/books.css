@@ -29,3 +29,36 @@
 @media(max-width:840px){.books-list{grid-template-columns:repeat(2,minmax(0,1fr))}.books-hero-ornament{opacity:.55;right:-55px}.books-hero p{max-width:55%}.books-filter{flex-wrap:wrap}.books-search{max-width:none;flex:1}}
 @media(max-width:600px){.books-wrap{width:min(100% - 28px,540px)}.books-top{height:75px}.books-top-label{font-size:10px}.books-logo{width:37px;height:37px}.books-brand{font-size:16px}.books-brand small{font-size:7px}.books-hero{padding:30px 23px 32px;min-height:330px;border-radius:22px}.books-hero h1{font-size:34px;margin:17px 0 12px}.books-hero p{max-width:100%;font-size:12px;padding-right:42px}.books-hero-ornament{width:150px;height:115px;bottom:-13px;right:-54px;opacity:.22}.books-book-b1,.books-book-b2,.books-book-b3{height:118px;width:46px}.books-book-b1{left:8px}.books-book-b2{left:49px}.books-book-b3{left:92px}.books-hero-actions{margin-top:21px}.books-hero-actions span{display:none}.books-primary{padding:12px 15px}.books-mode{padding:12px;align-items:start;margin:16px 0}.books-mode span{font-size:10px}.books-mode button{font-size:11px}.books-feed{padding:17px 0}.books-feed-heading h2{font-size:25px}.books-feed-count{font-size:24px}.books-filter{display:grid}.books-chips{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}.books-chips button{padding:10px 0;font-size:11px}.books-search{max-width:100%}.books-list{grid-template-columns:1fr;gap:14px}.books-card{display:grid;grid-template-columns:110px minmax(0,1fr);border-radius:17px}.books-card-media{height:100%;min-height:195px}.books-art>span:first-child{width:57px;height:67px;border-radius:17px;font-size:37px}.books-new{top:9px;left:8px;padding:5px;font-size:8px}.books-card-content{padding:12px}.books-card-meta{gap:4px;font-size:9px;flex-wrap:wrap}.books-avatar{width:20px;height:20px}.books-tags{margin:9px 0 4px}.books-card h3{font-size:14px;margin:6px 0}.books-card-content>p{font-size:10px;min-height:0;margin:0 0 8px}.books-card-footer{padding-top:8px;flex-wrap:wrap}.books-comments{grid-column:1/-1}.books-bottom{padding:19px;align-items:start}.books-bottom strong{font-size:18px}.books-bottom p{font-size:10px}.books-bottom .books-primary{font-size:11px}.books-dialog{padding:20px}}
 @media(prefers-reduced-motion:reduce){.books-root *{animation:none!important;transition:none!important}}
+
+
+/* The circle is an exchange of information as well as objects. */
+.books-art-share{background:#dce9df}.books-art-share>span:first-child{background:#759b7e}
+.books-art-ask{background:#e7e5f2}.books-art-ask>span:first-child{background:#8b8ab4}
+.books-art-topic-events{background:#fbebd7}.books-art-topic-events>span:first-child{background:#c9a66c}
+.books-art-topic-school{background:#e2e9f0}.books-art-topic-school>span:first-child{background:#7596b1}
+.books-art-topic-life{background:#f3e5e5}.books-art-topic-life>span:first-child{background:#bc9397}
+.books-art-topic-toys{background:#f4e6db}.books-art-topic-toys>span:first-child{background:#bf987a}
+.books-art-topic-clothes{background:#e7e5f1}.books-art-topic-clothes>span:first-child{background:#938cad}
+.books-art-topic-other{background:#e9e9e2}.books-art-topic-other>span:first-child{background:#8c9985}
+.books-category{font-size:10px;font-weight:800;padding:5px 8px;border-radius:7px;background:#ebf1eb;color:#416b50}
+.books-topics{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin:-5px 0 20px}
+.books-topics button{background:transparent;color:#667666;border:1px solid #d7e1d4;border-radius:99px;padding:8px 13px;font-size:11px;font-weight:750}
+.books-topics button.active{background:#e0eee2;border-color:#6e9b74;color:#315e3e}
+.books-form-kinds{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.books-dialog .books-topic-select{padding:12px;color:#304d35;border:1px solid #dee6dd;border-radius:11px;background:#fff}
+.books-hero-ornament{transform:none;right:9%;bottom:45px}
+.books-book-b1,.books-book-b2,.books-book-b3{height:140px;width:140px;border-radius:50%;box-shadow:0 20px 35px #34564018;inset:auto;position:absolute}
+.books-book-b1{left:0;bottom:5px;background:#caa18a;transform:none}
+.books-book-b2{left:84px;bottom:65px;background:#f3db9c;transform:none}
+.books-book-b3{left:147px;bottom:-9px;background:#95b7a5;transform:none}
+.books-hero-spark{right:0;top:-50px}
+@media(max-width:600px){
+ .books-chips{display:flex;flex-wrap:wrap}
+ .books-chips button{flex:1 0 auto;padding:8px 12px}
+ .books-topics{flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:2px}
+ .books-topics button{flex:0 0 auto}
+ .books-form-kinds{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .books-hero-ornament{right:-52px;bottom:0;width:150px;height:150px}
+ .books-book-b1,.books-book-b2,.books-book-b3{height:90px;width:90px}
+ .books-book-b1{left:0;bottom:0}.books-book-b2{left:36px;bottom:58px}.books-book-b3{left:78px;bottom:-3px}
+}
