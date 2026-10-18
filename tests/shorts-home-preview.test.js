@@ -28,7 +28,8 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  assert.match(component,/IntersectionObserver/);
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
- assert.match(component,/&post=/);
+ assert.match(component,/shortsChatUrl\(post,"details"\)/);
+ assert.doesNotMatch(component,/crew-home-short-chat|\/friend\/live\?id=/);
  assert.match(component,/\/teacher\/shorts/);
  assert.match(component,/status==="error"/);
  assert.match(component,/feed\?\.source==="demo"/);

@@ -3,7 +3,7 @@ import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
-import {shortsChatUrl,shortsHookLabel,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
+import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
@@ -87,7 +87,9 @@ export function HomeShortsPreview(){
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
     {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
-     <div className="crew-home-short-photo">
+     <Link className="crew-home-short-photo" to={shortsChatUrl(post,"details")}
+      aria-label={en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"}
+      onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home")}}>
       <img src={post.image} alt={post.imageAlt} loading="lazy" decoding="async"
        onError={event=>{
         const image=event.currentTarget;
@@ -95,7 +97,7 @@ export function HomeShortsPreview(){
         image.dataset.fallback="1";
         image.src="/assets/friends/crew_friend_"+post.friendId+".webp";
        }}/>
-     </div>
+     </Link>
      <div className="crew-home-short-content">
       <strong>{post.friendName}</strong>
       {shortsStoryEpisodes(post,feed?.posts||[]).length>1?<small className="crew-home-short-series">{en?"Ongoing story":"連載故事"}</small>:null}
@@ -103,10 +105,7 @@ export function HomeShortsPreview(){
       <Link className="crew-home-short-question" onClick={()=>{
        trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
       }} to={shortsChatUrl(post,"details")}>
-       {shortsHookLabel("details",en)} <span aria-hidden="true">↗</span>
-      </Link>
-      <Link className="crew-home-short-chat" onClick={()=>trackUsageEvent("shorts_chat_click","shorts_home")} to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
-       {t("practice.shortsChat",{name:post.friendName})}<span aria-hidden="true">→</span>
+       {en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"} <span aria-hidden="true">→</span>
       </Link>
      </div>
     </article>)}
