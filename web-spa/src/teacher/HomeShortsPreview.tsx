@@ -3,11 +3,13 @@ import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
+import {shortsChatUrl,shortsHookLabel,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
 export function HomeShortsPreview(){
- const {t}=useTranslation("teacher");
+ const {t,i18n}=useTranslation("teacher");
+ const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
  const [pullDistance,setPullDistance]=useState(0);
  const gesture=useRef<{x:number;y:number;atEnd:boolean}|null>(null);
@@ -51,6 +53,7 @@ export function HomeShortsPreview(){
   if(seen.has(post.friendId))return false;
   seen.add(post.friendId);return true;
  }).slice(0,10)||[];
+ const followUps=shortsStoryFollowUps(feed?.posts||[]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
   const mark=()=>{if(!impressionSent.current){impressionSent.current=true;trackUsageEvent("shorts_view","shorts_home");}};
@@ -73,6 +76,13 @@ export function HomeShortsPreview(){
   </div>}
   {status==="error"&&<Link className="crew-home-shorts-unavailable" to="/teacher/shorts">{t("practice.shortsUnavailable")} →</Link>}
   {status==="ready"&&posts.length>0&&<>
+   {followUps.length?<div className="crew-home-shorts-update">
+    <span>{en?"New story chapter":"你聊過的故事更新了"}</span>
+    <Link to={shortsChatUrl(followUps[0].post,"next")}
+     onClick={()=>{trackUsageEvent("shorts_story_followup","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home")}}>
+     {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} →
+    </Link>
+   </div>:null}
    <div className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
@@ -88,7 +98,13 @@ export function HomeShortsPreview(){
      </div>
      <div className="crew-home-short-content">
       <strong>{post.friendName}</strong>
+      {shortsStoryEpisodes(post,feed?.posts||[]).length>1?<small className="crew-home-short-series">{en?"Ongoing story":"連載故事"}</small>:null}
       <p lang={post.language}>{post.caption}</p>
+      <Link className="crew-home-short-question" onClick={()=>{
+       trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
+      }} to={shortsChatUrl(post,"details")}>
+       {shortsHookLabel("details",en)} <span aria-hidden="true">↗</span>
+      </Link>
       <Link className="crew-home-short-chat" onClick={()=>trackUsageEvent("shorts_chat_click","shorts_home")} to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
        {t("practice.shortsChat",{name:post.friendName})}<span aria-hidden="true">→</span>
       </Link>
