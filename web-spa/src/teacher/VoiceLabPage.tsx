@@ -43,7 +43,7 @@ export function VoiceLabPage(){
  const voiceUsers=voiceAudit.users.get(normalizeLiveVoice(voice))||[];
  function changeVoiceFilter(next:VoiceFilter){
   setVoiceFilter(next);
-  const options=next==="unused"?voiceAudit.unused:next==="shared"?voiceAudit.shared:LIVE_VOICES;
+  const options:readonly string[]=next==="unused"?voiceAudit.unused:next==="shared"?voiceAudit.shared:LIVE_VOICES;
   if(options.length&&!options.includes(normalizeLiveVoice(voice)))setVoice(options[0]);
  }
  const system=useMemo(()=>(
