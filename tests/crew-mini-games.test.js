@@ -11,7 +11,7 @@ function moduleFromTs(relative,keyPresent=false){
  const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
-  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp"];
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp,"drawTabooBag"];
  return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>keyPresent);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
@@ -48,11 +48,11 @@ test("spoken 1A2B digits and xAyB are normalized with invalid phrases rejected",
  assert.deepEqual(numbers.parseSpokenAB("1A and 2B",4),{a:1,b:2});
  assert.equal(numbers.parseSpokenAB("four A two B",4),null);
 });
-test("Taboo has forty distinct offline cards with safe clues and rule validation",()=>{
- assert.equal(taboo.TABOO_CARDS.length,40);
- assert.equal(new Set(taboo.TABOO_CARDS.map(c=>c.word)).size,40);
- assert.equal(taboo.TABOO_CARDS.filter(c=>c.level==="easy").length,20);
- assert.equal(taboo.TABOO_CARDS.filter(c=>c.level==="medium").length,20);
+test("Taboo has two hundred distinct offline cards with safe clues and rule validation",()=>{
+ assert.equal(taboo.TABOO_CARDS.length,200);
+ assert.equal(new Set(taboo.TABOO_CARDS.map(c=>c.word)).size,200);
+ assert.equal(taboo.TABOO_CARDS.filter(c=>c.level==="easy").length,100);
+ assert.equal(taboo.TABOO_CARDS.filter(c=>c.level==="medium").length,100);
  for(const card of taboo.TABOO_CARDS){
   assert.ok(card.banned.length>=3&&card.banned.length<=5);
   for(const clue of card.clues)assert.equal(taboo.tabooViolation(card,clue),null,card.word+" unsafe clue: "+clue);
@@ -96,4 +96,27 @@ test("Taboo asks at most one specific question, then switches to varied non-ques
  assert.equal(taboo.tabooFollowUp("book","Is it something?",2),"I guess book. Try describing its shape or appearance.");
  assert.equal(taboo.tabooFollowUp("book","Any clues?",3),"I guess book. Tell me where someone would usually find it.");
  assert.equal(taboo.tabooFollowUp("","Any clues?",5).endsWith("?"),false);
+});
+
+test("Taboo shuffle bag consumes 100 words per level across saved game sessions",()=>{
+ for(const level of ["easy","medium"]){
+  let state=null;
+  const seen=new Set();
+  let last=[];
+  for(let game=0;game<20;game++){
+   const result=taboo.drawTabooBag(level,state,()=>0.31);
+   assert.equal(result.cards.length,5);
+   assert.equal(new Set(result.cards.map(c=>c.word)).size,5);
+   for(const card of result.cards){assert.ok(!seen.has(card.word),card.word+" repeated early");seen.add(card.word);}
+   state=JSON.parse(JSON.stringify(result.state));
+   if(game===19)last=state.recent.slice();
+  }
+  assert.equal(seen.size,100);
+  const next=taboo.drawTabooBag(level,state,()=>0.31);
+  assert.equal(next.cards.length,5);
+  assert.ok(next.cards.every(card=>!last.includes(card.word)),"avoid last ten cards at rollover");
+  assert.equal(new Set(next.cards.map(c=>c.word)).size,5);
+  const broken=taboo.drawTabooBag(level,{remaining:["invalid","invalid"],recent:["garbage"]},()=>0.31);
+  assert.equal(broken.cards.length,5);
+ }
 });
