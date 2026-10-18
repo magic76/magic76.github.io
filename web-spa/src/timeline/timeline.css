@@ -2,3 +2,12 @@
 .timeline-quote{margin:13px 0 5px;padding:0 0 0 15px;border-left:3px solid #9784ce;font-style:italic;line-height:1.75;color:#634e88}.timeline-life-quote{font-style:italic;color:#bca5ff;font-size:14px}
 
 .timeline-life-book{margin:12px 0;padding:12px;border:1px solid #ded8ef;border-radius:13px;background:#faf8ff;font-size:13px}.timeline-life-book summary{font-weight:700;cursor:pointer}.timeline-life-book h3{font-size:13px;margin:13px 0 4px}.timeline-life-book p,.timeline-life-book li{line-height:1.55}.timeline-life-book ul{padding-left:20px}.timeline-live .live-presets{display:flex;flex-wrap:wrap;gap:8px}.timeline-live .live-presets button{text-align:left;font-size:12px;white-space:normal;max-width:min(100%,280px)}
+
+/* Twelve-step timeline: horizontal rail, rather than squeezing every age into six columns. */
+.timeline-rail{display:flex;overflow-x:auto;gap:10px;padding:8px 4px 14px;scroll-snap-type:x proximity;scrollbar-width:none;overscroll-behavior-inline:contain}
+.timeline-rail::-webkit-scrollbar{display:none}
+.timeline-rail:before{display:none}
+.timeline-stop{flex:0 0 92px;scroll-snap-align:center}
+/* A reviewed full-body photograph should show the feet instead of being center-cropped. */
+.timeline-feature-photo img{object-fit:contain;object-position:center bottom}
+@media(max-width:650px){.timeline-rail{gap:4px}.timeline-stop{flex-basis:66px}}
