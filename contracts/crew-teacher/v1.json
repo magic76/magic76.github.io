@@ -376,7 +376,7 @@
             "輕鬆外語聊天",
             "母語聊天",
             "isCompanionConversation() ? 20000L",
-            "If a verified recent unfinished topic fits"
+            "If a verified SAME-CHARACTER earlier-chat topic fits"
           ]
         }
       ],
