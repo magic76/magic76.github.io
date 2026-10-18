@@ -93,9 +93,15 @@ test("A future release cannot be published early, but can be simulated in dry-ru
  assert.equal(preview.status,0,preview.stderr);
  assert.match(preview.stdout,/DRY RUN: 1 due posts/);
 });
-test("Content inventory warns before the last approved day",()=>{
+test("Content inventory warns at the two-day threshold",t=>{
  const script=path.join(root,"scripts/check-shorts-inventory.mjs");
- const ok=spawnSync(process.execPath,[script,"--today","2026-10-16"],{cwd:root,encoding:"utf8"});
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),"crew-shorts-inventory-"));
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const feed=path.join(dir,"posts.json");
+ fs.writeFileSync(feed,JSON.stringify({schema:1,kind:"crew-shorts",posts:[
+  {publishedAt:"2026-10-18T08:00:00+08:00"}
+ ]}));
+ const ok=spawnSync(process.execPath,[script,"--feed",feed,"--today","2026-10-16"],{cwd:root,encoding:"utf8"});
  assert.equal(ok.status,0,ok.stderr);
  assert.match(ok.stdout,/final release 2026-10-18/);
  assert.match(ok.stdout,/::warning::/);
