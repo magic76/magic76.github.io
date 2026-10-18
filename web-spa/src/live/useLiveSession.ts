@@ -35,7 +35,10 @@ export function useLiveSession(config:Config){
  const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0),languageRepairRef=useRef(false);
  const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
- const [volume,setVolumeValue]=useState(Number(localStorage.getItem("crew_live_volume")||100));
+ const [volume,setVolumeValue]=useState(()=>{
+  const stored=Number(localStorage.getItem("crew_live_volume")??"100");
+  return Math.max(0,Math.min(100,Number.isFinite(stored)?stored:100));
+ });
  useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs())},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
