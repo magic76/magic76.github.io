@@ -40,7 +40,7 @@ function createDb(){
     throw Error("Unrecognized SQL lookup: "+sql);
    }
   };
- }}};
+ }};
 }
 test("book board is opt-in and never public-by-default",async()=>{
  const {onRequestGet,onRequestPost}=await imported;
