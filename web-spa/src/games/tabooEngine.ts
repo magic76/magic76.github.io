@@ -89,7 +89,7 @@ export function tabooFollowUp(guess:string,question:string,attempt:number):strin
  const prefix=guess?"I guess "+guess+". ":"Not sure yet. ";
  if(attempt<=1){
   const q=question.trim();
-  const specific=/^[\x20-\x7e]{8,100}$/.test(q)&&q.endsWith("?")&&!/\b(clue|hint|more information)\b/i.test(q);
+  const specific=/^[\x20-\x7e]{8,100}$/.test(q)&&q.endsWith("?")&&!/\b(clues?|hints?|more information)\b/i.test(q);
   return prefix+(specific?q:"What would someone use it for?");
  }
  const suggestions=[
