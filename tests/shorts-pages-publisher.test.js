@@ -119,3 +119,28 @@ test("Scheduled Pages release activates after seed approval and remains independ
  assert.match(loader,/fetchShortsFeed/);
  assert.doesNotMatch(loader,/import\s+.*posts\.json/);
 });
+
+test("Publisher keeps all 125 moments in v2 pages while older Android gets latest 100",t=>{
+ const f=fixture(t);
+ const template=f.source.posts[0];
+ f.source.posts=Array.from({length:125},(_,i)=>({...template,
+  id:"zoe-history-"+String(i).padStart(3,"0"),
+  publishedAt:new Date(Date.UTC(2026,9,14,0,i)).toISOString()
+ }));
+ f.save();
+ const result=f.run("2026-10-14");
+ assert.equal(result.status,0,result.stderr);
+ const v1=JSON.parse(fs.readFileSync(path.join(f.target,"posts.json"),"utf8"));
+ const index=JSON.parse(fs.readFileSync(path.join(f.target,"v2/index.json"),"utf8"));
+ assert.equal(v1.posts.length,100);
+ assert.equal(index.total,125);
+ assert.equal(index.pages.length,3);
+ assert.equal(Object.keys(index.lookup).length,125);
+ assert.equal(index.lookup["zoe-history-000"],index.pages[2].url);
+ const last=JSON.parse(fs.readFileSync(path.join(f.target,"v2/pages/00003.json"),"utf8"));
+ assert.equal(last.posts.length,25);
+ assert.equal(last.posts.at(-1).id,"zoe-history-000");
+ const again=f.run("2026-10-14");
+ assert.equal(again.status,0,again.stderr);
+ assert.match(again.stdout,/No feed changes/);
+});
