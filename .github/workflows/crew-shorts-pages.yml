@@ -8,9 +8,21 @@ on:
       - ".github/workflows/crew-shorts-pages.yml"
       - "tests/shorts-feed.test.js"
       - "scripts/check-shorts-inventory.mjs"
+      - "scripts/publish-shorts-pages.mjs"
+      - "scripts/shorts-v2.mjs"
+      - "scripts/content-hub.mjs"
+      - "scripts/check-content-hub.mjs"
   pull_request:
     paths:
       - "content/crew-shorts/approved/**"
+      - "content/schemas/**"
+      - "scripts/publish-shorts-pages.mjs"
+      - "scripts/shorts-v2.mjs"
+      - "scripts/content-hub.mjs"
+      - "scripts/check-content-hub.mjs"
+      - "tests/content-hub.test.js"
+      - "web-spa/src/teacher/shortsFeed.ts"
+      - "web-spa/src/teacher/ShortsPage.tsx"
       - ".github/workflows/crew-shorts-pages.yml"
   workflow_dispatch:
     inputs:
@@ -55,6 +67,7 @@ jobs:
           last_day=$(node -e 'const {posts}=require("./content/crew-shorts/approved/posts.json"); if(!posts?.length)process.exit(1); console.log(posts.map(p=>p.publishedAt?.slice(0,10)).sort().at(-1))')
           node scripts/publish-shorts-pages.mjs --feed content/crew-shorts/approved/posts.json --as-of "$last_day" --dry-run > /tmp/crew-shorts-preflight.txt
           grep -F "DRY RUN:" /tmp/crew-shorts-preflight.txt
+      - run: node scripts/check-content-hub.mjs
       - run: npm ci
       - run: npm run check:web
       - run: npm test
@@ -99,6 +112,7 @@ jobs:
           # The publisher has already validated the approved WebP bytes and story metadata.
           # Keep daily delivery independent from npm installs or unrelated SPA test failures.
           node scripts/check-shorts-feed.mjs features/teacher/shorts/posts.json
+          node scripts/check-content-hub.mjs
           echo "Approved Crew Shorts feed validated." >> "$GITHUB_STEP_SUMMARY"
       - name: Commit to Git-connected Cloudflare Pages source
         if: github.event_name != 'workflow_dispatch' || inputs.dry_run == false
