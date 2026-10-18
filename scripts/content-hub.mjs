@@ -32,7 +32,7 @@ export function asMomentRecord(post,status){
  const src=post.image;
  const record={schema:2,type:"moment",id:post.id,status,publishedAt:post.publishedAt,authorId:post.friendId,
   storyId:post.storyId,locales:{[post.language]:post.caption,...(post.translationZh?{"zh-TW":post.translationZh}:{})},
-  media:src?[{type:"image",assetId:post.id,url:src}]:[]};
+  media:src?[{type:"image",assetId:post.id,url:src.startsWith("media/")?"/content/crew-shorts/approved/"+src:src}]:[]};
  return validateContentRecord(record);
 }
 export function asArticleRecord(item,day){
