@@ -222,7 +222,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
    </form>
    {message?<p className="crew-mini-message" role="status">{message}</p>:null}
    <div className="crew-mini-row-actions crew-taboo-actions">
-    {mode==="describe"?<button type="button" onClick={correct} disabled={guessing}>朋友已猜中 · 確認</button>:null}
+    {mode==="describe"?<button type="button" onClick={()=>correct()} disabled={guessing}>朋友已猜中 · 確認</button>:null}
     <button type="button" disabled={skips===0||guessing} onClick={()=>{setSkips(s=>s-1);advance("skip")}}>跳過這題（{skips}）</button>
     {Boolean(geminiKey())?<button type="button" disabled={busy||guessing} onClick={()=>void generate()}>{busy?"生成中…":"換一組 Gemini 單字"}</button>:null}
    </div>
