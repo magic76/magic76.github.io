@@ -71,6 +71,25 @@ async function run(){
    await page.close();
    process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Regression: a cold first click from Home can fail to download the lazy
+  // Crew Play module on a flaky connection or during a Pages deployment.
+  // Recover with a single full-document refresh instead of leaving a blank app.
+  const retryContext=await browser.newContext({viewport:{width:390,height:844}});
+  const retryPage=await retryContext.newPage();
+  let gameChunkRequests=0;
+  await retryPage.route(/\/assets\/CrewPlayHubPage-[^/]+\.js(?:\?.*)?$/,async route=>{
+   gameChunkRequests++;
+   if(gameChunkRequests===1)await route.abort("failed");
+   else await route.continue();
+  });
+  await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
+  await retryPage.locator(".crew-home-action-play").click();
+  await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
+  assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
+  assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
+  assert.equal(await retryPage.getByText("頁面暫時無法載入").count(),0,"No persistent blank/error screen");
+  await retryContext.close();
+  process.stdout.write("PASS recover first Home-to-Game chunk fetch failure\n");
   // Version details only render within Settings, not as a fixed overlay.
   for (const route of ["/settings", "/en/settings"]) {
     const page=await context.newPage();
