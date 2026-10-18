@@ -148,7 +148,7 @@ export function useLiveSession(config:Config){
     onTurnComplete:turn=>{
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false}
       const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
-       ||(tabooEnglish&&/[\\u0400-\\u04ff\\u0590-\\u08ff\\u0900-\\u097f\\u3040-\\u30ff\\u3400-\\u9fff\\uac00-\\ud7af]/.test(turn.output||""));
+       ||(tabooEnglish&&/[\u0400-\u04ff\u0590-\u08ff\u0900-\u097f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(turn.output||""));
       if(turn.hasValidOutput&&drift&&!languageRepairRef.current){
        languageRepairRef.current=true;
        // Silent control, not a fabricated learner turn. One repair per learner reply.
