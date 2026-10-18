@@ -9,7 +9,7 @@ export type UsageEvent=
   |"teacher_conversation_start"|"friend_conversation_start"
   |"teacher_session_end"|"friend_session_end"
   |"vocabulary_practice"|"textbook_open"|"textbook_study"
-  |"shorts_view"|"shorts_chat_click"|"shorts_conversation"
+  |"shorts_view"|"shorts_chat_click"|"shorts_conversation"|"shorts_hook_click"|"shorts_story_followup"
   |"story_reading"|"story_narration"|"story_created"
   |"fortune_calculated"|"fortune_ai_interpreted"
   |"gemini_key_missing"|"gemini_key_verified";
