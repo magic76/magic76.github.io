@@ -118,7 +118,9 @@ export function ShortsPage(){
     const chapter=episodes.findIndex(item=>item.id===post.id);
     const previous=chapter>0?episodes[chapter-1]:null;
     return <article className="crew-short-card" key={post.id}>
-     <div className="crew-short-image">
+     <Link className="crew-short-image" to={shortsChatUrl(post,"details")}
+      aria-label={en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"}
+      onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
       <img src={post.image} alt={post.imageAlt} loading={index>1?"lazy":"eager"} decoding="async"
        onError={event=>{
         const node=event.currentTarget;
@@ -127,7 +129,7 @@ export function ShortsPage(){
         node.src="/assets/friends/crew_friend_"+post.friendId+".webp";
        }}/>
       <span className="crew-short-image-label">{post.friendName}</span>
-     </div>
+     </Link>
      <div className="crew-short-body">
       <div className="crew-short-meta"><strong>{post.friendName}</strong><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{en?"Ongoing story":"連載故事"} · {en?"Part ":"第 "}{chapter+1}{en?" of ":"／"}{episodes.length}{en?"":" 集"}</div>:null}
@@ -148,9 +150,6 @@ export function ShortsPage(){
         {likes.includes(post.id)?"♥":"♡"} {en?"Like":"喜歡"}
        </button>
        {post.translationZh?<button type="button" onClick={()=>setTranslated(x=>x===post.id?null:post.id)} aria-expanded={translated===post.id}>{en?"Translation":"翻譯"}</button>:null}
-       <Link onClick={()=>trackUsageEvent("shorts_chat_click","shorts_feed")} to={"/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)}>
-        {en?"Chat with "+post.friendName:"和 "+post.friendName+" 聊天"} →
-       </Link>
       </div>
      </div>
     </article>})}</div>
