@@ -1,0 +1,40 @@
+.crew-feedback-launch{border:1px solid var(--line,#d3dae1);border-radius:12px;background:var(--surface,#fff);color:inherit;padding:11px 17px;cursor:pointer;font:inherit}
+.crew-feedback-launch:hover,.crew-feedback-rating-actions button:hover{border-color:var(--accent,#8b8fff)}
+.crew-feedback-rating{display:grid;gap:8px;justify-items:center;margin:22px auto;padding:16px;border-top:1px solid var(--line,#ddd);font-size:14px}
+.crew-feedback-rating-actions{display:flex;gap:9px;flex-wrap:wrap;justify-content:center}
+.crew-feedback-rating-actions button{font:inherit;color:inherit;background:var(--surface,#fff);padding:9px 14px;border:1px solid var(--line,#ddd);border-radius:12px;cursor:pointer}
+.crew-feedback-overlay{position:fixed;inset:0;z-index:99999;background:rgba(10,18,35,.62);display:grid;place-items:center;padding:16px;overflow-y:auto;overscroll-behavior:contain}
+.crew-feedback-modal{width:min(100%,480px);max-height:min(92dvh,850px);overflow-y:auto;background:var(--surface,#fff);color:var(--text,#1d2636);border:1px solid var(--line,#ddd);border-radius:20px;box-shadow:0 25px 80px rgba(0,0,0,.22);padding:22px}
+.crew-feedback-heading{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+.crew-feedback-heading h2{font-size:20px;margin:0}
+.crew-feedback-heading button{font-size:25px;border:0;background:none;color:inherit;cursor:pointer;line-height:1}
+.crew-feedback-modal form{display:grid;gap:14px}
+.crew-feedback-modal form>label:not(.crew-feedback-check){display:grid;gap:7px;font-size:14px;font-weight:600}
+.crew-feedback-modal select,.crew-feedback-modal textarea{font:inherit;color:inherit;background:var(--surface,#fff);border:1px solid var(--line,#ccc);border-radius:10px;padding:11px;width:100%}
+.crew-feedback-modal textarea{resize:vertical}
+.crew-feedback-warning{font-size:12px;color:var(--muted,#666);margin:0}
+.crew-feedback-check{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5}
+.crew-feedback-check input{margin-top:4px}
+.crew-feedback-buttons{display:flex;justify-content:flex-end;gap:10px}
+.crew-feedback-buttons button,.crew-feedback-done button{font:inherit;cursor:pointer;padding:10px 14px;border-radius:10px;border:1px solid var(--line,#ccc);color:inherit;background:var(--surface,#fff)}
+.crew-feedback-buttons .crew-feedback-primary,.crew-feedback-done .crew-feedback-primary{background:#3356da;color:white;border-color:#3356da}
+.crew-feedback-buttons button:disabled{opacity:.6;cursor:wait}
+.crew-feedback-error{color:#b02020;font-size:13px;line-height:1.5}
+.crew-feedback-done{text-align:center;display:grid;justify-items:center;gap:12px}
+.crew-feedback-hidden-select,.crew-feedback-honeypot{position:absolute!important;width:1px!important;height:1px!important;opacity:0;pointer-events:none}
+.crew-feedback-selected{margin:0;font-size:17px}
+.crew-feedback-admin{padding-bottom:64px}
+.crew-feedback-admin-filter{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:24px 0}
+.crew-feedback-admin-filter select{font:inherit;padding:7px;border-radius:8px}
+.crew-feedback-admin-filter button,.crew-feedback-item-actions button,.crew-feedback-pages button{font:inherit;color:inherit;background:var(--surface,#fff);border:1px solid var(--line,#ccc);border-radius:9px;padding:8px 12px;cursor:pointer}
+.crew-feedback-inbox{display:grid;gap:14px}
+.crew-feedback-item{padding:18px}
+.crew-feedback-item-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.crew-feedback-item-title time{color:var(--muted,#777);font-size:12px}
+.crew-feedback-tags{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0}
+.crew-feedback-tags span{background:var(--surface-secondary,#eef1f5);border-radius:20px;padding:4px 10px;font-size:12px}
+.crew-feedback-message{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.6}
+.crew-feedback-item-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.crew-feedback-item-actions button:disabled,.crew-feedback-pages button:disabled{opacity:.45;cursor:default}
+.crew-feedback-pages{display:flex;justify-content:space-between;margin:20px 0}
+@media(max-width:480px){.crew-feedback-modal{padding:18px}.crew-feedback-overlay{padding:10px}}
