@@ -95,5 +95,5 @@ test("Taboo asks at most one specific question, then switches to varied non-ques
  assert.equal(taboo.tabooFollowUp("","Is it used at home?",1),"Not sure yet. Is it used at home?");
  assert.equal(taboo.tabooFollowUp("book","Is it something?",2),"I guess book. Try describing its shape or appearance.");
  assert.equal(taboo.tabooFollowUp("book","Any clues?",3),"I guess book. Tell me where someone would usually find it.");
- assert.doesNotMatch(taboo.tabooFollowUp("","Any clues?",5),/\\?/);
+ assert.equal(taboo.tabooFollowUp("","Any clues?",5).endsWith("?"),false);
 });
