@@ -71,8 +71,7 @@ export async function onRequestPost({request,env}) {
       const price=body.price === null || body.price === "" || body.price === undefined ? null : Number(body.price);
       if(!valid(author,20,2)||!valid(title,80,2)||description.length>600||!KINDS.has(kind)||!CATEGORIES.has(category)
         || (kind==="sell" && (!Number.isSafeInteger(price)||price<0||price>100000))
-        || (kind!=="sell" && price!==null)
-        || ((kind==="share"||kind==="ask") && category!=="events" && category!=="life" && category!=="other" && category!=="school")) return reply({error:"INVALID_POST"},400);
+        || (kind!=="sell" && price!==null)) return reply({error:"INVALID_POST"},400);
       const id=crypto.randomUUID(),ownerToken=crypto.randomUUID()+crypto.randomUUID();
       const ownerHash=await hash(ownerToken);
       await env.BOOKS_DB.prepare(
@@ -101,7 +100,10 @@ export async function onRequestPost({request,env}) {
       return reply({ok:true});
     }
     return reply({error:"UNKNOWN_ACTION"},400);
-  } catch {return reply({error:"BOOKS_DATABASE_ERROR"},503);}
+  } catch (error) {
+    if(/no such column|has no column named/i.test(String(error)))return reply({error:"BOOKS_SCHEMA_UPGRADE_REQUIRED"},503);
+    return reply({error:"BOOKS_DATABASE_ERROR"},503);
+  }
 }
 export async function onRequest() {
   return new Response(null,{status:405,headers:{Allow:"GET, POST",...noStore}});
