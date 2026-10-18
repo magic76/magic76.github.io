@@ -23,3 +23,21 @@
 @media(max-width:700px){.crew-shorts-grid{grid-template-columns:1fr}.crew-short-image{aspect-ratio:3/4}.crew-short-body p{min-height:unset}}
 
 .crew-short-translation{font-size:13px!important;line-height:1.65!important;font-weight:400!important;color:var(--muted);min-height:0!important}
+
+/* Stories lead naturally into a voice conversation, without fake AI comments. */
+.crew-shorts-followups{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;margin-bottom:20px;border:1px solid var(--line);border-radius:19px;background:var(--surface-alt)}
+.crew-shorts-followups strong{font-size:15px}
+.crew-shorts-followups p{font-size:12px;line-height:1.5;margin:5px 0 0;color:var(--muted)}
+.crew-shorts-followup-links{display:flex;gap:8px;flex-wrap:wrap}
+.crew-shorts-followup-links a{display:flex;align-items:center;gap:6px;min-height:38px;text-decoration:none;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:9px 12px;font-size:12px;font-weight:700}
+.crew-short-episode{color:var(--accent);font-size:12px;font-weight:750;letter-spacing:.02em}
+.crew-short-recap{padding:10px 12px;background:var(--surface-alt);border-radius:12px}
+.crew-short-recap summary{cursor:pointer;font-size:12px;font-weight:700}
+.crew-short-recap p{font-size:13px!important;min-height:0!important;font-weight:400!important;margin:8px 0 0!important;line-height:1.6}
+.crew-short-chat-prompts{display:grid;gap:8px}
+.crew-short-chat-prompts small{color:var(--muted);font-size:12px}
+.crew-short-chat-prompts>div{display:flex;flex-wrap:wrap;gap:7px}
+.crew-short-chat-prompts a{display:inline-flex;align-items:center;gap:5px;background:var(--accent-soft);color:var(--accent);border:1px solid transparent;border-radius:11px;min-height:36px;padding:8px 10px;font-size:12px;font-weight:700;text-decoration:none}
+.crew-short-chat-prompts a:hover,.crew-shorts-followup-links a:hover{filter:brightness(.97)}
+.crew-short-chat-prompts a:focus-visible,.crew-shorts-followup-links a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+@media(max-width:700px){.crew-shorts-followups{align-items:stretch;flex-direction:column}.crew-short-chat-prompts a{flex:1;justify-content:center}}

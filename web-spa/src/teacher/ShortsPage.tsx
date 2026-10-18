@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import "./shorts.css";
 import {fetchShortsFeed,fetchShortsPage,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
+import {SHORTS_HOOKS,shortsChatUrl,shortsHookLabel,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 
 const LIKE_KEY="crew_shorts_demo_likes_v1";
 const PAGE_SIZE=6;
@@ -87,6 +88,8 @@ export function ShortsPage(){
   });
  }
  const posts=feed?.posts||[];
+ const followUps=shortsStoryFollowUps(posts);
+ const chatClick=(detail:"shorts_feed")=>trackUsageEvent("shorts_chat_click",detail);
  return <div className="crew-shorts-page">
   <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"CREW SHORTS":"CREW SHORTS · DEMO"}</span>
    <h1>{en?"What's happening with your Crew?":"今天 Crew 朋友發生什麼事？"}</h1>
@@ -102,8 +105,19 @@ export function ShortsPage(){
    <button type="button" onClick={()=>setRetry(x=>x+1)}>{en?"Retry":"重試"}</button></section>:null}
   {posts.length>0?<section className="section" aria-label="Crew Shorts">
    <div className="section-head"><h2>{en?"Friends’ moments":"朋友生活動態"}</h2><small>{feed?.total??posts.length} {en?"stories":"則故事"} · {feed?.source==="demo"?"English demo":posts[0]?.language?.toUpperCase()}</small></div>
-   <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>
-    <article className="crew-short-card" key={post.id}>
+   {followUps.length?<aside className="crew-shorts-followups" aria-label={en?"Story updates":"故事續集"}>
+    <div><strong>{en?"Your Crew has a new chapter":"你聊過的故事，有新進展"}</strong>
+     <p>{en?"These are published follow-ups to stories you actually discussed.":"這些是你曾經聊過的公開故事，後來發布的新進展。"}</p></div>
+    <div className="crew-shorts-followup-links">{followUps.map(({post})=>
+     <Link key={post.id} to={shortsChatUrl(post,"next")} onClick={()=>{
+      trackUsageEvent("shorts_story_followup","shorts_feed");chatClick("shorts_feed");
+     }}>{en?post.friendName+"'s update":post.friendName+" 的後續"} <span aria-hidden="true">→</span></Link>)}</div>
+   </aside>:null}
+   <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>{
+    const episodes=shortsStoryEpisodes(post,posts);
+    const chapter=episodes.findIndex(item=>item.id===post.id);
+    const previous=chapter>0?episodes[chapter-1]:null;
+    return <article className="crew-short-card" key={post.id}>
      <div className="crew-short-image">
       <img src={post.image} alt={post.imageAlt} loading={index>1?"lazy":"eager"} decoding="async"
        onError={event=>{
@@ -116,7 +130,18 @@ export function ShortsPage(){
      </div>
      <div className="crew-short-body">
       <div className="crew-short-meta"><strong>{post.friendName}</strong><small>{post.publishedAt.slice(0,10)}</small></div>
+      {episodes.length>1?<div className="crew-short-episode">{en?"Ongoing story":"連載故事"} · {en?"Part ":"第 "}{chapter+1}{en?" of ":"／"}{episodes.length}{en?"":" 集"}</div>:null}
       <p lang={post.language}>{post.caption}</p>
+      {previous?<details className="crew-short-recap"><summary>{en?"Previously in this story":"前情提要"}</summary>
+       <p lang={previous.language}>{previous.caption}</p>
+      </details>:null}
+      <div className="crew-short-chat-prompts" aria-label={en?"Start a conversation":"挑一句聊聊"}>
+       <small>{en?"Curious? Ask "+post.friendName+":" : "想問 "+post.friendName+" 什麼？"}</small>
+       <div>{SHORTS_HOOKS.map(hook=><Link key={hook} to={shortsChatUrl(post,hook)}
+        onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
+        {shortsHookLabel(hook,en)} <span aria-hidden="true">↗</span>
+       </Link>)}</div>
+      </div>
       {post.translationZh&&translated===post.id?<p className="crew-short-translation" lang="zh-Hant">{post.translationZh}</p>:null}
       <div className="crew-short-actions">
        <button type="button" aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
@@ -128,7 +153,7 @@ export function ShortsPage(){
        </Link>
       </div>
      </div>
-    </article>)}</div>
+    </article>})}</div>
    {(count<posts.length||Boolean(feed?.nextPage))?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
     {typeof IntersectionObserver==="undefined"
      ?<button type="button" className="crew-shorts-more" disabled={loadingMore}

@@ -256,3 +256,26 @@ test('v2 visual descriptions are detailed for every role and never override offi
  assert.match(prompt,/reference/i);
  assert.doesNotMatch(prompt,/SECOND attached image/i);
 });
+
+test('new daily story starts a distinct arc and continuation uses only its published series',async()=>{
+ const {validateStories,createPrompt}=await gen();
+ const prior=friends.map(friend=>({friendId:friend,
+  caption:'Yesterday '+friend+' was trying a fun new hobby.',
+  storyId:friend+'-previous-arc',publishedAt:'2026-10-16T08:00:00+08:00'}));
+ const feed={posts:prior};
+ const date='2026-10-18';
+ const stories=friends.map((friend,index)=>({
+  friendId:friend,storyMode:index===0?'new':'continue',
+  caption:'A believable new afternoon moment for '+friend+' with a fresh detail to discuss.',
+  translationZh:'今天下午發生了一件可以討論的新鮮事。',
+  scene:'A candid afternoon portrait with the same fictional person exploring a cozy interior.',
+  imageAlt:'The fictional character enjoying a relaxed afternoon with simple objects.'
+ }));
+ const results=validateStories({stories},feed,date);
+ assert.equal(results[0].storyId,'life-zoe-20261018');
+ assert.equal(results[0].storyContext,'');
+ assert.equal(results[1].storyId,'bella-previous-arc');
+ assert.match(results[1].storyContext,/Yesterday bella/);
+ assert.match(createPrompt(feed,date),/storyMode/);
+ assert.match(createPrompt(feed,date),/not an artificial crisis/);
+});
