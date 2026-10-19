@@ -70,7 +70,7 @@ export function TimelinePage(){
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
       role="region" aria-roledescription="carousel" aria-label={en?"Mira's life photos":"Mira 的人生照片"}>
-     {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} key={a} role="group"
+     {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} data-active={a===age} key={a} role="group"
        aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
        <TimelinePortrait age={a} className="timeline-feature-photo" alt={"Mira at age "+a} priority={a===age}/>
       </div>)}
