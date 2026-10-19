@@ -139,6 +139,25 @@ async function run(){
   assert.ok(mobileLayout.documentWidth<=mobileLayout.viewport+1,"Mobile Timeline must not cause page-wide horizontal overflow");
   assert.ok(mobileLayout.railWidth>mobileLayout.railClientWidth,"Mobile age rail remains horizontally scrollable");
   assert.equal(mobileLayout.objectFit,"contain","Mobile full-body photo must keep shoes visible");
+  const mobileCarousel=await timeline.evaluate(()=>{
+   const carousel=document.querySelector(".timeline-photo-carousel");
+   const active=document.querySelector('.timeline-photo-slide[data-active="true"]');
+   const stage=document.querySelector(".timeline-stage-visual");
+   const nav=document.querySelector(".timeline-visual-nav");
+   const counter=document.querySelector(".timeline-stage-count");
+   if(!carousel||!active||!stage||!nav||!counter)return null;
+   const photo=stage.getBoundingClientRect(),controls=nav.getBoundingClientRect();
+   return {
+    widthRatio:active.getBoundingClientRect().width/carousel.getBoundingClientRect().width,
+    imageHeight:photo.height,controlsTop:controls.top,photoBottom:photo.bottom,
+    counterBottom:counter.getBoundingClientRect().bottom,photoTop:photo.top
+   };
+  });
+  assert.ok(mobileCarousel,"Timeline stage layout must exist on mobile");
+  assert.ok(mobileCarousel.widthRatio>.78,"Main Mira photo should dominate the carousel, with only a hint of the next slide");
+  assert.ok(mobileCarousel.imageHeight<380,"Mobile Mira photo must leave room to read the age story");
+  assert.ok(mobileCarousel.controlsTop>=mobileCarousel.photoBottom-1,"Swipe controls must be below, not over, the image");
+  assert.ok(mobileCarousel.counterBottom<=mobileCarousel.photoTop+1,"Chapter count must not float over the neighboring photo");
   await timeline.locator(".timeline-primary-cta").click();
   await timeline.waitForURL(url=>url.pathname==="/timeline/live");
   await timeline.waitForFunction(()=>document.querySelector(".app-title strong")?.textContent?.includes("70"));
