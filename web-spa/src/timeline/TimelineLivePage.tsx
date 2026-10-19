@@ -19,7 +19,7 @@ export function TimelineLivePage(){
  const navigate=useNavigate(),closing=useRef(false);
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
- const known=useMemo(()=>timelineOlderNotes(age,characterId),[age]);
+ const known=useMemo(()=>timelineOlderNotes(age,characterId),[age,characterId]);
  const voiceMode=timelineVoiceMode(params.get("voiceStyle"));
  const system=useMemo(()=>timelineBuildSystem(age,language,characterId)+buildTimelineAgeVoicePrompt(age,voiceMode,characterId),[age,language,voiceMode,characterId]);
  const opening=useMemo(()=>timelineNextOpening(age,characterId),[age,characterId]);
@@ -47,13 +47,13 @@ export function TimelineLivePage(){
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
    <section className="live-stage" aria-label={person.name+" age "+age}>
     <div className="live-identity"><TimelinePortrait characterId={characterId} age={age} alt={person.name+" at "+age+" years old"} />
-     <h1>{person.name} · {age}</h1><p>{en?current.story:stage(age).storyZh}</p><p className="timeline-life-quote">“{en?stage(age).quoteEn:stage(age).quoteZh}”</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
+     <h1>{person.name} · {age}</h1><p>{en?current.story:current.storyZh}</p><p className="timeline-life-quote">“{en?current.quoteEn:current.quoteZh}”</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
     </div>
     {known.length>0&&<details className="timeline-known"><summary>{en?""+person.name+" can remember":""+person.name+" 此時能記得"} · {known.length}</summary>
       <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
     </details>}
     <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={en?"My turn":"換我說"}/>
-    <div className="live-presets">{active&&stage(age).conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As "+person.name+" age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:stage(age).conversationThreadsZh[i]}</button>)}</div>
+    <div className="live-presets">{active&&current.conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As "+person.name+" age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:current.conversationThreadsZh[i]}</button>)}</div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{en?"You":"你"}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>{person.name}</small><span>{live.output}</span></div>
