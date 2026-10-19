@@ -3,6 +3,7 @@ import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {TimelinePortrait} from "./TimelinePortrait";
 import type {Age} from "./timeline";
+import "./timeline.css";
 import "./timelineExperience.css";
 
 const COMPARE_AGES=[16,25,35,70] as const satisfies readonly Age[];
