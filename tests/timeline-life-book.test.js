@@ -20,6 +20,6 @@ test("Web includes only current and past lives, rotates openings and never archi
  assert.match(model,/counts\[age\]/);
  assert.match(model,/lifeBook/);
  assert.match(live,/openingPrompt:opening/);
- assert.match(live,/nextOpening\(age\)/);
+ assert.match(live,/timelineNextOpening\(age,characterId\)/);
  assert.match(live,/persistHistory:false/);
 });
