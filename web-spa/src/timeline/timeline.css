@@ -265,7 +265,7 @@
 .timeline-immersive .timeline-photo-carousel{height:auto;align-items:flex-start}
 .timeline-immersive .timeline-photo-slide{height:auto;aspect-ratio:3/4}
 .timeline-immersive .timeline-photo-slide .timeline-feature-photo{height:auto;aspect-ratio:3/4}
-.timeline-immersive .timeline-photo-slide .timeline-feature-photo img{aspect-ratio:3/4;object-fit:cover}
+.timeline-immersive .timeline-photo-slide .timeline-feature-photo img{aspect-ratio:3/4;object-fit:contain}
 .timeline-people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0 22px}
 .timeline-person{display:flex;align-items:center;justify-content:center;gap:12px;border:1px solid #dcd4eb;border-radius:16px;background:transparent;padding:10px 8px;color:inherit;cursor:pointer;font:inherit;min-width:0}
 .timeline-person.selected{border-color:#6d57ae;background:#f2ecfc;box-shadow:0 4px 14px #4b339d12}

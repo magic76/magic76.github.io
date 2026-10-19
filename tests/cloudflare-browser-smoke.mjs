@@ -7,6 +7,7 @@ import {spawn} from "node:child_process";
 import {setTimeout as sleep} from "node:timers/promises";
 import {readFileSync} from "node:fs";
 import {chromium} from "playwright";
+import {approvedPortrait} from "../web-spa/src/timeline/portraitAssetPolicy.mjs";
 
 const origin="http://127.0.0.1:4179";
 const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
@@ -184,6 +185,37 @@ async function run(){
   assert.ok((await timeline.locator(".app-title strong").textContent())?.includes("70"),"Conversation opens with selected age");
   await timeline.close();
   process.stdout.write("PASS Mira Timeline 12 ages, full-body assets, future locks, phone layout and conversation entry\n");
+  const portraitManifest=JSON.parse(readFileSync("contracts/crew-timeline/person-portraits-v1.json","utf8"));
+  const people=await context.newPage(),pendingRequests=[];
+  people.on("request",request=>{
+   const match=new URL(request.url()).pathname.match(/^\/assets\/timeline\/(fullbody|avatars)\/(ethan|hana)-(\d+)\.webp$/);
+   if(match&&!approvedPortrait(portraitManifest,match[2],Number(match[3]),match[1]==="avatars"?"avatar":"fullbody"))pendingRequests.push(request.url());
+  });
+  for(const [id,name] of [["ethan","Ethan"],["hana","Hana"]]){
+   await people.goto(origin+"/timeline?character="+id,{waitUntil:"domcontentloaded"});
+   await people.locator(".timeline-page").waitFor({state:"visible"});
+   for(const [index,age] of timelineAges.entries()){
+    await people.locator(".timeline-stop").nth(index).click();
+    await people.waitForFunction(({name,age})=>document.querySelector(".timeline-feature-copy .kicker")?.textContent?.includes(name.toUpperCase()+" · "+age),{name,age});
+    assert.ok((await people.locator(".timeline-primary-cta").getAttribute("href"))?.includes("character="+id+"&age="+age));
+    assert.equal(await people.locator(".timeline-story.locked").count(),timelineAges.length-index-1);
+    const active=people.locator('.timeline-photo-slide[data-active="true"]');
+    if(!approvedPortrait(portraitManifest,id,age,"fullbody")){
+     assert.equal(await active.locator("img").count(),0,"Unreviewed photographs must remain placeholders");
+     assert.ok((await active.locator(".timeline-image-fallback").getAttribute("aria-label"))?.startsWith(name+" age "+age));
+    }
+   }
+   for(const viewport of [{width:320,height:568},{width:844,height:390}]){
+    await people.setViewportSize(viewport);
+    assert.ok(await people.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),"Timeline must fit phone portrait and landscape");
+   }
+   await people.locator(".timeline-primary-cta").click();
+   await people.waitForURL(url=>url.pathname==="/timeline/live");
+   await people.waitForFunction(name=>document.querySelector(".app-title strong")?.textContent?.includes(name+" · 70"),name);
+  }
+  assert.deepEqual(pendingRequests,[],"Unreviewed new-character files must never be requested");
+  await people.close();
+  process.stdout.write("PASS Ethan/Hana 24 chapter selections, approval placeholders, phone layouts and correct conversation identities\n");
   // Regression: a cold first click from Home can fail to download the lazy
   // Crew Play module on a flaky connection or during a Pages deployment.
   // Recover with a single full-document refresh instead of leaving a blank app.
@@ -819,3 +851,4 @@ async function run(){
 }
 
 run().catch(error=>{console.error(error);process.exitCode=1});
+
