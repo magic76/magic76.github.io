@@ -11,3 +11,23 @@
 /* A reviewed full-body photograph should show the feet instead of being center-cropped. */
 .timeline-feature-photo img{object-fit:contain;object-position:center bottom}
 @media(max-width:650px){.timeline-rail{gap:4px}.timeline-stop{flex-basis:66px}}
+
+
+/* New age stages have approved full-body photos but no separate canonical headshots.
+   Zoom into the upper center so the circular timeline/avatar shows Mira's face. */
+.timeline-image-frame img.timeline-avatar-from-fullbody{
+ position:absolute;
+ width:200%;
+ height:auto;
+ max-width:none;
+ left:-50%;
+ top:-4%;
+ object-fit:initial;
+}
+/* Respect featured full-length image framing if callers add avatar styling later. */
+.timeline-feature-photo img.timeline-avatar-from-fullbody{
+ position:static;
+ width:100%;
+ height:100%;
+ object-fit:contain;
+}

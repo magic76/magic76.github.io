@@ -49,5 +49,18 @@ test("only approved independent stage photos can replace the published portraits
  assert.match(ui,/PUBLISHED_PORTRAIT_AGES/);
  assert.match(ui,/p\.status==="approved"/);
  assert.match(ui,/url&&!failed/);
- assert.match(ui,/return PUBLISHED_PORTRAIT_AGES\.has\(age\)/);
+ assert.match(ui,/if\(PUBLISHED_PORTRAIT_AGES\.has\(age\)\)/);
+ assert.match(ui,/return fullBodyApproved\(age\)\?fullBodyUrl\(age\):null/);
+ assert.match(ui,/cropFullBodyAvatar/);
+ const css=fs.readFileSync("web-spa/src/timeline/timeline.css","utf8");
+ assert.match(css,/timeline-avatar-from-fullbody/);
+ const newAges=[10,13,19,22,35,50];
+ const oldFaces=new Set(model.portraits.map(p=>p.age));
+ const path=require("node:path");
+ for(const age of newAges){
+  assert.equal(oldFaces.has(age),false,"Unexpected official headshot "+age);
+  assert.equal(model.fullBodyPhotoPlan.find(p=>p.age===age)?.status,"approved");
+  const file=path.resolve(__dirname,"../assets/timeline/fullbody/mira-"+age+".webp");
+  assert.ok(fs.existsSync(file),"Missing source for age "+age+" avatar");
+ }
 });
