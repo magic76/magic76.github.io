@@ -9,6 +9,7 @@ import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {MIRA_LIVE_VOICE,buildTimelineAgeVoicePrompt,timelineVoiceMode} from "./timelineVoice";
 import {validAge,stage,buildSystem,saveNote,olderNotes,nextOpening} from "./timeline";
 import {TimelinePortrait} from "./TimelinePortrait";
+import {recordTimelineEcho} from "./timelineEcho";
 import "./timeline.css";
 export function TimelineLivePage(){
  const[params]=useSearchParams();const number=Number(params.get("age")),age=validAge(number)?number:25;
@@ -32,7 +33,7 @@ export function TimelineLivePage(){
  useEffect(()=>{document.body.className="teacher-theme session-page timeline-session-page";return()=>{document.body.className=""}},[]);
  const keep=(i:number,text:string)=>{
   if(saved.includes(i))return;
-  if(saveNote(age,text)){setSaved(a=>[...a,i]);setNotice(en?"Saved; reopen this or a later age to recall.":"回憶已保存；重新進入此年齡或較大的年齡會讀取。");}
+  if(saveNote(age,text)){recordTimelineEcho(age,text);setSaved(a=>[...a,i]);setNotice(en?"Saved; reopen this or a later age to recall.":"回憶已保存；重新進入此年齡或較大的年齡會讀取。");}
   else setNotice(en?"Memory disabled or utterance too short.":"記憶已關閉或內容太短。");
  };
  const active=["connecting","listening","speaking","requesting-mic","ending","reporting"].includes(live.state);
