@@ -9,6 +9,10 @@ import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
 
 const ageLabel:Record<Age,[string,string]>={7:["童年","Childhood"],10:["小探索家","Little explorer"],13:["尋找自己","Finding myself"],16:["青春","Teenage"],19:["離鄉","Leaving home"],22:["找方向","Finding direction"],25:["探索","Exploration"],35:["平衡","Balance"],40:["轉折","Turning point"],50:["傳承","Mentoring"],55:["新篇章","New chapter"],70:["回望","Reflection"]};
+const chapterLabels={
+ ethan:["童年琴聲","小小樂團","耳機裡的世界","音樂的岔路","第一次離家","錄音室助理","失敗的廠牌","重新出發","平凡的中年","學會放手","社區廣播","最後的安可"],
+ hana:["京都小巷","旅行筆記","巷弄部落格","第一張車票","初到大阪","第一次遠飛","東京雨天","家與遠方","選擇留下","把門打開","四季的旅程","未畫完的地圖"]
+} as const;
 const eras:{label:[string,string];ages:Age[]}[]=[
  {label:["童年","Childhood"],ages:[7,10]},
  {label:["青春","Teens"],ages:[13,16]},
@@ -27,6 +31,10 @@ export function TimelinePage(){
  const programmaticTarget=useRef<Age|null>(null);
  const current=timelineStage(age,characterId),memory=timelineOlderNotes(age,characterId),all=timelineNotes(characterId);
  const index=AGES.indexOf(age);
+ const chapterLabel=(a:Age)=>{
+  if(characterId==="mira")return ageLabel[a][en?1:0];
+  return en?timelineStage(a,characterId).phase:chapterLabels[characterId][AGES.indexOf(a)];
+ };
  const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
   const container=carousel.current;
   const target=container?.querySelector<HTMLElement>('[data-timeline-age="'+next+'"]');
@@ -115,7 +123,7 @@ export function TimelinePage(){
    </div>
    <div className="timeline-feature-copy" key={characterId+":"+age}>
     <span className="kicker">{person.name.toUpperCase()} · {age} {en?"YEARS OLD":"歲"}</span>
-    <h2>{ageLabel[age][en?1:0]}</h2>
+    <h2>{chapterLabel(age)}</h2>
     <blockquote className="timeline-quote">“{en?current.quoteEn:current.quoteZh}”</blockquote>
     <p className="timeline-chapter-story">{en?current.story:current.storyZh}</p>
     <div className="timeline-now"><strong>{en?"Life right now":"這個年紀正在經歷"}</strong>
@@ -124,8 +132,8 @@ export function TimelinePage(){
     <details className="timeline-life-book"><summary>{en?"Explore life and relationships":"展開生活與重要人物"}</summary>
      <p>{en?current.lifeDetails:current.lifeDetailsZh}</p>
      <h3>{en?"Important people":"身邊的重要人物"}</h3><ul>{(en?current.people:current.peopleZh).map(item=><li key={item}>{item}</li>)}</ul>
-     <h3>{en?"Her current dilemma":"目前煩惱"}</h3><p>{en?current.tension:current.tensionZh}</p>
-     <h3>{en?"What to talk about":"可以跟她聊"}</h3><ul>{(en?current.conversationThreads:current.conversationThreadsZh).map(item=><li key={item}>{item}</li>)}</ul>
+     <h3>{en?"Current dilemma":"目前煩惱"}</h3><p>{en?current.tension:current.tensionZh}</p>
+     <h3>{en?"What to talk about":"可以聊的話題"}</h3><ul>{(en?current.conversationThreads:current.conversationThreadsZh).map(item=><li key={item}>{item}</li>)}</ul>
     </details>
    </div>
    <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
@@ -142,12 +150,12 @@ export function TimelinePage(){
    <label>{en?"Conversation language":"對話語言"}
     <select className="field" value={language} onChange={event=>setLanguage(event.target.value)}>{TARGET_LANGUAGES.map(l=><option key={l.value} value={l.value}>{l.value}</option>)}</select>
    </label>
-   <small>{en?"Her age doesn't change your language level. Voice uses your Gemini key.":"年齡不影響語言難度，語音沿用既有 Gemini Key。"}</small>
+   <small>{en?"Age doesn't change your language level. Voice uses your Gemini key.":"年齡不影響語言難度，語音沿用既有 Gemini Key。"}</small>
   </section>
   <details className="section timeline-storybook timeline-collapsible panel">
-   <summary>{en?"Life scrapbook":"人生相簿"} <small>{en?"Only chapters she has lived":"只顯示當下已經歷的故事"}</small></summary>
+   <summary>{en?"Life scrapbook":"人生相簿"} <small>{en?"Only past and present chapters":"只顯示當下已經歷的故事"}</small></summary>
    <div className="timeline-stories">{AGES.map(a=><div className={"timeline-story "+(a>age?"locked":"")} key={a}>
-    {a<=age?<><TimelinePortrait characterId={characterId} age={a}/><strong>{a} {en?"years":"歲"} · {ageLabel[a][en?1:0]}</strong><p>{en?timelineStage(a,characterId).story:timelineStage(a,characterId).storyZh}</p></>
+    {a<=age?<><TimelinePortrait characterId={characterId} age={a}/><strong>{a} {en?"years":"歲"} · {chapterLabel(a)}</strong><p>{en?timelineStage(a,characterId).story:timelineStage(a,characterId).storyZh}</p></>
      :<><span aria-hidden="true" className="timeline-story-lock">?</span><strong>{a} {en?"years":"歲"}</strong><p>{en?"A chapter not yet lived":"尚未經歷的章節"}</p></>}
    </div>)}</div>
   </details>
