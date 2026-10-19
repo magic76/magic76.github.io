@@ -1,11 +1,14 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
-const ts = require("typescript");
+const {stripTypeScriptTypes} = require("node:module");
 
 require.extensions[".ts"] = (mod, file) => {
  const source = fs.readFileSync(file, "utf8");
- const code = ts.transpileModule(source, {compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+ const code = stripTypeScriptTypes(source, {mode:"strip"})
+  .replace(/import \{buildYearHighlights\} from "\.\/yearHighlights";/, 'const {buildYearHighlights} = require("./yearHighlights");')
+  .replace(/export function /g, "function ")
+  + "\nmodule.exports = {buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt};";
  mod._compile(code, file);
 };
 
