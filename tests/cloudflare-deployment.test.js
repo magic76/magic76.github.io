@@ -31,6 +31,28 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
  const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>/^index-[^/]+\.css$/.test(file));
  assert.equal(cssFiles.length,1,"expected exactly one initial-entry Vite CSS bundle (lazy routes may emit separate CSS)");
  const compiledCss=read("assets/"+cssFiles[0]);
+ const manifest=JSON.parse(read(".vite/manifest.json"));
+ // HomePage imports HomeShortsPreview, whose CSS is extracted separately.
+ function expectedRouteCss(name){
+  const visited=new Set(),assets=new Set();
+  function visit(key){
+   if(visited.has(key))return;
+   visited.add(key);
+   const entry=manifest[key];
+   assert.ok(entry,"missing Vite manifest entry "+key);
+   for(const dependency of entry.imports||[])visit(dependency);
+   for(const css of entry.css||[])if(css!=="assets/"+cssFiles[0])assets.add(css);
+  }
+  visit(name);
+  return assets;
+ }
+ const pageStyles={
+  "":expectedRouteCss("src/pages/HomePage.tsx"),
+  games:expectedRouteCss("src/games/CrewPlayHubPage.tsx")
+ };
+ assert.ok(pageStyles[""].size>=2,"homepage must include its own and imported preview CSS");
+ assert.ok(pageStyles.games.size>=1,"games page must include route CSS");
+
  assert.ok(script,"missing app JS");assert.ok(inlineCss,"missing inline React stylesheet");
  assert.ok(compiledCss.length>10000&&compiledCss.includes(".global-nav"));
  assert.equal(inlineCss,compiledCss,"inlined stylesheet must exactly match the Vite CSS build");
@@ -75,6 +97,15 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
   const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
   assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
   assert.equal(actualInline,compiledCss,"style is stale: "+pathname);
+  // Route markup is visible before hydration, so its CSS must be available
+  // in the initial document rather than waiting for the lazy JS chunk.
+  for(const asset of pageStyles[slug]||[]){
+   const styleTag='<style data-crew-route-css="'+asset+'">';
+   assert.ok(head.includes(styleTag),"missing initial route CSS "+asset+": "+pathname);
+   assert.ok(head.indexOf(styleTag)<head.indexOf(moduleOpen),"late route CSS: "+pathname);
+   assert.equal(head.split(styleTag)[1]?.split("</style>")[0],read(asset),"route CSS differs from build: "+pathname);
+  }
+
   assert.ok(html.includes('<h1>'),pathname);
   assert.ok(html.includes('hreflang="en"'),pathname);
   assert.ok(html.includes('hreflang="zh-Hant"'),pathname);
