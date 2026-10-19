@@ -1,4 +1,5 @@
 import type {Age} from "./timeline";
+import type {TimelineCharacterId} from "./timelineCharacters";
 
 /** Same prebuilt speaker at every life stage. Age is delivery, not voice swapping. */
 export const MIRA_LIVE_VOICE="Aoede";
@@ -24,7 +25,7 @@ export function timelineVoiceMode(value:string|null):TimelineVoiceMode{
 }
 
 /** Qualitative Live prosody experiment: the API does not expose numeric age/pitch controls. */
-export function buildTimelineAgeVoicePrompt(age:Age,mode:TimelineVoiceMode="age"):string{
+export function buildTimelineAgeVoicePrompt(age:Age,mode:TimelineVoiceMode="age",characterId:TimelineCharacterId="mira"):string{
  if(mode==="original")return "";
  return "\n[TIMELINE AGE DELIVERY — SAME SPEAKER, EXPERIMENTAL]\n"+
   "Keep Mira's underlying speaker identity, vocal timbre, pronunciation and language consistent across every age. "+
