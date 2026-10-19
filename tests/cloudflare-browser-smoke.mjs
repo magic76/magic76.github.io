@@ -98,9 +98,9 @@ async function run(){
   for(let index=0;index<timelineAges.length;index++){
    const age=timelineAges[index];
    await timeline.locator(".timeline-stop").nth(index).click();
-   const photo=timeline.locator(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
+   const photo=timeline.locator(".timeline-photo-slide[data-active=true] .timeline-feature-photo img");
    await timeline.waitForFunction(expected=>{
-    const image=document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
+    const image=document.querySelector(".timeline-photo-slide[data-active=true] .timeline-feature-photo img");
     return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
       image.getAttribute("src")===`/assets/timeline/fullbody/mira-${expected}.webp`;
    },age,{timeout:15000});
@@ -125,7 +125,7 @@ async function run(){
   await timeline.setViewportSize({width:390,height:844});
   await timeline.locator(".timeline-stop").nth(11).click();
   await timeline.waitForFunction(()=>{
-   const image=document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
+   const image=document.querySelector(".timeline-photo-slide[data-active=true] .timeline-feature-photo img");
    return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
      image.getAttribute("src")==="/assets/timeline/fullbody/mira-70.webp";
   },null,{timeout:15000});
@@ -134,7 +134,7 @@ async function run(){
    documentWidth:document.documentElement.scrollWidth,
    railWidth:document.querySelector(".timeline-rail").scrollWidth,
    railClientWidth:document.querySelector(".timeline-rail").clientWidth,
-   objectFit:getComputedStyle(document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img")).objectFit
+   objectFit:getComputedStyle(document.querySelector(".timeline-photo-slide[data-active=true] .timeline-feature-photo img")).objectFit
   }));
   assert.ok(mobileLayout.documentWidth<=mobileLayout.viewport+1,"Mobile Timeline must not cause page-wide horizontal overflow");
   assert.ok(mobileLayout.railWidth>mobileLayout.railClientWidth,"Mobile age rail remains horizontally scrollable");
