@@ -1,6 +1,7 @@
 import type {ReactNode} from "react";
 import {buildLocalReport} from "../report";
-import type {FortuneChapterId,FortuneMode} from "../report";
+import type {FortuneChapterId} from "../report";
+import type {FortuneMode} from "../types";
 
 export function ResultTabs({items,active,onChange}:{items:[string,string][];active:string;onChange:(id:string)=>void}){
  return <div className="fortune-result-tabs" role="tablist" aria-label="命理結果分頁">{items.map(([id,label])=><button type="button" key={id} role="tab" aria-selected={active===id} className={active===id?"active":""} onClick={()=>onChange(id)}>{label}</button>)}</div>;
