@@ -35,7 +35,7 @@ test("Character switches are real, without sharing keepsakes or future canon",()
  assert.match(model,/n\.age<=age/);
  assert.match(model,/friendMemoryEnabled\(\)/);
  assert.match(model,/if\(id==="mira"\)return buildSystem\(age,language\)/);
- assert.match(model,/Other characters/); // Replace if phrasing changes alongside model.
+ assert.match(model,/another Timeline person/);
  assert.match(page,/TIMELINE_IDS\.map/);
  assert.match(page,/timelineStage\(age,characterId\)/);
  assert.match(page,/\/timeline\/live\?character=/);
