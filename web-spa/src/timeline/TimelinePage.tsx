@@ -56,7 +56,14 @@ export function TimelinePage(){
   const next=AGES[closest];
   if(next!==undefined)setAge(previous=>previous===next?previous:next);
  };
- useLayoutEffect(()=>{programmaticTarget.current=25;scrollToAge(25,"instant");},[]);
+ useLayoutEffect(()=>{
+  programmaticTarget.current=25;
+  const frame=requestAnimationFrame(()=>{
+   scrollToAge(25,"instant");
+   requestAnimationFrame(()=>scrollToAge(25,"instant"));
+  });
+  return()=>cancelAnimationFrame(frame);
+ },[]);
  useEffect(()=>{
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
   if(active&&rail.current){
@@ -74,6 +81,11 @@ export function TimelinePage(){
    </button>)}
   </nav>
   <section className="section timeline-feature panel" id="timeline-current" aria-label={en?"Mira's current chapter":"Mira 目前的人生階段"}>
+   <div className="timeline-stage-shell">
+    <div className="timeline-stage-heading">
+     <strong>{en?"Mira's chapter":"Mira 的人生篇章"}</strong>
+     <span className="timeline-stage-count" aria-live="off">{index+1} / {AGES.length}</span>
+    </div>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
       onPointerDown={()=>{programmaticTarget.current=null}}
@@ -83,8 +95,8 @@ export function TimelinePage(){
        <TimelinePortrait age={a} className="timeline-feature-photo" alt={"Mira at age "+a} priority={a===age}/>
       </div>)}
     </div>
-    <span className="timeline-stage-count">{index+1} / {AGES.length}</span>
-    <div className="timeline-visual-nav">
+   </div>
+   <div className="timeline-visual-nav">
      <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={en?"Previous age":"前一個年齡"}>‹</button>
      <span>{en?"Swipe to travel through time":"左右滑動，穿越時間"}</span>
      <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={en?"Next age":"下一個年齡"}>›</button>
