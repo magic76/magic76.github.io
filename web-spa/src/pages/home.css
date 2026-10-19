@@ -316,3 +316,19 @@
  .crew-home .crew-home-shorts-grid,.crew-home .crew-home-shorts-loading{grid-auto-columns:minmax(175px,58%)}
 }
 @media(prefers-reduced-motion:reduce){.crew-home-action{transition:none}}
+
+/* Story-first entry: a compact Mira teaser below Shorts, not a fifth competing product. */
+.crew-home-timeline-card{display:grid;grid-template-columns:96px minmax(0,1fr) 20px;align-items:center;gap:14px;min-height:108px;padding:15px 18px;border-radius:19px;border:1px solid #dcd5eb;background:linear-gradient(115deg,#f8f3ff,#f5f7ff);color:var(--text);text-decoration:none;transition:transform .2s ease,border-color .2s ease}
+.crew-home-timeline-card:hover{transform:translateY(-2px);border-color:#b6a4de}
+.crew-home-timeline-card:focus-visible{outline:3px solid #6d57ae;outline-offset:3px}
+.crew-home-timeline-faces{display:flex;align-items:center;min-width:0}
+.crew-home-timeline-faces img{width:43px;height:54px;object-fit:cover;object-position:center top;background:#ddd3ee;border:2px solid white;border-radius:13px;box-shadow:0 3px 8px #61547b22}
+.crew-home-timeline-faces img+img{margin-left:-15px}
+.crew-home-timeline-faces img:nth-child(2){transform:translateY(-5px);z-index:1}
+.crew-home-timeline-copy{display:grid;gap:4px;min-width:0}
+.crew-home-timeline-copy small{font-size:10px;letter-spacing:.15em;color:#7c66a7;font-weight:800}
+.crew-home-timeline-copy strong{font-size:16px;line-height:1.35}
+.crew-home-timeline-copy>span{font-size:12px;color:#786b8c;line-height:1.4}
+.crew-home-timeline-arrow{font-size:20px;color:#775cad}
+@media(max-width:620px){.crew-home-timeline-card{grid-template-columns:76px minmax(0,1fr) 15px;gap:10px;padding:12px;min-height:90px}.crew-home-timeline-faces img{width:34px;height:44px;border-radius:10px}.crew-home-timeline-faces img+img{margin-left:-13px}.crew-home-timeline-copy strong{font-size:14px}.crew-home-timeline-copy>span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.crew-home-timeline-card{transition:none}.crew-home-timeline-card:hover{transform:none}}
