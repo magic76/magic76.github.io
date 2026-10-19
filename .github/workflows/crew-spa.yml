@@ -49,7 +49,9 @@ jobs:
             git pull --rebase origin master
             git push origin HEAD:master
           fi
+      # Build/test failures remain blocking; artifact quota alone does not block release verification.
       - uses: actions/upload-artifact@v4
+        continue-on-error: true
         with:
           name: crew-app
           path: crew-app
