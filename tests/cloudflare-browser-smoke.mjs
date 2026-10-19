@@ -147,15 +147,35 @@ async function run(){
    const counter=document.querySelector(".timeline-stage-count");
    if(!carousel||!active||!stage||!nav||!counter)return null;
    const photo=stage.getBoundingClientRect(),controls=nav.getBoundingClientRect();
+   const image=active.querySelector("img");
+   const panel=document.querySelector(".timeline-feature.panel");
+   const frame=active.querySelector(".timeline-feature-photo");
+   const photoStyles=getComputedStyle(active),panelStyles=getComputedStyle(panel);
+   const imageRect=image?.getBoundingClientRect();
    return {
     widthRatio:active.getBoundingClientRect().width/carousel.getBoundingClientRect().width,
     imageHeight:photo.height,controlsTop:controls.top,photoBottom:photo.bottom,
-    counterBottom:counter.getBoundingClientRect().bottom,photoTop:photo.top
+    counterBottom:counter.getBoundingClientRect().bottom,photoTop:photo.top,
+    imageRatio:imageRect?imageRect.width/imageRect.height:0,
+    radius:parseFloat(getComputedStyle(frame).borderTopLeftRadius),
+    photoBackground:photoStyles.backgroundImage,
+    frameBackground:getComputedStyle(frame).backgroundImage,
+    panelBorder:panelStyles.borderTopWidth,
+    panelShadow:panelStyles.boxShadow
    };
   });
   assert.ok(mobileCarousel,"Timeline stage layout must exist on mobile");
-  assert.ok(mobileCarousel.widthRatio>.78,"Main Mira photo should dominate the carousel, with only a hint of the next slide");
-  assert.ok(mobileCarousel.imageHeight<380,"Mobile Mira photo must leave room to read the age story");
+  assert.ok(mobileCarousel.widthRatio>.84&&mobileCarousel.widthRatio<.96,
+   "A large Mira photo should occupy about 88–92% of the mobile carousel viewport");
+  assert.ok(mobileCarousel.imageHeight>310&&mobileCarousel.imageHeight<470,
+   "The full-body portrait should be larger without taking over the whole mobile page");
+  assert.ok(mobileCarousel.imageRatio>.69&&mobileCarousel.imageRatio<.79,
+   "Photo frame should keep a near 3:4 aspect ratio instead of showing a purple letterbox");
+  assert.ok(mobileCarousel.radius>=18,"The image itself should have rounded corners");
+  assert.equal(mobileCarousel.photoBackground,"none","Photo slides should not have a purple backing gradient");
+  assert.equal(mobileCarousel.frameBackground,"none","Image frames should not have a second backing gradient");
+  assert.equal(mobileCarousel.panelBorder,"0px","The feature section should not have an outer border");
+  assert.equal(mobileCarousel.panelShadow,"none","The feature section should not have an outer card shadow");
   assert.ok(mobileCarousel.controlsTop>=mobileCarousel.photoBottom-1,"Swipe controls must be below, not over, the image");
   assert.ok(mobileCarousel.counterBottom<=mobileCarousel.photoTop+1,"Chapter count must not float over the neighboring photo");
   await timeline.locator(".timeline-primary-cta").click();
