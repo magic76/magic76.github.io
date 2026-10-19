@@ -25,7 +25,7 @@ export function TimelineLivePage(){
  const opening=useMemo(()=>timelineNextOpening(age,characterId),[age,characterId]);
  const live=useLiveSession({
   pageKey:"timeline-"+characterId+"-"+age,title:"Crew Timeline · "+person.name+" · "+age,
-  system,language,nativeLanguage,voice:normalizeLiveVoice(characterId==="ethan"?"Orus":MIRA_LIVE_VOICE),
+  system,language,nativeLanguage,voice:normalizeLiveVoice(characterId==="ethan"?"Orus":characterId==="hana"?"Leda":MIRA_LIVE_VOICE),
   openingPrompt:opening,
   persistHistory:false,teacherReport:false,trackSpeakingLevel:false,sessionKind:"timeline",
   onSessionFinished:()=>{/* Timeline never updates teacher or friend memories. */}
