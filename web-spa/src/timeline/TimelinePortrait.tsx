@@ -25,6 +25,6 @@ export function TimelinePortrait({age,className="",alt}:{age:Age;className?:stri
  return <span className={"timeline-image-frame "+className}>
   {url&&!failed?<img key={age+":"+url} src={url} alt={alt||"Mira at age "+age}
     className={cropFullBodyAvatar?"timeline-avatar-from-fullbody":undefined}
-    loading="lazy" onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age+" · photo pending"} className="timeline-image-fallback">M<span>{age}</span></span>}
+    loading={feature?"eager":"lazy"} fetchPriority={feature?"high":undefined} onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age+" · photo pending"} className="timeline-image-fallback">M<span>{age}</span></span>}
  </span>;
 }
