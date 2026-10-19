@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState,type PointerEvent} from "react";
+import {useEffect,useLayoutEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -19,41 +19,43 @@ export function TimelinePage(){
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
- const rail=useRef<HTMLElement>(null);
- const gesture=useRef<{x:number;y:number;pointerId:number}|null>(null);
- const[direction,setDirection]=useState<"next"|"previous">("next");
+ const rail=useRef<HTMLElement>(null),carousel=useRef<HTMLDivElement>(null);
  const current=stage(age),memory=olderNotes(age),all=notes();
  const index=AGES.indexOf(age);
- const chooseAge=(next:Age)=>{
-  if(next===age)return;
-  setDirection(next>age?"next":"previous");
-  setAge(next);
- };
- const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
- useEffect(()=>{
-  const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
-  if(active&&rail.current){rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});}
- },[age]);
- const clearDrag=(surface:HTMLDivElement)=>surface.style.removeProperty("--timeline-drag");
- const onPointerDown=(event:PointerEvent<HTMLDivElement>)=>{
-  if(!event.isPrimary||(event.target as HTMLElement).closest("button"))return;
-  gesture.current={x:event.clientX,y:event.clientY,pointerId:event.pointerId};
-  if(event.pointerType==="mouse")event.currentTarget.setPointerCapture(event.pointerId);
- };
- const onPointerMove=(event:PointerEvent<HTMLDivElement>)=>{
-  const start=gesture.current;
-  if(!start||start.pointerId!==event.pointerId)return;
-  const dx=event.clientX-start.x,dy=event.clientY-start.y;
-  if(Math.abs(dx)>Math.abs(dy)*1.2){
-   event.currentTarget.style.setProperty("--timeline-drag",Math.max(-45,Math.min(45,dx*.4))+"px");
+ const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
+  const container=carousel.current;
+  const target=container?.querySelector<HTMLElement>('[data-timeline-age="'+next+'"]');
+  if(container&&target){
+   container.scrollTo({left:target.offsetLeft+target.clientWidth/2-container.clientWidth/2,behavior});
   }
  };
- const onPointerEnd=(event:PointerEvent<HTMLDivElement>)=>{
-  const start=gesture.current;gesture.current=null;clearDrag(event.currentTarget);
-  if(!start||start.pointerId!==event.pointerId)return;
-  const dx=event.clientX-start.x,dy=event.clientY-start.y;
-  if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.25)changeBy(dx<0?1:-1);
+ const chooseAge=(next:Age)=>{
+  if(next!==age)setAge(next);
+  scrollToAge(next);
  };
+ const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
+ // Keep the selected chapter synchronized with native touch/trackpad scrolling.
+ // No artificial drag transform: the next photo is visible while the finger moves.
+ const onCarouselScroll=()=>{
+  const container=carousel.current;
+  if(!container)return;
+  const center=container.scrollLeft+container.clientWidth/2;
+  let closest=0,best=Infinity;
+  Array.from(container.children).forEach((node,i)=>{
+   const slide=node as HTMLElement;
+   const distance=Math.abs(slide.offsetLeft+slide.clientWidth/2-center);
+   if(distance<best){best=distance;closest=i;}
+  });
+  const next=AGES[closest];
+  if(next!==undefined)setAge(previous=>previous===next?previous:next);
+ };
+ useLayoutEffect(()=>{scrollToAge(25,"instant");},[]);
+ useEffect(()=>{
+  const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
+  if(active&&rail.current){
+   rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});
+  }
+ },[age]);
  return <main className="shell timeline-page timeline-immersive" data-refresh={refresh}>
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{en?"Mira, through the years":"Mira 的人生時光機"}</h1>
@@ -65,10 +67,14 @@ export function TimelinePage(){
    </button>)}
   </nav>
   <section className="section timeline-feature panel" id="timeline-current" aria-label={en?"Mira's current chapter":"Mira 目前的人生階段"}>
-   <div className="timeline-stage-visual" data-direction={direction}
-    onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerEnd}
-    onPointerCancel={event=>{gesture.current=null;clearDrag(event.currentTarget)}}>
-    <div className="timeline-portrait-drag"><TimelinePortrait key={age} age={age} className="timeline-feature-photo" alt={"Mira at age "+age}/></div>
+   <div className="timeline-stage-visual">
+    <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
+      role="region" aria-roledescription="carousel" aria-label={en?"Mira's life photos":"Mira 的人生照片"}>
+     {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} key={a} role="group"
+       aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
+       <TimelinePortrait age={a} className="timeline-feature-photo" alt={"Mira at age "+a} priority={a===age}/>
+      </div>)}
+    </div>
     <span className="timeline-stage-count">{index+1} / {AGES.length}</span>
     <div className="timeline-visual-nav">
      <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={en?"Previous age":"前一個年齡"}>‹</button>
