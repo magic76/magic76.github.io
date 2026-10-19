@@ -86,12 +86,21 @@ async function run(){
   await timeline.locator(".timeline-page").waitFor({state:"visible",timeout:15000});
   const timelineAges=[7,10,13,16,19,22,25,35,40,50,55,70];
   assert.equal(await timeline.locator(".timeline-stop").count(),timelineAges.length,"Timeline must offer all twelve ages");
+  assert.equal(await timeline.locator(".timeline-photo-slide").count(),timelineAges.length,"All twelve photos must be mounted in the carousel");
+  const carouselStyle=await timeline.locator(".timeline-photo-carousel").evaluate(el=>({
+   snapping:getComputedStyle(el).scrollSnapType,
+   overflow:getComputedStyle(el).overflowX,
+   scrollable:el.scrollWidth>el.clientWidth
+  }));
+  assert.ok(carouselStyle.snapping.includes("mandatory"),"Timeline photos must snap after a swipe");
+  assert.equal(carouselStyle.overflow,"auto","Native horizontal photo swiping must remain enabled");
+  assert.equal(carouselStyle.scrollable,true,"At least one adjacent age must be reachable by scrolling");
   for(let index=0;index<timelineAges.length;index++){
    const age=timelineAges[index];
    await timeline.locator(".timeline-stop").nth(index).click();
-   const photo=timeline.locator(".timeline-feature-photo img");
+   const photo=timeline.locator(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
    await timeline.waitForFunction(expected=>{
-    const image=document.querySelector(".timeline-feature-photo img");
+    const image=document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
     return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
       image.getAttribute("src")===`/assets/timeline/fullbody/mira-${expected}.webp`;
    },age,{timeout:15000});
@@ -116,7 +125,7 @@ async function run(){
   await timeline.setViewportSize({width:390,height:844});
   await timeline.locator(".timeline-stop").nth(11).click();
   await timeline.waitForFunction(()=>{
-   const image=document.querySelector(".timeline-feature-photo img");
+   const image=document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img");
    return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
      image.getAttribute("src")==="/assets/timeline/fullbody/mira-70.webp";
   },null,{timeout:15000});
@@ -125,7 +134,7 @@ async function run(){
    documentWidth:document.documentElement.scrollWidth,
    railWidth:document.querySelector(".timeline-rail").scrollWidth,
    railClientWidth:document.querySelector(".timeline-rail").clientWidth,
-   objectFit:getComputedStyle(document.querySelector(".timeline-feature-photo img")).objectFit
+   objectFit:getComputedStyle(document.querySelector(".timeline-photo-slide[data-active="true"] .timeline-feature-photo img")).objectFit
   }));
   assert.ok(mobileLayout.documentWidth<=mobileLayout.viewport+1,"Mobile Timeline must not cause page-wide horizontal overflow");
   assert.ok(mobileLayout.railWidth>mobileLayout.railClientWidth,"Mobile age rail remains horizontally scrollable");
