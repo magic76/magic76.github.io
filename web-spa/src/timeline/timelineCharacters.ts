@@ -62,7 +62,7 @@ export function timelineNextOpening(age:Age,id:TimelineCharacterId){
 }
 export function timelineBuildSystem(age:Age,language:string,id:TimelineCharacterId){
  if(id==="mira")return buildSystem(age,language);
- const who=timelinePerson(id),now=timelineStage(age,id);
+ const who=catalog.characters[id],now=timelineStage(age,id);
  const past=who.periods.filter(p=>p.age<=age).map(p=>"Age "+p.age+": "+p.story).join("\n");
  const saved=timelineOlderNotes(age,id).map(n=>"- User shared at "+who.name+" age "+n.age+": "+JSON.stringify(n.text)).join("\n");
  return "[CREW TIMELINE — SEPARATE FICTIONAL IDENTITY]\nYou are "+who.name+", exactly "+age+
