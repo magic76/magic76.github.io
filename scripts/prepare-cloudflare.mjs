@@ -42,6 +42,40 @@ if(/<\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in co
 const inlineAppStylesheet='<style data-crew-react-css>'+compiledCss+'</style>';
 const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
+// SSG sends fully rendered React.lazy markup, but Vite extracts each lazy
+// page's CSS to a separate chunk loaded only after hydration (FOUC).
+// Add CSS from the selected prerendered page and its static imports to the
+// original HTML, leaving unrelated lazy routes out of the critical path.
+const viteManifest=JSON.parse(readFileSync(join(out,".vite","manifest.json"),"utf8"));
+const ssgRouteEntries={
+ "/":["src/pages/HomePage.tsx"],
+ "/games":["src/games/CrewPlayHubPage.tsx"]
+};
+function inlineRouteCss(route){
+ const visited=new Set(),cssFiles=new Set();
+ function visit(name){
+  if(visited.has(name))return;
+  visited.add(name);
+  const entry=viteManifest[name];
+  if(!entry)throw Error("Vite manifest is missing "+name+" for "+route);
+  for(const dependency of entry.imports||[])visit(dependency);
+  for(const asset of entry.css||[])cssFiles.add(asset);
+ }
+ for(const entry of ssgRouteEntries[route]||[])visit(entry);
+ let inline="";
+ for(const asset of cssFiles){
+  if(asset===cssHref.slice(1))continue; // Inlined for every public route.
+  if(!asset.startsWith("assets/")||!asset.endsWith(".css")||asset.includes("..")||asset.includes("\\\\")||asset.includes("?"))throw Error("Invalid Vite CSS asset "+asset);
+  const file=join(out,asset);
+  if(!existsSync(file))throw Error("Missing route CSS: "+asset);
+  const css=readFileSync(file,"utf8");
+  if(css.toLowerCase().includes("</style"))throw Error("Unexpected closing tag in route CSS: "+asset);
+  inline+=String.fromCharCode(10)+'<style data-crew-route-css="'+asset+'">'+css+'</style>';
+ }
+ return inline;
+}
+
+
 // Copy only confirmed public assets, not the entire repo (which could contain
 // source code, config, tooling or secrets). Imported images are handled by Vite.
 for(const folder of ["features","assets","social"]){
@@ -105,7 +139,7 @@ for(const locale of ["zh","en"]){
    ?{index:research.index,day:research.days.get(research.index.days[0])}:null;
   const seedTag=seed?'<script id="crew-research-seed" type="application/json">'+safeJson(seed)+'</script>':"";
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags)
+   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+inlineRouteCss(path)+newline+"  "+appTags)
    .replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
