@@ -13,7 +13,7 @@ test("Mira uses one Gemini Live voice across all twelve age-delivery profiles",(
  assert.deepEqual(ages.map(m=>Number(m[1])),[7,10,13,16,19,22,25,35,40,50,55,70]);
  assert.equal(new Set(ages.map(m=>m[2])).size,12,"Every age needs distinct delivery instructions");
  assert.match(voice,/MIRA_LIVE_VOICE="Aoede"/);
- assert.match(live,/voice:normalizeLiveVoice\(characterId==="ethan"\?"Orus":MIRA_LIVE_VOICE\)/);
+ assert.match(live,/voice:normalizeLiveVoice\(characterId==="ethan"\?"Orus":characterId==="hana"\?"Leda":MIRA_LIVE_VOICE\)/);
  assert.match(transport,/prebuiltVoiceConfig:\{voiceName:self\.options\.voice\|\|"Kore"\}/);
  assert.doesNotMatch(voice,/voiceName\s*:/,"Age must not select different voices");
 });
