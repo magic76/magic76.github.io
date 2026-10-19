@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState,type TouchEvent} from "react";
+import {useEffect,useRef,useState,type PointerEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -19,20 +19,40 @@ export function TimelinePage(){
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
- const rail=useRef<HTMLElement>(null),touch=useRef<{x:number;y:number}|null>(null);
+ const rail=useRef<HTMLElement>(null);
+ const gesture=useRef<{x:number;y:number;pointerId:number}|null>(null);
+ const[direction,setDirection]=useState<"next"|"previous">("next");
  const current=stage(age),memory=olderNotes(age),all=notes();
  const index=AGES.indexOf(age);
- const chooseAge=(next:Age)=>setAge(next);
+ const chooseAge=(next:Age)=>{
+  if(next===age)return;
+  setDirection(next>age?"next":"previous");
+  setAge(next);
+ };
  const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
  useEffect(()=>{
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
   if(active&&rail.current){rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});}
  },[age]);
- const onTouchEnd=(event:TouchEvent<HTMLDivElement>)=>{
-  const start=touch.current;touch.current=null;
-  if(!start)return;
-  const dx=event.changedTouches[0].clientX-start.x,dy=event.changedTouches[0].clientY-start.y;
-  if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)*1.4)changeBy(dx<0?1:-1);
+ const clearDrag=(surface:HTMLDivElement)=>surface.style.removeProperty("--timeline-drag");
+ const onPointerDown=(event:PointerEvent<HTMLDivElement>)=>{
+  if(!event.isPrimary||(event.target as HTMLElement).closest("button"))return;
+  gesture.current={x:event.clientX,y:event.clientY,pointerId:event.pointerId};
+  if(event.pointerType==="mouse")event.currentTarget.setPointerCapture(event.pointerId);
+ };
+ const onPointerMove=(event:PointerEvent<HTMLDivElement>)=>{
+  const start=gesture.current;
+  if(!start||start.pointerId!==event.pointerId)return;
+  const dx=event.clientX-start.x,dy=event.clientY-start.y;
+  if(Math.abs(dx)>Math.abs(dy)*1.2){
+   event.currentTarget.style.setProperty("--timeline-drag",Math.max(-45,Math.min(45,dx*.4))+"px");
+  }
+ };
+ const onPointerEnd=(event:PointerEvent<HTMLDivElement>)=>{
+  const start=gesture.current;gesture.current=null;clearDrag(event.currentTarget);
+  if(!start||start.pointerId!==event.pointerId)return;
+  const dx=event.clientX-start.x,dy=event.clientY-start.y;
+  if(Math.abs(dx)>=48&&Math.abs(dx)>Math.abs(dy)*1.25)changeBy(dx<0?1:-1);
  };
  return <main className="shell timeline-page timeline-immersive" data-refresh={refresh}>
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
@@ -45,8 +65,10 @@ export function TimelinePage(){
    </button>)}
   </nav>
   <section className="section timeline-feature panel" id="timeline-current" aria-label={en?"Mira's current chapter":"Mira 目前的人生階段"}>
-   <div className="timeline-stage-visual" onTouchStart={event=>{touch.current={x:event.touches[0].clientX,y:event.touches[0].clientY}}} onTouchEnd={onTouchEnd}>
-    <TimelinePortrait age={age} className="timeline-feature-photo" alt={"Mira at age "+age}/>
+   <div className="timeline-stage-visual" data-direction={direction}
+    onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerEnd}
+    onPointerCancel={event=>{gesture.current=null;clearDrag(event.currentTarget)}}>
+    <div className="timeline-portrait-drag"><TimelinePortrait key={age} age={age} className="timeline-feature-photo" alt={"Mira at age "+age}/></div>
     <span className="timeline-stage-count">{index+1} / {AGES.length}</span>
     <div className="timeline-visual-nav">
      <button type="button" onClick={()=>changeBy(-1)} disabled={index===0} aria-label={en?"Previous age":"前一個年齡"}>‹</button>

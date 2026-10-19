@@ -100,3 +100,17 @@
  .timeline-collapsible>summary small{float:none;display:block;margin:4px 0 0 19px}
 }
 @media(prefers-reduced-motion:reduce){.timeline-immersive .timeline-feature-copy{animation:none}.timeline-immersive .timeline-stop{transition:none}}
+
+/* Timeline gesture polish: scrollbar chrome is hidden, scrolling is not. */
+.timeline-immersive,.timeline-immersive *{scrollbar-width:none!important;-ms-overflow-style:none!important}
+.timeline-immersive::-webkit-scrollbar,.timeline-immersive *::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
+.timeline-stage-visual{touch-action:pan-y;user-select:none;-webkit-user-select:none;overscroll-behavior-x:contain}
+.timeline-stage-visual img{-webkit-user-drag:none;user-select:none;pointer-events:none}
+.timeline-portrait-drag{width:100%;height:100%;transform:translate3d(var(--timeline-drag,0px),0,0);transition:transform 130ms ease-out;will-change:transform}
+.timeline-immersive .timeline-feature-photo{animation:timeline-photo-next 260ms cubic-bezier(.2,.8,.2,1) both}
+.timeline-stage-visual[data-direction="previous"] .timeline-feature-photo{animation-name:timeline-photo-previous}
+.timeline-immersive .timeline-stop.selected{transform:translateY(-2px);border-color:#aa94dc;background:#f1eaff}
+.timeline-stage-visual .timeline-visual-nav button:active{transform:scale(.94)}
+@keyframes timeline-photo-next{from{opacity:.45;transform:translate3d(24px,0,0) scale(.975)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@keyframes timeline-photo-previous{from{opacity:.45;transform:translate3d(-24px,0,0) scale(.975)}to{opacity:1;transform:translate3d(0,0,0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.timeline-portrait-drag{transition:none!important;transform:none!important}.timeline-immersive .timeline-feature-photo{animation:none!important}.timeline-immersive .timeline-stop.selected{transform:none}}
