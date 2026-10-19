@@ -132,6 +132,7 @@ async function run(){
   assert.equal(mobileLayout.objectFit,"contain","Mobile full-body photo must keep shoes visible");
   await timeline.locator(".timeline-primary-cta").click();
   await timeline.waitForURL(url=>url.pathname==="/timeline/live");
+  await timeline.waitForFunction(()=>document.querySelector(".app-title strong")?.textContent?.includes("70"));
   assert.ok((await timeline.locator(".app-title strong").textContent())?.includes("70"),"Conversation opens with selected age");
   await timeline.close();
   process.stdout.write("PASS Mira Timeline 12 ages, full-body assets, future locks, phone layout and conversation entry\n");
