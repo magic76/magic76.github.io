@@ -26,7 +26,7 @@ export function TimelinePage(){
  const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
  useEffect(()=>{
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
-  active?.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
+  if(active&&rail.current){rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});}
  },[age]);
  const onTouchEnd=(event:TouchEvent<HTMLDivElement>)=>{
   const start=touch.current;touch.current=null;
