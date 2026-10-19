@@ -5,13 +5,13 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 
-test("Mira uses one Gemini Live voice across all six age-delivery profiles",()=>{
+test("Mira uses one Gemini Live voice across all twelve age-delivery profiles",()=>{
  const voice=read("web-spa/src/timeline/timelineVoice.ts");
  const live=read("web-spa/src/timeline/TimelineLivePage.tsx");
  const transport=read("crew-live.js");
- const ages=[...voice.matchAll(/^\s*(7|16|25|40|55|70):"([^"]+)"[,\n]/gm)];
- assert.deepEqual(ages.map(m=>Number(m[1])),[7,16,25,40,55,70]);
- assert.equal(new Set(ages.map(m=>m[2])).size,6,"Every age needs distinct delivery instructions");
+ const ages=[...voice.matchAll(/^\s*(7|10|13|16|19|22|25|35|40|50|55|70):"([^"]+)"[,\n]/gm)];
+ assert.deepEqual(ages.map(m=>Number(m[1])),[7,10,13,16,19,22,25,35,40,50,55,70]);
+ assert.equal(new Set(ages.map(m=>m[2])).size,12,"Every age needs distinct delivery instructions");
  assert.match(voice,/MIRA_LIVE_VOICE="Aoede"/);
  assert.match(live,/voice:normalizeLiveVoice\(MIRA_LIVE_VOICE\)/);
  assert.match(transport,/prebuiltVoiceConfig:\{voiceName:self\.options\.voice\|\|"Kore"\}/);

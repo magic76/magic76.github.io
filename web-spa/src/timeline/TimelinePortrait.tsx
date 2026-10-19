@@ -1,10 +1,23 @@
 import {useEffect,useState} from "react";
-import type {Age} from "./timeline";
-/** Generated and reviewed age-progressed portrait files; fallback is explicit while assets are staged. */
+import {MIRA,type Age} from "./timeline";
+
+/**
+ * Use only published portraits, or explicitly approved independent full-body photographs.
+ * Never request missing age image URLs or display crops from multi-age concept posters.
+ */
+const PUBLISHED_PORTRAIT_AGES=new Set(MIRA.portraits.map(p=>p.age));
+const fullBodyApproved=(age:Age)=>MIRA.fullBodyPhotoPlan.some(p=>p.age===age&&p.status==="approved");
+export function timelinePhotoUrl(age:Age,fullBody=false):string|null{
+ if(fullBody&&fullBodyApproved(age))return "/assets/timeline/fullbody/mira-"+age+".webp";
+ return PUBLISHED_PORTRAIT_AGES.has(age)?"/assets/timeline/mira-"+age+".webp":null;
+}
+
 export function TimelinePortrait({age,className="",alt}:{age:Age;className?:string;alt?:string}){
  const[failed,setFailed]=useState(false);
- useEffect(()=>setFailed(false),[age]);
+ const feature=className.includes("timeline-feature-photo");
+ const url=timelinePhotoUrl(age,feature);
+ useEffect(()=>setFailed(false),[age,url]);
  return <span className={"timeline-image-frame "+className}>
-  {!failed?<img key={age} src={"/assets/timeline/mira-"+age+".webp"} alt={alt||"Mira at age "+age} loading="lazy" onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age} className="timeline-image-fallback">M<span>{age}</span></span>}
+  {url&&!failed?<img key={age+":"+url} src={url} alt={alt||"Mira at age "+age} loading="lazy" onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age+" · photo pending"} className="timeline-image-fallback">M<span>{age}</span></span>}
  </span>;
 }

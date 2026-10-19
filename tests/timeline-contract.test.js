@@ -2,10 +2,10 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const contract=require("../contracts/crew-timeline/v1.json");
-test("Timeline stays a third, distinct role with six chronological age stages",()=>{
+test("Timeline stays a third, distinct role with twelve chronological age stages",()=>{
  assert.equal(contract.roleKind,"timeline");
  assert.equal(contract.character.id,"mira");
- assert.deepEqual(contract.character.ages,[7,16,25,40,55,70]);
+ assert.deepEqual(contract.character.ages,[7,10,13,16,19,22,25,35,40,50,55,70]);
  assert.deepEqual(contract.character.periods.map(p=>p.age),contract.character.ages);
  assert.ok(contract.rules.isolation.includes("friend"));
 });
@@ -38,4 +38,16 @@ test("scrapbook locks future chapters and allows removal of explicit memories",(
  assert.match(model,/n\.age<=age/);
  assert.match(model,/allStored\(\)/);
  assert.match(model,/ageSpeech/);
+});
+
+test("only approved independent stage photos can replace the published portraits",()=>{
+ const model=contract.character;
+ assert.deepEqual(model.fullBodyPhotoPlan.map(p=>p.age),model.ages);
+ assert.equal(model.portraits.length,6,"Original portraits stay published until reviewed");
+ assert.ok(model.fullBodyPhotoPlan.every(p=>["awaiting-approved-independent-photo","approved"].includes(p.status)));
+ const ui=fs.readFileSync("web-spa/src/timeline/TimelinePortrait.tsx","utf8");
+ assert.match(ui,/PUBLISHED_PORTRAIT_AGES/);
+ assert.match(ui,/p\.status==="approved"/);
+ assert.match(ui,/url&&!failed/);
+ assert.match(ui,/return PUBLISHED_PORTRAIT_AGES\.has\(age\)/);
 });

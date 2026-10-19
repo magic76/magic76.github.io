@@ -69,8 +69,73 @@ async function run(){
    await page.waitForTimeout(120);
    assert.deepEqual(errors,[],"Browser hydration error on "+route);
    await page.close();
-   process.stdout.write("PASS prerender + hydrate "+route+"\n");
+    process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Mira Timeline regression: every age selects its own approved full-body
+  // photo, the photo response succeeds, and the feature image keeps the feet.
+  const timelineErrors=[];
+  const timeline404s=[];
+  const timeline=await context.newPage();
+  checkConsole(timeline,timelineErrors);
+  timeline.on("response",response=>{
+   if(/\/assets\/timeline\/fullbody\/mira-\d+\.webp$/.test(new URL(response.url()).pathname)&&response.status()!==200){
+    timeline404s.push(response.url()+" "+response.status());
+   }
+  });
+  await timeline.goto(origin+"/timeline",{waitUntil:"domcontentloaded"});
+  await timeline.locator(".timeline-page").waitFor({state:"visible",timeout:15000});
+  const timelineAges=[7,10,13,16,19,22,25,35,40,50,55,70];
+  assert.equal(await timeline.locator(".timeline-stop").count(),timelineAges.length,"Timeline must offer all twelve ages");
+  for(let index=0;index<timelineAges.length;index++){
+   const age=timelineAges[index];
+   await timeline.locator(".timeline-stop").nth(index).click();
+   const photo=timeline.locator(".timeline-feature-photo img");
+   await timeline.waitForFunction(expected=>{
+    const image=document.querySelector(".timeline-feature-photo img");
+    return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
+      image.getAttribute("src")===`/assets/timeline/fullbody/mira-${expected}.webp`;
+   },age,{timeout:15000});
+   const style=await photo.evaluate(image=>getComputedStyle(image).objectFit);
+   assert.equal(style,"contain","Full-body photo must preserve the complete figure at age "+age);
+   assert.ok((await timeline.locator(".timeline-feature-copy .kicker").textContent())?.includes(String(age)),"Selected age story must update");
+   assert.ok((await timeline.locator(".timeline-primary-cta").getAttribute("href"))?.endsWith("age="+age),"Conversation link must use selected age");
+   if(age===25){
+    const locked=timeline.locator(".timeline-story.locked");
+    assert.equal(await locked.count(),5,"Future chapters remain locked at age 25");
+    for(const card of await locked.all()){
+     assert.equal(await card.locator("img").count(),0,"Future chapters must not reveal portraits");
+     const text=await card.textContent()||"";
+     assert.ok(text.includes("尚未經歷的章節")||text.includes("A chapter not yet lived"),"Future chapters show only the locked placeholder");
+    }
+   }
+  }
+  assert.deepEqual(timeline404s,[],"No Mira full-body photo request may 404");
+  assert.deepEqual(timelineErrors,[],"Timeline browser render must not report errors");
+  // A phone viewport keeps the rail horizontally scrollable without widening
+  // the page, and selecting a late-life age still reveals the complete photo.
+  await timeline.setViewportSize({width:390,height:844});
+  await timeline.locator(".timeline-stop").nth(11).click();
+  await timeline.waitForFunction(()=>{
+   const image=document.querySelector(".timeline-feature-photo img");
+   return image?.complete&&image.naturalWidth===900&&image.naturalHeight===1200&&
+     image.getAttribute("src")==="/assets/timeline/fullbody/mira-70.webp";
+  },null,{timeout:15000});
+  const mobileLayout=await timeline.evaluate(()=>({
+   viewport:window.innerWidth,
+   documentWidth:document.documentElement.scrollWidth,
+   railWidth:document.querySelector(".timeline-rail").scrollWidth,
+   railClientWidth:document.querySelector(".timeline-rail").clientWidth,
+   objectFit:getComputedStyle(document.querySelector(".timeline-feature-photo img")).objectFit
+  }));
+  assert.ok(mobileLayout.documentWidth<=mobileLayout.viewport+1,"Mobile Timeline must not cause page-wide horizontal overflow");
+  assert.ok(mobileLayout.railWidth>mobileLayout.railClientWidth,"Mobile age rail remains horizontally scrollable");
+  assert.equal(mobileLayout.objectFit,"contain","Mobile full-body photo must keep shoes visible");
+  await timeline.locator(".timeline-primary-cta").click();
+  await timeline.waitForURL(url=>url.pathname==="/timeline/live");
+  await timeline.waitForFunction(()=>document.querySelector(".app-title strong")?.textContent?.includes("70"));
+  assert.ok((await timeline.locator(".app-title strong").textContent())?.includes("70"),"Conversation opens with selected age");
+  await timeline.close();
+  process.stdout.write("PASS Mira Timeline 12 ages, full-body assets, future locks, phone layout and conversation entry\n");
   // Regression: a cold first click from Home can fail to download the lazy
   // Crew Play module on a flaky connection or during a Pages deployment.
   // Recover with a single full-document refresh instead of leaving a blank app.

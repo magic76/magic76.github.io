@@ -1,7 +1,7 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs");
 const contract=require("../contracts/crew-timeline/v1.json");
-test("Six biographies include six distinct age-bound openings and sufficient life content",()=>{
- assert.deepEqual(contract.character.periods.map(x=>x.age),[7,16,25,40,55,70]);
+test("Twelve biographies include twelve distinct age-bound openings and sufficient life content",()=>{
+ assert.deepEqual(contract.character.periods.map(x=>x.age),[7,10,13,16,19,22,25,35,40,50,55,70]);
  for(const s of contract.character.periods){
   assert.ok(s.lifeDetails.length>320,s.age+" biography");
   assert.ok(s.people.length>=3,s.age+" people");

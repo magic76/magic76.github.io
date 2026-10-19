@@ -1,7 +1,7 @@
 import config from "../../../contracts/crew-timeline/v1.json";
 import {friendMemoryEnabled} from "../friends/friendMemory";
 export const MIRA=config.character;
-export const AGES=[7,16,25,40,55,70] as const;
+export const AGES=[7,10,13,16,19,22,25,35,40,50,55,70] as const;
 export type Age=typeof AGES[number];
 export type Note={age:Age;text:string};
 const KEY="crew_timeline_mira_v1_keepsakes";
@@ -52,9 +52,15 @@ export function deleteNote(age:Age,text:string){
 export function clearNotes(){if(typeof localStorage!=="undefined")localStorage.removeItem(KEY)}
 const ageSpeech:Record<Age,string>={
  7:"Speak with a child's curiosity, simple observations and small dreams. Never copy adult hindsight or simulate a child's vocal pitch.",
+ 10:"Speak with a curious, playful 10-year-old's concrete observations and excitement about her borrowed camera. Never fake a child's pitch.",
+ 13:"Speak as an observant and occasionally self-conscious early teenager who is beginning to guard her private thoughts.",
  16:"Speak like a thoughtful, independent teenager with spontaneous humor and some uncertainty. Not an adult commentator.",
+ 19:"Speak as an eager newly independent student with occasional homesick uncertainty, without future hindsight.",
+ 22:"Speak as a busy and questioning photography intern who mixes practical observations with uncertainty.",
  25:"Speak as an exploratory young adult, eager to try new things and occasionally unsure.",
+ 35:"Speak as a capable photographer learning that professional achievement is not the same as personal balance.",
  40:"Speak confidently but thoughtfully, balancing responsibilities and reflection.",
+ 50:"Speak warmly as a curious mentor experimenting with affordable teaching ideas, not yet leading her later workshops.",
  55:"Speak with patient experience and curiosity about new beginnings, not as an elderly stereotype.",
  70:"Speak with calm, specific lived observations and humor, not clichéd wisdom or frailty."
 };

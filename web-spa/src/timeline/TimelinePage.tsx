@@ -6,7 +6,7 @@ import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {AGES,stage,olderNotes,notes,deleteNote,clearNotes,type Age} from "./timeline";
 import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
-const ageLabel:Record<Age,[string,string]>={7:["童年","Childhood"],16:["青春","Teenage"],25:["探索","Exploration"],40:["轉折","Turning point"],55:["新篇章","New chapter"],70:["回望","Reflection"]};
+const ageLabel:Record<Age,[string,string]>={7:["童年","Childhood"],10:["小探索家","Little explorer"],13:["尋找自己","Finding myself"],16:["青春","Teenage"],19:["離鄉","Leaving home"],22:["找方向","Finding direction"],25:["探索","Exploration"],35:["平衡","Balance"],40:["轉折","Turning point"],50:["傳承","Mentoring"],55:["新篇章","New chapter"],70:["回望","Reflection"]};
 export function TimelinePage(){
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
@@ -14,8 +14,8 @@ export function TimelinePage(){
  const current=stage(age),memory=olderNotes(age),all=notes();
  const show=(a:Age)=>{setAge(a);document.getElementById("timeline-current")?.scrollIntoView({block:"nearest",behavior:"smooth"})};
  return <main className="shell timeline-page" data-refresh={refresh}>
-  <header className="hero timeline-hero"><span className="kicker">CREW TIMELINE</span><h1>{en?"One person. Six ages.":"Mira 的人生時光機"}</h1>
-   <p>{en?"Choose a moment in Mira's fictional life. What changes as she grows older?":"和同一個人，在六個不同的人生階段對話。切換時間，看見她的成長。"}</p>
+  <header className="hero timeline-hero"><span className="kicker">CREW TIMELINE</span><h1>{en?"One person. Twelve chapters.":"Mira 的人生時光機"}</h1>
+   <p>{en?"Choose one of twelve chapters of Mira\'s fictional life. What changes as she grows older?":"和同一個人，在十二個不同的人生階段對話。切換時間，看見她的成長。"}</p>
   </header>
   <nav className="timeline-rail" aria-label={en?"Mira age selector":"選擇 Mira 的年齡"}>{AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} key={a} aria-pressed={a===age} onClick={()=>show(a)}>
    <TimelinePortrait age={a} /><strong>{a} {en?"years":"歲"}</strong><small>{ageLabel[a][en?1:0]}</small>

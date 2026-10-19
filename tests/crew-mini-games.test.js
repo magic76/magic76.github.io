@@ -8,7 +8,7 @@ function moduleFromTs(relative,keyPresent=false){
  const filename=path.join(__dirname,"..",relative);
  const source=fs.readFileSync(filename,"utf8");
  const withoutImport=source.replace(/^import \{ensureCore,geminiKey\} from "\.\.\/lib\/runtime";\r?\n/m,"");
- const js=stripTypeScriptTypes(withoutImport,{mode:"transform"}).replace(/^export /gm,"");
+ const js=stripTypeScriptTypes(withoutImport,{mode:"strip"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
   ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp","drawTabooBag"];
