@@ -14,7 +14,7 @@ export function timelinePhotoUrl(age:Age,fullBody=false):string|null{
  return fullBodyApproved(age)?fullBodyUrl(age):null;
 }
 
-export function TimelinePortrait({age,className="",alt}:{age:Age;className?:string;alt?:string}){
+export function TimelinePortrait({age,className="",alt,priority=false}:{age:Age;className?:string;alt?:string;priority?:boolean}){
  const[failed,setFailed]=useState(false);
  const feature=className.includes("timeline-feature-photo");
  const url=timelinePhotoUrl(age,feature);
@@ -25,6 +25,6 @@ export function TimelinePortrait({age,className="",alt}:{age:Age;className?:stri
  return <span className={"timeline-image-frame "+className}>
   {url&&!failed?<img key={age+":"+url} src={url} alt={alt||"Mira at age "+age}
     className={cropFullBodyAvatar?"timeline-avatar-from-fullbody":undefined}
-    loading={feature?"eager":"lazy"} fetchPriority={feature?"high":undefined} onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age+" · photo pending"} className="timeline-image-fallback">M<span>{age}</span></span>}
+    loading={priority?"eager":"lazy"} fetchPriority={priority?"high":undefined} onError={()=>setFailed(true)}/>:<span aria-label={"Mira age "+age+" · photo pending"} className="timeline-image-fallback">M<span>{age}</span></span>}
  </span>;
 }
