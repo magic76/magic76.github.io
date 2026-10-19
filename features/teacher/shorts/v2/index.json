@@ -3,15 +3,31 @@
   "kind": "crew-short-index",
   "source": "daily",
   "generatedAt": "2026-10-19T00:00:00+08:00",
-  "total": 31,
+  "total": 47,
   "pageSize": 50,
   "pages": [
     {
       "url": "/features/teacher/shorts/v2/pages/00001.json",
-      "count": 31
+      "count": 47
     }
   ],
   "lookup": {
+    "ada-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "bella-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "felix-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "finn-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "hugo-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "iris-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "isla-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "luna-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "max-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "maya-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "noah-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "oscar-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "ryan-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "theo-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "yuna-20261019": "/features/teacher/shorts/v2/pages/00001.json",
+    "zoe-20261019": "/features/teacher/shorts/v2/pages/00001.json",
     "bella-day3": "/features/teacher/shorts/v2/pages/00001.json",
     "hugo-day3": "/features/teacher/shorts/v2/pages/00001.json",
     "theo-day3": "/features/teacher/shorts/v2/pages/00001.json",
