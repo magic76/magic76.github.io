@@ -172,6 +172,17 @@ export function HomePage(){
      <Link className="crew-home-game-pick-cta" to="/games/1a2b">{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
     </section>
     <HomeShortsPreview/>
+    <Link className="crew-home-timeline-card" to="/timeline" aria-label={locale.language.startsWith("en")?"Explore Mira's twelve life chapters":"探索 Mira 的十二段人生"}>
+     <span className="crew-home-timeline-faces" aria-hidden="true">
+      {[7,25,70].map(age=><img key={age} src={"/assets/timeline/mira-"+age+".webp"} alt="" loading="lazy"/>)}
+     </span>
+     <span className="crew-home-timeline-copy">
+      <small>CREW TIMELINE</small>
+      <strong>{locale.language.startsWith("en")?"One life, twelve chapters":"同一個人，十二段人生"}</strong>
+      <span>{locale.language.startsWith("en")?"Meet Mira at every age, from 7 to 70.":"從 7 歲到 70 歲，看看 Mira 如何成長。"}</span>
+     </span>
+     <span className="crew-home-timeline-arrow" aria-hidden="true">↗</span>
+    </Link>
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
