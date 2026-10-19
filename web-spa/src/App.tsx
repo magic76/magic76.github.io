@@ -11,7 +11,7 @@ const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.Sto
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>import("./fortune/LivePage").then(m=>({default:m.FortuneLivePage})));
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
-const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));
+const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));const TimelineComparePage=lazy(()=>import("./timeline/TimelineComparePage").then(m=>({default:m.TimelineComparePage})));
 const TimelineLivePage=lazy(()=>import("./timeline/TimelineLivePage").then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>import("./friends/FriendLivePage").then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>import("./games/FriendGomokuPage").then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
@@ -53,6 +53,7 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
+<Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
 <Route path="/timeline/live" element={<TimelineLivePage/>}/>
 <Route path="/teacher/voice-lab" element={<VoiceLabPage/>}/>
 <Route path="/teacher/live" element={<TeacherLivePage/>}/><Route path="/friend/live" element={<FriendLivePage/>}/>

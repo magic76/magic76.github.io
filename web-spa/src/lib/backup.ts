@@ -4,7 +4,7 @@ const BACKUP_VERSION=1;
 // Never export credentials, API keys, authorization state or transient Live context.
 export function isBackupKey(key:string){
  if(/key|token|secret|password|auth|verified|live_context/i.test(key))return false;
- return /^(crew_history_|crew_live_last_|crew_teacher_|crew_vocab_|crew_story_|crew_fortune_)/.test(key);
+ return /^(crew_history_|crew_live_last_|crew_teacher_|crew_vocab_|crew_story_|crew_fortune_|crew_timeline_)/.test(key);
 }
 export type CrewBackup={
  format:"crew-web-backup";

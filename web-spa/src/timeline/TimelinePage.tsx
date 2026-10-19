@@ -5,6 +5,8 @@ import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {AGES,stage,olderNotes,notes,deleteNote,clearNotes,type Age} from "./timeline";
 import {TimelinePortrait} from "./TimelinePortrait";
+import {timelineEchoesAtAge,deleteTimelineEcho,clearTimelineEchoes} from "./timelineEcho";
+import "./timelineExperience.css";
 import "./timeline.css";
 
 const ageLabel:Record<Age,[string,string]>={7:["童年","Childhood"],10:["小探索家","Little explorer"],13:["尋找自己","Finding myself"],16:["青春","Teenage"],19:["離鄉","Leaving home"],22:["找方向","Finding direction"],25:["探索","Exploration"],35:["平衡","Balance"],40:["轉折","Turning point"],50:["傳承","Mentoring"],55:["新篇章","New chapter"],70:["回望","Reflection"]};
@@ -22,6 +24,7 @@ export function TimelinePage(){
  const rail=useRef<HTMLElement>(null),carousel=useRef<HTMLDivElement>(null);
  const programmaticTarget=useRef<Age|null>(null);
  const current=stage(age),memory=olderNotes(age),all=notes();
+ const echoes=timelineEchoesAtAge(age,memory);
  const index=AGES.indexOf(age);
  const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
   const container=carousel.current;
@@ -74,6 +77,7 @@ export function TimelinePage(){
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{en?"Mira, through the years":"Mira 的人生時光機"}</h1>
    <p>{en?"One person. Twelve chapters. Every age has a story.":"同一個 Mira，十二段人生。滑動時間，走進她的故事。"}</p>
+   <Link className="timeline-experience-link" to="/timeline/compare">{en?"Compare her answers across the years":"同一問題，看看不同年紀的答案"} →</Link>
   </header>
   <nav className="timeline-rail" ref={rail} aria-label={en?"Select Mira's age":"選擇 Mira 的年齡"}>
    {AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} key={a} aria-pressed={a===age} onClick={()=>chooseAge(a)}>
@@ -110,6 +114,14 @@ export function TimelinePage(){
     <div className="timeline-now"><strong>{en?"Her world right now":"這個年紀，她在經歷"}</strong>
      <ul>{(en?current.conversationThreads:current.conversationThreadsZh).slice(0,2).map(item=><li key={item}>{item}</li>)}</ul>
     </div>
+    {echoes.length>0&&<aside className="timeline-echo-panel" aria-label={en?"Time echoes":"時間回音"}>
+     <h3>✦ {en?"An echo from earlier years":"來自過去的時間回音"} · {echoes.length}</h3>
+     <ul>{echoes.slice(0,2).map(n=><li key={n.age+":"+n.text}>
+      <button type="button" onClick={()=>chooseAge(n.age)}>{en?"Back to Mira at "+n.age:"回到 "+n.age+" 歲的 Mira"} ↗</button>
+      <blockquote>“{n.text}”</blockquote>
+      <small>{en?"You chose to save this at age "+n.age:"你在 Mira "+n.age+" 歲時主動保存的話"}</small>
+     </li>)}</ul>
+    </aside>}
     <details className="timeline-life-book"><summary>{en?"Explore her life and relationships":"展開她的生活與重要人物"}</summary>
      <p>{en?current.lifeDetails:current.lifeDetailsZh}</p>
      <h3>{en?"People in her life":"她身邊的人"}</h3><ul>{(en?current.people:current.peopleZh).map(item=><li key={item}>{item}</li>)}</ul>
@@ -145,10 +157,10 @@ export function TimelinePage(){
    {!memory.length?<p className="timeline-empty-memory">{en?"Save a phrase from a conversation. Older Mira can recall it.":"聊天後主動保存一句話，年紀更大的 Mira 才能讀到。"}</p>:
    <ol className="timeline-memory-list">{memory.map(n=><li key={n.age+":"+n.text}>
      <b>{n.age} {en?"years":"歲"}</b><p>{n.text}</p>
-     <button type="button" onClick={()=>{deleteNote(n.age,n.text);setRefresh(x=>x+1)}}>{en?"Delete":"刪除"}</button>
+     <button type="button" onClick={()=>{deleteNote(n.age,n.text);deleteTimelineEcho(n.age,n.text);setRefresh(x=>x+1)}}>{en?"Delete":"刪除"}</button>
    </li>)}</ol>}
    <footer><small>{en?"Transcript isn't saved automatically; memory follows your existing setting.":"不自動保存逐字稿，遵守原本的記憶開關。"} {all.length}/12</small>
-    <button type="button" onClick={()=>{if(window.confirm(en?"Clear all saved Mira memories?":"確定清除 Mira 的所有回憶？")){clearNotes();setRefresh(x=>x+1)}}}>{en?"Clear all":"清除全部"}</button>
+    <button type="button" onClick={()=>{if(window.confirm(en?"Clear all saved Mira memories?":"確定清除 Mira 的所有回憶？")){clearNotes();clearTimelineEchoes();setRefresh(x=>x+1)}}}>{en?"Clear all":"清除全部"}</button>
    </footer>
   </details>
  </main>;
