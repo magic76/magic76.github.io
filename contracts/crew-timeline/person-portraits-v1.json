@@ -3,13 +3,17 @@
   "anchors": {
     "ethan": {
       "age": 25,
-      "sha256": null,
-      "status": "pending-human-review"
+      "sha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
+      "status": "pending-human-review",
+      "sourceSha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+      "sourceFile": "source/ethan-25.png"
     },
     "hana": {
       "age": 25,
-      "sha256": null,
-      "status": "pending-human-review"
+      "sha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
+      "status": "pending-human-review",
+      "sourceSha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+      "sourceFile": "source/hana-25.png"
     }
   },
   "images": [
@@ -17,553 +21,1345 @@
       "characterId": "ethan",
       "age": 7,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-7.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "7f39e236b4870372a4eeb85e3a3fc9d0c49722fd50e52e7104371c769dede57f",
+        "sizeBytes": 276492
       },
       "avatar": {
         "path": "timeline/avatars/ethan-7.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "120de7e4ebeb2f08734328f52e3cacd1398bba9d85cb6db82198aa054a702706",
+        "sizeBytes": 25662,
+        "sourceSha256": "7f39e236b4870372a4eeb85e3a3fc9d0c49722fd50e52e7104371c769dede57f",
+        "crop": {
+          "x": 295,
+          "y": 65,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-7.png",
+        "sourceSha256": "b3d19474adaec8f69292604cd04aab8ed4d90d327d85695625cabe5ac1ee6405",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (295,65,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 10,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-10.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "a24343840323fa443276a1c425058180c5405fdae5fe1ffe7586d15ce275350d",
+        "sizeBytes": 201904
       },
       "avatar": {
         "path": "timeline/avatars/ethan-10.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "4d809c81486014d8ae8154c02e899670bf6c6dbf9f9a03b46f2974ca68c6df00",
+        "sizeBytes": 18076,
+        "sourceSha256": "a24343840323fa443276a1c425058180c5405fdae5fe1ffe7586d15ce275350d",
+        "crop": {
+          "x": 305,
+          "y": 30,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-10.png",
+        "sourceSha256": "73578378ded1a2cb6430076acd0b2fbff2aef56315e825238eb7ac3be13c23b5",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (305,30,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 13,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-13.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "c6a7928c29c6d43c38f59ab673251f27fd4f89d5501fa1755204885108891d96",
+        "sizeBytes": 255550
       },
       "avatar": {
         "path": "timeline/avatars/ethan-13.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "ab12b120cea3d81e972954a031ea832afba56b95aa0102a7201884482a1a2567",
+        "sizeBytes": 17920,
+        "sourceSha256": "c6a7928c29c6d43c38f59ab673251f27fd4f89d5501fa1755204885108891d96",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-13.png",
+        "sourceSha256": "1914330c8c793b3486ceab05a5945885b5d304c117916c829e81027bd8b8bc4e",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 16,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-16.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "ade64955ab31bc0eba005c2bdbe3cfc166195e73725c252edec202f80bfade34",
+        "sizeBytes": 248592
       },
       "avatar": {
         "path": "timeline/avatars/ethan-16.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "6e3cbdc61b7a9bdde0a449c3fbeb8186c1ef5680505b61f30369e3183b2cf35c",
+        "sizeBytes": 19970,
+        "sourceSha256": "ade64955ab31bc0eba005c2bdbe3cfc166195e73725c252edec202f80bfade34",
+        "crop": {
+          "x": 315,
+          "y": 20,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-16.png",
+        "sourceSha256": "1e886ae195eb373da4479242de880ea4b1c7726559d015f060f8bddea835deae",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,20,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 19,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-19.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "1967298c1971463749fec2d67df5a1db013990ce16087b8db2d000855869f85c",
+        "sizeBytes": 275868
       },
       "avatar": {
         "path": "timeline/avatars/ethan-19.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "0e54b5b791d116c3d69ac066bdd88226de38b04c2a646281484ea120e52cd083",
+        "sizeBytes": 23122,
+        "sourceSha256": "1967298c1971463749fec2d67df5a1db013990ce16087b8db2d000855869f85c",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-19.png",
+        "sourceSha256": "0ff5138c529bfe7840a5c61b5db52af5727749b5d7b1953af6c4011b80b5ffc0",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 22,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-22.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "eb59a494e1d0cb730b4419982bf9d366c77e1b2e8196dbf64cf1441a2042c359",
+        "sizeBytes": 261498
       },
       "avatar": {
         "path": "timeline/avatars/ethan-22.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "6cc6450ad9c6a7826d8947843c286cb39e6c73622050f556f714a4c7c69e22e0",
+        "sizeBytes": 14202,
+        "sourceSha256": "eb59a494e1d0cb730b4419982bf9d366c77e1b2e8196dbf64cf1441a2042c359",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-22.png",
+        "sourceSha256": "4656ebe1cbb91c1de90065996957f0a5bb72d953f60353dcfa2d573c714f1459",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 25,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-25.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
+        "sizeBytes": 244512
       },
       "avatar": {
         "path": "timeline/avatars/ethan-25.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "8f75bc5cb871965bff181af778ecdb666c94a5c5846fb405b5e17aa2ab50067a",
+        "sizeBytes": 17708,
+        "sourceSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
+        "crop": {
+          "x": 315,
+          "y": 20,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-25.png",
+        "sourceSha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,20,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 35,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-35.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "6285af3c23983d18de776f9d6b7af746eae94bc061f1e256bdb84cdecc22db45",
+        "sizeBytes": 277980
       },
       "avatar": {
         "path": "timeline/avatars/ethan-35.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "072e0a1cb6f88626551e3d43aac50f4ac9b380c47892bc89768b03dbf8c554e8",
+        "sizeBytes": 24402,
+        "sourceSha256": "6285af3c23983d18de776f9d6b7af746eae94bc061f1e256bdb84cdecc22db45",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-35.png",
+        "sourceSha256": "99628747022ce3807b6257ea5473e9c30ef681f4b53024c6000a7ca892d8d015",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 40,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-40.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "727cdaa3d237d339df71071c2ac8634f1d557840f32b49de877a5962d265b014",
+        "sizeBytes": 291374
       },
       "avatar": {
         "path": "timeline/avatars/ethan-40.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "6a42bac9041c11bc3535187aa999662ed248ab301acb75854224ee7d35345b87",
+        "sizeBytes": 26112,
+        "sourceSha256": "727cdaa3d237d339df71071c2ac8634f1d557840f32b49de877a5962d265b014",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-40.png",
+        "sourceSha256": "4d737573b0df1f600f226f81c1fc742d76ce0a3a713a147b7c1068729980e769",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 50,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-50.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "a6a5098e9c888ce8b6bacbe5a7a726a33f4e30f6c3170d93a95453931ca74b53",
+        "sizeBytes": 216554
       },
       "avatar": {
         "path": "timeline/avatars/ethan-50.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "74fabab579e3ea45dc09fdeaf8fd86f72cf506f307c442f33ee27c85e7157b37",
+        "sizeBytes": 18862,
+        "sourceSha256": "a6a5098e9c888ce8b6bacbe5a7a726a33f4e30f6c3170d93a95453931ca74b53",
+        "crop": {
+          "x": 380,
+          "y": 20,
+          "width": 300,
+          "height": 300
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-50.png",
+        "sourceSha256": "781f41b79ac67e5c410177101f2c707bf42338ea83650634c7d8a62278a5823e",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (380,20,300,300) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 55,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-55.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "ac51241c1aa5a5c3c72ab05a4c273f34363c42e52cc695ef3fb4dd65c9552824",
+        "sizeBytes": 248738
       },
       "avatar": {
         "path": "timeline/avatars/ethan-55.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "f609ed420be7c4f13fa05937bb467336867ce5fa85a21217571d63e43f53bfeb",
+        "sizeBytes": 22440,
+        "sourceSha256": "ac51241c1aa5a5c3c72ab05a4c273f34363c42e52cc695ef3fb4dd65c9552824",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-55.png",
+        "sourceSha256": "52e6b8648193a69a61537642e9cedd829fcf2c94f13835befac6afbda177e019",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "ethan",
       "age": 70,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "b0a05e1ce3faa9419149078571f2edbfb9f72963d7f043bcad4acb1bce9ada7d",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/ethan-70.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "556e9afc59de48110ce90ed25fa80e3477be39607ee7b27e7828b9f0270d539e",
+        "sizeBytes": 322234
       },
       "avatar": {
         "path": "timeline/avatars/ethan-70.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "fd068315ee895aec3a54ac79988276996af6b26a9962706e68649374b16698b7",
+        "sizeBytes": 25556,
+        "sourceSha256": "556e9afc59de48110ce90ed25fa80e3477be39607ee7b27e7828b9f0270d539e",
+        "crop": {
+          "x": 315,
+          "y": 25,
+          "width": 290,
+          "height": 290
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/ethan-70.png",
+        "sourceSha256": "714ad943160e75e6c7f1b6fc45a1949d3639514ae761d6ac45c46faddd774f3b",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,25,290,290) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection: face continuity, visible head/shoes and avatar framing checked; this is not human approval. Age realism remains subjective, especially 35/40/50/55/70; the 35-year stage may read closer to the 25-year anchor, and middle/older stages may appear younger than their labels. Review side by side before approval."
     },
     {
       "characterId": "hana",
       "age": 7,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-7.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "df088497b51e99c0b6d369e46a3d22cadc9eba8b8ed5acbab2ad84c74f2213e0",
+        "sizeBytes": 315064
       },
       "avatar": {
         "path": "timeline/avatars/hana-7.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "4bccf0a1391a24065354cbbb625a0183a271969d8ad119e4c88df928aece77f9",
+        "sizeBytes": 27676,
+        "sourceSha256": "df088497b51e99c0b6d369e46a3d22cadc9eba8b8ed5acbab2ad84c74f2213e0",
+        "crop": {
+          "x": 280,
+          "y": 20,
+          "width": 330,
+          "height": 330
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-7.png",
+        "sourceSha256": "8ff5b6624b4e3a4207e1a12468a8c6dec652c5f70d918030cdd6a74e09d88e61",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (280,20,330,330) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 10,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-10.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "f904fc04a590401f3da05254f09fb41df563dcbbcdb8cc250b9e3655f33d191a",
+        "sizeBytes": 332010
       },
       "avatar": {
         "path": "timeline/avatars/hana-10.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "ba6382c1785b64e493105471c43f6e14cb172a1770a29cb80d96f8923af0514f",
+        "sizeBytes": 22804,
+        "sourceSha256": "f904fc04a590401f3da05254f09fb41df563dcbbcdb8cc250b9e3655f33d191a",
+        "crop": {
+          "x": 290,
+          "y": 20,
+          "width": 320,
+          "height": 320
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-10.png",
+        "sourceSha256": "276ffe25ef49038a2c87e334086d99d3becce039beaa201ae1820929832ec6cd",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (290,20,320,320) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 13,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-13.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "569a6a5181ae6ca2017d2bcef117d39096d2da3827178a460a87a50a0fe2422c",
+        "sizeBytes": 323570
       },
       "avatar": {
         "path": "timeline/avatars/hana-13.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "56ccf9539e9259a01998a08a8120d80dba27a93858683268b3924b68f132c734",
+        "sizeBytes": 27946,
+        "sourceSha256": "569a6a5181ae6ca2017d2bcef117d39096d2da3827178a460a87a50a0fe2422c",
+        "crop": {
+          "x": 300,
+          "y": 20,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-13.png",
+        "sourceSha256": "251c4a4667051fd02e1d6124706284b08c254c94c2f99351bb8da73ee1053cc5",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,20,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 16,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-16.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "857934649e44803b854f8e32fc53c4a6b75d43e0d9e2057dc8a6a3bcc2a67886",
+        "sizeBytes": 259114
       },
       "avatar": {
         "path": "timeline/avatars/hana-16.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "50ff78639f621ac7adf6d51e488027504743e60d309aa1297a18157740af6732",
+        "sizeBytes": 21748,
+        "sourceSha256": "857934649e44803b854f8e32fc53c4a6b75d43e0d9e2057dc8a6a3bcc2a67886",
+        "crop": {
+          "x": 310,
+          "y": 10,
+          "width": 300,
+          "height": 300
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-16.png",
+        "sourceSha256": "c262e840769328efb479a08beb105f41ccdc1d96fa2d3b39010b4713d22c2b52",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (310,10,300,300) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 19,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-19.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "2117c21674497e06c402ce30e52ad635b56e03c636e9d9526227bb71ee6e1d6d",
+        "sizeBytes": 289122
       },
       "avatar": {
         "path": "timeline/avatars/hana-19.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "59dcf842712569e6eea018b5ad5619ebc1934dd81c3a4178f17977681d4bfd7d",
+        "sizeBytes": 21594,
+        "sourceSha256": "2117c21674497e06c402ce30e52ad635b56e03c636e9d9526227bb71ee6e1d6d",
+        "crop": {
+          "x": 300,
+          "y": 15,
+          "width": 300,
+          "height": 300
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-19.png",
+        "sourceSha256": "3a795ad81d201ac366096571281b445bc2066b59a72f3d5c9926179200af03ab",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,15,300,300) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 22,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-22.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "85a896100553571bfe2d39b996eb4ee3a34174e50cb72930d78c53a7c24e8506",
+        "sizeBytes": 308690
       },
       "avatar": {
         "path": "timeline/avatars/hana-22.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "22e8869c984c47ae9cd45d79430c1b4b102a15311fc8f22c18325f02435ae11a",
+        "sizeBytes": 25026,
+        "sourceSha256": "85a896100553571bfe2d39b996eb4ee3a34174e50cb72930d78c53a7c24e8506",
+        "crop": {
+          "x": 300,
+          "y": 20,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-22.png",
+        "sourceSha256": "a67c51a334f8e88dcaa328e3a6baaf3d8295b52e29a75ecbe22d8c3bb8644887",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,20,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 25,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-25.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
+        "sizeBytes": 218154
       },
       "avatar": {
         "path": "timeline/avatars/hana-25.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "9a651e6920c571d106ff6c74618d35b7d781cb0c37d3411c8665be424b66415b",
+        "sizeBytes": 21190,
+        "sourceSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
+        "crop": {
+          "x": 285,
+          "y": 25,
+          "width": 300,
+          "height": 300
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-25.png",
+        "sourceSha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (285,25,300,300) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 35,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-35.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "3020e28ebf37fd1b6d26a8d39cccee1ea2ae07b9b7ad98d8ffdf3fff27813b5d",
+        "sizeBytes": 259330
       },
       "avatar": {
         "path": "timeline/avatars/hana-35.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "e468f0556ede0aca026ad45cac4e7599abc421d89356e24b3ff2c888a32f70bc",
+        "sizeBytes": 15770,
+        "sourceSha256": "3020e28ebf37fd1b6d26a8d39cccee1ea2ae07b9b7ad98d8ffdf3fff27813b5d",
+        "crop": {
+          "x": 300,
+          "y": 20,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-35.png",
+        "sourceSha256": "2fd751e282cc8f6b46b33ee9c153290bccc71c530156918540dafbc12f3b6d45",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,20,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 40,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-40.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "9e76cd634e31d826f88a248907262bb3a0b78212348696da6c06f49400e2c392",
+        "sizeBytes": 289230
       },
       "avatar": {
         "path": "timeline/avatars/hana-40.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "5f1cf542209a2205f0118935cfec6b90db0945bf48b0dd322fe3414d002923b9",
+        "sizeBytes": 24380,
+        "sourceSha256": "9e76cd634e31d826f88a248907262bb3a0b78212348696da6c06f49400e2c392",
+        "crop": {
+          "x": 300,
+          "y": 20,
+          "width": 300,
+          "height": 300
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-40.png",
+        "sourceSha256": "ff17d05dc4296f93aca80a67b67fdf8326a8e6e6a0fb083f07715ea598644c1e",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,20,300,300) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 50,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-50.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "5fdbaab961f8fd4b19c7b78cc52b297106f1a55795e4c8dd517ecb6a8198e035",
+        "sizeBytes": 202416
       },
       "avatar": {
         "path": "timeline/avatars/hana-50.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "2def14cf6a9a17e195545a1cbbe60d18457b512b0eb62c61ef13f8af152486a9",
+        "sizeBytes": 20938,
+        "sourceSha256": "5fdbaab961f8fd4b19c7b78cc52b297106f1a55795e4c8dd517ecb6a8198e035",
+        "crop": {
+          "x": 295,
+          "y": 20,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-50.png",
+        "sourceSha256": "519cd594517c8697916b4dde08426c9d1bcb12c4dccffdb402ca7da74fd914ec",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (295,20,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 55,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-55.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "2f198a28204a85aadcb2886350810101222e422f6984765e61697c76c83e6e4a",
+        "sizeBytes": 313590
       },
       "avatar": {
         "path": "timeline/avatars/hana-55.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "4280fcf61c9f765d9d674a649c26df42e899b40e484a69cbe2a6ea8aa18775b2",
+        "sizeBytes": 30000,
+        "sourceSha256": "2f198a28204a85aadcb2886350810101222e422f6984765e61697c76c83e6e4a",
+        "crop": {
+          "x": 315,
+          "y": 20,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-55.png",
+        "sourceSha256": "ad33f8db358c596c7261a65b6d4c03188fbd600f86983f0342c19c3f73cb853f",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (315,20,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 90,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     },
     {
       "characterId": "hana",
       "age": 70,
       "status": "pending-human-review",
-      "anchorSha256": null,
+      "anchorSha256": "9a247310189f6b5e6a07003371a4a511d2218235e462038f93224244196a6f4e",
       "humanApproval": null,
       "fullbody": {
         "path": "timeline/fullbody/hana-70.webp",
         "width": 900,
         "height": 1200,
-        "sha256": null,
-        "sizeBytes": null
+        "sha256": "d39cb9530d42b0f03dad982008c2ee776387433d49f53d7df7ab9144ca29b2be",
+        "sizeBytes": 327360
       },
       "avatar": {
         "path": "timeline/avatars/hana-70.webp",
         "width": 320,
         "height": 320,
-        "sha256": null,
-        "sizeBytes": null,
-        "sourceSha256": null,
-        "crop": null
-      }
+        "sha256": "9c17d754d5347627910145d692948236f8091cd6553bc0a09e061fd5ae4109aa",
+        "sizeBytes": 29738,
+        "sourceSha256": "d39cb9530d42b0f03dad982008c2ee776387433d49f53d7df7ab9144ca29b2be",
+        "crop": {
+          "x": 300,
+          "y": 15,
+          "width": 310,
+          "height": 310
+        }
+      },
+      "sourceProvenance": {
+        "sourceFile": "source/hana-70.png",
+        "sourceSha256": "6eed34d1843bca9ba258542ab65a7789d442c75a6e7962e6b6b1882e99ba4610",
+        "sourceDimensions": [
+          1086,
+          1448
+        ],
+        "operations": [
+          "resize-only to 900x1200",
+          "WebP encode",
+          "square face crop (300,15,310,310) from canonical fullbody",
+          "resize crop to 320x320",
+          "WebP encode"
+        ],
+        "fullbodyWebpQuality": 92,
+        "avatarWebpQuality": 92,
+        "cropMethod": "manual-coordinate-map",
+        "cropReviewStatus": "pending-human-review"
+      },
+      "qualityReview": {
+        "automated": "dimensions, byte limits, file hashes and source crop lineage verified",
+        "identity": "pending-human-review",
+        "ageAppearance": "pending-human-review",
+        "storySceneClothing": "pending-human-review",
+        "headAndShoes": "pending-human-review",
+        "avatarComposition": "pending-human-review"
+      },
+      "visualReviewNotes": "Production visual inspection is not human approval. Identity continuity appears plausible; age realism remains subjective, especially 35/40/50/55. The replacement 50-year candidate is visibly more mature than the excluded initial candidate, but its apparent age still needs human judgement. Confirm story/age and every avatar crop before approval."
     }
   ]
 }

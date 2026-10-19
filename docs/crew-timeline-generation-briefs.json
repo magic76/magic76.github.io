@@ -1,0 +1,624 @@
+{
+  "description": "Reproducible production briefs transcribed from production notes; not a verbatim image-generation call transcript. Canonical life stories are preserved and not rewritten.",
+  "humanReviewStatus": "pending-human-review",
+  "excludedEarlierCandidates": [
+    "First Ethan age 7 candidate excluded during production review; not integrated.",
+    "First Ethan age 70 candidate excluded during production review; not integrated.",
+    "Earlier Hana age 35 interior candidate excluded for repeating the age-25 room background.",
+    "Earlier Hana age 50 candidate excluded for appearing too young; replacement requires human review."
+  ],
+  "characters": {
+    "ethan": {
+      "7": {
+        "scene": "Grandmother’s home at the piano",
+        "outfit": "mustard jumper",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-7.png",
+        "sourceSha256": "b3d19474adaec8f69292604cd04aab8ed4d90d327d85695625cabe5ac1ee6405",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "In Bristol, Ethan spends afternoons tapping rhythms on his grandmother's piano and building imaginary stages from cardboard.",
+        "canonicalLifeDetails": "Ethan lives with his mother Clara, a bus driver, and his younger brother Finn in a narrow terraced house. Grandma Rose owns an upright piano with a sticky middle C. His friend Ben insists every song needs a dinosaur sound. Ethan feels enormous courage when performing for toys and almost none at school assembly. He hides a handmade music box under his bed and measures the week by Thursday visits to Rose."
+      },
+      "10": {
+        "scene": "School band rehearsal room",
+        "outfit": "burgundy sweatshirt",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-7.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-10.png",
+        "sourceSha256": "73578378ded1a2cb6430076acd0b2fbff2aef56315e825238eb7ac3be13c23b5",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-7.png",
+            "sha256": "b3d19474adaec8f69292604cd04aab8ed4d90d327d85695625cabe5ac1ee6405",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Ethan starts a tiny school band with Ben, but a broken keyboard makes rehearsals unpredictable.",
+        "canonicalLifeDetails": "Rose teaches Ethan a simple blues pattern and tells him that listening matters more than speed. Clara works overtime to keep the household stable, and Finn has grown old enough to borrow Ethan's headphones without permission. Ben plays a borrowed drum that rattles during slow songs. Ethan notices that some classmates can afford new instruments; he cannot. He keeps a notebook of imaginary band names and gets angry when everyone jokes instead of practicing."
+      },
+      "13": {
+        "scene": "Bedroom with laptop music project",
+        "outfit": "rust hoodie",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-10.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-13.png",
+        "sourceSha256": "1914330c8c793b3486ceab05a5945885b5d304c117916c829e81027bd8b8bc4e",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-10.png",
+            "sha256": "73578378ded1a2cb6430076acd0b2fbff2aef56315e825238eb7ac3be13c23b5",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "A song recorded on a cheap laptop gives Ethan his first taste of making something entirely his own.",
+        "canonicalLifeDetails": "Ethan is a new teenager and much more guarded at home than at ten. He records rough melodies with free software after school, while Ben becomes interested in football and makes less time for the band. Clara is proud but worries when unfinished homework accumulates. Rose's piano still anchors his weekends, though Ethan feels embarrassed about lessons in front of his friends. He has not shown anyone the lyrics he wrote after an argument with Finn."
+      },
+      "16": {
+        "scene": "College courtyard",
+        "outfit": "navy rain jacket",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-13.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-16.png",
+        "sourceSha256": "1e886ae195eb373da4479242de880ea4b1c7726559d015f060f8bddea835deae",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-13.png",
+            "sha256": "1914330c8c793b3486ceab05a5945885b5d304c117916c829e81027bd8b8bc4e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Ethan applies to a music college workshop without telling his family how much he wants to go.",
+        "canonicalLifeDetails": "Ethan spends evenings producing rough tracks and weekends helping Clara with shopping and Finn's school runs. Rose has developed arthritis and plays less, though she still notices when Ethan rushes a passage. Ben is now a friendly acquaintance rather than a daily collaborator. A music teacher named Ms Porter offers honest encouragement but warns that auditions are competitive and expensive. Ethan pretends he has a practical backup plan, but an unopened application form stays on his desk."
+      },
+      "19": {
+        "scene": "Manchester music venue loading entrance",
+        "outfit": "denim jacket",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-16.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-19.png",
+        "sourceSha256": "0ff5138c529bfe7840a5c61b5db52af5727749b5d7b1953af6c4011b80b5ffc0",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-16.png",
+            "sha256": "1e886ae195eb373da4479242de880ea4b1c7726559d015f060f8bddea835deae",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At nineteen he moves to Manchester to study sound engineering and discovers that talent does not pay rent.",
+        "canonicalLifeDetails": "Ethan shares a student flat with Ava, a patient aspiring nurse, and two people whose schedules never align. He learns microphone placement and audio editing while unloading equipment at a small venue on weekends. He sends Clara optimistic updates but checks his bank balance before buying lunch. Grandma Rose mails handwritten music notes rather than commenting on his choices. The city is loud, and he sometimes walks home without headphones because he misses the silence of Bristol."
+      },
+      "22": {
+        "scene": "Recording studio",
+        "outfit": "plum henley",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-19.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-22.png",
+        "sourceSha256": "4656ebe1cbb91c1de90065996957f0a5bb72d953f60353dcfa2d573c714f1459",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-19.png",
+            "sha256": "0ff5138c529bfe7840a5c61b5db52af5727749b5d7b1953af6c4011b80b5ffc0",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Ethan takes assistant engineering jobs and starts wondering whether making music for others will become his whole career.",
+        "canonicalLifeDetails": "Ethan is a junior assistant at a small studio, setting up sessions, labeling tracks and troubleshooting cables. Senior engineer Priya demands organized files and does not tolerate charming excuses. Ava has moved elsewhere for work but remains a close friend. Clara asks whether Ethan is sleeping enough; Finn has started asking him for career advice, which he finds unsettling. Ethan's own songs live on an unfinished hard drive while he grows technically competent and emotionally restless."
+      },
+      "25": {
+        "scene": "Failed independent-label project at home",
+        "outfit": "olive overshirt",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-25.png",
+        "sourceSha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+        "availability": "source-present",
+        "referenceSourceHashes": [],
+        "canonicalStoryExcerpt": "A small independent music startup collapses, leaving Ethan exhausted, broke and unwilling to pretend it was all a lesson.",
+        "canonicalLifeDetails": "Ethan co-founded a tiny digital label with guitarist Leo and tried to distribute independent tracks fairly. They underestimated licensing paperwork and paid promotion, and a promised partner withdrew funding. Priya offered practical advice but never invested. Ava listened to increasingly frantic late-night voice notes. Ethan is back doing freelance audio edits, sleeping badly and refusing to throw away the neon sticky notes covering his planning wall. During a short Tokyo visit for a low-paid music project, he once met a curious traveler named Hana in a rainy record shop; it was a brief, ordinary conversation."
+      },
+      "35": {
+        "scene": "Museum sound project",
+        "outfit": "chambray shirt",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-35.png",
+        "sourceSha256": "99628747022ce3807b6257ea5473e9c30ef681f4b53024c6000a7ca892d8d015",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Ten years later he produces accessible audio tools for museums and community radio, with a smaller but steadier life.",
+        "canonicalLifeDetails": "Ethan works with a small accessibility team, designing sound descriptions and community recording sessions. He lives with partner Sam, a school librarian who will tell him when work has swallowed the weekend. A project with older neighborhood residents reminds Ethan of Grandma Rose's patient lessons; he keeps her piano bench after she dies in his late twenties. Leo occasionally sends unfinished demos, but they no longer plan businesses together. Ethan has learned to submit invoices on time, but he is poor at asking for help."
+      },
+      "40": {
+        "scene": "Garden doorway with a family lunch bag",
+        "outfit": "oatmeal cardigan",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-35.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-40.png",
+        "sourceSha256": "4d737573b0df1f600f226f81c1fc742d76ce0a3a713a147b7c1068729980e769",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-35.png",
+            "sha256": "99628747022ce3807b6257ea5473e9c30ef681f4b53024c6000a7ca892d8d015",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "He becomes a trusted producer but struggles to give his family the unhurried attention he gives a perfect recording.",
+        "canonicalLifeDetails": "Ethan and Sam are raising Sam's niece Lottie for an extended period while her mother recovers from a difficult year. Home routines now mean packed lunches, library returns and bedtime negotiations. Ethan coordinates several public-interest audio projects and sometimes misses school events because of deadlines. Clara retires from driving buses and asks him to visit Bristol more often. Finn runs a small repair shop and jokes that Ethan could fix a recording but not a leaking tap."
+      },
+      "50": {
+        "scene": "Audio archive",
+        "outfit": "teal knit",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-40.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-50.png",
+        "sourceSha256": "781f41b79ac67e5c410177101f2c707bf42338ea83650634c7d8a62278a5823e",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-40.png",
+            "sha256": "4d737573b0df1f600f226f81c1fc742d76ce0a3a713a147b7c1068729980e769",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Ethan mentors junior sound designers and chooses to spend less time directing projects himself.",
+        "canonicalLifeDetails": "Ethan oversees a public audio archive and spends more time teaching editing techniques than sitting alone at the mixing desk. Sam has returned to full-time library work, and Lottie now studies design away from home and sends irregular messages. Clara enjoys gardening and wants him to stop bringing a laptop to every family visit. Finn occasionally collaborates on restoring old record players. Ethan is trying to make affordable training sessions without repeating the punishing expectations he encountered as a trainee."
+      },
+      "55": {
+        "scene": "Community-centre radio activity",
+        "outfit": "brown corduroy",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-50.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-55.png",
+        "sourceSha256": "52e6b8648193a69a61537642e9cedd829fcf2c94f13835befac6afbda177e019",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-50.png",
+            "sha256": "781f41b79ac67e5c410177101f2c707bf42338ea83650634c7d8a62278a5823e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "After years in studios, Ethan launches a weekend community radio program for people rarely heard.",
+        "canonicalLifeDetails": "Ethan has started a modest weekend radio project with local teenagers, retirees and migrant neighbors. Sam helps organize reading and recording events; their relationship is steadier because they now argue more directly. Lottie sometimes designs simple posters for shows. A new volunteer named Imran challenges Ethan's old assumptions about who gets to tell a neighborhood's history. Ethan enjoys the imperfect live broadcasts more than he expected, though funding and equipment maintenance are constant concerns."
+      },
+      "70": {
+        "scene": "Sunroom with piano and memories",
+        "outfit": "moss cardigan",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/ethan-25.png",
+          "source/ethan-55.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/ethan-70.png",
+        "sourceSha256": "714ad943160e75e6c7f1b6fc45a1949d3639514ae761d6ac45c46faddd774f3b",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/ethan-25.png",
+            "sha256": "e9aeee548ec112a928153bf7304a45ecfb0d356bd74bb225069d6c1d5c80a94f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/ethan-55.png",
+            "sha256": "52e6b8648193a69a61537642e9cedd829fcf2c94f13835befac6afbda177e019",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At seventy Ethan still repairs recordings, walks through Bristol markets and plays Rose's piano without rushing.",
+        "canonicalLifeDetails": "Ethan and Sam have a quieter routine near Bristol, though Sam still hosts a neighborhood reading group. Finn drops by with thrift-store electronics, and Lottie visits when her work allows. Ethan maintains a carefully labeled collection of local recordings and argues cheerfully with younger volunteers about whether silence is truly empty. He revisits his early failed label without calling it destiny; sometimes it still stings. Rose's sticky middle C has never been completely repaired, and Ethan now likes its unmistakable sound."
+      }
+    },
+    "hana": {
+      "7": {
+        "scene": "Kyoto flower shop",
+        "outfit": "sage pinafore",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-7.png",
+        "sourceSha256": "8ff5b6624b4e3a4207e1a12468a8c6dec652c5f70d918030cdd6a74e09d88e61",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana grows up behind her family's Kyoto flower shop and secretly draws maps of places she has never seen.",
+        "canonicalLifeDetails": "Hana helps her father Kenji wrap flowers after school and watches her mother Emi press fallen petals between book pages. Grandma Fumiko tells stories of childhood journeys that Hana sometimes interrupts with impossible questions. Her neighbor and best friend Aoi shares a collection of miniature station stamps. Hana is energetic when explaining invented routes and nervous when a real adult asks her to speak up. Their flower shop smells of damp paper, soil and fresh stems."
+      },
+      "10": {
+        "scene": "School courtyard with a postcard",
+        "outfit": "rose cardigan",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-7.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-10.png",
+        "sourceSha256": "276ffe25ef49038a2c87e334086d99d3becce039beaa201ae1820929832ec6cd",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-7.png",
+            "sha256": "8ff5b6624b4e3a4207e1a12468a8c6dec652c5f70d918030cdd6a74e09d88e61",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "A school exchange postcard makes ten-year-old Hana curious about languages she has never heard aloud.",
+        "canonicalLifeDetails": "Hana still helps in the flower shop, sometimes grumbling about sweeping petals. Her teacher arranges a postcard exchange with another school overseas. Hana copies foreign street names into a cheap notebook and practices sounds that she probably pronounces wrong. Aoi is loyal but thinks her obsession with maps is excessive. Emi encourages curiosity while insisting Hana finish local schoolwork first, and Fumiko delights in correcting her made-up travel plans."
+      },
+      "13": {
+        "scene": "Kyoto alley with camera",
+        "outfit": "lavender sweatshirt",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-10.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-13.png",
+        "sourceSha256": "251c4a4667051fd02e1d6124706284b08c254c94c2f99351bb8da73ee1053cc5",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-10.png",
+            "sha256": "276ffe25ef49038a2c87e334086d99d3becce039beaa201ae1820929832ec6cd",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana starts a travel blog that hardly anyone reads and feels awkward about being visible at school.",
+        "canonicalLifeDetails": "Hana borrows a basic camera to write about Kyoto side streets instead of famous temples. Her family thinks the observations are funny, while Aoi is frustrated that Hana keeps turning friendly walks into content ideas. Classmate Riku joins the media club and challenges Hana's confident descriptions of places she has barely visited. Hana struggles with the difference between wanting to travel and understanding people who already live somewhere. She keeps an unpublished draft about the flower shop."
+      },
+      "16": {
+        "scene": "Train station for a trip",
+        "outfit": "grey windbreaker",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-13.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-16.png",
+        "sourceSha256": "c262e840769328efb479a08beb105f41ccdc1d96fa2d3b39010b4713d22c2b52",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-13.png",
+            "sha256": "251c4a4667051fd02e1d6124706284b08c254c94c2f99351bb8da73ee1053cc5",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana saves for her first solo domestic train trip and argues with her parents about how independent she really is.",
+        "canonicalLifeDetails": "Hana takes a weekend job at a small stationery counter and charts train fares in a pocket notebook. Emi worries about her safety; Kenji is more quietly supportive, offering a worn travel bag. Aoi has grown interested in local art while Hana dreams of moving abroad, but they still make time for long talks. Riku teaches her how to verify travel information rather than reposting rumors. Hana is ready to mistake preparation for experience and resents being reminded of that gap."
+      },
+      "19": {
+        "scene": "Osaka apartment with groceries",
+        "outfit": "cream knit and terracotta skirt",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-16.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-19.png",
+        "sourceSha256": "3a795ad81d201ac366096571281b445bc2066b59a72f3d5c9926179200af03ab",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-16.png",
+            "sha256": "c262e840769328efb479a08beb105f41ccdc1d96fa2d3b39010b4713d22c2b52",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At nineteen Hana studies languages in Osaka and finds that being away from Kyoto is less glamorous than expected.",
+        "canonicalLifeDetails": "Hana shares an apartment with practical classmate Yui and works occasional shifts at a busy train-station cafe. She reads foreign newspapers slowly and envies classmates who speak confidently. Her parents still call about flower prices and school life rather than asking whether she is lonely. Aoi sends photos of Kyoto murals and asks if she still feels like a tourist in Osaka. Hana learns to cook two cheap meals and pays for convenience food when deadlines get close."
+      },
+      "22": {
+        "scene": "Melbourne cultural-centre brick exterior",
+        "outfit": "green short-sleeve shirt, charcoal cropped trousers and work apron; receipts",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-19.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-22.png",
+        "sourceSha256": "a67c51a334f8e88dcaa328e3a6baaf3d8295b52e29a75ecbe22d8c3bb8644887",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-19.png",
+            "sha256": "3a795ad81d201ac366096571281b445bc2066b59a72f3d5c9926179200af03ab",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana accepts a short-term job abroad and discovers that daily life in another language is tiring as well as exciting.",
+        "canonicalLifeDetails": "Hana is doing guest-service work at a small cultural center in Melbourne and rents a room from an older couple, Ruth and Daniel. She speaks English at work, struggles on the phone and sometimes rehearses simple requests before shopping. A coworker named Maya encourages her to ask for help instead of agreeing automatically. Back in Kyoto, Emi handles more of the family flower shop as Kenji's health requires rest, but Hana does not yet know whether she will move home. Her travel notebook is full of grocery receipts rather than landmarks."
+      },
+      "25": {
+        "scene": "Tokyo cultural venue",
+        "outfit": "blue blouse and beige trousers",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-25.png",
+        "sourceSha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+        "availability": "source-present",
+        "referenceSourceHashes": [],
+        "canonicalStoryExcerpt": "Hana works on cross-cultural events in Tokyo and wonders whether curiosity is enough to build a lasting career.",
+        "canonicalLifeDetails": "Hana returned from Australia and now coordinates small cultural exchange events in Tokyo. Her coworker Sora plans meticulously and argues when Hana improvises. Aoi remains her closest friend from Kyoto and sometimes visits for exhibitions. Emi wants to know if Hana will eventually settle closer to the family flower shop; Hana avoids promising either way. During a rainy afternoon in a record shop she briefly talks with a visiting British sound engineer named Ethan about a badly translated album title. They exchange no dramatic promise; she just remembers the joke."
+      },
+      "35": {
+        "scene": "Glass-office entrance outside a small Tokyo exchange foundation; distinct urban exterior",
+        "outfit": "aubergine blazer, ivory blouse and taupe trousers; folder",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-35.png",
+        "sourceSha256": "2fd751e282cc8f6b46b33ee9c153290bccc71c530156918540dafbc12f3b6d45",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At thirty-five Hana manages a cultural program and faces a choice between growing her career and returning nearer to family.",
+        "canonicalLifeDetails": "Hana manages a small exchange foundation with a demanding calendar and a tiny team. Her partner Daichi, a landscape designer, has more stable work in Kyoto and does not want to move endlessly. Kenji has reduced his hours at the flower shop and Emi has begun teaching seasonal arrangement classes. Aoi now has a studio in Kyoto, and the old friendship feels less frantic but deeper. Hana has learned to negotiate budgets and still feels restless when weeks become repetitive."
+      },
+      "40": {
+        "scene": "Kyoto school garden",
+        "outfit": "ochre tunic and navy trousers; teaching materials and leaf",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-25.png",
+          "source/hana-35.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "referenceHashOverrides": {
+          "source/hana-35.png": "4214f1d50c52f75a0416b90692a2d52fa6143491322f2f49444227a71dbc21d1"
+        },
+        "referenceHistoryNote": "This hash is frozen to the earlier production candidate actually referenced at generation time; that source age was subsequently regenerated. The current formal source filename now identifies different bytes.",
+        "sourceFile": "source/hana-40.png",
+        "sourceSha256": "ff17d05dc4296f93aca80a67b67fdf8326a8e6e6a0fb083f07715ea598644c1e",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-35.png",
+            "sha256": "4214f1d50c52f75a0416b90692a2d52fa6143491322f2f49444227a71dbc21d1",
+            "hashSource": "frozen-generation-time-snapshot",
+            "referenceSnapshotFile": "reference-history/hana-35-initial-reference-only.png"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana returns to Kyoto to run local cultural programs and discovers that staying can require as much courage as leaving.",
+        "canonicalLifeDetails": "Hana has moved back to Kyoto and builds neighborhood language-and-culture programs with local schools. Daichi continues landscape design work; they share a small house and a spirited dog named Mugi. Emi has retired from daily flower sales but remains active in workshops, while Kenji enjoys quieter mornings after years of early shop openings. Hana sometimes misses airports and the small anonymity of living abroad. She now hears how outsiders describe Kyoto and questions whose stories tourists repeat."
+      },
+      "50": {
+        "scene": "Educational classroom preparation; stronger age-50 maturity",
+        "outfit": "brick-red linen shirt and grey trousers; old travel notebook and receipts",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-55.png",
+          "source/hana-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-50.png",
+        "sourceSha256": "519cd594517c8697916b4dde08426c9d1bcb12c4dccffdb402ca7da74fd914ec",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-55.png",
+            "sha256": "ad33f8db358c596c7261a65b6d4c03188fbd600f86983f0342c19c3f73cb853f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At fifty Hana runs small cultural workshops and helps young people plan travel without idealizing it.",
+        "canonicalLifeDetails": "Hana now works part-time with a neighborhood education center and spends more time mentoring than managing grants. Daichi's design business is steady but busy, and they negotiate time together around aging parents' routines. Her former coworker Sora occasionally asks her to review program plans from Tokyo. Young volunteer Natsuki wants to travel to Melbourne and believes enthusiasm will solve everything; Hana recognizes that confidence from her own past but avoids lecturing. She keeps receipts and notes from her first Australian trip."
+      },
+      "55": {
+        "scene": "Kyoto canal footpath",
+        "outfit": "dusty blue field jacket and khaki walking trousers; map",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-50.png",
+          "source/hana-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "referenceHashOverrides": {
+          "source/hana-50.png": "c0ad8b7995c4ac5a5b890f5676f3e83f07693b2452bf240d3e584abc619e87b9"
+        },
+        "referenceHistoryNote": "This hash is frozen to the earlier production candidate actually referenced at generation time; that source age was subsequently regenerated. The current formal source filename now identifies different bytes.",
+        "sourceFile": "source/hana-55.png",
+        "sourceSha256": "ad33f8db358c596c7261a65b6d4c03188fbd600f86983f0342c19c3f73cb853f",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-50.png",
+            "sha256": "c0ad8b7995c4ac5a5b890f5676f3e83f07693b2452bf240d3e584abc619e87b9",
+            "hashSource": "frozen-generation-time-snapshot",
+            "referenceSnapshotFile": "reference-history/hana-50-initial-reference-only.png"
+          },
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "Hana starts organizing slow local exchange walks and learns to enjoy introducing one street instead of twenty countries.",
+        "canonicalLifeDetails": "Hana and Aoi collaborate on walking tours led by neighborhood residents, not professional guides. Daichi helps plan quiet routes, and Emi occasionally contributes flowers and stories from the old shop. Mugi is older and insists on resting halfway through the same walk. New families in the area challenge Hana to make translation practical rather than ornamental. She still occasionally travels abroad, but these days she brings a small notebook instead of a packed schedule."
+      },
+      "70": {
+        "scene": "Residential Kyoto lane with wood lattice",
+        "outfit": "mauve cardigan, cream shirt and navy midi skirt; notebook and pencil",
+        "briefStatus": "recorded-production-brief",
+        "referenceSources": [
+          "source/hana-55.png",
+          "source/hana-25.png"
+        ],
+        "humanReviewStatus": "pending-human-review",
+        "sourceFile": "source/hana-70.png",
+        "sourceSha256": "6eed34d1843bca9ba258542ab65a7789d442c75a6e7962e6b6b1882e99ba4610",
+        "availability": "source-present",
+        "referenceSourceHashes": [
+          {
+            "sourceFile": "source/hana-55.png",
+            "sha256": "ad33f8db358c596c7261a65b6d4c03188fbd600f86983f0342c19c3f73cb853f",
+            "hashSource": "current-source-file"
+          },
+          {
+            "sourceFile": "source/hana-25.png",
+            "sha256": "874cc33c6bfd45b44b0feeabd00a7e7fb8bc03da1de97e5e90602a2840d6324e",
+            "hashSource": "current-source-file"
+          }
+        ],
+        "canonicalStoryExcerpt": "At seventy Hana keeps a notebook of Kyoto details and invites younger neighbors to add their own routes.",
+        "canonicalLifeDetails": "Hana and Daichi spend mornings walking different Kyoto streets at an easy pace. Aoi remains close and occasionally joins the walks, while younger volunteers manage most community events. Kenji and Emi are remembered through the flower shop's old pressed-petal albums and stories. Hana has boxes of notebooks from Osaka, Melbourne, Tokyo and home; some memories still embarrass her. She refuses to treat her life as a perfectly planned journey and continues asking what has changed since yesterday."
+      }
+    }
+  },
+  "canonicalContractSha256": "4576910be3c42a15d95784f354a66ed3c5982562a10313550bed2ce8eb8d39d1",
+  "canonicalContractPath": "contracts/crew-timeline/characters-v1.json"
+}

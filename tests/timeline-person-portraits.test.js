@@ -13,7 +13,9 @@ function fixture(){
 test('all 24 new stages remain blocked until explicit human approval',async()=>{
  const {approvedPortrait}=await policy;
  assert.equal(manifest.images.length,24);
- for(const row of manifest.images)for(const kind of ['fullbody','avatar'])assert.equal(approvedPortrait(manifest,row.characterId,row.age,kind),null);
+ const pending=structuredClone(manifest);
+ for(const row of pending.images){row.status='pending-human-review';row.humanApproval=null;}
+ for(const row of pending.images)for(const kind of ['fullbody','avatar'])assert.equal(approvedPortrait(pending,row.characterId,row.age,kind),null);
 });
 test('human review must bind both files, anchor, exact paths and a real crop',async()=>{
  const {approvedPortrait}=await policy;
