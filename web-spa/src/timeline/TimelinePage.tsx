@@ -102,7 +102,6 @@ export function TimelinePage(){
      <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={en?"Next age":"下一個年齡"}>›</button>
     </div>
    </div>
-   </div>
    <div className="timeline-feature-copy" key={age}>
     <span className="kicker">MIRA · {age} {en?"YEARS OLD":"歲"}</span>
     <h2>{ageLabel[age][en?1:0]}</h2>
