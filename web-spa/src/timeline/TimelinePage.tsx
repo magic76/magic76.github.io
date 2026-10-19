@@ -20,6 +20,7 @@ export function TimelinePage(){
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
  const rail=useRef<HTMLElement>(null),carousel=useRef<HTMLDivElement>(null);
+ const programmaticTarget=useRef<Age|null>(null);
  const current=stage(age),memory=olderNotes(age),all=notes();
  const index=AGES.indexOf(age);
  const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
@@ -30,6 +31,7 @@ export function TimelinePage(){
   }
  };
  const chooseAge=(next:Age)=>{
+  programmaticTarget.current=next;
   if(next!==age)setAge(next);
   scrollToAge(next);
  };
@@ -40,6 +42,11 @@ export function TimelinePage(){
   const container=carousel.current;
   if(!container)return;
   const center=container.scrollLeft+container.clientWidth/2;
+  if(programmaticTarget.current!==null){
+   const target=container.querySelector<HTMLElement>('[data-timeline-age="'+programmaticTarget.current+'"]');
+   if(target&&Math.abs(target.offsetLeft+target.clientWidth/2-center)<3)programmaticTarget.current=null;
+   return;
+  }
   let closest=0,best=Infinity;
   Array.from(container.children).forEach((node,i)=>{
    const slide=node as HTMLElement;
@@ -49,7 +56,7 @@ export function TimelinePage(){
   const next=AGES[closest];
   if(next!==undefined)setAge(previous=>previous===next?previous:next);
  };
- useLayoutEffect(()=>{scrollToAge(25,"instant");},[]);
+ useLayoutEffect(()=>{programmaticTarget.current=25;scrollToAge(25,"instant");},[]);
  useEffect(()=>{
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
   if(active&&rail.current){
@@ -69,6 +76,7 @@ export function TimelinePage(){
   <section className="section timeline-feature panel" id="timeline-current" aria-label={en?"Mira's current chapter":"Mira 目前的人生階段"}>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
+      onPointerDown={()=>{programmaticTarget.current=null}}
       role="region" aria-roledescription="carousel" aria-label={en?"Mira's life photos":"Mira 的人生照片"}>
      {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} data-active={a===age} key={a} role="group"
        aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
