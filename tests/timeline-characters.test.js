@@ -42,5 +42,7 @@ test("Character switches are real, without sharing keepsakes or future canon",()
  assert.match(live,/timelineBuildSystem\(age,language,characterId\)/);
  assert.match(live,/timelineSaveNote\(age,text,characterId\)/);
  assert.match(live,/persistHistory:false/);
- assert.match(portrait,/if\(characterId!=="mira"\)return null/);
+ assert.match(portrait,/approvedPortrait\(portraitManifest,characterId,age/);
+ assert.match(portrait,/verifiedPortraitBlob\(asset\)/);
 });
+
