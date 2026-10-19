@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
@@ -28,7 +28,7 @@ export function TimelinePage(){
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
   active?.scrollIntoView({behavior:"smooth",block:"nearest",inline:"center"});
  },[age]);
- const onTouchEnd=(event:React.TouchEvent<HTMLDivElement>)=>{
+ const onTouchEnd=(event:TouchEvent<HTMLDivElement>)=>{
   const start=touch.current;touch.current=null;
   if(!start)return;
   const dx=event.changedTouches[0].clientX-start.x,dy=event.changedTouches[0].clientY-start.y;
