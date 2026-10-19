@@ -20,8 +20,8 @@
     "date": "2026-10-19",
     "source": "ChatGPT user confirmation in Crew Teacher project"
   },
-  "integrationStatus": "approved-image-files-require-git-repository-upload",
-  "notes": "The user accepted all twelve standalone WebP photos. This manifest records approval and fingerprints but does NOT mean the binary assets have been committed to either repository. The fullBodyPhotoPlan status MUST remain pending until actual image files exist and CI validates them.",
+  "integrationStatus": "files-installed-in-local-checkouts-awaiting-git-commit-and-ci",
+  "notes": "User approved twelve original files; activation requires committed assets and passing Web/Android CI checks.",
   "images": [
     {
       "age": 7,

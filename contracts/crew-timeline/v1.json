@@ -716,85 +716,181 @@
         "age": 7,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Harbor childhood, floral cotton dress, sketchbook and small backpack"
+        "status": "approved",
+        "brief": "Harbor childhood, floral cotton dress, sketchbook and small backpack",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 10,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Harbor walk, hoodie and shorts, supervised pocket camera"
+        "status": "approved",
+        "brief": "Harbor walk, hoodie and shorts, supervised pocket camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 13,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "School street, modest uniform, borrowed film camera"
+        "status": "approved",
+        "brief": "School street, modest uniform, borrowed film camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 16,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Astronomy club student, dark school jacket, Grandpa Tao's camera"
+        "status": "approved",
+        "brief": "Astronomy club student, dark school jacket, Grandpa Tao's camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 19,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "City train station, casual layers, suitcase and padded camera bag"
+        "status": "approved",
+        "brief": "City train station, casual layers, suitcase and padded camera bag",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 22,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "City rooftop after a work shift, simple shirt and camera equipment"
+        "status": "approved",
+        "brief": "City rooftop after a work shift, simple shirt and camera equipment",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 25,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Early freelance photographer, sturdy outdoor jacket and camera gear"
+        "status": "approved",
+        "brief": "Early freelance photographer, sturdy outdoor jacket and camera gear",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 35,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Gallery neighborhood, smart everyday tailoring, discreet camera"
+        "status": "approved",
+        "brief": "Gallery neighborhood, smart everyday tailoring, discreet camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 40,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Established photographer in a calm street scene, contemporary smart casual"
+        "status": "approved",
+        "brief": "Established photographer in a calm street scene, contemporary smart casual",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 50,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Outdoor mentoring walk, natural coat and scarf, practical camera"
+        "status": "approved",
+        "brief": "Outdoor mentoring walk, natural coat and scarf, practical camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 55,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Community workshop courtyard, relaxed educator clothing, camera bag"
+        "status": "approved",
+        "brief": "Community workshop courtyard, relaxed educator clothing, camera bag",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       },
       {
         "age": 70,
         "aspectRatio": "3:4",
         "format": "webp",
-        "status": "awaiting-approved-independent-photo",
-        "brief": "Golden-hour coastal path, comfortable knitwear, well-loved vintage camera"
+        "status": "approved",
+        "brief": "Golden-hour coastal path, comfortable knitwear, well-loved vintage camera",
+        "review": {
+          "onePerson": true,
+          "sameIdentity": true,
+          "ageAppearance": true,
+          "fullBodyAndFeet": true,
+          "noTextOrCollage": true
+        },
+        "approvalBasis": "User visually accepted fullbody-12-ages ZIP on 2026-10-19; same source image SHA256 in approved manifest"
       }
     ]
   },
