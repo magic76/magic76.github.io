@@ -1,9 +1,10 @@
 import {useEffect,useLayoutEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
-import {AGES,stage,olderNotes,notes,deleteNote,clearNotes,type Age} from "./timeline";
+import {AGES,type Age} from "./timeline";
+import {TIMELINE_IDS,timelineCharacterId,timelinePerson,timelineStage,timelineOlderNotes,timelineNotes,timelineDeleteNote,timelineClearNotes} from "./timelineCharacters";
 import {TimelinePortrait} from "./TimelinePortrait";
 import "./timeline.css";
 
@@ -17,11 +18,14 @@ const eras:{label:[string,string];ages:Age[]}[]=[
 ];
 export function TimelinePage(){
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
+ const[params,setParams]=useSearchParams();
+ const characterId=timelineCharacterId(params.get("character")),person=timelinePerson(characterId);
+ const chooseCharacter=(id:typeof characterId)=>{if(id===characterId)return;setAge(25);setParams(id==="mira"?{}:{character:id});};
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
  const rail=useRef<HTMLElement>(null),carousel=useRef<HTMLDivElement>(null);
  const programmaticTarget=useRef<Age|null>(null);
- const current=stage(age),memory=olderNotes(age),all=notes();
+ const current=timelineStage(age,characterId),memory=timelineOlderNotes(age,characterId),all=timelineNotes(characterId);
  const index=AGES.indexOf(age);
  const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
   const container=carousel.current;
@@ -63,7 +67,7 @@ export function TimelinePage(){
    requestAnimationFrame(()=>scrollToAge(25,"instant"));
   });
   return()=>cancelAnimationFrame(frame);
- },[]);
+ },[characterId]);
  useEffect(()=>{
   const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
   if(active&&rail.current){
@@ -72,27 +76,34 @@ export function TimelinePage(){
  },[age]);
  return <main className="shell timeline-page timeline-immersive" data-refresh={refresh}>
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
-   <h1>{en?"Mira, through the years":"Mira 的人生時光機"}</h1>
-   <p>{en?"One person. Twelve chapters. Every age has a story.":"同一個 Mira，十二段人生。滑動時間，走進她的故事。"}</p>
+   <h1>{en?person.name+", through the years":person.name+" 的人生時光機"}</h1>
+   <p>{en?"Three lives, twelve chapters each. Swipe through a life.":"三段不同的人生，每人十二個階段。選擇人物，滑動探索。"}</p>
   </header>
-  <nav className="timeline-rail" ref={rail} aria-label={en?"Select Mira's age":"選擇 Mira 的年齡"}>
-   {AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} key={a} aria-pressed={a===age} onClick={()=>chooseAge(a)}>
-    <TimelinePortrait age={a}/><strong>{a}</strong><small>{en?"years":"歲"}</small>
+  <nav className="timeline-people" aria-label={en?"Choose a life":"選擇人生角色"}>
+   {TIMELINE_IDS.map(id=><button type="button" key={id} className={"timeline-person "+(characterId===id?"selected":"")}
+     aria-pressed={characterId===id} onClick={()=>chooseCharacter(id)}>
+    <TimelinePortrait characterId={id} age={25}/>
+    <span><strong>{timelinePerson(id).name}</strong><small>{id==="mira"?(en?"Photographer":"攝影師"):id==="ethan"?(en?"Music & sound":"音樂與聲音"):(en?"Travel & culture":"旅行與文化")}</small></span>
    </button>)}
   </nav>
-  <section className="section timeline-feature panel" id="timeline-current" aria-label={en?"Mira's current chapter":"Mira 目前的人生階段"}>
+  <nav className="timeline-rail" ref={rail} aria-label={en?"Select "+person.name+"'s age":"選擇 "+person.name+" 的年齡"}>
+   {AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} key={a} aria-pressed={a===age} onClick={()=>chooseAge(a)}>
+    <TimelinePortrait characterId={characterId} age={a}/><strong>{a}</strong><small>{en?"years":"歲"}</small>
+   </button>)}
+  </nav>
+  <section className="section timeline-feature panel" id="timeline-current" aria-label={en?person.name+"'s current chapter":person.name+" 目前的人生階段"}>
    <div className="timeline-stage-shell">
     <div className="timeline-stage-heading">
-     <strong>{en?"Mira's chapter":"Mira 的人生篇章"}</strong>
+     <strong>{en?person.name+"'s chapter":person.name+" 的人生篇章"}</strong>
      <span className="timeline-stage-count" aria-live="off">{index+1} / {AGES.length}</span>
     </div>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
       onPointerDown={()=>{programmaticTarget.current=null}}
-      role="region" aria-roledescription="carousel" aria-label={en?"Mira's life photos":"Mira 的人生照片"}>
+      role="region" aria-roledescription="carousel" aria-label={en?person.name+"'s life photos":person.name+" 的人生照片"}>
      {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} data-active={a===age} key={a} role="group"
        aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
-       <TimelinePortrait age={a} className="timeline-feature-photo" alt={"Mira at age "+a} priority={a===age}/>
+       <TimelinePortrait characterId={characterId} age={a} className="timeline-feature-photo" alt={person.name+" at age "+a} priority={a===age}/>
       </div>)}
     </div>
    </div>
@@ -102,29 +113,29 @@ export function TimelinePage(){
      <button type="button" onClick={()=>changeBy(1)} disabled={index===AGES.length-1} aria-label={en?"Next age":"下一個年齡"}>›</button>
     </div>
    </div>
-   <div className="timeline-feature-copy" key={age}>
-    <span className="kicker">MIRA · {age} {en?"YEARS OLD":"歲"}</span>
+   <div className="timeline-feature-copy" key={characterId+":"+age}>
+    <span className="kicker">{person.name.toUpperCase()} · {age} {en?"YEARS OLD":"歲"}</span>
     <h2>{ageLabel[age][en?1:0]}</h2>
     <blockquote className="timeline-quote">“{en?current.quoteEn:current.quoteZh}”</blockquote>
     <p className="timeline-chapter-story">{en?current.story:current.storyZh}</p>
-    <div className="timeline-now"><strong>{en?"Her world right now":"這個年紀，她在經歷"}</strong>
+    <div className="timeline-now"><strong>{en?"Life right now":"這個年紀正在經歷"}</strong>
      <ul>{(en?current.conversationThreads:current.conversationThreadsZh).slice(0,2).map(item=><li key={item}>{item}</li>)}</ul>
     </div>
-    <details className="timeline-life-book"><summary>{en?"Explore her life and relationships":"展開她的生活與重要人物"}</summary>
+    <details className="timeline-life-book"><summary>{en?"Explore life and relationships":"展開生活與重要人物"}</summary>
      <p>{en?current.lifeDetails:current.lifeDetailsZh}</p>
-     <h3>{en?"People in her life":"她身邊的人"}</h3><ul>{(en?current.people:current.peopleZh).map(item=><li key={item}>{item}</li>)}</ul>
+     <h3>{en?"Important people":"身邊的重要人物"}</h3><ul>{(en?current.people:current.peopleZh).map(item=><li key={item}>{item}</li>)}</ul>
      <h3>{en?"Her current dilemma":"目前煩惱"}</h3><p>{en?current.tension:current.tensionZh}</p>
      <h3>{en?"What to talk about":"可以跟她聊"}</h3><ul>{(en?current.conversationThreads:current.conversationThreadsZh).map(item=><li key={item}>{item}</li>)}</ul>
     </details>
    </div>
-   <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?age="+age}>
-    {en?"Talk with Mira at "+age:"和 "+age+" 歲的 Mira 聊聊"} <span aria-hidden="true">↗</span>
+   <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
+    {en?"Talk with "+person.name+" at "+age:"和 "+age+" 歲的 "+person.name+" 聊聊"} <span aria-hidden="true">↗</span>
    </Link></div>
   </section>
   <details className="timeline-overview section panel"><summary>{en?"Jump to another chapter":"快速跳到其他年齡"} <span aria-hidden="true">⌄</span></summary>
    <div className="timeline-era-grid">{eras.map(era=><div className="timeline-era" key={era.label[1]}>
     <h3>{era.label[en?1:0]}</h3><div>{era.ages.map(a=><button type="button" key={a} className={a===age?"selected":""} aria-pressed={a===age} onClick={()=>{chooseAge(a);document.getElementById("timeline-current")?.scrollIntoView({behavior:"smooth",block:"start"})}}>
-     <TimelinePortrait age={a}/><span>{a} {en?"years":"歲"}</span></button>)}</div>
+     <TimelinePortrait characterId={characterId} age={a}/><span>{a} {en?"years":"歲"}</span></button>)}</div>
    </div>)}</div>
   </details>
   <section className="section timeline-config panel">
@@ -136,19 +147,19 @@ export function TimelinePage(){
   <details className="section timeline-storybook timeline-collapsible panel">
    <summary>{en?"Life scrapbook":"人生相簿"} <small>{en?"Only chapters she has lived":"只顯示當下已經歷的故事"}</small></summary>
    <div className="timeline-stories">{AGES.map(a=><div className={"timeline-story "+(a>age?"locked":"")} key={a}>
-    {a<=age?<><TimelinePortrait age={a}/><strong>{a} {en?"years":"歲"} · {ageLabel[a][en?1:0]}</strong><p>{en?stage(a).story:stage(a).storyZh}</p></>
+    {a<=age?<><TimelinePortrait characterId={characterId} age={a}/><strong>{a} {en?"years":"歲"} · {ageLabel[a][en?1:0]}</strong><p>{en?timelineStage(a,characterId).story:timelineStage(a,characterId).storyZh}</p></>
      :<><span aria-hidden="true" className="timeline-story-lock">?</span><strong>{a} {en?"years":"歲"}</strong><p>{en?"A chapter not yet lived":"尚未經歷的章節"}</p></>}
    </div>)}</div>
   </details>
   <details className="section timeline-memory-section panel timeline-collapsible">
-   <summary>{en?"Moments you've saved":"你和 Mira 的重要回憶"} <small>{en?"Past → future only":"只能往未來傳遞"}</small></summary>
-   {!memory.length?<p className="timeline-empty-memory">{en?"Save a phrase from a conversation. Older Mira can recall it.":"聊天後主動保存一句話，年紀更大的 Mira 才能讀到。"}</p>:
+   <summary>{en?"Moments you've saved":"你和 "+person.name+" 的重要回憶"} <small>{en?"Past → future only":"只能往未來傳遞"}</small></summary>
+   {!memory.length?<p className="timeline-empty-memory">{en?"Save a phrase from a conversation. Older "+person.name+" can recall it.":"聊天後主動保存一句話，年紀更大的 "+person.name+" 才能讀到。"}</p>:
    <ol className="timeline-memory-list">{memory.map(n=><li key={n.age+":"+n.text}>
      <b>{n.age} {en?"years":"歲"}</b><p>{n.text}</p>
-     <button type="button" onClick={()=>{deleteNote(n.age,n.text);setRefresh(x=>x+1)}}>{en?"Delete":"刪除"}</button>
+     <button type="button" onClick={()=>{timelineDeleteNote(n.age,n.text,characterId);setRefresh(x=>x+1)}}>{en?"Delete":"刪除"}</button>
    </li>)}</ol>}
    <footer><small>{en?"Transcript isn't saved automatically; memory follows your existing setting.":"不自動保存逐字稿，遵守原本的記憶開關。"} {all.length}/12</small>
-    <button type="button" onClick={()=>{if(window.confirm(en?"Clear all saved Mira memories?":"確定清除 Mira 的所有回憶？")){clearNotes();setRefresh(x=>x+1)}}}>{en?"Clear all":"清除全部"}</button>
+    <button type="button" onClick={()=>{if(window.confirm(en?"Clear all saved "+person.name+" memories?":"確定清除 "+person.name+" 的所有回憶？")){timelineClearNotes(characterId);setRefresh(x=>x+1)}}}>{en?"Clear all":"清除全部"}</button>
    </footer>
   </details>
  </main>;
