@@ -32,6 +32,8 @@ test("八字免費章節使用財官與實際年份，完整、不需 Gemini",()
  assert.ok(report.length>=9);
  assert.match(get(report,"wealth"),/正財訊號 1/);
  assert.match(get(report,"career"),/官殺 1/);
+ assert.match(get(report,"career"),/食傷（表達與成果）/);
+ assert.match(get(report,"wealth"),/偏財記號較多/);
  assert.match(get(report,"relationships"),/2029/);
  assert.match(get(report,"currentCycle"),/辛未/);
  assert.doesNotMatch(all(report),/undefined|\[object Object\]/);
@@ -79,4 +81,30 @@ test("AI prompt uses Android-compatible chapter titles and raw grounded fields w
  assert.match(prompt,/2027/);
  assert.match(prompt,/甲子/);
  assert.doesNotMatch(prompt,/slice\(0,24000\)/);
+});
+
+
+test("重點年份的主要主題、摘要與依據應不同，不直接複製固定通用摘要",()=>{
+ const {buildYearHighlights}=require("../web-spa/src/fortune/yearHighlights.ts");
+ const timeline=[
+  {year:2031,ganZhi:"辛亥",stemTenGod:"正財",stemTenGodMeaning:"穩定資源",luckPillar:"戊寅",natalInteractions:["亥巳 六沖"],plainSummary:"相同的通用說明"},
+  {year:2033,ganZhi:"癸丑",stemTenGod:"正官",stemTenGodMeaning:"責任與規範",luckPillar:"戊寅",natalInteractions:["丑未 六沖"],plainSummary:"相同的通用說明"},
+  {year:2037,ganZhi:"丁巳",stemTenGod:"劫財",stemTenGodMeaning:"資源分配",luckPillar:"丁丑",natalInteractions:["巳亥 六沖"],plainSummary:"相同的通用說明"},
+  {year:2039,ganZhi:"己未",stemTenGod:"正財",stemTenGodMeaning:"穩定資源",luckPillar:"丁丑",natalInteractions:[],plainSummary:"相同的通用說明"}
+ ];
+ const result={annualTimeline:timeline,wealthProfile:{annualSignalYears:[2031,2039]},careerProfile:{annualSignalYears:[2033]},relationshipProfile:{annualSignalYears:[2037]}};
+ const picked=buildYearHighlights("bazi",result).slice(0,3);
+ assert.equal(picked.length,3);
+ assert.equal(new Set(picked.map(x=>x.label.split(" · ")[0])).size,3);
+ assert.equal(new Set(picked.map(x=>x.summary)).size,3);
+ assert.ok(picked.every(x=>!x.summary.includes("相同的通用說明")));
+ assert.ok(picked.every(x=>x.evidence.includes("大運")&&x.evidence.includes("流年十神")));
+});
+test("閱讀頁在固定命盤完成後立即展示白話報告",()=>{
+ const jsx=fs.readFileSync(require.resolve("../web-spa/src/fortune/ReadingPage.tsx"),"utf8");
+ const overview=fs.readFileSync(require.resolve("../web-spa/src/fortune/ReadingOverview.tsx"),"utf8");
+ assert.ok(jsx.includes("<FortuneReadingOverview mode={reading!.mode}"));
+ assert.ok(jsx.indexOf("<FortuneReadingOverview mode={reading!.mode}")<jsx.indexOf("<FortuneYearHighlights mode={reading!.mode}"));
+ assert.match(overview,/buildLocalReport/);
+ assert.match(overview,/fortune-reading-chapters/);
 });
