@@ -1,4 +1,5 @@
 import type {Age} from "./timeline";
+import type {TimelineCharacterId} from "./timelineCharacters";
 
 /** Same prebuilt speaker at every life stage. Age is delivery, not voice swapping. */
 export const MIRA_LIVE_VOICE="Aoede";
@@ -24,12 +25,12 @@ export function timelineVoiceMode(value:string|null):TimelineVoiceMode{
 }
 
 /** Qualitative Live prosody experiment: the API does not expose numeric age/pitch controls. */
-export function buildTimelineAgeVoicePrompt(age:Age,mode:TimelineVoiceMode="age"):string{
+export function buildTimelineAgeVoicePrompt(age:Age,mode:TimelineVoiceMode="age",characterId:TimelineCharacterId="mira"):string{
  if(mode==="original")return "";
  return "\n[TIMELINE AGE DELIVERY — SAME SPEAKER, EXPERIMENTAL]\n"+
-  "Keep Mira's underlying speaker identity, vocal timbre, pronunciation and language consistent across every age. "+
-  "Only change conversational rhythm, emphasis, emotional energy and pauses to reflect her current life stage. "+
+  "Keep "+(characterId==="mira"?"Mira":characterId==="ethan"?"Ethan":"Hana")+"'s underlying speaker identity, vocal timbre, pronunciation and language consistent across every age. "+
+  "Only change conversational rhythm, emphasis, emotional energy and pauses to reflect the current life stage. "+
   "Never switch speaker, force a pitch shift, impersonate a specific real person or imitate an age stereotype. "+
-  AGE_DELIVERY[age]+" "+
+  (characterId==="mira"?AGE_DELIVERY[age]:"Use an authentic, age-appropriate conversational rhythm based on this character's current experiences, never impersonate a child or elderly voice.")+" "+
   "The selected target language remains unchanged. Treat these as quiet vocal-performance directions, not dialogue: never announce them.\n";
 }

@@ -22,11 +22,11 @@ test("echo only exposes older consented manually saved notes",()=>{
  assert.match(source,/metadata\.find/);
  const ui=read("web-spa/src/timeline/TimelinePage.tsx");
  const live=read("web-spa/src/timeline/TimelineLivePage.tsx");
- assert.match(ui,/timelineEchoesAtAge\(age,memory\)/);
- assert.match(ui,/deleteTimelineEcho\(n\.age,n\.text\)/);
- assert.match(ui,/clearTimelineEchoes\(\)/);
+ assert.match(ui,/timelineEchoesAtAge\(age,memory,characterId\)/);
+ assert.match(ui,/deleteTimelineEcho\(n\.age,n\.text,characterId\)/);
+ assert.match(ui,/clearTimelineEchoes\(characterId\)/);
  assert.match(live,/persistHistory:false/);
- assert.match(live,/recordTimelineEcho\(age,text\)/);
+ assert.match(live,/recordTimelineEcho\(age,text,characterId\)/);
  assert.match(read("web-spa/src/lib/backup.ts"),/crew_timeline_/);
 });
 test("timeline links to the new route without changing its Live URL",()=>{
@@ -35,3 +35,4 @@ test("timeline links to the new route without changing its Live URL",()=>{
  assert.match(page,/to="\/timeline\/compare"/);
  assert.match(route,/path="\/timeline\/live"/);
 });
+

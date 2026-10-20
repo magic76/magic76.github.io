@@ -34,7 +34,7 @@ test("scrapbook locks future chapters and allows removal of explicit memories",(
  const ui=fs.readFileSync("web-spa/src/timeline/TimelinePage.tsx","utf8");
  const model=fs.readFileSync("web-spa/src/timeline/timeline.ts","utf8");
  assert.match(ui,/a>age/);
- assert.match(ui,/deleteNote/);
+ assert.match(ui,/timelineDeleteNote/);
  assert.match(model,/n\.age<=age/);
  assert.match(model,/allStored\(\)/);
  assert.match(model,/ageSpeech/);
