@@ -15,7 +15,8 @@ on:
 
 # Cancel checks for old PR heads, but never interrupt master publishing.
 concurrency:
-  group: crew-spa-${{ github.event.pull_request.number || github.sha }}
+  # All master pushes share one lane; each PR retains its own independently cancellable lane.
+  group: crew-spa-${{ github.event_name == 'push' && 'master' || github.event.pull_request.number }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
@@ -50,12 +51,28 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Generated hashed assets cannot be safely rebased across distinct builds.
+          # A newer master push has its own queued run, so skip stale output.
+          git fetch origin master
+          source_head="$(git rev-parse HEAD)"
+          if [ "$source_head" != "$(git rev-parse origin/master)" ]; then
+            echo "Skipping superseded build: master moved while tests ran"
+            exit 0
+          fi
           git add -A crew-app package-lock.json
           if git diff --cached --quiet; then
             echo "Crew build already current"
           else
             git commit -m "build: update Crew SPA"
-            git pull --rebase origin master
-            git push origin HEAD:master
+            if ! git push origin HEAD:master; then
+              git fetch origin master
+              if git merge-base --is-ancestor "$source_head" origin/master &&
+                 [ "$source_head" != "$(git rev-parse origin/master)" ]; then
+                echo "Master moved while publishing; latest master run will rebuild"
+              else
+                echo "::error::Publish failed without a superseding master commit"
+                exit 1
+              fi
+            fi
           fi
       # Generated Pages output is committed on master. No duplicate CI artifact.
