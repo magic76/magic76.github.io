@@ -72,6 +72,15 @@
       "roleplayStaysInCharacter": true,
       "freeChatRulesDoNotOverrideLessons": true
     },
+    "fortuneSpeaking": {
+      "optInOnly": true,
+      "reuseExistingLiveStack": true,
+      "dailyTopicIsReflectionNotPrediction": true,
+      "readingSummaryIsUntrustedData": true,
+      "noFabricatedChartFacts": true,
+      "respectExistingLanguageAndMemoryPreferences": true,
+      "noExtraModelCallsForDailyTopic": true
+    },
     "release": {
       "androidPlayAabManual": true,
       "webDeployAfterMerge": true

@@ -1,3 +1,4 @@
+import {dailyFortuneTopic} from "./fortuneSpeaking";
 import{Link}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import{Icon}from"../components/Icon";
@@ -49,6 +50,15 @@ export function PracticePage(){
   <span>{english?"Meet one person at 7, 16, 25, 40, 55, or 70.":"認識同一個人，從 7 歲到 70 歲的六段人生。"}</span>
   <small>{english?"Explore Mira's life →":"進入人生時光機 →"}</small>
  </Link></section>
+ <section className="section">
+  <Link className="feature-card" to="/teacher/live?fortune=daily"
+   style={{background:"linear-gradient(120deg,#f5efff,#faf9ff)",borderColor:"#ddd4f4",display:"flex",flexDirection:"column",gap:6}}>
+   <span className="kicker">FORTUNE × SPEAKING</span>
+   <strong>{english?"Daily reflection · Speak about yourself":"每日運勢話題 · 練習聊自己"}</strong>
+   <span>{dailyFortuneTopic()}</span>
+   <small>{english?"Explore a symbolic theme in your selected speaking language →":"把今日主題變成 2～3 分鐘的自然口說 →"}</small>
+  </Link>
+ </section>
  <HomeShortsPreview/>
  <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
   <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
