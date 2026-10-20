@@ -52,7 +52,11 @@ class FakeAudioContext{
   async close(){}
   createGain(){return {gain:{value:1},connect(){},disconnect(){}};}
   createMediaStreamSource(){return {connect(){},disconnect(){}};}
-  createScriptProcessor(){return {onaudioprocess:null,connect(){},disconnect(){}};}
+  createScriptProcessor(){
+    const processor={onaudioprocess:null,connect(){},disconnect(){}};
+    this.processor=processor;
+    return processor;
+  }
   createBuffer(channels,samples,rate){
     return {duration:samples/rate,copyToChannel(){}};
   }
@@ -69,8 +73,8 @@ class FakeAudioContext{
 }
 
 function makeDeps(logs){
-  const track={stopped:false,stop(){this.stopped=true;}};
-  const stream={getTracks(){return [track];}};
+  const track={enabled:true,stopped:false,stop(){this.stopped=true;}};
+  const stream={getTracks(){return [track];},getAudioTracks(){return [track];}};
   return {
     track,
     deps:{
@@ -421,10 +425,15 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
   assert.equal(session.setVolume(35),35);
   assert.equal(session.outputGain.gain.value,0.35);
 
+  const sentBeforeMute=socket.sent.length;
   assert.equal(session.setMicMuted(true),true);
-  assert.equal(track.enabled,false);
+  assert.equal(track.enabled,true,"muting must keep the capture track active");
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.1)}});
+  assert.equal(socket.sent.length,sentBeforeMute,"muted PCM frames are discarded in software");
   assert.equal(session.toggleMic(),false);
   assert.equal(track.enabled,true);
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.1)}});
+  assert.equal(socket.sent.length,sentBeforeMute+1,"unmuting resumes PCM without reopening capture");
 
   const pcm=Buffer.alloc(2400).toString("base64");
   socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
