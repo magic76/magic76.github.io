@@ -36,10 +36,10 @@ on:
         type: string
         required: false
         default: ""
-  # Approved stories only; retry idempotently after the 08:00 Taipei editorial cutoff.
+  # Publish approved stories once after 08:00 Taipei; retry manually if needed.
   # Off the UTC top-of-hour to avoid GitHub's busiest scheduler minute.
   schedule:
-    - cron: "17 0,1,2 * * *" # 08:17, 09:17 and 10:17 Asia/Taipei
+    - cron: "17 0 * * *" # 08:17 Asia/Taipei
 
 permissions:
   contents: write
