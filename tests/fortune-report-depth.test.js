@@ -7,8 +7,9 @@ require.extensions[".ts"] = (mod, file) => {
  const source = fs.readFileSync(file, "utf8");
  const code = stripTypeScriptTypes(source, {mode:"strip"})
   .replace(/import \{buildYearHighlights\} from "\.\/yearHighlights";/, 'const {buildYearHighlights} = require("./yearHighlights");')
+  .replace(/import \{formatFortuneValue\} from "\.\/displayNumber";/, 'const {formatFortuneValue} = require("./displayNumber.ts");')
   .replace(/export function /g, "function ")
-  + "\nmodule.exports = {buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt};";
+  + "\nmodule.exports = {buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt, formatFortuneValue: typeof formatFortuneValue === 'undefined' ? undefined : formatFortuneValue};";
  mod._compile(code, file);
 };
 
@@ -19,7 +20,7 @@ const all = chapters => chapters.map(x=>x.text).join("\n");
 test("八字免費章節使用財官與實際年份，完整、不需 Gemini",()=>{
  const r={
   fourPillars:"甲子 乙丑 丙寅 丁卯",dayMaster:"丙",dayMasterElement:"火",dayMasterStrength:"偏弱",
-  weightedFiveElements:{木:3,火:2,土:1,金:0,水:1},
+  weightedFiveElements:{木:3.399999999999999,火:0.30000000000000004,土:1,金:0,水:1},
   natalInteractions:["子丑 六合"],
   currentLuckPillar:{ganZhi:"辛未",startYear:2025,endYear:2034},
   luckPillars:[{ganZhi:"辛未",startYear:2025,endYear:2034},{ganZhi:"壬申",startYear:2035,endYear:2044}],
@@ -30,6 +31,8 @@ test("八字免費章節使用財官與實際年份，完整、不需 Gemini",()
  };
  const report=buildLocalReport("bazi",r);
  assert.ok(report.length>=9);
+ assert.match(get(report,"overview"),/木 3\.4/);
+ assert.doesNotMatch(all(report),/3\.399999999999999|0\.30000000000000004/);
  assert.match(get(report,"wealth"),/正財訊號 1/);
  assert.match(get(report,"career"),/官殺 1/);
  assert.match(get(report,"career"),/食傷（表達與成果）/);
@@ -126,4 +129,21 @@ test("問老師入口在命盤報告前可見，未設定 Key 導向設定提示
   assert.ok(locale.reading.askTeacherAction);
   assert.ok(locale.reading.askTeacherSetup);
  }
+});
+
+test("Fortune display numbers omit binary float tails but keep useful precision",()=>{
+ const {formatFortuneValue}=require("../web-spa/src/fortune/displayNumber.ts");
+ const cases=[
+  [3.399999999999999,"3.4"],
+  [0.30000000000000004,"0.3"],
+  [2.0000000000000004,"2"],
+  [2026,"2026"],
+  [12.123456,"12.123456"],
+  [-0.0000000000000001,"0"],
+  ["3.399999999999999","3.4"],
+  ["2026-10-21","2026-10-21"],
+  ["00123","00123"]
+ ];
+ for(const [input,expected] of cases)assert.equal(formatFortuneValue(input),expected,String(input));
+ assert.equal(formatFortuneValue(3.399999999999999,true),"3.4");
 });
