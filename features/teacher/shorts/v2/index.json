@@ -2,16 +2,36 @@
   "schema": 2,
   "kind": "crew-short-index",
   "source": "daily",
-  "generatedAt": "2026-10-19T00:00:00+08:00",
-  "total": 47,
+  "generatedAt": "2026-10-20T00:00:00+08:00",
+  "total": 63,
   "pageSize": 50,
   "pages": [
     {
       "url": "/features/teacher/shorts/v2/pages/00001.json",
-      "count": 47
+      "count": 50
+    },
+    {
+      "url": "/features/teacher/shorts/v2/pages/00002.json",
+      "count": 13
     }
   ],
   "lookup": {
+    "ada-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "bella-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "felix-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "finn-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "hugo-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "iris-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "isla-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "luna-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "max-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "maya-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "noah-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "oscar-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "ryan-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "theo-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "yuna-20261020": "/features/teacher/shorts/v2/pages/00001.json",
+    "zoe-20261020": "/features/teacher/shorts/v2/pages/00001.json",
     "ada-20261019": "/features/teacher/shorts/v2/pages/00001.json",
     "bella-20261019": "/features/teacher/shorts/v2/pages/00001.json",
     "felix-20261019": "/features/teacher/shorts/v2/pages/00001.json",
@@ -46,18 +66,18 @@
     "noah-20261017": "/features/teacher/shorts/v2/pages/00001.json",
     "oscar-20261017": "/features/teacher/shorts/v2/pages/00001.json",
     "ryan-20261017": "/features/teacher/shorts/v2/pages/00001.json",
-    "theo-20261017": "/features/teacher/shorts/v2/pages/00001.json",
-    "yuna-20261017": "/features/teacher/shorts/v2/pages/00001.json",
-    "zoe-20261017": "/features/teacher/shorts/v2/pages/00001.json",
-    "bella-day2": "/features/teacher/shorts/v2/pages/00001.json",
-    "hugo-day2": "/features/teacher/shorts/v2/pages/00001.json",
-    "theo-day2": "/features/teacher/shorts/v2/pages/00001.json",
-    "yuna-day2": "/features/teacher/shorts/v2/pages/00001.json",
-    "zoe-day2": "/features/teacher/shorts/v2/pages/00001.json",
-    "bella-day1": "/features/teacher/shorts/v2/pages/00001.json",
-    "hugo-day1": "/features/teacher/shorts/v2/pages/00001.json",
-    "theo-day1": "/features/teacher/shorts/v2/pages/00001.json",
-    "yuna-day1": "/features/teacher/shorts/v2/pages/00001.json",
-    "zoe-day1": "/features/teacher/shorts/v2/pages/00001.json"
+    "theo-20261017": "/features/teacher/shorts/v2/pages/00002.json",
+    "yuna-20261017": "/features/teacher/shorts/v2/pages/00002.json",
+    "zoe-20261017": "/features/teacher/shorts/v2/pages/00002.json",
+    "bella-day2": "/features/teacher/shorts/v2/pages/00002.json",
+    "hugo-day2": "/features/teacher/shorts/v2/pages/00002.json",
+    "theo-day2": "/features/teacher/shorts/v2/pages/00002.json",
+    "yuna-day2": "/features/teacher/shorts/v2/pages/00002.json",
+    "zoe-day2": "/features/teacher/shorts/v2/pages/00002.json",
+    "bella-day1": "/features/teacher/shorts/v2/pages/00002.json",
+    "hugo-day1": "/features/teacher/shorts/v2/pages/00002.json",
+    "theo-day1": "/features/teacher/shorts/v2/pages/00002.json",
+    "yuna-day1": "/features/teacher/shorts/v2/pages/00002.json",
+    "zoe-day1": "/features/teacher/shorts/v2/pages/00002.json"
   }
 }
