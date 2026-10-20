@@ -15,23 +15,22 @@ function TextSection({chapter}:{chapter:FortuneChapter}){
   {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>這段使用的命盤依據</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{x}</li>)}</ul></details>}
  </article>;
 }
-function aiOpening(ai:string){
+function aiHighlights(ai:string):Array<{title:string;body:string}>{
  const parts=ai.split(/^##[ \t]+/m).map(s=>s.trim()).filter(Boolean);
- if(parts.length<2)return "";
- for(const part of parts){
+ const sections=parts.map(part=>{
   const line=part.indexOf("\n");
-  if(line<0)continue;
-  const title=part.slice(0,line).trim(),body=part.slice(line+1).trim();
-  if((title==="命盤總覽"||title==="目前人生階段")&&body)return body;
- }
- return "";
+  return {title:line<0?"":part.slice(0,line).trim(),body:line<0?"":part.slice(line+1).trim()};
+ }).filter(x=>x.title&&x.body);
+ const wanted=["命盤總覽","事業與職涯","目前人生階段","重要年份與轉折"];
+ const selected=wanted.map(title=>sections.find(x=>x.title===title)).filter((x):x is {title:string;body:string}=>Boolean(x));
+ return selected.length?selected.slice(0,3):sections.slice(0,3);
 }
 export function FortuneReadingOverview({mode,result,ai}:{mode:FortuneMode;result:any;ai?:string}){
  const chapters=buildLocalReport(mode,result);
  if(!chapters.length)return null;
  const main=primary.map(id=>chapters.find(x=>x.id===id)).filter((c):c is FortuneChapter=>Boolean(c));
  const more=chapters.filter(x=>!primary.includes(x.id));
- const aiText=ai?aiOpening(ai):"";
+ const aiChapters=ai?aiHighlights(ai):[];
  return <section className="fortune-reading-overview" aria-label="你的命盤白話解讀">
   <div className="fortune-reading-head">
    <span className="kicker">先讀解讀，再看術語</span>
@@ -43,10 +42,11 @@ export function FortuneReadingOverview({mode,result,ai}:{mode:FortuneMode;result
    <summary>繼續閱讀其他 {more.length} 個主題：未來節奏、重要年份與建議</summary>
    <div className="fortune-reading-chapters">{more.map(chapter=><TextSection key={chapter.id} chapter={chapter}/>)}</div>
   </details>}
-  {aiText&&<aside className="fortune-reading-ai">
-   <h4>Gemini 補充的整體觀點</h4>
-   <p>{aiText}</p>
-   <small>完整的 AI 分章解讀在下方「完整解讀」分頁；你仍可用對話深入追問。</small>
+  {aiChapters.length>0&&<aside className="fortune-reading-ai">
+   <h4>Gemini 的深入解讀</h4>
+   <p className="fortune-ai-intro">AI 完成後會自動補上個人化段落，不需要開啟語音或額外追問。</p>
+   {aiChapters.map(x=><article key={x.title} className="fortune-reading-ai-chapter"><h5>{x.title}</h5><p>{x.body}</p></article>)}
+   <small>其餘章節可在下方「完整解讀」閱讀；語音適合針對特定問題繼續追問。</small>
   </aside>}
  </section>;
 }
