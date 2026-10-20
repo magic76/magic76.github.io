@@ -30,7 +30,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - run: npm ci
+      # Pure Node editorial validation. The content commit triggers Crew SPA build.
       - name: Generate from public sources only
         run: node scripts/generate-briefing.mjs
         env:
@@ -38,11 +38,8 @@ jobs:
           CREW_BRIEFING_MODEL: gemini-2.5-flash
           CREW_BRIEFING_GITHUB_TOKEN: ${{ github.token }}
       - run: node scripts/check-content-hub.mjs
-      - run: npm run check:web
-      - run: npm run build:web
       - name: Report research SEO eligibility
         run: node scripts/research-quality-report.mjs
-      - run: npm test
       - name: Commit the report and compiled site
         run: |
           git config user.name "github-actions[bot]"
