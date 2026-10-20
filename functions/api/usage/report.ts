@@ -60,15 +60,29 @@ export async function onRequestGet({request,env}:Context){
  const days=period==="30"?30:7;
  // The period is fixed to 7/30, and no user-provided SQL or identifiers are accepted.
  const bound="timestamp >= NOW() - INTERVAL '"+days+"' DAY";
- const activeEvents="'teacher_conversation','friend_conversation','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
+ const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted'";
+ const chatEvents="'teacher_conversation','friend_conversation','timeline_conversation'";
+ const previous="timestamp >= NOW() - INTERVAL '"+(days*2)+"' DAY AND timestamp < NOW() - INTERVAL '"+days+"' DAY";
  try{
-  const [daily,active]=await Promise.all([
+  // Browser identity is deduplicated ACROSS the entire reporting period by SQL.
+  // Never sum the per-day distinct counts to infer unique browsers.
+  const [daily,active,eventUsers,chat,previousActive,previousChat]=await Promise.all([
    sql(env,"SELECT formatDateTime(timestamp, '%Y-%m-%d', 'Etc/UTC') AS day, blob1 AS event, blob3 AS detail, SUM(_sample_interval) AS count, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY day, event, detail ORDER BY day ASC, event ASC LIMIT 1500"),
-   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")")
+   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+activeEvents+")"),
+   sql(env,"SELECT blob1 AS event, COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" GROUP BY event LIMIT 100"),
+   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+bound+" AND blob1 IN ("+chatEvents+")"),
+   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+previous+" AND blob1 IN ("+activeEvents+")"),
+   sql(env,"SELECT COUNT(DISTINCT blob2) AS users FROM crew_usage WHERE "+previous+" AND blob1 IN ("+chatEvents+")")
   ]);
   const rows=daily.map(row=>({day:String(row.day||""),event:String(row.event||""),detail:String(row.detail||""),
     count:Number(row.count||0),users:Number(row.users||0)}));
-  return respond({days,activeUsers:Number(active[0]?.users||0),rows,generatedAt:new Date().toISOString()});
+  return respond({
+   days,activeUsers:Number(active[0]?.users||0),chatUsers:Number(chat[0]?.users||0),
+   previousActiveUsers:Number(previousActive[0]?.users||0),
+   previousChatUsers:Number(previousChat[0]?.users||0),
+   eventUsers:eventUsers.map(row=>({event:String(row.event||""),users:Number(row.users||0)})),
+   rows,generatedAt:new Date().toISOString()
+  });
  }catch{
   return respond({error:"Analytics data is unavailable. Check the binding, dataset and read token."},502);
  }

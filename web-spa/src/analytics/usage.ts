@@ -6,7 +6,11 @@ import{setGa4Enabled,sendGa4Event,sendGa4PageView}from"./ga4";
 export type UsageEvent=
   |"app_opened"|"visitor_first_seen"|"user_returned"
   |"teacher_conversation"|"friend_conversation"
-  |"teacher_conversation_start"|"friend_conversation_start"
+  |"teacher_conversation_start"|"friend_conversation_start"|"timeline_conversation_start"
+  |"teacher_user_spoke"|"friend_user_spoke"|"timeline_user_spoke"
+  |"teacher_ai_replied"|"friend_ai_replied"|"timeline_ai_replied"
+  |"timeline_view"|"timeline_conversation"|"timeline_session_end"
+  |"game_open"|"game_started"|"game_completed"
   |"teacher_session_end"|"friend_session_end"
   |"vocabulary_practice"|"textbook_open"|"textbook_study"
   |"shorts_view"|"shorts_chat_click"|"shorts_conversation"|"shorts_hook_click"|"shorts_story_followup"
@@ -14,7 +18,9 @@ export type UsageEvent=
   |"fortune_calculated"|"fortune_ai_interpreted"
   |"gemini_key_missing"|"gemini_key_verified";
 type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
-  |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m";
+  |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m"
+  |"mira"|"ethan"|"hana"
+  |"taboo"|"1a2b"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery";
 export function sessionDurationDetail(durationMs:number):Detail{
  if(durationMs<60000)return "under_1m";
  if(durationMs<180000)return "from_1_to_3m";
