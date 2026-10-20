@@ -63,3 +63,21 @@
 .fortune-reading-ai-chapter{border-top:1px solid var(--line,#e5e7eb);padding:13px 0}
 .fortune-reading-ai-chapter h5{font-size:14px;line-height:1.5;margin:0 0 7px}
 .fortune-reading-ai-chapter p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.9;margin:0}
+
+
+/* Ask Teacher: keep the follow-up discoverable without covering the report. */
+.fortune-teacher-invite,.fortune-teacher-followup{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid #d8d2f8;border-radius:20px;padding:20px 22px;background:linear-gradient(125deg,#f1edff 0%,#fbfaff 90%);margin:16px 0 22px}
+.fortune-teacher-invite-copy,.fortune-teacher-followup>div{flex:1;min-width:0}
+.fortune-teacher-eyebrow{display:inline-block;color:#6a5ae0;font-size:12px;font-weight:750;letter-spacing:.02em}
+.fortune-teacher-invite h3,.fortune-teacher-followup h3{font-size:19px;line-height:1.4;margin:5px 0 7px;color:#292337}
+.fortune-teacher-invite p,.fortune-teacher-followup p{font-size:13px;line-height:1.7;margin:0;color:#55516a}
+.fortune-teacher-primary-action{display:inline-flex;justify-content:center;align-items:center;gap:14px;min-height:50px;min-width:170px;flex-shrink:0;padding:12px 19px;background:#6a5ae0;color:#fff;border:1px solid #6a5ae0;border-radius:14px;font:inherit;font-size:15px;font-weight:750;line-height:1.35;cursor:pointer;box-shadow:0 6px 14px rgba(76,58,160,.18);transition:background-color .15s,box-shadow .15s,transform .15s}
+.fortune-teacher-primary-action:hover{background:#5143c1;box-shadow:0 7px 18px rgba(76,58,160,.22);transform:translateY(-1px)}
+.fortune-teacher-primary-action:focus-visible{outline:3px solid #978beb;outline-offset:3px}
+.fortune-teacher-primary-action>span{font-size:19px;line-height:1}
+.fortune-teacher-followup{margin-top:22px;background:var(--surface-alt,#f8f7ff)}
+@media(max-width:720px){
+ .fortune-teacher-invite,.fortune-teacher-followup{flex-direction:column;align-items:stretch;gap:14px;padding:17px;margin:13px 0 19px}
+ .fortune-teacher-invite h3,.fortune-teacher-followup h3{font-size:18px}
+ .fortune-teacher-primary-action{width:100%;min-width:0;min-height:52px}
+}
