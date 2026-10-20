@@ -36,3 +36,17 @@ test('only verified bytes become image blobs; missing, wrong size, dimensions an
  assert.equal(await verifiedPortraitBlob({...row.fullbody,sha256:'c'.repeat(64)},fetcher),null);
  assert.equal(await verifiedPortraitBlob(row.fullbody,async()=>{throw Error('offline')}),null);
 });
+test('every human-approved production fullbody and avatar verifies its actual committed bytes',async()=>{
+ const {approvedPortrait,verifiedPortraitBlob}=await policy;
+ const fs=require('node:fs'),path=require('node:path');let verified=0;
+ for(const row of manifest.images){
+  if(row.status!=='approved')continue;
+  for(const kind of ['fullbody','avatar']){
+   const asset=approvedPortrait(manifest,row.characterId,row.age,kind);assert.ok(asset,row.characterId+' '+row.age+' '+kind+' approval');
+   const blob=await verifiedPortraitBlob(asset,async url=>new Response(fs.readFileSync(path.join(__dirname,'..',url.slice(1)))));
+   assert.ok(blob,row.characterId+' '+row.age+' '+kind+' binary verification');
+   assert.equal(crypto.createHash('sha256').update(Buffer.from(await blob.arrayBuffer())).digest('hex'),asset.sha256);verified++;
+  }
+ }
+ assert.equal(verified,manifest.images.filter(row=>row.status==='approved').length*2);
+});

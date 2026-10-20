@@ -203,6 +203,21 @@ async function run(){
     if(!approvedPortrait(portraitManifest,id,age,"fullbody")){
      assert.equal(await active.locator("img").count(),0,"Unreviewed photographs must remain placeholders");
      assert.ok((await active.locator(".timeline-image-fallback").getAttribute("aria-label"))?.startsWith(name+" age "+age));
+    }else{
+     await people.waitForFunction(({age,index})=>{
+      const body=document.querySelector('.timeline-photo-slide[data-timeline-age="'+age+'"] .timeline-feature-photo img');
+      const avatar=document.querySelectorAll('.timeline-stop')[index]?.querySelector('img');
+      return body?.complete&&body.naturalWidth===900&&body.naturalHeight===1200&&body.src.startsWith('blob:')&&
+       avatar?.complete&&avatar.naturalWidth===320&&avatar.naturalHeight===320&&avatar.src.startsWith('blob:');
+     },{age,index},{timeout:15000});
+     const actual=await people.evaluate(async({age,index})=>{
+      const body=document.querySelector('.timeline-photo-slide[data-timeline-age="'+age+'"] .timeline-feature-photo img');
+      const avatar=document.querySelectorAll('.timeline-stop')[index].querySelector('img');
+      const digest=async image=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',await (await fetch(image.src)).arrayBuffer())),b=>b.toString(16).padStart(2,'0')).join('');
+      return {fullbody:await digest(body),avatar:await digest(avatar)};
+     },{age,index});
+     assert.equal(actual.fullbody,approvedPortrait(portraitManifest,id,age,"fullbody").sha256,"Displayed fullbody must match approved bytes");
+     assert.equal(actual.avatar,approvedPortrait(portraitManifest,id,age,"avatar").sha256,"Displayed headshot must match its approved same-source crop");
     }
    }
    for(const viewport of [{width:320,height:568},{width:844,height:390}]){
@@ -215,7 +230,26 @@ async function run(){
   }
   assert.deepEqual(pendingRequests,[],"Unreviewed new-character files must never be requested");
   await people.close();
-  process.stdout.write("PASS Ethan/Hana 24 chapter selections, approval placeholders, phone layouts and correct conversation identities\n");
+  process.stdout.write("PASS Ethan/Hana 24 chapter selections, approved fullbody/avatar Blob hashes or pending placeholders, phone layouts and correct conversation identities\n");
+  const approvedSample=portraitManifest.images.find(row=>approvedPortrait(portraitManifest,row.characterId,row.age,"fullbody"));
+  if(approvedSample){
+   const corrupt=await context.newPage(),id=approvedSample.characterId,age=approvedSample.age;
+   const altered=Buffer.from(readFileSync('assets/'+approvedSample.fullbody.path));altered[altered.length-1]^=1;
+   let corruptSeen=false,missingSeen=false;
+   await corrupt.route('**/assets/'+approvedSample.fullbody.path,async route=>{corruptSeen=true;await route.fulfill({status:200,contentType:'image/webp',body:altered});});
+   await corrupt.route('**/assets/'+approvedSample.avatar.path,async route=>{missingSeen=true;await route.fulfill({status:404,body:'missing'});});
+   const rejectedResponses=Promise.all([corrupt.waitForResponse(response=>new URL(response.url()).pathname==='/assets/'+approvedSample.fullbody.path),corrupt.waitForResponse(response=>new URL(response.url()).pathname==='/assets/'+approvedSample.avatar.path)]);
+   await corrupt.goto(origin+'/timeline?character='+id,{waitUntil:'domcontentloaded'});
+   await corrupt.locator('.timeline-stop').nth(timelineAges.indexOf(age)).click();
+   await rejectedResponses;
+   await corrupt.waitForTimeout(300);
+   assert.ok(corruptSeen&&missingSeen,"Corrupt and missing official images must reach the validation gate");
+   const rejected=corrupt.locator('.timeline-photo-slide[data-timeline-age="'+age+'"]');
+   assert.equal(await rejected.locator('img').count(),0,"A mismatched hash must never become a displayed photograph");
+   assert.equal(await corrupt.locator('.timeline-stop').nth(timelineAges.indexOf(age)).locator('img').count(),0,"A missing headshot must keep a placeholder");
+   assert.ok((await rejected.locator('.timeline-image-fallback').getAttribute('aria-label'))?.toLowerCase().startsWith(id+' age '+age));
+   await corrupt.close();process.stdout.write('PASS corrupt fullbody/missing avatar fail closed without another character fallback\n');
+  }
   // Regression: a cold first click from Home can fail to download the lazy
   // Crew Play module on a flaky connection or during a Pages deployment.
   // Recover with a single full-document refresh instead of leaving a blank app.
