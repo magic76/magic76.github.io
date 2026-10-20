@@ -1,3 +1,21 @@
+# Ethan and Hana — hairstyle/head-angle revision v2
+
+Current approved inventory: 24 fullbody photographs and 24 same-source avatars. The user explicitly instructed `merge` at 2026-10-20T03:16:28Z after all generated photographs were displayed. This approval authorizes normalization and avatar cropping for both platforms.
+
+- Canonical manifest SHA-256: `5ec9f03cea0fb7051b4dbbf6cfd12265ab1b65d97ea4409d5c76a2e18a7b09e2`.
+- Each character has ages 7, 10, 13, 16, 19, 22, 25, 35, 40, 50, 55, 70.
+- The two age-25 fullbody files are the new approved identity anchors. All dependent anchor hashes are updated.
+- Existing age-matched photographs were the edit targets; clothing, props and settings were preserved as closely as generation allowed. Hair length/style, head rotation and gaze vary by age.
+- Fullbody: 900×1200 and <350,000 bytes. Avatar: 320×320 and <80,000 bytes, cropped from the encoded canonical fullbody. Exact crops and source hashes are recorded.
+- Both fullbody/avatar contact sheets were inspected during production. Hair/head and both shoes remain in frame; avatars retain clear faces. Age realism and identity continuity are subjective. Some generations retain slight head tilt or show subtler hairstyle changes than requested.
+- The file/hash/dimension and runtime approval-policy tests are run for this revision; PR checks provide build evidence. No Android device/emulator visual QA or real microphone/provider test is claimed for this image-only revision.
+- Mira assets, stories, memory, voices and product behavior are unchanged. Android canonical manifest merges before Web.
+- `crew-timeline-generation-briefs.json` retains initial generation history and adds `replacementGenerations` for the current revision. The old pending statuses inside historical briefs are not the current image approval authority.
+
+## Historical initial release (superseded image inventory)
+
+The following notes describe the previous photographs and approval hashes, retained for traceability only. Current assets and hashes are those above and in the canonical manifest.
+
 # Ethan and Hana portraits — user approval recorded 2026-10-20
 
 The existing Android #173 and Web #222 draft PRs now contain 24 fullbody candidates and 24 avatars cropped from those same encoded fullbody photographs. All 24 stages and both age-25 identity anchors are now `approved`. User approval was recorded for reviewer `magic76` at `2026-10-20T01:04:14Z`, following the explicit merge reply to the photo-approval/enable confirmation. Human-approved stages: **24**. The application may display only the corresponding verified bytes; missing, altered or newly unreviewed files still require placeholders. Android is merged before Web. Mira's canon, photographs and memory keys remain unchanged.
@@ -31,3 +49,4 @@ Generation and automated QA did not grant approval. The explicit user instructio
 - Android emulator/device visual QA and real microphone/voice-provider end-to-end testing were not performed in this environment. Automated browser checks do not establish Android visual parity or validate the generated photographs' subjective identity/age quality.
 
 The `portraitStatus` fields in the older character story catalog remain unchanged; `person-portraits-v1.json` is the sole image-approval authority. No life stories or Mira assets were rewritten to enable photographs.
+
