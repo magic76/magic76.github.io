@@ -27,7 +27,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    assert.match(html,/<meta property="og:image" content="https:\/\/www\.3sssi\.com\/social\/[a-z]+\.png">/);
+    assert.match(html,/<meta property="og:image" content="https:\/\/www\.3sssi\.com\/social\/crew-shared-v2\.png">/);
     assert.match(html,/<meta name="twitter:card" content="summary_large_image">/);
     assert.match(html,/<script type="application\/ld\+json">/);
     const structured=JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);
@@ -52,7 +52,7 @@ test("sitemap enumerates public and game URLs with matching language alternates"
   assert.match(read("robots.txt"),/Sitemap: https:\/\/www\.3sssi\.com\/sitemap\.xml/);
 });
 test("referenced social image assets exist and are PNG files",()=>{
-  for(const name of ["crew","teacher","story","fortune","research"]){
+  for(const name of ["crew","teacher","story","fortune","research","crew-shared-v2"]){
     const png=fs.readFileSync(path.join(ROOT,"social",name+".png"));
     assert.deepEqual(Array.from(png.subarray(0,8)),[137,80,78,71,13,10,26,10]);
     assert.equal(png.readUInt32BE(16),1200);
