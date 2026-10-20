@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {loadScript} from "../lib/runtime";
 import type {ExpectedBoardSpeech} from "./boardVoiceTurn";
+import {trackUsageEvent} from "../analytics/usage";
 
 type GameKind="connect4"|"reversi";
 type Props={kind:GameKind;english:boolean;friendName:string;
@@ -17,6 +18,8 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const [speechPending,setSpeechPending]=useState(false);
  const speechGateRef=useRef(false);
  const roundEpochRef=useRef(0);
+ const playedRef=useRef(false),completedRef=useRef(false);
+ const noteMove=()=>{if(!playedRef.current){playedRef.current=true;trackUsageEvent("game_started",kind)}};
  const narrateMove=(cue:string,expected:ExpectedBoardSpeech,placeStone:()=>void)=>{
   const epoch=roundEpochRef.current;
   // The engine decides its next move now, but the board stays unchanged
@@ -33,6 +36,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const skipSpeech=()=>onSkipSpeech();
  useEffect(()=>{
   let active=true;setConnect(null);setReversi(null);setError("");
+  playedRef.current=false;completedRef.current=false;
   loadScript("/games/crew-play-engine.js").then(()=>{
    if(!active)return;
    const api=window.CrewPlayEngine;
@@ -43,6 +47,10 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   return()=>{active=false};
  },[kind,english,round]);
  const api=window.CrewPlayEngine;
+ useEffect(()=>{
+  const winner=kind==="connect4"?connect?.winner:reversi?.winner;
+  if(winner&&!completedRef.current){completedRef.current=true;trackUsageEvent("game_completed",kind)}
+ },[kind,connect?.winner,reversi?.winner]);
  const restart=()=>{
   roundEpochRef.current+=1;
   speechGateRef.current=false;
@@ -56,7 +64,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   if(!connect||!api||!c4Turn||speechGateRef.current)return;
   const next=api.connect4Drop(connect,column,"player");
   if(!next)return;
-  setConnect(next);
+  noteMove();setConnect(next);
   if(next.winner)onEvent("[CONNECT FOUR RESULT] The learner won. React briefly and warmly.");
  };
  useEffect(()=>{
@@ -79,7 +87,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   if(!reversi||!api||reversi.turn!=="black"||reversi.winner||speechGateRef.current||speechPending)return;
   const next=api.reversiPlace(reversi,x,y,"black");
   if(!next)return;
-  setReversi(next);
+  noteMove();setReversi(next);
   if(next.winner)onEvent("[REVERSI RESULT] "+(next.winner==="draw"?"It is a draw.":next.winner==="black"?"The learner won.":"You won.")+" React briefly.");
  };
  useEffect(()=>{

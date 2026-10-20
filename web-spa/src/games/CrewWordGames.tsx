@@ -3,6 +3,7 @@ import {geminiKey} from "../lib/runtime";
 import {copy,correctGuess,twentyQuestions,type TwentyItem,type MysteryCase} from "./playPuzzles";
 import {judgeTwentySpeech,type TwentyJudgement} from "./judgeTwentySpeech";
 import {judgeMysterySpeech} from "./judgeMysterySpeech";
+import {trackUsageEvent} from "../analytics/usage";
 
 type Props={
  kind:"twenty-questions"|"mystery";english:boolean;friendName:string;
@@ -25,6 +26,8 @@ export function CrewWordGames({
  const [result,setResult]=useState<Outcome>(null);
  const askedRef=useRef<Asked[]>([]);
  const resultRef=useRef<Outcome>(null);
+ const playedRef=useRef(false);
+ const notePlayed=()=>{if(!playedRef.current){playedRef.current=true;trackUsageEvent("game_started",kind)}};
  const handledRef=useRef<Set<number>>(new Set());
  const voiceQueueRef=useRef<Promise<void>>(Promise.resolve());
  const mountedRef=useRef(true);
@@ -40,13 +43,15 @@ export function CrewWordGames({
  const hints=questionMode?twentyQuestions:caseFile.clues;
  function finish(outcome:Exclude<Outcome,null>){
   if(resultRef.current)return;
-  resultRef.current=outcome;setResult(outcome);onFinished?.();
+  resultRef.current=outcome;setResult(outcome);
+  if(playedRef.current)trackUsageEvent("game_completed",kind);
+  onFinished?.();
  }
 
  function record(entry:Asked,correct=false){
   if(resultRef.current||askedRef.current.length>=limit)return false;
   const next=[...askedRef.current,entry];
-  askedRef.current=next;setAsked(next);
+  askedRef.current=next;setAsked(next);notePlayed();
   const outcome:Outcome=correct?"won":next.length>=limit?"lost":null;
   if(outcome)finish(outcome);
   return true;
@@ -112,7 +117,7 @@ export function CrewWordGames({
    if(!mountedRef.current||resultRef.current||askedRef.current.length>=limit)return;
    if(verdict.type==="chat")return;
    if(verdict.type==="solved"){
-    finish("won");
+    notePlayed();finish("won");
     onEvent("[MYSTERY SOLVED] The learner correctly explained the full mystery. Reveal the established solution and celebrate briefly: "+caseFile.solution.en);
     return;
    }
