@@ -11,7 +11,8 @@ const weightedFormatter=new Intl.NumberFormat("zh-TW",{
 export function formatFortuneNumber(value:number,weighted=false):string{
  if(!Number.isFinite(value))return "—";
  if(Object.is(value,-0))return "0";
- return (weighted?weightedFormatter:formatter).format(value);
+ const display=(weighted?weightedFormatter:formatter).format(value);
+ return display==="-0"?"0":display;
 }
 
 // Old saved results may contain decimal values serialized as long strings.
