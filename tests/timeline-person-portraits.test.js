@@ -36,6 +36,23 @@ test('only verified bytes become image blobs; missing, wrong size, dimensions an
  assert.equal(await verifiedPortraitBlob({...row.fullbody,sha256:'c'.repeat(64)},fetcher),null);
  assert.equal(await verifiedPortraitBlob(row.fullbody,async()=>{throw Error('offline')}),null);
 });
+test('updated portraits bypass stale same-path caches and still verify their exact SHA',async()=>{
+ const {verifiedPortraitBlob}=await policy;
+ const {data,row}=fixture();
+ const calls=[];
+ const stale=Buffer.from(data);stale[29]^=1; // Old cached bytes at the same static filename.
+ const fetcher=async(url,init)=>{
+  calls.push({url,init});
+  return new Response(url.endsWith('?v='+row.fullbody.sha256)?data:stale);
+ };
+ const image=await verifiedPortraitBlob(row.fullbody,fetcher);
+ assert.ok(image,'a fresh SHA-keyed URL must display the approved image');
+ assert.deepEqual(calls.map(call=>call.url),['/assets/'+row.fullbody.path+'?v='+row.fullbody.sha256]);
+ assert.equal(calls[0].init.cache,'no-store');
+ assert.equal(calls[0].init.credentials,'same-origin');
+ assert.equal(await verifiedPortraitBlob(row.fullbody,async()=>new Response(stale)),null,
+  'old, stale or modified image bytes must still fail closed');
+});
 test('every human-approved production fullbody and avatar verifies its actual committed bytes',async()=>{
  const {approvedPortrait,verifiedPortraitBlob}=await policy;
  const fs=require('node:fs'),path=require('node:path');let verified=0;
@@ -43,7 +60,7 @@ test('every human-approved production fullbody and avatar verifies its actual co
   if(row.status!=='approved')continue;
   for(const kind of ['fullbody','avatar']){
    const asset=approvedPortrait(manifest,row.characterId,row.age,kind);assert.ok(asset,row.characterId+' '+row.age+' '+kind+' approval');
-   const blob=await verifiedPortraitBlob(asset,async url=>new Response(fs.readFileSync(path.join(__dirname,'..',url.slice(1)))));
+   const blob=await verifiedPortraitBlob(asset,async url=>new Response(fs.readFileSync(path.join(__dirname,'..',new URL(url,'https://timeline.example').pathname.slice(1)))));
    assert.ok(blob,row.characterId+' '+row.age+' '+kind+' binary verification');
    assert.equal(crypto.createHash('sha256').update(Buffer.from(await blob.arrayBuffer())).digest('hex'),asset.sha256);verified++;
   }
