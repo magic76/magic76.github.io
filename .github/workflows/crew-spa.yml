@@ -53,4 +53,3 @@ jobs:
         with:
           name: crew-app
           path: crew-app
-          retention-days: 7
