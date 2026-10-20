@@ -108,6 +108,12 @@ export function useLiveSession(config:Config){
     configRef.current.language||levelSetting.targetLanguage,
     levelSetting.learnerSpeakingLevel,personalMemoryEnabled());
    const tabooEnglish=configRef.current.pageKey.startsWith("crew-play-mini-taboo-");
+   // Content-free milestones apply only to ordinary Teacher, Friend and Timeline chat.
+   // One session closure survives transport reconnects, but not a new Live start.
+   const chatKind=configRef.current.pageKey==="teacher"?"teacher"
+    :configRef.current.pageKey.startsWith("friend-")&&!configRef.current.pageKey.startsWith("friend-game-")?"friend"
+    :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
+   let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
     system:configRef.current.system+(tabooEnglish?"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you.":""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
@@ -122,7 +128,24 @@ export function useLiveSession(config:Config){
     onListeningPhase:phase=>setStatus(phase==="speaking"
       ?"🎙️ 正在聽你說…":"🎙️ 還在聽，可以繼續說…"),
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
-    onInputTranscript:v=>{if(v.trim()){cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true}setInput(v)},onOutputTranscript:v=>{cancelRescue();setOutput(v)},
+    onInputTranscript:v=>{
+     if(v.trim()){
+      cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true;
+      if(chatKind&&!learnerSpoke){
+       learnerSpoke=true;
+       trackUsageEvent(chatKind==="teacher"?"teacher_user_spoke":chatKind==="friend"?"friend_user_spoke":"timeline_user_spoke");
+      }
+     }
+     setInput(v);
+    },
+    onOutputTranscript:v=>{
+     cancelRescue();
+     if(chatKind&&learnerSpoke&&!aiReplied&&v.trim()){
+      aiReplied=true;
+      trackUsageEvent(chatKind==="teacher"?"teacher_ai_replied":chatKind==="friend"?"friend_ai_replied":"timeline_ai_replied");
+     }
+     setOutput(v);
+    },
     onRecovered:()=>{
       cancelRescue();
       // Reconnected transports can reuse an older system instruction: reassert

@@ -2,6 +2,7 @@ import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
+import {trackUsageEvent} from "../analytics/usage";
 
 type Mode="describe"|"guess";
 type Phase="ready"|"playing"|"done";
@@ -17,6 +18,7 @@ function drawDeck(level:TabooLevel):TabooCard[]{
 }
 export function TabooGamePage(){
  const {friend,choose}=useMiniFriend();
+ useEffect(()=>{trackUsageEvent("game_open","taboo")},[]);
  return <MiniShell kind="taboo" friend={friend} onChange={choose}>
   <TabooSession key={friend.id} friend={friend}/>
  </MiniShell>;
@@ -38,6 +40,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const card=deck[round];
  const emit=useCallback((text:string)=>setCue(old=>({id:old.id+1,text})),[]);
  const start=()=>{
+  trackUsageEvent("game_started","taboo");
   setDeck(drawDeck(level));setRound(0);setTimeLeft(60);setDeadline(Date.now()+60000);
   setSkips(3);setScore(0);setAnswer("");setMessage("");setRevealed(false);
   ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
@@ -49,7 +52,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   if(deck[round])setHistory(old=>[...old,{word:deck[round].word,result:reason}]);
   setAnswer("");setRevealed(false);
-  if(round===4){setPhase("done");return;}
+  if(round===4){trackUsageEvent("game_completed","taboo");setPhase("done");return;}
   setRound(r=>r+1);setDeadline(Date.now()+60000);setTimeLeft(60);
   setMessage(reason==="correct"?"答對！下一題。":reason==="violation"?"觸犯禁用字，換下一題。":reason==="skip"?"跳過，繼續下一題。":"時間到！下一題。");
  },[round,deck]);

@@ -1,4 +1,5 @@
-import {useCallback,useMemo,useState} from "react";
+import {useCallback,useEffect,useMemo,useRef,useState} from "react";
+import {trackUsageEvent} from "../analytics/usage";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {legalNumber,secretNumber,scoreAB,parseSpokenNumber,parseSpokenAB,nextComputerGuess,candidateNumbers,type DigitCount,type GuessRow,type AB} from "./numberGameEngine";
 
@@ -28,6 +29,7 @@ function saveResultImage(count:number,digits:number,name:string,won:boolean){
 }
 export function NumberGamePage(){
  const {friend,choose}=useMiniFriend();
+ useEffect(()=>{trackUsageEvent("game_open","1a2b")},[]);
  const [digits,setDigits]=useState<DigitCount>(4),[mode,setMode]=useState<Mode>("guess"),[revision,setRevision]=useState(0);
  return <MiniShell kind="1a2b" friend={friend} onChange={choose}>
   <div className="crew-mini-config" aria-label="猜數字規則">
@@ -54,6 +56,17 @@ function NumberRound({mode,digits,friend,onNew}:{
  const finalRow=history[history.length-1];
  const won=Boolean(finalRow&&finalRow.result.a===digits);
  const finished=won||history.length>=10;
+ const startedRef=useRef(false),completedRef=useRef(false);
+ useEffect(()=>{
+  if(history.length>0&&!startedRef.current){
+   startedRef.current=true;trackUsageEvent("game_started","1a2b");
+  }
+ },[history.length]);
+ useEffect(()=>{
+  if(finished&&startedRef.current&&!completedRef.current){
+   completedRef.current=true;trackUsageEvent("game_completed","1a2b");
+  }
+ },[finished]);
  const computerGuess=useMemo(()=>mode==="reverse"&&!finished?nextComputerGuess(digits,history):null,[mode,digits,history,finished]);
  const submitGuess=(value:string)=>{
   if(finished)return;

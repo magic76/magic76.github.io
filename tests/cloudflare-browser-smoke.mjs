@@ -664,6 +664,9 @@ async function run(){
   await mobileTwenty.locator(".crew-play-voice-entrance .crew-play-voice-start").click();
   await mobileTwenty.locator(".crew-play-voice-dock-shell").waitFor({state:"visible",timeout:15000});
   assert.equal(await mobileTwenty.locator(".crew-play-voice-entrance").count(),0,"Start button disappears after connection");
+  // The voice dock becomes ready before React mounts the first question grid.
+  // Wait for the disclosure, then assert the actual default collapsed state.
+  await mobileTwenty.locator(".crew-play-question-disclosure").waitFor({state:"attached",timeout:15000});
   assert.equal(await mobileTwenty.locator(".crew-play-question-disclosure:not([open])").count(),1,"Hints are initially collapsed");
   const inspectVoiceDock=async()=>{
    return mobileTwenty.evaluate(()=>{

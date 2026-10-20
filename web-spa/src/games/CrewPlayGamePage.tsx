@@ -19,6 +19,7 @@ import {chooseFallbackPuzzle} from "./puzzleDiversity";
 import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {crewGames} from "./CrewPlayHubPage";
+import {trackUsageEvent} from "../analytics/usage";
 import "./crewPlay.css";
 
 type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
@@ -38,6 +39,7 @@ export function CrewPlayGamePage(){
  if(!isGame(gameId))return <Navigate to="/games" replace/>;
  const game=crewGames.find(g=>g.id===gameId)!;
  const wordGame=gameId==="twenty-questions"||gameId==="mystery";
+ useEffect(()=>{if(isGame(gameId))trackUsageEvent("game_open",gameId)},[gameId]);
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
  return <main className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">

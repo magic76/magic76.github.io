@@ -62,3 +62,25 @@ test("report handler fails closed without verified Cloudflare Access JWT",async(
  });
  assert.equal(fake.status,403);
 });
+
+test("new privacy-safe Timeline and game events are allowlisted, private details rejected",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:point=>points.push(point)}};
+ for(const [event,detail] of [["timeline_view","hana"],["timeline_conversation",""],["timeline_user_spoke",""],
+  ["game_open","taboo"],["game_started","connect4"],["game_completed","mystery"]]){
+  const result=await onRequestPost({request:request({...payload,event,detail}),env});
+  assert.equal(result.status,204,event);
+ }
+ assert.equal(points.length,6);
+ assert.equal((await onRequestPost({request:request({...payload,event:"game_completed",detail:"private-answer"}),env})).status,400);
+ assert.equal((await onRequestPost({request:request({...payload,event:"timeline_view",detail:"private-user-id"}),env})).status,400);
+});
+test("report aggregates browser uniqueness over the full period rather than summing daily",()=>{
+ const source=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
+ assert.match(source,/SELECT COUNT\(DISTINCT blob2\) AS users FROM crew_usage WHERE /);
+ assert.match(source,/eventUsers\.map/);
+ assert.match(source,/previousChatUsers/);
+ const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
+ assert.doesNotMatch(dashboard,/\.reduce\(\(a,b\)=>a\+b\.users/);
+ assert.match(dashboard,/data\.chatUsers/);
+});

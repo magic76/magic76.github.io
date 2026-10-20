@@ -52,7 +52,7 @@ test("only free chat gets automatic silence rescue",()=>{
  assert.match(friend,/conversationFlow:"friend"/);
  assert.match(teacher,/conversationFlow:!isRoleplay&&\(intent==="continue"\|\|s\.conversationMode==="natural"\)/);
  assert.match(hook,/rescueCountRef\.current>=\(kind==="friend"\?1:2\)/);
- assert.match(hook,/onInputTranscript:v=>\{if\(v\.trim\(\)\)\{cancelRescue\(\)/);
+ assert.match(hook,/onInputTranscript:v=>\{\s*if\(v\.trim\(\)\)\{\s*cancelRescue\(\)/);
  assert.match(transport,/realtimeInput:\{text:instruction\}/);
  assert.match(policy,/freeChatRhythmPrompt\(\)/);
  assert.match(policy,/\[CONVERSATION STYLE: ACTIVE SPEAKING COACH\]/);

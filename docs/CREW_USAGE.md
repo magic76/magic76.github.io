@@ -11,8 +11,12 @@ The first-party tracker sends event names with anonymous random browser UUID and
 - app_opened: once per browser tab session
 - visitor_first_seen: new random browser UUID
 - user_returned: the same browser UUID returned on a later UTC date
-- teacher_conversation / friend_conversation: a completed exchange has BOTH nonempty user and model speech text
-- teacher_conversation_start / friend_conversation_start: connected session, may not yet have exchanged speech
+- teacher_conversation / friend_conversation / timeline_conversation: a completed exchange has BOTH nonempty user and model speech text
+- teacher_conversation_start / friend_conversation_start / timeline_conversation_start: connected session, may not yet have exchanged speech
+- teacher_user_spoke / friend_user_spoke / timeline_user_spoke: first transcript after Live connects (once per conversation, no transcript data)
+- teacher_ai_replied / friend_ai_replied / timeline_ai_replied: first AI transcript after learner speech; proactive AI greetings do not count
+- timeline_view: enter a life timeline (fixed fictional-character enum mira/ethan/hana)
+- game_open / game_started / game_completed: enter game page, begin actual gameplay, and finish round (fixed allowlisted game kinds)
 - teacher_session_end / friend_session_end: duration bucket (under_1m / from_1_to_3m / from_3_to_10m / over_10m); deliberately no raw speech or audio duration beyond bucket
 - vocabulary_practice: a vocabulary answer was submitted, not merely the page opened
 - textbook_open: textbook page opened; textbook_study: Live voice session actually reached connected/listening or speaking state
@@ -29,7 +33,7 @@ A random browser UUID is pseudonymous, not a distinct real human. Browsers can c
 
 Browser respects Global Privacy Control and Do Not Track. Settings includes opt-out and deletes usage identifiers. URL /settings?crewDev=1 reveals a persistent Developer Test Mode checkbox. Enable it BEFORE testing to exclude subsequent analytics. It is intentionally not shown to ordinary users. Preview sites, GitHub Pages, localhost, and known automated tools do not send events.
 
-Cloudflare Web Analytics stays installed and continues handling visits/referrals. The Usage Dashboard displays first-party effective interactions and separate entry/session metrics. Android Firebase Analytics is NOT combined with this Web dashboard, because Android and Web do not share identity or collection backends.
+Cloudflare Web Analytics stays installed and continues handling visits/referrals. The Usage Dashboard displays first-party effective interactions, cross-period deduplicated chat browser counts, segmented trends, Timeline, Shorts and game engagement, and separate entry/session metrics. Android Firebase Analytics is NOT combined with this Web dashboard, because Android and Web do not share identity or collection backends.
 
 ## Google Analytics 4 (GA4) Web stream
 
@@ -93,3 +97,13 @@ Official docs:
 - https://developers.cloudflare.com/pages/functions/routing/
 - https://developers.cloudflare.com/analytics/analytics-engine/sql-api/
 - https://developers.cloudflare.com/cloudflare-one/access-controls/applications/http-apps/authorization-cookie/validating-json/
+
+## Usage dashboard P0/P1 (October 2026)
+
+`/usage` remains owner-only via Cloudflare Access, with no new storage provider. Report SQL now queries period-wide `COUNT(DISTINCT blob2)` for active and chatting browsers, plus per-event distinct browsers. **Do not sum daily or per-role unique counts**: a browser can chat with both teacher and friend. Prior-period comparisons are previous 7 days versus latest 7, or previous 30 versus latest 30; both must use the same definition and are approximate if Analytics Engine samples.
+
+The four chat funnel stages are **event counts, not a joined cohort**: connected, first learner speech, first AI reply after the learner, and completed two-sided exchange. They are not an accurate conversion rate between identical individual sessions. Old data cannot be backfilled and browsing without a real interaction is not "effective use".
+
+A game `game_open` indicates a loaded route, `game_started` a valid actual play action or start button, and `game_completed` a finished round. Values in `detail` are fixed game kind enums only; no secret words, move positions, answer texts, player names or IDs are sent. Timeline detail is limited to the three public fictional-character codes, never age or personal notes.
+
+Web usage is strictly separate from Firebase Android GA4; never add their unique-user counts or infer cross-device identity. The GA4 web stream mirrors permitted first-party event names but its User counts may differ due to browser consent, blockers and sampling.

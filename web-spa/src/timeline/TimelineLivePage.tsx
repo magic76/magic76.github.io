@@ -11,6 +11,7 @@ import {validAge} from "./timeline";
 import {timelineCharacterId,timelinePerson,timelineStage,timelineBuildSystem,timelineSaveNote,timelineOlderNotes,timelineNextOpening} from "./timelineCharacters";
 import {TimelinePortrait} from "./TimelinePortrait";
 import {recordTimelineEcho} from "./timelineEcho";
+import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import "./timeline.css";
 export function TimelineLivePage(){
  const[params]=useSearchParams();const number=Number(params.get("age")),age=validAge(number)?number:25;
@@ -18,6 +19,7 @@ export function TimelineLivePage(){
   const back="/timeline?character="+characterId;
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
  const navigate=useNavigate(),closing=useRef(false);
+ const usageStarted=useRef(false),usageCompleted=useRef(false);
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
  const known=useMemo(()=>timelineOlderNotes(age,characterId),[age,characterId]);
@@ -29,8 +31,19 @@ export function TimelineLivePage(){
   system,language,nativeLanguage,voice:normalizeLiveVoice(characterId==="ethan"?"Orus":characterId==="hana"?"Leda":MIRA_LIVE_VOICE),
   openingPrompt:opening,
   persistHistory:false,teacherReport:false,trackSpeakingLevel:false,sessionKind:"timeline",
-  onSessionFinished:()=>{/* Timeline never updates teacher or friend memories. */}
+  onTurnComplete:(_turn,completedTurns)=>{
+   if(!usageCompleted.current&&completedTurns.some(t=>Boolean(t.input?.trim()&&t.output?.trim()))){
+    usageCompleted.current=true;trackUsageEvent("timeline_conversation");
+   }
+  },
+  onSessionFinished:item=>{
+   // Timeline never updates teacher or friend memories.
+   if(item&&item.durationMs>0)trackUsageEvent("timeline_session_end",sessionDurationDetail(item.durationMs));
+  }
  });
+ useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStarted.current){
+  usageStarted.current=true;trackUsageEvent("timeline_conversation_start");
+ }},[live.state]);
  const end=async()=>{if(closing.current)return;closing.current=true;try{await live.stop(true)}finally{navigate(back)}};
  useEffect(()=>{const t=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(t)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page timeline-session-page";return()=>{document.body.className=""}},[]);

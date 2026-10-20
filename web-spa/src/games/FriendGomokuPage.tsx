@@ -11,6 +11,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {useTeacherStore} from "../store/teacherStore";
 import {loadScript} from "../lib/runtime";
 import {matchesBoardNarration} from "./boardVoiceTurn";
+import {trackUsageEvent} from "../analytics/usage";
 import "./games.css";
 
 const SELECTED_FRIEND_KEY="crew_web_selected_friend_v1";
@@ -34,6 +35,7 @@ type WaitingAiMove={
 };
 
 export function FriendGomokuPage(){
+  useEffect(()=>{trackUsageEvent("game_open","gomoku")},[]);
   const {i18n}=useTranslation();
   const english=i18n.resolvedLanguage?.startsWith("en")||false;
   const language=useTeacherStore(state=>state.targetLanguage);
@@ -48,6 +50,7 @@ export function FriendGomokuPage(){
   const [engineError,setEngineError]=useState("");
   const [lastEvent,setLastEvent]=useState("");
   const engineRef=useRef<GomokuEngine|null>(null);
+  const gameCompletedRef=useRef(false);
   const aiBusyRef=useRef(false);
   const pendingCueRef=useRef<string|null>(null);
   const waitingAiRef=useRef<WaitingAiMove|null>(null);
@@ -155,6 +158,11 @@ export function FriendGomokuPage(){
   useEffect(()=>()=>{const pending=waitingAiRef.current;if(pending?.graceTimer!==null&&pending?.graceTimer!==undefined)window.clearTimeout(pending.graceTimer);if(pending?.watchdog!==null&&pending?.watchdog!==undefined)window.clearTimeout(pending.watchdog);waitingAiRef.current=null;},[]);
 
   const engine=engineRef.current;
+  useEffect(()=>{
+   if(engine?.winner&&!gameCompletedRef.current){
+    gameCompletedRef.current=true;trackUsageEvent("game_completed","gomoku");
+   }
+  },[revision,engine?.winner]);
   const board=engine?.board;
   const winning=new Set((engine?.winningLine||[]).map(point=>point.y*15+point.x));
 
@@ -167,6 +175,7 @@ export function FriendGomokuPage(){
       if(!window.GomokuEngine)throw new Error("engine unavailable");
       const next=new window.GomokuEngine(15);
       clearWaitingAi();next.reset();engineRef.current=next;aiBusyRef.current=false;pendingCueRef.current=null;
+      gameCompletedRef.current=false;trackUsageEvent("game_started","gomoku");
       setGameStarted(true);setThinking(false);setLastEvent("");setRevision(value=>value+1);
       localStorage.setItem(SELECTED_FRIEND_KEY,friend.id);
     }catch{
@@ -188,7 +197,8 @@ export function FriendGomokuPage(){
     if(!current)return;
     clearWaitingAi();
     if(liveRef.current.state==="speaking")live.interrupt();
-    current.reset();aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
+    current.reset();gameCompletedRef.current=false;trackUsageEvent("game_started","gomoku");
+    aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
     const cue="[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. React with one short friendly line, then wait for their first move.";
     notifyVoice(cue);
   };
