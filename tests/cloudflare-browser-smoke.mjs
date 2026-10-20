@@ -236,8 +236,8 @@ async function run(){
    const corrupt=await context.newPage(),id=approvedSample.characterId,age=approvedSample.age;
    const altered=Buffer.from(readFileSync('assets/'+approvedSample.fullbody.path));altered[altered.length-1]^=1;
    let corruptSeen=false,missingSeen=false;
-   await corrupt.route('**/assets/'+approvedSample.fullbody.path,async route=>{corruptSeen=true;await route.fulfill({status:200,contentType:'image/webp',body:altered});});
-   await corrupt.route('**/assets/'+approvedSample.avatar.path,async route=>{missingSeen=true;await route.fulfill({status:404,body:'missing'});});
+   await corrupt.route('**/assets/'+approvedSample.fullbody.path+'?v=*',async route=>{corruptSeen=true;await route.fulfill({status:200,contentType:'image/webp',body:altered});});
+   await corrupt.route('**/assets/'+approvedSample.avatar.path+'?v=*',async route=>{missingSeen=true;await route.fulfill({status:404,body:'missing'});});
    const rejectedResponses=Promise.all([corrupt.waitForResponse(response=>new URL(response.url()).pathname==='/assets/'+approvedSample.fullbody.path),corrupt.waitForResponse(response=>new URL(response.url()).pathname==='/assets/'+approvedSample.avatar.path)]);
    await corrupt.goto(origin+'/timeline?character='+id,{waitUntil:'domcontentloaded'});
    await corrupt.locator('.timeline-stop').nth(timelineAges.indexOf(age)).click();
