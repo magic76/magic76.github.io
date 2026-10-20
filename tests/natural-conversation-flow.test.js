@@ -52,7 +52,7 @@ test("only free chat gets automatic silence rescue",()=>{
  assert.match(friend,/conversationFlow:"friend"/);
  assert.match(teacher,/conversationFlow:!isRoleplay&&\(intent==="continue"\|\|s\.conversationMode==="natural"\)/);
  assert.match(hook,/rescueCountRef\.current>=\(kind==="friend"\?1:2\)/);
- assert.match(hook,/onInputTranscript:v=>\{\s*if\(v\.trim\(\)\)\{\s*cancelRescue\(\)/);
+ assert.match(hook,/onInputTranscript:v=>\{[\s\S]*?cancelRescue\(\);rescueCountRef\.current=0/);
  assert.match(transport,/realtimeInput:\{text:instruction\}/);
  assert.match(policy,/freeChatRhythmPrompt\(\)/);
  assert.match(policy,/\[CONVERSATION STYLE: ACTIVE SPEAKING COACH\]/);
@@ -96,7 +96,7 @@ test("silence countdown uses ephemeral engagement state, not a hardcoded 14/20 s
  const hook=read("web-spa/src/live/useLiveSession.ts");
  assert.match(hook,/cadenceRef\.current\.silenceDelayMs\(rescueCountRef\.current,kind\)/);
  assert.match(hook,/!cadenceRef\.current\.shouldRescue\(\)/);
- assert.match(hook,/if\(v==="connecting"\|\|v==="error"\)cancelRescue\(\)/);
+ assert.match(hook,/if\(v==="connecting"\|\|v==="error"\)\{cancelRescue\(\);cancelFriendReplyTimer\(\);\}/);
  assert.doesNotMatch(hook,/14000:20000/);
 });
 
