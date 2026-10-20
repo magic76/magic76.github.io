@@ -34,7 +34,10 @@ export function useLiveSession(config:Config){
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
  const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0),languageRepairRef=useRef(false);
  const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const friendReplyTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const friendReplyRescueSentRef=useRef(false);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
+ const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(()=>{
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
   return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
@@ -80,7 +83,8 @@ export function useLiveSession(config:Config){
   if(!geminiKey()){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   cancelRescue();cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
+   cancelRescue();cancelFriendReplyTimer();friendReplyRescueSentRef.current=false;
+   cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
@@ -96,6 +100,26 @@ export function useLiveSession(config:Config){
      if(session.sendControl?.(cadenceRef.current.rescue(kind,rescueCountRef.current)+directive))
       rescueCountRef.current+=1;
     },cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind));
+   };
+   // Friend-only watchdog: one silent recovery, never a fabricated learner turn.
+   const scheduleFriendReplyCheck=(delayMs=11000)=>{
+    cancelFriendReplyTimer();
+    if(configRef.current.sessionKind!=="friend")return;
+    friendReplyTimerRef.current=window.setTimeout(()=>{
+     friendReplyTimerRef.current=null;
+     if(sessionRef.current!==session||!session.ready||!session.running
+       ||!awaitingTutorRef.current||session.micMuted)return;
+     if(friendReplyRescueSentRef.current){
+      setStatus("朋友尚未回覆，請再說一次或重新開始對話。");
+      return;
+     }
+     const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
+     if(session.sendControl?.("[FRIEND UNANSWERED TURN — silent recovery] The learner just spoke but did not receive a reply. Answer their latest utterance briefly as the same friend, without greeting, teaching or repeating a finished reply."+directive)){
+      friendReplyRescueSentRef.current=true;
+      setStatus("正在重新取得朋友的回答…");
+      scheduleFriendReplyCheck(10000);
+     }
+    },delayMs);
    };
    // Only Crew Teacher/Friends and their Voice Lab use this experimental selection.
    // Crew Story/Fortune keep their existing automatic fallback behavior.
