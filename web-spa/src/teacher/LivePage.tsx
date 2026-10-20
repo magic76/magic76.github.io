@@ -39,7 +39,7 @@ export function TeacherLivePage(){
   rolePrompt:mission?.rolePrompt,mode:isRoleplay?"roleplay":"tutor",
   profile,teachingMode:s.teachingMode,conversationMode:intent==="continue"?"natural":s.conversationMode,
   languageStyle:s.languageStyle,accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,nativeLanguage:s.nativeLanguage,level:vocabularyLevel(),learnerSpeakingLevel:effectiveLevel
- })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage,s.languageStyle==="auto"?undefined:"auto"))+(freeTalk&&!fortuneKind?teacherLifeBookPrompt(profile.id):"")+(fortuneKind?fortuneSpeakingPolicy(fortuneKind,fortuneContext):"")),[s.targetLanguage,s.teachingMode,effectiveLevel,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay,freeTalk,fortuneKind,fortuneContext]);
+ })+(isRoleplay?"":voiceIdentityPrompt("teacher",profile.id,s.targetLanguage,s.languageStyle==="auto"?undefined:"auto"))+(fortuneKind?"":freeTalk?teacherLifeBookPrompt(profile.id):"")+(fortuneKind?fortuneSpeakingPolicy(fortuneKind,fortuneContext):"")),[s.targetLanguage,s.teachingMode,effectiveLevel,s.conversationMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,s.nativeLanguage,scene,profile,mission?.rolePrompt,mission?.goals?.join("|"),isRoleplay,freeTalk,fortuneKind,fortuneContext]);
  const opening=fortuneKind
   ?fortuneSpeakingOpening(fortuneKind,fortuneContext)
   :previous?.turns?.length
