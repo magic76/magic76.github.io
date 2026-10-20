@@ -81,3 +81,9 @@
  .fortune-teacher-invite h3,.fortune-teacher-followup h3{font-size:18px}
  .fortune-teacher-primary-action{width:100%;min-width:0;min-height:52px}
 }
+
+/* Two clear follow-ups on the same computed result, no extra overlay. */
+.fortune-conversation-actions{display:flex;flex-direction:column;gap:9px;min-width:190px}
+.fortune-teacher-secondary-action{font:inherit;font-weight:700;font-size:14px;min-height:44px;padding:10px 12px;border-radius:12px;border:1px solid #9382df;color:#5143a8;background:#fff;cursor:pointer}
+.fortune-teacher-secondary-action:focus-visible{outline:3px solid #978beb;outline-offset:2px}
+@media(max-width:720px){.fortune-conversation-actions{width:100%}}
