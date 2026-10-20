@@ -35,7 +35,7 @@ export function FortuneReadingPage(){
    trackUsageEvent("fortune_calculated",mode);setRevealId(item.id);setReading(item);setAiStatus(geminiKey()?"loading":"idle");setShowInput(false);window.CrewFortuneProfile.addHistory(item);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:copy[mode][0],summary:item.summary,preview:"固定計算結果已完成。"});localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));void interpret(item);
   }finally{setBusy(false)}
  }
- function ask(){if(!reading)return;if(!geminiKey()){document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"});return}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));trackUsageEvent("fortune_teacher_opened",reading.mode);nav("/fortune/live?from=reading")}
+ function ask(){if(!reading)return;if(!geminiKey()){document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"});return}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
  const teacherReady=Boolean(geminiKey());
  const teacherAction=<button type="button" className="fortune-teacher-primary-action" onClick={ask}>{teacherReady?t("reading.askTeacherAction"):t("reading.askTeacherSetup")} <span aria-hidden="true">→</span></button>;
  const Result=reading?.mode==="bazi"?BaZiTabs:reading?.mode==="tarot"?TarotTabs:VedicTabs;
