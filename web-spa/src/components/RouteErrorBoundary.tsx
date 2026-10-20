@@ -11,6 +11,20 @@ function isAssetLoadError(error:unknown){
 
 const RETRY_KEY="crew_route_asset_recovery_v1";
 const RETRY_WINDOW_MS=60_000;
+const RETRY_QUERY="__crew_reload";
+// A plain reload can hit stale cached HTML again; use a new URL to request the
+// current deployment. Preserve any history/mode query parameters and the hash.
+function reloadLatest(){
+ const url=new URL(window.location.href);
+ url.searchParams.set(RETRY_QUERY,Date.now().toString(36));
+ window.location.replace(url.toString());
+}
+function recoveryPath(){
+ const params=new URLSearchParams(window.location.search);
+ params.delete(RETRY_QUERY);
+ const query=params.toString();
+ return window.location.pathname+(query?"?"+query:"");
+}
 
 type Props={children:ReactNode};
 type State={error:unknown|null};
@@ -28,11 +42,11 @@ export class RouteErrorBoundary extends Component<Props,State>{
   // A persistent outage still shows the retry/home actions below.
   try{
    const now=Date.now();
-   const path=window.location.pathname+window.location.search;
+   const path=recoveryPath();
    const previous=JSON.parse(sessionStorage.getItem(RETRY_KEY)||"null") as {path?:string;at?:number}|null;
    if(previous?.path===path&&typeof previous.at==="number"&&now-previous.at<RETRY_WINDOW_MS)return;
    sessionStorage.setItem(RETRY_KEY,JSON.stringify({path,at:now}));
-   window.location.reload();
+   reloadLatest();
   }catch{
    // Storage may be unavailable; leave the visible error screen in place.
   }
@@ -47,7 +61,7 @@ export class RouteErrorBoundary extends Component<Props,State>{
     <h1 style={{fontSize:23,margin:"0 0 12px"}}>{english?"This page couldn't load":"頁面暫時無法載入"}</h1>
     <p style={{lineHeight:1.7,color:"var(--muted,#666)"}}>{english?"The connection may have been interrupted, or the website was just updated.":"可能是網路暫時中斷，或網站剛更新。你的其他頁面仍可使用。"}</p>
     <div style={{display:"flex",justifyContent:"center",gap:12,flexWrap:"wrap",marginTop:22}}>
-     <button type="button" onClick={()=>window.location.reload()} style={{padding:"11px 20px",borderRadius:12,cursor:"pointer"}}>{english?"Reload":"重新載入"}</button>
+     <button type="button" onClick={reloadLatest} style={{padding:"11px 20px",borderRadius:12,cursor:"pointer"}}>{english?"Reload":"重新載入"}</button>
      <a href={home} style={{padding:"11px 20px"}}>{english?"Back to home":"返回首頁"}</a>
     </div>
    </section>
