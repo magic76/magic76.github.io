@@ -218,7 +218,7 @@ export function useLiveSession(config:Config){
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
-  cancelRescue();setState("ending");setStatus("正在結束…");
+  cancelRescue();cancelFriendReplyTimer();setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
   try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}
   catch{/* Still finalize saved speech when the transport is already closed. */}
@@ -230,7 +230,7 @@ export function useLiveSession(config:Config){
   if(!deferReport)await completion;
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),completion};
  },[finish,snapshot]);
- const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;return sessionRef.current?.interrupt()??false},[]);
+ const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
  const sendControl=useCallback((text:string)=>sessionRef.current?.sendControl?.(text)??false,[]);
@@ -257,7 +257,7 @@ export function useLiveSession(config:Config){
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(300,Number.isFinite(v)?v:100));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
-  cancelRescue();
+  cancelRescue();cancelFriendReplyTimer();
   if(!session)return;
   // Preserve the final completed transcript before closing the active transport.
   snapshot("page-leave");
