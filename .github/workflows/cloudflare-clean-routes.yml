@@ -3,24 +3,62 @@ name: Cloudflare clean-route preview build
 on:
   pull_request:
     paths:
-      - "web-spa/**"
+      # Only route shell, prerendered entry points, SEO, critical CSS, and deployment contracts.
+      # Other UI/voice/game PRs run Crew SPA CI; use workflow_dispatch for a full browser smoke test.
+      - "web-spa/index.html"
+      - "web-spa/src/App.tsx"
+      - "web-spa/src/main.tsx"
+      - "web-spa/src/ssg-entry.tsx"
+      - "web-spa/src/components/AppChrome.tsx"
+      - "web-spa/src/components/RouteErrorBoundary.tsx"
+      - "web-spa/src/pages/**"
+      - "web-spa/src/briefing/**"
+      - "web-spa/src/guides/**"
+      - "web-spa/src/i18n/**"
+      - "web-spa/src/*.css"
+      - "web-spa/src/games/CrewPlayHubPage.tsx"
+      - "web-spa/src/games/*.css"
+      - "web-spa/src/teacher/TeacherLayout.tsx"
+      - "web-spa/src/teacher/PracticePage.tsx"
+      - "web-spa/src/story/StoryLayout.tsx"
+      - "web-spa/src/story/ShelfPage.tsx"
+      - "web-spa/src/fortune/FortuneLayout.tsx"
+      - "web-spa/src/fortune/HomePage.tsx"
+      - "features/shared/design-system.css"
+      - "features/teacher/styles.css"
+      - "features/teacher/practice/styles.css"
+      - "features/teacher/textbook/styles.css"
+      - "features/story/styles.css"
+      - "features/fortune/styles.css"
       - "scripts/ssg-renderer.mjs"
       - "scripts/research-seo.mjs"
       - "scripts/research-quality.mjs"
       - "scripts/research-discovery.mjs"
       - "scripts/research-quality-report.mjs"
-      - "tests/research-editorial.test.js"
-      - "crew-app/briefings/**"
       - "scripts/prepare-cloudflare.mjs"
-      - "vite.web.config.ts"
-      - "package.json"
+      - "tests/research-editorial.test.js"
       - "tests/cloudflare-deployment.test.js"
       - "tests/cloudflare-browser-smoke.mjs"
+      - "tests/cloudflare-preview-ci.test.js"
+      - "crew-app/briefings/**"
+      - "vite.web.config.ts"
+      - "package.json"
+      - "package-lock.json"
       - "_headers"
+      - "_routes.json"
       - "robots.txt"
       - "sitemap.xml"
+      - "seo.css"
       - ".github/workflows/cloudflare-clean-routes.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Rapid PR updates should not finish obsolete Playwright/browser runs.
+concurrency:
+  group: cloudflare-preview-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   cloudflare-build:
@@ -32,7 +70,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run check:web
+      # Crew SPA already typechecks every PR; keep standalone manual runs self-contained.
+      - name: Typecheck manual run
+        if: github.event_name == 'workflow_dispatch'
+        run: npm run check:web
       - run: npm run build:cloudflare
       - run: npm run test:cloudflare
       - run: node --test tests/research-editorial.test.js
@@ -42,6 +83,7 @@ jobs:
       - run: npm run test:browser:cloudflare
       # Build/test failures remain blocking; artifact quota alone does not block release verification.
       - uses: actions/upload-artifact@v4
+        if: github.event_name == 'workflow_dispatch'
         continue-on-error: true
         with:
           name: cloudflare-pages-preview
