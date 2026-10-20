@@ -31,8 +31,9 @@ test('echoes require consented canonical older notes and cannot resurrect delete
  assert.equal(storage.get('crew_timeline_ethan_echo_meta_v2'),before);
  assert.equal(api.timelineEchoesAtAge(25,[older],'ethan').length,0);
 });
-test('editorial comparison remains explicitly scoped to the existing Mira content',()=>{
+test('comparison entry is available for all people, and echoes stay person-scoped',()=>{
  const page=fs.readFileSync('web-spa/src/timeline/TimelinePage.tsx','utf8');
- assert.match(page,/characterId==="mira"&&<Link[^>]+to="\/timeline\/compare"/);
+ assert.match(page,/timeline\/compare\?character=/);
+ assert.doesNotMatch(page,/characterId==="mira"&&<Link/);
  assert.match(page,/timelineEchoesAtAge\(age,memory,characterId\)/);
 });
