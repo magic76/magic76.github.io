@@ -72,6 +72,29 @@ async function run(){
    await page.close();
     process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Fortune homepage and saved readings must remain accessible even when
+  // external astrology engines (or the optional AI core) cannot be fetched.
+  const offlineFortuneContext=await browser.newContext({viewport:{width:390,height:844}});
+  const offlineFortune=await offlineFortuneContext.newPage(),unwantedRequests=[],fortuneErrors=[];
+  checkConsole(offlineFortune,fortuneErrors);
+  await offlineFortune.route("**/*",route=>{
+   const url=route.request().url();
+   if(/(?:cdn\.jsdelivr\.net\/npm\/(?:lunar-javascript|astronomy-engine)|\/features\/fortune\/|\/crew\.js(?:\?|$))/.test(url)){
+    unwantedRequests.push(url);
+    return route.abort();
+   }
+   return route.continue();
+  });
+  const fortuneResponse=await offlineFortune.goto(origin+"/fortune/",{waitUntil:"domcontentloaded"});
+  assert.equal(fortuneResponse?.status(),200);
+  await offlineFortune.locator(".fortune-home-mode").first().waitFor({state:"visible",timeout:15000});
+  await offlineFortune.waitForTimeout(600);
+  assert.equal(await offlineFortune.locator(".fortune-home-mode").count(),3,"Fortune modes remain visible offline");
+  assert.deepEqual(unwantedRequests,[],"Fortune homepage should not request external engines");
+  assert.deepEqual(fortuneErrors,[],"Fortune homepage must not crash without external engines");
+  await offlineFortuneContext.close();
+  process.stdout.write("PASS Fortune homepage works without remote astrology scripts\n");
+
   // Mira Timeline regression: every age selects its own approved full-body
   // photo, the photo response succeeds, and the feature image keeps the feet.
   const timelineErrors=[];
