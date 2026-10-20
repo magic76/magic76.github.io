@@ -32,6 +32,8 @@ test("八字免費章節使用財官與實際年份，完整、不需 Gemini",()
  assert.ok(report.length>=9);
  assert.match(get(report,"wealth"),/正財訊號 1/);
  assert.match(get(report,"career"),/官殺 1/);
+ assert.match(get(report,"career"),/食傷（表達與成果）/);
+ assert.match(get(report,"wealth"),/偏財記號較多/);
  assert.match(get(report,"relationships"),/2029/);
  assert.match(get(report,"currentCycle"),/辛未/);
  assert.doesNotMatch(all(report),/undefined|\[object Object\]/);
