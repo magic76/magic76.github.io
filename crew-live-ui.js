@@ -66,14 +66,6 @@
     area.remove();
   }
 
-  function bytesToBase64(bytes){
-    var binary="",chunk=0x8000;
-    for(var i=0;i<bytes.length;i+=chunk){
-      binary+=String.fromCharCode.apply(null,bytes.subarray(i,Math.min(i+chunk,bytes.length)));
-    }
-    return btoa(binary);
-  }
-
   async function prepareImage(file,options){
     options=options||{};
     if(!file||!/^image\//i.test(file.type||""))throw new Error("請選擇圖片檔");
@@ -115,7 +107,7 @@
         },"image/jpeg",quality);
       });
       var bytes=new Uint8Array(await blob.arrayBuffer());
-      var base64=bytesToBase64(bytes);
+      var base64=global.CrewLive.bytesToBase64(bytes);
       return {
         data:base64,
         mimeType:"image/jpeg",

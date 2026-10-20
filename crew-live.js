@@ -1416,6 +1416,7 @@
     Session:LiveSession,
     models:DEFAULT_MODELS.slice(),
     sanitizeDetail:sanitizeDetail,
+    bytesToBase64:bytesToBase64,
     __test:{
       mergeTranscript:mergeTranscript,
       safeApiError:safeApiError,
