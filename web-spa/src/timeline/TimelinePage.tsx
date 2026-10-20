@@ -6,6 +6,7 @@ import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {AGES,type Age} from "./timeline";
 import {TIMELINE_IDS,timelineCharacterId,timelinePerson,timelineStage,timelineOlderNotes,timelineNotes,timelineDeleteNote,timelineClearNotes} from "./timelineCharacters";
 import {TimelinePortrait} from "./TimelinePortrait";
+import {trackUsageEvent} from "../analytics/usage";
 import {timelineEchoesAtAge,deleteTimelineEcho,clearTimelineEchoes} from "./timelineEcho";
 import "./timelineExperience.css";
 import "./timeline.css";
@@ -26,6 +27,7 @@ export function TimelinePage(){
  const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
  const[params,setParams]=useSearchParams();
  const characterId=timelineCharacterId(params.get("character")),person=timelinePerson(characterId);
+ useEffect(()=>{trackUsageEvent("timeline_view",characterId)},[characterId]);
  const chooseCharacter=(id:typeof characterId)=>{if(id===characterId)return;setAge(25);setParams(id==="mira"?{}:{character:id});};
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
