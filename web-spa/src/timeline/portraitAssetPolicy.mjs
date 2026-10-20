@@ -37,7 +37,11 @@ export function webpDimensions(bytes) {
 export async function verifiedPortraitBlob(asset, fetcher = fetch, subtle = globalThis.crypto?.subtle) {
  if (!asset || !subtle) return null;
  try {
-  const response = await fetcher('/assets/' + asset.path, {credentials:'same-origin'});
+  // Images are replaced at the same filenames when a new Timeline photo set ships.
+  // Cache by immutable approved SHA, never by a reusable path: stale CDN/browser
+  // bytes would otherwise fail verification and silently become placeholders.
+  const url = '/assets/' + asset.path + '?v=' + asset.sha256;
+  const response = await fetcher(url, {credentials:'same-origin', cache:'no-store'});
   if (!response.ok) return null;
   const bytes = await response.arrayBuffer();
   if (bytes.byteLength !== asset.sizeBytes) return null;
