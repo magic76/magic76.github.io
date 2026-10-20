@@ -36,8 +36,11 @@ test("Story and Fortune show recovery actions for failure states",()=>{
  assert.ok(read("fortune/ReadingPage.tsx").includes('t("reading.aiRetry")'));
  assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).reading.aiRetry,"重試 AI 解讀");
  assert.ok(read("fortune/ReadingPage.tsx").includes('aiStatus==="loading"'));
- assert.ok(read("fortune/HomePage.tsx").includes('t("home.retry")'));
- assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).home.retry,"重新載入");
+ // Fortune landing is now entirely local; remote engine failures must not
+ // block the page or require an extra retry before showing saved reports.
+ assert.ok(read("fortune/HomePage.tsx").includes("readFortuneHistoryPreviews"));
+ assert.ok(read("fortune/HistoryPage.tsx").includes("readFortuneHistoryPreviews"));
+ assert.ok(!read("fortune/HomePage.tsx").includes("ensureFortuneServices"));
 });
 
 test("Backup omits keys and restores only nonexisting records",()=>{
