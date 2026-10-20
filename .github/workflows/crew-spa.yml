@@ -7,6 +7,8 @@ on:
     # A generated crew-app-only commit needs no second CI build.
     paths-ignore:
       - "crew-app/**"
+      - "docs/**"
+      - "**/AGENTS.md"
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
     paths-ignore:
@@ -42,10 +44,14 @@ jobs:
         env:
           CREW_CONTRACT_READ_TOKEN: ${{ secrets.CREW_CONTRACT_READ_TOKEN }}
       - run: npm ci
-      - run: npm run check:web
+      - name: Typecheck PR
+        if: github.event_name == 'pull_request'
+        run: npm run check:web
       - run: npm run build:web
       - run: npm run check:bundle
-      - run: npm test
+      - name: Test PR
+        if: github.event_name == 'pull_request'
+        run: npm test
       - name: Commit Crew Pages build
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
