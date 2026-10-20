@@ -91,7 +91,7 @@ export function TimelinePage(){
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{en?person.name+", through the years":person.name+" 的人生時光機"}</h1>
    <p>{en?"Three lives, twelve chapters each. Swipe through a life.":"三段不同的人生，每人十二個階段。選擇人物，滑動探索。"}</p>
-   {characterId==="mira"&&<Link className="timeline-experience-link" to="/timeline/compare">{en?"Compare her answers across the years":"同一問題，看看不同年紀的答案"} →</Link>}
+   <Link className="timeline-experience-link" to={"/timeline/compare?character="+characterId}>{en?"Compare "+person.name+" across the years":"同一問題，看看 "+person.name+" 不同年紀的答案"} →</Link>
   </header>
   <nav className="timeline-people" aria-label={en?"Choose a life":"選擇人生角色"}>
    {TIMELINE_IDS.map(id=><button type="button" key={id} className={"timeline-person "+(characterId===id?"selected":"")}

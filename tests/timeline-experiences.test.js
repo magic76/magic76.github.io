@@ -1,38 +1,55 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs");
 const read=p=>fs.readFileSync(p,"utf8");
-const canon=require("../contracts/crew-timeline/v1.json").character;
-const ages=[16,25,35,70];
-test("comparison uses existing Mira age checkpoints and an explicitly editorial, no-key experience",()=>{
- assert.deepEqual(ages.every(a=>canon.periods.some(p=>p.age===a)),true);
+const main=require("../contracts/crew-timeline/v1.json").character;
+const others=require("../contracts/crew-timeline/characters-v1.json").characters;
+const v2=require("../contracts/crew-timeline/comparisons-v2.json");
+const ages=[7,10,13,16,19,22,25,35,40,50,55,70];
+
+test("compare catalog covers three people and all 12 ages without invented canon",()=>{
+ assert.deepEqual(v2.ages,ages);
+ assert.equal(v2.schemaVersion,2);
+ const people={mira:main,ethan:others.ethan,hana:others.hana};
+ for(const [id,character] of Object.entries(people)){
+  const questions=v2.characters[id].questions;
+  assert.equal(questions.length,3);
+  for(const q of questions){
+   assert.equal(Object.keys(q.answers).length,12);
+   for(const age of ages){
+    const stage=character.periods.find(p=>p.age===age);
+    assert.ok(stage,id+" missing age "+age);
+    const field=q.id==="voice"?"quote":q.id==="challenge"?"tension":"story";
+    assert.equal(q.answers[age].zh,stage[field+"Zh"]);
+    assert.equal(q.answers[age].en,stage[field==="quote"?"quoteEn":field]);
+   }
+  }
+ }
  const source=read("web-spa/src/timeline/TimelineComparePage.tsx");
- assert.match(source,/const COMPARE_AGES=\[16,25,35,70\]/);
- assert.match(source,/COMPARE_PROMPTS\.map/);
+ assert.match(source,/AGES.map/);
+ assert.match(source,/TIMELINE_IDS.map/);
  assert.match(source,/useSearchParams/);
- assert.match(source,/TimelinePortrait age=\{age\}/);
- assert.match(source,/COMPARE_AGES\.filter/);
+ assert.match(source,/characterId={personId}/);
+ assert.match(source,/MAX_AGES=4/);
  assert.doesNotMatch(source,/geminiKey|ensureLive|dangerouslySetInnerHTML/);
 });
-test("echo only exposes older consented manually saved notes",()=>{
- const source=read("web-spa/src/timeline/timelineEcho.ts");
- assert.match(source,/friendMemoryEnabled\(\)/);
- assert.match(source,/knownNotes\.filter\(n=>n\.age<age\)/);
- assert.match(source,/recordTimelineEcho/);
- assert.match(source,/deleteTimelineEcho/);
- assert.match(source,/clearTimelineEchoes/);
- assert.match(source,/metadata\.find/);
- const ui=read("web-spa/src/timeline/TimelinePage.tsx");
+test("time echoes are isolated, consented and only travel to later ages",()=>{
+ const model=read("web-spa/src/timeline/timelineEcho.ts");
+ assert.match(model,/friendMemoryEnabled/);
+ assert.match(model,/knownNotes.filter\(n=>n.age<age\)/);
+ assert.match(model,/key\(characterId\)/);
+ const page=read("web-spa/src/timeline/TimelinePage.tsx");
  const live=read("web-spa/src/timeline/TimelineLivePage.tsx");
- assert.match(ui,/timelineEchoesAtAge\(age,memory,characterId\)/);
- assert.match(ui,/deleteTimelineEcho\(n\.age,n\.text,characterId\)/);
- assert.match(ui,/clearTimelineEchoes\(characterId\)/);
- assert.match(live,/persistHistory:false/);
+ assert.match(page,/timelineEchoesAtAge\(age,memory,characterId\)/);
+ assert.match(page,/deleteTimelineEcho\(n.age,n.text,characterId\)/);
+ assert.match(page,/clearTimelineEchoes\(characterId\)/);
  assert.match(live,/recordTimelineEcho\(age,text,characterId\)/);
+ assert.match(live,/persistHistory:false/);
+});
+test("timeline compare entry preserves persona and Live links",()=>{
+ const app=read("web-spa/src/App.tsx"),page=read("web-spa/src/timeline/TimelinePage.tsx");
+ const compare=read("web-spa/src/timeline/TimelineComparePage.tsx");
+ assert.match(app,/path="\/timeline\/compare"/);
+ assert.match(app,/path="\/timeline\/live"/);
+ assert.match(page,/timeline\/compare\?character=/);
+ assert.match(compare,/\/timeline\/live\?character=/);
  assert.match(read("web-spa/src/lib/backup.ts"),/crew_timeline_/);
 });
-test("timeline links to the new route without changing its Live URL",()=>{
- const route=read("web-spa/src/App.tsx"),page=read("web-spa/src/timeline/TimelinePage.tsx");
- assert.match(route,/path="\/timeline\/compare"/);
- assert.match(page,/to="\/timeline\/compare"/);
- assert.match(route,/path="\/timeline\/live"/);
-});
-
