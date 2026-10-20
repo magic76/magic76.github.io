@@ -18,7 +18,7 @@ export function formatFortuneNumber(value:number,weighted=false):string{
 // Only normalize full numeric values, never arbitrary dates, text, or identifiers.
 export function formatFortuneValue(value:unknown,weighted=false):string{
  if(typeof value==="number")return formatFortuneNumber(value,weighted);
- if(typeof value==="string"&&/^[-+]?\\d+\\.\\d{9,}$/.test(value.trim())){
+ if(typeof value==="string"&&/^[-+]?[0-9]+[.][0-9]{9,}$/.test(value.trim())){
   const parsed=Number(value);
   if(Number.isFinite(parsed))return formatFortuneNumber(parsed,weighted);
  }
