@@ -154,8 +154,12 @@ export function useLiveSession(config:Config){
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{
      if(v.trim()){
+      const firstFragment=!awaitingTutorRef.current;
       cancelRescue();rescueCountRef.current=0;languageRepairRef.current=false;awaitingTutorRef.current=true;
-      if(configRef.current.sessionKind==="friend"){friendReplyRescueSentRef.current=false;scheduleFriendReplyCheck()}
+      if(configRef.current.sessionKind==="friend"){
+       if(firstFragment)friendReplyRescueSentRef.current=false;
+       if(!friendReplyRescueSentRef.current)scheduleFriendReplyCheck();
+      }
       if(chatKind&&!learnerSpoke){
        learnerSpoke=true;
        trackUsageEvent(chatKind==="teacher"?"teacher_user_spoke":chatKind==="friend"?"friend_user_spoke":"timeline_user_spoke");
