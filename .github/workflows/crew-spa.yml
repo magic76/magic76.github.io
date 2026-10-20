@@ -9,6 +9,14 @@ on:
       - "crew-app/**"
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+
+# Cancel checks for old PR heads, but never interrupt master publishing.
+concurrency:
+  group: crew-spa-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
@@ -23,6 +31,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
       - name: Verify Web contract matches Android source of truth
         run: node scripts/verify-teacher-contract.cjs --upstream
         env:
@@ -49,9 +58,4 @@ jobs:
             git pull --rebase origin master
             git push origin HEAD:master
           fi
-      # Build/test failures remain blocking; artifact quota alone does not block release verification.
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: crew-app
-          path: crew-app
+      # Generated Pages output is committed on master. No duplicate CI artifact.
