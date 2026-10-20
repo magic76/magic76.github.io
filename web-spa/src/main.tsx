@@ -32,6 +32,12 @@ const languagePrefix = !legacy ? (localePrefix(localeFromPublicPath(window.locat
 function FinishSsgMount() {
   React.useLayoutEffect(() => {
     document.documentElement.classList.remove("crew-dynamic-route");
+    // Clean the temporary cache-busting query after the current app mounts.
+    const url=new URL(window.location.href);
+    if(url.searchParams.has("__crew_reload")){
+      url.searchParams.delete("__crew_reload");
+      window.history.replaceState(window.history.state,"",url.pathname+url.search+url.hash);
+    }
   }, []);
   return null;
 }
