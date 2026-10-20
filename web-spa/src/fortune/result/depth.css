@@ -57,3 +57,9 @@
  .fortune-reading-head h3{font-size:19px}
  .fortune-reading-chapter{padding:16px}
 }
+
+
+.fortune-reading-ai .fortune-ai-intro{color:var(--muted);font-size:12px;margin-bottom:12px}
+.fortune-reading-ai-chapter{border-top:1px solid var(--line,#e5e7eb);padding:13px 0}
+.fortune-reading-ai-chapter h5{font-size:14px;line-height:1.5;margin:0 0 7px}
+.fortune-reading-ai-chapter p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.9;margin:0}
