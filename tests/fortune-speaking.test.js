@@ -1,0 +1,31 @@
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const read = p => fs.readFileSync(path.join(__dirname, "..", p), "utf8");
+
+test("reading-to-Teacher explicitly transfers a brief local context", () => {
+ const module = read("web-spa/src/teacher/fortuneSpeaking.ts");
+ const page = read("web-spa/src/fortune/ReadingPage.tsx");
+ assert.match(module, /sessionStorage\.setItem\(STORAGE_KEY/);
+ assert.match(module, /30\*60\*1000/);
+ assert.doesNotMatch(module, /birthDate|birthTime|latitude|longitude/);
+ assert.match(page, /saveFortuneSpeakingContext\(reading\)/);
+ assert.match(page, /\/teacher\/live\?fortune=reading/);
+});
+
+test("daily reflection reuses Teacher Live and preserves conversation settings", () => {
+ const practice = read("web-spa/src/teacher/PracticePage.tsx");
+ const live = read("web-spa/src/teacher/LivePage.tsx");
+ assert.match(practice, /\/teacher\/live\?fortune=daily/);
+ assert.match(live, /fortuneSpeakingPolicy\(fortuneKind,fortuneContext\)/);
+ assert.match(live, /fortuneSpeakingOpening\(fortuneKind,fortuneContext\)/);
+ assert.match(live, /language:s\.targetLanguage/);
+});
+
+test("fortune voice counselor exposes spoken language selection", () => {
+ const fortune = read("web-spa/src/fortune/LivePage.tsx");
+ assert.match(fortune, /setSpokenLanguage/);
+ assert.match(fortune, /language:spokenLanguage/);
+ assert.match(fortune, /<option>日文<\/option>/);
+});
