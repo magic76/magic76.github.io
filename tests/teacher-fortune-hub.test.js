@@ -36,12 +36,14 @@ test("No birth details go into native voice handoff",()=>{
  assert.match(helper,/sessionStorage\.setItem/);
 });
 
-test("Culture, daily and chart chat preserve Teacher's existing Live stack",()=>{
- const live=read("web-spa/src/teacher/LivePage.tsx");
+test("Culture, daily and chart conversations use dedicated Fortune Live instead of Teacher tutoring",()=>{
  const page=read("web-spa/src/teacher/TeacherFortunePage.tsx");
+ const live=read("web-spa/src/fortune/LivePage.tsx");
  assert.match(page,/start\("culture"\)/);
  assert.match(page,/start\("daily"\)/);
- assert.match(live,/p\.get\("fortune"\)==="culture"/);
- assert.match(live,/fortuneSpeakingPolicy\(fortuneKind,fortuneContext\)/);
- assert.match(live,/fortuneKind\?"\/teacher\/fortune"/);
+ assert.match(page,/navigate\("\/fortune\/live\?from="/);
+ assert.match(live,/source==="hub"\?readFortuneSpeakingContext\(\)/);
+ assert.match(live,/source==="daily"/);
+ assert.match(live,/source==="culture"/);
+ assert.match(live,/selected Crew Friend|Crew Friend/);
 });
