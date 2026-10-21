@@ -146,7 +146,7 @@ export function VocabularyPage(){
     <p className="crew-learning-question-prompt">{t("vocabulary.pickMeaning")}</p>
     <div className="quiz-word" key={word[0]} data-word={word[0]}>{word[0]}</div>
     <div className="crew-vocab-pronunciation-actions">
-     <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>◖)) {t("vocabulary.listen")}</button>
+     <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>🔊 {t("vocabulary.listen")}</button>
      <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0],true)}>{t("vocabulary.listenSlow")}</button>
     </div>
     <details className="crew-vocab-voice-settings">
@@ -169,7 +169,7 @@ export function VocabularyPage(){
      </div>
      <p className="crew-vocab-voice-hint">{localVoices.length?t("vocabulary.localVoicesHint"):t("vocabulary.noLocalVoicesHint")}</p>
     </details>
-    {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>
+    {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
      {contentError&&<button className="btn secondary small" onClick={()=>{setContentError("");void ensureVocabularyContent(native,score).then(()=>setRefresh(v=>v+1)).catch(e=>setContentError(String(e)))}}>{t("vocabulary.retry")}</button>}
     </p>}
