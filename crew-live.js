@@ -94,26 +94,6 @@
     return base+(needsSpace?" ":"")+tail;
   }
 
-  function isBluetoothMicrophoneLabel(label){
-    return /bluetooth|airpods|hands[\s-]?free|headset|藍牙|耳機/i.test(String(label||""));
-  }
-
-  function pickBuiltInAudioInput(devices){
-    var inputs=(devices||[]).filter(function(device){
-      return device&&device.kind==="audioinput"&&device.deviceId&&!isBluetoothMicrophoneLabel(device.label);
-    });
-    if(!inputs.length)return null;
-    var local=inputs.filter(function(device){return !/\b(usb|external|dock|hdmi)\b|外接/i.test(device.label||"");});
-    var candidates=local.length?local:inputs;
-    return candidates.find(function(device){
-      return /built[\s-]?in|internal|phone|handset|內建|手機/i.test(device.label||"");
-    })||candidates.find(function(device){
-      return /microphone|\bmic\b|麥克風/i.test(device.label||"")&&!/^default\b/i.test(device.label||"");
-    })||candidates.find(function(device){
-      return !/^default\b/i.test(device.label||"");
-    })||null;
-  }
-
   function LiveSession(options){
     this.options=options||{};
     this.models=(this.options.models||DEFAULT_MODELS).slice();
@@ -136,12 +116,6 @@
           return Promise.reject(new Error("瀏覽器不支援麥克風 Live 對話"));
         }
         return global.navigator.mediaDevices.getUserMedia(constraints);
-      },
-      enumerateDevices:deps.enumerateDevices||function(){
-        if(!global.navigator||!global.navigator.mediaDevices||!global.navigator.mediaDevices.enumerateDevices){
-          return Promise.resolve([]);
-        }
-        return global.navigator.mediaDevices.enumerateDevices();
       },
       createAudioContext:deps.createAudioContext||function(){
         var AudioCtx=global.AudioContext||global.webkitAudioContext;
@@ -1235,37 +1209,10 @@
       autoGainControl:true,
       channelCount:1
     };
-    // First acquire permission so labels/device IDs are available, then prefer
-    // a local phone microphone. Keep this stream if the browser cannot identify
-    // a local input or if the exact-device request is rejected.
-    var initialStream=await this._deps.getUserMedia({audio:audioConstraints});
-    var selectedInput=null;
-    try{selectedInput=pickBuiltInAudioInput(await this._deps.enumerateDevices());}catch(_){}
-    this.mediaStream=initialStream;
-    if(selectedInput){
-      var initialTrack=null,initialDeviceId="";
-      try{
-        var initialTracks=typeof initialStream.getAudioTracks==="function"
-          ?initialStream.getAudioTracks()
-          :(typeof initialStream.getTracks==="function"?initialStream.getTracks():[]);
-        initialTrack=initialTracks[0]||null;
-        initialDeviceId=initialTrack&&typeof initialTrack.getSettings==="function"
-          ?String(initialTrack.getSettings().deviceId||""):"";
-      }catch(_){}
-      if(initialDeviceId!==selectedInput.deviceId){
-        try{initialStream.getTracks().forEach(function(track){track.stop();});}catch(_){}
-        try{
-          var preferredStream=await this._deps.getUserMedia({audio:Object.assign({},audioConstraints,{
-            deviceId:{exact:selectedInput.deviceId}
-          })});
-          this.mediaStream=preferredStream;
-        }catch(_){
-          // Some browsers expose device IDs they cannot open explicitly. Reopen
-          // the default input rather than ending the Live session on that hint.
-          this.mediaStream=await this._deps.getUserMedia({audio:audioConstraints});
-        }
-      }
-    }
+    // Leave input selection to the browser/OS. Forcing the built-in microphone
+    // on Android can move AI playback off a connected Bluetooth headset.
+    // Keep the single selected stream open while muting in software.
+    this.mediaStream=await this._deps.getUserMedia({audio:audioConstraints});
 
     this.outputContext=this._deps.createAudioContext();
     this.inputContext=this.outputContext;
@@ -1466,9 +1413,7 @@
     __test:{
       mergeTranscript:mergeTranscript,
       safeApiError:safeApiError,
-      decodeWsData:decodeWsData,
-      isBluetoothMicrophoneLabel:isBluetoothMicrophoneLabel,
-      pickBuiltInAudioInput:pickBuiltInAudioInput
+      decodeWsData:decodeWsData
     }
   };
 });
