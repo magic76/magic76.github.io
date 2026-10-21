@@ -106,12 +106,14 @@ export function TeacherFortunePage(){
   const active=selectedReading||reading;
   if(kind==="reading"&&!active)return;
   const activeFocus=selectedReading?"overview":focus;
-  const chapter=kind==="reading"&&active
-   ?buildLocalReport(active.mode,active.result).find(c=>c.id===activeFocus):null;
+  const notes=kind==="reading"&&active?buildLocalReport(active.mode,active.result):[];
+  const preferred=[activeFocus,"overview","currentCycle","personality","career"];
+  const selectedNotes=preferred.map(id=>notes.find(c=>c.id===id)).filter((c,i,arr)=>c&&arr.findIndex(other=>other?.id===c.id)===i)
+   .slice(0,4).map(c=>c!.title+"："+c!.text).join("\n");
   if(kind==="reading"&&active)saveFortuneSpeakingContext(active,activeFocus);
   if(nativeHost){
    const excerpt=kind==="reading"&&active
-    ?(active.summary+"\n"+(chapter?chapter.title+"："+chapter.text:"")).slice(0,1800):"";
+    ?(active.summary+"\n"+selectedNotes).slice(0,1800):"";
    window.location.href=nativeFortuneStartUrl(kind,excerpt);
   }else{
    // The visitor came for an explanation, not Teacher's language coaching loop.
