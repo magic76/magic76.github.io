@@ -15,7 +15,7 @@ function capture(video:HTMLVideoElement){
 }
 export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTypeOfLive;withConversation?:boolean}){
  const videoRef=useRef<HTMLVideoElement>(null),streamRef=useRef<MediaStream|null>(null);
- const [active,setActive]=useState(false),[paused,setPaused]=useState(false),[locked,setLocked]=useState(false);
+ const [active,setActive]=useState(false),[paused,setPaused]=useState(false),[locked,setLocked]=useState(false),[requesting,setRequesting]=useState(false);
  const [still,setStill]=useState(""),[expanded,setExpanded]=useState(false),[error,setError]=useState("");
  const stopCamera=useCallback(()=>{
   streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
@@ -30,13 +30,22 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
  const openCamera=useCallback(async()=>{
   if(!window.isSecureContext){setError("相機需要 HTTPS 或 localhost，請在安全的網站開啟。");return}
   if(!navigator.mediaDevices?.getUserMedia){setError("目前瀏覽器不支援即時相機。");return}
+  setRequesting(true);setError("");
   try{
    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"},width:{ideal:1280}},audio:false});
    if(document.hidden){stream.getTracks().forEach(t=>t.stop());return}
    streamRef.current=stream;
    if(videoRef.current){videoRef.current.srcObject=stream;await videoRef.current.play()}
    setError("");setActive(true);setPaused(false);setLocked(false);
-  }catch(e){streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;setError(e instanceof Error?e.message:"相機無法開啟，請檢查權限。")}
+  }catch(e){
+   streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
+   const reason=e instanceof Error?e.name:"";
+   setError(reason==="NotAllowedError"||reason==="PermissionDeniedError"
+    ?"相機權限遭到拒絕。請在手機的 App 權限或瀏覽器網站設定允許相機，再重新開啟。"
+    :reason==="NotFoundError"?"找不到可用的相機裝置。"
+    :reason==="NotReadableError"?"相機正被其他應用程式使用，請關閉後重試。"
+    :"相機無法開啟，請檢查裝置權限後重試。");
+  }finally{setRequesting(false)}
  },[]);
  // A video frame is observational data only: never inject a new chat turn or restart tutor speech.
  useEffect(()=>{
@@ -57,13 +66,18 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
  <div className="section-head"><div><h2>即時相機陪讀</h2><p className="meta">讓老師邊看教材邊陪你練習；相機需手動開啟。</p></div><small>{active?(locked?"已鎖定本頁":paused?"影像已暫停":"相機已開啟"):"未啟用"}</small></div>
  <div className="material-camera-layout">
  <div className="material-camera-visual">
-  <div className="material-camera-frame" onClick={()=>{if(active)setExpanded(v=>!v)}}>
+  <div className={"material-camera-frame "+(active?"is-active":"is-idle")} onClick={()=>{if(active)setExpanded(v=>!v)}}>
    <video ref={videoRef} muted playsInline autoPlay aria-label="即時教材相機預覽"/>
    {locked&&still&&<img src={still} alt="已鎖定的教材畫面"/>}
-   {!active&&<span className="material-camera-placeholder">開啟相機後，教材畫面會出現在這裡</span>}
+   {!active&&<div className="material-camera-placeholder">
+    <span className="material-camera-orbit" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none"><rect x="9" y="20" width="46" height="34" rx="10" stroke="currentColor" strokeWidth="2.5"/><path d="M22 20l4-7h12l4 7" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round"/><circle cx="32" cy="36.5" r="10" stroke="currentColor" strokeWidth="2.5"/><circle cx="32" cy="36.5" r="4" fill="currentColor" opacity=".32"/></svg></span>
+    <strong>讓教材成為你的課堂</strong><span className="material-camera-placeholder-copy">開啟鏡頭，讓老師陪你一起看、一起練習</span>
+    <button type="button" className="material-camera-activate" onClick={()=>void openCamera()} disabled={requesting}>{requesting?"正在啟動相機…":"開啟相機"} <span aria-hidden="true">↗</span></button>
+    <small>只有你主動開啟後才會使用相機</small>
+   </div>}
   </div>
   <div className="actions material-camera-actions">
-  {!active?<button className="btn" onClick={()=>void openCamera()}>開啟相機</button>:<>
+  {!active?null:<>
    <button className="btn secondary small" onClick={snap} disabled={live.state!=="listening"&&live.state!=="speaking"}>看這頁</button>
    <button className="btn secondary small" onClick={()=>{
     if(locked){setLocked(false);setStill("");setError("");return}

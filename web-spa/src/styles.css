@@ -321,7 +321,19 @@ body{min-height:100vh;padding-bottom:0}
 .material-camera-frame{position:relative;display:grid;place-items:center;aspect-ratio:16/10;overflow:hidden;border-radius:16px;background:#17202c;color:#e6edf4;cursor:pointer}
 .material-camera-frame video,.material-camera-frame img{width:100%;height:100%;object-fit:contain}
 .material-camera-frame img{position:absolute;inset:0;background:#17202c}
-.material-camera-placeholder{text-align:center;padding:18px}
+.material-camera-frame.is-idle{cursor:default;background:radial-gradient(ellipse at 50% 12%,rgba(134,168,203,.19),transparent 52%),linear-gradient(155deg,#1d2b3a 0%,#101c2a 100%);border:1px solid rgba(152,178,209,.24)}
+.material-camera-frame.is-idle:before{content:"";position:absolute;inset:0;opacity:.3;background-image:linear-gradient(rgba(192,214,231,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(192,214,231,.12) 1px,transparent 1px);background-size:28px 28px;mask-image:linear-gradient(to bottom,black,transparent 95%);pointer-events:none}
+.material-camera-frame.is-idle video{opacity:0;position:absolute;inset:0}
+.material-camera-placeholder{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;width:100%;height:100%;padding:clamp(16px,4vw,36px) 20px;text-align:center;color:#f4f7fc}
+.material-camera-placeholder strong{font-size:clamp(16px,3.8vw,22px);font-weight:700;letter-spacing:-.02em}
+.material-camera-placeholder-copy{font-size:clamp(12px,2.8vw,14px);color:#bacbdd;line-height:1.55;max-width:280px}
+.material-camera-placeholder small{font-size:11px;color:#98adbf;line-height:1.4}
+.material-camera-orbit{display:grid;place-items:center;width:clamp(54px,13vw,82px);height:clamp(54px,13vw,82px);padding:12px;border:1px solid rgba(168,198,225,.36);border-radius:22px;background:rgba(228,241,255,.1);color:#d5eaff;box-shadow:0 14px 32px rgba(0,0,0,.15)}
+.material-camera-orbit svg{width:100%;height:100%}
+.material-camera-activate{display:inline-flex;align-items:center;gap:16px;justify-content:center;margin-top:4px;border:1px solid rgba(255,255,255,.6);border-radius:100px;padding:11px 20px;font:inherit;font-size:13px;font-weight:700;color:#193047;background:#eaf4ff;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.material-camera-activate:disabled{opacity:.6;cursor:wait}
+.material-camera-activate:focus-visible{outline:3px solid #a6d9ff;outline-offset:3px}
+@media(max-width:450px){.material-camera-frame.is-idle{aspect-ratio:4/3}.material-camera-placeholder{gap:7px}.material-camera-orbit{border-radius:18px}.material-camera-placeholder small{font-size:10px}}
 .material-camera-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
 .material-camera-conversation{min-width:0;display:flex;flex-direction:column;gap:12px}
 .material-camera-conversation .live-transcript{max-height:250px;overflow-y:auto;overscroll-behavior:contain}
