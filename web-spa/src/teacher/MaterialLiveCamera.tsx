@@ -17,6 +17,12 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
  const videoRef=useRef<HTMLVideoElement>(null),streamRef=useRef<MediaStream|null>(null);
  const [active,setActive]=useState(false),[paused,setPaused]=useState(false),[locked,setLocked]=useState(false),[requesting,setRequesting]=useState(false);
  const [still,setStill]=useState(""),[expanded,setExpanded]=useState(false),[error,setError]=useState("");
+ useEffect(()=>{
+  if(!expanded)return;
+  const onKeyDown=(event:KeyboardEvent)=>{if(event.key==="Escape")setExpanded(false)};
+  window.addEventListener("keydown",onKeyDown);
+  return()=>window.removeEventListener("keydown",onKeyDown);
+ },[expanded]);
  const stopCamera=useCallback(()=>{
   streamRef.current?.getTracks().forEach(t=>t.stop());streamRef.current=null;
   if(videoRef.current)videoRef.current.srcObject=null;
@@ -66,7 +72,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
  <div className="section-head"><div><h2>即時相機陪讀</h2><p className="meta">讓老師邊看教材邊陪你練習；相機需手動開啟。</p></div><small>{active?(locked?"已鎖定本頁":paused?"影像已暫停":"相機已開啟"):"未啟用"}</small></div>
  <div className="material-camera-layout">
  <div className="material-camera-visual">
-  <div className={"material-camera-frame "+(active?"is-active":"is-idle")} onClick={()=>{if(active)setExpanded(v=>!v)}}>
+  <div className={"material-camera-frame "+(active?"is-active":"is-idle")} role={active?"button":undefined} tabIndex={active?0:undefined} aria-label={active?(expanded?"還原相機畫面":"放大相機畫面"):undefined} onClick={()=>{if(active)setExpanded(v=>!v)}} onKeyDown={e=>{if(active&&(e.key==="Enter"||e.key===" ")){e.preventDefault();setExpanded(v=>!v)}}}>
    <video ref={videoRef} muted playsInline autoPlay aria-label="即時教材相機預覽"/>
    {locked&&still&&<img src={still} alt="已鎖定的教材畫面"/>}
    {!active&&<div className="material-camera-placeholder">
@@ -85,7 +91,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
    }} disabled={!locked&&live.state!=="listening"&&live.state!=="speaking"}>{locked?"解除鎖定":"鎖定本頁"}</button>
    <button className="btn secondary small" onClick={()=>setPaused(v=>!v)}>{paused?"繼續同步":"暫停同步"}</button>
    <button className="btn secondary small" onClick={stopCamera}>關閉相機</button>
-   <button className="btn secondary small" onClick={()=>setExpanded(v=>!v)}>{expanded?"還原":"放大"}</button>
+   <button type="button" className="btn secondary small" aria-pressed={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded?"還原畫面":"放大畫面"}</button>
   </>}</div>
   {error&&<p className="vision-error" role="alert">{error}</p>}
  </div>

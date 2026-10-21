@@ -317,6 +317,10 @@ body{min-height:100vh;padding-bottom:0}
 .teacher-memory-item{display:grid;gap:12px;overflow-wrap:anywhere}
 .teacher-memory-item>p{margin:0;line-height:1.7}
 .teacher-memory-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding-bottom:20px}
+.textbook-upload{position:relative;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+.textbook-file-input{position:absolute;inset:0;display:block;width:100%;height:100%;opacity:0;cursor:pointer}
+.textbook-upload:focus-within{outline:2px solid currentColor;outline-offset:3px}
+.textbook-upload:has(.textbook-file-input:disabled){opacity:.55;cursor:not-allowed}
 .material-camera-layout{display:grid;gap:14px}
 .material-camera-frame{position:relative;display:grid;place-items:center;aspect-ratio:16/10;overflow:hidden;border-radius:16px;background:#17202c;color:#e6edf4;cursor:pointer}
 .material-camera-frame video,.material-camera-frame img{width:100%;height:100%;object-fit:contain}
@@ -337,7 +341,17 @@ body{min-height:100vh;padding-bottom:0}
 .material-camera-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
 .material-camera-conversation{min-width:0;display:flex;flex-direction:column;gap:12px}
 .material-camera-conversation .live-transcript{max-height:250px;overflow-y:auto;overscroll-behavior:contain}
-.material-live-camera.expanded .material-camera-frame{aspect-ratio:16/9;max-height:80vh}
+/* Expanded preview needs a real viewport overlay: swapping 16/10 for 16/9
+   at the same width made the image smaller on phones instead of larger. */
+.material-live-camera.expanded{position:fixed;inset:0;z-index:10000;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;width:100%;max-width:none;height:100vh;height:100dvh;overflow-y:auto;overscroll-behavior:contain;margin:0;padding:calc(16px + env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));border:0;border-radius:0;background:#101c2a;color:#e6edf4}
+.material-live-camera.expanded .section-head{color:#e6edf4}
+.material-live-camera.expanded .section-head .meta,.material-live-camera.expanded .section-head small{color:#b8c8da}
+.material-live-camera.expanded .material-camera-layout{display:flex;flex-direction:column;min-height:0}
+.material-live-camera.expanded .material-camera-visual{min-width:0;width:100%}
+.material-live-camera.expanded .material-camera-frame{width:100%;height:65vh;height:65dvh;max-height:none;aspect-ratio:auto;cursor:zoom-out}
+.material-live-camera.expanded .material-camera-conversation{display:none}
+.material-live-camera.expanded .material-camera-actions{margin-bottom:12px}
+@media(min-width:900px){.material-live-camera.expanded .material-camera-frame{height:75vh;height:75dvh}}
 @media(min-width:750px) and (orientation:landscape){
  .material-live-camera:has(.material-camera-conversation) .material-camera-layout{grid-template-columns:minmax(0,55fr) minmax(0,45fr);align-items:start}
  .material-live-camera .material-camera-conversation .live-transcript{max-height:min(50vh,420px)}
