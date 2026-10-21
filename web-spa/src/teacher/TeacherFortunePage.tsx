@@ -106,21 +106,28 @@ export function TeacherFortunePage(){
   const active=selectedReading||reading;
   if(kind==="reading"&&!active)return;
   const activeFocus=selectedReading?"overview":focus;
-  const chapter=kind==="reading"&&active
-   ?buildLocalReport(active.mode,active.result).find(c=>c.id===activeFocus):null;
+  const notes=kind==="reading"&&active?buildLocalReport(active.mode,active.result):[];
+  const preferred=[activeFocus,"overview","currentCycle","personality","career"];
+  const selectedNotes=preferred.map(id=>notes.find(c=>c.id===id)).filter((c,i,arr)=>c&&arr.findIndex(other=>other?.id===c.id)===i)
+   .slice(0,4).map(c=>c!.title+"："+c!.text).join("\n");
   if(kind==="reading"&&active)saveFortuneSpeakingContext(active,activeFocus);
   if(nativeHost){
    const excerpt=kind==="reading"&&active
-    ?(active.summary+"\n"+(chapter?chapter.title+"："+chapter.text:"")).slice(0,1800):"";
+    ?(active.summary+"\n"+selectedNotes).slice(0,1800):"";
    window.location.href=nativeFortuneStartUrl(kind,excerpt);
-  }else navigate("/teacher/live?fortune="+kind);
+  }else{
+   // The visitor came for an explanation, not Teacher's language coaching loop.
+   // Use the dedicated Crew Fortune Live stack and its interruptible voice flow.
+   if(targetLanguage)localStorage.setItem("crew_fortune_spokenLanguage",targetLanguage);
+   navigate("/fortune/live?from="+(kind==="reading"?"hub":kind));
+  }
  }
- return <section className="section teacher-fortune-hub" data-native-host={nativeHost?"true":"false"} aria-label={english?"Fortune speaking":"命理聊聊"}>
+ return <section className="section teacher-fortune-hub" data-native-host={nativeHost?"true":"false"} aria-label={english?"Fortune explanation":"命理陪聊"}>
   <div className="teacher-fortune-header">
    <button type="button" className="text-button" onClick={()=>phase==="home"?nativeHost?window.location.assign("crewteacher://fortune/back"):navigate("/teacher/practice"):setPhase("home")}>‹ {english?"Back":"返回"}</button>
    <span className="kicker">CREW TEACHER · FORTUNE</span>
-   <h1>{english?"Fortune conversations":"命理聊聊"}</h1>
-   <p>{english?"Your reading starts a real conversation, not another lesson.":"用自己的故事當話題，不用背台詞，也不用每句都被糾正。"}</p>
+   <h1>{english?"Fortune with a friend":"朋友陪你聊命理"}</h1>
+   <p>{english?"A Crew Friend explains your reading first; interrupt or ask anything naturally.":"Crew Friend 會先幫你解釋命盤重點，有問題隨時問，不是外語口說課。"}</p>
    <small>命理屬文化與自我探索，不代表確定的事件預測。</small>
   </div>
   {loading&&<div className="spa-loading" role="status">正在讀取你在這個裝置的命盤…</div>}
@@ -132,7 +139,7 @@ export function TeacherFortunePage(){
     <p>{readings[0].summary}</p>
     <small>{readings[0].createdAt?new Date(readings[0].createdAt).toLocaleDateString():"此裝置已儲存"} · 不需要重新填資料</small>
     <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading",readings[0])}>
-     直接繼續聊天 →
+     讓朋友繼續講解 →
     </button>
     <button className="text-button" onClick={()=>openReading(readings[0])}>先查看命盤摘要</button>
     {readings.length>1&&<><button className="text-button" onClick={()=>setMoreHistory(x=>!x)}>
@@ -146,7 +153,7 @@ export function TeacherFortunePage(){
    <div className="teacher-fortune-card">
     <span className="teacher-fortune-eyebrow">{readings.length?"想探索新的命盤？":"第一次使用"}</span>
     <h2>{readings.length?"重新建立命盤":"先建立你的命盤"}</h2>
-    <p>依照選擇的命理系統輸入資料，計算完成就能直接和目前的 Crew 老師聊天。</p>
+    <p>依照選擇的命理系統輸入資料，計算完成就由 Crew Friend 幫你逐步講解。</p>
     <button type="button" className="btn secondary teacher-fortune-primary" onClick={beginNew}>
      {readings.length?"建立另一份命盤 →":"建立命盤 →"}
     </button>
@@ -203,10 +210,10 @@ export function TeacherFortunePage(){
       <strong>{chapter.title}</strong><p>{chapter.text}</p>
      </article>)}
    </div>
-   <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading")}>用外語聊聊這份命盤 →</button>
+   <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading")}>讓朋友講解這份命盤 →</button>
    <small className="teacher-fortune-footnote">
-     {nativeHost?"對話將切換至 Android 原生語音；沿用 App 目前的老師與語言設定。":
-       "以你目前設定的 "+targetLanguage+" 和 Crew 老師對話。"}
+     {nativeHost?"對話將切換至 Android 原生語音，由選定的 Crew Friend 講解命盤。":
+       "朋友將用 "+targetLanguage+" 自然介紹命盤，你可以隨時插話。"}
    </small>
    <details className="teacher-fortune-full"><summary>繼續看完整命盤重點</summary>
     {chapters.filter(x=>!displayed.includes(x)).map(x=><article key={x.id}>
