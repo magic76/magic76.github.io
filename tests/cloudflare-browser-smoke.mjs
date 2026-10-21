@@ -385,13 +385,19 @@ async function run(){
   assert.equal(await home.locator(".crew-play-game-card").count(),7,"Homepage Play entry must open all seven games");
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
   await home.setViewportSize({width:1280,height:800});
-  await home.locator('.global-nav a[href="/teacher"]').click();
-  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/teacher");
+  // Global navigation now groups user intent instead of showing product names.
+  const globalTabs=home.locator(".global-nav a.navitem");
+  assert.equal(await globalTabs.count(),5,"Crew primary navigation must have five tabs");
+  for(const target of ["/","/chat","/explore","/learn","/me"])
+   assert.equal(await home.locator('.global-nav a[href="'+target+'"]').count(),1,"Missing "+target);
+  await home.locator('.global-nav a[href="/learn"]').click();
+  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/learn");
   await home.locator("header.app-header").waitFor({state:"visible"});
-  // Client-side React navigation is asynchronous; wait for the routed screen,
-  // not only for the URL (the global header is already present on the home page).
-  await home.locator(".hero").waitFor({state:"visible",timeout:15000});
-  assert.ok(await home.locator(".hero h1").textContent(),"Navigation did not render Teacher");
+  await home.locator(".crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+  assert.ok(await home.locator(".crew-section-heading h1").textContent(),"Navigation did not render Learn");
+  await home.locator('.global-nav a[href="/explore"]').click();
+  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
+  assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
   await home.close();
   process.stdout.write("PASS React client navigation\n");
   // BrowserRouter deep-link refresh uses root SPA fallback rather than SSG hydration.
