@@ -186,6 +186,8 @@
     "listenSlow": "Play slowly",
     "voiceSettings": "Pronunciation settings",
     "voiceLabel": "English voice",
+    "androidVoiceLabel": "Android system English voice",
+    "androidVoiceHint": "This app uses Android Text-to-Speech rather than Gemini Live. Change the voice in your phone's text-to-speech settings; playback speed can be adjusted here.",
     "autoVoice": "Choose an on-device English voice",
     "speechSpeed": "Playback speed",
     "normalSpeed": "Normal",
