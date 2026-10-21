@@ -63,7 +63,7 @@ export function VocabularyPage(){
   utterance.lang=chosen?.lang||"en-US";
   utterance.rate=speechRate(slow?"slow":speechPreferences.speed);
   utterance.pitch=1;
-  utterance.onerror=()=>setSpeechError(t("vocabulary.speechFailed"));
+  utterance.onerror=event=>{if(event.error!=="canceled"&&event.error!=="interrupted")setSpeechError(t("vocabulary.speechFailed"))};
   window.speechSynthesis.cancel();
   window.speechSynthesis.speak(utterance);
  }
