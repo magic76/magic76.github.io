@@ -26,12 +26,15 @@ test("native TTS navigation encodes vocabulary without modifying its rate",()=>{
   "crew-tts://speak?text=a%26b&rate=normal");
 });
 
-test("vocabulary invokes Android TTS only for the capability and keeps browser fallback",()=>{
+test("vocabulary routes speech via the device adapter, preserving legacy and browser fallback",()=>{
  const page=read("web-spa/src/teacher/VocabularyPage.tsx");
- assert.match(page,/hasCrewNativeVocabularyTts\(\)/);
- assert.match(page,/window\.location\.assign\(nativeVocabularyTtsUrl\(text,speed\)\)/);
- assert.match(page,/new SpeechSynthesisUtterance\(text\)/);
- assert.match(page,/if\(nativeTtsAvailable\)/);
+ const adapter=read("web-spa/src/lib/deviceCapabilities.ts");
+ assert.match(page,/getDeviceCapabilities\(\)\.tts/);
+ assert.match(page,/void speakText\(text,/);
+ assert.match(adapter,/webMessagePort\(\)\?"native-message"/);
+ assert.match(adapter,/hasCrewNativeVocabularyTts\(\)\?"native-legacy"/);
+ assert.match(adapter,/window\.location\.assign\(nativeVocabularyTtsUrl\(text,options\.speed\)\)/);
+ assert.match(adapter,/new SpeechSynthesisUtterance\(text\)/);
  assert.match(page,/vocabulary\.androidVoiceHint/);
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/teacher.json"));
  const en=JSON.parse(read("web-spa/src/i18n/locales/en/teacher.json"));
