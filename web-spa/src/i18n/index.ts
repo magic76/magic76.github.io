@@ -70,8 +70,7 @@ void i18n.use(initReactI18next).init({
  resources:{
   "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
   en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune},
-  ...previewResources,
-  ...combinedLocaleResources
+  ...previewResources
  },
  interpolation:{escapeValue:false},
  react:{useSuspense:false},
@@ -83,7 +82,10 @@ function applyLocale(language:string){
  try{localStorage.setItem(UI_LOCALE_KEY,locale)}catch{/* Private browsing can restrict localStorage. */}
 }
 i18n.on("languageChanged",applyLocale);
-applyLocale(i18n.language);\n// Browser entry waits for the selected locale before mounting, preventing\n// an English flash while keeping all other locales out of the initial JS.\nexport const localeResourcesReady=loadUiLocale(activeLocale).catch(()=>{});
+applyLocale(i18n.language);
+// Browser entry waits for the selected locale before mounting, preventing
+// an English flash while keeping all other locales out of the initial JS.
+export const localeResourcesReady=loadUiLocale(activeLocale).catch(()=>{});
 if(typeof window!=="undefined"){
  window.addEventListener("storage",event=>{
   if(event.key!==UI_LOCALE_KEY)return;
