@@ -19,9 +19,11 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  const component=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(component,/fetchShortsFeed\(controller.signal\)/);
  assert.match(component,/controller\.abort\(\)/);
- assert.match(component,/\.slice\(0,10\)/);
+ assert.match(component,/\.slice\(0,6\)/);
  assert.match(component,/seen\.has\(post\.friendId\)/);
  assert.match(component,/gesture\.current/);
+ assert.match(component,/ref=\{sliderRef\}/);
+ assert.match(component,/crew-home-short-photo-overlay/);
  assert.match(component,/atEnd:element\.scrollWidth-element\.clientWidth-element\.scrollLeft<=3/);
  assert.match(component,/pullRef\.current>=72/);
  assert.match(component,/navigate\("\/teacher\/shorts"\)/);
