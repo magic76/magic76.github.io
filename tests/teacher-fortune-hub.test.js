@@ -8,7 +8,8 @@ test("Teacher's one entry opens a real saved-reading or calculator hub",()=>{
  const home=read("web-spa/src/teacher/PracticePage.tsx");
  const page=read("web-spa/src/teacher/TeacherFortunePage.tsx");
  const routes=read("web-spa/src/App.tsx");
- assert.match(home,/to="\/teacher\/fortune"/);
+ assert.doesNotMatch(home,/to="\/teacher\/fortune"/);
+ assert.match(page,/if\(!nativeHost\)return <Navigate to="\/fortune" replace\/>/);
  assert.doesNotMatch(home,/to="\/teacher\/live\?fortune=daily"/);
  assert.match(routes,/path="fortune" element={<TeacherFortunePage\/>}/);
  assert.match(page,/CrewFortuneProfile\.get\(x\.id\)/);

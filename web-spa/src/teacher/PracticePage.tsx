@@ -51,15 +51,6 @@ export function PracticePage(){
   <span>{english?"Meet one person at 7, 16, 25, 40, 55, or 70.":"認識同一個人，從 7 歲到 70 歲的六段人生。"}</span>
   <small>{english?"Explore Mira's life →":"進入人生時光機 →"}</small>
  </Link></section>
- <section className="section">
-  <Link className="feature-card" to="/teacher/fortune"
-   style={{background:"linear-gradient(120deg,#f5efff,#faf9ff)",borderColor:"#ddd4f4",display:"flex",flexDirection:"column",gap:6}}>
-   <span className="kicker">FORTUNE × CONVERSATION</span>
-   <strong>{english?"Fortune conversations":"命理聊聊"}</strong>
-   <span>{english?"Use a saved reading, create your chart, or explore a daily reflection.":"有命盤就直接聊；沒有就先算一次，也能跳過資料聊今日話題。"}</span>
-   <small>{english?"Explore with your Crew Teacher →":"用你熟悉的 Crew 老師開始對話 →"}</small>
-  </Link>
- </section>
  <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
   <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
   <div className="crew-intent-grid">

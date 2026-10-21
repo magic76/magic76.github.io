@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
-import {Link,useNavigate,useSearchParams} from "react-router-dom";
+import {Link,Navigate,useNavigate,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureFortuneServices} from "../lib/runtime";
 import {FortuneProfileTools} from "../fortune/ProfileTools";
@@ -122,10 +122,12 @@ export function TeacherFortunePage(){
    navigate("/fortune/live?from="+(kind==="reading"?"hub":kind));
   }
  }
+ // Keep the Android embedded calculator/voice bridge, redirect ordinary Web guests to the sole Fortune home.
+ if(!nativeHost)return <Navigate to="/fortune" replace/>;
  return <section className="section teacher-fortune-hub" data-native-host={nativeHost?"true":"false"} aria-label={english?"Fortune explanation":"命理陪聊"}>
   <div className="teacher-fortune-header">
    <button type="button" className="text-button" onClick={()=>phase==="home"?nativeHost?window.location.assign("crewteacher://fortune/back"):navigate("/teacher/practice"):setPhase("home")}>‹ {english?"Back":"返回"}</button>
-   <span className="kicker">CREW TEACHER · FORTUNE</span>
+   <span className="kicker">CREW FORTUNE · FRIEND EXPLAINER</span>
    <h1>{english?"Fortune with a friend":"朋友陪你聊命理"}</h1>
    <p>{english?"A Crew Friend explains your reading first; interrupt or ask anything naturally.":"Crew Friend 會先幫你解釋命盤重點，有問題隨時問，不是外語口說課。"}</p>
    <small>命理屬文化與自我探索，不代表確定的事件預測。</small>

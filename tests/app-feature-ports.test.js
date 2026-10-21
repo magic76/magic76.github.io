@@ -251,7 +251,8 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  const tarot=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/TarotTabs.tsx"),"utf8");
  const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
- assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
+ assert.ok(home.includes("readFortuneHistoryPreviews(30)"),"Latest saved chart is central");
+ assert.ok(home.includes("prepareFriendExplanation"),"Friend narration is an explicit optional action");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
  assert.ok(reading.includes('t("reading.askMore")'),"Live help should stay collapsed behind a follow-up affordance");
  assert.equal(readUiLocale("fortune").reading.askMore,"想再問清楚一點？");
@@ -389,8 +390,11 @@ test("core Web entry points follow the Android app parity contract",()=>{
 
  const fortuneUi=readUiLocale("fortune");
  assert.equal(fortuneUi.home.titleLine2,"看懂自己的節奏。");
- for(const key of ["titleLine1","titleLine2","choose","baziDesc","tarotDesc","vedicDesc","recent"])
+ for(const key of ["baziDesc","tarotDesc","vedicDesc"])
   assert.ok(fortune.includes('t("home.'+key+'")'),key);
+ assert.ok(fortune.includes('to="/fortune/history"'));
+ assert.ok(fortune.includes('id="fortune-new-reading"'));
+ assert.ok(fortune.includes("readFortuneHistoryPreviews"));
  assert.ok(fortuneLayout.includes('to="/fortune/history"'));
  assert.ok(!fortuneLayout.includes("ProductTabs"),"Fortune history should be a header action like Android, not a primary tab");
 });

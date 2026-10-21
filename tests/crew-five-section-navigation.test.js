@@ -37,7 +37,7 @@ test("new sections link to existing real screens and preserve the main Shorts fe
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const home=read("web-spa/src/pages/HomePage.tsx");
  for(const url of ["/teacher/shorts","/teacher/roles?mode=friends","/friend/live?id=",
-                   "/fortune","/teacher/fortune","/timeline","/games","/story",
+                   "/fortune","/timeline","/games","/story",
                    "/teacher/roles?mode=teacher","/teacher/learn","/teacher/textbook",
                    "/teacher/me","/fortune/history","/story/me","/settings"]){
   assert.ok(hub.includes(url),"Missing existing route "+url);
