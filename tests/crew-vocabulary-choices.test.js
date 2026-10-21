@@ -57,7 +57,7 @@ test("untranslated and partially translated native-language pools fall back to p
  checkThreeChoices(identical,"ja");
 });
 test("native-language choices activate when three distinct translations are available",()=>{
- const localized=loadQueue({apple:"りんご",book:"本",chair:"いす",school:"学校",music:"音楽",water:"水"});
+ const localized=loadQueue({apple:"りんご",book:"本",chair:"いす",school:"学校",music:"音楽",water:"みず"});
  assert.equal(localized.nativeVocabularyChoicesReady("ja"),true);
  checkThreeChoices(localized,"ja");
  for(let i=0;i<20;i++){
