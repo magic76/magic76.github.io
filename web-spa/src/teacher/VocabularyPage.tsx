@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {teacherText} from "./teacherLocale";
@@ -23,6 +23,7 @@ function speak(word:string){
 export function VocabularyPage(){
  const {t}=useTranslation("teacher");
  const native=useTeacherStore(s=>s.nativeLanguage);
+ const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const[refresh,setRefresh]=useState(0);
  const[contentError,setContentError]=useState("");
  const[score,setScore]=useState(()=>placementState().score);
@@ -53,7 +54,8 @@ export function VocabularyPage(){
  },[native,Math.floor(score/20)]);
 
  function answer(choice:string){
-  if(revealed||showCompletion)return;
+  if(answerLockRef.current||revealed||showCompletion)return;
+  answerLockRef.current=true;
   trackUsageEvent("vocabulary_practice");
   const correct=choice===word[1];
   setRevealed(true);
@@ -70,6 +72,7 @@ export function VocabularyPage(){
 
  function nextQuestion(){
   if(!revealed)return;
+  answerLockRef.current=false;
   setRevealed(false);
   setPicked("");
   setFeedback(teacherText(native,"vocabQuestion"));
@@ -80,6 +83,7 @@ export function VocabularyPage(){
   setWord(previous=>chooseVocabulary(score,previous,done,native));
  }
  function continuePractice(){
+  answerLockRef.current=false;
   setContinueAfterGoal(true);
   setShowCompletion(false);
   setRevealed(false);
