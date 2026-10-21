@@ -4,6 +4,7 @@ import{Icon,type IconName}from"../components/Icon";
 import{ContinueLearningCard}from"./ContinueLearningCard";
 import{TodayLearningCard}from"./TodayLearningCard";
 import{threeMinuteSpeakingPath}from"./threeMinuteSpeaking";
+import{useClientReady}from"../lib/useClientReady";
 
 const items:Array<{to:string;icon:IconName;key:string}>=[
  {to:"/teacher/textbook",icon:"book",key:"textbook"},
@@ -13,11 +14,11 @@ const items:Array<{to:string;icon:IconName;key:string}>=[
  {to:"/teacher/reading-library",icon:"book",key:"library"}
 ];
 
-export function LearnPage(){const {t}=useTranslation("teacher");return <>
+export function LearnPage(){const {t}=useTranslation("teacher");const clientReady=useClientReady();return <>
  <section className="hero"><span className="kicker">Learn</span><h1>{t("learn.title")}</h1><p>{t("learn.intro")}</p></section>
  <section className="section"><TodayLearningCard/></section>
  <section className="section"><ContinueLearningCard compact/></section>
- <section className="section"><Link className="list-item" to={threeMinuteSpeakingPath()}>
+ <section className="section"><Link className="list-item" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
   <span className="list-icon"><Icon name="mic"/></span>
   <span className="list-copy"><strong>{t("learn.threeMinute")}</strong><small>{t("learn.threeMinuteDesc")}</small></span>
   <span className="chevron">›</span>
