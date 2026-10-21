@@ -6,12 +6,12 @@ const read = p => fs.readFileSync(path.join(__dirname, "..", p), "utf8");
 
 test("reading-to-Fortune explicitly transfers a brief local context", () => {
  const module = read("web-spa/src/teacher/fortuneSpeaking.ts");
- const page = read("web-spa/src/fortune/ReadingPage.tsx");
+ const page = read("web-spa/src/teacher/TeacherFortunePage.tsx");
  assert.match(module, /sessionStorage\.setItem\(STORAGE_KEY/);
  assert.match(module, /30\*60\*1000/);
  assert.doesNotMatch(module, /birthDate|birthTime|latitude|longitude/);
- assert.match(page, /saveFortuneSpeakingContext\(reading\)/);
- assert.match(page, /\/fortune\/live\?from=hub/);
+ assert.match(page, /saveFortuneSpeakingContext\(active,activeFocus\)/);
+ assert.match(page, /\/fortune\/live\?from=/);
 });
 
 test("daily reflection routes to explanatory Live and preserves chosen conversation language", () => {
