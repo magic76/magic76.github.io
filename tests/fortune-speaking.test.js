@@ -17,7 +17,7 @@ test("reading-to-Fortune explicitly transfers a brief local context", () => {
 test("daily reflection routes to explanatory Live and preserves chosen conversation language", () => {
  const practice = read("web-spa/src/teacher/PracticePage.tsx");
  const live = read("web-spa/src/teacher/LivePage.tsx");
- assert.match(practice, /\/teacher\/fortune/);
+ assert.doesNotMatch(practice,/to="\/teacher\/fortune"/);
  const hub=read("web-spa/src/teacher/TeacherFortunePage.tsx");
  assert.match(hub, /start\("daily"\)/);
  assert.match(hub, /\/fortune\/live\?from=/);
