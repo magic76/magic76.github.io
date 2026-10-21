@@ -30,3 +30,23 @@ test("The original Fortune question flow also uses the selected Friend explainer
  assert.match(reading,/<div className="fortune-conversation-actions">\{teacherAction\}<\/div>/);
  assert.doesNotMatch(reading,/nav\("\/teacher\/live\?fortune=reading"\)/);
 });
+
+test("Entering Fortune Live starts Friend narration without another click",()=>{
+ const voice=read("web-spa/src/fortune/LivePage.tsx");
+ const controls=read("web-spa/src/live/LiveControls.tsx");
+ const session=read("web-spa/src/live/useLiveSession.ts");
+ // Run after the screen is mounted, only once even if React updates the page.
+ assert.match(voice,/const autoStartedRef=useRef\(false\)/);
+ assert.match(voice,/if\(autoStartedRef\.current\)return/);
+ assert.match(voice,/autoStartedRef\.current=true;/);
+ assert.match(voice,/void live\.start\(\)/);
+ assert.match(voice,/window\.clearTimeout\(timer\)/);
+ // The same start call requests mic permission and uses the chart-based opening.
+ assert.match(voice,/openingPrompt:opening/);
+ assert.match(session,/await session\.start\(\)/);
+ assert.match(session,/openingPrompt:configRef\.current\.openingPrompt/);
+ // If permission is denied or the connection fails, the UI still allows retry.
+ assert.match(controls,/live\.errorKind==="mic"/);
+ assert.match(controls,/onClick=\{\(\)=>void live\.start\(\)\}/);
+ assert.match(voice,/<LiveControls live=\{live\}\/>/);
+});
