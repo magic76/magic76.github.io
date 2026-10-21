@@ -51,12 +51,12 @@ export function PracticePage(){
   <small>{english?"Explore Mira's life →":"進入人生時光機 →"}</small>
  </Link></section>
  <section className="section">
-  <Link className="feature-card" to="/teacher/live?fortune=daily"
+  <Link className="feature-card" to="/teacher/fortune"
    style={{background:"linear-gradient(120deg,#f5efff,#faf9ff)",borderColor:"#ddd4f4",display:"flex",flexDirection:"column",gap:6}}>
-   <span className="kicker">FORTUNE × SPEAKING</span>
-   <strong>{english?"Daily reflection · Speak about yourself":"每日運勢話題 · 練習聊自己"}</strong>
-   <span>{dailyFortuneTopic()}</span>
-   <small>{english?"Explore a symbolic theme in your selected speaking language →":"把今日主題變成 2～3 分鐘的自然口說 →"}</small>
+   <span className="kicker">FORTUNE × CONVERSATION</span>
+   <strong>{english?"Fortune conversations":"命理聊聊"}</strong>
+   <span>{english?"Use a saved reading, create your chart, or explore a daily reflection.":"有命盤就直接聊；沒有就先算一次，也能跳過資料聊今日話題。"}</span>
+   <small>{english?"Explore with your Crew Teacher →":"用你熟悉的 Crew 老師開始對話 →"}</small>
   </Link>
  </section>
  <HomeShortsPreview/>
