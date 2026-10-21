@@ -399,6 +399,27 @@ async function run(){
   await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
   await home.locator('a[href="/fortune"]').first().waitFor({state:"visible",timeout:15000});
   assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
+  // Six equal destinations must be visible and tappable on both desktop and phone.
+  const exploreCards=home.locator(".crew-explore-grid .crew-explore-tile");
+  await exploreCards.first().waitFor({state:"visible",timeout:15000});
+  assert.equal(await exploreCards.count(),6,"Explore must expose exactly six peer cards");
+  for(const destination of ["/fortune","/timeline","/games","/story","/research","/circle"])
+   assert.equal(await home.locator('.crew-explore-grid a[href="'+destination+'"]').count(),1,"Explore missing "+destination);
+  assert.equal(await home.locator(".crew-section-explore .crew-section-hero").count(),0,"Explore should not promote one giant hero");
+  assert.equal(await home.locator(".crew-section-explore .crew-section-discover").count(),0,"No second 'more destinations' list");
+  for(const viewport of [{width:390,height:844,cols:2},{width:1280,height:800,cols:3}]){
+   await home.setViewportSize({width:viewport.width,height:viewport.height});
+   const rects=await exploreCards.evaluateAll(cards=>cards.map(card=>({
+    x:Math.round(card.getBoundingClientRect().x),
+    y:Math.round(card.getBoundingClientRect().y),
+    width:Math.round(card.getBoundingClientRect().width)
+   })));
+   assert.equal(rects[0].y,rects[viewport.cols-1].y,"Explore first row must have "+viewport.cols+" columns");
+   assert.ok(rects[viewport.cols].y>rects[0].y,"Explore tiles should wrap after "+viewport.cols+" columns");
+   assert.ok(rects.every(r=>r.width>=140),"Explore cards must be tappable");
+   assert.ok(await home.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Explore must not overflow");
+  }
+
   await home.close();
   process.stdout.write("PASS React client navigation\n");
   // BrowserRouter deep-link refresh uses root SPA fallback rather than SSG hydration.
