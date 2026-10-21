@@ -1,11 +1,11 @@
 import {useEffect,useRef} from "react";
 
-export type HomeProduct="teacher"|"story"|"fortune"|"play";
+export type HomeProduct="chat"|"play"|"learn"|"teacher"|"story"|"fortune";
 type Particle={x:number;y:number;size:number;phase:number;speed:number};
 type Point={x:number;y:number;size:number};
 
 const COLORS:Record<HomeProduct|"idle",readonly [number,number,number]>={
- idle:[110,125,195],teacher:[113,90,211],story:[212,143,63],fortune:[75,123,192],play:[57,151,133]
+ idle:[110,125,195],chat:[123,95,221],learn:[73,125,220],teacher:[113,90,211],story:[212,143,63],fortune:[75,123,192],play:[57,151,133]
 };
 const noise=(seed:number,salt:number)=>{
  const value=Math.sin((seed+1)*127.1+salt*311.7)*43758.5453;
@@ -30,6 +30,15 @@ const arc=(cx:number,cy:number,r:number,count=24):Vertex[]=>
 
 // These paths follow the same 24x24 silhouettes as the icons on the three product cards.
 const GLYPH_STROKES:Record<HomeProduct,readonly Stroke[]>={
+ chat:[
+  [[5,5],[19,5],[19,16],[10,16],[5,20],[5,5]],
+  [[8,9],[16,9]],[[8,12],[14,12]]
+ ],
+ learn:[
+  [[12,6.5],[10,5.4],[8,5],[6,5],[4,5.5],[4,18.5],[6,18],[8,18],[10,18.5],[12,19.5],[12,6.5]],
+  [[12,6.5],[14,5.4],[16,5],[18,5],[20,5.5],[20,18.5],[18,18],[16,18],[14,18.5],[12,19.5]],
+  [[7,9],[9,9]],[[15,9],[17,9]]
+ ],
  teacher:[
   arc(12,8,3.5),
   [[5,21],[5.4,19.3],[6.2,17.6],[7.4,16.2],[9,15.3],[12,15],
@@ -143,7 +152,7 @@ export function HomeAtmosphere({activeProduct}: {activeProduct:HomeProduct|null}
    const duration=active?420:620;
    const progress=reduced?1:Math.min(1,Math.max(0,(timestamp-morphStart)/duration));
    const eased=smoothstep(progress);
-   const centerX=width*(mobile?.83:.86),centerY=height*.5;
+   const centerX=width*(mobile?.5:.75),centerY=height*(mobile?.77:.5);
    const glyphScale=Math.min(height*.048,width*(mobile?.013:.01),mobile?5.6:7.5);
    const nodes:Point[]=idleNodes.map((idle,index)=>{
     const target=active?{
@@ -279,7 +288,7 @@ export function HomeAtmosphere({activeProduct}: {activeProduct:HomeProduct|null}
   document.addEventListener("visibilitychange",onVisibility);
   motion.addEventListener("change",onMotion);
   window.addEventListener("resize",resize,{passive:true});
-  refreshRef.current=()=>{draw(performance.now());schedule()};
+  refreshRef.current=()=>{ripple={x:width*(mobile?.5:.75),y:height*(mobile?.77:.5),start:performance.now()};draw(performance.now());schedule()};
   resize();schedule();
 
   return ()=>{
