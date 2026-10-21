@@ -11,7 +11,7 @@ test("reading-to-Teacher explicitly transfers a brief local context", () => {
  assert.match(module, /30\*60\*1000/);
  assert.doesNotMatch(module, /birthDate|birthTime|latitude|longitude/);
  assert.match(page, /saveFortuneSpeakingContext\(reading\)/);
- assert.match(page, /\/teacher\/live\?fortune=reading/);
+ assert.match(page, /\/fortune\/live\?from=hub/);
 });
 
 test("daily reflection reuses Teacher Live and preserves conversation settings", () => {
@@ -20,7 +20,7 @@ test("daily reflection reuses Teacher Live and preserves conversation settings",
  assert.match(practice, /\/teacher\/fortune/);
  const hub=read("web-spa/src/teacher/TeacherFortunePage.tsx");
  assert.match(hub, /start\("daily"\)/);
- assert.match(hub, /\/teacher\/live\?fortune=/);
+ assert.match(hub, /\/fortune\/live\?from=/);
  assert.match(live, /fortuneSpeakingPolicy\(fortuneKind,fortuneContext\)/);
  assert.match(live, /fortuneSpeakingOpening\(fortuneKind,fortuneContext\)/);
  assert.match(live, /language:s\.targetLanguage/);
