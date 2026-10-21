@@ -4,7 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const read = p => fs.readFileSync(path.join(__dirname, "..", p), "utf8");
 
-test("reading-to-Teacher explicitly transfers a brief local context", () => {
+test("reading-to-Fortune explicitly transfers a brief local context", () => {
  const module = read("web-spa/src/teacher/fortuneSpeaking.ts");
  const page = read("web-spa/src/fortune/ReadingPage.tsx");
  assert.match(module, /sessionStorage\.setItem\(STORAGE_KEY/);
@@ -14,7 +14,7 @@ test("reading-to-Teacher explicitly transfers a brief local context", () => {
  assert.match(page, /\/fortune\/live\?from=hub/);
 });
 
-test("daily reflection reuses Teacher Live and preserves conversation settings", () => {
+test("daily reflection routes to explanatory Live and preserves chosen conversation language", () => {
  const practice = read("web-spa/src/teacher/PracticePage.tsx");
  const live = read("web-spa/src/teacher/LivePage.tsx");
  assert.match(practice, /\/teacher\/fortune/);
@@ -30,5 +30,7 @@ test("fortune voice counselor exposes spoken language selection", () => {
  const fortune = read("web-spa/src/fortune/LivePage.tsx");
  assert.match(fortune, /setSpokenLanguage/);
  assert.match(fortune, /language:spokenLanguage/);
- assert.match(fortune, /<option>日文<\/option>/);
+ assert.match(fortune, /TARGET_LANGUAGES\.map/);
+ const languageList=read("web-spa/src/teacher/targetLanguages.ts");
+ assert.match(languageList,/value:"日文"/);
 });
