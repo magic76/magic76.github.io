@@ -73,3 +73,18 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-course-lesson-action{font-weight:800;color:#6852ba;text-align:center}
 @media(max-width:480px){.crew-learning-focus{gap:12px}.crew-learning-quiz,.crew-course-resume,.crew-course-map{padding:15px;border-radius:18px}.crew-course-track-tabs button{max-width:176px}.crew-course-track-tabs strong{max-width:99px}.crew-course-resume-header{gap:9px}}
 @media(prefers-reduced-motion:reduce){.crew-course-unit-chevron,.crew-learning-question .quiz-choice{transition:none}}
+
+
+/* Local TTS: a compact optional disclosure instead of taking over the quiz. */
+.crew-vocab-pronunciation-actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0 5px}
+.crew-vocab-pronunciation-actions .btn{min-height:42px}
+.crew-vocab-voice-settings{margin:12px auto 5px;max-width:480px;text-align:left;border:1px solid var(--line,#e7e5ee);border-radius:13px;background:var(--surface-alt,#f8f7fa)}
+.crew-vocab-voice-settings>summary{list-style:revert;cursor:pointer;padding:12px 16px;font-size:13px;font-weight:700;color:var(--text,#1d2532)}
+.crew-vocab-voice-settings[open]>summary{border-bottom:1px solid var(--line,#e7e5ee)}
+.crew-vocab-voice-controls{display:grid;gap:10px;padding:13px 14px}
+.crew-vocab-voice-controls label{display:grid;gap:5px;font-size:12px;color:var(--muted,#667085)}
+.crew-vocab-voice-controls select{width:100%;min-width:0;min-height:42px;background:var(--surface,#fff);border:1px solid var(--line,#e7e5ee);border-radius:10px;padding:8px 10px;font:inherit;font-size:14px;color:var(--text,#1d2532)}
+.crew-vocab-voice-controls .btn{min-height:40px}
+.crew-vocab-voice-hint{margin:0;padding:2px 14px 14px;font-size:11px;line-height:1.65;color:var(--muted,#667085)}
+.crew-vocab-voice-error{font-size:12px;line-height:1.5;color:#a52c23;margin:10px 0;text-align:center}
+@media(max-width:480px){.crew-vocab-pronunciation-actions{gap:6px}.crew-vocab-pronunciation-actions .btn{font-size:12px;padding:9px 11px}}
