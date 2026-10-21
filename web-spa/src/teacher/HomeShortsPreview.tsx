@@ -12,6 +12,11 @@ export function HomeShortsPreview(){
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
  const [pullDistance,setPullDistance]=useState(0);
+ const [canPrev,setCanPrev]=useState(false);
+ const [canNext,setCanNext]=useState(true);
+ const sliderRef=useRef<HTMLDivElement|null>(null);
+ const syncArrows=()=>{const el=sliderRef.current;if(!el)return;setCanPrev(el.scrollLeft>2);setCanNext(el.scrollLeft+el.clientWidth<el.scrollWidth-2)};
+ const moveArrows=(direction:number)=>{const el=sliderRef.current;if(!el)return;const item=el.querySelector<HTMLElement>(".crew-home-short-card");el.scrollBy({left:(item?.getBoundingClientRect().width||190)*direction+14*direction,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"})};
  const gesture=useRef<{x:number;y:number;atEnd:boolean}|null>(null);
  const pullRef=useRef(0);
  const handleTouchStart=(event:TouchEvent<HTMLDivElement>)=>{
@@ -52,7 +57,7 @@ export function HomeShortsPreview(){
  const posts=feed?.posts.filter(post=>{
   if(seen.has(post.friendId))return false;
   seen.add(post.friendId);return true;
- }).slice(0,10)||[];
+ }).slice(0,6)||[];
  const followUps=shortsStoryFollowUps(feed?.posts||[]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
@@ -69,6 +74,10 @@ export function HomeShortsPreview(){
    <div><span className="kicker">CREW SHORTS</span>
     <h2 id="crew-home-shorts-title">{t("practice.shortsTitle")}</h2>
     <p>{t("practice.shortsIntro")}</p></div>
+   <div className="crew-home-shorts-controls">
+    <button type="button" disabled={!canPrev||status!=="ready"} onClick={()=>moveArrows(-1)} aria-label={en?"Previous Shorts":"上一則動態"}>←</button>
+    <button type="button" disabled={!canNext||status!=="ready"} onClick={()=>moveArrows(1)} aria-label={en?"Next Shorts":"下一則動態"}>→</button>
+   </div>
    <Link to="/teacher/shorts" className="crew-home-shorts-all">{t("practice.shortsAll")} <span aria-hidden="true">→</span></Link>
   </div>
   {status==="loading"&&<div className="crew-home-shorts-loading" role="status" aria-label={t("practice.shortsLoading")}>
@@ -83,7 +92,7 @@ export function HomeShortsPreview(){
      {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} →
     </Link>
    </div>:null}
-   <div className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
+   <div ref={sliderRef} onScroll={syncArrows} className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
     {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
@@ -97,6 +106,7 @@ export function HomeShortsPreview(){
         image.dataset.fallback="1";
         image.src="/assets/friends/crew_friend_"+post.friendId+".webp";
        }}/>
+      <span className="crew-home-short-photo-overlay" aria-hidden="true">{post.friendName}</span>
      </Link>
      <div className="crew-home-short-content">
       <strong>{post.friendName}</strong>
