@@ -9,7 +9,7 @@ test("Homepage introduces a direct path to friends and free offline games before
  const setup=home.indexOf('{ready&&!configured?');
  const games=home.indexOf('className="crew-home-game-pick"');
  const shorts=home.indexOf('<HomeShortsPreview/>');
- assert.ok(actions>=0&&actions<games&&games<shorts&&shorts<setup);
+ assert.ok(actions>=0&&actions<shorts&&shorts<games&&games<setup);
  assert.match(home,/to="\/teacher\/roles\?mode=friends"/);
  assert.match(home,/to="\/games"/);
  assert.match(home,/to="\/games\/1a2b"/);
