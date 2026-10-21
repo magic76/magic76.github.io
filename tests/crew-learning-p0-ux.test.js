@@ -10,7 +10,9 @@ test("the vocabulary learner sees the question before answer feedback and contro
  const next=src.indexOf("function nextQuestion(");
  const jsx=src.indexOf("return <div",next);
  assert.ok(answer>=0&&next>answer&&jsx>next);
- assert.match(src,/if\(revealed\|\|showCompletion\)return/);
+ assert.match(src,/if\(answerLockRef\.current\|\|revealed\|\|showCompletion\)return/);
+ assert.match(src,/answerLockRef\.current=true/);
+ assert.match(src,/answerLockRef\.current=false/);
  assert.match(src,/recordPlacement\(word,correct\)/);
  assert.match(src,/incrementTodayVocabulary\(\)/);
  assert.match(src,/recordVocab\(word\[0\],correct\)/);
