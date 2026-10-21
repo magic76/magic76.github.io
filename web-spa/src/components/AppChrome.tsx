@@ -5,6 +5,7 @@ import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import { geminiKey,geminiVerified } from "../lib/runtime";
+import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
 const meta={
@@ -36,10 +37,26 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   </footer>
  </>;
 }
-export function GlobalNav({active}:{active:Product}){const {t}=useTranslation("common");const index=["home","teacher","story","fortune","settings"].indexOf(active);return <nav className="global-nav" aria-label="主要導覽"><div className="inner"><span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"} style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
- <NavLink className={"navitem "+(active==="home"?"active":"")} to="/"><span className="nav-icon"><Icon name="home"/></span><span>{t("nav.home")}</span></NavLink>
- <NavLink className={"navitem "+(active==="teacher"?"active":"")} to="/teacher"><span className="nav-icon"><Icon name="teacher"/></span><span>{t("nav.teacher")}</span></NavLink>
- <NavLink className={"navitem "+(active==="story"?"active":"")} to="/story"><span className="nav-icon"><Icon name="story"/></span><span>{t("nav.story")}</span></NavLink>
- <NavLink className={"navitem "+(active==="fortune"?"active":"")} to="/fortune"><span className="nav-icon"><Icon name="fortune"/></span><span>{t("nav.fortune")}</span></NavLink>
- <NavLink className={"navitem "+(active==="settings"?"active":"")} to="/settings"><span className="nav-icon"><Icon name="settings"/></span><span>{t("nav.settings")}</span></NavLink>
- </div></nav>}
+/** Primary product-independent navigation: user intent, not implementation names. */
+export function GlobalNav({active}:{active:CrewSection}){
+ const {t}=useTranslation("common");
+ const index=CREW_SECTIONS.indexOf(active);
+ const sections=[
+  {id:"home",to:"/",icon:"home"},
+  {id:"chat",to:"/chat",icon:"chat"},
+  {id:"explore",to:"/explore",icon:"sparkles"},
+  {id:"learn",to:"/learn",icon:"teacher"},
+  {id:"me",to:"/me",icon:"settings"}
+ ] as const;
+ return <nav className="global-nav" aria-label={t("nav.label")}>
+  <div className="inner">
+   <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
+     style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
+   {sections.map(item=><NavLink key={item.id} to={item.to} end
+    className={"navitem "+(active===item.id?"active":"")}
+    aria-current={active===item.id?"page":undefined}>
+    <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.id)}</span>
+   </NavLink>)}
+  </div>
+ </nav>;
+}

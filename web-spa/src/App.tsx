@@ -1,7 +1,8 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{useEffect,lazy,Suspense}from"react";
 import{trackAppOpen,trackPageView}from"./analytics/usage";
-import{GlobalNav,type Product}from"./components/AppChrome";
+import{GlobalNav}from"./components/AppChrome";
+import{sectionForRoute}from"./pages/crewNavigation";
 import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{AppChrome}from"./components/AppChrome";
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
@@ -23,6 +24,7 @@ const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
+const CrewSectionPage=lazy(()=>import("./pages/CrewSectionPage").then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
 export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
@@ -32,8 +34,12 @@ export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
- },[pathname,search]);const section=pathname.split("/")[1];const active:Product=section==="privacy"?"settings":section==="research"?"briefing":section==="guides"?"teacher":section==="timeline"?"teacher":section==="teacher"||section==="story"||section==="fortune"||section==="settings"||section==="briefing"?section:"home";return <><RouteErrorBoundary key={pathname}><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+ },[pathname,search]);const active=sectionForRoute(pathname,search);return <><RouteErrorBoundary key={pathname}><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
+<Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
+<Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
+<Route path="/learn" element={<AppChrome product="teacher"><CrewSectionPage section="learn"/></AppChrome>}/>
+<Route path="/me" element={<AppChrome product="settings"><CrewSectionPage section="me"/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
 <Route path="/research/board" element={<AppChrome product="briefing"><BriefingBoardPage/></AppChrome>}/>
 <Route path="/research/:date/:id" element={<AppChrome product="briefing"><BriefingDetailPage/></AppChrome>}/>

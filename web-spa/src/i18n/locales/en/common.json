@@ -9,7 +9,12 @@
     "teacher": "Teacher",
     "story": "Story",
     "fortune": "Fortune",
-    "settings": "Settings"
+    "settings": "Settings",
+    "label": "Primary navigation",
+    "chat": "Chat",
+    "explore": "Explore",
+    "learn": "Learn",
+    "me": "My Crew"
   },
   "brand": {
     "home": "Language · Stories · Fortune",

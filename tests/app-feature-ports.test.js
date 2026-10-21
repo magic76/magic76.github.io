@@ -663,7 +663,8 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  assert.ok(home.includes("crew_fortune_readings_v2"));
  assert.ok(home.includes("sort((a,b)=>b.timestamp-a.timestamp)"));
  assert.ok(home.indexOf('t("continue")')<home.indexOf('t("android")'));
- assert.ok(chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'),"Settings must be visible in the primary navigation");
+ assert.ok(chrome.includes('id:"me",to:"/me",icon:"settings"'),"My Crew must be visible in primary navigation");
+ assert.ok(fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8").includes('to:"/settings"'),"Settings must remain reachable via My Crew");
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
  assert.ok(!player.includes("story-page-slider"));
