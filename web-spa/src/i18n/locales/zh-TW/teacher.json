@@ -186,6 +186,8 @@
     "listenSlow": "慢速聽一次",
     "voiceSettings": "發音設定",
     "voiceLabel": "英文發音人",
+    "androidVoiceLabel": "Android 系統英文語音",
+    "androidVoiceHint": "App 內改由 Android 系統文字轉語音播放，不使用 Gemini Live。發音人可在手機「設定 → 一般管理 → 文字轉語音輸出」調整，這裡仍可選擇語速。",
     "autoVoice": "自動選擇本機英文語音",
     "speechSpeed": "播放速度",
     "normalSpeed": "正常",
