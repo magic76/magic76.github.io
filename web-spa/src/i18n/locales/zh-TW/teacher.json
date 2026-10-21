@@ -181,6 +181,11 @@
     "androidDesc": "想在手機上使用完整的 Crew Teacher，可以直接安裝 Android App。"
   },
   "vocabulary": {
+    "pickMeaning": "這個單字是什麼意思？",
+    "nextQuestion": "下一題",
+    "goalComplete": "今日 20 題完成！",
+    "goalCompleteDesc": "你今天已練習 {{count}} 題，學習紀錄已保存。",
+    "keepGoing": "繼續挑戰",
     "title": "快速作答，難度跟著你走",
     "intro": "依你的回答調整難度；答對高一級的單字還會再驗證一次，不會因猜對一題就跳級。",
     "progress": "今日進度",
@@ -195,6 +200,13 @@
     "retry": "再試一次"
   },
   "course": {
+    "nextLesson": "下一堂 · 接著學",
+    "continue": "開始這堂課",
+    "trackComplete": "本系列已全部完成",
+    "trackCompleteDesc": "你已完成這個主題的所有課程，可以選其他主題，或重練熟悉的課。",
+    "selectTrack": "選擇情境主題",
+    "courseMap": "課程地圖",
+    "progress": "課程進度",
     "title": "用任務練真實對話",
     "intro": "沿用 App 的課程架構：3 個 Track、10 個 Unit、31 堂課；完成前一課才會解鎖下一課。",
     "stars": "累積星星",
