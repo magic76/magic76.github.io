@@ -72,6 +72,68 @@ async function run(){
    await page.close();
     process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Crew World: integrated React desktop/mobile visual geometry, bilingual copy and interactions.
+  for(const setup of [
+    {route:"/",width:360,height:780,mobile:true},
+    {route:"/",width:393,height:852,mobile:true},
+    {route:"/",width:1280,height:800,mobile:false},
+    {route:"/en/",width:393,height:852,mobile:true},
+    {route:"/en/",width:1280,height:800,mobile:false}
+  ]){
+    const view=await browser.newContext({viewport:{width:setup.width,height:setup.height},isMobile:setup.mobile,hasTouch:setup.mobile,deviceScaleFactor:1});
+    const page=await view.newPage();
+    const errors=[];checkConsole(page,errors);
+    try{
+      await page.goto(origin+setup.route,{waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
+      const tabs=page.locator(".crew-portal-tabs [role=tab]");
+      assert.equal(await tabs.count(),4,"Four KV modes: "+JSON.stringify(setup));
+      assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible center heading");
+      const initial=await page.locator(".crew-portal-content h1").textContent();
+      const metric=await page.evaluate(()=>{
+        const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+        return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
+          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),
+          tabs:rect(".crew-portal-tabs"),hint:rect(".crew-portal-hint"),bridge:rect(".crew-home-world-bridge"),
+          shorts:rect(".crew-home-shorts")};
+      });
+      assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No page-wide horizontal overflow: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.cta.bottom<metric.tabs.y-5,"CTA must not overlap mode controls: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.tabs.bottom<metric.hint.y+4,"Mode controls must not cover touch hint: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
+      for(const choice of [
+        {mode:"play",to:"/games"},
+        {mode:"learn",to:"/teacher"},
+        {mode:"story",to:"/story"},
+        {mode:"chat",to:"/teacher/roles?mode=friends"}
+      ]){
+        await page.locator('.crew-portal-tabs button[role="tab"]').filter({hasText:setup.route==="/en/"?
+          ({chat:"AI Chat",play:"Play",learn:"Learn",story:"Stories"})[choice.mode]:
+          ({chat:"AI 聊天",play:"一起玩",learn:"學語言",story:"說故事"})[choice.mode]}).click();
+        assert.equal(await page.locator('.crew-portal-tabs [aria-selected="true"]').count(),1,"Exactly one active mode");
+        assert.equal(await page.locator(".crew-home-portal").getAttribute("data-mode"),choice.mode);
+        const href=await page.locator(".crew-portal-cta").getAttribute("href");
+        assert.equal(href,choice.to,"Selected mode CTA deep link");
+      }
+      const newCopy=await page.locator(".crew-portal-content h1").textContent();
+      assert.equal(newCopy,initial,"Returning to chat restores initial copy");
+      const screenshots=page.locator(".crew-home-shorts .crew-home-short-card");
+      await screenshots.first().waitFor({state:"visible",timeout:18000});
+      assert.ok(await screenshots.count()>=2,"Live Shorts feed should show multiple image stories");
+      const cards=await page.locator(".crew-home-shorts-grid").evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));
+      assert.ok(cards.scroll>cards.client,"Shorts must be horizontally scrollable");
+      const photo=page.locator(".crew-home-short-card .crew-home-short-photo").first();
+      assert.match(await photo.getAttribute("href")||"",/^\/teacher\/shorts\?post=/);
+      const chat=page.locator(".crew-home-short-card .crew-home-short-question").first();
+      assert.ok((await chat.getAttribute("href")||"").startsWith("/"),"Shorts keeps friend chat");
+      const motion=page.locator(".crew-portal-motion");
+      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"true","Pause enabled");
+      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"false","Resume enabled");
+      assert.deepEqual(errors,[],"No runtime / hydration errors");
+      process.stdout.write("PASS Crew World responsive portal + Shorts "+setup.route+" "+setup.width+"px\n");
+    }finally{await view.close();}
+  }
+
   // Fortune homepage and saved readings must remain accessible even when
   // external astrology engines (or the optional AI core) cannot be fetched.
   const offlineFortuneContext=await browser.newContext({viewport:{width:390,height:844}});
@@ -295,8 +357,8 @@ async function run(){
    else await route.continue();
   });
   await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
-  await retryPage.locator(".crew-home-portal-mode[data-mode=\"play\"]").click();
-  await retryPage.locator(".crew-home-portal-start").click();
+  await retryPage.locator('.crew-portal-tabs [role="tab"]').nth(1).click();
+  await retryPage.locator(".crew-portal-cta").click();
   await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
   assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
   assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
