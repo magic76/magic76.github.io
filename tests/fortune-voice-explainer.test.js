@@ -26,6 +26,7 @@ test("No chart details are invented for daily reflections or missing readings",(
 test("The original Fortune question flow also uses the selected Friend explainer",()=>{
  const reading=read("web-spa/src/fortune/ReadingPage.tsx");
  assert.match(reading,/nav\("\/fortune\/live\?from=reading"\)/);
- assert.match(reading,/nav\("\/fortune\/live\?from=hub"\)/);
+ assert.doesNotMatch(reading,/onClick=\{askTeacher\}/);
+ assert.match(reading,/<div className="fortune-conversation-actions">\{teacherAction\}<\/div>/);
  assert.doesNotMatch(reading,/nav\("\/teacher\/live\?fortune=reading"\)/);
 });
