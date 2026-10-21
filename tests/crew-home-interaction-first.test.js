@@ -3,25 +3,25 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 
-test("Homepage introduces a direct path to friends and free offline games before setup",()=>{
+test("Home V3 begins with working four-mode portal, Shorts, then free games and Key setup",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
- const actions=home.indexOf('className="crew-home-quick-actions"');
- const setup=home.indexOf('{ready&&!configured?');
+ const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const hero=home.indexOf("<HomePortal/>"),shorts=home.indexOf("<HomeShortsPreview/>");
  const games=home.indexOf('className="crew-home-game-pick"');
- const shorts=home.indexOf('<HomeShortsPreview/>');
- assert.ok(actions>=0&&actions<shorts&&shorts<games&&games<setup);
- assert.match(home,/to="\/teacher\/roles\?mode=friends"/);
- assert.match(home,/to="\/games"/);
+ const setup=home.indexOf("{ready&&!configured?");
+ assert.ok(hero>=0&&hero<shorts&&shorts<games&&games<setup);
+ for(const path of ["/teacher/roles?mode=friends","/games","/teacher","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
  assert.match(home,/to="\/games\/1a2b"/);
  assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });
 
-test("Home keeps original four gateways, animation, briefing and app entry",()=>{
- const home=read("web-spa/src/pages/HomePage.tsx");
- for(const product of ["teacher","story","fortune","play"])assert.match(home,new RegExp('crew-home-product crew-home-'+product));
- assert.match(home,/<HomeAtmosphere activeProduct=\{activeProduct\}\/>/);
+test("Home preserves four products, active atmosphere, Timeline, briefing and Play Store entry",()=>{
+ const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
+ for(const product of ["teacher","story","fortune","play"])assert.match(home,new RegExp("crew-home-product crew-home-"+product));
+ assert.match(portal,/<HomeAtmosphere activeProduct=\{mode\}\/>/);
  assert.match(home,/<BriefingPreview\/>/);
- assert.ok(home.indexOf('<BriefingPreview/>')>home.indexOf('<HomeShortsPreview/>'));
+ assert.match(home,/crew-home-timeline-card/);
+ assert.ok(home.indexOf("<BriefingPreview/>")>home.indexOf("<HomeShortsPreview/>"));
  assert.match(home,/<details className="crew-home-android" open>/);
 });
 
@@ -40,6 +40,8 @@ test("Interaction-first homepage copy is translated",()=>{
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
  for(const locale of [en,zh]){
   for(const key of ["label","chat","chatDesc","play","playDesc"])assert.ok(locale.actions[key]);
+  for(const mode of ["chat","play","learn","story"])assert.ok(locale.portal.modes[mode].label&&locale.portal.modes[mode].hint);
+  assert.ok(locale.portal.headingLead&&locale.portal.headingAccent);
   for(const key of ["label","title","desc","cta"])assert.ok(locale.gamePick[key]);
   for(const key of ["play","friend","friendDesc"])assert.ok(locale.recent[key]);
  }
