@@ -1,10 +1,8 @@
 import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,useNavigate} from "react-router-dom";
-import {ensureFortuneServices,geminiKey} from "../lib/runtime";
-import {saveFortuneSpeakingContext} from "../teacher/fortuneSpeaking";
+import {geminiKey} from "../lib/runtime";
 import {readFortuneHistoryPreviews,type FortuneHistoryPreview} from "./readingHistory";
-import type {FortuneReading} from "./types";
 import {ProductDiscoverability} from "../components/ProductDiscoverability";
 import "./unifiedHome.css";
 
@@ -36,13 +34,8 @@ export function FortuneHomePage(){
   }
   setOpeningId(readingId);
   try{
-   await ensureFortuneServices();
-   const reading=window.CrewFortuneProfile.get(readingId) as FortuneReading|null;
-   if(!reading||!reading.result||!MODES.includes(reading.mode)){
-    throw Error(en?"This saved chart is unavailable. Open its reading to check the record.":"這份命盤紀錄暫時無法讀取，請先打開完整命盤確認。");
-   }
-   // Only transfer derived explanatory chapters after explicit user action.
-   saveFortuneSpeakingContext(reading);
+   const {prepareFriendExplanation}=await import("./prepareFriendExplanation");
+   await prepareFriendExplanation(readingId);
    navigate("/fortune/live?from=hub");
   }catch(e){
    setError(e instanceof Error?e.message:(en?"Unable to open the saved chart.":"無法開啟命盤。"));
