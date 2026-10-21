@@ -89,7 +89,7 @@ export function HomeShortsPreview(){
     {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
      <Link className="crew-home-short-photo" to={"/teacher/shorts?post="+encodeURIComponent(post.id)}
       aria-label={en?"Read "+post.friendName+"\u0027s full story":"查看 "+post.friendName+" 的完整動態"}
-      onClick={()=>trackUsageEvent("shorts_open_story","shorts_home")}>
+      >
       <img src={post.image} alt={post.imageAlt} loading="lazy" decoding="async"
        onError={event=>{
         const image=event.currentTarget;
