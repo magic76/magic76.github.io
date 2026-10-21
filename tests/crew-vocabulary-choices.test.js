@@ -64,7 +64,7 @@ test("native-language choices activate when three distinct translations are avai
 });
 test("the page does not lock answers while AI content is pending or failed",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
- assert.match(page,/if\(revealed\|\|showCompletion\)return/);
+ assert.match(page,/if\(answerLockRef\.current\|\|revealed\|\|showCompletion\)return/);
  assert.match(page,/disabled=\{revealed\}/);
  assert.doesNotMatch(page,/disabled=\{revealed\|\|needsContent\}/);
  assert.match(page,/recordVocab\(word\[0\],correct\)/);
