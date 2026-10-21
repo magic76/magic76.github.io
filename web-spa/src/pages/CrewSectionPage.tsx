@@ -58,21 +58,62 @@ const copy:{
  }
 };
 
+
+const englishCopy:typeof copy={
+ chat:{
+  eyebrow:"CREW FRIENDS",title:"Chat with friends",intro:"This is not a class. Start with a friend's life or something you're curious about.",
+  hero:{title:"Meet your Crew Friends",desc:"Sixteen personalities. Pick a friend and the language you want to speak.",to:"/teacher/roles?mode=friends",icon:"chat",tag:"Just talk"},
+  items:[
+   {title:"Friends' Shorts",desc:"See what happened today before you decide whether to chat.",to:"/teacher/shorts",icon:"image"},
+   {title:"Play together",desc:"Find conversation starters through interactive games.",to:"/games",icon:"play"},
+   {title:"Friend memories",desc:"Control remembered topics and privacy preferences.",to:"/settings#memory-settings",icon:"history"}
+  ]
+ },
+ explore:{
+  eyebrow:"CREW EXPLORE",title:"Explore something interesting",intro:"Curiosity comes first: fortune, timelines, stories, games and ideas.",
+  hero:{title:"Fortune exploration",desc:"Create a reading, explore the interpretation and decide what matters to you.",to:"/fortune",icon:"fortune",tag:"Stories of you"},
+  items:[
+   {title:"Fortune conversations",desc:"Use a saved reading or create one to start a conversation.",to:"/teacher/fortune",icon:"chat"},
+   {title:"Crew Timeline",desc:"Meet the same character at different ages and life stages.",to:"/timeline",icon:"history"},
+   {title:"Interactive games",desc:"Mystery stories, Taboo, numbers and more.",to:"/games",icon:"play"},
+   {title:"Crew Story",desc:"Write, read and explore interactive stories.",to:"/story",icon:"story"},
+   {title:"Crew Briefing",desc:"Explore AI technology and research briefings.",to:"/research",icon:"book"},
+   {title:"Community circle",desc:"Browse local exchange and community posts.",to:"/circle",icon:"cards"}
+  ]
+ },
+ learn:{
+  eyebrow:"CREW TEACHER",title:"Practice with a teacher",intro:"When you have a learning goal, your Crew Teacher can help you practice and improve.",
+  hero:{title:"Start speaking practice",desc:"Choose your Crew Teacher and start a live speaking session.",to:"/teacher/roles?mode=teacher",icon:"mic",tag:"Speaking"},
+  items:[
+   {title:"Learning center",desc:"Continue lessons, vocabulary and pronunciation.",to:"/teacher/learn",icon:"teacher"},
+   {title:"Real-life scenarios",desc:"Speak your way through everyday situations.",to:"/teacher/course",icon:"scene"},
+   {title:"Study your textbook",desc:"Learn from pages, notes and photos.",to:"/teacher/textbook",icon:"book"},
+   {title:"Pronunciation",desc:"Focus on clearer spoken language.",to:"/teacher/pronunciation",icon:"mic"},
+   {title:"Practice reports",desc:"Review your previous learning feedback.",to:"/teacher/reports",icon:"history"}
+  ]
+ },
+ me:{
+  eyebrow:"MY CREW",title:"My Crew",intro:"Your progress, saved content and preferences in one place.",
+  hero:{title:"My learning progress",desc:"Return to completed practice and learning records.",to:"/teacher/me",icon:"history",tag:"Device records"},
+  items:[
+   {title:"My readings",desc:"Reopen saved fortune charts.",to:"/fortune/history",icon:"fortune"},
+   {title:"My stories",desc:"Return to your story bookshelf and creations.",to:"/story/me",icon:"story"},
+   {title:"Learning memories",desc:"Review the study details your tutor remembers.",to:"/teacher/memory",icon:"cards"},
+   {title:"Settings and API key",desc:"Language, model, voice and privacy options.",to:"/settings",icon:"settings"},
+   {title:"Learning reports",desc:"Review past speaking feedback.",to:"/teacher/reports",icon:"book"}
+  ]
+ }
+};
+
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
  const {i18n}=useTranslation();
  const en=i18n.language.startsWith("en");
- const labels:Record<Exclude<CrewSection,"home">,{title:string;intro:string}>={
-  chat:{title:"Chat with friends",intro:"Real conversations begin with people and things you are curious about."},
-  explore:{title:"Explore something interesting",intro:"Discover fortune traditions, lives, stories, games and ideas."},
-  learn:{title:"Practice with a teacher",intro:"Get structured help whenever you want to improve your speaking."},
-  me:{title:"My Crew",intro:"Your progress, saved content and settings in one place."}
- };
- const x=copy[section];
+ const x=en?englishCopy[section]:copy[section];
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className="crew-section-heading">
    <span className="kicker">{x.eyebrow}</span>
-   <h1>{en?labels[section].title:x.title}</h1>
-   <p>{en?labels[section].intro:x.intro}</p>
+   <h1>{x.title}</h1>
+   <p>{x.intro}</p>
   </header>
   <Link to={x.hero.to} className="crew-section-hero">
    <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
@@ -100,6 +141,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-section-arrow" aria-hidden="true">→</span>
     </Link>)}</div>
   </section>
-  {section==="me"&&<p className="crew-section-footnote">部分進度與命盤記錄儲存在目前裝置的瀏覽器，不代表跨裝置同步。</p>}
+  {section==="me"&&<p className="crew-section-footnote">{en?"Some readings and learning records are stored in this browser, not synced across devices.":"部分進度與命盤記錄儲存在目前裝置的瀏覽器，不代表跨裝置同步。"}</p>}
  </div>
 }
