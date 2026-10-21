@@ -43,3 +43,13 @@
 .teacher-fortune-full article+article{margin-top:8px}
 .teacher-fortune-footnote{text-align:center}
 @media(max-width:560px){.teacher-fortune-card{padding:16px;border-radius:17px}.teacher-fortune-modes{grid-template-columns:1fr}.teacher-fortune-modes>button{min-height:0;display:flex;align-items:center;justify-content:space-between;gap:12px}.teacher-fortune-modes small{text-align:right}}
+
+/* Android hosts the calculator in a WebView and already owns the native app chrome.
+   Preserve the same React screen but remove duplicated website navigation. */
+body:has(.teacher-fortune-hub[data-native-host="true"])>.global-nav,
+body:has(.teacher-fortune-hub[data-native-host="true"]) .app-header,
+body:has(.teacher-fortune-hub[data-native-host="true"]) .route-tabs,
+body:has(.teacher-fortune-hub[data-native-host="true"]) .crew-contact-footer,
+body:has(.teacher-fortune-hub[data-native-host="true"]) .global-nav{display:none!important}
+body:has(.teacher-fortune-hub[data-native-host="true"]) main.shell.page{padding-top:12px;padding-bottom:18px}
+.teacher-fortune-hub[data-native-host="true"]{padding-top:0}
