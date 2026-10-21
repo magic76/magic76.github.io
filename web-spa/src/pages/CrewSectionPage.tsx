@@ -4,6 +4,8 @@ import {Icon,type IconName} from "../components/Icon";
 import {FriendAvatar} from "../friends/FriendAvatar";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
+import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
+import "./crewExplore.css";
 import "./crewSections.css";
 
 type Entry={title:string;desc:string;to:string;icon:IconName;tag?:string};
@@ -23,14 +25,14 @@ const copy:{
   ]
  },
  explore:{
-  eyebrow:"CREW EXPLORE",title:"找件有趣的事聊",intro:"從命理、不同人生、故事到遊戲，探索本身就是目的。",
+  eyebrow:"CREW EXPLORE",title:"探索",intro:"今天想探索什麼？選一件讓你好奇的事，從這裡開始。",
   hero:{title:"命理探索 Fortune",desc:"我的命盤、歷史紀錄、新命盤與 Crew Friend 講解，全部從這裡開始。",to:"/fortune",icon:"fortune",tag:"命盤與人生"},
   items:[
    {title:"人生時光機 Timeline",desc:"遇見角色在不同年紀的生活與選擇。",to:"/timeline",icon:"history"},
    {title:"互動遊戲",desc:"海龜湯、猜詞、1A2B 與更多遊戲。",to:"/games",icon:"play"},
    {title:"互動故事 Story",desc:"創作、閱讀並探索角色的故事。",to:"/story",icon:"story"},
-   {title:"Crew Briefing",desc:"讀 AI 技術與研究情報。",to:"/research",icon:"book"},
-   {title:"交流圈",desc:"瀏覽社群交流與二手物品資訊。",to:"/circle",icon:"cards"}
+   {title:"研究情報 Briefing",desc:"AI 技術、研究與新發現。",to:"/research",icon:"book"},
+   {title:"交流圈",desc:"分享、交換與社群交流。",to:"/circle",icon:"cards"}
   ]
  },
  learn:{
@@ -69,7 +71,7 @@ const englishCopy:typeof copy={
   ]
  },
  explore:{
-  eyebrow:"CREW EXPLORE",title:"Explore something interesting",intro:"Curiosity comes first: fortune, timelines, stories, games and ideas.",
+  eyebrow:"CREW EXPLORE",title:"Explore",intro:"What are you curious about today? Choose something interesting to discover.",
   hero:{title:"Fortune exploration",desc:"Your charts, saved history, new readings and friend explanations in one place.",to:"/fortune",icon:"fortune",tag:"Your charts"},
   items:[
    {title:"Crew Timeline",desc:"Meet the same character at different ages and life stages.",to:"/timeline",icon:"history"},
@@ -103,6 +105,8 @@ const englishCopy:typeof copy={
  }
 };
 
+const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
+
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
  const {i18n}=useTranslation();
  const en=i18n.language.startsWith("en");
@@ -113,6 +117,15 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
    <h1>{x.title}</h1>
    <p>{x.intro}</p>
   </header>
+  {section==="explore"?
+   <section className="crew-explore-grid" aria-label={en?"Explore destinations":"探索功能"}>
+    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} data-kind={exploreKinds[i]}>
+     <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
+     <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>)}
+   </section>:
+   <>
   <Link to={x.hero.to} className="crew-section-hero">
    <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
    <span className="crew-section-hero-copy">
@@ -139,6 +152,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-section-arrow" aria-hidden="true">→</span>
     </Link>)}</div>
   </section>
+   </>
+  }
   {section==="me"&&<p className="crew-section-footnote">{en?"Some readings and learning records are stored in this browser, not synced across devices.":"部分進度與命盤記錄儲存在目前裝置的瀏覽器，不代表跨裝置同步。"}</p>}
  </div>
 }
