@@ -8,11 +8,12 @@ import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
-import {HomeAtmosphere,type HomeProduct} from "./HomeAtmosphere";
+import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import "./home.css";
+import "./homePortal.css";
 
 type Kind="teacher"|"story"|"fortune"|"play"|"friend";
 type Recent={key:string;kind:Kind;title:string;description:string;to:string;timestamp:number;cover?:string};
@@ -121,7 +122,6 @@ export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [book,setBook]=useState<Book|null>(null);
- const [activeProduct,setActiveProduct]=useState<HomeProduct|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  useEffect(()=>{
@@ -137,26 +137,8 @@ export function HomePage(){
   return()=>{live=false};
  },[]);
  return <div className="crew-home">
-  <header className="crew-home-intro">
-   <HomeAtmosphere activeProduct={activeProduct}/>
-   <div className="crew-home-intro-copy">
-    <span className="crew-home-eyebrow">{t("eyebrow")}</span>
-    <h1>{t("headline")}</h1>
-    <p>{t("intro")}</p>
-   </div>
-  </header>
-  <nav className="crew-home-quick-actions" aria-label={t("actions.label")}>
-   <Link className="crew-home-action crew-home-action-chat" to="/teacher/roles?mode=friends">
-    <span className="crew-home-action-icon" aria-hidden="true"><Icon name="chat"/></span>
-    <span><strong>{t("actions.chat")}</strong><small>{t("actions.chatDesc")}</small></span>
-    <span className="crew-home-action-arrow" aria-hidden="true">↗</span>
-   </Link>
-   <Link className="crew-home-action crew-home-action-play" to="/games">
-    <span className="crew-home-action-icon" aria-hidden="true"><Icon name="play"/></span>
-    <span><strong>{t("actions.play")}</strong><small>{t("actions.playDesc")}</small></span>
-    <span className="crew-home-action-arrow" aria-hidden="true">↗</span>
-   </Link>
-  </nav>
+  <HomePortal/>
+  <HomeShortsPreview/>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
     {recent?<section className="crew-home-continue" aria-label="繼續上次">
@@ -167,7 +149,6 @@ export function HomePage(){
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
      </Link>
     </section>:null}
-    <HomeShortsPreview/>
     <section className="crew-home-game-pick" aria-label={t("gamePick.label")}>
      <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>
      <div className="crew-home-game-pick-copy"><span className="crew-home-overline">CREW PLAY</span><strong>{t("gamePick.title")}</strong><small>{t("gamePick.desc")}</small></div>
@@ -197,19 +178,19 @@ export function HomePage(){
     <section className="crew-home-products" aria-label="探索 Crew 產品">
      <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
      <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" to="/teacher" onPointerEnter={()=>setActiveProduct("teacher")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("teacher")} onBlur={()=>setActiveProduct(null)}>
+      <Link className="crew-home-product crew-home-teacher" to="/teacher">
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-story" to="/story" onPointerEnter={()=>setActiveProduct("story")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("story")} onBlur={()=>setActiveProduct(null)}>
+      <Link className="crew-home-product crew-home-story" to="/story">
        <span className="crew-home-product-art crew-home-product-story" aria-hidden="true"><span className="crew-home-book"><Icon name="story"/><i>✦</i></span></span>
        <strong>Story</strong><small>{t("product.story")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-fortune" to="/fortune" onPointerEnter={()=>setActiveProduct("fortune")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("fortune")} onBlur={()=>setActiveProduct(null)}>
+      <Link className="crew-home-product crew-home-fortune" to="/fortune">
        <span className="crew-home-product-art crew-home-product-fortune" aria-hidden="true"><span className="crew-home-orbit"><Icon name="fortune"/></span></span>
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-play" to="/games" onPointerEnter={()=>setActiveProduct("play")} onPointerLeave={()=>setActiveProduct(null)} onFocus={()=>setActiveProduct("play")} onBlur={()=>setActiveProduct(null)}>
+      <Link className="crew-home-product crew-home-play" to="/games">
        <span className="crew-home-product-art crew-home-product-play" aria-hidden="true"><span className="crew-home-play-emblem"><Icon name="play"/></span></span>
        <strong>Play</strong><small>{t("product.play")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>

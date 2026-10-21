@@ -57,5 +57,36 @@
     "title": "Try a round of Bulls and Cows",
     "desc": "Play by typing with no Gemini Key. Voice is optional for language practice.",
     "cta": "Play now"
+  },
+  "portal": {
+    "headingLead": "Talk when you want.",
+    "headingAccent": "Play when you feel like it.",
+    "description": "Chat with AI friends, play games, practice a language, or tell a story. Pick what you feel like doing.",
+    "start": "Start {{mode}}",
+    "explore": "See what else is here",
+    "choose": "Choose a Crew interaction mode",
+    "tap": "Tap to open",
+    "modes": {
+      "chat": {
+        "label": "AI Chat",
+        "title": "Just say hello",
+        "hint": "Pick a Crew friend and start a conversation."
+      },
+      "play": {
+        "label": "Play",
+        "title": "Let's play",
+        "hint": "Try games that work by typing without an API key."
+      },
+      "learn": {
+        "label": "Learn",
+        "title": "Practice aloud",
+        "hint": "Courses, vocabulary, and conversation at your own pace."
+      },
+      "story": {
+        "label": "Stories",
+        "title": "Make a story",
+        "hint": "Read together or create a story of your own."
+      }
+    }
   }
 }

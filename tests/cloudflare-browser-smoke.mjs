@@ -295,7 +295,8 @@ async function run(){
    else await route.continue();
   });
   await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
-  await retryPage.locator(".crew-home-action-play").click();
+  await retryPage.locator(".crew-home-portal-mode[data-mode=\"play\"]").click();
+  await retryPage.locator(".crew-home-portal-start").click();
   await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
   assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
   assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");

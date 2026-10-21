@@ -57,5 +57,36 @@
     "title": "來玩一局 1A2B 猜數字",
     "desc": "不用 Gemini Key，打字就能玩。想練外語也能開啟語音。",
     "cta": "立即試玩"
+  },
+  "portal": {
+    "headingLead": "想聊就聊。",
+    "headingAccent": "想玩就玩。",
+    "description": "和 AI 朋友聊天、一起玩遊戲、練語言、說故事。選一件想做的事，就從這裡開始。",
+    "start": "開始{{mode}}",
+    "explore": "看看還能做什麼",
+    "choose": "選擇 Crew 互動模式",
+    "tap": "點擊進入",
+    "modes": {
+      "chat": {
+        "label": "AI 聊天",
+        "title": "從一句話開始",
+        "hint": "挑一位 AI 朋友，隨時展開對話。"
+      },
+      "play": {
+        "label": "一起玩",
+        "title": "來玩一局",
+        "hint": "多款遊戲不用 Key 也能先玩。"
+      },
+      "learn": {
+        "label": "學語言",
+        "title": "開口練習",
+        "hint": "從課程、單字到語音對話，按你的節奏學。"
+      },
+      "story": {
+        "label": "說故事",
+        "title": "一起創作",
+        "hint": "讀故事、創作故事，讓想像力開始旅行。"
+      }
+    }
   }
 }

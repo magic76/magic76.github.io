@@ -555,7 +555,9 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
- assert.ok(home.includes('t("headline")'));
+ const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
+ assert.ok(home.includes("<HomePortal/>"));
+ assert.ok(portal.includes('t("portal.headingLead")')&&portal.includes('t("portal.headingAccent")'));
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
  assert.ok(home.includes('t("explore")'));
