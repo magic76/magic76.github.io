@@ -8,6 +8,7 @@ import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
 import {TodayLearningCard} from "../teacher/TodayLearningCard";
 import {ContinueLearningCard} from "../teacher/ContinueLearningCard";
 import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
+import {useClientReady} from "../lib/useClientReady";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -112,6 +113,7 @@ const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story",
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
  const {i18n}=useTranslation();
+ const clientReady=useClientReady();
  const en=i18n.language.startsWith("en");
  const x=en?englishCopy[section]:copy[section];
  return <div className={"crew-section-hub crew-section-"+section}>
@@ -141,7 +143,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link to="/teacher/me">{en?"Learning records":"查看學習紀錄"} →</Link></div>
    <TodayLearningCard/>
    <ContinueLearningCard compact/>
-   <Link className="crew-section-three-minute" to={threeMinuteSpeakingPath()}>
+   <Link className="crew-section-three-minute" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
     <span><strong>{en?"Speak a language for 3 minutes":"隨便聊 3 分鐘外語"}</strong>
      <small>{en?"Practice naturally with a Crew Friend, without a test.":"跟 Crew 朋友自然聊天，不用考試。"}</small></span>
     <span className="arrow" aria-hidden="true">→</span>
