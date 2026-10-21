@@ -49,7 +49,8 @@ test("English switches the shell, dashboard and settings without changing the Ha
  const router=read("web-spa/src/main.tsx");
  assert.ok(router.includes("<HashRouter>"));
  assert.ok(chrome.includes("<LanguageSwitcher/>"));
- assert.ok(chrome.includes('t("nav.home")'));
+ assert.ok(chrome.includes('t("nav."+item.id)'));
+ assert.ok(chrome.includes('t("nav.label")'));
  assert.ok(home.includes('useTranslation("home")'));
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(settings.includes('useTranslation("settings")'));
