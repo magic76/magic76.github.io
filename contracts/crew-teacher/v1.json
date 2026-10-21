@@ -72,6 +72,15 @@
       "roleplayStaysInCharacter": true,
       "freeChatRulesDoNotOverrideLessons": true
     },
+    "shortsHomepage": {
+      "displayBeforeSecondaryFeatureCards": true,
+      "maximumPreviewCards": 10,
+      "onePreviewPerFriend": true,
+      "previewPhotoOpensFullPublishedPost": true,
+      "explicitChatActionUsesExistingFriendLive": true,
+      "farEdgeSwipesOfferFullFeed": true,
+      "noNewAudioStack": true
+    },
     "fortuneSpeaking": {
       "optInOnly": true,
       "reuseExistingLiveStack": true,

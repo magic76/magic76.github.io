@@ -87,9 +87,9 @@ export function HomeShortsPreview(){
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
     {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
-     <Link className="crew-home-short-photo" to={shortsChatUrl(post,"details")}
-      aria-label={en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"}
-      onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home")}}>
+     <Link className="crew-home-short-photo" to={"/teacher/shorts?post="+encodeURIComponent(post.id)}
+      aria-label={en?"Read "+post.friendName+"\u0027s full story":"查看 "+post.friendName+" 的完整動態"}
+      >
       <img src={post.image} alt={post.imageAlt} loading="lazy" decoding="async"
        onError={event=>{
         const image=event.currentTarget;
