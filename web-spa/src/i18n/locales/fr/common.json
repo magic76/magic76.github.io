@@ -1,0 +1,49 @@
+{
+  "language": {
+    "label": "Langue de l'interface",
+    "zh": "繁體中文",
+    "en": "English",
+    "select": "Choisir la langue de l'interface",
+    "description": "Modifie uniquement la langue de l'interface Crew, pas celle de vos apprentissages ou conversations.",
+    "beta": "Bêta",
+    "preview": "Aperçu",
+    "previewHint": "Certains contenus s'afficheront en anglais",
+    "close": "Fermer"
+  },
+  "nav": {
+    "home": "Accueil",
+    "teacher": "Professeur",
+    "story": "Histoires",
+    "fortune": "Astrologie",
+    "settings": "Paramètres",
+    "label": "Navigation principale",
+    "chat": "Discussion",
+    "explore": "Explorer",
+    "learn": "Apprendre",
+    "me": "Mon Crew"
+  },
+  "brand": {
+    "home": "Langues · Histoires · Astrologie",
+    "teacher": "Apprentissage des langues",
+    "story": "Création d'histoires",
+    "fortune": "Exploration de votre thème",
+    "settings": "Paramètres",
+    "briefing": "Veille quotidienne sur l'IA"
+  },
+  "gemini": {
+    "connected": "Gemini connecté",
+    "pending": "Vérification de Gemini nécessaire",
+    "setup": "Configurer Gemini"
+  },
+  "contact": {
+    "label": "Nous contacter"
+  },
+  "seo": {
+    "home": "Crew — Langues, histoires et astrologie avec l'IA",
+    "teacher": "Crew Teacher — Apprendre les langues avec l'IA",
+    "story": "Crew Story — Histoires interactives avec l'IA",
+    "fortune": "Crew Fortune — Explorer votre thème",
+    "settings": "Crew — Paramètres",
+    "briefing": "Crew Briefing — Veille quotidienne sur l'IA"
+  }
+}
