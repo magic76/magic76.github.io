@@ -74,6 +74,7 @@ export function TeacherLivePage(){
  useEffect(()=>{
   if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
   courseSavedRef.current=true;
+  setEndingCourse(true);
   let cancelled=false;setEvaluating(true);setEvaluationError("");
   void evaluateCourseSession(course,live.turns,live.report).then(result=>{
    if(cancelled)return;
@@ -94,8 +95,8 @@ export function TeacherLivePage(){
    live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
  },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay]);
  const endAndReturn=async()=>{
-  if(endRequestedRef.current){
-   if(course&&!evaluating)navigate("/teacher/course?lesson="+encodeURIComponent(course.id));
+  if(endRequestedRef.current||endingCourse){
+   if(course&&!evaluating&&(courseResult||evaluationError))navigate("/teacher/course?lesson="+encodeURIComponent(course.id));
    return;
   }
   endRequestedRef.current=true;

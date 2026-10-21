@@ -84,7 +84,9 @@ test("Teacher React keeps adaptive vocabulary review behavior",()=>{
  const placement=fs.readFileSync(path.join(root,"web-spa/src/teacher/adaptivePlacement.ts"),"utf8");
  assert.ok(placement.includes("crew_vocab_score"));
  assert.ok(placement.includes("probeWins>=2"));
- assert.ok(source.includes("3000"));
+ assert.ok(source.includes("function nextQuestion("));
+ assert.ok(source.includes("setShowCompletion(true)"));
+ assert.ok(!source.includes("window.setTimeout(()=>{setWord"));
  assert.ok(source.includes("speechSynthesis"));
 });
 
