@@ -8,8 +8,8 @@ import {chooseVocabulary,vocabularyChoices,nativeVocabularyChoicesReady} from ".
 import {placementState,placementLabel,recordPlacement} from "./adaptivePlacement";
 import {incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats} from "./vocabularyProgress";
 import {trackUsageEvent} from "../analytics/usage";
-import {localEnglishVoices,selectLocalEnglishVoice,voiceId,speechRate,readSpeechPreferences,saveSpeechPreferences,type VocabularySpeechSpeed} from "./vocabularySpeech";
-import {hasCrewNativeVocabularyTts,nativeVocabularyTtsUrl} from "./nativeVocabularySpeech";
+import {localEnglishVoices,selectLocalEnglishVoice,voiceId,readSpeechPreferences,saveSpeechPreferences,type VocabularySpeechSpeed} from "./vocabularySpeech";
+import {getDeviceCapabilities,speakText} from "../lib/deviceCapabilities";
 import "./learningFlow.css";
 
 const DAILY_GOAL=20;
@@ -22,7 +22,8 @@ export function VocabularyPage(){
  const[voices,setVoices]=useState<SpeechSynthesisVoice[]>([]);
  const[speechError,setSpeechError]=useState("");
  const localVoices=useMemo(()=>localEnglishVoices(voices),[voices]);
- const nativeTtsAvailable=hasCrewNativeVocabularyTts();
+ const ttsMode=getDeviceCapabilities().tts;
+ const nativeTtsAvailable=ttsMode==="native-message"||ttsMode==="native-legacy";
  const voiceOptionsSupported=typeof window!=="undefined"&&"speechSynthesis" in window;
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const[refresh,setRefresh]=useState(0);
@@ -55,28 +56,15 @@ export function VocabularyPage(){
  },[]);
 
  function pronounce(text:string,slow=false){
-  if(nativeTtsAvailable){
-   // Android WebView often omits speechSynthesis. A versioned native
-   // capability supplies system TextToSpeech without Gemini or JS bridges.
-   const speed=slow?"slow":speechPreferences.speed;
-   setSpeechError("");
-   try{window.location.assign(nativeVocabularyTtsUrl(text,speed))}
-   catch{setSpeechError(t("vocabulary.speechFailed"))}
-   return;
-  }
-  if(!voiceOptionsSupported||typeof SpeechSynthesisUtterance==="undefined"){
+  if(ttsMode==="unavailable"){
    setSpeechError(t("vocabulary.speechUnavailable"));return;
   }
   setSpeechError("");
-  const utterance=new SpeechSynthesisUtterance(text);
-  const chosen=selectLocalEnglishVoice(voices,speechPreferences.voice);
-  if(chosen)utterance.voice=chosen;
-  utterance.lang=chosen?.lang||"en-US";
-  utterance.rate=speechRate(slow?"slow":speechPreferences.speed);
-  utterance.pitch=1;
-  utterance.onerror=event=>{if(event.error!=="canceled"&&event.error!=="interrupted")setSpeechError(t("vocabulary.speechFailed"))};
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utterance);
+  void speakText(text,{
+   speed:slow?"slow":speechPreferences.speed,
+   voice:selectLocalEnglishVoice(voices,speechPreferences.voice),
+   onError:()=>setSpeechError(t("vocabulary.speechFailed"))
+  }).catch(()=>setSpeechError(t("vocabulary.speechFailed")));
  }
 
  function changeSpeechPreferences(voice:string,speed:VocabularySpeechSpeed){
