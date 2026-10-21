@@ -24,6 +24,8 @@ const checkOnly = process.argv.includes("--check");
 const dryRun = process.argv.includes("--dry-run");
 const timeoutMs = 120_000;
 let requests = 0;
+const apiKeys=[...new Set([process.env.CREW_BRIEFING_GEMINI_KEY,process.env.GEMINI_API_KEY].filter(Boolean))];
+let usableKeyIndex=0;
 
 function flatten(value, prefix="", output={}){
  for(const [key,item] of Object.entries(value)){
@@ -92,7 +94,7 @@ async function translate(source,locale,ns){
     let resp;
     try{
      resp=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{
-      method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":process.env.GEMINI_API_KEY},
+      method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":apiKeys[usableKeyIndex]},
       body:JSON.stringify(payload),signal:controller.signal
      });
     }finally{clearTimeout(id)}
@@ -106,7 +108,13 @@ async function translate(source,locale,ns){
     success=true;break;
    }catch(e){
     lastError=e;
-    console.error(locale+"/"+ns+" batch "+(n+1)+"/"+blocks.length+" retry "+(attempt+1)+": "+String(e).slice(0,320));
+    console.error(locale+"/"+ns+" batch "+(n+1)+"/"+blocks.length+" attempt "+(attempt+1)+": "+String(e).slice(0,320));
+    // Invalid credentials and depleted prepaid quota cannot recover by waiting.
+    // Check the alternative existing project key once, then fail fast.
+    if([400,401,402,403].includes(e.status)){
+     if(usableKeyIndex+1<apiKeys.length){usableKeyIndex++;continue;}
+     throw e;
+    }
    }
   }
   if(!success)throw lastError;
@@ -126,7 +134,7 @@ for(const [lang] of Object.entries(languages)){
    catch(e){if(checkOnly||dryRun)throw e;console.log("Regenerating invalid "+lang+"/"+ns)}
   }else if(checkOnly)throw new Error("Missing "+filepath);
   if(dryRun){console.log("Would translate "+lang+"/"+ns+": "+Object.keys(src).length+" keys");continue}
-  if(!process.env.GEMINI_API_KEY)throw new Error("GEMINI_API_KEY is required to generate locale files");
+  if(!apiKeys.length)throw new Error("An existing Gemini API secret is required to generate locale files");
   const translated=await translate(src,lang,ns);
   fs.mkdirSync(path.dirname(filepath),{recursive:true});
   fs.writeFileSync(filepath,JSON.stringify(nest(translated),null,2)+"\n");

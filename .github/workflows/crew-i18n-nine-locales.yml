@@ -39,6 +39,7 @@ jobs:
       - name: Generate nine-language UI catalogs
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CREW_BRIEFING_GEMINI_KEY: ${{ secrets.CREW_BRIEFING_GEMINI_KEY }}
           CREW_I18N_MODEL: gemini-2.5-flash-lite
         run: node scripts/generate-ui-locales.mjs
       - name: Assert complete keys and stable interpolation placeholders
