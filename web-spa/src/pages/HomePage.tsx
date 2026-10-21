@@ -7,6 +7,7 @@ import type {BriefingDay,BriefingItem} from "../briefing/types";
 import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
+import {isCrewAndroidShell} from "../lib/platform";
 import {HomeAtmosphere,type HomeProduct} from "./HomeAtmosphere";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
@@ -216,9 +217,9 @@ export function HomePage(){
    <BriefingPreview/>
   </div>
   <GuideHub/>
-  <details className="crew-home-android" open>
+  {ready&&!isCrewAndroidShell()&&<details className="crew-home-android" open>
    <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
    <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
-  </details>
+  </details>}
  </div>;
 }
