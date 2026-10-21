@@ -34,7 +34,7 @@
 
 
 /* Immersive Timeline chapter selection. Existing Live session styling is untouched. */
-.timeline-immersive{max-width:980px;padding-bottom:156px}
+.timeline-immersive{max-width:980px;padding-bottom:56px}
 .timeline-intro{margin:12px 0 16px;text-align:center}
 .timeline-intro h1{font-size:clamp(24px,4vw,34px);margin:5px 0 7px}
 .timeline-intro p{font-size:14px;line-height:1.55;color:var(--muted,#667085);margin:0}
@@ -62,7 +62,7 @@
 .timeline-now li{font-size:13px;line-height:1.65;margin:2px 0}
 .timeline-immersive .timeline-life-book{margin-top:13px}
 .timeline-immersive .timeline-life-book summary{line-height:1.55}
-.timeline-cta-dock{grid-column:2;align-self:end}
+.timeline-cta-dock{margin:0 4px 12px}
 .timeline-immersive .timeline-primary-cta{display:flex;width:100%;margin:0;box-sizing:border-box;min-height:50px;align-items:center;font-size:15px}
 .timeline-overview{padding:15px;margin:14px 0}
 .timeline-overview>summary,.timeline-collapsible>summary{cursor:pointer;font-weight:700;font-size:15px;list-style-position:inside}
@@ -80,7 +80,7 @@
 @keyframes timeline-chapter-appear{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 .timeline-immersive button:focus-visible,.timeline-immersive summary:focus-visible{outline:3px solid #6d57ae;outline-offset:2px}
 @media(max-width:650px){
- .timeline-immersive{padding-bottom:180px}
+ .timeline-immersive{padding-bottom:calc(88px + env(safe-area-inset-bottom,0px))}
  .timeline-intro{margin:8px 0 11px;text-align:left}
  .timeline-intro h1{font-size:24px}
  .timeline-intro p{font-size:12px}
@@ -94,8 +94,8 @@
  .timeline-immersive .timeline-chapter-story{font-size:13px;line-height:1.55;-webkit-line-clamp:2}
  .timeline-now{padding:9px 12px}
  .timeline-now li{font-size:12px}
- .timeline-cta-dock{position:fixed;z-index:25;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom,0px));padding:9px 16px;background:linear-gradient(0deg,#faf8ff 80%,#faf8ffdb);box-shadow:0 -6px 24px #3a2b5c0d}
- .timeline-immersive .timeline-primary-cta{max-width:620px;margin:0 auto;min-height:48px;font-size:14px}
+ .timeline-cta-dock{margin:0 8px 12px}
+ .timeline-immersive .timeline-primary-cta{min-height:48px;font-size:14px}
  .timeline-era-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
  .timeline-collapsible>summary small{float:none;display:block;margin:4px 0 0 19px}
 }
