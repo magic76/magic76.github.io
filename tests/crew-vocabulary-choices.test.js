@@ -64,11 +64,15 @@ test("native-language choices activate when three distinct translations are avai
 });
 test("the page does not lock answers while AI content is pending or failed",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
- assert.match(page,/if\(locked\)return;trackUsageEvent\("vocabulary_practice"\)/);
- assert.match(page,/disabled=\{locked\}/);
- assert.doesNotMatch(page,/disabled=\{locked\|\|needsContent\}/);
+ assert.match(page,/if\(revealed\|\|showCompletion\)return/);
+ assert.match(page,/disabled=\{revealed\}/);
+ assert.doesNotMatch(page,/disabled=\{revealed\|\|needsContent\}/);
  assert.match(page,/recordVocab\(word\[0\],correct\)/);
- assert.match(page,/setWord\(w=>chooseVocabulary\(ns,w,nd,native\)\)/);
+ assert.match(page,/setWord\(previous=>chooseVocabulary\(score,previous,done,native\)\)/);
+ assert.doesNotMatch(page,/setTimeout\s*\(\s*\(\)\s*=>\s*\{\s*setWord/,"Answer reveal must wait for explicit next");
+ assert.match(page,/setShowCompletion\(true\)/);
+ assert.match(page,/onClick=\{nextQuestion\}/);
+ assert.match(page,/onClick=\{continuePractice\}/);
  for(const locale of ["en","zh-TW"]){
   const translations=JSON.parse(fs.readFileSync("web-spa/src/i18n/locales/"+locale+"/teacher.json","utf8"));
   assert.ok(translations.vocabulary.fallbackNotice);
