@@ -102,12 +102,16 @@ export function TeacherFortunePage(){
   }catch(e){setError(e instanceof Error?e.message:"命盤計算失敗，請確認輸入資料。")}
   finally{setSaving(false)}
  }
- function start(kind:FortuneSpeakingKind){
-  if(kind==="reading"&&!reading)return;
-  if(kind==="reading"&&reading)saveFortuneSpeakingContext(reading,focus);
+ function start(kind:FortuneSpeakingKind,selectedReading?:FortuneReading){
+  const active=selectedReading||reading;
+  if(kind==="reading"&&!active)return;
+  const activeFocus=selectedReading?"overview":focus;
+  const chapter=kind==="reading"&&active
+   ?buildLocalReport(active.mode,active.result).find(c=>c.id===activeFocus):null;
+  if(kind==="reading"&&active)saveFortuneSpeakingContext(active,activeFocus);
   if(nativeHost){
-   const excerpt=kind==="reading"&&reading
-    ?(reading.summary+"\n"+(chosen?chosen.title+"："+chosen.text:"")).slice(0,1800):"";
+   const excerpt=kind==="reading"&&active
+    ?(active.summary+"\n"+(chapter?chapter.title+"："+chapter.text:"")).slice(0,1800):"";
    window.location.href=nativeFortuneStartUrl(kind,excerpt);
   }else navigate("/teacher/live?fortune="+kind);
  }
@@ -127,13 +131,14 @@ export function TeacherFortunePage(){
     <h2>{label(readings[0].mode)}</h2>
     <p>{readings[0].summary}</p>
     <small>{readings[0].createdAt?new Date(readings[0].createdAt).toLocaleDateString():"此裝置已儲存"} · 不需要重新填資料</small>
-    <button type="button" className="btn teacher-fortune-primary" onClick={()=>openReading(readings[0])}>
-     繼續聊這份命盤 →
+    <button type="button" className="btn teacher-fortune-primary" onClick={()=>start("reading",readings[0])}>
+     直接繼續聊天 →
     </button>
+    <button className="text-button" onClick={()=>openReading(readings[0])}>先查看命盤摘要</button>
     {readings.length>1&&<><button className="text-button" onClick={()=>setMoreHistory(x=>!x)}>
      {moreHistory?"收起其他命盤":"選擇其他已儲存命盤"}
     </button>{moreHistory&&<div className="teacher-fortune-history">
-     {readings.slice(1,8).map(x=><button key={x.id} onClick={()=>openReading(x)}>
+     {readings.slice(1,8).map(x=><button key={x.id} onClick={()=>start("reading",x)}>
        <strong>{label(x.mode)}</strong><span>{x.summary}</span>
      </button>)}
     </div>}</>}
