@@ -1,4 +1,4 @@
-import{useEffect,useMemo,useState}from"react";import{Link,useSearchParams}from"react-router-dom";import{CREW_FRIENDS,getCrewFriend}from"../friends/friendProfiles";import{readFortuneSpeakingContext,dailyFortuneTopic}from"../teacher/fortuneSpeaking";import{TARGET_LANGUAGES}from"../teacher/targetLanguages";import{ensureCore}from"../lib/runtime";import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
+import{useEffect,useMemo,useRef,useState}from"react";import{Link,useSearchParams}from"react-router-dom";import{CREW_FRIENDS,getCrewFriend}from"../friends/friendProfiles";import{readFortuneSpeakingContext,dailyFortuneTopic}from"../teacher/fortuneSpeaking";import{TARGET_LANGUAGES}from"../teacher/targetLanguages";import{ensureCore}from"../lib/runtime";import{LiveControls}from"../live/LiveControls";import{useLiveSession}from"../live/useLiveSession";
 const read=(k:string,f:string)=>localStorage.getItem("crew_fortune_"+k)||f;
 export function FortuneLivePage(){
  const [params]=useSearchParams();const source=params.get("from");
@@ -35,6 +35,20 @@ export function FortuneLivePage(){
   :facts?("[FORTUNE GUIDE OPENING] 來訪者剛剛點選了解命盤。"+facts+"。請立即以所選語言主動講解這份命盤的核心特徵，引用上面真實計算證據與傳統意義。一次先講一至兩項，再停頓讓我隨時插話。不要先問我想聊什麼，不要叫我回答外語題目。")
   :"[FORTUNE GUIDE OPENING] 尚未提供可信任的個人命盤結果，請坦白說明目前無法看到正式命盤，先介紹命理的基本觀念，不可編造個人命盤。";
  const live=useLiveSession({pageKey:"fortune",title:friend.name+" · 命理講解",system,openingPrompt:opening,voice,language:spokenLanguage});
+ // Entering Fortune Live is an explicit request to hear the Friend's explanation.
+ // Reuse the shared Live start path: mic permission -> connect -> openingPrompt,
+ // exactly as existing Teacher/Friend Live sessions do. Never start twice.
+ const autoStartedRef=useRef(false);
+ useEffect(()=>{
+  if(autoStartedRef.current)return;
+  const timer=window.setTimeout(()=>{
+   if(autoStartedRef.current)return;
+   autoStartedRef.current=true;
+   void live.start();
+  },0);
+  return()=>window.clearTimeout(timer);
+ },[live.start]);
+
  const persist=(k:string,v:string,set:(x:string)=>void)=>{localStorage.setItem("crew_fortune_"+k,v);set(v)};
  async function ask(){if(!q.trim()||!birth)return;setAsking(true);await ensureCore();try{setText(await window.CrewAI.call(profile()+"\n問題："+q+"\n請在 180 字內做務實的反思型整理。",{preferLive:false,maxOutputTokens:450}))}catch(e){setText(e instanceof Error?e.message:String(e))}finally{setAsking(false)}}
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to="/fortune">‹</Link><div className="app-title"><strong>{friend.name} · Crew Fortune</strong><small>Crew Fortune</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友講解中":live.state==="listening"?"正在聽你說":"命理陪聊"}</span></span></div></header><main className="session-shell"><section className="session-person"><div className="avatar"><img src={friend.avatar} alt={friend.name} style={{width:"100%",height:"100%",objectFit:"cover",borderRadius:"50%"}}/></div><h1>{friend.name} 陪你讀命盤</h1><p>朋友先講解，你可以隨時打斷、追問或請他說得更清楚。</p></section><section className="live-stage" data-state={live.state}><h2 className="live-title">聽朋友講解命盤</h2><div className="live-orb"><span>{friend.name.slice(0,1)}</span></div><div className="live-setup-grid"><label><span className="label">講解語言</span><select className="field" disabled={live.state==="listening"||live.state==="speaking"||live.state==="connecting"} value={spokenLanguage} onChange={e=>persist("spokenLanguage",e.target.value,setSpokenLanguage)}>{TARGET_LANGUAGES.map(x=><option key={x.code} value={x.value}>{x.value}</option>)}</select></label>
