@@ -22,14 +22,17 @@ export function FortuneHomePage(){
  const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
  const [openingId,setOpeningId]=useState<string|null>(null);
  const [error,setError]=useState("");
+ const [needsKey,setNeedsKey]=useState(false);
  useEffect(()=>{setList(readFortuneHistoryPreviews(30))},[]);
  const latest=list?.[0];
  const readingUrl=(id:string)=>"/fortune/reading?history="+encodeURIComponent(id);
  async function explain(readingId:string){
   if(openingId)return;
   setError("");
+  setNeedsKey(false);
   if(!geminiKey()){
-   navigate(readingUrl(readingId));
+   setNeedsKey(true);
+   setError(en?"A Gemini API key is required to hear your friend explain the chart.":"朋友的語音講解需要 Gemini API Key，請先到設定完成。");
    return;
   }
   setOpeningId(readingId);
@@ -70,7 +73,7 @@ export function FortuneHomePage(){
      <p>{en?"Choose a tradition below. The calculator is available without a Gemini key; the voice explanation is optional.":"從下方選擇命理系統，先算出自己的資料。計算不需要 Gemini Key，朋友語音講解再按需開啟。"}</p>
      <a href="#fortune-new-reading" className="btn">{en?"Create my chart":"建立新命盤"} ↓</a>
     </div>}
-   {error&&<div className="spa-error" role="alert">{error}</div>}
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{en?"Open settings":"前往設定"} →</Link>}</div>}
   </section>
   <section className="section fortune-journey-history" aria-label={en?"Saved charts":"歷史命盤"}>
    <div className="section-head">
