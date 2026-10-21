@@ -113,7 +113,7 @@ test("global UI locale options and search index publication gates",()=>{
  assert.equal(options.length,18);
  assert.equal(new Set(options.map(x=>x.code)).size,18);
  assert.deepEqual(options.filter(x=>x.stage!=="preview").map(x=>x.code),
-  ["zh-TW","en","ja","es","pt-BR","id"]);
+  ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]);
  assert.deepEqual(options.filter(x=>x.stage==="published").map(x=>x.code),["zh-TW","en"]);
  const routes=read("web-spa/src/main.tsx");
  const selector=read("web-spa/src/i18n/LanguageSwitcher.tsx");
