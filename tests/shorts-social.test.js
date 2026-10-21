@@ -65,7 +65,8 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  assert.match(feed,/shortsStoryEpisodes/);
  assert.match(feed,/crew-short-recap/);
  assert.match(feed,/<Link className="crew-short-image" to=\{shortsChatUrl\(post,"details"\)\}/);
- assert.match(home,/<Link className="crew-home-short-photo" to=\{shortsChatUrl\(post,"details"\)\}/);
+ assert.match(home,/<Link className="crew-home-short-photo" to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
+ assert.match(home,/to=\{shortsChatUrl\(post,"details"\)\}/, "Home CTA keeps a contextual Friend Live path");
  assert.match(home,/問 "\+post.friendName\+" 怎麼回事/);
  assert.doesNotMatch(home,/crew-home-short-chat|\/friend\/live\?id=/,"No duplicate generic homepage chat");
  assert.doesNotMatch(feed,/\/friend\/live\?id=/,"No duplicate generic feed chat");
