@@ -48,16 +48,20 @@ test("voice preferences persist locally and unsupported values degrade safely",(
  assert.equal(helper.readSpeechPreferences().speed,"normal");
 });
 
-test("vocabulary page uses device speechSynthesis, not Gemini Live or remote TTS",()=>{
+test("vocabulary page delegates speech to the shared device adapter without Gemini",()=>{
  const page=fs.readFileSync("web-spa/src/teacher/VocabularyPage.tsx","utf8");
+ const adapter=fs.readFileSync("web-spa/src/lib/deviceCapabilities.ts","utf8");
  assert.match(page,/synth\.getVoices\(\)/);
  assert.match(page,/addEventListener\("voiceschanged",refreshVoices\)/);
  assert.match(page,/removeEventListener\("voiceschanged",refreshVoices\)/);
  assert.match(page,/selectLocalEnglishVoice\(voices,speechPreferences\.voice\)/);
- assert.match(page,/utterance\.pitch=1/);
- assert.match(page,/utterance\.rate=speechRate/);
+ assert.match(page,/void speakText\(text,/);
+ assert.match(page,/speed:slow\?"slow":speechPreferences\.speed/);
  assert.match(page,/onClick=\{\(\)=>pronounce\(word\[0\],true\)\}/);
  assert.match(page,/onChange=\{e=>changeSpeechPreferences\(/);
+ assert.match(adapter,/new SpeechSynthesisUtterance\(text\)/);
+ assert.match(adapter,/utterance\.pitch=1/);
+ assert.match(adapter,/utterance\.rate=options\.speed/);
  assert.doesNotMatch(page,/geminiKey\(|CrewAI\.call|useLiveSession|fetch\(/);
  assert.match(page,/recordVocab\(word\[0\],correct\)/);
  for(const locale of ["zh-TW","en"]){
