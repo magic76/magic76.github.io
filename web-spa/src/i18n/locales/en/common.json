@@ -2,7 +2,13 @@
   "language": {
     "label": "Interface language",
     "zh": "繁體中文",
-    "en": "English"
+    "en": "English",
+    "select": "Choose interface language",
+    "description": "Changes Crew's interface only, not the language you learn or speak.",
+    "beta": "Beta",
+    "preview": "Preview",
+    "previewHint": "Some content will appear in English",
+    "close": "Close"
   },
   "nav": {
     "home": "Home",
