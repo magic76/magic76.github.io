@@ -42,7 +42,7 @@ function initialLocale(){
 const generatedLocaleResources:Record<string,Record<string,unknown>>={};
 const localeFiles=import.meta.glob("./locales/*/*.json",{eager:true,import:"default"});
 for(const [filename,bundle] of Object.entries(localeFiles)){
- const match=/\\/locales\\/([^/]+)\\/([^/]+)\\.json$/.exec(filename);
+ const match=/\/locales\/([^/]+)\/([^/]+)\.json$/.exec(filename);
  if(!match)continue;
  const [,locale,namespace]=match;
  (generatedLocaleResources[locale]??={})[namespace]=bundle;
