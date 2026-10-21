@@ -121,9 +121,25 @@ test("global UI locale options and search index publication gates",()=>{
  const translations=read("web-spa/src/i18n/previewTranslations.ts");
  assert.ok(routes.includes("localeFromPublicPath(window.location.pathname)"));
  assert.ok(selector.includes("localePrefix(next)"));
- assert.ok(selector.includes("English fallback"));
+ assert.ok(selector.includes("language.previewHint"));
+ assert.ok(selector.includes("language.beta"));
+ assert.ok(selector.includes('aria-haspopup="dialog"'));
+ assert.ok(selector.includes("dialog.showModal()"));
+ assert.ok(!selector.includes("<select"),"locale switcher must not open Android WebView's native full-height select");
  assert.ok(deploy.includes('locale.stage!=="published"'));
  assert.ok(deploy.includes('name="robots" content="noindex,follow"'));
  assert.ok(deploy.includes('"_redirects"'));
  for(const language of ["ja","es","pt-BR","id"])assert.ok(translations.includes('"'+language+'":'));
+});
+
+test("locale dialog fits mobile viewports and keeps status wording separate from names",()=>{
+ const css=read("web-spa/src/i18n/languageSwitcher.css");
+ const zh=load("zh-TW","common").language;
+ const en=load("en","common").language;
+ assert.ok(css.includes("overflow-y:auto"),"options should scroll inside the dialog");
+ assert.ok(css.includes("78dvh"),"mobile bottom sheet must have a bounded height");
+ assert.ok(css.includes("safe-area-inset-bottom"));
+ assert.equal(zh.previewHint,"部分內容將以英文顯示");
+ assert.equal(en.previewHint,"Some content will appear in English");
+ assert.ok(zh.beta&&zh.preview&&en.beta&&en.preview);
 });
