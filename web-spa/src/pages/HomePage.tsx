@@ -166,12 +166,12 @@ export function HomePage(){
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
      </Link>
     </section>:null}
+    <HomeShortsPreview/>
     <section className="crew-home-game-pick" aria-label={t("gamePick.label")}>
      <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>
      <div className="crew-home-game-pick-copy"><span className="crew-home-overline">CREW PLAY</span><strong>{t("gamePick.title")}</strong><small>{t("gamePick.desc")}</small></div>
      <Link className="crew-home-game-pick-cta" to="/games/1a2b">{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
     </section>
-    <HomeShortsPreview/>
     <Link className="crew-home-timeline-card" to="/timeline" aria-label={locale.language.startsWith("en")?"Explore Mira's twelve life chapters":"探索 Mira 的十二段人生"}>
      <span className="crew-home-timeline-faces" aria-hidden="true">
       {[7,25,70].map(age=><img key={age} src={"/assets/timeline/mira-"+age+".webp"} alt="" loading="lazy"/>)}
