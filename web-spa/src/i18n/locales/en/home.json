@@ -88,5 +88,45 @@
         "hint": "Read together or create a story of your own."
       }
     }
+  },
+  "world": {
+    "intro": "Chat, play, learn, imagine. Together with AI.",
+    "touch": "Move or touch. Let this world respond.",
+    "pause": "Pause motion",
+    "resume": "Resume motion",
+    "modes": {
+      "chat": {
+        "lead": "A little connection.",
+        "before": "Just say",
+        "accent": "Hello.",
+        "after": "",
+        "description": "No perfect topic. No rush for answers.\nMeet an AI friend. See where the conversation goes.",
+        "cta": "Meet your AI friend"
+      },
+      "play": {
+        "lead": "Your next move?",
+        "before": "Let me",
+        "accent": "Guess.",
+        "after": "",
+        "description": "Pick a number. Take a challenge.\nA little back and forth goes a long way.",
+        "cta": "Let’s play a round"
+      },
+      "learn": {
+        "lead": "Every conversation",
+        "before": "takes you",
+        "accent": "Further.",
+        "after": "",
+        "description": "From finding your words to finding your flow.\nPractice a new language with an AI partner.",
+        "cta": "Find your voice"
+      },
+      "story": {
+        "lead": "Turn a new page.",
+        "before": "Dare to",
+        "accent": "Imagine.",
+        "after": "",
+        "description": "Step into a story, or write a new beginning.\nBuild a world together with AI.",
+        "cta": "Open a new story"
+      }
+    }
   }
 }

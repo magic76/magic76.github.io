@@ -3,7 +3,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 
-test("Home V3 begins with working four-mode portal, Shorts, then free games and Key setup",()=>{
+test("Home World begins with working four-mode portal, Shorts, then free games and Key setup",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
  const hero=home.indexOf("<HomePortal/>"),shorts=home.indexOf("<HomeShortsPreview/>");
@@ -15,12 +15,14 @@ test("Home V3 begins with working four-mode portal, Shorts, then free games and 
  assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });
 
-test("Home preserves four products, active atmosphere, Timeline, briefing and Play Store entry",()=>{
+test("Home preserves four products, particle portal, Timeline, briefing and Play Store entry",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
  for(const product of ["teacher","story","fortune","play"])assert.match(home,new RegExp("crew-home-product crew-home-"+product));
- assert.match(portal,/<HomeAtmosphere activeProduct=\{mode\}\/>/);
+ assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.match(home,/<BriefingPreview\/>/);
- assert.match(home,/crew-home-timeline-card/);
+ assert.match(home,/crew-home-world-explore-card/);
+ assert.match(home,/to="\/timeline"/);
+ assert.doesNotMatch(home,/assets\/timeline\/mira-/);
  assert.ok(home.indexOf("<BriefingPreview/>")>home.indexOf("<HomeShortsPreview/>"));
  assert.match(home,/<details className="crew-home-android" open>/);
 });
@@ -46,3 +48,4 @@ test("Interaction-first homepage copy is translated",()=>{
   for(const key of ["play","friend","friendDesc"])assert.ok(locale.recent[key]);
  }
 });
+

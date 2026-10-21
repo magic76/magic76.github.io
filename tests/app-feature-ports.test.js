@@ -557,7 +557,8 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
  const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
  assert.ok(home.includes("<HomePortal/>"));
- assert.ok(portal.includes('t("portal.headingLead")')&&portal.includes('t("portal.headingAccent")'));
+ assert.ok(portal.includes('t("world.modes."+mode+".lead")')&&portal.includes('t("world.modes."+mode+".accent")'));
+ assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
  assert.ok(home.includes('t("explore")'));

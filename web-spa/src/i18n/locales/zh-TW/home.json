@@ -88,5 +88,45 @@
         "hint": "讀故事、創作故事，讓想像力開始旅行。"
       }
     }
+  },
+  "world": {
+    "intro": "聊天、玩樂、學習、想像。和 AI 一起。",
+    "touch": "輕觸或移動，讓這個世界回應你",
+    "pause": "暫停動態",
+    "resume": "恢復動態",
+    "modes": {
+      "chat": {
+        "lead": "有些默契，",
+        "before": "從一句",
+        "accent": "Hello.",
+        "after": " 開始",
+        "description": "不必想好話題，也不用急著有答案。\n認識一位 AI 朋友，讓對話自然發生。",
+        "cta": "遇見你的 AI 朋友"
+      },
+      "play": {
+        "lead": "你的下一步，",
+        "before": "讓我",
+        "accent": "Guess.",
+        "after": "",
+        "description": "猜一個數字，接一個挑戰。\n有來有往，才是一起玩的樂趣。",
+        "cta": "一起玩一局"
+      },
+      "learn": {
+        "lead": "讓每一句話，",
+        "before": "帶你",
+        "accent": "Further.",
+        "after": "",
+        "description": "從不敢開口，到自然聊下去。\n讓 AI 夥伴陪你練習新的語言。",
+        "cta": "開口，探索新語言"
+      },
+      "story": {
+        "lead": "如果故事的下一頁，",
+        "before": "由你來",
+        "accent": "Imagine.",
+        "after": "",
+        "description": "走進一段故事，或寫下新的開頭。\n和 AI 一起，把想像變成世界。",
+        "cta": "打開一段新故事"
+      }
+    }
   }
 }
