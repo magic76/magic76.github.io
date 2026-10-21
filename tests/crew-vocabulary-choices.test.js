@@ -2,7 +2,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const vm=require("node:vm");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 
 const source=fs.readFileSync("web-spa/src/teacher/vocabularyQueue.ts","utf8");
 const base=[
@@ -19,18 +19,15 @@ const base=[
 function loadQueue(translations={}){
  const localizedVocabulary=native=>base.map(w=>[w[0],native==="zh-TW"?w[1]:(translations[w[0]]||w[1]),...w.slice(2)]);
  const hasLocalizedGloss=(native,word)=>native==="zh-TW"||Boolean(translations[word]);
- const mocks={
-  "./vocabularyCatalog":{VOCABULARY_WORDS:base},
-  "./vocabularyContent":{localizedVocabulary,hasLocalizedGloss},
-  "./vocabularyProgress":{dueVocabulary:()=>[]},
-  "./adaptivePlacement":{placementState:()=>({recovery:1,forceProbe:false,calibrationRemaining:12}),nextBandFloor:()=>61}
- };
- const output=ts.transpileModule(source,{compilerOptions:{module:1,target:7}}).outputText;
- const module={exports:{}};
- vm.runInNewContext("(function(require,module,exports){"+output+"\n})")(
-  name=>{if(!mocks[name])throw Error("unknown import "+name);return mocks[name]},
-  module,module.exports);
- return module.exports;
+ const js=stripTypeScriptTypes(source
+  .replace(/\bimport[^;]*;/g,"")
+  .replace(/\bexport\s+(?=function\b)/g,""),{mode:"strip"});
+ const create=vm.runInNewContext(
+  "(function(VOCABULARY_WORDS,localizedVocabulary,hasLocalizedGloss,dueVocabulary,placementState,nextBandFloor,localStorage){"
+  +js+"\nreturn {chooseVocabulary,vocabularyChoices,nativeVocabularyChoicesReady};})"
+ );
+ return create(base,localizedVocabulary,hasLocalizedGloss,()=>[],
+  ()=>({recovery:1,forceProbe:false,calibrationRemaining:12}),()=>61,{getItem:()=>null});
 }
 function checkThreeChoices(queue,native){
  for(let i=0;i<30;i++){
