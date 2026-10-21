@@ -1,0 +1,1 @@
+function e(e){return(e??(typeof navigator>`u`?``:navigator.userAgent)).split(/\s+/).includes(`CrewAndroidShell/1`)}export{e as t};
