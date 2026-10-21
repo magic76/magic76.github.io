@@ -37,6 +37,21 @@ function initialLocale(){
  }
  return "zh-TW";
 }
+// Load any complete namespace catalogs generated for each UI locale. Preview
+// catalogs remain available only for namespaces not yet translated.
+const generatedLocaleResources:Record<string,Record<string,unknown>>={};
+const localeFiles=import.meta.glob("./locales/*/*.json",{eager:true,import:"default"});
+for(const [filename,bundle] of Object.entries(localeFiles)){
+ const match=/\\/locales\\/([^/]+)\\/([^/]+)\\.json$/.exec(filename);
+ if(!match)continue;
+ const [,locale,namespace]=match;
+ (generatedLocaleResources[locale]??={})[namespace]=bundle;
+}
+const combinedLocaleResources=Object.fromEntries(
+ Object.entries(generatedLocaleResources).map(([locale,namespaces])=>[
+  locale,{...((previewResources as Record<string,Record<string,unknown>>)[locale]??{}),...namespaces}
+ ])
+);
 const activeLocale=initialLocale();
 void i18n.use(initReactI18next).init({
  lng:activeLocale,
@@ -49,7 +64,8 @@ void i18n.use(initReactI18next).init({
  resources:{
   "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
   en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune},
-  ...previewResources
+  ...previewResources,
+  ...combinedLocaleResources
  },
  interpolation:{escapeValue:false},
  react:{useSuspense:false},
