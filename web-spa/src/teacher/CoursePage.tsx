@@ -1,22 +1,127 @@
-import{useMemo,useState}from"react";
-import{useTranslation}from"react-i18next";
-import{Link,useSearchParams}from"react-router-dom";
-import{COURSE_TRACKS,courseLesson,lessonsForUnit,unitsForTrack}from"./courseCatalog";
-import{completedLessons,lessonProgress,lessonUnlocked,totalStars}from"./courseProgress";
+import {useEffect,useMemo,useState} from "react";
+import {useTranslation} from "react-i18next";
+import {Link,useSearchParams} from "react-router-dom";
+import {COURSE_TRACKS,courseLesson,lessonsForUnit,unitsForTrack} from "./courseCatalog";
+import {completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
+import "./learningFlow.css";
+
+const TRACK_KEY="crew_teacher_course_track";
+function storedTrack():string{
+ try{return localStorage.getItem(TRACK_KEY)||COURSE_TRACKS[0].id}catch{return COURSE_TRACKS[0].id}
+}
 
 export function CoursePage(){
- const {t,i18n}=useTranslation("teacher");const english=i18n.resolvedLanguage==="en";
- const[p]=useSearchParams(),requested=courseLesson(p.get("lesson")||"");
- const[trackId,setTrackId]=useState(requested?.trackId||localStorage.getItem("crew_teacher_course_track")||COURSE_TRACKS[0].id);
- const track=COURSE_TRACKS.find(x=>x.id===trackId)||COURSE_TRACKS[0],units=useMemo(()=>unitsForTrack(track.id),[track.id]);
- const completed=completedLessons(track.id),total=units.reduce((n,u)=>n+lessonsForUnit(u.id).length,0);
+ const {t,i18n}=useTranslation("teacher");
+ const english=i18n.resolvedLanguage==="en";
+ const [params]=useSearchParams();
+ const requested=courseLesson(params.get("lesson")||"");
+ const[trackId,setTrackId]=useState(()=>requested?.trackId||storedTrack());
+ const track=COURSE_TRACKS.find(item=>item.id===trackId)||COURSE_TRACKS[0];
+ const units=useMemo(()=>unitsForTrack(track.id),[track.id]);
+ const next=nextUnlockedLesson(track.id);
+ const completed=completedLessons(track.id);
+ const total=units.reduce((n,u)=>n+lessonsForUnit(u.id).length,0);
+ const featuredUnit=requested?.trackId===track.id?requested.unitId:next?.unitId||units[0]?.id;
+ const[expandedUnits,setExpandedUnits]=useState<string[]>(()=>featuredUnit?[featuredUnit]:[]);
+ // A bookmark points to a specific lesson and must open the correct track/unit.
+ useEffect(()=>{
+  if(requested?.trackId&&requested.trackId!==trackId)setTrackId(requested.trackId);
+ },[requested?.id]);
+ useEffect(()=>{
+  const focus=requested?.trackId===track.id?requested.unitId:next?.unitId||units[0]?.id;
+  setExpandedUnits(focus?[focus]:[]);
+ },[track.id,requested?.id]);
 
- function select(id:string){localStorage.setItem("crew_teacher_course_track",id);setTrackId(id)}
+ function chooseTrack(id:string){
+  if(id===track.id)return;
+  setTrackId(id);
+  try{localStorage.setItem(TRACK_KEY,id)}catch{/* Optional local preference. */}
+ }
+ const title=(lesson:{titleEn:string;titleZh:string})=>english?lesson.titleEn:lesson.titleZh;
+ const description=(lesson:{descEn:string;descZh:string})=>english?lesson.descEn:lesson.descZh;
+ const route=(id:string)=>"/teacher/live?mode=course&lesson="+encodeURIComponent(id);
 
- return <><section className="hero"><span className="kicker">Scenario lessons</span><h1>{t("course.title")}</h1><p>{t("course.intro")}</p></section>
- <section className="section panel"><div className="course-map-summary"><div><strong>{completed} / {total}</strong><span>{english?track.titleEn:track.titleZh}</span></div><div><strong>★ {totalStars()}</strong><span>{t("course.stars")}</span></div></div><div className="progress-track"><div className="progress-fill" style={{width:(total?completed/total*100:0)+"%"}}/></div></section>
- <section className="section"><div className="course-track-tabs">{COURSE_TRACKS.map(x=><button key={x.id} className={x.id===track.id?"active":""} onClick={()=>select(x.id)}><span>{x.emoji}</span><strong>{english?x.titleEn:x.titleZh}</strong><small>{completedLessons(x.id)} / {unitsForTrack(x.id).reduce((n,u)=>n+lessonsForUnit(u.id).length,0)}</small></button>)}</div></section>
- <section className="section course-map" key={track.id}><div className="course-track-intro"><span className="course-track-emoji">{track.emoji}</span><div><h2>{english?track.titleEn:track.titleZh}</h2><p>{english?track.descEn:track.descZh}</p></div></div>
- {units.map((unit,ui)=><section className="course-unit" key={unit.id}><div className="course-unit-head"><span>{ui+1}</span><div><h3>{english?unit.titleEn:unit.titleZh}</h3><p>{english?unit.descEn:unit.descZh}</p></div></div><div className="course-lesson-list">{lessonsForUnit(unit.id).map((lesson,li)=>{const prog=lessonProgress(lesson.id),unlocked=lessonUnlocked(lesson.id),highlight=requested?.id===lesson.id;return <article className={"course-lesson "+(prog.completed?"completed ":unlocked?"unlocked ":"locked ")+(highlight?"highlight":"")} key={lesson.id}><div className="course-lesson-index">{prog.completed?"✓":unlocked?li+1:"🔒"}</div><div className="course-lesson-copy"><strong>{english?lesson.titleEn:lesson.titleZh}</strong><p>{english?lesson.descEn:lesson.descZh}</p><div className="course-lesson-meta"><span>{lesson.scene}</span>{prog.completed&&<span>★ {prog.stars} · {t("course.best",{score:prog.bestScore})}</span>}</div></div>{unlocked?<Link className="btn small" to={"/teacher/live?mode=course&lesson="+encodeURIComponent(lesson.id)}>{prog.completed?t("course.review"):t("course.start")}</Link>:<span className="pill">{t("course.locked")}</span>}</article>})}</div></section>)}
- </section></>;
+ return <div className="crew-learning-focus crew-course-focus">
+  <header className="crew-learning-page-heading">
+   <span className="kicker">Scenario lessons</span>
+   <h1>{t("course.title")}</h1>
+   <p>{t("course.intro")}</p>
+  </header>
+  <section className="crew-course-resume" aria-label={t("course.nextLesson")}>
+   <span className="kicker">{next?t("course.nextLesson"):t("course.trackComplete")}</span>
+   <div className="crew-course-resume-header">
+    <div>
+     <h2>{next?title(next):title(track)}</h2>
+     <p>{next?description(next):t("course.trackCompleteDesc")}</p>
+    </div>
+    <span className="crew-course-progress-pill">{completed} / {total}</span>
+   </div>
+   {next&&<>
+    <div className="crew-course-mission-summary">
+     {next.missions.map(m=><span key={m.titleZh}>✓ {english?m.titleEn:m.titleZh}</span>)}
+    </div>
+    <Link to={route(next.id)} className="btn primary crew-learning-full-cta">{t("course.continue")} →</Link>
+   </>}
+  </section>
+
+  <section className="crew-course-selector" aria-label={t("course.selectTrack")}>
+   <h2>{t("course.selectTrack")}</h2>
+   <div className="crew-course-track-tabs" role="group" aria-label={t("course.selectTrack")}>
+    {COURSE_TRACKS.map(item=><button key={item.id} type="button" onClick={()=>chooseTrack(item.id)}
+     className={item.id===track.id?"active":""} aria-pressed={item.id===track.id}>
+     <span aria-hidden="true">{item.emoji}</span>
+     <strong>{title(item)}</strong>
+     <small>{completedLessons(item.id)} / {unitsForTrack(item.id).reduce((n,u)=>n+lessonsForUnit(u.id).length,0)}</small>
+    </button>)}
+   </div>
+  </section>
+
+  <section className="crew-course-map" aria-label={t("course.courseMap")}>
+   <div className="crew-course-map-heading">
+    <div><h2>{title(track)}</h2><p>{description(track)}</p></div>
+    <span>★ {totalStars()}</span>
+   </div>
+   <div className="progress-track" role="progressbar" aria-label={t("course.progress")}
+    aria-valuenow={completed} aria-valuemin={0} aria-valuemax={total}>
+    <div className="progress-fill" style={{width:(total?completed/total*100:0)+"%"}}/>
+   </div>
+   {units.map((unit,ui)=>{
+    const lessons=lessonsForUnit(unit.id);
+    const count=lessons.filter(lesson=>lessonProgress(lesson.id).completed).length;
+    return <details className="crew-course-unit" key={unit.id} open={expandedUnits.includes(unit.id)}
+     onToggle={event=>{
+      const opened=event.currentTarget.open;
+      setExpandedUnits(previous=>opened
+       ?previous.includes(unit.id)?previous:[...previous,unit.id]
+       :previous.filter(id=>id!==unit.id));
+     }}>
+     <summary>
+      <span className="crew-course-unit-number">{ui+1}</span>
+      <span className="crew-course-unit-title"><strong>{title(unit)}</strong><small>{count} / {lessons.length} · {description(unit)}</small></span>
+      <span className="crew-course-unit-chevron" aria-hidden="true">⌄</span>
+     </summary>
+     <div className="crew-course-lessons">
+      {lessons.map((lesson,li)=>{
+       const progress=lessonProgress(lesson.id);
+       const unlocked=lessonUnlocked(lesson.id);
+       const isNext=next?.id===lesson.id;
+       const inner=<>
+        <span className="crew-course-lesson-index">{progress.completed?"✓":unlocked?li+1:"🔒"}</span>
+        <span className="crew-course-lesson-copy">
+         <strong>{title(lesson)}</strong>
+         <small>{description(lesson)}</small>
+         {progress.completed&&<em>★ {progress.stars} · {t("course.best",{score:progress.bestScore})}</em>}
+        </span>
+        <span className="crew-course-lesson-action" aria-hidden="true">{unlocked?"→":"·"}</span>
+       </>;
+       const className="crew-course-lesson "+(progress.completed?"completed":unlocked?"unlocked":"locked")+(isNext?" is-next":"")+(requested?.id===lesson.id?" highlighted":"");
+       return unlocked
+        ?<Link key={lesson.id} to={route(lesson.id)} className={className} aria-label={title(lesson)+" · "+(progress.completed?t("course.review"):t("course.start"))}>{inner}</Link>
+        :<div key={lesson.id} className={className} aria-disabled="true">{inner}</div>;
+      })}
+     </div>
+    </details>;
+   })}
+  </section>
+ </div>;
 }

@@ -19,10 +19,13 @@ test("teacher End exits after locally ending voice and preserves report and cour
  assert.match(live,/const endAndReturn=async\(\)=>/);
  assert.match(live,/await live\.stop\(true\)/);
  assert.match(live,/recordCompletedTutorSession\(profile\.id/);
- assert.match(live,/saved\.completion\.then\(done=>evaluateCourseSession/);
+ assert.match(live,/saved\.completion\s*\.then\(done=>evaluateCourseSession/);
  assert.match(live,/saveLessonProgress\(course\.id,result\.stars,result\.score\)/);
  assert.match(live,/onEnd=\{endAndReturn\}/);
- assert.match(live,/finally\{\s*navigate\(course\?/);
+ assert.match(live,/if\(course\)setEvaluating\(false\)/);
+ assert.match(live,/else navigate\(fortuneKind\?/);
+ assert.match(live,/setEndingCourse\(true\)/);
+ assert.match(live,/Promise\.race\(\[/);
 });
 
 test("end control allows navigation on conversation pages without changing inline reading",()=>{
