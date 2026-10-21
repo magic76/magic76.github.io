@@ -115,7 +115,7 @@ export function TeacherFortunePage(){
    window.location.href=nativeFortuneStartUrl(kind,excerpt);
   }else navigate("/teacher/live?fortune="+kind);
  }
- return <section className="section teacher-fortune-hub" aria-label={english?"Fortune speaking":"命理聊聊"}>
+ return <section className="section teacher-fortune-hub" data-native-host={nativeHost?"true":"false"} aria-label={english?"Fortune speaking":"命理聊聊"}>
   <div className="teacher-fortune-header">
    <button type="button" className="text-button" onClick={()=>phase==="home"?nativeHost?window.location.assign("crewteacher://fortune/back"):navigate("/teacher/practice"):setPhase("home")}>‹ {english?"Back":"返回"}</button>
    <span className="kicker">CREW TEACHER · FORTUNE</span>
