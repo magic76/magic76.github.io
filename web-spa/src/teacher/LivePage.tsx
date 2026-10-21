@@ -24,6 +24,7 @@ export function TeacherLivePage(){
  const {i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
  const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
+ const[endingCourse,setEndingCourse]=useState(false);
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
@@ -93,25 +94,58 @@ export function TeacherLivePage(){
    live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
  },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay]);
  const endAndReturn=async()=>{
-  if(endRequestedRef.current)return;
+  if(endRequestedRef.current){
+   if(course&&!evaluating)navigate("/teacher/course?lesson="+encodeURIComponent(course.id));
+   return;
+  }
   endRequestedRef.current=true;
-  // The user pressed End: avoid re-evaluating this session via the render effects
-  // while saving its report and course progress without blocking navigation.
   tutorHistoryRecorded.current=true;
-  if(course)courseSavedRef.current=true;
+  if(course){
+   courseSavedRef.current=true;
+   setEndingCourse(true);
+   setEvaluating(true);
+   setEvaluationError("");
+   setCourseResult(null);
+  }
   try{
    const saved=await live.stop(true);
    if(saved){
     recordCompletedTutorSession(profile.id,s.targetLanguage,saved.durationMs,
      saved.turns.filter(t=>Boolean(t.input?.trim())).length,isRoleplay);
-    if(course&&saved.turns.some(t=>Boolean(t.input?.trim()))){
-     void saved.completion.then(done=>evaluateCourseSession(course,done.turns,done.report))
-      .then(result=>{if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score)})
-      .catch(()=>{/* A failed optional assessment must not trap the learner on Live. */});
-    }
    }
+   if(!course)return;
+   if(!saved||!saved.turns.some(t=>Boolean(t.input?.trim()))){
+    setEvaluationError("這次沒有可評估的學生發言；可返回課程地圖再練習。");
+    return;
+   }
+   // Keep the learner on the finished lesson while grading. The single
+   // promise saves results even if the learner leaves during a slow response.
+   const grading=saved.completion
+    .then(done=>evaluateCourseSession(course,done.turns,done.report))
+    .then(result=>{
+     if(result.stars>0)saveLessonProgress(course.id,result.stars,result.score);
+     setCourseResult({done:result.done,total:result.total,score:result.score,stars:result.stars});
+     setEvaluationError("");
+     return result;
+    });
+   let timer:ReturnType<typeof setTimeout>|undefined;
+   try{
+    await Promise.race([
+     grading,
+     new Promise<never>((_,reject)=>{
+      timer=window.setTimeout(()=>reject(new Error("評估時間較長。可先查看課程地圖；若背景評估完成，進度會自動儲存。")),30000);
+     })
+    ]);
+   }catch(error){
+    setEvaluationError(error instanceof Error?error.message:"課程評估失敗，可重試。");
+   }finally{
+    if(timer!==undefined)window.clearTimeout(timer);
+   }
+  }catch(error){
+   if(course)setEvaluationError(error instanceof Error?error.message:"無法結束練習，請重試。");
   }finally{
-   navigate(course?"/teacher/course?lesson="+encodeURIComponent(course.id):fortuneKind?"/teacher/fortune":"/teacher/practice");
+   if(course)setEvaluating(false);
+   else navigate(fortuneKind?"/teacher/fortune":"/teacher/practice");
   }
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
@@ -128,7 +162,9 @@ export function TeacherLivePage(){
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
-  <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>
+  {endingCourse
+   ?<div className="notice" role="status"><div><b>{evaluating?"正在整理課程結果":"這次練習已結束"}</b><p>{evaluating?"正在依實際對話評估任務，完成後會在下方顯示結果。":"可查看評估結果，或返回課程地圖繼續學習。"}</p></div></div>
+   :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>}
   <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
@@ -146,6 +182,6 @@ export function TeacherLivePage(){
   </div></details>
  </section><DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state}/></div>
  {live.report&&<section className="report-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">學習回顧</span><h3>課後學習報告</h3></div><div className="report-score">{String(live.report.overall_score??"--")}</div></div><div className="report-grid"><div className="report-stat"><b>{String(live.report.fluency_score??"--")}</b><span>流暢度</span></div><div className="report-stat"><b>{String(live.report.vocab_score??"--")}</b><span>詞彙</span></div><div className="report-stat"><b>{String(live.report.grammar_score??"--")}</b><span>文法</span></div></div><div className="report-body">{String(live.report.summary??"")}</div></section>}
- {course&&evaluating&&<div className="notice"><div><b>正在評估情境任務…</b><p>依你的實際回答判斷，不只比對關鍵字。</p></div></div>}{course&&evaluationError&&<div className="notice"><div><b>課程評估暫時無法完成</b><p>{evaluationError}</p><button className="btn secondary small" onClick={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setAssessmentRetry(x=>x+1)}}>重新評估</button></div></div>}{course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">課程進度</span><h3>{course.titleZh}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>任務</span></div><div className="report-stat"><b>{courseResult.score}</b><span>完成度</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>星等</span></div></div><div className="report-body">{courseResult.stars?"這堂已記錄完成，可以回課程地圖繼續下一堂。":"這次還沒有完成足夠任務；可再練一次，不會鎖住目前這堂。"}</div><div className="actions"><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>回課程地圖</Link></div></section>}
+ {course&&evaluating&&<div className="notice"><div><b>正在評估情境任務…</b><p>依你的實際回答判斷，不只比對關鍵字。</p></div></div>}{course&&evaluationError&&<div className="notice" role="alert"><div><b>課程評估尚未完成</b><p>{evaluationError}</p><div className="actions"><button className="btn secondary small" disabled={evaluating} onClick={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}>重新評估</button><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>返回課程地圖</Link></div></div></div>}{course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">課程進度</span><h3>{course.titleZh}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>任務</span></div><div className="report-stat"><b>{courseResult.score}</b><span>完成度</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>星等</span></div></div><div className="report-body">{courseResult.stars?"這堂已記錄完成，可以回課程地圖繼續下一堂。":"這次還沒有完成足夠任務；可再練一次，不會鎖住目前這堂。"}</div><div className="actions"><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>回課程地圖</Link>{courseResult.stars>0&&<Link className="btn primary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>查看下一堂 →</Link>}</div></section>}
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>
 }
