@@ -397,6 +397,7 @@ async function run(){
   assert.ok(await home.locator(".crew-section-heading h1").textContent(),"Navigation did not render Learn");
   await home.locator('.global-nav a[href="/explore"]').click();
   await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
+  await home.locator('a[href="/fortune"]').first().waitFor({state:"visible",timeout:15000});
   assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
   await home.close();
   process.stdout.write("PASS React client navigation\n");
