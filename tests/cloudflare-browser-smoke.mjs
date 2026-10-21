@@ -414,7 +414,7 @@ async function run(){
     y:Math.round(card.getBoundingClientRect().y),
     width:Math.round(card.getBoundingClientRect().width)
    })));
-   assert.equal(rects[0].y,rects[viewport.cols-1].y,"Explore first row must have "+viewport.cols+" columns");
+   assert.ok(Math.abs(rects[0].y-rects[viewport.cols-1].y)<=2,"Explore first row must have "+viewport.cols+" columns (allow 2px rounding)");
    assert.ok(rects[viewport.cols].y>rects[0].y,"Explore tiles should wrap after "+viewport.cols+" columns");
    assert.ok(rects.every(r=>r.width>=140),"Explore cards must be tappable");
    assert.ok(await home.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Explore must not overflow");
