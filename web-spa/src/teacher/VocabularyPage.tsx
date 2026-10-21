@@ -9,6 +9,7 @@ import {placementState,placementLabel,recordPlacement} from "./adaptivePlacement
 import {incrementTodayVocabulary,recordVocab,todayVocabulary,vocabStats} from "./vocabularyProgress";
 import {trackUsageEvent} from "../analytics/usage";
 import {localEnglishVoices,selectLocalEnglishVoice,voiceId,speechRate,readSpeechPreferences,saveSpeechPreferences,type VocabularySpeechSpeed} from "./vocabularySpeech";
+import {hasCrewNativeVocabularyTts,nativeVocabularyTtsUrl} from "./nativeVocabularySpeech";
 import "./learningFlow.css";
 
 const DAILY_GOAL=20;
@@ -21,6 +22,7 @@ export function VocabularyPage(){
  const[voices,setVoices]=useState<SpeechSynthesisVoice[]>([]);
  const[speechError,setSpeechError]=useState("");
  const localVoices=useMemo(()=>localEnglishVoices(voices),[voices]);
+ const nativeTtsAvailable=hasCrewNativeVocabularyTts();
  const voiceOptionsSupported=typeof window!=="undefined"&&"speechSynthesis" in window;
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
  const[refresh,setRefresh]=useState(0);
@@ -53,6 +55,15 @@ export function VocabularyPage(){
  },[]);
 
  function pronounce(text:string,slow=false){
+  if(nativeTtsAvailable){
+   // Android WebView often omits speechSynthesis. A versioned native
+   // capability supplies system TextToSpeech without Gemini or JS bridges.
+   const speed=slow?"slow":speechPreferences.speed;
+   setSpeechError("");
+   try{window.location.assign(nativeVocabularyTtsUrl(text,speed))}
+   catch{setSpeechError(t("vocabulary.speechFailed"))}
+   return;
+  }
   if(!voiceOptionsSupported||typeof SpeechSynthesisUtterance==="undefined"){
    setSpeechError(t("vocabulary.speechUnavailable"));return;
   }
@@ -153,10 +164,10 @@ export function VocabularyPage(){
      <summary>{t("vocabulary.voiceSettings")}</summary>
      <div className="crew-vocab-voice-controls">
       <label>{t("vocabulary.voiceLabel")}
-       <select value={localVoices.some(voice=>voiceId(voice)===speechPreferences.voice)?speechPreferences.voice:""}
-        disabled={!voiceOptionsSupported} onChange={e=>changeSpeechPreferences(e.target.value,speechPreferences.speed)}>
-        <option value="">{t("vocabulary.autoVoice")}</option>
-        {localVoices.map(voice=><option key={voiceId(voice)} value={voiceId(voice)}>{voice.name} ({voice.lang})</option>)}
+       <select value={nativeTtsAvailable?"":localVoices.some(voice=>voiceId(voice)===speechPreferences.voice)?speechPreferences.voice:""}
+        disabled={nativeTtsAvailable||!voiceOptionsSupported} onChange={e=>changeSpeechPreferences(e.target.value,speechPreferences.speed)}>
+        <option value="">{nativeTtsAvailable?t("vocabulary.androidVoiceLabel"):t("vocabulary.autoVoice")}</option>
+        {!nativeTtsAvailable&&localVoices.map(voice=><option key={voiceId(voice)} value={voiceId(voice)}>{voice.name} ({voice.lang})</option>)}
        </select>
       </label>
       <label>{t("vocabulary.speechSpeed")}
@@ -167,7 +178,7 @@ export function VocabularyPage(){
       </label>
       <button className="btn secondary small" type="button" onClick={()=>pronounce(word[0])}>{t("vocabulary.previewVoice")}</button>
      </div>
-     <p className="crew-vocab-voice-hint">{localVoices.length?t("vocabulary.localVoicesHint"):t("vocabulary.noLocalVoicesHint")}</p>
+     <p className="crew-vocab-voice-hint">{nativeTtsAvailable?t("vocabulary.androidVoiceHint"):localVoices.length?t("vocabulary.localVoicesHint"):t("vocabulary.noLocalVoicesHint")}</p>
     </details>
     {speechError&&<p className="crew-vocab-voice-error" role="alert">{speechError}</p>}
     {needsContent&&<p className="crew-learning-translation-note" role="status">{usingFallback?t("vocabulary.fallbackNotice"):t("vocabulary.partialNotice")}
