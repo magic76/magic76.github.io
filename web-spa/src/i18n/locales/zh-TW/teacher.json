@@ -190,6 +190,8 @@
     "contentFailed": "翻譯暫時無法準備：{{reason}}",
     "contentError": "單字內容無法取得",
     "preparing": "正在準備你的母語詞義…",
+    "fallbackNotice": "母語翻譯尚未準備好，先用內建繁體中文選項練習；不需要 API Key。",
+    "partialNotice": "可以繼續作答，母語翻譯正在背景補齊。",
     "retry": "再試一次"
   },
   "course": {
