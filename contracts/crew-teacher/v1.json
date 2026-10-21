@@ -79,7 +79,12 @@
       "readingSummaryIsUntrustedData": true,
       "noFabricatedChartFacts": true,
       "respectExistingLanguageAndMemoryPreferences": true,
-      "noExtraModelCallsForDailyTopic": true
+      "noExtraModelCallsForDailyTopic": true,
+      "singleTeacherFortuneEntry": true,
+      "reuseWebFortuneCalculator": true,
+      "readingReuseIsDeviceLocal": true,
+      "nativeVoiceReceivesOnlyOptedInSummary": true,
+      "embeddedWebViewHasNoJavascriptBridge": true
     },
     "release": {
       "androidPlayAabManual": true,
