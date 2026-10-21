@@ -14,6 +14,7 @@ import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import "./home.css";
 import "./homePortal.css";
+import "./homeWorld.css";
 
 type Kind="teacher"|"story"|"fortune"|"play"|"friend";
 type Recent={key:string;kind:Kind;title:string;description:string;to:string;timestamp:number;cover?:string};
@@ -137,8 +138,26 @@ export function HomePage(){
   return()=>{live=false};
  },[]);
  return <div className="crew-home">
-  <HomePortal/>
-  <HomeShortsPreview/>
+  <div className="crew-home-world">
+   <HomePortal/>
+   <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge",{defaultValue:locale.language.startsWith("en")?"Little stories are happening here":"世界裡的故事，正在發生"})}<i/></div>
+   <HomeShortsPreview/>
+   <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
+    <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore",{defaultValue:locale.language.startsWith("en")?"Follow your curiosity.":"還有更多，等你探索。"})}</h2><span aria-hidden="true">A world of possibilities.</span></div>
+    <div className="crew-home-world-explore-grid">
+     <Link className="crew-home-world-explore-card" to="/fortune">
+      <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="fortune"/></span>
+      <span><small>CREW FORTUNE</small><strong>{t("world.fortuneTitle",{defaultValue:locale.language.startsWith("en")?"A new way to see yourself":"換個角度，認識自己"})}</strong><span>{t("world.fortuneDescription",{defaultValue:locale.language.startsWith("en")?"Explore your chart with an AI friend.":"探索命盤，讓 AI 朋友陪你解讀。"})}</span></span>
+      <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
+     </Link>
+     <Link className="crew-home-world-explore-card" to="/timeline">
+      <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
+      <span><small>CREW TIMELINE</small><strong>{t("world.timelineTitle",{defaultValue:locale.language.startsWith("en")?"Every life has another chapter":"每一段人生，都有另一頁"})}</strong><span>{t("world.timelineDescription",{defaultValue:locale.language.startsWith("en")?"Meet different people at different ages.":"走進不同人物與年紀，聽見不一樣的故事。"})}</span></span>
+      <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
+     </Link>
+    </div>
+   </section>
+  </div>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
     {recent?<section className="crew-home-continue" aria-label="繼續上次">
@@ -154,20 +173,6 @@ export function HomePage(){
      <div className="crew-home-game-pick-copy"><span className="crew-home-overline">CREW PLAY</span><strong>{t("gamePick.title")}</strong><small>{t("gamePick.desc")}</small></div>
      <Link className="crew-home-game-pick-cta" to="/games/1a2b">{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
     </section>
-    <Link className="crew-home-timeline-card" to="/timeline" aria-label={locale.language.startsWith("en")?"Explore Mira's twelve life chapters":"探索 Mira 的十二段人生"}>
-     <span className="crew-home-timeline-copy">
-      <small>CREW TIMELINE</small>
-      <strong>{locale.language.startsWith("en")?"One life, twelve chapters":"同一個人，十二段人生"}</strong>
-      <span>{locale.language.startsWith("en")?"Meet Mira at every age, from 7 to 70.":"從 7 歲到 70 歲，看看 Mira 如何成長。"}</span>
-      <span className="crew-home-timeline-cta" aria-hidden="true">{locale.language.startsWith("en")?"Explore her story":"探索她的故事"} <b>↗</b></span>
-     </span>
-     <span className="crew-home-timeline-gallery" aria-hidden="true">
-      {[7,25,70].map(age=><span className="crew-home-timeline-photo" key={age}>
-       <img src={"/assets/timeline/mira-"+age+".webp"} alt="" width="160" height="214" loading="lazy" decoding="async"/>
-       <em>{age}</em>
-      </span>)}
-     </span>
-    </Link>
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
@@ -207,3 +212,4 @@ export function HomePage(){
   </details>}
  </div>;
 }
+
