@@ -53,3 +53,16 @@ test("timeline compare entry preserves persona and Live links",()=>{
  assert.match(compare,/\/timeline\/live\?character=/);
  assert.match(read("web-spa/src/lib/backup.ts"),/crew_timeline_/);
 });
+
+test("Timeline chat entry appears above the portrait instead of floating at screen bottom",()=>{
+ const page=read("web-spa/src/timeline/TimelinePage.tsx");
+ const css=read("web-spa/src/timeline/timeline.css");
+ const heading=page.indexOf('className="timeline-stage-heading"');
+ const chat=page.indexOf('className="timeline-cta-dock"');
+ const photo=page.indexOf('className="timeline-stage-visual"');
+ const memories=page.indexOf('className="timeline-life-book"');
+ assert.ok(heading>=0&&heading<chat&&chat<photo&&photo<memories,"Chat entry belongs near age heading, before the large portrait and long chapter details");
+ assert.equal((page.match(/className="timeline-primary-cta"/g)||[]).length,1,"Keep one Live entry point");
+ assert.match(page,/to=\{"\/timeline\/live\?character="\+characterId\+"&age="\+age\}/);
+ assert.doesNotMatch(css,/\.timeline-cta-dock\s*\{[^}]*position\s*:\s*fixed/,"No mobile sticky dock that covers content");
+});
