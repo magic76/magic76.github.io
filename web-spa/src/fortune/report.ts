@@ -1,5 +1,6 @@
 import type {FortuneMode} from "./types";
 import {buildYearHighlights} from "./yearHighlights";
+import {formatFortuneValue} from "./displayNumber";
 
 export type FortuneChapterId = "overview"|"personality"|"career"|"wealth"|"relationships"|"family"|"currentCycle"|"longTerm"|"keyYears"|"advice";
 export type FortuneChapter = {id:FortuneChapterId;title:string;text:string;evidence:string[]};
@@ -8,7 +9,7 @@ const TITLES:Record<FortuneChapterId,string>={
  relationships:"感情與人際",family:"家庭與子女",currentCycle:"目前人生階段",
  longTerm:"未來十年與長期節奏",keyYears:"重要年份與轉折",advice:"可以如何運用這份解讀"
 };
-const str=(v:unknown):string=>v===null||v===undefined||v===""?"":String(v);
+const str=(v:unknown):string=>v===null||v===undefined||v===""?"":formatFortuneValue(v);
 const arr=(v:unknown):any[]=>Array.isArray(v)?v:[];
 const text=(...parts:unknown[])=>parts.map(str).filter(Boolean).join("；");
 const uniq=(items:string[])=>[...new Set(items.filter(Boolean))];
@@ -53,7 +54,7 @@ function baziWealthAngle(we:any):string{
 
 function bazi(r:any):FortuneChapter[]{
  const elements=Object.entries(r.weightedFiveElements||{}).filter(([,v])=>Number(v)>0).sort((a,b)=>Number(b[1])-Number(a[1]));
- const rank=elements.slice(0,3).map(([k,v])=>k+" "+v).join("、");
+ const rank=elements.slice(0,3).map(([k,v])=>k+" "+formatFortuneValue(v,true)).join("、");
  const y=arr(r.annualTimeline).find((x:any)=>Number(x.year)===new Date().getFullYear());
  const luck=r.currentLuckPillar;
  const next=arr(r.luckPillars).filter((x:any)=>Number(x.endYear)>=new Date().getFullYear()).slice(0,3);
