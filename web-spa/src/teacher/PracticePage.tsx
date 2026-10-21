@@ -31,10 +31,10 @@ export function PracticePage(){
  const todaySessions=h.filter((x:any)=>new Date(x.ts||x.createdAt||0).toDateString()===today).length,v=(ready?todayVocabulary():0);
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
+ <HomeShortsPreview/>
  {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
-   <HomeShortsPreview/>
- <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
+   <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
    <span className="crew-role-symbol crew-role-portrait"><FriendAvatar friend={friend}/></span>
    <strong>{t("practice.friend")} <span className="crew-role-name">· {friend.name}</span></strong><span>{t("practice.friendDesc")}</span>
