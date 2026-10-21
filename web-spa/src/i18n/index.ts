@@ -90,7 +90,7 @@ if(typeof window!=="undefined"){
  window.addEventListener("storage",event=>{
   if(event.key!==UI_LOCALE_KEY)return;
   const next=normalizeUiLocale(event.newValue);
-  if(next&&next!==i18n.language&&window.location.pathname.startsWith("/crew-app/"))void i18n.changeLanguage(next);
+  if(next&&next!==i18n.language&&window.location.pathname.startsWith("/crew-app/"))void loadUiLocale(next).then(()=>i18n.changeLanguage(next));
  });
 }
 export default i18n;
