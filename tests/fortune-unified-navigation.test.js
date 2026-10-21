@@ -22,9 +22,11 @@ test("Original Fortune now owns newest chart, full history, new reading and Frie
  assert.match(home,/\/fortune\/reading\?mode=bazi/);
  assert.match(home,/\/fortune\/reading\?mode=tarot/);
  assert.match(home,/\/fortune\/reading\?mode=vedic/);
- assert.match(home,/saveFortuneSpeakingContext\(reading\)/);
+ const helper=read("web-spa/src/fortune/prepareFriendExplanation.ts");
+ assert.match(helper,/saveFortuneSpeakingContext\(reading\)/);
  assert.match(home,/navigate\("\/fortune\/live\?from=hub"\)/);
- assert.match(home,/await ensureFortuneServices\(\)/);
+ assert.match(helper,/await ensureFortuneServices\(\)/);
+ assert.doesNotMatch(home,/ensureFortuneServices|window\.CrewFortuneProfile/);
  assert.match(home,/geminiKey\(\)/);
 });
 test("Reading maintains only one contextual Friend explanation action and never generates chart facts",()=>{
