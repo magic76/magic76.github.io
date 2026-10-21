@@ -37,6 +37,27 @@ function initialLocale(){
  }
  return "zh-TW";
 }
+// Keep translated UI catalogs out of the entry bundle. Vite puts each JSON
+// into its own on-demand chunk, and only the active locale is fetched.
+const localeImports=import.meta.glob("./locales/{ja,es,pt-BR,id,ko,fr,de,vi,th}/*.json",{import:"default"});
+const namespaceNames=["common","home","settings","teacher","friends","story","fortune"] as const;
+const loadingLocales=new Map<string,Promise<void>>();
+export function loadUiLocale(locale:string):Promise<void>{
+ if(!UI_LOCALES.includes(locale as (typeof UI_LOCALES)[number]))return Promise.resolve();
+ const match=namespaceNames.map(namespace=>{
+  const filename="./locales/"+locale+"/"+namespace+".json";
+  return [namespace,localeImports[filename]] as const;
+ }).filter((pair):pair is readonly [typeof namespaceNames[number],()=>Promise<unknown>]=>Boolean(pair[1]));
+ if(match.length!==namespaceNames.length)return Promise.resolve(); // preview language
+ const cached=loadingLocales.get(locale);
+ if(cached)return cached;
+ const promise=Promise.all(match.map(async ([namespace,load])=>{
+  const bundle=await load();
+  i18n.addResourceBundle(locale,namespace,bundle,true,true);
+ })).then(()=>{});
+ loadingLocales.set(locale,promise);
+ return promise.catch(error=>{loadingLocales.delete(locale);throw error});
+}
 const activeLocale=initialLocale();
 void i18n.use(initReactI18next).init({
  lng:activeLocale,
@@ -62,11 +83,14 @@ function applyLocale(language:string){
 }
 i18n.on("languageChanged",applyLocale);
 applyLocale(i18n.language);
+// Browser entry waits for the selected locale before mounting, preventing
+// an English flash while keeping all other locales out of the initial JS.
+export const localeResourcesReady=loadUiLocale(activeLocale).catch(()=>{});
 if(typeof window!=="undefined"){
  window.addEventListener("storage",event=>{
   if(event.key!==UI_LOCALE_KEY)return;
   const next=normalizeUiLocale(event.newValue);
-  if(next&&next!==i18n.language&&window.location.pathname.startsWith("/crew-app/"))void i18n.changeLanguage(next);
+  if(next&&next!==i18n.language&&window.location.pathname.startsWith("/crew-app/"))void loadUiLocale(next).then(()=>i18n.changeLanguage(next));
  });
 }
 export default i18n;

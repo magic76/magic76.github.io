@@ -34,27 +34,27 @@
     {
       "code": "fr",
       "label": "Français",
-      "stage": "preview"
+      "stage": "priority"
     },
     {
       "code": "de",
       "label": "Deutsch",
-      "stage": "preview"
+      "stage": "priority"
     },
     {
       "code": "ko",
       "label": "한국어",
-      "stage": "preview"
+      "stage": "priority"
     },
     {
       "code": "vi",
       "label": "Tiếng Việt",
-      "stage": "preview"
+      "stage": "priority"
     },
     {
       "code": "th",
       "label": "ภาษาไทย",
-      "stage": "preview"
+      "stage": "priority"
     },
     {
       "code": "hi",

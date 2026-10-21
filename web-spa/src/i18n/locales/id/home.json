@@ -1,0 +1,132 @@
+{
+  "eyebrow": "RUANG CREW ANDA",
+  "headline": "Mengobrol, bermain, dan belajar bersama Crew",
+  "intro": "Mengobrol dengan teman AI, bermain, berlatih bahasa, dan menemukan cerita.",
+  "continue": "Lanjutkan dari terakhir kali",
+  "localOnly": "Disimpan di perangkat ini",
+  "explore": "Jelajahi Crew",
+  "start": "Pilih aktivitas yang ingin dicoba",
+  "product": {
+    "teacher": "Bahasa dan latihan berbicara",
+    "play": "Game bersama teman Crew",
+    "story": "Cerita dan membaca",
+    "fortune": "Jelajahi bagan Anda"
+  },
+  "setup": {
+    "title": "Buat Gemini API Key gratis",
+    "desc": "Gunakan akun Google Anda untuk mendapatkan kunci dalam sekitar satu menit. Satu kunci berlaku untuk Teacher, Story, Fortune, dan game suara Crew Play.",
+    "cta": "Lihat cara pengaturan gratis",
+    "pricing": "Batas gratis berbeda menurut model. Paket berbayar mungkin dikenakan biaya.",
+    "verify": "Gemini Key belum diverifikasi",
+    "verifyDesc": "Periksa apakah kunci Anda berfungsi."
+  },
+  "android": "Dapatkan Crew untuk Android",
+  "briefing": {
+    "heading": "Ringkasan riset harian",
+    "today": "Apa yang menarik untuk dijelajahi hari ini?",
+    "summary": "Pilihan riset AI dan ide yang patut dicoba setiap hari.",
+    "read": "Baca ringkasan",
+    "readingList": "Daftar bacaan saya",
+    "report": "Beranda ringkasan",
+    "loading": "Memuat edisi terbaru…"
+  },
+  "recent": {
+    "teacher": "Latihan berbicara",
+    "story": "Cerita interaktif",
+    "fortune": "Eksplorasi bagan",
+    "fallback": "Kembali ke aktivitas terakhir",
+    "reader": "Lanjutkan dari halaman {{page}}",
+    "physical": "Lanjutkan membaca buku Anda",
+    "book": "Cerita saya",
+    "bazi": "Pembacaan BaZi",
+    "tarot": "Numerologi tarot",
+    "vedic": "Astrologi Weda",
+    "play": "Buka game ini untuk memainkan ronde baru",
+    "friend": "Mengobrol dengan teman Crew",
+    "friendDesc": "Lanjutkan obrolan dengan teman ini"
+  },
+  "actions": {
+    "label": "Mulai cepat",
+    "chat": "Kenali teman Crew",
+    "chatDesc": "Mulai percakapan",
+    "play": "Main game",
+    "playDesc": "Banyak game tidak memerlukan kunci"
+  },
+  "gamePick": {
+    "label": "Game unggulan",
+    "title": "Coba game Tebak Angka",
+    "desc": "Mainkan dengan mengetik tanpa Gemini Key. Suara bersifat opsional untuk latihan bahasa.",
+    "cta": "Main sekarang"
+  },
+  "portal": {
+    "headingLead": "Mengobrol saat Anda ingin.",
+    "headingAccent": "Bermain saat Anda mau.",
+    "description": "Mengobrol dengan teman AI, bermain, berlatih bahasa, atau membuat cerita. Pilih sesuai suasana hati Anda.",
+    "start": "Mulai {{mode}}",
+    "explore": "Lihat aktivitas lainnya",
+    "choose": "Pilih cara berinteraksi dengan Crew",
+    "tap": "Ketuk untuk membuka",
+    "modes": {
+      "chat": {
+        "label": "Obrolan AI",
+        "title": "Mulailah dengan menyapa",
+        "hint": "Pilih teman Crew dan mulailah percakapan."
+      },
+      "play": {
+        "label": "Game",
+        "title": "Ayo bermain",
+        "hint": "Coba game yang bisa dimainkan dengan teks tanpa API Key."
+      },
+      "learn": {
+        "label": "Belajar",
+        "title": "Berlatih dengan bersuara",
+        "hint": "Kursus, kosakata, dan percakapan sesuai kemampuan Anda."
+      },
+      "story": {
+        "label": "Cerita",
+        "title": "Buat cerita",
+        "hint": "Membaca bersama atau membuat cerita Anda sendiri."
+      }
+    }
+  },
+  "world": {
+    "intro": "Ngobrol, bermain, belajar, berimajinasi. Bersama AI.",
+    "touch": "Gerakkan atau sentuh. Lihat dunia ini merespons.",
+    "pause": "Jeda gerakan",
+    "resume": "Lanjutkan gerakan",
+    "modes": {
+      "chat": {
+        "lead": "Sedikit kedekatan.",
+        "before": "Cukup katakan",
+        "accent": "Halo.",
+        "after": "",
+        "description": "Tidak perlu topik sempurna atau terburu-buru menjawab.\nKenali teman AI dan ikuti arah percakapan.",
+        "cta": "Temui teman AI Anda"
+      },
+      "play": {
+        "lead": "Langkah berikutnya?",
+        "before": "Biar aku",
+        "accent": "Menebak.",
+        "after": "",
+        "description": "Pilih angka. Terima tantangan.\nPercakapan singkat bisa jadi menyenangkan.",
+        "cta": "Ayo main satu ronde"
+      },
+      "learn": {
+        "lead": "Setiap percakapan",
+        "before": "membawamu",
+        "accent": "Lebih jauh.",
+        "after": "",
+        "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI.",
+        "cta": "Temukan suaramu"
+      },
+      "story": {
+        "lead": "Buka halaman baru.",
+        "before": "Berani",
+        "accent": "Berimajinasi.",
+        "after": "",
+        "description": "Masuki cerita atau tulis awal yang baru.\nBangun dunia bersama AI.",
+        "cta": "Buka cerita baru"
+      }
+    }
+  }
+}

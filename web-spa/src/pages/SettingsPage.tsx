@@ -17,7 +17,8 @@ import "./settingsGroups.css";
 
 export function SettingsPage(){
  const {t,i18n}=useTranslation("settings");
- const english=i18n.language.startsWith("en");
+ // For unlocalized legacy text, use the explicit English fallback for non-Chinese UI locales.
+ const english=!i18n.language.startsWith("zh");
  const ready=useClientReady();
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
