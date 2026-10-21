@@ -113,7 +113,8 @@ async function run(){
         assert.equal(await page.locator('.crew-portal-tabs [aria-selected="true"]').count(),1,"Exactly one active mode");
         assert.equal(await page.locator(".crew-home-portal").getAttribute("data-mode"),choice.mode);
         const href=await page.locator(".crew-portal-cta").getAttribute("href");
-        assert.equal(href,choice.to,"Selected mode CTA deep link");
+        const expected=setup.route==="/en/"?"/en"+choice.to:choice.to;
+        assert.equal(href,expected,"Selected mode CTA deep link (respect language prefix)");
       }
       const newCopy=await page.locator(".crew-portal-content h1").textContent();
       assert.equal(newCopy,initial,"Returning to chat restores initial copy");
@@ -123,7 +124,7 @@ async function run(){
       const cards=await page.locator(".crew-home-shorts-grid").evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));
       assert.ok(cards.scroll>cards.client,"Shorts must be horizontally scrollable");
       const photo=page.locator(".crew-home-short-card .crew-home-short-photo").first();
-      assert.match(await photo.getAttribute("href")||"",/^\/teacher\/shorts\?post=/);
+      assert.match(await photo.getAttribute("href")||"",/^(?:\/en)?\/teacher\/shorts\?post=/);
       const chat=page.locator(".crew-home-short-card .crew-home-short-question").first();
       assert.ok((await chat.getAttribute("href")||"").startsWith("/"),"Shorts keeps friend chat");
       const motion=page.locator(".crew-portal-motion");
