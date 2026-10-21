@@ -21,7 +21,8 @@ test("Explore presents six peer destinations in a single illustrated grid",()=>{
  assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  for(const kind of ["fortune","timeline","games","story","research","circle"]){
-  assert.match(css,new RegExp('data-kind="'+kind+'"'),kind);
+  if(kind!=="fortune")assert.match(css,new RegExp('data-kind="'+kind+'"'),kind);
+  else assert.match(css,/--art:#f4ecfc/,"Fortune uses the common artwork theme");
   assert.ok(art.includes(kind),kind);
  }
 });
