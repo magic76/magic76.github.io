@@ -7,6 +7,7 @@ import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
 import {TodayLearningCard} from "../teacher/TodayLearningCard";
 import {ContinueLearningCard} from "../teacher/ContinueLearningCard";
+import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -140,7 +141,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <Link to="/teacher/me">{en?"Learning records":"查看學習紀錄"} →</Link></div>
    <TodayLearningCard/>
    <ContinueLearningCard compact/>
-   <Link className="crew-section-three-minute" to="/friend/live?id=zoe&intent=speak">
+   <Link className="crew-section-three-minute" to={threeMinuteSpeakingPath()}>
     <span><strong>{en?"Speak a language for 3 minutes":"隨便聊 3 分鐘外語"}</strong>
      <small>{en?"Practice naturally with a Crew Friend, without a test.":"跟 Crew 朋友自然聊天，不用考試。"}</small></span>
     <span className="arrow" aria-hidden="true">→</span>
