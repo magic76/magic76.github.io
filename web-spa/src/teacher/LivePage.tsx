@@ -26,7 +26,7 @@ export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
- const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":null;
+ const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
  const[fortuneContext]=useState(()=>fortuneKind==="reading"?readFortuneSpeakingContext():null);
  const intent=conversationIntent(p.get("intent"),"teacher");
  const isRoleplay=!fortuneKind&&intent!=="continue"&&(Boolean(mission)||s.conversationMode==="scenario");
@@ -111,12 +111,12 @@ export function TeacherLivePage(){
     }
    }
   }finally{
-   navigate(course?"/teacher/course?lesson="+encodeURIComponent(course.id):"/teacher/practice");
+   navigate(course?"/teacher/course?lesson="+encodeURIComponent(course.id):fortuneKind?"/teacher/fortune":"/teacher/practice");
   }
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
- return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={course?"/teacher/course?lesson="+encodeURIComponent(course.id):"/teacher/practice"} onClick={e=>{e.preventDefault();void endAndReturn()}}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
+ return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={course?"/teacher/course?lesson="+encodeURIComponent(course.id):fortuneKind?"/teacher/fortune":"/teacher/practice"} onClick={e=>{e.preventDefault();void endAndReturn()}}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
  <main className="session-shell">
  {mission&&<div className="notice live-mission"><div><b>這次要完成</b><p>{mission.goals.join(" · ")}</p></div></div>}
  <div className="desktop-live-workspace teacher-desktop-workspace"><section className="live-stage teacher-live-stage" data-state={live.state} aria-label="語音練習">
