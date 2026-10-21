@@ -1,5 +1,5 @@
 import {useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./shorts.css";
 import {fetchShortsFeed,fetchShortsPage,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
@@ -13,6 +13,8 @@ function readLikes():string[]{
 }
 export function ShortsPage(){
  const {i18n}=useTranslation();
+ const [searchParams]=useSearchParams();
+ const focusPostId=searchParams.get("post");
  const en=i18n.language.startsWith("en");
  const [feed,setFeed]=useState<ShortFeed|null>(null);
  const [busy,setBusy]=useState(true);
@@ -32,10 +34,14 @@ export function ShortsPage(){
   const abort=new AbortController();
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
-   .then(data=>{if(!abort.signal.aborted){setFeed({...data,posts:shuffleShortsPosts(data.posts)});setCount(PAGE_SIZE);setMoreError(false);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
+   .then(data=>{if(!abort.signal.aborted){const ordered=shuffleShortsPosts(data.posts);
+    // Home photo opens its full approved story. Never interpret URL data as a story.
+    if(focusPostId){const at=ordered.findIndex(post=>post.id===focusPostId);
+     if(at>0)ordered.unshift(...ordered.splice(at,1));}
+    setFeed({...data,posts:ordered});setCount(PAGE_SIZE);setMoreError(false);setBusy(false);if(data.posts.length)trackUsageEvent("shorts_view","shorts_feed")}})
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
- },[retry]);
+ },[retry,focusPostId]);
  // Reveal the next batch before the reader reaches the bottom. Fallback stays accessible
  // when IntersectionObserver is unavailable; the same visit never reshuffles on scroll.
  useEffect(()=>{
