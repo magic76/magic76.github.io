@@ -181,6 +181,11 @@
     "androidDesc": "Get the full Crew Teacher experience on Android."
   },
   "vocabulary": {
+    "pickMeaning": "What does this word mean?",
+    "nextQuestion": "Next word",
+    "goalComplete": "Today's 20 words complete!",
+    "goalCompleteDesc": "You practiced {{count}} words today. Your progress has been saved.",
+    "keepGoing": "Keep practicing",
     "fallbackNotice": "Native-language translations aren't ready yet. Practice now with the built-in Traditional Chinese meanings; no API key is needed.",
     "partialNotice": "You can keep answering while translations finish in the background.",
     "title": "Learn words at your own pace",
@@ -195,6 +200,13 @@
     "retry": "Try again"
   },
   "course": {
+    "nextLesson": "Continue learning",
+    "continue": "Start lesson",
+    "trackComplete": "Track complete",
+    "trackCompleteDesc": "You've completed every lesson in this track. Choose another theme or review a lesson.",
+    "selectTrack": "Choose a topic",
+    "courseMap": "Course map",
+    "progress": "Course progress",
     "title": "Practice real conversations through missions",
     "intro": "Follow the app's learning path: 3 tracks, 10 units, 31 lessons. Complete each lesson to unlock the next.",
     "stars": "Total stars",
