@@ -1,8 +1,8 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
-
-const read=path=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
+const {test}=require("node:test");
+const assert=require("node:assert/strict");
+const {readFileSync}=require("node:fs");
+const path=require("node:path");
+const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Crew V3 homepage keeps interactive portal before real Shorts and functional exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
