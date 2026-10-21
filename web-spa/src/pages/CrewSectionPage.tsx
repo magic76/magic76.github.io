@@ -24,9 +24,8 @@ const copy:{
  },
  explore:{
   eyebrow:"CREW EXPLORE",title:"找件有趣的事聊",intro:"從命理、不同人生、故事到遊戲，探索本身就是目的。",
-  hero:{title:"命理探索 Fortune",desc:"先算命盤、閱讀解析，再決定要深入聊什麼。",to:"/fortune",icon:"fortune",tag:"命盤與人生"},
+  hero:{title:"命理探索 Fortune",desc:"我的命盤、歷史紀錄、新命盤與 Crew Friend 講解，全部從這裡開始。",to:"/fortune",icon:"fortune",tag:"命盤與人生"},
   items:[
-   {title:"命理聊聊",desc:"使用已有命盤或建立新命盤，延伸成外語對話。",to:"/teacher/fortune",icon:"chat"},
    {title:"人生時光機 Timeline",desc:"遇見角色在不同年紀的生活與選擇。",to:"/timeline",icon:"history"},
    {title:"互動遊戲",desc:"海龜湯、猜詞、1A2B 與更多遊戲。",to:"/games",icon:"play"},
    {title:"互動故事 Story",desc:"創作、閱讀並探索角色的故事。",to:"/story",icon:"story"},
@@ -71,9 +70,8 @@ const englishCopy:typeof copy={
  },
  explore:{
   eyebrow:"CREW EXPLORE",title:"Explore something interesting",intro:"Curiosity comes first: fortune, timelines, stories, games and ideas.",
-  hero:{title:"Fortune exploration",desc:"Create a reading, explore the interpretation and decide what matters to you.",to:"/fortune",icon:"fortune",tag:"Stories of you"},
+  hero:{title:"Fortune exploration",desc:"Your charts, saved history, new readings and friend explanations in one place.",to:"/fortune",icon:"fortune",tag:"Your charts"},
   items:[
-   {title:"Fortune conversations",desc:"Use a saved reading or create one to start a conversation.",to:"/teacher/fortune",icon:"chat"},
    {title:"Crew Timeline",desc:"Meet the same character at different ages and life stages.",to:"/timeline",icon:"history"},
    {title:"Interactive games",desc:"Mystery stories, Taboo, numbers and more.",to:"/games",icon:"play"},
    {title:"Crew Story",desc:"Write, read and explore interactive stories.",to:"/story",icon:"story"},
