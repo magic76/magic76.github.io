@@ -1,0 +1,1 @@
+import{o as e}from"./index-QNxyYxRX.js";import{a as t}from"./fortuneSpeaking-BZGHWHAG.js";async function n(n){await e();let r=window.CrewFortuneProfile.get(n);if(!r||!r.result||![`bazi`,`tarot`,`vedic`].includes(r.mode))throw Error(`This saved reading is unavailable.`);t(r)}export{n as prepareFriendExplanation};
