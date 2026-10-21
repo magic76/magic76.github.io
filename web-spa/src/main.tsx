@@ -16,6 +16,7 @@ import "./guides/guides.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";
+import {localeResourcesReady} from "./i18n";
 import {localeFromPublicPath,localePrefix} from "./i18n/localeCatalog";
 import { App } from "./App";
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
@@ -57,5 +58,8 @@ const pathname=window.location.pathname.replace(/\/+$/,"")||"/";
 const prerenderedPath=root.dataset.crewSsgPath;
 // Only hydrate when the delivered SSG HTML belongs to this exact route.
 // The root-index SPA fallback is intentionally NOT hydrated for deep links.
-if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
-else createRoot(root).render(app);
+// Wait only for the active locale, never for all nine languages.
+void localeResourcesReady.then(()=>{
+ if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
+ else createRoot(root).render(app);
+});
