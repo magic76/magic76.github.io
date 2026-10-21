@@ -5,6 +5,10 @@ import {FriendAvatar} from "../friends/FriendAvatar";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
+import {TodayLearningCard} from "../teacher/TodayLearningCard";
+import {ContinueLearningCard} from "../teacher/ContinueLearningCard";
+import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
+import {useClientReady} from "../lib/useClientReady";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -109,6 +113,7 @@ const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story",
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
  const {i18n}=useTranslation();
+ const clientReady=useClientReady();
  const en=i18n.language.startsWith("en");
  const x=en?englishCopy[section]:copy[section];
  return <div className={"crew-section-hub crew-section-"+section}>
@@ -133,6 +138,17 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <strong>{x.hero.title}</strong><small>{x.hero.desc}</small>
    </span><span className="crew-section-arrow" aria-hidden="true">→</span>
   </Link>
+  {section==="learn"&&<section className="crew-section-learning" aria-label={en?"Learning overview":"學習概覽"}>
+   <div className="crew-section-row-title"><h2>{en?"Your learning today":"今天的學習"}</h2>
+    <Link to="/teacher/me">{en?"Learning records":"查看學習紀錄"} →</Link></div>
+   <TodayLearningCard/>
+   <ContinueLearningCard compact/>
+   <Link className="crew-section-three-minute" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
+    <span><strong>{en?"Speak a language for 3 minutes":"隨便聊 3 分鐘外語"}</strong>
+     <small>{en?"Practice naturally with a Crew Friend, without a test.":"跟 Crew 朋友自然聊天，不用考試。"}</small></span>
+    <span className="arrow" aria-hidden="true">→</span>
+   </Link>
+  </section>}
   {section==="chat"&&<section className="crew-section-people" aria-label="Crew Friends">
    <div className="crew-section-row-title"><h2>{en?"Meet the friends":"認識 Crew Friends"}</h2>
     <Link to="/teacher/roles?mode=friends">{en?"All friends":"查看全部"} →</Link></div>
