@@ -53,7 +53,7 @@ test("course grading is visible before returning and saved before unlocking the 
  assert.match(method,/setEvaluating\(true\)/);
  assert.match(method,/Promise\.race\(\[/);
  assert.match(method,/if\(course\)setEvaluating\(false\)/);
- assert.match(method,/if\(course&&!evaluating\)navigate/);
+ assert.match(method,/if\(course&&!evaluating&&\(courseResult\|\|evaluationError\)\)navigate/);
  assert.match(live,/nextUnlockedLesson\(course\.trackId\)/);
  assert.match(live,/role="alert"/);
  const progress=read("web-spa/src/teacher/courseProgress.ts");
