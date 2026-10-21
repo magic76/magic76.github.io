@@ -1,7 +1,7 @@
 import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useLocation} from "react-router-dom";
-import i18n,{type UiLocale,UI_LOCALES} from "./index";
+import i18n,{loadUiLocale,type UiLocale,UI_LOCALES} from "./index";
 import {UI_LOCALE_CATALOG,localePrefix,normalizeUiLocale} from "./localeCatalog";
 import "./languageSwitcher.css";
 
@@ -31,7 +31,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   if(!UI_LOCALES.includes(next))return;
   closePicker();
   if(next===current)return;
-  if(window.location.pathname.startsWith("/crew-app/"))void i18n.changeLanguage(next);
+  if(window.location.pathname.startsWith("/crew-app/"))void loadUiLocale(next).then(()=>i18n.changeLanguage(next));
   else{
    // Keep the existing route, query and hash while replacing its locale prefix.
    const path=localePrefix(next)+(location.pathname.startsWith("/")?location.pathname:"/"+location.pathname);
