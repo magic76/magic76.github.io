@@ -1,0 +1,132 @@
+{
+  "eyebrow": "KHÔNG GIAN CREW CỦA BẠN",
+  "headline": "Trò chuyện, chơi và học cùng Crew",
+  "intro": "Trò chuyện với bạn AI, chơi trò chơi, luyện ngoại ngữ và khám phá các câu chuyện.",
+  "continue": "Tiếp tục từ lần trước",
+  "localOnly": "Đã lưu trên thiết bị này",
+  "explore": "Khám phá Crew",
+  "start": "Chọn một hoạt động để thử",
+  "product": {
+    "teacher": "Ngôn ngữ và luyện nói",
+    "play": "Chơi game cùng bạn Crew",
+    "story": "Truyện và đọc sách",
+    "fortune": "Khám phá lá số"
+  },
+  "setup": {
+    "title": "Tạo Gemini API Key miễn phí",
+    "desc": "Dùng tài khoản Google để lấy khóa trong khoảng một phút. Một khóa dùng chung cho Teacher, Story, Fortune và các game có giọng nói trong Crew Play.",
+    "cta": "Xem cách thiết lập miễn phí",
+    "pricing": "Giới hạn sử dụng miễn phí tùy theo mô hình. Gói trả phí có thể phát sinh chi phí.",
+    "verify": "Gemini Key chưa được xác minh",
+    "verifyDesc": "Kiểm tra xem khóa của bạn có hoạt động không."
+  },
+  "android": "Tải Crew cho Android",
+  "briefing": {
+    "heading": "Bản tin nghiên cứu hằng ngày",
+    "today": "Hôm nay có gì đáng khám phá?",
+    "summary": "Tuyển chọn nghiên cứu AI và ý tưởng thử nghiệm thú vị mỗi ngày.",
+    "read": "Đọc bản tin",
+    "readingList": "Danh sách đọc của tôi",
+    "report": "Trang chủ bản tin",
+    "loading": "Đang tải bản mới nhất…"
+  },
+  "recent": {
+    "teacher": "Luyện nói",
+    "story": "Truyện tương tác",
+    "fortune": "Khám phá lá số",
+    "fallback": "Quay lại hoạt động gần đây",
+    "reader": "Đọc tiếp từ trang {{page}}",
+    "physical": "Đọc tiếp sách của bạn",
+    "book": "Truyện của tôi",
+    "bazi": "Luận giải Bát Tự",
+    "tarot": "Thần số học Tarot",
+    "vedic": "Chiêm tinh Vệ Đà",
+    "play": "Mở game này để chơi ván mới",
+    "friend": "Trò chuyện với bạn Crew",
+    "friendDesc": "Tiếp tục trò chuyện với người bạn này"
+  },
+  "actions": {
+    "label": "Bắt đầu nhanh",
+    "chat": "Gặp một người bạn Crew",
+    "chatDesc": "Bắt đầu trò chuyện",
+    "play": "Chơi game",
+    "playDesc": "Nhiều trò chơi không cần khóa"
+  },
+  "gamePick": {
+    "label": "Trò chơi nổi bật",
+    "title": "Thử một ván đoán số Bulls and Cows",
+    "desc": "Chơi bằng cách nhập chữ mà không cần Gemini Key. Có thể dùng giọng nói để luyện ngoại ngữ.",
+    "cta": "Chơi ngay"
+  },
+  "portal": {
+    "headingLead": "Trò chuyện khi bạn muốn.",
+    "headingAccent": "Chơi khi bạn thích.",
+    "description": "Trò chuyện với bạn AI, chơi game, luyện ngoại ngữ hoặc kể chuyện. Chọn theo tâm trạng của bạn.",
+    "start": "Bắt đầu {{mode}}",
+    "explore": "Xem thêm hoạt động",
+    "choose": "Chọn cách tương tác với Crew",
+    "tap": "Chạm để mở",
+    "modes": {
+      "chat": {
+        "label": "Trò chuyện AI",
+        "title": "Chỉ cần chào một tiếng",
+        "hint": "Chọn bạn Crew rồi bắt đầu trò chuyện."
+      },
+      "play": {
+        "label": "Trò chơi",
+        "title": "Cùng chơi nào",
+        "hint": "Thử các trò chơi nhập chữ không cần API Key."
+      },
+      "learn": {
+        "label": "Học tập",
+        "title": "Luyện nói thành tiếng",
+        "hint": "Khóa học, từ vựng và trò chuyện theo tốc độ riêng."
+      },
+      "story": {
+        "label": "Truyện",
+        "title": "Tạo một câu chuyện",
+        "hint": "Đọc cùng nhau hoặc sáng tác truyện của riêng bạn."
+      }
+    }
+  },
+  "world": {
+    "intro": "Trò chuyện, chơi, học, tưởng tượng. Cùng AI.",
+    "touch": "Di chuyển hoặc chạm vào màn hình. Xem thế giới này phản hồi.",
+    "pause": "Tạm dừng chuyển động",
+    "resume": "Tiếp tục chuyển động",
+    "modes": {
+      "chat": {
+        "lead": "Một chút kết nối.",
+        "before": "Chỉ cần nói",
+        "accent": "Xin chào.",
+        "after": "",
+        "description": "Không cần chủ đề hoàn hảo hay trả lời vội.\nGặp bạn AI và để cuộc trò chuyện tự nhiên diễn ra.",
+        "cta": "Gặp người bạn AI của bạn"
+      },
+      "play": {
+        "lead": "Bước tiếp theo là gì?",
+        "before": "Để tôi",
+        "accent": "Đoán nhé.",
+        "after": "",
+        "description": "Chọn một con số. Đón nhận thử thách.\nMột chút đối đáp cũng đủ thú vị.",
+        "cta": "Chơi một ván"
+      },
+      "learn": {
+        "lead": "Mỗi cuộc trò chuyện",
+        "before": "đưa bạn",
+        "accent": "Tiến xa hơn.",
+        "after": "",
+        "description": "Từ lúc tìm lời nói đến khi diễn đạt trôi chảy.\nLuyện một ngôn ngữ mới với bạn đồng hành AI.",
+        "cta": "Tìm tiếng nói của mình"
+      },
+      "story": {
+        "lead": "Lật sang trang mới.",
+        "before": "Dám",
+        "accent": "Tưởng tượng.",
+        "after": "",
+        "description": "Bước vào một câu chuyện hoặc viết một khởi đầu mới.\nCùng AI xây dựng cả thế giới.",
+        "cta": "Mở truyện mới"
+      }
+    }
+  }
+}
