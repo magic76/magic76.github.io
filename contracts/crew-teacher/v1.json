@@ -93,7 +93,11 @@
       "reuseWebFortuneCalculator": true,
       "readingReuseIsDeviceLocal": true,
       "nativeVoiceReceivesOnlyOptedInSummary": true,
-      "embeddedWebViewHasNoJavascriptBridge": true
+      "embeddedWebViewHasNoJavascriptBridge": true,
+      "fortuneVoiceIsFriendLedExplanation": true,
+      "explainBeforeVisitorQuestions": true,
+      "naturalInterruptionsNoForcedQuizzes": true,
+      "computedReadingOnlyNoFabrication": true
     },
     "release": {
       "androidPlayAabManual": true,
