@@ -181,6 +181,8 @@
     "androidDesc": "Get the full Crew Teacher experience on Android."
   },
   "vocabulary": {
+    "fallbackNotice": "Native-language translations aren't ready yet. Practice now with the built-in Traditional Chinese meanings; no API key is needed.",
+    "partialNotice": "You can keep answering while translations finish in the background.",
     "title": "Learn words at your own pace",
     "intro": "Vocabulary difficulty adapts as you answer. Higher-level words are checked again, so one lucky guess won't advance your level.",
     "progress": "Today's progress",
