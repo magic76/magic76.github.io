@@ -111,6 +111,9 @@ export function TimelinePage(){
      <strong>{en?person.name+"'s chapter":person.name+" 的人生篇章"}</strong>
      <span className="timeline-stage-count" aria-live="off">{index+1} / {AGES.length}</span>
     </div>
+    <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
+     {en?"Talk with "+person.name+" at "+age:"和 "+age+" 歲的 "+person.name+" 聊聊"} <span aria-hidden="true">↗</span>
+    </Link></div>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
       onPointerDown={()=>{programmaticTarget.current=null}}
@@ -150,9 +153,7 @@ export function TimelinePage(){
      <h3>{en?"What to talk about":"可以聊的話題"}</h3><ul>{(en?current.conversationThreads:current.conversationThreadsZh).map(item=><li key={item}>{item}</li>)}</ul>
     </details>
    </div>
-   <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
-    {en?"Talk with "+person.name+" at "+age:"和 "+age+" 歲的 "+person.name+" 聊聊"} <span aria-hidden="true">↗</span>
-   </Link></div>
+
   </section>
   <details className="timeline-overview section panel"><summary>{en?"Jump to another chapter":"快速跳到其他年齡"} <span aria-hidden="true">⌄</span></summary>
    <div className="timeline-era-grid">{eras.map(era=><div className="timeline-era" key={era.label[1]}>
