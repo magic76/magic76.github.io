@@ -25,7 +25,7 @@ function loadQueue(translations={}){
   "./vocabularyProgress":{dueVocabulary:()=>[]},
   "./adaptivePlacement":{placementState:()=>({recovery:1,forceProbe:false,calibrationRemaining:12}),nextBandFloor:()=>61}
  };
- const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText;
+ const output=ts.transpileModule(source,{compilerOptions:{module:1,target:7}}).outputText;
  const module={exports:{}};
  vm.runInNewContext("(function(require,module,exports){"+output+"\n})")(
   name=>{if(!mocks[name])throw Error("unknown import "+name);return mocks[name]},
