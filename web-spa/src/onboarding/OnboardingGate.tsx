@@ -73,6 +73,9 @@ export function OnboardingGate({pathname}:{pathname:string}){
  useEffect(()=>{
   // Do not cover a shared deep link, a live conversation, or a game invitation.
   // Existing Web users should never be forced through a new migration wizard.
+  // Always respect external deep links, including games and live conversations.
+  // Settings is allowed for an explicit replay interrupted by a locale switch.
+  if(pathname!=="/"&&pathname!=="/settings")return;
   try{
    // Restore a partially completed guide after switching interface language.
    if(sessionStorage.getItem(DRAFT_KEY)){openGuide(false);return;}
