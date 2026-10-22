@@ -243,5 +243,18 @@
     "courseTitle": "Bài học tiếp theo: {{name}}",
     "conversationTitle": "Luyện nội dung trọng tâm hôm nay cùng giáo viên",
     "conversationNote": "Không có bài ôn hay bài học đến hạn. Bắt đầu một buổi luyện nói."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Gặp cùng một người ở tuổi 7, 16, 25, 40, 55 hoặc 70.",
+    "timelineAction": "Khám phá cuộc đời Mira →",
+    "intentsAria": "Chọn cuộc trò chuyện",
+    "intentsHeading": "Hôm nay bạn muốn làm gì?",
+    "intentsHint": "Bắt đầu với điều bạn muốn nói",
+    "shareTitle": "Kể chuyện hôm nay",
+    "shareDesc": "Trò chuyện tự nhiên, không áp lực học bài.",
+    "speakTitle": "Trò chuyện trong 3 phút",
+    "speakDesc": "Một cuộc trò chuyện thoải mái bằng ngôn ngữ đang học.",
+    "continueTitle": "Tiếp tục luyện nói",
+    "continueDesc": "Giáo viên điều chỉnh theo tiến độ học của bạn."
   }
 }

@@ -243,5 +243,18 @@
     "courseTitle": "Próxima lição: {{name}}",
     "conversationTitle": "Pratique o foco de hoje com seu professor",
     "conversationNote": "Não há revisões nem lições pendentes. Comece uma sessão de fala."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Conheça a mesma pessoa aos 7, 16, 25, 40, 55 ou 70 anos.",
+    "timelineAction": "Explore a vida de Mira →",
+    "intentsAria": "Escolha a conversa",
+    "intentsHeading": "O que você gostaria de fazer hoje?",
+    "intentsHint": "Comece com um motivo para conversar",
+    "shareTitle": "Conte algo sobre seu dia",
+    "shareDesc": "Converse naturalmente, sem cobrança.",
+    "speakTitle": "Converse por 3 minutos",
+    "speakDesc": "Uma conversa tranquila no idioma que você estuda.",
+    "continueTitle": "Continuar prática de conversação",
+    "continueDesc": "Seu professor acompanha seu progresso de aprendizado."
   }
 }

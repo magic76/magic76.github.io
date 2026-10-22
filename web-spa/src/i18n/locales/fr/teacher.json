@@ -243,5 +243,18 @@
     "courseTitle": "Leçon suivante : {{name}}",
     "conversationTitle": "Travaillez l'objectif du jour avec votre professeur",
     "conversationNote": "Aucune révision ou leçon en attente. Commencez une séance orale."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Rencontrez une personne à 7, 16, 25, 40, 55 ou 70 ans.",
+    "timelineAction": "Explorer la vie de Mira →",
+    "intentsAria": "Choisir une conversation",
+    "intentsHeading": "Que souhaitez-vous faire aujourd'hui ?",
+    "intentsHint": "Commencez avec une raison de parler",
+    "shareTitle": "Raconter sa journée",
+    "shareDesc": "Discutez librement, sans cours ni pression.",
+    "speakTitle": "Parler pendant 3 minutes",
+    "speakDesc": "Une conversation détendue dans la langue étudiée.",
+    "continueTitle": "Reprendre la pratique orale",
+    "continueDesc": "Votre professeur s'adapte à votre progression."
   }
 }

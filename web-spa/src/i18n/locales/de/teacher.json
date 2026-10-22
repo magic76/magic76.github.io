@@ -243,5 +243,18 @@
     "courseTitle": "Nächste Lektion: {{name}}",
     "conversationTitle": "Übe den heutigen Schwerpunkt mit deiner Lehrkraft",
     "conversationNote": "Keine Wiederholungen oder Lektionen fällig. Starte eine Sprechsitzung."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Entdecke eine Person mit 7, 16, 25, 40, 55 oder 70 Jahren.",
+    "timelineAction": "Miras Leben erkunden →",
+    "intentsAria": "Gespräch auswählen",
+    "intentsHeading": "Was möchtest du heute machen?",
+    "intentsHint": "Wähle erst einen Gesprächsanlass",
+    "shareTitle": "Erzähl etwas von heute",
+    "shareDesc": "Ganz entspannt, ohne Unterricht oder Druck.",
+    "speakTitle": "Drei Minuten plaudern",
+    "speakDesc": "Ein lockeres Gespräch in deiner Lernsprache.",
+    "continueTitle": "Sprechübung fortsetzen",
+    "continueDesc": "Deine Lehrkraft passt sich deinem Lernfortschritt an."
   }
 }

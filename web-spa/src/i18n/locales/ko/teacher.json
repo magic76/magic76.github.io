@@ -243,5 +243,18 @@
     "courseTitle": "다음 수업: {{name}}",
     "conversationTitle": "오늘의 집중 주제를 선생님과 연습",
     "conversationNote": "예정된 복습이나 수업이 없습니다. 말하기 세션을 시작하세요."
+  },
+  "practiceEntry": {
+    "timelineIntro": "한 인물의 7세부터 70세까지 여섯 시기를 만나 보세요.",
+    "timelineAction": "Mira의 인생 탐험하기 →",
+    "intentsAria": "대화 선택",
+    "intentsHeading": "오늘 무엇을 하고 싶나요?",
+    "intentsHint": "말하고 싶은 이야기부터 시작하세요",
+    "shareTitle": "오늘 있었던 일 나누기",
+    "shareDesc": "수업이나 부담 없이 자연스럽게 이야기해요.",
+    "speakTitle": "3분간 대화하기",
+    "speakDesc": "배우는 언어로 편안하게 대화해요.",
+    "continueTitle": "지난 말하기 연습 이어가기",
+    "continueDesc": "선생님이 학습 진도에 맞춰 도와줘요."
   }
 }

@@ -243,5 +243,18 @@
     "courseTitle": "接著學：{{name}}",
     "conversationTitle": "和老師練一下今天的重點",
     "conversationNote": "沒有到期複習或未完成課程，直接做口說練習。"
+  },
+  "practiceEntry": {
+    "timelineIntro": "認識同一個人，從 7 歲到 70 歲的六段人生。",
+    "timelineAction": "進入人生時光機 →",
+    "intentsAria": "今天想做什麼？",
+    "intentsHeading": "今天想做什麼？",
+    "intentsHint": "先選想做的事，再開始聊天",
+    "shareTitle": "跟朋友說說今天的事",
+    "shareDesc": "自然聊天、不必準備話題",
+    "speakTitle": "隨便聊 3 分鐘外語",
+    "speakDesc": "外語陪聊，不考試不強迫糾錯",
+    "continueTitle": "接續上次的練習",
+    "continueDesc": "老師依已知學習進度引導"
   }
 }
