@@ -2,14 +2,14 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 
-// Reuse the same TypeScript engine as the real UI; no duplicate rule implementation.
+// Reuse the production rules. Node 22 provides built-in TS type stripping,
+// without depending on TypeScript 7's removed runtime transpile APIs.
 const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/crazyCourtEngine.ts"),"utf8");
-// TypeScript 7 does not expose runtime enum constants; numeric compiler options remain compatible.
-const {outputText}=ts.transpileModule(source,{compilerOptions:{module:1,target:9}});
+const stripped=stripTypeScriptTypes(source).replace(/^export (const|function)/gm,"$1");
 const moduleRef={exports:{}};
-new Function("module","exports",outputText)(moduleRef,moduleRef.exports);
+new Function("module","exports",stripped+"\nObject.assign(exports,{courtCases,courtReasons,evaluateCourtAction,courtVerdict});")(moduleRef,moduleRef.exports);
 const {courtCases,courtReasons,evaluateCourtAction,courtVerdict}=moduleRef.exports;
 
 test("each Crazy Court case has four claims and three distinct evidence cards",()=>{
