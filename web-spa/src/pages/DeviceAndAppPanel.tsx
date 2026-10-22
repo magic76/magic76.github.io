@@ -109,8 +109,8 @@ export function DeviceAndAppPanel(){
      {features.openTtsSettings&&<button type="button" className="btn secondary" onClick={()=>void settingsAction("openTtsSettings")}>{t("deviceApp.ttsSettings")}</button>}
      {features.tts&&<button type="button" className="btn secondary" onClick={()=>void (speaking?stopSpeech():testSpeech())}>{t(speaking?"deviceApp.stopSpeech":"deviceApp.testSpeech")}</button>}
      {info&&<button type="button" className="btn secondary" onClick={()=>void copySummary()}>{t("deviceApp.copy")}</button>}
-     <button type="button" className="btn secondary" onClick={()=>void refresh()}>{t("deviceApp.refresh")}</button>
     </div>}
+    <div className="actions" style={{marginTop:10}}><button type="button" className="btn secondary" onClick={()=>void refresh()}>{t("deviceApp.refresh")}</button></div>
     {info&&<details style={{marginTop:16}}>
      <summary>{t("deviceApp.details")}</summary>
      <dl className="crew-device-fields">{fields.filter((x):x is [string,string]=>x!==null).map(([key,value])=><div key={key} className="row" style={{justifyContent:"space-between",gap:12,padding:"6px 0"}}><dt>{t(key)}</dt><dd style={{margin:0,textAlign:"right",overflowWrap:"anywhere"}}>{value}</dd></div>)}</dl>
