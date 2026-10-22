@@ -647,6 +647,7 @@ async function run(){
    await mini.getByRole("button",{name:"Close / 關閉"}).click();
    await mini.locator("#crew-number").fill("123");
    await mini.locator(".crew-mini-input-row button[type=submit]").click();
+   await mini.locator(".crew-mini-number-history li").first().waitFor({state:"visible",timeout:5000});
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B offline A/B turn");
    await mini.getByRole("button",{name:"撤銷上一筆"}).click();
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),0,"1A2B undo turn");
@@ -654,6 +655,7 @@ async function run(){
    await mini.getByRole("button",{name:"朋友猜我的數字"}).click();
    await mini.getByRole("button",{name:"Close / 關閉"}).click();
    await mini.getByRole("button",{name:"回報結果"}).click();
+   await mini.locator(".crew-mini-number-history li").first().waitFor({state:"visible",timeout:5000});
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B reverse feedback");
    await mini.goto(origin+"/games/taboo",{waitUntil:"domcontentloaded"});
    await mini.getByRole("button",{name:/開始挑戰/}).waitFor({state:"visible",timeout:15000});
