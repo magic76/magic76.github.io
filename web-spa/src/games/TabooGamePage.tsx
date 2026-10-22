@@ -181,7 +181,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   finally{setBusy(false)}
  };
  const lastRound=history.length?history[history.length-1]:null;
- return <div className={"crew-mini-stage crew-taboo-stage is-"+phase}>
+ return <div className={"crew-mini-stage crew-taboo-stage is-"+phase+(geminiKey()?" has-key":"")}>
   <div className="crew-mini-config" aria-label="Taboo 遊戲設定">
    <small className="crew-mini-label">遊戲模式</small>
    <div className="crew-mini-segments" role="group" aria-label="描述模式">
