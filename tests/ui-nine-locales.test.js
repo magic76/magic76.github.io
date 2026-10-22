@@ -43,3 +43,14 @@ test("beta localization does not change Teacher's learning language or indexed S
  assert.ok(switcher.includes("localePrefix(next)"));
  assert.ok(!switcher.includes("setTargetLanguage"));
 });
+
+
+test("removed preview languages cannot appear in the UI language picker",()=>{
+ const entries=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales;
+ assert.equal(entries.length,11);
+ assert.ok(entries.every(entry=>entry.stage==="published"||entry.stage==="priority"));
+ for(const locale of locales){
+  const catalog=JSON.parse(fs.readFileSync(path.join(folder,locale,"home.json"),"utf8"));
+  assert.ok(catalog.sectionExplore.fortune.desc&&catalog.sectionExplore.circle.desc,locale+" Explore content");
+ }
+});

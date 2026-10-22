@@ -172,10 +172,13 @@ async function run(){
       await page.goto(origin+"/"+locale+"/settings/",{waitUntil:"domcontentloaded",timeout:30000});
       await page.locator("#settings-device h2").waitFor({state:"visible",timeout:15000});
       assert.equal((await page.locator("#settings-device h2").textContent())?.trim(),settingsStrings.device.heading,locale+" Settings translation");
+      await page.locator(".crew-language-trigger").first().click();
+      assert.equal(await page.locator(".crew-language-dialog .crew-language-option").count(),11,locale+" no preview languages in picker");
+      await page.locator(".crew-language-close").first().click();
       assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
       // Walk the remaining user-facing destinations with the same saved
       // learning-language settings. No screenshots/artifacts are uploaded.
-      for(const destination of ["/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
+      for(const destination of ["/","/explore/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
         const url="/"+locale+destination;
         const response=await page.goto(origin+url,{waitUntil:"domcontentloaded",timeout:30000});
         assert.equal(response?.status(),200,locale+" opens "+destination);
@@ -190,6 +193,16 @@ async function run(){
           mode:localStorage.getItem("crew_teacher_chatMode")
         }));
         assert.equal(snapshot.lang,locale,locale+" remains selected on "+destination);
+        if(destination==="/explore/"){
+          const heading=page.locator(".crew-section-explore h1");
+          await heading.waitFor({state:"visible",timeout:15000});
+          assert.equal((await heading.textContent())?.trim(),homeStrings.sectionExplore.title,locale+" Explore localized heading");
+          const tiles=page.locator(".crew-explore-grid .crew-explore-tile");
+          assert.equal(await tiles.count(),6,locale+" Explore offers all destinations");
+          for(const [position,kind] of ["fortune","timeline","games","story","research","circle"].entries()){
+            assert.equal((await tiles.nth(position).locator("strong").textContent())?.trim(),homeStrings.sectionExplore[kind].title,locale+" Explore translated "+kind);
+          }
+        }
         assert.ok(snapshot.document<=snapshot.viewport+2,locale+" overflow on "+destination+": "+JSON.stringify(snapshot));
         assert.deepEqual([snapshot.target,snapshot.native,snapshot.pace,snapshot.mode],["日文","繁體中文","slow","practice"],locale+" learning isolation on "+destination);
         process.stdout.write("PASS Beta route "+locale+" "+destination+"\n");

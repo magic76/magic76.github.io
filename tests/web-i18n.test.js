@@ -146,3 +146,19 @@ test("locale dialog fits mobile viewports and keeps status wording separate from
  assert.ok(!read("config/ui-locales.json").includes('"preview"'));
  assert.ok(!read("web-spa/src/i18n/LanguageSwitcher.tsx").includes("crew-language-option-note"));
 });
+
+
+test("Explore uses translations for all six cards and all 11 selectable UI languages",()=>{
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.ok(hub.includes('useTranslation("home")'));
+ assert.ok(hub.includes('t("sectionExplore.title")'));
+ const locales=JSON.parse(read("config/ui-locales.json")).locales.map(item=>item.code);
+ assert.equal(locales.length,11);
+ for(const language of locales){
+  const copy=load(language,"home").sectionExplore;
+  assert.ok(copy.title&&copy.intro&&copy.destinations,language+" heading");
+  for(const kind of ["fortune","timeline","games","story","research","circle"])
+   assert.ok(copy[kind].title&&copy[kind].desc,language+" "+kind+" translated card");
+ }
+ assert.notEqual(load("ja","home").sectionExplore.title,load("zh-TW","home").sectionExplore.title);
+});

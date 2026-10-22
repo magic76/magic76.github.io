@@ -112,10 +112,17 @@ const englishCopy:typeof copy={
 const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
- const {i18n}=useTranslation();
+ const {t,i18n}=useTranslation("home");
  const clientReady=useClientReady();
- const en=i18n.language.startsWith("en");
- const x=en?englishCopy[section]:copy[section];
+ const en=i18n.language!=="zh-TW";
+ const source=en?englishCopy[section]:copy[section];
+ const kinds=["fortune","timeline","games","story","research","circle"] as const;
+ // Translate every Explore tile with lazy-loaded resources; links and artwork retain stable IDs.
+ const x=section==="explore"?{
+  ...source,title:t("sectionExplore.title"),intro:t("sectionExplore.intro"),
+  hero:{...source.hero,title:t("sectionExplore.fortune.title"),desc:t("sectionExplore.fortune.desc")},
+  items:source.items.map((item,i)=>({...item,title:t("sectionExplore."+kinds[i]+".title"),desc:t("sectionExplore."+kinds[i]+".desc")}))
+ }:source;
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className="crew-section-heading">
    <span className="kicker">{x.eyebrow}</span>
@@ -123,7 +130,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
    <p>{x.intro}</p>
   </header>
   {section==="explore"?
-   <section className="crew-explore-grid" aria-label={en?"Explore destinations":"探索功能"}>
+   <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} data-kind={exploreKinds[i]}>
      <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
