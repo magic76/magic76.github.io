@@ -308,5 +308,121 @@
       "title": "Comunidade",
       "desc": "Compartilhe, troque itens e participe da comunidade."
     }
+  },
+  "sectionHubs": {
+    "more": "Mais opções",
+    "chat": {
+      "title": "Converse com seus amigos",
+      "intro": "Não é uma aula. Comece pelas histórias dos amigos ou por algo que desperte sua curiosidade.",
+      "hero": {
+        "title": "Conheça seus amigos Crew",
+        "desc": "São 16 personalidades. Escolha um amigo e o idioma da conversa.",
+        "tag": "Papo descontraído"
+      },
+      "items": {
+        "shorts": {
+          "title": "Shorts dos amigos",
+          "desc": "Veja o que aconteceu hoje antes de começar a conversar."
+        },
+        "games": {
+          "title": "Jogue com os amigos",
+          "desc": "Encontre assuntos para conversar por meio de jogos interativos."
+        },
+        "memory": {
+          "title": "Assuntos e memórias",
+          "desc": "Gerencie o que os amigos lembram e suas preferências de privacidade."
+        }
+      },
+      "meetFriends": "Conheça os amigos",
+      "allFriends": "Ver todos os amigos",
+      "friendTitles": {
+        "zoe": "Rápida e bem-humorada",
+        "noah": "Um ouvinte tranquilo",
+        "iris": "Artística e curiosa",
+        "max": "Aventureiro e animado",
+        "yuna": "Gentil e reservada",
+        "felix": "Adora debater ideias"
+      }
+    },
+    "learn": {
+      "title": "Pratique com um professor",
+      "intro": "Quando tiver um objetivo, seu Crew Teacher ajuda você a praticar e evoluir.",
+      "hero": {
+        "title": "Comece a falar",
+        "desc": "Escolha seu Crew Teacher e inicie uma conversa por voz.",
+        "tag": "Prática de conversação"
+      },
+      "items": {
+        "center": {
+          "title": "Central de aprendizagem",
+          "desc": "Continue lições, vocabulário e exercícios de pronúncia."
+        },
+        "scenarios": {
+          "title": "Situações do dia a dia",
+          "desc": "Converse em cenários reais do cotidiano."
+        },
+        "textbook": {
+          "title": "Estude com seu material",
+          "desc": "Pratique usando páginas, anotações e fotos."
+        },
+        "pronunciation": {
+          "title": "Treino de pronúncia",
+          "desc": "Aprimore sua pronúncia e expressão oral."
+        },
+        "reports": {
+          "title": "Histórico de prática",
+          "desc": "Revise os relatórios das atividades anteriores."
+        }
+      },
+      "learningOverview": "Visão geral do aprendizado",
+      "todayTitle": "Seu aprendizado hoje",
+      "recordsLink": "Ver histórico de aprendizado",
+      "threeMinuteTitle": "Converse por 3 minutos em outro idioma",
+      "threeMinuteDesc": "Pratique naturalmente com um amigo Crew, sem provas."
+    },
+    "me": {
+      "title": "Meu Crew",
+      "intro": "Acompanhe seu progresso, conteúdos salvos e preferências em um só lugar.",
+      "hero": {
+        "title": "Meu progresso de aprendizado",
+        "desc": "Consulte exercícios concluídos e registros de aprendizagem.",
+        "tag": "Registros deste dispositivo"
+      },
+      "items": {
+        "readings": {
+          "title": "Minhas leituras",
+          "desc": "Reabra mapas e interpretações salvos."
+        },
+        "stories": {
+          "title": "Minhas histórias",
+          "desc": "Volte à sua estante e às suas criações."
+        },
+        "memory": {
+          "title": "Memórias de aprendizado",
+          "desc": "Veja e gerencie o que seu professor lembra dos estudos."
+        },
+        "settings": {
+          "title": "Configurações e chave de API",
+          "desc": "Idioma, modelo, voz e privacidade."
+        },
+        "reports": {
+          "title": "Relatórios de aprendizado",
+          "desc": "Confira comentários sobre conversas anteriores."
+        }
+      },
+      "footnote": "Alguns resultados e registros ficam salvos somente neste navegador e não são sincronizados entre dispositivos."
+    }
+  },
+  "todayLearning": {
+    "heading": "Aprendizado de hoje",
+    "goal": "Meta diária",
+    "goalAria": "Meta diária de fala em minutos",
+    "minuteUnit": "min",
+    "progress": "Progresso da meta de fala",
+    "summary": "Você praticou a fala por {{minutes}} minutos hoje",
+    "sessions": "{{count}} sessões registradas · Meta: {{goal}} minutos",
+    "words": "Palavras de hoje",
+    "lessons": "Lições concluídas",
+    "footnote": "São exibidas apenas as atividades registradas neste navegador ou WebView. Os registros do antigo app nativo para Android ainda não são sincronizados."
   }
 }

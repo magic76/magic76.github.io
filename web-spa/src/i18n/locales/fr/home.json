@@ -308,5 +308,121 @@
       "title": "Communauté",
       "desc": "Partagez, échangez et rencontrez la communauté."
     }
+  },
+  "sectionHubs": {
+    "more": "Explorer davantage",
+    "chat": {
+      "title": "Discuter avec des amis",
+      "intro": "Ce n'est pas un cours. Partez de leur quotidien ou de ce qui attise votre curiosité.",
+      "hero": {
+        "title": "Rencontrer les amis Crew",
+        "desc": "Seize personnalités. Choisissez un ami et la langue de votre conversation.",
+        "tag": "Discussion libre"
+      },
+      "items": {
+        "shorts": {
+          "title": "Shorts des amis",
+          "desc": "Découvrez leurs nouvelles avant de leur parler."
+        },
+        "games": {
+          "title": "Jouer ensemble",
+          "desc": "Trouvez des sujets de conversation grâce aux jeux interactifs."
+        },
+        "memory": {
+          "title": "Sujets et souvenirs",
+          "desc": "Gérez les sujets mémorisés par vos amis et vos préférences de confidentialité."
+        }
+      },
+      "meetFriends": "Rencontrer les amis",
+      "allFriends": "Tous les amis",
+      "friendTitles": {
+        "zoe": "Vive et pleine d'esprit",
+        "noah": "À l'écoute et apaisant",
+        "iris": "Créative et curieuse",
+        "max": "Énergique et aventurier",
+        "yuna": "Douce et réservée",
+        "felix": "Aime débattre"
+      }
+    },
+    "learn": {
+      "title": "S'entraîner avec un professeur",
+      "intro": "Avec un objectif précis, votre Crew Teacher vous aide à pratiquer et à progresser.",
+      "hero": {
+        "title": "Commencer à parler",
+        "desc": "Choisissez votre Crew Teacher et lancez une conversation vocale naturelle.",
+        "tag": "Pratique orale"
+      },
+      "items": {
+        "center": {
+          "title": "Centre d'apprentissage",
+          "desc": "Reprenez les leçons, le vocabulaire et la prononciation."
+        },
+        "scenarios": {
+          "title": "Mises en situation",
+          "desc": "Entraînez-vous à parler dans des situations du quotidien."
+        },
+        "textbook": {
+          "title": "Étudier avec un manuel",
+          "desc": "Apprenez à partir de pages, de notes et de photos."
+        },
+        "pronunciation": {
+          "title": "Entraînement à la prononciation",
+          "desc": "Améliorez votre prononciation et votre expression orale."
+        },
+        "reports": {
+          "title": "Historique des entraînements",
+          "desc": "Consultez les bilans de vos sessions précédentes."
+        }
+      },
+      "learningOverview": "Aperçu de l'apprentissage",
+      "todayTitle": "Vos progrès du jour",
+      "recordsLink": "Voir mes résultats",
+      "threeMinuteTitle": "Parler une langue étrangère pendant 3 minutes",
+      "threeMinuteDesc": "Échangez naturellement avec un ami Crew, sans examen."
+    },
+    "me": {
+      "title": "Mon Crew",
+      "intro": "Retrouvez vos progrès, vos contenus enregistrés et vos préférences.",
+      "hero": {
+        "title": "Ma progression",
+        "desc": "Consultez les exercices terminés et les résultats enregistrés.",
+        "tag": "Données de cet appareil"
+      },
+      "items": {
+        "readings": {
+          "title": "Mes lectures",
+          "desc": "Rouvrez vos thèmes et interprétations enregistrés."
+        },
+        "stories": {
+          "title": "Mes histoires",
+          "desc": "Retournez à votre bibliothèque et à vos créations."
+        },
+        "memory": {
+          "title": "Souvenirs d'apprentissage",
+          "desc": "Consultez et gérez ce que votre professeur retient de vos études."
+        },
+        "settings": {
+          "title": "Paramètres et clé API",
+          "desc": "Langue, modèle, voix et confidentialité."
+        },
+        "reports": {
+          "title": "Bilans d'apprentissage",
+          "desc": "Retrouvez les retours de vos entraînements précédents."
+        }
+      },
+      "footnote": "Certaines données d'apprentissage et lectures sont enregistrées uniquement dans ce navigateur et ne sont pas synchronisées entre appareils."
+    }
+  },
+  "todayLearning": {
+    "heading": "Apprentissage du jour",
+    "goal": "Objectif quotidien",
+    "goalAria": "Objectif oral quotidien en minutes",
+    "minuteUnit": "min",
+    "progress": "Progression de l'objectif oral",
+    "summary": "Vous avez parlé pendant {{minutes}} minutes aujourd'hui",
+    "sessions": "{{count}} sessions enregistrées · Objectif : {{goal}} minutes",
+    "words": "Mots du jour",
+    "lessons": "Leçons terminées",
+    "footnote": "Seules les activités enregistrées dans ce navigateur ou WebView sont affichées. Les anciennes données de l'application Android native ne sont pas encore synchronisées."
   }
 }
