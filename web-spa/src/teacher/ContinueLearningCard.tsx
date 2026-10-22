@@ -13,7 +13,6 @@ export function ContinueLearningCard({compact=false}:{compact?:boolean}){
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  useEffect(()=>{let alive=true;void buildDailyLearningPlan().then(x=>{if(alive)setPlan(x)});return()=>{alive=false}},[]);
- const english=i18n.resolvedLanguage==="en";
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
  const title=plan&&chinese?plan.title:plan?.action==="textbook"?t("continue.textbookTitle"):

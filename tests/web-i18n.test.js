@@ -163,3 +163,38 @@ test("Explore uses translations for all six cards and all 11 selectable UI langu
  }
  assert.notEqual(load("ja","home").sectionExplore.title,load("zh-TW","home").sectionExplore.title);
 });
+
+
+test("Chat, Learn, Me hubs and progress card translate every visible UI field in 11 locales",()=>{
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const progress=read("web-spa/src/teacher/TodayLearningCard.tsx");
+ const resume=read("web-spa/src/teacher/ContinueLearningCard.tsx");
+ assert.ok(hub.includes('sectionItemKeys'));
+ assert.ok(hub.includes('t(prefix+"hero.title")'));
+ assert.ok(hub.includes('t("sectionHubs.chat.friendTitles."+friend.id'));
+ assert.ok(progress.includes('useTranslation("home")'));
+ assert.ok(progress.includes('t("todayLearning.summary",{minutes})'));
+ assert.ok(resume.includes('plan&&chinese?plan.title'));
+ for(const locale of JSON.parse(read("config/ui-locales.json")).locales.map(item=>item.code)){
+  const {sectionHubs:h,todayLearning:today}=load(locale,"home");
+  assert.ok(h.more,locale+" shared more heading");
+  for(const [section,items] of Object.entries({chat:["shorts","games","memory"],learn:["center","scenarios","textbook","pronunciation","reports"],me:["readings","stories","memory","settings","reports"]})){
+   const page=h[section];
+   for(const value of [page.title,page.intro,page.hero.title,page.hero.desc,page.hero.tag])
+    assert.ok(value&&typeof value==="string",locale+"/"+section+" hub labels");
+   for(const item of items){
+    assert.ok(page.items[item]?.title,locale+"/"+section+"/"+item+" title");
+    assert.ok(page.items[item]?.desc,locale+"/"+section+"/"+item+" description");
+   }
+  }
+  assert.equal(Object.keys(h.chat.friendTitles).length,6,locale+" friend profile subtitles");
+  for(const key of ["meetFriends","allFriends"])assert.ok(h.chat[key],locale+" chat "+key);
+  for(const key of ["learningOverview","todayTitle","recordsLink","threeMinuteTitle","threeMinuteDesc"])
+   assert.ok(h.learn[key],locale+" learning "+key);
+  assert.ok(h.me.footnote,locale+" local-only privacy note");
+  for(const key of ["heading","goal","goalAria","minuteUnit","progress","summary","sessions","words","lessons","footnote"])
+   assert.ok(today[key],locale+" progress "+key);
+ }
+ for(const section of ["chat","learn","me"])
+  assert.notEqual(load("ja","home").sectionHubs[section].title,load("zh-TW","home").sectionHubs[section].title);
+});
