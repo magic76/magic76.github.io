@@ -173,6 +173,27 @@ async function run(){
       await page.locator("#settings-device h2").waitFor({state:"visible",timeout:15000});
       assert.equal((await page.locator("#settings-device h2").textContent())?.trim(),settingsStrings.device.heading,locale+" Settings translation");
       assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
+      // Walk the remaining user-facing destinations with the same saved
+      // learning-language settings. No screenshots/artifacts are uploaded.
+      for(const destination of ["/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
+        const url="/"+locale+destination;
+        const response=await page.goto(origin+url,{waitUntil:"domcontentloaded",timeout:30000});
+        assert.equal(response?.status(),200,locale+" opens "+destination);
+        await page.locator("main").first().waitFor({state:"visible",timeout:15000});
+        const snapshot=await page.evaluate(()=>({
+          lang:document.documentElement.lang,
+          viewport:document.documentElement.clientWidth,
+          document:document.documentElement.scrollWidth,
+          target:localStorage.getItem("crew_teacher_lang"),
+          native:localStorage.getItem("crew_teacher_native_lang"),
+          pace:localStorage.getItem("crew_teacher_speakingPace"),
+          mode:localStorage.getItem("crew_teacher_chatMode")
+        }));
+        assert.equal(snapshot.lang,locale,locale+" remains selected on "+destination);
+        assert.ok(snapshot.document<=snapshot.viewport+2,locale+" overflow on "+destination+": "+JSON.stringify(snapshot));
+        assert.deepEqual([snapshot.target,snapshot.native,snapshot.pace,snapshot.mode],["日文","繁體中文","slow","practice"],locale+" learning isolation on "+destination);
+        process.stdout.write("PASS Beta route "+locale+" "+destination+"\n");
+      }
       assert.deepEqual(errors,[],locale+" browser/console errors");
       process.stdout.write("PASS Beta i18n mobile deep link, refresh, settings and language isolation "+locale+"\n");
     }finally{await view.close();}
