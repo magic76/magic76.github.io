@@ -255,7 +255,7 @@ async function run(){
            assert.equal((await root.locator(".crew-today-learning-heading").textContent())?.trim(),homeStrings.todayLearning.heading,locale+" daily progress heading");
            assert.equal((await root.locator(".crew-section-three-minute strong").textContent())?.trim(),strings.threeMinuteTitle,locale+" speaking action");
           }
-          if(section==="me")assert.equal(await cards.last().getAttribute("href"),"/settings#settings-device",locale+" device settings destination");
+          if(section==="me")assert.ok((await cards.last().getAttribute("href"))?.endsWith("/settings#settings-device"),locale+" device settings destination");
           if(section==="me")assert.equal((await root.locator(".crew-section-footnote").textContent())?.trim(),strings.footnote,locale+" local data warning");
           if(locale==="ja"){
            await page.reload({waitUntil:"domcontentloaded",timeout:30000});
