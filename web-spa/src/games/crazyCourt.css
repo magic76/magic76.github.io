@@ -153,3 +153,6 @@
  .court-verdict{padding:25px 14px}
 }
 @media(prefers-reduced-motion:reduce){.court-live-dot,.court-objection-panel{animation:none}}
+
+/* Avoid a transformed entrance ancestor capturing the fixed mobile audio dock. */
+.page.page-enter:has(.court-page){animation:none}
