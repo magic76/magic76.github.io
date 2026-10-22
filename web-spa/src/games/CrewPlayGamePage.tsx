@@ -287,7 +287,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   (isWord?"開始與 ":"開啟 ")+friend.name+(isWord?" 語音遊戲":" 的語音陪玩");
  const voiceActions=live.state==="idle"||live.state==="ended"?
   <button type="button" className="crew-play-voice-start" disabled={voicePreparing||isWord&&!hasKey} onClick={()=>void live.start()}>{voicePreparing?(english?"Preparing the mystery…":"正在準備新題目…"):voiceStartLabel}</button>:
-  <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt/>;
+  <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>;
  return <div className={"crew-play-session"+(isWord?" crew-play-session--word":"")+(twenty?" crew-play-session--twenty":"")}>
   {isWord?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
    <div className="crew-play-voice-presence-header">
