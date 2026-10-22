@@ -1,6 +1,6 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
-import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
+import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,parseTabooLiveGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
 
@@ -26,9 +26,10 @@ export function TabooGamePage(){
 function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"]}){
  const [mode,setMode]=useState<Mode>("describe"),[level,setLevel]=useState<TabooLevel>("easy");
  const [phase,setPhase]=useState<Phase>("ready"),[deck,setDeck]=useState<TabooCard[]>([]);
- const [round,setRound]=useState(0),[timeLeft,setTimeLeft]=useState(60),[deadline,setDeadline]=useState(0);
+ const [roundSeconds,setRoundSeconds]=useState(120);
+ const [round,setRound]=useState(0),[timeLeft,setTimeLeft]=useState(120),[deadline,setDeadline]=useState(0);
  const [skips,setSkips]=useState(3),[score,setScore]=useState(0),[answer,setAnswer]=useState("");
- const [message,setMessage]=useState(""),[revealed,setRevealed]=useState(false),[busy,setBusy]=useState(false),[guessing,setGuessing]=useState(false);
+ const [message,setMessage]=useState(""),[lastClue,setLastClue]=useState(""),[revealed,setRevealed]=useState(false),[busy,setBusy]=useState(false),[guessing,setGuessing]=useState(false);
  const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
  const [voiceSamples,setVoiceSamples]=useState<string[]>([]);
  const [feedback,setFeedback]=useState<string[]>([]);
@@ -41,8 +42,8 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const emit=useCallback((text:string)=>setCue(old=>({id:old.id+1,text})),[]);
  const start=()=>{
   trackUsageEvent("game_started","taboo");
-  setDeck(drawDeck(level));setRound(0);setTimeLeft(60);setDeadline(Date.now()+60000);
-  setSkips(3);setScore(0);setAnswer("");setMessage("");setRevealed(false);
+  setDeck(drawDeck(level));setRound(0);setTimeLeft(roundSeconds);setDeadline(roundSeconds>0?Date.now()+roundSeconds*1000:0);
+  setSkips(3);setScore(0);setAnswer("");setMessage("");setLastClue("");setRevealed(false);
   ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   setVoiceSamples([]);setFeedback([]);setHistory([]);doneGuard.current=-1;setPhase("playing");
  };
@@ -51,33 +52,45 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   doneGuard.current=round;
   ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
   if(deck[round])setHistory(old=>[...old,{word:deck[round].word,result:reason}]);
-  setAnswer("");setRevealed(false);
+  setAnswer("");setLastClue("");setRevealed(false);
   if(round===4){trackUsageEvent("game_completed","taboo");setPhase("done");return;}
-  setRound(r=>r+1);setDeadline(Date.now()+60000);setTimeLeft(60);
+  setRound(r=>r+1);setDeadline(roundSeconds>0?Date.now()+roundSeconds*1000:0);setTimeLeft(roundSeconds);
   setMessage(reason==="correct"?"答對！下一題。":reason==="violation"?"觸犯禁用字，換下一題。":reason==="skip"?"跳過，繼續下一題。":"時間到！下一題。");
- },[round,deck]);
- const correct=useCallback((guessed?:string)=>{
+ },[round,deck,roundSeconds]);
+ const correct=useCallback((guessed?:string,alreadySpoken=false)=>{
   if(phase!=="playing"||doneGuard.current===round)return;
   setScore(s=>s+10);
-  emit(guessed?"You guessed "+JSON.stringify(guessed)+
+  if(!alreadySpoken)emit(guessed?"You guessed "+JSON.stringify(guessed)+
    ". The game verified it correct. React as the friend in one short sentence."
    :"Correct! Awarded 10 points. React as a friend, briefly.");
   advance("correct");
  },[phase,round,emit,advance]);
- const violate=useCallback((term:string)=>{
+ const violate=useCallback((term:string,alreadySpoken=false)=>{
   if(phase!=="playing"||doneGuard.current===round)return;
   setScore(s=>s-5);
-  emit("Taboo rule violation: the descriptor said a forbidden word. Five points deducted. React briefly, do not repeat the forbidden word.");
+  if(!alreadySpoken)emit("Taboo rule violation: the descriptor said a forbidden word. Five points deducted. React briefly, do not repeat the forbidden word.");
   setMessage("說出禁用字「"+term+"」，扣 5 分。");
   advance("violation");
  },[phase,round,emit,advance]);
- const submit=(input:string)=>{
+ const submit=(input:string,fromVoice=false,liveReply="")=>{
   if(phase!=="playing"||!card||doneGuard.current===round)return;
   const value=input.trim();if(!value)return;
   if(mode==="describe"){
    const bad=tabooViolation(card,value);
-   if(bad){violate(bad);return;}
-   if(guessing)return;
+   if(bad){violate(bad,fromVoice);return;}
+    if(guessing)return;
+    setLastClue(value.slice(0,180));
+    // Live has already said its guess. Validate that ONE reply; do not invoke a second model or send an extra cue.
+    if(fromVoice){
+     descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
+     const spokenGuess=parseTabooLiveGuess(liveReply);
+     if(spokenGuess&&matchTabooGuess(card,spokenGuess)){setMessage(friend.name+" 猜："+spokenGuess+" ✓");correct(spokenGuess,true);}
+     else{
+      if(spokenGuess&&!previousGuesses.current.includes(spokenGuess))previousGuesses.current=[...previousGuesses.current,spokenGuess].slice(-5);
+      setMessage(spokenGuess?friend.name+" 猜："+spokenGuess+"（還沒猜中，繼續描述）":friend.name+" 還沒猜出來，試著再給一個線索。");
+     }
+     return;
+    }
    if(!geminiKey()){
     descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
     if(friendGuesses(card,descriptions.current.join(" "))){setMessage("離線關鍵字判定："+friend.name+" 猜到了！");correct();}
@@ -88,14 +101,14 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
     setGuessing(true);
     setMessage(friend.name+" 正在思考你的描述…");
-    void generateTabooGuess(descriptions.current,previousGuesses.current).then(({guess,question})=>{
+    void generateTabooGuess(descriptions.current,previousGuesses.current).then(({guess})=>{
      if(guessSerial.current!==request||doneGuard.current===targetRound)return;
      if(guess&&matchTabooGuess(card,guess)){
       correct(guess);
      }else{
       const freshGuess=guess&&!previousGuesses.current.includes(guess)?guess:"";
       if(guess&&!previousGuesses.current.includes(guess))previousGuesses.current=[...previousGuesses.current,guess].slice(-5);
-      const spoken=tabooFollowUp(freshGuess,question,descriptions.current.length);
+      const spoken=tabooFollowUp(freshGuess,"",descriptions.current.length);
       setMessage(friend.name+"："+spoken);
       emit("The game has NOT verified a correct answer. Say exactly this ONE English reply, without adding a question: "+
        JSON.stringify(spoken)+". Then wait for the next learner clue. Never award points or reveal the secret.");
@@ -106,22 +119,22 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     }).finally(()=>{if(guessSerial.current===request)setGuessing(false)});
    }
   }else{
-   if(matchTabooGuess(card,value)){setMessage("猜對了！");correct();}
+   if(matchTabooGuess(card,value)){setMessage("猜對了！");correct(undefined,fromVoice);}
    else{
     setRevealed(true);setMessage(friend.name+"：再試一次！第二個提示已經出現。");
-    emit("The player guessed "+JSON.stringify(value.slice(0,80))+". That was not correct. Offer the verified second safe clue only.");
+    if(!fromVoice)emit("The player guessed "+JSON.stringify(value.slice(0,80))+". That was not correct. Offer the verified second safe clue only.");
    }
   }
   setAnswer("");
  };
- const onSpeech=(speech:string)=>{
+ const onSpeech=(speech:string,liveReply="")=>{
   if(phase!=="playing"||!card)return;
   setVoiceSamples(old=>[...old.slice(-14),speech.slice(0,250)]);
-  submit(speech);
+  submit(speech,true,liveReply);
  };
  const handleSubmit=(event:FormEvent<HTMLFormElement>)=>{event.preventDefault();submit(answer)};
  useEffect(()=>{
-  if(phase!=="playing")return;
+  if(phase!=="playing"||deadline===0)return;
   const timer=window.setInterval(()=>{
    const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));
    setTimeLeft(remaining);
