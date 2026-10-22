@@ -23,7 +23,7 @@ function load({agent="",withWebSpeech=true,bridge=null,mic=false}={}){
   nativeVocabularyTtsUrl:(text,rate)=>"crew-tts://speak?text="+encodeURIComponent(text)+"&rate="+rate,
   setTimeout,clearTimeout,Map,Error,JSON
  };
- const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText};})()",ctx);
+ const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText,hasNativeDeviceBridge,readNativeDeviceInfo,requestNativeDeviceAction,diagnosticSummary};})()",ctx);
  return{...api,said,window:fakeWindow};
 }
 
@@ -87,4 +87,49 @@ test("native negative acknowledgment is never silently retried with browser TTS"
  const device=load({bridge});
  await assert.rejects(device.speakText("hello",{speed:"normal"}),/Android text-to-speech unavailable/);
  assert.equal(device.said.length,0);
+});
+
+test("diagnostic actions are not authorized by UA; old APK degrades without unknown commands",async()=>{
+ const browser=load({agent:"CrewAndroidShell/1 CrewDeviceBridge/1",withWebSpeech:false});
+ assert.equal(browser.hasNativeDeviceBridge(),false);
+ assert.equal(await browser.readNativeDeviceInfo(),null);
+ assert.equal(await browser.requestNativeDeviceAction("openAppSettings",null),false);
+ const methods=[];
+ const legacy={onmessage:null,postMessage(value){
+  const {v,id,method}=JSON.parse(value);methods.push(method);
+  if(method==="getCapabilities")legacy.onmessage({data:JSON.stringify({
+   v,id,ok:true,capabilities:{tts:true,photoPicker:"web-input",filePicker:"web-input",microphone:"web-permission"}
+  })});
+ }};
+ const device=load({bridge:legacy,withWebSpeech:false});
+ assert.equal(await device.readNativeDeviceInfo(),null);
+ assert.equal(await device.requestNativeDeviceAction("openAppSettings",await device.probeNativeDeviceCapabilities()),false);
+ assert.deepEqual(methods,["getCapabilities","getCapabilities"]);
+});
+
+test("new APK returns only allowlisted device fields and gated methods",async()=>{
+ const sent=[];
+ const caps={tts:true,revision:2,photoPicker:"web-input",filePicker:"web-input",
+  microphone:"web-permission",deviceInfo:true,openAppSettings:true,openTtsSettings:false,stopSpeech:true};
+ const bridge={onmessage:null,postMessage(value){
+  const {v,id,method}=JSON.parse(value);sent.push(method);
+  bridge.onmessage({data:JSON.stringify(method==="getCapabilities"
+   ?{v,id,ok:true,capabilities:caps}
+   :method==="getDeviceInfo"?{v,id,ok:true,data:{
+    appVersion:"1.9.30",appVersionCode:104,androidVersion:"15",androidSdk:35,
+    webViewVersion:"130.1",bridgeRevision:2,microphone:"granted",camera:"denied",
+    tts:"ready",network:"os_validated",crewService:"unknown",
+    apiKey:"SUPER-SECRET",url:"https://site/?apiKey=secret",conversation:"private"}}
+   :{v,id,ok:true})});
+ }};
+ const device=load({bridge,withWebSpeech:false});
+ const report=await device.readNativeDeviceInfo();
+ assert.equal(report.appVersion,"1.9.30");
+ assert.equal(report.camera,"denied");
+ const summary=device.diagnosticSummary(report);
+ assert.doesNotMatch(summary,/SUPER-SECRET|apiKey|private|https/);
+ assert.match(summary,/Crew service: unknown/);
+ assert.equal(await device.requestNativeDeviceAction("openAppSettings",caps),true);
+ assert.equal(await device.requestNativeDeviceAction("openTtsSettings",caps),false);
+ assert.deepEqual(sent,["getCapabilities","getDeviceInfo","openAppSettings"]);
 });
