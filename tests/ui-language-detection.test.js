@@ -14,9 +14,9 @@ function loadLocalePolicy(){
  // Node 22 strips TS types directly; this does not depend on TypeScript compiler APIs.
  const js=stripTypeScriptTypes(source)
   .replace(/^import definitions from .*?;$/m,"")
-  .replace(/\\bexport (?=(?:const|function)\\b)/g,"");
+  .replace(/\bexport (?=(?:const|function)\b)/g,"");
  const definitions=JSON.parse(read("config/ui-locales.json"));
- return new Function("definitions",js+"\\nreturn {resolveInitialUiLocale,preferredPublicLocaleDestination};")(definitions);
+ return new Function("definitions",js+"\nreturn {resolveInitialUiLocale,preferredPublicLocaleDestination};")(definitions);
 }
 const {resolveInitialUiLocale,preferredPublicLocaleDestination}=loadLocalePolicy();
 const visit=(pathname,languages,storedLocale=null,userAgent="Mozilla/5.0")=>
