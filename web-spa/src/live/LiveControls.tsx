@@ -33,5 +33,5 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
    </div>
    <small className="live-audio-hint">Android 音量鍵有時只調整通話音量，無法降低 AI 聲音。可直接按 −／＋ 或拖動滑桿調整 AI 播放音量；100% 以上會增強音量，請避免調得過大。</small>
   </details></div>}
- </;
+ </>;
 }
