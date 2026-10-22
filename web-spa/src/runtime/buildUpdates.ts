@@ -33,7 +33,7 @@ export async function checkCrewBuild() {
   if (document.visibilityState === "hidden" || navigator.onLine === false) return;
   // StrictMode subscription replay can abort an in-flight check and re-subscribe
   // immediately; do not stall the next attempt until the polling interval.
-  if (pending && !controller?.signal.aborted) return;
+  if (pending && controller && !controller.signal.aborted) return;
   pending = true;
   const request = new AbortController();
   controller = request;
