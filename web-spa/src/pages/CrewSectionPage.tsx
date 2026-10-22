@@ -109,6 +109,17 @@ const englishCopy:typeof copy={
  }
 };
 
+function DeviceSettingsShortcut(){
+ const {t}=useTranslation("settings");
+ return <Link className="crew-section-card" to="/settings#settings-device">
+  <span className="crew-section-card-icon"><Icon name="settings"/></span>
+  <span className="crew-section-card-copy">
+   <strong>{t("deviceApp.title")}</strong><small>{t("deviceApp.description")}</small>
+  </span>
+  <span className="crew-section-arrow" aria-hidden="true">→</span>
+ </Link>;
+}
+
 const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
 // Translation keys are separate from the stable navigation targets.
 const sectionItemKeys={
@@ -191,7 +202,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
      <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-section-arrow" aria-hidden="true">→</span>
-    </Link>)}</div>
+    </Link>)}{section==="me"&&<DeviceSettingsShortcut/>}</div>
   </section>
    </>
   }
