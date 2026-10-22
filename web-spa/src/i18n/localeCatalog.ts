@@ -1,10 +1,10 @@
 import definitions from "../../../config/ui-locales.json";
 
-export type UiLocale = "zh-TW" | "en" | "ja" | "es" | "pt-BR" | "id" | "fr" | "de" | "ko" | "vi" | "th" | "hi" | "ar" | "ru" | "it" | "tr" | "nl" | "zh-CN";
+export type UiLocale = "zh-TW" | "en" | "ja" | "es" | "pt-BR" | "id" | "fr" | "de" | "ko" | "vi" | "th";
 export const UI_LOCALE_KEY = "crew_ui_locale_v1";
-export const UI_LOCALE_CATALOG = definitions.locales as ReadonlyArray<{code: UiLocale; label: string; stage: "published" | "priority" | "preview"}>;
+export const UI_LOCALE_CATALOG = definitions.locales as ReadonlyArray<{code: UiLocale; label: string; stage: "published" | "priority"}>;
 export const UI_LOCALES: readonly UiLocale[] = UI_LOCALE_CATALOG.map(item => item.code);
-export const SEO_PRIORITY_LOCALES: readonly UiLocale[] = UI_LOCALE_CATALOG.filter(item => item.stage !== "preview").map(item => item.code);
+export const SEO_PRIORITY_LOCALES: readonly UiLocale[] = UI_LOCALE_CATALOG.map(item => item.code);
 export const PUBLISHED_SEO_LOCALES: readonly UiLocale[] = UI_LOCALE_CATALOG.filter(item => item.stage === "published").map(item => item.code);
 
 /** Public URLs determine UI locale without mutating a learner's target language. */
@@ -12,7 +12,7 @@ export function normalizeUiLocale(value: unknown): UiLocale | null {
  if(typeof value !== "string")return null;
  const lang=value.trim().replace(/_/g,"-").toLowerCase();
  if(/^zh-(hant|tw|hk|mo)(-|$)/.test(lang))return "zh-TW";
- if(/^zh-(hans|cn|sg)(-|$)/.test(lang))return "zh-CN";
+ if(/^zh-(hans|cn|sg)(-|$)/.test(lang))return "zh-TW";
  if(lang==="zh")return "zh-TW";
  if(/^pt(-|$)/.test(lang))return "pt-BR";
  const exact=UI_LOCALES.find(code=>code.toLowerCase()===lang);

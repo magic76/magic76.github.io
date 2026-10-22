@@ -1,6 +1,5 @@
 import i18n from "i18next";
 import {initReactI18next} from "react-i18next";
-import {previewResources} from "./previewTranslations";
 import {normalizeUiLocale,localeFromPublicPath,UI_LOCALES,UI_LOCALE_KEY} from "./localeCatalog";
 export {normalizeUiLocale,UI_LOCALES,UI_LOCALE_KEY,SEO_PRIORITY_LOCALES,PUBLISHED_SEO_LOCALES} from "./localeCatalog";
 export type {UiLocale} from "./localeCatalog";
@@ -48,7 +47,7 @@ export function loadUiLocale(locale:string):Promise<void>{
   const filename="./locales/"+locale+"/"+namespace+".json";
   return [namespace,localeImports[filename]] as const;
  }).filter((pair):pair is readonly [typeof namespaceNames[number],()=>Promise<unknown>]=>Boolean(pair[1]));
- if(match.length!==namespaceNames.length)return Promise.resolve(); // preview language
+ if(match.length!==namespaceNames.length)return Promise.reject(new Error("Missing locale resources: "+locale));
  const cached=loadingLocales.get(locale);
  if(cached)return cached;
  const promise=Promise.all(match.map(async ([namespace,load])=>{
@@ -61,16 +60,14 @@ export function loadUiLocale(locale:string):Promise<void>{
 const activeLocale=initialLocale();
 void i18n.use(initReactI18next).init({
  lng:activeLocale,
- // Non-Chinese preview languages fall back to English for untranslated product
- // namespaces; show this status explicitly in the language switcher.
+ // Missing product strings fall back to English without changing learning language.
  fallbackLng:{"zh-TW":["zh-TW"],default:["en","zh-TW"]},
  supportedLngs:[...UI_LOCALES],
  ns:["common","home","settings","teacher","friends","story","fortune"],
  defaultNS:"common",
  resources:{
   "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
-  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune},
-  ...previewResources
+  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune}
  },
  interpolation:{escapeValue:false},
  react:{useSuspense:false},

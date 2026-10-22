@@ -110,18 +110,19 @@ test("inner practice, editor and birth-place forms translate UI without mutating
 
 test("global UI locale options and search index publication gates",()=>{
  const options=JSON.parse(read("config/ui-locales.json")).locales;
- assert.equal(options.length,18);
- assert.equal(new Set(options.map(x=>x.code)).size,18);
+ assert.equal(options.length,11);
+ assert.equal(new Set(options.map(x=>x.code)).size,11);
  assert.deepEqual(options.filter(x=>x.stage!=="preview").map(x=>x.code),
   ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]);
  assert.deepEqual(options.filter(x=>x.stage==="published").map(x=>x.code),["zh-TW","en"]);
  const routes=read("web-spa/src/main.tsx");
  const selector=read("web-spa/src/i18n/LanguageSwitcher.tsx");
  const deploy=read("scripts/prepare-cloudflare.mjs");
- const translations=read("web-spa/src/i18n/previewTranslations.ts");
+ const index=read("web-spa/src/i18n/index.ts");
+ assert.ok(!index.includes("previewResources"));
  assert.ok(routes.includes("localeFromPublicPath(window.location.pathname)"));
  assert.ok(selector.includes("localePrefix(next)"));
- assert.ok(selector.includes("language.previewHint"));
+ assert.ok(!selector.includes("language.previewHint"));
  assert.ok(selector.includes("language.beta"));
  assert.ok(selector.includes('aria-haspopup="dialog"'));
  assert.ok(selector.includes("dialog.showModal()"));
@@ -129,7 +130,7 @@ test("global UI locale options and search index publication gates",()=>{
  assert.ok(deploy.includes('locale.stage!=="published"'));
  assert.ok(deploy.includes('name="robots" content="noindex,follow"'));
  assert.ok(deploy.includes('"_redirects"'));
- for(const language of ["ja","es","pt-BR","id"])assert.ok(translations.includes('"'+language+'":'));
+ for(const language of ["ja","es","pt-BR","id"])assert.ok(load(language,"home").headline);
 });
 
 test("locale dialog fits mobile viewports and keeps status wording separate from names",()=>{
@@ -141,5 +142,7 @@ test("locale dialog fits mobile viewports and keeps status wording separate from
  assert.ok(css.includes("safe-area-inset-bottom"));
  assert.equal(zh.previewHint,"部分內容將以英文顯示");
  assert.equal(en.previewHint,"Some content will appear in English");
- assert.ok(zh.beta&&zh.preview&&en.beta&&en.preview);
+ assert.ok(zh.beta&&en.beta);
+ assert.ok(!read("config/ui-locales.json").includes('"preview"'));
+ assert.ok(!read("web-spa/src/i18n/LanguageSwitcher.tsx").includes("crew-language-option-note"));
 });

@@ -73,11 +73,8 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
       <span className="crew-language-option-copy">
        <span className="crew-language-option-main">
         <span className="crew-language-option-name">{label}</span>
-        {stage!=="published"&&<span className={"crew-language-stage crew-language-stage-"+stage}>
-         {t(stage==="priority"?"language.beta":"language.preview")}
-        </span>}
+        {stage==="priority"&&<span className="crew-language-stage crew-language-stage-priority">{t("language.beta")}</span>}
        </span>
-       {stage==="preview"&&<span className="crew-language-option-note">{t("language.previewHint")}</span>}
       </span>
       <span className="crew-language-check" aria-hidden="true">{code===current?"✓":""}</span>
      </button>)}
