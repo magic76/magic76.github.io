@@ -32,7 +32,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
    <Link to="/games" className="crew-play-back">← 全部遊戲</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
    <h1>{taboo?"Taboo 描述猜詞":"1A2B 猜數字"}</h1>
-   <p>{taboo?"60 秒英文描述挑戰，別說出禁用字。":"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
+   <p>{taboo?"用英文描述，讓朋友直接猜；時間與難度都能調整。":"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
   </header>
   <div className="crew-play-frame">
    <section className="crew-play-friend-bar">
@@ -47,19 +47,22 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
 }
 
 export type VoiceCue={id:number;text:string};
-export function MiniGameVoice({kind,friend,onSpeech,onReply,cue}:{
- kind:MiniKind;friend:MiniFriend;onSpeech:(text:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;
+export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode}:{
+ kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const friendMode=useTeacherStore(s=>s.friendChatMode);
  const seenRef=useRef(new Set<string>());
+ const directGuess=kind==="taboo"&&tabooMode==="describe";
  const system=buildFriendSystem(friend,targetLanguage,nativeLanguage,friendMode)+
-  "\n[CREW PLAY GAME: "+kind+"] This is a self-contained game, not a normal friend conversation. Respond as "+friend.name+" with short witty English remarks. No tutoring until the final feedback. Gameplay is fully decided by the offline UI engine. Never claim an answer is correct or wrong without a [VERIFIED GAME] event. A voice input can contain a sequence of single English digits or xAyB, or a short Taboo description. If numbers are unclear, ask the player to repeat slowly. In Taboo describe mode, an independent AI guesser handles the player's clues. Do not independently guess or declare success from raw speech. React only to [VERIFIED GAME] guess or follow-up updates, and never reveal the secret. In guess mode, read the safe clue exactly without forbidden words. Accept [VERIFIED GAME] updates as results; never invent scores or moves. Never persist these conversations as friend memories.";
+  (directGuess
+   ?"\n[CREW PLAY TABOO: DIRECT VOICE GUESSER] You are the guesser, not a conversational tutor. Listen to each English description and immediately make ONE English word guess. Your COMPLETE spoken reply must be exactly 'I guess WORD.' where WORD is your best single English word. Do not acknowledge, paraphrase, praise, explain, ask questions, add greetings, or speak a second sentence. Do not repeat an earlier incorrect guess. You cannot see the hidden answer and must never pretend a guess was verified. The game UI alone checks scores and forbidden words. A [VERIFIED GAME] event is a special result; speak its requested short reply only. Never persist memories."
+   :"\n[CREW PLAY GAME: "+kind+"] This is a self-contained game, not a normal friend conversation. Respond as "+friend.name+" with short witty English remarks. No tutoring until the final feedback. Gameplay is fully decided by the offline UI engine. Never claim an answer is correct or wrong without a [VERIFIED GAME] event. A voice input can contain a sequence of single English digits or xAyB, or a short Taboo description. If numbers are unclear, ask the player to repeat slowly. React only to [VERIFIED GAME] updates for scoring and never reveal the secret. In Taboo guess mode, read the safe clue exactly without forbidden words. Never persist these conversations as friend memories.");
  const live=useLiveSession({
-  pageKey:"crew-play-mini-"+kind+"-"+friend.id,
+  pageKey:directGuess?"crew-play-mini-taboo-direct-"+friend.id:"crew-play-mini-"+kind+"-"+friend.id,
   title:(kind==="1a2b"?"1A2B":"Taboo")+" · "+friend.name,
-  system,openingPrompt:"Say one short English welcome to the game. Do not invent a score or answer.",
+  system,openingPrompt:directGuess?"Say only: Describe the secret word and I will guess.":"Say one short English welcome to the game. Do not invent a score or answer.",
   voice:normalizeLiveVoice(friend.voice),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
@@ -70,7 +73,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue}:{
     const id=lastIndex+":"+input;
     if(!seenRef.current.has(id)){
      seenRef.current.add(id);
-     onSpeech(input);
+     onSpeech(input,turn.output?.trim()||"");
     }
    }
    if(turn.output?.trim())onReply?.(turn.output.trim());
@@ -87,8 +90,8 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue}:{
  return <section className="crew-mini-voice" aria-label="朋友語音">
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
-   <div className="crew-mini-voice-copy"><strong>{friend.name} · 語音陪玩（選用）</strong>
-    <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?"正在聽英文":"語音連接中":hasKey?"打字也能玩，不必開麥克風":"無 Key 也能完整打字玩"}</small>
+   <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":"語音陪玩（選用）"}</strong>
+    <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":"正在聽英文"):"語音連接中":hasKey?"打字也能玩，不必開麥克風":"無 Key 也能完整打字玩"}</small>
    </div>
   </div>
   {live.output&&active?<p className="crew-mini-speech" role="status">{live.output}</p>:null}
@@ -96,6 +99,6 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue}:{
    hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">開啟與 {friend.name} 的語音</button>:
    <Link className="crew-mini-key-link" to="/settings">要開啟 Live 語音？先到設定填入 Gemini Key（選用）</Link>}
   {live.state==="error"?<p className="crew-mini-error" role="alert">{live.status}，可改用文字繼續遊戲。</p>:null}
-  <small>Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。</small>
+  <small>{directGuess?"描述一次，朋友直接猜一次；分數由遊戲判定。":"Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"}</small>
  </section>;
 }

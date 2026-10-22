@@ -11,7 +11,7 @@ function moduleFromTs(relative,keyPresent=false){
  const js=stripTypeScriptTypes(withoutImport,{mode:"strip"}).replace(/^export /gm,"");
  const names=relative.includes("numberGameEngine")?
   ["legalNumber","allNumbers","secretNumber","scoreAB","candidateNumbers","nextComputerGuess","parseSpokenNumber","parseSpokenAB"]:
-  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp","drawTabooBag"];
+  ["TABOO_CARDS","containsTerm","tabooViolation","matchTabooGuess","friendGuesses","validGeneratedCard","generateTabooCard","generateTabooGuess","tabooFollowUp","parseTabooLiveGuess","drawTabooBag"];
  return new Function("ensureCore","geminiKey",js+"\nreturn {"+names.join(",")+"};")(async()=>{},()=>keyPresent);
 }
 const numbers=moduleFromTs("web-spa/src/games/numberGameEngine.ts");
@@ -89,13 +89,27 @@ test("AI guesser gets only clues and the game engine verifies the answer",async(
  }finally{global.window=previous}
 });
 
-test("Taboo asks at most one specific question, then switches to varied non-questions",()=>{
- const first=taboo.tabooFollowUp("banana","Could you give me another clue?",1);
- assert.equal(first,"I guess banana. What would someone use it for?");
- assert.equal(taboo.tabooFollowUp("","Is it used at home?",1),"Not sure yet. Is it used at home?");
- assert.equal(taboo.tabooFollowUp("book","Is it something?",2),"I guess book. Try describing its shape or appearance.");
- assert.equal(taboo.tabooFollowUp("book","Any clues?",3),"I guess book. Tell me where someone would usually find it.");
- assert.equal(taboo.tabooFollowUp("","Any clues?",5).endsWith("?"),false);
+test("Taboo guesses immediately with only one spoken sentence",()=>{
+ assert.equal(taboo.tabooFollowUp("banana","Could you give me another clue?",1),"I guess banana.");
+ assert.equal(taboo.tabooFollowUp("book","Is it used at home?",2),"I guess book.");
+ assert.equal(taboo.tabooFollowUp("","Any clues?",5),"I need another clue.");
+ assert.equal(taboo.parseTabooLiveGuess("I guess banana."),"banana");
+ assert.equal(taboo.parseTabooLiveGuess("My guess is apple!"),"apple");
+ assert.equal(taboo.parseTabooLiveGuess("Is it a carrot?"),"carrot");
+ assert.equal(taboo.parseTabooLiveGuess("book"),"book");
+ assert.equal(taboo.parseTabooLiveGuess("I guess banana. It is yellow."),"");
+ assert.equal(taboo.parseTabooLiveGuess("That sounds interesting!"),"");
+});
+
+test("Taboo voice scoring validates an already-spoken guess without scheduling a second speech",()=>{
+ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/games/TabooGamePage.tsx"),"utf8");
+ const voice=fs.readFileSync(path.join(__dirname,"../web-spa/src/games/MiniGameFrame.tsx"),"utf8");
+ assert.match(source,/const spokenGuess=parseTabooLiveGuess\(liveReply\)/);
+ assert.match(source,/correct\(spokenGuess,true\)/);
+ assert.match(source,/setRoundSeconds]=useState\(120\)/);
+ assert.match(source,/\[120,180,0\]\.map/);
+ assert.match(source,/if\(phase!=="playing"\|\|deadline===0\)return/);
+ assert.match(voice,/directGuess\?"crew-play-mini-taboo-direct-/);
 });
 
 test("Taboo shuffle bag consumes 100 words per level across saved game sessions",()=>{

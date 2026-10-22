@@ -140,3 +140,33 @@
  .crew-taboo-actions button{width:auto;min-width:0;flex:auto}
  .crew-taboo-actions button:first-child:nth-last-child(3){grid-column:1/-1}
 }
+
+/* Taboo: keep the word and latest guess foremost; show setup only before a new game. */
+.crew-taboo-stage.is-ready .crew-taboo-welcome,.crew-taboo-stage.is-done .crew-taboo-result{order:1}
+.crew-taboo-stage.is-ready .crew-mini-voice,.crew-taboo-stage.is-done .crew-mini-voice{order:2}
+.crew-taboo-stage.is-playing .crew-mini-config{display:none}
+.crew-taboo-stage.is-playing .crew-taboo-board{order:1}
+.crew-taboo-stage.is-playing .crew-mini-voice{order:2}
+.crew-taboo-stage .crew-taboo-duration button{min-height:46px}
+.crew-taboo-stage .crew-taboo-duration button:focus-visible{outline:2px solid #6358a8;outline-offset:2px}
+.crew-taboo-timer-line strong{font-size:25px;min-width:74px;text-align:right}
+.crew-taboo-conversation{display:grid;gap:7px}
+.crew-taboo-conversation p{display:grid;gap:3px;margin:0;padding:9px 11px;background:#f4f3fa;border-radius:12px;font-size:13px;line-height:1.55;color:var(--text);overflow-wrap:anywhere}
+.crew-taboo-conversation p span{font-size:10px;font-weight:800;letter-spacing:.05em;color:#71679d}
+.crew-taboo-conversation .crew-taboo-answer-bubble{background:#eae7ff;color:#3b366a}
+.crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-target{margin:6px 0 10px}
+.crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-muted{margin-top:9px}
+@media(max-width:620px){
+ .crew-taboo-stage.is-playing{gap:9px}
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard>div{padding:8px 6px}
+ .crew-taboo-stage.is-playing .crew-mini-voice{padding:10px;border-color:#c9c1ea}
+ .crew-taboo-stage.is-playing.has-key .crew-mini-voice{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:5;box-shadow:0 6px 28px #29215f27}
+ .crew-taboo-stage.is-playing .crew-mini-voice-header img{width:34px;height:34px}
+ .crew-taboo-stage.is-playing .crew-mini-voice>small{display:none}
+ .crew-taboo-stage.is-playing .crew-mini-speech{max-height:42px;overflow:hidden}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt{padding:12px}
+ .crew-taboo-stage.is-playing .crew-mini-word-form{margin-top:0}
+ .crew-taboo-stage .crew-taboo-actions{display:flex;gap:7px;flex-wrap:wrap}
+ .crew-taboo-stage .crew-taboo-actions button{flex:1 1 130px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.crew-taboo-stage .crew-taboo-timer-track>span{transition:none}}
