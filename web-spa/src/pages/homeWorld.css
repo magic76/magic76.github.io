@@ -98,3 +98,9 @@
  .crew-home-world .crew-home-short-photo img,.crew-home-world-explore-card{transition:none}
  .crew-home-world .crew-home-short-card:hover .crew-home-short-photo img{transform:none}
 }
+
+/* Preserve a visible 44px tap target even inside the immersive Shorts shell. */
+.crew-home-world .crew-home-shorts-controls button{width:44px;height:44px;min-height:44px}
+.crew-home-world .crew-home-short-question{min-height:44px}
+@media(hover:none),(pointer:coarse){.crew-home-world .crew-home-short-card:hover .crew-home-short-photo img{transform:none}}
+@media(prefers-reduced-motion:reduce){.crew-home-world .crew-home-short-photo img{transition:none}}

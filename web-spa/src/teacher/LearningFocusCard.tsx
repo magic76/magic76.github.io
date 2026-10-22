@@ -25,7 +25,7 @@ export function LearningFocusCard(){
   void buildDailyLearningPlan().then(value=>{if(alive)setPlan(value)}).catch(()=>{/* Start remains available without stored course data. */});
   return()=>{alive=false};
  },[ready]);
- const resume=ready&&hasRecords&&plan!==null;
+ const resume=ready&&plan!==null&&(hasRecords||plan.action==="textbook"||plan.action==="vocabulary");
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
  const planTitle=plan?.action==="textbook"?teacherT("continue.textbookTitle"):

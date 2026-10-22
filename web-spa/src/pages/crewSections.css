@@ -122,3 +122,5 @@
  .crew-section-people-toolbar{width:100%;justify-content:space-between}
  .crew-section-carousel-actions{flex:none}
 }
+
+@media(hover:none),(pointer:coarse){.crew-section-hero:hover,.crew-section-card:hover{transform:none;box-shadow:none}}
