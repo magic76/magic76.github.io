@@ -181,7 +181,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   finally{setBusy(false)}
  };
  const lastRound=history.length?history[history.length-1]:null;
- return <div className="crew-mini-stage crew-taboo-stage">
+ return <div className={"crew-mini-stage crew-taboo-stage is-"+phase}>
   <div className="crew-mini-config" aria-label="Taboo 遊戲設定">
    <small className="crew-mini-label">遊戲模式</small>
    <div className="crew-mini-segments" role="group" aria-label="描述模式">
@@ -193,13 +193,17 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     <button type="button" aria-pressed={level==="easy"} onClick={()=>{++guessSerial.current;setLevel("easy");setPhase("ready")}}>簡單</button>
     <button type="button" aria-pressed={level==="medium"} onClick={()=>{++guessSerial.current;setLevel("medium");setPhase("ready")}}>中等</button>
    </div>
-  </div>
-  <MiniGameVoice key={friend.id+mode+level} kind="taboo" friend={friend} cue={cue} onSpeech={onSpeech}/>
+      <small className="crew-mini-label">每題時間</small>
+    <div className="crew-mini-segments crew-taboo-duration" role="group" aria-label="每題時間">
+     {[120,180,0].map(seconds=><button key={seconds} type="button" aria-pressed={roundSeconds===seconds} onClick={()=>setRoundSeconds(seconds)}>{seconds===0?"不限時":seconds/60+" 分鐘"}</button>)}
+    </div>
+   </div>
+   <MiniGameVoice key={friend.id+mode+level} kind="taboo" tabooMode={mode} friend={friend} cue={cue} onSpeech={onSpeech}/>
   {phase==="ready"?<section className="crew-mini-panel crew-mini-welcome crew-taboo-welcome">
    <span className="crew-taboo-eyebrow">TABOO · 5 ROUND CHALLENGE</span>
    <h2>{mode==="describe"?"讓朋友猜出你的英文描述":"聽朋友的英文提示，猜出單字"}</h2>
-   <p>{mode==="describe"?"你看得到答案與禁用字。改用其他英文說法，引導朋友猜中。":"你只看得到英文線索；聽完後試著說出目標單字。"}</p>
-   <div className="crew-taboo-rules"><span>5 題</span><span>每題 60 秒</span><span>猜對 +10</span><span>違規 -5</span><span>可跳過 3 次</span></div>
+   <p>{mode==="describe"?"你看得到答案與禁用字。用英文描述後，朋友直接猜一個單字，不會先閒聊。":"你只看得到英文線索；聽完後試著說出目標單字。"}</p>
+   <div className="crew-taboo-rules"><span>5 題</span><span>{roundSeconds===0?"不限時":"每題 "+roundSeconds/60+" 分鐘"}</span><span>猜對 +10</span><span>違規 -5</span><span>可跳過 3 次</span></div>
    <p>{geminiKey()?"AI 朋友會理解你的描述並猜詞；Live 語音可以自由開啟。":"離線練習使用關鍵字判定，也可以手動確認；設定 Gemini Key 後就能讓 AI 猜詞。"}</p>
    <button type="button" className="crew-mini-primary crew-taboo-start" onClick={start}>開始挑戰 →</button>
   </section>:null}
@@ -213,12 +217,12 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     {Array.from({length:5},(_,i)=><span key={i} className={i<round?"is-complete":i===round?"is-current":""}/>)}
    </div>
    {lastRound?<p className="crew-taboo-last-result" role="status">上一題 · {lastRound.word} · {resultLabels[lastRound.result]}</p>:null}
-   <div className="crew-taboo-timer-line">
-    <span>本題倒數</span><strong className={timeLeft<=10?"urgent":""} role="timer" aria-label={"剩餘 "+timeLeft+" 秒"}>{timeLeft}<small>s</small></strong>
-   </div>
-   <div className="crew-taboo-timer-track" role="progressbar" aria-label="本題剩餘時間" aria-valuenow={timeLeft} aria-valuemin={0} aria-valuemax={60}>
-    <span className={timeLeft<=10?"urgent":""} style={{width:(timeLeft/60*100)+"%"}}/>
-   </div>
+       <div className="crew-taboo-timer-line">
+     <span>{roundSeconds===0?"自由練習 · 沒有倒數":"本題倒數"}</span><strong className={roundSeconds>0&&timeLeft<=10?"urgent":""} role="timer" aria-label={roundSeconds===0?"不限時":"剩餘 "+timeLeft+" 秒"}>{roundSeconds===0?"∞":Math.floor(timeLeft/60)+":"+String(timeLeft%60).padStart(2,"0")}</strong>
+    </div>
+    {roundSeconds>0?<div className="crew-taboo-timer-track" role="progressbar" aria-label="本題剩餘時間" aria-valuenow={timeLeft} aria-valuemin={0} aria-valuemax={roundSeconds}>
+     <span className={timeLeft<=10?"urgent":""} style={{width:(timeLeft/roundSeconds*100)+"%"}}/>
+    </div>:null}
    {mode==="describe"?<div className="crew-taboo-prompt">
     <span className="crew-taboo-eyebrow">DESCRIBE · 用英文描述，不可說答案</span>
     <h2 className="crew-mini-target">{card.word}<small>{card.zh}</small></h2>
@@ -232,17 +236,21 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
     {revealed?<><small className="crew-mini-label">第二個提示</small><blockquote className="crew-mini-clue">{card.clues[1]}</blockquote></>:<button type="button" className="crew-mini-subtle" onClick={()=>setRevealed(true)}>需要幫忙？看第二個提示</button>}
     <p className="crew-mini-muted">答案會在本局結束後顯示。</p>
    </div>}
-   <form className="crew-mini-word-form" onSubmit={handleSubmit}>
+   {mode==="describe"&&(lastClue||message)?<div className="crew-taboo-conversation" aria-live="polite">
+     {lastClue?<p><span>我描述</span>{lastClue}</p>:null}
+     {message?<p className="crew-taboo-answer-bubble"><span>{friend.name}</span>{message.replace(friend.name+"：","").replace(friend.name+" 猜：","猜：")}</p>:null}
+    </div>:null}
+    <form className="crew-mini-word-form" onSubmit={handleSubmit}>
     <label className="crew-mini-label" htmlFor="crew-taboo-answer">{mode==="describe"?"輸入英文描述":"輸入你猜的英文單字"}</label>
     <div className="crew-mini-input-row">
      <input id="crew-taboo-answer" type="text" autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={mode==="describe"?"It is used for…":"例如 apple"} aria-describedby="crew-taboo-input-tip"/>
      <button type="submit" className="crew-mini-primary" disabled={!answer.trim()||guessing}>{guessing?"朋友思考中…":"送出"}</button>
     </div>
-    <small id="crew-taboo-input-tip" className="crew-taboo-input-tip">也可以直接開啟上方語音，用英文說出描述或答案。</small>
+    <small id="crew-taboo-input-tip" className="crew-taboo-input-tip">{mode==="describe"?"建議用下方語音直接描述，朋友會立刻猜；也可以打字。":"可以用下方語音回答，或直接打字。"}</small>
    </form>
-   {message?<p className="crew-mini-message" role="status">{message}</p>:null}
+   {mode==="guess"&&message?<p className="crew-mini-message" role="status">{message}</p>:null}
    <div className="crew-mini-row-actions crew-taboo-actions">
-    {mode==="describe"?<button type="button" onClick={()=>correct()} disabled={guessing}>朋友已猜中 · 確認</button>:null}
+    {mode==="describe"&&!geminiKey()?<button type="button" onClick={()=>correct()} disabled={guessing}>朋友已猜中 · 確認</button>:null}
     <button type="button" disabled={skips===0||guessing} onClick={()=>{setSkips(s=>s-1);advance("skip")}}>跳過這題（{skips}）</button>
     {Boolean(geminiKey())?<button type="button" disabled={busy||guessing} onClick={()=>void generate()}>{busy?"生成中…":"換一組 Gemini 單字"}</button>:null}
    </div>
