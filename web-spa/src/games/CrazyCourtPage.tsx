@@ -62,7 +62,7 @@ export function CrazyCourtPage(){
  const court=courtCases.find(item=>item.id===caseId)||courtCases[0];
  const judge=getCrewFriend(friend.id==="maya"?"iris":"maya");
  const opponent=role==="defense"?choice(zh,"檢察官","Prosecutor"):choice(zh,"辯護律師","Defense attorney");
- useEffect(()=>{trackUsageEvent("game_open","crazy-court");document.body.classList.add("teacher-theme");return()=>{aliveRef.current=false;document.body.classList.remove("teacher-theme")};},[]);
+ useEffect(()=>{aliveRef.current=true;trackUsageEvent("game_open","crazy-court");document.body.classList.add("teacher-theme");return()=>{aliveRef.current=false;document.body.classList.remove("teacher-theme")};},[]);
  const emit=(message:string)=>setCue(prev=>({id:prev.id+1,text:message}));
  const openTrial=()=>{
   trackUsageEvent("game_started","crazy-court");
@@ -153,7 +153,7 @@ export function CrazyCourtPage(){
       {CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}
      </select>
     </div>
-    <p className="court-rules">{choice(zh,"4 個回合 · 3 次異議 · 3 張物證 · 可文字遊玩，語音選用","4 turns · 3 objections · 3 evidence cards · Voice optional")}</p>
+    <p className="court-rules">{choice(zh,"4 個回合 · 3 次異議 · 有利證據 +3 · 有效異議 +3 · 累積 5 分勝訴；語音選用","4 turns · 3 objections · Relevant evidence +3 · Valid objection +3 · Win at 5 points · Voice optional")}</p>
     <button className="court-primary" type="button" onClick={openTrial}>{choice(zh,"開庭！","Open court!")} <span>→</span></button>
    </div>
   </section>:phase==="verdict"?<section className="court-verdict" aria-live="polite">
