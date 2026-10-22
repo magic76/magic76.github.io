@@ -1,5 +1,5 @@
 import{useEffect,useRef,useState}from"react";import{useTranslation}from"react-i18next";
-import{Link}from"react-router-dom";
+import{Link,useLocation}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
 import{NATIVE_LANGUAGES,teacherText,nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
@@ -24,7 +24,8 @@ const SCENES=[
 
 export function TutorPage(){
  const {t,i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
- const s=useTeacherStore(),[picker,setPicker]=useState(false),profile=getTeacherProfile(s.teacherProfile);
+ const location=useLocation();
+ const s=useTeacherStore(),[picker,setPicker]=useState(()=>Boolean((location.state as {openTeacherPicker?:boolean}|null)?.openTeacherPicker)),profile=getTeacherProfile(s.teacherProfile);
  const[preview,setPreview]=useState<PreviewStatus|null>(null),stopRef=useRef<null|(()=>void)>(null);
  const[scene,setScene]=useState(()=>localStorage.getItem("crew_teacher_scenario")||"hotel_checkin");
  const stopPreview=()=>{stopRef.current?.();stopRef.current=null;setPreview(null)};
