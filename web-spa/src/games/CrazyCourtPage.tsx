@@ -52,6 +52,7 @@ export function CrazyCourtPage(){
  const [phase,setPhase]=useState<Phase>("setup");
  const [turn,setTurn]=useState(0),[score,setScore]=useState(0),[objections,setObjections]=useState(3);
  const [usedIds,setUsedIds]=useState<string[]>([]);
+ const [previewEvidence,setPreviewEvidence]=useState<string|null>(null);
  const [entries,setEntries]=useState<Entry[]>([]);
  const [text,setText]=useState(""),[notice,setNotice]=useState("");
  const [objectionOpen,setObjectionOpen]=useState(false);
@@ -62,6 +63,7 @@ export function CrazyCourtPage(){
  const court=courtCases.find(item=>item.id===caseId)||courtCases[0];
  const judge=getCrewFriend(friend.id==="maya"?"iris":"maya");
  const opponent=role==="defense"?choice(zh,"檢察官","Prosecutor"):choice(zh,"辯護律師","Defense attorney");
+ const preview=court.evidence.find(item=>item.id===previewEvidence);
  useEffect(()=>{aliveRef.current=true;trackUsageEvent("game_open","crazy-court");document.body.classList.add("teacher-theme");return()=>{aliveRef.current=false;document.body.classList.remove("teacher-theme")};},[]);
  const emit=(message:string)=>setCue(prev=>({id:prev.id+1,text:message}));
  const openTrial=()=>{
@@ -71,7 +73,7 @@ export function CrazyCourtPage(){
    {speaker:"judge",text:choice(zh,"現在開庭！雙方請尊重證據，但不必壓抑幽默感。","Court is now in session! Respect the evidence, but don't suppress the jokes.")},
    {speaker:"opponent",text:currentClaim(court,0,role,language)}
   ]);
-  setText("");setNotice("");setObjectionOpen(false);setPhase("trial");
+  setText("");setNotice("");setObjectionOpen(false);setPreviewEvidence(null);setPhase("trial");
   emit("The court is open. As "+opponent+", say one brief spirited greeting. The next move is the player's.");
  };
  const handleAction=async(action:CourtAction)=>{
@@ -94,7 +96,7 @@ export function CrazyCourtPage(){
    if(evaluated.points>0)setAcceptedObjections(prev=>prev+1);
   }
   if(evaluated.usedEvidenceId)setUsedIds(prev=>[...prev,evaluated.usedEvidenceId!]);
-  setText("");
+  setText("");setPreviewEvidence(null);
   setNotice(get(evaluated.label,language));
   const next=turn+1;
   if(next===maxTurns){
@@ -118,7 +120,7 @@ export function CrazyCourtPage(){
  };
  const reset=()=>{
   setPhase("setup");setNotice("");setEntries([]);setText("");
-  setCue({id:0,text:""});setObjectionOpen(false);setBusy(false);busyRef.current=false;
+  setCue({id:0,text:""});setObjectionOpen(false);setPreviewEvidence(null);setBusy(false);busyRef.current=false;
  };
  const won=courtVerdict(score)==="win";
  return <main className="crew-play-page court-page">
@@ -191,18 +193,23 @@ export function CrazyCourtPage(){
    </div>
    <div className="court-latest" aria-live="polite">
     <span className="court-live-dot"/><strong>{opponent} · {friend.name}</strong>
-    <p>{currentClaim(court,turn,role,language)}</p>
+    {entries.filter(entry=>entry.speaker==="opponent").slice(-2).map((entry,i)=><p key={turn+":"+i} className={i===0?"court-opponent-previous":undefined}>{entry.text}</p>)}
     {busy?<small>{choice(zh,"AI 正在整理下一段庭審…","Preparing the next exchange…")}</small>:null}
    </div>
    {notice?<p className="court-notice" role="status">{notice}</p>:null}
    <div className="court-actions-heading"><strong>{choice(zh,"提出物證","Present evidence")}</strong><span>{choice(zh,"每張僅能使用一次","One use per card")}</span></div>
    <div className="court-evidence">
-    {court.evidence.map(item=><button key={item.id} type="button" disabled={busy||usedIds.includes(item.id)}
-      onClick={()=>void handleAction({kind:"evidence",evidenceId:item.id})} title={get(item.detail,language)}>
+    {court.evidence.map(item=><button key={item.id} type="button" disabled={busy||usedIds.includes(item.id)} aria-pressed={previewEvidence===item.id}
+      onClick={()=>setPreviewEvidence(previous=>previous===item.id?null:item.id)} title={get(item.detail,language)}>
      <span className="court-evidence-icon">{item.icon}</span><strong>{get(item.title,language)}</strong>
-     <small>{usedIds.includes(item.id)?choice(zh,"已採納","Filed"):choice(zh,"出示","Submit")}</small>
+     <small>{usedIds.includes(item.id)?choice(zh,"已採納","Filed"):choice(zh,"查看證據","Inspect")}</small>
     </button>)}
    </div>
+   {preview?<div className="court-evidence-preview" aria-live="polite">
+    <strong>{get(preview.title,language)}</strong><p>{get(preview.detail,language)}</p>
+    <div><button type="button" disabled={busy} onClick={()=>void handleAction({kind:"evidence",evidenceId:preview.id})}>{choice(zh,"提交這張物證","File this evidence")}</button>
+    <button type="button" onClick={()=>setPreviewEvidence(null)}>{choice(zh,"取消","Cancel")}</button></div>
+   </div>:null}
    {objectionOpen?<div className="court-objection-panel" role="group" aria-label={choice(zh,"選擇異議理由","Choose objection reason")}>
     <div className="court-objection-head"><strong>{choice(zh,"你為什麼異議？","What's your objection?")}</strong><button type="button" onClick={()=>setObjectionOpen(false)}>{choice(zh,"取消","Cancel")}</button></div>
     <div className="court-reasons">{courtReasons.map(reason=><button key={reason.id} type="button" onClick={()=>void handleAction({kind:"objection",reason:reason.id})}>{get(reason.label,language)}</button>)}</div>
