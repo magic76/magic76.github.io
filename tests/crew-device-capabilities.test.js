@@ -120,7 +120,7 @@ test("new APK returns only allowlisted device fields and gated methods",async()=
     webViewVersion:"130.1",bridgeRevision:2,microphone:"granted",camera:"denied",
     tts:"ready",network:"os_validated",crewService:"unknown",
     apiKey:"SUPER-SECRET",url:"https://site/?apiKey=secret",conversation:"private"}}
-   :{v,id,ok:true}})});
+   :{v,id,ok:true})});
  }};
  const device=load({bridge,withWebSpeech:false});
  const report=await device.readNativeDeviceInfo();
