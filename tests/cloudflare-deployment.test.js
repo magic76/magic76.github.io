@@ -28,9 +28,9 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
  const inlineCss=root.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
- const cssFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>/^index-[^/]+\.css$/.test(file));
+ const cssFiles=fs.readdirSync(path.join(DIST,"assets","build")).filter(file=>/^index-[^/]+\.css$/.test(file));
  assert.equal(cssFiles.length,1,"expected exactly one initial-entry Vite CSS bundle (lazy routes may emit separate CSS)");
- const compiledCss=read("assets/"+cssFiles[0]);
+ const compiledCss=read("assets/build/"+cssFiles[0]);
  const manifest=JSON.parse(read(".vite/manifest.json"));
  // HomePage imports HomeShortsPreview, whose CSS is extracted separately.
  function expectedRouteCss(name){
@@ -41,7 +41,7 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
    const entry=manifest[key];
    assert.ok(entry,"missing Vite manifest entry "+key);
    for(const dependency of entry.imports||[])visit(dependency);
-   for(const css of entry.css||[])if(css!=="assets/"+cssFiles[0])assets.add(css);
+   for(const css of entry.css||[])if(css!=="assets/build/"+cssFiles[0])assets.add(css);
   }
   visit(name);
   return assets;
@@ -272,6 +272,8 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
  assert.equal(previewRules.length,2,"two Cloudflare preview aliases");
  assert.ok(previewRules.every(rule=>rule.includes("X-Robots-Tag: noindex")),"each preview host needs noindex");
  assert.match(headers,/\/version\.json\s*\n\s*Cache-Control: no-store/,"live version feed must not be cached");
+ assert.match(headers,/\/assets\/build\/\*\s*\n\s*Cache-Control: public, max-age=31536000, immutable/,"only hashed bundles may be cached immutably");
+ assert.ok(!/\/assets\/\*\s*\n\s*Cache-Control:.*immutable/.test(headers),"unversioned images must not be immutable");
  assert.ok(!headers.includes("https://www.3sssi.com/"),"production must remain indexable");
  assert.ok(!headers.includes("no-transform"),"Cloudflare automatic Web Analytics needs unmodified HTML");
 });
@@ -303,8 +305,8 @@ check("Cloudflare build emits version metadata matching the currently shipped Ja
  assert.ok(typeof metadata.builtAt==="string"&&Number.isFinite(Date.parse(metadata.builtAt)),"missing build time");
  assert.ok(metadata.commit===null||/^[a-f0-9]{7,40}$/i.test(metadata.commit),"invalid SHA");
  assert.ok(["Production","Preview","Cloudflare Pages"].includes(metadata.environment));
- const jsFiles=fs.readdirSync(path.join(DIST,"assets")).filter(file=>file.endsWith(".js"));
- assert.ok(jsFiles.some(file=>read("assets/"+file).includes(metadata.buildId)),"version feed differs from running app build");
+ const jsFiles=fs.readdirSync(path.join(DIST,"assets","build")).filter(file=>file.endsWith(".js"));
+ assert.ok(jsFiles.some(file=>read("assets/build/"+file).includes(metadata.buildId)),"version feed differs from running app build");
 });
 
 
