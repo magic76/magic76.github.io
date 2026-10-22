@@ -3,7 +3,7 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 
 const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
@@ -11,16 +11,12 @@ const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 // Exercise the actual TypeScript decision logic, without a browser or a Vite server.
 function loadLocalePolicy(){
  const source=read("web-spa/src/i18n/localeCatalog.ts");
- const js=ts.transpileModule(source,{compilerOptions:{
-  module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020
- }}).outputText;
- const exports={};
- const localRequire=id=>{
-  assert.equal(id,"../../../config/ui-locales.json");
-  return {default:JSON.parse(read("config/ui-locales.json"))};
- };
- new Function("require","exports",js)(localRequire,exports);
- return exports;
+ // Node 22 strips TS types directly; this does not depend on TypeScript compiler APIs.
+ const js=stripTypeScriptTypes(source)
+  .replace(/^import definitions from .*?;$/m,"")
+  .replace(/\\bexport (?=(?:const|function)\\b)/g,"");
+ const definitions=JSON.parse(read("config/ui-locales.json"));
+ return new Function("definitions",js+"\\nreturn {resolveInitialUiLocale,preferredPublicLocaleDestination};")(definitions);
 }
 const {resolveInitialUiLocale,preferredPublicLocaleDestination}=loadLocalePolicy();
 const visit=(pathname,languages,storedLocale=null,userAgent="Mozilla/5.0")=>
