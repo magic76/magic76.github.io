@@ -85,7 +85,9 @@ test("Connect Four and Reversi narrate planned AI moves before the stone appears
  assert.match(board,/narrateMove\("\[CONNECT FOUR BEFORE MOVE\]/);
  assert.match(board,/narrateMove\("\[REVERSI BEFORE MOVE\]/);
  assert.match(board,/\{kind:"connect4",position:String\(column\+1\)\},\(\)=>setConnect\(next\)/);
- assert.match(board,/\{kind:"reversi",position:position\(move\.x,move\.y\)\},\(\)=>setReversi\(next\)/);
+ assert.match(board,/\{kind:"reversi",position:position\(move\.x,move\.y\)\},\(\)=>applyReversiMove\(reversi,next\)/);
+  assert.match(board,/const applyReversiMove=\(previous:CrewReversiState,next:CrewReversiState\)=>\{/);
+  assert.match(board,/setReversi\(next\)/);
  assert.match(board,/if\(roundEpochRef\.current!==epoch\)return/);
  assert.match(board,/placeStone\(\);\s*speechGateRef\.current=false/);
  assert.doesNotMatch(board,/\[CONNECT FOUR AFTER MOVE\]|\[REVERSI AFTER MOVE\]/);
