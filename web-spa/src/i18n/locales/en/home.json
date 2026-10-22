@@ -128,5 +128,43 @@
         "cta": "Open a new story"
       }
     }
+  },
+  "playHub": {
+    "back": "Home",
+    "heading": "Play with your Crew Friends",
+    "intro": "Board games, Bulls and Cows, and Taboo work without an API key. 20 Questions and Mystery require Gemini voice.",
+    "voiceRequired": "Gemini voice required",
+    "offlineOptional": "Offline · optional voice",
+    "footer": "Play board games, Bulls and Cows, and Taboo offline by typing. Voice features need a Gemini key and microphone.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Get five in a row"
+      },
+      "connect4": {
+        "title": "Connect Four",
+        "desc": "Drop discs and connect four"
+      },
+      "twenty-questions": {
+        "title": "20 Questions",
+        "desc": "Find the secret in 20 questions"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Flip discs and take the board"
+      },
+      "mystery": {
+        "title": "Mystery Stories",
+        "desc": "Solve lateral-thinking mysteries"
+      },
+      "1a2b": {
+        "title": "Bulls and Cows (1A2B)",
+        "desc": "Crack the unique-digit code"
+      },
+      "taboo": {
+        "title": "Taboo Word Game",
+        "desc": "Describe without forbidden words"
+      }
+    }
   }
 }

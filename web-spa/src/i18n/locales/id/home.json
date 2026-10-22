@@ -128,5 +128,43 @@
         "cta": "Buka cerita baru"
       }
     }
+  },
+  "playHub": {
+    "back": "Beranda",
+    "heading": "Mau main apa bersama teman Crew?",
+    "intro": "Permainan papan, 1A2B, dan Taboo bisa dimainkan lewat teks tanpa API key. 20 Questions dan Misteri perlu suara Gemini.",
+    "voiceRequired": "Perlu suara Gemini",
+    "offlineOptional": "Offline · suara opsional",
+    "footer": "Mainkan permainan papan, 1A2B, dan Taboo lewat teks secara offline. Fitur suara memerlukan kunci Gemini dan mikrofon.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Susun lima batu sebaris"
+      },
+      "connect4": {
+        "title": "Connect Four",
+        "desc": "Jatuhkan keping hingga empat sebaris"
+      },
+      "twenty-questions": {
+        "title": "20 Pertanyaan",
+        "desc": "Temukan jawabannya dalam 20 pertanyaan"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Balik keping untuk menguasai papan"
+      },
+      "mystery": {
+        "title": "Cerita Misteri",
+        "desc": "Pecahkan misteri lewat pertanyaan"
+      },
+      "1a2b": {
+        "title": "Tebak Angka 1A2B",
+        "desc": "Pecahkan kode angka tanpa pengulangan"
+      },
+      "taboo": {
+        "title": "Taboo: Tebak Kata",
+        "desc": "Jelaskan tanpa kata terlarang"
+      }
+    }
   }
 }

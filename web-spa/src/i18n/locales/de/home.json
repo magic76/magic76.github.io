@@ -128,5 +128,43 @@
         "cta": "Neue Geschichte öffnen"
       }
     }
+  },
+  "playHub": {
+    "back": "Startseite",
+    "heading": "Was spielen wir mit deinen Crew-Freunden?",
+    "intro": "Brettspiele, 1A2B und Taboo funktionieren per Text ohne API-Schlüssel. 20 Fragen und Rätselgeschichten benötigen Gemini-Sprache.",
+    "voiceRequired": "Gemini-Sprache erforderlich",
+    "offlineOptional": "Offline · Sprache optional",
+    "footer": "Spiele Brettspiele, 1A2B und Taboo offline per Texteingabe. Für Sprache brauchst du einen Gemini-Schlüssel und ein Mikrofon.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Bringe fünf Steine in eine Reihe"
+      },
+      "connect4": {
+        "title": "Vier gewinnt",
+        "desc": "Wirf Steine ein und verbinde vier"
+      },
+      "twenty-questions": {
+        "title": "20 Fragen",
+        "desc": "Errate das Geheimnis in 20 Fragen"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Drehe Steine um und wende das Spiel"
+      },
+      "mystery": {
+        "title": "Rätselgeschichten",
+        "desc": "Löse Rätsel durch geschickte Fragen"
+      },
+      "1a2b": {
+        "title": "1A2B Zahlenraten",
+        "desc": "Knacke den Code ohne doppelte Ziffern"
+      },
+      "taboo": {
+        "title": "Taboo Wortspiel",
+        "desc": "Beschreibe ohne verbotene Wörter"
+      }
+    }
   }
 }

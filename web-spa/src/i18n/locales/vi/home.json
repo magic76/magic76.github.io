@@ -128,5 +128,43 @@
         "cta": "Mở truyện mới"
       }
     }
+  },
+  "playHub": {
+    "back": "Trang chủ",
+    "heading": "Chơi gì cùng bạn bè Crew hôm nay?",
+    "intro": "Trò chơi bàn cờ, 1A2B và Taboo có thể chơi bằng chữ không cần API key. 20 Câu hỏi và Bí ẩn cần giọng nói Gemini.",
+    "voiceRequired": "Cần giọng nói Gemini",
+    "offlineOptional": "Ngoại tuyến · có thể bật giọng nói",
+    "footer": "Chơi trò bàn cờ, 1A2B và Taboo bằng chữ khi ngoại tuyến. Chế độ giọng nói cần khóa Gemini và micrô.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Cờ ca-rô năm quân",
+        "desc": "Xếp năm quân liên tiếp"
+      },
+      "connect4": {
+        "title": "Nối bốn",
+        "desc": "Thả quân và nối bốn quân"
+      },
+      "twenty-questions": {
+        "title": "20 Câu hỏi",
+        "desc": "Tìm đáp án trong 20 câu hỏi"
+      },
+      "reversi": {
+        "title": "Cờ lật",
+        "desc": "Lật quân để đổi thế cờ"
+      },
+      "mystery": {
+        "title": "Chuyện bí ẩn",
+        "desc": "Giải bí ẩn bằng những câu hỏi"
+      },
+      "1a2b": {
+        "title": "Đoán số 1A2B",
+        "desc": "Giải mật mã không lặp chữ số"
+      },
+      "taboo": {
+        "title": "Taboo đoán từ",
+        "desc": "Mô tả mà không dùng từ cấm"
+      }
+    }
   }
 }

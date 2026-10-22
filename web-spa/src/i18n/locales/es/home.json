@@ -128,5 +128,43 @@
         "cta": "Abre una nueva historia"
       }
     }
+  },
+  "playHub": {
+    "back": "Inicio",
+    "heading": "¿A qué jugamos con tus amigos Crew?",
+    "intro": "Los juegos de mesa, 1A2B y Taboo se pueden jugar por texto sin clave. 20 Preguntas y Misterios requieren voz de Gemini.",
+    "voiceRequired": "Requiere voz de Gemini",
+    "offlineOptional": "Sin conexión · voz opcional",
+    "footer": "Juega por texto a los juegos de mesa, 1A2B y Taboo sin conexión. La voz requiere una clave de Gemini y micrófono.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Cinco en raya",
+        "desc": "Consigue cinco fichas seguidas"
+      },
+      "connect4": {
+        "title": "Conecta 4",
+        "desc": "Deja caer fichas y alinea cuatro"
+      },
+      "twenty-questions": {
+        "title": "20 preguntas",
+        "desc": "Descubre el secreto en 20 preguntas"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Da la vuelta a las fichas"
+      },
+      "mystery": {
+        "title": "Historias de misterio",
+        "desc": "Resuelve enigmas con tus preguntas"
+      },
+      "1a2b": {
+        "title": "1A2B: adivina el número",
+        "desc": "Descifra un código sin dígitos repetidos"
+      },
+      "taboo": {
+        "title": "Taboo: juego de palabras",
+        "desc": "Describe sin usar palabras prohibidas"
+      }
+    }
   }
 }

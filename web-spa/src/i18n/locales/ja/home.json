@@ -128,5 +128,43 @@
         "cta": "新しい物語を開く"
       }
     }
+  },
+  "playHub": {
+    "back": "ホーム",
+    "heading": "Crew の友だちと何して遊ぶ？",
+    "intro": "ボードゲーム、1A2B、Taboo は API キーなしで文字入力で遊べます。20 Questions とミステリーには Gemini 音声が必要です。",
+    "voiceRequired": "Gemini 音声が必要",
+    "offlineOptional": "オフライン対応 · 音声は任意",
+    "footer": "ボードゲーム、1A2B、Taboo は文字入力でオフラインプレイ可能。音声機能には Gemini キーとマイクが必要です。",
+    "games": {
+      "friend-gomoku": {
+        "title": "五目並べ",
+        "desc": "先に五つ並べよう"
+      },
+      "connect4": {
+        "title": "四目並べ",
+        "desc": "コマを落として四つそろえよう"
+      },
+      "twenty-questions": {
+        "title": "20の質問",
+        "desc": "20回の質問で正解を当てよう"
+      },
+      "reversi": {
+        "title": "リバーシ",
+        "desc": "石を裏返して形勢逆転"
+      },
+      "mystery": {
+        "title": "ミステリーストーリー",
+        "desc": "質問を重ねて謎を解こう"
+      },
+      "1a2b": {
+        "title": "1A2B 数字当て",
+        "desc": "重複しない数字の暗号を解こう"
+      },
+      "taboo": {
+        "title": "Taboo 単語ゲーム",
+        "desc": "禁止語を避けて説明しよう"
+      }
+    }
   }
 }

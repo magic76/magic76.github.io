@@ -128,5 +128,43 @@
         "cta": "Abra uma nova história"
       }
     }
+  },
+  "playHub": {
+    "back": "Início",
+    "heading": "Vamos jogar com os amigos Crew?",
+    "intro": "Jogos de tabuleiro, 1A2B e Taboo funcionam por texto sem chave. 20 Perguntas e Mistérios precisam da voz do Gemini.",
+    "voiceRequired": "Requer voz do Gemini",
+    "offlineOptional": "Offline · voz opcional",
+    "footer": "Jogue jogos de tabuleiro, 1A2B e Taboo por texto, mesmo offline. Para usar voz, é preciso chave Gemini e microfone.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Jogo da velha de cinco",
+        "desc": "Forme uma linha de cinco"
+      },
+      "connect4": {
+        "title": "Ligue 4",
+        "desc": "Solte peças e alinhe quatro"
+      },
+      "twenty-questions": {
+        "title": "20 perguntas",
+        "desc": "Descubra o segredo em 20 perguntas"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Vire as peças e mude o jogo"
+      },
+      "mystery": {
+        "title": "Histórias de mistério",
+        "desc": "Resolva mistérios fazendo perguntas"
+      },
+      "1a2b": {
+        "title": "1A2B: adivinhe o número",
+        "desc": "Decifre os dígitos sem repetição"
+      },
+      "taboo": {
+        "title": "Taboo: jogo de palavras",
+        "desc": "Descreva sem usar palavras proibidas"
+      }
+    }
   }
 }

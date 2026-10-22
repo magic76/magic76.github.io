@@ -128,5 +128,43 @@
         "cta": "打開一段新故事"
       }
     }
+  },
+  "playHub": {
+    "back": "首頁",
+    "heading": "今天和朋友玩什麼？",
+    "intro": "棋類、1A2B 與 Taboo 不用 Key 就能打字玩；20 Questions 與海龜湯需要 Gemini 語音。",
+    "voiceRequired": "需要 Gemini 語音",
+    "offlineOptional": "離線可玩 · 語音選用",
+    "footer": "1A2B、Taboo 與棋類可用文字離線遊玩；語音功能需要 Gemini Key 與麥克風。",
+    "games": {
+      "friend-gomoku": {
+        "title": "五子棋",
+        "desc": "經典五連線對決"
+      },
+      "connect4": {
+        "title": "四子棋",
+        "desc": "放下棋子，搶先連成四顆"
+      },
+      "twenty-questions": {
+        "title": "20 Questions",
+        "desc": "用 20 次提問猜出秘密"
+      },
+      "reversi": {
+        "title": "黑白棋",
+        "desc": "翻轉棋子，逆轉局勢"
+      },
+      "mystery": {
+        "title": "海龜湯",
+        "desc": "問對問題，揭開故事真相"
+      },
+      "1a2b": {
+        "title": "1A2B 猜數字",
+        "desc": "破解不重複的數字密碼"
+      },
+      "taboo": {
+        "title": "Taboo 描述猜詞",
+        "desc": "避開禁用字，用描述猜答案"
+      }
+    }
   }
 }

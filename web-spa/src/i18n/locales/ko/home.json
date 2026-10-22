@@ -128,5 +128,43 @@
         "cta": "새로운 이야기 열기"
       }
     }
+  },
+  "playHub": {
+    "back": "홈",
+    "heading": "Crew 친구들과 무엇을 할까요?",
+    "intro": "보드게임, 1A2B, Taboo는 API 키 없이 텍스트로 즐길 수 있어요. 20 Questions와 미스터리는 Gemini 음성이 필요해요.",
+    "voiceRequired": "Gemini 음성 필요",
+    "offlineOptional": "오프라인 · 음성 선택",
+    "footer": "보드게임, 1A2B, Taboo는 오프라인 텍스트로 플레이할 수 있어요. 음성 기능에는 Gemini 키와 마이크가 필요해요.",
+    "games": {
+      "friend-gomoku": {
+        "title": "오목",
+        "desc": "돌 다섯 개를 먼저 연결하세요"
+      },
+      "connect4": {
+        "title": "사목",
+        "desc": "말을 떨어뜨려 네 개를 연결하세요"
+      },
+      "twenty-questions": {
+        "title": "스무고개",
+        "desc": "질문 20개로 정답을 찾아요"
+      },
+      "reversi": {
+        "title": "미니 리버시",
+        "desc": "돌을 뒤집어 판세를 바꿔요"
+      },
+      "mystery": {
+        "title": "미스터리 이야기",
+        "desc": "질문으로 사건의 진실을 밝혀요"
+      },
+      "1a2b": {
+        "title": "1A2B 숫자 맞히기",
+        "desc": "중복 없는 숫자 암호를 풀어요"
+      },
+      "taboo": {
+        "title": "Taboo 단어 게임",
+        "desc": "금지어 없이 설명해 보세요"
+      }
+    }
   }
 }

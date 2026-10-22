@@ -128,5 +128,43 @@
         "cta": "Ouvrir une nouvelle histoire"
       }
     }
+  },
+  "playHub": {
+    "back": "Accueil",
+    "heading": "À quoi jouer avec vos amis Crew ?",
+    "intro": "Les jeux de plateau, 1A2B et Taboo se jouent par écrit sans clé API. 20 Questions et Mystères nécessitent la voix Gemini.",
+    "voiceRequired": "Voix Gemini requise",
+    "offlineOptional": "Hors ligne · voix facultative",
+    "footer": "Jouez aux jeux de plateau, à 1A2B et à Taboo hors ligne, par écrit. La voix nécessite une clé Gemini et un micro.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Alignez cinq pions"
+      },
+      "connect4": {
+        "title": "Puissance 4",
+        "desc": "Lâchez des jetons et alignez-en quatre"
+      },
+      "twenty-questions": {
+        "title": "20 questions",
+        "desc": "Trouvez le secret en 20 questions"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Retournez les pions pour prendre l'avantage"
+      },
+      "mystery": {
+        "title": "Histoires mystérieuses",
+        "desc": "Résolvez des énigmes par vos questions"
+      },
+      "1a2b": {
+        "title": "1A2B : devinez le nombre",
+        "desc": "Déchiffrez un code sans chiffres répétés"
+      },
+      "taboo": {
+        "title": "Taboo : jeu de mots",
+        "desc": "Faites deviner sans mots interdits"
+      }
+    }
   }
 }
