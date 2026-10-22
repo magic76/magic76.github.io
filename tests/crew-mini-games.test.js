@@ -89,16 +89,37 @@ test("AI guesser gets only clues and the game engine verifies the answer",async(
  }finally{global.window=previous}
 });
 
-test("Taboo guesses immediately with only one spoken sentence",()=>{
- assert.equal(taboo.tabooFollowUp("banana","Could you give me another clue?",1),"I guess banana.");
- assert.equal(taboo.tabooFollowUp("book","Is it used at home?",2),"I guess book.");
+test("Taboo speaks one natural guess while accepting multiple safe phrasings",()=>{
+ assert.equal(taboo.tabooFollowUp("banana","Could you give me another clue?",1),"Could it be a banana?");
+ assert.equal(taboo.tabooFollowUp("book","Is it used at home?",2),"That sounds like a book!");
+ assert.equal(taboo.tabooFollowUp("apple","",3),"Maybe an apple?");
+ assert.equal(taboo.tabooFollowUp("carrot","",4),"I'd say carrot!");
+ assert.equal(taboo.tabooFollowUp("orange","",5),"Is it an orange?");
+ assert.equal(taboo.tabooFollowUp("violin","",6),"I'm thinking violin!");
  assert.equal(taboo.tabooFollowUp("","Any clues?",5),"I need another clue.");
- assert.equal(taboo.parseTabooLiveGuess("I guess banana."),"banana");
- assert.equal(taboo.parseTabooLiveGuess("My guess is apple!"),"apple");
- assert.equal(taboo.parseTabooLiveGuess("Is it a carrot?"),"carrot");
- assert.equal(taboo.parseTabooLiveGuess("book"),"book");
- assert.equal(taboo.parseTabooLiveGuess("I guess banana. It is yellow."),"");
- assert.equal(taboo.parseTabooLiveGuess("That sounds interesting!"),"");
+ for(const [utterance,word] of [
+  ["I guess banana.","banana"],
+  ["My guess is apple!","apple"],
+  ["Is it a carrot?","carrot"],
+  ["book","book"],
+  ["Could it be a banana?","banana"],
+  ["That sounds like a banana!","banana"],
+  ["Sounds like a banana!","banana"],
+  ["Maybe an apple?","apple"],
+  ["I'd say carrot!","carrot"],
+  ["Hmm, is it a carrot?","carrot"],
+  ["I think it's a book!","book"],
+  ["I'm going with orange!","orange"],
+  ["I'm thinking violin!","violin"],
+  ["An apple?","apple"]
+ ])assert.equal(taboo.parseTabooLiveGuess(utterance),word,utterance);
+ for(const utterance of [
+  "I guess banana. It is yellow.",
+  "That sounds interesting!",
+  "Maybe banana or apple?",
+  "I think we need another clue.",
+  "Could it be apple or banana?"
+ ])assert.equal(taboo.parseTabooLiveGuess(utterance),"",utterance);
 });
 
 test("Taboo voice scoring validates an already-spoken guess without scheduling a second speech",()=>{
@@ -110,6 +131,10 @@ test("Taboo voice scoring validates an already-spoken guess without scheduling a
  assert.match(source,/\[120,180,0\]\.map/);
  assert.match(source,/if\(phase!=="playing"\|\|deadline===0\)return/);
  assert.match(voice,/directGuess\?"crew-play-mini-taboo-direct-/);
+ assert.match(voice,/vary the wording and intonation naturally/);
+ assert.doesNotMatch(voice,/COMPLETE spoken reply must be exactly/);
+ const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/useLiveSession.ts"),"utf8");
+ assert.match(live,/varied natural English/);
 });
 
 test("Taboo shuffle bag consumes 100 words per level across saved game sessions",()=>{

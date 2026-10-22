@@ -283,14 +283,29 @@ export function validGeneratedCard(v:unknown,level:TabooLevel):TabooCard|null{
  return card;
 }
 // Only player clues, never the answer, are sent to the model.
-/** A single audible guess for each clue; never add a second reaction or follow-up sentence. */
-export function tabooFollowUp(guess:string,_question:string,_attempt:number):string{
- return guess?"I guess "+guess+".":"I need another clue.";
+/** Keep each audible reply short and varied while still exposing one unambiguous guess. */
+export function tabooFollowUp(guess:string,_question:string,attempt:number):string{
+ if(!guess)return "I need another clue.";
+ const article=/^[aeiou]/i.test(guess)?"an ":"a ";
+ const styles=[
+  "Could it be "+article+guess+"?",
+  "That sounds like "+article+guess+"!",
+  "Maybe "+article+guess+"?",
+  "I'd say "+guess+"!",
+  "Is it "+article+guess+"?",
+  "I'm thinking "+guess+"!"
+ ];
+ return styles[Math.max(0,attempt-1)%styles.length];
 }
-/** Extract only a one-word guess from Live's completed utterance; never trust it for scoring. */
+/** Extract a single-word candidate from one natural Live utterance; never trust it for scoring. */
 export function parseTabooLiveGuess(reply:string):string{
- const text=reply.trim().replace(/[“”]/g,'"');
- const match=/^(?:(?:I guess|My guess is|Could it be|Is it)\s+)?["']?(?:a |an )?([a-z][a-z-]{1,29})["']?[.!?]?$/i.exec(text);
+ const text=reply.trim().replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/\s+/g," ");
+ // Reject multiple spoken sentences or alternative guesses: UI must never award ambiguous points.
+ if(!text||/[.!?]\s+\S/.test(text))return "";
+ const spoken=text.replace(/[.!?]+$/,"").replace(/^(?:hmm|oh|ooh|aha),\s*/i,"").trim();
+ const prefix=/^(?:I guess|My guess is|Could it be|Could that be|Is it|Is that|Might it be|Maybe(?: it(?:'s| is))?|Perhaps(?: it(?:'s| is))?|Sounds like|That sounds like|It sounds like|I'd say|I'd go with|I think(?: it(?:'s| is))?|I'm thinking(?: it(?:'s| is))?|I'm going with|I'll go with|What about|How about|Could be)\s+/i;
+ const candidate=spoken.replace(prefix,"");
+ const match=/^(?:(?:a|an|the)\s+)?["']?([a-z][a-z-]{1,29})["']?$/i.exec(candidate);
  return match?.[1].toLowerCase()||"";
 }
 export async function generateTabooGuess(descriptions:string[],previousGuesses:string[]=[]):Promise<{guess:string;question:string}>{
