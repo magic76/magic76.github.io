@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-Dk72oS4N.js";import{i as t}from"./chunk-OB3PAWPO-aexQ7Smp.js";var n=e();function r({items:e}){return(0,n.jsx)(`nav`,{className:`subnav route-tabs`,children:e.map(([e,r])=>(0,n.jsx)(t,{to:e,className:({isActive:e})=>e?`active`:``,children:r},e))})}export{r as t};
