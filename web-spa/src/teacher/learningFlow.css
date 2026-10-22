@@ -1,5 +1,5 @@
 /* Mobile-first focused learning surfaces. Kept separate from legacy page styles. */
-.crew-learning-focus{display:grid;gap:16px;max-width:860px;margin:0 auto;padding:12px 0 72px}
+.crew-learning-focus{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;width:min(100%,860px);min-width:0;margin:0 auto;padding:12px 0 72px}
 .crew-learning-quiz,.crew-course-resume,.crew-course-map{background:var(--surface,#fff);border:1px solid var(--line,#e7e5ee);border-radius:22px;padding:clamp(16px,3vw,26px)}
 .crew-learning-quiz-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
 .crew-learning-quiz-top h1,.crew-learning-page-heading h1{font-size:clamp(21px,4vw,28px);line-height:1.25;margin:5px 0 0}

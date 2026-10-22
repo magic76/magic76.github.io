@@ -36,14 +36,14 @@ export function LearningFocusCard(){
  const description=resume?t("sectionHubs.learn.resumeDesc",{defaultValue:"Pick up where you left off with your teacher."}):
   t("sectionHubs.learn.firstDesc",{defaultValue:"Meet your teacher and practice a simple everyday introduction."});
  const destination=resume?plan.to:"/teacher/roles?mode=teacher";
- return <section className="crew-learning-focus" aria-label={t("sectionHubs.learn.focusLabel",{defaultValue:"Recommended practice"})}>
-  <div className="crew-learning-focus-content">
+ return <section className="crew-section-focus-card" aria-label={t("sectionHubs.learn.focusLabel",{defaultValue:"Recommended practice"})}>
+  <div className="crew-section-focus-card-content">
    <span className="kicker">{t(resume?"sectionHubs.learn.resumeLabel":"sectionHubs.learn.newLabel",{defaultValue:resume?"CONTINUE PRACTICING":"START HERE"})}</span>
    <h2>{title}</h2><p>{description}</p>
-   <div className="crew-learning-focus-meta"><span>{teacher.name}</span><span aria-hidden="true">·</span>
+   <div className="crew-section-focus-card-meta"><span>{teacher.name}</span><span aria-hidden="true">·</span>
     <span>{t("sectionHubs.learn.suggestedTime",{defaultValue:"Suggested: 5 min"})}</span></div>
   </div>
-  <div className="crew-learning-focus-portrait" aria-hidden="true">
+  <div className="crew-section-focus-card-portrait" aria-hidden="true">
    <span>{teacher.name.charAt(0)}</span>
    <img src={teacher.avatar} alt="" onError={event=>{event.currentTarget.style.display="none"}}/>
   </div>
