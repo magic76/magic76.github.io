@@ -99,7 +99,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode}:{
    </div>
   </div>
   {live.output&&active?<p className="crew-mini-speech" role="status">{live.output}</p>:null}
-  {active?<LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>:
+  {active?<LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友" compact/>:
    hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">開啟與 {friend.name} 的語音</button>:
    <Link className="crew-mini-key-link" to="/settings">要開啟 Live 語音？先到設定填入 Gemini Key（選用）</Link>}
   {live.state==="error"?<p className="crew-mini-error" role="alert">{live.status}，可改用文字繼續遊戲。</p>:null}
