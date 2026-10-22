@@ -38,6 +38,14 @@ test("Board rendering exposes row and column labels plus scoped motion with redu
  assert.match(component,/crew-board-column-labels/);
  assert.match(component,/crew-board-row-labels/);
  assert.match(component,/crew-connect-disc[^\n]*is-dropping/);
+ assert.match(component,/onAnimationEnd=\{dropping\?/);
+ assert.match(component,/key=\{dropping\?/);
+ assert.match(component,/connectDropIdRef\.current===null/);
+ assert.match(component,/connectDrop\|\|connectDropIdRef\.current!==null/);
+ assert.match(component,/setTimeout\(\(\)=>finishConnectDrop\(id\),duration\+120\)/);
+ assert.match(component,/prefers-reduced-motion: reduce/);
+ assert.match(styles,/transform:translate3d\(0,var\(--drop-distance/);
+ assert.doesNotMatch(styles,/--drop-rows/);
  assert.match(component,/next\.flipped/);
  assert.match(component,/crew-reversi-disc-face/);
  assert.match(styles,/@keyframes crew-connect-disc-drop/);
