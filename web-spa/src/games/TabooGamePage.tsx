@@ -60,11 +60,12 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  const correct=useCallback((guessed?:string,alreadySpoken=false)=>{
   if(phase!=="playing"||doneGuard.current===round)return;
   setScore(s=>s+10);
-  if(!alreadySpoken)emit(guessed?"You guessed "+JSON.stringify(guessed)+
-   ". The game verified it correct. React as the friend in one short sentence."
+  if(!alreadySpoken)emit(mode==="describe"&&guessed
+   ?"The secret word was correctly guessed. Say exactly "+JSON.stringify("I guess "+guessed+".")+" and nothing else. No reaction or second sentence."
+   :guessed?"You guessed "+JSON.stringify(guessed)+". The game verified it correct. React in one short sentence."
    :"Correct! Awarded 10 points. React as a friend, briefly.");
   advance("correct");
- },[phase,round,emit,advance]);
+ },[phase,round,emit,advance,mode]);
  const violate=useCallback((term:string,alreadySpoken=false)=>{
   if(phase!=="playing"||doneGuard.current===round)return;
   setScore(s=>s-5);
