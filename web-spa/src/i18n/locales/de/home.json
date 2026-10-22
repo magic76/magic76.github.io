@@ -165,6 +165,9 @@
         "title": "Taboo Wortspiel",
         "desc": "Beschreibe ohne verbotene Wörter"
       }
-    }
+    },
+    "allGames": "Alle Spiele",
+    "yourFriend": "Dein Crew-Freund",
+    "changeFriend": "Freund wechseln"
   }
 }

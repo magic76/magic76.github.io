@@ -165,6 +165,9 @@
         "title": "Taboo 단어 게임",
         "desc": "금지어 없이 설명해 보세요"
       }
-    }
+    },
+    "allGames": "전체 게임",
+    "yourFriend": "내 Crew 친구",
+    "changeFriend": "친구 변경"
   }
 }

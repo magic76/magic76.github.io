@@ -165,6 +165,9 @@
         "title": "Taboo đoán từ",
         "desc": "Mô tả mà không dùng từ cấm"
       }
-    }
+    },
+    "allGames": "Tất cả trò chơi",
+    "yourFriend": "Bạn Crew của bạn",
+    "changeFriend": "Đổi bạn"
   }
 }

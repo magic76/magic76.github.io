@@ -165,6 +165,9 @@
         "title": "Taboo 単語ゲーム",
         "desc": "禁止語を避けて説明しよう"
       }
-    }
+    },
+    "allGames": "すべてのゲーム",
+    "yourFriend": "Crew の友だち",
+    "changeFriend": "友だちを変更"
   }
 }

@@ -165,6 +165,9 @@
         "title": "Taboo: Tebak Kata",
         "desc": "Jelaskan tanpa kata terlarang"
       }
-    }
+    },
+    "allGames": "Semua permainan",
+    "yourFriend": "Teman Crew-mu",
+    "changeFriend": "Ganti teman"
   }
 }

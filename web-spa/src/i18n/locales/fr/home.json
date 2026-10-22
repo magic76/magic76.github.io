@@ -165,6 +165,9 @@
         "title": "Taboo : jeu de mots",
         "desc": "Faites deviner sans mots interdits"
       }
-    }
+    },
+    "allGames": "Tous les jeux",
+    "yourFriend": "Votre ami Crew",
+    "changeFriend": "Changer d'ami"
   }
 }

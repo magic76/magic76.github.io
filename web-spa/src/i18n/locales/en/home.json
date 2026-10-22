@@ -165,6 +165,9 @@
         "title": "Taboo Word Game",
         "desc": "Describe without forbidden words"
       }
-    }
+    },
+    "allGames": "All games",
+    "yourFriend": "Your Crew Friend",
+    "changeFriend": "Change friend"
   }
 }

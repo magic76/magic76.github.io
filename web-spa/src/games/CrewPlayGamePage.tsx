@@ -32,7 +32,7 @@ function savedFriend(){
 }
 export function CrewPlayGamePage(){
  const {gameId}=useParams();
- const {i18n}=useTranslation();const english=Boolean(i18n.resolvedLanguage?.startsWith("en"));
+ const {t,i18n}=useTranslation("home");const english=Boolean(i18n.resolvedLanguage?.startsWith("en"));
  const [friendId,setFriendId]=useState(savedFriend);
  const [round,setRound]=useState(()=>Math.floor(Math.random()*100));
  const friend=getCrewFriend(friendId);
@@ -43,15 +43,15 @@ export function CrewPlayGamePage(){
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
  return <main className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
-   <Link to="/games" className="crew-play-back">← {english?"All games":"全部遊戲"}</Link>
+   <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
-   <h1>{game.title[english?"en":"zh"]}</h1>
-   <p>{game.desc[english?"en":"zh"]}</p>
+   <h1>{t("playHub.games."+game.id+".title")}</h1>
+   <p>{t("playHub.games."+game.id+".desc")}</p>
   </header>
   <div className="crew-play-frame">
    {!wordGame?<section className="crew-play-friend-bar">
-    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{english?"Your Crew Friend":"你的 Crew 朋友"}</small></div></div>
-    <label className="crew-play-friend-select">{english?"Change friend":"更換朋友"}
+    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{t("playHub.yourFriend")}</small></div></div>
+    <label className="crew-play-friend-select">{t("playHub.changeFriend")}
      <select value={friend.id} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
     </label>
    </section>:null}

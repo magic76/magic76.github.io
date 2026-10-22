@@ -165,6 +165,9 @@
         "title": "Taboo 描述猜詞",
         "desc": "避開禁用字，用描述猜答案"
       }
-    }
+    },
+    "allGames": "全部遊戲",
+    "yourFriend": "你的 Crew 朋友",
+    "changeFriend": "更換朋友"
   }
 }
