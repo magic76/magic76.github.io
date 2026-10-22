@@ -61,7 +61,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
   if(phase!=="playing"||doneGuard.current===round)return;
   setScore(s=>s+10);
   if(!alreadySpoken)emit(mode==="describe"&&guessed
-   ?"The secret word was correctly guessed. Say exactly "+JSON.stringify("I guess "+guessed+".")+" and nothing else. No reaction or second sentence."
+   ?"The secret word was correctly guessed. Say exactly "+JSON.stringify(tabooFollowUp(guessed,"",descriptions.current.length))+" and nothing else. No reaction or second sentence."
    :guessed?"You guessed "+JSON.stringify(guessed)+". The game verified it correct. React in one short sentence."
    :"Correct! Awarded 10 points. React as a friend, briefly.");
   advance("correct");
