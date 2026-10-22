@@ -127,5 +127,32 @@
     "browser": "Bạn đang dùng Crew trên trình duyệt. Quyền truy cập máy ảnh và thư viện phụ thuộc vào cài đặt trình duyệt.",
     "storage": "Android gốc, WebView và từng trình duyệt lưu khóa Gemini cùng tiến độ học tập riêng, không tự đồng bộ.",
     "permissions": "Nếu máy ảnh hoặc micrô gặp sự cố, hãy kiểm tra Cài đặt Android → Ứng dụng → Crew Teacher → Quyền. Chỉ yêu cầu quyền khi cần."
+  },
+  "group": {
+    "navAria": "Danh mục cài đặt",
+    "navLearning": "Học tập",
+    "navVoice": "Giọng nói",
+    "navMemory": "Bộ nhớ",
+    "navDevice": "Thiết bị",
+    "learningHeading": "Ngôn ngữ và học tập",
+    "learningIntro": "Các cài đặt này áp dụng cho buổi học và luyện tập trên thiết bị này.",
+    "interfaceLanguage": "Ngôn ngữ giao diện",
+    "targetLanguage": "Ngôn ngữ muốn học",
+    "nativeLanguage": "Tiếng mẹ đẻ",
+    "speakingLevel": "Trình độ nói",
+    "automatic": "Tự động",
+    "dailyGoal": "Mục tiêu nói hằng ngày",
+    "minutes": "phút",
+    "openLearning": "Mở trung tâm học tập",
+    "voiceHeading": "Giọng nói và phát âm",
+    "voiceIntro": "Gemini Live dùng để hội thoại. Phát âm từ vựng dùng công cụ đọc tiếng nói trên thiết bị.",
+    "pronunciationHeading": "Phát âm từ vựng",
+    "pronunciationIntro": "Chọn giọng tiếng Anh và tốc độ trên thiết bị ở trang từ vựng.",
+    "pronunciationSettings": "Mở cài đặt phát âm",
+    "modelHeading": "Mô hình giọng nói Gemini Live",
+    "modelShared": "Dùng chung cho giáo viên và bạn bè",
+    "modelIntro": "Chọn mô hình để so sánh cách phát âm",
+    "memoryHeading": "Bộ nhớ và dữ liệu",
+    "memoryIntro": "Quản lý bộ nhớ và lịch sử học tập lưu trong trình duyệt hoặc WebView này."
   }
 }

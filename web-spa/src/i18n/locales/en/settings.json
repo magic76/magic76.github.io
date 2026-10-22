@@ -127,5 +127,32 @@
     "browser": "You're using Crew in a browser. Camera and gallery access depend on browser permissions.",
     "storage": "Native Android, the app WebView and each browser store Gemini keys and learning records separately. They do not sync automatically.",
     "permissions": "For camera or microphone issues, check Android Settings → Apps → Crew Teacher → Permissions. Access is requested only when needed."
+  },
+  "group": {
+    "navAria": "Settings categories",
+    "navLearning": "Learning",
+    "navVoice": "Voice",
+    "navMemory": "Memory",
+    "navDevice": "Device",
+    "learningHeading": "Language & learning",
+    "learningIntro": "These settings apply to your teacher and practice sessions on this device.",
+    "interfaceLanguage": "Interface language",
+    "targetLanguage": "Language to learn",
+    "nativeLanguage": "My native language",
+    "speakingLevel": "Speaking level",
+    "automatic": "Automatic",
+    "dailyGoal": "Daily speaking goal",
+    "minutes": "min",
+    "openLearning": "Open learning center",
+    "voiceHeading": "Voice & pronunciation",
+    "voiceIntro": "Gemini Live is for conversations. Word pronunciation uses your device's speech engine.",
+    "pronunciationHeading": "Word pronunciation",
+    "pronunciationIntro": "Choose an on-device English voice, speed, and preview on the vocabulary page.",
+    "pronunciationSettings": "Open pronunciation settings",
+    "modelHeading": "Gemini Live voice model",
+    "modelShared": "Teachers and Friends",
+    "modelIntro": "Choose a model to compare voice pronunciation",
+    "memoryHeading": "Memory & data",
+    "memoryIntro": "Review memory use and records stored in this browser or WebView."
   }
 }

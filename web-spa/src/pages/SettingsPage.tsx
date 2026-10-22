@@ -30,56 +30,56 @@ export function SettingsPage(){
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
  useEffect(()=>{if(window.location.hash.endsWith("#memory-settings"))document.getElementById("memory-settings")?.scrollIntoView({block:"start"})},[]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
- <nav className="crew-settings-nav" aria-label={english?"Settings categories":"設定分類"}>
-  <a href="#settings-learning">{english?"Learning":"語言與學習"}</a>
-  <a href="#settings-voice">{english?"Voice":"聲音與發音"}</a>
-  <a href="#settings-data">{english?"Memory":"記憶與資料"}</a>
-  <a href="#settings-device">{english?"Device":"App 與裝置"}</a>
+ <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
+  <a href="#settings-learning">{t("group.navLearning")}</a>
+  <a href="#settings-voice">{t("group.navVoice")}</a>
+  <a href="#settings-data">{t("group.navMemory")}</a>
+  <a href="#settings-device">{t("group.navDevice")}</a>
  </nav>
  <section id="settings-learning" className="section panel crew-settings-category">
-  <div className="section-head"><h2>{english?"Language & learning":"語言與學習"}</h2></div>
-  <p className="meta">{english?"These settings apply to your teacher and practice sessions on this device.":"以下設定會套用到這台裝置上的老師與語言練習。"}</p>
-  <div className="crew-settings-locale"><strong>{english?"Interface language":"介面語言"}</strong><LanguageSwitcher variant="settings"/></div>
+  <div className="section-head"><h2>{t("group.learningHeading")}</h2></div>
+  <p className="meta">{t("group.learningIntro")}</p>
+  <div className="crew-settings-locale"><strong>{t("group.interfaceLanguage")}</strong><LanguageSwitcher variant="settings"/></div>
   <div className="crew-settings-fields">
-   <label>{english?"Language to learn":"學習語言"}
+   <label>{t("group.targetLanguage")}
     <select value={target} onChange={e=>setTarget(e.target.value)}>
      {TARGET_LANGUAGES.map(item=><option key={item.value} value={item.value}>{english?item.spoken:item.value}</option>)}
     </select>
    </label>
-   <label>{english?"My native language":"我的母語"}
+   <label>{t("group.nativeLanguage")}
     <select value={native} onChange={e=>setNative(e.target.value as typeof native)}>
      {NATIVE_LANGUAGES.map(([code,label])=><option key={code} value={code}>{label}</option>)}
     </select>
    </label>
-   <label>{english?"Speaking level":"口說程度"}
+   <label>{t("group.speakingLevel")}
     <select value={speakingLevel} onChange={e=>setSpeakingLevel(e.target.value as typeof speakingLevel)}>
-     <option value="auto">{english?"Automatic":"自動判斷"}</option>
+     <option value="auto">{t("group.automatic")}</option>
      {(["A1","A2","B1","B2"] as const).map(value=><option value={value} key={value}>{value}</option>)}
     </select>
    </label>
-   <label>{english?"Daily speaking goal":"每日口說目標"}
+   <label>{t("group.dailyGoal")}
     <select value={goal} disabled={!ready} onChange={e=>{const next=Number(e.target.value);setGoal(next);setDailyGoalMinutes(next)}}>
-     {DAILY_GOALS.map(value=><option key={value} value={value}>{value} {english?"min":"分鐘"}</option>)}
+     {DAILY_GOALS.map(value=><option key={value} value={value}>{value} {t("group.minutes")}</option>)}
     </select>
    </label>
   </div>
-  <Link className="crew-settings-quick-link" to="/teacher/learn">{english?"Open learning center":"前往學習中心"} →</Link>
+  <Link className="crew-settings-quick-link" to="/teacher/learn">{t("group.openLearning")} →</Link>
  </section>
  <div id="settings-voice" className="crew-settings-group">
-  <header className="crew-settings-group-heading"><h2>{english?"Voice & pronunciation":"聲音與發音"}</h2>
-   <p>{english?"Gemini Live is for conversations. Word pronunciation uses your device's speech engine.":"Gemini Live 用於對話；單字發音使用裝置的系統語音，不會連線到 Gemini Live。"}</p>
+  <header className="crew-settings-group-heading"><h2>{t("group.voiceHeading")}</h2>
+   <p>{t("group.voiceIntro")}</p>
   </header>
   <GeminiConnectionPanel/>
   <section className="section panel crew-settings-voice-links">
-   <h3>{english?"Word pronunciation":"單字英文發音"}</h3>
-   <p className="meta">{english?"Choose an on-device English voice, speed, and preview on the vocabulary page.":"在單字練習頁選擇本機英文發音人、速度並試聽。"}</p>
-   <Link className="crew-settings-quick-link" to="/teacher/vocabulary">{english?"Open pronunciation settings":"前往單字發音設定"} →</Link>
+   <h3>{t("group.pronunciationHeading")}</h3>
+   <p className="meta">{t("group.pronunciationIntro")}</p>
+   <Link className="crew-settings-quick-link" to="/teacher/vocabulary">{t("group.pronunciationSettings")} →</Link>
   </section>
 
  <section className="section panel crew-live-model-settings" id="live-model-settings">
-  <div className="section-head"><h2>{english?"Gemini Live voice model":"Gemini Live 語音模型"}</h2><small>{english?"Teachers and Friends":"老師與朋友共用"}</small></div>
+  <div className="section-head"><h2>{t("group.modelHeading")}</h2><small>{t("group.modelShared")}</small></div>
   <label style={{display:"grid",gap:8,maxWidth:440}}>
-   <span>{english?"Choose a model to compare voice pronunciation":"選擇模型，比較語音與口音表現"}</span>
+   <span>{t("group.modelIntro")}</span>
    <select value={liveModel} onChange={e=>setLiveModel(e.target.value as typeof liveModel)} style={{width:"100%",padding:"12px",borderRadius:10,border:"1px solid #cbd5e1",background:"var(--surface,#fff)",color:"inherit"}}>
     <option value="gemini-3.8-live">Gemini 3.8 Live</option>
     <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live (Preview)</option>
@@ -91,8 +91,8 @@ export function SettingsPage(){
  </section>
  </div>
  <div id="settings-data" className="crew-settings-group">
-  <header className="crew-settings-group-heading"><h2>{english?"Memory & data":"記憶與資料"}</h2>
-   <p>{english?"Review memory use and records stored in this browser or WebView.":"管理此瀏覽器／WebView 內的記憶與學習資料。"}</p>
+  <header className="crew-settings-group-heading"><h2>{t("group.memoryHeading")}</h2>
+   <p>{t("group.memoryIntro")}</p>
   </header>
  <section id="memory-settings" className="section panel settings-memory-panel">
   <div className="section-head"><h2>{t("memory.title")}</h2><small>{t("memory.tagline")}</small></div>
