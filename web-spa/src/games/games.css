@@ -61,3 +61,30 @@
 @media(max-width:620px){.friend-gomoku-coordinate-shell{grid-template-columns:20px minmax(0,1fr);grid-template-rows:16px auto;gap:3px}.friend-gomoku-axis-label{font-size:clamp(8px,2.4vw,10px)}}
 
 @media(max-width:620px){.friend-gomoku-status{row-gap:10px}.friend-gomoku-actions{flex-wrap:wrap;justify-content:flex-end}.friend-gomoku-skip{padding:8px;font-size:11px}}
+
+/* Gomoku: keep the full board in view and voice controls within thumb reach. */
+.friend-gomoku-voice-dock{width:min(100%,520px);display:grid;justify-items:stretch;gap:8px}
+.friend-gomoku-voice-dock .friend-gomoku-companion,.friend-gomoku-voice-dock .friend-gomoku-start-voice,
+.friend-gomoku-voice-dock .live-status,.friend-gomoku-voice-dock .live-recovery,
+.friend-gomoku-voice-dock .live-controls,.friend-gomoku-voice-dock .crew-voice-dock{width:100%;min-width:0}
+.friend-gomoku-actions .crew-game-panel-trigger{min-height:40px}
+@media(max-width:620px){
+ .page.page-enter:has(.friend-gomoku-page){animation:none}
+ .friend-gomoku-page:has(.friend-gomoku-voice-dock){padding-bottom:calc(245px + var(--nav-h,68px) + env(safe-area-inset-bottom))}
+ .friend-gomoku-heading.is-playing{padding:10px 0 8px}
+ .friend-gomoku-heading.is-playing .friend-gomoku-kicker{display:none}
+ .friend-gomoku-heading.is-playing h1{font-size:19px}
+ .friend-gomoku-status{align-items:flex-start}
+ .friend-gomoku-voice-dock{
+  position:fixed;z-index:42;left:50%;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);
+  transform:translateX(-50%);width:min(520px,calc(100vw - 18px));max-height:min(40dvh,290px);
+  overflow-y:auto;overscroll-behavior:contain;gap:6px;
+  padding:9px 11px;border:1px solid #d1cde8;border-radius:17px;
+  background:var(--surface,#fff);box-shadow:0 -5px 24px #302c6229;
+ }
+ .friend-gomoku-voice-dock .friend-gomoku-companion{padding:5px 6px;border:none}
+ .friend-gomoku-voice-dock .friend-gomoku-avatar{width:32px;height:32px}
+ .friend-gomoku-voice-dock .friend-gomoku-companion-copy span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .friend-gomoku-actions{gap:4px}
+ .friend-gomoku-actions .friend-gomoku-reset{min-height:40px}
+}
