@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./build-version.css";
-import {currentBuild, hasNewBuild, useBuildUpdate} from "../runtime/buildUpdates";
+import {currentBuild, hasNewBuild, refreshCrewBuild, useBuildUpdate} from "../runtime/buildUpdates";
 
 function formatTime(value: string | null, full: boolean, english: boolean): string | null {
   if (!value || !Number.isFinite(Date.parse(value))) return null;
@@ -52,7 +52,7 @@ export function BuildVersion() {
         {expanded ? c.hideDetails : c.showDetails}
       </button>
     </div>
-    {outdated && <button type="button" className="crew-build-refresh" onClick={() => window.location.reload()}>{c.refresh} ↗</button>}
+    {outdated && <button type="button" className="crew-build-refresh" onClick={refreshCrewBuild}>{c.refresh} ↗</button>}
     <div id="crew-build-details" className="crew-build-details" hidden={!expanded}>
       <dl>
         <dt>{c.builtAt}</dt><dd>{formatTime(currentBuild.builtAt, true, english) || c.missing}<small>{c.timezone}</small></dd>
