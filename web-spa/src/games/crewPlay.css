@@ -378,3 +378,6 @@
  .crew-reversi-disc-face.previous{display:none}
  .crew-reversi-disc-face.next{transform:none;backface-visibility:visible;-webkit-backface-visibility:visible}
 }
+
+/* Crazy Court catalog: warm stage identity without loading the game CSS on the hub. */
+.crew-play-game-art.court-hub-art{background:radial-gradient(circle at 24% 20%,#efd0a9,#bb7859 70%,#87543f);font-size:43px}
