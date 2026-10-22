@@ -1279,7 +1279,7 @@ async function run(){
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
   await context.close();
-  await captureCrewVisualQA(browser);
+  if(process.env.CREW_VISUAL_QA==="1")await captureCrewVisualQA(browser);
  }finally{
   if(browser)await browser.close();
   vite.kill("SIGTERM");

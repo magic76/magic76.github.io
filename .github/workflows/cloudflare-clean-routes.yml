@@ -51,11 +51,17 @@ on:
       - "seo.css"
       - ".github/workflows/cloudflare-clean-routes.yml"
   workflow_dispatch:
+    inputs:
+      visual_qa:
+        description: 'Also capture before/after screenshots and motion videos (slow, uses artifact storage)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
-# Rapid PR updates should not finish obsolete Playwright/browser runs.
+# Rapid PR updates should not finish obsolete deployment-contract checks.
 concurrency:
   group: cloudflare-preview-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
@@ -78,12 +84,21 @@ jobs:
       - run: npm run test:cloudflare
       - run: node --test tests/research-editorial.test.js
       - run: node scripts/research-quality-report.mjs
-      # Use Chrome preinstalled on Ubuntu runners; no browser code in production.
-      - run: npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
-      # Playwright's video recorder uses its own FFmpeg binary (not the system package).
-      - run: npx playwright install ffmpeg
-      - run: npm run test:browser:cloudflare
-      # Build/test failures remain blocking; artifact quota alone does not block release verification.
+      # The PR job already validates the built Cloudflare routes above. Full
+      # Chromium smoke is intentionally manual: SPA CI independently tests PRs.
+      - name: Install Playwright for manual browser smoke
+        if: github.event_name == 'workflow_dispatch'
+        run: npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
+      # Recordings need Playwright's FFmpeg, not the runner system FFmpeg.
+      - name: Install FFmpeg for optional visual recordings
+        if: github.event_name == 'workflow_dispatch' && inputs.visual_qa
+        run: npx playwright install ffmpeg
+      - name: Full browser smoke (manual)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          CREW_VISUAL_QA: ${{ inputs.visual_qa && '1' || '0' }}
+        run: npm run test:browser:cloudflare
+      # Do not store a duplicate deploy artifact for each PR.
       - uses: actions/upload-artifact@v4
         if: github.event_name == 'workflow_dispatch'
         continue-on-error: true
@@ -92,9 +107,9 @@ jobs:
           path: dist/
           retention-days: 2
 
-      # Reuse this browser smoke run for short-lived 390/430/1440px PR visual comparisons.
+      # Visual QA screenshots and recordings are explicit manual opt-in only.
       - uses: actions/upload-artifact@v4
-        if: always() && github.event_name == 'pull_request'
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.visual_qa
         continue-on-error: true
         with:
           name: crew-ui-before-after
