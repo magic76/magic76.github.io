@@ -43,6 +43,8 @@ const namespaceNames=["common","home","settings","teacher","friends","story","fo
 const loadingLocales=new Map<string,Promise<void>>();
 export function loadUiLocale(locale:string):Promise<void>{
  if(!UI_LOCALES.includes(locale as (typeof UI_LOCALES)[number]))return Promise.resolve();
+ // Base locales are bundled eagerly; only Beta locales need dynamic JSON chunks.
+ if(locale==="zh-TW"||locale==="en")return Promise.resolve();
  const match=namespaceNames.map(namespace=>{
   const filename="./locales/"+locale+"/"+namespace+".json";
   return [namespace,localeImports[filename]] as const;
