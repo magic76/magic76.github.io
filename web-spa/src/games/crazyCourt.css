@@ -156,3 +156,14 @@
 
 /* Avoid a transformed entrance ancestor capturing the fixed mobile audio dock. */
 .page.page-enter:has(.court-page){animation:none}
+
+/* Evidence inspection is an explicit step on touch screens. */
+.court-evidence button[aria-pressed="true"]{border:2px solid #b46a4e;background:#fff2de;box-shadow:0 3px 0 #c48f6b}
+.court-evidence-preview{padding:12px;border:1px solid #d8b69c;background:#fff8ec;border-radius:13px;display:grid;gap:8px;animation:court-enter .18s ease-out}
+.court-evidence-preview>strong{font-size:13px;color:#6c4934}
+.court-evidence-preview>p{margin:0;font-size:12px;line-height:1.65;color:#795a43}
+.court-evidence-preview>div{display:flex;gap:9px}
+.court-evidence-preview button{min-height:42px;border:1px solid #d3b59c;border-radius:10px;background:#fff9ef;color:#684c3b;padding:8px 12px;font-size:12px;font-weight:800}
+.court-evidence-preview button:first-child{background:#a45e46;border-color:#a45e46;color:#fff;flex:1}
+.court-latest p.court-opponent-previous{font-size:12px;font-weight:400;color:#876b56;padding-bottom:7px;border-bottom:1px solid #e7d9c5}
+@media(prefers-reduced-motion:reduce){.court-evidence-preview{animation:none}}
