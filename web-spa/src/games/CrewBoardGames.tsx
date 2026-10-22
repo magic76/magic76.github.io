@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useEffect,useMemo,useRef,useState,type CSSProperties} from "react";
 import {loadScript} from "../lib/runtime";
 import type {ExpectedBoardSpeech} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
@@ -144,7 +144,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
      {Array.from({length:42},(_,index)=>{
       const x=index%7,y=Math.floor(index/7),color=connect?.cells[index],last=connect?.lastMove===index,win=connect?.winningLine.includes(index);
       return <button type="button" key={index} className="crew-connect-slot" onClick={()=>c4Play(x)} disabled={!connect||!c4Turn||connect.cells[x]!==null} aria-label={english?`Column ${x+1}, row ${y+1}. ${color||"empty"}`:`第 ${x+1} 欄、第 ${y+1} 列${color===null?"空格":color==="player"?"紅棋":"黃棋"}`}>
-       <span className={`crew-connect-disc ${color||"empty"}${last?" last":""}${win?" win":""}${last?" is-dropping":""}`} style={last?{"--drop-rows":y+1} as React.CSSProperties:undefined}/>
+       <span className={`crew-connect-disc ${color||"empty"}${last?" last":""}${win?" win":""}${last?" is-dropping":""}`} style={last?{"--drop-rows":y+1,"--drop-duration":`${350+(y+1)*65}ms`} as CSSProperties:undefined}/>
       </button>;
      })}
     </div>
