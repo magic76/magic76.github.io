@@ -93,5 +93,30 @@
     "searching": "Recherche…",
     "search": "Rechercher",
     "selectedCity": "Lieu de naissance sélectionné"
+  },
+  "landing": {
+    "missingKey": "Une clé API Gemini est nécessaire pour entendre votre ami expliquer votre thème. Configurez-la d'abord.",
+    "openError": "Impossible d'ouvrir le thème enregistré.",
+    "title": "Explorez votre thème",
+    "intro": "Lisez votre thème, consultez vos anciennes lectures ou écoutez l'explication d'un ami Crew. Posez vos questions à tout moment.",
+    "latest": "Votre dernière lecture",
+    "continue": "Reprendre la lecture",
+    "readFull": "Lire le thème complet",
+    "opening": "Ouverture…",
+    "hearFriend": "Écouter l'explication d'un ami",
+    "first": "Première visite",
+    "firstTitle": "Créez votre premier thème",
+    "firstIntro": "Choisissez une tradition ci-dessous. Le calcul fonctionne sans clé Gemini ; l'explication vocale est facultative.",
+    "create": "Créer mon thème",
+    "openSettings": "Ouvrir les paramètres",
+    "saved": "Thèmes enregistrés",
+    "myCharts": "Mes thèmes enregistrés",
+    "viewAll": "Voir tous les historiques",
+    "createTitle": "Créer une lecture",
+    "choose": "Choisir une tradition",
+    "exploreOther": "Explorer sans thème",
+    "talkCulture": "Parler des traditions divinatoires",
+    "todayReflection": "Réflexion du jour",
+    "disclaimer": "Les discussions culturelles et les réflexions quotidiennes ne sont pas des prévisions personnelles. Les thèmes restent dans ce navigateur et ne sont pas synchronisés entre appareils."
   }
 }

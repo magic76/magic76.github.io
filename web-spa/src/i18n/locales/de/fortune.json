@@ -93,5 +93,30 @@
     "searching": "Suche läuft…",
     "search": "Suchen",
     "selectedCity": "Geburtsort ausgewählt"
+  },
+  "landing": {
+    "missingKey": "Um die Spracherklärung deines Freundes zu hören, benötigst du einen Gemini-API-Schlüssel. Richte ihn zuerst ein.",
+    "openError": "Das gespeicherte Horoskop konnte nicht geöffnet werden.",
+    "title": "Dein Horoskop erkunden",
+    "intro": "Lies dein Horoskop, sieh frühere Deutungen an oder lass es dir von einem Crew-Freund erklären. Fragen sind jederzeit möglich.",
+    "latest": "Deine letzte Deutung",
+    "continue": "Deutung fortsetzen",
+    "readFull": "Ganzes Horoskop lesen",
+    "opening": "Wird geöffnet…",
+    "hearFriend": "Erklärung eines Freundes anhören",
+    "first": "Erster Besuch",
+    "firstTitle": "Erstelle dein erstes Horoskop",
+    "firstIntro": "Wähle unten eine Tradition. Die Berechnung funktioniert ohne Gemini-Schlüssel; die Spracherklärung ist optional.",
+    "create": "Mein Horoskop erstellen",
+    "openSettings": "Einstellungen öffnen",
+    "saved": "Gespeicherte Horoskope",
+    "myCharts": "Meine gespeicherten Horoskope",
+    "viewAll": "Alle Einträge ansehen",
+    "createTitle": "Neue Deutung erstellen",
+    "choose": "Tradition auswählen",
+    "exploreOther": "Ohne Horoskop erkunden",
+    "talkCulture": "Über Wahrsagetraditionen sprechen",
+    "todayReflection": "Heutiges Reflexionsthema",
+    "disclaimer": "Kulturelle Gespräche und tägliche Reflexionen sind keine persönlichen Vorhersagen. Horoskope bleiben in diesem Browser und werden nicht zwischen Geräten synchronisiert."
   }
 }

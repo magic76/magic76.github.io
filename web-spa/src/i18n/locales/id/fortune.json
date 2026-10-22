@@ -93,5 +93,30 @@
     "searching": "Mencari…",
     "search": "Cari",
     "selectedCity": "Lokasi lahir dipilih"
+  },
+  "landing": {
+    "missingKey": "Kunci API Gemini diperlukan agar teman bisa menjelaskan bagan lewat suara. Atur dahulu di pengaturan.",
+    "openError": "Tidak dapat membuka bagan yang disimpan.",
+    "title": "Jelajahi baganmu",
+    "intro": "Baca bagan, lihat hasil lama, atau dengarkan penjelasan teman Crew. Kamu boleh bertanya kapan saja.",
+    "latest": "Pembacaan terbaru",
+    "continue": "Lanjutkan pembacaan",
+    "readFull": "Baca bagan lengkap",
+    "opening": "Membuka…",
+    "hearFriend": "Dengarkan penjelasan teman",
+    "first": "Kunjungan pertama",
+    "firstTitle": "Buat bagan pertamamu",
+    "firstIntro": "Pilih tradisi di bawah. Perhitungan bisa dilakukan tanpa kunci Gemini; penjelasan suara opsional.",
+    "create": "Buat bagan saya",
+    "openSettings": "Buka pengaturan",
+    "saved": "Bagan tersimpan",
+    "myCharts": "Bagan yang saya simpan",
+    "viewAll": "Lihat semua catatan",
+    "createTitle": "Buat pembacaan baru",
+    "choose": "Pilih tradisi",
+    "exploreOther": "Jelajahi tanpa bagan",
+    "talkCulture": "Ngobrol soal tradisi ramalan",
+    "todayReflection": "Renungan hari ini",
+    "disclaimer": "Obrolan budaya dan renungan harian bukan ramalan pribadi. Bagan tersimpan di browser ini dan tidak tersinkron otomatis antarpiranti."
   }
 }

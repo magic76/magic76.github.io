@@ -93,5 +93,30 @@
     "searching": "Pesquisando…",
     "search": "Pesquisar",
     "selectedCity": "Local de nascimento selecionado"
+  },
+  "landing": {
+    "missingKey": "Para ouvir a explicação do seu amigo, configure uma chave da API Gemini.",
+    "openError": "Não foi possível abrir o mapa salvo.",
+    "title": "Explore seu mapa",
+    "intro": "Leia seu mapa, reveja leituras anteriores ou ouça a explicação de um amigo Crew. Pergunte quando quiser.",
+    "latest": "Leitura mais recente",
+    "continue": "Continuar leitura",
+    "readFull": "Ler mapa completo",
+    "opening": "Abrindo…",
+    "hearFriend": "Ouvir a explicação de um amigo",
+    "first": "Primeira visita",
+    "firstTitle": "Crie seu primeiro mapa",
+    "firstIntro": "Escolha uma tradição abaixo. O cálculo funciona sem chave Gemini; a explicação por voz é opcional.",
+    "create": "Criar meu mapa",
+    "openSettings": "Abrir configurações",
+    "saved": "Mapas salvos",
+    "myCharts": "Meus mapas salvos",
+    "viewAll": "Ver todos os registros",
+    "createTitle": "Criar nova leitura",
+    "choose": "Escolha uma tradição",
+    "exploreOther": "Explorar sem mapa",
+    "talkCulture": "Conversar sobre tradições divinatórias",
+    "todayReflection": "Reflexão de hoje",
+    "disclaimer": "Conversas culturais e reflexões diárias não são previsões pessoais. Os mapas ficam neste navegador, sem sincronização automática entre dispositivos."
   }
 }
