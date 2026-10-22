@@ -2,6 +2,7 @@ import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,useSearchParams} from "react-router-dom";
 import {COURSE_TRACKS,courseLesson,lessonsForUnit,unitsForTrack} from "./courseCatalog";
+import {CourseBriefing} from "./CourseBriefing";
 import {completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
 import "./learningFlow.css";
 
@@ -15,7 +16,8 @@ export function CoursePage(){
  const english=i18n.resolvedLanguage==="en";
  const [params]=useSearchParams();
  const requested=courseLesson(params.get("lesson")||"");
- const[trackId,setTrackId]=useState(()=>requested?.trackId||storedTrack());
+ const briefing=courseLesson(params.get("briefing")||"");
+ const[trackId,setTrackId]=useState(()=>requested?.trackId||briefing?.trackId||storedTrack());
  const track=COURSE_TRACKS.find(item=>item.id===trackId)||COURSE_TRACKS[0];
  const units=useMemo(()=>unitsForTrack(track.id),[track.id]);
  const next=nextUnlockedLesson(track.id);
@@ -47,7 +49,9 @@ export function CoursePage(){
  }
  const title=(lesson:{titleEn:string;titleZh:string})=>english?lesson.titleEn:lesson.titleZh;
  const description=(lesson:{descEn:string;descZh:string})=>english?lesson.descEn:lesson.descZh;
- const route=(id:string)=>"/teacher/live?mode=course&lesson="+encodeURIComponent(id);
+ const route=(id:string)=>"/teacher/course?briefing="+encodeURIComponent(id);
+ // Locked deep links must not bypass the Android-style sequential unlock.
+ if(briefing&&lessonUnlocked(briefing.id))return <CourseBriefing lesson={briefing}/>;
 
  return <div className="crew-learning-focus crew-course-focus">
   <header className="crew-learning-page-heading">
