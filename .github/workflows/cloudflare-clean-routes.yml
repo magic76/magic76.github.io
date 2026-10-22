@@ -89,3 +89,13 @@ jobs:
           name: cloudflare-pages-preview
           path: dist/
           retention-days: 2
+
+      # Reuse this browser smoke run for short-lived 390/430/1440px PR visual comparisons.
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          name: crew-ui-before-after
+          path: artifacts/crew-visual-qa/*.jpg
+          retention-days: 2
+          if-no-files-found: ignore

@@ -6,11 +6,40 @@ import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
 import {setTimeout as sleep} from "node:timers/promises";
 import {readFileSync} from "node:fs";
+import {mkdir} from "node:fs/promises";
 import {chromium} from "playwright";
 import {approvedPortrait} from "../web-spa/src/timeline/portraitAssetPolicy.mjs";
 
 const origin="http://127.0.0.1:4179";
 const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
+
+async function captureCrewVisualQA(browser){
+ const folder="artifacts/crew-visual-qa";
+ await mkdir(folder,{recursive:true});
+ const routes=[{path:"/",id:"home"},{path:"/chat/",id:"chat"},{path:"/learn/",id:"learn"},{path:"/explore/",id:"explore"}];
+ for(const width of [390,430,1440]){
+  for(const route of routes){
+   const context=await browser.newContext({viewport:{width,height:900},isMobile:width<500,hasTouch:width<500,deviceScaleFactor:1});
+   await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+   try{
+    for(const version of ["before","after"]){
+     const host=version==="before"?"https://www.3sssi.com":origin;
+     const page=await context.newPage();
+     try{
+      const response=await page.goto(host+route.path,{waitUntil:"domcontentloaded",timeout:16000});
+      assert.equal(response?.status(),200);
+      await page.locator("main").first().waitFor({state:"visible",timeout:10000});
+      await page.waitForTimeout(240);
+      await page.screenshot({path:folder+"/"+version+"-"+route.id+"-"+width+".jpg",type:"jpeg",quality:75,fullPage:true,animations:"disabled"});
+      process.stdout.write("CAPTURE "+version+" "+route.id+" "+width+"px\\n");
+     }catch(error){process.stdout.write("CAPTURE unavailable "+version+" "+route.id+" "+width+"px: "+String(error).slice(0,160)+"\\n");}
+     finally{await page.close();}
+    }
+   }finally{await context.close();}
+  }
+ }
+}
+
 
 async function waitForPreview(child){
  for(let n=0;n<120;n++){
@@ -238,9 +267,16 @@ async function run(){
           await root.locator(".crew-section-heading h1").waitFor({state:"visible",timeout:15000});
           assert.equal((await root.locator(".crew-section-heading h1").textContent())?.trim(),strings.title,locale+" "+section+" heading");
           assert.equal((await root.locator(".crew-section-heading p").textContent())?.trim(),strings.intro,locale+" "+section+" intro");
-          assert.equal((await root.locator(".crew-section-hero-copy strong").textContent())?.trim(),strings.hero.title,locale+" "+section+" main card");
-          assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" "+section+" hero label");
-          const keys=section==="chat"?["shorts","games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
+          if(section==="me"){
+           assert.equal((await root.locator(".crew-section-hero-copy strong").textContent())?.trim(),strings.hero.title,locale+" me main card");
+           assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" me label");
+          }
+          if(section==="learn"){
+           assert.equal((await root.locator(".crew-learning-focus h2").textContent())?.trim(),strings.firstTopic,locale+" new learner focus");
+           assert.equal((await root.locator(".crew-learning-focus .kicker").textContent())?.trim(),strings.newLabel,locale+" first-run label");
+           assert.ok((await root.locator(".crew-learning-focus .crew-action-primary").getAttribute("href")||"").includes("/teacher/roles?mode=teacher"),locale+" teacher CTA");
+          }
+          const keys=section==="chat"?["games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
           const cards=root.locator(".crew-section-grid .crew-section-card");
           assert.equal(await cards.count(),keys.length,locale+" "+section+" card count");
           for(const [position,key] of keys.entries()){
@@ -249,11 +285,14 @@ async function run(){
           }
           if(section==="chat"){
            assert.equal((await root.locator(".crew-section-people h2").textContent())?.trim(),strings.meetFriends,locale+" translated friend heading");
+           assert.equal(await root.locator(".crew-section-friend").count(),6,locale+" six real featured friends");
            assert.equal((await root.locator(".crew-section-friend").first().locator("small").textContent())?.trim(),strings.friendTitles.zoe,locale+" localized first friend");
+           assert.equal((await root.locator(".crew-section-friend").first().locator(".crew-section-friend-bio").textContent())?.trim(),strings.friendBios.zoe,locale+" localized biography");
+           assert.equal(await root.locator(".crew-section-carousel-actions button").count(),2,locale+" manual controls");
           }
           if(section==="learn"){
            assert.equal((await root.locator(".crew-today-learning-heading").textContent())?.trim(),homeStrings.todayLearning.heading,locale+" daily progress heading");
-           assert.equal((await root.locator(".crew-section-three-minute strong").textContent())?.trim(),strings.threeMinuteTitle,locale+" speaking action");
+           assert.ok((await root.locator(".crew-section-learning .crew-action-text").textContent()||"").includes(strings.threeMinuteTitle),locale+" secondary speaking action");
           }
           if(section==="me")assert.equal((await root.locator(".crew-section-footnote").textContent())?.trim(),strings.footnote,locale+" local data warning");
           if(locale==="ja"){
@@ -1148,6 +1187,7 @@ async function run(){
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
   await context.close();
+  await captureCrewVisualQA(browser);
  }finally{
   if(browser)await browser.close();
   vite.kill("SIGTERM");
