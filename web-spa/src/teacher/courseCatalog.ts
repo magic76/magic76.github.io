@@ -2,6 +2,7 @@ import type{CourseLesson,CourseTrack,CourseUnit}from"./courseTypes";
 import{TRAVEL_COURSE_LESSONS}from"./courseCatalogTravel";
 import{BUSINESS_COURSE_LESSONS}from"./courseCatalogBusiness";
 import{DAILY_COURSE_LESSONS}from"./courseCatalogDaily";
+import{EXPANDED_COURSE_TRACKS,EXPANDED_COURSE_UNITS,EXPANDED_COURSE_LESSONS,COURSE_WARMUPS}from"./courseCatalogExpanded";
 export type{CourseLesson,CourseTrack,CourseUnit,CourseMission}from"./courseTypes";
 
 export const COURSE_TRACKS:CourseTrack[]=[
@@ -29,7 +30,7 @@ export const COURSE_TRACKS:CourseTrack[]=[
     "descEn": "Talk about weekends, movies, food, pets, travel stories, and AI trends.",
     "descZh": "聊週末計畫、熱門影集、毛小孩寵物、旅遊故事與 AI 科技生活趨勢。"
   }
-];
+,...EXPANDED_COURSE_TRACKS];
 export const COURSE_UNITS:CourseUnit[]=[
   {
     "id": "travel_u1",
@@ -111,8 +112,8 @@ export const COURSE_UNITS:CourseUnit[]=[
     "descEn": "Discussing generative AI, concert experiences, and fitness trends.",
     "descZh": "探討生成式 AI 對生活的改變、演唱會熱血體驗與健身飲食新潮流。"
   }
-];
-export const COURSE_LESSONS:CourseLesson[]=[...TRAVEL_COURSE_LESSONS,...BUSINESS_COURSE_LESSONS,...DAILY_COURSE_LESSONS];
+,...EXPANDED_COURSE_UNITS];
+export const COURSE_LESSONS:CourseLesson[]=[...TRAVEL_COURSE_LESSONS,...BUSINESS_COURSE_LESSONS,...DAILY_COURSE_LESSONS,...EXPANDED_COURSE_LESSONS].map(lesson=>({...lesson,warmupPhrases:COURSE_WARMUPS[lesson.id]||[]}));
 
 export function courseTrack(id:string){return COURSE_TRACKS.find(x=>x.id===id)||null}
 export function courseUnit(id:string){return COURSE_UNITS.find(x=>x.id===id)||null}
