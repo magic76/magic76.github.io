@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Gemini Key có thể không hoạt động",
     "setupInvalidDesc": "Kiểm tra hoặc xác minh lại khóa, hoặc tạo khóa mới miễn phí. Sau khi thiết lập bạn sẽ quay lại cuộc trò chuyện.",
     "setupInvalidAction": "Kiểm tra Gemini Key"
+  },
+  "device": {
+    "privacy": "Quyền riêng tư và dữ liệu",
+    "heading": "Ứng dụng và thiết bị",
+    "android": "Bản xem trước Crew Android Web: có thể dùng máy ảnh hoặc thư viện để thêm hình. Quyền âm thanh không thay đổi.",
+    "browser": "Bạn đang dùng Crew trên trình duyệt. Quyền truy cập máy ảnh và thư viện phụ thuộc vào cài đặt trình duyệt.",
+    "storage": "Android gốc, WebView và từng trình duyệt lưu khóa Gemini cùng tiến độ học tập riêng, không tự đồng bộ.",
+    "permissions": "Nếu máy ảnh hoặc micrô gặp sự cố, hãy kiểm tra Cài đặt Android → Ứng dụng → Crew Teacher → Quyền. Chỉ yêu cầu quyền khi cần."
   }
 }

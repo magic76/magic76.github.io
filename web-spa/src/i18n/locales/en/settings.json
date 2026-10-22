@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Your Gemini Key may not be working",
     "setupInvalidDesc": "Check or re-verify your key, or create another one for free. You'll return to your chat after setup.",
     "setupInvalidAction": "Check Gemini Key"
+  },
+  "device": {
+    "privacy": "Privacy & data preferences",
+    "heading": "App & device",
+    "android": "Crew Android Web Preview: use your camera or gallery for image inputs. Audio permissions are unaffected.",
+    "browser": "You're using Crew in a browser. Camera and gallery access depend on browser permissions.",
+    "storage": "Native Android, the app WebView and each browser store Gemini keys and learning records separately. They do not sync automatically.",
+    "permissions": "For camera or microphone issues, check Android Settings → Apps → Crew Teacher → Permissions. Access is requested only when needed."
   }
 }

@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Gemini キーが使えない可能性があります",
     "setupInvalidDesc": "キーを確認するか、新しいキーを無料作成してください。設定後は会話に戻ります。",
     "setupInvalidAction": "Gemini キーを確認"
+  },
+  "device": {
+    "privacy": "プライバシーとデータ設定",
+    "heading": "アプリとデバイス",
+    "android": "Crew Android Web プレビューでは、カメラや写真から教材を追加できます。音声の権限には影響しません。",
+    "browser": "ブラウザー版 Crew を利用中です。カメラや写真へのアクセスはブラウザーの許可設定によります。",
+    "storage": "Android ネイティブアプリ、WebView、各ブラウザーの Gemini キーと学習記録は別々に保存され、自動同期されません。",
+    "permissions": "カメラやマイクに問題がある場合は、Android の設定 → アプリ → Crew Teacher → 権限を確認してください。必要なときにのみ許可を求めます。"
   }
 }

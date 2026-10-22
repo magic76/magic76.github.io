@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Sua chave Gemini pode não estar funcionando",
     "setupInvalidDesc": "Confira ou verifique sua chave novamente, ou crie outra gratuitamente. Você voltará à conversa após configurar.",
     "setupInvalidAction": "Verificar chave Gemini"
+  },
+  "device": {
+    "privacy": "Privacidade e dados",
+    "heading": "App e dispositivo",
+    "android": "Prévia do Crew Android Web: use câmera ou galeria para enviar imagens. As permissões de áudio não mudam.",
+    "browser": "Você está usando o Crew no navegador. O acesso à câmera e à galeria depende das permissões do navegador.",
+    "storage": "Android nativo, WebView e cada navegador guardam chaves Gemini e registros de estudo separadamente, sem sincronização automática.",
+    "permissions": "Se câmera ou microfone falharem, confira Configurações do Android → Apps → Crew Teacher → Permissões. O acesso só é solicitado quando necessário."
   }
 }

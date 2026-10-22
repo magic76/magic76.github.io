@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Gemini Key Anda mungkin bermasalah",
     "setupInvalidDesc": "Periksa atau verifikasi ulang kunci, atau buat yang baru secara gratis. Anda akan kembali ke obrolan setelah pengaturan.",
     "setupInvalidAction": "Periksa Gemini Key"
+  },
+  "device": {
+    "privacy": "Privasi dan data",
+    "heading": "Aplikasi dan perangkat",
+    "android": "Pratinjau Crew Android Web: gunakan kamera atau galeri untuk memasukkan gambar. Izin audio tidak berubah.",
+    "browser": "Anda memakai Crew di browser. Akses kamera dan galeri bergantung pada izin browser.",
+    "storage": "Aplikasi Android, WebView, dan setiap browser menyimpan kunci Gemini serta catatan belajar secara terpisah. Data tidak tersinkron otomatis.",
+    "permissions": "Jika kamera atau mikrofon bermasalah, buka Setelan Android → Aplikasi → Crew Teacher → Izin. Izin hanya diminta saat diperlukan."
   }
 }

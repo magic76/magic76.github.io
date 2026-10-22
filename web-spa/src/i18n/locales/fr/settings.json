@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Votre clé Gemini ne fonctionne peut-être pas",
     "setupInvalidDesc": "Vérifiez à nouveau votre clé ou créez-en une autre gratuitement. Vous retrouverez votre discussion après la configuration.",
     "setupInvalidAction": "Vérifier la clé Gemini"
+  },
+  "device": {
+    "privacy": "Confidentialité et données",
+    "heading": "Application et appareil",
+    "android": "Aperçu Crew Android Web : ajoutez des images depuis l'appareil photo ou la galerie. Les autorisations audio restent inchangées.",
+    "browser": "Vous utilisez Crew dans un navigateur. L'accès à l'appareil photo et à la galerie dépend de ses autorisations.",
+    "storage": "Android natif, la WebView et chaque navigateur conservent séparément les clés Gemini et les données d'apprentissage. Aucune synchronisation automatique.",
+    "permissions": "En cas de souci avec la caméra ou le micro, vérifiez Paramètres Android → Applications → Crew Teacher → Autorisations. Elles sont demandées uniquement si nécessaire."
   }
 }

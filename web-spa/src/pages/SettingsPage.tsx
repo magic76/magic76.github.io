@@ -108,19 +108,13 @@ export function SettingsPage(){
   <p className="meta" style={{marginTop:14}}>{t("memory.footnote")}</p>
  </section>
  {ready&&!isCrewAndroidShell()&&<section className="section panel"><div className="section-head"><h2>{t("backup.title")}</h2><small>{t("backup.tagline")}</small></div><p className="meta">{t("backup.intro")}</p><div className="actions"><button className="btn secondary" disabled={backupBusy} onClick={async()=>{setBackupBusy(true);setBackupStatus("");try{const r=await downloadBackup();setBackupStatus(t("backup.exportSuccess",{stories:r.stories,keys:r.keys}))}catch(_){setBackupStatus(t("backup.exportError"))}finally{setBackupBusy(false)}}}>{t("backup.export")}</button><label className={"btn secondary"+(backupBusy?" disabled":"")}>{t("backup.import")}<input type="file" accept=".json,application/json" hidden disabled={backupBusy} onChange={async e=>{const file=e.target.files?.[0];e.currentTarget.value="";if(!file)return;setBackupBusy(true);setBackupStatus("");try{const r=await importBackup(file);setBackupStatus(t("backup.importSuccess",{stories:r.stories,entries:r.entries,skipped:r.skipped}))}catch(err){setBackupStatus(t("backup.importError",{reason:err instanceof Error?err.message:t("backup.importFallback")}))}finally{setBackupBusy(false)}}}/></label></div>{backupStatus&&<p className="meta" role="status">{backupStatus}</p>}<p className="meta">{t("backup.footnote")}</p></section>}
- <p className="meta" style={{marginTop:16}}><Link to="/privacy">{english?"Privacy & data preferences":"隱私與資料偏好"} →</Link></p>
+ <p className="meta" style={{marginTop:16}}><Link to="/privacy">{t("device.privacy")} →</Link></p>
  </div>
  <section id="settings-device" className="section panel crew-settings-category">
-  <div className="section-head"><h2>{english?"App & device":"App 與裝置"}</h2></div>
-  <p className="meta">{ready&&isCrewAndroidShell()
-   ?(english?"Crew Android Web Preview: photo inputs can use the device camera or gallery. This does not change audio permissions.":"Crew Android Web 預覽版：拍教材等圖片輸入可使用相機或相簿，不影響語音權限。")
-   :(english?"Using Crew in a browser. Camera and gallery access depend on the browser's permissions.":"目前使用瀏覽器版 Crew。相機與相簿能否使用，取決於瀏覽器權限。")}</p>
-  <p className="meta">{english
-   ?"Learning data and Gemini API keys are currently stored separately by native Android, the app WebView and each browser. They are not automatically synchronized."
-   :"原生 Android、App WebView 與各瀏覽器目前各自保存 Gemini Key 和學習紀錄，不會自動同步。切換版本前不會覆蓋舊資料。"}</p>
-  <p className="meta">{english
-   ?"For camera or microphone problems, check Android Settings → Apps → Crew Teacher → Permissions. Permissions are requested only when needed."
-   :"拍照或麥克風不能使用時，請檢查 Android 設定 → 應用程式 → Crew Teacher → 權限；功能使用時才會提出權限要求。"}</p>
+  <div className="section-head"><h2>{t("device.heading")}</h2></div>
+  <p className="meta">{ready&&isCrewAndroidShell()?t("device.android"):t("device.browser")}</p>
+  <p className="meta">{t("device.storage")}</p>
+  <p className="meta">{t("device.permissions")}</p>
  </section>
  <BuildVersion/>
 </>;

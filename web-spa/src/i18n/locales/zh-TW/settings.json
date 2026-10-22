@@ -119,5 +119,13 @@
     "setupInvalidTitle": "Gemini Key 可能無法使用",
     "setupInvalidDesc": "請檢查、重新驗證或免費建立新的 Key。設定完成後會返回對話。",
     "setupInvalidAction": "檢查 Gemini Key"
+  },
+  "device": {
+    "privacy": "隱私與資料偏好",
+    "heading": "App 與裝置",
+    "android": "Crew Android Web 預覽版：拍教材等圖片輸入可使用相機或相簿，不影響語音權限。",
+    "browser": "目前使用瀏覽器版 Crew。相機與相簿能否使用，取決於瀏覽器權限。",
+    "storage": "原生 Android、App WebView 與各瀏覽器目前各自保存 Gemini Key 和學習紀錄，不會自動同步。切換版本前不會覆蓋舊資料。",
+    "permissions": "拍照或麥克風不能使用時，請檢查 Android 設定 → 應用程式 → Crew Teacher → 權限；功能使用時才會提出權限要求。"
   }
 }
