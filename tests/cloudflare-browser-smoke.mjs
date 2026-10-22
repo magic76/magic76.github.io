@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
 import {setTimeout as sleep} from "node:timers/promises";
 import {readFileSync} from "node:fs";
-import {mkdir} from "node:fs/promises";
+import {mkdir,rename} from "node:fs/promises";
 import {chromium} from "playwright";
 import {approvedPortrait} from "../web-spa/src/timeline/portraitAssetPolicy.mjs";
 
@@ -38,6 +38,49 @@ async function captureCrewVisualQA(browser){
    }finally{await context.close();}
   }
  }
+ // Two short real browser recordings with explicit manual interaction.
+ for(const setup of [{id:"phone",width:390},{id:"desktop",width:1440}]){
+  const context=await browser.newContext({
+   viewport:{width:setup.width,height:900},isMobile:setup.width<500,hasTouch:setup.width<500,
+   deviceScaleFactor:1,recordVideo:{dir:folder,size:{width:setup.width,height:900}}
+  });
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+  const page=await context.newPage();
+  const video=page.video();
+  try{
+   await page.goto(origin+"/chat/",{waitUntil:"domcontentloaded",timeout:20000});
+   await page.locator(".crew-section-carousel-actions button").last().waitFor({state:"visible",timeout:12000});
+   await page.locator(".crew-section-carousel-actions button").last().click();
+   await page.waitForTimeout(350);
+   await page.locator(".crew-section-carousel-actions button").last().click();
+   await page.waitForTimeout(350);
+   await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:20000});
+   await page.locator(".crew-portal-tabs [role=tab]").first().waitFor({state:"visible",timeout:12000});
+   await page.locator(".crew-portal-tabs [role=tab]").nth(1).click();
+   await page.waitForTimeout(350);
+   await page.locator(".crew-portal-tabs [role=tab]").first().click();
+   await page.waitForTimeout(350);
+  }catch(error){process.stdout.write("VIDEO QA partial "+setup.id+": "+String(error).slice(0,140)+"\\n");}
+  finally{
+   await context.close();
+   if(video){try{await rename(await video.path(),folder+"/motion-"+setup.id+".webm")}catch(error){process.stdout.write("VIDEO unavailable "+String(error).slice(0,120)+"\\n");}}
+  }
+ }
+ // Reduced-motion behavior is checked in an actual Chromium media-emulation context.
+ const reduce=await browser.newContext({viewport:{width:390,height:900},reducedMotion:"reduce",isMobile:true,hasTouch:true});
+ await reduce.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+ const reducedPage=await reduce.newPage();
+ try{
+  await reducedPage.goto(origin+"/chat/",{waitUntil:"domcontentloaded",timeout:20000});
+  await reducedPage.locator(".crew-section-friend").first().waitFor({state:"visible",timeout:12000});
+  const state=await reducedPage.locator(".crew-section-friend").first().evaluate(el=>({
+   reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,
+   duration:getComputedStyle(el).transitionDuration
+  }));
+  assert.ok(state.reduced,"Browser must emulate reduced-motion setting");
+  assert.ok(state.duration.split(",").every(value=>parseFloat(value)===0),"Friend card transitions must be static in reduced-motion mode: "+state.duration);
+  process.stdout.write("PASS reduced-motion static friend cards\\n");
+ }finally{await reduce.close();}
 }
 
 
