@@ -116,7 +116,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const clientReady=useClientReady();
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
- const kinds=["fortune","timeline","games","story","research","circle"] as const;
+ // The hero is Fortune; the remaining five cards start at Timeline.
+ const kinds=["timeline","games","story","research","circle"] as const;
  // Translate every Explore tile with lazy-loaded resources; links and artwork retain stable IDs.
  const x=section==="explore"?{
   ...source,title:t("sectionExplore.title"),intro:t("sectionExplore.intro"),
