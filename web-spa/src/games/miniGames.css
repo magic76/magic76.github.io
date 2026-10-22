@@ -202,7 +202,10 @@
  .crew-mini-page .crew-mini-speech{padding:6px 9px;margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
  .crew-mini-page .crew-mini-voice .live-audio-settings:not([open]){max-height:24px}
  /* A focused text field brings up the keyboard; do not cover it with the voice dock. */
- .crew-mini-page:has(input:focus) .crew-mini-voice{opacity:0;pointer-events:none}
+ .crew-mini-page:has(.crew-mini-panel form:focus-within) .crew-mini-voice,
+ .crew-mini-page:has(.crew-mini-panel .crew-mini-feedback:focus-within) .crew-mini-voice{
+  opacity:0;pointer-events:none
+ }
  .crew-taboo-stage.is-playing .crew-taboo-scoreboard>div{padding:6px 5px}
  .crew-taboo-stage.is-playing .crew-taboo-scoreboard strong{font-size:19px}
  .crew-taboo-stage.is-playing .crew-taboo-prompt{padding:10px}
