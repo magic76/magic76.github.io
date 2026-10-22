@@ -80,6 +80,8 @@ jobs:
       - run: node scripts/research-quality-report.mjs
       # Use Chrome preinstalled on Ubuntu runners; no browser code in production.
       - run: npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
+      # Playwright's video recorder uses its own FFmpeg binary (not the system package).
+      - run: npx playwright install ffmpeg
       - run: npm run test:browser:cloudflare
       # Build/test failures remain blocking; artifact quota alone does not block release verification.
       - uses: actions/upload-artifact@v4
