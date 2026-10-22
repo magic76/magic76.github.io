@@ -17,9 +17,47 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const [round,setRound]=useState(0);
  const [speechPending,setSpeechPending]=useState(false);
  const [flipAnimation,setFlipAnimation]=useState<{id:number;previous:Record<number,"black"|"white">}|null>(null);
+ const [connectDrop,setConnectDrop]=useState<{id:number;index:number;duration:number}|null>(null);
+ const connectDropSeqRef=useRef(0);
+ const connectDropIdRef=useRef<number|null>(null);
+ const connectDropTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const connectResultRef=useRef<string|null>(null);
  const flipSequenceRef=useRef(0);
  const flipTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
- useEffect(()=>()=>{if(flipTimerRef.current!==null)clearTimeout(flipTimerRef.current)},[]);
+ useEffect(()=>()=>{
+  if(flipTimerRef.current!==null)clearTimeout(flipTimerRef.current);
+  if(connectDropTimerRef.current!==null)clearTimeout(connectDropTimerRef.current);
+  connectDropIdRef.current=null;
+ },[]);
+ const finishConnectDrop=(id:number)=>{
+  if(connectDropIdRef.current!==id)return;
+  connectDropIdRef.current=null;
+  if(connectDropTimerRef.current!==null)clearTimeout(connectDropTimerRef.current);
+  connectDropTimerRef.current=null;
+  setConnectDrop(null);
+  const result=connectResultRef.current;
+  connectResultRef.current=null;
+  if(result)onEvent(result);
+ };
+ const animateConnectDrop=(next:CrewConnect4State)=>{
+  const index=next.lastMove;
+  if(index===null)return;
+  if(connectDropTimerRef.current!==null)clearTimeout(connectDropTimerRef.current);
+  const duration=350+(Math.floor(index/7)+1)*65;
+  const id=++connectDropSeqRef.current;
+  if(typeof window!=="undefined"&&window.matchMedia?.("(prefers-reduced-motion: reduce)").matches){
+   connectDropIdRef.current=null;
+   setConnectDrop(null);
+   const result=connectResultRef.current;
+   connectResultRef.current=null;
+   if(result)onEvent(result);
+   return;
+  }
+  connectDropIdRef.current=id;
+  setConnectDrop({id,index,duration});
+  // A fallback timer only releases the turn if animationend is not delivered.
+  connectDropTimerRef.current=setTimeout(()=>finishConnectDrop(id),duration+120);
+ };
  const applyReversiMove=(previous:CrewReversiState,next:CrewReversiState)=>{
   if(flipTimerRef.current!==null)clearTimeout(flipTimerRef.current);
   flipTimerRef.current=null;
@@ -54,6 +92,11 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const skipSpeech=()=>onSkipSpeech();
  useEffect(()=>{
   let active=true;setConnect(null);setReversi(null);setError("");
+  if(connectDropTimerRef.current!==null)clearTimeout(connectDropTimerRef.current);
+  connectDropTimerRef.current=null;
+  connectDropIdRef.current=null;
+  connectResultRef.current=null;
+  setConnectDrop(null);
   playedRef.current=false;completedRef.current=false;
   loadScript("/games/crew-play-engine.js").then(()=>{
    if(!active)return;
@@ -76,20 +119,27 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   if(flipTimerRef.current!==null)clearTimeout(flipTimerRef.current);
   flipTimerRef.current=null;
   setFlipAnimation(null);
+  if(connectDropTimerRef.current!==null)clearTimeout(connectDropTimerRef.current);
+  connectDropTimerRef.current=null;
+  connectDropIdRef.current=null;
+  connectResultRef.current=null;
+  setConnectDrop(null);
   onSkipSpeech();
   setRound(value=>value+1);
   onEvent("[GAME RESET] We started a fresh round. Make a short friendly comment, then wait.");
  };
- const c4Turn=connect?.turn==="player"&&!connect?.winner&&!speechPending&&!speechGateRef.current;
+ const c4Turn=connect?.turn==="player"&&!connect?.winner&&!speechPending&&!speechGateRef.current&&!connectDrop&&connectDropIdRef.current===null;
  const c4Play=(column:number)=>{
   if(!connect||!api||!c4Turn||speechGateRef.current)return;
   const next=api.connect4Drop(connect,column,"player");
   if(!next)return;
-  noteMove();setConnect(next);
-  if(next.winner)onEvent("[CONNECT FOUR RESULT] The learner won. React briefly and warmly.");
+  noteMove();
+  connectResultRef.current=next.winner?"[CONNECT FOUR RESULT] The learner won. React briefly and warmly.":null;
+  setConnect(next);
+  animateConnectDrop(next);
  };
  useEffect(()=>{
-  if(kind!=="connect4"||!connect||!api||connect.turn!=="computer"||connect.winner||speechPending||speechGateRef.current)return;
+  if(kind!=="connect4"||!connect||!api||connect.turn!=="computer"||connect.winner||speechPending||speechGateRef.current||connectDrop||connectDropIdRef.current!==null)return;
   const timer=setTimeout(()=>{
    const column=api.connect4AI(connect);
    if(column===null)return;
@@ -97,10 +147,10 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
    if(!next)return;
    const outcome=next.winner===null?"":next.winner==="computer"?"You will win.":next.winner==="draw"?"This will end in a draw.":"The learner will win.";
    narrateMove("[CONNECT FOUR BEFORE MOVE] The learner's disc is already on the board. Your NEXT yellow disc has been selected for column "+(column+1)+" but HAS NOT been placed yet. Say 'I'll play column "+(column+1)+"' in one short natural sentence. "+outcome+" Do not claim your disc is already placed. Do not answer older learner move intentions or ask a follow-up question. After your audio finishes, the board will place it.",
-    {kind:"connect4",position:String(column+1)},()=>setConnect(next));
+    {kind:"connect4",position:String(column+1)},()=>{setConnect(next);animateConnectDrop(next)});
   },60);
   return()=>clearTimeout(timer);
- },[connect,kind,api,onEvent,speechPending]);
+ },[connect,kind,api,onEvent,speechPending,connectDrop]);
  const score=reversi&&api?api.reversiCount(reversi.cells):null;
  const legal=useMemo(()=>reversi&&api?api.reversiMoves(reversi,"black"):[],[reversi,api]);
  const allowed=new Set(legal.map(move=>move.y*8+move.x));
@@ -127,6 +177,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  },[reversi,kind,api,onEvent,speechPending]);
  const c4Status=connect?.winner
   ?connect.winner==="draw"?(english?"Draw!":"平手！"):connect.winner==="player"?(english?"You win!":"你贏了！"):(english?friendName+" wins!":friendName+" 贏了！")
+  :connectDrop?(english?"Disc falling…":"棋子落下中…")
   :speechPending?(english?`Waiting for ${friendName} to finish speaking…`:`等 ${friendName} 說完再下棋…`)
   :connect?.turn==="player"?(english?"Your turn · red":"輪到你 · 紅色"):(english?friendName+"'s turn · yellow":"輪到 "+friendName+" · 黃色");
  const revStatus=reversi?.winner
@@ -142,9 +193,9 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
     <div className="crew-board-row-labels" aria-hidden="true">{Array.from({length:6},(_,y)=><span key={y} className={connect?.lastMove!==null&&connect?.lastMove!==undefined&&Math.floor(connect.lastMove/7)===y?"is-latest":""}>{y+1}</span>)}</div>
     <div className="crew-connect-board" role="group" aria-label={english?"Connect Four · columns 1 to 7, rows 1 to 6 from top to bottom":"四子棋 · 上方第 1 到 7 欄，左側第 1 到 6 列，由上往下"}>
      {Array.from({length:42},(_,index)=>{
-      const x=index%7,y=Math.floor(index/7),color=connect?.cells[index],last=connect?.lastMove===index,win=connect?.winningLine.includes(index);
+      const x=index%7,y=Math.floor(index/7),color=connect?.cells[index],last=connect?.lastMove===index,win=connect?.winningLine.includes(index),dropping=connectDrop?.index===index;
       return <button type="button" key={index} className="crew-connect-slot" onClick={()=>c4Play(x)} disabled={!connect||!c4Turn||connect.cells[x]!==null} aria-label={english?`Column ${x+1}, row ${y+1}. ${color||"empty"}`:`第 ${x+1} 欄、第 ${y+1} 列${color===null?"空格":color==="player"?"紅棋":"黃棋"}`}>
-       <span className={`crew-connect-disc ${color||"empty"}${last?" last":""}${win?" win":""}${last?" is-dropping":""}`} style={last?{"--drop-rows":y+1,"--drop-duration":`${350+(y+1)*65}ms`} as CSSProperties:undefined}/>
+       <span key={dropping?`drop-${connectDrop.id}`:`disc-${index}`} className={`crew-connect-disc ${color||"empty"}${last&&!dropping?" last":""}${win?" win":""}${dropping?" is-dropping":""}`} style={dropping?{"--drop-distance":`-${(y+1)*114}%`,"--drop-duration":`${connectDrop.duration}ms`} as CSSProperties:undefined} onAnimationEnd={dropping?(event)=>{if(event.animationName==="crew-connect-disc-drop")finishConnectDrop(connectDrop.id)}:undefined}/>
       </button>;
      })}
     </div>
