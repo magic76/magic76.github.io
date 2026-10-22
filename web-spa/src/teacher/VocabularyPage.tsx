@@ -26,6 +26,7 @@ export function VocabularyPage(){
  const nativeTtsAvailable=ttsMode==="native-message"||ttsMode==="native-legacy";
  const voiceOptionsSupported=typeof window!=="undefined"&&"speechSynthesis" in window;
  const answerLockRef=useRef(false); // Synchronous guard against rapid double taps before React re-renders.
+ const autoNextTimeoutRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const[refresh,setRefresh]=useState(0);
  const[contentError,setContentError]=useState("");
  const[score,setScore]=useState(()=>placementState().score);
@@ -54,6 +55,9 @@ export function VocabularyPage(){
   synth.addEventListener("voiceschanged",refreshVoices);
   return()=>synth.removeEventListener("voiceschanged",refreshVoices);
  },[]);
+
+ // A pending auto-advance must never update a quiz after navigation away.
+ useEffect(()=>()=>{if(autoNextTimeoutRef.current!==null)clearTimeout(autoNextTimeoutRef.current)},[]);
 
  function pronounce(text:string,slow=false){
   if(ttsMode==="unavailable"){
@@ -98,19 +102,29 @@ export function VocabularyPage(){
   setStreak(previous=>correct?previous+1:0);
   setFeedback(correct?teacherText(native,"right"):teacherText(native,"wrong"));
   pronounce(word[0]);
+  if(correct){
+   // Show success long enough to register, then advance without another tap.
+   autoNextTimeoutRef.current=setTimeout(()=>{
+    autoNextTimeoutRef.current=null;
+    advanceToQuestion(nextPlacement.score,nextDone);
+   },1400);
+  }
  }
 
- function nextQuestion(){
-  if(!revealed)return;
+ function advanceToQuestion(nextScore:number,nextDone:number){
   answerLockRef.current=false;
   setRevealed(false);
   setPicked("");
   setFeedback(teacherText(native,"vocabQuestion"));
-  if(done>=DAILY_GOAL&&!continueAfterGoal){
+  if(nextDone>=DAILY_GOAL&&!continueAfterGoal){
    setShowCompletion(true);
    return;
   }
-  setWord(previous=>chooseVocabulary(score,previous,done,native));
+  setWord(previous=>chooseVocabulary(nextScore,previous,nextDone,native));
+ }
+ function nextQuestion(){
+  if(!revealed||picked===word[1])return;
+  advanceToQuestion(score,done);
  }
  function continuePractice(){
   answerLockRef.current=false;
@@ -183,7 +197,7 @@ export function VocabularyPage(){
      <strong>{feedback} {picked!==word[1]&&" · "+word[1]}</strong>
      {word[2]&&<p>{word[2]}</p>}
     </div>}
-    {revealed&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} →</button>}
+    {revealed&&picked!==word[1]&&<button className="btn primary crew-learning-full-cta" onClick={nextQuestion}>{t("vocabulary.nextQuestion")} →</button>}
    </div>}
   </section>
   <div className="crew-learning-secondary-meta">{t("vocabulary.progressStats",{done,due:stats.due,mastered:stats.mastered})}</div>
