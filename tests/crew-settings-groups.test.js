@@ -34,6 +34,8 @@ test("mobile settings layout is responsive without duplicating local state",()=>
  assert.match(page,/ready&&!isCrewAndroidShell\(\)&&<section className="section panel"/);
  assert.match(page,/downloadBackup\(\)/);
  assert.match(page,/importBackup\(file\)/);
- assert.match(page,/Crew Android Web Preview/);
+ assert.match(page,/t\("device\.android"\)/);
+ const en=JSON.parse(read("web-spa/src/i18n/locales/en/settings.json"));
+ assert.match(en.device.android,/Crew Android Web Preview/);
  assert.doesNotMatch(page,/feedback|issue tracker|send report/i);
 });
