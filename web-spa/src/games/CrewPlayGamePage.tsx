@@ -19,6 +19,7 @@ import {chooseFallbackPuzzle} from "./puzzleDiversity";
 import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {crewGames} from "./CrewPlayHubPage";
+import {GamePanel} from "./GamePanel";
 import {trackUsageEvent} from "../analytics/usage";
 import "./crewPlay.css";
 
@@ -54,9 +55,12 @@ export function CrewPlayGamePage(){
   <div className="crew-play-frame">
    {!wordGame?<section className="crew-play-friend-bar">
     <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{t("playHub.yourFriend")}</small></div></div>
-    <label className="crew-play-friend-select">{t("playHub.changeFriend")}
-     <select value={friend.id} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
-    </label>
+    <GamePanel label={t("playHub.changeFriend")} title={t("playHub.changeFriend")}>
+     <label className="crew-play-friend-select">{t("playHub.yourFriend")}
+      <select value={friend.id} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
+     </label>
+     <p>{english?"Changing your friend restarts this game.":"更換朋友會重新開始本局；開啟面板不會中斷語音。"}</p>
+    </GamePanel>
    </section>:null}
    <CrewPlaySession key={gameId+":"+friend.id} kind={gameId} friend={friend} english={english} round={round} nextRound={()=>setRound(x=>x+1)} onChangeFriend={changeFriend}/>
   </div>
@@ -291,9 +295,12 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     <div className="crew-play-voice-presence-name"><strong>{friend.name}</strong>
      <small className={"crew-play-voice-presence-state"+(voiceActive?" active":"")} aria-live="polite">{voiceStatus}</small>
     </div>
-    <label className="crew-play-friend-select">{english?"Change friend":"更換朋友"}
-     <select value={friend.id} onChange={e=>onChangeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
-    </label>
+    <GamePanel label={english?"Settings":"設定"} title={english?"Game settings":"遊戲設定"}>
+     <label className="crew-play-friend-select">{english?"Crew Friend":"Crew 朋友"}
+      <select value={friend.id} onChange={e=>onChangeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option key={f.id} value={f.id}>{f.name}</option>)}</select>
+     </label>
+     <p>{english?"Changing your friend restarts the conversation for this game.":"變更朋友會重新開始本局對話。"}</p>
+    </GamePanel>
    </div>
    <div className={"crew-play-voice-waves"+(live.state==="speaking"?" is-speaking":live.state==="listening"?" is-listening":"")} aria-hidden="true"><i/><i/><i/><i/><i/></div>
    <p className="crew-play-voice-presence-reply" role="status" aria-live="polite">{live.output||(kind==="mystery"?

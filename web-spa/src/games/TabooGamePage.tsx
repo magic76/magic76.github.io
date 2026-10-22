@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useRef,useState,type FormEvent} from "react";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
+import {GamePanel} from "./GamePanel";
 import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,parseTabooLiveGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
@@ -183,22 +184,32 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
  };
  const lastRound=history.length?history[history.length-1]:null;
  return <div className={"crew-mini-stage crew-taboo-stage is-"+phase+(geminiKey()?" has-key":"")}>
+  <div className="crew-mini-toolbar">
+   <GamePanel label="⚙ 遊戲設定" title="描述猜題設定">
   <div className="crew-mini-config" aria-label="Taboo 遊戲設定">
    <small className="crew-mini-label">遊戲模式</small>
    <div className="crew-mini-segments" role="group" aria-label="描述模式">
-    <button type="button" aria-pressed={mode==="describe"} onClick={()=>{++guessSerial.current;setMode("describe");setPhase("ready")}}>我描述 · 朋友猜</button>
-    <button type="button" aria-pressed={mode==="guess"} onClick={()=>{++guessSerial.current;setMode("guess");setPhase("ready")}}>朋友描述 · 我猜</button>
+    <button type="button" aria-pressed={mode==="describe"} disabled={phase==="playing"} onClick={()=>{++guessSerial.current;setMode("describe");setPhase("ready")}}>我描述 · 朋友猜</button>
+    <button type="button" aria-pressed={mode==="guess"} disabled={phase==="playing"} onClick={()=>{++guessSerial.current;setMode("guess");setPhase("ready")}}>朋友描述 · 我猜</button>
    </div>
    <small className="crew-mini-label">單字難度</small>
    <div className="crew-mini-segments" role="group" aria-label="單字難度">
-    <button type="button" aria-pressed={level==="easy"} onClick={()=>{++guessSerial.current;setLevel("easy");setPhase("ready")}}>簡單</button>
-    <button type="button" aria-pressed={level==="medium"} onClick={()=>{++guessSerial.current;setLevel("medium");setPhase("ready")}}>中等</button>
+    <button type="button" aria-pressed={level==="easy"} disabled={phase==="playing"} onClick={()=>{++guessSerial.current;setLevel("easy");setPhase("ready")}}>簡單</button>
+    <button type="button" aria-pressed={level==="medium"} disabled={phase==="playing"} onClick={()=>{++guessSerial.current;setLevel("medium");setPhase("ready")}}>中等</button>
    </div>
       <small className="crew-mini-label">每題時間</small>
     <div className="crew-mini-segments crew-taboo-duration" role="group" aria-label="每題時間">
-     {[120,180,0].map(seconds=><button key={seconds} type="button" aria-pressed={roundSeconds===seconds} onClick={()=>setRoundSeconds(seconds)}>{seconds===0?"不限時":seconds/60+" 分鐘"}</button>)}
+     {[120,180,0].map(seconds=><button key={seconds} type="button" aria-pressed={roundSeconds===seconds} disabled={phase==="playing"} onClick={()=>setRoundSeconds(seconds)}>{seconds===0?"不限時":seconds/60+" 分鐘"}</button>)}
     </div>
    </div>
+    {phase==="playing"?<p>本局進行中。設定會在下一局開放修改，避免誤觸中斷猜題。</p>:<p>設定將套用至下一次開始的 5 題挑戰。</p>}
+   </GamePanel>
+   <GamePanel label="玩法" title="Taboo 遊戲規則" variant="modal">
+    <p>我描述：用英文描述目標詞，但不能直接說出答案或禁用字，讓 AI 朋友來猜。</p>
+    <p>朋友描述：閱讀或聆聽英文提示，自己猜出正確單字。</p>
+    <p>每局 5 題，猜對加 10 分、違規扣 5 分，可跳過 3 次。語音可選用 Gemini Live，文字模式仍可玩。</p>
+   </GamePanel>
+  </div>
    <MiniGameVoice key={friend.id+mode+level} kind="taboo" tabooMode={mode} friend={friend} cue={cue} onSpeech={onSpeech}/>
   {phase==="ready"?<section className="crew-mini-panel crew-mini-welcome crew-taboo-welcome">
    <span className="crew-taboo-eyebrow">TABOO · 5 ROUND CHALLENGE</span>

@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
+import {GamePanel} from "./GamePanel";
 import {legalNumber,secretNumber,scoreAB,parseSpokenNumber,parseSpokenAB,nextComputerGuess,candidateNumbers,type DigitCount,type GuessRow,type AB} from "./numberGameEngine";
 
 type Mode="guess"|"reverse";
@@ -32,14 +33,23 @@ export function NumberGamePage(){
  useEffect(()=>{trackUsageEvent("game_open","1a2b")},[]);
  const [digits,setDigits]=useState<DigitCount>(4),[mode,setMode]=useState<Mode>("guess"),[revision,setRevision]=useState(0);
  return <MiniShell kind="1a2b" friend={friend} onChange={choose}>
+  <div className="crew-mini-toolbar">
+   <GamePanel label="⚙ 遊戲設定" title="1A2B 遊戲設定">
   <div className="crew-mini-config" aria-label="猜數字規則">
    <div className="crew-mini-segments" role="group" aria-label="遊戲模式">
-    <button aria-pressed={mode==="guess"} onClick={()=>setMode("guess")}>我猜朋友的數字</button>
-    <button aria-pressed={mode==="reverse"} onClick={()=>setMode("reverse")}>朋友猜我的數字</button>
+    <button aria-pressed={mode==="guess"} onClick={()=>{if(mode!=="guess"&&window.confirm("切換模式會重新開始本局，確定嗎？"))setMode("guess")}}>我猜朋友的數字</button>
+    <button aria-pressed={mode==="reverse"} onClick={()=>{if(mode!=="reverse"&&window.confirm("切換模式會重新開始本局，確定嗎？"))setMode("reverse")}}>朋友猜我的數字</button>
    </div>
    <div className="crew-mini-segments" role="group" aria-label="位數難度">
-    {([3,4,5] as DigitCount[]).map(n=><button key={n} aria-pressed={digits===n} onClick={()=>setDigits(n)}>{n} 位</button>)}
+    {([3,4,5] as DigitCount[]).map(n=><button key={n} aria-pressed={digits===n} onClick={()=>{if(digits!==n&&window.confirm("調整位數會重新開始本局，確定嗎？"))setDigits(n)}}>{n} 位</button>)}
    </div>
+  </div>
+    <p>變更玩法或位數會重新開始目前這局；打開設定不會中斷語音。</p>
+   </GamePanel>
+   <GamePanel label="玩法" title="1A2B 遊戲規則" variant="modal">
+    <p>所有數字都不重複，首位不可為 0。A 代表數字和位置都正確，B 代表數字正確但位置不對。</p>
+    <p>可以選擇你猜電腦的數字，或讓 AI 朋友猜你心裡的數字；每局最多 10 次猜測。</p>
+   </GamePanel>
   </div>
   <NumberRound key={mode+digits+revision+friend.id} mode={mode} digits={digits} friend={friend} onNew={()=>setRevision(x=>x+1)}/>
  </MiniShell>;
@@ -132,9 +142,15 @@ function NumberRound({mode,digits,friend,onNew}:{
     </div>
    </div>:null}
    {error?<p className="crew-mini-error" role="alert">{error}</p>:null}
-   <div className="crew-mini-history-head"><strong>猜測歷史</strong>
-    {history.length>0?<button type="button" onClick={undo}>撤銷上一筆</button>:null}</div>
-   <ol className="crew-mini-number-history">{history.map((row,i)=><li key={i}><span>#{i+1}</span><strong>{row.guess}</strong><b>{row.result.a}A{row.result.b}B</b></li>)}</ol>
+   <div className="crew-mini-history-head"><strong>最近猜測</strong>
+    <div className="crew-mini-history-actions">
+     {history.length>0?<button type="button" onClick={undo}>撤銷上一筆</button>:null}
+     {history.length>0?<GamePanel label="完整紀錄" title="本局猜測紀錄">
+      <ol className="crew-mini-number-history">{history.map((row,i)=><li key={i}><span>#{i+1}</span><strong>{row.guess}</strong><b>{row.result.a}A{row.result.b}B</b></li>)}</ol>
+     </GamePanel>:null}
+    </div>
+   </div>
+   <ol className="crew-mini-number-history">{history.slice(-3).map((row,i)=><li key={history.length-Math.min(3,history.length)+i}><span>#{history.length-Math.min(3,history.length)+i+1}</span><strong>{row.guess}</strong><b>{row.result.a}A{row.result.b}B</b></li>)}</ol>
    {!history.length?<p className="crew-mini-muted">還沒有猜測，從第一個數字開始吧。</p>:null}
   </section>
   {finished?<section className="crew-mini-result" aria-live="polite">
@@ -148,6 +164,6 @@ function NumberRound({mode,digits,friend,onNew}:{
     <button className="crew-mini-primary" onClick={onNew} type="button">再玩一局</button>
    </div>
   </section>:null}
-  {!finished?<button className="crew-mini-restart" type="button" onClick={onNew}>重新出題</button>:null}
+  {!finished?<button className="crew-mini-restart" type="button" onClick={()=>{if(!history.length||window.confirm("重新出題會清除本局猜測紀錄，確定嗎？"))onNew()}}>重新出題</button>:null}
  </div>;
 }

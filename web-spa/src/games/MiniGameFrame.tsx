@@ -8,6 +8,7 @@ import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
+import {GamePanel} from "./GamePanel";
 import "./miniGames.css";
 
 export type MiniKind="1a2b"|"taboo";
@@ -28,18 +29,21 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
  const taboo=kind==="taboo";
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  return <main className="crew-play-page crew-mini-page">
-  <header className="crew-play-game-header">
+  <header className="crew-play-game-header crew-play-game-header--compact">
    <Link to="/games" className="crew-play-back">← 全部遊戲</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
    <h1>{taboo?"Taboo 描述猜詞":"1A2B 猜數字"}</h1>
    <p>{taboo?"用英文描述，讓朋友直接猜；時間與難度都能調整。":"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
   </header>
   <div className="crew-play-frame">
-   <section className="crew-play-friend-bar">
+   <section className="crew-play-friend-bar crew-mini-friend-bar">
     <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>你的 Crew 朋友</small></div></div>
-    <label className="crew-play-friend-select">更換朋友
-     <select value={friend.id} onChange={e=>onChange(e.target.value)}>{CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select>
-    </label>
+    <GamePanel title="選擇 Crew 朋友" label="更換朋友">
+     <label className="crew-play-friend-select">對話角色
+      <select value={friend.id} onChange={e=>onChange(e.target.value)}>{CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select>
+     </label>
+     <p>切換朋友將重新開始這局遊戲；開啟設定本身不影響語音連線。</p>
+    </GamePanel>
    </section>
    {children}
   </div>

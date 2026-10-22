@@ -170,3 +170,45 @@
  .crew-taboo-stage .crew-taboo-actions button{flex:1 1 130px;min-height:44px}
 }
 @media(prefers-reduced-motion:reduce){.crew-taboo-stage .crew-taboo-timer-track>span{transition:none}}
+
+/* P0/P1: the game stays visible; settings live in panels and voice remains reachable. */
+.crew-mini-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.crew-mini-history-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.crew-mini-history-head .crew-game-panel-trigger{min-height:35px}
+.crew-mini-page .crew-play-game-header--compact{margin:0 0 8px;padding-top:6px}
+.crew-mini-page .crew-play-game-header--compact h1{font-size:clamp(20px,4vw,25px);margin:4px 0}
+.crew-mini-stage .crew-mini-voice{grid-row:auto}
+@media(max-width:620px){
+ .page.page-enter:has(.crew-mini-page){animation:none}
+ .crew-mini-page{padding-bottom:calc(270px + var(--nav-h,68px) + env(safe-area-inset-bottom))}
+ .crew-mini-page .crew-play-game-header--compact{padding-top:2px}
+ .crew-mini-page .crew-play-game-header--compact .crew-play-eyebrow,
+ .crew-mini-page .crew-play-game-header--compact>p{display:none}
+ .crew-mini-page .crew-play-game-header--compact h1{margin:0 0 4px;font-size:21px}
+ .crew-mini-page .crew-play-friend-bar{padding:7px 10px}
+ .crew-mini-stage{gap:9px}
+ .crew-mini-page .crew-mini-voice,
+ .crew-mini-page .crew-taboo-stage.is-playing.has-key .crew-mini-voice{
+  position:fixed;left:50%;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);
+  transform:translateX(-50%);z-index:42;width:min(700px,calc(100vw - 18px));
+  max-height:min(40dvh,300px);overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid #cac6e9;border-radius:17px;padding:9px 11px;
+  background:var(--surface,#fff);box-shadow:0 -4px 26px #302c622e;
+ }
+ .crew-mini-page .crew-mini-voice-header{gap:7px}
+ .crew-mini-page .crew-mini-voice-header img{width:32px;height:32px}
+ .crew-mini-page .crew-mini-voice-copy small{font-size:11px}
+ .crew-mini-page .crew-mini-voice>small{display:none}
+ .crew-mini-page .crew-mini-speech{padding:6px 9px;margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .crew-mini-page .crew-mini-voice .live-audio-settings:not([open]){max-height:24px}
+ /* A focused text field brings up the keyboard; do not cover it with the voice dock. */
+ .crew-mini-page:has(.crew-mini-panel form:focus-within) .crew-mini-voice,
+ .crew-mini-page:has(.crew-mini-panel .crew-mini-feedback:focus-within) .crew-mini-voice{
+  opacity:0;pointer-events:none
+ }
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard>div{padding:6px 5px}
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard strong{font-size:19px}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt{padding:10px}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-muted{display:none}
+ .crew-mini-history-head{gap:4px;flex-wrap:wrap}
+}

@@ -300,3 +300,25 @@
 /* Long locale strings must not force mobile game cards beyond the viewport. */
 .crew-play-game-info{min-width:0;overflow-wrap:anywhere;hyphens:auto}
 .crew-play-hero h1,.crew-play-hero p,.crew-play-footer-note{overflow-wrap:anywhere}
+
+/* Align optional-voice board games with the existing fixed word-game dock. */
+.crew-play-game-header{min-height:0}
+.crew-play-game-header p{max-width:480px}
+@media(max-width:620px){
+ .page.page-enter:has(.crew-play-page:not(.crew-play-page--voice-required)){animation:none}
+ .crew-play-page:has(.crew-play-session:not(.crew-play-session--word) .crew-play-voice){padding-bottom:calc(260px + var(--nav-h,68px) + env(safe-area-inset-bottom))}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-game-header{padding-top:2px;margin-bottom:8px}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-game-header>.crew-play-eyebrow,
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-game-header>p{display:none}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-game-header h1{margin:0 0 4px;font-size:22px}
+ .crew-play-page .crew-play-friend-bar{padding:7px 10px}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-voice{
+  position:fixed;z-index:42;left:50%;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);
+  transform:translateX(-50%);width:min(680px,calc(100vw - 18px));
+  max-height:min(40dvh,300px);overflow-y:auto;overscroll-behavior:contain;
+  padding:10px 12px;background:var(--surface,#fff);box-shadow:0 -5px 25px #302c622b;
+ }
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-voice-person img{width:32px;height:32px}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-voice-person p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .crew-play-page:not(.crew-play-page--voice-required) .crew-play-voice>small{display:none}
+}
