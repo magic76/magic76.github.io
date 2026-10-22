@@ -14,17 +14,18 @@ export function ContinueLearningCard({compact=false}:{compact?:boolean}){
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  useEffect(()=>{let alive=true;void buildDailyLearningPlan().then(x=>{if(alive)setPlan(x)});return()=>{alive=false}},[]);
  const english=i18n.resolvedLanguage==="en";
+ const chinese=i18n.resolvedLanguage==="zh-TW";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
- const title=plan&&!english?plan.title:plan?.action==="textbook"?t("continue.textbookTitle"):
+ const title=plan&&chinese?plan.title:plan?.action==="textbook"?t("continue.textbookTitle"):
   plan?.action==="vocabulary"?t("continue.vocabularyTitle",{count:plan.dueVocabulary}):
-  plan?.action==="course"?t("continue.courseTitle",{name:course?.titleEn||plan.nextLessonTitle||""}):
+  plan?.action==="course"?t("continue.courseTitle",{name:course?.titleEn||(chinese?plan.nextLessonTitle:"")||""}):
   t("continue.conversationTitle");
- const note=plan&&!english?plan.note:plan?.action==="textbook"?t("continue.textbookNote",{
+ const note=plan&&chinese?plan.note:plan?.action==="textbook"?t("continue.textbookNote",{
   title:plan.textbook?.plan?.title||t("continue.textbookFallback"),
   page:(Number(plan.textbook?.currentPage)||0)+1,
   total:plan.textbook?.images?.length||1
  }):plan?.action==="vocabulary"?t("continue.vocabularyNote"):
-  plan?.action==="course"?course?.descEn||plan.note:
+  plan?.action==="course"?course?.descEn||t("continue.conversationNote"):
   plan?.primaryFocus||t("continue.conversationNote");
  if(!plan)return <div className={"continue-learning-card "+(compact?"compact":"")}><span className="kicker">{teacher.name} · {t("continue.next")}</span><strong>{t("continue.loading")}</strong></div>;
  return <Link className={"continue-learning-card "+plan.action+(compact?" compact":"")} to={plan.to}>
