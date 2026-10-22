@@ -8,7 +8,9 @@
     "beta": "Bêta",
     "preview": "Aperçu",
     "previewHint": "Certains contenus s'afficheront en anglais",
-    "close": "Fermer"
+    "close": "Fermer",
+    "loading": "Chargement de la langue…",
+    "loadError": "Impossible de charger cette langue. L'anglais s'affiche à la place. Actualisez la page ou réessayez plus tard."
   },
   "nav": {
     "home": "Accueil",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — Explorer votre thème",
     "settings": "Crew — Paramètres",
     "briefing": "Crew Briefing — Veille quotidienne sur l'IA"
-  }
+  },
+  "loading": "Chargement…"
 }

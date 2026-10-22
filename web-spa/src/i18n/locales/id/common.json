@@ -8,7 +8,9 @@
     "beta": "Beta",
     "preview": "Pratinjau",
     "previewHint": "Sebagian konten akan ditampilkan dalam bahasa Inggris",
-    "close": "Tutup"
+    "close": "Tutup",
+    "loading": "Memuat bahasa…",
+    "loadError": "Bahasa ini gagal dimuat. Tampilan beralih ke bahasa Inggris. Muat ulang atau coba lagi nanti."
   },
   "nav": {
     "home": "Beranda",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — Jelajahi bagan Anda",
     "settings": "Crew — Pengaturan",
     "briefing": "Crew Briefing — Riset AI harian"
-  }
+  },
+  "loading": "Memuat…"
 }

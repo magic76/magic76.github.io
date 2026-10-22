@@ -1,5 +1,7 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{useEffect,lazy,Suspense}from"react";
+import{useTranslation}from"react-i18next";
+import{uiLocaleFailedToLoad}from"./i18n";
 import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav}from"./components/AppChrome";
 import{sectionForRoute}from"./pages/crewNavigation";
@@ -27,14 +29,14 @@ const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>import("./pages/CrewSectionPage").then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
+export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
   const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo)$/.test(pathname);
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
- },[pathname,search]);const active=sectionForRoute(pathname,search);return <><RouteErrorBoundary key={pathname}><Suspense fallback={<div className="spa-loading" role="status">Loading…</div>}><Routes>
+ },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><Suspense fallback={<div className="spa-loading" role="status">{t("loading")}</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>

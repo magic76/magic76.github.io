@@ -85,7 +85,12 @@ i18n.on("languageChanged",applyLocale);
 applyLocale(i18n.language);
 // Browser entry waits for the selected locale before mounting, preventing
 // an English flash while keeping all other locales out of the initial JS.
-export const localeResourcesReady=loadUiLocale(activeLocale).catch(()=>{});
+export let uiLocaleFailedToLoad=false;
+export const localeResourcesReady=loadUiLocale(activeLocale).catch(error=>{
+ uiLocaleFailedToLoad=true;
+ console.warn("Crew UI locale could not load; falling back to English",error);
+ return i18n.changeLanguage("en").then(()=>{});
+});
 if(typeof window!=="undefined"){
  window.addEventListener("storage",event=>{
   if(event.key!==UI_LOCALE_KEY)return;
