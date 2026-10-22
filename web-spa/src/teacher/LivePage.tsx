@@ -167,7 +167,7 @@ export function TeacherLivePage(){
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
-  <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref}>{textMode?"改用語音":"改用文字"}</Link></div>
+  <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?"改用語音":"改用文字"}</Link></div>
   {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={profile.name} english={english} hint={course?"文字聊天不計入這堂口說課的完成評分。":undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?"正在整理課程結果":"這次練習已結束"}</b><p>{evaluating?"正在依實際對話評估任務，完成後會在下方顯示結果。":"可查看評估結果，或返回課程地圖繼續學習。"}</p></div></div>

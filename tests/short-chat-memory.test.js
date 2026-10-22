@@ -111,3 +111,19 @@ test("Web report respects default-on consent for personal facts",()=>{
  assert.ok(source.includes('localStorage.getItem("crew_teacher_personal_memory_opt_in_v2")!=="0"'));
  assert.ok(source.includes("facts:[{key,detail,explicit,evidence}]"));
 });
+
+test("Teacher and Friend text mode bypasses microphone auto-start and uses text-only Gemini",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const root=path.resolve(__dirname,"..");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const panel=fs.readFileSync(path.join(root,"web-spa/src/live/TextChatPanel.tsx"),"utf8");
+ for(const source of [friend,teacher]){
+  assert.match(source,/\btextMode\b/);
+  assert.match(source,/if\(textMode\)return;const timer=/);
+  assert.match(source,/<TextChatPanel/);
+  assert.match(source,/live\.stop\(true\)\.finally/);
+ }
+ assert.match(panel,/preferLive:false/);
+ assert.doesNotMatch(panel,/getUserMedia\(/);
+});
