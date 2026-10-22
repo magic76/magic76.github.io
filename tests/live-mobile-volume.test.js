@@ -76,6 +76,8 @@ test("AI playback boost is peak-limited and does not alter the microphone path",
       }
     }
   });
+  // Internal _openMedia is exercised as part of an active Live start.
+  session.running=true;
   await session._openMedia();
   assert.deepEqual(events,["microphone","playback"]);
   assert.equal(gain.gain.value,2.25);

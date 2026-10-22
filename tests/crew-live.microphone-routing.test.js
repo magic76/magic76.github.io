@@ -43,6 +43,8 @@ test("Live keeps the browser's default microphone and never forces a built-in de
     }
   });
 
+  // Internal _openMedia is exercised as part of an active Live start.
+  session.running=true;
   await session._openMedia();
 
   assert.deepEqual(events,["microphone","playback"]);
