@@ -242,7 +242,7 @@ async function run(){
           assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" "+section+" hero label");
           const keys=section==="chat"?["shorts","games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
           const cards=root.locator(".crew-section-grid .crew-section-card");
-          assert.equal(await cards.count(),keys.length,locale+" "+section+" card count");
+          assert.equal(await cards.count(),keys.length+(section==="me"?1:0),locale+" "+section+" card count");
           for(const [position,key] of keys.entries()){
            assert.equal((await cards.nth(position).locator("strong").textContent())?.trim(),strings.items[key].title,locale+" "+section+" "+key+" localized title");
            assert.equal((await cards.nth(position).locator("small").textContent())?.trim(),strings.items[key].desc,locale+" "+section+" "+key+" localized description");
@@ -255,6 +255,7 @@ async function run(){
            assert.equal((await root.locator(".crew-today-learning-heading").textContent())?.trim(),homeStrings.todayLearning.heading,locale+" daily progress heading");
            assert.equal((await root.locator(".crew-section-three-minute strong").textContent())?.trim(),strings.threeMinuteTitle,locale+" speaking action");
           }
+          if(section==="me")assert.equal(await cards.last().getAttribute("href"),"/settings#settings-device",locale+" device settings destination");
           if(section==="me")assert.equal((await root.locator(".crew-section-footnote").textContent())?.trim(),strings.footnote,locale+" local data warning");
           if(locale==="ja"){
            await page.reload({waitUntil:"domcontentloaded",timeout:30000});
