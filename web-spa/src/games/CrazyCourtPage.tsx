@@ -17,7 +17,7 @@ const choice=(zh:boolean,a:string,b:string)=>zh?a:b;
 const get=(value:{zh:string;en:string},language:CourtLanguage)=>value[language];
 const maxTurns=4;
 function currentClaim(court:CourtCase,turn:number,role:CourtRole,language:CourtLanguage){
- return get(court.claims[turn][role],language);
+ return get(court.claims[turn][role==="defense"?"prosecution":"defense"],language);
 }
 async function optionalCounter(court:CourtCase,role:CourtRole,spoken:string,language:CourtLanguage,fallback:string){
  if(!geminiKey()||!spoken.trim())return fallback;
