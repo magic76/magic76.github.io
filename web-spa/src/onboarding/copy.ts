@@ -1,0 +1,167 @@
+import {normalizeUiLocale,type UiLocale} from "../i18n/localeCatalog";
+
+const en = {
+ step:"Step", skip:"Skip", back:"Back", next:"Continue", start:"Start exploring",
+ welcomeTitle:"Welcome to Crew",
+ welcomeDesc:"Your space to talk, learn, play and discover with AI.",
+ welcomeNote:"Explore free activities first. Set up a Gemini API key only when you need AI.",
+ chat:"Meet AI friends", chatDesc:"Find a personality you click with.",
+ learn:"Practice languages", learnDesc:"Speak, read and learn with Crew teachers.",
+ play:"Play games", playDesc:"Try a game together or play offline.",
+ explore:"Explore Crew", exploreDesc:"Stories, timelines, fortune and more.",
+ goalTitle:"What would you like to try first?", goalDesc:"Choose a starting point. Everything remains available.",
+ preferencesTitle:"Make Crew yours", preferencesDesc:"You can change these preferences any time in Settings.",
+ uiLanguage:"Interface language", learnLanguage:"Language to practice",
+ keyNote:"No key or microphone permission is needed to finish this guide.",
+ replay:"Show welcome guide again",
+ replayDescription:"Revisit the introduction and change your starting preferences."
+};
+export type OnboardingCopy = typeof en;
+
+const copy:Record<UiLocale,OnboardingCopy> = {
+ en,
+ "zh-TW":{
+  step:"步驟",skip:"跳過引導",back:"上一步",next:"繼續",start:"開始探索",
+  welcomeTitle:"歡迎來到 Crew",welcomeDesc:"和 AI 朋友聊天、學習語言、一起玩遊戲，探索更多可能。",
+  welcomeNote:"可以先體驗免費內容，需要 AI 功能時再設定 Gemini API Key。",
+  chat:"認識 AI 朋友",chatDesc:"找到聊得來、個性不同的朋友。",
+  learn:"練習外語",learnDesc:"和 Crew 老師口說、閱讀、學習。",
+  play:"一起玩遊戲",playDesc:"和朋友玩，或先體驗離線遊戲。",
+  explore:"探索 Crew",exploreDesc:"故事、人生旅程、命理與更多內容。",
+  goalTitle:"你想先體驗什麼？",goalDesc:"選一個起點，其他功能隨時都能使用。",
+  preferencesTitle:"打造你的 Crew",preferencesDesc:"這些偏好之後都能在設定中調整。",
+  uiLanguage:"介面語言",learnLanguage:"想練習的語言",
+  keyNote:"完成引導不需要 API Key，也不會要求麥克風權限。",
+  replay:"重新觀看新手引導",replayDescription:"重新認識 Crew，調整起始體驗與學習偏好。"
+ },
+ ja:{
+  step:"ステップ",skip:"スキップ",back:"戻る",next:"続ける",start:"始める",
+  welcomeTitle:"Crew へようこそ",welcomeDesc:"AI の友達と話し、語学を学び、ゲームや新しい世界を楽しもう。",
+  welcomeNote:"無料の機能から試せます。AI が必要になったら Gemini API キーを設定してください。",
+  chat:"AI の友達と話す",chatDesc:"気の合う個性豊かな友達を見つけよう。",
+  learn:"語学を練習",learnDesc:"Crew の先生と会話・読書・学習。",
+  play:"ゲームで遊ぶ",playDesc:"一緒に遊んだり、オフラインで試したり。",
+  explore:"Crew を探索",exploreDesc:"物語、人生のタイムライン、占いなど。",
+  goalTitle:"まず何を試しますか？",goalDesc:"最初の体験を選んでください。ほかの機能もいつでも使えます。",
+  preferencesTitle:"あなたの Crew に",preferencesDesc:"これらの設定は後から変更できます。",
+  uiLanguage:"表示言語",learnLanguage:"練習する言語",
+  keyNote:"ガイドの完了に API キーやマイクの許可は不要です。",
+  replay:"ウェルカムガイドをもう一度",replayDescription:"Crew の紹介を見直し、最初の設定を変更します。"
+ },
+ es:{
+  step:"Paso",skip:"Omitir",back:"Atrás",next:"Continuar",start:"Empezar",
+  welcomeTitle:"Te damos la bienvenida a Crew",welcomeDesc:"Habla con amigos de IA, aprende idiomas, juega y descubre.",
+  welcomeNote:"Empieza con actividades gratuitas. Configura tu clave de Gemini solo cuando uses IA.",
+  chat:"Conoce amigos de IA",chatDesc:"Encuentra personalidades con las que conectar.",
+  learn:"Practica idiomas",learnDesc:"Habla, lee y aprende con profesores de Crew.",
+  play:"Juega",playDesc:"Juega en compañía o sin conexión.",
+  explore:"Explora Crew",exploreDesc:"Historias, líneas de vida, astrología y más.",
+  goalTitle:"¿Qué quieres probar primero?",goalDesc:"Elige por dónde empezar. Todo seguirá disponible.",
+  preferencesTitle:"Personaliza Crew",preferencesDesc:"Puedes cambiar estos ajustes más adelante.",
+  uiLanguage:"Idioma de la interfaz",learnLanguage:"Idioma para practicar",
+  keyNote:"No necesitas clave de API ni permiso de micrófono para terminar.",
+  replay:"Volver a ver la guía inicial",replayDescription:"Repasa Crew y ajusta tus preferencias."
+ },
+ "pt-BR":{
+  step:"Etapa",skip:"Pular",back:"Voltar",next:"Continuar",start:"Começar",
+  welcomeTitle:"Boas-vindas ao Crew",welcomeDesc:"Converse com amigos de IA, aprenda idiomas, jogue e descubra novidades.",
+  welcomeNote:"Comece com atividades gratuitas. Configure a chave Gemini apenas ao usar IA.",
+  chat:"Conheça amigos de IA",chatDesc:"Encontre personalidades com quem conversar.",
+  learn:"Pratique idiomas",learnDesc:"Converse, leia e aprenda com professores do Crew.",
+  play:"Jogue",playDesc:"Jogue em companhia ou no modo offline.",
+  explore:"Explore o Crew",exploreDesc:"Histórias, linhas do tempo, astrologia e mais.",
+  goalTitle:"O que quer experimentar primeiro?",goalDesc:"Escolha por onde começar. Tudo continua disponível.",
+  preferencesTitle:"Deixe o Crew com a sua cara",preferencesDesc:"Você pode alterar essas preferências depois.",
+  uiLanguage:"Idioma da interface",learnLanguage:"Idioma para praticar",
+  keyNote:"Não é necessário ter chave de API nem liberar o microfone.",
+  replay:"Ver a introdução novamente",replayDescription:"Reveja o Crew e ajuste suas preferências."
+ },
+ id:{
+  step:"Langkah",skip:"Lewati",back:"Kembali",next:"Lanjut",start:"Mulai",
+  welcomeTitle:"Selamat datang di Crew",welcomeDesc:"Mengobrol dengan teman AI, belajar bahasa, bermain, dan menjelajah.",
+  welcomeNote:"Coba aktivitas gratis lebih dahulu. Atur kunci Gemini saat memerlukan AI.",
+  chat:"Kenali teman AI",chatDesc:"Temukan teman dengan kepribadian yang cocok.",
+  learn:"Latihan bahasa",learnDesc:"Berbicara, membaca, dan belajar bersama guru Crew.",
+  play:"Main game",playDesc:"Bermain bersama atau mencoba game offline.",
+  explore:"Jelajahi Crew",exploreDesc:"Cerita, perjalanan hidup, ramalan, dan lainnya.",
+  goalTitle:"Mau mencoba apa lebih dulu?",goalDesc:"Pilih titik awal. Semua fitur tetap tersedia.",
+  preferencesTitle:"Sesuaikan Crew",preferencesDesc:"Preferensi ini bisa diubah kapan saja.",
+  uiLanguage:"Bahasa antarmuka",learnLanguage:"Bahasa untuk dipelajari",
+  keyNote:"Tidak perlu kunci API atau izin mikrofon untuk menyelesaikan panduan.",
+  replay:"Lihat panduan awal lagi",replayDescription:"Kenali kembali Crew dan ubah preferensi awal."
+ },
+ fr:{
+  step:"Étape",skip:"Passer",back:"Retour",next:"Continuer",start:"Commencer",
+  welcomeTitle:"Bienvenue dans Crew",welcomeDesc:"Discutez avec des amis IA, apprenez des langues, jouez et explorez.",
+  welcomeNote:"Essayez d'abord les activités gratuites. Ajoutez une clé Gemini seulement pour l'IA.",
+  chat:"Rencontrer des amis IA",chatDesc:"Trouvez des personnalités avec qui échanger.",
+  learn:"Pratiquer les langues",learnDesc:"Parlez, lisez et apprenez avec les professeurs Crew.",
+  play:"Jouer",playDesc:"Jouez ensemble ou essayez un jeu hors ligne.",
+  explore:"Explorer Crew",exploreDesc:"Histoires, chronologies, astrologie et bien plus.",
+  goalTitle:"Que souhaitez-vous essayer d'abord ?",goalDesc:"Choisissez un point de départ. Tout reste accessible.",
+  preferencesTitle:"Personnalisez Crew",preferencesDesc:"Vous pourrez modifier ces préférences plus tard.",
+  uiLanguage:"Langue de l'interface",learnLanguage:"Langue à pratiquer",
+  keyNote:"Aucune clé API ni autorisation du microphone n'est requise ici.",
+  replay:"Revoir le guide de bienvenue",replayDescription:"Redécouvrez Crew et modifiez vos préférences."
+ },
+ de:{
+  step:"Schritt",skip:"Überspringen",back:"Zurück",next:"Weiter",start:"Loslegen",
+  welcomeTitle:"Willkommen bei Crew",welcomeDesc:"Mit KI-Freunden sprechen, Sprachen lernen, spielen und Neues entdecken.",
+  welcomeNote:"Teste zuerst kostenlose Angebote. Richte den Gemini-API-Schlüssel erst bei Bedarf ein.",
+  chat:"KI-Freunde treffen",chatDesc:"Finde Persönlichkeiten, mit denen du gern redest.",
+  learn:"Sprachen üben",learnDesc:"Mit Crew-Lehrern sprechen, lesen und lernen.",
+  play:"Spiele spielen",playDesc:"Gemeinsam spielen oder offline ausprobieren.",
+  explore:"Crew entdecken",exploreDesc:"Geschichten, Lebenswege, Horoskope und mehr.",
+  goalTitle:"Was möchtest du zuerst ausprobieren?",goalDesc:"Wähle deinen Einstieg. Alles andere bleibt verfügbar.",
+  preferencesTitle:"Mach Crew zu deinem",preferencesDesc:"Diese Einstellungen kannst du später ändern.",
+  uiLanguage:"Sprache der Oberfläche",learnLanguage:"Sprache zum Üben",
+  keyNote:"Für diese Einführung sind weder API-Schlüssel noch Mikrofonzugriff nötig.",
+  replay:"Einführung erneut ansehen",replayDescription:"Lerne Crew nochmals kennen und passe deine Vorlieben an."
+ },
+ ko:{
+  step:"단계",skip:"건너뛰기",back:"이전",next:"계속",start:"시작하기",
+  welcomeTitle:"Crew에 오신 것을 환영합니다",welcomeDesc:"AI 친구와 대화하고 언어를 배우며 게임과 새로운 경험을 즐겨보세요.",
+  welcomeNote:"무료 기능부터 시작하세요. AI가 필요할 때만 Gemini API 키를 설정하면 됩니다.",
+  chat:"AI 친구 만나기",chatDesc:"잘 맞는 다양한 성격의 친구를 찾아보세요.",
+  learn:"외국어 연습하기",learnDesc:"Crew 선생님과 말하고 읽으며 배워보세요.",
+  play:"게임하기",playDesc:"함께하거나 오프라인 게임을 즐겨보세요.",
+  explore:"Crew 탐색하기",exploreDesc:"이야기, 인생 타임라인, 운세 등 다양한 콘텐츠.",
+  goalTitle:"무엇부터 해볼까요?",goalDesc:"시작할 곳을 선택하세요. 모든 기능은 언제든 이용할 수 있습니다.",
+  preferencesTitle:"나만의 Crew 만들기",preferencesDesc:"이 설정은 나중에 언제든 바꿀 수 있습니다.",
+  uiLanguage:"화면 언어",learnLanguage:"연습할 언어",
+  keyNote:"안내를 끝내는 데 API 키나 마이크 권한은 필요하지 않습니다.",
+  replay:"시작 안내 다시 보기",replayDescription:"Crew를 다시 살펴보고 시작 설정을 바꿉니다."
+ },
+ vi:{
+  step:"Bước",skip:"Bỏ qua",back:"Quay lại",next:"Tiếp tục",start:"Bắt đầu",
+  welcomeTitle:"Chào mừng đến với Crew",welcomeDesc:"Trò chuyện với bạn AI, học ngôn ngữ, chơi game và khám phá.",
+  welcomeNote:"Hãy thử các hoạt động miễn phí trước. Chỉ cần khóa Gemini khi dùng AI.",
+  chat:"Gặp bạn AI",chatDesc:"Tìm người bạn có tính cách phù hợp.",
+  learn:"Luyện ngoại ngữ",learnDesc:"Nói, đọc và học cùng giáo viên Crew.",
+  play:"Chơi trò chơi",playDesc:"Chơi cùng nhau hoặc chơi ngoại tuyến.",
+  explore:"Khám phá Crew",exploreDesc:"Truyện, dòng thời gian cuộc đời, tử vi và hơn nữa.",
+  goalTitle:"Bạn muốn thử gì trước?",goalDesc:"Chọn điểm khởi đầu. Các tính năng khác luôn sẵn có.",
+  preferencesTitle:"Crew dành cho bạn",preferencesDesc:"Bạn có thể thay đổi tùy chọn trong Cài đặt.",
+  uiLanguage:"Ngôn ngữ giao diện",learnLanguage:"Ngôn ngữ muốn luyện",
+  keyNote:"Không cần khóa API hoặc quyền micro để hoàn tất hướng dẫn.",
+  replay:"Xem lại hướng dẫn chào mừng",replayDescription:"Khám phá lại Crew và chỉnh tùy chọn ban đầu."
+ },
+ th:{
+  step:"ขั้นตอน",skip:"ข้าม",back:"ย้อนกลับ",next:"ต่อไป",start:"เริ่มใช้งาน",
+  welcomeTitle:"ยินดีต้อนรับสู่ Crew",welcomeDesc:"คุยกับเพื่อน AI ฝึกภาษา เล่นเกม และสำรวจสิ่งใหม่ ๆ",
+  welcomeNote:"ลองกิจกรรมฟรีก่อน ตั้งค่า Gemini API Key เมื่อจำเป็นต้องใช้ AI",
+  chat:"พบเพื่อน AI",chatDesc:"หาเพื่อนที่มีบุคลิกเข้ากับคุณ",
+  learn:"ฝึกภาษา",learnDesc:"พูด อ่าน และเรียนกับครู Crew",
+  play:"เล่นเกม",playDesc:"เล่นด้วยกันหรือลองเกมออฟไลน์",
+  explore:"สำรวจ Crew",exploreDesc:"เรื่องราว เส้นทางชีวิต ดูดวง และอีกมากมาย",
+  goalTitle:"อยากลองอะไรก่อน?",goalDesc:"เลือกจุดเริ่มต้น ฟีเจอร์อื่นยังใช้ได้เสมอ",
+  preferencesTitle:"ปรับ Crew ให้เหมาะกับคุณ",preferencesDesc:"เปลี่ยนการตั้งค่าเหล่านี้ภายหลังได้",
+  uiLanguage:"ภาษาของหน้าจอ",learnLanguage:"ภาษาที่ต้องการฝึก",
+  keyNote:"ไม่ต้องใช้ API Key หรืออนุญาตไมโครโฟนเพื่อจบขั้นตอนนี้",
+  replay:"ดูคำแนะนำเริ่มต้นอีกครั้ง",replayDescription:"ทำความรู้จัก Crew อีกครั้งและปรับการตั้งค่า"
+ }
+};
+
+export function getOnboardingCopy(language:string):OnboardingCopy{
+ return copy[normalizeUiLocale(language)||"en"];
+}

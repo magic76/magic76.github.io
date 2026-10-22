@@ -49,7 +49,34 @@ async function run(){
    headless:true,
    args:["--no-sandbox"]
   });
+  // Test onboarding with a genuinely fresh storage context before normal UI checks.
+  const onboardingContext=await browser.newContext({viewport:{width:390,height:844}});
+  try{
+   const first=await onboardingContext.newPage();
+   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible",timeout:15000});
+   assert.match(await first.locator("#crew-onboarding-title").textContent()||"",/歡迎來到 Crew/);
+   await first.locator(".crew-onboarding-primary").click();
+   assert.equal(await first.locator(".crew-onboarding-tile").count(),4);
+   await first.locator(".crew-onboarding-tile").filter({hasText:"練習外語"}).click();
+   await first.locator(".crew-onboarding-primary").click();
+   await first.locator(".crew-onboarding-setting select").selectOption("日文");
+   await first.locator(".crew-onboarding-primary").click();
+   await first.waitForURL(url=>url.pathname==="/learn");
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"completed");
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文");
+   await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-settings-onboarding-replay").click();
+   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible"});
+   await first.locator(".crew-onboarding-skip").click();
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"skipped");
+   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
+   assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0);
+   process.stdout.write("PASS first-run guide, language setup, skip and replay\n");
+  }finally{await onboardingContext.close();}
   const context=await browser.newContext({viewport:{width:1280,height:800}});
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   for(const route of routes){
    const errors=[];
    const page=await context.newPage();
@@ -81,6 +108,7 @@ async function run(){
     {route:"/en/",width:1280,height:800,mobile:false}
   ]){
     const view=await browser.newContext({viewport:{width:setup.width,height:setup.height},isMobile:setup.mobile,hasTouch:setup.mobile,deviceScaleFactor:1});
+    await view.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
     const page=await view.newPage();
     const errors=[];checkConsole(page,errors);
     try{
@@ -458,6 +486,7 @@ async function run(){
   // Crew Play module on a flaky connection or during a Pages deployment.
   // Recover with a single full-document refresh instead of leaving a blank app.
   const retryContext=await browser.newContext({viewport:{width:390,height:844}});
+  await retryContext.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   const retryPage=await retryContext.newPage();
   let gameChunkRequests=0;
   await retryPage.route(/\/assets\/CrewPlayHubPage-[^/]+\.js(?:\?.*)?$/,async route=>{
