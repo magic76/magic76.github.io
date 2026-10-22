@@ -30,7 +30,10 @@ let controller: AbortController | null = null;
 const listeners = new Set<() => void>();
 
 export async function checkCrewBuild() {
-  if (pending || document.visibilityState === "hidden" || navigator.onLine === false) return;
+  if (document.visibilityState === "hidden" || navigator.onLine === false) return;
+  // StrictMode subscription replay can abort an in-flight check and re-subscribe
+  // immediately; do not stall the next attempt until the polling interval.
+  if (pending && !controller?.signal.aborted) return;
   pending = true;
   const request = new AbortController();
   controller = request;
@@ -46,8 +49,10 @@ export async function checkCrewBuild() {
   } catch {
     // Offline or interrupted requests must not disrupt an active session.
   } finally {
-    if (controller === request) controller = null;
-    pending = false;
+    if (controller === request) {
+      controller = null;
+      pending = false;
+    }
   }
 }
 
