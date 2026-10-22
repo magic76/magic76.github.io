@@ -129,7 +129,8 @@ const sectionItemKeys={
 } as const;
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
- const {t,i18n}=useTranslation(["home","teacher"]);
+ const {t,i18n}=useTranslation("home");
+ const {t:tTeacher}=useTranslation("teacher");
  const clientReady=useClientReady();
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
@@ -150,8 +151,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     const vocabulary=section==="learn"&&i===0;
     return {...item,
      ...(vocabulary?{to:"/teacher/vocabulary",icon:"cards" as IconName}:{}),
-     title:vocabulary?t("learn.vocab",{ns:"teacher"}):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".title"),
-     desc:vocabulary?t("learn.vocabDesc",{ns:"teacher"}):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".desc")
+     title:vocabulary?tTeacher("learn.vocab"):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".title"),
+     desc:vocabulary?tTeacher("learn.vocabDesc"):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".desc")
     };
    })
   };

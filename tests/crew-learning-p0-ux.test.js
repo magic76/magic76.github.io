@@ -4,7 +4,7 @@ const fs=require("node:fs");
 
 const read=path=>fs.readFileSync(path,"utf8");
 
-test("the vocabulary learner sees the question before answer feedback and controls the next question",()=>{
+test("the vocabulary learner auto-advances correct answers but lets learners review incorrect ones",()=>{
  const src=read("web-spa/src/teacher/VocabularyPage.tsx");
  const answer=src.indexOf("function answer(");
  const next=src.indexOf("function nextQuestion(");
@@ -17,6 +17,10 @@ test("the vocabulary learner sees the question before answer feedback and contro
  assert.match(src,/incrementTodayVocabulary\(\)/);
  assert.match(src,/recordVocab\(word\[0\],correct\)/);
  assert.match(src,/onClick=\{nextQuestion\}/);
+ assert.match(src,/if\(correct\)\{/);
+ assert.match(src,/autoNextTimeoutRef\.current=setTimeout/);
+ assert.match(src,/advanceToQuestion\(nextPlacement\.score,nextDone\)/);
+ assert.match(src,/revealed&&picked!==word\[1\]&&<button/);
  assert.match(src,/\{revealed&&<div className="crew-learning-answer-feedback"/);
  assert.match(src,/\{word\[2\]&&<p>\{word\[2\]\}<\/p>\}/);
  assert.match(src,/setShowCompletion\(true\)/);
@@ -40,7 +44,8 @@ test("course track has featured next lesson and accessible expandable units inst
  assert.match(src,/localStorage\.setItem\(TRACK_KEY,id\)/);
  const css=read("web-spa/src/teacher/learningFlow.css");
  assert.match(css,/\.crew-course-track-tabs\{display:flex;[^}]*overflow-x:auto/);
- assert.match(css,/\.crew-learning-question \.quiz-choice\{[^}]*min-height:62px/);
+ assert.match(css,/\.crew-learning-question \.quiz-list\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.crew-learning-question \.quiz-choice\{[^}]*min-height:96px/);
 });
 
 test("course grading is visible before returning and saved before unlocking the next lesson",()=>{
