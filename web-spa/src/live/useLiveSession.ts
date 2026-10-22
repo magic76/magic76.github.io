@@ -132,6 +132,7 @@ export function useLiveSession(config:Config){
     configRef.current.language||levelSetting.targetLanguage,
     levelSetting.learnerSpeakingLevel,personalMemoryEnabled());
    const tabooEnglish=configRef.current.pageKey.startsWith("crew-play-mini-taboo-");
+    const tabooDirectGuess=configRef.current.pageKey.startsWith("crew-play-mini-taboo-direct-");
    // Content-free milestones apply only to ordinary Teacher, Friend and Timeline chat.
    // One session closure survives transport reconnects, but not a new Live start.
    const chatKind=configRef.current.pageKey==="teacher"?"teacher"
@@ -139,7 +140,7 @@ export function useLiveSession(config:Config){
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
-    system:configRef.current.system+(tabooEnglish?"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you.":""),
+    system:configRef.current.system+(tabooEnglish?(tabooDirectGuess?"\n[TABOO DIRECT GUESS] Speak English only, regardless of friend preference. For raw learner descriptions, make exactly ONE guess: 'I guess WORD.' No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result.":"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."):""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
@@ -180,7 +181,7 @@ export function useLiveSession(config:Config){
       cancelRescue();cancelFriendReplyTimer();
       // Reconnected transports can reuse an older system instruction: reassert
       // the learner's latest friend language mode without a fabricated turn.
-      if(tabooEnglish)session.sendControl?.("[TABOO LANGUAGE] Continue in English only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
+      if(tabooEnglish)session.sendControl?.(tabooDirectGuess?"[TABOO DIRECT GUESS] Continue in English only. Make exactly one one-word guess for each learner description; no preamble, reaction or follow-up.":"[TABOO LANGUAGE] Continue in English only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
       else if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
         session.sendControl?.("[FRIEND RECONNECT MODE — latest user setting wins]\\n"+configRef.current.languageDirective);
       if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
@@ -203,7 +204,7 @@ export function useLiveSession(config:Config){
       else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
       const drift=(configRef.current.languageDriftGuard?.(turn.output||"")||false)
        ||(tabooEnglish&&/[\u0400-\u04ff\u0590-\u08ff\u0900-\u097f\u3040-\u30ff\u3400-\u9fff\uac00-\ud7af]/.test(turn.output||""));
-      if(turn.hasValidOutput&&drift&&!languageRepairRef.current){
+      if(turn.hasValidOutput&&drift&&!languageRepairRef.current&&!tabooDirectGuess){
        languageRepairRef.current=true;
        // Silent control, not a fabricated learner turn. One repair per learner reply.
        const rule=tabooEnglish?"[TABOO LANGUAGE REPAIR] Use English only; rephrase briefly once without adding a question.":configRef.current.languageDirective||"";
