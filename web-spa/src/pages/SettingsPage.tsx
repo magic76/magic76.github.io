@@ -13,6 +13,8 @@ import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
 import {DAILY_GOALS,DEFAULT_GOAL_MINUTES,getDailyGoalMinutes,setDailyGoalMinutes} from "../teacher/learningToday";
 import {useClientReady} from "../lib/useClientReady";
 import {isCrewAndroidShell} from "../lib/platform";
+import {getOnboardingCopy} from "../onboarding/copy";
+import {REOPEN_ONBOARDING_EVENT} from "../onboarding/OnboardingGate";
 import "./settingsGroups.css";
 
 export function SettingsPage(){
@@ -112,6 +114,7 @@ export function SettingsPage(){
  </div>
  <section id="settings-device" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("device.heading")}</h2></div>
+  <div className="crew-settings-onboarding-card"><button type="button" className="crew-settings-onboarding-replay" onClick={()=>window.dispatchEvent(new Event(REOPEN_ONBOARDING_EVENT))}>{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replay} →</button><p className="meta">{getOnboardingCopy(i18n.resolvedLanguage||i18n.language).replayDescription}</p></div>
   <p className="meta">{ready&&isCrewAndroidShell()?t("device.android"):t("device.browser")}</p>
   <p className="meta">{t("device.storage")}</p>
   <p className="meta">{t("device.permissions")}</p>
