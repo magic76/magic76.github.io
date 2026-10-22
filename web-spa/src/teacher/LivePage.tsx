@@ -24,7 +24,7 @@ export function TeacherLivePage(){
  const {i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
  const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
- const[endingCourse,setEndingCourse]=useState(false);
+ const[endingCourse,setEndingCourse]=useState(false),[changingTeacher,setChangingTeacher]=useState(false),[teacherSwitchError,setTeacherSwitchError]=useState("");
  const textMode=p.get("chat")==="text";
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
@@ -151,6 +151,23 @@ export function TeacherLivePage(){
   }
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const changeTeacher=async()=>{
+  if(changingTeacher)return;
+  if(sessionActive){
+   const confirmation=course
+    ?english?"Changing teachers ends this lesson without a completion score. Continue?":"更換老師會結束這堂課，尚未完成的練習不會計入進度。確定繼續？"
+    :english?"Changing teachers ends the current conversation. Continue?":"更換老師會結束目前的對話，確定繼續？";
+   if(!window.confirm(confirmation))return;
+  }
+  setChangingTeacher(true);setTeacherSwitchError("");
+  try{
+   if(!textMode)await live.stop(true);
+   navigate("/teacher/roles?mode=teacher",{state:{openTeacherPicker:true}});
+  }catch{
+   setChangingTeacher(false);
+   setTeacherSwitchError(english?"Couldn't end the session. Please try again.":"無法結束目前對話，請重試。");
+  }
+ };
  const alternateParams=new URLSearchParams(p);
   if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
   const alternateHref="/teacher/live?"+alternateParams.toString();
@@ -162,6 +179,8 @@ export function TeacherLivePage(){
   <div className="live-identity">
    <div className="teacher-presence-shell" data-state={presenceState}><span className="teacher-presence-orbit" aria-hidden="true"/><div className={"teacher-live-avatar teacher-presence "+presenceState}><TeacherAvatar profile={profile}/><i className="live-presence-dot"/></div></div>
    <h1>{fortuneKind?"命理聊聊 · "+profile.name:mission?mission.title:profile.name+" 老師"}</h1>
+    <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||endingCourse}>{changingTeacher?(english?"Switching…":"切換中…"):(english?"Change teacher →":"更換老師 →")}</button>
+    {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
    <p>{fortuneKind?"命理是文化與自我探索素材；聊聊你真正關心的事情。":mission?"直接進入情境，完成任務即可。":profile.description}</p>
    {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
@@ -171,8 +190,8 @@ export function TeacherLivePage(){
   {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={profile.name} english={english} hint={course?"文字聊天不計入這堂口說課的完成評分。":undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?"正在整理課程結果":"這次練習已結束"}</b><p>{evaluating?"正在依實際對話評估任務，完成後會在下方顯示結果。":"可查看評估結果，或返回課程地圖繼續學習。"}</p></div></div>
-   :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>}
-  <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
+   :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說"/>}
+  <details className="teacher-live-quick-actions"><summary>{english?"Conversation shortcuts":"對話快捷操作"}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div></details>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
   </>}
   {!textMode&&<details className="live-more"><summary>更多功能</summary><div className="live-more-body">
