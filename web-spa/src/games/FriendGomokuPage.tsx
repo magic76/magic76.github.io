@@ -12,6 +12,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {loadScript} from "../lib/runtime";
 import {matchesBoardNarration} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
+import {GamePanel} from "./GamePanel";
 import "./games.css";
 
 const SELECTED_FRIEND_KEY="crew_web_selected_friend_v1";
@@ -281,7 +282,12 @@ export function FriendGomokuPage(){
     </section>:null}
 
     {gameStarted&&engine&&board?<section className="friend-gomoku-play" aria-label={english?"Gomoku game":"五子棋對局"}>
-      <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions">{waitingForVoice?<button type="button" className="friend-gomoku-skip" onClick={()=>{if(liveRef.current.state==="speaking")live.interrupt();commitAiMove()}}>{english?"Skip speech":"跳過語音"}</button>:null}<button type="button" className="friend-gomoku-reset" onClick={newGame}>{english?"New game":"重新開局"}</button><button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button></div></div>
+      <div className="friend-gomoku-status"><div role="status" aria-live="polite"><span className="friend-gomoku-live-dot" data-active={live.state==="listening"||live.state==="speaking"}/><strong>{turnLabel}</strong></div><div className="friend-gomoku-actions">{waitingForVoice?<button type="button" className="friend-gomoku-skip" onClick={()=>{if(liveRef.current.state==="speaking")live.interrupt();commitAiMove()}}>{english?"Skip speech":"跳過語音"}</button>:null}<button type="button" className="friend-gomoku-reset" onClick={()=>{if(window.confirm(english?"Start a new game? Current moves will be cleared.":"重新開始？本局棋步將清除。"))newGame()}}>{english?"New game":"重新開局"}</button><GamePanel title={english?"Game settings":"遊戲設定"} label={english?"Settings":"設定"}>
+ <p>{english?"Changing your friend ends the current game and voice session. Opening settings does not disconnect voice.":"更換朋友會結束本局與語音連線；單純打開設定不會斷線。"}</p>
+ <button type="button" className="friend-gomoku-reset" onClick={()=>void changeFriend()}>{english?"Change friend":"更換朋友"}</button>
+ </GamePanel><GamePanel title={english?"How to play":"五子棋規則"} label={english?"Rules":"玩法"} variant="modal">
+ <p>{english?"Place five black stones in a row horizontally, vertically, or diagonally to win. Your Crew friend plays white.":"你執黑棋、朋友執白棋，先連成橫向、縱向或斜向五顆棋子的一方獲勝。"}</p>
+ </GamePanel></div></div>
       <div className="friend-gomoku-coordinate-shell" role="group" aria-label={english?"Gomoku board with coordinates":"附有座標標示的五子棋棋盤"}>
         <div className="friend-gomoku-axis-top" aria-hidden="true">
           {Array.from({length:15},(_,x)=><span key={x} className={`friend-gomoku-axis-label${engine.lastMove?.x===x?" is-last":""}`}>{String.fromCharCode(65+x)}</span>)}
@@ -306,11 +312,13 @@ export function FriendGomokuPage(){
         <span>{english?"Letters A–O → columns · Numbers 1–15 ↓ rows":"字母 A–O → 欄位 · 數字 1–15 ↓ 列數"}</span>
         {lastCoordinate?<strong>{english?"Last move":"上一手"}：{lastCoordinate}</strong>:null}
       </p>
+      <div className="friend-gomoku-voice-dock">
       <div className="friend-gomoku-companion">
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
         <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><span>{live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}</span></div>
       </div>
       {live.state==="idle"||live.state==="ended"?<button className="friend-gomoku-start-voice" type="button" onClick={()=>void live.start()}>{english?"Turn on voice chat (optional)":"開啟語音陪玩（選用）"}</button>:<LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt/>}
+      </div>
       {lastEvent?<p className="friend-gomoku-last-event" aria-live="polite">{lastEvent}</p>:null}
     </section>:null}
     <p className="friend-gomoku-note">{english?"The conversation is used for this game session and is not added to your friend’s chat history or memories.":"這次陪玩對話只用於本局，不會寫入朋友的聊天紀錄或共同回憶。"}</p>
