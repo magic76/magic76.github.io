@@ -2,7 +2,7 @@ import {useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useLocation} from "react-router-dom";
 import i18n,{loadUiLocale,type UiLocale,UI_LOCALES} from "./index";
-import {UI_LOCALE_CATALOG,localePrefix,normalizeUiLocale} from "./localeCatalog";
+import {UI_LOCALE_CATALOG,UI_LOCALE_KEY,localePrefix,normalizeUiLocale} from "./localeCatalog";
 import "./languageSwitcher.css";
 
 /**
@@ -29,18 +29,22 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   dialogRef.current?.close();
   setOpen(false);
  }
+ function rememberManualChoice(next:UiLocale){
+  try{localStorage.setItem(UI_LOCALE_KEY,next)}catch{/* Restricted storage still allows this-session switching. */}
+ }
  async function chooseLocale(next:UiLocale){
   if(!UI_LOCALES.includes(next)||changing)return;
   if(next===current){closePicker();return;}
   if(window.location.pathname.startsWith("/crew-app/")){
    setChanging(true);setFailed(false);
-   try{await loadUiLocale(next);await i18n.changeLanguage(next);closePicker();}
+   try{await loadUiLocale(next);await i18n.changeLanguage(next);rememberManualChoice(next);closePicker();}
    catch{setFailed(true);}
    finally{setChanging(false);}
   } else{closePicker();
+   rememberManualChoice(next);
    // Keep the existing route, query and hash while replacing its locale prefix.
    const path=localePrefix(next)+(location.pathname.startsWith("/")?location.pathname:"/"+location.pathname);
-   window.location.assign(path+location.search+location.hash);
+   window.location.replace(path+location.search+location.hash);
   }
  }
 

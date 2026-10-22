@@ -1,6 +1,6 @@
 import i18n from "i18next";
 import {initReactI18next} from "react-i18next";
-import {normalizeUiLocale,localeFromPublicPath,UI_LOCALES,UI_LOCALE_KEY} from "./localeCatalog";
+import {normalizeUiLocale,resolveInitialUiLocale,UI_LOCALES,UI_LOCALE_KEY} from "./localeCatalog";
 export {normalizeUiLocale,UI_LOCALES,UI_LOCALE_KEY,SEO_PRIORITY_LOCALES,PUBLISHED_SEO_LOCALES} from "./localeCatalog";
 export type {UiLocale} from "./localeCatalog";
 
@@ -20,21 +20,16 @@ import enFriends from "./locales/en/friends.json";
 import enTeacher from "./locales/en/teacher.json";
 
 function initialLocale(){
- // A public path determines the displayed language even when a stored preference differs.
- // Legacy HashRouter /crew-app is intentionally controlled by the user's stored choice.
- if(typeof window!=="undefined"&&!window.location.pathname.startsWith("/crew-app/")){
-  return localeFromPublicPath(window.location.pathname)||"zh-TW";
- }
- try {
-  const saved=normalizeUiLocale(localStorage.getItem(UI_LOCALE_KEY));
-  if(saved)return saved;
- }catch{/* Restricted storage must not block first paint. */}
- const preferences=typeof navigator==="undefined"?[]:navigator.languages?.length?navigator.languages:[navigator.language];
- for(const value of preferences){
-  const locale=normalizeUiLocale(value);
-  if(locale)return locale;
- }
- return "zh-TW";
+ if(typeof window==="undefined")return "zh-TW";
+ let saved:string|null=null;
+ try{saved=localStorage.getItem(UI_LOCALE_KEY)}catch{/* Restricted storage must not block first paint. */}
+ const preferences=navigator.languages?.length?navigator.languages:[navigator.language];
+ return resolveInitialUiLocale({
+  pathname:window.location.pathname,
+  storedLocale:saved,
+  browserLanguages:preferences,
+  userAgent:navigator.userAgent
+ });
 }
 // Keep translated UI catalogs out of the entry bundle. Vite puts each JSON
 // into its own on-demand chunk, and only the active locale is fetched.
@@ -78,7 +73,7 @@ void i18n.use(initReactI18next).init({
 function applyLocale(language:string){
  const locale=normalizeUiLocale(language)||"zh-TW";
  if(typeof document!=="undefined")document.documentElement.lang=locale;
- try{localStorage.setItem(UI_LOCALE_KEY,locale)}catch{/* Private browsing can restrict localStorage. */}
+ // Only explicit selections in LanguageSwitcher persist; direct links must not override the user\'s saved preference.
 }
 i18n.on("languageChanged",applyLocale);
 applyLocale(i18n.language);

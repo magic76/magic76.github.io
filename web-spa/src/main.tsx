@@ -16,8 +16,8 @@ import "./guides/guides.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";
-import {localeResourcesReady} from "./i18n";
-import {localeFromPublicPath,localePrefix} from "./i18n/localeCatalog";
+import i18n,{localeResourcesReady} from "./i18n";
+import {localeFromPublicPath,localePrefix,normalizeUiLocale,preferredPublicLocaleDestination} from "./i18n/localeCatalog";
 import { App } from "./App";
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
@@ -59,7 +59,17 @@ const prerenderedPath=root.dataset.crewSsgPath;
 // Only hydrate when the delivered SSG HTML belongs to this exact route.
 // The root-index SPA fallback is intentionally NOT hydrated for deep links.
 // Wait only for the active locale, never for all nine languages.
-void localeResourcesReady.then(()=>{
- if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
- else createRoot(root).render(app);
-});
+// Select a localized public URL before hydration, preserving the page and query.
+// Native Android WebView loads the same Crew home URL and follows this path.
+const destination=!legacy?preferredPublicLocaleDestination(
+ window.location.pathname,normalizeUiLocale(i18n.language)||"en",
+ window.location.search,window.location.hash,navigator.userAgent
+):null;
+if(destination){
+ window.location.replace(destination);
+} else {
+ void localeResourcesReady.then(()=>{
+  if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
+  else createRoot(root).render(app);
+ });
+}
