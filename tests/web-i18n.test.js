@@ -152,6 +152,7 @@ test("Explore uses translations for all six cards and all 11 selectable UI langu
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.ok(hub.includes('useTranslation("home")'));
  assert.ok(hub.includes('t("sectionExplore.title")'));
+ assert.ok(hub.includes('const kinds=["timeline","games","story","research","circle"]'));
  const locales=JSON.parse(read("config/ui-locales.json")).locales.map(item=>item.code);
  assert.equal(locales.length,11);
  for(const language of locales){
