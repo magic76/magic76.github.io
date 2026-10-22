@@ -279,5 +279,34 @@
     "hooksDetails": "Conte mais",
     "hooksFeelings": "Como você se sente?",
     "hooksNext": "O que aconteceu depois?"
+  },
+  "sectionExplore": {
+    "title": "Explorar",
+    "intro": "O que você quer descobrir hoje? Escolha algo que desperte sua curiosidade.",
+    "destinations": "Opções para explorar",
+    "fortune": {
+      "title": "Explore seu destino",
+      "desc": "Veja seus mapas, leituras anteriores, novas análises e explicações dos amigos Crew."
+    },
+    "timeline": {
+      "title": "Linha do tempo",
+      "desc": "Conheça a vida e as escolhas dos personagens em diferentes idades."
+    },
+    "games": {
+      "title": "Jogos interativos",
+      "desc": "Mistérios, Taboo, adivinhação 1A2B e muito mais."
+    },
+    "story": {
+      "title": "Histórias interativas",
+      "desc": "Crie, leia e explore histórias com Crew."
+    },
+    "research": {
+      "title": "Pesquisa em IA",
+      "desc": "Descubra pesquisas, tecnologias e novidades em inteligência artificial."
+    },
+    "circle": {
+      "title": "Comunidade",
+      "desc": "Compartilhe, troque itens e participe da comunidade."
+    }
   }
 }

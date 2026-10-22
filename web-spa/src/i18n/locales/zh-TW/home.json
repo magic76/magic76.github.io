@@ -279,5 +279,34 @@
     "hooksDetails": "怎麼回事？",
     "hooksFeelings": "你現在怎麼想？",
     "hooksNext": "後來呢？"
+  },
+  "sectionExplore": {
+    "title": "探索",
+    "intro": "今天想探索什麼？選一件讓你好奇的事，從這裡開始。",
+    "destinations": "探索功能",
+    "fortune": {
+      "title": "命理探索 Fortune",
+      "desc": "我的命盤、歷史紀錄、新命盤與 Crew Friend 講解，全部從這裡開始。"
+    },
+    "timeline": {
+      "title": "人生時光機 Timeline",
+      "desc": "遇見角色在不同年紀的生活與選擇。"
+    },
+    "games": {
+      "title": "互動遊戲",
+      "desc": "海龜湯、猜詞、1A2B 與更多遊戲。"
+    },
+    "story": {
+      "title": "互動故事 Story",
+      "desc": "創作、閱讀並探索角色的故事。"
+    },
+    "research": {
+      "title": "研究情報 Briefing",
+      "desc": "AI 技術、研究與新發現。"
+    },
+    "circle": {
+      "title": "交流圈",
+      "desc": "分享、交換與社群交流。"
+    }
   }
 }

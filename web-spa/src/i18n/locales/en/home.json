@@ -279,5 +279,34 @@
     "hooksDetails": "Tell me more",
     "hooksFeelings": "How do you feel?",
     "hooksNext": "What happened next?"
+  },
+  "sectionExplore": {
+    "title": "Explore",
+    "intro": "What are you curious about today? Choose something interesting to discover.",
+    "destinations": "Explore destinations",
+    "fortune": {
+      "title": "Fortune exploration",
+      "desc": "Your charts, saved history, new readings and friend explanations in one place."
+    },
+    "timeline": {
+      "title": "Crew Timeline",
+      "desc": "Meet the same character at different ages and life stages."
+    },
+    "games": {
+      "title": "Interactive games",
+      "desc": "Mystery stories, Taboo, numbers and more."
+    },
+    "story": {
+      "title": "Crew Story",
+      "desc": "Write, read and explore interactive stories."
+    },
+    "research": {
+      "title": "Crew Briefing",
+      "desc": "Explore AI technology and research briefings."
+    },
+    "circle": {
+      "title": "Community circle",
+      "desc": "Browse local exchange and community posts."
+    }
   }
 }
