@@ -342,6 +342,17 @@
         "max": "アウトドア派の行動家",
         "yuna": "優しく控えめ",
         "felix": "好奇心旺盛な議論好き"
+      },
+      "previous": "前の友だち",
+      "next": "次の友だち",
+      "chatWith": "{{name}} と話す",
+      "friendBios": {
+        "zoe": "日常の面白い瞬間を見つける友だち。",
+        "noah": "落ち着いて話を聞いてくれる友だち。",
+        "iris": "映画やデザイン、創造的な話が好き。",
+        "max": "アウトドアや冒険について話そう。",
+        "yuna": "自分のペースでゆっくりおしゃべり。",
+        "felix": "一つの話題を違う視点から楽しもう。"
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "今日の学習",
       "recordsLink": "学習履歴を見る",
       "threeMinuteTitle": "外国語で3分間おしゃべり",
-      "threeMinuteDesc": "テストではなく、Crew の友だちと気軽に会話を楽しもう。"
+      "threeMinuteDesc": "テストではなく、Crew の友だちと気軽に会話を楽しもう。",
+      "syncInfo": "学習記録と同期について",
+      "focusLabel": "おすすめの練習",
+      "newLabel": "ここからスタート",
+      "resumeLabel": "学習を続ける",
+      "firstTopic": "日常の自己紹介",
+      "firstDesc": "先生と出会い、簡単な自己紹介から始めましょう。",
+      "resumeDesc": "前回の進捗から先生と一緒に練習を続けましょう。",
+      "suggestedTime": "目安 5 分",
+      "startCta": "練習を始める",
+      "resumeCta": "練習を再開"
     },
     "me": {
       "title": "マイ Crew",

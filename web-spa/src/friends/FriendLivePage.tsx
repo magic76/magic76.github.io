@@ -127,7 +127,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
     <div className="live-identity">
-     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")}><FriendAvatar friend={friend}/></div>
+     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">

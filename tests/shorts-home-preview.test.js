@@ -19,7 +19,9 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  const component=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(component,/fetchShortsFeed\(controller.signal\)/);
  assert.match(component,/controller\.abort\(\)/);
- assert.match(component,/\.slice\(0,6\)/);
+ assert.match(component,/maxPosts=6/);
+ assert.match(component,/\.slice\(0,maxPosts\)/);
+ assert.match(component,/excludeFriendIds\.includes\(post\.friendId\)/);
  assert.match(component,/seen\.has\(post\.friendId\)/);
  assert.match(component,/gesture\.current/);
  assert.match(component,/ref=\{sliderRef\}/);
@@ -28,6 +30,9 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  assert.match(component,/pullRef\.current>=72/);
  assert.match(component,/navigate\("\/teacher\/shorts"\)/);
  assert.match(component,/IntersectionObserver/);
+ assert.match(component,/threshold:0.35/);
+ assert.match(component,/data-visible/);
+ assert.match(component,/prefers-reduced-motion: reduce/);
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
  assert.match(component,/to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);

@@ -317,3 +317,21 @@
 }
 @media(prefers-reduced-motion:reduce){.crew-home-action{transition:none}}
 
+
+/* A quiet secondary shelf beneath the interactive world; routes remain available. */
+.crew-home-products{border-top:1px solid var(--line);padding-top:4px}
+.crew-home-products>summary{cursor:pointer;list-style:none;min-height:var(--crew-tap-target);margin:0;color:var(--muted)}
+.crew-home-products>summary::-webkit-details-marker{display:none}
+.crew-home-products>summary h2{font-size:var(--crew-section-title);color:var(--text)}
+.crew-home-products[open]>summary{margin-bottom:12px}
+.crew-home-products[open]>summary>span{color:var(--accent)}
+.crew-home-briefing-card{min-height:0;background:var(--surface-alt);color:var(--text);border-color:var(--line);box-shadow:none}
+.crew-home-briefing-card:hover{box-shadow:var(--crew-elevation)}
+.crew-home-briefing-card>p,.crew-home-briefing-date{color:var(--muted)}
+.crew-home-briefing-emblem{border-color:var(--line);background:var(--accent-soft)}
+.crew-home-briefing-emblem svg{stroke:var(--accent)}
+.crew-home-briefing-tags span{border-color:var(--line);color:var(--muted)}
+.crew-home-card-cta{border-top-color:var(--line);color:var(--accent);min-height:44px}
+@media(hover:none),(pointer:coarse){
+ .crew-home-briefing-card:hover,.crew-home-product:hover,.crew-home-recent:hover{transform:none;box-shadow:none}
+}

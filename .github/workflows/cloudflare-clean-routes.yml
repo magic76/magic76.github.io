@@ -80,6 +80,8 @@ jobs:
       - run: node scripts/research-quality-report.mjs
       # Use Chrome preinstalled on Ubuntu runners; no browser code in production.
       - run: npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
+      # Playwright's video recorder uses its own FFmpeg binary (not the system package).
+      - run: npx playwright install ffmpeg
       - run: npm run test:browser:cloudflare
       # Build/test failures remain blocking; artifact quota alone does not block release verification.
       - uses: actions/upload-artifact@v4
@@ -89,3 +91,13 @@ jobs:
           name: cloudflare-pages-preview
           path: dist/
           retention-days: 2
+
+      # Reuse this browser smoke run for short-lived 390/430/1440px PR visual comparisons.
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        with:
+          name: crew-ui-before-after
+          path: artifacts/crew-visual-qa/*
+          retention-days: 2
+          if-no-files-found: ignore

@@ -342,6 +342,17 @@
         "max": "Amante de la aventura",
         "yuna": "Dulce y reservada",
         "felix": "Le encantan los debates"
+      },
+      "previous": "Amigos anteriores",
+      "next": "Siguientes amigos",
+      "chatWith": "Hablar con {{name}}",
+      "friendBios": {
+        "zoe": "Encuentra el humor en lo cotidiano.",
+        "noah": "Un amigo tranquilo que sabe escuchar.",
+        "iris": "Cine, diseño e ideas creativas.",
+        "max": "Aventuras y nuevos desafíos.",
+        "yuna": "Conversa sin prisas y a tu ritmo.",
+        "felix": "Explora otros puntos de vista."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Tu aprendizaje de hoy",
       "recordsLink": "Ver historial de aprendizaje",
       "threeMinuteTitle": "Habla otro idioma durante 3 minutos",
-      "threeMinuteDesc": "Practica con un amigo Crew de forma natural, sin exámenes."
+      "threeMinuteDesc": "Practica con un amigo Crew de forma natural, sin exámenes.",
+      "syncInfo": "Sobre los registros de aprendizaje",
+      "focusLabel": "Práctica recomendada",
+      "newLabel": "EMPIEZA AQUÍ",
+      "resumeLabel": "CONTINUAR PRACTICANDO",
+      "firstTopic": "Presentaciones cotidianas",
+      "firstDesc": "Conoce a tu profesor y empieza con una presentación sencilla.",
+      "resumeDesc": "Retoma tu plan de aprendizaje con tu profesor.",
+      "suggestedTime": "Sugerencia: 5 min",
+      "startCta": "Empezar a practicar",
+      "resumeCta": "Continuar la práctica"
     },
     "me": {
       "title": "Mi Crew",

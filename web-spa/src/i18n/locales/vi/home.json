@@ -342,6 +342,17 @@
         "max": "Năng động, thích phiêu lưu",
         "yuna": "Dịu dàng, kín đáo",
         "felix": "Thích trao đổi quan điểm"
+      },
+      "previous": "Bạn trước",
+      "next": "Bạn tiếp theo",
+      "chatWith": "Trò chuyện với {{name}}",
+      "friendBios": {
+        "zoe": "Tìm niềm vui trong chuyện hằng ngày.",
+        "noah": "Người bạn điềm tĩnh, biết lắng nghe.",
+        "iris": "Phim ảnh, thiết kế và ý tưởng sáng tạo.",
+        "max": "Phiêu lưu và thử thách mới.",
+        "yuna": "Trò chuyện nhẹ nhàng theo nhịp của bạn.",
+        "felix": "Khám phá những góc nhìn khác."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Học tập hôm nay",
       "recordsLink": "Xem lịch sử học tập",
       "threeMinuteTitle": "Trò chuyện ngoại ngữ trong 3 phút",
-      "threeMinuteDesc": "Luyện tập tự nhiên với bạn Crew, không cần kiểm tra."
+      "threeMinuteDesc": "Luyện tập tự nhiên với bạn Crew, không cần kiểm tra.",
+      "syncInfo": "Về lịch sử học tập",
+      "focusLabel": "Bài luyện tập đề xuất",
+      "newLabel": "BẮT ĐẦU TẠI ĐÂY",
+      "resumeLabel": "TIẾP TỤC LUYỆN TẬP",
+      "firstTopic": "Giới thiệu bản thân hằng ngày",
+      "firstDesc": "Làm quen với giáo viên và bắt đầu bằng lời giới thiệu đơn giản.",
+      "resumeDesc": "Tiếp tục kế hoạch học cùng giáo viên.",
+      "suggestedTime": "Gợi ý: 5 phút",
+      "startCta": "Bắt đầu luyện tập",
+      "resumeCta": "Tiếp tục luyện tập"
     },
     "me": {
       "title": "Crew của tôi",

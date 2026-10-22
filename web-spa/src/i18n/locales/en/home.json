@@ -342,6 +342,17 @@
         "max": "Outdoors & energy",
         "yuna": "Gentle & reserved",
         "felix": "Friendly challenger"
+      },
+      "previous": "Previous friends",
+      "next": "Next friends",
+      "chatWith": "Chat with {{name}}",
+      "friendBios": {
+        "zoe": "Find the funny side of ordinary life.",
+        "noah": "A calm friend for thoughtful chats.",
+        "iris": "Talk movies, design and creative ideas.",
+        "max": "Outdoor stories and new challenges.",
+        "yuna": "A gentle chat at your own pace.",
+        "felix": "Explore another side of an idea."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Your learning today",
       "recordsLink": "Learning records",
       "threeMinuteTitle": "Speak a language for 3 minutes",
-      "threeMinuteDesc": "Practice naturally with a Crew Friend, without a test."
+      "threeMinuteDesc": "Practice naturally with a Crew Friend, without a test.",
+      "syncInfo": "About learning records",
+      "focusLabel": "Recommended practice",
+      "newLabel": "START HERE",
+      "resumeLabel": "CONTINUE PRACTICING",
+      "firstTopic": "Everyday introductions",
+      "firstDesc": "Meet your teacher and start with a simple everyday introduction.",
+      "resumeDesc": "Pick up your learning plan with your teacher.",
+      "suggestedTime": "Suggested 5 min",
+      "startCta": "Start practicing",
+      "resumeCta": "Continue practice"
     },
     "me": {
       "title": "My Crew",

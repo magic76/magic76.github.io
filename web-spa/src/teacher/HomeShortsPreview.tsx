@@ -7,7 +7,7 @@ import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSo
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview(){
+export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:number;excludeFriendIds?:string[]}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
@@ -55,10 +55,25 @@ export function HomeShortsPreview(){
  // Show up to ten distinct friends; the full Shorts page owns the complete feed.
  const seen=new Set<string>();
  const posts=feed?.posts.filter(post=>{
-  if(seen.has(post.friendId))return false;
+  if(seen.has(post.friendId)||excludeFriendIds.includes(post.friendId))return false;
   seen.add(post.friendId);return true;
- }).slice(0,6)||[];
+ }).slice(0,maxPosts)||[];
  const followUps=shortsStoryFollowUps(feed?.posts||[]);
+ const visiblePostIds=posts.map(post=>post.id).join("|");
+ useEffect(()=>{
+  const slider=sliderRef.current;
+  if(status!=="ready"||!slider||typeof IntersectionObserver==="undefined"
+   ||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cards=Array.from(slider.querySelectorAll<HTMLElement>(".crew-home-short-card"));
+  const observer=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    entry.target.toggleAttribute("data-visible",entry.isIntersecting);
+   }
+  },{root:slider,threshold:0.35});
+  cards.forEach(card=>observer.observe(card));
+  slider.dataset.motionReady="true";
+  return()=>{observer.disconnect();delete slider.dataset.motionReady};
+ },[status,visiblePostIds]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
   const mark=()=>{if(!impressionSent.current){impressionSent.current=true;trackUsageEvent("shorts_view","shorts_home");}};
@@ -81,7 +96,7 @@ export function HomeShortsPreview(){
    <Link to="/teacher/shorts" className="crew-home-shorts-all">{t("practice.shortsAll")} <span aria-hidden="true">→</span></Link>
   </div>
   {status==="loading"&&<div className="crew-home-shorts-loading" role="status" aria-label={t("practice.shortsLoading")}>
-   {[0,1,2,3,4].map(i=><div className="crew-home-short-placeholder" key={i} aria-hidden="true"><div/><span/><span/></div>)}
+   {Array.from({length:maxPosts},(_,i)=>i).map(i=><div className="crew-home-short-placeholder" key={i} aria-hidden="true"><div/><span/><span/></div>)}
   </div>}
   {status==="error"&&<Link className="crew-home-shorts-unavailable" to="/teacher/shorts">{t("practice.shortsUnavailable")} →</Link>}
   {status==="ready"&&posts.length>0&&<>

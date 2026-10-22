@@ -175,8 +175,8 @@ export function HomePage(){
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
      ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
-    <section className="crew-home-products" aria-label="探索 Crew 產品">
-     <div className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")}</span></div>
+    <details className="crew-home-products">
+     <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
      <div className="crew-home-product-grid">
       <Link className="crew-home-product crew-home-teacher" to="/teacher">
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
@@ -195,7 +195,7 @@ export function HomePage(){
        <strong>Play</strong><small>{t("product.play")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
      </div>
-    </section>
+    </details>
 
    </div>
    <BriefingPreview/>

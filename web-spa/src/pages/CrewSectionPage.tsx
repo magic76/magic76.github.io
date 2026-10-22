@@ -1,12 +1,13 @@
+import {useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
-import {FriendAvatar} from "../friends/FriendAvatar";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
 import {TodayLearningCard} from "../teacher/TodayLearningCard";
-import {ContinueLearningCard} from "../teacher/ContinueLearningCard";
+import {LearningFocusCard} from "../teacher/LearningFocusCard";
+import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
 import "./crewExplore.css";
@@ -129,6 +130,18 @@ const sectionItemKeys={
 } as const;
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
+ const friendsSliderRef=useRef<HTMLDivElement|null>(null);
+ const [friendsPosition,setFriendsPosition]=useState({start:true,end:false});
+ const syncFriends=()=>{
+  const el=friendsSliderRef.current;if(!el)return;
+  setFriendsPosition({start:el.scrollLeft<=3,end:el.scrollLeft+el.clientWidth>=el.scrollWidth-3});
+ };
+ const browseFriends=(direction:-1|1)=>{
+  const el=friendsSliderRef.current;if(!el)return;
+  const card=el.querySelector<HTMLElement>(".crew-section-friend");
+  el.scrollBy({left:((card?.getBoundingClientRect().width||250)+13)*direction,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"});
+ };
+
  const {t,i18n}=useTranslation("home");
  const {t:tTeacher}=useTranslation("teacher");
  const clientReady=useClientReady();
@@ -157,11 +170,10 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
    })
   };
  })();
+
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className="crew-section-heading">
-   <span className="kicker">{x.eyebrow}</span>
-   <h1>{x.title}</h1>
-   <p>{x.intro}</p>
+   <span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p>
   </header>
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
@@ -172,45 +184,65 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </Link>)}
    </section>:
    <>
-  <Link to={x.hero.to} className="crew-section-hero">
-   <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
-   <span className="crew-section-hero-copy">
-    <span className="crew-section-eyebrow">{x.hero.tag}</span>
-    <strong>{x.hero.title}</strong><small>{x.hero.desc}</small>
-   </span><span className="crew-section-arrow" aria-hidden="true">→</span>
-  </Link>
-  {section==="learn"&&<section className="crew-section-learning" aria-label={t("sectionHubs.learn.learningOverview")}>
-   <div className="crew-section-row-title"><h2>{t("sectionHubs.learn.todayTitle")}</h2>
-    <Link to="/teacher/me">{t("sectionHubs.learn.recordsLink")} →</Link></div>
-   <TodayLearningCard/>
-   <ContinueLearningCard compact/>
-   <Link className="crew-section-three-minute" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
-    <span><strong>{t("sectionHubs.learn.threeMinuteTitle")}</strong>
-     <small>{t("sectionHubs.learn.threeMinuteDesc")}</small></span>
-    <span className="arrow" aria-hidden="true">→</span>
-   </Link>
-  </section>}
-  {section==="chat"&&<section className="crew-section-people" aria-label="Crew Friends">
-   <div className="crew-section-row-title"><h2>{t("sectionHubs.chat.meetFriends")}</h2>
-    <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} →</Link></div>
-   <div className="crew-section-people-grid">{CREW_FRIENDS.slice(0,6).map(friend=>
-    <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
-     <FriendAvatar friend={friend}/><strong>{friend.name}</strong>
-     <small>{t("sectionHubs.chat.friendTitles."+friend.id,{defaultValue:en?friend.titleEn:friend.titleZh})}</small>
-    </Link>
-   )}</div>
-  </section>}
-  <section className="crew-section-discover">
-   <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
-   <div className="crew-section-grid">{x.items.map(item=>
-    <Link className="crew-section-card" to={item.to} key={item.to}>
-     <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
-     <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
-     <span className="crew-section-arrow" aria-hidden="true">→</span>
-    </Link>)}{section==="me"&&<DeviceSettingsShortcut/>}</div>
-  </section>
+    {section==="chat"?
+     <>
+      <section className="crew-section-people" aria-label={t("sectionHubs.chat.meetFriends")}>
+       <div className="crew-section-row-title"><h2>{t("sectionHubs.chat.meetFriends")}</h2>
+        <div className="crew-section-people-toolbar">
+         <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} →</Link>
+         <div className="crew-section-carousel-actions">
+          <button type="button" onClick={()=>browseFriends(-1)} disabled={friendsPosition.start} aria-label={t("sectionHubs.chat.previous",{defaultValue:"Previous friends"})}>←</button>
+          <button type="button" onClick={()=>browseFriends(1)} disabled={friendsPosition.end} aria-label={t("sectionHubs.chat.next",{defaultValue:"Next friends"})}>→</button>
+         </div>
+        </div>
+       </div>
+       <div className="crew-section-people-strip" ref={friendsSliderRef} onScroll={syncFriends} role="list" aria-label={t("sectionHubs.chat.meetFriends")}>
+        {CREW_FRIENDS.slice(0,6).map(friend=>
+         <Link key={friend.id} role="listitem" className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
+          <span className="crew-section-friend-photo" aria-hidden="true">
+           <span>{friend.name.charAt(0)}</span>
+           <img className="crew-friend-avatar" src={friend.avatar} alt="" loading="lazy" decoding="async" onError={event=>{event.currentTarget.style.display="none"}}/>
+          </span>
+          <span className="crew-section-friend-copy">
+           <strong>{friend.name}</strong>
+           <small>{t("sectionHubs.chat.friendTitles."+friend.id,{defaultValue:en?friend.titleEn:friend.titleZh})}</small>
+           <span className="crew-section-friend-bio">{t("sectionHubs.chat.friendBios."+friend.id,{defaultValue:en?friend.bioEn:friend.bioZh})}</span>
+           <span className="crew-section-friend-cta">{t("sectionHubs.chat.chatWith",{name:friend.name,defaultValue:"Chat with "+friend.name})} →</span>
+          </span>
+         </Link>
+        )}
+       </div>
+      </section>
+      <div className="crew-section-chat-life"><HomeShortsPreview maxPosts={3} excludeFriendIds={CREW_FRIENDS.slice(0,6).map(friend=>friend.id)}/></div>
+     </>:
+     section==="learn"?
+      <>
+       <LearningFocusCard/>
+       <section className="crew-section-learning" aria-label={t("sectionHubs.learn.learningOverview")}>
+        <div className="crew-section-row-title"><h2>{t("sectionHubs.learn.todayTitle")}</h2>
+         <Link to="/teacher/reports">{t("sectionHubs.learn.recordsLink")} →</Link></div>
+        <TodayLearningCard compact/>
+        <Link className="crew-action-text" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>{t("sectionHubs.learn.threeMinuteTitle")} →</Link>
+       </section>
+      </>:
+      <Link to={x.hero.to} className="crew-section-hero">
+       <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
+       <span className="crew-section-hero-copy"><span className="crew-section-eyebrow">{x.hero.tag}</span>
+        <strong>{x.hero.title}</strong><small>{x.hero.desc}</small></span>
+       <span className="crew-section-arrow" aria-hidden="true">→</span>
+      </Link>
+    }
+    <section className="crew-section-discover">
+     <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
+     <div className="crew-section-grid">{x.items.filter(item=>section!=="chat"||item.to!=="/teacher/shorts").map(item=>
+      <Link className="crew-section-card" to={item.to} key={item.to}>
+       <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
+       <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
+       <span className="crew-section-arrow" aria-hidden="true">→</span>
+      </Link>)}{section==="me"&&<DeviceSettingsShortcut/>}</div>
+    </section>
    </>
   }
   {section==="me"&&<p className="crew-section-footnote">{t("sectionHubs.me.footnote")}</p>}
- </div>
+ </div>;
 }

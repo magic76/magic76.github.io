@@ -342,6 +342,17 @@
         "max": "활동적인 모험가",
         "yuna": "다정하고 수줍은 친구",
         "felix": "토론을 즐기는 친구"
+      },
+      "previous": "이전 친구",
+      "next": "다음 친구",
+      "chatWith": "{{name}}와 대화하기",
+      "friendBios": {
+        "zoe": "평범한 일상 속 재미를 찾아요.",
+        "noah": "차분하게 이야기를 들어줘요.",
+        "iris": "영화와 디자인, 창의적인 아이디어를 나눠요.",
+        "max": "모험과 새로운 도전을 즐겨요.",
+        "yuna": "자신의 속도에 맞춰 편하게 대화해요.",
+        "felix": "다른 관점에서 생각해 봐요."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "오늘의 학습",
       "recordsLink": "학습 기록 보기",
       "threeMinuteTitle": "외국어로 3분간 대화하기",
-      "threeMinuteDesc": "시험 없이 Crew 친구와 자연스럽게 이야기해 보세요."
+      "threeMinuteDesc": "시험 없이 Crew 친구와 자연스럽게 이야기해 보세요.",
+      "syncInfo": "학습 기록 및 동기화 안내",
+      "focusLabel": "추천 연습",
+      "newLabel": "여기서 시작",
+      "resumeLabel": "이어서 연습",
+      "firstTopic": "일상 자기소개",
+      "firstDesc": "선생님을 만나 간단한 자기소개부터 시작하세요.",
+      "resumeDesc": "지난 학습 계획을 이어서 연습하세요.",
+      "suggestedTime": "권장 5분",
+      "startCta": "연습 시작",
+      "resumeCta": "이어서 연습"
     },
     "me": {
       "title": "나의 Crew",

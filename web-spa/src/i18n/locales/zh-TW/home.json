@@ -342,6 +342,17 @@
         "max": "戶外行動派",
         "yuna": "慢熟療癒",
         "felix": "好奇辯論"
+      },
+      "previous": "上一位朋友",
+      "next": "下一位朋友",
+      "chatWith": "和 {{name}} 聊聊",
+      "friendBios": {
+        "zoe": "嘴快心軟，喜歡生活裡的笑點。",
+        "noah": "善於傾聽，陪你慢慢聊。",
+        "iris": "一起聊電影、設計與創意。",
+        "max": "喜歡戶外、冒險與挑戰。",
+        "yuna": "溫柔慢熱，聊聊生活小事。",
+        "felix": "喜歡從不同角度思考問題。"
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "今天的學習",
       "recordsLink": "查看學習紀錄",
       "threeMinuteTitle": "隨便聊 3 分鐘外語",
-      "threeMinuteDesc": "跟 Crew 朋友自然聊天，不用考試。"
+      "threeMinuteDesc": "跟 Crew 朋友自然聊天，不用考試。",
+      "syncInfo": "學習紀錄與同步說明",
+      "focusLabel": "推薦練習",
+      "newLabel": "從這裡開始",
+      "resumeLabel": "繼續練習",
+      "firstTopic": "和老師聊聊日常",
+      "firstDesc": "認識你的老師，從簡單的日常自我介紹開始。",
+      "resumeDesc": "接著上次的進度，繼續和老師練習。",
+      "suggestedTime": "建議 5 分鐘",
+      "startCta": "開始練習",
+      "resumeCta": "繼續練習"
     },
     "me": {
       "title": "我的 Crew",
