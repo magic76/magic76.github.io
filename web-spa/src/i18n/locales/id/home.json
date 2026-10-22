@@ -279,5 +279,34 @@
     "hooksDetails": "Ceritakan lebih lanjut",
     "hooksFeelings": "Bagaimana perasaanmu?",
     "hooksNext": "Apa yang terjadi selanjutnya?"
+  },
+  "sectionExplore": {
+    "title": "Jelajahi",
+    "intro": "Apa yang ingin kamu temukan hari ini? Pilih sesuatu yang membuatmu penasaran.",
+    "destinations": "Pilihan eksplorasi",
+    "fortune": {
+      "title": "Jelajahi ramalan",
+      "desc": "Lihat bagan, riwayat, pembacaan baru, dan penjelasan dari teman Crew."
+    },
+    "timeline": {
+      "title": "Linimasa kehidupan",
+      "desc": "Kenali kehidupan dan pilihan tokoh di berbagai usia."
+    },
+    "games": {
+      "title": "Game interaktif",
+      "desc": "Teka-teki, Taboo, tebak angka 1A2B, dan banyak lagi."
+    },
+    "story": {
+      "title": "Cerita interaktif",
+      "desc": "Buat, baca, dan jelajahi cerita bersama Crew."
+    },
+    "research": {
+      "title": "Riset AI",
+      "desc": "Temukan penelitian, teknologi, dan kabar terbaru tentang AI."
+    },
+    "circle": {
+      "title": "Komunitas",
+      "desc": "Berbagi, bertukar barang, dan terhubung dengan komunitas."
+    }
   }
 }

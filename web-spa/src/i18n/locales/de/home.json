@@ -279,5 +279,34 @@
     "hooksDetails": "Erzähl mir mehr",
     "hooksFeelings": "Wie fühlst du dich?",
     "hooksNext": "Was geschah danach?"
+  },
+  "sectionExplore": {
+    "title": "Entdecken",
+    "intro": "Was möchtest du heute erkunden? Wähle etwas, das dich neugierig macht.",
+    "destinations": "Entdeckungsbereiche",
+    "fortune": {
+      "title": "Dein Schicksal erkunden",
+      "desc": "Entdecke deine Horoskope, frühere Deutungen, neue Analysen und Erklärungen deiner Crew-Freunde."
+    },
+    "timeline": {
+      "title": "Lebenszeitreise",
+      "desc": "Erlebe das Leben und die Entscheidungen der Figuren in verschiedenen Lebensphasen."
+    },
+    "games": {
+      "title": "Interaktive Spiele",
+      "desc": "Rätsel, Taboo, Zahlenraten mit 1A2B und viele weitere Spiele."
+    },
+    "story": {
+      "title": "Interaktive Geschichten",
+      "desc": "Erfinde, lies und erkunde Geschichten mit Crew."
+    },
+    "research": {
+      "title": "KI-Forschung",
+      "desc": "Entdecke Neuigkeiten und Forschung rund um künstliche Intelligenz."
+    },
+    "circle": {
+      "title": "Community",
+      "desc": "Teile Beiträge, tausche Dinge und vernetze dich."
+    }
   }
 }

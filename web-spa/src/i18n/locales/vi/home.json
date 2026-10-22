@@ -279,5 +279,34 @@
     "hooksDetails": "Kể thêm đi",
     "hooksFeelings": "Bạn cảm thấy thế nào?",
     "hooksNext": "Sau đó thế nào?"
+  },
+  "sectionExplore": {
+    "title": "Khám phá",
+    "intro": "Hôm nay bạn muốn khám phá điều gì? Hãy chọn một điều khiến bạn tò mò.",
+    "destinations": "Các mục khám phá",
+    "fortune": {
+      "title": "Khám phá vận mệnh",
+      "desc": "Xem lá số, lịch sử luận giải, tạo lần xem mới và nghe bạn Crew giải thích."
+    },
+    "timeline": {
+      "title": "Dòng thời gian cuộc đời",
+      "desc": "Khám phá cuộc sống và lựa chọn của nhân vật ở những độ tuổi khác nhau."
+    },
+    "games": {
+      "title": "Trò chơi tương tác",
+      "desc": "Câu đố bí ẩn, Taboo, đoán số 1A2B và nhiều trò chơi khác."
+    },
+    "story": {
+      "title": "Truyện tương tác",
+      "desc": "Sáng tác, đọc và khám phá những câu chuyện cùng Crew."
+    },
+    "research": {
+      "title": "Bản tin nghiên cứu AI",
+      "desc": "Khám phá công nghệ AI, nghiên cứu và những phát hiện mới."
+    },
+    "circle": {
+      "title": "Cộng đồng",
+      "desc": "Chia sẻ, trao đổi đồ dùng và kết nối với mọi người."
+    }
   }
 }
