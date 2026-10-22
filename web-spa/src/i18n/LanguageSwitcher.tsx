@@ -44,7 +44,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
    rememberManualChoice(next);
    // Keep the existing route, query and hash while replacing its locale prefix.
    const path=localePrefix(next)+(location.pathname.startsWith("/")?location.pathname:"/"+location.pathname);
-   window.location.assign(path+location.search+location.hash);
+   window.location.replace(path+location.search+location.hash);
   }
  }
 
