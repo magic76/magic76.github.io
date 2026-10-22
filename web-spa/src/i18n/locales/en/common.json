@@ -8,7 +8,9 @@
     "beta": "Beta",
     "preview": "Preview",
     "previewHint": "Some content will appear in English",
-    "close": "Close"
+    "close": "Close",
+    "loading": "Loading language…",
+    "loadError": "This language could not be loaded. English is shown instead. Please refresh or try again."
   },
   "nav": {
     "home": "Home",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — Explore Your Chart",
     "settings": "Crew — Settings",
     "briefing": "Crew Briefing — Daily AI Research"
-  }
+  },
+  "loading": "Loading…"
 }

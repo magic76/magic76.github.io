@@ -135,6 +135,83 @@ async function run(){
     }finally{await view.close();}
   }
 
+  // Validate every on-demand Beta locale in a real browser. Keep this inside
+  // the existing Cloudflare smoke workflow to avoid extra Actions minutes.
+  for(const locale of ["ja","es","pt-BR","id","ko","fr","de","vi","th"]){
+    const homeStrings=JSON.parse(readFileSync(new URL("../web-spa/src/i18n/locales/"+locale+"/home.json",import.meta.url),"utf8"));
+    const settingsStrings=JSON.parse(readFileSync(new URL("../web-spa/src/i18n/locales/"+locale+"/settings.json",import.meta.url),"utf8"));
+    const view=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await view.addInitScript(()=>{
+      localStorage.setItem("crew_teacher_lang","日文");
+      localStorage.setItem("crew_teacher_native_lang","繁體中文");
+      localStorage.setItem("crew_teacher_chatMode","practice");
+      localStorage.setItem("crew_teacher_speakingPace","slow");
+    });
+    const page=await view.newPage(),errors=[];
+    checkConsole(page,errors);
+    try{
+      const route="/"+locale+"/games/";
+      const response=await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:30000});
+      assert.equal(response?.status(),200,locale+" direct game deep link");
+      await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator(".crew-play-hero h1").textContent())?.trim(),homeStrings.playHub.heading,locale+" translated game title");
+      assert.equal(await page.locator("html").getAttribute("lang"),locale,locale+" document locale");
+      const geometry=await page.evaluate(()=>({
+        scroll:document.documentElement.scrollWidth,
+        client:document.documentElement.clientWidth,
+        learn:localStorage.getItem("crew_teacher_lang"),
+        native:localStorage.getItem("crew_teacher_native_lang"),
+        chat:localStorage.getItem("crew_teacher_chatMode"),
+        pace:localStorage.getItem("crew_teacher_speakingPace")
+      }));
+      assert.ok(geometry.scroll<=geometry.client+2,locale+" mobile overflow: "+JSON.stringify(geometry));
+      assert.deepEqual([geometry.learn,geometry.native,geometry.chat,geometry.pace],["日文","繁體中文","practice","slow"],locale+" UI language does not change learning preferences");
+      await page.reload({waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator(".crew-play-hero h1").textContent())?.trim(),homeStrings.playHub.heading,locale+" direct refresh retains translation");
+      await page.goto(origin+"/"+locale+"/settings/",{waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator("#settings-device h2").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator("#settings-device h2").textContent())?.trim(),settingsStrings.device.heading,locale+" Settings translation");
+      await page.locator(".crew-language-trigger").first().click();
+      assert.equal(await page.locator(".crew-language-dialog[open] .crew-language-option").count(),11,locale+" no preview languages in picker");
+      await page.locator(".crew-language-dialog[open] .crew-language-close").click();
+      assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
+      // Walk the remaining user-facing destinations with the same saved
+      // learning-language settings. No screenshots/artifacts are uploaded.
+      for(const destination of ["/","/explore/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
+        const url="/"+locale+destination;
+        const response=await page.goto(origin+url,{waitUntil:"domcontentloaded",timeout:30000});
+        assert.equal(response?.status(),200,locale+" opens "+destination);
+        await page.locator("main").first().waitFor({state:"visible",timeout:15000});
+        const snapshot=await page.evaluate(()=>({
+          lang:document.documentElement.lang,
+          viewport:document.documentElement.clientWidth,
+          document:document.documentElement.scrollWidth,
+          target:localStorage.getItem("crew_teacher_lang"),
+          native:localStorage.getItem("crew_teacher_native_lang"),
+          pace:localStorage.getItem("crew_teacher_speakingPace"),
+          mode:localStorage.getItem("crew_teacher_chatMode")
+        }));
+        assert.equal(snapshot.lang,locale,locale+" remains selected on "+destination);
+        if(destination==="/explore/"){
+          const heading=page.locator(".crew-section-explore h1");
+          await heading.waitFor({state:"visible",timeout:15000});
+          assert.equal((await heading.textContent())?.trim(),homeStrings.sectionExplore.title,locale+" Explore localized heading");
+          const tiles=page.locator(".crew-explore-grid .crew-explore-tile");
+          assert.equal(await tiles.count(),6,locale+" Explore offers all destinations");
+          for(const [position,kind] of ["fortune","timeline","games","story","research","circle"].entries()){
+            assert.equal((await tiles.nth(position).locator("strong").textContent())?.trim(),homeStrings.sectionExplore[kind].title,locale+" Explore translated "+kind);
+          }
+        }
+        assert.ok(snapshot.document<=snapshot.viewport+2,locale+" overflow on "+destination+": "+JSON.stringify(snapshot));
+        assert.deepEqual([snapshot.target,snapshot.native,snapshot.pace,snapshot.mode],["日文","繁體中文","slow","practice"],locale+" learning isolation on "+destination);
+        process.stdout.write("PASS Beta route "+locale+" "+destination+"\n");
+      }
+      assert.deepEqual(errors,[],locale+" browser/console errors");
+      process.stdout.write("PASS Beta i18n mobile deep link, refresh, settings and language isolation "+locale+"\n");
+    }finally{await view.close();}
+  }
+
   // Fortune homepage and saved readings must remain accessible even when
   // external astrology engines (or the optional AI core) cannot be fetched.
   const offlineFortuneContext=await browser.newContext({viewport:{width:390,height:844}});

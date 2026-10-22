@@ -43,7 +43,8 @@
     "vedic": "Vedic astrology",
     "play": "Open this game to play a new round",
     "friend": "Chat with your Crew Friend",
-    "friendDesc": "Return to this friend's chat"
+    "friendDesc": "Return to this friend's chat",
+    "fortuneResume": "Continue reading your chart"
   },
   "actions": {
     "label": "Quick start",
@@ -127,6 +128,185 @@
         "description": "Step into a story, or write a new beginning.\nBuild a world together with AI.",
         "cta": "Open a new story"
       }
+    },
+    "bridge": "Little stories are happening here",
+    "explore": "Follow your curiosity.",
+    "possibilities": "A world of possibilities.",
+    "fortuneTitle": "A new way to see yourself",
+    "fortuneDescription": "Explore your chart with an AI friend.",
+    "timelineTitle": "Every life has another chapter",
+    "timelineDescription": "Meet different people at different ages."
+  },
+  "playHub": {
+    "back": "Home",
+    "heading": "Play with your Crew Friends",
+    "intro": "Board games, Bulls and Cows, and Taboo work without an API key. 20 Questions and Mystery require Gemini voice.",
+    "voiceRequired": "Gemini voice required",
+    "offlineOptional": "Offline · optional voice",
+    "footer": "Play board games, Bulls and Cows, and Taboo offline by typing. Voice features need a Gemini key and microphone.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Get five in a row"
+      },
+      "connect4": {
+        "title": "Connect Four",
+        "desc": "Drop discs and connect four"
+      },
+      "twenty-questions": {
+        "title": "20 Questions",
+        "desc": "Find the secret in 20 questions"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Flip discs and take the board"
+      },
+      "mystery": {
+        "title": "Mystery Stories",
+        "desc": "Solve lateral-thinking mysteries"
+      },
+      "1a2b": {
+        "title": "Bulls and Cows (1A2B)",
+        "desc": "Crack the unique-digit code"
+      },
+      "taboo": {
+        "title": "Taboo Word Game",
+        "desc": "Describe without forbidden words"
+      }
+    },
+    "allGames": "All games",
+    "yourFriend": "Your Crew Friend",
+    "changeFriend": "Change friend"
+  },
+  "timeline": {
+    "title": "{{name}}, through the years",
+    "intro": "Three lives, twelve chapters each. Swipe through a life.",
+    "compare": "Compare {{name}} across the years",
+    "chooseLife": "Choose a life",
+    "photographer": "Photographer",
+    "music": "Music & sound",
+    "travel": "Travel & culture",
+    "selectAge": "Select {{name}}'s age",
+    "years": "years",
+    "chapter": "{{name}}'s chapter",
+    "talk": "Talk with {{name}} at {{age}}",
+    "photos": "{{name}}'s life photos",
+    "previous": "Previous age",
+    "next": "Next age",
+    "swipe": "Swipe to travel through time",
+    "now": "Life right now",
+    "jump": "Jump to another chapter",
+    "conversation": "Conversation language",
+    "level": "Age doesn't change your language level. Voice uses your Gemini key.",
+    "scrapbook": "Life scrapbook",
+    "memories": "Moments you've saved with {{name}}",
+    "clearAll": "Clear all",
+    "delete": "Delete",
+    "locked": "A chapter not yet lived",
+    "topics": "What to talk about",
+    "people": "Important people",
+    "eraChild": "Childhood",
+    "eraTeens": "Teens",
+    "eraYoung": "Young adult",
+    "eraAdult": "Adulthood",
+    "eraLater": "Later life",
+    "age7": "Childhood",
+    "age10": "Little explorer",
+    "age13": "Finding myself",
+    "age16": "Teenage",
+    "age19": "Leaving home",
+    "age22": "Finding direction",
+    "age25": "Exploration",
+    "age35": "Balance",
+    "age40": "Turning point",
+    "age50": "Mentoring",
+    "age55": "New chapter",
+    "age70": "Reflection",
+    "compareBack": "Back to Timeline",
+    "compareTitle": "One life, twelve perspectives",
+    "compareIntro": "Compare fictional life chapters and challenges. These are Life Book excerpts, not past conversations.",
+    "compareOptions": "Comparison options",
+    "chooseQuestion": "Choose a question",
+    "chooseAges": "Choose 2–4 of all 12 ages",
+    "agePerspectives": "Age perspectives",
+    "copyCompare": "Copy comparison",
+    "copyDone": "Comparison copied.",
+    "copyFailed": "Unable to copy; share from the address bar.",
+    "exploreLife": "Explore {{name}}'s life",
+    "maxFour": "Compare up to four ages at once.",
+    "character": "Character",
+    "inConversation": "In conversation",
+    "ready": "Ready",
+    "fiction": "A fictional life, not a future prediction.",
+    "remember": "{{name}} can remember",
+    "myTurn": "My turn",
+    "you": "You",
+    "thisConversation": "This conversation",
+    "saved": "Saved",
+    "saveMemory": "Save this memory",
+    "memorySaved": "Saved. Reopen this or an older age to recall it.",
+    "memoryDisabled": "Memory disabled or text too short.",
+    "memoryCaption": "Only user-selected phrases become Timeline memories."
+  },
+  "shorts": {
+    "heading": "What's happening with your Crew?",
+    "intro": "Little photo stories, real phrases, and easy ways to start talking.",
+    "noteDaily": "Fictional AI friends share daily photo stories.",
+    "noteDemo": "Preview content: sample stories and third-party demo photos. AI-generated daily photos are not yet enabled.",
+    "loading": "Loading stories…",
+    "feedError": "The feed is unavailable. Try again.",
+    "retry": "Retry",
+    "moments": "Friends’ moments",
+    "stories": "stories",
+    "demoLabel": "English demo",
+    "updates": "Story updates",
+    "updatesHeading": "Your Crew has a new chapter",
+    "updatesIntro": "These are published follow-ups to stories you actually discussed.",
+    "followUp": "{{name}}'s update",
+    "ask": "Ask {{name}} what happened",
+    "ongoing": "Ongoing story",
+    "part": "Part {{part}} of {{total}}",
+    "previous": "Previously in this story",
+    "startConversation": "Start a conversation",
+    "curious": "Curious? Ask {{name}}:",
+    "like": "Like",
+    "translation": "Translation",
+    "loadingShort": "Loading…",
+    "more": "More stories",
+    "loadingMore": "Loading more stories…",
+    "progress": "Scroll for more · {{count}} / {{total}}",
+    "retryMore": "Retry loading stories",
+    "hooksDetails": "Tell me more",
+    "hooksFeelings": "How do you feel?",
+    "hooksNext": "What happened next?"
+  },
+  "sectionExplore": {
+    "title": "Explore",
+    "intro": "What are you curious about today? Choose something interesting to discover.",
+    "destinations": "Explore destinations",
+    "fortune": {
+      "title": "Fortune exploration",
+      "desc": "Your charts, saved history, new readings and friend explanations in one place."
+    },
+    "timeline": {
+      "title": "Crew Timeline",
+      "desc": "Meet the same character at different ages and life stages."
+    },
+    "games": {
+      "title": "Interactive games",
+      "desc": "Mystery stories, Taboo, numbers and more."
+    },
+    "story": {
+      "title": "Crew Story",
+      "desc": "Write, read and explore interactive stories."
+    },
+    "research": {
+      "title": "Crew Briefing",
+      "desc": "Explore AI technology and research briefings."
+    },
+    "circle": {
+      "title": "Community circle",
+      "desc": "Browse local exchange and community posts."
     }
   }
 }

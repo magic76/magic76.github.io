@@ -93,5 +93,30 @@
     "searching": "搜尋中…",
     "search": "搜尋",
     "selectedCity": "已設定出生地"
+  },
+  "landing": {
+    "missingKey": "朋友的語音講解需要 Gemini API Key，請先到設定完成。",
+    "openError": "無法開啟命盤。",
+    "title": "探索你的命盤",
+    "intro": "先看命盤、回顧過去的紀錄，或聽 Crew Friend 主動講解；想問什麼，隨時打斷就好。",
+    "latest": "你的命盤",
+    "continue": "接續你的命盤",
+    "readFull": "查看完整解讀",
+    "opening": "正在開啟…",
+    "hearFriend": "聽朋友講解",
+    "first": "第一次探索",
+    "firstTitle": "先建立你的第一份命盤",
+    "firstIntro": "從下方選擇命理系統，先算出自己的資料。計算不需要 Gemini Key，朋友語音講解再按需開啟。",
+    "create": "建立新命盤",
+    "openSettings": "前往設定",
+    "saved": "歷史命盤",
+    "myCharts": "我的命盤紀錄",
+    "viewAll": "查看全部紀錄",
+    "createTitle": "建立新命盤",
+    "choose": "選擇想探索的命理系統",
+    "exploreOther": "還不想建立命盤？",
+    "talkCulture": "聊聊不同文化的命理說法",
+    "todayReflection": "聽聽今日反思主題",
+    "disclaimer": "文化探索與每日反思並非個人運勢預測。命盤紀錄儲存在目前瀏覽器，不會自動跨裝置同步。"
   }
 }

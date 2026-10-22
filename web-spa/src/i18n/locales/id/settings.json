@@ -119,5 +119,40 @@
     "setupInvalidTitle": "Gemini Key Anda mungkin bermasalah",
     "setupInvalidDesc": "Periksa atau verifikasi ulang kunci, atau buat yang baru secara gratis. Anda akan kembali ke obrolan setelah pengaturan.",
     "setupInvalidAction": "Periksa Gemini Key"
+  },
+  "device": {
+    "privacy": "Privasi dan data",
+    "heading": "Aplikasi dan perangkat",
+    "android": "Pratinjau Crew Android Web: gunakan kamera atau galeri untuk memasukkan gambar. Izin audio tidak berubah.",
+    "browser": "Anda memakai Crew di browser. Akses kamera dan galeri bergantung pada izin browser.",
+    "storage": "Aplikasi Android, WebView, dan setiap browser menyimpan kunci Gemini serta catatan belajar secara terpisah. Data tidak tersinkron otomatis.",
+    "permissions": "Jika kamera atau mikrofon bermasalah, buka Setelan Android → Aplikasi → Crew Teacher → Izin. Izin hanya diminta saat diperlukan."
+  },
+  "group": {
+    "navAria": "Kategori pengaturan",
+    "navLearning": "Belajar",
+    "navVoice": "Suara",
+    "navMemory": "Memori",
+    "navDevice": "Perangkat",
+    "learningHeading": "Bahasa dan pembelajaran",
+    "learningIntro": "Pengaturan ini berlaku untuk sesi guru dan latihan di perangkat ini.",
+    "interfaceLanguage": "Bahasa antarmuka",
+    "targetLanguage": "Bahasa yang dipelajari",
+    "nativeLanguage": "Bahasa ibu saya",
+    "speakingLevel": "Tingkat berbicara",
+    "automatic": "Otomatis",
+    "dailyGoal": "Target bicara harian",
+    "minutes": "menit",
+    "openLearning": "Buka pusat belajar",
+    "voiceHeading": "Suara dan pelafalan",
+    "voiceIntro": "Gemini Live digunakan untuk percakapan. Pelafalan kata memakai mesin suara perangkat.",
+    "pronunciationHeading": "Pelafalan kata",
+    "pronunciationIntro": "Pilih suara bahasa Inggris dan kecepatan perangkat di halaman kosakata.",
+    "pronunciationSettings": "Buka pengaturan pelafalan",
+    "modelHeading": "Model suara Gemini Live",
+    "modelShared": "Untuk guru dan teman",
+    "modelIntro": "Pilih model untuk membandingkan pelafalan",
+    "memoryHeading": "Memori dan data",
+    "memoryIntro": "Kelola memori dan catatan belajar di browser atau WebView ini."
   }
 }

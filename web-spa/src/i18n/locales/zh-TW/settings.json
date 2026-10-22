@@ -119,5 +119,40 @@
     "setupInvalidTitle": "Gemini Key 可能無法使用",
     "setupInvalidDesc": "請檢查、重新驗證或免費建立新的 Key。設定完成後會返回對話。",
     "setupInvalidAction": "檢查 Gemini Key"
+  },
+  "device": {
+    "privacy": "隱私與資料偏好",
+    "heading": "App 與裝置",
+    "android": "Crew Android Web 預覽版：拍教材等圖片輸入可使用相機或相簿，不影響語音權限。",
+    "browser": "目前使用瀏覽器版 Crew。相機與相簿能否使用，取決於瀏覽器權限。",
+    "storage": "原生 Android、App WebView 與各瀏覽器目前各自保存 Gemini Key 和學習紀錄，不會自動同步。切換版本前不會覆蓋舊資料。",
+    "permissions": "拍照或麥克風不能使用時，請檢查 Android 設定 → 應用程式 → Crew Teacher → 權限；功能使用時才會提出權限要求。"
+  },
+  "group": {
+    "navAria": "設定分類",
+    "navLearning": "語言與學習",
+    "navVoice": "聲音與發音",
+    "navMemory": "記憶與資料",
+    "navDevice": "App 與裝置",
+    "learningHeading": "語言與學習",
+    "learningIntro": "以下設定會套用到這台裝置上的老師與語言練習。",
+    "interfaceLanguage": "介面語言",
+    "targetLanguage": "學習語言",
+    "nativeLanguage": "我的母語",
+    "speakingLevel": "口說程度",
+    "automatic": "自動判斷",
+    "dailyGoal": "每日口說目標",
+    "minutes": "分鐘",
+    "openLearning": "前往學習中心",
+    "voiceHeading": "聲音與發音",
+    "voiceIntro": "Gemini Live 用於對話；單字發音使用裝置的系統語音，不會連線到 Gemini Live。",
+    "pronunciationHeading": "單字英文發音",
+    "pronunciationIntro": "在單字練習頁選擇本機英文發音人、速度並試聽。",
+    "pronunciationSettings": "前往單字發音設定",
+    "modelHeading": "Gemini Live 語音模型",
+    "modelShared": "老師與朋友共用",
+    "modelIntro": "選擇模型，比較語音與口音表現",
+    "memoryHeading": "記憶與資料",
+    "memoryIntro": "管理此瀏覽器／WebView 內的記憶與學習資料。"
   }
 }

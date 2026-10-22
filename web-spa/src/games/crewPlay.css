@@ -296,3 +296,7 @@
  .crew-play-mystery-flip:not(.is-revealed) .crew-play-mystery-flip-back{display:none}
  .crew-play-celebration{display:none}
 }
+
+/* Long locale strings must not force mobile game cards beyond the viewport. */
+.crew-play-game-info{min-width:0;overflow-wrap:anywhere;hyphens:auto}
+.crew-play-hero h1,.crew-play-hero p,.crew-play-footer-note{overflow-wrap:anywhere}

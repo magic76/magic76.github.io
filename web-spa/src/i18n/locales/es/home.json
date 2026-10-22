@@ -43,7 +43,8 @@
     "vedic": "Astrología védica",
     "play": "Abre este juego para iniciar otra ronda",
     "friend": "Hablar con un amigo de Crew",
-    "friendDesc": "Retoma esta conversación"
+    "friendDesc": "Retoma esta conversación",
+    "fortuneResume": "Seguir leyendo tu carta"
   },
   "actions": {
     "label": "Inicio rápido",
@@ -127,6 +128,185 @@
         "description": "Entra en una historia o escribe un nuevo comienzo.\nCrea un mundo junto a la IA.",
         "cta": "Abre una nueva historia"
       }
+    },
+    "bridge": "Aquí nacen pequeñas historias",
+    "explore": "Sigue tu curiosidad.",
+    "possibilities": "Un mundo de posibilidades.",
+    "fortuneTitle": "Mírate desde otra perspectiva",
+    "fortuneDescription": "Explora tu carta con un amigo de IA.",
+    "timelineTitle": "Cada vida tiene otro capítulo",
+    "timelineDescription": "Conoce a distintas personas en diferentes etapas de su vida."
+  },
+  "playHub": {
+    "back": "Inicio",
+    "heading": "¿A qué jugamos con tus amigos Crew?",
+    "intro": "Los juegos de mesa, 1A2B y Taboo se pueden jugar por texto sin clave. 20 Preguntas y Misterios requieren voz de Gemini.",
+    "voiceRequired": "Requiere voz de Gemini",
+    "offlineOptional": "Sin conexión · voz opcional",
+    "footer": "Juega por texto a los juegos de mesa, 1A2B y Taboo sin conexión. La voz requiere una clave de Gemini y micrófono.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Cinco en raya",
+        "desc": "Consigue cinco fichas seguidas"
+      },
+      "connect4": {
+        "title": "Conecta 4",
+        "desc": "Deja caer fichas y alinea cuatro"
+      },
+      "twenty-questions": {
+        "title": "20 preguntas",
+        "desc": "Descubre el secreto en 20 preguntas"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Da la vuelta a las fichas"
+      },
+      "mystery": {
+        "title": "Historias de misterio",
+        "desc": "Resuelve enigmas con tus preguntas"
+      },
+      "1a2b": {
+        "title": "1A2B: adivina el número",
+        "desc": "Descifra un código sin dígitos repetidos"
+      },
+      "taboo": {
+        "title": "Taboo: juego de palabras",
+        "desc": "Describe sin usar palabras prohibidas"
+      }
+    },
+    "allGames": "Todos los juegos",
+    "yourFriend": "Tu amigo Crew",
+    "changeFriend": "Cambiar de amigo"
+  },
+  "timeline": {
+    "title": "La vida de {{name}} a través del tiempo",
+    "intro": "Tres vidas, doce capítulos cada una. Desliza para descubrirlas.",
+    "compare": "Compara las respuestas de {{name}} a distintas edades",
+    "chooseLife": "Elige una vida",
+    "photographer": "Fotógrafa",
+    "music": "Música y sonido",
+    "travel": "Viajes y cultura",
+    "selectAge": "Elige la edad de {{name}}",
+    "years": "años",
+    "chapter": "Capítulo de {{name}}",
+    "talk": "Habla con {{name}} a los {{age}}",
+    "photos": "Fotos de la vida de {{name}}",
+    "previous": "Edad anterior",
+    "next": "Edad siguiente",
+    "swipe": "Desliza para viajar en el tiempo",
+    "now": "Su vida ahora",
+    "jump": "Saltar a otro capítulo",
+    "conversation": "Idioma de la conversación",
+    "level": "La edad no cambia tu nivel de idioma. La voz usa tu clave de Gemini.",
+    "scrapbook": "Álbum de vida",
+    "memories": "Recuerdos guardados con {{name}}",
+    "clearAll": "Borrar todo",
+    "delete": "Eliminar",
+    "locked": "Un capítulo aún por vivir",
+    "topics": "Temas de conversación",
+    "people": "Personas importantes",
+    "eraChild": "Infancia",
+    "eraTeens": "Adolescencia",
+    "eraYoung": "Juventud",
+    "eraAdult": "Adultez",
+    "eraLater": "Vejez",
+    "age7": "Infancia",
+    "age10": "Pequeña exploradora",
+    "age13": "Buscando mi identidad",
+    "age16": "Adolescencia",
+    "age19": "Dejar el hogar",
+    "age22": "Encontrar mi camino",
+    "age25": "Exploración",
+    "age35": "Equilibrio",
+    "age40": "Cambio de rumbo",
+    "age50": "Transmitir experiencia",
+    "age55": "Nuevo capítulo",
+    "age70": "Mirar atrás",
+    "compareBack": "Volver a Timeline",
+    "compareTitle": "Una vida, doce perspectivas",
+    "compareIntro": "Compara capítulos y desafíos de vidas ficticias. Son fragmentos del Life Book, no conversaciones anteriores.",
+    "compareOptions": "Opciones de comparación",
+    "chooseQuestion": "Elige una pregunta",
+    "chooseAges": "Elige entre 2 y 4 de las 12 edades",
+    "agePerspectives": "Perspectivas por edad",
+    "copyCompare": "Copiar comparación",
+    "copyDone": "Comparación copiada.",
+    "copyFailed": "No se pudo copiar. Comparte el enlace desde la barra de direcciones.",
+    "exploreLife": "Explorar la vida de {{name}}",
+    "maxFour": "Puedes comparar hasta cuatro edades a la vez.",
+    "character": "Personaje",
+    "inConversation": "En conversación",
+    "ready": "Listo",
+    "fiction": "Una vida ficticia, no una predicción del futuro.",
+    "remember": "{{name}} puede recordar",
+    "myTurn": "Mi turno",
+    "you": "Tú",
+    "thisConversation": "Esta conversación",
+    "saved": "Guardado",
+    "saveMemory": "Guardar este recuerdo",
+    "memorySaved": "Guardado. Vuelve a esta edad o a una posterior para recordarlo.",
+    "memoryDisabled": "La memoria está desactivada o el texto es demasiado corto.",
+    "memoryCaption": "Solo las frases que elijas guardar se convertirán en recuerdos de Timeline."
+  },
+  "shorts": {
+    "heading": "¿Qué pasa con tus amigos Crew?",
+    "intro": "Pequeñas historias en fotos, frases naturales y motivos para charlar. También puedes mirar sin hablar.",
+    "noteDaily": "Tus amigos de IA ficticios comparten historias diarias con fotos.",
+    "noteDemo": "Vista previa: historias de muestra y fotos de demostración de terceros. Aún no se generan fotos diarias con IA.",
+    "loading": "Cargando historias…",
+    "feedError": "No se puede cargar el feed. Inténtalo de nuevo.",
+    "retry": "Reintentar",
+    "moments": "Momentos de tus amigos",
+    "stories": "historias",
+    "demoLabel": "Demo en inglés",
+    "updates": "Novedades de historias",
+    "updatesHeading": "Hay un nuevo capítulo en tu Crew",
+    "updatesIntro": "Son continuaciones publicadas de historias sobre las que hablaste.",
+    "followUp": "Novedades de {{name}}",
+    "ask": "Pregunta a {{name}} qué pasó",
+    "ongoing": "Historia por capítulos",
+    "part": "Parte {{part}} de {{total}}",
+    "previous": "Anteriormente en esta historia",
+    "startConversation": "Iniciar una conversación",
+    "curious": "¿Quieres saber más? Pregunta a {{name}}:",
+    "like": "Me gusta",
+    "translation": "Traducción",
+    "loadingShort": "Cargando…",
+    "more": "Más historias",
+    "loadingMore": "Cargando más historias…",
+    "progress": "Desliza para ver más · {{count}} / {{total}}",
+    "retryMore": "Reintentar carga",
+    "hooksDetails": "Cuéntame más",
+    "hooksFeelings": "¿Cómo te sientes?",
+    "hooksNext": "¿Qué pasó después?"
+  },
+  "sectionExplore": {
+    "title": "Explorar",
+    "intro": "¿Qué te gustaría descubrir hoy? Elige algo que despierte tu curiosidad.",
+    "destinations": "Destinos para explorar",
+    "fortune": {
+      "title": "Explora tu destino",
+      "desc": "Consulta tus cartas, lecturas anteriores y nuevas interpretaciones con tus amigos de Crew."
+    },
+    "timeline": {
+      "title": "Línea de vida",
+      "desc": "Descubre cómo cambian las vidas y decisiones de los personajes con la edad."
+    },
+    "games": {
+      "title": "Juegos interactivos",
+      "desc": "Misterios, Taboo, adivina números 1A2B y muchos juegos más."
+    },
+    "story": {
+      "title": "Historias interactivas",
+      "desc": "Crea, lee y explora historias junto con Crew."
+    },
+    "research": {
+      "title": "Investigación e IA",
+      "desc": "Descubre novedades, investigaciones y avances en inteligencia artificial."
+    },
+    "circle": {
+      "title": "Comunidad",
+      "desc": "Comparte, intercambia y participa en la comunidad."
     }
   }
 }

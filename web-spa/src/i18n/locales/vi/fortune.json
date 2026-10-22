@@ -93,5 +93,30 @@
     "searching": "Đang tìm…",
     "search": "Tìm kiếm",
     "selectedCity": "Đã chọn nơi sinh"
+  },
+  "landing": {
+    "missingKey": "Cần khóa API Gemini để nghe bạn bè giải thích lá số. Hãy thiết lập trong phần cài đặt.",
+    "openError": "Không thể mở lá số đã lưu.",
+    "title": "Khám phá lá số của bạn",
+    "intro": "Xem lá số, đọc lại các lần luận giải cũ hoặc nghe bạn Crew giải thích. Bạn có thể hỏi bất cứ lúc nào.",
+    "latest": "Lần luận giải mới nhất",
+    "continue": "Tiếp tục xem",
+    "readFull": "Đọc toàn bộ lá số",
+    "opening": "Đang mở…",
+    "hearFriend": "Nghe bạn giải thích",
+    "first": "Lần đầu truy cập",
+    "firstTitle": "Tạo lá số đầu tiên",
+    "firstIntro": "Chọn một hệ thống bên dưới. Có thể lập lá số không cần khóa Gemini; phần giải thích bằng giọng nói là tùy chọn.",
+    "create": "Tạo lá số",
+    "openSettings": "Mở cài đặt",
+    "saved": "Lá số đã lưu",
+    "myCharts": "Lá số của tôi",
+    "viewAll": "Xem toàn bộ lịch sử",
+    "createTitle": "Tạo lần luận giải mới",
+    "choose": "Chọn hệ thống",
+    "exploreOther": "Khám phá không cần lá số",
+    "talkCulture": "Trò chuyện về các truyền thống bói toán",
+    "todayReflection": "Chủ đề suy ngẫm hôm nay",
+    "disclaimer": "Trao đổi văn hóa và suy ngẫm hằng ngày không phải dự báo vận mệnh cá nhân. Lá số chỉ lưu trên trình duyệt này, không tự đồng bộ giữa các thiết bị."
   }
 }

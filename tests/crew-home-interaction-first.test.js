@@ -31,7 +31,10 @@ test("Recent game and friend navigation is recorded without message content",()=
  const app=read("web-spa/src/App.tsx"),home=read("web-spa/src/pages/HomePage.tsx");
  assert.match(app,/crew_home_last_activity_v1/);
  assert.match(app,/new URLSearchParams\(search\)\.get\("id"\)/);
- assert.match(home,/GAME_NAMES/);
+ assert.match(home,/GAME_IDS/);
+ assert.match(home,/home:playHub\.games\./);
+ const en=JSON.parse(read("web-spa/src/i18n/locales/en/home.json"));
+ assert.ok(en.playHub.games["1a2b"].title);
  assert.match(home,/crew_home_last_activity_v1/);
  assert.match(home,/games start a new round/);
  assert.doesNotMatch(app,/localStorage\.setItem\("crew_home_last_activity_v1"[^\n]*(transcript|messages|turns)/i);

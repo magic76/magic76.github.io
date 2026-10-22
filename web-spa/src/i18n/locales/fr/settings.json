@@ -119,5 +119,40 @@
     "setupInvalidTitle": "Votre clé Gemini ne fonctionne peut-être pas",
     "setupInvalidDesc": "Vérifiez à nouveau votre clé ou créez-en une autre gratuitement. Vous retrouverez votre discussion après la configuration.",
     "setupInvalidAction": "Vérifier la clé Gemini"
+  },
+  "device": {
+    "privacy": "Confidentialité et données",
+    "heading": "Application et appareil",
+    "android": "Aperçu Crew Android Web : ajoutez des images depuis l'appareil photo ou la galerie. Les autorisations audio restent inchangées.",
+    "browser": "Vous utilisez Crew dans un navigateur. L'accès à l'appareil photo et à la galerie dépend de ses autorisations.",
+    "storage": "Android natif, la WebView et chaque navigateur conservent séparément les clés Gemini et les données d'apprentissage. Aucune synchronisation automatique.",
+    "permissions": "En cas de souci avec la caméra ou le micro, vérifiez Paramètres Android → Applications → Crew Teacher → Autorisations. Elles sont demandées uniquement si nécessaire."
+  },
+  "group": {
+    "navAria": "Catégories des paramètres",
+    "navLearning": "Apprentissage",
+    "navVoice": "Voix",
+    "navMemory": "Mémoire",
+    "navDevice": "Appareil",
+    "learningHeading": "Langue et apprentissage",
+    "learningIntro": "Ces réglages s'appliquent aux séances avec votre professeur sur cet appareil.",
+    "interfaceLanguage": "Langue de l'interface",
+    "targetLanguage": "Langue à apprendre",
+    "nativeLanguage": "Ma langue maternelle",
+    "speakingLevel": "Niveau oral",
+    "automatic": "Automatique",
+    "dailyGoal": "Objectif oral quotidien",
+    "minutes": "min",
+    "openLearning": "Ouvrir l'espace d'apprentissage",
+    "voiceHeading": "Voix et prononciation",
+    "voiceIntro": "Gemini Live sert aux conversations. Les mots sont prononcés par la synthèse vocale de votre appareil.",
+    "pronunciationHeading": "Prononciation des mots",
+    "pronunciationIntro": "Choisissez une voix anglaise et sa vitesse sur la page de vocabulaire.",
+    "pronunciationSettings": "Ouvrir les réglages de prononciation",
+    "modelHeading": "Modèle vocal Gemini Live",
+    "modelShared": "Commun aux professeurs et amis",
+    "modelIntro": "Choisissez un modèle pour comparer la prononciation",
+    "memoryHeading": "Mémoire et données",
+    "memoryIntro": "Gérez les souvenirs et les données d'apprentissage de ce navigateur ou de cette WebView."
   }
 }

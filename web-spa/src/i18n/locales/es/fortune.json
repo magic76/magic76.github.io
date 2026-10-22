@@ -93,5 +93,30 @@
     "searching": "Buscando…",
     "search": "Buscar",
     "selectedCity": "Lugar de nacimiento seleccionado"
+  },
+  "landing": {
+    "missingKey": "Para escuchar la explicación de tu amigo necesitas una clave de Gemini API. Configúrala primero.",
+    "openError": "No se pudo abrir la carta guardada.",
+    "title": "Explora tu carta",
+    "intro": "Lee tu carta, revisa lecturas anteriores o escucha a un amigo Crew explicarla. Puedes preguntar cuando quieras.",
+    "latest": "Tu lectura más reciente",
+    "continue": "Continuar lectura",
+    "readFull": "Leer carta completa",
+    "opening": "Abriendo…",
+    "hearFriend": "Escuchar la explicación de un amigo",
+    "first": "Primera visita",
+    "firstTitle": "Crea tu primera carta",
+    "firstIntro": "Elige una tradición abajo. Puedes calcular tu carta sin clave de Gemini; la explicación de voz es opcional.",
+    "create": "Crear mi carta",
+    "openSettings": "Abrir ajustes",
+    "saved": "Cartas guardadas",
+    "myCharts": "Mis cartas guardadas",
+    "viewAll": "Ver todos los registros",
+    "createTitle": "Crear nueva lectura",
+    "choose": "Elige una tradición",
+    "exploreOther": "Explorar sin una carta",
+    "talkCulture": "Hablar sobre tradiciones adivinatorias",
+    "todayReflection": "Tema de reflexión de hoy",
+    "disclaimer": "Las conversaciones culturales y reflexiones diarias no son predicciones personales. Tus cartas se guardan en este navegador y no se sincronizan entre dispositivos."
   }
 }

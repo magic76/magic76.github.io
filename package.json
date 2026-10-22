@@ -13,7 +13,8 @@
     "shorts:preview": "node scripts/generate-shorts-daily.mjs --mode preview",
     "shorts:generate": "node scripts/generate-shorts-daily.mjs --mode preview",
     "shorts:review": "node scripts/shorts-review.mjs",
-    "shorts:submit": "node scripts/shorts-submit.mjs"
+    "shorts:submit": "node scripts/shorts-submit.mjs",
+    "check:i18n": "node scripts/check-ui-locales.mjs"
   },
   "dependencies": {
     "i18next": "^25.0.0",

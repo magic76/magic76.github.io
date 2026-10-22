@@ -93,5 +93,30 @@
     "searching": "検索中…",
     "search": "検索",
     "selectedCity": "出生地を選択しました"
+  },
+  "landing": {
+    "missingKey": "友だちの音声解説には Gemini API キーが必要です。設定から登録してください。",
+    "openError": "保存済みの命盤を開けませんでした。",
+    "title": "自分の命盤を探る",
+    "intro": "命盤を読んだり、過去の記録を見直したり、Crew の友だちに音声で解説してもらえます。質問はいつでもどうぞ。",
+    "latest": "最新の命盤",
+    "continue": "続きから見る",
+    "readFull": "命盤の解説を読む",
+    "opening": "開いています…",
+    "hearFriend": "友だちの解説を聞く",
+    "first": "初めての方へ",
+    "firstTitle": "最初の命盤を作成する",
+    "firstIntro": "下から占術を選びましょう。計算は Gemini キーなしで利用でき、音声解説は任意です。",
+    "create": "命盤を作成",
+    "openSettings": "設定を開く",
+    "saved": "保存済みの命盤",
+    "myCharts": "命盤の記録",
+    "viewAll": "すべての記録を見る",
+    "createTitle": "新しい命盤を作成",
+    "choose": "占術を選ぶ",
+    "exploreOther": "命盤なしで探索する",
+    "talkCulture": "世界の占術について話す",
+    "todayReflection": "今日の振り返り",
+    "disclaimer": "文化の話題や日々の振り返りは個人の未来予測ではありません。命盤はこのブラウザーに保存され、端末間では自動同期されません。"
   }
 }

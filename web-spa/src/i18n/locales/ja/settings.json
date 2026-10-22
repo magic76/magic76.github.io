@@ -119,5 +119,40 @@
     "setupInvalidTitle": "Gemini キーが使えない可能性があります",
     "setupInvalidDesc": "キーを確認するか、新しいキーを無料作成してください。設定後は会話に戻ります。",
     "setupInvalidAction": "Gemini キーを確認"
+  },
+  "device": {
+    "privacy": "プライバシーとデータ設定",
+    "heading": "アプリとデバイス",
+    "android": "Crew Android Web プレビューでは、カメラや写真から教材を追加できます。音声の権限には影響しません。",
+    "browser": "ブラウザー版 Crew を利用中です。カメラや写真へのアクセスはブラウザーの許可設定によります。",
+    "storage": "Android ネイティブアプリ、WebView、各ブラウザーの Gemini キーと学習記録は別々に保存され、自動同期されません。",
+    "permissions": "カメラやマイクに問題がある場合は、Android の設定 → アプリ → Crew Teacher → 権限を確認してください。必要なときにのみ許可を求めます。"
+  },
+  "group": {
+    "navAria": "設定カテゴリ",
+    "navLearning": "学習",
+    "navVoice": "音声",
+    "navMemory": "記憶",
+    "navDevice": "デバイス",
+    "learningHeading": "言語と学習",
+    "learningIntro": "ここでの設定は、この端末での先生との会話と語学練習に適用されます。",
+    "interfaceLanguage": "表示言語",
+    "targetLanguage": "学習する言語",
+    "nativeLanguage": "母語",
+    "speakingLevel": "スピーキングレベル",
+    "automatic": "自動判定",
+    "dailyGoal": "毎日の会話目標",
+    "minutes": "分",
+    "openLearning": "学習センターを開く",
+    "voiceHeading": "音声と発音",
+    "voiceIntro": "Gemini Live は会話に使用します。単語の発音には端末の音声読み上げ機能を使います。",
+    "pronunciationHeading": "単語の発音",
+    "pronunciationIntro": "端末の英語音声と速度を選び、単語ページで試聴できます。",
+    "pronunciationSettings": "発音設定を開く",
+    "modelHeading": "Gemini Live 音声モデル",
+    "modelShared": "先生と友だちで共通",
+    "modelIntro": "モデルを選び、音声やアクセントを比較します",
+    "memoryHeading": "記憶とデータ",
+    "memoryIntro": "このブラウザーや WebView に保存された記憶と学習データを管理します。"
   }
 }

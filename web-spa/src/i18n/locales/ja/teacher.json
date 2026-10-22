@@ -243,5 +243,18 @@
     "courseTitle": "次のレッスン：{{name}}",
     "conversationTitle": "今日の重点を先生と練習",
     "conversationNote": "復習やレッスンの予定はありません。会話練習を始めましょう。"
+  },
+  "practiceEntry": {
+    "timelineIntro": "7歳から70歳まで、同じ人物の6つの人生の場面を見よう。",
+    "timelineAction": "Mira の人生を探検 →",
+    "intentsAria": "会話を選ぶ",
+    "intentsHeading": "今日は何を話したい？",
+    "intentsHint": "話したいことから始めよう",
+    "shareTitle": "今日の出来事を友だちに話す",
+    "shareDesc": "レッスンやプレッシャーなしで自然に話そう。",
+    "speakTitle": "3分間おしゃべり",
+    "speakDesc": "リラックスして学習言語で会話しよう。",
+    "continueTitle": "前回の会話練習を続ける",
+    "continueDesc": "先生がこれまでの学習進度に合わせてサポートします。"
   }
 }

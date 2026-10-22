@@ -243,5 +243,18 @@
     "courseTitle": "Pelajaran berikut: {{name}}",
     "conversationTitle": "Latih fokus hari ini bersama guru",
     "conversationNote": "Tidak ada tinjauan atau pelajaran yang tertunda. Mulai sesi berbicara."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Kenali satu orang pada usia 7, 16, 25, 40, 55, atau 70 tahun.",
+    "timelineAction": "Jelajahi kehidupan Mira →",
+    "intentsAria": "Pilih percakapan",
+    "intentsHeading": "Ingin melakukan apa hari ini?",
+    "intentsHint": "Mulai dari alasan untuk berbicara",
+    "shareTitle": "Ceritakan kejadian hari ini",
+    "shareDesc": "Ngobrol santai tanpa pelajaran atau tekanan.",
+    "speakTitle": "Ngobrol 3 menit",
+    "speakDesc": "Percakapan santai dalam bahasa yang dipelajari.",
+    "continueTitle": "Lanjutkan latihan berbicara",
+    "continueDesc": "Guru menyesuaikan dengan kemajuan belajarmu."
   }
 }

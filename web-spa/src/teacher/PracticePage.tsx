@@ -17,8 +17,7 @@ import {GuideHub} from "../guides/GuideHub";
 import {HomeShortsPreview} from "./HomeShortsPreview";
 
 export function PracticePage(){
- const {t,i18n}=useTranslation("teacher");
- const english=i18n.language.startsWith("en");
+ const {t}=useTranslation("teacher");
  const ready=useClientReady();
  const storedTarget=useTeacherStore(s=>s.targetLanguage);
  const target=ready?storedTarget:"英文";
@@ -48,15 +47,15 @@ export function PracticePage(){
  </section>
  <section className="section"><Link className="feature-card" to="/timeline" style={{background:"linear-gradient(135deg,#f6f0ff,#fff)",borderColor:"#e2d6f4",display:"flex",flexDirection:"column",gap:6}}>
   <strong>Crew Timeline · Mira</strong>
-  <span>{english?"Meet one person at 7, 16, 25, 40, 55, or 70.":"認識同一個人，從 7 歲到 70 歲的六段人生。"}</span>
-  <small>{english?"Explore Mira's life →":"進入人生時光機 →"}</small>
+  <span>{t("practiceEntry.timelineIntro")}</span>
+  <small>{t("practiceEntry.timelineAction")}</small>
  </Link></section>
- <section className="section crew-daily-intents" aria-label={english?"Choose your conversation":"今天想做什麼？"}>
-  <div className="section-head"><h2>{english?"What do you feel like doing?":"今天想做什麼？"}</h2><small>{english?"Start with a reason to speak":"先選想做的事，再開始聊天"}</small></div>
+ <section className="section crew-daily-intents" aria-label={t("practiceEntry.intentsAria")}>
+  <div className="section-head"><h2>{t("practiceEntry.intentsHeading")}</h2><small>{t("practiceEntry.intentsHint")}</small></div>
   <div className="crew-intent-grid">
-   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=share"}><span className="crew-intent-icon"><Icon name="chat"/></span><strong>{english?"Share something from today":"跟朋友說說今天的事"}</strong><small>{english?"Just talk. No lesson or pressure.":"自然聊天、不必準備話題"}</small></Link>
-   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=speak"}><span className="crew-intent-icon"><Icon name="mic"/></span><strong>{english?"Chat for 3 minutes":"隨便聊 3 分鐘外語"}</strong><small>{english?"A relaxed target-language conversation.":"外語陪聊，不考試不強迫糾錯"}</small></Link>
-   <Link className="crew-intent-card" to="/teacher/live?intent=continue"><span className="crew-intent-icon"><Icon name="book"/></span><strong>{english?"Continue speaking practice":"接續上次的練習"}</strong><small>{english?"Your tutor adapts to known progress.":"老師依已知學習進度引導"}</small></Link>
+   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=share"}><span className="crew-intent-icon"><Icon name="chat"/></span><strong>{t("practiceEntry.shareTitle")}</strong><small>{t("practiceEntry.shareDesc")}</small></Link>
+   <Link className="crew-intent-card" to={"/friend/live?id="+selectedFriend+"&intent=speak"}><span className="crew-intent-icon"><Icon name="mic"/></span><strong>{t("practiceEntry.speakTitle")}</strong><small>{t("practiceEntry.speakDesc")}</small></Link>
+   <Link className="crew-intent-card" to="/teacher/live?intent=continue"><span className="crew-intent-icon"><Icon name="book"/></span><strong>{t("practiceEntry.continueTitle")}</strong><small>{t("practiceEntry.continueDesc")}</small></Link>
   </div>
  </section>
  <section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><small>{t("practice.next")}</small></div><ContinueLearningCard compact/></section>

@@ -43,7 +43,8 @@
     "vedic": "Chiêm tinh Vệ Đà",
     "play": "Mở game này để chơi ván mới",
     "friend": "Trò chuyện với bạn Crew",
-    "friendDesc": "Tiếp tục trò chuyện với người bạn này"
+    "friendDesc": "Tiếp tục trò chuyện với người bạn này",
+    "fortuneResume": "Tiếp tục xem lá số"
   },
   "actions": {
     "label": "Bắt đầu nhanh",
@@ -127,6 +128,185 @@
         "description": "Bước vào một câu chuyện hoặc viết một khởi đầu mới.\nCùng AI xây dựng cả thế giới.",
         "cta": "Mở truyện mới"
       }
+    },
+    "bridge": "Những câu chuyện nhỏ đang diễn ra ở đây",
+    "explore": "Cứ khám phá theo trí tò mò của bạn.",
+    "possibilities": "Một thế giới đầy khả năng.",
+    "fortuneTitle": "Khám phá bản thân từ góc nhìn mới",
+    "fortuneDescription": "Khám phá lá số cùng một người bạn AI.",
+    "timelineTitle": "Mỗi cuộc đời đều có chương tiếp theo",
+    "timelineDescription": "Gặp gỡ những người ở nhiều độ tuổi và lắng nghe câu chuyện của họ."
+  },
+  "playHub": {
+    "back": "Trang chủ",
+    "heading": "Chơi gì cùng bạn bè Crew hôm nay?",
+    "intro": "Trò chơi bàn cờ, 1A2B và Taboo có thể chơi bằng chữ không cần API key. 20 Câu hỏi và Bí ẩn cần giọng nói Gemini.",
+    "voiceRequired": "Cần giọng nói Gemini",
+    "offlineOptional": "Ngoại tuyến · có thể bật giọng nói",
+    "footer": "Chơi trò bàn cờ, 1A2B và Taboo bằng chữ khi ngoại tuyến. Chế độ giọng nói cần khóa Gemini và micrô.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Cờ ca-rô năm quân",
+        "desc": "Xếp năm quân liên tiếp"
+      },
+      "connect4": {
+        "title": "Nối bốn",
+        "desc": "Thả quân và nối bốn quân"
+      },
+      "twenty-questions": {
+        "title": "20 Câu hỏi",
+        "desc": "Tìm đáp án trong 20 câu hỏi"
+      },
+      "reversi": {
+        "title": "Cờ lật",
+        "desc": "Lật quân để đổi thế cờ"
+      },
+      "mystery": {
+        "title": "Chuyện bí ẩn",
+        "desc": "Giải bí ẩn bằng những câu hỏi"
+      },
+      "1a2b": {
+        "title": "Đoán số 1A2B",
+        "desc": "Giải mật mã không lặp chữ số"
+      },
+      "taboo": {
+        "title": "Taboo đoán từ",
+        "desc": "Mô tả mà không dùng từ cấm"
+      }
+    },
+    "allGames": "Tất cả trò chơi",
+    "yourFriend": "Bạn Crew của bạn",
+    "changeFriend": "Đổi bạn"
+  },
+  "timeline": {
+    "title": "Hành trình cuộc đời của {{name}}",
+    "intro": "Ba cuộc đời, mỗi người mười hai chương. Vuốt để khám phá.",
+    "compare": "So sánh câu trả lời của {{name}} ở nhiều độ tuổi",
+    "chooseLife": "Chọn một cuộc đời",
+    "photographer": "Nhiếp ảnh gia",
+    "music": "Âm nhạc và âm thanh",
+    "travel": "Du lịch và văn hóa",
+    "selectAge": "Chọn tuổi của {{name}}",
+    "years": "tuổi",
+    "chapter": "Chương đời của {{name}}",
+    "talk": "Trò chuyện với {{name}} lúc {{age}} tuổi",
+    "photos": "Ảnh cuộc đời của {{name}}",
+    "previous": "Tuổi trước",
+    "next": "Tuổi sau",
+    "swipe": "Vuốt để du hành thời gian",
+    "now": "Cuộc sống hiện tại",
+    "jump": "Chuyển đến chương khác",
+    "conversation": "Ngôn ngữ hội thoại",
+    "level": "Tuổi tác không thay đổi trình độ ngôn ngữ. Giọng nói dùng khóa Gemini hiện có.",
+    "scrapbook": "Album cuộc đời",
+    "memories": "Kỷ niệm đã lưu cùng {{name}}",
+    "clearAll": "Xóa tất cả",
+    "delete": "Xóa",
+    "locked": "Chương đời chưa trải qua",
+    "topics": "Chủ đề trò chuyện",
+    "people": "Những người quan trọng",
+    "eraChild": "Tuổi thơ",
+    "eraTeens": "Thiếu niên",
+    "eraYoung": "Thanh niên",
+    "eraAdult": "Trưởng thành",
+    "eraLater": "Về già",
+    "age7": "Tuổi thơ",
+    "age10": "Nhà thám hiểm nhỏ",
+    "age13": "Tìm chính mình",
+    "age16": "Tuổi trẻ",
+    "age19": "Rời nhà",
+    "age22": "Tìm hướng đi",
+    "age25": "Khám phá",
+    "age35": "Cân bằng",
+    "age40": "Bước ngoặt",
+    "age50": "Truyền đạt kinh nghiệm",
+    "age55": "Chương mới",
+    "age70": "Nhìn lại",
+    "compareBack": "Quay lại Timeline",
+    "compareTitle": "Một cuộc đời, mười hai góc nhìn",
+    "compareIntro": "So sánh những giai đoạn và thử thách của cuộc đời hư cấu trong Life Book, không phải lịch sử hội thoại.",
+    "compareOptions": "Tùy chọn so sánh",
+    "chooseQuestion": "Chọn câu hỏi",
+    "chooseAges": "Chọn 2–4 trong 12 độ tuổi",
+    "agePerspectives": "Góc nhìn theo độ tuổi",
+    "copyCompare": "Sao chép so sánh",
+    "copyDone": "Đã sao chép nội dung so sánh.",
+    "copyFailed": "Không thể sao chép. Hãy chia sẻ liên kết từ thanh địa chỉ.",
+    "exploreLife": "Khám phá cuộc đời {{name}}",
+    "maxFour": "Chỉ có thể so sánh tối đa bốn độ tuổi.",
+    "character": "Nhân vật",
+    "inConversation": "Đang trò chuyện",
+    "ready": "Sẵn sàng",
+    "fiction": "Cuộc đời hư cấu, không phải lời tiên đoán tương lai.",
+    "remember": "{{name}} có thể nhớ",
+    "myTurn": "Đến lượt tôi",
+    "you": "Bạn",
+    "thisConversation": "Cuộc trò chuyện này",
+    "saved": "Đã lưu",
+    "saveMemory": "Lưu kỷ niệm này",
+    "memorySaved": "Đã lưu. Quay lại tuổi này hoặc tuổi lớn hơn để nhớ lại.",
+    "memoryDisabled": "Đã tắt bộ nhớ hoặc nội dung quá ngắn.",
+    "memoryCaption": "Chỉ những câu bạn tự chọn lưu mới trở thành kỷ niệm Timeline."
+  },
+  "shorts": {
+    "heading": "Bạn bè Crew đang có chuyện gì mới?",
+    "intro": "Những câu chuyện ảnh nhỏ, câu nói tự nhiên và cách dễ dàng bắt đầu trò chuyện. Bạn cũng có thể chỉ xem.",
+    "noteDaily": "Những người bạn AI hư cấu chia sẻ chuyện ảnh mỗi ngày.",
+    "noteDemo": "Bản xem trước: chuyện mẫu và ảnh minh họa của bên thứ ba. Chưa bật tạo ảnh AI hằng ngày.",
+    "loading": "Đang tải chuyện…",
+    "feedError": "Không thể tải bảng tin. Hãy thử lại.",
+    "retry": "Thử lại",
+    "moments": "Khoảnh khắc bạn bè",
+    "stories": "câu chuyện",
+    "demoLabel": "Bản demo tiếng Anh",
+    "updates": "Cập nhật câu chuyện",
+    "updatesHeading": "Crew có chương mới",
+    "updatesIntro": "Đây là phần tiếp theo đã đăng của những chuyện bạn từng trò chuyện.",
+    "followUp": "Tin mới từ {{name}}",
+    "ask": "Hỏi {{name}} chuyện gì đã xảy ra",
+    "ongoing": "Chuyện nhiều tập",
+    "part": "Phần {{part}} / {{total}}",
+    "previous": "Tóm tắt phần trước",
+    "startConversation": "Bắt đầu trò chuyện",
+    "curious": "Tò mò ư? Hỏi {{name}}:",
+    "like": "Thích",
+    "translation": "Bản dịch",
+    "loadingShort": "Đang tải…",
+    "more": "Xem thêm chuyện",
+    "loadingMore": "Đang tải thêm chuyện…",
+    "progress": "Cuộn để xem thêm · {{count}} / {{total}}",
+    "retryMore": "Tải lại chuyện",
+    "hooksDetails": "Kể thêm đi",
+    "hooksFeelings": "Bạn cảm thấy thế nào?",
+    "hooksNext": "Sau đó thế nào?"
+  },
+  "sectionExplore": {
+    "title": "Khám phá",
+    "intro": "Hôm nay bạn muốn khám phá điều gì? Hãy chọn một điều khiến bạn tò mò.",
+    "destinations": "Các mục khám phá",
+    "fortune": {
+      "title": "Khám phá vận mệnh",
+      "desc": "Xem lá số, lịch sử luận giải, tạo lần xem mới và nghe bạn Crew giải thích."
+    },
+    "timeline": {
+      "title": "Dòng thời gian cuộc đời",
+      "desc": "Khám phá cuộc sống và lựa chọn của nhân vật ở những độ tuổi khác nhau."
+    },
+    "games": {
+      "title": "Trò chơi tương tác",
+      "desc": "Câu đố bí ẩn, Taboo, đoán số 1A2B và nhiều trò chơi khác."
+    },
+    "story": {
+      "title": "Truyện tương tác",
+      "desc": "Sáng tác, đọc và khám phá những câu chuyện cùng Crew."
+    },
+    "research": {
+      "title": "Bản tin nghiên cứu AI",
+      "desc": "Khám phá công nghệ AI, nghiên cứu và những phát hiện mới."
+    },
+    "circle": {
+      "title": "Cộng đồng",
+      "desc": "Chia sẻ, trao đổi đồ dùng và kết nối với mọi người."
     }
   }
 }

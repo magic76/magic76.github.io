@@ -8,7 +8,9 @@
     "beta": "Beta",
     "preview": "Prévia",
     "previewHint": "Parte do conteúdo será exibida em inglês",
-    "close": "Fechar"
+    "close": "Fechar",
+    "loading": "Carregando idioma…",
+    "loadError": "Não foi possível carregar este idioma. O inglês será exibido. Atualize ou tente novamente."
   },
   "nav": {
     "home": "Início",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — Explore seu mapa",
     "settings": "Crew — Configurações",
     "briefing": "Crew Briefing — Pesquisas diárias de IA"
-  }
+  },
+  "loading": "Carregando…"
 }

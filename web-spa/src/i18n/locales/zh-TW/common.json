@@ -8,7 +8,9 @@
     "beta": "測試版",
     "preview": "預覽版",
     "previewHint": "部分內容將以英文顯示",
-    "close": "關閉"
+    "close": "關閉",
+    "loading": "正在載入語言…",
+    "loadError": "語言載入失敗，已切換成英文，請重新整理或稍後再試。"
   },
   "nav": {
     "home": "首頁",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — 命盤探索",
     "settings": "Crew — 設定",
     "briefing": "Crew Briefing — 每日 AI 研究"
-  }
+  },
+  "loading": "載入中…"
 }

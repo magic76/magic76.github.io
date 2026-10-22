@@ -243,5 +243,18 @@
     "courseTitle": "Next lesson: {{name}}",
     "conversationTitle": "Practice today's focus with your teacher",
     "conversationNote": "No reviews or lessons are due. Start a speaking session."
+  },
+  "practiceEntry": {
+    "timelineIntro": "Meet one person at 7, 16, 25, 40, 55, or 70.",
+    "timelineAction": "Explore Mira's life →",
+    "intentsAria": "Choose your conversation",
+    "intentsHeading": "What do you feel like doing?",
+    "intentsHint": "Start with a reason to speak",
+    "shareTitle": "Share something from today",
+    "shareDesc": "Just talk. No lesson or pressure.",
+    "speakTitle": "Chat for 3 minutes",
+    "speakDesc": "A relaxed target-language conversation.",
+    "continueTitle": "Continue speaking practice",
+    "continueDesc": "Your tutor adapts to known progress."
   }
 }

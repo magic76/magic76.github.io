@@ -43,7 +43,8 @@
     "vedic": "Astrologie védique",
     "play": "Ouvrez ce jeu pour une nouvelle partie",
     "friend": "Discuter avec un ami Crew",
-    "friendDesc": "Reprendre la discussion avec cet ami"
+    "friendDesc": "Reprendre la discussion avec cet ami",
+    "fortuneResume": "Continuer la lecture du thème"
   },
   "actions": {
     "label": "Démarrage rapide",
@@ -127,6 +128,185 @@
         "description": "Entrez dans une histoire ou inventez un nouveau début.\nConstruisez un monde avec l'IA.",
         "cta": "Ouvrir une nouvelle histoire"
       }
+    },
+    "bridge": "De petites histoires prennent vie ici",
+    "explore": "Laissez-vous guider par votre curiosité.",
+    "possibilities": "Un monde de possibilités.",
+    "fortuneTitle": "Découvrez-vous sous un autre angle",
+    "fortuneDescription": "Explorez votre thème avec un ami IA.",
+    "timelineTitle": "Chaque vie a un nouveau chapitre",
+    "timelineDescription": "Rencontrez des personnes à différents âges et découvrez leurs histoires."
+  },
+  "playHub": {
+    "back": "Accueil",
+    "heading": "À quoi jouer avec vos amis Crew ?",
+    "intro": "Les jeux de plateau, 1A2B et Taboo se jouent par écrit sans clé API. 20 Questions et Mystères nécessitent la voix Gemini.",
+    "voiceRequired": "Voix Gemini requise",
+    "offlineOptional": "Hors ligne · voix facultative",
+    "footer": "Jouez aux jeux de plateau, à 1A2B et à Taboo hors ligne, par écrit. La voix nécessite une clé Gemini et un micro.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Alignez cinq pions"
+      },
+      "connect4": {
+        "title": "Puissance 4",
+        "desc": "Lâchez des jetons et alignez-en quatre"
+      },
+      "twenty-questions": {
+        "title": "20 questions",
+        "desc": "Trouvez le secret en 20 questions"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Retournez les pions pour prendre l'avantage"
+      },
+      "mystery": {
+        "title": "Histoires mystérieuses",
+        "desc": "Résolvez des énigmes par vos questions"
+      },
+      "1a2b": {
+        "title": "1A2B : devinez le nombre",
+        "desc": "Déchiffrez un code sans chiffres répétés"
+      },
+      "taboo": {
+        "title": "Taboo : jeu de mots",
+        "desc": "Faites deviner sans mots interdits"
+      }
+    },
+    "allGames": "Tous les jeux",
+    "yourFriend": "Votre ami Crew",
+    "changeFriend": "Changer d'ami"
+  },
+  "timeline": {
+    "title": "La vie de {{name}} au fil des années",
+    "intro": "Trois vies, douze chapitres chacune. Faites défiler pour les découvrir.",
+    "compare": "Comparez les réponses de {{name}} à différents âges",
+    "chooseLife": "Choisir une vie",
+    "photographer": "Photographe",
+    "music": "Musique et son",
+    "travel": "Voyage et culture",
+    "selectAge": "Choisir l'âge de {{name}}",
+    "years": "ans",
+    "chapter": "Chapitre de {{name}}",
+    "talk": "Parler à {{name}} à {{age}} ans",
+    "photos": "Photos de la vie de {{name}}",
+    "previous": "Âge précédent",
+    "next": "Âge suivant",
+    "swipe": "Faites défiler pour voyager dans le temps",
+    "now": "La vie aujourd'hui",
+    "jump": "Passer à un autre chapitre",
+    "conversation": "Langue de conversation",
+    "level": "L'âge ne change pas votre niveau de langue. La voix utilise votre clé Gemini.",
+    "scrapbook": "Album de vie",
+    "memories": "Souvenirs enregistrés avec {{name}}",
+    "clearAll": "Tout effacer",
+    "delete": "Supprimer",
+    "locked": "Un chapitre encore à vivre",
+    "topics": "Sujets de conversation",
+    "people": "Personnes importantes",
+    "eraChild": "Enfance",
+    "eraTeens": "Adolescence",
+    "eraYoung": "Jeune adulte",
+    "eraAdult": "Âge adulte",
+    "eraLater": "Vieillesse",
+    "age7": "Enfance",
+    "age10": "Petit explorateur",
+    "age13": "À la recherche de soi",
+    "age16": "Adolescence",
+    "age19": "Quitter le foyer",
+    "age22": "Trouver sa voie",
+    "age25": "Exploration",
+    "age35": "Équilibre",
+    "age40": "Tournant",
+    "age50": "Transmission",
+    "age55": "Nouveau chapitre",
+    "age70": "Regard en arrière",
+    "compareBack": "Retour à Timeline",
+    "compareTitle": "Une vie, douze perspectives",
+    "compareIntro": "Comparez les étapes et défis de vies fictives. Ces extraits viennent du Life Book, pas de conversations passées.",
+    "compareOptions": "Options de comparaison",
+    "chooseQuestion": "Choisir une question",
+    "chooseAges": "Choisir 2 à 4 âges sur 12",
+    "agePerspectives": "Points de vue par âge",
+    "copyCompare": "Copier la comparaison",
+    "copyDone": "Comparaison copiée.",
+    "copyFailed": "Impossible de copier. Partagez le lien depuis la barre d'adresse.",
+    "exploreLife": "Explorer la vie de {{name}}",
+    "maxFour": "Vous pouvez comparer quatre âges au maximum.",
+    "character": "Personnage",
+    "inConversation": "En conversation",
+    "ready": "Prêt",
+    "fiction": "Une vie fictive, pas une prédiction de l'avenir.",
+    "remember": "{{name}} peut se souvenir",
+    "myTurn": "À mon tour",
+    "you": "Vous",
+    "thisConversation": "Cette conversation",
+    "saved": "Enregistré",
+    "saveMemory": "Enregistrer ce souvenir",
+    "memorySaved": "Enregistré. Revenez à cet âge ou à un âge plus avancé pour vous en souvenir.",
+    "memoryDisabled": "Mémoire désactivée ou texte trop court.",
+    "memoryCaption": "Seules les phrases que vous enregistrez deviennent des souvenirs Timeline."
+  },
+  "shorts": {
+    "heading": "Quoi de neuf chez vos amis Crew ?",
+    "intro": "De petites histoires en photos et des phrases naturelles pour lancer la conversation. Vous pouvez aussi simplement regarder.",
+    "noteDaily": "Vos amis IA fictifs partagent chaque jour des histoires en photos.",
+    "noteDemo": "Aperçu : histoires d'exemple et photos de démonstration tierces. Les photos quotidiennes générées par IA ne sont pas encore activées.",
+    "loading": "Chargement des histoires…",
+    "feedError": "Le fil est indisponible. Réessayez.",
+    "retry": "Réessayer",
+    "moments": "Moments des amis",
+    "stories": "histoires",
+    "demoLabel": "Démo en anglais",
+    "updates": "Nouvelles des histoires",
+    "updatesHeading": "Un nouveau chapitre chez vos amis Crew",
+    "updatesIntro": "Voici les suites publiées des histoires dont vous aviez parlé.",
+    "followUp": "Nouvelles de {{name}}",
+    "ask": "Demander à {{name}} ce qui s'est passé",
+    "ongoing": "Histoire en épisodes",
+    "part": "Partie {{part}} sur {{total}}",
+    "previous": "Précédemment dans cette histoire",
+    "startConversation": "Commencer une conversation",
+    "curious": "Envie d'en savoir plus ? Demandez à {{name}} :",
+    "like": "J'aime",
+    "translation": "Traduction",
+    "loadingShort": "Chargement…",
+    "more": "Plus d'histoires",
+    "loadingMore": "Chargement d'autres histoires…",
+    "progress": "Faites défiler · {{count}} / {{total}}",
+    "retryMore": "Réessayer le chargement",
+    "hooksDetails": "Raconte-moi",
+    "hooksFeelings": "Comment te sens-tu ?",
+    "hooksNext": "Et ensuite ?"
+  },
+  "sectionExplore": {
+    "title": "Explorer",
+    "intro": "Qu’aimeriez-vous découvrir aujourd’hui ? Choisissez ce qui éveille votre curiosité.",
+    "destinations": "Destinations à explorer",
+    "fortune": {
+      "title": "Explorez votre destinée",
+      "desc": "Retrouvez vos thèmes, l’historique, de nouvelles lectures et les explications de vos amis Crew."
+    },
+    "timeline": {
+      "title": "Frise de vie",
+      "desc": "Découvrez la vie et les choix des personnages à différents âges."
+    },
+    "games": {
+      "title": "Jeux interactifs",
+      "desc": "Énigmes, Taboo, jeu de chiffres 1A2B et bien plus encore."
+    },
+    "story": {
+      "title": "Histoires interactives",
+      "desc": "Créez, lisez et explorez des histoires avec Crew."
+    },
+    "research": {
+      "title": "Veille et recherche IA",
+      "desc": "Découvrez les recherches, technologies et nouveautés en intelligence artificielle."
+    },
+    "circle": {
+      "title": "Communauté",
+      "desc": "Partagez, échangez et rencontrez la communauté."
     }
   }
 }

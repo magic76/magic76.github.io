@@ -43,7 +43,8 @@
     "vedic": "Astrologi Weda",
     "play": "Buka game ini untuk memainkan ronde baru",
     "friend": "Mengobrol dengan teman Crew",
-    "friendDesc": "Lanjutkan obrolan dengan teman ini"
+    "friendDesc": "Lanjutkan obrolan dengan teman ini",
+    "fortuneResume": "Lanjutkan membaca bagan"
   },
   "actions": {
     "label": "Mulai cepat",
@@ -127,6 +128,185 @@
         "description": "Masuki cerita atau tulis awal yang baru.\nBangun dunia bersama AI.",
         "cta": "Buka cerita baru"
       }
+    },
+    "bridge": "Kisah-kisah kecil bermula di sini",
+    "explore": "Ikuti rasa ingin tahumu.",
+    "possibilities": "Dunia penuh kemungkinan.",
+    "fortuneTitle": "Kenali dirimu dari sudut pandang baru",
+    "fortuneDescription": "Jelajahi baganmu bersama teman AI.",
+    "timelineTitle": "Setiap kehidupan punya bab berikutnya",
+    "timelineDescription": "Temui orang-orang di usia berbeda dan dengarkan kisah mereka."
+  },
+  "playHub": {
+    "back": "Beranda",
+    "heading": "Mau main apa bersama teman Crew?",
+    "intro": "Permainan papan, 1A2B, dan Taboo bisa dimainkan lewat teks tanpa API key. 20 Questions dan Misteri perlu suara Gemini.",
+    "voiceRequired": "Perlu suara Gemini",
+    "offlineOptional": "Offline · suara opsional",
+    "footer": "Mainkan permainan papan, 1A2B, dan Taboo lewat teks secara offline. Fitur suara memerlukan kunci Gemini dan mikrofon.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Susun lima batu sebaris"
+      },
+      "connect4": {
+        "title": "Connect Four",
+        "desc": "Jatuhkan keping hingga empat sebaris"
+      },
+      "twenty-questions": {
+        "title": "20 Pertanyaan",
+        "desc": "Temukan jawabannya dalam 20 pertanyaan"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Balik keping untuk menguasai papan"
+      },
+      "mystery": {
+        "title": "Cerita Misteri",
+        "desc": "Pecahkan misteri lewat pertanyaan"
+      },
+      "1a2b": {
+        "title": "Tebak Angka 1A2B",
+        "desc": "Pecahkan kode angka tanpa pengulangan"
+      },
+      "taboo": {
+        "title": "Taboo: Tebak Kata",
+        "desc": "Jelaskan tanpa kata terlarang"
+      }
+    },
+    "allGames": "Semua permainan",
+    "yourFriend": "Teman Crew-mu",
+    "changeFriend": "Ganti teman"
+  },
+  "timeline": {
+    "title": "Kisah hidup {{name}} dari masa ke masa",
+    "intro": "Tiga kehidupan, masing-masing dua belas bab. Geser untuk menjelajah.",
+    "compare": "Bandingkan jawaban {{name}} di berbagai usia",
+    "chooseLife": "Pilih kisah hidup",
+    "photographer": "Fotografer",
+    "music": "Musik dan suara",
+    "travel": "Perjalanan dan budaya",
+    "selectAge": "Pilih usia {{name}}",
+    "years": "tahun",
+    "chapter": "Bab kehidupan {{name}}",
+    "talk": "Ngobrol dengan {{name}} pada usia {{age}}",
+    "photos": "Foto perjalanan hidup {{name}}",
+    "previous": "Usia sebelumnya",
+    "next": "Usia berikutnya",
+    "swipe": "Geser untuk menjelajahi waktu",
+    "now": "Kehidupan saat ini",
+    "jump": "Lompat ke bab lain",
+    "conversation": "Bahasa percakapan",
+    "level": "Usia tidak mengubah level bahasa Anda. Suara menggunakan kunci Gemini yang sudah ada.",
+    "scrapbook": "Album kehidupan",
+    "memories": "Kenangan tersimpan bersama {{name}}",
+    "clearAll": "Hapus semua",
+    "delete": "Hapus",
+    "locked": "Bab yang belum dijalani",
+    "topics": "Topik percakapan",
+    "people": "Orang-orang penting",
+    "eraChild": "Masa kecil",
+    "eraTeens": "Remaja",
+    "eraYoung": "Dewasa muda",
+    "eraAdult": "Dewasa",
+    "eraLater": "Usia senja",
+    "age7": "Masa kecil",
+    "age10": "Penjelajah kecil",
+    "age13": "Mencari jati diri",
+    "age16": "Remaja",
+    "age19": "Meninggalkan rumah",
+    "age22": "Mencari arah",
+    "age25": "Eksplorasi",
+    "age35": "Keseimbangan",
+    "age40": "Titik balik",
+    "age50": "Berbagi ilmu",
+    "age55": "Bab baru",
+    "age70": "Mengenang",
+    "compareBack": "Kembali ke Timeline",
+    "compareTitle": "Satu kehidupan, dua belas sudut pandang",
+    "compareIntro": "Bandingkan bab dan tantangan kehidupan fiksi dari Life Book, bukan percakapan sebelumnya.",
+    "compareOptions": "Opsi perbandingan",
+    "chooseQuestion": "Pilih pertanyaan",
+    "chooseAges": "Pilih 2–4 dari 12 usia",
+    "agePerspectives": "Perspektif menurut usia",
+    "copyCompare": "Salin perbandingan",
+    "copyDone": "Perbandingan disalin.",
+    "copyFailed": "Tidak dapat menyalin. Bagikan tautan dari bilah alamat.",
+    "exploreLife": "Jelajahi kisah hidup {{name}}",
+    "maxFour": "Maksimal empat usia dapat dibandingkan sekaligus.",
+    "character": "Karakter",
+    "inConversation": "Sedang mengobrol",
+    "ready": "Siap",
+    "fiction": "Kehidupan fiksi, bukan ramalan masa depan.",
+    "remember": "{{name}} dapat mengingat",
+    "myTurn": "Giliran saya",
+    "you": "Anda",
+    "thisConversation": "Percakapan ini",
+    "saved": "Tersimpan",
+    "saveMemory": "Simpan kenangan ini",
+    "memorySaved": "Tersimpan. Buka lagi usia ini atau yang lebih tua untuk mengingatnya.",
+    "memoryDisabled": "Memori nonaktif atau teks terlalu pendek.",
+    "memoryCaption": "Hanya kalimat yang Anda pilih untuk disimpan menjadi kenangan Timeline."
+  },
+  "shorts": {
+    "heading": "Apa kabar teman-teman Crew?",
+    "intro": "Cerita foto singkat, ungkapan alami, dan cara mudah memulai obrolan. Anda juga bisa sekadar melihat.",
+    "noteDaily": "Teman AI fiksi berbagi cerita foto setiap hari.",
+    "noteDemo": "Pratinjau: cerita contoh dan foto demo pihak ketiga. Foto AI harian belum diaktifkan.",
+    "loading": "Memuat cerita…",
+    "feedError": "Umpan tidak tersedia. Silakan coba lagi.",
+    "retry": "Coba lagi",
+    "moments": "Momen teman",
+    "stories": "cerita",
+    "demoLabel": "Demo bahasa Inggris",
+    "updates": "Pembaruan cerita",
+    "updatesHeading": "Ada babak baru dari teman Crew",
+    "updatesIntro": "Ini adalah kelanjutan cerita publik yang pernah Anda bicarakan.",
+    "followUp": "Kabar terbaru {{name}}",
+    "ask": "Tanya {{name}} apa yang terjadi",
+    "ongoing": "Cerita bersambung",
+    "part": "Bagian {{part}} dari {{total}}",
+    "previous": "Sebelumnya dalam cerita ini",
+    "startConversation": "Mulai percakapan",
+    "curious": "Penasaran? Tanya {{name}}:",
+    "like": "Suka",
+    "translation": "Terjemahan",
+    "loadingShort": "Memuat…",
+    "more": "Cerita lainnya",
+    "loadingMore": "Memuat cerita lainnya…",
+    "progress": "Gulir untuk melihat lagi · {{count}} / {{total}}",
+    "retryMore": "Coba muat lagi",
+    "hooksDetails": "Ceritakan lebih lanjut",
+    "hooksFeelings": "Bagaimana perasaanmu?",
+    "hooksNext": "Apa yang terjadi selanjutnya?"
+  },
+  "sectionExplore": {
+    "title": "Jelajahi",
+    "intro": "Apa yang ingin kamu temukan hari ini? Pilih sesuatu yang membuatmu penasaran.",
+    "destinations": "Pilihan eksplorasi",
+    "fortune": {
+      "title": "Jelajahi ramalan",
+      "desc": "Lihat bagan, riwayat, pembacaan baru, dan penjelasan dari teman Crew."
+    },
+    "timeline": {
+      "title": "Linimasa kehidupan",
+      "desc": "Kenali kehidupan dan pilihan tokoh di berbagai usia."
+    },
+    "games": {
+      "title": "Game interaktif",
+      "desc": "Teka-teki, Taboo, tebak angka 1A2B, dan banyak lagi."
+    },
+    "story": {
+      "title": "Cerita interaktif",
+      "desc": "Buat, baca, dan jelajahi cerita bersama Crew."
+    },
+    "research": {
+      "title": "Riset AI",
+      "desc": "Temukan penelitian, teknologi, dan kabar terbaru tentang AI."
+    },
+    "circle": {
+      "title": "Komunitas",
+      "desc": "Berbagi, bertukar barang, dan terhubung dengan komunitas."
     }
   }
 }

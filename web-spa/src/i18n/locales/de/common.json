@@ -8,7 +8,9 @@
     "beta": "Beta",
     "preview": "Vorschau",
     "previewHint": "Einige Inhalte werden auf Englisch angezeigt",
-    "close": "Schließen"
+    "close": "Schließen",
+    "loading": "Sprache wird geladen…",
+    "loadError": "Diese Sprache konnte nicht geladen werden. Stattdessen wird Englisch angezeigt. Bitte neu laden oder später erneut versuchen."
   },
   "nav": {
     "home": "Startseite",
@@ -45,5 +47,6 @@
     "fortune": "Crew Fortune — Dein Horoskop erkunden",
     "settings": "Crew — Einstellungen",
     "briefing": "Crew Briefing — Tägliche KI-Forschung"
-  }
+  },
+  "loading": "Wird geladen…"
 }

@@ -17,7 +17,6 @@ const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof M
  */
 export function FortuneHomePage(){
  const {t,i18n}=useTranslation("fortune");
- const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
  const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
  const [openingId,setOpeningId]=useState<string|null>(null);
@@ -32,7 +31,7 @@ export function FortuneHomePage(){
   setNeedsKey(false);
   if(!geminiKey()){
    setNeedsKey(true);
-   setError(en?"A Gemini API key is required to hear your friend explain the chart.":"朋友的語音講解需要 Gemini API Key，請先到設定完成。");
+   setError(t("landing.missingKey"));
    return;
   }
   setOpeningId(readingId);
@@ -41,19 +40,19 @@ export function FortuneHomePage(){
    await prepareFriendExplanation(readingId);
    navigate("/fortune/live?from=hub");
   }catch(e){
-   setError(e instanceof Error?e.message:(en?"Unable to open the saved chart.":"無法開啟命盤。"));
+   setError(e instanceof Error?e.message:t("landing.openError"));
   }finally{setOpeningId(null)}
  }
  return <>
   <section className="hero fortune-journey-hero">
    <span className="kicker">CREW FORTUNE · EXPLORE</span>
-   <h1>{en?"Explore your chart":"探索你的命盤"}</h1>
-   <p>{en?"Read your chart, revisit past readings, or listen to a Crew Friend explain it. You decide what to ask.":"先看命盤、回顧過去的紀錄，或聽 Crew Friend 主動講解；想問什麼，隨時打斷就好。"}</p>
+   <h1>{t("landing.title")}</h1>
+   <p>{t("landing.intro")}</p>
   </section>
-  <section className="section fortune-journey-primary" aria-label={en?"Your latest reading":"你的命盤"}>
+  <section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
     <div className="fortune-journey-latest">
-     <span className="kicker">{en?"CONTINUE YOUR READING":"接續你的命盤"}</span>
+     <span className="kicker">{t("landing.continue")}</span>
      <div className="fortune-journey-latest-head">
       <span className={"fortune-history-mark "+latest.mode}/>
       <div><h2>{name(latest.mode,t)}</h2><p>{latest.summary||t("home.reading")}</p>
@@ -61,24 +60,24 @@ export function FortuneHomePage(){
       </div>
      </div>
      <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{en?"Read full chart":"查看完整解讀"} →</Link>
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
       <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {openingId===latest.id?(en?"Opening…":"正在開啟…"):(en?"Hear a friend explain":"聽朋友講解")} →
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
       </button>
      </div>
     </div>:
     <div className="fortune-journey-empty">
-     <span className="kicker">{en?"FIRST VISIT":"第一次探索"}</span>
-     <h2>{en?"Start with your own chart":"先建立你的第一份命盤"}</h2>
-     <p>{en?"Choose a tradition below. The calculator is available without a Gemini key; the voice explanation is optional.":"從下方選擇命理系統，先算出自己的資料。計算不需要 Gemini Key，朋友語音講解再按需開啟。"}</p>
-     <a href="#fortune-new-reading" className="btn">{en?"Create my chart":"建立新命盤"} ↓</a>
+     <span className="kicker">{t("landing.first")}</span>
+     <h2>{t("landing.firstTitle")}</h2>
+     <p>{t("landing.firstIntro")}</p>
+     <a href="#fortune-new-reading" className="btn">{t("landing.create")} ↓</a>
     </div>}
-   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{en?"Open settings":"前往設定"} →</Link>}</div>}
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
   </section>
-  <section className="section fortune-journey-history" aria-label={en?"Saved charts":"歷史命盤"}>
+  <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
    <div className="section-head">
-    <h2>{en?"My saved charts":"我的命盤紀錄"}</h2>
-    <Link className="fortune-journey-all" to="/fortune/history">{en?"View all records":"查看全部紀錄"} →</Link>
+    <h2>{t("landing.myCharts")}</h2>
+    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
    </div>
    {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
     <div className="fortune-history-list">
@@ -92,8 +91,8 @@ export function FortuneHomePage(){
   </section>
   <section className="section fortune-journey-create" id="fortune-new-reading">
    <div className="section-head">
-    <h2>{en?"Create a new reading":"建立新命盤"}</h2>
-    <small>{en?"Choose one tradition":"選擇想探索的命理系統"}</small>
+    <h2>{t("landing.createTitle")}</h2>
+    <small>{t("landing.choose")}</small>
    </div>
    <div className="fortune-home-grid">
     <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi"><span className="mode-icon">八</span>
@@ -105,12 +104,12 @@ export function FortuneHomePage(){
    </div>
   </section>
   <section className="section fortune-journey-other">
-   <div className="section-head"><h2>{en?"Explore without a chart":"還不想建立命盤？"}</h2></div>
+   <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
-    <Link to="/fortune/live?from=culture">{en?"Talk about fortune traditions":"聊聊不同文化的命理說法"} →</Link>
-    <Link to="/fortune/live?from=daily">{en?"Today's reflection topic":"聽聽今日反思主題"} →</Link>
+    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} →</Link>
+    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} →</Link>
    </div>
-   <p>{en?"Cultural conversation and daily reflection are not personalized forecasts. Stored charts remain in this browser, not synchronized between devices.":"文化探索與每日反思並非個人運勢預測。命盤紀錄儲存在目前瀏覽器，不會自動跨裝置同步。"}</p>
+   <p>{t("landing.disclaimer")}</p>
   </section>
   <ProductDiscoverability product="fortune"/>
  </>;

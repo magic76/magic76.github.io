@@ -14,6 +14,8 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
  const location=useLocation();
  const dialogRef=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
+ const [changing,setChanging]=useState(false);
+ const [failed,setFailed]=useState(false);
  const current:UiLocale=normalizeUiLocale(i18n.language)||"zh-TW";
  const currentLabel=UI_LOCALE_CATALOG.find(item=>item.code===current)?.label||current;
 
@@ -27,12 +29,15 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   dialogRef.current?.close();
   setOpen(false);
  }
- function chooseLocale(next:UiLocale){
-  if(!UI_LOCALES.includes(next))return;
-  closePicker();
-  if(next===current)return;
-  if(window.location.pathname.startsWith("/crew-app/"))void loadUiLocale(next).then(()=>i18n.changeLanguage(next));
-  else{
+ async function chooseLocale(next:UiLocale){
+  if(!UI_LOCALES.includes(next)||changing)return;
+  if(next===current){closePicker();return;}
+  if(window.location.pathname.startsWith("/crew-app/")){
+   setChanging(true);setFailed(false);
+   try{await loadUiLocale(next);await i18n.changeLanguage(next);closePicker();}
+   catch{setFailed(true);}
+   finally{setChanging(false);}
+  } else{closePicker();
    // Keep the existing route, query and hash while replacing its locale prefix.
    const path=localePrefix(next)+(location.pathname.startsWith("/")?location.pathname:"/"+location.pathname);
    window.location.assign(path+location.search+location.hash);
@@ -57,20 +62,19 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
      <button type="button" className="crew-language-close"
       aria-label={t("language.close")} onClick={closePicker}>×</button>
     </div>
+    {changing&&<p className="crew-language-feedback" role="status">{t("language.loading")}</p>}
+    {failed&&<p className="crew-language-feedback" role="alert">{t("language.loadError")}</p>}
     <div className="crew-language-options">
      {UI_LOCALE_CATALOG.map(({code,label,stage})=><button
-      key={code} type="button"
+      key={code} type="button" disabled={changing}
       className={"crew-language-option"+(code===current?" is-selected":"")}
       aria-pressed={code===current}
       onClick={()=>chooseLocale(code)}>
       <span className="crew-language-option-copy">
        <span className="crew-language-option-main">
         <span className="crew-language-option-name">{label}</span>
-        {stage!=="published"&&<span className={"crew-language-stage crew-language-stage-"+stage}>
-         {t(stage==="priority"?"language.beta":"language.preview")}
-        </span>}
+        {stage==="priority"&&<span className="crew-language-stage crew-language-stage-priority">{t("language.beta")}</span>}
        </span>
-       {stage==="preview"&&<span className="crew-language-option-note">{t("language.previewHint")}</span>}
       </span>
       <span className="crew-language-check" aria-hidden="true">{code===current?"✓":""}</span>
      </button>)}

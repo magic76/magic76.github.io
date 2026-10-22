@@ -17,7 +17,7 @@ export function TimelineLivePage(){
  const[params]=useSearchParams();const number=Number(params.get("age")),age=validAge(number)?number:25;
   const characterId=timelineCharacterId(params.get("character")),person=timelinePerson(characterId),current=timelineStage(age,characterId);
   const back="/timeline?character="+characterId;
- const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
+ const {t,i18n}=useTranslation("home"),en=!i18n.language.startsWith("zh");
  const navigate=useNavigate(),closing=useRef(false);
  const usageStarted=useRef(false),usageCompleted=useRef(false);
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -49,37 +49,37 @@ export function TimelineLivePage(){
  useEffect(()=>{document.body.className="teacher-theme session-page timeline-session-page";return()=>{document.body.className=""}},[]);
  const keep=(i:number,text:string)=>{
   if(saved.includes(i))return;
-  if(timelineSaveNote(age,text,characterId)){recordTimelineEcho(age,text,characterId);setSaved(a=>[...a,i]);setNotice(en?"Saved; reopen this or a later age to recall.":"回憶已保存；重新進入此年齡或較大的年齡會讀取。");}
-  else setNotice(en?"Memory disabled or utterance too short.":"記憶已關閉或內容太短。");
+  if(timelineSaveNote(age,text,characterId)){recordTimelineEcho(age,text,characterId);setSaved(a=>[...a,i]);setNotice(t("timeline.memorySaved"));}
+  else setNotice(t("timeline.memoryDisabled"));
  };
  const active=["connecting","listening","speaking","requesting-mic","ending","reporting"].includes(live.state);
  return <><header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to={back} onClick={e=>{e.preventDefault();void end()}}>‹</Link>
-    <div className="app-title"><strong>{person.name} · {age} {en?"years":"歲"}</strong><small>Crew Timeline · {language}</small></div>
-   </div><span className="status connected"><i className="status-dot"/><span>{active?(en?"In conversation":"對話中"):(en?"Ready":"準備開始")}</span></span>
+    <div className="app-title"><strong>{person.name} · {age} {t("timeline.years")}</strong><small>Crew Timeline · {language}</small></div>
+   </div><span className="status connected"><i className="status-dot"/><span>{t(active?"timeline.inConversation":"timeline.ready")}</span></span>
   </div></header>
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
    <section className="live-stage" aria-label={person.name+" age "+age}>
     <div className="live-identity"><TimelinePortrait characterId={characterId} age={age} alt={person.name+" at "+age+" years old"} />
-     <h1>{person.name} · {age}</h1><p>{en?current.story:current.storyZh}</p><p className="timeline-life-quote">“{en?current.quoteEn:current.quoteZh}”</p><p>{en?"A fictional life, not a future prediction.":"虛構角色人生，不是真實的未來預測。"}</p>
+     <h1>{person.name} · {age}</h1><p>{en?current.story:current.storyZh}</p><p className="timeline-life-quote">“{en?current.quoteEn:current.quoteZh}”</p><p>{t("timeline.fiction")}</p>
     </div>
-    {known.length>0&&<details className="timeline-known"><summary>{en?""+person.name+" can remember":""+person.name+" 此時能記得"} · {known.length}</summary>
-      <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {en?"years":"歲"}</strong> · {note.text}</li>)}</ul>
+    {known.length>0&&<details className="timeline-known"><summary>{t("timeline.remember",{name:person.name})} · {known.length}</summary>
+      <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {t("timeline.years")}</strong> · {note.text}</li>)}</ul>
     </details>}
-    <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={en?"My turn":"換我說"}/>
+    <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={t("timeline.myTurn")}/>
     <div className="live-presets">{active&&current.conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As "+person.name+" age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:current.conversationThreadsZh[i]}</button>)}</div>
     <div className="live-transcript" aria-live="polite">
-     <div className={"live-line user "+(live.input?"show":"")}><small>{en?"You":"你"}</small><span>{live.input}</span></div>
+     <div className={"live-line user "+(live.input?"show":"")}><small>{t("timeline.you")}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>{person.name}</small><span>{live.output}</span></div>
     </div>
-    {live.turns.length>0&&<section className="timeline-turns"><h2>{en?"This conversation":"本次對話"}</h2>
+    {live.turns.length>0&&<section className="timeline-turns"><h2>{t("timeline.thisConversation")}</h2>
      {live.turns.map((turn,i)=><div className="timeline-turn" key={i}>
-      {turn.input&&<div><p><b>{en?"You":"你"}：</b>{turn.input}</p>
-       <button type="button" disabled={saved.includes(i)} onClick={()=>keep(i,turn.input||"")}>{saved.includes(i)?(en?"Saved":"已保存"):(en?"Save this memory":"存為人生回憶")}</button>
+      {turn.input&&<div><p><b>{t("timeline.you")}：</b>{turn.input}</p>
+       <button type="button" disabled={saved.includes(i)} onClick={()=>keep(i,turn.input||"")}>{t(saved.includes(i)?"timeline.saved":"timeline.saveMemory")}</button>
       </div>}{turn.output&&<p><b>{person.name}：</b>{turn.output}</p>}
      </div>)}</section>}
     {notice&&<p role="status">{notice}</p>}
-    <p className="timeline-caption">{en?"Only user-selected phrases become Timeline memories.":"只有主動保存的話語才會成為人生回憶。"}</p>
+    <p className="timeline-caption">{t("timeline.memoryCaption")}</p>
    </section>
    <DesktopLivePanel kind="friend" label={person.name+" · "+age} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>
   </div></main></>;
