@@ -308,5 +308,121 @@
       "title": "Community",
       "desc": "Teile Beiträge, tausche Dinge und vernetze dich."
     }
+  },
+  "sectionHubs": {
+    "more": "Weitere Angebote",
+    "chat": {
+      "title": "Mit Freunden chatten",
+      "intro": "Kein Unterricht: Sprich über den Alltag deiner Freunde oder über das, was dich interessiert.",
+      "hero": {
+        "title": "Crew-Freunde kennenlernen",
+        "desc": "16 Persönlichkeiten. Wähle einen Freund und die Sprache für euer Gespräch.",
+        "tag": "Einfach reden"
+      },
+      "items": {
+        "shorts": {
+          "title": "Shorts deiner Freunde",
+          "desc": "Sieh dir ihre Neuigkeiten an und finde ein Gesprächsthema."
+        },
+        "games": {
+          "title": "Gemeinsam spielen",
+          "desc": "Interaktive Spiele liefern einen natürlichen Einstieg ins Gespräch."
+        },
+        "memory": {
+          "title": "Themen und Erinnerungen",
+          "desc": "Verwalte gemerkte Gesprächsthemen und deine Privatsphäre."
+        }
+      },
+      "meetFriends": "Lerne die Freunde kennen",
+      "allFriends": "Alle Freunde anzeigen",
+      "friendTitles": {
+        "zoe": "Schlagfertig und witzig",
+        "noah": "Ein ruhiger Zuhörer",
+        "iris": "Kreativ und neugierig",
+        "max": "Sportlich und abenteuerlustig",
+        "yuna": "Sanft und zurückhaltend",
+        "felix": "Diskutiert gern"
+      }
+    },
+    "learn": {
+      "title": "Mit einem Lehrer üben",
+      "intro": "Mit einem klaren Lernziel unterstützt dich dein Crew Teacher beim Üben und Lernen.",
+      "hero": {
+        "title": "Sprechübung starten",
+        "desc": "Wähle deinen Crew Teacher und beginne ein natürliches Sprachgespräch.",
+        "tag": "Sprechtraining"
+      },
+      "items": {
+        "center": {
+          "title": "Lernzentrum",
+          "desc": "Setze Lektionen, Vokabeln und Ausspracheübungen fort."
+        },
+        "scenarios": {
+          "title": "Alltagssituationen",
+          "desc": "Übe Gespräche in typischen Situationen des Alltags."
+        },
+        "textbook": {
+          "title": "Mit Lehrmaterial lernen",
+          "desc": "Übe anhand von Buchseiten, Notizen und Fotos."
+        },
+        "pronunciation": {
+          "title": "Aussprachetraining",
+          "desc": "Verbessere Aussprache und mündlichen Ausdruck."
+        },
+        "reports": {
+          "title": "Übungsverlauf",
+          "desc": "Sieh dir frühere Lernberichte an."
+        }
+      },
+      "learningOverview": "Lernübersicht",
+      "todayTitle": "Dein heutiges Lernen",
+      "recordsLink": "Lernverlauf ansehen",
+      "threeMinuteTitle": "Drei Minuten in einer Fremdsprache reden",
+      "threeMinuteDesc": "Übe entspannt mit einem Crew-Freund, ganz ohne Prüfung."
+    },
+    "me": {
+      "title": "Mein Crew",
+      "intro": "Deine Fortschritte, gespeicherten Inhalte und Einstellungen an einem Ort.",
+      "hero": {
+        "title": "Mein Lernfortschritt",
+        "desc": "Rufe abgeschlossene Übungen und Lernaufzeichnungen auf.",
+        "tag": "Daten auf diesem Gerät"
+      },
+      "items": {
+        "readings": {
+          "title": "Meine Deutungen",
+          "desc": "Öffne gespeicherte Horoskope und Deutungen erneut."
+        },
+        "stories": {
+          "title": "Meine Geschichten",
+          "desc": "Kehre zu deinem Bücherregal und deinen Werken zurück."
+        },
+        "memory": {
+          "title": "Lernerinnerungen",
+          "desc": "Sieh nach, was dein Lehrer über deinen Lernstand gespeichert hat."
+        },
+        "settings": {
+          "title": "Einstellungen und API-Schlüssel",
+          "desc": "Sprache, Modell, Stimme und Datenschutz."
+        },
+        "reports": {
+          "title": "Lernberichte",
+          "desc": "Lies Rückmeldungen aus früheren Sprechübungen."
+        }
+      },
+      "footnote": "Manche Deutungen und Lernaufzeichnungen werden nur in diesem Browser gespeichert und nicht zwischen Geräten synchronisiert."
+    }
+  },
+  "todayLearning": {
+    "heading": "Heutiger Lernfortschritt",
+    "goal": "Tagesziel",
+    "goalAria": "Tägliches Sprechziel in Minuten",
+    "minuteUnit": "Min.",
+    "progress": "Fortschritt beim Sprechziel",
+    "summary": "Heute {{minutes}} Minuten gesprochen",
+    "sessions": "{{count}} aufgezeichnete Sitzungen · Ziel: {{goal}} Minuten",
+    "words": "Heutige Vokabeln",
+    "lessons": "Abgeschlossene Lektionen",
+    "footnote": "Angezeigt werden nur Aktivitäten aus diesem Browser oder der App-WebView. Ältere Daten aus der nativen Android-App sind noch nicht synchronisiert."
   }
 }
