@@ -251,6 +251,7 @@ function TabooSession({friend}:{friend:ReturnType<typeof useMiniFriend>["friend"
    </form>
    {mode==="guess"&&message?<p className="crew-mini-message" role="status">{message}</p>:null}
    <div className="crew-mini-row-actions crew-taboo-actions">
+    <button type="button" className="crew-taboo-switch-mode" aria-label={mode==="describe"?"朋友描述 · 我猜":"我描述 · 朋友猜"} onClick={()=>{++guessSerial.current;setMode(mode==="describe"?"guess":"describe");setPhase("ready");setAnswer("");setMessage("");setLastClue("");}}>切換模式 · {mode==="describe"?"朋友出題":"我來描述"}</button>
     {mode==="describe"&&!geminiKey()?<button type="button" onClick={()=>correct()} disabled={guessing}>朋友已猜中 · 確認</button>:null}
     <button type="button" disabled={skips===0||guessing} onClick={()=>{setSkips(s=>s-1);advance("skip")}}>跳過這題（{skips}）</button>
     {Boolean(geminiKey())?<button type="button" disabled={busy||guessing} onClick={()=>void generate()}>{busy?"生成中…":"換一組 Gemini 單字"}</button>:null}
