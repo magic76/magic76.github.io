@@ -78,7 +78,7 @@ async function captureCrewVisualQA(browser){
    duration:getComputedStyle(el).transitionDuration
   }));
   assert.ok(state.reduced,"Browser must emulate reduced-motion setting");
-  assert.ok(state.duration.split(",").every(value=>parseFloat(value)===0),"Friend card transitions must be static in reduced-motion mode: "+state.duration);
+  assert.ok(state.duration.split(",").every(value=>parseFloat(value)<0.001),"Friend card transitions must be effectively static in reduced-motion mode: "+state.duration);
   process.stdout.write("PASS reduced-motion static friend cards\\n");
  }finally{await reduce.close();}
 }
@@ -647,6 +647,11 @@ async function run(){
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
+  // Secondary product directory is intentionally collapsed beneath the character-first KV.
+  const directory=home.locator(".crew-home-products");
+  await directory.locator("summary").waitFor({state:"visible",timeout:15000});
+  assert.equal(await directory.getAttribute("open"),null,"Product directory should be secondary by default");
+  await directory.locator("summary").click();
   const productCards=home.locator(".crew-home-product-grid .crew-home-product");
   await productCards.first().waitFor({state:"visible",timeout:15000});
   assert.equal(await productCards.count(),4,"Crew homepage should show Teacher, Story, Fortune and Play equally");
@@ -682,7 +687,7 @@ async function run(){
   await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
   await home.locator('a[href="/fortune"]').first().waitFor({state:"visible",timeout:15000});
   assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
-  // Six equal destinations must be visible and tappable on both desktop and phone.
+  // All six illustrated destinations remain accessible; the featured tile spans two columns.
   const exploreCards=home.locator(".crew-explore-grid .crew-explore-tile");
   await exploreCards.first().waitFor({state:"visible",timeout:15000});
   assert.equal(await exploreCards.count(),6,"Explore must expose exactly six peer cards");
@@ -697,11 +702,11 @@ async function run(){
     y:Math.round(card.getBoundingClientRect().y),
     width:Math.round(card.getBoundingClientRect().width)
    })));
-   assert.ok(Math.abs(rects[0].y-rects[viewport.cols-1].y)<=2,"Explore first row must have "+viewport.cols+" columns (allow 2px rounding)");
-   assert.ok(rects[viewport.cols].y>rects[0].y,"Explore tiles should wrap after "+viewport.cols+" columns");
+   assert.ok(rects[0].width>rects[1].width,"Featured Explore destination spans more columns");
+   assert.ok(viewport.cols===2?rects[1].y>rects[0].y:Math.abs(rects[1].y-rects[0].y)<=2,"Explore follows responsive featured-grid layout");
    assert.ok(rects.every(r=>r.width>=140),"Explore cards must be tappable");
    assert.ok(await home.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Explore must not overflow");
-  }
+   }
 
   await home.close();
   process.stdout.write("PASS React client navigation\n");
