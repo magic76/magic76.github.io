@@ -32,7 +32,7 @@ test("game voice stays reachable on mobile without hiding the play surface",()=>
  const gomoku=game("games.css");
  assert.match(mini,/\.crew-mini-page \.crew-mini-voice,[\s\S]*?position:fixed/);
  assert.match(mini,/safe-area-inset-bottom/);
- assert.match(mini,/\.crew-mini-page:has\(input:focus\) \.crew-mini-voice/);
+ assert.match(mini,/\.crew-mini-page:has\(\.crew-mini-panel form:focus-within\) \.crew-mini-voice/);
  assert.match(play,/\.crew-play-page:not\(\.crew-play-page--voice-required\) \.crew-play-voice/);
  assert.match(gomoku,/\.friend-gomoku-voice-dock\{/);
  assert.match(game("FriendGomokuPage.tsx"),/className="friend-gomoku-voice-dock"/);
