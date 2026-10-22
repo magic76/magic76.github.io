@@ -57,3 +57,22 @@
 
 /* On desktop the main navigation becomes a vertical rail. */
 @media(min-width:1100px){.global-nav .nav-indicator{display:none}.global-nav .navitem.active{background:var(--accent-soft);border-radius:14px}}
+
+/* A session's actual state drives visual presence; no generated audio amplitude. */
+.teacher-presence-shell[data-state="waiting"]::after{opacity:.25;animation:crew-listening-ring 2.2s ease-in-out infinite alternate}
+.teacher-presence-shell[data-state="error"]::after,.teacher-presence-shell[data-state="idle"]::after{animation:none;opacity:0}
+.teacher-presence-shell>.teacher-live-avatar.teacher-presence.speaking{animation:none}
+.friend-live-avatar{position:relative;isolation:isolate}
+.friend-live-avatar::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--accent);opacity:0;pointer-events:none;z-index:-1}
+.friend-live-avatar[data-state="connecting"]::after{opacity:.35;border-style:dashed;animation:crew-connecting-ring 1.9s linear infinite}
+.friend-live-avatar[data-state="listening"]::after{animation:crew-listening-ring 1.8s ease-in-out infinite alternate}
+.friend-live-avatar[data-state="speaking"]::after{animation:crew-speaking-ring 1.35s ease-out infinite}
+.friend-live-avatar[data-state="waiting"]::after{animation:crew-listening-ring 2.2s ease-in-out infinite alternate}
+.friend-live-avatar[data-state="error"]::after,.friend-live-avatar[data-state="idle"]::after{opacity:0;animation:none}
+@media(prefers-reduced-motion:reduce){
+ .teacher-presence-shell::after,.friend-live-avatar::after{animation:none!important;transform:none!important}
+ .teacher-presence-shell[data-state="listening"]::after,.friend-live-avatar[data-state="listening"]::after{opacity:.3!important}
+ .teacher-presence-shell[data-state="speaking"]::after,.friend-live-avatar[data-state="speaking"]::after{opacity:.65!important}
+ .teacher-presence-shell[data-state="connecting"]::after,.friend-live-avatar[data-state="connecting"]::after{opacity:.4!important}
+ .teacher-presence-shell[data-state="waiting"]::after,.friend-live-avatar[data-state="waiting"]::after{opacity:.2!important}
+}

@@ -7,13 +7,23 @@
   --line:#e8e7e2;
   --soft:#f2f1ed;
   --ink:#202124;
-  --accent:#202124;
+  --accent:#6257e7;
   --accent-soft:#efefeb;
   --good:#2ba471;
   --danger:#c94a55;
   --shadow:none;
   --radius:20px;
   --nav-h:68px;
+  /* Interior-page scale; extending the canonical tokens instead of adding a parallel system. */
+  --crew-page-title:clamp(28px,4vw,40px);
+  --crew-section-title:clamp(20px,2.2vw,24px);
+  --crew-body-size:16px;
+  --crew-support-size:14px;
+  --crew-space-section:clamp(24px,3vw,32px);
+  --crew-card-radius:20px;
+  --crew-button-radius:12px;
+  --crew-tap-target:44px;
+  --crew-elevation:0 8px 22px rgba(42,33,85,.075);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -340,3 +350,18 @@ body.session-page{padding-bottom:0;background:var(--bg)}
 .range-row{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
 
 @media(max-width:720px){.hub-grid{grid-template-columns:1fr}.hub-card{min-height:150px}.settings-grid{grid-template-columns:1fr}}
+
+/* Canonical button hierarchy for newly polished interior sections. */
+.crew-action-primary,.crew-action-secondary,.crew-action-text{
+ display:inline-flex;justify-content:center;align-items:center;gap:9px;
+ min-height:var(--crew-tap-target);padding:11px 17px;
+ border-radius:var(--crew-button-radius);font-weight:780;font-size:14px;
+ line-height:1.35;text-decoration:none;text-align:center;
+ transition:transform var(--crew-motion-fast,150ms) ease,background-color var(--crew-motion-fast,150ms) ease;
+}
+.crew-action-primary{background:var(--accent);color:#fff;border:1px solid var(--accent)}
+.crew-action-secondary{background:var(--surface);color:var(--accent);border:1px solid var(--line)}
+.crew-action-text{background:transparent;color:var(--accent);border:1px solid transparent;padding-inline:9px}
+.crew-action-primary:active,.crew-action-secondary:active,.crew-action-text:active{transform:scale(.98)}
+.crew-action-primary:focus-visible,.crew-action-secondary:focus-visible,.crew-action-text:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.crew-action-primary,.crew-action-secondary,.crew-action-text{transition:none}}

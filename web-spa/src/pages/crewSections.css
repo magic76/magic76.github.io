@@ -34,3 +34,79 @@
 .crew-section-hub a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:700px){.crew-section-people-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.crew-section-grid{grid-template-columns:1fr}.crew-section-hub{gap:19px}.crew-section-hero{grid-template-columns:50px minmax(0,1fr) 16px;padding:18px 14px;gap:12px}.crew-section-hero-icon{width:50px;height:50px}.crew-section-hero-copy strong{font-size:17px}.crew-section-heading{padding-top:4px}.crew-section-friend img{width:60px;height:60px}}
 @media(prefers-reduced-motion:reduce){.crew-section-card,.crew-section-hero{transition:none}}
+
+/* Visual hierarchy: shared hub layout uses the existing palette and canonical spacing. */
+.crew-section-hub{gap:var(--crew-space-section);padding-bottom:calc(24px + env(safe-area-inset-bottom))}
+.crew-section-heading{gap:7px}
+.crew-section-heading h1{font-size:var(--crew-page-title)}
+.crew-section-heading p{font-size:var(--crew-support-size);line-height:1.65}
+.crew-section-row-title h2{font-size:var(--crew-section-title)}
+.crew-section-row-title a{min-height:var(--crew-tap-target);display:inline-flex;align-items:center;font-size:14px}
+.crew-section-card{border-radius:var(--crew-card-radius);min-height:88px}
+.crew-section-hero{border-radius:var(--crew-card-radius)}
+@media(hover:hover) and (pointer:fine){
+ .crew-section-card:hover,.crew-section-hero:hover{box-shadow:var(--crew-elevation)}
+}
+@media(min-width:1100px){.shell.page:has(>.crew-section-hub){width:min(1120px,calc(100% - 88px))}}
+/* Photo-led friend selection. Scroll is manual, with visible arrows and snap positions. */
+.crew-section-chat .crew-section-heading{padding-bottom:0}
+.crew-section-people{min-width:0;gap:12px}
+.crew-section-people-toolbar{display:flex;align-items:center;gap:8px}
+.crew-section-people-toolbar>a{margin-right:8px}
+.crew-section-carousel-actions{display:flex;gap:6px;align-items:center}
+.crew-section-carousel-actions button{height:var(--crew-tap-target);width:var(--crew-tap-target);border:1px solid var(--line);background:#fff;color:var(--text);border-radius:12px;font-size:20px}
+.crew-section-carousel-actions button:disabled{opacity:.35;cursor:default}
+.crew-section-carousel-actions button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.crew-section-people-strip{display:flex;gap:13px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;padding:4px 3px 13px;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.crew-section-people-strip .crew-section-friend{position:relative;display:flex;flex:0 0 calc((100% - 39px)/4);min-width:0;min-height:320px;flex-direction:column;align-items:stretch;justify-content:flex-end;text-align:left;gap:0;overflow:hidden;padding:0;border-radius:var(--crew-card-radius);border:1px solid var(--line);background:#e8e1ee;scroll-snap-align:start;isolation:isolate;transition:transform 240ms var(--crew-motion-ease),box-shadow 240ms var(--crew-motion-ease),border-color 180ms}
+.crew-section-friend-photo{position:absolute;inset:0;z-index:0;display:grid;place-items:center;background:linear-gradient(130deg,#e7dcf2,#cac4d8);font-size:72px;font-weight:800;color:#75678b}
+.crew-section-friend-photo .crew-friend-avatar{position:absolute;inset:0;width:100%;height:100%;border-radius:0;object-fit:cover;object-position:center 19%;transition:transform 240ms var(--crew-motion-ease)}
+.crew-section-friend-copy{display:grid;gap:6px;min-width:0;width:100%;z-index:1;padding:50px 15px 16px;color:#fff;background:linear-gradient(0deg,rgba(23,17,38,.93),rgba(23,17,38,.68) 52%,transparent)}
+.crew-section-people-strip .crew-section-friend strong{font-size:22px;line-height:1.2;color:#fff;overflow-wrap:anywhere}
+.crew-section-people-strip .crew-section-friend small{color:#f4edf9;font-size:14px;line-height:1.4}
+.crew-section-friend-bio{font-size:13px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.crew-section-friend-cta{display:inline-flex;align-items:center;gap:7px;margin-top:7px;font-size:14px;font-weight:800;color:#fff}
+@media(hover:hover) and (pointer:fine){
+ .crew-section-people-strip .crew-section-friend:hover{transform:translateY(-3px);box-shadow:var(--crew-elevation);border-color:var(--accent)}
+ .crew-section-people-strip .crew-section-friend:hover .crew-friend-avatar{transform:scale(1.045)}
+}
+.crew-section-people-strip .crew-section-friend:active{transform:scale(.985)}
+.crew-section-people-strip .crew-section-friend:focus-visible{outline:3px solid var(--accent);outline-offset:3px;box-shadow:0 0 0 4px var(--accent-soft)}
+.crew-section-chat-life{min-width:0}
+.crew-section-chat-life .crew-home-shorts{margin:0}
+.crew-section-chat-life .crew-home-short-card{flex-basis:clamp(180px,27vw,240px)}
+.crew-section-chat-life .crew-home-shorts-controls button{width:var(--crew-tap-target);height:var(--crew-tap-target);border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--text)}
+.crew-section-chat-life .crew-home-short-photo img{object-fit:cover}
+.crew-section-chat-life .crew-home-short-question{min-height:var(--crew-tap-target)}
+.crew-section-chat .crew-section-discover .crew-section-card{background:transparent}
+.crew-section-learn .crew-section-learning{display:grid;gap:14px;margin:0}
+.crew-section-learn .crew-section-learning .crew-section-row-title{margin:0}
+.crew-learning-focus{display:grid;grid-template-columns:minmax(0,1fr) 108px;gap:14px;align-items:center;padding:23px;border:1px solid #e2dafa;border-radius:var(--crew-card-radius);background:linear-gradient(125deg,#f3eeff,#fcfaff)}
+.crew-learning-focus-content{min-width:0;display:grid;gap:9px;grid-column:1}
+.crew-learning-focus .kicker{font-size:12px}
+.crew-learning-focus h2{font-size:clamp(21px,2.6vw,27px);line-height:1.2;margin:0;overflow-wrap:anywhere}
+.crew-learning-focus p{font-size:var(--crew-support-size);line-height:1.55;color:var(--muted);margin:0}
+.crew-learning-focus-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;color:var(--muted);font-size:13px}
+.crew-learning-focus .crew-action-primary{justify-self:start;margin-top:5px;max-width:100%;grid-column:1}
+.crew-learning-focus-portrait{grid-column:2;grid-row:1 / span 2;display:grid;place-items:center;border-radius:20px;aspect-ratio:3/4;overflow:hidden;background:var(--accent-soft)}
+.crew-learning-focus-portrait img{width:100%;height:100%;object-fit:cover;object-position:center 20%}
+.crew-learning-focus-portrait span{font-size:28px;font-weight:800;color:var(--accent)}
+.crew-section-learn .crew-section-discover{gap:12px}
+.crew-section-learn .crew-section-card{background:transparent}
+@media(max-width:700px){
+ .crew-section-people-strip .crew-section-friend{flex-basis:min(75%,285px);min-height:342px}
+ .crew-section-chat-life .crew-home-shorts-heading{flex-wrap:wrap}
+ .crew-learning-focus{grid-template-columns:minmax(0,1fr) 82px;gap:10px;padding:18px}
+ .crew-learning-focus-portrait{border-radius:16px}
+ .crew-learning-focus h2{font-size:22px}
+ .crew-section-row-title h2{font-size:21px}
+}
+@media(max-width:430px){
+ .crew-section-hub{gap:24px}
+ .crew-section-heading h1{font-size:30px}
+ .crew-learning-focus .crew-action-primary{grid-column:1 / -1;justify-self:stretch}
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-section-people-strip .crew-section-friend,.crew-section-friend-photo .crew-friend-avatar{transition:none!important}
+ .crew-section-people-strip{scroll-behavior:auto}
+}
