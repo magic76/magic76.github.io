@@ -11,7 +11,7 @@ import {geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
 import "./miniGames.css";
 
-export type MiniKind="1a2b"|"taboo";
+export type MiniKind="1a2b"|"taboo"|"court";
 export type MiniFriend=ReturnType<typeof getCrewFriend>;
 const FRIEND_KEY="crew_web_selected_friend_v1";
 function initialFriend(){
@@ -51,22 +51,25 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
 }
 
 export type VoiceCue={id:number;text:string};
-export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode}:{
- kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";
+export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtRole}:{
+ kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";courtRole?:"defense"|"prosecution";
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const friendMode=useTeacherStore(s=>s.friendChatMode);
  const seenRef=useRef(new Set<string>());
  const directGuess=kind==="taboo"&&tabooMode==="describe";
+ const court=kind==="court";
+ const counsel=courtRole==="prosecution"?"defense attorney":"prosecutor";
  const system=buildFriendSystem(friend,targetLanguage,nativeLanguage,friendMode)+
   (directGuess
     ?"\n[CREW PLAY TABOO: DIRECT VOICE GUESSER] You are a quick, expressive friend playing Taboo, not a conversational tutor. After each English description, immediately reply with ONE short, natural English sentence or fragment containing exactly ONE concrete single-word guess. Keep your personality and vary the wording and intonation naturally. Examples of possible styles (not a script): 'Could it be a banana?', 'Sounds like a banana!', 'Maybe an apple?', 'I'd say book!', 'Is it a carrot?', or just 'Banana?'. Do NOT use the same opening every turn or always say 'I guess'. No acknowledgement before the guess, no paraphrase, explanation, praise, extra question, second candidate or second sentence. Do not repeat an earlier incorrect guess. You cannot see the hidden answer and must never claim verification or announce scoring. The game UI alone checks correctness and forbidden words. For a [VERIFIED GAME] cue, follow that result with a single brief natural reply. Never persist memories."
+   :court?"\n[CREW PLAY CRAZY COURT] You are "+friend.name+", acting as the player\'s opposing "+counsel+" in a fictional comedy trial. Keep your personality and selected spoken language. The game UI owns evidence, legal rulings, objections, score and verdict. NEVER invent a new fact or evidence or claim to alter the outcome. When the user speaks, listen but do not offer a ruling; wait until a [VERIFIED GAME] cue. On a verified cue, deliver one short playful lawyer response, then listen. Be respectful and do not treat this as real legal advice. Do not persist conversation memory."
    :"\n[CREW PLAY GAME: "+kind+"] This is a self-contained game, not a normal friend conversation. Respond as "+friend.name+" with short witty English remarks. No tutoring until the final feedback. Gameplay is fully decided by the offline UI engine. Never claim an answer is correct or wrong without a [VERIFIED GAME] event. A voice input can contain a sequence of single English digits or xAyB, or a short Taboo description. If numbers are unclear, ask the player to repeat slowly. React only to [VERIFIED GAME] updates for scoring and never reveal the secret. In Taboo guess mode, read the safe clue exactly without forbidden words. Never persist these conversations as friend memories.");
  const live=useLiveSession({
   pageKey:directGuess?"crew-play-mini-taboo-direct-"+friend.id:"crew-play-mini-"+kind+"-"+friend.id,
-  title:(kind==="1a2b"?"1A2B":"Taboo")+" · "+friend.name,
-  system,openingPrompt:directGuess?"Invite the player briefly to describe something in English. Use your own friendly wording once, then listen.":"Say one short English welcome to the game. Do not invent a score or answer.",
+  title:(kind==="1a2b"?"1A2B":court?"Crazy Court":"Taboo")+" · "+friend.name,
+  system,openingPrompt:directGuess?"Invite the player briefly to describe something in English. Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":"Say one short English welcome to the game. Do not invent a score or answer.",
   voice:normalizeLiveVoice(friend.voice),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
@@ -94,7 +97,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode}:{
  return <section className="crew-mini-voice" aria-label="朋友語音">
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
-   <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":"語音陪玩（選用）"}</strong>
+   <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":court?"法庭語音（選用）":"語音陪玩（選用）"}</strong>
     <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":"正在聽英文"):"語音連接中":hasKey?"打字也能玩，不必開麥克風":"無 Key 也能完整打字玩"}</small>
    </div>
   </div>

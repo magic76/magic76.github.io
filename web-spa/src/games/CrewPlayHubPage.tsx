@@ -13,7 +13,8 @@ export const crewGames=[
 ] as const;
 
 export function CrewPlayHubPage(){
- const {t}=useTranslation("home");
+ const {t,i18n}=useTranslation("home");
+ const zh=i18n.resolvedLanguage?.startsWith("zh");
  return <main className="crew-play-page">
   <header className="crew-play-hero">
    <Link to="/" className="crew-play-back">← {t("playHub.back")}</Link>
@@ -27,6 +28,11 @@ export function CrewPlayHubPage(){
     <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{t(game.id==="twenty-questions"||game.id==="mystery"?"playHub.voiceRequired":"playHub.offlineOptional")}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>)}
+   <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court">
+    <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{t("playHub.offlineOptional")}</span></div>
+    <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
   </div>
   <p className="crew-play-footer-note">{t("playHub.footer")}</p>
  </main>;

@@ -22,6 +22,7 @@ const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({defau
 const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({default:m.CrewPlayGamePage})));
 const NumberGamePage=lazy(()=>import("./games/NumberGamePage").then(m=>({default:m.NumberGamePage})));
 const TabooGamePage=lazy(()=>import("./games/TabooGamePage").then(m=>({default:m.TabooGamePage})));
+const CrazyCourtPage=lazy(()=>import("./games/CrazyCourtPage").then(m=>({default:m.CrazyCourtPage})));
 const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:m.BriefingPage})));
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
@@ -33,7 +34,7 @@ function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navi
 export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
-  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo)$/.test(pathname);
+  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo|crazy-court)$/.test(pathname);
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
@@ -61,6 +62,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/games/gomoku" element={<Navigate to="/games/friend-gomoku" replace/>}/>
 <Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
+<Route path="/games/crazy-court" element={<AppChrome product="home"><CrazyCourtPage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
 <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
