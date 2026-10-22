@@ -33,8 +33,13 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
   assert.match(controls,/aria-label="調整 AI 播放音量"/);
   assert.match(controls,/type="range" min="0" max="300"/);
   assert.match(controls,/live\.setVolume\(Number\(e\.target\.value\)\)/);
-  assert.match(controls,/實體音量鍵可能控制通話音量/);
-  assert.match(controls,/100% 以上增強播放/);
+  assert.match(controls,/aria-label="AI 音量降低 20%"/);
+  assert.match(controls,/live\.setVolume\(Math\.max\(0,live\.volume-20\)\)/);
+  assert.match(controls,/aria-label="AI 音量提高 20%"/);
+  assert.match(controls,/live\.setVolume\(Math\.min\(300,live\.volume\+20\)\)/);
+  assert.match(controls,/Android 音量鍵有時只調整通話音量/);
+  assert.match(css,/\.crew-voice-dock \.live-volume-step\{/);
+  assert.match(controls,/100% 以上會增強音量/);
   assert.match(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:block\}/);
   assert.doesNotMatch(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:none\}/);
   assert.match(css,/\.live-stage\{padding-bottom:calc\(210px/);

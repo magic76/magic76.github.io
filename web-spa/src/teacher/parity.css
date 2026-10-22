@@ -74,8 +74,11 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 .crew-voice-dock .live-manual-interrupt:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .crew-voice-dock .live-callbar{margin:0;min-width:0}
 .crew-voice-dock .live-audio-settings{margin-top:0;min-width:0;padding:8px 12px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface-alt,#f7f8fa)}
-.crew-voice-dock .live-volume{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:0;min-width:0}
+.crew-voice-dock .live-volume{display:grid;grid-template-columns:auto 38px minmax(0,1fr) 38px auto;align-items:center;gap:6px;margin:0;min-width:0}
 .crew-voice-dock .live-volume-label,.crew-voice-dock .live-volume-value{font-size:12px;font-weight:700;white-space:nowrap}
+.crew-voice-dock .live-volume-step{display:grid;place-items:center;min-width:38px;min-height:38px;padding:0;border:1px solid var(--line,#ddd);border-radius:10px;background:var(--surface,#fff);color:var(--text,#202637);font:inherit;font-size:23px;line-height:1;cursor:pointer;touch-action:manipulation}
+.crew-voice-dock .live-volume-step:disabled{opacity:.35;cursor:default}
+.crew-voice-dock .live-volume-step:focus-visible{outline:2px solid var(--accent,#6255d6);outline-offset:2px}
 .crew-voice-dock .live-volume input{display:block;width:100%;min-width:0;margin:0;accent-color:var(--accent,#6255d6)}
 .crew-voice-dock .live-volume-value{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
 .crew-voice-dock .live-audio-hint{display:none;color:var(--muted,#667085);font-size:10px;line-height:1.35;text-align:left}
