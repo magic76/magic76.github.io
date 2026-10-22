@@ -84,6 +84,43 @@ async function captureCrewVisualQA(browser){
 }
 
 
+// CSS collision regression: learn, vocabulary, and course all use their full width.
+async function verifyLearningResponsiveLayout(browser){
+ for(const width of [390,430,1440]){
+  const context=await browser.newContext({viewport:{width,height:844},isMobile:width<500,hasTouch:width<500});
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+  const page=await context.newPage();
+  try{
+   for(const [path,root,surface] of [
+    ["/learn/",".crew-section-learn",".crew-section-focus-card"],
+    ["/teacher/vocabulary/",".crew-learning-focus",".crew-learning-quiz"],
+    ["/teacher/course/",".crew-learning-focus",".crew-course-resume"]
+   ]){
+    const response=await page.goto(origin+path,{waitUntil:"domcontentloaded",timeout:30000});
+    assert.equal(response?.status(),200,path+" must load");
+    await page.locator(surface).first().waitFor({state:"visible",timeout:15000});
+    const geometry=await page.evaluate(({root,surface})=>{
+     const shell=document.querySelector(root).getBoundingClientRect();
+     const card=document.querySelector(surface).getBoundingClientRect();
+     return {shell:shell.width,card:card.width,viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth};
+    },{root,surface});
+    assert.ok(geometry.shell>=250&&geometry.card>=geometry.shell*.9,path+" must not become a narrow column at "+width+": "+JSON.stringify(geometry));
+    assert.ok(geometry.scroll<=geometry.viewport+2,path+" must not overflow at "+width+": "+JSON.stringify(geometry));
+    if(path==="/learn/"){
+     const textWidth=await page.locator(".crew-section-focus-card-content").evaluate(el=>el.getBoundingClientRect().width);
+     assert.ok(textWidth>(width<500?160:280),"Learn heading must remain readable at "+width);
+    }
+    if(path==="/teacher/vocabulary/"){
+     const positions=await page.locator(".crew-learning-question .quiz-choice").evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().top));
+     assert.equal(positions.length,3,"Vocabulary must show three answers");
+     assert.ok(positions.every(y=>Math.abs(y-positions[0])<2),"Three choices must be horizontal");
+    }
+    process.stdout.write("PASS learning CSS "+path+" "+width+"px\\n");
+   }
+  }finally{await context.close();}
+ }
+}
+
 async function waitForPreview(child){
  for(let n=0;n<120;n++){
   if(child.exitCode!==null)throw Error("Vite preview exited before startup: "+child.exitCode);
@@ -147,7 +184,8 @@ async function run(){
    assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0);
    process.stdout.write("PASS first-run guide, language setup, skip and replay\n");
   }finally{await onboardingContext.close();}
-  const context=await browser.newContext({viewport:{width:1280,height:800}});
+  await verifyLearningResponsiveLayout(browser);
+   const context=await browser.newContext({viewport:{width:1280,height:800}});
   await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   for(const route of routes){
    const errors=[];
@@ -316,9 +354,9 @@ async function run(){
            assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" me label");
           }
           if(section==="learn"){
-           assert.equal((await root.locator(".crew-learning-focus h2").textContent())?.trim(),strings.firstTopic,locale+" new learner focus");
-           assert.equal((await root.locator(".crew-learning-focus .kicker").textContent())?.trim(),strings.newLabel,locale+" first-run label");
-           assert.ok((await root.locator(".crew-learning-focus .crew-action-primary").getAttribute("href")||"").includes("/teacher/roles?mode=teacher"),locale+" teacher CTA");
+           assert.equal((await root.locator(".crew-section-focus-card h2").textContent())?.trim(),strings.firstTopic,locale+" new learner focus");
+           assert.equal((await root.locator(".crew-section-focus-card .kicker").textContent())?.trim(),strings.newLabel,locale+" first-run label");
+           assert.ok((await root.locator(".crew-section-focus-card .crew-action-primary").getAttribute("href")||"").includes("/teacher/roles?mode=teacher"),locale+" teacher CTA");
           }
           const keys=section==="chat"?["games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
           const cards=root.locator(".crew-section-grid .crew-section-card");
