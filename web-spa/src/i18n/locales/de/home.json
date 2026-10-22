@@ -342,6 +342,17 @@
         "max": "Sportlich und abenteuerlustig",
         "yuna": "Sanft und zurückhaltend",
         "felix": "Diskutiert gern"
+      },
+      "previous": "Vorherige Freunde",
+      "next": "Weitere Freunde",
+      "chatWith": "Mit {{name}} chatten",
+      "friendBios": {
+        "zoe": "Entdecke den Humor im Alltag.",
+        "noah": "Ein ruhiger Freund, der gut zuhört.",
+        "iris": "Filme, Design und kreative Ideen.",
+        "max": "Abenteuer und neue Herausforderungen.",
+        "yuna": "Unterhalte dich in deinem Tempo.",
+        "felix": "Entdecke andere Perspektiven."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Dein heutiges Lernen",
       "recordsLink": "Lernverlauf ansehen",
       "threeMinuteTitle": "Drei Minuten in einer Fremdsprache reden",
-      "threeMinuteDesc": "Übe entspannt mit einem Crew-Freund, ganz ohne Prüfung."
+      "threeMinuteDesc": "Übe entspannt mit einem Crew-Freund, ganz ohne Prüfung.",
+      "syncInfo": "Über den Lernverlauf",
+      "focusLabel": "Empfohlene Übung",
+      "newLabel": "HIER STARTEN",
+      "resumeLabel": "WEITERÜBEN",
+      "firstTopic": "Alltägliche Vorstellungen",
+      "firstDesc": "Lerne deine Lehrkraft kennen und übe eine einfache Vorstellung.",
+      "resumeDesc": "Setze deinen Lernplan mit deiner Lehrkraft fort.",
+      "suggestedTime": "Empfohlen: 5 Min.",
+      "startCta": "Übung starten",
+      "resumeCta": "Übung fortsetzen"
     },
     "me": {
       "title": "Mein Crew",

@@ -342,6 +342,17 @@
         "max": "Petualang yang energik",
         "yuna": "Lembut dan pendiam",
         "felix": "Suka berdiskusi"
+      },
+      "previous": "Teman sebelumnya",
+      "next": "Teman berikutnya",
+      "chatWith": "Mengobrol dengan {{name}}",
+      "friendBios": {
+        "zoe": "Temukan sisi lucu dari keseharian.",
+        "noah": "Teman tenang yang suka mendengarkan.",
+        "iris": "Bicara soal film, desain, dan ide kreatif.",
+        "max": "Petualangan dan tantangan baru.",
+        "yuna": "Mengobrol santai sesuai ritmemu.",
+        "felix": "Jelajahi sudut pandang lain."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Belajar hari ini",
       "recordsLink": "Lihat catatan belajar",
       "threeMinuteTitle": "Ngobrol 3 menit dalam bahasa asing",
-      "threeMinuteDesc": "Berlatih santai dengan teman Crew tanpa ujian."
+      "threeMinuteDesc": "Berlatih santai dengan teman Crew tanpa ujian.",
+      "syncInfo": "Tentang catatan belajar",
+      "focusLabel": "Latihan yang disarankan",
+      "newLabel": "MULAI DI SINI",
+      "resumeLabel": "LANJUTKAN LATIHAN",
+      "firstTopic": "Perkenalan sehari-hari",
+      "firstDesc": "Kenali gurumu dan mulai dengan perkenalan sederhana.",
+      "resumeDesc": "Lanjutkan rencana belajarmu bersama guru.",
+      "suggestedTime": "Saran: 5 menit",
+      "startCta": "Mulai berlatih",
+      "resumeCta": "Lanjutkan latihan"
     },
     "me": {
       "title": "Crew Saya",

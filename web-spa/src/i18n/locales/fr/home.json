@@ -342,6 +342,17 @@
         "max": "Énergique et aventurier",
         "yuna": "Douce et réservée",
         "felix": "Aime débattre"
+      },
+      "previous": "Amis précédents",
+      "next": "Amis suivants",
+      "chatWith": "Discuter avec {{name}}",
+      "friendBios": {
+        "zoe": "De l'humour dans les petites choses.",
+        "noah": "Un ami calme qui sait écouter.",
+        "iris": "Cinéma, design et idées créatives.",
+        "max": "Aventures et nouveaux défis.",
+        "yuna": "Discutez tranquillement, à votre rythme.",
+        "felix": "Explorez d'autres points de vue."
       }
     },
     "learn": {
@@ -378,7 +389,17 @@
       "todayTitle": "Vos progrès du jour",
       "recordsLink": "Voir mes résultats",
       "threeMinuteTitle": "Parler une langue étrangère pendant 3 minutes",
-      "threeMinuteDesc": "Échangez naturellement avec un ami Crew, sans examen."
+      "threeMinuteDesc": "Échangez naturellement avec un ami Crew, sans examen.",
+      "syncInfo": "À propos de l'historique d'apprentissage",
+      "focusLabel": "Exercice recommandé",
+      "newLabel": "COMMENCER ICI",
+      "resumeLabel": "REPRENDRE L'EXERCICE",
+      "firstTopic": "Se présenter au quotidien",
+      "firstDesc": "Rencontrez votre professeur et commencez par une présentation simple.",
+      "resumeDesc": "Reprenez votre parcours avec votre professeur.",
+      "suggestedTime": "Conseillé : 5 min",
+      "startCta": "Commencer à pratiquer",
+      "resumeCta": "Reprendre l'exercice"
     },
     "me": {
       "title": "Mon Crew",
