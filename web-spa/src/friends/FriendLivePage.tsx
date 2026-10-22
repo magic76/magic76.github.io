@@ -7,6 +7,7 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import {TextChatPanel} from "../live/TextChatPanel";
 import{useTranslation}from"react-i18next";
 import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
@@ -45,6 +46,7 @@ export function FriendLivePage(){
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
  const [params]=useSearchParams();
+ const textMode=params.get("chat")==="text";
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
@@ -99,7 +101,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
- useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
+ useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
@@ -112,6 +114,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   if(applied||(!connected&&!pending))setActiveFriendChatMode(chosen);
   setModeNote(applied?t("chatModeChanged"):t("chatModeSavedNext"));
  };
+ const alternateParams=new URLSearchParams(params);
+ if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
+ const alternateHref="/friend/live?"+alternateParams.toString();
  return <>
   <header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
@@ -142,6 +147,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
+    <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref}>{textMode?"改用語音":"改用文字"}</Link></div>
+    {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
@@ -157,9 +164,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
        {turn.input?<p><strong>你：</strong>{turn.input}</p>:null}
        {turn.output?<p><strong>{friend.name}：</strong>{turn.output}</p>:null}
       </div>)}</div>
-    </details>:null}
+    </details>:null}</>}
     <p className="friend-live-footnote">聊天內容僅在這次頁面顯示。最近聊天只記錄日期；話題記憶預設開啟，可隨時在設定關閉。</p>
-   </section><DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/></div>
+   </section>{!textMode&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
  </>;
 }
