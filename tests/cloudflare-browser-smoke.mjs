@@ -173,8 +173,8 @@ async function run(){
       await page.locator("#settings-device h2").waitFor({state:"visible",timeout:15000});
       assert.equal((await page.locator("#settings-device h2").textContent())?.trim(),settingsStrings.device.heading,locale+" Settings translation");
       await page.locator(".crew-language-trigger").first().click();
-      assert.equal(await page.locator(".crew-language-dialog .crew-language-option").count(),11,locale+" no preview languages in picker");
-      await page.locator(".crew-language-close").first().click();
+      assert.equal(await page.locator(".crew-language-dialog[open] .crew-language-option").count(),11,locale+" no preview languages in picker");
+      await page.locator(".crew-language-dialog[open] .crew-language-close").click();
       assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
       // Walk the remaining user-facing destinations with the same saved
       // learning-language settings. No screenshots/artifacts are uploaded.
