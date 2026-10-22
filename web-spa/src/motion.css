@@ -22,7 +22,7 @@
 .global-nav .nav-indicator[data-inactive="true"]{opacity:0}
 .subnav a{transition:color 150ms ease,background-color 240ms ease,box-shadow 240ms ease}
 .teacher-picker-backdrop{animation:crew-overlay-in 180ms ease-out both}
-.teacher-picker{animation:crew-sheet-in 320ms var(--crew-motion-ease) both}
+.teacher-picker{animation:crew-sheet-in 260ms var(--crew-motion-ease) both}
 @keyframes crew-overlay-in{from{opacity:0}to{opacity:1}}
 @keyframes crew-sheet-in{from{opacity:.7;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
 

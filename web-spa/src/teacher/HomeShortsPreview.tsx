@@ -59,6 +59,21 @@ export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:nu
   seen.add(post.friendId);return true;
  }).slice(0,maxPosts)||[];
  const followUps=shortsStoryFollowUps(feed?.posts||[]);
+ const visiblePostIds=posts.map(post=>post.id).join("|");
+ useEffect(()=>{
+  const slider=sliderRef.current;
+  if(status!=="ready"||!slider||typeof IntersectionObserver==="undefined"
+   ||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cards=Array.from(slider.querySelectorAll<HTMLElement>(".crew-home-short-card"));
+  const observer=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    entry.target.toggleAttribute("data-visible",entry.isIntersecting);
+   }
+  },{root:slider,threshold:0.35});
+  cards.forEach(card=>observer.observe(card));
+  slider.dataset.motionReady="true";
+  return()=>{observer.disconnect();delete slider.dataset.motionReady};
+ },[status,visiblePostIds]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
   const mark=()=>{if(!impressionSent.current){impressionSent.current=true;trackUsageEvent("shorts_view","shorts_home");}};

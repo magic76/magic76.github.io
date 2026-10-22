@@ -45,3 +45,11 @@
 .crew-home-shorts-update{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:11px 14px;margin-bottom:14px;background:var(--surface-alt);border:1px solid var(--line);border-radius:12px;font-size:12px}
 .crew-home-shorts-update span{font-weight:700}
 .crew-home-shorts-update a{font-weight:750;color:var(--accent);text-decoration:none}
+
+/* Finite, viewport-driven Shorts transitions: no timers or offscreen animation loops. */
+@media(prefers-reduced-motion:no-preference){
+ .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card{
+  opacity:.72;translate:0 7px;transition:translate 240ms var(--crew-motion-ease),opacity 240ms ease;
+ }
+ .crew-home-shorts-grid[data-motion-ready="true"] .crew-home-short-card[data-visible]{opacity:1;translate:0 0}
+}

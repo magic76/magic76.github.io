@@ -30,6 +30,9 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  assert.match(component,/pullRef\.current>=72/);
  assert.match(component,/navigate\("\/teacher\/shorts"\)/);
  assert.match(component,/IntersectionObserver/);
+ assert.match(component,/threshold:0.35/);
+ assert.match(component,/data-visible/);
+ assert.match(component,/prefers-reduced-motion: reduce/);
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
  assert.match(component,/to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
