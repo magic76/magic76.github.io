@@ -20,7 +20,9 @@ test("Crew World Shorts still use the real feed and their story/chat paths",()=>
  assert.match(shorts,/fetchShortsFeed\(/);
  assert.match(shorts,/shortsChatUrl\(post,"details"\)/);
  assert.match(shorts,/\/teacher\/shorts\?post=/);
- assert.match(shorts,/slice\(0,6\)/);
+ assert.match(shorts,/maxPosts=6/);
+ assert.match(shorts,/\.slice\(0,maxPosts\)/);
+ assert.match(shorts,/excludeFriendIds\.includes\(post\.friendId\)/);
 });
 test("Crew World animated portal respects reduced motion",()=>{
  const css=read("web-spa/src/pages/homePortal.css");

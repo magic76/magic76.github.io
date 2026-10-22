@@ -110,3 +110,15 @@
  .crew-section-people-strip .crew-section-friend,.crew-section-friend-photo .crew-friend-avatar{transition:none!important}
  .crew-section-people-strip{scroll-behavior:auto}
 }
+
+/* Long translated carousel labels keep their own line without shrinking buttons. */
+.crew-section-people .crew-section-row-title{flex-wrap:wrap}
+.crew-section-people-toolbar{margin-left:auto;flex-wrap:wrap;justify-content:flex-end;min-width:0}
+.crew-section-people-toolbar>a{overflow-wrap:anywhere}
+.crew-learning-focus-portrait{position:relative}
+.crew-learning-focus-portrait span{position:absolute;inset:0;display:grid;place-items:center}
+.crew-learning-focus-portrait img{position:absolute;inset:0}
+@media(max-width:430px){
+ .crew-section-people-toolbar{width:100%;justify-content:space-between}
+ .crew-section-carousel-actions{flex:none}
+}

@@ -20,12 +20,19 @@ test("Android Crew shell is detected by an explicit marker, not by generic Andro
 test("main Learn tab has native-equivalent continue, daily activity and three-minute speaking",()=>{
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const learn=read("web-spa/src/teacher/LearnPage.tsx");
- for(const body of [hub,learn]){
-  assert.match(body,/<TodayLearningCard\/>/);
-  assert.match(body,/<ContinueLearningCard compact\/>/);
-  assert.match(body,/\/friend\/live\?id=zoe&intent=speak/);
- }
- assert.match(hub,/section==="learn"&&<section/);
+ assert.match(hub,/<LearningFocusCard\/>/);
+ assert.match(hub,/<TodayLearningCard compact\/>/);
+ assert.match(hub,/\/friend\/live\?id=zoe&intent=speak/);
+ assert.match(hub,/section==="learn"\?/);
+ assert.match(learn,/<TodayLearningCard\/>/);
+ assert.match(learn,/<ContinueLearningCard compact\/>/);
+ assert.match(learn,/\/friend\/live\?id=zoe&intent=speak/);
+ const focus=read("web-spa/src/teacher/LearningFocusCard.tsx");
+ assert.match(focus,/buildDailyLearningPlan\(\)/);
+ assert.match(focus,/history\("teacher"\)/);
+ assert.match(focus,/completedLessons\(\)/);
+ assert.match(focus,/getTeacherProfile\(/);
+ assert.match(focus,/resume\?plan\.to:/);
  const stats=read("web-spa/src/teacher/learningToday.ts");
  assert.match(stats,/history\("teacher"\)/);
  assert.match(stats,/item\.durationMs/);
