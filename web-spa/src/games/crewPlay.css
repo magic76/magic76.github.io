@@ -350,12 +350,12 @@
 .crew-board-coordinate-frame--reversi .crew-board-column-labels>span small{font-size:9px;font-weight:650}
 .crew-board-coordinate-frame .crew-connect-board,.crew-board-coordinate-frame .crew-reversi-board{grid-area:2/2;width:100%;max-width:none;min-width:0}
 .crew-board-coordinate-frame .crew-connect-board{overflow:hidden}
-.crew-connect-disc.is-dropping{position:relative;animation:crew-connect-disc-drop var(--drop-duration,650ms) cubic-bezier(.24,.68,.29,1) both}
+.crew-connect-disc.is-dropping{will-change:transform;backface-visibility:hidden;animation:crew-connect-disc-drop var(--drop-duration,650ms) cubic-bezier(.24,.68,.29,1) both}
 @keyframes crew-connect-disc-drop{
- 0%{top:calc(-100% * var(--drop-rows))}
- 78%{top:5%}
- 88%{top:-2%}
- 100%{top:0}
+ 0%{transform:translate3d(0,var(--drop-distance,-600%),0)}
+ 78%{transform:translate3d(0,5%,0)}
+ 88%{transform:translate3d(0,-2%,0)}
+ 100%{transform:translate3d(0,0,0)}
 }
 .crew-reversi-disc.is-entering{animation:crew-reversi-disc-place .26s cubic-bezier(.2,1.5,.4,1) both}
 @keyframes crew-reversi-disc-place{from{transform:scale(.65);opacity:.6}to{transform:scale(1);opacity:1}}
