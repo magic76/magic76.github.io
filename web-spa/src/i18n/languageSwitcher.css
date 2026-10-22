@@ -12,7 +12,6 @@
 .crew-language-close:focus-visible{
  outline:2px solid var(--accent,#725bc4);outline-offset:2px;
 }
-.crew-language-trigger-symbol{font-size:13px;font-weight:800;color:var(--accent,#725bc4)}
 .crew-language-trigger-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .crew-language-trigger svg{flex:none}
 .crew-language-picker-settings .crew-language-trigger{max-width:100%;min-width:180px;min-height:44px;justify-content:space-between;font-size:14px}

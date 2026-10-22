@@ -49,7 +49,6 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   <button type="button" className="crew-language-trigger"
    aria-label={t("language.label")+": "+currentLabel}
    aria-haspopup="dialog" aria-expanded={open} onClick={showPicker}>
-   <span aria-hidden="true" className="crew-language-trigger-symbol">文</span>
    <span className="crew-language-trigger-name">{currentLabel}</span>
    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 9 6 6 6-6"/></svg>
   </button>
