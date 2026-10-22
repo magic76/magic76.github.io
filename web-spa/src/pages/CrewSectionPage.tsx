@@ -129,7 +129,7 @@ const sectionItemKeys={
 } as const;
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
- const {t,i18n}=useTranslation("home");
+ const {t,i18n}=useTranslation(["home","teacher"]);
  const clientReady=useClientReady();
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
@@ -146,10 +146,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   return {
    ...source,title:t(prefix+"title"),intro:t(prefix+"intro"),
    hero:{...source.hero,title:t(prefix+"hero.title"),desc:t(prefix+"hero.desc"),tag:t(prefix+"hero.tag")},
-   items:source.items.map((item,i)=>({...item,
-    title:t(prefix+"items."+sectionItemKeys[sectionKey][i]+".title"),
-    desc:t(prefix+"items."+sectionItemKeys[sectionKey][i]+".desc")
-   }))
+   items:source.items.map((item,i)=>{
+    const vocabulary=section==="learn"&&i===0;
+    return {...item,
+     ...(vocabulary?{to:"/teacher/vocabulary",icon:"cards" as IconName}:{}),
+     title:vocabulary?t("learn.vocab",{ns:"teacher"}):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".title"),
+     desc:vocabulary?t("learn.vocabDesc",{ns:"teacher"}):t(prefix+"items."+sectionItemKeys[sectionKey][i]+".desc")
+    };
+   })
   };
  })();
  return <div className={"crew-section-hub crew-section-"+section}>

@@ -11,8 +11,10 @@
 .crew-learning-question .quiz-meta{display:flex;justify-content:center;gap:8px;margin-bottom:14px}
 .crew-learning-question-prompt{font-size:13px;color:var(--muted,#667085);margin:0 0 8px}
 .crew-learning-question .quiz-word{font-size:clamp(30px,7vw,46px);line-height:1.18;font-weight:800;letter-spacing:-.03em;margin:0 0 12px;overflow-wrap:anywhere}
-.crew-learning-question .quiz-list{display:grid;grid-template-columns:1fr;gap:10px;margin:20px 0 0}
-.crew-learning-question .quiz-choice{display:grid;grid-template-columns:32px 1fr 20px;align-items:center;gap:12px;width:100%;min-height:62px;border:1px solid var(--line,#e7e5ee);border-radius:16px;padding:12px 14px;background:var(--surface,#fff);color:var(--text,#1d2532);text-align:left;font-weight:700;cursor:pointer;font-size:15px}
+.crew-learning-question .quiz-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:20px 0 0}
+.crew-learning-question .quiz-choice{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;min-width:0;width:100%;min-height:96px;border:1px solid var(--line,#e7e5ee);border-radius:16px;padding:12px 8px;background:var(--surface,#fff);color:var(--text,#1d2532);text-align:center;font-weight:700;cursor:pointer;font-size:clamp(12px,2.8vw,15px);line-height:1.4;overflow-wrap:anywhere}
+.crew-learning-question .quiz-choice>span:nth-child(2){max-width:100%;white-space:normal}
+.crew-learning-question .quiz-choice>span:nth-child(3){position:absolute;top:5px;right:7px}
 .crew-learning-question .quiz-choice:disabled{cursor:default;opacity:1}
 .crew-learning-question .quiz-choice.correct{background:#edfaf2;border-color:#4aaf79;color:#186440}
 .crew-learning-question .quiz-choice.wrong{background:#fff1f0;border-color:#d96d67;color:#ab2925}
@@ -89,3 +91,5 @@ a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826c
 .crew-vocab-voice-hint{margin:0;padding:2px 14px 14px;font-size:11px;line-height:1.65;color:var(--muted,#667085)}
 .crew-vocab-voice-error{font-size:12px;line-height:1.5;color:#a52c23;margin:10px 0;text-align:center}
 @media(max-width:480px){.crew-vocab-pronunciation-actions{gap:6px}.crew-vocab-pronunciation-actions .btn{font-size:12px;padding:9px 11px}}
+
+@media(max-width:380px){.crew-learning-question .quiz-list{gap:6px}.crew-learning-question .quiz-choice{padding:10px 5px;min-height:92px}.crew-learning-choice-letter{width:28px;height:28px}}
