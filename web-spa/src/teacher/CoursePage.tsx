@@ -31,6 +31,14 @@ export function CoursePage(){
   const focus=requested?.trackId===track.id?requested.unitId:next?.unitId||units[0]?.id;
   setExpandedUnits(focus?[focus]:[]);
  },[track.id,requested?.id]);
+ // A deep link must reveal the bookmarked lesson, not just switch tracks.
+ useEffect(()=>{
+  if(!requested||requested.trackId!==track.id)return;
+  const timer=window.setTimeout(()=>{
+   document.querySelector(".crew-course-lesson.highlighted")?.scrollIntoView({block:"center",behavior:"auto"});
+  },120);
+  return()=>window.clearTimeout(timer);
+ },[track.id,requested?.id]);
 
  function chooseTrack(id:string){
   if(id===track.id)return;

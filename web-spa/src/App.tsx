@@ -57,6 +57,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/circle" element={<BooksPage/>}/>
 <Route path="/games" element={<AppChrome product="home"><CrewPlayHubPage/></AppChrome>}/>
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><FriendGomokuPage/></AppChrome>}/>
+<Route path="/games/gomoku" element={<Navigate to="/games/friend-gomoku" replace/>}/>
 <Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>

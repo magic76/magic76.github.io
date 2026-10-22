@@ -1,5 +1,5 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
-import {Link,Navigate,useParams} from "react-router-dom";
+import {Link,useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
 import {FriendAvatar} from "../friends/FriendAvatar";
@@ -36,10 +36,13 @@ export function CrewPlayGamePage(){
  const [friendId,setFriendId]=useState(savedFriend);
  const [round,setRound]=useState(()=>Math.floor(Math.random()*100));
  const friend=getCrewFriend(friendId);
- if(!isGame(gameId))return <Navigate to="/games" replace/>;
+ useEffect(()=>{if(isGame(gameId))trackUsageEvent("game_open",gameId)},[gameId]);
+ if(!isGame(gameId))return <main className="crew-play-page crew-play-not-found" role="main">
+  <div className="panel"><span className="crew-play-eyebrow">CREW PLAY · 404</span>
+   <h1>找不到這個遊戲</h1><p>網址可能已變更，請從遊戲中心選擇目前提供的遊戲。</p>
+   <Link className="btn primary" to="/games">返回遊戲中心</Link></div></main>;
  const game=crewGames.find(g=>g.id===gameId)!;
  const wordGame=gameId==="twenty-questions"||gameId==="mystery";
- useEffect(()=>{if(isGame(gameId))trackUsageEvent("game_open",gameId)},[gameId]);
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
  return <main className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
