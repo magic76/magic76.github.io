@@ -6,7 +6,8 @@ const ts=require("typescript");
 
 // Reuse the same TypeScript engine as the real UI; no duplicate rule implementation.
 const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/crazyCourtEngine.ts"),"utf8");
-const {outputText}=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}});
+// TypeScript 7 does not expose runtime enum constants; numeric compiler options remain compatible.
+const {outputText}=ts.transpileModule(source,{compilerOptions:{module:1,target:9}});
 const moduleRef={exports:{}};
 new Function("module","exports",outputText)(moduleRef,moduleRef.exports);
 const {courtCases,courtReasons,evaluateCourtAction,courtVerdict}=moduleRef.exports;
