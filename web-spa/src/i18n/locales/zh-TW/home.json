@@ -43,7 +43,8 @@
     "vedic": "印度星盤",
     "play": "再次開啟遊戲，開始新的一局",
     "friend": "和 Crew 朋友再聊聊",
-    "friendDesc": "回到這位朋友的對話入口"
+    "friendDesc": "回到這位朋友的對話入口",
+    "fortuneResume": "繼續查看命盤結果"
   },
   "actions": {
     "label": "快速開始",
@@ -127,7 +128,14 @@
         "description": "走進一段故事，或寫下新的開頭。\n和 AI 一起，把想像變成世界。",
         "cta": "打開一段新故事"
       }
-    }
+    },
+    "bridge": "世界裡的故事，正在發生",
+    "explore": "還有更多，等你探索。",
+    "possibilities": "每個角落都有新可能",
+    "fortuneTitle": "換個角度，認識自己",
+    "fortuneDescription": "探索命盤，讓 AI 朋友陪你解讀。",
+    "timelineTitle": "每一段人生，都有另一頁",
+    "timelineDescription": "走進不同人物與年紀，聽見不一樣的故事。"
   },
   "playHub": {
     "back": "首頁",

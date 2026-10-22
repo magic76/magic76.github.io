@@ -43,7 +43,8 @@
     "vedic": "Astrología védica",
     "play": "Abre este juego para iniciar otra ronda",
     "friend": "Hablar con un amigo de Crew",
-    "friendDesc": "Retoma esta conversación"
+    "friendDesc": "Retoma esta conversación",
+    "fortuneResume": "Seguir leyendo tu carta"
   },
   "actions": {
     "label": "Inicio rápido",
@@ -127,7 +128,14 @@
         "description": "Entra en una historia o escribe un nuevo comienzo.\nCrea un mundo junto a la IA.",
         "cta": "Abre una nueva historia"
       }
-    }
+    },
+    "bridge": "Aquí nacen pequeñas historias",
+    "explore": "Sigue tu curiosidad.",
+    "possibilities": "Un mundo de posibilidades.",
+    "fortuneTitle": "Mírate desde otra perspectiva",
+    "fortuneDescription": "Explora tu carta con un amigo de IA.",
+    "timelineTitle": "Cada vida tiene otro capítulo",
+    "timelineDescription": "Conoce a distintas personas en diferentes etapas de su vida."
   },
   "playHub": {
     "back": "Inicio",

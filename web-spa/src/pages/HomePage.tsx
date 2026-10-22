@@ -21,16 +21,11 @@ type Recent={key:string;kind:Kind;title:string;description:string;to:string;time
 type Book={id:string;title?:string;summary?:string;updatedAt?:string;createdAt?:string;readingMode?:string;coverIndex?:number;currentPage?:number;images?:Array<{preview?:string}>};
 
 const LAST_ACTIVITY_KEY="crew_home_last_activity_v1";
-const GAME_NAMES:Record<string,readonly [string,string]>={
- "friend-gomoku":["五子棋","Gomoku"],connect4:["四子棋","Connect Four"],
- "twenty-questions":["20 Questions","20 Questions"],reversi:["黑白棋","Reversi"],
- mystery:["海龜湯","Mystery Stories"],"1a2b":["1A2B 猜數字","Bulls and Cows"],
- taboo:["Taboo 描述猜詞","Taboo Word Game"]
-};
+const GAME_IDS=new Set(["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"]);
 
 const time=(value:unknown)=>{const n=Date.parse(typeof value==="string"?value:"");return Number.isFinite(n)?n:0};
 const description=(value:unknown,fallback:string)=>typeof value==="string"&&value.trim()?value.trim():fallback;
-const latestDate=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString(i18n.language==="en"?"en-US":"zh-TW",{month:"long",day:"numeric"});
+const latestDate=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString(i18n.language,{month:"long",day:"numeric"});
 
 function activities(book:Book|null):Recent[]{
  const items:Recent[]=[];
@@ -63,7 +58,7 @@ function activities(book:Book|null):Recent[]{
    items.push({key:"fortune-reading:"+item.id,kind:"fortune",to:"/fortune/reading?history="+encodeURIComponent(String(item.id)),
     timestamp:time(item.createdAt||item.updatedAt),
     title:({bazi:i18n.t("home:recent.bazi"),tarot:i18n.t("home:recent.tarot"),vedic:i18n.t("home:recent.vedic")} as Record<string,string>)[String(item.mode)]||i18n.t("home:recent.fortune"),
-    description:description(item.summary,"繼續查看命盤結果")});
+    description:description(item.summary,i18n.t("home:recent.fortuneResume"))});
   }
  }catch{/* An invalid local snapshot should never block the homepage. */}
  if(book?.id){
@@ -79,8 +74,8 @@ function activities(book:Book|null):Recent[]{
   const saved=JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY)||"null") as {path?:string;friendId?:string;at?:number}|null;
   if(saved&&typeof saved.at==="number"&&Number.isFinite(saved.at)&&saved.at>0){
    const gameId=typeof saved.path==="string"?saved.path.match(/^\/games\/([a-z0-9-]+)$/)?.[1]:undefined;
-   if(gameId&&GAME_NAMES[gameId]){
-    const name=GAME_NAMES[gameId][i18n.language.startsWith("en")?1:0];
+   if(gameId&&GAME_IDS.has(gameId)){
+    const name=i18n.t("home:playHub.games."+gameId+".title");
     items.push({key:"game:"+gameId,kind:"play",to:"/games/"+gameId,timestamp:saved.at,
      title:name,description:i18n.t("home:recent.play")});
    }else if(saved.path==="/friend/live"&&typeof saved.friendId==="string"&&/^[a-z0-9-]{1,32}$/.test(saved.friendId)){
@@ -140,19 +135,19 @@ export function HomePage(){
  return <div className="crew-home">
   <div className="crew-home-world">
    <HomePortal/>
-   <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge",{defaultValue:locale.language.startsWith("en")?"Little stories are happening here":"世界裡的故事，正在發生"})}<i/></div>
+   <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview/>
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
-    <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore",{defaultValue:locale.language.startsWith("en")?"Follow your curiosity.":"還有更多，等你探索。"})}</h2><span aria-hidden="true">A world of possibilities.</span></div>
+    <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore")}</h2><span aria-hidden="true">{t("world.possibilities")}</span></div>
     <div className="crew-home-world-explore-grid">
      <Link className="crew-home-world-explore-card" to="/fortune">
       <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="fortune"/></span>
-      <span><small>CREW FORTUNE</small><strong>{t("world.fortuneTitle",{defaultValue:locale.language.startsWith("en")?"A new way to see yourself":"換個角度，認識自己"})}</strong><span>{t("world.fortuneDescription",{defaultValue:locale.language.startsWith("en")?"Explore your chart with an AI friend.":"探索命盤，讓 AI 朋友陪你解讀。"})}</span></span>
+      <span><small>CREW FORTUNE</small><strong>{t("world.fortuneTitle")}</strong><span>{t("world.fortuneDescription")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
      <Link className="crew-home-world-explore-card" to="/timeline">
       <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
-      <span><small>CREW TIMELINE</small><strong>{t("world.timelineTitle",{defaultValue:locale.language.startsWith("en")?"Every life has another chapter":"每一段人生，都有另一頁"})}</strong><span>{t("world.timelineDescription",{defaultValue:locale.language.startsWith("en")?"Meet different people at different ages.":"走進不同人物與年紀，聽見不一樣的故事。"})}</span></span>
+      <span><small>CREW TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
     </div>

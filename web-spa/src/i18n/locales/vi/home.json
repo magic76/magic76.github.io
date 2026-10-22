@@ -43,7 +43,8 @@
     "vedic": "Chiêm tinh Vệ Đà",
     "play": "Mở game này để chơi ván mới",
     "friend": "Trò chuyện với bạn Crew",
-    "friendDesc": "Tiếp tục trò chuyện với người bạn này"
+    "friendDesc": "Tiếp tục trò chuyện với người bạn này",
+    "fortuneResume": "Tiếp tục xem lá số"
   },
   "actions": {
     "label": "Bắt đầu nhanh",
@@ -127,7 +128,14 @@
         "description": "Bước vào một câu chuyện hoặc viết một khởi đầu mới.\nCùng AI xây dựng cả thế giới.",
         "cta": "Mở truyện mới"
       }
-    }
+    },
+    "bridge": "Những câu chuyện nhỏ đang diễn ra ở đây",
+    "explore": "Cứ khám phá theo trí tò mò của bạn.",
+    "possibilities": "Một thế giới đầy khả năng.",
+    "fortuneTitle": "Khám phá bản thân từ góc nhìn mới",
+    "fortuneDescription": "Khám phá lá số cùng một người bạn AI.",
+    "timelineTitle": "Mỗi cuộc đời đều có chương tiếp theo",
+    "timelineDescription": "Gặp gỡ những người ở nhiều độ tuổi và lắng nghe câu chuyện của họ."
   },
   "playHub": {
     "back": "Trang chủ",

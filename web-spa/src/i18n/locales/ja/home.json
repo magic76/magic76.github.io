@@ -43,7 +43,8 @@
     "vedic": "インド占星術",
     "play": "このゲームを開いて新しいラウンドを始める",
     "friend": "Crew の友達と話す",
-    "friendDesc": "この友達とのチャットに戻る"
+    "friendDesc": "この友達とのチャットに戻る",
+    "fortuneResume": "占いの結果を続きを読む"
   },
   "actions": {
     "label": "クイックスタート",
@@ -127,7 +128,14 @@
         "description": "物語の中に飛び込むか、新しい始まりを書こう。\nAI と一緒に世界を作ろう。",
         "cta": "新しい物語を開く"
       }
-    }
+    },
+    "bridge": "この世界では、小さな物語が生まれています",
+    "explore": "好奇心のおもむくままに。",
+    "possibilities": "可能性に満ちた世界。",
+    "fortuneTitle": "新しい視点で自分を知る",
+    "fortuneDescription": "AI の友だちと一緒に星や運勢を読み解こう。",
+    "timelineTitle": "人生には、まだ次の章がある",
+    "timelineDescription": "異なる年齢の人々に出会い、それぞれの物語を聞こう。"
   },
   "playHub": {
     "back": "ホーム",

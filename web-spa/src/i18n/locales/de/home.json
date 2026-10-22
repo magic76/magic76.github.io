@@ -43,7 +43,8 @@
     "vedic": "Vedische Astrologie",
     "play": "Öffne dieses Spiel für eine neue Runde",
     "friend": "Mit einem Crew-Freund chatten",
-    "friendDesc": "Zum Gespräch mit diesem Freund zurückkehren"
+    "friendDesc": "Zum Gespräch mit diesem Freund zurückkehren",
+    "fortuneResume": "Horoskop weiterlesen"
   },
   "actions": {
     "label": "Schnellstart",
@@ -127,7 +128,14 @@
         "description": "Tauche in eine Geschichte ein oder schreib einen neuen Anfang.\nErschaffe mit KI eine ganze Welt.",
         "cta": "Neue Geschichte öffnen"
       }
-    }
+    },
+    "bridge": "Hier entstehen kleine Geschichten",
+    "explore": "Folge deiner Neugier.",
+    "possibilities": "Eine Welt voller Möglichkeiten.",
+    "fortuneTitle": "Entdecke dich aus einer neuen Perspektive",
+    "fortuneDescription": "Erkunde dein Horoskop mit einem KI-Freund.",
+    "timelineTitle": "Jedes Leben hat ein nächstes Kapitel",
+    "timelineDescription": "Triff Menschen in verschiedenen Lebensphasen und entdecke ihre Geschichten."
   },
   "playHub": {
     "back": "Startseite",

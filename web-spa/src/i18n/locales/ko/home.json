@@ -43,7 +43,8 @@
     "vedic": "베다 점성술",
     "play": "게임을 열고 새 판 시작하기",
     "friend": "Crew 친구와 대화하기",
-    "friendDesc": "이 친구와의 대화 이어가기"
+    "friendDesc": "이 친구와의 대화 이어가기",
+    "fortuneResume": "운세 결과 이어 보기"
   },
   "actions": {
     "label": "빠른 시작",
@@ -127,7 +128,14 @@
         "description": "이야기 속으로 들어가거나 새로운 시작을 써 보세요.\nAI와 함께 세계를 만들어보세요.",
         "cta": "새로운 이야기 열기"
       }
-    }
+    },
+    "bridge": "이 세계에서는 작은 이야기들이 펼쳐져요",
+    "explore": "호기심을 따라 더 둘러보세요.",
+    "possibilities": "가능성으로 가득한 세상.",
+    "fortuneTitle": "새로운 시선으로 나를 알아보기",
+    "fortuneDescription": "AI 친구와 함께 나의 운세를 살펴보세요.",
+    "timelineTitle": "모든 인생에는 다음 장이 있어요",
+    "timelineDescription": "다양한 나이의 사람들을 만나 서로 다른 삶의 이야기를 들어 보세요."
   },
   "playHub": {
     "back": "홈",

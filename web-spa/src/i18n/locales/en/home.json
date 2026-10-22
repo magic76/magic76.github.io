@@ -43,7 +43,8 @@
     "vedic": "Vedic astrology",
     "play": "Open this game to play a new round",
     "friend": "Chat with your Crew Friend",
-    "friendDesc": "Return to this friend's chat"
+    "friendDesc": "Return to this friend's chat",
+    "fortuneResume": "Continue reading your chart"
   },
   "actions": {
     "label": "Quick start",
@@ -127,7 +128,14 @@
         "description": "Step into a story, or write a new beginning.\nBuild a world together with AI.",
         "cta": "Open a new story"
       }
-    }
+    },
+    "bridge": "Little stories are happening here",
+    "explore": "Follow your curiosity.",
+    "possibilities": "A world of possibilities.",
+    "fortuneTitle": "A new way to see yourself",
+    "fortuneDescription": "Explore your chart with an AI friend.",
+    "timelineTitle": "Every life has another chapter",
+    "timelineDescription": "Meet different people at different ages."
   },
   "playHub": {
     "back": "Home",
