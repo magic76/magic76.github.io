@@ -63,6 +63,7 @@
 .crew-course-lesson{display:grid;grid-template-columns:32px 1fr 20px;gap:9px;align-items:center;min-height:70px;padding:10px;border-radius:12px;border:1px solid var(--line,#e7e5ee);background:var(--surface,#fff);color:var(--text,#1d2532);text-decoration:none}
 a.crew-course-lesson:hover,a.crew-course-lesson:focus-visible{border-color:#826cdb;background:#faf8ff}
 .crew-course-lesson.is-next{border-color:#a99be5;background:#faf8ff}
+.crew-course-lesson.highlighted{border:2px solid #8065d7;background:#f1edff;box-shadow:0 0 0 3px rgba(128,101,215,.12);scroll-margin-top:110px}
 .crew-course-lesson.locked{opacity:.6;background:var(--surface-alt,#f8f7fa)}
 .crew-course-lesson.completed{background:#f2fbf5}
 .crew-course-lesson-index{display:grid;place-items:center;border-radius:9px;width:32px;height:32px;background:var(--surface-alt,#f7f7f9);font-size:12px;font-weight:800}

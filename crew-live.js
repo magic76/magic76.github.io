@@ -102,6 +102,7 @@
       this.models.length
     ));
     this.connectTimeoutMs=Math.max(100,Number(this.options.connectTimeoutMs)||8000);
+    this.micTimeoutMs=Math.max(50,Number(this.options.micTimeoutMs)||10000);
     this.replyTimeoutMs=Math.max(0,Number(this.options.replyTimeoutMs)||0);
     this.earlyCloseMs=Math.max(1000,Number(this.options.earlyCloseMs)||12000);
 
@@ -153,6 +154,8 @@
     this.outputTurn="";
 
     this.mediaStream=null;
+    this.pendingMicRequest=null;
+    this._startCanceled=false;
     this.inputContext=null;
     this.inputSource=null;
     this.processor=null;
@@ -1196,6 +1199,54 @@
     });
   };
 
+  // getUserMedia is not abortable on all browsers/WebViews. Reject promptly,
+  // and dispose any stream that arrives after timeout or cancellation.
+  LiveSession.prototype._requestMicrophone=function(constraints){
+    var self=this;
+    return new Promise(function(resolve,reject){
+      var pending={done:false,timer:null,reject:null};
+      self.pendingMicRequest=pending;
+      function stopLateStream(stream){
+        if(!stream||!stream.getTracks)return;
+        try{stream.getTracks().forEach(function(track){track.stop();});}catch(_){}
+      }
+      function settle(error,stream){
+        if(pending.done){stopLateStream(stream);return;}
+        pending.done=true;
+        if(pending.timer!==null)self._deps.clearTimeout(pending.timer);
+        if(self.pendingMicRequest===pending)self.pendingMicRequest=null;
+        if(error){reject(error);return;}
+        if(!self.running||self.stopping||self._startCanceled){
+          stopLateStream(stream);
+          reject(new Error("麥克風請求已取消"));
+          return;
+        }
+        resolve(stream);
+      }
+      pending.reject=function(error){settle(error||new Error("麥克風請求已取消"));};
+      pending.timer=self._deps.setTimeout(function(){
+        var error=new Error("麥克風啟用逾時（10 秒）。請檢查瀏覽器或 App 的麥克風權限，然後重試。");
+        error.name="MicrophoneTimeoutError";
+        settle(error);
+      },self.micTimeoutMs);
+      try{
+        Promise.resolve(self._deps.getUserMedia(constraints)).then(
+          function(stream){settle(null,stream);},
+          function(error){
+            var name=String(error&&error.name||"");
+            if(/NotAllowedError|PermissionDeniedError|SecurityError/.test(name)){
+              settle(new Error("麥克風權限遭拒。請在瀏覽器或 App 設定允許麥克風後重試。"));
+            }else if(/NotFoundError|DevicesNotFoundError/.test(name)){
+              settle(new Error("找不到可用的麥克風。請連接麥克風後重試。"));
+            }else if(/NotReadableError|TrackStartError/.test(name)){
+              settle(new Error("麥克風目前無法使用，可能正被其他應用程式占用。"));
+            }else settle(error);
+          }
+        );
+      }catch(error){settle(error);}
+    });
+  };
+
   LiveSession.prototype._openMedia=async function(){
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
@@ -1212,7 +1263,8 @@
     // Leave input selection to the browser/OS. Forcing the built-in microphone
     // on Android can move AI playback off a connected Bluetooth headset.
     // Keep the single selected stream open while muting in software.
-    this.mediaStream=await this._deps.getUserMedia({audio:audioConstraints});
+    this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();
     this.inputContext=this.outputContext;
@@ -1243,12 +1295,14 @@
     this.outputGain.connect(playbackDestination);
 
     if(this.outputContext.resume)await this.outputContext.resume();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     // Prefer a continuously connected AudioWorklet. It renders silence while
     // idle, keeping the device output route warm so the first spoken words are
     // not consumed while the speaker wakes up. Old BufferSource playback stays
     // as a compatibility fallback.
     await this._initOutputWorklet();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
@@ -1309,7 +1363,9 @@
     var reason=options.reason||"user-stop";
     var attempt=this.activeAttempt;
 
+    if(reason==="user-stop"||reason==="page-leave")this._startCanceled=true;
     this.stopping=true;
+    if(this.pendingMicRequest)this.pendingMicRequest.reject(new Error("麥克風請求已取消"));
     this.ready=false;
     this.recovering=false;
 
@@ -1362,6 +1418,7 @@
 
     this.running=true;
     this.ready=false;
+    this._startCanceled=false;
     this.stopping=false;
     this.recovering=false;
     this.attemptsUsed=0;
@@ -1384,11 +1441,13 @@
     try{
       await this._requestWakeLock();
       await this._openMedia();
+      if(!this.running||this.stopping||this._startCanceled)return this;
       this.setVolume(this.volume);
       this.setMicMuted(false);
       await this._connectFrom(0);
       return this;
     }catch(error){
+      if(this._startCanceled)return this;
       await this._shutdown({reason:"start-failed"});
       this._state("error");
       throw error;

@@ -7,7 +7,7 @@ import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
 import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
-import{LiveControls}from"../live/LiveControls";
+import{LiveControls}from"../live/LiveControls";import{TextChatPanel}from"../live/TextChatPanel";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
@@ -25,6 +25,7 @@ export function TeacherLivePage(){
  const navigate=useNavigate(),endRequestedRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),memoryCheckpointRef=useRef(false);
  const[p]=useSearchParams(),s=useTeacherStore(),cameraFile=useRef<HTMLInputElement>(null),galleryFile=useRef<HTMLInputElement>(null),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const[endingCourse,setEndingCourse]=useState(false);
+ const textMode=p.get("chat")==="text";
  const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
@@ -85,7 +86,7 @@ export function TeacherLivePage(){
   return()=>{cancelled=true};
  },[course?.id,live.state,live.report,live.turns,assessmentRetry]);
  // The selected teacher starts when the session page opens. Deferral avoids a StrictMode double-mount call.
- useEffect(()=>{const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
+ useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  const tutorHistoryRecorded=useRef(false);
  useEffect(()=>{
   if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
@@ -150,7 +151,10 @@ export function TeacherLivePage(){
   }
  };
  const sessionActive=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
+ const alternateParams=new URLSearchParams(p);
+  if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
+  const alternateHref="/teacher/live?"+alternateParams.toString();
+  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":"idle";
  return <><header className="app-header"><div className="shell inner"><div className="app-brand"><Link className="back-btn" to={course?"/teacher/course?lesson="+encodeURIComponent(course.id):fortuneKind?"/teacher/fortune":"/teacher/practice"} onClick={e=>{e.preventDefault();void endAndReturn()}}>‹</Link><div className="app-title"><strong>{profile.name}</strong><small>Crew Teacher · {s.targetLanguage}</small></div></div><span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"老師說話中":live.state==="listening"?"正在聽你說":"語音練習"}</span></span></div></header>
  <main className="session-shell">
  {mission&&<div className="notice live-mission"><div><b>這次要完成</b><p>{mission.goals.join(" · ")}</p></div></div>}
@@ -163,12 +167,15 @@ export function TeacherLivePage(){
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
     english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
   </div>
+  <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?"改用語音":"改用文字"}</Link></div>
+  {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={profile.name} english={english} hint={course?"文字聊天不計入這堂口說課的完成評分。":undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?"正在整理課程結果":"這次練習已結束"}</b><p>{evaluating?"正在依實際對話評估任務，完成後會在下方顯示結果。":"可查看評估結果，或返回課程地圖繼續學習。"}</p></div></div>
    :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷老師"/>}
   <div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">設定聊天／情境模式</Link>}{!isRoleplay&&<><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>換話題</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>糾正我</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>說慢一點</button></div>
   <div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span></div></div>
-  <details className="live-more"><summary>更多功能</summary><div className="live-more-body">
+  </>}
+  {!textMode&&<details className="live-more"><summary>更多功能</summary><div className="live-more-body">
    <button className="teacher-current-row live-teacher-row" disabled={sessionActive} onClick={()=>setPicker(true)}><span className="teacher-current-avatar"><TeacherAvatar profile={profile} decorative/></span><span><span className="label">老師</span><strong>{profile.name} · {profile.title}</strong><small>{sessionActive?"結束這次練習後可切換":"點擊切換"}</small></span></button>
    <div className={"live-config "+(sessionActive?"locked":"")}><div className="live-setup-grid">
     <label><span className="label">目標語言</span><select className="field" disabled={sessionActive} value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}><option>英文</option><option>日文</option><option>韓文</option><option>西班牙文</option><option>法文</option></select></label>
@@ -180,8 +187,8 @@ export function TeacherLivePage(){
     <label><span className="label">地區口音</span><select className="field" disabled={sessionActive} value={normalizedAccent(s.targetLanguage,s.languageStyle)} onChange={e=>s.setLanguageStyle(e.target.value as any)}>{accentOptions(s.targetLanguage).map(a=><option key={a.value} value={a.value}>{a.label}</option>)}</select></label>
    </div>{sessionActive&&<p className="live-config-note">這些設定會套用到下一次對話；目前這次不會中途改變。</p>}</div>
    <div className="vision-box"><div className="vision-head"><strong>讓 {profile.name} 看一張圖</strong><span>教材 · 題目 · 菜單 · 路牌</span></div><div className="vision-actions"><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>cameraFile.current?.click()}>{live.visionSending?"正在送出…":"拍照"}</button><button className="vision-btn" disabled={live.state!=="listening"||live.visionSending} onClick={()=>galleryFile.current?.click()}>從相簿選</button></div><input ref={cameraFile} type="file" accept="image/*" capture="environment" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/><input ref={galleryFile} type="file" accept="image/*" hidden onChange={e=>{const f=e.target.files?.[0];if(f)void live.sendImageFile(f,"請先真的看最新這張圖，再以目前目標語言直接帶我學。先問一個和圖片直接相關的問題，不要重新打招呼。");e.currentTarget.value=""}}/>{live.lastImage&&<div className="vision-latest"><img src={live.lastImage.preview} alt="最新送出的照片"/><span><b>已送給 {profile.name}</b><small>最新照片{live.lastImage.width&&live.lastImage.height?" · "+live.lastImage.width+"×"+live.lastImage.height:""}</small></span></div>}{live.visionError&&<p className="vision-error">{live.visionError}</p>}</div>
-  </div></details>
- </section><DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state}/></div>
+  </div></details>}
+ </section>{!textMode&&<DesktopLivePanel kind="teacher" label={profile.name} language={s.targetLanguage} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
  {live.report&&<section className="report-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">學習回顧</span><h3>課後學習報告</h3></div><div className="report-score">{String(live.report.overall_score??"--")}</div></div><div className="report-grid"><div className="report-stat"><b>{String(live.report.fluency_score??"--")}</b><span>流暢度</span></div><div className="report-stat"><b>{String(live.report.vocab_score??"--")}</b><span>詞彙</span></div><div className="report-stat"><b>{String(live.report.grammar_score??"--")}</b><span>文法</span></div></div><div className="report-body">{String(live.report.summary??"")}</div></section>}
  {course&&evaluating&&<div className="notice"><div><b>正在評估情境任務…</b><p>依你的實際回答判斷，不只比對關鍵字。</p></div></div>}{course&&evaluationError&&<div className="notice" role="alert"><div><b>課程評估尚未完成</b><p>{evaluationError}</p><div className="actions"><button className="btn secondary small" disabled={evaluating} onClick={()=>{courseSavedRef.current=false;setEvaluationError("");setCourseResult(null);setEvaluating(true);setAssessmentRetry(x=>x+1)}}>重新評估</button><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>返回課程地圖</Link></div></div></div>}{course&&courseResult&&<section className="report-card course-complete-card"><div className="row" style={{justifyContent:"space-between"}}><div><span className="kicker">課程進度</span><h3>{course.titleZh}</h3></div><div className="report-score">{courseResult.stars?"★".repeat(courseResult.stars):"—"}</div></div><div className="report-grid"><div className="report-stat"><b>{courseResult.done}/{courseResult.total}</b><span>任務</span></div><div className="report-stat"><b>{courseResult.score}</b><span>完成度</span></div><div className="report-stat"><b>{courseResult.stars}</b><span>星等</span></div></div><div className="report-body">{courseResult.stars?"這堂已記錄完成，可以回課程地圖繼續下一堂。":"這次還沒有完成足夠任務；可再練一次，不會鎖住目前這堂。"}</div><div className="actions"><Link className="btn secondary small" to={"/teacher/course?lesson="+encodeURIComponent(course.id)}>回課程地圖</Link>{courseResult.stars>0&&<Link className="btn primary small" to={"/teacher/course?lesson="+encodeURIComponent(nextUnlockedLesson(course.trackId)?.id||course.id)}>查看下一堂 →</Link>}</div></section>}
  </main>{picker&&<TeacherProfilePicker onClose={()=>setPicker(false)}/>}</>
