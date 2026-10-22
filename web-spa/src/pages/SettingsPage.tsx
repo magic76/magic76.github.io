@@ -15,6 +15,7 @@ import {useClientReady} from "../lib/useClientReady";
 import {isCrewAndroidShell} from "../lib/platform";
 import {getOnboardingCopy} from "../onboarding/copy";
 import {REOPEN_ONBOARDING_EVENT} from "../onboarding/OnboardingGate";
+import {DeviceAndAppPanel} from "./DeviceAndAppPanel";
 import "./settingsGroups.css";
 
 export function SettingsPage(){
@@ -118,6 +119,7 @@ export function SettingsPage(){
   <p className="meta">{ready&&isCrewAndroidShell()?t("device.android"):t("device.browser")}</p>
   <p className="meta">{t("device.storage")}</p>
   <p className="meta">{t("device.permissions")}</p>
+  <DeviceAndAppPanel/>
  </section>
  <BuildVersion/>
 </>;
