@@ -218,7 +218,7 @@ export function useLiveSession(config:Config){
     onError:e=>{cancelFriendReplyTimer();const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
     onTerminal:info=>{cancelRescue();cancelFriendReplyTimer();const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
-   sessionRef.current=session;await session.start();session.setVolume(volume);setState("listening");
+   sessionRef.current=session;await session.start();if(sessionRef.current!==session||!session.running)return;session.setVolume(volume);setState("listening");
   }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{

@@ -953,3 +953,51 @@ test("teacher Live config tolerates beginner pauses and UI waits without client 
     "UI hints must not force client-side turn completion");
   await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("microphone permission hang times out without ever opening a Live socket",async()=>{
+  resetSockets();
+  let permit;
+  const lateStream={track:{stopped:false,stop(){this.stopped=true;}},getTracks(){return [this.track];}};
+  const session=new CrewLive.Session({
+    models:["m1"],micTimeoutMs:50,
+    deps:{getKey:()=>"test-key",getUserMedia:()=>new Promise(resolve=>{permit=resolve;}),
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  await assert.rejects(session.start(),/麥克風啟用逾時/);
+  assert.equal(session.running,false);
+  assert.equal(MockWebSocket.instances.length,0);
+  permit(lateStream);
+  await wait(0);
+  assert.equal(lateStream.track.stopped,true,"late grant after timeout must release the mic");
+});
+
+test("stopping while microphone permission is pending cleans up a late grant",async()=>{
+  resetSockets();
+  let permit;
+  const lateStream={track:{stopped:false,stop(){this.stopped=true;}},getTracks(){return [this.track];}};
+  const session=new CrewLive.Session({
+    models:["m1"],micTimeoutMs:200,
+    deps:{getKey:()=>"test-key",getUserMedia:()=>new Promise(resolve=>{permit=resolve;}),
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  const opening=session.start();
+  await wait(0);
+  await session.stop({reason:"user-stop",silentStatus:true,emitTerminal:false});
+  await opening;
+  permit(lateStream);
+  await wait(0);
+  assert.equal(session.running,false);
+  assert.equal(lateStream.track.stopped,true);
+  assert.equal(MockWebSocket.instances.length,0);
+});
+
+test("denied microphone permission provides a user-actionable error",async()=>{
+  resetSockets();
+  const session=new CrewLive.Session({
+    models:["m1"],
+    deps:{getKey:()=>"test-key",getUserMedia:async()=>{const error=new Error("denied");error.name="NotAllowedError";throw error;},
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  await assert.rejects(session.start(),/麥克風權限遭拒/);
+  assert.equal(session.running,false);
+});

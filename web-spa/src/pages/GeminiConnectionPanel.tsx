@@ -131,7 +131,22 @@ export function GeminiConnectionPanel(){
   setMicChecking(true);setMicStatus(t("gemini.micChecking"));
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw new Error(t("gemini.micStateUnsupported"));
-   const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+   let expired=false;
+   let timeoutId:ReturnType<typeof setTimeout>|undefined;
+   const permissionRequest=navigator.mediaDevices.getUserMedia({audio:true});
+   // Browsers cannot cancel a permission prompt; release a late stream instead.
+   permissionRequest.then(stream=>{if(expired||!mounted.current)stream.getTracks().forEach(track=>track.stop())}).catch(()=>{});
+   let stream:MediaStream;
+   try{
+    stream=await Promise.race([
+     permissionRequest,
+     new Promise<MediaStream>((_,reject)=>{
+      timeoutId=window.setTimeout(()=>{expired=true;reject(new Error("麥克風啟用逾時（10 秒），請確認權限後重試。"))},10000);
+     })
+    ]);
+   }finally{
+    if(timeoutId!==undefined)window.clearTimeout(timeoutId);
+   }
    stream.getTracks().forEach(track=>track.stop());
    if(mounted.current){
     setMicPermission("granted");setMicBlocked(false);setMicStatus(t("gemini.micSuccess"));
