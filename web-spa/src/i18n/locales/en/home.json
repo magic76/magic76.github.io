@@ -308,5 +308,121 @@
       "title": "Community circle",
       "desc": "Browse local exchange and community posts."
     }
+  },
+  "sectionHubs": {
+    "more": "More to explore",
+    "chat": {
+      "title": "Chat with friends",
+      "intro": "This is not a class. Start with a friend's life or something you're curious about.",
+      "hero": {
+        "title": "Meet your Crew Friends",
+        "desc": "Sixteen personalities. Pick a friend and the language you want to speak.",
+        "tag": "Just talk"
+      },
+      "items": {
+        "shorts": {
+          "title": "Friends' Shorts",
+          "desc": "See what happened today before you decide whether to chat."
+        },
+        "games": {
+          "title": "Play together",
+          "desc": "Find conversation starters through interactive games."
+        },
+        "memory": {
+          "title": "Friend memories",
+          "desc": "Control remembered topics and privacy preferences."
+        }
+      },
+      "meetFriends": "Meet the friends",
+      "allFriends": "All friends",
+      "friendTitles": {
+        "zoe": "Quick & witty",
+        "noah": "A calm listener",
+        "iris": "Artful & curious",
+        "max": "Outdoors & energy",
+        "yuna": "Gentle & reserved",
+        "felix": "Friendly challenger"
+      }
+    },
+    "learn": {
+      "title": "Practice with a teacher",
+      "intro": "When you have a learning goal, your Crew Teacher can help you practice and improve.",
+      "hero": {
+        "title": "Start speaking practice",
+        "desc": "Choose your Crew Teacher and start a live speaking session.",
+        "tag": "Speaking"
+      },
+      "items": {
+        "center": {
+          "title": "Learning center",
+          "desc": "Continue lessons, vocabulary and pronunciation."
+        },
+        "scenarios": {
+          "title": "Real-life scenarios",
+          "desc": "Speak your way through everyday situations."
+        },
+        "textbook": {
+          "title": "Study your textbook",
+          "desc": "Learn from pages, notes and photos."
+        },
+        "pronunciation": {
+          "title": "Pronunciation",
+          "desc": "Focus on clearer spoken language."
+        },
+        "reports": {
+          "title": "Practice reports",
+          "desc": "Review your previous learning feedback."
+        }
+      },
+      "learningOverview": "Learning overview",
+      "todayTitle": "Your learning today",
+      "recordsLink": "Learning records",
+      "threeMinuteTitle": "Speak a language for 3 minutes",
+      "threeMinuteDesc": "Practice naturally with a Crew Friend, without a test."
+    },
+    "me": {
+      "title": "My Crew",
+      "intro": "Your progress, saved content and preferences in one place.",
+      "hero": {
+        "title": "My learning progress",
+        "desc": "Return to completed practice and learning records.",
+        "tag": "Device records"
+      },
+      "items": {
+        "readings": {
+          "title": "My readings",
+          "desc": "Reopen saved fortune charts."
+        },
+        "stories": {
+          "title": "My stories",
+          "desc": "Return to your story bookshelf and creations."
+        },
+        "memory": {
+          "title": "Learning memories",
+          "desc": "Review the study details your tutor remembers."
+        },
+        "settings": {
+          "title": "Settings and API key",
+          "desc": "Language, model, voice and privacy options."
+        },
+        "reports": {
+          "title": "Learning reports",
+          "desc": "Review past speaking feedback."
+        }
+      },
+      "footnote": "Some readings and learning records are stored in this browser, not synced across devices."
+    }
+  },
+  "todayLearning": {
+    "heading": "Today's learning",
+    "goal": "Daily goal",
+    "goalAria": "Daily speaking goal in minutes",
+    "minuteUnit": "min",
+    "progress": "Speaking goal progress",
+    "summary": "{{minutes}} minutes of speaking today",
+    "sessions": "{{count}} recorded sessions · Goal {{goal}} minutes",
+    "words": "Words today",
+    "lessons": "Lessons completed",
+    "footnote": "Only activity recorded in this browser or app WebView is shown. Existing native Android records are not yet synced."
   }
 }

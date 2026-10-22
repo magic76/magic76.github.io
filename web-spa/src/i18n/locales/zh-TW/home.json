@@ -308,5 +308,121 @@
       "title": "交流圈",
       "desc": "分享、交換與社群交流。"
     }
+  },
+  "sectionHubs": {
+    "more": "更多入口",
+    "chat": {
+      "title": "和朋友聊聊",
+      "intro": "不是上課，而是從朋友的生活、你的好奇心開始對話。",
+      "hero": {
+        "title": "找一位 Crew Friend",
+        "desc": "認識 16 位不同個性的朋友，選擇你想說的語言。",
+        "tag": "自然聊天"
+      },
+      "items": {
+        "shorts": {
+          "title": "朋友動態 Shorts",
+          "desc": "先看看今天發生什麼，再決定要不要聊天。"
+        },
+        "games": {
+          "title": "和朋友玩遊戲",
+          "desc": "用互動遊戲找話題，不必先想好要說什麼。"
+        },
+        "memory": {
+          "title": "朋友話題與記憶",
+          "desc": "管理朋友記住的話題與隱私設定。"
+        }
+      },
+      "meetFriends": "認識 Crew Friends",
+      "allFriends": "查看全部",
+      "friendTitles": {
+        "zoe": "機智吐槽",
+        "noah": "安靜傾聽",
+        "iris": "藝術腦洞",
+        "max": "戶外行動派",
+        "yuna": "慢熟療癒",
+        "felix": "好奇辯論"
+      }
+    },
+    "learn": {
+      "title": "想練外語，找老師",
+      "intro": "有明確的學習目標時，再由老師帶你練習、回顧和進步。",
+      "hero": {
+        "title": "開始口說練習",
+        "desc": "選擇你的 Crew Teacher，直接進入自然語音練習。",
+        "tag": "語音學習"
+      },
+      "items": {
+        "center": {
+          "title": "學習中心",
+          "desc": "接續進度、單字、課程與發音練習。"
+        },
+        "scenarios": {
+          "title": "情境課程",
+          "desc": "依照生活場景完成外語對話。"
+        },
+        "textbook": {
+          "title": "拍教材一起讀",
+          "desc": "使用課本、講義和圖片練習。"
+        },
+        "pronunciation": {
+          "title": "發音訓練",
+          "desc": "聚焦發音與口語表達。"
+        },
+        "reports": {
+          "title": "練習紀錄",
+          "desc": "查看已有的學習報告。"
+        }
+      },
+      "learningOverview": "學習概覽",
+      "todayTitle": "今天的學習",
+      "recordsLink": "查看學習紀錄",
+      "threeMinuteTitle": "隨便聊 3 分鐘外語",
+      "threeMinuteDesc": "跟 Crew 朋友自然聊天，不用考試。"
+    },
+    "me": {
+      "title": "我的 Crew",
+      "intro": "把你的紀錄、收藏、個人設定放在一起，首頁不用全部展示。",
+      "hero": {
+        "title": "我的學習與紀錄",
+        "desc": "查看已完成的練習、進度與學習資訊。",
+        "tag": "裝置內紀錄"
+      },
+      "items": {
+        "readings": {
+          "title": "我的命盤",
+          "desc": "重新查看先前算過的命盤。"
+        },
+        "stories": {
+          "title": "我的故事",
+          "desc": "返回故事書架與個人作品。"
+        },
+        "memory": {
+          "title": "個人記憶",
+          "desc": "檢視及管理老師記住的學習內容。"
+        },
+        "settings": {
+          "title": "設定與 API Key",
+          "desc": "語言、模型、聲音及隱私選項。"
+        },
+        "reports": {
+          "title": "學習回顧",
+          "desc": "查看老師提供的歷史練習報告。"
+        }
+      },
+      "footnote": "部分進度與命盤記錄儲存在目前裝置的瀏覽器，不代表跨裝置同步。"
+    }
+  },
+  "todayLearning": {
+    "heading": "今日學習",
+    "goal": "每日目標",
+    "goalAria": "每日口說目標分鐘",
+    "minuteUnit": "分鐘",
+    "progress": "口說目標進度",
+    "summary": "今天已練習 {{minutes}} 分鐘口說",
+    "sessions": "{{count}} 次有紀錄的口說 · 目標 {{goal}} 分鐘",
+    "words": "今日單字",
+    "lessons": "已完成課程",
+    "footnote": "僅顯示此瀏覽器／App WebView 已記錄的學習資料；尚未與舊 Android 原生紀錄同步。"
   }
 }

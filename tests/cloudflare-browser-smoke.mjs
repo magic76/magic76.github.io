@@ -178,7 +178,7 @@ async function run(){
       assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
       // Walk the remaining user-facing destinations with the same saved
       // learning-language settings. No screenshots/artifacts are uploaded.
-      for(const destination of ["/","/explore/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
+      for(const destination of ["/","/chat/","/explore/","/learn/","/me/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
         const url="/"+locale+destination;
         const response=await page.goto(origin+url,{waitUntil:"domcontentloaded",timeout:30000});
         assert.equal(response?.status(),200,locale+" opens "+destination);
@@ -201,6 +201,37 @@ async function run(){
           assert.equal(await tiles.count(),6,locale+" Explore offers all destinations");
           for(const [position,kind] of ["fortune","timeline","games","story","research","circle"].entries()){
             assert.equal((await tiles.nth(position).locator("strong").textContent())?.trim(),homeStrings.sectionExplore[kind].title,locale+" Explore translated "+kind);
+          }
+        }
+        if(["/chat/","/learn/","/me/"].includes(destination)){
+          const section=destination.slice(1,-1);
+          const strings=homeStrings.sectionHubs[section];
+          const root=page.locator(".crew-section-"+section);
+          await root.locator(".crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+          assert.equal((await root.locator(".crew-section-heading h1").textContent())?.trim(),strings.title,locale+" "+section+" heading");
+          assert.equal((await root.locator(".crew-section-heading p").textContent())?.trim(),strings.intro,locale+" "+section+" intro");
+          assert.equal((await root.locator(".crew-section-hero-copy strong").textContent())?.trim(),strings.hero.title,locale+" "+section+" main card");
+          assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" "+section+" hero label");
+          const keys=section==="chat"?["shorts","games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
+          const cards=root.locator(".crew-section-grid .crew-section-card");
+          assert.equal(await cards.count(),keys.length,locale+" "+section+" card count");
+          for(const [position,key] of keys.entries()){
+           assert.equal((await cards.nth(position).locator("strong").textContent())?.trim(),strings.items[key].title,locale+" "+section+" "+key+" localized title");
+           assert.equal((await cards.nth(position).locator("small").textContent())?.trim(),strings.items[key].desc,locale+" "+section+" "+key+" localized description");
+          }
+          if(section==="chat"){
+           assert.equal((await root.locator(".crew-section-people h2").textContent())?.trim(),strings.meetFriends,locale+" translated friend heading");
+           assert.equal((await root.locator(".crew-section-friend").first().locator("small").textContent())?.trim(),strings.friendTitles.zoe,locale+" localized first friend");
+          }
+          if(section==="learn"){
+           assert.equal((await root.locator(".crew-today-learning-heading").textContent())?.trim(),homeStrings.todayLearning.heading,locale+" daily progress heading");
+           assert.equal((await root.locator(".crew-section-three-minute strong").textContent())?.trim(),strings.threeMinuteTitle,locale+" speaking action");
+          }
+          if(section==="me")assert.equal((await root.locator(".crew-section-footnote").textContent())?.trim(),strings.footnote,locale+" local data warning");
+          if(locale==="ja"){
+           await page.reload({waitUntil:"domcontentloaded",timeout:30000});
+           await page.locator(".crew-section-"+section+" .crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+           assert.equal((await page.locator(".crew-section-"+section+" .crew-section-heading h1").textContent())?.trim(),strings.title,"ja "+section+" refresh preserves Japanese");
           }
         }
         assert.ok(snapshot.document<=snapshot.viewport+2,locale+" overflow on "+destination+": "+JSON.stringify(snapshot));

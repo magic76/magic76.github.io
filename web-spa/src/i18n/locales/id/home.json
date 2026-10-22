@@ -308,5 +308,121 @@
       "title": "Komunitas",
       "desc": "Berbagi, bertukar barang, dan terhubung dengan komunitas."
     }
+  },
+  "sectionHubs": {
+    "more": "Jelajahi lainnya",
+    "chat": {
+      "title": "Ngobrol dengan teman",
+      "intro": "Ini bukan kelas. Mulailah dari cerita teman atau apa pun yang membuatmu penasaran.",
+      "hero": {
+        "title": "Temui teman Crew",
+        "desc": "Ada 16 kepribadian unik. Pilih teman dan bahasa untuk berbicara.",
+        "tag": "Ngobrol santai"
+      },
+      "items": {
+        "shorts": {
+          "title": "Shorts teman",
+          "desc": "Lihat kabar terbaru mereka sebelum memulai obrolan."
+        },
+        "games": {
+          "title": "Main bersama teman",
+          "desc": "Temukan topik obrolan lewat permainan interaktif."
+        },
+        "memory": {
+          "title": "Topik dan ingatan teman",
+          "desc": "Kelola topik yang diingat teman dan pengaturan privasi."
+        }
+      },
+      "meetFriends": "Kenali teman Crew",
+      "allFriends": "Lihat semua teman",
+      "friendTitles": {
+        "zoe": "Cerdas dan jenaka",
+        "noah": "Pendengar yang tenang",
+        "iris": "Kreatif dan ingin tahu",
+        "max": "Petualang yang energik",
+        "yuna": "Lembut dan pendiam",
+        "felix": "Suka berdiskusi"
+      }
+    },
+    "learn": {
+      "title": "Latihan bersama guru",
+      "intro": "Kalau punya tujuan belajar, Crew Teacher akan membantumu berlatih dan berkembang.",
+      "hero": {
+        "title": "Mulai latihan berbicara",
+        "desc": "Pilih Crew Teacher lalu mulai percakapan suara yang alami.",
+        "tag": "Latihan percakapan"
+      },
+      "items": {
+        "center": {
+          "title": "Pusat belajar",
+          "desc": "Lanjutkan pelajaran, kosakata, dan latihan pengucapan."
+        },
+        "scenarios": {
+          "title": "Skenario sehari-hari",
+          "desc": "Berlatih berbicara dalam situasi kehidupan nyata."
+        },
+        "textbook": {
+          "title": "Belajar dari buku",
+          "desc": "Gunakan halaman buku, catatan, dan foto untuk berlatih."
+        },
+        "pronunciation": {
+          "title": "Latihan pengucapan",
+          "desc": "Fokus pada pengucapan dan cara berbicara yang lebih jelas."
+        },
+        "reports": {
+          "title": "Riwayat latihan",
+          "desc": "Lihat laporan dari latihan sebelumnya."
+        }
+      },
+      "learningOverview": "Ringkasan belajar",
+      "todayTitle": "Belajar hari ini",
+      "recordsLink": "Lihat catatan belajar",
+      "threeMinuteTitle": "Ngobrol 3 menit dalam bahasa asing",
+      "threeMinuteDesc": "Berlatih santai dengan teman Crew tanpa ujian."
+    },
+    "me": {
+      "title": "Crew Saya",
+      "intro": "Kemajuan, konten tersimpan, dan pengaturan pribadimu ada di sini.",
+      "hero": {
+        "title": "Kemajuan belajarku",
+        "desc": "Lihat kembali latihan dan catatan pembelajaran.",
+        "tag": "Catatan di perangkat ini"
+      },
+      "items": {
+        "readings": {
+          "title": "Ramalan saya",
+          "desc": "Buka kembali bagan dan hasil pembacaan tersimpan."
+        },
+        "stories": {
+          "title": "Cerita saya",
+          "desc": "Kembali ke rak buku dan cerita buatanmu."
+        },
+        "memory": {
+          "title": "Ingatan pembelajaran",
+          "desc": "Periksa dan kelola informasi belajar yang diingat guru."
+        },
+        "settings": {
+          "title": "Pengaturan dan kunci API",
+          "desc": "Bahasa, model, suara, dan privasi."
+        },
+        "reports": {
+          "title": "Laporan belajar",
+          "desc": "Baca ulasan dari latihan percakapan sebelumnya."
+        }
+      },
+      "footnote": "Sebagian catatan belajar dan ramalan disimpan hanya di browser ini, belum disinkronkan antarperangkat."
+    }
+  },
+  "todayLearning": {
+    "heading": "Belajar hari ini",
+    "goal": "Target harian",
+    "goalAria": "Target berbicara harian dalam menit",
+    "minuteUnit": "mnt",
+    "progress": "Kemajuan target berbicara",
+    "summary": "Hari ini kamu berlatih berbicara selama {{minutes}} menit",
+    "sessions": "{{count}} sesi tercatat · Target {{goal}} menit",
+    "words": "Kata hari ini",
+    "lessons": "Pelajaran selesai",
+    "footnote": "Hanya aktivitas yang tercatat di browser atau WebView ini yang ditampilkan. Catatan aplikasi Android lama belum disinkronkan."
   }
 }

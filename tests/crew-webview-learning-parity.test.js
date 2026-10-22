@@ -37,7 +37,12 @@ test("main Learn tab has native-equivalent continue, daily activity and three-mi
  assert.match(card,/role="progressbar"/);
  assert.match(card,/todayVocabulary\(\)/);
  assert.match(card,/completedLessons\(\)/);
- assert.match(card,/尚未與舊 Android 原生紀錄同步/);
+ assert.match(card,/t\("todayLearning\.footnote"\)/);
+ for(const locale of ["zh-TW","en","ja"]){
+  const copy=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json"));
+  assert.ok(copy.todayLearning.footnote,"Local storage disclaimer must be translated for "+locale);
+ }
+ assert.match(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).todayLearning.footnote,/尚未與舊 Android 原生紀錄同步/);
 });
 
 test("3-minute shortcut is translated in both site locales",()=>{

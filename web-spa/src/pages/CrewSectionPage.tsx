@@ -110,6 +110,12 @@ const englishCopy:typeof copy={
 };
 
 const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
+// Translation keys are separate from the stable navigation targets.
+const sectionItemKeys={
+ chat:["shorts","games","memory"],
+ learn:["center","scenarios","textbook","pronunciation","reports"],
+ me:["readings","stories","memory","settings","reports"]
+} as const;
 
 export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">}){
  const {t,i18n}=useTranslation("home");
@@ -123,7 +129,18 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   ...source,title:t("sectionExplore.title"),intro:t("sectionExplore.intro"),
   hero:{...source.hero,title:t("sectionExplore.fortune.title"),desc:t("sectionExplore.fortune.desc")},
   items:source.items.map((item,i)=>({...item,title:t("sectionExplore."+kinds[i]+".title"),desc:t("sectionExplore."+kinds[i]+".desc")}))
- }:source;
+ }:(()=>{
+  const sectionKey=section as keyof typeof sectionItemKeys;
+  const prefix="sectionHubs."+sectionKey+".";
+  return {
+   ...source,title:t(prefix+"title"),intro:t(prefix+"intro"),
+   hero:{...source.hero,title:t(prefix+"hero.title"),desc:t(prefix+"hero.desc"),tag:t(prefix+"hero.tag")},
+   items:source.items.map((item,i)=>({...item,
+    title:t(prefix+"items."+sectionItemKeys[sectionKey][i]+".title"),
+    desc:t(prefix+"items."+sectionItemKeys[sectionKey][i]+".desc")
+   }))
+  };
+ })();
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className="crew-section-heading">
    <span className="kicker">{x.eyebrow}</span>
@@ -146,29 +163,29 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     <strong>{x.hero.title}</strong><small>{x.hero.desc}</small>
    </span><span className="crew-section-arrow" aria-hidden="true">→</span>
   </Link>
-  {section==="learn"&&<section className="crew-section-learning" aria-label={en?"Learning overview":"學習概覽"}>
-   <div className="crew-section-row-title"><h2>{en?"Your learning today":"今天的學習"}</h2>
-    <Link to="/teacher/me">{en?"Learning records":"查看學習紀錄"} →</Link></div>
+  {section==="learn"&&<section className="crew-section-learning" aria-label={t("sectionHubs.learn.learningOverview")}>
+   <div className="crew-section-row-title"><h2>{t("sectionHubs.learn.todayTitle")}</h2>
+    <Link to="/teacher/me">{t("sectionHubs.learn.recordsLink")} →</Link></div>
    <TodayLearningCard/>
    <ContinueLearningCard compact/>
    <Link className="crew-section-three-minute" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
-    <span><strong>{en?"Speak a language for 3 minutes":"隨便聊 3 分鐘外語"}</strong>
-     <small>{en?"Practice naturally with a Crew Friend, without a test.":"跟 Crew 朋友自然聊天，不用考試。"}</small></span>
+    <span><strong>{t("sectionHubs.learn.threeMinuteTitle")}</strong>
+     <small>{t("sectionHubs.learn.threeMinuteDesc")}</small></span>
     <span className="arrow" aria-hidden="true">→</span>
    </Link>
   </section>}
   {section==="chat"&&<section className="crew-section-people" aria-label="Crew Friends">
-   <div className="crew-section-row-title"><h2>{en?"Meet the friends":"認識 Crew Friends"}</h2>
-    <Link to="/teacher/roles?mode=friends">{en?"All friends":"查看全部"} →</Link></div>
+   <div className="crew-section-row-title"><h2>{t("sectionHubs.chat.meetFriends")}</h2>
+    <Link to="/teacher/roles?mode=friends">{t("sectionHubs.chat.allFriends")} →</Link></div>
    <div className="crew-section-people-grid">{CREW_FRIENDS.slice(0,6).map(friend=>
     <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
      <FriendAvatar friend={friend}/><strong>{friend.name}</strong>
-     <small>{en?friend.titleEn:friend.titleZh}</small>
+     <small>{t("sectionHubs.chat.friendTitles."+friend.id,{defaultValue:en?friend.titleEn:friend.titleZh})}</small>
     </Link>
    )}</div>
   </section>}
   <section className="crew-section-discover">
-   <div className="crew-section-row-title"><h2>{en?"More to explore":"更多入口"}</h2></div>
+   <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
    <div className="crew-section-grid">{x.items.map(item=>
     <Link className="crew-section-card" to={item.to} key={item.to}>
      <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
@@ -178,6 +195,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   </section>
    </>
   }
-  {section==="me"&&<p className="crew-section-footnote">{en?"Some readings and learning records are stored in this browser, not synced across devices.":"部分進度與命盤記錄儲存在目前裝置的瀏覽器，不代表跨裝置同步。"}</p>}
+  {section==="me"&&<p className="crew-section-footnote">{t("sectionHubs.me.footnote")}</p>}
  </div>
 }

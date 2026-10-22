@@ -308,5 +308,121 @@
       "title": "Cộng đồng",
       "desc": "Chia sẻ, trao đổi đồ dùng và kết nối với mọi người."
     }
+  },
+  "sectionHubs": {
+    "more": "Khám phá thêm",
+    "chat": {
+      "title": "Trò chuyện cùng bạn bè",
+      "intro": "Không phải lớp học. Hãy bắt đầu từ cuộc sống của bạn bè hay bất kỳ điều gì bạn tò mò.",
+      "hero": {
+        "title": "Gặp những người bạn Crew",
+        "desc": "16 tính cách khác nhau. Chọn người bạn và ngôn ngữ muốn trò chuyện.",
+        "tag": "Trò chuyện tự nhiên"
+      },
+      "items": {
+        "shorts": {
+          "title": "Shorts của bạn bè",
+          "desc": "Xem chuyện mới của bạn bè rồi bắt đầu trò chuyện."
+        },
+        "games": {
+          "title": "Chơi cùng bạn bè",
+          "desc": "Tìm chủ đề để nói qua những trò chơi tương tác."
+        },
+        "memory": {
+          "title": "Chủ đề và ký ức",
+          "desc": "Quản lý những điều bạn bè nhớ và các thiết lập quyền riêng tư."
+        }
+      },
+      "meetFriends": "Làm quen bạn Crew",
+      "allFriends": "Xem tất cả bạn bè",
+      "friendTitles": {
+        "zoe": "Nhanh trí và hài hước",
+        "noah": "Người biết lắng nghe",
+        "iris": "Sáng tạo và tò mò",
+        "max": "Năng động, thích phiêu lưu",
+        "yuna": "Dịu dàng, kín đáo",
+        "felix": "Thích trao đổi quan điểm"
+      }
+    },
+    "learn": {
+      "title": "Luyện ngoại ngữ cùng giáo viên",
+      "intro": "Khi có mục tiêu rõ ràng, Crew Teacher sẽ giúp bạn luyện tập và tiến bộ.",
+      "hero": {
+        "title": "Bắt đầu luyện nói",
+        "desc": "Chọn Crew Teacher và bắt đầu trò chuyện bằng giọng nói tự nhiên.",
+        "tag": "Luyện hội thoại"
+      },
+      "items": {
+        "center": {
+          "title": "Trung tâm học tập",
+          "desc": "Tiếp tục bài học, từ vựng và bài tập phát âm."
+        },
+        "scenarios": {
+          "title": "Tình huống thực tế",
+          "desc": "Luyện đối thoại trong các tình huống hằng ngày."
+        },
+        "textbook": {
+          "title": "Học với tài liệu của bạn",
+          "desc": "Luyện tập qua sách, ghi chú và ảnh."
+        },
+        "pronunciation": {
+          "title": "Luyện phát âm",
+          "desc": "Tập trung cải thiện phát âm và khả năng diễn đạt."
+        },
+        "reports": {
+          "title": "Lịch sử luyện tập",
+          "desc": "Xem lại báo cáo của những buổi học trước."
+        }
+      },
+      "learningOverview": "Tổng quan học tập",
+      "todayTitle": "Học tập hôm nay",
+      "recordsLink": "Xem lịch sử học tập",
+      "threeMinuteTitle": "Trò chuyện ngoại ngữ trong 3 phút",
+      "threeMinuteDesc": "Luyện tập tự nhiên với bạn Crew, không cần kiểm tra."
+    },
+    "me": {
+      "title": "Crew của tôi",
+      "intro": "Tiến độ, nội dung đã lưu và tùy chọn cá nhân đều ở đây.",
+      "hero": {
+        "title": "Tiến độ học của tôi",
+        "desc": "Xem lại bài tập đã hoàn thành và kết quả học tập.",
+        "tag": "Dữ liệu trên thiết bị này"
+      },
+      "items": {
+        "readings": {
+          "title": "Lá số của tôi",
+          "desc": "Mở lại lá số và kết quả luận giải đã lưu."
+        },
+        "stories": {
+          "title": "Câu chuyện của tôi",
+          "desc": "Quay về giá sách và các câu chuyện đã tạo."
+        },
+        "memory": {
+          "title": "Ký ức học tập",
+          "desc": "Xem và quản lý thông tin học tập mà giáo viên ghi nhớ."
+        },
+        "settings": {
+          "title": "Cài đặt và API Key",
+          "desc": "Ngôn ngữ, mô hình, giọng nói và quyền riêng tư."
+        },
+        "reports": {
+          "title": "Báo cáo học tập",
+          "desc": "Xem nhận xét từ những buổi luyện nói trước."
+        }
+      },
+      "footnote": "Một số dữ liệu học tập và lá số chỉ lưu trong trình duyệt này, chưa đồng bộ giữa các thiết bị."
+    }
+  },
+  "todayLearning": {
+    "heading": "Học tập hôm nay",
+    "goal": "Mục tiêu hằng ngày",
+    "goalAria": "Mục tiêu luyện nói hằng ngày (phút)",
+    "minuteUnit": "phút",
+    "progress": "Tiến độ luyện nói",
+    "summary": "Hôm nay bạn đã luyện nói {{minutes}} phút",
+    "sessions": "{{count}} buổi được ghi lại · Mục tiêu {{goal}} phút",
+    "words": "Từ vựng hôm nay",
+    "lessons": "Bài học đã hoàn thành",
+    "footnote": "Chỉ hiển thị hoạt động lưu trong trình duyệt hoặc WebView này. Dữ liệu từ ứng dụng Android gốc cũ chưa được đồng bộ."
   }
 }
