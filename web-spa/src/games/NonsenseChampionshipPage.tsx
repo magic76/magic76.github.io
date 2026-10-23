@@ -4,6 +4,8 @@ import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
+import {speakNonsenseHost,stopNonsenseHost,startNonsenseLiveFeedback,stopNonsenseLiveFeedback} from "./nonsenseHost";
+import {shareNonsenseScorecard} from "./nonsenseShare";
 import {GamePanel} from "./GamePanel";
 import {judgeNonsense,type NonsenseVerdict} from "./nonsenseJudge";
 import {nonsenseCategories,nonsenseHints,nonsenseJudges,pickNonsenseTopic,type NonsenseJudgeId,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
@@ -44,6 +46,19 @@ export function NonsenseChampionshipPage(){
  const [heard,setHeard]=useState(""),[manual,setManual]=useState(""),[draft,setDraft]=useState("");
  const [micActive,setMicActive]=useState(false),[notice,setNotice]=useState(""),[error,setError]=useState("");
  const [verdict,setVerdict]=useState<NonsenseVerdict|null>(null),[copied,setCopied]=useState(false);
+ const [hostVoice,setHostVoice]=useState(false),[liveState,setLiveState]=useState<"idle"|"connecting"|"speaking"|"error">("idle");
+ const [waveActive,setWaveActive]=useState(false);
+ const [shareError,setShareError]=useState("");
+ const lastActivityRef=useRef(0),liveStopRef=useRef<(()=>void)|null>(null);
+ const cancelVoices=()=>{
+  stopNonsenseHost();
+  liveStopRef.current?.();liveStopRef.current=null;
+  setLiveState("idle");
+ };
+ const hostIntro=()=>{
+  if(!hostVoice)return;
+  speakNonsenseHost(language,language==="zh"?"歡迎來到胡說大賽！你的命題是："+topic.zh+"。準備好後，按開始演說。":"Welcome to the Nonsense Championship! Your claim: "+topic.en+". Press start when you are ready.");
+ };
  const recognitionRef=useRef<RecognitionInstance|null>(null);
  const heardRef=useRef(""),manualRef=useRef("");
  const deadlineRef=useRef(0),prepDeadlineRef=useRef(0);
@@ -66,7 +81,7 @@ export function NonsenseChampionshipPage(){
  };
  useEffect(()=>{
   mountedRef.current=true;trackUsageEvent("game_open","nonsense");
-  return()=>{mountedRef.current=false;requestRef.current++;const instance=recognitionRef.current;
+  return()=>{mountedRef.current=false;requestRef.current++;stopNonsenseHost();stopNonsenseLiveFeedback();const instance=recognitionRef.current;
    if(instance){instance.onresult=null;instance.onerror=null;instance.onend=null;try{instance.abort()}catch{/* disposed */}}};
  },[]);
  useEffect(()=>{phaseRef.current=phase},[phase]);
@@ -80,6 +95,7 @@ export function NonsenseChampionshipPage(){
   const sync=()=>{
    const left=Math.max(0,Math.ceil((deadlineRef.current-Date.now())/1000));
    setTimeLeft(left);
+   setWaveActive(Date.now()-lastActivityRef.current<1100);
    if(left===0)finishSpeech();
   };
   sync();const id=window.setInterval(sync,180);return()=>clearInterval(id);
@@ -87,10 +103,11 @@ export function NonsenseChampionshipPage(){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[phase]);
  const beginPrep=()=>{
-  teardownMic();requestRef.current++;
+  cancelVoices();teardownMic();requestRef.current++;
   heardRef.current="";manualRef.current="";setHeard("");setManual("");setDraft("");setVerdict(null);setError("");setNotice("");
   prepDeadlineRef.current=Date.now()+10000;setPrepLeft(10);setTimeLeft(60);
   setPhase("prep");phaseRef.current="prep";
+  hostIntro();
  };
  const activateRecognition=(base:string)=>{
   if(!speechConstructor()){setNotice(L(zh,"此裝置不支援網頁語音辨識，可使用鍵盤語音輸入或直接打字。","Speech recognition unavailable. Use your keyboard's voice dictation or type instead."));return;}
@@ -106,6 +123,7 @@ export function NonsenseChampionshipPage(){
     if(result?.isFinal)final+=" "+part;else interim+=" "+part;
    }
    const next=(base+" "+final+" "+interim).trim();
+   if(next!==heardRef.current){lastActivityRef.current=Date.now();setWaveActive(true);}
    heardRef.current=next;setHeard(next);
   };
   recognizer.onerror=(event)=>{
@@ -120,6 +138,7 @@ export function NonsenseChampionshipPage(){
  };
  const startSpeaking=()=>{
   if(phaseRef.current!=="prep")return;
+  cancelVoices();lastActivityRef.current=0;setWaveActive(false);
   trackUsageEvent("game_started","nonsense");
   deadlineRef.current=Date.now()+60000;setTimeLeft(60);setPhase("speaking");phaseRef.current="speaking";
   activateRecognition(heardRef.current);
@@ -129,11 +148,11 @@ export function NonsenseChampionshipPage(){
   phaseRef.current="review";
   // Use the final interim result if the browser hasn't emitted an isFinal event yet.
   const transcript=[heardRef.current,manualRef.current].filter(Boolean).join(" ").trim();
-  teardownMic();setDraft(transcript);setPhase("review");setError("");setNotice("");
+  teardownMic();setWaveActive(false);setDraft(transcript);setPhase("review");setError("");setNotice("");
  };
  const reset=()=>{
-  requestRef.current++;teardownMic();phaseRef.current="setup";setPhase("setup");
-  setHeard("");heardRef.current="";manualRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);
+  cancelVoices();requestRef.current++;teardownMic();phaseRef.current="setup";setPhase("setup");
+  setHeard("");heardRef.current="";manualRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);setShareError("");setWaveActive(false);
  };
  const grade=async()=>{
   if(phaseRef.current!=="review")return;
@@ -145,6 +164,7 @@ export function NonsenseChampionshipPage(){
    const result=await judgeNonsense(topic,judgeId,language,text);
    if(!mountedRef.current||requestRef.current!==request)return;
    setVerdict(result);phaseRef.current="result";setPhase("result");trackUsageEvent("game_completed","nonsense");
+   if(hostVoice)speakNonsenseHost(language,result.comment);
   }catch{
    if(!mountedRef.current||requestRef.current!==request)return;
    phaseRef.current="review";setPhase("review");
@@ -153,24 +173,43 @@ export function NonsenseChampionshipPage(){
  };
  const share=async()=>{
   if(!verdict)return;
-  const payload=L(zh,"我在 Crew 一分鐘胡說大賽得到 ","I scored ")+verdict.total+
-   L(zh," 分！題目：「"," in Crew's Nonsense Championship! Topic: “")+topic[language]+"”\n"+
-   window.location.origin+"/games/nonsense";
+  setShareError("");
   try{
-   if(navigator.share)await navigator.share({text:payload});
-   else{await navigator.clipboard.writeText(payload);setCopied(true);}
-  }catch{/* Share was cancelled or clipboard permission was denied */}
+   const outcome=await shareNonsenseScorecard({topic:topic[language],judgeName:judgeNames[judgeId][language],score:verdict,language,link:window.location.origin+"/games/nonsense"});
+   if(outcome==="copied")setCopied(true);
+  }catch{setShareError(L(zh,"無法分享圖片，請檢查下載或分享權限。","Could not share the image. Check your share or download permissions."));}
+ };
+ const requestLiveVoice=async()=>{
+  if(!verdict||!geminiKey()||liveState==="connecting"||liveState==="speaking")return;
+  // Never acquire the Live microphone during the 60-second speech or while recognition exists.
+  if(phaseRef.current!=="result"||recognitionRef.current)return;
+  cancelVoices();setLiveState("connecting");
+  const cleanup=()=>{liveStopRef.current=null;};
+  try{
+   liveStopRef.current=await startNonsenseLiveFeedback({
+    language,judgeId,topic:topic[language],verdict,
+    onSpeaking:()=>{if(mountedRef.current&&phaseRef.current==="result")setLiveState("speaking");},
+    onDone:()=>{cleanup();if(mountedRef.current)setLiveState("idle");},
+    onFailure:()=>{cleanup();if(mountedRef.current){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
+   });
+  }catch{cleanup();if(mountedRef.current){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
  };
  const hints=nonsenseHints[topic.category]?.[language]||[];
  return <main className="crew-play-page nonsense-page">
   <header className="crew-play-game-header nonsense-header">
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
-   <span className="crew-play-eyebrow">CREW PLAY · VOICE ARCADE</span>
+   <span className="crew-play-eyebrow">CREW PLAY · LIVE STAGE</span>
    <h1>{L(zh,"一分鐘胡說大賽","Nonsense Championship")}</h1>
    <p>{L(zh,"一本正經地胡說八道。60 秒說服 AI 評審。","Deliver a ridiculous argument with a straight face. You have 60 seconds.")}</p>
   </header>
   <div className="nonsense-shell">
-   <section className="nonsense-stage" aria-label={L(zh,"遊戲舞台","Game stage")}>
+   <section className={"nonsense-stage nonsense-phase-"+phase+(waveActive?" nonsense-responding":"")} aria-label={L(zh,"遊戲舞台","Game stage")}>
+    <div className="nonsense-marquee" aria-hidden="true"><span>CREW</span><span>★ NONSENSE CHAMPIONSHIP ★</span><span>LIVE</span></div>
+    <div className="nonsense-phase-track" aria-label={L(zh,"目前階段","Current phase")}>
+     {(["setup","prep","speaking","review","judging","result"] as const).map((step,index)=><span key={step} className={phase===step?"active":(["setup","prep","speaking","review","judging","result"] as const).indexOf(phase)>index?"passed":""}>
+      {(zh?["選題","準備","演說","檢查","評分","揭曉"]:["Topic","Ready","Speak","Review","Judge","Reveal"])[index]}
+     </span>)}
+    </div>
     <div className="nonsense-stage-top">
      <span className="nonsense-label">{L(zh,"今日荒謬命題","YOUR ABSURD CLAIM")}</span>
      {phase==="setup"||phase==="prep"?<GamePanel title={L(zh,"遊戲設定","Game settings")} label={L(zh,"調整設定","Settings")}>
@@ -190,15 +229,27 @@ export function NonsenseChampionshipPage(){
         <option value="zh">繁體中文</option><option value="en">English</option>
        </select>
       </label>
+      <label className="nonsense-voice-switch"><input type="checkbox" checked={hostVoice} onChange={e=>{setHostVoice(e.target.checked);if(!e.target.checked)cancelVoices();}}/> {L(zh,"主持人語音（裝置 TTS，免 Key）","Host voice (device TTS, no key)")}</label>
      </GamePanel>:<span className="nonsense-label">{zh?categoryLabel?.zh:categoryLabel?.en}</span>}
     </div>
-    <div className="nonsense-spotlight" aria-hidden="true"><span>🎙</span></div>
+    <div className="nonsense-spotlight" aria-hidden="true"><span>🎙</span><i/><i/></div>
     <h2>{topic[language]}</h2>
-    <div className="nonsense-judge">
-     <span aria-hidden="true">{currentJudge.icon}</span>
-     <div><strong>{zh?judgeNames[judgeId].zh:judgeNames[judgeId].en}</strong><small>{L(zh,"你的 AI 評審","Your AI judge")}</small></div>
+    <div className="nonsense-panel-title">{L(zh,"四位舞台嘉賓 · 選中的評審負責 AI 評分","Four stage characters · the selected judge scores")}</div>
+    <div className="nonsense-judge-row" aria-label={L(zh,"舞台評審","Stage judges")}>
+     {nonsenseJudges.map((judge,index)=><div key={judge.id} className={"nonsense-judge-tile"+(judgeId===judge.id?" chosen":"")} data-mood={phase==="result"?"result":phase==="judging"?"waiting":phase==="speaking"&&waveActive?(index%2?"pulse":"bounce"):"idle"}>
+      <span className="nonsense-judge-face" aria-hidden="true">{judge.icon}</span>
+      <strong>{zh?judge.zh:judge.en}</strong>
+      <small>{phase==="result"&&judgeId===judge.id?L(zh,"已完成真實評分","Verified result"):phase==="judging"&&judgeId===judge.id?L(zh,"評分中","Judging"):phase==="speaking"&&waveActive?L(zh,"舞台動效","Stage effect"):judgeId===judge.id?L(zh,"本局評審","Selected judge"):L(zh,"舞台嘉賓","Stage guest")}</small>
+     </div>)}
     </div>
-    {(phase==="prep"||phase==="speaking")&&<div className="nonsense-clock" aria-live="off">
+    <p className="nonsense-effect-note">{L(zh,"舞台表情與燈光是互動特效，不代表 AI 正在評價你的演說。","Stage expressions and lights are visual effects, not AI judgments.")}</p>
+    {phase==="speaking"&&<div className="nonsense-wave-section">
+     <div className={"nonsense-wave"+(waveActive&&micActive?" energized":"")} aria-hidden="true">
+      {Array.from({length:25},(_,i)=><i key={i} style={{height:(12+(i*7%9)*4)+"px",animationDelay:((i%7)*-0.13)+"s"}}/>)}
+     </div>
+     <small>{waveActive&&micActive?L(zh,"已偵測到語音文字變化","Recent speech transcript activity"):L(zh,"等待語音文字更新","Waiting for speech transcript")}</small>
+    </div>}
+    {(phase==="prep"||phase==="speaking")&&<div className={"nonsense-clock"+(phase==="speaking"&&timeLeft<=10?" urgent":"")} aria-live="off">
      <strong>{clock(phase==="prep"?prepLeft:timeLeft)}</strong>
      <small>{phase==="prep"?L(zh,"準備時間（可提前開始）","Preparation (you may start early)"):L(zh,"你的演說倒數","Speech countdown")}</small>
     </div>}
@@ -238,15 +289,20 @@ export function NonsenseChampionshipPage(){
     </section>}
     {phase==="result"&&verdict&&<section className="nonsense-result" aria-live="polite">
      <span className="nonsense-label">{L(zh,"評審結算卡","JUDGE'S SCORECARD")}</span>
-     <div className="nonsense-total"><strong>{verdict.total}</strong><span>/ 100</span></div>
+     <div className="nonsense-total" aria-label={L(zh,"正式 AI 評分","Verified AI score")+" "+verdict.total}><strong>{verdict.total}</strong><span>/ 100</span></div>
+     <div className="nonsense-result-sparkles" aria-hidden="true">✦ · ✧ · ✦</div>
      <h3>{verdict.total>=85?L(zh,"胡說宗師","Master of Nonsense"):verdict.total>=65?L(zh,"荒謬演說家","Absurd Orator"):L(zh,"胡說新秀","Rising Nonsense Star")}</h3>
      <div className="nonsense-score-grid">
       {(["creativity","logic","relevance","delivery"] as const).map((key,index)=><div key={key}><span>{(zh?["創意與荒謬度","歪理邏輯","切合題目","表達與完整度"]:["Creativity","Absurd logic","Relevance","Structure"])[index]}</span><strong>{verdict[key]} / {({creativity:35,logic:25,relevance:20,delivery:20})[key]}</strong></div>)}
      </div>
      {verdict.highlight&&<blockquote>「{verdict.highlight}」</blockquote>}
      <p className="nonsense-comment">{verdict.comment}</p>
+     <p className="nonsense-verified">{L(zh,"以上分數與評語來自 Gemini AI 評分；演說逐字稿不會出現在分享圖片中。","Scores and comments above come from Gemini AI. The transcript is never included in the share image.")}</p>
+     {geminiKey()&&<button type="button" className="nonsense-secondary nonsense-live-button" disabled={liveState==="connecting"||liveState==="speaking"} onClick={()=>void requestLiveVoice()}>{liveState==="connecting"?L(zh,"Gemini Live 連線中…","Connecting Gemini Live…"):liveState==="speaking"?L(zh,"AI 主持中…","Live host speaking…"):L(zh,"Gemini Live 語音評語（選用）","Hear Gemini Live judge (optional)")}</button>}
+     {liveState==="error"&&<small role="status">{L(zh,"Live 不可用，已切回裝置語音，不影響成績。","Live unavailable; device voice fallback does not affect the score.")}</small>}
      <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={()=>void share()}>{L(zh,"分享結果","Share score")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"再來一局","Play again")}</button></div>
-     {copied&&<small role="status">{L(zh,"挑戰連結已複製","Challenge link copied")}</small>}
+     {copied&&<small role="status">{L(zh,"分享文字已複製","Share text copied")}</small>}
+     {shareError&&<small role="alert">{shareError}</small>}
     </section>}
     {notice&&phase==="speaking"&&<p role="status" className="nonsense-alert">{notice}</p>}
    </section>
