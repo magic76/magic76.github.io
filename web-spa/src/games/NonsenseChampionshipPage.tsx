@@ -64,7 +64,8 @@ export function NonsenseChampionshipPage(){
  };
  const hostIntro=()=>{
   if(!hostVoice)return;
-  speakNonsenseHost(language,language==="zh"?"歡迎來到胡說大賽！你的命題是："+topic.zh+"。準備好後，按開始演說。":"Welcome to the Nonsense Championship! Your claim: "+topic.en+". Press start when you are ready.");
+  const intros=language==="zh"?["今天的挑戰是：","新命題出爐：","舞台已經準備好了！請為這個命題辯護：","歡迎挑戰這道荒謬命題："]:["Your challenge is: ","A new absurd claim: ","The stage is set. Defend this: ","Can you make the case for this: "];
+  speakNonsenseHost(language,intros[Math.floor(Math.random()*intros.length)]+topic[language]+(language==="zh"?"。準備好就開始！":". Start when you're ready!"));
  };
  const recognitionRef=useRef<RecognitionInstance|null>(null);
  const heardRef=useRef(""),manualRef=useRef("");
@@ -210,7 +211,7 @@ export function NonsenseChampionshipPage(){
    <p>{L(zh,"一本正經地胡說八道。60 秒說服 AI 評審。","Deliver a ridiculous argument with a straight face. You have 60 seconds.")}</p>
   </header>
   <div className="nonsense-shell">
-   <section className={"nonsense-stage nonsense-phase-"+phase+(waveActive?" nonsense-responding":"")} aria-label={L(zh,"遊戲舞台","Game stage")}>
+   <section className={"nonsense-stage nonsense-phase-"+phase+(waveActive||liveState==="speaking"?" nonsense-responding":"")} aria-label={L(zh,"遊戲舞台","Game stage")}>
     <div className="nonsense-marquee" aria-hidden="true"><span>CREW</span><span>★ NONSENSE CHAMPIONSHIP ★</span><span>LIVE</span></div>
     <div className="nonsense-phase-track" aria-label={L(zh,"目前階段","Current phase")}>
      {(["setup","prep","speaking","review","judging","result"] as const).map((step,index)=><span key={step} className={phase===step?"active":(["setup","prep","speaking","review","judging","result"] as const).indexOf(phase)>index?"passed":""}>
@@ -243,10 +244,10 @@ export function NonsenseChampionshipPage(){
     <h2>{topic[language]}</h2>
     <div className="nonsense-panel-title">{L(zh,"四位舞台嘉賓 · 選中的評審負責 AI 評分","Four stage characters · the selected judge scores")}</div>
     <div className="nonsense-judge-row" aria-label={L(zh,"舞台評審","Stage judges")}>
-     {nonsenseJudges.map((judge,index)=><div key={judge.id} className={"nonsense-judge-tile"+(judgeId===judge.id?" chosen":"")} data-mood={phase==="result"?"result":phase==="judging"?"waiting":phase==="speaking"&&waveActive?(index%2?"pulse":"bounce"):"idle"}>
-      <span className="nonsense-judge-face" aria-hidden="true">{phase==="result"&&judgeId===judge.id?stageFaces[judge.id].result:phase==="speaking"&&waveActive?stageFaces[judge.id].active:stageFaces[judge.id].idle}</span>
+     {nonsenseJudges.map((judge,index)=><div key={judge.id} className={"nonsense-judge-tile"+(judgeId===judge.id?" chosen":"")} data-mood={phase==="result"&&judgeId===judge.id&&liveState==="speaking"?"pulse":phase==="result"?"result":phase==="judging"?"waiting":phase==="speaking"&&waveActive?(index%2?"pulse":"bounce"):"idle"}>
+      <span className="nonsense-judge-face" aria-hidden="true">{phase==="result"&&judgeId===judge.id&&liveState==="speaking"?stageFaces[judge.id].active:phase==="result"&&judgeId===judge.id?stageFaces[judge.id].result:phase==="speaking"&&waveActive?stageFaces[judge.id].active:stageFaces[judge.id].idle}</span>
       <strong>{zh?judge.zh:judge.en}</strong>
-      <small>{phase==="result"&&judgeId===judge.id?L(zh,"已完成真實評分","Verified result"):phase==="judging"&&judgeId===judge.id?L(zh,"評分中","Judging"):phase==="speaking"&&waveActive?L(zh,"舞台動效","Stage effect"):judgeId===judge.id?L(zh,"本局評審","Selected judge"):L(zh,"舞台嘉賓","Stage guest")}</small>
+      <small>{phase==="result"&&judgeId===judge.id&&liveState==="speaking"?L(zh,"正在播報評語","Announcing verdict"):phase==="result"&&judgeId===judge.id?L(zh,"已完成真實評分","Verified result"):phase==="judging"&&judgeId===judge.id?L(zh,"評分中","Judging"):phase==="speaking"&&waveActive?L(zh,"舞台動效","Stage effect"):judgeId===judge.id?L(zh,"本局評審","Selected judge"):L(zh,"舞台嘉賓","Stage guest")}</small>
      </div>)}
     </div>
     <p className="nonsense-effect-note">{L(zh,"舞台表情與燈光是互動特效，不代表 AI 正在評價你的演說。","Stage expressions and lights are visual effects, not AI judgments.")}</p>
