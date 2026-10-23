@@ -87,14 +87,17 @@ export function TeacherBoardPage(){
  function commitPatch(patch:BoardPatch):boolean{
   // Only allow supporting non-quiz upserts while the learner owns a question.
   const waiting=directorRef.current.phase==="awaiting";
+  const guided=!!lessonRef.current;
+  // Curated quiz/speaking goals must not be overwritten by model-authored patches.
+  if(guided&&(patch.action!=="upsert"||patch.cards.some(c=>!cardRef.current.some(old=>old.id===c.id&&old.type===c.type)||c.type==="quiz"||c.type==="speaking")))return false;
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);
-  const stage=directorAfterPatch(directorRef.current,next,patch.cards);
+  const stage=guided?directorRef.current:directorAfterPatch(directorRef.current,next,patch.cards);
   changeDirector(stage);
   const changedId=stage.cardId;
   setLatestId(changedId);setRevision(v=>v+1);
-  if(changedId&&!waiting){setFollowing(true);setFocusedId(null);}
+  if(changedId&&!waiting&&!guided){setFollowing(true);setFocusedId(null);}
   if(patch.action==="replace"){answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
   return true;
  }
