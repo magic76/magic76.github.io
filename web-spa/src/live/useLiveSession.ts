@@ -13,7 +13,10 @@ type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
- onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string},completedTurns:LiveTurn[])=>void;
+ onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
+ tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
+ onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
+ onRecovered?:()=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
@@ -123,7 +126,7 @@ export function useLiveSession(config:Config){
    };
    // Only Crew Teacher/Friends and their Voice Lab use this experimental selection.
    // Crew Story/Fortune keep their existing automatic fallback behavior.
-   const teacherVoiceSession=configRef.current.pageKey==="teacher"
+   const teacherVoiceSession=(configRef.current.pageKey==="teacher"||configRef.current.pageKey==="teacher-board")
      ||configRef.current.pageKey==="voice-lab"
      ||configRef.current.pageKey.startsWith("friend-")
       ||configRef.current.pageKey.startsWith("timeline-mira-");
@@ -142,6 +145,7 @@ export function useLiveSession(config:Config){
    const session=new window.CrewLive.Session({
     system:configRef.current.system+(tabooEnglish?(tabooDirectGuess?"\n[TABOO DIRECT GUESS] Speak English only, regardless of friend preference. For raw learner descriptions, make ONE clear, concise guess in varied natural English. No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result.":"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be English only, regardless of friend chat preference. After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."):""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
+    tools:configRef.current.tools,onToolCall:call=>configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"},
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
@@ -178,6 +182,7 @@ export function useLiveSession(config:Config){
      setOutput(v);
     },
     onRecovered:()=>{
+      configRef.current.onRecovered?.();
       cancelRescue();cancelFriendReplyTimer();
       // Reconnected transports can reuse an older system instruction: reassert
       // the learner's latest friend language mode without a fabricated turn.
