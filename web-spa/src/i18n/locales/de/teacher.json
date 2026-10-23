@@ -304,6 +304,21 @@
       "review": "Konzept wiederholen",
       "next": "Nächste Frage",
       "another": "Weiter üben"
+    },
+    "lessonPicker": {
+      "title": "Minilektionen",
+      "subtitle": "Wähle eine 3–5-minütige Lektion",
+      "hotel": "Hotel-Check-in",
+      "interview": "Vorstellungsgespräch",
+      "grammar": "Perfekt-Zeiten",
+      "progress": "Lernfortschritt",
+      "quizDone": "Quiz bestanden",
+      "speakingDone": "Sprechziel erreicht",
+      "complete": "Lektion abgeschlossen!",
+      "previous": "Vorheriger Schritt",
+      "forward": "Nächster Schritt",
+      "hint": "Hinweis geben",
+      "retry": "Zurück und erneut versuchen"
     }
   }
 }

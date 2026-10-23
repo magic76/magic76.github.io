@@ -304,6 +304,21 @@
       "review": "Ôn lại khái niệm",
       "next": "Câu hỏi tiếp theo",
       "another": "Tiếp tục luyện tập"
+    },
+    "lessonPicker": {
+      "title": "Bài học ngắn",
+      "subtitle": "Chọn bài học 3–5 phút với giáo viên",
+      "hotel": "Nhận phòng khách sạn",
+      "interview": "Phỏng vấn xin việc",
+      "grammar": "Thì hoàn thành",
+      "progress": "Tiến độ học",
+      "quizDone": "Đạt bài kiểm tra",
+      "speakingDone": "Đạt mục tiêu nói",
+      "complete": "Hoàn thành bài học!",
+      "previous": "Bước trước",
+      "forward": "Bước tiếp",
+      "hint": "Gợi ý giúp tôi",
+      "retry": "Quay lại làm lại"
     }
   }
 }

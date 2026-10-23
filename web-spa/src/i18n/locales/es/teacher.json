@@ -304,6 +304,21 @@
       "review": "Repasar el concepto",
       "next": "Siguiente pregunta",
       "another": "Seguir practicando"
+    },
+    "lessonPicker": {
+      "title": "Minilecciones",
+      "subtitle": "Elige una lección de 3 a 5 minutos",
+      "hotel": "Registro en hotel",
+      "interview": "Entrevista de trabajo",
+      "grammar": "Tiempos perfectos",
+      "progress": "Progreso",
+      "quizDone": "Prueba aprobada",
+      "speakingDone": "Objetivo oral logrado",
+      "complete": "¡Lección completada!",
+      "previous": "Paso anterior",
+      "forward": "Paso siguiente",
+      "hint": "Dame una pista",
+      "retry": "Volver a intentar"
     }
   }
 }

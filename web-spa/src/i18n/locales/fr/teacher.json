@@ -304,6 +304,21 @@
       "review": "Revoir le concept",
       "next": "Question suivante",
       "another": "Continuer l'exercice"
+    },
+    "lessonPicker": {
+      "title": "Mini-leçons",
+      "subtitle": "Choisissez une leçon de 3 à 5 minutes",
+      "hotel": "Arrivée à l'hôtel",
+      "interview": "Entretien d'embauche",
+      "grammar": "Temps composés",
+      "progress": "Progression",
+      "quizDone": "Quiz réussi",
+      "speakingDone": "Objectif oral atteint",
+      "complete": "Leçon terminée !",
+      "previous": "Étape précédente",
+      "forward": "Étape suivante",
+      "hint": "Un indice",
+      "retry": "Revenir et réessayer"
     }
   }
 }

@@ -304,6 +304,21 @@
       "review": "Review the concept",
       "next": "Next question",
       "another": "Keep practicing"
+    },
+    "lessonPicker": {
+      "title": "Mini lessons",
+      "subtitle": "Pick a 3–5 minute lesson with your AI teacher",
+      "hotel": "Hotel check-in",
+      "interview": "Job interview",
+      "grammar": "Perfect tenses",
+      "progress": "Lesson progress",
+      "quizDone": "Quiz passed",
+      "speakingDone": "Speaking goal met",
+      "complete": "Lesson completed!",
+      "previous": "Previous stage",
+      "forward": "Next stage",
+      "hint": "Give a hint",
+      "retry": "Return and retry"
     }
   }
 }

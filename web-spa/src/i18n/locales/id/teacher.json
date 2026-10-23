@@ -304,6 +304,21 @@
       "review": "Ulangi konsep",
       "next": "Pertanyaan berikutnya",
       "another": "Lanjut berlatih"
+    },
+    "lessonPicker": {
+      "title": "Pelajaran singkat",
+      "subtitle": "Pilih pelajaran 3–5 menit",
+      "hotel": "Check-in hotel",
+      "interview": "Wawancara kerja",
+      "grammar": "Tata bahasa perfect",
+      "progress": "Kemajuan belajar",
+      "quizDone": "Kuis lulus",
+      "speakingDone": "Target bicara tercapai",
+      "complete": "Pelajaran selesai!",
+      "previous": "Tahap sebelumnya",
+      "forward": "Tahap berikutnya",
+      "hint": "Minta petunjuk",
+      "retry": "Kembali dan coba lagi"
     }
   }
 }
