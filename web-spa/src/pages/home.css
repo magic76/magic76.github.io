@@ -335,3 +335,12 @@
 @media(hover:none),(pointer:coarse){
  .crew-home-briefing-card:hover,.crew-home-product:hover,.crew-home-recent:hover{transform:none;box-shadow:none}
 }
+
+/* Android-only Orb shortcut sits above the hero instead of below the games. */
+.crew-home-orb-quick{display:flex;align-items:center;gap:11px;min-height:54px;margin:0 0 11px;padding:9px 13px;border:1px solid #d7caef;border-radius:16px;text-decoration:none;background:linear-gradient(110deg,#f4edff,#fff6f1);color:#433258;box-shadow:0 4px 17px #3827490a}
+.crew-home-orb-icon{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:#e5d8f6;color:#6a49ad;font-size:25px}
+.crew-home-orb-quick-copy{display:grid;gap:2px;min-width:0;flex:1}
+.crew-home-orb-quick-copy strong{font-size:14px;line-height:1.3}
+.crew-home-orb-quick-copy small{font-size:11px;line-height:1.45;color:#746681}
+.crew-home-orb-chevron{font-size:22px;color:#795cbb}
+.crew-home-orb-quick:focus-visible{outline:2px solid #795cbb;outline-offset:3px}

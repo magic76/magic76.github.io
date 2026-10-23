@@ -177,3 +177,22 @@ test("older Android bridge cannot start Cyber Orb",async()=>{
  assert.equal((await device.requestNativeOrbStart({roleType:"teacher",roleId:"emma",language:"en"},caps)).ok,false);
  assert.deepEqual(methods,["getCapabilities"]);
 });
+
+test("one-shot Web Key travels to Android only on supported explicit Orb start",async()=>{
+ const key="AIzaSyTEST_123456789012345678901234567890";
+ const actions=[];
+ const bridge={onmessage:null,postMessage(data){
+  const req=JSON.parse(data);actions.push(req);
+  bridge.onmessage({data:JSON.stringify({v:1,id:req.id,ok:true})});
+ }};
+ const device=load({bridge});
+ const selection={roleType:"friend",roleId:"zoe",language:"en"};
+ assert.equal((await device.requestNativeOrbStart(selection,{cyberOrb:true,cyberOrbWebKey:true},key)).ok,true);
+ assert.equal(actions[0].params.ephemeralApiKey,key);
+ assert.equal(actions[0].params.roleId,"zoe");
+ assert.equal((await device.requestNativeOrbStart(selection,{cyberOrb:true,cyberOrbWebKey:true},"invalid-key")).ok,true);
+ assert.equal("ephemeralApiKey" in actions[1].params,false);
+ assert.equal((await device.requestNativeOrbStart(selection,{cyberOrb:true},key)).ok,true);
+ assert.equal("ephemeralApiKey" in actions[2].params,false);
+ assert.equal(actions[0].method,"startOrb");
+});

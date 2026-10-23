@@ -38,6 +38,7 @@ export type NativeDeviceFeatures={
  openTtsSettings?:boolean;
  stopSpeech?:boolean;
  cyberOrb?:boolean;
+ cyberOrbWebKey?:boolean;
 };
 export type NativeDeviceInfo={
  appVersion:string;
@@ -86,7 +87,7 @@ function onBridgeReply(event:{data:unknown}):void{
 }
 
 function sendNativeMessage(method:"getCapabilities"|"speak"|"getDeviceInfo"|"openAppSettings"|"openTtsSettings"|"stopSpeech"|"getOrbStatus"|"startOrb"|"stopOrb",
- params?:{text:string;rate:SpeechSpeed}|{roleType:"friend"|"teacher";roleId:string;language:string}):Promise<BridgeResponse>{
+ params?:{text:string;rate:SpeechSpeed}|{roleType:"friend"|"teacher";roleId:string;language:string;ephemeralApiKey?:string}):Promise<BridgeResponse>{
  const port=webMessagePort();
  if(!port)return Promise.reject(new Error("Native device bridge unavailable"));
  if(attachedPort!==port){
@@ -215,11 +216,16 @@ export async function readNativeOrbStatus(features:NativeDeviceFeatures|null):Pr
 }
 
 export async function requestNativeOrbStart(
- selection:NativeOrbSelection,features:NativeDeviceFeatures|null
+ selection:NativeOrbSelection,features:NativeDeviceFeatures|null,webGeminiKey=""
 ):Promise<NativeOrbActionResult>{
  if(!features?.cyberOrb||!webMessagePort())return{ok:false,error:"unavailable"};
+ // Only transmit on explicit Start and to native builds advertising one-shot key support.
+ const key=webGeminiKey.trim();
+ const passKey=features.cyberOrbWebKey===true&&/^AIza[A-Za-z0-9_-]{20,120}$/.test(key);
  try{
-  const reply=await sendNativeMessage("startOrb",selection);
+  const reply=await sendNativeMessage("startOrb",{
+   ...selection,...(passKey?{ephemeralApiKey:key}:{})
+  });
   return{ok:reply.ok,error:reply.error};
  }catch{return{ok:false,error:"bridge_error"}}
 }
