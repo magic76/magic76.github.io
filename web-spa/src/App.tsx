@@ -9,7 +9,6 @@ import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{AppChrome}from"./components/AppChrome";
 import{OnboardingGate}from"./onboarding/OnboardingGate";
 import{CrewUpdateNotice}from"./components/CrewUpdateNotice";
-import{scheduleCrewPreload}from"./runtime/routePreload";
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
 const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>import("./teacher/PracticePage").then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>import("./teacher/CoursePage").then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>import("./teacher/PronunciationPage").then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>import("./teacher/TextbookPage").then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>import("./teacher/LivePage").then(m=>({default:m.TeacherLivePage})));
 const StudentMemoryPage=lazy(()=>import("./teacher/StudentMemoryPage").then(m=>({default:m.StudentMemoryPage})));const RolesPage=lazy(()=>import("./teacher/RolesPage").then(m=>({default:m.RolesPage})));
@@ -33,7 +32,7 @@ const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>import("./pages/CrewSectionPage").then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
-export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);useEffect(()=>scheduleCrewPreload(pathname),[pathname]);
+export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
   const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo|crazy-court)$/.test(pathname);

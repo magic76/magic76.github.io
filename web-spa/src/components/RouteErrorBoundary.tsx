@@ -27,13 +27,15 @@ function recoveryPath(){
 }
 
 type Props={children:ReactNode};
-type State={error:unknown|null};
+type State={error:unknown|null;recovering:boolean};
 
 export class RouteErrorBoundary extends Component<Props,State>{
- state:State={error:null};
+ state:State={error:null,recovering:false};
 
  static getDerivedStateFromError(error:unknown):State{
-  return {error};
+  // During the one allowed chunk-recovery navigation show a neutral loading
+  // state, not a false error screen for a page that is about to recover.
+  return {error,recovering:isAssetLoadError(error)};
  }
 
  componentDidCatch(error:unknown){
@@ -44,16 +46,26 @@ export class RouteErrorBoundary extends Component<Props,State>{
    const now=Date.now();
    const path=recoveryPath();
    const previous=JSON.parse(sessionStorage.getItem(RETRY_KEY)||"null") as {path?:string;at?:number}|null;
-   if(previous?.path===path&&typeof previous.at==="number"&&now-previous.at<RETRY_WINDOW_MS)return;
+   if(previous?.path===path&&typeof previous.at==="number"&&now-previous.at<RETRY_WINDOW_MS){
+    this.setState({recovering:false});
+    return;
+   }
    sessionStorage.setItem(RETRY_KEY,JSON.stringify({path,at:now}));
    reloadLatest();
   }catch{
-   // Storage may be unavailable; leave the visible error screen in place.
+   // Storage/navigation may be unavailable. Show actionable failure UI.
+   this.setState({recovering:false});
   }
  }
 
  render(){
   if(this.state.error===null)return this.props.children;
+  // A failed lazy import remains rejected for this document. Only the first,
+  // already-scheduled recovery is rendered as loading; persistent failures
+  // still receive the existing error actions after the guarded retry.
+  if(this.state.recovering)return <main className="shell page spa-loading" role="status" aria-live="polite">
+   {/^\/en(?:\/|$)/.test(window.location.pathname)?"Restoring page…":"正在重新載入頁面…"}
+  </main>;
   const english=typeof window!=="undefined"&&/^\/en(?:\/|$)/.test(window.location.pathname);
   const home=english?"/en/":"/";
   return <main className="shell page" role="alert" style={{minHeight:"45vh",display:"grid",placeItems:"center",padding:"40px 20px"}}>
