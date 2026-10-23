@@ -45,7 +45,7 @@ export function NonsenseChampionshipPage(){
  const [micActive,setMicActive]=useState(false),[notice,setNotice]=useState(""),[error,setError]=useState("");
  const [verdict,setVerdict]=useState<NonsenseVerdict|null>(null),[copied,setCopied]=useState(false);
  const recognitionRef=useRef<RecognitionInstance|null>(null);
- const heardRef=useRef("");
+ const heardRef=useRef(""),manualRef=useRef("");
  const deadlineRef=useRef(0),prepDeadlineRef=useRef(0);
  const phaseRef=useRef<Phase>("setup"),requestRef=useRef(0),mountedRef=useRef(true);
  const categoryLabel=nonsenseCategories.find(c=>c.id===topic.category);
@@ -88,7 +88,7 @@ export function NonsenseChampionshipPage(){
  },[phase]);
  const beginPrep=()=>{
   teardownMic();requestRef.current++;
-  heardRef.current="";setHeard("");setManual("");setDraft("");setVerdict(null);setError("");setNotice("");
+  heardRef.current="";manualRef.current="";setHeard("");setManual("");setDraft("");setVerdict(null);setError("");setNotice("");
   prepDeadlineRef.current=Date.now()+10000;setPrepLeft(10);setTimeLeft(60);
   setPhase("prep");phaseRef.current="prep";
  };
@@ -128,12 +128,12 @@ export function NonsenseChampionshipPage(){
   if(phaseRef.current!=="speaking")return;
   phaseRef.current="review";
   // Use the final interim result if the browser hasn't emitted an isFinal event yet.
-  const transcript=[heardRef.current,manual].filter(Boolean).join(" ").trim();
+  const transcript=[heardRef.current,manualRef.current].filter(Boolean).join(" ").trim();
   teardownMic();setDraft(transcript);setPhase("review");setError("");setNotice("");
  };
  const reset=()=>{
   requestRef.current++;teardownMic();phaseRef.current="setup";setPhase("setup");
-  setHeard("");heardRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);
+  setHeard("");heardRef.current="";manualRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);
  };
  const grade=async()=>{
   if(phaseRef.current!=="review")return;
@@ -218,7 +218,7 @@ export function NonsenseChampionshipPage(){
      </div>
      {heard&&<p className="nonsense-heard">{heard}</p>}
      {!micActive&&<label className="nonsense-text-fallback">{L(zh,"無法使用麥克風？在這裡輸入演說內容","Can't use the mic? Type your speech here")}
-      <textarea value={manual} onChange={e=>setManual(e.target.value)} rows={3} maxLength={6000}/>
+      <textarea value={manual} onChange={e=>{manualRef.current=e.target.value;setManual(e.target.value)}} rows={3} maxLength={6000}/>
      </label>}
      <div className="nonsense-buttons">
       {!micActive&&canRecognize&&<button type="button" className="nonsense-secondary" onClick={()=>activateRecognition(heardRef.current)}>{L(zh,"繼續收音","Resume mic")}</button>}
@@ -227,7 +227,7 @@ export function NonsenseChampionshipPage(){
     </>}
     {(phase==="review"||phase==="judging")&&<section className="nonsense-review">
      <h3>{L(zh,"確認你的演說逐字稿","Review your speech transcript")}</h3>
-     <p>{L(zh,"語音辨識可能有錯字，可在評分前修正。不會儲存原始錄音。","Speech recognition may make mistakes. Edit before submitting. Raw audio is not saved.")}</p>
+     <p>{L(zh,"語音辨識可能有錯字，可在評分前修正。本網站不儲存錄音；辨識可能由瀏覽器語音服務處理。","Speech recognition may make mistakes. This site does not store recordings; your browser may process audio through its speech service.")}</p>
      <textarea value={draft} onChange={e=>setDraft(e.target.value)} rows={7} maxLength={6000} disabled={phase==="judging"} aria-label={L(zh,"演說逐字稿","Speech transcript")}/>
      {!geminiKey()&&<p className="nonsense-key-note">{L(zh,"AI 評分需要 Gemini Key。你仍然可以免費抽題和演說。","AI judging requires a Gemini Key. Topic drawing and speaking are free.")} <Link to="/settings">{L(zh,"前往設定","Open settings")}</Link></p>}
      {error&&<p role="alert" className="nonsense-alert">{error}</p>}
