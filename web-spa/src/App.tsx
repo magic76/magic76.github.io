@@ -26,7 +26,7 @@ const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({def
 const NumberGamePage=lazy(()=>import("./games/NumberGamePage").then(m=>({default:m.NumberGamePage})));
 const TabooGamePage=lazy(()=>import("./games/TabooGamePage").then(m=>({default:m.TabooGamePage})));
 const CrazyCourtPage=lazy(()=>import("./games/CrazyCourtPage").then(m=>({default:m.CrazyCourtPage})));
-const NonsenseChampionshipPage=lazy(()=>import("./games/NonsenseChampionshipPage").then(m=>({default:m.NonsenseChampionshipPage})));
+const NonsenseChampionshipPage=lazy(()=>import("./games/NonsenseLiveNewsPage").then(m=>({default:m.NonsenseLiveNewsPage})));
 const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:m.BriefingPage})));
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
