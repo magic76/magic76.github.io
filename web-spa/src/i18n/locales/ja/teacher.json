@@ -296,6 +296,14 @@
     "following": "最新に追従中",
     "paused": "過去のカードを表示中",
     "followLatest": "最新を表示",
-    "latest": "最新"
+    "latest": "最新",
+    "director": {
+      "explaining": "先生が説明中",
+      "awaiting": "回答を待っています",
+      "feedback": "先生からのフィードバック",
+      "review": "関連する説明を復習",
+      "next": "次の問題",
+      "another": "練習を続ける"
+    }
   }
 }
