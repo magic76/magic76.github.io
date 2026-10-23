@@ -162,5 +162,5 @@ test("new or revised teaching cards resume live focus after manual browsing",()=
  assert.match(page,/following\?latestId:focusedId/);
  assert.match(page,/ref=\{deckRef\} role="tablist"/);
  assert.match(page,/rail\.getBoundingClientRect\(\)/);
- assert.match(page,/stageRef\.current\.scrollTop=0/);
+ assert.match(page,/if\(stage\)stage\.scrollTop=0/);
 });
