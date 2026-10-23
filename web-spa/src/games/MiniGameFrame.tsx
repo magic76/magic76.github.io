@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState,type ReactNode} from "react";
 import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
 import {FriendAvatar} from "../friends/FriendAvatar";
 import {buildFriendSystem} from "../friends/friendMemory";
@@ -9,6 +10,7 @@ import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
+import {GameSpeechBubble} from "./GameSpeechBubble";
 import "./miniGames.css";
 
 export type MiniKind="1a2b"|"taboo"|"court";
@@ -57,6 +59,8 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";courtRole?:"defense"|"prosecution";
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const {i18n}=useTranslation("home");
+ const english=Boolean(i18n.resolvedLanguage?.startsWith("en"));
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const friendMode=useTeacherStore(s=>s.friendChatMode);
  const seenRef=useRef(new Set<string>());
@@ -105,7 +109,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
     <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":chinese?"正在聽中文":"正在聽"+targetLanguage):"語音連接中":hasKey?"打字也能玩，不必開麥克風":"無 Key 也能完整打字玩"}</small>
    </div>
   </div>
-  {live.output&&active?<p className="crew-mini-speech" role="status">{live.output}</p>:null}
+  {live.output&&active?<GameSpeechBubble text={live.output} english={english}/>:null}
   {active?<LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友" compact/>:
    hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">開啟與 {friend.name} 的語音</button>:
    <Link className="crew-mini-key-link" to="/settings">要開啟 Live 語音？先到設定填入 Gemini Key（選用）</Link>}

@@ -220,3 +220,11 @@
  .court-role-choices button{padding:12px 7px;min-height:108px}
  .court-hint-bar button{flex:1 1 45%;min-width:0}
 }
+
+/* Limit the transcript to five scrollable lines rather than growing the trial stage. */
+.court-latest .crew-game-speech{margin-top:7px;background:#fffaf3;border-color:#e5d3bd;color:#694734}
+.court-latest .crew-game-speech-action{color:#98664c}
+.court-voice-wrap .crew-game-speech{background:#fbf4e9;border-color:#eadac4;color:#624936}
+@media(max-width:620px){
+ .court-voice-wrap .crew-mini-voice:has(.crew-game-speech.is-expanded){max-height:min(48dvh,330px)}
+}

@@ -7,6 +7,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {useTeacherStore} from "../store/teacherStore";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
+import {GameSpeechBubble} from "./GameSpeechBubble";
 import {MiniGameVoice,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {courtCases,courtPhases,courtReasons,evaluateCourtAction,
  type CourtAction,type CourtRole,type CourtLanguage,type CourtCase} from "./crazyCourtEngine";
@@ -272,7 +273,7 @@ export function CrazyCourtPage(){
    </div>
    <div className="court-latest" aria-live="polite">
     <span className="court-live-dot"/><strong>{opponent} · {friend.name}</strong>
-    {entries.filter(entry=>entry.speaker==="opponent").slice(-2).map((entry,i)=><p key={turn+":"+i} className={i===0?"court-opponent-previous":undefined}>{entry.text}</p>)}
+    <GameSpeechBubble key={turn} english={!zh} text={entries.filter(entry=>entry.speaker==="opponent").slice(-2).map(entry=>entry.text).join("\n")}/>
     {busy?<small>{choice(zh,"AI 正在整理下一段庭審…","Preparing the next exchange…")}</small>:null}
    </div>
    <div className="court-judge-question"><strong>{choice(zh,"法官問你","The judge asks")}</strong><p>{currentQuestion}</p></div>

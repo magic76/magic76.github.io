@@ -20,6 +20,7 @@ import {geminiKey} from "../lib/runtime";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {crewGames} from "./CrewPlayHubPage";
 import {GamePanel} from "./GamePanel";
+import {GameSpeechBubble} from "./GameSpeechBubble";
 import {trackUsageEvent} from "../analytics/usage";
 import "./crewPlay.css";
 
@@ -303,9 +304,9 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     </GamePanel>
    </div>
    <div className={"crew-play-voice-waves"+(live.state==="speaking"?" is-speaking":live.state==="listening"?" is-listening":"")} aria-hidden="true"><i/><i/><i/><i/><i/></div>
-   <p className="crew-play-voice-presence-reply" role="status" aria-live="polite">{live.output||(kind==="mystery"?
+   <GameSpeechBubble className="crew-play-voice-presence-reply" english={english} text={live.output||(kind==="mystery"?
     (english?"Let's solve a strange story together.":"一起破解這個離奇的故事吧！"):
-    (english?"I've picked something. Ask me a question!":"我已經想好一個東西了，直接開口問我吧！"))}</p>
+    (english?"I've picked something. Ask me a question!":"我已經想好一個東西了，直接開口問我吧！"))}/>
    {!voiceActive?<div className="crew-play-voice-entrance">
     <strong>{english?"Start voice to unlock this game":"開啟語音，才能開始遊戲"}</strong>
     <p>{english?"20 Questions and Mystery are conversation games. You'll need your Gemini Key and microphone.":"20 Questions 和海龜湯是語言對話遊戲，需要 Gemini Key 和麥克風才能遊玩。"}</p>
@@ -347,7 +348,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     <CrewWordGames key={round} kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={()=>{pending.current=null;setRoundEnded(false);setVoiceTurns([]);nextRound()}} onFinished={()=>setRoundEnded(true)} mysterySource={mysteryStatus} itemSource={questionStatus} voiceTurns={voiceTurns.filter(turn=>turn.round===round)}/>
    </div>:null}
   {!isWord?<section className="crew-play-voice">
-   <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><p>{live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")}</p></div></div>
+   <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><GameSpeechBubble text={live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")} english={english}/></div></div>
    {voiceActions}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
   </section>:null}

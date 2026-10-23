@@ -13,6 +13,7 @@ import {loadScript} from "../lib/runtime";
 import {matchesBoardNarration} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
 import {GamePanel} from "./GamePanel";
+import {GameSpeechBubble} from "./GameSpeechBubble";
 import "./games.css";
 
 const SELECTED_FRIEND_KEY="crew_web_selected_friend_v1";
@@ -315,7 +316,7 @@ export function FriendGomokuPage(){
       <div className="friend-gomoku-voice-dock">
       <div className="friend-gomoku-companion">
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
-        <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><span>{live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}</span></div>
+        <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><GameSpeechBubble english={english} text={live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}/></div>
       </div>
       {live.state==="idle"||live.state==="ended"?<button className="friend-gomoku-start-voice" type="button" onClick={()=>void live.start()}>{english?"Turn on voice chat (optional)":"開啟語音陪玩（選用）"}</button>:<LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>}
       </div>
