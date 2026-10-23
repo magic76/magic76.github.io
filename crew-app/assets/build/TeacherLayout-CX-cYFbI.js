@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-Dk72oS4N.js";import{o as t}from"./chunk-OB3PAWPO-aexQ7Smp.js";import{v as n}from"./index-2_RnmonJ.js";var r=e();function i(){return(0,r.jsx)(n,{product:`teacher`,children:(0,r.jsx)(t,{})})}export{i as TeacherLayout};
