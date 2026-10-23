@@ -113,3 +113,40 @@ test("unsupported tools retry selected model without tools and without switching
  assert.equal(fallback,1);assert.equal(session.model,"gemini-3.1-flash-live-preview");
  await session.stop({silentStatus:true,emitTerminal:false});
 });
+
+test("stage supports distinct cards with bounded JSON payloads",()=>{
+ const cards=[
+  {id:"walkthrough",type:"steps",title:"How it works",points:[{label:"First",note:"Read the sentence"},{label:"Then",note:"Speak aloud"}]},
+  {id:"memory-card",type:"flashcard",title:"Recall",pairs:[{source:"apple",target:"蘋果"}]},
+  {id:"roleplay",type:"dialogue",title:"At the shop",pairs:[{source:"Staff",target:"How may I help you?"}]}
+ ];
+ const patch=board.validateBoardPatch({action:"upsert",cards});
+ assert.ok(patch);
+ assert.deepEqual(Array.from(patch.cards,x=>x.type),["steps","flashcard","dialogue"]);
+ assert.match(JSON.stringify(board.BOARD_TOOLS),/"flashcard"/);
+ assert.match(JSON.stringify(board.BOARD_TOOLS),/"dialogue"/);
+ assert.match(board.boardNotes(patch.cards),/How may I help you/);
+});
+test("generic fallback can show real spoken sentences as steps without making up material",()=>{
+ const speech="First, we will explain how this works. Next, try to practice with your own examples. Finally, check the result.";
+ const patch=board.fallbackBoard({input:"Please teach me this process",output:speech},[]);
+ assert.equal(patch.cards[0].type,"steps");
+ assert.equal(patch.cards[0].points.length,3);
+ assert.ok(patch.cards[0].points.every(x=>speech.includes(x.note)));
+});
+test("teacher board shows one focused stage with explicit lesson tabs and follow-latest control",()=>{
+ const page=fs.readFileSync(root+"/web-spa/src/teacher/TeacherBoardPage.tsx","utf8");
+ const cards=fs.readFileSync(root+"/web-spa/src/teacher/TeachingCard.tsx","utf8");
+ const styles=fs.readFileSync(root+"/web-spa/src/teacher/teachingBoard.css","utf8");
+ assert.match(page,/className=\{"teaching-board-stage"/);
+ assert.match(page,/role="tablist"/);
+ assert.match(page,/setFollowing\(false\)/);
+ assert.match(page,/setFollowing\(true\)/);
+ assert.doesNotMatch(page,/teaching-board-stack/);
+ assert.match(cards,/function Flashcards/);
+ assert.match(cards,/function Dialogue/);
+ assert.match(cards,/function Steps/);
+ assert.match(cards,/const \[step,setStep\]/);
+ assert.match(styles,/\.teaching-board-stage\{height:clamp\(/);
+ assert.match(styles,/overflow-y:auto/);
+});
