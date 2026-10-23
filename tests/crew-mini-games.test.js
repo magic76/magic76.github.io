@@ -125,7 +125,7 @@ test("Taboo speaks one natural guess while accepting multiple safe phrasings",()
 test("Taboo voice scoring validates an already-spoken guess without scheduling a second speech",()=>{
  const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/games/TabooGamePage.tsx"),"utf8");
  const voice=fs.readFileSync(path.join(__dirname,"../web-spa/src/games/MiniGameFrame.tsx"),"utf8");
- assert.match(source,/const spokenGuess=parseTabooLiveGuess\(liveReply\)/);
+ assert.match(source,/const spokenGuess=parseTabooLiveGuess\(liveReply,tongue\)/);
  assert.match(source,/correct\(spokenGuess,true\)/);
  assert.match(source,/setRoundSeconds]=useState\(120\)/);
  assert.match(source,/\[120,180,0\]\.map/);
