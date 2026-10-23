@@ -1,5 +1,5 @@
 /** Session-only, data-only board protocol. Never render model-authored HTML. */
-export type CardKind="explanation"|"example"|"comparison"|"timeline"|"vocabulary"|"quiz"|"correction";
+export type CardKind="explanation"|"example"|"comparison"|"timeline"|"vocabulary"|"quiz"|"correction"|"steps"|"flashcard"|"dialogue";
 export type BoardPair={source:string;target:string;pronunciation?:string};
 export type BoardPoint={label:string;note:string};
 export type BoardQuestion={question:string;options:string[];answerIndex:number;explanation:string};
@@ -8,7 +8,7 @@ export type BoardCard={
  pairs:BoardPair[];points:BoardPoint[];questions:BoardQuestion[];
 };
 export type BoardPatch={action:"upsert"|"replace"|"remove";cards:BoardCard[];ids:string[]};
-const kinds:CardKind[]=["explanation","example","comparison","timeline","vocabulary","quiz","correction"];
+const kinds:CardKind[]=["explanation","example","comparison","timeline","vocabulary","quiz","correction","steps","flashcard","dialogue"];
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const clean=(v:unknown,max=240):string=>typeof v==="string"?v.replace(/[<>\u0000-\u001f]/g," ").trim().slice(0,max):"";
 const safeId=(v:unknown):v is string=>typeof v==="string"&&/^[a-z0-9_-]{1,40}$/i.test(v);
@@ -50,7 +50,7 @@ const str={type:"STRING"};const arr=(items:Record<string,unknown>)=>({type:"ARRA
 export const BOARD_FUNCTION="update_teaching_board";
 export const BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Update the learner's interactive teaching board WHILE speaking. Send small structured card patches early and throughout the explanation, not only after finishing speech. Reuse stable card IDs to simplify/edit; action replace for a new quiz. Data only, never HTML.",
+ description:"Update the interactive lesson stage while speaking. Create concise visual blocks matching the lesson: comparison for differences, timeline for chronological ideas, steps with points (label and note) for a procedure, dialogue with pairs (source=speaker, target=utterance) for roleplay, flashcard with pairs (source=front, target=back) for recall, vocabulary with pronunciation, quiz with questions, example for example/meaning pairs, correction for before/after, explanation for concepts. Vary formats meaningfully, do not default to explanation. Each update focuses the latest changed card. Reuse stable IDs to edit; action replace for a wholly new lesson, not every turn. Send small patches early during speech. Data only, never HTML.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace","remove"]},
   ids:arr(str),cards:arr({type:"OBJECT",properties:{
@@ -85,7 +85,16 @@ export function fallbackBoard(turn:{input?:string;output?:string},current:BoardC
  }
  if(!answer)return null;
  const id="explain-"+String(current.filter(c=>c.id.startsWith("explain-")).length+1);
- return {action:"upsert",ids:[],cards:[{id,type:"explanation",title:simplified?"簡化重點":topic.slice(0,80),body:answer,pairs:[],points:[],questions:[]}]};
+ // No invented educational facts: turn a real spoken answer into numbered visual steps
+ // only when there are enough meaningful, separately spoken sentences.
+ const sentences=(answer.match(/[^。！？!?\n]+[。！？!?]?/g)||[])
+  .flatMap(line=>line.split(/(?<=[.!?])\s+(?=[A-Z])/))
+  .map(line=>line.trim()).filter(line=>line.length>=14).slice(0,6);
+ const numbered=sentences.length>=2;
+ return {action:"upsert",ids:[],cards:[{id,type:numbered?"steps":"explanation",
+  title:simplified?"簡化重點":topic.slice(0,80),
+  body:numbered?"":answer,pairs:[],
+  points:numbered?sentences.map((line,i)=>({label:String(i+1).padStart(2,"0"),note:line})):[],questions:[]}]};
 }
 export function boardNotes(cards:BoardCard[]):string{
  return cards.map(c=>[c.title,c.body,...c.pairs.map(x=>x.source+" — "+x.target),...c.points.map(x=>x.label+"："+x.note),...c.questions.map((q,i)=>(i+1)+". "+q.question)].filter(Boolean).join("\n")).join("\n\n");

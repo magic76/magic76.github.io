@@ -290,6 +290,12 @@
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
     "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "recentSpeech": "最近の会話",
+    "lessonCards": "教材カード {{count}} 枚",
+    "following": "最新に追従中",
+    "paused": "過去のカードを表示中",
+    "followLatest": "最新を表示",
+    "latest": "最新"
   }
 }

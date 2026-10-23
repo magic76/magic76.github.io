@@ -13,8 +13,8 @@ import {teacherLanguageReminder,unexpectedTeacherKorean} from "./teacherLanguage
 import {normalizeLiveVoice,voiceIdentityPrompt} from "../live/voiceIdentity";
 import {effectiveSpeakingLevel} from "./speakingLevelMemory";
 import {personalMemoryEnabled} from "./studentMemory";
-import {boardNotes,BOARD_FUNCTION,BOARD_TOOLS,applyBoardPatch,fallbackBoard,validateBoardPatch,type BoardCard} from "./boardProtocol";
-import {TeachingCard} from "./TeachingCard";
+import {boardNotes,BOARD_FUNCTION,BOARD_TOOLS,applyBoardPatch,fallbackBoard,validateBoardPatch,type BoardCard,type BoardPatch} from "./boardProtocol";
+import {TeachingCard,cardKindName} from "./TeachingCard";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -34,6 +34,11 @@ export function TeacherBoardPage(){
  const [copyStatus,setCopyStatus]=useState("");
  const [hasLivePatch,setHasLivePatch]=useState(false);
  const [toolsUnavailable,setToolsUnavailable]=useState(false);
+ const [latestId,setLatestId]=useState<string|null>(null);
+ const [focusedId,setFocusedId]=useState<string|null>(null);
+ const [following,setFollowing]=useState(true);
+ const [revision,setRevision]=useState(0);
+ const stageRef=useRef<HTMLDivElement>(null);
  const cardRef=useRef<BoardCard[]>([]);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
  const liveEnabled=s.liveModel==="gemini-3.1-flash-live-preview";
@@ -49,11 +54,20 @@ export function TeacherBoardPage(){
  "When a tool named update_teaching_board exists, call it early DURING your spoken explanation, then update relevant cards in small increments. "+
  "Use stable IDs for edits; do not repeat old cards. Respond to 'make it simpler' by editing existing cards, and 'quiz me' with a QuizCard of three actual multiple-choice questions. "+
  "Have/has been and had been require a two-timeline comparison and examples. "+
+ "Choose visually distinct teaching formats: comparison, timeline, steps, flashcards, dialogue, quiz, examples, vocabulary or correction according to the lesson. Avoid always using explanation cards. "+
  "The board is teaching data, not a transcript. Keep text succinct. Never output HTML, scripts or markdown code. "+
  "The current board lives only in this session. Do not memorize it, and never treat a generated example as a fact about the student.",
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
  const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+localeHelp;
+ function commitPatch(patch:BoardPatch){
+  const next=applyBoardPatch(cardRef.current,patch);
+  cardRef.current=next;setCards(next);
+  const changed=patch.cards[patch.cards.length-1];
+  setLatestId((changed&&next.some(c=>c.id===changed.id)?changed.id:next[next.length-1]?.id)||null);
+  setRevision(v=>v+1);
+  if(patch.action==="replace"){setAnswers({});setFollowing(true);setFocusedId(null);}
+ }
  const live=useLiveSession({
   pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
   system,openingPrompt:opening,languageDirective:localeHelp,
@@ -66,9 +80,7 @@ export function TeacherBoardPage(){
    if(call.name!==BOARD_FUNCTION)return {ok:false,error:"unknown-tool"};
    const patch=validateBoardPatch(call.args);
    if(!patch)return {ok:false,error:"invalid-board-patch"};
-   cardRef.current=applyBoardPatch(cardRef.current,patch);
-   setCards(cardRef.current);
-   if(patch.action==="replace"){setAnswers({});}
+   commitPatch(patch);
    patchCountRef.current++;
    setHasLivePatch(true);
    return {ok:true,updated:patch.cards.length,action:patch.action};
@@ -83,7 +95,7 @@ export function TeacherBoardPage(){
    lastTurnPatchRef.current=patchCountRef.current;
    if(!updatedByLive){
     const patch=fallbackBoard(turn,cardRef.current);
-    if(patch){cardRef.current=applyBoardPatch(cardRef.current,patch);setCards(cardRef.current);if(patch.action==="replace")setAnswers({});}
+    if(patch)commitPatch(patch);
    }
    // Voice quiz answers are only recognized with explicit answer cues.
    const spoken=turn.input||"";
@@ -99,6 +111,8 @@ export function TeacherBoardPage(){
   }
  });
  const active=speakingStates.includes(live.state);
+ const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
+ useEffect(()=>{if(stageRef.current)stageRef.current.scrollTop=0},[focusedCard?.id,following,revision]);
  useEffect(()=>{document.body.classList.add("teacher-theme","session-page");return()=>{document.body.classList.remove("teacher-theme","session-page")}},[]);
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
@@ -125,10 +139,10 @@ export function TeacherBoardPage(){
     <div className="teaching-board-teacher"><TeacherAvatar profile={profile}/><div><b>{profile.name}</b><small>{s.targetLanguage} · {t("board.teacher")}</small></div></div>
     <p className="teaching-board-state" role="status">{live.status}</p>
     {!geminiKey()&&<GeminiSetupNotice returnTo="/teacher/board"/>}
-    <div className="teaching-board-transcript" aria-live="off">
+    <details className="teaching-board-transcript"><summary>{t("board.recentSpeech")}</summary><div aria-live="off">
      {live.input&&<p><b>{t("board.you")}：</b>{live.input}</p>}
      {live.output&&<p><b>{profile.name}：</b>{live.output}</p>}
-    </div>
+    </div></details>
     <div className="teaching-board-suggestions">
      <span>{t("board.try")}</span>
      <button type="button" onClick={()=>ask(t("board.examplePrompt"))}>{t("board.examplePrompt")}</button>
@@ -144,12 +158,29 @@ export function TeacherBoardPage(){
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
      <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
-    {cards.length===0?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
-     <div className="teaching-board-stack">{cards.map(card=><TeachingCard key={card.id} card={card} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}/>)}</div>}
+    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
+     aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
+     {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
+      <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}/>}
+    </div>
+    {cards.length>0&&<div className="teaching-board-navigator">
+     <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
+      <small>{following?t("board.following"):t("board.paused")}</small>
+      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
+     </div>
+     <div className="teaching-board-deck" role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
+      {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
+       aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
+       className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
+       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
+       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
+      </button>)}
+     </div>
+    </div>}
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
      <button type="button" onClick={()=>void copyNotes()}>{t("board.copy")}</button>
-     <button type="button" onClick={()=>{cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false)}}>{t("board.clear")}</button>
+     <button type="button" onClick={()=>{cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true)}}>{t("board.clear")}</button>
      {copyStatus&&<small role="status">{copyStatus}</small>}
     </div>}
     {notesOpen&&<section className="teaching-board-notes"><h2>{t("board.notes")}</h2><pre>{boardNotes(cards)}</pre></section>}

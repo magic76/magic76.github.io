@@ -290,6 +290,12 @@
     "turnMode": "回合結束後更新",
     "liveHint": "Gemini Live 正透過同一條語音連線更新卡片。",
     "fallbackHint": "等待第一個即時工具事件，目前會在完成講解回合後更新。",
-    "modelFallbackHint": "目前模型採回合結束後更新。想啟用即時工具呼叫，可在設定改選 Gemini 3.1 Flash Live。"
+    "modelFallbackHint": "目前模型採回合結束後更新。想啟用即時工具呼叫，可在設定改選 Gemini 3.1 Flash Live。",
+    "recentSpeech": "最近對話",
+    "lessonCards": "{{count}} 張教學卡",
+    "following": "跟隨最新內容",
+    "paused": "正在查看舊卡",
+    "followLatest": "跟隨最新",
+    "latest": "最新"
   }
 }
