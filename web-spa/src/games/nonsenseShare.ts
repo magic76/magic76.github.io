@@ -71,11 +71,19 @@ export function renderNonsenseCard(card:ShareCard):HTMLCanvasElement{
  ctx.fillText("3SSSI.COM  /  CREW PLAY",79,1299);
  return canvas;
 }
-async function pngBlob(canvas:HTMLCanvasElement):Promise<Blob>{
- return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(Error("PNG encoding failed")),"image/png"));
+function pngBlob(canvas:HTMLCanvasElement):Blob{
+ // Web Share requires a transient user activation. toBlob() is asynchronous and
+ // may consume that gesture in Android WebView before navigator.share can run.
+ // A synchronous PNG capture keeps the share call in the original click turn.
+ const data=canvas.toDataURL("image/png");
+ if(!data.startsWith("data:image/png;base64,"))throw Error("PNG encoding failed");
+ const encoded=data.slice("data:image/png;base64,".length);
+ const binary=atob(encoded),bytes=new Uint8Array(binary.length);
+ for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+ return new Blob([bytes],{type:"image/png"});
 }
 export async function shareNonsenseScorecard(card:ShareCard):Promise<ShareOutcome>{
- const blob=await pngBlob(renderNonsenseCard(card));
+ const blob=pngBlob(renderNonsenseCard(card));
  const file=new File([blob],"crew-nonsense-score.png",{type:"image/png"});
  const message=(card.language==="zh"?"我的 Crew 胡說大賽成績：":"My Crew Nonsense Championship score: ")+card.score.total+"/100 — "+card.topic+"\n"+card.link;
  const shareData:ShareData={title:"Crew Nonsense Championship",text:message,files:[file]};
