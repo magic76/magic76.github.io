@@ -3,11 +3,8 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
-import {LiveControls} from "../live/LiveControls";
-import {geminiKey,vocabularyLevel} from "../lib/runtime";
-import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
+import {vocabularyLevel} from "../lib/runtime";
 import {getTeacherProfile} from "./teacherProfiles";
-import {TeacherAvatar} from "./TeacherAvatar";
 import {buildTeacherSessionPolicy} from "./teacherPolicy";
 import {teacherLanguageReminder,unexpectedTeacherKorean} from "./teacherLanguage";
 import {normalizeLiveVoice,voiceIdentityPrompt} from "../live/voiceIdentity";
@@ -18,6 +15,7 @@ import {TeachingCard,cardKindName} from "./TeachingCard";
 import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
+import {BoardTutorPanel} from "./BoardTutorPanel";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -320,25 +318,7 @@ export function TeacherBoardPage(){
    <GuidedLessonPanel lesson={lesson} lessonId={lessonId} lessonStep={lessonStep} progress={progress} english={english}
     quizLocked={focusedCard?.type==="quiz"&&director.phase==="awaiting"} onStart={startLesson} onStep={goLessonStep}/>
    <section className="teaching-board-workspace">
-   <section className="teaching-board-tutor" aria-label={t("board.teacher")}>
-    <div className="teaching-board-teacher"><TeacherAvatar profile={profile}/><div><b>{profile.name}</b><small>{s.targetLanguage} · {t("board.teacher")}</small></div></div>
-    <p className="teaching-board-state" role="status">{live.status}</p>
-    {!geminiKey()&&<GeminiSetupNotice returnTo="/teacher/board"/>}
-    <details className="teaching-board-transcript"><summary>{t("board.recentSpeech")}</summary><div aria-live="off">
-     {live.input&&<p><b>{t("board.you")}：</b>{live.input}</p>}
-     {live.output&&<p><b>{profile.name}：</b>{live.output}</p>}
-    </div></details>
-    <div className="teaching-board-suggestions">
-     <span>{t("board.try")}</span>
-     <button type="button" onClick={()=>ask(t("board.examplePrompt"))}>{t("board.examplePrompt")}</button>
-     <button type="button" onClick={()=>ask(t("board.simplifyPrompt"))}>{t("board.simplifyPrompt")}</button>
-     <button type="button" onClick={()=>ask(t("board.quizPrompt"))}>{t("board.quizPrompt")}</button>
-     <button type="button" onClick={()=>ask(t("board.moreExamples"))}>{t("board.moreExamples")}</button>
-     <button type="button" onClick={()=>ask(t("board.nativeExplanation")+"\n[BOARD ONLY: change written explanation language, keep configured spoken language]")}>{t("board.nativeExplanation")}</button>
-    </div>
-    {hint&&<p className="teaching-board-hint" role="alert">{hint}</p>}
-    <div className="teaching-board-voice"><LiveControls live={live} compact prominentInterrupt english={english}/></div>
-   </section>
+   <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
      <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
