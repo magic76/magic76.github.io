@@ -69,6 +69,7 @@ export async function startNonsenseLiveFeedback(options:FeedbackOptions):Promise
    queen:"theatrical, regal and charming"
   };
   const score=options.verdict;
+  const voices:Record<NonsenseJudgeId,string>={stern:"Charon",roast:"Puck",scientist:"Fenrir",queen:"Kore"};
   session=new window.CrewLive.Session({
    system:[
     "You are a one-shot comedy show presenter, not a scoring engine.",
@@ -86,7 +87,7 @@ export async function startNonsenseLiveFeedback(options:FeedbackOptions):Promise
     "Verified feedback: "+JSON.stringify(score.comment),
     "Speak in 1-2 natural sentences, grounded solely in the verdict."
    ].join("\n"),
-   voice:"Kore",volume:100,maxLiveAttempts:1,maxResumeAttempts:0,
+   voice:voices[options.judgeId],volume:100,maxLiveAttempts:1,maxResumeAttempts:0,
    connectTimeoutMs:10000,replyTimeoutMs:12000,manualInterruptOnly:true,
    onState:state=>{
     if(closed||generation!==activeGeneration)return;
