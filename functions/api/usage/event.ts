@@ -21,7 +21,7 @@ const events=new Set([
 ]);
 const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
-  "mira","ethan","hana","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery"]);
+  "mira","ethan","hana","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}
