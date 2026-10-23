@@ -46,7 +46,7 @@ export function directorAfterPatch(old:DirectorState,next:BoardCard[],updated:Bo
  // When a quiz is introduced, show the question and wait for the learner.
  // Never allow an unrelated patch to advance a question awaiting a response.
  if(old.phase==="awaiting"&&next.some(c=>c.id===old.cardId))return old;
- const target=updated.slice().reverse().find(c=>next.some(x=>x.id===c.id))||updated[updated.length-1]||next[next.length-1];
+ const target=updated.find(c=>c.type==="quiz"&&c.questions.length&&next.some(x=>x.id===c.id))||updated.slice().reverse().find(c=>next.some(x=>x.id===c.id))||next[next.length-1];
  if(!target||!next.some(c=>c.id===target.id))return {...EMPTY_DIRECTOR,cardId:next[next.length-1].id};
  return {...EMPTY_DIRECTOR,cardId:target.id,phase:target.type==="quiz"&&target.questions.length?"awaiting":"explaining"};
 }
@@ -55,7 +55,10 @@ export function applyDirectorCommand(state:DirectorState,cmd:DirectorCommand,car
  if(!card)return null;
  const idx=cmd.index;
  // Teacher must not turn the page or reveal the answer while waiting.
- if(state.phase==="awaiting"&&cmd.action!=="ask")return null;
+ if(state.phase==="awaiting"){
+  if(cmd.action==="ask"&&state.cardId===card.id&&idx===state.quizIndex)return state;
+  return null;
+ }
  if(cmd.action==="ask"){
   if(card.type!=="quiz"||idx<0||answers[card.id+":"+idx]!==undefined)return null;
   return {...state,cardId:card.id,phase:"awaiting",quizIndex:idx,focusIndex:idx,revealed:null,result:null,reviewCardId:null};
