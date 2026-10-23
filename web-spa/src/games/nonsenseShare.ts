@@ -22,7 +22,7 @@ function wrapCanvasText(ctx:CanvasRenderingContext2D,text:string,maxWidth:number
  return result;
 }
 function rounded(ctx:CanvasRenderingContext2D,x:number,y:number,w:number,h:number,r:number,color:string){
- ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fillStyle=color;ctx.fill();
+ ctx.beginPath();if(typeof ctx.roundRect==="function")ctx.roundRect(x,y,w,h,r);else ctx.rect(x,y,w,h);ctx.fillStyle=color;ctx.fill();
 }
 function paintText(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,width:number,maxLines:number,lineHeight:number){
  const lines=wrapCanvasText(ctx,text,width,maxLines);
@@ -46,7 +46,7 @@ export function renderNonsenseCard(card:ShareCard):HTMLCanvasElement{
  ctx.fillText(zh?"今日荒謬命題":"TODAY'S ABSURD CLAIM",112,284);
  ctx.fillStyle="#2c2c33";ctx.font="bold 48px system-ui,sans-serif";
  const topicLines=paintText(ctx,card.topic,112,364,855,3,67);
- const infoTop=390+(topicLines-1)*67;
+ const infoTop=385+(topicLines-1)*32;
  ctx.fillStyle="#8d5e4a";ctx.font="bold 30px system-ui,sans-serif";
  ctx.fillText((zh?"評審：":"JUDGE: ")+card.judgeName,112,infoTop+73);
  ctx.fillStyle="#b56b4b";ctx.font="900 168px system-ui,sans-serif";
@@ -63,7 +63,7 @@ export function renderNonsenseCard(card:ShareCard):HTMLCanvasElement{
   rounded(ctx,112,y+16,814,9,5,"#ead9ce");
   rounded(ctx,112,y+16,814*(amounts[i]/limits[i]),9,5,"#c37755");
  }
- const feedbackTop=infoTop+700;
+ const feedbackTop=infoTop+655;
  rounded(ctx,107,feedbackTop-46,865,194,24,"#f2e4d7");
  ctx.font="27px system-ui,sans-serif";ctx.fillStyle="#503b37";
  paintText(ctx,score.comment,137,feedbackTop+2,795,4,38);
