@@ -1,12 +1,13 @@
 import {useState} from "react";
 import type {BoardCard,BoardQuestion} from "./boardProtocol";
+import type {SpeakingAssessment} from "./boardLessons";
 
-type Props={card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void};
+type Props={card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void;onSpeakingSubmit?:(text:string)=>void;speakingAssessment?:SpeakingAssessment|null};
 
 const names:Record<BoardCard["type"],[string,string]>={
  explanation:["概念","Concept"],example:["例句","Examples"],comparison:["比較","Compare"],
  timeline:["時間軸","Timeline"],vocabulary:["單字","Vocabulary"],quiz:["測驗","Quiz"],
- correction:["修正","Correction"],steps:["步驟","Steps"],flashcard:["翻面卡","Flashcards"],dialogue:["情境對話","Dialogue"]
+ correction:["修正","Correction"],steps:["步驟","Steps"],flashcard:["翻面卡","Flashcards"],dialogue:["情境對話","Dialogue"],speaking:["口說任務","Speaking"]
 };
 
 export function cardKindName(type:BoardCard["type"],english=false){return names[type][english?1:0]}
@@ -73,7 +74,33 @@ function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate}:{card:Board
    <button type="button" disabled={!answered||index===card.questions.length-1} onClick={()=>change(index+1)}>{english?"Next":"下一題"} →</button></div>
  </div>;
 }
-export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate}:Props){
+function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onSpeakingSubmit?:Props["onSpeakingSubmit"];assessment?:SpeakingAssessment|null;english:boolean}){
+ const [draft,setDraft]=useState("");
+ const [exampleOpen,setExampleOpen]=useState(false);
+ const goal=card.speaking;
+ if(!goal)return null;
+ return <div className="teaching-board-speaking">
+  <p className="teaching-board-speaking-prompt">{goal.prompt}</p>
+  <p className="teaching-board-speaking-goal">{goal.goal}</p>
+  <p className="teaching-board-speaking-hint">{english?"Say it aloud to your teacher, or type your answer below.":"直接說給老師聽，也可以在下方輸入答案。"}</p>
+  <form onSubmit={e=>{e.preventDefault();if(draft.trim()){onSpeakingSubmit?.(draft.trim());setDraft("")}}}>
+   <label htmlFor={"speaking-draft-"+card.id}>{english?"Your own sentence":"輸入你的句子"}</label>
+   <textarea id={"speaking-draft-"+card.id} value={draft} rows={2} maxLength={640} onChange={e=>setDraft(e.target.value)} placeholder={english?"Try using your own words…":"試著用自己的話說說看…"} />
+   <button type="submit" disabled={!draft.trim()}>{english?"Submit answer":"送出回答"}</button>
+  </form>
+  <button type="button" className="teaching-board-speaking-example" onClick={()=>setExampleOpen(v=>!v)} aria-expanded={exampleOpen}>
+   {exampleOpen?(english?"Hide reference":"隱藏參考"):(english?"Show reference sentence":"查看參考句")}
+  </button>
+  {exampleOpen&&<p className="teaching-board-speaking-reference">{goal.example}</p>}
+  {assessment&&<div className="teaching-board-speaking-result" role="status">
+   <strong>{assessment.met?(english?"Goal checks met":"已達成練習條件"):(english?"Try one more time":"再試一次")}</strong>
+   <small>{english?"Keyword patterns":"關鍵用法"} {assessment.matched}/{assessment.required} · {english?"Words":"字詞"} {assessment.wordCount}/{goal.minWords} · {english?"Sentences":"句子"} {assessment.sentenceCount}/{goal.minSentences}</small>
+   <p>{assessment.attempt}</p>
+   <small>{english?"This checks visible language patterns, not pronunciation or meaning. Ask the AI teacher for natural feedback.":"此處只檢查表面用法，不評定發音或語意；自然度請聽老師回饋。"}</small>
+  </div>}
+ </div>;
+}
+export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate,onSpeakingSubmit,speakingAssessment}:Props){
  return <article className="teaching-board-card" data-kind={card.type}>
   <div className="teaching-board-card-head"><span className="teaching-board-card-kind">{cardKindName(card.type,english)}</span>
    <h2>{card.title}</h2></div>
@@ -86,6 +113,7 @@ export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focu
    {card.type==="flashcard"&&<Flashcards card={card} english={english} focusIndex={focusIndex} revealCount={revealCount}/>}
    {card.type==="dialogue"&&<Dialogue card={card} english={english} focusIndex={focusIndex} revealCount={revealCount}/>}
    {card.type==="quiz"&&<Quiz card={card} answers={answers} onAnswer={onAnswer} english={english} quizIndex={quizIndex} onNavigate={onNavigate}/>}
+   {card.type==="speaking"&&<Speaking key={card.id} card={card} onSpeakingSubmit={onSpeakingSubmit} assessment={speakingAssessment} english={english}/>}
   </div>
  </article>;
 }
