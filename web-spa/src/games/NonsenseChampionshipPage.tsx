@@ -28,6 +28,12 @@ function speechConstructor():RecognitionConstructor|undefined{
 }
 const L=(zh:boolean,a:string,b:string)=>zh?a:b;
 function clock(seconds:number){return String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0")}
+const stageFaces:Record<NonsenseJudgeId,{idle:string;active:string;result:string}>={
+ stern:{idle:"😐",active:"🧐",result:"⚖️"},
+ roast:{idle:"😏",active:"🤣",result:"🎤"},
+ scientist:{idle:"🤓",active:"🤯",result:"🧪"},
+ queen:{idle:"😌",active:"😲",result:"👑"}
+};
 const judgeNames:Record<NonsenseJudgeId,{zh:string;en:string}>={
  stern:{zh:"鐵面法官",en:"Stern Judge"},roast:{zh:"毒舌主持人",en:"Roast Host"},
  scientist:{zh:"瘋狂科學家",en:"Mad Scientist"},queen:{zh:"傲嬌女王",en:"Proud Queen"}
@@ -238,7 +244,7 @@ export function NonsenseChampionshipPage(){
     <div className="nonsense-panel-title">{L(zh,"四位舞台嘉賓 · 選中的評審負責 AI 評分","Four stage characters · the selected judge scores")}</div>
     <div className="nonsense-judge-row" aria-label={L(zh,"舞台評審","Stage judges")}>
      {nonsenseJudges.map((judge,index)=><div key={judge.id} className={"nonsense-judge-tile"+(judgeId===judge.id?" chosen":"")} data-mood={phase==="result"?"result":phase==="judging"?"waiting":phase==="speaking"&&waveActive?(index%2?"pulse":"bounce"):"idle"}>
-      <span className="nonsense-judge-face" aria-hidden="true">{judge.icon}</span>
+      <span className="nonsense-judge-face" aria-hidden="true">{phase==="result"&&judgeId===judge.id?stageFaces[judge.id].result:phase==="speaking"&&waveActive?stageFaces[judge.id].active:stageFaces[judge.id].idle}</span>
       <strong>{zh?judge.zh:judge.en}</strong>
       <small>{phase==="result"&&judgeId===judge.id?L(zh,"已完成真實評分","Verified result"):phase==="judging"&&judgeId===judge.id?L(zh,"評分中","Judging"):phase==="speaking"&&waveActive?L(zh,"舞台動效","Stage effect"):judgeId===judge.id?L(zh,"本局評審","Selected judge"):L(zh,"舞台嘉賓","Stage guest")}</small>
      </div>)}
