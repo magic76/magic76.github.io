@@ -14,6 +14,7 @@ type Config={
  pageKey:string;title:string;system:string;openingPrompt:string;voice:string;
  language?:string;nativeLanguage?:NativeLanguage;teacherReport?:boolean;trackSpeakingLevel?:boolean;missions?:string[];languageDirective?:string;languageDriftGuard?:(text:string)=>boolean;
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
+ onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
@@ -205,7 +206,7 @@ export function useLiveSession(config:Config){
       if(session.sendText(prompt+reminder))setStatus(configRef.current.sessionKind==="timeline"?"連線已恢復，Mira 接著回答…":configRef.current.sessionKind==="friend"?"已恢復連線，接續剛才的回答…":"已恢復連線，老師接續剛才的回答…");
       else recoveryRequestRef.current=false;
     },
-    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice())},
+    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer()}
       else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
