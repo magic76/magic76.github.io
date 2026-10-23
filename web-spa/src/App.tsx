@@ -25,6 +25,7 @@ const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({def
 const NumberGamePage=lazy(()=>import("./games/NumberGamePage").then(m=>({default:m.NumberGamePage})));
 const TabooGamePage=lazy(()=>import("./games/TabooGamePage").then(m=>({default:m.TabooGamePage})));
 const CrazyCourtPage=lazy(()=>import("./games/CrazyCourtPage").then(m=>({default:m.CrazyCourtPage})));
+const NonsenseChampionshipPage=lazy(()=>import("./games/NonsenseChampionshipPage").then(m=>({default:m.NonsenseChampionshipPage})));
 const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:m.BriefingPage})));
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
@@ -66,6 +67,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/crazy-court" element={<AppChrome product="home"><CrazyCourtPage/></AppChrome>}/>
+<Route path="/games/nonsense" element={<AppChrome product="home"><NonsenseChampionshipPage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
 <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
