@@ -33,12 +33,12 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
 });
 
 test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{
- assert.match(page,/generateTabooGuess\(descriptions\.current,previousGuesses\.current\)/);
+ assert.match(page,/generateTabooGuess\(descriptions\.current,previousGuesses\.current,tongue\)/);
  assert.match(page,/guessSerial\.current!==request/);
  assert.match(page,/matchTabooGuess\(card,guess\)/);
  assert.match(page,/if\(!geminiKey\(\)\)/);
- assert.match(page,/tabooFollowUp\(freshGuess,"",descriptions\.current\.length\)/);
- assert.match(page,/parseTabooLiveGuess\(liveReply\)/);
+ assert.match(page,/tabooFollowUp\(freshGuess,"",descriptions\.current\.length,tongue\)/);
+ assert.match(page,/parseTabooLiveGuess\(liveReply,tongue\)/);
  assert.match(page,/correct\(spokenGuess,true\)/);
  assert.doesNotMatch(page,/onReply=\{onReply\}/);
 });
