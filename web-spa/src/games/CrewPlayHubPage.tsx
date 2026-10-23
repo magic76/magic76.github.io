@@ -28,6 +28,11 @@ export function CrewPlayHubPage(){
     <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{t(game.id==="twenty-questions"||game.id==="mystery"?"playHub.voiceRequired":"playHub.offlineOptional")}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>)}
+   <Link className="crew-play-game-card nonsense-hub-card" to="/games/nonsense">
+    <div className="crew-play-game-art nonsense-hub-art" aria-hidden="true"><span>🎙</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"一分鐘胡說大賽":"Nonsense Championship"}</strong><small>{zh?"150 個荒謬題目、60 秒即興演說、4 種 AI 評審。":"150 absurd topics, 60-second speeches, four AI judges."}</small><span className="crew-play-game-voice-tag">{zh?"免 Key 可練習 · AI 評分需 Key":"Practice without a key · Key for AI scores"}</span></div>
+    <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
    <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court">
     <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
     <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 語音選用":"Gemini Key required · Voice optional"}</span></div>
