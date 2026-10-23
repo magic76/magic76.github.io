@@ -33,6 +33,11 @@ export function CrewPlayHubPage(){
     <div className="crew-play-game-info"><strong>{zh?"荒謬新聞直播":"Absurd News Live"}</strong><small>{zh?"150 個荒謬題目、3 回合 AI 主播與動態新聞現場。":"150 premises, three improvised rounds, evolving AI news scenes."}</small><span className="crew-play-game-voice-tag">{zh?"Gemini Key · Live 語音或文字互動":"Gemini Key · voice or text play"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
+   <Link className="crew-play-game-card werewolf-hub-card" to="/games/werewolf">
+    <div className="crew-play-game-art werewolf-hub-art" aria-hidden="true"><span>☾</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"AI 狼人殺":"AI Werewolf"}</strong><small>{zh?"1 真人 + 5 AI。夜晚行動、自由質疑、角色推理與投票。":"One human plus five AI suspects. Investigate, debate, bluff and vote."}</small><span className="crew-play-game-voice-tag">{zh?"文字免費試玩 · Gemini Live 語音選用":"Free text demo · Optional Gemini Live voice"}</span></div>
+    <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
    <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court">
     <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
     <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 語音選用":"Gemini Key required · Voice optional"}</span></div>
