@@ -260,6 +260,12 @@ export function NonsenseChampionshipPage(){
      <strong>{clock(phase==="prep"?prepLeft:timeLeft)}</strong>
      <small>{phase==="prep"?L(zh,"準備時間（可提前開始）","Preparation (you may start early)"):L(zh,"你的演說倒數","Speech countdown")}</small>
     </div>}
+    {phase==="speaking"&&<div className="nonsense-progress-wrap">
+     <div className="nonsense-progress-label"><span>{L(zh,"演說進行中","Performance in progress")}</span><strong>{Math.round((60-timeLeft)/60*100)}%</strong></div>
+     <div className="nonsense-progress-track" role="progressbar" aria-label={L(zh,"演說時間進度","Speech time elapsed")} aria-valuemin={0} aria-valuemax={60} aria-valuenow={60-timeLeft}>
+      <span style={{width:Math.min(100,Math.max(0,(60-timeLeft)/60*100))+"%"}}/>
+     </div>
+    </div>}
     {phase==="setup"&&<div className="nonsense-buttons">
      <button type="button" className="nonsense-main-button" onClick={beginPrep}>{L(zh,"準備挑戰","Prepare to speak")} →</button>
      <button type="button" className="nonsense-secondary" onClick={chooseTopic}>{L(zh,"換一題","Shuffle topic")}</button>
