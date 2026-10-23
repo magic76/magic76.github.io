@@ -9,7 +9,7 @@
 .crew-orb-tabs button.selected{background:var(--surface-alt,#eeeaf9);color:var(--text,#342f50)}
 .crew-orb-roles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;max-height:350px;overflow:auto;padding:3px}
 .crew-orb-role{display:grid;justify-items:center;align-content:start;gap:7px;min-width:0;padding:10px 6px;border:1px solid var(--line,#e2e6ed);background:var(--surface,#fff);border-radius:14px;cursor:pointer;color:var(--text,#263141);font:inherit;font-size:12px;font-weight:700}
-.crew-orb-role img{width:min(66px,100%);aspect-ratio:1;object-fit:cover;border-radius:50%}
+.crew-orb-role img,.crew-orb-role .crew-orb-role-avatar{display:block;width:min(66px,100%);height:auto;aspect-ratio:1;object-fit:cover;border-radius:50%}
 .crew-orb-role.selected{border:2px solid var(--accent,#765acc);padding:9px 5px;background:var(--surface-alt,#f4f1fd)}
 .crew-orb-role:focus-visible,.crew-orb-tabs button:focus-visible,.crew-orb-actions button:focus-visible{outline:2px solid var(--accent,#765acc);outline-offset:2px}
 .crew-orb-role:disabled,.crew-orb-tabs button:disabled{opacity:.67;cursor:default}

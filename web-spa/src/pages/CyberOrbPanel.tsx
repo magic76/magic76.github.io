@@ -2,6 +2,7 @@ import {useCallback,useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {TEACHER_PROFILES} from "../teacher/teacherProfiles";
+import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {geminiKey} from "../lib/runtime";
 import {
@@ -110,7 +111,9 @@ export function CyberOrbPanel(){
     className={"crew-orb-role"+(roleId===profile.id?" selected":"")}
     aria-pressed={roleId===profile.id} disabled={busy||!!status?.active}
     onClick={()=>setRoleId(profile.id)}>
-    <img src={profile.avatar} alt="" loading="lazy"/>
+    {"recommendedVoice" in profile
+     ?<TeacherAvatar profile={profile} className="crew-orb-role-avatar" decorative/>
+     :<img src={profile.avatar} alt="" loading="lazy"/>}
     <span>{profile.name}</span>
    </button>)}
   </div>
