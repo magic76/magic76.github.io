@@ -23,7 +23,7 @@ function load({agent="",withWebSpeech=true,bridge=null,mic=false}={}){
   nativeVocabularyTtsUrl:(text,rate)=>"crew-tts://speak?text="+encodeURIComponent(text)+"&rate="+rate,
   setTimeout,clearTimeout,Map,Error,JSON
  };
- const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText,hasNativeDeviceBridge,readNativeDeviceInfo,requestNativeDeviceAction,diagnosticSummary};})()",ctx);
+ const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText,hasNativeDeviceBridge,readNativeDeviceInfo,requestNativeDeviceAction,diagnosticSummary,readNativeOrbStatus,requestNativeOrbStart,requestNativeOrbStop};})()",ctx);
  return{...api,said,window:fakeWindow};
 }
 
@@ -132,4 +132,48 @@ test("new APK returns only allowlisted device fields and gated methods",async()=
  assert.equal(await device.requestNativeDeviceAction("openAppSettings",caps),true);
  assert.equal(await device.requestNativeDeviceAction("openTtsSettings",caps),false);
  assert.deepEqual(sent,["getCapabilities","getDeviceInfo","openAppSettings"]);
+});
+
+test("Cyber Orb is capability-gated and never sends Web memories or API keys",async()=>{
+ const browser=load({withWebSpeech:false});
+ assert.equal(await browser.readNativeOrbStatus(null),null);
+ assert.equal((await browser.requestNativeOrbStart({roleType:"friend",roleId:"zoe",language:"ja"},null)).ok,false);
+ const calls=[];
+ const caps={tts:true,cyberOrb:true};
+ const bridge={onmessage:null,postMessage(value){
+  const request=JSON.parse(value);calls.push(request);
+  const response=request.method==="getOrbStatus"
+   ?{v:1,id:request.id,ok:true,data:{
+    active:true,roleType:"friend",roleId:"zoe",language:"ja",
+    keyConfigured:true,overlayAllowed:true,microphoneAllowed:true,apiKey:"SECRET",transcript:"PRIVATE"}}
+   :{v:1,id:request.id,ok:true};
+  bridge.onmessage({data:JSON.stringify(response)});
+ }};
+ const device=load({bridge});
+ const status=await device.readNativeOrbStatus(caps);
+ assert.equal(status.active,true);
+ assert.equal(status.roleId,"zoe");
+ assert.equal("apiKey" in status,false);
+ const started=await device.requestNativeOrbStart({roleType:"friend",roleId:"zoe",language:"ja"},caps);
+ assert.equal(started.ok,true);
+ assert.equal((await device.requestNativeOrbStop(caps)).ok,true);
+ assert.deepEqual(calls.map(x=>x.method),["getOrbStatus","startOrb","stopOrb"]);
+ assert.deepEqual(calls[1].params,{roleType:"friend",roleId:"zoe",language:"ja"});
+ assert.doesNotMatch(JSON.stringify(calls),/SECRET|PRIVATE|memory|apiKey/);
+});
+
+test("older Android bridge cannot start Cyber Orb",async()=>{
+ const methods=[];
+ const legacy={onmessage:null,postMessage(value){
+  const request=JSON.parse(value);methods.push(request.method);
+  legacy.onmessage({data:JSON.stringify({
+   v:1,id:request.id,ok:true,capabilities:{tts:true}
+  })});
+ }};
+ const device=load({bridge:legacy});
+ const caps=await device.probeNativeDeviceCapabilities();
+ assert.equal(caps.cyberOrb,undefined);
+ assert.equal(await device.readNativeOrbStatus(caps),null);
+ assert.equal((await device.requestNativeOrbStart({roleType:"teacher",roleId:"emma",language:"en"},caps)).ok,false);
+ assert.deepEqual(methods,["getCapabilities"]);
 });
