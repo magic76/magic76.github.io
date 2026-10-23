@@ -39,6 +39,7 @@ export class NewsRoundTracker{
  count=0;
  private recentTurnIds=new Set<string>();
  private lastValue="";
+ private lastAcceptedAt=0;
  private pendingChoice="";
  private finale=false;
  private finishing=false;
@@ -51,14 +52,14 @@ export class NewsRoundTracker{
    return false;
   }
   if(id&&this.recentTurnIds.has(id))return false;
-  if(!id&&value===this.lastValue)return false;
+  if(value===this.lastValue&&Date.now()-this.lastAcceptedAt<4000)return false;
   if(id)this.recentTurnIds.add(id);
-  this.lastValue=value;this.count++;return true;
+  this.lastValue=value;this.lastAcceptedAt=Date.now();this.count++;return true;
  }
  acceptChoice(value:string){
   value=value.trim();
   if(!value||this.count>=3||this.pendingChoice||this.finale)return false;
-  this.count++;this.lastValue=value;this.pendingChoice=value;return true;
+  this.count++;this.lastValue=value;this.lastAcceptedAt=Date.now();this.pendingChoice=value;return true;
  }
  endChoice(){this.pendingChoice="";}
  get choicePending(){return Boolean(this.pendingChoice);}

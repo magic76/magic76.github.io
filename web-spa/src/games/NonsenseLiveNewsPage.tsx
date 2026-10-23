@@ -96,7 +96,7 @@ export function NonsenseLiveNewsPage(){
   setStatus("connecting");
   try{
    const controller=await startNonsenseNewsLive(topic,language,{
-    onScene:next=>{if(stamp===generationRef.current&&mountedRef.current){setBroadcast(next);if(next.type==="finale")setDirectorEvents([]);}},
+    onScene:next=>{if(stamp===generationRef.current&&mountedRef.current){setBroadcast(next);setDirectorEvents([]);}},
     onDirector:event=>{if(stamp===generationRef.current&&mountedRef.current)setDirectorEvents(old=>[...old,event].slice(-2));},
     onChoiceBusy:busy=>{if(stamp===generationRef.current){setChoiceBusy(busy);setMuted(controllerRef.current?.isMuted()??false);}},
     onPlayerTurn:(player,host)=>{

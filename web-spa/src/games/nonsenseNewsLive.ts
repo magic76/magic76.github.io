@@ -48,7 +48,7 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
  await ensureLive();
  if(!window.CrewLive)throw Error("Gemini Live unavailable");
  const round=new NewsRoundTracker();
- let session:LiveSession|null=null,closed=false,modelSpeaking=false,finaleWait=false;
+ let session:LiveSession|null=null,closed=false,modelSpeaking=false,voiceDraftActive=false,finaleWait=false;
  let pendingUnmute=false,eventsThisBeat=0;
  let cleanupTimer:ReturnType<typeof setTimeout>|undefined;
  const stop=()=>{
@@ -117,12 +117,13 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
   },
   onToolsUnavailable:()=>fail("The current Live model cannot display directed scenes."),
   onState:state=>{if(!closed&&state==="ready")events.onReady();},
-  onInputTranscript:value=>{if(!closed)events.onPlayerDraft(value);},
+  onInputTranscript:value=>{if(!closed){voiceDraftActive=Boolean(value.trim());events.onPlayerDraft(value);}},
   onOutputTranscript:value=>{if(!closed)events.onHostDraft(value);},
   onSpeaking:value=>{if(!closed){modelSpeaking=value;events.onSpeaking(value);}},
   onTranscriptTurn:turn=>{
    if(closed)return;
    const answer=(turn.input||"").trim();
+   voiceDraftActive=false;
    const id=(turn as typeof turn&{id?:string}).id;
    if(answer&&round.acceptVoice(answer,id)){
     events.onPlayerDraft("");
@@ -137,9 +138,10 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
     void (async()=>{
      try{await current?.waitForPlaybackDrain(9000);}catch{/* Audio closed */}
      if(closed)return;
-     round.endChoice();events.onChoiceBusy(false);
+     round.endChoice();
      if(pendingUnmute&&current?.micMuted)current.toggleMic();
      pendingUnmute=false;
+     events.onChoiceBusy(false);
     })();
    }
    if(round.count>=3&&!finaleWait){finaleWait=true;finish();}
@@ -155,7 +157,7 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
   mute:()=>{if(!session||closed)return false;session.toggleMic();return session.micMuted;},
   isMuted:()=>Boolean(session?.micMuted),
   choose:(value:string)=>{
-   if(closed||!session?.ready||modelSpeaking||!round.canPick)return false;
+   if(closed||!session?.ready||modelSpeaking||voiceDraftActive||!round.canPick)return false;
    const selected=value.trim().slice(0,100);
    if(!selected)return false;
    const wasMuted=session.micMuted;

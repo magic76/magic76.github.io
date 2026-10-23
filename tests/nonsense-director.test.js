@@ -55,7 +55,7 @@ test("stage cutaways are React elements with real click handlers, not arbitrary 
  const page=read("web-spa/src/games/NonsenseLiveNewsPage.tsx");
  assert.match(stage,/NonsenseDirectorCards/);
  assert.match(card,/onClick=\{\(\)=>onChoice\(value\)\}/);
- assert.match(card,/"director-"\+event\.kind/);
+ assert.match(card,/news-director-card director-/);
  assert.match(card,/news-evidence-paper/);
  assert.match(card,/effect-/);
  assert.doesNotMatch(card,/dangerouslySetInnerHTML|innerHTML|eval\(/);
