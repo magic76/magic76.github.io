@@ -5,6 +5,7 @@ export type LiveSessionOptions={
  turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
+ onToolsUnavailable?:()=>void;
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
  onListeningPhase?:(phase:"speaking"|"waiting")=>void;
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;

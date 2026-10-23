@@ -19,7 +19,7 @@ import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
 const letterIndex=(spoken:string):number=>{
- const match=spoken.match(/(?:第\\s*[一二三123]\\s*題|(?:answer|答案|我選|選擇))\\s*[:：]?\\s*([ABCD])/i);
+ const match=spoken.match(/(?:第\s*[一二三123]\s*題|(?:answer|答案|我選|選擇))\s*[:：]?\s*([ABCD])/i);
  return match?match[1].toUpperCase().charCodeAt(0)-65:-1;
 };
 export function TeacherBoardPage(){
@@ -33,6 +33,7 @@ export function TeacherBoardPage(){
  const [hint,setHint]=useState("");
  const [copyStatus,setCopyStatus]=useState("");
  const [hasLivePatch,setHasLivePatch]=useState(false);
+ const [toolsUnavailable,setToolsUnavailable]=useState(false);
  const cardRef=useRef<BoardCard[]>([]);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
  const liveEnabled=s.liveModel==="gemini-3.1-flash-live-preview";
@@ -60,6 +61,7 @@ export function TeacherBoardPage(){
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
   tools:liveEnabled?BOARD_TOOLS:undefined,
+  onToolsUnavailable:()=>setToolsUnavailable(true),
   onToolCall:(call)=>{
    if(call.name!==BOARD_FUNCTION)return {ok:false,error:"unknown-tool"};
    const patch=validateBoardPatch(call.args);
@@ -88,7 +90,7 @@ export function TeacherBoardPage(){
    const selected=letterIndex(spoken);
    const first=cardRef.current.find(c=>c.type==="quiz"&&c.questions.length);
    if(first&&selected>=0){
-    const match=spoken.match(/第\\s*([一二三123])\\s*題/);
+    const match=spoken.match(/第\s*([一二三123])\s*題/);
     const number=match?({一:1,二:2,三:3}[match[1] as "一"|"二"|"三"]||Number(match[1])):1;
     const index=number-1;
     if(first.questions[index]&&selected<first.questions[index].options.length)
@@ -140,7 +142,7 @@ export function TeacherBoardPage(){
    </section>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
-     <p>{t(hasLivePatch?"board.liveHint":liveEnabled?"board.fallbackHint":"board.modelFallbackHint")}</p>
+     <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
     {cards.length===0?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
      <div className="teaching-board-stack">{cards.map(card=><TeachingCard key={card.id} card={card} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)}/>)}</div>}

@@ -1179,7 +1179,17 @@
       var errors=[];
       for(var i=startIndex;i<self.models.length&&self.attemptsUsed<self.maxLiveAttempts;i++){
         try{
-          var attempt=await self._connectCandidate(self.models[i],i);
+          var attempt;
+          try{attempt=await self._connectCandidate(self.models[i],i);}
+          catch(setupError){
+            // Optional board tools may be rejected by a preview model/version.
+            // Retry the SAME selected model once without tools, never switch models.
+            var message=String(setupError&&setupError.message||setupError);
+            if(!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
+            self.options.tools=null;
+            if(self.options.onToolsUnavailable)self.options.onToolsUnavailable();
+            attempt=await self._connectCandidate(self.models[i],i,{countAttempt:false});
+          }
           self._activateAttempt(attempt);
           return attempt;
         }catch(error){

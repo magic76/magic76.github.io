@@ -10,7 +10,7 @@ export type BoardCard={
 export type BoardPatch={action:"upsert"|"replace"|"remove";cards:BoardCard[];ids:string[]};
 const kinds:CardKind[]=["explanation","example","comparison","timeline","vocabulary","quiz","correction"];
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
-const clean=(v:unknown,max=240):string=>typeof v==="string"?v.replace(/[<>\\u0000-\\u001f]/g," ").trim().slice(0,max):"";
+const clean=(v:unknown,max=240):string=>typeof v==="string"?v.replace(/[<>\u0000-\u001f]/g," ").trim().slice(0,max):"";
 const safeId=(v:unknown):v is string=>typeof v==="string"&&/^[a-z0-9_-]{1,40}$/i.test(v);
 export function validateBoardPatch(value:unknown):BoardPatch|null{
  if(!object(value))return null;
