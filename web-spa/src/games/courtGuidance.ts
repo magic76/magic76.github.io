@@ -90,7 +90,7 @@ function generatedDossier(court:CourtCase):CourtDossier{
   ];
  };
  return {
-  background:court.description,
+  background:t("案件卷宗記載："+court.description.zh+" 請從物證與說法判斷責任，別把想像當成已發生的事。","Case report: "+court.description.en+" Examine the evidence and distinguish speculation from facts."),
   dispute:t("這場爭議的關鍵是："+court.description.zh+" 雙方應如何分清責任與合理補救？",
    "The dispute is: "+court.description.en+" What would be fair responsibility and remedy?"),
   approaches:{defense:approachesFor("defense"),prosecution:approachesFor("prosecution")},
