@@ -19,6 +19,7 @@ export type UsageEvent=
   |"gemini_key_missing"|"gemini_key_verified";
 type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m"
+  |"nonsense"
   |"mira"|"ethan"|"hana"
   |"taboo"|"1a2b"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court";
 export function sessionDurationDetail(durationMs:number):Detail{
