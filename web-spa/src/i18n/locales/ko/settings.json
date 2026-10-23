@@ -217,6 +217,7 @@
     "start_failed": "네이티브 음성 서비스를 시작할 수 없습니다. 다시 시도하세요.",
     "bridge_error": "Android 연결이 응답하지 않습니다. Crew를 다시 여세요.",
     "unavailable": "이 버전에서는 Cyber Orb를 사용할 수 없습니다.",
-    "unknown": "작업에 실패했습니다. 다시 시도하세요."
+    "unknown": "작업에 실패했습니다. 다시 시도하세요.",
+    "webKeyNotice": "시작할 때 Web의 Gemini 키를 이번 Android 통화에만 사용하며 별도로 저장하지 않습니다."
   }
 }

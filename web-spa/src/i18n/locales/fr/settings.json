@@ -217,6 +217,7 @@
     "start_failed": "Impossible de démarrer le service vocal natif. Réessayez.",
     "bridge_error": "Le pont Android ne répond pas. Rouvrez Crew.",
     "unavailable": "Cyber Orb n’est pas disponible dans cette version.",
-    "unknown": "L’opération a échoué. Réessayez."
+    "unknown": "L’opération a échoué. Réessayez.",
+    "webKeyNotice": "Utilise la clé Gemini du Web uniquement pour cet appel Android, sans autre copie enregistrée."
   }
 }

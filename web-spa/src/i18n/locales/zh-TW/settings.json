@@ -217,6 +217,7 @@
     "start_failed": "無法啟動原生語音服務，請重試。",
     "bridge_error": "Android 裝置橋接無回應，請重新開啟 App。",
     "unavailable": "此版本尚不支援 Cyber Orb。",
-    "unknown": "操作失敗，請重試。"
+    "unknown": "操作失敗，請重試。",
+    "webKeyNotice": "開始時會把 Web 的 Gemini Key 提供給本次 Android 通話，不另存一份。"
   }
 }
