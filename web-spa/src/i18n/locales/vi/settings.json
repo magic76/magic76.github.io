@@ -217,6 +217,7 @@
     "start_failed": "Không thể khởi động dịch vụ giọng nói gốc. Hãy thử lại.",
     "bridge_error": "Kết nối Android không phản hồi. Hãy mở lại Crew.",
     "unavailable": "Cyber Orb không khả dụng trong phiên bản này.",
-    "unknown": "Thao tác thất bại. Hãy thử lại."
+    "unknown": "Thao tác thất bại. Hãy thử lại.",
+    "webKeyNotice": "Dùng khóa Gemini từ Web chỉ cho cuộc gọi Android này, không lưu bản sao khác."
   }
 }

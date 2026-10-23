@@ -217,6 +217,7 @@
     "start_failed": "Der native Sprachdienst konnte nicht starten. Bitte erneut versuchen.",
     "bridge_error": "Die Android-Verbindung antwortet nicht. Starte Crew neu.",
     "unavailable": "Cyber Orb ist in dieser App-Version nicht verfügbar.",
-    "unknown": "Aktion fehlgeschlagen. Bitte erneut versuchen."
+    "unknown": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
+    "webKeyNotice": "Verwendet den Web-Gemini-Schlüssel nur für diesen Android-Anruf, ohne ihn zusätzlich zu speichern."
   }
 }

@@ -141,6 +141,11 @@ export function HomePage(){
   return()=>{live=false};
  },[]);
  return <div className="crew-home">
+  {orbAvailable&&<Link to="/orb" className="crew-home-orb-quick">
+   <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
+   <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
+   <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
+  </Link>}
   <div className="crew-home-world">
    <HomePortal/>
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
@@ -183,11 +188,6 @@ export function HomePage(){
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
      ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
-    {orbAvailable&&<Link to="/settings#settings-device" className="crew-home-setup">
-     <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="chat"/></span>
-     <span className="crew-home-setup-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選擇 AI 朋友或老師，在其他 App 也能繼續語音聊天。":"Choose a Crew character and keep talking while using other apps."}</small></span>
-     <span className="crew-home-setup-action" aria-hidden="true">→</span>
-    </Link>}
     <details className="crew-home-products">
      <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
      <div className="crew-home-product-grid">

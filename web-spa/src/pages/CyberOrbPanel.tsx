@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {TEACHER_PROFILES} from "../teacher/teacherProfiles";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
+import {geminiKey} from "../lib/runtime";
 import {
  hasNativeDeviceBridge,probeNativeDeviceCapabilities,
  readNativeOrbStatus,requestNativeOrbStart,requestNativeOrbStop
@@ -24,7 +25,7 @@ export function CyberOrbPanel(){
   microphone_permission_required:t("cyberOrb.microphone_permission_required"),
   already_active:t("cyberOrb.already_active"),start_failed:t("cyberOrb.start_failed"),
   bridge_error:t("cyberOrb.bridge_error"),unavailable:t("cyberOrb.unavailable"),
-  unknown:t("cyberOrb.unknown")
+  unknown:t("cyberOrb.unknown"),webKeyNotice:t("cyberOrb.webKeyNotice")
  };
  const [features,setFeatures]=useState<NativeDeviceFeatures|null>(null);
  const [status,setStatus]=useState<NativeOrbStatus|null>(null);
@@ -66,7 +67,7 @@ export function CyberOrbPanel(){
   if(!features||busy)return;
   if(status?.active){setMessage(copy.already_active);return}
   setBusy(true);setMessage("");
-  const result=await requestNativeOrbStart({roleType,roleId,language},features);
+  const result=await requestNativeOrbStart({roleType,roleId,language},features,geminiKey());
   if(result.ok){
    setStatus(old=>({active:true,roleType,roleId,language,
     keyConfigured:old?.keyConfigured??true,overlayAllowed:true,microphoneAllowed:true}));
@@ -119,6 +120,7 @@ export function CyberOrbPanel(){
    </select>
   </label>
   <p className="crew-orb-private">{copy.private}</p>
+  {!status?.active&&features?.cyberOrbWebKey&&geminiKey()&&<p className="crew-orb-key-note">{copy.webKeyNotice}</p>}
   <div className="crew-orb-actions">
    {status?.active?<button type="button" className="crew-orb-stop" disabled={busy} onClick={()=>void stop()}>{copy.stop}</button>:
     <button type="button" className="crew-orb-start" disabled={busy} onClick={()=>void start()}>{busy?copy.loading:copy.start}</button>}
