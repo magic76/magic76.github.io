@@ -191,16 +191,22 @@ export function NonsenseChampionshipPage(){
   // Never acquire the Live microphone during the 60-second speech or while recognition exists.
   if(phaseRef.current!=="result"||recognitionRef.current)return;
   cancelVoices();setLiveState("connecting");
+  let fallbackPlayed=false;
   const cleanup=()=>{liveStopRef.current=null;};
+  const fallback=()=>{
+   if(fallbackPlayed||!mountedRef.current||phaseRef.current!=="result")return;
+   fallbackPlayed=true;setLiveState("error");
+   speakNonsenseHost(language,verdict.comment);
+  };
   try{
    liveStopRef.current=await startNonsenseLiveFeedback({
     language,judgeId,topic:topic[language],verdict,
     onSpeaking:()=>{if(mountedRef.current&&phaseRef.current==="result")setLiveState("speaking");},
     onDone:()=>{cleanup();if(mountedRef.current&&phaseRef.current==="result")setLiveState("idle");},
-    onFailure:()=>{cleanup();if(mountedRef.current&&phaseRef.current==="result"){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
+    onFailure:()=>{cleanup();fallback();}
    });
    if(phaseRef.current!=="result"){liveStopRef.current?.();liveStopRef.current=null;}
-  }catch{cleanup();if(mountedRef.current&&phaseRef.current==="result"){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
+  }catch{cleanup();fallback();}
  };
  const hints=nonsenseHints[topic.category]?.[language]||[];
  return <main className="crew-play-page nonsense-page">
@@ -259,7 +265,7 @@ export function NonsenseChampionshipPage(){
     </div>}
     {(phase==="prep"||phase==="speaking")&&<div className={"nonsense-clock"+(phase==="speaking"&&timeLeft<=10?" urgent":"")} aria-live="off">
      <strong>{clock(phase==="prep"?prepLeft:timeLeft)}</strong>
-     <small>{phase==="prep"?L(zh,"準備時間（可提前開始）","Preparation (you may start early)"):L(zh,"你的演說倒數","Speech countdown")}</small>
+     <small>{phase==="prep"?(prepLeft===0?L(zh,"準備結束，點擊開始才會啟動麥克風","Ready! Tap Start to activate the microphone"):L(zh,"準備時間（可提前開始）","Preparation (you may start early)")):L(zh,"你的演說倒數","Speech countdown")}</small>
     </div>}
     {phase==="speaking"&&<div className="nonsense-progress-wrap">
      <div className="nonsense-progress-label"><span>{L(zh,"演說進行中","Performance in progress")}</span><strong>{Math.round((60-timeLeft)/60*100)}%</strong></div>
@@ -275,17 +281,18 @@ export function NonsenseChampionshipPage(){
      <div className="nonsense-hints"><strong>{L(zh,"可參考的三個方向","Three optional talking points")}</strong>
       <ul>{hints.map(h=><li key={h}>{h}</li>)}</ul>
      </div>
-     <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={startSpeaking}>{L(zh,"開始演說 60 秒","Start my 60-second speech")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"返回","Back")}</button></div>
+     <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={startSpeaking}>{prepLeft===0?L(zh,"準備完成 · 開始演說","Ready · start speaking"):L(zh,"提前開始演說 60 秒","Start speaking early")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"返回","Back")}</button></div>
     </>}
     {phase==="speaking"&&<>
      <div className="nonsense-listening" role="status"><span className={micActive?"is-listening":""}/>
       {micActive?L(zh,"正在聆聽…","Listening…"):canRecognize?L(zh,"麥克風未啟動／已停止","Microphone paused"):L(zh,"可使用鍵盤語音輸入","Try keyboard dictation")}
      </div>
      {heard&&<p className="nonsense-heard">{heard}</p>}
-     {!micActive&&<label className="nonsense-text-fallback">{L(zh,"無法使用麥克風？在這裡輸入演說內容","Can't use the mic? Type your speech here")}
+     {!micActive&&<label className="nonsense-text-fallback">{L(zh,"使用文字記錄演說（也可使用鍵盤語音輸入）","Record your speech in text (keyboard dictation also works)")}
       <textarea value={manual} onChange={e=>{manualRef.current=e.target.value;setManual(e.target.value)}} rows={3} maxLength={6000}/>
      </label>}
      <div className="nonsense-buttons">
+      {micActive&&<button type="button" className="nonsense-secondary" onClick={()=>{teardownMic();setNotice(L(zh,"已切換文字模式；倒數仍會繼續。","Text mode enabled. The timer continues."));}}>{L(zh,"切換文字輸入","Switch to typing")}</button>}
       {!micActive&&canRecognize&&<button type="button" className="nonsense-secondary" onClick={()=>activateRecognition(heardRef.current)}>{L(zh,"繼續收音","Resume mic")}</button>}
       <button type="button" className="nonsense-main-button" onClick={finishSpeech}>{L(zh,"結束演說","Finish speech")}</button>
      </div>
