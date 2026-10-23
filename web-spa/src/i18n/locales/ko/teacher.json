@@ -296,6 +296,14 @@
     "following": "최신 내용 표시 중",
     "paused": "이전 카드 보는 중",
     "followLatest": "최신으로 이동",
-    "latest": "최신"
+    "latest": "최신",
+    "director": {
+      "explaining": "선생님 설명 중",
+      "awaiting": "답변을 기다리는 중",
+      "feedback": "선생님 피드백",
+      "review": "개념 다시 보기",
+      "next": "다음 문제",
+      "another": "계속 연습하기"
+    }
   }
 }

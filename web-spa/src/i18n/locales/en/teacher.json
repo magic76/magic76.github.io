@@ -296,6 +296,14 @@
     "following": "Following latest",
     "paused": "Viewing an older card",
     "followLatest": "Follow latest",
-    "latest": "Latest"
+    "latest": "Latest",
+    "director": {
+      "explaining": "Teacher explaining",
+      "awaiting": "Your turn to answer",
+      "feedback": "Teacher feedback",
+      "review": "Review the concept",
+      "next": "Next question",
+      "another": "Keep practicing"
+    }
   }
 }

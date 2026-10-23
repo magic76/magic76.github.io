@@ -296,6 +296,14 @@
     "following": "Neueste Inhalte folgen",
     "paused": "Ältere Karte geöffnet",
     "followLatest": "Zur neuesten Karte",
-    "latest": "Neu"
+    "latest": "Neu",
+    "director": {
+      "explaining": "Lehrkraft erklärt",
+      "awaiting": "Du bist dran",
+      "feedback": "Rückmeldung",
+      "review": "Konzept wiederholen",
+      "next": "Nächste Frage",
+      "another": "Weiter üben"
+    }
   }
 }
