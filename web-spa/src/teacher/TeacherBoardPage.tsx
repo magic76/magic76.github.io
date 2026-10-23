@@ -15,6 +15,7 @@ import {effectiveSpeakingLevel} from "./speakingLevelMemory";
 import {personalMemoryEnabled} from "./studentMemory";
 import {boardNotes,BOARD_FUNCTION,BOARD_TOOLS,applyBoardPatch,fallbackBoard,validateBoardPatch,type BoardCard,type BoardPatch} from "./boardProtocol";
 import {TeachingCard,cardKindName} from "./TeachingCard";
+import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -29,6 +30,9 @@ export function TeacherBoardPage(){
  const level=effectiveSpeakingLevel(s.targetLanguage,s.learnerSpeakingLevel,personalMemoryEnabled());
  const [cards,setCards]=useState<BoardCard[]>([]);
  const [answers,setAnswers]=useState<Record<string,number>>({});
+ const answersRef=useRef<Record<string,number>>({});
+ const [director,setDirector]=useState<DirectorState>(EMPTY_DIRECTOR);
+ const directorRef=useRef<DirectorState>(EMPTY_DIRECTOR);
  const [notesOpen,setNotesOpen]=useState(false);
  const [hint,setHint]=useState("");
  const [copyStatus,setCopyStatus]=useState("");
@@ -56,22 +60,48 @@ export function TeacherBoardPage(){
  "Use stable IDs for edits; do not repeat old cards. Respond to 'make it simpler' by editing existing cards, and 'quiz me' with a QuizCard of three actual multiple-choice questions. "+
  "Have/has been and had been require a two-timeline comparison and examples. "+
  "Choose visually distinct teaching formats: comparison, timeline, steps, flashcards, dialogue, quiz, examples, vocabulary or correction according to the lesson. Avoid always using explanation cards. "+
- "The board is teaching data, not a transcript. Keep text succinct. Never output HTML, scripts or markdown code. "+
+ "After creating a card, use control_teaching_stage to focus on the topic and reveal meaningful items sequentially while talking. "+
+ "When asking a quiz, issue ask and STOP: wait for a real learner answer by voice or tap. Never reveal a correct option beforehand or advance without learner interaction. "+
+ "Once answered, explain briefly; if incorrect revisit a related comparison or timeline, if correct continue with the next unanswered question or example. "+
+ "Reuse existing cards instead of generating more explanation cards. The board is teaching data, not a transcript. Keep text succinct. Never output HTML, scripts or markdown code. "+
  "The current board lives only in this session. Do not memorize it, and never treat a generated example as a fact about the student.",
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
  const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+localeHelp;
- function commitPatch(patch:BoardPatch){
+ function changeDirector(next:DirectorState){
+  directorRef.current=next;setDirector(next);
+ }
+ function commitPatch(patch:BoardPatch):boolean{
+  // A pending question is owned by the learner, not by the model.
+  if(directorRef.current.phase==="awaiting")return false;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);
-  const changed=patch.cards[patch.cards.length-1];
-  const changedId=(changed&&next.some(c=>c.id===changed.id)?changed.id:next[next.length-1]?.id)||null;
-  setLatestId(changedId);
-  setRevision(v=>v+1);
-  // A new or edited teaching card takes the live stage even if the learner was
-  // reviewing an older card. Manual browsing remains available between updates.
-  if(patch.cards.length&&changedId){setFollowing(true);setFocusedId(null);}
-  if(patch.action==="replace")setAnswers({});
+  const stage=directorAfterPatch(directorRef.current,next,patch.cards);
+  changeDirector(stage);
+  const changedId=stage.cardId;
+  setLatestId(changedId);setRevision(v=>v+1);
+  if(changedId){setFollowing(true);setFocusedId(null);}
+  if(patch.action==="replace"){answersRef.current={};setAnswers({});}
+  return true;
+ }
+ function selectAnswer(card:BoardCard,index:number,selected:number,fromVoice=false):boolean{
+  const key=card.id+":"+index;
+  if(answersRef.current[key]!==undefined)return false;
+  const next=directorAfterAnswer(directorRef.current,card,index,selected,cardRef.current);
+  if(!next)return false;
+  answersRef.current={...answersRef.current,[key]:selected};
+  setAnswers(answersRef.current);
+  changeDirector(next);
+  setLatestId(card.id);setFollowing(true);setFocusedId(null);
+  if(!fromVoice&&active){
+   const q=card.questions[index];
+   live.sendText("[LEARNER ANSWER FROM TEACHING BOARD] Question "+(index+1)+": "+q.question+
+    "\nLearner chose "+String.fromCharCode(65+selected)+" ("+q.options[selected]+"). "+
+    (next.result==="correct"?"The answer is correct.":"The answer is incorrect.")+
+    " Explain why briefly, preferably using the current card. If wrong, revisit the comparison/timeline. "+
+    "Do not move on to an unanswered question until the learner requests the next one.\n"+localeHelp);
+  }
+  return true;
  }
  const live=useLiveSession({
   pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
@@ -79,39 +109,52 @@ export function TeacherBoardPage(){
   languageDriftGuard:(text)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,s.teachingMode),
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
-  tools:liveEnabled?BOARD_TOOLS:undefined,
+  tools:liveEnabled?[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}]:undefined,
   onToolsUnavailable:()=>setToolsUnavailable(true),
   onToolCall:(call)=>{
-   if(call.name!==BOARD_FUNCTION)return {ok:false,error:"unknown-tool"};
-   const patch=validateBoardPatch(call.args);
-   if(!patch)return {ok:false,error:"invalid-board-patch"};
-   commitPatch(patch);
-   patchCountRef.current++;
-   setHasLivePatch(true);
-   return {ok:true,updated:patch.cards.length,action:patch.action};
+   if(call.name===BOARD_FUNCTION){
+    const patch=validateBoardPatch(call.args);
+    if(!patch)return {ok:false,error:"invalid-board-patch"};
+    if(!commitPatch(patch))return {ok:false,error:"learner-answer-pending"};
+    patchCountRef.current++;setHasLivePatch(true);
+    return {ok:true,updated:patch.cards.length,action:patch.action};
+   }
+   if(call.name===DIRECTOR_FUNCTION){
+    const command=validateDirectorCommand(call.args,cardRef.current);
+    if(!command)return {ok:false,error:"invalid-stage-command"};
+    const next=applyDirectorCommand(directorRef.current,command,cardRef.current,answersRef.current);
+    if(!next)return {ok:false,error:"stage-locked-or-no-answer"};
+    changeDirector(next);
+    setLatestId(next.cardId);setFollowing(true);setFocusedId(null);
+    setRevision(v=>v+1);setHasLivePatch(true);
+    return {ok:true,phase:next.phase,cardId:next.cardId};
+   }
+   return {ok:false,error:"unknown-tool"};
   },
   onRecovered:()=>{
    // Reassert session teaching context, not a new learner turn.
    const summary=boardNotes(cardRef.current).slice(0,1300);
-   live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve the board state and continue the same lesson. "+summary+"\n"+localeHelp);
+   live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
+   const spoken=turn.input||"";
+   const choice=letterIndex(spoken);
+   const activeStage=directorRef.current;
+   if(activeStage.phase==="awaiting"&&choice>=0){
+    const quiz=cardRef.current.find(c=>c.id===activeStage.cardId&&c.type==="quiz");
+    if(quiz){
+     const match=spoken.match(/第\s*([一二三123])\s*題/);
+     const n=match?({一:1,二:2,三:3}[match[1] as "一"|"二"|"三"]||Number(match[1])):activeStage.quizIndex+1;
+     if(n-1===activeStage.quizIndex)selectAnswer(quiz,n-1,choice,true);
+    }
+   }
    const updatedByLive=patchCountRef.current!==lastTurnPatchRef.current;
    lastTurnPatchRef.current=patchCountRef.current;
-   if(!updatedByLive){
+   // An unanswered (or just-answered) quiz must remain visible. Never create
+   // a fallback explanation card that steals attention from the exercise.
+   if(!updatedByLive&&directorRef.current.phase==="explaining"){
     const patch=fallbackBoard(turn,cardRef.current);
     if(patch)commitPatch(patch);
-   }
-   // Voice quiz answers are only recognized with explicit answer cues.
-   const spoken=turn.input||"";
-   const selected=letterIndex(spoken);
-   const first=cardRef.current.find(c=>c.type==="quiz"&&c.questions.length);
-   if(first&&selected>=0){
-    const match=spoken.match(/第\s*([一二三123])\s*題/);
-    const number=match?({一:1,二:2,三:3}[match[1] as "一"|"二"|"三"]||Number(match[1])):1;
-    const index=number-1;
-    if(first.questions[index]&&selected<first.questions[index].options.length)
-     setAnswers(prev=>({...prev,[first.id+":"+index]:selected}));
    }
   }
  });
@@ -136,9 +179,33 @@ export function TeacherBoardPage(){
   setHint("");
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
-  setAnswers(prev=>({...prev,[card.id+":"+index]:selected}));
-  const q=card.questions[index];
-  if(active)live.sendText("For whiteboard question "+(index+1)+", my answer is "+String.fromCharCode(65+selected)+": "+q.options[selected]+". Please explain whether it is correct.\n"+localeHelp);
+  selectAnswer(card,index,selected);
+ }
+ function navigateCard(index:number){
+  const card=cardRef.current.find(c=>c.id===directorRef.current.cardId);
+  if(!card)return;
+  if(card.type==="quiz"){
+   const key=card.id+":"+index,selected=answersRef.current[key],q=card.questions[index];
+   if(!q)return;
+   // The next question can only be opened after the current one is answered.
+   if(index>directorRef.current.quizIndex&&directorRef.current.phase==="awaiting")return;
+   changeDirector({...EMPTY_DIRECTOR,cardId:card.id,phase:selected===undefined?"awaiting":"feedback",
+    quizIndex:index,focusIndex:index,result:selected===undefined?null:(selected===q.answerIndex?"correct":"incorrect")});
+   if(active&&selected===undefined)live.sendText("[LESSON STAGE] The learner is ready for question "+(index+1)+": "+q.question+". Ask this question aloud, then wait for an answer.\n"+localeHelp);
+  }else changeDirector({...directorRef.current,focusIndex:index});
+ }
+ function reviewCard(){
+  const old=directorRef.current,reviewId=old.reviewCardId;
+  if(!reviewId||!cardRef.current.some(c=>c.id===reviewId))return;
+  changeDirector({...EMPTY_DIRECTOR,cardId:reviewId});
+  setLatestId(reviewId);setFollowing(true);setFocusedId(null);
+  if(active)live.sendText("[LESSON STAGE] I want to review "+cardRef.current.find(c=>c.id===reviewId)?.title+" before trying another example. Please explain the key difference again in simpler language.\n"+localeHelp);
+ }
+ function nextExercise(){
+  const d=directorRef.current,card=cardRef.current.find(c=>c.id===d.cardId);
+  if(!card||card.type!=="quiz"||d.phase!=="feedback")return;
+  if(d.quizIndex+1<card.questions.length)navigateCard(d.quizIndex+1);
+  else if(active)live.sendText("[LESSON STAGE] I finished this quiz. Give me a short next exercise matching how well I answered, or summarize the topic if I have mastered it.\n"+localeHelp);
  }
  async function copyNotes(){
   try{await navigator.clipboard.writeText(boardNotes(cards));setCopyStatus(t("board.copied"))}
@@ -177,8 +244,16 @@ export function TeacherBoardPage(){
     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
-      <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}/>}
+      <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
+       focusIndex={director.cardId===focusedCard.id?director.focusIndex:-1}
+       revealCount={director.cardId===focusedCard.id?director.revealed:null}
+       quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={navigateCard}/>}
     </div>
+    {focusedCard&&following&&director.cardId===focusedCard.id&&<div className="teaching-board-director-status" role="status">
+     <span className={"teaching-board-director-phase is-"+director.phase}>{t("board.director."+director.phase)}</span>
+     {director.phase==="feedback"&&director.result==="incorrect"&&director.reviewCardId&&<button type="button" onClick={reviewCard}>{t("board.director.review")}</button>}
+     {director.phase==="feedback"&&focusedCard.type==="quiz"&&<button type="button" onClick={nextExercise}>{director.quizIndex+1<focusedCard.questions.length?t("board.director.next"):t("board.director.another")}</button>}
+    </div>}
     {cards.length>0&&<div className="teaching-board-navigator">
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
       <small>{following?t("board.following"):t("board.paused")}</small>
@@ -196,7 +271,7 @@ export function TeacherBoardPage(){
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
      <button type="button" onClick={()=>void copyNotes()}>{t("board.copy")}</button>
-     <button type="button" onClick={()=>{cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true)}}>{t("board.clear")}</button>
+     <button type="button" onClick={()=>{cardRef.current=[];setCards([]);setAnswers({});setNotesOpen(false);setLatestId(null);setFocusedId(null);setFollowing(true);changeDirector(EMPTY_DIRECTOR);answersRef.current={}}}>{t("board.clear")}</button>
      {copyStatus&&<small role="status">{copyStatus}</small>}
     </div>}
     {notesOpen&&<section className="teaching-board-notes"><h2>{t("board.notes")}</h2><pre>{boardNotes(cards)}</pre></section>}
