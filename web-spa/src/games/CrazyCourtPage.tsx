@@ -50,6 +50,7 @@ export function CrazyCourtPage(){
  const [helpBusy,setHelpBusy]=useState(false);
  const [judgePrompt,setJudgePrompt]=useState("");
  const busyRef=useRef(false),aliveRef=useRef(true);
+ const hintsRequestRef=useRef(0);
  const court=courtCases.find(item=>item.id===caseId)||courtCases[0];
  const judge=getCrewFriend(friend.id==="maya"?"iris":"maya");
  const opponent=role==="defense"?choice(zh,"檢察官","Prosecutor"):choice(zh,"辯護律師","Defense attorney");
@@ -63,6 +64,7 @@ export function CrazyCourtPage(){
   if(!geminiKey()){setNotice(choice(zh,"請先在設定中填入 Gemini Key。","Set your Gemini Key in Settings before playing."));return;}
   trackUsageEvent("game_started","crazy-court");
   setTurn(0);setScore(0);setObjections(3);setAcceptedObjections(0);setUsedIds([]);setRoundPoints([]);setFinalJudgment(null);setVerdictError("");
+  hintsRequestRef.current++;
   setStageActions(0);setJudgePrompt("");setHelpOpen(false);setHelpOptions([]);
   setEntries([
    {speaker:"judge",text:choice(zh,"現在開庭！雙方請尊重證據，但不必壓抑幽默感。","Court is now in session! Respect the evidence, but don't suppress the jokes.")},
@@ -133,7 +135,9 @@ export function CrazyCourtPage(){
   if(busyRef.current||stageActions===0)return;
   if(turn===3){busyRef.current=true;setBusy(true);setPhase("verdict");setVerdictError("");void conclude(entries,roundPoints);return;}
   const next=turn+1;
+  hintsRequestRef.current++;
   setTurn(next);setStageActions(0);setJudgePrompt("");setHelpOptions([]);setHelpOpen(false);
+  emit("GAME EVENT. As opposing counsel speak this single short line in "+targetLanguage+": "+JSON.stringify(currentClaim(court,next,role,conversationLanguage)));
   setEntries(prev=>[...prev,
    {speaker:"judge",text:language==="zh"?"進入下一階段，請雙方繼續。":"Moving to the next stage."},
    {speaker:"opponent",text:currentClaim(court,next,role,conversationLanguage)},
@@ -144,10 +148,11 @@ export function CrazyCourtPage(){
   setHelpOpen(true);
   if(helpBusy||!geminiKey())return;
   setHelpBusy(true);
+  const request=++hintsRequestRef.current;
   try{
    const options=await courtDynamicHints(court,role,conversationLanguage,currentQuestion,entries);
-   if(aliveRef.current)setHelpOptions(options);
-  }catch{if(aliveRef.current)setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}
+   if(aliveRef.current&&request===hintsRequestRef.current)setHelpOptions(options);
+  }catch{if(aliveRef.current&&request===hintsRequestRef.current)setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}
   finally{if(aliveRef.current)setHelpBusy(false);}
  };
  const retryFinal=()=>{
@@ -163,6 +168,7 @@ export function CrazyCourtPage(){
   setPhase("setup");setNotice("");setEntries([]);setText("");
   setCue({id:0,text:""});setObjectionOpen(false);setPreviewEvidence(null);setBusy(false);busyRef.current=false;
   setFinalJudgment(null);setVerdictError("");setRoundPoints([]);
+  hintsRequestRef.current++;
   setStageActions(0);setHelpOpen(false);setHelpOptions([]);setJudgePrompt("");
  };
  const hasKey=Boolean(geminiKey());
