@@ -24,7 +24,7 @@ export function NonsenseLiveNewsPage(){
  const [topic,setTopic]=useState<NonsenseTopic>(()=>pickNonsenseTopic("all"));
  const [mode,setMode]=useState<Mode>("voice");
  const [status,setStatus]=useState<Status>("setup");
- const [scene,setScene]=useState<NewsScene>(()=>openingNewsScene(pickNonsenseTopic("all"),"zh"));
+ const [scene,setScene]=useState<NewsScene>(()=>openingNewsScene(topic,language));
  const [turns,setTurns]=useState<NewsTurn[]>([]);
  const [answer,setAnswer]=useState("");
  const [hostDraft,setHostDraft]=useState("");
