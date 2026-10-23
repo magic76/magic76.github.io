@@ -32,3 +32,18 @@ test("Gemini key setup remains actionable after client hydration when truly unco
  assert.match(home,/crew-home-setup-free/);
  assert.match(chrome,/to="\/settings"/);
 });
+
+test("Cyber Orb refreshes its key status when the in-app Gemini setting is saved or cleared",()=>{
+ const runtime=read("web-spa/src/lib/runtime.ts");
+ const orb=read("web-spa/src/pages/CyberOrbPanel.tsx");
+
+ // Settings and the Orb share the same WebView storage; a save in the sibling
+ // settings panel must refresh an already-mounted Orb without exposing the key.
+ assert.match(runtime,/GEMINI_KEY_CHANGED_EVENT="crew:gemini-key-changed"/);
+ assert.match(runtime,/export function saveGeminiKey\([^\n]+emitGeminiKeyChanged\(\)/);
+ assert.match(runtime,/export function clearGeminiKey\([^\n]+emitGeminiKeyChanged\(\)/);
+ assert.match(orb,/const \[webKey,setWebKey\]=useState\(\(\)=>geminiKey\(\)\)/);
+ assert.match(orb,/addEventListener\(GEMINI_KEY_CHANGED_EVENT,refreshWebKey\)/);
+ assert.match(orb,/removeEventListener\(GEMINI_KEY_CHANGED_EVENT,refreshWebKey\)/);
+ assert.match(orb,/const currentWebKey=geminiKey\(\)/); // Start always reads the latest stored value.
+});
