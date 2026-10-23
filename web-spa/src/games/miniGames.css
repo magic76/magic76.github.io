@@ -220,3 +220,7 @@
  .crew-mini-page .crew-mini-speech{display:block;max-height:none;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;padding:4px 7px;font-size:11px}
  .crew-mini-page .crew-mini-voice-header img{width:28px;height:28px}
 }
+
+/* The shared AI reply can expand without changing the Live controls or modal layout. */
+.crew-mini-voice .crew-game-speech{min-width:0}
+.crew-mini-voice .crew-game-speech-scroll{max-height:8em}
