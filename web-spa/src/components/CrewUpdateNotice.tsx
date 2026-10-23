@@ -1,0 +1,39 @@
+import {useState} from "react";
+import {useTranslation} from "react-i18next";
+import {hasNewBuild,refreshCrewBuild,useBuildUpdate} from "../runtime/buildUpdates";
+import "./crew-update-notice.css";
+
+const labels: Record<string, [string,string,string]> = {
+  "zh-TW": ["Crew 有新版可用", "立即更新", "稍後"],
+  en: ["A Crew update is available", "Update", "Later"],
+  ja: ["Crew の新しいバージョンがあります", "更新", "後で"],
+  ko: ["새 Crew 버전이 있습니다", "업데이트", "나중에"],
+  de: ["Eine neue Crew-Version ist verfügbar", "Aktualisieren", "Später"],
+  fr: ["Une mise à jour de Crew est disponible", "Actualiser", "Plus tard"],
+  es: ["Hay una actualización de Crew", "Actualizar", "Más tarde"],
+  id: ["Pembaruan Crew tersedia", "Perbarui", "Nanti"],
+  "pt-BR": ["Uma atualização do Crew está disponível", "Atualizar", "Depois"],
+  th: ["มี Crew เวอร์ชันใหม่", "อัปเดต", "ภายหลัง"],
+  vi: ["Đã có bản cập nhật Crew", "Cập nhật", "Để sau"]
+};
+
+export function canOfferCrewRefresh(pathname: string) {
+  // Never prompt during a live call, game, story editor or other active work.
+  return !(/\/live(?:\/|$)/.test(pathname) ||
+    /^\/(games|story\/(edit|create|read)|teacher\/(textbook|course|practice|vocabulary))\b/.test(pathname));
+}
+
+export function CrewUpdateNotice({pathname}: {pathname:string}) {
+  const latest = useBuildUpdate();
+  const {i18n} = useTranslation();
+  const [dismissed, setDismissed] = useState<string|null>(null);
+  if (!hasNewBuild(latest) || !latest?.buildId || !canOfferCrewRefresh(pathname) ||
+      dismissed === latest.buildId) return null;
+  const [message,update,later] = labels[i18n.resolvedLanguage || ""] ||
+    labels[i18n.language] || labels.en;
+  return <aside className="crew-update-notice" role="status" aria-live="polite">
+    <span>{message}</span>
+    <button type="button" onClick={refreshCrewBuild}>{update}</button>
+    <button type="button" className="crew-update-later" onClick={() => setDismissed(latest.buildId)} aria-label={later}>{later}</button>
+  </aside>;
+}

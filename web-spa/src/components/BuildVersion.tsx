@@ -1,31 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./build-version.css";
-
-type BuildInfo = {
-  schema: 1;
-  buildId: string | null;
-  builtAt: string | null;
-  commit: string | null;
-  version: string | null;
-  environment: string;
-};
-
-declare const __CREW_BUILD_INFO__: BuildInfo;
-
-// Bundled metadata describes the JS currently running, not the latest network response.
-const currentBuild = __CREW_BUILD_INFO__;
-
-function isBuildInfo(value: unknown): value is BuildInfo {
-  if (!value || typeof value !== "object") return false;
-  const info = value as Partial<BuildInfo>;
-  return info.schema === 1 && typeof info.buildId === "string" &&
-    info.buildId.length > 0 && typeof info.builtAt === "string" &&
-    Number.isFinite(Date.parse(info.builtAt)) &&
-    (info.commit === null || typeof info.commit === "string") &&
-    (info.version === null || typeof info.version === "string") &&
-    typeof info.environment === "string";
-}
+import {currentBuild, hasNewBuild, refreshCrewBuild, useBuildUpdate} from "../runtime/buildUpdates";
 
 function formatTime(value: string | null, full: boolean, english: boolean): string | null {
   if (!value || !Number.isFinite(Date.parse(value))) return null;
@@ -45,9 +21,9 @@ export function BuildVersion() {
   const { i18n } = useTranslation();
   const english = i18n.resolvedLanguage?.startsWith("en") ?? false;
   const [ready, setReady] = useState(false);
-  const [latest, setLatest] = useState<BuildInfo | null>(null);
+  const latest = useBuildUpdate();
   const [expanded, setExpanded] = useState(false);
-  const outdated = Boolean(currentBuild.buildId && latest?.buildId && latest.buildId !== currentBuild.buildId);
+  const outdated = hasNewBuild(latest);
   const c = english ? {
     label: "Updated", unknown: "Build info", details: "Website version",
     builtAt: "Build time", version: "Version", refresh: "Refresh to update",
@@ -64,41 +40,7 @@ export function BuildVersion() {
     (currentBuild.buildId ? "Build " + currentBuild.buildId.split("-").at(-1) : c.missing);
   const builtTime = ready ? formatTime(currentBuild.builtAt, false, english) : null;
 
-  useEffect(() => {
-    setReady(true);
-    let active = true;
-    let checking = false;
-    const controller = new AbortController();
-    const check = async () => {
-      if (checking || document.visibilityState === "hidden") return;
-      checking = true;
-      try {
-        // BASE_URL is "/" on Cloudflare and "./" on the legacy GitHub Pages build.
-        const url = import.meta.env.BASE_URL + "version.json?check=" + Date.now();
-        const response = await fetch(url, { cache: "no-store", signal: controller.signal });
-        if (!response.ok) return;
-        const data: unknown = await response.json();
-        if (active && isBuildInfo(data)) setLatest(data);
-      } catch {
-        // Offline browsing and disabled networks are normal; keep current build visible.
-      } finally {
-        checking = false;
-      }
-    };
-    const onVisible = () => { if (document.visibilityState === "visible") void check(); };
-    const onFocus = () => { if (document.visibilityState === "visible") void check(); };
-    void check();
-    const interval = window.setInterval(() => void check(), 90_000);
-    document.addEventListener("visibilitychange", onVisible);
-    window.addEventListener("focus", onFocus);
-    return () => {
-      active = false;
-      controller.abort();
-      window.clearInterval(interval);
-      document.removeEventListener("visibilitychange", onVisible);
-      window.removeEventListener("focus", onFocus);
-    };
-  }, []);
+  useEffect(() => setReady(true), []);
 
   return <section className="section panel crew-build-section" aria-label={c.details}>
     <div className="section-head crew-build-heading">
@@ -110,7 +52,7 @@ export function BuildVersion() {
         {expanded ? c.hideDetails : c.showDetails}
       </button>
     </div>
-    {outdated && <button type="button" className="crew-build-refresh" onClick={() => window.location.reload()}>{c.refresh} ↗</button>}
+    {outdated && <button type="button" className="crew-build-refresh" onClick={refreshCrewBuild}>{c.refresh} ↗</button>}
     <div id="crew-build-details" className="crew-build-details" hidden={!expanded}>
       <dl>
         <dt>{c.builtAt}</dt><dd>{formatTime(currentBuild.builtAt, true, english) || c.missing}<small>{c.timezone}</small></dd>

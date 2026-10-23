@@ -66,7 +66,16 @@ export default defineConfig(({ command }) => {
       manifest: true,
       outDir: isCloudflareBuild ? "../dist" : "../crew-app",
       emptyOutDir: true,
-      sourcemap: false
+      sourcemap: false,
+      // Keep content-hashed build files separate from the unversioned /assets/
+      // illustrations. Only /assets/build/ receives an immutable cache header.
+      rolldownOptions: {
+        output: {
+          entryFileNames: "assets/build/[name]-[hash].js",
+          chunkFileNames: "assets/build/[name]-[hash].js",
+          assetFileNames: "assets/build/[name]-[hash][extname]"
+        }
+      }
     }
   };
 });

@@ -15,6 +15,11 @@ https://:version.magic76-github-io.pages.dev/*
   X-Robots-Tag: noindex
   Cache-Control: no-store
 
+# Only Vite's fingerprinted build output is immutable. /assets/ also contains
+# unversioned character photos, so never apply this rule to /assets/*.
+/assets/build/*
+  Cache-Control: public, max-age=31536000, immutable
+
 # The version endpoint must bypass browser and Cloudflare caches so open tabs
 # can detect a newly deployed build without reloading the whole app.
 /version.json
