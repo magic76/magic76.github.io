@@ -218,6 +218,7 @@
     "bridge_error": "Android 裝置橋接無回應，請重新開啟 App。",
     "unavailable": "此版本尚不支援 Cyber Orb。",
     "unknown": "操作失敗，請重試。",
-    "webKeyNotice": "開始時會把 Web 的 Gemini Key 提供給本次 Android 通話，不另存一份。"
+    "webKeyNotice": "開始時會把 Web 的 Gemini Key 提供給本次 Android 通話，不另存一份。",
+    "web_key_unavailable": "這個 App 內找不到有效的 Web Gemini Key。請在 Crew Teacher App 內的 Web 設定儲存 Key；Chrome 或其他裝置的資料不會共用。"
   }
 }

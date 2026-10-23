@@ -218,6 +218,7 @@
     "bridge_error": "Android bridge did not respond. Reopen Crew.",
     "unavailable": "Cyber Orb is unavailable in this App version.",
     "unknown": "The operation failed. Try again.",
-    "webKeyNotice": "Uses your Web Gemini Key for this Android call only, without saving another copy."
+    "webKeyNotice": "Uses your Web Gemini Key for this Android call only, without saving another copy.",
+    "web_key_unavailable": "No valid Web Gemini key is available in this app. Save one in Crew Teacher's Web settings; Chrome and other devices use separate storage."
   }
 }

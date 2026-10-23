@@ -6,7 +6,8 @@ import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {geminiKey} from "../lib/runtime";
 import {
- hasNativeDeviceBridge,probeNativeDeviceCapabilities,
+ hasNativeDeviceBridge,isValidGeminiApiKey,probeNativeDeviceCapabilities,
+ shouldBlockNativeOrbStartForMissingKey,
  readNativeOrbStatus,requestNativeOrbStart,requestNativeOrbStop
 } from "../lib/deviceCapabilities";
 import type {NativeDeviceFeatures,NativeOrbStatus} from "../lib/deviceCapabilities";
@@ -26,7 +27,8 @@ export function CyberOrbPanel(){
   microphone_permission_required:t("cyberOrb.microphone_permission_required"),
   already_active:t("cyberOrb.already_active"),start_failed:t("cyberOrb.start_failed"),
   bridge_error:t("cyberOrb.bridge_error"),unavailable:t("cyberOrb.unavailable"),
-  unknown:t("cyberOrb.unknown"),webKeyNotice:t("cyberOrb.webKeyNotice")
+  unknown:t("cyberOrb.unknown"),webKeyNotice:t("cyberOrb.webKeyNotice"),
+  web_key_unavailable:t("cyberOrb.web_key_unavailable")
  };
  const [features,setFeatures]=useState<NativeDeviceFeatures|null>(null);
  const [status,setStatus]=useState<NativeOrbStatus|null>(null);
@@ -63,12 +65,19 @@ export function CyberOrbPanel(){
  const activeName= status?.roleType==="friend"
   ?CREW_FRIENDS.find(p=>p.id===status.roleId)?.name
   :TEACHER_PROFILES.find(p=>p.id===status?.roleId)?.name;
+ const webKey=geminiKey();
+ const validWebKey=isValidGeminiApiKey(webKey);
 
  async function start(){
   if(!features||busy)return;
   if(status?.active){setMessage(copy.already_active);return}
+  const currentWebKey=geminiKey();
+  if(shouldBlockNativeOrbStartForMissingKey(features,status?.keyConfigured,currentWebKey)){
+   setMessage(copy.web_key_unavailable);
+   return;
+  }
   setBusy(true);setMessage("");
-  const result=await requestNativeOrbStart({roleType,roleId,language},features,geminiKey());
+  const result=await requestNativeOrbStart({roleType,roleId,language},features,currentWebKey);
   if(result.ok){
    setStatus(old=>({active:true,roleType,roleId,language,
     keyConfigured:old?.keyConfigured??true,overlayAllowed:true,microphoneAllowed:true}));
@@ -123,7 +132,9 @@ export function CyberOrbPanel(){
    </select>
   </label>
   <p className="crew-orb-private">{copy.private}</p>
-  {!status?.active&&features?.cyberOrbWebKey&&geminiKey()&&<p className="crew-orb-key-note">{copy.webKeyNotice}</p>}
+  {!status?.active&&features?.cyberOrbWebKey&&validWebKey&&<p className="crew-orb-key-note">{copy.webKeyNotice}</p>}
+  {!status?.active&&features?.cyberOrbWebKey&&status?.keyConfigured!==true&&!validWebKey
+   &&<p className="crew-orb-key-note" role="status">{copy.web_key_unavailable}</p>}
   <div className="crew-orb-actions">
    {status?.active?<button type="button" className="crew-orb-stop" disabled={busy} onClick={()=>void stop()}>{copy.stop}</button>:
     <button type="button" className="crew-orb-start" disabled={busy} onClick={()=>void start()}>{busy?copy.loading:copy.start}</button>}
