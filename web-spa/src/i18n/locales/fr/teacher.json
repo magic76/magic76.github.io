@@ -296,6 +296,14 @@
     "following": "Dernière carte suivie",
     "paused": "Ancienne carte affichée",
     "followLatest": "Revenir à la dernière",
-    "latest": "Récent"
+    "latest": "Récent",
+    "director": {
+      "explaining": "Explication du professeur",
+      "awaiting": "À toi de répondre",
+      "feedback": "Retour du professeur",
+      "review": "Revoir le concept",
+      "next": "Question suivante",
+      "another": "Continuer l'exercice"
+    }
   }
 }

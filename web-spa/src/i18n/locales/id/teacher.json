@@ -296,6 +296,14 @@
     "following": "Mengikuti terbaru",
     "paused": "Melihat kartu lama",
     "followLatest": "Ikuti terbaru",
-    "latest": "Terbaru"
+    "latest": "Terbaru",
+    "director": {
+      "explaining": "Guru menjelaskan",
+      "awaiting": "Giliranmu menjawab",
+      "feedback": "Umpan balik guru",
+      "review": "Ulangi konsep",
+      "next": "Pertanyaan berikutnya",
+      "another": "Lanjut berlatih"
+    }
   }
 }

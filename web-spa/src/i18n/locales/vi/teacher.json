@@ -296,6 +296,14 @@
     "following": "Đang theo dõi mới nhất",
     "paused": "Đang xem thẻ cũ",
     "followLatest": "Xem mới nhất",
-    "latest": "Mới nhất"
+    "latest": "Mới nhất",
+    "director": {
+      "explaining": "Giáo viên giải thích",
+      "awaiting": "Đến lượt bạn trả lời",
+      "feedback": "Phản hồi của giáo viên",
+      "review": "Ôn lại khái niệm",
+      "next": "Câu hỏi tiếp theo",
+      "another": "Tiếp tục luyện tập"
+    }
   }
 }
