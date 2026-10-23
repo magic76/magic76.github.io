@@ -131,3 +131,11 @@
  .nonsense-stage,.nonsense-judge-tile,.nonsense-judge-face{transition:none}
  .nonsense-stage::before,.nonsense-stage::after,.nonsense-judge-face,.nonsense-wave.energized i,.nonsense-clock.urgent strong,.nonsense-result,.nonsense-result-sparkles{animation:none!important}
 }
+
+.nonsense-stage::before,.nonsense-stage::after{z-index:0}
+.nonsense-stage>*{position:relative;z-index:1}
+.nonsense-progress-wrap{width:100%;max-width:560px;display:grid;gap:7px}
+.nonsense-progress-label{display:flex;justify-content:space-between;gap:8px;color:#88654f;font-size:11px;font-weight:800}
+.nonsense-progress-track{height:9px;background:#e8d6c8;border-radius:8px;overflow:hidden}
+.nonsense-progress-track span{display:block;height:100%;background:linear-gradient(90deg,#a65b3f,#e3ae6f);border-radius:8px;transition:width .2s linear}
+@media(prefers-reduced-motion:reduce){.nonsense-progress-track span{transition:none}}
