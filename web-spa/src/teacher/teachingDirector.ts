@@ -46,7 +46,7 @@ export function directorAfterPatch(old:DirectorState,next:BoardCard[],updated:Bo
  // When a quiz is introduced, show the question and wait for the learner.
  // Never allow an unrelated patch to advance a question awaiting a response.
  if(old.phase==="awaiting"&&next.some(c=>c.id===old.cardId))return old;
- const target=updated.findLast?.(c=>next.some(x=>x.id===c.id))||updated[updated.length-1]||next[next.length-1];
+ const target=updated.slice().reverse().find(c=>next.some(x=>x.id===c.id))||updated[updated.length-1]||next[next.length-1];
  if(!target||!next.some(c=>c.id===target.id))return {...EMPTY_DIRECTOR,cardId:next[next.length-1].id};
  return {...EMPTY_DIRECTOR,cardId:target.id,phase:target.type==="quiz"&&target.questions.length?"awaiting":"explaining"};
 }
