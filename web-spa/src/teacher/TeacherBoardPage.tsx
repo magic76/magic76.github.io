@@ -221,6 +221,7 @@ export function TeacherBoardPage(){
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
   </header>
   <main className="teaching-board-layout">
+   <section className="teaching-board-workspace">
    <section className="teaching-board-tutor" aria-label={t("board.teacher")}>
     <div className="teaching-board-teacher"><TeacherAvatar profile={profile}/><div><b>{profile.name}</b><small>{s.targetLanguage} · {t("board.teacher")}</small></div></div>
     <p className="teaching-board-state" role="status">{live.status}</p>
@@ -278,6 +279,7 @@ export function TeacherBoardPage(){
      {copyStatus&&<small role="status">{copyStatus}</small>}
     </div>}
     {notesOpen&&<section className="teaching-board-notes"><h2>{t("board.notes")}</h2><pre>{boardNotes(cards)}</pre></section>}
+   </section>
    </section>
   </main>
  </>;
