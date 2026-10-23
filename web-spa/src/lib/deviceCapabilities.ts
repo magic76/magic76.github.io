@@ -37,6 +37,7 @@ export type NativeDeviceFeatures={
  openAppSettings?:boolean;
  openTtsSettings?:boolean;
  stopSpeech?:boolean;
+ cyberOrb?:boolean;
 };
 export type NativeDeviceInfo={
  appVersion:string;
@@ -84,8 +85,8 @@ function onBridgeReply(event:{data:unknown}):void{
  }catch{/* Discard malformed native responses. */}
 }
 
-function sendNativeMessage(method:"getCapabilities"|"speak"|"getDeviceInfo"|"openAppSettings"|"openTtsSettings"|"stopSpeech",
- params?:{text:string;rate:SpeechSpeed}):Promise<BridgeResponse>{
+function sendNativeMessage(method:"getCapabilities"|"speak"|"getDeviceInfo"|"openAppSettings"|"openTtsSettings"|"stopSpeech"|"getOrbStatus"|"startOrb"|"stopOrb",
+ params?:{text:string;rate:SpeechSpeed}|{roleType:"friend"|"teacher";roleId:string;language:string}):Promise<BridgeResponse>{
  const port=webMessagePort();
  if(!port)return Promise.reject(new Error("Native device bridge unavailable"));
  if(attachedPort!==port){
@@ -187,6 +188,48 @@ export async function requestNativeDeviceAction(
   const reply=await sendNativeMessage(action);
   return reply.ok;
  }catch{return false}
+}
+
+/** Cyber Orb is an independent Android-native Gemini call, not a Web Live handoff. */
+export type NativeOrbSelection={roleType:"friend"|"teacher";roleId:string;language:string};
+export type NativeOrbStatus={
+ active:boolean;roleType:string;roleId:string;language:string;
+ keyConfigured:boolean;overlayAllowed:boolean;microphoneAllowed:boolean;
+};
+export type NativeOrbActionResult={ok:boolean;error?:string};
+
+function safeOrbStatus(value:unknown):NativeOrbStatus|null{
+ if(!value||typeof value!=="object"||Array.isArray(value))return null;
+ const v=value as Record<string,unknown>;
+ if(typeof v.active!=="boolean"||typeof v.keyConfigured!=="boolean"
+  ||typeof v.overlayAllowed!=="boolean"||typeof v.microphoneAllowed!=="boolean")return null;
+ const text=(value:unknown)=>typeof value==="string"&&/^[a-z]{0,16}$/.test(value)?value:"";
+ return{active:v.active,roleType:text(v.roleType),roleId:text(v.roleId),language:text(v.language),
+  keyConfigured:v.keyConfigured,overlayAllowed:v.overlayAllowed,microphoneAllowed:v.microphoneAllowed};
+}
+
+export async function readNativeOrbStatus(features:NativeDeviceFeatures|null):Promise<NativeOrbStatus|null>{
+ if(!features?.cyberOrb||!webMessagePort())return null;
+ const reply=await sendNativeMessage("getOrbStatus");
+ return reply.ok?safeOrbStatus(reply.data):null;
+}
+
+export async function requestNativeOrbStart(
+ selection:NativeOrbSelection,features:NativeDeviceFeatures|null
+):Promise<NativeOrbActionResult>{
+ if(!features?.cyberOrb||!webMessagePort())return{ok:false,error:"unavailable"};
+ try{
+  const reply=await sendNativeMessage("startOrb",selection);
+  return{ok:reply.ok,error:reply.error};
+ }catch{return{ok:false,error:"bridge_error"}}
+}
+
+export async function requestNativeOrbStop(features:NativeDeviceFeatures|null):Promise<NativeOrbActionResult>{
+ if(!features?.cyberOrb||!webMessagePort())return{ok:false,error:"unavailable"};
+ try{
+  const reply=await sendNativeMessage("stopOrb");
+  return{ok:reply.ok,error:reply.error};
+ }catch{return{ok:false,error:"bridge_error"}}
 }
 
 export function diagnosticSummary(info:NativeDeviceInfo):string{
