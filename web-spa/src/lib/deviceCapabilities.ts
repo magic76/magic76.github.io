@@ -199,7 +199,11 @@ export type NativeOrbStatus={
 };
 export type NativeOrbActionResult={ok:boolean;error?:string};
 
-const GEMINI_API_KEY_PATTERN=/^AIza[A-Za-z0-9_-]{20,120}$/;
+// Treat an API key as an opaque credential. The settings flow can verify it
+// with Gemini; this boundary only makes sure it can safely cross the JSON
+// bridge and HTTP header without controls or whitespace. Google may change
+// key prefixes or formats independently of the WebView bridge.
+const GEMINI_API_KEY_PATTERN=/^[\x21-\x7E]{20,256}$/;
 
 export function isValidGeminiApiKey(value:string):boolean{
  return GEMINI_API_KEY_PATTERN.test(value.trim());

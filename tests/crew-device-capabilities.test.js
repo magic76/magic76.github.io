@@ -197,6 +197,25 @@ test("one-shot Web Key travels to Android only on supported explicit Orb start",
  assert.equal(actions[0].method,"startOrb");
 });
 
+test("opaque printable Web keys are accepted without requiring a Google-specific prefix",async()=>{
+ const sent=[];
+ const key="K".repeat(53); // Safe-format fixture only; no real API credential.
+ const bridge={onmessage:null,postMessage(value){
+  const request=JSON.parse(value);sent.push(request);
+  bridge.onmessage({data:JSON.stringify({v:1,id:request.id,ok:true})});
+ }};
+ const device=load({bridge});
+ const features={cyberOrb:true,cyberOrbWebKey:true};
+ assert.equal(device.isValidGeminiApiKey(key),true);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,false,key),false);
+ assert.equal((await device.requestNativeOrbStart(
+  {roleType:"friend",roleId:"zoe",language:"en"},features,key)).ok,true);
+ assert.equal(sent[0].params.ephemeralApiKey,key);
+
+ for(const invalid of ["K".repeat(19),"K".repeat(257),"K".repeat(12)+" "+"K".repeat(12)])
+  assert.equal(device.isValidGeminiApiKey(invalid),false);
+});
+
 test("Cyber Orb requires an in-app Web key or a confirmed native key before starting",()=>{
  const device=load();
  const features={cyberOrb:true,cyberOrbWebKey:true};
