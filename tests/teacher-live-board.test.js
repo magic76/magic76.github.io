@@ -155,7 +155,7 @@ test("new or revised teaching cards resume live focus after manual browsing",()=
  const page=fs.readFileSync(root+"/web-spa/src/teacher/TeacherBoardPage.tsx","utf8");
  const commit=page.split("function commitPatch(patch:BoardPatch):boolean{")[1]?.split("\n const live=useLiveSession({")[0]||"";
  assert.ok(commit,"Board patch handler must exist");
- assert.match(commit,/if\(changedId\)\{setFollowing\(true\);setFocusedId\(null\);\}/);
+ assert.match(commit,/if\(changedId&&!waiting&&!guided\)\{setFollowing\(true\);setFocusedId\(null\);\}/);
  assert.match(commit,/setLatestId\(changedId\)/);
  assert.match(page,/onClick=\{\(\)=>\{setFollowing\(false\);setFocusedId\(card\.id\)\}\}/);
  // The visible stage is driven by the newly updated ID once following resumes.
