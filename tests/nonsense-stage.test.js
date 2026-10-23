@@ -17,7 +17,7 @@ test("stage responds to transcript events but never represents the effect as a G
  const css=read("web-spa/src/games/nonsenseChampionship.css");
  assert.match(page,/Date\.now\(\)-lastActivityRef\.current<1100/);
  assert.match(page,/nonsense-phase-track/);
- assert.match(page,/stageFaces/);
+ assert.match(read("web-spa/src/games/NonsenseJudgeRow.tsx"),/stageFaces/);
  assert.match(page,/Stage expressions and lights are visual effects, not AI judgments/);
  assert.match(page,/Recent speech transcript activity/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
