@@ -218,6 +218,7 @@
     "bridge_error": "Koneksi Android tidak merespons. Buka ulang Crew.",
     "unavailable": "Cyber Orb tidak tersedia pada versi ini.",
     "unknown": "Tindakan gagal. Coba lagi.",
-    "webKeyNotice": "Menggunakan kunci Gemini Web hanya untuk panggilan Android ini, tanpa menyimpan salinan lain."
+    "webKeyNotice": "Menggunakan kunci Gemini Web hanya untuk panggilan Android ini, tanpa menyimpan salinan lain.",
+    "web_key_unavailable": "Tidak ada kunci Gemini Web yang valid di aplikasi ini. Simpan kunci di Pengaturan Web Crew Teacher; Chrome dan perangkat lain memakai penyimpanan terpisah."
   }
 }

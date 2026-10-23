@@ -23,7 +23,7 @@ function load({agent="",withWebSpeech=true,bridge=null,mic=false}={}){
   nativeVocabularyTtsUrl:(text,rate)=>"crew-tts://speak?text="+encodeURIComponent(text)+"&rate="+rate,
   setTimeout,clearTimeout,Map,Error,JSON
  };
- const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText,hasNativeDeviceBridge,readNativeDeviceInfo,requestNativeDeviceAction,diagnosticSummary,readNativeOrbStatus,requestNativeOrbStart,requestNativeOrbStop};})()",ctx);
+ const api=vm.runInNewContext("(function(){"+js+"\nreturn {getDeviceCapabilities,probeNativeDeviceCapabilities,speakText,hasNativeDeviceBridge,readNativeDeviceInfo,requestNativeDeviceAction,diagnosticSummary,readNativeOrbStatus,requestNativeOrbStart,requestNativeOrbStop,isValidGeminiApiKey,shouldBlockNativeOrbStartForMissingKey};})()",ctx);
  return{...api,said,window:fakeWindow};
 }
 
@@ -195,4 +195,17 @@ test("one-shot Web Key travels to Android only on supported explicit Orb start",
  assert.equal((await device.requestNativeOrbStart(selection,{cyberOrb:true},key)).ok,true);
  assert.equal("ephemeralApiKey" in actions[2].params,false);
  assert.equal(actions[0].method,"startOrb");
+});
+
+test("Cyber Orb requires an in-app Web key or a confirmed native key before starting",()=>{
+ const device=load();
+ const features={cyberOrb:true,cyberOrbWebKey:true};
+ const validKey="  AIzaSyTEST_123456789012345678901234567890  ";
+ assert.equal(device.isValidGeminiApiKey(validKey),true);
+ assert.equal(device.isValidGeminiApiKey("not-a-google-key"),false);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,false,""),true);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,undefined,"invalid"),true);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,false,validKey),false);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,true,""),false);
+ assert.equal(device.shouldBlockNativeOrbStartForMissingKey({cyberOrb:true},false,""),false);
 });

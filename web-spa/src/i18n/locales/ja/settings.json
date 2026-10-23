@@ -218,6 +218,7 @@
     "bridge_error": "Android との接続が応答しません。Crew を開き直してください。",
     "unavailable": "このバージョンでは Cyber Orb を利用できません。",
     "unknown": "操作に失敗しました。再試行してください。",
-    "webKeyNotice": "開始時に Web の Gemini キーをこの Android 通話だけに使用し、別途保存しません。"
+    "webKeyNotice": "開始時に Web の Gemini キーをこの Android 通話だけに使用し、別途保存しません。",
+    "web_key_unavailable": "このアプリ内に有効な Web Gemini キーがありません。Crew Teacher アプリ内の Web 設定に保存してください。Chrome や他の端末とは保存領域が別です。"
   }
 }

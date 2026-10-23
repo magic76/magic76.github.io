@@ -199,6 +199,19 @@ export type NativeOrbStatus={
 };
 export type NativeOrbActionResult={ok:boolean;error?:string};
 
+const GEMINI_API_KEY_PATTERN=/^AIza[A-Za-z0-9_-]{20,120}$/;
+
+export function isValidGeminiApiKey(value:string):boolean{
+ return GEMINI_API_KEY_PATTERN.test(value.trim());
+}
+
+/** Avoid opening Android's native key dialog when neither supported key source is available. */
+export function shouldBlockNativeOrbStartForMissingKey(
+ features:NativeDeviceFeatures|null,nativeKeyConfigured:boolean|undefined,webGeminiKey:string
+):boolean{
+ return features?.cyberOrbWebKey===true&&nativeKeyConfigured!==true&&!isValidGeminiApiKey(webGeminiKey);
+}
+
 function safeOrbStatus(value:unknown):NativeOrbStatus|null{
  if(!value||typeof value!=="object"||Array.isArray(value))return null;
  const v=value as Record<string,unknown>;
@@ -221,7 +234,7 @@ export async function requestNativeOrbStart(
  if(!features?.cyberOrb||!webMessagePort())return{ok:false,error:"unavailable"};
  // Only transmit on explicit Start and to native builds advertising one-shot key support.
  const key=webGeminiKey.trim();
- const passKey=features.cyberOrbWebKey===true&&/^AIza[A-Za-z0-9_-]{20,120}$/.test(key);
+ const passKey=features.cyberOrbWebKey===true&&isValidGeminiApiKey(key);
  try{
   const reply=await sendNativeMessage("startOrb",{
    ...selection,...(passKey?{ephemeralApiKey:key}:{})
