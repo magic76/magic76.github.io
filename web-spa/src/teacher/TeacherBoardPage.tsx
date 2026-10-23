@@ -39,6 +39,7 @@ export function TeacherBoardPage(){
  const [following,setFollowing]=useState(true);
  const [revision,setRevision]=useState(0);
  const stageRef=useRef<HTMLDivElement>(null);
+ const deckRef=useRef<HTMLDivElement>(null);
  const cardRef=useRef<BoardCard[]>([]);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
  const liveEnabled=s.liveModel==="gemini-3.1-flash-live-preview";
@@ -64,9 +65,13 @@ export function TeacherBoardPage(){
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);
   const changed=patch.cards[patch.cards.length-1];
-  setLatestId((changed&&next.some(c=>c.id===changed.id)?changed.id:next[next.length-1]?.id)||null);
+  const changedId=(changed&&next.some(c=>c.id===changed.id)?changed.id:next[next.length-1]?.id)||null;
+  setLatestId(changedId);
   setRevision(v=>v+1);
-  if(patch.action==="replace"){setAnswers({});setFollowing(true);setFocusedId(null);}
+  // A new or edited teaching card takes the live stage even if the learner was
+  // reviewing an older card. Manual browsing remains available between updates.
+  if(patch.cards.length&&changedId){setFollowing(true);setFocusedId(null);}
+  if(patch.action==="replace")setAnswers({});
  }
  const live=useLiveSession({
   pageKey:"teacher-board",title:"AI 即時教學板 · "+profile.name,
@@ -112,7 +117,18 @@ export function TeacherBoardPage(){
  });
  const active=speakingStates.includes(live.state);
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
- useEffect(()=>{if(stageRef.current)stageRef.current.scrollTop=0},[focusedCard?.id,following,revision]);
+ useEffect(()=>{
+  if(stageRef.current)stageRef.current.scrollTop=0;
+  // Reveal the active card in the horizontal lesson navigator without moving
+  // the browser viewport, which would interrupt a voice lesson on mobile.
+  const rail=deckRef.current;
+  const selected=rail?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
+  if(rail&&selected){
+   const visible=rail.getBoundingClientRect(),tab=selected.getBoundingClientRect();
+   if(tab.left<visible.left)rail.scrollLeft-=visible.left-tab.left+8;
+   else if(tab.right>visible.right)rail.scrollLeft+=tab.right-visible.right+8;
+  }
+ },[focusedCard?.id,following,revision]);
  useEffect(()=>{document.body.classList.add("teacher-theme","session-page");return()=>{document.body.classList.remove("teacher-theme","session-page")}},[]);
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
@@ -168,7 +184,7 @@ export function TeacherBoardPage(){
       <small>{following?t("board.following"):t("board.paused")}</small>
       {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
      </div>
-     <div className="teaching-board-deck" role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
+     <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
       {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
        aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
        className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
