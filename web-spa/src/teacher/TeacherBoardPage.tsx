@@ -20,6 +20,8 @@ import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
 const letterIndex=(spoken:string):number=>{
+ const bare=spoken.trim().match(/^([ABCD])\s*[.!。！]?$/i);
+ if(bare)return bare[1].toUpperCase().charCodeAt(0)-65;
  const match=spoken.match(/(?:第\s*[一二三123]\s*題\s*(?:我\s*)?(?:選擇?|答案\s*是|是)?|(?:answer|答案|我選|選擇))\s*[，,.:：]?\s*([ABCD])/i);
  return match?match[1].toUpperCase().charCodeAt(0)-65:-1;
 };
@@ -181,18 +183,19 @@ export function TeacherBoardPage(){
  function clickAnswer(card:BoardCard,index:number,selected:number){
   selectAnswer(card,index,selected);
  }
- function navigateCard(index:number){
-  const card=cardRef.current.find(c=>c.id===directorRef.current.cardId);
+ function navigateCard(cardId:string,index:number){
+  const card=cardRef.current.find(c=>c.id===cardId);
   if(!card)return;
   if(card.type==="quiz"){
    const key=card.id+":"+index,selected=answersRef.current[key],q=card.questions[index];
    if(!q)return;
    // The next question can only be opened after the current one is answered.
-   if(index>directorRef.current.quizIndex&&directorRef.current.phase==="awaiting")return;
+   if(card.id===directorRef.current.cardId&&index>directorRef.current.quizIndex&&directorRef.current.phase==="awaiting")return;
    changeDirector({...EMPTY_DIRECTOR,cardId:card.id,phase:selected===undefined?"awaiting":"feedback",
     quizIndex:index,focusIndex:index,result:selected===undefined?null:(selected===q.answerIndex?"correct":"incorrect")});
    if(active&&selected===undefined)live.sendText("[LESSON STAGE] The learner is ready for question "+(index+1)+": "+q.question+". Ask this question aloud, then wait for an answer.\n"+localeHelp);
-  }else changeDirector({...directorRef.current,focusIndex:index});
+  }else changeDirector({...directorRef.current,cardId:card.id,focusIndex:index});
+  setLatestId(card.id);setFollowing(true);setFocusedId(null);
  }
  function reviewCard(){
   const old=directorRef.current,reviewId=old.reviewCardId;
@@ -204,7 +207,7 @@ export function TeacherBoardPage(){
  function nextExercise(){
   const d=directorRef.current,card=cardRef.current.find(c=>c.id===d.cardId);
   if(!card||card.type!=="quiz"||d.phase!=="feedback")return;
-  if(d.quizIndex+1<card.questions.length)navigateCard(d.quizIndex+1);
+  if(d.quizIndex+1<card.questions.length)navigateCard(card.id,d.quizIndex+1);
   else if(active)live.sendText("[LESSON STAGE] I finished this quiz. Give me a short next exercise matching how well I answered, or summarize the topic if I have mastered it.\n"+localeHelp);
  }
  async function copyNotes(){
@@ -247,7 +250,7 @@ export function TeacherBoardPage(){
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
        focusIndex={director.cardId===focusedCard.id?director.focusIndex:-1}
        revealCount={director.cardId===focusedCard.id?director.revealed:null}
-       quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={navigateCard}/>}
+       quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={index=>navigateCard(focusedCard.id,index)}/>}
     </div>
     {focusedCard&&following&&director.cardId===focusedCard.id&&<div className="teaching-board-director-status" role="status">
      <span className={"teaching-board-director-phase is-"+director.phase}>{t("board.director."+director.phase)}</span>
