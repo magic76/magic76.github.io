@@ -8,6 +8,7 @@ import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
+import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
@@ -117,6 +118,13 @@ function BriefingPreview(){
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
+ const [orbAvailable,setOrbAvailable]=useState(false);
+ useEffect(()=>{
+  if(!isCrewAndroidShell())return;
+  let mounted=true;
+  void probeNativeDeviceCapabilities().then(c=>{if(mounted)setOrbAvailable(Boolean(c?.cyberOrb))}).catch(()=>{});
+  return()=>{mounted=false};
+ },[]);
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
@@ -175,6 +183,11 @@ export function HomePage(){
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
      ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
+    {orbAvailable&&<Link to="/settings#settings-device" className="crew-home-setup">
+     <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="chat"/></span>
+     <span className="crew-home-setup-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選擇 AI 朋友或老師，在其他 App 也能繼續語音聊天。":"Choose a Crew character and keep talking while using other apps."}</small></span>
+     <span className="crew-home-setup-action" aria-hidden="true">→</span>
+    </Link>}
     <details className="crew-home-products">
      <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
      <div className="crew-home-product-grid">
