@@ -33,7 +33,7 @@ export function SettingsPage(){
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
  useEffect(()=>{
   const id=hash.slice(1);
-  if(id!=="memory-settings"&&id!=="settings-gemini")return;
+  if(!hash.endsWith("#memory-settings")&&!hash.endsWith("#settings-gemini")&&!hash.endsWith("#settings-device"))return;
   // Lazy-mounted settings panels may not exist when the browser first handles the hash.
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);

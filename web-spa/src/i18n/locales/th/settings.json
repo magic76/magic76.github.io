@@ -197,5 +197,26 @@
       "os_validated": "OS ยืนยันเครือข่าย (ยังไม่ทดสอบ Crew)",
       "connected_unverified": "เชื่อมต่อแล้ว (ยังไม่ทดสอบ Crew)"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · คุยแบบแฮนด์ฟรี",
+    "intro": "เลือกตัวละคร Crew และคุยด้วยเสียงต่อได้ขณะใช้แอป Android อื่น",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "ภาษาสนทนา",
+    "start": "เริ่ม Cyber Orb",
+    "stop": "วางสาย",
+    "loading": "กำลังตรวจสอบบริการ Android…",
+    "active": "กำลังคุยกับ {name}",
+    "private": "การโทรแบบเนทีฟแยกต่างหาก · ไม่แชร์ความจำหรือประวัติแชตของเว็บ",
+    "note": "กรุณาจบการโทรเสียงบนเว็บก่อน หากต้องการเปลี่ยนตัวละครให้วางสาย Orb ก่อน",
+    "native_key_required": "ตั้งค่า Gemini API Key ในหน้าต่าง Android แล้วกดเริ่มอีกครั้ง",
+    "overlay_permission_required": "อนุญาตให้แสดงทับแอปอื่น กลับมาที่ Crew แล้วลองอีกครั้ง",
+    "microphone_permission_required": "อนุญาตใช้ไมโครโฟน กลับมาที่ Crew แล้วลองอีกครั้ง",
+    "already_active": "มีสาย Orb ทำงานอยู่ กรุณาวางสายก่อนเปลี่ยนตัวละคร",
+    "start_failed": "ไม่สามารถเริ่มบริการเสียงเนทีฟได้ กรุณาลองอีกครั้ง",
+    "bridge_error": "การเชื่อมต่อ Android ไม่ตอบสนอง กรุณาเปิด Crew อีกครั้ง",
+    "unavailable": "Cyber Orb ยังไม่พร้อมใช้ในเวอร์ชันนี้",
+    "unknown": "ดำเนินการไม่สำเร็จ กรุณาลองอีกครั้ง"
   }
 }

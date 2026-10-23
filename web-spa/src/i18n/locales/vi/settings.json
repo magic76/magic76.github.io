@@ -197,5 +197,26 @@
       "os_validated": "OS xác nhận mạng (chưa kiểm tra Crew)",
       "connected_unverified": "Có mạng (chưa kiểm tra Crew)"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · Trò chuyện rảnh tay",
+    "intro": "Chọn nhân vật Crew và tiếp tục trò chuyện khi dùng các ứng dụng Android khác.",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "Ngôn ngữ trò chuyện",
+    "start": "Bắt đầu Cyber Orb",
+    "stop": "Kết thúc cuộc gọi",
+    "loading": "Đang kiểm tra dịch vụ Android…",
+    "active": "Đang trò chuyện với {name}",
+    "private": "Cuộc gọi gốc độc lập · Không chia sẻ ký ức hoặc lịch sử trò chuyện Web",
+    "note": "Hãy kết thúc cuộc gọi Web đang diễn ra trước. Kết thúc cuộc gọi Orb trước khi đổi nhân vật.",
+    "native_key_required": "Thiết lập Gemini API Key trong hộp thoại Android rồi nhấn Bắt đầu lại.",
+    "overlay_permission_required": "Cho phép hiển thị trên ứng dụng khác, quay lại Crew và thử lại.",
+    "microphone_permission_required": "Cho phép truy cập micrô, quay lại Crew và thử lại.",
+    "already_active": "Đang có cuộc gọi Orb. Hãy kết thúc trước khi đổi nhân vật.",
+    "start_failed": "Không thể khởi động dịch vụ giọng nói gốc. Hãy thử lại.",
+    "bridge_error": "Kết nối Android không phản hồi. Hãy mở lại Crew.",
+    "unavailable": "Cyber Orb không khả dụng trong phiên bản này.",
+    "unknown": "Thao tác thất bại. Hãy thử lại."
   }
 }

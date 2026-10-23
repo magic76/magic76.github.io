@@ -197,5 +197,26 @@
       "os_validated": "系統已驗證網路（未測 Crew）",
       "connected_unverified": "已連接網路（未測 Crew）"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · 隨身 AI 聊天",
+    "intro": "選一位 Crew 角色，切到其他 App 也能透過懸浮球繼續語音聊天。",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "對話語言",
+    "start": "開啟 Cyber Orb",
+    "stop": "結束懸浮對話",
+    "loading": "讀取原生服務中…",
+    "active": "正在與 {name} 對話",
+    "private": "獨立原生通話 · 不同步 Web 記憶、聊天紀錄或學習進度",
+    "note": "請先結束目前的 Web 語音通話，再開啟 Cyber Orb。切換角色需先掛斷。",
+    "native_key_required": "請在 Android 原生視窗設定 Gemini API Key，完成後再次點選開始。",
+    "overlay_permission_required": "請允許在其他 App 上層顯示，返回 Crew 後再次點選開始。",
+    "microphone_permission_required": "請允許使用麥克風，返回 Crew 後再次點選開始。",
+    "already_active": "已有 Cyber Orb 通話。請先掛斷，再選擇其他角色。",
+    "start_failed": "無法啟動原生語音服務，請重試。",
+    "bridge_error": "Android 裝置橋接無回應，請重新開啟 App。",
+    "unavailable": "此版本尚不支援 Cyber Orb。",
+    "unknown": "操作失敗，請重試。"
   }
 }
