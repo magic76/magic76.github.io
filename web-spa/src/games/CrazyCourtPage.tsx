@@ -11,7 +11,7 @@ import {MiniGameVoice,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {courtCases,courtPhases,courtReasons,evaluateCourtAction,
  type CourtAction,type CourtRole,type CourtLanguage,type CourtCase} from "./crazyCourtEngine";
 import {judgeCourtTurn,judgeCourtFinal,courtOpponentReply,courtDynamicHints,type CourtJudgeFinal} from "./courtJudge";
-import {courtDossier,courtQuestion,courtSuggestedLines} from "./courtGuidance";
+import {courtDossier,courtQuestion,courtSuggestedLines,courtRoleMission,courtRiffIdeas} from "./courtGuidance";
 import "./crazyCourt.css";
 
 type Phase="setup"|"trial"|"verdict";
@@ -46,6 +46,7 @@ export function CrazyCourtPage(){
  const [acceptedObjections,setAcceptedObjections]=useState(0);
  const [stageActions,setStageActions]=useState(0);
  const [helpOpen,setHelpOpen]=useState(false);
+ const [helpMode,setHelpMode]=useState<"grounded"|"playful">("grounded");
  const [helpOptions,setHelpOptions]=useState<string[]>([]);
  const [helpBusy,setHelpBusy]=useState(false);
  const [judgePrompt,setJudgePrompt]=useState("");
@@ -57,6 +58,8 @@ export function CrazyCourtPage(){
  const preview=court.evidence.find(item=>item.id===previewEvidence);
  const dossier=courtDossier(court);
  const approaches=courtSuggestedLines(court,role,language);
+ const mission=courtRoleMission(court,role,language);
+ const caseNumber=String(courtCases.findIndex(c=>c.id===caseId)+1).padStart(3,"0");
  const currentQuestion=judgePrompt||courtQuestion(court,role,turn,conversationLanguage);
  useEffect(()=>{aliveRef.current=true;trackUsageEvent("game_open","crazy-court");document.body.classList.add("teacher-theme");return()=>{aliveRef.current=false;document.body.classList.remove("teacher-theme")};},[]);
  const emit=(message:string)=>setCue(prev=>({id:prev.id+1,text:message}));
@@ -145,7 +148,7 @@ export function CrazyCourtPage(){
   ]);
  };
  const requestHints=async()=>{
-  setHelpOpen(true);
+  setHelpOpen(true);setHelpMode("grounded");
   if(helpBusy||!geminiKey())return;
   setHelpBusy(true);
   const request=++hintsRequestRef.current;
@@ -183,7 +186,7 @@ export function CrazyCourtPage(){
   {phase==="setup"?<section className="court-setup">
    <div className="court-setup-art" aria-hidden="true"><div className="court-arch"><span>⚖</span><i/><i/><i/></div><span className="court-setup-art-label">THE COURT IS READY</span></div>
    <div className="court-paper">
-    <span className="court-stamp">CASE / 00{courtCases.findIndex(c=>c.id===caseId)+1}</span>
+    <span className="court-stamp">CASE / {caseNumber} · {courtCases.length} {choice(zh,"件案件","cases")}</span>
     <h2>{get(court.title,language)}</h2>
     <p>{get(dossier.background,language)}</p>
     <div className="court-dossier-facts"><strong>{choice(zh,"主要爭點","Key dispute")}</strong><span>{get(dossier.dispute,language)}</span></div>
@@ -191,12 +194,23 @@ export function CrazyCourtPage(){
     <select id="court-case" value={caseId} onChange={e=>setCaseId(e.target.value)}>
      {courtCases.map(item=><option value={item.id} key={item.id}>{get(item.title,language)}</option>)}
     </select>
+    <details className="court-case-clues">
+     <summary>{choice(zh,"開庭前先看三張案件線索","Preview the three case clues")}</summary>
+     {court.evidence.map(item=><div key={item.id}><strong>{item.icon} {get(item.title,language)}</strong><p>{get(item.detail,language)}</p></div>)}
+    </details>
    </div>
    <div className="court-setup-config">
-    <h3>{choice(zh,"你的法庭身分","Choose your role")}</h3>
+    <h3>{choice(zh,"你要替哪一方爭取勝利？","Which side will you fight for?")}</h3>
     <div className="court-role-choices">
-     <button type="button" aria-pressed={role==="defense"} onClick={()=>setRole("defense")}><span>♙</span><strong>{choice(zh,"辯護律師","Defense")}</strong><small>{choice(zh,"替被告辯護","Defend the accused")}</small></button>
-     <button type="button" aria-pressed={role==="prosecution"} onClick={()=>setRole("prosecution")}><span>⚖</span><strong>{choice(zh,"檢察官","Prosecutor")}</strong><small>{choice(zh,"提出指控","Press the case")}</small></button>
+     <button type="button" aria-pressed={role==="defense"} onClick={()=>setRole("defense")}><span>♙</span><strong>{choice(zh,"辯護律師","Defense")}</strong><small>{choice(zh,"替被告爭取無責或輕判","Seek acquittal or leniency")}</small></button>
+     <button type="button" aria-pressed={role==="prosecution"} onClick={()=>setRole("prosecution")}><span>⚖</span><strong>{choice(zh,"檢察官","Prosecutor")}</strong><small>{choice(zh,"替申訴者追究責任","Seek accountability for the complainant")}</small></button>
+    </div>
+    <div className="court-role-mission" aria-live="polite">
+     <strong>{choice(zh,"這一局，你的任務","Your mission in this case")}</strong>
+     <p>{mission}</p>
+     <small>{role==="defense"
+      ?choice(zh,"勝利方向：質疑指控、解釋理由、提出合理補救。","Win by rebutting claims, explaining context and offering fair remedies.")
+      :choice(zh,"勝利方向：指出損害、引用證據、說服法官確認責任。","Win by proving impact, citing evidence and showing responsibility.")}</small>
     </div>
     <div className="court-choose-friend">
      <FriendAvatar friend={friend}/>
@@ -209,6 +223,7 @@ export function CrazyCourtPage(){
     <div className="court-opening-guide">
      <strong>{choice(zh,"起手方向（僅供參考，可自由發揮）","Opening ideas (feel free to improvise)")}</strong>
      {approaches.map((item,i)=><div key={i}><span>{item.title}</span><p>{item.text}</p></div>)}
+     <small>{choice(zh,"幽默假設、誇張比喻都能用，但未被證實的事不能冒充物證。","Funny hypotheticals and metaphors are welcome, but invented facts are not evidence.")}</small>
     </div>
     <p className="court-rules">{choice(zh,"四個庭審階段 · 可自由追問和出示證據 · 準備好再進下一階段","Four stages · Debate and file evidence freely · Advance when ready")}</p>
     {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key →","Set up Gemini Key →")}</Link></div>:null}
@@ -237,12 +252,13 @@ export function CrazyCourtPage(){
    {finalJudgment?<button type="button" className="court-primary" onClick={reset}>{choice(zh,"下一個案件","Next case")} →</button>:null}
   </section>:<section className="court-trial" aria-label={choice(zh,"法庭庭審","Court trial")}>
    <div className="court-trial-top">
-    <div><span className="court-stamp">CASE 00{courtCases.findIndex(c=>c.id===caseId)+1}</span><h2>{get(court.title,language)}</h2></div>
+    <div><span className="court-stamp">CASE {caseNumber}</span><h2>{get(court.title,language)}</h2></div>
     <GamePanel label={choice(zh,"完整紀錄","Transcript")} title={choice(zh,"庭審紀錄","Court transcript")}><Transcript entries={entries} friend={friend.name} language={language}/></GamePanel>
    </div>
    <div className="court-progress" aria-label={choice(zh,"庭審進度","Trial progress")}>
     {courtPhases.map((item,i)=><div key={i} className={i===turn?"is-current":i<turn?"is-done":""}><span/><small>{get(item,language)}</small></div>)}
    </div>
+   <div className="court-trial-mission">{choice(zh,"你的任務","Your mission")}：{mission}</div>
    <div className="court-stage">
     <div className="court-judge">
      <div className="court-judge-avatar"><FriendAvatar friend={judge}/><span aria-hidden="true">⚖</span></div>
@@ -262,10 +278,16 @@ export function CrazyCourtPage(){
    <div className="court-judge-question"><strong>{choice(zh,"法官問你","The judge asks")}</strong><p>{currentQuestion}</p></div>
    {notice?<p className="court-notice" role="status">{notice}</p>:null}
    <div className="court-hint-bar">
-    <button type="button" disabled={busy||helpBusy} onClick={()=>void requestHints()}>{helpBusy?choice(zh,"整理提示中…","Preparing ideas…"):choice(zh,"詞窮了？給我接話提示","Stuck? Give me a hint")}</button>
-    <button type="button" disabled={busy} onClick={()=>{setJudgePrompt(courtQuestion(court,role,turn,conversationLanguage));setHelpOpen(true);setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}}>{choice(zh,"請法官換個問法","Rephrase the question")}</button>
+    <button type="button" disabled={busy||helpBusy} onClick={()=>void requestHints()}>{helpBusy?choice(zh,"整理提示中…","Preparing ideas…"):choice(zh,"按證據接話","Evidence-based ideas")}</button>
+    <button type="button" disabled={busy} onClick={()=>{
+     hintsRequestRef.current++;
+     setHelpMode("playful");setHelpOptions(courtRiffIdeas(court,role,conversationLanguage).map(h=>h.text));setHelpOpen(true);
+    }}>{choice(zh,"幫我亂掰！","Give me a wild angle!")}</button>
+    <button type="button" disabled={busy} onClick={()=>{hintsRequestRef.current++;setJudgePrompt(courtQuestion(court,role,turn,conversationLanguage));setHelpMode("grounded");setHelpOpen(true);setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}}>{choice(zh,"請法官換個問法","Rephrase the question")}</button>
    </div>
    {helpOpen?<div className="court-hint-options" role="group" aria-label={choice(zh,"接話方向","Reply ideas")}>
+    <strong>{helpMode==="playful"?choice(zh,"腦洞辯詞 · 創意發揮","Wild ideas · For fun"):choice(zh,"根據線索接話","Ideas grounded in evidence")}</strong>
+    {helpMode==="playful"?<small>{choice(zh,"這是比喻、假設或提案，不是新發現的證據。","These are jokes, hypotheticals or proposals, not new evidence.")}</small>:null}
     {(helpOptions.length?helpOptions:approaches.map(a=>a.text)).map((hint,i)=><button key={i} type="button" disabled={busy} onClick={()=>{setText(hint);setHelpOpen(false);}}>{hint}</button>)}
     <small>{choice(zh,"點選後可以修改，不會自動送出。","Tap to edit; it won't submit automatically.")}</small>
    </div>:null}

@@ -64,7 +64,63 @@ const dossiers:Record<string,CourtDossier>={
   }
  }
 };
-export function courtDossier(court:CourtCase){return dossiers[court.id]||dossiers.pizza;}
+function generatedDossier(court:CourtCase):CourtDossier{
+ const defenseEvidence=court.evidence.find(e=>e.supports==="defense")||court.evidence[0];
+ const prosecutionEvidence=court.evidence.find(e=>e.supports==="prosecution")||court.evidence[0];
+ const approachesFor=(role:CourtRole):[CourtApproach,CourtApproach,CourtApproach]=>{
+  const supporting=role==="defense"?defenseEvidence:prosecutionEvidence;
+  const opening=court.claims[0][role],closing=court.claims[3][role];
+  return [
+   {title:t("先提出主要立場","Start with your position"),example:opening},
+   {title:t("抓住這張證據","Use this evidence"),example:t(
+    "我方特別想請法官注意「"+supporting.title.zh+"」："+supporting.detail.zh,
+    "Please consider "+supporting.title.en+": "+supporting.detail.en
+   )},
+   {title:t("爭取合理的結果","Ask for a fair remedy"),example:closing}
+  ];
+ };
+ const questionsFor=(role:CourtRole):[CourtText,CourtText,CourtText,CourtText]=>{
+  const you=role==="defense"?"替被告":"為申訴者";
+  const youEn=role==="defense"?"defend":"challenge";
+  return [
+   t("在「"+court.title.zh+"」中，你想先"+you+"說什麼？","In "+court.title.en+", what is your opening argument to "+youEn+" the accused?"),
+   t("「"+court.evidence[0].title.zh+"」提到："+court.evidence[0].detail.zh+" 你怎麼看？","What do you make of "+court.evidence[0].title.en+"? "+court.evidence[0].detail.en),
+   t("如果對方引用「"+court.evidence[1].title.zh+"」，你會如何反駁？","How would you respond if the other side cited "+court.evidence[1].title.en+"?"),
+   t("看完這些證據，你希望法庭如何判決？","Based on the evidence, what verdict would be fair?")
+  ];
+ };
+ return {
+  background:t("案件卷宗記載："+court.description.zh+" 請從物證與說法判斷責任，別把想像當成已發生的事。","Case report: "+court.description.en+" Examine the evidence and distinguish speculation from facts."),
+  dispute:t("這場爭議的關鍵是："+court.description.zh+" 雙方應如何分清責任與合理補救？",
+   "The dispute is: "+court.description.en+" What would be fair responsibility and remedy?"),
+  approaches:{defense:approachesFor("defense"),prosecution:approachesFor("prosecution")},
+  questions:{defense:questionsFor("defense"),prosecution:questionsFor("prosecution")}
+ };
+}
+export function courtDossier(court:CourtCase){return dossiers[court.id]||generatedDossier(court);}
+export function courtRoleMission(court:CourtCase,role:CourtRole,language:CourtLanguage):string{
+ const name=court.defendant[language];
+ if(role==="defense")return language==="zh"
+  ?"你代表被告「"+name+"」。目標：提出有利理由、挑戰指控，爭取無責或減輕處罰。"
+  :"You represent the accused, "+name+". Challenge the accusation and seek an acquittal or a lighter remedy.";
+ return language==="zh"
+  ?"你代表提出指控的一方。目標：證明「"+name+"」應為這件事負責，爭取合理補償或改善。"
+  :"You represent the complainant. Show why "+name+" should take responsibility and propose a fair remedy.";
+}
+/** These are rhetorical ideas, NOT newly discovered facts. Players can edit before submitting. */
+export function courtRiffIdeas(court:CourtCase,role:CourtRole,language:CourtLanguage){
+ const supporter=court.evidence.find(e=>e.supports===role)||court.evidence.find(e=>e.supports==="both")||court.evidence[0];
+ const opponent=court.evidence.find(e=>e.supports!=="both"&&e.supports!==role)||court.evidence[0];
+ return language==="zh"?[
+  {title:"誇張比喻",text:"法官大人，這件事簡直是「"+court.title.zh+"」的宇宙級風暴！但說回證據，「"+supporter.title.zh+"」至少顯示："+supporter.detail.zh},
+  {title:"反問對手",text:"等等，如果對方一直強調「"+opponent.title.zh+"」，那是不是也該解釋「"+supporter.title.zh+"」代表什麼？"},
+  {title:"提出奇葩補救",text:"我提議雙方先訂一條超級明確的「"+court.title.zh+"」和平協議！畢竟我們要解決問題，不是把小事變成世界大戰。"}
+ ]:[
+  {title:"Dramatic metaphor",text:"Your Honor, "+court.title.en+" is a cosmic-scale crisis! But let's return to the actual evidence: "+supporter.detail.en},
+  {title:"Challenge the other side",text:"If the other side relies on "+opponent.title.en+", shouldn't they also address "+supporter.title.en+"?"},
+  {title:"Absurd compromise",text:"I propose a legendary peace treaty for "+court.title.en+"! We need a remedy, not a world war."}
+ ];
+}
 export function courtQuestion(court:CourtCase,role:CourtRole,stage:number,language:CourtLanguage){
  return courtDossier(court).questions[role][Math.max(0,Math.min(3,stage))][language];
 }
