@@ -202,3 +202,21 @@
 .court-hint-options small{color:#927965;font-size:11px}
 .court-bottom-actions .court-pass-button{flex:1.2;min-width:110px}
 @media(max-width:620px){.court-opening-guide>div{padding:8px}.court-hint-bar button{font-size:11px}}
+
+/* Role clarity and storytelling cues, compact enough for small-screen setup. */
+.court-role-mission{border:1px solid #d8b48f;border-radius:12px;background:#f8eee1;padding:11px 12px;display:grid;gap:5px}
+.court-role-mission strong{font-size:13px;color:#805438}
+.court-role-mission p{font-size:13px;color:#4b372a;line-height:1.6;margin:0}
+.court-role-mission small{font-size:11px;color:#916746;line-height:1.5}
+.court-trial-mission{padding:8px 11px;border-radius:10px;background:#fff7e9;border:1px solid #eadac7;color:#76513a;font-size:12px;line-height:1.55}
+.court-case-clues{border:1px solid #e7d5c0;border-radius:12px;background:#fff9f2;padding:10px 12px}
+.court-case-clues summary{font-size:12px;font-weight:800;color:#81543c;cursor:pointer;min-height:30px;display:list-item;list-style-position:inside}
+.court-case-clues>div{padding:9px 0;border-top:1px solid #ecdece}
+.court-case-clues>div strong{display:block;color:#6f4b33;font-size:12px}
+.court-case-clues>div p{font-size:12px;line-height:1.55;margin:4px 0 0}
+.court-opening-guide>small{font-size:11px;line-height:1.5;color:#977b63}
+.court-hint-options>strong{font-size:12px;color:#76543d}
+@media(max-width:620px){
+ .court-role-choices button{padding:12px 7px;min-height:108px}
+ .court-hint-bar button{flex:1 1 45%;min-width:0}
+}
