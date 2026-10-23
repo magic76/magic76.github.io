@@ -61,12 +61,13 @@ export function WerewolfPage(){
  const [liveCaption,setLiveCaption]=useState("");
  const liveRef=useRef<WolfVoiceController|null>(null);
  const requestRef=useRef(0);
+ const voiceGenerationRef=useRef(0);
  const mountedRef=useRef(true);
  const [showHistory,setShowHistory]=useState(true);
  const isZh=language==="zh";
  const keyReady=typeof window!=="undefined"&&Boolean(geminiKey());
  useEffect(()=>{mountedRef.current=true;trackUsageEvent("game_open","werewolf");document.body.classList.add("teacher-theme");return()=>{
-  mountedRef.current=false;requestRef.current++;liveRef.current?.stop();document.body.classList.remove("teacher-theme");
+  mountedRef.current=false;requestRef.current++;voiceGenerationRef.current++;liveRef.current?.stop();document.body.classList.remove("teacher-theme");
  }},[]);
  const commit=(next:WolfGame,announcement="")=>{
   const previous=currentRef.current;
@@ -95,7 +96,7 @@ export function WerewolfPage(){
    let next=takeNightAction(current,action);
    next=openingSpeeches(next,isZh);
    setSelected("");setAddressed("");setNotice("");
-   commit(next,localEvent(next.entries.findLast(e=>e.kind==="system")!,isZh));
+   commit(next,localEvent(next.entries.slice().reverse().find(e=>e.kind==="system")!,isZh));
    return {ok:true};
   }catch(err){const message=err instanceof Error?err.message:"Invalid night action";setError(message);return {ok:false,error:message}}
  };
@@ -154,12 +155,12 @@ export function WerewolfPage(){
   setVoiceStatus("connecting");setError("");
   try{
    const control=await startWerewolfLive(current,language,dispatchVoice,{
-    onReady:()=>{if(mountedRef.current&&requestRef.current===stamp)setVoiceStatus("ready")},
+    onReady:()=>{if(mountedRef.current&&voiceGenerationRef.current===stamp)setVoiceStatus("ready")},
     onSpeaking:setSpeaking,
     onTranscript:setLiveCaption,
-    onError:message=>{if(mountedRef.current&&requestRef.current===stamp){liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setError(message)}}
+    onError:message=>{if(mountedRef.current&&voiceGenerationRef.current===stamp){liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setError(message)}}
    });
-   if(!mountedRef.current||requestRef.current!==stamp){control.stop();return}
+   if(!mountedRef.current||voiceGenerationRef.current!==stamp){control.stop();return}
    liveRef.current=control;setVoiceStatus("ready");
   }catch(err){
    if(requestRef.current!==stamp)return;
