@@ -197,5 +197,26 @@
       "os_validated": "Red validada por SO (Crew sin probar)",
       "connected_unverified": "Conectado (Crew sin probar)"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · Conversación manos libres",
+    "intro": "Elige un personaje de Crew y sigue hablando mientras usas otras aplicaciones de Android.",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "Idioma de conversación",
+    "start": "Iniciar Cyber Orb",
+    "stop": "Finalizar llamada",
+    "loading": "Comprobando el servicio de Android…",
+    "active": "Hablando con {name}",
+    "private": "Llamada nativa independiente · No se comparten recuerdos ni conversaciones web",
+    "note": "Termina primero cualquier llamada de voz web. Para cambiar de personaje, finaliza la llamada de Orb.",
+    "native_key_required": "Configura una clave API de Gemini en el diálogo de Android y vuelve a iniciar.",
+    "overlay_permission_required": "Permite mostrarse sobre otras aplicaciones, vuelve a Crew e inténtalo de nuevo.",
+    "microphone_permission_required": "Permite el acceso al micrófono, vuelve a Crew e inténtalo de nuevo.",
+    "already_active": "Ya hay una llamada de Orb activa. Finalízala antes de cambiar de personaje.",
+    "start_failed": "No se pudo iniciar el servicio de voz nativo. Inténtalo de nuevo.",
+    "bridge_error": "La conexión con Android no responde. Vuelve a abrir Crew.",
+    "unavailable": "Cyber Orb no está disponible en esta versión.",
+    "unknown": "La operación falló. Inténtalo de nuevo."
   }
 }
