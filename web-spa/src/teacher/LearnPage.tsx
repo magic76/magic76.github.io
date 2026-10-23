@@ -7,6 +7,7 @@ import{threeMinuteSpeakingPath}from"./threeMinuteSpeaking";
 import{useClientReady}from"../lib/useClientReady";
 
 const items:Array<{to:string;icon:IconName;key:string}>=[
+ {to:"/teacher/board",icon:"mic",key:"board"},
  {to:"/teacher/textbook",icon:"book",key:"textbook"},
  {to:"/teacher/vocabulary",icon:"cards",key:"vocab"},
  {to:"/teacher/course",icon:"scene",key:"course"},

@@ -62,7 +62,9 @@
     "pronunciation": "発音練習",
     "pronunciationDesc": "声に出して読み、苦手な点を改善する",
     "library": "読書ライブラリ",
-    "libraryDesc": "短い文章を選び、声に出して読む練習"
+    "libraryDesc": "短い文章を選び、声に出して読む練習",
+    "board": "AI ライブ学習ボード",
+    "boardDesc": "話すだけで例文・タイムライン・問題が増える"
   },
   "tutor": {
     "title": "先生と練習",
@@ -256,5 +258,38 @@
     "speakDesc": "リラックスして学習言語で会話しよう。",
     "continueTitle": "前回の会話練習を続ける",
     "continueDesc": "先生がこれまでの学習進度に合わせてサポートします。"
+  },
+  "board": {
+    "title": "AI ライブ学習ボード",
+    "teacher": "AI 先生",
+    "canvas": "インタラクティブ学習ボード",
+    "back": "学習に戻る",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "先生に聞いてみよう",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "もっと簡単に説明して",
+    "quizPrompt": "3問出して",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "会話に合わせて教材が増えます",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "今回の学習ノート",
+    "copy": "ノートをコピー",
+    "clear": "ボードを消去",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }

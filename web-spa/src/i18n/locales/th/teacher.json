@@ -62,7 +62,9 @@
     "pronunciation": "ฝึกออกเสียง",
     "pronunciationDesc": "อ่านออกเสียงแล้วพัฒนาจุดที่ต้องปรับมากที่สุด",
     "library": "ห้องสมุดการอ่าน",
-    "libraryDesc": "เลือกบทความสั้นแล้วฝึกอ่านออกเสียง"
+    "libraryDesc": "เลือกบทความสั้นแล้วฝึกอ่านออกเสียง",
+    "board": "กระดานเรียนรู้ AI สด",
+    "boardDesc": "See explanations, examples and quizzes evolve while talking"
   },
   "tutor": {
     "title": "ฝึกกับครู",
@@ -256,5 +258,38 @@
     "speakDesc": "ฝึกสนทนาภาษาที่กำลังเรียนแบบสบาย ๆ",
     "continueTitle": "ฝึกพูดต่อจากครั้งก่อน",
     "continueDesc": "ครูจะปรับบทเรียนตามความก้าวหน้าของคุณ"
+  },
+  "board": {
+    "title": "กระดานเรียนรู้ AI สด",
+    "teacher": "ครู AI",
+    "canvas": "กระดานเรียนรู้แบบโต้ตอบ",
+    "back": "กลับไปเรียน",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "ลองถามครู",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "อธิบายให้ง่ายขึ้น",
+    "quizPrompt": "ทดสอบฉันสามข้อ",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "Your lesson takes shape as you talk",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "บันทึกการเรียน",
+    "copy": "คัดลอกบันทึก",
+    "clear": "ล้างกระดาน",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }
