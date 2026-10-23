@@ -84,3 +84,32 @@ test("sharing offers native image, downloadable PNG and clipboard fallbacks",()=
  assert.match(src,/a\.download="crew-nonsense-score.png"/);
  assert.match(src,/navigator\.clipboard\?\.writeText/);
 });
+
+test("preparation waits for a deliberate mic gesture, and typing is possible mid-speech",()=>{
+ const page=read("web-spa/src/games/NonsenseChampionshipPage.tsx");
+ assert.match(page,/prepLeft===0\?L\(zh,"準備完成/);
+ assert.match(page,/Tap Start to activate the microphone/);
+ assert.match(page,/Switch to typing/);
+ assert.match(page,/teardownMic\(\);setNotice/);
+ assert.match(page,/The timer continues/);
+});
+
+test("Live failure plays the local fallback only once per attempt",()=>{
+ const page=read("web-spa/src/games/NonsenseChampionshipPage.tsx");
+ assert.match(page,/let fallbackPlayed=false/);
+ assert.match(page,/if\(fallbackPlayed\|\|!mountedRef\.current/);
+ assert.match(page,/onFailure:\(\)=>\{cleanup\(\);fallback\(\);\}/);
+ assert.match(page,/\}catch\{cleanup\(\);fallback\(\);\}/);
+});
+
+test("PNG export retains the mobile Web Share user gesture and exposes a manual preview",()=>{
+ const page=read("web-spa/src/games/NonsenseChampionshipPage.tsx");
+ const share=read("web-spa/src/games/nonsenseShare.ts");
+ assert.match(share,/const blob=pngBlob\(renderNonsenseCard\(card\)\)/);
+ assert.match(share,/canvas\.toDataURL\("image\/png"\)/);
+ assert.doesNotMatch(share,/await pngBlob/);
+ assert.match(page,/renderNonsenseCard\(resultCard\(\)\)\.toDataURL/);
+ assert.match(page,/role="dialog" aria-modal="true"/);
+ assert.match(page,/download="crew-nonsense-score.png"/);
+ assert.match(page,/setSharePreview\(""/);
+});
