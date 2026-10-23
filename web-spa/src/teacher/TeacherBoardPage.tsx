@@ -16,7 +16,8 @@ import {personalMemoryEnabled} from "./studentMemory";
 import {boardNotes,BOARD_FUNCTION,BOARD_TOOLS,applyBoardPatch,fallbackBoard,validateBoardPatch,type BoardCard,type BoardPatch} from "./boardProtocol";
 import {TeachingCard,cardKindName} from "./TeachingCard";
 import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
-import {LESSONS,findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
+import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
+import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -316,29 +317,8 @@ export function TeacherBoardPage(){
    <span className="teaching-board-connection" data-state={live.state}>{phase}</span>
   </header>
   <main className="teaching-board-layout">
-   <section className="teaching-board-lesson-picker" aria-label={t("board.lessonPicker.title")}>
-    <div><strong>{t("board.lessonPicker.title")}</strong><small>{t("board.lessonPicker.subtitle")}</small></div>
-    <div className="teaching-board-lesson-options">{LESSONS.map(item=><button type="button" key={item.id}
-     className={lessonId===item.id?"is-active":""} onClick={()=>startLesson(item.id)}>
-     <span>{t("board.lessonPicker."+item.id)}</span><small>{item.duration}</small>
-    </button>)}</div>
-   </section>
-   {lesson&&<section className="teaching-board-lesson-progress" aria-label={t("board.lessonPicker.progress")}>
-    <div><strong>{t("board.lessonPicker.progress")}</strong><small>{lesson.goal}</small></div>
-    <div className="teaching-board-lesson-steps">{lesson.cards.map((card,i)=><button type="button" key={card.id}
-     className={lessonStep===i?"is-active":""} aria-current={lessonStep===i?"step":undefined}
-     onClick={()=>goLessonStep(i)}>{i+1}. {cardKindName(card.type,english)}</button>)}</div>
-    <div className="teaching-board-lesson-outcome">
-     <span>{progress?.quiz?"✓":"○"} {t("board.lessonPicker.quizDone")}</span>
-     <span>{progress?.speaking?"✓":"○"} {t("board.lessonPicker.speakingDone")}</span>
-     {progress?.complete&&<strong role="status">{t("board.lessonPicker.complete")}</strong>}
-    </div>
-    <div className="teaching-board-lesson-actions">
-     <button type="button" disabled={lessonStep===0} onClick={()=>goLessonStep(lessonStep-1)}>{t("board.lessonPicker.previous")}</button>
-     <button type="button" disabled={lessonStep>=lesson.cards.length-1||(focusedCard?.type==="quiz"&&director.phase==="awaiting")}
-      onClick={()=>goLessonStep(lessonStep+1)}>{t("board.lessonPicker.forward")}</button>
-    </div>
-   </section>}
+   <GuidedLessonPanel lesson={lesson} lessonId={lessonId} lessonStep={lessonStep} progress={progress} english={english}
+    quizLocked={focusedCard?.type==="quiz"&&director.phase==="awaiting"} onStart={startLesson} onStep={goLessonStep}/>
    <section className="teaching-board-workspace">
    <section className="teaching-board-tutor" aria-label={t("board.teacher")}>
     <div className="teaching-board-teacher"><TeacherAvatar profile={profile}/><div><b>{profile.name}</b><small>{s.targetLanguage} · {t("board.teacher")}</small></div></div>
