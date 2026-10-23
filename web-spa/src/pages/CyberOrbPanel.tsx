@@ -4,7 +4,7 @@ import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {TEACHER_PROFILES} from "../teacher/teacherProfiles";
 import {TeacherAvatar} from "../teacher/TeacherAvatar";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
-import {geminiKey} from "../lib/runtime";
+import {geminiKey,GEMINI_KEY_CHANGED_EVENT} from "../lib/runtime";
 import {
  hasNativeDeviceBridge,isValidGeminiApiKey,probeNativeDeviceCapabilities,
  shouldBlockNativeOrbStartForMissingKey,
@@ -39,6 +39,17 @@ export function CyberOrbPanel(){
  const [message,setMessage]=useState("");
  const [checking,setChecking]=useState(true);
  const [available,setAvailable]=useState(false);
+ const [webKey,setWebKey]=useState(()=>geminiKey());
+
+ useEffect(()=>{
+  const refreshWebKey=()=>setWebKey(geminiKey());
+  window.addEventListener(GEMINI_KEY_CHANGED_EVENT,refreshWebKey);
+  window.addEventListener("storage",refreshWebKey);
+  return()=>{
+   window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,refreshWebKey);
+   window.removeEventListener("storage",refreshWebKey);
+  };
+ },[]);
 
  const refresh=useCallback(async()=>{
   if(!hasNativeDeviceBridge()){setChecking(false);return}
@@ -65,7 +76,6 @@ export function CyberOrbPanel(){
  const activeName= status?.roleType==="friend"
   ?CREW_FRIENDS.find(p=>p.id===status.roleId)?.name
   :TEACHER_PROFILES.find(p=>p.id===status?.roleId)?.name;
- const webKey=geminiKey();
  const validWebKey=isValidGeminiApiKey(webKey);
 
  async function start(){

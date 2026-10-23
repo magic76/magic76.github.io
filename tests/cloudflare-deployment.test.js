@@ -114,7 +114,7 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
   assert.ok(!html.includes('location.replace("crew-app/#/') ,pathname);
  }
  assert.ok(fs.existsSync(path.join(DIST,script[1].slice(1))));
- assert.ok(fs.existsSync(path.join(DIST,"assets",cssFiles[0])));
+ assert.ok(fs.existsSync(path.join(DIST,"assets","build",cssFiles[0])));
 });
 check("search-intent guides serve real localized SSG HTML and enter the sitemap",()=>{
  const slugs=["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"];
