@@ -30,7 +30,7 @@ export function CrewPlayHubPage(){
    </Link>)}
    <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court">
     <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
-    <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{t("playHub.offlineOptional")}</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 語音選用":"Gemini Key required · Voice optional"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
   </div>
