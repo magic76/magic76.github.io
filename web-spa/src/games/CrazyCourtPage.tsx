@@ -4,19 +4,21 @@ import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
 import {FriendAvatar} from "../friends/FriendAvatar";
 import {trackUsageEvent} from "../analytics/usage";
+import {useTeacherStore} from "../store/teacherStore";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
 import {MiniGameVoice,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {courtCases,courtPhases,courtReasons,evaluateCourtAction,
  type CourtAction,type CourtRole,type CourtLanguage,type CourtCase} from "./crazyCourtEngine";
-import {judgeCourtTurn,judgeCourtFinal,courtOpponentReply,type CourtJudgeFinal} from "./courtJudge";
+import {judgeCourtTurn,judgeCourtFinal,courtOpponentReply,courtDynamicHints,type CourtJudgeFinal} from "./courtJudge";
+import {courtDossier,courtQuestion,courtSuggestedLines} from "./courtGuidance";
 import "./crazyCourt.css";
 
 type Phase="setup"|"trial"|"verdict";
 type Entry={speaker:"judge"|"opponent"|"player";text:string;kind?:"objection"|"evidence"|"normal"};
 const choice=(zh:boolean,a:string,b:string)=>zh?a:b;
 const get=(value:{zh:string;en:string},language:CourtLanguage)=>value[language];
-const maxTurns=4;
+
 function currentClaim(court:CourtCase,turn:number,role:CourtRole,language:CourtLanguage){
  return get(court.claims[turn][role==="defense"?"prosecution":"defense"],language);
 }
@@ -25,6 +27,8 @@ export function CrazyCourtPage(){
  const {i18n}=useTranslation("home");
  const language:CourtLanguage=i18n.resolvedLanguage?.startsWith("zh")?"zh":"en";
  const zh=language==="zh";
+ const targetLanguage=useTeacherStore(state=>state.targetLanguage);
+ const conversationLanguage:CourtLanguage=/(中文|華語|國語|chinese|mandarin|^zh)/i.test(targetLanguage)?"zh":"en";
  const [caseId,setCaseId]=useState("pizza");
  const [role,setRole]=useState<CourtRole>("defense");
  const [phase,setPhase]=useState<Phase>("setup");
@@ -40,27 +44,37 @@ export function CrazyCourtPage(){
  const [busy,setBusy]=useState(false);
  const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
  const [acceptedObjections,setAcceptedObjections]=useState(0);
+ const [stageActions,setStageActions]=useState(0);
+ const [helpOpen,setHelpOpen]=useState(false);
+ const [helpOptions,setHelpOptions]=useState<string[]>([]);
+ const [helpBusy,setHelpBusy]=useState(false);
+ const [judgePrompt,setJudgePrompt]=useState("");
  const busyRef=useRef(false),aliveRef=useRef(true);
  const court=courtCases.find(item=>item.id===caseId)||courtCases[0];
  const judge=getCrewFriend(friend.id==="maya"?"iris":"maya");
  const opponent=role==="defense"?choice(zh,"檢察官","Prosecutor"):choice(zh,"辯護律師","Defense attorney");
  const preview=court.evidence.find(item=>item.id===previewEvidence);
+ const dossier=courtDossier(court);
+ const approaches=courtSuggestedLines(court,role,language);
+ const currentQuestion=judgePrompt||courtQuestion(court,role,turn,conversationLanguage);
  useEffect(()=>{aliveRef.current=true;trackUsageEvent("game_open","crazy-court");document.body.classList.add("teacher-theme");return()=>{aliveRef.current=false;document.body.classList.remove("teacher-theme")};},[]);
  const emit=(message:string)=>setCue(prev=>({id:prev.id+1,text:message}));
  const openTrial=()=>{
   if(!geminiKey()){setNotice(choice(zh,"請先在設定中填入 Gemini Key。","Set your Gemini Key in Settings before playing."));return;}
   trackUsageEvent("game_started","crazy-court");
   setTurn(0);setScore(0);setObjections(3);setAcceptedObjections(0);setUsedIds([]);setRoundPoints([]);setFinalJudgment(null);setVerdictError("");
+  setStageActions(0);setJudgePrompt("");setHelpOpen(false);setHelpOptions([]);
   setEntries([
    {speaker:"judge",text:choice(zh,"現在開庭！雙方請尊重證據，但不必壓抑幽默感。","Court is now in session! Respect the evidence, but don't suppress the jokes.")},
-   {speaker:"opponent",text:currentClaim(court,0,role,language)}
+   {speaker:"opponent",text:currentClaim(court,0,role,conversationLanguage)},
+   {speaker:"judge",text:courtQuestion(court,role,0,conversationLanguage)}
   ]);
   setText("");setNotice("");setObjectionOpen(false);setPreviewEvidence(null);setPhase("trial");
-  emit("The court is open. As "+opponent+", say one brief spirited greeting. The next move is the player's.");
+  // Live plays its own greeting; avoid duplicate turn requests.
  };
  const conclude=async(history:Entry[],points:number[])=>{
   try{
-   const result=await judgeCourtFinal(court,role,language,history,points);
+   const result=await judgeCourtFinal(court,role,conversationLanguage,history,points);
    if(!aliveRef.current)return;
    setFinalJudgment(result);setVerdictError("");
    trackUsageEvent("game_completed","crazy-court");
@@ -86,7 +100,7 @@ export function CrazyCourtPage(){
   const playerLine:Entry={speaker:"player",text:spoken,kind:action.kind==="objection"?"objection":action.kind==="evidence"?"evidence":"normal"};
   let evaluated;
   try{
-   evaluated=await judgeCourtTurn(court,role,language,turn,action,currentClaim(court,turn,role,language),[...entries,playerLine]);
+   evaluated=await judgeCourtTurn(court,role,conversationLanguage,turn,action,entries.filter(entry=>entry.speaker==="opponent").slice(-1)[0]?.text||currentClaim(court,turn,role,conversationLanguage),[...entries,playerLine]);
   }catch{
    // Never consume an objection, evidence or round when Gemini failed to judge.
    if(aliveRef.current){
@@ -96,7 +110,8 @@ export function CrazyCourtPage(){
    return;
   }
   if(!aliveRef.current)return;
-  const judgeLine:Entry={speaker:"judge",text:evaluated.reason};
+  const question=evaluated.followUp||courtQuestion(court,role,turn,conversationLanguage);
+  const judgeLine:Entry={speaker:"judge",text:evaluated.reason+" "+question};
   const history=[...entries,playerLine,judgeLine],points=[...roundPoints,evaluated.points];
   setEntries(history);setRoundPoints(points);
   setScore(prev=>prev+evaluated.points);
@@ -107,19 +122,33 @@ export function CrazyCourtPage(){
   if(eligibility.usedEvidenceId)setUsedIds(prev=>[...prev,eligibility.usedEvidenceId!]);
   setText("");setPreviewEvidence(null);
   setNotice(evaluated.reason+(evaluated.points>0?" (+":" (")+(evaluated.points>0?evaluated.points:""+evaluated.points)+")");
-  const next=turn+1;
-  if(next===maxTurns){
-   setPhase("verdict");
-   await conclude(history,points);
-   return;
-  }
-  const counter=await courtOpponentReply(court,role,language,spoken);
+  setStageActions(n=>n+1);setJudgePrompt(question);setHelpOptions([]);
+  const counter=await courtOpponentReply(court,role,conversationLanguage,spoken);
   if(!aliveRef.current)return;
-  setEntries(prev=>[...prev,{speaker:"opponent",text:counter},{speaker:"opponent",text:currentClaim(court,next,role,language)}]);
-  setTurn(next);
-  // Never ask Live to re-judge or narrate the verdict; it only performs the opponent line.
-  emit("GAME EVENT. You are opposing counsel, not judge. Say exactly this one brief rebuttal then listen: "+JSON.stringify(counter));
+  setEntries(prev=>[...prev,{speaker:"opponent",text:counter}]);
+  emit("GAME EVENT: Opposing counsel only. Speak once in "+targetLanguage+", saying exactly: "+JSON.stringify(counter));
   busyRef.current=false;setBusy(false);
+ };
+ const nextStage=()=>{
+  if(busyRef.current||stageActions===0)return;
+  if(turn===3){busyRef.current=true;setBusy(true);setPhase("verdict");setVerdictError("");void conclude(entries,roundPoints);return;}
+  const next=turn+1;
+  setTurn(next);setStageActions(0);setJudgePrompt("");setHelpOptions([]);setHelpOpen(false);
+  setEntries(prev=>[...prev,
+   {speaker:"judge",text:language==="zh"?"進入下一階段，請雙方繼續。":"Moving to the next stage."},
+   {speaker:"opponent",text:currentClaim(court,next,role,conversationLanguage)},
+   {speaker:"judge",text:courtQuestion(court,role,next,conversationLanguage)}
+  ]);
+ };
+ const requestHints=async()=>{
+  setHelpOpen(true);
+  if(helpBusy||!geminiKey())return;
+  setHelpBusy(true);
+  try{
+   const options=await courtDynamicHints(court,role,conversationLanguage,currentQuestion,entries);
+   if(aliveRef.current)setHelpOptions(options);
+  }catch{if(aliveRef.current)setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}
+  finally{if(aliveRef.current)setHelpBusy(false);}
  };
  const retryFinal=()=>{
   if(busyRef.current||!geminiKey())return;
@@ -134,6 +163,7 @@ export function CrazyCourtPage(){
   setPhase("setup");setNotice("");setEntries([]);setText("");
   setCue({id:0,text:""});setObjectionOpen(false);setPreviewEvidence(null);setBusy(false);busyRef.current=false;
   setFinalJudgment(null);setVerdictError("");setRoundPoints([]);
+  setStageActions(0);setHelpOpen(false);setHelpOptions([]);setJudgePrompt("");
  };
  const hasKey=Boolean(geminiKey());
  const won=finalJudgment?.winner==="player";
@@ -149,7 +179,8 @@ export function CrazyCourtPage(){
    <div className="court-paper">
     <span className="court-stamp">CASE / 00{courtCases.findIndex(c=>c.id===caseId)+1}</span>
     <h2>{get(court.title,language)}</h2>
-    <p>{get(court.description,language)}</p>
+    <p>{get(dossier.background,language)}</p>
+    <div className="court-dossier-facts"><strong>{choice(zh,"主要爭點","Key dispute")}</strong><span>{get(dossier.dispute,language)}</span></div>
     <label htmlFor="court-case">{choice(zh,"選擇案件","Choose a case")}</label>
     <select id="court-case" value={caseId} onChange={e=>setCaseId(e.target.value)}>
      {courtCases.map(item=><option value={item.id} key={item.id}>{get(item.title,language)}</option>)}
@@ -169,7 +200,11 @@ export function CrazyCourtPage(){
       {CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}
      </select>
     </div>
-    <p className="court-rules">{choice(zh,"4 個回合 · AI 法官逐回合評分與最終裁決 · 可用文字或語音辯論","4 turns · AI judge scores each action and final verdict · Text or voice")}</p>
+    <div className="court-opening-guide">
+     <strong>{choice(zh,"起手方向（僅供參考，可自由發揮）","Opening ideas (feel free to improvise)")}</strong>
+     {approaches.map((item,i)=><div key={i}><span>{item.title}</span><p>{item.text}</p></div>)}
+    </div>
+    <p className="court-rules">{choice(zh,"四個庭審階段 · 可自由追問和出示證據 · 準備好再進下一階段","Four stages · Debate and file evidence freely · Advance when ready")}</p>
     {!hasKey?<div className="court-key-notice" role="status"><strong>{choice(zh,"開庭需要 Gemini Key","Gemini Key required")}</strong><p>{choice(zh,"可以先查看案件和選擇角色。請到設定填入 Key，才能和 AI 對手辯論並由 AI 法官判決。","You can preview cases and roles. Add your Gemini Key in Settings to debate and receive an AI verdict.")}</p><Link to="/settings">{choice(zh,"前往設定 Gemini Key →","Set up Gemini Key →")}</Link></div>:null}
     {notice&&phase==="setup"?<p className="court-notice" role="status">{notice}</p>:null}
     <button className="court-primary" type="button" disabled={!hasKey} onClick={openTrial}>{choice(zh,"開庭！","Open court!")} <span>→</span></button>
@@ -218,7 +253,16 @@ export function CrazyCourtPage(){
     {entries.filter(entry=>entry.speaker==="opponent").slice(-2).map((entry,i)=><p key={turn+":"+i} className={i===0?"court-opponent-previous":undefined}>{entry.text}</p>)}
     {busy?<small>{choice(zh,"AI 正在整理下一段庭審…","Preparing the next exchange…")}</small>:null}
    </div>
+   <div className="court-judge-question"><strong>{choice(zh,"法官問你","The judge asks")}</strong><p>{currentQuestion}</p></div>
    {notice?<p className="court-notice" role="status">{notice}</p>:null}
+   <div className="court-hint-bar">
+    <button type="button" disabled={busy||helpBusy} onClick={()=>void requestHints()}>{helpBusy?choice(zh,"整理提示中…","Preparing ideas…"):choice(zh,"詞窮了？給我接話提示","Stuck? Give me a hint")}</button>
+    <button type="button" disabled={busy} onClick={()=>{setJudgePrompt(courtQuestion(court,role,turn,conversationLanguage));setHelpOpen(true);setHelpOptions(courtSuggestedLines(court,role,conversationLanguage).map(a=>a.text));}}>{choice(zh,"請法官換個問法","Rephrase the question")}</button>
+   </div>
+   {helpOpen?<div className="court-hint-options" role="group" aria-label={choice(zh,"接話方向","Reply ideas")}>
+    {(helpOptions.length?helpOptions:approaches.map(a=>a.text)).map((hint,i)=><button key={i} type="button" disabled={busy} onClick={()=>{setText(hint);setHelpOpen(false);}}>{hint}</button>)}
+    <small>{choice(zh,"點選後可以修改，不會自動送出。","Tap to edit; it won't submit automatically.")}</small>
+   </div>:null}
    <div className="court-actions-heading"><strong>{choice(zh,"提出物證","Present evidence")}</strong><span>{choice(zh,"每張僅能使用一次","One use per card")}</span></div>
    <div className="court-evidence">
     {court.evidence.map(item=><button key={item.id} type="button" disabled={busy||usedIds.includes(item.id)} aria-pressed={previewEvidence===item.id}
@@ -246,7 +290,7 @@ export function CrazyCourtPage(){
     <button type="button" className="court-object-button" disabled={busy||objections===0} aria-expanded={objectionOpen} onClick={()=>setObjectionOpen(value=>!value)}>
      <span aria-hidden="true">!</span> {choice(zh,"異議！","Objection!")} <small>({objections})</small>
     </button>
-    <button type="button" disabled={busy} className="court-pass-button" onClick={()=>void handleAction({kind:"pass"})}>{choice(zh,"略過這回合","Pass turn")}</button>
+    <button type="button" disabled={busy||stageActions===0} className="court-pass-button" onClick={nextStage}>{turn===3?choice(zh,"請法官宣判","Request verdict"):choice(zh,"下一階段","Next stage")}</button>
    </div>
   </section>}
   {phase!=="setup"?<div className="court-voice-wrap">
