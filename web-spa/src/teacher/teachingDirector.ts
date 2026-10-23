@@ -34,7 +34,7 @@ export function validateDirectorCommand(raw:unknown,cards:BoardCard[]):DirectorC
  const card=cards.find(c=>c.id===raw.cardId);
  if(!card)return null;
  const index=raw.index===undefined?-1:raw.index;
- if(!Number.isInteger(index)||Number(index)<-1||Number(index)>7)return null;
+ if(typeof index!=="number"||!Number.isInteger(index)||index< -1||index>7)return null;
  const count=directorItemCount(card);
  if(index>=count&&index!==-1)return null;
  if((action==="reveal"||action==="ask")&&index<0)return null;
@@ -73,8 +73,7 @@ export function applyDirectorCommand(state:DirectorState,cmd:DirectorCommand,car
    reviewCardId:choice===card.questions[qindex].answerIndex?null:chooseReviewCard(cards,card.id)};
  }
  if(cmd.action==="continue"){
-  if(state.phase==="awaiting")return null;
-  if(card.type==="quiz"){
+   if(card.type==="quiz"){
    const nextIndex=state.phase==="feedback"?state.quizIndex+1:Math.max(0,idx);
    if(nextIndex<card.questions.length&&answers[card.id+":"+nextIndex]===undefined)
     return {...EMPTY_DIRECTOR,cardId:card.id,phase:"awaiting",quizIndex:nextIndex,focusIndex:nextIndex};
