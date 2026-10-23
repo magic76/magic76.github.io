@@ -7,7 +7,7 @@ import{friendMemoryEnabled,setFriendMemoryEnabled}from"../friends/friendMemory";
 import{downloadBackup,importBackup}from"../lib/backup";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 import {BuildVersion} from "../components/BuildVersion";
-import {Link} from "react-router-dom";
+import {Link,useLocation} from "react-router-dom";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
 import {DAILY_GOALS,DEFAULT_GOAL_MINUTES,getDailyGoalMinutes,setDailyGoalMinutes} from "../teacher/learningToday";
@@ -22,7 +22,7 @@ export function SettingsPage(){
  const {t,i18n}=useTranslation("settings");
  // For unlocalized legacy text, use the explicit English fallback for non-Chinese UI locales.
  const english=!i18n.language.startsWith("zh");
- const ready=useClientReady();
+ const ready=useClientReady(),{hash}=useLocation();
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
  const speakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel),setSpeakingLevel=useTeacherStore(s=>s.setLearnerSpeakingLevel);
@@ -31,7 +31,13 @@ export function SettingsPage(){
  const liveModel=useTeacherStore(s=>s.liveModel),setLiveModel=useTeacherStore(s=>s.setLiveModel);
  const[backupBusy,setBackupBusy]=useState(false),[backupStatus,setBackupStatus]=useState("");
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
- useEffect(()=>{if(window.location.hash.endsWith("#memory-settings"))document.getElementById("memory-settings")?.scrollIntoView({block:"start"})},[]);
+ useEffect(()=>{
+  const id=hash.slice(1);
+  if(!hash.endsWith("#memory-settings")&&!hash.endsWith("#settings-gemini")&&!hash.endsWith("#settings-device"))return;
+  // Lazy-mounted settings panels may not exist when the browser first handles the hash.
+  const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
+  return()=>window.cancelAnimationFrame(frame);
+ },[hash]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
  <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
   <a href="#settings-learning">{t("group.navLearning")}</a>

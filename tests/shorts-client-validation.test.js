@@ -7,7 +7,7 @@ const {stripTypeScriptTypes}=require("node:module");
 const filename=path.resolve(__dirname,"../web-spa/src/teacher/shortsFeed.ts");
 const source=readFileSync(filename,"utf8");
 const compiled=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport (async )?(function|const) /g,"$1$2 ");
-const {normalizeShortFeed,validShortPost}=new Function(compiled+";return {normalizeShortFeed,validShortPost};")();
+const {normalizeShortFeed,validShortPost,shuffleShortsPosts}=new Function(compiled+";return {normalizeShortFeed,validShortPost,shuffleShortsPosts};")();
 const post=(id,date,friendId="zoe")=>({
  id,friendId,friendName:friendId[0].toUpperCase()+friendId.slice(1),
  caption:"A surprising coffee.",imageAlt:"Friend holding coffee.",
@@ -39,4 +39,19 @@ test("latest public posts remain ordered and distinct IDs cannot overwrite each 
  const raw=feed([post("zoe-day1","2026-10-15T08:00:00+08:00"),post("bella-day1",release,"bella"),post("zoe-day1",release)]);
  const posts=normalizeShortFeed(raw).posts;
  assert.deepEqual(posts.map(p=>p.id),["bella-day1","zoe-day1"]);
+});
+
+test("Crew Shorts shuffles a copy per visit without losing posts or altering the source order",()=>{
+ const original=normalizeShortFeed(feed([
+  post("zoe-day1","2026-10-15T08:00:00+08:00"),
+  post("bella-day1","2026-10-16T08:00:00+08:00","bella"),
+  post("hugo-day1","2026-10-17T08:00:00+08:00","hugo"),
+  post("theo-day1","2026-10-18T08:00:00+08:00","theo")
+ ])).posts;
+ const before=original.map(item=>item.id);
+ const shuffled=shuffleShortsPosts(original,()=>0);
+ assert.notDeepEqual(shuffled.map(item=>item.id),before);
+ assert.deepEqual(original.map(item=>item.id),before);
+ assert.deepEqual(shuffled.map(item=>item.id).sort(),[...before].sort());
+ assert.equal(new Set(shuffled.map(item=>item.id)).size,original.length);
 });

@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
+import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
 import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 import "./homeShorts.css";
@@ -48,7 +48,10 @@ export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:nu
  useEffect(()=>{
   const controller=new AbortController();
   fetchShortsFeed(controller.signal)
-   .then(value=>{if(!controller.signal.aborted){setFeed(value);setStatus("ready");}})
+   .then(value=>{if(!controller.signal.aborted){
+    // Shuffle once per mount before choosing distinct friends; never reorder mid-scroll.
+    setFeed({...value,posts:shuffleShortsPosts(value.posts)});setStatus("ready");
+   }})
    .catch(()=>{if(!controller.signal.aborted)setStatus("error");});
   return()=>controller.abort();
  },[]);

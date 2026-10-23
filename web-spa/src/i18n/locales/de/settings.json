@@ -197,5 +197,28 @@
       "os_validated": "OS-geprüft (Crew ungeprüft)",
       "connected_unverified": "Verbunden (Crew ungeprüft)"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · Freihändig sprechen",
+    "intro": "Wähle eine Crew-Figur und sprich auch weiter, während du andere Android-Apps nutzt.",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "Gesprächssprache",
+    "start": "Cyber Orb starten",
+    "stop": "Anruf beenden",
+    "loading": "Android-Dienst wird geprüft…",
+    "active": "Gespräch mit {name}",
+    "private": "Eigenständiger nativer Anruf · Keine Web-Erinnerungen oder Chatverläufe",
+    "note": "Beende zuerst laufende Web-Sprachanrufe. Zum Rollenwechsel musst du den Orb-Anruf beenden.",
+    "native_key_required": "Richte den Gemini-API-Schlüssel im Android-Dialog ein und starte erneut.",
+    "overlay_permission_required": "Erlaube die Anzeige über anderen Apps. Kehre zu Crew zurück und starte erneut.",
+    "microphone_permission_required": "Erlaube den Mikrofonzugriff. Kehre zu Crew zurück und starte erneut.",
+    "already_active": "Ein Orb-Anruf läuft bereits. Beende ihn vor dem Rollenwechsel.",
+    "start_failed": "Der native Sprachdienst konnte nicht starten. Bitte erneut versuchen.",
+    "bridge_error": "Die Android-Verbindung antwortet nicht. Starte Crew neu.",
+    "unavailable": "Cyber Orb ist in dieser App-Version nicht verfügbar.",
+    "unknown": "Aktion fehlgeschlagen. Bitte erneut versuchen.",
+    "webKeyNotice": "Verwendet den Web-Gemini-Schlüssel nur für diesen Android-Anruf, ohne ihn zusätzlich zu speichern.",
+    "web_key_unavailable": "In dieser App ist kein gültiger Gemini-Webschlüssel verfügbar. Speichere einen gültigen Schlüssel in den Web-Einstellungen von Crew Teacher; Chrome und andere Geräte haben getrennte Speicher."
   }
 }

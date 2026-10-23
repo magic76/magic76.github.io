@@ -13,10 +13,13 @@ new Function("module","exports",stripped+"\nObject.assign(exports,{courtCases,co
 const {courtCases,courtReasons,evaluateCourtAction,courtVerdict}=moduleRef.exports;
 
 test("each Crazy Court case has four claims and three distinct evidence cards",()=>{
- assert.equal(courtCases.length,3);
+ assert.equal(courtCases.length,15);
+ assert.equal(new Set(courtCases.map(c=>c.id)).size,15);
  for(const court of courtCases){
   assert.equal(court.claims.length,4);
   assert.equal(court.evidence.length,3);
+  assert.ok(court.title.zh&&court.title.en&&court.description.zh&&court.description.en);
+  assert.ok(court.evidence.every(e=>e.title.zh&&e.title.en&&e.detail.zh&&e.detail.en));
   assert.equal(new Set(court.evidence.map(e=>e.id)).size,3);
   for(const claim of court.claims){
    assert.ok(claim.defense.zh&&claim.prosecution.en);

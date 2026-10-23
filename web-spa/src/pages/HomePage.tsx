@@ -8,6 +8,7 @@ import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
+import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
@@ -117,6 +118,13 @@ function BriefingPreview(){
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
+ const [orbAvailable,setOrbAvailable]=useState(false);
+ useEffect(()=>{
+  if(!isCrewAndroidShell())return;
+  let mounted=true;
+  void probeNativeDeviceCapabilities().then(c=>{if(mounted)setOrbAvailable(Boolean(c?.cyberOrb))}).catch(()=>{});
+  return()=>{mounted=false};
+ },[]);
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
@@ -133,6 +141,11 @@ export function HomePage(){
   return()=>{live=false};
  },[]);
  return <div className="crew-home">
+  {orbAvailable&&<Link to="/orb" className="crew-home-orb-quick">
+   <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
+   <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
+   <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
+  </Link>}
   <div className="crew-home-world">
    <HomePortal/>
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>

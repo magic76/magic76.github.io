@@ -197,5 +197,28 @@
       "os_validated": "OS が接続確認済（Crew 未確認）",
       "connected_unverified": "接続あり（Crew 未確認）"
     }
+  },
+  "cyberOrb": {
+    "title": "Cyber Orb · ハンズフリー会話",
+    "intro": "Crew のキャラクターを選んで、ほかのアプリを使いながら音声で会話できます。",
+    "friend": "Crew Friends",
+    "teacher": "Crew Teachers",
+    "language": "会話の言語",
+    "start": "Cyber Orb を開始",
+    "stop": "通話を終了",
+    "loading": "Android サービスを確認中…",
+    "active": "{name} と会話中",
+    "private": "独立したネイティブ通話・Web の記憶や会話履歴は共有されません",
+    "note": "先に Web の音声通話を終了してください。キャラクターの変更には Orb 通話の終了が必要です。",
+    "native_key_required": "Android の画面で Gemini API キーを設定し、もう一度開始してください。",
+    "overlay_permission_required": "ほかのアプリの上に表示する権限を許可し、Crew に戻って再度開始してください。",
+    "microphone_permission_required": "マイクの使用を許可し、Crew に戻って再度開始してください。",
+    "already_active": "Orb 通話が進行中です。別のキャラクターを選ぶ前に終了してください。",
+    "start_failed": "ネイティブ音声サービスを開始できませんでした。再試行してください。",
+    "bridge_error": "Android との接続が応答しません。Crew を開き直してください。",
+    "unavailable": "このバージョンでは Cyber Orb を利用できません。",
+    "unknown": "操作に失敗しました。再試行してください。",
+    "webKeyNotice": "開始時に Web の Gemini キーをこの Android 通話だけに使用し、別途保存しません。",
+    "web_key_unavailable": "このアプリ内に有効な Web Gemini キーがありません。Crew Teacher アプリ内の Web 設定に保存してください。Chrome や他の端末とは保存領域が別です。"
   }
 }
