@@ -99,14 +99,14 @@ export async function startNonsenseLiveFeedback(options:FeedbackOptions):Promise
     delivered=true;
     const current=session;
     void (async()=>{
-     try{await current?.waitForPlaybackDrain(4000);}catch{/* Closed audio context */}
+     try{await current?.waitForPlaybackDrain(12000);}catch{/* Closed audio context */}
      if(!closed&&generation===activeGeneration){stop();options.onDone();}
     })();
    },
    onError:()=>fail(),
    onTerminal:()=>{if(!closed&&!delivered)fail();}
   });
-  timeout=setTimeout(fail,25000);
+  timeout=setTimeout(fail,35000);
   await session.start();
   if(closed||generation!==activeGeneration){stop();throw Error("Feedback cancelled");}
   if(!session.micMuted)session.toggleMic();

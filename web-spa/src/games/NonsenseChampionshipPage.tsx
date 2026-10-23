@@ -330,7 +330,7 @@ export function NonsenseChampionshipPage(){
     {notice&&phase==="speaking"&&<p role="status" className="nonsense-alert">{notice}</p>}
     {phase==="result"&&sharePreview&&<div className="nonsense-preview-overlay" role="dialog" aria-modal="true" aria-label={L(zh,"成績卡預覽","Score card preview")}>
      <div className="nonsense-preview-content">
-      <div className="nonsense-preview-toolbar"><strong>{L(zh,"分享卡預覽 · 不含逐字稿","Share card preview · no transcript")}</strong><button type="button" onClick={()=>setSharePreview("")} aria-label={L(zh,"關閉預覽","Close preview")}>✕</button></div>
+      <div className="nonsense-preview-toolbar"><strong>{L(zh,"分享卡預覽 · 不含逐字稿","Share card preview · no transcript")}</strong><button type="button" onClick={()=>setSharePreview("")} autoFocus aria-label={L(zh,"關閉預覽","Close preview")}>✕</button></div>
       <img src={sharePreview} alt={L(zh,"胡說大賽題目與評分卡","Nonsense Championship score card")} />
       <a className="nonsense-preview-download" href={sharePreview} download="crew-nonsense-score.png">{L(zh,"儲存 PNG 圖片","Save PNG image")}</a>
      </div>

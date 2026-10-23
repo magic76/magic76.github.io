@@ -31,7 +31,7 @@ test("Live narration is opt-in, after the scored result, and cancels on exit",()
  assert.match(page,/stopNonsenseLiveFeedback\(\)/);
  assert.match(page,/if\(hostVoice\)speakNonsenseHost/);
  assert.match(host,/session\.toggleMic\(\)/);
- assert.match(host,/timeout=setTimeout\(fail,25000\)/);
+ assert.match(host,/timeout=setTimeout\(fail,35000\)/);
  assert.match(host,/maxLiveAttempts:1/);
  assert.match(host,/onTurnComplete:/);
  assert.match(host,/No second score is generated/);
@@ -110,6 +110,7 @@ test("PNG export retains the mobile Web Share user gesture and exposes a manual 
  assert.doesNotMatch(share,/await pngBlob/);
  assert.match(page,/renderNonsenseCard\(resultCard\(\)\)\.toDataURL/);
  assert.match(page,/role="dialog" aria-modal="true"/);
+ assert.match(page,/autoFocus aria-label/);
  assert.match(page,/download="crew-nonsense-score.png"/);
  assert.match(page,/setSharePreview\(""/);
 });
