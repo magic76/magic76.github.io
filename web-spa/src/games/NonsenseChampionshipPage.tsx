@@ -52,7 +52,8 @@ export function NonsenseChampionshipPage(){
  const lastActivityRef=useRef(0),liveStopRef=useRef<(()=>void)|null>(null);
  const cancelVoices=()=>{
   stopNonsenseHost();
-  liveStopRef.current?.();liveStopRef.current=null;
+  stopNonsenseLiveFeedback();
+  liveStopRef.current=null;
   setLiveState("idle");
  };
  const hostIntro=()=>{
@@ -64,7 +65,6 @@ export function NonsenseChampionshipPage(){
  const deadlineRef=useRef(0),prepDeadlineRef=useRef(0);
  const phaseRef=useRef<Phase>("setup"),requestRef=useRef(0),mountedRef=useRef(true);
  const categoryLabel=nonsenseCategories.find(c=>c.id===topic.category);
- const currentJudge=nonsenseJudges.find(j=>j.id===judgeId)||nonsenseJudges[0];
  const canRecognize=typeof window!=="undefined"&&Boolean(speechConstructor());
  const chooseTopic=()=>{
   setTopic(previous=>pickNonsenseTopic(category,previous.id));
@@ -189,10 +189,11 @@ export function NonsenseChampionshipPage(){
    liveStopRef.current=await startNonsenseLiveFeedback({
     language,judgeId,topic:topic[language],verdict,
     onSpeaking:()=>{if(mountedRef.current&&phaseRef.current==="result")setLiveState("speaking");},
-    onDone:()=>{cleanup();if(mountedRef.current)setLiveState("idle");},
-    onFailure:()=>{cleanup();if(mountedRef.current){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
+    onDone:()=>{cleanup();if(mountedRef.current&&phaseRef.current==="result")setLiveState("idle");},
+    onFailure:()=>{cleanup();if(mountedRef.current&&phaseRef.current==="result"){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
    });
-  }catch{cleanup();if(mountedRef.current){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
+   if(phaseRef.current!=="result"){liveStopRef.current?.();liveStopRef.current=null;}
+  }catch{cleanup();if(mountedRef.current&&phaseRef.current==="result"){setLiveState("error");speakNonsenseHost(language,verdict.comment);}}
  };
  const hints=nonsenseHints[topic.category]?.[language]||[];
  return <main className="crew-play-page nonsense-page">
