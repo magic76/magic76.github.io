@@ -5,7 +5,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
 import {speakNonsenseHost,stopNonsenseHost,startNonsenseLiveFeedback,stopNonsenseLiveFeedback} from "./nonsenseHost";
-import {shareNonsenseScorecard} from "./nonsenseShare";
+import {renderNonsenseCard,shareNonsenseScorecard} from "./nonsenseShare";
 import {GamePanel} from "./GamePanel";
 import {judgeNonsense,type NonsenseVerdict} from "./nonsenseJudge";
 import {nonsenseCategories,nonsenseHints,nonsenseJudges,pickNonsenseTopic,type NonsenseJudgeId,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
@@ -55,6 +55,7 @@ export function NonsenseChampionshipPage(){
  const [hostVoice,setHostVoice]=useState(false),[liveState,setLiveState]=useState<"idle"|"connecting"|"speaking"|"error">("idle");
  const [waveActive,setWaveActive]=useState(false);
  const [shareError,setShareError]=useState("");
+ const [sharePreview,setSharePreview]=useState("");
  const lastActivityRef=useRef(0),liveStopRef=useRef<(()=>void)|null>(null);
  const cancelVoices=()=>{
   stopNonsenseHost();
@@ -92,6 +93,12 @@ export function NonsenseChampionshipPage(){
    if(instance){instance.onresult=null;instance.onerror=null;instance.onend=null;try{instance.abort()}catch{/* disposed */}}};
  },[]);
  useEffect(()=>{phaseRef.current=phase},[phase]);
+ useEffect(()=>{
+  if(!sharePreview)return;
+  const onEscape=(event:KeyboardEvent)=>{if(event.key==="Escape")setSharePreview("");};
+  window.addEventListener("keydown",onEscape);
+  return()=>window.removeEventListener("keydown",onEscape);
+ },[sharePreview]);
  useEffect(()=>{
   if(phase!=="prep")return;
   const sync=()=>setPrepLeft(Math.max(0,Math.ceil((prepDeadlineRef.current-Date.now())/1000)));
@@ -159,7 +166,7 @@ export function NonsenseChampionshipPage(){
  };
  const reset=()=>{
   cancelVoices();requestRef.current++;teardownMic();phaseRef.current="setup";setPhase("setup");
-  setHeard("");heardRef.current="";manualRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);setShareError("");setWaveActive(false);
+  setHeard("");heardRef.current="";manualRef.current="";setManual("");setDraft("");setError("");setNotice("");setVerdict(null);setCopied(false);setShareError("");setSharePreview("");setWaveActive(false);
  };
  const grade=async()=>{
   if(phaseRef.current!=="review")return;
@@ -178,11 +185,17 @@ export function NonsenseChampionshipPage(){
    setError(L(zh,"評審暫時無法評分，請檢查 Key 或網路後重試。演說內容已保留。","Judging failed. Check your key or connection and retry. Your speech is saved on this screen."));
   }
  };
+ const resultCard=()=>({topic:topic[language],judgeName:judgeNames[judgeId][language],score:verdict!,language,link:window.location.origin+"/games/nonsense"});
+ const previewCard=()=>{
+  if(!verdict)return;
+  try{setShareError("");setSharePreview(renderNonsenseCard(resultCard()).toDataURL("image/png"));}
+  catch{setShareError(L(zh,"此裝置無法建立分享圖片。","This device cannot render a share image."));}
+ };
  const share=async()=>{
   if(!verdict)return;
   setShareError("");
   try{
-   const outcome=await shareNonsenseScorecard({topic:topic[language],judgeName:judgeNames[judgeId][language],score:verdict,language,link:window.location.origin+"/games/nonsense"});
+   const outcome=await shareNonsenseScorecard(resultCard());
    if(outcome==="copied")setCopied(true);
   }catch{setShareError(L(zh,"無法分享圖片，請檢查下載或分享權限。","Could not share the image. Check your share or download permissions."));}
  };
@@ -321,11 +334,18 @@ export function NonsenseChampionshipPage(){
      <p className="nonsense-verified">{L(zh,"以上分數與評語來自 Gemini AI 評分；演說逐字稿不會出現在分享圖片中。","Scores and comments above come from Gemini AI. The transcript is never included in the share image.")}</p>
      {geminiKey()&&<button type="button" className="nonsense-secondary nonsense-live-button" disabled={liveState==="connecting"||liveState==="speaking"} onClick={()=>void requestLiveVoice()}>{liveState==="connecting"?L(zh,"Gemini Live 連線中…","Connecting Gemini Live…"):liveState==="speaking"?L(zh,"AI 主持中…","Live host speaking…"):L(zh,"Gemini Live 語音評語（選用）","Hear Gemini Live judge (optional)")}</button>}
      {liveState==="error"&&<small role="status">{L(zh,"Live 不可用，已切回裝置語音，不影響成績。","Live unavailable; device voice fallback does not affect the score.")}</small>}
-     <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={()=>void share()}>{L(zh,"分享結果","Share score")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"再來一局","Play again")}</button></div>
+     <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={()=>void share()}>{L(zh,"分享結果","Share score")}</button><button type="button" className="nonsense-secondary" onClick={previewCard}>{L(zh,"預覽成績圖","Preview score card")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"再來一局","Play again")}</button></div>
      {copied&&<small role="status">{L(zh,"分享文字已複製","Share text copied")}</small>}
      {shareError&&<small role="alert">{shareError}</small>}
     </section>}
     {notice&&phase==="speaking"&&<p role="status" className="nonsense-alert">{notice}</p>}
+    {phase==="result"&&sharePreview&&<div className="nonsense-preview-overlay" role="dialog" aria-modal="true" aria-label={L(zh,"成績卡預覽","Score card preview")}>
+     <div className="nonsense-preview-content">
+      <div className="nonsense-preview-toolbar"><strong>{L(zh,"分享卡預覽 · 不含逐字稿","Share card preview · no transcript")}</strong><button type="button" onClick={()=>setSharePreview("")} aria-label={L(zh,"關閉預覽","Close preview")}>✕</button></div>
+      <img src={sharePreview} alt={L(zh,"胡說大賽題目與評分卡","Nonsense Championship score card")} />
+      <a className="nonsense-preview-download" href={sharePreview} download="crew-nonsense-score.png">{L(zh,"儲存 PNG 圖片","Save PNG image")}</a>
+     </div>
+    </div>}
    </section>
    <p className="nonsense-footer">{L(zh,"不用 Gemini Key 就能抽題和開口練習；AI 結算需要自己的 Key。語音辨識依瀏覽器支援情況提供，也可使用鍵盤語音輸入。","Draw topics and practice without a Gemini Key. AI scores require your own key. Voice recognition depends on browser support; keyboard dictation also works.")}</p>
   </div>
