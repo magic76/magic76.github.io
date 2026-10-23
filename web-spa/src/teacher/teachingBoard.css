@@ -145,3 +145,18 @@
  .teaching-board-deck-tab{flex-basis:142px;max-width:160px}
 }
 @media(prefers-reduced-motion:reduce){.teaching-board-card,.teaching-board-step-focus{animation:none}.teaching-board-flash{transition:none}}
+
+
+/* Teacher-driven stage focus: a teacher can reveal the board item by item. */
+.teaching-board-pair.is-highlighted,.teaching-board-timeline.is-highlighted,.teaching-board-flash.is-highlighted,.teaching-board-bubble.is-highlighted{
+ border-color:#2d9565;box-shadow:0 0 0 3px #c8e8d1,0 8px 22px #247c4720;position:relative;z-index:1
+}
+.teaching-board-director-status{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:43px;padding:8px 1px 2px}
+.teaching-board-director-phase{font-size:12px;font-weight:650;border-radius:99px;padding:7px 12px;background:#e5f2e9;color:#347052;display:inline-flex;align-items:center;gap:7px}
+.teaching-board-director-phase::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.teaching-board-director-phase.is-awaiting{background:#fff0d9;color:#92642c}
+.teaching-board-director-phase.is-feedback{background:#edf0ff;color:#5a65a0}
+.teaching-board-director-status button{border:1px solid #c8ddce;background:white;color:#36654b;cursor:pointer;border-radius:11px;padding:9px 13px;font-size:13px}
+.teaching-board-question-wait{font-size:13px;line-height:1.5;color:#846736;background:#fffaeb;border-radius:9px;margin:12px 0 0;padding:10px}
+.teaching-board-pending{padding:24px;color:#587e67;background:#f1f8f2;border-radius:14px}
+@media(prefers-reduced-motion:reduce){.teaching-board-pair.is-highlighted,.teaching-board-timeline.is-highlighted,.teaching-board-flash.is-highlighted,.teaching-board-bubble.is-highlighted{scroll-behavior:auto}}
