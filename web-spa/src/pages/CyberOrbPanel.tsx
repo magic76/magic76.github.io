@@ -11,36 +11,21 @@ import type {NativeDeviceFeatures,NativeOrbStatus} from "../lib/deviceCapabiliti
 import "./cyberOrb.css";
 
 type RoleType="friend"|"teacher";
-const messages={
- zh:{
-  title:"Cyber Orb · 隨身 AI 聊天",intro:"選一位 Crew 角色，切到其他 App 也能透過懸浮球繼續語音聊天。",
-  friend:"Crew Friends",teacher:"Crew Teachers",language:"對話語言",start:"開啟 Cyber Orb",stop:"結束懸浮對話",
-  loading:"讀取原生服務中…",active:"正在與 {name} 對話",private:"獨立原生通話 · 不同步 Web 記憶、聊天紀錄或學習進度",
-  note:"請先結束目前的 Web 語音通話，再開啟 Cyber Orb。不同角色需要先掛斷才能切換。",
-  native_key_required:"請在剛開啟的 Android 原生視窗設定 Gemini API Key，完成後再次點選開始。",
-  overlay_permission_required:"請允許在其他 App 上層顯示，返回 Crew 後再次點選開始。",
-  microphone_permission_required:"請允許使用麥克風，返回 Crew 後再次點選開始。",
-  already_active:"已有 Cyber Orb 通話。先結束原通話，再選擇其他角色。",
-  start_failed:"無法啟動原生語音服務，請稍後重試。",bridge_error:"Android 裝置橋接無回應，請重新開啟 App。",
-  unavailable:"此版本尚不支援 Cyber Orb。",unknown:"操作失敗，請重試。"
- },
- en:{
-  title:"Cyber Orb · Hands-free chat",intro:"Choose a Crew character and keep talking while using other Android apps.",
-  friend:"Crew Friends",teacher:"Crew Teachers",language:"Conversation language",start:"Start Cyber Orb",stop:"End Orb call",
-  loading:"Checking Android service…",active:"Talking with {name}",private:"Independent native call · No Web memories, transcripts or learning records",
-  note:"End any ongoing Web voice call first. End the current Orb call before switching characters.",
-  native_key_required:"Set a Gemini API Key in the Android dialog, then tap Start again.",
-  overlay_permission_required:"Allow display over other apps, return to Crew, then tap Start again.",
-  microphone_permission_required:"Allow microphone access, return to Crew, then tap Start again.",
-  already_active:"An Orb call is already active. End it before choosing another character.",
-  start_failed:"The native voice service could not start. Please retry.",bridge_error:"Android bridge did not respond. Reopen Crew.",
-  unavailable:"Cyber Orb is unavailable in this App version.",unknown:"The operation failed. Try again."
- }
-};
-
 export function CyberOrbPanel(){
- const {i18n}=useTranslation();
- const copy=i18n.language.startsWith("zh")?messages.zh:messages.en;
+ const {t,i18n}=useTranslation("settings");
+ const copy={
+  title:t("cyberOrb.title"),intro:t("cyberOrb.intro"),
+  friend:t("cyberOrb.friend"),teacher:t("cyberOrb.teacher"),
+  language:t("cyberOrb.language"),start:t("cyberOrb.start"),
+  stop:t("cyberOrb.stop"),loading:t("cyberOrb.loading"),
+  active:t("cyberOrb.active"),private:t("cyberOrb.private"),
+  note:t("cyberOrb.note"),native_key_required:t("cyberOrb.native_key_required"),
+  overlay_permission_required:t("cyberOrb.overlay_permission_required"),
+  microphone_permission_required:t("cyberOrb.microphone_permission_required"),
+  already_active:t("cyberOrb.already_active"),start_failed:t("cyberOrb.start_failed"),
+  bridge_error:t("cyberOrb.bridge_error"),unavailable:t("cyberOrb.unavailable"),
+  unknown:t("cyberOrb.unknown")
+ };
  const [features,setFeatures]=useState<NativeDeviceFeatures|null>(null);
  const [status,setStatus]=useState<NativeOrbStatus|null>(null);
  const [roleType,setRoleType]=useState<RoleType>("friend");
