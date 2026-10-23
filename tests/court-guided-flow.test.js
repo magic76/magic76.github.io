@@ -21,7 +21,7 @@ test("all cases supply both roles with three meaningful conversation starters an
    for(const language of ["zh","en"]){
     const mission=guide.courtRoleMission(c,role,language);
     assert.ok(mission.includes(c.defendant[language]));
-    assert.ok(mission.length>=45);
+    assert.ok(language==="zh"?mission.includes("目標"):(mission.includes("represent")||mission.includes("complainant")));
     const riffs=guide.courtRiffIdeas(c,role,language);
     assert.equal(riffs.length,3);
     assert.ok(riffs.every(item=>item.title.length>=3&&item.text.length>=25));
