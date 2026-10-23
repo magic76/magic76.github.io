@@ -19,7 +19,7 @@ import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
 const letterIndex=(spoken:string):number=>{
- const match=spoken.match(/(?:第\s*[一二三123]\s*題|(?:answer|答案|我選|選擇))\s*[:：]?\s*([ABCD])/i);
+ const match=spoken.match(/(?:第\s*[一二三123]\s*題\s*(?:我\s*)?(?:選擇?|答案\s*是|是)?|(?:answer|答案|我選|選擇))\s*[，,.:：]?\s*([ABCD])/i);
  return match?match[1].toUpperCase().charCodeAt(0)-65:-1;
 };
 export function TeacherBoardPage(){
@@ -145,7 +145,7 @@ export function TeacherBoardPage(){
      <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
     {cards.length===0?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
-     <div className="teaching-board-stack">{cards.map(card=><TeachingCard key={card.id} card={card} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)}/>)}</div>}
+     <div className="teaching-board-stack">{cards.map(card=><TeachingCard key={card.id} card={card} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}/>)}</div>}
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
      <button type="button" onClick={()=>void copyNotes()}>{t("board.copy")}</button>

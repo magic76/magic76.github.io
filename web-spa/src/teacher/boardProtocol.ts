@@ -1,6 +1,6 @@
 /** Session-only, data-only board protocol. Never render model-authored HTML. */
 export type CardKind="explanation"|"example"|"comparison"|"timeline"|"vocabulary"|"quiz"|"correction";
-export type BoardPair={source:string;target:string};
+export type BoardPair={source:string;target:string;pronunciation?:string};
 export type BoardPoint={label:string;note:string};
 export type BoardQuestion={question:string;options:string[];answerIndex:number;explanation:string};
 export type BoardCard={
@@ -24,7 +24,7 @@ export function validateBoardPatch(value:unknown):BoardPatch|null{
  const cards:BoardCard[]=[];
  for(const input of value.cards){
   if(!object(input)||!safeId(input.id)||!kinds.includes(input.type as CardKind)||!clean(input.title,100))return null;
-  const pairs=Array.isArray(input.pairs)?input.pairs.slice(0,8).filter(object).map(p=>({source:clean(p.source,200),target:clean(p.target,220)})).filter(p=>p.source):[];
+  const pairs=Array.isArray(input.pairs)?input.pairs.slice(0,8).filter(object).map(p=>({source:clean(p.source,200),target:clean(p.target,220),pronunciation:clean(p.pronunciation,100)})).filter(p=>p.source):[];
   const points=Array.isArray(input.points)?input.points.slice(0,8).filter(object).map(p=>({label:clean(p.label,90),note:clean(p.note,180)})).filter(p=>p.label):[];
   const questions=Array.isArray(input.questions)?input.questions.slice(0,5).filter(object).map(q=>({
    question:clean(q.question,260),
@@ -55,7 +55,7 @@ export const BOARD_TOOLS=[{functionDeclarations:[{
   action:{type:"STRING",enum:["upsert","replace","remove"]},
   ids:arr(str),cards:arr({type:"OBJECT",properties:{
    id:str,type:{type:"STRING",enum:kinds},title:str,body:str,
-   pairs:arr({type:"OBJECT",properties:{source:str,target:str},required:["source","target"]}),
+   pairs:arr({type:"OBJECT",properties:{source:str,target:str,pronunciation:str},required:["source","target"]}),
    points:arr({type:"OBJECT",properties:{label:str,note:str},required:["label","note"]}),
    questions:arr({type:"OBJECT",properties:{question:str,options:arr(str),answerIndex:{type:"INTEGER"},explanation:str},required:["question","options","answerIndex"]})
   },required:["id","type","title"]})
