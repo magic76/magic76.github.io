@@ -18,6 +18,9 @@ test("Teacher home prioritizes photo Shorts before role choice and learning tool
 test("Home preview uses network feed and preserves explicit friend chat navigation",()=>{
  const component=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(component,/fetchShortsFeed\(controller.signal\)/);
+ assert.match(component,/shuffleShortsPosts\(value.posts\)/);
+ assert.match(component,/setFeed\(\{\.\.\.value,posts:shuffleShortsPosts\(value.posts\)\}\)/);
+ assert.ok(component.indexOf("shuffleShortsPosts(value.posts)")<component.indexOf("const seen=new Set<string>()"),"shuffle before friend dedupe and slicing");
  assert.match(component,/controller\.abort\(\)/);
  assert.match(component,/maxPosts=6/);
  assert.match(component,/\.slice\(0,maxPosts\)/);
