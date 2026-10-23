@@ -26,7 +26,7 @@ export function livingTargets(game:WolfGame,includeHuman=true){
 }
 function safeName(game:WolfGame,id:string){return player(game,id)?.name||id}
 function chooseKill(game:WolfGame,rng:()=>number){
- const available=living(game).filter(p=>p.role!=="wolf");
+ const available=living(game).filter(p=>p.role!=="wolf"&&(game.day>1||!p.human));
  return available.length?choose(available,rng).id:null;
 }
 function winState(game:WolfGame):WolfGame{
@@ -39,7 +39,7 @@ function winState(game:WolfGame):WolfGame{
  return game;
 }
 export function makeWolfGame(rng:()=>number=Math.random,chosenRole:WolfRole|"random"="random"):WolfGame{
- const shuffled=[...roles].sort(()=>rng()-.5);
+ const shuffled=[...roles];
  // Avoid sort's implementation-dependent RNG consumption and allow role previews in setup.
  for(let i=shuffled.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]]}
  if(chosenRole!=="random"){
@@ -135,7 +135,7 @@ export function botSuspicion(game:WolfGame,botId:string,targetId:string){
 }
 export function chooseBotVote(game:WolfGame,botId:string,rng:()=>number=Math.random){
  const choices=living(game).filter(p=>p.id!==botId);
- return choices.sort((a,b)=>(botSuspicion(game,botId,b.id)+rng()*.85)-(botSuspicion(game,botId,a.id)+rng()*.85))[0]?.id||"";
+ return choices.map(p=>({id:p.id,weight:botSuspicion(game,botId,p.id)+rng()*.85})).sort((a,b)=>b.weight-a.weight)[0]?.id||"";
 }
 export function castWolfVote(game:WolfGame,voteId:string|null,rng:()=>number=Math.random):WolfGame{
  if(game.phase!=="vote")throw Error("Voting closed");
