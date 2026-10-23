@@ -860,6 +860,25 @@
 
     if(!attempt.setupComplete)return;
 
+    // Opt-in tool calls: acknowledge on the same socket, without waiting for a render.
+    var toolCall=message.toolCall||message.tool_call;
+    var calls=toolCall&&(toolCall.functionCalls||toolCall.function_calls);
+    if(Array.isArray(calls)&&calls.length&&this.options.onToolCall){
+      var responses=[];
+      var self=this;
+      calls.slice(0,8).forEach(function(call){
+        if(!call||typeof call.name!=="string")return;
+        var result;
+        try{result=self.options.onToolCall(call)||{ok:true};}
+        catch(_){result={ok:false,error:"tool-rejected"};}
+        responses.push({id:call.id,name:call.name,response:result});
+      });
+      if(responses.length){
+        try{attempt.socket.send(JSON.stringify({toolResponse:{functionResponses:responses}}));}
+        catch(error){this._beginRecovery(attempt,"tool-response-send",error);}
+      }
+    }
+
     var server=message.serverContent||message.server_content;
     if(server)this._handleServer(server,attempt);
   };
@@ -939,6 +958,7 @@
                   }
                 }
               },
+              ...(self.options.tools&&self.options.tools.length?{tools:self.options.tools}:{}),
               contextWindowCompression:{slidingWindow:{}},
               sessionResumption:connectOptions.resumeHandle?{handle:connectOptions.resumeHandle}:{},
               // Only teacher/friend sessions opt into level-aware VAD. Story and
@@ -1159,7 +1179,17 @@
       var errors=[];
       for(var i=startIndex;i<self.models.length&&self.attemptsUsed<self.maxLiveAttempts;i++){
         try{
-          var attempt=await self._connectCandidate(self.models[i],i);
+          var attempt;
+          try{attempt=await self._connectCandidate(self.models[i],i);}
+          catch(setupError){
+            // Optional board tools may be rejected by a preview model/version.
+            // Retry the SAME selected model once without tools, never switch models.
+            var message=String(setupError&&setupError.message||setupError);
+            if(!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
+            self.options.tools=null;
+            if(self.options.onToolsUnavailable)self.options.onToolsUnavailable();
+            attempt=await self._connectCandidate(self.models[i],i,{countAttempt:false});
+          }
           self._activateAttempt(attempt);
           return attempt;
         }catch(error){

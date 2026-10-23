@@ -62,7 +62,9 @@
     "pronunciation": "Pronunciation practice",
     "pronunciationDesc": "Read aloud and focus on your biggest improvements",
     "library": "Reading library",
-    "libraryDesc": "Pick a short article, then practice reading aloud"
+    "libraryDesc": "Pick a short article, then practice reading aloud",
+    "board": "AI Live Teaching Board",
+    "boardDesc": "See explanations, examples and quizzes evolve while talking"
   },
   "tutor": {
     "title": "Practice with a teacher",
@@ -256,5 +258,38 @@
     "speakDesc": "A relaxed target-language conversation.",
     "continueTitle": "Continue speaking practice",
     "continueDesc": "Your tutor adapts to known progress."
+  },
+  "board": {
+    "title": "AI Live Teaching Board",
+    "teacher": "Your AI teacher",
+    "canvas": "Interactive teaching board",
+    "back": "Back to learning",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "Try asking",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "Can you make it simpler?",
+    "quizPrompt": "Quiz me with three questions",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "Your lesson takes shape as you talk",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "Session notes",
+    "copy": "Copy notes",
+    "clear": "Clear board",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }

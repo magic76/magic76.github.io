@@ -62,7 +62,9 @@
     "pronunciation": "발음 연습",
     "pronunciationDesc": "소리 내어 읽고 가장 중요한 개선점에 집중해요",
     "library": "읽기 자료실",
-    "libraryDesc": "짧은 글을 고르고 소리 내어 읽기 연습"
+    "libraryDesc": "짧은 글을 고르고 소리 내어 읽기 연습",
+    "board": "AI 실시간 학습 보드",
+    "boardDesc": "대화에 따라 예문과 문제 자동 생성"
   },
   "tutor": {
     "title": "선생님과 연습",
@@ -256,5 +258,38 @@
     "speakDesc": "배우는 언어로 편안하게 대화해요.",
     "continueTitle": "지난 말하기 연습 이어가기",
     "continueDesc": "선생님이 학습 진도에 맞춰 도와줘요."
+  },
+  "board": {
+    "title": "AI 실시간 학습 보드",
+    "teacher": "AI 선생님",
+    "canvas": "인터랙티브 학습 보드",
+    "back": "학습으로 돌아가기",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "질문해 보세요",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "더 쉽게 설명해 주세요",
+    "quizPrompt": "세 문제 내 주세요",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "Your lesson takes shape as you talk",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "이번 학습 노트",
+    "copy": "노트 복사",
+    "clear": "보드 지우기",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }

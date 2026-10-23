@@ -62,7 +62,9 @@
     "pronunciation": "朗讀糾音",
     "pronunciationDesc": "開口讀一段，老師抓最值得改善的發音",
     "library": "閱讀素材庫",
-    "libraryDesc": "挑一篇短文閱讀，再接著做朗讀練習"
+    "libraryDesc": "挑一篇短文閱讀，再接著做朗讀練習",
+    "board": "AI 即時教學板",
+    "boardDesc": "語音講解同步變成例句、時間軸與練習題"
   },
   "tutor": {
     "title": "和老師練習",
@@ -256,5 +258,38 @@
     "speakDesc": "外語陪聊，不考試不強迫糾錯",
     "continueTitle": "接續上次的練習",
     "continueDesc": "老師依已知學習進度引導"
+  },
+  "board": {
+    "title": "AI 即時教學板",
+    "teacher": "AI 老師",
+    "canvas": "互動式教學白板",
+    "back": "返回學習",
+    "you": "你",
+    "speaking": "老師講解中",
+    "listening": "正在聆聽",
+    "connecting": "連線中",
+    "offline": "連線中斷",
+    "ready": "準備就緒",
+    "try": "試著問老師",
+    "examplePrompt": "have been 跟 had been 差在哪裡？",
+    "simplifyPrompt": "可以再簡單一點嗎？",
+    "quizPrompt": "考我三題",
+    "moreExamples": "再給我兩個例句",
+    "nativeExplanation": "用我的母語更新白板說明",
+    "explainPrefix": "請解釋白板上的這句話並舉例：",
+    "startFirst": "請先開始語音連線，再向老師提問。",
+    "disconnect": "連線中斷，現有白板仍保留。請重新連線後繼續。",
+    "emptyTitle": "跟老師開口，教材就會逐步出現",
+    "emptyDesc": "開始語音並提出問題，這裡會陸續出現概念、例句、時間軸與互動測驗。",
+    "notes": "本次學習筆記",
+    "copy": "複製筆記",
+    "clear": "清空白板",
+    "copied": "已複製筆記",
+    "copyFailed": "無法複製，請確認剪貼簿權限",
+    "liveMode": "Live 工具更新",
+    "turnMode": "回合結束後更新",
+    "liveHint": "Gemini Live 正透過同一條語音連線更新卡片。",
+    "fallbackHint": "等待第一個即時工具事件，目前會在完成講解回合後更新。",
+    "modelFallbackHint": "目前模型採回合結束後更新。想啟用即時工具呼叫，可在設定改選 Gemini 3.1 Flash Live。"
   }
 }

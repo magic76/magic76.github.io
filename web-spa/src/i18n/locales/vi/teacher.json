@@ -62,7 +62,9 @@
     "pronunciation": "Luyện phát âm",
     "pronunciationDesc": "Đọc thành tiếng và tập trung cải thiện điểm yếu nhất",
     "library": "Thư viện đọc",
-    "libraryDesc": "Chọn đoạn văn ngắn rồi luyện đọc thành tiếng"
+    "libraryDesc": "Chọn đoạn văn ngắn rồi luyện đọc thành tiếng",
+    "board": "Bảng học trực tiếp AI",
+    "boardDesc": "See explanations, examples and quizzes evolve while talking"
   },
   "tutor": {
     "title": "Luyện tập với giáo viên",
@@ -256,5 +258,38 @@
     "speakDesc": "Một cuộc trò chuyện thoải mái bằng ngôn ngữ đang học.",
     "continueTitle": "Tiếp tục luyện nói",
     "continueDesc": "Giáo viên điều chỉnh theo tiến độ học của bạn."
+  },
+  "board": {
+    "title": "Bảng học trực tiếp AI",
+    "teacher": "Giáo viên AI",
+    "canvas": "Bảng học tương tác",
+    "back": "Quay lại học",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "Hãy thử hỏi",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "Giải thích đơn giản hơn",
+    "quizPrompt": "Đố tôi ba câu",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "Your lesson takes shape as you talk",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "Ghi chú buổi học",
+    "copy": "Sao chép",
+    "clear": "Xóa bảng",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }

@@ -62,7 +62,9 @@
     "pronunciation": "Prática de pronúncia",
     "pronunciationDesc": "Leia em voz alta e trabalhe seus maiores pontos de melhoria",
     "library": "Biblioteca de leitura",
-    "libraryDesc": "Escolha um artigo curto para praticar a leitura em voz alta"
+    "libraryDesc": "Escolha um artigo curto para praticar a leitura em voz alta",
+    "board": "Lousa de ensino ao vivo com IA",
+    "boardDesc": "See explanations, examples and quizzes evolve while talking"
   },
   "tutor": {
     "title": "Praticar com um professor",
@@ -256,5 +258,38 @@
     "speakDesc": "Uma conversa tranquila no idioma que você estuda.",
     "continueTitle": "Continuar prática de conversação",
     "continueDesc": "Seu professor acompanha seu progresso de aprendizado."
+  },
+  "board": {
+    "title": "Lousa de ensino ao vivo com IA",
+    "teacher": "Professor de IA",
+    "canvas": "Lousa interativa",
+    "back": "Voltar ao aprendizado",
+    "you": "You",
+    "speaking": "Teacher speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "offline": "Disconnected",
+    "ready": "Ready",
+    "try": "Experimente perguntar",
+    "examplePrompt": "What's the difference between have been and had been?",
+    "simplifyPrompt": "Pode simplificar?",
+    "quizPrompt": "Faça três perguntas",
+    "moreExamples": "Give me two more examples",
+    "nativeExplanation": "Explain on the board in my native language",
+    "explainPrefix": "Explain this sentence with examples: ",
+    "startFirst": "Start the voice session before asking.",
+    "disconnect": "Connection lost. Your board remains available; reconnect to continue.",
+    "emptyTitle": "Your lesson takes shape as you talk",
+    "emptyDesc": "Start the voice session and ask a question. Concepts, examples, timelines and quizzes will appear here.",
+    "notes": "Notas da sessão",
+    "copy": "Copiar notas",
+    "clear": "Limpar lousa",
+    "copied": "Notes copied",
+    "copyFailed": "Unable to copy notes",
+    "liveMode": "Live tool updates",
+    "turnMode": "After-turn updates",
+    "liveHint": "The selected Live model is updating cards over the current audio connection.",
+    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
+    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling."
   }
 }
