@@ -1,9 +1,11 @@
 import type {NewsScene} from "./nonsenseNewsEngine";
+import type {DirectorEvent} from "./nonsenseDirector";
+import {NonsenseDirectorCards} from "./NonsenseDirectorCards";
 
 const L=(zh:boolean,a:string,b:string)=>zh?a:b;
 const stageSymbols={breaking:"📡",witness:"🎙️",evidence:"🗂️",poll:"📊",crisis:"🚨",finale:"🏆"};
-type Props={scene:NewsScene;zh:boolean;round:number;playing:boolean;hostDraft:string;playerDraft:string;aiSpeaking:boolean};
-export function NonsenseNewsStage({scene,zh,round,playing,hostDraft,playerDraft,aiSpeaking}:Props){
+type Props={scene:NewsScene;zh:boolean;round:number;playing:boolean;hostDraft:string;playerDraft:string;aiSpeaking:boolean;directorEvents:DirectorEvent[];choiceDisabled:boolean;onChoice:(value:string)=>void};
+export function NonsenseNewsStage({scene,zh,round,playing,hostDraft,playerDraft,aiSpeaking,directorEvents,choiceDisabled,onChoice}:Props){
  const finished=scene.type==="finale";
  return <section className={"news-stage news-stage-"+scene.type} aria-label={L(zh,"荒謬新聞現場","Absurd newsroom")} aria-live="polite">
   <div className="news-studio-top"><span className="news-live-light"><i/> CREW NEWS · LIVE</span><span className="news-studio-round">{finished?L(zh,"大結局","FINALE"):L(zh,"第 "+round+" / 3 回合","ROUND "+round+" / 3")}</span></div>
@@ -24,7 +26,7 @@ export function NonsenseNewsStage({scene,zh,round,playing,hostDraft,playerDraft,
   {scene.type==="poll"&&<div className="news-poll-box"><span>{L(zh,"節目虛構觀眾民調","Fictional audience poll")}</span><div className="news-poll-track"><div style={{width:(scene.audience??50)+"%"}}/></div><strong>{scene.audience==null?L(zh,"觀眾意見分歧","Opinions are divided"):scene.audience+"%"}</strong></div>}
   {finished?<div className="news-outcome"><span>{L(zh,"今晚的最終下場","HOW THIS ENDED")}</span><strong>{scene.ending}</strong></div>:
   <div className="news-host-box"><span className="news-host-avatar" aria-hidden="true">🎤</span><div><span className="news-host-name">{scene.character||L(zh,"AI 主播","AI News Anchor")}</span><p>{scene.question}</p></div></div>}
-  {scene.options.length>0&&!finished&&<div className="news-bottom-tips">{scene.options.map((option,i)=><span key={i}>{option}</span>)}</div>}
+  {!finished&&<NonsenseDirectorCards zh={zh} events={directorEvents} sceneChoices={scene.options} choiceDisabled={choiceDisabled} onChoice={onChoice}/>}
   {playing&&hostDraft&&<p className={"news-captions"+(aiSpeaking?" active":"")}>{L(zh,"主播：","HOST: ")}{hostDraft.slice(-200)}</p>}
   {playing&&playerDraft&&<p className="news-captions user">{L(zh,"你：","YOU: ")}{playerDraft.slice(-200)}</p>}
   <div className="news-ticker"><span>{scene.ticker||L(zh,"即時荒謬新聞 · 純屬虛構","FICTIONAL BREAKING NEWS · CREW PLAY")}</span></div>

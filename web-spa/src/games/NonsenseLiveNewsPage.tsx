@@ -6,6 +6,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
 import {NonsenseNewsStage} from "./NonsenseNewsStage";
 import {startNonsenseNewsLive,type NewsLiveController} from "./nonsenseNewsLive";
+import type {DirectorEvent} from "./nonsenseDirector";
 import {openingNewsScene,nextNewsScene,type NewsScene,type NewsTurn} from "./nonsenseNewsEngine";
 import {renderNewsEndingCard,shareNewsEnding} from "./nonsenseNewsShare";
 import {nonsenseCategories,pickNonsenseTopic,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
@@ -31,17 +32,20 @@ export function NonsenseLiveNewsPage(){
  const [playerDraft,setPlayerDraft]=useState("");
  const [aiSpeaking,setAiSpeaking]=useState(false);
  const [muted,setMuted]=useState(false);
+ const [choiceBusy,setChoiceBusy]=useState(false);
+ const [directorEvents,setDirectorEvents]=useState<DirectorEvent[]>([]);
  const [error,setError]=useState("");
  const [notice,setNotice]=useState("");
  const [preview,setPreview]=useState("");
  const [shareNotice,setShareNotice]=useState("");
  const controllerRef=useRef<NewsLiveController|null>(null);
+ const submittingRef=useRef(false);
  const sceneRef=useRef(scene),turnsRef=useRef<NewsTurn[]>([]),generationRef=useRef(0),mountedRef=useRef(true);
  const keyReady=typeof window!=="undefined"&&Boolean(geminiKey());
  const setBroadcast=(next:NewsScene)=>{sceneRef.current=next;setScene(next);};
  const dispose=()=>{
   controllerRef.current?.stop();controllerRef.current=null;
-  setHostDraft("");setPlayerDraft("");setAiSpeaking(false);setMuted(false);
+  setHostDraft("");setPlayerDraft("");setAiSpeaking(false);setMuted(false);setChoiceBusy(false);
  };
  useEffect(()=>{
   mountedRef.current=true;trackUsageEvent("game_open","nonsense");
@@ -55,14 +59,14 @@ export function NonsenseLiveNewsPage(){
  const chooseTopic=(nextCategory=category)=>{
   if(status!=="setup")return;
   const next=pickNonsenseTopic(nextCategory,topic.id);setTopic(next);
-  setBroadcast(openingNewsScene(next,language));setError("");
+  setBroadcast(openingNewsScene(next,language));setDirectorEvents([]);setError("");
  };
  const chooseLanguage=(lang:NonsenseLanguage)=>{
   if(status!=="setup")return;
-  setLanguage(lang);setBroadcast(openingNewsScene(topic,lang));
+  setLanguage(lang);setDirectorEvents([]);setBroadcast(openingNewsScene(topic,lang));
  };
  const reset=()=>{
-  ++generationRef.current;dispose();turnsRef.current=[];setTurns([]);
+  ++generationRef.current;dispose();turnsRef.current=[];setTurns([]);submittingRef.current=false;setDirectorEvents([]);
   setStatus("setup");setAnswer("");setError("");setNotice("");setPreview("");setShareNotice("");
   setBroadcast(openingNewsScene(topic,language));
  };
@@ -73,7 +77,7 @@ export function NonsenseLiveNewsPage(){
   try{
    const next=await nextNewsScene(topic,language,turnsRef.current.slice(0,-1),last.player,true);
    if(!mountedRef.current||stamp!==generationRef.current)return;
-   setBroadcast(next);setStatus("finished");setNotice("");setError("");
+   setBroadcast(next);setDirectorEvents([]);setStatus("finished");setNotice("");setError("");
    trackUsageEvent("game_completed","nonsense");
   }catch{
    if(stamp!==generationRef.current||!mountedRef.current)return;
@@ -85,14 +89,16 @@ export function NonsenseLiveNewsPage(){
   if(status!=="setup")return;
   if(!geminiKey()){setError(L(zh,"需要先在設定中加入自己的 Gemini Key 才能讓 AI 即時出題。","Add your Gemini Key in settings to play with the AI director."));return;}
   const stamp=++generationRef.current;
-  dispose();turnsRef.current=[];setTurns([]);setError("");setNotice("");setAnswer("");
+  dispose();turnsRef.current=[];setTurns([]);setDirectorEvents([]);setError("");setNotice("");setAnswer("");
   setBroadcast(openingNewsScene(topic,language));
   trackUsageEvent("game_started","nonsense");
   if(mode==="text"){setStatus("playing");return;}
   setStatus("connecting");
   try{
    const controller=await startNonsenseNewsLive(topic,language,{
-    onScene:next=>{if(stamp===generationRef.current&&mountedRef.current)setBroadcast(next);},
+    onScene:next=>{if(stamp===generationRef.current&&mountedRef.current){setBroadcast(next);if(next.type==="finale")setDirectorEvents([]);}},
+    onDirector:event=>{if(stamp===generationRef.current&&mountedRef.current)setDirectorEvents(old=>[...old,event].slice(-2));},
+    onChoiceBusy:busy=>{if(stamp===generationRef.current){setChoiceBusy(busy);setMuted(controllerRef.current?.isMuted()??false);}},
     onPlayerTurn:(player,host)=>{
      if(stamp!==generationRef.current||!mountedRef.current)return;
      const next=[...turnsRef.current,{player,host,headline:sceneRef.current.headline}].slice(0,3);
@@ -104,13 +110,13 @@ export function NonsenseLiveNewsPage(){
     onSpeaking:value=>{if(stamp===generationRef.current)setAiSpeaking(value);},
     onDone:()=>{
      if(stamp!==generationRef.current||!mountedRef.current)return;
-     controllerRef.current=null;setAiSpeaking(false);setHostDraft("");setPlayerDraft("");
+     controllerRef.current=null;setAiSpeaking(false);setHostDraft("");setPlayerDraft("");setChoiceBusy(false);
      if(sceneRef.current.type==="finale"){setStatus("finished");trackUsageEvent("game_completed","nonsense");}
      else{setMode("text");void recoverEnding(stamp);}
     },
     onFailure:message=>{
      if(stamp!==generationRef.current||!mountedRef.current)return;
-     controllerRef.current=null;setAiSpeaking(false);setMode("text");setMuted(false);
+     controllerRef.current=null;setAiSpeaking(false);setMode("text");setMuted(false);setChoiceBusy(false);
      setNotice(L(zh,"語音已結束，已保留劇情並切換到文字模式。","Voice ended. Story preserved; continuing in text mode."));
      setError(message);
      if(turnsRef.current.length>=3)void recoverEnding(stamp);
@@ -131,11 +137,12 @@ export function NonsenseLiveNewsPage(){
    setNotice(L(zh,"已關閉語音連線；可以打字或使用手機鍵盤語音輸入。","Voice connection closed. Type or use your keyboard's dictation."));
   }
  };
- const submitText=async()=>{
-  if(status!=="playing"||mode!=="text"||turnsRef.current.length>=3)return;
-  const reply=answer.trim();
+ const submitText=async(selected?:string)=>{
+  if(status!=="playing"||mode!=="text"||turnsRef.current.length>=3||submittingRef.current)return;
+  const reply=(selected??answer).trim();
   if(reply.length<2){setError(L(zh,"先說點什麼讓主播接招吧！","Say something for the host to react to."));return;}
   const stamp=generationRef.current;
+  submittingRef.current=true;
   setStatus("generating");setError("");setNotice("");
   const previous=turnsRef.current;
   const final=previous.length===2;
@@ -143,13 +150,21 @@ export function NonsenseLiveNewsPage(){
    const next=await nextNewsScene(topic,language,previous,reply,final);
    if(stamp!==generationRef.current||!mountedRef.current)return;
    const updated=[...previous,{player:reply,host:next.question||next.ending,headline:sceneRef.current.headline}];
-   turnsRef.current=updated;setTurns(updated);setBroadcast(next);setAnswer("");
+   turnsRef.current=updated;setTurns(updated);setBroadcast(next);setDirectorEvents(next.director?[next.director]:[]);setAnswer("");
    setStatus(final?"finished":"playing");
    if(final)trackUsageEvent("game_completed","nonsense");
   }catch{
    if(stamp!==generationRef.current||!mountedRef.current)return;
    setStatus("playing");setError(L(zh,"AI 暫時沒有回應。你剛才輸入的內容已保留，請重試。","AI did not respond. Your answer is saved; try again."));
-  }
+  }finally{if(stamp===generationRef.current)submittingRef.current=false;}
+ };
+ const pickChoice=(value:string)=>{
+  if(status!=="playing"||turnsRef.current.length>=3)return;
+  if(mode==="text"){void submitText(value);return;}
+  if(choiceBusy||aiSpeaking)return;
+  const selected=controllerRef.current?.choose(value);
+  if(selected){setChoiceBusy(true);setMuted(controllerRef.current?.isMuted()??false);setError("");}
+  else setNotice(L(zh,"主播正在處理上一句話，請等他說完或直接用語音回答。","Host is processing the previous reply. Try again after the host finishes, or speak."));
  };
  const share=async()=>{
   if(status!=="finished"||scene.type!=="finale")return;
@@ -185,13 +200,13 @@ export function NonsenseLiveNewsPage(){
     <div className="news-setup-actions"><button type="button" onClick={()=>chooseTopic()}>{L(zh,"換一則新聞","Shuffle premise")}</button><button type="button" className="news-primary" onClick={()=>void start()} disabled={!keyReady}>{L(zh,"進入直播間","Go live")} →</button></div>
     {!keyReady&&<p className="news-key-note">{L(zh,"需要先到設定加入 Gemini API Key。此模式每回合都會呼叫 AI；沒有 Key 時不會產生假新聞回應。","Add a Gemini API Key in settings first. Each turn uses AI; without a Key, no fake AI replies are generated.")}</p>}
    </section>}
-   <NonsenseNewsStage scene={scene} zh={zh} round={round} playing={status==="playing"&&mode==="voice"} hostDraft={hostDraft} playerDraft={playerDraft} aiSpeaking={aiSpeaking}/>
+   <NonsenseNewsStage scene={scene} zh={zh} round={round} playing={status==="playing"&&mode==="voice"} hostDraft={hostDraft} playerDraft={playerDraft} aiSpeaking={aiSpeaking} directorEvents={directorEvents} choiceDisabled={status!=="playing"||choiceBusy||aiSpeaking||turns.length>=3} onChoice={pickChoice}/>
    {status!=="setup"&&<section className="news-control-panel">
     {status==="connecting"&&<p role="status">{L(zh,"Gemini Live 連線與麥克風啟動中…","Connecting Gemini Live and opening the microphone…")}</p>}
     {status==="generating"&&<p role="status">{L(zh,"AI 導演正在改寫下一幕…","The AI director is rewriting the next scene…")}</p>}
     {status==="playing"&&mode==="voice"&&<>
-     <div className="news-mic-line"><span className={"news-mic-status"+(muted?" muted":"")}>{muted?L(zh,"麥克風已靜音","Mic muted"):aiSpeaking?L(zh,"主播正在說話","Host speaking"):L(zh,"直接說話，AI 會接招","Speak naturally; the host will react")}</span><strong>{L(zh,"已完成","Completed")} {turns.length}/3</strong></div>
-     <div className="news-actions"><button type="button" onClick={()=>{const isMuted=controllerRef.current?.mute();if(isMuted!==undefined)setMuted(isMuted);}}>{muted?L(zh,"開啟麥克風","Unmute"):L(zh,"靜音麥克風","Mute")}</button><button type="button" onClick={switchToText}>{L(zh,"改用文字","Switch to text")}</button><button type="button" onClick={reset}>{L(zh,"結束","Exit")}</button></div>
+     <div className="news-mic-line"><span className={"news-mic-status"+(muted?" muted":"")}>{choiceBusy?L(zh,"AI 正在處理你的選項…","AI is handling your choice…"):muted?L(zh,"麥克風已靜音","Mic muted"):aiSpeaking?L(zh,"主播正在說話","Host speaking"):L(zh,"直接說話，AI 會接招","Speak naturally; the host will react")}</span><strong>{L(zh,"已完成","Completed")} {turns.length}/3</strong></div>
+     <div className="news-actions"><button type="button" disabled={choiceBusy} onClick={()=>{const isMuted=controllerRef.current?.mute();if(isMuted!==undefined)setMuted(isMuted);}}>{muted?L(zh,"開啟麥克風","Unmute"):L(zh,"靜音麥克風","Mute")}</button><button type="button" onClick={switchToText}>{L(zh,"改用文字","Switch to text")}</button><button type="button" onClick={reset}>{L(zh,"結束","Exit")}</button></div>
     </>}
     {status==="playing"&&mode==="text"&&turns.length<3&&<form onSubmit={event=>{event.preventDefault();void submitText();}} className="news-reply-form">
      <label htmlFor="news-improv-answer">{L(zh,"你的荒謬回應 · 第 ","Your improv reply · round ")}{round}</label>

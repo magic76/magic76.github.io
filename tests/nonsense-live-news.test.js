@@ -39,11 +39,11 @@ test("live tool renders schema-bounded visuals and owns microphone and audio",()
  const scene=read("web-spa/src/games/NonsenseNewsStage.tsx");
  const page=read("web-spa/src/games/NonsenseLiveNewsPage.tsx");
  const app=read("web-spa/src/App.tsx");
- assert.match(live,/functionDeclarations:\[sceneTool\]/);
+ assert.match(live,/functionDeclarations:\[sceneTool,\.\.\.directorTools\]/);
  assert.match(live,/onToolCall:/);
  assert.match(live,/onInputTranscript:/);
  assert.match(live,/onTranscriptTurn:/);
- assert.match(live,/playerTurns>=3/);
+ assert.match(live,/round\.count>=3/);
  assert.match(live,/old\.stop\(/);
  assert.match(live,/onToolsUnavailable:/);
  assert.doesNotMatch(page,/SpeechRecognition|webkitSpeechRecognition|speechSynthesis|dangerouslySetInnerHTML/);

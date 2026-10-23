@@ -1,11 +1,13 @@
 import {ensureCore,geminiKey} from "../lib/runtime";
 import type {NonsenseLanguage,NonsenseTopic} from "./nonsenseTopics";
+import {parseDirectorEvent,type DirectorEvent,type DirectorKind} from "./nonsenseDirector";
 
 export const newsSceneTypes=["breaking","witness","evidence","poll","crisis","finale"] as const;
 export type NewsSceneType=typeof newsSceneTypes[number];
 export type NewsScene={
  type:NewsSceneType;headline:string;detail:string;character:string;question:string;
  ticker:string;reaction:string;options:string[];audience:number|null;ending:string;
+ director?:DirectorEvent;
 };
 export type NewsTurn={player:string;host:string;headline:string};
 
@@ -25,7 +27,9 @@ export function parseNewsScene(raw:unknown):NewsScene{
  if(!headline||(type!=="finale"&&!question)||(type==="finale"&&!ending))throw Error("Incomplete AI scene");
  const options=Array.isArray(data.options)?data.options.slice(0,3).map(item=>short(item,48)).filter(Boolean):[];
  const n=data.audience;
- return {type,headline,question,ending,options,
+ let director:DirectorEvent|undefined;
+ try{if(data.director&&typeof data.director==="object"){const d=data.director as Record<string,unknown>;director=parseDirectorEvent(d.kind as DirectorKind,d);}}catch{/* Optional director card is omitted when invalid. */}
+ return {type,headline,question,ending,options,director,
   detail:short(data.detail,300),character:short(data.character,36),
   ticker:short(data.ticker,100),reaction:short(data.reaction,80),
   audience:typeof n==="number"&&Number.isFinite(n)?Math.max(0,Math.min(100,Math.round(n))):null};
@@ -55,8 +59,11 @@ export function newsScenePrompt(topic:NonsenseTopic,lang:NonsenseLanguage,turns:
   "Use the actual answer to advance the fictional story. Be surprising, brief, playful, coherent, non-abusive.",
   final?"This is the ENDING after the player's third answer. type MUST be finale; ending is a funny unique consequence grounded in their answers; question must be empty.":"This is the NEXT beat, not the ending. Pick type witness, evidence, poll or crisis. Introduce a new comic complication and ask ONE short question for the player.",
   "Never invent quotes attributed to the player, pretend fabricated events are real news or award a score.",
-  "Return strict JSON only with keys type,headline,detail,character,question,ticker,reaction,options,audience,ending.",
-  "options is an optional array of up to 3 short reactions (no need to select one). audience is an optional fictional show meter 0..100, not a user score.",
+  "Return strict JSON only with keys type,headline,detail,character,question,ticker,reaction,options,audience,ending,director.",
+  final?"options: []; director: null.":"Include 2 or 3 distinct short options the player can CLICK to send as a reply (they can also type freely).",
+  "Also include director: {kind,title,body,detail,character,mood,effect,choices} for a visual cutaway based on the actual reply.",
+  "director.kind must be evidence, character or effect (NOT arbitrary HTML). Use evidence for mock leaks and documents; character for witnesses or video interviews. No real-world claims.",
+  "audience is an optional fictional show meter 0..100, not a user score.",
   "headline <= 100 chars, detail <= 220, question <= 120, ending <= 220. Never include HTML or scripts."
  ].join("\n");
 }
@@ -67,7 +74,7 @@ export async function nextNewsScene(topic:NonsenseTopic,lang:NonsenseLanguage,tu
  let timer:ReturnType<typeof setTimeout>|undefined;
  try{
   const pending=Promise.resolve(window.CrewAI.call(newsScenePrompt(topic,lang,turns,answer,final),{
-   preferLive:false,strictModels:true,json:true,temperature:0.9,maxOutputTokens:650
+   preferLive:false,strictModels:true,json:true,temperature:0.85,maxOutputTokens:950
   }));
   const result=await Promise.race([pending,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error("News director timeout")),22000);})]);
   const scene=parseNewsScene(result);
