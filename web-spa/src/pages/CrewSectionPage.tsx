@@ -5,6 +5,7 @@ import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
+import {TownIllustration} from "../town/TownIllustration";
 import {TodayLearningCard} from "../teacher/TodayLearningCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
@@ -182,6 +183,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>)}
+    <Link className="crew-explore-tile crew-explore-town" data-kind="town" to="/town">
+     <div className="crew-explore-art"><div className="crew-explore-town-mini"><TownIllustration/></div></div>
+     <span className="crew-explore-text">
+      <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
+      <small>{en?"Meet familiar AI friends in a beautiful interactive neighborhood. Visual prototype.":"看見 AI 朋友在小鎮相遇，點擊角色互動。視覺原型開放體驗。"}</small>
+     </span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>
    </section>:
    <>
     {section==="chat"?
