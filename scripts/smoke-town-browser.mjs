@@ -28,7 +28,7 @@ const monitor="<script>"
  +"const friendMenu=document.querySelector('.crew-town-3d-friends-toggle');"
  +"const friends=document.createElement('meta');friends.name='crew-town-friend-count';friends.content=friendMenu&&friendMenu.textContent.includes('16')?'16':'0';document.head.appendChild(friends);"
  +"const labels=document.createElement('meta');labels.name='crew-town-friend-labels';labels.content=String(document.querySelectorAll('.crew-town-3d-name').length);document.head.appendChild(labels);"
- +"},7200);"
+ +"},9000);"
  +"</script>";
 const server=createServer((req,res)=>{
  try{
@@ -48,7 +48,7 @@ await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
  "--disable-gpu-sandbox","--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader-webgl",
  "--window-size=520,900","--force-device-scale-factor=1",
- "--virtual-time-budget=10200","--dump-dom",
+ "--virtual-time-budget=12000","--dump-dom",
  "--screenshot="+join(artifact,"town-browser.png"),
  "http://127.0.0.1:"+server.address().port+"/town"
 ];
@@ -78,4 +78,5 @@ try{
   console.log("SKIP: CI Chrome cannot allocate WebGL2; manual GPU-backed QA still required.");
   }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
  else if(friendCount!=="16")throw Error("Town 3D must register all sixteen selectable friends; observed "+friendCount);
+ else if(friendLabels!=="16")throw Error("Town 3D canvas must mount all sixteen character labels; observed "+friendLabels);
 }finally{server.close()}
