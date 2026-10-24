@@ -229,6 +229,11 @@ export function pickNonsenseTopic(category:string,exclude?:string,random=Math.ra
  if(!pool.length)throw Error("No nonsense topics available");
  return pool[Math.min(pool.length-1,Math.floor(Math.max(0,random())*pool.length))];
 }
+/** Start a different fictional story in the same category; custom stories return to the full library. */
+export function nextNonsenseTopic(current:NonsenseTopic,category:string,random=Math.random):{category:string;topic:NonsenseTopic}{
+ const nextCategory=category==="custom"?"all":category;
+ return {category:nextCategory,topic:pickNonsenseTopic(nextCategory,current.id,random)};
+}
 export const nonsenseHints:Record<string,{zh:string[];en:string[]}>={
  science:{zh:["奇怪的科學原理","生活中的荒謬證據","令人意外的好處"],en:["An impossible scientific theory","Absurd everyday evidence","A surprising benefit"]},
  work:{zh:["公司的隱藏成本","員工的幸福指數","主管最怕的結果"],en:["Hidden company costs","Employee happiness","The boss's greatest fear"]},
