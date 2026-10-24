@@ -43,7 +43,7 @@ function Steps({card,english,focusIndex=-1,revealCount=null,onNavigate}:{card:Bo
  </div>;
 }
 function Flashcards({card,english,focusIndex=-1,revealCount=null,onPractice}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null;onPractice?:Props["onFlashcardPractice"]}){
- return <BoardFlashcards card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onPractice={onPractice}/>;
+ return <BoardFlashcards key={JSON.stringify(card.pairs)} card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onPractice={onPractice}/>;
 }
 function Dialogue({card,english,focusIndex=-1,revealCount=null}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null}){
  return <div className="teaching-board-dialogue">{card.pairs.slice(0,revealCount===null?undefined:revealCount).map((p,i)=><div className={"teaching-board-bubble"+(i%2?" is-reply":"")+(focusIndex===i?" is-highlighted":"")} key={i}>
