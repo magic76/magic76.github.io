@@ -183,3 +183,23 @@ test("P2 immersive close-up is the default while wide aerial overview remains se
  assert.ok(css.includes(".crew-town-3d-landmark"));
  assert.match(scene,/TownModelsBoundary/);
 });
+
+test("Town friends keep the correct 3D body and label mapping for every identity",()=>{
+ const world=read("web-spa/src/town/three/world.ts");
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ const profiles=read("web-spa/src/friends/friendProfiles.ts");
+ for(const id of ["zoe","yuna","bella"]){
+  assert.ok(world.includes('{id:"'+id+'",outfit:"dress"'),id+" dress mapping");
+  assert.ok(profiles.includes('"id":"'+id+'"'),id+" profile");
+ }
+ for(const id of ["theo","hugo","noah"]){
+  assert.ok(world.includes('{id:"'+id+'",outfit:"jacket"'),id+" jacket mapping");
+  assert.ok(profiles.includes('"id":"'+id+'"'),id+" profile");
+ }
+ assert.ok(world.includes('outfit:"dress"|"jacket"'));
+ assert.ok(chars.includes('const isDress=outfit==="dress"'));
+ assert.ok(chars.includes('cylinderGeometry args={[.19,.37,.69,14]}'));
+ assert.ok(chars.includes('capsuleGeometry args={[.27,.27,5,12]}'));
+ assert.ok(chars.includes("key={person.id} {...person}"));
+ assert.ok(chars.includes("id[0].toUpperCase()+id.slice(1)"));
+});

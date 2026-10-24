@@ -4,15 +4,15 @@ export type Selection = {type:"person";id:FriendId} | {type:"place";id:PlaceId} 
 export type Waypoint = readonly [number,number];
 
 export const PEOPLE: ReadonlyArray<{
- id:FriendId; coat:string; hair:string; skin:string;
+ id:FriendId; coat:string; hair:string; skin:string; outfit:"dress"|"jacket";
  activityZh:string; activityEn:string; route:ReadonlyArray<Waypoint>;
 }> = [
- {id:"zoe",coat:"#d98884",hair:"#614a50",skin:"#efbd9f",activityZh:"正走向咖啡館露台",activityEn:"Walking to the café terrace",route:[[-5.7,-.95],[-4.4,-.75],[-3.8,.55],[-4.7,.85]]},
- {id:"yuna",coat:"#88a99a",hair:"#433b45",skin:"#eed0b7",activityZh:"準備在咖啡館和 Zoe 會面",activityEn:"Meeting Zoe by the café",route:[[-3.3,1.15],[-4.05,.95],[-4.55,.20],[-3.8,.30]]},
- {id:"theo",coat:"#84a7b9",hair:"#5f4c48",skin:"#e0b49d",activityZh:"在靈感工作室附近散步",activityEn:"Taking a break outside the studio",route:[[4,-.95],[2.9,.20],[3.45,1.1],[4.35,.45]]},
- {id:"hugo",coat:"#d8a96e",hair:"#6a5143",skin:"#e4bda6",activityZh:"沿著鎮中央的步道探索",activityEn:"Strolling along the village path",route:[[-.3,-1.4],[.85,-.9],[1.7,.25],[.7,1.45],[-.35,.25]]},
- {id:"bella",coat:"#c58da5",hair:"#694755",skin:"#ebbdab",activityZh:"在遊戲屋外邀請朋友",activityEn:"Inviting friends outside the play house",route:[[-2.5,6.25],[-.95,6.2],[.1,5.95],[-.85,6.9]]},
- {id:"noah",coat:"#8299a5",hair:"#4e4949",skin:"#e4bfad",activityZh:"在湖畔散步、欣賞風景",activityEn:"Taking in the lakeside view",route:[[3.0,4.0],[2.7,5.05],[3.15,6.15],[4.05,6.85],[4.25,7.05]]}
+ {id:"zoe",outfit:"dress",coat:"#d98884",hair:"#614a50",skin:"#efbd9f",activityZh:"正走向咖啡館露台",activityEn:"Walking to the café terrace",route:[[-5.7,-.95],[-4.4,-.75],[-3.8,.55],[-4.7,.85]]},
+ {id:"yuna",outfit:"dress",coat:"#88a99a",hair:"#433b45",skin:"#eed0b7",activityZh:"準備在咖啡館和 Zoe 會面",activityEn:"Meeting Zoe by the café",route:[[-3.3,1.15],[-4.05,.95],[-4.55,.20],[-3.8,.30]]},
+ {id:"theo",outfit:"jacket",coat:"#84a7b9",hair:"#5f4c48",skin:"#e0b49d",activityZh:"在靈感工作室附近散步",activityEn:"Taking a break outside the studio",route:[[4,-.95],[2.9,.20],[3.45,1.1],[4.35,.45]]},
+ {id:"hugo",outfit:"jacket",coat:"#d8a96e",hair:"#6a5143",skin:"#e4bda6",activityZh:"沿著鎮中央的步道探索",activityEn:"Strolling along the village path",route:[[-.3,-1.4],[.85,-.9],[1.7,.25],[.7,1.45],[-.35,.25]]},
+ {id:"bella",outfit:"dress",coat:"#c58da5",hair:"#694755",skin:"#ebbdab",activityZh:"在遊戲屋外邀請朋友",activityEn:"Inviting friends outside the play house",route:[[-2.5,6.25],[-.95,6.2],[.1,5.95],[-.85,6.9]]},
+ {id:"noah",outfit:"jacket",coat:"#8299a5",hair:"#4e4949",skin:"#e4bfad",activityZh:"在湖畔散步、欣賞風景",activityEn:"Taking in the lakeside view",route:[[3.0,4.0],[2.7,5.05],[3.15,6.15],[4.05,6.85],[4.25,7.05]]}
 ];
 export const PLACES: ReadonlyArray<{
  id:PlaceId; zh:string; en:string; introZh:string; introEn:string; to:string; ctaZh:string; ctaEn:string;

@@ -8,8 +8,8 @@ import {PEOPLE,type FriendId,type Waypoint} from "./world";
 
 type Phase="Idle"|"Walking"|"Arriving"|"Interacting"|"Talking";
 const SKIN="#eac5ad";
-function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect,onMove}:{
- id:FriendId;coat:string;hair:string;skin:string;route:ReadonlyArray<Waypoint>;
+function Actor({id,coat,hair,skin,outfit,route,reducedMotion,selected,onSelect,onMove}:{
+ id:FriendId;coat:string;hair:string;skin:string;outfit:"dress"|"jacket";route:ReadonlyArray<Waypoint>;
  reducedMotion:boolean;selected:boolean;onSelect:(id:FriendId)=>void;onMove:(id:FriendId,x:number,z:number)=>void;
 }){
  const root=useRef<Group>(null);
@@ -62,7 +62,9 @@ function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect,onMove}:
   if(s.phase!=="Walking"){feet.rotation.x*=.83;torso.position.y=Math.sin(state.clock.elapsedTime*1.7+id.length)*.012}
  });
  const pick=(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(id)};
- const isLongHair=id==="zoe"||id==="bella"||id==="yuna";
+ const isDress=outfit==="dress";
+ const isLongHair=isDress;
+ // Keep the outfit and floating name on the same actor id, never list order.
  return <group ref={root} position={[route[0][0],.025,route[0][1]]} onClick={pick}
   onPointerOver={event=>{event.stopPropagation();setHovered(true)}}
   onPointerOut={()=>setHovered(false)}>
@@ -79,21 +81,40 @@ function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect,onMove}:
   </mesh>
   <group ref={legs}>
    {[-.13,.13].map((x,i)=><group key={i}>
-    <mesh position={[x,.245,0]}><capsuleGeometry args={[.09,.13,4,10]}/><meshStandardMaterial color="#667277"/></mesh>
-    <mesh position={[x,.095,.11]}><boxGeometry args={[.22,.15,.33]}/><meshStandardMaterial color="#645851"/></mesh>
+    <mesh position={[x,.245,0]}><capsuleGeometry args={[isDress?.072:.09,.13,4,10]}/><meshStandardMaterial color={isDress?"#e4c1aa":"#667277"}/></mesh>
+    <mesh position={[x,.095,.11]}><boxGeometry args={[isDress?.19:.22,.15,.33]}/><meshStandardMaterial color={id==="bella"?"#8e687e":id==="yuna"?"#6b8b7d":"#645851"}/></mesh>
    </group>)}
   </group>
   <group ref={body}>
-   <mesh position={[0,.67,0]}><capsuleGeometry args={[.27,.27,5,12]}/><meshStandardMaterial color={coat} roughness={.93}/></mesh>
-   {[-1,1].map(side=><mesh key={side} ref={side===1?waveArm:undefined} position={[side*.305,.66,.025]} rotation={[0,0,-side*.15]}>
-    <capsuleGeometry args={[.083,.19,4,8]}/><meshStandardMaterial color={coat}/>
+   {isDress?
+    <group>
+     {/* A-line dress is a visibly different chibi silhouette from the jackets. */}
+     <mesh position={[0,.64,0]}><cylinderGeometry args={[.19,.37,.69,14]}/>
+      <meshStandardMaterial color={coat} roughness={.93} flatShading/></mesh>
+     <mesh position={[0,.32,0]}><cylinderGeometry args={[.375,.378,.075,14]}/>
+      <meshStandardMaterial color={id==="zoe"?"#f3c0a6":id==="bella"?"#dfb0c5":"#b4d5bd"} roughness={.98}/></mesh>
+     <mesh position={[0,.835,.205]}><boxGeometry args={[.31,.055,.055]}/>
+      <meshStandardMaterial color={id==="yuna"?"#dce9c7":"#f3d4b6"}/></mesh>
+    </group>:
+    <group>
+     <mesh position={[0,.67,0]}><capsuleGeometry args={[.27,.27,5,12]}/>
+      <meshStandardMaterial color={coat} roughness={.93}/></mesh>
+     <mesh position={[0,.62,.26]}><boxGeometry args={[.29,.055,.04]}/>
+      <meshStandardMaterial color="#e7d0b8" roughness={.96}/></mesh>
+    </group>}
+   {[-1,1].map(side=><mesh key={side} ref={side===1?waveArm:undefined} position={[side*(isDress?.275:.305),.66,.025]} rotation={[0,0,-side*.15]}>
+    <capsuleGeometry args={[isDress?.072:.083,.19,4,8]}/><meshStandardMaterial color={coat}/>
    </mesh>)}
-   {[-1,1].map(side=><mesh key={"hand"+side} position={[side*.335,.46,.12]}>
+   {[-1,1].map(side=><mesh key={"hand"+side} position={[side*(isDress?.31:.335),.46,.12]}>
     <sphereGeometry args={[.085,10,8]}/><meshStandardMaterial color={skin||SKIN}/>
    </mesh>)}
    {/* Rounded oversized head + shorter body = phone-readable chibi silhouette. */}
    <mesh position={[0,1.24,0]}><sphereGeometry args={[.42,20,16]}/><meshStandardMaterial color={skin||SKIN} roughness={.91}/></mesh>
-   {isLongHair&&<mesh position={[0,1.27,-.19]} scale={[1.05,1.2,.64]}><sphereGeometry args={[.39,14,12]}/><meshStandardMaterial color={hair}/></mesh>}
+   {isLongHair&&<group>
+    <mesh position={[0,1.27,-.19]} scale={[1.05,1.2,.64]}><sphereGeometry args={[.39,14,12]}/><meshStandardMaterial color={hair}/></mesh>
+    {[-1,1].map(side=><mesh key={side} position={[side*.355,1.04,-.05]} rotation={[0,0,side*.12]}>
+     <capsuleGeometry args={[.095,.36,5,9]}/><meshStandardMaterial color={hair}/></mesh>)}
+   </group>}
    <mesh position={[0,1.51,-.06]} scale={[1.07,.53,1]}>
     <sphereGeometry args={[.42,16,12]}/><meshStandardMaterial color={hair}/></mesh>
    {/* Larger eyes, small cheeks and a smile are legible on mobile. */}
