@@ -330,6 +330,12 @@
       "dialogue": "Hội thoại",
       "flashcard": "Thẻ ghi nhớ",
       "quiz": "Câu hỏi"
-    }
+    },
+    "entryTitle": "Bảng tương tác AI",
+    "entryDesc": "Trò chuyện cùng giáo viên và xem bảng so sánh, dòng thời gian, thẻ luyện tập.",
+    "entryAction": "Mở bảng tương tác",
+    "entryOpening": "Đang mở bảng",
+    "entryConfirm": "Chuyển sang bảng tương tác sẽ kết thúc cuộc trò chuyện thoại hiện tại và bắt đầu buổi học mới. Tiếp tục?",
+    "entryError": "Không thể kết thúc cuộc trò chuyện thoại hiện tại. Vui lòng thử lại."
   }
 }

@@ -330,6 +330,12 @@
       "dialogue": "Dialog",
       "flashcard": "Lernkarten",
       "quiz": "Kurzquiz"
-    }
+    },
+    "entryTitle": "Interaktives KI-Whiteboard",
+    "entryDesc": "Beim Gespräch mit der Lehrkraft Vergleiche, Zeitachsen und Übungskarten ansehen.",
+    "entryAction": "Whiteboard öffnen",
+    "entryOpening": "Whiteboard wird geöffnet",
+    "entryConfirm": "Beim Wechsel zum Whiteboard endet das aktuelle Sprachgespräch und eine neue Unterrichtssitzung beginnt. Fortfahren?",
+    "entryError": "Das aktuelle Sprachgespräch konnte nicht beendet werden. Bitte erneut versuchen."
   }
 }
