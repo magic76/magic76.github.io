@@ -60,6 +60,8 @@ export function WerewolfPage(){
  const [muted,setMuted]=useState(false);
  const [liveCaption,setLiveCaption]=useState("");
  const [hostSpeech,setHostSpeech]=useState("");
+ const [micPhase,setMicPhase]=useState<"speaking"|"waiting">("waiting");
+ const [audioIssue,setAudioIssue]=useState("");
  const liveRef=useRef<WolfVoiceController|null>(null);
  const requestRef=useRef(0);
  const voiceGenerationRef=useRef(0);
@@ -83,7 +85,7 @@ export function WerewolfPage(){
  };
  const endVoice=()=>{
   voiceGenerationRef.current++;
-  liveRef.current?.stop();liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setMuted(false);setLiveCaption("");setHostSpeech("");
+  liveRef.current?.stop();liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setMuted(false);setLiveCaption("");setHostSpeech("");setMicPhase("waiting");setAudioIssue("");
  };
  const reset=()=>{requestRef.current++;endVoice();currentRef.current=null;setGame(null);setDraft("");setSelected("");setAddressed("");setNotice("");setError("");busyRef.current=false;setBusy(false)};
  const start=()=>{
@@ -158,12 +160,14 @@ export function WerewolfPage(){
   if(!current||voiceStatus!=="off")return;
   if(!geminiKey()){setError(L(isZh,"請先在設定填入 Gemini Key。","Add a Gemini Key in Settings to enable Live."));return}
   const stamp=++voiceGenerationRef.current;
-  setVoiceStatus("connecting");setError("");
+  setVoiceStatus("connecting");setError("");setAudioIssue("");setMicPhase("waiting");
   try{
    const control=await startWerewolfLive(current,language,dispatchVoice,{
     onReady:()=>{if(mountedRef.current&&voiceGenerationRef.current===stamp)setVoiceStatus("ready")},
     onSpeaking:setSpeaking,
-    onTranscript:setLiveCaption,
+    onTranscript:value=>{setLiveCaption(value);if(value.trim())setAudioIssue("")},
+    onMicPhase:phase=>{setMicPhase(phase);if(phase==="speaking")setAudioIssue("")},
+    onAudioIssue:()=>setAudioIssue(L(isZh,"尚未收到語音辨識結果。請確認麥克風權限與音訊輸入，或再說一次。","Speech transcription did not arrive. Check your microphone/audio input or try again.")),
     onHostSpeech:setHostSpeech,
     onError:message=>{if(mountedRef.current&&voiceGenerationRef.current===stamp){liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setError(message)}}
    });
@@ -219,7 +223,7 @@ export function WerewolfPage(){
     {lastNotes.map((note,i)=><p key={i}>{isZh?note.replace(" is a wolf."," 是狼人。").replace(" is not a wolf."," 不是狼人。").replace("You saved tonight's target.","你成功救下昨晚的目標。").replace("You used your poison.","你已使用毒藥。"):note}</p>)}
    </section>:null}
    <section className={"wolf-voice"+(voiceStatus==="ready"?" is-connected":"")}>
-    <div><strong>🎙 {L(isZh,"Gemini Live 語音對話","Gemini Live voice chat")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):L(isZh,"正在聽你說話，可直接與 NPC 對話或投票","Listening — talk directly to an NPC or vote")):voiceStatus==="connecting"?L(isZh,"正在連接語音模型與麥克風…","Connecting voice and microphone…"):L(isZh,"點開始後直接說話，AI 將念出 NPC 的回覆","Start Live to speak and hear NPC replies.")}</small></div>
+    <div><strong>🎙 {L(isZh,"Gemini Live 語音對話","Gemini Live voice chat")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):micPhase==="speaking"?L(isZh,"正在收音…","Hearing your voice…"):L(isZh,"正在聆聽，可直接與 NPC 對話或投票","Listening — talk directly to an NPC or vote")):voiceStatus==="connecting"?L(isZh,"正在連接語音模型與麥克風…","Connecting voice and microphone…"):L(isZh,"點開始後直接說話，AI 將念出 NPC 的回覆","Start Live to speak and hear NPC replies.")}</small></div>
     {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"開啟語音對話","Start voice chat")}</button>:
      voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
      <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"結束語音","Stop voice")}</button></div>}
@@ -229,6 +233,7 @@ export function WerewolfPage(){
      {liveCaption?<p><strong>{L(isZh,"你說：","You: ")}</strong>{liveCaption.slice(-180)}</p>:null}
      {hostSpeech?<p><strong>{L(isZh,"AI 語音：","AI voice: ")}</strong>{hostSpeech.slice(-200)}</p>:null}
      {!liveCaption&&!hostSpeech?<p>{L(isZh,"例如：「Zoe，妳為什麼懷疑 Max？」","Try: Zoe, why are you suspicious of Max?")}</p>:null}
+     {audioIssue?<p className="wolf-audio-issue" role="status">{audioIssue}</p>:null}
     </div>:null}
    </section>
    <section className="wolf-history">
