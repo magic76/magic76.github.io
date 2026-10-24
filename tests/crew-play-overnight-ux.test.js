@@ -4,6 +4,7 @@ const fs=require("node:fs");
 const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const game=name=>fs.readFileSync(path.join(root,"web-spa/src/games",name),"utf8");
+const live=name=>fs.readFileSync(path.join(root,"web-spa/src/live",name),"utf8");
 
 test("Crew Play discovery provides accessible filters, search and useful empty states",()=>{
  const hub=game("CrewPlayHubPage.tsx");
@@ -79,4 +80,16 @@ test("Shared game panels do not dismiss when a touch starts inside the sheet",()
  assert.doesNotMatch(panel,/onMouseDown=/);
  assert.match(panel,/event\.key==="Escape"/);
  assert.match(panel,/triggerRef\.current\?\.focus\(\)/);
+});
+test("Compact Live controls stay reachable on narrow phones without noisy timer announcements",()=>{
+ const controls=live("LiveControls.tsx");
+ const css=live("gameVoiceCompact.css");
+ assert.match(controls,/role="status" aria-live="polite" aria-atomic="true"/);
+ assert.match(controls,/className="crew-game-voice-timer" aria-hidden="true"/);
+ assert.match(css,/@media\(max-width:430px\)/);
+ assert.match(css,/\.crew-game-voice-row\{align-items:stretch;flex-direction:column/);
+ assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.crew-game-voice-actions:has\(\.is-interrupt\)\{grid-template-columns:repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/touch-action:manipulation/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
