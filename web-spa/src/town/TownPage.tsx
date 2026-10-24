@@ -145,7 +145,7 @@ export function TownPage(){
    </div>
    <div className="crew-town-foot">
     <span>{zh?"這是互動視覺原型：小鎮對話為預設情境，點人物會進入現有的單人 Gemini Live 頁面。":"Interactive art prototype: town speech bubbles are scripted, while character links open the existing one-on-one Gemini Live experience."}</span>
-    <span className="crew-town-foot-mark">CREW · P0</span>
+    <span className="crew-town-foot-mark">CREW · 2.5D MODE</span>
    </div>
   </section>
   <section className="crew-town-next" aria-label={zh?"如何探索":"How to explore"}>
