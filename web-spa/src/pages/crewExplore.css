@@ -92,3 +92,18 @@
  .crew-explore-tile:first-child .crew-explore-text{padding:15px 42px 20px 16px;min-height:0}
 }
 @media(prefers-reduced-motion:reduce){.crew-explore-illustration,.crew-explore-life img:nth-of-type(2){transition:none!important}}
+
+
+/* Crew Town is a single preview destination; keep existing Explore cards intact. */
+.crew-explore-tile[data-kind="town"]{--art:#e3f1dc;--art-2:#cfe3df;--art-ink:#477a6e;--art-border:#cbdfd0;grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);min-height:164px}
+.crew-explore-tile[data-kind="town"] .crew-explore-art{height:100%;min-height:164px}
+.crew-explore-town-mini{position:relative;z-index:1;width:min(95%,340px);height:152px;display:grid;place-items:center}
+.crew-explore-town-mini svg{width:100%;height:100%;filter:drop-shadow(0 9px 9px #537b6b20)}
+.crew-explore-tile[data-kind="town"] .crew-explore-text{min-height:0;align-content:center;padding:20px 37px 20px 19px}
+.crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:calc(50% - 13px)}
+@media(max-width:700px){
+ .crew-explore-tile[data-kind="town"]{grid-template-columns:1fr}
+ .crew-explore-tile[data-kind="town"] .crew-explore-art{height:150px;min-height:0}
+ .crew-explore-tile[data-kind="town"] .crew-explore-text{padding:13px 34px 16px 16px}
+ .crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:19px}
+}
