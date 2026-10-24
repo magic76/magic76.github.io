@@ -39,8 +39,10 @@ test("three-round tracker deduplicates voice events and tapped choices",()=>{
  assert.equal(g.acceptVoice("We will pay in starlight","echo"),false);
  assert.equal(g.count,2);
  g.endChoice();
- assert.equal(g.canShowFinale,true);
+ assert.equal(g.canShowFinale,false);
+ assert.equal(g.acceptFinale(),false);
  assert.equal(g.acceptVoice("Last argument","v3"),true);
+ assert.equal(g.canShowFinale,true);
  assert.equal(g.count,3);
  assert.equal(g.acceptVoice("Fourth argument","v4"),false);
  assert.equal(g.acceptFinale(),true);
@@ -53,8 +55,9 @@ test("long broadcasts count exactly the configured replies",()=>{
   const tracker=new NewsRoundTracker(length);
   for(let i=0;i<length-1;i++)assert.equal(tracker.acceptVoice("unique answer "+i,"turn"+i),true);
   assert.equal(tracker.count,length-1);
-  assert.equal(tracker.canShowFinale,true);
+  assert.equal(tracker.canShowFinale,false);
   assert.equal(tracker.acceptVoice("last reply","last"),true);
+  assert.equal(tracker.canShowFinale,true);
   assert.equal(tracker.acceptVoice("overflow","overflow"),false);
   assert.equal(tracker.acceptFinale(),true);
  }
