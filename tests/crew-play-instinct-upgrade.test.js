@@ -64,9 +64,9 @@ test("pre-Key examples and per-game requirements are available without starting 
  const page=game("CrewPlayGamePage.tsx");
  assert.match(hub,/crew-play-access-note/);
  assert.match(hub,/免 Key 練習/);
- assert.match(page,/crew-play-sample/);
+ assert.match(game("CrewPlaySamplePreview.tsx"),/crew-play-sample/);
  assert.match(page,/示範回合/);
- assert.ok(page.indexOf('crew-play-sample')<page.indexOf('!hasKey?<GeminiSetupNotice'));
+ assert.ok(page.indexOf('CrewPlaySamplePreview english')<page.indexOf('!hasKey?<GeminiSetupNotice'));
 });
 test("board games emit local persona reactions, independent of Live",()=>{
  const board=game("CrewBoardGames.tsx");
