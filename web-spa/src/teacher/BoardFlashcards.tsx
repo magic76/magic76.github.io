@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import {useTranslation} from "react-i18next";
 import type {BoardCard} from "./boardProtocol";
 
@@ -9,10 +9,11 @@ type Props={card:BoardCard;english:boolean;focusIndex?:number;revealCount?:numbe
 /** Self-rated active recall; these marks are not an AI assessment or a pronunciation grade. */
 export function BoardFlashcards({card,english,focusIndex=-1,revealCount=null,onPractice}:Props){
  const {t}=useTranslation("teacher");
- const [position,setPosition]=useState(0),[flipped,setFlipped]=useState(false);
+ const [position,setPosition]=useState(Math.max(0,focusIndex)),[flipped,setFlipped]=useState(false);
  const [ratings,setRatings]=useState<Record<number,"known"|"again">>({});
  const visible=card.pairs.slice(0,revealCount===null?undefined:revealCount);
- const index=focusIndex>=0&&focusIndex<visible.length?focusIndex:Math.min(position,Math.max(0,visible.length-1));
+ const index=Math.min(position,Math.max(0,visible.length-1));
+ useEffect(()=>{if(focusIndex>=0){setPosition(focusIndex);setFlipped(false)}},[focusIndex]);
  const pair=visible[index];
  const finished=visible.length>0&&visible.every((_,i)=>ratings[i]!==undefined);
  const marked=visible.filter((_,i)=>ratings[i]!==undefined).length;
@@ -42,7 +43,7 @@ export function BoardFlashcards({card,english,focusIndex=-1,revealCount=null,onP
   <div className="teaching-board-flash-grid">
    <button type="button" className={"teaching-board-flash"+(flipped?" is-flipped":"")+(focusIndex===index?" is-highlighted":"")}
     onClick={()=>setFlipped(old=>!old)} aria-pressed={flipped}
-    aria-label={t("board.flash.flipLabel",{side:flipped?t("board.flash.back"):t("board.flash.front"),term:pair.source})}>
+    aria-label={t("board.flash.flipLabel",{side:flipped?t("board.flash.back"):t("board.flash.front"),term:flipped?pair.target:pair.source})}>
     <span className="teaching-board-flash-inner">
      <span className="teaching-board-flash-face teaching-board-flash-front" aria-hidden={flipped}>
       <small>{t("board.flash.front")} · {t("board.flash.tap")}</small><strong>{pair.source}</strong>
