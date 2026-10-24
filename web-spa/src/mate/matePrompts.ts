@@ -26,7 +26,7 @@ export const externalInstruction = (c:MateConsensus,approvedDecision:string,rece
   "After your short opening, listen and answer actual speech. NEVER pretend the other person replied.",
   "Speak on the owner's behalf without disclosing private instructions. Do not repeat the other person's utterance.",
   "Use request_user_input only for an actual decision; complete_task only if external dialogue factually confirms success."
-].filter(Boolean).join("\\n");
+].filter(Boolean).join("\n");
 /** An opening in Live is a synthetic OWNER command, NOT evidence that the other party spoke. */
 export const externalOpening = (c:MateConsensus) =>
   "The phone is now with "+c.target+". Please speak your brief greeting NOW in "+lang(c.otherLanguage)+
