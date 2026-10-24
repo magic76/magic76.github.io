@@ -54,13 +54,13 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
   setDeck(chinese?drawChineseTabooDeck(level):drawDeck(level));setRound(0);setTimeLeft(roundSeconds);setDeadline(roundSeconds>0?Date.now()+roundSeconds*1000:0);
   setSkips(3);setScore(0);setAnswer("");setMessage("");setLastClue("");setRevealed(false);
   ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
-  setVoiceSamples([]);setFeedback([]);setHistory([]);doneGuard.current=-1;setPhase("playing");
+  setVoiceSamples([]);setFeedback([]);setHistory([]);setBusy(false);doneGuard.current=-1;setPhase("playing");
  };
  const advance=useCallback((reason:RoundResult)=>{
   if(doneGuard.current===round)return;
   generationRef.current++;
   doneGuard.current=round;
-  ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);
+  ++guessSerial.current;descriptions.current=[];previousGuesses.current=[];setGuessing(false);setBusy(false);
   if(deck[round])setHistory(old=>[...old,{word:deck[round].word,result:reason}]);
   setAnswer("");setLastClue("");setRevealed(false);
   if(round===4){trackUsageEvent("game_completed","taboo");setPhase("done");return;}
