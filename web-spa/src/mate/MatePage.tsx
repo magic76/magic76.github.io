@@ -41,7 +41,6 @@ export function MatePage(){
   const translationPending=useRef(new Set<string>());
   const [decision,setDecision]=useState<MateDecision>(null);
   const [outcome,setOutcome]=useState("");
-  const [saveHistory,setSaveHistory]=useState(false);
   const [history,setHistory]=useState<MateHistory[]>(()=>readMateHistory());
   const [showHistory,setShowHistory]=useState(false);
   const [error,setError]=useState("");
@@ -76,7 +75,7 @@ export function MatePage(){
     turnsRef.current=[...turnsRef.current,latest];
     setTurns(turnsRef.current);
     if(translationViewRef.current!=="original")void translateTurn(latest);
-    if(saveHistory)saveResult(false,t("對話進行中","Conversation in progress"));
+    saveResult(false,t("對話進行中","Conversation in progress"));
   }
   async function translateTurn(entry:MateTurn){
     if(translationPending.current.has(entry.id)||entry.translated)return;
@@ -118,7 +117,6 @@ export function MatePage(){
   },[]);
 
   function saveResult(completed:boolean,result:string){
-    if(!saveHistory)return;
     const c=consensusRef.current;
     const record:MateHistory={id:taskId.current,status:completed?"completed":"stopped",
       target:c.target,goal:c.goal,userLanguage:c.userLanguage,
@@ -150,7 +148,7 @@ export function MatePage(){
     }else{
       advance("external","EXTERNAL_WITH_MATE");
       setShowHistory(false);setStartedExternal(true);
-      if(saveHistory)saveResult(false,t("任務可繼續","Task can be resumed"));
+      saveResult(false,t("任務可繼續","Task can be resumed"));
     }
     try{
       await ensureLive();
@@ -310,7 +308,7 @@ export function MatePage(){
     await stopConnection();
   }
   function restart(){
-    void stopConnection();advance("setup","IDLE");setSaveHistory(false);setShowHistory(false);
+    void stopConnection();advance("setup","IDLE");setShowHistory(false);
     taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
@@ -343,7 +341,6 @@ export function MatePage(){
         void stopConnection();
         taskId.current=item.id;
         turnsRef.current=item.turns.slice();setTurns(turnsRef.current);setOutcome(item.outcome);
-        setSaveHistory(Boolean(item.consensus));
         setStartedExternal(true);setError("");
         if(mateHistoryResumable(item)&&item.consensus){
           updateConsensus({...item.consensus});advance("review","USER_DIRECT");
@@ -430,8 +427,6 @@ export function MatePage(){
         {phase==="decision"&&<button className="mate-quiet" type="button" onClick={()=>void closeTask(false,t("需要使用者處理","Owner action needed"))}>{t("結束","End")}</button>}
       </div>
     </section>}
-    {reviewing&&<label className="mate-save"><input type="checkbox" checked={saveHistory} onChange={e=>setSaveHistory(e.target.checked)}/>
-      {t("同意儲存任務、私人限制與逐字稿在此裝置（預設關閉）","Save task, private limits and transcript on this device (off by default)")}</label>}
     <p className="mate-disclaimer">{t("現場溝通需徵得對方同意。Mate 不會傳送 LINE、Email 或其他遠端訊息。切換私下補充時會安全地重建語音連線。","Ask for consent before using live transcription. Mate does not send remote messages. Switching between private and external modes safely reconnects voice.")}</p>
   </div>;
 }
