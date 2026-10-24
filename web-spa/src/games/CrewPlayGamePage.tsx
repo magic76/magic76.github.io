@@ -6,6 +6,7 @@ import {FriendAvatar} from "../friends/FriendAvatar";
 import {buildFriendSystem} from "../friends/friendMemory";
 import {friendLanguageReminder} from "../friends/friendLanguage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
+import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
@@ -78,6 +79,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const mode=useTeacherStore(s=>s.friendChatMode);
+ const {gameVoice,setGameVoice}=useGameVoice();
  const [loadedRound,setLoadedRound]=useState(round);
  const [roundEnded,setRoundEnded]=useState(false);
  const fallbackQuestion=twentyItems[round%twentyItems.length];
@@ -160,7 +162,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const live=useLiveSession({
   pageKey:"crew-play-"+kind+"-"+friend.id,title:gameLabel+" · "+friend.name,
   system,openingPrompt:directive+"\n[GAME OPENING] Say one short, relaxed in-character greeting about "+gameLabel+". Don't give away any secret or solution. Then let the user play.",
-  voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,languageDirective:directive,
+  voice:resolveGameVoice(gameVoice,normalizeLiveVoice(friend.voice)),language,nativeLanguage,languageDirective:directive,
   persistHistory:false,sessionKind:"friend",
   // A model turn can finish before its audio stops playing.
   onTurnComplete:(spokenTurn)=>{
@@ -290,6 +292,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   <button type="button" className="crew-play-voice-start" disabled={voicePreparing||isWord&&!hasKey} onClick={()=>void live.start()}>{voicePreparing?(english?"Preparing the mystery…":"正在準備新題目…"):voiceStartLabel}</button>:
   <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>;
  return <div className={"crew-play-session"+(isWord?" crew-play-session--word":"")+(twenty?" crew-play-session--twenty":"")}>
+  <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/>
   {isWord?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
    <div className="crew-play-voice-presence-header">
     <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
