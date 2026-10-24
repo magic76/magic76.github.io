@@ -8,7 +8,7 @@ import type {PortalMode} from "./portalField.mjs";
 const MODES:readonly {id:PortalMode;icon:IconName;to:string;name:string}[]=[
  {id:"chat",icon:"chat",to:"/teacher/roles?mode=friends",name:"THE CONNECTION / CHAT"},
  {id:"play",icon:"play",to:"/games",name:"THE PLAYGROUND / PLAY"},
- {id:"learn",icon:"teacher",to:"/teacher",name:"THE RESONANCE / LEARN"},
+ {id:"learn",icon:"teacher",to:"/learn",name:"THE RESONANCE / LEARN"},
  {id:"story",icon:"story",to:"/story",name:"THE UNFOLDING / STORY"}
 ];
 

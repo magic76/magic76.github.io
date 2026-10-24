@@ -220,7 +220,6 @@ export function GeminiConnectionPanel(){
     <div className="settings-connected-main"><span className="settings-connected-mark">{verified?"✓":"!"}</span>
      <span><strong>{verified?t("gemini.configured"):t("gemini.unverified")}</strong>
       <small>{verified?t("gemini.verifiedDesc"):t("gemini.unverifiedDesc")}</small></span></div>
-    <code>••••••••••••</code>
     <div className="actions"><button className="btn secondary" disabled={validating||voiceBusy} onClick={()=>setShowSetup(true)}>{t("gemini.reconfigure")}</button></div>
     <div className={"result settings-connection-result "+(verified?"success":"")} role="status">{keyStatus}</div>
    </section>:

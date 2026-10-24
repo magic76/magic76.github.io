@@ -1,5 +1,5 @@
 import {useTeacherStore} from "../store/teacherStore";
-import{useEffect,useState}from"react";
+import{useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
 import{LanguageSwitcher}from"../i18n/LanguageSwitcher";
 import{personalMemoryEnabled,setPersonalMemoryEnabled}from"../teacher/studentMemory";
@@ -18,6 +18,7 @@ import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {getOnboardingCopy} from "../onboarding/copy";
 import {REOPEN_ONBOARDING_EVENT} from "../onboarding/OnboardingGate";
 import {DeviceAndAppPanel} from "./DeviceAndAppPanel";
+import {Icon} from "../components/Icon";
 import "./settingsGroups.css";
 
 export function SettingsPage(){
@@ -25,6 +26,7 @@ export function SettingsPage(){
  // For unlocalized legacy text, use the explicit English fallback for non-Chinese UI locales.
  const english=!i18n.language.startsWith("zh");
  const ready=useClientReady(),{hash}=useLocation();
+ const advancedRef=useRef<HTMLDetailsElement>(null);
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
  const pinyinMode=useTeacherStore(s=>s.pronunciationAidMode),setPinyinMode=useTeacherStore(s=>s.setPronunciationAidMode);
@@ -45,7 +47,10 @@ export function SettingsPage(){
  },[ready]);
  useEffect(()=>{
   const id=hash.slice(1);
-  if(!["#settings-learning","#settings-interface","#settings-voice","#settings-data","#memory-settings","#settings-gemini","#settings-device"].includes(hash))return;
+  if(!["#settings-learning","#settings-interface","#settings-voice","#settings-data","#memory-settings","#settings-gemini","#settings-device","#settings-advanced","#live-model-settings"].includes(hash))return;
+  if(hash==="#settings-advanced"||hash==="#live-model-settings"){
+   if(advancedRef.current)advancedRef.current.open=true;
+  }
   // Lazy-mounted settings panels may not exist when the browser first handles the hash.
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
@@ -57,10 +62,11 @@ export function SettingsPage(){
   <span className="crew-settings-orb-arrow" aria-hidden="true">→</span>
  </Link>}
  <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
-  <a href="#settings-learning">{t("group.navLearning")}</a>
-  <a href="#settings-voice">{t("group.navVoice")}</a>
-  <a href="#settings-data">{t("group.navMemory")}</a>
-  <a href="#settings-device">{t("group.navDevice")}</a>
+  <a href="#settings-learning"><span className="crew-settings-nav-icon"><Icon name="teacher"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navLearning")}</strong><small>{t("group.learningIntro")}</small></span><span aria-hidden="true">→</span></a>
+  <a href="#settings-voice"><span className="crew-settings-nav-icon"><Icon name="mic"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navVoice")}</strong><small>{t("group.voiceIntro")}</small></span><span aria-hidden="true">→</span></a>
+  <a href="#settings-data"><span className="crew-settings-nav-icon"><Icon name="history"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navMemory")}</strong><small>{t("group.memoryIntro")}</small></span><span aria-hidden="true">→</span></a>
+  <a href="#settings-device"><span className="crew-settings-nav-icon"><Icon name="settings"/></span><span className="crew-settings-nav-copy"><strong>{t("group.navDevice")}</strong><small>{t("device.heading")}</small></span><span aria-hidden="true">→</span></a>
+  <a href="#settings-advanced"><span className="crew-settings-nav-icon"><Icon name="sparkles"/></span><span className="crew-settings-nav-copy"><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><span aria-hidden="true">→</span></a>
  </nav>
  <section id="settings-learning" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("group.learningHeading")}</h2></div>
@@ -91,7 +97,7 @@ export function SettingsPage(){
     </select>
    </label>
   </div>
-  <Link className="crew-settings-quick-link" to="/teacher/learn">{t("group.openLearning")} →</Link>
+  <Link className="crew-settings-quick-link" to="/learn">{t("group.openLearning")} →</Link>
  </section>
  <section id="settings-interface" className="section panel crew-settings-category crew-settings-interface">
   <div className="section-head"><h2>{english?"Interface & appearance":"介面與外觀"}</h2></div>
@@ -109,19 +115,7 @@ export function SettingsPage(){
    <Link className="crew-settings-quick-link" to="/teacher/pronunciation">{english?"Open pronunciation practice":"開啟發音訓練"} →</Link>
   </section>
 
- <section className="section panel crew-live-model-settings" id="live-model-settings">
-  <div className="section-head"><h2>{t("group.modelHeading")}</h2><small>{t("group.modelShared")}</small></div>
-  <label style={{display:"grid",gap:8,maxWidth:440}}>
-   <span>{t("group.modelIntro")}</span>
-   <select value={liveModel} onChange={e=>setLiveModel(e.target.value as typeof liveModel)} style={{width:"100%",padding:"12px",borderRadius:10,border:"1px solid #cbd5e1",background:"var(--surface,#fff)",color:"inherit"}}>
-    <option value="gemini-3.8-live">Gemini 3.8 Live</option>
-    <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live (Preview)</option>
-   </select>
-  </label>
-  <p className="meta" style={{marginTop:10}}>{english
-   ?"Takes effect in the next voice session and voice preview. No silent fallback to a different model, so comparisons are reliable. Older preview model availability depends on Google and your API key."
-   :"下次開啟老師、朋友的語音對話或角色試聽時生效。不會暗中切換其他模型，方便實際 A/B 比較。舊版預覽模型是否可用，取決於 Google 及你的 API Key。"}</p>
- </section>
+
  </div>
  <div id="settings-data" className="crew-settings-group">
   <header className="crew-settings-group-heading"><h2>{t("group.memoryHeading")}</h2>
@@ -151,6 +145,25 @@ export function SettingsPage(){
   <p className="meta">{t("device.permissions")}</p>
   <DeviceAndAppPanel/>
  </section>
+
+ <details id="settings-advanced" className="crew-settings-advanced" ref={advancedRef}>
+  <summary className="crew-settings-advanced-summary"><span><strong>{t("gemini.advanced")}</strong><small>{t("group.modelHeading")}</small></span><span aria-hidden="true">⌄</span></summary>
+  <div className="crew-settings-advanced-content">
+ <section className="section panel crew-live-model-settings" id="live-model-settings">
+  <div className="section-head"><h2>{t("group.modelHeading")}</h2><small>{t("group.modelShared")}</small></div>
+  <label style={{display:"grid",gap:8,maxWidth:440}}>
+   <span>{t("group.modelIntro")}</span>
+   <select value={liveModel} onChange={e=>setLiveModel(e.target.value as typeof liveModel)} style={{width:"100%",padding:"12px",borderRadius:10,border:"1px solid #cbd5e1",background:"var(--surface,#fff)",color:"inherit"}}>
+    <option value="gemini-3.8-live">Gemini 3.8 Live</option>
+    <option value="gemini-3.1-flash-live-preview">Gemini 3.1 Flash Live (Preview)</option>
+   </select>
+  </label>
+  <p className="meta" style={{marginTop:10}}>{english
+   ?"Takes effect in the next voice session and voice preview. No silent fallback to a different model, so comparisons are reliable. Older preview model availability depends on Google and your API key."
+   :"下次開啟老師、朋友的語音對話或角色試聽時生效。不會暗中切換其他模型，方便實際 A/B 比較。舊版預覽模型是否可用，取決於 Google 及你的 API Key。"}</p>
+ </section>
+  </div>
+ </details>
  <BuildVersion/>
 </>;
 }
