@@ -10,6 +10,7 @@ import {BuildVersion} from "../components/BuildVersion";
 import {Link,useLocation} from "react-router-dom";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
+import {TeacherPinyinSetting} from "../teacher/TeacherPinyinSetting";
 import {DAILY_GOALS,DEFAULT_GOAL_MINUTES,getDailyGoalMinutes,setDailyGoalMinutes} from "../teacher/learningToday";
 import {useClientReady} from "../lib/useClientReady";
 import {isCrewAndroidShell} from "../lib/platform";
@@ -26,6 +27,7 @@ export function SettingsPage(){
  const ready=useClientReady(),{hash}=useLocation();
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
+ const pinyinMode=useTeacherStore(s=>s.pronunciationAidMode),setPinyinMode=useTeacherStore(s=>s.setPronunciationAidMode);
  const speakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel),setSpeakingLevel=useTeacherStore(s=>s.setLearnerSpeakingLevel);
  const[goal,setGoal]=useState(DEFAULT_GOAL_MINUTES);
  useEffect(()=>{if(ready)setGoal(getDailyGoalMinutes())},[ready]);
@@ -43,7 +45,7 @@ export function SettingsPage(){
  },[ready]);
  useEffect(()=>{
   const id=hash.slice(1);
-  if(!hash.endsWith("#memory-settings")&&!hash.endsWith("#settings-gemini")&&!hash.endsWith("#settings-device"))return;
+  if(!["#settings-learning","#settings-interface","#settings-voice","#settings-data","#memory-settings","#settings-gemini","#settings-device"].includes(hash))return;
   // Lazy-mounted settings panels may not exist when the browser first handles the hash.
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
@@ -63,17 +65,19 @@ export function SettingsPage(){
  <section id="settings-learning" className="section panel crew-settings-category">
   <div className="section-head"><h2>{t("group.learningHeading")}</h2></div>
   <p className="meta">{t("group.learningIntro")}</p>
-  <div className="crew-settings-locale"><strong>{t("group.interfaceLanguage")}</strong><LanguageSwitcher variant="settings"/></div>
   <div className="crew-settings-fields">
    <label>{t("group.targetLanguage")}
     <select value={target} onChange={e=>setTarget(e.target.value)}>
      {TARGET_LANGUAGES.map(item=><option key={item.value} value={item.value}>{english?item.spoken:item.value}</option>)}
     </select>
+    <small className="crew-settings-field-hint">{english?"Language you want to learn with Crew Teacher.":"老師教你學習的語言；不會更改 App 介面。"}</small>
    </label>
+   <TeacherPinyinSetting targetLanguage={target} value={pinyinMode} onChange={setPinyinMode} english={english} showWhenUnavailable/>
    <label>{t("group.nativeLanguage")}
     <select value={native} onChange={e=>setNative(e.target.value as typeof native)}>
      {NATIVE_LANGUAGES.map(([code,label])=><option key={code} value={code}>{label}</option>)}
     </select>
+    <small className="crew-settings-field-hint">{english?"Language used to explain lessons to you.":"老師解說時使用的母語。"}</small>
    </label>
    <label>{t("group.speakingLevel")}
     <select value={speakingLevel} onChange={e=>setSpeakingLevel(e.target.value as typeof speakingLevel)}>
@@ -89,6 +93,11 @@ export function SettingsPage(){
   </div>
   <Link className="crew-settings-quick-link" to="/teacher/learn">{t("group.openLearning")} →</Link>
  </section>
+ <section id="settings-interface" className="section panel crew-settings-category crew-settings-interface">
+  <div className="section-head"><h2>{english?"Interface & appearance":"介面與外觀"}</h2></div>
+  <p className="meta">{english?"Change the app display language without changing what you learn.":"只調整 App 顯示語言，不會改變老師的教學語言。"}</p>
+  <div className="crew-settings-locale"><LanguageSwitcher variant="settings"/></div>
+ </section>
  <div id="settings-voice" className="crew-settings-group">
   <header className="crew-settings-group-heading"><h2>{t("group.voiceHeading")}</h2>
    <p>{t("group.voiceIntro")}</p>
@@ -97,7 +106,7 @@ export function SettingsPage(){
   <section className="section panel crew-settings-voice-links">
    <h3>{t("group.pronunciationHeading")}</h3>
    <p className="meta">{t("group.pronunciationIntro")}</p>
-   <Link className="crew-settings-quick-link" to="/teacher/vocabulary">{t("group.pronunciationSettings")} →</Link>
+   <Link className="crew-settings-quick-link" to="/teacher/pronunciation">{english?"Open pronunciation practice":"開啟發音訓練"} →</Link>
   </section>
 
  <section className="section panel crew-live-model-settings" id="live-model-settings">
