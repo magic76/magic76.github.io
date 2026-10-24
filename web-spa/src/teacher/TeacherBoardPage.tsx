@@ -20,7 +20,11 @@ import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardTutorPanel} from "./BoardTutorPanel";
 import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
 import {BOARD_VISUAL_POLICY} from "./boardVisualPolicy";
+import {planAdaptiveNext} from "./boardAdaptive";
+import {BoardReviewBanner} from "./BoardReviewBanner";
+import {useBoardReviewState} from "./useBoardReviewState";
 import "./teachingBoard.css";
+import "./boardReview.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
 const letterIndex=(spoken:string):number=>{
@@ -33,7 +37,9 @@ export function TeacherBoardPage(){
  const {t,i18n}=useTranslation("teacher");
  const s=useTeacherStore();
  const profile=getTeacherProfile(s.teacherProfile);
- const level=effectiveSpeakingLevel(s.targetLanguage,s.learnerSpeakingLevel,personalMemoryEnabled());
+ const memoryEnabled=personalMemoryEnabled();
+ const level=effectiveSpeakingLevel(s.targetLanguage,s.learnerSpeakingLevel,memoryEnabled);
+ const reviews=useBoardReviewState(s.targetLanguage,profile.id,memoryEnabled);
  const [cards,setCards]=useState<BoardCard[]>([]);
  const [answers,setAnswers]=useState<Record<string,number>>({});
  const answersRef=useRef<Record<string,number>>({});
@@ -60,6 +66,7 @@ export function TeacherBoardPage(){
  const reviewReturnRef=useRef<{cardId:string;index:number}|null>(null);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
  const formatRequestRef=useRef<BoardPresentation|null>(null);
+ const pendingQuizRef=useRef<{cardId:string;index:number;correct:boolean}|null>(null);
  // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
@@ -91,7 +98,7 @@ export function TeacherBoardPage(){
   const changedId=stage.cardId;
   setLatestId(changedId);setRevision(v=>v+1);
   if(changedId&&!waiting&&!guided){setFollowing(true);setFocusedId(null);}
-  if(patch.action==="replace"){answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
+  if(patch.action==="replace"){pendingQuizRef.current=null;answersRef.current={};setAnswers({});setSpeakingAssessment(null);speechAssessmentRef.current=null;}
   return true;
  }
  function selectAnswer(card:BoardCard,index:number,selected:number,fromVoice=false):boolean{
@@ -102,6 +109,7 @@ export function TeacherBoardPage(){
   answersRef.current={...answersRef.current,[key]:selected};
   setAnswers(answersRef.current);
   changeDirector(next);
+  pendingQuizRef.current={cardId:card.id,index,correct:next.result==="correct"};
   setLatestId(card.id);setFollowing(true);setFocusedId(null);
   if(!fromVoice&&active){
    const q=card.questions[index];
@@ -160,7 +168,7 @@ export function TeacherBoardPage(){
   speechAssessmentRef.current=null;setSpeakingAssessment(null);
   reviewReturnRef.current=null;setReviewReturn(null);
   moveToCard(lesson.cards[0].id);
-  setHasLivePatch(false);setNotesOpen(false);setHint("");
+  pendingQuizRef.current=null;setHasLivePatch(false);setNotesOpen(false);setHint("");
   if(active)live.sendText(lessonPrompt(lesson,0)+"\n"+localeHelp);
  }
  function goLessonStep(index:number){
@@ -217,6 +225,19 @@ export function TeacherBoardPage(){
     const patch=fallbackBoard(requested,cardRef.current);
     if(patch)commitPatch(patch);
    }
+   // Never advance before a real learner answer AND the teacher's feedback turn.
+   const pending=pendingQuizRef.current,d=directorRef.current;
+   if(pending&&turn.output?.trim()&&d.phase==="feedback"&&d.cardId===pending.cardId&&d.quizIndex===pending.index){
+    pendingQuizRef.current=null;
+    const card=cardRef.current.find(c=>c.id===pending.cardId);
+    if(card){
+     const next=planAdaptiveNext(card,pending.index,pending.correct,cardRef.current,!!lessonRef.current);
+     if(next.kind==="review")reviewCard();
+     else if(next.kind==="next-question")navigateCard(card.id,next.index);
+     else if(next.kind==="next-lesson")goLessonStep(next.index);
+     else if(next.kind==="next-exercise")nextExercise();
+    }
+   }
   }
  });
  const active=speakingStates.includes(live.state);
@@ -241,7 +262,7 @@ export function TeacherBoardPage(){
  function showFormats(){
   // Preview cards are curated static samples, not a claimed model response.
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
-  changeDirector(EMPTY_DIRECTOR);
+  pendingQuizRef.current=null;changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
   const patch=fallbackBoard({input:"展示不同卡片種類的格式示範"},[]);
   if(patch&&commitPatch(patch)){
@@ -252,8 +273,19 @@ export function TeacherBoardPage(){
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
+ function startDueReview(){
+  if(directorRef.current.phase==="awaiting"||!reviews.due.length)return;
+  lessonRef.current=null;setLessonId(null);setLessonStep(0);changeDirector(EMPTY_DIRECTOR);
+  reviewReturnRef.current=null;setReviewReturn(null);
+  const pairs=reviews.due.map(item=>({source:item.source,target:item.target}));
+  commitPatch({action:"replace",ids:[],cards:[{id:"scheduled-review",type:"flashcard",title:t("board.review.title"),body:"",pairs,points:[],questions:[]}]});
+  if(active)live.sendControl("[REVIEW MODE] The learner opened due flashcards from prior self-ratings. These are learning material, not graded answers. Wait for them to recall or ask for oral practice.");
+ }
  function coachFlashcard(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak"){
   ask(flashcardTeacherPrompt(card,reviews,scope));
+ }
+ function rateFlashcard(card:BoardCard,review:FlashReview){
+  if(!showingDemo&&!card.id.startsWith("demo-"))reviews.rate(review,review.rating);
  }
  function choosePresentation(kind:BoardPresentation){
   if(!active){setHint(t("board.startFirst"));return;}
@@ -295,6 +327,7 @@ export function TeacherBoardPage(){
   const key=card.id+":"+prior.index;
   const next={...answersRef.current};delete next[key];answersRef.current=next;setAnswers(next);
   reviewReturnRef.current=null;setReviewReturn(null);
+  pendingQuizRef.current=null;
   changeDirector({...EMPTY_DIRECTOR,cardId:card.id,phase:"awaiting",quizIndex:prior.index,focusIndex:prior.index});
   setLatestId(card.id);setFocusedId(null);setFollowing(true);setRevision(v=>v+1);
   if(active)live.sendText("[LESSON RETRY] Let me attempt question "+(prior.index+1)+" again. Do not reveal the correct option; ask and wait.\n"+localeHelp);
@@ -332,6 +365,8 @@ export function TeacherBoardPage(){
      <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
      <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
+    <BoardReviewBanner due={reviews.due.length} total={reviews.total} enabled={memoryEnabled}
+     blocked={director.phase==="awaiting"} onStart={startDueReview} onClear={reviews.clear}/>
     <BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"||!!lessonId}/>
     {cards.length>0&&<div className="teaching-board-navigator">
      <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
@@ -354,7 +389,7 @@ export function TeacherBoardPage(){
        focusIndex={director.cardId===focusedCard.id?director.focusIndex:-1}
        revealCount={director.cardId===focusedCard.id?director.revealed:null}
        quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={index=>navigateCard(focusedCard.id,index)}
-       onSpeakingSubmit={text=>submitSpeaking(text,true)} onFlashcardPractice={coachFlashcard} speakingAssessment={director.cardId===focusedCard.id?speakingAssessment:null}/>}
+       onSpeakingSubmit={text=>submitSpeaking(text,true)} onFlashcardPractice={coachFlashcard} onFlashcardRate={rateFlashcard} speakingAssessment={director.cardId===focusedCard.id?speakingAssessment:null}/>}
     </div>
     {focusedCard&&following&&director.cardId===focusedCard.id&&<div className="teaching-board-director-status" role="status">
      {director.phase==="awaiting"&&<button type="button" onClick={requestHint}>{t("board.lessonPicker.hint")}</button>}
