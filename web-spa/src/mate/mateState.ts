@@ -27,7 +27,7 @@ export type MateHistory = {
   turns: MateTurn[];
   outcome: string;
   updatedAt: number;
-  /** Present only when owner explicitly opted into storing private task details. */
+  /** Auto-saved task snapshot; legacy history entries may not include this field. */
   consensus?: MateConsensus;
 };
 export const MATE_HISTORY_KEY = "crew_mate_history_v1";
@@ -105,7 +105,7 @@ export function readMateHistory():MateHistory[] {
     return Array.isArray(value)?value.slice(0,20) as MateHistory[]:[];
   } catch {return []}
 }
-/** Only opted-in, unfinished records with a complete private consensus can be resumed. */
+/** Only unfinished records with a complete private consensus can be resumed. */
 export function mateHistoryResumable(item:MateHistory):boolean {
   return item.status==="stopped" && !!item.consensus && mateConsensusReady(item.consensus);
 }

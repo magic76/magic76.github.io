@@ -54,7 +54,7 @@ test("all externally available tools exclude private consensus mutation",()=>{
  assert.deepEqual(tools.map(x=>x.name),["request_user_input","complete_task"]);
 });
 
-// P1: stopped records are resumable only with the owner's opted-in consensus.
+// P1: stopped records can resume only with a complete private consensus.
 test("resuming historical tasks never reopens completed tasks or an incomplete snapshot",()=>{
  const base={...consensus};
  const item={id:"task-1",status:"stopped",consensus:base};
@@ -100,4 +100,17 @@ test("P1 external view has a dedicated transcript and explicit reconnect path",(
  assert.match(page,/Review and reconnect/);
  assert.match(transcript,/shouldFollow\.current=nearBottom/);
  assert.match(transcript,/role="log"/);
+});
+
+test("Mate local task history is always saved without a consent toggle",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const panel=fs.readFileSync(path.join(root,"web-spa/src/mate/MateHistoryPanel.tsx"),"utf8");
+ assert.doesNotMatch(page,/saveHistory|setSaveHistory|mate-save/);
+ assert.match(page,/function saveResult\(completed:boolean,result:string\)/);
+ assert.match(page,/storeMateHistory\(record\)/);
+ assert.match(page,/saveResult\(false,t\("任務可繼續"/);
+ assert.match(page,/saveResult\(false,t\("對話進行中"/);
+ assert.match(page,/saveResult\(completed,summary\)/);
+ assert.match(panel,/Tasks and transcripts are saved here automatically/);
+ assert.match(panel,/onDelete\(item\.id\)/);
 });
