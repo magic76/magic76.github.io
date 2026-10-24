@@ -21,18 +21,13 @@ import {BoardTutorPanel} from "./BoardTutorPanel";
 import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
 import {BOARD_VISUAL_POLICY} from "./boardVisualPolicy";
 import {planAdaptiveNext} from "./boardAdaptive";
+import {parseBoardVoiceAnswer} from "./boardVoiceAnswer";
 import {BoardReviewBanner} from "./BoardReviewBanner";
 import {useBoardReviewState} from "./useBoardReviewState";
 import "./teachingBoard.css";
 import "./boardReview.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
-const letterIndex=(spoken:string):number=>{
- const bare=spoken.trim().match(/^([ABCD])\s*[.!。！]?$/i);
- if(bare)return bare[1].toUpperCase().charCodeAt(0)-65;
- const match=spoken.match(/(?:第\s*[一二三123]\s*題\s*(?:我\s*)?(?:選擇?|答案\s*是|是)?|(?:answer|答案|我選|選擇))\s*[，,.:：]?\s*([ABCD])/i);
- return match?match[1].toUpperCase().charCodeAt(0)-65:-1;
-};
 export function TeacherBoardPage(){
  const {t,i18n}=useTranslation("teacher");
  const s=useTeacherStore();
@@ -133,18 +128,9 @@ export function TeacherBoardPage(){
   return true;
  }
  function processConfirmedSpeech(raw:string){
-  const spoken=raw.trim(),stage=directorRef.current;
-  if(!spoken||/^(can you repeat|repeat please|再說一次|我不懂|please help|給我提示)[?.!。！ ]*$/i.test(spoken))return;
-  if(stage.phase!=="awaiting")return;
-  const card=cardRef.current.find(c=>c.id===stage.cardId);
-  if(!card)return;
-  if(card.type==="speaking"){submitSpeaking(spoken,false);return}
-  if(card.type!=="quiz")return;
-  const selected=letterIndex(spoken);
-  if(selected<0)return;
-  const match=spoken.match(/第\s*([一二三123])\s*題/);
-  const number=match?({一:1,二:2,三:3}[match[1] as "一"|"二"|"三"]||Number(match[1])):stage.quizIndex+1;
-  if(number-1===stage.quizIndex)selectAnswer(card,number-1,selected,true);
+  const answer=parseBoardVoiceAnswer(raw,directorRef.current,cardRef.current.find(c=>c.id===directorRef.current.cardId));
+  if(answer?.kind==="speaking")submitSpeaking(answer.text,false);
+  else if(answer?.kind==="quiz")selectAnswer(cardRef.current.find(c=>c.id===directorRef.current.cardId)!,answer.index,answer.selected,true);
  }
  function moveToCard(cardId:string){
   const card=cardRef.current.find(c=>c.id===cardId);
