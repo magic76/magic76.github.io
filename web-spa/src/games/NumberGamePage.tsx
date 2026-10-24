@@ -2,20 +2,20 @@ import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFrame";
 import {GamePanel} from "./GamePanel";
+import {dailyNumberDate,dailyNumberSecret,readNumberRecord,readDailyResult,saveNumberResult} from "./dailyNumberChallenge";
+import {friendGameReaction} from "./friendGameReaction";
 import {legalNumber,secretNumber,scoreAB,parseSpokenNumber,parseSpokenAB,nextComputerGuess,candidateNumbers,type DigitCount,type GuessRow,type AB} from "./numberGameEngine";
 
 type Mode="guess"|"reverse";
-const quote=(name:string,won:boolean)=>won
- ?name+"：這次真讓你猜中了，下次我換個難的。"
- :name+"：差一點就被你抓到了，再來一局？";
 
-function saveResultImage(count:number,digits:number,name:string,won:boolean){
+function saveResultImage(count:number,digits:number,name:string,won:boolean,daily:boolean,best:number|null){
  const canvas=document.createElement("canvas");canvas.width=900;canvas.height=1080;
  const ctx=canvas.getContext("2d");if(!ctx)return;
  ctx.fillStyle="#181b38";ctx.fillRect(0,0,900,1080);
  ctx.fillStyle="#9db3ff";ctx.font="bold 35px sans-serif";ctx.fillText("CREW PLAY  /  1A2B",65,105);
  ctx.fillStyle="#ffffff";ctx.font="bold 96px sans-serif";ctx.fillText(count+" 次",65,355);
- ctx.font="40px sans-serif";ctx.fillText(digits+" 位數 · "+(won?"挑戰成功":"本局結束"),65,435);
+ ctx.font="40px sans-serif";ctx.fillText(digits+" 位數 · "+(won?"挑戰成功":"本局結束")+(daily?" · 每日同題":""),65,435);
+  if(best!==null){ctx.fillStyle="#b7c8ff";ctx.font="30px sans-serif";ctx.fillText("個人最佳："+best+" 次",65,505);}
  ctx.fillStyle="#c9c8e8";ctx.font="34px sans-serif";
  ctx.fillText(name+" 說：",65,605);
  ctx.font="32px sans-serif";ctx.fillText(won?"這次真讓你猜中了！":"差一點就被你抓到了！",65,665);
@@ -32,13 +32,16 @@ export function NumberGamePage(){
  const {friend,choose}=useMiniFriend();
  useEffect(()=>{trackUsageEvent("game_open","1a2b")},[]);
  const [digits,setDigits]=useState<DigitCount>(4),[mode,setMode]=useState<Mode>("guess"),[revision,setRevision]=useState(0);
+ const [daily,setDaily]=useState(false);
+ const day=dailyNumberDate();
  return <MiniShell kind="1a2b" friend={friend} onChange={choose}>
   <div className="crew-mini-toolbar">
+   <button type="button" className="crew-mini-daily-toggle" aria-pressed={daily} onClick={()=>{if(window.confirm("切換每日挑戰會重新開始本局，確定嗎？")){setDaily(v=>!v);setMode("guess");setRevision(v=>v+1)}}}>{daily?"每日同題 ✓":"每日同題挑戰"}</button>
    <GamePanel label="⚙ 遊戲設定" title="1A2B 遊戲設定">
   <div className="crew-mini-config" aria-label="猜數字規則">
    <div className="crew-mini-segments" role="group" aria-label="遊戲模式">
     <button aria-pressed={mode==="guess"} onClick={()=>{if(mode!=="guess"&&window.confirm("切換模式會重新開始本局，確定嗎？"))setMode("guess")}}>我猜朋友的數字</button>
-    <button aria-pressed={mode==="reverse"} onClick={()=>{if(mode!=="reverse"&&window.confirm("切換模式會重新開始本局，確定嗎？"))setMode("reverse")}}>朋友猜我的數字</button>
+    <button aria-pressed={mode==="reverse"} onClick={()=>{if(mode!=="reverse"&&window.confirm("切換模式會重新開始本局，確定嗎？")){setDaily(false);setMode("reverse")}}}>朋友猜我的數字</button>
    </div>
    <div className="crew-mini-segments" role="group" aria-label="位數難度">
     {([3,4,5] as DigitCount[]).map(n=><button key={n} aria-pressed={digits===n} onClick={()=>{if(digits!==n&&window.confirm("調整位數會重新開始本局，確定嗎？"))setDigits(n)}}>{n} 位</button>)}
@@ -51,13 +54,16 @@ export function NumberGamePage(){
     <p>可以選擇你猜電腦的數字，或讓 AI 朋友猜你心裡的數字；每局最多 10 次猜測。</p>
    </GamePanel>
   </div>
-  <NumberRound key={mode+digits+revision+friend.id} mode={mode} digits={digits} friend={friend} onNew={()=>setRevision(x=>x+1)}/>
+  <NumberRound key={mode+digits+revision+friend.id+(daily?day:"normal")} mode={mode} digits={digits} dailyDate={daily?day:null} friend={friend} onNew={()=>setRevision(x=>x+1)} onLeaveDaily={()=>{setDaily(false);setRevision(x=>x+1)}}/>
  </MiniShell>;
 }
-function NumberRound({mode,digits,friend,onNew}:{
- mode:Mode;digits:DigitCount;friend:ReturnType<typeof useMiniFriend>["friend"];onNew:()=>void;
+function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
+ mode:Mode;digits:DigitCount;dailyDate:string|null;friend:ReturnType<typeof useMiniFriend>["friend"];onNew:()=>void;onLeaveDaily:()=>void;
 }){
- const [secret]=useState(()=>secretNumber(digits));
+ const [secret]=useState(()=>dailyDate?dailyNumberSecret(digits,dailyDate):secretNumber(digits));
+ const [record,setRecord]=useState(()=>readNumberRecord(digits));
+ const [dailyResult,setDailyResult]=useState(()=>dailyDate?readDailyResult(digits,dailyDate):null);
+ const recordedRef=useRef(false);
  const [history,setHistory]=useState<GuessRow[]>([]);
  const [guess,setGuess]=useState(""),[a,setA]=useState(0),[b,setB]=useState(0);
  const [error,setError]=useState("");
@@ -75,8 +81,9 @@ function NumberRound({mode,digits,friend,onNew}:{
  useEffect(()=>{
   if(finished&&startedRef.current&&!completedRef.current){
    completedRef.current=true;trackUsageEvent("game_completed","1a2b");
+   if(mode==="guess"&&!recordedRef.current){recordedRef.current=true;setRecord(saveNumberResult(digits,history.length,won,dailyDate));if(dailyDate)setDailyResult(readDailyResult(digits,dailyDate));}
   }
- },[finished]);
+ },[finished,mode,digits,dailyDate,history.length,won]);
  const computerGuess=useMemo(()=>mode==="reverse"&&!finished?nextComputerGuess(digits,history):null,[mode,digits,history,finished]);
  const submitGuess=(value:string)=>{
   if(finished)return;
@@ -115,9 +122,10 @@ function NumberRound({mode,digits,friend,onNew}:{
  const undo=()=>{if(!history.length)return;setHistory(old=>old.slice(0,-1));setError("");emit("The last submitted turn was undone. Ignore that result. Wait for a new game action.");};
  const remaining=Math.max(0,10-history.length);
  return <div className="crew-mini-stage">
-  <MiniGameVoice kind="1a2b" friend={friend} cue={cue} onSpeech={handleSpeech}/>
-  <section className="crew-mini-panel" aria-label="1A2B 猜數字">
-   <div className="crew-mini-topline"><strong>{mode==="guess"?"破解 "+friend.name+" 的密碼":"幫 "+friend.name+" 猜你的密碼"}</strong><span>{history.length} / 10 次 · 剩餘 {remaining} 次</span></div>
+  
+  <section className="crew-mini-panel crew-mini-number-board" aria-label="1A2B 猜數字">
+   <div className="crew-mini-topline"><strong>{dailyDate?"今日同題 · ":""}{mode==="guess"?"破解 "+friend.name+" 的密碼":"幫 "+friend.name+" 猜你的密碼"}</strong><span>{history.length} / 10 次 · 剩餘 {remaining} 次</span></div>
+   {dailyDate?<p className="crew-mini-daily-note">每日固定題目（UTC {dailyDate}），同難度答案相同；本機僅保留首次完成紀錄。</p>:null}
    <p className="crew-mini-muted">{mode==="guess"?
     "A = 數字與位置都對；B = 數字對、位置錯。首位不能是 0，數字不可重複。":
     "先在心中想好一組不重複的數字，不必輸入或透露答案；朋友會逐步猜，你只需回報 A/B。"}</p>
@@ -157,13 +165,16 @@ function NumberRound({mode,digits,friend,onNew}:{
    <small>CREW PLAY · 1A2B</small><h2>{won?"破解成功！":"本局結束"}</h2>
    <strong className="crew-mini-result-count">{history.length} 次</strong>
    {mode==="guess"?<p>正確答案：<strong>{secret}</strong></p>:<p>{won?friend.name+" 成功猜到你心中的數字。":"十次挑戰已用完，下次再來！"}</p>}
-   <blockquote>{quote(friend.name,won)}</blockquote>
+   <blockquote>{friendGameReaction(friend.id,won?"win":"lose","zh")}</blockquote>
+   {mode==="guess"?<p>個人最佳：<strong>{record.best===null?"尚無":record.best+" 次"}</strong> · 已完成 {record.played} 局{dailyDate?" · 連續挑戰 "+record.streak+" 天":""}</p>:null}
+   {dailyDate&&dailyResult?<p>今日首局：{dailyResult.won?"成功":"未成功"} · {dailyResult.attempts} 次</p>:null}
    <p>3sssi.com/games/1a2b</p>
    <div className="crew-mini-result-actions">
-    <button onClick={()=>saveResultImage(history.length,digits,friend.name,won)} type="button">儲存分享卡 PNG</button>
-    <button className="crew-mini-primary" onClick={onNew} type="button">再玩一局</button>
+    <button onClick={()=>saveResultImage(history.length,digits,friend.name,won,Boolean(dailyDate),record.best)} type="button">儲存分享卡 PNG</button>
+    <button className="crew-mini-primary" onClick={dailyDate?onLeaveDaily:onNew} type="button">{dailyDate?"改玩一般模式":"再玩一局"}</button>
    </div>
   </section>:null}
-  {!finished?<button className="crew-mini-restart" type="button" onClick={()=>{if(!history.length||window.confirm("重新出題會清除本局猜測紀錄，確定嗎？"))onNew()}}>重新出題</button>:null}
+  <MiniGameVoice kind="1a2b" friend={friend} cue={cue} onSpeech={handleSpeech}/>
+  {!finished&&!dailyDate?<button className="crew-mini-restart" type="button" onClick={()=>{if(!history.length||window.confirm("重新出題會清除本局猜測紀錄，確定嗎？"))onNew()}}>重新出題</button>:null}
  </div>;
 }
