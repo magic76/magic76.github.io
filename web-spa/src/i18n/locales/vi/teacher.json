@@ -355,6 +355,15 @@
       "progress": "Tiến độ {{count}} / {{total}}",
       "reviewWithTeacher": "Ôn cùng giáo viên",
       "restart": "Bắt đầu lại"
+    },
+    "review": {
+      "title": "Ôn từ vựng buổi sau",
+      "due": "Có {{count}} từ cần ôn",
+      "scheduled": "Đã lên lịch {{count}} từ",
+      "empty": "Chưa lưu từ nào. Lật thẻ và tự đánh giá để lên lịch.",
+      "memoryOff": "Đã tắt bộ nhớ: lịch ôn không được lưu cho lần sau.",
+      "start": "Ôn ngay",
+      "clear": "Xóa lịch ôn"
     }
   }
 }

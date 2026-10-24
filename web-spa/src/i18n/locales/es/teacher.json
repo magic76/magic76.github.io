@@ -355,6 +355,15 @@
       "progress": "Progreso {{count}} / {{total}}",
       "reviewWithTeacher": "Repasar con profesor",
       "restart": "Empezar de nuevo"
+    },
+    "review": {
+      "title": "Repaso para la próxima sesión",
+      "due": "Hay {{count}} palabras pendientes",
+      "scheduled": "{{count}} palabras programadas",
+      "empty": "Sin palabras guardadas. Da la vuelta a las tarjetas y evalúate.",
+      "memoryOff": "Memoria desactivada: no se guardan repasos para otra sesión.",
+      "start": "Repasar ahora",
+      "clear": "Borrar repasos"
     }
   }
 }

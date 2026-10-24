@@ -355,6 +355,15 @@
       "progress": "進捗 {{count}} / {{total}}",
       "reviewWithTeacher": "先生と復習する",
       "restart": "最初から"
+    },
+    "review": {
+      "title": "次回の単語復習",
+      "due": "{{count}}語の復習期限が来ています",
+      "scheduled": "{{count}}語が次回以降の復習に登録されています",
+      "empty": "登録単語はまだありません。カードを裏返し、自己評価してください。",
+      "memoryOff": "記憶オフ：復習履歴は次回に保存されません。",
+      "start": "復習を開始",
+      "clear": "復習履歴を削除"
     }
   }
 }

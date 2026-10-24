@@ -355,6 +355,15 @@
       "progress": "Progress {{count}} / {{total}}",
       "reviewWithTeacher": "Review with teacher",
       "restart": "Start over"
+    },
+    "review": {
+      "title": "Next-session word review",
+      "due": "{{count}} words are due for review",
+      "scheduled": "{{count}} words scheduled for later",
+      "empty": "No saved words yet. Flip and rate cards to schedule reviews.",
+      "memoryOff": "Memory is off: ratings stay in this lesson and won't be stored.",
+      "start": "Review now",
+      "clear": "Clear reviews"
     }
   }
 }

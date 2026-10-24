@@ -355,6 +355,15 @@
       "progress": "複習進度 {{count}} / {{total}}",
       "reviewWithTeacher": "請老師帶我複習",
       "restart": "重新練一輪"
+    },
+    "review": {
+      "title": "下次單字複習",
+      "due": "有 {{count}} 個單字到期，建議先複習",
+      "scheduled": "已有 {{count}} 個單字排入之後複習",
+      "empty": "尚無排程單字；翻牌後標記熟悉度即可累積",
+      "memoryOff": "記憶已關閉：單字複習只保留在這次白板，不跨次儲存",
+      "start": "開始複習",
+      "clear": "清除複習紀錄"
     }
   }
 }

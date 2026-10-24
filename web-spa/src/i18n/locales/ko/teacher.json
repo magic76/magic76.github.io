@@ -355,6 +355,15 @@
       "progress": "진행 {{count}} / {{total}}",
       "reviewWithTeacher": "선생님과 복습",
       "restart": "처음부터"
+    },
+    "review": {
+      "title": "다음 학습 단어 복습",
+      "due": "{{count}}개 단어 복습 시기입니다",
+      "scheduled": "{{count}}개 단어가 추후 복습 예정입니다",
+      "empty": "저장된 단어가 없습니다. 카드를 뒤집고 스스로 평가하세요.",
+      "memoryOff": "기억 꺼짐: 복습 기록은 다음 세션에 저장되지 않습니다.",
+      "start": "복습 시작",
+      "clear": "복습 기록 삭제"
     }
   }
 }

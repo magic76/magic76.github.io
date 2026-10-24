@@ -355,6 +355,15 @@
       "progress": "Progresso {{count}} / {{total}}",
       "reviewWithTeacher": "Revisar com professor",
       "restart": "Recomeçar"
+    },
+    "review": {
+      "title": "Revisão na próxima sessão",
+      "due": "{{count}} palavras para revisar",
+      "scheduled": "{{count}} palavras agendadas",
+      "empty": "Nenhuma palavra salva. Vire os cartões e faça sua autoavaliação.",
+      "memoryOff": "Memória desligada: as revisões não são salvas para outra sessão.",
+      "start": "Revisar agora",
+      "clear": "Limpar revisões"
     }
   }
 }

@@ -355,6 +355,15 @@
       "progress": "Fortschritt {{count}} / {{total}}",
       "reviewWithTeacher": "Mit Lehrkraft wiederholen",
       "restart": "Neu beginnen"
+    },
+    "review": {
+      "title": "Wiederholung beim nächsten Mal",
+      "due": "{{count}} Wörter sind fällig",
+      "scheduled": "{{count}} Wörter für später geplant",
+      "empty": "Noch keine Wörter gespeichert. Karten umdrehen und selbst bewerten.",
+      "memoryOff": "Erinnerung aus: Bewertungen werden nicht für später gespeichert.",
+      "start": "Jetzt wiederholen",
+      "clear": "Wiederholungen löschen"
     }
   }
 }

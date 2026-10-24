@@ -355,6 +355,15 @@
       "progress": "Progrès {{count}} / {{total}}",
       "reviewWithTeacher": "Réviser avec le prof",
       "restart": "Recommencer"
+    },
+    "review": {
+      "title": "Révision à la prochaine séance",
+      "due": "{{count}} mots à réviser",
+      "scheduled": "{{count}} mots programmés",
+      "empty": "Aucun mot enregistré. Retournez les cartes puis évaluez-vous.",
+      "memoryOff": "Mémoire désactivée : aucun suivi conservé pour la prochaine séance.",
+      "start": "Réviser maintenant",
+      "clear": "Effacer les révisions"
     }
   }
 }

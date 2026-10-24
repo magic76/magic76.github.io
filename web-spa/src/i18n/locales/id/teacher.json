@@ -355,6 +355,15 @@
       "progress": "Progres {{count}} / {{total}}",
       "reviewWithTeacher": "Ulangi dengan guru",
       "restart": "Mulai lagi"
+    },
+    "review": {
+      "title": "Ulasan kata sesi berikutnya",
+      "due": "{{count}} kata harus diulas",
+      "scheduled": "{{count}} kata dijadwalkan",
+      "empty": "Belum ada kata tersimpan. Balik kartu dan beri penilaian diri.",
+      "memoryOff": "Memori nonaktif: ulasan tidak disimpan untuk sesi berikutnya.",
+      "start": "Ulas sekarang",
+      "clear": "Hapus ulasan"
     }
   }
 }
