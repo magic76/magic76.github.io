@@ -220,3 +220,26 @@
 @media(max-width:1000px){.magic-generated{padding:16px}.magic-generated-options button{min-height:108px}}
 @media(max-width:520px){.magic-generated{padding:15px}.magic-generated-options button{min-height:105px}.magic-generated-option-text{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.magic-generated-options button{transition:none!important}}
+
+
+/* Small-screen microphone dock remains reachable while looking at the island. */
+.magic-stage-dock{display:none}
+@media(max-width:790px){
+ .magic-stage-dock{display:flex;align-items:center;gap:5px;position:absolute;z-index:11;top:12px;right:12px;max-width:calc(100% - 155px)}
+ .magic-stage-dock button,.magic-stage-dock a{
+  min-width:38px;min-height:38px;display:flex;justify-content:center;align-items:center;
+  padding:9px 11px;border-radius:999px;border:1px solid #ffffffbd;
+  background:#fffdf1ed;box-shadow:0 6px 16px #3b5a7137;color:#486f70;
+  font:inherit;font-size:11px;font-weight:800;text-decoration:none;white-space:nowrap;cursor:pointer;
+ }
+ .magic-stage-dock button[aria-pressed="true"]{background:#e7d3e4;color:#744e69}
+ .magic-stage-dock button:disabled{opacity:.6;cursor:wait}
+ .magic-dock-state{padding:9px 10px;border:1px solid #ffffffbd;border-radius:999px;
+  color:#4e8171;background:#fffef0ed;font-size:10px;font-weight:850;white-space:nowrap}
+ .magic-dock-state.speaking{color:#896891}
+}
+@media(max-width:390px){
+ .magic-stage-dock{max-width:calc(100% - 142px);gap:4px}
+ .magic-dock-state{font-size:9px;padding:9px 6px}
+ .magic-stage-dock button,.magic-stage-dock a{min-width:33px;min-height:36px;padding:7px 9px}
+}
