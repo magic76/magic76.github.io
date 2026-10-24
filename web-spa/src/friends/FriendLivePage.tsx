@@ -104,6 +104,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const friendVoiceStatus=live.state==="speaking"?"朋友說話中"
+  :live.state==="listening"
+   ?({idle:"隨時可以說話",hearing:"正在聽你說",pause:"等待你繼續說",processing:"朋友正在準備回答",recovering:"正在重新取得回答","no-transcript":"沒有辨識到語音","no-reply":"朋友尚未回覆"}[live.voicePhase]||"隨時可以說話")
+  :live.state==="error"?"語音連線異常":active?"正在準備對話":"自由聊天";
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
@@ -122,7 +126,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
-   <span className="status connected"><i className="status-dot"/><span>{live.state==="speaking"?"朋友說話中":live.state==="listening"?"正在聽你說":active?"正在準備對話":"自由聊天"}</span></span>
+   <span className="status connected"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
@@ -150,6 +154,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?"改用語音":"改用文字"}</Link></div>
     {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
+    {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
+     <div className="live-recovery" role="status">
+      <span>{live.voicePhase==="no-transcript"?"沒有辨識到剛才的話，可以直接再說一次。":"朋友未能完成回答，你可以再說一次或重新連線。"}</span>
+      {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>重新連線</button>:null}
+     </div>:null}
     <div className="live-presets">
      {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>
