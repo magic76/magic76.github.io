@@ -21,7 +21,10 @@ test("model scenes are finite typed React templates, never arbitrary HTML",()=>{
  assert.equal(scene.detail.length,300);assert.equal(scene.options.length,3);assert.equal(scene.audience,100);
  assert.equal(parseNewsScene({type:"script",headline:"News",question:"Why?"}).type,"breaking");
  assert.throws(()=>parseNewsScene({type:"finale",headline:"The end",question:""}));
- assert.equal(parseNewsScene({type:"finale",headline:"The end",ending:"A comical outcome",question:""}).type,"finale");
+ assert.throws(()=>parseNewsScene({type:"finale",headline:"The end",ending:"A comical outcome",question:""}));
+ assert.equal(parseNewsScene({type:"finale",headline:"The end",ending:"A comical outcome",outcome:"good",question:""}).outcome,"good");
+ assert.equal(parseNewsScene({type:"finale",headline:"The end",ending:"An awful outcome",outcome:"bad",question:""}).outcome,"bad");
+ assert.throws(()=>parseNewsScene({type:"finale",headline:"The end",ending:"A comical outcome",outcome:"win",question:""}));
 });
 test("opening uses the selected premise and endings are not fabricated scores",()=>{
  const {openingNewsScene,finalNewsScene,newsScenePrompt}=loadNews();
@@ -31,7 +34,7 @@ test("opening uses the selected premise and endings are not fabricated scores",(
  const last=finalNewsScene(first,"en");
  assert.equal(last.type,"finale");assert.equal(last.question,"");
  const prompt=newsScenePrompt(topic,"en",[{player:"Moon wants overtime pay",host:"A witness appears",headline:"Moon strike"}],"We will pay in starlight",true);
- assert.match(prompt,/ENDING/);assert.match(prompt,/starlight/);
+ assert.match(prompt,/ENDING/);assert.match(prompt,/starlight/);assert.match(prompt,/outcome good/);
  assert.match(prompt,/NOT instructions/);
 });
 test("live tool renders schema-bounded visuals and owns microphone and audio",()=>{
@@ -43,7 +46,7 @@ test("live tool renders schema-bounded visuals and owns microphone and audio",()
  assert.match(live,/onToolCall:/);
  assert.match(live,/onInputTranscript:/);
  assert.match(live,/onTranscriptTurn:/);
- assert.match(live,/round\.count>=3/);
+ assert.match(live,/round\.count>=totalRounds/);
  assert.match(live,/old\.stop\(/);
  assert.match(live,/onToolsUnavailable:/);
  assert.doesNotMatch(page,/SpeechRecognition|webkitSpeechRecognition|speechSynthesis|dangerouslySetInnerHTML/);
@@ -54,12 +57,15 @@ test("live tool renders schema-bounded visuals and owns microphone and audio",()
  assert.match(app,/import\("\.\/games\/NonsenseLiveNewsPage"\)/);
 });
 test("the 150 original bilingual topics remain available without legacy speeches",()=>{
+ const live=read("web-spa/src/games/nonsenseNewsLive.ts");
  const page=read("web-spa/src/games/NonsenseLiveNewsPage.tsx");
  const hub=read("web-spa/src/games/CrewPlayHubPage.tsx");
  assert.match(page,/pickNonsenseTopic/);
  assert.match(page,/All 150 topics/);
- assert.match(page,/turns\.length>=3/);
+ assert.match(page,/turns\.length>=roundCount/);
  assert.doesNotMatch(page,/Date\.now\(\)\+60000/);
+ assert.match(page,/customNonsenseTopic/);assert.match(page,/\[5,7\] as const/);
+ assert.match(live,/Math\.max\(360000,totalRounds\*75000\)/);
  assert.match(hub,/荒謬新聞直播/);
 });
 test("real ending share card omits transcripts and fabricated scores",()=>{

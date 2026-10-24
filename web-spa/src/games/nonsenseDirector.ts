@@ -34,8 +34,10 @@ export function parseDirectorEvent(kind:DirectorKind,raw:unknown):DirectorEvent{
 export function directorToolKind(name:string):DirectorKind|null{
  return ({spawn_character:"character",show_evidence:"evidence",offer_choices:"choices",trigger_effect:"effect"} as Record<string,DirectorKind>)[name]||null;
 }
-/** A three-reply gate independent of asynchronous scene tool / transcript arrival order. */
+/** Configurable reply gate independent of asynchronous scene/tool arrival order. */
 export class NewsRoundTracker{
+ readonly totalRounds:number;
+ constructor(totalRounds:number=5){this.totalRounds=totalRounds;}
  count=0;
  private recentTurnIds=new Set<string>();
  private lastValue="";
@@ -45,7 +47,7 @@ export class NewsRoundTracker{
  private finishing=false;
  acceptVoice(text:string,id?:string){
   const value=text.trim();
-  if(!value||this.count>=3||this.finale)return false;
+  if(!value||this.count>=this.totalRounds||this.finale)return false;
   if(this.pendingChoice){
    if(value.toLocaleLowerCase()===this.pendingChoice.toLocaleLowerCase()){this.pendingChoice="";return false;}
    // A voice transcript during a text-choice reply is mic bleed, not another reply.
@@ -58,14 +60,14 @@ export class NewsRoundTracker{
  }
  acceptChoice(value:string){
   value=value.trim();
-  if(!value||this.count>=3||this.pendingChoice||this.finale)return false;
+  if(!value||this.count>=this.totalRounds||this.pendingChoice||this.finale)return false;
   this.count++;this.lastValue=value;this.lastAcceptedAt=Date.now();this.pendingChoice=value;return true;
  }
  endChoice(){this.pendingChoice="";}
  get choicePending(){return Boolean(this.pendingChoice);}
- get canPick(){return this.count<3&&!this.choicePending&&!this.finale&&!this.finishing;}
- get canShowFinale(){return this.count>=2;}
- acceptFinale(){if(!this.canShowFinale)return false;this.finale=true;return true;}
+ get canPick(){return this.count<this.totalRounds&&!this.choicePending&&!this.finale&&!this.finishing;}
+ get canShowFinale(){return this.count>=this.totalRounds;}
+ acceptFinale(){if(this.finale||!this.canShowFinale)return false;this.finale=true;return true;}
  get hasFinale(){return this.finale;}
  beginFinishing(){if(this.finishing)return false;this.finishing=true;return true;}
 }

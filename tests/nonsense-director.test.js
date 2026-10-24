@@ -28,7 +28,7 @@ test("AI director only accepts validated, bounded event data",()=>{
 });
 test("three-round tracker deduplicates voice events and tapped choices",()=>{
  const {NewsRoundTracker}=loadDirector();
- const g=new NewsRoundTracker();
+ const g=new NewsRoundTracker(3);
  assert.equal(g.acceptVoice("First absurd excuse","v1"),true);
  assert.equal(g.count,1);
  assert.equal(g.acceptVoice("First absurd excuse","v1"),false);
@@ -39,13 +39,28 @@ test("three-round tracker deduplicates voice events and tapped choices",()=>{
  assert.equal(g.acceptVoice("We will pay in starlight","echo"),false);
  assert.equal(g.count,2);
  g.endChoice();
- assert.equal(g.canShowFinale,true);
+ assert.equal(g.canShowFinale,false);
+ assert.equal(g.acceptFinale(),false);
  assert.equal(g.acceptVoice("Last argument","v3"),true);
+ assert.equal(g.canShowFinale,true);
  assert.equal(g.count,3);
  assert.equal(g.acceptVoice("Fourth argument","v4"),false);
  assert.equal(g.acceptFinale(),true);
  assert.equal(g.beginFinishing(),true);
  assert.equal(g.beginFinishing(),false);
+});
+test("long broadcasts count exactly the configured replies",()=>{
+ const {NewsRoundTracker}=loadDirector();
+ for(const length of [5,7]){
+  const tracker=new NewsRoundTracker(length);
+  for(let i=0;i<length-1;i++)assert.equal(tracker.acceptVoice("unique answer "+i,"turn"+i),true);
+  assert.equal(tracker.count,length-1);
+  assert.equal(tracker.canShowFinale,false);
+  assert.equal(tracker.acceptVoice("last reply","last"),true);
+  assert.equal(tracker.canShowFinale,true);
+  assert.equal(tracker.acceptVoice("overflow","overflow"),false);
+  assert.equal(tracker.acceptFinale(),true);
+ }
 });
 test("stage cutaways are React elements with real click handlers, not arbitrary HTML",()=>{
  const stage=read("web-spa/src/games/NonsenseNewsStage.tsx");

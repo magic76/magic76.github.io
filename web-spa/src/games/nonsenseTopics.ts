@@ -220,6 +220,10 @@ export const nonsenseTopics:NonsenseTopic[]=raw.flatMap(({category,rows})=>rows.
  if(at<1||at===row.length-1)throw Error("Invalid nonsense topic "+category+":"+index);
  return {id:category+"-"+String(index+1).padStart(2,"0"),category,zh:row.slice(0,at),en:row.slice(at+1)};
 }));
+export function customNonsenseTopic(input:string):NonsenseTopic{
+ const headline=input.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,140);
+ return {id:"custom-live",category:"custom",zh:headline,en:headline};
+}
 export function pickNonsenseTopic(category:string,exclude?:string,random=Math.random):NonsenseTopic{
  const pool=nonsenseTopics.filter(topic=>(category==="all"||topic.category===category)&&topic.id!==exclude);
  if(!pool.length)throw Error("No nonsense topics available");
