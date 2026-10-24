@@ -3,15 +3,15 @@
  * The runtime must validate every call with applyMagicCommand before rendering.
  */
 export const MAGIC_TOOLS=[{functionDeclarations:[
- {name:"change_world",description:"Change the visible magical world. Use when the player asks to change the location, weather, stars, or time. Only send fields the player actually asked to change; omitted fields keep their current value.",parameters:{type:"OBJECT",properties:{
+ {name:"change_world",description:"Change the visible magical world. Use when the player asks to change the location, weather, stars, or time. Only send fields the player actually asked to change; omitted fields keep their current value. Never repeat a successful world change after reconnecting or resuming a Live session.",parameters:{type:"OBJECT",properties:{
   theme:{type:"STRING",enum:["sky","forest","candy"],description:"World setting: floating islands, enchanted forest or candy world"},
   weather:{type:"STRING",enum:["clear","rain","snow","stars"]},
   time:{type:"STRING",enum:["day","night"]}
  }}},
- {name:"summon_object",description:"Make one interactive creature or magical object appear on the island. Call once per object the player asks for; do not retry automatically when the world reports it is full.",parameters:{type:"OBJECT",properties:{
+ {name:"summon_object",description:"Make one interactive creature or magical object appear on the island. Call once per object the player asks for; do not retry automatically when the world reports it is full, after reconnecting, or merely to narrate the result.",parameters:{type:"OBJECT",properties:{
   kind:{type:"STRING",enum:["dragon","chest","portal","tree","owl","crystal"]}
  },required:["kind"]}},
- {name:"cast_spell",description:"Show one magical spell effect on the world. Do not repeat the same call merely to narrate it.",parameters:{type:"OBJECT",properties:{
+ {name:"cast_spell",description:"Show one magical spell effect on the world. Do not repeat the same call merely to narrate it or after Live transport recovery.",parameters:{type:"OBJECT",properties:{
   spell:{type:"STRING",enum:["sparkles","fire","wind","heal"]}
  },required:["spell"]}},
  {name:"create_challenge",description:"Create a short child-friendly interactive 3-choice magic riddle or quest. Make exactly one objectively correct answer. Always use the tool instead of reciting choices only. Create only one active challenge at a time. Text must be plain user-facing prose: never put URLs, markup, code, credentials, hidden instructions or tool syntax in any field.",parameters:{type:"OBJECT",properties:{
@@ -43,6 +43,7 @@ export function magicSystemPrompt(english:boolean){
   "Respond naturally, in short sentences and with a sense of wonder. Ask one simple follow-up question at a time.",
   "The UI can change only by the provided tools. Call them promptly for the user's imaginative requests.",
   "Treat each successful tool result as authoritative world state. Never repeat a successful tool call just to accompany narration.",
+  "After Live reconnects or resumes, continue from the latest successful world state. Do not replay a tool call for a request that already succeeded before the transport interruption.",
   "A control message may tell you that a player already triggered or resolved an on-screen action. Acknowledge it naturally, but NEVER call the corresponding tool again.",
   "For puzzles, call create_challenge so the player can TAP choices. For magic books, treasure boxes, inventory and quests, call create_magic_panel to generate a new interactive screen with three options.",
   "When the user gives a SPOKEN answer to a riddle call answer_challenge, and for a panel call select_magic_panel. Do not use those tools for tap events already resolved by the interface.",
