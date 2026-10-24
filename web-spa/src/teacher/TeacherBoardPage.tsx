@@ -43,6 +43,7 @@ export function TeacherBoardPage(){
  const [hint,setHint]=useState("");
  const [copyStatus,setCopyStatus]=useState("");
  const [hasLivePatch,setHasLivePatch]=useState(false);
+ const [showingDemo,setShowingDemo]=useState(false);
  const [toolsUnavailable,setToolsUnavailable]=useState(false);
  const [latestId,setLatestId]=useState<string|null>(null);
  const [focusedId,setFocusedId]=useState<string|null>(null);
@@ -91,7 +92,7 @@ export function TeacherBoardPage(){
   if(guided&&(patch.action!=="upsert"||patch.cards.some(c=>!cardRef.current.some(old=>old.id===c.id&&old.type===c.type)||c.type==="quiz"||c.type==="speaking")))return false;
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
-  cardRef.current=next;setCards(next);
+  cardRef.current=next;setCards(next);setShowingDemo(false);
   const stage=guided?directorRef.current:directorAfterPatch(directorRef.current,next,patch.cards);
   changeDirector(stage);
   const changedId=stage.cardId;
@@ -258,7 +259,7 @@ export function TeacherBoardPage(){
   changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
   const patch=fallbackBoard({input:"展示不同卡片種類的格式示範"},[]);
-  if(patch){commitPatch(patch);setHasLivePatch(false)}
+  if(patch){commitPatch(patch);setHasLivePatch(false);setShowingDemo(true)}
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
@@ -331,9 +332,9 @@ export function TeacherBoardPage(){
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
-     <p>{t(hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
+     <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
-     <span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
+     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
