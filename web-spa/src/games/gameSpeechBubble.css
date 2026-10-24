@@ -74,7 +74,8 @@
 /* Comfortable transcript tap target and stable reader focus while Live replies stream. */
 .crew-game-speech-scroll{scroll-padding-block:8px}
 @media(max-width:620px){
- .crew-game-speech-trigger{min-height:34px}
+ .crew-game-speech-trigger{min-height:44px}
  .crew-game-speech-action{font-size:12px}
 }
+@media(pointer:coarse){.crew-game-speech-trigger{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.crew-game-speech-scroll{scroll-behavior:auto}}
