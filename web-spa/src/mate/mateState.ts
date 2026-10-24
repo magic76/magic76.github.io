@@ -13,6 +13,7 @@ export type MateTurn = {
   id: string;
   sender: "other" | "mate";
   original: string;
+  translated?: string;
   time: number;
 };
 export type MateDecision = {question: string; reason: string} | null;
