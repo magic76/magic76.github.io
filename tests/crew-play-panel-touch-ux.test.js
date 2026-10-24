@@ -19,3 +19,14 @@ test("shared game panel keeps coarse-pointer controls at least 44px tall",()=>{
  assert.match(css,/\.crew-game-panel-content button,\.crew-game-panel-content select\{min-height:44px\}/);
  assert.match(css,/touch-action:manipulation/);
 });
+
+test("open game dialogs isolate the background and restore its previous inert state",()=>{
+ const panel=game("GamePanel.tsx");
+ assert.match(panel,/const backdropRef=useRef<HTMLDivElement>\(null\)/);
+ assert.match(panel,/element!==backdrop/);
+ assert.match(panel,/wasInert:element\.hasAttribute\("inert"\)/);
+ assert.match(panel,/element\.setAttribute\("inert",""\)/);
+ assert.match(panel,/if\(!wasInert\)element\.removeAttribute\("inert"\)/);
+ assert.match(panel,/ref=\{backdropRef\}/);
+ assert.match(panel,/aria-modal="true"/);
+});
