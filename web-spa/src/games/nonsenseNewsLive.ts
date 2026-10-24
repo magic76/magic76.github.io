@@ -1,4 +1,5 @@
 import {ensureLive,geminiKey,type LiveSession} from "../lib/runtime";
+import {normalizeLiveVoice} from "../live/voiceIdentity";
 import type {NonsenseTopic,NonsenseLanguage} from "./nonsenseTopics";
 import {parseNewsScene,type NewsScene} from "./nonsenseNewsEngine";
 import {NewsRoundTracker,parseDirectorEvent,directorToolKind,type DirectorEvent} from "./nonsenseDirector";
@@ -43,7 +44,7 @@ const directorTools=[
   parameters:{type:"OBJECT",properties:fields,required:["title","effect"]}}
 ];
 /** A single Gemini Live session owns the microphone. Browser SpeechRecognition/TTS are never started. */
-export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLanguage,events:NewsLiveEvents):Promise<NewsLiveController>{
+export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLanguage,events:NewsLiveEvents,voiceChoice:string="Puck"):Promise<NewsLiveController>{
  if(!geminiKey())throw Error("Gemini Key required");
  await ensureLive();
  if(!window.CrewLive)throw Error("Gemini Live unavailable");
@@ -90,7 +91,7 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
  };
  session=new window.CrewLive.Session({
   system,openingPrompt:"Open the LIVE absurd-news broadcast. Call render_scene then one or two director tools, ask exactly one short question and offer three possible ridiculous responses.",
-  voice:"Puck",volume:100,manualInterruptOnly:true,maxLiveAttempts:1,maxResumeAttempts:0,connectTimeoutMs:12000,replyTimeoutMs:18000,
+  voice:normalizeLiveVoice(voiceChoice),volume:100,manualInterruptOnly:true,maxLiveAttempts:1,maxResumeAttempts:0,connectTimeoutMs:12000,replyTimeoutMs:18000,
   turnTiming:{silenceDurationMs:1200,endOfSpeechSensitivity:"END_SENSITIVITY_LOW"},
   tools:[{functionDeclarations:[sceneTool,...directorTools]}],
   onToolCall:call=>{
