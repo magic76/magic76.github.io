@@ -251,7 +251,11 @@ export function useLiveSession(config:Config){
       if(tabooEnglish)session.sendControl?.(tabooDirectGuess?"[TABOO DIRECT GUESS] Continue in English only. Make one short, natural guess with one candidate per learner description; vary the wording; no preamble, reaction or follow-up.":"[TABOO LANGUAGE] Continue in English only. Wait for verified game prompts before offering guesses or asking follow-up questions.");
       else if(configRef.current.sessionKind==="friend"&&configRef.current.languageDirective)
         session.sendControl?.("[FRIEND RECONNECT MODE — latest user setting wins]\\n"+configRef.current.languageDirective);
-      if(!awaitingTutorRef.current||recoveryRequestRef.current)return;
+      if(!awaitingTutorRef.current)return;
+      if(recoveryRequestRef.current){
+       if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
+       return;
+      }
       recoveryRequestRef.current=true;
       const roleplay=!!configRef.current.missions?.length||/NOT a language tutor/.test(configRef.current.system);
       const prompt=configRef.current.sessionKind==="timeline"
