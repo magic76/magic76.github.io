@@ -5,6 +5,7 @@ import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
 import {FriendAvatar} from "../friends/FriendAvatar";
 import {buildFriendSystem} from "../friends/friendMemory";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
+import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {useTeacherStore} from "../store/teacherStore";
@@ -59,6 +60,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";courtRole?:"defense"|"prosecution";
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const {gameVoice,setGameVoice}=useGameVoice();
  const {i18n}=useTranslation("home");
  const english=Boolean(i18n.resolvedLanguage?.startsWith("en"));
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -78,7 +80,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
   pageKey:directGuess?"crew-play-mini-taboo-direct-"+friend.id:"crew-play-mini-"+kind+"-"+friend.id,
   title:(kind==="1a2b"?"1A2B":court?"Crazy Court":"Taboo")+" · "+friend.name,
   system,openingPrompt:directGuess?"Invite the player briefly to describe something in "+gameTongue+". Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":"Say one short welcome in "+gameTongue+" to the game. Do not invent a score or answer.",
-  voice:normalizeLiveVoice(friend.voice),language:targetLanguage,nativeLanguage,
+  voice:resolveGameVoice(gameVoice,normalizeLiveVoice(friend.voice)),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
    let lastIndex=-1;
@@ -103,6 +105,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  },[cue,live.state,live.sendText]);
  const hasKey=typeof window!=="undefined"&&Boolean(geminiKey());
  return <section className="crew-mini-voice" aria-label="朋友語音">
+  <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/>
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
    <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":court?"法庭語音（選用）":"語音陪玩（選用）"}</strong>
