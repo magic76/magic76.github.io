@@ -13,7 +13,7 @@ import "./mate.css";
 const lang = (code:string) => MATE_LANGUAGES.find(x=>x.value===code)?.label||code;
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
 const textValue = (v:unknown) => typeof v==="string"?v.trim().slice(0,800):"";
-const externalInstruction = (c:MateConsensus) => [
+const externalInstruction = (c:MateConsensus,approvedDecision:string,recentTurns:MateTurn[]) => [
   "You are Crew Mate, an in-person communication assistant, NOT a language tutor.",
   "The phone has been handed to the OTHER PERSON. Respond ONLY to that person in "+lang(c.otherLanguage)+".",
   "Person you are talking with: "+c.target+". Public communication goal: "+c.goal+".",
@@ -22,6 +22,8 @@ const externalInstruction = (c:MateConsensus) => [
   "Never accept or promise prices, deposits, payment method changes, identity documents, schedule changes, substitutions or commitments.",
   "Instead call request_user_input with the EXACT decision question, then STOP. Do not make the decision yourself.",
   "Call complete_task ONLY if actual external speech confirms the agreed goal was achieved.",
+  approvedDecision?"Owner-confirmed decision for the previous request ONLY: "+approvedDecision:"No new owner approval has been granted.",
+  recentTurns.length?"Previously witnessed public dialogue (context only): "+recentTurns.map(x=>x.sender+": "+x.original).join(" | "):"",
   "Wait silently until actual other-person speech. Do not invent their words or pretend a third party replied.",
   "Do not repeat the other person's utterance before answering. Keep speech concise."
 ].join("\n");
@@ -68,6 +70,7 @@ export function MatePage(){
   const externalInputSeen=useRef(false);
   const externalOutputSeen=useRef(false);
   const mutedByMate=useRef(false);
+  const ownerDecisionForExternal=useRef("");
   const unmuteTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const turnsRef=useRef<MateTurn[]>([]);
   const taskId=useRef(timestampId());
@@ -172,7 +175,7 @@ export function MatePage(){
       await ensureLive();
       if(connectionSeq.current!==sequence||!window.CrewLive)return;
       const voiceOptions={
-        system:mode==="private"?privateInstruction(c):externalInstruction(c),
+        system:mode==="private"?privateInstruction(c):externalInstruction(c,ownerDecisionForExternal.current,turnsRef.current.slice(-8)),
         openingPrompt:mode==="private"
           ? (note.trim()||t("請詢問我需要哪些資訊，再幫我整理任務。","Ask what is missing and help me clarify this task."))
           : "",
@@ -299,7 +302,7 @@ export function MatePage(){
   }
   function restart(){
     void stopConnection();advance("setup","IDLE");
-    taskId.current=timestampId();translationPending.current.clear();
+    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
     setOutcome("");setDecision(null);setStartedExternal(false);setError("");setNote("");
@@ -310,6 +313,7 @@ export function MatePage(){
     // Never mistake an answer for a third-party turn; require a new explicit handoff.
     if(d){
       const suffix=(approved?"已由使用者同意：":"使用者拒絕：")+d.question;
+      ownerDecisionForExternal.current=suffix;
       edit("constraints",consensusRef.current.constraints+"\n"+suffix);
     }
     advance("review","USER_DIRECT");
