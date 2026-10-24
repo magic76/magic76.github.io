@@ -150,13 +150,6 @@ export function MatePage(){
     setOutcome(summary);saveResult(completed,summary);
     await stopConnection();
   }
-  async function decisionRequired(question:string,reason:string){
-    advance("decision","MATE_HANDLING");
-    setDecision({question,reason});
-    const session=connectionRef.current;
-    if(session){session.setVolume(0);if(!session.micMuted)session.toggleMic()}
-    await stopConnection();
-  }
   async function startVoice(mode:"private"|"external"){
     if(!geminiKey()){setError(t("請先至設定頁加入 Gemini API Key。","Set your Gemini API key in Settings first."));return}
     setError("");setLiveStatus(t("正在連線…","Connecting…"));
@@ -271,7 +264,7 @@ export function MatePage(){
         },
         onError:(failure:Error)=>{
           if(connectionSeq.current!==sequence)return;
-          setConnected(false);setError(failure.message||t("連線失敗","Connection failed"));
+          setConnected(false);setError(t("語音連線失敗，請重新連線。","Voice connection failed. Please reconnect."));
         },
         onTerminal:()=>{
           if(connectionSeq.current!==sequence)return;
@@ -289,7 +282,7 @@ export function MatePage(){
     }catch(failure){
       if(connectionSeq.current!==sequence)return;
       connectionRef.current=null;setConnected(false);
-      setError(failure instanceof Error?failure.message:String(failure));
+      setError(t("語音連線失敗，請檢查 Gemini Key、麥克風權限或網路。","Voice connection failed. Check your Gemini key, microphone permission and network."));
     }
   }
   async function reviewBrief(){
@@ -338,7 +331,7 @@ export function MatePage(){
       {history.length===0&&<p className="mate-hint">{t("尚未儲存任務。","No saved tasks.")}</p>}
       {history.map(item=><div className="mate-history" key={item.id}>
         <div><strong>{item.target} · {item.goal}</strong><small>{new Date(item.updatedAt).toLocaleString()} · {item.status}</small></div>
-        <button type="button" onClick={()=>{setOutcome(item.outcome);setTurns(item.turns);turnsRef.current=item.turns;updateConsensus({...EMPTY_CONSENSUS,target:item.target,goal:item.goal,userLanguage:item.userLanguage,otherLanguage:item.otherLanguage});advance("finished","IDLE");setShowHistory(false)}}>{t("查看","View")}</button>
+        <button type="button" onClick={()=>{void stopConnection();setOutcome(item.outcome);setTurns(item.turns);turnsRef.current=item.turns;updateConsensus({...EMPTY_CONSENSUS,target:item.target,goal:item.goal,userLanguage:item.userLanguage,otherLanguage:item.otherLanguage});advance("finished","IDLE");setShowHistory(false)}}>{t("查看","View")}</button>
         <button type="button" onClick={()=>{if(window.confirm(t("刪除此筆紀錄？","Delete this record?"))){deleteMateHistory(item.id);setHistory(readMateHistory())}}}>{t("刪除","Delete")}</button>
       </div>)}
     </section>}
