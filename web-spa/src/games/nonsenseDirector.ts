@@ -36,7 +36,8 @@ export function directorToolKind(name:string):DirectorKind|null{
 }
 /** Configurable reply gate independent of asynchronous scene/tool arrival order. */
 export class NewsRoundTracker{
- constructor(readonly totalRounds:number=5){}
+ readonly totalRounds:number;
+ constructor(totalRounds:number=5){this.totalRounds=totalRounds;}
  count=0;
  private recentTurnIds=new Set<string>();
  private lastValue="";
