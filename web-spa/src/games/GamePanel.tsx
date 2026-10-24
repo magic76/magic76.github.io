@@ -21,6 +21,7 @@ export function GamePanel({title,label,children,variant="drawer",className=""}:G
  const triggerRef=useRef<HTMLButtonElement>(null);
  const closeRef=useRef<HTMLButtonElement>(null);
  const dialogRef=useRef<HTMLElement>(null);
+ const backdropPointerRef=useRef(false);
  useEffect(()=>{
   if(!open)return;
   const previousOverflow=document.body.style.overflow;
@@ -47,10 +48,15 @@ export function GamePanel({title,label,children,variant="drawer",className=""}:G
    triggerRef.current?.focus();
   };
  },[open]);
+ const backdropPointer=(event:React.PointerEvent<HTMLDivElement>)=>{backdropPointerRef.current=event.target===event.currentTarget};
+ const closeFromBackdrop=(event:React.PointerEvent<HTMLDivElement>)=>{
+  if(backdropPointerRef.current&&event.target===event.currentTarget)setOpen(false);
+  backdropPointerRef.current=false;
+ };
  return <>
   <button ref={triggerRef} type="button" className="crew-game-panel-trigger" aria-haspopup="dialog" aria-expanded={open} aria-controls={open?panelId:undefined} onClick={()=>setOpen(true)}>{label}</button>
   {open&&typeof document!=="undefined"?createPortal(
-   <div className={"crew-game-panel-backdrop is-"+variant} onMouseDown={event=>{if(event.target===event.currentTarget)setOpen(false)}}>
+   <div className={"crew-game-panel-backdrop is-"+variant} onPointerDown={backdropPointer} onPointerUp={closeFromBackdrop}>
     <section ref={dialogRef} id={panelId} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className={"crew-game-panel is-"+variant+" "+className}>
      <header className="crew-game-panel-header">
       <h2 id={titleId}>{title}</h2>
