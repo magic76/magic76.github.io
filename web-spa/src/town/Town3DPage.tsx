@@ -4,7 +4,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {TownOverlay} from "./three/TownOverlay";
 import type {TownViewMode} from "./three/TownCameraController";
-import {type FriendId,type PlaceId,type Selection} from "./three/world";
+import {DISTRICTS,type DistrictId,type FriendId,type PlaceId,type Selection} from "./three/world";
 import "./three/town3d.css";
 
 const TownScene=lazy(()=>import("./three/TownScene").then(m=>({default:m.TownScene})));
@@ -27,6 +27,7 @@ export function Town3DPage(){
  const [modelIssue,setModelIssue]=useState("");
  const [night,setNight]=useState(false);
  const [view,setView]=useState<TownViewMode>("close");
+ const [district,setDistrict]=useState<DistrictId>("center");
  const [selected,setSelected]=useState<Selection>(null);
  const [reset,setReset]=useState(0);
  const [reducedMotion,setReducedMotion]=useState(true);
@@ -55,6 +56,9 @@ export function Town3DPage(){
   // Remount the error boundary and Canvas after a failed rendering attempt.
   setAttempt(n=>n+1);
  },[]);
+ const travelToDistrict=useCallback((id:DistrictId)=>{
+  setDistrict(id);setView("close");setSelected(null);setReset(n=>n+1);
+ },[]);
  const selectFriend=useCallback((id:FriendId)=>{setView("close");setSelected({type:"person",id})},[]);
  const selectPlace=useCallback((id:PlaceId)=>{setView("close");setSelected({type:"place",id})},[]);
  const mode=supported==="no"?"unsupported":fallbackReason||"render-error";
@@ -77,20 +81,20 @@ export function Town3DPage(){
    <header className="crew-town-3d-heading">
     <div><span className="crew-town-3d-kicker">{zh?"CREW 小鎮 · 3D 世界":"CREW TOWN · 3D WORLD"}</span>
      <h1>{zh?"走進朋友們的小鎮":"Step into their little world"}</h1>
-     <p>{zh?"轉動視角、走近咖啡館，在小鎮的日常裡遇見 Crew 朋友。":"Explore a miniature village. Find your friends between the café, studio and lakeside."}</p>
+     <p>{zh?"五大街區相互連通，選擇街區或移動鏡頭，探索整座小鎮。":"Five connected districts. Explore beyond the square with district travel and free camera movement."}</p>
     </div>
     <Link to="/explore" className="crew-town-3d-back">← {zh?"返回探索":"Explore"}</Link>
    </header>
    <section className={"crew-town-3d-stage"+(night?" is-night":"")+(view==="close"?" is-close":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>
-     <TownScene night={night} zh={zh} view={view} reducedMotion={reducedMotion} selected={selected} reset={reset}
+     <TownScene night={night} zh={zh} view={view} district={district} reducedMotion={reducedMotion} selected={selected} reset={reset}
       onFriend={selectFriend} onPlace={selectPlace} onDeselect={()=>setSelected(null)} onFailure={fail} onSimplified={simplified}/>
     </Suspense>:<div className="crew-town-3d-loading" role="status">{zh?"正在偵測 3D 支援…":"Checking 3D support…"}</div>}
     {modelIssue&&<div className="crew-town-3d-model-note" role="status">{zh?"模型讀取失敗，已改用簡化 3D 場景。":"The model could not load; showing a simplified 3D scene."} <code>{modelIssue}</code></div>}
     {!selected&&view==="close"&&<div className="crew-town-3d-hero" aria-hidden="true">
      <span>{zh?"WELCOME TO CREW TOWN":"WELCOME TO CREW TOWN"}</span>
      <strong>{zh?"在街角遇見朋友":"Meet the town up close"}</strong>
-     <small>{zh?"咖啡館、花園與朋友們都在身邊":"A closer look at friends, cafés and everyday stories"}</small>
+     <small>{zh?"穿過街道，還有市集、森林、故事街和港灣":"Beyond the square: a market, forest, story lane and harbor"}</small>
     </div>}
     <div className="crew-town-3d-tools">
      <span className="crew-town-3d-status"><span aria-hidden="true"/> {view==="close"?(zh?"近景探索 · 6 位朋友":"Close-up · 6 friends"):(zh?"小鎮全景":"Town overview")}</span>
@@ -104,9 +108,16 @@ export function Town3DPage(){
         aria-label={zh?"切換白天與夜晚":"Toggle day and night"}>{night?(zh?"白天":"Day"):(zh?"夜晚":"Night")}</button>
      </div>
     </div>
+    {!selected&&<nav className="crew-town-3d-districts" aria-label={zh?"小鎮街區導航":"Explore town districts"}>
+     {DISTRICTS.map(area=><button key={area.id} type="button"
+      aria-pressed={view==="close"&&district===area.id}
+      onClick={()=>travelToDistrict(area.id)}>
+      <span aria-hidden="true">{area.icon}</span>{zh?area.zh:area.en}
+     </button>)}
+    </nav>}
     <TownOverlay selected={selected} zh={zh} onClose={()=>setSelected(null)}
      onFriend={selectFriend} onPlace={selectPlace}/>
-    {!selected&&<div className="crew-town-3d-hint">{zh?"拖曳轉動 · 雙指縮放 · 點角色／建築探索":"Drag to orbit · Pinch to zoom · Tap friends or buildings"}</div>}
+    {!selected&&<div className="crew-town-3d-hint">{zh?"拖曳旋轉 · 雙指平移／縮放 · 選擇街區探索":"Drag to rotate · Two fingers pan/zoom · Explore districts"}</div>}
    </section>
    <div className="crew-town-3d-caption">
     <span>{zh?"3D 小鎮角色使用預設走動與情境，不是多人 Gemini Live。點選「加入聊天」會進入既有的單人語音聊天。":"Town movements are scripted, not a multi-agent Live call. Joining a friend opens the existing one-to-one voice chat."}</span>

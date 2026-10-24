@@ -56,7 +56,8 @@ test("mobile controls, bounded orbit camera and day/night remain separate from L
  assert.match(camera,/OrbitControls/);
  assert.match(camera,/minPolarAngle/);
  assert.match(camera,/maxDistance/);
- assert.match(camera,/enablePan=\{false\}/);
+ assert.match(camera,/enablePan/);
+ assert.match(camera,/screenSpacePanning=\{false\}/);
  assert.match(scene,/dpr=\{\[1/);
  assert.match(scene,/frameloop=\{reducedMotion/);
  assert.match(scene,/webglcontextlost/);
@@ -122,7 +123,7 @@ test("P1 camera makes town at least 15% larger while preserving focus and orbit 
  for(const offset of ["11.9,14,19.8","14.7,18.5,25","12.7,15.7,23.4","4.3,5.2,7.3"]){
   assert.ok(camera.includes("new Vector3("+offset+")"));
  }
- assert.ok(camera.includes("minDistance={7.5} maxDistance={50}"));
+ assert.ok(camera.includes("minDistance={6.5} maxDistance={140}"));
  assert.match(camera,/minPolarAngle/);
  assert.match(stage,/80svh/);
  assert.ok(stage.includes("max-height:min(39svh,300px)"));
@@ -174,7 +175,7 @@ test("P2 immersive close-up is the default while wide aerial overview remains se
  assert.ok(page.includes("view={view}"));
  assert.ok(camera.includes('view==="close"'));
  assert.ok(camera.includes("new Vector3(5.4,8.1,12)"));
- assert.ok(camera.includes("new Vector3(14.7,18.5,25)"));
+ assert.ok(camera.includes("new Vector3(54,74,89)"));
  assert.ok(scene.includes("<TownDecorations"));
  assert.ok(details.includes("TownWelcomeGate"));
  assert.ok(details.includes("CafeTerrace"));
@@ -202,4 +203,35 @@ test("Town friends keep the correct 3D body and label mapping for every identity
  assert.ok(chars.includes('capsuleGeometry args={[.27,.27,5,12]}'));
  assert.ok(chars.includes("key={person.id} {...person}"));
  assert.ok(chars.includes("id[0].toUpperCase()+id.slice(1)"));
+});
+
+test("P3 extends the actual land footprint and offers camera traversal of five districts",()=>{
+ const world=read("web-spa/src/town/three/world.ts");
+ const land=read("web-spa/src/town/three/TownEnvironment.tsx");
+ const districts=read("web-spa/src/town/three/TownDistricts.tsx");
+ const camera=read("web-spa/src/town/three/TownCameraController.tsx");
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const css=read("web-spa/src/town/three/town3d.css");
+ assert.match(world,/WORLD_SIZE=\{width:52,depth:44\}/);
+ assert.ok((52*44)/(21.7*17.1)>6);
+ assert.ok(land.includes("WORLD_SIZE.width"));
+ assert.ok(land.includes("WORLD_SIZE.depth"));
+ assert.ok(land.includes("planeGeometry args={[37,1.32]}"));
+ for(const id of ["center","market","grove","homes","harbor"]){
+  assert.ok(world.includes('id:"'+id+'"'),id);
+ }
+ for(const fragment of ["function Market(","function Grove(","function Homes(","function Harbor(","EDGE_TREES"]){
+  assert.ok(districts.includes(fragment),fragment);
+ }
+ assert.ok(camera.includes("districtAnchor"));
+ assert.ok(camera.includes("enablePan"));
+ assert.ok(camera.includes("maxDistance={140}"));
+ assert.ok(camera.includes("onChange={()"));
+ assert.ok(camera.includes("new Vector3(54,74,89)"));
+ assert.ok(scene.includes("<TownDistricts"));
+ assert.ok(scene.includes("far:230"));
+ assert.ok(page.includes("travelToDistrict(area.id)"));
+ assert.ok(page.includes('setDistrict(id)'));
+ assert.ok(css.includes(".crew-town-3d-districts"));
 });
