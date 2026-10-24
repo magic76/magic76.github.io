@@ -289,8 +289,8 @@
     "liveMode": "Live 工具更新",
     "turnMode": "回合結束後更新",
     "liveHint": "Gemini Live 正透過同一條語音連線更新卡片。",
-    "fallbackHint": "等待第一個即時工具事件，目前會在完成講解回合後更新。",
-    "modelFallbackHint": "目前模型採回合結束後更新。想啟用即時工具呼叫，可在設定改選 Gemini 3.1 Flash Live。",
+    "fallbackHint": "正在嘗試以目前選用的 Live 模型即時更新；若不支援工具，會在語音回合結束後整理。",
+    "modelFallbackHint": "這次連線無法使用即時卡片工具；仍可在語音回合結束後整理卡片，或查看格式示範。",
     "recentSpeech": "最近對話",
     "lessonCards": "{{count}} 張教學卡",
     "following": "跟隨最新內容",
@@ -319,6 +319,9 @@
       "forward": "下一階段",
       "hint": "給我提示",
       "retry": "回題目重試"
-    }
+    },
+    "showFormats": "展示卡片種類",
+    "demoMode": "卡片格式示範",
+    "demoHint": "以下是預先準備的格式範例，並非即時 AI 產生。"
   }
 }

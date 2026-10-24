@@ -289,8 +289,8 @@
     "liveMode": "Live tool updates",
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
-    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "fallbackHint": "Trying live whiteboard tools with the selected model. If unsupported, cards update at the end of each turn.",
+    "modelFallbackHint": "Live card tools are unavailable in this session. The board can still update after each turn or show examples.",
     "recentSpeech": "Recent dialogue",
     "lessonCards": "{{count}} lesson cards",
     "following": "Following latest",
@@ -319,6 +319,9 @@
       "forward": "Next stage",
       "hint": "Give a hint",
       "retry": "Return and retry"
-    }
+    },
+    "showFormats": "Show card types",
+    "demoMode": "Format examples",
+    "demoHint": "These are prepared card examples, not live AI output."
   }
 }

@@ -289,8 +289,8 @@
     "liveMode": "Live tool updates",
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
-    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "fallbackHint": "선택한 모델에서 실시간 도구를 시도합니다. 지원하지 않으면 발화가 끝난 후 업데이트합니다.",
+    "modelFallbackHint": "이 세션에서는 실시간 카드 도구를 사용할 수 없습니다. 대화 후 업데이트 또는 예시 보기가 가능합니다.",
     "recentSpeech": "최근 대화",
     "lessonCards": "학습 카드 {{count}}장",
     "following": "최신 내용 표시 중",
@@ -319,6 +319,9 @@
       "forward": "다음 단계",
       "hint": "힌트 주세요",
       "retry": "문제로 돌아가 다시 풀기"
-    }
+    },
+    "showFormats": "카드 유형 보기",
+    "demoMode": "카드 형식 예시",
+    "demoHint": "미리 준비된 카드 예시이며 AI가 실시간 생성한 내용이 아닙니다."
   }
 }

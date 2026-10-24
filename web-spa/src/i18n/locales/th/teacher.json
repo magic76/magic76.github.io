@@ -289,8 +289,8 @@
     "liveMode": "Live tool updates",
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
-    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "fallbackHint": "กำลังลองใช้เครื่องมือสดกับโมเดลที่เลือก หากไม่รองรับจะอัปเดตหลังจบรอบสนทนา",
+    "modelFallbackHint": "เซสชันนี้ใช้เครื่องมือการ์ดแบบสดไม่ได้ แต่ยังอัปเดตหลังจบรอบหรือดูตัวอย่างได้",
     "recentSpeech": "บทสนทนาล่าสุด",
     "lessonCards": "การ์ดบทเรียน {{count}} ใบ",
     "following": "กำลังติดตามล่าสุด",
@@ -319,6 +319,9 @@
       "forward": "ขั้นถัดไป",
       "hint": "ขอคำใบ้",
       "retry": "กลับไปลองอีกครั้ง"
-    }
+    },
+    "showFormats": "ดูชนิดการ์ด",
+    "demoMode": "ตัวอย่างรูปแบบการ์ด",
+    "demoHint": "นี่คือตัวอย่างที่เตรียมไว้ ไม่ใช่ผลลัพธ์ AI แบบเรียลไทม์"
   }
 }
