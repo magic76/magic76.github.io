@@ -6,7 +6,7 @@ const path=require("node:path");
 // Exercise the real callback body with a deliberately stale React render.
 // LiveSession publishes completedTurns synchronously, before React can render live.turns.
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/teacher/LivePage.tsx"),"utf8");
-const callback=source.match(/onTurnComplete:\(_turn,completedTurns\)=>\{([\s\S]*?)\n   \},\n   onSessionFinished:/);
+const callback=source.match(/onTurnComplete:\(_turn,completedTurns\)=>\{([\s\S]*?)\n\s+\},\n\s+onSessionFinished:/);
 assert.ok(callback,"Teacher Live completed-turn callback not found");
 const makeCallback=new Function(
  "usageSentRef","trackUsageEvent","isRoleplay","memoryCheckpointRef","personalMemoryEnabled",
