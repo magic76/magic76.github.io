@@ -76,7 +76,7 @@ test("2.5D fallback clearly exposes unsupported, rendering failure, and manual m
  assert.match(page,/setAttempt\(n=>n\+1\)/);
  assert.match(page,/WebGLRenderingContext/);
  assert.doesNotMatch(page,/WEBGL_lose_context|\.loseContext\(/);
- assert.ok(page.includes('this.props.onFailure()'));
+ assert.ok(page.includes('this.props.onFailure(compactError(error))'));
  assert.match(css,/\.crew-town-3d-fallback-notice/);
 });
 
