@@ -304,6 +304,21 @@
       "review": "関連する説明を復習",
       "next": "次の問題",
       "another": "練習を続ける"
+    },
+    "lessonPicker": {
+      "title": "ミニレッスン",
+      "subtitle": "3～5分のテーマを選んで先生と練習",
+      "hotel": "ホテルのチェックイン",
+      "interview": "就職面接",
+      "grammar": "完了形の文法",
+      "progress": "レッスン進捗",
+      "quizDone": "クイズ合格",
+      "speakingDone": "発話目標達成",
+      "complete": "レッスン完了！",
+      "previous": "前のステップ",
+      "forward": "次のステップ",
+      "hint": "ヒントをください",
+      "retry": "問題に戻って再挑戦"
     }
   }
 }

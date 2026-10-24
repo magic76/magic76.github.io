@@ -19,7 +19,7 @@ test("Gemini control schema offers five bounded stage operations",()=>{
  assert.equal(director.DIRECTOR_FUNCTION,"control_teaching_stage");
  const fn=director.DIRECTOR_TOOL.functionDeclarations[0];
  assert.equal(fn.name,director.DIRECTOR_FUNCTION);
- assert.equal(fn.parameters.properties.action.enum.length,5);
+ assert.equal(fn.parameters.properties.action.enum.length,6);
  const v=director.validateDirectorCommand({action:"reveal",cardId:"rule",index:1},[concept]);
  assert.equal(v.index,1);
  assert.equal(director.validateDirectorCommand({action:"reveal",cardId:"rule",index:9},[concept]),null);
@@ -77,4 +77,17 @@ test("Only teacher board uses director tools and quiz gate; no persistence added
  assert.doesNotMatch(page,/localStorage\.setItem|saveLive\(/);
  assert.match(card,/revealCount/);
  assert.match(card,/disabled=\{!answered\|\|index===card\.questions\.length-1\}/);
+});
+
+test("The teacher may give a bounded clue while waiting, without advancing a quiz",()=>{
+ const s=director.directorAfterPatch(director.EMPTY_DIRECTOR,[concept,quiz],[quiz]);
+ const hint=director.validateDirectorCommand({action:"hint",cardId:"quiz",hintText:"Look at the time reference."},[concept,quiz]);
+ assert.ok(hint);
+ const next=director.applyDirectorCommand(s,hint,[concept,quiz],{});
+ assert.equal(next.phase,"awaiting");
+ assert.equal(next.cardId,"quiz");
+ assert.equal(next.hintText,"Look at the time reference.");
+ assert.equal(director.applyDirectorCommand(next,director.validateDirectorCommand({action:"continue",cardId:"quiz"},[concept,quiz]),[concept,quiz],{}),null);
+ assert.equal(director.validateDirectorCommand({action:"hint",cardId:"quiz",hintText:""},[quiz]),null);
+ assert.equal(director.validateDirectorCommand({action:"hint",cardId:"rule",hintText:"Try again"},[quiz,concept]),null);
 });

@@ -304,6 +304,21 @@
       "review": "回看相關觀念",
       "next": "下一題",
       "another": "繼續練習"
+    },
+    "lessonPicker": {
+      "title": "主題短課",
+      "subtitle": "選一個主題，老師帶你練習 3～5 分鐘",
+      "hotel": "飯店入住",
+      "interview": "求職面試",
+      "grammar": "完成式文法",
+      "progress": "課程進度",
+      "quizDone": "測驗通過",
+      "speakingDone": "口說達標",
+      "complete": "本課完成！",
+      "previous": "上一階段",
+      "forward": "下一階段",
+      "hint": "給我提示",
+      "retry": "回題目重試"
     }
   }
 }

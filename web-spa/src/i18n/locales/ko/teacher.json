@@ -304,6 +304,21 @@
       "review": "개념 다시 보기",
       "next": "다음 문제",
       "another": "계속 연습하기"
+    },
+    "lessonPicker": {
+      "title": "미니 수업",
+      "subtitle": "3~5분 주제를 선택해 선생님과 연습하세요",
+      "hotel": "호텔 체크인",
+      "interview": "취업 면접",
+      "grammar": "완료 시제",
+      "progress": "수업 진행",
+      "quizDone": "퀴즈 통과",
+      "speakingDone": "말하기 목표 달성",
+      "complete": "수업 완료!",
+      "previous": "이전 단계",
+      "forward": "다음 단계",
+      "hint": "힌트 주세요",
+      "retry": "문제로 돌아가 다시 풀기"
     }
   }
 }

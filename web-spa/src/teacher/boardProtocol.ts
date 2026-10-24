@@ -1,14 +1,15 @@
 /** Session-only, data-only board protocol. Never render model-authored HTML. */
-export type CardKind="explanation"|"example"|"comparison"|"timeline"|"vocabulary"|"quiz"|"correction"|"steps"|"flashcard"|"dialogue";
+export type CardKind="explanation"|"example"|"comparison"|"timeline"|"vocabulary"|"quiz"|"correction"|"steps"|"flashcard"|"dialogue"|"speaking";
 export type BoardPair={source:string;target:string;pronunciation?:string};
 export type BoardPoint={label:string;note:string};
 export type BoardQuestion={question:string;options:string[];answerIndex:number;explanation:string};
+export type SpeakingGoal={prompt:string;goal:string;example:string;checks:string[][];minWords:number;minSentences:number};
 export type BoardCard={
  id:string;type:CardKind;title:string;body:string;
- pairs:BoardPair[];points:BoardPoint[];questions:BoardQuestion[];
+ pairs:BoardPair[];points:BoardPoint[];questions:BoardQuestion[];speaking?:SpeakingGoal;
 };
 export type BoardPatch={action:"upsert"|"replace"|"remove";cards:BoardCard[];ids:string[]};
-const kinds:CardKind[]=["explanation","example","comparison","timeline","vocabulary","quiz","correction","steps","flashcard","dialogue"];
+const kinds:CardKind[]=["explanation","example","comparison","timeline","vocabulary","quiz","correction","steps","flashcard","dialogue","speaking"];
 const object=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==="object"&&!Array.isArray(v);
 const clean=(v:unknown,max=240):string=>typeof v==="string"?v.replace(/[<>\u0000-\u001f]/g," ").trim().slice(0,max):"";
 const safeId=(v:unknown):v is string=>typeof v==="string"&&/^[a-z0-9_-]{1,40}$/i.test(v);
@@ -32,7 +33,18 @@ export function validateBoardPatch(value:unknown):BoardPatch|null{
    answerIndex:Number.isInteger(q.answerIndex)?Number(q.answerIndex):-1,
    explanation:clean(q.explanation,260)
   })).filter(q=>q.question&&q.options.length>=2&&q.answerIndex>=0&&q.answerIndex<q.options.length):[];
-  cards.push({id:input.id,type:input.type as CardKind,title:clean(input.title,100),body:clean(input.body,640),pairs,points,questions});
+  let speaking:SpeakingGoal|undefined;
+  if(input.type==="speaking"&&object(input.speaking)){
+   const s=input.speaking;
+   const checks=Array.isArray(s.checks)?s.checks.slice(0,4).filter(Array.isArray).map(group=>group.slice(0,6).map(term=>clean(term,50)).filter(Boolean)).filter(group=>group.length>0):[];
+   const prompt=clean(s.prompt,260),goal=clean(s.goal,260);
+   const minWords=typeof s.minWords==="number"&&Number.isInteger(s.minWords)?Math.max(1,Math.min(80,s.minWords)):5;
+   const minSentences=typeof s.minSentences==="number"&&Number.isInteger(s.minSentences)?Math.max(1,Math.min(5,s.minSentences)):1;
+   if(!prompt||!goal||!checks.length)return null;
+   speaking={prompt,goal,example:clean(s.example,300),checks,minWords,minSentences};
+  }
+  if(input.type==="speaking"&&!speaking)return null;
+  cards.push({id:input.id,type:input.type as CardKind,title:clean(input.title,100),body:clean(input.body,640),pairs,points,questions,...(speaking?{speaking}:{})});
  }
  return {action,cards,ids:[]};
 }
@@ -50,14 +62,15 @@ const str={type:"STRING"};const arr=(items:Record<string,unknown>)=>({type:"ARRA
 export const BOARD_FUNCTION="update_teaching_board";
 export const BOARD_TOOLS=[{functionDeclarations:[{
  name:BOARD_FUNCTION,
- description:"Update the interactive lesson stage while speaking. Create concise visual blocks matching the lesson: comparison for differences, timeline for chronological ideas, steps with points (label and note) for a procedure, dialogue with pairs (source=speaker, target=utterance) for roleplay, flashcard with pairs (source=front, target=back) for recall, vocabulary with pronunciation, quiz with questions, example for example/meaning pairs, correction for before/after, explanation for concepts. Vary formats meaningfully, do not default to explanation. Each update focuses the latest changed card. Reuse stable IDs to edit; action replace for a wholly new lesson, not every turn. Send small patches early during speech. Data only, never HTML.",
+ description:"Update the interactive lesson stage while speaking. Create concise visual blocks matching the lesson: comparison for differences, timeline for chronological ideas, steps with points (label and note) for a procedure, dialogue with pairs (source=speaker, target=utterance) for roleplay, flashcard with pairs (source=front, target=back) for recall, vocabulary with pronunciation, quiz with questions, example for example/meaning pairs, correction for before/after, speaking with speaking {prompt,goal,example,checks as required keyword-alternative groups,minWords,minSentences} for oral practice, explanation for concepts. Vary formats meaningfully, do not default to explanation. Each update focuses the latest changed card. Reuse stable IDs to edit; action replace for a wholly new lesson, not every turn. Send small patches early during speech. Data only, never HTML.",
  parameters:{type:"OBJECT",properties:{
   action:{type:"STRING",enum:["upsert","replace","remove"]},
   ids:arr(str),cards:arr({type:"OBJECT",properties:{
    id:str,type:{type:"STRING",enum:kinds},title:str,body:str,
    pairs:arr({type:"OBJECT",properties:{source:str,target:str,pronunciation:str},required:["source","target"]}),
    points:arr({type:"OBJECT",properties:{label:str,note:str},required:["label","note"]}),
-   questions:arr({type:"OBJECT",properties:{question:str,options:arr(str),answerIndex:{type:"INTEGER"},explanation:str},required:["question","options","answerIndex"]})
+   questions:arr({type:"OBJECT",properties:{question:str,options:arr(str),answerIndex:{type:"INTEGER"},explanation:str},required:["question","options","answerIndex"]}),
+   speaking:{type:"OBJECT",properties:{prompt:str,goal:str,example:str,checks:arr(arr(str)),minWords:{type:"INTEGER"},minSentences:{type:"INTEGER"}},required:["prompt","goal","checks"]}
   },required:["id","type","title"]})
  },required:["action","cards"]}
 }]}];
