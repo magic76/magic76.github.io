@@ -72,3 +72,7 @@
   .mate-dock button{flex:1 1 110px;padding:12px 8px;font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.mate-page *{scroll-behavior:auto!important}}
+.mate-translate-toggle{padding:9px 18px 0;display:flex;justify-content:flex-end}
+.mate-translate-toggle label{font-size:12px;color:var(--muted);font-weight:750}
+.mate-translate-toggle select{border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--text);padding:6px;margin-left:6px;font-size:12px}
+.mate-message .mate-original{border-top:1px solid rgba(52,98,80,.12);padding-top:8px;margin-top:10px;color:var(--muted);font-size:12px}
