@@ -76,3 +76,20 @@
 .mate-translate-toggle label{font-size:12px;color:var(--muted);font-weight:750}
 .mate-translate-toggle select{border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--text);padding:6px;margin-left:6px;font-size:12px}
 .mate-message .mate-original{border-top:1px solid rgba(52,98,80,.12);padding-top:8px;margin-top:10px;color:var(--muted);font-size:12px}
+
+
+/* Scroll owns the leftover space in handoff; no nested whole-page scroll needed. */
+.mate-transcript-wrap{position:relative;display:flex;flex:1 1 auto;min-height:190px;overflow:hidden}
+.mate-transcript-wrap .mate-transcript{width:100%;min-height:0;overflow-y:auto;scrollbar-gutter:stable}
+.mate-jump{position:absolute;right:16px;bottom:15px;border:1px solid #acd9c6;background:#fff;color:#236e5c;box-shadow:0 5px 15px #193f2a18;border-radius:30px;padding:11px 15px;font-weight:750;font-size:12px;cursor:pointer}
+.mate-reconnect{margin:12px 16px 0;border:1px solid #aadccc;background:#e8f6ef;color:#1b745e;border-radius:12px;padding:13px;font-size:13px;font-weight:750;cursor:pointer}
+.mate-presets{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin-top:17px;padding-bottom:3px}
+.mate-presets button{border:1px solid #d4e8dc;border-radius:20px;background:#f4fbf7;color:#317864;padding:9px 13px;white-space:nowrap;font-size:12px;font-weight:750;min-height:38px;cursor:pointer}
+.mate-presets button:focus-visible,.mate-jump:focus-visible,.mate-reconnect:focus-visible{outline:3px solid #73c7a4;outline-offset:2px}
+.mate-clarification{margin:14px 0;padding:12px;border-radius:12px;background:#fff7e4;color:#775120;font-size:13px;line-height:1.6}
+@media(max-width:640px){
+ .mate-external{height:clamp(450px,calc(100dvh - 205px),750px);min-height:450px}
+ .mate-transcript-wrap{min-height:160px}
+ .mate-transcript-wrap .mate-transcript{min-height:0}
+ .mate-message{max-width:92%}
+}
