@@ -98,3 +98,109 @@
  .crew-town-person,.crew-town-moment,.crew-town-sheet{animation:none!important}
  .crew-town-stage,.crew-town-art{transition:none!important}
 }
+
+
+/* v2 art direction — calm illustrated diorama, not debug-style geometry. */
+.crew-town{gap:26px;max-width:1180px}
+.crew-town-heading{align-items:center;padding-top:8px}
+.crew-town-kicker{font-size:10px;letter-spacing:.25em;color:#64897b}
+.crew-town-kicker span{color:#ab988a;letter-spacing:.14em}
+.crew-town-heading h1{font-weight:700;letter-spacing:-.055em;color:#304d45}
+.crew-town-heading p{color:#6d8177;max-width:670px}
+.crew-town-back{color:#678576;border-color:#e4e6d9;box-shadow:0 3px 15px #8c9a8720;font-weight:700}
+.crew-town-shell{border-color:#e5e5d4;background:#fcfcf5;box-shadow:0 3px 3px #536c5e0a,0 24px 65px #6f8e7525}
+.crew-town-stage{
+ background:radial-gradient(ellipse at 49% 32%,#f6f9e8 0%,#e0f0df 53%,#c4ddda 100%);
+}
+.crew-town-stage::before{
+ background:
+ radial-gradient(ellipse at 55% -15%,#fff6ddc7,transparent 46%),
+ radial-gradient(ellipse at 5% 70%,#fef8dc9c,transparent 45%),
+ radial-gradient(circle at 92% 11%,#e6e8fb80,transparent 35%);
+ opacity:1;
+}
+.crew-town-stage::after{
+ content:"";inset:0;position:absolute;pointer-events:none;z-index:1;
+ background:radial-gradient(ellipse at 50% 48%,transparent 47%,#668d8315 100%);
+}
+.crew-town-stage.is-night{background:radial-gradient(ellipse at 56% 40%,#637687,#425e70 57%,#294959 100%)}
+.crew-town-stage.is-night::before{background:radial-gradient(circle at 76% 3%,#fbe9b046,transparent 22%),radial-gradient(ellipse at 42% 77%,#9ec2c21d,transparent 48%)}
+.crew-town-viewport{height:600px;position:relative;z-index:2}
+.crew-town-art{filter:drop-shadow(0 17px 18px #456c531a)}
+.crew-town-stage.is-night .crew-town-art{filter:drop-shadow(0 18px 20px #0d283744)}
+.crew-town-landscape{transition:filter .55s ease}
+.crew-town-stage.is-night .crew-town-landscape{filter:brightness(.73) saturate(.82) hue-rotate(4deg)}
+.crew-town-night-lights{opacity:0;transition:opacity .55s ease;pointer-events:none;mix-blend-mode:screen}
+.crew-town-stage.is-night .crew-town-night-lights{opacity:1}
+.crew-town-lamp-glow{opacity:0;transition:opacity .4s ease}
+.crew-town-stage.is-night .crew-town-lamp-glow{opacity:.23}
+.crew-town-stage-top{inset:20px 21px auto;z-index:8}
+.crew-town-world-status{font-size:10px;letter-spacing:.035em;font-weight:740;color:#698276;background:#fffef5ef;border:1px solid #ffffffc9;box-shadow:0 4px 20px #566a6517}
+.crew-town-status-light{width:6px;height:6px;background:#85bc8d;box-shadow:0 0 0 3px #85bc8d26}
+.crew-town-stage-actions button{font-size:11px;min-height:40px;background:#fffef6ed;color:#57766b;box-shadow:0 3px 12px #57695c19;border:1px solid #ffffffd9}
+.crew-town-stage-actions button:active{transform:scale(.97)}
+.crew-town-person{
+ width:78px;height:112px;z-index:5;
+ animation:crew-town-sway 3.8s cubic-bezier(.45,0,.55,1) infinite;
+}
+.crew-town-person.is-selected{z-index:7}
+.crew-town-person-shadow{bottom:23px;left:18px;width:43px;height:11px;background:#304d473d;filter:blur(4px)}
+.crew-town-person-figure{width:57px;height:84px;position:relative;filter:none}
+.crew-town-character-svg{width:57px;height:84px;overflow:visible;filter:drop-shadow(0 4px 3px #46554c30);display:block}
+.crew-town-person-tag{
+ font-size:10px;letter-spacing:.015em;font-weight:780;
+ padding:5px 10px;background:#fffdf3fa;border:1.5px solid #ffffffd9;
+ box-shadow:0 2px 10px #536d5e26;
+}
+.crew-town-person:hover .crew-town-person-tag,.crew-town-person.is-selected .crew-town-person-tag{background:#477a6d;color:#fff;border-color:#6fa495}
+.crew-town-person:hover .crew-town-character-svg{filter:drop-shadow(0 5px 5px #365e555c)}
+.crew-town-place{
+ min-height:34px;gap:5px;padding:4px 10px 4px 5px;
+ border-color:#f3f0df;background:#fffdf3f5;
+ color:#56786c;font-size:10px;font-weight:760;
+ box-shadow:0 4px 11px #4d725c26;z-index:4;
+}
+.crew-town-place-dot{height:23px;width:23px;background:#cfe3cf;border:1px solid #fff;color:#427467;font-size:12px}
+.crew-town-place:hover{border-color:#8bbbad;box-shadow:0 8px 18px #486d5e31}
+.crew-town-moment{
+ z-index:6;max-width:205px;min-width:174px;
+ border:1px solid #fffef4;background:#fffdfaef;
+ border-radius:17px 17px 17px 5px;box-shadow:0 12px 23px #536a5f35;
+ padding:10px 12px;gap:4px;color:#4f675e;
+}
+.crew-town-moment::after{content:"";position:absolute;bottom:-7px;left:17px;border-top:8px solid #fffdfaef;border-right:8px solid transparent}
+.crew-town-moment strong{font-size:10px;color:#427c6d}
+.crew-town-moment>span{font-size:11px;font-weight:560;line-height:1.55}
+.crew-town-moment-zoe{left:32%;top:44%}
+.crew-town-moment-yuna{left:38%;top:50%}
+.crew-town-moment-theo{left:71%;top:41%}
+.crew-town-moment-bella{left:54%;top:62%}
+.crew-town-stage-hint{bottom:15px;border:1px solid #ffffff88;padding:7px 13px;font-size:10px;color:#648278;background:#fffcf2ea;box-shadow:0 3px 13px #6d8b7720}
+.crew-town-sheet{background:#fffef9fa;border:1px solid #fffdf6;border-radius:19px;box-shadow:0 18px 60px #294a4491,0 2px 5px #637a7130}
+.crew-town-sheet small{color:#7b9a8d}
+.crew-town-sheet strong{font-weight:730;color:#2e5148}
+.crew-town-sheet p{color:#6e8177}
+.crew-town-join{background:#487e70}
+.crew-town-foot{color:#8b9388;background:#fcfbf6;border-color:#e7e9da}
+.crew-town-next{gap:0;border-top:1px solid #e8e8da}
+.crew-town-next>div{border:0;border-radius:0;border-right:1px solid #e8e8da;padding:16px 21px;background:none}
+.crew-town-next>div:last-child{border-right:0}
+.crew-town-next span{color:#8fa69c}
+.crew-town-next strong{font-size:13px;color:#617c6e;font-weight:650}
+@media(max-width:760px){
+ .crew-town{gap:17px}
+ .crew-town-heading{gap:12px}
+ .crew-town-heading h1{font-size:30px}
+ .crew-town-shell{margin:0 -2px;border-radius:20px}
+ .crew-town-viewport{height:600px}
+ .crew-town-stage-top{inset:11px 10px auto}
+ .crew-town-world-status{font-size:9px}
+ .crew-town-stage-actions button{min-height:36px;font-size:10px;padding:0 10px}
+ .crew-town-moment{max-width:195px;min-width:170px}
+ .crew-town-next{display:grid;grid-template-columns:1fr}
+ .crew-town-next>div{border:0;border-bottom:1px solid #e8e8da;padding:12px 15px}
+ .crew-town-next>div:last-child{border:0}
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-town-landscape,.crew-town-night-lights,.crew-town-lamp-glow{transition:none!important}
+}
