@@ -97,7 +97,7 @@ export function Town3DPage(){
      <small>{zh?"穿過街道，還有市集、森林、故事街和港灣":"Beyond the square: a market, forest, story lane and harbor"}</small>
     </div>}
     <div className="crew-town-3d-tools">
-     <span className="crew-town-3d-status"><span aria-hidden="true"/> {view==="close"?(zh?"近景探索 · 6 位朋友":"Close-up · 6 friends"):(zh?"小鎮全景":"Town overview")}</span>
+     <span className="crew-town-3d-status"><span aria-hidden="true"/> {view==="close"?(zh?"近景探索 · 16 位朋友":"Close-up · 16 friends"):(zh?"小鎮全景":"Town overview")}</span>
      <div className="crew-town-3d-buttons">
       <button type="button" onClick={()=>{setSelected(null);setView(mode=>mode==="close"?"overview":"close");setReset(n=>n+1)}}
         aria-pressed={view==="close"}

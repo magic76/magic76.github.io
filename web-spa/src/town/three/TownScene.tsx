@@ -9,6 +9,7 @@ import {TownCharacters} from "./TownCharacters";
 import {TownCameraController} from "./TownCameraController";
 import type {TownViewMode} from "./TownCameraController";
 import {PEOPLE,type DistrictId,type FriendId,type PlaceId,type Selection} from "./world";
+import {WALK_GRAPH} from "./TownWalkGraph";
 
 type Props={night:boolean;zh:boolean;district:DistrictId;view:TownViewMode;reducedMotion:boolean;selected:Selection;reset:number;
  onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onDeselect:()=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
@@ -47,7 +48,7 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
  const friendFocus=selected?.type==="person"
   ?(()=>{
    const position=actorPositions.current[selected.id]
-    ??PEOPLE.find(person=>person.id===selected.id)?.route[0];
+    ??WALK_GRAPH[PEOPLE.find(person=>person.id===selected.id)?.startNode??"c0"].point;
    return position?[position[0],.95,position[1]] as const:null;
   })():null;
  const focus=friendFocus??cameraFocus;

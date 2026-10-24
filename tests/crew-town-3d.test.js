@@ -30,12 +30,12 @@ test("original bundled GLB is a valid glTF 2.0 library with eight named art grou
  assert.ok(data.length<120*1024);
 });
 
-test("Town 3D keeps six distinct real friends, four destinations, and voice handoff",()=>{
+test("Town 3D keeps all 16 canonical friends, four destinations, and voice handoff",()=>{
  const world=read("web-spa/src/town/three/world.ts");
  const chars=read("web-spa/src/town/three/TownCharacters.tsx");
  const places=read("web-spa/src/town/three/TownEnvironment.tsx");
  const overlay=read("web-spa/src/town/three/TownOverlay.tsx");
- for(const id of ["zoe","yuna","theo","hugo","bella","noah"]){
+ for(const id of ["zoe","noah","iris","max","yuna","felix","luna","theo","isla","hugo","ada","finn","maya","oscar","bella","ryan"]){
   assert.match(world,new RegExp('id:"'+id+'"'));
   assert.match(read("web-spa/src/friends/friendProfiles.ts"),new RegExp('"id":"'+id+'"'));
  }
@@ -133,8 +133,9 @@ test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>
  const chars=read("web-spa/src/town/three/TownCharacters.tsx");
  assert.ok(chars.includes("sphereGeometry args={[.42,20,16]}"));
  assert.ok(chars.includes("capsuleGeometry args={[.27,.27,5,12]}"));
- assert.ok(chars.includes("position={[route[0][0],.025,route[0][1]]}"));
- assert.ok(chars.includes("feet.rotation.x=Math.sin(s.walk)*.13"));
+ assert.ok(chars.includes("position={[WALK_GRAPH[startNode].point[0],.025,WALK_GRAPH[startNode].point[1]]}"));
+ assert.ok(chars.includes("leftLeg.current.rotation.x=MathUtils.damp("));
+ assert.ok(chars.includes("rightLeg.current.rotation.x=MathUtils.damp("));
  for(const id of ["zoe","yuna","bella","theo","hugo","noah"]){
   assert.ok(chars.includes('id==="'+id+'"'));
  }
@@ -234,4 +235,83 @@ test("P3 extends the actual land footprint and offers camera traversal of five d
  assert.ok(page.includes("travelToDistrict(area.id)"));
  assert.ok(page.includes('setDistrict(id)'));
  assert.ok(css.includes(".crew-town-3d-districts"));
+});
+
+test("P4 world registers exactly the canonical sixteen friend ids with matching avatars",()=>{
+ const world=read("web-spa/src/town/three/world.ts");
+ const profiles=read("web-spa/src/friends/friendProfiles.ts");
+ const overlay=read("web-spa/src/town/three/TownOverlay.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const match=world.match(/export const TOWN_FRIEND_IDS=(\[[\s\S]*?\]) as const;/);
+ assert.ok(match);
+ const ids=JSON.parse(match[1]);
+ assert.equal(ids.length,16);
+ assert.equal(new Set(ids).size,16);
+ for(const id of ids){
+  assert.ok(profiles.includes('"id":"'+id+'"'),id+" must exist in canonical profiles");
+  assert.ok(world.includes('id:"'+id+'"'),id+" must have its own actor data");
+ }
+ assert.equal((world.match(/startNode:"/g)||[]).length,16);
+ assert.ok(overlay.includes("PEOPLE.length"));
+ assert.ok(page.includes('近景探索 · 16 位朋友'));
+});
+test("P4 graph keeps 16 residents on connected safe pedestrian paths across all five districts",()=>{
+ const fs=require("node:fs"),vm=require("node:vm");
+ const walk=read("web-spa/src/town/three/TownWalkGraph.ts");
+ const world=read("web-spa/src/town/three/world.ts");
+ const sourceLoops=walk.match(/const LOOPS:[^=]+=(\[[\s\S]*?\]);\nconst BRIDGES/);
+ const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\nfunction makeWalkGraph/);
+ assert.ok(sourceLoops);assert.ok(sourceBridges);
+ const loops=vm.runInNewContext(sourceLoops[1]);
+ const bridges=vm.runInNewContext(sourceBridges[1]);
+ assert.equal(loops.length,5);
+ const nodes=new Map();
+ for(const loop of loops)for(const [id,x,z] of loop){
+  assert.ok(Math.abs(x)<=25&&Math.abs(z)<=21,"node outside walkable land: "+id);
+  assert.ok(!nodes.has(id));nodes.set(id,{x,z,links:new Set()});
+ }
+ for(const loop of loops)for(let i=0;i<loop.length;i++){
+  const a=loop[i][0],b=loop[(i+1)%loop.length][0];
+  nodes.get(a).links.add(b);nodes.get(b).links.add(a);
+ }
+ for(const [a,b] of bridges){
+  assert.ok(nodes.has(a)&&nodes.has(b),"missing bridge node");
+  nodes.get(a).links.add(b);nodes.get(b).links.add(a);
+ }
+ const seen=new Set(["c0"]),queue=["c0"];
+ for(let i=0;i<queue.length;i++){
+  const from=nodes.get(queue[i]);
+  for(const neighbor of from.links)if(!seen.has(neighbor)){seen.add(neighbor);queue.push(neighbor)}
+ }
+ assert.equal(seen.size,nodes.size,"all five districts must be reachable");
+ assert.equal(nodes.size,40);
+ for(const [id,n] of nodes){
+  for(const next of n.links){
+   const other=nodes.get(next);
+   assert.ok(Math.hypot(n.x-other.x,n.z-other.z)<=12.5,id+" path has suspicious jump");
+  }
+ }
+ for(const id of (world.match(/startNode:"[^"]+"/g)||[])){
+  assert.ok(nodes.has(id.slice(11,-1)),id+" walk spawn is missing from graph");
+ }
+ assert.ok(walk.includes("chooseNextWalkNode"));
+ assert.ok(walk.includes("seedForFriend"));
+});
+test("P4 natural locomotion alternates planted feet and arms without frame-driven setState",()=>{
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ assert.ok(chars.includes("const leftLeg=useRef<Group>"));
+ assert.ok(chars.includes("const rightLeg=useRef<Group>"));
+ assert.ok(chars.includes("const leftArm=useRef<Group>"));
+ assert.ok(chars.includes("const rightArm=useRef<Group>"));
+ assert.ok(chars.includes("Math.sin(s.walk+Math.PI)"));
+ assert.ok(chars.includes("s.walk+=travel*8.9"));
+ assert.ok(chars.includes('s.phase="Walking"'));
+ assert.ok(chars.includes('s.phase="Arriving"'));
+ assert.ok(chars.includes("if(!selected&&!reducedMotion)"));
+ assert.ok(chars.includes("if(!group||!torso||document.hidden)return"));
+ assert.ok(chars.includes("selected&&!reducedMotion"));
+ assert.ok(scene.includes("onMove={trackActor}"));
+ assert.ok(scene.includes("WALK_GRAPH[PEOPLE.find"));
+ assert.ok(!chars.includes("setStep("));
 });

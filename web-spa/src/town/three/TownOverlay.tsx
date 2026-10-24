@@ -26,7 +26,7 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
      <span className="crew-town-3d-destination-symbol" aria-hidden="true">{placeIcons[p.id]}</span><span>{zh?p.zh:p.en}</span>
     </button>)}</div>
    <button type="button" className="crew-town-3d-friends-toggle" onClick={()=>setFriendsOpen(v=>!v)}
-     aria-expanded={friendsOpen} aria-controls="crew-town-3d-friend-menu">{zh?"朋友 · 6":"Friends · 6"}</button>
+     aria-expanded={friendsOpen} aria-controls="crew-town-3d-friend-menu">{(zh?"朋友 · ":"Friends · ")+PEOPLE.length}</button>
    {friendsOpen&&<div id="crew-town-3d-friend-menu" className="crew-town-3d-friend-menu" role="group"
      aria-label={zh?"選擇小鎮朋友":"Choose a friend"}>
     {PEOPLE.map(p=>{const profile=CREW_FRIENDS.find(f=>f.id===p.id);return <button type="button" key={p.id}
