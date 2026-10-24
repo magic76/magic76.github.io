@@ -1,14 +1,19 @@
 const assert=require("node:assert/strict");
 const {test}=require("node:test");
-const fs=require("node:fs"),path=require("node:path"),ts=require("typescript");
+const fs=require("node:fs"),path=require("node:path");
+const {stripTypeScriptTypes}=require("node:module");
 const root=path.join(__dirname,"..","web-spa","src","town","three");
 const memo=new Map();
 function load(name){
  if(memo.has(name))return memo.get(name).exports;
  const source=fs.readFileSync(path.join(root,name+".ts"),"utf8");
- const output=ts.transpileModule(source,{compilerOptions:{
-  target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS
- }}).outputText;
+ // TypeScript 7 uses its native compiler and no longer exposes transpileModule.
+ // Node 22's built-in TS stripper lets these behavioral tests exercise actual source.
+ const exported=[...source.matchAll(/export (?:const|function|class) ([A-Za-z0-9_]+)/g)].map(m=>m[1]);
+ const output=stripTypeScriptTypes(source,{mode:"transform"})
+  .replace(/import\\s*\\{([^}]+)\\}\\s*from\\s*["']([^"']+)["'];/g,'const {$1}=require("$2");')
+  .replace(/export\\s+(?=(?:const|function|class)\\b)/g,"")
+  +"\\nObject.assign(module.exports,{"+exported.join(",")+"});";
  const item={exports:{}};memo.set(name,item);
  new Function("require","exports","module",output)((spec)=>{
   if(!spec.startsWith("./"))throw Error("Unexpected test dependency "+spec);
