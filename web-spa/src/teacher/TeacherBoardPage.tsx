@@ -55,7 +55,7 @@ export function TeacherBoardPage(){
  const lessonRef=useRef<LessonId|null>(null);
  const reviewReturnRef=useRef<{cardId:string;index:number}|null>(null);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
- const liveEnabled=s.liveModel==="gemini-3.1-flash-live-preview";
+ // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
  const system=useMemo(()=>buildTeacherSessionPolicy({
@@ -182,7 +182,7 @@ export function TeacherBoardPage(){
   languageDriftGuard:(text)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,s.teachingMode),
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
-  tools:liveEnabled?[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}]:undefined,
+  tools:[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}],
   onToolsUnavailable:()=>setToolsUnavailable(true),
   onConfirmedTranscript:turn=>processConfirmedSpeech(turn.input||""),
   onToolCall:(call)=>{
@@ -250,6 +250,16 @@ export function TeacherBoardPage(){
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
   if(!active||!live.sendText(text+"\n"+localeHelp)){setHint(t("board.startFirst"));return}
+  setHint("");
+ }
+ function showFormats(){
+  // Preview cards are curated static samples, not a claimed model response.
+  lessonRef.current=null;setLessonId(null);setLessonStep(0);
+  changeDirector(EMPTY_DIRECTOR);
+  reviewReturnRef.current=null;setReviewReturn(null);
+  const patch=fallbackBoard({input:"展示不同卡片種類的格式示範"},[]);
+  if(patch){commitPatch(patch);setHasLivePatch(false)}
+  if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
@@ -321,8 +331,9 @@ export function TeacherBoardPage(){
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
-     <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
-    </div><span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
+     <p>{t(hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
+    </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
+     <span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
