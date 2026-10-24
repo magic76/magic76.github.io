@@ -23,7 +23,7 @@ export function renderNewsEndingCard(card:EndingCard):HTMLCanvasElement{
  ctx.fillStyle="#fff";ctx.font="bold 64px system-ui,sans-serif";
  lines(ctx,card.scene.headline,940,5).forEach((line,i)=>ctx.fillText(line,72,325+i*88));
  ctx.fillStyle="#ffd1a0";ctx.font="bold 32px system-ui,sans-serif";
- ctx.fillText(card.language==="zh"?"最後變成了這樣：":"THE UNEXPECTED OUTCOME",72,785);
+ ctx.fillText(card.scene.outcome==="good"?(card.language==="zh"?"救場成功 · 好結局":"BROADCAST SAVED · GOOD ENDING"):(card.language==="zh"?"直播翻車 · 壞結局":"BROADCAST DISASTER · BAD ENDING"),72,785);
  ctx.fillStyle="#fff";ctx.font="35px system-ui,sans-serif";
  lines(ctx,card.scene.ending,924,7).forEach((line,i)=>ctx.fillText(line,72,868+i*54));
  ctx.fillStyle="#d8e6ff";ctx.font="24px system-ui,sans-serif";
