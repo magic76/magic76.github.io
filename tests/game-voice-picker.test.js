@@ -26,6 +26,6 @@ test("all Crew Play Gemini Live entry points expose persistent selected voice",(
 test("game voice selections do not modify teacher or friend voice identity",()=>{
  const picker=read("GameVoicePicker.tsx");
  assert.doesNotMatch(picker,/teacherStore|buildFriendSystem|FriendProfile/);
- assert.match(picker,/value==="auto"/);
+ assert.match(picker,/choice==="auto"/);
  assert.match(picker,/normalizeLiveVoice\(defaultVoice\)/);
 });
