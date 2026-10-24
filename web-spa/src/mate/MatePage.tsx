@@ -50,6 +50,9 @@ export function MatePage(){
   const [connected,setConnected]=useState(false);
   const [speaking,setSpeaking]=useState(false);
   const [turns,setTurns]=useState<MateTurn[]>([]);
+  const [translationView,setTranslationView]=useState<"bilingual"|"translated"|"original">("bilingual");
+  const translationViewRef=useRef<"bilingual"|"translated"|"original">("bilingual");
+  const translationPending=useRef(new Set<string>());
   const [decision,setDecision]=useState<MateDecision>(null);
   const [outcome,setOutcome]=useState("");
   const [saveHistory,setSaveHistory]=useState(false);
@@ -85,6 +88,33 @@ export function MatePage(){
     const latest:MateTurn={id:timestampId(),sender,original:original.trim(),time:Date.now()};
     turnsRef.current=[...turnsRef.current,latest];
     setTurns(turnsRef.current);
+    if(translationViewRef.current!=="original")void translateTurn(latest);
+  }
+  async function translateTurn(entry:MateTurn){
+    if(translationPending.current.has(entry.id)||entry.translated)return;
+    const c=consensusRef.current;
+    if(c.userLanguage===c.otherLanguage){
+      turnsRef.current=turnsRef.current.map(x=>x.id===entry.id?{...x,translated:x.original}:x);
+      setTurns(turnsRef.current);return;
+    }
+    translationPending.current.add(entry.id);
+    const thisTask=taskId.current;
+    try{
+      await ensureLive();
+      const translated=await window.CrewAI?.call?.(
+        "Translate the following real conversation transcript into "+lang(c.userLanguage)+". "+
+        "Return the translation only, without comments or explanations.\n\n"+entry.original,
+        {preferLive:false,temperature:0,maxOutputTokens:240,system:"You translate existing dialogue accurately. Never add messages or infer missing text."}
+      );
+      if(thisTask!==taskId.current||typeof translated!=="string"||!translated.trim())return;
+      turnsRef.current=turnsRef.current.map(x=>x.id===entry.id?{...x,translated:translated.trim()}:x);
+      setTurns(turnsRef.current);
+    }catch{/* Show the genuine original transcript if translation fails. */}
+    finally{translationPending.current.delete(entry.id)}
+  }
+  function setView(value:"bilingual"|"translated"|"original"){
+    setTranslationView(value);translationViewRef.current=value;
+    if(value!=="original")turnsRef.current.filter(entry=>!entry.translated).forEach(entry=>void translateTurn(entry));
   }
   function clearUnmuteTimer(){
     if(unmuteTimer.current!==null){clearTimeout(unmuteTimer.current);unmuteTimer.current=null}
@@ -269,7 +299,7 @@ export function MatePage(){
   }
   function restart(){
     void stopConnection();advance("setup","IDLE");
-    taskId.current=timestampId();
+    taskId.current=timestampId();translationPending.current.clear();
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
     setOutcome("");setDecision(null);setStartedExternal(false);setError("");setNote("");
@@ -361,11 +391,19 @@ export function MatePage(){
         <h2>{consensus.target||t("溝通任務","Communication")}</h2><p>{consensus.goal}</p></div>
         {phase==="external"&&<span className={"mate-live-dot"+(connected?" online":"")}>{connected?t("已連線","Connected"):liveStatus}</span>}
       </div>
+      <div className="mate-translate-toggle">
+        <label>{t("字幕","Subtitles")} <select value={translationView} onChange={event=>setView(event.target.value as "bilingual"|"translated"|"original")}>
+          <option value="bilingual">{t("雙語","Bilingual")}</option>
+          <option value="translated">{t("譯文","Translation")}</option>
+          <option value="original">{t("原文","Original")}</option>
+        </select></label>
+      </div>
       <div className="mate-transcript" aria-live="polite" aria-label={t("對話逐字稿","Live transcript")}>
         {turns.length===0&&<p className="mate-empty">{phase==="external"?t("把手機交給對方，Mate 會等對方先說話。","Hand the phone over. Mate will wait for the other person to speak.") :t("目前沒有對話內容。","No transcript yet.")}</p>}
         {turns.map(entry=><div key={entry.id} className={"mate-message "+(entry.sender==="mate"?"agent":"other")}>
           <strong>{entry.sender==="mate"?"Mate":consensus.target}</strong>
-          <p>{entry.original}</p>
+          <p>{translationView==="original"?entry.original:entry.translated||entry.original}</p>
+          {translationView==="bilingual"&&entry.translated&&entry.translated!==entry.original&&<p className="mate-original">{entry.original}</p>}
           <small>{new Date(entry.time).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small>
         </div>)}
       </div>
