@@ -205,7 +205,6 @@ export function TeacherBoardPage(){
     const patch=fallbackBoard(requested,cardRef.current);
     if(patch)commitPatch(patch);
    }
-   // Never advance before a real learner answer AND the teacher's feedback turn.
    const pending=pendingQuizRef.current,d=directorRef.current;
    if(pending&&turn.output?.trim()&&d.phase==="feedback"&&d.cardId===pending.cardId&&d.quizIndex===pending.index){
     pendingQuizRef.current=null;
@@ -256,7 +255,7 @@ export function TeacherBoardPage(){
   reviewReturnRef.current=null;setReviewReturn(null);
   const pairs=reviews.due.map(item=>({source:item.source,target:item.target}));
   commitPatch({action:"replace",ids:[],cards:[{id:"scheduled-review",type:"flashcard",title:t("board.review.title"),body:"",pairs,points:[],questions:[]}]});
-  if(active)live.sendControl("[REVIEW MODE] The learner opened due flashcards from prior self-ratings. These are learning material, not graded answers. Wait for them to recall or ask for oral practice.");
+  if(active)live.sendControl("[REVIEW MODE] Due cards were self-rated, not graded. Wait for learner recall or oral practice.");
  }
  function coachFlashcard(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak"){
   ask(flashcardTeacherPrompt(card,reviews,scope));
