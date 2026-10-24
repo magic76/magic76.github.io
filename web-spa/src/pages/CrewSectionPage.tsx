@@ -215,6 +215,16 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>)}
+    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" to="/mate">
+     <div className="crew-explore-art">
+      <div className="crew-explore-mate-art" aria-hidden="true"><span><Icon name="chat"/></span><span><Icon name="mic"/></span><span><Icon name="chat"/></span></div>
+     </div>
+     <span className="crew-explore-text">
+      <strong>{en?"Crew Mate · Speak for me":"Crew Mate · AI 幫你溝通"}</strong>
+      <small>{en?"Brief privately, then let Mate talk to someone in another language.":"私下交代任務，再交給 Mate 用對方的語言溝通。"}</small>
+     </span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" to="/town">
      <div className="crew-explore-art"><div className="crew-explore-town-mini"><TownIllustration/></div></div>
      <span className="crew-explore-text">
