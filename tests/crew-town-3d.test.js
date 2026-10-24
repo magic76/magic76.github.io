@@ -261,7 +261,7 @@ test("P4 graph keeps 16 residents on connected safe pedestrian paths across all 
  const walk=read("web-spa/src/town/three/TownWalkGraph.ts");
  const world=read("web-spa/src/town/three/world.ts");
  const sourceLoops=walk.match(/const LOOPS:[^=]+=(\[[\s\S]*?\]);\nconst BRIDGES/);
- const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\nfunction makeWalkGraph/);
+ const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\n/);
  assert.ok(sourceLoops);assert.ok(sourceBridges);
  const loops=vm.runInNewContext(sourceLoops[1]);
  const bridges=vm.runInNewContext(sourceBridges[1]);
