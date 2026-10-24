@@ -5,7 +5,7 @@ const read=p=>fs.readFileSync(p,"utf8");
 
 test("Crew settings has real linked learning, voice, data and device sections",()=>{
  const page=read("web-spa/src/pages/SettingsPage.tsx");
- for(const anchor of ["settings-learning","settings-voice","settings-data","settings-device","memory-settings","live-model-settings"]){
+ for(const anchor of ["settings-learning","settings-interface","settings-voice","settings-data","settings-device","memory-settings","live-model-settings"]){
   assert.match(page,new RegExp('id="'+anchor+'"'),"Missing settings anchor "+anchor);
  }
  assert.match(page,/<LanguageSwitcher variant="settings"\/>/);
@@ -20,7 +20,7 @@ test("Crew settings has real linked learning, voice, data and device sections",(
  assert.match(page,/<GeminiConnectionPanel\/>/);
  assert.match(page,/setPersonalMemoryEnabled\(value\)/);
  assert.match(page,/setFriendMemoryEnabled\(value\)/);
- assert.match(page,/to="\/teacher\/vocabulary"/);
+ assert.match(page,/to="\/teacher\/pronunciation"/);
  assert.match(page,/to="\/privacy"/);
  assert.match(page,/<BuildVersion\/>/);
 });

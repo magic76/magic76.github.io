@@ -42,6 +42,6 @@ test("default-on memory remains in settings and links work with HashRouter",()=>
  const my=read("web-spa/src/teacher/MyPage.tsx");
  assert.match(personal,/getItem\(CONSENT\)!=="0"/);
  assert.match(friend,/getItem\(CONSENT\)!=="0"/);
- assert.match(settings,/hash\.endsWith\("#memory-settings"\)/);
+ assert.match(settings,/\["#settings-learning".*"#memory-settings"/);
  assert.match(my,/to="\/settings#memory-settings"/);
 });
