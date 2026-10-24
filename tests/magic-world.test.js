@@ -53,6 +53,15 @@ test("tool arguments ignore inherited prototype properties",()=>{
  assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",nullProto).ok,true);
 });
 
+test("serialized tool arguments are size and parse-depth bounded",()=>{
+ const valid=JSON.stringify({kind:"owl"});
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",valid).ok,true);
+ const nested=JSON.stringify(valid);
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",nested).ok,false);
+ const oversized=JSON.stringify({kind:"owl",padding:"x".repeat(5000)});
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",oversized).ok,false);
+});
+
 test("challenge choices are graded exactly once and increment chapters for correct answers",()=>{
  const q=demoMagicCommand("puzzle",MAGIC_INITIAL_WORLD);
  const done=applyMagicCommand(q.world,"answer_challenge",JSON.stringify({choice:"B"}));
