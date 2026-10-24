@@ -45,8 +45,8 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
   const quickUp=controls.indexOf('className="live-volume-quick is-up"',barStart);
   assert.ok(barStart>0 && detailEnd>barStart && quickDown>detailEnd && quickUp>quickDown && quickUp<barEnd,
     "Quick volume buttons must be outside collapsed advanced controls, visible during Live");
-  assert.match(css,/\\.crew-voice-dock \\.live-audio-bar>\\.live-volume-quick\\{/);
-  assert.match(css,/\\.live-audio-bar>\\.live-audio-settings>summary\\{padding-inline:48px\\}/);
+  assert.match(css,/\.crew-voice-dock \.live-audio-bar>\.live-volume-quick\{/);
+  assert.match(css,/\.live-audio-bar>\.live-audio-settings>summary\{padding-inline:48px\}/);
   assert.match(css,/\.crew-voice-dock \.live-volume-step\{/);
   assert.match(controls,/100% 以上會增強音量/);
   assert.match(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:block\}/);
