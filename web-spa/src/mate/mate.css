@@ -22,8 +22,8 @@
 .mate-primary{color:#fff;background:#267c6f}
 .mate-secondary{color:#286e65;background:#e7f4f0}
 .mate-quiet{color:var(--muted);background:#f0f1f0;padding:10px 13px}
-.mate-check,.mate-save{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.6;color:var(--muted);margin:16px 0}
-.mate-check input,.mate-save input{margin-top:3px;accent-color:#267c6f;width:17px;height:17px;flex:none}
+.mate-check{display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.6;color:var(--muted);margin:16px 0}
+.mate-check input{margin-top:3px;accent-color:#267c6f;width:17px;height:17px;flex:none}
 .mate-private-live{display:grid;gap:6px;border-radius:13px;padding:14px;margin:12px 0;background:#eff8f4;font-size:13px}
 .mate-private-live p{margin:0;line-height:1.5}
 .mate-question{font-weight:700}
