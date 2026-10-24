@@ -12,6 +12,7 @@ on:
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
     paths-ignore:
+      - 'crew-app/**'
       - 'docs/**'
       - '**/*.md'
 
@@ -27,6 +28,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
@@ -59,9 +61,8 @@ jobs:
           UI_I18N_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: npm run build:web
       - run: npm run check:bundle
-      - name: Test PR
-        if: github.event_name == 'pull_request'
-        run: npm test
+      # Keep PR checks fast. The complete test suite runs daily or on demand
+      # via .github/workflows/crew-spa-full-tests.yml.
       - name: Browser-render Crew Town 3D (town PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
         run: |
