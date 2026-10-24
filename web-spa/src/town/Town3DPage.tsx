@@ -47,7 +47,7 @@ export function Town3DPage(){
  return <Town3DErrorBoundary fallback={fallback}>
   <div className="crew-town-3d">
    <header className="crew-town-3d-heading">
-    <div><span className="crew-town-3d-kicker">CREW TOWN · 3D WORLD</span>
+    <div><span className="crew-town-3d-kicker">{zh?"CREW 小鎮 · 3D 世界":"CREW TOWN · 3D WORLD"}</span>
      <h1>{zh?"走進朋友們的小鎮":"Step into their little world"}</h1>
      <p>{zh?"轉動視角、走近咖啡館，在小鎮的日常裡遇見 Crew 朋友。":"Explore a miniature village. Find your friends between the café, studio and lakeside."}</p>
     </div>

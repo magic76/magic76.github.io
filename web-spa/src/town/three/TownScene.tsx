@@ -1,4 +1,4 @@
-import {Suspense,useEffect} from "react";
+import {Suspense,useEffect,useState} from "react";
 import {Canvas,useThree} from "@react-three/fiber";
 import {TownEnvironment} from "./TownEnvironment";
 import {TownCharacters} from "./TownCharacters";
@@ -16,7 +16,17 @@ function ContextWatch({onFailure}: {onFailure:()=>void}){
  },[gl,onFailure]);
  return null;
 }
+function CanvasUnavailable({onFailure}:{onFailure:()=>void}){
+ useEffect(()=>onFailure(),[onFailure]);
+ return null;
+}
 export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,onFailure}:Props){
+ const [visible,setVisible]=useState(true);
+ useEffect(()=>{
+  const sync=()=>setVisible(!document.hidden);
+  sync();document.addEventListener("visibilitychange",sync);
+  return()=>document.removeEventListener("visibilitychange",sync);
+ },[]);
  const cameraFocus=selected?.type==="place"
   ?({cafe:[-5,1.2,-1.75],studio:[4.7,1.35,-1.75],play:[-2.2,1.25,5.3],garden:[5.45,.3,4.5]} as const)[selected.id]
   :selected?.type==="person"
@@ -29,9 +39,9 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
    camera={{position:[14,16,23],fov:typeof window!=="undefined"&&window.innerWidth<720?54:36,near:.1,far:120}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
-   frameloop={reducedMotion?"demand":"always"}
+   frameloop={reducedMotion||!visible?"demand":"always"}
    onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3")}}
-   fallback={<div role="status">WebGL unavailable</div>}>
+   fallback={<CanvasUnavailable onFailure={onFailure}/>}>
   <color attach="background" args={[night?"#303f56":"#eaf0e3"]}/>
   <fog attach="fog" args={[night?"#303f56":"#eaf0e3",32,67]}/>
   <hemisphereLight args={[night?"#8ea8d9":"#fff8e9","#75857b",night?.95:1.7]}/>
