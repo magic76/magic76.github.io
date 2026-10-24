@@ -1,4 +1,4 @@
-.crew-town-3d{width:min(1400px,calc(100vw - 36px));max-width:none;margin:0 auto;padding:9px 0 65px;display:grid;gap:19px;color:#304c49}
+.crew-town-3d{position:relative;left:50%;transform:translateX(-50%);width:min(1400px,calc(100vw - 36px));max-width:none;margin:0 auto;padding:9px 0 65px;display:grid;gap:19px;color:#304c49}
 .crew-town-3d-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:6px 3px}
 .crew-town-3d-heading>div{display:grid;gap:8px;min-width:0}
 .crew-town-3d-kicker{font-size:10px;font-weight:850;letter-spacing:.23em;color:#648d80}
