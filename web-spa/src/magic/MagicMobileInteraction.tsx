@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
-import type {MagicChallenge,MagicChoice,MagicPanel} from "./world";
-import {MagicChallengeCard,MagicGeneratedCard,latestMagicSpotlight} from "./MagicInteractionCard";
+import {latestMagicSpotlight,type MagicChallenge,type MagicChoice,type MagicPanel} from "./world";
+import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 
 type Props={
  challenge:MagicChallenge|null;panels:MagicPanel[];zh:boolean;
