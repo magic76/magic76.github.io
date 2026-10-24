@@ -133,13 +133,13 @@ function extractedFormatBoard(question:string,answer:string,current:BoardCard[])
 export function fallbackBoard(turn:{input?:string;output?:string},current:BoardCard[]):BoardPatch|null{
  const question=clean(turn.input,260),answer=clean(turn.output,640);
  if(!question&&!answer)return null;
- const extracted=extractedFormatBoard(question,answer,current);
- if(extracted)return extracted;
  const topic=current.find(c=>c.id==="grammar-rule")?.title||question||"今日教學";
  const simplified=/簡單|simplif|easier|easy version/i.test(question);
  const quiz=/考我|測驗|quiz|test me|three questions|三題/i.test(question);
  const been=/\b(have|has|had) been\b/i.test(question+" "+topic);
  if(quiz&&been)return {action:"replace",ids:[],cards:[{id:"grammar-quiz",type:"quiz",title:"Have been / Had been · 3 題練習",body:"選出適合的時態，也可以直接用語音回答。",pairs:[],points:[],questions:hasBeenQuiz}]};
+ const extracted=extractedFormatBoard(question,answer,current);
+ if(extracted)return extracted;
  if(been){
   const cards:BoardCard[]=[
    {id:"grammar-rule",type:"comparison",title:"Have been vs. Had been",body:simplified?"have been：跟現在有關。had been：在另一件過去事件之前。":"have/has been 表示過去到現在的經驗或持續狀態；had been 表示另一個過去時間點之前已存在的狀態。",pairs:[{source:"have/has been",target:"過去 → 現在"},{source:"had been",target:"更早的過去 → 過去"}],points:[],questions:[]},
