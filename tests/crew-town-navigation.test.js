@@ -39,18 +39,19 @@ test("The island perimeter surrounds all five districts and every spawn",()=>{
  assert.ok(outer.some(p=>p[1]>21)&&outer.some(p=>p[1]<-21));
 });
 test("Every defined pedestrian graph segment avoids buildings, pond, trees and shoreline",()=>{
- const unique=new Set();
+ const unique=new Set(),blocked=[];
  for(const [id,node] of Object.entries(WALK_GRAPH)){
   for(const other of node.neighbors){
    assert.ok(WALK_GRAPH[other],id+" points at missing node "+other);
    const key=[id,other].sort().join("/");
    if(unique.has(key))continue;unique.add(key);
    const end=WALK_GRAPH[other].point;
-   assert.ok(nav.segmentIsWalkable(node.point[0],node.point[1],end[0],end[1]),
-    key+" intersects an obstacle or leaves the island");
+   if(!nav.segmentIsWalkable(node.point[0],node.point[1],end[0],end[1]))
+    blocked.push(key);
   }
  }
  assert.equal(unique.size,50);
+ assert.deepEqual(blocked,[],"Walk segments that intersect geometry: "+blocked.join(", "));
 });
 test("All sixteen residents maintain personal space with collision-aware step resolution",()=>{
  const traffic=new Map(PEOPLE.map(p=>[p.id,{x:WALK_GRAPH[p.startNode].point[0],z:WALK_GRAPH[p.startNode].point[1]}]));
@@ -67,7 +68,9 @@ test("All sixteen residents maintain personal space with collision-aware step re
    const result=advanceWithAvoidance(resident.id,here.x,here.z,destination[0],destination[1],.07,traffic);
    if(result.moved) moved++;
    here.x=result.x;here.z=result.z;
-   if(Math.hypot(here.x-destination[0],here.z-destination[1])<.07){
+   if(Math.hypot(here.x-destination[0],here.z-destination[1])<.07
+    &&load("TownTraffic").isResidentSpaceFree(resident.id,destination[0],destination[1],traffic)
+   ){
     here.x=destination[0];here.z=destination[1];
     resident.previous=resident.node;resident.node=resident.next;resident.next=null;
    }

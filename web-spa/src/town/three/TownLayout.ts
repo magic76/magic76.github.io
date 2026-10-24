@@ -18,7 +18,7 @@ export const EDGE_TREES:ReadonlyArray<readonly [number,number,number,string]>=[
  [-19,20,1.1,"#7aab93"],[-13,19,1.2,"#a0b894"],[-7,17,.96,"#95bc9b"],
  [0,19,1.05,"#8fac87"],[7,18,1.12,"#81ad8e"],[22,19,1.12,"#a2b58e"],
  [24,8,1.1,"#89a98d"],[23,15,.96,"#83a894"],[-8,-10.7,.91,"#87b69a"],
- [7.8,9.8,.85,"#9caf8d"],[-8.2,6.65,1.0,"#8fba96"]
+ [7.8,10.5,.85,"#9caf8d"],[-8.2,6.65,1.0,"#8fba96"]
 ];
 export const MARKET_STALL_SPOTS:ReadonlyArray<readonly [number,number]>=[
  [-19,-14],[-13.1,-14.2],[-19,-9.6],[-13.1,-9.6]

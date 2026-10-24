@@ -5,6 +5,14 @@ export type ResidentPosition={x:number;z:number};
 export type TrafficPositions=Map<FriendId,ResidentPosition>;
 export type WalkMove={x:number;z:number;moved:number;blocked:boolean};
 const minSpaceSq=MIN_FRIEND_DISTANCE*MIN_FRIEND_DISTANCE;
+export function isResidentSpaceFree(id:FriendId,x:number,z:number,
+ traffic:ReadonlyMap<FriendId,ResidentPosition>):boolean{
+ for(const [otherId,other] of traffic){
+  if(id===otherId)continue;
+  if((x-other.x)**2+(z-other.z)**2<minSpaceSq)return false;
+ }
+ return true;
+}
 // All residents consult the same frame-local position registry.
 // Each actor takes a small, validated step: no teleports or overlapping circles.
 export function advanceWithAvoidance(
@@ -41,12 +49,7 @@ export function advanceWithAvoidance(
   if(length<.001)continue;
   const nx=x+vx/length*travel,nz=z+vz/length*travel;
   if(!isWalkable(nx,nz,PERSON_RADIUS))continue;
-  let clear=true;
-  for(const [otherId,other] of traffic){
-   if(otherId===id)continue;
-   if((nx-other.x)**2+(nz-other.z)**2<minSpaceSq){clear=false;break}
-  }
-  if(clear)return{x:nx,z:nz,moved:travel,blocked:false};
+  if(isResidentSpaceFree(id,nx,nz,traffic))return{x:nx,z:nz,moved:travel,blocked:false};
  }
  return{x,z,moved:0,blocked:true};
 }

@@ -6,7 +6,7 @@ import {Group,MathUtils} from "three";
 import type {Mesh} from "three";
 import {PEOPLE,type FriendId} from "./world";
 import {WALK_GRAPH,chooseNextWalkNode,nextSeed,seedForFriend} from "./TownWalkGraph";
-import {advanceWithAvoidance,type TrafficPositions} from "./TownTraffic";
+import {advanceWithAvoidance,isResidentSpaceFree,type TrafficPositions} from "./TownTraffic";
 
 type Phase="Idle"|"Walking"|"Arriving"|"Interacting"|"Talking";
 const SKIN="#eac5ad";
@@ -83,9 +83,13 @@ function Actor({id,coat,hair,skin,outfit,startNode,traffic,reducedMotion,selecte
       }
      }
      if(Math.hypot(target[0]-group.position.x,target[1]-group.position.z)<.05){
-      group.position.x=target[0];group.position.z=target[1];
-      s.previous=s.node;s.node=s.next;s.next=null;
-      s.phase="Arriving";s.clock=0;walking=false;s.blocked=0;
+      // A final node snap must pass the same personal-space check as each step.
+      if(isResidentSpaceFree(id,target[0],target[1],traffic)){
+       group.position.x=target[0];group.position.z=target[1];
+       const slot=traffic.get(id);if(slot){slot.x=target[0];slot.z=target[1]}
+       s.previous=s.node;s.node=s.next;s.next=null;
+       s.phase="Arriving";s.clock=0;walking=false;s.blocked=0;
+      }else s.blocked+=delta;
      }
     }
    }else if(s.phase==="Arriving"&&s.clock>.18){s.phase="Interacting";s.clock=0}
