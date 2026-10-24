@@ -23,6 +23,9 @@ test("main Learn tab has native-equivalent continue, daily activity and three-mi
  assert.match(hub,/<LearningFocusCard\/>/);
  assert.match(hub,/<TodayLearningCard compact\/>/);
  assert.match(hub,/\/friend\/live\?id=zoe&intent=speak/);
+ assert.match(hub,/crew-learn-tool-grid/);
+ assert.match(hub,/setTargetLanguage\(event\.target\.value\)/);
+ assert.match(hub,/crew-learn-more/);
  assert.match(hub,/section==="learn"\?/);
  assert.match(learn,/<TodayLearningCard\/>/);
  assert.match(learn,/<ContinueLearningCard compact\/>/);

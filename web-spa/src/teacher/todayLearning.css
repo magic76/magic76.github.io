@@ -49,3 +49,20 @@
 }
 .crew-today-learning-ring{transition:--crew-progress 650ms var(--crew-motion-ease)}
 @media(prefers-reduced-motion:reduce){.crew-today-learning-ring{transition:none}}
+
+/* Compact dashboard variant: key progress is visible, details expand when needed. */
+.crew-today-learning-summary-only{padding:15px 17px}
+.crew-today-compact-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.crew-today-compact-head>div{display:grid;gap:3px;min-width:0}
+.crew-today-compact-head>div strong{font-size:14px;line-height:1.4}
+.crew-today-compact-head>div small{font-size:11px;color:var(--muted)}
+.crew-today-compact-head>strong{font-size:17px;color:var(--accent);font-variant-numeric:tabular-nums;flex:none}
+.crew-today-progress-track{margin-top:10px;height:7px;background:var(--accent-soft,#eeeafa);border-radius:99px;overflow:hidden}
+.crew-today-progress-track>span{display:block;height:100%;background:var(--accent,#6751c7);border-radius:inherit;transition:width .35s ease}
+.crew-today-compact-more{margin-top:7px}
+.crew-today-compact-more>summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-size:12px;color:var(--muted);font-weight:600}
+.crew-today-compact-more>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.crew-today-compact-detail{border-top:1px solid var(--line);padding-top:12px;display:grid;gap:10px}
+.crew-today-learning-summary-only .crew-today-learning-stats{margin-top:0}
+.crew-today-learning-summary-only .crew-today-learning-footnote{margin-top:0}
+@media(prefers-reduced-motion:reduce){.crew-today-progress-track>span{transition:none}}

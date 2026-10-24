@@ -16,6 +16,7 @@ export function LearningFocusCard(){
  const {t:teacherT}=useTranslation("teacher");
  const ready=useClientReady();
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
+ const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  const [plan,setPlan]=useState<DailyLearningPlan|null>(null);
  const [hasRecords,setHasRecords]=useState(false);
@@ -26,7 +27,7 @@ export function LearningFocusCard(){
   void buildDailyLearningPlan().then(value=>{if(alive)setPlan(value)}).catch(()=>{/* Start remains available without stored course data. */});
   return()=>{alive=false};
  },[ready]);
- const resume=ready&&plan!==null&&(hasRecords||plan.action==="textbook"||plan.action==="vocabulary");
+ const resume=ready&&plan!==null&&(plan.action==="textbook"||(targetLanguage==="英文"&&(hasRecords||plan.action==="vocabulary")));
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
  const planTitle=plan?.action==="textbook"?teacherT("continue.textbookTitle"):
