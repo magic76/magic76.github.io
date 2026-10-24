@@ -312,7 +312,7 @@ export function MagicPage(){
      {panel.selected&&<p className="magic-generated-result" role="status">
       {t("你的選擇已加入故事。","Your choice is now part of the story.")}
      </p>}
-    </section>}
+    </section>)}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
      <div className="magic-actions-title"><h2>{t("說出願望，或先試試魔法","Make a wish or try a spell")}</h2>
       <button type="button" onClick={()=>setShowGuide(v=>!v)} aria-expanded={showGuide}>{t("玩法","How to play")} ⓘ</button></div>
