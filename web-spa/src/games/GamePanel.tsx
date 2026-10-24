@@ -49,6 +49,7 @@ export function GamePanel({title,label,children,variant="drawer",className=""}:G
   };
  },[open]);
  const backdropPointer=(event:React.PointerEvent<HTMLDivElement>)=>{backdropPointerRef.current=event.target===event.currentTarget};
+ const cancelBackdropPointer=()=>{backdropPointerRef.current=false};
  const closeFromBackdrop=(event:React.PointerEvent<HTMLDivElement>)=>{
   if(backdropPointerRef.current&&event.target===event.currentTarget)setOpen(false);
   backdropPointerRef.current=false;
@@ -56,7 +57,7 @@ export function GamePanel({title,label,children,variant="drawer",className=""}:G
  return <>
   <button ref={triggerRef} type="button" className="crew-game-panel-trigger" aria-haspopup="dialog" aria-expanded={open} aria-controls={open?panelId:undefined} onClick={()=>setOpen(true)}>{label}</button>
   {open&&typeof document!=="undefined"?createPortal(
-   <div className={"crew-game-panel-backdrop is-"+variant} onPointerDown={backdropPointer} onPointerUp={closeFromBackdrop}>
+   <div className={"crew-game-panel-backdrop is-"+variant} onPointerDown={backdropPointer} onPointerUp={closeFromBackdrop} onPointerCancel={cancelBackdropPointer}>
     <section ref={dialogRef} id={panelId} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className={"crew-game-panel is-"+variant+" "+className}>
      <header className="crew-game-panel-header">
       <h2 id={titleId}>{title}</h2>
