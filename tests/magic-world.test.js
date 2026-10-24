@@ -61,3 +61,42 @@ test("malformed tool arguments never crash the world",()=>{
  const bad=[null,[],123,"{broken",{"__proto__":"bad"}];
  for(const arg of bad)assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",arg).ok,false);
 });
+
+
+test("generated panels are strictly typed, bounded and selectable once",()=>{
+ const created=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_panel",{
+  panel_type:"treasure",title:"Mystery",description:"Pick a box",
+  item_a:"Moon crystal",item_b:"Star key",item_c:"Golden feather"
+ },"en");
+ assert.equal(created.ok,true);
+ assert.equal(created.world.panels[0].kind,"treasure");
+ const selected=applyMagicCommand(created.world,"select_magic_panel",{choice:"B"});
+ assert.equal(selected.ok,true);
+ assert.equal(selected.world.panels[0].selected,"B");
+ assert.equal(selected.world.message,"Star key");
+ assert.equal(applyMagicCommand(selected.world,"select_magic_panel",{choice:"A"}).ok,false);
+ const unknown=applyMagicCommand(created.world,"create_magic_panel",{
+  panel_type:"raw-html",title:"Unsafe",description:"Unsafe",item_a:"a",item_b:"b",item_c:"c"
+ });
+ assert.equal(unknown.ok,false);
+});
+
+test("portal demo creates a complete quest panel without Gemini",()=>{
+ const world=demoMagicCommand("portal",MAGIC_INITIAL_WORLD,"en").world;
+ assert.equal(world.objects[0].kind,"portal");
+ assert.equal(world.panels.length,1);
+ assert.equal(world.panels[0].kind,"quest");
+ assert.match(world.message,/magical panel/);
+});
+
+test("generated panels replace old panels at a bounded count",()=>{
+ let world=MAGIC_INITIAL_WORLD;
+ for(let n=0;n<8;n++){
+  const result=applyMagicCommand(world,"create_magic_panel",{
+   panel_type:"spellbook",title:"Rune",description:"Magic",item_a:"A",item_b:"B",item_c:"C"
+  });
+  assert.equal(result.ok,true);
+  world=result.world;
+ }
+ assert.equal(world.panels.length,2);
+});
