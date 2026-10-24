@@ -5,6 +5,8 @@ import {useTranslation} from "react-i18next";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
 import {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
+import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
+import {MagicMobileInteraction} from "./MagicMobileInteraction";
 import "./magic.css";
 
 const OBJECT_ICONS:Record<MagicObjectKind,string>={
@@ -17,7 +19,6 @@ const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
 const SPOTS:[[number,number],[number,number],[number,number],[number,number],[number,number],[number,number]]=[
  [19,57],[74,43],[59,68],[35,72],[83,60],[12,34]
 ];
-const CHOICES:MagicChoice[]=["A","B","C"];
 const HELPERS=[
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
  {id:"night",zh:"讓天空變成星夜",en:"Make it a starry night",emoji:"🌙"},
@@ -241,6 +242,8 @@ export function MagicPage(){
      <span>{t("冒險篇章","Chapter")} {world.chapter.toString().padStart(2,"0")}</span>
      <p>{world.message}</p>
     </div>
+    <MagicMobileInteraction challenge={world.challenge} panels={world.panels} zh={zh}
+     onAnswer={answer} onSelect={selectPanel}/>
    </section>
    <aside className="magic-panel">
     <section className="magic-guide-card">
@@ -276,43 +279,8 @@ export function MagicPage(){
       {said&&<p><b>Lumi:</b> {said}</p>}
      </div>}
     </section>
-    {world.challenge&&<section className="magic-challenge" aria-label={t("魔法試煉","Magic challenge")}>
-     <small>✧ {t("魔法試煉","MAGIC CHALLENGE")}</small>
-     <h2>{world.challenge.title}</h2>
-     <p>{world.challenge.question}</p>
-     <div className="magic-choices">
-      {world.challenge.options.map((option,i)=>{
-       const choice=CHOICES[i],selected=world.challenge?.selected;
-       return <button key={choice} type="button" disabled={Boolean(selected)} aria-pressed={selected===choice}
-        className={selected===choice?(selected===world.challenge?.correct?"correct":"incorrect"):""}
-        onClick={()=>answer(choice)}><b>{choice}</b>{option}</button>;
-      })}
-     </div>
-     {world.challenge.selected&&<p className="magic-answer">{world.challenge.selected===world.challenge.correct?
-      t("答對了！繼續施展下一個魔法。","Correct! Your adventure continues."):
-      t("下次一定可以。換個魔法再試試吧！","Try another spell to keep exploring!")}</p>}
-    </section>}
-    {world.panels.map(panel=><section key={panel.id} className={"magic-generated panel-"+panel.kind}
-     aria-label={t("AI 創造的互動魔法卡","AI-generated interactive magic panel")}>
-     <span className="magic-generated-label">✦ {panel.kind==="spellbook"?t("魔法書","SPELLBOOK"):
-      panel.kind==="treasure"?t("神秘寶箱","MYSTERY TREASURE"):t("冒險任務","NEW ADVENTURE")}</span>
-     <h2>{panel.title}</h2><p>{panel.description}</p>
-     <div className="magic-generated-options">
-      {panel.items.map((item,index)=>{
-       const choice=CHOICES[index],revealed=panel.selected===choice;
-       const treasure=panel.kind==="treasure";
-       return <button type="button" key={choice} disabled={Boolean(panel.selected)} aria-pressed={revealed}
-        className={revealed?"is-revealed":""}
-        onClick={()=>selectPanel(panel.id,choice)}>
-        <span className="magic-generated-symbol" aria-hidden="true">{panel.kind==="spellbook"?"✧":treasure?"🎁":"✦"}</span>
-        <span className="magic-generated-option-text">{treasure&&!revealed?(panel.selected?t("未開啟","Unopened"):t("開啟秘密 ","Open mystery ")+choice):item}</span>
-       </button>;
-      })}
-     </div>
-     {panel.selected&&<p className="magic-generated-result" role="status">
-      {t("你的選擇已加入故事。","Your choice is now part of the story.")}
-     </p>}
-    </section>)}
+    {world.challenge?<MagicChallengeCard challenge={world.challenge} zh={zh} onAnswer={answer}/>:null}
+    {world.panels.map(panel=><MagicGeneratedCard key={panel.id} panel={panel} zh={zh} onSelect={selectPanel}/>)}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
      <div className="magic-actions-title"><h2>{t("說出願望，或先試試魔法","Make a wish or try a spell")}</h2>
       <button type="button" onClick={()=>setShowGuide(v=>!v)} aria-expanded={showGuide}>{t("玩法","How to play")} ⓘ</button></div>
