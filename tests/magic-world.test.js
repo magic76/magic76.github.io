@@ -31,11 +31,26 @@ test("the renderer rejects untrusted scripts and unknown tools",()=>{
  assert.equal(bogus.ok,false);
 });
 
-test("limits object count and validates each challenge option",()=>{
+test("stage object limit matches the six unique mobile hit targets",()=>{
  let state=MAGIC_INITIAL_WORLD;
- for(let n=0;n<10;n++)state=applyMagicCommand(state,"summon_object",{kind:"owl"}).world;
- assert.equal(applyMagicCommand(state,"summon_object",{kind:"owl"}).ok,false);
+ for(let n=0;n<6;n++){
+  const result=applyMagicCommand(state,"summon_object",{kind:"owl"});
+  assert.equal(result.ok,true);
+  assert.equal(result.world.objects[n].slot,n);
+  state=result.world;
+ }
+ const overflow=applyMagicCommand(state,"summon_object",{kind:"dragon"});
+ assert.equal(overflow.ok,false);
+ assert.equal(overflow.event,"world-is-full");
+ assert.equal(overflow.world.objects.length,6);
  assert.equal(applyMagicCommand(state,"create_challenge",{title:"Question",question:"?",option_a:"A",option_b:"B",correct_option:"B"}).ok,false);
+});
+
+test("tool arguments ignore inherited prototype properties",()=>{
+ const inherited=Object.create({kind:"dragon"});
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",inherited).ok,false);
+ const nullProto=Object.assign(Object.create(null),{kind:"owl"});
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",nullProto).ok,true);
 });
 
 test("challenge choices are graded exactly once and increment chapters for correct answers",()=>{
@@ -61,7 +76,6 @@ test("malformed tool arguments never crash the world",()=>{
  const bad=[null,[],123,"{broken",{"__proto__":"bad"}];
  for(const arg of bad)assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",arg).ok,false);
 });
-
 
 test("generated panels are strictly typed, bounded and selectable once",()=>{
  const created=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_panel",{
