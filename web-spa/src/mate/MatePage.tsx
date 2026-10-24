@@ -360,17 +360,17 @@ export function MatePage(){
         }
       }}/>}
 
-    <div className="mate-steps" aria-label={t("任務進度","Task progress")}>
+    {(reviewing||phase==="finished")&&<div className="mate-steps" aria-label={t("任務進度","Task progress")}>
       <span className={reviewing?"active":""}>1 {t("私下交代","Brief")}</span>
       <span className={phase==="external"||phase==="decision"?"active":""}>2 {t("對外溝通","Handoff")}</span>
       <span className={phase==="finished"?"active":""}>3 {t("結果","Result")}</span>
-    </div>
+    </div>}
     {error&&<p role="alert" className="mate-error">{error}</p>}
     {reviewing&&<>
       <section className="mate-panel">
         <h2>{phase==="review"?t("請確認交接內容","Confirm handoff"):t("私下交代任務","Private briefing")}</h2>
         <p className="mate-hint">{t("以下內容只顯示給你。交給對方前請先確認。","Only you can see this preparation screen. Review it before handing over.")}</p>
-        <MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} en={en}/>
+        {phase!=="private"&&<MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} en={en}/>}
         {phase==="private"&&<div className="mate-private-live" aria-live="polite">
           <strong>{connected?t("Mate 正在私下聽你說","Mate is listening privately"):liveStatus}</strong>
           {privateInput&&<p>{t("你：","You: ")}{privateInput}</p>}
