@@ -209,7 +209,7 @@ export function fallbackWolfReply(game:WolfGame,npcId:string,zh:boolean,question
   "I'm watching "+suspected+"'s next move closely."
  ];
  const special=accused
-  ?(zh?["你懷疑我很合理，但請指出我哪句話前後矛盾。","被質疑我可以接受，先把證據講清楚。","我沒有要你直接相信我，先比較公開發言。"]:
+  ?(zh?["你懷疑我很合理，但請指出我哪句話前後矛盾。","被質疑我可以接受，先把證據講清楚。","我知道你在質疑我，但先比較公開發言。"]:
         ["Fair to question me. Which statement contradicts the others?","If you're accusing me, show me the evidence.","Don't take my word for it; compare our public statements."])
   :ballot
   ?(zh?["投票前我想先聽 "+suspected+" 的辯解。","我暫時沒有足夠理由鎖定誰。","我們先用公開線索決定票，不要亂猜。"]:
