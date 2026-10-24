@@ -74,6 +74,13 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   setReversi(next);
  };
  const speechGateRef=useRef(false);
+ // A fast double tap can fire twice before React commits the new turn.
+ // Lock moves synchronously so one gesture can never place two pieces.
+ const playerMoveLockRef=useRef(false);
+ useEffect(()=>{
+  if(connect?.turn==="player"&&!connectDrop&&!speechPending)playerMoveLockRef.current=false;
+  if(reversi?.turn==="black"&&!speechPending)playerMoveLockRef.current=false;
+ },[connect?.turn,reversi?.turn,connectDrop,speechPending]);
  const roundEpochRef=useRef(0);
  const playedRef=useRef(false),completedRef=useRef(false);
  const noteMove=()=>{if(!playedRef.current){playedRef.current=true;trackUsageEvent("game_started",kind)}};
@@ -116,6 +123,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const restart=()=>{
   roundEpochRef.current+=1;
   speechGateRef.current=false;
+  playerMoveLockRef.current=false;
   setSpeechPending(false);
   if(flipTimerRef.current!==null)clearTimeout(flipTimerRef.current);
   flipTimerRef.current=null;
@@ -131,9 +139,10 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  };
  const c4Turn=connect?.turn==="player"&&!connect?.winner&&!speechPending&&!speechGateRef.current&&!connectDrop&&connectDropIdRef.current===null;
  const c4Play=(column:number)=>{
-  if(!connect||!api||!c4Turn||speechGateRef.current)return;
+  if(!connect||!api||!c4Turn||speechGateRef.current||connectDropIdRef.current!==null||playerMoveLockRef.current)return;
   const next=api.connect4Drop(connect,column,"player");
   if(!next)return;
+  playerMoveLockRef.current=true;
   noteMove();onReaction?.("progress");
   connectResultRef.current=next.winner?"[CONNECT FOUR RESULT] The learner won. React briefly and warmly.":null;
   setConnect(next);
@@ -156,9 +165,10 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const legal=useMemo(()=>reversi&&api?api.reversiMoves(reversi,"black"):[],[reversi,api]);
  const allowed=new Set(legal.map(move=>move.y*8+move.x));
  const revPlay=(x:number,y:number)=>{
-  if(!reversi||!api||reversi.turn!=="black"||reversi.winner||speechGateRef.current||speechPending)return;
+  if(!reversi||!api||reversi.turn!=="black"||reversi.winner||speechGateRef.current||speechPending||playerMoveLockRef.current)return;
   const next=api.reversiPlace(reversi,x,y,"black");
   if(!next)return;
+  playerMoveLockRef.current=true;
   noteMove();onReaction?.("progress");applyReversiMove(reversi,next);
   if(next.winner)onEvent("[REVERSI RESULT] "+(next.winner==="draw"?"It is a draw.":next.winner==="black"?"The learner won.":"You won.")+" React briefly.");
  };
@@ -176,12 +186,12 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   },60);
   return()=>clearTimeout(timer);
  },[reversi,kind,api,onEvent,speechPending]);
- const c4Status=connect?.winner
+ const c4Status=!connect?(error?(english?"Board unavailable":"棋盤無法載入"):(english?"Setting up board…":"棋盤準備中…")):connect.winner
   ?connect.winner==="draw"?(english?"Draw!":"平手！"):connect.winner==="player"?(english?"You win!":"你贏了！"):(english?friendName+" wins!":friendName+" 贏了！")
   :connectDrop?(english?"Disc falling…":"棋子落下中…")
   :speechPending?(english?`Waiting for ${friendName} to finish speaking…`:`等 ${friendName} 說完再下棋…`)
   :connect?.turn==="player"?(english?"Your turn · red":"輪到你 · 紅色"):(english?friendName+"'s turn · yellow":"輪到 "+friendName+" · 黃色");
- const revStatus=reversi?.winner
+ const revStatus=!reversi?(error?(english?"Board unavailable":"棋盤無法載入"):(english?"Setting up board…":"棋盤準備中…")):reversi.winner
   ?reversi.winner==="draw"?(english?"Draw!":"平手！"):reversi.winner==="black"?(english?"You win!":"你贏了！"):(english?friendName+" wins!":friendName+" 贏了！")
   :speechPending?(english?`Waiting for ${friendName} to finish speaking…`:`等 ${friendName} 說完再下棋…`)
   :reversi?.turn==="black"?(english?"Your turn · black":"輪到你 · 黑棋"):(english?friendName+"'s turn · white":"輪到 "+friendName+" · 白棋");
@@ -195,7 +205,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
     <div className="crew-connect-board" role="group" aria-label={english?"Connect Four · columns 1 to 7, rows 1 to 6 from top to bottom":"四子棋 · 上方第 1 到 7 欄，左側第 1 到 6 列，由上往下"}>
      {Array.from({length:42},(_,index)=>{
       const x=index%7,y=Math.floor(index/7),color=connect?.cells[index],last=connect?.lastMove===index,win=connect?.winningLine.includes(index),dropping=connectDrop?.index===index;
-      return <button type="button" key={index} className="crew-connect-slot" onClick={()=>c4Play(x)} disabled={!connect||!c4Turn||connect.cells[x]!==null} aria-label={english?`Column ${x+1}, row ${y+1}. ${color||"empty"}`:`第 ${x+1} 欄、第 ${y+1} 列${color===null?"空格":color==="player"?"紅棋":"黃棋"}`}>
+      return <button type="button" key={index} className="crew-connect-slot" tabIndex={y===0?0:-1} onClick={()=>c4Play(x)} disabled={!connect||!c4Turn||connect.cells[x]!==null} aria-label={english?`Column ${x+1}, row ${y+1}. ${color||"empty"}`:`第 ${x+1} 欄、第 ${y+1} 列${color===null?"空格":color==="player"?"紅棋":"黃棋"}`}>
        <span key={dropping?`drop-${connectDrop.id}`:`disc-${index}`} className={`crew-connect-disc ${color||"empty"}${last&&!dropping?" last":""}${win?" win":""}${dropping?" is-dropping":""}`} style={dropping?{"--drop-distance":`-${(y+1)*114}%`,"--drop-duration":`${connectDrop.duration}ms`} as CSSProperties:undefined} onAnimationEnd={dropping?(event)=>{if(event.animationName==="crew-connect-disc-drop")finishConnectDrop(connectDrop.id)}:undefined}/>
       </button>;
      })}
