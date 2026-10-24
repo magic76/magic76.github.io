@@ -20,3 +20,12 @@
 .crew-settings-quick-link:hover{text-decoration:underline}
 .crew-settings-voice-links h3{font-size:16px;margin:0 0 7px}
 @media(max-width:650px){.crew-settings-nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.crew-settings-fields{grid-template-columns:1fr}}
+
+/* Android-only Cyber Orb entry, visible directly on Settings (not buried in Device). */
+.crew-settings-orb-entry{display:flex;align-items:center;gap:13px;min-height:76px;padding:14px 16px;margin:4px 0 14px;border:1px solid var(--line,#e2e6ed);border-radius:16px;background:var(--surface,#fff);color:var(--text,#253044);text-decoration:none}
+.crew-settings-orb-entry:hover,.crew-settings-orb-entry:focus-visible{border-color:var(--accent,#725bc4);background:var(--surface-alt,#f7f5fd);outline-offset:2px}
+.crew-settings-orb-icon{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:13px;background:var(--surface-alt,#f7f5fd);color:var(--accent,#725bc4);font-size:25px}
+.crew-settings-orb-copy{display:grid;gap:4px;min-width:0}
+.crew-settings-orb-copy strong{font-size:15px}
+.crew-settings-orb-copy small{font-size:12px;line-height:1.5;color:var(--muted,#657084)}
+.crew-settings-orb-arrow{margin-left:auto;font-weight:750;color:var(--accent,#725bc4)}
