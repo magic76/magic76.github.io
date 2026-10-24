@@ -1,8 +1,9 @@
-import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
-import test from "node:test";
+const assert=require("node:assert/strict");
+const {readFileSync}=require("node:fs");
+const path=require("node:path");
+const test=require("node:test");
 
-const read=(path)=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
+const read=(file)=>readFileSync(path.join(__dirname,"..",file),"utf8");
 const town=read("web-spa/src/town/TownPage.tsx");
 const app=read("web-spa/src/App.tsx");
 const explore=read("web-spa/src/pages/CrewSectionPage.tsx");
