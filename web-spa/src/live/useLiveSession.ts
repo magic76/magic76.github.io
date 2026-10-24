@@ -8,6 +8,7 @@ import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,ty
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
 
 export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking"|"ending"|"reporting"|"ended"|"error";
+export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|"no-transcript"|"no-reply";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
 type LiveImage={preview:string;name?:string;width?:number;height?:number};
 type Config={
@@ -33,6 +34,9 @@ export function useLiveSession(config:Config){
  const configRef=useRef(config);configRef.current=config;
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
  const [state,setState]=useState<LiveState>("idle"),[status,setStatus]=useState("按開始後就可以直接說話。");
+ const [voicePhase,setVoicePhase]=useState<FriendVoicePhase>("idle");
+ const voicePhaseRef=useRef<FriendVoicePhase>("idle");
+ const setFriendPhase=(phase:FriendVoicePhase)=>{voicePhaseRef.current=phase;setVoicePhase(phase)};
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
@@ -40,9 +44,11 @@ export function useLiveSession(config:Config){
  const cadenceRef=useRef(new ConversationFlowState()),rescueCountRef=useRef(0),languageRepairRef=useRef(false);
  const rescueTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const friendReplyTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const unrecognizedSpeechTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const friendReplyRescueSentRef=useRef(false);
  const cancelRescue=()=>{if(rescueTimerRef.current!==null){window.clearTimeout(rescueTimerRef.current);rescueTimerRef.current=null}};
  const cancelFriendReplyTimer=()=>{if(friendReplyTimerRef.current!==null){window.clearTimeout(friendReplyTimerRef.current);friendReplyTimerRef.current=null}};
+ const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
  const [volume,setVolumeValue]=useState(()=>{
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
   return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
@@ -88,7 +94,7 @@ export function useLiveSession(config:Config){
   if(!geminiKey()){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
-   cancelRescue();cancelFriendReplyTimer();friendReplyRescueSentRef.current=false;
+   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
@@ -106,6 +112,25 @@ export function useLiveSession(config:Config){
       rescueCountRef.current+=1;
     },cadenceRef.current.silenceDelayMs(rescueCountRef.current,kind));
    };
+   const logFriendHealth=(reason:string)=>{
+    // Never log conversation content, audio, credentials or friend identity.
+    if(configRef.current.sessionKind!=="friend")return;
+    console.info("[CrewLive friend health]",{reason,...(session.getHealthSnapshot?.()||{})});
+   };
+   // Local voice does not imply Gemini accepted a turn: show retry instead of
+   // inventing speech or forcing activityEnd in server-VAD mode.
+   const scheduleUnrecognizedSpeechCheck=()=>{
+    cancelUnrecognizedSpeechTimer();
+    if(configRef.current.sessionKind!=="friend")return;
+    unrecognizedSpeechTimerRef.current=window.setTimeout(()=>{
+     unrecognizedSpeechTimerRef.current=null;
+     if(sessionRef.current!==session||!session.ready||!session.running
+      ||session.micMuted||awaitingTutorRef.current||voicePhaseRef.current!=="pause")return;
+     setFriendPhase("no-transcript");
+     setStatus("剛才的語音尚未辨識到，請再說一次。");
+     logFriendHealth("local-speech-no-transcript");
+    },8000);
+   };
    // Friend-only watchdog: one silent recovery, never a fabricated learner turn.
    const scheduleFriendReplyCheck=(delayMs=11000)=>{
     cancelFriendReplyTimer();
@@ -115,13 +140,17 @@ export function useLiveSession(config:Config){
      if(sessionRef.current!==session||!session.ready||!session.running
        ||!awaitingTutorRef.current||session.micMuted)return;
      if(friendReplyRescueSentRef.current){
-      setStatus("朋友尚未回覆，請再說一次或重新開始對話。");
+      setFriendPhase("no-reply");
+      setStatus("朋友尚未回覆，請再說一次或重新連線。");
+      logFriendHealth("unanswered-after-rescue");
       return;
      }
      const directive=configRef.current.languageDirective?"\n"+configRef.current.languageDirective:"";
      if(session.sendControl?.("[FRIEND UNANSWERED TURN — silent recovery] The learner just spoke but did not receive a reply. Answer their latest utterance briefly as the same friend, without greeting, teaching or repeating a finished reply."+directive)){
       friendReplyRescueSentRef.current=true;
+      setFriendPhase("recovering");
       setStatus("正在重新取得朋友的回答…");
+      logFriendHealth("unanswered-rescue");
       scheduleFriendReplyCheck(10000);
      }
     },delayMs);
