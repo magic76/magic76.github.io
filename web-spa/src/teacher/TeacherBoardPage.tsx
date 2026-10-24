@@ -259,7 +259,11 @@ export function TeacherBoardPage(){
   changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
   const patch=fallbackBoard({input:"展示不同卡片種類的格式示範"},[]);
-  if(patch){commitPatch(patch);setHasLivePatch(false);setShowingDemo(true)}
+  if(patch&&commitPatch(patch)){
+   const first=patch.cards.find(card=>card.type==="comparison")||patch.cards[0];
+   if(first){changeDirector({...EMPTY_DIRECTOR,cardId:first.id});setLatestId(first.id);setFocusedId(null);setFollowing(true)}
+   setHasLivePatch(false);setShowingDemo(true)
+  }
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
