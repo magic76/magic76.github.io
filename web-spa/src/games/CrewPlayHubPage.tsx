@@ -46,10 +46,9 @@ export function CrewPlayHubPage(){
   werewolf:zh?["AI 狼人殺","夜晚行動、質疑、推理與投票。"]:["AI Werewolf","Debate, bluff and vote."],
   "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."]
  } as Record<string,string[]>;
- const titles:Record<string,string>=Object.fromEntries([
-  ...crewGames.map(game=>[game.id,t("playHub.games."+game.id+".title")]),
-  ...extraGames.map(id=>[id,extraLabels[id][0]])
- ]);
+ const titles:Record<string,string>={};
+ for(const game of crewGames)titles[game.id]=t("playHub.games."+game.id+".title");
+ for(const id of extraGames)titles[id]=extraLabels[id][0];
  const shownCount=[...crewGames.map(game=>({
   id:game.id,title:titles[game.id],desc:t("playHub.games."+game.id+".desc")
  })),...extraGames.map(id=>({id,title:extraLabels[id][0],desc:extraLabels[id][1]}))]
