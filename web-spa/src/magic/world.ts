@@ -33,8 +33,15 @@ const PANEL_KINDS=["spellbook","treasure","quest"] as const;
 // aligned with what can actually be rendered so model calls cannot stack invisible
 // duplicate hit targets on mobile.
 const MAX_OBJECTS=6;
-function record(value:unknown):Record<string,unknown>{
- if(typeof value==="string"){try{return record(JSON.parse(value))}catch{return {}}}
+const MAX_TOOL_ARGS_BYTES=4096;
+function record(value:unknown,parseDepth=0):Record<string,unknown>{
+ if(typeof value==="string"){
+  // Live normally supplies an object, but some transports may hand us one JSON
+  // envelope. Bound both its size and parse depth so model-controlled arguments
+  // cannot turn recursive JSON strings into main-thread work or a stack overflow.
+  if(parseDepth>0||value.length>MAX_TOOL_ARGS_BYTES)return {};
+  try{return record(JSON.parse(value),parseDepth+1)}catch{return {}}
+ }
  if(value===null||typeof value!=="object"||Array.isArray(value))return {};
  const proto=Object.getPrototypeOf(value);
  if(proto!==Object.prototype&&proto!==null)return {};
