@@ -36,7 +36,7 @@ test("main Learn tab has native-equivalent continue, daily activity and three-mi
  assert.match(focus,/completedLessons\(\)/);
  assert.match(focus,/getTeacherProfile\(/);
  assert.match(focus,/resume\?plan\.to:/);
- assert.match(focus,/plan\.action==="textbook"\|\|plan\.action==="vocabulary"/);
+ assert.match(focus,/plan\.action==="textbook"\|\|\(targetLanguage==="英文"/);
  const stats=read("web-spa/src/teacher/learningToday.ts");
  assert.match(stats,/history\("teacher"\)/);
  assert.match(stats,/item\.durationMs/);
