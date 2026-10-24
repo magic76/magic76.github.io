@@ -61,7 +61,13 @@ function oneOf<T extends string>(v:unknown,options:readonly T[]):v is T{
  return typeof v==="string"&&options.includes(v as T);
 }
 function copy(value:unknown,max=130){
- return typeof value==="string"?value.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,max):"";
+ // Dynamic model text is rendered as text, never markup. Also remove bidi
+ // overrides/isolates so invisible direction controls cannot visually spoof
+ // generated choices or story copy in mixed-language UI.
+ return typeof value==="string"?value
+  .replace(/[\u0000-\u001f\u007f]/g," ")
+  .replace(/[\u202a-\u202e\u2066-\u2069]/gi,"")
+  .trim().slice(0,max):"";
 }
 function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,world:state,event:reason}}
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
