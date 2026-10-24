@@ -215,6 +215,25 @@ export function WerewolfPage(){
    {lastNotes.length?<section className="wolf-secret" aria-label={L(isZh,"只有你知道的夜間情報","Your private information")}><strong>◉ {L(isZh,"你的秘密情報","Your private notes")}</strong>
     {lastNotes.map((note,i)=><p key={i}>{isZh?note.replace(" is a wolf."," 是狼人。").replace(" is not a wolf."," 不是狼人。").replace("You saved tonight's target.","你成功救下昨晚的目標。").replace("You used your poison.","你已使用毒藥。"):note}</p>)}
    </section>:null}
+   <section className={"wolf-voice"+(voiceStatus==="ready"?" is-connected":"")}>
+    <div><strong>🎙 {L(isZh,"Gemini Live 語音對話","Gemini Live voice chat")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):L(isZh,"正在聽你說話，可直接與 NPC 對話或投票","Listening — talk directly to an NPC or vote")):L(isZh,"點開始後直接說話，AI 將念出 NPC 的回覆","Start Live to speak and hear NPC replies.")}</small></div>
+    {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"開啟語音對話","Start voice chat")}</button>:
+     voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
+     <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"結束語音","Stop voice")}</button></div>}
+    {!keyReady?<Link to="/settings" className="wolf-key-link">{L(isZh,"設定 Gemini Key","Set up Gemini Key")}</Link>:null}
+    {voiceStatus==="ready"?<div className="wolf-live-transcript" aria-live="polite">
+     <span className="wolf-live-connected">● {L(isZh,"語音已連線","Voice connected")}</span>
+     {liveCaption?<p><strong>{L(isZh,"你說：","You: ")}</strong>{liveCaption.slice(-180)}</p>:null}
+     {hostSpeech?<p><strong>{L(isZh,"AI 語音：","AI voice: ")}</strong>{hostSpeech.slice(-200)}</p>:null}
+     {!liveCaption&&!hostSpeech?<p>{L(isZh,"例如：「Zoe，妳為什麼懷疑 Max？」","Try: Zoe, why are you suspicious of Max?")}</p>:null}
+    </div>:null}
+   </section>
+   <section className="wolf-history">
+    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={()=>setShowHistory(value=>!value)}><strong>{L(isZh,"最新對話","Latest conversation")} · {game.entries.length}</strong><span>{showHistory?"⌃":"⌄"}</span></button>
+    {showHistory?<div className="wolf-log" role="log" aria-label={L(isZh,"最新對話","Latest conversation")} ref={transcriptRef}>{game.entries.slice(-24).map((entry,index)=><div key={game.entries.length-24+index} className={"wolf-log-entry kind-"+entry.kind}>
+     <strong>{entry.speaker==="system"?L(isZh,"主持人","Moderator"):entry.speaker==="you"?L(isZh,"你","You"):game.players.find(p=>p.id===entry.speaker)?.name||entry.speaker}</strong>
+     <p>{localEvent(entry,isZh)}</p></div>)}{busy?<p className="wolf-chat-typing" role="status">{L(isZh,"AI 角色正在回覆…","NPC is replying…")}</p>:null}</div>:null}
+   </section>
    {game.phase==="night"?<section className="wolf-control" aria-label={L(isZh,"夜晚行動","Night action")}>
     <h2>{L(isZh,"夜晚行動","Night action")}</h2>
     <p>{!human!.alive?L(isZh,"你已出局，按下方按鈕觀戰。","You have been eliminated. Continue as a spectator."):
@@ -253,22 +272,8 @@ export function WerewolfPage(){
     <p>{L(isZh,"這局所有角色已公開。再玩一局，試試不同身分！","All roles are revealed. Play again with a new identity!")}</p>
     <button type="button" className="wolf-primary" onClick={reset}>{L(isZh,"再玩一次","Play again")}</button>
    </section>:null}
-   <section className="wolf-voice">
-    <div><strong>🎙 {L(isZh,"Live 語音主持人","Live voice moderator")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):L(isZh,"正在聆聽，可用語音質疑或投票","Listening for questions or explicit actions")):L(isZh,"選用功能；文字模式隨時可玩","Optional. Text play always works.")}</small></div>
-    {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"啟動 Live","Start Live")}</button>:
-     voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
-     <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"關閉","Stop")}</button></div>}
-    {!keyReady?<Link to="/settings" className="wolf-key-link">{L(isZh,"設定 Gemini Key","Set up Gemini Key")}</Link>:null}
-    {liveCaption&&voiceStatus==="ready"?<p className="wolf-live-caption">{liveCaption.slice(-180)}</p>:null}
-   </section>
    {notice?<p className="wolf-notice" role="status">{notice}</p>:null}
    {error?<p className="wolf-error" role="alert">{error}</p>:null}
-   <section className="wolf-history">
-    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={()=>setShowHistory(value=>!value)}><strong>{L(isZh,"村莊紀錄","Village log")} · {game.entries.length}</strong><span>{showHistory?"⌃":"⌄"}</span></button>
-    {showHistory?<div className="wolf-log" aria-live="polite">{game.entries.slice(-24).map((entry,index)=><div key={game.entries.length-24+index} className={"wolf-log-entry kind-"+entry.kind}>
-     <strong>{entry.speaker==="system"?L(isZh,"主持人","Moderator"):entry.speaker==="you"?L(isZh,"你","You"):game.players.find(p=>p.id===entry.speaker)?.name||entry.speaker}</strong>
-     <p>{localEvent(entry,isZh)}</p></div>)}</div>:null}
-   </section>
    <p className="wolf-footnote">{L(isZh,"單機測試版：AI 角色不知道其他人的身分；身分與勝負由前端規則驗證。正式多人對戰需要改為伺服器保存秘密。","Single-player prototype: AI roles receive only private knowledge. A server is required to keep secrets secure in multiplayer.")}</p>
   </div>}
  </main>;
