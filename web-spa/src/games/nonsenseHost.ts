@@ -1,4 +1,5 @@
 import {ensureLive,geminiKey,type LiveSession} from "../lib/runtime";
+import {normalizeLiveVoice} from "../live/voiceIdentity";
 import type {NonsenseJudgeId,NonsenseLanguage} from "./nonsenseTopics";
 import type {NonsenseVerdict} from "./nonsenseJudge";
 
@@ -20,7 +21,7 @@ export function speakNonsenseHost(language:NonsenseLanguage,text:string){
 }
 
 type FeedbackOptions={
- language:NonsenseLanguage;judgeId:NonsenseJudgeId;topic:string;verdict:NonsenseVerdict;
+ language:NonsenseLanguage;judgeId:NonsenseJudgeId;topic:string;verdict:NonsenseVerdict;voiceChoice?:string;
  onSpeaking:()=>void;onDone:()=>void;onFailure:()=>void;
 };
 let active:{stop:()=>void}|null=null;
@@ -87,7 +88,7 @@ export async function startNonsenseLiveFeedback(options:FeedbackOptions):Promise
     "Verified feedback: "+JSON.stringify(score.comment),
     "Speak in 1-2 natural sentences, grounded solely in the verdict."
    ].join("\n"),
-   voice:voices[options.judgeId],volume:100,maxLiveAttempts:1,maxResumeAttempts:0,
+   voice:normalizeLiveVoice(options.voiceChoice||voices[options.judgeId]),volume:100,maxLiveAttempts:1,maxResumeAttempts:0,
    connectTimeoutMs:10000,replyTimeoutMs:12000,manualInterruptOnly:true,
    onState:state=>{
     if(closed||generation!==activeGeneration)return;
