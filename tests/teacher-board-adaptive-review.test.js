@@ -29,7 +29,7 @@ test("only self-rated, non-sensitive vocabulary is stored; grades never inferred
  api.recordBoardReview("en","emma",{source:"my email",target:"test@example.com"},"known",true,now);
  assert.equal(api.loadBoardReviews("en","emma",true,now).length,1);
  assert.equal(store._entries.size,1);
- assert.doesNotMatch([...store._entries.values()].join(" "),"test@example.com");
+ assert.doesNotMatch([...store._entries.values()].join(" "),/test@example\.com/);
 });
 
 test("review intervals reset when missed, progress 1/3/7 days if known, with bounded storage",()=>{
