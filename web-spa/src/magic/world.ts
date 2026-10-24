@@ -8,16 +8,18 @@ export type MagicTime="day"|"night";
 export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"crystal";
 export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
 export type MagicChoice="A"|"B"|"C";
+export type MagicPanelKind="spellbook"|"treasure"|"quest";
+export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice};
 export type MagicObject={id:number;kind:MagicObjectKind;slot:number};
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
- objects:MagicObject[];challenge:MagicChallenge|null;chapter:number;
+ objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
  message:string;effect:MagicSpell|null;revision:number;
 };
 export type MagicResult={ok:boolean;world:MagicWorld;event:string};
 export const MAGIC_INITIAL_WORLD:MagicWorld={
- theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,
+ theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
  chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
@@ -26,6 +28,7 @@ const TIMES=["day","night"] as const;
 const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const CHOICES=["A","B","C"] as const;
+const PANEL_KINDS=["spellbook","treasure","quest"] as const;
 const MAX_OBJECTS=10;
 function record(value:unknown):Record<string,unknown>{
  if(typeof value==="string"){try{return record(JSON.parse(value))}catch{return {}}}
@@ -87,6 +90,25 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    return updated(state,{challenge:{...state.challenge,selected:choice},chapter:state.chapter+(won?1:0),
     effect:won?"sparkles":null,message:won?state.challenge.feedback:text("咒語還不太對，再試一次新挑戰吧。","Not quite the right spell. Try another challenge!")},won?"challenge-won":"challenge-missed");
   }
+  case "create_magic_panel":{
+   const kind=args.panel_type,title=copy(args.title,55),description=copy(args.description,180);
+   const a=copy(args.item_a,90),b=copy(args.item_b,90),c=copy(args.item_c,90);
+   if(!oneOf(kind,PANEL_KINDS)||!title||!description||!a||!b||!c)return failed(state,"invalid-panel");
+   const panel:MagicPanel={id:state.revision+1,kind,title,description,items:[a,b,c]};
+   return updated(state,{panels:[...state.panels.slice(-1),panel],effect:"sparkles",
+    message:text("一本新的魔法篇章展開了，點擊卡片探索。","A new magical panel appeared. Tap a card to explore!")}, "panel-created");
+  }
+  case "select_magic_panel":{
+   const choice=args.choice;
+   if(!oneOf(choice,CHOICES))return failed(state,"invalid-panel-choice");
+   const rawId=args.panel_id;
+   const id=typeof rawId==="number"&&Number.isSafeInteger(rawId)?rawId:state.panels[state.panels.length-1]?.id;
+   const selected=state.panels.find(panel=>panel.id===id);
+   if(!selected||selected.selected)return failed(state,"no-active-panel");
+   const index=CHOICES.indexOf(choice);
+   const panels=state.panels.map(panel=>panel.id===id?{...panel,selected:choice}:panel);
+   return updated(state,{panels,effect:"sparkles",message:selected.items[index]}, "panel-selected");
+  }
   case "tell_story":{
    const message=copy(args.message,220);
    if(!message)return failed(state,"empty-story");
@@ -98,7 +120,18 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
 export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
-  case "portal":return applyMagicCommand(world,"summon_object",{kind:"portal"},lang);
+  case "portal":{
+   const summoned=applyMagicCommand(world,"summon_object",{kind:"portal"},lang);
+   if(!summoned.ok)return summoned;
+   const copy=lang==="en"?{
+    title:"Where will the portal lead?",description:"Three mysterious doors glow before you.",
+    item_a:"A forest of whispering trees",item_b:"A palace made of sugar clouds",item_c:"An island above the stars"
+   }:{
+    title:"傳送門通往哪裡？",description:"三道神秘的門正等待你選擇。",
+    item_a:"會說話的樹林",item_b:"糖雲做成的皇宮",item_c:"星空上的漂浮島"
+   };
+   return applyMagicCommand(summoned.world,"create_magic_panel",{panel_type:"quest",...copy},lang);
+  }
   case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
   case "puzzle":return applyMagicCommand(world,"create_challenge",lang==="en"?{
    title:"The Star Gate",question:"Which thing grows the more you share it?",
