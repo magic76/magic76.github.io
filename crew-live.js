@@ -736,7 +736,7 @@
     }else if(this.ready&&this.lastLearnerVoiceAt>0&&now-this.lastLearnerVoiceAt>=350
               &&this.learnerListeningPhase!=="waiting"){
       this.learnerListeningPhase="waiting";
-      if(this.options.onListeningPhase)this.options.onListeningPhase("waiting");
+      if(this.options.onListeningPhase){var self=this;self.options.onListeningPhase("waiting");}
       // Only sustained real microphone activity can drive UI recovery hints.
       // Gemini server VAD remains responsible for turn completion.
       if(this.localVoicedFrames>=8&&this.options.onLocalUtteranceEnd){
