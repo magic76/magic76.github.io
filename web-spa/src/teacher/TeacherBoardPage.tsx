@@ -12,6 +12,8 @@ import {effectiveSpeakingLevel} from "./speakingLevelMemory";
 import {personalMemoryEnabled} from "./studentMemory";
 import {boardNotes,BOARD_FUNCTION,BOARD_TOOLS,applyBoardPatch,fallbackBoard,validateBoardPatch,type BoardCard,type BoardPatch} from "./boardProtocol";
 import {TeachingCard,cardKindName} from "./TeachingCard";
+import type {FlashReview} from "./BoardFlashcards";
+import {flashcardTeacherPrompt} from "./boardRecallCoach";
 import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,directorAfterAnswer,directorAfterPatch,validateDirectorCommand,type DirectorState} from "./teachingDirector";
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
@@ -250,6 +252,9 @@ export function TeacherBoardPage(){
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
+ function coachFlashcard(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak"){
+  ask(flashcardTeacherPrompt(card,reviews,scope));
+ }
  function choosePresentation(kind:BoardPresentation){
   if(!active){setHint(t("board.startFirst"));return;}
   formatRequestRef.current=kind;
@@ -349,7 +354,7 @@ export function TeacherBoardPage(){
        focusIndex={director.cardId===focusedCard.id?director.focusIndex:-1}
        revealCount={director.cardId===focusedCard.id?director.revealed:null}
        quizIndex={director.cardId===focusedCard.id?director.quizIndex:0} onNavigate={index=>navigateCard(focusedCard.id,index)}
-       onSpeakingSubmit={text=>submitSpeaking(text,true)} speakingAssessment={director.cardId===focusedCard.id?speakingAssessment:null}/>}
+       onSpeakingSubmit={text=>submitSpeaking(text,true)} onFlashcardPractice={coachFlashcard} speakingAssessment={director.cardId===focusedCard.id?speakingAssessment:null}/>}
     </div>
     {focusedCard&&following&&director.cardId===focusedCard.id&&<div className="teaching-board-director-status" role="status">
      {director.phase==="awaiting"&&<button type="button" onClick={requestHint}>{t("board.lessonPicker.hint")}</button>}
