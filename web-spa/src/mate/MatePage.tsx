@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive,geminiKey,type LiveSession,type LiveTurn} from "../lib/runtime";
 import {
-  EMPTY_CONSENSUS,MATE_LANGUAGES,applyMateConsensusPatch,deleteMateHistory,
+  EMPTY_CONSENSUS,applyMateConsensusPatch,deleteMateHistory,
   mateConsensusReady,mateToolAllowed,mateToolDeclarations,parseMateToolArgs,
   readMateHistory,storeMateHistory,mateHistoryResumable,type MateAudience,type MateConsensus,
   type MateDecision,type MateHistory,type MatePhase,type MateTurn
@@ -13,6 +13,7 @@ import {translateMateText} from "./mateTranslation";
 import {finalizeMateBriefing} from "./mateBriefing";
 import {MateTranscript} from "./MateTranscript";
 import {MateHistoryPanel} from "./MateHistoryPanel";
+import {MateConsensusFields} from "./MateConsensusFields";
 import "./mate.css";
 
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
@@ -326,10 +327,6 @@ export function MatePage(){
   const ready=mateConsensusReady(consensus);
   const reviewing=phase==="setup"||phase==="review"||phase==="private";
   const canEdit=phase==="setup"||phase==="review";
-  const options=(value:string,field:"userLanguage"|"otherLanguage")=>
-    <select value={value} disabled={!canEdit} onChange={event=>edit(field,event.target.value)}>
-      {MATE_LANGUAGES.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}
-    </select>;
   return <div className="mate-page">
     <header className="mate-title">
       <div><Link to="/explore" className="mate-back">← {t("探索","Explore")}</Link>
@@ -369,20 +366,7 @@ export function MatePage(){
       <section className="mate-panel">
         <h2>{phase==="review"?t("請確認交接內容","Confirm handoff"):t("私下交代任務","Private briefing")}</h2>
         <p className="mate-hint">{t("以下內容只顯示給你。交給對方前請先確認。","Only you can see this preparation screen. Review it before handing over.")}</p>
-        <div className="mate-languages"><label>{t("我使用的語言","My language")}{options(consensus.userLanguage,"userLanguage")}</label>
-          <span aria-hidden="true">→</span>
-          <label>{t("對方使用的語言","Other person's language")}{options(consensus.otherLanguage,"otherLanguage")}</label>
-        </div>
-        <div className="mate-fields">
-          <label>{t("我要跟誰溝通？","Who am I speaking to?")}
-            <input disabled={!canEdit} value={consensus.target} onChange={e=>edit("target",e.target.value)} placeholder={t("例如：飯店櫃檯","e.g. hotel reception")}/></label>
-          <label>{t("希望達成的目標（可能會對外說明）","Public communication goal")}
-            <textarea disabled={!canEdit} value={consensus.goal} onChange={e=>edit("goal",e.target.value)} rows={2} placeholder={t("例如：詢問能否提早入住","e.g. Request an early check-in")}/></label>
-          <label>{t("私人限制（不交給對方或對外 AI）","Private limits (not sent to external AI)")}
-            <textarea disabled={!canEdit} value={consensus.constraints} onChange={e=>edit("constraints",e.target.value)} rows={2} placeholder={t("例如：不接受任何額外收費；若無限制，請填『無』","e.g. No extra fees; type 'none' if none")}/></label>
-          <label>{t("哪些情況必須先問我？","When must Mate ask me?")}
-            <textarea disabled={!canEdit} value={consensus.escalation} onChange={e=>edit("escalation",e.target.value)} rows={2}/></label>
-        </div>
+        <MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} en={en}/>
         {phase==="private"&&<div className="mate-private-live" aria-live="polite">
           <strong>{connected?t("Mate 正在私下聽你說","Mate is listening privately"):liveStatus}</strong>
           {privateInput&&<p>{t("你：","You: ")}{privateInput}</p>}
