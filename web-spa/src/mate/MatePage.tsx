@@ -362,7 +362,7 @@ export function MatePage(){
 
     {(reviewing||phase==="finished")&&<div className="mate-steps" aria-label={t("任務進度","Task progress")}>
       <span className={reviewing?"active":""}>1 {t("私下交代","Brief")}</span>
-      <span className={phase==="external"||phase==="decision"?"active":""}>2 {t("對外溝通","Handoff")}</span>
+      <span>2 {t("對外溝通","Handoff")}</span>
       <span className={phase==="finished"?"active":""}>3 {t("結果","Result")}</span>
     </div>}
     {error&&<p role="alert" className="mate-error">{error}</p>}
