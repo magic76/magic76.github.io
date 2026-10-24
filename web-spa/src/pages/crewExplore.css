@@ -107,3 +107,11 @@
  .crew-explore-tile[data-kind="town"] .crew-explore-text{padding:13px 34px 16px 16px}
  .crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:19px}
 }
+
+/* Crew Mate: friendly visual shorthand for private brief -> public voice. */
+.crew-explore-tile[data-kind="mate"]{--art:#e4f5ec;--art-2:#d1ebe3;--art-ink:#387a67;--art-border:#cbe7d8}
+.crew-explore-mate-art{position:relative;display:flex;gap:11px;align-items:center;justify-content:center;width:90%;height:100%;z-index:1}
+.crew-explore-mate-art span{width:58px;height:64px;border:2px solid #fff;border-radius:22px;display:grid;place-items:center;box-shadow:0 9px 24px rgba(28,91,70,.11);background:#f7fffb;transform:rotate(-8deg)}
+.crew-explore-mate-art span:nth-child(2){width:73px;height:78px;transform:translateY(-8px);background:#fff}
+.crew-explore-mate-art span:last-child{transform:rotate(8deg)}
+.crew-explore-mate-art svg{width:31px;height:31px;stroke:var(--art-ink)}
