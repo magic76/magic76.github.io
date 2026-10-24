@@ -45,7 +45,7 @@ test("public session prompt omits private constraints",()=>{
  assert.equal(external.includes("c.constraints"),false);
  assert.equal(external.includes("c.escalation"),false);
  assert.match(external,/not included in this external session/);
- assert.match(page,/mode==="private"\?privateInstruction\(c\):externalInstruction\(c\)/);
+ assert.match(page,/mode==="private"\?privateInstruction\(c\):externalInstruction\(c,/);
  assert.match(page,/const session=new window.CrewLive.Session\(voiceOptions\)/);
 });
 test("invalid tool payloads don't cause exceptions",()=>{
