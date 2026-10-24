@@ -240,3 +240,20 @@
  .crew-mini-number-board .crew-mini-number-history li{padding:6px 9px}
  .crew-mini-page .crew-mini-friend-bar .crew-play-friend-name img{width:32px;height:32px}
 }
+
+/* 1A2B: familiar three-column keypad instead of a wide five-column strip. */
+.crew-mini-turn-progress{display:block;width:100%;height:7px;max-width:none;margin:0;border:0;border-radius:99px;overflow:hidden;accent-color:#7162b9}
+.crew-mini-turn-progress::-webkit-progress-bar{background:#eae7f4;border-radius:99px}
+.crew-mini-turn-progress::-webkit-progress-value{background:#7162b9;border-radius:99px}
+.crew-mini-turn-progress::-moz-progress-bar{background:#7162b9;border-radius:99px}
+.crew-mini-keypad{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(100%,330px);margin-inline:auto}
+.crew-mini-keypad button{min-height:49px;border-radius:12px;touch-action:manipulation}
+.crew-mini-keypad button:active:not(:disabled){background:#e2dcff;transform:scale(.98)}
+.crew-mini-keypad button:focus-visible{outline:3px solid #7969c4;outline-offset:2px}
+.crew-mini-keypad-spacer{pointer-events:none}
+@media(max-width:620px){
+ .crew-mini-keypad{width:min(100%,320px)}
+ .crew-mini-keypad button{min-height:53px;font-size:21px}
+ .crew-mini-input-row .crew-mini-primary{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){.crew-mini-keypad button{transition:none}.crew-mini-keypad button:active:not(:disabled){transform:none}}
