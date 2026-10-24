@@ -712,7 +712,9 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.ok(!teacher.includes('<div className="live-orb"><span>{profile.name.slice(0,1)}</span></div>'));
  assert.ok(story.includes("story-live-avatar"));
  assert.ok(!story.includes('<section className="session-person">'));
- assert.ok(teacher.includes("<summary>更多功能</summary>"));
+ assert.ok(teacher.includes("<TeacherLiveTools "),"Live must mount the extracted teacher tools");
+ const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
+ assert.ok(teacherTools.includes("<summary>更多功能</summary>"));
  assert.ok(story.includes("<summary>更多功能</summary>"));
  assert.ok(controls.includes("live-audio-settings"));
  assert.ok(settings.includes('t("gemini.configured")'));
@@ -754,15 +756,17 @@ test("Live still photos keep the newest frame and prompt in one realtime input",
 test("Live trust UX locks session config and confirms the actual latest photo",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/LivePage.tsx"),"utf8");
+ const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
- for(const source of [teacher,story]){
+ assert.ok(teacher.includes("<TeacherLiveTools "),"Teacher Live must mount its extracted settings and camera panel");
+ for(const source of [teacherTools,story]){
   assert.ok(source.includes("disabled={sessionActive}"),"active Live config should not pretend to apply immediately");
   assert.ok(source.includes('capture="environment"'),"mobile Live should expose a camera capture path");
   assert.ok(source.includes("visionSending"));
   assert.ok(source.includes("lastImage"));
   assert.ok(source.includes("vision-latest"));
  }
- assert.ok(teacher.includes("這些設定會套用到下一次對話"));
+ assert.ok(teacherTools.includes("這些設定會套用到下一次對話"));
  assert.ok(story.includes("故事設定會套用到下一次"));
  assert.ok(hook.includes("visionSendingRef"));
  assert.ok(hook.includes("sessionRef.current!==s"),"a photo prepared for an old session must never leak into a new session");

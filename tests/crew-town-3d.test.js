@@ -11,7 +11,7 @@ test("Crew Town 3D is a lazy opt-in route with the existing 2.5D fallback",()=>{
  assert.match(app,/import\("\.\/town\/Town3DPage"\)/);
  assert.match(page,/lazy\(\(\)=>import\("\.\/three\/TownScene"\)/);
  assert.match(page,/lazy\(\(\)=>import\("\.\/TownPage"\)/);
- assert.match(page,/webglcontextlost|setFailed\(true\)/);
+ assert.match(page,/webglcontextlost|setFailed\(true\)|setFallbackReason\("render-error"\)/);
  assert.match(page,/prefers-reduced-motion: reduce/);
  assert.match(page,/\/explore/);
 });
@@ -63,4 +63,15 @@ test("mobile controls, bounded orbit camera and day/night remain separate from L
  assert.match(page,/setNight/);
  assert.match(css,/env\(safe-area-inset-bottom\)/);
  assert.match(css,/touch-action:none/);
+});
+
+test("2.5D fallback clearly exposes unsupported, rendering failure, and manual modes",()=>{
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const css=read("web-spa/src/town/three/town3d.css");
+ for(const reason of ["unsupported","render-error","manual"])assert.ok(page.includes('"'+reason+'"'));
+ assert.ok(page.includes('目前使用 2.5D 地圖'));
+ assert.ok(page.includes('onClick={()=>setFallbackReason("manual")}'));
+ assert.ok(page.includes('onClick={()=>setFallbackReason(null)}'));
+ assert.ok(page.includes('this.props.onFailure()'));
+ assert.match(css,/\.crew-town-3d-fallback-notice/);
 });
