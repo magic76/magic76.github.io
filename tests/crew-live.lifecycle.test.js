@@ -587,7 +587,7 @@ test("Android-safe startup opens mic before warm output worklet and queues first
       getKey:()=>"test-key",
       getUserMedia:async()=>{order.push("mic");return stream;},
       createAudioContext:()=>{order.push("audio-context");context=new WarmAudioContext();return context;},
-      createAudioWorkletNode:()=>{node=new FakeWorkletNode();return node;},
+      createAudioWorkletNode:(_ctx,name)=>{const result=new FakeWorkletNode();if(name==="crew-live-output")node=result;return result;},
       logger:{info(){}}
     }
   });
@@ -897,7 +897,7 @@ test("late worklet output-started event cannot restart canceled teacher speech",
   const {track,deps}=makeDeps([]);
   const spoken=[];
   deps.createAudioContext=()=>new Context();
-  deps.createAudioWorkletNode=()=>{node=new Node();return node;};
+  deps.createAudioWorkletNode=(_ctx,name)=>{const result=new Node();if(name==="crew-live-output")node=result;return result;};
   const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
   const starting=session.start();
   const socket=await waitForSocket(0);
