@@ -66,8 +66,8 @@ export class NewsRoundTracker{
  endChoice(){this.pendingChoice="";}
  get choicePending(){return Boolean(this.pendingChoice);}
  get canPick(){return this.count<this.totalRounds&&!this.choicePending&&!this.finale&&!this.finishing;}
- get canShowFinale(){return this.count>=this.totalRounds-1;}
- acceptFinale(){if(!this.canShowFinale)return false;this.finale=true;return true;}
+ get canShowFinale(){return this.count>=this.totalRounds;}
+ acceptFinale(){if(this.finale||!this.canShowFinale)return false;this.finale=true;return true;}
  get hasFinale(){return this.finale;}
  beginFinishing(){if(this.finishing)return false;this.finishing=true;return true;}
 }
