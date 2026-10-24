@@ -25,6 +25,7 @@ const monitor="<script>"
  +"const webgl=document.createElement('meta');webgl.name='crew-town-webgl2-available';webgl.content=String(supported);document.head.appendChild(webgl);"
  +"const meta=document.createElement('meta');meta.name='crew-town-browser-smoke';meta.content=kind;document.head.appendChild(meta);"
  +"const detail=document.createElement('meta');detail.name='crew-town-browser-errors';detail.content=window.__townErrors.join(' | ').slice(0,300);document.head.appendChild(detail);"
+ +"const friends=document.createElement('meta');friends.name='crew-town-friend-count';friends.content=String(document.querySelectorAll('.crew-town-3d-name').length);document.head.appendChild(friends);"
  +"},8500);"
  +"</script>";
 const server=createServer((req,res)=>{
@@ -63,13 +64,15 @@ try{
  const state=stdout.match(/<meta name="crew-town-browser-smoke" content="([^"]+)"/)?.[1];
  const webgl2=stdout.match(/<meta name="crew-town-webgl2-available" content="([^"]+)"/)?.[1];
  const errorSummary=stdout.match(/<meta name="crew-town-browser-errors" content="([^"]*)"/)?.[1];
+ const friendCount=stdout.match(/<meta name="crew-town-friend-count" content="([^"]*)"/)?.[1];
  const failure=stdout.match(/class="crew-town-3d-error-detail"[^>]*>([\s\S]*?)<\/code>/)?.[1]||"";
- const report={chrome,exit:code,state,webgl2,errorSummary,failure,httpErrors:errors};
+ const report={chrome,exit:code,state,webgl2,friendCount,errorSummary,failure,httpErrors:errors};
  writeFileSync(join(artifact,"town-browser.txt"),JSON.stringify(report,null,2)+"\n"+stderr);
  console.log(JSON.stringify(report,null,2));
  if(code!==0||errors.length)throw Error("Town 3D browser launch or asset serving failed.");
  if(webgl2==="false"&&state==="fallback"){
   if(!failure.includes("webgl-renderer-unavailable"))throw Error("GPU-less browser did not explain 3D fallback.");
   console.log("SKIP: CI Chrome cannot allocate WebGL2; manual GPU-backed QA still required.");
- }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
+  }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
+ else if(friendCount!=="16")throw Error("Town 3D must render all sixteen friend labels; observed "+friendCount);
 }finally{server.close()}
