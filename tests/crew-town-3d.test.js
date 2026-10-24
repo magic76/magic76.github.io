@@ -108,3 +108,57 @@ test("Canvas fallback is inert DOM content, not a side-effect-driven failure",()
  assert.doesNotMatch(scene,/useEffect\(\(\)=>onFailure\(/);
  assert.match(scene,/onFailure\("webgl-context-lost"\)/);
 });
+
+
+test("P1 camera makes town at least 15% larger while preserving focus and orbit bounds",()=>{
+ const camera=read("web-spa/src/town/three/TownCameraController.tsx");
+ const stage=read("web-spa/src/town/three/town3d.css");
+ const apparentSize=(x,y,z,fov)=>1/(Math.hypot(x,y,z)*Math.tan(fov*Math.PI/360));
+ const previousDesktop=apparentSize(14,16,23,36);
+ const previousMobile=apparentSize(17,21,29,54);
+ assert.ok(apparentSize(11.9,14,19.8,34)/previousDesktop>1.15);
+ assert.ok(apparentSize(14.7,18.5,25,52)/previousMobile>1.15);
+ assert.ok(apparentSize(12.7,15.7,23.4,49)/previousMobile>1.15);
+ for(const offset of ["11.9,14,19.8","14.7,18.5,25","12.7,15.7,23.4","4.3,5.2,7.3"]){
+  assert.ok(camera.includes("new Vector3("+offset+")"));
+ }
+ assert.ok(camera.includes("minDistance={7.5} maxDistance={50}"));
+ assert.match(camera,/minPolarAngle/);
+ assert.match(stage,/80svh/);
+ assert.ok(stage.includes("max-height:min(39svh,300px)"));
+});
+
+test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>{
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ assert.ok(chars.includes("sphereGeometry args={[.42,20,16]}"));
+ assert.ok(chars.includes("capsuleGeometry args={[.27,.27,5,12]}"));
+ assert.ok(chars.includes("position={[route[0][0],.025,route[0][1]]}"));
+ assert.ok(chars.includes("feet.rotation.x=Math.sin(s.walk)*.13"));
+ for(const id of ["zoe","yuna","bella","theo","hugo","noah"]){
+  assert.ok(chars.includes('id==="'+id+'"'));
+ }
+});
+
+test("Town 3D P1.1 can focus moving friends and browse without losing 2.5D fallback",()=>{
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ const environment=read("web-spa/src/town/three/TownEnvironment.tsx");
+ const overlay=read("web-spa/src/town/three/TownOverlay.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const css=read("web-spa/src/town/three/town3d.css");
+ assert.match(scene,/actorPositions=useRef/);
+ assert.ok(scene.includes("onMove={trackActor}"));
+ assert.ok(scene.includes("onPointerMissed={onDeselect}"));
+ assert.ok(page.includes("onDeselect={()=>setSelected(null)}"));
+ assert.ok(chars.includes("onMove(id,group.position.x,group.position.z)"));
+ assert.ok(chars.includes("MathUtils.euclideanModulo(facing-group.rotation.y"));
+ assert.match(chars,/<Html /);
+ assert.ok(chars.includes("useCursor(hovered)"));
+ assert.ok(environment.includes("useCursor(hovered!==null)"));
+ assert.ok(environment.includes("ringGeometry args={[1.45,1.67,36]}"));
+ assert.match(overlay,/crew-town-3d-roster-nav/);
+ assert.ok(overlay.includes("navigate(-1)"));
+ assert.match(css,/crew-town-3d-name/);
+ assert.match(scene,/TownModelsBoundary/);
+ assert.match(scene,/webgl-context-lost/);
+});

@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
 import {CREW_FRIENDS} from "../../friends/friendProfiles";
 import {PEOPLE,PLACES,type FriendId,type PlaceId,type Selection} from "./world";
@@ -6,14 +6,24 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
  selected:Selection;zh:boolean;onClose:()=>void;onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;
 }){
  const [friendsOpen,setFriendsOpen]=useState(false);
+ useEffect(()=>{if(selected)setFriendsOpen(false)},[selected]);
  const friend=selected?.type==="person"?CREW_FRIENDS.find(p=>p.id===selected.id):null;
  const actor=selected?.type==="person"?PEOPLE.find(p=>p.id===selected.id):null;
  const place=selected?.type==="place"?PLACES.find(p=>p.id===selected.id):null;
+ const entries=selected?.type==="person"?PEOPLE:PLACES;
+ const activeIndex=selected?entries.findIndex(p=>p.id===selected.id):-1;
+ const navigate=(direction:number)=>{
+  if(activeIndex<0)return;
+  const next=entries[(activeIndex+direction+entries.length)%entries.length];
+  if(selected?.type==="person")onFriend(next.id as FriendId);
+  else onPlace(next.id as PlaceId);
+ };
+ const placeIcons:Record<PlaceId,string>={cafe:"☕",studio:"✦",play:"◆",garden:"❀"};
  return <>
   {!selected&&<div className="crew-town-3d-dock" aria-label={zh?"小鎮導覽":"Town navigation"}>
    <div className="crew-town-3d-destinations">{PLACES.map(p=><button type="button" key={p.id}
     onClick={()=>{setFriendsOpen(false);onPlace(p.id)}} aria-label={(zh?"探索 ":"Explore ")+(zh?p.zh:p.en)}>
-     {zh?p.zh:p.en}
+     <span className="crew-town-3d-destination-symbol" aria-hidden="true">{placeIcons[p.id]}</span><span>{zh?p.zh:p.en}</span>
     </button>)}</div>
    <button type="button" className="crew-town-3d-friends-toggle" onClick={()=>setFriendsOpen(v=>!v)}
      aria-expanded={friendsOpen} aria-controls="crew-town-3d-friend-menu">{zh?"朋友 · 6":"Friends · 6"}</button>
@@ -35,6 +45,11 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
     <small>CREW TOWN · {zh?"地點":"PLACE"}</small><strong>{zh?place.zh:place.en}</strong>
     <p>{zh?place.introZh:place.introEn}</p>
    </div>}
+   <div className="crew-town-3d-roster-nav" aria-label={zh?"切換朋友或地點":"Browse friends or places"}>
+    <button type="button" onClick={()=>navigate(-1)} aria-label={zh?"上一個":"Previous"}>← {zh?"上一個":"Previous"}</button>
+    <span>{activeIndex+1} / {entries.length}</span>
+    <button type="button" onClick={()=>navigate(1)} aria-label={zh?"下一個":"Next"}>{zh?"下一個":"Next"} →</button>
+   </div>
    <Link className="crew-town-3d-action" to={friend?"/friend/live?id="+encodeURIComponent(friend.id):place?.to||"/explore"}>
     {friend?(zh?"加入與 "+friend.name+" 的語音聊天":"Join "+friend.name+" in voice chat"):place?(zh?place.ctaZh:place.ctaEn):""}
     <span aria-hidden="true">↗</span>
