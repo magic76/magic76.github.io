@@ -1001,3 +1001,80 @@ test("denied microphone permission provides a user-actionable error",async()=>{
   await assert.rejects(session.start(),/麥克風權限遭拒/);
   assert.equal(session.running,false);
 });
+
+
+test("early microphone speech is buffered until setup and takes priority over greeting",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  assert.equal(socket.sent.some(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome"),false);
+  assert.equal(session.getMicHealth().captureMode,"script");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("startup ring buffer stays under two seconds, and mute drops pending audio",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  for(let i=0;i<60;i++)session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.ok(session.getMicHealth().setupBufferedMs<=2100);
+  session.setMicMuted(true);
+  assert.equal(session.getMicHealth().setupBufferedMs,0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("input Worklet sends 16kHz frames and releases its processor after stop",async()=>{
+  resetSockets();
+  let inputNode,outputNode;
+  class Context extends FakeAudioContext{
+    constructor(){super();this.audioWorklet={addModule:async()=>{}};}
+  }
+  class Node{
+    constructor(){this.port={onmessage:null,postMessage(){}};this.disconnected=false;}
+    connect(){}
+    disconnect(){this.disconnected=true;}
+  }
+  const {deps}=makeDeps([]);
+  deps.createAudioContext=()=>new Context();
+  deps.createAudioWorkletNode=(_ctx,name)=>{
+    const node=new Node();
+    if(name==="crew-live-input")inputNode=node;
+    if(name==="crew-live-output")outputNode=node;
+    return node;
+  };
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  assert.ok(inputNode&&outputNode);
+  assert.equal(session.getMicHealth().captureMode,"worklet");
+  inputNode.port.onmessage({data:{
+    type:"mic-frame",samples:new Float32Array(640).fill(0.25).buffer,rms:0.25
+  }});
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(inputNode.disconnected,true);
+  assert.equal(session.getMicHealth().captureMode,"none");
+});
