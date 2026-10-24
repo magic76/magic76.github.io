@@ -16,7 +16,7 @@ import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,dire
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardTutorPanel} from "./BoardTutorPanel";
-import {BoardPresentationBar,boardPresentationRequest,type BoardPresentation} from "./BoardPresentationBar";
+import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -56,6 +56,7 @@ export function TeacherBoardPage(){
  const lessonRef=useRef<LessonId|null>(null);
  const reviewReturnRef=useRef<{cardId:string;index:number}|null>(null);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
+ const formatRequestRef=useRef<BoardPresentation|null>(null);
  // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
@@ -67,7 +68,7 @@ export function TeacherBoardPage(){
  })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+
  "\n[TEACHING BOARD, session only] Explain aloud while operating the lesson board. "+
  "If update_teaching_board is available, create or edit cards early during speech in small patches using stable IDs. Simplify by editing existing cards; create a three-question quiz when asked. "+
- "Use the best visual type: comparison, timeline, steps, flashcard, dialogue, quiz, example, vocabulary, correction or speaking. Avoid defaulting to text-only explanations. "+
+ "Each lesson needs a suitable visual, not just text: contrast or tenses => comparison plus timeline; scenarios => dialogue then vocabulary; instructions => steps; corrections => before/after; terms => vocabulary then flashcards; practice => quiz or speaking. Use actual lesson facts and relevant variety, never decorative random cards. "+
  "Use control_teaching_stage to focus or reveal items as you speak. Wait for real learner answers before moving past a quiz; hints must not reveal answers. "+
  "After feedback, review a comparison/timeline when wrong; move to a new exercise when right. For speaking give one helpful language tip, not an unsupported pronunciation score. "+
  "Keep cards concise and data-only. Never use HTML or invent learner facts. All board state is session-only.",
@@ -87,6 +88,7 @@ export function TeacherBoardPage(){
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);setShowingDemo(false);
+  if(patch.cards.length)formatRequestRef.current=null;
   const stage=guided?directorRef.current:directorAfterPatch(directorRef.current,next,patch.cards);
   changeDirector(stage);
   const changedId=stage.cardId;
@@ -211,8 +213,11 @@ export function TeacherBoardPage(){
    processConfirmedSpeech(turn.input||"");
    const updatedByLive=patchCountRef.current!==lastTurnPatchRef.current;
    lastTurnPatchRef.current=patchCountRef.current;
+   const format=formatRequestRef.current;
+   if(turn.hasValidOutput!==false)formatRequestRef.current=null;
    if(!updatedByLive&&!lessonRef.current&&directorRef.current.phase==="explaining"){
-    const patch=fallbackBoard(turn,cardRef.current);
+    const requested=format?{...turn,input:PRESENTATION_CUES[format]+" "+(turn.input||"")}:turn;
+    const patch=fallbackBoard(requested,cardRef.current);
     if(patch)commitPatch(patch);
    }
   }
@@ -251,6 +256,8 @@ export function TeacherBoardPage(){
   setHint("");
  }
  function choosePresentation(kind:BoardPresentation){
+  if(!active){setHint(t("board.startFirst"));return;}
+  formatRequestRef.current=kind;
   ask(boardPresentationRequest(kind,cardRef.current));
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
