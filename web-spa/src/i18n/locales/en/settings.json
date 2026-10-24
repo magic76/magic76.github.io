@@ -206,19 +206,17 @@
     "language": "Conversation language",
     "start": "Start Cyber Orb",
     "stop": "End Orb call",
-    "loading": "Checking Android service…",
+    "loading": "Preparing voice chat…",
     "active": "Talking with {name}",
-    "private": "Independent native call · No Web memories, transcripts or learning records",
-    "note": "End any ongoing Web voice call first. End this Orb call before switching characters.",
-    "native_key_required": "Set a Gemini API Key in the Android dialog, then tap Start again.",
+    "note": "End your current voice chat before starting another one or switching characters.",
+    "native_key_required": "Finish setting up your Gemini Key, then try again.",
     "overlay_permission_required": "Allow display over other apps, return to Crew, and tap Start again.",
     "microphone_permission_required": "Allow microphone access, return to Crew, and tap Start again.",
     "already_active": "An Orb call is already active. End it before choosing another character.",
-    "start_failed": "The native voice service could not start. Please retry.",
-    "bridge_error": "Android bridge did not respond. Reopen Crew.",
+    "start_failed": "Could not start voice chat. Please try again.",
+    "bridge_error": "The connection did not respond. Reopen Crew.",
     "unavailable": "Cyber Orb is unavailable in this App version.",
     "unknown": "The operation failed. Try again.",
-    "webKeyNotice": "Uses your Web Gemini Key for this Android call only, without saving another copy.",
-    "web_key_unavailable": "No valid Web Gemini key is available in this app. Save one in Crew Teacher's Web settings; Chrome and other devices use separate storage."
+    "web_key_unavailable": "Your Gemini Key is not set up yet. Open Settings to finish setup before chatting."
   }
 }
