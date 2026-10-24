@@ -40,7 +40,7 @@ test("public session prompt omits private constraints",()=>{
  const external=prompts.split("export const externalInstruction =")[1].split("export const privateInstruction =")[0];
  assert.equal(external.includes("c.constraints"),false);
  assert.equal(external.includes("c.escalation"),false);
- assert.match(external,/not included in this external session/);
+ assert.match(external,/not included in this external session/i);
  assert.match(page,/mode==="private"\?privateInstruction\(c\):externalInstruction\(c,/);
  assert.match(page,/const session=new window.CrewLive.Session\(voiceOptions\)/);
 });
