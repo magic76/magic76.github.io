@@ -29,6 +29,12 @@ export function ShortsPage(){
  useEffect(()=>()=>{nextAbortRef.current?.abort();},[]);
  const [translated,setTranslated]=useState<string|null>(null);
  const [likes,setLikes]=useState<string[]>([]);
+ const [celebratingLike,setCelebratingLike]=useState<string|null>(null);
+ useEffect(()=>{
+  if(!celebratingLike)return;
+  const timer=window.setTimeout(()=>setCelebratingLike(null),650);
+  return()=>window.clearTimeout(timer);
+ },[celebratingLike]);
  useEffect(()=>{setLikes(readLikes());},[]);
  useEffect(()=>{
   const abort=new AbortController();
@@ -88,6 +94,8 @@ export function ShortsPage(){
   return()=>observer.disconnect();
  },[feed,busy,error,count,loadingMore,moreError]);
  function toggleLike(id:string){
+  if(!likes.includes(id))setCelebratingLike(id);
+  else setCelebratingLike(null);
   setLikes(previous=>{
    const next=previous.includes(id)?previous.filter(value=>value!==id):[...previous,id];
    try{localStorage.setItem(LIKE_KEY,JSON.stringify(next))}catch{/* private storage */}return next;
@@ -152,8 +160,8 @@ export function ShortsPage(){
       </div>
       {post.translationZh&&translated===post.id?<p className="crew-short-translation" lang="zh-Hant">{post.translationZh}</p>:null}
       <div className="crew-short-actions">
-       <button type="button" aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
-        {likes.includes(post.id)?"♥":"♡"} {t("shorts.like")}
+       <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")} aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
+        <span className="crew-short-like-heart" aria-hidden="true">{likes.includes(post.id)?"♥":"♡"}</span> {t("shorts.like")}
        </button>
        {post.translationZh?<button type="button" onClick={()=>setTranslated(x=>x===post.id?null:post.id)} aria-expanded={translated===post.id}>{t("shorts.translation")}</button>:null}
       </div>

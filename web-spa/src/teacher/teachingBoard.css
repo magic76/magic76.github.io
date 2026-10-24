@@ -271,3 +271,34 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-flash-study .teaching-board-flash-inner{transition:none;will-change:auto}
  .teaching-board-flash-study .teaching-board-flash-ratings{animation:none}
 }
+
+/* Motion 2.0: real newly focused cards and verified quiz feedback only.
+   Existing full flashcard flip remains the only flip animation. */
+.teaching-board-stage[data-following="true"] .teaching-board-card{
+ animation:crew-board-card-change 245ms var(--crew-motion-ease, ease-out) both;
+}
+@keyframes crew-board-card-change{
+ from{opacity:.45;transform:translateY(7px)}
+ to{opacity:1;transform:none}
+}
+.teaching-board-deck-tab{transition:border-color 160ms ease,background-color 160ms ease,box-shadow 160ms ease}
+.teaching-board-deck-tab.is-active{box-shadow:inset 0 0 0 1px #a4ceb0,0 3px 10px #2e745617}
+.teaching-board-stage[data-following="true"] .teaching-board-card-kind{
+ animation:crew-board-kind-arrive 420ms ease-out both;
+}
+@keyframes crew-board-kind-arrive{0%{opacity:.5;transform:translateY(4px)}70%{transform:translateY(-2px)}100%{opacity:1;transform:none}}
+.teaching-board-questions{animation:crew-board-question-enter 180ms ease-out both}
+@keyframes crew-board-question-enter{from{opacity:.65;transform:translateX(5px)}to{opacity:1;transform:none}}
+.teaching-board-options button{transition:border-color 160ms ease,background-color 160ms ease,transform 130ms ease}
+.teaching-board-options button:not(:disabled):active{transform:scale(.985)}
+.teaching-board-options button.correct{animation:crew-board-answer-correct 330ms ease-out}
+.teaching-board-options button.incorrect{animation:crew-board-answer-incorrect 250ms ease-out}
+.teaching-board-answer{animation:crew-board-answer-caption 200ms ease-out both}
+@keyframes crew-board-answer-correct{50%{border-color:#529c67;box-shadow:0 0 0 3px #c7e8cc}}
+@keyframes crew-board-answer-incorrect{50%{border-color:#d68b78;box-shadow:0 0 0 3px #f4dad1}}
+@keyframes crew-board-answer-caption{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .teaching-board-stage[data-following="true"] .teaching-board-card,.teaching-board-stage[data-following="true"] .teaching-board-card-kind,
+ .teaching-board-questions,.teaching-board-options button.correct,.teaching-board-options button.incorrect,.teaching-board-answer{animation:none!important}
+ .teaching-board-deck-tab,.teaching-board-options button{transition:none!important}
+}

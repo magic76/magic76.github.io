@@ -104,6 +104,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state;
  const friendVoiceStatus=live.state==="speaking"?"朋友說話中"
   :live.state==="listening"
    ?({idle:"隨時可以說話",hearing:"正在聽你說",pause:"等待你繼續說",processing:"朋友正在準備回答",recovering:"正在重新取得回答","no-transcript":"沒有辨識到語音","no-reply":"朋友尚未回覆"}[live.voicePhase]||"隨時可以說話")
@@ -126,12 +127,12 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
-   <span className="status connected"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
+   <span className="status connected" data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
     <div className="live-identity">
-     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state}><FriendAvatar friend={friend}/></div>
+     <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
     </div>
     {shortsPost?<section className="friend-live-post" aria-label="Crew Shorts">
