@@ -206,19 +206,17 @@
     "language": "Idioma da conversa",
     "start": "Iniciar Cyber Orb",
     "stop": "Encerrar chamada",
-    "loading": "Verificando serviço Android…",
+    "loading": "Preparando a conversa por voz…",
     "active": "Conversando com {name}",
-    "private": "Chamada nativa independente · Sem compartilhar memórias ou histórico da Web",
-    "note": "Encerre primeiro qualquer chamada de voz da Web. Para trocar de personagem, encerre a chamada Orb.",
-    "native_key_required": "Configure a chave de API do Gemini na janela do Android e tente novamente.",
+    "note": "Encerre a conversa por voz atual antes de iniciar outra ou trocar de personagem.",
+    "native_key_required": "Conclua a configuração da chave Gemini e tente novamente.",
     "overlay_permission_required": "Permita sobreposição em outros apps, volte ao Crew e tente novamente.",
     "microphone_permission_required": "Permita acesso ao microfone, volte ao Crew e tente novamente.",
     "already_active": "Já existe uma chamada Orb ativa. Encerre-a antes de trocar de personagem.",
-    "start_failed": "Não foi possível iniciar o serviço de voz nativo. Tente novamente.",
-    "bridge_error": "A conexão com o Android não respondeu. Abra o Crew novamente.",
+    "start_failed": "Não foi possível iniciar a conversa por voz. Tente novamente.",
+    "bridge_error": "A conexão não respondeu. Abra o Crew novamente.",
     "unavailable": "Cyber Orb não está disponível nesta versão.",
     "unknown": "A operação falhou. Tente novamente.",
-    "webKeyNotice": "Usa a chave Gemini da Web apenas nesta chamada Android, sem salvar outra cópia.",
-    "web_key_unavailable": "Este app não tem uma chave Gemini da Web válida. Salve uma nas configurações Web do Crew Teacher; o Chrome e outros dispositivos usam armazenamentos separados."
+    "web_key_unavailable": "Sua chave Gemini ainda não está configurada. Abra as Configurações antes de começar a conversar."
   }
 }
