@@ -235,7 +235,7 @@ export function TownIllustration(){
    {STONES.map(([x,y,rx,ry,rot],i)=><ellipse key={i} cx={x} cy={y} rx={rx} ry={ry} transform={"rotate("+rot+" "+x+" "+y+")"} fill={i%3===0?"#fff8e9":"#d7c8b0"} opacity=".74"/>)}
    <path d="M682 362Q721 344 772 360Q823 376 826 411Q820 462 747 470Q680 477 660 443Q647 411 682 362Z" fill="#c6d9b0" stroke="#edebc7" strokeWidth="6"/>
    <path d="M687 368Q727 349 771 365Q814 379 815 409Q808 453 745 462Q684 467 670 437Q662 400 687 368Z" fill={"url(#"+g("water")+")"} stroke="#f0f6d5" strokeWidth="6"/>
-   <path d="M701 391q25-17 51-11M706 406q37-13 73 2M697 426q26-11 47-7M767 438q18-6 29-14" stroke="#e3faf1" strokeWidth="3.5" opacity=".72" fill="none" strokeLinecap="round"/>
+   <path className="crew-town-water-ripple" d="M701 391q25-17 51-11M706 406q37-13 73 2M697 426q26-11 47-7M767 438q18-6 29-14" stroke="#e3faf1" strokeWidth="3.5" opacity=".72" fill="none" strokeLinecap="round"/>
    <ellipse cx="740" cy="412" rx="11" ry="4" fill="#a0cbb4" opacity=".8"/>
    <path d="M732 410q7-7 13 0q5-7 12 0" stroke="#d7ece3" fill="none" strokeWidth="2"/>
    <path d="M675 385q8-13 17-16M678 390q13-11 16-8" stroke="#6aaf91" strokeWidth="3" strokeLinecap="round" fill="none"/>
