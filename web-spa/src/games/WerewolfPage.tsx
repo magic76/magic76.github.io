@@ -298,7 +298,7 @@ export function WerewolfPage(){
     {human!.alive?<form onSubmit={submit} className="wolf-compose">
      {latestNpc?<div className="wolf-latest-reply" role="status" aria-live="polite">
       <div className="wolf-latest-reply-top"><strong>{latestNpcName} · {L(isZh,"最新回覆","Latest reply")}</strong>
-       <button type="button" onClick={()=>{followHistoryRef.current=true;setShowHistory(true);window.requestAnimationFrame(()=>transcriptRef.current?.scrollIntoView({behavior:"auto",block:"nearest"}))}}>{L(isZh,"查看對話","View chat")}</button></div>
+       <button type="button" onClick={()=>{followHistoryRef.current=true;setShowHistory(true);window.requestAnimationFrame(()=>{const log=transcriptRef.current;if(!log)return;log.scrollTop=log.scrollHeight;log.scrollIntoView({behavior:"auto",block:"nearest"})})}}>{L(isZh,"查看對話","View chat")}</button></div>
       <p>{localEvent(latestNpc,isZh)}</p>
      </div>:null}
      <div className="wolf-quick-lines" role="group" aria-label={L(isZh,"發言靈感","Conversation starters")}>
