@@ -1,5 +1,5 @@
 import {useMemo} from "react";
-import {Shape,DoubleSide} from "three";
+import {Shape,DoubleSide,BufferGeometry,Float32BufferAttribute} from "three";
 import {coastPoint} from "./TownNavigation";
 import {WALK_GRAPH} from "./TownWalkGraph";
 
@@ -16,20 +16,28 @@ export function TownIsland(){
  const beach=useMemo(()=>outline(0),[]);
  const grass=useMemo(()=>outline(.95),[]);
  const wetSand=useMemo(()=>outline(-.85),[]);
- const edges=useMemo(()=>{
-  const seen=new Set<string>();
-  const segments:{id:string;x:number;z:number;angle:number;length:number}[]=[];
+ // All 50 paths are batched into two geometries: no 100 extra draw calls.
+ const buildPavement=(width:number,y:number)=>{
+  const done=new Set<string>(),vertices:number[]=[];
   for(const [a,node] of Object.entries(WALK_GRAPH))for(const b of node.neighbors){
    const id=[a,b].sort().join("-");
-   if(seen.has(id))continue;
-   seen.add(id);
-   const next=WALK_GRAPH[b].point;
-   const dx=next[0]-node.point[0],dz=next[1]-node.point[1];
-   segments.push({id,x:(node.point[0]+next[0])/2,z:(node.point[1]+next[1])/2,
-    angle:Math.atan2(dx,dz),length:Math.hypot(dx,dz)});
+   if(done.has(id))continue;done.add(id);
+   const other=WALK_GRAPH[b].point;
+   const dx=other[0]-node.point[0],dz=other[1]-node.point[1],len=Math.hypot(dx,dz);
+   if(len<.001)continue;
+   const ux=dx/len,uz=dz/len,px=-uz*width/2,pz=ux*width/2;
+   const ax=node.point[0]-ux*.35,az=node.point[1]-uz*.35;
+   const bx=other[0]+ux*.35,bz=other[1]+uz*.35;
+   const a1=[ax+px,y,az+pz],a2=[ax-px,y,az-pz],b1=[bx+px,y,bz+pz],b2=[bx-px,y,bz-pz];
+   vertices.push(...a1,...a2,...b1,...b1,...a2,...b2);
   }
-  return segments;
- },[]);
+  const geometry=new BufferGeometry();
+  geometry.setAttribute("position",new Float32BufferAttribute(vertices,3));
+  geometry.computeVertexNormals();
+  return geometry;
+ };
+ const roadEdge=useMemo(()=>buildPavement(2.3,.057),[]);
+ const roadCenter=useMemo(()=>buildPavement(1.74,.062),[]);
  return <group>
   {/* Ocean is below the coast so it clearly marks the edge of the walkable land. */}
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,-.58,.5]}>
@@ -47,17 +55,13 @@ export function TownIsland(){
    <extrudeGeometry args={[grass,{depth:.66,bevelEnabled:false,curveSegments:1}]}/>
    <meshStandardMaterial color="#a7c49c" roughness={1}/>
   </mesh>
-  {/* Low-poly winding sidewalks follow precisely the pedestrian routing graph. */}
-  {edges.map(e=><group key={e.id} position={[e.x,.058,e.z]} rotation={[0,e.angle,0]}>
-   <mesh rotation={[-Math.PI/2,0,0]} receiveShadow>
-    <planeGeometry args={[2.22,e.length+.75]}/>
-    <meshStandardMaterial color="#ddd5be" roughness={1}/>
-   </mesh>
-   <mesh rotation={[-Math.PI/2,0,0]} position={[0,.003,0]}>
-    <planeGeometry args={[1.78,e.length+.6]}/>
-    <meshStandardMaterial color="#e9ddc7" roughness={1}/>
-   </mesh>
-  </group>)}
+  {/* A continuous winding pavement mesh follows the graph around all five districts. */}
+  <mesh geometry={roadEdge}>
+   <meshBasicMaterial color="#cec3a6" side={DoubleSide}/>
+  </mesh>
+  <mesh geometry={roadCenter}>
+   <meshBasicMaterial color="#e9ddc7" side={DoubleSide}/>
+  </mesh>
   {/* Bays and coastal stone outcrops emphasize island shape in wide view. */}
   {[[24,19],[-23,17],[23,-17],[-24,-18]] .map(([x,z],i)=><group key={i} position={[x,-.28,z]}>
    <mesh rotation={[0,i*.7,0]}><dodecahedronGeometry args={[1.25,0]}/>
