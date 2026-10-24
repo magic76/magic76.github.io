@@ -6,6 +6,7 @@ import {drawChineseTabooDeck} from "./chineseTaboo";
 import {drawTabooBag,tabooViolation,friendGuesses,matchTabooGuess,tabooFollowUp,generateTabooCard,generateTabooGuess,parseTabooLiveGuess,type TabooLevel,type TabooCard} from "./tabooEngine";
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
+import {friendGameReaction} from "./friendGameReaction";
 
 type Mode="describe"|"guess";
 type Phase="ready"|"playing"|"done";
@@ -100,8 +101,9 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
     }
    if(!geminiKey()){
     descriptions.current=[...descriptions.current,value.slice(0,180)].slice(-6);
-    if(friendGuesses(card,descriptions.current.join(" "))){setMessage("離線關鍵字判定："+friend.name+" 猜到了！");correct();}
-    else setMessage("離線練習："+tabooFollowUp("","",descriptions.current.length,tongue)+" 或使用「朋友已猜中」確認。");
+    const clueIsClear=friendGuesses(card,descriptions.current.join(" "));
+     // A keyword match is only feedback on the description; it is not a model guess.
+     setMessage(clueIsClear?"離線自我練習：你的線索已經很具體，可以繼續練習或自己評分。":"離線自我練習：試著多說用途、外觀或情境；此模式不會產生 AI 猜測。");
    }else{
     const request=++guessSerial.current;
     const targetRound=round;
@@ -210,7 +212,7 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
     {phase==="playing"?<p>本局進行中。設定會在下一局開放修改，避免誤觸中斷猜題。</p>:<p>設定將套用至下一次開始的 5 題挑戰。</p>}
    </GamePanel>
    <GamePanel label="玩法" title="Taboo 遊戲規則" variant="modal">
-    <p>我描述：用{chinese?"中文":"英文"}描述目標詞，但不能直接說出答案或禁用字，讓 AI 朋友來猜。</p>
+    <p>我描述：用{chinese?"中文":"英文"}描述目標詞，不能說禁用字。有 Key 時朋友才會真正猜詞；免 Key 是描述練習及自我評分。</p>
     <p>朋友描述：閱讀或聆聽{chinese?"中文":"英文"}提示，自己猜出正確單字。</p>
     <p>每局 5 題，猜對加 10 分、違規扣 5 分，可跳過 3 次。語音可選用 Gemini Live，文字模式仍可玩。</p>
    </GamePanel>
@@ -219,9 +221,9 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
   {phase==="ready"?<section className="crew-mini-panel crew-mini-welcome crew-taboo-welcome">
    <span className="crew-taboo-eyebrow">TABOO · 5 ROUND CHALLENGE</span>
    <h2>{mode==="describe"?(chinese?"讓朋友猜你的中文描述":"讓朋友猜出你的英文描述"):(chinese?"聽朋友的中文提示猜詞":"聽朋友的英文提示，猜出單字")}</h2>
-   <p>{mode==="describe"?(chinese?"你看得到答案與禁用詞。用中文描述，朋友會直接猜。":"你看得到答案與禁用字。用英文描述後，朋友直接猜一個單字，不會先閒聊。"):(chinese?"你只看得到中文線索，請用中文猜出答案。":"你只看得到英文線索；聽完後試著說出目標單字。")}</p>
+   <p>{mode==="describe"?(chinese?geminiKey()?"你看得到答案與禁用詞。用中文描述，朋友會直接猜。":"你看得到答案與禁用詞，可以自由描述並自評；免 Key 模式沒有 AI 猜詞。":geminiKey()?"你看得到答案與禁用字。用英文描述後，朋友直接猜一個單字，不會先閒聊。":"你看得到答案與禁用字，可以練習英文描述並自評；需要 Gemini Key 才能讓 AI 猜詞。"):(chinese?"你只看得到中文線索，請用中文猜出答案。":"你只看得到英文線索；聽完後試著說出目標單字。")}</p>
    <div className="crew-taboo-rules"><span>5 題</span><span>{roundSeconds===0?"不限時":"每題 "+roundSeconds/60+" 分鐘"}</span><span>猜對 +10</span><span>違規 -5</span><span>可跳過 3 次</span></div>
-   <p>{geminiKey()?"AI 朋友會理解你的描述並猜詞；Live 語音可以自由開啟。":"離線練習使用關鍵字判定，也可以手動確認；設定 Gemini Key 後就能讓 AI 猜詞。"}</p>
+   <p className="crew-mini-practice-note">{geminiKey()?"AI 猜詞模式：朋友理解描述並猜詞，Live 語音可以選用。":"免 Key · 自我練習：禁用字檢查與手動計分，不會假裝 AI 猜對。設定 Gemini Key 才能讓朋友真正猜詞。"}</p>
    <button type="button" className="crew-mini-primary crew-taboo-start" onClick={start}>開始挑戰 →</button>
   </section>:null}
   {phase==="playing"&&card?<section className="crew-mini-panel crew-taboo-board" aria-label="Taboo 遊戲回合">
@@ -263,12 +265,12 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
      <input id="crew-taboo-answer" type="text" autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={chinese?(mode==="describe"?"它通常可以用來…":"例如 雨傘"):(mode==="describe"?"It is used for…":"例如 apple")} aria-describedby="crew-taboo-input-tip"/>
      <button type="submit" className="crew-mini-primary" disabled={!answer.trim()||guessing}>{guessing?"朋友思考中…":"送出"}</button>
     </div>
-    <small id="crew-taboo-input-tip" className="crew-taboo-input-tip">{mode==="describe"?"建議用下方語音直接描述，朋友會立刻猜；也可以打字。":"可以用下方語音回答，或直接打字。"}</small>
+    <small id="crew-taboo-input-tip" className="crew-taboo-input-tip">{mode==="describe"?(geminiKey()?"可打字或用 Live 語音描述，由 AI 猜詞。":"免 Key 可以打字練習並自評，朋友不會自動猜詞。"):"可以使用語音（需 Key）或直接打字。"}</small>
    </form>
    {mode==="guess"&&message?<p className="crew-mini-message" role="status">{message}</p>:null}
    <div className="crew-mini-row-actions crew-taboo-actions">
     <button type="button" className="crew-taboo-switch-mode" aria-label={mode==="describe"?"朋友描述 · 我猜":"我描述 · 朋友猜"} onClick={()=>{++guessSerial.current;setMode(mode==="describe"?"guess":"describe");setPhase("ready");setAnswer("");setMessage("");setLastClue("");}}>切換模式 · {mode==="describe"?"朋友出題":"我來描述"}</button>
-    {mode==="describe"&&!geminiKey()?<button type="button" onClick={()=>correct()} disabled={guessing}>朋友已猜中 · 確認</button>:null}
+    {mode==="describe"&&!geminiKey()?<button type="button" onClick={()=>correct()} disabled={guessing}>自評完成這題（+10）</button>:null}
     <button type="button" disabled={skips===0||guessing} onClick={()=>{setSkips(s=>s-1);advance("skip")}}>跳過這題（{skips}）</button>
     {Boolean(geminiKey())&&!chinese?<button type="button" disabled={busy||guessing} onClick={()=>void generate()}>{busy?"生成中…":"換一組 Gemini 單字"}</button>:null}
    </div>
@@ -276,7 +278,7 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
   {phase==="done"?<section className="crew-mini-result crew-taboo-result" aria-live="polite">
    <small>CREW PLAY · TABOO</small>
    <h2>完成 5 回合！</h2><strong className="crew-mini-result-count">{score} 分</strong>
-   <p>{friend.name}：換個說法，也能讓{chinese?"中文":"英文"}更自然。</p>
+   <p>{friend.name}：{friendGameReaction(friend.id,score>0?"win":"challenge",chinese?"zh":"en")}</p>
    <h3>本局回顧</h3>
    <ol className="crew-mini-vocab">{deck.map((c,i)=><li key={i}><span><strong>{c.word}</strong><small>{c.zh}</small></span><em className={"crew-taboo-outcome "+(history[i]?.result||"")}>{history[i]?resultLabels[history[i].result]:"—"}</em></li>)}</ol>
    <h3>{chinese?"中文表達回饋":"英文口說回饋"}</h3>
