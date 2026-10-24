@@ -2,7 +2,7 @@
 .crew-orb-panel{margin:18px 0 22px;border:1px solid var(--line,#e2e6ed);border-radius:20px;background:var(--surface-alt,#faf9fd);padding:18px;display:grid;gap:14px}
 .crew-orb-head{display:flex;align-items:flex-start;gap:12px}
 .crew-orb-head h3{font-size:19px;margin:0 0 6px}
-.crew-orb-head p,.crew-orb-private,.crew-orb-note{font-size:13px;color:var(--muted,#687287);line-height:1.6;margin:0}
+.crew-orb-head p,.crew-orb-note{font-size:13px;color:var(--muted,#687287);line-height:1.6;margin:0}
 .crew-orb-symbol{width:43px;height:43px;display:grid;place-items:center;flex-shrink:0;border-radius:50%;background:#e5e0f7;color:#5c4ba6;font-size:28px}
 .crew-orb-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;background:var(--surface,#fff);border:1px solid var(--line,#e2e6ed);border-radius:13px;padding:4px}
 .crew-orb-tabs button{border:0;background:transparent;color:var(--muted,#687287);font:inherit;font-size:13px;font-weight:700;border-radius:10px;min-height:40px;cursor:pointer}
