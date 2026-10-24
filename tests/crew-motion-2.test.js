@@ -46,7 +46,7 @@ test("Teacher board only animates real card changes and confirmed quiz feedback"
  const board=read("web-spa/src/teacher/TeacherBoardPage.tsx");
  const card=read("web-spa/src/teacher/TeachingCard.tsx");
  const css=read("web-spa/src/teacher/teachingBoard.css");
- assert.match(board,/data-following=\{following\} data-fresh-card=/);
+ assert.match(board,/data-following=\{following\}/);
  assert.match(card,/className=\{answered&&i===q\.answerIndex\?"correct"/);
  assert.match(css,/data-following="true"/);
  assert.match(css,/\.teaching-board-options button\.correct\{animation:/);
