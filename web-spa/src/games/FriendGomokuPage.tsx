@@ -14,6 +14,7 @@ import {matchesBoardNarration} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
+import {friendGameReaction} from "./friendGameReaction";
 import "./games.css";
 
 const SELECTED_FRIEND_KEY="crew_web_selected_friend_v1";
@@ -321,6 +322,7 @@ export function FriendGomokuPage(){
       {live.state==="idle"||live.state==="ended"?<button className="friend-gomoku-start-voice" type="button" onClick={()=>void live.start()}>{english?"Turn on voice chat (optional)":"開啟語音陪玩（選用）"}</button>:<LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>}
       </div>
       {lastEvent?<p className="friend-gomoku-last-event" aria-live="polite">{lastEvent}</p>:null}
+       {engine.moveHistory.length>0&&!["requesting-mic","connecting","listening","speaking"].includes(live.state)?<p className="friend-gomoku-last-event" aria-live="polite"><strong>{friend.name}：</strong>{friendGameReaction(friend.id,engine.winner?(engine.winner==="black"?"win":engine.winner==="white"?"lose":"challenge"):"progress",english?"en":"zh",engine.moveHistory.length)}</p>:null}
     </section>:null}
     <p className="friend-gomoku-note">{english?"The conversation is used for this game session and is not added to your friend’s chat history or memories.":"這次陪玩對話只用於本局，不會寫入朋友的聊天紀錄或共同回憶。"}</p>
   </div>;
