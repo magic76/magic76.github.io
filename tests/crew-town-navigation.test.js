@@ -26,6 +26,11 @@ const nav=load("TownNavigation"),{advanceWithAvoidance}=load("TownTraffic");
 
 test("The island perimeter surrounds all five districts and every spawn",()=>{
  assert.equal(PEOPLE.length,16);
+ assert.equal(Object.keys(WALK_GRAPH).length,44);
+ for(const id of ["s0","s1","s2","s3"]){
+  assert.ok(WALK_GRAPH[id],id+" missing center node");
+  assert.ok(nav.isWalkable(...WALK_GRAPH[id].point),id+" blocked in central plaza");
+ }
  assert.equal(new Set(PEOPLE.map(p=>p.startNode)).size,16);
  for(const p of PEOPLE){
   const point=WALK_GRAPH[p.startNode]?.point;
@@ -50,7 +55,7 @@ test("Every defined pedestrian graph segment avoids buildings, pond, trees and s
     blocked.push(key);
   }
  }
- assert.equal(unique.size,50);
+ assert.equal(unique.size,55);
  assert.deepEqual(blocked,[],"Walk segments that intersect geometry: "+blocked.join(", "));
 });
 test("All sixteen residents maintain personal space with collision-aware step resolution",()=>{

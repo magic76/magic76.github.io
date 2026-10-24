@@ -24,16 +24,16 @@ export type TownPerson={
  startNode:string;activityZh:string;activityEn:string;
 };
 export const PEOPLE:ReadonlyArray<TownPerson>=[
- {id:"zoe",outfit:"dress",coat:"#d98884",hair:"#614a50",skin:"#efbd9f",startNode:"c0",activityZh:"在中央廣場散步",activityEn:"Strolling through the town center"},
+ {id:"zoe",outfit:"dress",coat:"#d98884",hair:"#614a50",skin:"#efbd9f",startNode:"s0",activityZh:"在中央廣場散步",activityEn:"Strolling through the town center"},
  {id:"noah",outfit:"jacket",coat:"#8299a5",hair:"#4e4949",skin:"#e4bfad",startNode:"b0",activityZh:"沿星光港灣的步道散步",activityEn:"Walking near the harbor"},
  {id:"iris",outfit:"dress",coat:"#bd8ecc",hair:"#51445a",skin:"#e7bea9",startNode:"m0",activityZh:"逛彩虹市集找靈感",activityEn:"Exploring the colorful market"},
  {id:"max",outfit:"jacket",coat:"#e29c68",hair:"#5d4736",skin:"#dfae8c",startNode:"g0",activityZh:"在森林裡探索",activityEn:"Exploring the grove"},
- {id:"yuna",outfit:"dress",coat:"#88a99a",hair:"#433b45",skin:"#eed0b7",startNode:"c6",activityZh:"在中央廣場和朋友相遇",activityEn:"Meeting friends by the square"},
+ {id:"yuna",outfit:"dress",coat:"#88a99a",hair:"#433b45",skin:"#eed0b7",startNode:"s2",activityZh:"在中央廣場和朋友相遇",activityEn:"Meeting friends by the square"},
  {id:"felix",outfit:"jacket",coat:"#8899cf",hair:"#49485e",skin:"#e1bda8",startNode:"m3",activityZh:"在市集裡尋找新話題",activityEn:"Finding new ideas at the market"},
  {id:"luna",outfit:"dress",coat:"#9887be",hair:"#3d3b60",skin:"#eac4b4",startNode:"g3",activityZh:"在楓葉森林裡散步",activityEn:"Wandering among the trees"},
- {id:"theo",outfit:"jacket",coat:"#84a7b9",hair:"#5f4c48",skin:"#e0b49d",startNode:"c2",activityZh:"從工作室出來透透氣",activityEn:"Taking a break near the studio"},
+ {id:"theo",outfit:"jacket",coat:"#84a7b9",hair:"#5f4c48",skin:"#e0b49d",startNode:"s3",activityZh:"從工作室出來透透氣",activityEn:"Taking a break near the studio"},
  {id:"isla",outfit:"dress",coat:"#c59b85",hair:"#72594b",skin:"#ebc7b0",startNode:"h3",activityZh:"在故事街區尋找故事",activityEn:"Discovering stories along Story Lane"},
- {id:"hugo",outfit:"jacket",coat:"#d8a96e",hair:"#6a5143",skin:"#e4bda6",startNode:"c1",activityZh:"探索小鎮的美食與角落",activityEn:"Exploring food and hidden corners"},
+ {id:"hugo",outfit:"jacket",coat:"#d8a96e",hair:"#6a5143",skin:"#e4bda6",startNode:"s1",activityZh:"探索小鎮的美食與角落",activityEn:"Exploring food and hidden corners"},
  {id:"ada",outfit:"dress",coat:"#7caeba",hair:"#4b5c54",skin:"#e2b59f",startNode:"g6",activityZh:"在森林裡尋找新點子",activityEn:"Sketching ideas by the grove"},
  {id:"finn",outfit:"jacket",coat:"#9eb96b",hair:"#795c42",skin:"#e5c2a3",startNode:"m6",activityZh:"逛完市集準備去運動",activityEn:"Heading out after the market"},
  {id:"maya",outfit:"dress",coat:"#ba88ac",hair:"#53434b",skin:"#e8b6a1",startNode:"h6",activityZh:"在故事街區散步",activityEn:"Exploring the story neighborhood"},

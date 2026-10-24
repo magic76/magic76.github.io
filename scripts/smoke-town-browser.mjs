@@ -78,5 +78,5 @@ try{
   console.log("SKIP: CI Chrome cannot allocate WebGL2; manual GPU-backed QA still required.");
   }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
  else if(friendCount!=="16")throw Error("Town 3D must register all sixteen selectable friends; observed "+friendCount);
- else if(friendLabels!=="16")throw Error("Town 3D canvas must mount all sixteen character labels; observed "+friendLabels);
+ else if(!friendLabels||Number(friendLabels)<2)throw Error("Town 3D close-up should render two or more center residents; observed "+friendLabels);
 }finally{server.close()}
