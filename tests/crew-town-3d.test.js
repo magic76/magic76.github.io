@@ -108,3 +108,33 @@ test("Canvas fallback is inert DOM content, not a side-effect-driven failure",()
  assert.doesNotMatch(scene,/useEffect\(\(\)=>onFailure\(/);
  assert.match(scene,/onFailure\("webgl-context-lost"\)/);
 });
+
+
+test("P1 camera makes town at least 15% larger while preserving focus and orbit bounds",()=>{
+ const camera=read("web-spa/src/town/three/TownCameraController.tsx");
+ const stage=read("web-spa/src/town/three/town3d.css");
+ const apparentSize=(x,y,z,fov)=>1/(Math.hypot(x,y,z)*Math.tan(fov*Math.PI/360));
+ const previousDesktop=apparentSize(14,16,23,36);
+ const previousMobile=apparentSize(17,21,29,54);
+ assert.ok(apparentSize(11.9,14,19.8,34)/previousDesktop>1.15);
+ assert.ok(apparentSize(14.7,18.5,25,52)/previousMobile>1.15);
+ assert.ok(apparentSize(12.7,15.7,23.4,49)/previousMobile>1.15);
+ for(const offset of ["11.9,14,19.8","14.7,18.5,25","12.7,15.7,23.4","4.3,5.2,7.3"]){
+  assert.ok(camera.includes("new Vector3("+offset+")"));
+ }
+ assert.match(camera,/minDistance=\\{7\\.5\\} maxDistance=\\{50\\}/);
+ assert.match(camera,/minPolarAngle/);
+ assert.match(stage,/80svh/);
+ assert.match(stage,/max-height:min\\(39svh,300px\\)/);
+});
+
+test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>{
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ assert.ok(chars.includes("sphereGeometry args={[.42,20,16]}"));
+ assert.ok(chars.includes("capsuleGeometry args={[.27,.27,5,12]}"));
+ assert.ok(chars.includes("position={[route[0][0],.025,route[0][1]]}"));
+ assert.ok(chars.includes("feet.rotation.x=Math.sin(s.walk)*.13"));
+ for(const id of ["zoe","yuna","bella","theo","hugo","noah"]){
+  assert.ok(chars.includes('id==="'+id+'"'));
+ }
+});
