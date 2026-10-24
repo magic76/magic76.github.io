@@ -4,10 +4,10 @@ import type {BoardCard} from "./boardProtocol";
 
 export type FlashReview={source:string;target:string;rating:"known"|"again"};
 type Props={card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null;
- onPractice?:(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak")=>void};
+ onPractice?:(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak")=>void;onRate?:(card:BoardCard,review:FlashReview)=>void};
 
 /** Self-rated active recall; these marks are not an AI assessment or a pronunciation grade. */
-export function BoardFlashcards({card,english,focusIndex=-1,revealCount=null,onPractice}:Props){
+export function BoardFlashcards({card,english,focusIndex=-1,revealCount=null,onPractice,onRate}:Props){
  const {t}=useTranslation("teacher");
  const [position,setPosition]=useState(Math.max(0,focusIndex)),[flipped,setFlipped]=useState(false);
  const [ratings,setRatings]=useState<Record<number,"known"|"again">>({});
@@ -21,6 +21,7 @@ export function BoardFlashcards({card,english,focusIndex=-1,revealCount=null,onP
  const go=(i:number)=>{setPosition(i);setFlipped(false)};
  const rate=(rating:"known"|"again")=>{
   setRatings(old=>({...old,[index]:rating}));
+  onRate?.(card,{source:pair.source,target:pair.target,rating});
   const next=visible.findIndex((_,i)=>i>index&&ratings[i]===undefined);
   if(next>=0)go(next);
   else{
