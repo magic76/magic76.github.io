@@ -220,7 +220,7 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
    <MiniGameVoice key={friend.id+mode+level} kind="taboo" tabooMode={mode} friend={friend} cue={cue} onSpeech={onSpeech}/>
   {phase==="ready"?<section className="crew-mini-panel crew-mini-welcome crew-taboo-welcome">
    <span className="crew-taboo-eyebrow">TABOO · 5 ROUND CHALLENGE</span>
-   <h2>{mode==="describe"?(chinese?"讓朋友猜你的中文描述":"讓朋友猜出你的英文描述"):(chinese?"聽朋友的中文提示猜詞":"聽朋友的英文提示，猜出單字")}</h2>
+   <h2>{mode==="describe"?(!geminiKey()?(chinese?"中文描述自評練習":"英文描述自評練習"):(chinese?"讓朋友猜你的中文描述":"讓朋友猜出你的英文描述")):(chinese?"聽朋友的中文提示猜詞":"聽朋友的英文提示，猜出單字")}</h2>
    <p>{mode==="describe"?(chinese?geminiKey()?"你看得到答案與禁用詞。用中文描述，朋友會直接猜。":"你看得到答案與禁用詞，可以自由描述並自評；免 Key 模式沒有 AI 猜詞。":geminiKey()?"你看得到答案與禁用字。用英文描述後，朋友直接猜一個單字，不會先閒聊。":"你看得到答案與禁用字，可以練習英文描述並自評；需要 Gemini Key 才能讓 AI 猜詞。"):(chinese?"你只看得到中文線索，請用中文猜出答案。":"你只看得到英文線索；聽完後試著說出目標單字。")}</p>
    <div className="crew-taboo-rules"><span>5 題</span><span>{roundSeconds===0?"不限時":"每題 "+roundSeconds/60+" 分鐘"}</span><span>猜對 +10</span><span>違規 -5</span><span>可跳過 3 次</span></div>
    <p className="crew-mini-practice-note">{geminiKey()?"AI 猜詞模式：朋友理解描述並猜詞，Live 語音可以選用。":"免 Key · 自我練習：禁用字檢查與手動計分，不會假裝 AI 猜對。設定 Gemini Key 才能讓朋友真正猜詞。"}</p>
