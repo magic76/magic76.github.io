@@ -80,3 +80,54 @@ test("Live never gets the full game state and tool commands are validated",()=>{
  assert.match(app,/games\/werewolf/);
  assert.match(hub,/werewolf-hub-card/);
 });
+
+test("Live session handles voice action tools and speaks verified NPC replies",async()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/werewolfLive.ts"),"utf8");
+ const js=stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
+ const sent=[];
+ let settings,stopped=false;
+ const window={
+  CrewLive:{Session:class{
+   constructor(options){settings=options;this.ready=true;this.running=true;this.micMuted=false;}
+   async start(){settings.onState("ready")}
+   async stop(){stopped=true}
+   sendText(value){sent.push(value);return true}
+   toggleMic(){this.micMuted=!this.micMuted}
+  }}
+ };
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window",
+  js+"\nreturn startWerewolfLive;")(
+  async()=>{},()=> "test-key",G.publicWolfView,window);
+ const game=G.makeWolfGame(rng,"villager");
+ const heard=[],commands=[];
+ const voice=await start(game,"zh",command=>{
+  commands.push(command);return {ok:true};
+ },{onReady:()=>heard.push("ready"),onSpeaking:()=>{},onTranscript:()=>{},
+  onHostSpeech:text=>heard.push(text),onError:()=>{}});
+ assert.deepEqual(heard,["ready"]);
+ assert.ok(settings.tools[0].functionDeclarations.some(d=>d.name==="player_game_action"));
+ const response=settings.onToolCall({name:"player_game_action",
+  args:{action:"statement",text:"Zoe，妳為什麼懷疑 Max？",to:"zoe"}});
+ assert.equal(response.responsePending,true);
+ assert.deepEqual(commands,[{kind:"statement",text:"Zoe，妳為什麼懷疑 Max？",to:"zoe"}]);
+ assert.equal(voice.update(game,"我覺得 Max 很可疑。","Zoe"),true);
+ assert.match(sent[0],/VERIFIED NPC REPLY/);
+ assert.match(sent[0],/Max/);
+ assert.doesNotMatch(sent[0],/seerFindings|privateNotes/);
+ settings.onOutputTranscript("Zoe：我覺得 Max 很可疑。");
+ assert.equal(heard.at(-1),"Zoe：我覺得 Max 很可疑。");
+ voice.stop();
+ assert.equal(stopped,true);
+});
+test("voice startup uses its own lifecycle generation; replies remain next to the composer",()=>{
+ const page=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/WerewolfPage.tsx"),"utf8");
+ const css=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/werewolf.css"),"utf8");
+ assert.match(page,/const stamp=\+\+voiceGenerationRef\.current;\s*setVoiceStatus\("connecting"\)/);
+ assert.match(page,/voiceGenerationRef\.current!==stamp/);
+ assert.match(page,/onHostSpeech:setHostSpeech/);
+ assert.match(page,/ref=\{transcriptRef\}/);
+ assert.match(page,/transcriptRef\.current\.scrollTop=transcriptRef\.current\.scrollHeight/);
+ assert.ok(page.indexOf('className="wolf-history"')<page.indexOf('className="wolf-compose"'));
+ assert.ok(page.indexOf("wolf-live-transcript")<page.indexOf('className="wolf-compose"'));
+ assert.match(css,/max-height:245px;overflow-y:auto/);
+});
