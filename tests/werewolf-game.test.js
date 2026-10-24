@@ -95,7 +95,7 @@ test("Live session handles voice action tools and speaks verified NPC replies",a
    toggleMic(){this.micMuted=!this.micMuted}
   }}
  };
- const start=new Function("ensureLive","geminiKey","publicWolfView","window",
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window","normalizeLiveVoice",
   js+"\nreturn startWerewolfLive;")(
   async()=>{},()=> "test-key",G.publicWolfView,window,value=>value);
  const game=G.makeWolfGame(rng,"villager");
