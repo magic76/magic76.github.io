@@ -146,6 +146,10 @@ export function MagicPage(){
    sessionRef.current?.sendControl?.("The player selected answer "+choice+" on the on-screen riddle. It was "+(success?"correct.":"incorrect.")+" Respond briefly in character. The interface already resolved the choice. Do not call answer_challenge again.");
   }
  }
+ function selectPanel(panelId:number,choice:MagicChoice){
+  const result=runCommand("select_magic_panel",{panel_id:panelId,choice});
+  if(result.ok)sessionRef.current?.sendControl?.("The player tapped choice "+choice+" in a magic panel. Respond in character to the selection, but do not call select_magic_panel again.");
+ }
  function interact(kind:MagicObjectKind){
   if(kind==="chest"){runDemo("puzzle");return}
   if(kind==="portal"){runCommand("change_world",{theme:worldRef.current.theme==="sky"?"forest":"sky"});return}
@@ -269,6 +273,27 @@ export function MagicPage(){
      {world.challenge.selected&&<p className="magic-answer">{world.challenge.selected===world.challenge.correct?
       t("答對了！繼續施展下一個魔法。","Correct! Your adventure continues."):
       t("下次一定可以。換個魔法再試試吧！","Try another spell to keep exploring!")}</p>}
+    </section>}
+    {world.panels.map(panel=><section key={panel.id} className={"magic-generated panel-"+panel.kind}
+     aria-label={t("AI 創造的互動魔法卡","AI-generated interactive magic panel")}>
+     <span className="magic-generated-label">✦ {panel.kind==="spellbook"?t("魔法書","SPELLBOOK"):
+      panel.kind==="treasure"?t("神秘寶箱","MYSTERY TREASURE"):t("冒險任務","NEW ADVENTURE")}</span>
+     <h2>{panel.title}</h2><p>{panel.description}</p>
+     <div className="magic-generated-options">
+      {panel.items.map((item,index)=>{
+       const choice=CHOICES[index],revealed=panel.selected===choice;
+       const treasure=panel.kind==="treasure";
+       return <button type="button" key={choice} disabled={Boolean(panel.selected)} aria-pressed={revealed}
+        className={revealed?"is-revealed":""}
+        onClick={()=>selectPanel(panel.id,choice)}>
+        <span className="magic-generated-symbol" aria-hidden="true">{panel.kind==="spellbook"?"✧":treasure?"🎁":"✦"}</span>
+        <span className="magic-generated-option-text">{treasure&&!panel.selected?t("開啟秘密 ","Open mystery ")+choice:item}</span>
+       </button>;
+      })}
+     </div>
+     {panel.selected&&<p className="magic-generated-result" role="status">
+      {t("你的選擇已加入故事。","Your choice is now part of the story.")}
+     </p>}
     </section>}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
      <div className="magic-actions-title"><h2>{t("說出願望，或先試試魔法","Make a wish or try a spell")}</h2>
