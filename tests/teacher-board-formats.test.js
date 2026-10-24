@@ -70,3 +70,34 @@ test("3.8 model gets same first-party tools and cannot falsely mark demo as Live
  assert.ok(zh.board.demoHint.includes("並非即時 AI"));
  assert.ok(!zh.board.modelFallbackHint.includes("3.1"));
 });
+
+
+test("natural role-labelled teaching turns create actual dialogue cards without format commands",()=>{
+ const turn={input:"Let's practice checking into a hotel.",output:"Receptionist: Welcome! Do you have a booking?\nGuest: Yes, under Chen."};
+ const patch=format(turn);
+ assert.equal(patch.cards[0].type,"dialogue");
+ assert.deepEqual(Array.from(patch.cards[0].pairs,p=>p.source),["Receptionist","Guest"]);
+ assert.ok(patch.cards[0].pairs[0].target.includes("booking"));
+});
+test("natural term-definition pairs become vocabulary, but comparison requests stay comparison",()=>{
+ const spoken="reservation: a room booking\ncheck in: arrive and register";
+ assert.equal(format({input:"Please teach me hotel expressions",output:spoken}).cards[0].type,"vocabulary");
+ const comparison=format({input:"Please compare the terms",output:spoken});
+ assert.equal(comparison.cards[0].type,"comparison");
+});
+test("single page scroll places the lesson navigator before the card and exposes context tools",()=>{
+ const page=fs.readFileSync(root+"/web-spa/src/teacher/TeacherBoardPage.tsx","utf8");
+ const styles=fs.readFileSync(root+"/web-spa/src/teacher/teachingBoard.css","utf8");
+ const picker=fs.readFileSync(root+"/web-spa/src/teacher/GuidedLessonPanel.tsx","utf8");
+ const controls=fs.readFileSync(root+"/web-spa/src/teacher/BoardPresentationBar.tsx","utf8");
+ assert.ok(page.indexOf('className="teaching-board-navigator"')<page.indexOf('className={"teaching-board-stage"'));
+ assert.match(page,/<BoardPresentationBar onChoose=\{choosePresentation\}/);
+ assert.match(page,/PRESENTATION_CUES\[format\]/);
+ assert.match(page,/formatRequestRef\.current=kind/);
+ assert.match(styles,/\.teaching-board-stage\{height:auto;min-height:235px;overflow:visible/);
+ assert.match(styles,/\.teaching-board-stage\{height:auto;min-height:210px/);
+ assert.doesNotMatch(page,/stage\.scrollTop/);
+ assert.match(picker,/<details className="teaching-board-lesson-picker"/);
+ assert.match(controls,/type BoardPresentation="compare"\|"timeline"\|"dialogue"\|"flashcard"\|"quiz"/);
+ assert.ok(!controls.includes("fetch("));
+});
