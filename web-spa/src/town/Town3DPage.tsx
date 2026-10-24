@@ -83,7 +83,7 @@ export function Town3DPage(){
    </header>
    <section className={"crew-town-3d-stage"+(night?" is-night":"")+(view==="close"?" is-close":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>
-     <TownScene night={night} view={view} reducedMotion={reducedMotion} selected={selected} reset={reset}
+     <TownScene night={night} zh={zh} view={view} reducedMotion={reducedMotion} selected={selected} reset={reset}
       onFriend={selectFriend} onPlace={selectPlace} onDeselect={()=>setSelected(null)} onFailure={fail} onSimplified={simplified}/>
     </Suspense>:<div className="crew-town-3d-loading" role="status">{zh?"正在偵測 3D 支援…":"Checking 3D support…"}</div>}
     {modelIssue&&<div className="crew-town-3d-model-note" role="status">{zh?"模型讀取失敗，已改用簡化 3D 場景。":"The model could not load; showing a simplified 3D scene."} <code>{modelIssue}</code></div>}

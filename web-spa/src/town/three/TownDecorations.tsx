@@ -78,7 +78,7 @@ function Butterfly({x,z,color,index,reducedMotion}:{x:number;z:number;color:stri
  return <group ref={ref} position={[x,1.43,z]}>
   <mesh><capsuleGeometry args={[.032,.17,3,6]}/><meshStandardMaterial color="#735b59"/></mesh>
   {[-1,1].map(side=><group key={side} position={[side*.12,.06,0]} rotation={[0,0,side*.45]}>
-   <mesh><sphereGeometry args={[.19,.27,.055,10,7]}/><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.08} side={2}/></mesh>
+   <mesh scale={[1,.75,.25]}><sphereGeometry args={[.19,10,7]}/><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.08} side={2}/></mesh>
   </group>)}
  </group>;
 }

@@ -1,5 +1,5 @@
 import {useMemo,useState} from "react";
-import {useCursor,useGLTF} from "@react-three/drei";
+import {Html,useCursor,useGLTF} from "@react-three/drei";
 import type {ThreeEvent} from "@react-three/fiber";
 import {DoubleSide,Mesh,MeshStandardMaterial,Object3D} from "three";
 import {PLACES,type PlaceId} from "./world";
@@ -64,7 +64,7 @@ function AmbientDetails({night}: {night:boolean}){
   </group>)}
  </group>;
 }
-export function TownEnvironment({night,selected,onSelect}: {night:boolean;selected:PlaceId|null;onSelect:(id:PlaceId)=>void}){
+export function TownEnvironment({night,zh,selected,onSelect}: {night:boolean;zh:boolean;selected:PlaceId|null;onSelect:(id:PlaceId)=>void}){
  const [hovered,setHovered]=useState<PlaceId|null>(null);
  useCursor(hovered!==null);
  const {scene}=useGLTF(ASSET);
@@ -110,6 +110,14 @@ export function TownEnvironment({night,selected,onSelect}: {night:boolean;select
     <ringGeometry args={[1.45,1.67,36]}/>
     <meshBasicMaterial color="#fff9d8" transparent opacity={.86} depthWrite={false}/>
    </mesh>)}
+  {/* Floating destination labels follow the buildings in the 3D world. */}
+  {PLACES.map(place=><Html key={place.id} position={[place.point[0],3,place.point[2]]}
+    center distanceFactor={13} zIndexRange={[3,1]} style={{pointerEvents:"none"}}>
+    <span className="crew-town-3d-landmark">
+     <span aria-hidden="true">{{cafe:"☕",studio:"✦",play:"◆",garden:"❀"}[place.id]}</span>
+     {zh?place.zh:place.en}
+    </span>
+   </Html>)}
   <AmbientDetails night={night}/>
  </group>
 }

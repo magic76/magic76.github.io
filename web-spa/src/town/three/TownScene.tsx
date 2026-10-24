@@ -9,7 +9,7 @@ import {TownCameraController} from "./TownCameraController";
 import type {TownViewMode} from "./TownCameraController";
 import {PEOPLE,type FriendId,type PlaceId,type Selection} from "./world";
 
-type Props={night:boolean;view:TownViewMode;reducedMotion:boolean;selected:Selection;reset:number;
+type Props={night:boolean;zh:boolean;view:TownViewMode;reducedMotion:boolean;selected:Selection;reset:number;
  onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onDeselect:()=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
 class TownModelsBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:(reason:string)=>void},{failed:boolean}>{
  state={failed:false};
@@ -26,7 +26,7 @@ function ContextWatch({onFailure}: {onFailure:(reason:string)=>void}){
  },[gl,onFailure]);
  return null;
 }
-export function TownScene({night,view,reducedMotion,selected,reset,onFriend,onPlace,onDeselect,onFailure,onSimplified}:Props){
+export function TownScene({night,zh,view,reducedMotion,selected,reset,onFriend,onPlace,onDeselect,onFailure,onSimplified}:Props){
  const actorPositions=useRef<Partial<Record<FriendId,[number,number]>>>({});
  const trackActor=useCallback((id:FriendId,x:number,z:number)=>{
   const point=actorPositions.current[id];
@@ -65,7 +65,7 @@ export function TownScene({night,view,reducedMotion,selected,reset,onFriend,onPl
   <directionalLight position={[10,7,-6]} color={night?"#718ebd":"#d4e8d9"} intensity={night?.3:.65}/>
   <TownModelsBoundary onFailure={onSimplified} fallback={<TownSimpleWorld onSelect={onPlace}/>}>
    <Suspense fallback={null}>
-    <TownEnvironment night={night} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
+    <TownEnvironment night={night} zh={zh} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
     <TownDecorations reducedMotion={reducedMotion} night={night}/>
    </Suspense>
   </TownModelsBoundary>
