@@ -3,6 +3,7 @@ import type {ReactNode,ErrorInfo} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {TownOverlay} from "./three/TownOverlay";
+import type {TownViewMode} from "./three/TownCameraController";
 import {type FriendId,type PlaceId,type Selection} from "./three/world";
 import "./three/town3d.css";
 
@@ -25,6 +26,7 @@ export function Town3DPage(){
  const [failureDetail,setFailureDetail]=useState("");
  const [modelIssue,setModelIssue]=useState("");
  const [night,setNight]=useState(false);
+ const [view,setView]=useState<TownViewMode>("close");
  const [selected,setSelected]=useState<Selection>(null);
  const [reset,setReset]=useState(0);
  const [reducedMotion,setReducedMotion]=useState(true);
@@ -53,8 +55,8 @@ export function Town3DPage(){
   // Remount the error boundary and Canvas after a failed rendering attempt.
   setAttempt(n=>n+1);
  },[]);
- const selectFriend=useCallback((id:FriendId)=>setSelected({type:"person",id}),[]);
- const selectPlace=useCallback((id:PlaceId)=>setSelected({type:"place",id}),[]);
+ const selectFriend=useCallback((id:FriendId)=>{setView("close");setSelected({type:"person",id})},[]);
+ const selectPlace=useCallback((id:PlaceId)=>{setView("close");setSelected({type:"place",id})},[]);
  const mode=supported==="no"?"unsupported":fallbackReason||"render-error";
  const explanation=mode==="unsupported"
   ?zh?"目前的瀏覽器或裝置沒有提供 WebGL 3D 支援，因此改用 2.5D 地圖。":"This browser or device does not support WebGL, so the 2.5D map is shown."
@@ -79,17 +81,25 @@ export function Town3DPage(){
     </div>
     <Link to="/explore" className="crew-town-3d-back">← {zh?"返回探索":"Explore"}</Link>
    </header>
-   <section className={"crew-town-3d-stage"+(night?" is-night":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
+   <section className={"crew-town-3d-stage"+(night?" is-night":"")+(view==="close"?" is-close":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>
-     <TownScene night={night} reducedMotion={reducedMotion} selected={selected} reset={reset}
+     <TownScene night={night} view={view} reducedMotion={reducedMotion} selected={selected} reset={reset}
       onFriend={selectFriend} onPlace={selectPlace} onDeselect={()=>setSelected(null)} onFailure={fail} onSimplified={simplified}/>
     </Suspense>:<div className="crew-town-3d-loading" role="status">{zh?"正在偵測 3D 支援…":"Checking 3D support…"}</div>}
     {modelIssue&&<div className="crew-town-3d-model-note" role="status">{zh?"模型讀取失敗，已改用簡化 3D 場景。":"The model could not load; showing a simplified 3D scene."} <code>{modelIssue}</code></div>}
+    {!selected&&view==="close"&&<div className="crew-town-3d-hero" aria-hidden="true">
+     <span>{zh?"WELCOME TO CREW TOWN":"WELCOME TO CREW TOWN"}</span>
+     <strong>{zh?"在街角遇見朋友":"Meet the town up close"}</strong>
+     <small>{zh?"咖啡館、花園與朋友們都在身邊":"A closer look at friends, cafés and everyday stories"}</small>
+    </div>}
     <div className="crew-town-3d-tools">
-     <span className="crew-town-3d-status"><span aria-hidden="true"/> {zh?"小鎮日常 · 預設情境":"Village life · scripted scenes"}</span>
+     <span className="crew-town-3d-status"><span aria-hidden="true"/> {view==="close"?(zh?"近景探索 · 6 位朋友":"Close-up · 6 friends"):(zh?"小鎮全景":"Town overview")}</span>
      <div className="crew-town-3d-buttons">
-      <button type="button" onClick={()=>{setSelected(null);setReset(n=>n+1)}}
-        aria-label={zh?"回到全景":"Return to overview"}>{zh?"全景":"Overview"}</button>
+      <button type="button" onClick={()=>{setSelected(null);setView(mode=>mode==="close"?"overview":"close");setReset(n=>n+1)}}
+        aria-pressed={view==="close"}
+        aria-label={view==="close"?(zh?"切換小鎮全景":"Switch to town overview"):(zh?"靠近街道與角色":"Move closer to friends")}>
+        {view==="close"?(zh?"全景":"Overview"):(zh?"走近":"Get closer")}
+      </button>
       <button type="button" onClick={()=>setNight(n=>!n)} aria-pressed={night}
         aria-label={zh?"切換白天與夜晚":"Toggle day and night"}>{night?(zh?"白天":"Day"):(zh?"夜晚":"Night")}</button>
      </div>

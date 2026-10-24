@@ -162,3 +162,24 @@ test("Town 3D P1.1 can focus moving friends and browse without losing 2.5D fallb
  assert.match(scene,/TownModelsBoundary/);
  assert.match(scene,/webgl-context-lost/);
 });
+
+test("P2 immersive close-up is the default while wide aerial overview remains selectable",()=>{
+ const camera=read("web-spa/src/town/three/TownCameraController.tsx");
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const css=read("web-spa/src/town/three/town3d.css");
+ const details=read("web-spa/src/town/three/TownDecorations.tsx");
+ assert.ok(page.includes('useState<TownViewMode>("close")'));
+ assert.ok(page.includes('setView(mode=>mode==="close"?"overview":"close")'));
+ assert.ok(page.includes("view={view}"));
+ assert.ok(camera.includes('view==="close"'));
+ assert.ok(camera.includes("new Vector3(5.4,8.1,12)"));
+ assert.ok(camera.includes("new Vector3(14.7,18.5,25)"));
+ assert.ok(scene.includes("<TownDecorations"));
+ assert.ok(details.includes("TownWelcomeGate"));
+ assert.ok(details.includes("CafeTerrace"));
+ assert.ok(details.includes("PondLife"));
+ assert.ok(css.includes(".crew-town-3d-hero"));
+ assert.ok(css.includes(".crew-town-3d-landmark"));
+ assert.match(scene,/TownModelsBoundary/);
+});
