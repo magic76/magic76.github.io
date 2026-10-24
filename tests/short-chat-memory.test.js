@@ -29,7 +29,7 @@ function evaluateFile(file,names,context){
  vm.runInNewContext(source+"\nObject.assign(exports,{"+names.join(",")+"});",
   {exports,Date,Math,JSON,fetch:context.fetch,localStorage:context.localStorage,
    geminiKey:context.geminiKey,ensureCore:async()=>{},
-   window:{CrewAI:{call},dispatchEvent:()=>{}},Event:class Event{},clearAllSpeakingLevels:()=>{},clearSpeakingLevel:()=>{},...context},{filename:file});
+   window:{CrewAI:{call},dispatchEvent:()=>{}},Event:class Event{},clearAllSpeakingLevels:()=>{},clearSpeakingLevel:()=>{},clearAllBoardReviews:()=>{},clearBoardReviewsForLanguage:()=>{},...context},{filename:file});
  return exports;
 }
 const payload=memory_updates=>({
