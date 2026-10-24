@@ -131,3 +131,67 @@ test("voice startup uses its own lifecycle generation; replies remain next to th
  assert.ok(page.indexOf("wolf-live-transcript")<page.indexOf('className="wolf-compose"'));
  assert.match(css,/max-height:245px;overflow-y:auto/);
 });
+
+test("Live never tells the player they said nothing when tool text arrives before audio transcript",async()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/werewolfLive.ts"),"utf8");
+ const js=stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
+ let settings;
+ const window={CrewLive:{Session:class{
+  constructor(options){settings=options;this.ready=true;this.running=true;this.micMuted=false;}
+  async start(){settings.onState("ready")}
+  async stop(){}
+  sendText(){return true}
+  toggleMic(){this.micMuted=!this.micMuted}
+ }}};
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window",js+"\nreturn startWerewolfLive;")(
+  async()=>{},()=>"test-key",G.publicWolfView,window);
+ const game=G.makeWolfGame(rng,"villager");
+ const day=G.takeNightAction(game,{kind:"skip"},rng);
+ const actions=[],issues=[],mic=[];
+ const voice=await start(day,"zh",a=>{actions.push(a);return {ok:true}},{
+  onReady:()=>{},onSpeaking:()=>{},onTranscript:()=>{},onHostSpeech:()=>{},
+  onMicPhase:phase=>mic.push(phase),onAudioIssue:issue=>issues.push(issue),onError:()=>{}
+ });
+ assert.equal(settings.manualInterruptOnly,false);
+ settings.onListeningPhase("speaking");
+ const empty=settings.onToolCall({name:"player_game_action",args:{action:"statement",text:"",to:"zoe"}});
+ assert.equal(empty.ok,true);
+ assert.equal(empty.waitingForTranscription,true);
+ assert.equal(actions.length,0);
+ assert.ok(!JSON.stringify(empty).includes("Please repeat"));
+ settings.onInputTranscript("Zoe，為什麼妳一直懷疑 Max？");
+ await new Promise(resolve=>setTimeout(resolve,560));
+ assert.deepEqual(actions,[{kind:"statement",text:"Zoe，為什麼妳一直懷疑 Max？",to:"zoe"}]);
+ assert.deepEqual(issues,[]);
+ // A duplicate or late transcript from the same speech must not replay gameplay.
+ settings.onTranscriptTurn({input:"Zoe，為什麼妳一直懷疑 Max？",output:""});
+ assert.equal(actions.length,1);
+ assert.deepEqual(mic,["speaking"]);
+ voice.stop();
+});
+test("Live prefers real audio transcription over function-call guesses",async()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/werewolfLive.ts"),"utf8");
+ const js=stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
+ let settings;
+ const window={CrewLive:{Session:class{
+  constructor(options){settings=options;this.ready=true;this.micMuted=false;}
+  async start(){settings.onState("ready")}
+  async stop(){}
+  sendText(){return true}
+  toggleMic(){this.micMuted=!this.micMuted}
+ }}};
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window",js+"\nreturn startWerewolfLive;")(
+  async()=>{},()=>"test-key",G.publicWolfView,window);
+ const day=G.takeNightAction(G.makeWolfGame(rng,"villager"),{kind:"skip"},rng);
+ const actions=[];
+ const voice=await start(day,"zh",a=>{actions.push(a);return {ok:true}},{
+  onReady:()=>{},onSpeaking:()=>{},onTranscript:()=>{},onHostSpeech:()=>{},onError:()=>{}
+ });
+ settings.onListeningPhase("speaking");
+ settings.onInputTranscript("我覺得 Iris 可疑");
+ const result=settings.onToolCall({name:"player_game_action",args:{action:"statement",text:"沒有說話",to:"iris"}});
+ assert.equal(result.responsePending,true);
+ assert.equal(actions[0].text,"我覺得 Iris 可疑");
+ assert.equal(actions.length,1);
+ voice.stop();
+});
