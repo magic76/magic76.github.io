@@ -41,7 +41,8 @@ function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,wor
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
  return {ok:true,world:{...state,...changes,revision:state.revision+1},event};
 }
-export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown):MagicResult{
+export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,lang:"zh"|"en"="zh"):MagicResult{
+ const text=(chinese:string,english:string)=>lang==="en"?english:chinese;
  const args=record(rawArgs);
  switch(name){
   case "change_world":{
@@ -49,22 +50,23 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown):
    const weather=oneOf(args.weather,WEATHERS)?args.weather:state.weather;
    const time=oneOf(args.time,TIMES)?args.time:state.time;
    if(theme===state.theme&&weather===state.weather&&time===state.time)return failed(state,"no-valid-world-change");
-   const descriptions:{[K in MagicTheme]:string}={sky:"雲端群島",forest:"秘境森林",candy:"糖果王國"};
-   return updated(state,{theme,weather,time,effect:"sparkles",message:"世界變成了"+descriptions[theme]+"，新的冒險正在展開。"},"world-changed");
+   const descriptions:{[K in MagicTheme]:[string,string]}={sky:["雲端群島","floating islands"],forest:["秘境森林","enchanted forest"],candy:["糖果王國","candy kingdom"]};
+   const name=descriptions[theme][lang==="en"?1:0];
+   return updated(state,{theme,weather,time,effect:"sparkles",message:text("世界變成了"+name+"，新的冒險正在展開。","The world is now "+name+". Your next adventure begins!")}, "world-changed");
   }
   case "summon_object":{
    if(!oneOf(args.kind,OBJECTS))return failed(state,"invalid-object-kind");
    if(state.objects.length>=MAX_OBJECTS)return failed(state,"world-is-full");
    const id=state.revision+1;
    const slot=state.objects.length%6;
-   const labels:{[K in MagicObjectKind]:string}={dragon:"飛龍",chest:"寶箱",portal:"傳送門",tree:"魔法樹",owl:"貓頭鷹",crystal:"水晶"};
+   const labels:{[K in MagicObjectKind]:[string,string]}={dragon:["飛龍","dragon"],chest:["寶箱","treasure chest"],portal:["傳送門","portal"],tree:["魔法樹","enchanted tree"],owl:["貓頭鷹","owl"],crystal:["水晶","crystal"]};
    return updated(state,{objects:[...state.objects,{id,kind:args.kind,slot}],effect:"sparkles",
-    message:"一道光閃過，"+labels[args.kind]+"出現在島上！"},"object-summoned");
+    message:text("一道光閃過，"+labels[args.kind][0]+"出現在島上！","A flash of light! A "+labels[args.kind][1]+" appears on the island!")}, "object-summoned");
   }
   case "cast_spell":{
    if(!oneOf(args.spell,SPELLS))return failed(state,"invalid-spell");
-   const labels:{[K in MagicSpell]:string}={sparkles:"星光",fire:"火焰",wind:"微風",heal:"治癒"};
-   return updated(state,{effect:args.spell,message:labels[args.spell]+"魔法成功了！你還想改變什麼？"},"spell-cast");
+   const labels:{[K in MagicSpell]:[string,string]}={sparkles:["星光","Starlight"],fire:["火焰","Fire"],wind:["微風","Wind"],heal:["治癒","Healing"]};
+   return updated(state,{effect:args.spell,message:text(labels[args.spell][0]+"魔法成功了！你還想改變什麼？",labels[args.spell][1]+" magic! What should we change next?")},"spell-cast");
   }
   case "create_challenge":{
    const title=copy(args.title,38),question=copy(args.question,180);
@@ -73,9 +75,9 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown):
    if(!title||!question||!a||!b||!c||!oneOf(correct,CHOICES))return failed(state,"invalid-challenge");
    const challenge:MagicChallenge={
     id:state.revision+1,title,question,options:[a,b,c],correct,
-    feedback:copy(args.feedback,200)||"你完成了魔法試煉！"
+    feedback:copy(args.feedback,200)||text("你完成了魔法試煉！","You completed the magical trial!")
    };
-   return updated(state,{challenge,effect:"sparkles",message:"一個新的魔法試煉出現了，試試看！"},"challenge-created");
+   return updated(state,{challenge,effect:"sparkles",message:text("一個新的魔法試煉出現了，試試看！","A new magical challenge appeared! Give it a try.")},"challenge-created");
   }
   case "answer_challenge":{
    const choice=args.choice;
@@ -83,7 +85,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown):
    if(!oneOf(choice,CHOICES))return failed(state,"invalid-answer");
    const won=choice===state.challenge.correct;
    return updated(state,{challenge:{...state.challenge,selected:choice},chapter:state.chapter+(won?1:0),
-    effect:won?"sparkles":null,message:won?state.challenge.feedback:"咒語還不太對，再試一次新挑戰吧。"},won?"challenge-won":"challenge-missed");
+    effect:won?"sparkles":null,message:won?state.challenge.feedback:text("咒語還不太對，再試一次新挑戰吧。","Not quite the right spell. Try another challenge!")},won?"challenge-won":"challenge-missed");
   }
   case "tell_story":{
    const message=copy(args.message,220);
@@ -93,16 +95,20 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown):
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"reset",world:MagicWorld):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
-  case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"});
-  case "portal":return applyMagicCommand(world,"summon_object",{kind:"portal"});
-  case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"});
-  case "puzzle":return applyMagicCommand(world,"create_challenge",{
+  case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
+  case "portal":return applyMagicCommand(world,"summon_object",{kind:"portal"},lang);
+  case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
+  case "puzzle":return applyMagicCommand(world,"create_challenge",lang==="en"?{
+   title:"The Star Gate",question:"Which thing grows the more you share it?",
+   option_a:"A slice of cake",option_b:"Happiness",option_c:"A secret",
+   correct_option:"B",feedback:"Correct! Shared happiness lights up the island."
+  }:{
    title:"星之門的謎語",question:"哪一個東西越分享就越多？",
    option_a:"一塊蛋糕",option_b:"快樂",option_c:"一個秘密",
    correct_option:"B",feedback:"答對了！分享的快樂照亮了整座魔法島。"
-  });
-  case "reset":return {ok:true,event:"world-reset",world:{...MAGIC_INITIAL_WORLD,revision:world.revision+1}};
+  },lang);
+  case "reset":return {ok:true,event:"world-reset",world:{...MAGIC_INITIAL_WORLD,message:lang==="en"?"A portal is waiting. Make a wish or choose a spell.":MAGIC_INITIAL_WORLD.message,revision:world.revision+1}};
  }
 }
