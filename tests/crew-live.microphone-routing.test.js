@@ -85,3 +85,24 @@ test("microphone denial fails without a second request or playback initializatio
   assert.equal(session.mediaStream,null);
   assert.equal(session.outputContext,null);
 });
+
+test("a constrained microphone error retries once while keeping the OS-selected route",async()=>{
+  const calls=[];
+  const track={stopped:false,stop(){this.stopped=true;}};
+  const stream={getTracks:()=>[track]};
+  const session=new CrewLive.Session({models:["mock"],deps:{
+    getUserMedia:async constraints=>{
+      calls.push(constraints);
+      if(calls.length===1){const error=new Error("unsupported");error.name="OverconstrainedError";throw error;}
+      return stream;
+    },
+    createAudioContext:createContext
+  }});
+  session.running=true;
+  await session._openMedia();
+  assert.equal(calls.length,2);
+  assert.deepEqual(calls[1],{audio:true});
+  assert.equal(session.mediaStream,stream);
+  await session._cleanupMedia();
+  assert.equal(track.stopped,true);
+});

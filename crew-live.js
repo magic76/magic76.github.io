@@ -159,7 +159,17 @@
     this.inputContext=null;
     this.inputSource=null;
     this.processor=null;
+    this.inputWorkletNode=null;
+    this.inputWorkletReady=false;
     this.silentGain=null;
+    // Keep up to two seconds of speech while the Live setup is pending.
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    this.lastMicFrameAt=0;
+    this.lastMicVoiceAt=0;
+    this.lastMicRms=0;
+    this.lastMicHealthAt=0;
+    this.captureMode="none";
 
     this.outputContext=null;
     this.outputGain=null;
@@ -246,6 +256,7 @@
 
   LiveSession.prototype.setMicMuted=function(muted){
     this.micMuted=!!muted;
+    if(this.micMuted){this.preSetupFrames=[];this.preSetupSamples=0;}
     // Keep the capture device/session active. The PCM callback drops frames in
     // software so muting does not stop/reopen the microphone or change routes.
     if(this.options.onMicMuted)this.options.onMicMuted(this.micMuted);
@@ -674,65 +685,129 @@
     }
   };
 
-  LiveSession.prototype._startCapture=function(){
-    if(!this.mediaStream||this.processor)return;
-    if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
+  LiveSession.prototype.getMicHealth=function(){
+    var track=this.mediaStream&&this.mediaStream.getAudioTracks&&this.mediaStream.getAudioTracks()[0];
+    var dbfs=this.lastMicRms>0?20*Math.log10(this.lastMicRms):-100;
+    return {
+      captureMode:this.captureMode,trackState:track?(track.readyState||"live"):"missing",
+      muted:this.micMuted,rms:this.lastMicRms,dbfs:Math.max(-100,Math.round(dbfs)),
+      lastFrameAt:this.lastMicFrameAt,lastVoiceAt:this.lastMicVoiceAt,
+      setupBufferedMs:Math.round(this.preSetupSamples/16)
+    };
+  };
 
+  LiveSession.prototype._sendMicFrame=function(attempt,frame){
+    if(!this._isActiveAttempt(attempt)||!this.ready||!attempt.socket||attempt.socket.readyState!==1)return;
+    attempt.socket.send(JSON.stringify({realtimeInput:{audio:{
+      data:frame.audio,mimeType:"audio/pcm;rate=16000"
+    }}}));
+    this.lastAudioSentAt=this._deps.now();
+  };
+
+  LiveSession.prototype._flushPreSetupAudio=function(attempt){
+    var frames=this.preSetupFrames;
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    if(!frames.length||!frames.some(function(frame){return frame.voiced;}))return false;
+    for(var i=0;i<frames.length;i++)this._sendMicFrame(attempt,frames[i]);
+    return true;
+  };
+
+  LiveSession.prototype._handleMicFrame=function(samples,rate,rms){
+    if(!this.running||this.stopping||this.micMuted)return;
+    if(this.manualInterruptOnly&&this.modelSpeaking)return;
+    if(!samples||!samples.length)return;
+    var now=this._deps.now();
+    if(!Number.isFinite(rms)){
+      var sum=0,count=0;
+      for(var i=0;i<samples.length;i+=8){sum+=samples[i]*samples[i];count++;}
+      rms=Math.sqrt(sum/Math.max(1,count));
+    }
+    this.lastMicFrameAt=now;
+    this.lastMicRms=rms;
+    if(rms>=0.013){
+      this.localVoicedFrames=Math.min(200,this.localVoicedFrames+1);
+      this.lastMicVoiceAt=now;
+      this.lastLearnerVoiceAt=now;
+      if(this.ready&&this.learnerListeningPhase!=="speaking"){
+        this.learnerListeningPhase="speaking";
+        if(this.options.onListeningPhase)this.options.onListeningPhase("speaking");
+      }
+    }else if(this.ready&&this.lastLearnerVoiceAt>0&&now-this.lastLearnerVoiceAt>=350
+              &&this.learnerListeningPhase!=="waiting"){
+      this.learnerListeningPhase="waiting";
+      if(this.options.onListeningPhase){var self=this;self.options.onListeningPhase("waiting");}
+      // Only sustained real microphone activity can drive UI recovery hints.
+      // Gemini server VAD remains responsible for turn completion.
+      if(this.localVoicedFrames>=8&&this.options.onLocalUtteranceEnd){
+        try{this.options.onLocalUtteranceEnd();}catch(_){}
+      }
+      this.localVoicedFrames=0;
+    }
+    if(this.options.onMicHealth&&now-this.lastMicHealthAt>=750){
+      this.lastMicHealthAt=now;
+      this.options.onMicHealth(this.getMicHealth());
+    }
+    var frame={
+      audio:pcm16Base64(samples,rate,16000),
+      samples:Math.max(1,Math.round(samples.length*16000/rate)),
+      voiced:rms>=0.013
+    };
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt)){
+      this.preSetupFrames.push(frame);
+      this.preSetupSamples+=frame.samples;
+      while(this.preSetupSamples>32000&&this.preSetupFrames.length>1){
+        this.preSetupSamples-=this.preSetupFrames.shift().samples;
+      }
+      return;
+    }
+    try{this._sendMicFrame(attempt,frame);}
+    catch(error){this._beginRecovery(attempt,"audio-send",error);}
+  };
+
+  LiveSession.prototype._startCapture=function(){
+    if(!this.mediaStream||this.processor||this.inputWorkletNode)return;
+    if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
+    if(typeof this.inputContext.createMediaStreamSource!=="function")return;
     this.inputSource=this.inputContext.createMediaStreamSource(this.mediaStream);
-    this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.silentGain=this.inputContext.createGain();
     this.silentGain.gain.value=0;
+    var self=this;
 
+    if(this.inputWorkletReady){
+      try{
+        var node=this._deps.createAudioWorkletNode(this.inputContext,"crew-live-input",{
+          numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]
+        });
+        if(node&&node.port){
+          this.inputWorkletNode=node;
+          node.port.onmessage=function(event){
+            var frame=event.data||{};
+            if(frame.type==="mic-frame"&&frame.samples){
+              self._handleMicFrame(new Float32Array(frame.samples),16000,Number(frame.rms));
+            }
+          };
+          this.inputSource.connect(node);
+          node.connect(this.silentGain);
+          this.silentGain.connect(this.inputContext.destination);
+          this.captureMode="worklet";
+          return;
+        }
+      }catch(error){
+        this.inputWorkletNode=null;
+        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet fallback",error);
+      }
+    }
+    // Legacy capture fallback for browsers without a working AudioWorklet.
+    this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentGain);
     this.silentGain.connect(this.inputContext.destination);
-
-    var self=this;
+    this.captureMode="script";
     var rate=this.inputContext.sampleRate;
     this.processor.onaudioprocess=function(event){
-      var attempt=self.activeAttempt;
-      if(!self.ready||!self._isActiveAttempt(attempt)||self.micMuted)return;
-      if(self.manualInterruptOnly&&self.modelSpeaking)return;
-      try{
-        var data=event.inputBuffer.getChannelData(0);
-        // Display a reassuring in-progress pause instead of pretending that
-        // each PCM packet is a completed learner turn. Never send activityEnd.
-        if(self.options.onListeningPhase&&!self.micMuted){
-          var power=0;
-          for(var i=0;i<data.length;i+=8)power+=data[i]*data[i];
-          var rms=Math.sqrt(power/Math.ceil(data.length/8));
-          var now=self._deps.now();
-          if(rms>=0.013){
-            self.localVoicedFrames=Math.min(200,self.localVoicedFrames+1);
-            self.lastLearnerVoiceAt=now;
-            if(self.learnerListeningPhase!=="speaking"){
-              self.learnerListeningPhase="speaking";
-              self.options.onListeningPhase("speaking");
-            }
-          }else if(self.lastLearnerVoiceAt>0&&now-self.lastLearnerVoiceAt>=350
-                &&self.learnerListeningPhase!=="waiting"){
-            self.learnerListeningPhase="waiting";
-            self.options.onListeningPhase("waiting");
-            // Local evidence only: Gemini server VAD still decides the turn.
-            // Require sustained voice so an isolated noise spike cannot arm a watchdog.
-            if(self.localVoicedFrames>=8&&self.options.onLocalUtteranceEnd){
-              try{self.options.onLocalUtteranceEnd();}catch(_){}
-            }
-            self.localVoicedFrames=0;
-          }
-        }
-        attempt.socket.send(JSON.stringify({
-          realtimeInput:{
-            audio:{
-              data:pcm16Base64(data,rate,16000),
-              mimeType:"audio/pcm;rate=16000"
-            }
-          }
-        }));
-        self.lastAudioSentAt=self._deps.now();
-      }catch(error){
-        self._beginRecovery(attempt,"audio-send",error);
-      }
+      self._handleMicFrame(event.inputBuffer.getChannelData(0),rate,NaN);
     };
   };
 
@@ -1154,6 +1229,9 @@
     this._state("ready");
     this._status("Live 已連線，可以直接說話");
     this._startCapture();
+    // Do not overwrite the learner's first spoken sentence with a greeting.
+    var hadBufferedSpeech=this._flushPreSetupAudio(attempt);
+    if(hadBufferedSpeech&&!this.openingSent)this.openingSent=true;
     if(!attempt.resumed)this._sendOpening(attempt);
     this._armReplyTimeout(attempt);
     if(this.recoveryStarted){this.recoveryStarted=false;if(this.options.onRecovered)this.options.onRecovered({model:this.model,resumed:!!attempt.resumed});}
@@ -1329,7 +1407,14 @@
     // Leave input selection to the browser/OS. Forcing the built-in microphone
     // on Android can move AI playback off a connected Bluetooth headset.
     // Keep the single selected stream open while muting in software.
-    this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    try{
+      this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    }catch(error){
+      // Unsupported constraints can be retried without overriding the OS route.
+      var name=String(error&&error.name||"");
+      if(!/^(OverconstrainedError|NotReadableError|TypeError)$/.test(name))throw error;
+      this.mediaStream=await this._requestMicrophone({audio:true});
+    }
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();
@@ -1369,9 +1454,30 @@
     // as a compatibility fallback.
     await this._initOutputWorklet();
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    if(this.inputContext.audioWorklet&&typeof this.inputContext.audioWorklet.addModule==="function"){
+      try{
+        await this.inputContext.audioWorklet.addModule(this.options.inputWorkletUrl||"crew-live-input-worklet.js?v=20261024a");
+        this.inputWorkletReady=true;
+      }catch(error){
+        this.inputWorkletReady=false;
+        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet unavailable",error);
+      }
+    }
+    // Begin capture before setup; frames are buffered locally until ready.
+    this._startCapture();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
+    if(this.inputWorkletNode){
+      try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
+      this.inputWorkletNode=null;
+    }
+    this.inputWorkletReady=false;
+    this.captureMode="none";
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    this.lastMicRms=0;
     if(this.processor){
       try{this.processor.disconnect();}catch(_){}
       this.processor.onaudioprocess=null;
@@ -1434,6 +1540,8 @@
     if(this.pendingMicRequest)this.pendingMicRequest.reject(new Error("麥克風請求已取消"));
     this.ready=false;
     this.recovering=false;
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
 
     if(attempt){
       attempt.closedByClient=reason;
