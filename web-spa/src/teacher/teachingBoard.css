@@ -34,11 +34,11 @@
 .teaching-board-canvas-head h1{font-size:24px;line-height:1.2;margin:3px 0}
 .teaching-board-canvas-head p{font-size:12px;color:#77827b;margin:0;line-height:1.5;max-width:680px}
 .teaching-board-mode{font-size:11px;color:#5d795e;background:#e5eee2;border-radius:99px;padding:6px 9px;white-space:nowrap}
-.teaching-board-stage{height:clamp(330px,52dvh,620px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid #e1e8db;border-radius:20px;background:#fff;position:relative}
+.teaching-board-stage{height:auto;min-height:235px;overflow:visible;border:1px solid #e1e8db;border-radius:20px;background:#fff;position:relative}
 .teaching-board-stage.has-card{background:#fff}
 .teaching-board-empty{display:flex;min-height:100%;flex-direction:column;justify-content:center;align-items:center;padding:30px 18px;text-align:center;color:#66816f;background:radial-gradient(ellipse at 50% 0%,#eaf4eb 0%,#fffdf9 65%)}
 .teaching-board-empty strong{font-size:20px}.teaching-board-empty p{margin:10px auto;max-width:390px;font-size:14px;line-height:1.7}
-.teaching-board-navigator{margin-top:12px}
+.teaching-board-navigator{margin:8px 0 12px}
 .teaching-board-navigator-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .teaching-board-navigator-head strong{font-size:13px}
 .teaching-board-navigator-head small{font-size:11px;color:#728174}
@@ -134,7 +134,7 @@
  .teaching-board-canvas-head h1{font-size:20px}
  .teaching-board-canvas-head p{font-size:11px}
  .teaching-board-mode{font-size:10px}
- .teaching-board-stage{height:clamp(310px,51dvh,560px);border-radius:14px}
+ .teaching-board-stage{height:auto;min-height:210px;border-radius:14px}
  .teaching-board-card-head{padding:17px 16px 9px;gap:10px}
  .teaching-board-card-content{padding:8px 16px 22px}
  .teaching-board-pairs{grid-template-columns:1fr}
@@ -201,3 +201,25 @@
 .teaching-board-formats-button:hover{background:#d8ecdd}
 .teaching-board-formats-button:focus-visible{outline:2px solid #2c9365;outline-offset:2px}
 @media(max-width:800px){.teaching-board-canvas-actions{gap:5px;justify-content:flex-start}.teaching-board-formats-button{padding:7px 9px;font-size:11px}.teaching-board-canvas-head{flex-wrap:wrap}}
+
+/* Context-based visual lessons: compact horizontal options, no extra vertical scrollbar. */
+.teaching-board-presentation{display:flex;align-items:center;gap:10px;margin:0 0 8px;min-width:0}
+.teaching-board-presentation-label{font-size:12px;font-weight:650;color:#5c7d66;flex-shrink:0}
+.teaching-board-presentation-actions{display:flex;gap:7px;min-width:0;overflow-x:auto;scrollbar-width:thin;padding:3px 2px 6px}
+.teaching-board-presentation-actions button{white-space:nowrap;background:#fff;border:1px solid #d9e6dc;border-radius:999px;color:#375f49;padding:8px 11px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0}
+.teaching-board-presentation-actions button:focus-visible{outline:2px solid #408e5f;outline-offset:1px}
+.teaching-board-presentation-actions button:disabled{opacity:.4;cursor:default}
+.teaching-board-card{min-height:0}
+.teaching-board-stage{scroll-margin-top:72px}
+@media(max-width:800px){
+ .teaching-board-layout{padding-top:6px}
+ .teaching-board-tutor{padding:8px 12px}
+ .teaching-board-canvas{padding:11px 12px 17px}
+ .teaching-board-canvas-head h1{font-size:19px}
+ .teaching-board-presentation{gap:7px}
+ .teaching-board-presentation-label{font-size:11px}
+ .teaching-board-presentation-actions button{padding:7px 9px;font-size:11px}
+ .teaching-board-navigator{margin:4px 0 10px}
+ .teaching-board-deck-tab{min-height:52px;padding:8px 10px}
+ .teaching-board-layout{padding-bottom:max(112px,calc(env(safe-area-inset-bottom) + 95px))}
+}
