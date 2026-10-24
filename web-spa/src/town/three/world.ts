@@ -2,6 +2,17 @@ export type FriendId = "zoe" | "yuna" | "theo" | "hugo" | "bella" | "noah";
 export type PlaceId = "cafe" | "studio" | "play" | "garden";
 export type Selection = {type:"person";id:FriendId} | {type:"place";id:PlaceId} | null;
 export type Waypoint = readonly [number,number];
+export type DistrictId="center"|"market"|"grove"|"homes"|"harbor";
+export const WORLD_SIZE={width:52,depth:44} as const;
+export const DISTRICTS:ReadonlyArray<{
+ id:DistrictId;zh:string;en:string;icon:string;point:readonly [number,number,number];
+}>=[
+ {id:"center",zh:"中央廣場",en:"Town center",icon:"✦",point:[0,.7,.6]},
+ {id:"market",zh:"彩虹市集",en:"Rainbow Market",icon:"◈",point:[-16,.8,-12]},
+ {id:"grove",zh:"楓葉森林",en:"Maple Grove",icon:"♣",point:[16,.8,-12]},
+ {id:"homes",zh:"故事街區",en:"Story Lane",icon:"⌂",point:[-16,.8,12]},
+ {id:"harbor",zh:"星光港灣",en:"Starlight Harbor",icon:"≈",point:[16,.8,12]}
+];
 
 export const PEOPLE: ReadonlyArray<{
  id:FriendId; coat:string; hair:string; skin:string; outfit:"dress"|"jacket";

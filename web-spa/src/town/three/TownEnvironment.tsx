@@ -2,7 +2,7 @@ import {useMemo,useState} from "react";
 import {Html,useCursor,useGLTF} from "@react-three/drei";
 import type {ThreeEvent} from "@react-three/fiber";
 import {DoubleSide,Mesh,MeshStandardMaterial,Object3D} from "three";
-import {PLACES,type PlaceId} from "./world";
+import {PLACES,WORLD_SIZE,type PlaceId} from "./world";
 
 const ASSET="/assets/town/crew-town-art-kit.glb";
 const TREES:[number,number,number][]=[
@@ -21,11 +21,24 @@ function Model({object,position=[0,0,0],scale=1,rotation=0}:{
 }
 function Ground(){
  return <group>
-  <mesh position={[0,-.55,.5]} receiveShadow><boxGeometry args={[21.5,.9,16.9]}/><meshStandardMaterial color="#b3b39b" roughness={1}/></mesh>
-  <mesh position={[0,-.06,.5]} receiveShadow><boxGeometry args={[21.7,.13,17.1]}/><meshStandardMaterial color="#a3bea0" roughness={1}/></mesh>
+  <mesh position={[0,-.7,.5]} receiveShadow><boxGeometry args={[WORLD_SIZE.width,1.2,WORLD_SIZE.depth]}/><meshStandardMaterial color="#b3b39b" roughness={1}/></mesh>
+  <mesh position={[0,-.06,.5]} receiveShadow><boxGeometry args={[WORLD_SIZE.width+.2,.13,WORLD_SIZE.depth+.2]}/><meshStandardMaterial color="#a3bea0" roughness={1}/></mesh>
   <mesh position={[0,.03,.5]} rotation={[-Math.PI/2,0,0]} receiveShadow>
-   <planeGeometry args={[21.2,16.6]}/><meshStandardMaterial color="#a7c49c" roughness={1} side={DoubleSide}/>
+   <planeGeometry args={[WORLD_SIZE.width-.35,WORLD_SIZE.depth-.35]}/><meshStandardMaterial color="#a7c49c" roughness={1} side={DoubleSide}/>
   </mesh>
+  {/* 52 × 44 world. Neighborhood roads connect to all four outer districts. */}
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.042,-1.05]}>
+   <planeGeometry args={[46,1.55]}/><meshStandardMaterial color="#d1c6ad" roughness={1}/>
+  </mesh>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.043,.5]}>
+   <planeGeometry args={[1.85,39]}/><meshStandardMaterial color="#d1c6ad" roughness={1}/>
+  </mesh>
+  {[-16,16].map((x)=><mesh key={x} rotation={[-Math.PI/2,0,0]} position={[x,.046,.5]}>
+   <planeGeometry args={[1.28,34]}/><meshStandardMaterial color="#e5dbc4" roughness={1}/>
+  </mesh>)}
+  {[-12,12].map((z)=><mesh key={z} rotation={[-Math.PI/2,0,0]} position={[0,.047,z]}>
+   <planeGeometry args={[37,1.32]}/><meshStandardMaterial color="#e8dbc0" roughness={1}/>
+  </mesh>)}
   {/* Broken-up, stone-edged village footpaths. All routes remain outside building footprints. */}
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,.049,.35]}><planeGeometry args={[2.3,13.1]}/><meshStandardMaterial color="#d9d4bd" roughness={1}/></mesh>
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,.051,-1.05]}><planeGeometry args={[16.4,1.27]}/><meshStandardMaterial color="#e4ddc8" roughness={1}/></mesh>
