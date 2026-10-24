@@ -9,9 +9,9 @@ import {
   type MateDecision,type MateHistory,type MatePhase,type MateTurn
 } from "./mateState";
 import {externalInstruction,privateInstruction} from "./matePrompts";
+import {translateMateText} from "./mateTranslation";
 import "./mate.css";
 
-const lang = (code:string) => MATE_LANGUAGES.find(x=>x.value===code)?.label||code;
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
 const textValue = (v:unknown) => typeof v==="string"?v.trim().slice(0,800):"";
 export function MatePage(){
@@ -80,12 +80,7 @@ export function MatePage(){
     translationPending.current.add(entry.id);
     const thisTask=taskId.current;
     try{
-      await ensureLive();
-      const translated=await window.CrewAI?.call?.(
-        "Translate the following real conversation transcript into "+lang(c.userLanguage)+". "+
-        "Return the translation only, without comments or explanations.\n\n"+entry.original,
-        {preferLive:false,temperature:0,maxOutputTokens:240,system:"You translate existing dialogue accurately. Never add messages or infer missing text."}
-      );
+      const translated=await translateMateText(entry.original,c.userLanguage);
       if(thisTask!==taskId.current||typeof translated!=="string"||!translated.trim())return;
       turnsRef.current=turnsRef.current.map(x=>x.id===entry.id?{...x,translated:translated.trim()}:x);
       setTurns(turnsRef.current);
