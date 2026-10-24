@@ -1,6 +1,6 @@
 import {useEffect,useState} from "react";
 import type {BoardPair} from "./boardProtocol";
-import {dueBoardReviews,loadBoardReviews,recordBoardReview,clearBoardReviews,type ReviewRating,type ReviewItem} from "./boardReviewSchedule";
+import {loadBoardReviews,recordBoardReview,clearBoardReviews,type ReviewRating,type ReviewItem} from "./boardReviewSchedule";
 
 /** Browser-only preference-scoped review queue; no Live session or conversation transcript persisted. */
 export function useBoardReviewState(language:string,teacher:string,enabled:boolean){
