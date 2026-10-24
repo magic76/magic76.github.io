@@ -35,46 +35,65 @@ function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect}:{
       ? Math.min(.12,MathUtils.euclideanModulo(heading-group.rotation.y+Math.PI,Math.PI*2)-Math.PI)
       : Math.max(-.12,MathUtils.euclideanModulo(heading-group.rotation.y+Math.PI,Math.PI*2)-Math.PI);
     s.walk+=delta*9;
-    feet.rotation.x=Math.sin(s.walk)*.22;
-    torso.position.y=Math.abs(Math.sin(s.walk))*.028;
+    feet.rotation.x=Math.sin(s.walk)*.13;
+    torso.position.y=Math.abs(Math.sin(s.walk))*.015;
    }
   }
   if(s.phase==="Arriving"&&s.clock>.48){s.phase="Interacting";s.clock=0;feet.rotation.x=0}
   if(s.phase==="Interacting"&&s.clock>1.1){s.phase="Talking";s.clock=0}
   if(s.phase==="Talking"&&s.clock>1.5){s.phase="Idle";s.clock=0}
-  if(s.phase!=="Walking"){feet.rotation.x*=.83;torso.position.y=Math.sin(state.clock.elapsedTime*1.7+id.length)*.018}
+  if(s.phase!=="Walking"){feet.rotation.x*=.83;torso.position.y=Math.sin(state.clock.elapsedTime*1.7+id.length)*.012}
  });
  const pick=(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(id)};
  const isLongHair=id==="zoe"||id==="bella"||id==="yuna";
- return <group ref={root} position={[route[0][0],.11,route[0][1]]} onClick={pick}>
+ return <group ref={root} position={[route[0][0],.025,route[0][1]]} onClick={pick}>
   <mesh position={[0,.01,0]} rotation={[-Math.PI/2,0,0]}>
-   <circleGeometry args={[.36,18]}/><meshBasicMaterial color="#40594c" transparent opacity={.15} depthWrite={false}/>
+   <circleGeometry args={[.43,22]}/><meshBasicMaterial color="#40594c" transparent opacity={.15} depthWrite={false}/>
   </mesh>
   <group ref={legs}>
    {[-.13,.13].map((x,i)=><group key={i}>
-    <mesh position={[x,.31,.02]}><capsuleGeometry args={[.094,.24,4,8]}/><meshStandardMaterial color="#667277"/></mesh>
-    <mesh position={[x,.14,.095]}><boxGeometry args={[.20,.14,.34]}/><meshStandardMaterial color="#645851"/></mesh>
+    <mesh position={[x,.245,0]}><capsuleGeometry args={[.09,.13,4,10]}/><meshStandardMaterial color="#667277"/></mesh>
+    <mesh position={[x,.095,.11]}><boxGeometry args={[.22,.15,.33]}/><meshStandardMaterial color="#645851"/></mesh>
    </group>)}
   </group>
   <group ref={body}>
-   <mesh position={[0,.78,0]}><capsuleGeometry args={[.28,.42,5,10]}/><meshStandardMaterial color={coat} roughness={.93}/></mesh>
-   {[-1,1].map(side=><mesh key={side} position={[side*.32,.77,.025]} rotation={[0,0,-side*.15]}>
-    <capsuleGeometry args={[.095,.34,4,8]}/><meshStandardMaterial color={coat}/>
+   <mesh position={[0,.67,0]}><capsuleGeometry args={[.27,.27,5,12]}/><meshStandardMaterial color={coat} roughness={.93}/></mesh>
+   {[-1,1].map(side=><mesh key={side} position={[side*.305,.66,.025]} rotation={[0,0,-side*.15]}>
+    <capsuleGeometry args={[.083,.19,4,8]}/><meshStandardMaterial color={coat}/>
    </mesh>)}
-   <mesh position={[0,1.40,0]}><sphereGeometry args={[.29,16,12]}/><meshStandardMaterial color={skin||SKIN} roughness={.91}/></mesh>
-   {isLongHair&&<mesh position={[0,1.46,-.105]}><sphereGeometry args={[.31,12,10]}/><meshStandardMaterial color={hair}/></mesh>}
-   <mesh position={[0,1.61,-.02]} scale={[1.03,.56,.94]}>
-    <sphereGeometry args={[.30,14,10]}/><meshStandardMaterial color={hair}/></mesh>
-   {[-.105,.105].map((x,i)=><mesh key={i} position={[x,1.41,.269]}>
-    <sphereGeometry args={[.025,8,6]}/><meshStandardMaterial color="#4f4340"/>
+   {[-1,1].map(side=><mesh key={"hand"+side} position={[side*.335,.46,.12]}>
+    <sphereGeometry args={[.085,10,8]}/><meshStandardMaterial color={skin||SKIN}/>
    </mesh>)}
-   {id==="theo"&&<group position={[0,1.42,.292]}>
-     {[-.11,.11].map((x,i)=><mesh key={i} position={[x,0,0]}><torusGeometry args={[.078,.018,4,10]}/><meshStandardMaterial color="#54646a"/></mesh>)}
+   {/* Rounded oversized head + shorter body = phone-readable chibi silhouette. */}
+   <mesh position={[0,1.24,0]}><sphereGeometry args={[.42,20,16]}/><meshStandardMaterial color={skin||SKIN} roughness={.91}/></mesh>
+   {isLongHair&&<mesh position={[0,1.27,-.19]} scale={[1.05,1.2,.64]}><sphereGeometry args={[.39,14,12]}/><meshStandardMaterial color={hair}/></mesh>}
+   <mesh position={[0,1.51,-.06]} scale={[1.07,.53,1]}>
+    <sphereGeometry args={[.42,16,12]}/><meshStandardMaterial color={hair}/></mesh>
+   {/* Larger eyes, small cheeks and a smile are legible on mobile. */}
+   {[-.15,.15].map((x,i)=><group key={i}>
+    <mesh position={[x,1.245,.393]}><sphereGeometry args={[.059,10,8]}/><meshStandardMaterial color="#fffaf3"/></mesh>
+    <mesh position={[x,1.242,.444]}><sphereGeometry args={[.035,10,8]}/><meshStandardMaterial color="#403632"/></mesh>
+    <mesh position={[x-.013,1.26,.471]}><sphereGeometry args={[.013,8,6]}/><meshBasicMaterial color="#ffffff"/></mesh>
+    <mesh position={[i===0?-.285:.285,1.105,.296]}><sphereGeometry args={[.048,10,8]}/><meshStandardMaterial color="#e8a6a0" transparent opacity={.78}/></mesh>
+   </group>)}
+   <mesh position={[0,1.085,.416]} rotation={[0,0,Math.PI]}>
+    <torusGeometry args={[.048,.011,5,12,Math.PI]}/><meshStandardMaterial color="#a96967"/>
+   </mesh>
+   {id==="theo"&&<group position={[0,1.25,.462]}>
+     {[-.15,.15].map((x,i)=><mesh key={i} position={[x,0,0]}><torusGeometry args={[.103,.015,5,14]}/><meshStandardMaterial color="#54646a"/></mesh>)}
+     <mesh position={[0,.025,0]}><boxGeometry args={[.10,.018,.02]}/><meshStandardMaterial color="#54646a"/></mesh>
     </group>}
-   {id==="hugo"&&<mesh position={[0,1.15,.02]}><torusGeometry args={[.27,.058,6,16]}/><meshStandardMaterial color="#f3d5a5"/></mesh>}
-   {id==="bella"&&<mesh position={[.27,.68,-.24]}><boxGeometry args={[.25,.38,.19]}/><meshStandardMaterial color="#d8be98"/></mesh>}
+   {id==="hugo"&&<mesh position={[0,.89,.015]}><torusGeometry args={[.24,.055,6,16]}/><meshStandardMaterial color="#f3d5a5"/></mesh>}
+   {id==="zoe"&&<mesh position={[.37,1.52,-.16]}><sphereGeometry args={[.185,12,10]}/><meshStandardMaterial color={hair}/></mesh>}
+   {id==="yuna"&&<mesh position={[0,1.71,-.13]}><sphereGeometry args={[.18,12,10]}/><meshStandardMaterial color={hair}/></mesh>}
+   {id==="bella"&&[-1,1].map(side=><mesh key={side} position={[side*.36,1.37,-.16]}><sphereGeometry args={[.16,12,10]}/><meshStandardMaterial color={hair}/></mesh>)}
+   {id==="noah"&&<group>
+    <mesh position={[-.18,1.65,.12]} rotation={[0,0,-.35]} scale={[.75,.65,.8]}><sphereGeometry args={[.19,10,8]}/><meshStandardMaterial color={hair}/></mesh>
+    <mesh position={[0,.63,-.27]}><boxGeometry args={[.44,.48,.2]}/><meshStandardMaterial color="#bcba9c"/></mesh>
+   </group>}
+   {id==="bella"&&<mesh position={[.30,.63,-.22]}><boxGeometry args={[.25,.38,.19]}/><meshStandardMaterial color="#d8be98"/></mesh>}
   </group>
-  {selected&&<mesh position={[0,.035,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.42,.48,32]}/><meshBasicMaterial color="#fff7c9"/></mesh>}
+  {selected&&<mesh position={[0,.025,0]} rotation={[-Math.PI/2,0,0]}><ringGeometry args={[.50,.56,32]}/><meshBasicMaterial color="#fff7c9"/></mesh>}
  </group>;
 }
 export function TownCharacters({selected,reducedMotion,onSelect}:{
