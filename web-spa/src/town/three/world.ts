@@ -1,3 +1,4 @@
+import {LANDMARKS} from "./TownLayout";
 export const TOWN_FRIEND_IDS=[
  "zoe","noah","iris","max","yuna","felix","luna","theo",
  "isla","hugo","ada","finn","maya","oscar","bella","ryan"
@@ -47,9 +48,9 @@ export const PLACES: ReadonlyArray<{
  id:PlaceId; zh:string; en:string; introZh:string; introEn:string; to:string; ctaZh:string; ctaEn:string;
  point:readonly [number,number,number];
 }> = [
- {id:"cafe",zh:"日常咖啡館",en:"The Café",introZh:"Zoe 和 Yuna 常在這裡聊聊新甜點與日常故事。",introEn:"Where Zoe and Yuna share treats and everyday stories.",to:"/friend/live?id=zoe",ctaZh:"跟 Zoe 聊聊",ctaEn:"Chat with Zoe",point:[-5,1.1,-3]},
- {id:"studio",zh:"靈感工作室",en:"The Studio",introZh:"Theo 的創意工作室，交換想法和新點子。",introEn:"Theo's workshop for fresh ideas and creative experiments.",to:"/friend/live?id=theo",ctaZh:"跟 Theo 聊聊",ctaEn:"Chat with Theo",point:[4.7,1.2,-3]},
- {id:"play",zh:"遊戲屋",en:"Play House",introZh:"和 Crew 朋友們一起玩語音與益智遊戲。",introEn:"Discover voice-powered and thoughtful games in Crew Play.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Explore Crew Play",point:[-2.2,1.2,4]},
+ {id:"cafe",zh:"日常咖啡館",en:"The Café",introZh:"Zoe 和 Yuna 常在這裡聊聊新甜點與日常故事。",introEn:"Where Zoe and Yuna share treats and everyday stories.",to:"/friend/live?id=zoe",ctaZh:"跟 Zoe 聊聊",ctaEn:"Chat with Zoe",point:[LANDMARKS.cafe[0],1.1,LANDMARKS.cafe[1]]},
+ {id:"studio",zh:"靈感工作室",en:"The Studio",introZh:"Theo 的創意工作室，交換想法和新點子。",introEn:"Theo's workshop for fresh ideas and creative experiments.",to:"/friend/live?id=theo",ctaZh:"跟 Theo 聊聊",ctaEn:"Chat with Theo",point:[LANDMARKS.studio[0],1.2,LANDMARKS.studio[1]]},
+ {id:"play",zh:"遊戲屋",en:"Play House",introZh:"和 Crew 朋友們一起玩語音與益智遊戲。",introEn:"Discover voice-powered and thoughtful games in Crew Play.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Explore Crew Play",point:[LANDMARKS.play[0],1.2,LANDMARKS.play[1]]},
  {id:"garden",zh:"湖畔花園",en:"Lakeside Garden",introZh:"沿著湖岸慢慢走，找 Noah 聊聊。",introEn:"Take a quiet lakeside walk and catch up with Noah.",to:"/friend/live?id=noah",ctaZh:"跟 Noah 聊聊",ctaEn:"Chat with Noah",point:[5.45,.5,4.75]}
 ];
 export const WORLD_CENTER = [0,.2,.6] as const;
