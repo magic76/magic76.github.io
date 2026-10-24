@@ -322,6 +322,14 @@
     },
     "showFormats": "Xem loại thẻ",
     "demoMode": "Ví dụ định dạng",
-    "demoHint": "Đây là các ví dụ được chuẩn bị sẵn, không phải nội dung AI tạo trực tiếp."
+    "demoHint": "Đây là các ví dụ được chuẩn bị sẵn, không phải nội dung AI tạo trực tiếp.",
+    "presentation": {
+      "title": "Hiển thị dưới dạng",
+      "compare": "So sánh",
+      "timeline": "Dòng thời gian",
+      "dialogue": "Hội thoại",
+      "flashcard": "Thẻ ghi nhớ",
+      "quiz": "Câu hỏi"
+    }
   }
 }
