@@ -8,7 +8,7 @@ import {
   readMateHistory,storeMateHistory,mateHistoryResumable,type MateAudience,type MateConsensus,
   type MateDecision,type MateHistory,type MatePhase,type MateTurn
 } from "./mateState";
-import {externalInstruction,privateInstruction} from "./matePrompts";
+import {externalInstruction,externalOpening,privateInstruction} from "./matePrompts";
 import {translateMateText} from "./mateTranslation";
 import {finalizeMateBriefing} from "./mateBriefing";
 import {MateTranscript} from "./MateTranscript";
@@ -32,6 +32,7 @@ export function MatePage(){
   const [briefingBusy,setBriefingBusy]=useState(false);
   const briefingPending=useRef(false);
   const privateStatements=useRef<string[]>([]);
+  const privateInputRef=useRef("");
   const [liveStatus,setLiveStatus]=useState("");
   const [connected,setConnected]=useState(false);
   const [speaking,setSpeaking]=useState(false);
@@ -143,6 +144,7 @@ export function MatePage(){
     externalInputSeen.current=false;externalOutputSeen.current=false;mutedByMate.current=false;
     if(mode==="private"){
       if(note.trim()){privateStatements.current.push(note.trim());setNote("");}
+      privateInputRef.current="";
       advance("private","PRIVATE_TO_MATE");
       setPrivateInput("");setPrivateOutput("");setPrivateQuestion("");
     }else{
@@ -157,8 +159,8 @@ export function MatePage(){
         system:mode==="private"?privateInstruction(c):externalInstruction(c,scopedOwnerDecision,turnsRef.current.slice(-8)),
         openingPrompt:mode==="private"
           ? (note.trim()||t("請詢問我需要哪些資訊，再幫我整理任務。","Ask what is missing and help me clarify this task."))
-          : "",
-        voice:"Aoede",volume:mode==="external"?0:100,
+          : externalOpening(c),
+        voice:"Aoede",volume:100,
         maxResumeAttempts:1,maxLiveAttempts:1,manualInterruptOnly:true,
         tools:mateToolDeclarations(mode),
         onStatus:(message:string)=>{if(connectionSeq.current===sequence)setLiveStatus(message)},
@@ -187,26 +189,27 @@ export function MatePage(){
         },
         onInputTranscript:(value:string)=>{
           if(connectionSeq.current!==sequence||!value.trim())return;
-          if(mode==="private")setPrivateInput(value);
+          if(mode==="private"){privateInputRef.current=value;setPrivateInput(value)}
           else if(phaseRef.current==="external" && audienceRef.current==="EXTERNAL_WITH_MATE"){
             externalInputSeen.current=true;
-            connectionRef.current?.setVolume(100);
           }
         },
         onOutputTranscript:(value:string)=>{
           if(connectionSeq.current!==sequence)return;
           if(mode==="private")setPrivateOutput(value);
-          else if(externalInputSeen.current && value.trim())externalOutputSeen.current=true;
+          else if(value.trim())externalOutputSeen.current=true;
         },
         onTranscriptTurn:(turn:LiveTurn)=>{
           if(connectionSeq.current!==sequence)return;
           if(mode==="external"&&phaseRef.current==="external"){
             // The transcript is evidence-based: never create imaginary other-person speech.
             if(turn.input?.trim())appendTurn("other",turn.input);
-            if(externalInputSeen.current&&turn.output?.trim())appendTurn("mate",turn.output);
+            // A genuine AI greeting can precede any external speech. It is NOT a third-party turn.
+            if(turn.output?.trim())appendTurn("mate",turn.output);
           }
           if(mode==="private"){
             if(turn.input?.trim())privateStatements.current.push(turn.input.trim());
+            privateInputRef.current="";
             setPrivateInput("");setPrivateOutput("");
           }
         },
@@ -214,7 +217,7 @@ export function MatePage(){
           if(connectionSeq.current!==sequence)return;
           if(mode==="external"){
             externalInputSeen.current=false;externalOutputSeen.current=false;
-            connectionRef.current?.setVolume(0);
+            connectionRef.current?.setVolume(100);
           }
         },
         onToolCall:(call:{name:string;args?:unknown})=>{
@@ -267,7 +270,7 @@ export function MatePage(){
       await session.start();
       if(connectionSeq.current!==sequence){await session.stop({reason:"stale",emitTerminal:false});return}
       setConnected(Boolean(session.ready&&session.running));
-      if(mode==="external")session.setVolume(externalInputSeen.current?100:0);
+      if(mode==="external")session.setVolume(100);
     }catch(failure){
       if(connectionSeq.current!==sequence)return;
       connectionRef.current=null;setConnected(false);
@@ -284,7 +287,9 @@ export function MatePage(){
     briefingPending.current=true;
     setBriefingBusy(true);setError("");
     const raw=note.trim();
-    const statements=[...privateStatements.current,...(raw?[raw]:[])];
+    // Include the last (still streaming) spoken sentence before stopping Live.
+    const pendingSpeech=privateInputRef.current.trim();
+    const statements=[...privateStatements.current,...(pendingSpeech?[pendingSpeech]:[]),...(raw?[raw]:[])];
     advance("private","MATE_HANDLING");
     await stopConnection();
     try{
@@ -292,7 +297,7 @@ export function MatePage(){
         const resolved=await finalizeMateBriefing(consensusRef.current,statements);
         updateConsensus(resolved.consensus);
         setPrivateQuestion(resolved.question);
-        privateStatements.current=[];
+        privateStatements.current=[];privateInputRef.current="";
         setNote("");
       }
     }catch{
@@ -309,7 +314,7 @@ export function MatePage(){
   }
   function restart(){
     void stopConnection();advance("setup","IDLE");setShowHistory(false);
-    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];
+    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];privateInputRef.current="";
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
     setOutcome("");setDecision(null);setStartedExternal(false);setError("");setNote("");
@@ -407,7 +412,7 @@ export function MatePage(){
       </div>
       <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
       {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("重新確認並連線","Review and reconnect")}</button>}
-      {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?t("正在聽對方說話","Listening to the other person"):liveStatus}</div>}
+      {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?(externalInputSeen.current?t("正在聽對方說話","Listening to the other person"):t("Mate 已開始協助溝通","Mate is initiating the conversation")):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
         <strong>{t("Mate 需要你的決定","Mate needs your approval")}</strong>
         <p>{decision.question}</p><small>{decision.reason}</small>
