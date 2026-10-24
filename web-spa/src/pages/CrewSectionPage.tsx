@@ -11,6 +11,8 @@ import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
+import {useTeacherStore} from "../store/teacherStore";
+import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -145,7 +147,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
 
  const {t,i18n}=useTranslation("home");
  const {t:tTeacher}=useTranslation("teacher");
+ const {t:tCommon}=useTranslation("common");
+ const {t:tSettings}=useTranslation("settings");
  const clientReady=useClientReady();
+ const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
+ const englishCurriculum=targetLanguage==="英文";
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
  // The hero is Fortune; the remaining five cards start at Timeline.
@@ -172,9 +179,29 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   };
  })();
 
+ const learnTools=englishCurriculum?[
+  {to:"/teacher/course",icon:"scene" as IconName,title:tTeacher("learn.course"),desc:tTeacher("learn.courseDesc")},
+  {to:"/teacher/vocabulary",icon:"cards" as IconName,title:tTeacher("learn.vocab"),desc:tTeacher("learn.vocabDesc")},
+  {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")},
+  {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")}
+ ]:[
+  {to:"/teacher/textbook",icon:"book" as IconName,title:tTeacher("learn.textbook"),desc:tTeacher("learn.textbookDesc")},
+  {to:"/teacher/board",icon:"teacher" as IconName,title:tTeacher("board.entryTitle"),desc:tTeacher("board.entryDesc")},
+  {to:"/teacher/pronunciation",icon:"mic" as IconName,title:tTeacher("learn.pronunciation"),desc:tTeacher("learn.pronunciationDesc")},
+  {to:clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak",icon:"chat" as IconName,title:tTeacher("learn.threeMinute"),desc:tTeacher("learn.threeMinuteDesc")}
+ ];
  return <div className={"crew-section-hub crew-section-"+section}>
-  <header className="crew-section-heading">
-   <span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p>
+  <header className={"crew-section-heading"+(section==="learn"?" crew-learn-heading":"")}>
+   {section==="learn"?
+    <div className="crew-learn-heading-row">
+     <div className="crew-learn-heading-copy"><span className="kicker">{x.eyebrow}</span><h1>{tCommon("nav.learn")}</h1></div>
+     <label className="crew-learn-language"><span>{tSettings("group.targetLanguage")}</span>
+      <select aria-label={tSettings("group.targetLanguage")} value={targetLanguage} onChange={event=>setTargetLanguage(event.target.value)}>
+       {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
+      </select>
+     </label>
+    </div>
+    :<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
   {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
    <span className="crew-section-card-icon"><Icon name="settings"/></span>
@@ -236,8 +263,30 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
         <div className="crew-section-row-title"><h2>{t("sectionHubs.learn.todayTitle")}</h2>
          <Link to="/teacher/reports">{t("sectionHubs.learn.recordsLink")} →</Link></div>
         <TodayLearningCard compact/>
-        <Link className="crew-action-text" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>{t("sectionHubs.learn.threeMinuteTitle")} →</Link>
        </section>
+       <section className="crew-learn-tools" aria-label={tTeacher("learn.method")}>
+        <div className="crew-section-row-title"><h2>{tTeacher("learn.method")}</h2></div>
+        <div className="crew-section-grid crew-learn-tool-grid">
+         {learnTools.map(tool=><Link className="crew-section-card crew-learn-tool" key={tool.to} to={tool.to}>
+          <span className="crew-section-card-icon"><Icon name={tool.icon}/></span>
+          <span className="crew-section-card-copy"><strong>{tool.title}</strong><small>{tool.desc}</small></span>
+         </Link>)}
+        </div>
+        {englishCurriculum&&<Link className="crew-learn-three-minute" to={clientReady?threeMinuteSpeakingPath():"/friend/live?id=zoe&intent=speak"}>
+         <span className="crew-section-card-icon"><Icon name="chat"/></span>
+         <span><strong>{t("sectionHubs.learn.threeMinuteTitle")}</strong><small>{t("sectionHubs.learn.threeMinuteDesc")}</small></span>
+         <span aria-hidden="true">→</span>
+        </Link>}
+       </section>
+       <details className="crew-learn-more">
+        <summary><span>{t("sectionHubs.more")}</span><span aria-hidden="true">⌄</span></summary>
+        <div className="crew-learn-more-list">
+         {englishCurriculum&&<Link to="/teacher/textbook"><Icon name="book"/><span>{tTeacher("learn.textbook")}</span><span aria-hidden="true">→</span></Link>}
+         {englishCurriculum&&<Link to="/teacher/reading-library"><Icon name="book"/><span>{tTeacher("learn.library")}</span><span aria-hidden="true">→</span></Link>}
+         <Link to="/teacher/reports"><Icon name="history"/><span>{t("sectionHubs.learn.recordsLink")}</span><span aria-hidden="true">→</span></Link>
+         <Link to="/settings#settings-learning"><Icon name="settings"/><span>{tSettings("group.learningHeading")}</span><span aria-hidden="true">→</span></Link>
+        </div>
+       </details>
       </>:
       <Link to={x.hero.to} className="crew-section-hero">
        <span className="crew-section-hero-icon"><Icon name={x.hero.icon}/></span>
@@ -246,21 +295,16 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        <span className="crew-section-arrow" aria-hidden="true">→</span>
       </Link>
     }
-    <section className="crew-section-discover">
+    {section!=="learn"&&<section className="crew-section-discover">
      <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
      <div className="crew-section-grid">
-      {section==="learn"&&<Link className="crew-section-card" to="/teacher/board">
-       <span className="crew-section-card-icon"><Icon name="teacher"/></span>
-       <span className="crew-section-card-copy"><strong>{tTeacher("board.entryTitle")}</strong><small>{tTeacher("board.entryDesc")}</small></span>
-       <span className="crew-section-arrow" aria-hidden="true">→</span>
-      </Link>}
       {x.items.filter(item=>section!=="chat"||item.to!=="/teacher/shorts").map(item=>
       <Link className="crew-section-card" to={item.to} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>
       </Link>)}{section==="me"&&<DeviceSettingsShortcut/>}</div>
-    </section>
+    </section>}
    </>
   }
   {section==="me"&&<p className="crew-section-footnote">{t("sectionHubs.me.footnote")}</p>}

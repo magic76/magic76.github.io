@@ -23,6 +23,9 @@ test("main Learn tab has native-equivalent continue, daily activity and three-mi
  assert.match(hub,/<LearningFocusCard\/>/);
  assert.match(hub,/<TodayLearningCard compact\/>/);
  assert.match(hub,/\/friend\/live\?id=zoe&intent=speak/);
+ assert.match(hub,/crew-learn-tool-grid/);
+ assert.match(hub,/setTargetLanguage\(event\.target\.value\)/);
+ assert.match(hub,/crew-learn-more/);
  assert.match(hub,/section==="learn"\?/);
  assert.match(learn,/<TodayLearningCard\/>/);
  assert.match(learn,/<ContinueLearningCard compact\/>/);
@@ -33,7 +36,7 @@ test("main Learn tab has native-equivalent continue, daily activity and three-mi
  assert.match(focus,/completedLessons\(\)/);
  assert.match(focus,/getTeacherProfile\(/);
  assert.match(focus,/resume\?plan\.to:/);
- assert.match(focus,/plan\.action==="textbook"\|\|plan\.action==="vocabulary"/);
+ assert.match(focus,/plan\.action==="textbook"\|\|\(targetLanguage==="英文"/);
  const stats=read("web-spa/src/teacher/learningToday.ts");
  assert.match(stats,/history\("teacher"\)/);
  assert.match(stats,/item\.durationMs/);

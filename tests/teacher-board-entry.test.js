@@ -8,7 +8,8 @@ const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 test("interactive whiteboard appears as a discoverable learning hub feature card",()=>{
  const page=read("web-spa/src/pages/CrewSectionPage.tsx");
  const route=read("web-spa/src/App.tsx");
- assert.match(page,/section==="learn"&&<Link className="crew-section-card" to="\/teacher\/board"/);
+ assert.match(page,/to:"\/teacher\/board"/);
+ assert.match(page,/crew-learn-tool-grid/);
  assert.match(page,/tTeacher\("board.entryTitle"\)/);
  assert.match(page,/tTeacher\("board.entryDesc"\)/);
  assert.match(route,/path="\/teacher\/board" element=\{<TeacherBoardPage\/>\}/);
