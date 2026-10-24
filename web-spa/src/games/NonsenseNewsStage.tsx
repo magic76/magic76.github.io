@@ -4,11 +4,11 @@ import {NonsenseDirectorCards} from "./NonsenseDirectorCards";
 
 const L=(zh:boolean,a:string,b:string)=>zh?a:b;
 const stageSymbols={breaking:"📡",witness:"🎙️",evidence:"🗂️",poll:"📊",crisis:"🚨",finale:"🏆"};
-type Props={scene:NewsScene;zh:boolean;round:number;playing:boolean;hostDraft:string;playerDraft:string;aiSpeaking:boolean;directorEvents:DirectorEvent[];choiceDisabled:boolean;onChoice:(value:string)=>void};
-export function NonsenseNewsStage({scene,zh,round,playing,hostDraft,playerDraft,aiSpeaking,directorEvents,choiceDisabled,onChoice}:Props){
+type Props={scene:NewsScene;zh:boolean;round:number;totalRounds:number;playing:boolean;hostDraft:string;playerDraft:string;aiSpeaking:boolean;directorEvents:DirectorEvent[];choiceDisabled:boolean;onChoice:(value:string)=>void};
+export function NonsenseNewsStage({scene,zh,round,totalRounds,playing,hostDraft,playerDraft,aiSpeaking,directorEvents,choiceDisabled,onChoice}:Props){
  const finished=scene.type==="finale";
  return <section className={"news-stage news-stage-"+scene.type} aria-label={L(zh,"荒謬新聞現場","Absurd newsroom")} aria-live="polite">
-  <div className="news-studio-top"><span className="news-live-light"><i/> CREW NEWS · LIVE</span><span className="news-studio-round">{finished?L(zh,"大結局","FINALE"):L(zh,"第 "+round+" / 3 回合","ROUND "+round+" / 3")}</span></div>
+  <div className="news-studio-top"><span className="news-live-light"><i/> CREW NEWS · LIVE</span><span className="news-studio-round">{finished?L(zh,"大結局","FINALE"):L(zh,"第 "+round+" / "+totalRounds+" 回合","ROUND "+round+" / "+totalRounds)}</span></div>
   <div className="news-stage-visual" aria-hidden="true">
    <div className="news-orbit news-orbit-a"/><div className="news-orbit news-orbit-b"/>
    <span className="news-stage-symbol">{stageSymbols[scene.type]}</span>
@@ -24,7 +24,7 @@ export function NonsenseNewsStage({scene,zh,round,playing,hostDraft,playerDraft,
    <div><small>{scene.type==="witness"?L(zh,"獨家連線","SPECIAL GUEST"):scene.type==="evidence"?L(zh,"檔案已解鎖","EVIDENCE UNLOCKED"):L(zh,"事件升級","CHAOS ALERT")}</small><strong>{scene.character||L(zh,"新聞現場","NEWS DESK")}</strong>{scene.reaction&&<span>{scene.reaction}</span>}</div>
   </div>}
   {scene.type==="poll"&&<div className="news-poll-box"><span>{L(zh,"節目虛構觀眾民調","Fictional audience poll")}</span><div className="news-poll-track"><div style={{width:(scene.audience??50)+"%"}}/></div><strong>{scene.audience==null?L(zh,"觀眾意見分歧","Opinions are divided"):scene.audience+"%"}</strong></div>}
-  {finished?<div className="news-outcome"><span>{L(zh,"今晚的最終下場","HOW THIS ENDED")}</span><strong>{scene.ending}</strong></div>:
+  {finished?<div className={"news-outcome news-outcome-"+(scene.outcome==="good"?"good":"bad")}><span className="news-outcome-result">{scene.outcome==="good"?L(zh,"救場成功 · 好結局","BROADCAST SAVED · GOOD ENDING"):L(zh,"直播翻車 · 壞結局","BROADCAST DISASTER · BAD ENDING")}</span><span>{L(zh,"今晚的最終下場","HOW THIS ENDED")}</span><strong>{scene.ending}</strong></div>:
   <div className="news-host-box"><span className="news-host-avatar" aria-hidden="true">🎤</span><div><span className="news-host-name">{scene.character||L(zh,"AI 主播","AI News Anchor")}</span><p>{scene.question}</p></div></div>}
   {!finished&&<NonsenseDirectorCards zh={zh} events={directorEvents} sceneChoices={scene.options} choiceDisabled={choiceDisabled} onChoice={onChoice}/>}
   {playing&&hostDraft&&<p className={"news-captions"+(aiSpeaking?" active":"")}>{L(zh,"主播：","HOST: ")}{hostDraft.slice(-200)}</p>}
