@@ -158,7 +158,11 @@ export function useLiveSession(config:Config){
     onSpeaking:v=>{setState(v?"speaking":"listening");if(v){cancelRescue();if(configRef.current.sessionKind==="friend"){awaitingTutorRef.current=false;cancelFriendReplyTimer()}}else scheduleRescue()},
     // Presence indicator is informational only. Server VAD owns turn completion.
     onListeningPhase:phase=>setStatus(phase==="speaking"
-      ?"🎙️ 正在聽你說…":"🎙️ 還在聽，可以繼續說…"),
+      ?"🎙️ 正在聽你說…":"🎙️ 已收到聲音，等你說完後就會回應…"),
+    onMicHealth:health=>{
+      if(health.trackState!=="live"&&health.trackState!=="missing"&&!health.muted)
+       setStatus("麥克風已停止收音，請重新開始語音對話。");
+     },
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{
      if(v.trim()){

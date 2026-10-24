@@ -1371,7 +1371,14 @@
     // Leave input selection to the browser/OS. Forcing the built-in microphone
     // on Android can move AI playback off a connected Bluetooth headset.
     // Keep the single selected stream open while muting in software.
-    this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    try{
+      this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    }catch(error){
+      // Unsupported constraints can be retried without overriding the OS route.
+      var name=String(error&&error.name||"");
+      if(!/^(OverconstrainedError|NotReadableError|TypeError)$/.test(name))throw error;
+      this.mediaStream=await this._requestMicrophone({audio:true});
+    }
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();

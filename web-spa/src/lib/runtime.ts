@@ -8,6 +8,7 @@ export type LiveSessionOptions={
  onToolsUnavailable?:()=>void;
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
  onListeningPhase?:(phase:"speaking"|"waiting")=>void;
+ onMicHealth?:(status:{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number})=>void;
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
  onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  onError?:(error:Error)=>void;onTerminal?:(info?:{status?:string;state?:string})=>void;onRecovered?:(event:{model:string;resumed:boolean})=>void;
@@ -17,6 +18,7 @@ export interface LiveSession{
  start():Promise<void>;stop(options?:Record<string,unknown>):Promise<void>;setVolume(value:number):void;
  toggleMic():void;interrupt():boolean;sendText(text:string):boolean;sendControl?(instruction:string):boolean;sendImage(image:unknown,options?:Record<string,unknown>):boolean;sendVideoFrame?(frame:unknown):boolean;
  getDurationMs():number;waitForPlaybackDrain(maxMs?:number):Promise<void>;
+ getMicHealth?():{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number};
 }
 type StoryBook={id:string;title?:string;summary?:string;idea?:string;coverIndex?:number;images?:any[];pages?:any[];currentPage?:number;updatedAt?:string};
 declare global{interface Window{
