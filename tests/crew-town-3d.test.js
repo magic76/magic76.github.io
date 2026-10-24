@@ -122,10 +122,10 @@ test("P1 camera makes town at least 15% larger while preserving focus and orbit 
  for(const offset of ["11.9,14,19.8","14.7,18.5,25","12.7,15.7,23.4","4.3,5.2,7.3"]){
   assert.ok(camera.includes("new Vector3("+offset+")"));
  }
- assert.match(camera,/minDistance=\\{7\\.5\\} maxDistance=\\{50\\}/);
+ assert.ok(camera.includes("minDistance={7.5} maxDistance={50}"));
  assert.match(camera,/minPolarAngle/);
  assert.match(stage,/80svh/);
- assert.match(stage,/max-height:min\\(39svh,300px\\)/);
+ assert.ok(stage.includes("max-height:min(39svh,300px)"));
 });
 
 test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>{
