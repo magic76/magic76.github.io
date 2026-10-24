@@ -126,6 +126,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
   <section className="crew-mini-panel crew-mini-number-board" aria-label="1A2B 猜數字">
    <div className="crew-mini-topline"><strong>{dailyDate?"今日同題 · ":""}{mode==="guess"?"破解 "+friend.name+" 的密碼":"幫 "+friend.name+" 猜你的密碼"}</strong><span>{history.length} / 10 次 · 剩餘 {remaining} 次</span></div>
    {dailyDate?<p className="crew-mini-daily-note">每日固定題目（UTC {dailyDate}），同難度答案相同；本機僅保留首次完成紀錄。</p>:null}
+   {mode==="guess"?<p className="crew-mini-statline">個人最佳：{record.best===null?"尚無紀錄":record.best+" 次"} · 勝場 {record.wins} / {record.played}{dailyDate&&dailyResult?" · 今日首局 "+dailyResult.attempts+" 次":""}</p>:null}
    <p className="crew-mini-muted">{mode==="guess"?
     "A = 數字與位置都對；B = 數字對、位置錯。首位不能是 0，數字不可重複。":
     "先在心中想好一組不重複的數字，不必輸入或透露答案；朋友會逐步猜，你只需回報 A/B。"}</p>
