@@ -257,3 +257,12 @@
  .crew-mini-input-row .crew-mini-primary{min-height:46px}
 }
 @media(prefers-reduced-motion:reduce){.crew-mini-keypad button{transition:none}.crew-mini-keypad button:active:not(:disabled){transform:none}}
+
+/* Announce only meaningful Taboo time milestones without occupying visual space. */
+.crew-taboo-timer-line .sr-only{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+ clip:rect(0,0,0,0);white-space:nowrap;border:0
+}
+@media (pointer:coarse){
+ .crew-taboo-switch-mode,.crew-taboo-stage .crew-mini-row-actions button{min-height:44px;touch-action:manipulation}
+}
