@@ -336,6 +336,34 @@
     "entryAction": "Ouvrir le tableau",
     "entryOpening": "Ouverture du tableau",
     "entryConfirm": "Passer au tableau blanc mettra fin à cette conversation vocale et démarrera une nouvelle séance. Continuer ?",
-    "entryError": "Impossible de terminer la conversation vocale. Veuillez réessayer."
+    "entryError": "Impossible de terminer la conversation vocale. Veuillez réessayer.",
+    "flash": {
+      "title": "Rappel actif",
+      "marked": "Notées {{count}} / {{total}}",
+      "waiting": "En attente des cartes du professeur",
+      "front": "Recto",
+      "back": "Verso",
+      "tap": "Touchez pour retourner",
+      "flipLabel": "{{side}} : {{term}}. Touchez pour retourner",
+      "recallFirst": "Retrouvez d'abord le sens, puis retournez. Autoévaluation, pas une note du professeur.",
+      "again": "À retravailler",
+      "known": "Je connais",
+      "practice": "Pratiquer avec le prof",
+      "previous": "Précédente",
+      "next": "Suivante",
+      "completed": "Terminé : {{count}} à revoir",
+      "progress": "Progrès {{count}} / {{total}}",
+      "reviewWithTeacher": "Réviser avec le prof",
+      "restart": "Recommencer"
+    },
+    "review": {
+      "title": "Révision à la prochaine séance",
+      "due": "{{count}} mots à réviser",
+      "scheduled": "{{count}} mots programmés",
+      "empty": "Aucun mot enregistré. Retournez les cartes puis évaluez-vous.",
+      "memoryOff": "Mémoire désactivée : aucun suivi conservé pour la prochaine séance.",
+      "start": "Réviser maintenant",
+      "clear": "Effacer les révisions"
+    }
   }
 }

@@ -336,6 +336,34 @@
     "entryAction": "Buka papan tulis",
     "entryOpening": "Membuka papan tulis",
     "entryConfirm": "Beralih ke papan tulis akan mengakhiri percakapan suara ini dan memulai sesi belajar baru. Lanjutkan?",
-    "entryError": "Tidak dapat mengakhiri percakapan suara saat ini. Coba lagi."
+    "entryError": "Tidak dapat mengakhiri percakapan suara saat ini. Coba lagi.",
+    "flash": {
+      "title": "Latihan mengingat",
+      "marked": "Ditandai {{count}} / {{total}}",
+      "waiting": "Menunggu kartu dari guru",
+      "front": "Depan",
+      "back": "Belakang",
+      "tap": "Ketuk untuk membalik",
+      "flipLabel": "{{side}}: {{term}}. Ketuk untuk membalik",
+      "recallFirst": "Ingat artinya dulu, lalu balik. Ini penilaian diri, bukan nilai dari guru.",
+      "again": "Latih lagi",
+      "known": "Saya ingat",
+      "practice": "Latihan dengan guru",
+      "previous": "Sebelumnya",
+      "next": "Berikutnya",
+      "completed": "Selesai! {{count}} perlu diulang",
+      "progress": "Progres {{count}} / {{total}}",
+      "reviewWithTeacher": "Ulangi dengan guru",
+      "restart": "Mulai lagi"
+    },
+    "review": {
+      "title": "Ulasan kata sesi berikutnya",
+      "due": "{{count}} kata harus diulas",
+      "scheduled": "{{count}} kata dijadwalkan",
+      "empty": "Belum ada kata tersimpan. Balik kartu dan beri penilaian diri.",
+      "memoryOff": "Memori nonaktif: ulasan tidak disimpan untuk sesi berikutnya.",
+      "start": "Ulas sekarang",
+      "clear": "Hapus ulasan"
+    }
   }
 }

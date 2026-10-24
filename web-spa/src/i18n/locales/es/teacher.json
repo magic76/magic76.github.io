@@ -336,6 +336,34 @@
     "entryAction": "Abrir pizarra",
     "entryOpening": "Abriendo pizarra",
     "entryConfirm": "Al cambiar a la pizarra, terminará la conversación de voz actual y comenzará una nueva sesión de aprendizaje. ¿Continuar?",
-    "entryError": "No se pudo finalizar la conversación de voz. Inténtalo de nuevo."
+    "entryError": "No se pudo finalizar la conversación de voz. Inténtalo de nuevo.",
+    "flash": {
+      "title": "Recuerdo activo",
+      "marked": "Marcadas {{count}} / {{total}}",
+      "waiting": "Esperando tarjetas del profesor",
+      "front": "Anverso",
+      "back": "Reverso",
+      "tap": "Toca para girar",
+      "flipLabel": "{{side}}: {{term}}. Toca para girar",
+      "recallFirst": "Recuerda el significado antes de girar. Es autoevaluación, no una nota del profesor.",
+      "again": "Practicar más",
+      "known": "Lo recuerdo",
+      "practice": "Practicar con profesor",
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "completed": "Listo: {{count}} por repasar",
+      "progress": "Progreso {{count}} / {{total}}",
+      "reviewWithTeacher": "Repasar con profesor",
+      "restart": "Empezar de nuevo"
+    },
+    "review": {
+      "title": "Repaso para la próxima sesión",
+      "due": "Hay {{count}} palabras pendientes",
+      "scheduled": "{{count}} palabras programadas",
+      "empty": "Sin palabras guardadas. Da la vuelta a las tarjetas y evalúate.",
+      "memoryOff": "Memoria desactivada: no se guardan repasos para otra sesión.",
+      "start": "Repasar ahora",
+      "clear": "Borrar repasos"
+    }
   }
 }

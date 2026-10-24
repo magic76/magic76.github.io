@@ -1,8 +1,9 @@
 import {useState} from "react";
 import type {BoardCard,BoardQuestion} from "./boardProtocol";
 import type {SpeakingAssessment} from "./boardLessons";
+import {BoardFlashcards,type FlashReview} from "./BoardFlashcards";
 
-type Props={card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void;onSpeakingSubmit?:(text:string)=>void;speakingAssessment?:SpeakingAssessment|null};
+type Props={card:BoardCard;answers:Record<string,number>;onAnswer:(card:BoardCard,index:number,selected:number)=>void;onExplain:(text:string)=>void;english?:boolean;focusIndex?:number;revealCount?:number|null;quizIndex?:number;onNavigate?:(index:number)=>void;onSpeakingSubmit?:(text:string)=>void;speakingAssessment?:SpeakingAssessment|null;onFlashcardPractice?:(card:BoardCard,reviews:FlashReview[],scope:"item"|"weak")=>void;onFlashcardRate?:(card:BoardCard,review:FlashReview)=>void};
 
 const names:Record<BoardCard["type"],[string,string]>={
  explanation:["概念","Concept"],example:["例句","Examples"],comparison:["比較","Compare"],
@@ -41,13 +42,8 @@ function Steps({card,english,focusIndex=-1,revealCount=null,onNavigate}:{card:Bo
    <button type="button" disabled={active>=available-1} onClick={()=>move(active+1)}>{english?"Next":"下一步"} →</button></div>
  </div>;
 }
-function Flashcards({card,english,focusIndex=-1,revealCount=null}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null}){
- const [shown,setShown]=useState<Record<number,boolean>>({});
- return <div className="teaching-board-flash-grid">{card.pairs.slice(0,revealCount===null?undefined:revealCount).map((p,i)=><button type="button" key={i} className={"teaching-board-flash"+(shown[i]?" is-flipped":"")+(focusIndex===i?" is-highlighted":"")} onClick={()=>setShown(v=>({...v,[i]:!v[i]}))} aria-expanded={!!shown[i]}>
-  <small>{shown[i]?(english?"Back":"背面"):(english?"Front":"正面")} · {english?"Tap to flip":"點擊翻面"}</small>
-  <strong>{shown[i]?p.target:p.source}</strong>
-  {p.pronunciation&&<span>{p.pronunciation}</span>}
- </button>)}</div>;
+function Flashcards({card,english,focusIndex=-1,revealCount=null,onPractice,onRate}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null;onPractice?:Props["onFlashcardPractice"];onRate?:Props["onFlashcardRate"]}){
+ return <BoardFlashcards key={JSON.stringify(card.pairs)} card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onPractice={onPractice} onRate={onRate}/>;
 }
 function Dialogue({card,english,focusIndex=-1,revealCount=null}:{card:BoardCard;english:boolean;focusIndex?:number;revealCount?:number|null}){
  return <div className="teaching-board-dialogue">{card.pairs.slice(0,revealCount===null?undefined:revealCount).map((p,i)=><div className={"teaching-board-bubble"+(i%2?" is-reply":"")+(focusIndex===i?" is-highlighted":"")} key={i}>
@@ -100,7 +96,7 @@ function Speaking({card,onSpeakingSubmit,assessment,english}:{card:BoardCard;onS
   </div>}
  </div>;
 }
-export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate,onSpeakingSubmit,speakingAssessment}:Props){
+export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focusIndex=-1,revealCount=null,quizIndex=0,onNavigate,onSpeakingSubmit,speakingAssessment,onFlashcardPractice,onFlashcardRate}:Props){
  return <article className="teaching-board-card" data-kind={card.type}>
   <div className="teaching-board-card-head"><span className="teaching-board-card-kind">{cardKindName(card.type,english)}</span>
    <h2>{card.title}</h2></div>
@@ -110,7 +106,7 @@ export function TeachingCard({card,answers,onAnswer,onExplain,english=false,focu
    {card.type==="explanation"&&card.pairs.length>0&&<PairRows card={card} onExplain={onExplain} english={english}/>}
    {card.type==="timeline"&&<Timeline card={card} focusIndex={focusIndex} revealCount={revealCount}/>}
    {card.type==="steps"&&<Steps card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onNavigate={onNavigate}/>}
-   {card.type==="flashcard"&&<Flashcards card={card} english={english} focusIndex={focusIndex} revealCount={revealCount}/>}
+   {card.type==="flashcard"&&<Flashcards card={card} english={english} focusIndex={focusIndex} revealCount={revealCount} onPractice={onFlashcardPractice} onRate={onFlashcardRate}/>}
    {card.type==="dialogue"&&<Dialogue card={card} english={english} focusIndex={focusIndex} revealCount={revealCount}/>}
    {card.type==="quiz"&&<Quiz card={card} answers={answers} onAnswer={onAnswer} english={english} quizIndex={quizIndex} onNavigate={onNavigate}/>}
    {card.type==="speaking"&&<Speaking key={card.id} card={card} onSpeakingSubmit={onSpeakingSubmit} assessment={speakingAssessment} english={english}/>}
