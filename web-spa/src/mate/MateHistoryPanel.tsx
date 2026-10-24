@@ -4,6 +4,7 @@ export function MateHistoryPanel({history,english,onOpen,onDelete}:{
 }){
   return <section className="mate-panel" aria-label={english?"History":"紀錄"}>
     <h2>{english?"On-device task history":"本機任務紀錄"}</h2>
+    <p className="mate-hint">{english?"Tasks and transcripts are saved here automatically. You can delete them anytime.":"任務與對話會自動保存在此裝置，可隨時刪除。"}</p>
     {history.length===0&&<p className="mate-hint">{english?"No saved tasks.":"尚未儲存任務。"}</p>}
     {history.map(item=><div className="mate-history" key={item.id}>
       <div><strong>{item.target} · {item.goal}</strong>
