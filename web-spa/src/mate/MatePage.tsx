@@ -128,6 +128,8 @@ export function MatePage(){
     await stopConnection();
     const sequence=++connectionSeq.current;
     const c=consensusRef.current;
+    const scopedOwnerDecision=mode==="external"?ownerDecisionForExternal.current:"";
+    if(mode==="external")ownerDecisionForExternal.current=""; // authorization is single-handoff only
     externalInputSeen.current=false;externalOutputSeen.current=false;mutedByMate.current=false;
     if(mode==="private"){
       advance("private","PRIVATE_TO_MATE");
@@ -140,7 +142,7 @@ export function MatePage(){
       await ensureLive();
       if(connectionSeq.current!==sequence||!window.CrewLive)return;
       const voiceOptions={
-        system:mode==="private"?privateInstruction(c):externalInstruction(c,ownerDecisionForExternal.current,turnsRef.current.slice(-8)),
+        system:mode==="private"?privateInstruction(c):externalInstruction(c,scopedOwnerDecision,turnsRef.current.slice(-8)),
         openingPrompt:mode==="private"
           ? (note.trim()||t("請詢問我需要哪些資訊，再幫我整理任務。","Ask what is missing and help me clarify this task."))
           : "",
