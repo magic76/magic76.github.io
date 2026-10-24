@@ -23,6 +23,14 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
  {name:"answer_challenge",description:"Record the player's spoken answer to the active on-screen 3-choice riddle.",parameters:{type:"OBJECT",properties:{
   choice:{type:"STRING",enum:["A","B","C"]}
  },required:["choice"]}},
+ {name:"create_magic_panel",description:"Create a fully interactive card interface on the magic island. Choose a spellbook with runes, a treasure reveal or a quest board. Use this for freeform requests to create new UI, magic books, inventory, treasure or quests instead of only narrating.",parameters:{type:"OBJECT",properties:{
+  panel_type:{type:"STRING",enum:["spellbook","treasure","quest"]},
+  title:{type:"STRING"},description:{type:"STRING"},
+  item_a:{type:"STRING"},item_b:{type:"STRING"},item_c:{type:"STRING"}
+ },required:["panel_type","title","description","item_a","item_b","item_c"]}},
+ {name:"select_magic_panel",description:"Resolve a voice selection A, B, or C on the latest interactive spellbook, treasure or quest panel.",parameters:{type:"OBJECT",properties:{
+  choice:{type:"STRING",enum:["A","B","C"]}
+ },required:["choice"]}},
  {name:"tell_story",description:"Show a very short new story beat in the scene's narration panel. The UI renders text safely; never return HTML, JS or CSS.",parameters:{type:"OBJECT",properties:{
   message:{type:"STRING"}
  },required:["message"]}}
@@ -34,7 +42,8 @@ export function magicSystemPrompt(english:boolean){
   "The user is actually viewing a floating enchanted island with a changing backdrop, creatures and interactive cards.",
   "Respond naturally, in short sentences and with a sense of wonder. Ask one simple follow-up question at a time.",
   "The UI can change only by the provided tools. Call them promptly for the user's imaginative requests.",
-  "For puzzles, call create_challenge so the player can TAP choices. When the user gives a SPOKEN answer, call answer_challenge.",
+  "For puzzles, call create_challenge so the player can TAP choices. For magic books, treasure boxes, inventory and quests, call create_magic_panel to generate a new interactive screen with three options.",
+  "When the user gives a SPOKEN answer to a riddle call answer_challenge, and for a panel call select_magic_panel.",
   "Build on the existing world, not reset it. Do not claim an object, location or puzzle is rendered unless a corresponding tool succeeded.",
   "Available settings are sky/forest/candy; rain/snow/stars/clear; day/night; summon dragon/chest/portal/tree/owl/crystal.",
   "If a tool fails, apologize briefly and offer a different action. Never show code or speak technical API instructions.",
