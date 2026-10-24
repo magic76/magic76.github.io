@@ -26,6 +26,30 @@ export function latestMagicSpotlight(challenge:MagicChallenge|null,panels:MagicP
  return null;
 }
 export type MagicResult={ok:boolean;world:MagicWorld;event:string};
+export type MagicLiveCall={id?:string;name:string;args?:unknown};
+export type MagicLiveCallResult={result:MagicResult;duplicate:boolean};
+const MAX_LIVE_TOOL_RESULTS=64;
+/**
+ * Gemini may retry a function call after transport recovery. Function-call ids are
+ * transport idempotency keys: replay the original response without mutating the
+ * current world a second time. The cache is session-scoped and bounded.
+ */
+export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<string,MagicResult>,lang:"zh"|"en"="zh"):MagicLiveCallResult{
+ const id=typeof call.id==="string"&&call.id.length>0&&call.id.length<=128?call.id:null;
+ if(id){
+  const cached=seen.get(id);
+  if(cached)return {result:cached,duplicate:true};
+ }
+ const result=applyMagicCommand(state,call.name,call.args,lang);
+ if(id){
+  seen.set(id,result);
+  if(seen.size>MAX_LIVE_TOOL_RESULTS){
+   const oldest=seen.keys().next().value;
+   if(typeof oldest==="string")seen.delete(oldest);
+  }
+ }
+ return {result,duplicate:false};
+}
 export const MAGIC_INITIAL_WORLD:MagicWorld={
  theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
  chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,revision:0
