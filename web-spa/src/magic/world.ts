@@ -17,6 +17,14 @@ export type MagicWorld={
  objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
  message:string;effect:MagicSpell|null;revision:number;
 };
+export type MagicSpotlight={kind:"challenge"|"panel";id:number};
+/** Newest generated challenge or panel wins; resolution does not hide results. */
+export function latestMagicSpotlight(challenge:MagicChallenge|null,panels:MagicPanel[]):MagicSpotlight|null{
+ const panel=panels[panels.length-1];
+ if(challenge&&(!panel||challenge.id>panel.id))return {kind:"challenge",id:challenge.id};
+ if(panel)return {kind:"panel",id:panel.id};
+ return null;
+}
 export type MagicResult={ok:boolean;world:MagicWorld;event:string};
 export const MAGIC_INITIAL_WORLD:MagicWorld={
  theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
