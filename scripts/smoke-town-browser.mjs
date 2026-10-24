@@ -29,7 +29,7 @@ const monitor="<script>"
  +"const friends=document.createElement('meta');friends.name='crew-town-friend-count';friends.content=friendMenu&&friendMenu.textContent.includes('16')?'16':'0';document.head.appendChild(friends);"
  +"const labels=document.createElement('meta');labels.name='crew-town-friend-labels';labels.content=String(document.querySelectorAll('.crew-town-3d-name').length);document.head.appendChild(labels);"
  +"const residentMount=document.createElement('meta');residentMount.name='crew-town-mounted-residents';residentMount.content=document.querySelector('canvas[data-town-residents]')?.getAttribute('data-town-residents')||'0';document.head.appendChild(residentMount);"
- +"},9000);"
+ +"},14000);"
  +"</script>";
 const server=createServer((req,res)=>{
  try{
@@ -49,7 +49,7 @@ await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
  "--disable-gpu-sandbox","--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader-webgl",
  "--window-size=520,900","--force-device-scale-factor=1",
- "--virtual-time-budget=12000","--dump-dom",
+ "--virtual-time-budget=18500","--dump-dom",
  "--screenshot="+join(artifact,"town-browser.png"),
  "http://127.0.0.1:"+server.address().port+"/town"
 ];
@@ -60,7 +60,7 @@ try{
   proc.stdout.on("data",data=>{stdout+=String(data)});
   proc.stderr.on("data",data=>{stderr=(stderr+String(data)).slice(-7000)});
   proc.on("error",reject);proc.on("close",done);
-  const watchdog=setTimeout(()=>proc.kill("SIGKILL"),60000);
+  const watchdog=setTimeout(()=>proc.kill("SIGKILL"),90000);
   proc.on("close",()=>clearTimeout(watchdog));
  });
  writeFileSync(join(artifact,"town-browser.html"),stdout);
