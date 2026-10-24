@@ -186,7 +186,8 @@ export function TeacherLivePage(){
  const alternateParams=new URLSearchParams(p);
   if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
   const alternateHref="/teacher/live?"+alternateParams.toString();
-  const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?"listening":live.state==="connecting"||live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state==="error"?"error":"idle";
+  const awaitingReply=["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase);
+ const presenceState=live.state==="speaking"?"speaking":live.state==="listening"?(awaitingReply?"waiting":"listening"):live.state==="connecting"||live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state==="error"?"error":"idle";
  const voiceStatus=live.state==="speaking"?(english?"Teacher is speaking":"老師正在回覆")
   :live.state==="listening"?(live.voicePhase==="no-transcript"?(english?"Speech not detected — try again":"沒聽清楚，可以再說一次"):live.voicePhase==="no-reply"?(english?"No reply — try again":"尚未收到回覆，可以再說一次"):live.voicePhase==="processing"?(english?"Preparing a reply":"正在整理回覆"):(english?"Listening":"正在聽你說"))
   :live.state==="connecting"||live.state==="requesting-mic"?(english?"Connecting":"正在連線")
