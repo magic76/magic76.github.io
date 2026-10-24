@@ -193,7 +193,7 @@ export function WerewolfPage(){
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY / SOCIAL DEDUCTION</span>
    <h1>{L(zh,"AI 狼人殺","AI Werewolf")}</h1>
-   <p>{L(zh,"1 位真人 + 5 位 AI 朋友。說謊、推理、質疑與投票，每局都有不同劇情。","One human, five AI friends. Bluff, deduce, debate and vote your way to victory.")}</p>
+   <p>{L(zh,"1 位真人 + 5 位 AI 朋友。推理、質疑與投票；免 Key 提供文字單機模式。","One human, five AI friends. Bluff, deduce, debate and vote your way to victory.")}</p>
   </header>
   {!game?<section className="wolf-setup">
    <div className="wolf-setup-stage"><span className="wolf-moon">☾</span><div><strong>{L(zh,"迷霧村莊正在等你","The village is waiting")}</strong><small>{L(zh,"6 人快速局 · 1 狼人、1 預言家、1 女巫、3 村民","6 seats · 1 wolf, 1 seer, 1 witch, 3 villagers")}</small></div></div>
@@ -201,7 +201,7 @@ export function WerewolfPage(){
    <div className="wolf-field"><label htmlFor="wolf-role">{L(zh,"你的角色（測試版可指定）","Your role (test edition)")}</label><select id="wolf-role" value={roleChoice} onChange={e=>setRoleChoice(e.target.value as WolfRole|"random")}><option value="random">{L(isZh,"隨機身分 · 推薦","Random · recommended")}</option>{Object.entries(TR).map(([id,r])=><option key={id} value={id}>{r[language]}</option>)}</select></div>
    <div className="wolf-rules"><strong>{L(isZh,"遊戲規則","Rules")}</strong><p>{L(isZh,"黑夜由狼人襲擊、預言家查驗、女巫用藥；白天自由討論後公投。狼人全部出局則村民勝；狼人達到存活人數的一半則狼勝。","At night, the wolf attacks, the seer checks, and the witch can use a potion. Discuss and vote by day. The village wins when the wolf dies; the wolf wins at parity.")}</p></div>
    <button type="button" className="wolf-primary" onClick={start}>{L(isZh,"開始第一晚","Start night one")} →</button>
-   <p className="wolf-footnote">{L(isZh,"沒有 Gemini Key 也可用文字試玩。Key 可啟用角色 AI 即時回應與 Live 語音。","Try the text game without a key. Add your own key for AI replies and Live voice.")}</p>
+   <p className="wolf-footnote">{L(isZh,"免 Key 是情境台詞的文字單機演練，不具自由理解能力。Gemini Key 才有真正的 AI 角色回應與 Live 語音。","Without a key, text replies are scripted for each situation. Use a Gemini Key for real AI replies and Live voice.")}</p>
   </section>:<div className="wolf-shell">
    <div className={"wolf-world "+(game.phase==="night"?"is-night":game.phase==="finished"?"is-finished":"is-day")}>
     <div className="wolf-world-top"><span>✦ {L(isZh,"第","Day ")}{game.day}{isZh?" 天":""}</span><span>{game.phase==="night"?"☾":"☀"} {phaseTitle}</span><button type="button" onClick={reset}>{L(isZh,"重新開局","New game")}</button></div>
@@ -266,7 +266,7 @@ export function WerewolfPage(){
     <div className="wolf-control-title"><h2>{L(isZh,"村莊討論","Village debate")}</h2><button type="button" className="wolf-secondary" disabled={busy} onClick={openVote}>{L(isZh,"結束討論，投票 →","Start voting →")}</button></div>
     {human!.alive?<form onSubmit={submit} className="wolf-compose">
      <label htmlFor="wolf-address">{L(isZh,"想指定誰回答？","Ask a specific NPC")}</label>
-     <select id="wolf-address" value={addressed} onChange={e=>setAddressed(e.target.value)}><option value="">{L(isZh,"自由發言，AI 自動接話","Open debate")}</option>{pickTargets.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>
+     <select id="wolf-address" value={addressed} onChange={e=>setAddressed(e.target.value)}><option value="">{L(isZh,"自由發言，由角色接話","Open discussion")}</option>{pickTargets.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>
      <label htmlFor="wolf-text">{L(isZh,"說出懷疑或提出問題","Accuse, defend or ask")}</label>
      <textarea id="wolf-text" maxLength={260} rows={3} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={L(isZh,"例如：Zoe，為什麼妳一直替 Max 說話？","Zoe, why do you keep defending Max?")} />
      <button type="submit" className="wolf-primary" disabled={!draft.trim()||busy}>{busy?L(isZh,"AI 正在思考…","NPC is thinking…"):L(isZh,"發言／質疑","Speak / challenge")}</button>
