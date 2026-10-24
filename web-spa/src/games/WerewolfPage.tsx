@@ -59,30 +59,33 @@ export function WerewolfPage(){
  const [speaking,setSpeaking]=useState(false);
  const [muted,setMuted]=useState(false);
  const [liveCaption,setLiveCaption]=useState("");
+ const [hostSpeech,setHostSpeech]=useState("");
  const liveRef=useRef<WolfVoiceController|null>(null);
  const requestRef=useRef(0);
  const voiceGenerationRef=useRef(0);
  const mountedRef=useRef(true);
  const [showHistory,setShowHistory]=useState(true);
+ const transcriptRef=useRef<HTMLDivElement|null>(null);
  const isZh=language==="zh";
  const keyReady=typeof window!=="undefined"&&Boolean(geminiKey());
+ useEffect(()=>{if(showHistory&&transcriptRef.current)transcriptRef.current.scrollTop=transcriptRef.current.scrollHeight},[game?.entries.length,game?.phase,showHistory]);
  useEffect(()=>{mountedRef.current=true;trackUsageEvent("game_open","werewolf");document.body.classList.add("teacher-theme");return()=>{
   mountedRef.current=false;requestRef.current++;voiceGenerationRef.current++;liveRef.current?.stop();document.body.classList.remove("teacher-theme");
  }},[]);
- const commit=(next:WolfGame,announcement="")=>{
+ const commit=(next:WolfGame,announcement="",speaker?:string)=>{
   const previous=currentRef.current;
   currentRef.current=next;setGame(next);
   if(previous?.phase!=="finished"&&next.phase==="finished")trackUsageEvent("game_completed","werewolf");
   if(announcement&&liveRef.current){
    // Let the Live function tool response finish before sending the authoritative phase update.
-   window.setTimeout(()=>{if(currentRef.current===next)liveRef.current?.update(next,announcement)},60);
+   window.setTimeout(()=>{if(currentRef.current===next)liveRef.current?.update(next,announcement,speaker)},60);
   }
  };
  const endVoice=()=>{
-  requestRef.current++;
-  liveRef.current?.stop();liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setMuted(false);setLiveCaption("");
+  voiceGenerationRef.current++;
+  liveRef.current?.stop();liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setMuted(false);setLiveCaption("");setHostSpeech("");
  };
- const reset=()=>{endVoice();currentRef.current=null;setGame(null);setDraft("");setSelected("");setAddressed("");setNotice("");setError("");busyRef.current=false;setBusy(false)};
+ const reset=()=>{requestRef.current++;endVoice();currentRef.current=null;setGame(null);setDraft("");setSelected("");setAddressed("");setNotice("");setError("");busyRef.current=false;setBusy(false)};
  const start=()=>{
   reset();
   const next=makeWolfGame(Math.random,roleChoice);
@@ -131,7 +134,7 @@ export function WerewolfPage(){
   void (async()=>{
    const answer=await generateWolfReply(next,npc.id,text,language);
    if(!mountedRef.current||stamp!==requestRef.current||currentRef.current?.phase!=="day")return;
-   try{const updated=recordSpeech(currentRef.current,npc.id,answer);commit(updated,npc.name+": "+answer);}catch{/* Game phase changed while waiting. */}
+   try{const updated=recordSpeech(currentRef.current,npc.id,answer);commit(updated,answer,npc.name);}catch{/* Game phase changed while waiting. */}
    busyRef.current=false;setBusy(false);
   })();
   return {ok:true};
@@ -151,19 +154,20 @@ export function WerewolfPage(){
   const current=currentRef.current;
   if(!current||voiceStatus!=="off")return;
   if(!geminiKey()){setError(L(isZh,"請先在設定填入 Gemini Key。","Add a Gemini Key in Settings to enable Live."));return}
-  const stamp=++requestRef.current;
+  const stamp=++voiceGenerationRef.current;
   setVoiceStatus("connecting");setError("");
   try{
    const control=await startWerewolfLive(current,language,dispatchVoice,{
     onReady:()=>{if(mountedRef.current&&voiceGenerationRef.current===stamp)setVoiceStatus("ready")},
     onSpeaking:setSpeaking,
     onTranscript:setLiveCaption,
+    onHostSpeech:setHostSpeech,
     onError:message=>{if(mountedRef.current&&voiceGenerationRef.current===stamp){liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setError(message)}}
    });
    if(!mountedRef.current||voiceGenerationRef.current!==stamp){control.stop();return}
    liveRef.current=control;setVoiceStatus("ready");
   }catch(err){
-   if(requestRef.current!==stamp)return;
+   if(voiceGenerationRef.current!==stamp)return;
    setVoiceStatus("off");setError(L(isZh,"Live 無法連線，可繼續文字模式。","Live unavailable. Text mode is still playable.")+" "+(err instanceof Error?err.message:""));
   }
  };
