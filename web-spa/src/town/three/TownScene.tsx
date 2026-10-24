@@ -2,12 +2,14 @@ import {Component,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import type {ReactNode} from "react";
 import {Canvas,useThree} from "@react-three/fiber";
 import {TownEnvironment} from "./TownEnvironment";
+import {TownDecorations} from "./TownDecorations";
 import {TownSimpleWorld} from "./TownSimpleWorld";
 import {TownCharacters} from "./TownCharacters";
 import {TownCameraController} from "./TownCameraController";
+import type {TownViewMode} from "./TownCameraController";
 import {PEOPLE,type FriendId,type PlaceId,type Selection} from "./world";
 
-type Props={night:boolean;reducedMotion:boolean;selected:Selection;reset:number;
+type Props={night:boolean;zh:boolean;view:TownViewMode;reducedMotion:boolean;selected:Selection;reset:number;
  onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onDeselect:()=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
 class TownModelsBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:(reason:string)=>void},{failed:boolean}>{
  state={failed:false};
@@ -24,7 +26,7 @@ function ContextWatch({onFailure}: {onFailure:(reason:string)=>void}){
  },[gl,onFailure]);
  return null;
 }
-export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,onDeselect,onFailure,onSimplified}:Props){
+export function TownScene({night,zh,view,reducedMotion,selected,reset,onFriend,onPlace,onDeselect,onFailure,onSimplified}:Props){
  const actorPositions=useRef<Partial<Record<FriendId,[number,number]>>>({});
  const trackActor=useCallback((id:FriendId,x:number,z:number)=>{
   const point=actorPositions.current[id];
@@ -49,7 +51,7 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
   })():null;
  const focus=friendFocus??cameraFocus;
  return <Canvas className="crew-town-3d-canvas" onPointerMissed={onDeselect}
-   camera={{position:typeof window!=="undefined"&&window.innerWidth<720?[14.7,18.5,25]:[11.9,14,19.8],fov:typeof window!=="undefined"&&window.innerWidth<720?52:34,near:.1,far:120}}
+   camera={{position:typeof window!=="undefined"&&window.innerWidth<720?[1.1,8.95,11.75]:[5.1,9.9,13.9],fov:typeof window!=="undefined"&&window.innerWidth<720?46:40,near:.1,far:120}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={reducedMotion||!visible?"demand":"always"}
@@ -63,12 +65,13 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
   <directionalLight position={[10,7,-6]} color={night?"#718ebd":"#d4e8d9"} intensity={night?.3:.65}/>
   <TownModelsBoundary onFailure={onSimplified} fallback={<TownSimpleWorld onSelect={onPlace}/>}>
    <Suspense fallback={null}>
-    <TownEnvironment night={night} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
+    <TownEnvironment night={night} zh={zh} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
+    <TownDecorations reducedMotion={reducedMotion} night={night}/>
    </Suspense>
   </TownModelsBoundary>
   <TownCharacters reducedMotion={reducedMotion}
    selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
-  <TownCameraController focus={focus} reducedMotion={reducedMotion} reset={reset}/>
+  <TownCameraController focus={focus} view={view} reducedMotion={reducedMotion} reset={reset}/>
   <ContextWatch onFailure={onFailure}/>
  </Canvas>;
 }

@@ -96,3 +96,27 @@
  .crew-town-3d-roster-nav{padding-top:7px}
  .crew-town-3d-sheet{gap:9px;padding:13px 14px 12px}
 }
+
+/* P2 immersive entry: bring the active neighborhood into the foreground. */
+.crew-town-3d-stage.is-close{background:radial-gradient(ellipse at 45% 36%,#fff4df 0%,#d5e9d8 75%,#c4ddcf 100%);box-shadow:0 27px 80px #496a6233}
+.crew-town-3d-stage.is-night.is-close{background:radial-gradient(ellipse at 45% 45%,#3d5367,#263447 85%)}
+.crew-town-3d-hero{position:absolute;z-index:4;left:24px;top:80px;display:grid;gap:7px;max-width:min(380px,50%);pointer-events:none;color:#335b50}
+.crew-town-3d-hero>span{font-size:9px;font-weight:900;letter-spacing:.26em;color:#779888}
+.crew-town-3d-hero strong{font-size:clamp(22px,2.7vw,36px);font-weight:850;letter-spacing:-.065em;line-height:1.12;text-shadow:0 2px 15px #f8f8e3af}
+.crew-town-3d-hero small{font-size:11px;font-weight:650;line-height:1.5;color:#618173;max-width:280px}
+.crew-town-3d-stage.is-night .crew-town-3d-hero{color:#f5e4c6}
+.crew-town-3d-stage.is-night .crew-town-3d-hero>span,.crew-town-3d-stage.is-night .crew-town-3d-hero small{color:#c9d3c5}
+.crew-town-3d-buttons button:first-child{background:#376f60;color:#fff;border-color:#376f60;box-shadow:0 6px 16px #265a5370}
+.crew-town-3d-buttons button:first-child:hover{background:#285e53}
+.crew-town-3d-world-sign{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;pointer-events:none;background:#fff5dcf0;border:2px solid #fff9e6;border-radius:7px;padding:6px 12px;font-size:16px;font-weight:1000;letter-spacing:.09em;color:#507965;text-shadow:0 1px #fff;box-shadow:0 5px 0 #57796548,0 11px 20px #2b584c35}
+.crew-town-3d-stage.is-night .crew-town-3d-world-sign{background:#355d5df2;color:#f8dec0;border-color:#b9c9b57d}
+.crew-town-3d-landmark{display:inline-flex;gap:6px;align-items:center;white-space:nowrap;pointer-events:none;font-size:12px;font-weight:850;color:#376358;background:#fff9eaf0;border:1px solid #fffaf4;border-radius:999px;padding:7px 11px;box-shadow:0 5px 17px #3557493c}
+.crew-town-3d-stage.is-night .crew-town-3d-landmark{background:#314c59e8;color:#f4e6cb;border-color:#708e9070}
+@media(max-width:720px){
+ .crew-town-3d-hero{top:66px;left:12px;max-width:68%;gap:5px}
+ .crew-town-3d-hero>span{font-size:8px}
+ .crew-town-3d-hero strong{font-size:24px;line-height:1.12}
+ .crew-town-3d-hero small{font-size:10px;max-width:190px}
+ .crew-town-3d-world-sign{font-size:12px;padding:4px 8px}
+ .crew-town-3d-landmark{font-size:10px;padding:5px 8px}
+}

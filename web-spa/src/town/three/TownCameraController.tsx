@@ -4,8 +4,9 @@ import {useFrame,useThree} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {PerspectiveCamera,Vector3} from "three";
 
-type Props={focus:readonly [number,number,number]|null;reducedMotion:boolean;reset:number};
-export function TownCameraController({focus,reducedMotion,reset}:Props){
+export type TownViewMode="close"|"overview";
+type Props={focus:readonly [number,number,number]|null;view:TownViewMode;reducedMotion:boolean;reset:number};
+export function TownCameraController({focus,view,reducedMotion,reset}:Props){
  const controls=useRef<ComponentRef<typeof OrbitControls>>(null);
  const target=useRef(new Vector3(0,.2,.6));
  const eye=useRef(new Vector3(11.9,14,19.8));
@@ -19,13 +20,23 @@ export function TownCameraController({focus,reducedMotion,reset}:Props){
 
  useEffect(()=>{
   // Center the selected character or building just above the bottom sheet.
-  target.current.set(focus?.[0]??0,(focus?.[1]??.2)-(focus ? .25 : 0),focus?.[2]??.6);
+  // A human-scale initial view makes the town feel explorable immediately.
+  // The original wide orbit is always available through the Overview control.
+  const streetAnchor=mobile?([-4.3,.85,-.25] as const):([-2.7,.9,-.3] as const);
+  const anchor=focus??(view==="close"?streetAnchor:null);
+  target.current.set(anchor?.[0]??0,(anchor?.[1]??.2)-(focus?.25:0),anchor?.[2]??.6);
   // Overview is at least 15% closer; selection zooms in further.
   const offset=focus
    ?mobile?(narrow?new Vector3(4.8,5.9,8.6):new Vector3(4.3,5.2,7.3)):new Vector3(4.9,5.8,8.1)
-   :mobile?(narrow?new Vector3(14.7,18.5,25):new Vector3(12.7,15.7,23.4))
-     :new Vector3(11.9,14,19.8);
-  if(camera instanceof PerspectiveCamera){camera.fov=mobile?(narrow?52:49):34;camera.updateProjectionMatrix()}
+   :view==="close"
+     ?mobile?(narrow?new Vector3(5.4,8.1,12):new Vector3(4.7,6.4,10.8))
+       :new Vector3(7.8,9,14.2)
+     :mobile?(narrow?new Vector3(14.7,18.5,25):new Vector3(12.7,15.7,23.4))
+       :new Vector3(11.9,14,19.8);
+  if(camera instanceof PerspectiveCamera){
+   camera.fov=focus?mobile?47:37:view==="close"?mobile?46:40:mobile?(narrow?52:49):34;
+   camera.updateProjectionMatrix();
+  }
   eye.current.copy(target.current).add(offset);
   moving.current=true;
   if(reducedMotion){
@@ -35,7 +46,7 @@ export function TownCameraController({focus,reducedMotion,reset}:Props){
    moving.current=false;
   }
   invalidate();
- },[focus?.[0],focus?.[1],focus?.[2],reset,reducedMotion,camera,invalidate,mobile,narrow]);
+ },[focus?.[0],focus?.[1],focus?.[2],reset,reducedMotion,camera,invalidate,mobile,narrow,view]);
 
  useFrame((_state,dt)=>{
   if(document.hidden||!moving.current||interacting.current)return;
