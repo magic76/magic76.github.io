@@ -5,6 +5,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
 import {speakNonsenseHost,stopNonsenseHost,startNonsenseLiveFeedback,stopNonsenseLiveFeedback} from "./nonsenseHost";
+import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {renderNonsenseCard,shareNonsenseScorecard} from "./nonsenseShare";
 import {GamePanel} from "./GamePanel";
 import {NonsenseJudgeRow} from "./NonsenseJudgeRow";
@@ -41,6 +42,7 @@ export function NonsenseChampionshipPage(){
  const [language,setLanguage]=useState<NonsenseLanguage>(/(中文|華語|國語|chinese|mandarin|^zh)/i.test(target)?"zh":"en");
  const [category,setCategory]=useState("all");
  const [judgeId,setJudgeId]=useState<NonsenseJudgeId>("stern");
+ const {gameVoice,setGameVoice}=useGameVoice();
  const [topic,setTopic]=useState<NonsenseTopic>(()=>pickNonsenseTopic("all"));
  const [phase,setPhase]=useState<Phase>("setup");
  const [prepLeft,setPrepLeft]=useState(10),[timeLeft,setTimeLeft]=useState(60);
@@ -208,7 +210,7 @@ export function NonsenseChampionshipPage(){
   };
   try{
    liveStopRef.current=await startNonsenseLiveFeedback({
-    language,judgeId,topic:topic[language],verdict,
+    language,judgeId,topic:topic[language],verdict,voiceChoice:gameVoice==="auto"?undefined:resolveGameVoice(gameVoice,"Puck"),
     onSpeaking:()=>{if(mountedRef.current&&phaseRef.current==="result")setLiveState("speaking");},
     onDone:()=>{cleanup();if(mountedRef.current&&phaseRef.current==="result")setLiveState("idle");},
     onFailure:()=>{cleanup();fallback();}
@@ -321,7 +323,8 @@ export function NonsenseChampionshipPage(){
      {verdict.highlight&&<blockquote>「{verdict.highlight}」</blockquote>}
      <p className="nonsense-comment">{verdict.comment}</p>
      <p className="nonsense-verified">{L(zh,"以上分數與評語來自 Gemini AI 評分；演說逐字稿不會出現在分享圖片中。","Scores and comments above come from Gemini AI. The transcript is never included in the share image.")}</p>
-     {geminiKey()&&<button type="button" className="nonsense-secondary nonsense-live-button" disabled={liveState==="connecting"||liveState==="speaking"} onClick={()=>void requestLiveVoice()}>{liveState==="connecting"?L(zh,"Gemini Live 連線中…","Connecting Gemini Live…"):liveState==="speaking"?L(zh,"AI 主持中…","Live host speaking…"):L(zh,"Gemini Live 語音評語（選用）","Hear Gemini Live judge (optional)")}</button>}
+     {geminiKey()?<GameVoicePicker value={gameVoice} onChange={setGameVoice} english={!zh} disabled={liveState==="connecting"||liveState==="speaking"} defaultVoice={({stern:"Charon",roast:"Puck",scientist:"Fenrir",queen:"Kore"} as const)[judgeId]}/>:null}
+      {geminiKey()&&<button type="button" className="nonsense-secondary nonsense-live-button" disabled={liveState==="connecting"||liveState==="speaking"} onClick={()=>void requestLiveVoice()}>{liveState==="connecting"?L(zh,"Gemini Live 連線中…","Connecting Gemini Live…"):liveState==="speaking"?L(zh,"AI 主持中…","Live host speaking…"):L(zh,"Gemini Live 語音評語（選用）","Hear Gemini Live judge (optional)")}</button>}
      {liveState==="error"&&<small role="status">{L(zh,"Live 不可用，已切回裝置語音，不影響成績。","Live unavailable; device voice fallback does not affect the score.")}</small>}
      <div className="nonsense-buttons"><button type="button" className="nonsense-main-button" onClick={()=>void share()}>{L(zh,"分享結果","Share score")}</button><button type="button" className="nonsense-secondary" onClick={previewCard}>{L(zh,"預覽成績圖","Preview score card")}</button><button type="button" className="nonsense-secondary" onClick={reset}>{L(zh,"再來一局","Play again")}</button></div>
      {copied&&<small role="status">{L(zh,"分享文字已複製","Share text copied")}</small>}
