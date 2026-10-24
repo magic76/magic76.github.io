@@ -287,7 +287,7 @@ export function MagicPage(){
         className={revealed?"is-revealed":""}
         onClick={()=>selectPanel(panel.id,choice)}>
         <span className="magic-generated-symbol" aria-hidden="true">{panel.kind==="spellbook"?"✧":treasure?"🎁":"✦"}</span>
-        <span className="magic-generated-option-text">{treasure&&!panel.selected?t("開啟秘密 ","Open mystery ")+choice:item}</span>
+        <span className="magic-generated-option-text">{treasure&&!revealed?(panel.selected?t("未開啟","Unopened"):t("開啟秘密 ","Open mystery ")+choice):item}</span>
        </button>;
       })}
      </div>
