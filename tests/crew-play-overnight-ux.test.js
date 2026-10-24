@@ -43,3 +43,30 @@ test("Board games block duplicate fast-tap moves, and report startup clearly",()
  assert.match(board,/tabIndex=\{y===0\?0:-1\}/);
  assert.match(board,/Setting up board/);
 });
+
+test("Werewolf keeps NPC replies and safe conversation starters next to the debate composer",()=>{
+ const page=game("WerewolfPage.tsx");
+ const css=game("werewolf.css");
+ assert.match(page,/const latestNpc=game\?\.entries\.slice\(\)\.reverse\(\)\.find/);
+ assert.match(page,/latestNpc\?<div className="wolf-latest-reply"/);
+ assert.match(page,/className="wolf-quick-lines"/);
+ assert.match(page,/setDraft\(current=>current\.trim\(\)\?/);
+ assert.match(page,/ref=\{composeRef\}/);
+ assert.match(page,/onScroll=\{handleHistoryScroll\}/);
+ assert.match(page,/followHistoryRef\.current/);
+ assert.match(page,/className="wolf-voice-options"/);
+ assert.match(css,/\.wolf-latest-reply\{/);
+ assert.match(css,/\.wolf-quick-lines button\{/);
+});
+test("1A2B keypad has familiar numeric order, visible progress and safe finishing",()=>{
+ const page=game("NumberGamePage.tsx");
+ const css=game("miniGames.css");
+ assert.match(page,/\[1,2,3,4,5,6,7,8,9,null,0,null\]/);
+ assert.match(page,/className="crew-mini-turn-progress"/);
+ assert.match(page,/submitLockRef=useRef\(false\)/);
+ assert.match(page,/if\(finished\|\|submitLockRef\.current\)return/);
+ assert.match(page,/const undo=\(\)=>\{if\(finished\|\|!history\.length\)return/);
+ assert.match(page,/history\.length>0&&!finished\?<button/);
+ assert.match(css,/\.crew-mini-keypad\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
