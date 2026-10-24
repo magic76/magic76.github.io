@@ -18,7 +18,7 @@ function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect}:{
   const group=root.current, torso=body.current,feet=legs.current;
   if(!group||!torso||!feet||document.hidden)return;
   const s=step.current, delta=Math.min(dt,.06);
-  if(reducedMotion||selected){s.phase="Idle";s.clock=0;group.position.set(route[0][0],.11,route[0][1]);torso.position.y=0;feet.rotation.x=0;return}
+  if(reducedMotion||selected){s.phase="Idle";s.clock=0;torso.position.y=0;feet.rotation.x=0;return}
   s.clock+=delta;
   if(s.phase==="Idle"&&s.clock>1.8){s.phase="Walking";s.clock=0}
   if(s.phase==="Walking"){
