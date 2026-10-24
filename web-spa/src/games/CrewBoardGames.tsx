@@ -8,9 +8,10 @@ type Props={kind:GameKind;english:boolean;friendName:string;
  onEvent:(message:string)=>void;
  onBoardMove:(message:string,expected:ExpectedBoardSpeech)=>Promise<void>;
  onSkipSpeech:()=>void;
+ onReaction?:(event:"win"|"lose"|"progress"|"challenge")=>void;
 };
 const position=(x:number,y:number)=>String.fromCharCode(65+x)+(y+1);
-export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSkipSpeech}:Props){
+export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSkipSpeech,onReaction}:Props){
  const [connect,setConnect]=useState<CrewConnect4State|null>(null);
  const [reversi,setReversi]=useState<CrewReversiState|null>(null);
  const [error,setError]=useState("");
@@ -110,7 +111,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  const api=window.CrewPlayEngine;
  useEffect(()=>{
   const winner=kind==="connect4"?connect?.winner:reversi?.winner;
-  if(winner&&!completedRef.current){completedRef.current=true;trackUsageEvent("game_completed",kind)}
+  if(winner&&!completedRef.current){completedRef.current=true;trackUsageEvent("game_completed",kind);onReaction?.(winner==="draw"?"challenge":kind==="connect4"?(winner==="player"?"win":"lose"):(winner==="black"?"win":"lose"))}
  },[kind,connect?.winner,reversi?.winner]);
  const restart=()=>{
   roundEpochRef.current+=1;
@@ -133,7 +134,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   if(!connect||!api||!c4Turn||speechGateRef.current)return;
   const next=api.connect4Drop(connect,column,"player");
   if(!next)return;
-  noteMove();
+  noteMove();onReaction?.("progress");
   connectResultRef.current=next.winner?"[CONNECT FOUR RESULT] The learner won. React briefly and warmly.":null;
   setConnect(next);
   animateConnectDrop(next);
@@ -158,7 +159,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   if(!reversi||!api||reversi.turn!=="black"||reversi.winner||speechGateRef.current||speechPending)return;
   const next=api.reversiPlace(reversi,x,y,"black");
   if(!next)return;
-  noteMove();applyReversiMove(reversi,next);
+  noteMove();onReaction?.("progress");applyReversiMove(reversi,next);
   if(next.winner)onEvent("[REVERSI RESULT] "+(next.winner==="draw"?"It is a draw.":next.winner==="black"?"The learner won.":"You won.")+" React briefly.");
  };
  useEffect(()=>{
