@@ -16,8 +16,8 @@ test("Learn resume card uses the same TeacherAvatar as teacher picker and live",
 
 test("Learn focus teacher portrait preserves the HQ sprite's square aspect ratio",()=>{
  const css=read("web-spa/src/pages/crewSections.css");
- const rule=css.match(/\\.crew-section-focus-card-portrait\\{([^}]*)\\}/)?.[1];
+ const rule=css.match(/\.crew-section-focus-card-portrait\{([^}]*)\}/)?.[1];
  assert.ok(rule,"Learn focus portrait style must be present");
- assert.match(rule,/aspect-ratio:\\s*1\\s*\\/\\s*1(?:;|$)/);
- assert.doesNotMatch(rule,/aspect-ratio:\\s*3\\s*\\/\\s*4/);
+ assert.match(rule,/aspect-ratio:\s*1\s*\/\s*1(?:;|$)/);
+ assert.doesNotMatch(rule,/aspect-ratio:\s*3\s*\/\s*4/);
 });
