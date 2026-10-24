@@ -194,3 +194,10 @@
 .teaching-board-speaking-result small{font-size:11px;color:#567562}
 .teaching-board-speaking-result p{font-size:14px;margin:4px 0;white-space:pre-wrap}
 @media(max-width:800px){.teaching-board-lesson-picker,.teaching-board-lesson-progress{padding:10px;gap:9px;border-radius:14px}.teaching-board-lesson-options,.teaching-board-lesson-steps{width:100%;flex-basis:100%}.teaching-board-speaking textarea{min-height:74px}}
+
+
+.teaching-board-canvas-actions{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:wrap;flex-shrink:0}
+.teaching-board-formats-button{border:1px solid #c8dfcb;border-radius:11px;background:#e7f2e9;color:#33644a;padding:8px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+.teaching-board-formats-button:hover{background:#d8ecdd}
+.teaching-board-formats-button:focus-visible{outline:2px solid #2c9365;outline-offset:2px}
+@media(max-width:800px){.teaching-board-canvas-actions{gap:5px;justify-content:flex-start}.teaching-board-formats-button{padding:7px 9px;font-size:11px}.teaching-board-canvas-head{flex-wrap:wrap}}

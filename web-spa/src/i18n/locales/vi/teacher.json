@@ -289,8 +289,8 @@
     "liveMode": "Live tool updates",
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
-    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "fallbackHint": "Đang thử công cụ trực tiếp với mô hình đã chọn. Nếu không hỗ trợ, thẻ sẽ cập nhật sau mỗi lượt.",
+    "modelFallbackHint": "Công cụ thẻ trực tiếp không khả dụng trong phiên này. Vẫn có thể cập nhật sau lượt nói hoặc xem ví dụ.",
     "recentSpeech": "Hội thoại gần đây",
     "lessonCards": "{{count}} thẻ bài học",
     "following": "Đang theo dõi mới nhất",
@@ -319,6 +319,9 @@
       "forward": "Bước tiếp",
       "hint": "Gợi ý giúp tôi",
       "retry": "Quay lại làm lại"
-    }
+    },
+    "showFormats": "Xem loại thẻ",
+    "demoMode": "Ví dụ định dạng",
+    "demoHint": "Đây là các ví dụ được chuẩn bị sẵn, không phải nội dung AI tạo trực tiếp."
   }
 }

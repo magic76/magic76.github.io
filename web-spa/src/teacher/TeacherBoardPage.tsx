@@ -43,6 +43,7 @@ export function TeacherBoardPage(){
  const [hint,setHint]=useState("");
  const [copyStatus,setCopyStatus]=useState("");
  const [hasLivePatch,setHasLivePatch]=useState(false);
+ const [showingDemo,setShowingDemo]=useState(false);
  const [toolsUnavailable,setToolsUnavailable]=useState(false);
  const [latestId,setLatestId]=useState<string|null>(null);
  const [focusedId,setFocusedId]=useState<string|null>(null);
@@ -55,7 +56,7 @@ export function TeacherBoardPage(){
  const lessonRef=useRef<LessonId|null>(null);
  const reviewReturnRef=useRef<{cardId:string;index:number}|null>(null);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
- const liveEnabled=s.liveModel==="gemini-3.1-flash-live-preview";
+ // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
  const system=useMemo(()=>buildTeacherSessionPolicy({
@@ -64,18 +65,12 @@ export function TeacherBoardPage(){
   accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,
   level:vocabularyLevel(),nativeLanguage:s.nativeLanguage,learnerSpeakingLevel:level
  })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+
- "\n[TEACHING BOARD, session only] Answer the learner aloud, and maintain a coherent visual teaching board. "+
- "When a tool named update_teaching_board exists, call it early DURING your spoken explanation, then update relevant cards in small increments. "+
- "Use stable IDs for edits; do not repeat old cards. Respond to 'make it simpler' by editing existing cards, and 'quiz me' with a QuizCard of three actual multiple-choice questions. "+
- "Have/has been and had been require a two-timeline comparison and examples. "+
- "Choose visually distinct teaching formats: comparison, timeline, steps, flashcards, dialogue, quiz, examples, vocabulary or correction according to the lesson. Avoid always using explanation cards. "+
- "After creating a card, use control_teaching_stage to focus on the topic and reveal meaningful items sequentially while talking. "+
- "When asking a quiz, issue ask and STOP: wait for a real learner answer by voice or tap. Never reveal a correct option beforehand or advance without learner interaction. "+
- "While awaiting a quiz answer you may use control_teaching_stage hint with a helpful clue, never reveal the answer, and never skip the quiz. Non-quiz support cards are allowed but do not replace the question. "+
- "Once answered, explain briefly; if incorrect revisit a related comparison or timeline, if correct continue with the next unanswered question or example. "+
- "For speaking tasks, wait for the student to produce their own sentence. Give natural-language feedback and one improvement, never claim precise pronunciation scoring from text. "+
- "Reuse existing cards instead of generating more explanation cards. The board is teaching data, not a transcript. Keep text succinct. Never output HTML, scripts or markdown code. "+
- "The current board lives only in this session. Do not memorize it, and never treat a generated example as a fact about the student.",
+ "\n[TEACHING BOARD, session only] Explain aloud while operating the lesson board. "+
+ "If update_teaching_board is available, create or edit cards early during speech in small patches using stable IDs. Simplify by editing existing cards; create a three-question quiz when asked. "+
+ "Use the best visual type: comparison, timeline, steps, flashcard, dialogue, quiz, example, vocabulary, correction or speaking. Avoid defaulting to text-only explanations. "+
+ "Use control_teaching_stage to focus or reveal items as you speak. Wait for real learner answers before moving past a quiz; hints must not reveal answers. "+
+ "After feedback, review a comparison/timeline when wrong; move to a new exercise when right. For speaking give one helpful language tip, not an unsupported pronunciation score. "+
+ "Keep cards concise and data-only. Never use HTML or invent learner facts. All board state is session-only.",
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
  const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+
@@ -91,7 +86,7 @@ export function TeacherBoardPage(){
   if(guided&&(patch.action!=="upsert"||patch.cards.some(c=>!cardRef.current.some(old=>old.id===c.id&&old.type===c.type)||c.type==="quiz"||c.type==="speaking")))return false;
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
-  cardRef.current=next;setCards(next);
+  cardRef.current=next;setCards(next);setShowingDemo(false);
   const stage=guided?directorRef.current:directorAfterPatch(directorRef.current,next,patch.cards);
   changeDirector(stage);
   const changedId=stage.cardId;
@@ -182,7 +177,7 @@ export function TeacherBoardPage(){
   languageDriftGuard:(text)=>unexpectedTeacherKorean(text,s.targetLanguage,s.nativeLanguage,s.teachingMode),
   voice:normalizeLiveVoice(s.voice),language:s.targetLanguage,nativeLanguage:s.nativeLanguage,
   teacherReport:false,trackSpeakingLevel:false,persistHistory:false,sessionKind:"teacher",
-  tools:liveEnabled?[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}]:undefined,
+  tools:[{functionDeclarations:[...BOARD_TOOLS[0].functionDeclarations,...DIRECTOR_TOOL.functionDeclarations]}],
   onToolsUnavailable:()=>setToolsUnavailable(true),
   onConfirmedTranscript:turn=>processConfirmedSpeech(turn.input||""),
   onToolCall:(call)=>{
@@ -250,6 +245,20 @@ export function TeacherBoardPage(){
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
   if(!active||!live.sendText(text+"\n"+localeHelp)){setHint(t("board.startFirst"));return}
+  setHint("");
+ }
+ function showFormats(){
+  // Preview cards are curated static samples, not a claimed model response.
+  lessonRef.current=null;setLessonId(null);setLessonStep(0);
+  changeDirector(EMPTY_DIRECTOR);
+  reviewReturnRef.current=null;setReviewReturn(null);
+  const patch=fallbackBoard({input:"展示不同卡片種類的格式示範"},[]);
+  if(patch&&commitPatch(patch)){
+   const first=patch.cards.find(card=>card.type==="comparison")||patch.cards[0];
+   if(first){changeDirector({...EMPTY_DIRECTOR,cardId:first.id});setLatestId(first.id);setFocusedId(null);setFollowing(true)}
+   setHasLivePatch(false);setShowingDemo(true)
+  }
+  if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
@@ -321,8 +330,9 @@ export function TeacherBoardPage(){
    <BoardTutorPanel live={live} profile={profile} targetLanguage={s.targetLanguage} english={english} hint={hint} onAsk={ask}/>
    <section className="teaching-board-canvas" aria-label={t("board.canvas")}>
     <div className="teaching-board-canvas-head"><div><span className="kicker">CREW · LIVE BOARD</span><h1>{t("board.canvas")}</h1>
-     <p>{t(hasLivePatch?"board.liveHint":(liveEnabled&&!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
-    </div><span className="teaching-board-mode">{hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div>
+     <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
+    </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
+     <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
     <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:

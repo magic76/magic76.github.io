@@ -289,8 +289,8 @@
     "liveMode": "Live tool updates",
     "turnMode": "After-turn updates",
     "liveHint": "The selected Live model is updating cards over the current audio connection.",
-    "fallbackHint": "Waiting for the first Live tool event. Until then, cards update at completed turns.",
-    "modelFallbackHint": "This selected model uses after-turn updates. Select Gemini 3.1 Flash Live in Settings for supported function calling.",
+    "fallbackHint": "Mencoba alat papan langsung dengan model terpilih. Jika tidak didukung, kartu diperbarui setelah giliran selesai.",
+    "modelFallbackHint": "Alat kartu langsung tidak tersedia. Kartu tetap dapat diperbarui setelah giliran atau menampilkan contoh.",
     "recentSpeech": "Percakapan terakhir",
     "lessonCards": "{{count}} kartu pelajaran",
     "following": "Mengikuti terbaru",
@@ -319,6 +319,9 @@
       "forward": "Tahap berikutnya",
       "hint": "Minta petunjuk",
       "retry": "Kembali dan coba lagi"
-    }
+    },
+    "showFormats": "Lihat jenis kartu",
+    "demoMode": "Contoh format",
+    "demoHint": "Ini contoh kartu yang sudah disiapkan, bukan keluaran AI langsung."
   }
 }

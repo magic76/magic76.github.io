@@ -79,15 +79,70 @@ const hasBeenQuiz:BoardQuestion[]=[
  {question:"Before I moved, I ___ living in Taipei.",options:["have been","had been"],answerIndex:1,explanation:"另一件過去事件之前，用 had been。"},
  {question:"She ___ working here since May (and still does).",options:["has been","had been"],answerIndex:0,explanation:"主詞 she 的現在完成進行式用 has been。"}
 ];
+
+/** Explicit *format examples*, not generated facts about the current lesson. */
+export function exampleBoardFormats():BoardCard[]{
+ const simple=(id:string,type:CardKind,title:string,body:string,pairs:BoardPair[]=[],points:BoardPoint[]=[],questions:BoardQuestion[]=[]):BoardCard=>({id,type,title,body,pairs,points,questions});
+ return [
+  simple("demo-explanation","explanation","格式示範 · Explanation","這是概念說明卡，適合先定義觀念。"),
+  simple("demo-comparison","comparison","格式示範 · Compare","現在完成式 vs. 過去完成式",[{source:"have been",target:"連結到現在"},{source:"had been",target:"以另一個過去時間點為參考"}]),
+  simple("demo-timeline","timeline","格式示範 · Timeline","同一個概念的時間參考點",[],[{label:"have been",note:"從過去延續到現在"},{label:"had been",note:"早於另一件過去的事"}]),
+  simple("demo-example","example","格式示範 · Examples","兩句示範例句",[{source:"I have been busy today.",target:"我今天一直很忙。"},{source:"I had been busy before you called.",target:"你打電話來之前，我一直很忙。"}]),
+  simple("demo-vocabulary","vocabulary","格式示範 · Vocabulary","飯店英語用詞",[{source:"reservation",target:"預約、訂房",pronunciation:"/ˌrez.əˈveɪ.ʃən/"},{source:"check in",target:"辦理入住"}]),
+  simple("demo-flashcard","flashcard","格式示範 · Flashcards","點擊卡片翻面",[{source:"reservation",target:"訂房、預約"},{source:"check in",target:"辦理入住"}]),
+  simple("demo-dialogue","dialogue","格式示範 · Dialogue","飯店入住情境",[{source:"Receptionist",target:"Welcome! Do you have a reservation?"},{source:"Guest",target:"Yes, under the name Chen."}]),
+  simple("demo-steps","steps","格式示範 · Steps","如何辦理飯店入住",[],[{label:"1",note:"向櫃檯打招呼"},{label:"2",note:"說明有訂房"},{label:"3",note:"提供訂房姓名"}]),
+  simple("demo-correction","correction","格式示範 · Correction","常見用法修正",[{source:"I have reservation.",target:"I have a reservation."}]),
+  simple("demo-quiz","quiz","格式示範 · Quiz","選出正確的入住說法",[],[],[{question:"Which sentence is natural?",options:["I have a reservation.","I have reservation."],answerIndex:0,explanation:"reservation 是可數名詞，此處需要 a。"}]),
+  {id:"demo-speaking",type:"speaking",title:"格式示範 · Speaking",body:"實際開口或輸入練習",pairs:[],points:[],questions:[],speaking:{
+   prompt:"Tell the hotel clerk you booked a room.",goal:"用完整句子說出有訂房",
+   example:"Hello, I have a reservation under Chen.",checks:[["reservation","booking","booked"]],minWords:5,minSentences:1
+  }}
+ ];
+}
+/** Only extracts formats supported by actual spoken data; never invent facts or translation. */
+function extractedFormatBoard(question:string,answer:string,current:BoardCard[]):BoardPatch|null{
+ const demo=/展示.{0,12}(?:卡片|種類|形式|樣式)|各種卡片|多.{0,5}(?:卡片種類|種類|卡片類型)|不同.{0,8}(?:卡片|形式)|show.{0,14}(?:card|format|type)|all card (?:types|formats)/i.test(question);
+ if(demo)return {action:"replace",ids:[],cards:exampleBoardFormats()};
+ const flash=/翻面卡|單字卡|flashcards?|記憶卡/i.test(question);
+ const vocab=/單字卡|單字表|詞彙卡|vocabulary/i.test(question);
+ const quiz=/考我|測驗|quiz|test me|three questions|三題/i.test(question);
+ const dialogue=/情境對話|對話卡|對話練習|dialogue|role.?play/i.test(question);
+ const compare=/比較卡|對照卡|comparison|compare|vs\.?|差別|差異|不同/i.test(question);
+ const chronology=/時間軸|timeline|chronolog|先後順序/i.test(question);
+ const sources=current.flatMap(card=>card.pairs.filter(p=>p.source&&p.target)).slice(0,8);
+ // Reuse verified, already visible teaching material for recall/test modes.
+ if(flash&&sources.length)return {action:"upsert",ids:[],cards:[{id:"recall-"+current.length,type:"flashcard",title:"翻面複習卡",body:"點擊翻面，回想老師先前教過的內容。",pairs:sources,points:[],questions:[]}]};
+ if(quiz&&sources.length>=2){
+  const unique=sources.filter((p,i)=>sources.findIndex(x=>x.source===p.source)===i);
+  if(unique.length>=2){
+   const questions=unique.slice(0,3).map((p,i)=>({question:"哪一項對應「"+p.target+"」？",options:[p.source,unique[(i+1)%unique.length].source],answerIndex:0,explanation:p.source+" — "+p.target}));
+   return {action:"upsert",ids:[],cards:[{id:"recall-quiz-"+current.length,type:"quiz",title:"從剛才內容複習",body:"答案依照前面白板上的真實教學內容建立。",pairs:[],points:[],questions}]};
+  }
+ }
+ const lines=(answer.match(/[^。！？!?\n]+[。！？!?]?/g)||[]).flatMap(line=>line.split(/(?<=[.!?])\s+(?=[A-Z])/)).map(s=>s.trim()).filter(Boolean);
+ // Use only explicitly structured spoken pairs.
+ const pairs=answer.split(/\n/).map(line=>line.match(/^\s*([^:：—–\-]{2,80})\s*[:：—–]\s*(.{3,180})$/)).filter((m):m is RegExpMatchArray=>!!m).slice(0,8).map(m=>({source:m[1].trim(),target:m[2].trim()}));
+ if(dialogue&&pairs.length>=2)return {action:"upsert",ids:[],cards:[{id:"dialogue-"+current.length,type:"dialogue",title:"老師剛才的對話",body:"從老師實際說出的角色台詞整理。",pairs,points:[],questions:[]}]};
+ if(vocab&&pairs.length)return {action:"upsert",ids:[],cards:[{id:"vocab-"+current.length,type:"vocabulary",title:"單字與用法",body:"從老師剛才的說明整理。",pairs,points:[],questions:[]}]};
+ if(compare&&pairs.length>=2)return {action:"upsert",ids:[],cards:[{id:"compare-"+current.length,type:"comparison",title:"差異對照",body:"從老師剛才的說明整理。",pairs: pairs.slice(0,4),points:[],questions:[]}]};
+ if(chronology&&lines.length>=2)return {action:"upsert",ids:[],cards:[{id:"timeline-"+current.length,type:"timeline",title:"先後順序",body:"依老師剛才的說明順序呈現，不推測未提及的時間。",pairs:[],points:lines.slice(0,6).map((note,i)=>({label:String(i+1),note:note.slice(0,180)})),questions:[]}]};
+ return null;
+}
+
 /** No second model request. Fallback is deterministic and intentionally limited. */
 export function fallbackBoard(turn:{input?:string;output?:string},current:BoardCard[]):BoardPatch|null{
  const question=clean(turn.input,260),answer=clean(turn.output,640);
+ // Preserve spoken line breaks for role/term extraction, but never copy markup or control bytes.
+ const structured=typeof turn.output==="string"?turn.output.slice(0,640).replace(/[<>\u0000-\u0009\u000b-\u001f]/g," "):"";
  if(!question&&!answer)return null;
  const topic=current.find(c=>c.id==="grammar-rule")?.title||question||"今日教學";
  const simplified=/簡單|simplif|easier|easy version/i.test(question);
  const quiz=/考我|測驗|quiz|test me|three questions|三題/i.test(question);
  const been=/\b(have|has|had) been\b/i.test(question+" "+topic);
  if(quiz&&been)return {action:"replace",ids:[],cards:[{id:"grammar-quiz",type:"quiz",title:"Have been / Had been · 3 題練習",body:"選出適合的時態，也可以直接用語音回答。",pairs:[],points:[],questions:hasBeenQuiz}]};
+ const extracted=extractedFormatBoard(question,structured,current);
+ if(extracted)return extracted;
  if(been){
   const cards:BoardCard[]=[
    {id:"grammar-rule",type:"comparison",title:"Have been vs. Had been",body:simplified?"have been：跟現在有關。had been：在另一件過去事件之前。":"have/has been 表示過去到現在的經驗或持續狀態；had been 表示另一個過去時間點之前已存在的狀態。",pairs:[{source:"have/has been",target:"過去 → 現在"},{source:"had been",target:"更早的過去 → 過去"}],points:[],questions:[]},
