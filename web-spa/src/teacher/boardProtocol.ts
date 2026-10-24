@@ -133,13 +133,15 @@ function extractedFormatBoard(question:string,answer:string,current:BoardCard[])
 /** No second model request. Fallback is deterministic and intentionally limited. */
 export function fallbackBoard(turn:{input?:string;output?:string},current:BoardCard[]):BoardPatch|null{
  const question=clean(turn.input,260),answer=clean(turn.output,640);
+ // Preserve spoken line breaks for role/term extraction, but never copy markup or control bytes.
+ const structured=typeof turn.output==="string"?turn.output.slice(0,640).replace(/[<>\u0000-\u0009\u000b-\u001f]/g," "):"";
  if(!question&&!answer)return null;
  const topic=current.find(c=>c.id==="grammar-rule")?.title||question||"今日教學";
  const simplified=/簡單|simplif|easier|easy version/i.test(question);
  const quiz=/考我|測驗|quiz|test me|three questions|三題/i.test(question);
  const been=/\b(have|has|had) been\b/i.test(question+" "+topic);
  if(quiz&&been)return {action:"replace",ids:[],cards:[{id:"grammar-quiz",type:"quiz",title:"Have been / Had been · 3 題練習",body:"選出適合的時態，也可以直接用語音回答。",pairs:[],points:[],questions:hasBeenQuiz}]};
- const extracted=extractedFormatBoard(question,answer,current);
+ const extracted=extractedFormatBoard(question,structured,current);
  if(extracted)return extracted;
  if(been){
   const cards:BoardCard[]=[
