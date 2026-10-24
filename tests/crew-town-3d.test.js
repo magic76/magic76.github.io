@@ -71,7 +71,11 @@ test("2.5D fallback clearly exposes unsupported, rendering failure, and manual m
  for(const reason of ["unsupported","render-error","manual"])assert.ok(page.includes('"'+reason+'"'));
  assert.ok(page.includes('目前使用 2.5D 地圖'));
  assert.ok(page.includes('onClick={()=>setFallbackReason("manual")}'));
- assert.ok(page.includes('onClick={()=>setFallbackReason(null)}'));
+ assert.ok(page.includes('onClick={retry3D}'));
+ assert.match(page,/key=\{attempt\}/);
+ assert.match(page,/setAttempt\(n=>n\+1\)/);
+ assert.match(page,/WebGLRenderingContext/);
+ assert.doesNotMatch(page,/WEBGL_lose_context|\.loseContext\(/);
  assert.ok(page.includes('this.props.onFailure()'));
  assert.match(css,/\.crew-town-3d-fallback-notice/);
 });
