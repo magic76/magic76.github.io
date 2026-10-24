@@ -31,7 +31,7 @@ export function MateConsensusFields({consensus,canEdit,edit,en}:{
             <input disabled={!canEdit} value={consensus.target} onChange={e=>edit("target",e.target.value)} placeholder={t("例如：飯店櫃檯","e.g. hotel reception")}/></label>
           <label>{t("希望達成的目標（可能會對外說明）","Public communication goal")}
             <textarea disabled={!canEdit} value={consensus.goal} onChange={e=>edit("goal",e.target.value)} rows={2} placeholder={t("例如：詢問能否提早入住","e.g. Request an early check-in")}/></label>
-          <label>{t("私人限制（不交給對方或對外 AI）","Private limits (not sent to external AI)")}
+          <label>{t("私人限制（Mate 會遵守，不主動說給對方聽）","Private limits (Mate follows these without revealing them)")}
             <textarea disabled={!canEdit} value={consensus.constraints} onChange={e=>edit("constraints",e.target.value)} rows={2} placeholder={t("例如：不接受任何額外收費；若無限制，請填『無』","e.g. No extra fees; type 'none' if none")}/></label>
           <label>{t("哪些情況必須先問我？","When must Mate ask me?")}
             <textarea disabled={!canEdit} value={consensus.escalation} onChange={e=>edit("escalation",e.target.value)} rows={2}/></label>
