@@ -330,6 +330,12 @@
       "dialogue": "Dialogue",
       "flashcard": "Flashcards",
       "quiz": "Mini quiz"
-    }
+    },
+    "entryTitle": "AI Interactive Whiteboard",
+    "entryDesc": "Talk with your teacher while viewing comparisons, timelines and practice cards.",
+    "entryAction": "Open whiteboard",
+    "entryOpening": "Opening whiteboard",
+    "entryConfirm": "Switching to the whiteboard will end this voice conversation and start a new teaching session. Continue?",
+    "entryError": "Could not end the current voice session. Please try again."
   }
 }

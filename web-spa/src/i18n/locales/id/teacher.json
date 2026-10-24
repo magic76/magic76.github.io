@@ -330,6 +330,12 @@
       "dialogue": "Dialog",
       "flashcard": "Kartu hafalan",
       "quiz": "Kuis mini"
-    }
+    },
+    "entryTitle": "Papan Tulis Interaktif AI",
+    "entryDesc": "Belajar bersama guru sambil melihat perbandingan, linimasa, dan kartu latihan.",
+    "entryAction": "Buka papan tulis",
+    "entryOpening": "Membuka papan tulis",
+    "entryConfirm": "Beralih ke papan tulis akan mengakhiri percakapan suara ini dan memulai sesi belajar baru. Lanjutkan?",
+    "entryError": "Tidak dapat mengakhiri percakapan suara saat ini. Coba lagi."
   }
 }

@@ -330,6 +330,12 @@
       "dialogue": "Dialogue",
       "flashcard": "Cartes mémoire",
       "quiz": "Mini quiz"
-    }
+    },
+    "entryTitle": "Tableau blanc interactif IA",
+    "entryDesc": "Parlez avec votre professeur tout en suivant comparaisons, chronologies et exercices.",
+    "entryAction": "Ouvrir le tableau",
+    "entryOpening": "Ouverture du tableau",
+    "entryConfirm": "Passer au tableau blanc mettra fin à cette conversation vocale et démarrera une nouvelle séance. Continuer ?",
+    "entryError": "Impossible de terminer la conversation vocale. Veuillez réessayer."
   }
 }

@@ -330,6 +330,12 @@
       "dialogue": "Diálogo",
       "flashcard": "Tarjetas",
       "quiz": "Mini prueba"
-    }
+    },
+    "entryTitle": "Pizarra interactiva con IA",
+    "entryDesc": "Habla con tu profesor mientras ves comparaciones, cronologías y tarjetas de práctica.",
+    "entryAction": "Abrir pizarra",
+    "entryOpening": "Abriendo pizarra",
+    "entryConfirm": "Al cambiar a la pizarra, terminará la conversación de voz actual y comenzará una nueva sesión de aprendizaje. ¿Continuar?",
+    "entryError": "No se pudo finalizar la conversación de voz. Inténtalo de nuevo."
   }
 }

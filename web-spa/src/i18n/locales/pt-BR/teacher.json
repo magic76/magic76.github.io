@@ -330,6 +330,12 @@
       "dialogue": "Diálogo",
       "flashcard": "Cartões",
       "quiz": "Quiz rápido"
-    }
+    },
+    "entryTitle": "Quadro interativo com IA",
+    "entryDesc": "Converse com seu professor enquanto vê comparações, linhas do tempo e cartões de exercícios.",
+    "entryAction": "Abrir quadro",
+    "entryOpening": "Abrindo quadro",
+    "entryConfirm": "Mudar para o quadro encerrará esta conversa por voz e iniciará uma nova aula. Continuar?",
+    "entryError": "Não foi possível encerrar a conversa por voz. Tente novamente."
   }
 }

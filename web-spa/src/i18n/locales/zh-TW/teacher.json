@@ -330,6 +330,12 @@
       "dialogue": "情境對話",
       "flashcard": "單字翻面卡",
       "quiz": "小測驗"
-    }
+    },
+    "entryTitle": "AI 互動白板",
+    "entryDesc": "和老師對話時同步看對照、時間軸及練習卡。",
+    "entryAction": "開啟互動白板",
+    "entryOpening": "正在開啟白板",
+    "entryConfirm": "切換至白板會結束目前的語音對話，並開始新的教學連線。確定切換？",
+    "entryError": "無法結束目前的語音對話，請重試。"
   }
 }
