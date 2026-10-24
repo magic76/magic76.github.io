@@ -216,9 +216,10 @@ test("P3 extends the actual land footprint and offers camera traversal of five d
  const css=read("web-spa/src/town/three/town3d.css");
  assert.match(world,/WORLD_SIZE=\{width:52,depth:44\}/);
  assert.ok((52*44)/(21.7*17.1)>6);
- assert.ok(land.includes("WORLD_SIZE.width"));
- assert.ok(land.includes("WORLD_SIZE.depth"));
- assert.ok(land.includes("planeGeometry args={[37,1.32]}"));
+ assert.ok(land.includes("<TownIsland/>"));
+ const island=read("web-spa/src/town/three/TownIsland.tsx");
+ assert.ok(island.includes("extrudeGeometry"));
+ assert.ok(island.includes("coastPoint"));
  for(const id of ["center","market","grove","homes","harbor"]){
   assert.ok(world.includes('id:"'+id+'"'),id);
  }
@@ -305,7 +306,7 @@ test("P4 natural locomotion alternates planted feet and arms without frame-drive
  assert.ok(chars.includes("const leftArm=useRef<Group>"));
  assert.ok(chars.includes("const rightArm=useRef<Group>"));
  assert.ok(chars.includes("Math.sin(s.walk+Math.PI)"));
- assert.ok(chars.includes("s.walk+=travel*8.9"));
+ assert.ok(chars.includes("s.walk+=motion.moved*8.9"));
  assert.ok(chars.includes('s.phase="Walking"'));
  assert.ok(chars.includes('s.phase="Arriving"'));
  assert.ok(chars.includes("if(!selected&&!reducedMotion)"));
