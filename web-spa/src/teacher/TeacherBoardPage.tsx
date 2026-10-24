@@ -17,6 +17,7 @@ import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonI
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardTutorPanel} from "./BoardTutorPanel";
 import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
+import {BOARD_VISUAL_POLICY} from "./boardVisualPolicy";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -65,13 +66,7 @@ export function TeacherBoardPage(){
   teachingMode:s.teachingMode,conversationMode:"practice",languageStyle:s.languageStyle,
   accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,
   level:vocabularyLevel(),nativeLanguage:s.nativeLanguage,learnerSpeakingLevel:level
- })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+
- "\n[TEACHING BOARD, session only] Explain aloud while operating the lesson board. "+
- "If update_teaching_board is available, create or edit cards early during speech in small patches using stable IDs. Simplify by editing existing cards; create a three-question quiz when asked. "+
- "Each lesson needs a suitable visual, not just text: contrast or tenses => comparison plus timeline; scenarios => dialogue then vocabulary; instructions => steps; corrections => before/after; terms => vocabulary then flashcards; practice => quiz or speaking. Use actual lesson facts and relevant variety, never decorative random cards. "+
- "Use control_teaching_stage to focus or reveal items as you speak. Wait for real learner answers before moving past a quiz; hints must not reveal answers. "+
- "After feedback, review a comparison/timeline when wrong; move to a new exercise when right. For speaking give one helpful language tip, not an unsupported pronunciation score. "+
- "Keep cards concise and data-only. Never use HTML or invent learner facts. All board state is session-only.",
+ })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+"\n"+BOARD_VISUAL_POLICY,
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
  const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+
