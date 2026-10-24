@@ -95,9 +95,9 @@ test("Live session handles voice action tools and speaks verified NPC replies",a
    toggleMic(){this.micMuted=!this.micMuted}
   }}
  };
- const start=new Function("ensureLive","geminiKey","publicWolfView","window",
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window","normalizeLiveVoice",
   js+"\nreturn startWerewolfLive;")(
-  async()=>{},()=> "test-key",G.publicWolfView,window);
+  async()=>{},()=> "test-key",G.publicWolfView,window,value=>value);
  const game=G.makeWolfGame(rng,"villager");
  const heard=[],commands=[];
  const voice=await start(game,"zh",command=>{
@@ -143,8 +143,8 @@ test("Live never tells the player they said nothing when tool text arrives befor
   sendText(){return true}
   toggleMic(){this.micMuted=!this.micMuted}
  }}};
- const start=new Function("ensureLive","geminiKey","publicWolfView","window",js+"\nreturn startWerewolfLive;")(
-  async()=>{},()=>"test-key",G.publicWolfView,window);
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window","normalizeLiveVoice",js+"\nreturn startWerewolfLive;")(
+  async()=>{},()=>"test-key",G.publicWolfView,window,value=>value);
  const game=G.makeWolfGame(rng,"villager");
  const day=G.takeNightAction(game,{kind:"skip"},rng);
  const actions=[],issues=[],mic=[];
@@ -180,8 +180,8 @@ test("Live prefers real audio transcription over function-call guesses",async()=
   sendText(){return true}
   toggleMic(){this.micMuted=!this.micMuted}
  }}};
- const start=new Function("ensureLive","geminiKey","publicWolfView","window",js+"\nreturn startWerewolfLive;")(
-  async()=>{},()=>"test-key",G.publicWolfView,window);
+ const start=new Function("ensureLive","geminiKey","publicWolfView","window","normalizeLiveVoice",js+"\nreturn startWerewolfLive;")(
+  async()=>{},()=>"test-key",G.publicWolfView,window,value=>value);
  const day=G.takeNightAction(G.makeWolfGame(rng,"villager"),{kind:"skip"},rng);
  const actions=[];
  const voice=await start(day,"zh",a=>{actions.push(a);return {ok:true}},{
@@ -194,4 +194,17 @@ test("Live prefers real audio transcription over function-call guesses",async()=
  assert.equal(actions[0].text,"我覺得 Iris 可疑");
  assert.equal(actions.length,1);
  voice.stop();
+});
+
+test("Live referee does not echo the human, and hides non-speech token artifacts",()=>{
+ const source=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/games/werewolfLive.ts"),"utf8");
+ const js=stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
+ const clean=new Function(js+"\nreturn cleanWolfHostCaption;")();
+ assert.equal(clean("<no speech>{pause}"),"");
+ assert.equal(clean(" <NO SPEECH>  {pause} "), "");
+ assert.equal(clean("Yuna 回應：我有證據。 {pause}"),"Yuna 回應：我有證據。");
+ assert.equal(clean("沒有說話"),"");
+ assert.match(source,/THIRD-PERSON OBSERVER/);
+ assert.match(source,/NEVER repeat, paraphrase, quote or read back/);
+ assert.match(source,/voice:normalizeLiveVoice\(voiceChoice\)/);
 });

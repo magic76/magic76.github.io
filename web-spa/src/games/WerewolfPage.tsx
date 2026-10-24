@@ -7,6 +7,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
 import {generateWolfReply} from "./werewolfAI";
 import {startWerewolfLive,type WolfVoiceController,type WolfVoiceCommand} from "./werewolfLive";
+import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {makeWolfGame,takeNightAction,recordSpeech,startWolfVote,castWolfVote,expectedNightActions,fallbackWolfReply,humanRole,
  type WolfGame,type WolfRole,type WolfEntry,type WolfLanguage,type WolfAction} from "./werewolfEngine";
 import "./werewolf.css";
@@ -60,6 +61,7 @@ export function WerewolfPage(){
  const [muted,setMuted]=useState(false);
  const [liveCaption,setLiveCaption]=useState("");
  const [hostSpeech,setHostSpeech]=useState("");
+ const {gameVoice,setGameVoice}=useGameVoice();
  const [micPhase,setMicPhase]=useState<"speaking"|"waiting">("waiting");
  const [audioIssue,setAudioIssue]=useState("");
  const liveRef=useRef<WolfVoiceController|null>(null);
@@ -170,7 +172,7 @@ export function WerewolfPage(){
     onAudioIssue:()=>setAudioIssue(L(isZh,"尚未收到語音辨識結果。請確認麥克風權限與音訊輸入，或再說一次。","Speech transcription did not arrive. Check your microphone/audio input or try again.")),
     onHostSpeech:setHostSpeech,
     onError:message=>{if(mountedRef.current&&voiceGenerationRef.current===stamp){liveRef.current=null;setVoiceStatus("off");setSpeaking(false);setError(message)}}
-   });
+   },resolveGameVoice(gameVoice,"Puck"));
    if(!mountedRef.current||voiceGenerationRef.current!==stamp){control.stop();return}
    liveRef.current=control;setVoiceStatus("ready");
   }catch(err){
@@ -227,11 +229,12 @@ export function WerewolfPage(){
     {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"開啟語音對話","Start voice chat")}</button>:
      voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
      <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"結束語音","Stop voice")}</button></div>}
+    <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice="Puck" disabled={voiceStatus!=="off"} english={!isZh}/>
     {!keyReady?<Link to="/settings" className="wolf-key-link">{L(isZh,"設定 Gemini Key","Set up Gemini Key")}</Link>:null}
     {voiceStatus==="ready"?<div className="wolf-live-transcript" aria-live="polite">
      <span className="wolf-live-connected">● {L(isZh,"語音已連線","Voice connected")}</span>
      {liveCaption?<p><strong>{L(isZh,"你說：","You: ")}</strong>{liveCaption.slice(-180)}</p>:null}
-     {hostSpeech?<p><strong>{L(isZh,"AI 語音：","AI voice: ")}</strong>{hostSpeech.slice(-200)}</p>:null}
+     {hostSpeech?<p><strong>{L(isZh,"旁觀主持：","Referee: ")}</strong>{hostSpeech.slice(-200)}</p>:null}
      {!liveCaption&&!hostSpeech?<p>{L(isZh,"例如：「Zoe，妳為什麼懷疑 Max？」","Try: Zoe, why are you suspicious of Max?")}</p>:null}
      {audioIssue?<p className="wolf-audio-issue" role="status">{audioIssue}</p>:null}
     </div>:null}
