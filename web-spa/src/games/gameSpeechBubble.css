@@ -63,19 +63,21 @@
  margin-top:6px;
  line-height:1.6;
  -webkit-overflow-scrolling:touch;
+ touch-action:pan-y;
 }
 .crew-game-speech-scroll[hidden]{display:none}
 .crew-game-speech-scroll:focus-visible{outline:2px solid #655b9c;outline-offset:-2px}
 @media(max-width:620px){
- .crew-game-speech{padding:5px 8px;font-size:11px}
- .crew-game-speech-trigger{min-height:26px}
+ .crew-game-speech{padding:6px 8px;font-size:12px;line-height:1.65}
+ .crew-game-speech-trigger{min-height:44px}
+ .crew-game-speech-action{font-size:12px}
+ .crew-game-speech-scroll{max-height:min(9.9em,34dvh);scrollbar-gutter:auto}
 }
 
 /* Comfortable transcript tap target and stable reader focus while Live replies stream. */
 .crew-game-speech-scroll{scroll-padding-block:8px}
-@media(max-width:620px){
+@media(pointer:coarse){
  .crew-game-speech-trigger{min-height:44px}
- .crew-game-speech-action{font-size:12px}
+ .crew-game-speech-scroll{scrollbar-gutter:auto}
 }
-@media(pointer:coarse){.crew-game-speech-trigger{min-height:44px}}
 @media(prefers-reduced-motion:reduce){.crew-game-speech-scroll{scroll-behavior:auto}}
