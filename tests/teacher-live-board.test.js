@@ -147,8 +147,8 @@ test("teacher board shows one focused stage with explicit lesson tabs and follow
  assert.match(cards,/function Dialogue/);
  assert.match(cards,/function Steps/);
  assert.match(cards,/const \[localStep,setLocalStep\]/);
- assert.match(styles,/\.teaching-board-stage\{height:clamp\(/);
- assert.match(styles,/overflow-y:auto/);
+ assert.match(styles,/\.teaching-board-stage\{height:auto;min-height:/);
+ assert.doesNotMatch(styles,/\.teaching-board-stage\{[^}]*overflow-y:auto/);
 });
 
 test("new or revised teaching cards resume live focus after manual browsing",()=>{
@@ -162,5 +162,5 @@ test("new or revised teaching cards resume live focus after manual browsing",()=
  assert.match(page,/following\?latestId:focusedId/);
  assert.match(page,/ref=\{deckRef\} role="tablist"/);
  assert.match(page,/rail\.getBoundingClientRect\(\)/);
- assert.match(page,/if\(stage\)stage\.scrollTop=0/);
+ assert.doesNotMatch(page,/stage\.scrollTop/);
 });
