@@ -24,10 +24,6 @@ function ContextWatch({onFailure}: {onFailure:(reason:string)=>void}){
  },[gl,onFailure]);
  return null;
 }
-function CanvasUnavailable({onFailure}:{onFailure:(reason:string)=>void}){
- useEffect(()=>onFailure("webgl-renderer-unavailable"),[onFailure]);
- return null;
-}
 export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,onFailure,onSimplified}:Props){
  const [visible,setVisible]=useState(true);
  useEffect(()=>{
@@ -49,7 +45,7 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={reducedMotion||!visible?"demand":"always"}
    onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3")}}
-   fallback={<CanvasUnavailable onFailure={onFailure}/>}>
+   fallback={<span>WebGL unavailable</span>}>
   <color attach="background" args={[night?"#303f56":"#eaf0e3"]}/>
   <fog attach="fog" args={[night?"#303f56":"#eaf0e3",32,67]}/>
   <hemisphereLight args={[night?"#8ea8d9":"#fff8e9","#75857b",night?.95:1.7]}/>

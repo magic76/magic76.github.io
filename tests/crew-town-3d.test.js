@@ -100,3 +100,11 @@ test("3D rendering has an in-Canvas model fallback and actionable errors",()=>{
  assert.match(page,/onSimplified=\{simplified\}/);
  for(const id of ["cafe","studio","play","garden"])assert.ok(simple.includes('onSelect("'+id+'")'));
 });
+
+test("Canvas fallback is inert DOM content, not a side-effect-driven failure",()=>{
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ assert.match(scene,/fallback=\{<span>WebGL unavailable<\/span>\}/);
+ assert.doesNotMatch(scene,/CanvasUnavailable/);
+ assert.doesNotMatch(scene,/useEffect\(\(\)=>onFailure\(/);
+ assert.match(scene,/onFailure\("webgl-context-lost"\)/);
+});
