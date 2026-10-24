@@ -11,6 +11,7 @@ export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:P
  const [mobile,setMobile]=useState(false);
  const [open,setOpen]=useState(false);
  const dialog=useRef<HTMLDivElement|null>(null);
+ const closeButton=useRef<HTMLButtonElement|null>(null);
  const lastShown=useRef<string|null>(null);
  const current=latestMagicSpotlight(challenge,panels);
  const key=current?current.kind+":"+current.id:null;
@@ -56,7 +57,17 @@ export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:P
  const activePanel=current.kind==="panel"?panels.find(panel=>panel.id===current.id):undefined;
  const activeChallenge=current.kind==="challenge"&&challenge?.id===current.id?challenge:null;
  const title=zh?"新魔法已出現":"A new spell has appeared";
- const completed=activeChallenge?.selected||activePanel?.selected;
+ const completed=Boolean(activeChallenge?.selected||activePanel?.selected);
+ const answer=(choice:MagicChoice)=>{
+  onAnswer(choice);
+  // The selected choice becomes disabled immediately. Move focus to a stable
+  // control so keyboard/switch users are not left focused on a disabled node.
+  requestAnimationFrame(()=>closeButton.current?.focus());
+ };
+ const select=(panelId:number,choice:MagicChoice)=>{
+  onSelect(panelId,choice);
+  requestAnimationFrame(()=>closeButton.current?.focus());
+ };
  return <>
   <button type="button" className="magic-stage-interaction-entry" aria-haspopup="dialog"
    aria-label={zh?"查看最新魔法互動":"Open latest magic interaction"} onClick={()=>setOpen(true)}>
@@ -70,11 +81,11 @@ export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:P
      ref={dialog} tabIndex={-1}>
      <div className="magic-mobile-dialog-heading">
       <div><span>CREW MAGIC</span><h2 id="magic-dialog-title">{title}</h2></div>
-      <button type="button" className="magic-mobile-dialog-close" onClick={()=>setOpen(false)}
+      <button type="button" className="magic-mobile-dialog-close" ref={closeButton} onClick={()=>setOpen(false)}
        aria-label={zh?"關閉並返回魔法島":"Close and return to magic island"}>×</button>
      </div>
-     {activeChallenge?<MagicChallengeCard challenge={activeChallenge} zh={zh} onAnswer={onAnswer}/>:null}
-     {activePanel?<MagicGeneratedCard panel={activePanel} zh={zh} onSelect={onSelect}/>:null}
+     {activeChallenge?<MagicChallengeCard challenge={activeChallenge} zh={zh} onAnswer={answer}/>:null}
+     {activePanel?<MagicGeneratedCard panel={activePanel} zh={zh} onSelect={select}/>:null}
     </div>
    </div>,document.body)}
  </>;
