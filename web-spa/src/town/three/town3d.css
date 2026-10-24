@@ -1,0 +1,58 @@
+.crew-town-3d{max-width:1180px;margin:0 auto;padding:9px 0 65px;display:grid;gap:19px;color:#304c49}
+.crew-town-3d-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:6px 3px}
+.crew-town-3d-heading>div{display:grid;gap:8px;min-width:0}
+.crew-town-3d-kicker{font-size:10px;font-weight:850;letter-spacing:.23em;color:#648d80}
+.crew-town-3d-heading h1{font-size:clamp(27px,4.3vw,45px);letter-spacing:-.055em;line-height:1.16;margin:0;font-weight:730}
+.crew-town-3d-heading p{color:#778982;font-size:13px;line-height:1.65;margin:0}
+.crew-town-3d-back{flex:none;border:1px solid #e0e7dc;border-radius:999px;background:#fffdf8;padding:10px 15px;text-decoration:none;color:#577e70;font-size:12px;font-weight:750}
+.crew-town-3d-stage{height:min(72vh,690px);min-height:490px;position:relative;isolation:isolate;overflow:hidden;border:1px solid #d9e4dc;border-radius:27px;background:radial-gradient(ellipse at 50% 45%,#f5f5df,#cde5d8 80%);box-shadow:0 25px 60px #48675621}
+.crew-town-3d-stage.is-night{background:#303f56}
+.crew-town-3d-canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important;touch-action:none}
+.crew-town-3d-tools{position:absolute;inset:16px 17px auto;display:flex;align-items:start;justify-content:space-between;gap:10px;pointer-events:none;z-index:5}
+.crew-town-3d-status{display:flex;align-items:center;gap:8px;max-width:55%;background:#fffef5ed;color:#537a6f;box-shadow:0 5px 18px #43665620;border:1px solid #fff;border-radius:999px;padding:11px 14px;font-size:10px;font-weight:800;line-height:1.4}
+.crew-town-3d-status>span{width:7px;height:7px;border-radius:50%;background:#83b89a}
+.crew-town-3d-buttons{display:flex;gap:7px;pointer-events:auto}
+.crew-town-3d button{font-family:inherit;cursor:pointer}
+.crew-town-3d-buttons button,.crew-town-3d-friends-toggle{border:1px solid #e2e8db;border-radius:999px;background:#fffef5ed;color:#527369;padding:10px 14px;min-height:40px;font-weight:800;font-size:12px;box-shadow:0 4px 15px #3359441e}
+.crew-town-3d-buttons button:hover,.crew-town-3d-dock button:hover{background:#fff}
+.crew-town-3d-dock{position:absolute;z-index:5;bottom:52px;left:50%;transform:translateX(-50%);width:min(94%,790px);display:flex;align-items:center;gap:9px;background:#fffefaef;padding:8px;border:1px solid #fff8;box-shadow:0 12px 36px #375a4450;border-radius:18px}
+.crew-town-3d-destinations{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1;min-width:0}
+.crew-town-3d-destinations button{white-space:nowrap;border:0;border-radius:12px;color:#526f64;font-size:11px;font-weight:760;background:transparent;padding:12px;min-height:43px}
+.crew-town-3d-friends-toggle{flex:none;background:#4e8071;color:#fff;border:0;box-shadow:none}
+.crew-town-3d-friend-menu{position:absolute;right:0;bottom:calc(100% + 10px);width:min(320px,100%);display:grid;grid-template-columns:repeat(3,1fr);gap:5px;padding:11px;background:#fffefa;border:1px solid #e2e7d8;border-radius:20px;box-shadow:0 14px 38px #314b4a4b}
+.crew-town-3d-friend-menu button{display:flex;flex-direction:column;align-items:center;gap:4px;background:transparent;border:0;border-radius:12px;font-size:11px;font-weight:750;color:#42675e;padding:6px}
+.crew-town-3d-friend-menu img{width:43px;height:43px;object-fit:cover;object-position:50% 20%;border-radius:50%;background:#eee5df}
+.crew-town-3d-hint{position:absolute;bottom:11px;left:50%;transform:translateX(-50%);width:max-content;max-width:94%;text-align:center;font-size:10px;color:#58766c;font-weight:650;background:#fffdf5dc;border-radius:99px;padding:5px 12px;pointer-events:none}
+.crew-town-3d-sheet{position:absolute;z-index:7;bottom:max(17px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(390px,calc(100% - 22px));padding:17px;display:grid;gap:13px;background:#fffefaF7;border:1px solid #fff;border-radius:22px;box-shadow:0 20px 56px #2d414b80;backdrop-filter:blur(13px)}
+.crew-town-3d-close{position:absolute;right:8px;top:6px;border:0;background:transparent;color:#69877c;font-size:24px;min-width:38px;min-height:38px}
+.crew-town-3d-selected{display:flex;align-items:center;gap:12px;padding-right:19px}
+.crew-town-3d-selected img{width:65px;height:72px;object-fit:cover;object-position:50% 20%;border-radius:14px;background:#eee6df}
+.crew-town-3d-selected>div,.crew-town-3d-place{display:grid;gap:4px}
+.crew-town-3d-sheet small{color:#72958a;font-size:10px;letter-spacing:.055em;font-weight:750}
+.crew-town-3d-sheet strong{color:#304e45;font-size:22px;letter-spacing:-.04em}
+.crew-town-3d-sheet p{font-size:12px;line-height:1.55;margin:0;color:#6b847b}
+.crew-town-3d-action{display:flex;align-items:center;justify-content:space-between;border-radius:12px;background:#4a8071;color:#fff;text-decoration:none;padding:13px 15px;font-weight:800;font-size:13px;min-height:46px}
+.crew-town-3d-note{line-height:1.45;letter-spacing:0!important;font-weight:550!important}
+.crew-town-3d-caption{display:flex;align-items:start;justify-content:space-between;gap:16px;color:#82958c;font-size:11px;line-height:1.7;padding:0 5px}
+.crew-town-3d-caption span{max-width:780px}
+.crew-town-3d-caption button{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#688f81;white-space:nowrap;padding:0}
+.crew-town-3d-loading{display:grid;place-items:center;height:100%;color:#637f71;background:#e4eee4;font-size:14px}
+.crew-town-3d button:focus-visible,.crew-town-3d a:focus-visible{outline:3px solid #478b82;outline-offset:2px}
+@media(max-width:720px){
+ .crew-town-3d{gap:11px;padding:0 0 48px}
+ .crew-town-3d-heading{align-items:start;gap:7px;flex-direction:column}
+ .crew-town-3d-heading h1{font-size:28px}
+ .crew-town-3d-heading p{font-size:12px}
+ .crew-town-3d-back{padding:7px 12px}
+ .crew-town-3d-stage{height:clamp(490px,67svh,670px);min-height:490px;border-radius:20px;margin:0 -3px}
+ .crew-town-3d-tools{inset:10px 9px auto;gap:6px}
+ .crew-town-3d-status{padding:9px 10px;font-size:9px;max-width:46%;border-radius:14px}
+ .crew-town-3d-buttons{flex-direction:column;gap:5px}
+ .crew-town-3d-buttons button{font-size:10px;min-height:34px;padding:7px 11px}
+ .crew-town-3d-dock{bottom:39px;padding:5px;border-radius:15px;gap:4px;width:calc(100% - 16px)}
+ .crew-town-3d-destinations button{padding:10px;font-size:10px}
+ .crew-town-3d-friends-toggle{padding:10px;font-size:10px;min-height:38px}
+ .crew-town-3d-sheet{padding:13px;border-radius:18px;bottom:max(9px,env(safe-area-inset-bottom))}
+ .crew-town-3d-caption{display:grid;gap:6px;font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.crew-town-3d *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

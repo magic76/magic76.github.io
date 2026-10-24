@@ -32,7 +32,7 @@ const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
-const CrewTownPage=lazy(()=>import("./town/TownPage").then(m=>({default:m.TownPage})));
+const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>import("./pages/CrewSectionPage").then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
