@@ -6,6 +6,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import {geminiKey} from "../lib/runtime";
 import {NonsenseNewsStage} from "./NonsenseNewsStage";
 import {startNonsenseNewsLive,type NewsLiveController} from "./nonsenseNewsLive";
+import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import type {DirectorEvent} from "./nonsenseDirector";
 import {openingNewsScene,nextNewsScene,type NewsScene,type NewsTurn} from "./nonsenseNewsEngine";
 import {renderNewsEndingCard,shareNewsEnding} from "./nonsenseNewsShare";
@@ -24,6 +25,7 @@ export function NonsenseLiveNewsPage(){
  const [category,setCategory]=useState("all");
  const [topic,setTopic]=useState<NonsenseTopic>(()=>pickNonsenseTopic("all"));
  const [mode,setMode]=useState<Mode>("voice");
+ const {gameVoice,setGameVoice}=useGameVoice();
  const [status,setStatus]=useState<Status>("setup");
  const [scene,setScene]=useState<NewsScene>(()=>openingNewsScene(topic,language));
  const [turns,setTurns]=useState<NewsTurn[]>([]);
@@ -122,7 +124,7 @@ export function NonsenseLiveNewsPage(){
      if(turnsRef.current.length>=3)void recoverEnding(stamp);
      else setStatus("playing");
     }
-   });
+   },resolveGameVoice(gameVoice,"Puck"));
    if(stamp!==generationRef.current||!mountedRef.current){controller.stop();return;}
    controllerRef.current=controller;
   }catch{
@@ -193,6 +195,7 @@ export function NonsenseLiveNewsPage(){
      <label>{L(zh,"荒謬新聞分類","News category")}<select value={category} onChange={e=>{setCategory(e.target.value);chooseTopic(e.target.value);}}><option value="all">{L(zh,"全部 150 題","All 150 topics")}</option>{nonsenseCategories.map(c=><option key={c.id} value={c.id}>{zh?c.zh:c.en}</option>)}</select></label>
      <label>{L(zh,"互動語言","Game language")}<select value={language} onChange={e=>chooseLanguage(e.target.value as NonsenseLanguage)}><option value="zh">繁體中文</option><option value="en">English</option></select></label>
     </div>
+    {mode==="voice"?<GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice="Puck" english={!zh}/>:null}
     <div className="news-mode-picker" role="group" aria-label={L(zh,"遊玩方式","Play mode")}>
      <button type="button" className={mode==="voice"?"selected":""} aria-pressed={mode==="voice"} onClick={()=>setMode("voice")}>🎙 {L(zh,"Gemini Live 語音互動","Gemini Live voice")}</button>
      <button type="button" className={mode==="text"?"selected":""} aria-pressed={mode==="text"} onClick={()=>setMode("text")}>⌨️ {L(zh,"文字互動／鍵盤聽寫","Text / keyboard dictation")}</button>
