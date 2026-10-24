@@ -51,8 +51,10 @@ test("offline Werewolf replies match the question and vary without secret roles"
  const w=new Function(compile(game("werewolfEngine.ts"))+"\nreturn {makeWolfGame,takeNightAction,fallbackWolfReply};")();
  const gameDay=w.takeNightAction(w.makeWolfGame(()=>.55,"villager"),{kind:"skip"},()=>.55);
  assert.equal(gameDay.phase,"day");
- const accused=w.fallbackWolfReply(gameDay,"zoe",true,"Zoe 妳為什麼說謊？");
- const neutral=w.fallbackWolfReply(gameDay,"zoe",true,"早安");
+ const npc=gameDay.players.find(p=>!p.human&&p.alive&&p.role!=="seer");
+ assert.ok(npc);
+ const accused=w.fallbackWolfReply(gameDay,npc.id,true,"你為什麼說謊？");
+ const neutral=w.fallbackWolfReply(gameDay,npc.id,true,"早安");
  assert.match(accused,/質疑|證據|懷疑|矛盾/);
  assert.notEqual(accused,neutral);
  assert.doesNotMatch(accused,/privateNotes|seerFindings|secret/);
