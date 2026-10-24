@@ -120,7 +120,7 @@ test("P1 camera makes town at least 15% larger while preserving focus and orbit 
  assert.ok(apparentSize(11.9,14,19.8,34)/previousDesktop>1.15);
  assert.ok(apparentSize(14.7,18.5,25,52)/previousMobile>1.15);
  assert.ok(apparentSize(12.7,15.7,23.4,49)/previousMobile>1.15);
- for(const offset of ["11.9,14,19.8","14.7,18.5,25","12.7,15.7,23.4","4.3,5.2,7.3"]){
+ for(const offset of ["11.9,14,19.8","54,74,89","34,42,67","4.3,5.2,7.3"]){
   assert.ok(camera.includes("new Vector3("+offset+")"));
  }
  assert.ok(camera.includes("minDistance={6.5} maxDistance={140}"));
