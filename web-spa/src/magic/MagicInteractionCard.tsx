@@ -46,10 +46,3 @@ export function MagicGeneratedCard({panel,zh,onSelect}:{panel:MagicPanel}&Pick<C
  </section>;
 }
 
-export type MagicSpotlight={kind:"challenge"|"panel";id:number};
-export function latestMagicSpotlight(challenge:MagicChallenge|null,panels:MagicPanel[]):MagicSpotlight|null{
- const panel=panels[panels.length-1];
- if(challenge && (!panel||challenge.id>panel.id))return {kind:"challenge",id:challenge.id};
- if(panel)return {kind:"panel",id:panel.id};
- return null;
-}
