@@ -14,6 +14,7 @@ import {finalizeMateBriefing} from "./mateBriefing";
 import {MateTranscript} from "./MateTranscript";
 import {MateHistoryPanel} from "./MateHistoryPanel";
 import {MateConsensusFields} from "./MateConsensusFields";
+import {MateExternalDock} from "./MateExternalDock";
 import "./mate.css";
 
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
@@ -426,16 +427,11 @@ export function MatePage(){
         <p className="mate-hint">{t("不會自動替你答應任何付款或其他承諾。","Mate will not automatically accept payments or commitments.")}</p>
       </div>}
       {phase==="finished"&&<div className="mate-result"><strong>{t("溝通結果","Communication result")}</strong><p>{outcome||t("通話已結束","Conversation ended")}</p></div>}
-      <div className="mate-dock">
-        {phase==="external"&&<>
-          <button type="button" className="mate-secondary" onClick={()=>void editSupplement()}>{t("私下補充","Private update")}</button>
-          <button type="button" className="mate-secondary" onClick={()=>void reviewBrief()}>{t("我要自己說","Take over")}</button>
-          <button type="button" className="mate-primary" onClick={()=>void closeTask(true,t("使用者確認任務完成","Owner confirmed completion"))}>{t("完成任務","Complete task")}</button>
-          <button type="button" className="mate-quiet" onClick={()=>void closeTask(false,t("只結束通話，任務未確認完成","Call ended without completion"))}>{t("結束通話","End call")}</button>
-        </>}
-        {phase==="finished"&&<button className="mate-primary" type="button" onClick={restart}>{t("建立新任務","New task")}</button>}
-        {phase==="decision"&&<button className="mate-quiet" type="button" onClick={()=>void closeTask(false,t("需要使用者處理","Owner action needed"))}>{t("結束","End")}</button>}
-      </div>
+      <MateExternalDock phase={phase} english={en}
+        onSupplement={()=>void editSupplement()} onTakeOver={()=>void reviewBrief()}
+        onComplete={()=>void closeTask(true,t("使用者確認任務完成","Owner confirmed completion"))}
+        onEnd={()=>void closeTask(false,t("只結束通話，任務未確認完成","Call ended without completion"))}
+        onRestart={restart}/>
     </section>}
     <p className="mate-disclaimer">{t("現場溝通需徵得對方同意。Mate 不會傳送 LINE、Email 或其他遠端訊息。切換私下補充時會安全地重建語音連線。","Ask for consent before using live transcription. Mate does not send remote messages. Switching between private and external modes safely reconnects voice.")}</p>
   </div>;
