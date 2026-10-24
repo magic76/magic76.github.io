@@ -31,6 +31,20 @@ test("the renderer rejects untrusted scripts and unknown tools",()=>{
  assert.equal(bogus.ok,false);
 });
 
+test("generated copy strips invisible bidi controls before rendering",()=>{
+ const story=applyMagicCommand(MAGIC_INITIAL_WORLD,"tell_story",{message:"safe\u202Etxt\u2066end"});
+ assert.equal(story.ok,true);
+ assert.equal(story.world.message,"safetxtend");
+ const panel=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_panel",{
+  panel_type:"quest",title:"Star\u202D Gate",description:"Choose\u2069 wisely",
+  item_a:"North\u202E",item_b:"East",item_c:"West"
+ });
+ assert.equal(panel.ok,true);
+ assert.equal(panel.world.panels[0].title,"Star Gate");
+ assert.equal(panel.world.panels[0].description,"Choose wisely");
+ assert.equal(panel.world.panels[0].items[0],"North");
+});
+
 test("stage object limit matches the six unique mobile hit targets",()=>{
  let state=MAGIC_INITIAL_WORLD;
  for(let n=0;n<6;n++){
@@ -123,7 +137,6 @@ test("generated panels replace old panels at a bounded count",()=>{
  }
  assert.equal(world.panels.length,2);
 });
-
 
 test("mobile spotlight picks the newest generated interaction and keeps result visible",()=>{
  const {latestMagicSpotlight}=worldModule.exports;
