@@ -103,3 +103,9 @@
  .teacher-presence-shell::before,.friend-live-avatar::before{transition:none!important;transform:none!important}
  .live-stage .live-transcript .live-line.show{animation:none!important}
 }
+
+/* Match header feedback to the same measured state as the avatar. */
+.app-header .status[data-state="error"]{color:#a34b47}
+.app-header .status[data-state="error"] .status-dot{background:#c86b62;box-shadow:0 0 0 3px #f6e4df}
+.app-header .status[data-state="waiting"] .status-dot{background:#ab895b;box-shadow:0 0 0 3px #f8f0df}
+.app-header .status[data-state="connecting"] .status-dot{background:#8d89a5;box-shadow:0 0 0 3px #eae8f2}
