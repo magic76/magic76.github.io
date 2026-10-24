@@ -292,7 +292,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   <button type="button" className="crew-play-voice-start" disabled={voicePreparing||isWord&&!hasKey} onClick={()=>void live.start()}>{voicePreparing?(english?"Preparing the mystery…":"正在準備新題目…"):voiceStartLabel}</button>:
   <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>;
  return <div className={"crew-play-session"+(isWord?" crew-play-session--word":"")+(twenty?" crew-play-session--twenty":"")}>
-  <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/>
+  <div className="crew-play-voice-pref"><GamePanel label={english?"Voice settings":"語音設定"} title={english?"Game voice settings":"遊戲語音設定"}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/></GamePanel></div>
   {isWord?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
    <div className="crew-play-voice-presence-header">
     <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
@@ -313,7 +313,20 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    {!voiceActive?<div className="crew-play-voice-entrance">
     <strong>{english?"Start voice to unlock this game":"開啟語音，才能開始遊戲"}</strong>
     <p>{english?"20 Questions and Mystery are conversation games. You'll need your Gemini Key and microphone.":"20 Questions 和海龜湯是語言對話遊戲，需要 Gemini Key 和麥克風才能遊玩。"}</p>
-    {!hasKey?<GeminiSetupNotice/>:null}
+    <div className="crew-play-sample" aria-label={english?"Example game turn":"玩法示範"}>
+      <strong>{english?"Example turn · not today's actual answer":"示範回合 · 非本局實際答案"}</strong>
+      {twenty?<div className="crew-play-sample-lines">
+       <p><b>{english?"Player":"玩家"}</b> {english?"Is it something you eat?":"它是可以吃的東西嗎？"}</p>
+       <p><b>{friend.name}</b> {english?"No.":"不是。"}</p>
+       <p><b>{english?"Player":"玩家"}</b> {english?"Is it usually indoors?":"通常會在室內嗎？"}</p>
+       <p><b>{friend.name}</b> {english?"Yes! Keep narrowing it down.":"是，繼續縮小範圍！"}</p>
+      </div>:<div className="crew-play-sample-lines">
+       <p><b>{english?"Sample mystery":"示範題目"}</b> {english?"A guest asked for water, but the server clapped instead. The guest said thanks. Why?":"客人向服務生要水，服務生卻突然拍手，客人反而道謝。為什麼？"}</p>
+       <p><b>{english?"Player":"玩家"}</b> {english?"Did the guest have hiccups?":"客人當時在打嗝嗎？"}</p>
+       <p><b>{friend.name}</b> {english?"Yes. Use yes/no questions to uncover the story.":"是。用是非題一步步推理原因。"}</p>
+      </div>}
+     </div>
+     {!hasKey?<GeminiSetupNotice/>:null}
     {voicePreparing?<div className="crew-play-generation-state" role="status"><span className="crew-play-mystery-spinner" aria-hidden="true"/><span>{english?"Creating a consistent story and clues…":"正在生成題目與答案線索，完成後即可開始語音。"}</span></div>:null}
     {wordError?<div className="crew-play-voice-recovery" role="alert">
       <p>{live.status|| (english?"Voice connection failed.":"語音連線失敗，請檢查麥克風或網路。")}</p>
