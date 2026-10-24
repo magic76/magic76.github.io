@@ -2,13 +2,9 @@ const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
 const root=path.resolve(__dirname,"..");
-const source=fs.readFileSync(path.join(root,"web-spa/src/mate/mateState.ts"),"utf8");
-const js=ts.transpileModule(source,{compilerOptions:{target:9,module:1}}).outputText;
-const loaded={exports:{}};
-new Function("module","exports",js)(loaded,loaded.exports);
-const mate=loaded.exports;
+// Node 22.23+ supports TypeScript type stripping, matching the repository CI runtime.
+const mate=require("../web-spa/src/mate/mateState.ts");
 const consensus={
  target:"Hotel",goal:"Request early check-in",constraints:"Do not pay a surcharge",
  escalation:"Ask me before any payment change",userLanguage:"zh-TW",otherLanguage:"en"
