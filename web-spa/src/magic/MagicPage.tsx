@@ -93,7 +93,8 @@ export function MagicPage(){
   setNotice(t("正在開啟魔法通道…","Opening the magical connection…"));
   try{
    await ensureLive();
-   if(generation.current!==sequence||!window.CrewLive)return;
+   if(generation.current!==sequence)return;
+   if(!window.CrewLive)throw new Error("Live runtime unavailable");
    const session=new window.CrewLive.Session({
     system:magicSystemPrompt(!zh),
     openingPrompt:zh?"歡迎來到魔法島！簡短介紹你是 Lumi，問玩家想讓這個世界發生什麼，並示範可以召喚生物、改變天氣或玩魔法謎題。":"Welcome to the magic island! Briefly introduce yourself as Lumi and ask what the player would like to create, such as creatures, weather or a magical riddle.",
@@ -127,8 +128,15 @@ export function MagicPage(){
    });
    sessionRef.current=session;
    await session.start();
-   if(generation.current!==sequence){await session.stop({reason:"stale",silentStatus:true,emitTerminal:false});return}
-   setVoiceState(session.ready?"listening":"connecting");
+   if(generation.current!==sequence||sessionRef.current!==session){
+    await session.stop({reason:"stale",silentStatus:true,emitTerminal:false});return;
+   }
+   if(!session.ready||!session.running){
+    sessionRef.current=null;setVoiceState("error");
+    setNotice(t("語音連線未能完成，請再試一次。","The voice connection did not finish. Please retry."));
+    return;
+   }
+   setVoiceState("listening");
    setNotice("");
   }catch{
    if(generation.current!==sequence)return;
