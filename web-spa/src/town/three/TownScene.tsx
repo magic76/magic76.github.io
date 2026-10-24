@@ -40,7 +40,7 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
   :null;
  const focus=friendFocus??cameraFocus;
  return <Canvas className="crew-town-3d-canvas"
-   camera={{position:[14,16,23],fov:typeof window!=="undefined"&&window.innerWidth<720?54:36,near:.1,far:120}}
+   camera={{position:typeof window!=="undefined"&&window.innerWidth<720?[14.7,18.5,25]:[11.9,14,19.8],fov:typeof window!=="undefined"&&window.innerWidth<720?52:34,near:.1,far:120}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={reducedMotion||!visible?"demand":"always"}
