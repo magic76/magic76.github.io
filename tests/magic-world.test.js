@@ -1,6 +1,15 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD} from "../web-spa/src/magic/world.ts";
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const fs=require("node:fs");
+const path=require("node:path");
+const ts=require("typescript");
+// Keep repository tests runnable on the existing Node 22 runner without special
+// experimental .ts import flags. This module is a pure state reducer.
+const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
+const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const worldModule={exports:{}};
+new Function("module","exports",compiled)(worldModule,worldModule.exports);
+const {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
