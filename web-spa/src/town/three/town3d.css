@@ -64,3 +64,7 @@
 .crew-town-3d-fallback-notice p{font-size:12px;line-height:1.6;margin:5px 0 0;color:#607c70}
 .crew-town-3d-fallback-notice button{flex:none;padding:10px 14px;border:1px solid #a9caba;border-radius:999px;background:#f0f8ee;color:#355e50;cursor:pointer;font-weight:750}
 @media(max-width:640px){.crew-town-3d-fallback-notice{align-items:stretch;flex-direction:column}.crew-town-3d-fallback-notice button{align-self:flex-start}}
+
+.crew-town-3d-error-detail{display:block;max-width:100%;overflow-wrap:anywhere;margin-top:7px;color:#8d5854;font-size:11px;line-height:1.55}
+.crew-town-3d-model-note{position:absolute;z-index:5;left:16px;top:75px;max-width:min(390px,calc(100% - 32px));border-radius:12px;background:#fff6e7f2;padding:8px 11px;font-size:11px;color:#765842}
+.crew-town-3d-model-note code{display:block;font-size:10px;overflow-wrap:anywhere}
