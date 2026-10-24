@@ -92,6 +92,16 @@ export function MagicPage(){
   const sequence=++generation.current;
   setStarting(true);setVoiceState("connecting");setToolsAvailable(true);setMuted(false);
   setNotice(t("正在開啟魔法通道…","Opening the magical connection…"));
+  const failSession=(message:string)=>{
+   if(generation.current!==sequence)return;
+   const active=sessionRef.current;sessionRef.current=null;
+   setVoiceState("error");setNotice(message);
+   // A failed Live transport can still own a microphone track. Never let that
+   // stale session block the retry button or update the next connection.
+   if(active)void Promise.resolve().then(()=>active.stop({
+    reason:"magic-connection-error",silentStatus:true,emitTerminal:false
+   })).catch(()=>{});
+  };
   try{
    await ensureLive();
    if(generation.current!==sequence)return;
@@ -113,17 +123,14 @@ export function MagicPage(){
     onStatus:msg=>{if(generation.current===sequence&&msg&&msg.length<180)setNotice(msg)},
     onState:state=>{if(generation.current!==sequence)return;
      if(state==="ready")setVoiceState("listening");
-     if(state==="error"){setVoiceState("error");setNotice(t("連線中斷，請重新開始。","Connection lost. Please reconnect."));}
+     if(state==="error")failSession(t("連線中斷，請重新開始。","Connection lost. Please reconnect."));
     },
     onSpeaking:now=>{if(generation.current===sequence)setVoiceState(now?"speaking":"listening")},
     onMicMuted:()=>{if(generation.current===sequence)setMuted(Boolean(sessionRef.current?.micMuted))},
     onInputTranscript:value=>{if(generation.current===sequence)setHeard(value.slice(0,240))},
     onOutputTranscript:value=>{if(generation.current===sequence)setSaid(value.slice(0,240))},
-    onError:()=>{if(generation.current===sequence){
-     setVoiceState("error");
-     setNotice(t("語音暫時無法使用。你仍可以點擊魔法試玩。","Voice is unavailable right now. You can still try the spells."));
-    }},
-    onTerminal:()=>{if(generation.current===sequence){
+    onError:()=>failSession(t("語音暫時無法使用。你仍可以點擊魔法試玩。","Voice is unavailable right now. You can still try the spells.")),
+    onTerminal:()=>{if(generation.current===sequence&&sessionRef.current){
      sessionRef.current=null;setVoiceState("idle");
     }}
    });
@@ -133,16 +140,13 @@ export function MagicPage(){
     await session.stop({reason:"stale",silentStatus:true,emitTerminal:false});return;
    }
    if(!session.ready||!session.running){
-    sessionRef.current=null;setVoiceState("error");
-    setNotice(t("語音連線未能完成，請再試一次。","The voice connection did not finish. Please retry."));
+    failSession(t("語音連線未能完成，請再試一次。","The voice connection did not finish. Please retry."));
     return;
    }
    setVoiceState("listening");
    setNotice("");
   }catch{
-   if(generation.current!==sequence)return;
-   sessionRef.current=null;setVoiceState("error");
-   setNotice(t("連線失敗，請確認麥克風與網路後再試。","Could not connect. Check your microphone and connection."));
+   failSession(t("連線失敗，請確認麥克風與網路後再試。","Could not connect. Check your microphone and connection."));
   }finally{
    if(generation.current===sequence)setStarting(false);
   }
