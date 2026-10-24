@@ -3,6 +3,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {TownIllustration} from "./TownIllustration";
+import {TownCharacter} from "./TownCharacter";
 import "./town.css";
 
 type ActorId="zoe"|"yuna"|"theo"|"hugo"|"bella"|"noah";
@@ -20,8 +21,8 @@ const PEOPLE:{id:ActorId;x:number;y:number;clothes:string;hair:string;activityZh
 const PROFILES=new Map(CREW_FRIENDS.map(friend=>[friend.id,friend]));
 const PLACES:{id:PlaceId;x:number;y:number;zh:string;en:string;introZh:string;introEn:string;to:string;ctaZh:string;ctaEn:string}[]=[
  {id:"cafe",x:19,y:72,zh:"日常咖啡館",en:"The Café",introZh:"Zoe 和 Yuna 常在這裡聊今天的趣事。點選角色可以進入真正的語音聊天。",introEn:"Zoe and Yuna share the little stories of their day here. Choose a friend to start a real voice chat.",to:"/friend/live?id=zoe",ctaZh:"跟 Zoe 聊聊",ctaEn:"Chat with Zoe"},
- {id:"studio",x:74,y:41,zh:"靈感工作室",en:"The Studio",introZh:"Theo 喜歡在這裡交換點子。現在先以小鎮情境示範，語音仍使用既有聊天頁。",introEn:"Theo loves new ideas. The town scene is a prototype; voice conversations use the existing chat page.",to:"/friend/live?id=theo",ctaZh:"跟 Theo 聊聊",ctaEn:"Chat with Theo"},
- {id:"play",x:45,y:84,zh:"遊戲屋",en:"Play House",introZh:"這裡是 Crew Play 的遊戲入口，未來可以把遊戲事件帶回小鎮。",introEn:"Find Crew Play games here. In the future, game events can unfold across town.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Go to Crew Play"},
+ {id:"studio",x:78,y:52,zh:"靈感工作室",en:"The Studio",introZh:"Theo 喜歡在這裡交換點子。現在先以小鎮情境示範，語音仍使用既有聊天頁。",introEn:"Theo loves new ideas. The town scene is a prototype; voice conversations use the existing chat page.",to:"/friend/live?id=theo",ctaZh:"跟 Theo 聊聊",ctaEn:"Chat with Theo"},
+ {id:"play",x:56,y:90,zh:"遊戲屋",en:"Play House",introZh:"這裡是 Crew Play 的遊戲入口，未來可以把遊戲事件帶回小鎮。",introEn:"Find Crew Play games here. In the future, game events can unfold across town.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Go to Crew Play"},
  {id:"garden",x:86,y:68,zh:"湖畔花園",en:"Lakeside Garden",introZh:"適合慢慢聊生活，先從 Noah 的單人對話開始。",introEn:"A quiet place to talk about life. Start with a one-on-one conversation with Noah.",to:"/friend/live?id=noah",ctaZh:"跟 Noah 聊聊",ctaEn:"Chat with Noah"}
 ];
 const MOMENTS:{id:ActorId;partner:ActorId;zh:string;en:string}[]=[
@@ -81,7 +82,7 @@ export function TownPage(){
 
  return <div className="crew-town">
   <header className="crew-town-heading">
-   <div><span className="crew-town-kicker">CREW TOWN <span>· VISUAL PROTOTYPE</span></span>
+   <div><span className="crew-town-kicker">CREW TOWN <span>· A LITTLE LIVING WORLD</span></span>
     <h1>{zh?"朋友們的小小世界":"A little world of friends"}</h1>
     <p>{zh?"他們在這裡散步、相遇、分享每天的故事。點擊一位朋友，加入他們的生活。":"They stroll, meet, and share the small stories of everyday life. Tap a friend to say hello."}</p></div>
    <Link className="crew-town-back" to="/explore">← {zh?"回到探索":"Explore"}</Link>
@@ -108,9 +109,7 @@ export function TownPage(){
          aria-label={(zh?"與 ":"Meet ")+profile.name+(zh?" 對話":"")}
          onClick={()=>pickPerson(person.id)}>
         <span className="crew-town-person-shadow"/>
-        <span className="crew-town-person-figure" style={{"--town-clothes":person.clothes,"--town-hair":person.hair} as React.CSSProperties}>
-         <span className="crew-town-person-hair"/><span className="crew-town-person-face"/><span className="crew-town-person-body"/>
-        </span>
+        <span className="crew-town-person-figure"><TownCharacter id={person.id} coat={person.clothes} hair={person.hair}/></span>
         <span className="crew-town-person-tag">{profile.name}</span>
        </button>;
       })}
