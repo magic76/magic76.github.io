@@ -128,8 +128,11 @@ export function WerewolfPage(){
   const next=recordSpeech(current,"you",text);
   commit(next);
   setDraft("");
-  const npc=next.players.find(p=>p.id===to&&p.alive&&!p.human)||
-   next.players.filter(p=>p.alive&&!p.human)[(next.entries.filter(e=>e.speaker==="you").length-1)%next.players.filter(p=>p.alive&&!p.human).length];
+  const aliveNpcs=next.players.filter(p=>p.alive&&!p.human);
+  // Plain typing "Zoe, why..." should address Zoe even without selecting the dropdown.
+  const named=aliveNpcs.find(p=>new RegExp("\\b"+p.name+"\\b","i").test(text));
+  const npc=aliveNpcs.find(p=>p.id===to)||named||
+   aliveNpcs[(next.entries.filter(e=>e.speaker==="you").length-1)%aliveNpcs.length];
   if(!npc){busyRef.current=false;setBusy(false);return {ok:true}}
   void (async()=>{
    const answer=await generateWolfReply(next,npc.id,text,language);
@@ -216,7 +219,7 @@ export function WerewolfPage(){
     {lastNotes.map((note,i)=><p key={i}>{isZh?note.replace(" is a wolf."," 是狼人。").replace(" is not a wolf."," 不是狼人。").replace("You saved tonight's target.","你成功救下昨晚的目標。").replace("You used your poison.","你已使用毒藥。"):note}</p>)}
    </section>:null}
    <section className={"wolf-voice"+(voiceStatus==="ready"?" is-connected":"")}>
-    <div><strong>🎙 {L(isZh,"Gemini Live 語音對話","Gemini Live voice chat")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):L(isZh,"正在聽你說話，可直接與 NPC 對話或投票","Listening — talk directly to an NPC or vote")):L(isZh,"點開始後直接說話，AI 將念出 NPC 的回覆","Start Live to speak and hear NPC replies.")}</small></div>
+    <div><strong>🎙 {L(isZh,"Gemini Live 語音對話","Gemini Live voice chat")}</strong><small>{voiceStatus==="ready"?(speaking?L(isZh,"主持人正在說話","Host is speaking"):muted?L(isZh,"麥克風已靜音","Mic muted"):L(isZh,"正在聽你說話，可直接與 NPC 對話或投票","Listening — talk directly to an NPC or vote")):voiceStatus==="connecting"?L(isZh,"正在連接語音模型與麥克風…","Connecting voice and microphone…"):L(isZh,"點開始後直接說話，AI 將念出 NPC 的回覆","Start Live to speak and hear NPC replies.")}</small></div>
     {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"開啟語音對話","Start voice chat")}</button>:
      voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
      <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"結束語音","Stop voice")}</button></div>}
