@@ -70,3 +70,11 @@
  .crew-game-speech{padding:5px 8px;font-size:11px}
  .crew-game-speech-trigger{min-height:26px}
 }
+
+/* Comfortable transcript tap target and stable reader focus while Live replies stream. */
+.crew-game-speech-scroll{scroll-padding-block:8px}
+@media(max-width:620px){
+ .crew-game-speech-trigger{min-height:34px}
+ .crew-game-speech-action{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.crew-game-speech-scroll{scroll-behavior:auto}}
