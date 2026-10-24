@@ -53,3 +53,51 @@ test("all externally available tools exclude private consensus mutation",()=>{
  const tools=mate.mateToolDeclarations("external")[0].functionDeclarations;
  assert.deepEqual(tools.map(x=>x.name),["request_user_input","complete_task"]);
 });
+
+// P1: stopped records are resumable only with the owner's opted-in consensus.
+test("resuming historical tasks never reopens completed tasks or an incomplete snapshot",()=>{
+ const base={...consensus};
+ const item={id:"task-1",status:"stopped",consensus:base};
+ assert.equal(mate.mateHistoryResumable(item),true);
+ assert.equal(mate.mateHistoryResumable({...item,status:"completed"}),false);
+ assert.equal(mate.mateHistoryResumable({...item,consensus:undefined}),false);
+ assert.equal(mate.mateHistoryResumable({...item,consensus:{...base,target:""}}),false);
+});
+test("saved snapshots are bounded, deletable and never affect other task IDs",()=>{
+ const saved=new Map();
+ const original=global.localStorage;
+ global.localStorage={
+  getItem:key=>saved.get(key)||null,
+  setItem:(key,value)=>saved.set(key,value)
+ };
+ try{
+  for(let index=0;index<25;index++)mate.storeMateHistory({
+   id:"mate-"+index,status:"stopped",target:"Hotel",goal:"Ask reception",
+   userLanguage:"zh-TW",otherLanguage:"en",turns:[],outcome:"",
+   updatedAt:index,consensus:{...consensus}
+  });
+  assert.equal(mate.readMateHistory().length,20);
+  const before=mate.readMateHistory()[1].id;
+  mate.deleteMateHistory(before);
+  assert.equal(mate.readMateHistory().length,19);
+  assert.equal(mate.readMateHistory().some(x=>x.id===before),false);
+ }finally{global.localStorage=original}
+});
+test("briefing is finalized from confirmed speech and unsent typed text before external handoff",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const briefing=fs.readFileSync(path.join(root,"web-spa/src/mate/mateBriefing.ts"),"utf8");
+ assert.match(page,/privateStatements\.current\.push\(turn\.input\.trim\(\)\)/);
+ assert.match(page,/\.\.\.privateStatements\.current,\.\.\.\(raw\?\[raw\]:\[\]\)/);
+ assert.match(page,/await finalizeMateBriefing\(consensusRef\.current,statements\)/);
+ assert.match(briefing,/Do not guess missing fields/);
+ assert.match(page,/setConfirmOwner\(false\);\s*advance\("review"/);
+});
+test("P1 external view has a dedicated transcript and explicit reconnect path",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const transcript=fs.readFileSync(path.join(root,"web-spa/src/mate/MateTranscript.tsx"),"utf8");
+ assert.match(page,/showHistory&&phase!=="external"&&phase!=="decision"/);
+ assert.match(page,/MateTranscript turns=\{turns\}/);
+ assert.match(page,/Review and reconnect/);
+ assert.match(transcript,/shouldFollow\.current=nearBottom/);
+ assert.match(transcript,/role="log"/);
+});
