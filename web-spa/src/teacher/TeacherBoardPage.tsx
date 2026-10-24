@@ -62,7 +62,6 @@ export function TeacherBoardPage(){
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
  const formatRequestRef=useRef<BoardPresentation|null>(null);
  const pendingQuizRef=useRef<{cardId:string;index:number;correct:boolean}|null>(null);
- // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
  const system=useMemo(()=>buildTeacherSessionPolicy({
@@ -79,10 +78,8 @@ export function TeacherBoardPage(){
   directorRef.current=next;setDirector(next);
  }
  function commitPatch(patch:BoardPatch):boolean{
-  // Only allow supporting non-quiz upserts while the learner owns a question.
   const waiting=directorRef.current.phase==="awaiting";
   const guided=!!lessonRef.current;
-  // Curated quiz/speaking goals must not be overwritten by model-authored patches.
   if(guided&&(patch.action!=="upsert"||patch.cards.some(c=>!cardRef.current.some(old=>old.id===c.id&&old.type===c.type)||c.type==="quiz"||c.type==="speaking")))return false;
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
@@ -194,13 +191,10 @@ export function TeacherBoardPage(){
    return {ok:false,error:"unknown-tool"};
   },
   onRecovered:()=>{
-   // Reassert session teaching context, not a new learner turn.
    const summary=boardNotes(cardRef.current).slice(0,1300);
    live.sendControl("[BOARD CONTINUITY] Reconnected. Preserve lesson and stage. Current phase="+directorRef.current.phase+", focused card="+directorRef.current.cardId+", quiz question="+(directorRef.current.quizIndex+1)+". If awaiting, wait for learner and do not change cards. "+summary+"\n"+localeHelp);
   },
   onTurnComplete:(turn)=>{
-   // Confirmed input is observed as early as the runtime publishes a turn;
-   // fall back here when the model does not send a separate transcript event.
    processConfirmedSpeech(turn.input||"");
    const updatedByLive=patchCountRef.current!==lastTurnPatchRef.current;
    lastTurnPatchRef.current=patchCountRef.current;
@@ -230,8 +224,6 @@ export function TeacherBoardPage(){
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
- // One vertical document scroll, not a viewport-sized scroll box inside the board.
- // Do not force-scroll the browser during Live tool updates: it interrupts reading.
  useEffect(()=>{
   const rail=deckRef.current,selected=rail?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
   if(!rail||!selected)return;
@@ -246,7 +238,6 @@ export function TeacherBoardPage(){
   setHint("");
  }
  function showFormats(){
-  // Preview cards are curated static samples, not a claimed model response.
   lessonRef.current=null;setLessonId(null);setLessonStep(0);
   pendingQuizRef.current=null;changeDirector(EMPTY_DIRECTOR);
   reviewReturnRef.current=null;setReviewReturn(null);
@@ -287,7 +278,6 @@ export function TeacherBoardPage(){
   if(card.type==="quiz"){
    const key=card.id+":"+index,selected=answersRef.current[key],q=card.questions[index];
    if(!q)return;
-   // The next question can only be opened after the current one is answered.
    if(card.id===directorRef.current.cardId&&index>directorRef.current.quizIndex&&directorRef.current.phase==="awaiting")return;
    changeDirector({...EMPTY_DIRECTOR,cardId:card.id,phase:selected===undefined?"awaiting":"feedback",
     quizIndex:index,focusIndex:index,result:selected===undefined?null:(selected===q.answerIndex?"correct":"incorrect")});
@@ -308,8 +298,6 @@ export function TeacherBoardPage(){
   if(!prior)return;
   const card=cardRef.current.find(c=>c.id===prior.cardId);
   if(!card||card.type!=="quiz")return;
-  // A review grants an explicit retry; preserve earlier attempts only as
-  // anonymous aggregate activity, not as durable user memory.
   const key=card.id+":"+prior.index;
   const next={...answersRef.current};delete next[key];answersRef.current=next;setAnswers(next);
   reviewReturnRef.current=null;setReviewReturn(null);
