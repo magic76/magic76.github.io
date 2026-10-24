@@ -322,6 +322,14 @@
     },
     "showFormats": "カード形式を見る",
     "demoMode": "カード形式の例",
-    "demoHint": "準備済みの形式サンプルです。AI によるリアルタイム生成ではありません。"
+    "demoHint": "準備済みの形式サンプルです。AI によるリアルタイム生成ではありません。",
+    "presentation": {
+      "title": "この内容を表示",
+      "compare": "比較",
+      "timeline": "タイムライン",
+      "dialogue": "会話",
+      "flashcard": "単語カード",
+      "quiz": "小テスト"
+    }
   }
 }

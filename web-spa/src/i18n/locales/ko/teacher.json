@@ -322,6 +322,14 @@
     },
     "showFormats": "카드 유형 보기",
     "demoMode": "카드 형식 예시",
-    "demoHint": "미리 준비된 카드 예시이며 AI가 실시간 생성한 내용이 아닙니다."
+    "demoHint": "미리 준비된 카드 예시이며 AI가 실시간 생성한 내용이 아닙니다.",
+    "presentation": {
+      "title": "이 내용을 표시",
+      "compare": "비교",
+      "timeline": "타임라인",
+      "dialogue": "대화",
+      "flashcard": "단어 카드",
+      "quiz": "퀴즈"
+    }
   }
 }

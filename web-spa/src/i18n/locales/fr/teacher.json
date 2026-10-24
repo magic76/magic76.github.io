@@ -322,6 +322,14 @@
     },
     "showFormats": "Voir les types de cartes",
     "demoMode": "Exemples de formats",
-    "demoHint": "Ces cartes sont des exemples préparés, pas des créations IA en direct."
+    "demoHint": "Ces cartes sont des exemples préparés, pas des créations IA en direct.",
+    "presentation": {
+      "title": "Afficher en",
+      "compare": "Comparaison",
+      "timeline": "Chronologie",
+      "dialogue": "Dialogue",
+      "flashcard": "Cartes mémoire",
+      "quiz": "Mini quiz"
+    }
   }
 }

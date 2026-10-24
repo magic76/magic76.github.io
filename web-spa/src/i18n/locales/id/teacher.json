@@ -322,6 +322,14 @@
     },
     "showFormats": "Lihat jenis kartu",
     "demoMode": "Contoh format",
-    "demoHint": "Ini contoh kartu yang sudah disiapkan, bukan keluaran AI langsung."
+    "demoHint": "Ini contoh kartu yang sudah disiapkan, bukan keluaran AI langsung.",
+    "presentation": {
+      "title": "Tampilkan sebagai",
+      "compare": "Perbandingan",
+      "timeline": "Linimasa",
+      "dialogue": "Dialog",
+      "flashcard": "Kartu hafalan",
+      "quiz": "Kuis mini"
+    }
   }
 }

@@ -57,7 +57,7 @@ test("teacher board can access confirmed speech before completed model turn and 
  assert.match(page,/function startLesson\(id:LessonId\)/);
  assert.match(page,/function goLessonStep\(index:number\)/);
  assert.match(page,/function requestHint\(\)/);
- assert.match(page,/stage\.scrollTop\+=b\.bottom-a\.bottom\+8/);
+ assert.doesNotMatch(page,/stage\.scrollTop/);
 });
 test("untrusted oral card payloads have bounded required checks and cannot render HTML",()=>{
  const s=lessons.findLesson("hotel").cards.at(-1);

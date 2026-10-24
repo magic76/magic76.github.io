@@ -322,6 +322,14 @@
     },
     "showFormats": "Ver tipos de tarjetas",
     "demoMode": "Ejemplos de formatos",
-    "demoHint": "Son ejemplos preparados, no contenido generado por IA en directo."
+    "demoHint": "Son ejemplos preparados, no contenido generado por IA en directo.",
+    "presentation": {
+      "title": "Mostrar como",
+      "compare": "Comparación",
+      "timeline": "Cronología",
+      "dialogue": "Diálogo",
+      "flashcard": "Tarjetas",
+      "quiz": "Mini prueba"
+    }
   }
 }

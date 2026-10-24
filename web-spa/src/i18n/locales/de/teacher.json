@@ -322,6 +322,14 @@
     },
     "showFormats": "Kartenarten zeigen",
     "demoMode": "Formatbeispiele",
-    "demoHint": "Vorbereitete Kartenbeispiele, keine Live-KI-Ausgabe."
+    "demoHint": "Vorbereitete Kartenbeispiele, keine Live-KI-Ausgabe.",
+    "presentation": {
+      "title": "Darstellen als",
+      "compare": "Vergleich",
+      "timeline": "Zeitleiste",
+      "dialogue": "Dialog",
+      "flashcard": "Lernkarten",
+      "quiz": "Kurzquiz"
+    }
   }
 }

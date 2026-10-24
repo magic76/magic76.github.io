@@ -322,6 +322,14 @@
     },
     "showFormats": "Show card types",
     "demoMode": "Format examples",
-    "demoHint": "These are prepared card examples, not live AI output."
+    "demoHint": "These are prepared card examples, not live AI output.",
+    "presentation": {
+      "title": "Show this as",
+      "compare": "Comparison",
+      "timeline": "Timeline",
+      "dialogue": "Dialogue",
+      "flashcard": "Flashcards",
+      "quiz": "Mini quiz"
+    }
   }
 }

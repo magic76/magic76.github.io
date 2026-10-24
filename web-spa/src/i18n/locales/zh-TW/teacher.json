@@ -322,6 +322,14 @@
     },
     "showFormats": "展示卡片種類",
     "demoMode": "卡片格式示範",
-    "demoHint": "以下是預先準備的格式範例，並非即時 AI 產生。"
+    "demoHint": "以下是預先準備的格式範例，並非即時 AI 產生。",
+    "presentation": {
+      "title": "把這段改成",
+      "compare": "對照卡",
+      "timeline": "時間軸",
+      "dialogue": "情境對話",
+      "flashcard": "單字翻面卡",
+      "quiz": "小測驗"
+    }
   }
 }

@@ -16,6 +16,8 @@ import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,dire
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardTutorPanel} from "./BoardTutorPanel";
+import {BoardPresentationBar,boardPresentationRequest,PRESENTATION_CUES,type BoardPresentation} from "./BoardPresentationBar";
+import {BOARD_VISUAL_POLICY} from "./boardVisualPolicy";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -49,13 +51,13 @@ export function TeacherBoardPage(){
  const [focusedId,setFocusedId]=useState<string|null>(null);
  const [following,setFollowing]=useState(true);
  const [revision,setRevision]=useState(0);
- const stageRef=useRef<HTMLDivElement>(null);
  const deckRef=useRef<HTMLDivElement>(null);
  const cardRef=useRef<BoardCard[]>([]);
  const speechAssessmentRef=useRef<SpeakingAssessment|null>(null);
  const lessonRef=useRef<LessonId|null>(null);
  const reviewReturnRef=useRef<{cardId:string;index:number}|null>(null);
  const patchCountRef=useRef(0),lastTurnPatchRef=useRef(0);
+ const formatRequestRef=useRef<BoardPresentation|null>(null);
  // The transport negotiates tool compatibility at setup, independent of model labels.
  const english=i18n.resolvedLanguage==="en";
  const localeHelp=teacherLanguageReminder(s.targetLanguage,s.nativeLanguage,s.teachingMode,level);
@@ -64,13 +66,7 @@ export function TeacherBoardPage(){
   teachingMode:s.teachingMode,conversationMode:"practice",languageStyle:s.languageStyle,
   accentStrength:s.accentStrength,customAccent:s.customAccent,speakingPace:s.speakingPace,
   level:vocabularyLevel(),nativeLanguage:s.nativeLanguage,learnerSpeakingLevel:level
- })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+
- "\n[TEACHING BOARD, session only] Explain aloud while operating the lesson board. "+
- "If update_teaching_board is available, create or edit cards early during speech in small patches using stable IDs. Simplify by editing existing cards; create a three-question quiz when asked. "+
- "Use the best visual type: comparison, timeline, steps, flashcard, dialogue, quiz, example, vocabulary, correction or speaking. Avoid defaulting to text-only explanations. "+
- "Use control_teaching_stage to focus or reveal items as you speak. Wait for real learner answers before moving past a quiz; hints must not reveal answers. "+
- "After feedback, review a comparison/timeline when wrong; move to a new exercise when right. For speaking give one helpful language tip, not an unsupported pronunciation score. "+
- "Keep cards concise and data-only. Never use HTML or invent learner facts. All board state is session-only.",
+ })+"\n"+voiceIdentityPrompt("teacher",profile.id,s.targetLanguage)+"\n"+BOARD_VISUAL_POLICY,
  [s.targetLanguage,s.nativeLanguage,s.teachingMode,s.languageStyle,s.accentStrength,s.customAccent,s.speakingPace,profile,level]);
  const opening="[SILENT LESSON BOARD CONTROL] Await the learner's question. Ask what they want to understand in one short spoken sentence. "+
   (cardRef.current.length?"Continue from this existing board, never reset it:\n"+boardNotes(cardRef.current).slice(0,1800):"Start with an empty board.")+"\n"+
@@ -87,6 +83,7 @@ export function TeacherBoardPage(){
   if(waiting&&(patch.action!=="upsert"||patch.cards.some(c=>c.id===directorRef.current.cardId||c.type==="quiz"||c.type==="speaking")))return false;
   const next=applyBoardPatch(cardRef.current,patch);
   cardRef.current=next;setCards(next);setShowingDemo(false);
+  if(patch.cards.length)formatRequestRef.current=null;
   const stage=guided?directorRef.current:directorAfterPatch(directorRef.current,next,patch.cards);
   changeDirector(stage);
   const changedId=stage.cardId;
@@ -211,8 +208,11 @@ export function TeacherBoardPage(){
    processConfirmedSpeech(turn.input||"");
    const updatedByLive=patchCountRef.current!==lastTurnPatchRef.current;
    lastTurnPatchRef.current=patchCountRef.current;
+   const format=formatRequestRef.current;
+   if(turn.hasValidOutput!==false)formatRequestRef.current=null;
    if(!updatedByLive&&!lessonRef.current&&directorRef.current.phase==="explaining"){
-    const patch=fallbackBoard(turn,cardRef.current);
+    const requested=format?{...turn,input:PRESENTATION_CUES[format]+" "+(turn.input||"")}:turn;
+    const patch=fallbackBoard(requested,cardRef.current);
     if(patch)commitPatch(patch);
    }
   }
@@ -221,26 +221,15 @@ export function TeacherBoardPage(){
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
+ // One vertical document scroll, not a viewport-sized scroll box inside the board.
+ // Do not force-scroll the browser during Live tool updates: it interrupts reading.
  useEffect(()=>{
-  const stage=stageRef.current;
-  if(stage)stage.scrollTop=0;
- },[focusedCard?.id]);
- useEffect(()=>{
-  if(!following)return;
-  const stage=stageRef.current;
-  const focus=stage?.querySelector<HTMLElement>(".is-highlighted,.teaching-board-step-focus,.teaching-board-question");
-  if(stage&&focus){
-   const a=stage.getBoundingClientRect(),b=focus.getBoundingClientRect();
-   if(b.top<a.top+8)stage.scrollTop-=a.top+8-b.top;
-   else if(b.bottom>a.bottom-8)stage.scrollTop+=b.bottom-a.bottom+8;
-  }
   const rail=deckRef.current,selected=rail?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
-  if(rail&&selected){
-   const a=rail.getBoundingClientRect(),b=selected.getBoundingClientRect();
-   if(b.left<a.left)rail.scrollLeft-=a.left-b.left+8;
-   else if(b.right>a.right)rail.scrollLeft+=b.right-a.right+8;
-  }
- },[focusedCard?.id,director.focusIndex,director.quizIndex,following,revision]);
+  if(!rail||!selected)return;
+  const a=rail.getBoundingClientRect(),b=selected.getBoundingClientRect();
+  if(b.left<a.left)rail.scrollLeft-=a.left-b.left+8;
+  else if(b.right>a.right)rail.scrollLeft+=b.right-a.right+8;
+ },[focusedCard?.id,following,revision]);
  useEffect(()=>{document.body.classList.add("teacher-theme","session-page");return()=>{document.body.classList.remove("teacher-theme","session-page")}},[]);
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
@@ -260,6 +249,11 @@ export function TeacherBoardPage(){
   }
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
+ }
+ function choosePresentation(kind:BoardPresentation){
+  if(!active){setHint(t("board.startFirst"));return;}
+  formatRequestRef.current=kind;
+  ask(boardPresentationRequest(kind,cardRef.current));
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
   selectAnswer(card,index,selected);
@@ -333,7 +327,22 @@ export function TeacherBoardPage(){
      <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
      <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
-    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
+    <BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"||!!lessonId}/>
+    {cards.length>0&&<div className="teaching-board-navigator">
+     <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
+      <small>{following?t("board.following"):t("board.paused")}</small>
+      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
+     </div>
+     <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
+      {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
+       aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
+       className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
+       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
+       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
+      </button>)}
+     </div>
+    </div>}
+    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
@@ -349,20 +358,6 @@ export function TeacherBoardPage(){
      <span className={"teaching-board-director-phase is-"+director.phase}>{t("board.director."+director.phase)}</span>
      {director.phase==="feedback"&&director.result==="incorrect"&&director.reviewCardId&&<button type="button" onClick={reviewCard}>{t("board.director.review")}</button>}
      {director.phase==="feedback"&&focusedCard.type==="quiz"&&<button type="button" onClick={nextExercise}>{director.quizIndex+1<focusedCard.questions.length?t("board.director.next"):t("board.director.another")}</button>}
-    </div>}
-    {cards.length>0&&<div className="teaching-board-navigator">
-     <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
-      <small>{following?t("board.following"):t("board.paused")}</small>
-      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
-     </div>
-     <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
-      {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
-       aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
-       className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
-       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
-       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
-      </button>)}
-     </div>
     </div>}
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
