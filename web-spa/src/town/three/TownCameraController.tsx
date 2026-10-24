@@ -19,8 +19,7 @@ export function TownCameraController({focus,reducedMotion,reset}:Props){
 
  useEffect(()=>{
   // Center the selected character or building just above the bottom sheet.
-  target.current.set(focus?.[0]??0,(focus?.[1]??.2)-(focus?.25:0),focus?.[2]??.6);
-  // Above and in front of the landmark: the selection remains visible above the bottom sheet.
+  target.current.set(focus?.[0]??0,(focus?.[1]??.2)-(focus ? .25 : 0),focus?.[2]??.6);
   // Overview is at least 15% closer; selection zooms in further.
   const offset=focus
    ?mobile?(narrow?new Vector3(4.8,5.9,8.6):new Vector3(4.3,5.2,7.3)):new Vector3(4.9,5.8,8.1)
