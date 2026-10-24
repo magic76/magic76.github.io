@@ -176,6 +176,11 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   <header className="crew-section-heading">
    <span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p>
   </header>
+  {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
+   <span className="crew-section-card-icon"><Icon name="settings"/></span>
+   <span className="crew-section-card-copy"><strong>{en?"Language & learning settings":"語言與學習設定"}</strong><small>{en?"Learning language, mother tongue and Chinese Pinyin":"學習語言、母語、中文拼音輔助"}</small></span>
+   <span className="crew-section-arrow" aria-hidden="true">→</span>
+  </Link>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
     {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} data-kind={exploreKinds[i]}>
