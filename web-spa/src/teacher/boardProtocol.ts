@@ -120,7 +120,7 @@ function extractedFormatBoard(question:string,answer:string,current:BoardCard[])
    return {action:"upsert",ids:[],cards:[{id:"recall-quiz-"+current.length,type:"quiz",title:"從剛才內容複習",body:"答案依照前面白板上的真實教學內容建立。",pairs:[],points:[],questions}]};
   }
  }
- const lines=answer.split(/\n|[。！？!?]\s*/).map(s=>s.trim()).filter(Boolean);
+ const lines=(answer.match(/[^。！？!?\n]+[。！？!?]?/g)||[]).flatMap(line=>line.split(/(?<=[.!?])\s+(?=[A-Z])/)).map(s=>s.trim()).filter(Boolean);
  // Use only explicitly structured spoken pairs.
  const pairs=answer.split(/\n/).map(line=>line.match(/^\s*([^:：—–\-]{2,80})\s*[:：—–]\s*(.{3,180})$/)).filter((m):m is RegExpMatchArray=>!!m).slice(0,8).map(m=>({source:m[1].trim(),target:m[2].trim()}));
  if(dialogue&&pairs.length>=2)return {action:"upsert",ids:[],cards:[{id:"dialogue-"+current.length,type:"dialogue",title:"老師剛才的對話",body:"從老師實際說出的角色台詞整理。",pairs,points:[],questions:[]}]};
