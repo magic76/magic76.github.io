@@ -2,7 +2,7 @@ import {useCallback,useEffect,useRef,useState} from "react";
 import type {CSSProperties,FormEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {ensureLive,geminiKey,type LiveSession} from "../lib/runtime";
+import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
 import {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import "./magic.css";
@@ -38,9 +38,16 @@ export function MagicPage(){
  const [toolsAvailable,setToolsAvailable]=useState(true);
  const [input,setInput]=useState("");
  const [volume,setVolume]=useState(100);
+ const [muted,setMuted]=useState(false);
+ const [hasKey,setHasKey]=useState(false);
  const [starting,setStarting]=useState(false);
  const [showGuide,setShowGuide]=useState(false);
  const sessionRef=useRef<LiveSession|null>(null);
+ useEffect(()=>{
+  const sync=()=>setHasKey(Boolean(geminiKey()));
+  sync();window.addEventListener(GEMINI_KEY_CHANGED_EVENT,sync);
+  return()=>window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,sync);
+ },[]);
  const generation=useRef(0);
 
  const runCommand=useCallback((name:string,args:unknown)=>{
@@ -60,7 +67,7 @@ export function MagicPage(){
  const stopVoice=useCallback(async ()=>{
   ++generation.current;
   const session=sessionRef.current;sessionRef.current=null;
-  setVoiceState("idle");setStarting(false);setHeard("");setSaid("");
+  setVoiceState("idle");setStarting(false);setMuted(false);setHeard("");setSaid("");
   if(session)try{await session.stop({reason:"magic-stop",silentStatus:true,emitTerminal:false})}catch{/* Already closed */}
  },[]);
  useEffect(()=>()=> {
@@ -76,7 +83,7 @@ export function MagicPage(){
    return;
   }
   const sequence=++generation.current;
-  setStarting(true);setVoiceState("connecting");setToolsAvailable(true);
+  setStarting(true);setVoiceState("connecting");setToolsAvailable(true);setMuted(false);
   setNotice(t("正在開啟魔法通道…","Opening the magical connection…"));
   try{
    await ensureLive();
@@ -101,6 +108,7 @@ export function MagicPage(){
      if(state==="error"){setVoiceState("error");setNotice(t("連線中斷，請重新開始。","Connection lost. Please reconnect."));}
     },
     onSpeaking:now=>{if(generation.current===sequence)setVoiceState(now?"speaking":"listening")},
+    onMicMuted:()=>{if(generation.current===sequence)setMuted(Boolean(sessionRef.current?.micMuted))},
     onInputTranscript:value=>{if(generation.current===sequence)setHeard(value.slice(0,240))},
     onOutputTranscript:value=>{if(generation.current===sequence)setSaid(value.slice(0,240))},
     onError:()=>{if(generation.current===sequence){
@@ -225,14 +233,14 @@ export function MagicPage(){
        <button type="button" className="magic-primary" disabled={starting} onClick={()=>void startVoice()}>
         <span aria-hidden="true">◉</span> {starting?t("連線中…","Connecting…"):t("開啟語音魔法","Start voice magic")}
        </button>}
-      {isOnline?<button type="button" className="magic-secondary" onClick={()=>sessionRef.current?.toggleMic()}>
-       {sessionRef.current?.micMuted?t("開啟麥克風","Unmute"):t("麥克風靜音","Mute")}
+      {isOnline?<button type="button" className="magic-secondary" onClick={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}} aria-pressed={muted}>
+       {muted?t("開啟麥克風","Unmute"):t("麥克風靜音","Mute")}
       </button>:null}
      </div>
      {isOnline&&<label className="magic-volume">{t("Lumi 音量","Lumi volume")} <input aria-label={t("調整 Lumi 音量","Lumi volume")} type="range" min="0" max="150" step="5"
       value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);sessionRef.current?.setVolume(value)}}/>
       <output>{volume}%</output></label>}
-     {!geminiKey()&&<Link className="magic-settings" to="/settings">{t("設定語音連線","Set up voice connection")} →</Link>}
+     {!hasKey&&<Link className="magic-settings" to="/settings">{t("設定語音連線","Set up voice connection")} →</Link>}
      {!toolsAvailable&&<p className="magic-muted">{t("語音可以繼續；畫面互動仍可透過下方魔法使用。","Voice can continue; use the spells below to change the scene.")}</p>}
      {notice&&<p className="magic-notice" role="status">{notice}</p>}
      {isOnline&&(heard||said)&&<div className="magic-transcripts">
