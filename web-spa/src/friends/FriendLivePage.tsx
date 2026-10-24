@@ -126,7 +126,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
-   <span className="status connected"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
+   <span className="status connected" data-state={live.state} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
