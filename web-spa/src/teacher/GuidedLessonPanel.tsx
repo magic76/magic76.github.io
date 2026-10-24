@@ -1,3 +1,4 @@
+import {useRef} from "react";
 import {useTranslation} from "react-i18next";
 import {LESSONS,lessonProgress,type Lesson,type LessonId} from "./boardLessons";
 import {cardKindName} from "./TeachingCard";
@@ -10,14 +11,15 @@ type Props={
 };
 export function GuidedLessonPanel({lesson,lessonId,lessonStep,progress,english,quizLocked,onStart,onStep}:Props){
  const {t}=useTranslation("teacher");
+ const pickerRef=useRef<HTMLDetailsElement>(null);
  return <>
-  <section className="teaching-board-lesson-picker" aria-label={t("board.lessonPicker.title")}>
-   <div><strong>{t("board.lessonPicker.title")}</strong><small>{t("board.lessonPicker.subtitle")}</small></div>
+  <details className="teaching-board-lesson-picker" ref={pickerRef}>
+   <summary><strong>{t("board.lessonPicker.title")}</strong><small>{t("board.lessonPicker.subtitle")}</small></summary>
    <div className="teaching-board-lesson-options">{LESSONS.map(item=><button type="button" key={item.id}
-    className={lessonId===item.id?"is-active":""} onClick={()=>onStart(item.id)}>
+    className={lessonId===item.id?"is-active":""} onClick={()=>{pickerRef.current?.removeAttribute("open");onStart(item.id)}}>
     <span>{t("board.lessonPicker."+item.id)}</span><small>{item.duration}</small>
    </button>)}</div>
-  </section>
+  </details>
   {lesson&&<section className="teaching-board-lesson-progress" aria-label={t("board.lessonPicker.progress")}>
    <div><strong>{t("board.lessonPicker.progress")}</strong><small>{lesson.goal}</small></div>
    <div className="teaching-board-lesson-steps">{lesson.cards.map((card,i)=><button type="button" key={card.id}
