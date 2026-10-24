@@ -5,7 +5,7 @@ const path=require("node:path");
 const ts=require("typescript");
 const root=path.resolve(__dirname,"..");
 const source=fs.readFileSync(path.join(root,"web-spa/src/mate/mateState.ts"),"utf8");
-const js=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS}}).outputText;
+const js=ts.transpileModule(source,{compilerOptions:{target:9,module:1}}).outputText;
 const loaded={exports:{}};
 new Function("module","exports",js)(loaded,loaded.exports);
 const mate=loaded.exports;
@@ -40,7 +40,8 @@ test("Mate speech audience strictly limits tools",()=>{
 });
 test("public session prompt omits private constraints",()=>{
  const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
- const external=page.split("const externalInstruction =")[1].split("const privateInstruction =")[0];
+ const prompts=fs.readFileSync(path.join(root,"web-spa/src/mate/matePrompts.ts"),"utf8");
+ const external=prompts.split("export const externalInstruction =")[1].split("export const privateInstruction =")[0];
  assert.equal(external.includes("c.constraints"),false);
  assert.equal(external.includes("c.escalation"),false);
  assert.match(external,/not included in this external session/);
