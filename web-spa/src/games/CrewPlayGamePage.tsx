@@ -23,6 +23,7 @@ import {crewGames} from "./CrewPlayHubPage";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
 import {trackUsageEvent} from "../analytics/usage";
+import {friendGameReaction} from "./friendGameReaction";
 import "./crewPlay.css";
 
 type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
@@ -81,6 +82,8 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const mode=useTeacherStore(s=>s.friendChatMode);
  const {gameVoice,setGameVoice}=useGameVoice();
  const [loadedRound,setLoadedRound]=useState(round);
+ const [offlineReaction,setOfflineReaction]=useState("");
+ const reactionStep=useRef(0);
  const [roundEnded,setRoundEnded]=useState(false);
  const fallbackQuestion=twentyItems[round%twentyItems.length];
  const selectTwentyFallback=()=>chooseFallbackPuzzle("twenty",twentyItems,item=>({
@@ -346,8 +349,9 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    <strong>{roundEnded?(english?"Round completed":"本局已結束"):(english?"Game paused — voice connection needed":"語音暫停，遊戲已暫停")}</strong>
    <p>{roundEnded?(english?"You can play another round below; reconnect voice to resume speaking.":"仍可按下方的「下一題」，重新連線後即可繼續語音遊戲。"):(english?"Reconnect above to continue this round without losing your questions.":"請使用上方的語音按鈕重新連線；這局的提問紀錄會保留。")}</p>
   </section>:null}
-  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
-  {isWord&&voiceActive&&kind==="mystery"&&mysteryStatus==="generating"?
+  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech} onReaction={event=>setOfflineReaction(friendGameReaction(friend.id,event,english?"en":"zh",++reactionStep.current))}/>:null}
+  {!isWord&&offlineReaction?<p className="crew-play-reaction" aria-live="polite"><strong>{friend.name}：</strong>{offlineReaction}</p>:null}
+   {isWord&&voiceActive&&kind==="mystery"&&mysteryStatus==="generating"?
    <section className="crew-play-mystery-loading" role="status" aria-live="polite">
     <span className="crew-play-mystery-spinner" aria-hidden="true"/>
     <strong>{english?"Creating a new mystery…":"正在創作全新海龜湯…"}</strong>
