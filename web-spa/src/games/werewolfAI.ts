@@ -2,7 +2,7 @@ import {ensureCore,geminiKey} from "../lib/runtime";
 import {fallbackWolfReply,npcWolfView,type WolfGame,type WolfLanguage} from "./werewolfEngine";
 const clean=(v:unknown)=>typeof v==="string"?v.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,230):"";
 export async function generateWolfReply(game:WolfGame,npcId:string,question:string,language:WolfLanguage):Promise<string>{
- const fallback=fallbackWolfReply(game,npcId,language==="zh");
+ const fallback=fallbackWolfReply(game,npcId,language==="zh",question);
  if(!geminiKey())return fallback;
  const view=npcWolfView(game,npcId);
  try{

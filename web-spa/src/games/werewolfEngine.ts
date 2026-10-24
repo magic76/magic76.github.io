@@ -180,24 +180,41 @@ export function npcWolfView(game:WolfGame,npcId:string){
   alive:game.players.filter(p=>p.alive).map(p=>({id:p.id,name:p.name})),
   day:game.day};
 }
-export function fallbackWolfReply(game:WolfGame,npcId:string,zh:boolean):string{
+/** Context-aware offline rehearsal. Reacts to publicly known names/phase only; never claims AI comprehension. */
+export function fallbackWolfReply(game:WolfGame,npcId:string,zh:boolean,question=""):string{
  const candidates=living(game).filter(p=>p.id!==npcId);
  const suspect=candidates.sort((a,b)=>botSuspicion(game,npcId,b.id)-botSuspicion(game,npcId,a.id))[0];
  const npc=player(game,npcId)!;
  const known=(game.seerFindings[npcId]||[]).find(s=>s.endsWith(":wolf"));
- if(npc.role==="seer"&&known){const id=known.split(":")[0];return zh?"我查驗到 "+safeName(game,id)+" 是狼人，我願意為這個資訊負責。":"I checked "+safeName(game,id)+". They're a wolf. I stand by that.";}
+ if(npc.role==="seer"&&known){
+  const id=known.split(":")[0];
+  return zh?"我查驗到 "+safeName(game,id)+" 是狼人，我願意為這個資訊負責。":"I checked "+safeName(game,id)+". They're a wolf. I stand by that.";
+ }
+ const text=question.toLowerCase();
+ const named=candidates.find(p=>text.includes(p.name.toLowerCase()));
+ const accused=/為什麼|憑什麼|你是狼|你在說謊|you lied|are you a wolf|why did you|lying|liar|狼人嗎|騙人/.test(text);
+ const ballot=/投票|要投|vote|voting/.test(text);
+ const suspected=named?.name||suspect?.name||(zh?"其他人":"someone");
  const lines=zh?[
-  "先別急著投，我想聽聽其他人的理由。",
-  "我對 "+(suspect?.name||"某個人")+" 有點懷疑，你們怎麼看？",
-  "光憑直覺還不夠，我想看誰的說法有矛盾。",
-  "昨晚的結果有點奇怪，可能有人在帶風向。",
-  "我還沒決定投誰，先把線索說清楚。"
+  "我會先聽 "+suspected+" 的理由，再決定要不要相信。",
+  "我對 "+suspected+" 的說法有疑問，但沒有證據不能亂投。",
+  "目前只知道公開的發言，我不會假裝知道誰的身分。",
+  "這一輪我們應該找前後矛盾的證詞。",
+  "我還在觀察，"+suspected+" 的下一句可能是關鍵。"
  ]:[
-  "Let's hear everyone's reasoning before voting.",
-  "I'm suspicious of "+(suspect?.name||"someone")+". What do you think?",
-  "I want evidence, not just a gut feeling.",
-  "Something about last night doesn't add up.",
-  "I'm not ready to vote without hearing more."
+  "I'd like to hear "+suspected+"'s reasoning before trusting them.",
+  "I have questions about "+suspected+", but no proof yet.",
+  "I only know what's been said publicly; let's not invent evidence.",
+  "We should check for contradictions in today's statements.",
+  "I'm watching "+suspected+"'s next move closely."
  ];
- return lines[Math.max(0,seats.indexOf(npcId as typeof seats[number]))%lines.length];
+ const special=accused
+  ?(zh?["你懷疑我很合理，但請指出我哪句話前後矛盾。","被質疑我可以接受，先把證據講清楚。","我知道你在質疑我，但先比較公開發言。"]:
+        ["Fair to question me. Which statement contradicts the others?","If you're accusing me, show me the evidence.","Don't take my word for it; compare our public statements."])
+  :ballot
+  ?(zh?["投票前我想先聽 "+suspected+" 的辯解。","我暫時沒有足夠理由鎖定誰。","我們先用公開線索決定票，不要亂猜。"]:
+        ["Before voting, let "+suspected+" explain.","I can't justify a vote yet.","Let's vote on public clues, not guesses."])
+  :lines;
+ const variability=Array.from(text).reduce((n,ch)=>n+ch.charCodeAt(0),0)+game.entries.length+game.day+seats.indexOf(npcId as typeof seats[number]);
+ return special[Math.abs(variability)%special.length];
 }

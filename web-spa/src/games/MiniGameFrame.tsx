@@ -37,8 +37,8 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
   <header className="crew-play-game-header crew-play-game-header--compact">
    <Link to="/games" className="crew-play-back">← 全部遊戲</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
-   <h1>{taboo?"Taboo 描述猜詞":"1A2B 猜數字"}</h1>
-   <p>{taboo?(chinese?"用中文描述，讓朋友直接猜；時間與難度都能調整。":"用英文描述，讓朋友直接猜；時間與難度都能調整。"):"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
+   <h1>{taboo?"Taboo 描述猜詞":kind==="court"?"荒謬法庭":"1A2B 猜數字"}</h1>
+   <p>{taboo?(geminiKey()?(chinese?"用中文描述讓 AI 猜題。":"用英文描述讓 AI 猜題。"):"免 Key 描述練習；AI 猜詞需要 Gemini Key。"):kind==="court"?"和 AI 朋友辯論荒謬案件。":"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
   </header>
   <div className="crew-play-frame">
    <section className="crew-play-friend-bar crew-mini-friend-bar">
@@ -105,11 +105,11 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  },[cue,live.state,live.sendText]);
  const hasKey=typeof window!=="undefined"&&Boolean(geminiKey());
  return <section className="crew-mini-voice" aria-label="朋友語音">
-  <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/>
+  <div className="crew-mini-voice-settings"><GamePanel label={english?"Voice settings":"語音設定"} title={english?"Voice settings":"語音設定"}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/></GamePanel></div>
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
    <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":court?"法庭語音（選用）":"語音陪玩（選用）"}</strong>
-    <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":chinese?"正在聽中文":"正在聽"+targetLanguage):"語音連接中":hasKey?"打字也能玩，不必開麥克風":"無 Key 也能完整打字玩"}</small>
+    <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":chinese?"正在聽中文":"正在聽"+targetLanguage):"語音連接中":hasKey?"打字也能玩，不必開麥克風":kind==="taboo"?"免 Key 文字練習；AI 猜詞需 Key":"無 Key 也能文字玩"}</small>
    </div>
   </div>
   {live.output&&active?<GameSpeechBubble text={live.output} english={english}/>:null}
@@ -117,6 +117,6 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
    hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">開啟與 {friend.name} 的語音</button>:
    <Link className="crew-mini-key-link" to="/settings">要開啟 Live 語音？先到設定填入 Gemini Key（選用）</Link>}
   {live.state==="error"?<p className="crew-mini-error" role="alert">{live.status}，可改用文字繼續遊戲。</p>:null}
-  <small>{directGuess?"描述一次，朋友直接猜一次；分數由遊戲判定。":"Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"}</small>
+  <small>{directGuess?(hasKey?"描述一次，AI 朋友直接猜一次；分數由規則判定。":"免 Key 時僅供自評練習，不會模擬 AI 猜詞。"):"Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"}</small>
  </section>;
 }

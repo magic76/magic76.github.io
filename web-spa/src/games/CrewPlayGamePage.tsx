@@ -23,6 +23,8 @@ import {crewGames} from "./CrewPlayHubPage";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
 import {trackUsageEvent} from "../analytics/usage";
+import {friendGameReaction} from "./friendGameReaction";
+import {CrewPlaySamplePreview} from "./CrewPlaySamplePreview";
 import "./crewPlay.css";
 
 type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
@@ -81,6 +83,8 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
  const mode=useTeacherStore(s=>s.friendChatMode);
  const {gameVoice,setGameVoice}=useGameVoice();
  const [loadedRound,setLoadedRound]=useState(round);
+ const [offlineReaction,setOfflineReaction]=useState("");
+ const reactionStep=useRef(0);
  const [roundEnded,setRoundEnded]=useState(false);
  const fallbackQuestion=twentyItems[round%twentyItems.length];
  const selectTwentyFallback=()=>chooseFallbackPuzzle("twenty",twentyItems,item=>({
@@ -292,7 +296,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   <button type="button" className="crew-play-voice-start" disabled={voicePreparing||isWord&&!hasKey} onClick={()=>void live.start()}>{voicePreparing?(english?"Preparing the mystery…":"正在準備新題目…"):voiceStartLabel}</button>:
   <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>;
  return <div className={"crew-play-session"+(isWord?" crew-play-session--word":"")+(twenty?" crew-play-session--twenty":"")}>
-  <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/>
+  <div className="crew-play-voice-pref"><GamePanel label={english?"Voice settings":"語音設定"} title={english?"Game voice settings":"遊戲語音設定"}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/></GamePanel></div>
   {isWord?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
    <div className="crew-play-voice-presence-header">
     <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
@@ -312,9 +316,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
     (english?"I've picked something. Ask me a question!":"我已經想好一個東西了，直接開口問我吧！"))}/>
    {!voiceActive?<div className="crew-play-voice-entrance">
     <strong>{english?"Start voice to unlock this game":"開啟語音，才能開始遊戲"}</strong>
-    <p>{english?"20 Questions and Mystery are conversation games. You'll need your Gemini Key and microphone.":"20 Questions 和海龜湯是語言對話遊戲，需要 Gemini Key 和麥克風才能遊玩。"}</p>
-    {!hasKey?<GeminiSetupNotice/>:null}
-    {voicePreparing?<div className="crew-play-generation-state" role="status"><span className="crew-play-mystery-spinner" aria-hidden="true"/><span>{english?"Creating a consistent story and clues…":"正在生成題目與答案線索，完成後即可開始語音。"}</span></div>:null}
+    <p>{english?"Gemini Key and microphone required.":"需要 Gemini Key 與麥克風。"}</p>
+    <CrewPlaySamplePreview english={english} twenty={twenty} friendName={friend.name}/>
+     {!hasKey?<GeminiSetupNotice/>:null}
+    {voicePreparing?<div className="crew-play-generation-state" role="status"><span className="crew-play-mystery-spinner" aria-hidden="true"/><span>{english?"Preparing story and clues…":"準備題目與線索中。"}</span></div>:null}
     {wordError?<div className="crew-play-voice-recovery" role="alert">
       <p>{live.status|| (english?"Voice connection failed.":"語音連線失敗，請檢查麥克風或網路。")}</p>
       {live.errorKind==="key"?<GeminiSetupNotice force/>:
@@ -327,24 +332,25 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   </section>:null}
   {isWord&&voiceActive?<section className="crew-play-voice-dock-shell" aria-label={english?"Voice controls":"語音控制"}>
    {voiceActions}
-   <small>{english?"Voice stays within this game and is not saved to chat history or friend memories.":"語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
+   <small>{english?"Voice is not saved to friend memory.":"語音不寫入朋友記憶。"}</small>
   </section>:null}
   {isWord&&wordEverReady&&!wordReady?<section className="crew-play-voice-paused" role="status">
    <strong>{roundEnded?(english?"Round completed":"本局已結束"):(english?"Game paused — voice connection needed":"語音暫停，遊戲已暫停")}</strong>
-   <p>{roundEnded?(english?"You can play another round below; reconnect voice to resume speaking.":"仍可按下方的「下一題」，重新連線後即可繼續語音遊戲。"):(english?"Reconnect above to continue this round without losing your questions.":"請使用上方的語音按鈕重新連線；這局的提問紀錄會保留。")}</p>
+   <p>{roundEnded?(english?"Choose the next round below.":"按下方「下一題」再玩。"):(english?"Reconnect to resume this round.":"重新連線即可繼續本局。")}</p>
   </section>:null}
-  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech}/>:null}
-  {isWord&&voiceActive&&kind==="mystery"&&mysteryStatus==="generating"?
+  {kind==="connect4"||kind==="reversi"?<CrewBoardGames kind={kind} english={english} friendName={friend.name} onEvent={onEvent} onBoardMove={speakAfterBoardMove} onSkipSpeech={skipBoardSpeech} onReaction={event=>setOfflineReaction(friendGameReaction(friend.id,event,english?"en":"zh",++reactionStep.current))}/>:null}
+  {!isWord&&offlineReaction?<p className="crew-play-reaction" aria-live="polite"><strong>{friend.name}：</strong>{offlineReaction}</p>:null}
+   {isWord&&voiceActive&&kind==="mystery"&&mysteryStatus==="generating"?
    <section className="crew-play-mystery-loading" role="status" aria-live="polite">
     <span className="crew-play-mystery-spinner" aria-hidden="true"/>
     <strong>{english?"Creating a new mystery…":"正在創作全新海龜湯…"}</strong>
-    <p>{english?"Your Gemini Key is generating a fresh puzzle and verified clues.":"使用你的 Gemini Key 生成故事、答案與可驗證的線索。"}</p>
+    <p>{english?"Generating verified clues…":"正在生成故事與線索。"}</p>
    </section>:null}
   {isWord&&voiceActive&&kind==="twenty-questions"&&questionStatus==="generating"?
    <section className="crew-play-mystery-loading" role="status" aria-live="polite">
     <span className="crew-play-mystery-spinner" aria-hidden="true"/>
     <strong>{english?"Picking a new secret object…":"正在挑選全新的神秘物品…"}</strong>
-    <p>{english?"Generating a bilingual word and a consistent set of facts.":"使用 Gemini 生成新的物品、雙語名稱與是非題事實。"}</p>
+    <p>{english?"Preparing a bilingual word…":"正在生成雙語題目。"}</p>
    </section>:null}
   {isWord&&wordEverReady&&!voicePreparing?
    <div className={"crew-play-word-stage"+(!wordReady&&!roundEnded?" is-paused":"")} inert={!wordReady&&!roundEnded} aria-disabled={!wordReady&&!roundEnded}>
