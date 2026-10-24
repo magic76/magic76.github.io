@@ -27,10 +27,13 @@ export function GameSpeechBubble({text,english=false,className=""}:{
   if(!panel)return;
   followLatestRef.current=panel.scrollHeight-panel.scrollTop-panel.clientHeight<28;
  };
+ const toggleLabel=expanded
+  ?(english?"Collapse AI dialogue":"收合 AI 對話")
+  :(english?"Expand AI dialogue":"展開 AI 對話");
  return <div className={"crew-game-speech"+(expanded?" is-expanded":"")+(className?" "+className:"")}>
-  <button className="crew-game-speech-trigger" type="button" aria-expanded={expanded} aria-controls={panelId}
+  <button className="crew-game-speech-trigger" type="button" aria-expanded={expanded} aria-controls={panelId} aria-label={toggleLabel}
    onClick={toggle}>
-   <span className="crew-game-speech-preview">{expanded?(english?"AI reply":"AI 對話"):text}</span>
+   <span className="crew-game-speech-preview" aria-hidden="true">{expanded?(english?"AI reply":"AI 對話"):text}</span>
    <span className="crew-game-speech-action" aria-hidden="true">{expanded?(english?"Collapse ↑":"收合 ↑"):(english?"Expand ↓":"展開 ↓")}</span>
   </button>
   <div ref={scrollRef} id={panelId} className="crew-game-speech-scroll" role="region" tabIndex={expanded?0:-1} onScroll={onTranscriptScroll}
