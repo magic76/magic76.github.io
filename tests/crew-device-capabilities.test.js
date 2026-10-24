@@ -228,3 +228,17 @@ test("Cyber Orb requires an in-app Web key or a confirmed native key before star
  assert.equal(device.shouldBlockNativeOrbStartForMissingKey(features,true,""),false);
  assert.equal(device.shouldBlockNativeOrbStartForMissingKey({cyberOrb:true},false,""),false);
 });
+
+test("Cyber Orb is available directly in Settings only after native capability negotiation",()=>{
+ const settings=readFileSync("web-spa/src/pages/SettingsPage.tsx","utf8");
+ const device=readFileSync("web-spa/src/pages/DeviceAndAppPanel.tsx","utf8");
+ const app=readFileSync("web-spa/src/App.tsx","utf8");
+ assert.ok(settings.includes("isCrewAndroidShell()"),"regular browsers must not show native-only entry");
+ assert.ok(settings.includes("probeNativeDeviceCapabilities()"),"do not trust the Android user agent alone");
+ assert.ok(settings.includes("Boolean(c?.cyberOrb)"),"only a supported APK can open the Orb");
+ assert.ok(settings.includes('orbAvailable&&<Link to="/orb"'),"one-tap route to existing Cyber Orb picker");
+ assert.ok(settings.indexOf('to="/orb"')<settings.indexOf('<nav className="crew-settings-nav"'),
+  "Cyber Orb should appear at the first level of Settings without scrolling to Device");
+ assert.ok(!device.includes("<CyberOrbPanel/>"),"do not duplicate the full Orb picker in device diagnostics");
+ assert.ok(app.includes('path="/orb"'),"retain the existing dedicated Orb route");
+});

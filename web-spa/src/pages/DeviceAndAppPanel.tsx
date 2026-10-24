@@ -5,7 +5,6 @@ import {
  readNativeDeviceInfo,requestNativeDeviceAction,speakText
 } from "../lib/deviceCapabilities";
 import type {NativeDeviceFeatures,NativeDeviceInfo} from "../lib/deviceCapabilities";
-import {CyberOrbPanel} from "./CyberOrbPanel";
 
 /** Shared Web surface. Native operations render only after a successful handshake. */
 export function DeviceAndAppPanel(){
@@ -98,7 +97,6 @@ export function DeviceAndAppPanel(){
  ]:[];
 
  return <div className="crew-device-app">
-  <CyberOrbPanel/>
   <h3>{t("deviceApp.title")}</h3>
   <p className="meta">{t("deviceApp.description")}</p>
   {!nativeAvailable?<p className="meta">{t("deviceApp.browser")}</p>:

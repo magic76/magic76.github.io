@@ -13,6 +13,7 @@ import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
 import {DAILY_GOALS,DEFAULT_GOAL_MINUTES,getDailyGoalMinutes,setDailyGoalMinutes} from "../teacher/learningToday";
 import {useClientReady} from "../lib/useClientReady";
 import {isCrewAndroidShell} from "../lib/platform";
+import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {getOnboardingCopy} from "../onboarding/copy";
 import {REOPEN_ONBOARDING_EVENT} from "../onboarding/OnboardingGate";
 import {DeviceAndAppPanel} from "./DeviceAndAppPanel";
@@ -31,6 +32,15 @@ export function SettingsPage(){
  const liveModel=useTeacherStore(s=>s.liveModel),setLiveModel=useTeacherStore(s=>s.setLiveModel);
  const[backupBusy,setBackupBusy]=useState(false),[backupStatus,setBackupStatus]=useState("");
  const[personalMemory,setPersonalMemory]=useState(personalMemoryEnabled),[friendTopicsMemory,setFriendTopicsMemory]=useState(friendMemoryEnabled);
+ const[orbAvailable,setOrbAvailable]=useState(false);
+ useEffect(()=>{
+  if(!ready||!isCrewAndroidShell())return;
+  let mounted=true;
+  void probeNativeDeviceCapabilities().then(c=>{
+   if(mounted)setOrbAvailable(Boolean(c?.cyberOrb));
+  }).catch(()=>{if(mounted)setOrbAvailable(false)});
+  return()=>{mounted=false};
+ },[ready]);
  useEffect(()=>{
   const id=hash.slice(1);
   if(!hash.endsWith("#memory-settings")&&!hash.endsWith("#settings-gemini")&&!hash.endsWith("#settings-device"))return;
@@ -39,6 +49,11 @@ export function SettingsPage(){
   return()=>window.cancelAnimationFrame(frame);
  },[hash]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+ {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
+  <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
+  <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>
+  <span className="crew-settings-orb-arrow" aria-hidden="true">→</span>
+ </Link>}
  <nav className="crew-settings-nav" aria-label={t("group.navAria")}>
   <a href="#settings-learning">{t("group.navLearning")}</a>
   <a href="#settings-voice">{t("group.navVoice")}</a>
