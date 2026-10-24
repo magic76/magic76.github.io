@@ -16,6 +16,7 @@ import {DIRECTOR_FUNCTION,DIRECTOR_TOOL,EMPTY_DIRECTOR,applyDirectorCommand,dire
 import {findLesson,lessonPrompt,lessonProgress,evaluateSpeakingTask,type LessonId,type SpeakingAssessment} from "./boardLessons";
 import {GuidedLessonPanel} from "./GuidedLessonPanel";
 import {BoardTutorPanel} from "./BoardTutorPanel";
+import {BoardPresentationBar,boardPresentationRequest,type BoardPresentation} from "./BoardPresentationBar";
 import "./teachingBoard.css";
 
 const speakingStates=["requesting-mic","connecting","listening","speaking","ending","reporting"];
@@ -49,7 +50,6 @@ export function TeacherBoardPage(){
  const [focusedId,setFocusedId]=useState<string|null>(null);
  const [following,setFollowing]=useState(true);
  const [revision,setRevision]=useState(0);
- const stageRef=useRef<HTMLDivElement>(null);
  const deckRef=useRef<HTMLDivElement>(null);
  const cardRef=useRef<BoardCard[]>([]);
  const speechAssessmentRef=useRef<SpeakingAssessment|null>(null);
@@ -221,26 +221,15 @@ export function TeacherBoardPage(){
  const focusedCard=cards.find(c=>c.id===(following?latestId:focusedId))||cards[cards.length-1];
  const lesson=lessonId?findLesson(lessonId):undefined;
  const progress=lesson?lessonProgress(lesson,answers,speakingAssessment):null;
+ // One vertical document scroll, not a viewport-sized scroll box inside the board.
+ // Do not force-scroll the browser during Live tool updates: it interrupts reading.
  useEffect(()=>{
-  const stage=stageRef.current;
-  if(stage)stage.scrollTop=0;
- },[focusedCard?.id]);
- useEffect(()=>{
-  if(!following)return;
-  const stage=stageRef.current;
-  const focus=stage?.querySelector<HTMLElement>(".is-highlighted,.teaching-board-step-focus,.teaching-board-question");
-  if(stage&&focus){
-   const a=stage.getBoundingClientRect(),b=focus.getBoundingClientRect();
-   if(b.top<a.top+8)stage.scrollTop-=a.top+8-b.top;
-   else if(b.bottom>a.bottom-8)stage.scrollTop+=b.bottom-a.bottom+8;
-  }
   const rail=deckRef.current,selected=rail?.querySelector<HTMLElement>('[role="tab"][aria-selected="true"]');
-  if(rail&&selected){
-   const a=rail.getBoundingClientRect(),b=selected.getBoundingClientRect();
-   if(b.left<a.left)rail.scrollLeft-=a.left-b.left+8;
-   else if(b.right>a.right)rail.scrollLeft+=b.right-a.right+8;
-  }
- },[focusedCard?.id,director.focusIndex,director.quizIndex,following,revision]);
+  if(!rail||!selected)return;
+  const a=rail.getBoundingClientRect(),b=selected.getBoundingClientRect();
+  if(b.left<a.left)rail.scrollLeft-=a.left-b.left+8;
+  else if(b.right>a.right)rail.scrollLeft+=b.right-a.right+8;
+ },[focusedCard?.id,following,revision]);
  useEffect(()=>{document.body.classList.add("teacher-theme","session-page");return()=>{document.body.classList.remove("teacher-theme","session-page")}},[]);
  useEffect(()=>{if(live.state==="error")setHint(t("board.disconnect"));},[live.state,t]);
  function ask(text:string){
@@ -260,6 +249,9 @@ export function TeacherBoardPage(){
   }
   if(active)live.sendControl("[BOARD FORMAT SHOWCASE] The learner is viewing locally curated example formats, not live AI output. Please do not change them unless they ask about a specific example.");
   setHint("");
+ }
+ function choosePresentation(kind:BoardPresentation){
+  ask(boardPresentationRequest(kind,cardRef.current));
  }
  function clickAnswer(card:BoardCard,index:number,selected:number){
   selectAnswer(card,index,selected);
@@ -333,7 +325,22 @@ export function TeacherBoardPage(){
      <p>{t(showingDemo?"board.demoHint":hasLivePatch?"board.liveHint":(!toolsUnavailable)?"board.fallbackHint":"board.modelFallbackHint")}</p>
     </div><div className="teaching-board-canvas-actions"><button type="button" className="teaching-board-formats-button" onClick={showFormats}>{t("board.showFormats")}</button>
      <span className="teaching-board-mode">{showingDemo?t("board.demoMode"):hasLivePatch?t("board.liveMode"):t("board.turnMode")}</span></div></div>
-    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} ref={stageRef} role="tabpanel" id="teaching-board-active-panel"
+    <BoardPresentationBar onChoose={choosePresentation} disabled={!active||director.phase==="awaiting"||!!lessonId}/>
+    {cards.length>0&&<div className="teaching-board-navigator">
+     <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
+      <small>{following?t("board.following"):t("board.paused")}</small>
+      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
+     </div>
+     <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
+      {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
+       aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
+       className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
+       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
+       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
+      </button>)}
+     </div>
+    </div>}
+    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}
@@ -349,20 +356,6 @@ export function TeacherBoardPage(){
      <span className={"teaching-board-director-phase is-"+director.phase}>{t("board.director."+director.phase)}</span>
      {director.phase==="feedback"&&director.result==="incorrect"&&director.reviewCardId&&<button type="button" onClick={reviewCard}>{t("board.director.review")}</button>}
      {director.phase==="feedback"&&focusedCard.type==="quiz"&&<button type="button" onClick={nextExercise}>{director.quizIndex+1<focusedCard.questions.length?t("board.director.next"):t("board.director.another")}</button>}
-    </div>}
-    {cards.length>0&&<div className="teaching-board-navigator">
-     <div className="teaching-board-navigator-head"><strong>{t("board.lessonCards",{count:cards.length})}</strong>
-      <small>{following?t("board.following"):t("board.paused")}</small>
-      {!following&&<button className="teaching-board-follow" type="button" onClick={()=>{setFollowing(true);setFocusedId(null)}}>{t("board.followLatest")} ↗</button>}
-     </div>
-     <div className="teaching-board-deck" ref={deckRef} role="tablist" aria-label={t("board.lessonCards",{count:cards.length})}>
-      {cards.map((card,index)=><button key={card.id} type="button" role="tab" id={"teaching-board-tab-"+card.id}
-       aria-controls="teaching-board-active-panel" aria-selected={focusedCard?.id===card.id}
-       className={"teaching-board-deck-tab"+(focusedCard?.id===card.id?" is-active":"")}
-       onClick={()=>{setFollowing(false);setFocusedId(card.id)}}>
-       <small>{index+1} · {cardKindName(card.type,english)}{latestId===card.id?" · "+t("board.latest"):""}</small><span>{card.title}</span>
-      </button>)}
-     </div>
     </div>}
     {cards.length>0&&<div className="teaching-board-footer">
      <button type="button" onClick={()=>setNotesOpen(!notesOpen)} aria-expanded={notesOpen}>{t("board.notes")}</button>
