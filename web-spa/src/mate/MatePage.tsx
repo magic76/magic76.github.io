@@ -5,11 +5,14 @@ import {ensureLive,geminiKey,type LiveSession,type LiveTurn} from "../lib/runtim
 import {
   EMPTY_CONSENSUS,MATE_LANGUAGES,applyMateConsensusPatch,deleteMateHistory,
   mateConsensusReady,mateToolAllowed,mateToolDeclarations,parseMateToolArgs,
-  readMateHistory,storeMateHistory,type MateAudience,type MateConsensus,
+  readMateHistory,storeMateHistory,mateHistoryResumable,type MateAudience,type MateConsensus,
   type MateDecision,type MateHistory,type MatePhase,type MateTurn
 } from "./mateState";
 import {externalInstruction,privateInstruction} from "./matePrompts";
 import {translateMateText} from "./mateTranslation";
+import {finalizeMateBriefing} from "./mateBriefing";
+import {MateTranscript} from "./MateTranscript";
+import {MateHistoryPanel} from "./MateHistoryPanel";
 import "./mate.css";
 
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
@@ -25,6 +28,9 @@ export function MatePage(){
   const [privateInput,setPrivateInput]=useState("");
   const [privateOutput,setPrivateOutput]=useState("");
   const [privateQuestion,setPrivateQuestion]=useState("");
+  const [briefingBusy,setBriefingBusy]=useState(false);
+  const briefingPending=useRef(false);
+  const privateStatements=useRef<string[]>([]);
   const [liveStatus,setLiveStatus]=useState("");
   const [connected,setConnected]=useState(false);
   const [speaking,setSpeaking]=useState(false);
@@ -114,7 +120,8 @@ export function MatePage(){
     const c=consensusRef.current;
     const record:MateHistory={id:taskId.current,status:completed?"completed":"stopped",
       target:c.target,goal:c.goal,userLanguage:c.userLanguage,
-      otherLanguage:c.otherLanguage,turns:turnsRef.current.slice(),outcome:result,updatedAt:Date.now()};
+      otherLanguage:c.otherLanguage,turns:turnsRef.current.slice(),outcome:result,updatedAt:Date.now(),
+      consensus:{...c}};
     storeMateHistory(record);setHistory(readMateHistory());
   }
   async function closeTask(completed:boolean,summary:string){
@@ -123,6 +130,9 @@ export function MatePage(){
     await stopConnection();
   }
   async function startVoice(mode:"private"|"external"){
+    if(mode==="external"&&(!mateConsensusReady(consensusRef.current)||!confirmOwner)){
+      setError(t("請先確認任務共識，再交給對方。","Review and approve the task before handoff."));return;
+    }
     if(!geminiKey()){setError(t("請先至設定頁加入 Gemini API Key。","Set your Gemini API key in Settings first."));return}
     setError("");setLiveStatus(t("正在連線…","Connecting…"));
     await stopConnection();
@@ -132,6 +142,7 @@ export function MatePage(){
     if(mode==="external")ownerDecisionForExternal.current=""; // authorization is single-handoff only
     externalInputSeen.current=false;externalOutputSeen.current=false;mutedByMate.current=false;
     if(mode==="private"){
+      if(note.trim()){privateStatements.current.push(note.trim());setNote("");}
       advance("private","PRIVATE_TO_MATE");
       setPrivateInput("");setPrivateOutput("");setPrivateQuestion("");
     }else{
@@ -193,7 +204,10 @@ export function MatePage(){
             if(turn.input?.trim())appendTurn("other",turn.input);
             if(externalInputSeen.current&&turn.output?.trim())appendTurn("mate",turn.output);
           }
-          if(mode==="private"){setPrivateInput("");setPrivateOutput("")}
+          if(mode==="private"){
+            if(turn.input?.trim())privateStatements.current.push(turn.input.trim());
+            setPrivateInput("");setPrivateOutput("");
+          }
         },
         onRecovered:()=>{
           if(connectionSeq.current!==sequence)return;
@@ -263,13 +277,37 @@ export function MatePage(){
     advance("review","IDLE");
     await stopConnection();
   }
+  async function finishBriefing(){
+    if(briefingPending.current)return;
+    briefingPending.current=true;
+    setBriefingBusy(true);setError("");
+    const raw=note.trim();
+    const statements=[...privateStatements.current,...(raw?[raw]:[])];
+    advance("private","MATE_HANDLING");
+    await stopConnection();
+    try{
+      if(statements.length){
+        const resolved=await finalizeMateBriefing(consensusRef.current,statements);
+        updateConsensus(resolved.consensus);
+        setPrivateQuestion(resolved.question);
+        privateStatements.current=[];
+        setNote("");
+      }
+    }catch{
+      setError(t("自動整理失敗，請直接修改下方欄位後再交接。","Could not organize the briefing. Review and edit the fields manually."));
+    }finally{
+      advance("review","IDLE");
+      briefingPending.current=false;
+      setBriefingBusy(false);
+    }
+  }
   async function editSupplement(){
     advance("setup","USER_DIRECT");setConfirmOwner(false);
     await stopConnection();
   }
   function restart(){
     void stopConnection();advance("setup","IDLE");
-    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";
+    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
     setOutcome("");setDecision(null);setStartedExternal(false);setError("");setNote("");
@@ -298,17 +336,29 @@ export function MatePage(){
         <p className="mate-kicker">CREW MATE</p>
         <h1>{t("AI 幫你溝通","Let AI communicate for you")}</h1>
         <p>{t("私下交代，再把手機交給對方。","Brief privately, then hand the phone to the other person.")}</p></div>
-      <button type="button" className="mate-quiet" onClick={()=>setShowHistory(v=>!v)}>{t("紀錄","History")}</button>
+      {phase!=="external"&&phase!=="decision"&&<button type="button" className="mate-quiet" onClick={()=>setShowHistory(v=>!v)}>{t("紀錄","History")}</button>}
     </header>
-    {showHistory&&<section className="mate-panel" aria-label={t("紀錄","History")}>
-      <h2>{t("本機任務紀錄","On-device task history")}</h2>
-      {history.length===0&&<p className="mate-hint">{t("尚未儲存任務。","No saved tasks.")}</p>}
-      {history.map(item=><div className="mate-history" key={item.id}>
-        <div><strong>{item.target} · {item.goal}</strong><small>{new Date(item.updatedAt).toLocaleString()} · {item.status}</small></div>
-        <button type="button" onClick={()=>{void stopConnection();setOutcome(item.outcome);setTurns(item.turns);turnsRef.current=item.turns;updateConsensus({...EMPTY_CONSENSUS,target:item.target,goal:item.goal,userLanguage:item.userLanguage,otherLanguage:item.otherLanguage});advance("finished","IDLE");setShowHistory(false)}}>{t("查看","View")}</button>
-        <button type="button" onClick={()=>{if(window.confirm(t("刪除此筆紀錄？","Delete this record?"))){deleteMateHistory(item.id);setHistory(readMateHistory())}}}>{t("刪除","Delete")}</button>
-      </div>)}
-    </section>}
+    {showHistory&&<MateHistoryPanel english={en} history={history}
+      onOpen={item=>{
+        void stopConnection();
+        taskId.current=item.id;
+        turnsRef.current=item.turns.slice();setTurns(turnsRef.current);setOutcome(item.outcome);
+        setStartedExternal(true);setError("");
+        if(mateHistoryResumable(item)&&item.consensus){
+          updateConsensus({...item.consensus});advance("review","USER_DIRECT");
+        }else{
+          updateConsensus({...EMPTY_CONSENSUS,target:item.target,goal:item.goal,userLanguage:item.userLanguage,otherLanguage:item.otherLanguage});
+          advance("finished","IDLE");
+        }
+        setShowHistory(false);
+      }}
+      onDelete={id=>{
+        if(window.confirm(t("刪除此筆紀錄？","Delete this record?"))){
+          deleteMateHistory(id);setHistory(readMateHistory());
+          if(taskId.current===id)restart();
+        }
+      }}/>}
+
     <div className="mate-steps" aria-label={t("任務進度","Task progress")}>
       <span className={reviewing?"active":""}>1 {t("私下交代","Brief")}</span>
       <span className={phase==="external"||phase==="decision"?"active":""}>2 {t("對外溝通","Handoff")}</span>
@@ -341,13 +391,14 @@ export function MatePage(){
         </div>}
         {phase!=="review"&&<label className="mate-brief-label">{t("補充文字（只傳給私下 Mate）","Private note to Mate")}
           <textarea rows={2} value={note} onChange={e=>setNote(e.target.value)} placeholder={t("可輸入其他需求，或按下面的麥克風直接說","Type more details or use the microphone")}/></label>}
+        {phase==="review"&&privateQuestion&&<p className="mate-question mate-clarification">{privateQuestion}</p>}
         <div className="mate-actions">
           {phase==="private"?<>
-            <button type="button" className="mate-primary" onClick={()=>void reviewBrief()}>{t("交代完畢 · 檢查內容","Finish briefing · Review")}</button>
-            <button type="button" className="mate-secondary" disabled={!connected||!note.trim()} onClick={()=>{if(connectionRef.current?.sendText(note)){setNote("")}}}>{t("送出補充","Send note")}</button>
+            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("正在整理…","Organizing…"):t("交代完畢 · Mate 整理","Finish briefing · Summarize")}</button>
+            <button type="button" className="mate-secondary" disabled={!connected||!note.trim()} onClick={()=>{if(connectionRef.current?.sendText(note)){privateStatements.current.push(note.trim());setNote("")}}}>{t("送出補充","Send note")}</button>
           </>:phase==="setup"?<>
             <button type="button" className="mate-secondary" onClick={()=>void startVoice("private")}>{t("與 Mate 私下語音討論","Talk privately with Mate")}</button>
-            <button type="button" className="mate-primary" onClick={()=>{advance("review","IDLE");setError("")}}>{t("確認內容","Review handoff")}</button>
+            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("正在整理…","Organizing…"):t("Mate 整理並確認","Summarize & review")}</button>
           </>:<>
             <button type="button" className="mate-secondary" onClick={()=>advance("setup","USER_DIRECT")}>{t("修改內容","Edit briefing")}</button>
             <button type="button" className="mate-primary" disabled={!ready||!confirmOwner} onClick={()=>void startVoice("external")}>{startedExternal?t("重新交給 Mate","Resume handoff"):t("交給 Mate 溝通","Start handoff")}</button>
@@ -369,15 +420,7 @@ export function MatePage(){
           <option value="original">{t("原文","Original")}</option>
         </select></label>
       </div>
-      <div className="mate-transcript" aria-live="polite" aria-label={t("對話逐字稿","Live transcript")}>
-        {turns.length===0&&<p className="mate-empty">{phase==="external"?t("把手機交給對方，Mate 會等對方先說話。","Hand the phone over. Mate will wait for the other person to speak.") :t("目前沒有對話內容。","No transcript yet.")}</p>}
-        {turns.map(entry=><div key={entry.id} className={"mate-message "+(entry.sender==="mate"?"agent":"other")}>
-          <strong>{entry.sender==="mate"?"Mate":consensus.target}</strong>
-          <p>{translationView==="original"?entry.original:entry.translated||entry.original}</p>
-          {translationView==="bilingual"&&entry.translated&&entry.translated!==entry.original&&<p className="mate-original">{entry.original}</p>}
-          <small>{new Date(entry.time).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</small>
-        </div>)}
-      </div>
+      <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
       {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?t("正在聽對方說話","Listening to the other person"):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
         <strong>{t("Mate 需要你的決定","Mate needs your approval")}</strong>
@@ -399,7 +442,7 @@ export function MatePage(){
       </div>
     </section>}
     {reviewing&&<label className="mate-save"><input type="checkbox" checked={saveHistory} onChange={e=>setSaveHistory(e.target.checked)}/>
-      {t("完成後將逐字稿儲存在這台裝置（預設不儲存）","Save transcript on this device after finishing (off by default)")}</label>}
+      {t("同意儲存任務、私人限制與逐字稿在此裝置（預設關閉）","Save task, private limits and transcript on this device (off by default)")}</label>}
     <p className="mate-disclaimer">{t("現場溝通需徵得對方同意。Mate 不會傳送 LINE、Email 或其他遠端訊息。切換私下補充時會安全地重建語音連線。","Ask for consent before using live transcription. Mate does not send remote messages. Switching between private and external modes safely reconnects voice.")}</p>
   </div>;
 }
