@@ -11,9 +11,9 @@ function load(name){
  // Node 22's built-in TS stripper lets these behavioral tests exercise actual source.
  const exported=[...source.matchAll(/export (?:const|function|class) ([A-Za-z0-9_]+)/g)].map(m=>m[1]);
  const output=stripTypeScriptTypes(source,{mode:"transform"})
-  .replace(/import\\s*\\{([^}]+)\\}\\s*from\\s*["']([^"']+)["'];/g,'const {$1}=require("$2");')
-  .replace(/export\\s+(?=(?:const|function|class)\\b)/g,"")
-  +"\\nObject.assign(module.exports,{"+exported.join(",")+"});";
+  .replace(/import\s*\{([^}]+)\}\s*from\s*["']([^"']+)["'];/g,'const {$1}=require("$2");')
+  .replace(/export\s+(?=(?:const|function|class)\b)/g,"")
+  +"\nObject.assign(module.exports,{"+exported.join(",")+"});";
  const item={exports:{}};memo.set(name,item);
  new Function("require","exports","module",output)((spec)=>{
   if(!spec.startsWith("./"))throw Error("Unexpected test dependency "+spec);
