@@ -10,7 +10,7 @@ import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import type {DirectorEvent} from "./nonsenseDirector";
 import {openingNewsScene,nextNewsScene,type NewsScene,type NewsTurn} from "./nonsenseNewsEngine";
 import {renderNewsEndingCard,shareNewsEnding} from "./nonsenseNewsShare";
-import {nonsenseCategories,pickNonsenseTopic,customNonsenseTopic,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
+import {nonsenseCategories,pickNonsenseTopic,nextNonsenseTopic,customNonsenseTopic,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
 import "./nonsenseNews.css";
 
 type Status="setup"|"connecting"|"playing"|"generating"|"finished";
@@ -45,6 +45,7 @@ export function NonsenseLiveNewsPage(){
  const controllerRef=useRef<NewsLiveController|null>(null);
  const submittingRef=useRef(false);
  const sceneRef=useRef(scene),turnsRef=useRef<NewsTurn[]>([]),generationRef=useRef(0),mountedRef=useRef(true);
+ const activeTopicRef=useRef<NonsenseTopic>(topic);
  const keyReady=typeof window!=="undefined"&&Boolean(geminiKey());
  const liveTopic=category==="custom"&&customTopic.trim()?customNonsenseTopic(customTopic):topic;
  const validCustom=category!=="custom"||customTopic.trim().length>=6;
@@ -75,6 +76,7 @@ export function NonsenseLiveNewsPage(){
  const reset=()=>{
   ++generationRef.current;dispose();turnsRef.current=[];setTurns([]);submittingRef.current=false;setDirectorEvents([]);
   setStatus("setup");setAnswer("");setError("");setNotice("");setPreview("");setShareNotice("");
+  activeTopicRef.current=liveTopic;
   setBroadcast(openingNewsScene(liveTopic,language));
  };
  const recoverEnding=async(stamp:number)=>{
@@ -82,7 +84,7 @@ export function NonsenseLiveNewsPage(){
   if(!last)return;
   setStatus("generating");setNotice(L(zh,"正在補上 AI 新聞結局…","Generating the missing ending…"));
   try{
-   const next=await nextNewsScene(liveTopic,language,turnsRef.current.slice(0,-1),last.player,true,roundCount);
+   const next=await nextNewsScene(activeTopicRef.current,language,turnsRef.current.slice(0,-1),last.player,true,roundCount);
    if(!mountedRef.current||stamp!==generationRef.current)return;
    setBroadcast(next);setDirectorEvents([]);setStatus("finished");setNotice("");setError("");
    trackUsageEvent("game_completed","nonsense");
@@ -92,18 +94,20 @@ export function NonsenseLiveNewsPage(){
    setError(L(zh,"最後一幕產生失敗。可以按「重試結局」，不需要重新說一次。","Could not generate the ending. Retry without repeating your answer."));
   }
  };
- const start=async()=>{
-  if(status!=="setup")return;
+ const start=async(playTopic:NonsenseTopic=liveTopic)=>{
+  if(status!=="setup"&&status!=="finished")return;
   if(!geminiKey()){setError(L(zh,"需要先在設定中加入自己的 Gemini Key 才能讓 AI 即時出題。","Add your Gemini Key in settings to play with the AI director."));return;}
   if(!validCustom){setError(L(zh,"請先輸入至少 6 個字元的自訂新聞題目。","Enter a custom headline of at least 6 characters."));return;}
   const stamp=++generationRef.current;
-  dispose();turnsRef.current=[];setTurns([]);setDirectorEvents([]);setError("");setNotice("");setAnswer("");
-  setBroadcast(openingNewsScene(liveTopic,language));
+  activeTopicRef.current=playTopic;
+  dispose();turnsRef.current=[];setTurns([]);submittingRef.current=false;setDirectorEvents([]);
+  setError("");setNotice("");setAnswer("");setShareNotice("");setPreview("");
+  setBroadcast(openingNewsScene(playTopic,language));
   trackUsageEvent("game_started","nonsense");
   if(mode==="text"){setStatus("playing");return;}
   setStatus("connecting");
   try{
-   const controller=await startNonsenseNewsLive(liveTopic,language,{
+   const controller=await startNonsenseNewsLive(playTopic,language,{
     onScene:next=>{if(stamp===generationRef.current&&mountedRef.current){setBroadcast(next);setDirectorEvents([]);}},
     onDirector:event=>{if(stamp===generationRef.current&&mountedRef.current)setDirectorEvents(old=>[...old,event].slice(-2));},
     onChoiceBusy:busy=>{if(stamp===generationRef.current){setChoiceBusy(busy);setMuted(controllerRef.current?.isMuted()??false);}},
@@ -139,6 +143,12 @@ export function NonsenseLiveNewsPage(){
    setNotice(L(zh,"麥克風或 Gemini Live 無法啟動，已切換文字玩法。","Microphone or Gemini Live unavailable. Text mode is ready."));
   }
  };
+ const nextBroadcast=()=>{
+  if(status!=="finished")return;
+  const next=nextNonsenseTopic(activeTopicRef.current,category);
+  setCategory(next.category);setTopic(next.topic);
+  void start(next.topic);
+ };
  const switchToText=()=>{
   if(status==="connecting"||status==="playing"){
    ++generationRef.current;dispose();setMode("text");setStatus("playing");
@@ -155,7 +165,7 @@ export function NonsenseLiveNewsPage(){
   const previous=turnsRef.current;
   const final=previous.length===roundCount-1;
   try{
-   const next=await nextNewsScene(liveTopic,language,previous,reply,final,roundCount);
+   const next=await nextNewsScene(activeTopicRef.current,language,previous,reply,final,roundCount);
    if(stamp!==generationRef.current||!mountedRef.current)return;
    const updated=[...previous,{player:reply,host:next.question||next.ending,headline:sceneRef.current.headline}];
    turnsRef.current=updated;setTurns(updated);setBroadcast(next);setDirectorEvents(next.director?[next.director]:[]);setAnswer("");
@@ -178,13 +188,13 @@ export function NonsenseLiveNewsPage(){
   if(status!=="finished"||scene.type!=="finale")return;
   setShareNotice("");
   try{
-   const result=await shareNewsEnding({topic:liveTopic[language],scene,language,link:window.location.origin+"/games/nonsense"});
+   const result=await shareNewsEnding({topic:activeTopicRef.current[language],scene,language,link:window.location.origin+"/games/nonsense"});
    if(result==="copied")setShareNotice(L(zh,"結局文字已複製。","Ending copied."));
    if(result==="downloaded")setShareNotice(L(zh,"已嘗試儲存分享圖。","Image download requested."));
   }catch{setShareNotice(L(zh,"無法透過系統分享，請使用圖片預覽另存。","Sharing unavailable. Try the preview image."));}
  };
  const showPreview=()=>{
-  try{setPreview(renderNewsEndingCard({topic:liveTopic[language],scene,language,link:window.location.origin+"/games/nonsense"}).toDataURL("image/png"));}
+  try{setPreview(renderNewsEndingCard({topic:activeTopicRef.current[language],scene,language,link:window.location.origin+"/games/nonsense"}).toDataURL("image/png"));}
   catch{setShareNotice(L(zh,"無法產生分享圖。","Could not generate the share image."));}
  };
  const round=Math.min(roundCount,turns.length+1);
@@ -239,7 +249,7 @@ export function NonsenseLiveNewsPage(){
     {status==="playing"&&mode==="text"&&turns.length>=roundCount&&<div className="news-actions"><button className="news-primary" onClick={()=>void recoverEnding(generationRef.current)}>{L(zh,"重試結局","Retry ending")}</button><button onClick={reset}>{L(zh,"重新開始","Restart")}</button></div>}
     {status==="finished"&&<div className="news-finish-actions">
      <p>{L(zh,"結局取決於你整場直播中的應對；AI 判斷救場成功或直播翻車。不會虛構分數，也不會在分享圖放逐字稿。","Your ending reflects your decisions. AI decides whether you saved the broadcast or caused a disaster, without fake scores or transcripts.")}</p>
-     <div className="news-actions"><button className="news-primary" onClick={()=>void share()}>{L(zh,"分享結局圖片","Share ending")}</button><button onClick={showPreview}>{L(zh,"預覽圖片","Preview card")}</button><button onClick={reset}>{L(zh,"再玩一局","Play again")}</button></div>
+     <div className="news-actions"><button className="news-primary" type="button" onClick={nextBroadcast}>{L(zh,"下一則新聞","Next news story")} →</button><button type="button" onClick={()=>void share()}>{L(zh,"分享結局圖片","Share ending")}</button><button type="button" onClick={showPreview}>{L(zh,"預覽圖片","Preview card")}</button><button type="button" onClick={reset}>{L(zh,"重新設定","Change settings")}</button></div>
      {shareNotice&&<p role="status">{shareNotice}</p>}
     </div>}
     {notice&&<p className="news-notice" role="status">{notice}</p>}
