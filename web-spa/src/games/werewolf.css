@@ -61,18 +61,25 @@
 .wolf-compose{display:grid;gap:8px}
 .wolf-compose .wolf-primary{justify-self:stretch}
 .wolf-voice{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px}
+.wolf-voice.is-connected{background:linear-gradient(110deg,#f8f5fd,#fff);border-color:#aea0d4}
 .wolf-voice>div:first-child{min-width:170px;display:grid;gap:3px;flex:1}
 .wolf-voice strong{font-size:13px}
 .wolf-voice small{font-size:11px;line-height:1.6;color:var(--muted)}
 .wolf-voice-buttons{display:flex;gap:6px}
 .wolf-voice-buttons button,.wolf-voice>.wolf-secondary{min-height:37px;font-size:12px;padding:6px 11px}
 .wolf-key-link{font-size:12px;color:#7462a0}
-.wolf-live-caption{width:100%;margin:0;background:#f3eff9;color:#4c415d;border-radius:9px;padding:9px;font-size:12px}
+.wolf-live-transcript{width:100%;display:grid;gap:5px;background:#f3eff9;color:#4c415d;border-radius:11px;padding:10px 12px;font-size:12px;line-height:1.55}
+.wolf-live-transcript p{margin:0;overflow-wrap:anywhere}
+.wolf-live-transcript strong{color:#615282}
+.wolf-live-connected{font-size:11px;font-weight:850;color:#33734c}
+.wolf-chat-typing{font-size:12px;color:#81709e;margin:4px 2px 0}
+.wolf-history{scroll-margin-top:90px}
+.wolf-log-entry{flex-shrink:0}
 .wolf-notice,.wolf-error{padding:9px 13px;border-radius:9px;font-size:12px;margin:0}
 .wolf-notice{background:#eef5ed;color:#315a40}.wolf-error{background:#fcf0e8;color:#9f473e}
 .wolf-history{padding:0;overflow:hidden}
 .wolf-history-toggle{cursor:pointer;display:flex;justify-content:space-between;align-items:center;border:0;background:transparent;color:var(--text);text-align:left;padding:15px;width:100%;font:inherit;font-size:14px}
-.wolf-log{display:grid;gap:8px;max-height:340px;overflow:auto;padding:0 12px 14px;scrollbar-width:thin}
+.wolf-log{display:flex;flex-direction:column;gap:8px;min-height:110px;max-height:245px;overflow-y:auto;overscroll-behavior:contain;padding:0 12px 14px;scrollbar-width:thin;scroll-padding-bottom:14px}
 .wolf-log-entry{background:#f7f4ee;border-radius:11px;padding:9px 11px}
 .wolf-log-entry.kind-speech{background:#f2eef9}
 .wolf-log-entry.kind-vote{background:#eeeefa}
@@ -86,6 +93,9 @@
  .wolf-seats{grid-template-columns:repeat(3,minmax(0,1fr))}
  .wolf-seat{padding:8px 4px}
  .wolf-world{min-height:165px}
+ .wolf-log{max-height:230px;min-height:110px}
+ .wolf-voice .wolf-secondary{flex-shrink:0}
+ .wolf-voice{padding:12px}
  .wolf-setup{padding:13px}
  .wolf-identity{padding:12px}
  .wolf-control{padding:12px}
