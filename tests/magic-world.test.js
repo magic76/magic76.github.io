@@ -9,7 +9,7 @@ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD}=worldModule.exports;
+const {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -122,4 +122,31 @@ test("generated panels replace old panels at a bounded count",()=>{
   world=result.world;
  }
  assert.equal(world.panels.length,2);
+});
+
+
+test("mobile spotlight picks the newest generated interaction and keeps result visible",()=>{
+ const {latestMagicSpotlight}=worldModule.exports;
+ assert.equal(latestMagicSpotlight(null,[]),null);
+ const challenge=demoMagicCommand("puzzle",MAGIC_INITIAL_WORLD).world;
+ assert.deepEqual(latestMagicSpotlight(challenge.challenge,challenge.panels),{
+  kind:"challenge",id:challenge.challenge.id
+ });
+ const portal=demoMagicCommand("portal",challenge).world;
+ const newestPanel=portal.panels[portal.panels.length-1];
+ assert.deepEqual(latestMagicSpotlight(portal.challenge,portal.panels),{
+  kind:"panel",id:newestPanel.id
+ });
+ const selected=applyMagicCommand(portal,"select_magic_panel",{choice:"A"});
+ assert.equal(selected.ok,true);
+ assert.deepEqual(latestMagicSpotlight(selected.world.challenge,selected.world.panels),{
+  kind:"panel",id:newestPanel.id
+ });
+ const newer=applyMagicCommand(selected.world,"create_challenge",{
+  title:"New spell",question:"Which one?",option_a:"Fire",option_b:"Earth",option_c:"Water",correct_option:"A"
+ });
+ assert.equal(newer.ok,true);
+ assert.deepEqual(latestMagicSpotlight(newer.world.challenge,newer.world.panels),{
+  kind:"challenge",id:newer.world.challenge.id
+ });
 });
