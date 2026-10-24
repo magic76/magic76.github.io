@@ -9,7 +9,7 @@ import {personalMemoryEnabled} from "./studentMemory";
 
 type Props={
  live:ReturnType<typeof useLiveSession>;
- store:ReturnType<typeof useTeacherStore>;
+ store:ReturnType<typeof useTeacherStore.getState>;
  profile:ReturnType<typeof getTeacherProfile>;
  sessionActive:boolean;
  onPickTeacher:()=>void;
