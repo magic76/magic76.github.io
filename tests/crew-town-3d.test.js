@@ -262,20 +262,25 @@ test("P4 graph keeps 16 residents on connected safe pedestrian paths across all 
  const world=read("web-spa/src/town/three/world.ts");
  const sourceLoops=walk.match(/const LOOPS:[^=]+=(\[[\s\S]*?\]);\nconst BRIDGES/);
  const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\n/);
- assert.ok(sourceLoops);assert.ok(sourceBridges);
+ const sourcePlaza=walk.match(/const CENTRAL_WALK:[^=]+=(\[[\s\S]*?\]);\nconst CENTRAL_LINKS/);
+ const sourcePlazaLinks=walk.match(/const CENTRAL_LINKS:[^=]+=(\[[\s\S]*?\]);\nfunction makeWalkGraph/);
+ assert.ok(sourceLoops);assert.ok(sourceBridges);assert.ok(sourcePlaza);assert.ok(sourcePlazaLinks);
  const loops=vm.runInNewContext(sourceLoops[1]);
  const bridges=vm.runInNewContext(sourceBridges[1]);
+ const plaza=vm.runInNewContext(sourcePlaza[1]);
+ const plazaLinks=vm.runInNewContext(sourcePlazaLinks[1]);
  assert.equal(loops.length,5);
  const nodes=new Map();
  for(const loop of loops)for(const [id,x,z] of loop){
   assert.ok(Math.abs(x)<=25&&Math.abs(z)<=21,"node outside walkable land: "+id);
   assert.ok(!nodes.has(id));nodes.set(id,{x,z,links:new Set()});
  }
+ for(const [id,x,z] of plaza){assert.ok(!nodes.has(id));nodes.set(id,{x,z,links:new Set()})}
  for(const loop of loops)for(let i=0;i<loop.length;i++){
   const a=loop[i][0],b=loop[(i+1)%loop.length][0];
   nodes.get(a).links.add(b);nodes.get(b).links.add(a);
  }
- for(const [a,b] of bridges){
+ for(const [a,b] of [...bridges,...plazaLinks]){
   assert.ok(nodes.has(a)&&nodes.has(b),"missing bridge node");
   nodes.get(a).links.add(b);nodes.get(b).links.add(a);
  }
@@ -285,7 +290,7 @@ test("P4 graph keeps 16 residents on connected safe pedestrian paths across all 
   for(const neighbor of from.links)if(!seen.has(neighbor)){seen.add(neighbor);queue.push(neighbor)}
  }
  assert.equal(seen.size,nodes.size,"all five districts must be reachable");
- assert.equal(nodes.size,40);
+ assert.equal(nodes.size,44);
  for(const [id,n] of nodes){
   for(const next of n.links){
    const other=nodes.get(next);
