@@ -29,7 +29,9 @@ const monitor="<script>"
  +"const friends=document.createElement('meta');friends.name='crew-town-friend-count';friends.content=friendMenu&&friendMenu.textContent.includes('16')?'16':'0';document.head.appendChild(friends);"
  +"const labels=document.createElement('meta');labels.name='crew-town-friend-labels';labels.content=String(document.querySelectorAll('.crew-town-3d-name').length);document.head.appendChild(labels);"
  +"const residentMount=document.createElement('meta');residentMount.name='crew-town-mounted-residents';residentMount.content=document.querySelector('canvas[data-town-residents]')?.getAttribute('data-town-residents')||'0';document.head.appendChild(residentMount);"
- +"},14000);"
+ +"const renderer=document.createElement('meta');renderer.name='crew-town-renderer-ready';renderer.content=document.querySelector('canvas[data-town-renderer]')?.getAttribute('data-town-renderer')||'no';document.head.appendChild(renderer);"
+ +"const motion=document.createElement('meta');motion.name='crew-town-reduced-motion';motion.content=String(matchMedia('(prefers-reduced-motion: reduce)').matches);document.head.appendChild(motion);"
+ +"},9000);"
  +"</script>";
 const server=createServer((req,res)=>{
  try{
@@ -49,7 +51,7 @@ await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
  "--disable-gpu-sandbox","--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader","--use-gl=angle","--use-angle=swiftshader-webgl",
  "--window-size=520,900","--force-device-scale-factor=1",
- "--virtual-time-budget=18500","--dump-dom",
+ "--virtual-time-budget=12000","--dump-dom",
  "--screenshot="+join(artifact,"town-browser.png"),
  "http://127.0.0.1:"+server.address().port+"/town"
 ];
@@ -60,7 +62,7 @@ try{
   proc.stdout.on("data",data=>{stdout+=String(data)});
   proc.stderr.on("data",data=>{stderr=(stderr+String(data)).slice(-7000)});
   proc.on("error",reject);proc.on("close",done);
-  const watchdog=setTimeout(()=>proc.kill("SIGKILL"),90000);
+  const watchdog=setTimeout(()=>proc.kill("SIGKILL"),60000);
   proc.on("close",()=>clearTimeout(watchdog));
  });
  writeFileSync(join(artifact,"town-browser.html"),stdout);
@@ -70,8 +72,10 @@ try{
  const friendCount=stdout.match(/<meta name="crew-town-friend-count" content="([^"]*)"/)?.[1];
  const friendLabels=stdout.match(/<meta name="crew-town-friend-labels" content="([^"]*)"/)?.[1];
  const mountedResidents=stdout.match(/<meta name="crew-town-mounted-residents" content="([^"]*)"/)?.[1];
+ const rendererReady=stdout.match(/<meta name="crew-town-renderer-ready" content="([^"]*)"/)?.[1];
+ const reducedMotion=stdout.match(/<meta name="crew-town-reduced-motion" content="([^"]*)"/)?.[1];
  const failure=stdout.match(/class="crew-town-3d-error-detail"[^>]*>([\s\S]*?)<\/code>/)?.[1]||"";
- const report={chrome,exit:code,state,webgl2,friendCount,friendLabels,mountedResidents,errorSummary,failure,httpErrors:errors};
+ const report={chrome,exit:code,state,webgl2,friendCount,friendLabels,mountedResidents,rendererReady,reducedMotion,errorSummary,failure,httpErrors:errors};
  writeFileSync(join(artifact,"town-browser.txt"),JSON.stringify(report,null,2)+"\n"+stderr);
  console.log(JSON.stringify(report,null,2));
  if(code!==0||errors.length)throw Error("Town 3D browser launch or asset serving failed.");

@@ -58,7 +58,7 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={reducedMotion||!visible?"demand":"always"}
-   onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3")}}
+   onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3");gl.domElement.dataset.townRenderer="ready"}}
    fallback={<span>WebGL unavailable</span>}>
   <color attach="background" args={[night?"#303f56":"#eaf0e3"]}/>
   <fog attach="fog" args={[night?"#303f56":"#eaf0e3",100,220]}/>

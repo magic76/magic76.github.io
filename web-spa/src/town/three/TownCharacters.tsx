@@ -22,11 +22,15 @@ function Actor({id,coat,hair,skin,outfit,startNode,traffic,reducedMotion,selecte
  const rightArm=useRef<Group>(null);
  const [hovered,setHovered]=useState(false);
  useCursor(hovered);
+ const {invalidate}=useThree();
  useEffect(()=>{
   const [x,z]=WALK_GRAPH[startNode].point;
   traffic.set(id,{x,z});
+  // Demand-frame renderers (reduced-motion / hidden tabs) need a new frame
+  // after the 3D actor and its Html label have mounted.
+  invalidate();
   return()=>{traffic.delete(id)};
- },[traffic,id,startNode]);
+ },[traffic,id,startNode,invalidate]);
  // Per-actor refs keep all 16 walk cycles off the React render loop.
  // Stable per-friend seeds vary route, stride, pace and pauses without re-renders.
  const step=useRef({
