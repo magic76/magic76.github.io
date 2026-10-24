@@ -40,34 +40,34 @@ test("external Mate knows the reviewed owner rules without revealing them to the
  const review=fs.readFileSync(path.join(root,"web-spa/src/mate/MateConsensusFields.tsx"),"utf8");
  const external=prompts.split("export const externalInstruction =")[1].split("export const externalOpening =")[0];
  const opening=prompts.split("export const externalOpening =")[1].split("export const privateInstruction =")[0];
- assert.match(external,/c\\.constraints/);
- assert.match(external,/c\\.escalation/);
+ assert.match(external,/c\.constraints/);
+ assert.match(external,/c\.escalation/);
  assert.match(external,/never quote, summarize, disclose or read aloud/i);
  assert.match(external,/NEVER pretend the other person replied/);
- assert.doesNotMatch(opening,/c\\.constraints|c\\.escalation/);
+ assert.doesNotMatch(opening,/c\.constraints|c\.escalation/);
  assert.match(opening,/Please speak your brief greeting NOW/);
- assert.match(page,/mode==="private"\\?privateInstruction\\(c\\):externalInstruction\\(c,/);
- assert.match(page,/externalOpening\\(c\\)/);
+ assert.match(page,/mode==="private"\?privateInstruction\(c\):externalInstruction\(c,/);
+ assert.match(page,/externalOpening\(c\)/);
  assert.match(page,/volume:100/);
- assert.match(page,/const session=new window\\.CrewLive\\.Session\\(voiceOptions\\)/);
- assert.match(review,/Private limits \\(Mate follows these without revealing them\\)/);
+ assert.match(page,/const session=new window\.CrewLive\.Session\(voiceOptions\)/);
+ assert.match(review,/Private limits \(Mate follows these without revealing them\)/);
 });
 test("first Mate greeting is audible, logged and does not count as external consent",()=>{
  const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
- assert.match(page,/if\\(turn\\.output\\?\\.trim\\(\\)\\)appendTurn\\("mate",turn\\.output\\)/);
- assert.match(page,/else if\\(value\\.trim\\(\\)\\)\\{externalOutputSeen\\.current=true/);
- assert.match(page,/if\\(turn\\.input\\?\\.trim\\(\\)\\)appendTurn\\("other",turn\\.input\\)/);
- assert.match(page,/externalInputSeen\\.current=true/);
- assert.match(page,/if\\(mode==="external"\\)session\\.setVolume\\(100\\)/);
+ assert.match(page,/if\(turn\.output\?\.trim\(\)\)appendTurn\("mate",turn\.output\)/);
+ assert.match(page,/else if\(value\.trim\(\)\)\{externalOutputSeen\.current=true/);
+ assert.match(page,/if\(turn\.input\?\.trim\(\)\)appendTurn\("other",turn\.input\)/);
+ assert.match(page,/externalInputSeen\.current=true/);
+ assert.match(page,/if\(mode==="external"\)session\.setVolume\(100\)/);
  assert.match(page,/Ask Mate to start speaking/);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","complete_task",false,true),false);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","request_user_input",false,true),false);
 });
 test("last uncompleted private utterance is retained at briefing finalization",()=>{
  const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
- assert.match(page,/privateInputRef\\.current=value/);
- assert.match(page,/const pendingSpeech=privateInputRef\\.current\\.trim\\(\\)/);
- assert.match(page,/pendingSpeech\\?\\[pendingSpeech\\]:\\[\\]/);
+ assert.match(page,/privateInputRef\.current=value/);
+ assert.match(page,/const pendingSpeech=privateInputRef\.current\.trim\(\)/);
+ assert.match(page,/pendingSpeech\?\[pendingSpeech\]:\[\]/);
 });
 
 test("invalid tool payloads don't cause exceptions",()=>{
