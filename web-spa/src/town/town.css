@@ -204,3 +204,30 @@
 @media(prefers-reduced-motion:reduce){
  .crew-town-landscape,.crew-town-night-lights,.crew-town-lamp-glow{transition:none!important}
 }
+
+
+/* Long, subtle neighborhood routes replace the old all-characters-bobbing loop. */
+.crew-town-person-zoe{animation:crew-town-walk-left 21s ease-in-out infinite}
+.crew-town-person-yuna{animation:crew-town-walk-right 25s ease-in-out -7s infinite}
+.crew-town-person-theo{animation:crew-town-walk-left 23s ease-in-out -4s infinite}
+.crew-town-person-hugo{animation:crew-town-walk-garden 29s ease-in-out -10s infinite}
+.crew-town-person-bella{animation:crew-town-walk-right 22s ease-in-out -3s infinite}
+.crew-town-person-noah{animation:crew-town-walk-garden 27s ease-in-out -9s infinite}
+.crew-town-person:hover,.crew-town-person.is-selected{animation-play-state:paused}
+@keyframes crew-town-walk-left{
+ 0%,14%,80%,100%{transform:translate(-50%,-50%)}
+ 42%,54%{transform:translate(calc(-50% - 18px),calc(-50% + 6px))}
+}
+@keyframes crew-town-walk-right{
+ 0%,12%,85%,100%{transform:translate(-50%,-50%)}
+ 39%,56%{transform:translate(calc(-50% + 19px),calc(-50% - 5px))}
+}
+@keyframes crew-town-walk-garden{
+ 0%,16%,82%,100%{transform:translate(-50%,-50%)}
+ 41%,53%{transform:translate(calc(-50% - 10px),calc(-50% - 10px))}
+}
+.crew-town-water-ripple{animation:crew-town-ripple 4.7s ease-in-out infinite}
+@keyframes crew-town-ripple{0%,100%{opacity:.55}45%{opacity:1}}
+@media(prefers-reduced-motion:reduce){
+ .crew-town-person,.crew-town-water-ripple{animation:none!important}
+}
