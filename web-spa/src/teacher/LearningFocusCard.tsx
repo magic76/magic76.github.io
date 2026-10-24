@@ -8,6 +8,7 @@ import {completedLessons} from "./courseProgress";
 import {buildDailyLearningPlan,type DailyLearningPlan} from "./learningCoordinator";
 import {getTeacherProfile} from "./teacherProfiles";
 import {courseLesson} from "./courseCatalog";
+import {TeacherAvatar} from "./TeacherAvatar";
 
 /** The single recommended Learn action. Progress remains in the existing stores. */
 export function LearningFocusCard(){
@@ -44,8 +45,7 @@ export function LearningFocusCard(){
     <span>{t("sectionHubs.learn.suggestedTime",{defaultValue:"Suggested: 5 min"})}</span></div>
   </div>
   <div className="crew-section-focus-card-portrait" aria-hidden="true">
-   <span>{teacher.name.charAt(0)}</span>
-   <img src={teacher.avatar} alt="" onError={event=>{event.currentTarget.style.display="none"}}/>
+   <TeacherAvatar profile={teacher} decorative/>
   </div>
   <Link className="crew-action-primary" to={destination}>
    {t(resume?"sectionHubs.learn.resumeCta":"sectionHubs.learn.startCta",{defaultValue:resume?"Continue practice":"Start practicing"})} →
