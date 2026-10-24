@@ -36,6 +36,7 @@ export function MatePage(){
   const [liveStatus,setLiveStatus]=useState("");
   const [connected,setConnected]=useState(false);
   const [speaking,setSpeaking]=useState(false);
+  const [mateGreeted,setMateGreeted]=useState(false);
   const [turns,setTurns]=useState<MateTurn[]>([]);
   const [translationView,setTranslationView]=useState<"bilingual"|"translated"|"original">("bilingual");
   const translationViewRef=useRef<"bilingual"|"translated"|"original">("bilingual");
@@ -142,6 +143,7 @@ export function MatePage(){
     const scopedOwnerDecision=mode==="external"?ownerDecisionForExternal.current:"";
     if(mode==="external")ownerDecisionForExternal.current=""; // authorization is single-handoff only
     externalInputSeen.current=false;externalOutputSeen.current=false;mutedByMate.current=false;
+    if(mode==="external")setMateGreeted(false);
     if(mode==="private"){
       if(note.trim()){privateStatements.current.push(note.trim());setNote("");}
       privateInputRef.current="";
@@ -197,7 +199,7 @@ export function MatePage(){
         onOutputTranscript:(value:string)=>{
           if(connectionSeq.current!==sequence)return;
           if(mode==="private")setPrivateOutput(value);
-          else if(value.trim())externalOutputSeen.current=true;
+          else if(value.trim()){externalOutputSeen.current=true;setMateGreeted(true)}
         },
         onTranscriptTurn:(turn:LiveTurn)=>{
           if(connectionSeq.current!==sequence)return;
@@ -317,7 +319,7 @@ export function MatePage(){
     taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];privateInputRef.current="";
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
-    setOutcome("");setDecision(null);setStartedExternal(false);setError("");setNote("");
+    setOutcome("");setDecision(null);setStartedExternal(false);setMateGreeted(false);setError("");setNote("");
   }
   function applyDecision(approved:boolean){
     const d=decision;
@@ -371,7 +373,7 @@ export function MatePage(){
     {reviewing&&<>
       <section className="mate-panel">
         <h2>{phase==="review"?t("請確認交接內容","Confirm handoff"):t("私下交代任務","Private briefing")}</h2>
-        <p className="mate-hint">{t("以下內容只顯示給你。交給對方前請先確認。","Only you can see this preparation screen. Review it before handing over.")}</p>
+        <p className="mate-hint">{t("交接前請確認：Mate 會依這些指示幫你溝通。私人限制只供 Mate 判斷，不會主動告訴對方。","Review before handoff: Mate uses these instructions to help you. Private limits guide Mate and are not meant to be shared with the other person.")}</p>
         {phase!=="private"&&<MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} en={en}/>}
         {phase==="private"&&<div className="mate-private-live" aria-live="polite">
           <strong>{connected?t("Mate 正在私下聽你說","Mate is listening privately"):liveStatus}</strong>
@@ -412,6 +414,9 @@ export function MatePage(){
       </div>
       <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
       {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("重新確認並連線","Review and reconnect")}</button>}
+      {phase==="external"&&connected&&!mateGreeted&&!speaking&&<button type="button" className="mate-reconnect" onClick={()=>{
+        if(!connectionRef.current?.sendText(externalOpening(consensusRef.current)))setError(t("無法送出，請重新連線。","Could not start speaking. Please reconnect."));
+      }}>{t("請 Mate 主動開口","Ask Mate to start speaking")}</button>}
       {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?(externalInputSeen.current?t("正在聽對方說話","Listening to the other person"):t("Mate 已開始協助溝通","Mate is initiating the conversation")):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
         <strong>{t("Mate 需要你的決定","Mate needs your approval")}</strong>
