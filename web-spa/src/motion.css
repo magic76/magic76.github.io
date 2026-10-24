@@ -76,3 +76,30 @@
  .teacher-presence-shell[data-state="connecting"]::after,.friend-live-avatar[data-state="connecting"]::after{opacity:.4!important}
  .teacher-presence-shell[data-state="waiting"]::after,.friend-live-avatar[data-state="waiting"]::after{opacity:.2!important}
 }
+
+/* Motion 2.0: factual Live state drives a restrained background glow.
+   This is NOT a simulated amplitude meter; the existing rings remain the state cue. */
+.teacher-presence-shell::before,.friend-live-avatar::before{
+ content:"";position:absolute;inset:-14px;z-index:-1;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle,transparent 57%,var(--accent-soft,#ebe3f7) 85%,transparent 100%);
+ opacity:0;transform:scale(.96);
+ transition:opacity 200ms ease,transform 280ms var(--crew-motion-ease);
+}
+.teacher-presence-shell[data-state="speaking"]::before,.friend-live-avatar[data-state="speaking"]::before{
+ opacity:.85;transform:scale(1.065);
+}
+.teacher-presence-shell[data-state="listening"]::before,.friend-live-avatar[data-state="listening"]::before{
+ opacity:.45;transform:scale(1);
+}
+.teacher-presence-shell[data-state="connecting"]::before,.friend-live-avatar[data-state="connecting"]::before{
+ opacity:.24;
+}
+.live-stage .live-transcript .live-line.show{animation:crew-live-transcript-in 170ms ease-out both}
+@keyframes crew-live-transcript-in{
+ from{opacity:.55;transform:translateY(3px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ .teacher-presence-shell::before,.friend-live-avatar::before{transition:none!important;transform:none!important}
+ .live-stage .live-transcript .live-line.show{animation:none!important}
+}
