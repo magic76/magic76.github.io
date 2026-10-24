@@ -138,3 +138,27 @@ test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>
   assert.ok(chars.includes('id==="'+id+'"'));
  }
 });
+
+test("Town 3D P1.1 can focus moving friends and browse without losing 2.5D fallback",()=>{
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ const chars=read("web-spa/src/town/three/TownCharacters.tsx");
+ const environment=read("web-spa/src/town/three/TownEnvironment.tsx");
+ const overlay=read("web-spa/src/town/three/TownOverlay.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const css=read("web-spa/src/town/three/town3d.css");
+ assert.match(scene,/actorPositions=useRef/);
+ assert.match(scene,/onMove=\\{trackActor\\}/);
+ assert.match(scene,/onPointerMissed=\\{onDeselect\\}/);
+ assert.match(page,/onDeselect=\\{\\(\\)=>setSelected\\(null\\)\\}/);
+ assert.match(chars,/onMove\\(id,group\\.position\\.x,group\\.position\\.z\\)/);
+ assert.match(chars,/MathUtils\\.euclideanModulo\\(facing-group\\.rotation\\.y/);
+ assert.match(chars,/<Html /);
+ assert.match(chars,/useCursor\\(hovered\\)/);
+ assert.match(environment,/useCursor\\(hovered!==null\\)/);
+ assert.match(environment,/ringGeometry args=\\{\\[1\\.45,1\\.67,36\\]\\}/);
+ assert.match(overlay,/crew-town-3d-roster-nav/);
+ assert.match(overlay,/navigate\\(-1\\)/);
+ assert.match(css,/crew-town-3d-name/);
+ assert.match(scene,/TownModelsBoundary/);
+ assert.match(scene,/webgl-context-lost/);
+});

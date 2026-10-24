@@ -1,14 +1,14 @@
-import {Component,Suspense,useEffect,useState} from "react";
+import {Component,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import type {ReactNode} from "react";
 import {Canvas,useThree} from "@react-three/fiber";
 import {TownEnvironment} from "./TownEnvironment";
 import {TownSimpleWorld} from "./TownSimpleWorld";
 import {TownCharacters} from "./TownCharacters";
 import {TownCameraController} from "./TownCameraController";
-import {type FriendId,type PlaceId,type Selection} from "./world";
+import {PEOPLE,type FriendId,type PlaceId,type Selection} from "./world";
 
 type Props={night:boolean;reducedMotion:boolean;selected:Selection;reset:number;
- onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
+ onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onDeselect:()=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
 class TownModelsBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:(reason:string)=>void},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
@@ -24,7 +24,12 @@ function ContextWatch({onFailure}: {onFailure:(reason:string)=>void}){
  },[gl,onFailure]);
  return null;
 }
-export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,onFailure,onSimplified}:Props){
+export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,onDeselect,onFailure,onSimplified}:Props){
+ const actorPositions=useRef<Partial<Record<FriendId,[number,number]>>>({});
+ const trackActor=useCallback((id:FriendId,x:number,z:number)=>{
+  const point=actorPositions.current[id];
+  if(point){point[0]=x;point[1]=z}else actorPositions.current[id]=[x,z];
+ },[]);
  const [visible,setVisible]=useState(true);
  useEffect(()=>{
   const sync=()=>setVisible(!document.hidden);
@@ -35,11 +40,15 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
   ?({cafe:[-5,1.2,-1.75],studio:[4.7,1.35,-1.75],play:[-2.2,1.25,5.3],garden:[5.45,.3,4.5]} as const)[selected.id]
   :selected?.type==="person"
    ?null : null;
+ // Use the actor's actual walking position when selection changes, not a stale landmark.
  const friendFocus=selected?.type==="person"
-  ?({zoe:[-5,.95,0],yuna:[-3.7,.95,.85],theo:[3.8,.95,.3],hugo:[0,.95,.1],bella:[-1.25,.95,6.4],noah:[3.5,.95,5.8]} as const)[selected.id]
-  :null;
+  ?(()=>{
+   const position=actorPositions.current[selected.id]
+    ??PEOPLE.find(person=>person.id===selected.id)?.route[0];
+   return position?[position[0],.95,position[1]] as const:null;
+  })():null;
  const focus=friendFocus??cameraFocus;
- return <Canvas className="crew-town-3d-canvas"
+ return <Canvas className="crew-town-3d-canvas" onPointerMissed={onDeselect}
    camera={{position:typeof window!=="undefined"&&window.innerWidth<720?[14.7,18.5,25]:[11.9,14,19.8],fov:typeof window!=="undefined"&&window.innerWidth<720?52:34,near:.1,far:120}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
@@ -54,11 +63,11 @@ export function TownScene({night,reducedMotion,selected,reset,onFriend,onPlace,o
   <directionalLight position={[10,7,-6]} color={night?"#718ebd":"#d4e8d9"} intensity={night?.3:.65}/>
   <TownModelsBoundary onFailure={onSimplified} fallback={<TownSimpleWorld onSelect={onPlace}/>}>
    <Suspense fallback={null}>
-    <TownEnvironment night={night} onSelect={onPlace}/>
+    <TownEnvironment night={night} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
    </Suspense>
   </TownModelsBoundary>
   <TownCharacters reducedMotion={reducedMotion}
-   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend}/>
+   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
   <TownCameraController focus={focus} reducedMotion={reducedMotion} reset={reset}/>
   <ContextWatch onFailure={onFailure}/>
  </Canvas>;

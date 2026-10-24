@@ -82,7 +82,7 @@ export function Town3DPage(){
    <section className={"crew-town-3d-stage"+(night?" is-night":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>
      <TownScene night={night} reducedMotion={reducedMotion} selected={selected} reset={reset}
-      onFriend={selectFriend} onPlace={selectPlace} onFailure={fail} onSimplified={simplified}/>
+      onFriend={selectFriend} onPlace={selectPlace} onDeselect={()=>setSelected(null)} onFailure={fail} onSimplified={simplified}/>
     </Suspense>:<div className="crew-town-3d-loading" role="status">{zh?"正在偵測 3D 支援…":"Checking 3D support…"}</div>}
     {modelIssue&&<div className="crew-town-3d-model-note" role="status">{zh?"模型讀取失敗，已改用簡化 3D 場景。":"The model could not load; showing a simplified 3D scene."} <code>{modelIssue}</code></div>}
     <div className="crew-town-3d-tools">
@@ -96,7 +96,7 @@ export function Town3DPage(){
     </div>
     <TownOverlay selected={selected} zh={zh} onClose={()=>setSelected(null)}
      onFriend={selectFriend} onPlace={selectPlace}/>
-    {!selected&&<div className="crew-town-3d-hint">{zh?"拖曳轉動 · 雙指／滾輪縮放 · 點擊建築或角色":"Drag to orbit · Pinch / scroll to zoom · Tap a friend or building"}</div>}
+    {!selected&&<div className="crew-town-3d-hint">{zh?"拖曳轉動 · 雙指縮放 · 點角色／建築探索":"Drag to orbit · Pinch to zoom · Tap friends or buildings"}</div>}
    </section>
    <div className="crew-town-3d-caption">
     <span>{zh?"3D 小鎮角色使用預設走動與情境，不是多人 Gemini Live。點選「加入聊天」會進入既有的單人語音聊天。":"Town movements are scripted, not a multi-agent Live call. Joining a friend opens the existing one-to-one voice chat."}</span>

@@ -1,8 +1,8 @@
-import {useMemo} from "react";
-import {useGLTF} from "@react-three/drei";
+import {useMemo,useState} from "react";
+import {useCursor,useGLTF} from "@react-three/drei";
 import type {ThreeEvent} from "@react-three/fiber";
 import {DoubleSide,Mesh,MeshStandardMaterial,Object3D} from "three";
-import type {PlaceId} from "./world";
+import {PLACES,type PlaceId} from "./world";
 
 const ASSET="/assets/town/crew-town-art-kit.glb";
 const TREES:[number,number,number][]=[
@@ -55,10 +55,18 @@ function AmbientDetails({night}: {night:boolean}){
   {pebbles.filter(p=>!p.hide).map((p,i)=><mesh key={i} position={[p.x,.065,p.z]} scale={[p.scale,.027,p.scale*1.5]}>
    <dodecahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%3===0?"#f3dfc4":"#e3dec8"}/>
   </mesh>)}
-  {night&&LAMPS.map(([x,z],i)=><pointLight key={i} position={[x,2.4,z]} color="#ffd0a1" intensity={.54} distance={5.8} decay={2}/>)}
+  {night&&LAMPS.map(([x,z],i)=><group key={i}>
+   <pointLight position={[x,2.4,z]} color="#ffd0a1" intensity={.54} distance={5.8} decay={2}/>
+   <mesh position={[x,.097,z]} rotation={[-Math.PI/2,0,0]}>
+    <circleGeometry args={[.83,18]}/>
+    <meshBasicMaterial color="#ffe0a5" transparent opacity={.16} depthWrite={false}/>
+   </mesh>
+  </group>)}
  </group>;
 }
-export function TownEnvironment({night,onSelect}: {night:boolean;onSelect:(id:PlaceId)=>void}){
+export function TownEnvironment({night,selected,onSelect}: {night:boolean;selected:PlaceId|null;onSelect:(id:PlaceId)=>void}){
+ const [hovered,setHovered]=useState<PlaceId|null>(null);
+ useCursor(hovered!==null);
  const {scene}=useGLTF(ASSET);
  const roots=useMemo(()=>{
   const ids=["cafe","studio","play","gazebo","tree","bench","lantern","flowers"];
@@ -67,18 +75,20 @@ export function TownEnvironment({night,onSelect}: {night:boolean;onSelect:(id:Pl
   return map;
  },[scene]);
  const pick=(id:PlaceId)=>(e:ThreeEvent<MouseEvent>)=>{e.stopPropagation();onSelect(id)};
+ const hover=(id:PlaceId)=>(event:ThreeEvent<PointerEvent>)=>{event.stopPropagation();setHovered(id)};
+ const leave=(id:PlaceId)=>(event:ThreeEvent<PointerEvent>)=>{event.stopPropagation();setHovered(current=>current===id?null:current)};
  return <group>
   <Ground/>
-  <group position={[-5,.08,-3]} onClick={pick("cafe")}>
+  <group position={[-5,.08,-3]} onClick={pick("cafe")} onPointerOver={hover("cafe")} onPointerOut={leave("cafe")}>
    <Model object={roots.get("cafe")!} scale={1.12}/>
   </group>
-  <group position={[4.7,.08,-3]} onClick={pick("studio")}>
+  <group position={[4.7,.08,-3]} onClick={pick("studio")} onPointerOver={hover("studio")} onPointerOut={leave("studio")}>
    <Model object={roots.get("studio")!} scale={1.07}/>
   </group>
-  <group position={[-2.2,.08,4]} onClick={pick("play")}>
+  <group position={[-2.2,.08,4]} onClick={pick("play")} onPointerOver={hover("play")} onPointerOut={leave("play")}>
    <Model object={roots.get("play")!} scale={1.08}/>
   </group>
-  <group position={[8,.08,1.65]} onClick={pick("garden")}>
+  <group position={[8,.08,1.65]} onClick={pick("garden")} onPointerOver={hover("garden")} onPointerOut={leave("garden")}>
    <Model object={roots.get("gazebo")!} scale={.66}/>
   </group>
   {TREES.map(([x,z,scale],i)=><Model key={"tree"+i} object={roots.get("tree")!}
@@ -94,6 +104,12 @@ export function TownEnvironment({night,onSelect}: {night:boolean;onSelect:(id:Pl
     <cylinderGeometry args={[2.22,2.22,.06,40]}/>
     <meshBasicMaterial transparent opacity={0} depthWrite={false}/>
   </mesh>
+  {/* A lightweight ground halo makes the active destination discoverable. */}
+  {PLACES.filter(place=>place.id===hovered||place.id===selected).map(place=>
+   <mesh key={place.id} position={[place.point[0],.12,place.point[2]]} rotation={[-Math.PI/2,0,0]}>
+    <ringGeometry args={[1.45,1.67,36]}/>
+    <meshBasicMaterial color="#fff9d8" transparent opacity={.86} depthWrite={false}/>
+   </mesh>)}
   <AmbientDetails night={night}/>
  </group>
 }
