@@ -66,6 +66,8 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
   <ambientLight intensity={night?.45:.65}/>
   <directionalLight position={[-5,13,8]} color={night?"#b7c6eb":"#fff0d0"} intensity={night?1.2:2.0}/>
   <directionalLight position={[10,7,-6]} color={night?"#718ebd":"#d4e8d9"} intensity={night?.3:.65}/>
+  <TownCharacters reducedMotion={reducedMotion}
+   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
   <TownModelsBoundary onFailure={onSimplified} fallback={<TownSimpleWorld onSelect={onPlace}/>}>
    <Suspense fallback={null}>
     <TownEnvironment night={night} zh={zh} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
@@ -73,8 +75,6 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
     <TownDistricts zh={zh} night={night}/>
    </Suspense>
   </TownModelsBoundary>
-  <TownCharacters reducedMotion={reducedMotion}
-   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
   <TownCameraController focus={focus} view={view} district={district} reducedMotion={reducedMotion} reset={reset}/>
   <ContextWatch onFailure={onFailure}/>
  </Canvas>;
