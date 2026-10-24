@@ -57,7 +57,7 @@ function Quiz({card,answers,onAnswer,english,quizIndex=0,onNavigate}:{card:Board
  if(!q)return null;
  const key=card.id+":"+index,selected=answers[key],answered=Number.isInteger(selected);
  const change=(n:number)=>{if(onNavigate)onNavigate(n);else setLocalStep(n)};
- return <div className="teaching-board-questions">
+ return <div className="teaching-board-questions" key={index}>
   <div className="teaching-board-question-counter">{english?"Question":"題目"} {index+1} / {card.questions.length}</div>
   <div className="teaching-board-question"><strong>{q.question}</strong>
    <div className="teaching-board-options">{q.options.map((option,i)=><button type="button" key={i} disabled={answered}
