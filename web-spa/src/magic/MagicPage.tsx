@@ -227,6 +227,16 @@ export function MagicPage(){
      <i/><i/><i/><i/><i/><i/>
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
+    <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
+     {isOnline||voiceState==="connecting"?<>
+      <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>
+      {isOnline&&<button type="button" onClick={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}} aria-pressed={muted}
+       aria-label={muted?t("開啟麥克風","Unmute microphone"):t("麥克風靜音","Mute microphone")}>{muted?"◌":"●"}</button>}
+      <button type="button" onClick={()=>void stopVoice()} aria-label={t("結束語音","End voice")}>×</button>
+     </>:hasKey?
+      <button type="button" disabled={starting} onClick={()=>void startVoice()}>◉ {t("和 Lumi 說話","Talk to Lumi")}</button>:
+      <Link to="/settings">◉ {t("設定語音","Set up voice")}</Link>}
+    </div>
     <div className="magic-story" role="status" aria-live="polite">
      <span>{t("冒險篇章","Chapter")} {world.chapter.toString().padStart(2,"0")}</span>
      <p>{world.message}</p>
