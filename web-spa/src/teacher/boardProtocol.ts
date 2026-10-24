@@ -127,7 +127,7 @@ function extractedFormatBoard(question:string,answer:string,current:BoardCard[])
  // having to say "make a dialogue card". Never guess speaker identities.
  const role=/^(?:guest|clerk|staff|teacher|student|receptionist|customer|waiter|cashier|you|me|顧客|客人|櫃檯|店員|老師|學生|服務員|顧問|面試官|應徵者|a|b)$/i;
  if((dialogue||(pairs.length>=2&&pairs.every(p=>role.test(p.source))))&&pairs.length>=2)return {action:"upsert",ids:[],cards:[{id:"dialogue-"+current.length,type:"dialogue",title:"老師剛才的對話",body:"從老師實際說出的角色台詞整理。",pairs,points:[],questions:[]}]};
- if((vocab||(pairs.length>=2&&pairs.every(p=>p.source.split(/\s+/).length<=3)))&&pairs.length)return {action:"upsert",ids:[],cards:[{id:"vocab-"+current.length,type:"vocabulary",title:"單字與用法",body:"從老師剛才的說明整理。",pairs,points:[],questions:[]}]};
+ if((vocab||(!compare&&!chronology&&pairs.length>=2&&pairs.every(p=>p.source.split(/\s+/).length<=3)))&&pairs.length)return {action:"upsert",ids:[],cards:[{id:"vocab-"+current.length,type:"vocabulary",title:"單字與用法",body:"從老師剛才的說明整理。",pairs,points:[],questions:[]}]};
  if(compare&&pairs.length>=2)return {action:"upsert",ids:[],cards:[{id:"compare-"+current.length,type:"comparison",title:"差異對照",body:"從老師剛才的說明整理。",pairs: pairs.slice(0,4),points:[],questions:[]}]};
  if(chronology&&lines.length>=2)return {action:"upsert",ids:[],cards:[{id:"timeline-"+current.length,type:"timeline",title:"先後順序",body:"依老師剛才的說明順序呈現，不推測未提及的時間。",pairs:[],points:lines.slice(0,6).map((note,i)=>({label:String(i+1),note:note.slice(0,180)})),questions:[]}]};
  return null;
