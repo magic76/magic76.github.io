@@ -5,8 +5,49 @@ import type {ReactNode} from "react";
  * All scenes are vector, except the Timeline's approved Mira portraits; they
  * add no fonts, third-party assets or network dependencies.
  */
-export type ExploreKind="fortune"|"timeline"|"games"|"story"|"research"|"circle";
+export type ExploreKind="fortune"|"timeline"|"games"|"story"|"research"|"circle"|"mate";
 const scene:Record<Exclude<ExploreKind,"timeline">,ReactNode>={
+ mate:<svg viewBox="0 0 200 126" fill="none" aria-hidden="true" focusable="false">
+  {/* A warm, in-person conversation: two people, one Crew Mate phone. */}
+  <ellipse cx="101" cy="113" rx="79" ry="8" fill="#83AD9F" fillOpacity=".18"/>
+  <path d="M51 53C68 31 129 31 148 53" stroke="#8CBAAD" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 6"/>
+  {/* The person giving Mate a private brief. */}
+  <path d="M17 112c1-25 12-40 33-40s33 15 35 40" fill="#F6BFA7" stroke="#C89381" strokeWidth="1.7"/>
+  <path d="M31 79c6 7 28 9 36 0" stroke="#E39B83" strokeWidth="2" strokeLinecap="round"/>
+  <path d="M42 70v12l8 5 8-5V70" fill="#EDC4AA"/>
+  <ellipse cx="50" cy="51" rx="23" ry="27" fill="#F7D9BB"/>
+  <path d="M27 50c-1-23 15-35 29-32 13 2 20 10 18 29-5-3-8-10-10-16-7 8-20 13-37 13z" fill="#74695F"/>
+  <path d="M29 45c-3 14 1 21 5 25l-8-3-5-19z" fill="#74695F"/>
+  <circle cx="43" cy="53" r="1.8" fill="#6C544B"/><circle cx="59" cy="53" r="1.8" fill="#6C544B"/>
+  <path d="M46 62q5 5 10 0" stroke="#B77C70" strokeWidth="1.8" strokeLinecap="round"/>
+  {/* The other person waiting at the counter. */}
+  <path d="M116 112c1-25 13-40 34-40 22 0 33 15 35 40" fill="#9DC4D1" stroke="#6A9EAE" strokeWidth="1.7"/>
+  <path d="M131 79q18 15 37 0" stroke="#78ABBD" strokeWidth="2" strokeLinecap="round"/>
+  <path d="M141 70v13l9 6 9-6V70" fill="#D9B79E"/>
+  <ellipse cx="150" cy="51" rx="22" ry="27" fill="#EECDAF"/>
+  <path d="M127 50c-5-21 9-31 25-31 18 0 27 15 22 32-7-6-9-14-10-20-10 10-19 12-37 11z" fill="#5A655F"/>
+  <circle cx="143" cy="53" r="1.8" fill="#534F46"/><circle cx="158" cy="53" r="1.8" fill="#534F46"/>
+  <path d="M147 62q4 4 9 0" stroke="#B77C70" strokeWidth="1.8" strokeLinecap="round"/>
+  {/* Distinct conversation bubbles instead of repeated generic app icons. */}
+  <path d="M13 11h37a9 9 0 0 1 9 9v8a9 9 0 0 1-9 9H32l-9 7v-7h-10a9 9 0 0 1-9-9v-8a9 9 0 0 1 9-9Z" fill="#FFF9F0" stroke="#DCC9AF" strokeWidth="1.7"/>
+  <path d="M16 24h14m-14 5h21" stroke="#C6A987" strokeWidth="2.7" strokeLinecap="round"/>
+  <circle cx="44" cy="25" r="5" fill="#E6D6C3"/>
+  <path d="M43 24v-2a2 2 0 0 1 4 0v2m-4 0h4v4h-4z" fill="none" stroke="#9F896D" strokeWidth="1.3" strokeLinejoin="round"/>
+  <path d="M155 12h31a9 9 0 0 1 9 9v9a9 9 0 0 1-9 9h-11l-8 7v-7h-12a9 9 0 0 1-9-9v-9a9 9 0 0 1 9-9Z" fill="#FFFFFF" stroke="#9BC9BB" strokeWidth="1.7"/>
+  <path d="M157 24h25m-25 7h15" stroke="#83B1A3" strokeWidth="2.6" strokeLinecap="round"/>
+  {/* Central phone with an active two-way handoff, frontmost on the scene. */}
+  <rect x="77" y="24" width="46" height="87" rx="12" fill="#5A9182" fillOpacity=".2"/>
+  <rect x="78" y="18" width="44" height="90" rx="11" fill="#FFFFFF" stroke="#548C7E" strokeWidth="2.5"/>
+  <rect x="83" y="27" width="34" height="67" rx="6" fill="#EAF7F1"/>
+  <path d="M94 23h12" stroke="#6C998A" strokeWidth="2.3" strokeLinecap="round"/>
+  <path d="M91 42h17a5 5 0 0 1 5 5v7a5 5 0 0 1-5 5h-5l-5 4v-4h-7a5 5 0 0 1-5-5v-7a5 5 0 0 1 5-5Z" fill="#FFFFFF" stroke="#92BDAE" strokeWidth="1.2"/>
+  <path d="M91 49h16m-16 5h11" stroke="#91B9A9" strokeWidth="2.3" strokeLinecap="round"/>
+  <path d="M93 70h16a5 5 0 0 1 5 5v5a5 5 0 0 1-5 5h-8l-5 4v-4h-3a5 5 0 0 1-5-5v-5a5 5 0 0 1 5-5Z" fill="#A9D6C6"/>
+  <path d="M94 76h14m-14 5h9" stroke="#4D8D7B" strokeWidth="2.1" strokeLinecap="round"/>
+  <circle cx="100" cy="101" r="2.4" fill="#8FBEAD"/>
+  {/* Subtle exchange indicators. */}
+  <path d="m71 16 2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5Zm61 46 1.6 4 4 1.6-4 1.6-1.6 4-1.6-4-4-1.6 4-1.6 1.6-4Z" fill="#EAC893"/>
+ </svg>,
  fortune:<svg viewBox="0 0 200 126" fill="none" aria-hidden="true" focusable="false">
   <ellipse cx="105" cy="68" rx="73" ry="34" stroke="currentColor" strokeOpacity=".17" strokeWidth="1.4" transform="rotate(-22 105 68)"/>
   <circle cx="107" cy="65" r="41" stroke="currentColor" strokeOpacity=".38" strokeWidth="1.4"/>
