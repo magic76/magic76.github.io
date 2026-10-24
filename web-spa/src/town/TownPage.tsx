@@ -21,7 +21,7 @@ const PROFILES=new Map(CREW_FRIENDS.map(friend=>[friend.id,friend]));
 const PLACES:{id:PlaceId;x:number;y:number;zh:string;en:string;introZh:string;introEn:string;to:string;ctaZh:string;ctaEn:string}[]=[
  {id:"cafe",x:19,y:72,zh:"日常咖啡館",en:"The Café",introZh:"Zoe 和 Yuna 常在這裡聊今天的趣事。點選角色可以進入真正的語音聊天。",introEn:"Zoe and Yuna share the little stories of their day here. Choose a friend to start a real voice chat.",to:"/friend/live?id=zoe",ctaZh:"跟 Zoe 聊聊",ctaEn:"Chat with Zoe"},
  {id:"studio",x:74,y:41,zh:"靈感工作室",en:"The Studio",introZh:"Theo 喜歡在這裡交換點子。現在先以小鎮情境示範，語音仍使用既有聊天頁。",introEn:"Theo loves new ideas. The town scene is a prototype; voice conversations use the existing chat page.",to:"/friend/live?id=theo",ctaZh:"跟 Theo 聊聊",ctaEn:"Chat with Theo"},
- {id:"play",x:45,y:91,zh:"遊戲屋",en:"Play House",introZh:"這裡是 Crew Play 的遊戲入口，未來可以把遊戲事件帶回小鎮。",introEn:"Find Crew Play games here. In the future, game events can unfold across town.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Go to Crew Play"},
+ {id:"play",x:45,y:84,zh:"遊戲屋",en:"Play House",introZh:"這裡是 Crew Play 的遊戲入口，未來可以把遊戲事件帶回小鎮。",introEn:"Find Crew Play games here. In the future, game events can unfold across town.",to:"/games",ctaZh:"前往 Crew Play",ctaEn:"Go to Crew Play"},
  {id:"garden",x:86,y:68,zh:"湖畔花園",en:"Lakeside Garden",introZh:"適合慢慢聊生活，先從 Noah 的單人對話開始。",introEn:"A quiet place to talk about life. Start with a one-on-one conversation with Noah.",to:"/friend/live?id=noah",ctaZh:"跟 Noah 聊聊",ctaEn:"Chat with Noah"}
 ];
 const MOMENTS:{id:ActorId;partner:ActorId;zh:string;en:string}[]=[
@@ -49,7 +49,7 @@ export function TownPage(){
  },[]);
  useEffect(()=>{
   const el=viewport.current;
-  if(el)el.scrollLeft=Math.max(0,(el.scrollWidth-el.clientWidth)*.34);
+  if(el)el.scrollLeft=Math.max(0,(el.scrollWidth-el.clientWidth)*.20);
  },[]);
  useEffect(()=>{
   if(!motionOK||!ambient||selected)return;
