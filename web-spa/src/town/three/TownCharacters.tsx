@@ -71,7 +71,7 @@ function Actor({id,coat,hair,skin,route,reducedMotion,selected,onSelect,onMove}:
    <capsuleGeometry args={[.52,.65,4,10]}/>
    <meshBasicMaterial transparent opacity={0} depthWrite={false}/>
   </mesh>
-  <Html position={[0,2.0,0]} center distanceFactor={12} style={{pointerEvents:"none"}}>
+  <Html position={[0,2.0,0]} center distanceFactor={12} zIndexRange={[3,1]} style={{pointerEvents:"none"}}>
    <span className={"crew-town-3d-name"+(selected?" is-selected":"")}>{id[0].toUpperCase()+id.slice(1)}</span>
   </Html>
   <mesh position={[0,.01,0]} rotation={[-Math.PI/2,0,0]}>
