@@ -5,17 +5,21 @@ import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
 import {geminiKey} from "../lib/runtime";
 import type {useLiveSession} from "../live/useLiveSession";
 import type {getTeacherProfile} from "./teacherProfiles";
+import {useTeacherStore} from "../store/teacherStore";
+import {PinyinHint} from "./PinyinHint";
 
 type Props={live:ReturnType<typeof useLiveSession>;profile:ReturnType<typeof getTeacherProfile>;targetLanguage:string;english:boolean;hint:string;onAsk:(text:string)=>void};
 export function BoardTutorPanel({live,profile,targetLanguage,english,hint,onAsk}:Props){
  const {t}=useTranslation("teacher");
+ const pinyinMode=useTeacherStore(s=>s.pronunciationAidMode);
+ const teachingMode=useTeacherStore(s=>s.teachingMode);
  return <section className="teaching-board-tutor" aria-label={t("board.teacher")}>
   <div className="teaching-board-teacher"><TeacherAvatar profile={profile}/><div><b>{profile.name}</b><small>{targetLanguage} · {t("board.teacher")}</small></div></div>
   <p className="teaching-board-state" role="status">{live.status}</p>
   {!geminiKey()&&<GeminiSetupNotice returnTo="/teacher/board"/>}
   <details className="teaching-board-transcript"><summary>{t("board.recentSpeech")}</summary><div aria-live="off">
    {live.input&&<p><b>{t("board.you")}：</b>{live.input}</p>}
-   {live.output&&<p><b>{profile.name}：</b>{live.output}</p>}
+   {live.output&&<p><b>{profile.name}：</b>{live.output}<PinyinHint text={live.output} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/></p>}
   </div></details>
   <div className="teaching-board-suggestions">
    <span>{t("board.try")}</span>

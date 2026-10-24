@@ -1,12 +1,15 @@
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {ensureCore,geminiKey} from "../lib/runtime";
+import {PinyinHint} from "../teacher/PinyinHint";
+import type {PinyinAidMode} from "../teacher/pinyinAid";
+import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string};
-type Props={system:string;speaker:string;english?:boolean;hint?:string};
+type Props={system:string;speaker:string;english?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode};
 
 /** Text-only fallback, no mic and no persistent transcript. */
-export function TextChatPanel({system,speaker,english=false,hint}:Props){
+export function TextChatPanel({system,speaker,english=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual"}:Props){
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [busy,setBusy]=useState(false);
@@ -40,7 +43,7 @@ export function TextChatPanel({system,speaker,english=false,hint}:Props){
  return <section className="crew-text-chat" aria-label={english?"Text chat":"文字聊天"}>
   <div className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p></div>)}
+   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.role==="assistant"&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}</div>)}
    {busy&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
    <div ref={bottom}/>
   </div>
