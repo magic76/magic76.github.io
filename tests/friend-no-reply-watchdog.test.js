@@ -16,10 +16,13 @@ function harness(kind="friend"){
  const session={ready:true,running:true,micMuted:false,sendControl:message=>{requests.push(message);return true}};
  const sessionRef={current:session};
  const setStatus=status=>statuses.push(status);
- const factory=new Function("window","configRef","awaitingTutorRef","friendReplyRescueSentRef","session","sessionRef","cancelFriendReplyTimer","friendReplyTimerRef","setStatus",source.slice(from,to)+"\nreturn scheduleFriendReplyCheck;");
- const schedule=factory(window,configRef,awaitingTutorRef,friendReplyRescueSentRef,session,sessionRef,cancelFriendReplyTimer,friendReplyTimerRef,setStatus);
+ const phases=[];
+ const setFriendPhase=phase=>phases.push(phase);
+ const logFriendHealth=()=>{};
+ const factory=new Function("window","configRef","awaitingTutorRef","friendReplyRescueSentRef","session","sessionRef","cancelFriendReplyTimer","friendReplyTimerRef","setStatus","setFriendPhase","logFriendHealth",source.slice(from,to)+"\nreturn scheduleFriendReplyCheck;");
+ const schedule=factory(window,configRef,awaitingTutorRef,friendReplyRescueSentRef,session,sessionRef,cancelFriendReplyTimer,friendReplyTimerRef,setStatus,setFriendPhase,logFriendHealth);
  const fire=()=>{const item=timers.entries().next().value;assert.ok(item,"a timer should be armed");const [id,{callback,ms}]=item;timers.delete(id);callback();return ms};
- return {schedule,fire,timers,requests,statuses,session,sessionRef,awaitingTutorRef,friendReplyRescueSentRef};
+ return {schedule,fire,timers,requests,statuses,phases,session,sessionRef,awaitingTutorRef,friendReplyRescueSentRef};
 }
 test("friend silence gets exactly one content-free nudge and then user guidance",()=>{
  const h=harness();
@@ -51,4 +54,52 @@ test("streaming transcript fragments do not reset rescue quota, and every termin
  assert.match(source,/const interrupt=useCallback\(\(\)=>\{[\s\S]*?cancelFriendReplyTimer\(\)/);
  assert.match(source,/trackUsageEvent\(chatKind==="teacher"\?"teacher_user_spoke"/);
  assert.match(source,/trackUsageEvent\(chatKind==="teacher"\?"teacher_ai_replied"/);
+});
+test("friend missing-transcript watchdog uses sustained local speech and never invents a turn",()=>{
+ const from=source.indexOf("const scheduleUnrecognizedSpeechCheck=");
+ const to=source.indexOf("// Friend-only watchdog:",from);
+ assert.ok(from>0&&to>from);
+ const timers=new Map();let id=0,phase="pause";
+ const window={setTimeout(fn,ms){timers.set(++id,{fn,ms});return id;},clearTimeout(key){timers.delete(key);}};
+ const unrecognizedSpeechTimerRef={current:null};
+ const cancelUnrecognizedSpeechTimer=()=>{if(unrecognizedSpeechTimerRef.current!==null){window.clearTimeout(unrecognizedSpeechTimerRef.current);unrecognizedSpeechTimerRef.current=null}};
+ const configRef={current:{sessionKind:"friend"}};
+ const awaitingTutorRef={current:false},voicePhaseRef={current:"pause"};
+ const session={ready:true,running:true,micMuted:false};
+ const sessionRef={current:session},statuses=[],health=[];
+ const setStatus=v=>statuses.push(v);
+ const setFriendPhase=v=>{phase=v;voicePhaseRef.current=v};
+ const logFriendHealth=v=>health.push(v);
+ const factory=new Function("window","configRef","session","sessionRef","awaitingTutorRef","voicePhaseRef",
+  "unrecognizedSpeechTimerRef","cancelUnrecognizedSpeechTimer","setStatus","setFriendPhase","logFriendHealth",
+  source.slice(from,to)+"\nreturn scheduleUnrecognizedSpeechCheck;");
+ const schedule=factory(window,configRef,session,sessionRef,awaitingTutorRef,voicePhaseRef,
+  unrecognizedSpeechTimerRef,cancelUnrecognizedSpeechTimer,setStatus,setFriendPhase,logFriendHealth);
+ const trigger=()=>{const {fn,ms}=timers.values().next().value;timers.clear();fn();return ms;};
+ schedule();assert.equal(trigger(),8000);
+ assert.equal(phase,"no-transcript");
+ assert.match(statuses.at(-1),/請再說一次/);
+ assert.deepEqual(health,["local-speech-no-transcript"]);
+ phase="pause";voicePhaseRef.current="pause";awaitingTutorRef.current=true;
+ schedule();trigger();assert.equal(phase,"pause","server transcript suppresses no-transcript warning");
+ awaitingTutorRef.current=false;session.micMuted=true;
+ schedule();trigger();assert.equal(phase,"pause","muted microphone suppresses no-transcript warning");
+ session.micMuted=false;session.ready=false;
+ schedule();trigger();assert.equal(phase,"pause","disconnected session suppresses no-transcript warning");
+ configRef.current.sessionKind="teacher";session.ready=true;
+ schedule();assert.equal(timers.size,0,"teacher never inherits friend-only watchdog");
+});
+
+test("friend display and watchdog cleanup are separate from actual Gemini VAD",()=>{
+ const friend=fs.readFileSync(path.join(__dirname,"../web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
+ assert.match(friend,/friendVoiceStatus/);
+ assert.match(friend,/no-transcript/);
+ assert.match(friend,/no-reply/);
+ assert.match(friend,/重新連線/);
+ assert.match(source,/onLocalUtteranceEnd:\(\)=>\{/);
+ assert.match(source,/cancelUnrecognizedSpeechTimer\(\);setFriendPhase\("idle"\)/);
+ assert.match(source,/if\(configRef\.current\.sessionKind==="friend"\)scheduleFriendReplyCheck\(\)/,
+  "reconnected unfinished friend utterances must be watched again");
+ assert.doesNotMatch(transport,/realtimeInput:\{\s*activityEnd/);
 });

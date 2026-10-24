@@ -175,6 +175,11 @@
     // UI-only heuristic; Gemini's automatic VAD decides the real turn boundary.
     this.lastLearnerVoiceAt=0;
     this.learnerListeningPhase="";
+    this.localVoicedFrames=0;
+    this.lastAudioSentAt=0;
+    this.lastServerEventAt=0;
+    this.lastInputTranscriptAt=0;
+    this.lastModelOutputAt=0;
     this.manualInterruptOnly=this.options.manualInterruptOnly!==false;
     this.modelSpeaking=false;
     this.interruptPending=false;
@@ -207,6 +212,24 @@
 
   LiveSession.prototype.getDurationMs=function(){
     return this.startedAt?Math.max(0,this._deps.now()-this.startedAt):0;
+  };
+
+  // Coarse, content-free diagnostics; never include audio, transcripts or the API key.
+  LiveSession.prototype.getHealthSnapshot=function(){
+    var now=this._deps.now();
+    var audioTrack=this.mediaStream&&this.mediaStream.getAudioTracks?
+      this.mediaStream.getAudioTracks()[0]:null;
+    function age(timestamp){return timestamp?Math.max(0,now-timestamp):null;}
+    return {
+      socketState:this.ws?this.ws.readyState:null,
+      audioContextState:this.inputContext?this.inputContext.state||"unknown":null,
+      micTrackState:audioTrack?audioTrack.readyState||"unknown":null,
+      bufferedBytes:this.ws&&Number.isFinite(this.ws.bufferedAmount)?this.ws.bufferedAmount:0,
+      lastAudioSentAgoMs:age(this.lastAudioSentAt),
+      lastServerEventAgoMs:age(this.lastServerEventAt),
+      lastTranscriptAgoMs:age(this.lastInputTranscriptAt),
+      lastModelOutputAgoMs:age(this.lastModelOutputAt)
+    };
   };
 
   LiveSession.prototype.getTranscript=function(){
@@ -440,6 +463,7 @@
     this.modelSpeaking=true;
     this.lastLearnerVoiceAt=0;
     this.learnerListeningPhase="";
+    this.localVoicedFrames=0;
 
     // Android can transiently suspend Web Audio when the communication route
     // changes after getUserMedia. Resume as soon as Gemini audio arrives; the
@@ -507,6 +531,7 @@
   LiveSession.prototype._markValidOutput=function(attempt,isAudio){
     if(!this._isActiveAttempt(attempt))return;
     attempt.validOutputSeen=true;
+    this.lastModelOutputAt=this._deps.now();
     this.validOutputSeen=true;
     this.currentTurnHadValidOutput=true;
     if(isAudio)this.currentTurnHadAudio=true;
@@ -678,6 +703,7 @@
           var rms=Math.sqrt(power/Math.ceil(data.length/8));
           var now=self._deps.now();
           if(rms>=0.013){
+            self.localVoicedFrames=Math.min(200,self.localVoicedFrames+1);
             self.lastLearnerVoiceAt=now;
             if(self.learnerListeningPhase!=="speaking"){
               self.learnerListeningPhase="speaking";
@@ -687,6 +713,12 @@
                 &&self.learnerListeningPhase!=="waiting"){
             self.learnerListeningPhase="waiting";
             self.options.onListeningPhase("waiting");
+            // Local evidence only: Gemini server VAD still decides the turn.
+            // Require sustained voice so an isolated noise spike cannot arm a watchdog.
+            if(self.localVoicedFrames>=8&&self.options.onLocalUtteranceEnd){
+              try{self.options.onLocalUtteranceEnd();}catch(_){}
+            }
+            self.localVoicedFrames=0;
           }
         }
         attempt.socket.send(JSON.stringify({
@@ -697,6 +729,7 @@
             }
           }
         }));
+        self.lastAudioSentAt=self._deps.now();
       }catch(error){
         self._beginRecovery(attempt,"audio-send",error);
       }
@@ -734,6 +767,7 @@
 
     var input=server.inputTranscription||server.input_transcription;
     if(input&&input.text){
+      this.lastInputTranscriptAt=this._deps.now();
       this.inputTurn=mergeTranscript(this.inputTurn,input.text);
       if(this.options.onInputTranscript)this.options.onInputTranscript(this.inputTurn);
       if(this.interruptPending)this.interruptInputSeen=true;
@@ -823,6 +857,7 @@
 
   LiveSession.prototype._handleMessage=function(message,attempt,resolveSetup,rejectSetup){
     if(!this._isActiveAttempt(attempt))return;
+    this.lastServerEventAt=this._deps.now();
 
     var resumptionUpdate=message.sessionResumptionUpdate||message.session_resumption_update;
     if(resumptionUpdate){
@@ -1113,6 +1148,7 @@
   LiveSession.prototype._activateAttempt=function(attempt){
     if(!this._isActiveAttempt(attempt))throw new Error("Live attempt is no longer active");
     this.ready=true;
+    this.localVoicedFrames=0;
     this.model=attempt.model;
     this.activeModelIndex=attempt.index;
     this._state("ready");
@@ -1462,6 +1498,13 @@
     this.resumptionHandle="";
     this.resumeAttempts=0;
     this.startedAt=this._deps.now();
+    this.lastAudioSentAt=0;
+    this.lastServerEventAt=0;
+    this.lastInputTranscriptAt=0;
+    this.lastModelOutputAt=0;
+    this.localVoicedFrames=0;
+    this.lastLearnerVoiceAt=0;
+    this.learnerListeningPhase="";
     this.micMuted=false;
     this.modelSpeaking=false;
     this.interruptPending=false;

@@ -1001,3 +1001,46 @@ test("denied microphone permission provides a user-actionable error",async()=>{
   await assert.rejects(session.start(),/麥克風權限遭拒/);
   assert.equal(session.running,false);
 });
+
+test("sustained local speech emits one pause candidate without overriding Gemini server VAD",async()=>{
+  resetSockets();
+  const logs=[],phases=[],candidates=[];
+  let now=1000;
+  const {deps}=makeDeps(logs);
+  deps.now=()=>now;
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,
+    onListeningPhase:phase=>phases.push(phase),
+    onLocalUtteranceEnd:()=>candidates.push(now)
+  });
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();socket.message({setupComplete:{}});
+  await starting;
+
+  const frame=value=>({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(value)}});
+  const input=value=>{now+=43;session.processor.onaudioprocess(frame(value));};
+
+  // Two loud packets are too brief to be treated as a spoken utterance.
+  input(0.04);input(0.04);now+=360;input(0);
+  assert.equal(candidates.length,0);
+  for(let i=0;i<9;i++)input(0.04);
+  now+=360;input(0);input(0);
+  assert.deepEqual(phases,["speaking","waiting","speaking","waiting"]);
+  assert.equal(candidates.length,1,"only one sustained pause per utterance");
+  assert.equal(socket.sent.some(message=>message.realtimeInput?.activityEnd),false,
+    "local activity must never force Gemini turn completion");
+
+  const before=session.getHealthSnapshot();
+  assert.equal(before.socketState,1);
+  assert.equal(before.lastServerEventAgoMs!==null,true);
+  assert.equal(before.lastAudioSentAgoMs,0);
+  assert.equal(before.lastTranscriptAgoMs,null);
+  assert.equal(JSON.stringify(before).includes("test-key"),false);
+
+  socket.message({serverContent:{inputTranscription:{text:"Hello"}}});
+  assert.equal(session.getHealthSnapshot().lastTranscriptAgoMs,0);
+  socket.message({serverContent:{outputTranscription:{text:"Hi"},turnComplete:true}});
+  assert.equal(session.getHealthSnapshot().lastModelOutputAgoMs,0);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
