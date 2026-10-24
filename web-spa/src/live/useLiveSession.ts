@@ -198,7 +198,7 @@ export function useLiveSession(config:Config){
      }else scheduleRescue();
     },
     // UI microphone heuristics never finish Gemini's server-managed audio turn.
-    onListeningPhase:phase=>{
+    onListeningPhase:phase=>setStatus((()=>{
      if(configRef.current.sessionKind==="friend"){
       if(phase==="speaking"){
        cancelRescue();cancelUnrecognizedSpeechTimer();
@@ -208,12 +208,18 @@ export function useLiveSession(config:Config){
        if(!awaitingTutorRef.current)setFriendPhase("hearing");
       }else if(!awaitingTutorRef.current)setFriendPhase("pause");
      }
-     if(!awaitingTutorRef.current)setStatus(phase==="speaking"
-      ?"🎙️ 正在聽你說…":"🎙️ 還在聽，可以繼續說…");
-    },
+     const shouldUpdate=!awaitingTutorRef.current;
+     return (previous:string)=>shouldUpdate
+       ?(phase==="speaking"?"🎙️ 正在聽你說…":"🎙️ 已收到聲音，等你說完後就會回應…")
+       :previous;
+    })()),
     onLocalUtteranceEnd:()=>{
      if(configRef.current.sessionKind!=="friend"||awaitingTutorRef.current)return;
      cancelRescue();setFriendPhase("pause");scheduleUnrecognizedSpeechCheck();
+    },
+    onMicHealth:health=>{
+      if(health.trackState!=="live"&&health.trackState!=="missing"&&!health.muted)
+       setStatus("麥克風已停止收音，請重新開始語音對話。");
     },
     onMicMuted:()=>setMuted(Boolean(sessionRef.current?.micMuted)),
     onInputTranscript:v=>{

@@ -587,7 +587,7 @@ test("Android-safe startup opens mic before warm output worklet and queues first
       getKey:()=>"test-key",
       getUserMedia:async()=>{order.push("mic");return stream;},
       createAudioContext:()=>{order.push("audio-context");context=new WarmAudioContext();return context;},
-      createAudioWorkletNode:()=>{node=new FakeWorkletNode();return node;},
+      createAudioWorkletNode:(_ctx,name)=>{const result=new FakeWorkletNode();if(name==="crew-live-output")node=result;return result;},
       logger:{info(){}}
     }
   });
@@ -897,7 +897,7 @@ test("late worklet output-started event cannot restart canceled teacher speech",
   const {track,deps}=makeDeps([]);
   const spoken=[];
   deps.createAudioContext=()=>new Context();
-  deps.createAudioWorkletNode=()=>{node=new Node();return node;};
+  deps.createAudioWorkletNode=(_ctx,name)=>{const result=new Node();if(name==="crew-live-output")node=result;return result;};
   const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
   const starting=session.start();
   const socket=await waitForSocket(0);
@@ -1043,4 +1043,80 @@ test("sustained local speech emits one pause candidate without overriding Gemini
   socket.message({serverContent:{outputTranscription:{text:"Hi"},turnComplete:true}});
   assert.equal(session.getHealthSnapshot().lastModelOutputAgoMs,0);
   await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("early microphone speech is buffered until setup and takes priority over greeting",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  assert.equal(socket.sent.some(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome"),false);
+  assert.equal(session.getMicHealth().captureMode,"script");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("startup ring buffer stays under two seconds, and mute drops pending audio",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  for(let i=0;i<60;i++)session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.ok(session.getMicHealth().setupBufferedMs<=2100);
+  session.setMicMuted(true);
+  assert.equal(session.getMicHealth().setupBufferedMs,0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("input Worklet sends 16kHz frames and releases its processor after stop",async()=>{
+  resetSockets();
+  let inputNode,outputNode;
+  class Context extends FakeAudioContext{
+    constructor(){super();this.audioWorklet={addModule:async()=>{}};}
+  }
+  class Node{
+    constructor(){this.port={onmessage:null,postMessage(){}};this.disconnected=false;}
+    connect(){}
+    disconnect(){this.disconnected=true;}
+  }
+  const {deps}=makeDeps([]);
+  deps.createAudioContext=()=>new Context();
+  deps.createAudioWorkletNode=(_ctx,name)=>{
+    const node=new Node();
+    if(name==="crew-live-input")inputNode=node;
+    if(name==="crew-live-output")outputNode=node;
+    return node;
+  };
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  assert.ok(inputNode&&outputNode);
+  assert.equal(session.getMicHealth().captureMode,"worklet");
+  inputNode.port.onmessage({data:{
+    type:"mic-frame",samples:new Float32Array(640).fill(0.25).buffer,rms:0.25
+  }});
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(inputNode.disconnected,true);
+  assert.equal(session.getMicHealth().captureMode,"none");
 });

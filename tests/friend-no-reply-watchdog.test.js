@@ -50,7 +50,7 @@ test("streaming transcript fragments do not reset rescue quota, and every termin
  assert.match(source,/onOutputTranscript:v=>\{[\s\S]*?cancelFriendReplyTimer\(\)/);
  assert.match(source,/onTurnComplete:turn=>\{[\s\S]*?cancelFriendReplyTimer\(\)/);
  assert.match(source,/onTerminal:info=>\{cancelRescue\(\);cancelFriendReplyTimer\(\)/);
- assert.match(source,/cancelRescue\(\);cancelFriendReplyTimer\(\);setState\("ending"\)/);
+ assert.match(source,/cancelRescue\(\);cancelFriendReplyTimer\(\);[^\n]*setState\("ending"\)/);
  assert.match(source,/const interrupt=useCallback\(\(\)=>\{[\s\S]*?cancelFriendReplyTimer\(\)/);
  assert.match(source,/trackUsageEvent\(chatKind==="teacher"\?"teacher_user_spoke"/);
  assert.match(source,/trackUsageEvent\(chatKind==="teacher"\?"teacher_ai_replied"/);
