@@ -49,20 +49,26 @@ export function MagicPage(){
   return()=>window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,sync);
  },[]);
  const generation=useRef(0);
+ useEffect(()=>{
+  if(worldRef.current.revision===0){
+   const message=t("一扇門正在等你。說出願望，或選一個魔法開始。","A portal is waiting. Make a wish or choose a spell.");
+   if(worldRef.current.message!==message){worldRef.current={...worldRef.current,message};setWorld(worldRef.current);}
+  }
+ },[zh]);
 
  const runCommand=useCallback((name:string,args:unknown)=>{
-  const next=applyMagicCommand(worldRef.current,name,args);
+  const next=applyMagicCommand(worldRef.current,name,args,zh?"zh":"en");
   if(next.ok){
    worldRef.current=next.world;
    setWorld(next.world);
   }
   return next;
- },[]);
+ },[zh]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
-  const next=demoMagicCommand(id,worldRef.current);
+  const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
   if(next.ok){worldRef.current=next.world;setWorld(next.world);setNotice("");}
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
- },[]);
+ },[zh]);
 
  const stopVoice=useCallback(async ()=>{
   ++generation.current;
