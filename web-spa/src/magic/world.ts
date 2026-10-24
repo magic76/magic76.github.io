@@ -29,10 +29,18 @@ const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
-const MAX_OBJECTS=10;
+// MagicPage currently exposes six non-overlapping stage anchors. Keep the reducer
+// aligned with what can actually be rendered so model calls cannot stack invisible
+// duplicate hit targets on mobile.
+const MAX_OBJECTS=6;
 function record(value:unknown):Record<string,unknown>{
  if(typeof value==="string"){try{return record(JSON.parse(value))}catch{return {}}}
- return value!==null&&typeof value==="object"&&!Array.isArray(value)?value as Record<string,unknown>:{};
+ if(value===null||typeof value!=="object"||Array.isArray(value))return {};
+ const proto=Object.getPrototypeOf(value);
+ if(proto!==Object.prototype&&proto!==null)return {};
+ // Only copy own enumerable properties. Tool arguments must not gain capabilities
+ // from a polluted/inherited prototype.
+ return Object.fromEntries(Object.entries(value as Record<string,unknown>));
 }
 function oneOf<T extends string>(v:unknown,options:readonly T[]):v is T{
  return typeof v==="string"&&options.includes(v as T);
@@ -61,7 +69,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!oneOf(args.kind,OBJECTS))return failed(state,"invalid-object-kind");
    if(state.objects.length>=MAX_OBJECTS)return failed(state,"world-is-full");
    const id=state.revision+1;
-   const slot=state.objects.length%6;
+   const slot=state.objects.length;
    const labels:{[K in MagicObjectKind]:[string,string]}={dragon:["飛龍","dragon"],chest:["寶箱","treasure chest"],portal:["傳送門","portal"],tree:["魔法樹","enchanted tree"],owl:["貓頭鷹","owl"],crystal:["水晶","crystal"]};
    return updated(state,{objects:[...state.objects,{id,kind:args.kind,slot}],effect:"sparkles",
     message:text("一道光閃過，"+labels[args.kind][0]+"出現在島上！","A flash of light! A "+labels[args.kind][1]+" appears on the island!")}, "object-summoned");
