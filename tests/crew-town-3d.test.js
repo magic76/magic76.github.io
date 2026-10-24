@@ -11,7 +11,7 @@ test("Crew Town 3D is a lazy opt-in route with the existing 2.5D fallback",()=>{
  assert.match(app,/import\("\.\/town\/Town3DPage"\)/);
  assert.match(page,/lazy\(\(\)=>import\("\.\/three\/TownScene"\)/);
  assert.match(page,/lazy\(\(\)=>import\("\.\/TownPage"\)/);
- assert.match(page,/webglcontextlost|setFailed\(true\)/);
+ assert.match(page,/webglcontextlost|setFailed\(true\)|setFallbackReason\("render-error"\)/);
  assert.match(page,/prefers-reduced-motion: reduce/);
  assert.match(page,/\/explore/);
 });
