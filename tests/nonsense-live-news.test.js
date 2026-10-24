@@ -57,6 +57,7 @@ test("live tool renders schema-bounded visuals and owns microphone and audio",()
  assert.match(app,/import\("\.\/games\/NonsenseLiveNewsPage"\)/);
 });
 test("the 150 original bilingual topics remain available without legacy speeches",()=>{
+ const live=read("web-spa/src/games/nonsenseNewsLive.ts");
  const page=read("web-spa/src/games/NonsenseLiveNewsPage.tsx");
  const hub=read("web-spa/src/games/CrewPlayHubPage.tsx");
  assert.match(page,/pickNonsenseTopic/);
