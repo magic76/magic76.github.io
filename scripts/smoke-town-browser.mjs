@@ -28,6 +28,7 @@ const monitor="<script>"
  +"const friendMenu=document.querySelector('.crew-town-3d-friends-toggle');"
  +"const friends=document.createElement('meta');friends.name='crew-town-friend-count';friends.content=friendMenu&&friendMenu.textContent.includes('16')?'16':'0';document.head.appendChild(friends);"
  +"const labels=document.createElement('meta');labels.name='crew-town-friend-labels';labels.content=String(document.querySelectorAll('.crew-town-3d-name').length);document.head.appendChild(labels);"
+ +"const residentMount=document.createElement('meta');residentMount.name='crew-town-mounted-residents';residentMount.content=document.querySelector('canvas[data-town-residents]')?.getAttribute('data-town-residents')||'0';document.head.appendChild(residentMount);"
  +"},9000);"
  +"</script>";
 const server=createServer((req,res)=>{
@@ -68,8 +69,9 @@ try{
  const errorSummary=stdout.match(/<meta name="crew-town-browser-errors" content="([^"]*)"/)?.[1];
  const friendCount=stdout.match(/<meta name="crew-town-friend-count" content="([^"]*)"/)?.[1];
  const friendLabels=stdout.match(/<meta name="crew-town-friend-labels" content="([^"]*)"/)?.[1];
+ const mountedResidents=stdout.match(/<meta name="crew-town-mounted-residents" content="([^"]*)"/)?.[1];
  const failure=stdout.match(/class="crew-town-3d-error-detail"[^>]*>([\s\S]*?)<\/code>/)?.[1]||"";
- const report={chrome,exit:code,state,webgl2,friendCount,friendLabels,errorSummary,failure,httpErrors:errors};
+ const report={chrome,exit:code,state,webgl2,friendCount,friendLabels,mountedResidents,errorSummary,failure,httpErrors:errors};
  writeFileSync(join(artifact,"town-browser.txt"),JSON.stringify(report,null,2)+"\n"+stderr);
  console.log(JSON.stringify(report,null,2));
  if(code!==0||errors.length)throw Error("Town 3D browser launch or asset serving failed.");
@@ -78,5 +80,5 @@ try{
   console.log("SKIP: CI Chrome cannot allocate WebGL2; manual GPU-backed QA still required.");
   }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
  else if(friendCount!=="16")throw Error("Town 3D must register all sixteen selectable friends; observed "+friendCount);
- else if(!friendLabels||Number(friendLabels)<2)throw Error("Town 3D close-up should render two or more center residents; observed "+friendLabels);
+ else if(mountedResidents!=="16")throw Error("Town 3D must mount all sixteen resident actors; observed "+mountedResidents);
 }finally{server.close()}

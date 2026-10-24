@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {Html,useCursor} from "@react-three/drei";
-import {useFrame} from "@react-three/fiber";
+import {useFrame,useThree} from "@react-three/fiber";
 import type {ThreeEvent} from "@react-three/fiber";
 import {Group,MathUtils} from "three";
 import type {Mesh} from "three";
@@ -224,6 +224,15 @@ export function TownCharacters({selected,reducedMotion,onSelect,onMove}:{
  selected:FriendId|null;reducedMotion:boolean;onSelect:(id:FriendId)=>void;onMove:(id:FriendId,x:number,z:number)=>void;
 }){
  const traffic=useRef<TrafficPositions>(new Map()).current;
+ const {gl}=useThree();
+ const registered=useRef(false);
+ // Mark actual mounted Actor instances (not just the 16-item DOM roster).
+ useFrame(()=>{
+  if(registered.current||traffic.size!==PEOPLE.length)return;
+  gl.domElement.dataset.townResidents=String(traffic.size);
+  registered.current=true;
+ });
+ useEffect(()=>()=>{delete gl.domElement.dataset.townResidents},[gl]);
  return <group>{PEOPLE.map(person=><Actor key={person.id} {...person} traffic={traffic}
   selected={selected===person.id} reducedMotion={reducedMotion} onSelect={onSelect} onMove={onMove}/>)}</group>;
 }
