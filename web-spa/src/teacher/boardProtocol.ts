@@ -84,6 +84,7 @@ const hasBeenQuiz:BoardQuestion[]=[
 export function exampleBoardFormats():BoardCard[]{
  const simple=(id:string,type:CardKind,title:string,body:string,pairs:BoardPair[]=[],points:BoardPoint[]=[],questions:BoardQuestion[]=[]):BoardCard=>({id,type,title,body,pairs,points,questions});
  return [
+  simple("demo-explanation","explanation","格式示範 · Explanation","這是概念說明卡，適合先定義觀念。"),
   simple("demo-comparison","comparison","格式示範 · Compare","現在完成式 vs. 過去完成式",[{source:"have been",target:"連結到現在"},{source:"had been",target:"以另一個過去時間點為參考"}]),
   simple("demo-timeline","timeline","格式示範 · Timeline","同一個概念的時間參考點",[],[{label:"have been",note:"從過去延續到現在"},{label:"had been",note:"早於另一件過去的事"}]),
   simple("demo-example","example","格式示範 · Examples","兩句示範例句",[{source:"I have been busy today.",target:"我今天一直很忙。"},{source:"I had been busy before you called.",target:"你打電話來之前，我一直很忙。"}]),
@@ -101,7 +102,7 @@ export function exampleBoardFormats():BoardCard[]{
 }
 /** Only extracts formats supported by actual spoken data; never invent facts or translation. */
 function extractedFormatBoard(question:string,answer:string,current:BoardCard[]):BoardPatch|null{
- const demo=/展示.{0,12}(?:卡片|種類|形式|樣式)|各種卡片|不同.{0,8}(?:卡片|形式)|show.{0,14}(?:card|format|type)|all card (?:types|formats)/i.test(question);
+ const demo=/展示.{0,12}(?:卡片|種類|形式|樣式)|各種卡片|多.{0,5}(?:卡片種類|種類|卡片類型)|不同.{0,8}(?:卡片|形式)|show.{0,14}(?:card|format|type)|all card (?:types|formats)/i.test(question);
  if(demo)return {action:"replace",ids:[],cards:exampleBoardFormats()};
  const flash=/翻面卡|單字卡|flashcards?|記憶卡/i.test(question);
  const vocab=/單字卡|單字表|詞彙卡|vocabulary/i.test(question);
