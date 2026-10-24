@@ -19,6 +19,7 @@ export function Town3DPage(){
  const {i18n}=useTranslation();
  const zh=i18n.language.startsWith("zh");
  const [supported,setSupported]=useState<"checking"|"yes"|"no">("checking");
+ const [attempt,setAttempt]=useState(0);
  const [fallbackReason,setFallbackReason]=useState<"render-error"|"manual"|null>(null);
  const [night,setNight]=useState(false);
  const [selected,setSelected]=useState<Selection>(null);
@@ -32,13 +33,19 @@ export function Town3DPage(){
   return()=>query.removeEventListener("change",sync);
  },[]);
  useEffect(()=>{
-  try{
-   const canvas=document.createElement("canvas");
-   const context=canvas.getContext("webgl2")||canvas.getContext("webgl");
-   setSupported(context?"yes":"no");
-   // This probe uses a separate canvas: free its context before the actual renderer starts.
-   if(context)context.getExtension("WEBGL_lose_context")?.loseContext();
-  }catch{setSupported("no")}
+  // Do not allocate and forcibly lose a disposable WebGL context before starting
+  // the actual renderer. Mobile browsers may delay or fail the next context.
+  // Canvas itself is the authoritative capability check and handles failure.
+  const available=typeof window.WebGL2RenderingContext!=="undefined"
+   ||typeof window.WebGLRenderingContext!=="undefined";
+  setSupported(available?"yes":"no");
+ },[attempt]);
+ const retry3D=useCallback(()=>{
+  setSelected(null);
+  setFallbackReason(null);
+  setSupported("checking");
+  // Remount the error boundary and Canvas after a failed rendering attempt.
+  setAttempt(n=>n+1);
  },[]);
  const selectFriend=useCallback((id:FriendId)=>setSelected({type:"person",id}),[]);
  const selectPlace=useCallback((id:PlaceId)=>setSelected({type:"place",id}),[]);
@@ -51,12 +58,12 @@ export function Town3DPage(){
  const fallback=<div className="crew-town-3d-fallback">
   <div className="crew-town-3d-fallback-notice" role="status">
    <div><strong>{zh?"目前使用 2.5D 地圖":"2.5D map mode"}</strong><p>{explanation}</p></div>
-   {supported==="yes"&&<button type="button" onClick={()=>setFallbackReason(null)}>{zh?"重試 3D":"Retry 3D"}</button>}
+   <button type="button" onClick={retry3D}>{zh?"重試 3D":"Retry 3D"}</button>
   </div>
   <Suspense fallback={<div role="status" className="crew-town-3d-loading">{zh?"正在載入小鎮地圖…":"Loading town map…"}</div>}><TownFallback/></Suspense>
  </div>;
  if(supported==="no"||fallbackReason)return fallback;
- return <Town3DErrorBoundary fallback={fallback} onFailure={fail}>
+ return <Town3DErrorBoundary key={attempt} fallback={fallback} onFailure={fail}>
   <div className="crew-town-3d">
    <header className="crew-town-3d-heading">
     <div><span className="crew-town-3d-kicker">{zh?"CREW 小鎮 · 3D 世界":"CREW TOWN · 3D WORLD"}</span>
