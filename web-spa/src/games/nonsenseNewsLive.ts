@@ -51,6 +51,7 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
  const round=new NewsRoundTracker(totalRounds);
  let session:LiveSession|null=null,closed=false,modelSpeaking=false,voiceDraftActive=false,finaleWait=false;
  let pendingUnmute=false,eventsThisBeat=0;
+ let pendingFinaleScene:NewsScene|null=null;
  let cleanupTimer:ReturnType<typeof setTimeout>|undefined;
  const stop=()=>{
   if(closed)return;
@@ -99,9 +100,14 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
    try{
     if(call.name==="render_scene"){
      const scene=parseNewsScene(call.args);
-     if(scene.type==="finale"&&!round.canShowFinale)return {ok:false,error:"premature-finale"};
+     if(scene.type==="finale"&&!round.canShowFinale){
+      // Live may deliver a tool frame before the corresponding input transcript.
+      // Defer the ending until the final player answer has actually been counted.
+      if(round.count===totalRounds-1&&voiceDraftActive){pendingFinaleScene=scene;return {ok:true,deferred:true};}
+      return {ok:false,error:"premature-finale"};
+     }
      if(scene.type!=="finale"&&round.count>=totalRounds)return {ok:false,error:"game-complete"};
-     if(scene.type==="finale")round.acceptFinale();
+     if(scene.type==="finale"&&!round.acceptFinale())return {ok:false,error:"duplicate-finale"};
      eventsThisBeat=0;
      events.onScene(scene);
      return {ok:true};
@@ -129,6 +135,9 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
    if(answer&&round.acceptVoice(answer,id)){
     events.onPlayerDraft("");
     events.onPlayerTurn(answer,(turn.output||"").trim());
+   }
+   if(pendingFinaleScene&&round.canShowFinale&&round.acceptFinale()){
+    eventsThisBeat=0;events.onScene(pendingFinaleScene);pendingFinaleScene=null;
    }
    if(round.count>=totalRounds&&!finaleWait){finaleWait=true;finish();}
   },
