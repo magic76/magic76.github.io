@@ -76,6 +76,7 @@ export function MatePage(){
     turnsRef.current=[...turnsRef.current,latest];
     setTurns(turnsRef.current);
     if(translationViewRef.current!=="original")void translateTurn(latest);
+    if(saveHistory)saveResult(false,t("對話進行中","Conversation in progress"));
   }
   async function translateTurn(entry:MateTurn){
     if(translationPending.current.has(entry.id)||entry.translated)return;
@@ -148,7 +149,8 @@ export function MatePage(){
       setPrivateInput("");setPrivateOutput("");setPrivateQuestion("");
     }else{
       advance("external","EXTERNAL_WITH_MATE");
-      setStartedExternal(true);
+      setShowHistory(false);setStartedExternal(true);
+      if(saveHistory)saveResult(false,t("任務可繼續","Task can be resumed"));
     }
     try{
       await ensureLive();
@@ -266,7 +268,7 @@ export function MatePage(){
       connectionRef.current=session;
       await session.start();
       if(connectionSeq.current!==sequence){await session.stop({reason:"stale",emitTerminal:false});return}
-      setConnected(true);
+      setConnected(Boolean(session.ready&&session.running));
       if(mode==="external")session.setVolume(externalInputSeen.current?100:0);
     }catch(failure){
       if(connectionSeq.current!==sequence)return;
@@ -275,6 +277,7 @@ export function MatePage(){
     }
   }
   async function reviewBrief(){
+    setConfirmOwner(false);
     advance("review","IDLE");
     await stopConnection();
   }
@@ -307,7 +310,7 @@ export function MatePage(){
     await stopConnection();
   }
   function restart(){
-    void stopConnection();advance("setup","IDLE");
+    void stopConnection();advance("setup","IDLE");setSaveHistory(false);setShowHistory(false);
     taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
@@ -335,11 +338,12 @@ export function MatePage(){
         <p>{t("私下交代，再把手機交給對方。","Brief privately, then hand the phone to the other person.")}</p></div>
       {phase!=="external"&&phase!=="decision"&&<button type="button" className="mate-quiet" onClick={()=>setShowHistory(v=>!v)}>{t("紀錄","History")}</button>}
     </header>
-    {showHistory&&<MateHistoryPanel english={en} history={history}
+    {showHistory&&phase!=="external"&&phase!=="decision"&&<MateHistoryPanel english={en} history={history}
       onOpen={item=>{
         void stopConnection();
         taskId.current=item.id;
         turnsRef.current=item.turns.slice();setTurns(turnsRef.current);setOutcome(item.outcome);
+        setSaveHistory(Boolean(item.consensus));
         setStartedExternal(true);setError("");
         if(mateHistoryResumable(item)&&item.consensus){
           updateConsensus({...item.consensus});advance("review","USER_DIRECT");
@@ -405,6 +409,7 @@ export function MatePage(){
         </select></label>
       </div>
       <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
+      {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("重新確認並連線","Review and reconnect")}</button>}
       {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?t("正在聽對方說話","Listening to the other person"):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
         <strong>{t("Mate 需要你的決定","Mate needs your approval")}</strong>
