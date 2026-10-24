@@ -9,7 +9,7 @@ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight}=worldModule.exports;
+const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -74,6 +74,22 @@ test("serialized tool arguments are size and parse-depth bounded",()=>{
  assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",nested).ok,false);
  const oversized=JSON.stringify({kind:"owl",padding:"x".repeat(5000)});
  assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",oversized).ok,false);
+});
+
+test("Live tool retries with the same call id replay a bounded cached result",()=>{
+ const seen=new Map();
+ const first=applyMagicLiveCall(MAGIC_INITIAL_WORLD,{id:"call-1",name:"summon_object",args:{kind:"dragon"}},seen);
+ assert.equal(first.duplicate,false);
+ assert.equal(first.result.world.objects.length,1);
+ const newer=applyMagicCommand(first.result.world,"cast_spell",{spell:"sparkles"}).world;
+ const retry=applyMagicLiveCall(newer,{id:"call-1",name:"summon_object",args:{kind:"dragon"}},seen);
+ assert.equal(retry.duplicate,true);
+ assert.equal(retry.result.world.objects.length,1);
+ for(let n=2;n<=66;n++)applyMagicLiveCall(newer,{id:"call-"+n,name:"tell_story",args:{message:"story "+n}},seen);
+ assert.equal(seen.size,64);
+ assert.equal(seen.has("call-1"),false);
+ const noId=applyMagicLiveCall(newer,{name:"summon_object",args:{kind:"owl"}},seen);
+ assert.equal(noId.duplicate,false);
 });
 
 test("challenge choices are graded exactly once and increment chapters for correct answers",()=>{
