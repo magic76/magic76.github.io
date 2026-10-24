@@ -47,11 +47,11 @@ function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;
    <span className="fortune-reading-chapter-label"><strong>{prompt[chapter.id]||chapter.title}</strong><small>{preview(chapter.text,115)}</small></span>
    <span className="fortune-reading-toggle" aria-hidden="true">{expanded?"−":"+"}</span>
   </button>
-  {expanded&&<div className="fortune-reading-chapter-content" id={contentId}>
+  <div className="fortune-reading-chapter-content" id={contentId} hidden={!expanded}>
    <p>{chapter.text}</p>
    {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>這段使用的命盤依據</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{x}</li>)}</ul></details>}
    {onAsk&&<button type="button" className="fortune-reading-ask" onClick={()=>onAsk(chapter.id)}>請 AI 朋友解釋這個主題 <span aria-hidden="true">→</span></button>}
-  </div>}
+  </div>
  </article>;
 }
 export function FortuneReadingOverview({mode,result,ai,onAsk}:{mode:FortuneMode;result:any;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
