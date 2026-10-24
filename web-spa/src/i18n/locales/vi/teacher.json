@@ -336,6 +336,25 @@
     "entryAction": "Mở bảng tương tác",
     "entryOpening": "Đang mở bảng",
     "entryConfirm": "Chuyển sang bảng tương tác sẽ kết thúc cuộc trò chuyện thoại hiện tại và bắt đầu buổi học mới. Tiếp tục?",
-    "entryError": "Không thể kết thúc cuộc trò chuyện thoại hiện tại. Vui lòng thử lại."
+    "entryError": "Không thể kết thúc cuộc trò chuyện thoại hiện tại. Vui lòng thử lại.",
+    "flash": {
+      "title": "Tự nhớ lại",
+      "marked": "Đã đánh dấu {{count}} / {{total}}",
+      "waiting": "Đang chờ thẻ từ giáo viên",
+      "front": "Mặt trước",
+      "back": "Mặt sau",
+      "tap": "Chạm để lật",
+      "flipLabel": "{{side}}: {{term}}. Chạm để lật",
+      "recallFirst": "Nhớ nghĩa trước rồi lật. Đây là tự đánh giá, không phải điểm của giáo viên.",
+      "again": "Luyện lại",
+      "known": "Tôi nhớ",
+      "practice": "Luyện nói với giáo viên",
+      "previous": "Trước",
+      "next": "Tiếp",
+      "completed": "Xong! {{count}} thẻ cần ôn lại",
+      "progress": "Tiến độ {{count}} / {{total}}",
+      "reviewWithTeacher": "Ôn cùng giáo viên",
+      "restart": "Bắt đầu lại"
+    }
   }
 }

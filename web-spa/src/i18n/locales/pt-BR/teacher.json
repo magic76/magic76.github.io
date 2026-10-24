@@ -336,6 +336,25 @@
     "entryAction": "Abrir quadro",
     "entryOpening": "Abrindo quadro",
     "entryConfirm": "Mudar para o quadro encerrará esta conversa por voz e iniciará uma nova aula. Continuar?",
-    "entryError": "Não foi possível encerrar a conversa por voz. Tente novamente."
+    "entryError": "Não foi possível encerrar a conversa por voz. Tente novamente.",
+    "flash": {
+      "title": "Recordação ativa",
+      "marked": "Marcados {{count}} / {{total}}",
+      "waiting": "Aguardando cartões do professor",
+      "front": "Frente",
+      "back": "Verso",
+      "tap": "Toque para virar",
+      "flipLabel": "{{side}}: {{term}}. Toque para virar",
+      "recallFirst": "Lembre o significado antes de virar. É autoavaliação, não nota do professor.",
+      "again": "Praticar de novo",
+      "known": "Eu lembro",
+      "practice": "Praticar com professor",
+      "previous": "Anterior",
+      "next": "Próximo",
+      "completed": "Concluído! {{count}} para revisar",
+      "progress": "Progresso {{count}} / {{total}}",
+      "reviewWithTeacher": "Revisar com professor",
+      "restart": "Recomeçar"
+    }
   }
 }

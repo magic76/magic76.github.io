@@ -336,6 +336,25 @@
     "entryAction": "Open whiteboard",
     "entryOpening": "Opening whiteboard",
     "entryConfirm": "Switching to the whiteboard will end this voice conversation and start a new teaching session. Continue?",
-    "entryError": "Could not end the current voice session. Please try again."
+    "entryError": "Could not end the current voice session. Please try again.",
+    "flash": {
+      "title": "Active recall",
+      "marked": "Marked {{count}} / {{total}}",
+      "waiting": "Waiting for the teacher's flashcards",
+      "front": "Front",
+      "back": "Back",
+      "tap": "Tap to flip",
+      "flipLabel": "{{side}}: {{term}}. Tap to flip",
+      "recallFirst": "Recall the meaning first, then flip. Self-rating is not a teacher grade.",
+      "again": "Practice again",
+      "known": "I remember",
+      "practice": "Practice with teacher",
+      "previous": "Previous",
+      "next": "Next",
+      "completed": "Done! {{count}} to practice again",
+      "progress": "Progress {{count}} / {{total}}",
+      "reviewWithTeacher": "Review with teacher",
+      "restart": "Start over"
+    }
   }
 }

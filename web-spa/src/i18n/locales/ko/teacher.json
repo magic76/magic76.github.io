@@ -336,6 +336,25 @@
     "entryAction": "화이트보드 열기",
     "entryOpening": "화이트보드 여는 중",
     "entryConfirm": "화이트보드로 이동하면 현재 음성 대화가 종료되고 새로운 수업이 시작됩니다. 계속할까요?",
-    "entryError": "현재 음성 대화를 종료하지 못했습니다. 다시 시도하세요."
+    "entryError": "현재 음성 대화를 종료하지 못했습니다. 다시 시도하세요.",
+    "flash": {
+      "title": "단어 떠올리기",
+      "marked": "표시 {{count}} / {{total}}",
+      "waiting": "선생님의 카드를 기다리는 중",
+      "front": "앞면",
+      "back": "뒷면",
+      "tap": "탭하여 뒤집기",
+      "flipLabel": "{{side}}: {{term}}. 탭하여 뒤집기",
+      "recallFirst": "먼저 뜻을 떠올린 후 카드를 뒤집으세요. 자가 평가는 교사 점수가 아닙니다.",
+      "again": "다시 연습",
+      "known": "기억해요",
+      "practice": "선생님과 말하기",
+      "previous": "이전",
+      "next": "다음",
+      "completed": "완료! 다시 연습할 카드 {{count}}개",
+      "progress": "진행 {{count}} / {{total}}",
+      "reviewWithTeacher": "선생님과 복습",
+      "restart": "처음부터"
+    }
   }
 }

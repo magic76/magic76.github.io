@@ -336,6 +336,25 @@
     "entryAction": "ホワイトボードを開く",
     "entryOpening": "開いています",
     "entryConfirm": "ホワイトボードに切り替えると現在の音声会話が終了し、新しいレッスンが始まります。続行しますか？",
-    "entryError": "現在の音声会話を終了できませんでした。もう一度お試しください。"
+    "entryError": "現在の音声会話を終了できませんでした。もう一度お試しください。",
+    "flash": {
+      "title": "単語を思い出す",
+      "marked": "記録 {{count}} / {{total}}",
+      "waiting": "先生のカードを待っています",
+      "front": "表",
+      "back": "裏",
+      "tap": "タップして裏返す",
+      "flipLabel": "{{side}}：{{term}}。タップして裏返す",
+      "recallFirst": "先に意味を思い出してから裏返しましょう。自己評価は先生の採点ではありません。",
+      "again": "もう一度",
+      "known": "覚えた",
+      "practice": "先生と会話練習",
+      "previous": "前のカード",
+      "next": "次のカード",
+      "completed": "完了！復習が必要：{{count}}枚",
+      "progress": "進捗 {{count}} / {{total}}",
+      "reviewWithTeacher": "先生と復習する",
+      "restart": "最初から"
+    }
   }
 }

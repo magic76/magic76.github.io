@@ -336,6 +336,25 @@
     "entryAction": "開啟互動白板",
     "entryOpening": "正在開啟白板",
     "entryConfirm": "切換至白板會結束目前的語音對話，並開始新的教學連線。確定切換？",
-    "entryError": "無法結束目前的語音對話，請重試。"
+    "entryError": "無法結束目前的語音對話，請重試。",
+    "flash": {
+      "title": "主動回想單字",
+      "marked": "已標記 {{count}} / {{total}}",
+      "waiting": "老師還沒有提供翻面卡內容",
+      "front": "正面",
+      "back": "背面",
+      "tap": "點擊翻面",
+      "flipLabel": "目前{{side}}：{{term}}。點擊翻面",
+      "recallFirst": "先回想意思，再翻牌確認。這是自我評估，不是老師評分。",
+      "again": "再練習",
+      "known": "我記得",
+      "practice": "跟老師口說練習",
+      "previous": "上一張",
+      "next": "下一張",
+      "completed": "完成！{{count}} 張需要再練習",
+      "progress": "複習進度 {{count}} / {{total}}",
+      "reviewWithTeacher": "請老師帶我複習",
+      "restart": "重新練一輪"
+    }
   }
 }

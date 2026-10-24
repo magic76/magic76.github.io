@@ -336,6 +336,25 @@
     "entryAction": "Whiteboard öffnen",
     "entryOpening": "Whiteboard wird geöffnet",
     "entryConfirm": "Beim Wechsel zum Whiteboard endet das aktuelle Sprachgespräch und eine neue Unterrichtssitzung beginnt. Fortfahren?",
-    "entryError": "Das aktuelle Sprachgespräch konnte nicht beendet werden. Bitte erneut versuchen."
+    "entryError": "Das aktuelle Sprachgespräch konnte nicht beendet werden. Bitte erneut versuchen.",
+    "flash": {
+      "title": "Aktives Erinnern",
+      "marked": "Markiert {{count}} / {{total}}",
+      "waiting": "Warte auf Lernkarten des Lehrers",
+      "front": "Vorderseite",
+      "back": "Rückseite",
+      "tap": "Tippen zum Umdrehen",
+      "flipLabel": "{{side}}: {{term}}. Zum Umdrehen tippen",
+      "recallFirst": "Erst die Bedeutung erinnern, dann umdrehen. Eigene Einschätzung, keine Lehrerbewertung.",
+      "again": "Noch üben",
+      "known": "Weiß ich",
+      "practice": "Mit Lehrkraft üben",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "completed": "Fertig! {{count}} erneut üben",
+      "progress": "Fortschritt {{count}} / {{total}}",
+      "reviewWithTeacher": "Mit Lehrkraft wiederholen",
+      "restart": "Neu beginnen"
+    }
   }
 }
