@@ -70,3 +70,13 @@ test("1A2B keypad has familiar numeric order, visible progress and safe finishin
  assert.match(css,/\.crew-mini-keypad\{grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
+test("Shared game panels do not dismiss when a touch starts inside the sheet",()=>{
+ const panel=game("GamePanel.tsx");
+ assert.match(panel,/backdropPointerRef=useRef\(false\)/);
+ assert.match(panel,/onPointerDown=\{backdropPointer\}/);
+ assert.match(panel,/onPointerUp=\{closeFromBackdrop\}/);
+ assert.match(panel,/backdropPointerRef\.current&&event\.target===event\.currentTarget/);
+ assert.doesNotMatch(panel,/onMouseDown=/);
+ assert.match(panel,/event\.key==="Escape"/);
+ assert.match(panel,/triggerRef\.current\?\.focus\(\)/);
+});
