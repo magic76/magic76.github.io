@@ -32,6 +32,7 @@ const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
+const CrewTownPage=lazy(()=>import("./town/TownPage").then(m=>({default:m.TownPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>import("./pages/CrewSectionPage").then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
@@ -47,6 +48,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
+<Route path="/town" element={<AppChrome product="home"><CrewTownPage/></AppChrome>}/>
 <Route path="/learn" element={<AppChrome product="teacher"><CrewSectionPage section="learn"/></AppChrome>}/>
 <Route path="/me" element={<AppChrome product="settings"><CrewSectionPage section="me"/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>

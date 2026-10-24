@@ -1,0 +1,100 @@
+/* Crew Town P0. Scoped, asset-free art prototype; no GL runtime until visual sign-off. */
+.crew-town{display:grid;gap:23px;max-width:1160px;margin:0 auto;padding:8px 0 55px;color:#263b40}
+.crew-town-heading{display:flex;align-items:end;justify-content:space-between;gap:24px;padding:4px 3px 0}
+.crew-town-heading>div{display:grid;gap:10px;min-width:0}
+.crew-town-kicker{font-size:11px;font-weight:800;letter-spacing:.19em;color:#548d88}
+.crew-town-kicker span{font-weight:600;color:#a99d96;letter-spacing:.1em}
+.crew-town-heading h1{margin:0;font-size:clamp(28px,4.6vw,48px);font-weight:760;letter-spacing:-.045em;line-height:1.14;color:#2d4146}
+.crew-town-heading p{max-width:690px;margin:0;color:#667b7e;font-size:14px;line-height:1.7}
+.crew-town-back{flex:none;color:#477b76;text-decoration:none;font-size:13px;font-weight:760;padding:12px 15px;border:1px solid #cfddd7;background:#fffdf8;border-radius:999px}
+.crew-town-back:hover{border-color:#76aaa1;background:#f2f9f4}
+.crew-town-shell{border:1px solid #d5e2d7;border-radius:27px;overflow:hidden;background:#fffdf8;box-shadow:0 21px 50px #688a7317}
+.crew-town-stage{position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 48% 40%,#f7fbf4 0%,#dceee5 57%,#c5dfdc 100%);transition:background .45s ease}
+.crew-town-stage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.85;background:radial-gradient(circle at 16% 10%,#fff8ecb0,transparent 35%),radial-gradient(circle at 92% 0,#f0e6ff9c,transparent 45%)}
+.crew-town-stage.is-night{background:radial-gradient(ellipse at 50% 32%,#465973,#263b52 65%,#1b3445)}
+.crew-town-stage.is-night::before{background:radial-gradient(circle at 75% 8%,#f9dfaa60,transparent 16%);opacity:.8}
+.crew-town-stage-top{position:absolute;z-index:6;inset:18px 18px auto;display:flex;justify-content:space-between;align-items:start;gap:10px;pointer-events:none}
+.crew-town-world-status{display:inline-flex;align-items:center;gap:8px;background:#fffdf7ea;border:1px solid #e9eadfb0;border-radius:999px;box-shadow:0 4px 18px #52645b1c;padding:11px 14px;font-size:11px;font-weight:760;color:#48655f;max-width:65%}
+.crew-town-status-light{width:7px;height:7px;flex:none;background:#8fb98c;border-radius:50%;box-shadow:0 0 0 3px #d8ecd8}
+.crew-town-stage-actions{display:flex;gap:7px;pointer-events:auto}
+.crew-town-stage-actions button{min-height:42px;border:1px solid #ffffffbc;box-shadow:0 5px 15px #253d3818;border-radius:999px;background:#fffdf7ec;color:#46645e;font:inherit;font-size:12px;font-weight:800;padding:0 14px;white-space:nowrap;cursor:pointer}
+.crew-town-stage-actions button:hover{background:#fff;border-color:#a9c7bd}
+.crew-town-viewport{position:relative;overflow-x:auto;overflow-y:hidden;height:600px;overscroll-behavior-inline:contain;scrollbar-width:none;outline-offset:-4px}
+.crew-town-viewport::-webkit-scrollbar{display:none}
+.crew-town-canvas{position:relative;width:960px;height:600px;margin:0 auto;overflow:visible}
+.crew-town-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 18px 26px #567b701a);transition:filter .4s}
+.crew-town-stage.is-night .crew-town-art{filter:brightness(.67) saturate(.8) hue-rotate(12deg) drop-shadow(0 13px 23px #0d192f52)}
+.crew-town-person{--town-clothes:#ca9987;--town-hair:#614c4d;position:absolute;z-index:3;width:72px;height:92px;transform:translate(-50%,-50%);display:grid;justify-items:center;align-content:end;gap:0;padding:0;border:0;background:transparent;color:#344f4c;cursor:pointer;animation:crew-town-sway 3.1s ease-in-out infinite}
+.crew-town-person-shadow{position:absolute;bottom:24px;left:19px;width:35px;height:10px;background:#294b3d29;border-radius:50%;filter:blur(3px)}
+.crew-town-person-figure{position:relative;width:44px;height:65px;display:block;filter:drop-shadow(0 4px 3px #34554630)}
+.crew-town-person-hair{position:absolute;top:1px;left:7px;width:31px;height:37px;background:var(--town-hair);border-radius:47% 47% 37% 38%;box-shadow:inset 4px 1px #ffffff30}
+.crew-town-person-face{position:absolute;top:10px;left:12px;width:22px;height:24px;background:#f5d4b7;border-radius:45% 44% 48% 46%;border:1px solid #c5958550}
+.crew-town-person-face::after{content:"";position:absolute;top:9px;left:4px;width:2px;height:2px;background:#5f5852;border-radius:50%;box-shadow:10px 0 #5f5852}
+.crew-town-person-body{position:absolute;bottom:2px;left:7px;width:32px;height:33px;border-radius:15px 15px 9px 9px;background:var(--town-clothes);border:2px solid #fff7edb3;box-shadow:inset -7px -4px #544e6830}
+.crew-town-person-body::after{content:"";position:absolute;bottom:-6px;left:5px;width:8px;height:8px;border-radius:3px;background:#534a49;box-shadow:12px 0 #534a49}
+.crew-town-person-tag{position:relative;z-index:1;font-size:10px;font-weight:800;letter-spacing:.01em;line-height:1;border-radius:999px;background:#fffdf6f4;border:1px solid #fff;box-shadow:0 4px 12px #1a493b29;padding:6px 9px;white-space:nowrap}
+.crew-town-person:hover .crew-town-person-tag,.crew-town-person.is-selected .crew-town-person-tag{background:#3c786e;color:#fff}
+.crew-town-person:focus-visible{outline:3px solid #467a79;outline-offset:2px;border-radius:15px}
+.crew-town-place{position:absolute;z-index:2;transform:translate(-50%,-50%);display:inline-flex;align-items:center;gap:7px;min-height:38px;border-radius:999px;background:#fffdf4ee;border:1px solid #e8dfc8;color:#637972;padding:5px 10px 5px 6px;font-size:10px;font-weight:800;box-shadow:0 4px 13px #304c4122;white-space:nowrap;cursor:pointer}
+.crew-town-place:hover{background:#fff;border-color:#87b5a5;color:#3c665c}
+.crew-town-place-dot{width:23px;height:23px;display:grid;place-items:center;border-radius:50%;background:#d7e5ce;color:#446c62;font-size:13px}
+.crew-town-place:focus-visible{outline:3px solid #467a79;outline-offset:3px}
+.crew-town-moment{position:absolute;z-index:4;top:39%;left:23%;max-width:235px;min-width:192px;border:1px solid #fff9ea;background:#fffdf5f7;border-radius:15px 15px 15px 4px;box-shadow:0 13px 32px #385b4b37;padding:12px 14px;color:#435a55;text-align:left;display:grid;gap:5px;cursor:pointer;animation:crew-town-appear .25s ease both}
+.crew-town-moment strong{font-size:11px;color:#3f7e70;line-height:1.4}
+.crew-town-moment strong span{font-weight:550;color:#83968b}
+.crew-town-moment>span{font-size:12px;line-height:1.55;font-weight:650}
+.crew-town-moment-yuna{left:36%;top:47%}
+.crew-town-moment-theo{left:62%;top:37%}
+.crew-town-moment-bella{left:54%;top:60%}
+.crew-town-moment:focus-visible{outline:3px solid #477c71;outline-offset:3px}
+.crew-town-stage-hint{position:absolute;z-index:4;bottom:13px;left:50%;transform:translateX(-50%);pointer-events:none;border-radius:999px;background:#fffffff0;color:#60776d;padding:7px 14px;font-size:11px;font-weight:700;white-space:nowrap;box-shadow:0 5px 18px #45675b26}
+.crew-town-sheet{position:absolute;z-index:9;bottom:49px;right:20px;width:min(340px,calc(100% - 40px));display:grid;gap:12px;background:#fffdfaf9;border:1px solid #fff;border-radius:20px;box-shadow:0 18px 52px #253b3880;padding:18px 18px 16px;animation:crew-town-appear .2s ease both}
+.crew-town-sheet-close{position:absolute;right:10px;top:7px;border:0;background:transparent;color:#83928c;font-size:25px;line-height:1;width:36px;height:36px;cursor:pointer}
+.crew-town-sheet-person{display:flex;align-items:center;gap:13px;padding-right:23px}
+.crew-town-sheet-person img{width:68px;height:76px;border-radius:13px;object-fit:cover;object-position:center 19%;background:#f3e6df}
+.crew-town-sheet-person>div,.crew-town-sheet-place{display:grid;gap:4px}
+.crew-town-sheet small{font-size:9px;letter-spacing:.12em;font-weight:900;color:#70938a}
+.crew-town-sheet strong{font-size:21px;letter-spacing:-.035em;color:#374f4f}
+.crew-town-sheet p{margin:0;color:#758783;font-size:12px;line-height:1.55}
+.crew-town-sheet-place{padding-right:22px}
+.crew-town-join{min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:12px;background:#3d776c;padding:12px 15px;color:#fff;text-decoration:none;font-weight:750;font-size:13px}
+.crew-town-join:hover{background:#305f57}
+.crew-town-foot{display:flex;justify-content:space-between;gap:15px;align-items:center;padding:14px 20px 15px;border-top:1px solid #e6e8db;color:#7e8c83;font-size:11px;line-height:1.65}
+.crew-town-foot-mark{flex:none;font-size:10px;font-weight:850;letter-spacing:.1em;color:#7e9a8a}
+.crew-town-next{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+.crew-town-next>div{display:grid;gap:7px;padding:19px 18px;background:#fbfaf5;border:1px solid #e9e7da;border-radius:17px}
+.crew-town-next span{font-size:10px;letter-spacing:.07em;color:#7f9f95;font-weight:750}
+.crew-town-next strong{font-size:13px;line-height:1.55;color:#536c67}
+.crew-town a:focus-visible,.crew-town button:focus-visible{outline:3px solid #478b82;outline-offset:3px}
+.crew-town-stage.is-night .crew-town-person-tag{border-color:#d7d6d9}
+@keyframes crew-town-sway{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,calc(-50% - 5px))}}
+@keyframes crew-town-appear{from{opacity:0;translate:0 9px}to{opacity:1;translate:0 0}}
+@media(max-width:760px){
+ .crew-town{padding:5px 0 48px;gap:17px}
+ .crew-town-heading{display:grid;align-items:start;gap:11px;padding:0 3px}
+ .crew-town-heading p{font-size:13px;line-height:1.6}
+ .crew-town-back{justify-self:start;font-size:12px;padding:8px 12px}
+ .crew-town-shell{border-radius:20px;margin:0 -3px}
+ .crew-town-world-status{max-width:none;font-size:10px;padding:9px 11px}
+ .crew-town-stage-top{inset:10px 9px auto;align-items:start;gap:5px}
+ .crew-town-stage-actions{gap:5px}
+ .crew-town-stage-actions button{min-height:38px;padding:0 10px;font-size:11px}
+ .crew-town-viewport{height:560px}
+ .crew-town-canvas{margin:0}
+ .crew-town-sheet{right:10px;bottom:45px;width:min(340px,calc(100% - 20px));padding:14px;border-radius:17px;box-shadow:0 15px 39px #253b3880}
+ .crew-town-foot{padding:12px 13px;align-items:start}
+ .crew-town-foot-mark{display:none}
+ .crew-town-next{grid-template-columns:1fr;gap:8px}
+ .crew-town-next>div{grid-template-columns:105px 1fr;align-items:center;padding:13px 15px}
+ .crew-town-next strong{font-size:12px}
+}
+@media(max-width:390px){
+ .crew-town-world-status{max-width:48%;line-height:1.35;border-radius:15px}
+ .crew-town-stage-actions{flex-direction:column;align-items:end}
+ .crew-town-stage-actions button{min-height:33px}
+ .crew-town-stage-hint{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-town-person,.crew-town-moment,.crew-town-sheet{animation:none!important}
+ .crew-town-stage,.crew-town-art{transition:none!important}
+}
