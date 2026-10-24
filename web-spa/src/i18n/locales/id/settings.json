@@ -206,19 +206,17 @@
     "language": "Bahasa percakapan",
     "start": "Mulai Cyber Orb",
     "stop": "Akhiri panggilan",
-    "loading": "Memeriksa layanan Android…",
+    "loading": "Menyiapkan obrolan suara…",
     "active": "Berbicara dengan {name}",
-    "private": "Panggilan native terpisah · Memori dan riwayat Web tidak dibagikan",
-    "note": "Akhiri panggilan suara Web terlebih dahulu. Akhiri panggilan Orb sebelum mengganti karakter.",
-    "native_key_required": "Atur Gemini API Key di dialog Android, lalu tekan Mulai lagi.",
+    "note": "Akhiri percakapan suara saat ini sebelum memulai lagi atau mengganti karakter.",
+    "native_key_required": "Selesaikan pengaturan Gemini Key, lalu coba lagi.",
     "overlay_permission_required": "Izinkan tampil di atas aplikasi lain, kembali ke Crew, lalu coba lagi.",
     "microphone_permission_required": "Izinkan akses mikrofon, kembali ke Crew, lalu coba lagi.",
     "already_active": "Panggilan Orb masih aktif. Akhiri sebelum mengganti karakter.",
-    "start_failed": "Layanan suara native gagal dimulai. Coba lagi.",
-    "bridge_error": "Koneksi Android tidak merespons. Buka ulang Crew.",
+    "start_failed": "Tidak dapat memulai obrolan suara. Coba lagi.",
+    "bridge_error": "Koneksi tidak merespons. Buka kembali Crew.",
     "unavailable": "Cyber Orb tidak tersedia pada versi ini.",
     "unknown": "Tindakan gagal. Coba lagi.",
-    "webKeyNotice": "Menggunakan kunci Gemini Web hanya untuk panggilan Android ini, tanpa menyimpan salinan lain.",
-    "web_key_unavailable": "Tidak ada kunci Gemini Web yang valid di aplikasi ini. Simpan kunci di Pengaturan Web Crew Teacher; Chrome dan perangkat lain memakai penyimpanan terpisah."
+    "web_key_unavailable": "Gemini Key belum diatur. Buka Pengaturan terlebih dahulu, lalu mulai mengobrol."
   }
 }

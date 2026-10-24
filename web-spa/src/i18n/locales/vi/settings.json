@@ -206,19 +206,17 @@
     "language": "Ngôn ngữ trò chuyện",
     "start": "Bắt đầu Cyber Orb",
     "stop": "Kết thúc cuộc gọi",
-    "loading": "Đang kiểm tra dịch vụ Android…",
+    "loading": "Đang chuẩn bị trò chuyện bằng giọng nói…",
     "active": "Đang trò chuyện với {name}",
-    "private": "Cuộc gọi gốc độc lập · Không chia sẻ ký ức hoặc lịch sử trò chuyện Web",
-    "note": "Hãy kết thúc cuộc gọi Web đang diễn ra trước. Kết thúc cuộc gọi Orb trước khi đổi nhân vật.",
-    "native_key_required": "Thiết lập Gemini API Key trong hộp thoại Android rồi nhấn Bắt đầu lại.",
+    "note": "Hãy kết thúc cuộc trò chuyện hiện tại trước khi bắt đầu cuộc trò chuyện mới hoặc đổi nhân vật.",
+    "native_key_required": "Hoàn tất thiết lập Gemini Key rồi thử lại.",
     "overlay_permission_required": "Cho phép hiển thị trên ứng dụng khác, quay lại Crew và thử lại.",
     "microphone_permission_required": "Cho phép truy cập micrô, quay lại Crew và thử lại.",
     "already_active": "Đang có cuộc gọi Orb. Hãy kết thúc trước khi đổi nhân vật.",
-    "start_failed": "Không thể khởi động dịch vụ giọng nói gốc. Hãy thử lại.",
-    "bridge_error": "Kết nối Android không phản hồi. Hãy mở lại Crew.",
+    "start_failed": "Không thể bắt đầu trò chuyện bằng giọng nói. Vui lòng thử lại.",
+    "bridge_error": "Kết nối không phản hồi. Hãy mở lại Crew.",
     "unavailable": "Cyber Orb không khả dụng trong phiên bản này.",
     "unknown": "Thao tác thất bại. Hãy thử lại.",
-    "webKeyNotice": "Dùng khóa Gemini từ Web chỉ cho cuộc gọi Android này, không lưu bản sao khác.",
-    "web_key_unavailable": "Ứng dụng này không có Gemini Key từ Web hợp lệ. Hãy lưu khóa trong Cài đặt Web của Crew Teacher; Chrome và thiết bị khác có bộ nhớ riêng."
+    "web_key_unavailable": "Bạn chưa thiết lập Gemini Key. Vào Cài đặt để hoàn tất trước khi trò chuyện."
   }
 }

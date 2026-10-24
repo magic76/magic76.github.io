@@ -21,13 +21,13 @@ export function CyberOrbPanel(){
   friend:t("cyberOrb.friend"),teacher:t("cyberOrb.teacher"),
   language:t("cyberOrb.language"),start:t("cyberOrb.start"),
   stop:t("cyberOrb.stop"),loading:t("cyberOrb.loading"),
-  active:t("cyberOrb.active"),private:t("cyberOrb.private"),
+  active:t("cyberOrb.active"),
   note:t("cyberOrb.note"),native_key_required:t("cyberOrb.native_key_required"),
   overlay_permission_required:t("cyberOrb.overlay_permission_required"),
   microphone_permission_required:t("cyberOrb.microphone_permission_required"),
   already_active:t("cyberOrb.already_active"),start_failed:t("cyberOrb.start_failed"),
   bridge_error:t("cyberOrb.bridge_error"),unavailable:t("cyberOrb.unavailable"),
-  unknown:t("cyberOrb.unknown"),webKeyNotice:t("cyberOrb.webKeyNotice"),
+  unknown:t("cyberOrb.unknown"),
   web_key_unavailable:t("cyberOrb.web_key_unavailable")
  };
  const [features,setFeatures]=useState<NativeDeviceFeatures|null>(null);
@@ -141,8 +141,6 @@ export function CyberOrbPanel(){
     {TARGET_LANGUAGES.map(item=><option key={item.code} value={item.code}>{i18n.language.startsWith("zh")?item.value:item.spoken}</option>)}
    </select>
   </label>
-  <p className="crew-orb-private">{copy.private}</p>
-  {!status?.active&&features?.cyberOrbWebKey&&validWebKey&&<p className="crew-orb-key-note">{copy.webKeyNotice}</p>}
   {!status?.active&&features?.cyberOrbWebKey&&status?.keyConfigured!==true&&!validWebKey
    &&<p className="crew-orb-key-note" role="status">{copy.web_key_unavailable}</p>}
   <div className="crew-orb-actions">
