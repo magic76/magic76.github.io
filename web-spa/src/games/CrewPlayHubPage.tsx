@@ -26,7 +26,7 @@ export function CrewPlayHubPage(){
    <div className="crew-play-catalog">
    {crewGames.map((game,index)=><Link className="crew-play-game-card" to={"/games/"+game.id} key={game.id}>
     <div className={`crew-play-game-art game-${index}`} aria-hidden="true"><span>{game.icon}</span></div>
-    <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?(zh?"需 Gemini Key + 麥克風":"Gemini Key + mic required"):game.id==="taboo"?(zh?"免 Key 練習 · Key 啟用 AI 猜詞":"Offline practice · AI guess with Key"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):(zh?"免費棋局 · Live 選用":"Free board · Optional Live")}</span></div>
+    <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?t("playHub.voiceRequired"):game.id==="taboo"?(zh?"免 Key 練習 · Key 啟用 AI 猜詞":"Offline practice · AI guess with Key"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):(zh?"免費棋局 · Live 選用":"Free board · Optional Live")}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>)}
    <Link className="crew-play-game-card nonsense-hub-card" to="/games/nonsense">
