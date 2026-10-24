@@ -8,11 +8,12 @@ import "./three/town3d.css";
 
 const TownScene=lazy(()=>import("./three/TownScene").then(m=>({default:m.TownScene})));
 const TownFallback=lazy(()=>import("./TownPage").then(m=>({default:m.TownPage})));
+const compactError=(error:unknown)=>String(error instanceof Error?error.message:error).replace(/https?:\/\/[^\s)]+/g,"(url)").slice(0,240);
 
-class Town3DErrorBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:()=>void},{error:boolean}>{
+class Town3DErrorBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:(reason:string)=>void},{error:boolean}>{
  state={error:false};
  static getDerivedStateFromError(){return {error:true}}
- componentDidCatch(error:Error,_info:ErrorInfo){console.error("Crew Town WebGL fallback",error);this.props.onFailure()}
+ componentDidCatch(error:Error,_info:ErrorInfo){console.error("Crew Town WebGL fallback",error);this.props.onFailure(compactError(error))}
  render(){return this.state.error?this.props.fallback:this.props.children}
 }
 export function Town3DPage(){
@@ -21,11 +22,14 @@ export function Town3DPage(){
  const [supported,setSupported]=useState<"checking"|"yes"|"no">("checking");
  const [attempt,setAttempt]=useState(0);
  const [fallbackReason,setFallbackReason]=useState<"render-error"|"manual"|null>(null);
+ const [failureDetail,setFailureDetail]=useState("");
+ const [modelIssue,setModelIssue]=useState("");
  const [night,setNight]=useState(false);
  const [selected,setSelected]=useState<Selection>(null);
  const [reset,setReset]=useState(0);
  const [reducedMotion,setReducedMotion]=useState(true);
- const fail=useCallback(()=>setFallbackReason("render-error"),[]);
+ const fail=useCallback((reason:string)=>{setFailureDetail(reason);setFallbackReason("render-error")},[]);
+ const simplified=useCallback((reason:string)=>setModelIssue(reason.slice(0,170)),[]);
  useEffect(()=>{
   const query=window.matchMedia("(prefers-reduced-motion: reduce)");
   const sync=()=>setReducedMotion(query.matches);
@@ -43,6 +47,8 @@ export function Town3DPage(){
  const retry3D=useCallback(()=>{
   setSelected(null);
   setFallbackReason(null);
+  setFailureDetail("");
+  setModelIssue("");
   setSupported("checking");
   // Remount the error boundary and Canvas after a failed rendering attempt.
   setAttempt(n=>n+1);
@@ -57,7 +63,8 @@ export function Town3DPage(){
    :zh?"3D 畫面載入或繪製失敗（也可能是顯示裝置重置），已自動切換為 2.5D 地圖。":"The 3D scene could not load or render (or the graphics context was lost), so the 2.5D map is shown.";
  const fallback=<div className="crew-town-3d-fallback">
   <div className="crew-town-3d-fallback-notice" role="status">
-   <div><strong>{zh?"目前使用 2.5D 地圖":"2.5D map mode"}</strong><p>{explanation}</p></div>
+   <div><strong>{zh?"目前使用 2.5D 地圖":"2.5D map mode"}</strong><p>{explanation}</p>
+    {failureDetail&&<code className="crew-town-3d-error-detail">{zh?"錯誤原因：":"Failure: "}{failureDetail}</code>}</div>
    <button type="button" onClick={retry3D}>{zh?"重試 3D":"Retry 3D"}</button>
   </div>
   <Suspense fallback={<div role="status" className="crew-town-3d-loading">{zh?"正在載入小鎮地圖…":"Loading town map…"}</div>}><TownFallback/></Suspense>
@@ -75,8 +82,9 @@ export function Town3DPage(){
    <section className={"crew-town-3d-stage"+(night?" is-night":"")} aria-label={zh?"Crew Town 3D 探索場景":"Crew Town 3D exploration"}>
     {supported==="yes"?<Suspense fallback={<div className="crew-town-3d-loading" role="status">{zh?"正在準備 3D 世界…":"Preparing the 3D world…"}</div>}>
      <TownScene night={night} reducedMotion={reducedMotion} selected={selected} reset={reset}
-      onFriend={selectFriend} onPlace={selectPlace} onFailure={fail}/>
+      onFriend={selectFriend} onPlace={selectPlace} onFailure={fail} onSimplified={simplified}/>
     </Suspense>:<div className="crew-town-3d-loading" role="status">{zh?"正在偵測 3D 支援…":"Checking 3D support…"}</div>}
+    {modelIssue&&<div className="crew-town-3d-model-note" role="status">{zh?"模型讀取失敗，已改用簡化 3D 場景。":"The model could not load; showing a simplified 3D scene."} <code>{modelIssue}</code></div>}
     <div className="crew-town-3d-tools">
      <span className="crew-town-3d-status"><span aria-hidden="true"/> {zh?"小鎮日常 · 預設情境":"Village life · scripted scenes"}</span>
      <div className="crew-town-3d-buttons">

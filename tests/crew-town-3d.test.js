@@ -76,6 +76,35 @@ test("2.5D fallback clearly exposes unsupported, rendering failure, and manual m
  assert.match(page,/setAttempt\(n=>n\+1\)/);
  assert.match(page,/WebGLRenderingContext/);
  assert.doesNotMatch(page,/WEBGL_lose_context|\.loseContext\(/);
- assert.ok(page.includes('this.props.onFailure()'));
+ assert.ok(page.includes('this.props.onFailure(compactError(error))'));
  assert.match(css,/\.crew-town-3d-fallback-notice/);
+});
+
+test("the bundled glTF actually loads in Three's GLTFLoader",async()=>{
+ const {GLTFLoader}=await import("three/addons/loaders/GLTFLoader.js");
+ const binary=fs.readFileSync(path.join(root,"assets/town/crew-town-art-kit.glb"));
+ const buffer=binary.buffer.slice(binary.byteOffset,binary.byteOffset+binary.byteLength);
+ const asset=await new Promise((resolve,reject)=>new GLTFLoader().parse(buffer,"",resolve,reject));
+ assert.ok(asset.scene.getObjectByName("cafe"));
+ assert.ok(asset.scene.getObjectByName("gazebo"));
+ assert.ok(asset.scene.getObjectByName("flowers"));
+});
+test("3D rendering has an in-Canvas model fallback and actionable errors",()=>{
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ const page=read("web-spa/src/town/Town3DPage.tsx");
+ const simple=read("web-spa/src/town/three/TownSimpleWorld.tsx");
+ assert.match(scene,/TownModelsBoundary/);
+ assert.match(scene,/TownSimpleWorld/);
+ assert.match(scene,/webgl-context-lost/);
+ assert.match(page,/crew-town-3d-error-detail/);
+ assert.match(page,/onSimplified=\{simplified\}/);
+ for(const id of ["cafe","studio","play","garden"])assert.ok(simple.includes('onSelect("'+id+'")'));
+});
+
+test("Canvas fallback is inert DOM content, not a side-effect-driven failure",()=>{
+ const scene=read("web-spa/src/town/three/TownScene.tsx");
+ assert.match(scene,/fallback=\{<span>WebGL unavailable<\/span>\}/);
+ assert.doesNotMatch(scene,/CanvasUnavailable/);
+ assert.doesNotMatch(scene,/useEffect\(\(\)=>onFailure\(/);
+ assert.match(scene,/onFailure\("webgl-context-lost"\)/);
 });

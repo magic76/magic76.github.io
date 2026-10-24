@@ -62,6 +62,17 @@ jobs:
       - name: Test PR
         if: github.event_name == 'pull_request'
         run: npm test
+      - name: Browser-render Crew Town 3D (town PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
+        run: |
+          npm run build:cloudflare
+          node scripts/smoke-town-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
+        with:
+          name: town-browser-smoke
+          path: artifacts/town-browser.*
+          if-no-files-found: ignore
       - name: Commit Crew Pages build
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
