@@ -91,8 +91,8 @@ test("frontend and Cloudflare ingest share one verified event/detail vocabulary"
  const values=(body)=>[...body.matchAll(/"([^"]*)"/g)].map(match=>match[1]);
  const clientEvents=client.match(/export type UsageEvent=([\s\S]*?);/);
  const clientDetails=client.match(/type Detail=([\s\S]*?);/);
- const serverEvents=server.match(/const events=new Set\(\\[([\s\S]*?)\]\);/);
- const serverDetails=server.match(/const details=new Set\(\\[([\s\S]*?)\]\);/);
+ const serverEvents=server.match(/const events=new Set\(\[([\s\S]*?)\]\);/);
+ const serverDetails=server.match(/const details=new Set\(\[([\s\S]*?)\]\);/);
  assert.ok(clientEvents&&clientDetails&&serverEvents&&serverDetails,"analytics contract declarations present");
  assert.deepEqual([...new Set(values(clientEvents[1]))].sort(),[...new Set(values(serverEvents[1]))].sort(),"every Web event must be accepted by Pages");
  assert.deepEqual([...new Set(values(clientDetails[1]))].sort(),[...new Set(values(serverDetails[1]))].sort(),"every Web detail must be accepted by Pages");
