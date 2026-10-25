@@ -130,6 +130,48 @@ function SceneParticles({weather,effect,revision,animated}:{weather:MagicWorld["
   </group>:null}
  </group>;
 }
+function SceneEvents({event,animated}:{event:MagicWorld["event"];animated:boolean}){
+ const root=useRef<Group>(null);
+ useFrame(({clock})=>{
+  if(animated&&root.current)root.current.rotation.y=Math.sin(clock.elapsedTime*.25)*.11;
+ });
+ if(!event)return null;
+ if(event==="rainbow")return <group position={[0,2,-2.8]}>
+  {["#f19da9","#ffd28f","#fff6b3","#a8d9ba","#a2baf0","#d8aeea"].map((color,i)=>
+   <mesh key={color} position={[0,0,-i*.045]}>
+    <torusGeometry args={[4.8-i*.24,.13,8,48,Math.PI]}/>
+    <meshBasicMaterial color={color} transparent opacity={.88} side={2}/>
+   </mesh>)}
+ </group>;
+ if(event==="aurora")return <group ref={root} position={[0,6.55,-2.85]}>
+  {["#6ae1c0","#95bdf4","#d4a0e8"].map((color,i)=><mesh key={i} position={[i*.3,i*.25,-i*.3]} rotation={[0,0,.16+i*.11]}>
+   <planeGeometry args={[10.8-i,1.15]}/>
+   <meshBasicMaterial color={color} transparent opacity={.29} side={2} depthWrite={false}/>
+  </mesh>)}
+ </group>;
+ if(event==="meteor")return <group ref={root}>
+  {Array.from({length:13},(_,i)=>{
+   const a=i*2.39;
+   return <group key={i} position={[Math.sin(a)*4,4.2+(i%6)*.7,Math.cos(a)*4]}>
+    <mesh rotation={[0,0,-.65]}>
+     <coneGeometry args={[.14+(i%3)*.06,.65+(i%4)*.22,5]}/>
+     <meshBasicMaterial color={i%2?"#ffa965":"#fff1ab"}/>
+    </mesh>
+    <mesh position={[0,.35,0]}><sphereGeometry args={[.14,6,6]}/>
+     <meshBasicMaterial color="#fff3cd"/></mesh>
+   </group>
+  })}
+ </group>;
+ return <group ref={root}>
+  {Array.from({length:28},(_,i)=>{
+   const a=i*2.399,rad=3.5+(i%3)*.5;
+   return <mesh key={i} position={[Math.cos(a)*rad,2.5+(i%4)*.29,Math.sin(a)*rad]}>
+    <sphereGeometry args={[.14,6,6]}/>
+    <meshBasicMaterial color={["#fff0b4","#dfa8ea","#a9ede3"][i%3]}/>
+   </mesh>;
+  })}
+ </group>;
+}
 function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
  const colors=BIOMES[world.theme],night=world.time==="night";
  const {gl,invalidate}=useThree();
@@ -159,6 +201,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
+  <SceneEvents event={world.event} animated={!reducedMotion}/>
   <OrbitControls makeDefault enablePan={false} enableDamping={!reducedMotion} minDistance={9} maxDistance={21}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;
