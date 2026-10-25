@@ -280,3 +280,35 @@
 @media(prefers-reduced-motion:reduce){
  .magic-mobile-dialog{animation:none!important}
 }
+
+
+/* Crew Magic 3D v2: render the existing validated Live world with one
+ * low-power WebGL canvas. The original illustrated map remains a true fallback. */
+.magic-three-canvas{position:absolute!important;inset:0;z-index:4;width:100%!important;height:100%!important;display:block}
+.magic-3d-loading{position:absolute;inset:0;z-index:5;display:grid;place-items:center;
+ background:linear-gradient(160deg,#a1bbdd,#d5d1f2);color:#fff;font-weight:800;font-size:14px}
+.magic-stage.is-3d .magic-sun,.magic-stage.is-3d .magic-moon,
+.magic-stage.is-3d .magic-stars,.magic-stage.is-3d .magic-cloud,
+.magic-stage.is-3d .magic-distant,.magic-stage.is-3d .magic-island,
+.magic-stage.is-3d .magic-precipitation,.magic-stage.is-3d .magic-object-layer,
+.magic-stage.is-3d .magic-effect{display:none}
+.magic-view-switch{position:absolute;z-index:10;top:62px;left:20px;min-height:38px;
+ border:1px solid #ffffffbd;background:#fffff1eb;color:#56756e;padding:9px 15px;
+ border-radius:26px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;
+ box-shadow:0 6px 16px #3a54782b}
+.magic-view-switch:disabled{opacity:.62;cursor:not-allowed}
+.magic-view-switch:focus-visible,.magic-3d-access button:focus-visible{outline:3px solid #5c9a90;outline-offset:3px}
+.magic-3d-access{border:1px solid #d7e4de;padding:16px 18px;border-radius:19px;background:#fffcf2}
+.magic-3d-access>strong{display:block;color:#50716d;font-size:13px;margin-bottom:11px}
+.magic-3d-access>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.magic-3d-access button{border:1px solid #d9e7dc;border-radius:12px;min-height:44px;
+ background:#f6faf6;color:#496f65;padding:8px;font:inherit;font-weight:700;font-size:12px;cursor:pointer}
+.magic-3d-access button:hover{background:#e7f5eb}
+@media(max-width:790px){
+ .magic-stage.is-3d{height:clamp(510px,70svh,690px)}
+ .magic-view-switch{top:59px;left:12px;min-height:38px}
+ .magic-3d-access{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .magic-three-canvas{transition:none}
+}
