@@ -9,10 +9,11 @@ import type {MagicCreatorPart} from "./world";
 export function MagicPartIdentity3D({part}:{part:MagicCreatorPart}){
  const detail=part.detail;
  if(!detail)return null;
+ const layer=part.profile==="armor"||part.profile==="mechanical"?.16:0;
  const front={
   box:.55,sphere:.67,capsule:.39,cylinder:.53,cone:.55,
   torus:.21,octahedron:.67,leaf:.31
- }[part.shape];
+ }[part.shape]+layer;
  const accent=part.color==="gold"?"#fff0ba":part.color==="rose"?"#ffe3ef":
   part.color==="azure"?"#d7f4ff":"#e5fff6";
  if(detail==="face")return <group position={[0,0,front]}>
@@ -45,11 +46,9 @@ export function MagicPartIdentity3D({part}:{part:MagicCreatorPart}){
    <meshStandardMaterial color="#76d3f1" emissive="#6fd3ff" emissiveIntensity={.72}
     metalness={.19} roughness={.2}/>
   </mesh>
-  {[-1,1].map(sign=><mesh key={sign} position={[sign*.4,0,-.02]}>
-   <RoundedBox args={[.16,.12,.13]} radius={.04} smoothness={3}>
-    <meshStandardMaterial color={accent} metalness={.73} roughness={.27}/>
-   </RoundedBox>
-  </mesh>)}
+  {[-1,1].map(sign=><RoundedBox key={sign} position={[sign*.4,0,-.02]} args={[.16,.12,.13]} radius={.04} smoothness={3}>
+   <meshStandardMaterial color={accent} metalness={.73} roughness={.27}/>
+  </RoundedBox>)}
  </group>;
  if(detail==="vent")return <group position={[0,0,front]}>
   <RoundedBox args={[.68,.39,.09]} radius={.055} smoothness={3}>
