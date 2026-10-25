@@ -27,6 +27,7 @@ const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
  tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],fox:["小狐狸","Fox"],crystal:["水晶","Crystal"]
 };
 const HELPERS=[
+ {id:"wonder",zh:"給我一個驚喜",en:"Surprise me",emoji:"✨"},
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
  {id:"fox",zh:"召喚漫步狐狸",en:"Summon a wandering fox",emoji:"🦊"},
  {id:"dragonice",zh:"火龍冰封城堡",en:"Dragon freezes castle",emoji:"🏰"},
@@ -177,7 +178,7 @@ export function MagicPage(){
    if(!window.CrewLive)throw new Error("Live runtime unavailable");
    const session=new window.CrewLive.Session({
     system:magicSystemPrompt(!zh),
-    openingPrompt:zh?"歡迎來到魔法島！簡短介紹你是 Lumi，問玩家想讓這個世界發生什麼，並示範可以召喚生物、改變天氣或玩魔法謎題。":"Welcome to the magic island! Briefly introduce yourself as Lumi and ask what the player would like to create, such as creatures, weather or a magical riddle.",
+    openingPrompt:zh?"你是 Lumi。簡短歡迎玩家，邀請他隨便說一種神奇畫面，讓你用 3D 魔法真正實現；不要在一開始提出冒險問答。":"You are Lumi. Welcome the player briefly and invite any vivid visual wish that you will bring alive with 3D magic. Do not begin with a quest or a quiz.",
     voice:"Aoede",volume,tools:MAGIC_TOOLS,maxResumeAttempts:1,maxLiveAttempts:2,
     onToolCall:call=>{
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
@@ -306,12 +307,14 @@ export function MagicPage(){
      <p>{t("請使用支援 WebGL 的瀏覽器，或重新開啟頁面。你的魔法世界進度仍會保留。","Try a browser with WebGL support or reopen this page. Your world progress is preserved.")}</p>
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
-    <div className="magic-adventure-guide" aria-label={t("第一場魔法冒險","First magic adventure")}>
-     <small>{world.adventureStep===3?t("冒險完成 · 3 / 3","Adventure complete · 3 / 3"):
-      t("新手冒險","First adventure")+" · "+(world.adventureStep+1)+" / 3"}</small>
-     <strong>{firstAdventure.title}</strong>
-     <p>{firstAdventure.description}</p>
-     <button type="button" onClick={guidedAction}>{firstAdventure.action} <span aria-hidden="true">→</span></button>
+    <div className="magic-adventure-guide" aria-label={t("魔法世界快捷操作","Magic world shortcuts")}>
+     <button type="button" className="magic-surprise" onClick={()=>runDemo("wonder")}>
+      <span aria-hidden="true">✦</span> {t("給我驚喜","Surprise me")}
+     </button>
+     <button type="button" className="magic-optional-quest" onClick={guidedAction}
+      title={firstAdventure.description} aria-label={firstAdventure.title+": "+firstAdventure.action}>
+      {t("冒險","Quest")} {world.adventureStep===3?"✓":world.adventureStep+1+" / 3"} →
+     </button>
     </div>
     <button type="button" className="magic-overview-button"
      onClick={()=>{setFocusId(null);setViewVersion(v=>v+1);}}

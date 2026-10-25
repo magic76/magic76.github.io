@@ -451,3 +451,68 @@ test("the guided adventure provides a visible action and a working help dialog",
  assert.match(scene,/onStart=\{\(\)=>\{scriptedView\.current=false;/);
  assert.match(scene,/reacting=\{world\.adventureStep===3\}/);
 });
+
+test("magic imagination tools build visibly diverse and persistent 3D recipes",()=>{
+ const a=applyMagicCommand(MAGIC_INITIAL_WORLD,"generate_magic_wonder",{
+  shape:"vortex",palette:"aurora",motion:"spin",seed:91231,x:-.7,z:.2,size:1.4
+ },"en");
+ assert.equal(a.ok,true);
+ assert.equal(a.event,"wonder-created");
+ assert.equal(a.world.wonders.length,1);
+ assert.equal(a.world.wonders[0].shape,"vortex");
+ const b=applyMagicCommand(a.world,"generate_magic_wonder",{
+  shape:"garden",palette:"rose",motion:"bloom",seed:7761,x:.75,z:-.45,size:.8
+ },"en");
+ assert.equal(b.world.wonders.length,2);
+ assert.notDeepEqual(b.world.wonders[0],b.world.wonders[1]);
+ const restored=readMagicWorldSnapshot(JSON.stringify(b.world));
+ assert.deepEqual(restored,b.world);
+ assert.equal(restored.wonders[0].seed,91231);
+ assert.equal(restored.adventureStep,0);
+ const surprise=demoMagicCommand("wonder",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(surprise.ok,true);
+ assert.equal(surprise.world.wonders.length,2);
+ assert.notEqual(surprise.world.wonders[0].shape,surprise.world.wonders[1].shape);
+ assert.equal(surprise.world.panels.length,0);
+ let filled=surprise.world;
+ for(let i=0;i<8;i++){
+  filled=applyMagicCommand(filled,"generate_magic_wonder",{
+   shape:"lanterns",palette:"gold",motion:"rise",seed:i,x:.3,z:.8,size:1
+  }).world;
+ }
+ assert.equal(filled.wonders.length,4);
+ assert.ok(filled.wonders.every(w=>w.shape==="lanterns"));
+});
+
+test("imagination tools reject unsafe shapes, unbounded values and forged snapshots",()=>{
+ const valid={shape:"orbit",palette:"gold",motion:"spin",seed:4,x:0,z:.3,size:1.4};
+ for(const mutation of [
+  {shape:"custom_shader"},{palette:"#ff0000"},{motion:"eval"},
+  {seed:-1},{seed:1.5},{seed:1000000},{x:2},{z:Infinity},{size:3},{size:0}
+ ]){
+  const result=applyMagicCommand(MAGIC_INITIAL_WORLD,"generate_magic_wonder",{...valid,...mutation});
+  assert.equal(result.ok,false,JSON.stringify(mutation));
+  assert.equal(result.world,MAGIC_INITIAL_WORLD);
+ }
+ const out=applyMagicCommand(MAGIC_INITIAL_WORLD,"generate_magic_wonder",valid).world;
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...out,wonders:[{...out.wonders[0],shape:"evil"}]})),null);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...out,wonders:[{...out.wonders[0],x:5}]})),null);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...out,wonders:[...out.wonders,...out.wonders,...out.wonders,...out.wonders,...out.wonders]})),null);
+ const legacy=JSON.stringify(MAGIC_INITIAL_WORLD).replace(',"wonders":[]','');
+ assert.equal(readMagicWorldSnapshot(legacy).wonders.length,0);
+ assert.equal(demoMagicCommand("reset",out).world.wonders.length,0);
+});
+
+test("visual-first stage has a surprise action and keeps the quest optional",()=>{
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
+ const wonders=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicWonders3D.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.match(page,/runDemo\("wonder"\)/);
+ assert.match(page,/className="magic-surprise"/);
+ assert.match(page,/className="magic-optional-quest"/);
+ assert.match(scene,/MagicWonders3D wonders=\{world\.wonders\}/);
+ assert.match(wonders,/wonder\.seed/);
+ assert.match(live,/name:"generate_magic_wonder"/);
+ assert.match(live,/2 or 3 compatible but DISTINCT shapes/);
+});

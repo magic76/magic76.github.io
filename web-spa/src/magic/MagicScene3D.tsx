@@ -4,6 +4,7 @@ import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
 import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
 import {ringStep,ringPoint} from "./magicNavigation";
+import {MagicWonders3D} from "./MagicWonders3D";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -378,6 +379,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,viewVers
     peers={peerPositions.current} worldObjects={world.objects}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
+  <MagicWonders3D wonders={world.wonders} animated={!reducedMotion}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
