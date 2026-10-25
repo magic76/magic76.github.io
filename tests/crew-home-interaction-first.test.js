@@ -10,7 +10,7 @@ test("Home World begins with working four-mode portal, Shorts, then free games a
  const games=home.indexOf('className="crew-home-game-pick"');
  const setup=home.indexOf("{ready&&!configured?");
  assert.ok(hero>=0&&hero<shorts&&shorts<games&&games<setup);
- for(const path of ["/teacher/roles?mode=friends","/games","/teacher","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
+ for(const path of ["/teacher/roles?mode=friends","/games","/learn","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
  assert.match(home,/to="\/games\/1a2b"/);
  assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });

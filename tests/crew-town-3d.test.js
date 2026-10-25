@@ -71,7 +71,7 @@ test("2.5D fallback clearly exposes unsupported, rendering failure, and manual m
  const css=read("web-spa/src/town/three/town3d.css");
  for(const reason of ["unsupported","render-error","manual"])assert.ok(page.includes('"'+reason+'"'));
  assert.ok(page.includes('目前使用 2.5D 地圖'));
- assert.ok(page.includes('onClick={()=>setFallbackReason("manual")}'));
+  assert.match(page,/onClick=\{\(\)=>\{trackUsageEvent\("town_3d_fallback","manual"\);setFallbackReason\("manual"\)\}\}/);
  assert.ok(page.includes('onClick={retry3D}'));
  assert.match(page,/key=\{attempt\}/);
  assert.match(page,/setAttempt\(n=>n\+1\)/);

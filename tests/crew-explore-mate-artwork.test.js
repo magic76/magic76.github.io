@@ -10,7 +10,7 @@ const css=fs.readFileSync(path.join(root,"web-spa/src/pages/crewExplore.css"),"u
 test("Crew Mate Explore card uses the shared scene illustration instead of stacked icons",()=>{
  assert.match(artwork,/export type ExploreKind=.*"mate"/);
  assert.match(artwork,/mate:<svg viewBox="0 0 200 126"/);
- assert.match(section,/data-kind="mate" to="\/mate"/);
+  assert.match(section,/<Link className="crew-explore-tile crew-explore-mate"[^\n]*data-kind="mate"[^\n]*to="\/mate"/);
  assert.match(section,/<ExploreArtwork kind="mate"\/>/);
  assert.doesNotMatch(section,/crew-explore-mate-art/);
  assert.doesNotMatch(css,/crew-explore-mate-art/);

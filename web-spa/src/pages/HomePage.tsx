@@ -160,6 +160,15 @@ export function HomePage(){
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview/>
+   <section className="crew-home-game-pick" aria-labelledby="crew-home-game-pick-title">
+    <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>
+    <div className="crew-home-game-pick-copy">
+     <small>{t("gamePick.label")}</small>
+     <strong id="crew-home-game-pick-title">{t("gamePick.title")}</strong>
+     <p>{t("gamePick.desc")}</p>
+    </div>
+    <Link className="crew-home-game-pick-action" to="/games/1a2b" onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
+   </section>
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
     <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore")}</h2><span aria-hidden="true">{t("world.possibilities")}</span></div>
     <div className="crew-home-world-explore-grid">

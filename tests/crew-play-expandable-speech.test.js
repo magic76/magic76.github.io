@@ -9,7 +9,8 @@ test("Crew Play speech uses an explicit accessible expansion control",()=>{
  assert.match(component,/useState\(false\)/);
  assert.match(component,/aria-expanded=\{expanded\}/);
  assert.match(component,/aria-controls=\{panelId\}/);
- assert.match(component,/onClick=\{\(\)=>setExpanded\(current=>!current\)\}/);
+ assert.match(component,/onClick=\{toggle\}/);
+ assert.match(component,/const toggle=\(\)=>\{\s*if\(!expanded\)followLatestRef\.current=true;\s*setExpanded\(current=>!current\)/);
  assert.match(component,/hidden=\{!expanded\}/);
  assert.match(component,/tabIndex=\{expanded\?0:-1\}/);
  assert.match(component,/role="region"/);

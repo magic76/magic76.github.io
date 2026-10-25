@@ -58,7 +58,8 @@ test("first Mate greeting is audible, logged and does not count as external cons
  assert.match(page,/else if\(value\.trim\(\)\)\{externalOutputSeen\.current=true/);
  assert.match(page,/if\(turn\.input\?\.trim\(\)\)appendTurn\("other",turn\.input\)/);
  assert.match(page,/externalInputSeen\.current=true/);
- assert.match(page,/if\(mode==="external"\)session\.setVolume\(100\)/);
+ assert.match(page,/voice:"Aoede",volume:100/);
+ assert.match(page,/if\(mode==="external"\)\{\s*if\(session\.ready&&session\.running\)trackUsageEvent\("mate_handoff_started"\);\s*session\.setVolume\(100\)/);
  assert.match(page,/Ask Mate to start speaking/);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","complete_task",false,true),false);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","request_user_input",false,true),false);
@@ -113,7 +114,8 @@ test("briefing is finalized from confirmed speech and unsent typed text before e
  const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
  const briefing=fs.readFileSync(path.join(root,"web-spa/src/mate/mateBriefing.ts"),"utf8");
  assert.match(page,/privateStatements\.current\.push\(turn\.input\.trim\(\)\)/);
- assert.match(page,/\.\.\.privateStatements\.current,\.\.\.\(raw\?\[raw\]:\[\]\)/);
+ assert.match(page,/const pendingSpeech=privateInputRef\.current\.trim\(\)/);
+ assert.match(page,/const statements=\[\.\.\.privateStatements\.current,\.\.\.\(pendingSpeech\?\[pendingSpeech\]:\[\]\),\.\.\.\(raw\?\[raw\]:\[\]\)\]/);
  assert.match(page,/await finalizeMateBriefing\(consensusRef\.current,statements\)/);
  assert.match(briefing,/Do not guess missing fields/);
  assert.match(page,/setConfirmOwner\(false\);\s*advance\("review"/);
