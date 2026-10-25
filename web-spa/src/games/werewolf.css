@@ -104,3 +104,31 @@
  .wolf-targets{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(prefers-reduced-motion:reduce){.wolf-page *{animation:none!important;transition:none!important}}
+
+
+/* Wolf mobile conversation flow: keep the latest NPC reply and writing tools together. */
+.wolf-voice-options{flex-basis:100%;min-width:0;border-top:1px solid var(--line,#e4deed);padding-top:7px}
+.wolf-voice-options summary{color:#6a5a88;font-size:12px;font-weight:750;cursor:pointer;list-style:revert;min-height:30px;display:list-item;padding:5px 3px}
+.wolf-voice-options .crew-game-voice-picker{margin-top:6px;width:100%}
+.wolf-latest-reply{min-width:0;padding:11px 13px;border-radius:13px;background:#f2eef9;border:1px solid #ded6f0}
+.wolf-latest-reply-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.wolf-latest-reply-top strong{color:#655680;font-size:12px;min-width:0;overflow-wrap:anywhere}
+.wolf-latest-reply-top button{flex:none;border:0;background:transparent;padding:5px;min-height:34px;color:#5e519a;font-size:12px;font-weight:750;cursor:pointer}
+.wolf-latest-reply p{margin:4px 0 0;font-size:13px;line-height:1.65;color:#413b4f;white-space:pre-wrap;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}
+.wolf-quick-lines{display:flex;gap:7px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;padding-bottom:2px}
+.wolf-quick-lines button{flex:none;max-width:min(82vw,290px);white-space:normal;min-height:44px;padding:8px 11px;border:1px solid #d9cfeb;border-radius:11px;background:#faf8ff;color:#594c78;font:inherit;font-size:12px;font-weight:700;text-align:left;cursor:pointer;touch-action:manipulation}
+.wolf-quick-lines button:disabled{opacity:.5;cursor:default}
+.wolf-quick-lines button:active{background:#efe9ff}
+.wolf-quick-lines button:focus-visible,.wolf-latest-reply-top button:focus-visible,.wolf-voice-options summary:focus-visible{outline:3px solid #7f6fb5;outline-offset:2px}
+@media(max-width:520px){
+ .wolf-history{margin-bottom:0}
+ .wolf-log{max-height:156px;min-height:76px}
+ .wolf-voice{gap:7px}
+ .wolf-latest-reply{padding:9px 11px}
+ .wolf-latest-reply p{-webkit-line-clamp:3;font-size:12px}
+ .wolf-quick-lines{margin-right:-12px;padding-right:12px}
+ .wolf-compose textarea{min-height:76px;font-size:16px}
+ .wolf-compose select{font-size:16px}
+ .wolf-compose .wolf-primary{min-height:48px}
+}
+@media(prefers-reduced-motion:reduce){.wolf-latest-reply,.wolf-quick-lines{scroll-behavior:auto}}

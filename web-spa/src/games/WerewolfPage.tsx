@@ -70,9 +70,22 @@ export function WerewolfPage(){
  const mountedRef=useRef(true);
  const [showHistory,setShowHistory]=useState(true);
  const transcriptRef=useRef<HTMLDivElement|null>(null);
+ const composeRef=useRef<HTMLTextAreaElement|null>(null);
+ const followHistoryRef=useRef(true);
  const isZh=language==="zh";
  const keyReady=typeof window!=="undefined"&&Boolean(geminiKey());
- useEffect(()=>{if(showHistory&&transcriptRef.current)transcriptRef.current.scrollTop=transcriptRef.current.scrollHeight},[game?.entries.length,game?.phase,showHistory]);
+ useEffect(()=>{
+  const log=transcriptRef.current;
+  if(showHistory&&log&&followHistoryRef.current)log.scrollTop=log.scrollHeight;
+ },[game?.entries.length,game?.phase,showHistory]);
+ const handleHistoryScroll=()=>{
+  const log=transcriptRef.current;
+  if(log)followHistoryRef.current=log.scrollHeight-log.scrollTop-log.clientHeight<30;
+ };
+ const toggleHistory=()=>{
+  if(!showHistory)followHistoryRef.current=true;
+  setShowHistory(current=>!current);
+ };
  useEffect(()=>{mountedRef.current=true;trackUsageEvent("game_open","werewolf");document.body.classList.add("teacher-theme");return()=>{
   mountedRef.current=false;requestRef.current++;voiceGenerationRef.current++;liveRef.current?.stop();document.body.classList.remove("teacher-theme");
  }},[]);
@@ -188,6 +201,21 @@ export function WerewolfPage(){
   game?.phase==="day"?L(isZh,"白天討論","Day discussion"):
   game?.phase==="vote"?L(isZh,"公投時間","Voting time"):L(isZh,"本局結束","Game over");
  const lastNotes=game?.privateNotes.slice(-4)||[];
+ const latestNpc=game?.entries.slice().reverse().find(entry=>entry.kind==="speech"&&entry.speaker!=="you"&&entry.speaker!=="system");
+ const latestNpcName=latestNpc?game?.players.find(player=>player.id===latestNpc.speaker)?.name||latestNpc.speaker:"";
+ const quickLines=isZh?[
+  "昨晚的線索有什麼矛盾？",
+  "你為什麼懷疑其他人？",
+  "誰能替你的說法作證？"
+ ]:[
+  "What doesn't add up about last night?",
+  "Why do you suspect someone else?",
+  "Who can back up your story?"
+ ];
+ const useQuickLine=(line:string)=>{
+  setDraft(current=>current.trim()?current.trim()+" "+line:line);
+  composeRef.current?.focus();
+ };
  return <main className="crew-play-page wolf-page">
   <header className="wolf-header">
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
@@ -229,7 +257,10 @@ export function WerewolfPage(){
     {voiceStatus==="off"?<button type="button" className="wolf-secondary" disabled={!keyReady||game.phase==="finished"} onClick={()=>{void connectVoice()}}>{L(isZh,"開啟語音對話","Start voice chat")}</button>:
      voiceStatus==="connecting"?<button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"取消連線","Cancel")}</button>:
      <div className="wolf-voice-buttons"><button type="button" className="wolf-secondary" onClick={()=>setMuted(liveRef.current?.mute()??false)}>{muted?L(isZh,"開麥克風","Unmute"):L(isZh,"靜音","Mute")}</button><button type="button" className="wolf-secondary" onClick={endVoice}>{L(isZh,"結束語音","Stop voice")}</button></div>}
-    <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice="Puck" disabled={voiceStatus!=="off"} english={!isZh}/>
+    <details className="wolf-voice-options">
+     <summary>{L(isZh,"語音音色","Voice settings")}</summary>
+     <GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice="Puck" disabled={voiceStatus!=="off"} english={!isZh}/>
+    </details>
     {!keyReady?<Link to="/settings" className="wolf-key-link">{L(isZh,"設定 Gemini Key","Set up Gemini Key")}</Link>:null}
     {voiceStatus==="ready"?<div className="wolf-live-transcript" aria-live="polite">
      <span className="wolf-live-connected">● {L(isZh,"語音已連線","Voice connected")}</span>
@@ -240,8 +271,8 @@ export function WerewolfPage(){
     </div>:null}
    </section>
    <section className="wolf-history">
-    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={()=>setShowHistory(value=>!value)}><strong>{L(isZh,"最新對話","Latest conversation")} · {game.entries.length}</strong><span>{showHistory?"⌃":"⌄"}</span></button>
-    {showHistory?<div className="wolf-log" role="log" aria-label={L(isZh,"最新對話","Latest conversation")} ref={transcriptRef}>{game.entries.slice(-24).map((entry,index)=><div key={game.entries.length-24+index} className={"wolf-log-entry kind-"+entry.kind}>
+    <button type="button" className="wolf-history-toggle" aria-expanded={showHistory} onClick={toggleHistory}><strong>{L(isZh,"最新對話","Latest conversation")} · {game.entries.length}</strong><span>{showHistory?"⌃":"⌄"}</span></button>
+    {showHistory?<div className="wolf-log" role="log" aria-label={L(isZh,"最新對話","Latest conversation")} ref={transcriptRef} onScroll={handleHistoryScroll}>{game.entries.slice(-24).map((entry,index)=><div key={game.entries.length-24+index} className={"wolf-log-entry kind-"+entry.kind}>
      <strong>{entry.speaker==="system"?L(isZh,"主持人","Moderator"):entry.speaker==="you"?L(isZh,"你","You"):game.players.find(p=>p.id===entry.speaker)?.name||entry.speaker}</strong>
      <p>{localEvent(entry,isZh)}</p></div>)}{busy?<p className="wolf-chat-typing" role="status">{L(isZh,"AI 角色正在回覆…","NPC is replying…")}</p>:null}</div>:null}
    </section>
@@ -265,10 +296,18 @@ export function WerewolfPage(){
    {game.phase==="day"?<section className="wolf-control">
     <div className="wolf-control-title"><h2>{L(isZh,"村莊討論","Village debate")}</h2><button type="button" className="wolf-secondary" disabled={busy} onClick={openVote}>{L(isZh,"結束討論，投票 →","Start voting →")}</button></div>
     {human!.alive?<form onSubmit={submit} className="wolf-compose">
+     {latestNpc?<div className="wolf-latest-reply" role="status" aria-live="polite">
+      <div className="wolf-latest-reply-top"><strong>{latestNpcName} · {L(isZh,"最新回覆","Latest reply")}</strong>
+       <button type="button" onClick={()=>{followHistoryRef.current=true;setShowHistory(true);window.requestAnimationFrame(()=>{const log=transcriptRef.current;if(!log)return;log.scrollTop=log.scrollHeight;log.scrollIntoView({behavior:"auto",block:"nearest"})})}}>{L(isZh,"查看對話","View chat")}</button></div>
+      <p>{localEvent(latestNpc,isZh)}</p>
+     </div>:null}
+     <div className="wolf-quick-lines" role="group" aria-label={L(isZh,"發言靈感","Conversation starters")}>
+      {quickLines.map(line=><button type="button" key={line} disabled={busy} onClick={()=>useQuickLine(line)}>{line}</button>)}
+     </div>
      <label htmlFor="wolf-address">{L(isZh,"想指定誰回答？","Ask a specific NPC")}</label>
      <select id="wolf-address" value={addressed} onChange={e=>setAddressed(e.target.value)}><option value="">{L(isZh,"自由發言，由角色接話","Open discussion")}</option>{pickTargets.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>
      <label htmlFor="wolf-text">{L(isZh,"說出懷疑或提出問題","Accuse, defend or ask")}</label>
-     <textarea id="wolf-text" maxLength={260} rows={3} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={L(isZh,"例如：Zoe，為什麼妳一直替 Max 說話？","Zoe, why do you keep defending Max?")} />
+     <textarea ref={composeRef} id="wolf-text" maxLength={260} rows={3} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={L(isZh,"例如：Zoe，為什麼妳一直替 Max 說話？","Zoe, why do you keep defending Max?")} />
      <button type="submit" className="wolf-primary" disabled={!draft.trim()||busy}>{busy?L(isZh,"AI 正在思考…","NPC is thinking…"):L(isZh,"發言／質疑","Speak / challenge")}</button>
     </form>:<p>{L(isZh,"你已出局，可以觀戰並等待下一回合。","You're eliminated. You can watch the debate.")}</p>}
    </section>:null}

@@ -64,6 +64,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
  const [record,setRecord]=useState(()=>readNumberRecord(digits));
  const [dailyResult,setDailyResult]=useState(()=>dailyDate?readDailyResult(digits,dailyDate):null);
  const recordedRef=useRef(false);
+ const submitLockRef=useRef(false);
  const [history,setHistory]=useState<GuessRow[]>([]);
  const [guess,setGuess]=useState(""),[a,setA]=useState(0),[b,setB]=useState(0);
  const [error,setError]=useState("");
@@ -72,6 +73,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
  const finalRow=history[history.length-1];
  const won=Boolean(finalRow&&finalRow.result.a===digits);
  const finished=won||history.length>=10;
+ useEffect(()=>{submitLockRef.current=false},[history.length]);
  const startedRef=useRef(false),completedRef=useRef(false);
  useEffect(()=>{
   if(history.length>0&&!startedRef.current){
@@ -86,15 +88,16 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
  },[finished,mode,digits,dailyDate,history.length,won]);
  const computerGuess=useMemo(()=>mode==="reverse"&&!finished?nextComputerGuess(digits,history):null,[mode,digits,history,finished]);
  const submitGuess=(value:string)=>{
-  if(finished)return;
+  if(finished||submitLockRef.current)return;
   if(!legalNumber(value,digits)){setError("請輸入 "+digits+" 個不重複的數字，首位不能是 0。");emit("The number was unclear or invalid. Ask the player to say each digit again, slowly.");return;}
   const result=scoreAB(secret,value);
+  submitLockRef.current=true;
   setHistory(prev=>[...prev,{guess:value,result}]);setGuess("");setError("");
   emit("Player guessed "+value.split("").join(" ")+". Verified result: "+result.a+"A"+result.b+"B. "+
    (result.a===digits?"Player wins.":history.length===9?"Ten attempts used. Round finished.":"Give a short witty reaction, without giving away the answer."));
  };
  const submitReverse=(result:AB)=>{
-  if(finished||!computerGuess)return;
+  if(finished||!computerGuess||submitLockRef.current)return;
   if(result.a<0||result.b<0||result.a+result.b>digits){setError("A + B 不可超過位數。");return;}
   const updated=[...history,{guess:computerGuess,result}];
   if(candidateNumbers(digits,updated).length===0){
@@ -102,6 +105,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
    emit("The submitted A/B hint contradicts earlier hints. Ask to check and repeat it.");
    return;
   }
+  submitLockRef.current=true;
   setHistory(updated);setError("");
   emit("Your verified guess was "+computerGuess.split("").join(" ")+". Player reported "+result.a+"A"+result.b+"B. "+
    (result.a===digits?"You guessed the secret correctly.":history.length===9?"Ten guesses reached.":"React briefly before the next guess."));
@@ -119,12 +123,13 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
    else{setError("沒聽清楚 A/B，請重念，例如 one A two B。");emit("Ask the player to repeat the A/B result clearly.");}
   }
  };
- const undo=()=>{if(!history.length)return;setHistory(old=>old.slice(0,-1));setError("");emit("The last submitted turn was undone. Ignore that result. Wait for a new game action.");};
+ const undo=()=>{if(finished||!history.length)return;setHistory(old=>old.slice(0,-1));setError("");emit("The last submitted turn was undone. Ignore that result. Wait for a new game action.");};
  const remaining=Math.max(0,10-history.length);
  return <div className="crew-mini-stage">
   
   <section className="crew-mini-panel crew-mini-number-board" aria-label="1A2B 猜數字">
    <div className="crew-mini-topline"><strong>{dailyDate?"今日同題 · ":""}{mode==="guess"?"破解 "+friend.name+" 的密碼":"幫 "+friend.name+" 猜你的密碼"}</strong><span>{history.length} / 10 次 · 剩餘 {remaining} 次</span></div>
+   <progress className="crew-mini-turn-progress" value={history.length} max={10} aria-label="已使用猜測次數" />
    {dailyDate?<p className="crew-mini-daily-note">每日固定題目（UTC {dailyDate}），同難度答案相同；本機僅保留首次完成紀錄。</p>:null}
    {mode==="guess"?<p className="crew-mini-statline">個人最佳：{record.best===null?"尚無紀錄":record.best+" 次"} · 勝場 {record.wins} / {record.played}{dailyDate&&dailyResult?" · 今日首局 "+dailyResult.attempts+" 次":""}</p>:null}
    <p className="crew-mini-muted">{mode==="guess"?
@@ -138,7 +143,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
      <button type="submit" className="crew-mini-primary">送出</button>
     </div>
     <div className="crew-mini-keypad" role="group" aria-label="數字鍵盤">
-     {Array.from({length:10},(_,i)=>i).map(n=><button type="button" key={n} disabled={guess.length>=digits||guess.includes(String(n))||guess.length===0&&n===0} onClick={()=>setGuess(v=>v+String(n))}>{n}</button>)}
+     {([1,2,3,4,5,6,7,8,9,null,0,null] as const).map((n,i)=>n===null?<span className="crew-mini-keypad-spacer" aria-hidden="true" key={"space-"+i}/>:<button type="button" key={n} disabled={guess.length>=digits||guess.includes(String(n))||guess.length===0&&n===0} onClick={()=>setGuess(v=>v+String(n))}>{n}</button>)}
     </div>
    </form>:null}
    {!finished&&mode==="reverse"?<div className="crew-mini-reverse">
@@ -153,7 +158,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
    {error?<p className="crew-mini-error" role="alert">{error}</p>:null}
    <div className="crew-mini-history-head"><strong>最近猜測</strong>
     <div className="crew-mini-history-actions">
-     {history.length>0?<button type="button" onClick={undo}>撤銷上一筆</button>:null}
+     {history.length>0&&!finished?<button type="button" onClick={undo}>撤銷上一筆</button>:null}
      {history.length>0?<GamePanel label="完整紀錄" title="本局猜測紀錄">
       <ol className="crew-mini-number-history">{history.map((row,i)=><li key={i}><span>#{i+1}</span><strong>{row.guess}</strong><b>{row.result.a}A{row.result.b}B</b></li>)}</ol>
      </GamePanel>:null}
