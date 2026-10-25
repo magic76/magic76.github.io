@@ -202,3 +202,27 @@ test("3D scene presets produce genuinely different allowed theme and weather sta
  assert.equal(sunny.world.time,"day");
  assert.equal(sunny.world.revision,MAGIC_INITIAL_WORLD.revision+5);
 });
+
+test("Gemini world events are whitelisted and safely create distinct visual state",()=>{
+ const events=["meteor","rainbow","festival","aurora"];
+ let world=MAGIC_INITIAL_WORLD;
+ for(const kind of events){
+  const outcome=applyMagicCommand(world,"trigger_world_event",{kind},"en");
+  assert.equal(outcome.ok,true);
+  assert.equal(outcome.world.event,kind);
+  assert.equal(outcome.event,"world-event-started");
+  world=outcome.world;
+ }
+ assert.equal(world.time,"night");
+ const invalid=applyMagicCommand(world,"trigger_world_event",{kind:"execute_html"});
+ assert.equal(invalid.ok,false);
+ assert.equal(invalid.world,world);
+ const reset=demoMagicCommand("reset",world);
+ assert.equal(reset.world.event,null);
+ const meteor=demoMagicCommand("meteor",MAGIC_INITIAL_WORLD);
+ assert.equal(meteor.world.event,"meteor");
+ const rainbow=demoMagicCommand("rainbow",MAGIC_INITIAL_WORLD);
+ assert.equal(rainbow.world.event,"rainbow");
+ const aurora=demoMagicCommand("aurora",MAGIC_INITIAL_WORLD);
+ assert.equal(aurora.world.time,"night");
+});
