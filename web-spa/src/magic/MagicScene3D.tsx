@@ -1,7 +1,7 @@
-import {useEffect,useMemo,useRef} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
-import {Color,Group,MathUtils} from "three";
+import {Color,Group} from "three";
 import type {MagicObjectKind,MagicSpell,MagicWorld} from "./world";
 
 // The renderer receives only the strictly validated world reducer output.
@@ -208,11 +208,17 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
 }
 export function MagicScene3D(props:Props){
  const night=props.world.time==="night";
+ const [visible,setVisible]=useState(true);
+ useEffect(()=>{
+  const sync=()=>setVisible(!document.hidden);
+  sync();document.addEventListener("visibilitychange",sync);
+  return()=>document.removeEventListener("visibilitychange",sync);
+ },[]);
  return <Canvas className="magic-three-canvas" aria-label="3D magic world" role="img"
    camera={{position:[8.5,8.5,11.7],fov:42,near:.1,far:60}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
-   frameloop={props.reducedMotion?"demand":"always"}
+   frameloop={props.reducedMotion||!visible?"demand":"always"}
    fallback={<span>3D unavailable</span>}
    onCreated={({gl})=>gl.setClearColor(new Color(night?"#243658":"#b6d9e6"))}>
   <SceneContent {...props}/>
