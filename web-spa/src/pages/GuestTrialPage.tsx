@@ -180,10 +180,10 @@ export function GuestTrialPage(){
     <div style={{fontWeight:700,fontSize:38,fontVariantNumeric:"tabular-nums"}}>{String(Math.floor(secondsLeft/60)).padStart(2,"0")}:{String(secondsLeft%60).padStart(2,"0")}</div>
     <p className="meta">{phase==="listening"?txt("正在聽你說話","Listening to you"):phase==="speaking"?txt("AI 正在回應","AI is speaking"):status||txt("準備開始免費試玩","Ready for your free trial")}</p>
    </div>
-   {phase==="ready"&&<div style={{display:"grid",justifyItems:"center",gap:12}}>
+   <div style={{display:phase==="ready"?"grid":"none",justifyItems:"center",gap:12}}>
     <div ref={container} aria-label="Turnstile verification"/>
-    <button type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{txt("開始免費試玩","Start free trial")}</button>
-   </div>}
+    <button type="button" className="btn" disabled={!challenge||phase!=="ready"} onClick={()=>void begin()}>{txt("開始免費試玩","Start free trial")}</button>
+   </div>
    {phase==="loading"&&<p className="meta" role="status">{txt("正在確認試用名額…","Checking guest availability…")}</p>}
    {phase==="unavailable"&&<p role="status">{txt("目前未開放免費試用。","Guest trials are not yet available.")}</p>}
    {phase==="connecting"&&<p role="status">{txt("正在啟動麥克風…","Starting microphone…")}</p>}
@@ -192,6 +192,7 @@ export function GuestTrialPage(){
     <button className="btn" type="button" onClick={stop}>{txt("結束對話","End chat")}</button>
    </div>}
    {(phase==="error"||phase==="ended")&&<p role="status">{status}</p>}
+   {phase==="error"&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{txt("重新驗證並重試","Verify and retry")}</button>}
    {(input||output)&&<div style={{marginTop:14,padding:12,borderRadius:12,background:"var(--surface-secondary,rgba(128,128,128,.08))"}}>
     {input&&<p><strong>{txt("你","You")}：</strong>{input}</p>}
     {output&&<p><strong>{role==="teacher"?txt("老師","Teacher"):"Zoe"}：</strong>{output}</p>}
