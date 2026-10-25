@@ -2,7 +2,7 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
-import type {MagicObjectKind,MagicSpell,MagicWorld} from "./world";
+import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -85,19 +85,49 @@ function Dragon({animated}:{animated:boolean}){
   </mesh>)}
  </group>;
 }
-function SceneObject({kind,position,animated,onClick}:{kind:MagicObjectKind;position:[number,number,number];animated:boolean;onClick:(event:ThreeEvent<MouseEvent>)=>void}){
- const bob=useRef<Group>(null),arrival=useRef<number|null>(null);
- useFrame(({clock})=>{
-  if(!animated||!bob.current)return;
-  if(kind==="dragon"){
-   if(arrival.current===null)arrival.current=clock.elapsedTime;
-   const progress=Math.min(1,(clock.elapsedTime-arrival.current)/3.15);
+// Keep animations deterministic and collision-safe without allocating new geometry
+// or React state per animation frame. All objects stay on the visible island ring.
+function islandSurface(x:number,z:number){
+ return .55+1.017*Math.sqrt(Math.max(.15,1-(x/5.65)**2-(z/4.75)**2));
+}
+function SceneObject({object,position,animated,onClick}:{object:MagicObject;position:[number,number];animated:boolean;onClick:(event:ThreeEvent<MouseEvent>)=>void}){
+ const {kind,id}=object;
+ const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
+ const initial=useRef<[number,number,number] | null>(null);
+ const creature=kind==="dragon"||kind==="owl"||kind==="fox";
+ const air=kind==="dragon"?1.75:kind==="owl"?.85:0;
+ // Initial placement is above the island mesh, not at y=.98 where
+ // a large dragon torso and its wings previously clipped into the island.
+ if(initial.current===null)initial.current=[position[0],islandSurface(...position)+air,position[1]];
+ useFrame(({clock},delta)=>{
+  if(!root.current)return;
+  const time=clock.elapsedTime,seed=id*2.399;
+  const baseAngle=Math.atan2(position[1]/3.25,position[0]/3.7);
+  const baseRadius=Math.min(.92,Math.max(.63,Math.hypot(position[0]/3.7,position[1]/3.25)));
+  const angle=baseAngle+(animated&&creature?Math.sin(time*(kind==="fox"?.37:.29)+seed)*.24:0);
+  const radius=baseRadius+(animated&&creature?Math.sin(time*.31+seed)*.028:0);
+  const tx=Math.cos(angle)*radius*3.7,tz=Math.sin(angle)*radius*3.25;
+  const ty=islandSurface(tx,tz)+air+(animated&&kind!=="fox"&&creature?Math.sin(time*1.7+seed)*.16:0);
+  const current=root.current.position;
+  const alpha=animated?Math.min(1,delta*(kind==="fox"?1.4:1.9)):1;
+  const oldX=current.x,oldZ=current.z;
+  current.set(current.x+(tx-current.x)*alpha,current.y+(ty-current.y)*alpha,current.z+(tz-current.z)*alpha);
+  if(animated&&creature&&Math.hypot(current.x-oldX,current.z-oldZ)>.0001){
+   const heading=Math.atan2(current.x-oldX,current.z-oldZ);
+   root.current.rotation.y+=Math.atan2(Math.sin(heading-root.current.rotation.y),Math.cos(heading-root.current.rotation.y))*Math.min(1,delta*3);
+  }
+  if(!bob.current)return;
+  if(animated&&kind==="dragon"){
+   if(arrival.current===null)arrival.current=time;
+   const progress=Math.min(1,(time-arrival.current)/3.15);
    const eased=1-Math.pow(1-progress,3);
-   bob.current.position.set(-5*(1-eased),5.2*(1-eased),-4*(1-eased));
-   bob.current.rotation.y=(1-eased)*2.1;
-  }else bob.current.position.y=Math.sin(clock.elapsedTime*1.6+position[0])*.13;
+   bob.current.position.set(-4*(1-eased),3.8*(1-eased),-3*(1-eased));
+   bob.current.rotation.y=(1-eased)*1.5;
+  }else if(animated&&kind==="fox"){
+   bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
+  }else bob.current.position.set(0,0,0);
  });
- return <group position={position} onClick={onClick}>
+ return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
    {kind==="dragon"?<Dragon animated={animated}/>:null}
    {kind==="portal"?<group>
@@ -119,6 +149,18 @@ function SceneObject({kind,position,animated,onClick}:{kind:MagicObjectKind;posi
      <mesh position={[sign*.23,1.04,.57]}><sphereGeometry args={[.073,8,8]}/><meshStandardMaterial color="#32343d"/></mesh>
     </group>)}
     <mesh position={[0,.85,.51]} rotation={[Math.PI/2,0,0]}><coneGeometry args={[.12,.25,4]}/><meshStandardMaterial color="#ebbe73"/></mesh>
+   </group>:null}
+   {kind==="fox"?<group>
+    <mesh position={[0,.39,0]} scale={[.67,.36,.48]}><sphereGeometry args={[1,10,8]}/><meshStandardMaterial color="#df9063"/></mesh>
+    <mesh position={[0,.62,.45]} scale={[.43,.39,.43]}><sphereGeometry args={[1,10,8]}/><meshStandardMaterial color="#f0a476"/></mesh>
+    {[-1,1].map(sign=><group key={sign}>
+     <mesh position={[sign*.26,.96,.45]} rotation={[0,0,sign*-.17]}><coneGeometry args={[.2,.43,5]}/><meshStandardMaterial color="#d7875b"/></mesh>
+     <mesh position={[sign*.17,.69,.79]}><sphereGeometry args={[.063,7,6]}/><meshBasicMaterial color="#34303a"/></mesh>
+    </group>)}
+    <mesh position={[0,.52,.81]}><coneGeometry args={[.12,.28,6]}/><meshStandardMaterial color="#fff4db"/></mesh>
+    <mesh position={[0,.57,-.64]} rotation={[.7,0,0]}><coneGeometry args={[.33,.95,7]}/><meshStandardMaterial color="#eea46f"/></mesh>
+    {[-.35,.35].map(x=>[-.29,.32].map(z=><mesh key={x+":"+z} position={[x,.13,z]}>
+     <cylinderGeometry args={[.10,.11,.34,6]}/><meshStandardMaterial color="#8c594c"/></mesh>))}
    </group>:null}
    {kind==="tree"?<group><mesh position={[0,.55,0]}><cylinderGeometry args={[.18,.25,1,8]}/><meshStandardMaterial color="#9e806e"/></mesh><mesh position={[0,1.65,0]}><icosahedronGeometry args={[1.1,0]}/><meshStandardMaterial color="#85c4a5" flatShading/></mesh></group>:null}
   </group>
@@ -239,11 +281,12 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
 function MagicCinematic({cue}:{cue:NonNullable<MagicWorld["cue"]>}){
  const glyph=useRef<Group>(null),started=useRef<number|null>(null);
  const destination=useMemo(()=>cue==="dragon_arrival"?new Vector3(-4.2,6.1,8.4):new Vector3(4.4,5.1,8.2),[cue]);
+ const overview=useMemo(()=>new Vector3(12.5,11.4,18.7),[]);
  useFrame(({clock,camera},delta)=>{
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
   const smooth=Math.min(1,delta*2.5);
-  camera.position.lerp(destination,smooth);
+  camera.position.lerp(elapsed>2.3?overview:destination,smooth);
   camera.lookAt(0,cue==="dragon_arrival"?2.4:2.7,0);
   if(glyph.current){
    const phase=Math.min(1,elapsed/1.6);
@@ -295,13 +338,14 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
-   return <SceneObject key={obj.id} kind={obj.kind} position={[plot[0],.98,plot[1]]} animated={!reducedMotion}
+   const [x,z]=obj.x!==undefined&&obj.z!==undefined?safeMagicAnchor(obj.x,obj.z):plot;
+   return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
-  <OrbitControls makeDefault enabled={!cinematic} enablePan={false} enableDamping={!reducedMotion} minDistance={9} maxDistance={21}
+  <OrbitControls makeDefault enabled={!cinematic} enablePan={false} enableDamping={!reducedMotion} minDistance={12} maxDistance={36}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;
 }
@@ -314,7 +358,7 @@ export function MagicScene3D(props:Props){
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  return <Canvas className="magic-three-canvas" aria-label="3D magic world" role="img"
-   camera={{position:[8.5,8.5,11.7],fov:42,near:.1,far:60}}
+   camera={{position:[12.5,11.4,18.7],fov:42,near:.1,far:70}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={props.reducedMotion||!visible?"demand":"always"}
