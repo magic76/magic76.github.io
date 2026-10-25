@@ -832,3 +832,54 @@ test("semantic identity faces, reactors, vents and distance LOD are wired to Thr
  assert.match(live,/detail:\{type:"STRING",enum:\["face","core","vent","thruster","rune"\]/);
  assert.match(live,/name:"edit_magic_entity"/);
 });
+
+test("AI-authored anatomical pivots survive create edit storage and tool context",()=>{
+ const start=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(start.ok,true);
+ const robot=start.world.creations[0];
+ assert.equal(robot.parts[2].pivot,"top");
+ assert.equal(robot.parts[4].pivot,"top");
+ const evolved=demoMagicCommand("evolve",start.world,"en");
+ assert.equal(evolved.ok,true);
+ const wings=evolved.world.creations[0].parts.slice(-2);
+ assert.equal(wings[0].pivot,"right");
+ assert.equal(wings[1].pivot,"left");
+ const recovered=readMagicWorldSnapshot(JSON.stringify(evolved.world));
+ assert.deepEqual(recovered,evolved.world);
+ assert.match(magicCreatorContext(recovered),/right/);
+ const altered=applyMagicCommand(evolved.world,"edit_magic_entity",{
+  id:robot.id,parts:evolved.world.creations[0].parts.map((part,i)=>i===2?
+   {...part,pivot:"bottom"}:part)
+ });
+ assert.equal(altered.ok,true);
+ assert.equal(altered.world.creations[0].parts[2].pivot,"bottom");
+ assert.notEqual(altered.world.creations[0].revision,evolved.world.creations[0].revision);
+});
+test("creator pivot schema rejects arbitrary geometry anchors or incompatible joints",()=>{
+ const demo=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en").world.creations[0];
+ const payload={label:"Pivot check",idea:"articulation test",motion:"walk",
+  assembly:"gather",mood:"curious",parts:demo.parts};
+ for(const variant of [
+  {index:2,values:{pivot:"javascript"}},
+  {index:2,values:{pivot:45}},
+  {index:0,values:{pivot:"top"}},
+  {index:2,values:{joint:"fixed",pivot:"top"}},
+  {index:2,values:{joint:"wheel",pivot:"left"}}
+ ]){
+  const parts=demo.parts.map((p,i)=>i===variant.index?{...p,...variant.values}:p);
+  const result=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{...payload,parts});
+  assert.equal(result.ok,false,"must reject: "+JSON.stringify(variant));
+ }
+ // Existing saved creations before this field existed keep their old center pivots.
+ const original=demo.parts.map(({pivot,...rest})=>rest);
+ const legacy=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{...payload,
+  parts:original,label:"Legacy center hinges"});
+ assert.equal(legacy.ok,true);
+ assert.ok(legacy.world.creations[0].parts.every(p=>p.pivot===undefined));
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(legacy.world)),legacy.world);
+});
+test("Gemini tool contracts expose the bounded physical pivot to create and edit",()=>{
+ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.equal((source.match(/pivot:\{type:"STRING",enum:\["center","top","bottom","left","right"\]/g)||[]).length,2);
+ assert.match(source,/joint hinge \+ pivot top/);
+});
