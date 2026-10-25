@@ -883,3 +883,76 @@ test("Gemini tool contracts expose the bounded physical pivot to create and edit
  assert.equal((source.match(/pivot:\{type:"STRING",enum:\["center","top","bottom","left","right"\]/g)||[]).length,2);
  assert.match(source,/joint hinge \+ pivot top/);
 });
+
+test("procedural lifeform blueprints create robot fox dragon without primitive piles",()=>{
+ let world=MAGIC_INITIAL_WORLD;
+ for(const [intent,kind] of [["sculptrobot","robot"],["sculptfox","fox"],["sculptdragon","dragon"]]){
+  const result=demoMagicCommand(intent,world,"en");
+  assert.equal(result.ok,true,kind);
+  const creation=result.world.creations.at(-1);
+  assert.equal(creation.blueprint.kind,kind);
+  assert.deepEqual(creation.parts,[],"generator receives a semantic blueprint, not primitive parts");
+  assert.ok(creation.blueprint.head>=.65);
+  assert.equal(readMagicWorldSnapshot(JSON.stringify(result.world)).creations.at(-1).blueprint.kind,kind);
+  world=result.world;
+ }
+ assert.equal(world.creations.length,3);
+ assert.equal(demoMagicCommand("sculptrobot",world,"en").ok,false,"3-creation mobile limit stays intact");
+ assert.match(magicCreatorContext(world),/"kind":"dragon"/);
+});
+test("lifeform blueprint validation, structural novelty and safe evolution",()=>{
+ const blueprint={kind:"fox",style:"sleek",palette:"coral",body:1,head:1.2,tail:1.4,wings:1};
+ const input={label:"Luna",idea:"fox companion",blueprint};
+ const created=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_lifeform",input,"en");
+ assert.equal(created.ok,true);
+ const id=created.world.creations[0].id;
+ const same=applyMagicCommand(created.world,"create_magic_lifeform",{
+  ...input,label:"Recolored",blueprint:{...blueprint,palette:"azure"}
+ });
+ assert.equal(same.ok,false,"just a color change does not make a novel shape");
+ const edit=applyMagicCommand(created.world,"edit_magic_lifeform",{
+  id,blueprint:{...blueprint,head:.9,tail:.8,style:"mystic"},motion:"hover"
+ });
+ assert.equal(edit.ok,true);
+ assert.equal(edit.world.creations[0].id,id);
+ assert.equal(edit.world.creations[0].blueprint.head,.9);
+ assert.equal(edit.world.creations[0].motion,"hover");
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(edit.world)),edit.world);
+ assert.equal(applyMagicCommand(edit.world,"edit_magic_lifeform",{
+  id,blueprint:{...blueprint,head:.9,tail:.8,style:"mystic"},motion:"hover"}).ok,false);
+ for(const blueprintMutation of [
+  {...blueprint,kind:"javascript"},{...blueprint,style:"execute"},
+  {...blueprint,body:100},{...blueprint,head:-1},{...blueprint,wings:NaN},
+  {...blueprint,tail:Infinity},{...blueprint,palette:"#ff0000"}
+ ]){
+  assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_lifeform",
+   {...input,blueprint:blueprintMutation}).ok,false,JSON.stringify(blueprintMutation));
+ }
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{
+  ...input,parts:[]}).ok,false,"legacy part editor still refuses empty geometric creations");
+ const forged={...created.world,creations:[{...created.world.creations[0],
+  blueprint:{...blueprint,body:NaN}}]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(forged)),null);
+});
+test("organic residents and semantic procedural figure renderer are wired to safe Three.js surfaces",()=>{
+ const fs=require("node:fs");
+ const scene=fs.readFileSync("web-spa/src/magic/MagicScene3D.tsx","utf8");
+ const figures=fs.readFileSync("web-spa/src/magic/MagicProceduralLife3D.tsx","utf8");
+ const creations=fs.readFileSync("web-spa/src/magic/MagicCreations3D.tsx","utf8");
+ const tools=fs.readFileSync("web-spa/src/magic/liveTools.ts","utf8");
+ const demos=fs.readFileSync("web-spa/src/magic/magicPresentation.ts","utf8");
+ assert.match(scene,/MagicFoxModel3D animated=\{animated\}/);
+ assert.match(scene,/MagicDragonModel3D animated=\{animated\}/);
+ assert.doesNotMatch(scene,/function Dragon\(/);
+ assert.match(figures,/export function makeMagicSweptSurface\(/);
+ assert.match(figures,/computeFrenetFrames/);
+ assert.match(figures,/extrudeGeometry/);
+ assert.match(figures,/shapeGeometry/);
+ assert.match(figures,/latheGeometry/);
+ assert.match(figures,/return <group scale=/);
+ assert.match(creations,/creation\.blueprint\?\.kind==="robot"/);
+ assert.match(creations,/MagicRobotModel3D blueprint=/);
+ assert.match(tools,/name:"create_magic_lifeform"/);
+ assert.match(tools,/name:"edit_magic_lifeform"/);
+ for(const id of ["sculptrobot","sculptfox","sculptdragon"])assert.match(demos,new RegExp(id));
+});
