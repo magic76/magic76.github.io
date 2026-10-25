@@ -648,3 +648,25 @@ test("AI-authored joints persist, animate distinct structures and reject unsafe 
  assert.match(renderer,/animated&&assembled>\.98/);
  assert.match(live,/enum:\["fixed","hinge","flap","wheel","tail"\]/);
 });
+
+test("key-free first magic adventure demos demonstrate distinct articulated silhouettes",()=>{
+ const walking=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(walking.ok,true);
+ assert.equal(walking.world.creations[0].motion,"walk");
+ assert.ok(walking.world.creations[0].parts.filter(p=>p.joint==="hinge").length>=4);
+ const floating=demoMagicCommand("creator",walking.world,"en");
+ assert.equal(floating.ok,true);
+ assert.equal(floating.world.creations[1].motion,"hover");
+ assert.ok(floating.world.creations[1].parts.filter(p=>p.joint==="tail").length>=2);
+ const tower=demoMagicCommand("creator",floating.world,"en");
+ assert.equal(tower.ok,true);
+ assert.equal(tower.world.creations[2].motion,"spin");
+ assert.ok(tower.world.creations[2].parts.some(p=>p.joint==="wheel"));
+ const evolved=demoMagicCommand("evolve",walking.world,"en");
+ assert.equal(evolved.ok,true);
+ assert.equal(evolved.world.creations[0].id,walking.world.creations[0].id);
+ assert.ok(evolved.world.creations[0].parts.filter(p=>p.joint==="flap").length>=2);
+ for(const world of [walking.world,floating.world,tower.world,evolved.world]){
+  assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(world)),world);
+ }
+});
