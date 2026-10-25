@@ -69,6 +69,8 @@ try{
  ]){
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
+   "--disable-background-networking","--disable-component-update","--disable-default-apps",
+   "--disable-sync","--metrics-recording-only","--no-first-run","--no-default-browser-check",
    "--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader",
    "--use-gl=angle","--use-angle=swiftshader-webgl",
    "--window-size="+width+","+height,"--force-device-scale-factor=1",
