@@ -344,20 +344,3 @@
 .crew-home-orb-quick-copy small{font-size:11px;line-height:1.45;color:#746681}
 .crew-home-orb-chevron{font-size:22px;color:#795cbb}
 .crew-home-orb-quick:focus-visible{outline:2px solid #795cbb;outline-offset:3px}
-
-/* P0: resume and four destinations appear before the immersive world. */
-.crew-home-launchpad{display:grid;gap:12px;margin:0 0 18px}
-.crew-home-launchpad .crew-home-continue{margin:0}
-.crew-home-launchpad .crew-home-quick-actions{margin:0}
-.crew-home-launchpad .crew-home-action{min-height:72px}
-.crew-home-launchpad .crew-home-action strong{font-size:15px}
-.crew-home-launchpad .crew-home-action small{font-size:12px}
-.crew-home-launchpad .crew-home-action-chat .crew-home-action-icon{background:#fcecf3;color:#996381}
-.crew-home-launchpad .crew-home-action-explore .crew-home-action-icon{background:#edf2fe;color:#657fb3}
-@media(max-width:620px){
- .crew-home-launchpad{gap:11px;margin-bottom:14px}
- .crew-home-launchpad .crew-home-recent{min-height:86px}
- .crew-home-launchpad .crew-home-action{min-height:68px;padding:11px 10px}
- .crew-home-launchpad .crew-home-action strong{font-size:14px}
- .crew-home-launchpad .crew-home-action small{font-size:12px;line-height:1.35}
-}

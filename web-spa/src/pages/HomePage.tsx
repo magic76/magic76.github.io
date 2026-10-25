@@ -10,6 +10,7 @@ import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
 import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
+import {HomeQuickCarousel} from "./HomeQuickCarousel";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
@@ -117,7 +118,6 @@ function BriefingPreview(){
 
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
- const {t:tCommon}=useTranslation("common");
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
  useEffect(()=>{
@@ -147,8 +147,10 @@ export function HomePage(){
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
    <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
   </Link>}
-  <section className="crew-home-launchpad" aria-label={t("start")}>
-    {recent?<section className="crew-home-continue" aria-label="繼續上次">
+  <div className="crew-home-world">
+   <HomePortal/>
+   <HomeQuickCarousel/>
+    {recent?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
       <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
@@ -156,31 +158,6 @@ export function HomePage(){
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
      </Link>
     </section>:null}
-   <nav className="crew-home-quick-actions" aria-label={t("start")}>
-    <Link className="crew-home-action crew-home-action-chat" to="/chat">
-     <span className="crew-home-action-icon" aria-hidden="true"><Icon name="chat"/></span>
-     <span><strong>{tCommon("nav.chat")}</strong><small>{t("world.modes.chat.cta")}</small></span>
-     <span className="crew-home-action-arrow" aria-hidden="true">→</span>
-    </Link>
-    <Link className="crew-home-action crew-home-action-learn" to="/learn">
-     <span className="crew-home-action-icon" aria-hidden="true"><Icon name="teacher"/></span>
-     <span><strong>{tCommon("nav.learn")}</strong><small>{t("world.modes.learn.cta")}</small></span>
-     <span className="crew-home-action-arrow" aria-hidden="true">→</span>
-    </Link>
-    <Link className="crew-home-action crew-home-action-play" to="/games">
-     <span className="crew-home-action-icon" aria-hidden="true"><Icon name="play"/></span>
-     <span><strong>{t("product.play")}</strong><small>{t("world.modes.play.cta")}</small></span>
-     <span className="crew-home-action-arrow" aria-hidden="true">→</span>
-    </Link>
-    <Link className="crew-home-action crew-home-action-explore" to="/explore">
-     <span className="crew-home-action-icon" aria-hidden="true"><Icon name="sparkles"/></span>
-     <span><strong>{tCommon("nav.explore")}</strong><small>{t("world.explore")}</small></span>
-     <span className="crew-home-action-arrow" aria-hidden="true">→</span>
-    </Link>
-   </nav>
-  </section>
-  <div className="crew-home-world">
-   <HomePortal/>
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview/>
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
@@ -201,8 +178,6 @@ export function HomePage(){
   </div>
   <div className="crew-home-layout">
    <div className="crew-home-primary">
-
-
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
