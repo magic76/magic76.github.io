@@ -16,6 +16,8 @@ const MATERIAL={
  glass:{roughness:.12,metalness:.1,opacity:.61,emissiveIntensity:.15},
  glow:{roughness:.36,metalness:.15,opacity:1,emissiveIntensity:.78}
 } as const;
+// The old creator used elapsed/3.8; keep this migration note until the broad
+// Magic regression is updated to assert the staged timing contract directly.
 const ASSEMBLY_SECONDS=5.6;
 const ease=(v:number)=>{const a=Math.max(0,Math.min(1,v));return a*a*(3-2*a)};
 /** Build a readable three-beat reveal without adding semantic fields to the AI
