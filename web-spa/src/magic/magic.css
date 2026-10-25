@@ -1,6 +1,6 @@
 /* Crew Magic — isolated, responsive, CSS-rendered fantasy stage.
  * The live model may change validated state, never styles or DOM source. */
-.magic-page{position:relative;left:50%;transform:translateX(-50%);width:min(1460px,calc(100vw - 36px));margin:0 auto;padding:12px 0 88px;color:#2e4b4c}
+.magic-page{position:relative;left:auto;transform:none;width:100%;max-width:1460px;min-width:0;box-sizing:border-box;margin:0 auto;padding:12px 0 88px;color:#2e4b4c}
 .magic-header{display:flex;align-items:start;justify-content:space-between;gap:20px;margin:6px 3px 22px}
 .magic-header>div{display:grid;gap:7px}
 .magic-eyebrow{font-weight:850;font-size:11px;letter-spacing:.23em;color:#668d88}
@@ -163,7 +163,7 @@
  .magic-guide-card,.magic-actions,.magic-challenge{padding:16px}
 }
 @media(max-width:790px){
- .magic-page{width:calc(100vw - 22px);padding:2px 0 78px}
+ .magic-page{width:100%;padding:2px 0 78px}
  .magic-header{margin:5px 3px 15px}
  .magic-header h1{font-size:30px}
  .magic-back{font-size:11px;padding:8px 10px}
@@ -312,3 +312,9 @@
 @media(prefers-reduced-motion:reduce){
  .magic-three-canvas{transition:none}
 }
+
+/* Desktop sidebars own their space; Magic remains inside AppChrome's content shell. */
+.magic-prompt-help{margin:0 0 9px;color:#7b918a;font-size:11px;line-height:1.5}
+.magic-layout,.magic-header{min-width:0}
+.magic-header>div{min-width:0}
+@media(max-width:790px){.magic-page{max-width:100%}}
