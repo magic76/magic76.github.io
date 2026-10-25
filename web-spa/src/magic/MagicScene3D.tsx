@@ -3,6 +3,7 @@ import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
 import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
+import {ringStep,ringPoint} from "./magicNavigation";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -90,7 +91,7 @@ function Dragon({animated}:{animated:boolean}){
 function islandSurface(x:number,z:number){
  return .55+1.017*Math.sqrt(Math.max(.15,1-(x/5.65)**2-(z/4.75)**2));
 }
-function SceneObject({object,position,animated,onClick}:{object:MagicObject;position:[number,number];animated:boolean;onClick:(event:ThreeEvent<MouseEvent>)=>void}){
+function SceneObject({object,position,animated,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
  const initial=useRef<[number,number,number] | null>(null);
@@ -102,19 +103,29 @@ function SceneObject({object,position,animated,onClick}:{object:MagicObject;posi
  useFrame(({clock},delta)=>{
   if(!root.current)return;
   const time=clock.elapsedTime,seed=id*2.399;
-  const baseAngle=Math.atan2(position[1]/3.25,position[0]/3.7);
-  const baseRadius=Math.min(.92,Math.max(.63,Math.hypot(position[0]/3.7,position[1]/3.25)));
-  const angle=baseAngle+(animated&&creature?Math.sin(time*(kind==="fox"?.37:.29)+seed)*.24:0);
-  const radius=baseRadius+(animated&&creature?Math.sin(time*.31+seed)*.028:0);
-  const tx=Math.cos(angle)*radius*3.7,tz=Math.sin(angle)*radius*3.25;
-  const ty=islandSurface(tx,tz)+air+(animated&&kind!=="fox"&&creature?Math.sin(time*1.7+seed)*.16:0);
-  const current=root.current.position;
-  const alpha=animated?Math.min(1,delta*(kind==="fox"?1.4:1.9)):1;
-  const oldX=current.x,oldZ=current.z;
-  current.set(current.x+(tx-current.x)*alpha,current.y+(ty-current.y)*alpha,current.z+(tz-current.z)*alpha);
-  if(animated&&creature&&Math.hypot(current.x-oldX,current.z-oldZ)>.0001){
-   const heading=Math.atan2(current.x-oldX,current.z-oldZ);
-   root.current.rotation.y+=Math.atan2(Math.sin(heading-root.current.rotation.y),Math.cos(heading-root.current.rotation.y))*Math.min(1,delta*3);
+  const roaming=creature&&object.x===undefined;
+  const target:readonly [number,number]=roaming?
+   ringPoint(time*(kind==="fox"?.21:kind==="dragon"?.12:.16)+seed,.76+(id%3)*.045):position;
+  const current=root.current.position,from:[number,number]=[current.x,current.z];
+  const obstacles:[number,number][]=[];
+  for(const other of worldObjects){
+   if(other.id===id)continue;
+   const known=peers.get(other.id);
+   if(known){obstacles.push(known);continue}
+   const plot=PLOTS[other.slot]??PLOTS[0];
+   obstacles.push(other.x!==undefined&&other.z!==undefined?
+    safeMagicAnchor(other.x,other.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25));
+  }
+  const speed=kind==="dragon"?2.5:kind==="fox"?1.65:1.75;
+  const next=animated?ringStep(from,target,Math.min(delta,.07)*speed,obstacles):position;
+  const dx=next[0]-current.x,dz=next[1]-current.z;
+  current.set(next[0],islandSurface(next[0],next[1])+air+
+   (animated&&creature&&kind!=="fox"?Math.sin(time*1.7+seed)*.12:0),next[1]);
+  peers.set(id,[current.x,current.z]);
+  if(animated&&creature&&Math.hypot(dx,dz)>.0001){
+   const heading=Math.atan2(dx,dz);
+   root.current.rotation.y+=Math.atan2(Math.sin(heading-root.current.rotation.y),
+    Math.cos(heading-root.current.rotation.y))*Math.min(1,delta*3);
   }
   if(!bob.current)return;
   if(animated&&kind==="dragon"){
@@ -123,9 +134,8 @@ function SceneObject({object,position,animated,onClick}:{object:MagicObject;posi
    const eased=1-Math.pow(1-progress,3);
    bob.current.position.set(-4*(1-eased),3.8*(1-eased),-3*(1-eased));
    bob.current.rotation.y=(1-eased)*1.5;
-  }else if(animated&&kind==="fox"){
-   bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
-  }else bob.current.position.set(0,0,0);
+  }else if(animated&&kind==="fox")bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
+  else bob.current.position.set(0,0,0);
  });
  return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
@@ -315,6 +325,8 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   return()=>window.clearTimeout(timer);
  },[world.revision,world.cue,reducedMotion]);
  const {gl,invalidate}=useThree();
+ const peerPositions=useRef(new Map<number,[number,number]>());
+ useEffect(()=>{const active=new Set(world.objects.map(obj=>obj.id));for(const id of peerPositions.current.keys())if(!active.has(id))peerPositions.current.delete(id)},[world.objects]);
  useEffect(()=>{
   const lose=(ev:Event)=>{ev.preventDefault();onFailure()};
   gl.domElement.addEventListener("webglcontextlost",lose);
@@ -338,8 +350,10 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
-   const [x,z]=obj.x!==undefined&&obj.z!==undefined?safeMagicAnchor(obj.x,obj.z):plot;
+   const [x,z]=obj.x!==undefined&&obj.z!==undefined?
+    safeMagicAnchor(obj.x,obj.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
    return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion}
+    peers={peerPositions.current} worldObjects={world.objects}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>

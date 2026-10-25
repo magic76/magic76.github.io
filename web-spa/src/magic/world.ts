@@ -231,6 +231,44 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     message:text("魔法把"+labels[target.kind][0]+"帶往新的位置！","Magic moves the "+labels[target.kind][1]+" to a new spot!")
    },"object-moved");
   }
+  case "move_creatures":{
+   // One coordinated and bounded group action. Every member gets a distinct
+   // persistent destination on the safe island ring, rather than overlapping.
+   if(!stageCoordinate(args.x)||!stageCoordinate(args.z))return failed(state,"invalid-stage-position");
+   const types=["dragon","owl","fox"] as const;
+   if(args.kinds!==undefined&&(!Array.isArray(args.kinds)||args.kinds.length<1||
+     args.kinds.length>3||args.kinds.some(kind=>!oneOf(kind,types))))return failed(state,"invalid-creature-selection");
+   const requested=args.kinds as string[]|undefined;
+   const group=state.objects.filter(obj=>types.includes(obj.kind as (typeof types)[number])&&
+     (!requested||requested.includes(obj.kind)));
+   if(!group.length)return failed(state,"no-creatures-to-move");
+   const [cx,cz]=safeMagicAnchor(args.x,args.z);
+   const central=Math.atan2(cz/3.25,cx/3.7);
+   const occupied=state.objects.filter(obj=>!group.some(member=>member.id===obj.id));
+   const points:{id:number;x:number;z:number}[]=[];
+   for(let i=0;i<group.length;i++){
+    let found:[number,number]|null=null;
+    for(let attempt=0;attempt<28;attempt++){
+     const deviation=attempt===0?0:(attempt%2===0?-1:1)*Math.ceil(attempt/2)*.2;
+     const angle=central+(i-(group.length-1)/2)*.48+deviation;
+     const candidate:[number,number]=[Math.cos(angle)*2.91,Math.sin(angle)*2.54];
+     const blocked=occupied.some(obj=>{
+      const [ox,oz]=obj.x!==undefined&&obj.z!==undefined?safeMagicAnchor(obj.x,obj.z):
+       safeMagicAnchor(...([[-3.25,-.5],[3.15,-.7],[-2.7,2.65],[2.7,2.55],[-4,.8],[3.95,.95]][obj.slot] as [number,number]).map((v,j)=>v/(j===0?3.7:3.25)) as [number,number]);
+      return Math.hypot(candidate[0]-ox,candidate[1]-oz)<1.04;
+     })||points.some(p=>Math.hypot(candidate[0]-p.x,candidate[1]-p.z)<1.04);
+     if(!blocked){found=candidate;break}
+    }
+    if(!found)return failed(state,"no-safe-group-position");
+    const [x,z]=found;
+    points.push({id:group[i].id,x:x/3.7,z:z/3.25});
+   }
+   return updated(state,{objects:state.objects.map(obj=>{
+    const target=points.find(p=>p.id===obj.id);
+    return target?{...obj,x:target.x,z:target.z}:obj;
+   }),message:text("魔法夥伴們結隊探索島嶼，彼此保持距離！","The magic companions set off together, keeping a safe distance!")
+   },"creature-group-moved");
+  }
   case "transform_castle":{
    // A persistent, reversible 3D scene mutation; no dynamic geometry or code
    // accepted from Live. Keep the castle appearance in validated world state.
