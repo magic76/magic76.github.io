@@ -179,3 +179,26 @@ test("mobile spotlight picks the newest generated interaction and keeps result v
   kind:"challenge",id:newer.world.challenge.id
  });
 });
+
+test("3D scene presets produce genuinely different allowed theme and weather states",()=>{
+ const snowy=demoMagicCommand("snow",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(snowy.ok,true);
+ assert.equal(snowy.world.weather,"snow");
+ assert.equal(snowy.world.time,"night");
+ const forest=demoMagicCommand("forest",snowy.world,"en");
+ assert.equal(forest.ok,true);
+ assert.equal(forest.world.theme,"forest");
+ assert.equal(forest.world.weather,"clear");
+ const candy=demoMagicCommand("candy",forest.world,"en");
+ assert.equal(candy.ok,true);
+ assert.equal(candy.world.theme,"candy");
+ const storm=demoMagicCommand("rain",candy.world,"en");
+ assert.equal(storm.ok,true);
+ assert.equal(storm.world.weather,"rain");
+ const sunny=demoMagicCommand("sunny",storm.world,"en");
+ assert.equal(sunny.ok,true);
+ assert.equal(sunny.world.theme,"sky");
+ assert.equal(sunny.world.weather,"clear");
+ assert.equal(sunny.world.time,"day");
+ assert.equal(sunny.world.revision,MAGIC_INITIAL_WORLD.revision+5);
+});
