@@ -543,7 +543,8 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     ||parts.some((p,i)=>p.material!==current.parts[i]?.material||p.color!==current.parts[i]?.color);
    if(!changed)return failed(state,"no-entity-change");
    const next:MagicCreation={...current,parts,motion,assembly,mood,x,z,label,
-    ...(args.parts===undefined?{}:{blueprint:undefined}),revision:state.revision+1,...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+    revision:state.revision+1,...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+   if(args.parts!==undefined)delete next.blueprint;
    return updated(state,{creations:state.creations.map((c,i)=>i===index?next:c),
     message:text(label+"正在重新組裝，魔法讓它進化！",label+" is reassembling into something new!")
    },"entity-evolved");
