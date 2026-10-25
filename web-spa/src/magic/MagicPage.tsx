@@ -20,14 +20,15 @@ class MagicRenderBoundary extends Component<{children:ReactNode;onFailure:()=>vo
 
 
 const OBJECT_ICONS:Record<MagicObjectKind,string>={
- dragon:"🐉",chest:"🧰",portal:"🌀",tree:"🌳",owl:"🦉",crystal:"💎"
+ dragon:"🐉",chest:"🧰",portal:"🌀",tree:"🌳",owl:"🦉",fox:"🦊",crystal:"💎"
 };
 const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
  dragon:["飛龍","Dragon"],chest:["寶箱","Treasure chest"],portal:["傳送門","Portal"],
- tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],crystal:["水晶","Crystal"]
+ tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],fox:["小狐狸","Fox"],crystal:["水晶","Crystal"]
 };
 const HELPERS=[
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
+ {id:"fox",zh:"召喚漫步狐狸",en:"Summon a wandering fox",emoji:"🦊"},
  {id:"dragonice",zh:"火龍冰封城堡",en:"Dragon freezes castle",emoji:"🏰"},
  {id:"icecastle",zh:"冰封城堡",en:"Freeze the castle",emoji:"🧊"},
  {id:"thawcastle",zh:"融化冰封",en:"Thaw the castle",emoji:"☀️"},

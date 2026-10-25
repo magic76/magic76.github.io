@@ -8,10 +8,10 @@ const {stripTypeScriptTypes}=require("node:module");
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
 const stripped=stripTypeScriptTypes(source,{mode:"strip"});
 const compiled=stripped.replace(/\bexport\s+(?=(?:function|const|class)\b)/g,"")+
- "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot};";
+ "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor};";
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot}=worldModule.exports;
+const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -344,4 +344,53 @@ test("2D world renderer and switch have been removed, 3D fallback is explicit",(
  assert.doesNotMatch(page,/useThreeWorld/);
  assert.match(page,/magic-3d-unavailable/);
  assert.match(page,/MagicScene3D/);
+});
+
+test("Gemini can place and relocate animals without unbounded coordinates or code",()=>{
+ const fox=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"fox",x:-.8,z:.35},"en");
+ assert.equal(fox.ok,true);
+ assert.equal(fox.world.objects[0].kind,"fox");
+ assert.equal(fox.world.objects[0].x,-.8);
+ const moved=applyMagicCommand(fox.world,"move_object",{kind:"fox",x:.45,z:.8},"en");
+ assert.equal(moved.ok,true);
+ assert.equal(moved.world.objects[0].x,.45);
+ assert.equal(moved.world.objects[0].z,.8);
+ assert.equal(moved.world.objects[0].id,fox.world.objects[0].id);
+ assert.equal(moved.world.objects[0].slot,fox.world.objects[0].slot);
+ assert.equal(moved.event,"object-moved");
+ assert.equal(applyMagicCommand(moved.world,"move_object",{id:fox.world.objects[0].id,x:.45,z:.8}).ok,false);
+ assert.equal(applyMagicCommand(moved.world,"move_object",{id:999999,x:0,z:0}).ok,false);
+ const saved=readMagicWorldSnapshot(JSON.stringify(moved.world));
+ assert.ok(saved);
+ assert.deepEqual(saved.objects,moved.world.objects);
+ const outOfBounds=applyMagicCommand(moved.world,"move_object",{kind:"fox",x:999,z:0});
+ assert.equal(outOfBounds.ok,false);
+ assert.equal(outOfBounds.world,moved.world);
+ for(const invalid of [Infinity,"0.2",null,NaN]){
+  assert.equal(applyMagicCommand(moved.world,"move_object",{kind:"fox",x:invalid,z:0}).ok,false);
+ }
+ assert.equal(applyMagicCommand(moved.world,"summon_object",{kind:"owl",x:.6}).ok,false);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...moved.world,objects:[{id:1,kind:"fox",slot:0,x:40,z:0}]})),null);
+});
+
+test("stage coordinate projection keeps roaming animals on the island path",()=>{
+ for(const [x,z] of [[0,0],[-1,-1],[1,1],[0,1],[.8,-.1]]){
+  const [px,pz]=safeMagicAnchor(x,z);
+  assert.equal(Number.isFinite(px),true);
+  assert.equal(Number.isFinite(pz),true);
+  const r=Math.hypot(px/3.7,pz/3.25);
+  assert.ok(r>=.58&&r<=.95);
+ }
+ const oldState=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"owl"}).world;
+ assert.ok(readMagicWorldSnapshot(JSON.stringify(oldState)));
+ assert.equal(demoMagicCommand("fox",MAGIC_INITIAL_WORLD).world.objects[0].kind,"fox");
+});
+
+test("3D overview camera and world-creature locomotion are wired",()=>{
+ const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
+ assert.ok(scene.includes("camera={{position:[12.5,11.4,18.7]"));
+ assert.ok(scene.includes("safeMagicAnchor(obj.x,obj.z)"));
+ assert.ok(scene.includes('kind==="fox"'));
+ assert.ok(scene.includes("root.current.position"));
+ assert.ok(scene.includes('kind==="dragon"?1.75'));
 });

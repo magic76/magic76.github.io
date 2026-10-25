@@ -9,8 +9,16 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   time:{type:"STRING",enum:["day","night"]}
  }}},
  {name:"summon_object",description:"Add one object block to the current world: an interactive creature or magical object. This is a composable primitive and may follow a world/event change in the same player turn. Call once per object the player asks for; do not retry automatically when the world reports it is full, after reconnecting, or merely to narrate the result.",parameters:{type:"OBJECT",properties:{
-  kind:{type:"STRING",enum:["dragon","chest","portal","tree","owl","crystal"]}
+  kind:{type:"STRING",enum:["dragon","chest","portal","tree","owl","fox","crystal"]},
+  x:{type:"NUMBER",description:"Optional horizontal position from -1 left to 1 right, relative to the island center. Include both x and z or neither."},
+  z:{type:"NUMBER",description:"Optional depth from -1 back to 1 front. The renderer safely places it on a walkable island path."}
  },required:["kind"]}},
+ {name:"move_object",description:"Move an existing object or animal to a new safe position on the island. Set kind to pick the most recently summoned matching creature (dragon, owl, fox) or object, or id to target a specific object. x and z are normalized between -1 and 1; no arbitrary code, rotation or unrestricted coordinates. Animals animate their movement; foxes roam, owls fly, dragons fly above the island.",parameters:{type:"OBJECT",properties:{
+  kind:{type:"STRING",enum:["dragon","chest","portal","tree","owl","fox","crystal"]},
+  id:{type:"NUMBER",description:"Optional object ID from the world state"},
+  x:{type:"NUMBER",description:"Island left/right -1 to 1"},
+  z:{type:"NUMBER",description:"Island back/front -1 to 1"}
+ },required:["x","z"]}},
  {name:"transform_castle",description:"Permanently and visibly transform the 3D castle between crystalline ice and warm stone. 'ice' creates frost, snow and a night-time camera spell; 'stone' thaws the castle. This is a safe composable building block. If user asks a dragon to freeze the castle, summon dragon first and then call this with form=ice. Do not replay after success.",parameters:{type:"OBJECT",properties:{
   form:{type:"STRING",enum:["ice","stone"]}
  },required:["form"]}},
@@ -49,6 +57,7 @@ export function magicSystemPrompt(english:boolean){
   "The user is actually viewing a floating enchanted island with a changing backdrop, creatures and interactive cards.",
   "Respond naturally, in short sentences and with a sense of wonder. Ask one simple follow-up question at a time.",
   "The UI can change only by the provided tools. Call them promptly for the user's imaginative requests.",
+  "Creatures are animated residents, not static props: dragons and owls fly around the island, foxes wander. To put an animal/object at a particular place or move it later use summon_object with x/z or move_object with kind/id and x/z normalized -1 to +1. Respect the castle-safe island bounds, never invent raw Three.js transforms or executable data.",
   "For visible magic, prefer a transformation over generic narration. When the user asks for a dragon to freeze the castle, call summon_object for dragon if needed, then transform_castle with form ice. The renderer performs a short camera-and-rune cinematic and keeps the transformed castle in the persistent world. A request to thaw should use form stone.",
   "Think of the tools as safe LEGO-like world primitives. For a request with several compatible visual ideas, compose 2-4 different primitives in the SAME turn instead of collapsing the wish into one generic action. Example: 'make a mysterious dragon night' can change the world to night/stars, summon a dragon, then add wind or an aurora. Stop as soon as the requested scene is visibly expressed.",
   "Prefer meaningful composition over repetition: at most four world-mutating tool calls for one user turn, never call the same primitive twice with equivalent arguments, and never add unrelated surprises just to reach the limit.",
