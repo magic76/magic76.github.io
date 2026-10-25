@@ -1,5 +1,5 @@
 import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
-import type {CSSProperties,FormEvent,ReactNode} from "react";
+import type {FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
@@ -14,7 +14,7 @@ const MagicScene3D=lazy(()=>import("./MagicScene3D").then(mod=>({default:mod.Mag
 class MagicRenderBoundary extends Component<{children:ReactNode;onFailure:()=>void},{failed:boolean}>{
  state={failed:false};
  static getDerivedStateFromError(){return {failed:true}}
- componentDidCatch(error:Error){console.error("Crew Magic 3D fallback",error);this.props.onFailure()}
+ componentDidCatch(error:Error){console.error("Crew Magic 3D rendering error",error);this.props.onFailure()}
  render(){return this.state.failed?null:this.props.children}
 }
 
@@ -26,11 +26,10 @@ const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
  dragon:["飛龍","Dragon"],chest:["寶箱","Treasure chest"],portal:["傳送門","Portal"],
  tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],crystal:["水晶","Crystal"]
 };
-const SPOTS:[[number,number],[number,number],[number,number],[number,number],[number,number],[number,number]]=[
- [19,57],[74,43],[59,68],[35,72],[83,60],[12,34]
-];
 const HELPERS=[
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
+ {id:"icecastle",zh:"冰封城堡",en:"Freeze the castle",emoji:"🧊"},
+ {id:"thawcastle",zh:"融化冰封",en:"Thaw the castle",emoji:"☀️"},
  {id:"night",zh:"讓天空變成星夜",en:"Make it a starry night",emoji:"🌙"},
  {id:"puzzle",zh:"給我一個魔法謎題",en:"Give me a magic riddle",emoji:"🔮"},
  {id:"portal",zh:"打開一扇傳送門",en:"Open a portal",emoji:"🌀"},
@@ -67,7 +66,7 @@ export function MagicPage(){
  const [hasKey,setHasKey]=useState(false);
  const [starting,setStarting]=useState(false);
  const [showGuide,setShowGuide]=useState(false);
- const [useThreeWorld,setUseThreeWorld]=useState(()=>typeof window!=="undefined"&&(
+ const [supports3D]=useState(()=>typeof window!=="undefined"&&(
   "WebGL2RenderingContext" in window||"WebGLRenderingContext" in window
  ));
  const [threeFailed,setThreeFailed]=useState(false);
@@ -77,8 +76,8 @@ export function MagicPage(){
   const sync=()=>setReducedMotion(q.matches);
   sync();q.addEventListener("change",sync);return()=>q.removeEventListener("change",sync);
  },[]);
- const has3D=useThreeWorld&&!threeFailed;
- const fail3D=useCallback(()=>{trackUsageEvent("magic_3d_fallback");setThreeFailed(true);setUseThreeWorld(false)},[]);
+ const has3D=supports3D&&!threeFailed;
+ const fail3D=useCallback(()=>{trackUsageEvent("magic_3d_fallback");setThreeFailed(true)},[]);
  useEffect(()=>{trackUsageEvent("magic_enter")},[]);
  const sessionRef=useRef<LiveSession|null>(null);
  const toolResultsRef=useRef(new Map<string,MagicResult>());
@@ -216,7 +215,7 @@ export function MagicPage(){
  }
  function interact(kind:MagicObjectKind){
   if(kind==="chest"){runDemo("puzzle");return}
-  if(kind==="portal"){runCommand("change_world",{theme:worldRef.current.theme==="sky"?"forest":"sky"});return}
+  if(kind==="portal"){runCommand("open_world_portal",{});return}
   if(kind==="dragon"){runCommand("cast_spell",{spell:"fire"});return}
   runCommand("cast_spell",{spell:"sparkles"});
  }
@@ -243,55 +242,18 @@ export function MagicPage(){
    <Link className="magic-back" to="/explore">← {t("探索","Explore")}</Link>
   </header>
   <div className="magic-layout">
-   <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+(has3D?" is-3d":"")}
+   <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+" is-3d"}
     aria-label={t("即時魔法世界","Live magic world")}>
     {has3D?<MagicRenderBoundary onFailure={fail3D}>
      <Suspense fallback={<div className="magic-3d-loading" role="status">{t("正在建造魔法世界…","Building your magic world…")}</div>}>
       <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact} onFailure={fail3D}/>
      </Suspense>
     </MagicRenderBoundary>:null}
-    <div className="magic-moon" aria-hidden="true"/>
-    <div className="magic-sun" aria-hidden="true"/>
-    <div className="magic-stars" aria-hidden="true">{Array.from({length:22},(_,i)=><i key={i} style={{left:((i*37)%97+1)+"%",top:((i*23)%59+1)+"%"}}/>)}</div>
-    <div className="magic-cloud cloud-a" aria-hidden="true"/><div className="magic-cloud cloud-b" aria-hidden="true"/>
-    <div className="magic-cloud cloud-c" aria-hidden="true"/>
-    <div className="magic-distant distant-left" aria-hidden="true"/>
-    <div className="magic-distant distant-right" aria-hidden="true"/>
-    {world.weather==="rain"||world.weather==="snow"?<div className="magic-precipitation" aria-hidden="true">
-     {Array.from({length:24},(_,i)=><i key={i} style={{left:((i*41)%100)+"%",animationDelay:"-"+(i%8)+"s"}}/> )}
-    </div>:null}
-    <div className="magic-island" aria-hidden="true">
-     <div className="magic-island-glow"/>
-     <div className="magic-island-grass"/>
-     <div className="magic-island-earth"/>
-     <div className="magic-path"/>
-     <div className="magic-castle">
-      <span className="magic-tower tower-left"><i/></span><span className="magic-tower tower-right"><i/></span>
-      <span className="magic-palace"><i/><b/></span>
-      <span className="magic-castle-roof"/>
-     </div>
-     <span className="magic-island-tree tree-left">🌲</span><span className="magic-island-tree tree-right">🌲</span>
-    </div>
-    <div className="magic-object-layer">
-     {world.objects.map(obj=>{
-      const [x,y]=SPOTS[obj.slot];
-      const style={"--magic-x":x+"%","--magic-y":y+"%"} as CSSProperties;
-      return <button key={obj.id} type="button" className={"magic-object kind-"+obj.kind}
-       style={style} title={zh?OBJECT_LABELS[obj.kind][0]:OBJECT_LABELS[obj.kind][1]}
-       aria-label={t("和","Interact with ")+(zh?OBJECT_LABELS[obj.kind][0]:OBJECT_LABELS[obj.kind][1])}
-       onClick={()=>interact(obj.kind)}>
-       <span aria-hidden="true">{OBJECT_ICONS[obj.kind]}</span>
-      </button>;
-     })}
-    </div>
-    {world.effect?<div key={world.revision} className={"magic-effect effect-"+world.effect} aria-hidden="true">
-     <i/><i/><i/><i/><i/><i/>
+    {!has3D?<div className="magic-3d-unavailable" role="alert">
+     <strong>{t("無法啟動 3D 魔法世界","3D magic world is unavailable")}</strong>
+     <p>{t("請使用支援 WebGL 的瀏覽器，或重新開啟頁面。你的魔法世界進度仍會保留。","Try a browser with WebGL support or reopen this page. Your world progress is preserved.")}</p>
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
-    <button className="magic-view-switch" type="button" onClick={()=>setUseThreeWorld(v=>threeFailed?false:!v)}
-     disabled={threeFailed} aria-label={has3D?t("切換簡易地圖","Switch to simple world"):t("切換 3D 世界","Switch to 3D world")}>
-     {has3D?t("切換 2D","2D mode"):threeFailed?t("簡易模式","Simple world"):t("切換 3D","3D mode")}
-    </button>
     <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
      {isOnline||voiceState==="connecting"?<>
       <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>
