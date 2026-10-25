@@ -1,7 +1,7 @@
 import type {MateConsensus} from "./mateState";
 import {MATE_LANGUAGES} from "./mateState";
-export function MateConsensusFields({consensus,canEdit,edit,en}:{
-  consensus:MateConsensus;canEdit:boolean;edit:(field:keyof MateConsensus,value:string)=>void;en:boolean;
+export function MateConsensusFields({consensus,canEdit,edit,en,showPresets=true}:{
+  consensus:MateConsensus;canEdit:boolean;edit:(field:keyof MateConsensus,value:string)=>void;en:boolean;showPresets?:boolean;
 }){
   const t=(zh:string,english:string)=>en?english:zh;
   const options=(value:string,field:"userLanguage"|"otherLanguage")=>
@@ -19,7 +19,7 @@ export function MateConsensusFields({consensus,canEdit,edit,en}:{
     edit("target",preset.target);edit("goal",preset.goal);edit("constraints",preset.limits);
   };
   return <>
-        {canEdit&&<div className="mate-presets" aria-label={t("快速建立任務","Task examples")}>
+        {canEdit&&showPresets&&<div className="mate-presets" aria-label={t("快速建立任務","Task examples")}>
           {presets.map(preset=><button type="button" key={preset.id} onClick={()=>applyPreset(preset)}>{en?preset.en:preset.zh}</button>)}
         </div>}
         <div className="mate-languages"><label>{t("我使用的語言","My language")}{options(consensus.userLanguage,"userLanguage")}</label>

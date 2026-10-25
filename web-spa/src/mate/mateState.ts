@@ -1,5 +1,5 @@
 /** Crew Mate's independent product contract. Do not reuse Teacher/Friend memory. */
-export type MatePhase = "setup" | "private" | "review" | "external" | "decision" | "finished";
+export type MatePhase = "setup" | "supplement" | "private" | "review" | "external" | "decision" | "finished";
 export type MateAudience = "IDLE" | "PRIVATE_TO_MATE" | "MATE_HANDLING" | "EXTERNAL_WITH_MATE" | "USER_DIRECT";
 export type MateConsensus = {
   target: string;
