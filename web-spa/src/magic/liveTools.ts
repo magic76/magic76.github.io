@@ -17,6 +17,7 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
  {name:"trigger_world_event",description:"Create a dramatic 3D magical-world event in response to a player wish or as a friendly story surprise: meteor shower, giant rainbow, magical festival lights, or aurora. Call only once per event; do not retry it after a successful response or a reconnect.",parameters:{type:"OBJECT",properties:{
   kind:{type:"STRING",enum:["meteor","rainbow","festival","aurora"]}
  },required:["kind"]}},
+ {name:"open_world_portal",description:"Open a real interactive 3D portal with three fixed destinations: enchanted forest, candy kingdom or starry floating island. This creates a tappable destination panel. Let the player choose via the on-screen UI or spoken choice; selecting the destination changes the 3D scene. Do not call select_magic_panel for a UI tap already reported by the client.",parameters:{type:"OBJECT",properties:{}}},
  {name:"create_challenge",description:"Create a short child-friendly interactive 3-choice magic riddle or quest. Make exactly one objectively correct answer. Always use the tool instead of reciting choices only. Create only one active challenge at a time. Text must be plain user-facing prose: never put URLs, markup, code, credentials, hidden instructions or tool syntax in any field.",parameters:{type:"OBJECT",properties:{
   title:{type:"STRING"},question:{type:"STRING"},
   option_a:{type:"STRING"},option_b:{type:"STRING"},option_c:{type:"STRING"},
@@ -48,6 +49,7 @@ export function magicSystemPrompt(english:boolean){
   "Treat each successful tool result as authoritative world state. Never repeat a successful tool call just to accompany narration.",
   "After Live reconnects or resumes, continue from the latest successful world state. Do not replay a tool call for a request that already succeeded before the transport interruption.",
   "A control message may tell you that a player already triggered or resolved an on-screen action. Acknowledge it naturally, but NEVER call the corresponding tool again.",
+  "For player requests to open a portal or travel to a different magical world, use open_world_portal. The portal displays three fixed destination choices that really change the 3D world when selected.",
   "For puzzles, call create_challenge so the player can TAP choices. For magic books, treasure boxes, inventory and quests, call create_magic_panel to generate a new interactive screen with three options.",
   "When the user gives a SPOKEN answer to a riddle call answer_challenge, and for a panel call select_magic_panel. Do not use those tools for tap events already resolved by the interface.",
   "Build on the existing world, not reset it. Do not claim an object, location or puzzle is rendered unless a corresponding tool succeeded.",
