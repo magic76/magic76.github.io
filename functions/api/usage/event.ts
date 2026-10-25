@@ -28,7 +28,7 @@ const events=new Set([
 ]);
 const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
-  "mira","ethan","hana","learn","story","fortune","play","briefing","town","magic","mate","shorts","circle",
+  "mira","ethan","hana","learn","story","fortune","timeline","play","briefing","town","magic","mate","shorts","circle",
   "voice","demo","live","person","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
