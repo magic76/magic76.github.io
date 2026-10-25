@@ -172,6 +172,48 @@ function SceneEvents({event,animated}:{event:MagicWorld["event"];animated:boolea
   })}
  </group>;
 }
+/** Distinct landmark silhouettes turn a palette change into actual geography. */
+function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean}){
+ if(theme==="forest")return <group>
+  {[-1,1].map((sign)=><group key={sign} position={[sign*3.1,1.13,-2.2]}>
+   <mesh position={[0,.48,0]}><cylinderGeometry args={[.23,.34,1.2,7]}/><meshStandardMaterial color="#e0c8aa"/></mesh>
+   <mesh position={[0,1.18,0]} scale={[1.2,.52,1.1]}>
+    <sphereGeometry args={[.9,12,8]}/><meshStandardMaterial color="#d96883" roughness={.82}/></mesh>
+   {[-.45,.23,.55].map((x,i)=><mesh key={i} position={[x,1.58,i*.16-.2]}>
+    <sphereGeometry args={[.15,7,5]}/><meshBasicMaterial color="#fff2c7"/></mesh>)}
+   <mesh position={[0,.51,.32]}><sphereGeometry args={[.17,8,8]}/>
+    <meshStandardMaterial color="#e9ffb2" emissive="#b1f47b" emissiveIntensity={night?1.4:.22}/></mesh>
+  </group>)}
+  <mesh position={[0,1.4,-3.9]} rotation={[-Math.PI/2,0,0]}>
+   <torusGeometry args={[1.2,.13,8,32]}/><meshStandardMaterial color="#8ec5a2" emissive="#61c990" emissiveIntensity={.25}/></mesh>
+ </group>;
+ if(theme==="candy")return <group>
+  {[-1,1].map((sign)=><group key={sign} position={[sign*3.4,1.1,-2.15]}>
+   <mesh position={[0,.9,0]}><cylinderGeometry args={[.18,.21,1.85,10]}/><meshStandardMaterial color="#faf6e0"/></mesh>
+   <mesh position={[0,2.02,0]}><torusGeometry args={[.7,.25,8,20]}/>
+    <meshStandardMaterial color={sign===1?"#f9b7d9":"#b5ddfc"} metalness={.12} roughness={.4}/></mesh>
+   <mesh position={[0,2.02,0]} rotation={[0,0,Math.PI/4]}>
+    <boxGeometry args={[.95,.16,.18]}/><meshStandardMaterial color="#fff5bf"/></mesh>
+  </group>)}
+  {[-1.3,1.3].map((x,i)=><group key={i} position={[x,1.16,3.3]}>
+   <mesh position={[0,.28,0]}><cylinderGeometry args={[.33,.33,.56,8]}/>
+    <meshStandardMaterial color="#e7a67d"/></mesh>
+   <mesh position={[0,.72,0]}><sphereGeometry args={[.58,12,8]}/>
+    <meshStandardMaterial color={i===0?"#f5bddb":"#f2e5a3"}/></mesh>
+   <mesh position={[0,1.08,0]}><sphereGeometry args={[.14,8,6]}/><meshBasicMaterial color="#e86b91"/></mesh>
+  </group>)}
+ </group>;
+ return <group>
+  {[-1,1].map(sign=><group key={sign} position={[sign*3.8,1,-2.35]}>
+   <mesh position={[0,.63,0]}><cylinderGeometry args={[.65,.86,1.26,6]}/>
+    <meshStandardMaterial color="#c1d6eb" flatShading/></mesh>
+   <mesh position={[0,1.84,0]}><octahedronGeometry args={[.84,0]}/>
+    <meshStandardMaterial color="#b4ddfa" emissive="#83add9" emissiveIntensity={night?.4:.08} flatShading/></mesh>
+  </group>)}
+  <mesh position={[0,1.13,3.55]}><torusGeometry args={[.88,.18,8,24]}/>
+   <meshStandardMaterial color="#edc98e" metalness={.35} roughness={.4}/></mesh>
+ </group>;
+}
 function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
  const colors=BIOMES[world.theme],night=world.time==="night";
  const {gl,invalidate}=useThree();
@@ -194,6 +236,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   <pointLight position={[0,4,0]} intensity={night?2.3:.8} color="#e6cbff" distance={10}/>
   <FloatingIsland colors={colors}/>
   <Castle colors={colors} night={night}/>
+  <BiomeLandmarks theme={world.theme} night={night}/>
   {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
