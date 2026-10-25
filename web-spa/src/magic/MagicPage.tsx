@@ -3,7 +3,7 @@ import type {CSSProperties,FormEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
-import {applyMagicCommand,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind} from "./world";
+import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
@@ -44,6 +44,7 @@ export function MagicPage(){
  const [starting,setStarting]=useState(false);
  const [showGuide,setShowGuide]=useState(false);
  const sessionRef=useRef<LiveSession|null>(null);
+ const toolResultsRef=useRef(new Map<string,MagicResult>());
  useEffect(()=>{
   const sync=()=>setHasKey(Boolean(geminiKey()));
   sync();window.addEventListener(GEMINI_KEY_CHANGED_EVENT,sync);
@@ -73,6 +74,7 @@ export function MagicPage(){
 
  const stopVoice=useCallback(async ()=>{
   ++generation.current;
+  toolResultsRef.current.clear();
   const session=sessionRef.current;sessionRef.current=null;
   setVoiceState("idle");setStarting(false);setMuted(false);setHeard("");setSaid("");
   if(session)try{await session.stop({reason:"magic-stop",silentStatus:true,emitTerminal:false})}catch{/* Already closed */}
@@ -90,6 +92,7 @@ export function MagicPage(){
    return;
   }
   const sequence=++generation.current;
+  toolResultsRef.current.clear(); // A manual new call is a new session; reconnects keep this map.
   setStarting(true);setVoiceState("connecting");setToolsAvailable(true);setMuted(false);
   setNotice(t("正在開啟魔法通道…","Opening the magical connection…"));
   const failSession=(message:string)=>{
@@ -112,9 +115,10 @@ export function MagicPage(){
     voice:"Aoede",volume,tools:MAGIC_TOOLS,maxResumeAttempts:1,maxLiveAttempts:2,
     onToolCall:call=>{
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
-     const result=runCommand(call.name,call.args);
+     const {result,duplicate}=applyMagicLiveCall(worldRef.current,call,toolResultsRef.current,zh?"zh":"en");
+     if(!duplicate&&result.ok){worldRef.current=result.world;setWorld(result.world);}
      return {ok:result.ok,event:result.event,chapter:result.world.chapter,
-      ...(result.ok?{}:{error:result.event})};
+      duplicate,...(result.ok?{}:{error:result.event})};
     },
     onToolsUnavailable:()=>{if(generation.current===sequence){
      setToolsAvailable(false);
