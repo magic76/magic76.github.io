@@ -1,19 +1,15 @@
 import type {NewsScene} from "./nonsenseNewsEngine";
 import type {DirectorEvent} from "./nonsenseDirector";
 import {NonsenseDirectorCards} from "./NonsenseDirectorCards";
+import {NonsenseNewsStoryboard} from "./NonsenseNewsStoryboard";
 
 const L=(zh:boolean,a:string,b:string)=>zh?a:b;
-const stageSymbols={breaking:"📡",witness:"🎙️",evidence:"🗂️",poll:"📊",crisis:"🚨",finale:"🏆"};
 type Props={scene:NewsScene;zh:boolean;round:number;totalRounds:number;playing:boolean;hostDraft:string;playerDraft:string;aiSpeaking:boolean;directorEvents:DirectorEvent[];choiceDisabled:boolean;onChoice:(value:string)=>void};
 export function NonsenseNewsStage({scene,zh,round,totalRounds,playing,hostDraft,playerDraft,aiSpeaking,directorEvents,choiceDisabled,onChoice}:Props){
  const finished=scene.type==="finale";
  return <section className={"news-stage news-stage-"+scene.type} aria-label={L(zh,"荒謬新聞現場","Absurd newsroom")} aria-live="polite">
   <div className="news-studio-top"><span className="news-live-light"><i/> CREW NEWS · LIVE</span><span className="news-studio-round">{finished?L(zh,"大結局","FINALE"):L(zh,"第 "+round+" / "+totalRounds+" 回合","ROUND "+round+" / "+totalRounds)}</span></div>
-  <div className="news-stage-visual" aria-hidden="true">
-   <div className="news-orbit news-orbit-a"/><div className="news-orbit news-orbit-b"/>
-   <span className="news-stage-symbol">{stageSymbols[scene.type]}</span>
-   <span className="news-studio-watermark">CREW / ON AIR</span>
-  </div>
+  <NonsenseNewsStoryboard scene={scene} zh={zh}/>
   <div className="news-broadcast-copy">
    <span className="news-eyebrow">{({breaking:L(zh,"突發快訊","BREAKING NEWS"),witness:L(zh,"現場連線","LIVE INTERVIEW"),evidence:L(zh,"最新證據","NEW EVIDENCE"),poll:L(zh,"民調速報","LIVE POLL"),crisis:L(zh,"重大危機","EMERGENCY UPDATE"),finale:L(zh,"新聞大結局","FINAL REPORT")})[scene.type]}</span>
    <h2>{scene.headline}</h2>
