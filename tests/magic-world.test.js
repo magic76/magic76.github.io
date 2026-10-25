@@ -508,7 +508,7 @@ test("visual-first stage has a surprise action and keeps the quest optional",()=
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
  const wonders=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicWonders3D.tsx"),"utf8");
  const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
- assert.match(page,/runDemo\("wonder"\)/);
+ assert.match(page,/runDemo\("creator"\)/);
  assert.match(page,/className="magic-surprise"/);
  assert.match(page,/className="magic-optional-quest"/);
  assert.match(scene,/MagicWonders3D wonders=\{world\.wonders\}/);
