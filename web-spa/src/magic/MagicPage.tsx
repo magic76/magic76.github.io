@@ -48,7 +48,7 @@ export function MagicPage(){
  const zh=i18n.language.startsWith("zh");
  const t=(chinese:string,english:string)=>zh?chinese:english;
  const [world,setWorld]=useState<MagicWorld>(()=>{
-  try{return readMagicWorldSnapshot(window.sessionStorage.getItem("crew-magic-world-v1"))??MAGIC_INITIAL_WORLD}
+  try{return typeof window==="undefined"?MAGIC_INITIAL_WORLD:readMagicWorldSnapshot(window.sessionStorage.getItem("crew-magic-world-v1"))??MAGIC_INITIAL_WORLD}
   catch{return MAGIC_INITIAL_WORLD}
  });
  const worldRef=useRef<MagicWorld>(world);
