@@ -19,6 +19,11 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   x:{type:"NUMBER",description:"Island left/right -1 to 1"},
   z:{type:"NUMBER",description:"Island back/front -1 to 1"}
  },required:["x","z"]}},
+ {name:"move_creatures",description:"Move a group of existing animals together to safely separated destinations. Use when the player asks multiple creatures to travel together. Omit kinds for all creatures; otherwise select dragon, owl, fox. Supply normalized x and z from -1 to 1.",parameters:{type:"OBJECT",properties:{
+  kinds:{type:"ARRAY",items:{type:"STRING",enum:["dragon","owl","fox"]}},
+  x:{type:"NUMBER",description:"Left/right destination -1 to 1"},
+  z:{type:"NUMBER",description:"Back/front destination -1 to 1"}
+ },required:["x","z"]}},
  {name:"transform_castle",description:"Permanently and visibly transform the 3D castle between crystalline ice and warm stone. 'ice' creates frost, snow and a night-time camera spell; 'stone' thaws the castle. This is a safe composable building block. If user asks a dragon to freeze the castle, summon dragon first and then call this with form=ice. Do not replay after success.",parameters:{type:"OBJECT",properties:{
   form:{type:"STRING",enum:["ice","stone"]}
  },required:["form"]}},
@@ -58,6 +63,7 @@ export function magicSystemPrompt(english:boolean){
   "Respond naturally, in short sentences and with a sense of wonder. Ask one simple follow-up question at a time.",
   "The UI can change only by the provided tools. Call them promptly for the user's imaginative requests.",
   "Creatures are animated residents, not static props: dragons and owls fly around the island, foxes wander. To put an animal/object at a particular place or move it later use summon_object with x/z or move_object with kind/id and x/z normalized -1 to +1. Respect the castle-safe island bounds, never invent raw Three.js transforms or executable data.",
+  "If the player asks two or more animals to go somewhere together, call move_creatures once with x and z in [-1,1] and optionally kinds (dragon, owl, fox). The world assigns each creature a separate position; never simulate a group by repeatedly sending them all to one coordinate. If no matching animals exist, explain that they need to be summoned first.",
   "For visible magic, prefer a transformation over generic narration. When the user asks for a dragon to freeze the castle, call summon_object for dragon if needed, then transform_castle with form ice. The renderer performs a short camera-and-rune cinematic and keeps the transformed castle in the persistent world. A request to thaw should use form stone.",
   "Think of the tools as safe LEGO-like world primitives. For a request with several compatible visual ideas, compose 2-4 different primitives in the SAME turn instead of collapsing the wish into one generic action. Example: 'make a mysterious dragon night' can change the world to night/stars, summon a dragon, then add wind or an aurora. Stop as soon as the requested scene is visibly expressed.",
   "Prefer meaningful composition over repetition: at most four world-mutating tool calls for one user turn, never call the same primitive twice with equivalent arguments, and never add unrelated surprises just to reach the limit.",
