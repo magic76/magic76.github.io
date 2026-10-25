@@ -6,6 +6,7 @@ import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world"
 import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
 import {MagicPartIdentity3D} from "./MagicPartIdentity3D";
+import {MagicDragonModel3D,MagicFoxModel3D,MagicRobotModel3D} from "./MagicProceduralLife3D";
 const LINK_UP=new Vector3(0,1,0);
 
 const PALETTE={
@@ -109,7 +110,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
  const owner=creations.find(c=>c.id===creation.friendOf);
- const groundClearance=useMemo(()=>creationGroundClearance(creation.parts),[creation.parts]);
+ const groundClearance=useMemo(()=>creation.blueprint?.kind==="dragon"?.22:creation.blueprint?.1:creationGroundClearance(creation.parts),[creation.parts,creation.blueprint]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
  const pivots=useMemo(()=>creation.parts.map(magicPartPivot),[creation.parts]);
  const origin=useMemo(()=>{
@@ -155,7 +156,10 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    const pulse=animated&&assembled>.98?Math.sin(t*(1.7+creation.seed%5*.13))*personality:0;
    const sway=animated&&assembled>.98?Math.sin(t*(.72+creation.seed%3*.11))*personality:0;
    const breathe=1+pulse*.018;
-   body.current.scale.set(breathe,1-pulse*.012,breathe);
+   // High-level anatomical creations materialize as a continuous silhouette,
+   // not a cloud of disconnected primitives. Reduced-motion shows full form.
+   const sculptReveal=creation.blueprint?(animated?ease((completion-.12)/.72):1):1;
+   body.current.scale.set(breathe*sculptReveal,(1-pulse*.012)*sculptReveal,breathe*sculptReveal);
    body.current.rotation.z=sway*.025;
    body.current.position.y=animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
   }
@@ -228,6 +232,16 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
   <group ref={body}>
+   {creation.blueprint?.kind==="robot"&&
+    <MagicRobotModel3D blueprint={creation.blueprint} animated={animated}/>}
+   {creation.blueprint?.kind==="fox"&&
+    <MagicFoxModel3D animated={animated} size={creation.blueprint.body}
+     color={PALETTE[creation.blueprint.palette]} headScale={creation.blueprint.head}
+     tailScale={creation.blueprint.tail}/>}
+   {creation.blueprint?.kind==="dragon"&&
+    <MagicDragonModel3D animated={animated} size={creation.blueprint.body}
+     color={PALETTE[creation.blueprint.palette]} headScale={creation.blueprint.head}
+     tailScale={creation.blueprint.tail} wingScale={creation.blueprint.wings}/>}
    {creation.parts.map((part,i)=><mesh key={"link-"+i}
     ref={node=>{links.current[i]=node}}
     visible={false}>
