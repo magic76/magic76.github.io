@@ -15,6 +15,13 @@ const BRIDGES:ReadonlyArray<readonly [string,string]>=[
  ["c7","m4"],["c3","g4"],["h0","m4"],["b0","g4"],
  ["c5","h2"],["c5","b6"]
 ];
+// A pedestrian arcade through the town square keeps the center active.
+const CENTRAL_WALK:ReadonlyArray<readonly [string,number,number]>=[
+ ["s0",0,-4],["s1",0,-.2],["s2",0,3.4],["s3",0,6.6]
+];
+const CENTRAL_LINKS:ReadonlyArray<readonly [string,string]>=[
+ ["c1","s0"],["s0","s1"],["s1","s2"],["s2","s3"],["s3","c5"]
+];
 function makeWalkGraph():Readonly<Record<string,WalkNode>>{
  const nodes:Record<string,{point:Waypoint;neighbors:string[]}>={};
  for(const ring of LOOPS){
@@ -24,7 +31,8 @@ function makeWalkGraph():Readonly<Record<string,WalkNode>>{
    nodes[from].neighbors.push(to);nodes[to].neighbors.push(from);
   }
  }
- for(const [from,to] of BRIDGES){
+ for(const [id,x,z] of CENTRAL_WALK)nodes[id]={point:[x,z],neighbors:[]};
+ for(const [from,to] of [...BRIDGES,...CENTRAL_LINKS]){
   if(!nodes[from]||!nodes[to])throw Error("Unknown walk graph node");
   nodes[from].neighbors.push(to);nodes[to].neighbors.push(from);
  }

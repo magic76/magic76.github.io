@@ -2,15 +2,11 @@ import {useMemo,useState} from "react";
 import {Html,useCursor,useGLTF} from "@react-three/drei";
 import type {ThreeEvent} from "@react-three/fiber";
 import {DoubleSide,Mesh,MeshStandardMaterial,Object3D} from "three";
-import {PLACES,WORLD_SIZE,type PlaceId} from "./world";
+import {PLACES,type PlaceId} from "./world";
+import {TownIsland} from "./TownIsland";
+import {LANDMARKS,CENTER_TREES} from "./TownLayout";
 
 const ASSET="/assets/town/crew-town-art-kit.glb";
-const TREES:[number,number,number][]=[
- [-8,-5.7,.95],[-7.2,-6.2,.84],[-8,1.2,.92],[-7.7,4.5,1.03],[-6.2,6.3,1.16],
- [-4.5,7.1,.9],[-.5,7.2,.8],[1.0,6.7,.96],[8.7,-5.9,.9],[7.5,-6.5,.8],
- [2.2,-5.8,.91],[-1.2,-5.8,1.02],[9,2.7,.97],[9.1,6.5,.88],
- [1.25,3.65,.8],[-8.6,-1.1,.8],[-5.9,3.1,.7]
-];
 const LAMPS:[number,number][]=[[-3,-1.3],[1,-1.9],[2.35,2.2],[-4,5.95],[8,2.65]];
 const FLOWERS:[number,number][]=[[-7,-1],[-6.6,.3],[-1.1,-3.2],[1.9,-3.9],[.5,5.6],[7.7,5.9],[8,6.8],[-6.7,5.2]];
 function Model({object,position=[0,0,0],scale=1,rotation=0}:{
@@ -21,39 +17,22 @@ function Model({object,position=[0,0,0],scale=1,rotation=0}:{
 }
 function Ground(){
  return <group>
-  <mesh position={[0,-.7,.5]} receiveShadow><boxGeometry args={[WORLD_SIZE.width,1.2,WORLD_SIZE.depth]}/><meshStandardMaterial color="#b3b39b" roughness={1}/></mesh>
-  <mesh position={[0,-.06,.5]} receiveShadow><boxGeometry args={[WORLD_SIZE.width+.2,.13,WORLD_SIZE.depth+.2]}/><meshStandardMaterial color="#a3bea0" roughness={1}/></mesh>
-  <mesh position={[0,.03,.5]} rotation={[-Math.PI/2,0,0]} receiveShadow>
-   <planeGeometry args={[WORLD_SIZE.width-.35,WORLD_SIZE.depth-.35]}/><meshStandardMaterial color="#a7c49c" roughness={1} side={DoubleSide}/>
-  </mesh>
-  {/* 52 × 44 world. Neighborhood roads connect to all four outer districts. */}
-  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.042,-1.05]}>
-   <planeGeometry args={[46,1.55]}/><meshStandardMaterial color="#d1c6ad" roughness={1}/>
-  </mesh>
-  <mesh rotation={[-Math.PI/2,0,0]} position={[0,.043,.5]}>
-   <planeGeometry args={[1.85,39]}/><meshStandardMaterial color="#d1c6ad" roughness={1}/>
-  </mesh>
-  {[-16,16].map((x)=><mesh key={x} rotation={[-Math.PI/2,0,0]} position={[x,.046,.5]}>
-   <planeGeometry args={[1.28,34]}/><meshStandardMaterial color="#e5dbc4" roughness={1}/>
-  </mesh>)}
-  {[-12,12].map((z)=><mesh key={z} rotation={[-Math.PI/2,0,0]} position={[0,.047,z]}>
-   <planeGeometry args={[37,1.32]}/><meshStandardMaterial color="#e8dbc0" roughness={1}/>
-  </mesh>)}
+  <TownIsland/>
   {/* Broken-up, stone-edged village footpaths. All routes remain outside building footprints. */}
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,.049,.35]}><planeGeometry args={[2.3,13.1]}/><meshStandardMaterial color="#d9d4bd" roughness={1}/></mesh>
   <mesh rotation={[-Math.PI/2,0,0]} position={[0,.051,-1.05]}><planeGeometry args={[16.4,1.27]}/><meshStandardMaterial color="#e4ddc8" roughness={1}/></mesh>
   <mesh rotation={[-Math.PI/2,0,0]} position={[-2,.052,5.85]}><planeGeometry args={[6.9,1.18]}/><meshStandardMaterial color="#dfd5bc" roughness={1}/></mesh>
   <mesh rotation={[-Math.PI/2,0,0]} position={[4.8,.051,1.95]}><planeGeometry args={[7.3,1.15]}/><meshStandardMaterial color="#dfd5bc" roughness={1}/></mesh>
-  <mesh rotation={[-Math.PI/2,0,0]} position={[5.65,.076,4.78]}>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[LANDMARKS.pond[0],.076,LANDMARKS.pond[1]]}>
    <circleGeometry args={[2.48,40]}/><meshStandardMaterial color="#efe1c4" roughness={1}/>
   </mesh>
-  <mesh rotation={[-Math.PI/2,0,0]} position={[5.65,.083,4.78]}>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[LANDMARKS.pond[0],.083,LANDMARKS.pond[1]]}>
    <circleGeometry args={[2.29,48]}/><meshStandardMaterial color="#87bbc1" metalness={.08} roughness={.29}/>
   </mesh>
-  <mesh rotation={[-Math.PI/2,0,0]} position={[5.65,.091,4.78]}>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[LANDMARKS.pond[0],.091,LANDMARKS.pond[1]]}>
    <ringGeometry args={[1.67,1.70,48]}/><meshBasicMaterial color="#d0e2db" transparent opacity={.62} depthWrite={false}/>
   </mesh>
-  <mesh rotation={[-Math.PI/2,0,0]} position={[5.65,.093,4.78]}>
+  <mesh rotation={[-Math.PI/2,0,0]} position={[LANDMARKS.pond[0],.093,LANDMARKS.pond[1]]}>
    <ringGeometry args={[1.01,1.04,48]}/><meshBasicMaterial color="#d0e2db" transparent opacity={.46} depthWrite={false}/>
   </mesh>
  </group>
@@ -92,19 +71,19 @@ export function TownEnvironment({night,zh,selected,onSelect}: {night:boolean;zh:
  const leave=(id:PlaceId)=>(event:ThreeEvent<PointerEvent>)=>{event.stopPropagation();setHovered(current=>current===id?null:current)};
  return <group>
   <Ground/>
-  <group position={[-5,.08,-3]} onClick={pick("cafe")} onPointerOver={hover("cafe")} onPointerOut={leave("cafe")}>
+  <group position={[LANDMARKS.cafe[0],.08,LANDMARKS.cafe[1]]} onClick={pick("cafe")} onPointerOver={hover("cafe")} onPointerOut={leave("cafe")}>
    <Model object={roots.get("cafe")!} scale={1.12}/>
   </group>
-  <group position={[4.7,.08,-3]} onClick={pick("studio")} onPointerOver={hover("studio")} onPointerOut={leave("studio")}>
+  <group position={[LANDMARKS.studio[0],.08,LANDMARKS.studio[1]]} onClick={pick("studio")} onPointerOver={hover("studio")} onPointerOut={leave("studio")}>
    <Model object={roots.get("studio")!} scale={1.07}/>
   </group>
-  <group position={[-2.2,.08,4]} onClick={pick("play")} onPointerOver={hover("play")} onPointerOut={leave("play")}>
+  <group position={[LANDMARKS.play[0],.08,LANDMARKS.play[1]]} onClick={pick("play")} onPointerOver={hover("play")} onPointerOut={leave("play")}>
    <Model object={roots.get("play")!} scale={1.08}/>
   </group>
-  <group position={[8,.08,1.65]} onClick={pick("garden")} onPointerOver={hover("garden")} onPointerOut={leave("garden")}>
+  <group position={[LANDMARKS.gazebo[0],.08,LANDMARKS.gazebo[1]]} onClick={pick("garden")} onPointerOver={hover("garden")} onPointerOut={leave("garden")}>
    <Model object={roots.get("gazebo")!} scale={.66}/>
   </group>
-  {TREES.map(([x,z,scale],i)=><Model key={"tree"+i} object={roots.get("tree")!}
+  {CENTER_TREES.map(([x,z,scale],i)=><Model key={"tree"+i} object={roots.get("tree")!}
     position={[x,.06,z]} rotation={(i*.75)%6.28} scale={scale}/>)}
   {LAMPS.map(([x,z],i)=><Model key={"lamp"+i} object={roots.get("lantern")!}
     position={[x,.05,z]} scale={.86}/>)}
@@ -113,7 +92,7 @@ export function TownEnvironment({night,zh,selected,onSelect}: {night:boolean;zh:
   {FLOWERS.map(([x,z],i)=><Model key={"flower"+i} object={roots.get("flowers")!}
     position={[x,.04,z]} scale={.84+(i%3)*.17}/>)}
   {/* Native click targets are invisible but deliberately located above the roofs/lake. */}
-  <mesh position={[5.65,.3,4.78]} onClick={pick("garden")}>
+  <mesh position={[LANDMARKS.pond[0],.3,LANDMARKS.pond[1]]} onClick={pick("garden")}>
     <cylinderGeometry args={[2.22,2.22,.06,40]}/>
     <meshBasicMaterial transparent opacity={0} depthWrite={false}/>
   </mesh>

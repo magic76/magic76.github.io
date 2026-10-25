@@ -10,6 +10,7 @@ import {TownCameraController} from "./TownCameraController";
 import type {TownViewMode} from "./TownCameraController";
 import {PEOPLE,type DistrictId,type FriendId,type PlaceId,type Selection} from "./world";
 import {WALK_GRAPH} from "./TownWalkGraph";
+import {LANDMARKS} from "./TownLayout";
 
 type Props={night:boolean;zh:boolean;district:DistrictId;view:TownViewMode;reducedMotion:boolean;selected:Selection;reset:number;
  onFriend:(id:FriendId)=>void;onPlace:(id:PlaceId)=>void;onDeselect:()=>void;onFailure:(reason:string)=>void;onSimplified:(reason:string)=>void};
@@ -41,7 +42,7 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  const cameraFocus=selected?.type==="place"
-  ?({cafe:[-5,1.2,-1.75],studio:[4.7,1.35,-1.75],play:[-2.2,1.25,5.3],garden:[5.45,.3,4.5]} as const)[selected.id]
+  ?({cafe:[LANDMARKS.cafe[0],1.2,LANDMARKS.cafe[1]+1.25],studio:[LANDMARKS.studio[0],1.35,LANDMARKS.studio[1]+1.25],play:[LANDMARKS.play[0],1.25,LANDMARKS.play[1]+1.3],garden:[LANDMARKS.pond[0],.3,LANDMARKS.pond[1]]} as const)[selected.id]
   :selected?.type==="person"
    ?null : null;
  // Use the actor's actual walking position when selection changes, not a stale landmark.
@@ -57,7 +58,7 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={reducedMotion||!visible?"demand":"always"}
-   onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3")}}
+   onCreated={({gl})=>{gl.setClearColor(night?"#303f56":"#eaf0e3");gl.domElement.dataset.townRenderer="ready"}}
    fallback={<span>WebGL unavailable</span>}>
   <color attach="background" args={[night?"#303f56":"#eaf0e3"]}/>
   <fog attach="fog" args={[night?"#303f56":"#eaf0e3",100,220]}/>
@@ -65,6 +66,8 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
   <ambientLight intensity={night?.45:.65}/>
   <directionalLight position={[-5,13,8]} color={night?"#b7c6eb":"#fff0d0"} intensity={night?1.2:2.0}/>
   <directionalLight position={[10,7,-6]} color={night?"#718ebd":"#d4e8d9"} intensity={night?.3:.65}/>
+  <TownCharacters reducedMotion={reducedMotion}
+   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
   <TownModelsBoundary onFailure={onSimplified} fallback={<TownSimpleWorld onSelect={onPlace}/>}>
    <Suspense fallback={null}>
     <TownEnvironment night={night} zh={zh} selected={selected?.type==="place"?selected.id:null} onSelect={onPlace}/>
@@ -72,8 +75,6 @@ export function TownScene({night,zh,district,view,reducedMotion,selected,reset,o
     <TownDistricts zh={zh} night={night}/>
    </Suspense>
   </TownModelsBoundary>
-  <TownCharacters reducedMotion={reducedMotion}
-   selected={selected?.type==="person"?selected.id:null} onSelect={onFriend} onMove={trackActor}/>
   <TownCameraController focus={focus} view={view} district={district} reducedMotion={reducedMotion} reset={reset}/>
   <ContextWatch onFailure={onFailure}/>
  </Canvas>;
