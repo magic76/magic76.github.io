@@ -27,10 +27,10 @@ check("Cloudflare build uses clean React routes and avoids a 404 SPA fallback bl
 check("twelve static SEO entry points boot the same functional React bundle",()=>{
  const root=read("index.html");
  const script=root.match(/<script[^>]*src="(\/assets\/[^"]+\.js)"/);
- const inlineCss=root.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
- const cssFiles=fs.readdirSync(path.join(DIST,"assets","build")).filter(file=>/^index-[^/]+\.css$/.test(file));
+  const cssFiles=fs.readdirSync(path.join(DIST,"assets","build")).filter(file=>/^index-[^/]+\.css$/.test(file));
  assert.equal(cssFiles.length,1,"expected exactly one initial-entry Vite CSS bundle (lazy routes may emit separate CSS)");
  const compiledCss=read("assets/build/"+cssFiles[0]);
+ const coreCssTag='<link rel="stylesheet" href="/assets/build/'+cssFiles[0]+'">';
  const manifest=JSON.parse(read(".vite/manifest.json"));
  // HomePage imports HomeShortsPreview, whose CSS is extracted separately.
  function expectedRouteCss(name){
@@ -53,9 +53,9 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
  assert.ok(pageStyles[""].size>=2,"homepage must include its own and imported preview CSS");
  assert.ok(pageStyles.games.size>=1,"games page must include route CSS");
 
- assert.ok(script,"missing app JS");assert.ok(inlineCss,"missing inline React stylesheet");
+ assert.ok(script,"missing app JS");assert.ok(root.includes(coreCssTag),"missing hashed, cacheable app CSS link");
  assert.ok(compiledCss.length>10000&&compiledCss.includes(".global-nav"));
- assert.equal(inlineCss,compiledCss,"inlined stylesheet must exactly match the Vite CSS build");
+ assert.ok(!root.includes("data-crew-react-css"),"do not duplicate all app CSS into route HTML");
  for(const locale of ["zh","en"])for(const slug of pages){
   const pathname=(locale==="en"?"en/":"")+(slug?slug+"/":"")+"index.html";
   const html=read(pathname);
@@ -85,7 +85,7 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
   const moduleOpen=html.match(/<script[^>]*src="\/assets\/[^"]+\.js"[^>]*>/)?.[0];
   assert.ok(moduleOpen,"missing Vite module opening tag: "+pathname);
   assert.ok(head.includes(moduleOpen+"</script>"),"Vite script must be explicitly closed inside <head>: "+pathname);
-  assert.ok(head.indexOf("<style data-crew-react-css>")<head.indexOf(moduleOpen),"compiled CSS must precede the app JS: "+pathname);
+  assert.ok(head.indexOf(coreCssTag)>=0&&head.indexOf(coreCssTag)<head.indexOf(moduleOpen),"hashed app CSS must precede JS: "+pathname);
   const literalEscape=String.fromCharCode(92)+"n";
   assert.ok(!head.includes("</style>"+literalEscape),"escaped \\n leaked after CSS: "+pathname);
   assert.ok(!head.includes("</script>"+literalEscape),"escaped \\n leaked after script: "+pathname);
@@ -94,16 +94,15 @@ check("twelve static SEO entry points boot the same functional React bundle",()=
   assert.ok(inlineGuard,"missing inline route guard: "+pathname);
   assert.doesNotThrow(()=>new vm.Script(inlineGuard),"route guard must be valid browser JavaScript: "+pathname);
 
-  const actualInline=html.split('<style data-crew-react-css>')[1]?.split('</style>')[0];
-  assert.ok(actualInline,"React UI CSS must be available without a network request: "+pathname);
-  assert.equal(actualInline,compiledCss,"style is stale: "+pathname);
-  // Route markup is visible before hydration, so its CSS must be available
-  // in the initial document rather than waiting for the lazy JS chunk.
+  assert.ok(!head.includes("data-crew-react-css"),"avoid route-duplicated styles: "+pathname);
+  assert.ok(head.includes(coreCssTag),"SSR shell must load fingerprinted CSS: "+pathname);
+  // SSG page-specific stylesheets also load from hashed, cacheable URLs
+  // before JavaScript hydration, instead of repeating CSS in each document.
   for(const asset of pageStyles[slug]||[]){
-   const styleTag='<style data-crew-route-css="'+asset+'">';
-   assert.ok(head.includes(styleTag),"missing initial route CSS "+asset+": "+pathname);
-   assert.ok(head.indexOf(styleTag)<head.indexOf(moduleOpen),"late route CSS: "+pathname);
-   assert.equal(head.split(styleTag)[1]?.split("</style>")[0],read(asset),"route CSS differs from build: "+pathname);
+   const cssTag='<link rel="stylesheet" href="/'+asset+'">';
+   assert.ok(head.includes(cssTag),"missing initial route CSS "+asset+": "+pathname);
+   assert.ok(head.indexOf(cssTag)<head.indexOf(moduleOpen),"late route CSS: "+pathname);
+   assert.ok(read(asset).length>0,"route CSS file is missing/empty: "+asset);
   }
 
   assert.ok(html.includes('<h1>'),pathname);
