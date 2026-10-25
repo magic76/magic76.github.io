@@ -56,6 +56,7 @@ export function MatePage(){
   const connectionSeq=useRef(0);
   const externalInputSeen=useRef(false);
   const externalOutputSeen=useRef(false);
+  const continuingSessionRef=useRef(false);
   const mutedByMate=useRef(false);
   const ownerDecisionForExternal=useRef("");
   const unmuteTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -145,6 +146,7 @@ export function MatePage(){
     const sequence=++connectionSeq.current;
     const c=consensusRef.current;
     const continuing=mode==="external"&&startedExternal;
+    if(mode==="external")continuingSessionRef.current=continuing;
     const scopedOwnerDecision=mode==="external"?ownerDecisionForExternal.current:"";
     if(mode==="external")ownerDecisionForExternal.current=""; // authorization is single-handoff only
     externalInputSeen.current=false;externalOutputSeen.current=false;mutedByMate.current=false;
@@ -332,7 +334,7 @@ export function MatePage(){
   }
   function restart(){
     void stopConnection();advance("setup","IDLE");setShowHistory(false);
-    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";privateStatements.current=[];privateInputRef.current="";
+    taskId.current=timestampId();translationPending.current.clear();ownerDecisionForExternal.current="";continuingSessionRef.current=false;privateStatements.current=[];privateInputRef.current="";
     updateConsensus({...EMPTY_CONSENSUS});
     setTurns([]);turnsRef.current=[];
     setOutcome("");setDecision(null);setStartedExternal(false);setMateGreeted(false);setError("");setNote("");
@@ -429,7 +431,7 @@ export function MatePage(){
       <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
       {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("重新確認並連線","Review and reconnect")}</button>}
       {phase==="external"&&connected&&!mateGreeted&&!speaking&&<button type="button" className="mate-reconnect" onClick={()=>{
-        if(!connectionRef.current?.sendText(externalOpening(consensusRef.current)))setError(t("無法送出，請重新連線。","Could not start speaking. Please reconnect."));
+        if(!connectionRef.current?.sendText(continuingSessionRef.current?externalContinuation(consensusRef.current,turnsRef.current.slice(-16)):externalOpening(consensusRef.current)))setError(t("無法送出，請重新連線。","Could not start speaking. Please reconnect."));
       }}>{t("請 Mate 主動開口","Ask Mate to start speaking")}</button>}
       {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?(externalInputSeen.current?t("正在聽對方說話","Listening to the other person"):t("Mate 已開始協助溝通","Mate is initiating the conversation")):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
