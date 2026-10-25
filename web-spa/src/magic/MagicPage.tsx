@@ -28,6 +28,7 @@ const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
 };
 const HELPERS=[
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
+ {id:"dragonice",zh:"火龍冰封城堡",en:"Dragon freezes castle",emoji:"🏰"},
  {id:"icecastle",zh:"冰封城堡",en:"Freeze the castle",emoji:"🧊"},
  {id:"thawcastle",zh:"融化冰封",en:"Thaw the castle",emoji:"☀️"},
  {id:"night",zh:"讓天空變成星夜",en:"Make it a starry night",emoji:"🌙"},
