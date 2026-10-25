@@ -8,6 +8,8 @@ import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORL
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
+import {MagicHelpDialog} from "./MagicHelpDialog";
+import {OBJECT_ICONS,OBJECT_LABELS,HELPERS,newlySummonedCreature,newlyBuiltCreation} from "./magicPresentation";
 import "./magic.css";
 
 const MagicScene3D=lazy(()=>import("./MagicScene3D").then(mod=>({default:mod.MagicScene3D})));
@@ -19,46 +21,6 @@ class MagicRenderBoundary extends Component<{children:ReactNode;onFailure:()=>vo
 }
 
 
-const OBJECT_ICONS:Record<MagicObjectKind,string>={
- dragon:"🐉",chest:"🧰",portal:"🌀",tree:"🌳",owl:"🦉",fox:"🦊",crystal:"💎"
-};
-const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
- dragon:["飛龍","Dragon"],chest:["寶箱","Treasure chest"],portal:["傳送門","Portal"],
- tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],fox:["小狐狸","Fox"],crystal:["水晶","Crystal"]
-};
-const HELPERS=[
- {id:"creator",zh:"觀看零件創世",en:"Watch AI-style assembly",emoji:"🪄"},
- {id:"evolve",zh:"讓造物進化",en:"Evolve latest creation",emoji:"🔧"},
- {id:"wonder",zh:"給我一個驚喜",en:"Surprise me",emoji:"✨"},
- {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
- {id:"fox",zh:"召喚漫步狐狸",en:"Summon a wandering fox",emoji:"🦊"},
- {id:"dragonice",zh:"火龍冰封城堡",en:"Dragon freezes castle",emoji:"🏰"},
- {id:"icecastle",zh:"冰封城堡",en:"Freeze the castle",emoji:"🧊"},
- {id:"thawcastle",zh:"融化冰封",en:"Thaw the castle",emoji:"☀️"},
- {id:"night",zh:"讓天空變成星夜",en:"Make it a starry night",emoji:"🌙"},
- {id:"puzzle",zh:"給我一個魔法謎題",en:"Give me a magic riddle",emoji:"🔮"},
- {id:"portal",zh:"打開一扇傳送門",en:"Open a portal",emoji:"🌀"},
- {id:"snow",zh:"冰雪魔法",en:"Snow kingdom",emoji:"❄️"},
- {id:"forest",zh:"精靈森林",en:"Enchanted forest",emoji:"🌲"},
- {id:"candy",zh:"糖果王國",en:"Candy kingdom",emoji:"🍬"},
- {id:"sunny",zh:"回到天空之島",en:"Sunny sky",emoji:"☀️"},
- {id:"rain",zh:"召喚暴風雨",en:"Rainstorm",emoji:"🌧️"},
- {id:"meteor",zh:"流星雨降臨",en:"Meteor shower",emoji:"☄️"},
- {id:"rainbow",zh:"召喚彩虹",en:"Summon rainbow",emoji:"🌈"},
- {id:"aurora",zh:"夜空極光",en:"Northern lights",emoji:"✨"}
-] as const;
-
-function newlySummonedCreature(before:MagicWorld,after:MagicWorld):number|null{
- const creature=after.objects.find(obj=>(obj.kind==="dragon"||obj.kind==="owl"||obj.kind==="fox")&&
-  !before.objects.some(previous=>previous.id===obj.id));
- return creature?.id??null;
-}
-
-function newlyBuiltCreation(before:MagicWorld,after:MagicWorld):number|null{
- const changed=after.creations.find(c=>
-  !before.creations.some(old=>old.id===c.id&&old.revision===c.revision));
- return changed?.id??null;
-}
 export function MagicPage(){
  const {i18n}=useTranslation();
  const zh=i18n.language.startsWith("zh");
@@ -431,24 +393,6 @@ export function MagicPage(){
     </section>
    </aside>
   </div>
-  {showGuide&&<div className="magic-help-overlay" role="presentation">
-   <button type="button" className="magic-help-backdrop" onClick={()=>setShowGuide(false)}
-    aria-label={t("關閉玩法說明","Close how-to guide")}/>
-   <section className="magic-help-dialog" role="dialog" aria-modal="true" aria-labelledby="magic-help-title">
-    <button ref={helpClose} type="button" className="magic-help-close"
-     onClick={()=>setShowGuide(false)} aria-label={t("關閉玩法說明","Close guide")}>×</button>
-    <small>CREW MAGIC</small>
-    <h2 id="magic-help-title">{t("三步完成第一場冒險","Your first adventure in three steps")}</h2>
-    <p>{t("不需要 Gemini Key，也能直接體驗第一場魔法冒險。","No Gemini key needed to play your first adventure.")}</p>
-    <ol>
-     <li>{t("打開傳送門，選擇想探索的新世界。","Open a portal and choose a world to explore.")}</li>
-     <li>{t("召喚飛龍，看看牠飛到你面前。","Summon a dragon and watch it arrive.")}</li>
-     <li>{t("冰封城堡，發現神祕水晶的線索。","Freeze the castle and uncover a crystal clue.")}</li>
-    </ol>
-    <p>{t("連線 Lumi 後，還可以用語音或文字自由下魔法指令。","Connect to Lumi for free-form voice or text magic.")}</p>
-    <button type="button" className="magic-help-start" onClick={()=>{setShowGuide(false);guidedAction();}}>
-     {firstAdventure.action} →</button>
-   </section>
-  </div>}
+  {showGuide&&<MagicHelpDialog zh={zh} onClose={()=>setShowGuide(false)} onStart={()=>{setShowGuide(false);guidedAction()}} action={firstAdventure.action} helpClose={helpClose}/>}
  </main>;
 }
