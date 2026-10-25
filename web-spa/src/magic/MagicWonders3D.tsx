@@ -2,6 +2,7 @@ import {useMemo,useRef} from "react";
 import {useFrame} from "@react-three/fiber";
 import type {Group} from "three";
 import {safeMagicAnchor,type MagicWonder} from "./world";
+import {islandSurfaceHeight} from "./magicNavigation";
 
 /**
  * Renderer-owned magic visual grammar. The LLM chooses *typed parameters*, not
@@ -28,6 +29,10 @@ function WonderEffect({wonder,animated}:{wonder:MagicWonder;animated:boolean}){
  const root=useRef<Group>(null);
  const colors=COLORS[wonder.palette];
  const anchor=useMemo(()=>safeMagicAnchor(wonder.x,wonder.z),[wonder.x,wonder.z]);
+ // Distinct effects have different lowest extents (large orbit rings dip far
+ // below their local origins). Scale their clearance with the actual object.
+ const liftFactor={vortex:1.05,garden:.55,orbit:1.9,comet:.85,lanterns:.5}[wonder.shape];
+ const restingY=islandSurfaceHeight(anchor[0],anchor[1])+wonder.size*liftFactor+.38;
  const particles=useMemo(()=>Array.from({length:14},(_,i)=>({
   a:i*2.399+rand(wonder.seed,i)*.5,
   r:.7+rand(wonder.seed,i+15)*1.5,
@@ -40,12 +45,12 @@ function WonderEffect({wonder,animated}:{wonder:MagicWonder;animated:boolean}){
   root.current.rotation.y=wonder.motion==="spin"?t*.49:Math.sin(t*.43)*.18;
   const lift=wonder.motion==="rise"?Math.sin(t*.8)*.32:
    wonder.motion==="bloom"?Math.sin(t*1.4)*.18:0;
-  root.current.position.y=1.7+lift;
+  root.current.position.y=restingY+lift;
   const pulse= wonder.motion==="bloom"?1+Math.sin(t*1.8)*.12:1;
   root.current.scale.setScalar(wonder.size*pulse);
  });
  return <group position={[anchor[0],0,anchor[1]]}>
-  <group ref={root} position={[0,1.7,0]} scale={wonder.size}>
+  <group ref={root} position={[0,restingY,0]} scale={wonder.size}>
    {wonder.shape==="vortex"&&<group>
     {Array.from({length:5},(_,i)=><mesh key={i} position={[0,i*.43,0]} rotation={[.28,i*.4,.24]}>
      <torusGeometry args={[.62+i*.16,.075,8,28]}/>
