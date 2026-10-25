@@ -35,7 +35,12 @@ export type MagicCreatorDetail="face"|"core"|"vent"|"thruster"|"rune";
 export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
  color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint;pivot?:MagicCreatorPivot;
  width?:number;height?:number;depth?:number;yaw?:number;profile?:MagicCreatorProfile;connectTo?:number;detail?:MagicCreatorDetail};
+export type MagicLifeBlueprint={
+ kind:"robot"|"fox"|"dragon";style:"sleek"|"sturdy"|"mystic";
+ palette:MagicCreatorColor;body:number;head:number;tail:number;wings:number
+};
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
+ blueprint?:MagicLifeBlueprint;
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
  x:number;z:number;seed:number;revision:number;friendOf?:number};
 
@@ -126,6 +131,21 @@ const CREATOR_DETAIL_SHAPES:Record<MagicCreatorDetail,readonly MagicCreatorShape
  rune:["box","sphere","cone","capsule","octahedron","leaf"]
 };
 const MAX_CREATIONS=3,MAX_CREATION_PARTS=12,MAX_CREATION_DETAILS=4;
+const LIFE_KINDS=["robot","fox","dragon"] as const;
+const LIFE_STYLES=["sleek","sturdy","mystic"] as const;
+export function readMagicLifeBlueprint(value:unknown):MagicLifeBlueprint|null{
+ const b=snapshotObject(value);
+ if(!b||!oneOf(b.kind,LIFE_KINDS)||!oneOf(b.style,LIFE_STYLES)||
+  !oneOf(b.palette,CREATOR_COLORS)||
+  !creatorNumber(b.body,.65,1.4)||!creatorNumber(b.head,.65,1.45)||
+  !creatorNumber(b.tail,.6,1.5)||!creatorNumber(b.wings,.6,1.5))return null;
+ return {kind:b.kind,style:b.style,palette:b.palette,body:b.body,head:b.head,tail:b.tail,wings:b.wings};
+}
+function blueprintStructure(b:MagicLifeBlueprint){
+ // Recoloring alone does not count as a novel silhouette.
+ return JSON.stringify([b.kind,b.style,...[b.body,b.head,b.tail,b.wings].map(n=>Math.round(n*10)/10)]);
+}
+
 function validCreatorSeed(v:unknown):v is number{
  return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
 }
@@ -186,7 +206,7 @@ function creationStructure(parts:MagicCreatorPart[]){
 }
 export function magicCreatorContext(world:MagicWorld){
  const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
-  assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
+  assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,blueprint:c.blueprint??null,
   geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.pivot??"center",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
  return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
   recentCreations:items}).slice(0,2400);
@@ -282,11 +302,14 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
    ||!oneOf(c.mood,CREATOR_MOODS)||!oneOf(c.assembly,CREATOR_ASSEMBLIES)
    ||!creatorNumber(c.x,-1,1)||!creatorNumber(c.z,-1,1)
    ||!validCreatorSeed(c.seed))return null;
-  const label=copy(c.label,34),idea=copy(c.idea,60),parts=readCreatorParts(c.parts);
+  const label=copy(c.label,34),idea=copy(c.idea,60);
+  const blueprint=c.blueprint===undefined?null:readMagicLifeBlueprint(c.blueprint);
+  if(c.blueprint!==undefined&&!blueprint)return null;
+  const parts=blueprint&&Array.isArray(c.parts)&&c.parts.length===0?[]:readCreatorParts(c.parts);
   if(!label||!idea||!parts||creations.some(item=>item.id===c.id))return null;
   if(c.friendOf!==undefined&&(!validId(c.friendOf)||!creations.some(item=>item.id===c.friendOf)))
    return null;
-  creations.push({id:c.id as number,label,idea,parts,
+  creations.push({id:c.id as number,label,idea,parts,...(blueprint?{blueprint}:{}),
    assembly:c.assembly,motion:c.motion,mood:c.mood,x:c.x,z:c.z,
    revision:c.revision as number,seed:c.seed as number,
    ...(c.friendOf===undefined?{}:{friendOf:c.friendOf as number})});
@@ -437,6 +460,42 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    }),message:text("魔法夥伴們結隊探索島嶼，彼此保持距離！","The magic companions set off together, keeping a safe distance!")
    },"creature-group-moved");
   }
+  case "create_magic_lifeform":{
+   if(state.creations.length>=MAX_CREATIONS)return failed(state,"creation-limit");
+   const label=copy(args.label,34),idea=copy(args.idea,60);
+   const blueprint=readMagicLifeBlueprint(args.blueprint);
+   const motion=args.motion??"walk",mood=args.mood??"curious";
+   const assembly=args.assembly??"gather";
+   const x=args.x===undefined?.35:args.x,z=args.z===undefined?-.55:args.z;
+   const seed=args.seed===undefined?state.revision*311%1000000:args.seed;
+   if(!label||!idea||!blueprint||!oneOf(motion,CREATOR_MOTIONS)
+     ||!oneOf(mood,CREATOR_MOODS)||!oneOf(assembly,CREATOR_ASSEMBLIES)
+     ||!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)||!validCreatorSeed(seed))
+    return failed(state,"invalid-lifeform-blueprint");
+   if(state.creations.some(c=>c.blueprint&&blueprintStructure(c.blueprint)===blueprintStructure(blueprint)))
+    return failed(state,"duplicate-structure-try-new-geometry");
+   const entity:MagicCreation={id:state.revision+1,label,idea,parts:[],blueprint,
+    motion,assembly,mood,x,z,seed,revision:state.revision+1};
+   return updated(state,{creations:[...state.creations,entity],effect:"sparkles",
+    message:text(label+"的輪廓正在塑形！",label+" is taking shape!")}, "entity-created");
+  }
+  case "edit_magic_lifeform":{
+   const index=args.id===undefined?state.creations.length-1:
+    state.creations.findIndex(c=>c.id===args.id);
+   if(index<0||!state.creations[index].blueprint)return failed(state,"lifeform-not-found");
+   const current=state.creations[index];
+   const blueprint=readMagicLifeBlueprint(args.blueprint);
+   const motion=args.motion??current.motion,mood=args.mood??current.mood;
+   const label=args.label===undefined?current.label:copy(args.label,34);
+   if(!label||!blueprint||!oneOf(motion,CREATOR_MOTIONS)||!oneOf(mood,CREATOR_MOODS))
+    return failed(state,"invalid-lifeform-blueprint");
+   if(JSON.stringify(blueprint)===JSON.stringify(current.blueprint)&&
+    motion===current.motion&&mood===current.mood&&label===current.label)
+    return failed(state,"no-entity-change");
+   const changed:MagicCreation={...current,blueprint,motion,mood,label,revision:state.revision+1};
+   return updated(state,{creations:state.creations.map((c,i)=>i===index?changed:c),
+    message:text(label+"重新塑形完成！",label+" has transformed!")}, "entity-evolved");
+  }
   case "create_magic_entity":{
    if(state.creations.length>=MAX_CREATIONS)return failed(state,"creation-limit");
    const label=copy(args.label,34),idea=copy(args.idea,60);
@@ -485,6 +544,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!changed)return failed(state,"no-entity-change");
    const next:MagicCreation={...current,parts,motion,assembly,mood,x,z,label,
     revision:state.revision+1,...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+   if(args.parts!==undefined)delete next.blueprint;
    return updated(state,{creations:state.creations.map((c,i)=>i===index?next:c),
     message:text(label+"正在重新組裝，魔法讓它進化！",label+" is reassembling into something new!")
    },"entity-evolved");
@@ -620,8 +680,25 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"sculptdragon"|"evolve"|"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
+  case "sculptrobot":
+  case "sculptfox":
+  case "sculptdragon":{
+   const kind=intent==="sculptrobot"?"robot":intent==="sculptfox"?"fox":"dragon";
+   const names={robot:["機械探險家","Mechanical explorer"],
+    fox:["雲尾靈狐","Cloud-tailed fox"],dragon:["星翼飛龍","Star-winged dragon"]} as const;
+   const palette:MagicCreatorColor=kind==="fox"?"coral":kind==="dragon"?"rose":"azure";
+   return applyMagicCommand(world,"create_magic_lifeform",{
+    label:names[kind][lang==="en"?1:0],idea:"a distinct anatomical procedural sculpture",
+    blueprint:{kind,style:kind==="dragon"?"mystic":kind==="robot"?"sleek":"sturdy",
+     palette,body:kind==="dragon"?1.15:1,head:kind==="fox"?1.2:1,
+     tail:kind==="fox"?1.3:kind==="dragon"?1.25:1,wings:kind==="dragon"?1.35:1},
+    motion:kind==="dragon"?"hover":"walk",mood:"curious",assembly:"gather",
+    x:kind==="robot"?-.73:kind==="fox"?.25:.75,
+    z:kind==="dragon"?-.4:.45,seed:world.revision*113+333
+   },lang);
+  }
   case "creator":{
    const color=lang==="en";
    const part=(shape:MagicCreatorShape,material:MagicCreatorMaterial,tint:MagicCreatorColor,

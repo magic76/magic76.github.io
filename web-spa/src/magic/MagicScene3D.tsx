@@ -6,6 +6,7 @@ import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,ty
 import {ringStep,ringPoint,islandSurfaceHeight} from "./magicNavigation";
 import {MagicWonders3D} from "./MagicWonders3D";
 import {MagicCreations3D} from "./MagicCreations3D";
+import {MagicDragonModel3D,MagicFoxModel3D} from "./MagicProceduralLife3D";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -119,25 +120,6 @@ function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOM
    :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>}
  </group>;
 }
-function Dragon({animated,reacting}:{animated:boolean;reacting:boolean}){
- const wings=useRef<Group>(null),root=useRef<Group>(null);
- useFrame(({clock})=>{
-  if(!animated)return;
-  if(root.current)root.current.position.y=Math.sin(clock.elapsedTime*2)*.18;
-  if(wings.current)wings.current.rotation.z=Math.sin(clock.elapsedTime*(reacting?9:5))*(reacting?.65:.34);
- });
- return <group ref={root} scale={.84}>
-  <mesh position={[0,.65,0]} scale={[.78,.55,.9]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#df8069"/></mesh>
-  <mesh position={[0,1.26,.5]} rotation={[.35,0,0]}><coneGeometry args={[.44,1.12,7]}/><meshStandardMaterial color="#d56e66"/></mesh>
-  <mesh position={[0,1.83,.78]}><sphereGeometry args={[.37,10,8]}/><meshStandardMaterial color="#ed987b"/></mesh>
-  <group ref={wings}>{[-1,1].map(sign=><mesh key={sign} position={[sign*.74,1.09,-.08]} rotation={[0,0,sign*.72]}>
-   <coneGeometry args={[.73,1.7,3]}/><meshStandardMaterial color="#e8b077" side={2} flatShading/>
-  </mesh>)}</group>
-  {[-1,1].map(sign=><mesh key={sign} position={[sign*.22,2.2,.8]} rotation={[0,0,sign*.3]}>
-   <coneGeometry args={[.13,.54,7]}/><meshStandardMaterial color="#f9deac"/>
-  </mesh>)}
- </group>;
-}
 // Keep animations deterministic and collision-safe without allocating new geometry
 // or React state per animation frame. All objects stay on the visible island ring.
 function SceneObject({object,position,animated,reacting,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
@@ -188,7 +170,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
  });
  return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
-   {kind==="dragon"?<Dragon animated={animated} reacting={reacting}/>:null}
+   {kind==="dragon"?<MagicDragonModel3D animated={animated} size={reacting?1.06:1}/>:null}
    {kind==="portal"?<group>
     <mesh position={[0,.91,0]} rotation={[0,0,.08]}><torusGeometry args={[.87,.22,10,24]}/><meshStandardMaterial color="#ae7dd5" emissive="#8d62d1" emissiveIntensity={.6}/></mesh>
     <mesh position={[0,.91,0]}><circleGeometry args={[.73,24]}/><meshBasicMaterial color="#79c7e1" transparent opacity={.56} side={2}/></mesh>
@@ -209,18 +191,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
     </group>)}
     <mesh position={[0,.85,.51]} rotation={[Math.PI/2,0,0]}><coneGeometry args={[.12,.25,4]}/><meshStandardMaterial color="#ebbe73"/></mesh>
    </group>:null}
-   {kind==="fox"?<group>
-    <mesh position={[0,.39,0]} scale={[.67,.36,.48]}><sphereGeometry args={[1,10,8]}/><meshStandardMaterial color="#df9063"/></mesh>
-    <mesh position={[0,.62,.45]} scale={[.43,.39,.43]}><sphereGeometry args={[1,10,8]}/><meshStandardMaterial color="#f0a476"/></mesh>
-    {[-1,1].map(sign=><group key={sign}>
-     <mesh position={[sign*.26,.96,.45]} rotation={[0,0,sign*-.17]}><coneGeometry args={[.2,.43,5]}/><meshStandardMaterial color="#d7875b"/></mesh>
-     <mesh position={[sign*.17,.69,.79]}><sphereGeometry args={[.063,7,6]}/><meshBasicMaterial color="#34303a"/></mesh>
-    </group>)}
-    <mesh position={[0,.52,.81]}><coneGeometry args={[.12,.28,6]}/><meshStandardMaterial color="#fff4db"/></mesh>
-    <mesh position={[0,.57,-.64]} rotation={[.7,0,0]}><coneGeometry args={[.33,.95,7]}/><meshStandardMaterial color="#eea46f"/></mesh>
-    {[-.35,.35].map(x=>[-.29,.32].map(z=><mesh key={x+":"+z} position={[x,.13,z]}>
-     <cylinderGeometry args={[.10,.11,.34,6]}/><meshStandardMaterial color="#8c594c"/></mesh>))}
-   </group>:null}
+   {kind==="fox"?<MagicFoxModel3D animated={animated}/>:null}
    {kind==="tree"?<group><mesh position={[0,.55,0]}><cylinderGeometry args={[.18,.25,1,8]}/><meshStandardMaterial color="#9e806e"/></mesh><mesh position={[0,1.65,0]}><icosahedronGeometry args={[1.1,0]}/><meshStandardMaterial color="#85c4a5" flatShading/></mesh></group>:null}
   </group>
  </group>;
