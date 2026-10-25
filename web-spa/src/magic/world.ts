@@ -7,6 +7,7 @@ export type MagicWeather="clear"|"rain"|"snow"|"stars";
 export type MagicTime="day"|"night";
 export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"crystal";
 export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
+export type MagicEvent="meteor"|"rainbow"|"festival"|"aurora";
 export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
 export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice};
@@ -15,7 +16,7 @@ export type MagicChallenge={id:number;title:string;question:string;options:[stri
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
  objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
- message:string;effect:MagicSpell|null;revision:number;
+ message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
 export type MagicSpotlight={kind:"challenge"|"panel";id:number};
 /** Newest generated challenge or panel wins; resolution does not hide results. */
@@ -52,13 +53,14 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
  theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
- chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,revision:0
+ chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
 const WEATHERS=["clear","rain","snow","stars"] as const;
 const TIMES=["day","night"] as const;
 const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
 const SPELLS=["sparkles","fire","wind","heal"] as const;
+const EVENTS=["meteor","rainbow","festival","aurora"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
 // MagicPage currently exposes six non-overlapping stage anchors. Keep the reducer
@@ -124,6 +126,17 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    const labels:{[K in MagicSpell]:[string,string]}={sparkles:["星光","Starlight"],fire:["火焰","Fire"],wind:["微風","Wind"],heal:["治癒","Healing"]};
    return updated(state,{effect:args.spell,message:text(labels[args.spell][0]+"魔法成功了！你還想改變什麼？",labels[args.spell][1]+" magic! What should we change next?")},"spell-cast");
   }
+  case "trigger_world_event":{
+   if(!oneOf(args.kind,EVENTS))return failed(state,"invalid-world-event");
+   const names:{[K in MagicEvent]:[string,string]}={
+    meteor:["流星雨降臨，天空閃耀著火光！","A meteor shower fills the sky with glowing sparks!"],
+    rainbow:["一道巨大彩虹橫跨魔法島！","A giant rainbow appears above the island!"],
+    festival:["魔法慶典開始，整座島嶼都在發光！","The magical festival begins, and the island lights up!"],
+    aurora:["極光在夜空中舞動，魔法正甦醒。","The northern lights dance across the magical night sky."]
+   };
+   const night=args.kind==="aurora"||args.kind==="meteor";
+   return updated(state,{event:args.kind,time:night?"night":"day",effect:"sparkles",message:names[args.kind][lang==="en"?1:0]},"world-event-started");
+  }
   case "create_challenge":{
    const title=copy(args.title,38),question=copy(args.question,180);
    const a=copy(args.option_a,75),b=copy(args.option_b,75),c=copy(args.option_c,75);
@@ -170,7 +183,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
   case "portal":{
@@ -191,6 +204,9 @@ export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow
   case "forest":return applyMagicCommand(world,"change_world",{theme:"forest",time:"day",weather:"clear"},lang);
   case "candy":return applyMagicCommand(world,"change_world",{theme:"candy",time:"day",weather:"clear"},lang);
   case "sunny":return applyMagicCommand(world,"change_world",{theme:"sky",time:"day",weather:"clear"},lang);
+  case "meteor":return applyMagicCommand(world,"trigger_world_event",{kind:"meteor"},lang);
+  case "rainbow":return applyMagicCommand(world,"trigger_world_event",{kind:"rainbow"},lang);
+  case "aurora":return applyMagicCommand(world,"trigger_world_event",{kind:"aurora"},lang);
   case "puzzle":return applyMagicCommand(world,"create_challenge",lang==="en"?{
    title:"The Star Gate",question:"Which thing grows the more you share it?",
    option_a:"A slice of cake",option_b:"Happiness",option_c:"A secret",
