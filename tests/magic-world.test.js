@@ -291,3 +291,55 @@ test("restore sanitizes untrusted saved text and refuses invalid panels",()=>{
  const corrupted=JSON.stringify({...base,panels:[{...base.panels[0],items:["A","B",""]}]});
  assert.equal(readMagicWorldSnapshot(corrupted),null);
 });
+
+test("castle ice transformation is allowlisted, reversible and persistent",()=>{
+ const ice=applyMagicCommand(MAGIC_INITIAL_WORLD,"transform_castle",{form:"ice"},"en");
+ assert.equal(ice.ok,true);
+ assert.equal(ice.event,"castle-transformed");
+ assert.equal(ice.world.castle,"ice");
+ assert.equal(ice.world.weather,"snow");
+ assert.equal(ice.world.time,"night");
+ assert.equal(ice.world.cue,"castle_transformation");
+ assert.equal(ice.world.revision,MAGIC_INITIAL_WORLD.revision+1);
+ const stored=readMagicWorldSnapshot(JSON.stringify(ice.world));
+ assert.ok(stored);
+ assert.equal(stored.castle,"ice");
+ assert.equal(stored.cue,"castle_transformation");
+ assert.equal(applyMagicCommand(stored,"transform_castle",{form:"ice"}).ok,false);
+ const thaw=applyMagicCommand(stored,"transform_castle",{form:"stone"},"en");
+ assert.equal(thaw.ok,true);
+ assert.equal(thaw.world.castle,"stone");
+ assert.equal(thaw.world.weather,"clear");
+ assert.equal(thaw.world.time,"day");
+ const reset=demoMagicCommand("reset",ice.world);
+ assert.equal(reset.world.castle,"stone");
+ assert.equal(reset.world.cue,null);
+});
+test("dragon entrance and composite ice spell retain visual changes",()=>{
+ const summoned=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
+ assert.equal(summoned.world.cue,"dragon_arrival");
+ const spell=demoMagicCommand("dragonice",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(spell.ok,true);
+ assert.equal(spell.world.objects.filter(o=>o.kind==="dragon").length,1);
+ assert.equal(spell.world.castle,"ice");
+ assert.equal(spell.world.cue,"castle_transformation");
+ assert.equal(spell.world.revision,2);
+ const later=applyMagicCommand(spell.world,"tell_story",{message:"Next chapter"});
+ assert.equal(later.world.castle,"ice");
+ assert.equal(later.world.cue,null);
+ const malformed=applyMagicCommand(MAGIC_INITIAL_WORLD,"transform_castle",{form:"<script>alert(1)</script>"});
+ assert.equal(malformed.ok,false);
+ assert.equal(malformed.world,MAGIC_INITIAL_WORLD);
+ const corrupt=JSON.stringify({...spell.world,castle:"execute_html"});
+ assert.equal(readMagicWorldSnapshot(corrupt),null);
+ const migrated=JSON.stringify(MAGIC_INITIAL_WORLD).replace(/,"castle":"stone"/,"").replace(/,"cue":null/,"");
+ assert.equal(readMagicWorldSnapshot(migrated).castle,"stone");
+});
+test("2D world renderer and switch have been removed, 3D fallback is explicit",()=>{
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ assert.doesNotMatch(page,/className="magic-island"/);
+ assert.doesNotMatch(page,/magic-view-switch/);
+ assert.doesNotMatch(page,/useThreeWorld/);
+ assert.match(page,/magic-3d-unavailable/);
+ assert.match(page,/MagicScene3D/);
+});
