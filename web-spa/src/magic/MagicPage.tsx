@@ -1,13 +1,22 @@
-import {useCallback,useEffect,useRef,useState} from "react";
-import type {CSSProperties,FormEvent} from "react";
+import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
+import type {CSSProperties,FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
-import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
+import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,readMagicWorldSnapshot,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
 import "./magic.css";
+
+const MagicScene3D=lazy(()=>import("./MagicScene3D").then(mod=>({default:mod.MagicScene3D})));
+class MagicRenderBoundary extends Component<{children:ReactNode;onFailure:()=>void},{failed:boolean}>{
+ state={failed:false};
+ static getDerivedStateFromError(){return {failed:true}}
+ componentDidCatch(error:Error){console.error("Crew Magic 3D fallback",error);this.props.onFailure()}
+ render(){return this.state.failed?null:this.props.children}
+}
+
 
 const OBJECT_ICONS:Record<MagicObjectKind,string>={
  dragon:"🐉",chest:"🧰",portal:"🌀",tree:"🌳",owl:"🦉",crystal:"💎"
@@ -23,15 +32,29 @@ const HELPERS=[
  {id:"dragon",zh:"召喚一條龍",en:"Summon a dragon",emoji:"🐉"},
  {id:"night",zh:"讓天空變成星夜",en:"Make it a starry night",emoji:"🌙"},
  {id:"puzzle",zh:"給我一個魔法謎題",en:"Give me a magic riddle",emoji:"🔮"},
- {id:"portal",zh:"打開一扇傳送門",en:"Open a portal",emoji:"🌀"}
+ {id:"portal",zh:"打開一扇傳送門",en:"Open a portal",emoji:"🌀"},
+ {id:"snow",zh:"冰雪魔法",en:"Snow kingdom",emoji:"❄️"},
+ {id:"forest",zh:"精靈森林",en:"Enchanted forest",emoji:"🌲"},
+ {id:"candy",zh:"糖果王國",en:"Candy kingdom",emoji:"🍬"},
+ {id:"sunny",zh:"回到天空之島",en:"Sunny sky",emoji:"☀️"},
+ {id:"rain",zh:"召喚暴風雨",en:"Rainstorm",emoji:"🌧️"},
+ {id:"meteor",zh:"流星雨降臨",en:"Meteor shower",emoji:"☄️"},
+ {id:"rainbow",zh:"召喚彩虹",en:"Summon rainbow",emoji:"🌈"},
+ {id:"aurora",zh:"夜空極光",en:"Northern lights",emoji:"✨"}
 ] as const;
 
 export function MagicPage(){
  const {i18n}=useTranslation();
  const zh=i18n.language.startsWith("zh");
  const t=(chinese:string,english:string)=>zh?chinese:english;
- const [world,setWorld]=useState<MagicWorld>(MAGIC_INITIAL_WORLD);
- const worldRef=useRef<MagicWorld>(MAGIC_INITIAL_WORLD);
+ const [world,setWorld]=useState<MagicWorld>(()=>{
+  try{return typeof window==="undefined"?MAGIC_INITIAL_WORLD:readMagicWorldSnapshot(window.sessionStorage.getItem("crew-magic-world-v1"))??MAGIC_INITIAL_WORLD}
+  catch{return MAGIC_INITIAL_WORLD}
+ });
+ const worldRef=useRef<MagicWorld>(world);
+ useEffect(()=>{
+  try{window.sessionStorage.setItem("crew-magic-world-v1",JSON.stringify(world))}catch{/* Storage may be disabled. Adventure still works. */}
+ },[world]);
  const [voiceState,setVoiceState]=useState<"idle"|"connecting"|"listening"|"speaking"|"error">("idle");
  const [notice,setNotice]=useState("");
  const [heard,setHeard]=useState("");
@@ -43,6 +66,18 @@ export function MagicPage(){
  const [hasKey,setHasKey]=useState(false);
  const [starting,setStarting]=useState(false);
  const [showGuide,setShowGuide]=useState(false);
+ const [useThreeWorld,setUseThreeWorld]=useState(()=>typeof window!=="undefined"&&(
+  "WebGL2RenderingContext" in window||"WebGLRenderingContext" in window
+ ));
+ const [threeFailed,setThreeFailed]=useState(false);
+ const [reducedMotion,setReducedMotion]=useState(false);
+ useEffect(()=>{
+  const q=window.matchMedia("(prefers-reduced-motion: reduce)");
+  const sync=()=>setReducedMotion(q.matches);
+  sync();q.addEventListener("change",sync);return()=>q.removeEventListener("change",sync);
+ },[]);
+ const has3D=useThreeWorld&&!threeFailed;
+ const fail3D=useCallback(()=>{setThreeFailed(true);setUseThreeWorld(false)},[]);
  const sessionRef=useRef<LiveSession|null>(null);
  const toolResultsRef=useRef(new Map<string,MagicResult>());
  useEffect(()=>{
@@ -196,8 +231,13 @@ export function MagicPage(){
    <Link className="magic-back" to="/explore">← {t("探索","Explore")}</Link>
   </header>
   <div className="magic-layout">
-   <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather}
+   <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+(has3D?" is-3d":"")}
     aria-label={t("即時魔法世界","Live magic world")}>
+    {has3D?<MagicRenderBoundary onFailure={fail3D}>
+     <Suspense fallback={<div className="magic-3d-loading" role="status">{t("正在建造魔法世界…","Building your magic world…")}</div>}>
+      <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact} onFailure={fail3D}/>
+     </Suspense>
+    </MagicRenderBoundary>:null}
     <div className="magic-moon" aria-hidden="true"/>
     <div className="magic-sun" aria-hidden="true"/>
     <div className="magic-stars" aria-hidden="true">{Array.from({length:22},(_,i)=><i key={i} style={{left:((i*37)%97+1)+"%",top:((i*23)%59+1)+"%"}}/>)}</div>
@@ -236,6 +276,10 @@ export function MagicPage(){
      <i/><i/><i/><i/><i/><i/>
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
+    <button className="magic-view-switch" type="button" onClick={()=>setUseThreeWorld(v=>threeFailed?false:!v)}
+     disabled={threeFailed} aria-label={has3D?t("切換簡易地圖","Switch to simple world"):t("切換 3D 世界","Switch to 3D world")}>
+     {has3D?t("切換 2D","2D mode"):threeFailed?t("簡易模式","Simple world"):t("切換 3D","3D mode")}
+    </button>
     <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
      {isOnline||voiceState==="connecting"?<>
       <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>
@@ -287,6 +331,12 @@ export function MagicPage(){
       {said&&<p><b>Lumi:</b> {said}</p>}
      </div>}
     </section>
+    {has3D&&world.objects.length>0?<section className="magic-3d-access" aria-label={t("世界中的魔法物件","Objects in the world")}>
+     <strong>{t("探索島上的魔法物件","Explore the creatures and objects")}</strong>
+     <div>{world.objects.map(obj=><button type="button" key={obj.id} onClick={()=>interact(obj.kind)}>
+      {OBJECT_ICONS[obj.kind]} {zh?OBJECT_LABELS[obj.kind][0]:OBJECT_LABELS[obj.kind][1]}
+     </button>)}</div>
+    </section>:null}
     {world.challenge?<MagicChallengeCard challenge={world.challenge} zh={zh} onAnswer={answer}/>:null}
     {world.panels.map(panel=><MagicGeneratedCard key={panel.id} panel={panel} zh={zh} onSelect={selectPanel}/>)}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
@@ -300,6 +350,7 @@ export function MagicPage(){
      </div>
      <form className="magic-prompt" onSubmit={submitInput}>
       <label htmlFor="magic-wish">{t("你想創造什麼？","What would you like to create?")}</label>
+      {!isOnline?<p className="magic-prompt-help" role="status">{t("連線 Lumi 後才能自由許願；下方快速魔法可直接試玩。","Connect to Lumi to send a custom wish. Quick spells work without a connection.")}</p>:null}
       <div><input id="magic-wish" type="text" autoComplete="off" maxLength={180} value={input}
        onChange={event=>setInput(event.target.value)}
        placeholder={t("例如：讓天空下雪，召喚貓頭鷹…","e.g. Make it snow, summon an owl…")}/>

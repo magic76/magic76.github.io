@@ -9,7 +9,7 @@ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight}=worldModule.exports;
+const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -178,4 +178,116 @@ test("mobile spotlight picks the newest generated interaction and keeps result v
  assert.deepEqual(latestMagicSpotlight(newer.world.challenge,newer.world.panels),{
   kind:"challenge",id:newer.world.challenge.id
  });
+});
+
+test("3D scene presets produce genuinely different allowed theme and weather states",()=>{
+ const snowy=demoMagicCommand("snow",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(snowy.ok,true);
+ assert.equal(snowy.world.weather,"snow");
+ assert.equal(snowy.world.time,"night");
+ const forest=demoMagicCommand("forest",snowy.world,"en");
+ assert.equal(forest.ok,true);
+ assert.equal(forest.world.theme,"forest");
+ assert.equal(forest.world.weather,"clear");
+ const candy=demoMagicCommand("candy",forest.world,"en");
+ assert.equal(candy.ok,true);
+ assert.equal(candy.world.theme,"candy");
+ const storm=demoMagicCommand("rain",candy.world,"en");
+ assert.equal(storm.ok,true);
+ assert.equal(storm.world.weather,"rain");
+ const sunny=demoMagicCommand("sunny",storm.world,"en");
+ assert.equal(sunny.ok,true);
+ assert.equal(sunny.world.theme,"sky");
+ assert.equal(sunny.world.weather,"clear");
+ assert.equal(sunny.world.time,"day");
+ assert.equal(sunny.world.revision,MAGIC_INITIAL_WORLD.revision+5);
+});
+
+test("Gemini world events are whitelisted and safely create distinct visual state",()=>{
+ const events=["meteor","rainbow","festival","aurora"];
+ let world=MAGIC_INITIAL_WORLD;
+ for(const kind of events){
+  const outcome=applyMagicCommand(world,"trigger_world_event",{kind},"en");
+  assert.equal(outcome.ok,true);
+  assert.equal(outcome.world.event,kind);
+  assert.equal(outcome.event,"world-event-started");
+  world=outcome.world;
+ }
+ assert.equal(world.time,"night");
+ const invalid=applyMagicCommand(world,"trigger_world_event",{kind:"execute_html"});
+ assert.equal(invalid.ok,false);
+ assert.equal(invalid.world,world);
+ const reset=demoMagicCommand("reset",world);
+ assert.equal(reset.world.event,null);
+ const meteor=demoMagicCommand("meteor",MAGIC_INITIAL_WORLD);
+ assert.equal(meteor.world.event,"meteor");
+ const rainbow=demoMagicCommand("rainbow",MAGIC_INITIAL_WORLD);
+ assert.equal(rainbow.world.event,"rainbow");
+ const aurora=demoMagicCommand("aurora",MAGIC_INITIAL_WORLD);
+ assert.equal(aurora.world.time,"night");
+});
+
+test("destination portal changes real 3D world state and advances the story",()=>{
+ const first=demoMagicCommand("portal",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(first.ok,true);
+ assert.equal(first.world.objects[0].kind,"portal");
+ assert.equal(first.world.panels[0].portalTravel,true);
+ for(const [choice,theme,time,weather] of [["A","forest","day","clear"],["B","candy","day","clear"],["C","sky","night","stars"]]){
+  const traveled=applyMagicCommand(first.world,"select_magic_panel",{choice},"en");
+  assert.equal(traveled.ok,true);
+  assert.equal(traveled.event,"portal-traveled");
+  assert.equal(traveled.world.theme,theme);
+  assert.equal(traveled.world.time,time);
+  assert.equal(traveled.world.weather,weather);
+  assert.equal(traveled.world.chapter,2);
+  assert.equal(traveled.world.panels[0].selected,choice);
+  assert.equal(applyMagicCommand(traveled.world,"select_magic_panel",{choice:"A"}).ok,false);
+ }
+ const custom=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_panel",{
+  panel_type:"quest",title:"Normal quest",description:"Pick",
+  item_a:"A",item_b:"B",item_c:"C"
+ });
+ const selected=applyMagicCommand(custom.world,"select_magic_panel",{choice:"B"});
+ assert.equal(selected.event,"panel-selected");
+ assert.equal(selected.world.theme,"sky");
+});
+
+test("portal still opens destination UI when the world is full",()=>{
+ let state=MAGIC_INITIAL_WORLD;
+ for(let i=0;i<6;i++)state=applyMagicCommand(state,"summon_object",{kind:"owl"}).world;
+ const result=applyMagicCommand(state,"open_world_portal",{});
+ assert.equal(result.ok,true);
+ assert.equal(result.world.objects.length,6);
+ assert.equal(result.world.panels.at(-1).portalTravel,true);
+});
+
+test("refresh restores safe tab-local world, selected destination and chapter",()=>{
+ const start=demoMagicCommand("portal",MAGIC_INITIAL_WORLD,"en").world;
+ const visited=applyMagicCommand(start,"select_magic_panel",{choice:"B"}).world;
+ const altered=applyMagicCommand(visited,"trigger_world_event",{kind:"rainbow"}).world;
+ const restored=readMagicWorldSnapshot(JSON.stringify(altered));
+ assert.ok(restored);
+ assert.deepEqual(restored,altered);
+ assert.equal(restored.chapter,2);
+ assert.equal(restored.theme,"candy");
+ assert.equal(restored.panels[0].portalTravel,true);
+ assert.equal(readMagicWorldSnapshot(null),null);
+ assert.equal(readMagicWorldSnapshot("{bad"),null);
+ assert.equal(readMagicWorldSnapshot("a".repeat(16001)),null);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...altered,theme:"hacked"})),null);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...altered,objects:[{kind:"evil",slot:0,id:1}]})),null);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify({...altered,chapter:-1})),null);
+});
+
+test("restore sanitizes untrusted saved text and refuses invalid panels",()=>{
+ const base=demoMagicCommand("portal",MAGIC_INITIAL_WORLD).world;
+ const control=String.fromCharCode(0x202e);
+ const input=JSON.stringify({...base,message:"Safe"+control+" legend",
+  panels:[{...base.panels[0],title:"Hello"+control+"World"}]});
+ const restored=readMagicWorldSnapshot(input);
+ assert.ok(restored);
+ assert.equal(restored.message.includes(control),false);
+ assert.equal(restored.panels[0].title.includes(control),false);
+ const corrupted=JSON.stringify({...base,panels:[{...base.panels[0],items:["A","B",""]}]});
+ assert.equal(readMagicWorldSnapshot(corrupted),null);
 });

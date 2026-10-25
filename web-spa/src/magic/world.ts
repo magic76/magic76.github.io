@@ -7,15 +7,16 @@ export type MagicWeather="clear"|"rain"|"snow"|"stars";
 export type MagicTime="day"|"night";
 export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"crystal";
 export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
+export type MagicEvent="meteor"|"rainbow"|"festival"|"aurora";
 export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
-export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice};
+export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice;portalTravel?:boolean};
 export type MagicObject={id:number;kind:MagicObjectKind;slot:number};
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
  objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
- message:string;effect:MagicSpell|null;revision:number;
+ message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
 export type MagicSpotlight={kind:"challenge"|"panel";id:number};
 /** Newest generated challenge or panel wins; resolution does not hide results. */
@@ -52,13 +53,14 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
  theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
- chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,revision:0
+ chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
 const WEATHERS=["clear","rain","snow","stars"] as const;
 const TIMES=["day","night"] as const;
 const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
 const SPELLS=["sparkles","fire","wind","heal"] as const;
+const EVENTS=["meteor","rainbow","festival","aurora"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
 // MagicPage currently exposes six non-overlapping stage anchors. Keep the reducer
@@ -93,6 +95,70 @@ function copy(value:unknown,max=130){
   .replace(/[\u202a-\u202e\u2066-\u2069]/gi,"")
   .trim().slice(0,max):"";
 }
+// A tab-local adventure survives refresh without storing microphone audio,
+// transcripts, Gemini keys or arbitrary executable content.
+const MAX_WORLD_SNAPSHOT_CHARS=16000;
+const validId=(x:unknown)=>Number.isSafeInteger(x)&&typeof x==="number"&&x>=0&&x<=10000000;
+function snapshotObject(value:unknown):Record<string,unknown>|null{
+ if(value===null||typeof value!=="object"||Array.isArray(value))return null;
+ const proto=Object.getPrototypeOf(value);
+ return proto===Object.prototype||proto===null?value as Record<string,unknown>:null;
+}
+export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
+ if(!raw||raw.length>MAX_WORLD_SNAPSHOT_CHARS)return null;
+ let candidate:unknown;
+ try{candidate=JSON.parse(raw)}catch{return null}
+ const data=snapshotObject(candidate);
+ if(!data||!oneOf(data.theme,THEMES)||!oneOf(data.weather,WEATHERS)||!oneOf(data.time,TIMES)
+  ||!(data.event===null||oneOf(data.event,EVENTS))
+  ||!(data.effect===null||oneOf(data.effect,SPELLS))
+  ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
+  ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
+  ||!Array.isArray(data.panels)||data.panels.length>2)return null;
+ const objects:MagicObject[]=[];
+ const slots=new Set<number>();
+ for(const entry of data.objects){
+  const obj=snapshotObject(entry);
+  if(!obj||!validId(obj.id)||!oneOf(obj.kind,OBJECTS)||!validId(obj.slot)
+   ||Number(obj.slot)>=MAX_OBJECTS||slots.has(obj.slot as number))return null;
+  slots.add(obj.slot as number);
+  objects.push({id:obj.id as number,kind:obj.kind as MagicObjectKind,slot:obj.slot as number});
+ }
+ const panels:MagicPanel[]=[];
+ for(const entry of data.panels){
+  const obj=snapshotObject(entry);
+  if(!obj||!validId(obj.id)||!oneOf(obj.kind,PANEL_KINDS)
+   ||!Array.isArray(obj.items)||obj.items.length!==3
+   ||obj.items.some((x:unknown)=>typeof x!=="string"||!copy(x,90)))return null;
+  if(obj.selected!==undefined&&!oneOf(obj.selected,CHOICES))return null;
+  const title=copy(obj.title,55),description=copy(obj.description,180);
+  if(!title||!description)return null;
+  panels.push({id:obj.id as number,kind:obj.kind as MagicPanelKind,title,description,
+   items:obj.items.map((item:unknown)=>copy(item,90)) as [string,string,string],
+   ...(obj.selected?{selected:obj.selected as MagicChoice}:{}),
+   ...(obj.portalTravel===true&&obj.kind==="quest"?{portalTravel:true}:{})});
+ }
+ let challenge:MagicChallenge|null=null;
+ if(data.challenge!==null){
+  const c=snapshotObject(data.challenge);
+  if(!c||!validId(c.id)||!oneOf(c.correct,CHOICES)
+   ||!Array.isArray(c.options)||c.options.length!==3
+   ||c.options.some((x:unknown)=>!copy(x,75))
+   ||(c.selected!==undefined&&!oneOf(c.selected,CHOICES)))return null;
+  const title=copy(c.title,38),question=copy(c.question,180);
+  if(!title||!question)return null;
+  challenge={id:c.id as number,title,question,
+   options:c.options.map((x:unknown)=>copy(x,75)) as [string,string,string],
+   correct:c.correct as MagicChoice,feedback:copy(c.feedback,200),
+   ...(c.selected?{selected:c.selected as MagicChoice}:{})};
+ }
+ return {
+  theme:data.theme as MagicTheme,weather:data.weather as MagicWeather,time:data.time as MagicTime,
+  event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
+  objects,challenge,panels,chapter:data.chapter as number,revision:data.revision as number,
+  message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
+ };
+}
 function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,world:state,event:reason}}
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
  return {ok:true,world:{...state,...changes,revision:state.revision+1},event};
@@ -123,6 +189,35 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!oneOf(args.spell,SPELLS))return failed(state,"invalid-spell");
    const labels:{[K in MagicSpell]:[string,string]}={sparkles:["星光","Starlight"],fire:["火焰","Fire"],wind:["微風","Wind"],heal:["治癒","Healing"]};
    return updated(state,{effect:args.spell,message:text(labels[args.spell][0]+"魔法成功了！你還想改變什麼？",labels[args.spell][1]+" magic! What should we change next?")},"spell-cast");
+  }
+  case "trigger_world_event":{
+   if(!oneOf(args.kind,EVENTS))return failed(state,"invalid-world-event");
+   const names:{[K in MagicEvent]:[string,string]}={
+    meteor:["流星雨降臨，天空閃耀著火光！","A meteor shower fills the sky with glowing sparks!"],
+    rainbow:["一道巨大彩虹橫跨魔法島！","A giant rainbow appears above the island!"],
+    festival:["魔法慶典開始，整座島嶼都在發光！","The magical festival begins, and the island lights up!"],
+    aurora:["極光在夜空中舞動，魔法正甦醒。","The northern lights dance across the magical night sky."]
+   };
+   const night=args.kind==="aurora"||args.kind==="meteor";
+   return updated(state,{event:args.kind,time:night?"night":"day",effect:"sparkles",message:names[args.kind][lang==="en"?1:0]},"world-event-started");
+  }
+  case "open_world_portal":{
+   // This portal is a real, deterministic destination selector, not a decorative
+   // generic quest. No arbitrary code or model-supplied scene properties.
+   const english=lang==="en";
+   const panel:MagicPanel={
+    id:state.revision+1,kind:"quest",portalTravel:true,
+    title:english?"Where will the portal lead?":"傳送門通往哪裡？",
+    description:english?"Pick a destination to actually transform the island.":"選擇目的地，讓眼前的世界真的改變。",
+    items:english?["Whispering forest","Sugar-cloud kingdom","Island under the stars"]:
+      ["會說話的森林","糖雲王國","星空漂浮島"]
+   };
+   const objects=state.objects.length<MAX_OBJECTS?
+    [...state.objects,{id:state.revision+1,kind:"portal" as const,slot:state.objects.length}]:state.objects;
+   return updated(state,{
+    objects,panels:[...state.panels.slice(-1),panel],effect:"sparkles",
+    message:english?"A magical panel has opened the portal. Choose where to travel!":"傳送門展開了新的魔法篇章，選一個目的地！"
+   },"portal-opened");
   }
   case "create_challenge":{
    const title=copy(args.title,38),question=copy(args.question,180);
@@ -160,6 +255,17 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!selected||selected.selected)return failed(state,"no-active-panel");
    const index=CHOICES.indexOf(choice);
    const panels=state.panels.map(panel=>panel.id===id?{...panel,selected:choice}:panel);
+   if(selected.portalTravel){
+    const destinations=[
+     {theme:"forest" as const,time:"day" as const,weather:"clear" as const,event:null},
+     {theme:"candy" as const,time:"day" as const,weather:"clear" as const,event:"festival" as const},
+     {theme:"sky" as const,time:"night" as const,weather:"stars" as const,event:"aurora" as const}
+    ] as const;
+    const target=destinations[index];
+    return updated(state,{...target,panels,chapter:state.chapter+1,effect:"sparkles",
+     message:lang==="en"?"You step through the portal to "+selected.items[index]+"!":
+      "穿越傳送門，你抵達了"+selected.items[index]+"！"},"portal-traveled");
+   }
    return updated(state,{panels,effect:"sparkles",message:selected.items[index]}, "panel-selected");
   }
   case "tell_story":{
@@ -170,22 +276,19 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
-  case "portal":{
-   const summoned=applyMagicCommand(world,"summon_object",{kind:"portal"},lang);
-   if(!summoned.ok)return summoned;
-   const copy=lang==="en"?{
-    title:"Where will the portal lead?",description:"Three mysterious doors glow before you.",
-    item_a:"A forest of whispering trees",item_b:"A palace made of sugar clouds",item_c:"An island above the stars"
-   }:{
-    title:"傳送門通往哪裡？",description:"三道神秘的門正等待你選擇。",
-    item_a:"會說話的樹林",item_b:"糖雲做成的皇宮",item_c:"星空上的漂浮島"
-   };
-   return applyMagicCommand(summoned.world,"create_magic_panel",{panel_type:"quest",...copy},lang);
-  }
+  case "portal":return applyMagicCommand(world,"open_world_portal",{},lang);
   case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
+  case "snow":return applyMagicCommand(world,"change_world",{weather:"snow",time:"night"},lang);
+  case "rain":return applyMagicCommand(world,"change_world",{weather:"rain",time:"day"},lang);
+  case "forest":return applyMagicCommand(world,"change_world",{theme:"forest",time:"day",weather:"clear"},lang);
+  case "candy":return applyMagicCommand(world,"change_world",{theme:"candy",time:"day",weather:"clear"},lang);
+  case "sunny":return applyMagicCommand(world,"change_world",{theme:"sky",time:"day",weather:"clear"},lang);
+  case "meteor":return applyMagicCommand(world,"trigger_world_event",{kind:"meteor"},lang);
+  case "rainbow":return applyMagicCommand(world,"trigger_world_event",{kind:"rainbow"},lang);
+  case "aurora":return applyMagicCommand(world,"trigger_world_event",{kind:"aurora"},lang);
   case "puzzle":return applyMagicCommand(world,"create_challenge",lang==="en"?{
    title:"The Star Gate",question:"Which thing grows the more you share it?",
    option_a:"A slice of cake",option_b:"Happiness",option_c:"A secret",
