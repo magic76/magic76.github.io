@@ -120,6 +120,7 @@ export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
+ const [guestAvailable,setGuestAvailable]=useState(false);
  useEffect(()=>{
   if(!isCrewAndroidShell())return;
   let mounted=true;
@@ -129,6 +130,12 @@ export function HomePage(){
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
+ useEffect(()=>{
+  if(!ready||configured){setGuestAvailable(false);return}
+  let live=true;
+  void fetch("/api/guest/token",{cache:"no-store"}).then(x=>x.json()).then(x=>{if(live)setGuestAvailable(x.enabled===true)}).catch(()=>{});
+  return()=>{live=false};
+ },[ready,configured]);
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
   let live=true;
@@ -189,6 +196,11 @@ export function HomePage(){
   <div className="crew-home-content">
    <div className="crew-home-layout">
    <div className="crew-home-primary">
+    {ready&&!configured&&guestAvailable?<Link to="/try" className="crew-home-setup crew-home-setup-free">
+     <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="teacher"/></span>
+     <span className="crew-home-setup-copy"><strong>{locale.language.startsWith("zh")?"免費試玩 AI 語音 3 分鐘":"Try 3 minutes of AI voice for free"}</strong><small>{locale.language.startsWith("zh")?"免註冊、不用 Gemini Key":"No sign-up or Gemini key needed"}</small></span>
+     <span className="crew-home-setup-action">{locale.language.startsWith("zh")?"開始試玩":"Try now"} <b aria-hidden="true">→</b></span>
+    </Link>:null}
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
       <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
