@@ -68,6 +68,17 @@ jobs:
       - run: npm run check:bundle
       # Keep PR checks fast. The complete test suite runs daily or on demand
       # via .github/workflows/crew-spa-full-tests.yml.
+      - name: Real browser snapshot of AI 3D assembly (creator PR only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        run: |
+          npm run build:cloudflare
+          node scripts/smoke-magic-creator-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        with:
+          name: magic-creator-browser-screenshots
+          path: artifacts/magic-creator-*
+          if-no-files-found: ignore
       - name: Browser-render Crew Town 3D (town PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
         run: |

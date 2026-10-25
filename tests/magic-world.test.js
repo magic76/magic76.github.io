@@ -8,10 +8,10 @@ const {stripTypeScriptTypes}=require("node:module");
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
 const stripped=stripTypeScriptTypes(source,{mode:"strip"});
 const compiled=stripped.replace(/\bexport\s+(?=(?:function|const|class)\b)/g,"")+
- "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor};";
+ "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext};";
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor}=worldModule.exports;
+const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -508,11 +508,105 @@ test("visual-first stage has a surprise action and keeps the quest optional",()=
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
  const wonders=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicWonders3D.tsx"),"utf8");
  const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
- assert.match(page,/runDemo\("wonder"\)/);
+ assert.match(page,/runDemo\("creator"\)/);
  assert.match(page,/className="magic-surprise"/);
  assert.match(page,/className="magic-optional-quest"/);
  assert.match(scene,/MagicWonders3D wonders=\{world\.wonders\}/);
  assert.match(wonders,/wonder\.seed/);
  assert.match(live,/name:"generate_magic_wonder"/);
  assert.match(live,/2 or 3 compatible but DISTINCT shapes/);
+});
+
+test("AI shapes produce genuinely distinct structures for repeated wishes",()=>{
+ const part=(shape,x,y,z,size=1)=>({shape,material:"metal",color:"gold",x,y,z,size});
+ const first=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{
+  label:"Gear guardian",idea:"walking protector",assembly:"gather",motion:"walk",mood:"brave",seed:120,
+  parts:[part("box",0,.8,0),part("sphere",0,1.8,0,.6),part("cylinder",-.6,.3,0,.4),
+   part("cylinder",.6,.3,0,.4)]
+ },"en");
+ assert.equal(first.ok,true);assert.equal(first.world.creations.length,1);
+ const clone=applyMagicCommand(first.world,"create_magic_entity",{
+  label:"Pink guardian",idea:"walking protector",assembly:"stack",motion:"walk",mood:"gentle",
+  parts:[...first.world.creations[0].parts.map(p=>({...p,color:"rose"}))]
+ });
+ assert.equal(clone.ok,false);
+ assert.equal(clone.event,"duplicate-structure-try-new-geometry");
+ const newOne=applyMagicCommand(first.world,"create_magic_entity",{
+  label:"Sky guardian",idea:"walking protector",assembly:"bloom",motion:"hover",mood:"curious",
+  friend_of:first.world.creations[0].id,
+  parts:[part("torus",0,1.8,0,1.1),part("octahedron",0,.8,0,.6),
+   part("cone",-.9,1,0,.6),part("cone",.9,1,0,.6)]
+ },"en");
+ assert.equal(newOne.ok,true);
+ assert.equal(newOne.world.creations.length,2);
+ assert.equal(newOne.world.creations[1].friendOf,first.world.creations[0].id);
+ assert.notEqual(newOne.world.creations[0].motion,newOne.world.creations[1].motion);
+ const summary=magicCreatorContext(newOne.world);
+ assert.match(summary,/Sky guardian/);assert.match(summary,/Gear guardian/);
+ assert.match(summary,/friendOf/);
+ assert.doesNotMatch(summary,/password|apiKey/);
+ const loaded=readMagicWorldSnapshot(JSON.stringify(newOne.world));
+ assert.deepEqual(loaded,newOne.world);
+});
+test("AI edits existing creation instead of remounting a separate copy",()=>{
+ const base=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(base.ok,true);
+ const before=base.world.creations[0];
+ assert.ok(before.parts.length>=3);
+ const moved=applyMagicCommand(base.world,"edit_magic_entity",{id:before.id,motion:"hover",mood:"gentle"});
+ assert.equal(moved.ok,true);assert.equal(moved.event,"entity-evolved");
+ assert.equal(moved.world.creations.length,1);
+ assert.equal(moved.world.creations[0].id,before.id);
+ assert.equal(moved.world.creations[0].motion,"hover");
+ assert.ok(moved.world.creations[0].revision>before.revision);
+ const revised=demoMagicCommand("evolve",moved.world,"en");
+ assert.equal(revised.ok,true);
+ assert.equal(revised.world.creations[0].id,before.id);
+ assert.notDeepEqual(revised.world.creations[0].parts,before.parts);
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(revised.world)),revised.world);
+ assert.equal(demoMagicCommand("reset",revised.world).world.creations.length,0);
+});
+test("creator rejects malformed geometry, oversized parts and unrelated references",()=>{
+ const example=demoMagicCommand("creator",MAGIC_INITIAL_WORLD).world.creations[0];
+ const payload={label:"test",idea:"test",assembly:"gather",motion:"hover",mood:"brave",parts:example.parts};
+ for(const changes of [
+  {parts:example.parts.slice(0,2)},{parts:Array(13).fill(example.parts[0])},
+  {parts:[{...example.parts[0],shape:"script"},...example.parts.slice(1)]},
+  {parts:[{...example.parts[0],x:999},...example.parts.slice(1)]},
+  {parts:[{...example.parts[0],material:"javascript"},...example.parts.slice(1)]},
+  {friend_of:999999},{assembly:"arbitrary_shader"},{motion:"fly_forever"},
+  {label:"\u202E"},
+ ]){
+  const r=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{...payload,...changes});
+  assert.equal(r.ok,false,JSON.stringify(changes));
+ }
+ const created=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",payload).world;
+ assert.equal(applyMagicCommand(created,"edit_magic_entity",{id:123456,motion:"spin"}).ok,false);
+ assert.equal(applyMagicCommand(created,"edit_magic_entity",{id:created.creations[0].id,parts:[...example.parts,...Array(10).fill(example.parts[0])]}).ok,false);
+ const corrupt={...created,creations:[{...created.creations[0],parts:[{...example.parts[0],size:500},...example.parts.slice(1)]}]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(corrupt)),null);
+});
+test("creator demo cycles between distinct silhouettes and honors mobile limits",()=>{
+ let world=MAGIC_INITIAL_WORLD;
+ const names=[];
+ const geometry=[];
+ for(let i=0;i<3;i++){
+  const result=demoMagicCommand("creator",world,"en");
+  assert.equal(result.ok,true);
+  world=result.world;
+  names.push(world.creations[i].label);
+  geometry.push(world.creations[i].parts.map(p=>p.shape).join("-"));
+ }
+ assert.equal(new Set(names).size,3);
+ assert.equal(new Set(geometry).size,3);
+ assert.equal(demoMagicCommand("creator",world).ok,false);
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(world)),world);
+ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ assert.match(source,/creation\.parts\.map/);
+ assert.match(source,/elapsed\/3\.8/);
+ assert.match(source,/creation\.assembly==="stack"/);
+ assert.match(page,/magicCreatorContext\(worldRef\.current\)/);
+ assert.match(page,/onSelectCreation/);
+ assert.match(page,/data-magic-demo=\{item\.id\}/);
 });

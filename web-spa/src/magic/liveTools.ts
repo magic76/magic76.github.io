@@ -30,6 +30,36 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
  {name:"cast_spell",description:"Add one visual-effect block to the current world. This is a composable primitive and may be combined with a scene change or object summon. Do not repeat the same call merely to narrate it or after Live transport recovery.",parameters:{type:"OBJECT",properties:{
   spell:{type:"STRING",enum:["sparkles","fire","wind","heal"]}
  },required:["spell"]}},
+ {name:"create_magic_entity",description:"CREATE AN ORIGINAL 3D OBJECT by designing 3 to 12 geometric parts. You are using a real 3D editor, not selecting a prefab or a fixed spell. Every part has its own geometry, material, color, relative xyz and scale. These parts visibly gather, stack, spiral or bloom into assembly; the completed sculpture remains in the world. Be inventive beyond prefab robots. Relative y 0..3.3, x/z -1.8..1.8, size .15..1.65. Overall x and z -1..1. Seed integer 0..999999. Maximum three persistent creations. To change an existing entity use edit_magic_entity.",parameters:{type:"OBJECT",properties:{
+  label:{type:"STRING",description:"Visible name 1-34 characters"},
+  idea:{type:"STRING",description:"Short wish or identity, <=60 chars for future context"},
+  parts:{type:"ARRAY",items:{type:"OBJECT",properties:{
+    shape:{type:"STRING",enum:["box","sphere","cone","cylinder","torus","octahedron"]},
+    material:{type:"STRING",enum:["stone","wood","metal","glass","glow"]},
+    color:{type:"STRING",enum:["gold","rose","azure","mint","violet","coral","ivory","slate"]},
+    x:{type:"NUMBER"},y:{type:"NUMBER"},z:{type:"NUMBER"},size:{type:"NUMBER"}
+   },required:["shape","material","color","x","y","z","size"]}},
+  assembly:{type:"STRING",enum:["gather","stack","spiral","bloom"]},
+  motion:{type:"STRING",enum:["still","hover","walk","spin","orbit"]},
+  mood:{type:"STRING",enum:["curious","gentle","mischievous","brave"]},
+  x:{type:"NUMBER"},z:{type:"NUMBER"},
+  seed:{type:"NUMBER"},
+  friend_of:{type:"NUMBER",description:"ID of an existing creation as companion, if any"}
+ },required:["label","idea","parts","assembly","motion","mood"]}},
+ {name:"edit_magic_entity",description:"MODIFY an existing persistent AI creation. id comes from recent world context, or omit for the latest. For 'make it move' change motion; for 'grow wings' or 'turn into a robot' supply an entire revised 3-12 part list. It reassembles visibly with revised parts. Unspecified fields persist. Do not create a duplicate when edit is requested.",parameters:{type:"OBJECT",properties:{
+  id:{type:"NUMBER"},label:{type:"STRING"},
+  parts:{type:"ARRAY",items:{type:"OBJECT",properties:{
+    shape:{type:"STRING",enum:["box","sphere","cone","cylinder","torus","octahedron"]},
+    material:{type:"STRING",enum:["stone","wood","metal","glass","glow"]},
+    color:{type:"STRING",enum:["gold","rose","azure","mint","violet","coral","ivory","slate"]},
+    x:{type:"NUMBER"},y:{type:"NUMBER"},z:{type:"NUMBER"},size:{type:"NUMBER"}
+   },required:["shape","material","color","x","y","z","size"]}},
+  assembly:{type:"STRING",enum:["gather","stack","spiral","bloom"]},
+  motion:{type:"STRING",enum:["still","hover","walk","spin","orbit"]},
+  mood:{type:"STRING",enum:["curious","gentle","mischievous","brave"]},
+  x:{type:"NUMBER"},z:{type:"NUMBER"},
+  friend_of:{type:"NUMBER"}
+ }}},
  {name:"generate_magic_wonder",description:"Conjure a new 3D procedural sculpture made from safe engine primitives; its location, palette, motion, shape, scale and seed determine its visible appearance. Combine 2 or 3 different wonders to interpret the player's imagination visually. Position them at different places, and use different seeds/shape/motions to avoid repeating a template. Shapes: vortex rotating rings and shards, garden growing crystal flowers, orbit celestial spheres and arcs, comet falling glowing trails, lanterns floating magical lights. Every successful call leaves a persistent scene result. Do not provide custom geometry, code, shaders, HTML, URLs or hex colors.",parameters:{type:"OBJECT",properties:{
   shape:{type:"STRING",enum:["vortex","garden","orbit","comet","lanterns"]},
   palette:{type:"STRING",enum:["aurora","ember","rose","gold","ocean"]},
@@ -87,6 +117,10 @@ export function magicSystemPrompt(english:boolean){
   "Available settings are sky/forest/candy; rain/snow/stars/clear; day/night; summon dragon/chest/portal/tree/owl/crystal.",
   "For dramatic 3D magical moments use trigger_world_event with meteor, rainbow, festival or aurora. Prefer visible event tools to narration-only replies.",
   "For free-form wishes and surprising visual spectacles, prefer generate_magic_wonder with 2 or 3 compatible but DISTINCT shapes, colors, seeds, scales, positions and motions in one player turn. You are the director of a tiny procedural 3D scene, not a narrator. For example, an enchanted cosmic garden can combine a large gold orbit on the left, small rose bloom on the right, and rising aurora lanterns in the distance. Make the combination meaningfully different from the previous scene and keep within the 4-call budget.",
+  "YOUR PRIMARY ABILITY IS AUTHORING ORIGINAL 3D SCENE OBJECTS. For a wish about a tangible creature, machine, structure, friend, vehicle or magical artifact, call create_magic_entity with 3-12 parts. Give it a recognizable unique outline, physical motion and assembly choreography. Never substitute a fixed template spell or narration for a tangible construction.",
+  "Read CREATOR_WORLD_CONTEXT at start and after tool responses: actual creation IDs and recent geometry. For repeated wishes, change STRUCTURE, part layout, motion, assembly and personality, not just color or name. Structural duplicates are rejected. For 'it', 'that creature', 'make it move' modify the last creation using edit_magic_entity. To give it a friend, construct another creation with friend_of set to its ID.",
+  "Let the user watch every part gather, spiral, stack or bloom rather than tell a long story. Maximum three persistent creations with 12 parts each on mobile. Older creations persist and can be evolved; the other tools provide atmosphere only.",
+
   "Unless the user explicitly asks for a puzzle or interactive quest, do not create riddles, cards or multi-step story questions; favor visual wonder, a short one-sentence reaction and let the user watch. Tool successes are the visual truth; never claim arbitrary animals or detailed objects that the engine does not draw.",
   "Never invent a tool, parameter, HTML, JavaScript, CSS, shader, URL or executable payload to make the world more flexible. Flexibility comes only from composing the allowlisted primitives.",
   "If a tool fails, do not immediately retry the same call. Apologize briefly and offer a different valid action; if the island is full, suggest changing the world or casting a spell instead.",
