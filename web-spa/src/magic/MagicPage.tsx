@@ -45,6 +45,12 @@ const HELPERS=[
  {id:"aurora",zh:"夜空極光",en:"Northern lights",emoji:"✨"}
 ] as const;
 
+function newlySummonedCreature(before:MagicWorld,after:MagicWorld):number|null{
+ const creature=after.objects.find(obj=>(obj.kind==="dragon"||obj.kind==="owl"||obj.kind==="fox")&&
+  !before.objects.some(previous=>previous.id===obj.id));
+ return creature?.id??null;
+}
+
 export function MagicPage(){
  const {i18n}=useTranslation();
  const zh=i18n.language.startsWith("zh");
@@ -68,6 +74,16 @@ export function MagicPage(){
  const [hasKey,setHasKey]=useState(false);
  const [starting,setStarting]=useState(false);
  const [showGuide,setShowGuide]=useState(false);
+ const helpClose=useRef<HTMLButtonElement>(null);
+ const [focusId,setFocusId]=useState<number|null>(null);
+ const [viewVersion,setViewVersion]=useState(0);
+ useEffect(()=>{
+  if(!showGuide)return;
+  helpClose.current?.focus();
+  const escape=(event:KeyboardEvent)=>{if(event.key==="Escape")setShowGuide(false)};
+  document.addEventListener("keydown",escape);
+  return()=>document.removeEventListener("keydown",escape);
+ },[showGuide]);
  const [supports3D]=useState(()=>typeof window!=="undefined"&&(
   "WebGL2RenderingContext" in window||"WebGLRenderingContext" in window
  ));
@@ -99,6 +115,8 @@ export function MagicPage(){
  const runCommand=useCallback((name:string,args:unknown)=>{
   const next=applyMagicCommand(worldRef.current,name,args,zh?"zh":"en");
   if(next.ok){
+   const newCreature=newlySummonedCreature(worldRef.current,next.world);
+   if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
    worldRef.current=next.world;
    setWorld(next.world);
    if(name==="cast_spell"||name==="change_world")trackUsageEvent("magic_spell");
@@ -109,7 +127,13 @@ export function MagicPage(){
  },[zh]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
   const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
-  if(next.ok){worldRef.current=next.world;setWorld(next.world);setNotice("");trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");}
+  if(next.ok){
+   const newCreature=newlySummonedCreature(worldRef.current,next.world);
+   if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
+   if(id==="reset"){setFocusId(null);setViewVersion(v=>v+1);}
+   worldRef.current=next.world;setWorld(next.world);setNotice("");
+   trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");
+  }
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
  },[zh]);
 
@@ -159,6 +183,8 @@ export function MagicPage(){
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
      const {result,duplicate}=applyMagicLiveCall(worldRef.current,call,toolResultsRef.current,zh?"zh":"en");
      if(!duplicate&&result.ok){
+      const newCreature=newlySummonedCreature(worldRef.current,result.world);
+      if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
       worldRef.current=result.world;setWorld(result.world);
       if(call.name==="cast_spell"||call.name==="change_world")trackUsageEvent("magic_spell");
       if(call.name==="answer_challenge")trackUsageEvent("magic_challenge_answer");
@@ -219,6 +245,7 @@ export function MagicPage(){
   if(kind==="chest"){runDemo("puzzle");return}
   if(kind==="portal"){runCommand("open_world_portal",{});return}
   if(kind==="dragon"){runCommand("cast_spell",{spell:"fire"});return}
+  if(kind==="crystal"){runDemo("puzzle");return}
   runCommand("cast_spell",{spell:"sparkles"});
  }
  function submitInput(event:FormEvent<HTMLFormElement>){
@@ -234,6 +261,28 @@ export function MagicPage(){
   else setNotice(t("目前無法傳送，請重新連線。","Could not send that. Try reconnecting."));
  }
  const isOnline=voiceState==="speaking"||voiceState==="listening";
+ const pendingPortal=world.panels.find(panel=>panel.portalTravel&&!panel.selected);
+ function guidedAction(){
+  if(world.adventureStep===0){
+   if(pendingPortal){
+    const entry=document.querySelector<HTMLButtonElement>(".magic-stage-interaction-entry");
+    if(entry&&getComputedStyle(entry).display!=="none")entry.click();
+    else document.querySelector(".magic-generated.panel-quest")?.scrollIntoView({behavior:reducedMotion?"auto":"smooth",block:"center"});
+   }else runDemo("portal");
+  }else if(world.adventureStep===1)runDemo("dragon");
+  else if(world.adventureStep===2)runDemo(world.castle==="ice"?"thawcastle":"icecastle");
+  else runDemo("puzzle");
+ }
+ const firstAdventure=[
+  {title:t("第一場魔法冒險","Your first magic adventure"),description:t("Lumi 發現一道未知的傳送門。先選一個世界！","Lumi found a mysterious portal. Choose a world to visit!"),
+   action:pendingPortal?t("選擇傳送門目的地","Choose your destination"):t("打開傳送門","Open the portal")},
+  {title:t("第 2 步 · 找個新夥伴","Step 2 · Meet a companion"),description:t("你已抵達新世界。召喚飛龍，看看牠如何飛進島嶼。","You reached a new world. Summon a dragon and watch it fly in."),
+   action:t("召喚飛龍","Summon a dragon")},
+  {title:t("第 3 步 · 改變這個世界","Step 3 · Transform the world"),description:t("現在讓飛龍施展冰雪魔法，親眼看城堡改變。","Give the dragon a spell. Watch the whole castle transform."),
+   action:world.castle==="ice"?t("融化冰雪","Melt the ice"):t("冰封城堡","Freeze the castle")},
+  {title:t("完成！神祕水晶現身","Complete! A crystal has appeared"),description:t("你完成第一場冒險！點擊水晶，或開始下一場魔法試煉。","Your first adventure is complete! Tap the crystal to uncover your next mystery."),
+   action:t("探索下一道謎題","Explore the next mystery")}
+ ][world.adventureStep];
  return <main className="magic-page">
   <header className="magic-header">
    <div>
@@ -248,7 +297,8 @@ export function MagicPage(){
     aria-label={t("即時魔法世界","Live magic world")}>
     {has3D?<MagicRenderBoundary onFailure={fail3D}>
      <Suspense fallback={<div className="magic-3d-loading" role="status">{t("正在建造魔法世界…","Building your magic world…")}</div>}>
-      <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact} onFailure={fail3D}/>
+      <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact}
+       onFailure={fail3D} focusId={focusId} viewVersion={viewVersion}/>
      </Suspense>
     </MagicRenderBoundary>:null}
     {!has3D?<div className="magic-3d-unavailable" role="alert">
@@ -256,6 +306,16 @@ export function MagicPage(){
      <p>{t("請使用支援 WebGL 的瀏覽器，或重新開啟頁面。你的魔法世界進度仍會保留。","Try a browser with WebGL support or reopen this page. Your world progress is preserved.")}</p>
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
+    <div className="magic-adventure-guide" aria-label={t("第一場魔法冒險","First magic adventure")}>
+     <small>{world.adventureStep===3?t("冒險完成 · 3 / 3","Adventure complete · 3 / 3"):
+      t("新手冒險","First adventure")+" · "+(world.adventureStep+1)+" / 3"}</small>
+     <strong>{firstAdventure.title}</strong>
+     <p>{firstAdventure.description}</p>
+     <button type="button" onClick={guidedAction}>{firstAdventure.action} <span aria-hidden="true">→</span></button>
+    </div>
+    <button type="button" className="magic-overview-button"
+     onClick={()=>{setFocusId(null);setViewVersion(v=>v+1);}}
+     aria-label={t("返回魔法島全景","Return to full island view")}>{t("全景","Overview")} ⤢</button>
     <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
      {isOnline||voiceState==="connecting"?<>
       <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>
@@ -317,8 +377,7 @@ export function MagicPage(){
     {world.panels.map(panel=><MagicGeneratedCard key={panel.id} panel={panel} zh={zh} onSelect={selectPanel}/>)}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
      <div className="magic-actions-title"><h2>{t("說出願望，或先試試魔法","Make a wish or try a spell")}</h2>
-      <button type="button" onClick={()=>setShowGuide(v=>!v)} aria-expanded={showGuide}>{t("玩法","How to play")} ⓘ</button></div>
-     {showGuide&&<p className="magic-help">{t("點選下方魔法可直接改變世界；連線後也能用語音或打字自由下指令。點擊島上的生物與物件，看看會發生什麼。","Tap a spell to change your world instantly. Connect to Lumi for open-ended voice or text requests. Tap creatures and objects to interact.")}</p>}
+      <button type="button" onClick={()=>setShowGuide(true)} aria-haspopup="dialog" aria-expanded={showGuide}>{t("玩法","How to play")} ⓘ</button></div>
      <div className="magic-spell-grid">
       {HELPERS.map(item=><button key={item.id} type="button" onClick={()=>runDemo(item.id)}>
        <span aria-hidden="true">{item.emoji}</span><strong>{zh?item.zh:item.en}</strong>
@@ -338,5 +397,24 @@ export function MagicPage(){
     </section>
    </aside>
   </div>
+  {showGuide&&<div className="magic-help-overlay" role="presentation">
+   <button type="button" className="magic-help-backdrop" onClick={()=>setShowGuide(false)}
+    aria-label={t("關閉玩法說明","Close how-to guide")}/>
+   <section className="magic-help-dialog" role="dialog" aria-modal="true" aria-labelledby="magic-help-title">
+    <button ref={helpClose} type="button" className="magic-help-close"
+     onClick={()=>setShowGuide(false)} aria-label={t("關閉玩法說明","Close guide")}>×</button>
+    <small>CREW MAGIC</small>
+    <h2 id="magic-help-title">{t("三步完成第一場冒險","Your first adventure in three steps")}</h2>
+    <p>{t("不需要 Gemini Key，也能直接體驗第一場魔法冒險。","No Gemini key needed to play your first adventure.")}</p>
+    <ol>
+     <li>{t("打開傳送門，選擇想探索的新世界。","Open a portal and choose a world to explore.")}</li>
+     <li>{t("召喚飛龍，看看牠飛到你面前。","Summon a dragon and watch it arrive.")}</li>
+     <li>{t("冰封城堡，發現神祕水晶的線索。","Freeze the castle and uncover a crystal clue.")}</li>
+    </ol>
+    <p>{t("連線 Lumi 後，還可以用語音或文字自由下魔法指令。","Connect to Lumi for free-form voice or text magic.")}</p>
+    <button type="button" className="magic-help-start" onClick={()=>{setShowGuide(false);guidedAction();}}>
+     {firstAdventure.action} →</button>
+   </section>
+  </div>}
  </main>;
 }
