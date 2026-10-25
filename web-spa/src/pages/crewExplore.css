@@ -123,6 +123,44 @@
  .crew-explore-tile[data-kind="mate"] .crew-explore-illustration{height:104px;width:99%}
 }
 
+/* Motion 2.0: single entrance for illustrations; playful response only when interacted with. */
+.crew-explore-grid .crew-explore-illustration svg,
+.crew-explore-grid .crew-explore-town-mini svg{
+ animation:crew-explore-art-arrive 440ms var(--crew-motion-ease, ease-out) both;
+}
+.crew-explore-grid .crew-explore-tile:nth-child(2n) .crew-explore-illustration svg{animation-delay:65ms}
+.crew-explore-grid .crew-explore-tile:nth-child(3n) .crew-explore-illustration svg{animation-delay:110ms}
+@keyframes crew-explore-art-arrive{
+ from{opacity:.45;transform:translateY(8px) scale(.97)}
+ to{opacity:1;transform:translateY(0) scale(1)}
+}
+.crew-explore-illustration::after{
+ content:"✦";position:absolute;z-index:2;top:6px;right:12px;
+ font-size:18px;line-height:1;color:var(--art-ink);opacity:0;
+ pointer-events:none;transform:translateY(8px) scale(.65);
+}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-illustration::after{
+ animation:crew-explore-spark 650ms ease-out both;
+}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-arrow{
+ transform:translate(2px,-2px);background:var(--art-2);
+}
+.crew-explore-arrow{transition:transform 180ms var(--crew-motion-ease, ease-out),background-color 180ms ease}
+.crew-explore-life img{transition:transform 220ms var(--crew-motion-ease, ease-out)}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-life img:first-of-type{transform:translateY(9px) rotate(-11deg)}
+.crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-life img:nth-of-type(3){transform:translateY(7px) rotate(11deg)}
+@keyframes crew-explore-spark{
+ 0%{opacity:0;transform:translateY(8px) scale(.65)}
+ 42%{opacity:.85;transform:translateY(-4px) scale(1.12)}
+ 100%{opacity:0;transform:translateY(-12px) scale(.9)}
+}
+@media(hover:none){.crew-explore-tile:hover .crew-explore-illustration,.crew-explore-tile:hover .crew-explore-life img:nth-of-type(2){transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .crew-explore-grid .crew-explore-illustration svg,.crew-explore-grid .crew-explore-town-mini svg,
+ .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-illustration::after{animation:none!important}
+ .crew-explore-illustration::after{display:none}
+ .crew-explore-arrow,.crew-explore-life img{transition:none!important}
+}
 
 /* Crew Magic — a floating-island preview using existing Explore styling. */
 .crew-explore-tile[data-kind="magic"]{--art:#c7d5f0;--art-2:#edd3ec;--art-ink:#686da4;--art-border:#d6d5ef;grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);min-height:170px}
