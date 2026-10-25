@@ -5,7 +5,7 @@
 export type MagicTheme="sky"|"forest"|"candy";
 export type MagicWeather="clear"|"rain"|"snow"|"stars";
 export type MagicTime="day"|"night";
-export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"crystal";
+export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"fox"|"crystal";
 export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
 export type MagicCastle="stone"|"ice";
 export type MagicCue="dragon_arrival"|"castle_transformation"|null;
@@ -13,7 +13,7 @@ export type MagicEvent="meteor"|"rainbow"|"festival"|"aurora";
 export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
 export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice;portalTravel?:boolean};
-export type MagicObject={id:number;kind:MagicObjectKind;slot:number};
+export type MagicObject={id:number;kind:MagicObjectKind;slot:number;x?:number;z?:number};
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
@@ -61,7 +61,16 @@ export const MAGIC_INITIAL_WORLD:MagicWorld={
 const THEMES=["sky","forest","candy"] as const;
 const WEATHERS=["clear","rain","snow","stars"] as const;
 const TIMES=["day","night"] as const;
-const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
+const OBJECTS=["dragon","chest","portal","tree","owl","fox","crystal"] as const;
+// Relative stage coordinates are finite and bounded; models never control raw Three.js positions.
+function stageCoordinate(v:unknown):v is number{return typeof v==="number"&&Number.isFinite(v)&&v>=-1&&v<=1}
+export function safeMagicAnchor(x:number,z:number):[number,number]{
+ const length=Math.hypot(x,z);
+ // Keep actors away from the castle and away from the cliff edge. A request
+ // for the centre is projected to the accessible path next to the castle.
+ const radius=Math.min(.94,Math.max(.59,length));
+ return length<.00001?[2.18,0]:[x/length*radius*3.7,z/length*radius*3.25];
+}
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const EVENTS=["meteor","rainbow","festival","aurora"] as const;
 const CASTLES=["stone","ice"] as const;
@@ -128,8 +137,11 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   const obj=snapshotObject(entry);
   if(!obj||!validId(obj.id)||!oneOf(obj.kind,OBJECTS)||!validId(obj.slot)
    ||Number(obj.slot)>=MAX_OBJECTS||slots.has(obj.slot as number))return null;
+  const moved=obj.x!==undefined||obj.z!==undefined;
+  if(moved&&(!stageCoordinate(obj.x)||!stageCoordinate(obj.z)))return null;
   slots.add(obj.slot as number);
-  objects.push({id:obj.id as number,kind:obj.kind as MagicObjectKind,slot:obj.slot as number});
+  objects.push({id:obj.id as number,kind:obj.kind as MagicObjectKind,slot:obj.slot as number,
+   ...(moved?{x:obj.x as number,z:obj.z as number}:{})});
  }
  const panels:MagicPanel[]=[];
  for(const entry of data.panels){
@@ -190,10 +202,34 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(state.objects.length>=MAX_OBJECTS)return failed(state,"world-is-full");
    const id=state.revision+1;
    const slot=state.objects.length;
-   const labels:{[K in MagicObjectKind]:[string,string]}={dragon:["飛龍","dragon"],chest:["寶箱","treasure chest"],portal:["傳送門","portal"],tree:["魔法樹","enchanted tree"],owl:["貓頭鷹","owl"],crystal:["水晶","crystal"]};
-   return updated(state,{objects:[...state.objects,{id,kind:args.kind,slot}],effect:"sparkles",
+   const labels:{[K in MagicObjectKind]:[string,string]}={dragon:["飛龍","dragon"],chest:["寶箱","treasure chest"],portal:["傳送門","portal"],tree:["魔法樹","enchanted tree"],owl:["貓頭鷹","owl"],fox:["小狐狸","fox"],crystal:["水晶","crystal"]};
+   const explicit=args.x!==undefined||args.z!==undefined;
+   if(explicit&&(!stageCoordinate(args.x)||!stageCoordinate(args.z)))return failed(state,"invalid-stage-position");
+   const object:MagicObject={id,kind:args.kind,slot,
+    ...(explicit?{x:args.x as number,z:args.z as number}:{})};
+   return updated(state,{objects:[...state.objects,object],effect:"sparkles",
     cue:args.kind==="dragon"?"dragon_arrival":null,
     message:text("一道光閃過，"+labels[args.kind][0]+"出現在島上！","A flash of light! A "+labels[args.kind][1]+" appears on the island!")}, "object-summoned");
+  }
+  case "move_object":{
+   // The latest matching creature or object can be repositioned without
+   // remounting it. Geometry stays on a bounded, obstacle-safe island path.
+   if(!stageCoordinate(args.x)||!stageCoordinate(args.z))return failed(state,"invalid-stage-position");
+   const byId=args.id!==undefined;
+   if(byId&&!validId(args.id))return failed(state,"invalid-object-id");
+   if(!byId&&!oneOf(args.kind,OBJECTS))return failed(state,"missing-object-target");
+   const target=byId?state.objects.find(obj=>obj.id===args.id):
+    [...state.objects].reverse().find(obj=>obj.kind===args.kind);
+   if(!target)return failed(state,"object-not-found");
+   if(target.x===args.x&&target.z===args.z)return failed(state,"object-already-there");
+   const labels:{[K in MagicObjectKind]:[string,string]}={
+    dragon:["飛龍","dragon"],owl:["貓頭鷹","owl"],fox:["小狐狸","fox"],
+    chest:["寶箱","chest"],portal:["傳送門","portal"],tree:["魔法樹","tree"],crystal:["水晶","crystal"]
+   };
+   return updated(state,{objects:state.objects.map(obj=>obj.id===target.id?
+    {...obj,x:args.x as number,z:args.z as number}:obj),
+    message:text("魔法把"+labels[target.kind][0]+"帶往新的位置！","Magic moves the "+labels[target.kind][1]+" to a new spot!")
+   },"object-moved");
   }
   case "transform_castle":{
    // A persistent, reversible 3D scene mutation; no dynamic geometry or code
