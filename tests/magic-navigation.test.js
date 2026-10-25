@@ -14,7 +14,7 @@ const {ringStep,ringPoint,ringPolar,groupRingTargets}=load("../web-spa/src/magic
 const {MAGIC_INITIAL_WORLD,applyMagicCommand,readMagicWorldSnapshot}=load("../web-spa/src/magic/world.ts",["MAGIC_INITIAL_WORLD","applyMagicCommand","readMagicWorldSnapshot"]);
 test("roaming route stays on the castle-safe annulus",()=>{
  let current=ringPoint(-1.7,.78),target=ringPoint(1.7,.82);
- for(let i=0;i<240;i++){
+ for(let i=0;i<1100;i++){
   current=ringStep(current,target,.06);
   const {radius}=ringPolar(current);
   assert.ok(radius>=.60&&radius<=.93);
@@ -39,7 +39,7 @@ test("group routing assigns distinct persistent destinations",()=>{
  const gathered=applyMagicCommand(state,"move_creatures",{x:.8,z:.1},"en");
  assert.equal(gathered.ok,true);
  assert.equal(gathered.event,"creature-group-moved");
- const points=gathered.world.objects.map(o=>[o.x*3.7,o.z*3.25]);
+ const points=gathered.world.objects.map(o=>[o.x*3.7*Math.sqrt(10),o.z*3.25*Math.sqrt(10)]);
  for(let i=0;i<points.length;i++){
   for(let j=i+1;j<points.length;j++){
    assert.ok(Math.hypot(points[i][0]-points[j][0],points[i][1]-points[j][1])>=1.04);

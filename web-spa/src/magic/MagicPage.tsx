@@ -273,7 +273,7 @@ export function MagicPage(){
   </header>
   <div className="magic-layout">
    <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+" is-3d"}
-    aria-label={t("即時魔法世界","Live magic world")}>
+    aria-label={t("即時魔法世界","Live magic world")} data-magic-map-area="10">
     {has3D?<MagicRenderBoundary onFailure={fail3D}>
      <Suspense fallback={<div className="magic-3d-loading" role="status">{t("正在建造魔法世界…","Building your magic world…")}</div>}>
       <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact}
@@ -305,7 +305,8 @@ export function MagicPage(){
     </div>
     <button type="button" className="magic-overview-button"
      onClick={()=>{setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);}}
-     aria-label={t("返回魔法島全景","Return to full island view")}>{t("全景","Overview")} ⤢</button>
+     aria-label={t("返回十倍魔法島全景","Return to tenfold magic island overview")}
+     title={t("拖曳旋轉、雙指平移、捏合縮放","Drag to rotate, two fingers to pan, pinch to zoom")}>{t("全景","Overview")} ⤢</button>
     <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
      {isOnline||voiceState==="connecting"?<>
       <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>

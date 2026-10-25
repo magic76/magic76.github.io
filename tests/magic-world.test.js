@@ -378,7 +378,7 @@ test("stage coordinate projection keeps roaming animals on the island path",()=>
   const [px,pz]=safeMagicAnchor(x,z);
   assert.equal(Number.isFinite(px),true);
   assert.equal(Number.isFinite(pz),true);
-  const r=Math.hypot(px/3.7,pz/3.25);
+  const r=Math.hypot(px/(3.7*Math.sqrt(10)),pz/(3.25*Math.sqrt(10)));
   assert.ok(r>=.58&&r<=.95);
  }
  const oldState=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"owl"}).world;
@@ -388,7 +388,7 @@ test("stage coordinate projection keeps roaming animals on the island path",()=>
 
 test("3D overview camera and world-creature locomotion are wired",()=>{
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
- assert.ok(scene.includes("camera={{position:[12.5,11.4,18.7]"));
+ assert.ok(scene.includes("camera={{position:[39.53,36.05,59.14]"));
  assert.ok(scene.includes("safeMagicAnchor(obj.x,obj.z)"));
  assert.ok(scene.includes('kind==="fox"'));
  assert.ok(scene.includes("root.current.position"));
@@ -669,4 +669,25 @@ test("key-free first magic adventure demos demonstrate distinct articulated silh
  for(const world of [walking.world,floating.world,tower.world,evolved.world]){
   assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(world)),world);
  }
+});
+
+test("Magic 3D island has tenfold walkable area, spatially distributed details and explorable camera",()=>{
+ const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ const navigation=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/magicNavigation.ts"),"utf8");
+ assert.match(scene,/ISLAND_LINEAR_SCALE=Math.sqrt\(10\)/);
+ assert.match(scene,/ISLAND_X_RADIUS=5\.65\*ISLAND_LINEAR_SCALE/);
+ assert.match(scene,/ISLAND_Z_RADIUS=4\.75\*ISLAND_LINEAR_SCALE/);
+ assert.match(scene,/<OuterDistricts colors=\{colors\}/);
+ assert.match(scene,/enablePan enableDamping/);
+ assert.match(scene,/maxDistance=\{110\}/);
+ assert.match(scene,/far:180/);
+ assert.match(navigation,/RING_X=3\.7\*Math.sqrt\(10\)/);
+ assert.match(page,/data-magic-map-area="10"/);
+ const [x,z]=safeMagicAnchor(1,0);
+ assert.ok(x>10&&x<12);
+ assert.equal(z,0);
+ const [cx,cz]=safeMagicAnchor(0,0);
+ assert.ok(cx>6&&cx<8);
+ assert.equal(cz,0);
 });

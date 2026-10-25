@@ -85,12 +85,17 @@ const TIMES=["day","night"] as const;
 const OBJECTS=["dragon","chest","portal","tree","owl","fox","crystal"] as const;
 // Relative stage coordinates are finite and bounded; models never control raw Three.js positions.
 function stageCoordinate(v:unknown):v is number{return typeof v==="number"&&Number.isFinite(v)&&v>=-1&&v<=1}
+// Ten times the former walkable terrain area; distances grow by sqrt(10).
+// AI coordinates remain normalized to [-1,1], so saved worlds remain valid.
+export const MAGIC_MAP_AREA_SCALE=10;
+export const MAGIC_MAP_LINEAR_SCALE=Math.sqrt(MAGIC_MAP_AREA_SCALE);
 export function safeMagicAnchor(x:number,z:number):[number,number]{
  const length=Math.hypot(x,z);
  // Keep actors away from the castle and away from the cliff edge. A request
  // for the centre is projected to the accessible path next to the castle.
  const radius=Math.min(.94,Math.max(.59,length));
- return length<.00001?[2.18,0]:[x/length*radius*3.7,z/length*radius*3.25];
+ return length<.00001?[2.18*MAGIC_MAP_LINEAR_SCALE,0]:
+  [x/length*radius*3.7*MAGIC_MAP_LINEAR_SCALE,z/length*radius*3.25*MAGIC_MAP_LINEAR_SCALE];
 }
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const EVENTS=["meteor","rainbow","festival","aurora"] as const;
@@ -364,7 +369,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
      (!requested||requested.includes(obj.kind)));
    if(!group.length)return failed(state,"no-creatures-to-move");
    const [cx,cz]=safeMagicAnchor(args.x,args.z);
-   const central=Math.atan2(cz/3.25,cx/3.7);
+   const central=Math.atan2(cz/(3.25*MAGIC_MAP_LINEAR_SCALE),cx/(3.7*MAGIC_MAP_LINEAR_SCALE));
    const occupied=state.objects.filter(obj=>!group.some(member=>member.id===obj.id));
    const points:{id:number;x:number;z:number}[]=[];
    for(let i=0;i<group.length;i++){
@@ -372,7 +377,8 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     for(let attempt=0;attempt<28;attempt++){
      const deviation=attempt===0?0:(attempt%2===0?-1:1)*Math.ceil(attempt/2)*.2;
      const angle=central+(i-(group.length-1)/2)*.48+deviation;
-     const candidate:[number,number]=[Math.cos(angle)*2.91,Math.sin(angle)*2.54];
+     const candidate:[number,number]=[Math.cos(angle)*2.91*MAGIC_MAP_LINEAR_SCALE,
+      Math.sin(angle)*2.54*MAGIC_MAP_LINEAR_SCALE];
      const blocked=occupied.some(obj=>{
       const [ox,oz]=obj.x!==undefined&&obj.z!==undefined?safeMagicAnchor(obj.x,obj.z):
        safeMagicAnchor(...([[-3.25,-.5],[3.15,-.7],[-2.7,2.65],[2.7,2.55],[-4,.8],[3.95,.95]][obj.slot] as [number,number]).map((v,j)=>v/(j===0?3.7:3.25)) as [number,number]);
@@ -382,7 +388,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     }
     if(!found)return failed(state,"no-safe-group-position");
     const [x,z]=found;
-    points.push({id:group[i].id,x:x/3.7,z:z/3.25});
+    points.push({id:group[i].id,x:x/(3.7*MAGIC_MAP_LINEAR_SCALE),z:z/(3.25*MAGIC_MAP_LINEAR_SCALE)});
    }
    return updated(state,{objects:state.objects.map(obj=>{
     const target=points.find(p=>p.id===obj.id);
