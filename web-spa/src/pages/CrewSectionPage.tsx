@@ -17,6 +17,16 @@ import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import "./crewExplore.css";
 import "./crewSections.css";
 
+// Only the product category is sent; the actual destination, query and identifiers stay local.
+function recordExploreEntry(to:string){
+ const root=to.split(/[?#]/,1)[0].split("/")[1];
+ const category={
+  fortune:"fortune",timeline:"timeline",games:"play",story:"story",research:"briefing",
+  circle:"circle",town:"town",magic:"magic",mate:"mate",teacher:"learn"
+ } as const;
+ const detail=category[root as keyof typeof category];
+ if(detail)trackUsageEvent("explore_entry_click",detail);
+}
 type Entry={title:string;desc:string;to:string;icon:IconName;tag?:string};
 const copy:{
  [K in Exclude<CrewSection,"home">]:{
@@ -211,7 +221,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   </Link>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
-    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} data-kind={exploreKinds[i]}>
+    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={exploreKinds[i]}>
      <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
