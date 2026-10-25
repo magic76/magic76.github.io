@@ -93,3 +93,8 @@
  .mate-transcript-wrap .mate-transcript{min-height:0}
  .mate-message{max-width:92%}
 }
+
+/* Private supplements retain a readable slice of the active discussion. */
+.mate-prior-dialogue{margin:12px 0;border:1px solid var(--line);border-radius:12px;background:#f9fbf9;overflow:hidden}
+.mate-prior-dialogue summary{padding:12px;font-size:13px;font-weight:750;cursor:pointer}
+.mate-prior-dialogue .mate-transcript{max-height:220px;min-height:0;padding:10px 12px;border-top:1px solid var(--line)}

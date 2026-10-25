@@ -2,6 +2,7 @@ import {Component,lazy,Suspense,useCallback,useEffect,useState} from "react";
 import type {ReactNode,ErrorInfo} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {trackUsageEvent} from "../analytics/usage";
 import {TownOverlay} from "./three/TownOverlay";
 import type {TownViewMode} from "./three/TownCameraController";
 import {DISTRICTS,type DistrictId,type FriendId,type PlaceId,type Selection} from "./three/world";
@@ -31,7 +32,7 @@ export function Town3DPage(){
  const [selected,setSelected]=useState<Selection>(null);
  const [reset,setReset]=useState(0);
  const [reducedMotion,setReducedMotion]=useState(true);
- const fail=useCallback((reason:string)=>{setFailureDetail(reason);setFallbackReason("render-error")},[]);
+ const fail=useCallback((reason:string)=>{trackUsageEvent("town_3d_fallback","render_error");setFailureDetail(reason);setFallbackReason("render-error")},[]);
  const simplified=useCallback((reason:string)=>setModelIssue(reason.slice(0,170)),[]);
  useEffect(()=>{
   const query=window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -39,6 +40,8 @@ export function Town3DPage(){
   sync();query.addEventListener("change",sync);
   return()=>query.removeEventListener("change",sync);
  },[]);
+ useEffect(()=>{trackUsageEvent("town_enter")},[]);
+ useEffect(()=>{if(supported==="no")trackUsageEvent("town_3d_fallback","unsupported")},[supported]);
  useEffect(()=>{
   // Do not allocate and forcibly lose a disposable WebGL context before starting
   // the actual renderer. Mobile browsers may delay or fail the next context.
@@ -57,10 +60,11 @@ export function Town3DPage(){
   setAttempt(n=>n+1);
  },[]);
  const travelToDistrict=useCallback((id:DistrictId)=>{
+  trackUsageEvent("town_interaction","place");
   setDistrict(id);setView("close");setSelected(null);setReset(n=>n+1);
  },[]);
- const selectFriend=useCallback((id:FriendId)=>{setView("close");setSelected({type:"person",id})},[]);
- const selectPlace=useCallback((id:PlaceId)=>{setView("close");setSelected({type:"place",id})},[]);
+ const selectFriend=useCallback((id:FriendId)=>{trackUsageEvent("town_interaction","person");setView("close");setSelected({type:"person",id})},[]);
+ const selectPlace=useCallback((id:PlaceId)=>{trackUsageEvent("town_interaction","place");setView("close");setSelected({type:"place",id})},[]);
  const mode=supported==="no"?"unsupported":fallbackReason||"render-error";
  const explanation=mode==="unsupported"
   ?zh?"目前的瀏覽器或裝置沒有提供 WebGL 3D 支援，因此改用 2.5D 地圖。":"This browser or device does not support WebGL, so the 2.5D map is shown."
@@ -121,7 +125,7 @@ export function Town3DPage(){
    </section>
    <div className="crew-town-3d-caption">
     <span>{zh?"3D 小鎮角色使用預設走動與情境，不是多人 Gemini Live。點選「加入聊天」會進入既有的單人語音聊天。":"Town movements are scripted, not a multi-agent Live call. Joining a friend opens the existing one-to-one voice chat."}</span>
-    <button type="button" onClick={()=>setFallbackReason("manual")}>{zh?"切換 2.5D 地圖":"Use 2.5D map"}</button>
+    <button type="button" onClick={()=>{trackUsageEvent("town_3d_fallback","manual");setFallbackReason("manual")}}>{zh?"切換 2.5D 地圖":"Use 2.5D map"}</button>
    </div>
   </div>
  </Town3DErrorBoundary>;

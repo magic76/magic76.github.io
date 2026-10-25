@@ -71,7 +71,7 @@ test("2.5D fallback clearly exposes unsupported, rendering failure, and manual m
  const css=read("web-spa/src/town/three/town3d.css");
  for(const reason of ["unsupported","render-error","manual"])assert.ok(page.includes('"'+reason+'"'));
  assert.ok(page.includes('目前使用 2.5D 地圖'));
- assert.ok(page.includes('onClick={()=>setFallbackReason("manual")}'));
+  assert.match(page,/onClick=\{\(\)=>\{trackUsageEvent\("town_3d_fallback","manual"\);setFallbackReason\("manual"\)\}\}/);
  assert.ok(page.includes('onClick={retry3D}'));
  assert.match(page,/key=\{attempt\}/);
  assert.match(page,/setAttempt\(n=>n\+1\)/);
@@ -216,9 +216,10 @@ test("P3 extends the actual land footprint and offers camera traversal of five d
  const css=read("web-spa/src/town/three/town3d.css");
  assert.match(world,/WORLD_SIZE=\{width:52,depth:44\}/);
  assert.ok((52*44)/(21.7*17.1)>6);
- assert.ok(land.includes("WORLD_SIZE.width"));
- assert.ok(land.includes("WORLD_SIZE.depth"));
- assert.ok(land.includes("planeGeometry args={[37,1.32]}"));
+ assert.ok(land.includes("<TownIsland/>"));
+ const island=read("web-spa/src/town/three/TownIsland.tsx");
+ assert.ok(island.includes("extrudeGeometry"));
+ assert.ok(island.includes("coastPoint"));
  for(const id of ["center","market","grove","homes","harbor"]){
   assert.ok(world.includes('id:"'+id+'"'),id);
  }
@@ -260,21 +261,26 @@ test("P4 graph keeps 16 residents on connected safe pedestrian paths across all 
  const walk=read("web-spa/src/town/three/TownWalkGraph.ts");
  const world=read("web-spa/src/town/three/world.ts");
  const sourceLoops=walk.match(/const LOOPS:[^=]+=(\[[\s\S]*?\]);\nconst BRIDGES/);
- const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\nfunction makeWalkGraph/);
- assert.ok(sourceLoops);assert.ok(sourceBridges);
+ const sourceBridges=walk.match(/const BRIDGES:[^=]+=(\[[\s\S]*?\]);\n/);
+ const sourcePlaza=walk.match(/const CENTRAL_WALK:[^=]+=(\[[\s\S]*?\]);\nconst CENTRAL_LINKS/);
+ const sourcePlazaLinks=walk.match(/const CENTRAL_LINKS:[^=]+=(\[[\s\S]*?\]);\nfunction makeWalkGraph/);
+ assert.ok(sourceLoops);assert.ok(sourceBridges);assert.ok(sourcePlaza);assert.ok(sourcePlazaLinks);
  const loops=vm.runInNewContext(sourceLoops[1]);
  const bridges=vm.runInNewContext(sourceBridges[1]);
+ const plaza=vm.runInNewContext(sourcePlaza[1]);
+ const plazaLinks=vm.runInNewContext(sourcePlazaLinks[1]);
  assert.equal(loops.length,5);
  const nodes=new Map();
  for(const loop of loops)for(const [id,x,z] of loop){
   assert.ok(Math.abs(x)<=25&&Math.abs(z)<=21,"node outside walkable land: "+id);
   assert.ok(!nodes.has(id));nodes.set(id,{x,z,links:new Set()});
  }
+ for(const [id,x,z] of plaza){assert.ok(!nodes.has(id));nodes.set(id,{x,z,links:new Set()})}
  for(const loop of loops)for(let i=0;i<loop.length;i++){
   const a=loop[i][0],b=loop[(i+1)%loop.length][0];
   nodes.get(a).links.add(b);nodes.get(b).links.add(a);
  }
- for(const [a,b] of bridges){
+ for(const [a,b] of [...bridges,...plazaLinks]){
   assert.ok(nodes.has(a)&&nodes.has(b),"missing bridge node");
   nodes.get(a).links.add(b);nodes.get(b).links.add(a);
  }
@@ -284,7 +290,7 @@ test("P4 graph keeps 16 residents on connected safe pedestrian paths across all 
   for(const neighbor of from.links)if(!seen.has(neighbor)){seen.add(neighbor);queue.push(neighbor)}
  }
  assert.equal(seen.size,nodes.size,"all five districts must be reachable");
- assert.equal(nodes.size,40);
+ assert.equal(nodes.size,44);
  for(const [id,n] of nodes){
   for(const next of n.links){
    const other=nodes.get(next);
@@ -305,7 +311,7 @@ test("P4 natural locomotion alternates planted feet and arms without frame-drive
  assert.ok(chars.includes("const leftArm=useRef<Group>"));
  assert.ok(chars.includes("const rightArm=useRef<Group>"));
  assert.ok(chars.includes("Math.sin(s.walk+Math.PI)"));
- assert.ok(chars.includes("s.walk+=travel*8.9"));
+ assert.ok(chars.includes("s.walk+=motion.moved*8.9"));
  assert.ok(chars.includes('s.phase="Walking"'));
  assert.ok(chars.includes('s.phase="Arriving"'));
  assert.ok(chars.includes("if(!selected&&!reducedMotion)"));

@@ -50,6 +50,16 @@ jobs:
       - name: Typecheck PR
         if: github.event_name == 'pull_request'
         run: npm run check:web
+      # The default PR lane is intentionally light. Only test-regression repair
+      # branches run the full suite before the PR is merged.
+      - name: Full regressions (test repair PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
+        run: npm test
+      - name: Validate first-party usage analytics contract
+        run: node --test tests/crew-usage.test.js
+      - name: Validate Crew Magic world and Live tools (Magic PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
+        run: node --test tests/magic-world.test.js tests/magic-live-composition.test.js tests/magic-navigation.test.js
       - name: Validate UI translations (offline)
         run: npm run check:i18n
       - name: Review newly added UI literals (PR only)
@@ -63,10 +73,21 @@ jobs:
       - run: npm run check:bundle
       # Keep PR checks fast. The complete test suite runs daily or on demand
       # via .github/workflows/crew-spa-full-tests.yml.
+      - name: Real browser snapshot of AI 3D assembly (creator PR only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        run: |
+          npm run build:cloudflare
+          node scripts/smoke-magic-creator-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        with:
+          name: magic-creator-browser-screenshots
+          path: artifacts/magic-creator-*
+          if-no-files-found: ignore
       - name: Browser-render Crew Town 3D (town PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
         run: |
-          node --test tests/crew-town-3d.test.js
+          node --test tests/crew-town-3d.test.js tests/crew-town-navigation.test.js
           npm run build:cloudflare
           node scripts/smoke-town-browser.mjs
       - uses: actions/upload-artifact@v4

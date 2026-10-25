@@ -1,16 +1,17 @@
-import {useRef,useState} from "react";
+import {useEffect,useRef,useState} from "react";
 import {Html,useCursor} from "@react-three/drei";
-import {useFrame} from "@react-three/fiber";
+import {useFrame,useThree} from "@react-three/fiber";
 import type {ThreeEvent} from "@react-three/fiber";
 import {Group,MathUtils} from "three";
 import type {Mesh} from "three";
 import {PEOPLE,type FriendId} from "./world";
 import {WALK_GRAPH,chooseNextWalkNode,nextSeed,seedForFriend} from "./TownWalkGraph";
+import {advanceWithAvoidance,isResidentSpaceFree,type TrafficPositions} from "./TownTraffic";
 
 type Phase="Idle"|"Walking"|"Arriving"|"Interacting"|"Talking";
 const SKIN="#eac5ad";
-function Actor({id,coat,hair,skin,outfit,startNode,reducedMotion,selected,onSelect,onMove}:{
- id:FriendId;coat:string;hair:string;skin:string;outfit:"dress"|"jacket";startNode:string;
+function Actor({id,coat,hair,skin,outfit,startNode,traffic,reducedMotion,selected,onSelect,onMove}:{
+ id:FriendId;coat:string;hair:string;skin:string;outfit:"dress"|"jacket";startNode:string;traffic:TrafficPositions;
  reducedMotion:boolean;selected:boolean;onSelect:(id:FriendId)=>void;onMove:(id:FriendId,x:number,z:number)=>void;
 }){
  const root=useRef<Group>(null);
@@ -21,18 +22,31 @@ function Actor({id,coat,hair,skin,outfit,startNode,reducedMotion,selected,onSele
  const rightArm=useRef<Group>(null);
  const [hovered,setHovered]=useState(false);
  useCursor(hovered);
+ const {invalidate}=useThree();
+ useEffect(()=>{
+  const [x,z]=WALK_GRAPH[startNode].point;
+  traffic.set(id,{x,z});
+  // Demand-frame renderers (reduced-motion / hidden tabs) need a new frame
+  // after the 3D actor and its Html label have mounted.
+  invalidate();
+  return()=>{traffic.delete(id)};
+ },[traffic,id,startNode,invalidate]);
  // Per-actor refs keep all 16 walk cycles off the React render loop.
  // Stable per-friend seeds vary route, stride, pace and pauses without re-renders.
  const step=useRef({
   node:startNode,previous:null as string|null,next:null as string|null,
   phase:"Idle" as Phase,clock:0,walk:0,
   seed:seedForFriend(id),pause:.25+(seedForFriend(id)%9)*.12,
-  speed:1.02+(seedForFriend(id)%7)*.09
+  speed:1.02+(seedForFriend(id)%7)*.09,blocked:0
  });
  useFrame((state,dt)=>{
   const group=root.current,torso=body.current;
   if(!group||!torso||document.hidden)return;
   const s=step.current,delta=Math.min(dt,.05);
+  // Even stationary or selected residents occupy space for everyone else.
+  const position=traffic.get(id);
+  if(position){position.x=group.position.x;position.z=group.position.z}
+  else traffic.set(id,{x:group.position.x,z:group.position.z});
   onMove(id,group.position.x,group.position.z);
   let walking=false;
   if(!selected&&!reducedMotion){
@@ -48,20 +62,38 @@ function Actor({id,coat,hair,skin,outfit,startNode,reducedMotion,selected,onSele
     else{
      const dx=target[0]-group.position.x,dz=target[1]-group.position.z;
      const dist=Math.hypot(dx,dz);
-     const travel=Math.min(s.speed*delta,dist);
-     if(dist>.001){
-      group.position.x+=dx/dist*travel;
-      group.position.z+=dz/dist*travel;
-      const heading=Math.atan2(dx,dz);
-      const diff=MathUtils.euclideanModulo(heading-group.rotation.y+Math.PI,Math.PI*2)-Math.PI;
-      group.rotation.y+=MathUtils.clamp(diff,-delta*4.6,delta*4.6);
+     const fromX=group.position.x,fromZ=group.position.z;
+     const motion=advanceWithAvoidance(id,fromX,fromZ,
+      target[0],target[1],s.speed*delta,traffic);
+     group.position.x=motion.x;group.position.z=motion.z;
+     const occupied=traffic.get(id);
+     if(occupied){occupied.x=motion.x;occupied.z=motion.z}
+     walking=motion.moved>.001;
+     if(walking){
+      s.blocked=0;
+      const targetHeading=Math.atan2(motion.x-fromX,motion.z-fromZ);
+      const difference=MathUtils.euclideanModulo(targetHeading-group.rotation.y+Math.PI,Math.PI*2)-Math.PI;
+      group.rotation.y+=MathUtils.clamp(difference,-delta*4.6,delta*4.6);
+      s.walk+=motion.moved*8.9;
+     }else if(motion.blocked){
+      s.blocked+=delta;
+      if(s.blocked>2.2){
+       s.seed=nextSeed(s.seed);
+       s.blocked=0;
+       // Return to a safe junction instead of clipping through an obstructed road.
+       const here=WALK_GRAPH[s.node].point;
+       if(Math.hypot(here[0]-motion.x,here[1]-motion.z)>.3)s.next=s.node;
+       else s.next=chooseNextWalkNode(s.node,s.next,s.seed);
+      }
      }
-     s.walk+=travel*8.9;
-     walking=travel>.001;
-     if(dist<=s.speed*delta+.025){
-      group.position.x=target[0];group.position.z=target[1];
-      s.previous=s.node;s.node=s.next;s.next=null;
-      s.phase="Arriving";s.clock=0;walking=false;
+     if(Math.hypot(target[0]-group.position.x,target[1]-group.position.z)<.05){
+      // A final node snap must pass the same personal-space check as each step.
+      if(isResidentSpaceFree(id,target[0],target[1],traffic)){
+       group.position.x=target[0];group.position.z=target[1];
+       const slot=traffic.get(id);if(slot){slot.x=target[0];slot.z=target[1]}
+       s.previous=s.node;s.node=s.next;s.next=null;
+       s.phase="Arriving";s.clock=0;walking=false;s.blocked=0;
+      }else s.blocked+=delta;
      }
     }
    }else if(s.phase==="Arriving"&&s.clock>.18){s.phase="Interacting";s.clock=0}
@@ -195,6 +227,16 @@ function Actor({id,coat,hair,skin,outfit,startNode,reducedMotion,selected,onSele
 export function TownCharacters({selected,reducedMotion,onSelect,onMove}:{
  selected:FriendId|null;reducedMotion:boolean;onSelect:(id:FriendId)=>void;onMove:(id:FriendId,x:number,z:number)=>void;
 }){
- return <group>{PEOPLE.map(person=><Actor key={person.id} {...person}
+ const traffic=useRef<TrafficPositions>(new Map()).current;
+ const {gl}=useThree();
+ const registered=useRef(false);
+ // Mark actual mounted Actor instances (not just the 16-item DOM roster).
+ useFrame(()=>{
+  if(registered.current||traffic.size!==PEOPLE.length)return;
+  gl.domElement.dataset.townResidents=String(traffic.size);
+  registered.current=true;
+ });
+ useEffect(()=>()=>{delete gl.domElement.dataset.townResidents},[gl]);
+ return <group>{PEOPLE.map(person=><Actor key={person.id} {...person} traffic={traffic}
   selected={selected===person.id} reducedMotion={reducedMotion} onSelect={onSelect} onMove={onMove}/>)}</group>;
 }

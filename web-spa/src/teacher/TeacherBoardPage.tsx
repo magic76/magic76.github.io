@@ -355,7 +355,7 @@ export function TeacherBoardPage(){
       </button>)}
      </div>
     </div>}
-    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} role="tabpanel" id="teaching-board-active-panel"
+    <div className={"teaching-board-stage"+(focusedCard?" has-card":"")} data-following={following} role="tabpanel" id="teaching-board-active-panel"
      aria-label={focusedCard?.title||t("board.canvas")} aria-labelledby={focusedCard?"teaching-board-tab-"+focusedCard.id:undefined}>
      {!focusedCard?<div className="teaching-board-empty"><strong>{t("board.emptyTitle")}</strong><p>{t("board.emptyDesc")}</p></div>:
       <TeachingCard key={focusedCard.id} card={focusedCard} answers={answers} onAnswer={clickAnswer} onExplain={text=>ask(t("board.explainPrefix")+text)} english={english}

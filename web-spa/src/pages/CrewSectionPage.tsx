@@ -1,5 +1,6 @@
 import {useRef,useState} from "react";
 import {Link} from "react-router-dom";
+import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
@@ -16,6 +17,16 @@ import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import "./crewExplore.css";
 import "./crewSections.css";
 
+// Only the product category is sent; the actual destination, query and identifiers stay local.
+function recordExploreEntry(to:string){
+ const root=to.split(/[?#]/,1)[0].split("/")[1];
+ const category={
+  fortune:"fortune",timeline:"timeline",games:"play",story:"story",research:"briefing",
+  circle:"circle",town:"town",magic:"magic",mate:"mate",teacher:"learn"
+ } as const;
+ const detail=category[root as keyof typeof category];
+ if(detail)trackUsageEvent("explore_entry_click",detail);
+}
 type Entry={title:string;desc:string;to:string;icon:IconName;tag?:string};
 const copy:{
  [K in Exclude<CrewSection,"home">]:{
@@ -210,12 +221,12 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   </Link>}
   {section==="explore"?
    <section className="crew-explore-grid" aria-label={t("sectionExplore.destinations")}>
-    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} data-kind={exploreKinds[i]}>
+    {[x.hero,...x.items].map((item,i)=><Link className="crew-explore-tile" key={item.to} to={item.to} onClick={()=>recordExploreEntry(item.to)} data-kind={exploreKinds[i]}>
      <div className="crew-explore-art"><ExploreArtwork kind={exploreKinds[i]}/></div>
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>)}
-    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" to="/mate">
+    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
      <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Mate · Speak for me":"Crew Mate · AI 幫你溝通"}</strong>
@@ -223,11 +234,21 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
-    <Link className="crew-explore-tile crew-explore-town" data-kind="town" to="/town">
+    <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
      <div className="crew-explore-art"><div className="crew-explore-town-mini"><TownIllustration/></div></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
       <small>{en?"Meet familiar AI friends in a beautiful interactive neighborhood. Visual prototype.":"看見 AI 朋友在小鎮相遇，點擊角色互動。視覺原型開放體驗。"}</small>
+     </span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>
+    <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
+     <div className="crew-explore-art">
+      <div className="crew-explore-magic-preview" aria-hidden="true"><span className="cloud-one">☁</span><span className="magic-castle-icon">🏰</span><span className="magic-star-one">✦</span><span className="magic-star-two">✧</span><span className="cloud-two">☁</span></div>
+     </div>
+     <span className="crew-explore-text">
+      <strong>{en?"Crew Magic · Speak worlds into life":"Crew Magic · 用聲音創造世界"}</strong>
+      <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>

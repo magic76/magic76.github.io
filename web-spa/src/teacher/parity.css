@@ -73,7 +73,6 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 .crew-voice-dock .live-manual-interrupt{margin:0;animation:none;box-shadow:none}
 .crew-voice-dock .live-manual-interrupt:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .crew-voice-dock .live-callbar{margin:0;min-width:0}
-.crew-voice-dock .live-audio-settings{margin-top:0;min-width:0;padding:8px 12px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface-alt,#f7f8fa)}
 .crew-voice-dock .live-audio-bar{position:relative;min-width:0}
 .crew-voice-dock .live-audio-bar>.live-audio-settings>summary{padding-inline:48px}
 .crew-voice-dock .live-audio-bar>.live-volume-quick{position:absolute;z-index:2;top:0;display:grid;place-items:center;width:44px;height:36px;padding:0;border:1px solid var(--line,#ddd);border-radius:10px;background:var(--surface,#fff);color:var(--text,#202637);font:inherit;font-size:22px;line-height:1;touch-action:manipulation;cursor:pointer}
@@ -81,6 +80,7 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 .crew-voice-dock .live-audio-bar>.live-volume-quick.is-up{right:0}
 .crew-voice-dock .live-audio-bar>.live-volume-quick:disabled{opacity:.38;cursor:default}
 .crew-voice-dock .live-audio-bar>.live-volume-quick:focus-visible{outline:3px solid var(--accent,#6255d6);outline-offset:2px}
+.crew-voice-dock .live-audio-settings{margin-top:0;min-width:0;padding:8px 12px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface-alt,#f7f8fa)}
 .crew-voice-dock .live-volume{display:grid;grid-template-columns:auto 38px minmax(0,1fr) 38px auto;align-items:center;gap:6px;margin:0;min-width:0}
 .crew-voice-dock .live-volume-label,.crew-voice-dock .live-volume-value{font-size:12px;font-weight:700;white-space:nowrap}
 .crew-voice-dock .live-volume-step{display:grid;place-items:center;min-width:38px;min-height:38px;padding:0;border:1px solid var(--line,#ddd);border-radius:10px;background:var(--surface,#fff);color:var(--text,#202637);font:inherit;font-size:23px;line-height:1;cursor:pointer;touch-action:manipulation}

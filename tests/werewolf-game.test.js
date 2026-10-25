@@ -126,7 +126,8 @@ test("voice startup uses its own lifecycle generation; replies remain next to th
  assert.match(page,/voiceGenerationRef\.current!==stamp/);
  assert.match(page,/onHostSpeech:setHostSpeech/);
  assert.match(page,/ref=\{transcriptRef\}/);
- assert.match(page,/transcriptRef\.current\.scrollTop=transcriptRef\.current\.scrollHeight/);
+  assert.match(page,/if\(showHistory&&log&&followHistoryRef\.current\)log\.scrollTop=log\.scrollHeight/);
+  assert.match(page,/followHistoryRef\.current=log\.scrollHeight-log\.scrollTop-log\.clientHeight<30/);
  assert.ok(page.indexOf('className="wolf-history"')<page.indexOf('className="wolf-compose"'));
  assert.ok(page.indexOf("wolf-live-transcript")<page.indexOf('className="wolf-compose"'));
  assert.match(css,/max-height:245px;overflow-y:auto/);

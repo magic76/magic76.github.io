@@ -263,8 +263,27 @@ export function containsTerm(text:string,term:string):boolean{
 export function tabooViolation(card:TabooCard,speech:string):string|null{
  return [card.word,...card.banned].find(word=>containsTerm(speech,word))||null;
 }
+/** Match a learner's answer, not an arbitrary occurrence in a sentence.
+ * Accept short natural guesses, the translation and a missing final English letter
+ * (common in speech transcription). Never accept multi-candidate guesses.
+ */
 export function matchTabooGuess(card:TabooCard,guess:string):boolean{
- return clean(guess)===clean(card.word);
+ let answer=clean(guess);
+ // Speech recognition may include a brief "I guess..." or "答案是..." preface.
+ answer=answer.replace(/^(?:我猜是|我猜|我覺得是|我想是|答案是|應該是|可能是|會不會是|是不是|是)/,"");
+ answer=answer.replace(/^(?:my guess is|i guess|i think it is|i think it s|the answer is|answer is|could it be|is it|maybe|it is|it s)\s+/,"");
+ answer=answer.replace(/^(?:a|an|the)\s+/,"").replace(/[啊呀吧呢]$/,"").trim();
+ const related=TABOO_CARDS.find(item=>clean(item.word)===clean(card.word)||clean(item.zh)===clean(card.word));
+ const accepted=[card.word,card.zh,related?.word||"",related?.zh||""];
+ if(accepted.some(word=>word&&clean(word)===answer))return true;
+ // Conventional alternate name of a camera in Mandarin.
+ if(accepted.some(word=>clean(word)==="相機"||clean(word)==="camera")&&answer==="照相機")return true;
+ // Do not make unrelated near-matches count; only a truncated final letter.
+ return accepted.some(word=>{
+  const target=clean(word);
+  return /^[a-z]{5,}$/.test(answer)&&/^[a-z]{6,}$/.test(target)
+   &&target.length===answer.length+1&&target.startsWith(answer);
+ });
 }
 export function friendGuesses(card:TabooCard,description:string):boolean{
  return card.keywords.filter(word=>containsTerm(description,word)).length>=2;
