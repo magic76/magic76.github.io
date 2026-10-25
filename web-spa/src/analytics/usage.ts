@@ -27,7 +27,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m"
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
-  |"learn"|"story"|"fortune"|"play"|"briefing"|"town"|"magic"|"mate"|"shorts"|"circle"
+  |"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"shorts"|"circle"
   |"voice"|"demo"|"live"|"person"|"place"|"manual"|"render_error"|"unsupported"
   |"taboo"|"1a2b"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
 export function sessionDurationDetail(durationMs:number):Detail{
