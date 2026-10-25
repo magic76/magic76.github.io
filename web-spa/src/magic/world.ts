@@ -28,8 +28,9 @@ export type MagicCreatorColor="gold"|"rose"|"azure"|"mint"|"violet"|"coral"|"ivo
 export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
 export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
 export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
+export type MagicCreatorJoint="fixed"|"hinge"|"flap"|"wheel"|"tail";
 export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
- color:MagicCreatorColor;x:number;y:number;z:number;size:number};
+ color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint};
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
  x:number;z:number;seed:number;revision:number;friendOf?:number};
@@ -104,6 +105,7 @@ const CREATOR_COLORS=["gold","rose","azure","mint","violet","coral","ivory","sla
 const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
 const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
 const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
+const CREATOR_JOINTS=["fixed","hinge","flap","wheel","tail"] as const;
 const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
 function validCreatorSeed(v:unknown):v is number{
  return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
@@ -120,21 +122,26 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
    ||!oneOf(item.color,CREATOR_COLORS)||!creatorNumber(item.x,-1.8,1.8)
    ||!creatorNumber(item.y,0,3.3)||!creatorNumber(item.z,-1.8,1.8)
    ||!creatorNumber(item.size,.15,1.65))return null;
+  // Optional joints are a bounded scene instruction, never executable motion code.
+  const joint=item.joint===undefined?undefined:oneOf(item.joint,CREATOR_JOINTS)?item.joint:null;
+  if(joint===null)return null;
   parts.push({shape:item.shape,material:item.material,color:item.color,
-   x:item.x,y:item.y,z:item.z,size:item.size});
+   x:item.x,y:item.y,z:item.z,size:item.size,...(joint===undefined?{}:{joint})});
  }
  return parts;
 }
 // Ignore recoloring when comparing structures. Repeating the same composition
 // with new colors alone is NOT considered a novel creation.
-function creationStructure(parts:MagicCreatorPart[],motion:MagicCreatorMotion){
- return JSON.stringify([motion,parts.map(p=>[p.shape,Math.round(p.x*4)/4,
-  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4])]);
+function creationStructure(parts:MagicCreatorPart[]){
+ // Motion, palette and assembly are not new silhouettes. Authored joints change
+ // the actual moving structure, so they are included in its fingerprint.
+ return JSON.stringify(parts.map(p=>[p.shape,Math.round(p.x*4)/4,
+  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed"]));
 }
 export function magicCreatorContext(world:MagicWorld){
  const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
   assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
-  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size]),revision:c.revision}));
+  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed"]),revision:c.revision}));
  return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
   recentCreations:items}).slice(0,2400);
 }
@@ -397,8 +404,8 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    const friendOf=args.friend_of;
    if(friendOf!==undefined&&(!validId(friendOf)||!state.creations.some(c=>c.id===friendOf)))
     return failed(state,"invalid-creation-relation");
-   const fingerprint=creationStructure(parts,args.motion);
-   if(state.creations.some(c=>creationStructure(c.parts,c.motion)===fingerprint))
+   const fingerprint=creationStructure(parts);
+   if(state.creations.some(c=>creationStructure(c.parts)===fingerprint))
     return failed(state,"duplicate-structure-try-new-geometry");
    const entity:MagicCreation={id:state.revision+1,label,idea,parts,assembly:args.assembly,
     motion:args.motion,mood:args.mood,x,z,seed,revision:state.revision+1,
@@ -424,7 +431,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     ||!oneOf(mood,CREATOR_MOODS)||!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)
     ||(friendOf!==undefined&&(!validId(friendOf)||friendOf===current.id||
       !state.creations.some(c=>c.id===friendOf))))return failed(state,"invalid-entity-edit");
-   const changed=creationStructure(parts,motion)!==creationStructure(current.parts,current.motion)
+   const changed=creationStructure(parts)!==creationStructure(current.parts)||motion!==current.motion
     ||assembly!==current.assembly||mood!==current.mood||x!==current.x||z!==current.z
     ||label!==current.label||friendOf!==current.friendOf
     ||parts.some((p,i)=>p.material!==current.parts[i]?.material||p.color!==current.parts[i]?.color);
