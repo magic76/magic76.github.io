@@ -33,7 +33,7 @@ test("Streaming AI dialogue never auto-jumps away from the line being read",()=>
  assert.match(speech,/scrollTop=scrollRef\.current\.scrollHeight/);
  assert.match(speech,/panel\.scrollHeight-panel\.scrollTop-panel\.clientHeight<28/);
  assert.match(speech,/onScroll=\{onTranscriptScroll\}/);
- assert.match(game("gameSpeechBubble.css"),/\.crew-game-speech-trigger\{min-height:34px\}/);
+ assert.match(game("gameSpeechBubble.css"),/\.crew-game-speech-trigger\{[\s\S]*?min-height:34px;/);
 });
 test("Board games block duplicate fast-tap moves, and report startup clearly",()=>{
  const board=game("CrewBoardGames.tsx");

@@ -122,3 +122,16 @@
  .crew-home-world .crew-home-recent-art{height:52px;width:52px;border-radius:12px}
  .crew-home-world .crew-home-recent-copy strong{font-size:14px}
 }
+
+/* Key-free game entry follows Shorts, not the four-mode KV. */
+.crew-home-game-pick{display:flex;align-items:center;gap:16px;margin:0 30px 24px;padding:16px 18px;border:1px solid #ffffff29;border-radius:16px;background:linear-gradient(120deg,#42304d99,#281f3666)}
+.crew-home-game-pick-icon{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;color:#efd2ff;background:#ffffff12}
+.crew-home-game-pick-icon svg{width:25px;height:25px}
+.crew-home-game-pick-copy{display:grid;gap:4px;min-width:0;flex:1}
+.crew-home-game-pick-copy small{color:#cfb5da;font-size:10px;letter-spacing:.08em}
+.crew-home-game-pick-copy strong{color:#f7f1e8;font-size:15px;line-height:1.4}
+.crew-home-game-pick-copy p{color:#c8bad0;font-size:12px;line-height:1.6;margin:0}
+.crew-home-game-pick-action{flex:none;display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:44px;padding:0 16px;border-radius:12px;background:#e0c6eb;color:#25192c;text-decoration:none;font-size:13px;font-weight:700}
+.crew-home-game-pick-action:hover{background:#f0dcf5}
+.crew-home-game-pick-action:focus-visible{outline:2px solid #fff;outline-offset:3px}
+@media(max-width:620px){.crew-home-game-pick{margin:0 18px 22px;padding:15px;gap:11px;flex-wrap:wrap}.crew-home-game-pick-icon{width:40px;height:40px}.crew-home-game-pick-copy{flex-basis:calc(100% - 54px)}.crew-home-game-pick-action{width:100%;box-sizing:border-box}}

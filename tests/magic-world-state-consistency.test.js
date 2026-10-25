@@ -2,13 +2,13 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 
+// world.ts is runtime-erasable TypeScript with no imports. Node's eraser
+// keeps this behavior test independent of TypeScript compiler API versions.
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
-const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
-const worldModule={exports:{}};
-new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {demoMagicCommand,MAGIC_INITIAL_WORLD}=worldModule.exports;
+const compiled=stripTypeScriptTypes(source,{mode:"strip"}).replace(/^export /gm,"");
+const {demoMagicCommand,MAGIC_INITIAL_WORLD}=new Function(compiled+"\nreturn {demoMagicCommand,MAGIC_INITIAL_WORLD};")();
 
 test("starry-night quick spell is idempotent and never produces daylight stars",()=>{
  const first=demoMagicCommand("night",MAGIC_INITIAL_WORLD,"en");
