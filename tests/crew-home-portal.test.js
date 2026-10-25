@@ -53,9 +53,24 @@ test("Crew World KV rotates through four tabs every 5 seconds and can be paused"
  assert.match(portal,/setTimeout\(\(\)=>\{/);
  assert.match(portal,/\},5000\)/);
  assert.match(portal,/\(currentIndex\+1\)%MODES\.length/);
- assert.match(portal,/\[mode,paused,launching\]/);
+ assert.match(portal,/\[mode,paused,launching,canAnimate\]/);
  assert.match(portal,/if\(paused\|\|launching\|\|window\.matchMedia/);
  assert.match(portal,/return\(\)=>window\.clearTimeout\(id\)/);
  assert.match(portal,/onClick=\{\(\)=>setPaused\(value=>!value\)\}/);
  assert.match(portal,/onClick=\{\(\)=>setMode\(item\.id\)\}/);
+});
+
+test("Mobile portal delays Canvas and recurring motion until eligible",()=>{
+ const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const field=read("web-spa/src/pages/PortalParticleField.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(portal,/useState\(true\); \/\/ Mobile starts static/);
+ assert.match(portal,/requestIdleCallback/);
+ assert.match(portal,/IntersectionObserver/);
+ assert.match(portal,/visibilitychange/);
+ assert.match(portal,/\!canAnimate/);
+ assert.match(portal,/enabled=\{fieldEverEnabled\|\|canAnimate\}/);
+ assert.match(field,/if\(!enabled\|\|!canvas\|\|!host\)return/);
+ assert.doesNotMatch(css,/@keyframes crew-world-copy-in\{[^}]*filter:blur/);
+ assert.match(css,/@media\(max-width:700px\)\{\.crew-portal-copy\{animation:none\}/);
 });
