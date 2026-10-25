@@ -7,6 +7,8 @@ export type MagicWeather="clear"|"rain"|"snow"|"stars";
 export type MagicTime="day"|"night";
 export type MagicObjectKind="dragon"|"chest"|"portal"|"tree"|"owl"|"crystal";
 export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
+export type MagicCastle="stone"|"ice";
+export type MagicCue="dragon_arrival"|"castle_transformation"|null;
 export type MagicEvent="meteor"|"rainbow"|"festival"|"aurora";
 export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
@@ -15,6 +17,7 @@ export type MagicObject={id:number;kind:MagicObjectKind;slot:number};
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
+ castle:MagicCastle;cue:MagicCue;
  objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
  message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
@@ -52,7 +55,7 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
  return {result,duplicate:false};
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
- theme:"sky",weather:"clear",time:"day",objects:[],challenge:null,panels:[],
+ theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],challenge:null,panels:[],
  chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
@@ -61,6 +64,8 @@ const TIMES=["day","night"] as const;
 const OBJECTS=["dragon","chest","portal","tree","owl","crystal"] as const;
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const EVENTS=["meteor","rainbow","festival","aurora"] as const;
+const CASTLES=["stone","ice"] as const;
+const CUES=["dragon_arrival","castle_transformation"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
 // MagicPage currently exposes six non-overlapping stage anchors. Keep the reducer
@@ -112,6 +117,8 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
  if(!data||!oneOf(data.theme,THEMES)||!oneOf(data.weather,WEATHERS)||!oneOf(data.time,TIMES)
   ||!(data.event===null||oneOf(data.event,EVENTS))
   ||!(data.effect===null||oneOf(data.effect,SPELLS))
+  ||!(data.castle===undefined||oneOf(data.castle,CASTLES))
+  ||!(data.cue===undefined||data.cue===null||oneOf(data.cue,CUES))
   ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
   ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
   ||!Array.isArray(data.panels)||data.panels.length>2)return null;
@@ -155,13 +162,15 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
  return {
   theme:data.theme as MagicTheme,weather:data.weather as MagicWeather,time:data.time as MagicTime,
   event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
+  castle:oneOf(data.castle,CASTLES)?data.castle:"stone",
+  cue:oneOf(data.cue,CUES)?data.cue:null,
   objects,challenge,panels,chapter:data.chapter as number,revision:data.revision as number,
   message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
  };
 }
 function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,world:state,event:reason}}
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
- return {ok:true,world:{...state,...changes,revision:state.revision+1},event};
+ return {ok:true,world:{...state,cue:null,...changes,revision:state.revision+1},event};
 }
 export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,lang:"zh"|"en"="zh"):MagicResult{
  const text=(chinese:string,english:string)=>lang==="en"?english:chinese;
@@ -183,7 +192,21 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    const slot=state.objects.length;
    const labels:{[K in MagicObjectKind]:[string,string]}={dragon:["飛龍","dragon"],chest:["寶箱","treasure chest"],portal:["傳送門","portal"],tree:["魔法樹","enchanted tree"],owl:["貓頭鷹","owl"],crystal:["水晶","crystal"]};
    return updated(state,{objects:[...state.objects,{id,kind:args.kind,slot}],effect:"sparkles",
+    cue:args.kind==="dragon"?"dragon_arrival":null,
     message:text("一道光閃過，"+labels[args.kind][0]+"出現在島上！","A flash of light! A "+labels[args.kind][1]+" appears on the island!")}, "object-summoned");
+  }
+  case "transform_castle":{
+   // A persistent, reversible 3D scene mutation; no dynamic geometry or code
+   // accepted from Live. Keep the castle appearance in validated world state.
+   if(!oneOf(args.form,CASTLES))return failed(state,"invalid-castle-form");
+   if(state.castle===args.form)return failed(state,"castle-already-transformed");
+   const icy=args.form==="ice";
+   return updated(state,{
+    castle:args.form,weather:icy?"snow":"clear",time:icy?"night":"day",
+    effect:"sparkles",cue:"castle_transformation",
+    message:icy?text("龍息化作冰晶，整座城堡正在結冰！","The dragon's breath turns to frost as the whole castle freezes!"):
+     text("冰晶散去，城堡重現暖色光芒。","The ice melts away and the castle glows warmly again.")
+   },"castle-transformed");
   }
   case "cast_spell":{
    if(!oneOf(args.spell,SPELLS))return failed(state,"invalid-spell");
@@ -276,9 +299,11 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
+  case "icecastle":return applyMagicCommand(world,"transform_castle",{form:"ice"},lang);
+  case "thawcastle":return applyMagicCommand(world,"transform_castle",{form:"stone"},lang);
   case "portal":return applyMagicCommand(world,"open_world_portal",{},lang);
   // This action is labelled “starry night”, so it must be idempotent: tapping it
   // while already at night must never flip the scene back to daylight while
