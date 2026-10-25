@@ -2,11 +2,13 @@ const test=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
-// Keep repository tests runnable on the existing Node 22 runner without special
-// experimental .ts import flags. This module is a pure state reducer.
+const {stripTypeScriptTypes}=require("node:module");
+// TypeScript 7 no longer exposes the legacy transpileModule/ModuleKind runtime
+// API. This pure reducer can be stripped with Node 22's built-in TS support.
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
-const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;
+const stripped=stripTypeScriptTypes(source,{mode:"strip"});
+const compiled=stripped.replace(/\\bexport\\s+(?=(?:function|const|class)\\b)/g,"")+
+ "\\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot};";
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
 const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot}=worldModule.exports;
