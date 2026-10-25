@@ -123,7 +123,7 @@ const CREATOR_DETAIL_SHAPES:Record<MagicCreatorDetail,readonly MagicCreatorShape
  thruster:["cone","cylinder","capsule"],
  rune:["box","sphere","cone","capsule","octahedron","leaf"]
 };
-const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
+const MAX_CREATIONS=3,MAX_CREATION_PARTS=12,MAX_CREATION_DETAILS=4;
 function validCreatorSeed(v:unknown):v is number{
  return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
 }
@@ -164,6 +164,9 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
    ...(item.connectTo===undefined?{}:{connectTo:item.connectTo as number})});
 
  }
+ // Each semantic accent expands into several bounded engine-owned meshes;
+ // cap close-up detail independently of the main 12-part geometry budget.
+ if(parts.filter(part=>part.detail!==undefined).length>MAX_CREATION_DETAILS)return null;
  return parts;
 }
 // Ignore recoloring when comparing structures. Repeating the same composition
