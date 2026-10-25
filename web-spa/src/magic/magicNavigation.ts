@@ -52,7 +52,28 @@ export function islandSurfaceHeight(x:number,z:number):number{
  * feet/wings cannot sink into the surface. All inputs are reducer-validated.
  * Small contact clearance also covers triangulation and breathing motion.
  */
-export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string;height?:number;width?:number;depth?:number}[]):number{
+/** Local attachment point (in authored part coordinates, before size). A real
+ * joint rotates the entire part around this location, not its geometric center.
+ * Side anchors follow the part's yaw so flapping wings attach at the root.
+ * Old creations without a pivot retain the original centered animation.
+ */
+export function magicPartPivot(part:{
+ shape:string;pivot?:string;yaw?:number;width?:number;height?:number
+}):[number,number,number]{
+ const yHalf=part.shape==="sphere"?.63:part.shape==="capsule"?.76:
+  part.shape==="cone"?.59:part.shape==="torus"?.71:
+  part.shape==="octahedron"?.65:part.shape==="leaf"?.38:.5;
+ const xHalf=part.shape==="leaf"?.88:part.shape==="sphere"?.63:
+  part.shape==="capsule"?.34:part.shape==="octahedron"?.65:.5;
+ const x=part.pivot==="left"?-xHalf*(part.width??1):
+  part.pivot==="right"?xHalf*(part.width??1):0;
+ const y=part.pivot==="top"?yHalf*(part.height??1):
+  part.pivot==="bottom"?-yHalf*(part.height??1):0;
+ const angle=(part.yaw??0)*Math.PI/180;
+ return [x*Math.cos(angle),y,-x*Math.sin(angle)];
+}
+
+export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string;height?:number;width?:number;depth?:number;pivot?:string}[]):number{
  let bottom=Infinity;
  for(const part of parts){
   const halfHeight=part.joint&&part.joint!=="fixed"?.89:
@@ -64,7 +85,11 @@ export function creationGroundClearance(parts:readonly {shape:string;y:number;si
   const articulated=part.joint!==undefined&&part.joint!=="fixed";
   const span=articulated?Math.max(halfHeight*(part.height??1),
    .72*(part.width??1),.72*(part.depth??1)):halfHeight*(part.height??1);
-  bottom=Math.min(bottom,part.y-part.size*span);
+  // A lateral wing pivot can sweep a formerly horizontal part downward.
+  // Conservatively reserve that possible reach on uneven island terrain.
+  const lateral=part.pivot==="left"||part.pivot==="right"?
+   .9*(part.width??1)+.3*(part.height??1):0;
+  bottom=Math.min(bottom,part.y-part.size*Math.max(span,lateral));
  }
  return Number.isFinite(bottom)?.2-bottom:.2;
 }
