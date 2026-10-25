@@ -23,7 +23,12 @@ window.addEventListener('unhandledrejection',e=>window.__magicErrors.push(String
 const scenario=new URL(location.href).searchParams;
 const count=Math.max(1,Math.min(3,Number(scenario.get('creations')||1)));
 for(let i=0;i<count;i++)setTimeout(()=>{
- const button=document.querySelector('[data-magic-demo="creator"]');if(button)button.click();
+ const type=scenario.get('sculpt');
+ const ids=['sculptrobot','sculptfox','sculptdragon'];
+ const chosen=type==='yes'?ids[i%3]:type==='fox'?'sculptfox':
+  type==='dragon'?'sculptdragon':'creator';
+ const button=document.querySelector('[data-magic-demo="'+chosen+'"]');
+ if(button)button.click();
 },2100+i*580);
 if(scenario.get('evolve')==='yes')setTimeout(()=>{
  document.querySelector('[data-magic-demo="evolve"]')?.click();
@@ -53,10 +58,12 @@ const server=createServer((req,res)=>{
 await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const reports=[];
 try{
- for(const [label,width,height,count,evolve,early] of [
+ for(const [label,width,height,count,evolve,early,sculpt] of [
   ["mobile-guardian",390,850,1,false],["mobile-jelly",390,850,2,false],
   ["desktop-ensemble",1280,850,3,false],["mobile-evolved",390,850,1,true],
-  ["mobile-assembly-in-progress",390,850,1,false,true]
+  ["mobile-assembly-in-progress",390,850,1,false,true],
+  ["desktop-procedural-trio",1280,850,3,false,false,"yes"],
+  ["mobile-sculpted-fox",390,850,1,false,false,"fox"]
  ]){
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
@@ -64,7 +71,7 @@ try{
    "--use-gl=angle","--use-angle=swiftshader-webgl",
    "--window-size="+width+","+height,"--force-device-scale-factor=1",
    "--virtual-time-budget="+(early?4800:10500),"--dump-dom","--screenshot="+out,
-   "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")+(early?"&early=yes":"")];
+   "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")+(early?"&early=yes":"")+(sculpt?"&sculpt="+sculpt:"")];
   let stdout="",stderr="";
   const exit=await new Promise((done,reject)=>{
    const child=spawn(chrome,args,{stdio:["ignore","pipe","pipe"]});
