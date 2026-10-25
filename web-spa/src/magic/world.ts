@@ -335,9 +335,10 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
+  case "fox":return applyMagicCommand(world,"summon_object",{kind:"fox"},lang);
   case "dragonice":{
    let next=world;
    if(!next.objects.some(obj=>obj.kind==="dragon")){
