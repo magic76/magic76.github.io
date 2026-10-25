@@ -299,9 +299,18 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
+  case "dragonice":{
+   let next=world;
+   if(!next.objects.some(obj=>obj.kind==="dragon")){
+    const summoned=applyMagicCommand(next,"summon_object",{kind:"dragon"},lang);
+    if(!summoned.ok)return summoned;
+    next=summoned.world;
+   }
+   return applyMagicCommand(next,"transform_castle",{form:"ice"},lang);
+  }
   case "icecastle":return applyMagicCommand(world,"transform_castle",{form:"ice"},lang);
   case "thawcastle":return applyMagicCommand(world,"transform_castle",{form:"stone"},lang);
   case "portal":return applyMagicCommand(world,"open_world_portal",{},lang);
