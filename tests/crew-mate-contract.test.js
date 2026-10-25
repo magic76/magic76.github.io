@@ -46,7 +46,8 @@ test("external Mate knows the reviewed owner rules without revealing them to the
  assert.match(external,/NEVER pretend the other person replied/);
  assert.doesNotMatch(opening,/c\.constraints|c\.escalation/);
  assert.match(opening,/Please speak your brief greeting NOW/);
- assert.match(page,/mode==="private"\?privateInstruction\(c\):externalInstruction\(c,/);
+ assert.match(page,/mode==="private"\?privateInstruction\(c,startedExternal/);
+ assert.match(page,/externalInstruction\(c,scopedOwnerDecision,turnsRef\.current\.slice\(-16\),continuing\)/);
  assert.match(page,/externalOpening\(c\)/);
  assert.match(page,/volume:100/);
  assert.match(page,/const session=new window\.CrewLive\.Session\(voiceOptions\)/);
@@ -141,4 +142,27 @@ test("Mate local task history is always saved without a consent toggle",()=>{
  assert.match(page,/saveResult\(completed,summary\)/);
  assert.match(panel,/Tasks and transcripts are saved here automatically/);
  assert.match(panel,/onDelete\(item\.id\)/);
+});
+
+test("private supplement keeps the task, dialogue and continuation mode instead of restarting",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const prompts=fs.readFileSync(path.join(root,"web-spa/src/mate/matePrompts.ts"),"utf8");
+ const briefing=fs.readFileSync(path.join(root,"web-spa/src/mate/mateBriefing.ts"),"utf8");
+ const fields=fs.readFileSync(path.join(root,"web-spa/src/mate/MateConsensusFields.tsx"),"utf8");
+ const supplement=page.split("async function editSupplement()")[1].split("function restart()")[0];
+ assert.match(supplement,/advance\("supplement","USER_DIRECT"\)/);
+ assert.match(supplement,/await stopConnection\(\)/);
+ assert.doesNotMatch(supplement,/timestampId|setTurns\(\[\]\)|EMPTY_CONSENSUS/);
+ assert.match(page,/phase==="setup"\|\|phase==="supplement"/);
+ assert.match(page,/showPresets=\{!startedExternal\}/);
+ assert.match(fields,/canEdit&&showPresets/);
+ assert.match(page,/const continuing=mode==="external"&&startedExternal/);
+ assert.match(page,/continuing\?externalContinuation\(c,turnsRef\.current\.slice\(-16\)\):externalOpening\(c\)/);
+ assert.match(page,/finalizeMateBriefing\(consensusRef\.current,statements,startedExternal\?"supplement":"initial"\)/);
+ assert.match(prompts,/This is an ONGOING handoff/);
+ assert.match(prompts,/Do NOT introduce yourself again/);
+ assert.match(prompts,/export const externalContinuation/);
+ assert.match(briefing,/SUPPLEMENT to the existing, ongoing task/);
+ assert.match(briefing,/return the FULL combined restriction/);
+ assert.match(page,/Continue conversation/);
 });
