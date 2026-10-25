@@ -281,12 +281,13 @@ test("refresh restores safe tab-local world, selected destination and chapter",(
 
 test("restore sanitizes untrusted saved text and refuses invalid panels",()=>{
  const base=demoMagicCommand("portal",MAGIC_INITIAL_WORLD).world;
- const input=JSON.stringify({...base,message:"Safe\\u202E legend",
-  panels:[{...base.panels[0],title:"Hello\\u202EWorld"}]});
+ const control=String.fromCharCode(0x202e);
+ const input=JSON.stringify({...base,message:"Safe"+control+" legend",
+  panels:[{...base.panels[0],title:"Hello"+control+"World"}]});
  const restored=readMagicWorldSnapshot(input);
  assert.ok(restored);
- assert.equal(restored.message.includes("\\u202E"),false);
- assert.equal(restored.panels[0].title.includes("\\u202E"),false);
+ assert.equal(restored.message.includes(control),false);
+ assert.equal(restored.panels[0].title.includes(control),false);
  const corrupted=JSON.stringify({...base,panels:[{...base.panels[0],items:["A","B",""]}]});
  assert.equal(readMagicWorldSnapshot(corrupted),null);
 });
