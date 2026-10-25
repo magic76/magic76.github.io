@@ -3,6 +3,7 @@ import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
 import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
+import {ringStep,ringPoint} from "./magicNavigation";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -90,7 +91,7 @@ function Dragon({animated}:{animated:boolean}){
 function islandSurface(x:number,z:number){
  return .55+1.017*Math.sqrt(Math.max(.15,1-(x/5.65)**2-(z/4.75)**2));
 }
-function SceneObject({object,position,animated,onClick}:{object:MagicObject;position:[number,number];animated:boolean;onClick:(event:ThreeEvent<MouseEvent>)=>void}){
+function SceneObject({object,position,animated,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
  const initial=useRef<[number,number,number] | null>(null);
@@ -315,6 +316,8 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   return()=>window.clearTimeout(timer);
  },[world.revision,world.cue,reducedMotion]);
  const {gl,invalidate}=useThree();
+ const peerPositions=useRef(new Map<number,[number,number]>());
+ useEffect(()=>{const active=new Set(world.objects.map(obj=>obj.id));for(const id of peerPositions.current.keys())if(!active.has(id))peerPositions.current.delete(id)},[world.objects]);
  useEffect(()=>{
   const lose=(ev:Event)=>{ev.preventDefault();onFailure()};
   gl.domElement.addEventListener("webglcontextlost",lose);
@@ -338,8 +341,10 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
-   const [x,z]=obj.x!==undefined&&obj.z!==undefined?safeMagicAnchor(obj.x,obj.z):plot;
+   const [x,z]=obj.x!==undefined&&obj.z!==undefined?
+    safeMagicAnchor(obj.x,obj.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
    return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion}
+    peers={peerPositions.current} worldObjects={world.objects}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
