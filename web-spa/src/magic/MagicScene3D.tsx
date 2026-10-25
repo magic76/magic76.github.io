@@ -103,19 +103,29 @@ function SceneObject({object,position,animated,peers,worldObjects,onClick}:{obje
  useFrame(({clock},delta)=>{
   if(!root.current)return;
   const time=clock.elapsedTime,seed=id*2.399;
-  const baseAngle=Math.atan2(position[1]/3.25,position[0]/3.7);
-  const baseRadius=Math.min(.92,Math.max(.63,Math.hypot(position[0]/3.7,position[1]/3.25)));
-  const angle=baseAngle+(animated&&creature?Math.sin(time*(kind==="fox"?.37:.29)+seed)*.24:0);
-  const radius=baseRadius+(animated&&creature?Math.sin(time*.31+seed)*.028:0);
-  const tx=Math.cos(angle)*radius*3.7,tz=Math.sin(angle)*radius*3.25;
-  const ty=islandSurface(tx,tz)+air+(animated&&kind!=="fox"&&creature?Math.sin(time*1.7+seed)*.16:0);
-  const current=root.current.position;
-  const alpha=animated?Math.min(1,delta*(kind==="fox"?1.4:1.9)):1;
-  const oldX=current.x,oldZ=current.z;
-  current.set(current.x+(tx-current.x)*alpha,current.y+(ty-current.y)*alpha,current.z+(tz-current.z)*alpha);
-  if(animated&&creature&&Math.hypot(current.x-oldX,current.z-oldZ)>.0001){
-   const heading=Math.atan2(current.x-oldX,current.z-oldZ);
-   root.current.rotation.y+=Math.atan2(Math.sin(heading-root.current.rotation.y),Math.cos(heading-root.current.rotation.y))*Math.min(1,delta*3);
+  const roaming=creature&&object.x===undefined;
+  const target:readonly [number,number]=roaming?
+   ringPoint(time*(kind==="fox"?.21:kind==="dragon"?.12:.16)+seed,.76+(id%3)*.045):position;
+  const current=root.current.position,from:[number,number]=[current.x,current.z];
+  const obstacles:[number,number][]=[];
+  for(const other of worldObjects){
+   if(other.id===id)continue;
+   const known=peers.get(other.id);
+   if(known){obstacles.push(known);continue}
+   const plot=PLOTS[other.slot]??PLOTS[0];
+   obstacles.push(other.x!==undefined&&other.z!==undefined?
+    safeMagicAnchor(other.x,other.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25));
+  }
+  const speed=kind==="dragon"?2.5:kind==="fox"?1.65:1.75;
+  const next=animated?ringStep(from,target,Math.min(delta,.07)*speed,obstacles):position;
+  const dx=next[0]-current.x,dz=next[1]-current.z;
+  current.set(next[0],islandSurface(next[0],next[1])+air+
+   (animated&&creature&&kind!=="fox"?Math.sin(time*1.7+seed)*.12:0),next[1]);
+  peers.set(id,[current.x,current.z]);
+  if(animated&&creature&&Math.hypot(dx,dz)>.0001){
+   const heading=Math.atan2(dx,dz);
+   root.current.rotation.y+=Math.atan2(Math.sin(heading-root.current.rotation.y),
+    Math.cos(heading-root.current.rotation.y))*Math.min(1,delta*3);
   }
   if(!bob.current)return;
   if(animated&&kind==="dragon"){
@@ -124,9 +134,8 @@ function SceneObject({object,position,animated,peers,worldObjects,onClick}:{obje
    const eased=1-Math.pow(1-progress,3);
    bob.current.position.set(-4*(1-eased),3.8*(1-eased),-3*(1-eased));
    bob.current.rotation.y=(1-eased)*1.5;
-  }else if(animated&&kind==="fox"){
-   bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
-  }else bob.current.position.set(0,0,0);
+  }else if(animated&&kind==="fox")bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
+  else bob.current.position.set(0,0,0);
  });
  return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
