@@ -138,7 +138,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    // Start stack pieces above the silhouette: building from underground
    // previously made most of the animation invisible inside the island.
    const startY=creation.assembly==="stack"?part.y+3:
-    creation.assembly==="bloom"?1.2:part.y+1.8+Math.sin(angle)*.5;
+    creation.assembly==="bloom"?part.y+1.4:part.y+1.8+Math.sin(angle)*.5;
    const startZ=creation.assembly==="stack"?part.z:
     creation.assembly==="bloom"?0:Math.sin(angle)*far;
    const spiral=creation.assembly==="spiral"?(1-phase)*Math.PI*2:0;
