@@ -3,7 +3,7 @@ import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
 import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
-import {ringStep,ringPoint} from "./magicNavigation";
+import {ringStep,ringPoint,islandSurfaceHeight} from "./magicNavigation";
 import {MagicWonders3D} from "./MagicWonders3D";
 import {MagicCreations3D} from "./MagicCreations3D";
 
@@ -31,7 +31,7 @@ function FloatingIsland({colors}:{colors:(typeof BIOMES)[keyof typeof BIOMES]}){
   <mesh position={[0,-.08,0]} scale={[ISLAND_LINEAR_SCALE,.38,ISLAND_LINEAR_SCALE]}>
    <icosahedronGeometry args={[5.65,1]}/><meshStandardMaterial color={colors.side} flatShading roughness={1}/>
   </mesh>
-  <mesh position={[0,.55,0]} scale={[ISLAND_LINEAR_SCALE,.18,.84*ISLAND_LINEAR_SCALE]}>
+  <mesh position={[0,.55,0]} scale={[ISLAND_X_RADIUS/5.65,.18,ISLAND_Z_RADIUS/5.65]}>
    <sphereGeometry args={[5.65,28,12]}/><meshStandardMaterial color={colors.ground} roughness={1}/>
   </mesh>
   <mesh position={[0,.66,1.15]} rotation={[-Math.PI/2,0,0]}>
@@ -58,7 +58,7 @@ function OuterDistricts({colors,night}:{colors:(typeof BIOMES)[keyof typeof BIOM
  }),[]);
  return <group>
   {districts.map(site=><group key={site.id}
-   position={[site.x,islandSurface(site.x,site.z),site.z]} rotation={[0,-site.angle,0]}>
+   position={[site.x,islandSurfaceHeight(site.x,site.z),site.z]} rotation={[0,-site.angle,0]}>
    <mesh position={[0,-.1,0]}><cylinderGeometry args={[1.75,1.9,.2,10]}/>
     <meshStandardMaterial color={colors.detail} roughness={1}/></mesh>
    <mesh position={[0,.03,0]} rotation={[-Math.PI/2,0,0]}>
@@ -78,7 +78,7 @@ function OuterDistricts({colors,night}:{colors:(typeof BIOMES)[keyof typeof BIOM
      emissiveIntensity={night?.65:.12}/></mesh>
   </group>)}
   {groves.map(site=><group key={site.id}
-   position={[site.x,islandSurface(site.x,site.z),site.z]}>
+   position={[site.x,islandSurfaceHeight(site.x,site.z),site.z]}>
    <mesh position={[0,.48,0]}><cylinderGeometry args={[.11,.21,.94,5]}/>
     <meshStandardMaterial color="#8f7664" roughness={1}/></mesh>
    <mesh position={[0,1.28,0]} scale={[.72,1.05,.72]}>
@@ -140,9 +140,6 @@ function Dragon({animated,reacting}:{animated:boolean;reacting:boolean}){
 }
 // Keep animations deterministic and collision-safe without allocating new geometry
 // or React state per animation frame. All objects stay on the visible island ring.
-function islandSurface(x:number,z:number){
- return .55+1.017*Math.sqrt(Math.max(.15,1-(x/ISLAND_X_RADIUS)**2-(z/ISLAND_Z_RADIUS)**2));
-}
 function SceneObject({object,position,animated,reacting,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
@@ -151,7 +148,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
  const air=kind==="dragon"?1.75:kind==="owl"?.85:0;
  // Initial placement is above the island mesh, not at y=.98 where
  // a large dragon torso and its wings previously clipped into the island.
- if(initial.current===null)initial.current=[position[0],islandSurface(...position)+air,position[1]];
+ if(initial.current===null)initial.current=[position[0],islandSurfaceHeight(...position)+air,position[1]];
  useFrame(({clock},delta)=>{
   if(!root.current)return;
   const time=clock.elapsedTime,seed=id*2.399;
@@ -171,7 +168,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
   const speed=kind==="dragon"?2.5:kind==="fox"?1.65:1.75;
   const next=animated?ringStep(from,target,Math.min(delta,.07)*speed,obstacles):position;
   const dx=next[0]-current.x,dz=next[1]-current.z;
-  current.set(next[0],islandSurface(next[0],next[1])+air+
+  current.set(next[0],islandSurfaceHeight(next[0],next[1])+air+
    (animated&&creature&&kind!=="fox"?Math.sin(time*1.7+seed)*.12:0),next[1]);
   peers.set(id,[current.x,current.z]);
   if(animated&&creature&&Math.hypot(dx,dz)>.0001){
