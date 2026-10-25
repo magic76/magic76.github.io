@@ -22,7 +22,7 @@ export type MagicWonder={id:number;shape:MagicWonderShape;palette:MagicWonderPal
  motion:MagicWonderMotion;seed:number;x:number;z:number;size:number};
 
 // AI writes a bounded scene graph; the Three.js renderer owns all executable logic.
-export type MagicCreatorShape="box"|"sphere"|"cone"|"cylinder"|"torus"|"octahedron";
+export type MagicCreatorShape="box"|"sphere"|"cone"|"cylinder"|"torus"|"octahedron"|"capsule"|"leaf";
 export type MagicCreatorMaterial="stone"|"wood"|"metal"|"glass"|"glow";
 export type MagicCreatorColor="gold"|"rose"|"azure"|"mint"|"violet"|"coral"|"ivory"|"slate";
 export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
@@ -104,7 +104,7 @@ const WONDER_SHAPES=["vortex","garden","orbit","comet","lanterns"] as const;
 const WONDER_PALETTES=["aurora","ember","rose","gold","ocean"] as const;
 const WONDER_MOTIONS=["rise","spin","bloom"] as const;
 const MAX_WONDERS=4;
-const CREATOR_SHAPES=["box","sphere","cone","cylinder","torus","octahedron"] as const;
+const CREATOR_SHAPES=["box","sphere","cone","cylinder","torus","octahedron","capsule","leaf"] as const;
 const CREATOR_MATERIALS=["stone","wood","metal","glass","glow"] as const;
 const CREATOR_COLORS=["gold","rose","azure","mint","violet","coral","ivory","slate"] as const;
 const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
