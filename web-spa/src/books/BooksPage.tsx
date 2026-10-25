@@ -1,4 +1,5 @@
 import {useEffect,useMemo,useState} from "react";
+import {trackUsageEvent} from "../analytics/usage";
 import "./books.css";
 
 type Kind="swap"|"sell"|"give"|"want"|"share"|"ask";
@@ -135,11 +136,13 @@ export default function BooksPage(){
     const tokens=ownerTokens();tokens[result.id]=result.ownerToken;localStorage.setItem(OWNER_STORAGE,JSON.stringify(tokens));
     await refreshLive();
    }
+   trackUsageEvent("circle_post_published",demo?"demo":"live");
    setName(author);setShowForm(false);setForm({...EMPTY,author});setFilter("all");setCategoryFilter("all");setQuery("");setNotice(demo?"已建立示範貼文（只存在本機）":"發布成功，媽媽友們都能看見！");
   }catch(e){setNotice(e instanceof Error?e.message:"刊登失敗")}
   finally{setBusy(false)}
  }
  async function openComments(id:string){if(selected===id){setSelected(null);return}
+  trackUsageEvent("circle_thread_open",demo?"demo":"live");
   setSelected(id);setCommentText("");
   if(demo)return;
   try{const result=await api(invite,undefined,id);setComments(old=>[...old.filter(c=>c.postId!==id),...result.comments]);}
@@ -152,6 +155,7 @@ export default function BooksPage(){
    if(demo){setComments(old=>[...old,{id:crypto.randomUUID(),postId:selectedPost.id,author,message,createdAt:new Date().toISOString()}]);
     setPosts(old=>old.map(p=>p.id===selectedPost.id?{...p,commentCount:p.commentCount+1}:p));}
    else{await api(invite,{action:"comment",postId:selectedPost.id,author,message});const result=await api(invite,undefined,selectedPost.id);setComments(old=>[...old.filter(c=>c.postId!==selectedPost.id),...result.comments]);await refreshLive();}
+   trackUsageEvent("circle_comment_posted",demo?"demo":"live");
    setCommentText("");setNotice(demo?"已送出示範留言":"留言成功");
   }catch(e){setNotice(e instanceof Error?e.message:"留言失敗")}
   finally{setBusy(false)}
