@@ -12,7 +12,7 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
   const stateText=speaking?(english?"Speaking":"朋友說話"):listening?(english?"Listening":"正在聆聽"):live.state==="connecting"||live.state==="requesting-mic"?(english?"Connecting":"連線中"):(english?"Finishing":"結束中");
   return <div className="crew-game-voice-controls" aria-label={english?"Voice controls":"語音操作"}>
    <div className="crew-game-voice-row">
-    <div className={"crew-game-voice-state"+(speaking?" is-speaking":listening?" is-listening":"")} role="status" aria-live="polite"><span className="crew-game-voice-dot" aria-hidden="true"/><span className="crew-game-voice-state-label">{stateText}</span><span className="crew-game-voice-timer">{clock(live.durationMs)}</span></div>
+    <div className={"crew-game-voice-state"+(speaking?" is-speaking":listening?" is-listening":"")} role="status" aria-live="polite" aria-atomic="true"><span className="crew-game-voice-dot" aria-hidden="true"/><span className="crew-game-voice-state-label">{stateText}</span><span className="crew-game-voice-timer" aria-hidden="true">{clock(live.durationMs)}</span></div>
     <div className="crew-game-voice-actions">
      {prominentInterrupt&&speaking?<button type="button" className="crew-game-voice-btn is-interrupt" onClick={()=>live.interrupt()} aria-label={interruptLabel}>{english?"Interrupt":"打斷"}</button>:null}
      <button type="button" className={"crew-game-voice-btn"+(live.muted?" is-muted":"")} onClick={live.toggleMute} disabled={!speaking&&!listening} aria-pressed={live.muted} aria-label={live.muted?(english?"Unmute microphone":"開啟麥克風"):(english?"Mute microphone":"麥克風靜音")}>{live.muted?(english?"Unmute":"開麥"):(english?"Mute":"靜音")}</button>
