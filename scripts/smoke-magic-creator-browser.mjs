@@ -26,7 +26,7 @@ for(let i=0;i<count;i++)setTimeout(()=>{
  const type=scenario.get('sculpt');
  const ids=['sculptrobot','sculptfox','sculptdragon'];
  const chosen=type==='yes'?ids[i%3]:type==='fox'?'sculptfox':
-  type==='dragon'?'sculptdragon':'creator';
+  type==='dragon'?'sculptdragon':type==='robot'?'sculptrobot':'creator';
  const button=document.querySelector('[data-magic-demo="'+chosen+'"]');
  if(button)button.click();
 },2100+i*580);
@@ -63,7 +63,9 @@ try{
   ["desktop-ensemble",1280,850,3,false],["mobile-evolved",390,850,1,true],
   ["mobile-assembly-in-progress",390,850,1,false,true],
   ["desktop-procedural-trio",1280,850,3,false,false,"yes"],
-  ["mobile-sculpted-fox",390,850,1,false,false,"fox"]
+  ["mobile-sculpted-fox",390,850,1,false,false,"fox"],
+  ["mobile-sculpted-robot",390,850,1,false,false,"robot"],
+  ["mobile-sculpted-dragon",390,850,1,false,false,"dragon"]
  ]){
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
