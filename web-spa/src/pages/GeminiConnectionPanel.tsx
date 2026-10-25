@@ -60,11 +60,18 @@ export function GeminiConnectionPanel(){
  const [voiceStatus,setVoiceStatus]=useState(t("gemini.initialVoice"));
  const [volume,setVolume]=useState(Number(localStorage.getItem("crew_live_volume")||100));
  const [voiceBusy,setVoiceBusy]=useState(false);
+ const [guestAvailable,setGuestAvailable]=useState(false);
  const mounted=useRef(true);
  const liveRef=useRef<any>(null);
  const validationRef=useRef<AbortController|null>(null);
 
  useEffect(()=>{if(location.hash==="#settings-gemini")setShowSetup(true)},[location.hash]);
+ useEffect(()=>{
+  if(initialKey)return;
+  let live=true;
+  void fetch("/api/guest/token",{cache:"no-store"}).then(x=>x.json()).then(x=>{if(live)setGuestAvailable(x.enabled===true)}).catch(()=>{});
+  return()=>{live=false};
+ },[initialKey]);
 
  useEffect(()=>{
   mounted.current=true;
@@ -227,6 +234,7 @@ export function GeminiConnectionPanel(){
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
     {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}
+    {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{locale.language.startsWith("zh")?"不想先設定？立即免費試玩":"Want to try it first?"}</strong><p><a className="btn" href="/try">{locale.language.startsWith("zh")?"免費語音試玩 3 分鐘":"Try free voice for 3 minutes"}</a></p></div>}
     <div className="setup-steps">
      <div className="step"><b>1</b><span><strong>{t("gemini.step1")}</strong><small>{t("gemini.step1Desc")}</small></span></div>
      <div className="step"><b>2</b><span><strong>{t("gemini.step2")}</strong><small>{t("gemini.step2Desc")}</small></span></div>
