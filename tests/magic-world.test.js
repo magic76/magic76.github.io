@@ -442,8 +442,12 @@ test("the guided adventure provides a visible action and a working help dialog",
  const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
  assert.match(page,/className="magic-adventure-guide"/);
- assert.match(page,/className="magic-help-dialog"/);
- assert.match(page,/aria-modal="true"/);
+ const dialog=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicHelpDialog.tsx"),"utf8");
+ assert.match(page,/<MagicHelpDialog zh=\{zh\}/);
+ assert.match(dialog,/className="magic-help-dialog"/);
+ assert.match(dialog,/aria-modal="true"/);
+ assert.match(dialog,/onClick=\{onClose\}/);
+ assert.match(dialog,/onClick=\{onStart\}/);
  assert.match(page,/className="magic-overview-button"/);
  assert.match(page,/runDemo\("portal"\)/);
  assert.match(page,/runDemo\("puzzle"\)/);
