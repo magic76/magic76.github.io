@@ -141,13 +141,14 @@ export function HomePage(){
   return()=>{live=false};
  },[]);
  return <div className="crew-home">
-  {orbAvailable&&<Link to="/orb" className="crew-home-orb-quick">
+  {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
    <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
-  </Link>}
+  </Link></div>}
   <div className="crew-home-world">
    <HomePortal/>
+   <div className="crew-home-world-inner">
     {recent?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
@@ -173,8 +174,10 @@ export function HomePage(){
      </Link>
     </div>
    </section>
+   </div>
   </div>
-  <div className="crew-home-layout">
+  <div className="crew-home-content">
+   <div className="crew-home-layout">
    <div className="crew-home-primary">
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">
@@ -213,6 +216,7 @@ export function HomePage(){
    <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
    <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
   </details>}
+  </div>
  </div>;
 }
 
