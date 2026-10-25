@@ -31,11 +31,13 @@ function PartMesh({part}:{part:MagicCreatorPart}){
  return <group>
   {part.shape==="box"?
    <RoundedBox args={[1,1,1]} radius={.1} smoothness={3}>{finish}</RoundedBox>:
-   <mesh>
+   <mesh scale={part.shape==="leaf"?[1.35,.58,.38]:[1,1,1]}>
     {part.shape==="sphere"?<sphereGeometry args={[.63,20,14]}/>:
      part.shape==="cone"?<coneGeometry args={[.57,1.18,16]}/>:
      part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,18]}/>:
-     part.shape==="torus"?<torusGeometry args={[.54,.15,9,32]}/>:
+     part.shape==="torus"?<torusGeometry args={[.54,.15,9,32]}/>: 
+     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,7,14]}/>: 
+     part.shape==="leaf"?<sphereGeometry args={[.65,16,12]}/>:
      <octahedronGeometry args={[.65,part.material==="stone"?0:1]}/>}
     {finish}
    </mesh>}
@@ -56,6 +58,14 @@ function PartMesh({part}:{part:MagicCreatorPart}){
   {part.shape==="cone"&&<mesh position={[0,.62,0]}>
    <sphereGeometry args={[.1,10,8]}/>
    <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.4}/>
+  </mesh>}
+  {part.shape==="capsule"&&<mesh position={[0,.12,.31]} scale={[.19,.29,.065]}>
+   <sphereGeometry args={[1,10,8]}/>
+   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.22}/>
+  </mesh>}
+  {part.shape==="leaf"&&<mesh position={[0,0,.255]} scale={[.54,.027,.032]}>
+   <sphereGeometry args={[1,10,6]}/>
+   <meshStandardMaterial color={trim} metalness={.2} roughness={.4}/>
   </mesh>}
   {part.shape==="sphere"&&<mesh position={[0,.23,.57]} scale={[.14,.095,.06]}>
    <sphereGeometry args={[1,12,8]}/>
