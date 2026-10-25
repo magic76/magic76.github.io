@@ -5,10 +5,11 @@ import {Color,Group,Vector3} from "three";
 import {safeMagicAnchor,type MagicObjectKind,type MagicObject,type MagicSpell,type MagicWorld} from "./world";
 import {ringStep,ringPoint} from "./magicNavigation";
 import {MagicWonders3D} from "./MagicWonders3D";
+import {MagicCreations3D} from "./MagicCreations3D";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
-type Props={world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void;focusId:number|null;viewVersion:number};
+type Props={world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void;focusId:number|null;focusCreationId:number|null;onSelectCreation:(id:number)=>void;viewVersion:number};
 const PLOTS:[[number,number],[number,number],[number,number],[number,number],[number,number],[number,number]]=[
  [-3.25,-.5],[3.15,-.7],[-2.7,2.65],[2.7,2.55],[-4,.8],[3.95,.95]
 ];
@@ -316,7 +317,7 @@ function MagicCinematic({cue}:{cue:NonNullable<MagicWorld["cue"]>}){
   </mesh>)}
  </group>;
 }
-function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,viewVersion}:Props){
+function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCreationId,onSelectCreation,viewVersion}:Props){
  const colors=BIOMES[world.theme],night=world.time==="night";
  const [cinematic,setCinematic]=useState(false);
  useEffect(()=>{
@@ -338,7 +339,9 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,viewVers
    [x,z]=focus.x!==undefined&&focus.z!==undefined?
     safeMagicAnchor(focus.x,focus.z):safeMagicAnchor(slot[0]/3.7,slot[1]/3.25);
   }
-  const overview=!focus;
+  const creation=world.creations.find(c=>c.id===focusCreationId);
+  if(creation)[x,z]=safeMagicAnchor(creation.x,creation.z);
+  const overview=!focus&&!creation;
   const cameraGoal=overview?new Vector3(12.5,11.4,18.7):new Vector3(x+4.8,7.2,z+6.8);
   const targetGoal=overview?new Vector3(0,1.05,0):new Vector3(x,focus?.kind==="dragon"?3.5:2.5,z);
   const factor=reducedMotion?1:Math.min(1,delta*2.4);
@@ -380,11 +383,13 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,viewVers
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <MagicWonders3D wonders={world.wonders} animated={!reducedMotion}/>
+  <MagicCreations3D creations={world.creations} animated={!reducedMotion}
+   onSelect={onSelectCreation}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
   <OrbitControls ref={orbit} makeDefault enabled={!cinematic} onStart={()=>{scriptedView.current=false;}}
-   enablePan={false} enableDamping={!reducedMotion} minDistance={focusId!==null?6:12} maxDistance={36}
+   enablePan={false} enableDamping={!reducedMotion} minDistance={focusId!==null||focusCreationId!==null?6:12} maxDistance={36}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;
 }
