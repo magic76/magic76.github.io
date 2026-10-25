@@ -34,6 +34,7 @@ function PartMesh({part}:{part:MagicCreatorPart}){
 function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation;
  creations:MagicCreation[];animated:boolean;onSelect:(id:number)=>void}){
  const base=useRef<Group>(null);
+ const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
  const started=useRef<number|null>(null);
  const owner=creations.find(c=>c.id===creation.friendOf);
@@ -51,6 +52,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
   const completion=animated?Math.min(1,elapsed/3.8):1;
+  const assembled=ease(Math.max(0,(completion-.72)/.28));
   const t=clock.elapsedTime+creation.seed*.0033;
   const drift=animated?Math.sin(t*.85)*.13:0;
   const walk=animated&&creation.motion==="walk"?.32:0;
@@ -65,6 +67,18 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   base.current.rotation.y=creation.motion==="spin"&&animated?t*.55:
    creation.motion==="walk"&&animated?Math.sin(t*.65)*.32:0;
   if(animated&&creation.motion==="still")base.current.rotation.y=Math.sin(t*.27)*.08;
+  // Give every finished creation a small seed/mood-driven physical signature.
+  // This makes two structurally similar wishes feel alive without adding geometry
+  // or per-frame React state, so the mobile GPU budget stays bounded.
+  if(body.current){
+   const personality=creation.mood==="mischievous"?1.35:creation.mood==="brave"?.82:1;
+   const pulse=animated&&assembled>.98?Math.sin(t*(1.7+creation.seed%5*.13))*personality:0;
+   const sway=animated&&assembled>.98?Math.sin(t*(.72+creation.seed%3*.11))*personality:0;
+   const breathe=1+pulse*.018;
+   body.current.scale.set(breathe,1-pulse*.012,breathe);
+   body.current.rotation.z=sway*.025;
+   body.current.position.y=animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
+  }
   creation.parts.forEach((part,i)=>{
    const element=groups.current[i];if(!element)return;
    const delay=i*.12+.04;
@@ -87,9 +101,11 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  });
  return <group ref={base} position={[origin[0],1.55,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
-  {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
-   <PartMesh part={part}/>
-  </group>)}
+  <group ref={body}>
+   {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
+    <PartMesh part={part}/>
+   </group>)}
+  </group>
  </group>;
 }
 export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicCreation[];
