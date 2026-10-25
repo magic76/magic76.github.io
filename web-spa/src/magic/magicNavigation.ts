@@ -57,7 +57,8 @@ export function creationGroundClearance(parts:readonly {shape:string;y:number;si
  for(const part of parts){
   const halfHeight=part.joint&&part.joint!=="fixed"?.89:
    part.shape==="sphere"?.63:part.shape==="cone"?.59:
-   part.shape==="torus"?.71:part.shape==="octahedron"?.65:.5;
+   part.shape==="torus"?.71:part.shape==="octahedron"?.65:
+   part.shape==="capsule"?.76:part.shape==="leaf"?.38:.5;
   bottom=Math.min(bottom,part.y-part.size*halfHeight);
  }
  return Number.isFinite(bottom)?.2-bottom:.2;
