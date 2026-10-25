@@ -10,7 +10,7 @@ function load(file,names){
  new Function("module","exports",code+"\nmodule.exports={"+names.join(",")+"};")(module,module.exports);
  return module.exports;
 }
-const {ringStep,ringPoint,ringPolar,groupRingTargets}=load("../web-spa/src/magic/magicNavigation.ts",["ringStep","ringPoint","ringPolar","groupRingTargets"]);
+const {ringStep,ringPoint,ringPolar,groupRingTargets,islandSurfaceHeight,creationGroundClearance}=load("../web-spa/src/magic/magicNavigation.ts",["ringStep","ringPoint","ringPolar","groupRingTargets","islandSurfaceHeight","creationGroundClearance"]);
 const {MAGIC_INITIAL_WORLD,applyMagicCommand,readMagicWorldSnapshot}=load("../web-spa/src/magic/world.ts",["MAGIC_INITIAL_WORLD","applyMagicCommand","readMagicWorldSnapshot"]);
 test("roaming route stays on the castle-safe annulus",()=>{
  let current=ringPoint(-1.7,.78),target=ringPoint(1.7,.82);
@@ -63,4 +63,43 @@ test("formation targets respect other objects",()=>{
  const result=groupRingTargets(ringPoint(0,.76),3,obstacles);
  assert.ok(result);
  for(const point of result)assert.ok(Math.hypot(point[0]-obstacles[0][0],point[1]-obstacles[0][1])>=1.02);
+});
+
+test("curved island surface and AI part bounds keep creations out of ground",()=>{
+ const samples=[[0,0],[6.9,0],[0,7.4],[11.1,1],[-9.4,-3.2]];
+ const variants=[
+  [{shape:"sphere",y:0,size:1.65}],
+  [{shape:"capsule",y:.15,size:1.65,joint:"hinge"}],
+  [{shape:"leaf",y:.1,size:1.65,joint:"flap"}],
+  [{shape:"torus",y:0,size:1.65}],
+  [{shape:"box",y:2.2,size:.5},{shape:"octahedron",y:0,size:1.65}],
+ ];
+ for(const [x,z] of samples){
+  const ground=islandSurfaceHeight(x,z);
+  assert.ok(ground>.9&&ground<1.6);
+  for(const parts of variants){
+   const offset=creationGroundClearance(parts);
+   const lowest=Math.min(...parts.map(p=>p.y-p.size*
+    (p.joint?.89:p.shape==="sphere"?.63:p.shape==="capsule"?.76:
+    p.shape==="torus"?.71:p.shape==="octahedron"?.65:.5)));
+   assert.ok(ground+offset+lowest>=ground+.19,
+    "object must not clip into curved island surface");
+  }
+ }
+ assert.equal(creationGroundClearance([]),.2);
+});
+
+test("AI sculptures and island residents share one terrain-height source",()=>{
+ const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
+ const creations=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ const wonders=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicWonders3D.tsx"),"utf8");
+ assert.match(scene,/islandSurfaceHeight\(next\[0\],next\[1\]\)/);
+ assert.match(scene,/islandSurfaceHeight\(x,z\)\+\.08/);
+ assert.match(scene,/islandSurfaceHeight\(0,-\.55\)\+\.34/);
+ assert.match(creations,/islandSurfaceHeight\(desiredX,desiredZ\)\+groundClearance/);
+ assert.match(creations,/creation\.assembly==="stack"\?part\.y\+3/);
+ assert.match(wonders,/restingY=islandSurfaceHeight\(anchor\[0\],anchor\[1\]\)/);
+ assert.match(creations,/<RoundedBox args=/);
+ assert.match(creations,/<capsuleGeometry args=/);
+ assert.match(creations,/part\.shape==="leaf"/);
 });

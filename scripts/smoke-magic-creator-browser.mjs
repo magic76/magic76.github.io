@@ -37,7 +37,7 @@ setTimeout(()=>{
  meta.content=JSON.stringify({objects:list.length,canvas:!!canvas,
   unavailable:!!error,errors:window.__magicErrors.slice(0,4)});
  document.head.appendChild(meta);
-},6700);
+},scenario.get('early')==='yes'?3400:6700);
 </script>`;
 const server=createServer((req,res)=>{
  try{
@@ -53,17 +53,18 @@ const server=createServer((req,res)=>{
 await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const reports=[];
 try{
- for(const [label,width,height,count,evolve] of [
+ for(const [label,width,height,count,evolve,early] of [
   ["mobile-guardian",390,850,1,false],["mobile-jelly",390,850,2,false],
-  ["desktop-ensemble",1280,850,3,false],["mobile-evolved",390,850,1,true]
+  ["desktop-ensemble",1280,850,3,false],["mobile-evolved",390,850,1,true],
+  ["mobile-assembly-in-progress",390,850,1,false,true]
  ]){
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
    "--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader",
    "--use-gl=angle","--use-angle=swiftshader-webgl",
    "--window-size="+width+","+height,"--force-device-scale-factor=1",
-   "--virtual-time-budget=10500","--dump-dom","--screenshot="+out,
-   "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")];
+   "--virtual-time-budget="+(early?4800:10500),"--dump-dom","--screenshot="+out,
+   "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")+(early?"&early=yes":"")];
   let stdout="",stderr="";
   const exit=await new Promise((done,reject)=>{
    const child=spawn(chrome,args,{stdio:["ignore","pipe","pipe"]});
