@@ -388,9 +388,9 @@ test("stage coordinate projection keeps roaming animals on the island path",()=>
 
 test("3D overview camera and world-creature locomotion are wired",()=>{
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
- assert.match(scene,/camera=\\{\\{position:\\[12\\.5,11\\.4,18\\.7\\]/);
- assert.match(scene,/safeMagicAnchor\\(obj\\.x,obj\\.z\\)/);
- assert.match(scene,/kind==="fox"/);
- assert.match(scene,/root\\.current\\.position/);
- assert.match(scene,/kind==="dragon"\\?1\\.75/);
+ assert.ok(scene.includes("camera={{position:[12.5,11.4,18.7]"));
+ assert.ok(scene.includes("safeMagicAnchor(obj.x,obj.z)"));
+ assert.ok(scene.includes('kind==="fox"'));
+ assert.ok(scene.includes("root.current.position"));
+ assert.ok(scene.includes('kind==="dragon"?1.75'));
 });
