@@ -89,10 +89,10 @@ test("frontend and Cloudflare ingest share one verified event/detail vocabulary"
  const client=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
  const server=fs.readFileSync(path.join(root,"functions/api/usage/event.ts"),"utf8");
  const values=(body)=>[...body.matchAll(/"([^"]*)"/g)].map(match=>match[1]);
- const clientEvents=client.match(/export type UsageEvent=([\\s\\S]*?);/);
- const clientDetails=client.match(/type Detail=([\\s\\S]*?);/);
- const serverEvents=server.match(/const events=new Set\\(\\[([\\s\\S]*?)\\]\\);/);
- const serverDetails=server.match(/const details=new Set\\(\\[([\\s\\S]*?)\\]\\);/);
+ const clientEvents=client.match(/export type UsageEvent=([\s\S]*?);/);
+ const clientDetails=client.match(/type Detail=([\s\S]*?);/);
+ const serverEvents=server.match(/const events=new Set\(\\[([\s\S]*?)\]\);/);
+ const serverDetails=server.match(/const details=new Set\(\\[([\s\S]*?)\]\);/);
  assert.ok(clientEvents&&clientDetails&&serverEvents&&serverDetails,"analytics contract declarations present");
  assert.deepEqual([...new Set(values(clientEvents[1]))].sort(),[...new Set(values(serverEvents[1]))].sort(),"every Web event must be accepted by Pages");
  assert.deepEqual([...new Set(values(clientDetails[1]))].sort(),[...new Set(values(serverDetails[1]))].sort(),"every Web detail must be accepted by Pages");
@@ -119,7 +119,7 @@ test("GA4 keeps known product routes while redacting dynamic paths",()=>{
  const source=fs.readFileSync(path.join(root,"web-spa/src/analytics/ga4.ts"),"utf8");
  const section=source.slice(source.indexOf("const reserved"),source.indexOf("function command"));
  const js=stripTypeScriptTypes(section,{mode:"strip"}).replace("export function safeGa4Path","function safeGa4Path");
- const safe=new Function(js+"\\nreturn safeGa4Path;")();
+ const safe=new Function(js+"\nreturn safeGa4Path;")();
  assert.equal(safe("/town"),"/town");
  assert.equal(safe("/magic"),"/magic");
  assert.equal(safe("/mate"),"/mate");
