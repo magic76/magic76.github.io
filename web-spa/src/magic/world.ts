@@ -10,7 +10,7 @@ export type MagicSpell="sparkles"|"fire"|"wind"|"heal";
 export type MagicEvent="meteor"|"rainbow"|"festival"|"aurora";
 export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
-export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice};
+export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice;portalTravel?:boolean};
 export type MagicObject={id:number;kind:MagicObjectKind;slot:number};
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
@@ -137,6 +137,24 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    const night=args.kind==="aurora"||args.kind==="meteor";
    return updated(state,{event:args.kind,time:night?"night":"day",effect:"sparkles",message:names[args.kind][lang==="en"?1:0]},"world-event-started");
   }
+  case "open_world_portal":{
+   // This portal is a real, deterministic destination selector, not a decorative
+   // generic quest. No arbitrary code or model-supplied scene properties.
+   const english=lang==="en";
+   const panel:MagicPanel={
+    id:state.revision+1,kind:"quest",portalTravel:true,
+    title:english?"Where will the portal lead?":"傳送門通往哪裡？",
+    description:english?"Pick a destination to actually transform the island.":"選擇目的地，讓眼前的世界真的改變。",
+    items:english?["Whispering forest","Sugar-cloud kingdom","Island under the stars"]:
+      ["會說話的森林","糖雲王國","星空漂浮島"]
+   };
+   const objects=state.objects.length<MAX_OBJECTS?
+    [...state.objects,{id:state.revision+1,kind:"portal" as const,slot:state.objects.length}]:state.objects;
+   return updated(state,{
+    objects,panels:[...state.panels.slice(-1),panel],effect:"sparkles",
+    message:english?"A magical panel has opened the portal. Choose where to travel!":"傳送門展開了新的魔法篇章，選一個目的地！"
+   },"portal-opened");
+  }
   case "create_challenge":{
    const title=copy(args.title,38),question=copy(args.question,180);
    const a=copy(args.option_a,75),b=copy(args.option_b,75),c=copy(args.option_c,75);
@@ -173,6 +191,17 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!selected||selected.selected)return failed(state,"no-active-panel");
    const index=CHOICES.indexOf(choice);
    const panels=state.panels.map(panel=>panel.id===id?{...panel,selected:choice}:panel);
+   if(selected.portalTravel){
+    const destinations=[
+     {theme:"forest" as const,time:"day" as const,weather:"clear" as const,event:null},
+     {theme:"candy" as const,time:"day" as const,weather:"clear" as const,event:"festival" as const},
+     {theme:"sky" as const,time:"night" as const,weather:"stars" as const,event:"aurora" as const}
+    ] as const;
+    const target=destinations[index];
+    return updated(state,{...target,panels,chapter:state.chapter+1,effect:"sparkles",
+     message:lang==="en"?"You step through the portal to "+selected.items[index]+"!":
+      "穿越傳送門，你抵達了"+selected.items[index]+"！"},"portal-traveled");
+   }
    return updated(state,{panels,effect:"sparkles",message:selected.items[index]}, "panel-selected");
   }
   case "tell_story":{
@@ -186,18 +215,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
 export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
-  case "portal":{
-   const summoned=applyMagicCommand(world,"summon_object",{kind:"portal"},lang);
-   if(!summoned.ok)return summoned;
-   const copy=lang==="en"?{
-    title:"Where will the portal lead?",description:"Three mysterious doors glow before you.",
-    item_a:"A forest of whispering trees",item_b:"A palace made of sugar clouds",item_c:"An island above the stars"
-   }:{
-    title:"傳送門通往哪裡？",description:"三道神秘的門正等待你選擇。",
-    item_a:"會說話的樹林",item_b:"糖雲做成的皇宮",item_c:"星空上的漂浮島"
-   };
-   return applyMagicCommand(summoned.world,"create_magic_panel",{panel_type:"quest",...copy},lang);
-  }
+  case "portal":return applyMagicCommand(world,"open_world_portal",{},lang);
   case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
   case "snow":return applyMagicCommand(world,"change_world",{weather:"snow",time:"night"},lang);
   case "rain":return applyMagicCommand(world,"change_world",{weather:"rain",time:"day"},lang);
