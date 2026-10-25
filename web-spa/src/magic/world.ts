@@ -593,13 +593,13 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
      parts:[
       part("cylinder","metal","gold",0,.8,0,1.05),
       part("sphere","glass","azure",0,1.64,0,.7),
-      part("box","metal","coral",-.77,.9,0,.55,"hinge"),
-      part("box","metal","coral",.77,.9,0,.55,"hinge"),
-      part("cylinder","stone","slate",-.34,.22,0,.43,"hinge"),
-      part("cylinder","stone","slate",.34,.22,0,.43,"hinge"),
+      part("capsule","metal","coral",-.77,.9,0,.55,"hinge"),
+      part("capsule","metal","coral",.77,.9,0,.55,"hinge"),
+      part("capsule","stone","slate",-.34,.22,0,.43,"hinge"),
+      part("capsule","stone","slate",.34,.22,0,.43,"hinge"),
       part("torus","glow","mint",0,1.3,.5,.6),
-      part("cone","wood","mint",-.8,.54,.1,.5),
-      part("cone","wood","mint",.8,.54,.1,.5)
+      part("leaf","wood","mint",-.8,.54,.1,.5),
+      part("leaf","wood","mint",.8,.54,.1,.5)
      ]},
     {label:color?"Floating moon jelly":"漂浮月光水母",idea:"a floating glass creature",
      assembly:"bloom",motion:"hover",mood:"gentle",
@@ -608,8 +608,8 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
       part("torus","glow","mint",0,1.58,0,1.1),
       part("cone","glass","azure",-.6,.9,0,.5),
       part("cone","glass","azure",.6,.9,0,.5),
-      part("cylinder","glow","rose",-.35,.56,0,.25,"tail"),
-      part("cylinder","glow","mint",.35,.56,0,.25,"tail"),
+      part("capsule","glow","rose",-.35,.56,0,.25,"tail"),
+      part("capsule","glow","mint",.35,.56,0,.25,"tail"),
       part("cylinder","glow","gold",0,.35,.5,.35),
       part("octahedron","metal","violet",0,2.65,0,.28)
      ]},
@@ -636,8 +636,8 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
    const current=world.creations[world.creations.length-1];
    if(!current)return {ok:false,event:"entity-not-found",world};
    const wings:MagicCreatorPart[]=[
-    {shape:"cone",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68,joint:"flap"},
-    {shape:"cone",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68,joint:"flap"}
+    {shape:"leaf",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68,joint:"flap"},
+    {shape:"leaf",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68,joint:"flap"}
    ];
    const body=current.parts.length<=10?[...current.parts,...wings]:
     current.parts.map((p,i)=>i===0?{...p,shape:"octahedron" as const,size:p.size*.8}:p);
