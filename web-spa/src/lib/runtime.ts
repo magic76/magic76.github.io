@@ -1,5 +1,6 @@
 export type LiveTurn={input?:string;output?:string};
 export type LiveSessionOptions={
+ guestAccessToken?:string; // one-use, memory-only v1beta guest credential
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
  turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
