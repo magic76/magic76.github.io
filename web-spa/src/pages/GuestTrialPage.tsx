@@ -6,7 +6,7 @@ import {ensureLive} from "../lib/runtime";
 type TrialRole="teacher"|"zoe";
 type Phase="loading"|"unavailable"|"ready"|"connecting"|"listening"|"speaking"|"ended"|"error";
 type TrialConfig={enabled:boolean;siteKey?:string;seconds?:number};
-type TrialGrant={token:string;model:string;seconds:number;expiresAt:string};
+type TrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 type TurnstileApi={
  render:(element:HTMLElement,options:{sitekey:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;
  reset:(id:string)=>void;
@@ -142,7 +142,8 @@ export function GuestTrialPage(){
    session.current=current;
    // Count time from token issuance, not after potentially slow audio setup.
    const expires=Date.parse(grant.expiresAt);
-   const hardStop=Math.min(Date.now()+Math.min(180,grant.seconds||180)*1000,
+   const issued=Date.parse(grant.issuedAt);
+   const hardStop=Math.min((Number.isFinite(issued)?issued:Date.now())+Math.min(180,grant.seconds||180)*1000,
      Number.isFinite(expires)?expires-1500:Date.now()+180000);
    deadline.current=hardStop;
    const tick=()=>{
