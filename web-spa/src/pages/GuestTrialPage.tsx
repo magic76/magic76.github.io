@@ -102,6 +102,10 @@ export function GuestTrialPage(){
   const challengeToken=challenge;
   setChallenge("");
   try{
+   // Ask for microphone permission BEFORE consuming a one-use trial token.
+   if(!navigator.mediaDevices?.getUserMedia)throw new Error("Microphone unavailable");
+   const permissionStream=await navigator.mediaDevices.getUserMedia({audio:true});
+   permissionStream.getTracks().forEach(track=>track.stop());
    const res=await fetch("/api/guest/token",{
     method:"POST",headers:{"content-type":"application/json"},
     body:JSON.stringify({challengeToken}),cache:"no-store"
