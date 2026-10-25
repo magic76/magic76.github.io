@@ -37,7 +37,14 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
   assert.match(controls,/live\.setVolume\(Math\.max\(0,live\.volume-20\)\)/);
   assert.match(controls,/aria-label="AI 音量提高 20%"/);
   assert.match(controls,/live\.setVolume\(Math\.min\(300,live\.volume\+20\)\)/);
-  assert.match(controls,/Android 音量鍵有時只調整通話音量/);
+  assert.match(controls,/按 −／＋ 快速調整 AI 聲音/);
+  const barStart=controls.indexOf('<div className="live-audio-bar">');
+  const detailEnd=controls.indexOf("</details>",barStart);
+  const quickDown=controls.indexOf('className="live-volume-quick is-down"',barStart);
+  const quickUp=controls.indexOf('className="live-volume-quick is-up"',barStart);
+  assert.ok(barStart>0&&detailEnd>barStart&&quickDown>detailEnd&&quickUp>quickDown,
+    "Quick volume controls must sit outside collapsed details");
+  assert.ok(css.includes(".crew-voice-dock .live-audio-bar>.live-volume-quick{"));
   assert.match(css,/\.crew-voice-dock \.live-volume-step\{/);
   assert.match(controls,/100% 以上會增強音量/);
   assert.match(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:block\}/);

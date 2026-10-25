@@ -45,7 +45,7 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
     {!prominentInterrupt&&<button className="live-tool-btn" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"}>{interruptLabel}</button>}
    </div>
   </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?"整理中…":"結束"}</button></div>
-  <details className="live-audio-settings" aria-label="AI 播放音量">
+  <div className="live-audio-bar"><details className="live-audio-settings" aria-label="AI 播放音量">
    <summary>AI 音量 · {live.volume}% <span aria-hidden="true">⌄</span></summary>
    <div className="live-volume">
     <span className="live-volume-label">AI 音量</span>
@@ -54,7 +54,10 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
     <button type="button" className="live-volume-step" aria-label="AI 音量提高 20%" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
     <span className="live-volume-value">{live.volume}%{live.volume>100?" ↑":""}</span>
    </div>
-   <small className="live-audio-hint">Android 音量鍵有時只調整通話音量，無法降低 AI 聲音。可直接按 −／＋ 或拖動滑桿調整 AI 播放音量；100% 以上會增強音量，請避免調得過大。</small>
-  </details></div>}
+   <small className="live-audio-hint">按 −／＋ 快速調整 AI 聲音，或拖動滑桿精細調整；100% 以上會增強音量，請避免調得過大。</small>
+  </details>
+  <button type="button" className="live-volume-quick is-down" aria-label="AI 音量降低 20%" onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
+  <button type="button" className="live-volume-quick is-up" aria-label="AI 音量提高 20%" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
+  </div></div>}
  </>;
 }
