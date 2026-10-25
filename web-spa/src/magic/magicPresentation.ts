@@ -8,6 +8,9 @@ export const OBJECT_LABELS:Record<MagicObjectKind,[string,string]>={
  tree:["魔法樹","Magic tree"],owl:["貓頭鷹","Owl"],fox:["小狐狸","Fox"],crystal:["水晶","Crystal"]
 };
 export const HELPERS=[
+ {id:"sculptrobot",zh:"創造流線機器人",en:"Sculpt a robot",emoji:"🤖"},
+ {id:"sculptfox",zh:"創造曲線靈狐",en:"Sculpt a fox",emoji:"🦊"},
+ {id:"sculptdragon",zh:"創造翼膜飛龍",en:"Sculpt a dragon",emoji:"🐉"},
  {id:"creator",zh:"觀看零件創世",en:"Watch AI-style assembly",emoji:"🪄"},
  {id:"evolve",zh:"讓造物進化",en:"Evolve latest creation",emoji:"🔧"},
  {id:"wonder",zh:"給我一個驚喜",en:"Surprise me",emoji:"✨"},
