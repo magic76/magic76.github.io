@@ -68,8 +68,8 @@ function Ear({side,color}:{side:number;color:string}){
 /** Fox: one flowing spine and brush tail, four articulated paws, tapered snout.
  * All body volumes intersect smoothly rather than leaving a gap between blocks.
  */
-export function MagicFoxModel3D({animated=true,size=1,color="#dc8558"}:{
- animated?:boolean;size?:number;color?:string
+export function MagicFoxModel3D({animated=true,size=1,color="#dc8558",headScale=1,tailScale=1}:{
+ animated?:boolean;size?:number;color?:string;headScale?:number;tailScale?:number
 }){
  const legs=useRef<(Group|null)[]>([]),tail=useRef<Group>(null);
  useFrame(({clock})=>{
@@ -84,6 +84,8 @@ export function MagicFoxModel3D({animated=true,size=1,color="#dc8558"}:{
   <Oval at={[0,.73,.37]} scale={[.37,.42,.39]} color={color}/>
   <Sweep points={[[0,.77,.38],[0,.98,.52],[0,1.13,.68]]}
    from={.32} to={.33} color={color}/>
+  <group position={[0,1.12,.67]} scale={headScale}>
+   <group position={[0,-1.12,-.67]}>
   <Oval at={[0,1.17,.77]} scale={[.4,.36,.32]} color={color}/>
   <Sweep points={[[0,1.08,.94],[0,1.02,1.17],[0,.97,1.39]]}
    from={.26} to={.075} color="#f7e3bd"/>
@@ -93,7 +95,9 @@ export function MagicFoxModel3D({animated=true,size=1,color="#dc8558"}:{
    <Oval at={[side*.205,1.2,1.032]} scale={[.056,.061,.03]} color="#202d2e"/>
    <Oval at={[side*.189,1.226,1.062]} scale={[.018,.019,.009]} color="#fff5df"/>
   </group>)}
-  <group ref={tail} position={[0,.87,-.83]}>
+   </group>
+  </group>
+  <group ref={tail} position={[0,.87,-.83]} scale={tailScale}>
    <Sweep points={[[0,0,0],[0,.18,-.37],[0,.44,-.73],[0,.51,-1.04]]}
     from={.18} to={.055} bulge={.2} color={color}/>
    <Sweep points={[[0,.39,-.77],[0,.48,-.95],[0,.51,-1.07]]}
@@ -133,8 +137,8 @@ function Wing({sign,color}:{sign:-1|1;color:string}){
 /** Dragon: an S-curved neck/tail, continuous torso, membrane wings with veins.
  * Two membranes animate at the shoulder, not around body-centered cones.
  */
-export function MagicDragonModel3D({animated=true,size=1,color="#c46b65"}:{
- animated?:boolean;size?:number;color?:string
+export function MagicDragonModel3D({animated=true,size=1,color="#c46b65",headScale=1,tailScale=1,wingScale=1}:{
+ animated?:boolean;size?:number;color?:string;headScale?:number;tailScale?:number;wingScale?:number
 }){
  const wings=useRef<(Group|null)[]>([]),tail=useRef<Group>(null);
  useFrame(({clock})=>{
@@ -149,6 +153,8 @@ export function MagicDragonModel3D({animated=true,size=1,color="#c46b65"}:{
   <Oval at={[0,.66,.34]} scale={[.43,.34,.49]} color="#e5a27d"/>
   <Sweep points={[[0,.88,.5],[0,1.26,.64],[0,1.66,.76],[0,1.81,.94]]}
    from={.32} to={.21} color={color}/>
+  <group position={[0,1.82,1.02]} scale={headScale}>
+   <group position={[0,-1.82,-1.02]}>
   <Sweep points={[[0,1.86,.9],[0,1.83,1.2],[0,1.72,1.49]]}
    from={.36} to={.115} color={color}/>
   <Sweep points={[[0,1.68,1.1],[0,1.61,1.38],[0,1.57,1.55]]}
@@ -159,7 +165,9 @@ export function MagicDragonModel3D({animated=true,size=1,color="#c46b65"}:{
    <Sweep points={[[sign*.25,2.04,1.01],[sign*.37,2.36,.86],[sign*.49,2.5,.73]]}
     from={.12} to={.014} color="#f6dfb0"/>
   </group>)}
-  <group ref={tail} position={[0,.79,-.75]}>
+   </group>
+  </group>
+  <group ref={tail} position={[0,.79,-.75]} scale={tailScale}>
    <Sweep points={[[0,0,0],[0,.03,-.43],[0,.17,-.93],[0,.32,-1.36],[0,.27,-1.72]]}
     from={.34} to={.015} bulge={.04} color={color}/>
    {[0,1,2,3].map(i=><Sweep key={i}
@@ -168,7 +176,7 @@ export function MagicDragonModel3D({animated=true,size=1,color="#c46b65"}:{
   </group>
   {([-1,1] as const).map((sign,i)=><group key={sign}
    ref={node=>{wings.current[i]=node}} position={[sign*.36,1.15,-.05]}>
-    <Wing sign={sign} color={i===0?"#e3a587":"#f0bd98"}/>
+    <group scale={wingScale}><Wing sign={sign} color={i===0?"#e3a587":"#f0bd98"}/></group>
   </group>)}
   {[-1,1].flatMap(sign=>[-.58,.43].map(z=>
    <group key={sign+":"+z} position={[sign*.32,.56,z]}>
