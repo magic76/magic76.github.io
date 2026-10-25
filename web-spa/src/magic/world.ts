@@ -21,11 +21,24 @@ export type MagicWonderMotion="rise"|"spin"|"bloom";
 export type MagicWonder={id:number;shape:MagicWonderShape;palette:MagicWonderPalette;
  motion:MagicWonderMotion;seed:number;x:number;z:number;size:number};
 
+// AI writes a bounded scene graph; the Three.js renderer owns all executable logic.
+export type MagicCreatorShape="box"|"sphere"|"cone"|"cylinder"|"torus"|"octahedron";
+export type MagicCreatorMaterial="stone"|"wood"|"metal"|"glass"|"glow";
+export type MagicCreatorColor="gold"|"rose"|"azure"|"mint"|"violet"|"coral"|"ivory"|"slate";
+export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
+export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
+export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
+export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
+ color:MagicCreatorColor;x:number;y:number;z:number;size:number};
+export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
+ assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
+ x:number;z:number;seed:number;revision:number;friendOf?:number};
+
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
  castle:MagicCastle;cue:MagicCue;
- objects:MagicObject[];wonders:MagicWonder[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;adventureStep:0|1|2|3;
+ objects:MagicObject[];wonders:MagicWonder[];creations:MagicCreation[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;adventureStep:0|1|2|3;
  message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
 export type MagicSpotlight={kind:"challenge"|"panel";id:number};
@@ -62,7 +75,7 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
  return {result,duplicate:false};
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
- theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],wonders:[],challenge:null,panels:[],
+ theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],wonders:[],creations:[],challenge:null,panels:[],
  chapter:1,adventureStep:0,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
@@ -85,6 +98,44 @@ const WONDER_SHAPES=["vortex","garden","orbit","comet","lanterns"] as const;
 const WONDER_PALETTES=["aurora","ember","rose","gold","ocean"] as const;
 const WONDER_MOTIONS=["rise","spin","bloom"] as const;
 const MAX_WONDERS=4;
+const CREATOR_SHAPES=["box","sphere","cone","cylinder","torus","octahedron"] as const;
+const CREATOR_MATERIALS=["stone","wood","metal","glass","glow"] as const;
+const CREATOR_COLORS=["gold","rose","azure","mint","violet","coral","ivory","slate"] as const;
+const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
+const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
+const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
+const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
+function creatorNumber(v:unknown,min:number,max:number):v is number{
+ return typeof v==="number"&&Number.isFinite(v)&&v>=min&&v<=max;
+}
+function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
+ if(!Array.isArray(value)||value.length<min||value.length>MAX_CREATION_PARTS)return null;
+ const parts:MagicCreatorPart[]=[];
+ for(const valuePart of value){
+  const item=snapshotObject(valuePart);
+  if(!item||!oneOf(item.shape,CREATOR_SHAPES)||!oneOf(item.material,CREATOR_MATERIALS)
+   ||!oneOf(item.color,CREATOR_COLORS)||!creatorNumber(item.x,-1.8,1.8)
+   ||!creatorNumber(item.y,0,3.3)||!creatorNumber(item.z,-1.8,1.8)
+   ||!creatorNumber(item.size,.15,1.65))return null;
+  parts.push({shape:item.shape,material:item.material,color:item.color,
+   x:item.x,y:item.y,z:item.z,size:item.size});
+ }
+ return parts;
+}
+// Ignore recoloring when comparing structures. Repeating the same composition
+// with new colors alone is NOT considered a novel creation.
+function creationStructure(parts:MagicCreatorPart[],motion:MagicCreatorMotion){
+ return JSON.stringify([motion,parts.map(p=>[p.shape,Math.round(p.x*4)/4,
+  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4])]);
+}
+export function magicCreatorContext(world:MagicWorld){
+ const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
+  assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
+  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size]),revision:c.revision}));
+ return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
+  recentCreations:items}).slice(0,2400);
+}
+
 const CUES=["dragon_arrival","castle_transformation"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
@@ -142,6 +193,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   ||!(data.adventureStep===undefined||[0,1,2,3].includes(data.adventureStep as number))
   ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
   ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
+  ||!(data.creations===undefined||Array.isArray(data.creations)&&data.creations.length<=MAX_CREATIONS)
   ||!(data.wonders===undefined||Array.isArray(data.wonders)&&data.wonders.length<=MAX_WONDERS)
   ||!Array.isArray(data.panels)||data.panels.length>2)return null;
  const objects:MagicObject[]=[];
@@ -166,6 +218,22 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
    ||typeof item.size!=="number"||!Number.isFinite(item.size)||item.size<.6||item.size>1.6)return null;
   wonders.push({id:item.id as number,shape:item.shape,palette:item.palette,motion:item.motion,
    seed:item.seed as number,x:item.x,z:item.z,size:item.size});
+ }
+ const creations:MagicCreation[]=[];
+ for(const entry of (data.creations??[]) as unknown[]){
+  const c=snapshotObject(entry);
+  if(!c||!validId(c.id)||!validId(c.revision)||!oneOf(c.motion,CREATOR_MOTIONS)
+   ||!oneOf(c.mood,CREATOR_MOODS)||!oneOf(c.assembly,CREATOR_ASSEMBLIES)
+   ||!creatorNumber(c.x,-1,1)||!creatorNumber(c.z,-1,1)
+   ||!validId(c.seed)||c.seed>999999)return null;
+  const label=copy(c.label,34),idea=copy(c.idea,60),parts=readCreatorParts(c.parts);
+  if(!label||!idea||!parts||creations.some(item=>item.id===c.id))return null;
+  if(c.friendOf!==undefined&&(!validId(c.friendOf)||!creations.some(item=>item.id===c.friendOf)))
+   return null;
+  creations.push({id:c.id as number,label,idea,parts,
+   assembly:c.assembly,motion:c.motion,mood:c.mood,x:c.x,z:c.z,
+   revision:c.revision as number,seed:c.seed as number,
+   ...(c.friendOf===undefined?{}:{friendOf:c.friendOf as number})});
  }
  const panels:MagicPanel[]=[];
  for(const entry of data.panels){
@@ -200,7 +268,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
   castle:oneOf(data.castle,CASTLES)?data.castle:"stone",
   cue:oneOf(data.cue,CUES)?data.cue:null,
-  objects,wonders,challenge,panels,chapter:data.chapter as number,
+  objects,wonders,creations,challenge,panels,chapter:data.chapter as number,
   adventureStep:([0,1,2,3].includes(data.adventureStep as number)?data.adventureStep:0) as 0|1|2|3,
   revision:data.revision as number,
   message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
@@ -311,6 +379,58 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     return target?{...obj,x:target.x,z:target.z}:obj;
    }),message:text("魔法夥伴們結隊探索島嶼，彼此保持距離！","The magic companions set off together, keeping a safe distance!")
    },"creature-group-moved");
+  }
+  case "create_magic_entity":{
+   if(state.creations.length>=MAX_CREATIONS)return failed(state,"creation-limit");
+   const label=copy(args.label,34),idea=copy(args.idea,60);
+   const parts=readCreatorParts(args.parts);
+   if(!label||!idea||!parts||!oneOf(args.motion,CREATOR_MOTIONS)
+    ||!oneOf(args.assembly,CREATOR_ASSEMBLIES)
+    ||!oneOf(args.mood,CREATOR_MOODS))return failed(state,"invalid-creation");
+   const x=args.x===undefined?.35:args.x,z=args.z===undefined?-.6:args.z;
+   const seed=args.seed===undefined?state.revision*311%1000000:args.seed;
+   if(!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)||!validId(seed)||seed>999999)
+    return failed(state,"invalid-creation-location");
+   const friendOf=args.friend_of;
+   if(friendOf!==undefined&&(!validId(friendOf)||!state.creations.some(c=>c.id===friendOf)))
+    return failed(state,"invalid-creation-relation");
+   const fingerprint=creationStructure(parts,args.motion);
+   if(state.creations.some(c=>creationStructure(c.parts,c.motion)===fingerprint))
+    return failed(state,"duplicate-structure-try-new-geometry");
+   const entity:MagicCreation={id:state.revision+1,label,idea,parts,assembly:args.assembly,
+    motion:args.motion,mood:args.mood,x,z,seed,revision:state.revision+1,
+    ...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+   return updated(state,{creations:[...state.creations,entity],effect:"sparkles",
+    message:text(label+"正在由零件組裝成形！",label+" is assembling piece by piece!")
+   },"entity-created");
+  }
+  case "edit_magic_entity":{
+   const index=args.id===undefined?state.creations.length-1:
+    state.creations.findIndex(c=>c.id===args.id);
+   if(index<0||index>=state.creations.length)return failed(state,"entity-not-found");
+   const current=state.creations[index];
+   const parts=args.parts===undefined?current.parts:readCreatorParts(args.parts);
+   if(!parts)return failed(state,"invalid-entity-parts");
+   const motion=args.motion===undefined?current.motion:args.motion;
+   const assembly=args.assembly===undefined?current.assembly:args.assembly;
+   const mood=args.mood===undefined?current.mood:args.mood;
+   const x=args.x===undefined?current.x:args.x,z=args.z===undefined?current.z:args.z;
+   const label=args.label===undefined?current.label:copy(args.label,34);
+   const friendOf=args.friend_of===undefined?current.friendOf:args.friend_of;
+   if(!label||!oneOf(motion,CREATOR_MOTIONS)||!oneOf(assembly,CREATOR_ASSEMBLIES)
+    ||!oneOf(mood,CREATOR_MOODS)||!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)
+    ||(friendOf!==undefined&&(!validId(friendOf)||friendOf===current.id||
+      !state.creations.some(c=>c.id===friendOf))))return failed(state,"invalid-entity-edit");
+   const changed=creationStructure(parts,motion)!==creationStructure(current.parts,current.motion)
+    ||assembly!==current.assembly||mood!==current.mood||x!==current.x||z!==current.z
+    ||label!==current.label||friendOf!==current.friendOf
+    ||parts.some((p,i)=>p.material!==current.parts[i]?.material||p.color!==current.parts[i]?.color);
+   if(!changed)return failed(state,"no-entity-change");
+   const next:MagicCreation={...current,parts,motion,assembly,mood,x,z,label,
+    revision:state.revision+1,...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+   return updated(state,{creations:state.creations.map((c,i)=>i===index?next:c),
+    message:text(label+"正在重新組裝，魔法讓它進化！",label+" is reassembling into something new!")
+   },"entity-evolved");
   }
   case "generate_magic_wonder":{
    // LLM composes a bounded scene language. Never receive raw meshes, shaders,
