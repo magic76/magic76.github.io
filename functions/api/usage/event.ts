@@ -17,11 +17,20 @@ const events=new Set([
   "shorts_view","shorts_chat_click","shorts_conversation","shorts_hook_click","shorts_story_followup",
   "story_reading","story_narration","story_created",
   "fortune_calculated","fortune_ai_interpreted",
-  "gemini_key_missing","gemini_key_verified"
+  "gemini_key_missing","gemini_key_verified",
+  "home_entry_click","explore_entry_click",
+  "town_enter","town_interaction","town_chat_click","town_3d_fallback",
+  "magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice",
+  "magic_voice_connected","magic_voice_failed","magic_3d_fallback","magic_world_reset",
+  "mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","mate_handoff_failed",
+  "research_article_open","research_article_saved","research_article_completed","research_source_open",
+  "circle_thread_open","circle_post_published","circle_comment_posted"
 ]);
 const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
-  "mira","ethan","hana","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
+  "mira","ethan","hana","learn","story","fortune","play","briefing","town","magic","mate","shorts","circle",
+  "voice","demo","live","person","place","manual","render_error","unsupported",
+  "nonsense","crazy-court","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}
