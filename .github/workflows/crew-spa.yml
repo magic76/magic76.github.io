@@ -50,6 +50,8 @@ jobs:
       - name: Typecheck PR
         if: github.event_name == 'pull_request'
         run: npm run check:web
+      - name: Validate first-party usage analytics contract
+        run: node --test tests/crew-usage.test.js
       - name: Validate UI translations (offline)
         run: npm run check:i18n
       - name: Review newly added UI literals (PR only)

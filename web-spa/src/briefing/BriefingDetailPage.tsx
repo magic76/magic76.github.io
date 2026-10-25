@@ -1,4 +1,5 @@
 import {useEffect,useState} from "react";
+import {trackUsageEvent} from "../analytics/usage";
 import {Link,useParams} from "react-router-dom";
 import {fetchDay} from "./data";
 import {getStatus,readReviews,updateReview} from "./storage";
@@ -49,6 +50,7 @@ export function BriefingDetailPage(){
   }).catch(e=>{if(alive){setError(e instanceof Error?e.message:"讀取失敗");setLoading(false)}});
   return()=>{alive=false};
  },[date,id,initial]);
+ useEffect(()=>{if(item?.id===id)trackUsageEvent("research_article_open")},[date,id,item?.id]);
  function change(patch:Partial<LocalReview>){setReview(updateReview(id,patch)[id])}
  if(loading)return <div className="briefing briefing-empty">正在載入文章…</div>;
  if(!item||item.id!==id)return <div className="briefing briefing-empty"><p>{error||"找不到文章"}</p><Link to="/research">返回每日研究</Link></div>;
@@ -68,7 +70,7 @@ export function BriefingDetailPage(){
    <section className="briefing-section"><h2>參考資料</h2><p className="meta">研究報告會保留來源與發表日期；引用的論點及數據仍應以原文為準。</p>
     {item.sources.length?item.sources.map((source,i)=>{
      const href=safeSource(source.url);
-     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer">{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
+     return <div className="briefing-source" key={i}>{href?<a href={href} target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("research_source_open")}>{source.title} ↗</a>:<span>{source.title}</span>}<small>{source.publishedAt||""}{source.kind?" · "+source.kind:""}</small></div>
     }):<p className="meta">目前沒有可驗證的原始來源。</p>}
    </section>
    <ResearchDiscovery item={item} related={related}/>
@@ -76,8 +78,8 @@ export function BriefingDetailPage(){
   <aside className="briefing-detail-aside" aria-label="閱讀工具">
    <div className="briefing-action-panel">
     <span className="briefing-side-eyebrow">我的閱讀清單</span><h3>這篇文章</h3>
-    <button className="btn" onClick={()=>change({saved:!review.saved})}>{review.saved?"★ 已收藏 · 取消收藏":"☆ 收藏文章"}</button>
-    <button className="btn secondary" onClick={()=>change({status:done?"reading":"finished"})}>{done?"✓ 已讀完 · 標為未讀完":"標記已讀完"}</button>
+    <button className="btn" onClick={()=>{if(!review.saved)trackUsageEvent("research_article_saved");change({saved:!review.saved})}}>{review.saved?"★ 已收藏 · 取消收藏":"☆ 收藏文章"}</button>
+    <button className="btn secondary" onClick={()=>{if(!done)trackUsageEvent("research_article_completed");change({status:done?"reading":"finished"})}}>{done?"✓ 已讀完 · 標為未讀完":"標記已讀完"}</button>
     <p className="meta">收藏與閱讀紀錄只儲存在目前這個瀏覽器。</p>
     <details className="briefing-notes"><summary>我的筆記（選填）</summary>
       <textarea aria-label="我的研究筆記" value={review.notes||""} onChange={e=>change({notes:e.target.value})} placeholder="記下值得回頭看的想法…" rows={4}/>
