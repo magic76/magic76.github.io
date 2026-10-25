@@ -18,7 +18,7 @@ export type MagicChallenge={id:number;title:string;question:string;options:[stri
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
  castle:MagicCastle;cue:MagicCue;
- objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;
+ objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;adventureStep:0|1|2|3;
  message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
 export type MagicSpotlight={kind:"challenge"|"panel";id:number};
@@ -56,7 +56,7 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
  theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],challenge:null,panels:[],
- chapter:1,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
+ chapter:1,adventureStep:0,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
 const WEATHERS=["clear","rain","snow","stars"] as const;
@@ -128,6 +128,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   ||!(data.effect===null||oneOf(data.effect,SPELLS))
   ||!(data.castle===undefined||oneOf(data.castle,CASTLES))
   ||!(data.cue===undefined||data.cue===null||oneOf(data.cue,CUES))
+  ||!(data.adventureStep===undefined||[0,1,2,3].includes(data.adventureStep as number))
   ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
   ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
   ||!Array.isArray(data.panels)||data.panels.length>2)return null;
@@ -176,13 +177,32 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
   castle:oneOf(data.castle,CASTLES)?data.castle:"stone",
   cue:oneOf(data.cue,CUES)?data.cue:null,
-  objects,challenge,panels,chapter:data.chapter as number,revision:data.revision as number,
+  objects,challenge,panels,chapter:data.chapter as number,
+  adventureStep:([0,1,2,3].includes(data.adventureStep as number)?data.adventureStep:0) as 0|1|2|3,
+  revision:data.revision as number,
   message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
  };
 }
 function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,world:state,event:reason}}
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
- return {ok:true,world:{...state,cue:null,...changes,revision:state.revision+1},event};
+ // First-play adventure progresses through successful world changes, whether
+ // triggered by quick spells, the portal panel or the Live model. No separate
+ // client-only checklist can disagree with the 3D scene.
+ let step=state.adventureStep;
+ if(step===0&&event==="portal-traveled")step=1;
+ if(step===1&&event==="object-summoned"&&changes.objects?.some(obj=>
+  (obj.kind==="dragon"||obj.kind==="fox"||obj.kind==="owl")&&
+  !state.objects.some(previous=>previous.id===obj.id)))step=2;
+ if(step===2&&(event==="castle-transformed"))step=3;
+ let nextChanges=changes;
+ if(step===3&&state.adventureStep!==3){
+  const objects=changes.objects??state.objects;
+  // The clue is a real, clickable 3D crystal, not a text-only achievement.
+  nextChanges={...changes,event:"aurora",effect:"sparkles",
+   ...(objects.length<MAX_OBJECTS&&objects.every(obj=>obj.kind!=="crystal")?
+    {objects:[...objects,{id:state.revision+1,kind:"crystal" as const,slot:objects.length}]}:{})};
+ }
+ return {ok:true,world:{...state,cue:null,...nextChanges,adventureStep:step,revision:state.revision+1},event};
 }
 export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,lang:"zh"|"en"="zh"):MagicResult{
  const text=(chinese:string,english:string)=>lang==="en"?english:chinese;
