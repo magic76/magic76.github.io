@@ -52,7 +52,11 @@ class FakeAudioContext{
   async close(){}
   createGain(){return {gain:{value:1},connect(){},disconnect(){}};}
   createMediaStreamSource(){return {connect(){},disconnect(){}};}
-  createScriptProcessor(){return {onaudioprocess:null,connect(){},disconnect(){}};}
+  createScriptProcessor(){
+    const processor={onaudioprocess:null,connect(){},disconnect(){}};
+    this.processor=processor;
+    return processor;
+  }
   createBuffer(channels,samples,rate){
     return {duration:samples/rate,copyToChannel(){}};
   }
@@ -69,8 +73,8 @@ class FakeAudioContext{
 }
 
 function makeDeps(logs){
-  const track={stopped:false,stop(){this.stopped=true;}};
-  const stream={getTracks(){return [track];}};
+  const track={enabled:true,stopped:false,stop(){this.stopped=true;}};
+  const stream={getTracks(){return [track];},getAudioTracks(){return [track];}};
   return {
     track,
     deps:{
@@ -421,10 +425,15 @@ test("mic mute volume interrupt and transcript controls stay inside active Live 
   assert.equal(session.setVolume(35),35);
   assert.equal(session.outputGain.gain.value,0.35);
 
+  const sentBeforeMute=socket.sent.length;
   assert.equal(session.setMicMuted(true),true);
-  assert.equal(track.enabled,false);
+  assert.equal(track.enabled,true,"muting must keep the capture track active");
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.1)}});
+  assert.equal(socket.sent.length,sentBeforeMute,"muted PCM frames are discarded in software");
   assert.equal(session.toggleMic(),false);
   assert.equal(track.enabled,true);
+  session.processor.onaudioprocess({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.1)}});
+  assert.equal(socket.sent.length,sentBeforeMute+1,"unmuting resumes PCM without reopening capture");
 
   const pcm=Buffer.alloc(2400).toString("base64");
   socket.message({serverContent:{modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]}}});
@@ -578,7 +587,7 @@ test("Android-safe startup opens mic before warm output worklet and queues first
       getKey:()=>"test-key",
       getUserMedia:async()=>{order.push("mic");return stream;},
       createAudioContext:()=>{order.push("audio-context");context=new WarmAudioContext();return context;},
-      createAudioWorkletNode:()=>{node=new FakeWorkletNode();return node;},
+      createAudioWorkletNode:(_ctx,name)=>{const result=new FakeWorkletNode();if(name==="crew-live-output")node=result;return result;},
       logger:{info(){}}
     }
   });
@@ -888,7 +897,7 @@ test("late worklet output-started event cannot restart canceled teacher speech",
   const {track,deps}=makeDeps([]);
   const spoken=[];
   deps.createAudioContext=()=>new Context();
-  deps.createAudioWorkletNode=()=>{node=new Node();return node;};
+  deps.createAudioWorkletNode=(_ctx,name)=>{const result=new Node();if(name==="crew-live-output")node=result;return result;};
   const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,onSpeaking:v=>spoken.push(v)});
   const starting=session.start();
   const socket=await waitForSocket(0);
@@ -943,4 +952,171 @@ test("teacher Live config tolerates beginner pauses and UI waits without client 
   assert.equal(socket.sent.some(msg=>msg.realtimeInput?.activityEnd),false,
     "UI hints must not force client-side turn completion");
   await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("microphone permission hang times out without ever opening a Live socket",async()=>{
+  resetSockets();
+  let permit;
+  const lateStream={track:{stopped:false,stop(){this.stopped=true;}},getTracks(){return [this.track];}};
+  const session=new CrewLive.Session({
+    models:["m1"],micTimeoutMs:50,
+    deps:{getKey:()=>"test-key",getUserMedia:()=>new Promise(resolve=>{permit=resolve;}),
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  await assert.rejects(session.start(),/麥克風啟用逾時/);
+  assert.equal(session.running,false);
+  assert.equal(MockWebSocket.instances.length,0);
+  permit(lateStream);
+  await wait(0);
+  assert.equal(lateStream.track.stopped,true,"late grant after timeout must release the mic");
+});
+
+test("stopping while microphone permission is pending cleans up a late grant",async()=>{
+  resetSockets();
+  let permit;
+  const lateStream={track:{stopped:false,stop(){this.stopped=true;}},getTracks(){return [this.track];}};
+  const session=new CrewLive.Session({
+    models:["m1"],micTimeoutMs:200,
+    deps:{getKey:()=>"test-key",getUserMedia:()=>new Promise(resolve=>{permit=resolve;}),
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  const opening=session.start();
+  await wait(0);
+  await session.stop({reason:"user-stop",silentStatus:true,emitTerminal:false});
+  await opening;
+  permit(lateStream);
+  await wait(0);
+  assert.equal(session.running,false);
+  assert.equal(lateStream.track.stopped,true);
+  assert.equal(MockWebSocket.instances.length,0);
+});
+
+test("denied microphone permission provides a user-actionable error",async()=>{
+  resetSockets();
+  const session=new CrewLive.Session({
+    models:["m1"],
+    deps:{getKey:()=>"test-key",getUserMedia:async()=>{const error=new Error("denied");error.name="NotAllowedError";throw error;},
+      WebSocket:MockWebSocket,createAudioContext:()=>new FakeAudioContext()}
+  });
+  await assert.rejects(session.start(),/麥克風權限遭拒/);
+  assert.equal(session.running,false);
+});
+
+test("sustained local speech emits one pause candidate without overriding Gemini server VAD",async()=>{
+  resetSockets();
+  const logs=[],phases=[],candidates=[];
+  let now=1000;
+  const {deps}=makeDeps(logs);
+  deps.now=()=>now;
+  const session=new CrewLive.Session({
+    models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps,
+    onListeningPhase:phase=>phases.push(phase),
+    onLocalUtteranceEnd:()=>candidates.push(now)
+  });
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();socket.message({setupComplete:{}});
+  await starting;
+
+  const frame=value=>({inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(value)}});
+  const input=value=>{now+=43;session.processor.onaudioprocess(frame(value));};
+
+  // Two loud packets are too brief to be treated as a spoken utterance.
+  input(0.04);input(0.04);now+=360;input(0);
+  assert.equal(candidates.length,0);
+  for(let i=0;i<9;i++)input(0.04);
+  now+=360;input(0);input(0);
+  assert.deepEqual(phases,["speaking","waiting","speaking","waiting"]);
+  assert.equal(candidates.length,1,"only one sustained pause per utterance");
+  assert.equal(socket.sent.some(message=>message.realtimeInput?.activityEnd),false,
+    "local activity must never force Gemini turn completion");
+
+  const before=session.getHealthSnapshot();
+  assert.equal(before.socketState,1);
+  assert.equal(before.lastServerEventAgoMs!==null,true);
+  assert.equal(before.lastAudioSentAgoMs,0);
+  assert.equal(before.lastTranscriptAgoMs,null);
+  assert.equal(JSON.stringify(before).includes("test-key"),false);
+
+  socket.message({serverContent:{inputTranscription:{text:"Hello"}}});
+  assert.equal(session.getHealthSnapshot().lastTranscriptAgoMs,0);
+  socket.message({serverContent:{outputTranscription:{text:"Hi"},turnComplete:true}});
+  assert.equal(session.getHealthSnapshot().lastModelOutputAgoMs,0);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("early microphone speech is buffered until setup and takes priority over greeting",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  assert.equal(socket.sent.some(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome"),false);
+  assert.equal(session.getMicHealth().captureMode,"script");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("startup ring buffer stays under two seconds, and mute drops pending audio",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  for(let i=0;i<60;i++)session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  assert.ok(session.getMicHealth().setupBufferedMs<=2100);
+  session.setMicMuted(true);
+  assert.equal(session.getMicHealth().setupBufferedMs,0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("input Worklet sends 16kHz frames and releases its processor after stop",async()=>{
+  resetSockets();
+  let inputNode,outputNode;
+  class Context extends FakeAudioContext{
+    constructor(){super();this.audioWorklet={addModule:async()=>{}};}
+  }
+  class Node{
+    constructor(){this.port={onmessage:null,postMessage(){}};this.disconnected=false;}
+    connect(){}
+    disconnect(){this.disconnected=true;}
+  }
+  const {deps}=makeDeps([]);
+  deps.createAudioContext=()=>new Context();
+  deps.createAudioWorkletNode=(_ctx,name)=>{
+    const node=new Node();
+    if(name==="crew-live-input")inputNode=node;
+    if(name==="crew-live-output")outputNode=node;
+    return node;
+  };
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,deps});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  assert.ok(inputNode&&outputNode);
+  assert.equal(session.getMicHealth().captureMode,"worklet");
+  inputNode.port.onmessage({data:{
+    type:"mic-frame",samples:new Float32Array(640).fill(0.25).buffer,rms:0.25
+  }});
+  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+  assert.equal(inputNode.disconnected,true);
+  assert.equal(session.getMicHealth().captureMode,"none");
 });

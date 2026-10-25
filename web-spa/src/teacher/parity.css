@@ -73,9 +73,19 @@ body.teacher-theme .teacher-gallery-empty{padding:22px;text-align:center;color:v
 .crew-voice-dock .live-manual-interrupt{margin:0;animation:none;box-shadow:none}
 .crew-voice-dock .live-manual-interrupt:disabled{opacity:.48;cursor:not-allowed;transform:none}
 .crew-voice-dock .live-callbar{margin:0;min-width:0}
+.crew-voice-dock .live-audio-bar{position:relative;min-width:0}
+.crew-voice-dock .live-audio-bar>.live-audio-settings>summary{padding-inline:48px}
+.crew-voice-dock .live-audio-bar>.live-volume-quick{position:absolute;z-index:2;top:0;display:grid;place-items:center;width:44px;height:36px;padding:0;border:1px solid var(--line,#ddd);border-radius:10px;background:var(--surface,#fff);color:var(--text,#202637);font:inherit;font-size:22px;line-height:1;touch-action:manipulation;cursor:pointer}
+.crew-voice-dock .live-audio-bar>.live-volume-quick.is-down{left:0}
+.crew-voice-dock .live-audio-bar>.live-volume-quick.is-up{right:0}
+.crew-voice-dock .live-audio-bar>.live-volume-quick:disabled{opacity:.38;cursor:default}
+.crew-voice-dock .live-audio-bar>.live-volume-quick:focus-visible{outline:3px solid var(--accent,#6255d6);outline-offset:2px}
 .crew-voice-dock .live-audio-settings{margin-top:0;min-width:0;padding:8px 12px;border:1px solid var(--line,#ddd);border-radius:12px;background:var(--surface-alt,#f7f8fa)}
-.crew-voice-dock .live-volume{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:10px;margin:0;min-width:0}
+.crew-voice-dock .live-volume{display:grid;grid-template-columns:auto 38px minmax(0,1fr) 38px auto;align-items:center;gap:6px;margin:0;min-width:0}
 .crew-voice-dock .live-volume-label,.crew-voice-dock .live-volume-value{font-size:12px;font-weight:700;white-space:nowrap}
+.crew-voice-dock .live-volume-step{display:grid;place-items:center;min-width:38px;min-height:38px;padding:0;border:1px solid var(--line,#ddd);border-radius:10px;background:var(--surface,#fff);color:var(--text,#202637);font:inherit;font-size:23px;line-height:1;cursor:pointer;touch-action:manipulation}
+.crew-voice-dock .live-volume-step:disabled{opacity:.35;cursor:default}
+.crew-voice-dock .live-volume-step:focus-visible{outline:2px solid var(--accent,#6255d6);outline-offset:2px}
 .crew-voice-dock .live-volume input{display:block;width:100%;min-width:0;margin:0;accent-color:var(--accent,#6255d6)}
 .crew-voice-dock .live-volume-value{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
 .crew-voice-dock .live-audio-hint{display:none;color:var(--muted,#667085);font-size:10px;line-height:1.35;text-align:left}
@@ -109,3 +119,39 @@ body.teacher-theme .crew-intent-card strong{font-size:15px;line-height:1.4}
 body.teacher-theme .crew-intent-card small{color:var(--muted,#667085);font-size:12px;line-height:1.5}
 @media(max-width:640px){body.teacher-theme .crew-intent-grid{grid-template-columns:1fr;gap:8px}body.teacher-theme .crew-intent-card{min-height:0;padding:13px 15px;gap:5px}body.teacher-theme .crew-intent-icon{display:none}}
 @media(prefers-reduced-motion:reduce){body.teacher-theme .crew-intent-card{transition:none}}
+
+
+/* Voice session: keep one compact primary control row on phones. */
+.teacher-live-change-action{min-height:44px;margin:3px 0 0;padding:8px 16px;border:1px solid #dbd4f4;border-radius:999px;background:#f6f3ff;color:var(--accent,#6257e7);font-size:13px;font-weight:800}
+.teacher-live-change-action:focus-visible,.teacher-live-quick-actions>summary:focus-visible,.crew-voice-dock .live-audio-settings>summary:focus-visible{outline:3px solid var(--accent,#6257e7);outline-offset:2px}
+.teacher-live-change-action:disabled{opacity:.5;cursor:wait}
+.teacher-switch-error{color:var(--danger,#ad3d4d)!important;font-size:12px}
+.teacher-live-quick-actions{min-width:0;margin-top:12px}
+.teacher-live-quick-actions>summary{list-style:none;display:flex;align-items:center;justify-content:center;gap:7px;min-height:42px;cursor:pointer;color:var(--muted,#667085);font-size:13px;font-weight:750}
+.teacher-live-quick-actions>summary::-webkit-details-marker,.crew-voice-dock .live-audio-settings>summary::-webkit-details-marker{display:none}
+.teacher-live-quick-actions>summary::after{content:"⌄";font-size:16px;transition:transform .16s ease}
+.teacher-live-quick-actions[open]>summary::after{transform:rotate(180deg)}
+.teacher-live-quick-actions .live-presets{margin-top:4px}
+.crew-voice-dock .live-audio-settings>summary{display:flex;align-items:center;justify-content:center;gap:6px;min-height:36px;list-style:none;cursor:pointer;color:var(--accent,#6257e7);font-size:12px;font-weight:750}
+.crew-voice-dock .live-audio-settings>summary span{display:inline-block;transition:transform .16s ease}
+.crew-voice-dock .live-audio-settings[open]>summary span{transform:rotate(180deg)}
+.crew-voice-dock .live-audio-settings[open] .live-volume{margin-top:6px}
+@media(max-width:640px){
+ body.teacher-theme.session-page .live-stage{padding-bottom:calc(114px + env(safe-area-inset-bottom,0px))}
+ body.teacher-theme.session-page .live-identity{gap:4px;margin-bottom:6px}
+ body.teacher-theme.session-page .teacher-live-avatar{width:92px;height:92px}
+ body.teacher-theme.session-page .live-identity h1{max-width:100%;font-size:clamp(18px,5.2vw,23px);line-height:1.32;overflow-wrap:anywhere;margin-top:5px}
+ body.teacher-theme.session-page .live-identity>p{font-size:12px;line-height:1.5}
+ body.teacher-theme.session-page .crew-chat-mode-switch{margin-top:8px}
+ body.teacher-theme.session-page .crew-voice-dock{gap:3px;padding:9px max(12px,env(safe-area-inset-right,0px)) calc(7px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+ body.teacher-theme.session-page .crew-voice-dock-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(70px,.72fr);gap:8px;align-items:stretch}
+ body.teacher-theme.session-page .crew-voice-dock .live-manual-interrupt{min-width:0;min-height:48px;padding:8px 4px;font-size:13px;white-space:nowrap}
+ body.teacher-theme.session-page .crew-voice-dock .live-callbar{display:flex;align-items:stretch;border:0;background:transparent;padding:0;box-shadow:none;min-width:0}
+ body.teacher-theme.session-page .crew-voice-dock .live-call-actions{display:flex;align-items:stretch;width:100%;min-width:0}
+ body.teacher-theme.session-page .crew-voice-dock .live-tool-btn{width:100%;min-width:0;min-height:48px;padding:8px 4px;font-size:12px;border-radius:14px;white-space:normal}
+ body.teacher-theme.session-page .crew-voice-dock .crew-voice-end{grid-column:auto;min-width:0;min-height:48px;padding:8px 4px;font-size:13px;border-radius:14px}
+ body.teacher-theme.session-page .crew-voice-dock .live-audio-settings{border:0;background:transparent;padding:0;min-height:36px}
+ body.teacher-theme.session-page .crew-voice-dock .live-volume{margin-top:7px}
+ body.teacher-theme.session-page .crew-voice-dock .live-audio-hint{display:block;margin-top:6px;font-size:10px;line-height:1.45}
+}
+@media(prefers-reduced-motion:reduce){.teacher-live-quick-actions>summary::after,.crew-voice-dock .live-audio-settings>summary span{transition:none}}

@@ -1,3 +1,5 @@
+import {isCrewAndroidShell} from "../lib/platform";
+import {useClientReady} from "../lib/useClientReady";
 type Product="teacher"|"story"|"fortune";
 
 const APPS:Record<Product,{name:string;url:string|null}>={
@@ -7,7 +9,11 @@ const APPS:Record<Product,{name:string;url:string|null}>={
 };
 
 export function PlayStoreLink({product,compact=false}:{product:Product;compact?:boolean}){
+ const ready=useClientReady();
  const app=APPS[product];
+ // Don't promote the Play Store to people already inside the Crew app.
+ // Wait until mounted so server-rendered HTML and hydration stay consistent.
+ if(!ready||isCrewAndroidShell())return null;
  const content=<>
   <span className="play-store-mark" aria-hidden="true">{app.url?"▶":"…"}</span>
   <span className="play-store-copy">

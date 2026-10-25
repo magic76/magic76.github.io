@@ -1,3 +1,116 @@
-import{useEffect,useState}from"react";import{useTranslation}from"react-i18next";import{Link}from"react-router-dom";import{ensureFortuneServices}from"../lib/runtime";
-import{ProductDiscoverability}from"../components/ProductDiscoverability";
-export function FortuneHomePage(){const {t}=useTranslation("fortune");const[list,setList]=useState<any[]|null>(null),[error,setError]=useState("");async function load(){setError("");try{await ensureFortuneServices();setList(window.CrewFortuneProfile.history().slice(0,8))}catch(_){setError(t("home.loadError"))}}useEffect(()=>{void load()},[]);return <><section className="hero"><span className="kicker">Crew Fortune</span><h1>{t("home.titleLine1")}<br/>{t("home.titleLine2")}</h1><p>{t("home.intro")}</p></section><section className="section"><div className="section-head"><h2>{t("home.choose")}</h2></div><div className="fortune-home-grid"><Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi"><span className="mode-icon">八</span><strong>{t("home.bazi")}</strong><span>{t("home.baziDesc")}</span></Link><Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot"><span className="mode-icon">✦</span><strong>{t("home.tarot")}</strong><span>{t("home.tarotDesc")}</span></Link><Link className="fortune-home-mode vedic" to="/fortune/reading?mode=vedic"><span className="mode-icon">◎</span><strong>{t("home.vedic")}</strong><span>{t("home.vedicDesc")}</span></Link></div></section><section className="section"><div className="section-head"><h2>{t("home.recent")}</h2></div><div className="fortune-history-list">{error?<div className="spa-error" role="alert">{error}<button className="btn secondary" onClick={()=>void load()}>{t("home.retry")}</button></div>:list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?list.map(x=><Link className="fortune-history-row" to={"/fortune/reading?history="+encodeURIComponent(x.id)} key={x.id||x.createdAt}><span className={"fortune-history-mark "+(x.mode||"")}/><span><strong>{{bazi:t("home.bazi"),tarot:t("home.tarot"),vedic:t("home.vedic")}[x.mode as "bazi"]||t("home.reading")}</strong><small>{x.summary||new Date(x.createdAt).toLocaleDateString()}</small></span><b>›</b></Link>):<div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}</div></section><ProductDiscoverability product="fortune"/></>}
+import {useEffect,useState} from "react";
+import {useTranslation} from "react-i18next";
+import {Link,useNavigate} from "react-router-dom";
+import {geminiKey} from "../lib/runtime";
+import {readFortuneHistoryPreviews,type FortuneHistoryPreview} from "./readingHistory";
+import {ProductDiscoverability} from "../components/ProductDiscoverability";
+import "./unifiedHome.css";
+
+const MODES=["bazi","tarot","vedic"] as const;
+const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof MODES[number])
+ ?t("home."+mode):t("home.reading");
+
+/**
+ * One Web entrance for charts, history and friend narration.
+ * We reuse the original Fortune reading/calculation and stored history; there is no
+ * parallel Teacher-side Web calculator. Android's embedded host stays separate.
+ */
+export function FortuneHomePage(){
+ const {t,i18n}=useTranslation("fortune");
+ const navigate=useNavigate();
+ const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
+ const [openingId,setOpeningId]=useState<string|null>(null);
+ const [error,setError]=useState("");
+ const [needsKey,setNeedsKey]=useState(false);
+ useEffect(()=>{setList(readFortuneHistoryPreviews(30))},[]);
+ const latest=list?.[0];
+ const readingUrl=(id:string)=>"/fortune/reading?history="+encodeURIComponent(id);
+ async function explain(readingId:string){
+  if(openingId)return;
+  setError("");
+  setNeedsKey(false);
+  if(!geminiKey()){
+   setNeedsKey(true);
+   setError(t("landing.missingKey"));
+   return;
+  }
+  setOpeningId(readingId);
+  try{
+   const {prepareFriendExplanation}=await import("./prepareFriendExplanation");
+   await prepareFriendExplanation(readingId);
+   navigate("/fortune/live?from=hub");
+  }catch(e){
+   setError(e instanceof Error?e.message:t("landing.openError"));
+  }finally{setOpeningId(null)}
+ }
+ return <>
+  <section className="hero fortune-journey-hero">
+   <span className="kicker">CREW FORTUNE · EXPLORE</span>
+   <h1>{t("landing.title")}</h1>
+   <p>{t("landing.intro")}</p>
+  </section>
+  <section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
+   {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
+    <div className="fortune-journey-latest">
+     <span className="kicker">{t("landing.continue")}</span>
+     <div className="fortune-journey-latest-head">
+      <span className={"fortune-history-mark "+latest.mode}/>
+      <div><h2>{name(latest.mode,t)}</h2><p>{latest.summary||t("home.reading")}</p>
+       <small>{latest.createdAt?new Date(latest.createdAt).toLocaleDateString(i18n.language):""}</small>
+      </div>
+     </div>
+     <div className="fortune-journey-actions">
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
+      <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
+      </button>
+     </div>
+    </div>:
+    <div className="fortune-journey-empty">
+     <span className="kicker">{t("landing.first")}</span>
+     <h2>{t("landing.firstTitle")}</h2>
+     <p>{t("landing.firstIntro")}</p>
+     <a href="#fortune-new-reading" className="btn">{t("landing.create")} ↓</a>
+    </div>}
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
+  </section>
+  <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
+   <div className="section-head">
+    <h2>{t("landing.myCharts")}</h2>
+    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
+   </div>
+   {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
+    <div className="fortune-history-list">
+     {list.slice(0,3).map(x=><Link className="fortune-history-row" to={readingUrl(x.id)} key={x.id}>
+      <span className={"fortune-history-mark "+x.mode}/>
+      <span><strong>{name(x.mode,t)}</strong><small>{x.summary||t("home.reading")}</small></span>
+      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} ›</b>
+     </Link>)}
+    </div>:
+    <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
+  </section>
+  <section className="section fortune-journey-create" id="fortune-new-reading">
+   <div className="section-head">
+    <h2>{t("landing.createTitle")}</h2>
+    <small>{t("landing.choose")}</small>
+   </div>
+   <div className="fortune-home-grid">
+    <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi"><span className="mode-icon">八</span>
+     <strong>{t("home.bazi")}</strong><span>{t("home.baziDesc")}</span></Link>
+    <Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot"><span className="mode-icon">✦</span>
+     <strong>{t("home.tarot")}</strong><span>{t("home.tarotDesc")}</span></Link>
+    <Link className="fortune-home-mode vedic" to="/fortune/reading?mode=vedic"><span className="mode-icon">◎</span>
+     <strong>{t("home.vedic")}</strong><span>{t("home.vedicDesc")}</span></Link>
+   </div>
+  </section>
+  <section className="section fortune-journey-other">
+   <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
+   <div className="fortune-journey-other-links">
+    <Link to="/fortune/live?from=culture">{t("landing.talkCulture")} →</Link>
+    <Link to="/fortune/live?from=daily">{t("landing.todayReflection")} →</Link>
+   </div>
+   <p>{t("landing.disclaimer")}</p>
+  </section>
+  <ProductDiscoverability product="fortune"/>
+ </>;
+}

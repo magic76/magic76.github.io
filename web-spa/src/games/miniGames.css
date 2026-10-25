@@ -140,3 +140,129 @@
  .crew-taboo-actions button{width:auto;min-width:0;flex:auto}
  .crew-taboo-actions button:first-child:nth-last-child(3){grid-column:1/-1}
 }
+
+/* Taboo: keep the word and latest guess foremost; show setup only before a new game. */
+.crew-taboo-stage.is-ready .crew-taboo-welcome,.crew-taboo-stage.is-done .crew-taboo-result{order:1}
+.crew-taboo-stage.is-ready .crew-mini-voice,.crew-taboo-stage.is-done .crew-mini-voice{order:2}
+.crew-taboo-stage.is-playing .crew-mini-config{display:none}
+.crew-taboo-stage.is-playing .crew-taboo-board{order:1}
+.crew-taboo-stage.is-playing .crew-mini-voice{order:2}
+.crew-taboo-stage .crew-taboo-duration button{min-height:46px}
+.crew-taboo-stage .crew-taboo-duration button:focus-visible{outline:2px solid #6358a8;outline-offset:2px}
+.crew-taboo-timer-line strong{font-size:25px;min-width:74px;text-align:right}
+.crew-taboo-conversation{display:grid;gap:7px}
+.crew-taboo-conversation p{display:grid;gap:3px;margin:0;padding:9px 11px;background:#f4f3fa;border-radius:12px;font-size:13px;line-height:1.55;color:var(--text);overflow-wrap:anywhere}
+.crew-taboo-conversation p span{font-size:10px;font-weight:800;letter-spacing:.05em;color:#71679d}
+.crew-taboo-conversation .crew-taboo-answer-bubble{background:#eae7ff;color:#3b366a}
+.crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-target{margin:6px 0 10px}
+.crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-muted{margin-top:9px}
+@media(max-width:620px){
+ .crew-taboo-stage.is-playing{gap:9px}
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard>div{padding:8px 6px}
+ .crew-taboo-stage.is-playing .crew-mini-voice{padding:10px;border-color:#c9c1ea}
+ .crew-taboo-stage.is-playing.has-key .crew-mini-voice{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom));z-index:5;box-shadow:0 6px 28px #29215f27}
+ .crew-taboo-stage.is-playing .crew-mini-voice-header img{width:34px;height:34px}
+ .crew-taboo-stage.is-playing .crew-mini-voice>small{display:none}
+ .crew-taboo-stage.is-playing .crew-mini-speech{max-height:42px;overflow:hidden}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt{padding:12px}
+ .crew-taboo-stage.is-playing .crew-mini-word-form{margin-top:0}
+ .crew-taboo-stage .crew-taboo-actions{display:flex;gap:7px;flex-wrap:wrap}
+ .crew-taboo-stage .crew-taboo-actions button{flex:1 1 130px;min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){.crew-taboo-stage .crew-taboo-timer-track>span{transition:none}}
+
+/* P0/P1: the game stays visible; settings live in panels and voice remains reachable. */
+.crew-mini-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.crew-mini-history-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.crew-mini-history-head .crew-game-panel-trigger{min-height:35px}
+.crew-mini-page .crew-play-game-header--compact{margin:0 0 8px;padding-top:6px}
+.crew-mini-page .crew-play-game-header--compact h1{font-size:clamp(20px,4vw,25px);margin:4px 0}
+.crew-mini-stage .crew-mini-voice{grid-row:auto}
+@media(max-width:620px){
+ .page.page-enter:has(.crew-mini-page){animation:none}
+ .crew-mini-page{padding-bottom:calc(270px + var(--nav-h,68px) + env(safe-area-inset-bottom))}
+ .crew-mini-page .crew-play-game-header--compact{padding-top:2px}
+ .crew-mini-page .crew-play-game-header--compact .crew-play-eyebrow,
+ .crew-mini-page .crew-play-game-header--compact>p{display:none}
+ .crew-mini-page .crew-play-game-header--compact h1{margin:0 0 4px;font-size:21px}
+ .crew-mini-page .crew-play-friend-bar{padding:7px 10px}
+ .crew-mini-stage{gap:9px}
+ .crew-mini-page .crew-mini-voice,
+ .crew-mini-page .crew-taboo-stage.is-playing.has-key .crew-mini-voice{
+  position:fixed;left:50%;bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom) + 8px);
+  transform:translateX(-50%);z-index:42;width:min(700px,calc(100vw - 18px));
+  max-height:min(40dvh,300px);overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid #cac6e9;border-radius:17px;padding:9px 11px;
+  background:var(--surface,#fff);box-shadow:0 -4px 26px #302c622e;
+ }
+ .crew-mini-page .crew-mini-voice-header{gap:7px}
+ .crew-mini-page .crew-mini-voice-header img{width:32px;height:32px}
+ .crew-mini-page .crew-mini-voice-copy small{font-size:11px}
+ .crew-mini-page .crew-mini-voice>small{display:none}
+ .crew-mini-page .crew-mini-speech{padding:6px 9px;margin:0;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+ .crew-mini-page .crew-mini-voice .live-audio-settings:not([open]){max-height:24px}
+ /* A focused text field brings up the keyboard; do not cover it with the voice dock. */
+ .crew-mini-page:has(.crew-mini-panel form:focus-within) .crew-mini-voice,
+ .crew-mini-page:has(.crew-mini-panel .crew-mini-feedback:focus-within) .crew-mini-voice{
+  opacity:0;pointer-events:none
+ }
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard>div{padding:6px 5px}
+ .crew-taboo-stage.is-playing .crew-taboo-scoreboard strong{font-size:19px}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt{padding:10px}
+ .crew-taboo-stage.is-playing .crew-taboo-prompt .crew-mini-muted{display:none}
+ .crew-mini-history-head{gap:4px;flex-wrap:wrap}
+}
+
+/* Mini games: one short subtitle above the compact call controls. */
+@media(max-width:620px){
+ .crew-mini-page{padding-bottom:calc(150px + var(--nav-h,68px) + env(safe-area-inset-bottom))}
+ .crew-mini-page .crew-mini-voice,.crew-mini-page .crew-taboo-stage.is-playing.has-key .crew-mini-voice{gap:5px;max-height:none;overflow:visible;padding:7px 9px}
+ .crew-mini-page .crew-mini-speech{display:block;max-height:none;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;padding:4px 7px;font-size:11px}
+ .crew-mini-page .crew-mini-voice-header img{width:28px;height:28px}
+}
+
+/* The shared AI reply can expand without changing the Live controls or modal layout. */
+.crew-mini-voice .crew-game-speech{min-width:0}
+.crew-mini-voice .crew-game-speech-scroll{max-height:8em}
+
+/* Instinct audit: 1A2B's guess field and recent turn are always in the first viewport. */
+.crew-mini-daily-toggle{min-height:38px;padding:8px 12px;border-radius:11px;border:1px solid #a59dd8;background:#f4f0ff;color:#51468d;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+.crew-mini-daily-toggle[aria-pressed="true"]{background:#625aac;color:#fff}
+.crew-mini-daily-note{font-size:11px;line-height:1.5;color:var(--muted);margin:8px 0}
+.crew-mini-practice-note{font-size:12px;line-height:1.6;color:#51468d;background:#f4f0ff;padding:9px 11px;border-radius:11px}
+@media(max-width:620px){
+ .crew-mini-number-board{padding:10px 11px}
+ .crew-mini-number-board .crew-mini-muted{margin:5px 0 7px;font-size:11px}
+ .crew-mini-number-board .crew-mini-label{margin:7px 0 5px}
+ .crew-mini-number-board .crew-mini-keypad{gap:5px;margin-top:7px}
+ .crew-mini-number-board .crew-mini-keypad button{min-height:40px}
+ .crew-mini-number-board .crew-mini-history-head{margin-top:9px}
+ .crew-mini-number-board .crew-mini-number-history li{padding:6px 9px}
+ .crew-mini-page .crew-mini-friend-bar .crew-play-friend-name img{width:32px;height:32px}
+}
+
+/* 1A2B: familiar three-column keypad instead of a wide five-column strip. */
+.crew-mini-turn-progress{display:block;width:100%;height:7px;max-width:none;margin:0;border:0;border-radius:99px;overflow:hidden;accent-color:#7162b9}
+.crew-mini-turn-progress::-webkit-progress-bar{background:#eae7f4;border-radius:99px}
+.crew-mini-turn-progress::-webkit-progress-value{background:#7162b9;border-radius:99px}
+.crew-mini-turn-progress::-moz-progress-bar{background:#7162b9;border-radius:99px}
+.crew-mini-keypad{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:min(100%,330px);margin-inline:auto}
+.crew-mini-keypad button{min-height:49px;border-radius:12px;touch-action:manipulation}
+.crew-mini-keypad button:active:not(:disabled){background:#e2dcff;transform:scale(.98)}
+.crew-mini-keypad button:focus-visible{outline:3px solid #7969c4;outline-offset:2px}
+.crew-mini-keypad-spacer{pointer-events:none}
+@media(max-width:620px){
+ .crew-mini-keypad{width:min(100%,320px)}
+ .crew-mini-keypad button{min-height:53px;font-size:21px}
+ .crew-mini-input-row .crew-mini-primary{min-height:46px}
+}
+@media(prefers-reduced-motion:reduce){.crew-mini-keypad button{transition:none}.crew-mini-keypad button:active:not(:disabled){transform:none}}
+
+/* Announce only meaningful Taboo time milestones without occupying visual space. */
+.crew-taboo-timer-line .sr-only{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+ clip:rect(0,0,0,0);white-space:nowrap;border:0
+}
+@media (pointer:coarse){
+ .crew-taboo-switch-mode,.crew-taboo-stage .crew-mini-row-actions button{min-height:44px;touch-action:manipulation}
+}

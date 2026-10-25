@@ -1,16 +1,17 @@
 import type {ReactNode} from "react";
 import {buildLocalReport} from "../report";
+import {formatFortuneValue} from "../displayNumber";
 import type {FortuneChapterId} from "../report";
 import type {FortuneMode} from "../types";
 
 export function ResultTabs({items,active,onChange}:{items:[string,string][];active:string;onChange:(id:string)=>void}){
  return <div className="fortune-result-tabs" role="tablist" aria-label="命理結果分頁">{items.map(([id,label])=><button type="button" key={id} role="tab" aria-selected={active===id} className={active===id?"active":""} onClick={()=>onChange(id)}>{label}</button>)}</div>;
 }
-export function Fact({label,children}:{label:string;children:ReactNode}){return <div className="fortune-fact"><small>{label}</small><strong>{children}</strong></div>}
+export function Fact({label,children}:{label:string;children:ReactNode}){return <div className="fortune-fact"><small>{label}</small><strong>{typeof children==="number"||typeof children==="string"?formatFortuneValue(children):children}</strong></div>}
 
 function plain(value:unknown):string{
  if(value==null||value==="")return "";
- if(typeof value==="string"||typeof value==="number")return String(value);
+ if(typeof value==="string"||typeof value==="number")return formatFortuneValue(value);
  if(Array.isArray(value))return value.map(plain).filter(Boolean).join("、");
  if(typeof value==="object"){
   const x=value as Record<string,unknown>;

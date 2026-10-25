@@ -16,7 +16,8 @@ import "./guides/guides.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";
-import {localeFromPublicPath,localePrefix} from "./i18n/localeCatalog";
+import i18n,{localeResourcesReady} from "./i18n";
+import {localeFromPublicPath,localePrefix,normalizeUiLocale,preferredPublicLocaleDestination} from "./i18n/localeCatalog";
 import { App } from "./App";
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
@@ -32,6 +33,12 @@ const languagePrefix = !legacy ? (localePrefix(localeFromPublicPath(window.locat
 function FinishSsgMount() {
   React.useLayoutEffect(() => {
     document.documentElement.classList.remove("crew-dynamic-route");
+    // Clean the temporary cache-busting query after the current app mounts.
+    const url=new URL(window.location.href);
+    if(url.searchParams.has("__crew_reload")){
+      url.searchParams.delete("__crew_reload");
+      window.history.replaceState(window.history.state,"",url.pathname+url.search+url.hash);
+    }
   }, []);
   return null;
 }
@@ -51,5 +58,18 @@ const pathname=window.location.pathname.replace(/\/+$/,"")||"/";
 const prerenderedPath=root.dataset.crewSsgPath;
 // Only hydrate when the delivered SSG HTML belongs to this exact route.
 // The root-index SPA fallback is intentionally NOT hydrated for deep links.
-if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
-else createRoot(root).render(app);
+// Wait only for the active locale, never for all nine languages.
+// Select a localized public URL before hydration, preserving the page and query.
+// Native Android WebView loads the same Crew home URL and follows this path.
+const destination=!legacy?preferredPublicLocaleDestination(
+ window.location.pathname,normalizeUiLocale(i18n.language)||"en",
+ window.location.search,window.location.hash,navigator.userAgent
+):null;
+if(destination){
+ window.location.replace(destination);
+} else {
+ void localeResourcesReady.then(()=>{
+  if(!legacy&&prerenderedPath===pathname)hydrateRoot(root,app);
+  else createRoot(root).render(app);
+ });
+}

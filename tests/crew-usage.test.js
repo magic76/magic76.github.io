@@ -84,3 +84,47 @@ test("report aggregates browser uniqueness over the full period rather than summ
  assert.doesNotMatch(dashboard,/\.reduce\(\(a,b\)=>a\+b\.users/);
  assert.match(dashboard,/data\.chatUsers/);
 });
+
+test("frontend and Cloudflare ingest share one verified event/detail vocabulary",()=>{
+ const client=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const server=fs.readFileSync(path.join(root,"functions/api/usage/event.ts"),"utf8");
+ const values=(body)=>[...body.matchAll(/"([^"]*)"/g)].map(match=>match[1]);
+ const clientEvents=client.match(/export type UsageEvent=([\s\S]*?);/);
+ const clientDetails=client.match(/type Detail=([\s\S]*?);/);
+ const serverEvents=server.match(/const events=new Set\(\[([\s\S]*?)\]\);/);
+ const serverDetails=server.match(/const details=new Set\(\[([\s\S]*?)\]\);/);
+ assert.ok(clientEvents&&clientDetails&&serverEvents&&serverDetails,"analytics contract declarations present");
+ assert.deepEqual([...new Set(values(clientEvents[1]))].sort(),[...new Set(values(serverEvents[1]))].sort(),"every Web event must be accepted by Pages");
+ assert.deepEqual([...new Set(values(clientDetails[1]))].sort(),[...new Set(values(serverDetails[1]))].sort(),"every Web detail must be accepted by Pages");
+});
+
+test("new game and experience events survive ingestion without personal payloads",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:p=>points.push(p)}};
+ for(const [event,detail] of [
+  ["game_completed","nonsense"],["game_completed","crazy-court"],
+  ["town_interaction","person"],["town_3d_fallback","render_error"],
+  ["magic_spell",""],["magic_panel_choice",""],["magic_voice_failed",""],
+  ["mate_handoff_completed",""],["research_article_completed",""],
+  ["circle_post_published","live"],["home_entry_click","play"]
+ ]){
+  const response=await onRequestPost({request:request({...payload,event,detail}),env});
+  assert.equal(response.status,204,event+":"+detail);
+ }
+ assert.equal(points.length,11);
+ assert.equal((await onRequestPost({request:request({...payload,event:"research_article_open",detail:"private article title"}),env})).status,400);
+});
+
+test("GA4 keeps known product routes while redacting dynamic paths",()=>{
+ const source=fs.readFileSync(path.join(root,"web-spa/src/analytics/ga4.ts"),"utf8");
+ const section=source.slice(source.indexOf("const reserved"),source.indexOf("function command"));
+ const js=stripTypeScriptTypes(section,{mode:"strip"}).replace("export function safeGa4Path","function safeGa4Path");
+ const safe=new Function(js+"\nreturn safeGa4Path;")();
+ assert.equal(safe("/town"),"/town");
+ assert.equal(safe("/magic"),"/magic");
+ assert.equal(safe("/mate"),"/mate");
+ assert.equal(safe("/games/crazy-court"),"/games/crazy-court");
+ assert.equal(safe("/games/nonsense"),"/games/nonsense");
+ assert.equal(safe("/research/2026-10-25/private-article"),"/research/item/item");
+ assert.equal(safe("/story/read/private-book-id"),"/story/read/item");
+});

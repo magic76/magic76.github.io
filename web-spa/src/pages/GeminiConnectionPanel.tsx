@@ -1,7 +1,7 @@
 import {useEffect,useRef,useState} from "react";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
-import {useNavigate,useSearchParams} from "react-router-dom";
+import {useLocation,useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
 
@@ -42,7 +42,7 @@ function voiceFailure(value:unknown){
 
 export function GeminiConnectionPanel(){
  const {t,i18n:locale}=useTranslation("settings");
- const navigate=useNavigate(),[params]=useSearchParams();
+ const navigate=useNavigate(),location=useLocation(),[params]=useSearchParams();
  const requestedReturn=params.get("returnTo")||"";
  const returnTo=requestedReturn.startsWith("/")&&!requestedReturn.startsWith("//")&&!requestedReturn.startsWith("/\\")&&!/^\/settings(?:[/?#]|$)/.test(requestedReturn)?requestedReturn:null;
  const initialKey=geminiKey(),initialVerified=geminiVerified();
@@ -50,7 +50,7 @@ export function GeminiConnectionPanel(){
  const [remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key")));
  const [verified,setVerified]=useState(initialVerified);
  const [keyStatus,setKeyStatus]=useState(initialVerified?t("gemini.initialVerified"):initialKey?t("gemini.initialPending"):t("gemini.initialMissing"));
- const [showSetup,setShowSetup]=useState(!initialKey||!initialVerified);
+ const [showSetup,setShowSetup]=useState(!initialKey||!initialVerified||location.hash==="#settings-gemini");
  const [validating,setValidating]=useState(false);
  const [micPermission,setMicPermission]=useState<MicPermission>("unknown");
  const [micBlocked,setMicBlocked]=useState(false);
@@ -63,6 +63,8 @@ export function GeminiConnectionPanel(){
  const mounted=useRef(true);
  const liveRef=useRef<any>(null);
  const validationRef=useRef<AbortController|null>(null);
+
+ useEffect(()=>{if(location.hash==="#settings-gemini")setShowSetup(true)},[location.hash]);
 
  useEffect(()=>{
   mounted.current=true;
@@ -131,7 +133,22 @@ export function GeminiConnectionPanel(){
   setMicChecking(true);setMicStatus(t("gemini.micChecking"));
   try{
    if(!navigator.mediaDevices?.getUserMedia)throw new Error(t("gemini.micStateUnsupported"));
-   const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+   let expired=false;
+   let timeoutId:ReturnType<typeof setTimeout>|undefined;
+   const permissionRequest=navigator.mediaDevices.getUserMedia({audio:true});
+   // Browsers cannot cancel a permission prompt; release a late stream instead.
+   permissionRequest.then(stream=>{if(expired||!mounted.current)stream.getTracks().forEach(track=>track.stop())}).catch(()=>{});
+   let stream:MediaStream;
+   try{
+    stream=await Promise.race([
+     permissionRequest,
+     new Promise<MediaStream>((_,reject)=>{
+      timeoutId=window.setTimeout(()=>{expired=true;reject(new Error("麥克風啟用逾時（10 秒），請確認權限後重試。"))},10000);
+     })
+    ]);
+   }finally{
+    if(timeoutId!==undefined)window.clearTimeout(timeoutId);
+   }
    stream.getTracks().forEach(track=>track.stop());
    if(mounted.current){
     setMicPermission("granted");setMicBlocked(false);setMicStatus(t("gemini.micSuccess"));
@@ -199,15 +216,14 @@ export function GeminiConnectionPanel(){
  ];
  return <>
   {!showSetup&&configured?
-   <section className={"section panel settings-connected-card "+(verified?"verified":"pending")}>
+   <section id="settings-gemini" className={"section panel settings-connected-card "+(verified?"verified":"pending")}>
     <div className="settings-connected-main"><span className="settings-connected-mark">{verified?"✓":"!"}</span>
      <span><strong>{verified?t("gemini.configured"):t("gemini.unverified")}</strong>
       <small>{verified?t("gemini.verifiedDesc"):t("gemini.unverifiedDesc")}</small></span></div>
-    <code>••••••••••••</code>
     <div className="actions"><button className="btn secondary" disabled={validating||voiceBusy} onClick={()=>setShowSetup(true)}>{t("gemini.reconfigure")}</button></div>
     <div className={"result settings-connection-result "+(verified?"success":"")} role="status">{keyStatus}</div>
    </section>:
-   <section className="section panel">
+   <section id="settings-gemini" className="section panel">
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
     {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}

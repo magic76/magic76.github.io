@@ -2,14 +2,27 @@
   "language": {
     "label": "介面語言",
     "zh": "繁體中文",
-    "en": "English"
+    "en": "English",
+    "select": "選擇介面語言",
+    "description": "僅變更 Crew 的顯示語言，不影響老師教學與對話的語言。",
+    "beta": "測試版",
+    "preview": "預覽版",
+    "previewHint": "部分內容將以英文顯示",
+    "close": "關閉",
+    "loading": "正在載入語言…",
+    "loadError": "語言載入失敗，已切換成英文，請重新整理或稍後再試。"
   },
   "nav": {
     "home": "首頁",
     "teacher": "Teacher",
     "story": "Story",
     "fortune": "Fortune",
-    "settings": "設定"
+    "settings": "設定",
+    "label": "主要導覽",
+    "chat": "聊天",
+    "explore": "探索",
+    "learn": "學習",
+    "me": "我的"
   },
   "brand": {
     "home": "語言・故事・命理",
@@ -34,5 +47,6 @@
     "fortune": "Crew Fortune — 命盤探索",
     "settings": "Crew — 設定",
     "briefing": "Crew Briefing — 每日 AI 研究"
-  }
+  },
+  "loading": "載入中…"
 }

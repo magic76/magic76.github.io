@@ -20,6 +20,9 @@ test("i18n provides matching translation keys for all published UI locales",()=>
    for(const key of keys(value)){
     const translated=key.split(".").reduce((obj,k)=>obj[k],value);
     assert.equal(typeof translated,"string");
+    // Mode headings are assembled from semantic fragments; the trailing suffix is
+    // intentionally optional for some short English/Chinese headlines.
+    if(ns==="home"&&/^world\.modes\.(chat|play|learn|story)\.after$/.test(key))continue;
     assert.ok(translated.trim().length,ns+":"+key+" must not be empty");
    }
   }
@@ -49,7 +52,8 @@ test("English switches the shell, dashboard and settings without changing the Ha
  const router=read("web-spa/src/main.tsx");
  assert.ok(router.includes("<HashRouter>"));
  assert.ok(chrome.includes("<LanguageSwitcher/>"));
- assert.ok(chrome.includes('t("nav.home")'));
+ assert.ok(chrome.includes('t("nav."+item.id)'));
+ assert.ok(chrome.includes('t("nav.label")'));
  assert.ok(home.includes('useTranslation("home")'));
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(settings.includes('useTranslation("settings")'));
@@ -106,20 +110,91 @@ test("inner practice, editor and birth-place forms translate UI without mutating
 
 test("global UI locale options and search index publication gates",()=>{
  const options=JSON.parse(read("config/ui-locales.json")).locales;
- assert.equal(options.length,18);
- assert.equal(new Set(options.map(x=>x.code)).size,18);
+ assert.equal(options.length,11);
+ assert.equal(new Set(options.map(x=>x.code)).size,11);
  assert.deepEqual(options.filter(x=>x.stage!=="preview").map(x=>x.code),
-  ["zh-TW","en","ja","es","pt-BR","id"]);
+  ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]);
  assert.deepEqual(options.filter(x=>x.stage==="published").map(x=>x.code),["zh-TW","en"]);
  const routes=read("web-spa/src/main.tsx");
  const selector=read("web-spa/src/i18n/LanguageSwitcher.tsx");
  const deploy=read("scripts/prepare-cloudflare.mjs");
- const translations=read("web-spa/src/i18n/previewTranslations.ts");
+ const index=read("web-spa/src/i18n/index.ts");
+ assert.ok(!index.includes("previewResources"));
  assert.ok(routes.includes("localeFromPublicPath(window.location.pathname)"));
  assert.ok(selector.includes("localePrefix(next)"));
- assert.ok(selector.includes("English fallback"));
+ assert.ok(!selector.includes("language.previewHint"));
+ assert.ok(selector.includes("language.beta"));
+ assert.ok(selector.includes('aria-haspopup="dialog"'));
+ assert.ok(selector.includes("dialog.showModal()"));
+ assert.ok(!selector.includes("<select"),"locale switcher must not open Android WebView's native full-height select");
  assert.ok(deploy.includes('locale.stage!=="published"'));
  assert.ok(deploy.includes('name="robots" content="noindex,follow"'));
  assert.ok(deploy.includes('"_redirects"'));
- for(const language of ["ja","es","pt-BR","id"])assert.ok(translations.includes('"'+language+'":'));
+ for(const language of ["ja","es","pt-BR","id"])assert.ok(load(language,"home").headline);
+});
+
+test("locale dialog fits mobile viewports and keeps status wording separate from names",()=>{
+ const css=read("web-spa/src/i18n/languageSwitcher.css");
+ const zh=load("zh-TW","common").language;
+ const en=load("en","common").language;
+ assert.ok(css.includes("overflow-y:auto"),"options should scroll inside the dialog");
+ assert.ok(css.includes("78dvh"),"mobile bottom sheet must have a bounded height");
+ assert.ok(css.includes("safe-area-inset-bottom"));
+ assert.equal(zh.previewHint,"部分內容將以英文顯示");
+ assert.equal(en.previewHint,"Some content will appear in English");
+ assert.ok(zh.beta&&en.beta);
+ assert.ok(!read("config/ui-locales.json").includes('"preview"'));
+ assert.ok(!read("web-spa/src/i18n/LanguageSwitcher.tsx").includes("crew-language-option-note"));
+});
+
+
+test("Explore uses translations for all six cards and all 11 selectable UI languages",()=>{
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.ok(hub.includes('useTranslation("home")'));
+ assert.ok(hub.includes('t("sectionExplore.title")'));
+ assert.ok(hub.includes('const kinds=["timeline","games","story","research","circle"]'));
+ const locales=JSON.parse(read("config/ui-locales.json")).locales.map(item=>item.code);
+ assert.equal(locales.length,11);
+ for(const language of locales){
+  const copy=load(language,"home").sectionExplore;
+  assert.ok(copy.title&&copy.intro&&copy.destinations,language+" heading");
+  for(const kind of ["fortune","timeline","games","story","research","circle"])
+   assert.ok(copy[kind].title&&copy[kind].desc,language+" "+kind+" translated card");
+ }
+ assert.notEqual(load("ja","home").sectionExplore.title,load("zh-TW","home").sectionExplore.title);
+});
+
+
+test("Chat, Learn, Me hubs and progress card translate every visible UI field in 11 locales",()=>{
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const progress=read("web-spa/src/teacher/TodayLearningCard.tsx");
+ const resume=read("web-spa/src/teacher/ContinueLearningCard.tsx");
+ assert.ok(hub.includes('sectionItemKeys'));
+ assert.ok(hub.includes('t(prefix+"hero.title")'));
+ assert.ok(hub.includes('t("sectionHubs.chat.friendTitles."+friend.id'));
+ assert.ok(progress.includes('useTranslation("home")'));
+ assert.ok(progress.includes('t("todayLearning.summary",{minutes})'));
+ assert.ok(resume.includes('plan&&chinese?plan.title'));
+ for(const locale of JSON.parse(read("config/ui-locales.json")).locales.map(item=>item.code)){
+  const {sectionHubs:h,todayLearning:today}=load(locale,"home");
+  assert.ok(h.more,locale+" shared more heading");
+  for(const [section,items] of Object.entries({chat:["shorts","games","memory"],learn:["center","scenarios","textbook","pronunciation","reports"],me:["readings","stories","memory","settings","reports"]})){
+   const page=h[section];
+   for(const value of [page.title,page.intro,page.hero.title,page.hero.desc,page.hero.tag])
+    assert.ok(value&&typeof value==="string",locale+"/"+section+" hub labels");
+   for(const item of items){
+    assert.ok(page.items[item]?.title,locale+"/"+section+"/"+item+" title");
+    assert.ok(page.items[item]?.desc,locale+"/"+section+"/"+item+" description");
+   }
+  }
+  assert.equal(Object.keys(h.chat.friendTitles).length,6,locale+" friend profile subtitles");
+  for(const key of ["meetFriends","allFriends"])assert.ok(h.chat[key],locale+" chat "+key);
+  for(const key of ["learningOverview","todayTitle","recordsLink","threeMinuteTitle","threeMinuteDesc"])
+   assert.ok(h.learn[key],locale+" learning "+key);
+  assert.ok(h.me.footnote,locale+" local-only privacy note");
+  for(const key of ["heading","goal","goalAria","minuteUnit","progress","summary","sessions","words","lessons","footnote"])
+   assert.ok(today[key],locale+" progress "+key);
+ }
+ for(const section of ["chat","learn","me"])
+  assert.notEqual(load("ja","home").sectionHubs[section].title,load("zh-TW","home").sectionHubs[section].title);
 });

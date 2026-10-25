@@ -43,7 +43,8 @@
     "vedic": "Vedic astrology",
     "play": "Open this game to play a new round",
     "friend": "Chat with your Crew Friend",
-    "friendDesc": "Return to this friend's chat"
+    "friendDesc": "Return to this friend's chat",
+    "fortuneResume": "Continue reading your chart"
   },
   "actions": {
     "label": "Quick start",
@@ -57,5 +58,392 @@
     "title": "Try a round of Bulls and Cows",
     "desc": "Play by typing with no Gemini Key. Voice is optional for language practice.",
     "cta": "Play now"
+  },
+  "portal": {
+    "headingLead": "Talk when you want.",
+    "headingAccent": "Play when you feel like it.",
+    "description": "Chat with AI friends, play games, practice a language, or tell a story. Pick what you feel like doing.",
+    "start": "Start {{mode}}",
+    "explore": "See what else is here",
+    "choose": "Choose a Crew interaction mode",
+    "tap": "Tap to open",
+    "modes": {
+      "chat": {
+        "label": "AI Chat",
+        "title": "Just say hello",
+        "hint": "Pick a Crew friend and start a conversation."
+      },
+      "play": {
+        "label": "Play",
+        "title": "Let's play",
+        "hint": "Try games that work by typing without an API key."
+      },
+      "learn": {
+        "label": "Learn",
+        "title": "Practice aloud",
+        "hint": "Courses, vocabulary, and conversation at your own pace."
+      },
+      "story": {
+        "label": "Stories",
+        "title": "Make a story",
+        "hint": "Read together or create a story of your own."
+      }
+    }
+  },
+  "world": {
+    "intro": "Chat, play, learn, imagine. Together with AI.",
+    "touch": "Move or touch. Let this world respond.",
+    "pause": "Pause motion",
+    "resume": "Resume motion",
+    "modes": {
+      "chat": {
+        "lead": "A little connection.",
+        "before": "Just say",
+        "accent": "Hello.",
+        "after": "",
+        "description": "No perfect topic. No rush for answers.\nMeet an AI friend. See where the conversation goes.",
+        "cta": "Meet your AI friend"
+      },
+      "play": {
+        "lead": "Your next move?",
+        "before": "Let me",
+        "accent": "Guess.",
+        "after": "",
+        "description": "Pick a number. Take a challenge.\nA little back and forth goes a long way.",
+        "cta": "Let’s play a round"
+      },
+      "learn": {
+        "lead": "Every conversation",
+        "before": "takes you",
+        "accent": "Further.",
+        "after": "",
+        "description": "From finding your words to finding your flow.\nPractice a new language with an AI partner.",
+        "cta": "Find your voice"
+      },
+      "story": {
+        "lead": "Turn a new page.",
+        "before": "Dare to",
+        "accent": "Imagine.",
+        "after": "",
+        "description": "Step into a story, or write a new beginning.\nBuild a world together with AI.",
+        "cta": "Open a new story"
+      }
+    },
+    "bridge": "Little stories are happening here",
+    "explore": "Follow your curiosity.",
+    "possibilities": "A world of possibilities.",
+    "fortuneTitle": "A new way to see yourself",
+    "fortuneDescription": "Explore your chart with an AI friend.",
+    "timelineTitle": "Every life has another chapter",
+    "timelineDescription": "Meet different people at different ages."
+  },
+  "playHub": {
+    "back": "Home",
+    "heading": "Play with your Crew Friends",
+    "intro": "Board games, Bulls and Cows, and Taboo work without an API key. 20 Questions and Mystery require Gemini voice.",
+    "voiceRequired": "Gemini voice required",
+    "offlineOptional": "Offline · optional voice",
+    "footer": "Play board games, Bulls and Cows, and Taboo offline by typing. Voice features need a Gemini key and microphone.",
+    "games": {
+      "friend-gomoku": {
+        "title": "Gomoku",
+        "desc": "Get five in a row"
+      },
+      "connect4": {
+        "title": "Connect Four",
+        "desc": "Drop discs and connect four"
+      },
+      "twenty-questions": {
+        "title": "20 Questions",
+        "desc": "Find the secret in 20 questions"
+      },
+      "reversi": {
+        "title": "Reversi",
+        "desc": "Flip discs and take the board"
+      },
+      "mystery": {
+        "title": "Mystery Stories",
+        "desc": "Solve lateral-thinking mysteries"
+      },
+      "1a2b": {
+        "title": "Bulls and Cows (1A2B)",
+        "desc": "Crack the unique-digit code"
+      },
+      "taboo": {
+        "title": "Taboo Word Game",
+        "desc": "Describe without forbidden words"
+      }
+    },
+    "allGames": "All games",
+    "yourFriend": "Your Crew Friend",
+    "changeFriend": "Change friend"
+  },
+  "timeline": {
+    "title": "{{name}}, through the years",
+    "intro": "Three lives, twelve chapters each. Swipe through a life.",
+    "compare": "Compare {{name}} across the years",
+    "chooseLife": "Choose a life",
+    "photographer": "Photographer",
+    "music": "Music & sound",
+    "travel": "Travel & culture",
+    "selectAge": "Select {{name}}'s age",
+    "years": "years",
+    "chapter": "{{name}}'s chapter",
+    "talk": "Talk with {{name}} at {{age}}",
+    "photos": "{{name}}'s life photos",
+    "previous": "Previous age",
+    "next": "Next age",
+    "swipe": "Swipe to travel through time",
+    "now": "Life right now",
+    "jump": "Jump to another chapter",
+    "conversation": "Conversation language",
+    "level": "Age doesn't change your language level. Voice uses your Gemini key.",
+    "scrapbook": "Life scrapbook",
+    "memories": "Moments you've saved with {{name}}",
+    "clearAll": "Clear all",
+    "delete": "Delete",
+    "locked": "A chapter not yet lived",
+    "topics": "What to talk about",
+    "people": "Important people",
+    "eraChild": "Childhood",
+    "eraTeens": "Teens",
+    "eraYoung": "Young adult",
+    "eraAdult": "Adulthood",
+    "eraLater": "Later life",
+    "age7": "Childhood",
+    "age10": "Little explorer",
+    "age13": "Finding myself",
+    "age16": "Teenage",
+    "age19": "Leaving home",
+    "age22": "Finding direction",
+    "age25": "Exploration",
+    "age35": "Balance",
+    "age40": "Turning point",
+    "age50": "Mentoring",
+    "age55": "New chapter",
+    "age70": "Reflection",
+    "compareBack": "Back to Timeline",
+    "compareTitle": "One life, twelve perspectives",
+    "compareIntro": "Compare fictional life chapters and challenges. These are Life Book excerpts, not past conversations.",
+    "compareOptions": "Comparison options",
+    "chooseQuestion": "Choose a question",
+    "chooseAges": "Choose 2–4 of all 12 ages",
+    "agePerspectives": "Age perspectives",
+    "copyCompare": "Copy comparison",
+    "copyDone": "Comparison copied.",
+    "copyFailed": "Unable to copy; share from the address bar.",
+    "exploreLife": "Explore {{name}}'s life",
+    "maxFour": "Compare up to four ages at once.",
+    "character": "Character",
+    "inConversation": "In conversation",
+    "ready": "Ready",
+    "fiction": "A fictional life, not a future prediction.",
+    "remember": "{{name}} can remember",
+    "myTurn": "My turn",
+    "you": "You",
+    "thisConversation": "This conversation",
+    "saved": "Saved",
+    "saveMemory": "Save this memory",
+    "memorySaved": "Saved. Reopen this or an older age to recall it.",
+    "memoryDisabled": "Memory disabled or text too short.",
+    "memoryCaption": "Only user-selected phrases become Timeline memories."
+  },
+  "shorts": {
+    "heading": "What's happening with your Crew?",
+    "intro": "Little photo stories, real phrases, and easy ways to start talking.",
+    "noteDaily": "Fictional AI friends share daily photo stories.",
+    "noteDemo": "Preview content: sample stories and third-party demo photos. AI-generated daily photos are not yet enabled.",
+    "loading": "Loading stories…",
+    "feedError": "The feed is unavailable. Try again.",
+    "retry": "Retry",
+    "moments": "Friends’ moments",
+    "stories": "stories",
+    "demoLabel": "English demo",
+    "updates": "Story updates",
+    "updatesHeading": "Your Crew has a new chapter",
+    "updatesIntro": "These are published follow-ups to stories you actually discussed.",
+    "followUp": "{{name}}'s update",
+    "ask": "Ask {{name}} what happened",
+    "ongoing": "Ongoing story",
+    "part": "Part {{part}} of {{total}}",
+    "previous": "Previously in this story",
+    "startConversation": "Start a conversation",
+    "curious": "Curious? Ask {{name}}:",
+    "like": "Like",
+    "translation": "Translation",
+    "loadingShort": "Loading…",
+    "more": "More stories",
+    "loadingMore": "Loading more stories…",
+    "progress": "Scroll for more · {{count}} / {{total}}",
+    "retryMore": "Retry loading stories",
+    "hooksDetails": "Tell me more",
+    "hooksFeelings": "How do you feel?",
+    "hooksNext": "What happened next?"
+  },
+  "sectionExplore": {
+    "title": "Explore",
+    "intro": "What are you curious about today? Choose something interesting to discover.",
+    "destinations": "Explore destinations",
+    "fortune": {
+      "title": "Fortune exploration",
+      "desc": "Your charts, saved history, new readings and friend explanations in one place."
+    },
+    "timeline": {
+      "title": "Crew Timeline",
+      "desc": "Meet the same character at different ages and life stages."
+    },
+    "games": {
+      "title": "Interactive games",
+      "desc": "Mystery stories, Taboo, numbers and more."
+    },
+    "story": {
+      "title": "Crew Story",
+      "desc": "Write, read and explore interactive stories."
+    },
+    "research": {
+      "title": "Crew Briefing",
+      "desc": "Explore AI technology and research briefings."
+    },
+    "circle": {
+      "title": "Community circle",
+      "desc": "Browse local exchange and community posts."
+    }
+  },
+  "sectionHubs": {
+    "more": "More to explore",
+    "chat": {
+      "title": "Chat with friends",
+      "intro": "This is not a class. Start with a friend's life or something you're curious about.",
+      "hero": {
+        "title": "Meet your Crew Friends",
+        "desc": "Sixteen personalities. Pick a friend and the language you want to speak.",
+        "tag": "Just talk"
+      },
+      "items": {
+        "shorts": {
+          "title": "Friends' Shorts",
+          "desc": "See what happened today before you decide whether to chat."
+        },
+        "games": {
+          "title": "Play together",
+          "desc": "Find conversation starters through interactive games."
+        },
+        "memory": {
+          "title": "Friend memories",
+          "desc": "Control remembered topics and privacy preferences."
+        }
+      },
+      "meetFriends": "Meet the friends",
+      "allFriends": "All friends",
+      "friendTitles": {
+        "zoe": "Quick & witty",
+        "noah": "A calm listener",
+        "iris": "Artful & curious",
+        "max": "Outdoors & energy",
+        "yuna": "Gentle & reserved",
+        "felix": "Friendly challenger"
+      },
+      "previous": "Previous friends",
+      "next": "Next friends",
+      "chatWith": "Chat with {{name}}",
+      "friendBios": {
+        "zoe": "Find the funny side of ordinary life.",
+        "noah": "A calm friend for thoughtful chats.",
+        "iris": "Talk movies, design and creative ideas.",
+        "max": "Outdoor stories and new challenges.",
+        "yuna": "A gentle chat at your own pace.",
+        "felix": "Explore another side of an idea."
+      }
+    },
+    "learn": {
+      "title": "Practice with a teacher",
+      "intro": "When you have a learning goal, your Crew Teacher can help you practice and improve.",
+      "hero": {
+        "title": "Start speaking practice",
+        "desc": "Choose your Crew Teacher and start a live speaking session.",
+        "tag": "Speaking"
+      },
+      "items": {
+        "center": {
+          "title": "Learning center",
+          "desc": "Continue lessons, vocabulary and pronunciation."
+        },
+        "scenarios": {
+          "title": "Real-life scenarios",
+          "desc": "Speak your way through everyday situations."
+        },
+        "textbook": {
+          "title": "Study your textbook",
+          "desc": "Learn from pages, notes and photos."
+        },
+        "pronunciation": {
+          "title": "Pronunciation",
+          "desc": "Focus on clearer spoken language."
+        },
+        "reports": {
+          "title": "Practice reports",
+          "desc": "Review your previous learning feedback."
+        }
+      },
+      "learningOverview": "Learning overview",
+      "todayTitle": "Your learning today",
+      "recordsLink": "Learning records",
+      "threeMinuteTitle": "Speak a language for 3 minutes",
+      "threeMinuteDesc": "Practice naturally with a Crew Friend, without a test.",
+      "syncInfo": "About learning records",
+      "focusLabel": "Recommended practice",
+      "newLabel": "START HERE",
+      "resumeLabel": "CONTINUE PRACTICING",
+      "firstTopic": "Everyday introductions",
+      "firstDesc": "Meet your teacher and start with a simple everyday introduction.",
+      "resumeDesc": "Pick up your learning plan with your teacher.",
+      "suggestedTime": "Suggested 5 min",
+      "startCta": "Start practicing",
+      "resumeCta": "Continue practice"
+    },
+    "me": {
+      "title": "My Crew",
+      "intro": "Your progress, saved content and preferences in one place.",
+      "hero": {
+        "title": "My learning progress",
+        "desc": "Return to completed practice and learning records.",
+        "tag": "Device records"
+      },
+      "items": {
+        "readings": {
+          "title": "My readings",
+          "desc": "Reopen saved fortune charts."
+        },
+        "stories": {
+          "title": "My stories",
+          "desc": "Return to your story bookshelf and creations."
+        },
+        "memory": {
+          "title": "Learning memories",
+          "desc": "Review the study details your tutor remembers."
+        },
+        "settings": {
+          "title": "Settings and API key",
+          "desc": "Language, model, voice and privacy options."
+        },
+        "reports": {
+          "title": "Learning reports",
+          "desc": "Review past speaking feedback."
+        }
+      },
+      "footnote": "Some readings and learning records are stored in this browser, not synced across devices."
+    }
+  },
+  "todayLearning": {
+    "heading": "Today's learning",
+    "goal": "Daily goal",
+    "goalAria": "Daily speaking goal in minutes",
+    "minuteUnit": "min",
+    "progress": "Speaking goal progress",
+    "summary": "{{minutes}} minutes of speaking today",
+    "sessions": "{{count}} recorded sessions · Goal {{goal}} minutes",
+    "words": "Words today",
+    "lessons": "Lessons completed",
+    "footnote": "Only activity recorded in this browser or app WebView is shown. Existing native Android records are not yet synced."
   }
 }

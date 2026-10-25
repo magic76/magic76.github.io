@@ -1,5 +1,6 @@
 import type {FortuneMode} from "./types";
 import {buildYearHighlights} from "./yearHighlights";
+import {formatFortuneValue} from "./displayNumber";
 
 export type FortuneChapterId = "overview"|"personality"|"career"|"wealth"|"relationships"|"family"|"currentCycle"|"longTerm"|"keyYears"|"advice";
 export type FortuneChapter = {id:FortuneChapterId;title:string;text:string;evidence:string[]};
@@ -8,7 +9,7 @@ const TITLES:Record<FortuneChapterId,string>={
  relationships:"感情與人際",family:"家庭與子女",currentCycle:"目前人生階段",
  longTerm:"未來十年與長期節奏",keyYears:"重要年份與轉折",advice:"可以如何運用這份解讀"
 };
-const str=(v:unknown):string=>v===null||v===undefined||v===""?"":String(v);
+const str=(v:unknown):string=>v===null||v===undefined||v===""?"":formatFortuneValue(v);
 const arr=(v:unknown):any[]=>Array.isArray(v)?v:[];
 const text=(...parts:unknown[])=>parts.map(str).filter(Boolean).join("；");
 const uniq=(items:string[])=>[...new Set(items.filter(Boolean))];
@@ -32,22 +33,41 @@ const fewYears=(v:unknown,n=5)=>arr(v).slice(0,n).map(renderValue).filter(Boolea
 function futureHighlights(mode:FortuneMode,r:any){
  return buildYearHighlights(mode,r).slice(0,4).map(y=>y.year+"（"+y.label+"；"+y.evidence+"）");
 }
+
+function baziCareerAngle(ca:any):string{
+ const signals=[
+  {count:Number(ca.outputCount||0),label:"食傷（表達與成果）",question:"有哪些想法能變成作品或可展示的成果"},
+  {count:Number(ca.officerCount||0),label:"官殺（責任與規範）",question:"哪些角色責任需要更清楚的界線與優先順序"},
+  {count:Number(ca.resourceCount||0),label:"印星（學習與支援）",question:"哪些能力值得持續累積、又能從哪裡取得支援"}
+ ].sort((a,b)=>b.count-a.count);
+ if(signals[0].count===0)return "這三類工作相關十神目前未呈現可比較的數量優勢，適合先從實際工作經驗檢視。";
+ return "在這三類記號中，「"+signals[0].label+"」數量相對突出；可拿來問自己：「"+signals[0].question+"？」這只是命理分類的閱讀切入點，不是能力評分。";
+}
+function baziWealthAngle(we:any):string{
+ const direct=Number(we.directWealthCount||0),indirect=Number(we.indirectWealthCount||0);
+ if(!direct&&!indirect)return "本命十神統計未出現正財、偏財記號，不代表沒有收入或財務機會。";
+ if(direct===indirect)return "正財與偏財的數量相同，可分別檢視穩定資源管理、彈性機會與風險界線。";
+ return direct>indirect
+  ?"正財記號較多，傳統上可從穩定收入、履行承諾及持續累積資源的角度反思自己的習慣。"
+  :"偏財記號較多，傳統上可從彈性機會、人際資源與不確定性管理的角度反思自己的選擇。";
+}
+
 function bazi(r:any):FortuneChapter[]{
  const elements=Object.entries(r.weightedFiveElements||{}).filter(([,v])=>Number(v)>0).sort((a,b)=>Number(b[1])-Number(a[1]));
- const rank=elements.slice(0,3).map(([k,v])=>k+" "+v).join("、");
+ const rank=elements.slice(0,3).map(([k,v])=>k+" "+formatFortuneValue(v,true)).join("、");
  const y=arr(r.annualTimeline).find((x:any)=>Number(x.year)===new Date().getFullYear());
  const luck=r.currentLuckPillar;
  const next=arr(r.luckPillars).filter((x:any)=>Number(x.endYear)>=new Date().getFullYear()).slice(0,3);
  const yrs=arr(r.annualTimeline).filter((x:any)=>Number(x.year)>=new Date().getFullYear()).slice(0,10);
  const curYear=new Date().getFullYear();
  const we=r.wealthProfile||{},ca=r.careerProfile||{},re=r.relationshipProfile||{};
- const current=text(luck&&"目前大運 "+luck.ganZhi+"（"+luck.startYear+"–"+luck.endYear+"）",y&&curYear+" 流年 "+y.ganZhi+"，十神 "+y.stemTenGod,y&&y.plainSummary);
+ const current=text(luck&&"目前大運 "+luck.ganZhi+"（"+luck.startYear+"–"+luck.endYear+"）",y&&curYear+" 流年 "+y.ganZhi+"，十神 "+y.stemTenGod,y&&y.stemTenGodMeaning&&"這年的十神主題可先理解為「"+y.stemTenGodMeaning+"」",y&&arr(y.natalInteractions).length&&"與本命互動："+arr(y.natalInteractions).slice(0,2).join("、"));
  return chapters({
   overview:{text:"四柱為 "+str(r.fourPillars||"尚未提供")+"，日主 "+str(r.dayMaster||"—")+"（"+str(r.dayMasterElement||"—")+"）。簡化的旺衰指標是「"+str(r.dayMasterStrength||"未提供")+"」，加權五行以 "+(rank||"現有命盤資料")+" 為主要觀察點。這些是傳統命理計算與分類，並不能單獨判定現實中的成敗。",evidence:evidence(r.fourPillars,r.dayMasterStrength,rank)},
   personality:{text:"從日主「"+str(r.dayMasterElement)+"」、五行分布與命局互動看傳統命理所描述的行為傾向。現有結構互動為 "+(fewYears(r.natalInteractions,4)||"未見標註")+"；元素權重依序可先比較 "+rank+"。把這些線索對照自己在壓力、合作與獨立決策時的真實表現，比只貼一個性格標籤更有用。",evidence:evidence(r.dayMasterElement,rank,r.natalInteractions)},
-  career:{text:"職涯主題的計算依據包含官殺 "+str(ca.officerCount??"—")+"、印星 "+str(ca.resourceCount??"—")+"、食傷 "+str(ca.outputCount??"—")+"。傳統解讀會分別用這些線索討論責任與制度、學習支援、表達與產出；它們不是升遷機率。接下來可對照的工作主題年份："+fewYears(ca.annualSignalYears)+"。請結合自己的技能、團隊和工作機會判斷。",evidence:evidence(ca.currentLuck?.ganZhi,ca.annualSignalYears)},
-  wealth:{text:"此命盤將「"+str(we.wealthElement||"未提供")+"」視為財星對應元素，正財訊號 "+str(we.directWealthCount??"—")+"、偏財訊號 "+str(we.indirectWealthCount??"—")+"。在命理語境中可把它當成檢視穩定資源與彈性機會的提問，不代表現金收入或投資績效。較值得觀察的資源主題年份："+fewYears(we.annualSignalYears)+"。",evidence:evidence(we.wealthElement,we.currentLuck?.ganZhi,we.annualSignalYears)},
-  relationships:{text:"命盤以日支「"+str(re.spousePalace||"—")+"」作為關係宮位的傳統觀察點，關係相關十神為 "+(renderValue(re.spousePalaceTenGods)||"尚無完整資料")+"。有互動標記的年份："+fewYears(re.annualSignalYears)+"。這些標記只用來反思溝通、承諾與界線，不代表一定結婚、分手或遇到某種人。",evidence:evidence(re.spousePalace,re.spousePalaceTenGods)},
+  career:{text:"職涯主題的計算依據包含官殺 "+str(ca.officerCount??"—")+"、印星 "+str(ca.resourceCount??"—")+"、食傷 "+str(ca.outputCount??"—")+"。傳統解讀會分別用這些線索討論責任與制度、學習支援、表達與產出；它們不是升遷機率。接下來可對照的工作主題年份："+fewYears(ca.annualSignalYears)+"。"+baziCareerAngle(ca)+"請結合自己的技能、團隊和工作機會判斷。",evidence:evidence(ca.currentLuck?.ganZhi,ca.annualSignalYears)},
+  wealth:{text:"此命盤將「"+str(we.wealthElement||"未提供")+"」視為財星對應元素，正財訊號 "+str(we.directWealthCount??"—")+"、偏財訊號 "+str(we.indirectWealthCount??"—")+"。在命理語境中可把它當成檢視穩定資源與彈性機會的提問，不代表現金收入或投資績效。"+baziWealthAngle(we)+"較值得觀察的資源主題年份："+fewYears(we.annualSignalYears)+"。",evidence:evidence(we.wealthElement,we.currentLuck?.ganZhi,we.annualSignalYears)},
+  relationships:{text:"命盤以日支「"+str(re.spousePalace||"—")+"」作為關係宮位的傳統觀察點，關係相關十神為 "+(renderValue(re.spousePalaceTenGods)||"尚無完整資料")+"。有互動標記的年份："+fewYears(re.annualSignalYears)+"。這些記號適合用來對照自己的溝通方式、合作界線與親密關係需求，無法推定實際伴侶或事件。",evidence:evidence(re.spousePalace,re.spousePalaceTenGods)},
   currentCycle:{text:current||"目前可查看大運和逐年流年，暫無足夠資料可作更精細的階段解讀。",evidence:evidence(luck?.ganZhi,y?.ganZhi,y?.stemTenGod,y?.natalInteractions)},
   longTerm:{text:"未來十年可先按大運分成不同背景："+(next.map((x:any)=>x.ganZhi+"（"+x.startYear+"–"+x.endYear+"）").join("；")||"大運時段資料未提供")+"。目前已計算的逐年主題包括 "+(yrs.slice(0,6).map((x:any)=>x.year+" "+arr(x.themes).join("／")).join("；")||"尚無可用的逐年資料")+"。適合將不同年份的傳統主題當作檢視人生目標和資源配置的提示，而非確定的事件日程。",evidence:evidence(next.map((x:any)=>x.ganZhi),yrs.slice(0,5).map((x:any)=>x.ganZhi))},
   keyYears:{text:"依目前的流年十神、與本命合沖、工作／資源／關係主題訊號，優先整理 "+(futureHighlights("bazi",r).join("；")||"尚無明顯的可排序年份")+"。這是依規則挑出適合深入閱讀的時間點，不是吉凶分數或事件預測。可到「時間節奏」逐年查看。",evidence:futureHighlights("bazi",r)},

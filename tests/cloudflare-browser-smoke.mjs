@@ -6,11 +6,120 @@ import assert from "node:assert/strict";
 import {spawn} from "node:child_process";
 import {setTimeout as sleep} from "node:timers/promises";
 import {readFileSync} from "node:fs";
+import {mkdir,rename} from "node:fs/promises";
 import {chromium} from "playwright";
 import {approvedPortrait} from "../web-spa/src/timeline/portraitAssetPolicy.mjs";
 
 const origin="http://127.0.0.1:4179";
 const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
+
+async function captureCrewVisualQA(browser){
+ const folder="artifacts/crew-visual-qa";
+ await mkdir(folder,{recursive:true});
+ const routes=[{path:"/",id:"home"},{path:"/chat/",id:"chat"},{path:"/learn/",id:"learn"},{path:"/explore/",id:"explore"}];
+ for(const width of [390,430,1440]){
+  for(const route of routes){
+   const context=await browser.newContext({viewport:{width,height:900},isMobile:width<500,hasTouch:width<500,deviceScaleFactor:1});
+   await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+   try{
+    for(const version of ["before","after"]){
+     const host=version==="before"?"https://www.3sssi.com":origin;
+     const page=await context.newPage();
+     try{
+      const response=await page.goto(host+route.path,{waitUntil:"domcontentloaded",timeout:16000});
+      assert.equal(response?.status(),200);
+      await page.locator("main").first().waitFor({state:"visible",timeout:10000});
+      await page.waitForTimeout(240);
+      await page.screenshot({path:folder+"/"+version+"-"+route.id+"-"+width+".jpg",type:"jpeg",quality:75,fullPage:true,animations:"disabled"});
+      process.stdout.write("CAPTURE "+version+" "+route.id+" "+width+"px\\n");
+     }catch(error){process.stdout.write("CAPTURE unavailable "+version+" "+route.id+" "+width+"px: "+String(error).slice(0,160)+"\\n");}
+     finally{await page.close();}
+    }
+   }finally{await context.close();}
+  }
+ }
+ // Two short real browser recordings with explicit manual interaction.
+ for(const setup of [{id:"phone",width:390},{id:"desktop",width:1440}]){
+  const context=await browser.newContext({
+   viewport:{width:setup.width,height:900},isMobile:setup.width<500,hasTouch:setup.width<500,
+   deviceScaleFactor:1,recordVideo:{dir:folder,size:{width:setup.width,height:900}}
+  });
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+  const page=await context.newPage();
+  const video=page.video();
+  try{
+   await page.goto(origin+"/chat/",{waitUntil:"domcontentloaded",timeout:20000});
+   await page.locator(".crew-section-carousel-actions button").last().waitFor({state:"visible",timeout:12000});
+   await page.locator(".crew-section-carousel-actions button").last().click();
+   await page.waitForTimeout(350);
+   await page.locator(".crew-section-carousel-actions button").last().click();
+   await page.waitForTimeout(350);
+   await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:20000});
+   await page.locator(".crew-portal-tabs [role=tab]").first().waitFor({state:"visible",timeout:12000});
+   await page.locator(".crew-portal-tabs [role=tab]").nth(1).click();
+   await page.waitForTimeout(350);
+   await page.locator(".crew-portal-tabs [role=tab]").first().click();
+   await page.waitForTimeout(350);
+  }catch(error){process.stdout.write("VIDEO QA partial "+setup.id+": "+String(error).slice(0,140)+"\\n");}
+  finally{
+   await context.close();
+   if(video){try{await rename(await video.path(),folder+"/motion-"+setup.id+".webm")}catch(error){process.stdout.write("VIDEO unavailable "+String(error).slice(0,120)+"\\n");}}
+  }
+ }
+ // Reduced-motion behavior is checked in an actual Chromium media-emulation context.
+ const reduce=await browser.newContext({viewport:{width:390,height:900},reducedMotion:"reduce",isMobile:true,hasTouch:true});
+ await reduce.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+ const reducedPage=await reduce.newPage();
+ try{
+  await reducedPage.goto(origin+"/chat/",{waitUntil:"domcontentloaded",timeout:20000});
+  await reducedPage.locator(".crew-section-friend").first().waitFor({state:"visible",timeout:12000});
+  const state=await reducedPage.locator(".crew-section-friend").first().evaluate(el=>({
+   reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,
+   duration:getComputedStyle(el).transitionDuration
+  }));
+  assert.ok(state.reduced,"Browser must emulate reduced-motion setting");
+  assert.ok(state.duration.split(",").every(value=>parseFloat(value)<0.001),"Friend card transitions must be effectively static in reduced-motion mode: "+state.duration);
+  process.stdout.write("PASS reduced-motion static friend cards\\n");
+ }finally{await reduce.close();}
+}
+
+
+// CSS collision regression: learn, vocabulary, and course all use their full width.
+async function verifyLearningResponsiveLayout(browser){
+ for(const width of [390,430,1440]){
+  const context=await browser.newContext({viewport:{width,height:844},isMobile:width<500,hasTouch:width<500});
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+  const page=await context.newPage();
+  try{
+   for(const [path,root,surface] of [
+    ["/learn/",".crew-section-learn",".crew-section-focus-card"],
+    ["/teacher/vocabulary/",".crew-learning-focus",".crew-learning-quiz"],
+    ["/teacher/course/",".crew-learning-focus",".crew-course-resume"]
+   ]){
+    const response=await page.goto(origin+path,{waitUntil:"domcontentloaded",timeout:30000});
+    assert.equal(response?.status(),200,path+" must load");
+    await page.locator(surface).first().waitFor({state:"visible",timeout:15000});
+    const geometry=await page.evaluate(({root,surface})=>{
+     const shell=document.querySelector(root).getBoundingClientRect();
+     const card=document.querySelector(surface).getBoundingClientRect();
+     return {shell:shell.width,card:card.width,viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth};
+    },{root,surface});
+    assert.ok(geometry.shell>=250&&geometry.card>=geometry.shell*.9,path+" must not become a narrow column at "+width+": "+JSON.stringify(geometry));
+    assert.ok(geometry.scroll<=geometry.viewport+2,path+" must not overflow at "+width+": "+JSON.stringify(geometry));
+    if(path==="/learn/"){
+     const textWidth=await page.locator(".crew-section-focus-card-content").evaluate(el=>el.getBoundingClientRect().width);
+     assert.ok(textWidth>(width<500?160:280),"Learn heading must remain readable at "+width);
+    }
+    if(path==="/teacher/vocabulary/"){
+     const positions=await page.locator(".crew-learning-question .quiz-choice").evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().top));
+     assert.equal(positions.length,3,"Vocabulary must show three answers");
+     assert.ok(positions.every(y=>Math.abs(y-positions[0])<2),"Three choices must be horizontal");
+    }
+    process.stdout.write("PASS learning CSS "+path+" "+width+"px\\n");
+   }
+  }finally{await context.close();}
+ }
+}
 
 async function waitForPreview(child){
  for(let n=0;n<120;n++){
@@ -49,7 +158,35 @@ async function run(){
    headless:true,
    args:["--no-sandbox"]
   });
-  const context=await browser.newContext({viewport:{width:1280,height:800}});
+  // Test onboarding with a genuinely fresh storage context before normal UI checks.
+  const onboardingContext=await browser.newContext({viewport:{width:390,height:844}});
+  try{
+   const first=await onboardingContext.newPage();
+   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible",timeout:15000});
+   assert.match(await first.locator("#crew-onboarding-title").textContent()||"",/歡迎來到 Crew/);
+   await first.locator(".crew-onboarding-primary").click();
+   assert.equal(await first.locator(".crew-onboarding-tile").count(),4);
+   await first.locator(".crew-onboarding-tile").filter({hasText:"練習外語"}).click();
+   await first.locator(".crew-onboarding-primary").click();
+   await first.locator(".crew-onboarding-setting select").selectOption("日文");
+   await first.locator(".crew-onboarding-primary").click();
+   await first.waitForURL(url=>url.pathname==="/learn");
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"completed");
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文");
+   await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-settings-onboarding-replay").click();
+   await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible"});
+   await first.locator(".crew-onboarding-skip").click();
+   assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"skipped");
+   await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
+   await first.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
+   assert.equal(await first.locator(".crew-onboarding-dialog[open]").count(),0);
+   process.stdout.write("PASS first-run guide, language setup, skip and replay\n");
+  }finally{await onboardingContext.close();}
+  await verifyLearningResponsiveLayout(browser);
+   const context=await browser.newContext({viewport:{width:1280,height:800}});
+  await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   for(const route of routes){
    const errors=[];
    const page=await context.newPage();
@@ -72,6 +209,227 @@ async function run(){
    await page.close();
     process.stdout.write("PASS prerender + hydrate "+route+"\n");
   }
+  // Crew World: integrated React desktop/mobile visual geometry, bilingual copy and interactions.
+  for(const setup of [
+    {route:"/",width:360,height:780,mobile:true},
+    {route:"/",width:393,height:852,mobile:true},
+    {route:"/",width:1280,height:800,mobile:false},
+    {route:"/en/",width:393,height:852,mobile:true},
+    {route:"/en/",width:1280,height:800,mobile:false}
+  ]){
+    const view=await browser.newContext({viewport:{width:setup.width,height:setup.height},isMobile:setup.mobile,hasTouch:setup.mobile,deviceScaleFactor:1});
+    await view.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+    const page=await view.newPage();
+    const errors=[];checkConsole(page,errors);
+    try{
+      await page.goto(origin+setup.route,{waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
+      const tabs=page.locator(".crew-portal-tabs [role=tab]");
+      assert.equal(await tabs.count(),4,"Four KV modes: "+JSON.stringify(setup));
+      assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible center heading");
+      const initial=await page.locator(".crew-portal-content h1").textContent();
+      const metric=await page.evaluate(()=>{
+        const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+        return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
+          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),
+          tabs:rect(".crew-portal-tabs"),hint:rect(".crew-portal-hint"),bridge:rect(".crew-home-world-bridge"),
+          shorts:rect(".crew-home-shorts")};
+      });
+      assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No page-wide horizontal overflow: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.cta.bottom<metric.tabs.y-5,"CTA must not overlap mode controls: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.tabs.bottom<metric.hint.y+4,"Mode controls must not cover touch hint: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
+      for(const choice of [
+        {mode:"play",to:"/games"},
+        {mode:"learn",to:"/teacher"},
+        {mode:"story",to:"/story"},
+        {mode:"chat",to:"/teacher/roles?mode=friends"}
+      ]){
+        await page.locator('.crew-portal-tabs button[role="tab"]').filter({hasText:setup.route==="/en/"?
+          ({chat:"AI Chat",play:"Play",learn:"Learn",story:"Stories"})[choice.mode]:
+          ({chat:"AI 聊天",play:"一起玩",learn:"學語言",story:"說故事"})[choice.mode]}).click();
+        assert.equal(await page.locator('.crew-portal-tabs [aria-selected="true"]').count(),1,"Exactly one active mode");
+        assert.equal(await page.locator(".crew-home-portal").getAttribute("data-mode"),choice.mode);
+        const href=await page.locator(".crew-portal-cta").getAttribute("href");
+        const expected=setup.route==="/en/"?"/en"+choice.to:choice.to;
+        assert.equal(href,expected,"Selected mode CTA deep link (respect language prefix)");
+      }
+      const newCopy=await page.locator(".crew-portal-content h1").textContent();
+      assert.equal(newCopy,initial,"Returning to chat restores initial copy");
+      const screenshots=page.locator(".crew-home-shorts .crew-home-short-card");
+      await screenshots.first().waitFor({state:"visible",timeout:18000});
+      assert.ok(await screenshots.count()>=2,"Live Shorts feed should show multiple image stories");
+      const cards=await page.locator(".crew-home-shorts-grid").evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));
+      assert.ok(cards.scroll>cards.client,"Shorts must be horizontally scrollable");
+      const photo=page.locator(".crew-home-short-card .crew-home-short-photo").first();
+      assert.match(await photo.getAttribute("href")||"",/^(?:\/en)?\/teacher\/shorts\?post=/);
+      const chat=page.locator(".crew-home-short-card .crew-home-short-question").first();
+      assert.ok((await chat.getAttribute("href")||"").startsWith("/"),"Shorts keeps friend chat");
+      const motion=page.locator(".crew-portal-motion");
+      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"true","Pause enabled");
+      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"false","Resume enabled");
+      assert.deepEqual(errors,[],"No runtime / hydration errors");
+      process.stdout.write("PASS Crew World responsive portal + Shorts "+setup.route+" "+setup.width+"px\n");
+    }finally{await view.close();}
+  }
+
+  // Validate every on-demand Beta locale in a real browser. Keep this inside
+  // the existing Cloudflare smoke workflow to avoid extra Actions minutes.
+  for(const locale of ["ja","es","pt-BR","id","ko","fr","de","vi","th"]){
+    const homeStrings=JSON.parse(readFileSync(new URL("../web-spa/src/i18n/locales/"+locale+"/home.json",import.meta.url),"utf8"));
+    const settingsStrings=JSON.parse(readFileSync(new URL("../web-spa/src/i18n/locales/"+locale+"/settings.json",import.meta.url),"utf8"));
+    const teacherStrings=JSON.parse(readFileSync(new URL("../web-spa/src/i18n/locales/"+locale+"/teacher.json",import.meta.url),"utf8"));
+    const view=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+    await view.addInitScript(()=>{
+      localStorage.setItem("crew_teacher_lang","日文");
+      localStorage.setItem("crew_teacher_native_lang","繁體中文");
+      localStorage.setItem("crew_teacher_chatMode","practice");
+      localStorage.setItem("crew_teacher_speakingPace","slow");
+    });
+    const page=await view.newPage(),errors=[];
+    checkConsole(page,errors);
+    try{
+      const route="/"+locale+"/games/";
+      const response=await page.goto(origin+route,{waitUntil:"domcontentloaded",timeout:30000});
+      assert.equal(response?.status(),200,locale+" direct game deep link");
+      await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator(".crew-play-hero h1").textContent())?.trim(),homeStrings.playHub.heading,locale+" translated game title");
+      assert.equal(await page.locator("html").getAttribute("lang"),locale,locale+" document locale");
+      const geometry=await page.evaluate(()=>({
+        scroll:document.documentElement.scrollWidth,
+        client:document.documentElement.clientWidth,
+        learn:localStorage.getItem("crew_teacher_lang"),
+        native:localStorage.getItem("crew_teacher_native_lang"),
+        chat:localStorage.getItem("crew_teacher_chatMode"),
+        pace:localStorage.getItem("crew_teacher_speakingPace")
+      }));
+      assert.ok(geometry.scroll<=geometry.client+2,locale+" mobile overflow: "+JSON.stringify(geometry));
+      assert.deepEqual([geometry.learn,geometry.native,geometry.chat,geometry.pace],["日文","繁體中文","practice","slow"],locale+" UI language does not change learning preferences");
+      await page.reload({waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator(".crew-play-hero h1").textContent())?.trim(),homeStrings.playHub.heading,locale+" direct refresh retains translation");
+      await page.goto(origin+"/"+locale+"/settings/",{waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator("#settings-device h2").waitFor({state:"visible",timeout:15000});
+      assert.equal((await page.locator("#settings-device h2").textContent())?.trim(),settingsStrings.device.heading,locale+" Settings translation");
+      await page.locator(".crew-language-trigger").first().click();
+      assert.equal(await page.locator(".crew-language-dialog[open] .crew-language-option").count(),11,locale+" no preview languages in picker");
+      await page.locator(".crew-language-dialog[open] .crew-language-close").click();
+      assert.equal(await page.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文",locale+" Settings retains target language");
+      // Walk the remaining user-facing destinations with the same saved
+      // learning-language settings. No screenshots/artifacts are uploaded.
+      for(const destination of ["/","/chat/","/explore/","/learn/","/me/","/teacher/","/teacher/roles?mode=friends","/story/","/fortune/","/timeline/","/teacher/shorts/"]){
+        const url="/"+locale+destination;
+        const response=await page.goto(origin+url,{waitUntil:"domcontentloaded",timeout:30000});
+        assert.equal(response?.status(),200,locale+" opens "+destination);
+        await page.locator("main").first().waitFor({state:"visible",timeout:15000});
+        const snapshot=await page.evaluate(()=>({
+          lang:document.documentElement.lang,
+          viewport:document.documentElement.clientWidth,
+          document:document.documentElement.scrollWidth,
+          target:localStorage.getItem("crew_teacher_lang"),
+          native:localStorage.getItem("crew_teacher_native_lang"),
+          pace:localStorage.getItem("crew_teacher_speakingPace"),
+          mode:localStorage.getItem("crew_teacher_chatMode")
+        }));
+        assert.equal(snapshot.lang,locale,locale+" remains selected on "+destination);
+        if(destination==="/explore/"){
+          const heading=page.locator(".crew-section-explore h1");
+          await heading.waitFor({state:"visible",timeout:15000});
+          assert.equal((await heading.textContent())?.trim(),homeStrings.sectionExplore.title,locale+" Explore localized heading");
+          const tiles=page.locator(".crew-explore-grid .crew-explore-tile");
+          assert.equal(await tiles.count(),6,locale+" Explore offers all destinations");
+          for(const [position,kind] of ["fortune","timeline","games","story","research","circle"].entries()){
+            assert.equal((await tiles.nth(position).locator("strong").textContent())?.trim(),homeStrings.sectionExplore[kind].title,locale+" Explore translated "+kind);
+          }
+        }
+        if(["/chat/","/learn/","/me/"].includes(destination)){
+          const section=destination.slice(1,-1);
+          const strings=homeStrings.sectionHubs[section];
+          const root=page.locator(".crew-section-"+section);
+          await root.locator(".crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+          assert.equal((await root.locator(".crew-section-heading h1").textContent())?.trim(),strings.title,locale+" "+section+" heading");
+          assert.equal((await root.locator(".crew-section-heading p").textContent())?.trim(),strings.intro,locale+" "+section+" intro");
+          if(section==="me"){
+           assert.equal((await root.locator(".crew-section-hero-copy strong").textContent())?.trim(),strings.hero.title,locale+" me main card");
+           assert.equal((await root.locator(".crew-section-eyebrow").textContent())?.trim(),strings.hero.tag,locale+" me label");
+          }
+          if(section==="learn"){
+           assert.equal((await root.locator(".crew-section-focus-card h2").textContent())?.trim(),strings.firstTopic,locale+" new learner focus");
+           assert.equal((await root.locator(".crew-section-focus-card .kicker").textContent())?.trim(),strings.newLabel,locale+" first-run label");
+           assert.ok((await root.locator(".crew-section-focus-card .crew-action-primary").getAttribute("href")||"").includes("/teacher/roles?mode=teacher"),locale+" teacher CTA");
+          }
+          const keys=section==="chat"?["games","memory"]:section==="learn"?["center","scenarios","textbook","pronunciation","reports"]:["readings","stories","memory","settings","reports"];
+          const cards=root.locator(".crew-section-grid .crew-section-card");
+          assert.equal(await cards.count(),keys.length+(section==="me"?1:0),locale+" "+section+" card count");
+          for(const [position,key] of keys.entries()){
+           const isVocab=section==="learn"&&key==="center";
+           const expectedTitle=isVocab?teacherStrings.learn.vocab:strings.items[key].title;
+           const expectedDesc=isVocab?teacherStrings.learn.vocabDesc:strings.items[key].desc;
+           assert.equal((await cards.nth(position).locator("strong").textContent())?.trim(),expectedTitle,locale+" "+section+" "+key+" localized title");
+           assert.equal((await cards.nth(position).locator("small").textContent())?.trim(),expectedDesc,locale+" "+section+" "+key+" localized description");
+           if(isVocab)assert.ok((await cards.nth(position).getAttribute("href"))?.endsWith("/teacher/vocabulary"),locale+" direct vocabulary access");
+          }
+          if(section==="chat"){
+           assert.equal((await root.locator(".crew-section-people h2").textContent())?.trim(),strings.meetFriends,locale+" translated friend heading");
+           assert.equal(await root.locator(".crew-section-friend").count(),6,locale+" six real featured friends");
+           assert.equal((await root.locator(".crew-section-friend").first().locator("small").textContent())?.trim(),strings.friendTitles.zoe,locale+" localized first friend");
+           assert.equal((await root.locator(".crew-section-friend").first().locator(".crew-section-friend-bio").textContent())?.trim(),strings.friendBios.zoe,locale+" localized biography");
+           assert.equal(await root.locator(".crew-section-carousel-actions button").count(),2,locale+" manual controls");
+          }
+          if(section==="learn"){
+           assert.equal((await root.locator(".crew-today-learning-heading").textContent())?.trim(),homeStrings.todayLearning.heading,locale+" daily progress heading");
+           assert.ok((await root.locator(".crew-section-learning .crew-action-text").textContent()||"").includes(strings.threeMinuteTitle),locale+" secondary speaking action");
+          }
+          if(section==="me")assert.ok((await cards.last().getAttribute("href"))?.endsWith("/settings#settings-device"),locale+" device settings destination");
+          if(section==="me")assert.equal((await root.locator(".crew-section-footnote").textContent())?.trim(),strings.footnote,locale+" local data warning");
+          if(locale==="ja"){
+           await page.reload({waitUntil:"domcontentloaded",timeout:30000});
+           await page.locator(".crew-section-"+section+" .crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+           assert.equal((await page.locator(".crew-section-"+section+" .crew-section-heading h1").textContent())?.trim(),strings.title,"ja "+section+" refresh preserves Japanese");
+          }
+        }
+        assert.ok(snapshot.document<=snapshot.viewport+2,locale+" overflow on "+destination+": "+JSON.stringify(snapshot));
+        assert.deepEqual([snapshot.target,snapshot.native,snapshot.pace,snapshot.mode],["日文","繁體中文","slow","practice"],locale+" learning isolation on "+destination);
+        process.stdout.write("PASS Beta route "+locale+" "+destination+"\n");
+      }
+      assert.deepEqual(errors,[],locale+" browser/console errors");
+      process.stdout.write("PASS Beta i18n mobile deep link, refresh, settings and language isolation "+locale+"\n");
+    }finally{await view.close();}
+  }
+
+  // Fortune homepage and saved readings must remain accessible even when
+  // external astrology engines (or the optional AI core) cannot be fetched.
+  const offlineFortuneContext=await browser.newContext({viewport:{width:390,height:844}});
+  // A normal browser can contain old/invalid history records that do not
+  // exist in incognito mode; keep those from crashing React after hydration.
+  await offlineFortuneContext.addInitScript(()=>{
+   localStorage.setItem("crew_fortune_readings_v2",JSON.stringify([
+    null,{id:"saved-bazi",mode:"bazi",summary:"保留的命盤",createdAt:"2026-10-01T12:00:00.000Z"},
+    {id:"legacy-invalid",mode:"other",summary:{unexpected:true}}
+   ]));
+  });
+  const offlineFortune=await offlineFortuneContext.newPage(),unwantedRequests=[],fortuneErrors=[];
+  checkConsole(offlineFortune,fortuneErrors);
+  await offlineFortune.route("**/*",route=>{
+   const url=route.request().url();
+   if(/(?:cdn\.jsdelivr\.net\/npm\/(?:lunar-javascript|astronomy-engine)|\/features\/fortune\/|\/crew\.js(?:\?|$))/.test(url)){
+    unwantedRequests.push(url);
+    return route.abort();
+   }
+   return route.continue();
+  });
+  const fortuneResponse=await offlineFortune.goto(origin+"/fortune/",{waitUntil:"domcontentloaded"});
+  assert.equal(fortuneResponse?.status(),200);
+  await offlineFortune.locator(".fortune-home-mode").first().waitFor({state:"visible",timeout:15000});
+  await offlineFortune.waitForTimeout(600);
+  assert.equal(await offlineFortune.locator(".fortune-home-mode").count(),3,"Fortune modes remain visible offline");
+  assert.equal(await offlineFortune.locator(".fortune-history-row").count(),1,"Saved record should render despite legacy or malformed records");
+  assert.match(await offlineFortune.locator(".fortune-history-row").textContent()||"",/保留的命盤/);
+  assert.deepEqual(unwantedRequests,[],"Fortune homepage should not request external engines");
+  assert.deepEqual(fortuneErrors,[],"Fortune homepage must not crash without external engines");
+  await offlineFortuneContext.close();
+  process.stdout.write("PASS Fortune homepage works without remote astrology scripts\n");
+
   // Mira Timeline regression: every age selects its own approved full-body
   // photo, the photo response succeeds, and the feature image keeps the feet.
   const timelineErrors=[];
@@ -254,6 +612,7 @@ async function run(){
   // Crew Play module on a flaky connection or during a Pages deployment.
   // Recover with a single full-document refresh instead of leaving a blank app.
   const retryContext=await browser.newContext({viewport:{width:390,height:844}});
+  await retryContext.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   const retryPage=await retryContext.newPage();
   let gameChunkRequests=0;
   await retryPage.route(/\/assets\/CrewPlayHubPage-[^/]+\.js(?:\?.*)?$/,async route=>{
@@ -262,7 +621,8 @@ async function run(){
    else await route.continue();
   });
   await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
-  await retryPage.locator(".crew-home-action-play").click();
+  await retryPage.locator('.crew-portal-tabs [role="tab"]').nth(1).click();
+  await retryPage.locator(".crew-portal-cta").click();
   await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
   assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
   assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
@@ -331,6 +691,11 @@ async function run(){
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
+  // Secondary product directory is intentionally collapsed beneath the character-first KV.
+  const directory=home.locator(".crew-home-products");
+  await directory.locator("summary").waitFor({state:"visible",timeout:15000});
+  assert.equal(await directory.getAttribute("open"),null,"Product directory should be secondary by default");
+  await directory.locator("summary").click();
   const productCards=home.locator(".crew-home-product-grid .crew-home-product");
   await productCards.first().waitFor({state:"visible",timeout:15000});
   assert.equal(await productCards.count(),4,"Crew homepage should show Teacher, Story, Fortune and Play equally");
@@ -352,13 +717,41 @@ async function run(){
   assert.equal(await home.locator(".crew-play-game-card").count(),7,"Homepage Play entry must open all seven games");
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
   await home.setViewportSize({width:1280,height:800});
-  await home.locator('.global-nav a[href="/teacher"]').click();
-  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/teacher");
+  // Global navigation now groups user intent instead of showing product names.
+  const globalTabs=home.locator(".global-nav a.navitem");
+  assert.equal(await globalTabs.count(),5,"Crew primary navigation must have five tabs");
+  for(const target of ["/","/chat","/explore","/learn","/me"])
+   assert.equal(await home.locator('.global-nav a[href="'+target+'"]').count(),1,"Missing "+target);
+  await home.locator('.global-nav a[href="/learn"]').click();
+  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/learn");
   await home.locator("header.app-header").waitFor({state:"visible"});
-  // Client-side React navigation is asynchronous; wait for the routed screen,
-  // not only for the URL (the global header is already present on the home page).
-  await home.locator(".hero").waitFor({state:"visible",timeout:15000});
-  assert.ok(await home.locator(".hero h1").textContent(),"Navigation did not render Teacher");
+  await home.locator(".crew-section-heading h1").waitFor({state:"visible",timeout:15000});
+  assert.ok(await home.locator(".crew-section-heading h1").textContent(),"Navigation did not render Learn");
+  await home.locator('.global-nav a[href="/explore"]').click();
+  await home.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/explore");
+  await home.locator('a[href="/fortune"]').first().waitFor({state:"visible",timeout:15000});
+  assert.ok(await home.locator('a[href="/fortune"]').count(),"Fortune must remain accessible in Explore");
+  // All six illustrated destinations remain accessible; the featured tile spans two columns.
+  const exploreCards=home.locator(".crew-explore-grid .crew-explore-tile");
+  await exploreCards.first().waitFor({state:"visible",timeout:15000});
+  assert.equal(await exploreCards.count(),6,"Explore must expose exactly six peer cards");
+  for(const destination of ["/fortune","/timeline","/games","/story","/research","/circle"])
+   assert.equal(await home.locator('.crew-explore-grid a[href="'+destination+'"]').count(),1,"Explore missing "+destination);
+  assert.equal(await home.locator(".crew-section-explore .crew-section-hero").count(),0,"Explore should not promote one giant hero");
+  assert.equal(await home.locator(".crew-section-explore .crew-section-discover").count(),0,"No second 'more destinations' list");
+  for(const viewport of [{width:390,height:844,cols:2},{width:1280,height:800,cols:3}]){
+   await home.setViewportSize({width:viewport.width,height:viewport.height});
+   const rects=await exploreCards.evaluateAll(cards=>cards.map(card=>({
+    x:Math.round(card.getBoundingClientRect().x),
+    y:Math.round(card.getBoundingClientRect().y),
+    width:Math.round(card.getBoundingClientRect().width)
+   })));
+   assert.ok(rects[0].width>rects[1].width,"Featured Explore destination spans more columns");
+   assert.ok(viewport.cols===2?rects[1].y>rects[0].y:Math.abs(rects[1].y-rects[0].y)<=2,"Explore follows responsive featured-grid layout");
+   assert.ok(rects.every(r=>r.width>=140),"Explore cards must be tappable");
+   assert.ok(await home.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1),"Explore must not overflow");
+   }
+
   await home.close();
   process.stdout.write("PASS React client navigation\n");
   // BrowserRouter deep-link refresh uses root SPA fallback rather than SSG hydration.
@@ -408,14 +801,21 @@ async function run(){
    await mini.goto(origin+"/games/1a2b",{waitUntil:"domcontentloaded"});
    await mini.locator("#crew-number").waitFor({state:"visible",timeout:15000});
    assert.ok(await mini.getByText("無 Key 也能完整打字玩").count(),"1A2B must work without a key");
+   mini.on("dialog",dialog=>dialog.accept());
+   await mini.getByRole("button",{name:/遊戲設定/}).click();
    await mini.getByRole("button",{name:"3 位"}).click();
+   await mini.getByRole("button",{name:"Close / 關閉"}).click();
    await mini.locator("#crew-number").fill("123");
    await mini.locator(".crew-mini-input-row button[type=submit]").click();
+   await mini.locator(".crew-mini-number-history li").first().waitFor({state:"visible",timeout:5000});
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B offline A/B turn");
    await mini.getByRole("button",{name:"撤銷上一筆"}).click();
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),0,"1A2B undo turn");
+   await mini.getByRole("button",{name:/遊戲設定/}).click();
    await mini.getByRole("button",{name:"朋友猜我的數字"}).click();
+   await mini.getByRole("button",{name:"Close / 關閉"}).click();
    await mini.getByRole("button",{name:"回報結果"}).click();
+   await mini.locator(".crew-mini-number-history li").first().waitFor({state:"visible",timeout:5000});
    assert.equal(await mini.locator(".crew-mini-number-history li").count(),1,"1A2B reverse feedback");
    await mini.goto(origin+"/games/taboo",{waitUntil:"domcontentloaded"});
    await mini.getByRole("button",{name:/開始挑戰/}).waitFor({state:"visible",timeout:15000});
@@ -426,7 +826,7 @@ async function run(){
    await mini.locator("#crew-taboo-answer").fill("It is "+banned);
    await mini.locator(".crew-mini-word-form button[type=submit]").click();
    assert.ok((await mini.locator(".crew-taboo-scoreboard").textContent())?.includes("-5"),"Taboo violation deducts five points");
-   await mini.getByRole("button",{name:"朋友描述 · 我猜"}).click();
+   await mini.locator(".crew-taboo-switch-mode").click();
    await mini.getByRole("button",{name:/開始挑戰/}).click();
    assert.ok(await mini.locator(".crew-mini-clue").first().isVisible(),"Taboo reverse mode has offline English clue");
    await mini.locator("#crew-taboo-answer").fill("nottherightword");
@@ -879,6 +1279,7 @@ async function run(){
   await play.close();
   process.stdout.write("PASS Crew Play boards and puzzles\\n");
   await context.close();
+  if(process.env.CREW_VISUAL_QA==="1")await captureCrewVisualQA(browser);
  }finally{
   if(browser)await browser.close();
   vite.kill("SIGTERM");

@@ -5,29 +5,40 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const read=file=>readFileSync(path.join(root,file),"utf8");
 
-test("Teacher home puts photo Shorts after role choice, before intent and learning tools",()=>{
+test("Teacher home prioritizes photo Shorts before role choice and learning tools",()=>{
  const home=read("web-spa/src/teacher/PracticePage.tsx");
  const role=home.indexOf('className="section crew-role-gateway"');
  const shorts=home.indexOf("<HomeShortsPreview/>");
  const intents=home.indexOf('className="section crew-daily-intents"');
  const learning=home.indexOf('className="section crew-continue-section"');
- assert.ok(role>=0&&role<shorts&&shorts<intents&&intents<learning);
+ assert.ok(shorts>=0&&shorts<role&&role<intents&&intents<learning);
  assert.doesNotMatch(home,/CREW SHORTS · DEMO/);
 });
 
 test("Home preview uses network feed and preserves explicit friend chat navigation",()=>{
  const component=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(component,/fetchShortsFeed\(controller.signal\)/);
+ assert.match(component,/shuffleShortsPosts\(value.posts\)/);
+ assert.match(component,/setFeed\(\{\.\.\.value,posts:shuffleShortsPosts\(value.posts\)\}\)/);
+ assert.ok(component.indexOf("shuffleShortsPosts(value.posts)")<component.indexOf("const seen=new Set<string>()"),"shuffle before friend dedupe and slicing");
  assert.match(component,/controller\.abort\(\)/);
- assert.match(component,/\.slice\(0,10\)/);
+ assert.match(component,/maxPosts=6/);
+ assert.match(component,/\.slice\(0,maxPosts\)/);
+ assert.match(component,/excludeFriendIds\.includes\(post\.friendId\)/);
  assert.match(component,/seen\.has\(post\.friendId\)/);
  assert.match(component,/gesture\.current/);
+ assert.match(component,/ref=\{sliderRef\}/);
+ assert.match(component,/crew-home-short-photo-overlay/);
  assert.match(component,/atEnd:element\.scrollWidth-element\.clientWidth-element\.scrollLeft<=3/);
  assert.match(component,/pullRef\.current>=72/);
  assert.match(component,/navigate\("\/teacher\/shorts"\)/);
  assert.match(component,/IntersectionObserver/);
+ assert.match(component,/threshold:0.35/);
+ assert.match(component,/data-visible/);
+ assert.match(component,/prefers-reduced-motion: reduce/);
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
+ assert.match(component,/to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
  assert.match(component,/shortsChatUrl\(post,"details"\)/);
  assert.doesNotMatch(component,/crew-home-short-chat|\/friend\/live\?id=/);
  assert.match(component,/\/teacher\/shorts/);
@@ -51,4 +62,16 @@ test("Home Shorts mobile cards scroll horizontally without a large JS gallery",(
  for(const language of [en,zh])for(const key of ["shortsTitle","shortsIntro","shortsAll","shortsChat","shortsLoading","shortsUnavailable","shortsDisclosure","shortsDemo","shortsPullHint","shortsReleaseHint"]){
   assert.ok(language.practice[key],key+" missing");
  }
+});
+
+
+test("Opening a home photo previews the selected full post instead of dialing Live",()=>{
+ const preview=read("web-spa/src/teacher/HomeShortsPreview.tsx");
+ const feed=read("web-spa/src/teacher/ShortsPage.tsx");
+ const photo=preview.match(/<Link className="crew-home-short-photo"[\s\S]*?<\/Link>/)?.[0]||"";
+ assert.match(photo,/\/teacher\/shorts\?post=/);
+ assert.doesNotMatch(photo,/shortsChatUrl/);
+ assert.match(preview,/crew-home-short-question/);
+ assert.match(feed,/const focusPostId=searchParams\.get\("post"\)/);
+ assert.match(feed,/ordered\.unshift\(\.\.\.ordered\.splice\(at,1\)\)/);
 });

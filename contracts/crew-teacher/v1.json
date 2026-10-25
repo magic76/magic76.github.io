@@ -72,6 +72,33 @@
       "roleplayStaysInCharacter": true,
       "freeChatRulesDoNotOverrideLessons": true
     },
+    "shortsHomepage": {
+      "displayBeforeSecondaryFeatureCards": true,
+      "maximumPreviewCards": 10,
+      "onePreviewPerFriend": true,
+      "previewPhotoOpensFullPublishedPost": true,
+      "explicitChatActionUsesExistingFriendLive": true,
+      "farEdgeSwipesOfferFullFeed": true,
+      "noNewAudioStack": true
+    },
+    "fortuneSpeaking": {
+      "optInOnly": true,
+      "reuseExistingLiveStack": true,
+      "dailyTopicIsReflectionNotPrediction": true,
+      "readingSummaryIsUntrustedData": true,
+      "noFabricatedChartFacts": true,
+      "respectExistingLanguageAndMemoryPreferences": true,
+      "noExtraModelCallsForDailyTopic": true,
+      "singleTeacherFortuneEntry": true,
+      "reuseWebFortuneCalculator": true,
+      "readingReuseIsDeviceLocal": true,
+      "nativeVoiceReceivesOnlyOptedInSummary": true,
+      "embeddedWebViewHasNoJavascriptBridge": true,
+      "fortuneVoiceIsFriendLedExplanation": true,
+      "explainBeforeVisitorQuestions": true,
+      "naturalInterruptionsNoForcedQuizzes": true,
+      "computedReadingOnlyNoFabrication": true
+    },
     "release": {
       "androidPlayAabManual": true,
       "webDeployAfterMerge": true

@@ -268,67 +268,67 @@
  .crew-home-product-art{height:76px}
 }
 
-/* Interaction-first hub: keep the existing atmosphere and four product icons. */
-.crew-home-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
-.crew-home-action{position:relative;display:flex;align-items:center;gap:12px;min-width:0;min-height:76px;padding:15px 18px;background:#fff;border:1px solid #dadde7;border-radius:18px;color:var(--text);text-decoration:none;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
-.crew-home-action:hover{transform:translateY(-2px);border-color:#b7b5d8;box-shadow:0 8px 20px rgba(40,46,79,.07)}
-.crew-home-action:active{transform:scale(.985)}
-.crew-home-action-icon{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:13px;background:#f0edff;color:#6e5ab9}
-.crew-home-action-play .crew-home-action-icon{background:#e4f7f0;color:#257c6a}
-.crew-home-action-icon svg,.crew-home-game-pick-icon svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.5;fill:none}
-.crew-home-action>span:nth-child(2){display:grid;min-width:0;gap:3px}
-.crew-home-action strong{font-size:15px;line-height:1.3}
-.crew-home-action small{font-size:12px;color:var(--muted);line-height:1.4}
-.crew-home-action-arrow{margin-left:auto;color:var(--accent);font-size:16px}
+/* Simplified home layout and continuing activity styles. */
 .crew-home-layout{grid-template-columns:minmax(0,1fr);gap:28px;margin-top:22px}
 .crew-home-primary{display:grid;gap:23px}
 .crew-home-primary .crew-home-continue{margin-bottom:0}
 .crew-home-primary .crew-home-setup-free{margin:0}
 .crew-home-primary .crew-home-setup:not(.crew-home-setup-free){margin:0}
-.crew-home-game-pick{display:grid;grid-template-columns:54px minmax(0,1fr) auto;align-items:center;gap:15px;padding:16px 18px;border:1px solid #d9e8e2;border-radius:20px;background:linear-gradient(110deg,#f3faf6,#f7fbff)}
-.crew-home-game-pick-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;color:#298675;background:#dff4e9}
-.crew-home-game-pick-copy{min-width:0;display:grid;gap:4px}
-.crew-home-game-pick-copy strong{font-size:16px;line-height:1.3}
-.crew-home-game-pick-copy small{color:#60716c;font-size:12px;line-height:1.5}
-.crew-home-game-pick-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:44px;padding:10px 14px;border-radius:12px;background:#267d6c;color:#fff;text-decoration:none;font-weight:750;font-size:12px;white-space:nowrap}
-.crew-home-game-pick-cta:hover{background:#206c5d}
 .crew-home-recent-play .crew-home-recent-art{background:#e0f4eb;color:#288471}
 .crew-home-recent-friend .crew-home-recent-art{background:#f0edff;color:#6b55bc}
 .crew-home-briefing-card{min-height:0;max-width:980px}
 .crew-home-shorts{margin-top:0}
-.crew-home-action:focus-visible,.crew-home-game-pick-cta:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:620px){
- .crew-home-quick-actions{gap:9px;margin-top:12px}
- .crew-home-action{gap:8px;min-height:74px;padding:11px 10px;border-radius:15px}
- .crew-home-action-icon{width:33px;height:33px;border-radius:10px}
- .crew-home-action-icon svg{width:20px;height:20px}
- .crew-home-action strong{font-size:12px}
- .crew-home-action small{font-size:10px}
- .crew-home-action-arrow{display:none}
  .crew-home-layout{margin-top:15px;gap:20px}
  .crew-home-primary{gap:20px}
- .crew-home-game-pick{grid-template-columns:40px minmax(0,1fr);gap:10px;padding:12px}
- .crew-home-game-pick-icon{width:40px;height:40px;border-radius:12px}
- .crew-home-game-pick-icon svg{width:23px;height:23px}
- .crew-home-game-pick-copy strong{font-size:14px}
- .crew-home-game-pick-copy small{font-size:11px}
- .crew-home-game-pick-cta{grid-column:2;justify-self:start;min-height:38px;padding:9px 12px}
  .crew-home .crew-home-shorts-grid,.crew-home .crew-home-shorts-loading{grid-auto-columns:minmax(175px,58%)}
 }
-@media(prefers-reduced-motion:reduce){.crew-home-action{transition:none}}
 
-/* Story-first entry: a compact Mira teaser below Shorts, not a fifth competing product. */
-.crew-home-timeline-card{display:grid;grid-template-columns:96px minmax(0,1fr) 20px;align-items:center;gap:14px;min-height:108px;padding:15px 18px;border-radius:19px;border:1px solid #dcd5eb;background:linear-gradient(115deg,#f8f3ff,#f5f7ff);color:var(--text);text-decoration:none;transition:transform .2s ease,border-color .2s ease}
-.crew-home-timeline-card:hover{transform:translateY(-2px);border-color:#b6a4de}
-.crew-home-timeline-card:focus-visible{outline:3px solid #6d57ae;outline-offset:3px}
-.crew-home-timeline-faces{display:flex;align-items:center;min-width:0}
-.crew-home-timeline-faces img{width:43px;height:54px;object-fit:cover;object-position:center top;background:#ddd3ee;border:2px solid white;border-radius:13px;box-shadow:0 3px 8px #61547b22}
-.crew-home-timeline-faces img+img{margin-left:-15px}
-.crew-home-timeline-faces img:nth-child(2){transform:translateY(-5px);z-index:1}
-.crew-home-timeline-copy{display:grid;gap:4px;min-width:0}
-.crew-home-timeline-copy small{font-size:10px;letter-spacing:.15em;color:#7c66a7;font-weight:800}
-.crew-home-timeline-copy strong{font-size:16px;line-height:1.35}
-.crew-home-timeline-copy>span{font-size:12px;color:#786b8c;line-height:1.4}
-.crew-home-timeline-arrow{font-size:20px;color:#775cad}
-@media(max-width:620px){.crew-home-timeline-card{grid-template-columns:76px minmax(0,1fr) 15px;gap:10px;padding:12px;min-height:90px}.crew-home-timeline-faces img{width:34px;height:44px;border-radius:10px}.crew-home-timeline-faces img+img{margin-left:-13px}.crew-home-timeline-copy strong{font-size:14px}.crew-home-timeline-copy>span{font-size:11px}}
-@media(prefers-reduced-motion:reduce){.crew-home-timeline-card{transition:none}.crew-home-timeline-card:hover{transform:none}}
+
+/* A quiet secondary shelf beneath the interactive world; routes remain available. */
+.crew-home-products{border-top:1px solid var(--line);padding-top:4px}
+.crew-home-products>summary{cursor:pointer;list-style:none;min-height:var(--crew-tap-target);margin:0;color:var(--muted)}
+.crew-home-products>summary::-webkit-details-marker{display:none}
+.crew-home-products>summary h2{font-size:var(--crew-section-title);color:var(--text)}
+.crew-home-products[open]>summary{margin-bottom:12px}
+.crew-home-products[open]>summary>span{color:var(--accent)}
+.crew-home-briefing-card{min-height:0;background:var(--surface-alt);color:var(--text);border-color:var(--line);box-shadow:none}
+.crew-home-briefing-card:hover{box-shadow:var(--crew-elevation)}
+.crew-home-briefing-card>p,.crew-home-briefing-date{color:var(--muted)}
+.crew-home-briefing-emblem{border-color:var(--line);background:var(--accent-soft)}
+.crew-home-briefing-emblem svg{stroke:var(--accent)}
+.crew-home-briefing-tags span{border-color:var(--line);color:var(--muted)}
+.crew-home-card-cta{border-top-color:var(--line);color:var(--accent);min-height:44px}
+@media(hover:none),(pointer:coarse){
+ .crew-home-briefing-card:hover,.crew-home-product:hover,.crew-home-recent:hover{transform:none;box-shadow:none}
+}
+
+/* Android-only Orb shortcut sits above the hero instead of below the games. */
+.crew-home-orb-quick{display:flex;align-items:center;gap:11px;min-height:54px;margin:0 0 11px;padding:9px 13px;border:1px solid #d7caef;border-radius:16px;text-decoration:none;background:linear-gradient(110deg,#f4edff,#fff6f1);color:#433258;box-shadow:0 4px 17px #3827490a}
+.crew-home-orb-icon{width:36px;height:36px;flex:none;border-radius:50%;display:grid;place-items:center;background:#e5d8f6;color:#6a49ad;font-size:25px}
+.crew-home-orb-quick-copy{display:grid;gap:2px;min-width:0;flex:1}
+.crew-home-orb-quick-copy strong{font-size:14px;line-height:1.3}
+.crew-home-orb-quick-copy small{font-size:11px;line-height:1.45;color:#746681}
+.crew-home-orb-chevron{font-size:22px;color:#795cbb}
+.crew-home-orb-quick:focus-visible{outline:2px solid #795cbb;outline-offset:3px}
+
+
+/* Home only: the interactive KV reaches both viewport edges. The Shorts,
+   continue card, exploration and utility sections retain readable widths. */
+.shell.page:has(> .crew-home){
+ width:100%;max-width:none;padding:0 0 calc(34px + env(safe-area-inset-bottom));
+}
+.crew-home-content,.crew-home-world-inner{
+ width:min(1140px,calc(100% - 48px));margin-inline:auto;min-width:0;
+}
+.crew-home .crew-home-world{
+ border-inline:0;border-radius:0;box-shadow:none;
+}
+.crew-home-world-inner{padding-bottom:4px}
+@media(min-width:1050px){
+ .crew-home .crew-home-portal{height:clamp(540px,64vh,700px)}
+}
+@media(max-width:620px){
+ .crew-home-content{width:calc(100% - 20px)}
+ .crew-home-world-inner{width:100%}
+}

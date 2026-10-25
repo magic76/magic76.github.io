@@ -12,6 +12,6 @@ export function GeminiSetupNotice({force=false,returnTo,className=""}:{force?:bo
  const safeReturn=proposed.startsWith("/")&&!proposed.startsWith("//")&&!proposed.startsWith("/\\")&&!/^\/settings(?:[/?#]|$)/.test(proposed)?proposed:"/";
  return <div className={"crew-gemini-setup-notice "+className} role="note">
   <span className="crew-gemini-setup-copy"><strong>{force&&hasKey?t("gemini.setupInvalidTitle"):t("gemini.setupNoticeTitle")}</strong><small>{force&&hasKey?t("gemini.setupInvalidDesc"):t("gemini.setupNoticeDesc")}</small></span>
-  <Link className="btn secondary" to={"/settings?returnTo="+encodeURIComponent(safeReturn)}>{force&&hasKey?t("gemini.setupInvalidAction"):t("gemini.setupNoticeAction")}</Link>
+  <Link className="btn secondary" to={"/settings?returnTo="+encodeURIComponent(safeReturn)+"#settings-gemini"}>{force&&hasKey?t("gemini.setupInvalidAction"):t("gemini.setupNoticeAction")}</Link>
  </div>;
 }

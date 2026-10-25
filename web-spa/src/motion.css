@@ -22,7 +22,7 @@
 .global-nav .nav-indicator[data-inactive="true"]{opacity:0}
 .subnav a{transition:color 150ms ease,background-color 240ms ease,box-shadow 240ms ease}
 .teacher-picker-backdrop{animation:crew-overlay-in 180ms ease-out both}
-.teacher-picker{animation:crew-sheet-in 320ms var(--crew-motion-ease) both}
+.teacher-picker{animation:crew-sheet-in 260ms var(--crew-motion-ease) both}
 @keyframes crew-overlay-in{from{opacity:0}to{opacity:1}}
 @keyframes crew-sheet-in{from{opacity:.7;transform:translateY(16px) scale(.985)}to{opacity:1;transform:none}}
 
@@ -57,3 +57,55 @@
 
 /* On desktop the main navigation becomes a vertical rail. */
 @media(min-width:1100px){.global-nav .nav-indicator{display:none}.global-nav .navitem.active{background:var(--accent-soft);border-radius:14px}}
+
+/* A session's actual state drives visual presence; no generated audio amplitude. */
+.teacher-presence-shell[data-state="waiting"]::after{opacity:.25;animation:crew-listening-ring 2.2s ease-in-out infinite alternate}
+.teacher-presence-shell[data-state="error"]::after,.teacher-presence-shell[data-state="idle"]::after{animation:none;opacity:0}
+.teacher-presence-shell>.teacher-live-avatar.teacher-presence.speaking{animation:none}
+.friend-live-avatar{position:relative;isolation:isolate}
+.friend-live-avatar::after{content:"";position:absolute;inset:-9px;border-radius:50%;border:2px solid var(--accent);opacity:0;pointer-events:none;z-index:-1}
+.friend-live-avatar[data-state="connecting"]::after{opacity:.35;border-style:dashed;animation:crew-connecting-ring 1.9s linear infinite}
+.friend-live-avatar[data-state="listening"]::after{animation:crew-listening-ring 1.8s ease-in-out infinite alternate}
+.friend-live-avatar[data-state="speaking"]::after{animation:crew-speaking-ring 1.35s ease-out infinite}
+.friend-live-avatar[data-state="waiting"]::after{animation:crew-listening-ring 2.2s ease-in-out infinite alternate}
+.friend-live-avatar[data-state="error"]::after,.friend-live-avatar[data-state="idle"]::after{opacity:0;animation:none}
+@media(prefers-reduced-motion:reduce){
+ .teacher-presence-shell::after,.friend-live-avatar::after{animation:none!important;transform:none!important}
+ .teacher-presence-shell[data-state="listening"]::after,.friend-live-avatar[data-state="listening"]::after{opacity:.3!important}
+ .teacher-presence-shell[data-state="speaking"]::after,.friend-live-avatar[data-state="speaking"]::after{opacity:.65!important}
+ .teacher-presence-shell[data-state="connecting"]::after,.friend-live-avatar[data-state="connecting"]::after{opacity:.4!important}
+ .teacher-presence-shell[data-state="waiting"]::after,.friend-live-avatar[data-state="waiting"]::after{opacity:.2!important}
+}
+
+/* Motion 2.0: factual Live state drives a restrained background glow.
+   This is NOT a simulated amplitude meter; the existing rings remain the state cue. */
+.teacher-presence-shell::before,.friend-live-avatar::before{
+ content:"";position:absolute;inset:-14px;z-index:-1;border-radius:50%;pointer-events:none;
+ background:radial-gradient(circle,transparent 57%,var(--accent-soft,#ebe3f7) 85%,transparent 100%);
+ opacity:0;transform:scale(.96);
+ transition:opacity 200ms ease,transform 280ms var(--crew-motion-ease);
+}
+.teacher-presence-shell[data-state="speaking"]::before,.friend-live-avatar[data-state="speaking"]::before{
+ opacity:.85;transform:scale(1.065);
+}
+.teacher-presence-shell[data-state="listening"]::before,.friend-live-avatar[data-state="listening"]::before{
+ opacity:.45;transform:scale(1);
+}
+.teacher-presence-shell[data-state="connecting"]::before,.friend-live-avatar[data-state="connecting"]::before{
+ opacity:.24;
+}
+.live-stage .live-transcript .live-line.show{animation:crew-live-transcript-in 170ms ease-out both}
+@keyframes crew-live-transcript-in{
+ from{opacity:.55;transform:translateY(3px)}
+ to{opacity:1;transform:translateY(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ .teacher-presence-shell::before,.friend-live-avatar::before{transition:none!important;transform:none!important}
+ .live-stage .live-transcript .live-line.show{animation:none!important}
+}
+
+/* Match header feedback to the same measured state as the avatar. */
+.app-header .status[data-state="error"]{color:#a34b47}
+.app-header .status[data-state="error"] .status-dot{background:#c86b62;box-shadow:0 0 0 3px #f6e4df}
+.app-header .status[data-state="waiting"] .status-dot{background:#ab895b;box-shadow:0 0 0 3px #f8f0df}
+.app-header .status[data-state="connecting"] .status-dot{background:#8d89a5;box-shadow:0 0 0 3px #eae8f2}

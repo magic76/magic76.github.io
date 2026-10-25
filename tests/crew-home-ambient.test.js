@@ -3,69 +3,18 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const read=name=>fs.readFileSync(path.resolve(__dirname,"..",name),"utf8");
 
-test("Crew Hub keeps decorative canvas separate from readable, clickable content",()=>{
- const page=read("web-spa/src/pages/HomePage.tsx");
- const ambience=read("web-spa/src/pages/HomeAtmosphere.tsx");
- assert.match(page,/import \{HomeAtmosphere,type HomeProduct\} from "\.\/HomeAtmosphere"/);
- assert.match(page,/<HomeAtmosphere activeProduct=\{activeProduct\}\/>/);
- assert.match(page,/crew-home-intro-copy/);
- assert.match(ambience,/aria-hidden="true"/);
- assert.match(ambience,/<canvas ref=\{canvasRef\}/);
- assert.match(ambience,/pointermove/);
- for(const kind of ["teacher","story","fortune"]){
-  assert.match(page,new RegExp('crew-home-product crew-home-'+kind));
-  assert.match(page,new RegExp('setActiveProduct\\("'+kind+'"\\)'));
- }
- assert.match(page,/onPointerLeave=\{\(\)=>setActiveProduct\(null\)\}/);
- assert.match(page,/onFocus=\{\(\)=>setActiveProduct/);
-});
-
-test("network rendering is bounded, throttled, visibility-aware, and cleanly disposed",()=>{
- const ambience=read("web-spa/src/pages/HomeAtmosphere.tsx");
- assert.match(ambience,/createParticles\(mobile\?22:52\)/);
- assert.match(ambience,/mobile\?1000\/18:1000\/30/);
- assert.match(ambience,/requestAnimationFrame/);
- assert.match(ambience,/Math\.min\(window\.devicePixelRatio\|\|1,2\)/);
- assert.match(ambience,/IntersectionObserver/);
- assert.match(ambience,/visibilitychange/);
- assert.match(ambience,/saveData/);
- assert.match(ambience,/cancelAnimationFrame/);
- assert.match(ambience,/observer\?\.disconnect\(\)/);
- assert.match(ambience,/intersection\?\.disconnect\(\)/);
- assert.doesNotMatch(ambience,/setInterval\(/);
-});
-
-test("aurora and core stay behind the text, cannot catch taps, and honor reduced motion",()=>{
- const css=read("web-spa/src/pages/home.css");
- const ambience=read("web-spa/src/pages/HomeAtmosphere.tsx");
- assert.match(css,/\.crew-home-atmosphere\{[\s\S]*?pointer-events:none/);
- assert.match(css,/\.crew-home-intro-copy\{[^}]*z-index:2/);
- assert.match(css,/\.crew-home-network\{/);
- assert.match(css,/\.crew-home-aurora\.first\{/);
+test("Particle field is decorative while the invitation remains semantic HTML",()=>{
+ const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const field=read("web-spa/src/pages/PortalParticleField.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(portal,/<h1>/);
+ assert.match(portal,/<Link className="crew-portal-cta" to=\{current.to\}/);
+ assert.match(portal,/role="tabpanel"/);
+ assert.match(portal,/role="tablist"/);
+ assert.match(field,/aria-hidden="true"/);
+ assert.match(field,/<svg className="crew-portal-fallback"/);
+ assert.match(css,/\.crew-portal-field\{[^}]*pointer-events:none/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(css,/\.crew-home-aurora,\.crew-home-atmosphere-ring,\.crew-home-atmosphere-core::before\{animation:none!important\}/);
- assert.match(ambience,/prefers-reduced-motion: reduce/);
- assert.match(ambience,/if\(!animated\(\)\)/);
-});
-
-
-test("product hover morphs the same particle network into the corresponding card icon",()=>{
- const home=read("web-spa/src/pages/HomePage.tsx");
- const ambience=read("web-spa/src/pages/HomeAtmosphere.tsx");
- const css=read("web-spa/src/pages/home.css");
- for(const kind of ["teacher","story","fortune"]){
-  assert.ok(ambience.includes(kind+":["));
-  assert.ok(home.includes('onPointerEnter={()=>setActiveProduct("'+kind+'")}'));
-  assert.ok(home.includes('onFocus={()=>setActiveProduct("'+kind+'")}'));
- }
- assert.ok(ambience.includes("GLYPH_STROKES"));
- assert.ok(ambience.includes("sampleGlyph(active,particles.length)"));
- assert.ok(ambience.includes("fromNodes=(renderedNodes.length===idleNodes.length"));
- assert.ok(ambience.includes("const duration=active?420:620"));
- assert.ok(ambience.includes("smoothstep(progress)"));
- assert.ok(ambience.includes("const progress=reduced?1:"));
- assert.ok(ambience.includes("refreshRef.current=()=>{draw(performance.now());schedule()}"));
- assert.ok(css.includes('.crew-home-atmosphere:not([data-product="idle"]) .crew-home-atmosphere-core'));
 });
 
 test("Google Play area starts expanded but stays collapsible",()=>{
@@ -78,3 +27,4 @@ test("Google Play area starts expanded but stays collapsible",()=>{
   assert.match(page,new RegExp('<PlayStoreLink product="'+kind+'"'));
  }
 });
+

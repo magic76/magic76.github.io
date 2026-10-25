@@ -5,22 +5,46 @@ type ScoredHighlight=YearHighlight&{score:number};
 
 function currentYear(){return new Date().getFullYear()}
 function top(items:ScoredHighlight[],count=4){return items.sort((a,b)=>b.score-a.score||a.year-b.year).slice(0,count)}
+
+const BA_ZI_FOCUS:Record<string,{group:string;name:string}>={
+ "正財":{group:"wealth",name:"穩定資源與財務"},"偏財":{group:"wealth",name:"機會與資源運用"},
+ "正官":{group:"career",name:"工作責任與制度"},"七殺":{group:"career",name:"壓力與重要決策"},
+ "正印":{group:"learning",name:"學習與支持"},"偏印":{group:"learning",name:"研究與新思路"},
+ "食神":{group:"output",name:"穩定產出與創作"},"傷官":{group:"output",name:"表達與突破"},
+ "比肩":{group:"peers",name:"自主與同儕"},"劫財":{group:"peers",name:"合作競爭與分配"}
+};
+function chooseDistinctYears(items:Array<ScoredHighlight&{group:string}>,count:number):YearHighlight[]{
+ const remaining=[...items],selected:Array<ScoredHighlight&{group:string}>=[];
+ while(remaining.length&&selected.length<count){
+  remaining.sort((a,b)=>{
+   const effective=(x:ScoredHighlight&{group:string})=>x.score-selected.filter(y=>y.group===x.group).length*7;
+   return effective(b)-effective(a)||b.score-a.score||a.year-b.year;
+  });
+  selected.push(remaining.shift()!);
+ }
+ return selected.map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
+}
+
 export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]{
  const now=currentYear();
  if(mode==="bazi"){
   const wealth=new Set((result.wealthProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
   const career=new Set((result.careerProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
   const relation=new Set((result.relationshipProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
-  const candidates:ScoredHighlight[]=(result.annualTimeline||[]).filter((x:any)=>Number(x.year)>=now).map((x:any)=>{
-   const y=Number(x.year),tags:string[]=[];let score=0;
-   if(wealth.has(y)){score+=3;tags.push("財務")}
-   if(career.has(y)){score+=3;tags.push("工作")}
-   if(relation.has(y)){score+=3;tags.push("感情")}
-   if((x.natalInteractions||[]).length){score+=2;tags.push("合沖")}
-   if(y===now)score+=1;
-   return{year:y,score,label:tags.length?tags.join(" · "):(x.themes||[]).join(" · ")||"流年",summary:x.plainSummary||"",evidence:[x.ganZhi,x.stemTenGod,x.luckPillar&&"大運 "+x.luckPillar].filter(Boolean).join(" · ")};
+  const candidates:Array<ScoredHighlight&{group:string}>=(result.annualTimeline||[]).filter((x:any)=>Number(x.year)>=now).map((x:any)=>{
+   const year=Number(x.year),god=String(x.stemTenGod||""),focus=BA_ZI_FOCUS[god];
+   const interactions=(Array.isArray(x.natalInteractions)?x.natalInteractions:[]).map(String).filter((v:string)=>!v.includes("未偵測"));
+   const group=focus?.group||(interactions.length?"interactions":"year");
+   const topic=focus?.name||(interactions.length?"命局互動與變化":String((x.themes||[])[0]||"流年節奏"));
+   const score=(wealth.has(year)?3:0)+(career.has(year)?3:0)+(relation.has(year)?3:0)+Math.min(4,interactions.length*2)+(year===now?2:0)+(year<=now+3?1:0);
+   const basis=focus&&x.stemTenGodMeaning?god+"（"+x.stemTenGodMeaning+"）":god||topic;
+   const summary="以「"+basis+"」為主要觀察方向"+
+    (interactions.length?"；與本命可核對「"+interactions[0]+"」":"")+
+    (x.luckPillar?"，並放在「"+x.luckPillar+"」大運背景下理解":"")+"。";
+   const evidence=[x.ganZhi,god&&"流年十神 "+god,x.luckPillar&&"大運 "+x.luckPillar,...interactions.slice(0,2)].filter(Boolean).join(" · ");
+   return{year,group,score,label:god?god+" · "+topic:topic,summary,evidence};
   });
-  return top(candidates).map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
+  return chooseDistinctYears(candidates,4);
  }
  if(mode==="tarot"){
   const priority=(n:number)=>[1,5,8,9].includes(n)?5:[6,7].includes(n)?4:3;

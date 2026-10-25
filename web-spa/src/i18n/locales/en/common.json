@@ -2,14 +2,27 @@
   "language": {
     "label": "Interface language",
     "zh": "繁體中文",
-    "en": "English"
+    "en": "English",
+    "select": "Choose interface language",
+    "description": "Changes Crew's interface only, not the language you learn or speak.",
+    "beta": "Beta",
+    "preview": "Preview",
+    "previewHint": "Some content will appear in English",
+    "close": "Close",
+    "loading": "Loading language…",
+    "loadError": "This language could not be loaded. English is shown instead. Please refresh or try again."
   },
   "nav": {
     "home": "Home",
     "teacher": "Teacher",
     "story": "Story",
     "fortune": "Fortune",
-    "settings": "Settings"
+    "settings": "Settings",
+    "label": "Primary navigation",
+    "chat": "Chat",
+    "explore": "Explore",
+    "learn": "Learn",
+    "me": "My Crew"
   },
   "brand": {
     "home": "Language · Stories · Fortune",
@@ -34,5 +47,6 @@
     "fortune": "Crew Fortune — Explore Your Chart",
     "settings": "Crew — Settings",
     "briefing": "Crew Briefing — Daily AI Research"
-  }
+  },
+  "loading": "Loading…"
 }

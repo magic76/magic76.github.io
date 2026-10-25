@@ -12,7 +12,11 @@ test("Crew Teacher home shows the selected people while preserving neutral globa
  assert.match(home,/FriendAvatar/);
  assert.match(home,/crew_web_selected_friend_v1/);
  assert.doesNotMatch(home,/今天想學點什麼/);
- assert.ok(layout.includes('"/teacher/roles",t("tabs.roles")'));
+ assert.ok(!layout.includes("<ProductTabs"),"Teacher uses only Crew's global navigation");
+ const chrome=read("web-spa/src/components/AppChrome.tsx");
+ const learn=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.ok(chrome.includes("GlobalNav"),"Crew keeps its main navigation");
+ assert.ok(learn.includes('to:"/teacher/roles?mode=teacher"'),"teacher picker stays directly reachable");
  assert.ok(!layout.includes('"/teacher/friends","朋友"'));
  assert.ok(roles.includes('t("practice.teacher")')&&roles.includes('t("practice.friend")'));
  assert.ok(roles.includes("crew_teacher_last_role_v1"));
@@ -38,6 +42,6 @@ test("default-on memory remains in settings and links work with HashRouter",()=>
  const my=read("web-spa/src/teacher/MyPage.tsx");
  assert.match(personal,/getItem\(CONSENT\)!=="0"/);
  assert.match(friend,/getItem\(CONSENT\)!=="0"/);
- assert.match(settings,/hash\.endsWith\("#memory-settings"\)/);
+ assert.match(settings,/\["#settings-learning".*"#memory-settings"/);
  assert.match(my,/to="\/settings#memory-settings"/);
 });

@@ -29,9 +29,10 @@ test("tutor visuals reflect actual session and preview states",()=>{
 test("real quiz feedback, word changes, and lesson track keys power transitions",()=>{
  const quiz=read("web-spa/src/teacher/VocabularyPage.tsx");
  const course=read("web-spa/src/teacher/CoursePage.tsx");
- assert.match(quiz,/data-feedback=\{locked\?/);
+ assert.match(quiz,/data-feedback=\{revealed\?/);
  assert.match(quiz,/key=\{word\[0\]\}/);
- assert.match(course,/className="section course-map" key=\{track\.id\}/);
+ assert.match(course,/className="crew-course-map"/);
+ assert.match(course,/<details className="crew-course-unit"/);
 });
 test("story touch gestures use horizontal threshold and preserve narrator advancement",()=>{
  const story=read("web-spa/src/story/player/StoryPlayerView.tsx");

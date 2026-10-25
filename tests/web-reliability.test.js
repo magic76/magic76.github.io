@@ -36,8 +36,11 @@ test("Story and Fortune show recovery actions for failure states",()=>{
  assert.ok(read("fortune/ReadingPage.tsx").includes('t("reading.aiRetry")'));
  assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).reading.aiRetry,"重試 AI 解讀");
  assert.ok(read("fortune/ReadingPage.tsx").includes('aiStatus==="loading"'));
- assert.ok(read("fortune/HomePage.tsx").includes('t("home.retry")'));
- assert.equal(JSON.parse(read("i18n/locales/zh-TW/fortune.json")).home.retry,"重新載入");
+ // Fortune landing is now entirely local; remote engine failures must not
+ // block the page or require an extra retry before showing saved reports.
+ assert.ok(read("fortune/HomePage.tsx").includes("readFortuneHistoryPreviews"));
+ assert.ok(read("fortune/HistoryPage.tsx").includes("readFortuneHistoryPreviews"));
+ assert.ok(!read("fortune/HomePage.tsx").includes("ensureFortuneServices"));
 });
 
 test("Backup omits keys and restores only nonexisting records",()=>{
@@ -52,12 +55,14 @@ test("Backup omits keys and restores only nonexisting records",()=>{
  assert.equal(zh.backup.import,"匯入備份");
 });
 
-test("global navigation always exposes all five tabs including Settings",()=>{
+test("global navigation exposes all five intent tabs and keeps Settings reachable",()=>{
  const app=read("App.tsx"),chrome=read("components/AppChrome.tsx"),styles=read("styles.css"),motion=read("motion.css");
+ const hub=read("pages/CrewSectionPage.tsx");
  assert.ok(app.includes('path="/settings"'));
- assert.ok(chrome.includes('["home","teacher","story","fortune","settings"]'));
- for(const route of ['to="/"','to="/teacher"','to="/story"','to="/fortune"','to="/settings"'])assert.ok(chrome.includes(route),"missing global link "+route);
- assert.ok(chrome.includes('active==="settings"'));
+ for(const id of ["home","chat","explore","learn","me"])assert.ok(chrome.includes('id:"'+id+'"'),"missing tab "+id);
+ for(const route of ['to:"/"','to:"/chat"','to:"/explore"','to:"/learn"','to:"/me"'])assert.ok(chrome.includes(route),"missing "+route);
+ assert.ok(chrome.includes("active===item.id"));
+ assert.ok(hub.includes('to:"/settings"'),"Settings must remain reachable from My Crew");
  assert.ok(styles.includes("grid-template-columns:repeat(5,minmax(0,1fr))"));
  assert.ok(motion.includes("width:20%"),"sliding indicator should match five tabs");
 });

@@ -1,17 +1,22 @@
 import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
-import {fetchShortsFeed,type ShortFeed} from "./shortsFeed";
+import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
 import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview(){
+export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:number;excludeFriendIds?:string[]}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
  const [pullDistance,setPullDistance]=useState(0);
+ const [canPrev,setCanPrev]=useState(false);
+ const [canNext,setCanNext]=useState(true);
+ const sliderRef=useRef<HTMLDivElement|null>(null);
+ const syncArrows=()=>{const el=sliderRef.current;if(!el)return;setCanPrev(el.scrollLeft>2);setCanNext(el.scrollLeft+el.clientWidth<el.scrollWidth-2)};
+ const moveArrows=(direction:number)=>{const el=sliderRef.current;if(!el)return;const item=el.querySelector<HTMLElement>(".crew-home-short-card");el.scrollBy({left:(item?.getBoundingClientRect().width||190)*direction+14*direction,behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth"})};
  const gesture=useRef<{x:number;y:number;atEnd:boolean}|null>(null);
  const pullRef=useRef(0);
  const handleTouchStart=(event:TouchEvent<HTMLDivElement>)=>{
@@ -43,17 +48,35 @@ export function HomeShortsPreview(){
  useEffect(()=>{
   const controller=new AbortController();
   fetchShortsFeed(controller.signal)
-   .then(value=>{if(!controller.signal.aborted){setFeed(value);setStatus("ready");}})
+   .then(value=>{if(!controller.signal.aborted){
+    // Shuffle once per mount before choosing distinct friends; never reorder mid-scroll.
+    setFeed({...value,posts:shuffleShortsPosts(value.posts)});setStatus("ready");
+   }})
    .catch(()=>{if(!controller.signal.aborted)setStatus("error");});
   return()=>controller.abort();
  },[]);
  // Show up to ten distinct friends; the full Shorts page owns the complete feed.
  const seen=new Set<string>();
  const posts=feed?.posts.filter(post=>{
-  if(seen.has(post.friendId))return false;
+  if(seen.has(post.friendId)||excludeFriendIds.includes(post.friendId))return false;
   seen.add(post.friendId);return true;
- }).slice(0,10)||[];
+ }).slice(0,maxPosts)||[];
  const followUps=shortsStoryFollowUps(feed?.posts||[]);
+ const visiblePostIds=posts.map(post=>post.id).join("|");
+ useEffect(()=>{
+  const slider=sliderRef.current;
+  if(status!=="ready"||!slider||typeof IntersectionObserver==="undefined"
+   ||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const cards=Array.from(slider.querySelectorAll<HTMLElement>(".crew-home-short-card"));
+  const observer=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+    entry.target.toggleAttribute("data-visible",entry.isIntersecting);
+   }
+  },{root:slider,threshold:0.35});
+  cards.forEach(card=>observer.observe(card));
+  slider.dataset.motionReady="true";
+  return()=>{observer.disconnect();delete slider.dataset.motionReady};
+ },[status,visiblePostIds]);
  useEffect(()=>{
   if(status!=="ready"||!posts.length||impressionSent.current||!sectionRef.current)return;
   const mark=()=>{if(!impressionSent.current){impressionSent.current=true;trackUsageEvent("shorts_view","shorts_home");}};
@@ -69,10 +92,14 @@ export function HomeShortsPreview(){
    <div><span className="kicker">CREW SHORTS</span>
     <h2 id="crew-home-shorts-title">{t("practice.shortsTitle")}</h2>
     <p>{t("practice.shortsIntro")}</p></div>
+   <div className="crew-home-shorts-controls">
+    <button type="button" disabled={!canPrev||status!=="ready"} onClick={()=>moveArrows(-1)} aria-label={en?"Previous Shorts":"上一則動態"}>←</button>
+    <button type="button" disabled={!canNext||status!=="ready"} onClick={()=>moveArrows(1)} aria-label={en?"Next Shorts":"下一則動態"}>→</button>
+   </div>
    <Link to="/teacher/shorts" className="crew-home-shorts-all">{t("practice.shortsAll")} <span aria-hidden="true">→</span></Link>
   </div>
   {status==="loading"&&<div className="crew-home-shorts-loading" role="status" aria-label={t("practice.shortsLoading")}>
-   {[0,1,2,3,4].map(i=><div className="crew-home-short-placeholder" key={i} aria-hidden="true"><div/><span/><span/></div>)}
+   {Array.from({length:maxPosts},(_,i)=>i).map(i=><div className="crew-home-short-placeholder" key={i} aria-hidden="true"><div/><span/><span/></div>)}
   </div>}
   {status==="error"&&<Link className="crew-home-shorts-unavailable" to="/teacher/shorts">{t("practice.shortsUnavailable")} →</Link>}
   {status==="ready"&&posts.length>0&&<>
@@ -83,13 +110,13 @@ export function HomeShortsPreview(){
      {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} →
     </Link>
    </div>:null}
-   <div className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
+   <div ref={sliderRef} onScroll={syncArrows} className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
     {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
-     <Link className="crew-home-short-photo" to={shortsChatUrl(post,"details")}
-      aria-label={en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"}
-      onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home")}}>
+     <Link className="crew-home-short-photo" to={"/teacher/shorts?post="+encodeURIComponent(post.id)}
+      aria-label={en?"Read "+post.friendName+"\u0027s full story":"查看 "+post.friendName+" 的完整動態"}
+      >
       <img src={post.image} alt={post.imageAlt} loading="lazy" decoding="async"
        onError={event=>{
         const image=event.currentTarget;
@@ -97,6 +124,7 @@ export function HomeShortsPreview(){
         image.dataset.fallback="1";
         image.src="/assets/friends/crew_friend_"+post.friendId+".webp";
        }}/>
+      <span className="crew-home-short-photo-overlay" aria-hidden="true">{post.friendName}</span>
      </Link>
      <div className="crew-home-short-content">
       <strong>{post.friendName}</strong>

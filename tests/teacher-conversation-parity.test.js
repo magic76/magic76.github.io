@@ -56,9 +56,11 @@ test("roleplay cannot fall back into tutoring or grammar corrections",()=>{
 test("web selectors mirror Android teaching modes, and bilingual is the default",()=>{
  const store=read("web-spa/src/store/teacherStore.ts");
  const live=read("web-spa/src/teacher/LivePage.tsx");
+ const liveTools=read("web-spa/src/teacher/TeacherLiveTools.tsx");
  const tutor=read("web-spa/src/teacher/TutorPage.tsx");
  assert.match(store,/read\("teachingMode","bilingual"\)/);
- for(const view of [live,tutor]){
+ assert.ok(live.includes("<TeacherLiveTools "),"Teacher Live must mount the session config");
+ for(const view of [live+liveTools,tutor]){
   assert.match(view,/s\.teachingMode/);
   for(const option of ['value="beginner"','value="bilingual"','value="immersion"'])
    assert.ok(view.includes(option),option+" missing");

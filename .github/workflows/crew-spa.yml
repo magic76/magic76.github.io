@@ -7,8 +7,20 @@ on:
     # A generated crew-app-only commit needs no second CI build.
     paths-ignore:
       - "crew-app/**"
+      - "docs/**"
+      - "**/AGENTS.md"
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
+    paths-ignore:
+      - 'crew-app/**'
+      - 'docs/**'
+      - '**/*.md'
+
+# Cancel checks for old PR heads, but never interrupt master publishing.
+concurrency:
+  # All master pushes share one lane; each PR retains its own independently cancellable lane.
+  group: crew-spa-${{ github.event_name == 'push' && 'master' || github.event.pull_request.number }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
@@ -16,13 +28,16 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event_name == 'push' && github.ref_name || github.event.pull_request.head.sha }}
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
+          cache: npm
       - name: Verify Web contract matches Android source of truth
         run: node scripts/verify-teacher-contract.cjs --upstream
         env:
@@ -32,26 +47,82 @@ jobs:
         env:
           CREW_CONTRACT_READ_TOKEN: ${{ secrets.CREW_CONTRACT_READ_TOKEN }}
       - run: npm ci
-      - run: npm run check:web
+      - name: Typecheck PR
+        if: github.event_name == 'pull_request'
+        run: npm run check:web
+      # The default PR lane is intentionally light. Only test-regression repair
+      # branches run the full suite before the PR is merged.
+      - name: Full regressions (test repair PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
+        run: npm test
+      - name: Validate first-party usage analytics contract
+        run: node --test tests/crew-usage.test.js
+      - name: Validate Crew Magic world and Live tools (Magic PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
+        run: node --test tests/magic-world.test.js tests/magic-live-composition.test.js tests/magic-navigation.test.js
+      - name: Validate UI translations (offline)
+        run: npm run check:i18n
+      - name: Review newly added UI literals (PR only)
+        if: github.event_name == 'pull_request'
+        run: |
+          git fetch --no-tags --depth=1 origin ${{ github.event.pull_request.base.sha }}
+          node scripts/check-ui-locales.mjs --changed-ui
+        env:
+          UI_I18N_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: npm run build:web
       - run: npm run check:bundle
-      - run: npm test
+      # Keep PR checks fast. The complete test suite runs daily or on demand
+      # via .github/workflows/crew-spa-full-tests.yml.
+      - name: Real browser snapshot of AI 3D assembly (creator PR only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        run: |
+          npm run build:cloudflare
+          node scripts/smoke-magic-creator-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'ai-world-creator')
+        with:
+          name: magic-creator-browser-screenshots
+          path: artifacts/magic-creator-*
+          if-no-files-found: ignore
+      - name: Browser-render Crew Town 3D (town PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
+        run: |
+          node --test tests/crew-town-3d.test.js tests/crew-town-navigation.test.js
+          npm run build:cloudflare
+          node scripts/smoke-town-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'town')
+        with:
+          name: town-browser-smoke
+          path: artifacts/town-browser.*
+          if-no-files-found: ignore
       - name: Commit Crew Pages build
         if: github.event_name == 'push' && github.ref_name == 'master'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Generated hashed assets cannot be safely rebased across distinct builds.
+          # A newer master push has its own queued run, so skip stale output.
+          git fetch origin master
+          source_head="$(git rev-parse HEAD)"
+          if [ "$source_head" != "$(git rev-parse origin/master)" ]; then
+            echo "Skipping superseded build: master moved while tests ran"
+            exit 0
+          fi
           git add -A crew-app package-lock.json
           if git diff --cached --quiet; then
             echo "Crew build already current"
           else
             git commit -m "build: update Crew SPA"
-            git pull --rebase origin master
-            git push origin HEAD:master
+            if ! git push origin HEAD:master; then
+              git fetch origin master
+              if git merge-base --is-ancestor "$source_head" origin/master &&
+                 [ "$source_head" != "$(git rev-parse origin/master)" ]; then
+                echo "Master moved while publishing; latest master run will rebuild"
+              else
+                echo "::error::Publish failed without a superseding master commit"
+                exit 1
+              fi
+            fi
           fi
-      # Build/test failures remain blocking; artifact quota alone does not block release verification.
-      - uses: actions/upload-artifact@v4
-        continue-on-error: true
-        with:
-          name: crew-app
-          path: crew-app
+      # Generated Pages output is committed on master. No duplicate CI artifact.

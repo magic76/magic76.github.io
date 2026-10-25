@@ -67,3 +67,15 @@ test('every human-approved production fullbody and avatar verifies its actual co
  }
  assert.equal(verified,manifest.images.filter(row=>row.status==='approved').length*2);
 });
+
+test('portrait component defers remote verification and bounds failure retries',()=>{
+ const fs=require('node:fs'),path=require('node:path');
+ const source=fs.readFileSync(path.join(__dirname,'../web-spa/src/timeline/TimelinePortrait.tsx'),'utf8');
+ assert.match(source,/new IntersectionObserver/);
+ assert.match(source,/rootMargin:"240px"/);
+ assert.match(source,/!visible\|\|!candidate/);
+ assert.match(source,/verifiedPortraitBlob\(asset\)/);
+ assert.match(source,/retry!==0/);
+ assert.match(source,/verifiedBlobs.delete\(cacheKey\)/);
+ assert.match(source,/URL.revokeObjectURL/);
+});

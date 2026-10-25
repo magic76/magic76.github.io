@@ -36,10 +36,10 @@ on:
         type: string
         required: false
         default: ""
-  # Approved stories only; retry idempotently after the 08:00 Taipei editorial cutoff.
+  # Publish approved stories once after 08:00 Taipei; retry manually if needed.
   # Off the UTC top-of-hour to avoid GitHub's busiest scheduler minute.
   schedule:
-    - cron: "17 0,1,2 * * *" # 08:17, 09:17 and 10:17 Asia/Taipei
+    - cron: "17 0 * * *" # 08:17 Asia/Taipei
 
 permissions:
   contents: write
@@ -66,7 +66,14 @@ jobs:
           # Never depend on the original 15-post seed count or a fixed calendar date.
           last_day=$(node -e 'const {posts}=require("./content/crew-shorts/approved/posts.json"); if(!posts?.length)process.exit(1); console.log(posts.map(p=>p.publishedAt?.slice(0,10)).sort().at(-1))')
           node scripts/publish-shorts-pages.mjs --feed content/crew-shorts/approved/posts.json --as-of "$last_day" --dry-run > /tmp/crew-shorts-preflight.txt
-          grep -F "DRY RUN:" /tmp/crew-shorts-preflight.txt
+          if grep -F "DRY RUN:" /tmp/crew-shorts-preflight.txt; then
+            :
+          elif grep -F "No feed changes:" /tmp/crew-shorts-preflight.txt; then
+            echo "Approved source already matches the checked-in published feed."
+          else
+            cat /tmp/crew-shorts-preflight.txt
+            exit 1
+          fi
       - run: node scripts/check-content-hub.mjs
       - run: npm ci
       - run: npm run check:web

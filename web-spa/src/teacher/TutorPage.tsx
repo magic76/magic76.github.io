@@ -1,9 +1,10 @@
 import{useEffect,useRef,useState}from"react";import{useTranslation}from"react-i18next";
-import{Link}from"react-router-dom";
+import{Link,useLocation}from"react-router-dom";
 import{useTeacherStore,type ConversationMode,type SpeakingPace}from"../store/teacherStore";
 import{NATIVE_LANGUAGES,teacherText,nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
+import {TeacherPinyinSetting} from "./TeacherPinyinSetting";
 import{teacherLanguageHomeHint}from"./teacherLanguageUx";
 import{getTeacherProfile}from"./teacherProfiles";
 import{TeacherProfilePicker}from"./TeacherProfilePicker";
@@ -24,7 +25,8 @@ const SCENES=[
 
 export function TutorPage(){
  const {t,i18n:locale}=useTranslation("teacher");const english=locale.language==="en";
- const s=useTeacherStore(),[picker,setPicker]=useState(false),profile=getTeacherProfile(s.teacherProfile);
+ const location=useLocation();
+ const s=useTeacherStore(),[picker,setPicker]=useState(()=>Boolean((location.state as {openTeacherPicker?:boolean}|null)?.openTeacherPicker)),profile=getTeacherProfile(s.teacherProfile);
  const[preview,setPreview]=useState<PreviewStatus|null>(null),stopRef=useRef<null|(()=>void)>(null);
  const[scene,setScene]=useState(()=>localStorage.getItem("crew_teacher_scenario")||"hotel_checkin");
  const stopPreview=()=>{stopRef.current?.();stopRef.current=null;setPreview(null)};
@@ -55,7 +57,7 @@ export function TutorPage(){
    <Link className="primary-wide teacher-home-start" to={startPath} onClick={stopPreview}>{t("tutor.start",{name:profile.name})} <span aria-hidden="true">→</span></Link>
   </div>
  </section>
- <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label><label>{english?"Your speaking level":"我的口說程度"}<select className="field" value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">{english?"Auto · adapt to speaking":"自動 · 依口說調整"}</option><option value="A1">A1 · 初學</option><option value="A2">A2 · 基礎</option><option value="B1">B1 · 中階</option><option value="B2">B2+ · 中高階</option></select></label></section>
+ <section className="section teacher-precall-settings panel"><label>{t("tutor.language")}<select className="field" value={s.targetLanguage} onChange={e=>s.setTargetLanguage(e.target.value)}>{TARGET_LANGUAGES.map(x=>x.value).map(v=><option key={v} value={v}>{t("friends:languages."+v)}</option>)}</select></label><label>{t("tutor.pace")}<select className="field" value={s.speakingPace} onChange={e=>s.setSpeakingPace(e.target.value as SpeakingPace)}><option value="slow">{t("tutor.speed.slow")}</option><option value="normal">{t("tutor.shortSpeed.normal")}</option><option value="fast">{t("tutor.speed.fast")}</option></select></label><label>{english?"Your speaking level":"我的口說程度"}<select className="field" value={s.learnerSpeakingLevel} onChange={e=>s.setLearnerSpeakingLevel(e.target.value as typeof s.learnerSpeakingLevel)}><option value="auto">{english?"Auto · adapt to speaking":"自動 · 依口說調整"}</option><option value="A1">A1 · 初學</option><option value="A2">A2 · 基礎</option><option value="B1">B1 · 中階</option><option value="B2">B2+ · 中高階</option></select></label><TeacherPinyinSetting targetLanguage={s.targetLanguage} value={s.pronunciationAidMode} onChange={s.setPronunciationAidMode} english={english} /></section>
   <section className="section teacher-quick-config">
   <div className="section-head"><h2>{t("tutor.interaction")}</h2><small>{t("tutor.nextChat")}</small></div>
   <div className="panel teacher-choice-panel">

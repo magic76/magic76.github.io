@@ -40,3 +40,31 @@
 .crew-short-chat-prompts a:hover,.crew-shorts-followup-links a:hover{filter:brightness(.97)}
 .crew-short-chat-prompts a:focus-visible,.crew-shorts-followup-links a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 @media(max-width:700px){.crew-shorts-followups{align-items:stretch;flex-direction:column}.crew-short-chat-prompts a{flex:1;justify-content:center}}
+
+/* Motion 2.0: interaction feedback, no continuously animated cards or images. */
+.crew-short-image img{transition:transform 350ms var(--crew-motion-ease, ease-out),opacity 180ms ease}
+@media(hover:hover) and (pointer:fine){
+ .crew-short-image:hover img{transform:scale(1.025)}
+ .crew-short-actions button:hover{border-color:var(--accent);background:var(--surface-alt)}
+}
+.crew-short-actions button{transition:background-color 160ms ease,border-color 160ms ease,transform 120ms ease}
+.crew-short-actions button:active{transform:scale(.96)}
+.crew-short-like{display:inline-flex;gap:6px;align-items:center;position:relative;isolation:isolate}
+.crew-short-like-heart{display:inline-block;font-size:16px;line-height:1;transform-origin:50% 65%}
+.crew-short-like.is-celebrating .crew-short-like-heart{animation:crew-short-heart-pop 420ms cubic-bezier(.2,.8,.3,1.2)}
+.crew-short-like.is-celebrating::after{
+ content:"♥";position:absolute;left:12px;top:-5px;color:#bd3454;pointer-events:none;
+ animation:crew-short-heart-float 600ms ease-out both;
+}
+@keyframes crew-short-heart-pop{0%{transform:scale(.65)}55%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes crew-short-heart-float{0%{opacity:0;transform:translateY(7px) scale(.6)}35%{opacity:.9}100%{opacity:0;transform:translateY(-26px) scale(1.1)}}
+.crew-short-translation{animation:crew-short-reveal 210ms var(--crew-motion-ease, ease-out) both}
+.crew-short-recap[open] p{animation:crew-short-reveal 210ms var(--crew-motion-ease, ease-out) both}
+@keyframes crew-short-reveal{from{opacity:.35;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+@media(hover:none){.crew-short-image:hover img{transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .crew-short-image img,.crew-short-actions button{transition:none!important}
+ .crew-short-like.is-celebrating .crew-short-like-heart,.crew-short-like.is-celebrating::after,
+ .crew-short-translation,.crew-short-recap[open] p{animation:none!important}
+ .crew-short-like.is-celebrating::after{display:none}
+}

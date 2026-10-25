@@ -102,6 +102,7 @@
       this.models.length
     ));
     this.connectTimeoutMs=Math.max(100,Number(this.options.connectTimeoutMs)||8000);
+    this.micTimeoutMs=Math.max(50,Number(this.options.micTimeoutMs)||10000);
     this.replyTimeoutMs=Math.max(0,Number(this.options.replyTimeoutMs)||0);
     this.earlyCloseMs=Math.max(1000,Number(this.options.earlyCloseMs)||12000);
 
@@ -153,10 +154,22 @@
     this.outputTurn="";
 
     this.mediaStream=null;
+    this.pendingMicRequest=null;
+    this._startCanceled=false;
     this.inputContext=null;
     this.inputSource=null;
     this.processor=null;
+    this.inputWorkletNode=null;
+    this.inputWorkletReady=false;
     this.silentGain=null;
+    // Keep up to two seconds of speech while the Live setup is pending.
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    this.lastMicFrameAt=0;
+    this.lastMicVoiceAt=0;
+    this.lastMicRms=0;
+    this.lastMicHealthAt=0;
+    this.captureMode="none";
 
     this.outputContext=null;
     this.outputGain=null;
@@ -172,6 +185,11 @@
     // UI-only heuristic; Gemini's automatic VAD decides the real turn boundary.
     this.lastLearnerVoiceAt=0;
     this.learnerListeningPhase="";
+    this.localVoicedFrames=0;
+    this.lastAudioSentAt=0;
+    this.lastServerEventAt=0;
+    this.lastInputTranscriptAt=0;
+    this.lastModelOutputAt=0;
     this.manualInterruptOnly=this.options.manualInterruptOnly!==false;
     this.modelSpeaking=false;
     this.interruptPending=false;
@@ -206,6 +224,24 @@
     return this.startedAt?Math.max(0,this._deps.now()-this.startedAt):0;
   };
 
+  // Coarse, content-free diagnostics; never include audio, transcripts or the API key.
+  LiveSession.prototype.getHealthSnapshot=function(){
+    var now=this._deps.now();
+    var audioTrack=this.mediaStream&&this.mediaStream.getAudioTracks?
+      this.mediaStream.getAudioTracks()[0]:null;
+    function age(timestamp){return timestamp?Math.max(0,now-timestamp):null;}
+    return {
+      socketState:this.ws?this.ws.readyState:null,
+      audioContextState:this.inputContext?this.inputContext.state||"unknown":null,
+      micTrackState:audioTrack?audioTrack.readyState||"unknown":null,
+      bufferedBytes:this.ws&&Number.isFinite(this.ws.bufferedAmount)?this.ws.bufferedAmount:0,
+      lastAudioSentAgoMs:age(this.lastAudioSentAt),
+      lastServerEventAgoMs:age(this.lastServerEventAt),
+      lastTranscriptAgoMs:age(this.lastInputTranscriptAt),
+      lastModelOutputAgoMs:age(this.lastModelOutputAt)
+    };
+  };
+
   LiveSession.prototype.getTranscript=function(){
     return this.turns.slice();
   };
@@ -220,16 +256,9 @@
 
   LiveSession.prototype.setMicMuted=function(muted){
     this.micMuted=!!muted;
-    if(this.mediaStream){
-      try{
-        var tracks=typeof this.mediaStream.getAudioTracks==="function"
-          ?this.mediaStream.getAudioTracks()
-          :(typeof this.mediaStream.getTracks==="function"?this.mediaStream.getTracks():[]);
-        tracks.forEach(function(track){
-          if(!track.kind||track.kind==="audio")track.enabled=!this.micMuted;
-        },this);
-      }catch(_){}
-    }
+    if(this.micMuted){this.preSetupFrames=[];this.preSetupSamples=0;}
+    // Keep the capture device/session active. The PCM callback drops frames in
+    // software so muting does not stop/reopen the microphone or change routes.
     if(this.options.onMicMuted)this.options.onMicMuted(this.micMuted);
     this._status(this.micMuted?"麥克風已靜音":"麥克風已開啟");
     return this.micMuted;
@@ -445,6 +474,7 @@
     this.modelSpeaking=true;
     this.lastLearnerVoiceAt=0;
     this.learnerListeningPhase="";
+    this.localVoicedFrames=0;
 
     // Android can transiently suspend Web Audio when the communication route
     // changes after getUserMedia. Resume as soon as Gemini audio arrives; the
@@ -512,6 +542,7 @@
   LiveSession.prototype._markValidOutput=function(attempt,isAudio){
     if(!this._isActiveAttempt(attempt))return;
     attempt.validOutputSeen=true;
+    this.lastModelOutputAt=this._deps.now();
     this.validOutputSeen=true;
     this.currentTurnHadValidOutput=true;
     if(isAudio)this.currentTurnHadAudio=true;
@@ -654,57 +685,129 @@
     }
   };
 
-  LiveSession.prototype._startCapture=function(){
-    if(!this.mediaStream||this.processor)return;
-    if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
+  LiveSession.prototype.getMicHealth=function(){
+    var track=this.mediaStream&&this.mediaStream.getAudioTracks&&this.mediaStream.getAudioTracks()[0];
+    var dbfs=this.lastMicRms>0?20*Math.log10(this.lastMicRms):-100;
+    return {
+      captureMode:this.captureMode,trackState:track?(track.readyState||"live"):"missing",
+      muted:this.micMuted,rms:this.lastMicRms,dbfs:Math.max(-100,Math.round(dbfs)),
+      lastFrameAt:this.lastMicFrameAt,lastVoiceAt:this.lastMicVoiceAt,
+      setupBufferedMs:Math.round(this.preSetupSamples/16)
+    };
+  };
 
+  LiveSession.prototype._sendMicFrame=function(attempt,frame){
+    if(!this._isActiveAttempt(attempt)||!this.ready||!attempt.socket||attempt.socket.readyState!==1)return;
+    attempt.socket.send(JSON.stringify({realtimeInput:{audio:{
+      data:frame.audio,mimeType:"audio/pcm;rate=16000"
+    }}}));
+    this.lastAudioSentAt=this._deps.now();
+  };
+
+  LiveSession.prototype._flushPreSetupAudio=function(attempt){
+    var frames=this.preSetupFrames;
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    if(!frames.length||!frames.some(function(frame){return frame.voiced;}))return false;
+    for(var i=0;i<frames.length;i++)this._sendMicFrame(attempt,frames[i]);
+    return true;
+  };
+
+  LiveSession.prototype._handleMicFrame=function(samples,rate,rms){
+    if(!this.running||this.stopping||this.micMuted)return;
+    if(this.manualInterruptOnly&&this.modelSpeaking)return;
+    if(!samples||!samples.length)return;
+    var now=this._deps.now();
+    if(!Number.isFinite(rms)){
+      var sum=0,count=0;
+      for(var i=0;i<samples.length;i+=8){sum+=samples[i]*samples[i];count++;}
+      rms=Math.sqrt(sum/Math.max(1,count));
+    }
+    this.lastMicFrameAt=now;
+    this.lastMicRms=rms;
+    if(rms>=0.013){
+      this.localVoicedFrames=Math.min(200,this.localVoicedFrames+1);
+      this.lastMicVoiceAt=now;
+      this.lastLearnerVoiceAt=now;
+      if(this.ready&&this.learnerListeningPhase!=="speaking"){
+        this.learnerListeningPhase="speaking";
+        if(this.options.onListeningPhase)this.options.onListeningPhase("speaking");
+      }
+    }else if(this.ready&&this.lastLearnerVoiceAt>0&&now-this.lastLearnerVoiceAt>=350
+              &&this.learnerListeningPhase!=="waiting"){
+      this.learnerListeningPhase="waiting";
+      if(this.options.onListeningPhase){var self=this;self.options.onListeningPhase("waiting");}
+      // Only sustained real microphone activity can drive UI recovery hints.
+      // Gemini server VAD remains responsible for turn completion.
+      if(this.localVoicedFrames>=8&&this.options.onLocalUtteranceEnd){
+        try{this.options.onLocalUtteranceEnd();}catch(_){}
+      }
+      this.localVoicedFrames=0;
+    }
+    if(this.options.onMicHealth&&now-this.lastMicHealthAt>=750){
+      this.lastMicHealthAt=now;
+      this.options.onMicHealth(this.getMicHealth());
+    }
+    var frame={
+      audio:pcm16Base64(samples,rate,16000),
+      samples:Math.max(1,Math.round(samples.length*16000/rate)),
+      voiced:rms>=0.013
+    };
+    var attempt=this.activeAttempt;
+    if(!this.ready||!this._isActiveAttempt(attempt)){
+      this.preSetupFrames.push(frame);
+      this.preSetupSamples+=frame.samples;
+      while(this.preSetupSamples>32000&&this.preSetupFrames.length>1){
+        this.preSetupSamples-=this.preSetupFrames.shift().samples;
+      }
+      return;
+    }
+    try{this._sendMicFrame(attempt,frame);}
+    catch(error){this._beginRecovery(attempt,"audio-send",error);}
+  };
+
+  LiveSession.prototype._startCapture=function(){
+    if(!this.mediaStream||this.processor||this.inputWorkletNode)return;
+    if(!this.inputContext)this.inputContext=this._deps.createAudioContext();
+    if(typeof this.inputContext.createMediaStreamSource!=="function")return;
     this.inputSource=this.inputContext.createMediaStreamSource(this.mediaStream);
-    this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.silentGain=this.inputContext.createGain();
     this.silentGain.gain.value=0;
+    var self=this;
 
+    if(this.inputWorkletReady){
+      try{
+        var node=this._deps.createAudioWorkletNode(this.inputContext,"crew-live-input",{
+          numberOfInputs:1,numberOfOutputs:1,outputChannelCount:[1]
+        });
+        if(node&&node.port){
+          this.inputWorkletNode=node;
+          node.port.onmessage=function(event){
+            var frame=event.data||{};
+            if(frame.type==="mic-frame"&&frame.samples){
+              self._handleMicFrame(new Float32Array(frame.samples),16000,Number(frame.rms));
+            }
+          };
+          this.inputSource.connect(node);
+          node.connect(this.silentGain);
+          this.silentGain.connect(this.inputContext.destination);
+          this.captureMode="worklet";
+          return;
+        }
+      }catch(error){
+        this.inputWorkletNode=null;
+        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet fallback",error);
+      }
+    }
+    // Legacy capture fallback for browsers without a working AudioWorklet.
+    this.processor=this.inputContext.createScriptProcessor(2048,1,1);
     this.inputSource.connect(this.processor);
     this.processor.connect(this.silentGain);
     this.silentGain.connect(this.inputContext.destination);
-
-    var self=this;
+    this.captureMode="script";
     var rate=this.inputContext.sampleRate;
     this.processor.onaudioprocess=function(event){
-      var attempt=self.activeAttempt;
-      if(!self.ready||!self._isActiveAttempt(attempt))return;
-      if(self.manualInterruptOnly&&self.modelSpeaking)return;
-      try{
-        var data=event.inputBuffer.getChannelData(0);
-        // Display a reassuring in-progress pause instead of pretending that
-        // each PCM packet is a completed learner turn. Never send activityEnd.
-        if(self.options.onListeningPhase&&!self.micMuted){
-          var power=0;
-          for(var i=0;i<data.length;i+=8)power+=data[i]*data[i];
-          var rms=Math.sqrt(power/Math.ceil(data.length/8));
-          var now=self._deps.now();
-          if(rms>=0.013){
-            self.lastLearnerVoiceAt=now;
-            if(self.learnerListeningPhase!=="speaking"){
-              self.learnerListeningPhase="speaking";
-              self.options.onListeningPhase("speaking");
-            }
-          }else if(self.lastLearnerVoiceAt>0&&now-self.lastLearnerVoiceAt>=350
-                &&self.learnerListeningPhase!=="waiting"){
-            self.learnerListeningPhase="waiting";
-            self.options.onListeningPhase("waiting");
-          }
-        }
-        attempt.socket.send(JSON.stringify({
-          realtimeInput:{
-            audio:{
-              data:pcm16Base64(data,rate,16000),
-              mimeType:"audio/pcm;rate=16000"
-            }
-          }
-        }));
-      }catch(error){
-        self._beginRecovery(attempt,"audio-send",error);
-      }
+      self._handleMicFrame(event.inputBuffer.getChannelData(0),rate,NaN);
     };
   };
 
@@ -739,6 +842,7 @@
 
     var input=server.inputTranscription||server.input_transcription;
     if(input&&input.text){
+      this.lastInputTranscriptAt=this._deps.now();
       this.inputTurn=mergeTranscript(this.inputTurn,input.text);
       if(this.options.onInputTranscript)this.options.onInputTranscript(this.inputTurn);
       if(this.interruptPending)this.interruptInputSeen=true;
@@ -828,6 +932,7 @@
 
   LiveSession.prototype._handleMessage=function(message,attempt,resolveSetup,rejectSetup){
     if(!this._isActiveAttempt(attempt))return;
+    this.lastServerEventAt=this._deps.now();
 
     var resumptionUpdate=message.sessionResumptionUpdate||message.session_resumption_update;
     if(resumptionUpdate){
@@ -864,6 +969,25 @@
     }
 
     if(!attempt.setupComplete)return;
+
+    // Opt-in tool calls: acknowledge on the same socket, without waiting for a render.
+    var toolCall=message.toolCall||message.tool_call;
+    var calls=toolCall&&(toolCall.functionCalls||toolCall.function_calls);
+    if(Array.isArray(calls)&&calls.length&&this.options.onToolCall){
+      var responses=[];
+      var self=this;
+      calls.slice(0,8).forEach(function(call){
+        if(!call||typeof call.name!=="string")return;
+        var result;
+        try{result=self.options.onToolCall(call)||{ok:true};}
+        catch(_){result={ok:false,error:"tool-rejected"};}
+        responses.push({id:call.id,name:call.name,response:result});
+      });
+      if(responses.length){
+        try{attempt.socket.send(JSON.stringify({toolResponse:{functionResponses:responses}}));}
+        catch(error){this._beginRecovery(attempt,"tool-response-send",error);}
+      }
+    }
 
     var server=message.serverContent||message.server_content;
     if(server)this._handleServer(server,attempt);
@@ -944,6 +1068,7 @@
                   }
                 }
               },
+              ...(self.options.tools&&self.options.tools.length?{tools:self.options.tools}:{}),
               contextWindowCompression:{slidingWindow:{}},
               sessionResumption:connectOptions.resumeHandle?{handle:connectOptions.resumeHandle}:{},
               // Only teacher/friend sessions opt into level-aware VAD. Story and
@@ -1098,11 +1223,15 @@
   LiveSession.prototype._activateAttempt=function(attempt){
     if(!this._isActiveAttempt(attempt))throw new Error("Live attempt is no longer active");
     this.ready=true;
+    this.localVoicedFrames=0;
     this.model=attempt.model;
     this.activeModelIndex=attempt.index;
     this._state("ready");
     this._status("Live 已連線，可以直接說話");
     this._startCapture();
+    // Do not overwrite the learner's first spoken sentence with a greeting.
+    var hadBufferedSpeech=this._flushPreSetupAudio(attempt);
+    if(hadBufferedSpeech&&!this.openingSent)this.openingSent=true;
     if(!attempt.resumed)this._sendOpening(attempt);
     this._armReplyTimeout(attempt);
     if(this.recoveryStarted){this.recoveryStarted=false;if(this.options.onRecovered)this.options.onRecovered({model:this.model,resumed:!!attempt.resumed});}
@@ -1164,7 +1293,17 @@
       var errors=[];
       for(var i=startIndex;i<self.models.length&&self.attemptsUsed<self.maxLiveAttempts;i++){
         try{
-          var attempt=await self._connectCandidate(self.models[i],i);
+          var attempt;
+          try{attempt=await self._connectCandidate(self.models[i],i);}
+          catch(setupError){
+            // Optional board tools may be rejected by a preview model/version.
+            // Retry the SAME selected model once without tools, never switch models.
+            var message=String(setupError&&setupError.message||setupError);
+            if(!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
+            self.options.tools=null;
+            if(self.options.onToolsUnavailable)self.options.onToolsUnavailable();
+            attempt=await self._connectCandidate(self.models[i],i,{countAttempt:false});
+          }
           self._activateAttempt(attempt);
           return attempt;
         }catch(error){
@@ -1204,6 +1343,54 @@
     });
   };
 
+  // getUserMedia is not abortable on all browsers/WebViews. Reject promptly,
+  // and dispose any stream that arrives after timeout or cancellation.
+  LiveSession.prototype._requestMicrophone=function(constraints){
+    var self=this;
+    return new Promise(function(resolve,reject){
+      var pending={done:false,timer:null,reject:null};
+      self.pendingMicRequest=pending;
+      function stopLateStream(stream){
+        if(!stream||!stream.getTracks)return;
+        try{stream.getTracks().forEach(function(track){track.stop();});}catch(_){}
+      }
+      function settle(error,stream){
+        if(pending.done){stopLateStream(stream);return;}
+        pending.done=true;
+        if(pending.timer!==null)self._deps.clearTimeout(pending.timer);
+        if(self.pendingMicRequest===pending)self.pendingMicRequest=null;
+        if(error){reject(error);return;}
+        if(!self.running||self.stopping||self._startCanceled){
+          stopLateStream(stream);
+          reject(new Error("麥克風請求已取消"));
+          return;
+        }
+        resolve(stream);
+      }
+      pending.reject=function(error){settle(error||new Error("麥克風請求已取消"));};
+      pending.timer=self._deps.setTimeout(function(){
+        var error=new Error("麥克風啟用逾時（10 秒）。請檢查瀏覽器或 App 的麥克風權限，然後重試。");
+        error.name="MicrophoneTimeoutError";
+        settle(error);
+      },self.micTimeoutMs);
+      try{
+        Promise.resolve(self._deps.getUserMedia(constraints)).then(
+          function(stream){settle(null,stream);},
+          function(error){
+            var name=String(error&&error.name||"");
+            if(/NotAllowedError|PermissionDeniedError|SecurityError/.test(name)){
+              settle(new Error("麥克風權限遭拒。請在瀏覽器或 App 設定允許麥克風後重試。"));
+            }else if(/NotFoundError|DevicesNotFoundError/.test(name)){
+              settle(new Error("找不到可用的麥克風。請連接麥克風後重試。"));
+            }else if(/NotReadableError|TrackStartError/.test(name)){
+              settle(new Error("麥克風目前無法使用，可能正被其他應用程式占用。"));
+            }else settle(error);
+          }
+        );
+      }catch(error){settle(error);}
+    });
+  };
+
   LiveSession.prototype._openMedia=async function(){
     this._state("requesting-mic");
     this._status("正在開啟麥克風…");
@@ -1211,14 +1398,24 @@
     // Android Chrome/WebView can switch into a communication audio route when
     // getUserMedia opens. Acquire the mic first, then build the output graph so
     // the speaker route is already stable before Gemini sends its first audio.
-    this.mediaStream=await this._deps.getUserMedia({
-      audio:{
-        echoCancellation:true,
-        noiseSuppression:true,
-        autoGainControl:true,
-        channelCount:1
-      }
-    });
+    var audioConstraints={
+      echoCancellation:true,
+      noiseSuppression:true,
+      autoGainControl:true,
+      channelCount:1
+    };
+    // Leave input selection to the browser/OS. Forcing the built-in microphone
+    // on Android can move AI playback off a connected Bluetooth headset.
+    // Keep the single selected stream open while muting in software.
+    try{
+      this.mediaStream=await this._requestMicrophone({audio:audioConstraints});
+    }catch(error){
+      // Unsupported constraints can be retried without overriding the OS route.
+      var name=String(error&&error.name||"");
+      if(!/^(OverconstrainedError|NotReadableError|TypeError)$/.test(name))throw error;
+      this.mediaStream=await this._requestMicrophone({audio:true});
+    }
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     this.outputContext=this._deps.createAudioContext();
     this.inputContext=this.outputContext;
@@ -1249,15 +1446,38 @@
     this.outputGain.connect(playbackDestination);
 
     if(this.outputContext.resume)await this.outputContext.resume();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
 
     // Prefer a continuously connected AudioWorklet. It renders silence while
     // idle, keeping the device output route warm so the first spoken words are
     // not consumed while the speaker wakes up. Old BufferSource playback stays
     // as a compatibility fallback.
     await this._initOutputWorklet();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
+    if(this.inputContext.audioWorklet&&typeof this.inputContext.audioWorklet.addModule==="function"){
+      try{
+        await this.inputContext.audioWorklet.addModule(this.options.inputWorkletUrl||"crew-live-input-worklet.js?v=20261024a");
+        this.inputWorkletReady=true;
+      }catch(error){
+        this.inputWorkletReady=false;
+        if(this._deps.logger&&this._deps.logger.warn)this._deps.logger.warn("[CrewLive] input worklet unavailable",error);
+      }
+    }
+    // Begin capture before setup; frames are buffered locally until ready.
+    this._startCapture();
+    if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
   };
 
   LiveSession.prototype._cleanupMedia=async function(){
+    if(this.inputWorkletNode){
+      try{this.inputWorkletNode.port.onmessage=null;this.inputWorkletNode.disconnect();}catch(_){}
+      this.inputWorkletNode=null;
+    }
+    this.inputWorkletReady=false;
+    this.captureMode="none";
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
+    this.lastMicRms=0;
     if(this.processor){
       try{this.processor.disconnect();}catch(_){}
       this.processor.onaudioprocess=null;
@@ -1315,9 +1535,13 @@
     var reason=options.reason||"user-stop";
     var attempt=this.activeAttempt;
 
+    if(reason==="user-stop"||reason==="page-leave")this._startCanceled=true;
     this.stopping=true;
+    if(this.pendingMicRequest)this.pendingMicRequest.reject(new Error("麥克風請求已取消"));
     this.ready=false;
     this.recovering=false;
+    this.preSetupFrames=[];
+    this.preSetupSamples=0;
 
     if(attempt){
       attempt.closedByClient=reason;
@@ -1368,6 +1592,7 @@
 
     this.running=true;
     this.ready=false;
+    this._startCanceled=false;
     this.stopping=false;
     this.recovering=false;
     this.attemptsUsed=0;
@@ -1381,6 +1606,13 @@
     this.resumptionHandle="";
     this.resumeAttempts=0;
     this.startedAt=this._deps.now();
+    this.lastAudioSentAt=0;
+    this.lastServerEventAt=0;
+    this.lastInputTranscriptAt=0;
+    this.lastModelOutputAt=0;
+    this.localVoicedFrames=0;
+    this.lastLearnerVoiceAt=0;
+    this.learnerListeningPhase="";
     this.micMuted=false;
     this.modelSpeaking=false;
     this.interruptPending=false;
@@ -1390,11 +1622,13 @@
     try{
       await this._requestWakeLock();
       await this._openMedia();
+      if(!this.running||this.stopping||this._startCanceled)return this;
       this.setVolume(this.volume);
       this.setMicMuted(false);
       await this._connectFrom(0);
       return this;
     }catch(error){
+      if(this._startCanceled)return this;
       await this._shutdown({reason:"start-failed"});
       this._state("error");
       throw error;

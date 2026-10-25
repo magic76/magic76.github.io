@@ -33,8 +33,20 @@ test("Teacher and Friends mobile Live expose their own AI-volume slider",()=>{
   assert.match(controls,/aria-label="調整 AI 播放音量"/);
   assert.match(controls,/type="range" min="0" max="300"/);
   assert.match(controls,/live\.setVolume\(Number\(e\.target\.value\)\)/);
-  assert.match(controls,/實體音量鍵可能控制通話音量/);
-  assert.match(controls,/100% 以上增強播放/);
+  assert.match(controls,/aria-label="AI 音量降低 20%"/);
+  assert.match(controls,/live\.setVolume\(Math\.max\(0,live\.volume-20\)\)/);
+  assert.match(controls,/aria-label="AI 音量提高 20%"/);
+  assert.match(controls,/live\.setVolume\(Math\.min\(300,live\.volume\+20\)\)/);
+  assert.match(controls,/按 −／＋ 快速調整 AI 聲音/);
+  const barStart=controls.indexOf('<div className="live-audio-bar">');
+  const detailEnd=controls.indexOf("</details>",barStart);
+  const quickDown=controls.indexOf('className="live-volume-quick is-down"',barStart);
+  const quickUp=controls.indexOf('className="live-volume-quick is-up"',barStart);
+  assert.ok(barStart>0&&detailEnd>barStart&&quickDown>detailEnd&&quickUp>quickDown,
+    "Quick volume controls must sit outside collapsed details");
+  assert.ok(css.includes(".crew-voice-dock .live-audio-bar>.live-volume-quick{"));
+  assert.match(css,/\.crew-voice-dock \.live-volume-step\{/);
+  assert.match(controls,/100% 以上會增強音量/);
   assert.match(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:block\}/);
   assert.doesNotMatch(css,/session-page \.crew-voice-dock \.live-audio-settings\{display:none\}/);
   assert.match(css,/\.live-stage\{padding-bottom:calc\(210px/);
@@ -76,6 +88,8 @@ test("AI playback boost is peak-limited and does not alter the microphone path",
       }
     }
   });
+  // Internal _openMedia is exercised as part of an active Live start.
+  session.running=true;
   await session._openMedia();
   assert.deepEqual(events,["microphone","playback"]);
   assert.equal(gain.gain.value,2.25);

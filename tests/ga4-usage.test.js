@@ -91,3 +91,14 @@ test("Web product analytics reuses privacy and source allowlists, and React Rout
  assert.match(privacy,/setUsageDisabled/);
  assert.match(app,/<Route path="\/privacy"/);
 });
+
+test("Timeline and comparison routes remain public GA4 paths",()=>{
+ const ga=harness();ga.setGa4Enabled(true);
+ for(const route of ["/timeline","/timeline/live","/timeline/compare"]){
+  assert.equal(ga.safeGa4Path(route),route);
+  ga.sendGa4PageView(route);
+ }
+ assert.equal(ga.safeGa4Path("/timeline/private-identifier"),"/timeline/item");
+ const views=ga.window.dataLayer.filter(row=>row[0]==="event"&&row[1]==="page_view");
+ assert.deepEqual(views.map(row=>row[2].page_path),["/timeline","/timeline/live","/timeline/compare"]);
+});

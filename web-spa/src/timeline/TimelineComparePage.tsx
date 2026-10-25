@@ -23,7 +23,7 @@ function parseAges(raw:string|null):Age[]{
 }
 
 export function TimelineComparePage(){
- const {i18n}=useTranslation(),en=i18n.language.startsWith("en");
+ const {t,i18n}=useTranslation("home"),en=!i18n.language.startsWith("zh");
  const [params,setParams]=useSearchParams();
  const [message,setMessage]=useState("");
  const personId=timelineCharacterId(params.get("character"));
@@ -45,7 +45,7 @@ export function TimelineComparePage(){
   if(selected.includes(age)){
    if(selected.length>2)update({ages:selected.filter(a=>a!==age)});
   }else if(selected.length>=MAX_AGES){
-   setMessage(en?"Compare up to four ages at once.":"一次最多比較四個年齡。");
+   setMessage(t("timeline.maxFour"));
   }else update({ages:AGES.filter(a=>a===age||selected.includes(a))});
  };
  const shareUrl=()=>{
@@ -60,25 +60,25 @@ export function TimelineComparePage(){
   try{
    if(!navigator.clipboard?.writeText)throw Error("Clipboard unavailable");
    await navigator.clipboard.writeText([person.name+" · "+tr(question.question,en),...lines,shareUrl()].join("\n"));
-   setMessage(en?"Comparison copied.":"對照內容已複製。");
-  }catch{setMessage(en?"Unable to copy; share from the address bar.":"目前無法複製，可直接分享網址列連結。");}
+   setMessage(t("timeline.copyDone"));
+  }catch{setMessage(t("timeline.copyFailed"));}
  };
  return <main className="shell timeline-compare">
   <header className="timeline-compare-header">
-   <Link className="timeline-compare-back" to={"/timeline?character="+personId}>← {en?"Back to Timeline":"返回人生時間軸"}</Link>
+   <Link className="timeline-compare-back" to={"/timeline?character="+personId}>← {t("timeline.compareBack")}</Link>
    <span className="kicker">CREW TIMELINE · LIFE COMPARE</span>
-   <h1>{en?"One life, twelve perspectives":"同一個人，十二種人生視角"}</h1>
-   <p>{en?"Compare canonical fictional lines, challenges and life chapters. These are Life Book excerpts, not previous conversations.":"比較三位虛構人物在不同年紀的心聲、難題與經歷。內容來自正式 Life Book，不是過往對話紀錄。"}</p>
+   <h1>{t("timeline.compareTitle")}</h1>
+   <p>{t("timeline.compareIntro")}</p>
   </header>
-  <nav className="timeline-compare-people" aria-label={en?"Character":"選擇人物"}>
+  <nav className="timeline-compare-people" aria-label={t("timeline.character")}>
    {TIMELINE_IDS.map(id=><button key={id} type="button" aria-pressed={id===personId}
     className={id===personId?"selected":""} onClick={()=>update({character:id})}>
     <TimelinePortrait characterId={id} age={25}/>
     <span>{timelinePerson(id).name}</span>
    </button>)}
   </nav>
-  <section className="timeline-compare-controls" aria-label={en?"Comparison options":"人生對照選項"}>
-   <h2>{en?"Choose a question":"選擇比較主題"}</h2>
+  <section className="timeline-compare-controls" aria-label={t("timeline.compareOptions")}>
+   <h2>{t("timeline.chooseQuestion")}</h2>
    <div className="timeline-compare-questions">
     {questions.map(q=><button key={q.id} type="button" aria-pressed={q.id===question.id}
      className={q.id===question.id?"selected":""} onClick={()=>update({q:q.id})}>
@@ -86,18 +86,18 @@ export function TimelineComparePage(){
     </button>)}
    </div>
    <div className="timeline-compare-selection">
-    <strong>{en?"Choose 2–4 of all 12 ages":"完整 12 個年齡，任選 2～4 個比較"}</strong>
-    <div className="timeline-compare-age-scroll" role="group" aria-label={en?"Choose ages":"選擇年齡"}>
+    <strong>{t("timeline.chooseAges")}</strong>
+    <div className="timeline-compare-age-scroll" role="group" aria-label={t("timeline.selectAge",{name:person.name})}>
      <div className="timeline-compare-ages">
       {AGES.map(age=><button key={age} type="button" aria-pressed={selected.includes(age)}
        className={selected.includes(age)?"selected":""} onClick={()=>toggle(age)}>
-       {age} {en?"years":"歲"}
+       {age} {t("timeline.years")}
       </button>)}
      </div>
     </div>
    </div>
   </section>
-  <section className="timeline-compare-results" aria-live="polite" aria-label={en?"Age perspectives":"年齡對照結果"}>
+  <section className="timeline-compare-results" aria-live="polite" aria-label={t("timeline.agePerspectives")}>
    {selected.map(age=><article key={personId+":"+age} className="timeline-compare-answer">
     <div className="timeline-compare-photo">
      <TimelinePortrait age={age} characterId={personId} alt={person.name+" at age "+age}/>
@@ -108,14 +108,14 @@ export function TimelineComparePage(){
        ?<blockquote>“{tr(question.answers[String(age)],en)}”</blockquote>
        :<p>{tr(question.answers[String(age)],en)}</p>}
      <Link to={"/timeline/live?character="+personId+"&age="+age}>
-      {en?"Talk to "+person.name+" at "+age:"和 "+age+" 歲的 "+person.name+" 聊聊"} →
+      {t("timeline.talk",{name:person.name,age})} →
      </Link>
     </div>
    </article>)}
   </section>
   <div className="timeline-compare-footer">
-   <button type="button" onClick={()=>void copy()}>{en?"Copy comparison":"複製對照內容"} ↗</button>
-   <Link to={"/timeline?character="+personId}>{en?"Explore "+person.name+"'s life":"繼續探索 "+person.name+" 的人生"} →</Link>
+   <button type="button" onClick={()=>void copy()}>{t("timeline.copyCompare")} ↗</button>
+   <Link to={"/timeline?character="+personId}>{t("timeline.exploreLife",{name:person.name})} →</Link>
    {message&&<p role="status">{message}</p>}
   </div>
  </main>;

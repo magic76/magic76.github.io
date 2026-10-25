@@ -1,17 +1,20 @@
 import {useEffect,useMemo,useState} from "react";
 import {ensureCore,geminiKey} from "../lib/runtime";
+import {PinyinHint} from "../teacher/PinyinHint";
+import type {PinyinAidMode} from "../teacher/pinyinAid";
+import type {TeachingMode} from "../store/teacherStore";
 
 type Turn={input?:string;output?:string};
 type Props={
  kind:"teacher"|"story"|"friend";label:string;language:string;state:string;
- turns:ReadonlyArray<Turn>;input:string;output:string;
+ turns:ReadonlyArray<Turn>;input:string;output:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;
 };
 function readNotes(key:string){
  try{return localStorage.getItem(key)||""}catch{return ""}
 }
 
 /** Desktop-only presentation over the existing Live state; never starts a second session. */
-export function DesktopLivePanel({kind,label,language,state,turns,input,output}:Props){
+export function DesktopLivePanel({kind,label,language,state,turns,input,output,pinyinMode="auto",teachingMode="bilingual"}:Props){
  const noteKey="crew_"+kind+"_workspace_notes_v1";
  const[tab,setTab]=useState<"transcript"|"notes">("transcript");
  const[notes,setNotes]=useState(()=>readNotes(noteKey));
@@ -66,11 +69,11 @@ export function DesktopLivePanel({kind,label,language,state,turns,input,output}:
     {!fullText&&<div className="workspace-empty"><strong>對話從這裡開始</strong><p>按左側開始，即可看到對話內容。</p></div>}
     {turns.map((turn,i)=><div className="workspace-turn" key={i}>
       {turn.input&&<p className="workspace-bubble from-user"><small>你</small><span>{turn.input}</span></p>}
-      {turn.output&&<p className="workspace-bubble"><small>{label}</small><span>{turn.output}</span></p>}
+      {turn.output&&<p className="workspace-bubble"><small>{label}</small><span>{turn.output}</span>{kind==="teacher"&&<PinyinHint text={turn.output} targetLanguage={language} mode={pinyinMode} teachingMode={teachingMode}/>}</p>}
     </div>)}
     {(pendingInput||pendingOutput)&&<div className="workspace-turn current" aria-label="最新對話">
      {pendingInput&&<p className="workspace-bubble from-user"><small>你 · 即時</small><span>{pendingInput}</span></p>}
-     {pendingOutput&&<p className="workspace-bubble"><small>{label} · 即時</small><span>{pendingOutput}</span></p>}
+     {pendingOutput&&<p className="workspace-bubble"><small>{label} · 即時</small><span>{pendingOutput}</span>{kind==="teacher"&&<PinyinHint text={pendingOutput} targetLanguage={language} mode={pinyinMode} teachingMode={teachingMode}/>}</p>}
     </div>}
    </div>
    <div className="workspace-bottom">

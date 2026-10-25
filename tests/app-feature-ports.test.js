@@ -84,7 +84,9 @@ test("Teacher React keeps adaptive vocabulary review behavior",()=>{
  const placement=fs.readFileSync(path.join(root,"web-spa/src/teacher/adaptivePlacement.ts"),"utf8");
  assert.ok(placement.includes("crew_vocab_score"));
  assert.ok(placement.includes("probeWins>=2"));
- assert.ok(source.includes("3000"));
+ assert.ok(source.includes("function nextQuestion("));
+ assert.ok(source.includes("setShowCompletion(true)"));
+ assert.ok(!source.includes("window.setTimeout(()=>{setWord"));
  assert.ok(source.includes("speechSynthesis"));
 });
 
@@ -251,7 +253,8 @@ test("Fortune keeps Live as secondary help instead of a primary product surface"
  const tarot=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/TarotTabs.tsx"),"utf8");
  const vedic=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/VedicTabs.tsx"),"utf8");
  assert.ok(!layout.includes("/fortune/live"),"Fortune primary tabs should be data/history only");
- assert.ok(!home.includes("/fortune/live"),"Fortune home should not promote Live");
+ assert.ok(home.includes("readFortuneHistoryPreviews(30)"),"Latest saved chart is central");
+ assert.ok(home.includes("prepareFriendExplanation"),"Friend narration is an explicit optional action");
  assert.ok(!home.includes("開始對話"),"Fortune home should not lead with teacher chat");
  assert.ok(reading.includes('t("reading.askMore")'),"Live help should stay collapsed behind a follow-up affordance");
  assert.equal(readUiLocale("fortune").reading.askMore,"想再問清楚一點？");
@@ -389,8 +392,11 @@ test("core Web entry points follow the Android app parity contract",()=>{
 
  const fortuneUi=readUiLocale("fortune");
  assert.equal(fortuneUi.home.titleLine2,"看懂自己的節奏。");
- for(const key of ["titleLine1","titleLine2","choose","baziDesc","tarotDesc","vedicDesc","recent"])
+ for(const key of ["baziDesc","tarotDesc","vedicDesc"])
   assert.ok(fortune.includes('t("home.'+key+'")'),key);
+ assert.ok(fortune.includes('to="/fortune/history"'));
+ assert.ok(fortune.includes('id="fortune-new-reading"'));
+ assert.ok(fortune.includes("readFortuneHistoryPreviews"));
  assert.ok(fortuneLayout.includes('to="/fortune/history"'));
  assert.ok(!fortuneLayout.includes("ProductTabs"),"Fortune history should be a header action like Android, not a primary tab");
 });
@@ -549,7 +555,10 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
- assert.ok(home.includes('t("headline")'));
+ const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
+ assert.ok(home.includes("<HomePortal/>"));
+ assert.ok(portal.includes('t("world.modes."+mode+".lead")')&&portal.includes('t("world.modes."+mode+".accent")'));
+ assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
  assert.ok(home.includes('t("explore")'));
@@ -565,7 +574,7 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  assert.ok(!home.includes("切換不再重新載入不同頁面"));
  assert.ok(css.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
  assert.ok(home.includes('t("product.play")'));
- assert.ok(home.includes('className="crew-home-product crew-home-play" to="/games"'));
+ const playEntry=home.split("\n").find(line=>line.includes('className="crew-home-product crew-home-play"'))||"";assert.ok(playEntry.includes('to="/games"')&&playEntry.includes('trackUsageEvent("home_entry_click","play")'),"Play entry must navigate and record the click");
  assert.ok(!home.includes("crew-home-game-entry"),"Avoid a duplicate secondary Play link beneath the primary grid");
  assert.equal(readUiLocale("home").product.play,"與 Crew 朋友玩遊戲");
  assert.ok(css.includes("@media(max-width:620px)"));
@@ -624,7 +633,7 @@ test("Crew Web hides implementation details from primary product UI",()=>{
 test("Crew home separates product entry from default-expanded Android downloads",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
- assert.ok(home.includes('to="/teacher"'));
+ assert.ok(home.includes('className="crew-home-product crew-home-teacher"')&&home.includes('to="/learn"'),"Teacher entry must lead to Learn");
  assert.ok(home.includes('to="/story"'));
  assert.ok(home.includes('to="/fortune"'));
  assert.ok(home.includes('<details className="crew-home-android" open>'));
@@ -663,7 +672,8 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  assert.ok(home.includes("crew_fortune_readings_v2"));
  assert.ok(home.includes("sort((a,b)=>b.timestamp-a.timestamp)"));
  assert.ok(home.indexOf('t("continue")')<home.indexOf('t("android")'));
- assert.ok(chrome.includes('<span className="nav-icon"><Icon name="settings"/></span>'),"Settings must be visible in the primary navigation");
+ assert.ok(chrome.includes('id:"me",to:"/me",icon:"settings"'),"My Crew must be visible in primary navigation");
+ assert.ok(fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8").includes('to:"/settings"'),"Settings must remain reachable via My Crew");
  assert.ok(player.includes("story-page-progress"));
  assert.ok(player.includes("<summary>更多</summary>"));
  assert.ok(!player.includes("story-page-slider"));
@@ -702,7 +712,9 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.ok(!teacher.includes('<div className="live-orb"><span>{profile.name.slice(0,1)}</span></div>'));
  assert.ok(story.includes("story-live-avatar"));
  assert.ok(!story.includes('<section className="session-person">'));
- assert.ok(teacher.includes("<summary>更多功能</summary>"));
+ assert.ok(teacher.includes("<TeacherLiveTools "),"Live must mount the extracted teacher tools");
+ const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
+ assert.ok(teacherTools.includes("<summary>更多功能</summary>"));
  assert.ok(story.includes("<summary>更多功能</summary>"));
  assert.ok(controls.includes("live-audio-settings"));
  assert.ok(settings.includes('t("gemini.configured")'));
@@ -744,15 +756,17 @@ test("Live still photos keep the newest frame and prompt in one realtime input",
 test("Live trust UX locks session config and confirms the actual latest photo",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const story=fs.readFileSync(path.join(root,"web-spa/src/story/LivePage.tsx"),"utf8");
+ const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
- for(const source of [teacher,story]){
+ assert.ok(teacher.includes("<TeacherLiveTools "),"Teacher Live must mount its extracted settings and camera panel");
+ for(const source of [teacherTools,story]){
   assert.ok(source.includes("disabled={sessionActive}"),"active Live config should not pretend to apply immediately");
   assert.ok(source.includes('capture="environment"'),"mobile Live should expose a camera capture path");
   assert.ok(source.includes("visionSending"));
   assert.ok(source.includes("lastImage"));
   assert.ok(source.includes("vision-latest"));
  }
- assert.ok(teacher.includes("這些設定會套用到下一次對話"));
+ assert.ok(teacherTools.includes("這些設定會套用到下一次對話"));
  assert.ok(story.includes("故事設定會套用到下一次"));
  assert.ok(hook.includes("visionSendingRef"));
  assert.ok(hook.includes("sessionRef.current!==s"),"a photo prepared for an old session must never leak into a new session");

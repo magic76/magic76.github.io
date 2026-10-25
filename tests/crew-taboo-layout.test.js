@@ -17,7 +17,8 @@ test("Taboo keeps offline gameplay while presenting rounds and outcomes",()=>{
  assert.match(page,/aria-valuenow=\{timeLeft\}/);
  assert.match(page,/crew-mini-banned/);
  assert.match(page,/MiniGameVoice/);
- assert.match(page,/每題 60 秒/);
+ assert.match(page,/\[roundSeconds,setRoundSeconds\]=useState\(120\)/);
+ assert.match(page,/\[120,180,0\]\.map/);
  assert.match(style,/crew-taboo-timer-track/);
  assert.match(style,/max-width:430px/);
 });
@@ -32,10 +33,12 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
 });
 
 test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{
- assert.match(page,/generateTabooGuess\(descriptions\.current,previousGuesses\.current\)/);
+ assert.match(page,/generateTabooGuess\(descriptions\.current,previousGuesses\.current,tongue\)/);
  assert.match(page,/guessSerial\.current!==request/);
  assert.match(page,/matchTabooGuess\(card,guess\)/);
  assert.match(page,/if\(!geminiKey\(\)\)/);
- assert.match(page,/tabooFollowUp\(freshGuess,question,descriptions\.current\.length\)/);
+ assert.match(page,/tabooFollowUp\(freshGuess,"",descriptions\.current\.length,tongue\)/);
+ assert.match(page,/parseTabooLiveGuess\(liveReply,tongue\)/);
+ assert.match(page,/correct\(spokenGuess,true\)/);
  assert.doesNotMatch(page,/onReply=\{onReply\}/);
 });

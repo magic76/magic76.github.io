@@ -5,6 +5,17 @@ import{trackUsageEvent}from"../../analytics/usage";
 import type{StoryBook,StoryPage}from"../catalog";
 import{useStoryNarrator}from"./useStoryNarrator";
 
+function sceneSymbol(book:StoryBook,page:StoryPage){
+ const source=(book.title||"")+" "+(page.text||"").slice(0,120);
+ if(/恐龍/.test(source))return "🦕";
+ if(/小熊|熊/.test(source))return "🐻";
+ if(/月亮|星星|夜晚|睡前/.test(source))return "🌙";
+ if(/狐狸/.test(source))return "🦊";
+ if(/機器人/.test(source))return "🤖";
+ if(/海洋|海底|海龜/.test(source))return "🐢";
+ if(/森林|樹木|小鳥/.test(source))return "🌳";
+ return book.coverEmoji||"📖";
+}
 function active(state:string){return["requesting-mic","connecting","listening","speaking","ending"].includes(state)}
 function playLabel(state:string,paused:boolean,finished:boolean){
  if(state==="requesting-mic"||state==="connecting")return"連線中…";
@@ -60,7 +71,12 @@ export function StoryPlayerView({initialBook}:{initialBook:StoryBook}){
 
  return <><section className="story-player-head"><div><span className="kicker">{book.readingMode==="physical"?"實體書陪讀":"說故事"}</span><h1>{book.title}</h1></div><div className="actions">{book.readingMode==="physical"&&<Link className="btn secondary small" to={"/story/physical/"+encodeURIComponent(book.id)}>拍下一頁</Link>}<Link className="btn secondary small" to="/story/shelf">回書架</Link></div></section>
  <div className="story-reader story-player desktop-story-workspace" data-direction={direction} data-narrating={live.state==="speaking"&&!live.paused?"true":"false"} data-bedtime={sleepMinutes>0?"true":"false"}>
-  <div className="story-reader-media story-page-motion" key={"image-"+index} onTouchStart={event=>{const t=event.changedTouches[0];if(t)touchStart.current={x:t.clientX,y:t.clientY}}} onTouchCancel={()=>{touchStart.current=null}} onTouchEnd={event=>{const start=touchStart.current,t=event.changedTouches[0];touchStart.current=null;if(!start||!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>64&&Math.abs(dx)>Math.abs(dy)*1.5)go(index+(dx<0?1:-1))}}>{image?<img src={image.preview} alt="故事頁面"/>:<div className="story-player-placeholder"><span>{book.coverEmoji||"S"}</span></div>}</div>
+  <div className="story-reader-media story-page-motion" key={"image-"+index} onTouchStart={event=>{const t=event.changedTouches[0];if(t)touchStart.current={x:t.clientX,y:t.clientY}}} onTouchCancel={()=>{touchStart.current=null}} onTouchEnd={event=>{const start=touchStart.current,t=event.changedTouches[0];touchStart.current=null;if(!start||!t)return;const dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.abs(dx)>64&&Math.abs(dx)>Math.abs(dy)*1.5)go(index+(dx<0?1:-1))}}>{image?<img src={image.preview} alt="故事頁面"/>:<div className="story-player-placeholder" role="group" aria-label="故事場景示意，尚未加入插圖">
+     <div className="story-placeholder-stars" aria-hidden="true"><i/><i/><i/><i/><i/></div>
+     <span aria-hidden="true">{sceneSymbol(book,page)}</span>
+     <small>故事場景示意 · 尚未加入插圖</small>
+     {book.sourceType!=="built-in"&&book.readingMode!=="physical"&&<Link className="story-placeholder-edit" to={"/story/edit/"+encodeURIComponent(book.id)}>為故事加入圖片 →</Link>}
+    </div>}</div>
   <section className="story-reader-copy">
    <div className="story-player-meta"><span className="kicker">{index+1} / {Math.max(1,book.pages.length)}</span>{page.emotion&&<span className="pill">{page.emotion}</span>}</div>
    <div className="story-page-progress" aria-label={"第 "+(index+1)+" 頁，共 "+Math.max(1,book.pages.length)+" 頁"}><i style={{width:((index+1)/Math.max(1,book.pages.length)*100)+"%"}}/></div>

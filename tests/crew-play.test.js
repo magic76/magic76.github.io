@@ -84,8 +84,10 @@ test("Connect Four and Reversi narrate planned AI moves before the stone appears
  const styles=read("web-spa/src/games/crewPlay.css");
  assert.match(board,/narrateMove\("\[CONNECT FOUR BEFORE MOVE\]/);
  assert.match(board,/narrateMove\("\[REVERSI BEFORE MOVE\]/);
- assert.match(board,/\{kind:"connect4",position:String\(column\+1\)\},\(\)=>setConnect\(next\)/);
- assert.match(board,/\{kind:"reversi",position:position\(move\.x,move\.y\)\},\(\)=>setReversi\(next\)/);
+ assert.match(board,/\{kind:"connect4",position:String\(column\+1\)\},\(\)=>\{setConnect\(next\);animateConnectDrop\(next\)\}\)/);
+ assert.match(board,/\{kind:"reversi",position:position\(move\.x,move\.y\)\},\(\)=>applyReversiMove\(reversi,next\)/);
+  assert.match(board,/const applyReversiMove=\(previous:CrewReversiState,next:CrewReversiState\)=>\{/);
+  assert.match(board,/setReversi\(next\)/);
  assert.match(board,/if\(roundEpochRef\.current!==epoch\)return/);
  assert.match(board,/placeStone\(\);\s*speechGateRef\.current=false/);
  assert.doesNotMatch(board,/\[CONNECT FOUR AFTER MOVE\]|\[REVERSI AFTER MOVE\]/);
@@ -205,8 +207,11 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(page,/isWord&&voiceActive\?<section className="crew-play-voice-dock-shell"/);
  assert.match(page,/crew-play-voice-paused/);
  assert.match(page,/kind==="connect4"\|\|kind==="reversi"\?<CrewBoardGames/);
- assert.match(hub,/需要 Gemini 語音/);
- assert.match(hub,/語音選用/);
+ assert.match(hub,/playHub\.voiceRequired/);
+ assert.match(hub,/playHub\.offlineOptional/);
+ const home=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
+ assert.match(home.playHub.voiceRequired,/Gemini/);
+ assert.match(home.playHub.offlineOptional,/語音選用/);
  assert.match(css,/\.page\.page-enter:has\(\.crew-play-page--voice-required\)\{animation:none\}/);
 });
 
