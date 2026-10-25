@@ -41,7 +41,7 @@ export function HomePortal(){
   let idleId:number|undefined,timeoutId:number|undefined;
   const afterLoad=()=>{
    if(cancelled)return;
-   if("requestIdleCallback" in window)idleId=window.requestIdleCallback(()=>{if(!cancelled)setIdleReady(true)},{timeout:2500});
+   if(typeof window.requestIdleCallback==="function")idleId=window.requestIdleCallback(()=>{if(!cancelled)setIdleReady(true)},{timeout:2500});
    else timeoutId=window.setTimeout(()=>{if(!cancelled)setIdleReady(true)},1100);
   };
   if(document.readyState==="complete")afterLoad();
