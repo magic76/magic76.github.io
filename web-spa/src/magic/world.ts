@@ -29,8 +29,10 @@ export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
 export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
 export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
 export type MagicCreatorJoint="fixed"|"hinge"|"flap"|"wheel"|"tail";
+export type MagicCreatorProfile="smooth"|"armor"|"mechanical"|"organic";
 export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
- color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint};
+ color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint;
+ width?:number;height?:number;depth?:number;yaw?:number;profile?:MagicCreatorProfile;connectTo?:number};
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
  x:number;z:number;seed:number;revision:number;friendOf?:number};
@@ -111,6 +113,7 @@ const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
 const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
 const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
 const CREATOR_JOINTS=["fixed","hinge","flap","wheel","tail"] as const;
+const CREATOR_PROFILES=["smooth","armor","mechanical","organic"] as const;
 const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
 function validCreatorSeed(v:unknown):v is number{
  return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
@@ -130,8 +133,24 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
   // Optional joints are a bounded scene instruction, never executable motion code.
   const joint=item.joint===undefined?undefined:oneOf(item.joint,CREATOR_JOINTS)?item.joint:null;
   if(joint===null)return null;
+  if((item.width!==undefined&&!creatorNumber(item.width,.4,2.2))||
+   (item.height!==undefined&&!creatorNumber(item.height,.4,2.2))||
+   (item.depth!==undefined&&!creatorNumber(item.depth,.4,2.2))||
+   (item.yaw!==undefined&&!creatorNumber(item.yaw,-180,180))||
+   (item.profile!==undefined&&!oneOf(item.profile,CREATOR_PROFILES))||
+   (item.connectTo!==undefined&&(!Number.isInteger(item.connectTo)||
+     typeof item.connectTo!=="number"||item.connectTo<0||item.connectTo>=parts.length)))
+   return null;
   parts.push({shape:item.shape,material:item.material,color:item.color,
-   x:item.x,y:item.y,z:item.z,size:item.size,...(joint===undefined?{}:{joint})});
+   x:item.x,y:item.y,z:item.z,size:item.size,
+   ...(joint===undefined?{}:{joint}),
+   ...(item.width===undefined?{}:{width:item.width as number}),
+   ...(item.height===undefined?{}:{height:item.height as number}),
+   ...(item.depth===undefined?{}:{depth:item.depth as number}),
+   ...(item.yaw===undefined?{}:{yaw:item.yaw as number}),
+   ...(item.profile===undefined?{}:{profile:item.profile as MagicCreatorProfile}),
+   ...(item.connectTo===undefined?{}:{connectTo:item.connectTo as number})});
+
  }
  return parts;
 }
@@ -141,12 +160,14 @@ function creationStructure(parts:MagicCreatorPart[]){
  // Motion, palette and assembly are not new silhouettes. Authored joints change
  // the actual moving structure, so they are included in its fingerprint.
  return JSON.stringify(parts.map(p=>[p.shape,Math.round(p.x*4)/4,
-  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed"]));
+  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed",
+  Math.round((p.width??1)*4)/4,Math.round((p.height??1)*4)/4,
+  Math.round((p.depth??1)*4)/4,Math.round((p.yaw??0)/15),p.profile??"smooth",p.connectTo??-1]));
 }
 export function magicCreatorContext(world:MagicWorld){
  const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
   assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
-  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed"]),revision:c.revision}));
+  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1]),revision:c.revision}));
  return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
   recentCreations:items}).slice(0,2400);
 }
@@ -627,8 +648,19 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
      ]}
    ] as const;
    const design=designs[index];
+   // Keyless examples also use the same freely composable AI part grammar.
+   // Connect each subassembly to a structural predecessor, not a prefab skeleton.
+   const parts=design.parts.map((p,i)=>({
+    ...p,
+    ...(i>0?{connectTo:i<5?0:i-1}:{}),
+    ...(i===0?{width:1.32,height:1.2,depth:1.13,profile:"armor"}:
+     i===1?{width:1.12,height:1.02,depth:.86,profile:"mechanical"}:
+     p.shape==="leaf"?{width:1.28,height:.7,depth:.75,profile:"organic"}:
+     p.shape==="capsule"?{width:.82,height:1.35,depth:.84,profile:"mechanical"}:
+     {profile:"smooth"})
+   }));
    return applyMagicCommand(world,"create_magic_entity",{
-    ...design,x:index===0?-.83:index===1?.65:-.3,
+    ...design,parts,x:index===0?-.83:index===1?.65:-.3,
     z:index===0?-.23:index===1?-.5:.84,seed:(world.revision*331+index*7207)%1000000
    },lang);
   }
