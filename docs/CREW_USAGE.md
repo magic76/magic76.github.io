@@ -88,6 +88,19 @@ Review site privacy policy and consent requirements for the intended audience be
 - Test 7/30 day filters and mobile layout. Preview /pages.dev should never emit events.
 - Queries start from deployment and first writes; the past Cloudflare visit count CANNOT be backfilled.
 
+## Product interaction refresh (October 25, 2026)
+
+- The TypeScript `UsageEvent` / `Detail` vocabularies in `web-spa/src/analytics/usage.ts` are kept in parity with the Cloudflare ingestion allowlists by `tests/crew-usage.test.js`. A new event/detail is not deployable unless **both** sides accept it.
+- `game_*` now accepts the established `nonsense` and `crazy-court` details (plus `werewolf`), which were previously dropped at ingestion. The private dashboard includes these game kinds.
+- `home_entry_click` and `explore_entry_click` record fixed navigation category enums, never destination URLs, tracking parameters or dynamic slugs.
+- Town 3D tracks entry, person/place interaction, chat handoff click, and 3D fallback (coarse `unsupported`, `manual`, or `render_error`).
+- Magic tracks entry, successful world actions, challenge/panel selections, Live connection success/failure, 3D fallback, and confirmed reset. It never records user wishes, utterances, model output, or command args.
+- Mate tracks entry, successfully organized briefing, Live handoff connection, completed handoff, and connection error; not task contents, private restrictions, external participants, or transcripts.
+- Briefing tracks article open after the article loads, explicit save/mark-read and source click; no article IDs, titles or URLs. Circle tracks thread open and successful post/comment with only `demo` / `live` enum.
+- The `/usage` dashboard displays separate feature usage and diagnostic events. Entrance/click steps are **event totals, not same-user conversion**; reporting also compares deduplicated browsers for the active-event definition. Demo Circle events are not proof of public posting.
+- GA4 manual page paths allow only fixed route segments (including `/town`, `/magic`, `/mate`, and the published games); unknown dynamic content remains `item`. Verify automatic Enhanced Measurement history-page tracking remains disabled to avoid duplicate pageviews.
+- These metrics begin after deployment; historical missing interactions cannot be recovered. The existing opt-out, GPC/DNT and production-only collection behavior are unchanged.
+
 ## Limits and operations
 
 Anonymous action events remain falsifiable; Origin check, user-agent filter, optional Cloudflare bot score, and browser dedup are defense-in-depth, not authentication. Add Cloudflare WAF rate limiting for /api/usage/event if abused. At high volume the analytics engine may sample events; distinct browser counts are estimates and summing per-event or per-day distinct counts does not produce the global distinct count.
