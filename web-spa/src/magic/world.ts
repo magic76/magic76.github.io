@@ -95,6 +95,70 @@ function copy(value:unknown,max=130){
   .replace(/[\u202a-\u202e\u2066-\u2069]/gi,"")
   .trim().slice(0,max):"";
 }
+// A tab-local adventure survives refresh without storing microphone audio,
+// transcripts, Gemini keys or arbitrary executable content.
+const MAX_WORLD_SNAPSHOT_CHARS=16000;
+const validId=(x:unknown)=>Number.isSafeInteger(x)&&typeof x==="number"&&x>=0&&x<=10000000;
+function snapshotObject(value:unknown):Record<string,unknown>|null{
+ if(value===null||typeof value!=="object"||Array.isArray(value))return null;
+ const proto=Object.getPrototypeOf(value);
+ return proto===Object.prototype||proto===null?value as Record<string,unknown>:null;
+}
+export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
+ if(!raw||raw.length>MAX_WORLD_SNAPSHOT_CHARS)return null;
+ let candidate:unknown;
+ try{candidate=JSON.parse(raw)}catch{return null}
+ const data=snapshotObject(candidate);
+ if(!data||!oneOf(data.theme,THEMES)||!oneOf(data.weather,WEATHERS)||!oneOf(data.time,TIMES)
+  ||!(data.event===null||oneOf(data.event,EVENTS))
+  ||!(data.effect===null||oneOf(data.effect,SPELLS))
+  ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
+  ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
+  ||!Array.isArray(data.panels)||data.panels.length>2)return null;
+ const objects:MagicObject[]=[];
+ const slots=new Set<number>();
+ for(const entry of data.objects){
+  const obj=snapshotObject(entry);
+  if(!obj||!validId(obj.id)||!oneOf(obj.kind,OBJECTS)||!validId(obj.slot)
+   ||Number(obj.slot)>=MAX_OBJECTS||slots.has(obj.slot as number))return null;
+  slots.add(obj.slot as number);
+  objects.push({id:obj.id as number,kind:obj.kind as MagicObjectKind,slot:obj.slot as number});
+ }
+ const panels:MagicPanel[]=[];
+ for(const entry of data.panels){
+  const obj=snapshotObject(entry);
+  if(!obj||!validId(obj.id)||!oneOf(obj.kind,PANEL_KINDS)
+   ||!Array.isArray(obj.items)||obj.items.length!==3
+   ||obj.items.some((x:unknown)=>typeof x!=="string"||!copy(x,90)))return null;
+  if(obj.selected!==undefined&&!oneOf(obj.selected,CHOICES))return null;
+  const title=copy(obj.title,55),description=copy(obj.description,180);
+  if(!title||!description)return null;
+  panels.push({id:obj.id as number,kind:obj.kind as MagicPanelKind,title,description,
+   items:obj.items.map((item:unknown)=>copy(item,90)) as [string,string,string],
+   ...(obj.selected?{selected:obj.selected as MagicChoice}:{}),
+   ...(obj.portalTravel===true&&obj.kind==="quest"?{portalTravel:true}:{})});
+ }
+ let challenge:MagicChallenge|null=null;
+ if(data.challenge!==null){
+  const c=snapshotObject(data.challenge);
+  if(!c||!validId(c.id)||!oneOf(c.correct,CHOICES)
+   ||!Array.isArray(c.options)||c.options.length!==3
+   ||c.options.some((x:unknown)=>!copy(x,75))
+   ||(c.selected!==undefined&&!oneOf(c.selected,CHOICES)))return null;
+  const title=copy(c.title,38),question=copy(c.question,180);
+  if(!title||!question)return null;
+  challenge={id:c.id as number,title,question,
+   options:c.options.map((x:unknown)=>copy(x,75)) as [string,string,string],
+   correct:c.correct as MagicChoice,feedback:copy(c.feedback,200),
+   ...(c.selected?{selected:c.selected as MagicChoice}:{})};
+ }
+ return {
+  theme:data.theme as MagicTheme,weather:data.weather as MagicWeather,time:data.time as MagicTime,
+  event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
+  objects,challenge,panels,chapter:data.chapter as number,revision:data.revision as number,
+  message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
+ };
+}
 function failed(state:MagicWorld,reason:string):MagicResult{return {ok:false,world:state,event:reason}}
 function updated(state:MagicWorld,changes:Partial<MagicWorld>,event:string):MagicResult{
  return {ok:true,world:{...state,...changes,revision:state.revision+1},event};
