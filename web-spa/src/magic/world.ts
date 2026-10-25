@@ -29,10 +29,11 @@ export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
 export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
 export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
 export type MagicCreatorJoint="fixed"|"hinge"|"flap"|"wheel"|"tail";
+export type MagicCreatorPivot="center"|"top"|"bottom"|"left"|"right";
 export type MagicCreatorProfile="smooth"|"armor"|"mechanical"|"organic";
 export type MagicCreatorDetail="face"|"core"|"vent"|"thruster"|"rune";
 export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
- color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint;
+ color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint;pivot?:MagicCreatorPivot;
  width?:number;height?:number;depth?:number;yaw?:number;profile?:MagicCreatorProfile;connectTo?:number;detail?:MagicCreatorDetail};
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
@@ -114,6 +115,7 @@ const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
 const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
 const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
 const CREATOR_JOINTS=["fixed","hinge","flap","wheel","tail"] as const;
+const CREATOR_PIVOTS=["center","top","bottom","left","right"] as const;
 const CREATOR_PROFILES=["smooth","armor","mechanical","organic"] as const;
 const CREATOR_DETAILS=["face","core","vent","thruster","rune"] as const;
 const CREATOR_DETAIL_SHAPES:Record<MagicCreatorDetail,readonly MagicCreatorShape[]>={
@@ -142,6 +144,8 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
   // Optional joints are a bounded scene instruction, never executable motion code.
   const joint=item.joint===undefined?undefined:oneOf(item.joint,CREATOR_JOINTS)?item.joint:null;
   if(joint===null)return null;
+  if(item.pivot!==undefined&&(!oneOf(item.pivot,CREATOR_PIVOTS)||
+   joint===undefined||joint==="fixed"||joint==="wheel"))return null;
   if((item.width!==undefined&&!creatorNumber(item.width,.4,2.2))||
    (item.height!==undefined&&!creatorNumber(item.height,.4,2.2))||
    (item.depth!==undefined&&!creatorNumber(item.depth,.4,2.2))||
@@ -155,6 +159,7 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
   parts.push({shape:item.shape,material:item.material,color:item.color,
    x:item.x,y:item.y,z:item.z,size:item.size,
    ...(joint===undefined?{}:{joint}),
+   ...(item.pivot===undefined?{}:{pivot:item.pivot as MagicCreatorPivot}),
    ...(item.width===undefined?{}:{width:item.width as number}),
    ...(item.height===undefined?{}:{height:item.height as number}),
    ...(item.depth===undefined?{}:{depth:item.depth as number}),
@@ -175,14 +180,14 @@ function creationStructure(parts:MagicCreatorPart[]){
  // Motion, palette and assembly are not new silhouettes. Authored joints change
  // the actual moving structure, so they are included in its fingerprint.
  return JSON.stringify(parts.map(p=>[p.shape,Math.round(p.x*4)/4,
-  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed",
+  Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed",p.pivot??"center",
   Math.round((p.width??1)*4)/4,Math.round((p.height??1)*4)/4,
   Math.round((p.depth??1)*4)/4,Math.round((p.yaw??0)/15),p.profile??"smooth",p.connectTo??-1,p.detail??""]));
 }
 export function magicCreatorContext(world:MagicWorld){
  const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
   assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
-  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
+  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.pivot??"center",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
  return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
   recentCreations:items}).slice(0,2400);
 }
@@ -668,6 +673,8 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
    const parts=design.parts.map((p,i)=>({
     ...p,
     ...(i>0&&index!==1?{connectTo:i<5?0:i-1}:{}),
+    ...(index===0&&(i===2||i===3||i===4||i===5)?
+      {pivot:"top" as const}:{}),
     ...(index===0&&i===1?{detail:"face"}:
      index===0&&i===0?{detail:"core"}:
      index===0&&(i===2||i===3)?{detail:"vent"}:
@@ -690,8 +697,8 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
    const current=world.creations[world.creations.length-1];
    if(!current)return {ok:false,event:"entity-not-found",world};
    const wings:MagicCreatorPart[]=[
-    {shape:"leaf",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68,joint:"flap"},
-    {shape:"leaf",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68,joint:"flap"}
+    {shape:"leaf",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68,joint:"flap",pivot:"right"},
+    {shape:"leaf",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68,joint:"flap",pivot:"left"}
    ];
    const body=current.parts.length<=10?[...current.parts,...wings]:
     current.parts.map((p,i)=>i===0?{...p,shape:"octahedron" as const,size:p.size*.8}:p);
