@@ -52,14 +52,19 @@ export function islandSurfaceHeight(x:number,z:number):number{
  * feet/wings cannot sink into the surface. All inputs are reducer-validated.
  * Small contact clearance also covers triangulation and breathing motion.
  */
-export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string}[]):number{
+export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string;height?:number;width?:number;depth?:number}[]):number{
  let bottom=Infinity;
  for(const part of parts){
   const halfHeight=part.joint&&part.joint!=="fixed"?.89:
    part.shape==="sphere"?.63:part.shape==="cone"?.59:
    part.shape==="torus"?.71:part.shape==="octahedron"?.65:
    part.shape==="capsule"?.76:part.shape==="leaf"?.38:.5;
-  bottom=Math.min(bottom,part.y-part.size*halfHeight);
+  // Rotating articulated pieces can sweep sideways dimensions into Y.
+  // Be conservative for explicit joints, while preserving old saved geometry.
+  const articulated=part.joint!==undefined&&part.joint!=="fixed";
+  const span=articulated?Math.max(halfHeight*(part.height??1),
+   .72*(part.width??1),.72*(part.depth??1)):halfHeight*(part.height??1);
+  bottom=Math.min(bottom,part.y-part.size*span);
  }
  return Number.isFinite(bottom)?.2-bottom:.2;
 }
