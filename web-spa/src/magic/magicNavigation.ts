@@ -38,3 +38,27 @@ export function groupRingTargets(anchor:Point,count:number,obstacles:readonly Po
  }
  return result;
 }
+
+/** Three.js uses Y as the vertical axis. Surface height must be shared by
+ * creatures, AI-authored geometry, wonders and landmarks: never place a
+ * grounded object at a hard-coded world Y while the island is curved. */
+export function islandSurfaceHeight(x:number,z:number):number{
+ const radiusX=5.65*Math.sqrt(10),radiusZ=5.65*.84*Math.sqrt(10);
+ return .55+1.017*Math.sqrt(Math.max(.15,1-(x/radiusX)**2-(z/radiusZ)**2));
+}
+
+/** Geometry parts are centered at their authored (x,y,z) points. Find the
+ * lowest physical extremity, including animated joint rotations, so size 1.65
+ * feet/wings cannot sink into the surface. All inputs are reducer-validated.
+ * Small contact clearance also covers triangulation and breathing motion.
+ */
+export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string}[]):number{
+ let bottom=Infinity;
+ for(const part of parts){
+  const halfHeight=part.joint&&part.joint!=="fixed"?.89:
+   part.shape==="sphere"?.63:part.shape==="cone"?.59:
+   part.shape==="torus"?.71:part.shape==="octahedron"?.65:.5;
+  bottom=Math.min(bottom,part.y-part.size*halfHeight);
+ }
+ return Number.isFinite(bottom)?.2-bottom:.2;
+}
