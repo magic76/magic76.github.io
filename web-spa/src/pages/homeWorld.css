@@ -104,3 +104,58 @@
 .crew-home-world .crew-home-short-question{min-height:44px}
 @media(hover:none),(pointer:coarse){.crew-home-world .crew-home-short-card:hover .crew-home-short-photo img{transform:none}}
 @media(prefers-reduced-motion:reduce){.crew-home-world .crew-home-short-photo img{transition:none}}
+
+/* Swipeable quick actions directly below the hero KV. Native scroll-snap avoids
+   extra carousel dependencies and remains responsive to touch, trackpad and keys. */
+.crew-home-world .crew-home-carousel{padding:21px 0 14px;border-top:1px solid #ffffff16}
+.crew-home-world .crew-home-carousel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 30px 14px}
+.crew-home-world .crew-home-carousel-head h2{margin:0;font-size:18px;font-weight:600;letter-spacing:-.025em;color:#f7f1e8}
+.crew-home-world .crew-home-carousel-controls{display:flex;align-items:center;gap:7px}
+.crew-home-world .crew-home-carousel-progress{min-width:58px;text-align:center;color:#c1b0cf;font-size:12px;font-variant-numeric:tabular-nums}
+.crew-home-world .crew-home-carousel-controls button{display:grid;place-items:center;width:44px;height:44px;padding:0;background:#ffffff0d;border:1px solid #ffffff30;border-radius:50%;color:#f7f1e8;font-size:25px;line-height:1;cursor:pointer;transition:background .18s ease}
+.crew-home-world .crew-home-carousel-controls button:hover:not(:disabled){background:#ffffff20}
+.crew-home-world .crew-home-carousel-controls button:disabled{opacity:.33;cursor:default}
+.crew-home-world .crew-home-quick-actions{display:flex;flex-wrap:nowrap;gap:13px;margin:0;padding:2px 30px 14px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scroll-padding-inline:30px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.crew-home-world .crew-home-quick-actions::-webkit-scrollbar{display:none}
+.crew-home-world .crew-home-action{display:flex;flex:0 0 clamp(236px,32%,355px);align-items:center;gap:14px;min-width:0;min-height:126px;padding:20px 18px;border-radius:18px;border:1px solid #ffffff29;background:linear-gradient(140deg,#30263e,#211b2f);color:#f7f1e8;scroll-snap-align:start;scroll-snap-stop:always;box-shadow:inset 0 1px #ffffff0d;transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.crew-home-world .crew-home-action:hover{border-color:#c8a9e460;background:linear-gradient(140deg,#3a2b4c,#262035);transform:translateY(-2px)}
+.crew-home-world .crew-home-action:active{transform:scale(.99)}
+.crew-home-world .crew-home-action-icon{display:grid;place-items:center;width:49px;height:49px;flex:none;border-radius:15px;background:#ffffff12;color:#dab6f1}
+.crew-home-world .crew-home-action-learn .crew-home-action-icon{background:#9be2cf1a;color:#aee7d3}
+.crew-home-world .crew-home-action-play .crew-home-action-icon{background:#facba11a;color:#f7c59c}
+.crew-home-world .crew-home-action-explore .crew-home-action-icon{background:#a9c5ff1a;color:#b2caff}
+.crew-home-world .crew-home-action-icon svg{height:25px;width:25px;stroke:currentColor;stroke-width:1.6;fill:none}
+.crew-home-world .crew-home-action>span:nth-child(2){min-width:0;display:grid;gap:7px}
+.crew-home-world .crew-home-action strong{font-size:17px;line-height:1.35;font-weight:600;color:#fff8f3}
+.crew-home-world .crew-home-action small{font-size:13px;line-height:1.5;color:#c4b6cf}
+.crew-home-world .crew-home-action-arrow{align-self:flex-start;color:#bdb0cc;font-size:18px}
+.crew-home-world .crew-home-continue{margin:0 30px 22px;padding-top:17px;border-top:1px solid #ffffff20}
+.crew-home-world .crew-home-continue .crew-home-section-heading{margin-bottom:12px}
+.crew-home-world .crew-home-continue h2{font-size:17px;font-weight:600;color:#f7f1e8}
+.crew-home-world .crew-home-continue .crew-home-section-heading>span{font-size:12px;color:#c4b7cb}
+.crew-home-world .crew-home-recent{min-height:98px;max-width:none;border-color:#ffffff24;background:#241c30;box-shadow:none;color:#f7f1e8}
+.crew-home-world .crew-home-recent:hover{box-shadow:none;border-color:#c8a9e460}
+.crew-home-world .crew-home-recent-copy strong{color:#f7f1e8}
+.crew-home-world .crew-home-recent-copy small{color:#c4b6cf;font-size:12px}
+.crew-home-world .crew-home-recent .crew-home-recent-art{background:#362845;color:#d9c1ff}
+.crew-home-world .crew-home-recent-arrow{color:#d9c1ff}
+@media(max-width:620px){
+ .crew-home-world .crew-home-carousel{padding-top:17px}
+ .crew-home-world .crew-home-carousel-head{margin:0 18px 10px}
+ .crew-home-world .crew-home-carousel-head h2{font-size:16px}
+ .crew-home-world .crew-home-carousel-progress{font-size:12px}
+ .crew-home-world .crew-home-quick-actions{gap:11px;padding:2px 18px 13px;scroll-padding-inline:18px}
+ .crew-home-world .crew-home-action{flex-basis:min(78%,290px);min-height:115px;padding:16px;gap:12px}
+ .crew-home-world .crew-home-action-icon{width:44px;height:44px;border-radius:13px}
+ .crew-home-world .crew-home-action strong{font-size:15px}
+ .crew-home-world .crew-home-action small{font-size:12px}
+ .crew-home-world .crew-home-continue{margin:0 18px 20px;padding-top:14px}
+ .crew-home-world .crew-home-recent{grid-template-columns:52px minmax(0,1fr) 18px;gap:11px;min-height:87px;padding:12px;border-radius:16px}
+ .crew-home-world .crew-home-recent-art{height:52px;width:52px;border-radius:12px}
+ .crew-home-world .crew-home-recent-copy strong{font-size:14px}
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-home-world .crew-home-action,.crew-home-world .crew-home-carousel-controls button{transition:none}
+ .crew-home-world .crew-home-action:hover{transform:none}
+}
+@media(hover:none),(pointer:coarse){.crew-home-world .crew-home-action:hover{transform:none}}
