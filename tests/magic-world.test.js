@@ -394,3 +394,60 @@ test("3D overview camera and world-creature locomotion are wired",()=>{
  assert.ok(scene.includes("root.current.position"));
  assert.ok(scene.includes('kind==="dragon"?1.75'));
 });
+
+test("first magic adventure is a real portal, companion, spell, clue loop",()=>{
+ const opened=demoMagicCommand("portal",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(opened.world.adventureStep,0);
+ const traveled=applyMagicCommand(opened.world,"select_magic_panel",{choice:"A"},"en");
+ assert.equal(traveled.ok,true);
+ assert.equal(traveled.world.theme,"forest");
+ assert.equal(traveled.world.adventureStep,1);
+ const friend=demoMagicCommand("dragon",traveled.world,"en");
+ assert.equal(friend.world.adventureStep,2);
+ assert.equal(friend.world.objects.some(o=>o.kind==="dragon"),true);
+ const ice=demoMagicCommand("icecastle",friend.world,"en");
+ assert.equal(ice.ok,true);
+ assert.equal(ice.world.adventureStep,3);
+ assert.equal(ice.world.castle,"ice");
+ assert.equal(ice.world.weather,"snow");
+ assert.equal(ice.world.event,"aurora");
+ assert.equal(ice.world.objects.some(o=>o.kind==="crystal"),true);
+ const reloaded=readMagicWorldSnapshot(JSON.stringify(ice.world));
+ assert.deepEqual(reloaded,ice.world);
+ const tappedCrystal=demoMagicCommand("puzzle",reloaded,"en");
+ assert.equal(tappedCrystal.world.challenge?.title,"The Star Gate");
+ assert.equal(tappedCrystal.world.adventureStep,3);
+ const reset=demoMagicCommand("reset",tappedCrystal.world,"en");
+ assert.equal(reset.world.adventureStep,0);
+ assert.equal(reset.world.objects.length,0);
+});
+
+test("unrelated spells cannot skip adventure stages",()=>{
+ const spell=applyMagicCommand(MAGIC_INITIAL_WORLD,"cast_spell",{spell:"fire"});
+ assert.equal(spell.world.adventureStep,0);
+ const companion=demoMagicCommand("dragon",MAGIC_INITIAL_WORLD);
+ assert.equal(companion.world.adventureStep,0);
+ const opening=demoMagicCommand("portal",companion.world);
+ const traveled=applyMagicCommand(opening.world,"select_magic_panel",{choice:"C"});
+ assert.equal(traveled.world.adventureStep,1);
+ const unrelated=applyMagicCommand(traveled.world,"transform_castle",{form:"ice"});
+ assert.equal(unrelated.world.adventureStep,1);
+ const saved=readMagicWorldSnapshot(JSON.stringify({...traveled.world,adventureStep:99}));
+ assert.equal(saved,null);
+ const legacy=readMagicWorldSnapshot(JSON.stringify(MAGIC_INITIAL_WORLD).replace(',"adventureStep":0',''));
+ assert.equal(legacy?.adventureStep,0);
+});
+
+test("the guided adventure provides a visible action and a working help dialog",()=>{
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
+ assert.match(page,/className="magic-adventure-guide"/);
+ assert.match(page,/className="magic-help-dialog"/);
+ assert.match(page,/aria-modal="true"/);
+ assert.match(page,/className="magic-overview-button"/);
+ assert.match(page,/runDemo\("portal"\)/);
+ assert.match(page,/runDemo\("puzzle"\)/);
+ assert.match(scene,/orbit\.current\.target\.lerp/);
+ assert.match(scene,/onStart=\{\(\)=>\{scriptedView\.current=false;/);
+ assert.match(scene,/reacting=\{world\.adventureStep===3\}/);
+});

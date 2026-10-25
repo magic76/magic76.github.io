@@ -1,4 +1,4 @@
-import {useEffect,useMemo,useRef,useState} from "react";
+import {useEffect,useMemo,useRef,useState,type ComponentRef} from "react";
 import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
 import {Color,Group,Vector3} from "three";
@@ -7,7 +7,7 @@ import {ringStep,ringPoint} from "./magicNavigation";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
-type Props={world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void};
+type Props={world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void;focusId:number|null;viewVersion:number};
 const PLOTS:[[number,number],[number,number],[number,number],[number,number],[number,number],[number,number]]=[
  [-3.25,-.5],[3.15,-.7],[-2.7,2.65],[2.7,2.55],[-4,.8],[3.95,.95]
 ];
@@ -67,12 +67,12 @@ function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOM
    :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>}
  </group>;
 }
-function Dragon({animated}:{animated:boolean}){
+function Dragon({animated,reacting}:{animated:boolean;reacting:boolean}){
  const wings=useRef<Group>(null),root=useRef<Group>(null);
  useFrame(({clock})=>{
   if(!animated)return;
   if(root.current)root.current.position.y=Math.sin(clock.elapsedTime*2)*.18;
-  if(wings.current)wings.current.rotation.z=Math.sin(clock.elapsedTime*5)*.34;
+  if(wings.current)wings.current.rotation.z=Math.sin(clock.elapsedTime*(reacting?9:5))*(reacting?.65:.34);
  });
  return <group ref={root} scale={.84}>
   <mesh position={[0,.65,0]} scale={[.78,.55,.9]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#df8069"/></mesh>
@@ -91,7 +91,7 @@ function Dragon({animated}:{animated:boolean}){
 function islandSurface(x:number,z:number){
  return .55+1.017*Math.sqrt(Math.max(.15,1-(x/5.65)**2-(z/4.75)**2));
 }
-function SceneObject({object,position,animated,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
+function SceneObject({object,position,animated,reacting,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
  const initial=useRef<[number,number,number] | null>(null);
@@ -139,7 +139,7 @@ function SceneObject({object,position,animated,peers,worldObjects,onClick}:{obje
  });
  return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
-   {kind==="dragon"?<Dragon animated={animated}/>:null}
+   {kind==="dragon"?<Dragon animated={animated} reacting={reacting}/>:null}
    {kind==="portal"?<group>
     <mesh position={[0,.91,0]} rotation={[0,0,.08]}><torusGeometry args={[.87,.22,10,24]}/><meshStandardMaterial color="#ae7dd5" emissive="#8d62d1" emissiveIntensity={.6}/></mesh>
     <mesh position={[0,.91,0]}><circleGeometry args={[.73,24]}/><meshBasicMaterial color="#79c7e1" transparent opacity={.56} side={2}/></mesh>
@@ -315,7 +315,7 @@ function MagicCinematic({cue}:{cue:NonNullable<MagicWorld["cue"]>}){
   </mesh>)}
  </group>;
 }
-function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
+function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,viewVersion}:Props){
  const colors=BIOMES[world.theme],night=world.time==="night";
  const [cinematic,setCinematic]=useState(false);
  useEffect(()=>{
@@ -324,7 +324,29 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   const timer=window.setTimeout(()=>setCinematic(false),3800);
   return()=>window.clearTimeout(timer);
  },[world.revision,world.cue,reducedMotion]);
- const {gl,invalidate}=useThree();
+ const {gl,invalidate,camera}=useThree();
+ const orbit=useRef<ComponentRef<typeof OrbitControls>>(null);
+ const scriptedView=useRef(true);
+ useEffect(()=>{scriptedView.current=true;invalidate()},[focusId,viewVersion,invalidate]);
+ useFrame((_,delta)=>{
+  if(cinematic||!scriptedView.current||!orbit.current)return;
+  const focus=world.objects.find(obj=>obj.id===focusId);
+  let x=0,z=0;
+  if(focus){
+   const slot=PLOTS[focus.slot]??PLOTS[0];
+   [x,z]=focus.x!==undefined&&focus.z!==undefined?
+    safeMagicAnchor(focus.x,focus.z):safeMagicAnchor(slot[0]/3.7,slot[1]/3.25);
+  }
+  const overview=!focus;
+  const cameraGoal=overview?new Vector3(12.5,11.4,18.7):new Vector3(x+4.8,7.2,z+6.8);
+  const targetGoal=overview?new Vector3(0,1.05,0):new Vector3(x,focus?.kind==="dragon"?3.5:2.5,z);
+  const factor=reducedMotion?1:Math.min(1,delta*2.4);
+  camera.position.lerp(cameraGoal,factor);
+  orbit.current.target.lerp(targetGoal,factor);
+  orbit.current.update();
+  if(camera.position.distanceTo(cameraGoal)<.03&&orbit.current.target.distanceTo(targetGoal)<.03)
+   scriptedView.current=false;
+ });
  const peerPositions=useRef(new Map<number,[number,number]>());
  useEffect(()=>{const active=new Set(world.objects.map(obj=>obj.id));for(const id of peerPositions.current.keys())if(!active.has(id))peerPositions.current.delete(id)},[world.objects]);
  useEffect(()=>{
@@ -352,14 +374,15 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
    const plot=PLOTS[obj.slot]??PLOTS[0];
    const [x,z]=obj.x!==undefined&&obj.z!==undefined?
     safeMagicAnchor(obj.x,obj.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
-   return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion}
+   return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion} reacting={world.adventureStep===3}
     peers={peerPositions.current} worldObjects={world.objects}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
-  <OrbitControls makeDefault enabled={!cinematic} enablePan={false} enableDamping={!reducedMotion} minDistance={12} maxDistance={36}
+  <OrbitControls ref={orbit} makeDefault enabled={!cinematic} onStart={()=>{scriptedView.current=false;}}
+   enablePan={false} enableDamping={!reducedMotion} minDistance={focusId!==null?6:12} maxDistance={36}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;
 }

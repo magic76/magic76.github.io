@@ -316,3 +316,39 @@
 .magic-3d-unavailable strong{font-size:20px;line-height:1.35}
 .magic-3d-unavailable p{max-width:340px;font-size:13px;line-height:1.65;margin:0;color:#f0f4ff}
 @media(max-width:790px){.magic-3d-unavailable{padding:20px}}
+
+/* The first adventure is a compact in-scene action, not another onboarding modal. */
+.magic-adventure-guide{position:absolute;top:67px;left:14px;z-index:9;box-sizing:border-box;
+ width:min(260px,calc(100% - 105px));min-width:180px;padding:13px 14px;display:grid;gap:6px;
+ border:1px solid #fff8;border-radius:17px;background:#fffcf1ec;
+ box-shadow:0 12px 36px #203a5633;backdrop-filter:blur(12px);color:#365c57}
+.magic-adventure-guide small{font-size:10px;font-weight:800;letter-spacing:.06em;color:#7a9b90}
+.magic-adventure-guide strong{font-size:14px;line-height:1.3;font-weight:850}
+.magic-adventure-guide p{font-size:11px;line-height:1.55;margin:0;color:#667e77}
+.magic-adventure-guide button,.magic-help-start{justify-self:start;min-height:38px;padding:8px 13px;
+ border:0;border-radius:12px;background:#426e6a;color:white;font:inherit;font-size:12px;
+ font-weight:800;cursor:pointer}
+.magic-adventure-guide button:focus-visible,.magic-overview-button:focus-visible,.magic-help-dialog button:focus-visible{
+ outline:3px solid #ecbd6c;outline-offset:3px}
+.magic-overview-button{position:absolute;z-index:11;top:70px;right:12px;padding:10px 12px;
+ border-radius:50px;border:1px solid #fffaf0b8;background:#fffcf2eb;color:#446c65;
+ font:inherit;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 6px 18px #36526f33}
+.magic-help-overlay{position:fixed;inset:0;z-index:3000;display:grid;place-items:center;padding:20px}
+.magic-help-backdrop{position:absolute;inset:0;border:0;background:#152c3cbb;cursor:pointer}
+.magic-help-dialog{position:relative;z-index:1;box-sizing:border-box;width:min(100%,490px);
+ max-height:85dvh;overflow:auto;display:grid;gap:13px;padding:28px 27px;
+ background:#fffdf7;color:#355a52;border:1px solid #ffffffb5;border-radius:24px;
+ box-shadow:0 24px 70px #1d364b66}
+.magic-help-dialog small{font-size:10px;letter-spacing:.19em;font-weight:900;color:#6c9287}
+.magic-help-dialog h2{font-size:24px;line-height:1.25;margin:0}
+.magic-help-dialog p,.magic-help-dialog li{font-size:13px;line-height:1.7;color:#668179;margin:0}
+.magic-help-dialog ol{margin:0;padding-left:23px;display:grid;gap:9px}
+.magic-help-close{position:absolute;right:15px;top:12px;width:36px;height:36px;
+ border:0;border-radius:50%;background:#eaf1e9;color:#54756d;cursor:pointer;font-size:22px}
+@media(max-width:790px){
+ .magic-adventure-guide{top:69px;left:12px;width:min(245px,calc(100% - 105px));padding:10px 11px}
+ .magic-adventure-guide strong{font-size:12px}
+ .magic-overview-button{top:69px;right:12px;min-height:38px}
+}
+@media(max-width:390px){.magic-adventure-guide{width:min(228px,calc(100% - 103px))}}
+@media(prefers-reduced-motion:reduce){.magic-adventure-guide,.magic-help-dialog{animation:none;transition:none}}
