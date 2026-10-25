@@ -610,3 +610,37 @@ test("creator demo cycles between distinct silhouettes and honors mobile limits"
  assert.match(page,/onSelectCreation/);
  assert.match(page,/data-magic-demo=\{item\.id\}/);
 });
+
+
+test("AI-authored joints persist, animate distinct structures and reject unsafe commands",()=>{
+ const original=demoMagicCommand("creator",MAGIC_INITIAL_WORLD).world.creations[0];
+ const parts=original.parts.map((p,i)=>i===0?{...p,joint:"flap"}:i===1?{...p,joint:"hinge"}:p);
+ const payload={label:"Articulated familiar",idea:"flapping clockwork bird",assembly:"spiral",motion:"hover",mood:"curious",parts};
+ const result=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",payload,"en");
+ assert.equal(result.ok,true);
+ assert.equal(result.world.creations[0].parts[0].joint,"flap");
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(result.world)),result.world);
+ assert.match(magicCreatorContext(result.world),/flap/);
+ // Changing motion alone must not defeat the structural novelty guard.
+ const copy=applyMagicCommand(result.world,"create_magic_entity",{...payload,label:"Repeat",motion:"walk",assembly:"stack",
+  parts:parts.map(p=>({...p,color:"rose"}))});
+ assert.equal(copy.event,"duplicate-structure-try-new-geometry");
+ const edit=applyMagicCommand(result.world,"edit_magic_entity",{id:result.world.creations[0].id,
+  parts:parts.map((p,i)=>i===0?{...p,joint:"tail"}:p)});
+ assert.equal(edit.ok,true);
+ assert.equal(edit.world.creations[0].id,result.world.creations[0].id);
+ assert.equal(edit.world.creations[0].parts[0].joint,"tail");
+ assert.equal(applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",
+  {...payload,parts:[{...parts[0],joint:"javascript"},...parts.slice(1)]}).ok,false);
+ const forged={...result.world,creations:[{...result.world.creations[0],
+  parts:[{...parts[0],joint:"execute"},...parts.slice(1)]}]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(forged)),null);
+ const renderer=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.match(renderer,/joint==="flap"/);
+ assert.match(renderer,/joint==="hinge"/);
+ assert.match(renderer,/joint==="wheel"/);
+ assert.match(renderer,/joint==="tail"/);
+ assert.match(renderer,/animated&&assembled>\.98/);
+ assert.match(live,/enum:\["fixed","hinge","flap","wheel","tail"\]/);
+});

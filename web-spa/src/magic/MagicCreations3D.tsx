@@ -95,7 +95,17 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    element.position.set(
     part.x*phase+startX*(1-phase)+Math.sin(spiral+i)*.13*(1-phase),
     part.y*phase+startY*(1-phase),part.z*phase+startZ*(1-phase));
-   element.rotation.set(0,(1-phase)*(i+1)*1.6,0);
+   // The AI can articulate individual authored parts without shaders, scripts or
+   // additional draw calls. Joints remain still during assembly and with reduce-motion.
+   const active=animated&&assembled>.98;
+   const tempo=t*(1.1+(creation.seed%7)*.08);
+   const swing=Math.sin(tempo*2.4+i*.8);
+   const joint=part.joint??"fixed";
+   element.rotation.set(
+    active&&joint==="hinge"?swing*.38*(creation.motion==="walk"?1.35:1):
+     active&&joint==="wheel"?tempo*3:0,
+    (1-phase)*(i+1)*1.6+(active&&joint==="tail"?swing*.46:0),
+    active&&joint==="flap"?Math.sin(tempo*2.1)*(part.x<0?-1:1)*.62:0);
    element.scale.setScalar(Math.max(.04,phase)*part.size);
   });
  });
