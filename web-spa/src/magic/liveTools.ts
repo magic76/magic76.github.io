@@ -19,6 +19,11 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   x:{type:"NUMBER",description:"Island left/right -1 to 1"},
   z:{type:"NUMBER",description:"Island back/front -1 to 1"}
  },required:["x","z"]}},
+ {name:"move_creatures",description:"Move a group of existing animals together to safely separated destinations. Use when the player asks multiple creatures to travel together. Omit kinds for all creatures; otherwise select dragon, owl, fox. Supply normalized x and z from -1 to 1.",parameters:{type:"OBJECT",properties:{
+  kinds:{type:"ARRAY",items:{type:"STRING",enum:["dragon","owl","fox"]}},
+  x:{type:"NUMBER",description:"Left/right destination -1 to 1"},
+  z:{type:"NUMBER",description:"Back/front destination -1 to 1"}
+ },required:["x","z"]}},
  {name:"transform_castle",description:"Permanently and visibly transform the 3D castle between crystalline ice and warm stone. 'ice' creates frost, snow and a night-time camera spell; 'stone' thaws the castle. This is a safe composable building block. If user asks a dragon to freeze the castle, summon dragon first and then call this with form=ice. Do not replay after success.",parameters:{type:"OBJECT",properties:{
   form:{type:"STRING",enum:["ice","stone"]}
  },required:["form"]}},
