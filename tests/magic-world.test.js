@@ -801,7 +801,7 @@ test("unsafe AI microdetails, incompatible geometry and excessive part adornment
   mood:"gentle",parts:original.parts};
  for(const mutation of [
   {index:0,detail:"html"},{index:1,detail:"thruster"},
-  {index:0,detail:"face"},{index:2,detail:"core"},
+  {index:0,detail:"face"},{index:6,detail:"core"},
   {index:0,detail:"not-real"},
  ]){
   const parts=original.parts.map((p,i)=>i===mutation.index?{...p,detail:mutation.detail}:p);
