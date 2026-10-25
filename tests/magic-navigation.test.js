@@ -10,7 +10,7 @@ function load(file,names){
  new Function("module","exports",code+"\nmodule.exports={"+names.join(",")+"};")(module,module.exports);
  return module.exports;
 }
-const {ringStep,ringPoint,ringPolar,groupRingTargets,islandSurfaceHeight,creationGroundClearance}=load("../web-spa/src/magic/magicNavigation.ts",["ringStep","ringPoint","ringPolar","groupRingTargets","islandSurfaceHeight","creationGroundClearance"]);
+const {ringStep,ringPoint,ringPolar,groupRingTargets,islandSurfaceHeight,creationGroundClearance,magicPartPivot}=load("../web-spa/src/magic/magicNavigation.ts",["ringStep","ringPoint","ringPolar","groupRingTargets","islandSurfaceHeight","creationGroundClearance","magicPartPivot"]);
 const {MAGIC_INITIAL_WORLD,applyMagicCommand,readMagicWorldSnapshot}=load("../web-spa/src/magic/world.ts",["MAGIC_INITIAL_WORLD","applyMagicCommand","readMagicWorldSnapshot"]);
 test("roaming route stays on the castle-safe annulus",()=>{
  let current=ringPoint(-1.7,.78),target=ringPoint(1.7,.82);
@@ -102,4 +102,33 @@ test("AI sculptures and island residents share one terrain-height source",()=>{
  assert.match(creations,/<RoundedBox args=/);
  assert.match(creations,/<capsuleGeometry args=/);
  assert.match(creations,/part\.shape==="leaf"/);
+});
+
+test("creator pivot anchors follow scale, primitive extent and part yaw",()=>{
+ assert.deepEqual(magicPartPivot({shape:"box"}),[0,0,0],"legacy parts remain centered");
+ assert.deepEqual(magicPartPivot({shape:"capsule",pivot:"top",height:1.5}),[0,1.14,0]);
+ assert.deepEqual(magicPartPivot({shape:"box",pivot:"bottom",height:2}),[0,-1,0]);
+ const wing=magicPartPivot({shape:"leaf",pivot:"right",width:1.5,yaw:90});
+ assert.ok(Math.abs(wing[0])<1e-12);
+ assert.ok(Math.abs(wing[2]+1.32)<1e-12);
+ const left=magicPartPivot({shape:"leaf",pivot:"left",width:1.5,yaw:90});
+ assert.ok(Math.abs(left[2]-1.32)<1e-12);
+ const top=magicPartPivot({shape:"capsule",pivot:"top",height:1.2});
+ const center=1.4,pivotWorld=center+top[1]*.65;
+ const originalCenter=pivotWorld-top[1]*.65;
+ assert.ok(Math.abs(originalCenter-center)<1e-12,"unrotated part stays centered on AI XYZ");
+ // A 0.6 rad hinge rotates the limb's center, NOT its anchor.
+ const movedCenter=pivotWorld-top[1]*.65*Math.cos(.6);
+ assert.ok(movedCenter>center+.06,"limb center swings around fixed shoulder/hip anchor");
+});
+test("side-pivot wings receive conservative curved-island ground clearance",()=>{
+ const wing={shape:"leaf",y:.04,size:1.65,width:2.2,height:.65,joint:"flap",pivot:"left"};
+ const normal=creationGroundClearance([{...wing,pivot:"center"}]);
+ const lateral=creationGroundClearance([wing]);
+ assert.ok(lateral>normal+.7, "flapping wing edge has space to sweep down");
+ const renderer=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ assert.match(renderer,/const pivots=useMemo\(\(\)=>creation\.parts\.map\(magicPartPivot\)/);
+ assert.match(renderer,/\+pivot\[1\]\*size/);
+ assert.match(renderer,/position=\{\[-pivot\[0\],-pivot\[1\],-pivot\[2\]\]\}/);
+ assert.match(renderer,/linkDirection\.subVectors\(to\.position,from\.position\)/);
 });
