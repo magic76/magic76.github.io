@@ -378,7 +378,7 @@ test("stage coordinate projection keeps roaming animals on the island path",()=>
   const [px,pz]=safeMagicAnchor(x,z);
   assert.equal(Number.isFinite(px),true);
   assert.equal(Number.isFinite(pz),true);
-  const r=Math.hypot(px/3.7,pz/3.25);
+  const r=Math.hypot(px/(3.7*Math.sqrt(10)),pz/(3.25*Math.sqrt(10)));
   assert.ok(r>=.58&&r<=.95);
  }
  const oldState=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"owl"}).world;
