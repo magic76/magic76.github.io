@@ -106,7 +106,10 @@ test("AI sculptures and island residents share one terrain-height source",()=>{
 
 test("creator pivot anchors follow scale, primitive extent and part yaw",()=>{
  assert.deepEqual(magicPartPivot({shape:"box"}),[0,0,0],"legacy parts remain centered");
- assert.deepEqual(magicPartPivot({shape:"capsule",pivot:"top",height:1.5}),[0,1.14,0]);
+ const shoulder=magicPartPivot({shape:"capsule",pivot:"top",height:1.5});
+ assert.ok(Math.abs(shoulder[1]-1.14)<1e-12,"shoulder top remains at capsule cap");
+ assert.equal(shoulder[0],0);
+ assert.equal(shoulder[2],0);
  assert.deepEqual(magicPartPivot({shape:"box",pivot:"bottom",height:2}),[0,-1,0]);
  const wing=magicPartPivot({shape:"leaf",pivot:"right",width:1.5,yaw:90});
  assert.ok(Math.abs(wing[0])<1e-12);
