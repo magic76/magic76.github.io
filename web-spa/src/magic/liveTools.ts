@@ -30,7 +30,7 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
  {name:"cast_spell",description:"Add one visual-effect block to the current world. This is a composable primitive and may be combined with a scene change or object summon. Do not repeat the same call merely to narrate it or after Live transport recovery.",parameters:{type:"OBJECT",properties:{
   spell:{type:"STRING",enum:["sparkles","fire","wind","heal"]}
  },required:["spell"]}},
- {name:"create_magic_entity",description:"CREATE AN ORIGINAL 3D OBJECT by designing 3 to 12 geometric parts. You are using a real 3D editor, not selecting a prefab or a fixed spell. Every part has its own geometry (including smooth capsule limbs and leaf/wing silhouettes), material, color, relative xyz, scale and optional joint (hinge=legs/arms, flap=wings, wheel=rotors, tail=swishing appendages). These parts visibly gather, stack, spiral or bloom into assembly; the completed sculpture remains in the world. Be inventive beyond prefab robots. Relative y 0..3.3, x/z -1.8..1.8, size .15..1.65. Overall x and z -1..1. Seed integer 0..999999. Maximum three persistent creations. To change an existing entity use edit_magic_entity.",parameters:{type:"OBJECT",properties:{
+ {name:"create_magic_entity",description:"CREATE AN ORIGINAL 3D OBJECT by designing 3 to 12 geometric parts. You are using a real 3D editor, not selecting a prefab or a fixed spell. Every part has geometry (smooth capsules/leaf wings), material, color, xyz, size and optional parametric width/height/depth, yaw rotation, surface profile, connectTo index and animated joint (hinge=legs/arms, flap=wings, wheel=rotors, tail=swishing appendages). These parts visibly gather, stack, spiral or bloom into assembly; the completed sculpture remains in the world. Be inventive beyond prefab robots. Relative y 0..3.3, x/z -1.8..1.8, size .15..1.65. Overall x and z -1..1. Seed integer 0..999999. Maximum three persistent creations. To change an existing entity use edit_magic_entity.",parameters:{type:"OBJECT",properties:{
   label:{type:"STRING",description:"Visible name 1-34 characters"},
   idea:{type:"STRING",description:"Short wish or identity, <=60 chars for future context"},
   parts:{type:"ARRAY",items:{type:"OBJECT",properties:{
@@ -38,7 +38,13 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
     material:{type:"STRING",enum:["stone","wood","metal","glass","glow"]},
     color:{type:"STRING",enum:["gold","rose","azure","mint","violet","coral","ivory","slate"]},
     x:{type:"NUMBER"},y:{type:"NUMBER"},z:{type:"NUMBER"},size:{type:"NUMBER"},
-     joint:{type:"STRING",enum:["fixed","hinge","flap","wheel","tail"]}
+     joint:{type:"STRING",enum:["fixed","hinge","flap","wheel","tail"]},
+     width:{type:"NUMBER",description:"Optional X proportion 0.4..2.2 (default 1)"},
+     height:{type:"NUMBER",description:"Optional Y proportion 0.4..2.2 (default 1)"},
+     depth:{type:"NUMBER",description:"Optional Z proportion 0.4..2.2 (default 1)"},
+     yaw:{type:"NUMBER",description:"Optional facing direction -180..180 degrees"},
+     profile:{type:"STRING",enum:["smooth","armor","mechanical","organic"]},
+     connectTo:{type:"NUMBER",description:"Optional joint connector to an EARLIER 0-based part index; no cycles"}
    },required:["shape","material","color","x","y","z","size"]}},
   assembly:{type:"STRING",enum:["gather","stack","spiral","bloom"]},
   motion:{type:"STRING",enum:["still","hover","walk","spin","orbit"]},
@@ -54,7 +60,13 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
     material:{type:"STRING",enum:["stone","wood","metal","glass","glow"]},
     color:{type:"STRING",enum:["gold","rose","azure","mint","violet","coral","ivory","slate"]},
     x:{type:"NUMBER"},y:{type:"NUMBER"},z:{type:"NUMBER"},size:{type:"NUMBER"},
-     joint:{type:"STRING",enum:["fixed","hinge","flap","wheel","tail"]}
+     joint:{type:"STRING",enum:["fixed","hinge","flap","wheel","tail"]},
+     width:{type:"NUMBER",description:"Optional X proportion 0.4..2.2 (default 1)"},
+     height:{type:"NUMBER",description:"Optional Y proportion 0.4..2.2 (default 1)"},
+     depth:{type:"NUMBER",description:"Optional Z proportion 0.4..2.2 (default 1)"},
+     yaw:{type:"NUMBER",description:"Optional facing direction -180..180 degrees"},
+     profile:{type:"STRING",enum:["smooth","armor","mechanical","organic"]},
+     connectTo:{type:"NUMBER",description:"Optional joint connector to an EARLIER 0-based part index; no cycles"}
    },required:["shape","material","color","x","y","z","size"]}},
   assembly:{type:"STRING",enum:["gather","stack","spiral","bloom"]},
   motion:{type:"STRING",enum:["still","hover","walk","spin","orbit"]},
@@ -120,7 +132,7 @@ export function magicSystemPrompt(english:boolean){
   "For dramatic 3D magical moments use trigger_world_event with meteor, rainbow, festival or aurora. Prefer visible event tools to narration-only replies.",
   "For free-form wishes and surprising visual spectacles, prefer generate_magic_wonder with 2 or 3 compatible but DISTINCT shapes, colors, seeds, scales, positions and motions in one player turn. You are the director of a tiny procedural 3D scene, not a narrator. For example, an enchanted cosmic garden can combine a large gold orbit on the left, small rose bloom on the right, and rising aurora lanterns in the distance. Make the combination meaningfully different from the previous scene and keep within the 4-call budget.",
   "YOUR PRIMARY ABILITY IS AUTHORING ORIGINAL 3D SCENE OBJECTS. For a wish about a tangible creature, machine, structure, friend, vehicle or magical artifact, call create_magic_entity with 3-12 parts. Give it a recognizable unique outline, physical motion and assembly choreography. Never substitute a fixed template spell or narration for a tangible construction.",
-  "Design parts with semantic motion and recognizable surfaces: capsule gives curved limbs, leaf gives wings/fins/petals, and rounded boxes form bodies. Pair leaf wings with flap, capsule legs and arms with hinge, wheels with wheel, tails with tail. Use contrasting proportions, readable silhouettes and purposeful materials; avoid a pile of random primitive shapes. All part Y values are relative to the object; the renderer safely grounds its actual geometry on the curved island. A repeat must change silhouette or articulation, not just color.",
+  "Design distinctive physically connected silhouettes, NOT box piles. Use width/height/depth 0.4..2.2 to stretch heads, limbs, slim wings and armor plates; yaw -180..180 rotates parts. Profiles: armor for body shells, mechanical for sensors/joints, organic for limbs/fins, smooth for glass. connectTo points to an EARLIER zero-based part index: the renderer builds an animated physical link. Put torso/base at index 0; join limbs, head, feet, shoulders and tail to logical earlier parts. Robots need clear torso + head + limbs and meaningful feet or wheels, not boxes. Leaf gives flattened wings/fins, capsule gives curved arms. Other objects use the same free parametric system; no fixed character template. Bounds and island grounding are engine-enforced; never emit code, arbitrary geometry or scripts.",
   "Read CREATOR_WORLD_CONTEXT at start and after tool responses: actual creation IDs and recent geometry. For repeated wishes, change STRUCTURE, part layout, motion, assembly and personality, not just color or name. Structural duplicates are rejected. For 'it', 'that creature', 'make it move' modify the last creation using edit_magic_entity. To give it a friend, construct another creation with friend_of set to its ID.",
   "Let the user watch every part gather, spiral, stack or bloom rather than tell a long story. Maximum three persistent creations with 12 parts each on mobile. Older creations persist and can be evolved; the other tools provide atmosphere only.",
 

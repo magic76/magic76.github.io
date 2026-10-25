@@ -712,3 +712,62 @@ test("safe detailed geometry accepts capsule and leaf without accepting arbitrar
  const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
  assert.match(live,/enum:\["box","sphere","cone","cylinder","torus","octahedron","capsule","leaf"\]/);
 });
+
+test("parametric 3D parts preserve safe aspect ratios, finishes and indexed attachments",()=>{
+ const part=(shape,x,y,z)=>({shape,material:"metal",color:"azure",x,y,z,size:.7});
+ const parts=[
+  {...part("capsule",0,.8,0),width:1.4,height:1.7,depth:1.1,profile:"armor"},
+  {...part("sphere",0,1.9,.1),width:1.25,height:.65,depth:.9,profile:"mechanical",connectTo:0},
+  {...part("leaf",-.94,1.2,0),width:1.9,height:.55,depth:.65,profile:"organic",yaw:-45,joint:"flap",connectTo:0},
+  {...part("leaf",.94,1.2,0),width:1.9,height:.55,depth:.65,profile:"organic",yaw:45,joint:"flap",connectTo:0}
+ ];
+ const payload={label:"Articulated figure",idea:"character with shoulder armor and slim wings",
+  parts,assembly:"gather",motion:"hover",mood:"curious",seed:12812};
+ const made=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",payload,"en");
+ assert.equal(made.ok,true);
+ const saved=readMagicWorldSnapshot(JSON.stringify(made.world));
+ assert.deepEqual(saved,made.world);
+ assert.equal(saved.creations[0].parts[1].connectTo,0);
+ const evolved=applyMagicCommand(saved,"edit_magic_entity",{
+  id:saved.creations[0].id,parts:parts.map((p,i)=>i===0?{...p,width:1.95,profile:"mechanical"}:p)
+ });
+ assert.equal(evolved.ok,true);
+ assert.equal(evolved.world.creations[0].id,saved.creations[0].id);
+ assert.equal(evolved.world.creations[0].parts[0].width,1.95);
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(evolved.world)).creations[0].parts[0].width,1.95);
+ const variant=applyMagicCommand(saved,"create_magic_entity",{
+  ...payload,label:"Different proportions",parts:parts.map((p,i)=>i===0?{...p,width:2.05}:p)
+ });
+ assert.equal(variant.ok,true,"proportions create new silhouettes, not merely new colors");
+});
+test("parametric 3D authoring rejects invalid sizes, angle, surface profiles and cyclic parents",()=>{
+ const original=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en").world.creations[0];
+ const payload={label:"Invalid",idea:"test",parts:original.parts,
+  assembly:"gather",motion:"walk",mood:"gentle"};
+ const cases=[
+  {width:0},{width:2.3},{height:NaN},{depth:-.4},{yaw:181},{yaw:"90"},
+  {profile:"shader"},{profile:"pixel_streaming"},{connectTo:-1},{connectTo:99},
+  {connectTo:0},{connectTo:1.5},{connectTo:"0"}
+ ];
+ for(const bad of cases){
+  const parts=original.parts.map((p,i)=>i===(bad.connectTo===0?0:1)?{...p,...bad}:p);
+  const r=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{...payload,parts});
+  assert.equal(r.ok,false,JSON.stringify(bad));
+ }
+ const badSnapshot={...MAGIC_INITIAL_WORLD,creations:[{
+  ...original,parts:original.parts.map((p,i)=>i===1?{...p,profile:"js-execute"}:p)
+ }]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(badSnapshot)),null);
+});
+test("freeform parametric rendering exposes proportions and physical connectors without unsafe shaders",()=>{
+ const file=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ const accents=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPartAccents3D.tsx"),"utf8");
+ const tools=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.match(file,/part\.width\?\?1,part\.height\?\?1,part\.depth\?\?1/);
+ assert.match(file,/rod\.quaternion\.setFromUnitVectors\(LINK_UP/);
+ assert.match(file,/MagicPartAccents3D part=\{part\}/);
+ assert.match(accents,/profile==="armor"/);
+ assert.match(accents,/profile==="mechanical"/);
+ assert.match(tools,/connectTo:/);
+ assert.match(tools,/width:/);
+});
