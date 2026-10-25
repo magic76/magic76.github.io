@@ -1,17 +1,17 @@
 import {useEffect,useRef,useState} from "react";
 import {createPortalField,type PortalFieldController,type PortalMode} from "./portalField.mjs";
 
-export function PortalParticleField({mode,paused,launching}:{mode:PortalMode;paused:boolean;launching:boolean}){
+export function PortalParticleField({mode,paused,launching,enabled}:{mode:PortalMode;paused:boolean;launching:boolean;enabled:boolean}){
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const controller=useRef<PortalFieldController|null>(null);
  const [ready,setReady]=useState(false);
  useEffect(()=>{
   const canvas=canvasRef.current,host=canvas?.closest<HTMLElement>(".crew-home-portal");
-  if(!canvas||!host)return;
+  if(!enabled||!canvas||!host)return;
   const field=createPortalField(canvas,host);
   controller.current=field;setReady(Boolean(field));
   return()=>{field?.destroy();controller.current=null};
- },[]);
+ },[enabled]);
  useEffect(()=>controller.current?.setMode(mode),[mode]);
  useEffect(()=>controller.current?.setPaused(paused),[paused]);
  useEffect(()=>controller.current?.setLaunching(launching),[launching]);

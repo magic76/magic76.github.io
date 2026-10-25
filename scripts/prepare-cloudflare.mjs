@@ -25,9 +25,9 @@ const viteAssetTags=[...viteHtml.matchAll(/<(?:script|link)\b[^>]*>/g)]
 if(!viteAssetTags.some(tag=>tag.startsWith("<script"))||!viteAssetTags.some(tag=>tag.includes('rel="stylesheet"'))){
  throw Error("Cannot locate the Vite JS/CSS entries in dist/index.html");
 }
-// Cloudflare Pages must not rely solely on a separate CSS request.
-// Inline the Vite-compiled stylesheet to keep the React UI styled on every route.
-// Retain hashed .css in dist for diagnostics and possible future optimization.
+// SSG must use fingerprinted cacheable CSS rather than repeating the full
+// compiled stylesheet in every HTML document. Blocking stylesheet links in
+// <head> ensure prerendered React markup is styled before its first paint.
 const viteCSS=viteAssetTags.filter(tag=>tag.includes('rel="stylesheet"'));
 if(viteCSS.length!==1)throw Error("Expected exactly one Vite stylesheet; got "+viteCSS.length);
 const cssHref=viteCSS[0].match(/\bhref="(\/assets\/[^"]+\.css)"/)?.[1];
@@ -39,19 +39,19 @@ if(compiledCss.length<10000||!compiledCss.includes(".app-header")||!compiledCss.
  throw Error("Compiled CSS is missing the functional Crew UI styles");
 }
 if(/<\/style/i.test(compiledCss))throw Error("Unexpected closing style tag in compiled CSS");
-const inlineAppStylesheet='<style data-crew-react-css>'+compiledCss+'</style>';
+const linkedAppStylesheet='<link rel="stylesheet" href="'+cssHref+'">';
 const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join("\n  ");
 
 // SSG sends fully rendered React.lazy markup, but Vite extracts each lazy
 // page's CSS to a separate chunk loaded only after hydration (FOUC).
-// Add CSS from the selected prerendered page and its static imports to the
-// original HTML, leaving unrelated lazy routes out of the critical path.
+// Link CSS from the selected prerendered page and static imports in the
+// document head, leaving unrelated lazy routes out of the critical path.
 const viteManifest=JSON.parse(readFileSync(join(out,".vite","manifest.json"),"utf8"));
 const ssgRouteEntries={
  "/":["src/pages/HomePage.tsx"],
  "/games":["src/games/CrewPlayHubPage.tsx"]
 };
-function inlineRouteCss(route){
+function routeCssLinks(route){
  const visited=new Set(),cssFiles=new Set();
  function visit(name){
   if(visited.has(name))return;
@@ -62,17 +62,15 @@ function inlineRouteCss(route){
   for(const asset of entry.css||[])cssFiles.add(asset);
  }
  for(const entry of ssgRouteEntries[route]||[])visit(entry);
- let inline="";
+ let links="";
  for(const asset of cssFiles){
-  if(asset===cssHref.slice(1))continue; // Inlined for every public route.
+  if(asset===cssHref.slice(1))continue; // Already linked for every public route.
   if(!asset.startsWith("assets/")||!asset.endsWith(".css")||asset.includes("..")||asset.includes("\\\\")||asset.includes("?"))throw Error("Invalid Vite CSS asset "+asset);
   const file=join(out,asset);
   if(!existsSync(file))throw Error("Missing route CSS: "+asset);
-  const css=readFileSync(file,"utf8");
-  if(css.toLowerCase().includes("</style"))throw Error("Unexpected closing tag in route CSS: "+asset);
-  inline+=String.fromCharCode(10)+'<style data-crew-route-css="'+asset+'">'+css+'</style>';
+  links+=String.fromCharCode(10)+'<link rel="stylesheet" href="/'+asset+'">';
  }
- return inline;
+ return links;
 }
 
 
@@ -139,7 +137,7 @@ for(const locale of ["zh","en"]){
    ?{index:research.index,day:research.days.get(research.index.days[0])}:null;
   const seedTag=seed?'<script id="crew-research-seed" type="application/json">'+safeJson(seed)+'</script>':"";
   const html=marketing
-   .replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+inlineRouteCss(path)+newline+"  "+appTags)
+   .replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+routeCssLinks(path)+newline+"  "+appTags)
    .replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>")
    .replace(/<body>[\s\S]*?<\/body>/,
     '<body'+(bodyTheme?' class="'+bodyTheme+'"':"")+'><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
@@ -216,7 +214,7 @@ for(const [id,{slug,locale,content:guide}] of guides){
  };
  head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
   '<script type="application/ld+json">'+safeJson(ld)+'</script>');
- head=head.replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags);
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+newline+"  "+appTags);
  head=head.replace("</head>",dynamicGuard+newline+"</head>");
  let body=prerendered.get(id);
  if(!body||!body.includes(guide.headline)||!body.includes("crew-guide-section"))throw Error("Guide SSG failed: "+id);
@@ -249,7 +247,7 @@ for(const [route,{day,item,seed}] of articles){
  if(!rendered||!rendered.includes('<article class="briefing briefing-detail">'))throw Error("SSG article missing actual detail: "+route);
  const page=rendered.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
  const seedTag='<script id="crew-research-seed" type="application/json">'+safeJson(seed)+'</script>';
- head=head.replace('<link rel="stylesheet" href="/seo.css">',inlineAppStylesheet+newline+"  "+appTags);
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+newline+"  "+appTags);
  head=head.replace("</head>",seedTag+newline+dynamicGuard+newline+"</head>");
  const html=researchTemplate.replace(/<head>[\s\S]*?<\/head>/,head)
   .replace(/<body>[\s\S]*?<\/body>/,
@@ -292,4 +290,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 22 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), inline CSS, no runtime SSR.");
+console.log("Prepared Cloudflare Pages: 22 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), cacheable CSS links, no runtime SSR.");
