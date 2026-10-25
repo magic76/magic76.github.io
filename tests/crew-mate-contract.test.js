@@ -165,4 +165,5 @@ test("private supplement keeps the task, dialogue and continuation mode instead 
  assert.match(briefing,/SUPPLEMENT to the existing, ongoing task/);
  assert.match(briefing,/return the FULL combined restriction/);
  assert.match(page,/Continue conversation/);
+ assert.match(page,/continuingSessionRef\.current\?externalContinuation\(consensusRef\.current,turnsRef\.current\.slice\(-16\)\):externalOpening\(consensusRef\.current\)/);
 });
