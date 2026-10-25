@@ -20,7 +20,14 @@ const injected=`<script>
 window.__magicErrors=[];
 window.addEventListener('error',e=>window.__magicErrors.push(String(e.message)));
 window.addEventListener('unhandledrejection',e=>window.__magicErrors.push(String(e.reason)));
-setTimeout(()=>{const button=document.querySelector('[data-magic-demo="creator"]');if(button)button.click()},2100);
+const scenario=new URL(location.href).searchParams;
+const count=Math.max(1,Math.min(3,Number(scenario.get('creations')||1)));
+for(let i=0;i<count;i++)setTimeout(()=>{
+ const button=document.querySelector('[data-magic-demo="creator"]');if(button)button.click();
+},2100+i*580);
+if(scenario.get('evolve')==='yes')setTimeout(()=>{
+ document.querySelector('[data-magic-demo="evolve"]')?.click();
+},2200+count*580);
 setTimeout(()=>{
  const meta=document.createElement('meta');
  meta.name='crew-magic-browser-smoke';
@@ -46,14 +53,17 @@ const server=createServer((req,res)=>{
 await new Promise(done=>server.listen(0,"127.0.0.1",done));
 const reports=[];
 try{
- for(const [label,width,height] of [["mobile",390,850],["desktop",1280,850]]){
+ for(const [label,width,height,count,evolve] of [
+  ["mobile-guardian",390,850,1,false],["mobile-jelly",390,850,2,false],
+  ["desktop-ensemble",1280,850,3,false],["mobile-evolved",390,850,1,true]
+ ]){
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
    "--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader",
    "--use-gl=angle","--use-angle=swiftshader-webgl",
    "--window-size="+width+","+height,"--force-device-scale-factor=1",
    "--virtual-time-budget=10500","--dump-dom","--screenshot="+out,
-   "http://127.0.0.1:"+server.address().port+"/magic"];
+   "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")];
   let stdout="",stderr="";
   const exit=await new Promise((done,reject)=>{
    const child=spawn(chrome,args,{stdio:["ignore","pipe","pipe"]});
@@ -70,7 +80,7 @@ try{
   if(exit!==0||errors.length)throw Error("Browser/asset loading failed: "+JSON.stringify(report));
   if(state?.unavailable){
    console.log("SKIP: CI WebGL unavailable. Screenshot only shows unsupported-browser state, not visual QA.");
-  }else if(!state?.canvas||state.objects<1||state.errors?.length){
+  }else if(!state?.canvas||state.objects!==count||state.errors?.length){
    throw Error("Magic creator browser regression: "+JSON.stringify(report));
   }
  }
