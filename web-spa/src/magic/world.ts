@@ -170,7 +170,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
   case "portal":{
@@ -186,6 +186,11 @@ export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"rese
    return applyMagicCommand(summoned.world,"create_magic_panel",{panel_type:"quest",...copy},lang);
   }
   case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
+  case "snow":return applyMagicCommand(world,"change_world",{weather:"snow",time:"night"},lang);
+  case "rain":return applyMagicCommand(world,"change_world",{weather:"rain",time:"day"},lang);
+  case "forest":return applyMagicCommand(world,"change_world",{theme:"forest",time:"day",weather:"clear"},lang);
+  case "candy":return applyMagicCommand(world,"change_world",{theme:"candy",time:"day",weather:"clear"},lang);
+  case "sunny":return applyMagicCommand(world,"change_world",{theme:"sky",time:"day",weather:"clear"},lang);
   case "puzzle":return applyMagicCommand(world,"create_challenge",lang==="en"?{
    title:"The Star Gate",question:"Which thing grows the more you share it?",
    option_a:"A slice of cake",option_b:"Happiness",option_c:"A secret",
