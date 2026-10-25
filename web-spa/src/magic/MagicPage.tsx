@@ -326,8 +326,15 @@ export function MagicPage(){
     </div>:null}
     <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
     <div className="magic-adventure-guide" aria-label={t("魔法世界快捷操作","Magic world shortcuts")}>
-     <button type="button" className="magic-surprise" onClick={()=>runDemo("wonder")}>
-      <span aria-hidden="true">✦</span> {t("給我驚喜","Surprise me")}
+     <button type="button" className="magic-surprise" onClick={()=>{
+       if(sessionRef.current?.running){
+        sessionRef.current.sendControl?.("CREATOR_WORLD_CONTEXT: "+magicCreatorContext(worldRef.current));
+        sessionRef.current.sendText(zh?
+         "請用獨創的幾何零件，創造一個和現有作品結構不同的奇妙魔法生物，讓我看到零件組裝過程。":
+         "Create an original whimsical magical creature with an unusual part structure; show it assembling piece by piece and make it unlike earlier creations.");
+       }else runDemo("creator");
+      }}>
+      <span aria-hidden="true">✦</span> {isOnline?t("讓 Lumi 創造","Ask Lumi to create"):t("觀看造物示範","Watch creations assemble")}
      </button>
      <button type="button" className="magic-optional-quest" onClick={guidedAction}
       title={firstAdventure.description} aria-label={firstAdventure.title+": "+firstAdventure.action}>
