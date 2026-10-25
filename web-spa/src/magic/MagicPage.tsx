@@ -37,7 +37,10 @@ const HELPERS=[
  {id:"forest",zh:"精靈森林",en:"Enchanted forest",emoji:"🌲"},
  {id:"candy",zh:"糖果王國",en:"Candy kingdom",emoji:"🍬"},
  {id:"sunny",zh:"回到天空之島",en:"Sunny sky",emoji:"☀️"},
- {id:"rain",zh:"召喚暴風雨",en:"Rainstorm",emoji:"🌧️"}
+ {id:"rain",zh:"召喚暴風雨",en:"Rainstorm",emoji:"🌧️"},
+ {id:"meteor",zh:"流星雨降臨",en:"Meteor shower",emoji:"☄️"},
+ {id:"rainbow",zh:"召喚彩虹",en:"Summon rainbow",emoji:"🌈"},
+ {id:"aurora",zh:"夜空極光",en:"Northern lights",emoji:"✨"}
 ] as const;
 
 export function MagicPage(){
