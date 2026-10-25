@@ -14,11 +14,18 @@ export type MagicChoice="A"|"B"|"C";
 export type MagicPanelKind="spellbook"|"treasure"|"quest";
 export type MagicPanel={id:number;kind:MagicPanelKind;title:string;description:string;items:[string,string,string];selected?:MagicChoice;portalTravel?:boolean};
 export type MagicObject={id:number;kind:MagicObjectKind;slot:number;x?:number;z?:number};
+/** Model-configured, engine-rendered magic: strictly typed geometry, never code. */
+export type MagicWonderShape="vortex"|"garden"|"orbit"|"comet"|"lanterns";
+export type MagicWonderPalette="aurora"|"ember"|"rose"|"gold"|"ocean";
+export type MagicWonderMotion="rise"|"spin"|"bloom";
+export type MagicWonder={id:number;shape:MagicWonderShape;palette:MagicWonderPalette;
+ motion:MagicWonderMotion;seed:number;x:number;z:number;size:number};
+
 export type MagicChallenge={id:number;title:string;question:string;options:[string,string,string];correct:MagicChoice;feedback:string;selected?:MagicChoice};
 export type MagicWorld={
  theme:MagicTheme;weather:MagicWeather;time:MagicTime;
  castle:MagicCastle;cue:MagicCue;
- objects:MagicObject[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;adventureStep:0|1|2|3;
+ objects:MagicObject[];wonders:MagicWonder[];challenge:MagicChallenge|null;panels:MagicPanel[];chapter:number;adventureStep:0|1|2|3;
  message:string;effect:MagicSpell|null;event:MagicEvent|null;revision:number;
 };
 export type MagicSpotlight={kind:"challenge"|"panel";id:number};
@@ -55,7 +62,7 @@ export function applyMagicLiveCall(state:MagicWorld,call:MagicLiveCall,seen:Map<
  return {result,duplicate:false};
 }
 export const MAGIC_INITIAL_WORLD:MagicWorld={
- theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],challenge:null,panels:[],
+ theme:"sky",weather:"clear",time:"day",castle:"stone",cue:null,objects:[],wonders:[],challenge:null,panels:[],
  chapter:1,adventureStep:0,message:"一扇門正在等你。說出願望，或選一個魔法開始。",effect:null,event:null,revision:0
 };
 const THEMES=["sky","forest","candy"] as const;
@@ -74,6 +81,10 @@ export function safeMagicAnchor(x:number,z:number):[number,number]{
 const SPELLS=["sparkles","fire","wind","heal"] as const;
 const EVENTS=["meteor","rainbow","festival","aurora"] as const;
 const CASTLES=["stone","ice"] as const;
+const WONDER_SHAPES=["vortex","garden","orbit","comet","lanterns"] as const;
+const WONDER_PALETTES=["aurora","ember","rose","gold","ocean"] as const;
+const WONDER_MOTIONS=["rise","spin","bloom"] as const;
+const MAX_WONDERS=4;
 const CUES=["dragon_arrival","castle_transformation"] as const;
 const CHOICES=["A","B","C"] as const;
 const PANEL_KINDS=["spellbook","treasure","quest"] as const;
@@ -131,6 +142,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   ||!(data.adventureStep===undefined||[0,1,2,3].includes(data.adventureStep as number))
   ||!validId(data.revision)||!validId(data.chapter)||Number(data.chapter)<1
   ||!Array.isArray(data.objects)||data.objects.length>MAX_OBJECTS
+  ||!(data.wonders===undefined||Array.isArray(data.wonders)&&data.wonders.length<=MAX_WONDERS)
   ||!Array.isArray(data.panels)||data.panels.length>2)return null;
  const objects:MagicObject[]=[];
  const slots=new Set<number>();
@@ -143,6 +155,17 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   slots.add(obj.slot as number);
   objects.push({id:obj.id as number,kind:obj.kind as MagicObjectKind,slot:obj.slot as number,
    ...(moved?{x:obj.x as number,z:obj.z as number}:{})});
+ }
+ const wonders:MagicWonder[]=[];
+ for(const entry of (data.wonders??[]) as unknown[]){
+  const item=snapshotObject(entry);
+  if(!item||!validId(item.id)||!oneOf(item.shape,WONDER_SHAPES)
+   ||!oneOf(item.palette,WONDER_PALETTES)||!oneOf(item.motion,WONDER_MOTIONS)
+   ||!Number.isSafeInteger(item.seed)||typeof item.seed!=="number"||item.seed<0||item.seed>999999
+   ||!stageCoordinate(item.x)||!stageCoordinate(item.z)
+   ||typeof item.size!=="number"||!Number.isFinite(item.size)||item.size<.6||item.size>1.6)return null;
+  wonders.push({id:item.id as number,shape:item.shape,palette:item.palette,motion:item.motion,
+   seed:item.seed as number,x:item.x,z:item.z,size:item.size});
  }
  const panels:MagicPanel[]=[];
  for(const entry of data.panels){
@@ -177,7 +200,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   event:data.event as MagicEvent|null,effect:data.effect as MagicSpell|null,
   castle:oneOf(data.castle,CASTLES)?data.castle:"stone",
   cue:oneOf(data.cue,CUES)?data.cue:null,
-  objects,challenge,panels,chapter:data.chapter as number,
+  objects,wonders,challenge,panels,chapter:data.chapter as number,
   adventureStep:([0,1,2,3].includes(data.adventureStep as number)?data.adventureStep:0) as 0|1|2|3,
   revision:data.revision as number,
   message:copy(data.message,220)||MAGIC_INITIAL_WORLD.message
@@ -289,6 +312,33 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    }),message:text("魔法夥伴們結隊探索島嶼，彼此保持距離！","The magic companions set off together, keeping a safe distance!")
    },"creature-group-moved");
   }
+  case "generate_magic_wonder":{
+   // LLM composes a bounded scene language. Never receive raw meshes, shaders,
+   // scripts, URLs, arbitrary RGBA, or coordinate arrays.
+   if(!oneOf(args.shape,WONDER_SHAPES)||!oneOf(args.palette,WONDER_PALETTES)
+    ||!oneOf(args.motion,WONDER_MOTIONS))return failed(state,"invalid-wonder-primitives");
+   const x=args.x===undefined?.38:args.x,z=args.z===undefined?-.55:args.z;
+   const size=args.size===undefined?1:args.size;
+   const seed=args.seed===undefined?state.revision%1000000:args.seed;
+   if(!stageCoordinate(x)||!stageCoordinate(z)||
+    typeof size!=="number"||!Number.isFinite(size)||size<.6||size>1.6||
+    typeof seed!=="number"||!Number.isSafeInteger(seed)||seed<0||seed>999999)
+    return failed(state,"invalid-wonder-parameters");
+   const labels:{[K in MagicWonderShape]:[string,string]}={
+    vortex:["旋轉的魔法漩渦","swirling magic vortex"],
+    garden:["瞬間綻放的水晶花園","blooming crystal garden"],
+    orbit:["漂浮的星球環","floating celestial orbits"],
+    comet:["流光彗星雨","shimmering comet trails"],
+    lanterns:["升空的魔法燈海","rising enchanted lanterns"]
+   };
+   const wonder:MagicWonder={id:state.revision+1,shape:args.shape,
+    palette:args.palette,motion:args.motion,x,z,size,seed};
+   return updated(state,{
+    wonders:[...state.wonders.slice(-(MAX_WONDERS-1)),wonder],
+    effect:"sparkles",message:text("島上出現"+labels[args.shape][0]+"，魔法正在改變風景！",
+     "The island transforms with "+labels[args.shape][1]+"!")
+   },"wonder-created");
+  }
   case "transform_castle":{
    // A persistent, reversible 3D scene mutation; no dynamic geometry or code
    // accepted from Live. Keep the castle appearance in validated world state.
@@ -393,8 +443,25 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
+  case "wonder":{
+   const shapes:MagicWonderShape[]=["vortex","garden","orbit","comet","lanterns"];
+   const palettes:MagicWonderPalette[]=["aurora","ember","rose","gold","ocean"];
+   const motions:MagicWonderMotion[]=["rise","spin","bloom"];
+   const seed=Math.floor(Math.random()*1000000),index=seed%shapes.length;
+   // Two contrasting but compatible wonders build a surprising composition.
+   const first=applyMagicCommand(world,"generate_magic_wonder",{
+    shape:shapes[index],palette:palettes[(index+Math.floor(seed/7))%5],
+    motion:motions[Math.floor(seed/31)%3],x:((seed%17)/16)*1.35-.68,
+    z:-.6,size:1.05+(seed%3)*.14,seed
+   },lang);
+   if(!first.ok)return first;
+   return applyMagicCommand(first.world,"generate_magic_wonder",{
+    shape:shapes[(index+2)%5],palette:palettes[(index+3)%5],
+    motion:motions[(index+1)%3],x:-.36,z:.72,size:.9,seed:(seed+1729)%1000000
+   },lang);
+  }
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
   case "fox":return applyMagicCommand(world,"summon_object",{kind:"fox"},lang);
   case "dragonice":{
