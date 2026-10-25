@@ -311,3 +311,24 @@
 .crew-home-orb-quick-copy small{font-size:11px;line-height:1.45;color:#746681}
 .crew-home-orb-chevron{font-size:22px;color:#795cbb}
 .crew-home-orb-quick:focus-visible{outline:2px solid #795cbb;outline-offset:3px}
+
+
+/* Home only: the interactive KV reaches both viewport edges. The Shorts,
+   continue card, exploration and utility sections retain readable widths. */
+.shell.page:has(> .crew-home){
+ width:100%;max-width:none;padding:0 0 calc(34px + env(safe-area-inset-bottom));
+}
+.crew-home-content,.crew-home-world-inner{
+ width:min(1140px,calc(100% - 48px));margin-inline:auto;min-width:0;
+}
+.crew-home .crew-home-world{
+ border-inline:0;border-radius:0;box-shadow:none;
+}
+.crew-home-world-inner{padding-bottom:4px}
+@media(min-width:1050px){
+ .crew-home .crew-home-portal{height:clamp(540px,64vh,700px)}
+}
+@media(max-width:620px){
+ .crew-home-content{width:calc(100% - 20px)}
+ .crew-home-world-inner{width:100%}
+}
