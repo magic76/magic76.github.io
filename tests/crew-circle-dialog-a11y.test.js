@@ -7,7 +7,7 @@ const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/books/BooksPage
 
 test("circle posting dialog supports keyboard focus management and scroll lock",()=>{
  assert.match(source,/dialogRef=useRef<HTMLElement\|null>\(null\)/);
- assert.match(source,/dialog\?\.querySelector<HTMLElement>\("select, input, textarea, button"\)\?\.focus\(\)/);
+ assert.match(source,/dialog\?\.querySelector<HTMLElement>\("form select, form input, form textarea, form button"\)\?\.focus\(\)/);
  assert.match(source,/document\.body\.style\.overflow="hidden"/);
  assert.match(source,/document\.body\.style\.overflow=previousOverflow/);
  assert.match(source,/event\.key==="Escape"/);
@@ -19,6 +19,12 @@ test("circle filters and posting choices convey selection to assistive technolog
  assert.match(source,/aria-pressed=\{filter===item\.key\}/);
  assert.match(source,/aria-pressed=\{categoryFilter===item\.key\}/);
  assert.match(source,/aria-pressed=\{form\.kind===k\.key\}/);
- assert.match(source,/aria-controls=\{"books-comments-"\+post\.id\}/);
+ assert.match(source,/aria-controls=\{expanded\?"books-comments-"\+post\.id:undefined\}/);
  assert.match(source,/id=\{"books-comments-"\+post\.id\}/);
+});
+
+test("empty filtered circle results offer a reset instead of forcing a new post",()=>{
+ assert.match(source,/filter!=="all"\|\|categoryFilter!=="all"\|\|query\.trim\(\)/);
+ assert.match(source,/清除篩選，顯示全部/);
+ assert.match(source,/setFilter\("all"\);setCategoryFilter\("all"\);setQuery\(""\)/);
 });
