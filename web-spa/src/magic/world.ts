@@ -30,9 +30,10 @@ export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
 export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
 export type MagicCreatorJoint="fixed"|"hinge"|"flap"|"wheel"|"tail";
 export type MagicCreatorProfile="smooth"|"armor"|"mechanical"|"organic";
+export type MagicCreatorDetail="face"|"core"|"vent"|"thruster"|"rune";
 export type MagicCreatorPart={shape:MagicCreatorShape;material:MagicCreatorMaterial;
  color:MagicCreatorColor;x:number;y:number;z:number;size:number;joint?:MagicCreatorJoint;
- width?:number;height?:number;depth?:number;yaw?:number;profile?:MagicCreatorProfile;connectTo?:number};
+ width?:number;height?:number;depth?:number;yaw?:number;profile?:MagicCreatorProfile;connectTo?:number;detail?:MagicCreatorDetail};
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
  x:number;z:number;seed:number;revision:number;friendOf?:number};
@@ -114,7 +115,15 @@ const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
 const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
 const CREATOR_JOINTS=["fixed","hinge","flap","wheel","tail"] as const;
 const CREATOR_PROFILES=["smooth","armor","mechanical","organic"] as const;
-const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
+const CREATOR_DETAILS=["face","core","vent","thruster","rune"] as const;
+const CREATOR_DETAIL_SHAPES:Record<MagicCreatorDetail,readonly MagicCreatorShape[]>={
+ face:["box","sphere","capsule"],
+ core:["box","sphere","cylinder","capsule"],
+ vent:["box","cylinder","capsule","leaf"],
+ thruster:["cone","cylinder","capsule"],
+ rune:["box","sphere","cone","capsule","octahedron","leaf"]
+};
+const MAX_CREATIONS=3,MAX_CREATION_PARTS=12,MAX_CREATION_DETAILS=4;
 function validCreatorSeed(v:unknown):v is number{
  return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
 }
@@ -138,6 +147,8 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
    (item.depth!==undefined&&!creatorNumber(item.depth,.4,2.2))||
    (item.yaw!==undefined&&!creatorNumber(item.yaw,-180,180))||
    (item.profile!==undefined&&!oneOf(item.profile,CREATOR_PROFILES))||
+   (item.detail!==undefined&&(!oneOf(item.detail,CREATOR_DETAILS)||
+      !CREATOR_DETAIL_SHAPES[item.detail].includes(item.shape)))||
    (item.connectTo!==undefined&&(typeof item.connectTo!=="number"||
      !Number.isInteger(item.connectTo)||item.connectTo<0||item.connectTo>=parts.length)))
    return null;
@@ -149,9 +160,13 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
    ...(item.depth===undefined?{}:{depth:item.depth as number}),
    ...(item.yaw===undefined?{}:{yaw:item.yaw as number}),
    ...(item.profile===undefined?{}:{profile:item.profile as MagicCreatorProfile}),
+   ...(item.detail===undefined?{}:{detail:item.detail as MagicCreatorDetail}),
    ...(item.connectTo===undefined?{}:{connectTo:item.connectTo as number})});
 
  }
+ // Each semantic accent expands into several bounded engine-owned meshes;
+ // cap close-up detail independently of the main 12-part geometry budget.
+ if(parts.filter(part=>part.detail!==undefined).length>MAX_CREATION_DETAILS)return null;
  return parts;
 }
 // Ignore recoloring when comparing structures. Repeating the same composition
@@ -162,12 +177,12 @@ function creationStructure(parts:MagicCreatorPart[]){
  return JSON.stringify(parts.map(p=>[p.shape,Math.round(p.x*4)/4,
   Math.round(p.y*4)/4,Math.round(p.z*4)/4,Math.round(p.size*4)/4,p.joint??"fixed",
   Math.round((p.width??1)*4)/4,Math.round((p.height??1)*4)/4,
-  Math.round((p.depth??1)*4)/4,Math.round((p.yaw??0)/15),p.profile??"smooth",p.connectTo??-1]));
+  Math.round((p.depth??1)*4)/4,Math.round((p.yaw??0)/15),p.profile??"smooth",p.connectTo??-1,p.detail??""]));
 }
 export function magicCreatorContext(world:MagicWorld){
  const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
   assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,
-  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1]),revision:c.revision}));
+  geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
  return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
   recentCreations:items}).slice(0,2400);
 }
@@ -653,6 +668,12 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
    const parts=design.parts.map((p,i)=>({
     ...p,
     ...(i>0&&index!==1?{connectTo:i<5?0:i-1}:{}),
+    ...(index===0&&i===1?{detail:"face"}:
+     index===0&&i===0?{detail:"core"}:
+     index===0&&(i===2||i===3)?{detail:"vent"}:
+     index===2&&i===0?{detail:"rune"}:
+     index===2&&(i===1||i===2)?{detail:"vent"}:
+     index===1&&i===0?{detail:"rune"}:{}) ,
     ...(index===1?{profile:i===0?"organic":"smooth",width:i===0?1.22:.85,height:1.15,depth:1.1}:
      i===0?{width:1.32,height:1.2,depth:1.13,profile:"armor"}:
      i===1?{width:1.12,height:1.02,depth:.86,profile:"mechanical"}:

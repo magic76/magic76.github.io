@@ -771,3 +771,64 @@ test("freeform parametric rendering exposes proportions and physical connectors 
  assert.match(tools,/connectTo:/);
  assert.match(tools,/width:/);
 });
+
+test("semantic AI microdetails are bounded, typed and persist across creator edits",()=>{
+ const base=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en");
+ assert.equal(base.ok,true);
+ const robot=base.world.creations[0];
+ assert.equal(robot.parts[0].detail,"core");
+ assert.equal(robot.parts[1].detail,"face");
+ const stored=readMagicWorldSnapshot(JSON.stringify(base.world));
+ assert.deepEqual(stored,base.world);
+ const geometry=robot.parts.map(p=>({...p}));
+ const edited=applyMagicCommand(base.world,"edit_magic_entity",{
+  id:robot.id,parts:geometry.map((p,i)=>i===2?{...p,detail:"rune"}:p)
+ });
+ assert.equal(edited.ok,true);
+ assert.equal(edited.world.creations[0].parts[2].detail,"rune");
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(edited.world)),edited.world);
+ assert.equal(magicCreatorContext(edited.world).includes("rune"),true);
+ const similar=applyMagicCommand(base.world,"create_magic_entity",{
+  label:"Other optics",idea:"different identity",parts:geometry.map((p,i)=>
+   i===0?{...p,detail:"vent"}:p),
+  assembly:"gather",motion:"walk",mood:"brave",x:.4,z:.5
+ });
+ assert.equal(similar.ok,true,"a changed functional feature can change an otherwise identical shape");
+});
+test("unsafe AI microdetails, incompatible geometry and excessive part adornment reject",()=>{
+ const original=demoMagicCommand("creator",MAGIC_INITIAL_WORLD,"en").world.creations[0];
+ const payload={label:"Invalid detail",idea:"test",assembly:"gather",motion:"walk",
+  mood:"gentle",parts:original.parts};
+ for(const mutation of [
+  {index:0,detail:"html"},{index:1,detail:"thruster"},
+  {index:0,detail:"face"},{index:6,detail:"core"},
+  {index:0,detail:"not-real"},
+ ]){
+  const parts=original.parts.map((p,i)=>i===mutation.index?{...p,detail:mutation.detail}:p);
+  const r=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{...payload,parts});
+  assert.equal(r.ok,false,"invalid detail/shape combo must fail: "+JSON.stringify(mutation));
+ }
+ const many=original.parts.map((p,i)=>({...p,
+  ...(i>=2&&i<=6?{detail:p.shape==="capsule"?"vent":p.shape==="torus"?undefined:"rune"}:{})}));
+ const over=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{
+  ...payload,parts:many
+ });
+ assert.equal(over.ok,false,"per-creation detailed pieces must stay within phone budget");
+ const forged={...MAGIC_INITIAL_WORLD,creations:[{
+  ...original,parts:original.parts.map((p,i)=>i===1?{...p,detail:"eval"}:p)
+ }]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(forged)),null);
+});
+test("semantic identity faces, reactors, vents and distance LOD are wired to Three.js",()=>{
+ const renderer=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
+ const micro=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPartIdentity3D.tsx"),"utf8");
+ const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.match(renderer,/MagicPartIdentity3D part=\{part\}/);
+ assert.match(renderer,/detailGroups\.current/);
+ assert.match(renderer,/distanceToSquared\(camera\.position\)<30\*30/);
+ for(const type of ["face","core","vent","thruster"])
+  assert.match(micro,new RegExp('detail==="'+type+'"'));
+ assert.match(live,/name:"create_magic_entity"/);
+ assert.match(live,/detail:\{type:"STRING",enum:\["face","core","vent","thruster","rune"\]/);
+ assert.match(live,/name:"edit_magic_entity"/);
+});

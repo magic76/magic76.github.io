@@ -5,6 +5,7 @@ import {Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
 import {creationGroundClearance,islandSurfaceHeight} from "./magicNavigation";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
+import {MagicPartIdentity3D} from "./MagicPartIdentity3D";
 const LINK_UP=new Vector3(0,1,0);
 
 const PALETTE={
@@ -35,7 +36,7 @@ export function magicAssemblyOrder(parts:MagicCreatorPart[]){
 /** Geometry still comes exclusively from validated part enums. Rounded edges,
  * ornament rims and material-specific highlights lend recognizable depth; no
  * downloaded assets, custom shaders or AI executable payloads. */
-function PartMesh({part}:{part:MagicCreatorPart}){
+function PartMesh({part,detailRef}:{part:MagicCreatorPart;detailRef:(node:Group|null)=>void}){
  const surface=MATERIAL[part.material],color=PALETTE[part.color];
  const trim=part.material==="wood"?"#7a6255":part.material==="metal"?"#f5e8c9":
   part.material==="glass"?"#eafcff":"#fff4d8";
@@ -87,7 +88,10 @@ function PartMesh({part}:{part:MagicCreatorPart}){
    <sphereGeometry args={[1,12,8]}/>
    <meshStandardMaterial color={trim} emissive={trim} emissiveIntensity={.25}/>
   </mesh>}
-  <MagicPartAccents3D part={part}/>
+  <group ref={detailRef}>
+   <MagicPartAccents3D part={part}/>
+   <MagicPartIdentity3D part={part}/>
+  </group>
   {part.shape==="octahedron"&&<mesh position={[0,.67,0]}>
    <octahedronGeometry args={[.11,0]}/>
    <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.6}/>
@@ -100,6 +104,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
  const links=useRef<(Mesh|null)[]>([]);
+ const detailGroups=useRef<(Group|null)[]>([]);
  const linkDirection=useMemo(()=>new Vector3(),[]);
  const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
@@ -115,8 +120,13 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  },[owner?.x,owner?.z,creation.x,creation.z,creation.id]);
  // Each part starts outside the silhouette or under ground and converges to
  // its AI-defined target. No fixed character skeletons or prefab models.
- useFrame(({clock},delta)=>{
+ useFrame(({clock,camera},delta)=>{
   if(!base.current)return;
+  // Detail-level switch: up close show all fine facial / ornamental surfaces;
+  // at overview scale skip hundreds of tiny meshes invisible on a 390px screen.
+  // GPU visibility only, no per-frame React setState or geometry allocations.
+  const showDetail=base.current.position.distanceToSquared(camera.position)<30*30;
+  for(const node of detailGroups.current)if(node)node.visible=showDetail;
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
   const completion=animated?Math.min(1,elapsed/ASSEMBLY_SECONDS):1;
@@ -218,7 +228,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
     <meshStandardMaterial color="#667785" metalness={.7} roughness={.32}/>
    </mesh>)}
    {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
-    <PartMesh part={part}/>
+    <PartMesh part={part} detailRef={node=>{detailGroups.current[i]=node}}/>
    </group>)}
   </group>
  </group>
