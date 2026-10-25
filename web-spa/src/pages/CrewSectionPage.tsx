@@ -1,5 +1,6 @@
 import {useRef,useState} from "react";
 import {Link} from "react-router-dom";
+import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
@@ -215,7 +216,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text"><strong>{item.title}</strong><small>{item.desc}</small></span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>)}
-    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" to="/mate">
+    <Link className="crew-explore-tile crew-explore-mate" data-kind="mate" onClick={()=>trackUsageEvent("explore_entry_click","mate")} to="/mate">
      <div className="crew-explore-art"><ExploreArtwork kind="mate"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Mate · Speak for me":"Crew Mate · AI 幫你溝通"}</strong>
@@ -223,7 +224,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
-    <Link className="crew-explore-tile crew-explore-town" data-kind="town" to="/town">
+    <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
      <div className="crew-explore-art"><div className="crew-explore-town-mini"><TownIllustration/></div></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
@@ -231,7 +232,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
-    <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" to="/magic">
+    <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
      <div className="crew-explore-art">
       <div className="crew-explore-magic-preview" aria-hidden="true"><span className="cloud-one">☁</span><span className="magic-castle-icon">🏰</span><span className="magic-star-one">✦</span><span className="magic-star-two">✧</span><span className="cloud-two">☁</span></div>
      </div>
