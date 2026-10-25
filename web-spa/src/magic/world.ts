@@ -280,7 +280,10 @@ export function demoMagicCommand(intent:"dragon"|"night"|"puzzle"|"portal"|"snow
  switch(intent){
   case "dragon":return applyMagicCommand(world,"summon_object",{kind:"dragon"},lang);
   case "portal":return applyMagicCommand(world,"open_world_portal",{},lang);
-  case "night":return applyMagicCommand(world,"change_world",{time:world.time==="day"?"night":"day",weather:"stars"},lang);
+  // This action is labelled “starry night”, so it must be idempotent: tapping it
+  // while already at night must never flip the scene back to daylight while
+  // leaving star weather active. UI, state and rendered sky now share one truth.
+  case "night":return applyMagicCommand(world,"change_world",{time:"night",weather:"stars"},lang);
   case "snow":return applyMagicCommand(world,"change_world",{weather:"snow",time:"night"},lang);
   case "rain":return applyMagicCommand(world,"change_world",{weather:"rain",time:"day"},lang);
   case "forest":return applyMagicCommand(world,"change_world",{theme:"forest",time:"day",weather:"clear"},lang);
