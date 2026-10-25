@@ -70,7 +70,7 @@ export function magicPartPivot(part:{
  const y=part.pivot==="top"?yHalf*(part.height??1):
   part.pivot==="bottom"?-yHalf*(part.height??1):0;
  const angle=(part.yaw??0)*Math.PI/180;
- return [x*Math.cos(angle),y,-x*Math.sin(angle)];
+ return x===0?[0,y,0]:[x*Math.cos(angle),y,-x*Math.sin(angle)];
 }
 
 export function creationGroundClearance(parts:readonly {shape:string;y:number;size:number;joint?:string;height?:number;width?:number;depth?:number;pivot?:string}[]):number{
