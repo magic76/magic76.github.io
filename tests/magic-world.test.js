@@ -691,3 +691,24 @@ test("Magic 3D island has tenfold walkable area, spatially distributed details a
  assert.ok(cx>6&&cx<8);
  assert.equal(cz,0);
 });
+
+test("safe detailed geometry accepts capsule and leaf without accepting arbitrary parts",()=>{
+ const part=(shape,x,y,z,joint)=>({shape,material:"metal",color:"azure",x,y,z,size:.8,...(joint?{joint}:{})});
+ const result=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{
+  label:"Feathered clockwork fox",idea:"rounded body with articulated feathers",
+  assembly:"stack",motion:"walk",mood:"curious",seed:84621,
+  parts:[part("capsule",0,.55,0),part("leaf",-.95,1.3,0,"flap"),
+   part("leaf",.95,1.3,0,"flap"),part("sphere",0,1.5,.1)]
+ });
+ assert.equal(result.ok,true);
+ assert.equal(result.world.creations[0].parts[0].shape,"capsule");
+ assert.equal(result.world.creations[0].parts[1].shape,"leaf");
+ assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(result.world)),result.world);
+ const invalid=applyMagicCommand(MAGIC_INITIAL_WORLD,"create_magic_entity",{
+  label:"unsafe",idea:"unsafe",assembly:"gather",motion:"still",mood:"gentle",
+  parts:[part("capsule",0,1,0),part("evilMesh",0,.4,0),part("leaf",1,1,0)]
+ });
+ assert.equal(invalid.ok,false);
+ const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.match(live,/enum:\["box","sphere","cone","cylinder","torus","octahedron","capsule","leaf"\]/);
+});
