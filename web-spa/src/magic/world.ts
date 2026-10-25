@@ -652,8 +652,9 @@ export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fo
    // Connect each subassembly to a structural predecessor, not a prefab skeleton.
    const parts=design.parts.map((p,i)=>({
     ...p,
-    ...(i>0?{connectTo:i<5?0:i-1}:{}),
-    ...(i===0?{width:1.32,height:1.2,depth:1.13,profile:"armor"}:
+    ...(i>0&&index!==1?{connectTo:i<5?0:i-1}:{}),
+    ...(index===1?{profile:i===0?"organic":"smooth",width:i===0?1.22:.85,height:1.15,depth:1.1}:
+     i===0?{width:1.32,height:1.2,depth:1.13,profile:"armor"}:
      i===1?{width:1.12,height:1.02,depth:.86,profile:"mechanical"}:
      p.shape==="leaf"?{width:1.28,height:.7,depth:.75,profile:"organic"}:
      p.shape==="capsule"?{width:.82,height:1.35,depth:.84,profile:"mechanical"}:
