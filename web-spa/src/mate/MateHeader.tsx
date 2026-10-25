@@ -9,4 +9,5 @@ export function MateHeader({phase,en,onHistory}:{phase:MatePhase;en:boolean;onHi
         <h1>{t("AI 幫你溝通","Let AI communicate for you")}</h1>
         <p>{t("私下交代，再把手機交給對方。","Brief privately, then hand the phone to the other person.")}</p></div>
       {phase!=="external"&&phase!=="decision"&&<button type="button" className="mate-quiet" onClick={onHistory}>{t("紀錄","History")}</button>}
-    </header>
+    </header>;
+}
