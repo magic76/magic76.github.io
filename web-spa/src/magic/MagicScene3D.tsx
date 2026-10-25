@@ -238,7 +238,7 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
  */
 function MagicCinematic({cue}:{cue:NonNullable<MagicWorld["cue"]>}){
  const glyph=useRef<Group>(null),started=useRef<number|null>(null);
- const destination=useMemo(()=>new Vector3(cue==="dragon_arrival"?[-4.2,6.1,8.4]:[4.4,5.1,8.2]),[cue]);
+ const destination=useMemo(()=>cue==="dragon_arrival"?new Vector3(-4.2,6.1,8.4):new Vector3(4.4,5.1,8.2),[cue]);
  useFrame(({clock,camera},delta)=>{
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
