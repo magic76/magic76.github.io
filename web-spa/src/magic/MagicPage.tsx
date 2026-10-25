@@ -2,6 +2,7 @@ import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "rea
 import type {CSSProperties,FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {trackUsageEvent} from "../analytics/usage";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
 import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,readMagicWorldSnapshot,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
@@ -77,7 +78,8 @@ export function MagicPage(){
   sync();q.addEventListener("change",sync);return()=>q.removeEventListener("change",sync);
  },[]);
  const has3D=useThreeWorld&&!threeFailed;
- const fail3D=useCallback(()=>{setThreeFailed(true);setUseThreeWorld(false)},[]);
+ const fail3D=useCallback(()=>{trackUsageEvent("magic_3d_fallback");setThreeFailed(true);setUseThreeWorld(false)},[]);
+ useEffect(()=>{trackUsageEvent("magic_enter")},[]);
  const sessionRef=useRef<LiveSession|null>(null);
  const toolResultsRef=useRef(new Map<string,MagicResult>());
  useEffect(()=>{
@@ -98,12 +100,15 @@ export function MagicPage(){
   if(next.ok){
    worldRef.current=next.world;
    setWorld(next.world);
+   if(name==="cast_spell"||name==="change_world")trackUsageEvent("magic_spell");
+   if(name==="answer_challenge")trackUsageEvent("magic_challenge_answer");
+   if(name==="select_magic_panel")trackUsageEvent("magic_panel_choice");
   }
   return next;
  },[zh]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
   const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
-  if(next.ok){worldRef.current=next.world;setWorld(next.world);setNotice("");}
+  if(next.ok){worldRef.current=next.world;setWorld(next.world);setNotice("");trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");}
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
  },[zh]);
 
@@ -133,6 +138,7 @@ export function MagicPage(){
   const failSession=(message:string)=>{
    if(generation.current!==sequence)return;
    const active=sessionRef.current;sessionRef.current=null;
+   trackUsageEvent("magic_voice_failed");
    setVoiceState("error");setNotice(message);
    // A failed Live transport can still own a microphone track. Never let that
    // stale session block the retry button or update the next connection.
@@ -151,7 +157,12 @@ export function MagicPage(){
     onToolCall:call=>{
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
      const {result,duplicate}=applyMagicLiveCall(worldRef.current,call,toolResultsRef.current,zh?"zh":"en");
-     if(!duplicate&&result.ok){worldRef.current=result.world;setWorld(result.world);}
+     if(!duplicate&&result.ok){
+      worldRef.current=result.world;setWorld(result.world);
+      if(call.name==="cast_spell"||call.name==="change_world")trackUsageEvent("magic_spell");
+      if(call.name==="answer_challenge")trackUsageEvent("magic_challenge_answer");
+      if(call.name==="select_magic_panel")trackUsageEvent("magic_panel_choice");
+     }
      return {ok:result.ok,event:result.event,chapter:result.world.chapter,
       duplicate,...(result.ok?{}:{error:result.event})};
     },
@@ -182,6 +193,7 @@ export function MagicPage(){
     failSession(t("語音連線未能完成，請再試一次。","The voice connection did not finish. Please retry."));
     return;
    }
+   trackUsageEvent("magic_voice_connected");
    setVoiceState("listening");
    setNotice("");
   }catch{

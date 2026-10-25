@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from "react";
 import {Link} from "react-router-dom";
+import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
 import {fetchDay,fetchIndex,rankItems} from "../briefing/data";
@@ -104,7 +105,7 @@ function BriefingPreview(){
  },[]);
  return <section className="crew-home-briefing" aria-label="每日研發情報">
   <div className="crew-home-section-heading"><span>CREW BRIEFING</span><span>{t("briefing.heading")}</span></div>
-  <Link className="crew-home-briefing-card" to="/research">
+  <Link className="crew-home-briefing-card" to="/research" onClick={()=>trackUsageEvent("home_entry_click","briefing")}>
    <span className="crew-home-briefing-top"><span className="crew-home-briefing-emblem" aria-hidden="true"><Icon name="sparkles"/></span><span className="crew-home-briefing-date">{edition?latestDate(edition.day.date):unavailable?t("briefing.report"):t("briefing.loading")}</span></span>
    <strong>{edition?.item?.title||t("briefing.today")}</strong>
    <p>{edition?.item?.summary||t("briefing.summary")}</p>
@@ -186,19 +187,19 @@ export function HomePage(){
     <details className="crew-home-products">
      <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
      <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" to="/learn">
+      <Link className="crew-home-product crew-home-teacher" onClick={()=>trackUsageEvent("home_entry_click","learn")} to="/learn">
        <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
        <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-story" to="/story">
+      <Link className="crew-home-product crew-home-story" onClick={()=>trackUsageEvent("home_entry_click","story")} to="/story">
        <span className="crew-home-product-art crew-home-product-story" aria-hidden="true"><span className="crew-home-book"><Icon name="story"/><i>✦</i></span></span>
        <strong>Story</strong><small>{t("product.story")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-fortune" to="/fortune">
+      <Link className="crew-home-product crew-home-fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")} to="/fortune">
        <span className="crew-home-product-art crew-home-product-fortune" aria-hidden="true"><span className="crew-home-orbit"><Icon name="fortune"/></span></span>
        <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>
-      <Link className="crew-home-product crew-home-play" to="/games">
+      <Link className="crew-home-product crew-home-play" onClick={()=>trackUsageEvent("home_entry_click","play")} to="/games">
        <span className="crew-home-product-art crew-home-product-play" aria-hidden="true"><span className="crew-home-play-emblem"><Icon name="play"/></span></span>
        <strong>Play</strong><small>{t("product.play")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
       </Link>

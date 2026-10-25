@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {trackUsageEvent} from "../analytics/usage";
 import {ensureLive,geminiKey,type LiveSession,type LiveTurn} from "../lib/runtime";
 import {
   EMPTY_CONSENSUS,applyMateConsensusPatch,deleteMateHistory,
@@ -60,6 +61,7 @@ export function MatePage(){
   const unmuteTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const turnsRef=useRef<MateTurn[]>([]);
   const taskId=useRef(timestampId());
+  useEffect(()=>{trackUsageEvent("mate_open")},[]);
 
   function advance(next:MatePhase,audience:MateAudience){
     phaseRef.current=next;audienceRef.current=audience;setPhase(next);
@@ -129,6 +131,7 @@ export function MatePage(){
   }
   async function closeTask(completed:boolean,summary:string){
     advance("finished","IDLE");
+    if(completed)trackUsageEvent("mate_handoff_completed");
     setOutcome(summary);saveResult(completed,summary);
     await stopConnection();
   }
@@ -170,7 +173,10 @@ export function MatePage(){
         onState:(state:string)=>{
           if(connectionSeq.current!==sequence)return;
           setConnected(state==="ready");
-          if(state==="error")setError(t("語音連線中斷，請重試。","Voice connection failed. Please retry."));
+          if(state==="error"){
+            if(mode==="external")trackUsageEvent("mate_handoff_failed");
+            setError(t("語音連線中斷，請重試。","Voice connection failed. Please retry."));
+          }
         },
         onSpeaking:(now:boolean)=>{
           if(connectionSeq.current!==sequence)return;
@@ -251,6 +257,7 @@ export function MatePage(){
             advance("finished","IDLE");
             setOutcome(result);
             saveResult(true,result);
+            trackUsageEvent("mate_handoff_completed");
             connectionRef.current?.setVolume(0);
             Promise.resolve().then(()=>void stopConnection());
             return {ok:true};
@@ -259,6 +266,7 @@ export function MatePage(){
         },
         onError:(failure:Error)=>{
           if(connectionSeq.current!==sequence)return;
+          if(mode==="external")trackUsageEvent("mate_handoff_failed");
           setConnected(false);setError(t("語音連線失敗，請重新連線。","Voice connection failed. Please reconnect."));
         },
         onTerminal:()=>{
@@ -273,10 +281,14 @@ export function MatePage(){
       await session.start();
       if(connectionSeq.current!==sequence){await session.stop({reason:"stale",emitTerminal:false});return}
       setConnected(Boolean(session.ready&&session.running));
-      if(mode==="external")session.setVolume(100);
+      if(mode==="external"){
+        if(session.ready&&session.running)trackUsageEvent("mate_handoff_started");
+        session.setVolume(100);
+      }
     }catch(failure){
       if(connectionSeq.current!==sequence)return;
       connectionRef.current=null;setConnected(false);
+      if(mode==="external")trackUsageEvent("mate_handoff_failed");
       setError(t("語音連線失敗，請檢查 Gemini Key、麥克風權限或網路。","Voice connection failed. Check your Gemini key, microphone permission and network."));
     }
   }
@@ -299,6 +311,7 @@ export function MatePage(){
       if(statements.length){
         const resolved=await finalizeMateBriefing(consensusRef.current,statements);
         updateConsensus(resolved.consensus);
+        trackUsageEvent("mate_briefing_ready");
         setPrivateQuestion(resolved.question);
         privateStatements.current=[];privateInputRef.current="";
         setNote("");
