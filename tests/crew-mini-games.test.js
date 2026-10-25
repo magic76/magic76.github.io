@@ -65,6 +65,18 @@ test("Taboo has two hundred distinct offline cards with safe clues and rule vali
  assert.ok(taboo.friendGuesses(apple,"It is crunchy and used in a pie."));
  assert.equal(taboo.friendGuesses(apple,"An unusual thing."),false);
 });
+test("Taboo accepts Chinese and English guesses, speech phrases, and a missing final letter",()=>{
+ const camera=taboo.TABOO_CARDS.find(c=>c.word==="camera");
+ assert.ok(camera);
+ for(const value of ["camera","相機","照相機","Camera!","camer","我猜是相機","答案是相機","I guess camera","Is it a camera?"])
+  assert.equal(taboo.matchTabooGuess(camera,value),true,value);
+ const chineseCamera={...camera,word:"相機",zh:"相機"};
+ for(const value of ["相機","camera","camer","照相機","我猜是相機"])
+  assert.equal(taboo.matchTabooGuess(chineseCamera,value),true,value);
+ for(const value of ["car","cameras","I guess camera or phone","not camera","相機或手機",""])
+  assert.equal(taboo.matchTabooGuess(camera,value),false,value);
+});
+
 test("Gemini Taboo card input gets validated before it reaches game rules",()=>{
  const raw={word:"Lantern",zh:"燈籠",banned:["light","night","glow"],clues:["You carry this during a festival.","It helps you see during a celebration."],keywords:["festival","celebration"]};
  assert.ok(taboo.validGeneratedCard(raw,"easy"));
@@ -134,7 +146,10 @@ test("Taboo voice scoring validates an already-spoken guess without scheduling a
  assert.match(voice,/vary the wording and intonation naturally/);
  assert.doesNotMatch(voice,/COMPLETE spoken reply must be exactly/);
  const live=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/useLiveSession.ts"),"utf8");
- assert.match(live,/varied natural English/);
+ assert.match(live,/varied natural /);
+ assert.match(live,/const tabooChinese=/);
+ assert.match(live,/tabooTongue/);
+ assert.doesNotMatch(live,/Speak English only, regardless of friend preference/);
 });
 
 test("Taboo shuffle bag consumes 100 words per level across saved game sessions",()=>{
