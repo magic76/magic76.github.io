@@ -1,5 +1,6 @@
 import {useEffect,useState} from "react";
 import {Link} from "react-router-dom";
+import {trackUsageEvent} from "../../analytics/usage";
 import {CREW_FRIENDS} from "../../friends/friendProfiles";
 import {PEOPLE,PLACES,type FriendId,type PlaceId,type Selection} from "./world";
 export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
@@ -50,7 +51,8 @@ export function TownOverlay({selected,zh,onClose,onFriend,onPlace}:{
     <span>{activeIndex+1} / {entries.length}</span>
     <button type="button" onClick={()=>navigate(1)} aria-label={zh?"下一個":"Next"}>{zh?"下一個":"Next"} →</button>
    </div>
-   <Link className="crew-town-3d-action" to={friend?"/friend/live?id="+encodeURIComponent(friend.id):place?.to||"/explore"}>
+   <Link className="crew-town-3d-action" to={friend?"/friend/live?id="+encodeURIComponent(friend.id):place?.to||"/explore"}
+    onClick={()=>{if(friend||place?.to.startsWith("/friend/live"))trackUsageEvent("town_chat_click")}}>
     {friend?(zh?"加入與 "+friend.name+" 的語音聊天":"Join "+friend.name+" in voice chat"):place?(zh?place.ctaZh:place.ctaEn):""}
     <span aria-hidden="true">↗</span>
    </Link>
