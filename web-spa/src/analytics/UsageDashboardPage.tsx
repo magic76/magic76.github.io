@@ -8,7 +8,7 @@ type Report={
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string
 };
-type Category="all"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune";
+type Category="all"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
 
 const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
@@ -24,22 +24,33 @@ const names:Record<string,string>={
  vocabulary_practice:"單字作答",textbook_study:"教材語音開始",textbook_open:"教材陪讀開啟",
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
  fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",
- gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功"
+ gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功",
+ home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
+ town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
+ magic_enter:"進入 Magic",magic_spell:"Magic 施法",magic_challenge_answer:"Magic 解謎",magic_panel_choice:"Magic 互動卡選擇",
+ magic_voice_connected:"Magic 語音連線成功",magic_voice_failed:"Magic 語音連線失敗",magic_3d_fallback:"Magic 3D 降級",magic_world_reset:"Magic 世界重置",
+ mate_open:"進入 Mate",mate_briefing_ready:"Mate 交代整理成功",mate_handoff_started:"Mate 交接連線成功",mate_handoff_completed:"Mate 完成任務",mate_handoff_failed:"Mate 交接連線失敗",
+ research_article_open:"研究文章開啟",research_article_saved:"研究文章收藏",research_article_completed:"研究文章標記已讀",research_source_open:"研究原始來源開啟",
+ circle_thread_open:"交流圈留言展開",circle_post_published:"交流圈發布貼文",circle_comment_posted:"交流圈送出留言"
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
- {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted"]},
+ {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","research_article_completed","circle_post_published","circle_comment_posted"]},
  {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
  {id:"games",label:"遊戲",events:["game_open","game_started","game_completed"]},
  {id:"learning",label:"學習",events:["vocabulary_practice","textbook_study"]},
  {id:"story",label:"故事",events:["story_reading","story_narration","story_created"]},
- {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]}
+ {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]},
+ {id:"worlds",label:"Town / Magic",events:["town_enter","town_interaction","town_chat_click","magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected"]},
+ {id:"mate",label:"Mate",events:["mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed"]},
+ {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]},
+ {id:"circle",label:"交流圈",events:["circle_thread_open","circle_post_published","circle_comment_posted"]}
 ];
 const games:{id:string;label:string}[]=[
  {id:"taboo",label:"Taboo 描述猜詞"},{id:"1a2b",label:"1A2B 猜數字"},
  {id:"gomoku",label:"五子棋"},{id:"connect4",label:"四子棋"},
- {id:"reversi",label:"黑白棋"},{id:"twenty-questions",label:"20 Questions"},{id:"mystery",label:"海龜湯"}
+ {id:"reversi",label:"黑白棋"},{id:"nonsense",label:"荒謬新聞直播 / 胡說大賽"},{id:"crazy-court",label:"荒謬法庭"},{id:"werewolf",label:"狼人殺"},{id:"twenty-questions",label:"20 Questions"},{id:"mystery",label:"海龜湯"}
 ];
 const num=(n:number)=>Math.round(n).toLocaleString("zh-TW");
 const total=(rows:Row[],name:string,detail?:string)=>rows.filter(r=>r.event===name&&(detail===undefined||r.detail===detail)).reduce((sum,r)=>sum+r.count,0);
@@ -168,6 +179,42 @@ export function UsageDashboardPage(){
       <p className="usage-explain">此處為各步驟總次數，不等於同一篇動態的逐人轉換率。</p>
      </section>
     </div>
+    <div className="usage-panels">
+     <section className="panel section">
+      <div className="section-head"><h2>Crew Town 3D</h2><small>使用深度與 3D 相容性</small></div>
+      <div className="usage-feature-list">
+       {[["進入小鎮","town_enter"],["選擇角色或街區","town_interaction"],["轉入 Live 聊天","town_chat_click"],["3D 自動降級","town_3d_fallback"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
+      </div>
+      <p className="usage-explain">3D 降級含不支援與繪製失敗，手動切換另計；轉入聊天不代表已成功建立連線。</p>
+     </section>
+     <section className="panel section">
+      <div className="section-head"><h2>Crew Magic</h2><small>施法、互動與 Live</small></div>
+      <div className="usage-feature-list">
+       {[["進入 Magic","magic_enter"],["施法成功","magic_spell"],["回答魔法挑戰","magic_challenge_answer"],["互動卡選擇","magic_panel_choice"],["語音連線成功","magic_voice_connected"],["語音連線失敗","magic_voice_failed"],["3D 自動降級","magic_3d_fallback"],["重新創造世界","magic_world_reset"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
+      </div>
+     </section>
+    </div>
+    <div className="usage-panels">
+     <section className="panel section">
+      <div className="section-head"><h2>Crew Mate</h2><small>交代到完成</small></div>
+      <div className="usage-feature-list">
+       {[["進入 Mate","mate_open"],["整理交代成功","mate_briefing_ready"],["交接連線成功","mate_handoff_started"],["任務完成","mate_handoff_completed"],["交接連線失敗","mate_handoff_failed"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
+      </div>
+     </section>
+     <section className="panel section">
+      <div className="section-head"><h2>Briefing / 交流圈</h2><small>閱讀與有效參與</small></div>
+      <div className="usage-feature-list">
+       {[["研究文章開啟","research_article_open"],["研究收藏","research_article_saved"],["研究已讀完","research_article_completed"],["研究原始來源","research_source_open"],["交流圈留言展開","circle_thread_open"],["交流圈貼文發布","circle_post_published"],["交流圈留言發送","circle_comment_posted"]].map(([label,event])=><div className="usage-feature" key={event}><span>{label}</span><strong>{num(total(rows,event))} 次</strong></div>)}
+      </div>
+      <p className="usage-explain">交流圈同時含示範與正式操作；示範互動不代表實際發佈到群組。</p>
+     </section>
+    </div>
+    <section className="panel section">
+     <div className="section-head"><h2>首頁與探索入口</h2><small>入口點擊次數，不等於實際有效使用</small></div>
+     <div className="usage-feature-list">
+      {["learn","story","fortune","play","briefing","town","magic","mate","shorts","circle"].map(detail=><div className="usage-feature" key={detail}><span>{detail}</span><strong>首頁 {num(total(rows,"home_entry_click",detail))} · 探索 {num(total(rows,"explore_entry_click",detail))}</strong></div>)}
+     </div>
+    </section>
     <section className="panel section">
      <div className="section-head"><h2>Crew Games</h2><small>開啟、實際開始、完成局數</small></div>
      <div className="usage-feature-list">
