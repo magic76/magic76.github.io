@@ -3,7 +3,7 @@ import type {CSSProperties,FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
-import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
+import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,readMagicWorldSnapshot,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
@@ -47,8 +47,14 @@ export function MagicPage(){
  const {i18n}=useTranslation();
  const zh=i18n.language.startsWith("zh");
  const t=(chinese:string,english:string)=>zh?chinese:english;
- const [world,setWorld]=useState<MagicWorld>(MAGIC_INITIAL_WORLD);
- const worldRef=useRef<MagicWorld>(MAGIC_INITIAL_WORLD);
+ const [world,setWorld]=useState<MagicWorld>(()=>{
+  try{return readMagicWorldSnapshot(window.sessionStorage.getItem("crew-magic-world-v1"))??MAGIC_INITIAL_WORLD}
+  catch{return MAGIC_INITIAL_WORLD}
+ });
+ const worldRef=useRef<MagicWorld>(world);
+ useEffect(()=>{
+  try{window.sessionStorage.setItem("crew-magic-world-v1",JSON.stringify(world))}catch{/* Storage may be disabled. Adventure still works. */}
+ },[world]);
  const [voiceState,setVoiceState]=useState<"idle"|"connecting"|"listening"|"speaking"|"error">("idle");
  const [notice,setNotice]=useState("");
  const [heard,setHeard]=useState("");
@@ -344,6 +350,7 @@ export function MagicPage(){
      </div>
      <form className="magic-prompt" onSubmit={submitInput}>
       <label htmlFor="magic-wish">{t("你想創造什麼？","What would you like to create?")}</label>
+      {!isOnline?<p className="magic-prompt-help" role="status">{t("連線 Lumi 後才能自由許願；下方快速魔法可直接試玩。","Connect to Lumi to send a custom wish. Quick spells work without a connection.")}</p>:null}
       <div><input id="magic-wish" type="text" autoComplete="off" maxLength={180} value={input}
        onChange={event=>setInput(event.target.value)}
        placeholder={t("例如：讓天空下雪，召喚貓頭鷹…","e.g. Make it snow, summon an owl…")}/>
