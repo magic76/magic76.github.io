@@ -108,9 +108,10 @@ export async function onRequestPost({request,env}){
   ).bind(day,Number(env.GUEST_DAILY_SESSION_LIMIT)).run();
   if(quota.meta?.changes!==1)return json({error:"Today's trial capacity reached",code:"DAILY_LIMIT"},429);
   reserved=true;
-  const token=await mintToken(env.GEMINI_GUEST_API_KEY,Date.now());
+  const issuedAt=Date.now();
+  const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,expiresAt:new Date(now+200000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+200000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{
