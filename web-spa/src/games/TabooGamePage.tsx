@@ -210,7 +210,7 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
   <div className="crew-mini-toolbar">
    <GamePanel label="⚙ 遊戲設定" title="描述猜題設定">
   <div className="crew-mini-config" aria-label="Taboo 遊戲設定">
-   <small className="crew-mini-label">遊戲模式</small>
+   <small className="crew-mini-label">遊戲模式 · 目前使用{chinese?"中文":"英文"}題庫</small>
    <div className="crew-mini-segments" role="group" aria-label="描述模式">
     <button type="button" aria-pressed={mode==="describe"} disabled={phase==="playing"} onClick={()=>changeMode("describe")}>我描述 · 朋友猜</button>
     <button type="button" aria-pressed={mode==="guess"} disabled={phase==="playing"} onClick={()=>changeMode("guess")}>朋友描述 · 我猜</button>
@@ -266,20 +266,20 @@ function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>[
     <div className="crew-mini-banned">{card.banned.map(word=><span key={word}>{word}</span>)}</div>
     <p className="crew-mini-muted">可以描述用途、外觀或使用情境；朋友猜不出時再補充線索。</p>
    </div>:<div className="crew-taboo-prompt">
-    <span className="crew-taboo-eyebrow">GUESS · 聽提示猜單字</span>
+    <span className="crew-taboo-eyebrow">GUESS · 聽{chinese?"中文":"英文"}提示猜答案</span>
     <small className="crew-mini-label">{friend.name} 的第一個提示</small>
     <blockquote className="crew-mini-clue">{card.clues[0]}</blockquote>
     {revealed?<><small className="crew-mini-label">第二個提示</small><blockquote className="crew-mini-clue">{card.clues[1]}</blockquote></>:<button type="button" className="crew-mini-subtle" onClick={()=>setRevealed(true)}>需要幫忙？看第二個提示</button>}
-    <p className="crew-mini-muted">答案會在本局結束後顯示。</p>
+    <p className="crew-mini-muted">可以直接說或輸入答案；接受中文、英文對應詞，以及簡短的「我猜是…」。</p>
    </div>}
    {mode==="describe"&&(lastClue||message)?<div className="crew-taboo-conversation" aria-live="polite">
      {lastClue?<p><span>我描述</span>{lastClue}</p>:null}
      {message?<p className="crew-taboo-answer-bubble"><span>{friend.name}</span>{message.replace(friend.name+"：","").replace(friend.name+" 猜：","猜：")}</p>:null}
     </div>:null}
     <form className="crew-mini-word-form" onSubmit={handleSubmit}>
-    <label className="crew-mini-label" htmlFor="crew-taboo-answer">{mode==="describe"?(chinese?"輸入中文描述":"輸入英文描述"):(chinese?"輸入你猜的中文詞":"輸入你猜的英文單字")}</label>
+    <label className="crew-mini-label" htmlFor="crew-taboo-answer">{mode==="describe"?(chinese?"輸入中文描述":"輸入英文描述"):"輸入你猜的答案（中文或英文）"}</label>
     <div className="crew-mini-input-row">
-     <input id="crew-taboo-answer" type="text" autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={chinese?(mode==="describe"?"它通常可以用來…":"例如 雨傘"):(mode==="describe"?"It is used for…":"例如 apple")} aria-describedby="crew-taboo-input-tip"/>
+     <input id="crew-taboo-answer" type="text" autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={chinese?(mode==="describe"?"它通常可以用來…":"例如 相機 / camera"):(mode==="describe"?"It is used for…":"例如 apple")} aria-describedby="crew-taboo-input-tip"/>
      <button type="submit" className="crew-mini-primary" disabled={!answer.trim()||guessing}>{guessing?"朋友思考中…":"送出"}</button>
     </div>
     <small id="crew-taboo-input-tip" className="crew-taboo-input-tip">{mode==="describe"?(geminiKey()?"可打字或用 Live 語音描述，由 AI 猜詞。":"免 Key 可以打字練習並自評，朋友不會自動猜詞。"):"可以使用語音（需 Key）或直接打字。"}</small>
