@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {Canvas,useFrame,useThree, type ThreeEvent} from "@react-three/fiber";
 import {OrbitControls} from "@react-three/drei";
-import {Color,Group} from "three";
+import {Color,Group,Vector3} from "three";
 import type {MagicObjectKind,MagicSpell,MagicWorld} from "./world";
 
 // The renderer receives only the strictly validated world reducer output.
@@ -35,20 +35,28 @@ function FloatingIsland({colors}:{colors:(typeof BIOMES)[keyof typeof BIOMES]}){
   </mesh>)}
  </group>;
 }
-function Castle({colors,night}:{colors:(typeof BIOMES)[keyof typeof BIOMES];night:boolean}){
+function Castle({colors,night,ice}:{colors:(typeof BIOMES)[keyof typeof BIOMES];night:boolean;ice:boolean}){
  return <group position={[0,1.35,-.55]}>
-  <mesh position={[0,.8,0]}><boxGeometry args={[2.5,1.8,1.55]}/><meshStandardMaterial color="#f4e9db" roughness={.9}/></mesh>
-  <mesh position={[0,1.8,0]}><coneGeometry args={[1.85,.95,4]}/><meshStandardMaterial color={colors.roof} flatShading/></mesh>
-  <mesh position={[0,.35,.81]}><boxGeometry args={[.66,1,.12]}/><meshStandardMaterial color="#665a74"/></mesh>
+  <mesh position={[0,.8,0]}><boxGeometry args={[2.5,1.8,1.55]}/><meshStandardMaterial color={ice?"#a6e5f4":"#f4e9db"} metalness={ice?.22:0} roughness={ice?.28:.9}/></mesh>
+  <mesh position={[0,1.8,0]}><coneGeometry args={[1.85,.95,4]}/><meshStandardMaterial color={ice?"#d6f9ff":colors.roof} flatShading/></mesh>
+  <mesh position={[0,.35,.81]}><boxGeometry args={[.66,1,.12]}/><meshStandardMaterial color={ice?"#5cb0cc":"#665a74"}/></mesh>
   <mesh position={[0,.54,.88]}><sphereGeometry args={[.09,8,8]}/><meshStandardMaterial color="#ffdc8a" emissive="#ffb85a" emissiveIntensity={night?.9:.15}/></mesh>
   {[-1.12,1.12].map((x,i)=><group key={i} position={[x,0,.25]}>
-   <mesh position={[0,1.06,0]}><cylinderGeometry args={[.51,.57,2.7,8]}/><meshStandardMaterial color="#eae0d8" flatShading/></mesh>
-   <mesh position={[0,2.67,0]}><coneGeometry args={[.77,1.25,8]}/><meshStandardMaterial color={colors.roof} flatShading/></mesh>
+   <mesh position={[0,1.06,0]}><cylinderGeometry args={[.51,.57,2.7,8]}/><meshStandardMaterial color={ice?"#b4eff7":"#eae0d8"} flatShading/></mesh>
+   <mesh position={[0,2.67,0]}><coneGeometry args={[.77,1.25,8]}/><meshStandardMaterial color={ice?"#e5fcff":colors.roof} flatShading/></mesh>
    <mesh position={[0,1.38,.56]}><sphereGeometry args={[.19,8,8]}/><meshStandardMaterial color="#fff6bb" emissive="#ffdb9a" emissiveIntensity={night?1.2:.24}/></mesh>
    <mesh position={[0,3.4,0]}><sphereGeometry args={[.12,8,8]}/><meshStandardMaterial color="#ffdc98" emissive="#ffc871" emissiveIntensity={night?1.4:.35}/></mesh>
   </group>)}
-  <mesh position={[0,2.4,-.8]}><cylinderGeometry args={[.38,.45,2.4,8]}/><meshStandardMaterial color="#e9dbd1"/></mesh>
-  <mesh position={[0,3.95,-.8]}><coneGeometry args={[.61,1.1,8]}/><meshStandardMaterial color={colors.roof}/></mesh>
+  <mesh position={[0,2.4,-.8]}><cylinderGeometry args={[.38,.45,2.4,8]}/><meshStandardMaterial color={ice?"#d7f6fb":"#e9dbd1"}/></mesh>
+  <mesh position={[0,3.95,-.8]}><coneGeometry args={[.61,1.1,8]}/><meshStandardMaterial color={ice?"#c5ecf7":colors.roof}/></mesh>
+  {ice&&[-1.45,-.9,-.25,.8,1.5].map((x,i)=><mesh key={i} position={[x,2.65+(i%3)*.28,.9]} rotation={[0,0,(i-2)*.2]}>
+   <coneGeometry args={[.24+(i%2)*.08,.82+(i%3)*.37,5]}/>
+   <meshStandardMaterial color="#bceefd" emissive="#65c9e9" emissiveIntensity={.2} metalness={.18}/>
+  </mesh>)}
+  {ice&&<mesh position={[0,.68,1.06]} rotation={[0,0,Math.PI/4]}>
+   <octahedronGeometry args={[.38,0]}/>
+   <meshStandardMaterial color="#e2fbff" emissive="#82c9eb" emissiveIntensity={.5}/>
+  </mesh>}
  </group>;
 }
 function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOMES)[keyof typeof BIOMES];variant?:number}){
@@ -78,8 +86,17 @@ function Dragon({animated}:{animated:boolean}){
  </group>;
 }
 function SceneObject({kind,position,animated,onClick}:{kind:MagicObjectKind;position:[number,number,number];animated:boolean;onClick:(event:ThreeEvent<MouseEvent>)=>void}){
- const bob=useRef<Group>(null);
- useFrame(({clock})=>{if(animated&&bob.current&&kind!=="dragon")bob.current.position.y=Math.sin(clock.elapsedTime*1.6+position[0])*.13});
+ const bob=useRef<Group>(null),arrival=useRef<number|null>(null);
+ useFrame(({clock})=>{
+  if(!animated||!bob.current)return;
+  if(kind==="dragon"){
+   if(arrival.current===null)arrival.current=clock.elapsedTime;
+   const progress=Math.min(1,(clock.elapsedTime-arrival.current)/3.15);
+   const eased=1-Math.pow(1-progress,3);
+   bob.current.position.set(-5*(1-eased),5.2*(1-eased),-4*(1-eased));
+   bob.current.rotation.y=(1-eased)*2.1;
+  }else bob.current.position.y=Math.sin(clock.elapsedTime*1.6+position[0])*.13;
+ });
  return <group position={position} onClick={onClick}>
   <group ref={bob}>
    {kind==="dragon"?<Dragon animated={animated}/>:null}
@@ -214,8 +231,46 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
    <meshStandardMaterial color="#edc98e" metalness={.35} roughness={.4}/></mesh>
  </group>;
 }
+/**
+ * A short, bounded cinematic beat attached to a validated world revision.
+ * Camera choreography and effects are local only; permanent changes live in
+ * the reducer. No arbitrary Gemini camera parameters or meshes are accepted.
+ */
+function MagicCinematic({cue}:{cue:NonNullable<MagicWorld["cue"]>}){
+ const glyph=useRef<Group>(null),started=useRef<number|null>(null);
+ const destination=useMemo(()=>cue==="dragon_arrival"?new Vector3(-4.2,6.1,8.4):new Vector3(4.4,5.1,8.2),[cue]);
+ useFrame(({clock,camera},delta)=>{
+  if(started.current===null)started.current=clock.elapsedTime;
+  const elapsed=clock.elapsedTime-started.current;
+  const smooth=Math.min(1,delta*2.5);
+  camera.position.lerp(destination,smooth);
+  camera.lookAt(0,cue==="dragon_arrival"?2.4:2.7,0);
+  if(glyph.current){
+   const phase=Math.min(1,elapsed/1.6);
+   glyph.current.rotation.z=elapsed*1.9;
+   glyph.current.scale.setScalar(.3+phase*2.5);
+  }
+ });
+ return <group ref={glyph} position={[0,3.2,.2]}>
+  {[1,1.44,1.89].map((radius,i)=><mesh key={i} rotation={[Math.PI/2,0,0]}>
+   <torusGeometry args={[radius,.065,7,38]}/>
+   <meshBasicMaterial color={cue==="dragon_arrival"?"#ffd088":"#9feafa"} transparent opacity={.78-i*.17}/>
+  </mesh>)}
+  {Array.from({length:12},(_,i)=><mesh key={i} position={[Math.cos(i*2.399)*2.3,Math.sin(i*1.5)*1.6,Math.sin(i*2.399)*1.2]}>
+   <octahedronGeometry args={[.15+(i%3)*.07,0]}/>
+   <meshBasicMaterial color={cue==="dragon_arrival"?"#ffb76f":"#c7f7ff"}/>
+  </mesh>)}
+ </group>;
+}
 function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
  const colors=BIOMES[world.theme],night=world.time==="night";
+ const [cinematic,setCinematic]=useState(false);
+ useEffect(()=>{
+  if(!world.cue||reducedMotion){setCinematic(false);return}
+  setCinematic(true);
+  const timer=window.setTimeout(()=>setCinematic(false),3800);
+  return()=>window.clearTimeout(timer);
+ },[world.revision,world.cue,reducedMotion]);
  const {gl,invalidate}=useThree();
  useEffect(()=>{
   const lose=(ev:Event)=>{ev.preventDefault();onFailure()};
@@ -235,7 +290,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
   <directionalLight position={[-5,9,7]} intensity={night?1.2:2} color={night?"#c2cbed":"#fff6e6"}/>
   <pointLight position={[0,4,0]} intensity={night?2.3:.8} color="#e6cbff" distance={10}/>
   <FloatingIsland colors={colors}/>
-  <Castle colors={colors} night={night}/>
+  <Castle colors={colors} night={night} ice={world.castle==="ice"}/>
   <BiomeLandmarks theme={world.theme} night={night}/>
   {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
   {world.objects.map(obj=>{
@@ -244,8 +299,9 @@ function SceneContent({world,reducedMotion,onInteract,onFailure}:Props){
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
+  {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
-  <OrbitControls makeDefault enablePan={false} enableDamping={!reducedMotion} minDistance={9} maxDistance={21}
+  <OrbitControls makeDefault enabled={!cinematic} enablePan={false} enableDamping={!reducedMotion} minDistance={9} maxDistance={21}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;
 }

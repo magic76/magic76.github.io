@@ -11,6 +11,9 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
  {name:"summon_object",description:"Add one object block to the current world: an interactive creature or magical object. This is a composable primitive and may follow a world/event change in the same player turn. Call once per object the player asks for; do not retry automatically when the world reports it is full, after reconnecting, or merely to narrate the result.",parameters:{type:"OBJECT",properties:{
   kind:{type:"STRING",enum:["dragon","chest","portal","tree","owl","crystal"]}
  },required:["kind"]}},
+ {name:"transform_castle",description:"Permanently and visibly transform the 3D castle between crystalline ice and warm stone. 'ice' creates frost, snow and a night-time camera spell; 'stone' thaws the castle. This is a safe composable building block. If user asks a dragon to freeze the castle, summon dragon first and then call this with form=ice. Do not replay after success.",parameters:{type:"OBJECT",properties:{
+  form:{type:"STRING",enum:["ice","stone"]}
+ },required:["form"]}},
  {name:"cast_spell",description:"Add one visual-effect block to the current world. This is a composable primitive and may be combined with a scene change or object summon. Do not repeat the same call merely to narrate it or after Live transport recovery.",parameters:{type:"OBJECT",properties:{
   spell:{type:"STRING",enum:["sparkles","fire","wind","heal"]}
  },required:["spell"]}},
@@ -46,6 +49,7 @@ export function magicSystemPrompt(english:boolean){
   "The user is actually viewing a floating enchanted island with a changing backdrop, creatures and interactive cards.",
   "Respond naturally, in short sentences and with a sense of wonder. Ask one simple follow-up question at a time.",
   "The UI can change only by the provided tools. Call them promptly for the user's imaginative requests.",
+  "For visible magic, prefer a transformation over generic narration. When the user asks for a dragon to freeze the castle, call summon_object for dragon if needed, then transform_castle with form ice. The renderer performs a short camera-and-rune cinematic and keeps the transformed castle in the persistent world. A request to thaw should use form stone.",
   "Think of the tools as safe LEGO-like world primitives. For a request with several compatible visual ideas, compose 2-4 different primitives in the SAME turn instead of collapsing the wish into one generic action. Example: 'make a mysterious dragon night' can change the world to night/stars, summon a dragon, then add wind or an aurora. Stop as soon as the requested scene is visibly expressed.",
   "Prefer meaningful composition over repetition: at most four world-mutating tool calls for one user turn, never call the same primitive twice with equivalent arguments, and never add unrelated surprises just to reach the limit.",
   "Compose incrementally on the current state. A successful primitive is committed immediately; if a later primitive fails, keep the successful earlier changes and continue naturally rather than replaying the whole sequence.",
