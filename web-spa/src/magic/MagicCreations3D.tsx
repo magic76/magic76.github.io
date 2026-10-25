@@ -18,7 +18,20 @@ const MATERIAL={
  glass:{roughness:.12,metalness:.1,opacity:.61,emissiveIntensity:.15},
  glow:{roughness:.36,metalness:.15,opacity:1,emissiveIntensity:.78}
 } as const;
+// The old creator used elapsed/3.8; keep this migration note until the broad
+// Magic regression is updated to assert the staged timing contract directly.
+const ASSEMBLY_SECONDS=5.6;
 const ease=(v:number)=>{const a=Math.max(0,Math.min(1,v));return a*a*(3-2*a)};
+/** Build a readable three-beat reveal without adding semantic fields to the AI
+ * payload: large fixed pieces establish the silhouette, articulated parts show
+ * function next, then small details finish the identity. Original part order is
+ * only used as a deterministic tie-breaker. */
+export function magicAssemblyOrder(parts:MagicCreatorPart[]){
+ return parts.map((part,index)=>({part,index,score:
+  (part.joint&&part.joint!=="fixed"?1:0)+(part.size<.72?2:0)}))
+  .sort((a,b)=>a.score-b.score||b.part.size-a.part.size||a.index-b.index)
+  .reduce<number[]>((r,item,rank)=>(r[item.index]=rank,r),[]);
+}
 /** Geometry still comes exclusively from validated part enums. Rounded edges,
  * ornament rims and material-specific highlights lend recognizable depth; no
  * downloaded assets, custom shaders or AI executable payloads. */
@@ -92,6 +105,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const started=useRef<number|null>(null);
  const owner=creations.find(c=>c.id===creation.friendOf);
  const groundClearance=useMemo(()=>creationGroundClearance(creation.parts),[creation.parts]);
+ const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
  const origin=useMemo(()=>{
   if(owner){
    const [x,z]=safeMagicAnchor(owner.x,owner.z);
@@ -105,8 +119,8 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   if(!base.current)return;
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
-  const completion=animated?Math.min(1,elapsed/3.8):1;
-  const assembled=ease(Math.max(0,(completion-.72)/.28));
+  const completion=animated?Math.min(1,elapsed/ASSEMBLY_SECONDS):1;
+  const assembled=ease(Math.max(0,(completion-.82)/.18));
   const t=clock.elapsedTime+creation.seed*.0033;
   const drift=animated?Math.sin(t*.85)*.13:0;
   const walk=animated&&creation.motion==="walk"?.32:0;
@@ -136,8 +150,11 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   }
   creation.parts.forEach((part,i)=>{
    const element=groups.current[i];if(!element)return;
-   const delay=i*.12+.04;
-   const phase=ease((completion*3.8-delay)/1.45);
+   const rank=assemblyOrder[i]??i;
+   const count=Math.max(1,creation.parts.length-1);
+   // Stable silhouette -> articulated functional parts -> smaller detail reveal.
+   const delay=.05+(rank/count)*.5;
+   const phase=ease((completion-delay)/.38);
    const angle=creation.seed*.017+i*2.399;
    const far=2.6+(i%4)*.38;
    const startX=creation.assembly==="stack"?part.x:
