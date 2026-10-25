@@ -679,8 +679,25 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"sculptdragon"|"evolve"|"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
+  case "sculptrobot":
+  case "sculptfox":
+  case "sculptdragon":{
+   const kind=intent==="sculptrobot"?"robot":intent==="sculptfox"?"fox":"dragon";
+   const names={robot:["機械探險家","Mechanical explorer"],
+    fox:["雲尾靈狐","Cloud-tailed fox"],dragon:["星翼飛龍","Star-winged dragon"]} as const;
+   const palette:MagicCreatorColor=kind==="fox"?"coral":kind==="dragon"?"rose":"azure";
+   return applyMagicCommand(world,"create_magic_lifeform",{
+    label:names[kind][lang==="en"?1:0],idea:"a distinct anatomical procedural sculpture",
+    blueprint:{kind,style:kind==="dragon"?"mystic":kind==="robot"?"sleek":"sturdy",
+     palette,body:kind==="dragon"?1.15:1,head:kind==="fox"?1.2:1,
+     tail:kind==="fox"?1.3:kind==="dragon"?1.25:1,wings:kind==="dragon"?1.35:1},
+    motion:kind==="dragon"?"hover":"walk",mood:"curious",assembly:"gather",
+    x:kind==="robot"?-.73:kind==="fox"?.25:.75,
+    z:kind==="dragon"?-.4:.45,seed:world.revision*113+333
+   },lang);
+  }
   case "creator":{
    const color=lang==="en";
    const part=(shape:MagicCreatorShape,material:MagicCreatorMaterial,tint:MagicCreatorColor,
