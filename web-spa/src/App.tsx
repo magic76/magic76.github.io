@@ -9,6 +9,7 @@ import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{AppChrome}from"./components/AppChrome";
 import{OnboardingGate}from"./onboarding/OnboardingGate";
 import{CrewUpdateNotice}from"./components/CrewUpdateNotice";
+const GuestTrialPage=lazy(()=>import("./pages/GuestTrialPage").then(m=>({default:m.GuestTrialPage})));
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
 const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>import("./teacher/PracticePage").then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>import("./teacher/CoursePage").then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>import("./teacher/PronunciationPage").then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>import("./teacher/TextbookPage").then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>import("./teacher/LivePage").then(m=>({default:m.TeacherLivePage})));
@@ -63,6 +64,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/briefing/board" element={<Navigate to="/research/board" replace/>}/>
 <Route path="/briefing/:date/:id" element={<BriefingLegacyRedirect/>}/>
 <Route path="/orb" element={<AppChrome product="home"><CyberOrbPage/></AppChrome>}/>
+<Route path="/try" element={<AppChrome product="teacher"><GuestTrialPage/></AppChrome>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
