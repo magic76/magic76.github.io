@@ -271,8 +271,8 @@ export function matchTabooGuess(card:TabooCard,guess:string):boolean{
  let answer=clean(guess);
  // Speech recognition may include a brief "I guess..." or "答案是..." preface.
  answer=answer.replace(/^(?:我猜是|我猜|我覺得是|我想是|答案是|應該是|可能是|會不會是|是不是|是)/,"");
- answer=answer.replace(/^(?:my guess is|i guess|i think it is|i think it s|the answer is|answer is|could it be|is it|maybe|it is|it s)\\s+/,"");
- answer=answer.replace(/^(?:a|an|the)\\s+/,"").replace(/[啊呀吧呢]$/,"").trim();
+ answer=answer.replace(/^(?:my guess is|i guess|i think it is|i think it s|the answer is|answer is|could it be|is it|maybe|it is|it s)\s+/,"");
+ answer=answer.replace(/^(?:a|an|the)\s+/,"").replace(/[啊呀吧呢]$/,"").trim();
  const related=TABOO_CARDS.find(item=>clean(item.word)===clean(card.word)||clean(item.zh)===clean(card.word));
  const accepted=[card.word,card.zh,related?.word||"",related?.zh||""];
  if(accepted.some(word=>word&&clean(word)===answer))return true;
