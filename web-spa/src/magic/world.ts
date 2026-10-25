@@ -105,6 +105,9 @@ const CREATOR_MOTIONS=["still","hover","walk","spin","orbit"] as const;
 const CREATOR_ASSEMBLIES=["gather","stack","spiral","bloom"] as const;
 const CREATOR_MOODS=["curious","gentle","mischievous","brave"] as const;
 const MAX_CREATIONS=3,MAX_CREATION_PARTS=12;
+function validCreatorSeed(v:unknown):v is number{
+ return typeof v==="number"&&Number.isSafeInteger(v)&&v>=0&&v<=999999;
+}
 function creatorNumber(v:unknown,min:number,max:number):v is number{
  return typeof v==="number"&&Number.isFinite(v)&&v>=min&&v<=max;
 }
@@ -225,7 +228,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   if(!c||!validId(c.id)||!validId(c.revision)||!oneOf(c.motion,CREATOR_MOTIONS)
    ||!oneOf(c.mood,CREATOR_MOODS)||!oneOf(c.assembly,CREATOR_ASSEMBLIES)
    ||!creatorNumber(c.x,-1,1)||!creatorNumber(c.z,-1,1)
-   ||!validId(c.seed)||c.seed>999999)return null;
+   ||!validCreatorSeed(c.seed))return null;
   const label=copy(c.label,34),idea=copy(c.idea,60),parts=readCreatorParts(c.parts);
   if(!label||!idea||!parts||creations.some(item=>item.id===c.id))return null;
   if(c.friendOf!==undefined&&(!validId(c.friendOf)||!creations.some(item=>item.id===c.friendOf)))
@@ -389,7 +392,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     ||!oneOf(args.mood,CREATOR_MOODS))return failed(state,"invalid-creation");
    const x=args.x===undefined?.35:args.x,z=args.z===undefined?-.6:args.z;
    const seed=args.seed===undefined?state.revision*311%1000000:args.seed;
-   if(!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)||!validId(seed)||seed>999999)
+   if(!creatorNumber(x,-1,1)||!creatorNumber(z,-1,1)||!validCreatorSeed(seed))
     return failed(state,"invalid-creation-location");
    const friendOf=args.friend_of;
    if(friendOf!==undefined&&(!validId(friendOf)||!state.creations.some(c=>c.id===friendOf)))
