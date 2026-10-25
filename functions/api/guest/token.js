@@ -89,7 +89,7 @@ export async function onRequestPost({request,env}){
  }catch{return json({error:"Verification temporarily unavailable"},503)}
  const now=Date.now(), day=new Date(now).toISOString().slice(0,10);
  const hash=await fingerprint(ip,agent,env.GUEST_HASH_SALT);
- let claimed=false, reserved=false;
+ let claimed=false, reserved=false, minted=false;
  const db=env.GUEST_DB;
  try{
   // D1 uniqueness protects against concurrent tabs; no raw IP or User-Agent stored.
@@ -109,16 +109,18 @@ export async function onRequestPost({request,env}){
   if(quota.meta?.changes!==1)return json({error:"Today's trial capacity reached",code:"DAILY_LIMIT"},429);
   reserved=true;
   const token=await mintToken(env.GEMINI_GUEST_API_KEY,Date.now());
+  minted=true;
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,expiresAt:new Date(now+200000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{
   // Fail closed if reservation cleanup fails. Never return a token when quota failed.
-  if(claimed&&!reserved){
+  if(claimed&&!minted){
    try{await db.prepare("DELETE FROM guest_trial_claims WHERE fingerprint=?").bind(hash).run()}catch{}
   }
-  // When token mint fails, refund the daily slot only if the token was never sent.
-  // Detect refund in the catch block below via a local marker in follow-up changes.
+  if(reserved&&!minted){
+   try{await db.prepare("UPDATE guest_daily_quota SET used=MAX(0,used-1) WHERE day=?").bind(day).run()}catch{}
+  }
  }
 }
 export async function onRequest(){return json({error:"Method not allowed"},405)}
