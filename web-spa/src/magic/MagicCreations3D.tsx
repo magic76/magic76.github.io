@@ -1,9 +1,11 @@
 import {useMemo,useRef} from "react";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
-import type {Group} from "three";
+import {Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
 import {creationGroundClearance,islandSurfaceHeight} from "./magicNavigation";
+import {MagicPartAccents3D} from "./MagicPartAccents3D";
+const LINK_UP=new Vector3(0,1,0);
 
 const PALETTE={
  gold:"#f9cf70",rose:"#efa3c8",azure:"#83c9f4",mint:"#89dcb5",
@@ -28,16 +30,17 @@ function PartMesh({part}:{part:MagicCreatorPart}){
   roughness={surface.roughness} metalness={surface.metalness}
   emissiveIntensity={surface.emissiveIntensity} transparent={part.material==="glass"}
   opacity={surface.opacity} flatShading={part.material==="stone"}/>;
- return <group>
+ return <group rotation={[0,(part.yaw??0)*Math.PI/180,0]}
+  scale={[part.width??1,part.height??1,part.depth??1]}>
   {part.shape==="box"?
-   <RoundedBox args={[1,1,1]} radius={.1} smoothness={3}>{finish}</RoundedBox>:
+   <RoundedBox args={[1,1,1]} radius={.13} smoothness={5}>{finish}</RoundedBox>:
    <mesh scale={part.shape==="leaf"?[1.35,.58,.38]:[1,1,1]}>
-    {part.shape==="sphere"?<sphereGeometry args={[.63,20,14]}/>:
-     part.shape==="cone"?<coneGeometry args={[.57,1.18,16]}/>:
-     part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,18]}/>:
-     part.shape==="torus"?<torusGeometry args={[.54,.15,9,32]}/>: 
-     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,7,14]}/>: 
-     part.shape==="leaf"?<sphereGeometry args={[.65,16,12]}/>:
+    {part.shape==="sphere"?<sphereGeometry args={[.63,32,24]}/>:
+     part.shape==="cone"?<coneGeometry args={[.57,1.18,28]}/>:
+     part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,28]}/>:
+     part.shape==="torus"?<torusGeometry args={[.54,.15,12,48]}/>: 
+     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,10,22]}/>: 
+     part.shape==="leaf"?<sphereGeometry args={[.65,26,20]}/>:
      <octahedronGeometry args={[.65,part.material==="stone"?0:1]}/>}
     {finish}
    </mesh>}
@@ -71,6 +74,7 @@ function PartMesh({part}:{part:MagicCreatorPart}){
    <sphereGeometry args={[1,12,8]}/>
    <meshStandardMaterial color={trim} emissive={trim} emissiveIntensity={.25}/>
   </mesh>}
+  <MagicPartAccents3D part={part}/>
   {part.shape==="octahedron"&&<mesh position={[0,.67,0]}>
    <octahedronGeometry args={[.11,0]}/>
    <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.6}/>
@@ -82,6 +86,9 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const base=useRef<Group>(null);
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
+ const links=useRef<(Mesh|null)[]>([]);
+ const linkDirection=useMemo(()=>new Vector3(),[]);
+ const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
  const owner=creations.find(c=>c.id===creation.friendOf);
  const groundClearance=useMemo(()=>creationGroundClearance(creation.parts),[creation.parts]);
@@ -158,6 +165,24 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
     active&&joint==="flap"?Math.sin(tempo*2.1)*(part.x<0?-1:1)*.62:0);
    element.scale.setScalar(Math.max(.04,phase)*part.size);
   });
+  // Physical articulated links follow the exact animated part centers.
+  // Endpoints are model-authored through a strictly acyclic index graph.
+  // No React state, geometry creation or object allocation in the render loop.
+  creation.parts.forEach((part,i)=>{
+   const rod=links.current[i];
+   if(!rod)return;
+   const from=groups.current[part.connectTo??-1],to=groups.current[i];
+   if(!from||!to||part.connectTo===undefined){rod.visible=false;return}
+   linkDirection.subVectors(to.position,from.position);
+   const length=linkDirection.length();
+   rod.visible=length>.3&&(!animated||completion>.54);
+   if(!rod.visible)return;
+   linkMidpoint.copy(from.position).addScaledVector(linkDirection,.5);
+   rod.position.copy(linkMidpoint);
+   rod.quaternion.setFromUnitVectors(LINK_UP,linkDirection.multiplyScalar(1/length));
+   const radius=.085+part.size*.032;
+   rod.scale.set(radius,length,radius);
+  });
  });
  return <>
   <mesh position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+.045,origin[1]]}
@@ -169,6 +194,12 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
   <group ref={body}>
+   {creation.parts.map((part,i)=><mesh key={"link-"+i}
+    ref={node=>{links.current[i]=node}}
+    visible={false}>
+    <cylinderGeometry args={[1,1,1,12]}/>
+    <meshStandardMaterial color="#667785" metalness={.7} roughness={.32}/>
+   </mesh>)}
    {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
     <PartMesh part={part}/>
    </group>)}
