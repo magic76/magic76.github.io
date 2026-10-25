@@ -24,6 +24,18 @@ export function HomePortal(){
  const current=MODES.find(item=>item.id===mode)||MODES[0];
  const index=MODES.indexOf(current);
  useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current)},[]);
+ // Rotate the four KV scenes every five seconds; choosing a tab restarts the timer.
+ // Pause halts both the particle field and automatic selection.
+ useEffect(()=>{
+  if(paused||launching||window.matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const id=window.setTimeout(()=>{
+   setMode(previous=>{
+    const currentIndex=MODES.findIndex(item=>item.id===previous);
+    return MODES[(currentIndex+1)%MODES.length].id;
+   });
+  },5000);
+  return()=>window.clearTimeout(id);
+ },[mode,paused,launching]);
  const launch=(event:MouseEvent<HTMLAnchorElement>)=>{
   // Native link semantics survive modifier clicks, new tabs and script-free SSG.
   if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
