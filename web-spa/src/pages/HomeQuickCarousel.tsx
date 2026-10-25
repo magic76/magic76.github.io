@@ -47,7 +47,7 @@ export function HomeQuickCarousel(){
   if(!cards.length)return;
   const index=Math.min(cards.length-1,Math.max(0,position.index+direction));
   const reduced=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  track.scrollTo({left:cards[index].offsetLeft-cards[0].offsetLeft,behavior:reduced?"instant":"smooth"});
+  track.scrollTo({left:cards[index].offsetLeft-cards[0].offsetLeft,behavior:reduced?"auto":"smooth"});
  };
  const chinese=i18n.language.startsWith("zh");
  return <section className="crew-home-carousel" aria-label={t("actions.label")}>
