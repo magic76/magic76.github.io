@@ -21,9 +21,9 @@ function request(data=payload,extra={}){
   headers:{"content-type":"application/json","origin":"https://www.3sssi.com",...extra},
   body:JSON.stringify(data)});
 }
-test("Pages Functions only run on explicitly allowlisted APIs",()=>{
+test("Pages Functions only run on allowlisted APIs and the localized root",()=>{
  const routes=JSON.parse(fs.readFileSync(path.join(root,"_routes.json"),"utf8"));
- assert.deepEqual(routes.include,["/api/usage/*","/api/books"]);
+ assert.deepEqual(routes.include,["/api/usage/*","/api/books","/"]);
  assert.deepEqual(routes.exclude,[]);
  const adapter=fs.readFileSync(path.join(root,"scripts/prepare-cloudflare.mjs"),"utf8");
  assert.ok(adapter.includes('"_routes.json"'));
