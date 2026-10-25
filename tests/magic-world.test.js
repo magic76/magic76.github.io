@@ -7,8 +7,8 @@ const {stripTypeScriptTypes}=require("node:module");
 // API. This pure reducer can be stripped with Node 22's built-in TS support.
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
 const stripped=stripTypeScriptTypes(source,{mode:"strip"});
-const compiled=stripped.replace(/\\bexport\\s+(?=(?:function|const|class)\\b)/g,"")+
- "\\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot};";
+const compiled=stripped.replace(/\bexport\s+(?=(?:function|const|class)\b)/g,"")+
+ "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot};";
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
 const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot}=worldModule.exports;
