@@ -35,6 +35,7 @@ export function NonsenseLiveNewsPage(){
  const [hostDraft,setHostDraft]=useState("");
  const [playerDraft,setPlayerDraft]=useState("");
  const [aiSpeaking,setAiSpeaking]=useState(false);
+ const [introReady,setIntroReady]=useState(false);
  const [muted,setMuted]=useState(false);
  const [choiceBusy,setChoiceBusy]=useState(false);
  const [directorEvents,setDirectorEvents]=useState<DirectorEvent[]>([]);
@@ -52,7 +53,7 @@ export function NonsenseLiveNewsPage(){
  const setBroadcast=(next:NewsScene)=>{sceneRef.current=next;setScene(next);};
  const dispose=()=>{
   controllerRef.current?.stop();controllerRef.current=null;
-  setHostDraft("");setPlayerDraft("");setAiSpeaking(false);setMuted(false);setChoiceBusy(false);
+  setHostDraft("");setPlayerDraft("");setAiSpeaking(false);setIntroReady(false);setMuted(false);setChoiceBusy(false);
  };
  useEffect(()=>{
   mountedRef.current=true;trackUsageEvent("game_open","nonsense");
@@ -118,7 +119,8 @@ export function NonsenseLiveNewsPage(){
     },
     onPlayerDraft:text=>{if(stamp===generationRef.current)setPlayerDraft(text);},
     onHostDraft:text=>{if(stamp===generationRef.current)setHostDraft(text);},
-    onReady:()=>{if(stamp===generationRef.current)setStatus("playing");},
+    onReady:()=>{if(stamp===generationRef.current){setStatus("playing");setMuted(true);}},
+    onIntroReady:()=>{if(stamp===generationRef.current){setIntroReady(true);setMuted(false);setNotice("");}},
     onSpeaking:value=>{if(stamp===generationRef.current)setAiSpeaking(value);},
     onDone:()=>{
      if(stamp!==generationRef.current||!mountedRef.current)return;
@@ -179,7 +181,7 @@ export function NonsenseLiveNewsPage(){
  const pickChoice=(value:string)=>{
   if(status!=="playing"||turnsRef.current.length>=roundCount)return;
   if(mode==="text"){void submitText(value);return;}
-  if(choiceBusy||aiSpeaking)return;
+  if(!introReady||choiceBusy||aiSpeaking)return;
   const selected=controllerRef.current?.choose(value);
   if(selected){setChoiceBusy(true);setMuted(controllerRef.current?.isMuted()??false);setError("");}
   else setNotice(L(zh,"主播正在處理上一句話，請等他說完或直接用語音回答。","Host is processing the previous reply. Try again after the host finishes, or speak."));
@@ -233,13 +235,13 @@ export function NonsenseLiveNewsPage(){
     <div className="news-setup-actions">{category!=="custom"&&<button type="button" onClick={()=>chooseTopic()}>{L(zh,"換一則新聞","Shuffle premise")}</button>}<button type="button" className="news-primary" onClick={()=>void start()} disabled={!keyReady||!validCustom}>{L(zh,"進入直播間","Go live")} →</button></div>
     {!keyReady&&<p className="news-key-note">{L(zh,"需要先到設定加入 Gemini API Key。此模式每回合都會呼叫 AI；沒有 Key 時不會產生假新聞回應。","Add a Gemini API Key in settings first. Each turn uses AI; without a Key, no fake AI replies are generated.")}</p>}
    </section>}
-   <NonsenseNewsStage scene={scene} zh={zh} round={round} totalRounds={roundCount} playing={status==="playing"&&mode==="voice"} hostDraft={hostDraft} playerDraft={playerDraft} aiSpeaking={aiSpeaking} directorEvents={directorEvents} choiceDisabled={status!=="playing"||choiceBusy||aiSpeaking||turns.length>=roundCount} onChoice={pickChoice}/>
+   <NonsenseNewsStage scene={scene} zh={zh} round={round} totalRounds={roundCount} playing={status==="playing"&&mode==="voice"} hostDraft={hostDraft} playerDraft={playerDraft} aiSpeaking={aiSpeaking} directorEvents={directorEvents} choiceDisabled={status!=="playing"||(mode==="voice"&&!introReady)||choiceBusy||aiSpeaking||turns.length>=roundCount} onChoice={pickChoice}/>
    {status!=="setup"&&<section className="news-control-panel">
     {status==="connecting"&&<p role="status">{L(zh,"Gemini Live 連線與麥克風啟動中…","Connecting Gemini Live and opening the microphone…")}</p>}
     {status==="generating"&&<p role="status">{L(zh,"AI 導演正在改寫下一幕…","The AI director is rewriting the next scene…")}</p>}
     {status==="playing"&&mode==="voice"&&<>
-     <div className="news-mic-line"><span className={"news-mic-status"+(muted?" muted":"")}>{choiceBusy?L(zh,"AI 正在處理你的選項…","AI is handling your choice…"):muted?L(zh,"麥克風已靜音","Mic muted"):aiSpeaking?L(zh,"主播正在說話","Host speaking"):L(zh,"直接說話，AI 會接招","Speak naturally; the host will react")}</span><strong>{L(zh,"已完成","Completed")} {turns.length}/{roundCount}</strong></div>
-     <div className="news-actions"><button type="button" disabled={choiceBusy} onClick={()=>{const isMuted=controllerRef.current?.mute();if(isMuted!==undefined)setMuted(isMuted);}}>{muted?L(zh,"開啟麥克風","Unmute"):L(zh,"靜音麥克風","Mute")}</button><button type="button" onClick={switchToText}>{L(zh,"改用文字","Switch to text")}</button><button type="button" onClick={reset}>{L(zh,"結束","Exit")}</button></div>
+     <div className="news-mic-line"><span className={"news-mic-status"+(muted?" muted":"")}>{!introReady?L(zh,"主播正在開場，等他問完第一題再回答","Anchor introducing the story — wait for the first question"):choiceBusy?L(zh,"AI 正在處理你的選項…","AI is handling your choice…"):muted?L(zh,"麥克風已靜音","Mic muted"):aiSpeaking?L(zh,"主播正在說話","Host speaking"):L(zh,"直接說話，AI 會接招","Speak naturally; the host will react")}</span><strong>{L(zh,"已完成","Completed")} {turns.length}/{roundCount}</strong></div>
+     <div className="news-actions"><button type="button" disabled={!introReady||choiceBusy} onClick={()=>{const isMuted=controllerRef.current?.mute();if(isMuted!==undefined)setMuted(isMuted);}}>{muted?L(zh,"開啟麥克風","Unmute"):L(zh,"靜音麥克風","Mute")}</button><button type="button" onClick={switchToText}>{L(zh,"改用文字","Switch to text")}</button><button type="button" onClick={reset}>{L(zh,"結束","Exit")}</button></div>
     </>}
     {status==="playing"&&mode==="text"&&turns.length<roundCount&&<form onSubmit={event=>{event.preventDefault();void submitText();}} className="news-reply-form">
      <label htmlFor="news-improv-answer">{L(zh,"你的荒謬回應 · 第 ","Your improv reply · round ")}{round}</label>
