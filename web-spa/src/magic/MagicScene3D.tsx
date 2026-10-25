@@ -89,7 +89,7 @@ function OuterDistricts({colors,night}:{colors:(typeof BIOMES)[keyof typeof BIOM
  </group>;
 }
 function Castle({colors,night,ice}:{colors:(typeof BIOMES)[keyof typeof BIOMES];night:boolean;ice:boolean}){
- return <group position={[0,1.35,-.55]}>
+ return <group position={[0,islandSurfaceHeight(0,-.55)+.34,-.55]}>
   <mesh position={[0,.8,0]}><boxGeometry args={[2.5,1.8,1.55]}/><meshStandardMaterial color={ice?"#a6e5f4":"#f4e9db"} metalness={ice?.22:0} roughness={ice?.28:.9}/></mesh>
   <mesh position={[0,1.8,0]}><coneGeometry args={[1.85,.95,4]}/><meshStandardMaterial color={ice?"#d6f9ff":colors.roof} flatShading/></mesh>
   <mesh position={[0,.35,.81]}><boxGeometry args={[.66,1,.12]}/><meshStandardMaterial color={ice?"#5cb0cc":"#665a74"}/></mesh>
@@ -113,7 +113,7 @@ function Castle({colors,night,ice}:{colors:(typeof BIOMES)[keyof typeof BIOMES];
  </group>;
 }
 function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOMES)[keyof typeof BIOMES];variant?:number}){
- return <group position={[x,.99,z]} scale={.73+(variant%3)*.13}>
+ return <group position={[x,islandSurfaceHeight(x,z)+.08,z]} scale={.73+(variant%3)*.13}>
   <mesh position={[0,.47,0]}><cylinderGeometry args={[.13,.21,1.1,7]}/><meshStandardMaterial color="#96745f"/></mesh>
   {variant%2===0?<mesh position={[0,1.44,0]}><coneGeometry args={[.82,1.8,7]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>
    :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>}
