@@ -107,7 +107,7 @@ export default function BooksPage(){
   const previousOverflow=document.body.style.overflow;
   document.body.style.overflow="hidden";
   const dialog=dialogRef.current;
-  dialog?.querySelector<HTMLElement>("select, input, textarea, button")?.focus();
+  dialog?.querySelector<HTMLElement>("form select, form input, form textarea, form button")?.focus();
   const onKeyDown=(event:KeyboardEvent)=>{
    if(event.key==="Escape"){event.preventDefault();setShowForm(false);return}
    if(event.key!=="Tab"||!dialog)return;
@@ -226,11 +226,11 @@ export default function BooksPage(){
        <div className="books-card-content"><div className="books-card-meta"><span className="books-avatar">{post.author.slice(0,1)}</span><strong>{post.author}</strong><span>· {shortDate(post.createdAt)}</span></div><div className="books-tags"><span className="books-category">{categoryNames[topicOf(post)]}</span><span className={"books-kind books-kind-"+post.kind}>{names[post.kind]}</span><span className={"books-status books-status-"+post.status}>{isDiscussion(post.kind)?post.status==="closed"?"已結束":"交流中":statuses[post.status]}</span></div>
         <h3>{post.title}</h3><p>{post.description||"歡迎留言詢問更多資訊。"}</p>
         {post.kind==="sell"&&<div className="books-price">NT$ {post.price?.toLocaleString("zh-TW")}</div>}
-        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded} aria-controls={"books-comments-"+post.id}>♡ 留言交流 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">{isDiscussion(post.kind)?"交流中":"開放中"}</option>{!isDiscussion(post.kind)&&<option value="reserved">已保留</option>}<option value="closed">{isDiscussion(post.kind)?"已結束":"已完成"}</option></select></div>}</div>
+        <div className="books-card-footer"><button onClick={()=>void openComments(post.id)} aria-expanded={expanded} aria-controls={expanded?"books-comments-"+post.id:undefined}>♡ 留言交流 <span>{post.commentCount?post.commentCount:""}</span></button>{own&&<div className="books-owner"><label htmlFor={"books-status-"+post.id}>狀態</label><select id={"books-status-"+post.id} value={post.status} disabled={busy} onChange={e=>void changeStatus(post,e.target.value as Status)}><option value="open">{isDiscussion(post.kind)?"交流中":"開放中"}</option>{!isDiscussion(post.kind)&&<option value="reserved">已保留</option>}<option value="closed">{isDiscussion(post.kind)?"已結束":"已完成"}</option></select></div>}</div>
        </div>
        {expanded&&<div className="books-comments" id={"books-comments-"+post.id}><h4>留言交流</h4>{comments.filter(c=>c.postId===post.id).map(c=><div className="books-comment" key={c.id}><div className="books-mini-avatar">{c.author.slice(0,1)}</div><div><strong>{c.author}</strong><p>{c.message}</p></div></div>)}{!comments.some(c=>c.postId===post.id)&&<p className="books-comment-empty">還沒有留言，來打個招呼吧。</p>}{post.status!=="closed"?<form onSubmit={comment}><input aria-label="留言暱稱" value={name} maxLength={20} onChange={e=>setName(e.target.value)} placeholder="你的暱稱"/><textarea aria-label="留言內容" value={commentText} maxLength={300} onChange={e=>setCommentText(e.target.value)} placeholder="交流一下、分享想法……" rows={2}/><button className="books-primary" disabled={busy}>送出留言</button></form>:<p className="books-comment-empty">這篇交流已結束，留言已關閉。</p>}</div>}
       </article>
-    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p><button onClick={()=>setShowForm(true)}>＋ 發布貼文</button></div>}</div>
+    }):<div className="books-empty"><strong>這裡還沒有符合的資訊</strong><p>換個搜尋條件，或成為第一個分享的人。</p>{(filter!=="all"||categoryFilter!=="all"||query.trim())?<button type="button" onClick={()=>{setFilter("all");setCategoryFilter("all");setQuery("")}}>清除篩選，顯示全部</button>:<button type="button" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>＋ 發布貼文</button>}</div>}</div>
    </section>
    <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 →</button></div>
    <footer className="books-footer">媽媽友小圈圈 · 邀請制試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
