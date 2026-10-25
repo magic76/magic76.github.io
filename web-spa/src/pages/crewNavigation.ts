@@ -15,7 +15,7 @@ export function sectionForRoute(pathname:string,search=""):CrewSection{
   if(pathname.startsWith("/teacher/roles")&&new URLSearchParams(search).get("mode")==="friends")return "chat";
   return "learn";
  }
- if(root==="town")return "explore";
+ if(root==="town"||root==="magic")return "explore";
  if(["fortune","timeline","games","story","research","briefing","circle","books"].includes(root))return "explore";
  if(["settings","privacy","usage"].includes(root))return "me";
  return "home";
