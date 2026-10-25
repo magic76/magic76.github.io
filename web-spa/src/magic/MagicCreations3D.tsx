@@ -3,7 +3,7 @@ import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
 import {Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
-import {creationGroundClearance,islandSurfaceHeight} from "./magicNavigation";
+import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
 import {MagicPartIdentity3D} from "./MagicPartIdentity3D";
 const LINK_UP=new Vector3(0,1,0);
@@ -111,6 +111,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const owner=creations.find(c=>c.id===creation.friendOf);
  const groundClearance=useMemo(()=>creationGroundClearance(creation.parts),[creation.parts]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
+ const pivots=useMemo(()=>creation.parts.map(magicPartPivot),[creation.parts]);
  const origin=useMemo(()=>{
   if(owner){
    const [x,z]=safeMagicAnchor(owner.x,owner.z);
@@ -176,9 +177,15 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    const startZ=creation.assembly==="stack"?part.z:
     creation.assembly==="bloom"?0:Math.sin(angle)*far;
    const spiral=creation.assembly==="spiral"?(1-phase)*Math.PI*2:0;
+   const pivot=pivots[i];
+   // The node itself is the physical joint. Shift its origin to the authored
+   // shoulder, hip or wing root while offsetting the visual mesh back below.
+   // At zero rotation the actual part center still equals the AI's XYZ target.
+   const size=Math.max(.04,phase)*part.size;
    element.position.set(
-    part.x*phase+startX*(1-phase)+Math.sin(spiral+i)*.13*(1-phase),
-    part.y*phase+startY*(1-phase),part.z*phase+startZ*(1-phase));
+    part.x*phase+startX*(1-phase)+Math.sin(spiral+i)*.13*(1-phase)+pivot[0]*size,
+    part.y*phase+startY*(1-phase)+pivot[1]*size,
+    part.z*phase+startZ*(1-phase)+pivot[2]*size);
    // The AI can articulate individual authored parts without shaders, scripts or
    // additional draw calls. Joints remain still during assembly and with reduce-motion.
    const active=animated&&assembled>.98;
@@ -190,7 +197,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
      active&&joint==="wheel"?tempo*3:0,
     (1-phase)*(i+1)*1.6+(active&&joint==="tail"?swing*.46:0),
     active&&joint==="flap"?Math.sin(tempo*2.1)*(part.x<0?-1:1)*.62:0);
-   element.scale.setScalar(Math.max(.04,phase)*part.size);
+   element.scale.setScalar(size);
   });
   // Physical articulated links follow the exact animated part centers.
   // Endpoints are model-authored through a strictly acyclic index graph.
@@ -227,9 +234,14 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
     <cylinderGeometry args={[1,1,1,12]}/>
     <meshStandardMaterial color="#667785" metalness={.7} roughness={.32}/>
    </mesh>)}
-   {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
-    <PartMesh part={part} detailRef={node=>{detailGroups.current[i]=node}}/>
-   </group>)}
+   {creation.parts.map((part,i)=>{
+    const pivot=pivots[i];
+    return <group key={i} ref={node=>{groups.current[i]=node}}>
+     <group position={[-pivot[0],-pivot[1],-pivot[2]]}>
+      <PartMesh part={part} detailRef={node=>{detailGroups.current[i]=node}}/>
+     </group>
+    </group>;
+   })}
   </group>
  </group>
  </>;
