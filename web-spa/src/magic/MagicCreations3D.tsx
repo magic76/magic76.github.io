@@ -1,7 +1,9 @@
 import {useMemo,useRef} from "react";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
+import {RoundedBox} from "@react-three/drei";
 import type {Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
+import {creationGroundClearance,islandSurfaceHeight} from "./magicNavigation";
 
 const PALETTE={
  gold:"#f9cf70",rose:"#efa3c8",azure:"#83c9f4",mint:"#89dcb5",
@@ -15,21 +17,55 @@ const MATERIAL={
  glow:{roughness:.36,metalness:.15,opacity:1,emissiveIntensity:.78}
 } as const;
 const ease=(v:number)=>{const a=Math.max(0,Math.min(1,v));return a*a*(3-2*a)};
+/** Geometry still comes exclusively from validated part enums. Rounded edges,
+ * ornament rims and material-specific highlights lend recognizable depth; no
+ * downloaded assets, custom shaders or AI executable payloads. */
 function PartMesh({part}:{part:MagicCreatorPart}){
  const surface=MATERIAL[part.material],color=PALETTE[part.color];
- const geometry=part.shape==="box"?<boxGeometry args={[1,1,1]}/>:
-  part.shape==="sphere"?<sphereGeometry args={[.63,12,9]}/>:
-  part.shape==="cone"?<coneGeometry args={[.57,1.18,9]}/>:
-  part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,10]}/>:
-  part.shape==="torus"?<torusGeometry args={[.54,.17,7,16]}/>:
-  <octahedronGeometry args={[.65,0]}/>;
- return <mesh castShadow={false} receiveShadow={false}>
-  {geometry}
-  <meshStandardMaterial color={color} emissive={color}
-   roughness={surface.roughness} metalness={surface.metalness}
-   emissiveIntensity={surface.emissiveIntensity} transparent={part.material==="glass"}
-   opacity={surface.opacity} flatShading={part.material==="stone"}/>
- </mesh>;
+ const trim=part.material==="wood"?"#7a6255":part.material==="metal"?"#f5e8c9":
+  part.material==="glass"?"#eafcff":"#fff4d8";
+ const finish=<meshStandardMaterial color={color} emissive={color}
+  roughness={surface.roughness} metalness={surface.metalness}
+  emissiveIntensity={surface.emissiveIntensity} transparent={part.material==="glass"}
+  opacity={surface.opacity} flatShading={part.material==="stone"}/>;
+ return <group>
+  {part.shape==="box"?
+   <RoundedBox args={[1,1,1]} radius={.1} smoothness={3}>{finish}</RoundedBox>:
+   <mesh>
+    {part.shape==="sphere"?<sphereGeometry args={[.63,20,14]}/>:
+     part.shape==="cone"?<coneGeometry args={[.57,1.18,16]}/>:
+     part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,18]}/>:
+     part.shape==="torus"?<torusGeometry args={[.54,.15,9,32]}/>:
+     <octahedronGeometry args={[.65,part.material==="stone"?0:1]}/>}
+    {finish}
+   </mesh>}
+  {part.shape==="box"&&part.material!=="glass"&&[-1,1].map(side=>
+   <mesh key={side} position={[side*.34,.32,.515]}>
+    <sphereGeometry args={[.068,8,6]}/>
+    <meshStandardMaterial color={trim} metalness={.45} roughness={.31}/>
+   </mesh>)}
+  {part.shape==="cylinder"&&[-1,1].map(side=>
+   <mesh key={side} position={[0,side*.44,0]} rotation={[Math.PI/2,0,0]}>
+    <torusGeometry args={[.485,.045,6,22]}/>
+    <meshStandardMaterial color={trim} metalness={.44} roughness={.33}/>
+   </mesh>)}
+  {part.shape==="torus"&&<mesh position={[0,.67,0]}>
+   <sphereGeometry args={[.095,9,7]}/>
+   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.38}/>
+  </mesh>}
+  {part.shape==="cone"&&<mesh position={[0,.62,0]}>
+   <sphereGeometry args={[.1,10,8]}/>
+   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.4}/>
+  </mesh>}
+  {part.shape==="sphere"&&<mesh position={[0,.23,.57]} scale={[.14,.095,.06]}>
+   <sphereGeometry args={[1,12,8]}/>
+   <meshStandardMaterial color={trim} emissive={trim} emissiveIntensity={.25}/>
+  </mesh>}
+  {part.shape==="octahedron"&&<mesh position={[0,.67,0]}>
+   <octahedronGeometry args={[.11,0]}/>
+   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.6}/>
+  </mesh>}
+ </group>;
 }
 function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation;
  creations:MagicCreation[];animated:boolean;onSelect:(id:number)=>void}){
@@ -38,6 +74,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const groups=useRef<(Group|null)[]>([]);
  const started=useRef<number|null>(null);
  const owner=creations.find(c=>c.id===creation.friendOf);
+ const groundClearance=useMemo(()=>creationGroundClearance(creation.parts),[creation.parts]);
  const origin=useMemo(()=>{
   if(owner){
    const [x,z]=safeMagicAnchor(owner.x,owner.z);
@@ -62,7 +99,8 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   const current=base.current.position;
   const alpha=animated?Math.min(1,delta*3):1;
   current.set(current.x+(desiredX-current.x)*alpha,
-   current.y+((1.55+(creation.motion==="hover"?.38+drift:0))-current.y)*alpha,
+   current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance+
+    (creation.motion==="hover"?.38+drift:0))-current.y)*alpha,
    current.z+(desiredZ-current.z)*alpha);
   base.current.rotation.y=creation.motion==="spin"&&animated?t*.55:
    creation.motion==="walk"&&animated?Math.sin(t*.65)*.32:0;
@@ -87,7 +125,9 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    const far=2.6+(i%4)*.38;
    const startX=creation.assembly==="stack"?part.x:
     creation.assembly==="bloom"?0:Math.cos(angle)*far;
-   const startY=creation.assembly==="stack"?part.y-3:
+   // Start stack pieces above the silhouette: building from underground
+   // previously made most of the animation invisible inside the island.
+   const startY=creation.assembly==="stack"?part.y+3:
     creation.assembly==="bloom"?1.2:part.y+1.8+Math.sin(angle)*.5;
    const startZ=creation.assembly==="stack"?part.z:
     creation.assembly==="bloom"?0:Math.sin(angle)*far;
@@ -109,14 +149,22 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    element.scale.setScalar(Math.max(.04,phase)*part.size);
   });
  });
- return <group ref={base} position={[origin[0],1.55,origin[1]]}
+ return <>
+  <mesh position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+.045,origin[1]]}
+   rotation={[-Math.PI/2,0,0]}>
+   <circleGeometry args={[1.05,24]}/>
+   <meshBasicMaterial color="#293a36" transparent opacity={.15} depthWrite={false}/>
+  </mesh>
+  <group ref={base}
+   position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
   <group ref={body}>
    {creation.parts.map((part,i)=><group key={i} ref={node=>{groups.current[i]=node}}>
     <PartMesh part={part}/>
    </group>)}
   </group>
- </group>;
+ </group>
+ </>;
 }
 export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicCreation[];
  animated:boolean;onSelect:(id:number)=>void}){
