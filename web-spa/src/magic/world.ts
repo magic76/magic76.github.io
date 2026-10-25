@@ -138,8 +138,8 @@ function readCreatorParts(value:unknown,min=3):MagicCreatorPart[]|null{
    (item.depth!==undefined&&!creatorNumber(item.depth,.4,2.2))||
    (item.yaw!==undefined&&!creatorNumber(item.yaw,-180,180))||
    (item.profile!==undefined&&!oneOf(item.profile,CREATOR_PROFILES))||
-   (item.connectTo!==undefined&&(!Number.isInteger(item.connectTo)||
-     typeof item.connectTo!=="number"||item.connectTo<0||item.connectTo>=parts.length)))
+   (item.connectTo!==undefined&&(typeof item.connectTo!=="number"||
+     !Number.isInteger(item.connectTo)||item.connectTo<0||item.connectTo>=parts.length)))
    return null;
   parts.push({shape:item.shape,material:item.material,color:item.color,
    x:item.x,y:item.y,z:item.z,size:item.size,
