@@ -563,8 +563,73 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
   default:return failed(state,"unknown-magic-tool");
  }
 }
-export function demoMagicCommand(intent:"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
+export function demoMagicCommand(intent:"creator"|"evolve"|"wonder"|"dragon"|"fox"|"dragonice"|"icecastle"|"thawcastle"|"night"|"puzzle"|"portal"|"snow"|"forest"|"candy"|"sunny"|"rain"|"meteor"|"rainbow"|"aurora"|"reset",world:MagicWorld,lang:"zh"|"en"="zh"):MagicResult{
  switch(intent){
+  case "creator":{
+   const color=lang==="en";
+   const part=(shape:MagicCreatorShape,material:MagicCreatorMaterial,tint:MagicCreatorColor,
+    x:number,y:number,z:number,size:number):MagicCreatorPart=>
+    ({shape,material,color:tint,x,y,z,size});
+   const index=world.creations.length%3;
+   const designs=[
+    {label:color?"Clockwork gardener":"齒輪園丁",idea:"a playful walking machine",
+     assembly:"gather",motion:"walk",mood:"curious",
+     parts:[
+      part("cylinder","metal","gold",0,.8,0,1.05),
+      part("sphere","glass","azure",0,1.64,0,.7),
+      part("box","metal","coral",-.77,.9,0,.55),
+      part("box","metal","coral",.77,.9,0,.55),
+      part("cylinder","stone","slate",-.34,.22,0,.43),
+      part("cylinder","stone","slate",.34,.22,0,.43),
+      part("torus","glow","mint",0,1.3,.5,.6),
+      part("cone","wood","mint",-.8,.54,.1,.5),
+      part("cone","wood","mint",.8,.54,.1,.5)
+     ]},
+    {label:color?"Floating moon jelly":"漂浮月光水母",idea:"a floating glass creature",
+     assembly:"bloom",motion:"hover",mood:"gentle",
+     parts:[
+      part("sphere","glass","violet",0,2.1,0,1.3),
+      part("torus","glow","mint",0,1.58,0,1.1),
+      part("cone","glass","azure",-.6,.9,0,.5),
+      part("cone","glass","azure",.6,.9,0,.5),
+      part("cylinder","glow","rose",-.35,.56,0,.25),
+      part("cylinder","glow","mint",.35,.56,0,.25),
+      part("cylinder","glow","gold",0,.35,.5,.35),
+      part("octahedron","metal","violet",0,2.65,0,.28)
+     ]},
+    {label:color?"Stargazer tower":"觀星機械塔",idea:"a moving miniature observatory",
+     assembly:"stack",motion:"spin",mood:"mischievous",
+     parts:[
+      part("box","stone","slate",0,.23,0,1.32),
+      part("cylinder","metal","ivory",0,.88,0,1),
+      part("cylinder","metal","azure",0,1.6,0,.72),
+      part("cone","metal","gold",0,2.28,0,.95),
+      part("torus","glow","violet",0,1.63,0,1.23),
+      part("sphere","glass","rose",.79,1.22,0,.45),
+      part("sphere","glass","mint",-.79,1.22,0,.45),
+      part("octahedron","glow","gold",0,2.9,0,.45)
+     ]}
+   ] as const;
+   const design=designs[index];
+   return applyMagicCommand(world,"create_magic_entity",{
+    ...design,x:index===0?-.83:index===1?.65:-.3,
+    z:index===0?-.23:index===1?-.5:.84,seed:(world.revision*331+index*7207)%1000000
+   },lang);
+  }
+  case "evolve":{
+   const current=world.creations[world.creations.length-1];
+   if(!current)return {ok:false,event:"entity-not-found",world};
+   const wings:MagicCreatorPart[]=[
+    {shape:"cone",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68},
+    {shape:"cone",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68}
+   ];
+   const body=current.parts.length<=10?[...current.parts,...wings]:
+    current.parts.map((p,i)=>i===0?{...p,shape:"octahedron" as const,size:p.size*.8}:p);
+   return applyMagicCommand(world,"edit_magic_entity",{
+    id:current.id,parts:body,assembly:"spiral",
+    motion:current.motion==="hover"?"spin":"hover",mood:"brave"
+   },lang);
+  }
   case "wonder":{
    const shapes:MagicWonderShape[]=["vortex","garden","orbit","comet","lanterns"];
    const palettes:MagicWonderPalette[]=["aurora","ember","rose","gold","ocean"];
