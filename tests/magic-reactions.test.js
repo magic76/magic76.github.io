@@ -2,9 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {stripTypeScriptTypes} from "node:module";
-function load(path,names){const code=stripTypeScriptTypes(readFileSync(path,"utf8"),{mode:"transform"}).replace(/^import .*;\s*$/gm,"").replace(/export /g,"");return new Function("__enabled",(path.includes("magicCodexStore")?"const MAGIC_REACTIONS_ENABLED=__enabled;\n":"")+code+"\nreturn {"+names.join(",")+"}")(globalThis.__enabled??[])}
+function load(path,names,full){let code=stripTypeScriptTypes(readFileSync(path,"utf8"),{mode:"transform"}).replace(/^import .*;\s*$/gm,"").replace(/export /g,"");
+ // Catalogue tests run against the full 16-entry list; the shipped rollout subset is checked separately below.
+ if(full)code=code.replace(/MAGIC_REACTIONS_ENABLED\s*=\s*\[[^\]]*\]/,"MAGIC_REACTIONS_ENABLED=MAGIC_REACTIONS_ALL.map(r=>r.id)");return new Function("__enabled",(path.includes("magicCodexStore")?"const MAGIC_REACTIONS_ENABLED=__enabled;\n":"")+code+"\nreturn {"+names.join(",")+"}")(globalThis.__enabled??[])}
 const base="web-spa/src/magic/";
-const r=load(base+"magicReactions.ts",["MAGIC_REACTIONS","MAGIC_REACTIONS_ENABLED","magicCreationElements","magicFindReaction","magicFindSoloReaction","magicPickReaction"]);
+const r=load(base+"magicReactions.ts",["MAGIC_REACTIONS","MAGIC_REACTIONS_ENABLED","magicCreationElements","magicFindReaction","magicFindSoloReaction","magicPickReaction"],true);
+const shipped=load(base+"magicReactions.ts",["MAGIC_REACTIONS","MAGIC_REACTIONS_ALL","MAGIC_REACTIONS_ENABLED","magicFindReaction","magicFindSoloReaction"]);
 const ids=r.MAGIC_REACTIONS.map(x=>x.id);
 globalThis.__enabled=r.MAGIC_REACTIONS_ENABLED;
 test("16 distinct reactions",()=>{assert.equal(ids.length,16);assert.equal(new Set(ids).size,16)});
@@ -126,4 +129,15 @@ test("R6 camera-safe frost layout is finite and avoids deep castle penetration",
    assert.ok(Math.hypot(px,pz+.55)>=4.5,"must stay outside castle collision cylinder");
   }
  }
+});
+
+test("shipped rollout subset is a valid, non-empty part of the catalogue and disabled reactions stay silent",()=>{
+ const all=shipped.MAGIC_REACTIONS_ALL.map(x=>x.id),on=[...shipped.MAGIC_REACTIONS_ENABLED];
+ assert.ok(on.length>=1&&on.length<=all.length);for(const id of on)assert.ok(all.includes(id),id);
+ assert.deepEqual(shipped.MAGIC_REACTIONS.map(x=>x.id),all.filter(id=>on.includes(id)));
+ const env={night:false,castleIce:false,distanceToCastle:30};
+ const pairs={cat_fish_chase:[["cat"],["fish"]],steam_rainbow:[["fire"],["ice"]],flower_ring:[["flower"],["water"]],star_lake:[["star"],["water"]],frost_carpet:[["ice"],["water"]],music_dance:[["music"],["cat"]]};
+ for(const [id,[a,b]] of Object.entries(pairs))assert.equal(shipped.magicFindReaction(a,b,env),on.includes(id)?id:undefined,id);
+ assert.equal(shipped.magicFindSoloReaction(["star"],{...env,night:true}),on.includes("meteor_shower")?"meteor_shower":undefined);
+ assert.equal(shipped.magicFindSoloReaction(["dragon"],{...env,castleIce:true,distanceToCastle:5}),on.includes("dragon_frost")?"dragon_frost":undefined);
 });
