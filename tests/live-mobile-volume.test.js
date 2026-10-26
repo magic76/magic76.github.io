@@ -109,3 +109,19 @@ test("AI playback boost is peak-limited and does not alter the microphone path",
   assert.equal(track.stopped,true);
   assert.equal(session.outputLimiter,null);
 });
+
+// Regression: every shared Web Live surface must honor the same 0–300% setting.
+test("settings, Story narration, legacy Live and voice auditions share the Web playback range",()=>{
+ const settings=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
+ const story=read("web-spa/src/story/player/StoryPlayerView.tsx");
+ const legacy=read("crew-live-ui.js");
+ const audition=read("web-spa/src/teacher/teacherVoicePreview.ts");
+ assert.match(settings,/id="crew-live-volume"[^>]*type="range" min="0" max="300"/);
+ assert.match(story,/type="range" min="0" max="300" step="5" value=\{live.volume\}/);
+ assert.match(legacy,/volume.max="300"/);
+ assert.match(legacy,/Math\.min\(300,Number\(volume.value\)/);
+ assert.match(audition,/localStorage.getItem\("crew_live_volume"\)/);
+ assert.match(audition,/gain.gain.value=percent\/100/);
+ assert.match(audition,/node.connect\(playbackGain\|\|ctx.destination\)/);
+ assert.match(audition,/limiter.threshold.value=-3/);
+});

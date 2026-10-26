@@ -178,13 +178,15 @@
     var saved=false;
     var latestTurns=[];
     var currentState="idle";
-    var initialVolume=Math.max(0,Math.min(100,Number(localStorage.getItem("crew_live_volume")||100)));
+    var initialVolume=Math.max(0,Math.min(300,Number(localStorage.getItem("crew_live_volume")||100)));
 
     if(volume){
+      volume.max="300";
+      volume.step="5";
       volume.value=String(initialVolume);
       if(volumeValue)volumeValue.textContent=initialVolume+"%";
       volume.oninput=function(){
-        var val=Math.max(0,Math.min(100,Number(volume.value)||0));
+        var val=Math.max(0,Math.min(300,Number(volume.value)||0));
         localStorage.setItem("crew_live_volume",String(val));
         if(volumeValue)volumeValue.textContent=val+"%";
         if(session)session.setVolume(val);
