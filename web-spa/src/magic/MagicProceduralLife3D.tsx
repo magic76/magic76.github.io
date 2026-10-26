@@ -50,8 +50,8 @@ export function MagicFoxModel3D({animated=true,size=1,color="#dc8558",headScale=
  </group></group>;
 }
 function Wing({sign,color}:{sign:-1|1;color:string}){
- const shape=useMemo(()=>{const s=new Shape();s.moveTo(0,0);s.lineTo(.42,.18);s.lineTo(1.13,.02);s.lineTo(.92,-.24);s.lineTo(.64,-.17);s.lineTo(.42,-.36);s.closePath();return s;},[]);
- return <group scale={[sign,1,1]} rotation={[-.35,0,0]}><mesh rotation={[0,0,-.18]}><shapeGeometry args={[shape,6]}/><meshStandardMaterial color={color} roughness={.87} flatShading side={DoubleSide}/></mesh></group>;
+ const shape=useMemo(()=>{const s=new Shape();s.moveTo(0,0);s.quadraticCurveTo(.46,.48,.83,.39);s.quadraticCurveTo(1.06,.32,1.29,.2);s.quadraticCurveTo(1.32,-.02,1.08,-.16);s.quadraticCurveTo(.96,-.31,.78,-.2);s.quadraticCurveTo(.56,-.44,.38,-.24);s.quadraticCurveTo(.18,-.26,0,-.16);s.closePath();return s;},[]);
+ return <group scale={[sign,1,1]} rotation={[-.08,0,0]}><mesh rotation={[0,0,-.06]}><shapeGeometry args={[shape,6]}/><meshStandardMaterial color={color} roughness={.87} flatShading side={DoubleSide}/></mesh></group>;
 }
 export function MagicDragonModel3D({animated=true,size=1,color="#c46b65",headScale=1,tailScale=1,wingScale=1}:{animated?:boolean;size?:number;color?:string;headScale?:number;tailScale?:number;wingScale?:number}){
  const body=useRef<Group>(null),neck=useRef<Group>(null),wings=useRef<(Group|null)[]>([]),tail=useRef<Group>(null),legs=useRef<(Group|null)[]>([]);
@@ -67,14 +67,14 @@ export function MagicDragonModel3D({animated=true,size=1,color="#c46b65",headSca
   <Oval at={[0,.72,.29]} scale={[.34,.44,.13]} color="#f5d8aa"/>
   <group ref={neck} position={[0,1.45,.25]} scale={headScale}>
    <Oval at={[0,0,0]} scale={[.59,.5,.49]} color={color}/>
-   <Oval at={[0,-.16,.44]} scale={[.39,.24,.26]} color={color}/>
+   <Oval at={[0,-.115,.54]} scale={[.295,.205,.36]} color={color}/>
    <Eyes front={.445} animated={animated} seed={7}/>
    {[-1,1].map(sign=><group key={sign}>
-    <mesh position={[sign*.4,.39,-.08]} rotation={[0,0,-sign*.25]}><coneGeometry args={[.125,.32,7]}/><meshStandardMaterial color="#f3dbac" roughness={.88} flatShading/></mesh>
-    <Oval at={[sign*.18,-.14,.675]} scale={[.034,.027,.018]} color="#845e60"/>
+    <mesh position={[sign*.4,.48,-.14]} rotation={[-.34,0,-sign*.34]}><coneGeometry args={[.115,.47,7]}/><meshStandardMaterial color="#f3dbac" roughness={.88} flatShading/></mesh>
+    <Oval at={[sign*.14,-.19,.865]} scale={[.019,.018,.012]} color="#845e60"/>
    </group>)}
   </group>
-  {([-1,1] as const).map((sign,i)=><group key={sign} ref={node=>{wings.current[i]=node}} position={[sign*.41,1.11,-.3]} scale={Math.min(1.12,wingScale)}><Wing sign={sign} color="#e9b79f"/></group>)}
+  {([-1,1] as const).map((sign,i)=><group key={sign} ref={node=>{wings.current[i]=node}} position={[sign*.47,1.2,-.11]} scale={Math.min(1.5,wingScale)}><Wing sign={sign} color="#c7819f"/></group>)}
   <group ref={tail} position={[0,.62,-.54]} scale={tailScale}>
    <Sweep points={[[0,0,0],[0,.05,-.28],[0,.15,-.55],[0,.12,-.85]]} from={.24} to={.025} color={color}/>
    {[-.31,-.53].map(z=><mesh key={z} position={[0,.27,z]}><coneGeometry args={[.1,.23,5]}/><meshStandardMaterial color="#f0d7a4" roughness={.9} flatShading/></mesh>)}
