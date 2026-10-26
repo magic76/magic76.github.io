@@ -77,3 +77,31 @@ test("R3 visual fixes keep pool bounded and reaction-specific colors",()=>{
  assert.match(scene,/r\.distance\/2\+\.6/);
  assert.match(creations,/react\?\.dance&&animated.*react\.w/);
 });
+
+test("R4 every recipe has enough readable principal points and footprint at sample frames",()=>{
+ const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
+ const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
+ const recipes=new Function(code+"\nreturn {makeReactionPool,renderMagicReaction,REACTION_VISUALS}")();
+ const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"];
+ for(const id of ids)for(const t of [1.6,2.4,3.2]){
+  const pool=recipes.makeReactionPool(kinds);
+  recipes.renderMagicReaction(id,t,0,0,0,pool,true,0);
+  const kind=recipes.REACTION_VISUALS[id].kind;
+  const main=pool.points[kind].slice(0,pool.counts[kind]);
+  assert.ok(main.length>=10,id+" @"+t+" principal count="+main.length);
+  assert.ok(Math.max(...main.map(p=>p.minPx??0))>=22,id+" @"+t+" too small");
+  assert.ok(Math.max(...main.map(p=>p.x))-Math.min(...main.map(p=>p.x))>=5,id+" @"+t+" narrow");
+  assert.ok(main.some(p=>p.alpha>0),id+" @"+t+" invisible");
+  assert.ok(main.some(p=>{const hex=p.color??0;return ((hex>>16)&255)<218||((hex>>8)&255)<218||(hex&255)<218}),id+" entirely pale");
+  assert.ok(kinds.every(k=>pool.counts[k]<=64),id+" pool overflow");
+ }
+});
+test("R4 reduced motion uses recipe signature rather than a common eight-point ring",()=>{
+ const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
+ const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
+ const recipes=new Function(code+"\nreturn {makeReactionPool,renderMagicReaction,REACTION_VISUALS}")();
+ const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"];
+ for(const id of ids){const pool=recipes.makeReactionPool(kinds);recipes.renderMagicReaction(id,0.5,0,0,0,pool,false);
+  assert.ok(pool.counts[recipes.REACTION_VISUALS[id].kind]>=10,id);
+ }
+});

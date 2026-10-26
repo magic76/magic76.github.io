@@ -8,14 +8,22 @@ const fade=(t:number)=>cap(t/.12)*Math.pow(cap((4.4-t)/1),2);
 const angle=(i:number,n:number)=>TAU*i/n;
 const fib=(i:number,n:number)=>{const y=1-2*(i+.5)/n,a=i*2.399963229728653;const r=Math.sqrt(1-y*y);return [Math.cos(a)*r,y,Math.sin(a)*r] as const};
 export const REACTION_VISUALS:Record<MagicReactionId,{kind:MagicParticleKind;color:number;ring:number;radius:number}>= {
- cat_fish_chase:{kind:"bubble",color:0xa8e9ff,ring:0xa8e9ff,radius:1.7},dragon_fireworks:{kind:"star",color:0xffd27a,ring:0xffd27a,radius:1.8},
- forge_sparks:{kind:"sparkle",color:0xff8a3d,ring:0xff8a3d,radius:1.3},steam_rainbow:{kind:"glow",color:0xf3f4fa,ring:0xbfe9ff,radius:1.9},
- flower_ring:{kind:"flower",color:0xff9fc7,ring:0xa8e9ff,radius:1.8},frost_carpet:{kind:"crystal",color:0xbfe9ff,ring:0xbfe9ff,radius:1.9},
- golden_pollen:{kind:"glow",color:0xffd25e,ring:0xffd25e,radius:1.6},petal_swirl:{kind:"petal",color:0xff9fc7,ring:0xa6f0d6,radius:1.8},
- ember_whirl:{kind:"flame",color:0xff8a3d,ring:0xff8a3d,radius:1.6},snow_fairy:{kind:"snow",color:0xe9f9ff,ring:0xbfe9ff,radius:1.8},
- ripple_splash:{kind:"drop",color:0x6ec8ff,ring:0x6ec8ff,radius:2},star_lake:{kind:"star",color:0xfff1a8,ring:0x2a3f8f,radius:1.8},
- heart_bouquet:{kind:"heart",color:0xff8fb8,ring:0xff8fb8,radius:1.6},meteor_shower:{kind:"star",color:0xffd27a,ring:0xffd27a,radius:1.8},
- dragon_frost:{kind:"crystal",color:0xbfe9ff,ring:0xbfe9ff,radius:1.5},music_dance:{kind:"note",color:0xc9a8ff,ring:0xc9a8ff,radius:1.5}
+ cat_fish_chase:{kind:"bubble",color:0x3aa0ff,ring:0x3aa0ff,radius:2.4},
+ dragon_fireworks:{kind:"star",color:0xff6b6b,ring:0xff6b6b,radius:2.4},
+ forge_sparks:{kind:"sparkle",color:0xffb000,ring:0xff7a1a,radius:2.3},
+ steam_rainbow:{kind:"glow",color:0xd9dde8,ring:0x749bd8,radius:2.4},
+ flower_ring:{kind:"flower",color:0xff72a9,ring:0x3aa0ff,radius:2.5},
+ frost_carpet:{kind:"crystal",color:0x5ab4ff,ring:0x2f8fff,radius:2.5},
+ golden_pollen:{kind:"glow",color:0xffc21a,ring:0xe5a600,radius:2.3},
+ petal_swirl:{kind:"petal",color:0xff72ac,ring:0x3fcf8e,radius:2.5},
+ ember_whirl:{kind:"flame",color:0xff5a1f,ring:0xff5a1f,radius:2.4},
+ snow_fairy:{kind:"snow",color:0x5ab4ff,ring:0x2f8fff,radius:2.5},
+ ripple_splash:{kind:"drop",color:0x2f8fff,ring:0x2f8fff,radius:2.6},
+ star_lake:{kind:"star",color:0xffd23f,ring:0x345bc8,radius:2.5},
+ heart_bouquet:{kind:"heart",color:0xff4f8b,ring:0xff4f8b,radius:2.5},
+ meteor_shower:{kind:"star",color:0xffd23f,ring:0xd69b2e,radius:2.4},
+ dragon_frost:{kind:"crystal",color:0x2f8fff,ring:0x2f8fff,radius:2.5},
+ music_dance:{kind:"note",color:0x7b4dff,ring:0x7b4dff,radius:2.5}
 };
 export function makeReactionPool(kinds:readonly MagicParticleKind[]):ReactionPool{
  const points={} as Record<MagicParticleKind,MagicParticle[]>,counts={} as Record<MagicParticleKind,number>;
@@ -23,70 +31,107 @@ export function makeReactionPool(kinds:readonly MagicParticleKind[]):ReactionPoo
  return {points,counts};
 }
 export function resetReactionPool(pool:ReactionPool){for(const k in pool.counts)pool.counts[k as MagicParticleKind]=0}
+// Particle positions are deterministic and allocation-free at render time.
+// Time is measured from the reaction start; all recipes have a readable 1.4–3.6s main act.
 export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:number,ground:number,pool:ReactionPool,animated=true,heading=0){
- const f=fade(t),u=Math.max(0,t-1.4),b=ease(u/1.8),v=REACTION_VISUALS[id];
- const put=(k:MagicParticleKind,px:number,py:number,pz:number,c:number,minPx:number,a=1,size=1)=>{
-  const index=pool.counts[k];if(index>=64)return;
-  const p=pool.points[k][index];p.x=px;p.y=py;p.z=pz;p.color=c;p.minPx=minPx;p.alpha=cap(a)*f;p.size=size;pool.counts[k]=index+1;
+ if(!animated){renderMagicReaction(id,2.4,x,z,ground,pool,true,heading);for(const k in pool.counts){
+  const kind=k as MagicParticleKind;for(let i=0;i<pool.counts[kind];i++)pool.points[kind][i].alpha=.85;
+ }return}
+ const phase=cap((t-1)/.4),show=cap((t-1.3)/.12)*Math.pow(cap((4.4-t)/.8),2);
+ const a=Math.max(0,t-1.4),q=cap(a/2.2),vis=REACTION_VISUALS[id];
+ const put=(k:MagicParticleKind,px:number,py:number,pz:number,c:number,minPx:number,alpha=1,size=1)=>{
+  const j=pool.counts[k];if(j>=64)return;const p=pool.points[k][j];
+  p.x=px;p.y=py;p.z=pz;p.color=c;p.minPx=minPx;p.alpha=cap(alpha)*show;p.size=size;pool.counts[k]=j+1;
  };
- const ring=(k:MagicParticleKind,i:number,n:number,r:number,h:number,c:number,minPx:number,a=1,s=1)=>{
-  const theta=angle(i,n);put(k,x+Math.cos(theta)*r,ground+h,z+Math.sin(theta)*r,c,minPx,a,s)
+ const dot=(k:MagicParticleKind,i:number,n:number,r:number,h:number,c:number,m:number,alpha=1)=>{
+  const th=angle(i,n);put(k,x+Math.cos(th)*r,ground+h,z+Math.sin(th)*r,c,m,alpha);
  };
- if(!animated){for(let i=0;i<8;i++)ring(v.kind,i,8,1,1.2,v.color,14,.7,1.3);return}
+ // Individual visual signatures; a few particles begin at 1.0s as the ground ring grows.
  switch(id){
  case "cat_fish_chase":{
-  for(let i=0;i<30;i++){const age=t-1.1-i*.07;if(age<0||age>.7)continue;const a=(t-1)*TAU*2/2.8-i*.16;
-   put("bubble",x+Math.cos(a)*1.3,ground+1+.5*age,z+Math.sin(a)*1.3,0xa8e9ff,12,(1-age/.7)*.95,1.2)}
-  for(let i=0;i<2;i++){const a=(t-1)*TAU*2/2.8+i*.35;put("glow",x+Math.cos(a)*1.3,ground+.15,z+Math.sin(a)*1.3,0xffe6ae,16,.5)}break}
+  const theta=q*TAU*2;for(let i=0;i<40;i++){
+   const lag=i*.052;const th=theta-lag*4.5;const h=.9+(i%4)*.16;
+   put("bubble",x+Math.cos(th)*2.3,ground+h,z+Math.sin(th)*2.3,0x3aa0ff,16,1-(i/40)*.7);
+  }
+  for(let i=0;i<2;i++){const th=theta+i*.35;put("glow",x+Math.cos(th)*2.3,ground+.35,z+Math.sin(th)*2.3,0xffb347,18,.6)}break}
  case "dragon_fireworks":{
-  for(let shot=0;shot<3;shot++){const age=t-1.4-shot*.45;if(age<0||age>1.85)continue;const col=[0xffd27a,0xff9fc7,0xc9a8ff][shot],sx=x+(shot-1)*.75;
-   if(age<.45){put("glow",sx,ground+1.6+age*12.5,z,col,14,.85);for(let j=1;j<5;j++)put("sparkle",sx,ground+1.6+Math.max(0,age-j*.04)*12.5,z,col,7,(1-j/5)*.7)}
-   else{const a=age-.45,rad=2.4*a*Math.exp(-a*.23);for(let i=0;i<24;i++){const [dx,dy,dz]=fib(i,24),xx=sx+dx*rad,yy=ground+7+dy*rad-1.1*a*a,zz=z+dz*rad;
-    put("star",xx,yy,zz,col,12,.9*(1-a/1.45));for(let j=1;j<=2;j++)put("sparkle",xx-dx*j*.12,yy-dy*j*.12,zz-dz*j*.12,col,j===1?7:5,(1-a/1.45)*(1-j/3))}}}break}
+  for(let shot=0;shot<3;shot++){const col=[0xff6b6b,0xffd23f,0x7b61ff][shot];
+   const local=Math.max(0,a-shot*.42),r=.22+Math.min(1,local)*2.1;
+   put("glow",x+(shot-1)*2,ground+3.2,z,col,48,local<.18?.85:.15);
+   for(let i=0;i<16;i++){const [dx,dy,dz]=fib(i,16);const px=x+(shot-1)*2+dx*r,py=ground+2.8+dy*r*.6,pz=z+dz*r;
+    put("star",px,py,pz,col,22,.95);for(let j=1;j<=3;j++)put("sparkle",px-dx*j*.13,py-dy*j*.13,pz-dz*j*.13,col,14-j*2,.65*(1-j/4));}
+  }break}
  case "forge_sparks":{
-  if(t>=1&&t<3.4)put("glow",x,ground+1.25,z+.6,t<1.4?0xfff6e0:0xff8a3d,22,.9,1+Math.sin(t*TAU*2)*.12);
-  for(let i=0;i<30;i++){const a=u-i*.022;if(a<0||a>1.3)continue;const phi=(-50+i*100/29)*PI/180,spd=2.3+(i%5)*.22,xx=x+Math.sin(phi)*spd*a,yy=ground+.9+Math.cos(phi)*spd*a-3*a*a,zz=z+.5+a*.6;
-   put("sparkle",xx,Math.max(ground+.15,yy),zz,0xff8a3d,7,.9*(1-a/1.3));put("sparkle",xx-Math.sin(phi)*.12,Math.max(ground+.15,yy+.1),zz-.08,0xffd27a,6,.55*(1-a/1.3))}break}
+  put("glow",x,ground+1.5,z+.6,0xff7a1a,34,.95,1+Math.sin(a*TAU/.35)*.12);
+  for(let i=0;i<42;i++){const beat=(a+i*.03)%1.2,ang=(-1+2*(i%14)/13)*.95;
+   const r=.5+beat*2.5,yy=1.2+beat*2.9-2.3*beat*beat;
+   put("sparkle",x+Math.sin(ang)*r,ground+Math.max(.2,yy),z+Math.cos(ang)*r*.55,0xffb000,12,.9);
+  }break}
  case "steam_rainbow":{
-  for(let i=0;i<12;i++){const age=cap((t-1.1-i*.09)/2);if(!age)continue;ring("glow",i,12,.35+age*.55,.7+age*3,0xf3f4fa,18+age*18,.55*(1-age),1+age)}
-  for(let i=0;i<20;i++)ring("sparkle",i,20,.6+b*.8,.6+b*1.4,i%2?0xffa66d:0x8fd3ff,7,(1-b)*.85);break}
+  for(let i=0;i<12;i++){const theta=angle(i,12),h=.6+(i%6)*.34+q*1.2;
+   put("glow",x+Math.cos(theta)*(1.2+(i%3)*.4),ground+h,z+Math.sin(theta)*(1.2+(i%3)*.4),0xd9dde8,26+(i%4)*6,.68)}
+  for(let i=0;i<20;i++)dot("sparkle",i,20,2.3,1.1+(i%3)*.36,i%2?0xff8a3d:0x3aa0ff,12,.82);break}
  case "flower_ring":{
-  for(let i=0;i<16;i++){const age=cap((t-1.4-i*.05)/.28);if(age){ring("flower",i,16,1.4,.16,i%4?0xff9fc7:0xffd1e3,14,age,1.15*age);ring("sparkle",i,16,1.4,.19,0xffe58a,6,age)}}
-  for(let i=0;i<6;i++){const age=cap((t-1-i*.08)/.75);if(age>0&&age<1){ring("drop",i,6,.65+age*.75,1.3+Math.sin(age*PI),0x6ec8ff,12,1-age);for(let j=0;j<3;j++)if(age>.85)ring("drop",i*3+j,18,1.4,.18,0x6ec8ff,6,(age-.85)*4)}}break}
+  for(let i=0;i<16;i++){const bloom=ease((a-i*.035)/.28);dot("flower",i,16,2.3,.25,0xff72a9,22,.85,); 
+   if(bloom>0)dot("sparkle",i,16,2.3,.3,0xffd23f,8,bloom)}
+  for(let i=0;i<12;i++){const th=angle(i,12),u=(i%6)/5;
+   put("drop",x+Math.cos(th)*(.7+u*2.2),ground+1+Math.sin(u*PI)*1.5,z+Math.sin(th)*(.7+u*2.2),0x3aa0ff,16,.92);
+  }break}
  case "frost_carpet":{
-  put("crystal",x,ground+.7,z,0xbfe9ff,26,b,Math.min(1.2,b*1.4));
-  for(let i=0;i<24;i++){const rad=Math.sqrt((i+.5)/24)*1.9,age=cap((t-1.4-rad*.12)/.25);if(age)ring("crystal",i,24,rad,.15+(i%3)*.05,0xbfe9ff,14,age,Math.min(1.2,age*1.45))}
-  for(let i=0;i<14;i++)ring("snow",i,14,.65+i%4*.27,2.5-(t* .3+i*.17)%1.4,0xe9f9ff,8,.5);break}
+  put("crystal",x,ground+1.3,z,0x2f8fff,36,.95);
+  for(let i=0;i<24;i++){const spoke=i%6,step=Math.floor(i/6),th=angle(spoke,6),r=.5+step*.42;
+   dot("crystal",i,24,2.3,.3+(i%4)*.22,0x5ab4ff,20,.9);
+   put("crystal",x+Math.cos(th)*r,ground+.2+step*.08,z+Math.sin(th)*r,0x2f8fff,16,.85);
+  }break}
  case "golden_pollen":{
-  for(let i=0;i<28;i++){const age=cap((t-1.4-i*.028)/2);if(!age)continue;const a=angle(i,28)+age*TAU*1.2;put("glow",x+Math.cos(a)*(1.1-.6*age),ground+.25+3.2*age,z+Math.sin(a)*(1.1-.6*age),0xffd25e,9,.5+.5*Math.abs(Math.sin(t*TAU*3+i)))}
-  for(let i=0;i<6;i++)ring("petal",i,6,1.2,2.7-(t+i*.14)*.3,0xff9fc7,14,.8,1.5);break}
+  for(let i=0;i<40;i++){const th=angle(i,40)+q*TAU*1.5,r=2-.95*q-(i%5)*.06;
+   put("glow",x+Math.cos(th)*r,ground+.5+2.5*((i%10)/10+q*.3),z+Math.sin(th)*r,0xffc21a,12,.6+.4*Math.abs(Math.sin(t*7+i)))}
+  for(let i=0;i<4;i++)dot("petal",i,4,2.4,2.6-i*.38,0xff72ac,14,.7);break}
  case "petal_swirl":{
-  for(let i=0;i<24;i++){const age=cap((t-1.4-i*.023)/1.7);if(!age)continue;const a=angle(i,24)+age*TAU*1.4;put("petal",x+Math.cos(a)*(1.2-.6*age),ground+.2+3*age,z+Math.sin(a)*(1.2-.6*age),0xff9fc7,13,.95,1.6)}
-  for(let i=0;i<18;i++){const age=cap((t-1.4-i*.04)/1.8),a=angle(i,18)+age*TAU;ring("glow",i,18,1.25-age*.45,.3+age*3,0xa6f0d6,8,.45*(1-age))}break}
+  for(let i=0;i<24;i++){const u=(i+.5)/24,th=angle(i,24)+q*TAU*1.5,r=2.2-u*1.4;
+   put("petal",x+Math.cos(th)*r,ground+.45+u*2.8,z+Math.sin(th)*r,0xff72ac,20,.95)}
+  for(let i=0;i<24;i++){const u=(i%8)/8,th=angle(Math.floor(i/8),3)+q*TAU+u*2;
+   put("glow",x+Math.cos(th)*(2.2-u*.5),ground+.6+u*2.4,z+Math.sin(th)*(2.2-u*.5),0x3fcf8e,12-u*6,.45*(1-u))}break}
  case "ember_whirl":{
-  if(t>=1&&t<3.5)put("glow",x,ground+.5,z,0xff8a3d,22,.8);
-  for(let i=0;i<26;i++){const age=cap((t-1.4-i*.03)/1.9);if(!age)continue;const a=angle(i,26)+age*TAU*1.8;put("flame",x+Math.cos(a)*(1.2-.8*age),ground+.2+3.4*age,z+Math.sin(a)*(1.2-.8*age),age>.5?0xffd27a:0xff8a3d,11-5*age,.9*(1-age*.5))}break}
+  put("glow",x,ground+.55,z,0xff5a1f,40,.8);
+  for(let i=0;i<32;i++){const u=(i+.5)/32,th=angle(i,32)+q*TAU*2,r=2-u*1.4;
+   put("flame",x+Math.cos(th)*r,ground+.3+u*3.2,z+Math.sin(th)*r,u>.5?0xffc21a:0xff5a1f,20-u*10,.95)}break}
  case "snow_fairy":{
-  for(let s=0;s<2;s++){const a=(t-1.4)*TAU/1.6+s*PI;if(t<1.4)continue;const xx=x+Math.sin(a)*1.8,zz=z+Math.sin(2*a)*.85;
-   put("snow",xx,ground+1.5+.3*Math.cos(a),zz,0xe9f9ff,16,.9);for(let j=1;j<=6;j++){const p=a-j*.16;put("glow",x+Math.sin(p)*1.8,ground+1.5+.3*Math.cos(p),z+Math.sin(2*p)*.85,0xbfe9ff,12-j*1.3,.5*(1-j/7))}}
-  for(let i=0;i<12;i++)ring("sparkle",i,12,1.4,1.2+(i%4)*.3,0xe9f9ff,6,.65);break}
+  for(let n=0;n<2;n++){const th=q*TAU*2+n*PI;
+   for(let j=0;j<9;j++){const p=th-j*.22;
+    put(j===0?"snow":"glow",x+Math.sin(p)*2.2,ground+1.8+.25*Math.cos(p),z+Math.sin(2*p)*.8,0x5ab4ff,j===0?26:18-j*1.5,.95-j*.085)}
+  }for(let i=0;i<16;i++)dot("snow",i,16,2.4,.24+(i%3)*.12,0x5ab4ff,12,.7);break}
  case "ripple_splash":{
-  for(let i=0;i<16;i++){const age=u-i*.04;if(age<0||age>1.1)continue;ring("drop",i,16,Math.min(1.8,age*2),.25+2*age-2.8*age*age,0x6ec8ff,11,1-age/1.1,1.3)}break}
+  for(let i=0;i<28;i++){const th=angle(i,28),r=.7+1.7*((i%7)/6);
+   put("drop",x+Math.cos(th)*r,ground+.4+1.8*Math.abs(Math.sin(q*PI+i*.3)),z+Math.sin(th)*r,0x2f8fff,18,.9)}
+  for(let i=0;i<16;i++)dot("drop",i,16,2.5,.2+(i%3)*.3,0x3aa0ff,12,.75);break}
  case "star_lake":{
-  for(let i=0;i<20;i++){const pulse=.5+.5*Math.abs(Math.sin(t*(2+i%3)+i*1.73));ring("star",i,20,.25+(i%5)*.28,.18+(i%4)*.04,0xfff1a8,9+(i%3)*3,pulse)}
-  for(let i=0;i<6;i++)ring("glow",i,6,.9,.6+2*b,0x6ec8ff,9,.45);break}
+  for(let i=0;i<20;i++){const th=angle(i,20),r=.4+(i%5)*.52;
+   put("star",x+Math.cos(th)*r,ground+.27+(i%3)*.1,z+Math.sin(th)*r,0xffd23f,16+(i%3)*4,.75+.2*Math.sin(t*4+i));
+   put("glow",x+Math.cos(th)*r,ground+.12,z+Math.sin(th)*r,0x345bc8,12,.42);
+  }for(let i=0;i<6;i++)dot("glow",i,6,2.6,1+q*2,0x3aa0ff,14,.8);break}
  case "heart_bouquet":{
-  for(let i=0;i<8;i++){const age=cap((t-1.4-i*.06)/.3);if(age)ring("flower",i,8,1.2,.2,0xffd1e3,13,age,age*1.2)}
-  for(let i=0;i<10;i++){const age=cap((t-1.4-i*.1)/1.9);if(!age)continue;put("heart",x+Math.sin(age*5+i)*.25,ground+.4+2.8*age,z+Math.cos(i)*.4,0xff8fb8,18,.95*(1-age*.25),2)}break}
+  for(let i=0;i<8;i++)dot("flower",i,8,2.3,.26,0xff72a9,16,.83);
+  for(let i=0;i<10;i++){const u=(i%5)/4,xx=(i<5?-1:1)*(1.1+u*1.3);
+   put("heart",x+xx,ground+.7+u*2+q*.35,z+Math.sin(i)*.3,0xff4f8b,26,.95)}break}
  case "meteor_shower":{
-  for(let i=0;i<8;i++){const age=(t-1.4-i*.25)/.6;if(age<0||age>1)continue;const tx=x+Math.cos(i*2.4)*2,tz=z+Math.sin(i*2.4)*2;
-   put("star",tx-2.1*(1-age),ground+.25+6*(1-age),tz-1.4*(1-age),0xffd27a,14,.95);for(let j=1;j<=5;j++)put("glow",tx-2.1*(1-age)-j*.12,ground+.25+6*(1-age)+j*.22,tz-1.4*(1-age),0xffd27a,11-j*1.4,.75*(1-j/6));
-   if(age>.8)for(let j=0;j<4;j++)ring("sparkle",i*4+j,32,.3,.3+(age-.8)*2,0xfff1a8,7,.8)}break}
+  for(let i=0;i<8;i++){const th=angle(i,8),r=1.5+(i%3)*.5,progress=(a+i*.08)%1.4/1.4;
+   const tx=x+Math.cos(th)*r,zz=z+Math.sin(th)*r;
+   for(let j=0;j<7;j++){const u=cap(progress-j*.075);
+    put(j===0?"star":"glow",tx-1.4*(1-u),ground+.3+3.3*(1-u),zz-.8*(1-u),0xffd23f,j===0?22:16-j*1.6,.95-j*.09);
+   }
+  }for(let i=0;i<12;i++)dot("sparkle",i,12,2.4,.4+(i%3)*.3,0xffc21a,10,.8);break}
  case "dragon_frost":{
-  if(t<1.4||t>3.1)break;
-  const dx=Math.sin(heading),dz=Math.cos(heading);for(let i=0;i<48;i++){const age=cap((t-1.4-i*.017)/1.55);if(!age)continue;const a=angle(i,48),spread=Math.tan(25*PI/180)*4*age*((i%6+1)/6);
-   put("crystal",x+dx*4*age+Math.cos(a)*spread,ground+1.9+Math.sin(a)*spread,z+dz*4*age+Math.sin(a)*spread,0xbfe9ff,10+8*age,.9-.5*age,1.1)}break}
+  const dx=Math.sin(heading),dz=Math.cos(heading),nx=dz,nz=-dx;
+  for(let i=0;i<40;i++){const u=(i+.5)/40,spread=(i%9-4)/4*1.7*u;
+   put("crystal",x+dx*(.5+u*2.7)+nx*spread,ground+1.5+Math.sin(i*3)*.35+u*.5,z+dz*(.5+u*2.7)+nz*spread,0x2f8fff,16+u*14,.9)}
+  for(let i=0;i<20;i++){const th=angle(i,20),u=.25+(i%8)/8*.7;
+   put("glow",x+dx*(.5+u*2.6)+nx*Math.cos(th)*1.5,ground+1.4+Math.sin(th)*1.1,z+dz*(.5+u*2.6)+nz*Math.cos(th)*1.5,0x5ab4ff,28,.6)}break}
  case "music_dance":{
-  for(let i=0;i<18;i++){const age=cap((t-1.4-i*.075)/1.8);if(!age)continue;put("note",x+(i%2?-.85:.85)+Math.sin(age*TAU*2+i)*.4,ground+1+3*age,z+Math.cos(i)*.65,i%2?0xc9a8ff:0xffd6f5,16,.95*(1-age*.2),1.6)}break}
+  for(let i=0;i<18;i++){const u=(i%9)/8,side=i<9?-1:1;
+   put("note",x+side*(1.2+.5*Math.sin(u*TAU)),ground+.7+u*2.6,z+Math.sin(i*2)*1.35,i<9?0x7b4dff:0xff4fa3,24,.95,1+.25*Math.abs(Math.sin(t*TAU/.625)))}break}
  }
+ // Every recipe has its own primary glyph and saturated ring; no generic shared glow core.
+ // A sparse outer signature makes the act legible from the 50–60-unit overview camera.
+ for(let i=0;i<12;i++)dot(vis.kind,i,12,2.65,1.15+(i%4)*.53,vis.color,22,.68*phase);
 }

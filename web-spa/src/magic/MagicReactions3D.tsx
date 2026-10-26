@@ -47,8 +47,8 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
    Math.atan2(-r.ax,-.55-r.az));
   for(const k of allKinds)if(pool.counts[k])publishMagicParticles(`reaction:${slot}:${k}`,k,pool.points[k],pool.counts[k]);else removeMagicParticles(`reaction:${slot}:${k}`);
   const mesh=decals.current[slot];if(mesh){const fade=animated?Math.min(1,Math.max(0,(age-1)/.4),Math.max(0,(4.4-age)/1)):Math.min(1,age*5,(2.5-age)*5);
-   mesh.visible=fade>.02;mesh.position.set(r.x,islandSurfaceHeight(r.x,r.z)+.07,r.z);mesh.scale.setScalar(animated?Math.min(1,Math.max(.25,(age-1)*2)):1);
-   (mesh.material as MeshBasicMaterial).opacity=fade*.55;(mesh.material as MeshBasicMaterial).color.setHex(REACTION_VISUALS[r.id].ring);}
+   mesh.visible=fade>.02;mesh.position.set(r.x,islandSurfaceHeight(r.x,r.z)+.07,r.z);mesh.scale.setScalar((animated?Math.min(1,Math.max(.25,(age-1)*2)):1)*1.48);
+   (mesh.material as MeshBasicMaterial).opacity=fade*.7;(mesh.material as MeshBasicMaterial).color.setHex(REACTION_VISUALS[r.id].ring);}
   const rainbow=rainbows.current[slot];if(rainbow){const show=r.id==="steam_rainbow"&&age>=1.6&&age<4.4;rainbow.visible=show;
    if(show){rainbow.position.set(r.x,islandSurfaceHeight(r.x,r.z)+1.15,r.z);rainbow.rotation.y=Math.atan2(camera.position.x-r.x,camera.position.z-r.z);
     textures.rainbowGeom.setDrawRange(0,Math.max(0,Math.floor(48*eased((age-1.6)/.6))*6));rainbow.scale.setScalar(Math.max(1.6,r.distance/2+.6));(rainbow.material as MeshBasicMaterial).opacity=Math.min(1,(age-1.6)*4,4.4-age);}}
