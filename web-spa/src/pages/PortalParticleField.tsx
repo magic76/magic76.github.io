@@ -5,16 +5,23 @@ export function PortalParticleField({mode,paused,launching,enabled}:{mode:Portal
  const canvasRef=useRef<HTMLCanvasElement>(null);
  const controller=useRef<PortalFieldController|null>(null);
  const [ready,setReady]=useState(false);
+ // An idle-delayed mount may happen after the user already switched tabs.
+ // Initialize the surface with the latest selection and pause state.
+ const latest=useRef({mode,paused,launching});
+ latest.current={mode,paused,launching};
  useEffect(()=>{
   const canvas=canvasRef.current,host=canvas?.closest<HTMLElement>(".crew-home-portal");
   if(!enabled||!canvas||!host)return;
-  const field=createPortalField(canvas,host);
-  controller.current=field;setReady(Boolean(field));
+  const state=latest.current;
+  const field=createPortalField(canvas,host,state.mode);
+  controller.current=field;
+  if(field){field.setPaused(state.paused);field.setLaunching(state.launching)}
+  setReady(Boolean(field));
   return()=>{field?.destroy();controller.current=null};
  },[enabled]);
- useEffect(()=>controller.current?.setMode(mode),[mode]);
- useEffect(()=>controller.current?.setPaused(paused),[paused]);
- useEffect(()=>controller.current?.setLaunching(launching),[launching]);
+ useEffect(()=>controller.current?.setMode(mode),[mode,enabled]);
+ useEffect(()=>controller.current?.setPaused(paused),[paused,enabled]);
+ useEffect(()=>controller.current?.setLaunching(launching),[launching,enabled]);
  return <div className="crew-portal-field" data-ready={ready} aria-hidden="true">
   <svg className="crew-portal-fallback" viewBox="0 0 600 400" fill="none" preserveAspectRatio="none">
    <path d="M80 200C80 20 520 20 520 200S80 380 80 200Z" stroke="currentColor"/>

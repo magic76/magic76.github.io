@@ -228,6 +228,26 @@ async function run(){
       assert.equal(await tabs.count(),4,"Four KV modes: "+JSON.stringify(setup));
       assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible center heading");
       const initial=await page.locator(".crew-portal-content h1").textContent();
+      // Samsung Internet regression: mobile KV must not remain a static SVG
+      // indefinitely after hydration. Canvas starts after load + idle + visibility.
+      if(setup.mobile){
+        await page.waitForFunction(()=>
+          document.querySelector(".crew-portal-field")?.getAttribute("data-ready")==="true",
+          null,{timeout:12000}
+        );
+        const portalState=await page.evaluate(()=>{
+          const field=document.querySelector(".crew-portal-field");
+          const canvas=field?.querySelector("canvas");
+          return {
+            ready:field?.getAttribute("data-ready"),
+            width:canvas?.width||0,height:canvas?.height||0,
+            paused:document.querySelector(".crew-portal-motion")?.getAttribute("aria-pressed")
+          };
+        });
+        assert.equal(portalState.ready,"true","Mobile KV initializes the real Canvas");
+        assert.ok(portalState.width>0&&portalState.height>0,"Mobile particle surface is sized");
+        assert.equal(portalState.paused,"false","Mobile KV automatically resumes motion");
+      }
       const metric=await page.evaluate(()=>{
         const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
         return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
