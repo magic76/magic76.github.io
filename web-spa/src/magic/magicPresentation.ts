@@ -43,3 +43,18 @@ export function newlyBuiltCreation(before:MagicWorld,after:MagicWorld):number|nu
   !before.creations.some(old=>old.id===c.id&&old.revision===c.revision));
  return changed?.id??null;
 }
+
+export function magicCreationSummary(c:MagicWorld["creations"][number],zh:boolean):string{
+ if(c.blueprint){const icon={robot:"🤖",fox:"🦊",dragon:"🐉"}[c.blueprint.kind];return " · "+icon+" "+(zh?"曲面雕塑":"sculpted");}
+ if(c.parts.length)return " · "+c.parts.length+" "+(zh?"個零件":c.parts.length===1?"part":"parts");
+ return "";
+}
+export function magicAdventureCopy(zh:boolean,step:number,castle:string,pendingPortal:boolean){
+ const t=(a:string,b:string)=>zh?a:b;
+ return [
+ {title:t("第一場魔法冒險","Your first magic adventure"),description:t("Lumi 發現一道未知的傳送門。先選一個世界！","Lumi found a mysterious portal. Choose a world to visit!"),action:pendingPortal?t("選擇傳送門目的地","Choose your destination"):t("打開傳送門","Open the portal")},
+ {title:t("第 2 步 · 找個新夥伴","Step 2 · Meet a companion"),description:t("你已抵達新世界。召喚飛龍，看看牠如何飛進島嶼。","You reached a new world. Summon a dragon and watch it fly in."),action:t("召喚飛龍","Summon a dragon")},
+ {title:t("第 3 步 · 改變這個世界","Step 3 · Transform the world"),description:t("現在讓飛龍施展冰雪魔法，親眼看城堡改變。","Give the dragon a spell. Watch the whole castle transform."),action:castle==="ice"?t("融化冰雪","Melt the ice"):t("冰封城堡","Freeze the castle")},
+ {title:t("完成！神祕水晶現身","Complete! A crystal has appeared"),description:t("你完成第一場冒險！點擊水晶，或開始下一場魔法試煉。","Your first adventure is complete! Tap the crystal to uncover your next mystery."),action:t("探索下一道謎題","Explore the next mystery")},
+ ][Math.min(3,Math.max(0,step))];
+}

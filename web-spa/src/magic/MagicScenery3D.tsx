@@ -1,11 +1,16 @@
 import {useEffect,useMemo,useRef} from 'react';
+import {useFrame} from '@react-three/fiber';
 import {Object3D,Color,AdditiveBlending,BufferAttribute,CircleGeometry,type InstancedMesh} from 'three';
 import {islandSurfaceHeight} from './magicNavigation';
 import {MAGIC_TREES,MAGIC_DISTRICTS} from './magicLayout';
 import {MAGIC_MATERIALS,type MagicPalette} from './magicPalette';
 
 /** One trunk + two foliage batches; every shadow uses the same layout source. */
-export function MagicForest3D({colors}:{colors:MagicPalette}){
+export function MagicForest3D({colors,hidden=[],reducedMotion=false}:{colors:MagicPalette;hidden?:number[];reducedMotion?:boolean}){
+ const scales=useRef(MAGIC_TREES.map(()=>1));
+ const desired=useRef(MAGIC_TREES.map(()=>1));
+ const animating=useRef(false);
+ const initialized=useRef(false);
  const trunks=useRef<InstancedMesh>(null),cone=useRef<InstancedMesh>(null),round=useRef<InstancedMesh>(null);
  useEffect(()=>{
   const t=new Object3D(),c=new Color();
@@ -23,7 +28,37 @@ export function MagicForest3D({colors}:{colors:MagicPalette}){
   [trunks.current,cone.current,round.current].forEach(m=>{
    if(m){m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;}
   });
+  initialized.current=true;
+  applyMatrices();
  },[colors.tree]);
+ useEffect(()=>{
+  const ids=new Set(hidden);
+  MAGIC_TREES.forEach((_,i)=>{desired.current[i]=ids.has(i)?.001:1;});
+  if(reducedMotion){scales.current=[...desired.current];applyMatrices();animating.current=false;}
+  else animating.current=true;
+ },[hidden.join(','),reducedMotion]);
+ function applyMatrices(){
+  if(!initialized.current)return;
+  const o=new Object3D();let nc=0,nr=0;
+  MAGIC_TREES.forEach((p,i)=>{
+   const y=islandSurfaceHeight(p.x,p.z),scale=p.scale,visibility=scales.current[i];
+   o.rotation.set(0,0,0);o.position.set(p.x,y+.48*scale*visibility,p.z);
+   o.scale.set(.18*scale*visibility,.95*scale*visibility,.18*scale*visibility);o.updateMatrix();trunks.current?.setMatrixAt(i,o.matrix);
+   o.position.set(p.x,y+1.49*scale*visibility,p.z);o.scale.set(.8*scale*visibility,1.03*scale*visibility,.8*scale*visibility);o.updateMatrix();
+   if(p.style===0)cone.current?.setMatrixAt(nc++,o.matrix);else round.current?.setMatrixAt(nr++,o.matrix);
+  });
+  for(const m of [trunks.current,cone.current,round.current])if(m)m.instanceMatrix.needsUpdate=true;
+ }
+ useFrame((_,delta)=>{
+  if(!animating.current||!initialized.current)return;
+  const step=Math.min(1,delta/.35*2.5);let moving=false;
+  for(let i=0;i<scales.current.length;i++){
+   const diff=desired.current[i]-scales.current[i];
+   if(Math.abs(diff)>.005){scales.current[i]+=diff*step;moving=true;}
+   else scales.current[i]=desired.current[i];
+  }
+  applyMatrices();animating.current=moving;
+ });
  const nCone=MAGIC_TREES.filter(p=>p.style===0).length;
  const nRound=MAGIC_TREES.length-nCone;
  return <group>

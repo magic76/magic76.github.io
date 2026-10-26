@@ -18,6 +18,9 @@ import {MagicForest3D,MagicDistricts3D} from "./MagicScenery3D";
 import {MagicCastle3D} from "./MagicCastle3D";
 import {MagicPaths3D} from "./MagicPaths3D";
 import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
+import {MAGIC_TREES,MAGIC_DISTRICTS} from "./magicLayout";
+import {getMagicFocusPose,type MagicOccluder,type MagicSubject} from "./magicFocus";
+import {useMagicFrameloop} from "./useMagicFrameloop";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -217,9 +220,9 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
  * Camera choreography and effects are local only; permanent changes live in
  * the reducer. No arbitrary Gemini camera parameters or meshes are accepted.
  */
-function MagicCinematic({cue,point,overviewPosition}:{cue:NonNullable<MagicWorld["cue"]>;point:[number,number];overviewPosition:Vector3}){
+function MagicCinematic({cue,point,overviewPosition,focusCamera}:{cue:NonNullable<MagicWorld["cue"]>;point:[number,number];overviewPosition:Vector3;focusCamera:Vector3}){
  const glyph=useRef<Group>(null),started=useRef<number|null>(null);
- const destination=useMemo(()=>cue==="dragon_arrival"?new Vector3(point[0]+6.8,7.7,point[1]+9.6):new Vector3(4.4,6.9,8.2),[cue,point[0],point[1]]);
+ const destination=useMemo(()=>cue==="dragon_arrival"?focusCamera.clone():new Vector3(4.4,6.9,8.2),[cue,focusCamera]);
  const overview=overviewPosition;
  useFrame(({clock,camera},delta)=>{
   if(started.current===null)started.current=clock.elapsedTime;
@@ -261,20 +264,36 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
  const orbit=useRef<ComponentRef<typeof OrbitControls>>(null);
  const scriptedView=useRef(true);
  useEffect(()=>{scriptedView.current=true;invalidate()},[focusId,viewVersion,overviewPosition,invalidate]);
- useFrame((_,delta)=>{
-  if(cinematic||!scriptedView.current||!orbit.current)return;
+ const occluders=useMemo<MagicOccluder[]>(()=>[
+  ...MAGIC_TREES.map((p,index)=>({x:p.x,z:p.z,ground:islandSurfaceHeight(p.x,p.z),height:2.55*p.scale,radius:.88*p.scale,kind:'tree' as const,index})),
+  ...MAGIC_DISTRICTS.map(p=>({x:p.x,z:p.z,ground:islandSurfaceHeight(p.x,p.z),height:2.6,radius:2.15,kind:'district' as const})),
+  {x:0,z:-.55,ground:islandSurfaceHeight(0,-.55),height:7.5,radius:4.5,kind:'castle' as const}
+ ],[]);
+ const aspect=size.width/Math.max(size.height,1);
+ const selected=useMemo(()=>{
   const focus=world.objects.find(obj=>obj.id===focusId);
-  let x=0,z=0;
+  const creation=world.creations.find(c=>c.id===focusCreationId);
+  if(!focus&&!creation)return null;
+  let x=0,z=0,height=2.7,radius=.9;
   if(focus){
    const slot=PLOTS[focus.slot]??PLOTS[0];
-   [x,z]=focus.x!==undefined&&focus.z!==undefined?
-    safeMagicAnchor(focus.x,focus.z):safeMagicAnchor(slot[0]/3.7,slot[1]/3.25);
+   [x,z]=focus.x!==undefined&&focus.z!==undefined?safeMagicAnchor(focus.x,focus.z):safeMagicAnchor(slot[0]/3.7,slot[1]/3.25);
+   height=focus.kind==='dragon'?3.7:focus.kind==='owl'?2.5:2.2;
   }
-  const creation=world.creations.find(c=>c.id===focusCreationId);
-  if(creation)[x,z]=safeMagicAnchor(creation.x,creation.z);
-  const overview=!focus&&!creation;
-  const cameraGoal=overview?overviewPosition:new Vector3(x+7.5,9.1,z+10.6);
-  const targetGoal=overview?new Vector3(0,1.05,0):new Vector3(x,focus?.kind==="dragon"?3.4:2.9,z);
+  if(creation){
+   const owner=world.creations.find(c=>c.id===creation.friendOf);
+   if(owner){[x,z]=safeMagicAnchor(owner.x,owner.z);x+=creation.id%2===0?1.7:-1.7;z-=.15;}
+   else [x,z]=safeMagicAnchor(creation.x,creation.z);
+   height=creation.blueprint?.kind==='dragon'?4.2:creation.blueprint?2.9:3.8;
+   radius=creation.blueprint?.kind==='dragon'?1.8:1.25;
+  }
+  const subject:MagicSubject={x,z,ground:islandSurfaceHeight(x,z),height,radius};
+  return getMagicFocusPose(subject,occluders,aspect);
+ },[world.objects,world.creations,focusId,focusCreationId,occluders,aspect]);
+ const cameraGoal=useMemo(()=>selected?new Vector3(...selected.camera):overviewPosition,[selected,overviewPosition]);
+ const targetGoal=useMemo(()=>selected?new Vector3(...selected.target):new Vector3(0,1.05,0),[selected]);
+ useFrame((_,delta)=>{
+  if(cinematic||!scriptedView.current||!orbit.current)return;
   const factor=reducedMotion?1:Math.min(1,delta*2.4);
   camera.position.lerp(cameraGoal,factor);
   orbit.current.target.lerp(targetGoal,factor);
@@ -282,6 +301,14 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   if(camera.position.distanceTo(cameraGoal)<.03&&orbit.current.target.distanceTo(targetGoal)<.03)
    scriptedView.current=false;
  });
+ const dragonPoint=useMemo(()=>{
+  const dragon=[...world.objects].reverse().find(o=>o.kind==='dragon');
+  if(!dragon)return [0,0] as [number,number];
+  const plot=PLOTS[dragon.slot]??PLOTS[0];
+  return dragon.x!==undefined&&dragon.z!==undefined?safeMagicAnchor(dragon.x,dragon.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
+ },[world.objects]);
+ const cinematicPose=useMemo(()=>getMagicFocusPose({x:dragonPoint[0],z:dragonPoint[1],ground:islandSurfaceHeight(...dragonPoint),height:3.8,radius:1.7},occluders,aspect),[dragonPoint,occluders,aspect]);
+ const hiddenTrees=selected?.hiddenTrees??(cinematic&&world.cue==='dragon_arrival'?cinematicPose.hiddenTrees:[]);
  const peerPositions=useRef(new Map<number,[number,number]>());
  useEffect(()=>{const active=new Set(world.objects.map(obj=>obj.id));for(const id of peerPositions.current.keys())if(!active.has(id))peerPositions.current.delete(id)},[world.objects]);
  useEffect(()=>{
@@ -299,7 +326,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
    <MagicDistricts3D colors={colors} night={night}/>
   <MagicCastle3D colors={colors} night={night} ice={world.castle==="ice"}/>
   <BiomeLandmarks theme={world.theme} night={night}/>
-  <MagicForest3D colors={colors}/>
+  <MagicForest3D colors={colors} hidden={hiddenTrees} reducedMotion={reducedMotion}/>
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
    const [x,z]=obj.x!==undefined&&obj.z!==undefined?
@@ -313,11 +340,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
    onSelect={onSelectCreation}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue} overviewPosition={overviewPosition}
-    point={(()=>{const dragon=[...world.objects].reverse().find(o=>o.kind==="dragon");
-     if(!dragon)return [0,0] as [number,number];
-     const plot=PLOTS[dragon.slot]??PLOTS[0];
-     return dragon.x!==undefined&&dragon.z!==undefined?safeMagicAnchor(dragon.x,dragon.z):
-      safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);})()}/>}
+    focusCamera={new Vector3(...cinematicPose.camera)} point={dragonPoint}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
   <OrbitControls ref={orbit} makeDefault enabled={!cinematic} onStart={()=>{scriptedView.current=false;}}
    enablePan enableDamping={!reducedMotion} minDistance={focusId!==null||focusCreationId!==null?7:11} maxDistance={110}
@@ -326,19 +349,14 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
 }
 export function MagicScene3D(props:Props){
  const night=props.world.time==="night";
- const [visible,setVisible]=useState(true);
- useEffect(()=>{
-  const sync=()=>setVisible(!document.hidden);
-  sync();document.addEventListener("visibilitychange",sync);
-  return()=>document.removeEventListener("visibilitychange",sync);
- },[]);
+ const {frameloop,onCreated}=useMagicFrameloop(props.reducedMotion);
  return <Canvas className="magic-three-canvas" aria-label="3D magic world" role="img"
    camera={{position:MAGIC_OVERVIEW_POSITION.toArray(),fov:42,near:.1,far:180}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
-   frameloop={props.reducedMotion||!visible?"demand":"always"}
+   frameloop={frameloop}
    fallback={<span>3D unavailable</span>}
-   onCreated={({gl})=>gl.setClearColor(new Color(night?"#243658":"#b6d9e6"))}>
+   onCreated={state=>{onCreated(state);state.gl.setClearColor(new Color(night?"#243658":"#b6d9e6"))}}>
   <SceneContent {...props}/>
  </Canvas>;
 }

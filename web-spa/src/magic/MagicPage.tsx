@@ -9,7 +9,9 @@ import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
 import {MagicHelpDialog} from "./MagicHelpDialog";
-import {OBJECT_ICONS,OBJECT_LABELS,HELPERS,newlySummonedCreature,newlyBuiltCreation} from "./magicPresentation";
+import {HELPERS,newlySummonedCreature,newlyBuiltCreation,magicAdventureCopy} from "./magicPresentation";
+import {MagicGuideCard} from "./MagicGuideCard";
+import {MagicCreatedList} from "./MagicCreatedList";
 import "./magic.css";
 
 const MagicScene3D=lazy(()=>import("./MagicScene3D").then(mod=>({default:mod.MagicScene3D})));
@@ -83,13 +85,16 @@ export function MagicPage(){
   }
  },[zh]);
 
+ const applyFocusAfter=useCallback((before:MagicWorld,after:MagicWorld)=>{
+  const creature=newlySummonedCreature(before,after);
+  const creation=newlyBuiltCreation(before,after);
+  if(creature!==null){setFocusId(creature);setFocusCreationId(null);setViewVersion(v=>v+1)}
+  if(creation!==null){setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1)}
+ },[]);
  const runCommand=useCallback((name:string,args:unknown)=>{
   const next=applyMagicCommand(worldRef.current,name,args,zh?"zh":"en");
   if(next.ok){
-   const newCreature=newlySummonedCreature(worldRef.current,next.world);
-   if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
-   const creation=newlyBuiltCreation(worldRef.current,next.world);
-   if(creation!==null){setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1);}
+   applyFocusAfter(worldRef.current,next.world);
    worldRef.current=next.world;
    setWorld(next.world);
    if(name==="cast_spell"||name==="change_world")trackUsageEvent("magic_spell");
@@ -97,20 +102,17 @@ export function MagicPage(){
    if(name==="select_magic_panel")trackUsageEvent("magic_panel_choice");
   }
   return next;
- },[zh]);
+ },[zh,applyFocusAfter]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
   const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
   if(next.ok){
-   const newCreature=newlySummonedCreature(worldRef.current,next.world);
-   if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
-   const creation=newlyBuiltCreation(worldRef.current,next.world);
-   if(creation!==null){setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1);}
+   applyFocusAfter(worldRef.current,next.world);
    if(id==="reset"){setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);}
    worldRef.current=next.world;setWorld(next.world);setNotice("");
    trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");
   }
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
- },[zh]);
+ },[zh,applyFocusAfter]);
 
  const stopVoice=useCallback(async ()=>{
   ++generation.current;
@@ -158,10 +160,7 @@ export function MagicPage(){
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
      const {result,duplicate}=applyMagicLiveCall(worldRef.current,call,toolResultsRef.current,zh?"zh":"en");
      if(!duplicate&&result.ok){
-      const newCreature=newlySummonedCreature(worldRef.current,result.world);
-      if(newCreature!==null){setFocusId(newCreature);setViewVersion(v=>v+1);}
-      const creation=newlyBuiltCreation(worldRef.current,result.world);
-      if(creation!==null){setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1);}
+      applyFocusAfter(worldRef.current,result.world);
       worldRef.current=result.world;setWorld(result.world);
       if(call.name==="cast_spell"||call.name==="change_world")trackUsageEvent("magic_spell");
       if(call.name==="answer_challenge")trackUsageEvent("magic_challenge_answer");
@@ -252,16 +251,7 @@ export function MagicPage(){
   else if(world.adventureStep===2)runDemo(world.castle==="ice"?"thawcastle":"icecastle");
   else runDemo("puzzle");
  }
- const firstAdventure=[
-  {title:t("第一場魔法冒險","Your first magic adventure"),description:t("Lumi 發現一道未知的傳送門。先選一個世界！","Lumi found a mysterious portal. Choose a world to visit!"),
-   action:pendingPortal?t("選擇傳送門目的地","Choose your destination"):t("打開傳送門","Open the portal")},
-  {title:t("第 2 步 · 找個新夥伴","Step 2 · Meet a companion"),description:t("你已抵達新世界。召喚飛龍，看看牠如何飛進島嶼。","You reached a new world. Summon a dragon and watch it fly in."),
-   action:t("召喚飛龍","Summon a dragon")},
-  {title:t("第 3 步 · 改變這個世界","Step 3 · Transform the world"),description:t("現在讓飛龍施展冰雪魔法，親眼看城堡改變。","Give the dragon a spell. Watch the whole castle transform."),
-   action:world.castle==="ice"?t("融化冰雪","Melt the ice"):t("冰封城堡","Freeze the castle")},
-  {title:t("完成！神祕水晶現身","Complete! A crystal has appeared"),description:t("你完成第一場冒險！點擊水晶，或開始下一場魔法試煉。","Your first adventure is complete! Tap the crystal to uncover your next mystery."),
-   action:t("探索下一道謎題","Explore the next mystery")}
- ][world.adventureStep];
+ const firstAdventure=magicAdventureCopy(zh,world.adventureStep,world.castle,Boolean(pendingPortal));
  return <main className="magic-page">
   <header className="magic-header">
    <div>
@@ -325,51 +315,13 @@ export function MagicPage(){
      onAnswer={answer} onSelect={selectPanel}/>
    </section>
    <aside className="magic-panel">
-    <section className="magic-guide-card">
-     <div className="magic-guide-row">
-      <span className={"magic-lumi"+(voiceState==="speaking"?" is-speaking":"")} aria-hidden="true">✦</span>
-      <div className="magic-guide-text">
-       <strong>Lumi <span>{t("· 魔法嚮導","· your magic guide")}</span></strong>
-       <small role="status">{voiceState==="speaking"?t("Lumi 正在說話","Lumi is speaking"):
-        voiceState==="listening"?t("正在聆聽你的願望","Listening to your wish"):
-        voiceState==="connecting"?t("正在連線…","Connecting…"):
-        voiceState==="error"?t("暫時離線","Connection lost"):t("等你一起創造世界","Ready to make magic")}</small>
-      </div>
-     </div>
-     <p className="magic-guide-lead">{t("「今天想讓這座島發生什麼奇蹟？」","“What wonderful thing should happen to our island?”")}</p>
-     <div className="magic-voice-actions">
-      {isOnline||voiceState==="connecting"?
-       <button type="button" className="magic-primary magic-end" onClick={()=>void stopVoice()}>{t("結束對話","End conversation")}</button>:
-       <button type="button" className="magic-primary" disabled={starting} onClick={()=>void startVoice()}>
-        <span aria-hidden="true">◉</span> {starting?t("連線中…","Connecting…"):t("開啟語音魔法","Start voice magic")}
-       </button>}
-      {isOnline?<button type="button" className="magic-secondary" onClick={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}} aria-pressed={muted}>
-       {muted?t("開啟麥克風","Unmute"):t("麥克風靜音","Mute")}
-      </button>:null}
-     </div>
-     {isOnline&&<label className="magic-volume">{t("Lumi 音量","Lumi volume")} <input aria-label={t("調整 Lumi 音量","Lumi volume")} type="range" min="0" max="150" step="5"
-      value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);sessionRef.current?.setVolume(value)}}/>
-      <output>{volume}%</output></label>}
-     {!hasKey&&<Link className="magic-settings" to="/settings">{t("設定語音連線","Set up voice connection")} →</Link>}
-     {!toolsAvailable&&<p className="magic-muted">{t("語音可以繼續；畫面互動仍可透過下方魔法使用。","Voice can continue; use the spells below to change the scene.")}</p>}
-     {notice&&<p className="magic-notice" role="status">{notice}</p>}
-     {isOnline&&(heard||said)&&<div className="magic-transcripts">
-      {heard&&<p><b>{t("你","You")}:</b> {heard}</p>}
-      {said&&<p><b>Lumi:</b> {said}</p>}
-     </div>}
-    </section>
-    {has3D&&world.objects.length>0?<section className="magic-3d-access" aria-label={t("世界中的魔法物件","Objects in the world")}>
-     <strong>{t("探索島上的魔法物件","Explore the creatures and objects")}</strong>
-     <div>{world.objects.map(obj=><button type="button" key={obj.id} onClick={()=>interact(obj.kind)}>
-      {OBJECT_ICONS[obj.kind]} {zh?OBJECT_LABELS[obj.kind][0]:OBJECT_LABELS[obj.kind][1]}
-     </button>)}</div>
-    </section>:null}
-    {world.creations.length>0&&<section className="magic-created-list" aria-label={t("已創造的魔法生命","Your magic creations")}>
-     <strong>{t("你的造物","Your creations")} · {world.creations.length}/3</strong>
-     <div>{world.creations.map(c=><button key={c.id} type="button"
-      onClick={()=>{setFocusCreationId(c.id);setFocusId(null);setViewVersion(v=>v+1);}}
-      aria-pressed={focusCreationId===c.id}>{c.label} · {c.parts.length} {t("個零件","parts")}</button>)}</div>
-    </section>}
+    <MagicGuideCard zh={zh} voiceState={voiceState} isOnline={isOnline} muted={muted} volume={volume} hasKey={hasKey} starting={starting}
+     toolsAvailable={toolsAvailable} notice={notice} heard={heard} said={said}
+     onStop={()=>void stopVoice()} onStart={()=>void startVoice()}
+     onToggleMic={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}}
+     onVolume={value=>{setVolume(value);sessionRef.current?.setVolume(value)}}/>
+    <MagicCreatedList world={world} zh={zh} has3D={has3D} focusCreationId={focusCreationId} onInteract={interact}
+     onFocus={id=>{setFocusCreationId(id);setFocusId(null);setViewVersion(v=>v+1)}}/>
     {world.challenge?<MagicChallengeCard challenge={world.challenge} zh={zh} onAnswer={answer}/>:null}
     {world.panels.map(panel=><MagicGeneratedCard key={panel.id} panel={panel} zh={zh} onSelect={selectPanel}/>)}
     <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
