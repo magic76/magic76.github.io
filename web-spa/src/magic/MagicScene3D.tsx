@@ -263,13 +263,13 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   if(focus){
    const slot=PLOTS[focus.slot]??PLOTS[0];
    [x,z]=focus.x!==undefined&&focus.z!==undefined?safeMagicAnchor(focus.x,focus.z):safeMagicAnchor(slot[0]/3.7,slot[1]/3.25);
-   height=focus.kind==='dragon'?3.7:focus.kind==='owl'?2.5:2.2;
+   height=focus.kind==='dragon'?3:1.8;
   }
   if(creation){
    const owner=world.creations.find(c=>c.id===creation.friendOf);
    if(owner){[x,z]=safeMagicAnchor(owner.x,owner.z);x+=creation.id%2===0?1.7:-1.7;z-=.15;}
    else [x,z]=safeMagicAnchor(creation.x,creation.z);
-   height=creation.blueprint?.kind==='dragon'?4.2:creation.blueprint?2.9:3.8;
+   height=creation.blueprint?.kind==='dragon'?2.2:creation.blueprint?2:2.2;
    radius=creation.blueprint?.kind==='dragon'?1.8:1.25;
   }
   const subject:MagicSubject={x,z,ground:islandSurfaceHeight(x,z),height,radius};
