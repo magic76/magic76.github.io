@@ -11,7 +11,6 @@ import zhFortune from "./locales/zh-TW/fortune.json";
 import zhStory from "./locales/zh-TW/story.json";
 import zhFriends from "./locales/zh-TW/friends.json";
 import zhTeacher from "./locales/zh-TW/teacher.json";
-import zhMagic from "./locales/zh-TW/magic.json";
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
 import enSettings from "./locales/en/settings.json";
@@ -19,7 +18,6 @@ import enFortune from "./locales/en/fortune.json";
 import enStory from "./locales/en/story.json";
 import enFriends from "./locales/en/friends.json";
 import enTeacher from "./locales/en/teacher.json";
-import enMagic from "./locales/en/magic.json";
 
 function initialLocale(){
  if(typeof window==="undefined")return "zh-TW";
@@ -33,16 +31,16 @@ function initialLocale(){
   userAgent:navigator.userAgent
  });
 }
-// Keep translated UI catalogs out of the entry bundle. Vite puts each JSON
+// Keep beta base catalogs out of the entry bundle. Vite puts each JSON
 // into its own on-demand chunk, and only the active locale is fetched.
 const localeImports=import.meta.glob("./locales/{ja,es,pt-BR,id,ko,fr,de,vi,th}/*.json",{import:"default"});
-const namespaceNames=["common","home","settings","teacher","friends","story","fortune","magic"] as const;
+const namespaceNames=["common","home","settings","teacher","friends","story","fortune"] as const;
 const loadingLocales=new Map<string,Promise<void>>();
 // Route-scoped catalogs (every locale, zh-TW and en included) stay out of the
 // entry bundle. Routes await loadUiNamespace() inside their lazy() import, so
 // the strings exist before the first render and raw keys never flash.
-const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson,voice}.json",{import:"default"});
-export type RouteNamespace="games"|"mate"|"lesson"|"voice";
+const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson,voice,magic}.json",{import:"default"});
+export type RouteNamespace="games"|"mate"|"lesson"|"voice"|"magic";
 const wantedRouteNamespaces=new Set<RouteNamespace>();
 const loadingRouteNamespaces=new Map<string,Promise<void>>();
 function loadRouteBundle(locale:string,namespace:RouteNamespace):Promise<void>{
@@ -96,11 +94,11 @@ void i18n.use(initReactI18next).init({
  // Missing product strings fall back to English without changing learning language.
  fallbackLng:{"zh-TW":["zh-TW"],default:["en","zh-TW"]},
  supportedLngs:[...UI_LOCALES],
- ns:["common","home","settings","teacher","friends","story","fortune","magic"],
+ ns:["common","home","settings","teacher","friends","story","fortune"],
  defaultNS:"common",
  resources:{
-  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune,magic:zhMagic},
-  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune,magic:enMagic}
+  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
+  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune}
  },
  interpolation:{escapeValue:false},
  // Route pages call useTranslation(["lesson","teacher"]) etc.; look keys up in every listed namespace.
