@@ -9,7 +9,7 @@ const {NewsRoundTracker}=new Function(asJS(read("nonsenseDirector.ts"))+"\nretur
 const topic={id:"elevator",category:"city",zh:"電梯集體罷工",en:"All elevators are on strike"};
 const breaking={type:"breaking",headline:"Breaking!",detail:"Unbelievable",question:"What happened?",character:"Anchor",ticker:"LIVE",reaction:"",options:[],audience:null,ending:"",outcome:null};
 
-async function liveHarness(){
+async function liveHarness(totalRounds=5){
  let callbacks,session,opening=[],spoken=[],ready=0,started=0,finished=0;
  class FakeSession{
   ready=false;micMuted=false;
@@ -30,7 +30,7 @@ async function liveHarness(){
   onHostDraft:()=>{},onPlayerDraft:()=>{},onReady:()=>{ready++;},
   onIntroReady:()=>{started++;},onSpeaking:()=>{},onChoiceBusy:()=>{},
   onDone:()=>{finished++;},onFailure:reason=>{throw Error(reason);}
- },"Puck",5);
+ },"Puck",totalRounds);
  return {session,callbacks,controller,opening,spoken,get ready(){return ready},get started(){return started},get finished(){return finished}};
 }
 
@@ -87,4 +87,48 @@ test("newsroom UI locks options and explains that the anchor is introducing the 
  assert.match(page,/mode==="voice"&&!introReady/);
  assert.match(page,/主播正在開場，等他問完第一題再回答/);
  assert.match(page,/disabled=\{!introReady\|\|choiceBusy\}/);
+});
+
+test("a rendered finale remains live until the AI has really spoken the ending",async()=>{
+ const h=await liveHarness(1);
+ const finale={...breaking,type:"finale",question:"",ending:"電梯們終於同意輪休，全城恢復運轉！",outcome:"good"};
+ try{
+  await new Promise(resolve=>setTimeout(resolve,140));
+  h.callbacks.onToolCall({name:"render_scene",args:breaking});
+  h.callbacks.onSpeaking(true);
+  h.callbacks.onTurnComplete({hadAudio:true});
+  await new Promise(resolve=>setImmediate(resolve));
+  h.callbacks.onTranscriptTurn({input:"讓電梯輪流休假",output:"",id:"last-player"});
+  assert.equal(h.session.micMuted,true,"mute the mic while the final sign-off is pending");
+  assert.equal(h.callbacks.onToolCall({name:"render_scene",args:finale}).ok,true);
+  h.callbacks.onTurnComplete({hadAudio:false});
+  assert.equal(h.finished,0,"a silent finale scene cannot end the voice session");
+  await new Promise(resolve=>setTimeout(resolve,970));
+  assert.equal(h.opening.length,2,"one additional Live narration cue");
+  assert.match(h.opening[1],/ENDING VOICE ONLY/);
+  assert.match(h.opening[1],/輪休/);
+  assert.equal(h.finished,0,"narration request is not proof of audible playback");
+  h.callbacks.onTurnComplete({hadAudio:true});
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(h.finished,1,"finish only after an audio-bearing turn");
+ }finally{h.controller.stop();}
+});
+
+test("late finale tool frame also waits for audio and never counts the control cue as a player reply",async()=>{
+ const h=await liveHarness(1);
+ const finale={...breaking,type:"finale",question:"",ending:"全城恢復運轉",outcome:"good"};
+ try{
+  await new Promise(resolve=>setTimeout(resolve,140));
+  h.callbacks.onToolCall({name:"render_scene",args:breaking});
+  h.callbacks.onSpeaking(true);
+  h.callbacks.onTurnComplete({hadAudio:true});
+  await new Promise(resolve=>setImmediate(resolve));
+  h.callbacks.onTranscriptTurn({input:"同意輪休",output:"播報結局",id:"final-player"});
+  h.callbacks.onTurnComplete({hadAudio:true});
+  assert.equal(h.finished,0,"audio without a final scene is not a complete ending");
+  assert.equal(h.callbacks.onToolCall({name:"render_scene",args:finale}).ok,true);
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(h.finished,1,"once the late finale tool arrives, finished audio may close the show");
+  assert.deepEqual(h.spoken,["同意輪休"]);
+ }finally{h.controller.stop();}
 });

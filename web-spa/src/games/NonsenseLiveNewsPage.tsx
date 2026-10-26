@@ -131,7 +131,13 @@ export function NonsenseLiveNewsPage(){
     },
     onFailure:message=>{
      if(stamp!==generationRef.current||!mountedRef.current)return;
-     controllerRef.current=null;setAiSpeaking(false);setMode("text");setMuted(false);setChoiceBusy(false);
+     controllerRef.current=null;setAiSpeaking(false);setMuted(false);setChoiceBusy(false);
+     if(sceneRef.current.type==="finale"){
+      setStatus("finished");setNotice(L(zh,"結局已揭曉，但主播未能完成語音播報。","The ending is ready, but the anchor could not finish narrating it."));setError("");
+      trackUsageEvent("game_completed","nonsense");
+      return;
+     }
+     setMode("text");
      setNotice(L(zh,"語音已結束，已保留劇情並切換到文字模式。","Voice ended. Story preserved; continuing in text mode."));
      setError(message);
      if(turnsRef.current.length>=roundCount)void recoverEnding(stamp);
@@ -251,7 +257,6 @@ export function NonsenseLiveNewsPage(){
     </form>}
     {status==="playing"&&mode==="text"&&turns.length>=roundCount&&<div className="news-actions"><button className="news-primary" onClick={()=>void recoverEnding(generationRef.current)}>{L(zh,"重試結局","Retry ending")}</button><button onClick={reset}>{L(zh,"重新開始","Restart")}</button></div>}
     {status==="finished"&&<div className="news-finish-actions">
-     <p>{L(zh,"結局取決於你整場直播中的應對；AI 判斷救場成功或直播翻車。不會虛構分數，也不會在分享圖放逐字稿。","Your ending reflects your decisions. AI decides whether you saved the broadcast or caused a disaster, without fake scores or transcripts.")}</p>
      <div className="news-actions"><button className="news-primary" type="button" onClick={nextBroadcast}>{L(zh,"下一則新聞","Next news story")} →</button><button type="button" onClick={()=>void share()}>{L(zh,"分享結局圖片","Share ending")}</button><button type="button" onClick={showPreview}>{L(zh,"預覽圖片","Preview card")}</button><button type="button" onClick={reset}>{L(zh,"重新設定","Change settings")}</button></div>
      {shareNotice&&<p role="status">{shareNotice}</p>}
     </div>}
