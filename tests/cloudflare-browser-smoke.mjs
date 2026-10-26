@@ -109,6 +109,24 @@ async function verifyLearningResponsiveLayout(browser){
     if(path==="/learn/"){
      const textWidth=await page.locator(".crew-section-focus-card-content").evaluate(el=>el.getBoundingClientRect().width);
      assert.ok(textWidth>(width<500?160:280),"Learn heading must remain readable at "+width);
+     // Regression: bare SVG on the speaking shortcut once occupied ~300px and squeezed Chinese into one character per line.
+     const speaking=page.locator(".crew-learn-three-minute");
+     await speaking.waitFor({state:"visible"});
+     const shortcut=await speaking.evaluate(el=>{
+      const svg=el.querySelector(".crew-learn-three-minute-icon svg");
+      const copy=el.querySelector(".crew-learn-three-minute-copy");
+      const arrow=el.querySelector(".crew-learn-three-minute-arrow");
+      const bounds=el.getBoundingClientRect(),icon=svg.getBoundingClientRect(),text=copy.getBoundingClientRect();
+      const style=getComputedStyle(svg);
+      return {width:bounds.width,iconWidth:icon.width,iconHeight:icon.height,textWidth:text.width,
+       textRight:text.right,arrowLeft:arrow.getBoundingClientRect().left,stroke:style.stroke,fill:style.fill};
+     });
+     assert.ok(shortcut.iconWidth>=18&&shortcut.iconWidth<=26&&shortcut.iconHeight>=18&&shortcut.iconHeight<=26,
+      "Speaking icon must stay ~22px at "+width+": "+JSON.stringify(shortcut));
+     assert.ok(shortcut.textWidth>=(width<500?110:200)&&shortcut.textRight<=shortcut.arrowLeft+1,
+      "Speaking text must fit before arrow at "+width+": "+JSON.stringify(shortcut));
+     assert.equal(shortcut.fill,"none","Speaking icon must not render as a solid black bubble");
+     assert.notEqual(shortcut.stroke,"none","Speaking icon must keep its outline");
     }
     if(path==="/teacher/vocabulary/"){
      const positions=await page.locator(".crew-learning-question .quiz-choice").evaluateAll(elements=>elements.map(el=>el.getBoundingClientRect().top));

@@ -39,3 +39,15 @@ test("Existing Learn center deep link redirects to the canonical dashboard",()=>
  const app=read("web-spa/src/App.tsx");
  assert.match(app,/path="learn" element=\{<Navigate to="\/learn" replace\/>\}/);
 });
+
+
+test("Three-minute speaking entry constrains SVG and reserves readable copy width",()=>{
+ const source=read("web-spa/src/pages/LearnHubExtras.tsx");
+ const css=read("web-spa/src/pages/crewSections.css");
+ assert.match(source,/<span className="crew-section-card-icon crew-learn-three-minute-icon"><Icon name="chat"\/><\/span>/);
+ assert.match(source,/className="crew-learn-three-minute-copy"/);
+ assert.match(source,/className="crew-learn-three-minute-arrow"/);
+ assert.match(css,/\.crew-learn-three-minute\{display:grid;grid-template-columns:40px minmax\(0,1fr\) 20px/);
+ assert.match(css,/\.crew-learn-three-minute-icon svg\{[^}]*width:22px;height:22px;stroke:currentColor;[^}]*fill:none/);
+ assert.doesNotMatch(source,/<Link className="crew-learn-three-minute"[^>]*>\s*<Icon/);
+});
