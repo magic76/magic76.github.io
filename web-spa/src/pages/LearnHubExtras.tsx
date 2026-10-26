@@ -17,7 +17,9 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
    </Link>)}
   </div>
   <Link className="crew-learn-three-minute" to={speakingPath}>
-   <Icon name="chat"/><span><strong>{t("learnToday.threeMinute")}</strong><small>{t("learnToday.threeMinuteDesc")}</small></span><span aria-hidden="true">→</span>
+   <span className="crew-section-card-icon crew-learn-three-minute-icon"><Icon name="chat"/></span>
+   <span className="crew-learn-three-minute-copy"><strong>{t("learnToday.threeMinute")}</strong><small>{t("learnToday.threeMinuteDesc")}</small></span>
+   <span className="crew-learn-three-minute-arrow" aria-hidden="true">→</span>
   </Link>
   <nav className="crew-learn-secondary-links" aria-label={t("learnToday.more")}>
    <Link to="/teacher/reading-library">{tTeacher("learn.library")}</Link>
