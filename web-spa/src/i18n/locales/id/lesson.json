@@ -172,5 +172,33 @@
       "teacher": "Guru",
       "outputPlaceholder": "Jawaban guru akan muncul di sini."
     }
+  },
+  "learnToday": {
+    "heading": "Hari ini",
+    "loading": "Menyiapkan langkah belajarmu berikutnya…",
+    "loadingNote": "Memeriksa perkembangan belajarmu.",
+    "loadingButton": "Memuat…",
+    "start": "Mulai latihan",
+    "changeTeacher": "Ganti guru",
+    "resumeTextbook": "Lanjutkan materi sebelumnya",
+    "due": "Ulangi {{count}} kata yang jatuh tempo",
+    "due_one": "Ulangi {{count}} kata yang jatuh tempo",
+    "due_other": "Ulangi {{count}} kata yang jatuh tempo",
+    "vocabulary": "Latihan kosakata",
+    "lesson": "Pelajaran {{number}}: {{name}}",
+    "conversation": "Percakapan bebas bersama {{name}}",
+    "vocabularyNote": "Mulai dengan latihan kosakata tanpa kunci API.",
+    "courseNote": "Lanjutkan pelajaran berikutnya yang terbuka.",
+    "conversationNote": "Langsung mulai percakapan bersama guru.",
+    "threeMinute": "Latihan berbicara 3 menit",
+    "threeMinuteDesc": "Obrolan santai singkat dengan teman.",
+    "more": "Pilihan belajar lainnya",
+    "records": "Riwayat belajar",
+    "settings": "Pengaturan belajar",
+    "teachersCourses": "Guru dan kursus",
+    "teacherIntro": "Pilih guru, lanjutkan kursus, atau latih keterampilan tertentu.",
+    "backToLearn": "Kembali ke belajar",
+    "courseTracks": "Daftar kursus",
+    "trackProgress": "{{done}} dari {{total}} pelajaran selesai"
   }
 }

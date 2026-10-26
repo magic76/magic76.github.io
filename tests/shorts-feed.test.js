@@ -81,12 +81,14 @@ test("Crew Shorts source feed has valid images and identities",()=>{
  const result=spawnSync(process.execPath,[script],{cwd:root,encoding:"utf8"});
  assert.equal(result.status,0,result.stderr||result.stdout);
 });
-test("Crew Shorts remains lazy and linked from Teacher",()=>{
+test("Crew Shorts remains lazy and is previewed in Chat",()=>{
  const app=load("web-spa/src/App.tsx");
+ const chat=load("web-spa/src/pages/CrewSectionPage.tsx");
  const home=load("web-spa/src/teacher/PracticePage.tsx");
  assert.match(app,/ShortsPage=lazy/);
  assert.match(app,/path="shorts"/);
- assert.match(home,/HomeShortsPreview/);
+ assert.match(chat,/HomeShortsPreview/);
+ assert.doesNotMatch(home,/HomeShortsPreview/);
  const preview=load("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(preview,/\/teacher\/shorts/);
 });

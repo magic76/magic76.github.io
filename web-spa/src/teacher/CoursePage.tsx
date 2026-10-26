@@ -1,14 +1,14 @@
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {Link,useSearchParams} from "react-router-dom";
-import {COURSE_TRACKS,courseLesson,lessonsForUnit,unitsForTrack} from "./courseCatalog";
+import {COURSE_TRACKS,COURSE_UNITS,COURSE_LESSONS,courseLesson,lessonsForUnit,unitsForTrack} from "./courseCatalog";
 import {CourseBriefing} from "./CourseBriefing";
-import {completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
+import {bestNextLesson,completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
 import "./learningFlow.css";
 
 const TRACK_KEY="crew_teacher_course_track";
 function storedTrack():string{
- try{return localStorage.getItem(TRACK_KEY)||COURSE_TRACKS[0].id}catch{return COURSE_TRACKS[0].id}
+ try{return localStorage.getItem(TRACK_KEY)||bestNextLesson()?.trackId||COURSE_TRACKS[0].id}catch{return bestNextLesson()?.trackId||COURSE_TRACKS[0].id}
 }
 
 export function CoursePage(){
@@ -57,7 +57,7 @@ export function CoursePage(){
   <header className="crew-learning-page-heading">
    <span className="kicker">{t("course.kicker")}</span>
    <h1>{t("course.title")}</h1>
-   <p>{t("course.intro")}</p>
+   <p>{t("course.intro",{tracks:COURSE_TRACKS.length,units:COURSE_UNITS.length,lessons:COURSE_LESSONS.length})}</p>
   </header>
   <section className="crew-course-resume" aria-label={t("course.nextLesson")}>
    <span className="kicker">{next?t("course.nextLesson"):t("course.trackComplete")}</span>

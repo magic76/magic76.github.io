@@ -77,3 +77,27 @@ test("the new learning UI is localized in both existing languages",()=>{
    assert.ok(dict.course[key],language+" course."+key);
  }
 });
+
+test("all Today entry points use the shared priority and do not invent duration",()=>{
+ const focus=read("web-spa/src/teacher/LearningFocusCard.tsx");
+ const next=read("web-spa/src/teacher/ContinueLearningCard.tsx");
+ const planner=read("web-spa/src/teacher/learningCoordinator.ts");
+ const course=read("web-spa/src/teacher/CoursePage.tsx");
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ assert.match(planner,/export function todayStep/);
+ assert.match(planner,/targetLanguage==="英文"&&\(dueVocabulary>0\|\|\(practicedVocabularyToday===0&&unseenVocabulary>0\)\)/);
+ assert.match(planner,/targetLanguage==="英文"&&nextLesson/);
+ assert.match(planner,/lessonsForTrack\(nextLesson\.trackId\)\.findIndex/);
+ assert.match(planner,/\/teacher\/course\?briefing=/);
+ assert.match(planner,/to:"\/teacher\/live"/);
+ assert.match(focus,/buildDailyLearningPlan\(\)/);
+ assert.match(next,/buildDailyLearningPlan\(\)/);
+ assert.match(course,/bestNextLesson\(\)\?\.trackId/);
+ assert.match(focus,/className="crew-action-primary"/);
+ assert.match(focus,/plan\?<Link className="crew-action-primary" to=\{plan\.to\}/);
+ assert.match(focus,/<button className="crew-action-primary"[^>]*disabled/);
+ assert.doesNotMatch(focus,/to=\{plan\?\.to\|\|"\/teacher\/live"\}/);
+ assert.match(focus,/<TodayLearningCard compact\/>/);
+ assert.match(hub,/<LearningFocusCard\/>/);
+ assert.doesNotMatch(focus,/suggestedTime|Suggested: 5 min|\/teacher\/roles\?mode=teacher"\s*:\s*"/);
+});

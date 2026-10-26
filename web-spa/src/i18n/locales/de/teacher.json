@@ -245,7 +245,7 @@
     "courseMap": "Kursübersicht",
     "progress": "Kursfortschritt",
     "title": "Reale Gespräche anhand von Missionen üben",
-    "intro": "Drei Themen (Reisen, Beruf und Alltagsgespräche) in 10 Einheiten und 31 Lektionen – Schritt für Schritt in echten Situationen geübt. Schließe eine Lektion ab, um die nächste freizuschalten.",
+    "intro": "Entdecke {{tracks}} Lernpfade, {{units}} Einheiten und {{lessons}} Lektionen mit Alltagssituationen. Schließe eine Lektion ab, um die nächste freizuschalten.",
     "stars": "Gesamtsterne",
     "review": "Erneut üben",
     "start": "Starten",

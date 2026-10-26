@@ -3,53 +3,56 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {useClientReady} from "../lib/useClientReady";
-import {history} from "../lib/runtime";
-import {completedLessons} from "./courseProgress";
+import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyLearningPlan,type DailyLearningPlan} from "./learningCoordinator";
 import {getTeacherProfile} from "./teacherProfiles";
-import {courseLesson} from "./courseCatalog";
 import {TeacherAvatar} from "./TeacherAvatar";
+import {TodayLearningCard} from "./TodayLearningCard";
 
-/** The single recommended Learn action. Progress remains in the existing stores. */
+/** One primary action on /learn; optional material and teacher switching are secondary. */
 export function LearningFocusCard(){
- const {t,i18n}=useTranslation("home");
- const {t:teacherT}=useTranslation("teacher");
+ const stringsReady=useRouteNamespace("lesson");
+ const {t,i18n}=useTranslation("lesson");
  const ready=useClientReady();
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  const [plan,setPlan]=useState<DailyLearningPlan|null>(null);
- const [hasRecords,setHasRecords]=useState(false);
  useEffect(()=>{
   if(!ready)return;
-  setHasRecords(history("teacher").length>0||completedLessons()>0);
-  let alive=true;
-  void buildDailyLearningPlan().then(value=>{if(alive)setPlan(value)}).catch(()=>{/* Start remains available without stored course data. */});
+  let alive=true;setPlan(null);
+  void buildDailyLearningPlan().then(value=>{if(alive)setPlan(value)}).catch(()=>{
+   if(alive)setPlan({action:"conversation",title:"",note:"",to:"/teacher/live",dueVocabulary:0,unseenVocabulary:0,vocabularyLevel:""});
+  });
   return()=>{alive=false};
- },[ready]);
- const resume=ready&&plan!==null&&(plan.action==="textbook"||(targetLanguage==="英文"&&(hasRecords||plan.action==="vocabulary")));
+ },[ready,targetLanguage,selectedProfile]);
  const chinese=i18n.resolvedLanguage==="zh-TW";
- const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
- const planTitle=plan?.action==="textbook"?teacherT("continue.textbookTitle"):
-  plan?.action==="vocabulary"?teacherT("continue.vocabularyTitle",{count:plan.dueVocabulary}):
-  plan?.action==="course"?teacherT("continue.courseTitle",{name:chinese?plan.nextLessonTitle||"":course?.titleEn||""}):
-  teacherT("continue.conversationTitle");
- const title=resume?planTitle:t("sectionHubs.learn.firstTopic",{defaultValue:"Your first conversation"});
- const description=resume?t("sectionHubs.learn.resumeDesc",{defaultValue:"Pick up where you left off with your teacher."}):
-  t("sectionHubs.learn.firstDesc",{defaultValue:"Meet your teacher and practice a simple everyday introduction."});
- const destination=resume?plan.to:"/teacher/roles?mode=teacher";
- return <section className="crew-section-focus-card" aria-label={t("sectionHubs.learn.focusLabel",{defaultValue:"Recommended practice"})}>
+ const lessonName=chinese?plan?.nextLessonTitle:plan?.nextLessonTitleEn;
+ const title=plan===null?t("learnToday.loading"):
+  plan?.action==="vocabulary"&&targetLanguage==="英文"
+  ?plan.warmupVocabulary?t("learnToday.vocabulary"):t("learnToday.due",{count:plan.dueVocabulary})
+  :plan?.action==="course"?t("learnToday.lesson",{number:plan.nextLessonNumber,name:lessonName})
+  :t("learnToday.conversation",{name:teacher.name});
+ if(!stringsReady)return null;
+ return <section className="crew-section-focus-card" aria-label={t("learnToday.heading")}>
   <div className="crew-section-focus-card-content">
-   <span className="kicker">{t(resume?"sectionHubs.learn.resumeLabel":"sectionHubs.learn.newLabel",{defaultValue:resume?"CONTINUE PRACTICING":"START HERE"})}</span>
-   <h2>{title}</h2><p>{description}</p>
-   <div className="crew-section-focus-card-meta"><span>{teacher.name}</span><span aria-hidden="true">·</span>
-    <span>{t("sectionHubs.learn.suggestedTime",{defaultValue:"Suggested: 5 min"})}</span></div>
+   <span className="kicker">{t("learnToday.heading")}</span>
+   <h2>{title}</h2>
+   <p>{plan===null?t("learnToday.loadingNote"):
+    plan?.action==="vocabulary"?t("learnToday.vocabularyNote"):
+    plan?.action==="course"?t("learnToday.courseNote"):
+    t("learnToday.conversationNote")}</p>
+   <div className="crew-section-focus-card-meta"><span>{teacher.name}</span></div>
   </div>
   <div className="crew-section-focus-card-portrait" aria-hidden="true">
    <TeacherAvatar profile={teacher} decorative/>
   </div>
-  <Link className="crew-action-primary" to={destination}>
-   {t(resume?"sectionHubs.learn.resumeCta":"sectionHubs.learn.startCta",{defaultValue:resume?"Continue practice":"Start practicing"})} →
-  </Link>
+  {plan?<Link className="crew-action-primary" to={plan.to}>{t("learnToday.start")} →</Link>:
+   <button className="crew-action-primary" type="button" disabled aria-disabled="true">{t("learnToday.loadingButton")}</button>}
+  <div className="crew-learn-focus-secondary">
+   <Link to="/teacher/roles?mode=teacher">{t("learnToday.changeTeacher")}</Link>
+   {plan?.textbook&&<Link to="/teacher/textbook">{t("learnToday.resumeTextbook")}</Link>}
+  </div>
+  <div className="crew-learn-focus-progress"><TodayLearningCard compact/></div>
  </section>;
 }

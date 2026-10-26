@@ -34,9 +34,18 @@ test("teacher continuation is evidence-based with an empty-memory fallback",()=>
 });
 test("home entry and session overrides are wired and cannot overwrite saved mode",()=>{
  const home=fs.readFileSync("web-spa/src/teacher/PracticePage.tsx","utf8");
+ const chat=fs.readFileSync("web-spa/src/pages/CrewSectionPage.tsx","utf8");
+ const friendCards=fs.readFileSync("web-spa/src/friends/FriendIntentCards.tsx","utf8");
  const friend=fs.readFileSync("web-spa/src/friends/FriendLivePage.tsx","utf8");
  const teacher=fs.readFileSync("web-spa/src/teacher/LivePage.tsx","utf8");
- for(const q of ["intent=share","intent=speak","intent=continue"])assert.ok(home.includes(q));
+ assert.ok(home.includes("intent=continue"));
+ assert.ok(chat.includes("<FriendIntentCards/>"));
+ for(const q of ["intent=share","intent=speak"])assert.ok(friendCards.includes(q));
+ // /chat stays primary; /teacher retains a small working parity escape hatch
+ // until Android publishes an updated canonical contract.
+ for(const q of ["&intent=share","&intent=speak"])assert.ok(home.includes(q));
+ assert.ok(home.includes('to="/chat"'));
+ assert.ok(home.includes('crew-practice-friend-links'));
  assert.match(friend,/intent==="speak"&&saved==="natural"\?"bilingual":saved/);
  assert.match(friend,/conversationOpening\(intent,"friend"\)/);
  assert.match(teacher,/conversationOpening\(intent,"teacher"\)/);

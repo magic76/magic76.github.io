@@ -172,5 +172,33 @@
       "teacher": "先生",
       "outputPlaceholder": "先生の回答がここに表示されます。"
     }
+  },
+  "learnToday": {
+    "heading": "今日",
+    "loading": "次の学習内容を準備しています…",
+    "loadingNote": "現在の学習進捗を確認中です。",
+    "loadingButton": "読み込み中…",
+    "start": "練習を始める",
+    "changeTeacher": "先生を変更",
+    "resumeTextbook": "前回の教材を続ける",
+    "due": "復習が必要な単語 {{count}} 語",
+    "due_one": "復習が必要な単語 {{count}} 語",
+    "due_other": "復習が必要な単語 {{count}} 語",
+    "vocabulary": "単語練習",
+    "lesson": "第 {{number}} 課：{{name}}",
+    "conversation": "{{name}} 先生と自由会話",
+    "vocabularyNote": "API キー不要の単語練習から始めましょう。",
+    "courseNote": "次の解放済みレッスンに進みましょう。",
+    "conversationNote": "先生とすぐに会話を始めましょう。",
+    "threeMinute": "3 分間スピーキング",
+    "threeMinuteDesc": "友達と気軽に短い会話を。",
+    "more": "その他の学習方法",
+    "records": "学習記録",
+    "settings": "学習設定",
+    "teachersCourses": "先生とコース",
+    "teacherIntro": "先生を選び、コースや目的別の練習を続けましょう。",
+    "backToLearn": "学習に戻る",
+    "courseTracks": "コース一覧",
+    "trackProgress": "{{done}} / {{total}} レッスン完了"
   }
 }

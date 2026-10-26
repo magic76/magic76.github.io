@@ -245,7 +245,7 @@
     "courseMap": "Carte du cours",
     "progress": "Progression du cours",
     "title": "Entraînez-vous aux conversations réelles avec des missions",
-    "intro": "Trois thèmes (voyage, travail et conversation du quotidien), 10 unités et 31 leçons pour progresser pas à pas en situation réelle. Terminez une leçon pour débloquer la suivante.",
+    "intro": "Découvrez {{tracks}} parcours, {{units}} unités et {{lessons}} leçons en situation réelle. Terminez une leçon pour débloquer la suivante.",
     "stars": "Total d'étoiles",
     "review": "Recommencer",
     "start": "Commencer",

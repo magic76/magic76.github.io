@@ -172,5 +172,33 @@
       "teacher": "老師",
       "outputPlaceholder": "老師的回答會顯示在這裡。"
     }
+  },
+  "learnToday": {
+    "heading": "今天",
+    "loading": "正在準備下一步學習…",
+    "loadingNote": "正在確認目前的學習進度。",
+    "loadingButton": "載入中…",
+    "start": "開始練習",
+    "changeTeacher": "換老師",
+    "resumeTextbook": "繼續上次教材",
+    "due": "複習 {{count}} 個快忘的字",
+    "due_one": "複習 {{count}} 個快忘的字",
+    "due_other": "複習 {{count}} 個快忘的字",
+    "vocabulary": "單字練習",
+    "lesson": "第 {{number}} 課：{{name}}",
+    "conversation": "和 {{name}} 自由對話",
+    "vocabularyNote": "先用不需要 Key 的單字練習暖身。",
+    "courseNote": "從下一堂已解鎖的課程繼續學。",
+    "conversationNote": "直接和老師開始自由對話。",
+    "threeMinute": "3 分鐘口說",
+    "threeMinuteDesc": "和朋友輕鬆說幾句。",
+    "more": "其他學習方式",
+    "records": "學習紀錄",
+    "settings": "學習設定",
+    "teachersCourses": "老師和課程",
+    "teacherIntro": "選擇老師、接續課程或練習特定技能。",
+    "backToLearn": "回到學習",
+    "courseTracks": "課程清單",
+    "trackProgress": "已完成 {{done}} / {{total}} 堂"
   }
 }

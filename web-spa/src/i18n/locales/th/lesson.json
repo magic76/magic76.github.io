@@ -172,5 +172,33 @@
       "teacher": "ครู",
       "outputPlaceholder": "คำตอบของครูจะแสดงที่นี่"
     }
+  },
+  "learnToday": {
+    "heading": "วันนี้",
+    "loading": "กำลังเตรียมขั้นตอนการเรียนถัดไป…",
+    "loadingNote": "กำลังตรวจสอบความคืบหน้าการเรียน",
+    "loadingButton": "กำลังโหลด…",
+    "start": "เริ่มฝึก",
+    "changeTeacher": "เปลี่ยนครู",
+    "resumeTextbook": "เรียนต่อจากสื่อครั้งก่อน",
+    "due": "ทบทวนคำศัพท์ที่ถึงกำหนด {{count}} คำ",
+    "due_one": "ทบทวนคำศัพท์ที่ถึงกำหนด {{count}} คำ",
+    "due_other": "ทบทวนคำศัพท์ที่ถึงกำหนด {{count}} คำ",
+    "vocabulary": "ฝึกคำศัพท์",
+    "lesson": "บทที่ {{number}}: {{name}}",
+    "conversation": "สนทนาอิสระกับ {{name}}",
+    "vocabularyNote": "เริ่มด้วยการฝึกคำศัพท์โดยไม่ต้องใช้คีย์ API",
+    "courseNote": "เรียนบทถัดไปที่ปลดล็อกแล้ว",
+    "conversationNote": "เริ่มสนทนากับครูได้ทันที",
+    "threeMinute": "ฝึกพูด 3 นาที",
+    "threeMinuteDesc": "คุยสั้น ๆ สบาย ๆ กับเพื่อน",
+    "more": "วิธีเรียนเพิ่มเติม",
+    "records": "ประวัติการเรียน",
+    "settings": "ตั้งค่าการเรียน",
+    "teachersCourses": "ครูและหลักสูตร",
+    "teacherIntro": "เลือกครู เรียนบทต่อไป หรือฝึกทักษะที่ต้องการ",
+    "backToLearn": "กลับไปหน้าเรียน",
+    "courseTracks": "หลักสูตร",
+    "trackProgress": "เรียนจบ {{done}} จาก {{total}} บท"
   }
 }

@@ -1,42 +1,65 @@
 import{ensureTeacherServices,history,vocabularyLevel}from"../lib/runtime";
+import{useTeacherStore}from"../store/teacherStore";
+import{getTeacherProfile}from"./teacherProfiles";
 import{bestNextLesson}from"./courseProgress";
+import{lessonsForTrack}from"./courseCatalog";
+import type{CourseLesson}from"./courseTypes";
 import{VOCABULARY_WORDS,vocabularyIds}from"./vocabularyCatalog";
-import{vocabStats}from"./vocabularyProgress";
+import{todayVocabulary,vocabStats}from"./vocabularyProgress";
 
 export type LearningAction="textbook"|"vocabulary"|"course"|"conversation";
 export type DailyLearningPlan={
  action:LearningAction;title:string;note:string;to:string;
  dueVocabulary:number;unseenVocabulary:number;vocabularyLevel:string;
- nextLessonId?:string;nextLessonTitle?:string;primaryFocus?:string;
- textbook?:any;
+ nextLessonId?:string;nextLessonTitle?:string;nextLessonTitleEn?:string;
+ nextLessonNumber?:number;nextLessonTrackId?:string;warmupVocabulary?:boolean;
+ primaryFocus?:string;textbook?:any;
 };
+type TodayStepInput={targetLanguage:string;dueVocabulary:number;unseenVocabulary:number;
+ practicedVocabularyToday:number;nextLesson:CourseLesson|null;teacherName:string;
+ vocabularyLevel:string;primaryFocus:string;textbook?:any};
 
+/** The ONLY priority decision for /learn, /teacher and continuation cards.
+ * Caller supplies all state, making this function pure and independently testable. */
+export function todayStep(input:TodayStepInput):DailyLearningPlan{
+ const {targetLanguage,dueVocabulary,unseenVocabulary,practicedVocabularyToday,nextLesson,
+  teacherName,vocabularyLevel,primaryFocus,textbook}=input;
+ const base={dueVocabulary,unseenVocabulary,vocabularyLevel,primaryFocus,textbook};
+ if(targetLanguage==="英文"&&(dueVocabulary>0||(practicedVocabularyToday===0&&unseenVocabulary>0))){
+  const warmupVocabulary=dueVocabulary===0;
+  return {...base,action:"vocabulary",warmupVocabulary,
+   title:warmupVocabulary?"單字練習":"複習 "+dueVocabulary+" 個快忘的字",
+   note:warmupVocabulary?"先用免 Key 單字練習暖身。":"先複習到期的字。",to:"/teacher/vocabulary"};
+ }
+ if(targetLanguage==="英文"&&nextLesson){
+  const nextLessonNumber=lessonsForTrack(nextLesson.trackId).findIndex(x=>x.id===nextLesson.id)+1;
+  return {...base,action:"course",title:"第 "+nextLessonNumber+" 課："+nextLesson.titleZh,
+   note:nextLesson.descZh,to:"/teacher/course?briefing="+encodeURIComponent(nextLesson.id),
+   nextLessonId:nextLesson.id,nextLessonTitle:nextLesson.titleZh,
+   nextLessonTitleEn:nextLesson.titleEn,nextLessonNumber,nextLessonTrackId:nextLesson.trackId};
+ }
+ return {...base,action:"conversation",title:"和 "+teacherName+" 自由對話",
+  note:primaryFocus||"和老師開始自由對話。",to:"/teacher/live"};
+}
 function latestFocus(){
- const items=history("teacher");
- for(const item of items){
-  const value=item?.report?.next_focus;
-  if(value)return String(value);
+ for(const item of history("teacher")){
+  const value=item?.report?.next_focus;if(value)return String(value);
  }
  return "";
 }
-
 export async function buildDailyLearningPlan():Promise<DailyLearningPlan>{
- await ensureTeacherServices();
- const textbook=await window.CrewTextbookStore?.last?.();
- const ids=vocabularyIds(),stats=vocabStats(ids),next=bestNextLesson(),focus=latestFocus();
- const base={dueVocabulary:stats.due,unseenVocabulary:stats.newCount,vocabularyLevel:vocabularyLevel(),primaryFocus:focus};
- if(textbook?.images?.length){
-  return{...base,action:"textbook",title:"教材陪讀",note:(textbook.plan?.title||"上次教材")+" · 第 "+((Number(textbook.currentPage)||0)+1)+" / "+textbook.images.length+" 頁",to:"/teacher/textbook",textbook};
- }
- if(stats.due>0){
-  return{...base,action:"vocabulary",title:"複習 "+stats.due+" 個快忘的字",note:"先把到期單字複習完，再繼續新內容。",to:"/teacher/vocabulary"};
- }
- if(next){
-  return{...base,action:"course",title:"接著學："+next.titleZh,note:next.descZh,to:"/teacher/course?lesson="+encodeURIComponent(next.id),nextLessonId:next.id,nextLessonTitle:next.titleZh};
- }
- return{...base,action:"conversation",title:"和老師練一下今天的重點",note:focus||"沒有到期複習或未完成課程，直接做口說練習。",to:"/teacher/live"};
+ try{await ensureTeacherServices()}catch{/* Key-free lesson and vocabulary routes stay available. */}
+ let textbook:any;
+ try{textbook=await window.CrewTextbookStore?.last?.()}catch{/* Optional recent material. */}
+ const stats=vocabStats(vocabularyIds());
+ const teacherState=useTeacherStore.getState();
+ return todayStep({targetLanguage:teacherState.targetLanguage,
+  dueVocabulary:stats.due,unseenVocabulary:stats.newCount,
+  practicedVocabularyToday:todayVocabulary(),nextLesson:bestNextLesson(),
+  teacherName:getTeacherProfile(teacherState.teacherProfile).name,
+  vocabularyLevel:vocabularyLevel(),primaryFocus:latestFocus(),
+  textbook:textbook?.images?.length?textbook:undefined});
 }
-
 export function vocabularySummary(){
  const stats=vocabStats(VOCABULARY_WORDS.map(x=>x[0]));
  return{...stats,level:vocabularyLevel()};

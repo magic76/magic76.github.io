@@ -160,3 +160,25 @@
 @media(max-width:700px){.crew-section-learn .crew-learn-tool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.crew-section-learn .crew-learn-tool{min-height:135px;padding:14px;gap:9px}}
 @media(max-width:430px){.crew-section-learn{gap:16px}.crew-learn-heading-row{align-items:center}.crew-learn-language{max-width:52%;min-width:128px}.crew-section-learn .crew-learn-tool{min-height:132px}}
 @media(prefers-reduced-motion:reduce){.crew-learn-more[open]>summary span:last-child{transition:none}}
+
+/* learn-today: one prominent action, progress inside the card, quiet tools below. */
+.crew-section-learn .crew-section-focus-card{grid-template-columns:minmax(0,1fr) clamp(100px,17vw,132px);row-gap:12px}
+.crew-learn-focus-secondary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;grid-column:1/-1}
+.crew-learn-focus-secondary a,.crew-learn-secondary-links a{font-size:13px;color:var(--accent);text-decoration:none;padding:7px 0}
+.crew-learn-focus-secondary a:focus-visible,.crew-learn-secondary-links a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.crew-learn-focus-progress{grid-column:1/-1;min-width:0}
+.crew-learn-focus-progress .crew-today-learning.compact{background:rgba(255,255,255,.55);padding:12px 14px}
+.crew-section-learn .crew-learn-tools{margin-top:15px}
+.crew-section-learn .crew-learn-tool{background:var(--surface);box-shadow:none;opacity:.94}
+.crew-learn-secondary-links{display:flex;gap:9px 18px;flex-wrap:wrap;margin-top:11px;padding:4px 0}
+.crew-section-chat .crew-daily-intents{margin-top:20px}
+.crew-learn-back-small{display:inline-flex;min-height:40px;align-items:center;color:var(--accent);font-size:13px;text-decoration:none;margin-bottom:10px}
+.crew-course-track-card{gap:10px;justify-content:space-between}
+@media(max-width:600px){.crew-section-learn .crew-section-focus-card{grid-template-columns:minmax(0,1fr) 84px}.crew-learn-focus-progress{grid-column:1/-1}.crew-learn-secondary-links{gap:5px 14px}}
+/* Contract-compatible friend shortcuts remain intentionally quiet on /teacher.
+   /chat owns the full conversational entry experience. */
+.crew-practice-friend-links{padding-block:8px}
+.crew-practice-friend-links .section-head h2{font-size:15px}
+.crew-practice-friend-links .crew-learn-focus-secondary{gap:8px 20px}
+.crew-practice-friend-links .crew-learn-focus-secondary a{min-height:40px;display:inline-flex;align-items:center}
+.crew-section-focus-card button.crew-action-primary:disabled{opacity:.65;cursor:wait;box-shadow:none;pointer-events:none}
