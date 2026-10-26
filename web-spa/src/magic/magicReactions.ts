@@ -13,7 +13,7 @@ export const MAGIC_REACTIONS_ALL=[
 ] as const;
 export type MagicReactionId=typeof MAGIC_REACTIONS_ALL[number]["id"];
 // Rollout gate: enable verified reactions incrementally without losing recipe definitions.
-export const MAGIC_REACTIONS_ENABLED:readonly MagicReactionId[]=MAGIC_REACTIONS_ALL.map(r=>r.id);
+export const MAGIC_REACTIONS_ENABLED:readonly MagicReactionId[]=["steam_rainbow","flower_ring","star_lake"];
 export const MAGIC_REACTIONS=MAGIC_REACTIONS_ALL.filter(r=>MAGIC_REACTIONS_ENABLED.includes(r.id));
 export type MagicReactionEnvironment={night:boolean;castleIce:boolean;distanceToCastle:number};
 export function magicCreationElements(c:{label:string;idea:string;parts?:readonly {color?:string;material?:string}[]},traits:{aura?:string;kind?:string}):MagicElement[]{
