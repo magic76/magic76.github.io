@@ -17,24 +17,27 @@ export function HomePortal(){
  const {t}=useTranslation("home");
  const navigate=useNavigate();
  const [mode,setMode]=useState<PortalMode>("chat");
- const [paused,setPaused]=useState(true); // Mobile starts static; desktop resumes after mount.
+ const [paused,setPaused]=useState(true); // Static SSR fallback; eligible devices automatically resume after mount.
  const [idleReady,setIdleReady]=useState(false);
  const [inViewport,setInViewport]=useState(false);
  const [foreground,setForeground]=useState(true);
  const [fieldEverEnabled,setFieldEverEnabled]=useState(false);
  const heroRef=useRef<HTMLElement|null>(null);
- const canAnimate=idleReady&&inViewport&&foreground&&!paused;
+ const fieldEligible=idleReady&&inViewport&&foreground;
+ const canAnimate=fieldEligible&&!paused;
  const [launching,setLaunching]=useState(false);
  const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
  const buttons=useRef<(HTMLButtonElement|null)[]>([]);
  const current=MODES.find(item=>item.id===mode)||MODES[0];
  const index=MODES.indexOf(current);
  useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current)},[]);
- // The server-rendered mobile hero stays a lightweight SVG until a user resumes.
- // Keep desktop auto-motion, but only after load, idle time and intersection.
+ // Keep the lightweight server-rendered SVG during hydration. On both mobile
+ // and desktop, resume automatically after load + idle + viewport eligibility.
+ // Respect users who request less motion or enable browser data saving.
  useEffect(()=>{
-  const coarse=window.matchMedia("(max-width: 700px), (pointer: coarse)");
-  if(!coarse.matches&&!window.matchMedia("(prefers-reduced-motion: reduce)").matches)setPaused(false);
+  const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const saveData=Boolean((navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData);
+  if(!reducedMotion&&!saveData)setPaused(false);
  },[]);
  useEffect(()=>{
   let cancelled=false;
@@ -65,11 +68,14 @@ export function HomePortal(){
   sync();document.addEventListener("visibilitychange",sync);
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
- useEffect(()=>{if(canAnimate)setFieldEverEnabled(true)},[canAnimate]);
+ // Initialize Canvas only after the hero is ready, even if animation stays
+ // paused by preference; reduced-motion users still get the real static shape.
+ useEffect(()=>{if(fieldEligible)setFieldEverEnabled(true)},[fieldEligible]);
  // Rotate the four KV scenes every five seconds; choosing a tab restarts the timer.
  // Pause halts both the particle field and automatic selection.
  useEffect(()=>{
-  if(paused||launching||window.matchMedia("(prefers-reduced-motion: reduce)").matches||!canAnimate)return;
+  if(paused||launching||window.matchMedia("(prefers-reduced-motion: reduce)").matches||
+   (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData||!canAnimate)return;
   const id=window.setTimeout(()=>{
    setMode(previous=>{
     const currentIndex=MODES.findIndex(item=>item.id===previous);
@@ -98,7 +104,7 @@ export function HomePortal(){
   event.preventDefault();setMode(MODES[next].id);buttons.current[next]?.focus();
  };
  return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching}>
-  <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||canAnimate}/>
+  <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
   <div className="crew-portal-intro"><span>A LITTLE SPARK. A WHOLE NEW WORLD.</span><p>{t("world.intro")}</p></div>
   <span className="crew-portal-edge" aria-hidden="true">MOVE A LITTLE. FEEL A CONNECTION.</span>
   <span className="crew-portal-number" aria-hidden="true">0{index+1} / 04</span>
