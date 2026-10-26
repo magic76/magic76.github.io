@@ -12,6 +12,8 @@ import {
  getMagicOverviewPosition,
 } from "./magicCamera";
 import {MagicLighting3D} from "./MagicLighting3D";
+import {MagicTerrain3D} from "./MagicTerrain3D";
+import {MagicGroundShadows3D} from "./MagicGroundShadows3D";
 import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
 
 // The renderer receives only the strictly validated world reducer output.
@@ -23,27 +25,7 @@ const PLOTS:[[number,number],[number,number],[number,number],[number,number],[nu
 const ISLAND_LINEAR_SCALE=Math.sqrt(10); // radius grows sqrt(10): actual terrain area grows 10x
 const ISLAND_X_RADIUS=5.65*ISLAND_LINEAR_SCALE;
 const ISLAND_Z_RADIUS=4.75*ISLAND_LINEAR_SCALE;
-const OVERVIEW_POSITION=MAGIC_OVERVIEW_POSITION;
 
-function FloatingIsland({colors}:{colors:(typeof BIOMES)[keyof typeof BIOMES]}){
- const rocks=useMemo(()=>Array.from({length:36},(_,i)=>({
-  x:Math.cos(i*2.4)*15.7,z:Math.sin(i*2.4)*13.1,s:.62+(i%4)*.2,y:-.85-(i%3)*.2
- })),[]);
- return <group>
-  <mesh position={[0,-.08,0]} scale={[ISLAND_LINEAR_SCALE,.38,ISLAND_LINEAR_SCALE]}>
-   <icosahedronGeometry args={[5.65,1]}/><meshStandardMaterial color={colors.side} {...MAGIC_MATERIALS.stone}/>
-  </mesh>
-  <mesh position={[0,.55,0]} scale={[ISLAND_X_RADIUS/5.65,.18,ISLAND_Z_RADIUS/5.65]}>
-   <sphereGeometry args={[5.65,28,12]}/><meshStandardMaterial color={colors.ground} {...MAGIC_MATERIALS.grass}/>
-  </mesh>
-  <mesh position={[0,.66,1.15]} rotation={[-Math.PI/2,0,0]}>
-   <torusGeometry args={[2.2,.11,6,60,Math.PI]}/><meshStandardMaterial color={colors.detail} roughness={.8}/>
-  </mesh>
-  {rocks.map((rock,i)=><mesh key={i} position={[rock.x,rock.y,rock.z]} rotation={[i*.2,i*.4,i*.12]} scale={[rock.s,rock.s*1.5,rock.s]}>
-   <dodecahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%3===0?"#B8AEB8":colors.side} {...MAGIC_MATERIALS.stone}/>
-  </mesh>)}
- </group>;
-}
 /** Light, deterministic neighborhoods give the expanded island recognizable
  * destinations. World state and AI tool arguments stay unchanged; no textures,
  * instancing libraries, per-frame allocations or paid services. */
@@ -309,10 +291,10 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
  * Camera choreography and effects are local only; permanent changes live in
  * the reducer. No arbitrary Gemini camera parameters or meshes are accepted.
  */
-function MagicCinematic({cue,point}:{cue:NonNullable<MagicWorld["cue"]>;point:[number,number]}){
+function MagicCinematic({cue,point,overviewPosition}:{cue:NonNullable<MagicWorld["cue"]>;point:[number,number];overviewPosition:Vector3}){
  const glyph=useRef<Group>(null),started=useRef<number|null>(null);
  const destination=useMemo(()=>cue==="dragon_arrival"?new Vector3(point[0]+6.8,7.7,point[1]+9.6):new Vector3(4.4,6.9,8.2),[cue,point[0],point[1]]);
- const overview=OVERVIEW_POSITION;
+ const overview=overviewPosition;
  useFrame(({clock,camera},delta)=>{
   if(started.current===null)started.current=clock.elapsedTime;
   const elapsed=clock.elapsedTime-started.current;
@@ -347,7 +329,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
  },[world.revision,world.cue,reducedMotion]);
  const {gl,invalidate,camera,size}=useThree();
  const overviewPosition=useMemo(
-  ()=>getMagicOverviewPosition(size.width/Math.max(size.height,1)),
+  ()=>getMagicOverviewPosition(size.width/Math.max(size.height,1),42),
   [size.width,size.height]
  );
  const orbit=useRef<ComponentRef<typeof OrbitControls>>(null);
@@ -388,7 +370,8 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
  }),[]);
  return <>
   <MagicLighting3D world={world} colors={colors}/>
-  <FloatingIsland colors={colors}/>
+  <MagicTerrain3D colors={colors}/>
+  <MagicGroundShadows3D/>
    <OuterDistricts colors={colors} night={night}/>
   <Castle colors={colors} night={night} ice={world.castle==="ice"}/>
   <BiomeLandmarks theme={world.theme} night={night}/>
@@ -405,7 +388,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   <MagicCreations3D creations={world.creations} animated={!reducedMotion}
    onSelect={onSelectCreation}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
-  {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue}
+  {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue} overviewPosition={overviewPosition}
     point={(()=>{const dragon=[...world.objects].reverse().find(o=>o.kind==="dragon");
      if(!dragon)return [0,0] as [number,number];
      const plot=PLOTS[dragon.slot]??PLOTS[0];
