@@ -1,11 +1,11 @@
 import {useMemo,useRef} from "react";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
-import {Mesh,Vector3,type Group} from "three";
+import {Box3,Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
 import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
-import {MagicPartIdentity3D} from "./MagicPartIdentity3D";
+import {MagicCuteFace3D,MagicPartIdentity3D} from "./MagicPartIdentity3D";
 import {MagicDragonModel3D,MagicFoxModel3D,MagicRobotModel3D} from "./MagicProceduralLife3D";
 const LINK_UP=new Vector3(0,1,0);
 
@@ -16,9 +16,9 @@ const PALETTE={
 const MATERIAL={
  stone:{roughness:.9,metalness:0,opacity:1,emissiveIntensity:0},
  wood:{roughness:1,metalness:0,opacity:1,emissiveIntensity:0},
- metal:{roughness:.27,metalness:.82,opacity:1,emissiveIntensity:.04},
- glass:{roughness:.12,metalness:.1,opacity:.61,emissiveIntensity:.15},
- glow:{roughness:.36,metalness:.15,opacity:1,emissiveIntensity:.78}
+ metal:{roughness:.82,metalness:.1,opacity:1,emissiveIntensity:.02},
+ glass:{roughness:.82,metalness:0,opacity:1,emissiveIntensity:.2},
+ glow:{roughness:.78,metalness:0,opacity:1,emissiveIntensity:.48}
 } as const;
 // The old creator used elapsed/3.8; keep this migration note until the broad
 // Magic regression is updated to assert the staged timing contract directly.
@@ -37,66 +37,30 @@ export function magicAssemblyOrder(parts:MagicCreatorPart[]){
 /** Geometry still comes exclusively from validated part enums. Rounded edges,
  * ornament rims and material-specific highlights lend recognizable depth; no
  * downloaded assets, custom shaders or AI executable payloads. */
-function PartMesh({part,detailRef}:{part:MagicCreatorPart;detailRef:(node:Group|null)=>void}){
+function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{part:MagicCreatorPart;detailRef:(node:Group|null)=>void;autoFace:boolean;animated:boolean;showAccents:boolean;showIdentity:boolean}){
  const surface=MATERIAL[part.material],color=PALETTE[part.color];
- const trim=part.material==="wood"?"#7a6255":part.material==="metal"?"#f5e8c9":
-  part.material==="glass"?"#eafcff":"#fff4d8";
  const finish=<meshStandardMaterial color={color} emissive={color}
   roughness={surface.roughness} metalness={surface.metalness}
-  emissiveIntensity={surface.emissiveIntensity} transparent={part.material==="glass"}
-  opacity={surface.opacity} flatShading={part.material==="stone"}/>;
+  emissiveIntensity={surface.emissiveIntensity} flatShading/>;
  return <group rotation={[0,(part.yaw??0)*Math.PI/180,0]}
   scale={[part.width??1,part.height??1,part.depth??1]}>
   {part.shape==="box"?
-   <RoundedBox args={[1,1,1]} radius={.13} smoothness={5}>{finish}</RoundedBox>:
+   <RoundedBox args={[1,1,1]} radius={.13} smoothness={1}>{finish}</RoundedBox>:
    <mesh scale={part.shape==="leaf"?[1.35,.58,.38]:[1,1,1]}>
-    {part.shape==="sphere"?<sphereGeometry args={[.63,32,24]}/>:
-     part.shape==="cone"?<coneGeometry args={[.57,1.18,28]}/>:
-     part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,28]}/>:
-     part.shape==="torus"?<torusGeometry args={[.54,.15,12,48]}/>: 
-     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,10,22]}/>: 
-     part.shape==="leaf"?<sphereGeometry args={[.65,26,20]}/>:
-     <octahedronGeometry args={[.65,part.material==="stone"?0:1]}/>}
+    {part.shape==="sphere"?<sphereGeometry args={[.63,10,8]}/>:
+     part.shape==="cone"?<coneGeometry args={[.57,1.18,7]}/>:
+     part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,8]}/>:
+     part.shape==="torus"?<torusGeometry args={[.54,.15,6,12]}/>: 
+     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,5,8]}/>: 
+     part.shape==="leaf"?<sphereGeometry args={[.65,10,8]}/>:
+     <octahedronGeometry args={[.65,0]}/>}
     {finish}
    </mesh>}
-  {part.shape==="box"&&part.material!=="glass"&&[-1,1].map(side=>
-   <mesh key={side} position={[side*.34,.32,.515]}>
-    <sphereGeometry args={[.068,8,6]}/>
-    <meshStandardMaterial color={trim} metalness={.45} roughness={.31}/>
-   </mesh>)}
-  {part.shape==="cylinder"&&[-1,1].map(side=>
-   <mesh key={side} position={[0,side*.44,0]} rotation={[Math.PI/2,0,0]}>
-    <torusGeometry args={[.485,.045,6,22]}/>
-    <meshStandardMaterial color={trim} metalness={.44} roughness={.33}/>
-   </mesh>)}
-  {part.shape==="torus"&&<mesh position={[0,.67,0]}>
-   <sphereGeometry args={[.095,9,7]}/>
-   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.38}/>
-  </mesh>}
-  {part.shape==="cone"&&<mesh position={[0,.62,0]}>
-   <sphereGeometry args={[.1,10,8]}/>
-   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.4}/>
-  </mesh>}
-  {part.shape==="capsule"&&<mesh position={[0,.12,.31]} scale={[.19,.29,.065]}>
-   <sphereGeometry args={[1,10,8]}/>
-   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.22}/>
-  </mesh>}
-  {part.shape==="leaf"&&<mesh position={[0,0,.255]} scale={[.54,.027,.032]}>
-   <sphereGeometry args={[1,10,6]}/>
-   <meshStandardMaterial color={trim} metalness={.2} roughness={.4}/>
-  </mesh>}
-  {part.shape==="sphere"&&<mesh position={[0,.23,.57]} scale={[.14,.095,.06]}>
-   <sphereGeometry args={[1,12,8]}/>
-   <meshStandardMaterial color={trim} emissive={trim} emissiveIntensity={.25}/>
-  </mesh>}
   <group ref={detailRef}>
-   <MagicPartAccents3D part={part}/>
-   <MagicPartIdentity3D part={part}/>
+   {showAccents&&<MagicPartAccents3D part={part}/>}
+   {showIdentity&&<MagicPartIdentity3D part={part} animated={animated}/>}
+   {autoFace&&<MagicCuteFace3D front={part.shape==="sphere"?.64:part.shape==="capsule"?.39:.56} animated={animated} seed={part.y*9} scale={.82}/>}
   </group>
-  {part.shape==="octahedron"&&<mesh position={[0,.67,0]}>
-   <octahedronGeometry args={[.11,0]}/>
-   <meshStandardMaterial color={trim} emissive={color} emissiveIntensity={.6}/>
-  </mesh>}
  </group>;
 }
 function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation;
@@ -112,6 +76,14 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const owner=creations.find(c=>c.id===creation.friendOf);
  const groundClearance=useMemo(()=>creation.blueprint?.kind==="dragon"?.22:creation.blueprint?.1:creationGroundClearance(creation.parts),[creation.parts,creation.blueprint]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
+ const autoFaceIndex=useMemo(()=>creation.parts.some(p=>p.detail==="face")?-1:creation.parts.reduce((best,p,i,arr)=>
+  (["sphere","box","capsule"].includes(p.shape)&&(!arr[best]||p.y+p.size>arr[best].y+arr[best].size))?i:best,-1),[creation.parts]);
+ const modelScale=useMemo(()=>{
+  if(creation.blueprint)return 1;
+  let low=Infinity,high=-Infinity;
+  for(const p of creation.parts){const y=p.y;const radius=p.size*(p.height??1)*.8;low=Math.min(low,y-radius);high=Math.max(high,y+radius)}
+  return Number.isFinite(high-low)&&high-low>2.2?2.2/(high-low):1;
+ },[creation.parts,creation.blueprint]);
  const pivots=useMemo(()=>creation.parts.map(magicPartPivot),[creation.parts]);
  const origin=useMemo(()=>{
   if(owner){
@@ -134,19 +106,19 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   const completion=animated?Math.min(1,elapsed/ASSEMBLY_SECONDS):1;
   const assembled=ease(Math.max(0,(completion-.82)/.18));
   const t=clock.elapsedTime+creation.seed*.0033;
-  const drift=animated?Math.sin(t*.85)*.13:0;
-  const walk=animated&&creation.motion==="walk"?.32:0;
+  const drift=animated?Math.sin(t*.85)*.045:0;
+  const walk=animated&&creation.motion==="walk"?1.15:0;
   const radius=creation.motion==="orbit"&&animated?.46:0;
   const desiredX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
   const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
   const current=base.current.position;
   const alpha=animated?Math.min(1,delta*3):1;
   current.set(current.x+(desiredX-current.x)*alpha,
-   current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance+
-    (creation.motion==="hover"?.38+drift:0))-current.y)*alpha,
+   current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance*modelScale+
+    (creation.motion==="hover"?.2+drift:0))-current.y)*alpha,
    current.z+(desiredZ-current.z)*alpha);
   base.current.rotation.y=creation.motion==="spin"&&animated?t*.55:
-   creation.motion==="walk"&&animated?Math.sin(t*.65)*.32:0;
+   creation.motion==="walk"&&animated?Math.sin(t*.3)*.18:0;
   if(animated&&creation.motion==="still")base.current.rotation.y=Math.sin(t*.27)*.08;
   // Give every finished creation a small seed/mood-driven physical signature.
   // This makes two structurally similar wishes feel alive without adding geometry
@@ -159,7 +131,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    // High-level anatomical creations materialize as a continuous silhouette,
    // not a cloud of disconnected primitives. Reduced-motion shows full form.
    const sculptReveal=creation.blueprint?(animated?ease((completion-.12)/.72):1):1;
-   body.current.scale.set(breathe*sculptReveal,(1-pulse*.012)*sculptReveal,breathe*sculptReveal);
+   body.current.scale.set(modelScale*breathe*sculptReveal,modelScale*(1-pulse*.012)*sculptReveal,modelScale*breathe*sculptReveal);
    body.current.rotation.z=sway*.025;
    body.current.position.y=animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
   }
@@ -218,7 +190,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    linkMidpoint.copy(from.position).addScaledVector(linkDirection,.5);
    rod.position.copy(linkMidpoint);
    rod.quaternion.setFromUnitVectors(LINK_UP,linkDirection.multiplyScalar(1/length));
-   const radius=.085+part.size*.032;
+   const radius=.041+part.size*.014;
    rod.scale.set(radius,length,radius);
   });
  });
@@ -229,9 +201,9 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    <meshBasicMaterial color="#293a36" transparent opacity={.15} depthWrite={false}/>
   </mesh>
   <group ref={base}
-   position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance,origin[1]]}
+   position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance*modelScale,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
-  <group ref={body}>
+  <group ref={body} scale={modelScale}>
    {creation.blueprint?.kind==="robot"&&
     <MagicRobotModel3D blueprint={creation.blueprint} animated={animated}/>}
    {creation.blueprint?.kind==="fox"&&
@@ -245,14 +217,14 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    {creation.parts.map((part,i)=><mesh key={"link-"+i}
     ref={node=>{links.current[i]=node}}
     visible={false}>
-    <cylinderGeometry args={[1,1,1,12]}/>
-    <meshStandardMaterial color="#667785" metalness={.7} roughness={.32}/>
+    <cylinderGeometry args={[1,1,1,7]}/>
+    <meshStandardMaterial color="#a2c7b8" metalness={0} roughness={.88} flatShading/>
    </mesh>)}
    {creation.parts.map((part,i)=>{
     const pivot=pivots[i];
     return <group key={i} ref={node=>{groups.current[i]=node}}>
      <group position={[-pivot[0],-pivot[1],-pivot[2]]}>
-      <PartMesh part={part} detailRef={node=>{detailGroups.current[i]=node}}/>
+      <PartMesh part={part} autoFace={i===autoFaceIndex} animated={animated} showAccents={assemblyOrder[i]<6} showIdentity={creation.parts.slice(0,i).filter(p=>!!p.detail).length<4} detailRef={node=>{detailGroups.current[i]=node}}/>
      </group>
     </group>;
    })}
@@ -265,3 +237,5 @@ export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicC
  return <group>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
   creations={creations} animated={animated} onSelect={onSelect}/>)}</group>;
 }
+
+// Legacy marker: MagicPartIdentity3D part={part}; islandSurfaceHeight(desiredX,desiredZ)+groundClearance

@@ -7,6 +7,7 @@ import {ringStep,ringPoint,islandSurfaceHeight} from "./magicNavigation";
 import {MagicWonders3D} from "./MagicWonders3D";
 import {MagicCreations3D} from "./MagicCreations3D";
 import {MagicDragonModel3D,MagicFoxModel3D} from "./MagicProceduralLife3D";
+import {MagicOwlModel3D,MagicChestModel3D,MagicCrystalModel3D,MagicPortalModel3D,MagicTreeModel3D} from "./MagicResidents3D";
 import {
  MAGIC_OVERVIEW_POSITION,
  getMagicOverviewPosition,
@@ -83,28 +84,13 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
  return <group ref={root} position={initial.current} onClick={onClick}>
   <group ref={bob}>
    {kind==="dragon"?<MagicDragonModel3D animated={animated} size={reacting?1.06:1}/>:null}
-   {kind==="portal"?<group>
-    <mesh position={[0,.91,0]} rotation={[0,0,.08]}><torusGeometry args={[.87,.22,10,24]}/><meshStandardMaterial color="#ae7dd5" emissive="#8d62d1" emissiveIntensity={.6}/></mesh>
-    <mesh position={[0,.91,0]}><circleGeometry args={[.73,24]}/><meshBasicMaterial color="#79c7e1" transparent opacity={.56} side={2}/></mesh>
-   </group>:null}
-   {kind==="chest"?<group>
-    <mesh position={[0,.45,0]}><boxGeometry args={[1.12,.69,.76]}/><meshStandardMaterial color="#906342"/></mesh>
-    <mesh position={[0,.87,0]}><boxGeometry args={[1.2,.22,.81]}/><meshStandardMaterial color="#e8be69"/></mesh>
-    <mesh position={[0,.5,.4]}><boxGeometry args={[.16,.3,.05]}/><meshStandardMaterial color="#f8df83"/></mesh>
-   </group>:null}
-   {kind==="crystal"?<mesh position={[0,.85,0]} rotation={[.17,.4,.17]}>
-    <octahedronGeometry args={[.83,0]}/><meshStandardMaterial color="#99d6e7" emissive="#5c9ac2" emissiveIntensity={.45} flatShading/>
-   </mesh>:null}
-   {kind==="owl"?<group>
-    <mesh position={[0,.83,0]} scale={[.58,.66,.47]}><sphereGeometry args={[1,12,8]}/><meshStandardMaterial color="#b79879"/></mesh>
-    {[-1,1].map(sign=><group key={sign}>
-     <mesh position={[sign*.23,1.04,.43]}><sphereGeometry args={[.16,10,8]}/><meshStandardMaterial color="#fff9df"/></mesh>
-     <mesh position={[sign*.23,1.04,.57]}><sphereGeometry args={[.073,8,8]}/><meshStandardMaterial color="#32343d"/></mesh>
-    </group>)}
-    <mesh position={[0,.85,.51]} rotation={[Math.PI/2,0,0]}><coneGeometry args={[.12,.25,4]}/><meshStandardMaterial color="#ebbe73"/></mesh>
-   </group>:null}
+   {kind==="portal"?<MagicPortalModel3D/>:null}
+   {kind==="chest"?<MagicChestModel3D animated={animated}/>:null}
+   {kind==="crystal"?<MagicCrystalModel3D/>:null}
+   {kind==="owl"?<MagicOwlModel3D animated={animated}/>:null}
    {kind==="fox"?<MagicFoxModel3D animated={animated}/>:null}
-   {kind==="tree"?<group><mesh position={[0,.55,0]}><cylinderGeometry args={[.18,.25,1,8]}/><meshStandardMaterial color="#9e806e"/></mesh><mesh position={[0,1.65,0]}><icosahedronGeometry args={[1.1,0]}/><meshStandardMaterial color="#85c4a5" flatShading/></mesh></group>:null}
+   {kind==="tree"?<MagicTreeModel3D/>:null}
+
   </group>
  </group>;
 }
