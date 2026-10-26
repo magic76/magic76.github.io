@@ -31,3 +31,15 @@ test("dragon flight pose clamps unsafe motion scales",()=>{
  assert.deepEqual(magicDragonFlightPose(2,99),magicDragonFlightPose(2,1));
  assert.deepEqual(magicDragonFlightPose(2,Number.NaN),magicDragonFlightPose(2,0));
 });
+
+test("dragon procedural model wires the bounded flight pose to body neck wings and tail",()=>{
+ const model=fs.readFileSync("web-spa/src/magic/MagicProceduralLife3D.tsx","utf8");
+ assert.match(model,/import \{magicDragonFlightPose\} from "\.\/magicDragonMotion"/);
+ assert.match(model,/const body=useRef<Group>\(null\),neck=useRef<Group>\(null\),wings=/);
+ assert.match(model,/magicDragonFlightPose\(clock\.elapsedTime,animated\?1:0\)/);
+ assert.match(model,/body\.current\.position\.y=pose\.bodyY/);
+ assert.match(model,/neck\.current\.rotation\.x=pose\.neckPitch/);
+ assert.match(model,/node\.rotation\.z=pose\.wingRoll\[i\]/);
+ assert.match(model,/tail\.current\.rotation\.x=pose\.tailPitch/);
+ assert.doesNotMatch(model,/Math\.sin\(t\*3\.2\)\*\.24\+\.06/);
+});
