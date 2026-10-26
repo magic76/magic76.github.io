@@ -172,5 +172,33 @@
       "teacher": "Prof",
       "outputPlaceholder": "Les réponses du prof s’afficheront ici."
     }
+  },
+  "learnToday": {
+    "heading": "Aujourd’hui",
+    "loading": "Préparation de votre prochaine étape…",
+    "loadingNote": "Vérification de vos progrès.",
+    "loadingButton": "Chargement…",
+    "start": "Commencer à pratiquer",
+    "changeTeacher": "Changer de professeur",
+    "resumeTextbook": "Reprendre le support précédent",
+    "due": "Réviser {{count}} mots à revoir",
+    "due_one": "Révise {{count}} mot à revoir",
+    "due_other": "Révise {{count}} mots à revoir",
+    "vocabulary": "Exercice de vocabulaire",
+    "lesson": "Leçon {{number}} : {{name}}",
+    "conversation": "Conversation libre avec {{name}}",
+    "vocabularyNote": "Commencez par le vocabulaire sans clé API.",
+    "courseNote": "Poursuivez avec la prochaine leçon débloquée.",
+    "conversationNote": "Discutez directement avec votre professeur.",
+    "threeMinute": "Expression orale en 3 minutes",
+    "threeMinuteDesc": "Échange bref et détendu avec un ami.",
+    "more": "Autres façons d’apprendre",
+    "records": "Historique d’apprentissage",
+    "settings": "Paramètres d’apprentissage",
+    "teachersCourses": "Professeurs et cours",
+    "teacherIntro": "Choisissez votre professeur, poursuivez un cours ou entraînez-vous.",
+    "backToLearn": "Retour à l’apprentissage",
+    "courseTracks": "Parcours de cours",
+    "trackProgress": "{{done}} leçons sur {{total}} terminées"
   }
 }

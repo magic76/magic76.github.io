@@ -245,7 +245,7 @@
     "courseMap": "Peta kursus",
     "progress": "Kemajuan kursus",
     "title": "Latih percakapan nyata melalui misi",
-    "intro": "Tiga tema (perjalanan, kerja, dan obrolan sehari-hari) dalam 10 unit dan 31 pelajaran untuk berlatih langkah demi langkah dalam situasi nyata. Selesaikan satu pelajaran untuk membuka yang berikutnya.",
+    "intro": "Jelajahi {{tracks}} jalur, {{units}} unit, dan {{lessons}} pelajaran lewat situasi nyata. Selesaikan satu pelajaran untuk membuka berikutnya.",
     "stars": "Total bintang",
     "review": "Latih lagi",
     "start": "Mulai",

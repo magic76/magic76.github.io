@@ -245,7 +245,7 @@
     "courseMap": "Course map",
     "progress": "Course progress",
     "title": "Practice real conversations through missions",
-    "intro": "Three themes (travel, work and everyday small talk) across 10 units and 31 lessons, practised step by step in real situations. Finish a lesson to unlock the next one.",
+    "intro": "Explore {{tracks}} tracks, {{units}} units and {{lessons}} lessons through real-life practice. Complete a lesson to unlock the next.",
     "stars": "Total stars",
     "review": "Practice again",
     "start": "Start",

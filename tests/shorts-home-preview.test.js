@@ -5,13 +5,16 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const read=file=>readFileSync(path.join(root,file),"utf8");
 
-test("Teacher home prioritizes photo Shorts before role choice and learning tools",()=>{
+test("Photo Shorts and friend intents live in Chat; teacher hub stays focused",()=>{
  const home=read("web-spa/src/teacher/PracticePage.tsx");
- const role=home.indexOf('className="section crew-role-gateway"');
- const shorts=home.indexOf("<HomeShortsPreview/>");
- const intents=home.indexOf('className="section crew-daily-intents"');
- const learning=home.indexOf('className="section crew-continue-section"');
- assert.ok(shorts>=0&&shorts<role&&role<intents&&intents<learning);
+ const chat=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const friendCards=read("web-spa/src/friends/FriendIntentCards.tsx");
+ assert.doesNotMatch(home,/HomeShortsPreview|crew-daily-intents|crew-role-entry friend/);
+ assert.match(chat,/section==="chat"/);
+ assert.match(chat,/<FriendIntentCards\/>/);
+ assert.match(chat,/<HomeShortsPreview maxPosts=\{3\}/);
+ assert.match(friendCards,/intent=share/);
+ assert.match(friendCards,/intent=speak/);
  assert.doesNotMatch(home,/CREW SHORTS · DEMO/);
 });
 

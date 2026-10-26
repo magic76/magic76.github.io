@@ -245,7 +245,7 @@
     "courseMap": "Mapa do curso",
     "progress": "Progresso do curso",
     "title": "Pratique conversas reais por meio de missões",
-    "intro": "Três temas (viagem, trabalho e conversa do dia a dia) em 10 unidades e 31 aulas para praticar passo a passo em situações reais. Conclua uma aula para liberar a próxima.",
+    "intro": "Explore {{tracks}} trilhas, {{units}} unidades e {{lessons}} lições em situações reais. Conclua uma lição para desbloquear a próxima.",
     "stars": "Total de estrelas",
     "review": "Praticar novamente",
     "start": "Começar",

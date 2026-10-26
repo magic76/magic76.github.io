@@ -1,0 +1,29 @@
+import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
+import {Icon,type IconName} from "../components/Icon";
+import {useRouteNamespace} from "../i18n/useRouteNamespace";
+
+type Tool={to:string;title:string;desc:string;icon:IconName};
+export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:string}){
+ const {t}=useTranslation("lesson");
+ const {t:tTeacher}=useTranslation("teacher");
+ const ready=useRouteNamespace("lesson");
+ if(!ready)return null;
+ return <section className="crew-learn-tools" aria-label={tTeacher("learn.method")}>
+  <div className="crew-section-grid crew-learn-tool-grid">
+   {tools.map(tool=><Link className="crew-section-card crew-learn-tool" key={tool.to} to={tool.to}>
+    <span className="crew-section-card-icon"><Icon name={tool.icon}/></span>
+    <span className="crew-section-card-copy"><strong>{tool.title}</strong><small>{tool.desc}</small></span>
+   </Link>)}
+  </div>
+  <Link className="crew-learn-three-minute" to={speakingPath}>
+   <Icon name="chat"/><span><strong>{t("learnToday.threeMinute")}</strong><small>{t("learnToday.threeMinuteDesc")}</small></span><span aria-hidden="true">→</span>
+  </Link>
+  <nav className="crew-learn-secondary-links" aria-label={t("learnToday.more")}>
+   <Link to="/teacher/reading-library">{tTeacher("learn.library")}</Link>
+   <Link to="/teacher/reports">{t("learnToday.records")}</Link>
+   <Link to="/settings#settings-learning">{t("learnToday.settings")}</Link>
+   <Link to="/teacher">{t("learnToday.teachersCourses")}</Link>
+  </nav>
+ </section>;
+}

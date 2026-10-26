@@ -374,8 +374,9 @@ test("core Web entry points follow the Android app parity contract",()=>{
  const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
 
  const teacherUi=readUiLocale("teacher");
- assert.equal(teacherUi.practice.title,"今天想和誰聊聊？");
- for(const key of ["title","friend","teacher","textbook","vocab","course","quick","continue"])
+ assert.equal(teacherUi.practice.title,"今天想和誰聊聊？"); // Kept for existing Role page.
+ assert.ok(teacher.includes('tToday("learnToday.teachersCourses")'));
+ for(const key of ["teacher","textbook","vocab","course","quick","continue"])
   assert.ok(teacher.includes('t("practice.'+key+'")'),key);
  assert.ok(teacherTutor.includes("目前老師"));
  assert.ok(teacherNext.includes('t("continue.next")'));
@@ -460,17 +461,19 @@ test("Teacher Web mirrors Android authored course map and daily coordinator",()=
  assert.ok(catalog.includes("TRAVEL_COURSE_LESSONS"));
  assert.ok(course.includes("COURSE_TRACKS"));
  assert.ok(course.includes("lessonUnlocked"));
- assert.ok(course.includes('t("course.intro")'));
- assert.ok(readUiLocale("teacher").course.intro.includes("31 堂課"));
+ assert.ok(course.includes('t("course.intro",{tracks:COURSE_TRACKS.length,units:COURSE_UNITS.length,lessons:COURSE_LESSONS.length})'));
+ assert.ok(readUiLocale("teacher").course.intro.includes("{{lessons}}"));
  assert.ok(live.includes("evaluateCourseSession"));
  assert.ok(live.includes("saveLessonProgress"));
  assert.ok(practice.includes("ContinueLearningCard"));
  assert.ok(!practice.includes("PracticeTutorStrip"));
- const textbookIndex=coordinator.indexOf('action:"textbook"');
  const vocabIndex=coordinator.indexOf('action:"vocabulary"');
  const courseIndex=coordinator.indexOf('action:"course"');
  const conversationIndex=coordinator.indexOf('action:"conversation"');
- assert.ok(textbookIndex>=0&&textbookIndex<vocabIndex&&vocabIndex<courseIndex&&courseIndex<conversationIndex);
+ assert.ok(vocabIndex>=0&&vocabIndex<courseIndex&&courseIndex<conversationIndex);
+ assert.match(coordinator,/export function todayStep/);
+ assert.match(coordinator,/textbook:textbook\?\.images\?\.length\?textbook:undefined/);
+ assert.doesNotMatch(coordinator,/return\{[^\n]*action:"textbook"/);
 });
 
 test("Teacher vocabulary uses spaced review recovery and date-aware progress",()=>{

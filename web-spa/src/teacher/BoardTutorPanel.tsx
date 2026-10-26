@@ -1,4 +1,5 @@
 import {useTranslation} from "react-i18next";
+import {useNavigate} from "react-router-dom";
 import {LiveControls} from "../live/LiveControls";
 import {TeacherAvatar} from "./TeacherAvatar";
 import {GeminiSetupNotice} from "../components/GeminiSetupNotice";
@@ -11,6 +12,7 @@ import {PinyinHint} from "./PinyinHint";
 type Props={live:ReturnType<typeof useLiveSession>;profile:ReturnType<typeof getTeacherProfile>;targetLanguage:string;english:boolean;hint:string;onAsk:(text:string)=>void};
 export function BoardTutorPanel({live,profile,targetLanguage,english,hint,onAsk}:Props){
  const {t}=useTranslation("teacher");
+ const navigate=useNavigate();
  const pinyinMode=useTeacherStore(s=>s.pronunciationAidMode);
  const teachingMode=useTeacherStore(s=>s.teachingMode);
  return <section className="teaching-board-tutor" aria-label={t("board.teacher")}>
@@ -30,6 +32,6 @@ export function BoardTutorPanel({live,profile,targetLanguage,english,hint,onAsk}
    <button type="button" onClick={()=>onAsk(t("board.nativeExplanation")+"\n[BOARD ONLY: change written explanation language, keep configured spoken language]")}>{t("board.nativeExplanation")}</button>
   </div>
   {hint&&<p className="teaching-board-hint" role="alert">{hint}</p>}
-  <div className="teaching-board-voice"><LiveControls live={live} compact prominentInterrupt english={english}/></div>
+  <div className="teaching-board-voice"><LiveControls live={live} compact prominentInterrupt english={english} onEnd={async()=>{await live.stop(true);navigate("/learn")}}/></div>
  </section>;
 }

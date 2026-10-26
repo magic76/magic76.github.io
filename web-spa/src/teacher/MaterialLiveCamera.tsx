@@ -1,5 +1,6 @@
 import{useCallback,useEffect,useRef,useState}from"react";
 import{useTranslation}from"react-i18next";
+import{useNavigate}from"react-router-dom";
 import{LiveControls}from"../live/LiveControls";
 import type{ReturnTypeOfLive}from"../live/types";
 const FRAME_INTERVAL_MS=3500;
@@ -16,6 +17,7 @@ function capture(video:HTMLVideoElement){
 }
 export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTypeOfLive;withConversation?:boolean}){
  const{t}=useTranslation(["lesson","teacher"]);
+ const navigate=useNavigate();
  const videoRef=useRef<HTMLVideoElement>(null),streamRef=useRef<MediaStream|null>(null);
  const [active,setActive]=useState(false),[paused,setPaused]=useState(false),[locked,setLocked]=useState(false),[requesting,setRequesting]=useState(false);
  const [still,setStill]=useState(""),[expanded,setExpanded]=useState(false),[error,setError]=useState("");
@@ -98,7 +100,7 @@ export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTyp
   {error&&<p className="vision-error" role="alert">{error}</p>}
  </div>
  {withConversation&&<div className="material-camera-conversation"><h3>{t("textbook.camera.lookTogether")}</h3>
-  <LiveControls live={live} interruptLabel={t("live.interruptTeacher")}/>
+  <LiveControls live={live} interruptLabel={t("live.interruptTeacher")} onEnd={async()=>{await live.stop(true);stopCamera();navigate("/learn")}}/>
   <div className="live-transcript" role="log" aria-label={t("textbook.camera.transcriptAria")} tabIndex={0}><div className="live-line user show"><small>{t("textbook.you")}</small><span>{live.input||t("textbook.camera.inputPlaceholder")}</span></div><div className="live-line show"><small>{t("textbook.camera.teacher")}</small><span>{live.output||t("textbook.camera.outputPlaceholder")}</span></div>{live.turns.slice(-8).map((turn,i)=><div className="material-camera-turn" key={i}><small>{t("textbook.you")}</small><p>{turn.input}</p><small>{t("textbook.camera.teacher")}</small><p>{turn.output}</p></div>)}</div>
  </div>}
  </div></section>;

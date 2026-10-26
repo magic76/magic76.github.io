@@ -216,3 +216,34 @@ test("route-scoped catalogs load with their route instead of the entry bundle",(
   assert.match(app.slice(Math.max(0,at-40),at),/withNamespace\((\["\w+",)?"voice"\]?,$/,page+" must preload voice");
  }
 });
+
+test("learn-today label keys and course counts are translated across all 11 locales",()=>{
+ const all=JSON.parse(read("config/ui-locales.json")).locales.map(x=>x.code);
+ const expected=["heading","start","changeTeacher","resumeTextbook","due","vocabulary","lesson","conversation","vocabularyNote","courseNote","conversationNote","threeMinute","threeMinuteDesc","more","records","settings","teachersCourses","teacherIntro","backToLearn","courseTracks","trackProgress"];
+ const en=load("en","lesson").learnToday;
+ const zh=load("zh-TW","lesson").learnToday;
+ assert.deepEqual(Object.keys(en).sort(),Object.keys(zh).sort());
+ for(const lang of all){
+  const lesson=load(lang,"lesson").learnToday;
+  const course=load(lang,"teacher").course.intro;
+  for(const key of expected)assert.ok(lesson[key]&&typeof lesson[key]==="string",lang+"/learnToday."+key);
+  for(const token of ["tracks","units","lessons"])assert.ok(course.includes("{{"+token+"}}"),lang+" missing "+token);
+  for(const key of Object.keys(lesson))assert.doesNotMatch(key,/[.:]/);
+  assert.match(lesson.lesson,/{{number}}/);
+  assert.match(lesson.lesson,/{{name}}/);
+ }
+});
+
+
+test("learnToday loading and SRS plural keys exist in all 11 locale catalogs",()=>{
+ const locales=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
+ for(const code of locales){
+  const today=load(code,"lesson").learnToday;
+  for(const key of ["loading","loadingNote","loadingButton","due_one","due_other"]){
+   assert.ok(today[key]?.trim(),code+" learnToday."+key);
+   assert.match(today[key],key.startsWith("due_")?/\{\{count\}\}/:/\S/);
+  }
+ }
+ assert.equal(load("en","lesson").learnToday.due_one,"Review {{count}} word due");
+ assert.equal(load("en","lesson").learnToday.due_other,"Review {{count}} words due");
+});

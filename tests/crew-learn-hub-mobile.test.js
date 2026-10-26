@@ -7,7 +7,7 @@ const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Learn tab has exactly one primary recommendation and compact progress",()=>{
  const source=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.match(source,/<LearningFocusCard\/>/);
- assert.match(source,/<TodayLearningCard compact\/>/);
+ assert.match(read("web-spa/src/teacher/LearningFocusCard.tsx"),/<TodayLearningCard compact\/>/);
  assert.match(source,/crew-learn-tool-grid/);
  assert.match(source,/section!=="learn"&&<section className="crew-section-discover"/);
  assert.doesNotMatch(source,/section==="learn"&&<Link className="crew-section-card" to="\/teacher\/board"/);

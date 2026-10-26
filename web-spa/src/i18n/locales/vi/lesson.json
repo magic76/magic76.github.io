@@ -172,5 +172,33 @@
       "teacher": "Giáo viên",
       "outputPlaceholder": "Câu trả lời của giáo viên sẽ hiện ở đây."
     }
+  },
+  "learnToday": {
+    "heading": "Hôm nay",
+    "loading": "Đang chuẩn bị bước học tiếp theo…",
+    "loadingNote": "Đang kiểm tra tiến độ học hiện tại.",
+    "loadingButton": "Đang tải…",
+    "start": "Bắt đầu luyện tập",
+    "changeTeacher": "Đổi giáo viên",
+    "resumeTextbook": "Tiếp tục tài liệu lần trước",
+    "due": "Ôn {{count}} từ đến hạn",
+    "due_one": "Ôn {{count}} từ đến hạn",
+    "due_other": "Ôn {{count}} từ đến hạn",
+    "vocabulary": "Luyện từ vựng",
+    "lesson": "Bài {{number}}: {{name}}",
+    "conversation": "Trò chuyện tự do với {{name}}",
+    "vocabularyNote": "Khởi động bằng bài tập từ vựng không cần khóa API.",
+    "courseNote": "Tiếp tục với bài học đã mở khóa kế tiếp.",
+    "conversationNote": "Bắt đầu trò chuyện ngay với giáo viên.",
+    "threeMinute": "Luyện nói 3 phút",
+    "threeMinuteDesc": "Trò chuyện ngắn và thoải mái cùng bạn bè.",
+    "more": "Các cách học khác",
+    "records": "Lịch sử học tập",
+    "settings": "Cài đặt học tập",
+    "teachersCourses": "Giáo viên và khóa học",
+    "teacherIntro": "Chọn giáo viên, học tiếp khóa học hoặc luyện kỹ năng.",
+    "backToLearn": "Quay lại học tập",
+    "courseTracks": "Danh sách khóa học",
+    "trackProgress": "Đã hoàn thành {{done}} / {{total}} bài"
   }
 }

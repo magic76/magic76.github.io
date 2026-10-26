@@ -245,7 +245,7 @@
     "courseMap": "Sơ đồ khóa học",
     "progress": "Tiến độ khóa học",
     "title": "Luyện hội thoại thực tế qua nhiệm vụ",
-    "intro": "Ba chủ đề (du lịch, công việc và trò chuyện hằng ngày) với 10 đơn vị và 31 bài học, luyện tập từng bước qua tình huống thực tế. Hoàn thành một bài để mở khóa bài tiếp theo.",
+    "intro": "Khám phá {{tracks}} lộ trình, {{units}} học phần và {{lessons}} bài học qua tình huống thực tế. Hoàn thành một bài để mở bài tiếp theo.",
     "stars": "Tổng số sao",
     "review": "Luyện lại",
     "start": "Bắt đầu",

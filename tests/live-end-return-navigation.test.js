@@ -8,7 +8,7 @@ test("friend End and toolbar Back both close after saving conversation",()=>{
  const live=source("web-spa/src/friends/FriendLivePage.tsx");
  assert.match(live,/const endAndReturn=async\(\)=>/);
  assert.match(live,/await live\.stop\(true\)/);
- assert.match(live,/finally\{navigate\(shortsPost\?"\/teacher\/shorts":"\/teacher\/roles\?mode=friends"\)\}/);
+ assert.match(live,/finally\{navigate\(shortsPost\?"\/teacher\/shorts":intent==="speak"\?"\/learn":"\/teacher\/roles\?mode=friends"\)\}/);
  assert.match(live,/onEnd=\{endAndReturn\}/);
  assert.match(live,/preventDefault\(\);void endAndReturn\(\)/);
  assert.match(live,/recordFriendChat\(sessionId,language,item\.turns,item\.durationMs\)/);
@@ -34,7 +34,12 @@ test("end control allows navigation on conversation pages without changing inlin
  const session=source("web-spa/src/live/useLiveSession.ts");
  assert.match(controls,/onEnd\?:\(\)=>void\|Promise<unknown>/);
  assert.match(controls,/onEnd\?onEnd\(\):live\.stop\(\)/);
- assert.match(reading,/<LiveControls live=\{live\}( interruptLabel=\{t\("live\.interruptTeacher"\)\})?\/>/);
+ assert.match(reading,/<LiveControls live=\{live\}[^>]*onEnd=\{async\(\)=>\{await live\.stop\(true\);navigate\("\/learn"\)\}\}/);
+ for(const file of ["teacher/TextbookPage.tsx","teacher/MaterialLiveCamera.tsx","teacher/BoardTutorPanel.tsx"]){
+  const code=source("web-spa/src/"+file);
+  assert.match(code,/onEnd=\{async\(\)=>\{await live\.stop\(true\)/);
+  assert.match(code,/navigate\("\/learn"\)/);
+ }
  assert.match(session,/const completion=finish\(item\)/);
  assert.match(session,/if\(!deferReport\)await completion/);
  assert.match(session,/return \{turns:\(item\?\.turns\|\|\[\]\)/);

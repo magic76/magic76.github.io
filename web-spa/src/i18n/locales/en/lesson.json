@@ -172,5 +172,33 @@
       "teacher": "Teacher",
       "outputPlaceholder": "The teacher's replies will appear here."
     }
+  },
+  "learnToday": {
+    "heading": "Today",
+    "loading": "Getting your next step ready…",
+    "loadingNote": "Checking your current learning progress.",
+    "loadingButton": "Loading…",
+    "start": "Start practicing",
+    "changeTeacher": "Change teacher",
+    "resumeTextbook": "Continue previous material",
+    "due": "Review {{count}} words due",
+    "due_one": "Review {{count}} word due",
+    "due_other": "Review {{count}} words due",
+    "vocabulary": "Vocabulary practice",
+    "lesson": "Lesson {{number}}: {{name}}",
+    "conversation": "Free conversation with {{name}}",
+    "vocabularyNote": "Start with key-free vocabulary practice.",
+    "courseNote": "Continue with the next unlocked lesson.",
+    "conversationNote": "Jump straight into a conversation.",
+    "threeMinute": "3-minute speaking practice",
+    "threeMinuteDesc": "A short, relaxed chat with a friend.",
+    "more": "More ways to learn",
+    "records": "Learning records",
+    "settings": "Learning settings",
+    "teachersCourses": "Teachers & courses",
+    "teacherIntro": "Meet your teacher, follow courses, or choose a focused practice.",
+    "backToLearn": "Back to learning",
+    "courseTracks": "Course tracks",
+    "trackProgress": "{{done}} / {{total}} lessons completed"
   }
 }

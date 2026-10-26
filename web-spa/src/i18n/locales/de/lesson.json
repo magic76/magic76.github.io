@@ -172,5 +172,33 @@
       "teacher": "Lehrkraft",
       "outputPlaceholder": "Die Antworten der Lehrkraft erscheinen hier."
     }
+  },
+  "learnToday": {
+    "heading": "Heute",
+    "loading": "Dein nächster Schritt wird vorbereitet…",
+    "loadingNote": "Wir prüfen deine aktuellen Übungen.",
+    "loadingButton": "Wird geladen…",
+    "start": "Übung starten",
+    "changeTeacher": "Lehrkraft wechseln",
+    "resumeTextbook": "Letztes Material fortsetzen",
+    "due": "{{count}} fällige Wörter wiederholen",
+    "due_one": "Wiederhole {{count}} bald vergessenes Wort",
+    "due_other": "Wiederhole {{count}} bald vergessene Wörter",
+    "vocabulary": "Wortschatz üben",
+    "lesson": "Lektion {{number}}: {{name}}",
+    "conversation": "Freies Gespräch mit {{name}}",
+    "vocabularyNote": "Beginne mit Wortschatztraining ohne API-Schlüssel.",
+    "courseNote": "Setze die nächste freigeschaltete Lektion fort.",
+    "conversationNote": "Starte direkt ein Gespräch mit deiner Lehrkraft.",
+    "threeMinute": "3 Minuten Sprechübung",
+    "threeMinuteDesc": "Ein kurzes, lockeres Gespräch mit einem Freund.",
+    "more": "Weitere Lernmöglichkeiten",
+    "records": "Lernverlauf",
+    "settings": "Lerneinstellungen",
+    "teachersCourses": "Lehrkräfte und Kurse",
+    "teacherIntro": "Wähle eine Lehrkraft, lerne weiter oder übe gezielt.",
+    "backToLearn": "Zurück zum Lernen",
+    "courseTracks": "Kursübersicht",
+    "trackProgress": "{{done}} von {{total}} Lektionen abgeschlossen"
   }
 }

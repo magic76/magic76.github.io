@@ -1,5 +1,7 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
+import {Link} from "react-router-dom";
+import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {vocabularyTopicGroup} from "./vocabularyTopics";
 import {useTeacherStore} from "../store/teacherStore";
 import {teacherText} from "./teacherLocale";
@@ -18,6 +20,8 @@ const DAILY_GOAL=20;
 
 export function VocabularyPage(){
  const {t}=useTranslation("teacher");
+ const {t:tToday}=useTranslation("lesson");
+ const stringsReady=useRouteNamespace("lesson");
  const native=useTeacherStore(s=>s.nativeLanguage);
  const[speechPreferences,setSpeechPreferences]=useState(readSpeechPreferences);
  const[voices,setVoices]=useState<SpeechSynthesisVoice[]>([]);
@@ -138,6 +142,7 @@ export function VocabularyPage(){
  }
 
  return <div className="crew-learning-focus">
+  {stringsReady&&<Link className="crew-learn-back-small" to="/learn">← {tToday("learnToday.backToLearn")}</Link>}
   <section className="crew-learning-quiz" aria-label={t("vocabulary.title")}>
    <div className="crew-learning-quiz-top">
     <div><span className="kicker">{t("vocabulary.kicker")}</span><h1>{t("vocabulary.title")}</h1></div>
@@ -155,6 +160,7 @@ export function VocabularyPage(){
     <h2>{t("vocabulary.goalComplete")}</h2>
     <p>{t("vocabulary.goalCompleteDesc",{count:done})}</p>
     <button className="btn primary crew-learning-full-cta" onClick={continuePractice}>{t("vocabulary.keepGoing")}</button>
+    {stringsReady&&<Link className="btn secondary crew-learning-full-cta" to="/learn">{tToday("learnToday.backToLearn")}</Link>}
    </div>:<div className="quiz-card crew-learning-question" data-feedback={revealed?(picked===word[1]?"correct":"wrong"):"idle"} data-streak={streak>=5?"high":"normal"}>
     <div className="quiz-meta"><span className="pill">{t("vocabulary.topics."+vocabularyTopicGroup(word[4]))}</span><span className="pill">{t("vocabulary.streak",{count:streak})}</span></div>
     <p className="crew-learning-question-prompt">{t("vocabulary.pickMeaning")}</p>

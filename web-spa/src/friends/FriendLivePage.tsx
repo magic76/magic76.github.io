@@ -98,7 +98,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;
-  try{await live.stop(true)}finally{navigate(shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends")}
+  try{await live.stop(true)}finally{navigate(shortsPost?"/teacher/shorts":intent==="speak"?"/learn":"/teacher/roles?mode=friends")}
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
@@ -126,7 +126,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const alternateHref="/friend/live?"+alternateParams.toString();
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
+   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":intent==="speak"?"/learn":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
    <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>

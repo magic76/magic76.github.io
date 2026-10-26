@@ -4,29 +4,32 @@ import{buildDailyLearningPlan,type DailyLearningPlan}from"./learningCoordinator"
 import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
 import{useClientReady}from"../lib/useClientReady";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
 import{courseLesson}from"./courseCatalog";
 
 export function ContinueLearningCard({compact=false}:{compact?:boolean}){
  const {t,i18n}=useTranslation("teacher");
+ const {t:tToday}=useTranslation("lesson");
+ const stringsReady=useRouteNamespace("lesson");
  const[plan,setPlan]=useState<DailyLearningPlan|null>(null);
  const ready=useClientReady();
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
+ const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
- useEffect(()=>{let alive=true;void buildDailyLearningPlan().then(x=>{if(alive)setPlan(x)});return()=>{alive=false}},[]);
+ useEffect(()=>{if(!ready)return;let alive=true;setPlan(null);
+  void buildDailyLearningPlan().then(x=>{if(alive)setPlan(x)}).catch(()=>{});
+  return()=>{alive=false};
+ },[ready,targetLanguage,selectedProfile]);
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const course=plan?.nextLessonId?courseLesson(plan.nextLessonId):null;
- const title=plan&&chinese?plan.title:plan?.action==="textbook"?t("continue.textbookTitle"):
-  plan?.action==="vocabulary"?t("continue.vocabularyTitle",{count:plan.dueVocabulary}):
-  plan?.action==="course"?t("continue.courseTitle",{name:course?.titleEn||(chinese?plan.nextLessonTitle:"")||""}):
-  t("continue.conversationTitle");
- const note=plan&&chinese?plan.note:plan?.action==="textbook"?t("continue.textbookNote",{
-  title:plan.textbook?.plan?.title||t("continue.textbookFallback"),
-  page:(Number(plan.textbook?.currentPage)||0)+1,
-  total:plan.textbook?.images?.length||1
- }):plan?.action==="vocabulary"?t("continue.vocabularyNote"):
-  plan?.action==="course"?course?.descEn||t("continue.conversationNote"):
-  plan?.primaryFocus||t("continue.conversationNote");
- if(!plan)return <div className={"continue-learning-card "+(compact?"compact":"")}><span className="kicker">{teacher.name} · {t("continue.next")}</span><strong>{t("continue.loading")}</strong></div>;
+ const title=plan&&chinese?plan.title:plan?.action==="vocabulary"
+  ?plan.warmupVocabulary?tToday("learnToday.vocabulary"):tToday("learnToday.due",{count:plan.dueVocabulary})
+  :plan?.action==="course"?tToday("learnToday.lesson",{number:plan.nextLessonNumber,name:course?.titleEn||plan.nextLessonTitleEn||""})
+  :tToday("learnToday.conversation",{name:teacher.name});
+ const note=plan&&chinese?plan.note:plan?.action==="vocabulary"?tToday("learnToday.vocabularyNote"):
+  plan?.action==="course"?course?.descEn||tToday("learnToday.courseNote"):
+  plan?.primaryFocus||tToday("learnToday.conversationNote");
+ if(!stringsReady||!plan)return <div className={"continue-learning-card "+(compact?"compact":"")}><span className="kicker">{teacher.name} · {t("continue.next")}</span><strong>{t("continue.loading")}</strong></div>;
  return <Link className={"continue-learning-card "+plan.action+(compact?" compact":"")} to={plan.to}>
   <div><span className="kicker">{teacher.name} · {t("continue.next")}</span><h3>{title}</h3><p>{note}</p>{plan.primaryFocus&&plan.action!=="conversation"?<small>{t("continue.focus",{focus:plan.primaryFocus})}</small>:null}</div>
   <span className="continue-arrow">→</span>
