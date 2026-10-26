@@ -28,3 +28,13 @@ for(const [nx,nz] of points)test('focus pose keeps non-hidden occluders out '+nx
  const desktop=getMagicFocusPose(subject,obstacles,1.6);
  assert.ok(Math.hypot(pose.camera[0]-subject.x,pose.camera[2]-subject.z)>Math.hypot(desktop.camera[0]-subject.x,desktop.camera[2]-subject.z));
 });
+test('small chibi subjects are framed closer than tall ones, portrait still farther',()=>{
+ const at=h=>({x:.25*11.7,z:.45*10.3,ground:1.5,height:h,radius:1.2});
+ const gap=(p,s)=>Math.hypot(p.camera[0]-s.x,p.camera[2]-s.z);
+ const small=at(2),tall=at(3.8);
+ const ds=getMagicFocusPose(small,[],1.6),dt=getMagicFocusPose(tall,[],1.6),ms=getMagicFocusPose(small,[],.46);
+ assert.ok(gap(ds,small)<gap(dt,tall)*.7);
+ assert.ok(gap(ms,small)>gap(ds,small));
+ assert.ok(ds.camera[1]>=small.ground+3);
+ assert.ok(Math.hypot(ds.camera[0]-ds.target[0],ds.camera[1]-ds.target[1],ds.camera[2]-ds.target[2])>7.2);
+});

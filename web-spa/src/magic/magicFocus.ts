@@ -19,8 +19,11 @@ export function magicOccludes(from:readonly number[],to:readonly number[],o:Magi
 
 export function getMagicFocusPose(subject:MagicSubject,occluders:readonly MagicOccluder[],aspect:number):MagicFocusPose{
  const portrait=aspect<.75;
- const distance=portrait?19.5:13;
- const elevation=portrait?10.5:8.1;
+ // Chibi creatures are ~2 units tall; frame them by size instead of a fixed
+ // distance so small subjects don't become specks (full distance from 3.4 up).
+ const fit=Math.min(1,Math.max(.58,subject.height/3.4));
+ const distance=(portrait?19.5:13)*fit;
+ const elevation=(portrait?10.5:8.1)*fit;
  const lookY=subject.ground+Math.max(.95,subject.height*.53);
  const samples:readonly [number,number,number][]=[
   [subject.x,subject.ground+.18,subject.z],
