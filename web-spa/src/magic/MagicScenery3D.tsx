@@ -1,5 +1,5 @@
 import {useEffect,useRef} from 'react';
-import {Object3D,Color,type InstancedMesh} from 'three';
+import {Object3D,Color,AdditiveBlending,type InstancedMesh} from 'three';
 import {islandSurfaceHeight} from './magicNavigation';
 import {MAGIC_TREES,MAGIC_DISTRICTS} from './magicLayout';
 import {MAGIC_MATERIALS,type MagicPalette} from './magicPalette';
@@ -18,7 +18,7 @@ export function MagicForest3D({colors}:{colors:MagicPalette}){
    const mesh=p.style===0?cone.current:round.current;
    const slot=p.style===0?nCone++:nRound++;
    mesh?.setMatrixAt(slot,t.matrix);
-   c.set(colors.tree).multiplyScalar(.82+(i%5)*.08);mesh?.setColorAt(slot,c);
+   c.set(i%11===0?colors.roof:colors.tree).multiplyScalar(.72+(i%7)*.115);mesh?.setColorAt(slot,c);
   });
   [trunks.current,cone.current,round.current].forEach(m=>{
    if(m){m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;}
@@ -40,12 +40,32 @@ export function MagicForest3D({colors}:{colors:MagicPalette}){
 }
 /** Eight small destinations without bright UI-like rings. */
 export function MagicDistricts3D({colors,night}:{colors:MagicPalette;night:boolean}){
- return <group>{MAGIC_DISTRICTS.map(s=><group key={s.id} position={[s.x,islandSurfaceHeight(s.x,s.z),s.z]} rotation={[0,-s.angle,0]}>
+ return <group><MagicDistrictGlow3D night={night}/>{MAGIC_DISTRICTS.map(s=><group key={s.id} position={[s.x,islandSurfaceHeight(s.x,s.z),s.z]} rotation={[0,-s.angle,0]}>
+  <group scale={1.22}>
   <mesh position={[0,-.08,0]}><cylinderGeometry args={[1.7,1.85,.16,9]}/><meshStandardMaterial color={colors.detail} {...MAGIC_MATERIALS.stone}/></mesh>
   {[-1,0,1].map((step,i)=><group key={i} position={[step*.78,0,step===0?-.34:.28]}>
    <mesh position={[0,.33,0]}><cylinderGeometry args={[.27,.35,.7+(i===1?.27:0),6]}/><meshStandardMaterial color="#F1DCCC" {...MAGIC_MATERIALS.architecture}/></mesh>
    <mesh position={[0,.79+(i===1?.2:0),0]}><coneGeometry args={[.43,.62,6]}/><meshStandardMaterial color={colors.roof} flatShading roughness={.8}/></mesh>
   </group>)}
   <mesh position={[0,1.72,-.3]}><octahedronGeometry args={[.22,0]}/><meshStandardMaterial color={night?'#FFF1BA':'#FFDF8D'} emissive="#FFD78B" emissiveIntensity={night?1.2:.24}/></mesh>
+  </group>
  </group>)}</group>;
+}
+
+/** Eight unlit halos share a single instanced draw; no dynamic lights. */
+function MagicDistrictGlow3D({night}:{night:boolean}){
+ const mesh=useRef<InstancedMesh>(null);
+ useEffect(()=>{
+  const m=mesh.current;if(!m)return;const o=new Object3D();
+  MAGIC_DISTRICTS.forEach((p,i)=>{
+   o.position.set(p.x,islandSurfaceHeight(p.x,p.z)+2.05,p.z);
+   o.rotation.set(-Math.PI/2,0,0);o.scale.set(.65,.65,1);
+   o.updateMatrix();m.setMatrixAt(i,o.matrix);
+  });m.instanceMatrix.needsUpdate=true;
+ },[]);
+ if(!night)return null;
+ return <instancedMesh ref={mesh} args={[undefined,undefined,MAGIC_DISTRICTS.length]} frustumCulled={false}>
+  <circleGeometry args={[1,12]}/>
+  <meshBasicMaterial color="#FFD79C" transparent opacity={.22} blending={AdditiveBlending} depthWrite={false} toneMapped={false}/>
+ </instancedMesh>;
 }
