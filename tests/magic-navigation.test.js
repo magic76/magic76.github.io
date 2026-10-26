@@ -94,8 +94,10 @@ test("AI sculptures and island residents share one terrain-height source",()=>{
  const creations=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
  const wonders=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicWonders3D.tsx"),"utf8");
  assert.match(scene,/islandSurfaceHeight\(next\[0\],next\[1\]\)/);
- assert.match(scene,/islandSurfaceHeight\(x,z\)\+\.08/);
- assert.match(scene,/islandSurfaceHeight\(0,-\.55\)\+\.34/);
+ const scenery=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScenery3D.tsx"),"utf8");
+ const castle=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCastle3D.tsx"),"utf8");
+ assert.match(scenery,/islandSurfaceHeight\(p\.x,p\.z\)/);
+ assert.match(castle,/islandSurfaceHeight\(0,-\.55\)\+\.34/);
  assert.match(creations,/islandSurfaceHeight\(desiredX,desiredZ\)\+groundClearance/);
  assert.match(creations,/creation\.assembly==="stack"\?part\.y\+3/);
  assert.match(wonders,/restingY=islandSurfaceHeight\(anchor\[0\],anchor\[1\]\)/);

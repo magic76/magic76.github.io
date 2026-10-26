@@ -679,7 +679,7 @@ test("Magic 3D island has tenfold walkable area, spatially distributed details a
  assert.match(scene,/ISLAND_LINEAR_SCALE=Math.sqrt\(10\)/);
  assert.match(scene,/ISLAND_X_RADIUS=5\.65\*ISLAND_LINEAR_SCALE/);
  assert.match(scene,/ISLAND_Z_RADIUS=4\.75\*ISLAND_LINEAR_SCALE/);
- assert.match(scene,/<OuterDistricts colors=\{colors\}/);
+ assert.match(scene,/<MagicDistricts3D colors=\{colors\}/);
  assert.match(scene,/enablePan enableDamping/);
  assert.match(scene,/maxDistance=\{110\}/);
  assert.match(scene,/far:180/);
