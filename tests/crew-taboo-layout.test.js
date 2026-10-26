@@ -10,7 +10,7 @@ test("Taboo keeps offline gameplay while presenting rounds and outcomes",()=>{
  assert.match(page,/drawDeck\(level\)/);
  assert.match(page,/setHistory\(old=>\[\.\.\.old,/);
  assert.match(page,/doneGuard\.current===round/);
- assert.match(page,/resultLabels\[history\[i\]\.result\]/);
+ assert.match(page,/resultLabel\(history\[i\]\.result\)/);
  assert.match(page,/crew-taboo-steps/);
  assert.match(page,/crew-taboo-scoreboard/);
  assert.match(page,/role="progressbar"/);
@@ -29,7 +29,8 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
  assert.match(page,/matchTabooGuess\(card,value\)/);
  assert.match(page,/onSubmit=\{handleSubmit\}/);
  assert.match(page,/setRevealed\(true\)/);
- assert.match(page,/跳過這題/);
+ assert.match(page,/t\("playHub\.taboo\.skip",\{n:skips\}\)/);
+ assert.match(JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/home.json"),"utf8")).playHub.taboo.skip,/跳過這題/);
 });
 
 test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{

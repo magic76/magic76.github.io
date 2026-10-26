@@ -3,6 +3,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const {stripTypeScriptTypes}=require("node:module");
+const zhHome=()=>JSON.parse(fs.readFileSync(path.join(__dirname,"../web-spa/src/i18n/locales/zh-TW/home.json"),"utf8"));
 const game=name=>fs.readFileSync(path.join(__dirname,"../web-spa/src/games",name),"utf8");
 const compile=source=>stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
 const makeStorage=()=>{const data=new Map();return {getItem:key=>data.get(key)||null,setItem:(key,value)=>data.set(key,value)};};
@@ -41,8 +42,9 @@ test("daily mode has a primary input before the optional voice dock",()=>{
 test("offline Taboo never automatically scores keyword matches as a friend's AI guess",()=>{
  const source=game("TabooGamePage.tsx");
  assert.match(source,/const clueIsClear=friendGuesses/);
- assert.match(source,/自評完成這題/);
- assert.match(source,/沒有 AI 猜詞/);
+ assert.match(source,/t\("playHub\.taboo\.selfScore"\)/);
+ assert.match(zhHome().playHub.taboo.selfScore,/自評完成這題/);
+ assert.match(zhHome().playHub.taboo.welcome.zhSelfBody,/沒有 AI 猜詞/);
  assert.doesNotMatch(source,/離線關鍵字判定：/);
  assert.match(source,/generateTabooGuess/);
  assert.match(source,/parseTabooLiveGuess/);

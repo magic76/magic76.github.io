@@ -20,10 +20,10 @@ test("mini-games keep Live mounted outside settings and restrict destructive cha
  const number=game("NumberGamePage.tsx");
  assert.match(shell,/<GamePanel title="選擇 Crew 朋友"/);
  assert.match(taboo,/disabled=\{phase==="playing"\}/);
- assert.match(taboo,/<GamePanel label="玩法"/);
+ assert.match(taboo,/<GamePanel label=\{t\("playHub\.number\.howTo"\)\}/);
  assert.match(taboo,/<MiniGameVoice/);
  assert.match(number,/history\.slice\(-3\)/);
- assert.match(number,/<GamePanel label="完整紀錄"/);
+ assert.match(number,/<GamePanel label=\{t\("playHub\.number\.fullLog"\)\}/);
  assert.match(number,/window\.confirm/);
 });
 test("game voice stays reachable on mobile without hiding the play surface",()=>{
