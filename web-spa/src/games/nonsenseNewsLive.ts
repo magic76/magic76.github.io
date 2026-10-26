@@ -50,17 +50,21 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
  await ensureLive();
  if(!window.CrewLive)throw Error("Gemini Live unavailable");
  const round=new NewsRoundTracker(totalRounds);
- let session:LiveSession|null=null,closed=false,modelSpeaking=false,voiceDraftActive=false,finaleWait=false;
- let pendingUnmute=false,eventsThisBeat=0;
+ let session:LiveSession|null=null,closed=false,modelSpeaking=false,voiceDraftActive=false;
+ let pendingUnmute=false,eventsThisBeat=0,finalTurnComplete=false,finalTurnHadAudio=false,finaleRecoverySent=false,finaleNarrationSent=false;
  let introReady=false,introSceneSeen=false,introAudioStarted=false,introReleasing=false;
  let introTimer:ReturnType<typeof setTimeout>|undefined;
  let introTimeout:ReturnType<typeof setTimeout>|undefined;
- let pendingFinaleScene:NewsScene|null=null;
+ let pendingFinaleScene:NewsScene|null=null,lastFinaleScene:NewsScene|null=null;
  let cleanupTimer:ReturnType<typeof setTimeout>|undefined;
+ let finaleTimer:ReturnType<typeof setTimeout>|undefined;
+ let finaleNudgeTimer:ReturnType<typeof setTimeout>|undefined;
  const stop=()=>{
   if(closed)return;
   closed=true;
   if(cleanupTimer)clearTimeout(cleanupTimer);
+  if(finaleTimer)clearTimeout(finaleTimer);
+  if(finaleNudgeTimer)clearTimeout(finaleNudgeTimer);
   if(introTimer)clearTimeout(introTimer);
   if(introTimeout)clearTimeout(introTimeout);
   const old=session;session=null;
@@ -88,17 +92,50 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
  // was buffered during connection. Send one explicit game-owned opening instead.
  // Keep the microphone muted until the opening has actually finished playing.
  const openingInstruction="OPENING ONLY — begin the fictional news show now. Call render_scene with type breaking, introduce the selected headline aloud, then ask the FIRST question and present 2 or 3 absurd choices. This is an internal opening cue, NOT a player answer. Do not advance the story or count any reply.";
+ // Rendering the last scene is not enough: Gemini may send a tool-only finale.
+ // Keep the voice session alive until the finale is both shown and spoken.
  const finish=()=>{
-  if(!round.beginFinishing())return;
+  if(!round.hasFinale||!finalTurnHadAudio||!round.beginFinishing())return;
   const current=session;
   void (async()=>{
-   try{await current?.waitForPlaybackDrain(10000);}catch{/* closed audio */}
-   // Function/tool frames can arrive immediately after a transcript-complete frame.
-   await new Promise<void>(resolve=>setTimeout(resolve,700));
-   if(closed)return;
-   if(!round.hasFinale){fail("AI did not deliver the final news scene; switching to the text director.");return;}
+   try{await current?.waitForPlaybackDrain(14000);}catch{/* Session may have closed */}
+   if(closed||current!==session)return;
    events.onDone();stop();
   })();
+ };
+ const armFinale=()=>{
+  if(closed||finaleTimer)return;
+  // Do not let stray microphone input interrupt the host's sign-off.
+  if(session&&!session.micMuted)session.toggleMic();
+  finaleTimer=setTimeout(()=>fail("AI did not finish speaking the ending; switching to the text director."),30000);
+ };
+ const requestFinaleNarration=()=>{
+  if(closed||!round.canShowFinale||!session)return;
+  let cue="";
+  if(lastFinaleScene){
+   if(finaleNarrationSent)return;
+   finaleNarrationSent=true;
+   // Rendered finale is authoritative; never rewrite the player's outcome.
+   cue="ENDING VOICE ONLY — NOT a player reply. The ending is already on screen. Say its actual consequence ALOUD NOW in "+(zh?"Traditional Chinese":"English")+" as a lively news anchor signing off. Do not call tools, ask questions or change the outcome. Headline: "+JSON.stringify(lastFinaleScene.headline)+". Ending: "+JSON.stringify(lastFinaleScene.ending);
+  }else{
+   if(finaleRecoverySent)return;
+   finaleRecoverySent=true;
+   cue="ENDING RECOVERY — NOT a player reply. All "+totalRounds+" player replies are complete. Call render_scene ONCE with type finale, outcome good or bad based on the player's actions; then ANNOUNCE the final consequence ALOUD in "+(zh?"Traditional Chinese":"English")+". Do not ask another question.";
+  }
+  if(!session.sendText(cue))fail("Could not request the spoken news ending.");
+ };
+ const checkFinale=()=>{
+  if(closed||!round.canShowFinale)return;
+  armFinale();
+  if(round.hasFinale&&finalTurnHadAudio){finish();return;}
+  if((round.hasFinale?finaleNarrationSent:finaleRecoverySent)||finaleNudgeTimer)return;
+  // Allow tool frames from this turn to land before requesting a voice follow-up.
+  finaleNudgeTimer=setTimeout(()=>{
+   finaleNudgeTimer=undefined;
+   if(closed)return;
+   if(round.hasFinale&&finalTurnHadAudio){finish();return;}
+   requestFinaleNarration();
+  },900);
  };
  session=new window.CrewLive.Session({
   system,openingPrompt:"",
@@ -123,6 +160,10 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
      eventsThisBeat=0;
      if(!introReady)introSceneSeen=true;
      events.onScene(scene);
+     if(scene.type==="finale"){
+      lastFinaleScene=scene;
+      if(finalTurnComplete)checkFinale();
+     }
      return {ok:true};
     }
     const kind=directorToolKind(call.name);
@@ -170,11 +211,11 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
     events.onPlayerTurn(answer,(turn.output||"").trim());
    }
    if(pendingFinaleScene&&round.canShowFinale&&round.acceptFinale()){
-    eventsThisBeat=0;events.onScene(pendingFinaleScene);pendingFinaleScene=null;
+    eventsThisBeat=0;lastFinaleScene=pendingFinaleScene;events.onScene(pendingFinaleScene);pendingFinaleScene=null;
    }
-   if(round.count>=totalRounds&&!finaleWait){finaleWait=true;finish();}
+   if(round.canShowFinale)checkFinale();
   },
-  onTurnComplete:()=>{
+  onTurnComplete:turn=>{
    if(closed)return;
    if(!introReady){
     if(introSceneSeen&&introAudioStarted&&!introReleasing){
@@ -198,12 +239,16 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
      try{await current?.waitForPlaybackDrain(9000);}catch{/* Audio closed */}
      if(closed)return;
      round.endChoice();
-     if(pendingUnmute&&current?.micMuted)current.toggleMic();
+     if(pendingUnmute&&!round.canShowFinale&&current?.micMuted)current.toggleMic();
      pendingUnmute=false;
      events.onChoiceBusy(false);
     })();
    }
-   if(round.count>=totalRounds&&!finaleWait){finaleWait=true;finish();}
+   if(round.canShowFinale){
+    finalTurnComplete=true;
+    finalTurnHadAudio=finalTurnHadAudio||Boolean((turn as typeof turn&{hadAudio?:boolean}).hadAudio);
+    checkFinale();
+   }
   },
   onError:error=>fail(error?.message||"Live session failed"),
   onTerminal:()=>fail("Live session disconnected")
@@ -227,6 +272,7 @@ export async function startNonsenseNewsLive(topic:NonsenseTopic,lang:NonsenseLan
     return false;
    }
    if(!round.acceptChoice(selected))return false;
+   if(round.canShowFinale)armFinale();
    pendingUnmute=!wasMuted;
    events.onChoiceBusy(true);
    events.onPlayerTurn(selected,"");
