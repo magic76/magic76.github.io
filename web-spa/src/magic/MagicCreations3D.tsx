@@ -59,7 +59,7 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{p
   <group ref={detailRef}>
    {showAccents&&<MagicPartAccents3D part={part}/>}
    {showIdentity&&<MagicPartIdentity3D part={part} animated={animated}/>}
-   {autoFace&&<MagicCuteFace3D front={part.shape==="sphere"?.64:part.shape==="capsule"?.39:.56} animated={animated} seed={part.y*9} scale={.82}/>}
+   {autoFace&&<MagicCuteFace3D front={part.shape==="sphere"?.64:part.shape==="capsule"?.39:.56} animated={animated} seed={part.y*9} scale={Math.max(.82,Math.min(1.15,part.size))}/>}
   </group>
  </group>;
 }
@@ -77,12 +77,13 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const groundClearance=useMemo(()=>creation.blueprint?.kind==="dragon"?.22:creation.blueprint?.1:creationGroundClearance(creation.parts),[creation.parts,creation.blueprint]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
  const autoFaceIndex=useMemo(()=>creation.parts.some(p=>p.detail==="face")?-1:creation.parts.reduce((best,p,i,arr)=>
-  (["sphere","box","capsule"].includes(p.shape)&&(!arr[best]||p.y+p.size>arr[best].y+arr[best].size))?i:best,-1),[creation.parts]);
+  (["sphere","box","capsule"].includes(p.shape)&&(!arr[best]||p.size*(p.width??1)*(p.height??1)>arr[best].size*(arr[best].width??1)*(arr[best].height??1)))?i:best,-1),[creation.parts]);
  const modelScale=useMemo(()=>{
   if(creation.blueprint)return 1;
-  let low=Infinity,high=-Infinity;
-  for(const p of creation.parts){const y=p.y;const radius=p.size*(p.height??1)*.8;low=Math.min(low,y-radius);high=Math.max(high,y+radius)}
-  return Number.isFinite(high-low)&&high-low>2.2?2.2/(high-low):1;
+  let low=Infinity,high=-Infinity,wide=0;
+  for(const p of creation.parts){const y=p.y;const radius=p.size*(p.height??1)*.8;low=Math.min(low,y-radius);high=Math.max(high,y+radius);wide=Math.max(wide,Math.abs(p.x)+p.size*(p.width??1)*.7,Math.abs(p.z)+p.size*(p.depth??1)*.7)}
+  const tall=Number.isFinite(high-low)?high-low:0;
+  return Math.min(1,tall>0?2.7/tall:1,wide>0?2.0/wide:1);
  },[creation.parts,creation.blueprint]);
  const pivots=useMemo(()=>creation.parts.map(magicPartPivot),[creation.parts]);
  const origin=useMemo(()=>{
@@ -119,8 +120,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    current.z+(desiredZ-current.z)*alpha);
   // Chibi faces carry the charm: non-spinning creations turn (damped) to face
   // the viewer, with a small walk/idle sway on top.
-  if(creation.motion==="spin"&&animated)base.current.rotation.y=t*.55;
-  else{
+  {
    const face=Math.atan2(camera.position.x-current.x,camera.position.z-current.z)+
     (!animated?0:creation.motion==="walk"?Math.sin(t*.3)*.18:creation.motion==="still"?Math.sin(t*.27)*.08:0);
    const turn=Math.atan2(Math.sin(face-base.current.rotation.y),Math.cos(face-base.current.rotation.y));
@@ -176,8 +176,8 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    const joint=part.joint??"fixed";
    element.rotation.set(
     active&&joint==="hinge"?swing*.38*(creation.motion==="walk"?1.35:1):
-     active&&joint==="wheel"?tempo*3:0,
-    (1-phase)*(i+1)*1.6+(active&&joint==="tail"?swing*.46:0),
+     0,
+    (1-phase)*(i+1)*1.6+(active&&joint==="tail"?swing*.46:0)+(active&&joint==="wheel"?t*.78:0),
     active&&joint==="flap"?Math.sin(tempo*2.1)*(part.x<0?-1:1)*.62:0);
    element.scale.setScalar(size);
   });

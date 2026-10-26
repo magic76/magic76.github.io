@@ -731,17 +731,17 @@ export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"scu
       part("cylinder","glow","gold",0,.35,.5,.35),
       part("octahedron","metal","violet",0,2.65,0,.28)
      ]},
-    {label:color?"Stargazer tower":"觀星機械塔",idea:"a moving miniature observatory",
-     assembly:"stack",motion:"spin",mood:"mischievous",
+    {label:color?"Stargazer tower":"觀星機械塔",idea:"a smiling pocket observatory with a revolving star halo",
+     assembly:"stack",motion:"spin",mood:"curious",
      parts:[
-      part("box","stone","slate",0,.23,0,1.32),
-      part("cylinder","metal","ivory",0,.88,0,1),
-      part("cylinder","metal","azure",0,1.6,0,.72),
-      part("cone","metal","gold",0,2.28,0,.95),
-      part("torus","glow","violet",0,1.63,0,1.23,"wheel"),
-      part("sphere","glass","rose",.79,1.22,0,.45),
-      part("sphere","glass","mint",-.79,1.22,0,.45),
-      part("octahedron","glow","gold",0,2.9,0,.45)
+      part("box","wood","ivory",0,.22,0,.78),
+      part("capsule","stone","coral",0,1.12,0,1.24),
+      part("sphere","glass","gold",0,2.12,0,.85),
+      part("capsule","metal","ivory",.47,2.32,.38,.47),
+      part("torus","glow","violet",0,2.29,0,1.03,"wheel"),
+      part("sphere","glow","rose",-.77,1.53,.05,.31),
+      part("sphere","glow","mint",.77,1.53,.05,.31),
+      part("octahedron","glow","gold",0,2.85,0,.32)
      ]}
    ] as const;
    const design=designs[index];
@@ -755,12 +755,12 @@ export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"scu
     ...(index===0&&i===1?{detail:"face"}:
      index===0&&i===0?{detail:"core"}:
      index===0&&(i===2||i===3)?{detail:"vent"}:
-     index===2&&i===0?{detail:"rune"}:
-     index===2&&(i===1||i===2)?{detail:"vent"}:
+     index===2&&i===1?{detail:"face"}:
+     index===2&&i===3?{detail:"vent"}:
      index===1&&i===0?{detail:"rune"}:{}) ,
     ...(index===1?{profile:i===0?"organic":"smooth",width:i===0?1.22:.85,height:1.15,depth:1.1}:
-     i===0?{width:1.32,height:1.2,depth:1.13,profile:"armor"}:
-     i===1?{width:1.12,height:1.02,depth:.86,profile:"mechanical"}:
+     i===0?{width:index===2?.85:1.32,height:index===2?.62:1.2,depth:index===2?.85:1.13,profile:index===2?"smooth":"armor"}:
+     i===1?{width:1.12,height:1.02,depth:.86,profile:index===2?"smooth":"mechanical"}:
      p.shape==="leaf"?{width:1.28,height:.7,depth:.75,profile:"organic"}:
      p.shape==="capsule"?{width:.82,height:1.35,depth:.84,profile:"mechanical"}:
      {profile:"smooth"})
@@ -774,14 +774,14 @@ export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"scu
    const current=world.creations[world.creations.length-1];
    if(!current)return {ok:false,event:"entity-not-found",world};
    const wings:MagicCreatorPart[]=[
-    {shape:"leaf",material:"glass",color:"azure",x:-1.34,y:1.6,z:-.18,size:.68,joint:"flap",pivot:"right"},
-    {shape:"leaf",material:"glass",color:"rose",x:1.34,y:1.6,z:-.18,size:.68,joint:"flap",pivot:"left"}
+    {shape:"leaf",material:"glass",color:"mint",x:-1.23,y:1.55,z:-.18,size:.84,joint:"flap",pivot:"right",width:1.28,height:.85},
+    {shape:"leaf",material:"glass",color:"rose",x:1.23,y:1.55,z:-.18,size:.84,joint:"flap",pivot:"left",width:1.28,height:.85}
    ];
    const body=current.parts.length<=10?[...current.parts,...wings]:
     current.parts.map((p,i)=>i===0?{...p,shape:"octahedron" as const,size:p.size*.8}:p);
    return applyMagicCommand(world,"edit_magic_entity",{
     id:current.id,parts:body,assembly:"spiral",
-    motion:current.motion==="hover"?"spin":"hover",mood:"brave"
+    motion:current.motion,mood:"brave"
    },lang);
   }
   case "wonder":{

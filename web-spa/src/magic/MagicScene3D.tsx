@@ -20,7 +20,7 @@ import {MagicCastle3D} from "./MagicCastle3D";
 import {MagicPaths3D} from "./MagicPaths3D";
 import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
 import {MAGIC_TREES,MAGIC_DISTRICTS} from "./magicLayout";
-import {getMagicFocusPose,type MagicOccluder,type MagicSubject} from "./magicFocus";
+import {getMagicFocusPose,magicHiddenTrees,type MagicOccluder,type MagicSubject} from "./magicFocus";
 import {useMagicFrameloop} from "./useMagicFrameloop";
 
 // The renderer receives only the strictly validated world reducer output.
@@ -35,7 +35,7 @@ const ISLAND_Z_RADIUS=4.75*ISLAND_LINEAR_SCALE;
 
 // Keep animations deterministic and collision-safe without allocating new geometry
 // or React state per animation frame. All objects stay on the visible island ring.
-function SceneObject({object,position,animated,reacting,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
+function SceneObject({object,position,animated,reacting,focused,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;focused:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
  const initial=useRef<[number,number,number] | null>(null);
@@ -49,6 +49,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
   const time=clock.elapsedTime,seed=id*2.399;
   const roaming=creature&&object.x===undefined;
   const target:readonly [number,number]=roaming?
+   focused?[position[0]+Math.cos(time*.34+seed)*.75,position[1]+Math.sin(time*.34+seed)*.75]:
    ringPoint(time*(kind==="fox"?.21:kind==="dragon"?.12:.16)+seed,.76+(id%3)*.045):position;
   const current=root.current.position,from:[number,number]=[current.x,current.z];
   const obstacles:[number,number][]=[];
@@ -76,7 +77,7 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
    if(arrival.current===null)arrival.current=time;
    const progress=Math.min(1,(time-arrival.current)/3.15);
    const eased=1-Math.pow(1-progress,3);
-   bob.current.position.set(-4*(1-eased),3.8*(1-eased),-3*(1-eased));
+   bob.current.position.set((focused?-1.1:-4)*(1-eased),(focused?1.4:3.8)*(1-eased),(focused?-.8:-3)*(1-eased));
    bob.current.rotation.y=(1-eased)*1.5;
   }else if(animated&&kind==="fox")bob.current.position.y=Math.abs(Math.sin(time*5+seed))*.055;
   else bob.current.position.set(0,0,0);
@@ -273,7 +274,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
    radius=creation.blueprint?.kind==='dragon'?1.8:1.25;
   }
   const subject:MagicSubject={x,z,ground:islandSurfaceHeight(x,z),height,radius};
-  return getMagicFocusPose(subject,occluders,aspect);
+  return {...getMagicFocusPose(subject,occluders,aspect),subject};
  },[world.objects,world.creations,focusId,focusCreationId,occluders,aspect]);
  const cameraGoal=useMemo(()=>selected?new Vector3(...selected.camera):overviewPosition,[selected,overviewPosition]);
  const targetGoal=useMemo(()=>selected?new Vector3(...selected.target):new Vector3(0,1.05,0),[selected]);
@@ -293,7 +294,11 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   return dragon.x!==undefined&&dragon.z!==undefined?safeMagicAnchor(dragon.x,dragon.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
  },[world.objects]);
  const cinematicPose=useMemo(()=>getMagicFocusPose({x:dragonPoint[0],z:dragonPoint[1],ground:islandSurfaceHeight(...dragonPoint),height:3.8,radius:1.7},occluders,aspect),[dragonPoint,occluders,aspect]);
- const hiddenTrees=selected?.hiddenTrees??(cinematic&&world.cue==='dragon_arrival'?cinematicPose.hiddenTrees:[]);
+ // After a manual orbit, recompute which trees block the focused subject.
+ const manualOrbit=useRef(false);
+ const [manualHidden,setManualHidden]=useState<number[]|null>(null);
+ useEffect(()=>{manualOrbit.current=false;setManualHidden(null)},[focusId,focusCreationId,viewVersion]);
+ const hiddenTrees=manualHidden??selected?.hiddenTrees??(cinematic&&world.cue==='dragon_arrival'?cinematicPose.hiddenTrees:[]);
  const peerPositions=useRef(new Map<number,[number,number]>());
  useEffect(()=>{const active=new Set(world.objects.map(obj=>obj.id));for(const id of peerPositions.current.keys())if(!active.has(id))peerPositions.current.delete(id)},[world.objects]);
  useEffect(()=>{
@@ -307,7 +312,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   <MagicLighting3D world={world} colors={colors}/>
   <MagicTerrain3D colors={colors}/>
   <MagicPaths3D colors={colors}/>
-  <MagicGroundShadows3D/>
+  <MagicGroundShadows3D hidden={hiddenTrees} reducedMotion={reducedMotion}/>
    <MagicDistricts3D colors={colors} night={night}/>
   <MagicCastle3D colors={colors} night={night} ice={world.castle==="ice"}/>
   <BiomeLandmarks theme={world.theme} night={night}/>
@@ -316,7 +321,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
    const plot=PLOTS[obj.slot]??PLOTS[0];
    const [x,z]=obj.x!==undefined&&obj.z!==undefined?
     safeMagicAnchor(obj.x,obj.z):safeMagicAnchor(plot[0]/3.7,plot[1]/3.25);
-   return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion} reacting={world.adventureStep===3}
+   return <SceneObject key={obj.id} object={obj} position={[x,z]} animated={!reducedMotion} reacting={world.adventureStep===3} focused={focusId===obj.id}
     peers={peerPositions.current} worldObjects={world.objects}
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
@@ -327,7 +332,9 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue} overviewPosition={overviewPosition}
     focusCamera={new Vector3(...cinematicPose.camera)} point={dragonPoint}/>}
   <SceneEvents event={world.event} animated={!reducedMotion}/>
-  <OrbitControls ref={orbit} makeDefault enabled={!cinematic} onStart={()=>{scriptedView.current=false;}}
+  <OrbitControls ref={orbit} makeDefault enabled={!cinematic} onStart={()=>{scriptedView.current=false;manualOrbit.current=true;}}
+   onChange={()=>{if(!manualOrbit.current||!selected)return;const next=magicHiddenTrees(camera.position.toArray(),selected.subject,occluders);
+    setManualHidden(prev=>prev&&prev.join()===next.join()?prev:next);}}
    enablePan enableDamping={!reducedMotion} minDistance={focusId!==null||focusCreationId!==null?7:11} maxDistance={110}
    minPolarAngle={Math.PI*.18} maxPolarAngle={Math.PI*.46} target={[0,1.05,0]}/>
  </>;

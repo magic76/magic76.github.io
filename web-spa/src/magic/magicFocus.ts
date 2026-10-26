@@ -21,17 +21,11 @@ export function getMagicFocusPose(subject:MagicSubject,occluders:readonly MagicO
  const portrait=aspect<.75;
  // Chibi creatures are ~2 units tall; frame them by size instead of a fixed
  // distance so small subjects don't become specks (full distance from 3.4 up).
- const fit=Math.min(1,Math.max(.58,subject.height/3.4));
- const distance=(portrait?19.5:13)*fit;
- const elevation=(portrait?10.5:8.1)*fit;
+ const fit=Math.min(1,Math.max(.51,subject.height/3.4));
+ const distance=(portrait?15.5:12.7)*fit;
+ const elevation=(portrait?8.5:7.9)*fit;
  const lookY=subject.ground+Math.max(.95,subject.height*.53);
- const samples:readonly [number,number,number][]=[
-  [subject.x,subject.ground+.18,subject.z],
-  [subject.x,lookY,subject.z],
-  [subject.x,subject.ground+subject.height,subject.z],
-  [subject.x-subject.radius*.75,lookY,subject.z],
-  [subject.x+subject.radius*.75,lookY,subject.z],
- ];
+ const samples=focusSamples(subject);
  const heading=Math.atan2(10.6,7.5);
  let best:number[]=[subject.x+7.5,lookY+elevation,subject.z+10.6];
  let bestScore=Infinity;
@@ -50,11 +44,20 @@ export function getMagicFocusPose(subject:MagicSubject,occluders:readonly MagicO
   const score=blocked+penalty;
   if(score<bestScore){bestScore=score;best=cam;}
  }
- const hiddenTrees:number[]=[];
+ return {camera:best as [number,number,number],target:[subject.x,lookY,subject.z],hiddenTrees:magicHiddenTrees(best,subject,occluders)};
+}
+function focusSamples(subject:MagicSubject):[number,number,number][]{
+ const lookY=subject.ground+Math.max(.95,subject.height*.53);
+ return [[subject.x,subject.ground+.18,subject.z],[subject.x,lookY,subject.z],[subject.x,subject.ground+subject.height,subject.z],
+  [subject.x-subject.radius*.75,lookY,subject.z],[subject.x+subject.radius*.75,lookY,subject.z]];
+}
+/** Trees between an arbitrary camera (e.g. after a manual orbit) and the subject. */
+export function magicHiddenTrees(camera:readonly number[],subject:MagicSubject,occluders:readonly MagicOccluder[]):number[]{
+ const samples=focusSamples(subject),hidden:number[]=[];
  for(const o of occluders){
   if(o.kind!=='tree'||o.index===undefined)continue;
   const near=Math.hypot(o.x-subject.x,o.z-subject.z)<1.9+subject.radius*.3;
-  if(near||samples.some(p=>magicOccludes(best,p,o)))hiddenTrees.push(o.index);
+  if(near||samples.some(p=>magicOccludes(camera,p,o)))hidden.push(o.index);
  }
- return {camera:best as [number,number,number],target:[subject.x,lookY,subject.z],hiddenTrees};
+ return hidden;
 }
