@@ -4,6 +4,7 @@ import {RoundedBox} from "@react-three/drei";
 import {Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
 import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
+import {magicCreationSites} from "./magicLayout";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
 import {MagicCuteFace3D,MagicPartIdentity3D} from "./MagicPartIdentity3D";
 import {MagicDragonModel3D,MagicFoxModel3D,MagicRobotModel3D} from "./MagicProceduralLife3D";
@@ -63,8 +64,8 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{p
   </group>
  </group>;
 }
-function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation;
- creations:MagicCreation[];animated:boolean;onSelect:(id:number)=>void}){
+function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
+ site:[number,number];animated:boolean;onSelect:(id:number)=>void}){
  const base=useRef<Group>(null);
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
@@ -73,7 +74,6 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
  const linkDirection=useMemo(()=>new Vector3(),[]);
  const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
- const owner=creations.find(c=>c.id===creation.friendOf);
  const groundClearance=useMemo(()=>creation.blueprint?.kind==="dragon"?.22:creation.blueprint?.1:creationGroundClearance(creation.parts),[creation.parts,creation.blueprint]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
  const autoFaceIndex=useMemo(()=>creation.parts.some(p=>p.detail==="face")?-1:creation.parts.reduce((best,p,i,arr)=>
@@ -86,13 +86,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   return Math.min(1,tall>0?2.7/tall:1,wide>0?2.0/wide:1);
  },[creation.parts,creation.blueprint]);
  const pivots=useMemo(()=>creation.parts.map(magicPartPivot),[creation.parts]);
- const origin=useMemo(()=>{
-  if(owner){
-   const [x,z]=safeMagicAnchor(owner.x,owner.z);
-   return [x+(creation.id%2===0?1.7:-1.7),z-.15] as const;
-  }
-  return safeMagicAnchor(creation.x,creation.z);
- },[owner?.x,owner?.z,creation.x,creation.z,creation.id]);
+ const origin=site;
  // Each part starts outside the silhouette or under ground and converges to
  // its AI-defined target. No fixed character skeletons or prefab models.
  useFrame(({clock,camera},delta)=>{
@@ -102,8 +96,11 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   // GPU visibility only, no per-frame React setState or geometry allocations.
   const showDetail=base.current.position.distanceToSquared(camera.position)<30*30;
   for(const node of detailGroups.current)if(node)node.visible=showDetail;
-  if(started.current===null)started.current=clock.elapsedTime;
-  const elapsed=clock.elapsedTime-started.current;
+  // Age from frame deltas, not clock.elapsedTime: R3F resets the clock to 0
+  // whenever the off-screen pause (frameloop "never") resumes, which used to
+  // replay the whole assembly after scrolling back to the island.
+  started.current=(started.current??0)+Math.min(delta,.25);
+  const elapsed=started.current;
   const completion=animated?Math.min(1,elapsed/ASSEMBLY_SECONDS):1;
   const assembled=ease(Math.max(0,(completion-.82)/.18));
   const t=clock.elapsedTime+creation.seed*.0033;
@@ -191,7 +188,8 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    if(!from||!to||part.connectTo===undefined){rod.visible=false;return}
    linkDirection.subVectors(to.position,from.position);
    const length=linkDirection.length();
-   rod.visible=length>.3&&(!animated||completion>.54);
+   // Hairline rods are sub-pixel at overview distance; skip their draws there.
+   rod.visible=showDetail&&length>.3&&(!animated||completion>.54);
    if(!rod.visible)return;
    linkMidpoint.copy(from.position).addScaledVector(linkDirection,.5);
    rod.position.copy(linkMidpoint);
@@ -240,6 +238,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
 }
 export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicCreation[];
  animated:boolean;onSelect:(id:number)=>void}){
+ const sites=useMemo(()=>magicCreationSites(creations,safeMagicAnchor),[creations]);
  return <group>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
-  creations={creations} animated={animated} onSelect={onSelect}/>)}</group>;
+  site={sites.get(c.id)??safeMagicAnchor(c.x,c.z)} animated={animated} onSelect={onSelect}/>)}</group>;
 }

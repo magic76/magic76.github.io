@@ -19,7 +19,7 @@ import {MagicForest3D,MagicDistricts3D} from "./MagicScenery3D";
 import {MagicCastle3D} from "./MagicCastle3D";
 import {MagicPaths3D} from "./MagicPaths3D";
 import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
-import {MAGIC_TREES,MAGIC_DISTRICTS} from "./magicLayout";
+import {MAGIC_TREES,MAGIC_DISTRICTS,magicCreationSites} from "./magicLayout";
 import {getMagicFocusPose,magicHiddenTrees,type MagicOccluder,type MagicSubject} from "./magicFocus";
 import {useMagicFrameloop} from "./useMagicFrameloop";
 
@@ -74,8 +74,8 @@ function SceneObject({object,position,animated,reacting,focused,peers,worldObjec
   }
   if(!bob.current)return;
   if(animated&&kind==="dragon"){
-   if(arrival.current===null)arrival.current=time;
-   const progress=Math.min(1,(time-arrival.current)/3.15);
+   arrival.current=(arrival.current??0)+Math.min(delta,.25);// delta age survives clock resets
+   const progress=Math.min(1,arrival.current/3.15);
    const eased=1-Math.pow(1-progress,3);
    bob.current.position.set((focused?-1.1:-4)*(1-eased),(focused?1.4:3.8)*(1-eased),(focused?-.8:-3)*(1-eased));
    bob.current.rotation.y=(1-eased)*1.5;
@@ -211,8 +211,8 @@ function MagicCinematic({cue,point,overviewPosition,focusCamera}:{cue:NonNullabl
  const destination=useMemo(()=>cue==="dragon_arrival"?focusCamera.clone():new Vector3(4.4,6.9,8.2),[cue,focusCamera]);
  const overview=overviewPosition;
  useFrame(({clock,camera},delta)=>{
-  if(started.current===null)started.current=clock.elapsedTime;
-  const elapsed=clock.elapsedTime-started.current;
+  started.current=(started.current??0)+Math.min(delta,.25);// clock resets on resume
+  const elapsed=started.current;
   const smooth=Math.min(1,delta*2.5);
   camera.position.lerp(elapsed>2.3?overview:destination,smooth);
   camera.lookAt(cue==="dragon_arrival"?point[0]:0,cue==="dragon_arrival"?2.4:2.7,cue==="dragon_arrival"?point[1]:0);
@@ -267,9 +267,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
    height=focus.kind==='dragon'?3:1.8;
   }
   if(creation){
-   const owner=world.creations.find(c=>c.id===creation.friendOf);
-   if(owner){[x,z]=safeMagicAnchor(owner.x,owner.z);x+=creation.id%2===0?1.7:-1.7;z-=.15;}
-   else [x,z]=safeMagicAnchor(creation.x,creation.z);
+   [x,z]=magicCreationSites(world.creations,safeMagicAnchor).get(creation.id)??safeMagicAnchor(creation.x,creation.z);
    height=creation.blueprint?.kind==='dragon'?2.2:creation.blueprint?2:2.2;
    radius=creation.blueprint?.kind==='dragon'?1.8:1.25;
   }
