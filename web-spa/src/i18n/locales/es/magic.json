@@ -146,5 +146,9 @@
   "sculpted": "esculpido",
   "{{label}} has arrived": "¡Llegó {{label}}!",
   "· your magic guide": "· tu guía mágica",
-  "“What wonderful thing should happen to our island?”": "«¿Qué maravilla debería ocurrir hoy en nuestra isla?»"
+  "“What wonderful thing should happen to our island?”": "«¿Qué maravilla debería ocurrir hoy en nuestra isla?»",
+  "Offline wishes use island magic; connect Lumi for full creativity": "Sin conexión, la magia de la isla crea tus deseos; conecta con Lumi para imaginar más",
+  "Magic sound on": "Sonido mágico activado",
+  "Magic sound off": "Sonido mágico desactivado",
+  "Try a different wish": "Prueba otro deseo"
 }
