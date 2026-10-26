@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Accueil",
     "heading": "À quoi jouer avec vos amis Crew ?",
-    "intro": "Les jeux de plateau, 1A2B et Taboo se jouent par écrit sans clé API. 20 Questions et Mystères nécessitent la voix Gemini.",
+    "intro": "Choisissez un ami Crew et jouez ensemble : jeux de plateau, défis de chiffres, jeux de mots ou mystères à voix haute.",
     "voiceRequired": "Voix Gemini requise",
     "offlineOptional": "Hors ligne · voix facultative",
-    "footer": "Jouez aux jeux de plateau, à 1A2B et à Taboo hors ligne, par écrit. La voix nécessite une clé Gemini et un micro.",
     "games": {
       "friend-gomoku": {
         "title": "Gomoku",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Décris une fois, ton ami IA devine une fois ; les règles décident du score.",
       "noteDirectNoKey": "Sans clé, c’est un entraînement autoévalué ; l’IA ne devine pas.",
       "noteLive": "Live ne gère que la voix et les répliques du personnage ; les règles hors ligne décident du score et rien n’est enregistré dans ton historique avec l’ami."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Les jeux de plateau, 1A2B et Taboo se jouent par écrit sans clé. Les conversations avec l’IA et les jeux vocaux nécessitent une clé Gemini ; la voix nécessite aussi un micro.",
+    "voiceDock": {
+      "expand": "Développer le panneau vocal",
+      "collapse": "Réduire le panneau vocal"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Gomoku",
+      "intro": "Jouez au Gomoku contre l’ordinateur et activez la voix de votre ami Crew dès que vous voulez discuter."
     }
   },
   "timeline": {

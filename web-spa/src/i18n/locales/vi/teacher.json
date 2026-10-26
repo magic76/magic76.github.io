@@ -233,7 +233,8 @@
       "sports": "Thể thao",
       "tech": "Công nghệ",
       "social": "Giao tiếp xã hội"
-    }
+    },
+    "kicker": "Từ vựng"
   },
   "course": {
     "nextLesson": "Bài học tiếp theo",
@@ -244,12 +245,13 @@
     "courseMap": "Sơ đồ khóa học",
     "progress": "Tiến độ khóa học",
     "title": "Luyện hội thoại thực tế qua nhiệm vụ",
-    "intro": "Theo lộ trình học của ứng dụng: 3 lộ trình, 10 đơn vị, 31 bài học. Hoàn thành bài để mở khóa bài tiếp theo.",
+    "intro": "Ba chủ đề (du lịch, công việc và trò chuyện hằng ngày) với 10 đơn vị và 31 bài học, luyện tập từng bước qua tình huống thực tế. Hoàn thành một bài để mở khóa bài tiếp theo.",
     "stars": "Tổng số sao",
     "review": "Luyện lại",
     "start": "Bắt đầu",
     "locked": "Bị khóa",
-    "best": "Cao nhất {{score}}"
+    "best": "Cao nhất {{score}}",
+    "kicker": "Bài học theo tình huống"
   },
   "continue": {
     "next": "Bước tiếp theo hôm nay",

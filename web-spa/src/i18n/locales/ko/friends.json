@@ -106,5 +106,6 @@
     "error": "음성 연결 문제",
     "preparing": "대화 준비 중",
     "free": "자유 대화"
-  }
+  },
+  "kicker": "Crew 친구"
 }

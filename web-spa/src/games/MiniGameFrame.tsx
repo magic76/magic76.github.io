@@ -12,6 +12,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
+import {GameVoiceDock} from "./GameVoiceDock";
 import "./crewPlay.css";
 import "./miniGames.css";
 
@@ -38,7 +39,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
  return <div className="crew-play-page crew-mini-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
    <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
-   <span className="crew-play-eyebrow">CREW PLAY</span>
+   <span className="crew-play-eyebrow">{t("playHub.eyebrow")}</span>
    <h1>{taboo?t("playHub.games.taboo.title"):kind==="court"?t("playHub.mini.courtTitle"):t("playHub.games.1a2b.title")}</h1>
    <p>{taboo?(geminiKey()?(chinese?t("playHub.mini.tabooDescChinese"):t("playHub.mini.tabooDescEnglish")):t("playHub.mini.tabooDescNoKey")):kind==="court"?t("playHub.mini.courtDesc"):t("playHub.mini.numberDesc")}</p>
   </header>
@@ -106,7 +107,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
   if(live.sendText("[VERIFIED GAME] "+cue.text))deliveredRef.current=cue.id;
  },[cue,live.state,live.sendText]);
  const hasKey=typeof window!=="undefined"&&Boolean(geminiKey());
- return <section className="crew-mini-voice" aria-label={t("playHub.mini.voiceRegion")}>
+ return <GameVoiceDock className="crew-mini-voice" label={t("playHub.mini.voiceRegion")}>
   <div className="crew-mini-voice-settings"><GamePanel label={t("playHub.mini.voiceSettings")} title={t("playHub.mini.voiceSettings")}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/></GamePanel></div>
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
@@ -120,5 +121,5 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
    <Link className="crew-mini-key-link" to="/settings">{t("playHub.mini.keyLink")}</Link>}
   {live.state==="error"?<p className="crew-mini-error" role="alert">{t("playHub.mini.voiceError",{status:live.status})}</p>:null}
   <small>{directGuess?(hasKey?t("playHub.mini.noteDirectKey"):t("playHub.mini.noteDirectNoKey")):t("playHub.mini.noteLive")}</small>
- </section>;
+ </GameVoiceDock>;
 }

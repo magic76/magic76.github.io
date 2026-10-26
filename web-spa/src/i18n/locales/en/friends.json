@@ -106,5 +106,6 @@
     "error": "Voice connection problem",
     "preparing": "Getting the chat ready",
     "free": "Free chat"
-  }
+  },
+  "kicker": "Crew Friends"
 }

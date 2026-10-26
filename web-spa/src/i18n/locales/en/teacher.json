@@ -233,7 +233,8 @@
       "sports": "Sports",
       "tech": "Tech",
       "social": "Social"
-    }
+    },
+    "kicker": "Vocabulary"
   },
   "course": {
     "nextLesson": "Continue learning",
@@ -244,12 +245,13 @@
     "courseMap": "Course map",
     "progress": "Course progress",
     "title": "Practice real conversations through missions",
-    "intro": "Follow the app's learning path: 3 tracks, 10 units, 31 lessons. Complete each lesson to unlock the next.",
+    "intro": "Three themes (travel, work and everyday small talk) across 10 units and 31 lessons, practised step by step in real situations. Finish a lesson to unlock the next one.",
     "stars": "Total stars",
     "review": "Practice again",
     "start": "Start",
     "locked": "Locked",
-    "best": "Best {{score}}"
+    "best": "Best {{score}}",
+    "kicker": "Scenario lessons"
   },
   "continue": {
     "next": "Your next step today",

@@ -14,6 +14,7 @@ import {matchesBoardNarration} from "./boardVoiceTurn";
 import {trackUsageEvent} from "../analytics/usage";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
+import {GameVoiceDock} from "./GameVoiceDock";
 import {friendGameReaction} from "./friendGameReaction";
 import "./games.css";
 
@@ -39,7 +40,7 @@ type WaitingAiMove={
 
 export function FriendGomokuPage(){
   useEffect(()=>{trackUsageEvent("game_open","gomoku")},[]);
-  const {i18n}=useTranslation();
+  const {t,i18n}=useTranslation("home");
   const english=i18n.resolvedLanguage?.startsWith("en")||false;
   const language=useTeacherStore(state=>state.targetLanguage);
   const nativeLanguage=useTeacherStore(state=>state.nativeLanguage);
@@ -264,10 +265,10 @@ export function FriendGomokuPage(){
 
   return <div className="friend-gomoku-page">
     <header className={`friend-gomoku-heading${gameStarted?" is-playing":""}`}>
-      <Link to="/teacher/roles?mode=friends" className="friend-gomoku-back">‹ <span>{english?"Crew Friends":"Crew 朋友"}</span></Link>
-      <span className="friend-gomoku-kicker">CREW PLAY · GOMOKU</span>
+      <Link to="/games" className="friend-gomoku-back">← <span>{t("playHub.allGames")}</span></Link>
+      <span className="friend-gomoku-kicker">{t("playHub.gomoku.eyebrow")}</span>
       <h1>{gameStarted?(english?`Gomoku with ${friend.name}`:`和 ${friend.name} 下五子棋`):(english?"A game with a friend":"和朋友下一局")}</h1>
-      {!gameStarted?<p>{english?"Play against the familiar Gomoku AI. Add your Crew Friend’s voice whenever you like.":"棋步沿用 Pocket Game 的五子棋 AI，隨時可以開啟 Crew 朋友語音陪玩。"}</p>:null}
+      {!gameStarted?<p>{t("playHub.gomoku.intro")}</p>:null}
     </header>
 
     {!gameStarted?<section className="friend-gomoku-setup">
@@ -314,13 +315,13 @@ export function FriendGomokuPage(){
         <span>{english?"Letters A–O → columns · Numbers 1–15 ↓ rows":"字母 A–O → 欄位 · 數字 1–15 ↓ 列數"}</span>
         {lastCoordinate?<strong>{english?"Last move":"上一手"}：{lastCoordinate}</strong>:null}
       </p>
-      <div className="friend-gomoku-voice-dock">
+      <GameVoiceDock className="friend-gomoku-voice-dock">
       <div className="friend-gomoku-companion">
         <FriendAvatar friend={friend} className={`friend-gomoku-avatar ${live.state==="speaking"?"is-speaking":""}`}/>
         <div className="friend-gomoku-companion-copy"><strong>{friend.name}</strong><GameSpeechBubble english={english} text={live.output|| (live.state==="listening"?english?"Listening while you play":"邊玩邊聽你說":english?"Start voice to let your friend join":"開啟語音，讓朋友加入對局")}/></div>
       </div>
       {live.state==="idle"||live.state==="ended"?<button className="friend-gomoku-start-voice" type="button" onClick={()=>void live.start()}>{english?"Turn on voice chat (optional)":"開啟語音陪玩（選用）"}</button>:<LiveControls live={live} interruptLabel={english?"Your turn · interrupt":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>}
-      </div>
+      </GameVoiceDock>
       {lastEvent?<p className="friend-gomoku-last-event" aria-live="polite">{lastEvent}</p>:null}
        {engine.moveHistory.length>0&&!["requesting-mic","connecting","listening","speaking"].includes(live.state)?<p className="friend-gomoku-last-event" aria-live="polite"><strong>{friend.name}：</strong>{friendGameReaction(friend.id,engine.winner?(engine.winner==="black"?"win":engine.winner==="white"?"lose":"challenge"):"progress",english?"en":"zh",engine.moveHistory.length)}</p>:null}
     </section>:null}
