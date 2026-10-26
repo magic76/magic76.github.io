@@ -1,16 +1,22 @@
 import{GeminiSetupNotice}from"../components/GeminiSetupNotice";
 import{useTranslation}from"react-i18next";
 import type{ReturnTypeOfLive}from"./types";
+import{liveStatusKey}from"./liveStatusText";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
 import "./gameVoiceCompact.css";
 
 function clock(ms:number){const s=Math.floor(ms/1000);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 
-export function LiveControls({live,interruptLabel="打斷老師",prominentInterrupt=false,onEnd,compact=false,english=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>;compact?:boolean;english?:boolean}){
+export function LiveControls({live,interruptLabel:customInterrupt,prominentInterrupt=false,onEnd,compact=false,english=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>;compact?:boolean;english?:boolean}){
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const error=live.state==="error";
- const {t}=useTranslation("settings");
+ const {t}=useTranslation(["voice","settings"]);
+ const voiceReady=useRouteNamespace("voice");
+ const interruptLabel=customInterrupt??t("controls.interruptTeacher");
+ const statusKey=liveStatusKey(live.status);
  // A missing key is a setup step, not a connection failure: show it neutrally and translated.
  const needsKey=error&&live.errorKind==="key";
+ if(!voiceReady)return null;
  if(compact&&active&&!error){
   const speaking=live.state==="speaking",listening=live.state==="listening";
   const stateText=speaking?(english?"Speaking":"朋友說話"):listening?(english?"Listening":"正在聆聽"):live.state==="connecting"||live.state==="requesting-mic"?(english?"Connecting":"連線中"):(english?"Finishing":"結束中");
@@ -34,34 +40,34 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
   </div>;
  }
  return <>
-  <div className={"live-status "+(error&&!needsKey?"error":"")} role="status">{needsKey?t("gemini.initialMissing"):live.status}</div>
+  <div className={"live-status "+(error&&!needsKey?"error":"")} role="status">{needsKey?t("gemini.initialMissing"):statusKey?t(statusKey):live.status}</div>
   {error?<div className="live-recovery">
    {live.errorKind==="key"?<GeminiSetupNotice force className="crew-gemini-setup-live"/>:
-    <button className="live-btn" onClick={()=>void live.start()}>{live.errorKind==="mic"?"重新允許麥克風":"重新連線"}</button>}
-   {live.errorKind==="mic"&&<small>若瀏覽器已封鎖麥克風，請先在網址列或瀏覽器網站設定中允許。</small>}
-   {live.errorKind==="network"&&<small>會保留目前頁面；網路恢復後可直接重新連線。</small>}
+    <button className="live-btn" onClick={()=>void live.start()}>{live.errorKind==="mic"?t("controls.retryMic"):t("controls.reconnect")}</button>}
+   {live.errorKind==="mic"&&<small>{t("controls.micBlocked")}</small>}
+   {live.errorKind==="network"&&<small>{t("controls.networkHint")}</small>}
   </div>:
-  !active?<div className="live-controls crew-voice-controls"><button className="live-btn" onClick={()=>void live.start()}>{live.state==="ended"?"再開始":"開始"}</button></div>:
+  !active?<div className="live-controls crew-voice-controls"><button className="live-btn" onClick={()=>void live.start()}>{live.state==="ended"?t("controls.restart"):t("controls.start")}</button></div>:
   <div className="crew-voice-dock"><div className="crew-voice-dock-main">{prominentInterrupt&&<button type="button" className="live-manual-interrupt" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"} aria-label={interruptLabel}>{interruptLabel}</button>}<div className="live-callbar">
    <div className="live-timer">{clock(live.durationMs)}</div>
    <div className="live-call-actions">
-    <button className={"live-tool-btn "+(live.muted?"active":"")} onClick={live.toggleMute} disabled={live.state!=="listening"&&live.state!=="speaking"} aria-pressed={live.muted}>{live.muted?"開啟麥克風":"麥克風靜音"}</button>
+    <button className={"live-tool-btn "+(live.muted?"active":"")} onClick={live.toggleMute} disabled={live.state!=="listening"&&live.state!=="speaking"} aria-pressed={live.muted}>{live.muted?t("controls.unmute"):t("controls.mute")}</button>
     {!prominentInterrupt&&<button className="live-tool-btn" onClick={()=>live.interrupt()} disabled={live.state!=="speaking"}>{interruptLabel}</button>}
    </div>
-  </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?"整理中…":"結束"}</button></div>
-  <div className="live-audio-bar"><details className="live-audio-settings" aria-label="AI 播放音量">
-   <summary>AI 音量 · {live.volume}% <span aria-hidden="true">⌄</span></summary>
+  </div><button type="button" className="live-btn end crew-voice-end" onClick={()=>void (onEnd?onEnd():live.stop())} disabled={live.state==="ending"||live.state==="reporting"}>{live.state==="reporting"?t("controls.finishing"):t("controls.end")}</button></div>
+  <div className="live-audio-bar"><details className="live-audio-settings" aria-label={t("controls.volumeAria")}>
+   <summary>{t("controls.volumeSummary",{v:live.volume})} <span aria-hidden="true">⌄</span></summary>
    <div className="live-volume">
-    <span className="live-volume-label">AI 音量</span>
-    <button type="button" className="live-volume-step" aria-label="AI 音量降低 20%" onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
-    <input type="range" min="0" max="300" step="5" aria-label="調整 AI 播放音量" value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
-    <button type="button" className="live-volume-step" aria-label="AI 音量提高 20%" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
+    <span className="live-volume-label">{t("controls.volumeLabel")}</span>
+    <button type="button" className="live-volume-step" aria-label={t("controls.volumeDown")} onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
+    <input type="range" min="0" max="300" step="5" aria-label={t("controls.volumeRange")} value={live.volume} onChange={e=>live.setVolume(Number(e.target.value))}/>
+    <button type="button" className="live-volume-step" aria-label={t("controls.volumeUp")} onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
     <span className="live-volume-value">{live.volume}%{live.volume>100?" ↑":""}</span>
    </div>
-   <small className="live-audio-hint">按 −／＋ 快速調整 AI 聲音，或拖動滑桿精細調整；100% 以上會增強音量，請避免調得過大。</small>
+   <small className="live-audio-hint">{t("controls.volumeHint")}</small>
   </details>
-  <button type="button" className="live-volume-quick is-down" aria-label="AI 音量降低 20%" onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
-  <button type="button" className="live-volume-quick is-up" aria-label="AI 音量提高 20%" onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
+  <button type="button" className="live-volume-quick is-down" aria-label={t("controls.volumeDown")} onClick={()=>live.setVolume(Math.max(0,live.volume-20))} disabled={live.volume===0}>−</button>
+  <button type="button" className="live-volume-quick is-up" aria-label={t("controls.volumeUp")} onClick={()=>live.setVolume(Math.min(300,live.volume+20))} disabled={live.volume===300}>+</button>
   </div></div>}
  </>;
 }

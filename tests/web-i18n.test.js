@@ -13,7 +13,7 @@ function keys(value,prefix=""){
 }
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
- for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic","games","mate","lesson"]){
+ for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic","games","mate","lesson","voice"]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
   for(const value of [zh,en]){
@@ -203,9 +203,16 @@ test("Chat, Learn, Me hubs and progress card translate every visible UI field in
 test("route-scoped catalogs load with their route instead of the entry bundle",()=>{
  const index=read("web-spa/src/i18n/index.ts");
  const app=read("web-spa/src/App.tsx");
- assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson)\.json"/);
- assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson\}\.json"/);
- assert.match(app,/withNamespace\("games",import\("\.\/games\/TabooGamePage"\)\)/);
+ assert.match(index,/react:\{useSuspense:false,nsMode:"fallback"\}/,"multi-namespace useTranslation must fall back across namespaces");
+ assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice)\.json"/);
+ assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice\}\.json"/);
+ assert.match(app,/withNamespace\(\["games","voice"\],import\("\.\/games\/TabooGamePage"\)\)/);
  assert.match(app,/withNamespace\("mate",import\("\.\/mate\/MatePage"\)\)/);
- assert.match(app,/withNamespace\("lesson",import\("\.\/teacher\/LivePage"\)\)/);
+ assert.match(app,/withNamespace\(\["lesson","voice"\],import\("\.\/teacher\/LivePage"\)\)/);
+ // Every lazy route that renders LiveControls or DesktopLivePanel preloads the voice catalog.
+ for(const page of ["fortune/LivePage","friends/FriendLivePage","games/CrazyCourtPage","games/CrewPlayGamePage","games/FriendGomokuPage","games/NumberGamePage","games/TabooGamePage","story/LivePage","teacher/LivePage","teacher/PronunciationPage","teacher/TeacherBoardPage","teacher/TextbookPage","timeline/TimelineLivePage"]){
+  const at=app.indexOf('import("./'+page+'")');
+  assert.ok(at>0,page);
+  assert.match(app.slice(Math.max(0,at-40),at),/withNamespace\((\["\w+",)?"voice"\]?,$/,page+" must preload voice");
+ }
 });
