@@ -233,7 +233,8 @@
       "sports": "Sport",
       "tech": "Technik",
       "social": "Soziales"
-    }
+    },
+    "kicker": "Vokabeln"
   },
   "course": {
     "nextLesson": "Nächste Lektion",
@@ -244,12 +245,13 @@
     "courseMap": "Kursübersicht",
     "progress": "Kursfortschritt",
     "title": "Reale Gespräche anhand von Missionen üben",
-    "intro": "Folge dem Lernpfad der App: 3 Pfade, 10 Einheiten, 31 Lektionen. Schließe jede Lektion ab, um die nächste freizuschalten.",
+    "intro": "Drei Themen (Reisen, Beruf und Alltagsgespräche) in 10 Einheiten und 31 Lektionen – Schritt für Schritt in echten Situationen geübt. Schließe eine Lektion ab, um die nächste freizuschalten.",
     "stars": "Gesamtsterne",
     "review": "Erneut üben",
     "start": "Starten",
     "locked": "Gesperrt",
-    "best": "Bestwert {{score}}"
+    "best": "Bestwert {{score}}",
+    "kicker": "Situationslektionen"
   },
   "continue": {
     "next": "Dein nächster Schritt heute",

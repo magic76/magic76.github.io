@@ -106,5 +106,6 @@
     "error": "Problema con la conexión de voz",
     "preparing": "Preparando la conversación",
     "free": "Charla libre"
-  }
+  },
+  "kicker": "Amigos Crew"
 }

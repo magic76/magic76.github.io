@@ -25,6 +25,7 @@ import {GameSpeechBubble} from "./GameSpeechBubble";
 import {trackUsageEvent} from "../analytics/usage";
 import {friendGameReaction} from "./friendGameReaction";
 import {CrewPlaySamplePreview} from "./CrewPlaySamplePreview";
+import {GameVoiceDock} from "./GameVoiceDock";
 import "./crewPlay.css";
 
 type GameKind="connect4"|"reversi"|"twenty-questions"|"mystery";
@@ -52,7 +53,7 @@ export function CrewPlayGamePage(){
  return <div className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
    <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
-   <span className="crew-play-eyebrow">CREW PLAY</span>
+   <span className="crew-play-eyebrow">{t("playHub.eyebrow")}</span>
    <h1>{t("playHub.games."+game.id+".title")}</h1>
    <p>{t("playHub.games."+game.id+".desc")}</p>
   </header>
@@ -356,10 +357,10 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
    <div className={"crew-play-word-stage"+(!wordReady&&!roundEnded?" is-paused":"")} inert={!wordReady&&!roundEnded} aria-disabled={!wordReady&&!roundEnded}>
     <CrewWordGames key={round} kind={kind as "twenty-questions"|"mystery"} english={english} friendName={friend.name} item={question} caseFile={mystery} onEvent={onEvent} onNext={()=>{pending.current=null;setRoundEnded(false);setVoiceTurns([]);nextRound()}} onFinished={()=>setRoundEnded(true)} mysterySource={mysteryStatus} itemSource={questionStatus} voiceTurns={voiceTurns.filter(turn=>turn.round===round)}/>
    </div>:null}
-  {!isWord?<section className="crew-play-voice">
+  {!isWord?<GameVoiceDock className="crew-play-voice">
    <div className="crew-play-voice-person"><FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/><div><strong>{friend.name}</strong><GameSpeechBubble text={live.output||(english?"Let's play. Voice chat is optional.":"來玩吧！語音聊天可以自由開啟。")} english={english}/></div></div>
    {voiceActions}
    <small>{english?"You can play without a Gemini Key. Voice is only used during this game and is not saved to chat history or friend memories.":"不用 Gemini Key 也能玩；語音只用於這一局，不儲存到聊天歷史或朋友記憶。"}</small>
-  </section>:null}
+  </GameVoiceDock>:null}
  </div>;
 }

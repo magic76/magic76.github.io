@@ -233,7 +233,8 @@
       "sports": "運動",
       "tech": "科技",
       "social": "社交"
-    }
+    },
+    "kicker": "單字練習"
   },
   "course": {
     "nextLesson": "下一堂 · 接著學",
@@ -244,12 +245,13 @@
     "courseMap": "課程地圖",
     "progress": "課程進度",
     "title": "用任務練真實對話",
-    "intro": "沿用 App 的課程架構：3 個 Track、10 個 Unit、31 堂課；完成前一課才會解鎖下一課。",
+    "intro": "旅遊、職場、日常社交 3 大主題，共 10 個單元、31 堂課，用真實情境一步步練習；完成一堂課就會解鎖下一堂。",
     "stars": "累積星星",
     "review": "再練一次",
     "start": "開始",
     "locked": "未解鎖",
-    "best": "最佳 {{score}}"
+    "best": "最佳 {{score}}",
+    "kicker": "情境課程"
   },
   "continue": {
     "next": "今天下一步",

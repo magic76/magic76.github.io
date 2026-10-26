@@ -55,7 +55,7 @@ export function CoursePage(){
 
  return <div className="crew-learning-focus crew-course-focus">
   <header className="crew-learning-page-heading">
-   <span className="kicker">Scenario lessons</span>
+   <span className="kicker">{t("course.kicker")}</span>
    <h1>{t("course.title")}</h1>
    <p>{t("course.intro")}</p>
   </header>

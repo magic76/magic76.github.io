@@ -140,10 +140,9 @@
   "playHub": {
     "back": "首頁",
     "heading": "今天和朋友玩什麼？",
-    "intro": "棋類、1A2B 與 Taboo 不用 Key 就能打字玩；20 Questions 與海龜湯需要 Gemini 語音。",
+    "intro": "選一位 Crew 朋友，一起下棋、猜數字、玩文字遊戲，或用語音解謎。",
     "voiceRequired": "需要 Gemini 語音",
     "offlineOptional": "離線可玩 · 語音選用",
-    "footer": "1A2B、Taboo 與棋類可用文字離線遊玩；語音功能需要 Gemini Key 與麥克風。",
     "games": {
       "friend-gomoku": {
         "title": "五子棋",
@@ -205,6 +204,16 @@
       "noteDirectKey": "描述一次，AI 朋友直接猜一次；分數由規則判定。",
       "noteDirectNoKey": "免 Key 時僅供自評練習，不會模擬 AI 猜詞。",
       "noteLive": "Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"
+    },
+    "eyebrow": "Crew 遊戲",
+    "accessNote": "棋類、1A2B 與 Taboo 不用 Key 就能打字玩；AI 對話與語音遊戲需要 Gemini Key，語音另需麥克風。",
+    "voiceDock": {
+      "expand": "展開語音面板",
+      "collapse": "收合語音面板"
+    },
+    "gomoku": {
+      "eyebrow": "Crew 遊戲 · 五子棋",
+      "intro": "和電腦對手下五子棋，想聊天時隨時開啟 Crew 朋友的語音陪玩。"
     }
   },
   "timeline": {

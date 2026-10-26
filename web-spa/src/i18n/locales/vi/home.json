@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Trang chủ",
     "heading": "Chơi gì cùng bạn bè Crew hôm nay?",
-    "intro": "Trò chơi bàn cờ, 1A2B và Taboo có thể chơi bằng chữ không cần API key. 20 Câu hỏi và Bí ẩn cần giọng nói Gemini.",
+    "intro": "Chọn một người bạn Crew và cùng chơi cờ, đoán số, trò chơi chữ hoặc giải đố bằng giọng nói.",
     "voiceRequired": "Cần giọng nói Gemini",
     "offlineOptional": "Ngoại tuyến · có thể bật giọng nói",
-    "footer": "Chơi trò bàn cờ, 1A2B và Taboo bằng chữ khi ngoại tuyến. Chế độ giọng nói cần khóa Gemini và micrô.",
     "games": {
       "friend-gomoku": {
         "title": "Cờ ca-rô năm quân",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Mô tả một lần, bạn AI đoán một lần; điểm do luật quyết định.",
       "noteDirectNoKey": "Không có key thì chỉ tự luyện; AI sẽ không đoán.",
       "noteLive": "Live chỉ xử lý giọng nói và lời đáp của nhân vật; điểm do luật ngoại tuyến quyết định và không lưu vào lịch sử trò chuyện."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Trò bàn cờ, 1A2B và Taboo chơi bằng chữ mà không cần khóa. Trò chuyện AI và trò chơi giọng nói cần khóa Gemini; giọng nói cần thêm micrô.",
+    "voiceDock": {
+      "expand": "Mở rộng bảng giọng nói",
+      "collapse": "Thu gọn bảng giọng nói"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Cờ ca-rô",
+      "intro": "Chơi cờ ca-rô với máy và bật giọng nói của bạn Crew bất cứ khi nào bạn muốn trò chuyện."
     }
   },
   "timeline": {

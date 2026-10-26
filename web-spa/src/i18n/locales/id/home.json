@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Beranda",
     "heading": "Mau main apa bersama teman Crew?",
-    "intro": "Permainan papan, 1A2B, dan Taboo bisa dimainkan lewat teks tanpa API key. 20 Questions dan Misteri perlu suara Gemini.",
+    "intro": "Pilih teman Crew dan main bersama: permainan papan, tebak angka, permainan kata, atau misteri lewat suara.",
     "voiceRequired": "Perlu suara Gemini",
     "offlineOptional": "Offline · suara opsional",
-    "footer": "Mainkan permainan papan, 1A2B, dan Taboo lewat teks secara offline. Fitur suara memerlukan kunci Gemini dan mikrofon.",
     "games": {
       "friend-gomoku": {
         "title": "Gomoku",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Deskripsikan sekali, teman AI menebak sekali; skor ditentukan aturan.",
       "noteDirectNoKey": "Tanpa key ini latihan mandiri; AI tidak menebak.",
       "noteLive": "Live hanya menangani suara dan balasan karakter; skor ditentukan aturan offline dan tidak disimpan ke riwayat obrolan teman."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Permainan papan, 1A2B, dan Taboo bisa dimainkan lewat teks tanpa kunci. Obrolan AI dan permainan suara memerlukan kunci Gemini; fitur suara juga memerlukan mikrofon.",
+    "voiceDock": {
+      "expand": "Buka panel suara",
+      "collapse": "Ciutkan panel suara"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Gomoku",
+      "intro": "Main Gomoku melawan komputer, lalu nyalakan suara teman Crew kapan pun kamu ingin mengobrol."
     }
   },
   "timeline": {

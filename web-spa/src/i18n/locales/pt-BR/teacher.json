@@ -233,7 +233,8 @@
       "sports": "Esportes",
       "tech": "Tecnologia",
       "social": "Vida social"
-    }
+    },
+    "kicker": "Vocabulário"
   },
   "course": {
     "nextLesson": "Próxima lição",
@@ -244,12 +245,13 @@
     "courseMap": "Mapa do curso",
     "progress": "Progresso do curso",
     "title": "Pratique conversas reais por meio de missões",
-    "intro": "Siga o caminho de estudo do app: 3 trilhas, 10 unidades e 31 lições. Conclua uma para desbloquear a próxima.",
+    "intro": "Três temas (viagem, trabalho e conversa do dia a dia) em 10 unidades e 31 aulas para praticar passo a passo em situações reais. Conclua uma aula para liberar a próxima.",
     "stars": "Total de estrelas",
     "review": "Praticar novamente",
     "start": "Começar",
     "locked": "Bloqueado",
-    "best": "Melhor {{score}}"
+    "best": "Melhor {{score}}",
+    "kicker": "Aulas por situação"
   },
   "continue": {
     "next": "Seu próximo passo hoje",

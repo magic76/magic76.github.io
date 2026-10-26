@@ -140,10 +140,9 @@
   "playHub": {
     "back": "홈",
     "heading": "Crew 친구들과 무엇을 할까요?",
-    "intro": "보드게임, 1A2B, Taboo는 API 키 없이 텍스트로 즐길 수 있어요. 20 Questions와 미스터리는 Gemini 음성이 필요해요.",
+    "intro": "Crew 친구를 골라 보드게임, 숫자 맞히기, 단어 게임, 음성 추리 게임을 함께 즐겨 보세요.",
     "voiceRequired": "Gemini 음성 필요",
     "offlineOptional": "오프라인 · 음성 선택",
-    "footer": "보드게임, 1A2B, Taboo는 오프라인 텍스트로 플레이할 수 있어요. 음성 기능에는 Gemini 키와 마이크가 필요해요.",
     "games": {
       "friend-gomoku": {
         "title": "오목",
@@ -205,6 +204,16 @@
       "noteDirectKey": "한 번 설명하면 AI 친구가 한 번 추측해요. 점수는 규칙으로 판정해요.",
       "noteDirectNoKey": "Key가 없으면 자가 채점 연습만 가능하며 AI는 추측하지 않아요.",
       "noteLive": "Live는 음성과 캐릭터 답변만 담당해요. 점수는 오프라인 규칙으로 정해지며 친구 채팅 기록에 저장되지 않아요."
+    },
+    "eyebrow": "Crew 게임",
+    "accessNote": "보드게임, 1A2B, Taboo는 키 없이 텍스트로 플레이할 수 있어요. AI 대화와 음성 게임에는 Gemini 키가 필요하고, 음성에는 마이크도 필요해요.",
+    "voiceDock": {
+      "expand": "음성 패널 펼치기",
+      "collapse": "음성 패널 접기"
+    },
+    "gomoku": {
+      "eyebrow": "Crew 게임 · 오목",
+      "intro": "컴퓨터와 오목을 두고, 이야기하고 싶을 때 언제든 Crew 친구의 음성을 켜 보세요."
     }
   },
   "timeline": {
