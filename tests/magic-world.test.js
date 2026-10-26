@@ -947,7 +947,8 @@ test("organic residents and semantic procedural figure renderer are wired to saf
  assert.doesNotMatch(scene,/function Dragon\(/);
  assert.match(figures,/export function makeMagicSweptSurface\(/);
  assert.match(figures,/computeFrenetFrames/);
- assert.match(figures,/extrudeGeometry/);
+ // Chibi redesign dropped extruded ears for low-poly cones; idle gestures are shared.
+ assert.match(figures,/import \{magicCreatureIdle\} from "\.\/magicCreatureIdle"/);
  assert.match(figures,/shapeGeometry/);
  assert.match(figures,/latheGeometry/);
  assert.match(figures,/return <group scale=/);
