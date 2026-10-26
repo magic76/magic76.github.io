@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Início",
     "heading": "Vamos jogar com os amigos Crew?",
-    "intro": "Jogos de tabuleiro, 1A2B e Taboo funcionam por texto sem chave. 20 Perguntas e Mistérios precisam da voz do Gemini.",
+    "intro": "Escolha um amigo Crew e joguem juntos: jogos de tabuleiro, desafios de números, jogos de palavras ou mistérios por voz.",
     "voiceRequired": "Requer voz do Gemini",
     "offlineOptional": "Offline · voz opcional",
-    "footer": "Jogue jogos de tabuleiro, 1A2B e Taboo por texto, mesmo offline. Para usar voz, é preciso chave Gemini e microfone.",
     "games": {
       "friend-gomoku": {
         "title": "Jogo da velha de cinco",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Descreva uma vez e seu amigo de IA dá um palpite; as regras definem a pontuação.",
       "noteDirectNoKey": "Sem chave é prática autoavaliada; a IA não adivinha.",
       "noteLive": "O Live só cuida da voz e das respostas do personagem; as regras offline definem a pontuação e nada é salvo no chat com seu amigo."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Jogos de tabuleiro, 1A2B e Taboo funcionam por texto sem chave. Conversas com IA e jogos de voz precisam de uma chave Gemini; a voz também precisa de microfone.",
+    "voiceDock": {
+      "expand": "Expandir painel de voz",
+      "collapse": "Recolher painel de voz"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Gomoku",
+      "intro": "Jogue Gomoku contra o computador e ative a voz do seu amigo Crew quando quiser conversar."
     },
     "number": {
       "times": "{{n}} tentativas",

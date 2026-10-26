@@ -1,3 +1,4 @@
+import {useMagicT} from "./useMagicT";
 import {useEffect,useRef,useState} from "react";
 import {createPortal} from "react-dom";
 import {latestMagicSpotlight,type MagicChallenge,type MagicChoice,type MagicPanel} from "./world";
@@ -8,6 +9,7 @@ type Props={
  onAnswer:(choice:MagicChoice)=>void;onSelect:(panelId:number,choice:MagicChoice)=>void
 };
 export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:Props){
+ const {t:tr}=useMagicT();
  const [mobile,setMobile]=useState(false);
  const [open,setOpen]=useState(false);
  const dialog=useRef<HTMLDivElement|null>(null);
@@ -56,7 +58,7 @@ export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:P
  if(!mobile||!current)return null;
  const activePanel=current.kind==="panel"?panels.find(panel=>panel.id===current.id):undefined;
  const activeChallenge=current.kind==="challenge"&&challenge?.id===current.id?challenge:null;
- const title=zh?"新魔法已出現":"A new spell has appeared";
+ const title=tr("A new spell has appeared");
  const completed=Boolean(activeChallenge?.selected||activePanel?.selected);
  const answer=(choice:MagicChoice)=>{
   onAnswer(choice);
@@ -70,19 +72,19 @@ export function MagicMobileInteraction({challenge,panels,zh,onAnswer,onSelect}:P
  };
  return <>
   <button type="button" className="magic-stage-interaction-entry" aria-haspopup="dialog"
-   aria-label={zh?"查看最新魔法互動":"Open latest magic interaction"} onClick={()=>setOpen(true)}>
-   <span aria-hidden="true">✦</span> {completed?(zh?"查看魔法結果":"View magic result"):(zh?"探索新魔法":"Explore new magic")}
+   aria-label={tr("Open latest magic interaction")} onClick={()=>setOpen(true)}>
+   <span aria-hidden="true">✦</span> {completed?(tr("View magic result")):(tr("Explore new magic"))}
   </button>
   {open&&typeof document!=="undefined"&&createPortal(
    <div className="magic-mobile-overlay">
     <button className="magic-mobile-backdrop" type="button" onClick={()=>setOpen(false)}
-     aria-label={zh?"關閉魔法卡片":"Close magic card"}/>
+     aria-label={tr("Close magic card")}/>
     <div className="magic-mobile-dialog" role="dialog" aria-modal="true" aria-labelledby="magic-dialog-title"
      ref={dialog} tabIndex={-1}>
      <div className="magic-mobile-dialog-heading">
       <div><span>CREW MAGIC</span><h2 id="magic-dialog-title">{title}</h2></div>
       <button type="button" className="magic-mobile-dialog-close" ref={closeButton} onClick={()=>setOpen(false)}
-       aria-label={zh?"關閉並返回魔法島":"Close and return to magic island"}>×</button>
+       aria-label={tr("Close and return to magic island")}>×</button>
      </div>
      {activeChallenge?<MagicChallengeCard challenge={activeChallenge} zh={zh} onAnswer={answer}/>:null}
      {activePanel?<MagicGeneratedCard panel={activePanel} zh={zh} onSelect={select}/>:null}

@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Home",
     "heading": "Play with your Crew Friends",
-    "intro": "Board games, Bulls and Cows, and Taboo work without an API key. 20 Questions and Mystery require Gemini voice.",
+    "intro": "Pick a Crew Friend and play board games, number puzzles, word games, or voice mysteries together.",
     "voiceRequired": "Gemini voice required",
     "offlineOptional": "Offline · optional voice",
-    "footer": "Play board games, Bulls and Cows, and Taboo offline by typing. Voice features need a Gemini key and microphone.",
     "games": {
       "friend-gomoku": {
         "title": "Gomoku",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Describe once and your AI friend guesses once; the rules decide the score.",
       "noteDirectNoKey": "Without a key this is self-checked practice; the AI won't guess.",
       "noteLive": "Live only handles voice and in-character replies; offline rules decide the score, and nothing is saved to your friend chat history."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Board games, Bulls and Cows, and Taboo work without a key by typing. AI conversations and voice games need a Gemini key; voice also needs a microphone.",
+    "voiceDock": {
+      "expand": "Expand voice panel",
+      "collapse": "Collapse voice panel"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Gomoku",
+      "intro": "Play Gomoku against the computer, and turn on your Crew Friend’s voice whenever you want to chat."
     },
     "number": {
       "times": "{{n}} tries",

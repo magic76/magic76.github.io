@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Startseite",
     "heading": "Was spielen wir mit deinen Crew-Freunden?",
-    "intro": "Brettspiele, 1A2B und Taboo funktionieren per Text ohne API-Schlüssel. 20 Fragen und Rätselgeschichten benötigen Gemini-Sprache.",
+    "intro": "Wähle einen Crew-Freund und spielt zusammen: Brettspiele, Zahlenrätsel, Wortspiele oder Rätsel per Sprache.",
     "voiceRequired": "Gemini-Sprache erforderlich",
     "offlineOptional": "Offline · Sprache optional",
-    "footer": "Spiele Brettspiele, 1A2B und Taboo offline per Texteingabe. Für Sprache brauchst du einen Gemini-Schlüssel und ein Mikrofon.",
     "games": {
       "friend-gomoku": {
         "title": "Gomoku",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Einmal beschreiben, dein KI-Freund rät einmal; die Regeln bestimmen die Punkte.",
       "noteDirectNoKey": "Ohne Key ist es eine Selbstkontrolle; die KI rät nicht.",
       "noteLive": "Live übernimmt nur Stimme und Rollenantworten; Offline-Regeln bestimmen die Punkte, nichts wird im Freundes-Chatverlauf gespeichert."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Brettspiele, 1A2B und Taboo funktionieren per Texteingabe ohne Schlüssel. KI-Gespräche und Sprachspiele brauchen einen Gemini-Schlüssel, Sprache zusätzlich ein Mikrofon.",
+    "voiceDock": {
+      "expand": "Sprachleiste aufklappen",
+      "collapse": "Sprachleiste einklappen"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Gomoku",
+      "intro": "Spiele Gomoku gegen den Computer und schalte die Stimme deines Crew-Freundes ein, wann immer du plaudern möchtest."
     },
     "number": {
       "times": "{{n}} Versuche",

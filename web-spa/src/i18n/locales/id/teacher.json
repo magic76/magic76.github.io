@@ -233,7 +233,8 @@
       "sports": "Olahraga",
       "tech": "Teknologi",
       "social": "Sosial"
-    }
+    },
+    "kicker": "Kosakata"
   },
   "course": {
     "nextLesson": "Pelajaran berikutnya",
@@ -244,12 +245,13 @@
     "courseMap": "Peta kursus",
     "progress": "Kemajuan kursus",
     "title": "Latih percakapan nyata melalui misi",
-    "intro": "Ikuti jalur belajar aplikasi: 3 jalur, 10 unit, 31 pelajaran. Selesaikan setiap pelajaran untuk membuka berikutnya.",
+    "intro": "Tiga tema (perjalanan, kerja, dan obrolan sehari-hari) dalam 10 unit dan 31 pelajaran untuk berlatih langkah demi langkah dalam situasi nyata. Selesaikan satu pelajaran untuk membuka yang berikutnya.",
     "stars": "Total bintang",
     "review": "Latih lagi",
     "start": "Mulai",
     "locked": "Terkunci",
-    "best": "Terbaik {{score}}"
+    "best": "Terbaik {{score}}",
+    "kicker": "Pelajaran situasi"
   },
   "continue": {
     "next": "Langkah Anda berikutnya hari ini",

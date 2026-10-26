@@ -178,7 +178,7 @@ test("Voice-first 20 Questions shows the friend at top, a single dock, and compa
  assert.match(page,/crew-play-voice-dock-shell/);
  assert.match(page,/const voiceActions=/);
  assert.equal(page.match(/<LiveControls live=\{live\}/g)?.length,1,"The same Live controls must not render twice");
- assert.match(page,/\{!isWord\?<section className="crew-play-voice">/);
+ assert.match(page,/\{!isWord\?<(?:section|GameVoiceDock) className="crew-play-voice">/);
  assert.match(word,/crew-play-question-disclosure/);
  assert.match(word,/crew-play-history-older/);
  assert.match(word,/asked\.slice\(-3\)/);
@@ -203,7 +203,7 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(page,/crew-play-voice-entrance/);
  assert.match(page,/crew-play-voice-recovery/);
  assert.match(page,/GeminiSetupNotice/);
- assert.match(page,/!isWord\?<section className="crew-play-voice">/);
+ assert.match(page,/!isWord\?<(?:section|GameVoiceDock) className="crew-play-voice">/);
  assert.match(page,/isWord&&voiceActive\?<section className="crew-play-voice-dock-shell"/);
  assert.match(page,/crew-play-voice-paused/);
  assert.match(page,/kind==="connect4"\|\|kind==="reversi"\?<CrewBoardGames/);

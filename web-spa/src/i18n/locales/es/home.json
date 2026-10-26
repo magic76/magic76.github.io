@@ -140,10 +140,9 @@
   "playHub": {
     "back": "Inicio",
     "heading": "¿A qué jugamos con tus amigos Crew?",
-    "intro": "Los juegos de mesa, 1A2B y Taboo se pueden jugar por texto sin clave. 20 Preguntas y Misterios requieren voz de Gemini.",
+    "intro": "Elige a un amigo Crew y jueguen juntos a juegos de mesa, retos de números, juegos de palabras o misterios por voz.",
     "voiceRequired": "Requiere voz de Gemini",
     "offlineOptional": "Sin conexión · voz opcional",
-    "footer": "Juega por texto a los juegos de mesa, 1A2B y Taboo sin conexión. La voz requiere una clave de Gemini y micrófono.",
     "games": {
       "friend-gomoku": {
         "title": "Cinco en raya",
@@ -205,6 +204,16 @@
       "noteDirectKey": "Describe una vez y tu amigo IA adivina una vez; las reglas deciden la puntuación.",
       "noteDirectNoKey": "Sin clave es práctica autoevaluada; la IA no adivina.",
       "noteLive": "Live solo gestiona la voz y las respuestas del personaje; las reglas offline deciden la puntuación y nada se guarda en el chat con tu amigo."
+    },
+    "eyebrow": "Crew Play",
+    "accessNote": "Los juegos de mesa, 1A2B y Taboo se juegan por texto sin clave. Las conversaciones con IA y los juegos de voz requieren una clave de Gemini; la voz también necesita micrófono.",
+    "voiceDock": {
+      "expand": "Ampliar el panel de voz",
+      "collapse": "Contraer el panel de voz"
+    },
+    "gomoku": {
+      "eyebrow": "Crew Play · Cinco en raya",
+      "intro": "Juega al cinco en raya contra el ordenador y activa la voz de tu amigo Crew cuando quieras charlar."
     },
     "number": {
       "times": "{{n}} intentos",

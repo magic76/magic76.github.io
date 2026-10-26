@@ -56,11 +56,11 @@ export function CrewPlayHubPage(){
  return <div className="crew-play-page">
   <header className="crew-play-hero">
    <Link to="/" className="crew-play-back">← {t("playHub.back")}</Link>
-   <span className="crew-play-eyebrow">CREW PLAY</span>
+   <span className="crew-play-eyebrow">{t("playHub.eyebrow")}</span>
    <h1>{t("playHub.heading")}</h1>
    <p>{t("playHub.intro")}</p>
   </header>
-  <p className="crew-play-access-note">{zh?"免 Key 可玩棋類、1A2B 與部分文字練習；自由 AI 對話及語音遊戲需要 Gemini Key。":"Board games, 1A2B and some practice are free. AI conversations and voice games need a Gemini Key."}</p>
+  <p className="crew-play-access-note">{t("playHub.accessNote")}</p>
   <div className="crew-play-discovery" aria-label={zh?"選擇遊戲":"Find a game"}>
    {recentId?<Link className="crew-play-resume" to={"/games/"+recentId} onClick={()=>remember(recentId)}>
     <span aria-hidden="true">↗</span><span><small>{zh?"繼續上次遊戲":"Continue playing"}</small><strong>{titles[recentId]}</strong></span>
@@ -107,6 +107,5 @@ export function CrewPlayHubPage(){
    <p>{zh?"換個關鍵字，或查看全部遊戲。":"Try another keyword or show all games."}</p>
    <button type="button" onClick={()=>{setFilter("all");setSearch("")}}>{zh?"顯示全部遊戲":"Show all games"}</button>
   </div>:null}
-  <p className="crew-play-footer-note">{t("playHub.footer")}</p>
  </div>;
 }

@@ -140,10 +140,9 @@
   "playHub": {
     "back": "ホーム",
     "heading": "Crew の友だちと何して遊ぶ？",
-    "intro": "ボードゲーム、1A2B、Taboo は API キーなしで文字入力で遊べます。20 Questions とミステリーには Gemini 音声が必要です。",
+    "intro": "Crew の友だちを選んで、ボードゲーム、数当て、言葉遊び、音声の謎解きを一緒に楽しもう。",
     "voiceRequired": "Gemini 音声が必要",
     "offlineOptional": "オフライン対応 · 音声は任意",
-    "footer": "ボードゲーム、1A2B、Taboo は文字入力でオフラインプレイ可能。音声機能には Gemini キーとマイクが必要です。",
     "games": {
       "friend-gomoku": {
         "title": "五目並べ",
@@ -205,6 +204,16 @@
       "noteDirectKey": "1 回説明すると AI の友達が 1 回推測します。得点はルールで判定。",
       "noteDirectNoKey": "Key なしでは自己採点の練習のみで、AI は推測しません。",
       "noteLive": "Live は音声とキャラクターの返答のみ担当。得点はオフラインのルールで決まり、友達との会話履歴には保存されません。"
+    },
+    "eyebrow": "Crew ゲーム",
+    "accessNote": "ボードゲーム、1A2B、Taboo はキーなしで文字入力で遊べます。AI との会話と音声ゲームには Gemini キーが必要で、音声にはマイクも必要です。",
+    "voiceDock": {
+      "expand": "音声パネルを開く",
+      "collapse": "音声パネルを閉じる"
+    },
+    "gomoku": {
+      "eyebrow": "Crew ゲーム · 五目並べ",
+      "intro": "コンピューターと五目並べ。おしゃべりしたくなったら、いつでも Crew の友だちの音声をオンにできます。"
     },
     "number": {
       "times": "{{n}} 回",

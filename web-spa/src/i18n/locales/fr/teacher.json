@@ -233,7 +233,8 @@
       "sports": "Sport",
       "tech": "Technologie",
       "social": "Vie sociale"
-    }
+    },
+    "kicker": "Vocabulaire"
   },
   "course": {
     "nextLesson": "Leçon suivante",
@@ -244,12 +245,13 @@
     "courseMap": "Carte du cours",
     "progress": "Progression du cours",
     "title": "Entraînez-vous aux conversations réelles avec des missions",
-    "intro": "Suivez le parcours d'apprentissage de l'application : 3 parcours, 10 unités, 31 leçons. Terminez chaque leçon pour débloquer la suivante.",
+    "intro": "Trois thèmes (voyage, travail et conversation du quotidien), 10 unités et 31 leçons pour progresser pas à pas en situation réelle. Terminez une leçon pour débloquer la suivante.",
     "stars": "Total d'étoiles",
     "review": "Recommencer",
     "start": "Commencer",
     "locked": "Verrouillé",
-    "best": "Meilleur {{score}}"
+    "best": "Meilleur {{score}}",
+    "kicker": "Leçons en situation"
   },
   "continue": {
     "next": "Votre prochaine étape aujourd'hui",

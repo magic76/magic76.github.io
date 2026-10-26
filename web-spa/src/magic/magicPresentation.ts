@@ -44,13 +44,13 @@ export function newlyBuiltCreation(before:MagicWorld,after:MagicWorld):number|nu
  return changed?.id??null;
 }
 
-export function magicCreationSummary(c:MagicWorld["creations"][number],zh:boolean):string{
- if(c.blueprint){const icon={robot:"🤖",fox:"🦊",dragon:"🐉"}[c.blueprint.kind];return " · "+icon+" "+(zh?"曲面雕塑":"sculpted");}
- if(c.parts.length)return " · "+c.parts.length+" "+(zh?"個零件":c.parts.length===1?"part":"parts");
+export function magicCreationSummary(c:MagicWorld["creations"][number],zh:boolean,tr?:(key:string,options?:{count?:number})=>string):string{
+ if(c.blueprint){const icon={robot:"🤖",fox:"🦊",dragon:"🐉"}[c.blueprint.kind];return " · "+icon+" "+(tr?.("sculpted")??(zh?"曲面雕塑":"sculpted"));}
+ if(c.parts.length)return " · "+(tr?.("Part count: {{count}}",{count:c.parts.length})??(c.parts.length+" "+(zh?"個零件":c.parts.length===1?"part":"parts")));
  return "";
 }
-export function magicAdventureCopy(zh:boolean,step:number,castle:string,pendingPortal:boolean){
- const t=(a:string,b:string)=>zh?a:b;
+export function magicAdventureCopy(zh:boolean,step:number,castle:string,pendingPortal:boolean,tr?:(key:string)=>string){
+ const t=(a:string,b:string)=>tr?.(b)??(zh?a:b);
  return [
  {title:t("第一場魔法冒險","Your first magic adventure"),description:t("Lumi 發現一道未知的傳送門。先選一個世界！","Lumi found a mysterious portal. Choose a world to visit!"),action:pendingPortal?t("選擇傳送門目的地","Choose your destination"):t("打開傳送門","Open the portal")},
  {title:t("第 2 步 · 找個新夥伴","Step 2 · Meet a companion"),description:t("你已抵達新世界。召喚飛龍，看看牠如何飛進島嶼。","You reached a new world. Summon a dragon and watch it fly in."),action:t("召喚飛龍","Summon a dragon")},
