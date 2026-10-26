@@ -92,5 +92,94 @@
       "story": "좋아하는 캐릭터, 이야기 아이디어, 아치에게 묻고 싶은 것…"
     },
     "notesHint": "이 브라우저에 자동 저장되며 Crew 설정에서 백업할 수 있어요. 노트는 대화 상대에게 전송되지 않아요."
+  },
+  "friendLive": {
+    "preparingPost": "친구의 사진 이야깃거리를 준비하는 중…",
+    "backAria": "Crew 친구로 돌아가기",
+    "brand": "Crew 친구 · {{language}}",
+    "stageAria": "{{name}}와 대화",
+    "hookPrefix": "하고 싶은 이야기: ",
+    "postUnavailable": "원래 게시물을 찾을 수 없어 일반 친구 대화로 바꿨어요.",
+    "textChat": "텍스트 채팅",
+    "voiceChat": "음성 채팅",
+    "useVoice": "음성으로 전환",
+    "useText": "텍스트로 전환",
+    "interrupt": "내 차례 · 끼어들기",
+    "noTranscript": "방금 한 말을 알아듣지 못했어요. 다시 말해 주세요.",
+    "noReply": "친구가 답을 끝내지 못했어요. 다시 말하거나 다시 연결하세요.",
+    "changeTopic": "주제 바꾸기",
+    "slower": "천천히 말해 줘",
+    "otherFriends": "다른 친구 보기",
+    "youSaid": "방금 한 말",
+    "historySummary": "이번에 나눈 이야기",
+    "youLabel": "나: ",
+    "footnote": "대화 내용은 이 페이지에만 표시돼요. 최근 대화는 날짜만 기록하며, 주제 기억은 기본으로 켜져 있고 설정에서 언제든 끌 수 있어요."
+  },
+  "compact": {
+    "aria": "음성 조작",
+    "speaking": "말하는 중",
+    "listening": "듣는 중",
+    "connecting": "연결 중",
+    "finishing": "종료 중",
+    "interrupt": "끼어들기",
+    "unmuteAria": "마이크 켜기",
+    "muteAria": "마이크 음소거",
+    "unmute": "켜기",
+    "mute": "음소거",
+    "volumeAria": "AI 음량 조절",
+    "volume": "음량",
+    "volumeCaption": "AI 음량",
+    "volumeDown": "AI 음량 낮추기",
+    "volumeRange": "AI 재생 음량",
+    "volumeUp": "AI 음량 높이기",
+    "wrapping": "정리 중…",
+    "end": "종료"
+  },
+  "storyLive": {
+    "name": "아치",
+    "speaking": "아치가 말하는 중",
+    "listening": "듣고 있어요",
+    "badge": "인터랙티브 이야기",
+    "introBook": "이 이야기를 이어서 나눠요.",
+    "intro": "함께 이야기를 이어가요. 언제든 아치의 말에 끼어들어도 돼요.",
+    "topicLabel": "오늘은 어떤 이야기를 듣고 싶어요?",
+    "interrupt": "아치 말 끊기",
+    "presets": {
+      "continue": "계속",
+      "funny": "웃기게",
+      "choose": "내가 고를래",
+      "newCharacter": "새 캐릭터"
+    },
+    "more": "더 보기",
+    "style": "스타일",
+    "styles": {
+      "warm": "따뜻한 모험",
+      "funny": "코믹",
+      "bedtime": "잠자리 동화",
+      "mystery": "미스터리",
+      "fantasy": "판타지"
+    },
+    "pace": "이야기 속도",
+    "paces": {
+      "short": "짧은 단락",
+      "normal": "자연스러운 단락",
+      "long": "조금 길게"
+    },
+    "interaction": "상호작용 빈도",
+    "interactions": {
+      "high": "자주 고르게 해 줘",
+      "medium": "가끔 고르게 해 줘",
+      "low": "주로 듣기"
+    },
+    "voice": "아치 목소리",
+    "configNote": "설정은 다음부터 적용돼요. 지금 이야기의 스타일이나 목소리는 중간에 바뀌지 않아요.",
+    "visionTitle": "이야기에 그림 넣기",
+    "visionKinds": "삽화 · 손그림 · 사진",
+    "sending": "보내는 중…",
+    "camera": "사진 찍기",
+    "gallery": "앨범에서 선택",
+    "latestAlt": "가장 최근에 보낸 사진",
+    "sentTo": "아치에게 보냄",
+    "latestPhoto": "최근 사진"
   }
 }

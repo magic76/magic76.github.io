@@ -92,5 +92,94 @@
       "story": "Lieblingsfiguren, Story-Ideen, Fragen an Archie…"
     },
     "notesHint": "Wird automatisch in diesem Browser gespeichert und lässt sich in den Crew-Einstellungen sichern. Die Notizen werden nicht an die Figur gesendet."
+  },
+  "friendLive": {
+    "preparingPost": "Das Fotothema deines Freundes wird vorbereitet…",
+    "backAria": "Zurück zu Crew Freunde",
+    "brand": "Crew-Freund · {{language}}",
+    "stageAria": "Chat mit {{name}}",
+    "hookPrefix": "Du wolltest fragen: ",
+    "postUnavailable": "Der ursprüngliche Beitrag wurde nicht gefunden, daher ist das ein normaler Chat.",
+    "textChat": "Text-Chat",
+    "voiceChat": "Sprach-Chat",
+    "useVoice": "Zu Sprache wechseln",
+    "useText": "Zu Text wechseln",
+    "interrupt": "Ich bin dran · unterbrechen",
+    "noTranscript": "Das habe ich nicht verstanden. Sag es einfach noch einmal.",
+    "noReply": "Dein Freund konnte nicht zu Ende antworten. Sag es noch einmal oder verbinde neu.",
+    "changeTopic": "Thema wechseln",
+    "slower": "Langsamer, bitte",
+    "otherFriends": "Andere Freunde ansehen",
+    "youSaid": "Du hast gesagt",
+    "historySummary": "Worüber wir gesprochen haben",
+    "youLabel": "Du: ",
+    "footnote": "Nachrichten erscheinen nur auf dieser Seite. Letzte Chats speichern nur das Datum; das Themengedächtnis ist standardmäßig an und lässt sich in den Einstellungen abschalten."
+  },
+  "compact": {
+    "aria": "Sprachsteuerung",
+    "speaking": "Spricht",
+    "listening": "Hört zu",
+    "connecting": "Verbinden",
+    "finishing": "Wird beendet",
+    "interrupt": "Unterbrechen",
+    "unmuteAria": "Mikrofon einschalten",
+    "muteAria": "Mikrofon stummschalten",
+    "unmute": "Ein",
+    "mute": "Stumm",
+    "volumeAria": "KI-Lautstärke anpassen",
+    "volume": "Lautstärke",
+    "volumeCaption": "KI-Lautstärke",
+    "volumeDown": "KI-Lautstärke senken",
+    "volumeRange": "KI-Wiedergabelautstärke",
+    "volumeUp": "KI-Lautstärke erhöhen",
+    "wrapping": "Wird abgeschlossen…",
+    "end": "Beenden"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie spricht",
+    "listening": "Hört dir zu",
+    "badge": "Interaktive Geschichte",
+    "introBook": "Lass uns diese Geschichte weitererzählen.",
+    "intro": "Erzählt die Geschichte gemeinsam. Unterbrich Archie jederzeit.",
+    "topicLabel": "Was möchtest du heute hören?",
+    "interrupt": "Archie unterbrechen",
+    "presets": {
+      "continue": "Weiter",
+      "funny": "Mach es lustig",
+      "choose": "Lass mich wählen",
+      "newCharacter": "Neue Figur"
+    },
+    "more": "Weitere Optionen",
+    "style": "Stil",
+    "styles": {
+      "warm": "Herzliches Abenteuer",
+      "funny": "Lustig",
+      "bedtime": "Gutenachtgeschichte",
+      "mystery": "Rätselhaft",
+      "fantasy": "Fantasy"
+    },
+    "pace": "Erzähltempo",
+    "paces": {
+      "short": "Kurze Abschnitte",
+      "normal": "Natürliche Abschnitte",
+      "long": "Etwas länger"
+    },
+    "interaction": "Mitmachen",
+    "interactions": {
+      "high": "Lass mich oft wählen",
+      "medium": "Lass mich manchmal wählen",
+      "low": "Vor allem zuhören"
+    },
+    "voice": "Archies Stimme",
+    "configNote": "Die Einstellungen gelten beim nächsten Mal; die laufende Geschichte wechselt Stil und Stimme nicht.",
+    "visionTitle": "Füge der Geschichte ein Bild hinzu",
+    "visionKinds": "Illustration · Zeichnung · Foto",
+    "sending": "Wird gesendet…",
+    "camera": "Foto aufnehmen",
+    "gallery": "Aus Album wählen",
+    "latestAlt": "Zuletzt gesendetes Foto",
+    "sentTo": "An Archie gesendet",
+    "latestPhoto": "Neuestes Foto"
   }
 }

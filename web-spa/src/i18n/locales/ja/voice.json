@@ -92,5 +92,94 @@
       "story": "好きなキャラクター、物語のアイデア、アーチーへの質問…"
     },
     "notesHint": "このブラウザに自動保存され、Crew の設定でバックアップできます。メモが会話相手に送られることはありません。"
+  },
+  "friendLive": {
+    "preparingPost": "友だちの写真の話題を準備中…",
+    "backAria": "Crew フレンズに戻る",
+    "brand": "Crew フレンド · {{language}}",
+    "stageAria": "{{name}} とおしゃべり",
+    "hookPrefix": "話したいこと：",
+    "postUnavailable": "元の投稿が見つからないため、通常のおしゃべりに切り替えました。",
+    "textChat": "テキストチャット",
+    "voiceChat": "音声チャット",
+    "useVoice": "音声に切り替え",
+    "useText": "テキストに切り替え",
+    "interrupt": "私の番 · 割り込む",
+    "noTranscript": "今の発話を聞き取れませんでした。もう一度話してください。",
+    "noReply": "友だちが返事を終えられませんでした。もう一度話すか再接続してください。",
+    "changeTopic": "話題を変える",
+    "slower": "ゆっくり話して",
+    "otherFriends": "ほかの友だちを見る",
+    "youSaid": "あなたの発言",
+    "historySummary": "今回話した内容",
+    "youLabel": "あなた：",
+    "footnote": "チャット内容はこのページにのみ表示されます。最近のチャットは日付のみ記録され、話題メモリーは既定でオン、設定でいつでもオフにできます。"
+  },
+  "compact": {
+    "aria": "音声操作",
+    "speaking": "話しています",
+    "listening": "聞いています",
+    "connecting": "接続中",
+    "finishing": "終了中",
+    "interrupt": "割り込む",
+    "unmuteAria": "マイクをオン",
+    "muteAria": "マイクをミュート",
+    "unmute": "マイクオン",
+    "mute": "ミュート",
+    "volumeAria": "AI の音量を調整",
+    "volume": "音量",
+    "volumeCaption": "AI 音量",
+    "volumeDown": "AI の音量を下げる",
+    "volumeRange": "AI の再生音量",
+    "volumeUp": "AI の音量を上げる",
+    "wrapping": "まとめ中…",
+    "end": "終了"
+  },
+  "storyLive": {
+    "name": "アーチー",
+    "speaking": "アーチーが話しています",
+    "listening": "あなたの話を聞いています",
+    "badge": "インタラクティブ物語",
+    "introBook": "この物語の続きを話しましょう。",
+    "intro": "一緒に物語を進めよう。話したくなったらアーチーに割り込んでね。",
+    "topicLabel": "今日は何を聞きたい？",
+    "interrupt": "アーチーに割り込む",
+    "presets": {
+      "continue": "続ける",
+      "funny": "面白くして",
+      "choose": "選ばせて",
+      "newCharacter": "新キャラ"
+    },
+    "more": "その他の機能",
+    "style": "スタイル",
+    "styles": {
+      "warm": "心温まる冒険",
+      "funny": "コメディ",
+      "bedtime": "おやすみ前のお話",
+      "mystery": "ミステリー",
+      "fantasy": "ファンタジー"
+    },
+    "pace": "語りのテンポ",
+    "paces": {
+      "short": "短めの段落",
+      "normal": "自然な段落",
+      "long": "少し長め"
+    },
+    "interaction": "やりとりの頻度",
+    "interactions": {
+      "high": "よく選ばせて",
+      "medium": "ときどき選ばせて",
+      "low": "聞くのが中心"
+    },
+    "voice": "アーチーの声",
+    "configNote": "設定は次回から反映されます。今の物語の途中でスタイルや声は変わりません。",
+    "visionTitle": "物語に絵を入れる",
+    "visionKinds": "イラスト · 手描き · 写真",
+    "sending": "送信中…",
+    "camera": "撮影",
+    "gallery": "アルバムから選ぶ",
+    "latestAlt": "最後に送った写真",
+    "sentTo": "アーチーに送信済み",
+    "latestPhoto": "最新の写真"
   }
 }

@@ -96,7 +96,8 @@ test("friend display and watchdog cleanup are separate from actual Gemini VAD",(
  assert.match(friend,/friendVoiceStatus/);
  assert.match(friend,/no-transcript/);
  assert.match(friend,/no-reply/);
- assert.match(friend,/重新連線/);
+ assert.match(friend,/t\("controls\.reconnect"\)/);
+ assert.equal(JSON.parse(fs.readFileSync(path.join(__dirname,"../web-spa/src/i18n/locales/zh-TW/voice.json"),"utf8")).controls.reconnect,"重新連線");
  assert.match(source,/onLocalUtteranceEnd:\(\)=>\{/);
  assert.match(source,/cancelUnrecognizedSpeechTimer\(\);setFriendPhase\("idle"\)/);
  assert.match(source,/if\(configRef\.current\.sessionKind==="friend"\)scheduleFriendReplyCheck\(\)/,

@@ -92,5 +92,94 @@
       "story": "Tokoh favorit, ide cerita, pertanyaan untuk Archie…"
     },
     "notesHint": "Tersimpan otomatis di browser ini dan dapat dicadangkan di Pengaturan Crew. Catatan tidak dikirim ke karakter."
+  },
+  "friendLive": {
+    "preparingPost": "Menyiapkan topik foto temanmu…",
+    "backAria": "Kembali ke Crew Teman",
+    "brand": "Teman Crew · {{language}}",
+    "stageAria": "Mengobrol dengan {{name}}",
+    "hookPrefix": "Kamu ingin bertanya: ",
+    "postUnavailable": "Postingan asli tidak ditemukan, jadi ini obrolan biasa dengan temanmu.",
+    "textChat": "Obrolan teks",
+    "voiceChat": "Obrolan suara",
+    "useVoice": "Beralih ke suara",
+    "useText": "Beralih ke teks",
+    "interrupt": "Giliranku · sela",
+    "noTranscript": "Ucapanmu tadi tidak terdengar. Ulangi saja.",
+    "noReply": "Temanmu tidak sempat selesai menjawab. Ulangi atau sambungkan ulang.",
+    "changeTopic": "Ganti topik",
+    "slower": "Lebih pelan",
+    "otherFriends": "Lihat teman lain",
+    "youSaid": "Kamu bilang",
+    "historySummary": "Yang sudah dibahas",
+    "youLabel": "Kamu: ",
+    "footnote": "Pesan hanya tampil di halaman ini. Obrolan terbaru hanya menyimpan tanggal; memori topik aktif secara default dan bisa dimatikan di Pengaturan."
+  },
+  "compact": {
+    "aria": "Kontrol suara",
+    "speaking": "Berbicara",
+    "listening": "Mendengarkan",
+    "connecting": "Menghubungkan",
+    "finishing": "Mengakhiri",
+    "interrupt": "Sela",
+    "unmuteAria": "Nyalakan mikrofon",
+    "muteAria": "Bisukan mikrofon",
+    "unmute": "Nyalakan",
+    "mute": "Bisukan",
+    "volumeAria": "Atur volume AI",
+    "volume": "Volume",
+    "volumeCaption": "Volume AI",
+    "volumeDown": "Kecilkan volume AI",
+    "volumeRange": "Volume putar AI",
+    "volumeUp": "Besarkan volume AI",
+    "wrapping": "Merangkum…",
+    "end": "Akhiri"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie sedang berbicara",
+    "listening": "Mendengarkanmu",
+    "badge": "Cerita interaktif",
+    "introBook": "Ayo lanjutkan cerita ini.",
+    "intro": "Ayo bercerita bersama. Sela Archie kapan saja.",
+    "topicLabel": "Mau dengar cerita apa hari ini?",
+    "interrupt": "Sela Archie",
+    "presets": {
+      "continue": "Lanjutkan",
+      "funny": "Bikin lucu",
+      "choose": "Biar aku pilih",
+      "newCharacter": "Tokoh baru"
+    },
+    "more": "Opsi lainnya",
+    "style": "Gaya",
+    "styles": {
+      "warm": "Petualangan hangat",
+      "funny": "Lucu",
+      "bedtime": "Dongeng sebelum tidur",
+      "mystery": "Misteri",
+      "fantasy": "Fantasi"
+    },
+    "pace": "Tempo cerita",
+    "paces": {
+      "short": "Bagian pendek",
+      "normal": "Bagian wajar",
+      "long": "Sedikit lebih panjang"
+    },
+    "interaction": "Interaksi",
+    "interactions": {
+      "high": "Sering biar aku pilih",
+      "medium": "Kadang biar aku pilih",
+      "low": "Lebih banyak mendengarkan"
+    },
+    "voice": "Suara Archie",
+    "configNote": "Pengaturan berlaku lain kali; cerita saat ini tidak berganti gaya atau suara di tengah jalan.",
+    "visionTitle": "Masukkan gambar ke cerita",
+    "visionKinds": "Ilustrasi · gambar tangan · foto",
+    "sending": "Mengirim…",
+    "camera": "Ambil foto",
+    "gallery": "Pilih dari album",
+    "latestAlt": "Foto terakhir yang dikirim",
+    "sentTo": "Terkirim ke Archie",
+    "latestPhoto": "Foto terbaru"
   }
 }

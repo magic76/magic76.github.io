@@ -25,6 +25,7 @@ import "./friends.css";
  * cannot inject a caption, persona, or system prompt, and regular chat remains instant.
  */
 export function FriendLivePage(){
+ const {t}=useTranslation("voice");
  const [params]=useSearchParams();
  const postId=params.get("post");
  const friendId=params.get("id");
@@ -39,12 +40,12 @@ export function FriendLivePage(){
   return()=>abort.abort();
  },[postId,friendId,lookupKey]);
  if(postId&&(!lookup||lookup.key!==lookupKey))
-  return <main className="session-shell"><p className="spa-loading" role="status">正在準備朋友的照片話題…</p></main>;
+  return <main className="session-shell"><p className="spa-loading" role="status">{t("friendLive.preparingPost")}</p></main>;
  return <FriendLiveConversation shortsPost={postId?lookup?.post||null:null}
   postUnavailable={Boolean(postId&&!lookup?.post)}/>;
 }
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
- const {t,i18n:locale}=useTranslation("friends");const english=locale.language==="en";
+ const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
@@ -125,13 +126,13 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const alternateHref="/friend/live?"+alternateParams.toString();
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
-    <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
+   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
+    <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
    <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
@@ -140,9 +141,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
       <div><small>CREW SHORTS · {shortsPost.publishedAt.slice(0,10)}</small>
        <p lang={shortsPost.language}>{shortsPost.caption}</p>
-       {shortsHook?<small className="friend-live-post-hook">{english?"You wanted to ask: ":"你想聊："}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
+       {shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
      </section>:null}
-    {postUnavailable?<p className="friend-live-post-unavailable" role="status">找不到原本的動態，已改為一般朋友聊天。</p>:null}
+    {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
@@ -153,30 +154,30 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      <small className="friend-language-mode-hint" role="note">{t(friendChatMode==="natural"?"chatModeHintNatural":friendChatMode==="bilingual"?"chatModeHintBilingual":"chatModeHintImmersion")}</small>
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
-    <div className="crew-chat-mode-switch"><span>{textMode?"文字聊天":"語音聊天"}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?"改用語音":"改用文字"}</Link></div>
+    <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
-    <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel="換我說 · 打斷朋友"/>
+    <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
-      <span>{live.voicePhase==="no-transcript"?"沒有辨識到剛才的話，可以直接再說一次。":"朋友未能完成回答，你可以再說一次或重新連線。"}</span>
-      {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>重新連線</button>:null}
+      <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>
+      {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>換個話題</button>
-      <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>說慢一點</button>
-</>:<Link className="live-mode-shortcut" to="/teacher/friends">看看其他朋友</Link>}
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>
+      <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
+</>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
     <div className="live-transcript" aria-live="polite">
-     <div className={"live-line user "+(live.input?"show":"")}><small>你剛剛說</small><span>{live.input}</span></div>
+     <div className={"live-line user "+(live.input?"show":"")}><small>{t("friendLive.youSaid")}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>{friend.name}</small><span>{live.output}</span></div>
     </div>
-    {live.turns.length?<details className="friend-chat-history"><summary>這次聊過的內容</summary>
+    {live.turns.length?<details className="friend-chat-history"><summary>{t("friendLive.historySummary")}</summary>
      <div className="friend-chat-history-scroll">{live.turns.map((turn,index)=><div key={index} className="friend-chat-turn">
-       {turn.input?<p><strong>你：</strong>{turn.input}</p>:null}
+       {turn.input?<p><strong>{t("friendLive.youLabel")}</strong>{turn.input}</p>:null}
        {turn.output?<p><strong>{friend.name}：</strong>{turn.output}</p>:null}
       </div>)}</div>
     </details>:null}</>}
-    <p className="friend-live-footnote">聊天內容僅在這次頁面顯示。最近聊天只記錄日期；話題記憶預設開啟，可隨時在設定關閉。</p>
+    <p className="friend-live-footnote">{t("friendLive.footnote")}</p>
    </section>{!textMode&&<DesktopLivePanel kind="friend" label={friend.name} language={language} turns={live.turns} input={live.input} output={live.output} state={live.state}/>}</div>
   </main>
  </>;

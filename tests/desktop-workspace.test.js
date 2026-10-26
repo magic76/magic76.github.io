@@ -16,7 +16,8 @@ test("desktop workspace reuses one Live session on both products",()=>{
   assert.match(file,/live\.output/);
  }
  assert.match(teacher,/prominentInterrupt interruptLabel=\{t\("live\.myTurn"\)\}/);
- assert.match(story,/interruptLabel="打斷阿奇"/);
+ assert.match(story,/interruptLabel=\{t\("storyLive\.interrupt"\)\}/);
+ assert.equal(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/voice.json")).storyLive.interrupt,"打斷阿奇");
 });
 test("desktop panel exposes transcript, explicit translation and local notes",()=>{
  const panel=read("web-spa/src/components/DesktopLivePanel.tsx");
@@ -37,4 +38,18 @@ test("layout only expands desktop and leaves small screens in native flow",()=>{
  assert.match(style,/@media\(max-width:1049px\)/);
  assert.match(style,/\.desktop-live-workspace \.live-transcript\{display:none\}/);
  assert.match(reader,/story-player desktop-story-workspace/);
+});
+
+test("story live translates option labels but keeps the prompt values unchanged",()=>{
+ const story=read("web-spa/src/story/LivePage.tsx");
+ for(const value of ["溫暖冒險","搞笑","睡前故事","神秘","奇幻"])assert.ok(story.includes('<option value="'+value+'">'),value);
+ for(const value of ["short","normal","long","high","medium","low"])assert.ok(story.includes('<option value="'+value+'">{t('),value);
+ assert.match(story,/"你是 Crew Story 的互動說故事角色阿奇。故事風格："\+style/);
+ assert.match(story,/pace==="short"\?"每次只講 1-2 句。"/);
+});
+
+test("compact game voice dock follows the UI locale instead of a zh/en switch",()=>{
+ const controls=read("web-spa/src/live/LiveControls.tsx");
+ assert.doesNotMatch(controls,/english\?\s*["'`]/);
+ assert.match(controls,/t\("compact\.aria"\)/);
 });

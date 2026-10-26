@@ -8,6 +8,7 @@ import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import {liveStatusText} from "../live/liveStatusText";
 import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
@@ -119,7 +120,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
   {active?<LiveControls live={live} prominentInterrupt interruptLabel={t("playHub.mini.interrupt")} compact english={english}/>:
    hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">{t("playHub.mini.startVoice",{name:friend.name})}</button>:
    <Link className="crew-mini-key-link" to="/settings">{t("playHub.mini.keyLink")}</Link>}
-  {live.state==="error"?<p className="crew-mini-error" role="alert">{t("playHub.mini.voiceError",{status:live.status})}</p>:null}
+  {live.state==="error"?<p className="crew-mini-error" role="alert">{t("playHub.mini.voiceError",{status:liveStatusText(live.status)})}</p>:null}
   <small>{directGuess?(hasKey?t("playHub.mini.noteDirectKey"):t("playHub.mini.noteDirectNoKey")):t("playHub.mini.noteLive")}</small>
  </GameVoiceDock>;
 }
