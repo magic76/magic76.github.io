@@ -1,11 +1,11 @@
 import {useMemo} from 'react';
 import {BufferAttribute,BufferGeometry,Color,FrontSide} from 'three';
 import {islandSurfaceHeight} from './magicNavigation';
-import {MAGIC_MATERIALS,type MagicPalette} from './magicPalette';
+import type {MagicPalette} from './magicPalette';
 const RX=5.65*Math.sqrt(10),RZ=5.65*.84*Math.sqrt(10),N=48,RINGS=9;
 const outer=(k:number)=>{const a=k/N*Math.PI*2,r=.985;return [Math.cos(a)*RX*r,Math.sin(a)*RZ*r] as const;};
 const clamp=(v:number)=>Math.max(0,Math.min(1,v));
-/** Shared edge ring, outward winding and front-facing grass. No double-sided fill. */
+/** Shared edge ring, outward winding and front-facing grass. No double-sided fill; Lambert keeps the large-area fill cheap on phones. */
 export function MagicTerrain3D({colors}:{colors:MagicPalette}){
  const {grass,cliffs}=useMemo(()=>{
   const grass=new BufferGeometry(),gp:number[]=[],gc:number[]=[],gi:number[]=[];
@@ -56,7 +56,7 @@ export function MagicTerrain3D({colors}:{colors:MagicPalette}){
   return {grass,cliffs};
  },[colors.ground,colors.side]);
  return <group>
-  <mesh geometry={cliffs}><meshStandardMaterial vertexColors {...MAGIC_MATERIALS.stone} side={FrontSide}/></mesh>
-  <mesh geometry={grass}><meshStandardMaterial vertexColors {...MAGIC_MATERIALS.grass} side={FrontSide}/></mesh>
+  <mesh geometry={cliffs}><meshLambertMaterial vertexColors flatShading side={FrontSide}/></mesh>
+  <mesh geometry={grass}><meshLambertMaterial vertexColors side={FrontSide}/></mesh>
  </group>;
 }

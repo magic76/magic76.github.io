@@ -1,42 +1,36 @@
 import {useEffect,useMemo,useRef} from 'react';
-import {BackSide,Color,Group,Object3D,ShaderMaterial,type InstancedMesh} from 'three';
+import {BackSide,BufferAttribute,BufferGeometry,Color,Group,Object3D,SphereGeometry,type InstancedMesh} from 'three';
 import {useFrame} from '@react-three/fiber';
 import {MAGIC_NIGHT_SKY} from './magicPalette';
-/** Camera-centered unlit gradient in linear space, converted to display space once. */
+const ss=(a:number,b:number,x:number)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);};
+/** Camera-centered gradient baked into vertex colours: one cheap unlit pass, no per-pixel math. */
 export function MagicAtmosphere3D({sky,night}:{sky:string;night:boolean}){
  const dome=useRef<Group>(null);
  useFrame(({camera})=>{if(dome.current)dome.current.position.copy(camera.position);});
- const shader=useMemo(()=>new ShaderMaterial({
-  uniforms:{topColor:{value:new Color()},horizonColor:{value:new Color()},bottomColor:{value:new Color()},uNight:{value:0}},
-  vertexShader:`varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform vec3 topColor;uniform vec3 horizonColor;uniform vec3 bottomColor;uniform float uNight;varying vec3 vDir;
-  float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
-  void main(){vec3 d=normalize(vDir);float y=d.y;
-   vec3 c=mix(bottomColor,horizonColor,smoothstep(-.95,-.62,y));
-   c=mix(c,topColor,smoothstep(-.62,-.12,y));
-   if(uNight>.5 && y>-.35){
-    vec2 g=vec2(atan(d.z,d.x),asin(d.y))*110.,cell=floor(g);
-    vec2 o=fract(g)-.5-(vec2(hash(cell+3.),hash(cell+5.))-.5)*.6;
-    float star=step(.986,hash(cell))*smoothstep(.16,.04,length(o));
-    float twinkle=.45+.55*hash(cell+7.);
-    c=mix(c,vec3(.95,.90,.82),star*twinkle*.78);
-   }
-   gl_FragColor=vec4(c,1.);
-   #include <colorspace_fragment>
-  }`,side:BackSide,depthWrite:false,toneMapped:false,
- }),[]);
+ const geometry=useMemo(()=>new SphereGeometry(170,20,28),[]);
  useEffect(()=>{
-  shader.uniforms.topColor.value.set(night?'#626BA5':sky);
-  shader.uniforms.horizonColor.value.set(night?'#3F5082':'#DDE1EC');
-  shader.uniforms.bottomColor.value.set(night?MAGIC_NIGHT_SKY:'#F7EADA');
-  shader.uniforms.uNight.value=night?1:0;
- },[shader,sky,night]);
- useEffect(()=>()=>shader.dispose(),[shader]);
+  const top=new Color(night?'#626BA5':sky),horizon=new Color(night?'#3F5082':'#DDE1EC'),bottom=new Color(night?MAGIC_NIGHT_SKY:'#F7EADA');
+  const pos=geometry.attributes.position,colors=new Float32Array(pos.count*3),c=new Color();
+  for(let i=0;i<pos.count;i++){
+   const y=pos.getY(i)/170;
+   c.copy(bottom).lerp(horizon,ss(-.95,-.62,y)).lerp(top,ss(-.62,-.12,y));
+   colors.set([c.r,c.g,c.b],i*3);
+  }
+  geometry.setAttribute('color',new BufferAttribute(colors,3));
+ },[geometry,sky,night]);
+ const stars=useMemo(()=>{
+  const g=new BufferGeometry(),p:number[]=[];let seed=7;
+  const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+  for(let i=0;i<320;i++){const y=-.78+rnd()*1.3,a=rnd()*Math.PI*2,r=Math.sqrt(1-y*y);p.push(Math.cos(a)*r*160,y*160,Math.sin(a)*r*160);}
+  g.setAttribute('position',new BufferAttribute(new Float32Array(p),3));return g;
+ },[]);
+ useEffect(()=>()=>{geometry.dispose();stars.dispose();},[geometry,stars]);
  return <>
   <color attach="background" args={[night?MAGIC_NIGHT_SKY:sky]}/>
   <fog attach="fog" args={[night?'#40517F':'#BFCFE3',100,160]}/>
   <group ref={dome}>
-   <mesh material={shader} renderOrder={-100} frustumCulled={false}><sphereGeometry args={[170,16,8]}/></mesh>
+   <mesh geometry={geometry} renderOrder={-100} frustumCulled={false}><meshBasicMaterial vertexColors side={BackSide} depthWrite={false} fog={false} toneMapped={false}/></mesh>
+   {night&&<points geometry={stars} renderOrder={-99} frustumCulled={false}><pointsMaterial color="#F2E6D0" size={2.2} sizeAttenuation={false} transparent opacity={.85} depthWrite={false} fog={false} toneMapped={false}/></points>}
   </group>
   <MagicClouds3D night={night}/>
  </>;
