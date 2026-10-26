@@ -11,6 +11,7 @@ import type {DirectorEvent} from "./nonsenseDirector";
 import {openingNewsScene,nextNewsScene,type NewsScene,type NewsTurn} from "./nonsenseNewsEngine";
 import {renderNewsEndingCard,shareNewsEnding} from "./nonsenseNewsShare";
 import {nonsenseCategories,pickNonsenseTopic,nextNonsenseTopic,customNonsenseTopic,type NonsenseLanguage,type NonsenseTopic} from "./nonsenseTopics";
+import "./crewPlay.css";
 import "./nonsenseNews.css";
 
 type Status="setup"|"connecting"|"playing"|"generating"|"finished";

@@ -3,7 +3,7 @@
   "intro": "Bukan kelas: bagikan momen sehari-hari, lanjutkan topik yang diingat, dan mengobrol tanpa koreksi yang tidak diminta.",
   "language": "Bahasa yang dipelajari",
   "gameEntryTitle": "Crew Play · main game bersama teman",
-  "gameEntryDescription": "Lima game: suara pada permainan papan opsional; tebak-tebakan dan Mystery memerlukan suara Gemini.",
+  "gameEntryDescription": "Permainan papan dan 1A2B bisa dimainkan tanpa suara; tebak-tebakan dan Mystery perlu Gemini key.",
   "pace": "Kecepatan bicara",
   "slow": "Lambat",
   "normal": "Normal",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Disimpan · berlaku pada percakapan berikutnya.",
   "chatModeHintNatural": "Gunakan terutama bahasa ibu; teman Anda mengikuti saat Anda konsisten beralih ke bahasa belajar.",
   "chatModeHintBilingual": "Disarankan: gunakan terutama bahasa yang dipelajari. Jika buntu, tanya dalam bahasa ibu. Satu bahasa tiap balasan; teman Anda menyesuaikan secara alami.",
-  "chatModeHintImmersion": "Selalu mengobrol dalam bahasa yang dipelajari. Teman Anda menyesuaikan kejelasan, tetapi tidak berganti ke bahasa ibu."
+  "chatModeHintImmersion": "Selalu mengobrol dalam bahasa yang dipelajari. Teman Anda menyesuaikan kejelasan, tetapi tidak berganti ke bahasa ibu.",
+  "liveStatus": {
+    "speaking": "Temanmu sedang berbicara",
+    "idle": "Silakan bicara kapan saja",
+    "hearing": "Sedang mendengarkanmu",
+    "pause": "Menunggu kamu melanjutkan",
+    "processing": "Temanmu sedang menyiapkan jawaban",
+    "recovering": "Mengambil ulang jawaban",
+    "noTranscript": "Suara tidak terdeteksi",
+    "noReply": "Belum ada balasan",
+    "error": "Masalah koneksi suara",
+    "preparing": "Menyiapkan obrolan",
+    "free": "Obrolan bebas"
+  }
 }

@@ -215,7 +215,25 @@
     "contentFailed": "Definisi belum siap: {{reason}}",
     "contentError": "Konten kosakata gagal dimuat",
     "preparing": "Menyiapkan definisi dalam bahasa ibu…",
-    "retry": "Coba lagi"
+    "retry": "Coba lagi",
+    "topics": {
+      "daily": "Sehari-hari",
+      "shopping": "Belanja",
+      "dining": "Makanan",
+      "life": "Kehidupan",
+      "work": "Pekerjaan",
+      "travel": "Perjalanan",
+      "expression": "Ungkapan",
+      "general": "Dasar",
+      "family": "Keluarga",
+      "school": "Sekolah",
+      "health": "Kesehatan",
+      "nature": "Alam",
+      "feelings": "Perasaan",
+      "sports": "Olahraga",
+      "tech": "Teknologi",
+      "social": "Sosial"
+    }
   },
   "course": {
     "nextLesson": "Pelajaran berikutnya",

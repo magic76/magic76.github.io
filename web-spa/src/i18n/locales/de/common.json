@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini verbunden",
     "pending": "Gemini muss überprüft werden",
-    "setup": "Gemini einrichten"
+    "setup": "Gemini einrichten",
+    "keyNeeded": "Gemini-Key erforderlich"
   },
   "contact": {
     "label": "Kontakt",

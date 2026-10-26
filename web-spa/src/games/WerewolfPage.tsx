@@ -11,6 +11,7 @@ import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {makeWolfGame,takeNightAction,recordSpeech,startWolfVote,castWolfVote,expectedNightActions,humanRole,
  type WolfGame,type WolfRole,type WolfLanguage,type WolfAction} from "./werewolfEngine";
 import {TR,L,localEvent,openingSpeeches} from "./werewolfPresentation";
+import "./crewPlay.css";
 import "./werewolf.css";
 
 export function WerewolfPage(){

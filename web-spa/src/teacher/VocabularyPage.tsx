@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
+import {vocabularyTopicGroup} from "./vocabularyTopics";
 import {useTeacherStore} from "../store/teacherStore";
 import {teacherText} from "./teacherLocale";
 import {contentReady,ensureVocabularyContent,localizedVocabulary} from "./vocabularyContent";
@@ -155,7 +156,7 @@ export function VocabularyPage(){
     <p>{t("vocabulary.goalCompleteDesc",{count:done})}</p>
     <button className="btn primary crew-learning-full-cta" onClick={continuePractice}>{t("vocabulary.keepGoing")}</button>
    </div>:<div className="quiz-card crew-learning-question" data-feedback={revealed?(picked===word[1]?"correct":"wrong"):"idle"} data-streak={streak>=5?"high":"normal"}>
-    <div className="quiz-meta"><span className="pill">{word[4]}</span><span className="pill">{t("vocabulary.streak",{count:streak})}</span></div>
+    <div className="quiz-meta"><span className="pill">{t("vocabulary.topics."+vocabularyTopicGroup(word[4]))}</span><span className="pill">{t("vocabulary.streak",{count:streak})}</span></div>
     <p className="crew-learning-question-prompt">{t("vocabulary.pickMeaning")}</p>
     <div className="quiz-word" key={word[0]} data-word={word[0]}>{word[0]}</div>
     <div className="crew-vocab-pronunciation-actions">

@@ -215,7 +215,25 @@
     "contentFailed": "Chưa có định nghĩa: {{reason}}",
     "contentError": "Không thể tải nội dung từ vựng",
     "preparing": "Đang chuẩn bị nghĩa bằng tiếng mẹ đẻ…",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "topics": {
+      "daily": "Hằng ngày",
+      "shopping": "Mua sắm",
+      "dining": "Ăn uống",
+      "life": "Đời sống",
+      "work": "Công việc",
+      "travel": "Du lịch",
+      "expression": "Diễn đạt",
+      "general": "Cơ bản",
+      "family": "Gia đình",
+      "school": "Trường học",
+      "health": "Sức khỏe",
+      "nature": "Thiên nhiên",
+      "feelings": "Cảm xúc",
+      "sports": "Thể thao",
+      "tech": "Công nghệ",
+      "social": "Giao tiếp xã hội"
+    }
   },
   "course": {
     "nextLesson": "Bài học tiếp theo",

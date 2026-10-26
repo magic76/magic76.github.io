@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini terhubung",
     "pending": "Gemini perlu diverifikasi",
-    "setup": "Siapkan Gemini"
+    "setup": "Siapkan Gemini",
+    "keyNeeded": "Perlu Gemini key"
   },
   "contact": {
     "label": "Hubungi kami",

@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Đã kết nối Gemini",
     "pending": "Gemini cần xác minh",
-    "setup": "Thiết lập Gemini"
+    "setup": "Thiết lập Gemini",
+    "keyNeeded": "Cần Gemini key"
   },
   "contact": {
     "label": "Liên hệ",

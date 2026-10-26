@@ -3,7 +3,7 @@
   "intro": "Chia sẻ chuyện thường ngày, tiếp tục chủ đề đã nhớ và không bị sửa lỗi bất ngờ.",
   "language": "Ngôn ngữ đang học",
   "gameEntryTitle": "Crew Play · game cùng bạn bè",
-  "gameEntryDescription": "Năm trò chơi: game bàn cờ có thể dùng giọng nói; game đoán và Mystery cần giọng nói Gemini.",
+  "gameEntryDescription": "Game bàn cờ và 1A2B chơi được không cần giọng nói; game đoán và Mystery cần Gemini key.",
   "pace": "Tốc độ nói",
   "slow": "Chậm",
   "normal": "Bình thường",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Đã lưu · áp dụng từ cuộc trò chuyện sau.",
   "chatModeHintNatural": "Chủ yếu nói tiếng mẹ đẻ. Bạn AI sẽ thích nghi khi bạn thường xuyên chuyển sang ngôn ngữ đang học.",
   "chatModeHintBilingual": "Khuyên dùng: chủ yếu nói ngôn ngữ đang học. Khi bí, có thể hỏi bằng tiếng mẹ đẻ. Mỗi câu trả lời dùng một ngôn ngữ.",
-  "chatModeHintImmersion": "Luôn trò chuyện bằng ngôn ngữ đang học. Bạn AI sẽ nói dễ hiểu hơn nhưng không chuyển sang tiếng mẹ đẻ."
+  "chatModeHintImmersion": "Luôn trò chuyện bằng ngôn ngữ đang học. Bạn AI sẽ nói dễ hiểu hơn nhưng không chuyển sang tiếng mẹ đẻ.",
+  "liveStatus": {
+    "speaking": "Bạn của bạn đang nói",
+    "idle": "Bạn có thể nói bất cứ lúc nào",
+    "hearing": "Đang nghe bạn nói",
+    "pause": "Đang chờ bạn nói tiếp",
+    "processing": "Bạn của bạn đang nghĩ câu trả lời",
+    "recovering": "Đang lấy lại câu trả lời",
+    "noTranscript": "Không nhận ra giọng nói",
+    "noReply": "Chưa có phản hồi",
+    "error": "Lỗi kết nối giọng nói",
+    "preparing": "Đang chuẩn bị cuộc trò chuyện",
+    "free": "Trò chuyện tự do"
+  }
 }

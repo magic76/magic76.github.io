@@ -215,7 +215,25 @@
     "preparing": "正在準備你的母語詞義…",
     "fallbackNotice": "母語翻譯尚未準備好，先用內建繁體中文選項練習；不需要 API Key。",
     "partialNotice": "可以繼續作答，母語翻譯正在背景補齊。",
-    "retry": "再試一次"
+    "retry": "再試一次",
+    "topics": {
+      "daily": "日常",
+      "shopping": "購物",
+      "dining": "飲食",
+      "life": "生活",
+      "work": "工作",
+      "travel": "旅遊交通",
+      "expression": "表達",
+      "general": "基礎詞彙",
+      "family": "家庭",
+      "school": "學校",
+      "health": "身體健康",
+      "nature": "自然動物",
+      "feelings": "情緒感受",
+      "sports": "運動",
+      "tech": "科技",
+      "social": "社交"
+    }
   },
   "course": {
     "nextLesson": "下一堂 · 接著學",

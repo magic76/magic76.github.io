@@ -215,7 +215,25 @@
     "contentFailed": "Définitions non prêtes : {{reason}}",
     "contentError": "Impossible de charger le vocabulaire",
     "preparing": "Préparation des définitions dans votre langue maternelle…",
-    "retry": "Réessayer"
+    "retry": "Réessayer",
+    "topics": {
+      "daily": "Quotidien",
+      "shopping": "Shopping",
+      "dining": "Repas",
+      "life": "Vie courante",
+      "work": "Travail",
+      "travel": "Voyage",
+      "expression": "Expressions",
+      "general": "Bases",
+      "family": "Famille",
+      "school": "École",
+      "health": "Santé",
+      "nature": "Nature",
+      "feelings": "Émotions",
+      "sports": "Sport",
+      "tech": "Technologie",
+      "social": "Vie sociale"
+    }
   },
   "course": {
     "nextLesson": "Leçon suivante",

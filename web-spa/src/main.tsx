@@ -14,6 +14,7 @@ import "./teacher/parity.css";
 import "./briefing/briefing.css";
 import "./guides/guides.css";
 import "./uxReadability.css";
+import "./uxPass2.css";
 // Keep the scrollbar policy last so route and dialog styles cannot bring tracks back.
 import "./scrollbar-policy.css";
 import "./i18n";

@@ -215,7 +215,25 @@
     "contentFailed": "Definitions aren't ready yet: {{reason}}",
     "contentError": "Could not load vocabulary content",
     "preparing": "Preparing definitions in your native language…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "topics": {
+      "daily": "Everyday",
+      "shopping": "Shopping",
+      "dining": "Food & dining",
+      "life": "Life",
+      "work": "Work",
+      "travel": "Travel",
+      "expression": "Expressions",
+      "general": "Basics",
+      "family": "Family",
+      "school": "School",
+      "health": "Health",
+      "nature": "Nature",
+      "feelings": "Feelings",
+      "sports": "Sports",
+      "tech": "Tech",
+      "social": "Social"
+    }
   },
   "course": {
     "nextLesson": "Continue learning",

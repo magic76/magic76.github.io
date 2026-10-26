@@ -31,7 +31,6 @@ export function PracticePage(){
  return <>
  <section className="hero crew-practice-heading"><span className="kicker">Crew Teacher</span><h1>{t("practice.title")}</h1><p>{t("practice.intro")}</p></section>
  <HomeShortsPreview/>
- {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-target-shortcut" aria-label={t("practice.targetLabel")}><span>{t("practice.targetLabel")}</span><strong>{target}</strong><Link to="/teacher/roles?mode=teacher">{t("practice.targetChange")}</Link></section>
    <section className="section crew-role-gateway" aria-label={t("practice.roleLabel")}>
   <Link className="crew-role-entry friend" to="/teacher/roles?mode=friends">
@@ -45,6 +44,8 @@ export function PracticePage(){
    <small>{t("practice.teacherAction")} <b aria-hidden="true">↗</b></small>
   </Link>
  </section>
+ {/* Shown after the role choice: it appears only after hydration, so keeping it below the fold avoids shifting the primary entry points. */}
+ {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section"><Link className="feature-card" to="/timeline" style={{background:"linear-gradient(135deg,#f6f0ff,#fff)",borderColor:"#e2d6f4",display:"flex",flexDirection:"column",gap:6}}>
   <strong>Crew Timeline · Mira</strong>
   <span>{t("practiceEntry.timelineIntro")}</span>

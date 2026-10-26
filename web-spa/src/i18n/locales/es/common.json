@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini conectado",
     "pending": "Gemini pendiente de verificación",
-    "setup": "Configurar Gemini"
+    "setup": "Configurar Gemini",
+    "keyNeeded": "Falta la clave de Gemini"
   },
   "contact": {
     "label": "Contacto",

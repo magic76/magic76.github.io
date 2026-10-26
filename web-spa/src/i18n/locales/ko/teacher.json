@@ -215,7 +215,25 @@
     "contentFailed": "아직 뜻을 준비하지 못했습니다: {{reason}}",
     "contentError": "단어 콘텐츠를 불러올 수 없습니다",
     "preparing": "모국어 뜻 준비 중…",
-    "retry": "다시 시도"
+    "retry": "다시 시도",
+    "topics": {
+      "daily": "일상",
+      "shopping": "쇼핑",
+      "dining": "음식",
+      "life": "생활",
+      "work": "업무",
+      "travel": "여행·교통",
+      "expression": "표현",
+      "general": "기초 어휘",
+      "family": "가족",
+      "school": "학교",
+      "health": "건강",
+      "nature": "자연·동물",
+      "feelings": "감정",
+      "sports": "스포츠",
+      "tech": "기술",
+      "social": "사교"
+    }
   },
   "course": {
     "nextLesson": "다음 수업",

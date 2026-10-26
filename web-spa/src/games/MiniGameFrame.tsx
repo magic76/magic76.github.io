@@ -12,6 +12,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {geminiKey} from "../lib/runtime";
 import {GamePanel} from "./GamePanel";
 import {GameSpeechBubble} from "./GameSpeechBubble";
+import "./crewPlay.css";
 import "./miniGames.css";
 
 export type MiniKind="1a2b"|"taboo"|"court";
@@ -32,22 +33,23 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
  const taboo=kind==="taboo";
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const chinese=/(中文|華語|國語|chinese|mandarin|^zh)/i.test(targetLanguage);
+ const {t}=useTranslation("home");
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  return <div className="crew-play-page crew-mini-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
-   <Link to="/games" className="crew-play-back">← 全部遊戲</Link>
+   <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
-   <h1>{taboo?"Taboo 描述猜詞":kind==="court"?"荒謬法庭":"1A2B 猜數字"}</h1>
-   <p>{taboo?(geminiKey()?(chinese?"用中文描述讓 AI 猜題。":"用英文描述讓 AI 猜題。"):"免 Key 描述練習；AI 猜詞需要 Gemini Key。"):kind==="court"?"和 AI 朋友辯論荒謬案件。":"數字不重複，靠 A 與 B 的線索找出答案。"}</p>
+   <h1>{taboo?t("playHub.games.taboo.title"):kind==="court"?t("playHub.mini.courtTitle"):t("playHub.games.1a2b.title")}</h1>
+   <p>{taboo?(geminiKey()?(chinese?t("playHub.mini.tabooDescChinese"):t("playHub.mini.tabooDescEnglish")):t("playHub.mini.tabooDescNoKey")):kind==="court"?t("playHub.mini.courtDesc"):t("playHub.mini.numberDesc")}</p>
   </header>
   <div className="crew-play-frame">
    <section className="crew-play-friend-bar crew-mini-friend-bar">
-    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>你的 Crew 朋友</small></div></div>
-    <GamePanel title="選擇 Crew 朋友" label="更換朋友">
-     <label className="crew-play-friend-select">對話角色
+    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{t("playHub.yourFriend")}</small></div></div>
+    <GamePanel title="選擇 Crew 朋友" label={t("playHub.changeFriend")}>
+     <label className="crew-play-friend-select">{t("playHub.mini.friendSelect")}
       <select value={friend.id} onChange={e=>onChange(e.target.value)}>{CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select>
      </label>
-     <p>切換朋友將重新開始這局遊戲；開啟設定本身不影響語音連線。</p>
+     <p>{t("playHub.mini.switchNote")}</p>
     </GamePanel>
    </section>
    {children}
@@ -61,7 +63,7 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const {gameVoice,setGameVoice}=useGameVoice();
- const {i18n}=useTranslation("home");
+ const {t,i18n}=useTranslation("home");
  const english=Boolean(i18n.resolvedLanguage?.startsWith("en"));
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const friendMode=useTeacherStore(s=>s.friendChatMode);
@@ -104,19 +106,19 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
   if(live.sendText("[VERIFIED GAME] "+cue.text))deliveredRef.current=cue.id;
  },[cue,live.state,live.sendText]);
  const hasKey=typeof window!=="undefined"&&Boolean(geminiKey());
- return <section className="crew-mini-voice" aria-label="朋友語音">
-  <div className="crew-mini-voice-settings"><GamePanel label={english?"Voice settings":"語音設定"} title={english?"Voice settings":"語音設定"}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/></GamePanel></div>
+ return <section className="crew-mini-voice" aria-label={t("playHub.mini.voiceRegion")}>
+  <div className="crew-mini-voice-settings"><GamePanel label={t("playHub.mini.voiceSettings")} title={t("playHub.mini.voiceSettings")}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/></GamePanel></div>
   <div className="crew-mini-voice-header">
    <FriendAvatar friend={friend} className={live.state==="speaking"?"is-speaking":""}/>
-   <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?"直接猜詞":court?"法庭語音（選用）":"語音陪玩（選用）"}</strong>
-    <small aria-live="polite">{active?live.state==="speaking"?"朋友正在說話":live.state==="listening"?(directGuess?"正在聽你描述":chinese?"正在聽中文":"正在聽"+targetLanguage):"語音連接中":hasKey?"打字也能玩，不必開麥克風":kind==="taboo"?"免 Key 文字練習；AI 猜詞需 Key":"無 Key 也能文字玩"}</small>
+   <div className="crew-mini-voice-copy"><strong>{friend.name} · {directGuess?t("playHub.mini.modeDirect"):court?t("playHub.mini.modeCourt"):t("playHub.mini.modeCompanion")}</strong>
+    <small aria-live="polite">{active?live.state==="speaking"?t("playHub.mini.statusSpeaking"):live.state==="listening"?(directGuess?t("playHub.mini.statusDescribe"):t("playHub.mini.statusListening")):t("playHub.mini.statusConnecting"):hasKey?t("playHub.mini.hintTyping"):kind==="taboo"?t("playHub.mini.hintTabooNoKey"):t("playHub.mini.hintNoKey")}</small>
    </div>
   </div>
   {live.output&&active?<GameSpeechBubble text={live.output} english={english}/>:null}
-  {active?<LiveControls live={live} prominentInterrupt interruptLabel="換我說 · 打斷朋友" compact/>:
-   hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">開啟與 {friend.name} 的語音</button>:
-   <Link className="crew-mini-key-link" to="/settings">要開啟 Live 語音？先到設定填入 Gemini Key（選用）</Link>}
-  {live.state==="error"?<p className="crew-mini-error" role="alert">{live.status}，可改用文字繼續遊戲。</p>:null}
-  <small>{directGuess?(hasKey?"描述一次，AI 朋友直接猜一次；分數由規則判定。":"免 Key 時僅供自評練習，不會模擬 AI 猜詞。"):"Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"}</small>
+  {active?<LiveControls live={live} prominentInterrupt interruptLabel={t("playHub.mini.interrupt")} compact english={english}/>:
+   hasKey?<button className="crew-mini-primary" onClick={()=>{seenRef.current.clear();void live.start()}} type="button">{t("playHub.mini.startVoice",{name:friend.name})}</button>:
+   <Link className="crew-mini-key-link" to="/settings">{t("playHub.mini.keyLink")}</Link>}
+  {live.state==="error"?<p className="crew-mini-error" role="alert">{t("playHub.mini.voiceError",{status:live.status})}</p>:null}
+  <small>{directGuess?(hasKey?t("playHub.mini.noteDirectKey"):t("playHub.mini.noteDirectNoKey")):t("playHub.mini.noteLive")}</small>
  </section>;
 }
