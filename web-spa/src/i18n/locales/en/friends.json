@@ -3,7 +3,7 @@
   "intro": "No lessons here: share everyday moments, continue remembered topics and chat without unsolicited corrections.",
   "language": "Language to learn",
   "gameEntryTitle": "Crew Play · games with friends",
-  "gameEntryDescription": "Five games: boards with optional voice; guessing and Mystery need Gemini voice.",
+  "gameEntryDescription": "Board games and 1A2B work without voice; guessing games and Mystery need a Gemini key.",
   "pace": "Speaking pace",
   "slow": "Slow",
   "normal": "Normal",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Saved · applies from the next conversation.",
   "chatModeHintNatural": "Chat mainly in your own language; your friend follows when you consistently switch to the target language.",
   "chatModeHintBilingual": "Recommended: chat mainly in the language you're learning. Ask in your own language if you're stuck. One language per reply; your friend adapts naturally.",
-  "chatModeHintImmersion": "Always chat in the language you're learning. Your friend adjusts clarity but won't switch to your native language."
+  "chatModeHintImmersion": "Always chat in the language you're learning. Your friend adjusts clarity but won't switch to your native language.",
+  "liveStatus": {
+    "speaking": "Your friend is speaking",
+    "idle": "Go ahead and talk",
+    "hearing": "Listening to you",
+    "pause": "Waiting for you to continue",
+    "processing": "Your friend is thinking",
+    "recovering": "Getting the reply again",
+    "noTranscript": "Didn't catch that",
+    "noReply": "No reply yet",
+    "error": "Voice connection problem",
+    "preparing": "Getting the chat ready",
+    "free": "Free chat"
+  }
 }

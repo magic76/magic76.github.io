@@ -3,7 +3,7 @@
   "intro": "Pas de cours ici : partagez des moments du quotidien, reprenez des sujets mémorisés et discutez sans corrections non sollicitées.",
   "language": "Langue apprise",
   "gameEntryTitle": "Crew Play · jeux entre amis",
-  "gameEntryDescription": "Cinq jeux : la voix est facultative pour les jeux de plateau ; les devinettes et Mystery nécessitent la voix Gemini.",
+  "gameEntryDescription": "Les jeux de plateau et 1A2B se jouent sans voix ; les devinettes et Mystery nécessitent une clé Gemini.",
   "pace": "Vitesse d'élocution",
   "slow": "Lent",
   "normal": "Normal",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Enregistré · s'applique à la prochaine conversation.",
   "chatModeHintNatural": "Parlez surtout dans votre langue maternelle ; votre ami s'adapte quand vous passez régulièrement à la langue apprise.",
   "chatModeHintBilingual": "Conseillé : discutez surtout dans la langue que vous apprenez. Si vous bloquez, posez des questions dans votre langue maternelle. Une langue par réponse ; votre ami s'adapte naturellement.",
-  "chatModeHintImmersion": "Discutez toujours dans la langue apprise. Votre ami simplifie ses propos, mais ne passe pas à votre langue maternelle."
+  "chatModeHintImmersion": "Discutez toujours dans la langue apprise. Votre ami simplifie ses propos, mais ne passe pas à votre langue maternelle.",
+  "liveStatus": {
+    "speaking": "Ton ami parle",
+    "idle": "Tu peux parler",
+    "hearing": "À l’écoute",
+    "pause": "J’attends la suite",
+    "processing": "Ton ami réfléchit",
+    "recovering": "Nouvelle tentative de réponse",
+    "noTranscript": "Je n’ai pas compris",
+    "noReply": "Pas encore de réponse",
+    "error": "Problème de connexion vocale",
+    "preparing": "Préparation de la conversation",
+    "free": "Discussion libre"
+  }
 }

@@ -215,7 +215,25 @@
     "contentFailed": "Las definiciones aún no están listas: {{reason}}",
     "contentError": "No se pudo cargar el vocabulario",
     "preparing": "Preparando definiciones en tu idioma…",
-    "retry": "Reintentar"
+    "retry": "Reintentar",
+    "topics": {
+      "daily": "Vida diaria",
+      "shopping": "Compras",
+      "dining": "Comida",
+      "life": "Vida",
+      "work": "Trabajo",
+      "travel": "Viajes",
+      "expression": "Expresiones",
+      "general": "Básico",
+      "family": "Familia",
+      "school": "Escuela",
+      "health": "Salud",
+      "nature": "Naturaleza",
+      "feelings": "Emociones",
+      "sports": "Deportes",
+      "tech": "Tecnología",
+      "social": "Vida social"
+    }
   },
   "course": {
     "nextLesson": "Siguiente lección",

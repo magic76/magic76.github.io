@@ -49,7 +49,8 @@ const appTags=viteAssetTags.filter(tag=>!tag.includes('rel="stylesheet"')).join(
 const viteManifest=JSON.parse(readFileSync(join(out,".vite","manifest.json"),"utf8"));
 const ssgRouteEntries={
  "/":["src/pages/HomePage.tsx"],
- "/games":["src/games/CrewPlayHubPage.tsx"]
+ "/games":["src/games/CrewPlayHubPage.tsx"],
+ "/teacher":["src/teacher/PracticePage.tsx"]
 };
 function routeCssLinks(route){
  const visited=new Set(),cssFiles=new Set();

@@ -1,4 +1,5 @@
 import{GeminiSetupNotice}from"../components/GeminiSetupNotice";
+import{useTranslation}from"react-i18next";
 import type{ReturnTypeOfLive}from"./types";
 import "./gameVoiceCompact.css";
 
@@ -7,6 +8,9 @@ function clock(ms:number){const s=Math.floor(ms/1000);return Math.floor(s/60)+":
 export function LiveControls({live,interruptLabel="打斷老師",prominentInterrupt=false,onEnd,compact=false,english=false}:{live:ReturnTypeOfLive;interruptLabel?:string;prominentInterrupt?:boolean;onEnd?:()=>void|Promise<unknown>;compact?:boolean;english?:boolean}){
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const error=live.state==="error";
+ const {t}=useTranslation("settings");
+ // A missing key is a setup step, not a connection failure: show it neutrally and translated.
+ const needsKey=error&&live.errorKind==="key";
  if(compact&&active&&!error){
   const speaking=live.state==="speaking",listening=live.state==="listening";
   const stateText=speaking?(english?"Speaking":"朋友說話"):listening?(english?"Listening":"正在聆聽"):live.state==="connecting"||live.state==="requesting-mic"?(english?"Connecting":"連線中"):(english?"Finishing":"結束中");
@@ -30,7 +34,7 @@ export function LiveControls({live,interruptLabel="打斷老師",prominentInterr
   </div>;
  }
  return <>
-  <div className={"live-status "+(error?"error":"")}>{live.status}</div>
+  <div className={"live-status "+(error&&!needsKey?"error":"")} role="status">{needsKey?t("gemini.initialMissing"):live.status}</div>
   {error?<div className="live-recovery">
    {live.errorKind==="key"?<GeminiSetupNotice force className="crew-gemini-setup-live"/>:
     <button className="live-btn" onClick={()=>void live.start()}>{live.errorKind==="mic"?"重新允許麥克風":"重新連線"}</button>}

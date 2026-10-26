@@ -104,11 +104,12 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
- const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":live.state;
- const friendVoiceStatus=live.state==="speaking"?"朋友說話中"
-  :live.state==="listening"
-   ?({idle:"隨時可以說話",hearing:"正在聽你說",pause:"等待你繼續說",processing:"朋友正在準備回答",recovering:"正在重新取得回答","no-transcript":"沒有辨識到語音","no-reply":"朋友尚未回覆"}[live.voicePhase]||"隨時可以說話")
-  :live.state==="error"?"語音連線異常":active?"正在準備對話":"自由聊天";
+ const needsKey=live.state==="error"&&live.errorKind==="key";
+ const friendVisualState=live.state==="listening"&&["processing","recovering","no-transcript","no-reply"].includes(live.voicePhase)?"waiting":live.state==="requesting-mic"?"connecting":live.state==="reporting"?"waiting":needsKey?"idle":live.state;
+ const phaseKey:Record<string,string>={idle:"idle",hearing:"hearing",pause:"pause",processing:"processing",recovering:"recovering","no-transcript":"noTranscript","no-reply":"noReply"};
+ const friendVoiceStatus=live.state==="speaking"?t("liveStatus.speaking")
+  :live.state==="listening"?t("liveStatus."+(phaseKey[live.voicePhase]||"idle"))
+  :needsKey?t("common:gemini.keyNeeded"):live.state==="error"?t("liveStatus.error"):active?t("liveStatus.preparing"):t("liveStatus.free");
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
@@ -127,7 +128,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label="返回 Crew 朋友">‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>Crew 朋友 · {language}</small></div>
    </div>
-   <span className="status connected" data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
+   <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
    <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={"和 "+friend.name+" 聊天"}>

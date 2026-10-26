@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini 已連線",
     "pending": "Gemini 待驗證",
-    "setup": "設定 Gemini"
+    "setup": "設定 Gemini",
+    "keyNeeded": "需要設定 Gemini Key"
   },
   "contact": {
     "label": "聯絡我們",

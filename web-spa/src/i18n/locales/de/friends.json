@@ -3,7 +3,7 @@
   "intro": "Teile deinen Alltag, knüpfe an bekannte Themen an und chatte ohne unerwünschte Korrekturen.",
   "language": "Lernsprache",
   "gameEntryTitle": "Crew Play · Spiele mit Freunden",
-  "gameEntryDescription": "Fünf Spiele: Bei Brettspielen ist Sprache optional; Rate- und Mystery-Spiele brauchen Gemini-Sprache.",
+  "gameEntryDescription": "Brettspiele und 1A2B gehen ohne Stimme; Rate- und Mystery-Spiele brauchen einen Gemini-Key.",
   "pace": "Sprechtempo",
   "slow": "Langsam",
   "normal": "Normal",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Gespeichert · gilt ab dem nächsten Gespräch.",
   "chatModeHintNatural": "Sprich vor allem deine Muttersprache. Dein Freund folgt dir, wenn du konsequent zur Lernsprache wechselst.",
   "chatModeHintBilingual": "Empfohlen: Nutze vor allem die Lernsprache. Wenn du feststeckst, frag in deiner Muttersprache. Pro Antwort nur eine Sprache.",
-  "chatModeHintImmersion": "Sprich immer in der Lernsprache. Dein Freund spricht verständlicher, wechselt aber nicht in deine Muttersprache."
+  "chatModeHintImmersion": "Sprich immer in der Lernsprache. Dein Freund spricht verständlicher, wechselt aber nicht in deine Muttersprache.",
+  "liveStatus": {
+    "speaking": "Dein Freund spricht",
+    "idle": "Du kannst jederzeit sprechen",
+    "hearing": "Hört dir zu",
+    "pause": "Wartet, dass du weitersprichst",
+    "processing": "Dein Freund überlegt",
+    "recovering": "Antwort wird erneut abgerufen",
+    "noTranscript": "Nicht verstanden",
+    "noReply": "Noch keine Antwort",
+    "error": "Problem mit der Sprachverbindung",
+    "preparing": "Gespräch wird vorbereitet",
+    "free": "Freies Gespräch"
+  }
 }

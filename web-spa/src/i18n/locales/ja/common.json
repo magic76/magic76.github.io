@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini に接続済み",
     "pending": "Gemini の確認が必要",
-    "setup": "Gemini を設定"
+    "setup": "Gemini を設定",
+    "keyNeeded": "Gemini Key の設定が必要"
   },
   "contact": {
     "label": "お問い合わせ",

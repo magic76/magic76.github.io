@@ -3,7 +3,7 @@
   "intro": "Aqui não tem aula: compartilhe momentos do dia a dia, retome assuntos lembrados e converse sem correções não solicitadas.",
   "language": "Idioma que está aprendendo",
   "gameEntryTitle": "Crew Play · jogos com amigos",
-  "gameEntryDescription": "Cinco jogos: jogos de tabuleiro têm voz opcional; adivinhação e Mystery precisam da voz do Gemini.",
+  "gameEntryDescription": "Jogos de tabuleiro e 1A2B funcionam sem voz; adivinhação e Mystery precisam de uma chave Gemini.",
   "pace": "Ritmo da fala",
   "slow": "Devagar",
   "normal": "Normal",
@@ -93,5 +93,18 @@
   "chatModeSavedNext": "Salvo · válido a partir da próxima conversa.",
   "chatModeHintNatural": "Converse principalmente no seu idioma. Seu amigo acompanha quando você passa a usar o idioma de estudo de forma consistente.",
   "chatModeHintBilingual": "Recomendado: converse principalmente no idioma que aprende. Se travar, pergunte no seu idioma. Um idioma por resposta; seu amigo se adapta naturalmente.",
-  "chatModeHintImmersion": "Converse sempre no idioma que aprende. Seu amigo adapta a clareza, mas não muda para seu idioma."
+  "chatModeHintImmersion": "Converse sempre no idioma que aprende. Seu amigo adapta a clareza, mas não muda para seu idioma.",
+  "liveStatus": {
+    "speaking": "Seu amigo está falando",
+    "idle": "Pode falar quando quiser",
+    "hearing": "Estou ouvindo você",
+    "pause": "Esperando você continuar",
+    "processing": "Seu amigo está pensando",
+    "recovering": "Recuperando a resposta",
+    "noTranscript": "Não entendi",
+    "noReply": "Ainda sem resposta",
+    "error": "Problema na conexão de voz",
+    "preparing": "Preparando a conversa",
+    "free": "Conversa livre"
+  }
 }

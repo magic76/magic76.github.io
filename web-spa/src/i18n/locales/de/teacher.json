@@ -215,7 +215,25 @@
     "contentFailed": "Definitionen noch nicht bereit: {{reason}}",
     "contentError": "Vokabelinhalte konnten nicht geladen werden",
     "preparing": "Bedeutungen in deiner Muttersprache werden vorbereitet…",
-    "retry": "Erneut versuchen"
+    "retry": "Erneut versuchen",
+    "topics": {
+      "daily": "Alltag",
+      "shopping": "Einkaufen",
+      "dining": "Essen",
+      "life": "Leben",
+      "work": "Arbeit",
+      "travel": "Reisen",
+      "expression": "Ausdrücke",
+      "general": "Grundwortschatz",
+      "family": "Familie",
+      "school": "Schule",
+      "health": "Gesundheit",
+      "nature": "Natur",
+      "feelings": "Gefühle",
+      "sports": "Sport",
+      "tech": "Technik",
+      "social": "Soziales"
+    }
   },
   "course": {
     "nextLesson": "Nächste Lektion",

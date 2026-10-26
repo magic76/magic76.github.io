@@ -36,7 +36,8 @@
   "gemini": {
     "connected": "Gemini connected",
     "pending": "Gemini needs verification",
-    "setup": "Set up Gemini"
+    "setup": "Set up Gemini",
+    "keyNeeded": "Gemini key needed"
   },
   "contact": {
     "label": "Contact",
