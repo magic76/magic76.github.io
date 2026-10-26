@@ -7,6 +7,12 @@ import {ringStep,ringPoint,islandSurfaceHeight} from "./magicNavigation";
 import {MagicWonders3D} from "./MagicWonders3D";
 import {MagicCreations3D} from "./MagicCreations3D";
 import {MagicDragonModel3D,MagicFoxModel3D} from "./MagicProceduralLife3D";
+import {
+ MAGIC_OVERVIEW_POSITION,
+ getMagicOverviewPosition,
+} from "./magicCamera";
+import {MagicLighting3D} from "./MagicLighting3D";
+import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
@@ -17,12 +23,7 @@ const PLOTS:[[number,number],[number,number],[number,number],[number,number],[nu
 const ISLAND_LINEAR_SCALE=Math.sqrt(10); // radius grows sqrt(10): actual terrain area grows 10x
 const ISLAND_X_RADIUS=5.65*ISLAND_LINEAR_SCALE;
 const ISLAND_Z_RADIUS=4.75*ISLAND_LINEAR_SCALE;
-const OVERVIEW_POSITION=new Vector3(12.5*ISLAND_LINEAR_SCALE,11.4*ISLAND_LINEAR_SCALE,18.7*ISLAND_LINEAR_SCALE);
-const BIOMES={
- sky:{ground:"#a5d59f",side:"#797eac",roof:"#866fae",tree:"#70b19d",detail:"#e0dbb6",sky:"#a7d0ee"},
- forest:{ground:"#72b285",side:"#526e78",roof:"#d3a568",tree:"#3c916b",detail:"#cce1a4",sky:"#9ec5a6"},
- candy:{ground:"#efbbcc",side:"#a78db2",roof:"#f199b3",tree:"#e990b9",detail:"#fff0c1",sky:"#eec7e9"}
-} as const;
+const OVERVIEW_POSITION=MAGIC_OVERVIEW_POSITION;
 
 function FloatingIsland({colors}:{colors:(typeof BIOMES)[keyof typeof BIOMES]}){
  const rocks=useMemo(()=>Array.from({length:36},(_,i)=>({
@@ -30,16 +31,16 @@ function FloatingIsland({colors}:{colors:(typeof BIOMES)[keyof typeof BIOMES]}){
  })),[]);
  return <group>
   <mesh position={[0,-.08,0]} scale={[ISLAND_LINEAR_SCALE,.38,ISLAND_LINEAR_SCALE]}>
-   <icosahedronGeometry args={[5.65,1]}/><meshStandardMaterial color={colors.side} flatShading roughness={1}/>
+   <icosahedronGeometry args={[5.65,1]}/><meshStandardMaterial color={colors.side} {...MAGIC_MATERIALS.stone}/>
   </mesh>
   <mesh position={[0,.55,0]} scale={[ISLAND_X_RADIUS/5.65,.18,ISLAND_Z_RADIUS/5.65]}>
-   <sphereGeometry args={[5.65,28,12]}/><meshStandardMaterial color={colors.ground} roughness={1}/>
+   <sphereGeometry args={[5.65,28,12]}/><meshStandardMaterial color={colors.ground} {...MAGIC_MATERIALS.grass}/>
   </mesh>
   <mesh position={[0,.66,1.15]} rotation={[-Math.PI/2,0,0]}>
    <torusGeometry args={[2.2,.11,6,60,Math.PI]}/><meshStandardMaterial color={colors.detail} roughness={.8}/>
   </mesh>
   {rocks.map((rock,i)=><mesh key={i} position={[rock.x,rock.y,rock.z]} rotation={[i*.2,i*.4,i*.12]} scale={[rock.s,rock.s*1.5,rock.s]}>
-   <dodecahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%3===0?"#aaa2a5":colors.side} flatShading roughness={1}/>
+   <dodecahedronGeometry args={[1,0]}/><meshStandardMaterial color={i%3===0?"#B8AEB8":colors.side} {...MAGIC_MATERIALS.stone}/>
   </mesh>)}
  </group>;
 }
@@ -116,8 +117,8 @@ function Castle({colors,night,ice}:{colors:(typeof BIOMES)[keyof typeof BIOMES];
 function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOMES)[keyof typeof BIOMES];variant?:number}){
  return <group position={[x,islandSurfaceHeight(x,z)+.08,z]} scale={.73+(variant%3)*.13}>
   <mesh position={[0,.47,0]}><cylinderGeometry args={[.13,.21,1.1,7]}/><meshStandardMaterial color="#96745f"/></mesh>
-  {variant%2===0?<mesh position={[0,1.44,0]}><coneGeometry args={[.82,1.8,7]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>
-   :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} flatShading roughness={1}/></mesh>}
+  {variant%2===0?<mesh position={[0,1.44,0]}><coneGeometry args={[.82,1.8,7]}/><meshStandardMaterial color={colors.tree} {...MAGIC_MATERIALS.foliage}/></mesh>
+   :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} {...MAGIC_MATERIALS.foliage}/></mesh>}
  </group>;
 }
 // Keep animations deterministic and collision-safe without allocating new geometry
@@ -344,10 +345,14 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   const timer=window.setTimeout(()=>setCinematic(false),3800);
   return()=>window.clearTimeout(timer);
  },[world.revision,world.cue,reducedMotion]);
- const {gl,invalidate,camera}=useThree();
+ const {gl,invalidate,camera,size}=useThree();
+ const overviewPosition=useMemo(
+  ()=>getMagicOverviewPosition(size.width/Math.max(size.height,1)),
+  [size.width,size.height]
+ );
  const orbit=useRef<ComponentRef<typeof OrbitControls>>(null);
  const scriptedView=useRef(true);
- useEffect(()=>{scriptedView.current=true;invalidate()},[focusId,viewVersion,invalidate]);
+ useEffect(()=>{scriptedView.current=true;invalidate()},[focusId,viewVersion,overviewPosition,invalidate]);
  useFrame((_,delta)=>{
   if(cinematic||!scriptedView.current||!orbit.current)return;
   const focus=world.objects.find(obj=>obj.id===focusId);
@@ -360,7 +365,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   const creation=world.creations.find(c=>c.id===focusCreationId);
   if(creation)[x,z]=safeMagicAnchor(creation.x,creation.z);
   const overview=!focus&&!creation;
-  const cameraGoal=overview?OVERVIEW_POSITION:new Vector3(x+7.5,9.1,z+10.6);
+  const cameraGoal=overview?overviewPosition:new Vector3(x+7.5,9.1,z+10.6);
   const targetGoal=overview?new Vector3(0,1.05,0):new Vector3(x,focus?.kind==="dragon"?3.4:2.9,z);
   const factor=reducedMotion?1:Math.min(1,delta*2.4);
   camera.position.lerp(cameraGoal,factor);
@@ -382,12 +387,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   return [Math.cos(angle)*rad,Math.sin(angle)*rad] as const;
  }),[]);
  return <>
-  <color attach="background" args={[colors.sky]}/>
-  <fog attach="fog" args={[colors.sky,58,140]}/>
-  <hemisphereLight args={[night?"#6c85be":"#fff4df",night?"#52636b":"#8da5a3",night?.8:2.1]}/>
-  <ambientLight intensity={night?.55:.8}/>
-  <directionalLight position={[-5,9,7]} intensity={night?1.2:2} color={night?"#c2cbed":"#fff6e6"}/>
-  <pointLight position={[0,4,0]} intensity={night?2.3:.8} color="#e6cbff" distance={10}/>
+  <MagicLighting3D world={world} colors={colors}/>
   <FloatingIsland colors={colors}/>
    <OuterDistricts colors={colors} night={night}/>
   <Castle colors={colors} night={night} ice={world.castle==="ice"}/>
@@ -426,7 +426,7 @@ export function MagicScene3D(props:Props){
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  return <Canvas className="magic-three-canvas" aria-label="3D magic world" role="img"
-   camera={{position:[39.53,36.05,59.14],fov:42,near:.1,far:180}}
+   camera={{position:MAGIC_OVERVIEW_POSITION.toArray(),fov:42,near:.1,far:180}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
    frameloop={props.reducedMotion||!visible?"demand":"always"}
