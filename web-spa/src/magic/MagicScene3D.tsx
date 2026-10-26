@@ -14,6 +14,9 @@ import {
 import {MagicLighting3D} from "./MagicLighting3D";
 import {MagicTerrain3D} from "./MagicTerrain3D";
 import {MagicGroundShadows3D} from "./MagicGroundShadows3D";
+import {MagicForest3D,MagicDistricts3D} from "./MagicScenery3D";
+import {MagicCastle3D} from "./MagicCastle3D";
+import {MagicPaths3D} from "./MagicPaths3D";
 import {BIOMES,MAGIC_MATERIALS} from "./magicPalette";
 
 // The renderer receives only the strictly validated world reducer output.
@@ -26,83 +29,6 @@ const ISLAND_LINEAR_SCALE=Math.sqrt(10); // radius grows sqrt(10): actual terrai
 const ISLAND_X_RADIUS=5.65*ISLAND_LINEAR_SCALE;
 const ISLAND_Z_RADIUS=4.75*ISLAND_LINEAR_SCALE;
 
-/** Light, deterministic neighborhoods give the expanded island recognizable
- * destinations. World state and AI tool arguments stay unchanged; no textures,
- * instancing libraries, per-frame allocations or paid services. */
-function OuterDistricts({colors,night}:{colors:(typeof BIOMES)[keyof typeof BIOMES];night:boolean}){
- const districts=useMemo(()=>Array.from({length:8},(_,i)=>{
-  const angle=i*Math.PI/4+.18;
-  const x=Math.cos(angle)*12.5,z=Math.sin(angle)*10.4;
-  return {x,z,angle,id:i};
- }),[]);
- const groves=useMemo(()=>Array.from({length:28},(_,i)=>{
-  const angle=i*2.39996+.4,rad=5.7+(i%5)*1.95;
-  const x=Math.cos(angle)*rad,z=Math.sin(angle)*rad*.83;
-  return {x,z,id:i};
- }),[]);
- return <group>
-  {districts.map(site=><group key={site.id}
-   position={[site.x,islandSurfaceHeight(site.x,site.z),site.z]} rotation={[0,-site.angle,0]}>
-   <mesh position={[0,-.1,0]}><cylinderGeometry args={[1.75,1.9,.2,10]}/>
-    <meshStandardMaterial color={colors.detail} roughness={1}/></mesh>
-   <mesh position={[0,.03,0]} rotation={[-Math.PI/2,0,0]}>
-    <ringGeometry args={[1.5,1.67,20]}/>
-    <meshStandardMaterial color={colors.roof} roughness={1} side={2}/></mesh>
-   {[-1,0,1].map((step,i)=><group key={i} position={[step*.83,0,step===0?-.35:.28]}>
-    <mesh position={[0,.34,0]}>
-     <cylinderGeometry args={[.26+(i===1?.08:0),.35,.7+(i===1?.3:0),6]}/>
-     <meshStandardMaterial color={site.id%2===0?colors.side:"#bba9a0"} flatShading roughness={1}/></mesh>
-    <mesh position={[0,.79+(i===1?.3:0),0]}>
-     <coneGeometry args={[.4,.54,6]}/>
-     <meshStandardMaterial color={colors.roof} flatShading roughness={.78}/></mesh>
-   </group>)}
-   <mesh position={[0,1.65,-.3]} rotation={[0,site.id*.7,0]}>
-    <octahedronGeometry args={[.27,0]}/>
-    <meshStandardMaterial color={night?"#c9f6ff":colors.detail} emissive="#91d6c5"
-     emissiveIntensity={night?.65:.12}/></mesh>
-  </group>)}
-  {groves.map(site=><group key={site.id}
-   position={[site.x,islandSurfaceHeight(site.x,site.z),site.z]}>
-   <mesh position={[0,.48,0]}><cylinderGeometry args={[.11,.21,.94,5]}/>
-    <meshStandardMaterial color="#8f7664" roughness={1}/></mesh>
-   <mesh position={[0,1.28,0]} scale={[.72,1.05,.72]}>
-    <icosahedronGeometry args={[.85,0]}/>
-    <meshStandardMaterial color={site.id%4===0?colors.roof:colors.tree}
-     roughness={1} flatShading/></mesh>
-  </group>)}
- </group>;
-}
-function Castle({colors,night,ice}:{colors:(typeof BIOMES)[keyof typeof BIOMES];night:boolean;ice:boolean}){
- return <group position={[0,islandSurfaceHeight(0,-.55)+.34,-.55]}>
-  <mesh position={[0,.8,0]}><boxGeometry args={[2.5,1.8,1.55]}/><meshStandardMaterial color={ice?"#a6e5f4":"#f4e9db"} metalness={ice?.22:0} roughness={ice?.28:.9}/></mesh>
-  <mesh position={[0,1.8,0]}><coneGeometry args={[1.85,.95,4]}/><meshStandardMaterial color={ice?"#d6f9ff":colors.roof} flatShading/></mesh>
-  <mesh position={[0,.35,.81]}><boxGeometry args={[.66,1,.12]}/><meshStandardMaterial color={ice?"#5cb0cc":"#665a74"}/></mesh>
-  <mesh position={[0,.54,.88]}><sphereGeometry args={[.09,8,8]}/><meshStandardMaterial color="#ffdc8a" emissive="#ffb85a" emissiveIntensity={night?.9:.15}/></mesh>
-  {[-1.12,1.12].map((x,i)=><group key={i} position={[x,0,.25]}>
-   <mesh position={[0,1.06,0]}><cylinderGeometry args={[.51,.57,2.7,8]}/><meshStandardMaterial color={ice?"#b4eff7":"#eae0d8"} flatShading/></mesh>
-   <mesh position={[0,2.67,0]}><coneGeometry args={[.77,1.25,8]}/><meshStandardMaterial color={ice?"#e5fcff":colors.roof} flatShading/></mesh>
-   <mesh position={[0,1.38,.56]}><sphereGeometry args={[.19,8,8]}/><meshStandardMaterial color="#fff6bb" emissive="#ffdb9a" emissiveIntensity={night?1.2:.24}/></mesh>
-   <mesh position={[0,3.4,0]}><sphereGeometry args={[.12,8,8]}/><meshStandardMaterial color="#ffdc98" emissive="#ffc871" emissiveIntensity={night?1.4:.35}/></mesh>
-  </group>)}
-  <mesh position={[0,2.4,-.8]}><cylinderGeometry args={[.38,.45,2.4,8]}/><meshStandardMaterial color={ice?"#d7f6fb":"#e9dbd1"}/></mesh>
-  <mesh position={[0,3.95,-.8]}><coneGeometry args={[.61,1.1,8]}/><meshStandardMaterial color={ice?"#c5ecf7":colors.roof}/></mesh>
-  {ice&&[-1.45,-.9,-.25,.8,1.5].map((x,i)=><mesh key={i} position={[x,2.65+(i%3)*.28,.9]} rotation={[0,0,(i-2)*.2]}>
-   <coneGeometry args={[.24+(i%2)*.08,.82+(i%3)*.37,5]}/>
-   <meshStandardMaterial color="#bceefd" emissive="#65c9e9" emissiveIntensity={.2} metalness={.18}/>
-  </mesh>)}
-  {ice&&<mesh position={[0,.68,1.06]} rotation={[0,0,Math.PI/4]}>
-   <octahedronGeometry args={[.38,0]}/>
-   <meshStandardMaterial color="#e2fbff" emissive="#82c9eb" emissiveIntensity={.5}/>
-  </mesh>}
- </group>;
-}
-function MagicTree({x,z,colors,variant=0}:{x:number;z:number;colors:(typeof BIOMES)[keyof typeof BIOMES];variant?:number}){
- return <group position={[x,islandSurfaceHeight(x,z)+.08,z]} scale={.73+(variant%3)*.13}>
-  <mesh position={[0,.47,0]}><cylinderGeometry args={[.13,.21,1.1,7]}/><meshStandardMaterial color="#96745f"/></mesh>
-  {variant%2===0?<mesh position={[0,1.44,0]}><coneGeometry args={[.82,1.8,7]}/><meshStandardMaterial color={colors.tree} {...MAGIC_MATERIALS.foliage}/></mesh>
-   :<mesh position={[0,1.58,0]} scale={[.88,.91,.88]}><icosahedronGeometry args={[1,0]}/><meshStandardMaterial color={colors.tree} {...MAGIC_MATERIALS.foliage}/></mesh>}
- </group>;
-}
 // Keep animations deterministic and collision-safe without allocating new geometry
 // or React state per animation frame. All objects stay on the visible island ring.
 function SceneObject({object,position,animated,reacting,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
@@ -364,18 +290,16 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
   return()=>gl.domElement.removeEventListener("webglcontextlost",lose);
  },[gl,onFailure]);
  useEffect(()=>invalidate(),[world.revision,world.weather,world.time,reducedMotion,invalidate]);
- const trees=useMemo(()=>Array.from({length:17},(_,i)=>{
-  const angle=i*2.399,rad=3.6+(i%3)*.38;
-  return [Math.cos(angle)*rad,Math.sin(angle)*rad] as const;
- }),[]);
+
  return <>
   <MagicLighting3D world={world} colors={colors}/>
   <MagicTerrain3D colors={colors}/>
+  <MagicPaths3D colors={colors}/>
   <MagicGroundShadows3D/>
-   <OuterDistricts colors={colors} night={night}/>
-  <Castle colors={colors} night={night} ice={world.castle==="ice"}/>
+   <MagicDistricts3D colors={colors} night={night}/>
+  <MagicCastle3D colors={colors} night={night} ice={world.castle==="ice"}/>
   <BiomeLandmarks theme={world.theme} night={night}/>
-  {trees.map(([x,z],i)=><MagicTree key={i} x={x} z={z} variant={i} colors={colors}/>)}
+  <MagicForest3D colors={colors}/>
   {world.objects.map(obj=>{
    const plot=PLOTS[obj.slot]??PLOTS[0];
    const [x,z]=obj.x!==undefined&&obj.z!==undefined?
