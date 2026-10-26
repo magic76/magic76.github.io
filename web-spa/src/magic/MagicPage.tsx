@@ -1,7 +1,8 @@
 import {Component,lazy,Suspense,useCallback,useEffect,useRef,useState} from "react";
 import type {FormEvent,ReactNode} from "react";
 import {Link} from "react-router-dom";
-import {useTranslation} from "react-i18next";
+import {useMagicT} from "./useMagicT";
+import {useStageFit} from "./useStageFit";
 import {trackUsageEvent} from "../analytics/usage";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
 import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,readMagicWorldSnapshot,magicCreatorContext,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
@@ -24,9 +25,8 @@ class MagicRenderBoundary extends Component<{children:ReactNode;onFailure:()=>vo
 
 
 export function MagicPage(){
- const {i18n}=useTranslation();
+ const {i18n,t:tr}=useMagicT();
  const zh=i18n.language.startsWith("zh");
- const t=(chinese:string,english:string)=>zh?chinese:english;
  const [world,setWorld]=useState<MagicWorld>(()=>{
   try{return typeof window==="undefined"?MAGIC_INITIAL_WORLD:readMagicWorldSnapshot(window.sessionStorage.getItem("crew-magic-world-v1"))??MAGIC_INITIAL_WORLD}
   catch{return MAGIC_INITIAL_WORLD}
@@ -50,6 +50,19 @@ export function MagicPage(){
  const [focusId,setFocusId]=useState<number|null>(null);
  const [focusCreationId,setFocusCreationId]=useState<number|null>(null);
  const [viewVersion,setViewVersion]=useState(0);
+ const stageRef=useRef<HTMLElement>(null);
+ useStageFit(stageRef,i18n.language);
+ const [announcement,setAnnouncement]=useState("");
+ const announceCounter=useRef(0);
+ const announce=useCallback((message:string)=>{
+  const token=++announceCounter.current;
+  setAnnouncement("");
+  requestAnimationFrame(()=>{if(token===announceCounter.current)setAnnouncement(message);});
+ },[]);
+ const focusCreation=useCallback((id:number,label:string)=>{
+  setFocusCreationId(id);setFocusId(null);setViewVersion(v=>v+1);
+  announce(tr("Camera focused on {{label}}",{label}));
+ },[announce,tr]);
  useEffect(()=>{
   if(!showGuide)return;
   helpClose.current?.focus();
@@ -80,20 +93,29 @@ export function MagicPage(){
  const generation=useRef(0);
  useEffect(()=>{
   if(worldRef.current.revision===0){
-   const message=t("一扇門正在等你。說出願望，或選一個魔法開始。","A portal is waiting. Make a wish or choose a spell.");
+   const message=tr("A portal is waiting. Make a wish or choose a spell.");
    if(worldRef.current.message!==message){worldRef.current={...worldRef.current,message};setWorld(worldRef.current);}
   }
- },[zh]);
+ },[zh,tr]);
 
  const applyFocusAfter=useCallback((before:MagicWorld,after:MagicWorld)=>{
   const creature=newlySummonedCreature(before,after);
   const creation=newlyBuiltCreation(before,after);
-  if(creature!==null){setFocusId(creature);setFocusCreationId(null);setViewVersion(v=>v+1)}
-  if(creation!==null){setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1)}
- },[]);
+  if(creature!==null){
+   setFocusId(creature);setFocusCreationId(null);setViewVersion(v=>v+1);
+   const obj=after.objects.find(o=>o.id===creature);
+   if(obj)announce(tr("{{label}} has arrived",{label:tr(({dragon:"Dragon",owl:"Owl",fox:"Fox"} as Record<string,string>)[obj.kind]??obj.kind)}));
+  }
+  if(creation!==null){
+   setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1);
+   const item=after.creations.find(c=>c.id===creation);
+   if(item)announce(tr("Created {{label}}",{label:item.label}));
+  }
+ },[announce,tr]);
  const runCommand=useCallback((name:string,args:unknown)=>{
   const next=applyMagicCommand(worldRef.current,name,args,zh?"zh":"en");
   if(next.ok){
+   if(newlyBuiltCreation(worldRef.current,next.world)===null&&newlySummonedCreature(worldRef.current,next.world)===null)announce(next.world.message);
    applyFocusAfter(worldRef.current,next.world);
    worldRef.current=next.world;
    setWorld(next.world);
@@ -102,17 +124,18 @@ export function MagicPage(){
    if(name==="select_magic_panel")trackUsageEvent("magic_panel_choice");
   }
   return next;
- },[zh,applyFocusAfter]);
+ },[zh,applyFocusAfter,announce]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
   const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
   if(next.ok){
+   if(newlyBuiltCreation(worldRef.current,next.world)===null&&newlySummonedCreature(worldRef.current,next.world)===null)announce(next.world.message);
    applyFocusAfter(worldRef.current,next.world);
    if(id==="reset"){setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);}
    worldRef.current=next.world;setWorld(next.world);setNotice("");
    trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");
   }
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
- },[zh,applyFocusAfter]);
+ },[zh,applyFocusAfter,announce]);
 
  const stopVoice=useCallback(async ()=>{
   ++generation.current;
@@ -130,13 +153,13 @@ export function MagicPage(){
  async function startVoice(){
   if(starting||sessionRef.current?.running)return;
   if(!geminiKey()){
-   setNotice(t("先到設定加入 Gemini Key，再回來施展語音魔法。","Add your Gemini key in Settings to use voice magic."));
+   setNotice(tr("Add your Gemini key in Settings to use voice magic."));
    return;
   }
   const sequence=++generation.current;
   toolResultsRef.current.clear(); // A manual new call is a new session; reconnects keep this map.
   setStarting(true);setVoiceState("connecting");setToolsAvailable(true);setMuted(false);
-  setNotice(t("正在開啟魔法通道…","Opening the magical connection…"));
+  setNotice(tr("Opening the magical connection…"));
   const failSession=(message:string)=>{
    if(generation.current!==sequence)return;
    const active=sessionRef.current;sessionRef.current=null;
@@ -160,6 +183,7 @@ export function MagicPage(){
      if(generation.current!==sequence)return {ok:false,error:"stale-session"};
      const {result,duplicate}=applyMagicLiveCall(worldRef.current,call,toolResultsRef.current,zh?"zh":"en");
      if(!duplicate&&result.ok){
+      if(newlyBuiltCreation(worldRef.current,result.world)===null&&newlySummonedCreature(worldRef.current,result.world)===null)announce(result.world.message);
       applyFocusAfter(worldRef.current,result.world);
       worldRef.current=result.world;setWorld(result.world);
       if(call.name==="cast_spell"||call.name==="change_world")trackUsageEvent("magic_spell");
@@ -172,18 +196,18 @@ export function MagicPage(){
     },
     onToolsUnavailable:()=>{if(generation.current===sequence){
      setToolsAvailable(false);
-     setNotice(t("可以繼續聊天，也可以點擊下方魔法來改變世界。","You can still chat or tap a spell to change the world."));
+     setNotice(tr("You can still chat or tap a spell to change the world."));
     }},
     onStatus:msg=>{if(generation.current===sequence&&msg&&msg.length<180)setNotice(msg)},
     onState:state=>{if(generation.current!==sequence)return;
      if(state==="ready")setVoiceState("listening");
-     if(state==="error")failSession(t("連線中斷，請重新開始。","Connection lost. Please reconnect."));
+     if(state==="error")failSession(tr("Connection lost. Please reconnect."));
     },
     onSpeaking:now=>{if(generation.current===sequence)setVoiceState(now?"speaking":"listening")},
     onMicMuted:()=>{if(generation.current===sequence)setMuted(Boolean(sessionRef.current?.micMuted))},
     onInputTranscript:value=>{if(generation.current===sequence)setHeard(value.slice(0,240))},
     onOutputTranscript:value=>{if(generation.current===sequence)setSaid(value.slice(0,240))},
-    onError:()=>failSession(t("語音暫時無法使用。你仍可以點擊魔法試玩。","Voice is unavailable right now. You can still try the spells.")),
+    onError:()=>failSession(tr("Voice is unavailable right now. You can still try the spells.")),
     onTerminal:()=>{if(generation.current===sequence&&sessionRef.current){
      sessionRef.current=null;setVoiceState("idle");
     }}
@@ -194,14 +218,14 @@ export function MagicPage(){
     await session.stop({reason:"stale",silentStatus:true,emitTerminal:false});return;
    }
    if(!session.ready||!session.running){
-    failSession(t("語音連線未能完成，請再試一次。","The voice connection did not finish. Please retry."));
+    failSession(tr("The voice connection did not finish. Please retry."));
     return;
    }
    trackUsageEvent("magic_voice_connected");
    setVoiceState("listening");
    setNotice("");
   }catch{
-   failSession(t("連線失敗，請確認麥克風與網路後再試。","Could not connect. Check your microphone and connection."));
+   failSession(tr("Could not connect. Check your microphone and connection."));
   }finally{
    if(generation.current===sequence)setStarting(false);
   }
@@ -231,13 +255,29 @@ export function MagicPage(){
   if(!message)return;
   const session=sessionRef.current;
   if(!session?.running){
-   setNotice(t("請先開啟語音，或點擊下方的魔法試玩。","Start the live connection first, or try a spell below."));
+   setNotice(tr("Start the live connection first, or try a spell below."));
    return;
   }
   session.sendControl?.("CREATOR_WORLD_CONTEXT data for the next wish: "+magicCreatorContext(worldRef.current));
   if(session.sendText(message)){setHeard(message.slice(0,240));setInput("");setNotice("");}
-  else setNotice(t("目前無法傳送，請重新連線。","Could not send that. Try reconnecting."));
+  else setNotice(tr("Could not send that. Try reconnecting."));
  }
+ const createWithLumi=useCallback(()=>{
+  if(sessionRef.current?.running){
+   sessionRef.current.sendControl?.("CREATOR_WORLD_CONTEXT: "+magicCreatorContext(worldRef.current));
+   sessionRef.current.sendText(zh?
+    "請用獨創的幾何零件，創造一個和現有作品結構不同的奇妙魔法生物，讓我看到零件組裝過程。":
+    "Create an original whimsical magical creature with an unusual part structure; show it assembling piece by piece and make it unlike earlier creations.");
+  }else runDemo("creator");
+ },[zh,runDemo]);
+ const sculptNext=useCallback(()=>{
+  const sculptKinds=["robot","fox","dragon"] as const;
+  const next=sculptKinds.find(kind=>!worldRef.current.creations.some(c=>c.blueprint?.kind===kind));
+  if(worldRef.current.creations.length>=3||!next){
+   const latest=worldRef.current.creations[worldRef.current.creations.length-1];
+   if(latest)focusCreation(latest.id,latest.label);
+  }else runDemo(({robot:"sculptrobot",fox:"sculptfox",dragon:"sculptdragon"} as const)[next]);
+ },[focusCreation,runDemo]);
  const isOnline=voiceState==="speaking"||voiceState==="listening";
  const pendingPortal=world.panels.find(panel=>panel.portalTravel&&!panel.selected);
  function guidedAction(){
@@ -251,64 +291,72 @@ export function MagicPage(){
   else if(world.adventureStep===2)runDemo(world.castle==="ice"?"thawcastle":"icecastle");
   else runDemo("puzzle");
  }
- const firstAdventure=magicAdventureCopy(zh,world.adventureStep,world.castle,Boolean(pendingPortal));
+ const firstAdventure=magicAdventureCopy(zh,world.adventureStep,world.castle,Boolean(pendingPortal),tr);
  return <main className="magic-page">
+  <p className="magic-sr-announcer" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
   <header className="magic-header">
    <div>
     <span className="magic-eyebrow">CREW MAGIC <span>· BETA</span></span>
-    <h1>{t("讓你的想像變成世界","Speak a world into existence")}</h1>
-    <p>{t("和 Lumi 說話，召喚奇蹟，讓眼前的島嶼跟著想像改變。","Talk with Lumi, cast a spell and watch your world come alive.")}</p>
+    <h1>{tr("Speak a world into existence")}</h1>
+    <p>{tr("Talk with Lumi, cast a spell and watch your world come alive.")}</p>
    </div>
-   <Link className="magic-back" to="/explore">← {t("探索","Explore")}</Link>
+   <Link className="magic-back" to="/explore">← {tr("Explore")}</Link>
   </header>
   <div className="magic-layout">
-   <section className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+" is-3d"}
-    aria-label={t("即時魔法世界","Live magic world")} data-magic-map-area="10">
+   <section ref={stageRef} className={"magic-stage theme-"+world.theme+" time-"+world.time+" weather-"+world.weather+" is-3d"}
+    aria-label={tr("Live magic world")} data-magic-map-area="10">
     {has3D?<MagicRenderBoundary onFailure={fail3D}>
-     <Suspense fallback={<div className="magic-3d-loading" role="status">{t("正在建造魔法世界…","Building your magic world…")}</div>}>
-      <MagicScene3D world={world} reducedMotion={reducedMotion} onInteract={interact}
+     <Suspense fallback={<div className="magic-3d-loading" role="status">{tr("Building your magic world…")}</div>}>
+      <MagicScene3D label={tr("3D magic world")} world={world} reducedMotion={reducedMotion} onInteract={interact}
        onFailure={fail3D} focusId={focusId} focusCreationId={focusCreationId}
-       onSelectCreation={id=>{setFocusCreationId(id);setFocusId(null);setViewVersion(v=>v+1);}}
+       onSelectCreation={id=>{const c=world.creations.find(c=>c.id===id);focusCreation(id,c?.label??tr("Latest creation"));}}
        viewVersion={viewVersion}/>
      </Suspense>
     </MagicRenderBoundary>:null}
     {!has3D?<div className="magic-3d-unavailable" role="alert">
-     <strong>{t("無法啟動 3D 魔法世界","3D magic world is unavailable")}</strong>
-     <p>{t("請使用支援 WebGL 的瀏覽器，或重新開啟頁面。你的魔法世界進度仍會保留。","Try a browser with WebGL support or reopen this page. Your world progress is preserved.")}</p>
+     <strong>{tr("3D magic world is unavailable")}</strong>
+     <p>{tr("Try a browser with WebGL support or reopen this page. Your world progress is preserved.")}</p>
     </div>:null}
-    <div className="magic-stage-heading"><span className="magic-stage-dot"/>{t("魔法島 · ","Magic Island · ")}{world.time==="night"?t("星夜","Starlight"):t("白晝","Daylight")}</div>
-    <div className="magic-adventure-guide" aria-label={t("魔法世界快捷操作","Magic world shortcuts")}>
-     <button type="button" className="magic-surprise" onClick={()=>{
-       if(sessionRef.current?.running){
-        sessionRef.current.sendControl?.("CREATOR_WORLD_CONTEXT: "+magicCreatorContext(worldRef.current));
-        sessionRef.current.sendText(zh?
-         "請用獨創的幾何零件，創造一個和現有作品結構不同的奇妙魔法生物，讓我看到零件組裝過程。":
-         "Create an original whimsical magical creature with an unusual part structure; show it assembling piece by piece and make it unlike earlier creations.");
-       }else runDemo("creator");
-      }}>
-      <span aria-hidden="true">✦</span> {isOnline?t("讓 Lumi 創造","Ask Lumi to create"):t("觀看造物示範","Watch creations assemble")}
+    <div className="magic-stage-heading"><span className="magic-stage-dot"/>{tr("Magic Island · ")}{world.time==="night"?tr("Starlight"):tr("Daylight")}</div>
+    <div className="magic-adventure-guide" aria-label={tr("Magic world shortcuts")}>
+     <button type="button" className="magic-surprise" onClick={createWithLumi}>
+      <span aria-hidden="true">✦</span> {isOnline?tr("Ask Lumi to create"):tr("Watch creations assemble")}
      </button>
      <button type="button" className="magic-optional-quest" onClick={guidedAction}
       title={firstAdventure.description} aria-label={firstAdventure.title+": "+firstAdventure.action}>
-      {t("冒險","Quest")} {world.adventureStep===3?"✓":world.adventureStep+1+" / 3"} →
+      {tr("Quest")} {world.adventureStep===3?"✓":world.adventureStep+1+" / 3"} →
      </button>
     </div>
     <button type="button" className="magic-overview-button"
-     onClick={()=>{setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);}}
-     aria-label={t("返回十倍魔法島全景","Return to tenfold magic island overview")}
-     title={t("拖曳旋轉、雙指平移、捏合縮放","Drag to rotate, two fingers to pan, pinch to zoom")}>{t("全景","Overview")} ⤢</button>
-    <div className="magic-stage-dock" aria-label={t("語音魔法操作","Voice magic controls")}>
+     onClick={()=>{setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);announce(tr("Returned to overview"));}}
+     aria-label={tr("Return to tenfold magic island overview")}
+     title={tr("Drag to rotate, two fingers to pan, pinch to zoom")}>{tr("Overview")} ⤢</button>
+    <div className="magic-stage-dock" aria-label={tr("Voice magic controls")}>
      {isOnline||voiceState==="connecting"?<>
-      <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")} aria-live="polite">{voiceState==="speaking"?t("Lumi 說話中","Lumi speaks"):voiceState==="connecting"?t("連線中","Connecting"):t("聆聽中","Listening")}</span>
+      <span className={"magic-dock-state"+(voiceState==="speaking"?" speaking":"")}>{voiceState==="speaking"?tr("Lumi speaks"):voiceState==="connecting"?tr("Connecting"):tr("Listening")}</span>
       {isOnline&&<button type="button" onClick={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}} aria-pressed={muted}
-       aria-label={muted?t("開啟麥克風","Unmute microphone"):t("麥克風靜音","Mute microphone")}>{muted?"◌":"●"}</button>}
-      <button type="button" onClick={()=>void stopVoice()} aria-label={t("結束語音","End voice")}>×</button>
+       aria-label={muted?tr("Unmute microphone"):tr("Mute microphone")}>{muted?"◌":"●"}</button>}
+      <button type="button" onClick={()=>void stopVoice()} aria-label={tr("End voice")}>×</button>
      </>:hasKey?
-      <button type="button" disabled={starting} onClick={()=>void startVoice()}>◉ {t("和 Lumi 說話","Talk to Lumi")}</button>:
-      <Link to="/settings">◉ {t("設定語音","Set up voice")}</Link>}
+      <button type="button" disabled={starting} onClick={()=>void startVoice()}>◉ {tr("Talk to Lumi")}</button>:
+      <Link to="/settings">◉ {tr("Set up voice")}</Link>}
     </div>
-    <div className="magic-story" role="status" aria-live="polite">
-     <span>{t("冒險篇章","Chapter")} {world.chapter.toString().padStart(2,"0")}</span>
+    <div className="magic-quick-row" role="group" aria-label={tr("Quick magic")}>
+     <button type="button" data-magic-quick="summon" onClick={()=>runDemo("dragon")}><span aria-hidden="true">🐉</span><span>{tr("Summon")}</span></button>
+     <button type="button" data-magic-quick="create" onClick={createWithLumi}><span aria-hidden="true">✨</span><span>{tr("Create")}</span></button>
+     <button type="button" data-magic-quick="daynight" aria-pressed={world.time==="night"}
+      onClick={()=>{const toDay=worldRef.current.time==="night";
+       if(toDay)runCommand("change_world",{time:"day",weather:"clear"});else runDemo("night");
+       announce(tr("Magic Island · ")+tr(toDay?"Daylight":"Starlight"));}}>
+      <span aria-hidden="true">{world.time==="night"?"☀️":"🌙"}</span><span>{tr(world.time==="night"?"Day":"Night")}</span>
+     </button>
+     <button type="button" data-magic-quick="sculpt" onClick={sculptNext}
+      aria-label={world.creations.length>=3?tr("Latest creation"):tr("Sculpt")}>
+      <span aria-hidden="true">🤖</span><span>{tr(world.creations.length>=3?"Latest creation":"Sculpt")}</span>
+     </button>
+    </div>
+    <div className="magic-story">
+     <span>{tr("Chapter")} {world.chapter.toString().padStart(2,"0")}</span>
      <p>{world.message}</p>
     </div>
     <MagicMobileInteraction challenge={world.challenge} panels={world.panels} zh={zh}
@@ -321,28 +369,28 @@ export function MagicPage(){
      onToggleMic={()=>{sessionRef.current?.toggleMic();setMuted(Boolean(sessionRef.current?.micMuted));}}
      onVolume={value=>{setVolume(value);sessionRef.current?.setVolume(value)}}/>
     <MagicCreatedList world={world} zh={zh} has3D={has3D} focusCreationId={focusCreationId} onInteract={interact}
-     onFocus={id=>{setFocusCreationId(id);setFocusId(null);setViewVersion(v=>v+1)}}/>
+     onFocus={id=>{const c=world.creations.find(c=>c.id===id);focusCreation(id,c?.label??tr("Latest creation"));}}/>
     {world.challenge?<MagicChallengeCard challenge={world.challenge} zh={zh} onAnswer={answer}/>:null}
     {world.panels.map(panel=><MagicGeneratedCard key={panel.id} panel={panel} zh={zh} onSelect={selectPanel}/>)}
-    <section className="magic-actions" aria-label={t("快速施法","Quick magic spells")}>
-     <div className="magic-actions-title"><h2>{t("說出願望，或先試試魔法","Make a wish or try a spell")}</h2>
-      <button type="button" onClick={()=>setShowGuide(true)} aria-haspopup="dialog" aria-expanded={showGuide}>{t("玩法","How to play")} ⓘ</button></div>
+    <section className="magic-actions" aria-label={tr("Quick magic spells")}>
+     <div className="magic-actions-title"><h2>{tr("Make a wish or try a spell")}</h2>
+      <button type="button" onClick={()=>setShowGuide(true)} aria-haspopup="dialog" aria-expanded={showGuide}>{tr("How to play")} ⓘ</button></div>
      <div className="magic-spell-grid">
       {HELPERS.map(item=><button key={item.id} type="button" onClick={()=>runDemo(item.id)} data-magic-demo={item.id}>
-       <span aria-hidden="true">{item.emoji}</span><strong>{zh?item.zh:item.en}</strong>
+       <span aria-hidden="true">{item.emoji}</span><strong>{tr(item.en)}</strong>
       </button>)}
      </div>
      <form className="magic-prompt" onSubmit={submitInput}>
-      <label htmlFor="magic-wish">{t("你想創造什麼？","What would you like to create?")}</label>
-      {!isOnline?<p className="magic-prompt-help" role="status">{t("連線 Lumi 後才能自由許願；下方快速魔法可直接試玩。","Connect to Lumi to send a custom wish. Quick spells work without a connection.")}</p>:null}
+      <label htmlFor="magic-wish">{tr("What would you like to create?")}</label>
+      {!isOnline?<p className="magic-prompt-help" role="status">{tr("Connect to Lumi to send a custom wish. Quick spells work without a connection.")}</p>:null}
       <div><input id="magic-wish" type="text" autoComplete="off" maxLength={180} value={input}
        onChange={event=>setInput(event.target.value)}
-       placeholder={t("例如：讓天空下雪，召喚貓頭鷹…","e.g. Make it snow, summon an owl…")}/>
-       <button type="submit" disabled={!input.trim()||!isOnline} aria-label={t("送出願望","Send wish")}>➤</button></div>
+       placeholder={tr("e.g. Make it snow, summon an owl…")}/>
+       <button type="submit" disabled={!input.trim()||!isOnline} aria-label={tr("Send wish")}>➤</button></div>
      </form>
      <button type="button" className="magic-reset" onClick={()=>{
-      if(window.confirm(t("要重新開始這座魔法島嗎？","Start the magic world over?")))runDemo("reset");
-     }}>{t("重新創造世界","Start a new world")} ↻</button>
+      if(window.confirm(tr("Start the magic world over?")))runDemo("reset");
+     }}>{tr("Start a new world")} ↻</button>
     </section>
    </aside>
   </div>

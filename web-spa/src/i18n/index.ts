@@ -11,6 +11,7 @@ import zhFortune from "./locales/zh-TW/fortune.json";
 import zhStory from "./locales/zh-TW/story.json";
 import zhFriends from "./locales/zh-TW/friends.json";
 import zhTeacher from "./locales/zh-TW/teacher.json";
+import zhMagic from "./locales/zh-TW/magic.json";
 import enCommon from "./locales/en/common.json";
 import enHome from "./locales/en/home.json";
 import enSettings from "./locales/en/settings.json";
@@ -18,6 +19,7 @@ import enFortune from "./locales/en/fortune.json";
 import enStory from "./locales/en/story.json";
 import enFriends from "./locales/en/friends.json";
 import enTeacher from "./locales/en/teacher.json";
+import enMagic from "./locales/en/magic.json";
 
 function initialLocale(){
  if(typeof window==="undefined")return "zh-TW";
@@ -34,7 +36,7 @@ function initialLocale(){
 // Keep translated UI catalogs out of the entry bundle. Vite puts each JSON
 // into its own on-demand chunk, and only the active locale is fetched.
 const localeImports=import.meta.glob("./locales/{ja,es,pt-BR,id,ko,fr,de,vi,th}/*.json",{import:"default"});
-const namespaceNames=["common","home","settings","teacher","friends","story","fortune"] as const;
+const namespaceNames=["common","home","settings","teacher","friends","story","fortune","magic"] as const;
 const loadingLocales=new Map<string,Promise<void>>();
 export function loadUiLocale(locale:string):Promise<void>{
  if(!UI_LOCALES.includes(locale as (typeof UI_LOCALES)[number]))return Promise.resolve();
@@ -60,11 +62,11 @@ void i18n.use(initReactI18next).init({
  // Missing product strings fall back to English without changing learning language.
  fallbackLng:{"zh-TW":["zh-TW"],default:["en","zh-TW"]},
  supportedLngs:[...UI_LOCALES],
- ns:["common","home","settings","teacher","friends","story","fortune"],
+ ns:["common","home","settings","teacher","friends","story","fortune","magic"],
  defaultNS:"common",
  resources:{
-  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune},
-  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune}
+  "zh-TW":{common:zhCommon,home:zhHome,settings:zhSettings,teacher:zhTeacher,friends:zhFriends,story:zhStory,fortune:zhFortune,magic:zhMagic},
+  en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune,magic:enMagic}
  },
  interpolation:{escapeValue:false},
  react:{useSuspense:false},

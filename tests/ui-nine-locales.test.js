@@ -6,7 +6,7 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const folder=path.join(root,"web-spa/src/i18n/locales");
 const locales=["ja","es","pt-BR","id","ko","fr","de","vi","th"];
-const namespaces=["common","home","settings","teacher","friends","story","fortune"];
+const namespaces=["common","home","settings","teacher","friends","story","fortune", "magic"];
 const vars=value=>[...value.matchAll(/\{\{[^{}]+\}\}/g)].map(m=>m[0]).sort();
 const flat=(obj,prefix="",out={})=>{
  for(const [key,value] of Object.entries(obj)){
