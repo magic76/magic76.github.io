@@ -40,11 +40,16 @@ export function magicCreationElements(c:{label:string;idea:string;parts?:readonl
 export function magicFindReaction(a:readonly string[],b:readonly string[],env:MagicReactionEnvironment):MagicReactionId|undefined{
  const all=new Set([...a,...b]);
  for(const r of MAGIC_REACTIONS){
-  if(r.b==="night"){if(env.night&&all.has(r.a))return r.id;continue}
-  if(r.b==="castleIce"){if(env.castleIce&&env.distanceToCastle<=8&&all.has(r.a))return r.id;continue}
-  if(r.b==="any"){if(all.has(r.a)&&a.length+b.length>1)return r.id;continue}
+  if(r.b==="night"){if(env.night&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
+  if(r.b==="castleIce"){if(env.castleIce&&env.distanceToCastle<=8&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
+  if(r.b==="any"){if((a.includes(r.a)&&b.length>0)||(b.includes(r.a)&&a.length>0))return r.id;continue}
   if((a.includes(r.a)&&b.includes(r.b))||(a.includes(r.b)&&b.includes(r.a)))return r.id;
  }
+}
+export function magicFindSoloReaction(tags:readonly string[],env:MagicReactionEnvironment):MagicReactionId|undefined{
+ if(env.night&&tags.includes("star"))return "meteor_shower";
+ if(env.castleIce&&env.distanceToCastle<=8&&tags.includes("dragon"))return "dragon_frost";
+ return undefined;
 }
 export type ReactionCandidate={id:MagicReactionId;key:string;distance:number;focused?:boolean;discovered?:boolean;asleep?:boolean};
 export type ReactionPickState={pairs:Record<string,number>;lastStart:number;active:number;limit:number};
