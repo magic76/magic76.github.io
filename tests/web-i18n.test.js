@@ -13,12 +13,13 @@ function keys(value,prefix=""){
 }
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
- for(const ns of ["common","home","settings","teacher","friends","story","fortune"]){
+ for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic"]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
   for(const value of [zh,en]){
    for(const key of keys(value)){
-    const translated=key.split(".").reduce((obj,k)=>obj[k],value);
+    // The magic namespace is flat with sentence keys that may contain dots.
+    const translated=Object.hasOwn(value,key)?value[key]:key.split(".").reduce((obj,k)=>obj[k],value);
     assert.equal(typeof translated,"string");
     // Mode headings are assembled from semantic fragments; the trailing suffix is
     // intentionally optional for some short English/Chinese headlines.

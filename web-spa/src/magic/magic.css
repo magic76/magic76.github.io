@@ -390,3 +390,34 @@
 .magic-created-list button[aria-pressed="true"]{background:#d8f0e9;border-color:#86b9a8}
 .magic-created-list button:focus-visible{outline:3px solid #e4bb6a;outline-offset:2px}
 @media(max-width:790px){.magic-created-list{padding:10px 12px}}
+
+/* Magic batch 2: accessible mobile actions, focus announcements and text contrast. */
+.magic-sr-announcer{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.magic-eyebrow{color:#466e69}
+.magic-eyebrow span{color:#64615d}
+.magic-story span{color:#426d5b}
+.magic-adventure-guide small{color:#426b61}
+.magic-prompt-help{color:#4a6d63}
+.magic-mobile-dialog-heading span{color:#536b77}
+.magic-quick-row{display:none}
+@media(max-width:790px){
+ .magic-stage .magic-quick-row{position:absolute;z-index:13;bottom:57px;left:10px;right:10px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;max-height:54px;
+  pointer-events:none}
+ .magic-quick-row button{pointer-events:auto;box-sizing:border-box;min-width:44px;min-height:48px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:4px 2px;border:1px solid #e9f0e6;border-radius:13px;background:#fffdf1f2;
+  color:#345d55;font:inherit;font-size:clamp(9px,2.6vw,11px);
+  line-height:1.15;font-weight:800;overflow-wrap:anywhere;word-break:normal;text-align:center}
+ .magic-quick-row button span:first-child{font-size:16px;line-height:1}
+ .magic-quick-row button[aria-pressed="true"]{background:#d5ece3}
+ .magic-stage-interaction-entry{bottom:125px!important;min-height:44px}
+ .magic-adventure-guide button,.magic-overview-button,.magic-stage-dock button,.magic-stage-dock a{min-height:44px;min-width:44px;box-sizing:border-box}
+ .magic-overview-button{top:63px}
+ .magic-adventure-guide{top:57px}
+ .magic-stage-dock button,.magic-stage-dock a{padding:8px 9px}
+ /* Long locales wrap the heading; keep the stage bottom clear of the 69px fixed nav. */
+ .magic-stage.is-3d{height:clamp(510px,min(70svh,calc(100svh - var(--magic-stage-top,0px) - 81px)),690px)}
+}
+@media(max-width:360px){.magic-quick-row button{font-size:9px;padding:3px 1px}}
+@media(prefers-reduced-motion:reduce){.magic-quick-row button{animation:none;transition:none}}

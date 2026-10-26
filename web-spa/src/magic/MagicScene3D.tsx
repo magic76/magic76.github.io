@@ -25,7 +25,7 @@ import {useMagicFrameloop} from "./useMagicFrameloop";
 
 // The renderer receives only the strictly validated world reducer output.
 // Gemini never passes raw markup, geometry, scripts, material properties or URLs.
-type Props={world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void;focusId:number|null;focusCreationId:number|null;onSelectCreation:(id:number)=>void;viewVersion:number};
+type Props={label?:string;world:MagicWorld;reducedMotion:boolean;onInteract:(kind:MagicObjectKind)=>void;onFailure:()=>void;focusId:number|null;focusCreationId:number|null;onSelectCreation:(id:number)=>void;viewVersion:number};
 const PLOTS:[[number,number],[number,number],[number,number],[number,number],[number,number],[number,number]]=[
  [-3.25,-.5],[3.15,-.7],[-2.7,2.65],[2.7,2.55],[-4,.8],[3.95,.95]
 ];
@@ -342,7 +342,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
 export function MagicScene3D(props:Props){
  const night=props.world.time==="night";
  const {frameloop,onCreated}=useMagicFrameloop(props.reducedMotion);
- return <Canvas className="magic-three-canvas" aria-label="3D magic world" role="img"
+ return <Canvas className="magic-three-canvas" aria-label={props.label??""} role="img"
    camera={{position:MAGIC_OVERVIEW_POSITION.toArray(),fov:42,near:.1,far:180}}
    dpr={[1,Math.min(1.5,typeof window!=="undefined"?window.devicePixelRatio:1.5)]}
    gl={{antialias:true,alpha:false,powerPreference:"low-power",stencil:false}}
