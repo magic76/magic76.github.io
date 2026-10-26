@@ -127,8 +127,8 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
   const drift=animated?Math.sin(t*.85)*.045:0;
   const walk=animated&&!night&&creation.motion==="walk"?.45:0;
   const radius=creation.motion==="orbit"&&animated?.46:0;
-  const desiredX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
-  const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
+  const walkX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
+  const walkZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
   const current=base.current.position;
   const self=neighbors.get(creation.id)??{x:current.x,z:current.z};
   self.x=current.x;self.z=current.z;self.ready=assembled;neighbors.set(creation.id,self);
@@ -154,12 +154,12 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
   }
   const alpha=animated?Math.min(1,delta*3):1;
   const react=self.react;
-  const finalX=react?desiredX+(react.x-desiredX)*react.w:desiredX;
-  const finalZ=react?desiredZ+(react.z-desiredZ)*react.w:desiredZ;
-  current.set(current.x+(finalX-current.x)*alpha,
-   current.y+((islandSurfaceHeight(finalX,finalZ)+groundClearance*modelScale+
+  const desiredX=react?walkX+(react.x-walkX)*react.w:walkX;
+  const desiredZ=react?walkZ+(react.z-walkZ)*react.w:walkZ;
+  current.set(current.x+(desiredX-current.x)*alpha,
+   current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance*modelScale+
     (creation.motion==="hover"?.2+drift:0))-current.y)*alpha,
-   current.z+(finalZ-current.z)*alpha);
+   current.z+(desiredZ-current.z)*alpha);
   // Chibi faces carry the charm: non-spinning creations turn (damped) to face
   // the viewer, with a small walk/idle sway on top.
   {
