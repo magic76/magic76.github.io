@@ -92,5 +92,94 @@
       "story": "Personnages préférés, idées d’histoire, questions pour Archie…"
     },
     "notesHint": "Enregistré automatiquement dans ce navigateur, sauvegardable dans les Réglages Crew. Ces notes ne sont jamais envoyées au personnage."
+  },
+  "friendLive": {
+    "preparingPost": "Préparation du sujet photo de ton ami…",
+    "backAria": "Retour à Crew Amis",
+    "brand": "Ami Crew · {{language}}",
+    "stageAria": "Discussion avec {{name}}",
+    "hookPrefix": "Tu voulais demander : ",
+    "postUnavailable": "Publication d’origine introuvable : c’est une discussion normale avec ton ami.",
+    "textChat": "Chat écrit",
+    "voiceChat": "Chat vocal",
+    "useVoice": "Passer à la voix",
+    "useText": "Passer à l’écrit",
+    "interrupt": "À moi · interrompre",
+    "noTranscript": "Je n’ai pas compris. Redis-le simplement.",
+    "noReply": "Ton ami n’a pas pu finir sa réponse. Répète ou reconnecte-toi.",
+    "changeTopic": "Changer de sujet",
+    "slower": "Plus lentement",
+    "otherFriends": "Voir d’autres amis",
+    "youSaid": "Tu as dit",
+    "historySummary": "Ce dont on a parlé",
+    "youLabel": "Toi : ",
+    "footnote": "Les messages ne s’affichent que sur cette page. Les discussions récentes ne gardent que la date ; la mémoire des sujets est activée par défaut et se désactive dans Réglages."
+  },
+  "compact": {
+    "aria": "Commandes vocales",
+    "speaking": "Parle",
+    "listening": "Écoute",
+    "connecting": "Connexion",
+    "finishing": "Fin en cours",
+    "interrupt": "Interrompre",
+    "unmuteAria": "Réactiver le micro",
+    "muteAria": "Couper le micro",
+    "unmute": "Activer",
+    "mute": "Muet",
+    "volumeAria": "Régler le volume de l’IA",
+    "volume": "Volume",
+    "volumeCaption": "Volume de l’IA",
+    "volumeDown": "Baisser le volume de l’IA",
+    "volumeRange": "Volume de lecture de l’IA",
+    "volumeUp": "Augmenter le volume de l’IA",
+    "wrapping": "Finalisation…",
+    "end": "Terminer"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie parle",
+    "listening": "À l’écoute",
+    "badge": "Histoire interactive",
+    "introBook": "Continuons cette histoire.",
+    "intro": "Racontons l’histoire ensemble. Interromps Archie quand tu veux.",
+    "topicLabel": "Qu’aimerais-tu écouter aujourd’hui ?",
+    "interrupt": "Interrompre Archie",
+    "presets": {
+      "continue": "Continuer",
+      "funny": "Rends-la drôle",
+      "choose": "Laisse-moi choisir",
+      "newCharacter": "Nouveau personnage"
+    },
+    "more": "Plus d’options",
+    "style": "Style",
+    "styles": {
+      "warm": "Aventure chaleureuse",
+      "funny": "Drôle",
+      "bedtime": "Histoire du soir",
+      "mystery": "Mystère",
+      "fantasy": "Fantastique"
+    },
+    "pace": "Rythme",
+    "paces": {
+      "short": "Passages courts",
+      "normal": "Passages naturels",
+      "long": "Un peu plus longs"
+    },
+    "interaction": "Interaction",
+    "interactions": {
+      "high": "Laisse-moi souvent choisir",
+      "medium": "Laisse-moi parfois choisir",
+      "low": "Surtout écouter"
+    },
+    "voice": "Voix d’Archie",
+    "configNote": "Les réglages s’appliqueront la prochaine fois ; l’histoire en cours ne change ni de style ni de voix.",
+    "visionTitle": "Ajoute une image à l’histoire",
+    "visionKinds": "Illustration · dessin · photo",
+    "sending": "Envoi…",
+    "camera": "Prendre une photo",
+    "gallery": "Choisir dans l’album",
+    "latestAlt": "Dernière photo envoyée",
+    "sentTo": "Envoyée à Archie",
+    "latestPhoto": "Dernière photo"
   }
 }

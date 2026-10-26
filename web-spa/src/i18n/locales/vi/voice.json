@@ -92,5 +92,94 @@
       "story": "Nhân vật yêu thích, ý tưởng truyện, câu hỏi cho Archie…"
     },
     "notesHint": "Tự động lưu trong trình duyệt này, có thể sao lưu trong Cài đặt Crew. Ghi chú không được gửi cho nhân vật."
+  },
+  "friendLive": {
+    "preparingPost": "Đang chuẩn bị chủ đề ảnh của bạn…",
+    "backAria": "Quay lại Crew Bạn bè",
+    "brand": "Bạn Crew · {{language}}",
+    "stageAria": "Trò chuyện với {{name}}",
+    "hookPrefix": "Bạn muốn hỏi: ",
+    "postUnavailable": "Không tìm thấy bài đăng gốc nên đã chuyển sang trò chuyện bình thường.",
+    "textChat": "Trò chuyện bằng chữ",
+    "voiceChat": "Trò chuyện bằng giọng nói",
+    "useVoice": "Chuyển sang giọng nói",
+    "useText": "Chuyển sang chữ",
+    "interrupt": "Đến lượt tôi · ngắt lời",
+    "noTranscript": "Chưa nhận ra câu vừa rồi, hãy nói lại nhé.",
+    "noReply": "Bạn chưa trả lời xong. Hãy nói lại hoặc kết nối lại.",
+    "changeTopic": "Đổi chủ đề",
+    "slower": "Nói chậm hơn",
+    "otherFriends": "Xem bạn khác",
+    "youSaid": "Bạn vừa nói",
+    "historySummary": "Nội dung đã trò chuyện",
+    "youLabel": "Bạn: ",
+    "footnote": "Nội dung chỉ hiển thị trên trang này. Cuộc trò chuyện gần đây chỉ lưu ngày; bộ nhớ chủ đề bật mặc định và có thể tắt trong Cài đặt."
+  },
+  "compact": {
+    "aria": "Điều khiển giọng nói",
+    "speaking": "Đang nói",
+    "listening": "Đang nghe",
+    "connecting": "Đang kết nối",
+    "finishing": "Đang kết thúc",
+    "interrupt": "Ngắt lời",
+    "unmuteAria": "Bật micrô",
+    "muteAria": "Tắt tiếng micrô",
+    "unmute": "Bật mic",
+    "mute": "Tắt mic",
+    "volumeAria": "Chỉnh âm lượng AI",
+    "volume": "Âm lượng",
+    "volumeCaption": "Âm lượng AI",
+    "volumeDown": "Giảm âm lượng AI",
+    "volumeRange": "Âm lượng phát AI",
+    "volumeUp": "Tăng âm lượng AI",
+    "wrapping": "Đang tổng hợp…",
+    "end": "Kết thúc"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie đang nói",
+    "listening": "Đang nghe bạn",
+    "badge": "Truyện tương tác",
+    "introBook": "Cùng kể tiếp câu chuyện này.",
+    "intro": "Cùng kể chuyện nhé. Muốn nói thì cứ ngắt lời Archie.",
+    "topicLabel": "Hôm nay bạn muốn nghe gì?",
+    "interrupt": "Ngắt lời Archie",
+    "presets": {
+      "continue": "Tiếp tục",
+      "funny": "Vui hơn đi",
+      "choose": "Để tôi chọn",
+      "newCharacter": "Nhân vật mới"
+    },
+    "more": "Thêm tùy chọn",
+    "style": "Phong cách",
+    "styles": {
+      "warm": "Phiêu lưu ấm áp",
+      "funny": "Hài hước",
+      "bedtime": "Truyện trước giờ ngủ",
+      "mystery": "Bí ẩn",
+      "fantasy": "Kỳ ảo"
+    },
+    "pace": "Nhịp kể",
+    "paces": {
+      "short": "Đoạn ngắn",
+      "normal": "Đoạn vừa phải",
+      "long": "Dài hơn chút"
+    },
+    "interaction": "Mức tương tác",
+    "interactions": {
+      "high": "Thường để tôi chọn",
+      "medium": "Thỉnh thoảng để tôi chọn",
+      "low": "Chủ yếu nghe kể"
+    },
+    "voice": "Giọng Archie",
+    "configNote": "Cài đặt áp dụng cho lần sau; truyện hiện tại không đổi phong cách hay giọng giữa chừng.",
+    "visionTitle": "Thêm một bức ảnh vào truyện",
+    "visionKinds": "Minh họa · vẽ tay · ảnh",
+    "sending": "Đang gửi…",
+    "camera": "Chụp ảnh",
+    "gallery": "Chọn từ album",
+    "latestAlt": "Ảnh gửi gần nhất",
+    "sentTo": "Đã gửi cho Archie",
+    "latestPhoto": "Ảnh mới nhất"
   }
 }

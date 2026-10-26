@@ -1,3 +1,4 @@
+import i18n from "i18next";
 // Display-only lookup: useLiveSession keeps its Chinese status strings because
 // error classification matches on them; LiveControls shows the translated text.
 const STATUS_KEYS:Record<string,string>={
@@ -15,4 +16,9 @@ const STATUS_KEYS:Record<string,string>={
 export function liveStatusKey(status:string):string|null{
  const key=STATUS_KEYS[status];
  return key?"status."+key:null;
+}
+/** Display text for a live status: translated when known, otherwise passed through unchanged. */
+export function liveStatusText(status:string):string{
+ const key=liveStatusKey(status);
+ return key?i18n.t(key,{ns:"voice"}):status;
 }

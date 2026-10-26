@@ -92,5 +92,94 @@
       "story": "Favorite characters, story ideas, questions for Archie…"
     },
     "notesHint": "Saved automatically in this browser and can be backed up in Crew Settings. These notes aren’t sent to the character automatically."
+  },
+  "friendLive": {
+    "preparingPost": "Getting your friend's photo topic ready…",
+    "backAria": "Back to Crew Friends",
+    "brand": "Crew Friend · {{language}}",
+    "stageAria": "Chat with {{name}}",
+    "hookPrefix": "You wanted to ask: ",
+    "postUnavailable": "We couldn't find the original post, so this is a regular chat with your friend.",
+    "textChat": "Text chat",
+    "voiceChat": "Voice chat",
+    "useVoice": "Switch to voice",
+    "useText": "Switch to text",
+    "interrupt": "My turn · interrupt",
+    "noTranscript": "I didn't catch that. Just say it again.",
+    "noReply": "Your friend couldn't finish replying. Say it again or reconnect.",
+    "changeTopic": "Change topic",
+    "slower": "Slower, please",
+    "otherFriends": "See other friends",
+    "youSaid": "You said",
+    "historySummary": "What we talked about",
+    "youLabel": "You: ",
+    "footnote": "Messages only show on this page. Recent chats keep just the date; topic memory is on by default and can be turned off in Settings anytime."
+  },
+  "compact": {
+    "aria": "Voice controls",
+    "speaking": "Speaking",
+    "listening": "Listening",
+    "connecting": "Connecting",
+    "finishing": "Finishing",
+    "interrupt": "Interrupt",
+    "unmuteAria": "Unmute microphone",
+    "muteAria": "Mute microphone",
+    "unmute": "Unmute",
+    "mute": "Mute",
+    "volumeAria": "Adjust AI voice volume",
+    "volume": "Volume",
+    "volumeCaption": "AI volume",
+    "volumeDown": "Lower AI volume",
+    "volumeRange": "AI volume",
+    "volumeUp": "Raise AI volume",
+    "wrapping": "Finishing…",
+    "end": "End"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie is speaking",
+    "listening": "Listening to you",
+    "badge": "Interactive story",
+    "introBook": "Let's keep this story going.",
+    "intro": "Tell the story together. Jump in and interrupt Archie anytime.",
+    "topicLabel": "What would you like to hear today?",
+    "interrupt": "Interrupt Archie",
+    "presets": {
+      "continue": "Continue",
+      "funny": "Make it funny",
+      "choose": "Let me choose",
+      "newCharacter": "New character"
+    },
+    "more": "More options",
+    "style": "Style",
+    "styles": {
+      "warm": "Warm adventure",
+      "funny": "Funny",
+      "bedtime": "Bedtime story",
+      "mystery": "Mystery",
+      "fantasy": "Fantasy"
+    },
+    "pace": "Pacing",
+    "paces": {
+      "short": "Short parts",
+      "normal": "Natural parts",
+      "long": "A bit longer"
+    },
+    "interaction": "Interaction",
+    "interactions": {
+      "high": "Let me choose often",
+      "medium": "Let me choose sometimes",
+      "low": "Mostly just listen"
+    },
+    "voice": "Archie's voice",
+    "configNote": "Story settings apply next time; the current story won't switch style or voice midway.",
+    "visionTitle": "Add a picture to the story",
+    "visionKinds": "Illustration · drawing · photo",
+    "sending": "Sending…",
+    "camera": "Take photo",
+    "gallery": "Choose from album",
+    "latestAlt": "Most recently sent photo",
+    "sentTo": "Sent to Archie",
+    "latestPhoto": "Latest photo"
   }
 }

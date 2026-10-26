@@ -9,6 +9,7 @@ import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {GameVoicePicker,useGameVoice,resolveGameVoice} from "./GameVoicePicker";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import {liveStatusText} from "../live/liveStatusText";
 import {useTeacherStore} from "../store/teacherStore";
 import {CrewBoardGames} from "./CrewBoardGames";
 import {matchesBoardNarration,type ExpectedBoardSpeech} from "./boardVoiceTurn";
@@ -79,6 +80,7 @@ type BoardVoiceTurn={
 const BOARD_VOICE_TIMEOUT_MS=25000;
 const MYSTERY_GENERATION_TIMEOUT_MS=20000;
 function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{kind:GameKind;friend:Friend;english:boolean;round:number;nextRound:()=>void;onChangeFriend:(id:string)=>void}){
+ const {t}=useTranslation("voice");
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const mode=useTeacherStore(s=>s.friendChatMode);
@@ -295,7 +297,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
   (isWord?"開始與 ":"開啟 ")+friend.name+(isWord?" 語音遊戲":" 的語音陪玩");
  const voiceActions=live.state==="idle"||live.state==="ended"?
   <button type="button" className="crew-play-voice-start" disabled={voicePreparing||isWord&&!hasKey} onClick={()=>void live.start()}>{voicePreparing?(english?"Preparing the mystery…":"正在準備新題目…"):voiceStartLabel}</button>:
-  <LiveControls live={live} interruptLabel={english?"Interrupt friend":"換我說 · 打斷朋友"} prominentInterrupt compact english={english}/>;
+  <LiveControls live={live} interruptLabel={t("friendLive.interrupt")} prominentInterrupt compact english={english}/>;
  return <div className={"crew-play-session"+(isWord?" crew-play-session--word":"")+(twenty?" crew-play-session--twenty":"")}>
   <div className="crew-play-voice-pref"><GamePanel label={english?"Voice settings":"語音設定"} title={english?"Game voice settings":"遊戲語音設定"}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={voiceActive}/></GamePanel></div>
   {isWord?<section className="crew-play-voice-presence" aria-label={english?"Your Crew Friend and latest reply":"Crew 朋友與最新回覆"}>
@@ -322,7 +324,7 @@ function CrewPlaySession({kind,friend,english,round,nextRound,onChangeFriend}:{k
      {!hasKey?<GeminiSetupNotice/>:null}
     {voicePreparing?<div className="crew-play-generation-state" role="status"><span className="crew-play-mystery-spinner" aria-hidden="true"/><span>{english?"Preparing story and clues…":"準備題目與線索中。"}</span></div>:null}
     {wordError?<div className="crew-play-voice-recovery" role="alert">
-      <p>{live.status|| (english?"Voice connection failed.":"語音連線失敗，請檢查麥克風或網路。")}</p>
+      <p>{liveStatusText(live.status)|| (english?"Voice connection failed.":"語音連線失敗，請檢查麥克風或網路。")}</p>
       {live.errorKind==="key"?<GeminiSetupNotice force/>:
        <button type="button" className="crew-play-voice-start" onClick={()=>void live.start()}>{english?"Retry voice connection":"重新連線語音"}</button>}
      </div>:

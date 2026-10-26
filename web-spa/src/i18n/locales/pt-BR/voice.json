@@ -92,5 +92,94 @@
       "story": "Personagens favoritos, ideias, perguntas para o Archie…"
     },
     "notesHint": "Salvo automaticamente neste navegador e com backup nas Configurações do Crew. As notas não são enviadas ao personagem."
+  },
+  "friendLive": {
+    "preparingPost": "Preparando o assunto da foto do seu amigo…",
+    "backAria": "Voltar para Crew Amigos",
+    "brand": "Amigo Crew · {{language}}",
+    "stageAria": "Conversa com {{name}}",
+    "hookPrefix": "Você queria perguntar: ",
+    "postUnavailable": "Não encontramos a publicação original; esta é uma conversa normal com seu amigo.",
+    "textChat": "Chat por texto",
+    "voiceChat": "Chat por voz",
+    "useVoice": "Mudar para voz",
+    "useText": "Mudar para texto",
+    "interrupt": "Minha vez · interromper",
+    "noTranscript": "Não entendi o que você disse. Fale de novo.",
+    "noReply": "Seu amigo não conseguiu terminar a resposta. Fale de novo ou reconecte.",
+    "changeTopic": "Mudar de assunto",
+    "slower": "Mais devagar",
+    "otherFriends": "Ver outros amigos",
+    "youSaid": "Você disse",
+    "historySummary": "O que conversamos",
+    "youLabel": "Você: ",
+    "footnote": "As mensagens só aparecem nesta página. Conversas recentes guardam só a data; a memória de assuntos vem ativada e pode ser desligada nas Configurações."
+  },
+  "compact": {
+    "aria": "Controles de voz",
+    "speaking": "Falando",
+    "listening": "Ouvindo",
+    "connecting": "Conectando",
+    "finishing": "Encerrando",
+    "interrupt": "Interromper",
+    "unmuteAria": "Ativar microfone",
+    "muteAria": "Silenciar microfone",
+    "unmute": "Ativar",
+    "mute": "Silenciar",
+    "volumeAria": "Ajustar volume da IA",
+    "volume": "Volume",
+    "volumeCaption": "Volume da IA",
+    "volumeDown": "Diminuir volume da IA",
+    "volumeRange": "Volume de reprodução da IA",
+    "volumeUp": "Aumentar volume da IA",
+    "wrapping": "Finalizando…",
+    "end": "Encerrar"
+  },
+  "storyLive": {
+    "name": "Archie",
+    "speaking": "Archie está falando",
+    "listening": "Ouvindo você",
+    "badge": "História interativa",
+    "introBook": "Vamos continuar esta história.",
+    "intro": "Vamos contar a história juntos. Interrompa o Archie quando quiser.",
+    "topicLabel": "O que você quer ouvir hoje?",
+    "interrupt": "Interromper o Archie",
+    "presets": {
+      "continue": "Continuar",
+      "funny": "Deixe engraçado",
+      "choose": "Deixe eu escolher",
+      "newCharacter": "Novo personagem"
+    },
+    "more": "Mais opções",
+    "style": "Estilo",
+    "styles": {
+      "warm": "Aventura acolhedora",
+      "funny": "Engraçado",
+      "bedtime": "História para dormir",
+      "mystery": "Mistério",
+      "fantasy": "Fantasia"
+    },
+    "pace": "Ritmo",
+    "paces": {
+      "short": "Trechos curtos",
+      "normal": "Trechos naturais",
+      "long": "Um pouco mais longos"
+    },
+    "interaction": "Interação",
+    "interactions": {
+      "high": "Me deixe escolher sempre",
+      "medium": "Me deixe escolher às vezes",
+      "low": "Mais ouvir"
+    },
+    "voice": "Voz do Archie",
+    "configNote": "As configurações valem na próxima vez; a história atual não muda de estilo nem de voz.",
+    "visionTitle": "Coloque uma imagem na história",
+    "visionKinds": "Ilustração · desenho · foto",
+    "sending": "Enviando…",
+    "camera": "Tirar foto",
+    "gallery": "Escolher do álbum",
+    "latestAlt": "Última foto enviada",
+    "sentTo": "Enviada ao Archie",
+    "latestPhoto": "Foto mais recente"
   }
 }

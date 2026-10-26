@@ -718,7 +718,8 @@ test("Live product polish keeps one focal character and secondary tools collapse
  const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
  assert.ok(teacherTools.includes('<summary>{t("live.tools.more")}</summary>'));
  assert.equal(readUiLocale("lesson").live.tools.more,"更多功能");
- assert.ok(story.includes("<summary>更多功能</summary>"));
+ assert.ok(story.includes('<summary>{t("storyLive.more")}</summary>'));
+ assert.equal(readUiLocale("voice").storyLive.more,"更多功能");
  assert.ok(controls.includes("live-audio-settings"));
  assert.ok(settings.includes('t("gemini.configured")'));
  assert.ok(readUiLocale("settings").gemini.configured.includes("Gemini Key"));
@@ -771,7 +772,8 @@ test("Live trust UX locks session config and confirms the actual latest photo",(
  }
  assert.ok(teacherTools.includes("live.tools.nextNote"));
  assert.ok(readUiLocale("lesson").live.tools.nextNote.includes("這些設定會套用到下一次對話"));
- assert.ok(story.includes("故事設定會套用到下一次"));
+ assert.ok(story.includes('t("storyLive.configNote")'));
+ assert.ok(readUiLocale("voice").storyLive.configNote.includes("故事設定會套用到下一次"));
  assert.ok(hook.includes("visionSendingRef"));
  assert.ok(hook.includes("sessionRef.current!==s"),"a photo prepared for an old session must never leak into a new session");
  assert.ok(hook.includes("照片處理失敗"));
