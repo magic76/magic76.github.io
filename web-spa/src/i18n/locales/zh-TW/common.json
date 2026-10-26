@@ -30,7 +30,8 @@
     "story": "故事創作",
     "fortune": "命盤探索",
     "settings": "設定",
-    "briefing": "每日研發情報"
+    "briefing": "每日研發情報",
+    "homeLink": "{{name}}，回到首頁"
   },
   "gemini": {
     "connected": "Gemini 已連線",
@@ -38,7 +39,8 @@
     "setup": "設定 Gemini"
   },
   "contact": {
-    "label": "聯絡我們"
+    "label": "聯絡我們",
+    "region": "聯絡資訊"
   },
   "seo": {
     "home": "Crew — AI 語言學習、故事與命盤探索",

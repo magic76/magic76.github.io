@@ -199,7 +199,7 @@ export default function BooksPage(){
   finally{setBusy(false)}
  }
  return <div className="books-root">
-  <div className="books-wrap">
+  <main className="books-wrap">
    <header className="books-top"><a href="/" className="books-brand"><span className="books-logo">圈</span><span>媽媽友小圈圈<small>FAMILY CIRCLE</small></span></a><span className="books-top-label">媽媽友的分享角落</span></header>
    <section className="books-hero"><div className="books-eyebrow"><span className="books-dot"/> 生活大小事，都能聊</div>
     <h1>好東西一起分享，<br/><em>大小事一起交流。</em></h1>
@@ -234,7 +234,7 @@ export default function BooksPage(){
    </section>
    <div className="books-bottom"><div><strong>一起分享，生活更輕鬆。</strong><p>有好物、有問題、有新發現，都歡迎聊聊。</p></div><button className="books-primary" onClick={()=>{setForm({...EMPTY,author:name});setShowForm(true)}}>發一則消息 →</button></div>
    <footer className="books-footer">媽媽友小圈圈 · 邀請制試用中 <a href="/">返回 Crew</a><span>請勿公開電話、住址或交易帳號，交易細節請自行確認。</span></footer>
-  </div>
+  </main>
   {notice&&<div className="books-toast" role="status">{notice}<button onClick={()=>setNotice("")} aria-label="關閉提示">×</button></div>}
   {showForm&&<div className="books-overlay" role="presentation" onMouseDown={e=>{if(e.target===e.currentTarget)setShowForm(false)}}><section className="books-dialog" role="dialog" aria-modal="true" aria-labelledby="books-dialog-title" ref={dialogRef} tabIndex={-1}><div className="books-dialog-head"><div><span className="books-eyebrow">POST TO CIRCLE</span><h2 id="books-dialog-title">發一則消息</h2></div><button onClick={()=>setShowForm(false)} aria-label="關閉">×</button></div><form onSubmit={publish}>
    <label>交流主題<select required className="books-topic-select" value={form.category} onChange={e=>setForm(old=>({...old,category:e.target.value as Category}))}>{CATEGORIES.filter(c=>c.key!=="all").map(c=><option key={c.key} value={c.key}>{c.label}</option>)}</select></label>

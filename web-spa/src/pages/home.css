@@ -68,7 +68,7 @@
 .crew-home-briefing-emblem svg{width:19px;height:19px;stroke:#d5e7f4;stroke-width:1.4;fill:none}
 .crew-home-briefing-date{font-size:10px;letter-spacing:.02em;color:#d2e0eb}
 .crew-home-briefing-card>strong{font-size:19px;line-height:1.4;letter-spacing:-.02em;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.crew-home-briefing-card>p{font-size:11px;line-height:1.65;color:#c9d6e0;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.crew-home-briefing-card>p{font-size:12px;line-height:1.65;color:#c9d6e0;margin:0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .crew-home-briefing-tags{display:flex;flex-wrap:wrap;gap:5px}
 .crew-home-briefing-tags span{font-size:9px;padding:4px 7px;border-radius:50px;color:#e7f0f7;border:1px solid rgba(255,255,255,.24)}
 .crew-home-card-cta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:9px;font-size:11px;font-weight:850;border-top:1px solid rgba(255,255,255,.17)}

@@ -30,7 +30,8 @@
     "story": "物語の創作",
     "fortune": "運勢と自己理解",
     "settings": "設定",
-    "briefing": "毎日の AI 研究"
+    "briefing": "毎日の AI 研究",
+    "homeLink": "{{name}}、ホームへ戻る"
   },
   "gemini": {
     "connected": "Gemini に接続済み",
@@ -38,7 +39,8 @@
     "setup": "Gemini を設定"
   },
   "contact": {
-    "label": "お問い合わせ"
+    "label": "お問い合わせ",
+    "region": "お問い合わせ情報"
   },
   "seo": {
     "home": "Crew — AI 語学学習・物語・占い",

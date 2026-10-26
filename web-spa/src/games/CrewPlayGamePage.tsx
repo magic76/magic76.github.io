@@ -42,14 +42,14 @@ export function CrewPlayGamePage(){
  const [round,setRound]=useState(()=>Math.floor(Math.random()*100));
  const friend=getCrewFriend(friendId);
  useEffect(()=>{if(isGame(gameId))trackUsageEvent("game_open",gameId)},[gameId]);
- if(!isGame(gameId))return <main className="crew-play-page crew-play-not-found" role="main">
+ if(!isGame(gameId))return <div className="crew-play-page crew-play-not-found">
   <div className="panel"><span className="crew-play-eyebrow">CREW PLAY · 404</span>
    <h1>找不到這個遊戲</h1><p>網址可能已變更，請從遊戲中心選擇目前提供的遊戲。</p>
-   <Link className="btn primary" to="/games">返回遊戲中心</Link></div></main>;
+   <Link className="btn primary" to="/games">返回遊戲中心</Link></div></div>;
  const game=crewGames.find(g=>g.id===gameId)!;
  const wordGame=gameId==="twenty-questions"||gameId==="mystery";
  const changeFriend=(id:string)=>{localStorage.setItem(FRIEND_KEY,id);setFriendId(id);setRound(x=>x+1)};
- return <main className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
+ return <div className={"crew-play-page"+(wordGame?" crew-play-page--voice-required":"")+(gameId==="twenty-questions"?" crew-play-page--twenty":"")}>
   <header className="crew-play-game-header">
    <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
@@ -68,7 +68,7 @@ export function CrewPlayGamePage(){
    </section>:null}
    <CrewPlaySession key={gameId+":"+friend.id} kind={gameId} friend={friend} english={english} round={round} nextRound={()=>setRound(x=>x+1)} onChangeFriend={changeFriend}/>
   </div>
- </main>;
+ </div>;
 }
 type Friend=ReturnType<typeof getCrewFriend>;
 type BoardVoiceTurn={

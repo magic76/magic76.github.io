@@ -246,7 +246,8 @@
     "saveMemory": "Enregistrer ce souvenir",
     "memorySaved": "Enregistré. Revenez à cet âge ou à un âge plus avancé pour vous en souvenir.",
     "memoryDisabled": "Mémoire désactivée ou texte trop court.",
-    "memoryCaption": "Seules les phrases que vous enregistrez deviennent des souvenirs Timeline."
+    "memoryCaption": "Seules les phrases que vous enregistrez deviennent des souvenirs Timeline.",
+    "photoAlt": "{{name}} à {{age}} ans"
   },
   "shorts": {
     "heading": "Quoi de neuf chez vos amis Crew ?",

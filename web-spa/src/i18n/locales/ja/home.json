@@ -246,7 +246,8 @@
     "saveMemory": "この思い出を保存",
     "memorySaved": "保存しました。同じ年齢か、より年上の人物に再び会うと思い出せます。",
     "memoryDisabled": "記憶がオフになっているか、文が短すぎます。",
-    "memoryCaption": "自分で保存した言葉だけが Timeline の思い出になります。"
+    "memoryCaption": "自分で保存した言葉だけが Timeline の思い出になります。",
+    "photoAlt": "{{age}}歳の{{name}}"
   },
   "shorts": {
     "heading": "Crew の友だちは今何をしている？",

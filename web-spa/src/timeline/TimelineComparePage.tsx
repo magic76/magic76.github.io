@@ -63,7 +63,7 @@ export function TimelineComparePage(){
    setMessage(t("timeline.copyDone"));
   }catch{setMessage(t("timeline.copyFailed"));}
  };
- return <main className="shell timeline-compare">
+ return <div className="shell timeline-compare">
   <header className="timeline-compare-header">
    <Link className="timeline-compare-back" to={"/timeline?character="+personId}>← {t("timeline.compareBack")}</Link>
    <span className="kicker">CREW TIMELINE · LIFE COMPARE</span>
@@ -100,7 +100,7 @@ export function TimelineComparePage(){
   <section className="timeline-compare-results" aria-live="polite" aria-label={t("timeline.agePerspectives")}>
    {selected.map(age=><article key={personId+":"+age} className="timeline-compare-answer">
     <div className="timeline-compare-photo">
-     <TimelinePortrait age={age} characterId={personId} alt={person.name+" at age "+age}/>
+     <TimelinePortrait age={age} characterId={personId} alt={t("timeline.photoAlt",{name:person.name,age})}/>
     </div>
     <div className="timeline-compare-content">
      <span className="kicker">{person.name.toUpperCase()} · {age} {en?"YEARS OLD":"歲"}</span>
@@ -118,5 +118,5 @@ export function TimelineComparePage(){
    <Link to={"/timeline?character="+personId}>{t("timeline.exploreLife",{name:person.name})} →</Link>
    {message&&<p role="status">{message}</p>}
   </div>
- </main>;
+ </div>;
 }

@@ -200,7 +200,7 @@ export function NonsenseLiveNewsPage(){
   catch{setShareNotice(L(zh,"無法產生分享圖。","Could not generate the share image."));}
  };
  const round=Math.min(roundCount,turns.length+1);
- return <main className="crew-play-page nonsense-news-page">
+ return <div className="crew-play-page nonsense-news-page">
   <header className="crew-play-game-header news-page-header">
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · AI IMPROV</span>
@@ -261,5 +261,5 @@ export function NonsenseLiveNewsPage(){
    <p className="news-disclaimer">{L(zh,"節目中的新聞、證人、民調及危機皆為 AI 虛構娛樂內容。語音模式由 Gemini Live 同時管理麥克風與主播，失敗可切換文字繼續。","All news, witnesses, polls and crises are fictional AI entertainment. Gemini Live owns both audio directions; text fallback preserves progress.")}</p>
   </div>
   {preview&&<div className="news-preview-backdrop" role="presentation" onClick={()=>setPreview("")}><section role="dialog" aria-modal="true" aria-label={L(zh,"結局圖片預覽","Ending image preview")} onClick={e=>e.stopPropagation()}><div><strong>{L(zh,"分享圖預覽","Share preview")}</strong><button type="button" autoFocus onClick={()=>setPreview("")} aria-label={L(zh,"關閉","Close")}>✕</button></div><img src={preview} alt={scene.ending}/><a href={preview} download="crew-news-ending.png">{L(zh,"儲存圖片","Save image")}</a></section></div>}
- </main>;
+ </div>;
 }

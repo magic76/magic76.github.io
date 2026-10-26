@@ -91,8 +91,8 @@ export function TimelinePortrait({age,className="",alt,priority=false,characterI
  // New Mira stages use a face-focused crop of their approved full-body image.
  const cropFullBodyAvatar=characterId==="mira"&&!feature&&!PUBLISHED_PORTRAIT_AGES.has(age)&&fullBodyApproved(age);
  return <span ref={frameRef} className={"timeline-image-frame "+className}>
-  {url&&!failed?<img key={photoKey+":"+url} src={url} alt={alt||personName+" at age "+age}
+  {url&&!failed?<img key={photoKey+":"+url} src={url} alt={alt||""}
     className={cropFullBodyAvatar?"timeline-avatar-from-fullbody":undefined}
-    loading={priority?"eager":"lazy"} fetchPriority={priority?"high":undefined} onError={()=>setFailed(true)}/>:<span aria-label={personName+" age "+age+(failed?" · photo unavailable":visible?" · photo loading":" · photo not loaded")} className={"timeline-image-fallback timeline-placeholder-"+characterId}>{personName[0]}<span>{age}</span></span>}
+    loading={priority?"eager":"lazy"} fetchPriority={priority?"high":undefined} onError={()=>setFailed(true)}/>:<span {...(alt?{role:"img","aria-label":alt}:{"aria-hidden":true})} data-photo-state={failed?"unavailable":visible?"loading":"pending"} className={"timeline-image-fallback timeline-placeholder-"+characterId}>{personName[0]}<span>{age}</span></span>}
  </span>;
 }

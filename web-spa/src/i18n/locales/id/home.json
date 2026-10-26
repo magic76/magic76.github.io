@@ -246,7 +246,8 @@
     "saveMemory": "Simpan kenangan ini",
     "memorySaved": "Tersimpan. Buka lagi usia ini atau yang lebih tua untuk mengingatnya.",
     "memoryDisabled": "Memori nonaktif atau teks terlalu pendek.",
-    "memoryCaption": "Hanya kalimat yang Anda pilih untuk disimpan menjadi kenangan Timeline."
+    "memoryCaption": "Hanya kalimat yang Anda pilih untuk disimpan menjadi kenangan Timeline.",
+    "photoAlt": "{{name}} pada usia {{age}}"
   },
   "shorts": {
     "heading": "Apa kabar teman-teman Crew?",

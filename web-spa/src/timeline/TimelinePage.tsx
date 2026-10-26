@@ -86,7 +86,7 @@ export function TimelinePage(){
    rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});
   }
  },[age]);
- return <main className="shell timeline-page timeline-immersive" data-refresh={refresh}>
+ return <div className="shell timeline-page timeline-immersive" data-refresh={refresh}>
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{t("timeline.title",{name:person.name})}</h1>
    <p>{t("timeline.intro")}</p>
@@ -114,12 +114,12 @@ export function TimelinePage(){
      {t("timeline.talk",{name:person.name,age})} <span aria-hidden="true">↗</span>
     </Link></div>
    <div className="timeline-stage-visual">
-    <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll}
+    <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll} tabIndex={0}
       onPointerDown={()=>{programmaticTarget.current=null}}
       role="region" aria-roledescription="carousel" aria-label={t("timeline.photos",{name:person.name})}>
      {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} data-active={a===age} key={a} role="group"
        aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
-       <TimelinePortrait characterId={characterId} age={a} className="timeline-feature-photo" alt={person.name+" at age "+a} priority={a===age}/>
+       <TimelinePortrait characterId={characterId} age={a} className="timeline-feature-photo" alt={t("timeline.photoAlt",{name:person.name,age:a})} priority={a===age}/>
       </div>)}
     </div>
    </div>
@@ -184,6 +184,6 @@ export function TimelinePage(){
     <button type="button" onClick={()=>{if(window.confirm(en?"Clear all saved "+person.name+" memories?":"確定清除 "+person.name+" 的所有回憶？")){timelineClearNotes(characterId);clearTimelineEchoes(characterId);setRefresh(x=>x+1)}}}>{t("timeline.clearAll")}</button>
    </footer>
   </details>
- </main>;
+ </div>;
 }
 

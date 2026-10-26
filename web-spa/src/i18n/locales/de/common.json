@@ -30,7 +30,8 @@
     "story": "Geschichten erstellen",
     "fortune": "Dein Horoskop entdecken",
     "settings": "Einstellungen",
-    "briefing": "Täglicher KI-Forschungsüberblick"
+    "briefing": "Täglicher KI-Forschungsüberblick",
+    "homeLink": "{{name}} – zur Startseite"
   },
   "gemini": {
     "connected": "Gemini verbunden",
@@ -38,7 +39,8 @@
     "setup": "Gemini einrichten"
   },
   "contact": {
-    "label": "Kontakt"
+    "label": "Kontakt",
+    "region": "Kontaktinformationen"
   },
   "seo": {
     "home": "Crew — KI-Sprachlernen, Geschichten und Astrologie",

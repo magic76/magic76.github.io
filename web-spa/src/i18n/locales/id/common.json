@@ -30,7 +30,8 @@
     "story": "Membuat cerita",
     "fortune": "Menjelajahi bagan astrologi",
     "settings": "Pengaturan",
-    "briefing": "Ringkasan riset AI harian"
+    "briefing": "Ringkasan riset AI harian",
+    "homeLink": "{{name}} — kembali ke beranda"
   },
   "gemini": {
     "connected": "Gemini terhubung",
@@ -38,7 +39,8 @@
     "setup": "Siapkan Gemini"
   },
   "contact": {
-    "label": "Hubungi kami"
+    "label": "Hubungi kami",
+    "region": "Informasi kontak"
   },
   "seo": {
     "home": "Crew — Belajar bahasa, cerita, dan astrologi AI",

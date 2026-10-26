@@ -187,7 +187,7 @@ export function WerewolfPage(){
   setDraft(current=>current.trim()?current.trim()+" "+line:line);
   composeRef.current?.focus();
  };
- return <main className="crew-play-page wolf-page">
+ return <div className="crew-play-page wolf-page">
   <header className="wolf-header">
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY / SOCIAL DEDUCTION</span>
@@ -297,5 +297,5 @@ export function WerewolfPage(){
    {error?<p className="wolf-error" role="alert">{error}</p>:null}
    <p className="wolf-footnote">{L(isZh,"單機測試版：AI 角色不知道其他人的身分；身分與勝負由前端規則驗證。正式多人對戰需要改為伺服器保存秘密。","Single-player prototype: AI roles receive only private knowledge. A server is required to keep secrets secure in multiplayer.")}</p>
   </div>}
- </main>;
+ </div>;
 }

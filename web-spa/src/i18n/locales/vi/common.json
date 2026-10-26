@@ -30,7 +30,8 @@
     "story": "Sáng tác truyện",
     "fortune": "Khám phá lá số",
     "settings": "Cài đặt",
-    "briefing": "Bản tin nghiên cứu AI hằng ngày"
+    "briefing": "Bản tin nghiên cứu AI hằng ngày",
+    "homeLink": "{{name}} — về trang chủ"
   },
   "gemini": {
     "connected": "Đã kết nối Gemini",
@@ -38,7 +39,8 @@
     "setup": "Thiết lập Gemini"
   },
   "contact": {
-    "label": "Liên hệ"
+    "label": "Liên hệ",
+    "region": "Thông tin liên hệ"
   },
   "seo": {
     "home": "Crew — Học ngoại ngữ, truyện và chiêm tinh với AI",
