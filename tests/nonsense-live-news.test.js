@@ -53,6 +53,7 @@ test("live tool renders schema-bounded visuals and owns microphone and audio",()
  assert.doesNotMatch(scene,/dangerouslySetInnerHTML|innerHTML|eval\(/);
  assert.match(page,/recoverEnding/);
  assert.match(page,/switchToText/);
+ assert.doesNotMatch(page,/結局取決於你整場直播中的應對|without fake scores or transcripts/);
  assert.match(page,/nextNewsScene\(/);
  assert.match(app,/import\("\.\/games\/NonsenseLiveNewsPage"\)/);
 });
