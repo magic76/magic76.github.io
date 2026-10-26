@@ -42,7 +42,7 @@ export function magicFindReaction(a:readonly string[],b:readonly string[],env:Ma
  for(const r of MAGIC_REACTIONS){
   if(r.b==="night"){if(env.night&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
   if(r.b==="castleIce"){if(env.castleIce&&env.distanceToCastle<=8&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
-  if(r.b==="any"){if((a.includes(r.a)&&b.length>0)||(b.includes(r.a)&&a.length>0))return r.id;continue}
+  if(r.b==="any"){if((a.includes(r.a)&&b!==a)||(b.includes(r.a)&&a!==b))return r.id;continue}
   if((a.includes(r.a)&&b.includes(r.b))||(a.includes(r.b)&&b.includes(r.a)))return r.id;
  }
 }

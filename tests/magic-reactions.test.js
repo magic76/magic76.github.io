@@ -64,3 +64,16 @@ test("11 locale entries are translated and no old stubs survive",()=>{
   }
  }
 });
+
+test("R3 visual fixes keep pool bounded and reaction-specific colors",()=>{
+ const recipes=readFileSync(base+"magicReactionRecipes.ts","utf8");
+ const scene=readFileSync(base+"MagicReactions3D.tsx","utf8");
+ const creations=readFileSync(base+"MagicCreations3D.tsx","utf8");
+ assert.match(recipes,/makeReactionPool/);assert.match(recipes,/length:64/);
+ assert.match(recipes,/REACTION_VISUALS/);
+ for(const id of ids)assert.match(recipes,new RegExp(id+':\\{kind'));
+ assert.doesNotMatch(scene,/a\.motion===\"still\"&&night/);
+ assert.match(scene,/Math\.atan2\(-r\.ax,-\.55-r\.az\)/);
+ assert.match(scene,/r\.distance\/2\+\.6/);
+ assert.match(creations,/react\?\.dance&&animated.*react\.w/);
+});

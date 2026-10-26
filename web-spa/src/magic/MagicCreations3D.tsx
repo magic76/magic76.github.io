@@ -184,9 +184,9 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
    body.current.scale.set(modelScale*breathe*sculptReveal,modelScale*(1-pulse*.012)*sculptReveal,modelScale*breathe*sculptReveal);
    body.current.rotation.z=creation.mood==="curious"?sway*.065:creation.mood==="brave"?sway*.008:sway*.025;
    body.current.rotation.x=asleep?.11:0;
-   body.current.position.y=react?.dance&&animated?Math.max(0,Math.sin(socialTime*Math.PI*3.2))*.14:
+   body.current.position.y=react?.dance&&animated?Math.max(0,Math.sin(socialTime*Math.PI*3.2))*.14*react.w:
     animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
-   if(react?.dance&&animated)body.current.rotation.z+=Math.sin(socialTime*Math.PI*3.2)*.06;
+   if(react?.dance&&animated)body.current.rotation.z+=Math.sin(socialTime*Math.PI*3.2)*.06*react.w;
   }
   creation.parts.forEach((part,i)=>{
    const element=groups.current[i];if(!element)return;
