@@ -388,7 +388,8 @@ test("stage coordinate projection keeps roaming animals on the island path",()=>
 
 test("3D overview camera and world-creature locomotion are wired",()=>{
  const scene=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicScene3D.tsx"),"utf8");
- assert.ok(scene.includes("camera={{position:[39.53,36.05,59.14]"));
+ assert.ok(scene.includes("camera={{position:MAGIC_OVERVIEW_POSITION.toArray()"));
+ assert.ok(scene.includes("getMagicOverviewPosition("));
  assert.ok(scene.includes("safeMagicAnchor(obj.x,obj.z)"));
  assert.ok(scene.includes('kind==="fox"'));
  assert.ok(scene.includes("root.current.position"));
@@ -678,7 +679,7 @@ test("Magic 3D island has tenfold walkable area, spatially distributed details a
  assert.match(scene,/ISLAND_LINEAR_SCALE=Math.sqrt\(10\)/);
  assert.match(scene,/ISLAND_X_RADIUS=5\.65\*ISLAND_LINEAR_SCALE/);
  assert.match(scene,/ISLAND_Z_RADIUS=4\.75\*ISLAND_LINEAR_SCALE/);
- assert.match(scene,/<OuterDistricts colors=\{colors\}/);
+ assert.match(scene,/<MagicDistricts3D colors=\{colors\}/);
  assert.match(scene,/enablePan enableDamping/);
  assert.match(scene,/maxDistance=\{110\}/);
  assert.match(scene,/far:180/);
