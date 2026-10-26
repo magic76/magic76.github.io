@@ -1,0 +1,96 @@
+{
+  "controls": {
+    "start": "Começar",
+    "restart": "Começar de novo",
+    "retryMic": "Permitir microfone novamente",
+    "reconnect": "Reconectar",
+    "micBlocked": "Se o navegador bloqueou o microfone, permita-o na barra de endereço ou nas configurações do site.",
+    "networkHint": "Esta página é mantida; reconecte quando a rede voltar.",
+    "unmute": "Ativar microfone",
+    "mute": "Silenciar microfone",
+    "finishing": "Finalizando…",
+    "end": "Encerrar",
+    "interruptTeacher": "Interromper o professor",
+    "volumeAria": "Volume da IA",
+    "volumeSummary": "Volume IA · {{v}}%",
+    "volumeLabel": "Volume IA",
+    "volumeDown": "Diminuir o volume da IA em 20%",
+    "volumeRange": "Ajustar o volume da IA",
+    "volumeUp": "Aumentar o volume da IA em 20%",
+    "volumeHint": "Toque − / + para ajustes rápidos ou arraste o controle para ajuste fino. Acima de 100% a voz é amplificada; evite exagerar."
+  },
+  "status": {
+    "idle": "Toque em Começar e fale.",
+    "reporting": "Preparando seu relatório da aula…",
+    "reportFailed": "Sua prática foi salva, mas o relatório não pôde ser criado. Continue pelo histórico.",
+    "ended": "Encerrado.",
+    "noKey": "Ainda não há chave de API do Gemini.",
+    "mic": "Preparando o microfone…",
+    "noTranscript": "Não reconheci o que você disse. Repita, por favor.",
+    "noReply": "Seu amigo ainda não respondeu. Repita ou reconecte.",
+    "retrying": "Buscando a resposta novamente…",
+    "micStopped": "O microfone parou de captar. Reinicie a conversa por voz.",
+    "preparing": "Seu amigo está pensando…",
+    "resumedMira": "Conexão restabelecida. Mira continua…",
+    "resumedFriend": "Conexão restabelecida. Continuando a resposta…",
+    "resumedTeacher": "Conexão restabelecida. Seu professor continua…",
+    "hearing": "🎙️ Ouvindo você…",
+    "heard": "🎙️ Entendi. Respondo quando você terminar…",
+    "ending": "Encerrando…",
+    "generic": "Houve um problema na conexão de voz"
+  },
+  "workspace": {
+    "aria": {
+      "teacher": "Espaço de aprendizado",
+      "friend": "Espaço de conversa",
+      "story": "Espaço da história"
+    },
+    "title": {
+      "teacher": "Conversa e notas de estudo",
+      "friend": "Conversa e notas rápidas",
+      "story": "História e notas"
+    },
+    "desc": {
+      "teacher": "Pratique a fala sem sair da tela do professor.",
+      "friend": "Continue a conversa à vontade. A transcrição fica só nesta sessão.",
+      "story": "Anote suas ideias enquanto ouve a história."
+    },
+    "state": {
+      "speaking": "Falando",
+      "listening": "Ouvindo",
+      "connecting": "Conectando",
+      "ended": "Encerrado",
+      "idle": "Não iniciado"
+    },
+    "tabsAria": "Alternar visualização",
+    "transcript": "Transcrição",
+    "notes": {
+      "teacher": "Notas de estudo",
+      "friend": "Minhas notas",
+      "story": "Notas da história"
+    },
+    "saved": "Salvo",
+    "dialogueAria": "Transcrição completa",
+    "emptyTitle": "Sua conversa começa aqui",
+    "emptyBody": "Toque em Começar à esquerda para ver a conversa aqui.",
+    "you": "Você",
+    "line": "{{who}}: {{text}}",
+    "latestAria": "Conversa mais recente",
+    "live": "ao vivo",
+    "copy": "Copiar conversa",
+    "copied": "Copiado",
+    "copyFailed": "Não foi possível copiar. Verifique as permissões do navegador",
+    "translating": "Traduzindo…",
+    "translateLast": "Traduzir a última fala do professor",
+    "translationTitle": "Tradução para chinês tradicional",
+    "noKey": "Adicione primeiro uma chave do Gemini nas Configurações.",
+    "translateFailed": "A tradução falhou. Tente novamente.",
+    "notesLabel": "Anote o essencial",
+    "placeholder": {
+      "teacher": "Expressões e palavras de hoje, frases para praticar da próxima vez…",
+      "friend": "Filmes, viagens ou assuntos para a próxima conversa…",
+      "story": "Personagens favoritos, ideias, perguntas para o Archie…"
+    },
+    "notesHint": "Salvo automaticamente neste navegador e com backup nas Configurações do Crew. As notas não são enviadas ao personagem."
+  }
+}

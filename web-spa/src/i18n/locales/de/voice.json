@@ -1,0 +1,96 @@
+{
+  "controls": {
+    "start": "Starten",
+    "restart": "Neu starten",
+    "retryMic": "Mikrofon erneut erlauben",
+    "reconnect": "Neu verbinden",
+    "micBlocked": "Falls der Browser das Mikrofon blockiert, erlaube es zuerst über die Adressleiste oder die Website-Einstellungen.",
+    "networkHint": "Diese Seite bleibt erhalten; verbinde dich neu, sobald das Netz wieder da ist.",
+    "unmute": "Mikrofon einschalten",
+    "mute": "Mikrofon stummschalten",
+    "finishing": "Wird abgeschlossen…",
+    "end": "Beenden",
+    "interruptTeacher": "Lehrkraft unterbrechen",
+    "volumeAria": "KI-Lautstärke",
+    "volumeSummary": "KI-Lautstärke · {{v}}%",
+    "volumeLabel": "KI-Lautstärke",
+    "volumeDown": "KI-Lautstärke um 20 % senken",
+    "volumeRange": "KI-Lautstärke anpassen",
+    "volumeUp": "KI-Lautstärke um 20 % erhöhen",
+    "volumeHint": "Tippe − / + für schnelle Änderungen oder ziehe den Regler zum Feinjustieren. Über 100 % wird die Stimme verstärkt – nicht zu hoch stellen."
+  },
+  "status": {
+    "idle": "Tippe auf Starten und sprich einfach los.",
+    "reporting": "Lernbericht wird erstellt…",
+    "reportFailed": "Deine Übung ist gespeichert, aber der Bericht konnte nicht erstellt werden. Du kannst im Verlauf weitermachen.",
+    "ended": "Beendet.",
+    "noKey": "Noch kein Gemini-API-Schlüssel.",
+    "mic": "Mikrofon wird vorbereitet…",
+    "noTranscript": "Das wurde nicht erkannt. Bitte noch einmal sagen.",
+    "noReply": "Dein Freund hat noch nicht geantwortet. Sag es noch einmal oder verbinde neu.",
+    "retrying": "Antwort wird erneut abgerufen…",
+    "micStopped": "Das Mikrofon hört nicht mehr zu. Starte das Sprachgespräch neu.",
+    "preparing": "Dein Freund überlegt…",
+    "resumedMira": "Wieder verbunden. Mira macht weiter…",
+    "resumedFriend": "Wieder verbunden. Die Antwort geht weiter…",
+    "resumedTeacher": "Wieder verbunden. Deine Lehrkraft macht weiter…",
+    "hearing": "🎙️ Ich höre zu…",
+    "heard": "🎙️ Gehört. Ich antworte, wenn du fertig bist…",
+    "ending": "Wird beendet…",
+    "generic": "Problem mit der Sprachverbindung"
+  },
+  "workspace": {
+    "aria": {
+      "teacher": "Lernbereich",
+      "friend": "Gesprächsbereich",
+      "story": "Geschichtenbereich"
+    },
+    "title": {
+      "teacher": "Gespräch & Lernnotizen",
+      "friend": "Gespräch & Notizen",
+      "story": "Geschichte & Notizen"
+    },
+    "desc": {
+      "teacher": "Sprechen üben, ohne den Lehrkraft-Bildschirm zu verlassen.",
+      "friend": "Unterhalte dich entspannt weiter. Das Transkript bleibt nur in dieser Sitzung.",
+      "story": "Halte Gedanken fest, während du der Geschichte zuhörst."
+    },
+    "state": {
+      "speaking": "Spricht",
+      "listening": "Hört zu",
+      "connecting": "Verbindet",
+      "ended": "Beendet",
+      "idle": "Nicht gestartet"
+    },
+    "tabsAria": "Ansicht wechseln",
+    "transcript": "Transkript",
+    "notes": {
+      "teacher": "Lernnotizen",
+      "friend": "Meine Notizen",
+      "story": "Geschichtsnotizen"
+    },
+    "saved": "Gespeichert",
+    "dialogueAria": "Vollständiges Transkript",
+    "emptyTitle": "Hier beginnt dein Gespräch",
+    "emptyBody": "Tippe links auf Starten, um das Gespräch hier zu sehen.",
+    "you": "Du",
+    "line": "{{who}}: {{text}}",
+    "latestAria": "Neuester Gesprächsteil",
+    "live": "live",
+    "copy": "Gespräch kopieren",
+    "copied": "Kopiert",
+    "copyFailed": "Kopieren nicht möglich. Prüfe die Browser-Berechtigungen",
+    "translating": "Wird übersetzt…",
+    "translateLast": "Letzten Satz der Lehrkraft übersetzen",
+    "translationTitle": "Übersetzung ins traditionelle Chinesisch",
+    "noKey": "Füge zuerst in den Einstellungen einen Gemini-Schlüssel hinzu.",
+    "translateFailed": "Übersetzung fehlgeschlagen. Bitte erneut versuchen.",
+    "notesLabel": "Wichtiges notieren",
+    "placeholder": {
+      "teacher": "Heute gelernte Ausdrücke und Wörter, Sätze zum nächsten Üben…",
+      "friend": "Filme, Reisen oder Themen fürs nächste Mal…",
+      "story": "Lieblingsfiguren, Story-Ideen, Fragen an Archie…"
+    },
+    "notesHint": "Wird automatisch in diesem Browser gespeichert und lässt sich in den Crew-Einstellungen sichern. Die Notizen werden nicht an die Figur gesendet."
+  }
+}

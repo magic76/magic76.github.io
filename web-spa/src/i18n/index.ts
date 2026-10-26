@@ -41,8 +41,8 @@ const loadingLocales=new Map<string,Promise<void>>();
 // Route-scoped catalogs (every locale, zh-TW and en included) stay out of the
 // entry bundle. Routes await loadUiNamespace() inside their lazy() import, so
 // the strings exist before the first render and raw keys never flash.
-const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson}.json",{import:"default"});
-export type RouteNamespace="games"|"mate"|"lesson";
+const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson,voice}.json",{import:"default"});
+export type RouteNamespace="games"|"mate"|"lesson"|"voice";
 const wantedRouteNamespaces=new Set<RouteNamespace>();
 const loadingRouteNamespaces=new Map<string,Promise<void>>();
 function loadRouteBundle(locale:string,namespace:RouteNamespace):Promise<void>{
@@ -59,6 +59,11 @@ function loadRouteNamespaces(locale:string,namespaces:Iterable<RouteNamespace>):
  // Beta locales fall back to English, so their English catalog loads too.
  const locales=locale==="zh-TW"?["zh-TW"]:locale==="en"?["en"]:[locale,"en"];
  return Promise.all([...namespaces].flatMap(namespace=>locales.map(l=>loadRouteBundle(l,namespace)))).then(()=>{});
+}
+/** True when the active locale (and its English fallback) has this route catalog. */
+export function routeNamespaceReady(namespace:RouteNamespace):boolean{
+ const locale=normalizeUiLocale(i18n.language)||"zh-TW";
+ return i18n.hasResourceBundle(locale,namespace)&&(locale==="zh-TW"||locale==="en"||i18n.hasResourceBundle("en",namespace));
 }
 export function loadUiNamespace(namespace:RouteNamespace):Promise<void>{
  wantedRouteNamespaces.add(namespace);

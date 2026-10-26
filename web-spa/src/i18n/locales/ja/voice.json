@@ -1,0 +1,96 @@
+{
+  "controls": {
+    "start": "開始",
+    "restart": "もう一度開始",
+    "retryMic": "マイクを再度許可",
+    "reconnect": "再接続",
+    "micBlocked": "ブラウザがマイクをブロックしている場合は、アドレスバーかサイト設定で許可してください。",
+    "networkHint": "このページはそのまま残ります。ネットワークが戻ったら再接続できます。",
+    "unmute": "マイクをオン",
+    "mute": "マイクをミュート",
+    "finishing": "まとめ中…",
+    "end": "終了",
+    "interruptTeacher": "先生をさえぎる",
+    "volumeAria": "AI の再生音量",
+    "volumeSummary": "AI 音量 · {{v}}%",
+    "volumeLabel": "AI 音量",
+    "volumeDown": "AI 音量を 20% 下げる",
+    "volumeRange": "AI の再生音量を調整",
+    "volumeUp": "AI 音量を 20% 上げる",
+    "volumeHint": "−／＋ で素早く、スライダーで細かく調整できます。100% を超えると音量が増幅されるので上げすぎに注意してください。"
+  },
+  "status": {
+    "idle": "開始を押したら、そのまま話してください。",
+    "reporting": "レッスンレポートを作成中…",
+    "reportFailed": "練習は保存されましたが、レポートを作成できませんでした。履歴から続けられます。",
+    "ended": "終了しました。",
+    "noKey": "Gemini API キーが未設定です。",
+    "mic": "マイクを準備中…",
+    "noTranscript": "今の音声を認識できませんでした。もう一度話してください。",
+    "noReply": "友だちからまだ返事がありません。もう一度話すか再接続してください。",
+    "retrying": "友だちの返事を再取得中…",
+    "micStopped": "マイクの集音が止まりました。音声会話をもう一度開始してください。",
+    "preparing": "友だちが返事を考えています…",
+    "resumedMira": "再接続しました。Mira が続きを話します…",
+    "resumedFriend": "再接続しました。続きを話します…",
+    "resumedTeacher": "再接続しました。先生が続きを話します…",
+    "hearing": "🎙️ 聞いています…",
+    "heard": "🎙️ 聞こえました。話し終わったら返事します…",
+    "ending": "終了しています…",
+    "generic": "音声接続で問題が発生しました"
+  },
+  "workspace": {
+    "aria": {
+      "teacher": "学習ワークスペース",
+      "friend": "友だち会話ワークスペース",
+      "story": "物語ワークスペース"
+    },
+    "title": {
+      "teacher": "会話と学習メモ",
+      "friend": "会話とメモ",
+      "story": "物語とメモ"
+    },
+    "desc": {
+      "teacher": "先生の画面を離れずに会話練習できます。",
+      "friend": "気軽に話を続けられます。会話記録はこのセッション中だけ保持されます。",
+      "story": "物語を聞きながら思いついたことをメモできます。"
+    },
+    "state": {
+      "speaking": "話しています",
+      "listening": "聞いています",
+      "connecting": "接続中",
+      "ended": "終了",
+      "idle": "開始前"
+    },
+    "tabsAria": "ワークスペースの表示を切り替え",
+    "transcript": "文字起こし",
+    "notes": {
+      "teacher": "学習メモ",
+      "friend": "マイメモ",
+      "story": "物語メモ"
+    },
+    "saved": "記録済み",
+    "dialogueAria": "会話の全記録",
+    "emptyTitle": "会話はここから始まります",
+    "emptyBody": "左側の開始を押すと、会話がここに表示されます。",
+    "you": "あなた",
+    "line": "{{who}}：{{text}}",
+    "latestAria": "最新の会話",
+    "live": "ライブ",
+    "copy": "会話をコピー",
+    "copied": "コピーしました",
+    "copyFailed": "コピーできません。ブラウザの権限を確認してください",
+    "translating": "翻訳中…",
+    "translateLast": "先生の直前の発言を翻訳",
+    "translationTitle": "繁体字中国語訳",
+    "noKey": "先に設定で Gemini キーを追加してください。",
+    "translateFailed": "翻訳に失敗しました。もう一度お試しください。",
+    "notesLabel": "ポイントをメモ",
+    "placeholder": {
+      "teacher": "今日覚えた表現や単語、次に練習したい文…",
+      "friend": "次に話したい映画や旅行、共通の話題…",
+      "story": "好きなキャラクター、物語のアイデア、アーチーへの質問…"
+    },
+    "notesHint": "このブラウザに自動保存され、Crew の設定でバックアップできます。メモが会話相手に送られることはありません。"
+  }
+}

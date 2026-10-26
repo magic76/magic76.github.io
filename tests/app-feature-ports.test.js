@@ -794,8 +794,10 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.ok(home.includes('t("setup.verify")'));
  assert.equal(readUiLocale("home").setup.verify,"Gemini Key 尚未驗證");
  assert.ok(controls.includes("GeminiSetupNotice"),"key recovery should use shared onboarding");
- assert.ok(controls.includes("重新允許麥克風"));
- assert.ok(controls.includes("重新連線"));
+ assert.ok(controls.includes('t("controls.retryMic")'));
+ assert.ok(controls.includes('t("controls.reconnect")'));
+ assert.equal(readUiLocale("voice").controls.retryMic,"重新允許麥克風");
+ assert.equal(readUiLocale("voice").controls.reconnect,"重新連線");
  assert.ok(hook.includes('errorKind'));
  assert.ok(hook.includes('if(kind==="key")setGeminiVerified(false)'));
 });
