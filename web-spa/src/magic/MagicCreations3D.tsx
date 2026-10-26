@@ -1,7 +1,7 @@
 import {useMemo,useRef} from "react";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
-import {Box3,Mesh,Vector3,type Group} from "three";
+import {Mesh,Vector3,type Group} from "three";
 import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world";
 import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
@@ -50,8 +50,8 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{p
     {part.shape==="sphere"?<sphereGeometry args={[.63,10,8]}/>:
      part.shape==="cone"?<coneGeometry args={[.57,1.18,7]}/>:
      part.shape==="cylinder"?<cylinderGeometry args={[.5,.5,1,8]}/>:
-     part.shape==="torus"?<torusGeometry args={[.54,.15,6,12]}/>: 
-     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,5,8]}/>: 
+     part.shape==="torus"?<torusGeometry args={[.54,.15,6,12]}/>:
+     part.shape==="capsule"?<capsuleGeometry args={[.34,.84,5,8]}/>:
      part.shape==="leaf"?<sphereGeometry args={[.65,10,8]}/>:
      <octahedronGeometry args={[.65,0]}/>}
     {finish}
@@ -237,5 +237,3 @@ export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicC
  return <group>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
   creations={creations} animated={animated} onSelect={onSelect}/>)}</group>;
 }
-
-// Legacy marker: MagicPartIdentity3D part={part}; islandSurfaceHeight(desiredX,desiredZ)+groundClearance

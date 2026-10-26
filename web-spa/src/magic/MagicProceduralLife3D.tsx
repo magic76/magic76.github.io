@@ -104,5 +104,3 @@ export function MagicRobotModel3D({blueprint,animated=true}:{blueprint:MagicLife
   {blueprint.style==="mystic"&&<mesh position={[0,2.03,0]} rotation={[Math.PI/2,0,0]}><torusGeometry args={[.25,.025,5,12]}/><meshStandardMaterial color="#e8dfb3" emissive="#c5d8be" emissiveIntensity={.15} roughness={.8}/></mesh>}
  </group>;
 }
-
-/* Legacy pose-hook regression markers preserved: body.current.position.y=pose.bodyY; neck.current.rotation.x=pose.neckPitch; node.rotation.z=pose.wingRoll[i]; tail.current.rotation.x=pose.tailPitch; head.current.rotation.y=pose.headYaw; node.rotation.x=pose.legPitch[i]; tail.current.rotation.y=pose.tailYaw; extrudeGeometry */

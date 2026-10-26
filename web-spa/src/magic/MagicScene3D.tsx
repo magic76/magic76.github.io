@@ -90,7 +90,6 @@ function SceneObject({object,position,animated,reacting,peers,worldObjects,onCli
    {kind==="owl"?<MagicOwlModel3D animated={animated}/>:null}
    {kind==="fox"?<MagicFoxModel3D animated={animated}/>:null}
    {kind==="tree"?<MagicTreeModel3D/>:null}
-
   </group>
  </group>;
 }

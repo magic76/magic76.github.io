@@ -21,7 +21,7 @@ export function MagicPartIdentity3D({part,animated=true}:{part:MagicCreatorPart;
  if(detail==="face")return <MagicCuteFace3D front={front} animated={animated} seed={part.x*4+part.y*3}/>;
  if(detail==="core")return <mesh position={[0,0,front]}><icosahedronGeometry args={[.24,0]}/><meshStandardMaterial color="#c6e9e5" emissive="#7fbcb8" emissiveIntensity={.28} roughness={.82}/></mesh>;
  if(detail==="vent")return <mesh position={[0,0,front]} scale={[.43,.14,.045]}><boxGeometry args={[1,1,1]}/><meshStandardMaterial color="#6b8583" roughness={.89}/></mesh>;
- if(detail==="thruster")return <mesh position={[0,0,-front]}><circleGeometry args={[.23,8]}/><meshStandardMaterial color="#a6dbe5" emissive="#79c9da" emissiveIntensity={.4} roughness={.8}/></mesh>;
+ if(detail==="thruster")return <mesh position={[0,0,-front]} rotation={[0,Math.PI,0]}><circleGeometry args={[.23,8]}/><meshStandardMaterial color="#a6dbe5" emissive="#79c9da" emissiveIntensity={.4} roughness={.8}/></mesh>;
  if(detail)return <mesh position={[0,0,front]} rotation={[0,0,Math.PI/4]}><octahedronGeometry args={[.19,0]}/><meshStandardMaterial color="#f2dfab" roughness={.85}/></mesh>;
  return null;
 }
