@@ -203,6 +203,7 @@ test("Chat, Learn, Me hubs and progress card translate every visible UI field in
 test("route-scoped catalogs load with their route instead of the entry bundle",()=>{
  const index=read("web-spa/src/i18n/index.ts");
  const app=read("web-spa/src/App.tsx");
+ assert.match(index,/react:\{useSuspense:false,nsMode:"fallback"\}/,"multi-namespace useTranslation must fall back across namespaces");
  assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice)\.json"/);
  assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice\}\.json"/);
  assert.match(app,/withNamespace\(\["games","voice"\],import\("\.\/games\/TabooGamePage"\)\)/);

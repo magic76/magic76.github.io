@@ -103,7 +103,8 @@ void i18n.use(initReactI18next).init({
   en:{common:enCommon,home:enHome,settings:enSettings,teacher:enTeacher,friends:enFriends,story:enStory,fortune:enFortune,magic:enMagic}
  },
  interpolation:{escapeValue:false},
- react:{useSuspense:false},
+ // Route pages call useTranslation(["lesson","teacher"]) etc.; look keys up in every listed namespace.
+ react:{useSuspense:false,nsMode:"fallback"},
  initImmediate:false
 });
 function applyLocale(language:string){
