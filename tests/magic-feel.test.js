@@ -19,9 +19,9 @@ test('offline wishes detect language cues and produce distinct validated structu
  const a=w.applyMagicCommand(w.MAGIC_INITIAL_WORLD,'create_magic_entity',first);
  assert.equal(a.ok,true, a.event);
  const second=wish.magicWishCreation('戴皇冠的火焰狐狸',a.world,'zh');
- const b=w.applyMagicCommand(a.world,'create_magic_entity',second);
+ const b=w.applyMagicCommand(a.world,'create_magic_lifeform',second);
  assert.equal(b.ok,true,b.event);assert.equal(second.aura,'fire');
- assert.notDeepEqual(a.world.creations[0].parts,b.world.creations[1].parts);
+ assert.notDeepEqual(a.world.creations[0].parts,b.world.creations[1].blueprint);
 });
 test('aura enum validation and snapshot roundtrip',()=>{
  const valid=wish.magicWishCreation('星星',w.MAGIC_INITIAL_WORLD,'zh');valid.aura='stars';
@@ -51,8 +51,9 @@ test('fixed assembly strings and reduced motion paths',()=>{
  assert.match(s,/Math\.PI\/2-\.42/);assert.match(s,/joint==="wheel"\?t\*\.78/);
  assert.match(s,/animated&&assembled>\.98/);assert.doesNotMatch(s,/clock\.elapsedTime-started\.current/);
  const live=src('MagicCreationLife3D.tsx'),cast=src('MagicCasting3D.tsx');
- assert.match(live,/useFrame/);assert.match(cast,/animated&&completion/);
- for(const content of [live,cast]){assert.doesNotMatch(content,/EffectComposer|castShadow/);assert.match(content,/pointsMaterial/)}
+ assert.match(live,/useFrame/);assert.match(cast,/animated/);
+ for(const content of [live,cast])assert.doesNotMatch(content,/EffectComposer|castShadow|<points/);
+ assert.match(src("MagicParticleLayers3D.tsx"),/PointsMaterial/);
  assert.doesNotMatch(src('magicSound.ts'),/fetch\(|new Audio\(/);assert.match(src('magicSound.ts'),/navigator\.vibrate/);
 });
 test('11 magic locale files contain localized keys',()=>{
@@ -61,4 +62,31 @@ test('11 magic locale files contain localized keys',()=>{
  for(const lang of langs){const data=JSON.parse(fs.readFileSync(path.join(root,'web-spa/src/i18n/locales',lang,'magic.json')));
   for(const key of keys){assert.ok(data[key],lang+': '+key);if(!['en','zh-TW'].includes(lang))assert.notEqual(data[key],key)}
  }
+});
+
+test('five noun-aware wishes route to distinct silhouettes',()=>{
+ const cases=[['會噴泡泡的雲朵貓','cat','bubbles'],['火焰飛龍','dragon','fire'],
+  ['冰晶花園守護者','flower','ice'],['a musical star robot','robot','music'],['花いっぱいの狐','fox','flowers']];
+ const parsed=load('magicWish.ts',['magicWishKind','magicWishTraits','magicWishCreation']);
+ let state=w.MAGIC_INITIAL_WORLD;const structures=[];
+ for(const [label,kind,aura] of cases){
+  assert.equal(parsed.magicWishKind(label),kind);
+  assert.equal(parsed.magicWishTraits(label).aura,aura);
+  let res;for(let attempt=0;attempt<3;attempt++){
+   const args=parsed.magicWishCreation(label,state,'zh',attempt);
+   res=w.applyMagicCommand(state,['dragon','fox','robot'].includes(kind)?'create_magic_lifeform':'create_magic_entity',args);
+   if(res.ok)break;
+  }
+  assert.equal(res.ok,true,res.event);state=res.world;
+  const c=state.creations.at(-1);
+  structures.push(JSON.stringify(c.blueprint??c.parts.map(p=>[p.shape,p.x,p.y,p.joint])));
+ }
+ assert.equal(new Set(structures).size,5);
+});
+test('particle graphics have bounded shared layers',()=>{
+ const layer=src('MagicParticleLayers3D.tsx');
+ assert.match(layer,/256\*3/);assert.match(layer,/setDrawRange/);
+ assert.match(layer,/CanvasTexture/);assert.match(layer,/depthWrite:false/);
+ assert.match(layer,/"sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z"/);
+ for(const n of ['MagicCreationLife3D.tsx','MagicCasting3D.tsx'])assert.doesNotMatch(src(n),/<points/);
 });

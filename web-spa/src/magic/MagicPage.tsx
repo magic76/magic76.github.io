@@ -14,6 +14,7 @@ import {HELPERS,newlySummonedCreature,newlyBuiltCreation,magicAdventureCopy} fro
 import {MagicGuideCard} from "./MagicGuideCard";
 import {MagicCreatedList} from "./MagicCreatedList";
 import {magicWishCreation} from "./magicWish";
+import {scheduleMagicStageReveal} from "./magicWishSubmit";
 import {MagicSoundToggle} from "./MagicSoundToggle";
 import {activateMagicAudio,magicHaptic,playMagicSound} from "./magicSound";
 import "./magic.css";
@@ -272,10 +273,10 @@ export function MagicPage(){
    for(let attempt=0;attempt<3;attempt++){
     const args=magicWishCreation(message,worldRef.current,zh?"zh":"en",attempt);
     if(!args)break;
-    result=runCommand("create_magic_entity",args);
+    result=runCommand("blueprint" in args?"create_magic_lifeform":"create_magic_entity",args);
     if(result.ok||result.event!=="duplicate-structure-try-new-geometry")break;
    }
-   if(result?.ok){setInput("");setNotice("");}
+   if(result?.ok){setInput("");setNotice("");scheduleMagicStageReveal(stageRef.current,reducedMotion);}
    else setNotice(result?.event==="creation-limit"?tr("Creation limit reached"):tr("Try a different wish"));
    return;
   }
