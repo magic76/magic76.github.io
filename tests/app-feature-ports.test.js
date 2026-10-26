@@ -491,7 +491,8 @@ test("Teacher Web keeps Android course progress alongside existing reports and p
  for(const token of ["completedLessons","totalStars","learningDeck","reading-library"])assert.ok(mine.includes(token));
  assert.ok(textbook.includes("completeMaterial"));
  assert.ok(textbook.includes("CrewTextbookStore?.remove"));
- assert.ok(textbook.includes("完成教材"));
+ assert.ok(textbook.includes('t("textbook.finish")'));
+ assert.equal(readUiLocale("lesson").textbook.finish,"完成教材");
 });
 
 
@@ -625,7 +626,8 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  assert.ok(!live.includes("VOICES"));
  assert.ok(!tutor.includes("老師音色"));
  assert.ok(!live.includes("老師音色"));
- assert.ok(textbook.includes("教材已準備好"));
+ assert.ok(textbook.includes('t("textbook.ready")'));
+ assert.equal(readUiLocale("lesson").textbook.ready,"教材已準備好");
  assert.ok(!player.includes("Live Story Player"));
  assert.ok(!player.includes("Gemini Live 阿奇負責"));
 });
@@ -714,7 +716,8 @@ test("Live product polish keeps one focal character and secondary tools collapse
  assert.ok(!story.includes('<section className="session-person">'));
  assert.ok(teacher.includes("<TeacherLiveTools "),"Live must mount the extracted teacher tools");
  const teacherTools=fs.readFileSync(path.join(root,"web-spa/src/teacher/TeacherLiveTools.tsx"),"utf8");
- assert.ok(teacherTools.includes("<summary>更多功能</summary>"));
+ assert.ok(teacherTools.includes('<summary>{t("live.tools.more")}</summary>'));
+ assert.equal(readUiLocale("lesson").live.tools.more,"更多功能");
  assert.ok(story.includes("<summary>更多功能</summary>"));
  assert.ok(controls.includes("live-audio-settings"));
  assert.ok(settings.includes('t("gemini.configured")'));
@@ -766,7 +769,8 @@ test("Live trust UX locks session config and confirms the actual latest photo",(
   assert.ok(source.includes("lastImage"));
   assert.ok(source.includes("vision-latest"));
  }
- assert.ok(teacherTools.includes("這些設定會套用到下一次對話"));
+ assert.ok(teacherTools.includes("live.tools.nextNote"));
+ assert.ok(readUiLocale("lesson").live.tools.nextNote.includes("這些設定會套用到下一次對話"));
  assert.ok(story.includes("故事設定會套用到下一次"));
  assert.ok(hook.includes("visionSendingRef"));
  assert.ok(hook.includes("sessionRef.current!==s"),"a photo prepared for an old session must never leak into a new session");

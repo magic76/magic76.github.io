@@ -3,6 +3,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const root=path.resolve(__dirname,"..");
+const enHome=()=>fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/mate.json"),"utf8");
 // Node 22.23+ supports TypeScript type stripping, matching the repository CI runtime.
 const mate=require("../web-spa/src/mate/mateState.ts");
 const consensus={
@@ -51,7 +52,8 @@ test("external Mate knows the reviewed owner rules without revealing them to the
  assert.match(page,/externalOpening\(c\)/);
  assert.match(page,/volume:100/);
  assert.match(page,/const session=new window\.CrewLive\.Session\(voiceOptions\)/);
- assert.match(review,/Private limits \(Mate follows these without revealing them\)/);
+ assert.match(review,/t\("mate\.fields\.limits"\)/);
+ assert.match(enHome(),/Private limits \(Mate follows these without revealing them\)/);
 });
 test("first Mate greeting is audible, logged and does not count as external consent",()=>{
  const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
@@ -61,7 +63,8 @@ test("first Mate greeting is audible, logged and does not count as external cons
  assert.match(page,/externalInputSeen\.current=true/);
  assert.match(page,/voice:"Aoede",volume:100/);
  assert.match(page,/if\(mode==="external"\)\{\s*if\(session\.ready&&session\.running\)trackUsageEvent\("mate_handoff_started"\);\s*session\.setVolume\(100\)/);
- assert.match(page,/Ask Mate to start speaking/);
+ assert.match(page,/t\("mate\.askStart"\)/);
+ assert.match(enHome(),/Ask Mate to start speaking/);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","complete_task",false,true),false);
  assert.equal(mate.mateToolAllowed("external","EXTERNAL_WITH_MATE","request_user_input",false,true),false);
 });
@@ -126,7 +129,8 @@ test("P1 external view has a dedicated transcript and explicit reconnect path",(
  const transcript=fs.readFileSync(path.join(root,"web-spa/src/mate/MateTranscript.tsx"),"utf8");
  assert.match(page,/showHistory&&phase!=="external"&&phase!=="decision"/);
  assert.match(page,/MateTranscript turns=\{turns\}/);
- assert.match(page,/Review and reconnect/);
+ assert.match(page,/t\("mate\.reviewReconnect"\)/);
+ assert.match(enHome(),/Review and reconnect/);
  assert.match(transcript,/shouldFollow\.current=nearBottom/);
  assert.match(transcript,/role="log"/);
 });
@@ -137,10 +141,11 @@ test("Mate local task history is always saved without a consent toggle",()=>{
  assert.doesNotMatch(page,/saveHistory|setSaveHistory|mate-save/);
  assert.match(page,/function saveResult\(completed:boolean,result:string\)/);
  assert.match(page,/storeMateHistory\(record\)/);
- assert.match(page,/saveResult\(false,t\("任務可繼續"/);
- assert.match(page,/saveResult\(false,t\("對話進行中"/);
+ assert.match(page,/saveResult\(false,t\("mate\.outcome\.resumable"/);
+ assert.match(page,/saveResult\(false,t\("mate\.outcome\.inProgress"/);
  assert.match(page,/saveResult\(completed,summary\)/);
- assert.match(panel,/Tasks and transcripts are saved here automatically/);
+ assert.match(panel,/t\("mate\.history\.saved"\)/);
+ assert.match(enHome(),/Tasks and transcripts are saved here automatically/);
  assert.match(panel,/onDelete\(item\.id\)/);
 });
 
@@ -164,6 +169,7 @@ test("private supplement keeps the task, dialogue and continuation mode instead 
  assert.match(prompts,/export const externalContinuation/);
  assert.match(briefing,/SUPPLEMENT to the existing, ongoing task/);
  assert.match(briefing,/return the FULL combined restriction/);
- assert.match(page,/Continue conversation/);
+ assert.match(page,/t\("mate\.continueConversation"\)/);
+ assert.match(enHome(),/Continue conversation/);
  assert.match(page,/continuingSessionRef\.current\?externalContinuation\(consensusRef\.current,turnsRef\.current\.slice\(-16\)\):externalOpening\(consensusRef\.current\)/);
 });

@@ -21,9 +21,9 @@ test("Taboo timer is visually precise but announces only meaningful milestones",
  const page=game("TabooGamePage.tsx");
  const css=game("miniGames.css");
  assert.match(page,/const timeAnnouncement=roundSeconds===0\?""/);
- assert.match(page,/timeLeft<=10\?"本題剩餘十秒"/);
- assert.match(page,/timeLeft<=30\?"本題剩餘三十秒"/);
- assert.match(page,/role="timer" aria-live="off" aria-label=\{roundSeconds===0\?"不限時":"本題倒數"\}/);
+ assert.match(page,/timeLeft<=10\?t\("playHub\.taboo\.left10"\)/);
+ assert.match(page,/timeLeft<=30\?t\("playHub\.taboo\.left30"\)/);
+ assert.match(page,/role="timer" aria-live="off" aria-label=\{roundSeconds===0\?t\("playHub\.taboo\.noLimit"\):t\("playHub\.taboo\.countdown"\)\}/);
  assert.match(page,/role="status" aria-live="polite" aria-atomic="true">\{timeAnnouncement\}/);
  assert.match(page,/role="progressbar"/);
  assert.match(css,/\.crew-taboo-timer-line \.sr-only\{/);

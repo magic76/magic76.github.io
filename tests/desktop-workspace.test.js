@@ -15,7 +15,7 @@ test("desktop workspace reuses one Live session on both products",()=>{
   assert.match(file,/live\.input/);
   assert.match(file,/live\.output/);
  }
- assert.match(teacher,/prominentInterrupt interruptLabel="換我說/);
+ assert.match(teacher,/prominentInterrupt interruptLabel=\{t\("live\.myTurn"\)\}/);
  assert.match(story,/interruptLabel="打斷阿奇"/);
 });
 test("desktop panel exposes transcript, explicit translation and local notes",()=>{

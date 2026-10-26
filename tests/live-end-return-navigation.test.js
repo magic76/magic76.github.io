@@ -34,7 +34,7 @@ test("end control allows navigation on conversation pages without changing inlin
  const session=source("web-spa/src/live/useLiveSession.ts");
  assert.match(controls,/onEnd\?:\(\)=>void\|Promise<unknown>/);
  assert.match(controls,/onEnd\?onEnd\(\):live\.stop\(\)/);
- assert.match(reading,/<LiveControls live=\{live\}\/>/);
+ assert.match(reading,/<LiveControls live=\{live\}( interruptLabel=\{t\("live\.interruptTeacher"\)\})?\/>/);
  assert.match(session,/const completion=finish\(item\)/);
  assert.match(session,/if\(!deferReport\)await completion/);
  assert.match(session,/return \{turns:\(item\?\.turns\|\|\[\]\)/);

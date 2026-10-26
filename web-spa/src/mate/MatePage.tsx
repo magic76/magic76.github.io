@@ -21,9 +21,8 @@ import "./mate.css";
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
 const textValue = (v:unknown) => typeof v==="string"?v.trim().slice(0,800):"";
 export function MatePage(){
-  const {i18n}=useTranslation();
+  const {t,i18n}=useTranslation(["mate","home"]);
   const en=i18n.language!=="zh-TW";
-  const t=(zh:string,english:string)=>en?english:zh;
   const [phase,setPhase]=useState<MatePhase>("setup");
   const [consensus,setConsensus]=useState<MateConsensus>({...EMPTY_CONSENSUS});
   const consensusRef=useRef(consensus);
@@ -81,7 +80,7 @@ export function MatePage(){
     turnsRef.current=[...turnsRef.current,latest];
     setTurns(turnsRef.current);
     if(translationViewRef.current!=="original")void translateTurn(latest);
-    saveResult(false,t("對話進行中","Conversation in progress"));
+    saveResult(false,t("mate.outcome.inProgress"));
   }
   async function translateTurn(entry:MateTurn){
     if(translationPending.current.has(entry.id)||entry.translated)return;
@@ -138,10 +137,10 @@ export function MatePage(){
   }
   async function startVoice(mode:"private"|"external"){
     if(mode==="external"&&(!mateConsensusReady(consensusRef.current)||!confirmOwner)){
-      setError(t("請先確認任務共識，再交給對方。","Review and approve the task before handoff."));return;
+      setError(t("mate.err.reviewFirst"));return;
     }
-    if(!geminiKey()){setError(t("請先至設定頁加入 Gemini API Key。","Set your Gemini API key in Settings first."));return}
-    setError("");setLiveStatus(t("正在連線…","Connecting…"));
+    if(!geminiKey()){setError(t("mate.err.noKey"));return}
+    setError("");setLiveStatus(t("mate.connecting"));
     await stopConnection();
     const sequence=++connectionSeq.current;
     const c=consensusRef.current;
@@ -159,7 +158,7 @@ export function MatePage(){
     }else{
       advance("external","EXTERNAL_WITH_MATE");
       setShowHistory(false);setStartedExternal(true);
-      saveResult(false,t("任務可繼續","Task can be resumed"));
+      saveResult(false,t("mate.outcome.resumable"));
     }
     try{
       await ensureLive();
@@ -167,7 +166,7 @@ export function MatePage(){
       const voiceOptions={
         system:mode==="private"?privateInstruction(c,startedExternal,turnsRef.current.slice(-12)):externalInstruction(c,scopedOwnerDecision,turnsRef.current.slice(-16),continuing),
         openingPrompt:mode==="private"
-          ? (note.trim()||(startedExternal?t("請聽我補充剛剛的任務，原本談好的內容不要重來。","Help me update the ongoing task without restarting the conversation."):t("請詢問我需要哪些資訊，再幫我整理任務。","Ask what is missing and help me clarify this task.")))
+          ? (note.trim()||(startedExternal?(en?"Help me update the ongoing task without restarting the conversation.":"請聽我補充剛剛的任務，原本談好的內容不要重來。"):(en?"Ask what is missing and help me clarify this task.":"請詢問我需要哪些資訊，再幫我整理任務。")))
           : (continuing?externalContinuation(c,turnsRef.current.slice(-16)):externalOpening(c)),
         voice:"Aoede",volume:100,
         maxResumeAttempts:1,maxLiveAttempts:1,manualInterruptOnly:true,
@@ -178,7 +177,7 @@ export function MatePage(){
           setConnected(state==="ready");
           if(state==="error"){
             if(mode==="external")trackUsageEvent("mate_handoff_failed");
-            setError(t("語音連線中斷，請重試。","Voice connection failed. Please retry."));
+            setError(t("mate.err.dropped"));
           }
         },
         onSpeaking:(now:boolean)=>{
@@ -270,12 +269,12 @@ export function MatePage(){
         onError:(failure:Error)=>{
           if(connectionSeq.current!==sequence)return;
           if(mode==="external")trackUsageEvent("mate_handoff_failed");
-          setConnected(false);setError(t("語音連線失敗，請重新連線。","Voice connection failed. Please reconnect."));
+          setConnected(false);setError(t("mate.err.failedReconnect"));
         },
         onTerminal:()=>{
           if(connectionSeq.current!==sequence)return;
           connectionRef.current=null;setConnected(false);
-          if(phaseRef.current==="external")setLiveStatus(t("連線已結束，可重新開始。","Disconnected. You can reconnect."));
+          if(phaseRef.current==="external")setLiveStatus(t("mate.disconnected"));
         }
       };
       const session=new window.CrewLive.Session(voiceOptions);
@@ -292,7 +291,7 @@ export function MatePage(){
       if(connectionSeq.current!==sequence)return;
       connectionRef.current=null;setConnected(false);
       if(mode==="external")trackUsageEvent("mate_handoff_failed");
-      setError(t("語音連線失敗，請檢查 Gemini Key、麥克風權限或網路。","Voice connection failed. Check your Gemini key, microphone permission and network."));
+      setError(t("mate.err.failedCheck"));
     }
   }
   async function reviewBrief(){
@@ -320,7 +319,7 @@ export function MatePage(){
         setNote("");
       }
     }catch{
-      setError(t("自動整理失敗，請直接修改下方欄位後再交接。","Could not organize the briefing. Review and edit the fields manually."));
+      setError(t("mate.err.organize"));
     }finally{
       advance("review","IDLE");
       briefingPending.current=false;
@@ -354,8 +353,8 @@ export function MatePage(){
   const reviewing=phase==="setup"||phase==="supplement"||phase==="review"||phase==="private";
   const canEdit=phase==="setup"||phase==="supplement"||phase==="review";
   return <div className="mate-page">
-    <MateHeader phase={phase} en={en} onHistory={()=>setShowHistory(v=>!v)}/>
-    {showHistory&&phase!=="external"&&phase!=="decision"&&<MateHistoryPanel english={en} history={history}
+    <MateHeader phase={phase} onHistory={()=>setShowHistory(v=>!v)}/>
+    {showHistory&&phase!=="external"&&phase!=="decision"&&<MateHistoryPanel history={history}
       onOpen={item=>{
         void stopConnection();
         taskId.current=item.id;
@@ -370,84 +369,84 @@ export function MatePage(){
         setShowHistory(false);
       }}
       onDelete={id=>{
-        if(window.confirm(t("刪除此筆紀錄？","Delete this record?"))){
+        if(window.confirm(t("mate.confirmDelete"))){
           deleteMateHistory(id);setHistory(readMateHistory());
           if(taskId.current===id)restart();
         }
       }}/>}
 
-    {(reviewing||phase==="finished")&&<div className="mate-steps" aria-label={t("任務進度","Task progress")}>
-      <span className={reviewing?"active":""}>1 {startedExternal?t("補充任務","Update"):t("私下交代","Brief")}</span>
-      <span>2 {startedExternal?t("繼續溝通","Continue"):t("對外溝通","Handoff")}</span>
-      <span className={phase==="finished"?"active":""}>3 {t("結果","Result")}</span>
+    {(reviewing||phase==="finished")&&<div className="mate-steps" aria-label={t("mate.steps.aria")}>
+      <span className={reviewing?"active":""}>1 {startedExternal?t("mate.steps.update"):t("mate.steps.brief")}</span>
+      <span>2 {startedExternal?t("mate.steps.continue"):t("mate.steps.handoff")}</span>
+      <span className={phase==="finished"?"active":""}>3 {t("mate.steps.result")}</span>
     </div>}
     {error&&<p role="alert" className="mate-error">{error}</p>}
     {reviewing&&<>
       <section className="mate-panel">
-        <h2>{startedExternal?(phase==="supplement"?t("補充目前的任務","Update the ongoing task"):phase==="private"?t("私下補充中","Private update"):t("確認補充並繼續","Review and continue")):phase==="review"?t("請確認交接內容","Confirm handoff"):t("私下交代任務","Private briefing")}</h2>
-        <p className="mate-hint">{startedExternal?t("會保留原本任務與已談內容；補充只更新條件，不會重新開始。返回對外對話前仍需你的確認。","The same task and conversation are retained. Your update changes only what you specify; review before continuing."):t("交接前請確認：Mate 會依這些指示幫你溝通。私人限制只供 Mate 判斷，不會主動告訴對方。","Review before handoff: Mate uses these instructions to help you. Private limits guide Mate and are not meant to be shared with the other person.")}</p>
+        <h2>{startedExternal?(phase==="supplement"?t("mate.title.update"):phase==="private"?t("mate.title.privateUpdate"):t("mate.title.reviewContinue")):phase==="review"?t("mate.title.confirm"):t("mate.title.brief")}</h2>
+        <p className="mate-hint">{startedExternal?t("mate.hint.continuing"):t("mate.hint.handoff")}</p>
         {startedExternal&&turns.length>0&&phase!=="private"&&<details className="mate-prior-dialogue">
-          <summary>{t("之前的對話","Earlier dialogue")} ({turns.length})</summary>
-          <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
+          <summary>{t("mate.earlier")} ({turns.length})</summary>
+          <MateTranscript turns={turns} view={translationView} target={consensus.target||t("mate.otherPerson")}/>
         </details>}
-        {phase!=="private"&&<MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} en={en} showPresets={!startedExternal}/>} 
+        {phase!=="private"&&<MateConsensusFields consensus={consensus} canEdit={canEdit} edit={edit} showPresets={!startedExternal}/>} 
         {phase==="private"&&<div className="mate-private-live" aria-live="polite">
-          <strong>{connected?t("Mate 正在私下聽你說","Mate is listening privately"):liveStatus}</strong>
-          {privateInput&&<p>{t("你：","You: ")}{privateInput}</p>}
-          {privateOutput&&<p>{t("Mate：","Mate: ")}{privateOutput}</p>}
+          <strong>{connected?t("mate.privateListening"):liveStatus}</strong>
+          {privateInput&&<p>{t("mate.youPrefix")}{privateInput}</p>}
+          {privateOutput&&<p>{t("mate.matePrefix")}{privateOutput}</p>}
           {privateQuestion&&<p className="mate-question">{privateQuestion}</p>}
         </div>}
-        {phase!=="review"&&<label className="mate-brief-label">{startedExternal?t("這次要補充的內容（只給 Mate）","What changed? (only for Mate)"):t("補充文字（只傳給私下 Mate）","Private note to Mate")}
-          <textarea rows={2} value={note} onChange={e=>setNote(e.target.value)} placeholder={t("可輸入其他需求，或按下面的麥克風直接說","Type more details or use the microphone")}/></label>}
+        {phase!=="review"&&<label className="mate-brief-label">{startedExternal?t("mate.note.update"):t("mate.note.brief")}
+          <textarea rows={2} value={note} onChange={e=>setNote(e.target.value)} placeholder={t("mate.note.placeholder")}/></label>}
         {phase==="review"&&privateQuestion&&<p className="mate-question mate-clarification">{privateQuestion}</p>}
         <div className="mate-actions">
           {phase==="private"?<>
-            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("正在整理…","Organizing…"):t("交代完畢 · Mate 整理","Finish briefing · Summarize")}</button>
-            <button type="button" className="mate-secondary" disabled={!connected||!note.trim()} onClick={()=>{if(connectionRef.current?.sendText(note)){privateStatements.current.push(note.trim());setNote("")}}}>{t("送出補充","Send note")}</button>
+            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("mate.organizing"):t("mate.finishBrief")}</button>
+            <button type="button" className="mate-secondary" disabled={!connected||!note.trim()} onClick={()=>{if(connectionRef.current?.sendText(note)){privateStatements.current.push(note.trim());setNote("")}}}>{t("mate.sendNote")}</button>
           </>:phase==="setup"||phase==="supplement"?<>
-            <button type="button" className="mate-secondary" onClick={()=>void startVoice("private")}>{startedExternal?t("私下語音補充","Speak privately with Mate"):t("與 Mate 私下語音討論","Talk privately with Mate")}</button>
-            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("正在整理…","Organizing…"):startedExternal?t("整理補充並繼續","Review update & continue"):t("Mate 整理並確認","Summarize & review")}</button>
+            <button type="button" className="mate-secondary" onClick={()=>void startVoice("private")}>{startedExternal?t("mate.speakUpdate"):t("mate.speakPrivate")}</button>
+            <button type="button" className="mate-primary" disabled={briefingBusy} onClick={()=>void finishBriefing()}>{briefingBusy?t("mate.organizing"):startedExternal?t("mate.reviewUpdate"):t("mate.summarize")}</button>
           </>:<>
-            <button type="button" className="mate-secondary" onClick={()=>advance(startedExternal?"supplement":"setup","USER_DIRECT")}>{startedExternal?t("繼續補充","Add more details"):t("修改內容","Edit briefing")}</button>
-            <button type="button" className="mate-primary" disabled={!ready||!confirmOwner} onClick={()=>void startVoice("external")}>{startedExternal?t("接續剛才的對話","Continue conversation"):t("交給 Mate 溝通","Start handoff")}</button>
+            <button type="button" className="mate-secondary" onClick={()=>advance(startedExternal?"supplement":"setup","USER_DIRECT")}>{startedExternal?t("mate.addMore"):t("mate.editBrief")}</button>
+            <button type="button" className="mate-primary" disabled={!ready||!confirmOwner} onClick={()=>void startVoice("external")}>{startedExternal?t("mate.continueConversation"):t("mate.startHandoff")}</button>
           </>}
         </div>
-        {phase==="review"&&<label className="mate-check"><input type="checkbox" checked={confirmOwner} onChange={e=>setConfirmOwner(e.target.checked)}/>{startedExternal?t("我確認補充內容，允許 Mate 接續剛才的對話。","I approve this update and authorize Mate to continue the conversation."):t("我已確認對外目標與私人限制，允許 Mate 開始對話。","I reviewed the public goal and private limits and authorize the handoff.")}</label>}
-        {phase==="review"&&!ready&&<p className="mate-hint">{t("請填妥對象、目標、限制和需確認的決策。","Complete the person, goal, limits and approval boundaries.")}</p>}
+        {phase==="review"&&<label className="mate-check"><input type="checkbox" checked={confirmOwner} onChange={e=>setConfirmOwner(e.target.checked)}/>{startedExternal?t("mate.approve.update"):t("mate.approve.handoff")}</label>}
+        {phase==="review"&&!ready&&<p className="mate-hint">{t("mate.incomplete")}</p>}
       </section>
     </>}
     {(phase==="external"||phase==="decision"||phase==="finished")&&<section className="mate-external">
-      <div className="mate-external-top"><div><small>{phase==="external"?t("AI 對話中","AI conversation"):phase==="decision"?t("需你決定","Decision required"):t("任務結束","Task ended")}</small>
-        <h2>{consensus.target||t("溝通任務","Communication")}</h2><p>{consensus.goal}</p></div>
-        {phase==="external"&&<span className={"mate-live-dot"+(connected?" online":"")}>{connected?t("已連線","Connected"):liveStatus}</span>}
+      <div className="mate-external-top"><div><small>{phase==="external"?t("mate.status.live"):phase==="decision"?t("mate.status.decision"):t("mate.status.ended")}</small>
+        <h2>{consensus.target||t("mate.communication")}</h2><p>{consensus.goal}</p></div>
+        {phase==="external"&&<span className={"mate-live-dot"+(connected?" online":"")}>{connected?t("mate.connected"):liveStatus}</span>}
       </div>
       <div className="mate-translate-toggle">
-        <label>{t("字幕","Subtitles")} <select value={translationView} onChange={event=>setView(event.target.value as "bilingual"|"translated"|"original")}>
-          <option value="bilingual">{t("雙語","Bilingual")}</option>
-          <option value="translated">{t("譯文","Translation")}</option>
-          <option value="original">{t("原文","Original")}</option>
+        <label>{t("mate.subtitles")} <select value={translationView} onChange={event=>setView(event.target.value as "bilingual"|"translated"|"original")}>
+          <option value="bilingual">{t("mate.bilingual")}</option>
+          <option value="translated">{t("mate.translation")}</option>
+          <option value="original">{t("mate.original")}</option>
         </select></label>
       </div>
-      <MateTranscript turns={turns} view={translationView} english={en} target={consensus.target||t("對方","Other person")}/>
-      {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("重新確認並連線","Review and reconnect")}</button>}
+      <MateTranscript turns={turns} view={translationView} target={consensus.target||t("mate.otherPerson")}/>
+      {phase==="external"&&!connected&&<button type="button" className="mate-reconnect" onClick={()=>void reviewBrief()}>{t("mate.reviewReconnect")}</button>}
       {phase==="external"&&connected&&!mateGreeted&&!speaking&&<button type="button" className="mate-reconnect" onClick={()=>{
-        if(!connectionRef.current?.sendText(continuingSessionRef.current?externalContinuation(consensusRef.current,turnsRef.current.slice(-16)):externalOpening(consensusRef.current)))setError(t("無法送出，請重新連線。","Could not start speaking. Please reconnect."));
-      }}>{t("請 Mate 主動開口","Ask Mate to start speaking")}</button>}
-      {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("Mate 正在說話","Mate is speaking"):connected?(externalInputSeen.current?t("正在聽對方說話","Listening to the other person"):t("Mate 已開始協助溝通","Mate is initiating the conversation")):liveStatus}</div>}
+        if(!connectionRef.current?.sendText(continuingSessionRef.current?externalContinuation(consensusRef.current,turnsRef.current.slice(-16)):externalOpening(consensusRef.current)))setError(t("mate.err.sendFailed"));
+      }}>{t("mate.askStart")}</button>}
+      {phase==="external"&&<div className="mate-callstatus" role="status">{speaking?t("mate.mateSpeaking"):connected?(externalInputSeen.current?t("mate.listeningOther"):t("mate.mateInitiating")):liveStatus}</div>}
       {phase==="decision"&&decision&&<div className="mate-decision" role="alert">
-        <strong>{t("Mate 需要你的決定","Mate needs your approval")}</strong>
+        <strong>{t("mate.decision.title")}</strong>
         <p>{decision.question}</p><small>{decision.reason}</small>
-        <div className="mate-actions"><button type="button" className="mate-primary" onClick={()=>applyDecision(true)}>{t("同意，再次確認交接","Approve and review")}</button>
-          <button type="button" className="mate-secondary" onClick={()=>applyDecision(false)}>{t("拒絕，重新交代","Reject and review")}</button></div>
-        <p className="mate-hint">{t("不會自動替你答應任何付款或其他承諾。","Mate will not automatically accept payments or commitments.")}</p>
+        <div className="mate-actions"><button type="button" className="mate-primary" onClick={()=>applyDecision(true)}>{t("mate.decision.approve")}</button>
+          <button type="button" className="mate-secondary" onClick={()=>applyDecision(false)}>{t("mate.decision.reject")}</button></div>
+        <p className="mate-hint">{t("mate.decision.note")}</p>
       </div>}
-      {phase==="finished"&&<div className="mate-result"><strong>{t("溝通結果","Communication result")}</strong><p>{outcome||t("通話已結束","Conversation ended")}</p></div>}
-      <MateExternalDock phase={phase} english={en}
+      {phase==="finished"&&<div className="mate-result"><strong>{t("mate.result")}</strong><p>{outcome||t("mate.callEnded")}</p></div>}
+      <MateExternalDock phase={phase}
         onSupplement={()=>void editSupplement()} onTakeOver={()=>void reviewBrief()}
-        onComplete={()=>void closeTask(true,t("使用者確認任務完成","Owner confirmed completion"))}
-        onEnd={()=>void closeTask(false,t("只結束通話，任務未確認完成","Call ended without completion"))}
+        onComplete={()=>void closeTask(true,t("mate.outcome.completed"))}
+        onEnd={()=>void closeTask(false,t("mate.outcome.ended"))}
         onRestart={restart}/>
     </section>}
-    <p className="mate-disclaimer">{t("現場溝通需徵得對方同意。Mate 不會傳送 LINE、Email 或其他遠端訊息。切換私下補充時會安全地重建語音連線。","Ask for consent before using live transcription. Mate does not send remote messages. Switching between private and external modes safely reconnects voice.")}</p>
+    <p className="mate-disclaimer">{t("mate.disclaimer")}</p>
   </div>;
 }

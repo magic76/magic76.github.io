@@ -31,7 +31,7 @@ test("voice selection stays inside active profile and next-session accent and pa
 test("manual interrupt remains in its dock position but can only be used while speaking",()=>{
  const controls=read("web-spa/src/live/LiveControls.tsx");
  const live=read("web-spa/src/teacher/LivePage.tsx");
- assert.match(live,/prominentInterrupt interruptLabel="換我說/);
+ assert.match(live,/prominentInterrupt interruptLabel=\{t\("live\.myTurn"\)\}/);
  assert.match(controls,/prominentInterrupt&&<button/);
  assert.match(controls,/disabled={live\.state!=="speaking"}/);
  assert.match(controls,/crew-voice-dock/);
@@ -42,6 +42,7 @@ test("roleplay changes only through scene setting and fresh session instead of s
  const live=read("web-spa/src/teacher/LivePage.tsx");
  assert.match(tutor,/conversationMode==="scenario"/);
  assert.match(tutor,/\?mission=/);
- assert.match(live,/設定聊天／情境模式/);
+ assert.match(live,/t\("live\.setMode"\)/);
+ assert.match(read("web-spa/src/i18n/locales/zh-TW/lesson.json"),/設定聊天／情境模式/);
  assert.doesNotMatch(live,/live\.sendText\("現在進入角色扮演/);
 });

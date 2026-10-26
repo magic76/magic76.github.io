@@ -1,18 +1,20 @@
+import {useTranslation} from "react-i18next";
 import type {MateHistory} from "./mateState";
-export function MateHistoryPanel({history,english,onOpen,onDelete}:{
-  history:MateHistory[];english:boolean;onOpen:(item:MateHistory)=>void;onDelete:(id:string)=>void;
+export function MateHistoryPanel({history,onOpen,onDelete}:{
+  history:MateHistory[];onOpen:(item:MateHistory)=>void;onDelete:(id:string)=>void;
 }){
-  return <section className="mate-panel" aria-label={english?"History":"紀錄"}>
-    <h2>{english?"On-device task history":"本機任務紀錄"}</h2>
-    <p className="mate-hint">{english?"Tasks and transcripts are saved here automatically. You can delete them anytime.":"任務與對話會自動保存在此裝置，可隨時刪除。"}</p>
-    {history.length===0&&<p className="mate-hint">{english?"No saved tasks.":"尚未儲存任務。"}</p>}
+  const {t}=useTranslation(["mate","home"]);
+  return <section className="mate-panel" aria-label={t("mate.header.history")}>
+    <h2>{t("mate.history.title")}</h2>
+    <p className="mate-hint">{t("mate.history.saved")}</p>
+    {history.length===0&&<p className="mate-hint">{t("mate.history.empty")}</p>}
     {history.map(item=><div className="mate-history" key={item.id}>
       <div><strong>{item.target} · {item.goal}</strong>
-        <small>{new Date(item.updatedAt).toLocaleString()} · {item.status==="stopped"?(english?"Paused":"未完成"):(english?"Completed":"已完成")}</small>
+        <small>{new Date(item.updatedAt).toLocaleString()} · {item.status==="stopped"?t("mate.history.paused"):t("mate.history.completed")}</small>
         {item.outcome&&<small>{item.outcome}</small>}
       </div>
-      <button type="button" onClick={()=>onOpen(item)}>{item.status==="stopped"&&item.consensus?(english?"Resume":"繼續任務"):(english?"View":"查看")}</button>
-      <button type="button" onClick={()=>onDelete(item.id)}>{english?"Delete":"刪除"}</button>
+      <button type="button" onClick={()=>onOpen(item)}>{item.status==="stopped"&&item.consensus?t("mate.history.resume"):t("mate.history.view")}</button>
+      <button type="button" onClick={()=>onDelete(item.id)}>{t("mate.history.delete")}</button>
     </div>)}
   </section>;
 }
