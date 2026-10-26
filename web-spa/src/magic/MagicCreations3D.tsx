@@ -1,4 +1,4 @@
-import {useMemo,useRef} from "react";
+import {useEffect,useMemo,useRef} from "react";
 import {MagicCasting3D} from "./MagicCasting3D";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
@@ -77,6 +77,7 @@ function Creature({creation,site,animated,night,neighbors,onSelect}:{creation:Ma
  const linkDirection=useMemo(()=>new Vector3(),[]);
  const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
+ useEffect(()=>()=>{neighbors.delete(creation.id)},[neighbors,creation.id]);
  const nextGreeting=useRef(0);const greetingUntil=useRef(0);const greetingTo=useRef<number|null>(null);
  const phases=useRef<number[]>([]);
  const prevPhases=useRef<number[]>([]);
