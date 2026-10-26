@@ -9,7 +9,7 @@ export function useMagicFrameloop(reducedMotion:boolean){
  const attach=useCallback((canvas:HTMLCanvasElement|null)=>{
   observer.current?.disconnect();observer.current=null;element.current=canvas;
   if(!canvas||typeof IntersectionObserver==='undefined'){setInView(true);return;}
-  const instance=new IntersectionObserver(entries=>setInView(Boolean(entries[0]?.isIntersecting)),{rootMargin:'96px 0px',threshold:0});
+  const instance=new IntersectionObserver(entries=>setInView(Boolean(entries[0]?.isIntersecting)),{rootMargin:'0px',threshold:0});
   observer.current=instance;instance.observe(canvas);
  },[]);
  useEffect(()=>{
