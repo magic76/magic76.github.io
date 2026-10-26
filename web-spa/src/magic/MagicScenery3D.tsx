@@ -1,5 +1,5 @@
-import {useEffect,useRef} from 'react';
-import {Object3D,Color,AdditiveBlending,type InstancedMesh} from 'three';
+import {useEffect,useMemo,useRef} from 'react';
+import {Object3D,Color,AdditiveBlending,BufferAttribute,CircleGeometry,type InstancedMesh} from 'three';
 import {islandSurfaceHeight} from './magicNavigation';
 import {MAGIC_TREES,MAGIC_DISTRICTS} from './magicLayout';
 import {MAGIC_MATERIALS,type MagicPalette} from './magicPalette';
@@ -59,13 +59,15 @@ function MagicDistrictGlow3D({night}:{night:boolean}){
   const m=mesh.current;if(!m)return;const o=new Object3D();
   MAGIC_DISTRICTS.forEach((p,i)=>{
    o.position.set(p.x,islandSurfaceHeight(p.x,p.z)+2.05,p.z);
-   o.rotation.set(-Math.PI/2,0,0);o.scale.set(.65,.65,1);
+   o.rotation.set(-Math.PI/2,0,0);o.scale.set(1.05,1.05,1);
    o.updateMatrix();m.setMatrixAt(i,o.matrix);
   });m.instanceMatrix.needsUpdate=true;
- },[]);
+ },[night]);
+ const disc=useMemo(()=>{const g=new CircleGeometry(1,16),n=g.attributes.position.count,c=new Float32Array(n*3);c.fill(0);c.set([1,1,1],0);g.setAttribute('color',new BufferAttribute(c,3));return g;},[]);
+ useEffect(()=>()=>disc.dispose(),[disc]);
  if(!night)return null;
  return <instancedMesh ref={mesh} args={[undefined,undefined,MAGIC_DISTRICTS.length]} frustumCulled={false}>
-  <circleGeometry args={[1,12]}/>
-  <meshBasicMaterial color="#FFD79C" transparent opacity={.22} blending={AdditiveBlending} depthWrite={false} toneMapped={false}/>
+  <primitive object={disc} attach="geometry"/>
+  <meshBasicMaterial color="#FFD79C" vertexColors transparent opacity={.5} blending={AdditiveBlending} depthWrite={false} toneMapped={false}/>
  </instancedMesh>;
 }

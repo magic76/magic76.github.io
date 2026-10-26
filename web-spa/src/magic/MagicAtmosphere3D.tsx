@@ -15,8 +15,9 @@ export function MagicAtmosphere3D({sky,night}:{sky:string;night:boolean}){
    vec3 c=mix(bottomColor,horizonColor,smoothstep(-.95,-.62,y));
    c=mix(c,topColor,smoothstep(-.62,-.12,y));
    if(uNight>.5 && y>-.35){
-    vec2 cell=floor(vec2(atan(d.z,d.x)*85.,asin(d.y)*145.));
-    float star=step(.993,hash(cell))*step(-.35,y);
+    vec2 g=vec2(atan(d.z,d.x),asin(d.y))*110.,cell=floor(g);
+    vec2 o=fract(g)-.5-(vec2(hash(cell+3.),hash(cell+5.))-.5)*.6;
+    float star=step(.986,hash(cell))*smoothstep(.16,.04,length(o));
     float twinkle=.45+.55*hash(cell+7.);
     c=mix(c,vec3(.95,.90,.82),star*twinkle*.78);
    }

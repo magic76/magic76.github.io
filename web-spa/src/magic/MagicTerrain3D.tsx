@@ -34,9 +34,9 @@ export function MagicTerrain3D({colors}:{colors:MagicPalette}){
   layers.forEach((layer,j)=>{
    for(let k=0;k<=N;k++){
     const [ex,ez]=outer(k),a=k/N*Math.PI*2;
-    const variation=j===0?1:1+.018*Math.sin(k*.54+j*.6)+.012*Math.cos(k*.91-j);
+    const variation=j===0?1:1+.018*Math.sin(a*4+j*.6)+.012*Math.cos(a*7-j); // periodic in a: k=0 and k=N weld
     const x=ex*layer.r*variation,z=ez*layer.r*variation;
-    const y=j===0?islandSurfaceHeight(ex,ez)-.018:
+    const y=j===0?islandSurfaceHeight(ex,ez):
      j===layers.length-1?-10:layer.y+Math.sin(a*5+j)*.12;
     cp.push(x,y,z);
     const col=j<2?soil.clone().lerp(rock,j*.48):rock.clone().multiplyScalar(Math.max(.48,1-(j-2)*.115));
