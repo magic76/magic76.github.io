@@ -6,7 +6,8 @@ const path=require("node:path");
 const root=path.resolve(__dirname,"..");
 const folder=path.join(root,"web-spa/src/i18n/locales");
 const locales=["ja","es","pt-BR","id","ko","fr","de","vi","th"];
-const namespaces=["common","home","settings","teacher","friends","story","fortune", "magic"];
+const namespaces=["common","home","settings","teacher","friends","story","fortune"];
+const routeNamespaces=["magic"];
 const vars=value=>[...value.matchAll(/\{\{[^{}]+\}\}/g)].map(m=>m[0]).sort();
 const flat=(obj,prefix="",out={})=>{
  for(const [key,value] of Object.entries(obj)){
@@ -20,7 +21,7 @@ const flat=(obj,prefix="",out={})=>{
 const load=(lang,ns)=>flat(JSON.parse(fs.readFileSync(path.join(folder,lang,ns+".json"),"utf8")));
 
 test("all nine beta languages have complete translation catalogs",()=>{
- for(const ns of namespaces){
+ for(const ns of [...namespaces,...routeNamespaces]){
   const source=load("en",ns);
   for(const lang of locales){
    const dest=load(lang,ns);
@@ -33,6 +34,19 @@ test("all nine beta languages have complete translation catalogs",()=>{
   }
  }
 });
+test("all nine beta Magic catalogs use flat sentence keys",()=>{
+ const source=JSON.parse(fs.readFileSync(path.join(folder,"en","magic.json"),"utf8"));
+ assert.ok(Object.keys(source).length>0);
+ for(const lang of locales){
+  const target=JSON.parse(fs.readFileSync(path.join(folder,lang,"magic.json"),"utf8"));
+  assert.deepEqual(Object.keys(target).sort(),Object.keys(source).sort(),lang+"/magic key parity");
+  for(const [key,value] of Object.entries(target)){
+   assert.equal(typeof value,"string",lang+"/magic is flat: "+key);
+   assert.ok(value.trim(),lang+"/magic is not blank: "+key);
+  }
+ }
+});
+
 test("beta localization does not change Teacher's learning language or indexed SEO locales",()=>{
  const catalog=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales;
  assert.deepEqual(catalog.filter(x=>x.stage==="priority").map(x=>x.code),locales.slice(0,4).concat(["ko","fr","de","vi","th"]).sort((a,b)=>catalog.findIndex(x=>x.code===a)-catalog.findIndex(x=>x.code===b)));

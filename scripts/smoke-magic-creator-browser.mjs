@@ -1,7 +1,8 @@
 import {createServer} from "node:http";
 import {spawn,spawnSync} from "node:child_process";
-import {readFileSync,writeFileSync,mkdirSync,existsSync} from "node:fs";
+import {readFileSync,writeFileSync,mkdirSync,existsSync,mkdtempSync,rmSync} from "node:fs";
 import {resolve,extname,join} from "node:path";
+import {tmpdir} from "node:os";
 const root=resolve("dist"),output=resolve("artifacts");
 if(!existsSync(join(root,"index.html")))throw Error("Build Cloudflare dist before browser smoke.");
 const bins=["google-chrome","google-chrome-stable","chromium","chromium-browser"];
@@ -56,6 +57,32 @@ const server=createServer((req,res)=>{
  }catch(e){errors.push(String(e));res.writeHead(500);res.end("error")}
 });
 await new Promise(done=>server.listen(0,"127.0.0.1",done));
+// Chrome can occasionally hang while writing its WebGL screenshot. Only a
+// watchdog-killed launch is retried; a browser error or bad scene never is.
+function runChrome(args){
+ return new Promise((resolveRun,reject)=>{
+  let stdout="",stderr="",watchdogKilled=false;
+  const started=Date.now();
+  // POSIX process group: Chrome's GPU/renderer children must die with it.
+  const child=spawn(chrome,args,{stdio:["ignore","pipe","pipe"],detached:true});
+  child.stdout.on("data",chunk=>{stdout+=String(chunk)});
+  child.stderr.on("data",chunk=>{stderr=(stderr+String(chunk)).slice(-2000)});
+  const timer=setTimeout(()=>{
+   watchdogKilled=true;
+   try{process.kill(-child.pid,"SIGKILL")}
+   catch(error){
+    // A process group may already have exited between the timer and kill.
+    if(error.code!=="ESRCH")console.warn("Chrome group kill:",String(error));
+    if(child.pid)child.kill("SIGKILL");
+   }
+  },60000);
+  child.once("error",error=>{clearTimeout(timer);reject(error)});
+  child.once("close",(exit,signal)=>{
+   clearTimeout(timer);
+   resolveRun({exit,signal,watchdogKilled,stdout,stderr,ms:Date.now()-started});
+  });
+ });
+}
 const reports=[];
 try{
  for(const [label,width,height,count,evolve,early,sculpt] of [
@@ -70,25 +97,40 @@ try{
   const out=join(output,"magic-creator-"+label+".png");
   const args=["--headless=new","--no-sandbox","--disable-dev-shm-usage",
    "--disable-background-networking","--disable-component-update","--disable-default-apps",
-   "--disable-sync","--metrics-recording-only","--no-first-run","--no-default-browser-check",
+   "--disable-sync","--disable-features=OptimizationGuideModelDownloading,OptimizationHints,MediaRouter","--metrics-recording-only","--no-first-run","--no-default-browser-check",
    "--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader",
    "--use-gl=angle","--use-angle=swiftshader-webgl",
    "--window-size="+width+","+height,"--force-device-scale-factor=1",
    "--virtual-time-budget="+(early?4800:10500),"--dump-dom","--screenshot="+out,
    "http://127.0.0.1:"+server.address().port+"/magic?creations="+count+(evolve?"&evolve=yes":"")+(early?"&early=yes":"")+(sculpt?"&sculpt="+sculpt:"")];
-  let stdout="",stderr="";
-  const exit=await new Promise((done,reject)=>{
-   const child=spawn(chrome,args,{stdio:["ignore","pipe","pipe"]});
-   child.stdout.on("data",c=>{stdout+=String(c)});
-   child.stderr.on("data",c=>{stderr=(stderr+String(c)).slice(-2000)});
-   child.on("error",reject);child.on("close",done);
-   const timer=setTimeout(()=>child.kill("SIGKILL"),60000);
-   child.on("close",()=>clearTimeout(timer));
-  });
+  const attemptResults=[];
+  let result;
+  for(let attempt=1;attempt<=2;attempt++){
+   // A fresh profile for *each* attempt prevents Chromium locks from a hung
+   // launch from affecting a retry or any following scenario.
+   const profile=mkdtempSync(join(tmpdir(),"crew-magic-smoke-"));
+   rmSync(out,{force:true}); // A timed-out attempt must not leave a stale screenshot.
+   try{
+    result=await runChrome([...args.slice(0,-1),"--user-data-dir="+profile,args.at(-1)]);
+   }finally{
+    rmSync(profile,{recursive:true,force:true,maxRetries:3,retryDelay:100});
+   }
+   attemptResults.push({attempt,ms:result.ms,exit:result.exit,
+    watchdogKilled:result.watchdogKilled,stderr:result.stderr.slice(-350)});
+   if(!result.watchdogKilled)break;
+   if(attempt<2)console.warn("RETRY "+label+" after Chromium watchdog kill ("+result.ms+" ms)");
+  }
+  const {exit,stdout,stderr}=result;
   const matched=stdout.match(/<meta name="crew-magic-browser-smoke" content="([^"]*)"/)?.[1];
   const state=matched?JSON.parse(matched.replaceAll("&quot;",'"')):null;
-  const report={label,exit,state,screenshot:existsSync(out)?out:null,stderr:stderr.slice(-350)};
+  const ms=attemptResults.reduce((total,item)=>total+item.ms,0);
+  const report={label,exit,state,screenshot:existsSync(out)?out:null,
+   attempts:attemptResults.length,ms,attemptMs:attemptResults.map(item=>item.ms),
+   attemptResults,stderr:stderr.slice(-350)};
   reports.push(report);
+  console.log("CASE "+label+" ms="+ms+" attempts="+report.attempts+
+   " attemptMs="+report.attemptMs.join(",")+" exit="+exit);
+
   if(exit!==0||errors.length)throw Error("Browser/asset loading failed: "+JSON.stringify(report));
   if(state?.unavailable){
    console.log("SKIP: CI WebGL unavailable. Screenshot only shows unsupported-browser state, not visual QA.");

@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef} from "react";
 import {useFrame,useThree} from "@react-three/fiber";
 import {BufferGeometry,Float32BufferAttribute,CanvasTexture,DoubleSide,LinearFilter,Mesh,MeshBasicMaterial,Vector3} from "three";
 import {islandSurfaceHeight} from "./magicNavigation";
+import {MAGIC_OVERVIEW_POSITION} from "./magicCamera";
 import {magicCreationElements,magicFindReaction,magicFindSoloReaction,magicPickReaction,type MagicReactionId,type ReactionCandidate} from "./magicReactions";
 import {magicWishTraits,magicWishKind} from "./magicWish";
 import {readMagicCodex} from "./magicCodexStore";
@@ -31,8 +32,10 @@ function drawDecal(ctx:CanvasRenderingContext2D,id:MagicReactionId,age:number){
   const radius=52*Math.min(1,Math.max(0,(age-1)/.8));
   for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(center,center);
    ctx.lineTo(center+Math.cos(a)*radius,center+Math.sin(a)*radius);ctx.stroke();
-   for(let j=1;j<4;j++){const r=radius*j/4,px=center+Math.cos(a)*r,py=center+Math.sin(a)*r;
-    ctx.beginPath();ctx.moveTo(px-Math.sin(a)*5,py+Math.cos(a)*5);ctx.lineTo(px+Math.sin(a)*5,py-Math.cos(a)*5);ctx.stroke()}
+   // Two bifurcating ice needles at the outer end of each of six spokes.
+   for(let j=0;j<2;j++){const r=radius*(.73+j*.15),px=center+Math.cos(a)*r,py=center+Math.sin(a)*r;
+    for(const sign of [-1,1]){const fork=a+sign*Math.PI/4;
+     ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(px-Math.cos(fork)*10,py-Math.sin(fork)*10);ctx.stroke();}}
   }return;
  }
  if(id==="ripple_splash"){
@@ -70,9 +73,10 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
   resetReactionPool(slotPools[slot]);};
  const display=(r:Active,now:number)=>{
   const age=now-r.start,slot=r.slot,pool=slotPools[slot];resetReactionPool(pool);
+  const frostView=camera.position.lengthSq()>0?camera.position:MAGIC_OVERVIEW_POSITION;
   renderMagicReaction(r.id,Math.min(age,4.4),r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z,islandSurfaceHeight(r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z),pool,animated,
    (()=>{const aim=Math.atan2(-r.ax,-.55-r.az);if(r.id!=="dragon_frost")return aim;
-    return dragonFrostLayout(r.ax,r.az,camera.position.x,camera.position.z).heading;})());
+    return dragonFrostLayout(r.ax,r.az,frostView.x,frostView.z);})(),frostView.x,frostView.z);
   for(const k of allKinds)if(pool.counts[k])publishMagicParticles(`reaction:${slot}:${k}`,k,pool.points[k],pool.counts[k]);else removeMagicParticles(`reaction:${slot}:${k}`);
   const mesh=decals.current[slot];if(mesh){const special=r.id==="star_lake"||r.id==="frost_carpet"||r.id==="ripple_splash";
    const item=textures.custom[slot];drawDecal(item.ctx,r.id,age);item.tex.needsUpdate=true;

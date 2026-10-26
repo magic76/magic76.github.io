@@ -36,7 +36,7 @@ const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
 const MatePage=lazy(()=>withNamespace("mate",import("./mate/MatePage")).then(m=>({default:m.MatePage})));
 const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
-const MagicPage=lazy(()=>import("./magic/MagicPage").then(m=>({default:m.MagicPage})));
+const MagicPage=lazy(()=>withNamespace("magic",import("./magic/MagicPage")).then(m=>({default:m.MagicPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>withNamespace("lesson",import("./pages/CrewSectionPage")).then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));

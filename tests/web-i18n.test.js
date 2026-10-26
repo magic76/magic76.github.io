@@ -13,7 +13,9 @@ function keys(value,prefix=""){
 }
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
- for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic","games","mate","lesson","voice"]){
+ const eagerNamespaces=["common","home","settings","teacher","friends","story","fortune"];
+ const routeNamespaces=["games","mate","lesson","voice","magic"];
+ for(const ns of [...eagerNamespaces,...routeNamespaces]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
   for(const value of [zh,en]){
@@ -26,6 +28,20 @@ test("i18n provides matching translation keys for all published UI locales",()=>
     if(ns==="home"&&/^world\.modes\.(chat|play|learn|story)\.after$/.test(key))continue;
     assert.ok(translated.trim().length,ns+":"+key+" must not be empty");
    }
+  }
+ }
+});
+
+test("Magic translations stay flat and preserve all locale keys",()=>{
+ const en=load("en","magic");
+ const expected=Object.keys(en).sort();
+ assert.ok(expected.length>0,"English Magic catalog must not be empty");
+ for(const lang of ["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"]){
+  const values=load(lang,"magic");
+  assert.deepEqual(Object.keys(values).sort(),expected,lang+" Magic keys must match English");
+  for(const [key,value] of Object.entries(values)){
+   assert.equal(typeof value,"string",lang+" Magic keys must be flat: "+key);
+   assert.ok(value.trim(),lang+" Magic translation must not be blank: "+key);
   }
  }
 });
@@ -204,8 +220,16 @@ test("route-scoped catalogs load with their route instead of the entry bundle",(
  const index=read("web-spa/src/i18n/index.ts");
  const app=read("web-spa/src/App.tsx");
  assert.match(index,/react:\{useSuspense:false,nsMode:"fallback"\}/,"multi-namespace useTranslation must fall back across namespaces");
- assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice)\.json"/);
- assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice\}\.json"/);
+ assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice|magic)\.json"/);
+ assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice,magic\}\.json"/);
+ // Magic is a route namespace, not an eager entry dependency.
+ assert.doesNotMatch(index,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);
+ assert.doesNotMatch(app,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);
+ assert.doesNotMatch(index,/\bmagic\s*:\s*(?:zhMagic|enMagic)\b/);
+ assert.doesNotMatch(index,/namespaceNames=\[[^\]]*["']magic["']/);
+ assert.doesNotMatch(index,/\bns:\[[^\]]*["']magic["']/);
+ assert.match(index,/export type RouteNamespace=[^;]*"magic"/);
+ assert.match(app,/withNamespace\("magic",import\("\.\/magic\/MagicPage"\)\)/);
  assert.match(app,/withNamespace\(\["games","voice"\],import\("\.\/games\/TabooGamePage"\)\)/);
  assert.match(app,/withNamespace\("mate",import\("\.\/mate\/MatePage"\)\)/);
  assert.match(app,/withNamespace\(\["lesson","voice"\],import\("\.\/teacher\/LivePage"\)\)/);
