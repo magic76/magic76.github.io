@@ -173,7 +173,7 @@ function SceneEvents({event,animated}:{event:MagicWorld["event"];animated:boolea
 /** Distinct landmark silhouettes turn a palette change into actual geography. */
 function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean}){
  if(theme==="forest")return <group>
-  {[-1,1].map((sign)=><group key={sign} position={[sign*3.1,1.13,-2.2]}>
+  {[-1,1].map((sign)=><group key={sign} position={[sign*5.9,1.1,-2.6]}>
    <mesh position={[0,.48,0]}><cylinderGeometry args={[.23,.34,1.2,7]}/><meshStandardMaterial color="#e0c8aa"/></mesh>
    <mesh position={[0,1.18,0]} scale={[1.2,.52,1.1]}>
     <sphereGeometry args={[.9,12,8]}/><meshStandardMaterial color="#d96883" roughness={.82}/></mesh>
@@ -182,11 +182,11 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
    <mesh position={[0,.51,.32]}><sphereGeometry args={[.17,8,8]}/>
     <meshStandardMaterial color="#e9ffb2" emissive="#b1f47b" emissiveIntensity={night?1.4:.22}/></mesh>
   </group>)}
-  <mesh position={[0,1.4,-3.9]} rotation={[-Math.PI/2,0,0]}>
+  <mesh position={[0,1.5,-6.4]} rotation={[-Math.PI/2,0,0]}>
    <torusGeometry args={[1.2,.13,8,32]}/><meshStandardMaterial color="#8ec5a2" emissive="#61c990" emissiveIntensity={.25}/></mesh>
  </group>;
  if(theme==="candy")return <group>
-  {[-1,1].map((sign)=><group key={sign} position={[sign*3.4,1.1,-2.15]}>
+  {[-1,1].map((sign)=><group key={sign} position={[sign*6.1,1.07,-2.6]}>
    <mesh position={[0,.9,0]}><cylinderGeometry args={[.18,.21,1.85,10]}/><meshStandardMaterial color="#faf6e0"/></mesh>
    <mesh position={[0,2.02,0]}><torusGeometry args={[.7,.25,8,20]}/>
     <meshStandardMaterial color={sign===1?"#f9b7d9":"#b5ddfc"} metalness={.12} roughness={.4}/></mesh>
@@ -202,7 +202,7 @@ function BiomeLandmarks({theme,night}:{theme:MagicWorld["theme"];night:boolean})
   </group>)}
  </group>;
  return <group>
-  {[-1,1].map(sign=><group key={sign} position={[sign*3.8,1,-2.35]}>
+  {[-1,1].map(sign=><group key={sign} position={[sign*6.3,.97,-2.6]}>
    <mesh position={[0,.63,0]}><cylinderGeometry args={[.65,.86,1.26,6]}/>
     <meshStandardMaterial color="#c1d6eb" flatShading/></mesh>
    <mesh position={[0,1.84,0]}><octahedronGeometry args={[.84,0]}/>

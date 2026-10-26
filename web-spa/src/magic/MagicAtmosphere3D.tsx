@@ -9,7 +9,7 @@ export function MagicAtmosphere3D({sky,night}:{sky:string;night:boolean}){
  const shader=useMemo(()=>new ShaderMaterial({
   uniforms:{topColor:{value:new Color()},horizonColor:{value:new Color()},bottomColor:{value:new Color()}},
   vertexShader:`varying vec3 vDir;void main(){vDir=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
-  fragmentShader:`uniform vec3 topColor;uniform vec3 horizonColor;uniform vec3 bottomColor;varying vec3 vDir;void main(){float y=normalize(vDir).y;vec3 col=mix(bottomColor,horizonColor,smoothstep(-.75,-.22,y));col=mix(col,topColor,smoothstep(-.22,.25,y));gl_FragColor=vec4(col,1.);
+  fragmentShader:`uniform vec3 topColor;uniform vec3 horizonColor;uniform vec3 bottomColor;varying vec3 vDir;void main(){float y=normalize(vDir).y;vec3 col=mix(bottomColor,horizonColor,smoothstep(-.95,-.62,y));col=mix(col,topColor,smoothstep(-.62,-.12,y));gl_FragColor=vec4(col,1.);
 #include <colorspace_fragment>
 }`, 
   side:BackSide,depthWrite:false,toneMapped:false,
