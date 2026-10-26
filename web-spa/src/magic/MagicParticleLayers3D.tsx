@@ -7,6 +7,7 @@ export type MagicParticle={x:number;y:number;z:number;size?:number;alpha?:number
 const emitters=new Map<string,{kind:MagicParticleKind;points:MagicParticle[]}>();
 export function publishMagicParticles(id:string,kind:MagicParticleKind,points:MagicParticle[]){emitters.set(id,{kind,points})}
 export function removeMagicParticles(id:string){emitters.delete(id)}
+const DEFAULT_COLORS:Record<MagicParticleKind,number>={sparkle:0xffe5af,star:0xfff1a8,heart:0xff9fc7,bubble:0xa8e9ff,flame:0xffa064,flower:0xffb9d1,leaf:0x96d8b2,snow:0xe5f6ff,note:0xc9a8ff,z:0xdce8ff,glow:0xffe2a4,drop:0x6ec8ff,petal:0xff9fc7,crystal:0xbfe9ff};
 function makeTexture(kind:MagicParticleKind){
  const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;
  const ctx=canvas.getContext("2d")!;ctx.clearRect(0,0,128,128);ctx.fillStyle="#fff";ctx.strokeStyle="#fff";ctx.lineWidth=5;
@@ -43,7 +44,6 @@ function Layer({kind}:{kind:MagicParticleKind}){
    shader.fragmentShader="varying float vAlpha;\n"+shader.fragmentShader;
    shader.fragmentShader=shader.fragmentShader.replace("#include <color_fragment>","#include <color_fragment>\n diffuseColor.a *= vAlpha;");
   };
-  const DEFAULT_COLORS:Record<MagicParticleKind,number>={sparkle:0xffe5af,star:0xfff1a8,heart:0xff9fc7,bubble:0xa8e9ff,flame:0xffa064,flower:0xffb9d1,leaf:0x96d8b2,snow:0xe5f6ff,note:0xc9a8ff,z:0xdce8ff,glow:0xffe2a4,drop:0x6ec8ff,petal:0xff9fc7,crystal:0xbfe9ff};
   const palette=new Color(DEFAULT_COLORS[kind]);
   return {g,pos,col,sz,al,mat,texture,palette};
  },[kind]);

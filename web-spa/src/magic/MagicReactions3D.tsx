@@ -27,7 +27,7 @@ function rainbowGeometry(){const geom=new BufferGeometry(),positions:number[]=[]
  }}
  for(let i=0;i<48;i++){const v=i*2;indices.push(v,v+1,v+2,v+1,v+3,v+2)}
  geom.setAttribute("position",new Float32BufferAttribute(positions,3));geom.setAttribute("uv",new Float32BufferAttribute(uv,2));geom.setIndex(indices);geom.computeVertexNormals();return geom;}
-const slotPools=Array.from({length:2},()=>Object.fromEntries(allKinds.map(k=>[k,[]])) as ReactionPool);
+const slotPools=Array.from({length:2},()=>Object.fromEntries(allKinds.map(k=>[k,[]])) as unknown as ReactionPool);
 export function MagicReactions3D({creations,neighbors,animated,night,castleIce,greeting,focusedId=null}:{creations:MagicCreation[];neighbors:Map<number,Neighbor>;animated:boolean;night:boolean;castleIce:boolean;greeting:{busyUntil:number};focusedId?:number|null}){
  const {camera,gl,invalidate}=useThree();const projection=useMemo(()=>new Vector3(),[]);
  const active=useRef<Active[]>([]),lastStart=useRef(-100),pairs=useRef(new Map<string,number>());
