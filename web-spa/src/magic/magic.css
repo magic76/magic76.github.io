@@ -425,3 +425,23 @@
 /* Magic Feel: accessible opt-in synthesized sound */
 .magic-sound-toggle{min-height:44px;border:1px solid #bad7c7;border-radius:12px;background:#f6fbf4;color:#315f54;font:inherit;padding:8px 14px;margin:8px 0;cursor:pointer}
 .magic-sound-toggle:focus-visible{outline:3px solid #dfa74f;outline-offset:2px}
+
+/* Magic reaction discovery and codex */
+.magic-reaction-toast{position:absolute;top:84px;left:50%;transform:translateX(-50%);z-index:9;pointer-events:none;text-align:center;max-width:80%}
+.magic-reaction-toast>div{background:#fff5dd;color:#5c4869;border:1px solid #e0c5b0;border-radius:15px;padding:12px 18px;box-shadow:0 10px 25px #232b3420;animation:reaction-in .18s ease-out both}
+@keyframes reaction-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.magic-codex{margin-block:12px}.magic-codex>button{min-height:44px;border-radius:14px;border:1px solid #a9c7ae;padding:9px 14px;background:#f5f8ee;color:#355b50;font-weight:700}
+.magic-codex-content{max-height:60vh;overflow:auto;padding:10px}.magic-codex-content ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;list-style:none;padding:0}
+.magic-codex-content li{padding:12px;border:1px solid #d4ded2;border-radius:12px}.magic-codex-content li p{margin:4px 0;font-size:.9em}.magic-codex button:focus-visible{outline:3px solid #4d8579;outline-offset:3px}
+@media(max-width:520px){.magic-codex-content ul{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.magic-reaction-toast>div{animation:none}}
+
+/* Reactions R2: avoid mobile chip overlap and provide a 220ms exit. */
+.magic-reaction-toast{top:118px;max-width:calc(100% - 32px);width:max-content;z-index:15}
+.magic-reaction-toast>div{white-space:nowrap;max-width:calc(100vw - 32px);overflow:hidden;text-overflow:ellipsis;font-size:15px;transition:opacity .22s ease,transform .22s ease}
+.magic-reaction-toast>div.magic-reaction-leaving{opacity:0;transform:translateY(-8px)}
+.magic-codex-content progress{display:block;width:100%;height:12px;accent-color:#6b9f88;border-radius:16px;overflow:hidden}
+.magic-codex-content progress::-webkit-progress-bar{background:#dfe8db;border-radius:16px}
+.magic-codex-content progress::-webkit-progress-value{background:#79aa90;border-radius:16px}
+@media(max-width:520px){.magic-reaction-toast{top:127px}.magic-reaction-toast>div{padding:10px 12px;font-size:15px}}
+@media(prefers-reduced-motion:reduce){.magic-reaction-toast>div{animation:none;transition:none}}

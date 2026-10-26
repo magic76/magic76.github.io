@@ -332,7 +332,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <MagicWonders3D wonders={world.wonders} animated={!reducedMotion}/>
-  <MagicCreations3D creations={world.creations} animated={!reducedMotion} night={night}
+  <MagicCreations3D creations={world.creations} animated={!reducedMotion} night={night} castleIce={world.castle==="ice"} focusedId={focusCreationId}
    onSelect={onSelectCreation}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue} overviewPosition={overviewPosition}

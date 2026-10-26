@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef} from "react";
 import {MagicCasting3D} from "./MagicCasting3D";
 import {MagicParticleLayers3D} from "./MagicParticleLayers3D";
 import {MagicGreetings3D} from "./MagicGreetings3D";
+import {MagicReactions3D} from "./MagicReactions3D";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
 import {Mesh,Vector3,type Group} from "three";
@@ -70,7 +71,7 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity,max
  </group>;
 }
 function Creature({creation,site,animated,night,neighbors,greeting,creationsById,onSelect}:{creation:MagicCreation;
- site:[number,number];animated:boolean;night:boolean;neighbors:Map<number,{x:number;z:number;look?:number;until?:number}>;greeting:{busyUntil:number;nextAt:number;emission?:{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}};creationsById:Map<number,MagicCreation>;onSelect:(id:number)=>void}){
+ site:[number,number];animated:boolean;night:boolean;neighbors:Map<number,{x:number;z:number;look?:number;until?:number;ready?:number;react?:{x:number;z:number;w:number;look:number;dance?:boolean}}>;greeting:{busyUntil:number;nextAt:number;emission?:{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}};creationsById:Map<number,MagicCreation>;onSelect:(id:number)=>void}){
  const base=useRef<Group>(null);
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
@@ -121,16 +122,16 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
   stage.current=assembled;
   if(animated&&assembled>=.98&&finishAt.current<0)finishAt.current=elapsed;
   progress.current=elapsed;
-  const socialTime=clock.elapsedTime;
+  const socialTime=performance.now()/1000;
   const t=socialTime+creation.seed*.0033;
   const drift=animated?Math.sin(t*.85)*.045:0;
   const walk=animated&&!night&&creation.motion==="walk"?.45:0;
   const radius=creation.motion==="orbit"&&animated?.46:0;
-  const desiredX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
-  const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
+  const walkX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
+  const walkZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
   const current=base.current.position;
   const self=neighbors.get(creation.id)??{x:current.x,z:current.z};
-  self.x=current.x;self.z=current.z;neighbors.set(creation.id,self);
+  self.x=current.x;self.z=current.z;self.ready=assembled;neighbors.set(creation.id,self);
   const asleep=night&&(creation.motion==="walk"||creation.motion==="still");
   if(animated&&!asleep&&assembled>.98&&socialTime>=nextGreeting.current&&socialTime>=greeting.busyUntil&&socialTime>=greeting.nextAt){
    nextGreeting.current=socialTime+7+(creation.seed%6);
@@ -152,6 +153,9 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
    }
   }
   const alpha=animated?Math.min(1,delta*3):1;
+  const react=self.react;
+  const desiredX=react?walkX+(react.x-walkX)*react.w:walkX;
+  const desiredZ=react?walkZ+(react.z-walkZ)*react.w:walkZ;
   current.set(current.x+(desiredX-current.x)*alpha,
    current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance*modelScale+
     (creation.motion==="hover"?.2+drift:0))-current.y)*alpha,
@@ -160,7 +164,7 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
   // the viewer, with a small walk/idle sway on top.
   {
    const friend=animated&&!asleep&&self.look!==undefined&&(self.until??0)>socialTime?neighbors.get(self.look):undefined;
-   const face=(friend?Math.atan2(friend.x-current.x,friend.z-current.z):Math.atan2(camera.position.x-current.x,camera.position.z-current.z))+
+   const face=(react&&react.w>.01?react.look:friend?Math.atan2(friend.x-current.x,friend.z-current.z):Math.atan2(camera.position.x-current.x,camera.position.z-current.z))+
     (!animated?0:creation.motion==="walk"?Math.sin(t*.3)*.18:creation.motion==="still"?Math.sin(t*.27)*.08:0);
    const turn=Math.atan2(Math.sin(face-base.current.rotation.y),Math.cos(face-base.current.rotation.y));
    base.current.rotation.y+=turn*(animated?Math.min(1,delta*2.2):1);
@@ -180,7 +184,9 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
    body.current.scale.set(modelScale*breathe*sculptReveal,modelScale*(1-pulse*.012)*sculptReveal,modelScale*breathe*sculptReveal);
    body.current.rotation.z=creation.mood==="curious"?sway*.065:creation.mood==="brave"?sway*.008:sway*.025;
    body.current.rotation.x=asleep?.11:0;
-   body.current.position.y=animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
+   body.current.position.y=react?.dance&&animated?Math.max(0,Math.sin(socialTime*Math.PI*3.2))*.14*react.w:
+    animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
+   if(react?.dance&&animated)body.current.rotation.z+=Math.sin(socialTime*Math.PI*3.2)*.06*react.w;
   }
   creation.parts.forEach((part,i)=>{
    const element=groups.current[i];if(!element)return;
@@ -289,12 +295,12 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
  </group>
  </>;
 }
-export function MagicCreations3D({creations,animated,night=false,onSelect}:{creations:MagicCreation[];
- animated:boolean;night?:boolean;onSelect:(id:number)=>void}){
+export function MagicCreations3D({creations,animated,night=false,castleIce=false,focusedId=null,onSelect}:{creations:MagicCreation[];
+ animated:boolean;night?:boolean;castleIce?:boolean;focusedId?:number|null;onSelect:(id:number)=>void}){
  const sites=useMemo(()=>magicCreationSites(creations,safeMagicAnchor),[creations]);
  const neighbors=useMemo(()=>new Map<number,{x:number;z:number;look?:number;until?:number}>(),[]);
  const creationsById=useMemo(()=>new Map(creations.map(c=>[c.id,c])),[creations]);
  const greeting=useMemo(()=>({busyUntil:0,nextAt:0,emission:undefined as undefined|{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}}),[]);
- return <group><MagicParticleLayers3D/><MagicGreetings3D greeting={greeting}/>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
+ return <group><MagicParticleLayers3D/><MagicGreetings3D greeting={greeting}/><MagicReactions3D creations={creations} neighbors={neighbors} greeting={greeting} animated={animated} night={night} castleIce={castleIce} focusedId={focusedId}/>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
   site={sites.get(c.id)??safeMagicAnchor(c.x,c.z)} animated={animated} night={night} neighbors={neighbors} greeting={greeting} creationsById={creationsById} onSelect={onSelect}/>)}</group>;
 }
