@@ -6,7 +6,6 @@ import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
-import {TownIllustration} from "../town/TownIllustration";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearnHubExtras} from "./LearnHubExtras";
 import {FriendIntentCards} from "../friends/FriendIntentCards";
@@ -231,10 +230,10 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
-     <div className="crew-explore-art"><div className="crew-explore-town-mini"><TownIllustration/></div></div>
+     <div className="crew-explore-art"><div className="crew-explore-town-mini" aria-hidden="true"><span className="crew-explore-town-orbit"/><span className="crew-explore-town-world">3D</span><span className="crew-explore-town-label">CREW TOWN</span></div></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
-      <small>{en?"Meet familiar AI friends in a beautiful interactive neighborhood. Visual prototype.":"看見 AI 朋友在小鎮相遇，點擊角色互動。視覺原型開放體驗。"}</small>
+      <small>{en?"Explore a 3D town with 16 AI friends.":"走進 3D 小鎮，探索街區並與 16 位 AI 朋友互動。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>

@@ -98,7 +98,9 @@
 .crew-explore-tile[data-kind="town"]{--art:#e3f1dc;--art-2:#cfe3df;--art-ink:#477a6e;--art-border:#cbdfd0;grid-column:span 2;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);min-height:164px}
 .crew-explore-tile[data-kind="town"] .crew-explore-art{height:100%;min-height:164px}
 .crew-explore-town-mini{position:relative;z-index:1;width:min(95%,340px);height:152px;display:grid;place-items:center}
-.crew-explore-town-mini svg{width:100%;height:100%;filter:drop-shadow(0 9px 9px #537b6b20)}
+.crew-explore-town-orbit{position:absolute;width:190px;height:87px;border:1px solid #76b39a90;border-radius:50%;transform:rotate(-19deg);box-shadow:0 0 0 13px #d8eedc45}
+.crew-explore-town-world{position:relative;display:grid;place-items:center;width:108px;height:108px;border-radius:50%;background:radial-gradient(circle at 31% 25%,#e7fbe7,#84bd9f 53%,#3c826f 85%);box-shadow:inset -12px -13px 18px #1d554b44,inset 7px 8px 15px #ffffff90,0 18px 20px #4e806a30;border:1px solid #e1f7e1;color:#f9fff9;font-size:38px;font-weight:850;letter-spacing:-.07em;text-shadow:0 2px 6px #37685a70}
+.crew-explore-town-label{position:absolute;bottom:4px;font-size:10px;font-weight:850;letter-spacing:.22em;color:#487d6d}
 .crew-explore-tile[data-kind="town"] .crew-explore-text{min-height:0;align-content:center;padding:20px 37px 20px 19px}
 .crew-explore-tile[data-kind="town"] .crew-explore-arrow{bottom:calc(50% - 13px)}
 @media(max-width:700px){
@@ -125,7 +127,7 @@
 
 /* Motion 2.0: single entrance for illustrations; playful response only when interacted with. */
 .crew-explore-grid .crew-explore-illustration svg,
-.crew-explore-grid .crew-explore-town-mini svg{
+.crew-explore-grid .crew-explore-town-world{
  animation:crew-explore-art-arrive 440ms var(--crew-motion-ease, ease-out) both;
 }
 .crew-explore-grid .crew-explore-tile:nth-child(2n) .crew-explore-illustration svg{animation-delay:65ms}
@@ -156,7 +158,7 @@
 }
 @media(hover:none){.crew-explore-tile:hover .crew-explore-illustration,.crew-explore-tile:hover .crew-explore-life img:nth-of-type(2){transform:none}}
 @media(prefers-reduced-motion:reduce){
- .crew-explore-grid .crew-explore-illustration svg,.crew-explore-grid .crew-explore-town-mini svg,
+ .crew-explore-grid .crew-explore-illustration svg,.crew-explore-grid .crew-explore-town-world,
  .crew-explore-tile:is(:hover,:focus-visible,:active) .crew-explore-illustration::after{animation:none!important}
  .crew-explore-illustration::after{display:none}
  .crew-explore-arrow,.crew-explore-life img{transition:none!important}

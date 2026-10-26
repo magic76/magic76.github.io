@@ -5,12 +5,12 @@ const test=require("node:test");
 const root=path.join(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 
-test("Crew Town 3D is a lazy opt-in route with the existing 2.5D fallback",()=>{
+test("Crew Town 3D remains a lazy route without a retired 2.5D dependency",()=>{
  const app=read("web-spa/src/App.tsx");
  const page=read("web-spa/src/town/Town3DPage.tsx");
  assert.match(app,/import\("\.\/town\/Town3DPage"\)/);
  assert.match(page,/lazy\(\(\)=>import\("\.\/three\/TownScene"\)/);
- assert.match(page,/lazy\(\(\)=>import\("\.\/TownPage"\)/);
+ assert.doesNotMatch(page,/TownPage|TownIllustration|2\.5D/);
  assert.match(page,/webglcontextlost|setFailed\(true\)|setFallbackReason\("render-error"\)/);
  assert.match(page,/prefers-reduced-motion: reduce/);
  assert.match(page,/\/explore/);
@@ -66,19 +66,22 @@ test("mobile controls, bounded orbit camera and day/night remain separate from L
  assert.match(css,/touch-action:none/);
 });
 
-test("2.5D fallback clearly exposes unsupported, rendering failure, and manual modes",()=>{
+test("unsupported WebGL and render errors show a retryable 3D-only recovery screen",()=>{
  const page=read("web-spa/src/town/Town3DPage.tsx");
  const css=read("web-spa/src/town/three/town3d.css");
- for(const reason of ["unsupported","render-error","manual"])assert.ok(page.includes('"'+reason+'"'));
- assert.ok(page.includes('目前使用 2.5D 地圖'));
-  assert.match(page,/onClick=\{\(\)=>\{trackUsageEvent\("town_3d_fallback","manual"\);setFallbackReason\("manual"\)\}\}/);
+ for(const reason of ["unsupported","render-error"])assert.ok(page.includes('"'+reason+'"'));
+ assert.doesNotMatch(page,/2\.5D|TownFallback|TownPage/);
+ assert.ok(page.includes('3D 小鎮暫時無法使用'));
  assert.ok(page.includes('onClick={retry3D}'));
+ assert.ok(page.includes('to="/explore"'));
  assert.match(page,/key=\{attempt\}/);
  assert.match(page,/setAttempt\(n=>n\+1\)/);
  assert.match(page,/WebGLRenderingContext/);
  assert.doesNotMatch(page,/WEBGL_lose_context|\.loseContext\(/);
  assert.ok(page.includes('this.props.onFailure(compactError(error))'));
- assert.match(css,/\.crew-town-3d-fallback-notice/);
+ assert.match(css,/\.crew-town-3d-unavailable-notice/);
+ for(const obsolete of ["TownPage.tsx","TownIllustration.tsx","TownCharacter.tsx","town.css"])
+  assert.equal(fs.existsSync(path.join(root,"web-spa/src/town",obsolete)),false,obsolete+" must be removed");
 });
 
 test("the bundled glTF actually loads in Three's GLTFLoader",async()=>{
@@ -141,7 +144,7 @@ test("P1 chibi friends have larger heads, smaller bodies and grounded feet",()=>
  }
 });
 
-test("Town 3D P1.1 can focus moving friends and browse without losing 2.5D fallback",()=>{
+test("Town 3D P1.1 can focus moving friends and browse in 3D-only mode",()=>{
  const scene=read("web-spa/src/town/three/TownScene.tsx");
  const chars=read("web-spa/src/town/three/TownCharacters.tsx");
  const environment=read("web-spa/src/town/three/TownEnvironment.tsx");

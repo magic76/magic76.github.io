@@ -17,10 +17,10 @@ const monitor="<script>"
  +"window.addEventListener('unhandledrejection',e=>window.__townErrors.push(String(e.reason)));"
  +"const original=console.error;console.error=function(...args){window.__townErrors.push(args.map(String).join(' ').slice(0,300));original.apply(console,args)};"
  +"setTimeout(()=>{"
- +"const fallback=document.querySelector('.crew-town-3d-fallback-notice');"
+ +"const fallback=document.querySelector('.crew-town-3d-unavailable-notice');"
  +"const canvas=document.querySelector('.crew-town-3d-canvas canvas, canvas.crew-town-3d-canvas');"
  +"const simplified=document.querySelector('.crew-town-3d-model-note');"
- +"const kind=fallback?'fallback':simplified?'simplified':canvas?'canvas':'no-canvas';"
+ +"const kind=fallback?'unavailable':simplified?'simplified':canvas?'canvas':'no-canvas';"
  +"const p=document.createElement('canvas');let supported=false;try{supported=!!p.getContext('webgl2')}catch(e){};"
  +"const webgl=document.createElement('meta');webgl.name='crew-town-webgl2-available';webgl.content=String(supported);document.head.appendChild(webgl);"
  +"const meta=document.createElement('meta');meta.name='crew-town-browser-smoke';meta.content=kind;document.head.appendChild(meta);"
@@ -79,8 +79,8 @@ try{
  writeFileSync(join(artifact,"town-browser.txt"),JSON.stringify(report,null,2)+"\n"+stderr);
  console.log(JSON.stringify(report,null,2));
  if(code!==0||errors.length)throw Error("Town 3D browser launch or asset serving failed.");
- if(webgl2==="false"&&state==="fallback"){
-  if(!failure.includes("webgl-renderer-unavailable"))throw Error("GPU-less browser did not explain 3D fallback.");
+ if(webgl2==="false"&&state==="unavailable"){
+  if(!failure&&!stdout.includes("3D town unavailable")&&!stdout.includes("3D 小鎮暫時無法使用"))throw Error("GPU-less browser did not explain why 3D is unavailable.");
   console.log("SKIP: CI Chrome cannot allocate WebGL2; manual GPU-backed QA still required.");
   }else if(state!=="canvas")throw Error("WebGL2 is available but Town 3D did not render a canvas.");
  else if(friendCount!=="16")throw Error("Town 3D must register all sixteen selectable friends; observed "+friendCount);

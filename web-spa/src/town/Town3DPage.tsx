@@ -9,7 +9,6 @@ import {DISTRICTS,type DistrictId,type FriendId,type PlaceId,type Selection} fro
 import "./three/town3d.css";
 
 const TownScene=lazy(()=>import("./three/TownScene").then(m=>({default:m.TownScene})));
-const TownFallback=lazy(()=>import("./TownPage").then(m=>({default:m.TownPage})));
 const compactError=(error:unknown)=>String(error instanceof Error?error.message:error).replace(/https?:\/\/[^\s)]+/g,"(url)").slice(0,240);
 
 class Town3DErrorBoundary extends Component<{children:ReactNode;fallback:ReactNode;onFailure:(reason:string)=>void},{error:boolean}>{
@@ -23,7 +22,7 @@ export function Town3DPage(){
  const zh=i18n.language.startsWith("zh");
  const [supported,setSupported]=useState<"checking"|"yes"|"no">("checking");
  const [attempt,setAttempt]=useState(0);
- const [fallbackReason,setFallbackReason]=useState<"render-error"|"manual"|null>(null);
+ const [fallbackReason,setFallbackReason]=useState<"render-error"|null>(null);
  const [failureDetail,setFailureDetail]=useState("");
  const [modelIssue,setModelIssue]=useState("");
  const [night,setNight]=useState(false);
@@ -65,22 +64,21 @@ export function Town3DPage(){
  },[]);
  const selectFriend=useCallback((id:FriendId)=>{trackUsageEvent("town_interaction","person");setView("close");setSelected({type:"person",id})},[]);
  const selectPlace=useCallback((id:PlaceId)=>{trackUsageEvent("town_interaction","place");setView("close");setSelected({type:"place",id})},[]);
- const mode=supported==="no"?"unsupported":fallbackReason||"render-error";
- const explanation=mode==="unsupported"
-  ?zh?"目前的瀏覽器或裝置沒有提供 WebGL 3D 支援，因此改用 2.5D 地圖。":"This browser or device does not support WebGL, so the 2.5D map is shown."
-  :mode==="manual"
-   ?zh?"你已手動切換為 2.5D 地圖，可以隨時再試 3D。":"You switched to the 2.5D map. You can retry 3D at any time."
-   :zh?"3D 畫面載入或繪製失敗（也可能是顯示裝置重置），已自動切換為 2.5D 地圖。":"The 3D scene could not load or render (or the graphics context was lost), so the 2.5D map is shown.";
- const fallback=<div className="crew-town-3d-fallback">
-  <div className="crew-town-3d-fallback-notice" role="status">
-   <div><strong>{zh?"目前使用 2.5D 地圖":"2.5D map mode"}</strong><p>{explanation}</p>
+ const unavailableMessage=supported==="no"
+  ?zh?"這個裝置或瀏覽器目前無法使用 3D 小鎮，請嘗試支援 WebGL 的瀏覽器。":"This device or browser cannot display the 3D town. Please try a browser with WebGL support."
+  :zh?"3D 場景無法正常載入或繪製，請重試；若仍無法開啟，可以返回探索。":"The 3D scene could not load or render. Please retry, or return to Explore if the problem continues.";
+ const unavailable=<div className="crew-town-3d-unavailable" role="status">
+  <div className="crew-town-3d-unavailable-notice">
+   <div><strong>{zh?"3D 小鎮暫時無法使用":"3D town unavailable"}</strong><p>{unavailableMessage}</p>
     {failureDetail&&<code className="crew-town-3d-error-detail">{zh?"錯誤原因：":"Failure: "}{failureDetail}</code>}</div>
-   <button type="button" onClick={retry3D}>{zh?"重試 3D":"Retry 3D"}</button>
+   <div className="crew-town-3d-unavailable-actions">
+    <button type="button" onClick={retry3D}>{zh?"重試 3D":"Retry 3D"}</button>
+    <Link to="/explore">{zh?"返回探索":"Back to Explore"}</Link>
+   </div>
   </div>
-  <Suspense fallback={<div role="status" className="crew-town-3d-loading">{zh?"正在載入小鎮地圖…":"Loading town map…"}</div>}><TownFallback/></Suspense>
  </div>;
- if(supported==="no"||fallbackReason)return fallback;
- return <Town3DErrorBoundary key={attempt} fallback={fallback} onFailure={fail}>
+ if(supported==="no"||fallbackReason)return unavailable;
+ return <Town3DErrorBoundary key={attempt} fallback={unavailable} onFailure={fail}>
   <div className="crew-town-3d">
    <header className="crew-town-3d-heading">
     <div><span className="crew-town-3d-kicker">{zh?"CREW 小鎮 · 3D 世界":"CREW TOWN · 3D WORLD"}</span>
@@ -125,7 +123,6 @@ export function Town3DPage(){
    </section>
    <div className="crew-town-3d-caption">
     <span>{zh?"3D 小鎮角色使用預設走動與情境，不是多人 Gemini Live。點選「加入聊天」會進入既有的單人語音聊天。":"Town movements are scripted, not a multi-agent Live call. Joining a friend opens the existing one-to-one voice chat."}</span>
-    <button type="button" onClick={()=>{trackUsageEvent("town_3d_fallback","manual");setFallbackReason("manual")}}>{zh?"切換 2.5D 地圖":"Use 2.5D map"}</button>
    </div>
   </div>
  </Town3DErrorBoundary>;
