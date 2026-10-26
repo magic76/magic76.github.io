@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef} from "react";
 import {MagicCasting3D} from "./MagicCasting3D";
 import {MagicParticleLayers3D} from "./MagicParticleLayers3D";
 import {MagicGreetings3D} from "./MagicGreetings3D";
+import {MagicReactions3D} from "./MagicReactions3D";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
 import {Mesh,Vector3,type Group} from "three";
@@ -70,7 +71,7 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity,max
  </group>;
 }
 function Creature({creation,site,animated,night,neighbors,greeting,creationsById,onSelect}:{creation:MagicCreation;
- site:[number,number];animated:boolean;night:boolean;neighbors:Map<number,{x:number;z:number;look?:number;until?:number}>;greeting:{busyUntil:number;nextAt:number;emission?:{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}};creationsById:Map<number,MagicCreation>;onSelect:(id:number)=>void}){
+ site:[number,number];animated:boolean;night:boolean;neighbors:Map<number,{x:number;z:number;look?:number;until?:number;ready?:number;react?:{x:number;z:number;w:number;look:number;dance?:boolean}}>;greeting:{busyUntil:number;nextAt:number;emission?:{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}};creationsById:Map<number,MagicCreation>;onSelect:(id:number)=>void}){
  const base=useRef<Group>(null);
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
@@ -130,7 +131,7 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
   const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
   const current=base.current.position;
   const self=neighbors.get(creation.id)??{x:current.x,z:current.z};
-  self.x=current.x;self.z=current.z;neighbors.set(creation.id,self);
+  self.x=current.x;self.z=current.z;self.ready=assembled;neighbors.set(creation.id,self);
   const asleep=night&&(creation.motion==="walk"||creation.motion==="still");
   if(animated&&!asleep&&assembled>.98&&socialTime>=nextGreeting.current&&socialTime>=greeting.busyUntil&&socialTime>=greeting.nextAt){
    nextGreeting.current=socialTime+7+(creation.seed%6);
@@ -289,12 +290,12 @@ function Creature({creation,site,animated,night,neighbors,greeting,creationsById
  </group>
  </>;
 }
-export function MagicCreations3D({creations,animated,night=false,onSelect}:{creations:MagicCreation[];
- animated:boolean;night?:boolean;onSelect:(id:number)=>void}){
+export function MagicCreations3D({creations,animated,night=false,castleIce=false,onSelect}:{creations:MagicCreation[];
+ animated:boolean;night?:boolean;castleIce?:boolean;onSelect:(id:number)=>void}){
  const sites=useMemo(()=>magicCreationSites(creations,safeMagicAnchor),[creations]);
  const neighbors=useMemo(()=>new Map<number,{x:number;z:number;look?:number;until?:number}>(),[]);
  const creationsById=useMemo(()=>new Map(creations.map(c=>[c.id,c])),[creations]);
  const greeting=useMemo(()=>({busyUntil:0,nextAt:0,emission:undefined as undefined|{x:number;y:number;z:number;until:number;kind:"heart"|"sparkle"}}),[]);
- return <group><MagicParticleLayers3D/><MagicGreetings3D greeting={greeting}/>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
+ return <group><MagicParticleLayers3D/><MagicGreetings3D greeting={greeting}/><MagicReactions3D creations={creations} neighbors={neighbors} greeting={greeting} animated={animated} night={night} castleIce={castleIce}/>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
   site={sites.get(c.id)??safeMagicAnchor(c.x,c.z)} animated={animated} night={night} neighbors={neighbors} greeting={greeting} creationsById={creationsById} onSelect={onSelect}/>)}</group>;
 }
