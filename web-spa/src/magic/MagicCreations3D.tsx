@@ -1,4 +1,5 @@
 import {useMemo,useRef} from "react";
+import {MagicCasting3D} from "./MagicCasting3D";
 import {useFrame,type ThreeEvent} from "@react-three/fiber";
 import {RoundedBox} from "@react-three/drei";
 import {Mesh,Vector3,type Group} from "three";
@@ -6,6 +7,8 @@ import {safeMagicAnchor,type MagicCreation,type MagicCreatorPart} from "./world"
 import {creationGroundClearance,islandSurfaceHeight,magicPartPivot} from "./magicNavigation";
 import {magicCreationSites} from "./magicLayout";
 import {MagicPartAccents3D} from "./MagicPartAccents3D";
+import {MagicCreationLife3D} from "./MagicCreationLife3D";
+import {magicWishTraits} from "./magicWish";
 import {MagicCuteFace3D,MagicPartIdentity3D} from "./MagicPartIdentity3D";
 import {MagicDragonModel3D,MagicFoxModel3D,MagicRobotModel3D} from "./MagicProceduralLife3D";
 const LINK_UP=new Vector3(0,1,0);
@@ -38,12 +41,12 @@ export function magicAssemblyOrder(parts:MagicCreatorPart[]){
 /** Geometry still comes exclusively from validated part enums. Rounded edges,
  * ornament rims and material-specific highlights lend recognizable depth; no
  * downloaded assets, custom shaders or AI executable payloads. */
-function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{part:MagicCreatorPart;detailRef:(node:Group|null)=>void;autoFace:boolean;animated:boolean;showAccents:boolean;showIdentity:boolean}){
+function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity,maxPartY,night}:{part:MagicCreatorPart;detailRef:(node:Group|null)=>void;autoFace:boolean;animated:boolean;showAccents:boolean;showIdentity:boolean;maxPartY:number;night:boolean}){
  const surface=MATERIAL[part.material],color=PALETTE[part.color];
  const finish=<meshStandardMaterial color={color} emissive={color}
   roughness={surface.roughness} metalness={surface.metalness}
-  emissiveIntensity={surface.emissiveIntensity} flatShading/>;
- return <group rotation={[0,(part.yaw??0)*Math.PI/180,0]}
+  emissiveIntensity={surface.emissiveIntensity*(night&&(part.material==="glass"||part.material==="glow")?1.8:1)} flatShading/>;
+ return <group rotation={[part.shape==="torus"&&part.joint==="wheel"&&part.y>=maxPartY*.6?Math.PI/2-.42:0,(part.yaw??0)*Math.PI/180,0]}
   scale={[part.width??1,part.height??1,part.depth??1]}>
   {part.shape==="box"?
    <RoundedBox args={[1,1,1]} radius={.13} smoothness={1}>{finish}</RoundedBox>:
@@ -64,8 +67,8 @@ function PartMesh({part,detailRef,autoFace,animated,showAccents,showIdentity}:{p
   </group>
  </group>;
 }
-function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
- site:[number,number];animated:boolean;onSelect:(id:number)=>void}){
+function Creature({creation,site,animated,night,neighbors,onSelect}:{creation:MagicCreation;
+ site:[number,number];animated:boolean;night:boolean;neighbors:Map<number,{x:number;z:number;look?:number;until?:number}>;onSelect:(id:number)=>void}){
  const base=useRef<Group>(null);
  const body=useRef<Group>(null);
  const groups=useRef<(Group|null)[]>([]);
@@ -74,10 +77,19 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
  const linkDirection=useMemo(()=>new Vector3(),[]);
  const linkMidpoint=useMemo(()=>new Vector3(),[]);
  const started=useRef<number|null>(null);
+ const nextGreeting=useRef(0);const greetingUntil=useRef(0);const greetingTo=useRef<number|null>(null);
+ const phases=useRef<number[]>([]);
+ const prevPhases=useRef<number[]>([]);
+ const popTimes=useRef<number[]>([]);
+ const finishAt=useRef(-1);
+ const stage=useRef(0);
+ const progress=useRef(0);
+ const aura=creation.aura??magicWishTraits(creation.label+" "+creation.idea).aura;
  const groundClearance=useMemo(()=>creation.blueprint?.kind==="dragon"?.22:creation.blueprint?.1:creationGroundClearance(creation.parts),[creation.parts,creation.blueprint]);
  const assemblyOrder=useMemo(()=>magicAssemblyOrder(creation.parts),[creation.parts]);
  const autoFaceIndex=useMemo(()=>creation.parts.some(p=>p.detail==="face")?-1:creation.parts.reduce((best,p,i,arr)=>
   (["sphere","box","capsule"].includes(p.shape)&&(!arr[best]||p.size*(p.width??1)*(p.height??1)>arr[best].size*(arr[best].width??1)*(arr[best].height??1)))?i:best,-1),[creation.parts]);
+ const maxPartY=useMemo(()=>Math.max(0,...creation.parts.map(p=>p.y)),[creation.parts]);
  const modelScale=useMemo(()=>{
   if(creation.blueprint)return 1;
   let low=Infinity,high=-Infinity,wide=0;
@@ -103,13 +115,31 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
   const elapsed=started.current;
   const completion=animated?Math.min(1,elapsed/ASSEMBLY_SECONDS):1;
   const assembled=ease(Math.max(0,(completion-.82)/.18));
-  const t=clock.elapsedTime+creation.seed*.0033;
+  stage.current=assembled;
+  if(animated&&assembled>=.98&&finishAt.current<0)finishAt.current=elapsed;
+  progress.current=elapsed;
+  const socialTime=clock.elapsedTime;
+  const t=socialTime+creation.seed*.0033;
   const drift=animated?Math.sin(t*.85)*.045:0;
-  const walk=animated&&creation.motion==="walk"?.45:0;
+  const walk=animated&&!night&&creation.motion==="walk"?.45:0;
   const radius=creation.motion==="orbit"&&animated?.46:0;
   const desiredX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
   const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
   const current=base.current.position;
+  const self=neighbors.get(creation.id)??{x:current.x,z:current.z};
+  self.x=current.x;self.z=current.z;neighbors.set(creation.id,self);
+  if(animated&&assembled>.98&&socialTime>=nextGreeting.current){
+   nextGreeting.current=socialTime+7+(creation.seed%6);
+   const pool=[...neighbors.entries()].filter(([id,p])=>id!==creation.id&&Math.hypot(p.x-current.x,p.z-current.z)<=6.5);
+   pool.sort((a,b)=>(a[0]===creation.friendOf?-1:0)-(b[0]===creation.friendOf?-1:0)||a[0]-b[0]);
+   greetingTo.current=pool[0]?.[0]??null;
+   greetingUntil.current=socialTime+2.5;
+   if(greetingTo.current!==null){
+    self.look=greetingTo.current;self.until=socialTime+2.5;
+    const friend=neighbors.get(greetingTo.current);
+    if(friend){friend.look=creation.id;friend.until=socialTime+2.5}
+   }
+  }
   const alpha=animated?Math.min(1,delta*3):1;
   current.set(current.x+(desiredX-current.x)*alpha,
    current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance*modelScale+
@@ -118,7 +148,8 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
   // Chibi faces carry the charm: non-spinning creations turn (damped) to face
   // the viewer, with a small walk/idle sway on top.
   {
-   const face=Math.atan2(camera.position.x-current.x,camera.position.z-current.z)+
+   const friend=animated&&self.look!==undefined&&(self.until??0)>socialTime?neighbors.get(self.look):undefined;
+   const face=(friend?Math.atan2(friend.x-current.x,friend.z-current.z):Math.atan2(camera.position.x-current.x,camera.position.z-current.z))+
     (!animated?0:creation.motion==="walk"?Math.sin(t*.3)*.18:creation.motion==="still"?Math.sin(t*.27)*.08:0);
    const turn=Math.atan2(Math.sin(face-base.current.rotation.y),Math.cos(face-base.current.rotation.y));
    base.current.rotation.y+=turn*(animated?Math.min(1,delta*2.2):1);
@@ -130,12 +161,14 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
    const personality=creation.mood==="mischievous"?1.35:creation.mood==="brave"?.82:1;
    const pulse=animated&&assembled>.98?Math.sin(t*(1.7+creation.seed%5*.13))*personality:0;
    const sway=animated&&assembled>.98?Math.sin(t*(.72+creation.seed%3*.11))*personality:0;
-   const breathe=1+pulse*.018;
+   const asleep=night&&(creation.motion==="walk"||creation.motion==="still")&&assembled>.98;
+   const breathe=1+pulse*(asleep?.007:.018);
    // High-level anatomical creations materialize as a continuous silhouette,
    // not a cloud of disconnected primitives. Reduced-motion shows full form.
    const sculptReveal=creation.blueprint?(animated?ease((completion-.12)/.72):1):1;
    body.current.scale.set(modelScale*breathe*sculptReveal,modelScale*(1-pulse*.012)*sculptReveal,modelScale*breathe*sculptReveal);
-   body.current.rotation.z=sway*.025;
+   body.current.rotation.z=creation.mood==="curious"?sway*.065:creation.mood==="brave"?sway*.008:sway*.025;
+   body.current.rotation.x=asleep?.11:0;
    body.current.position.y=animated&&assembled>.98&&creation.mood==="curious"?Math.max(0,pulse)*.035:0;
   }
   creation.parts.forEach((part,i)=>{
@@ -145,6 +178,9 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
    // Stable silhouette -> articulated functional parts -> smaller detail reveal.
    const delay=.05+(rank/count)*.5;
    const phase=ease((completion-delay)/.38);
+   phases.current[i]=phase;
+   if(animated&&phase>=.98&&(prevPhases.current[i]??0)<.98)popTimes.current[i]=elapsed;
+   prevPhases.current[i]=phase;
    const angle=creation.seed*.017+i*2.399;
    const far=2.6+(i%4)*.38;
    const startX=creation.assembly==="stack"?part.x:
@@ -160,7 +196,9 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
    // The node itself is the physical joint. Shift its origin to the authored
    // shoulder, hip or wing root while offsetting the visual mesh back below.
    // At zero rotation the actual part center still equals the AI's XYZ target.
-   const size=Math.max(.04,phase)*part.size;
+   const popAge=elapsed-(popTimes.current[i]??-99);
+   const overshoot=animated&&popAge>=0&&popAge<.18?Math.sin(popAge/.18*Math.PI)*.12:0;
+   const size=Math.max(.04,phase)*(1+overshoot)*part.size;
    element.position.set(
     part.x*phase+startX*(1-phase)+Math.sin(spiral+i)*.13*(1-phase)+pivot[0]*size,
     part.y*phase+startY*(1-phase)+pivot[1]*size,
@@ -189,7 +227,9 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
    linkDirection.subVectors(to.position,from.position);
    const length=linkDirection.length();
    // Hairline rods are sub-pixel at overview distance; skip their draws there.
-   rod.visible=showDetail&&length>.3&&(!animated||completion>.54);
+   const parent=creation.parts[part.connectTo];
+   const rest=Math.hypot(part.x-parent.x,part.y-parent.y,part.z-parent.z);
+   rod.visible=showDetail&&length>.3&&(!animated||completion>.54)&&phases.current[i]>=.97&&phases.current[part.connectTo]>=.97&&length<=Math.max(.3,rest)*1.35;
    if(!rod.visible)return;
    linkMidpoint.copy(from.position).addScaledVector(linkDirection,.5);
    rod.position.copy(linkMidpoint);
@@ -208,6 +248,8 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
    position={[origin[0],islandSurfaceHeight(origin[0],origin[1])+groundClearance*modelScale,origin[1]]}
    onClick={(event:ThreeEvent<MouseEvent>)=>{event.stopPropagation();onSelect(creation.id)}}>
   <group ref={body} scale={modelScale}>
+   <MagicCasting3D animated={animated} progress={progress} seed={creation.seed} parts={creation.parts} popTimes={popTimes} finishAt={finishAt}/>
+   <MagicCreationLife3D aura={aura} animated={animated} night={night} seed={creation.seed} assembledRef={stage} sleeping={night&&(creation.motion==="walk"||creation.motion==="still")}/>
    {creation.blueprint?.kind==="robot"&&
     <MagicRobotModel3D blueprint={creation.blueprint} animated={animated}/>}
    {creation.blueprint?.kind==="fox"&&
@@ -228,7 +270,7 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
     const pivot=pivots[i];
     return <group key={i} ref={node=>{groups.current[i]=node}}>
      <group position={[-pivot[0],-pivot[1],-pivot[2]]}>
-      <PartMesh part={part} autoFace={i===autoFaceIndex} animated={animated} showAccents={assemblyOrder[i]<6} showIdentity={creation.parts.slice(0,i).filter(p=>!!p.detail).length<4} detailRef={node=>{detailGroups.current[i]=node}}/>
+      <PartMesh part={part} autoFace={i===autoFaceIndex} animated={animated} showAccents={assemblyOrder[i]<6} showIdentity={creation.parts.slice(0,i).filter(p=>!!p.detail).length<4} detailRef={node=>{detailGroups.current[i]=node}} maxPartY={maxPartY} night={night}/>
      </group>
     </group>;
    })}
@@ -236,9 +278,10 @@ function Creature({creation,site,animated,onSelect}:{creation:MagicCreation;
  </group>
  </>;
 }
-export function MagicCreations3D({creations,animated,onSelect}:{creations:MagicCreation[];
- animated:boolean;onSelect:(id:number)=>void}){
+export function MagicCreations3D({creations,animated,night=false,onSelect}:{creations:MagicCreation[];
+ animated:boolean;night?:boolean;onSelect:(id:number)=>void}){
  const sites=useMemo(()=>magicCreationSites(creations,safeMagicAnchor),[creations]);
+ const neighbors=useMemo(()=>new Map<number,{x:number;z:number;look?:number;until?:number}>(),[]);
  return <group>{creations.map(c=><Creature key={c.id+":"+c.revision} creation={c}
-  site={sites.get(c.id)??safeMagicAnchor(c.x,c.z)} animated={animated} onSelect={onSelect}/>)}</group>;
+  site={sites.get(c.id)??safeMagicAnchor(c.x,c.z)} animated={animated} night={night} neighbors={neighbors} onSelect={onSelect}/>)}</group>;
 }

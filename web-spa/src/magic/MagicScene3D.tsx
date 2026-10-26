@@ -276,10 +276,18 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
  },[world.objects,world.creations,focusId,focusCreationId,occluders,aspect]);
  const cameraGoal=useMemo(()=>selected?new Vector3(...selected.camera):overviewPosition,[selected,overviewPosition]);
  const targetGoal=useMemo(()=>selected?new Vector3(...selected.target):new Vector3(0,1.05,0),[selected]);
+ const focusSeconds=useRef(0);
+ const castingGoal=useMemo(()=>new Vector3(),[]);
+ useEffect(()=>{focusSeconds.current=0},[focusCreationId,viewVersion]);
  useFrame((_,delta)=>{
   if(cinematic||!scriptedView.current||!orbit.current)return;
   const factor=reducedMotion?1:Math.min(1,delta*2.4);
-  camera.position.lerp(cameraGoal,factor);
+  focusSeconds.current+=Math.min(delta,.1);
+  const casting=focusCreationId!==null&&!reducedMotion&&focusSeconds.current<4.5;
+  const progress=Math.min(1,focusSeconds.current/4.5);
+  const ease=progress*progress*(3-2*progress);
+  const goal=casting?castingGoal.copy(cameraGoal).sub(targetGoal).multiplyScalar(1+.18*(1-ease)).add(targetGoal):cameraGoal;
+  camera.position.lerp(goal,factor);
   orbit.current.target.lerp(targetGoal,factor);
   orbit.current.update();
   if(camera.position.distanceTo(cameraGoal)<.03&&orbit.current.target.distanceTo(targetGoal)<.03)
@@ -324,7 +332,7 @@ function SceneContent({world,reducedMotion,onInteract,onFailure,focusId,focusCre
     onClick={ev=>{ev.stopPropagation();onInteract(obj.kind)}}/>;
   })}
   <MagicWonders3D wonders={world.wonders} animated={!reducedMotion}/>
-  <MagicCreations3D creations={world.creations} animated={!reducedMotion}
+  <MagicCreations3D creations={world.creations} animated={!reducedMotion} night={night}
    onSelect={onSelectCreation}/>
   <SceneParticles weather={world.weather} effect={world.effect} revision={world.revision} animated={!reducedMotion}/>
   {cinematic&&world.cue&&<MagicCinematic key={world.revision} cue={world.cue} overviewPosition={overviewPosition}

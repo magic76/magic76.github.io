@@ -31,6 +31,8 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   spell:{type:"STRING",enum:["sparkles","fire","wind","heal"]}
  },required:["spell"]}},
  {name:"create_magic_lifeform",description:"For a user requesting a ROBOT, FOX or DRAGON, prefer this HIGH-LEVEL PROCEDURAL MODEL tool over geometric part piles. AI describes anatomical proportions and art direction; the engine builds smooth swept bodies, anatomically connected limbs, fox tails, dragon wing membranes or a lathed robot shell. No part arrays, meshes, scripts or external files. Ten creations max (the island has a site for each). All numbers are finite and bounded.",parameters:{type:"OBJECT",properties:{
+  aura:{type:"STRING",enum:["bubbles","fire","stars","flowers","ice","music","hearts","leaves"]},
+
   label:{type:"STRING",description:"Visible title 1-34 characters"},
   idea:{type:"STRING",description:"Short artistic intent <=60 chars"},
   blueprint:{type:"OBJECT",properties:{
@@ -48,6 +50,8 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   x:{type:"NUMBER"},z:{type:"NUMBER"},seed:{type:"NUMBER"}
  },required:["label","idea","blueprint"]}},
  {name:"edit_magic_lifeform",description:"Resculpt an existing procedural robot, fox or dragon. Supply the complete seven-field blueprint again; use the current form in CREATOR_WORLD_CONTEXT and change silhouette, proportions or style. id is optional for latest. Do NOT send primitive parts or arbitrary meshes.",parameters:{type:"OBJECT",properties:{
+  aura:{type:"STRING",enum:["bubbles","fire","stars","flowers","ice","music","hearts","leaves"]},
+
   id:{type:"NUMBER"},label:{type:"STRING"},
   blueprint:{type:"OBJECT",properties:{
    kind:{type:"STRING",enum:["robot","fox","dragon"]},
@@ -59,6 +63,8 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   mood:{type:"STRING",enum:["curious","gentle","mischievous","brave"]}
  },required:["blueprint"]}},
  {name:"create_magic_entity",description:"CREATE AN ORIGINAL 3D OBJECT by designing 3 to 12 geometric parts. You are using a real 3D editor, not selecting a prefab or a fixed spell. Every part has geometry (smooth capsules/leaf wings), material, color, xyz, size and optional parametric width/height/depth, yaw rotation, surface profile, semantic detail (face/core/vent/thruster/rune), physical pivot (top/bottom/left/right/center), connectTo index and animated joint (hinge=legs/arms, flap=wings, wheel=rotors, tail=swishing appendages). These parts visibly gather, stack, spiral or bloom into assembly; the completed sculpture remains in the world. Be inventive beyond prefab robots. Relative y 0..3.3, x/z -1.8..1.8, size .15..1.65. Overall x and z -1..1. Seed integer 0..999999. Maximum ten persistent creations. To change an existing entity use edit_magic_entity.",parameters:{type:"OBJECT",properties:{
+  aura:{type:"STRING",enum:["bubbles","fire","stars","flowers","ice","music","hearts","leaves"]},
+
   label:{type:"STRING",description:"Visible name 1-34 characters"},
   idea:{type:"STRING",description:"Short wish or identity, <=60 chars for future context"},
   parts:{type:"ARRAY",items:{type:"OBJECT",properties:{
@@ -86,6 +92,8 @@ export const MAGIC_TOOLS=[{functionDeclarations:[
   friend_of:{type:"NUMBER",description:"ID of an existing creation as companion, if any"}
  },required:["label","idea","parts","assembly","motion","mood"]}},
  {name:"edit_magic_entity",description:"MODIFY an existing persistent AI creation. id comes from recent world context, or omit for the latest. For 'make it move' change motion; for 'grow wings' or 'turn into a robot' supply an entire revised 3-12 part list with optional animated joints. It reassembles visibly with revised parts. Unspecified fields persist. Do not create a duplicate when edit is requested.",parameters:{type:"OBJECT",properties:{
+  aura:{type:"STRING",enum:["bubbles","fire","stars","flowers","ice","music","hearts","leaves"]},
+
   id:{type:"NUMBER"},label:{type:"STRING"},
   parts:{type:"ARRAY",items:{type:"OBJECT",properties:{
     shape:{type:"STRING",enum:["box","sphere","cone","cylinder","torus","octahedron","capsule","leaf"]},
@@ -173,6 +181,7 @@ export function magicSystemPrompt(english:boolean){
   "For realistic movement, set a pivot on articulate hinge/flap/tail parts. A leg/arm attached to torso should use joint hinge + pivot top, so the shoulder/hip remains attached while the limb swings. The root of a LEFT wing (negative X) has pivot right, root of a RIGHT wing (positive X) has pivot left. Antennae/tails can pivot bottom at their base. The joint is a physical attachment point, not an arbitrary animation script. Never set pivot on fixed or wheel joints, and omit it for legacy centered movement. With a readable silhouette this matters more than polygon count.",
   "Read CREATOR_WORLD_CONTEXT at start and after tool responses: actual creation IDs and recent geometry. For repeated wishes, change STRUCTURE, part layout, motion, assembly and personality, not just color or name. Structural duplicates are rejected. For 'it', 'that creature', 'make it move' modify the last creation using edit_magic_entity. To give it a friend, construct another creation with friend_of set to its ID.",
   "Let the user watch every part gather, spiral, stack or bloom rather than tell a long story. Maximum ten persistent creations with 12 parts each; when the island is full, evolve an existing creation instead. Older creations persist and can be evolved; the other tools provide atmosphere only.",
+  "Decompose one vivid wish into at most FOUR tool calls, skipping already-satisfied state. Example: snowy night dragon over ice castle => change_world(time night,weather snow), transform_castle(form ice), summon_object(kind dragon), cast_spell(spell sparkles). Example: flowers under a starry sky => change_world(time night,weather stars), create_magic_entity with aura flowers. For freeform ideas prefer create_magic_entity plus one or two atmosphere tools; robots, foxes and dragons use create_magic_lifeform. Choose aura from bubbles/fire/stars/flowers/ice/music/hearts/leaves and match palette/material/motion/mood/assembly to the wish: bubbles glass azure hover, fire glow coral/gold, ice glass azure, music playful orbit. Never invent a field.",
 
   "Unless the user explicitly asks for a puzzle or interactive quest, do not create riddles, cards or multi-step story questions; favor visual wonder, a short one-sentence reaction and let the user watch. Tool successes are the visual truth; never claim arbitrary animals or detailed objects that the engine does not draw.",
   "Never invent a tool, parameter, HTML, JavaScript, CSS, shader, URL or executable payload to make the world more flexible. Flexibility comes only from composing the allowlisted primitives.",

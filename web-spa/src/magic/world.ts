@@ -27,6 +27,8 @@ export type MagicCreatorMaterial="stone"|"wood"|"metal"|"glass"|"glow";
 export type MagicCreatorColor="gold"|"rose"|"azure"|"mint"|"violet"|"coral"|"ivory"|"slate";
 export type MagicCreatorMotion="still"|"hover"|"walk"|"spin"|"orbit";
 export type MagicCreatorAssembly="gather"|"stack"|"spiral"|"bloom";
+export type MagicCreatorAura="bubbles"|"fire"|"stars"|"flowers"|"ice"|"music"|"hearts"|"leaves";
+export const CREATOR_AURAS=["bubbles","fire","stars","flowers","ice","music","hearts","leaves"] as const;
 export type MagicCreatorMood="curious"|"gentle"|"mischievous"|"brave";
 export type MagicCreatorJoint="fixed"|"hinge"|"flap"|"wheel"|"tail";
 export type MagicCreatorPivot="center"|"top"|"bottom"|"left"|"right";
@@ -40,7 +42,7 @@ export type MagicLifeBlueprint={
  palette:MagicCreatorColor;body:number;head:number;tail:number;wings:number
 };
 export type MagicCreation={id:number;label:string;idea:string;parts:MagicCreatorPart[];
- blueprint?:MagicLifeBlueprint;
+ blueprint?:MagicLifeBlueprint;aura?:MagicCreatorAura;
  assembly:MagicCreatorAssembly;motion:MagicCreatorMotion;mood:MagicCreatorMood;
  x:number;z:number;seed:number;revision:number;friendOf?:number};
 
@@ -208,7 +210,7 @@ function creationStructure(parts:MagicCreatorPart[]){
 }
 export function magicCreatorContext(world:MagicWorld){
  const items:Record<string,unknown>[]=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
-  assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,blueprint:c.blueprint??null,
+  assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,blueprint:c.blueprint??null,aura:c.aura??null,
   geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.pivot??"center",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
  // Ten creations: stay valid JSON within budget by dropping geometry from the
  // oldest first (never the newest, which edits default to), then their ideas.
@@ -311,6 +313,7 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   const label=copy(c.label,34),idea=copy(c.idea,60);
   const blueprint=c.blueprint===undefined?null:readMagicLifeBlueprint(c.blueprint);
   if(c.blueprint!==undefined&&!blueprint)return null;
+  if(c.aura!==undefined&&!oneOf(c.aura,CREATOR_AURAS))return null;
   const parts=blueprint&&Array.isArray(c.parts)&&c.parts.length===0?[]:readCreatorParts(c.parts);
   if(!label||!idea||!parts||creations.some(item=>item.id===c.id))return null;
   if(c.friendOf!==undefined&&(!validId(c.friendOf)||!creations.some(item=>item.id===c.friendOf)))
@@ -318,7 +321,8 @@ export function readMagicWorldSnapshot(raw:string|null):MagicWorld|null{
   creations.push({id:c.id as number,label,idea,parts,...(blueprint?{blueprint}:{}),
    assembly:c.assembly,motion:c.motion,mood:c.mood,x:c.x,z:c.z,
    revision:c.revision as number,seed:c.seed as number,
-   ...(c.friendOf===undefined?{}:{friendOf:c.friendOf as number})});
+   ...(c.friendOf===undefined?{}:{friendOf:c.friendOf as number}),
+   ...(c.aura===undefined?{}:{aura:c.aura})});
  }
  const panels:MagicPanel[]=[];
  for(const entry of data.panels){
@@ -467,6 +471,7 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    },"creature-group-moved");
   }
   case "create_magic_lifeform":{
+   if(args.aura!==undefined&&!oneOf(args.aura,CREATOR_AURAS))return failed(state,"invalid-creation-aura");
    if(state.creations.length>=MAX_CREATIONS)return failed(state,"creation-limit");
    const label=copy(args.label,34),idea=copy(args.idea,60);
    const blueprint=readMagicLifeBlueprint(args.blueprint);
@@ -481,11 +486,13 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(state.creations.some(c=>c.blueprint&&blueprintStructure(c.blueprint)===blueprintStructure(blueprint)))
     return failed(state,"duplicate-structure-try-new-geometry");
    const entity:MagicCreation={id:state.revision+1,label,idea,parts:[],blueprint,
-    motion,assembly,mood,x,z,seed,revision:state.revision+1};
+    motion,assembly,mood,x,z,seed,revision:state.revision+1,
+    ...(args.aura===undefined?{}:{aura:args.aura})};
    return updated(state,{creations:[...state.creations,entity],effect:"sparkles",
     message:text(label+"的輪廓正在塑形！",label+" is taking shape!")}, "entity-created");
   }
   case "edit_magic_lifeform":{
+   if(args.aura!==undefined&&!oneOf(args.aura,CREATOR_AURAS))return failed(state,"invalid-creation-aura");
    const index=args.id===undefined?state.creations.length-1:
     state.creations.findIndex(c=>c.id===args.id);
    if(index<0||!state.creations[index].blueprint)return failed(state,"lifeform-not-found");
@@ -496,13 +503,16 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    if(!label||!blueprint||!oneOf(motion,CREATOR_MOTIONS)||!oneOf(mood,CREATOR_MOODS))
     return failed(state,"invalid-lifeform-blueprint");
    if(JSON.stringify(blueprint)===JSON.stringify(current.blueprint)&&
-    motion===current.motion&&mood===current.mood&&label===current.label)
+    motion===current.motion&&mood===current.mood&&label===current.label&&
+    (args.aura===undefined||args.aura===current.aura))
     return failed(state,"no-entity-change");
-   const changed:MagicCreation={...current,blueprint,motion,mood,label,revision:state.revision+1};
+   const changed:MagicCreation={...current,blueprint,motion,mood,label,revision:state.revision+1,
+    ...(args.aura===undefined?{}:{aura:args.aura})};
    return updated(state,{creations:state.creations.map((c,i)=>i===index?changed:c),
     message:text(label+"重新塑形完成！",label+" has transformed!")}, "entity-evolved");
   }
   case "create_magic_entity":{
+   if(args.aura!==undefined&&!oneOf(args.aura,CREATOR_AURAS))return failed(state,"invalid-creation-aura");
    if(state.creations.length>=MAX_CREATIONS)return failed(state,"creation-limit");
    const label=copy(args.label,34),idea=copy(args.idea,60);
    const parts=readCreatorParts(args.parts);
@@ -521,12 +531,14 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
     return failed(state,"duplicate-structure-try-new-geometry");
    const entity:MagicCreation={id:state.revision+1,label,idea,parts,assembly:args.assembly,
     motion:args.motion,mood:args.mood,x,z,seed,revision:state.revision+1,
-    ...(friendOf===undefined?{}:{friendOf:friendOf as number})};
+    ...(friendOf===undefined?{}:{friendOf:friendOf as number}),
+    ...(args.aura===undefined?{}:{aura:args.aura})};
    return updated(state,{creations:[...state.creations,entity],effect:"sparkles",
     message:text(label+"正在由零件組裝成形！",label+" is assembling piece by piece!")
    },"entity-created");
   }
   case "edit_magic_entity":{
+   if(args.aura!==undefined&&!oneOf(args.aura,CREATOR_AURAS))return failed(state,"invalid-creation-aura");
    const index=args.id===undefined?state.creations.length-1:
     state.creations.findIndex(c=>c.id===args.id);
    if(index<0||index>=state.creations.length)return failed(state,"entity-not-found");
@@ -546,9 +558,11 @@ export function applyMagicCommand(state:MagicWorld,name:string,rawArgs:unknown,l
    const changed=creationStructure(parts)!==creationStructure(current.parts)||motion!==current.motion
     ||assembly!==current.assembly||mood!==current.mood||x!==current.x||z!==current.z
     ||label!==current.label||friendOf!==current.friendOf
+    ||(args.aura!==undefined&&args.aura!==current.aura)
     ||parts.some((p,i)=>p.material!==current.parts[i]?.material||p.color!==current.parts[i]?.color);
    if(!changed)return failed(state,"no-entity-change");
    const next:MagicCreation={...current,parts,motion,assembly,mood,x,z,label,
+    ...(args.aura===undefined?{}:{aura:args.aura}),
     revision:state.revision+1,...(friendOf===undefined?{}:{friendOf:friendOf as number})};
    if(args.parts!==undefined)delete next.blueprint;
    return updated(state,{creations:state.creations.map((c,i)=>i===index?next:c),

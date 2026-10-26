@@ -13,6 +13,9 @@ import {MagicHelpDialog} from "./MagicHelpDialog";
 import {HELPERS,newlySummonedCreature,newlyBuiltCreation,magicAdventureCopy} from "./magicPresentation";
 import {MagicGuideCard} from "./MagicGuideCard";
 import {MagicCreatedList} from "./MagicCreatedList";
+import {magicWishCreation} from "./magicWish";
+import {MagicSoundToggle} from "./MagicSoundToggle";
+import {activateMagicAudio,magicHaptic,playMagicSound} from "./magicSound";
 import "./magic.css";
 
 const MagicScene3D=lazy(()=>import("./MagicScene3D").then(mod=>({default:mod.MagicScene3D})));
@@ -41,6 +44,8 @@ export function MagicPage(){
  const [said,setSaid]=useState("");
  const [toolsAvailable,setToolsAvailable]=useState(true);
  const [input,setInput]=useState("");
+ const soundEnabled=useRef(false);const popTimers=useRef<ReturnType<typeof setTimeout>[]>([]);
+ useEffect(()=>()=>{popTimers.current.forEach(clearTimeout)},[]);
  const [volume,setVolume]=useState(100);
  const [muted,setMuted]=useState(false);
  const [hasKey,setHasKey]=useState(false);
@@ -98,6 +103,8 @@ export function MagicPage(){
   }
  },[zh,tr]);
 
+ const reducedMotionRef=useRef(false);
+ useEffect(()=>{const mq=window.matchMedia("(prefers-reduced-motion: reduce)");const sync=()=>{reducedMotionRef.current=mq.matches};sync();mq.addEventListener("change",sync);return()=>mq.removeEventListener("change",sync)},[]);
  const applyFocusAfter=useCallback((before:MagicWorld,after:MagicWorld)=>{
   const creature=newlySummonedCreature(before,after);
   const creation=newlyBuiltCreation(before,after);
@@ -107,6 +114,10 @@ export function MagicPage(){
    if(obj)announce(tr("{{label}} has arrived",{label:tr(({dragon:"Dragon",owl:"Owl",fox:"Fox"} as Record<string,string>)[obj.kind]??obj.kind)}));
   }
   if(creation!==null){
+   if(soundEnabled.current){playMagicSound("chime");
+    const handle=setTimeout(()=>{if(soundEnabled.current){playMagicSound("pop");magicHaptic(true,reducedMotionRef.current)}},5200);
+    popTimers.current.push(handle);
+   }
    setFocusCreationId(creation);setFocusId(null);setViewVersion(v=>v+1);
    const item=after.creations.find(c=>c.id===creation);
    if(item)announce(tr("Created {{label}}",{label:item.label}));
@@ -255,7 +266,17 @@ export function MagicPage(){
   if(!message)return;
   const session=sessionRef.current;
   if(!session?.running){
-   setNotice(tr("Start the live connection first, or try a spell below."));
+   activateMagicAudio();
+   if(worldRef.current.creations.length>=MAGIC_MAX_CREATIONS){setNotice(tr("Creation limit reached"));return;}
+   let result:MagicResult|null=null;
+   for(let attempt=0;attempt<3;attempt++){
+    const args=magicWishCreation(message,worldRef.current,zh?"zh":"en",attempt);
+    if(!args)break;
+    result=runCommand("create_magic_entity",args);
+    if(result.ok||result.event!=="duplicate-structure-try-new-geometry")break;
+   }
+   if(result?.ok){setInput("");setNotice("");}
+   else setNotice(result?.event==="creation-limit"?tr("Creation limit reached"):tr("Try a different wish"));
    return;
   }
   session.sendControl?.("CREATOR_WORLD_CONTEXT data for the next wish: "+magicCreatorContext(worldRef.current));
@@ -380,13 +401,14 @@ export function MagicPage(){
        <span aria-hidden="true">{item.emoji}</span><strong>{tr(item.en)}</strong>
       </button>)}
      </div>
+     <MagicSoundToggle onChange={enabled=>{soundEnabled.current=enabled}} labelOn={tr("Magic sound on")} labelOff={tr("Magic sound off")}/>
      <form className="magic-prompt" onSubmit={submitInput}>
       <label htmlFor="magic-wish">{tr("What would you like to create?")}</label>
-      {!isOnline?<p className="magic-prompt-help" role="status">{tr("Connect to Lumi to send a custom wish. Quick spells work without a connection.")}</p>:null}
+      {!isOnline?<p className="magic-prompt-help" role="status">{tr("Offline wishes use island magic; connect Lumi for full creativity")}</p>:null}
       <div><input id="magic-wish" type="text" autoComplete="off" maxLength={180} value={input}
        onChange={event=>setInput(event.target.value)}
        placeholder={tr("e.g. Make it snow, summon an owl…")}/>
-       <button type="submit" disabled={!input.trim()||!isOnline} aria-label={tr("Send wish")}>➤</button></div>
+       <button type="submit" disabled={!input.trim()} aria-label={tr("Send wish")}>➤</button></div>
      </form>
      <button type="button" className="magic-reset" onClick={()=>{
       if(window.confirm(tr("Start the magic world over?")))runDemo("reset");
