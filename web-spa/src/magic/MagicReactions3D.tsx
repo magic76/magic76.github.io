@@ -17,6 +17,33 @@ const allKinds=MAGIC_PARTICLE_KINDS;
 function ringTexture(){const c=document.createElement("canvas");c.width=c.height=128;const a=c.getContext("2d")!;
  const g=a.createRadialGradient(64,64,30,64,64,63);g.addColorStop(0,"#ffffff00");g.addColorStop(.6,"#ffffff00");g.addColorStop(.76,"#ffffffa9");g.addColorStop(.84,"#ffffffac");g.addColorStop(1,"#ffffff00");a.fillStyle=g;a.fillRect(0,0,128,128);
  const t=new CanvasTexture(c);t.magFilter=LinearFilter;t.minFilter=LinearFilter;return t;}
+function themedDecalTexture(){const c=document.createElement("canvas");c.width=c.height=128;const ctx=c.getContext("2d")!;
+ const tex=new CanvasTexture(c);tex.magFilter=LinearFilter;tex.minFilter=LinearFilter;return {canvas:c,ctx,tex};}
+function drawDecal(ctx:CanvasRenderingContext2D,id:MagicReactionId,age:number){
+ ctx.clearRect(0,0,128,128);const center=64;
+ if(id==="star_lake"){
+  const grad=ctx.createRadialGradient(center,center,3,center,center,59);
+  grad.addColorStop(0,"rgba(42,63,143,.65)");grad.addColorStop(.72,"rgba(42,63,143,.55)");grad.addColorStop(1,"rgba(110,200,255,0)");
+  ctx.fillStyle=grad;ctx.fillRect(0,0,128,128);return;
+ }
+ if(id==="frost_carpet"){
+  ctx.strokeStyle="rgba(47,143,255,.68)";ctx.lineWidth=3;ctx.lineCap="round";
+  const radius=52*Math.min(1,Math.max(0,(age-1)/.8));
+  for(let k=0;k<6;k++){const a=k*Math.PI/3;ctx.beginPath();ctx.moveTo(center,center);
+   ctx.lineTo(center+Math.cos(a)*radius,center+Math.sin(a)*radius);ctx.stroke();
+   for(let j=1;j<4;j++){const r=radius*j/4,px=center+Math.cos(a)*r,py=center+Math.sin(a)*r;
+    ctx.beginPath();ctx.moveTo(px-Math.sin(a)*5,py+Math.cos(a)*5);ctx.lineTo(px+Math.sin(a)*5,py-Math.cos(a)*5);ctx.stroke()}
+  }return;
+ }
+ if(id==="ripple_splash"){
+  ctx.strokeStyle="rgba(47,143,255,.88)";ctx.lineWidth=4;
+  for(let k=0;k<3;k++){const t=(age-1.4-k*.4)/1.4;if(t<=0||t>=1)continue;
+   ctx.globalAlpha=(1-t)*.9;ctx.beginPath();ctx.arc(center,center,6+54*t,0,Math.PI*2);ctx.stroke();
+  }ctx.globalAlpha=1;return;
+ }
+ const grad=ctx.createRadialGradient(64,64,35,64,64,63);grad.addColorStop(0,"#ffffff00");grad.addColorStop(.55,"#ffffff00");grad.addColorStop(.76,"#ffffffb0");grad.addColorStop(.84,"#ffffffbd");grad.addColorStop(1,"#ffffff00");
+ ctx.fillStyle=grad;ctx.fillRect(0,0,128,128);
+}
 function rainbowTexture(){const c=document.createElement("canvas");c.width=128;c.height=2;const ctx=c.getContext("2d")!;
  const g=ctx.createLinearGradient(0,0,128,0);["#ff8f8f","#ffc27a","#fff08a","#9fe8a0","#8fd3ff","#a9a4ff","#d9a6ff"].forEach((color,i)=>g.addColorStop(i/6,color));ctx.fillStyle=g;ctx.fillRect(0,0,128,2);
  const pixels=ctx.getImageData(0,0,128,2);
@@ -35,8 +62,8 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
  const {camera,gl,invalidate}=useThree();const projection=useMemo(()=>new Vector3(),[]);
  const active=useRef<Active[]>([]),lastStart=useRef(-100),pairs=useRef(new Map<string,number>());
  const decals=useRef<(Mesh|null)[]>([]),rainbows=useRef<(Mesh|null)[]>([]);
- const textures=useMemo(()=>({ring:ringTexture(),rainbow:rainbowTexture(),rainbowGeom:rainbowGeometry()}),[]);
- useEffect(()=>()=>{textures.ring.dispose();textures.rainbow.dispose();textures.rainbowGeom.dispose()},[textures]);
+ const textures=useMemo(()=>({ring:ringTexture(),custom:[themedDecalTexture(),themedDecalTexture()],rainbow:rainbowTexture(),rainbowGeom:rainbowGeometry()}),[]);
+ useEffect(()=>()=>{textures.ring.dispose();for(const item of textures.custom)item.tex.dispose();textures.rainbow.dispose();textures.rainbowGeom.dispose()},[textures]);
  const clear=(slot:number)=>{for(const k of allKinds)removeMagicParticles(`reaction:${slot}:${k}`);
   if(decals.current[slot])decals.current[slot]!.visible=false;
   if(rainbows.current[slot])rainbows.current[slot]!.visible=false;
@@ -44,11 +71,15 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
  const display=(r:Active,now:number)=>{
   const age=now-r.start,slot=r.slot,pool=slotPools[slot];resetReactionPool(pool);
   renderMagicReaction(r.id,Math.min(age,4.4),r.x,r.z,islandSurfaceHeight(r.x,r.z),pool,animated,
-   Math.atan2(-r.ax,-.55-r.az));
+   (()=>{const aim=Math.atan2(-r.ax,-.55-r.az);if(r.id!=="dragon_frost")return aim;
+    const vx=Math.sin(aim),vz=Math.cos(aim);const cx=camera.position.x-r.ax,cz=camera.position.z-r.az;const dot=(vx*cx+vz*cz)/Math.max(1e-4,Math.hypot(cx,cz));
+    return dot>=-.2?aim:aim+(dot<0?Math.PI/2:0);})());
   for(const k of allKinds)if(pool.counts[k])publishMagicParticles(`reaction:${slot}:${k}`,k,pool.points[k],pool.counts[k]);else removeMagicParticles(`reaction:${slot}:${k}`);
-  const mesh=decals.current[slot];if(mesh){const fade=animated?Math.min(1,Math.max(0,(age-1)/.4),Math.max(0,(4.4-age)/1)):Math.min(1,age*5,(2.5-age)*5);
+  const mesh=decals.current[slot];if(mesh){const special=r.id==="star_lake"||r.id==="frost_carpet"||r.id==="ripple_splash";
+   const item=textures.custom[slot];drawDecal(item.ctx,r.id,age);item.tex.needsUpdate=true;
+   (mesh.material as MeshBasicMaterial).map=special?item.tex:textures.ring;const fade=animated?Math.min(1,Math.max(0,(age-1)/.4),Math.max(0,(4.4-age)/1)):Math.min(1,age*5,(2.5-age)*5);
    mesh.visible=fade>.02;mesh.position.set(r.x,islandSurfaceHeight(r.x,r.z)+.07,r.z);mesh.scale.setScalar((animated?Math.min(1,Math.max(.25,(age-1)*2)):1)*1.48);
-   (mesh.material as MeshBasicMaterial).opacity=fade*.7;(mesh.material as MeshBasicMaterial).color.setHex(REACTION_VISUALS[r.id].ring);}
+   (mesh.material as MeshBasicMaterial).opacity=fade*(special?1:.7);(mesh.material as MeshBasicMaterial).color.setHex(REACTION_VISUALS[r.id].ring);}
   const rainbow=rainbows.current[slot];if(rainbow){const show=r.id==="steam_rainbow"&&age>=1.6&&age<4.4;rainbow.visible=show;
    if(show){rainbow.position.set(r.x,islandSurfaceHeight(r.x,r.z)+1.15,r.z);rainbow.rotation.y=Math.atan2(camera.position.x-r.x,camera.position.z-r.z);
     textures.rainbowGeom.setDrawRange(0,Math.max(0,Math.floor(48*eased((age-1.6)/.6))*6));rainbow.scale.setScalar(Math.max(1.6,r.distance/2+.6));(rainbow.material as MeshBasicMaterial).opacity=Math.min(1,(age-1.6)*4,4.4-age);}}

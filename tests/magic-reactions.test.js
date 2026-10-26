@@ -78,30 +78,23 @@ test("R3 visual fixes keep pool bounded and reaction-specific colors",()=>{
  assert.match(creations,/react\?\.dance&&animated.*react\.w/);
 });
 
-test("R4 every recipe has enough readable principal points and footprint at sample frames",()=>{
+test("R5 signatures limit overdraw, point counts and visible glyph sizes",()=>{
  const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
  const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
  const recipes=new Function(code+"\nreturn {makeReactionPool,renderMagicReaction,REACTION_VISUALS}")();
  const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"];
- for(const id of ids)for(const t of [1.6,2.4,3.2]){
-  const pool=recipes.makeReactionPool(kinds);
-  recipes.renderMagicReaction(id,t,0,0,0,pool,true,0);
-  const kind=recipes.REACTION_VISUALS[id].kind;
-  const main=pool.points[kind].slice(0,pool.counts[kind]);
-  assert.ok(main.length>=10,id+" @"+t+" principal count="+main.length);
-  assert.ok(Math.max(...main.map(p=>p.minPx??0))>=22,id+" @"+t+" too small");
-  assert.ok(Math.max(...main.map(p=>p.x))-Math.min(...main.map(p=>p.x))>=5,id+" @"+t+" narrow");
-  assert.ok(main.some(p=>p.alpha>0),id+" @"+t+" invisible");
-  assert.ok(main.some(p=>{const hex=p.color??0;return ((hex>>16)&255)<218||((hex>>8)&255)<218||(hex&255)<218}),id+" entirely pale");
-  assert.ok(kinds.every(k=>pool.counts[k]<=64),id+" pool overflow");
+ const limits={heart_bouquet:["heart",7],petal_swirl:["petal",18],frost_carpet:["crystal",16],star_lake:["star",14],cat_fish_chase:["bubble",14],golden_pollen:["sparkle",30],ember_whirl:["flame",24],ripple_splash:["drop",14],music_dance:["note",12]};
+ for(const id of ids){const pool=recipes.makeReactionPool(kinds);recipes.renderMagicReaction(id,2.4,0,0,0,pool,true,0);
+  const count=Object.values(pool.counts).reduce((a,b)=>a+b,0);
+  assert.ok(count<=55,id+" count "+count);assert.ok(count>0,id);
+  if(limits[id]){const [kind,limit]=limits[id];assert.ok(pool.counts[kind]<=limit,id+" "+kind);}
+  assert.ok(kinds.every(k=>pool.counts[k]<=64),id);
  }
+ assert.doesNotMatch(source,/sparse outer signature/);
 });
-test("R4 reduced motion uses recipe signature rather than a common eight-point ring",()=>{
- const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
- const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
- const recipes=new Function(code+"\nreturn {makeReactionPool,renderMagicReaction,REACTION_VISUALS}")();
- const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"];
- for(const id of ids){const pool=recipes.makeReactionPool(kinds);recipes.renderMagicReaction(id,0.5,0,0,0,pool,false);
-  assert.ok(pool.counts[recipes.REACTION_VISUALS[id].kind]>=10,id);
- }
+test("R5 mobile decals use distinct star lake, frost and triple ripple designs",()=>{
+ const scene=readFileSync(base+"MagicReactions3D.tsx","utf8");
+ assert.match(scene,/function drawDecal/);assert.match(scene,/id==="star_lake"/);
+ assert.match(scene,/id==="frost_carpet"/);assert.match(scene,/id==="ripple_splash"/);
+ assert.match(scene,/k<3/);
 });

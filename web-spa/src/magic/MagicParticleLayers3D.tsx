@@ -11,17 +11,17 @@ const DEFAULT_COLORS:Record<MagicParticleKind,number>={sparkle:0xffe5af,star:0xf
 function makeTexture(kind:MagicParticleKind){
  const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;
  const ctx=canvas.getContext("2d")!;ctx.clearRect(0,0,128,128);ctx.fillStyle="#fff";ctx.strokeStyle="#293d58";ctx.lineWidth=3;
- ctx.translate(64,64);ctx.scale(kind==="glow"?1:1.8,kind==="glow"?1:1.8);
+ ctx.translate(64,64);ctx.scale(kind==="glow"?1:1.55,kind==="glow"?1:1.55);
  if(kind==="glow"){const gradient=ctx.createRadialGradient(0,0,2,0,0,58);gradient.addColorStop(0,"rgba(255,255,255,1)");gradient.addColorStop(.5,"rgba(255,255,255,.7)");gradient.addColorStop(1,"rgba(255,255,255,0)");ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(0,0,58,0,Math.PI*2);ctx.fill()}
  else if(kind==="drop"){ctx.shadowColor="rgba(255,255,255,.5)";ctx.shadowBlur=1.8;ctx.beginPath();ctx.moveTo(0,-31);ctx.bezierCurveTo(-30,5,-25,30,0,32);ctx.bezierCurveTo(25,30,30,5,0,-31);ctx.fill()}
  else if(kind==="petal"){ctx.shadowColor="rgba(255,255,255,.6)";ctx.shadowBlur=1.8;ctx.beginPath();ctx.moveTo(0,30);ctx.bezierCurveTo(-40,-4,-18,-35,0,-31);ctx.bezierCurveTo(22,-32,42,-4,0,30);ctx.fill()}
- else if(kind==="crystal"){ctx.shadowColor="rgba(255,255,255,.6)";ctx.shadowBlur=1.8;ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.lineTo(Math.cos(a)*30,Math.sin(a)*30)}ctx.closePath();ctx.fill()}
+ else if(kind==="crystal"){ctx.shadowColor="rgba(255,255,255,.6)";ctx.shadowBlur=1.8;ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.lineTo(Math.cos(a)*30,Math.sin(a)*30)}ctx.closePath();ctx.fill();ctx.stroke()}
  else if(kind==="z"){ctx.font="bold 48px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("Z",0,1)}
  else if(kind==="heart"){ctx.beginPath();ctx.moveTo(0,22);ctx.bezierCurveTo(-45,-6,-20,-32,0,-12);ctx.bezierCurveTo(20,-32,45,-6,0,22);ctx.fill()}
  else if(kind==="note"){ctx.font="bold 48px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("♫",0,0)}
  else if(kind==="bubble"){ctx.beginPath();ctx.arc(0,0,23,0,Math.PI*2);ctx.stroke();ctx.beginPath();ctx.arc(-9,-10,5,0,Math.PI*2);ctx.fill()}
  else if(kind==="star"||kind==="sparkle"||kind==="snow"||kind==="flower"){
-  const n=kind==="flower"?5:kind==="snow"?6:4;ctx.beginPath();for(let i=0;i<n*2;i++){const a=i*Math.PI/n-Math.PI/2,r=i%2?kind==="flower"?16:8:26;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill()}
+  const n=kind==="flower"?5:kind==="snow"?6:4;ctx.beginPath();for(let i=0;i<n*2;i++){const a=i*Math.PI/n-Math.PI/2,r=i%2?kind==="flower"?16:8:26;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.stroke()}
  else {ctx.beginPath();ctx.ellipse(0,0,kind==="leaf"?17:12,25,kind==="leaf"?-.5:0,0,Math.PI*2);ctx.fill()}
  const t=new CanvasTexture(canvas);t.needsUpdate=true;return t;
 }
