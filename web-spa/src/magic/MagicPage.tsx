@@ -5,7 +5,7 @@ import {useMagicT} from "./useMagicT";
 import {useStageFit} from "./useStageFit";
 import {trackUsageEvent} from "../analytics/usage";
 import {ensureLive,geminiKey,GEMINI_KEY_CHANGED_EVENT,type LiveSession} from "../lib/runtime";
-import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,readMagicWorldSnapshot,magicCreatorContext,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
+import {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,MAGIC_MAX_CREATIONS,readMagicWorldSnapshot,magicCreatorContext,type MagicChoice,type MagicWorld,type MagicObjectKind,type MagicResult} from "./world";
 import {MAGIC_TOOLS,magicSystemPrompt} from "./liveTools";
 import {MagicChallengeCard,MagicGeneratedCard} from "./MagicInteractionCard";
 import {MagicMobileInteraction} from "./MagicMobileInteraction";
@@ -124,7 +124,7 @@ export function MagicPage(){
    if(name==="select_magic_panel")trackUsageEvent("magic_panel_choice");
   }
   return next;
- },[zh,applyFocusAfter,announce]);
+ },[zh,applyFocusAfter,announce,tr]);
  const runDemo=useCallback((id:(typeof HELPERS)[number]["id"]|"reset")=>{
   const next=demoMagicCommand(id,worldRef.current,zh?"zh":"en");
   if(next.ok){
@@ -133,7 +133,7 @@ export function MagicPage(){
    if(id==="reset"){setFocusId(null);setFocusCreationId(null);setViewVersion(v=>v+1);}
    worldRef.current=next.world;setWorld(next.world);setNotice("");
    trackUsageEvent(id==="reset"?"magic_world_reset":"magic_spell");
-  }
+  }else if(next.event==="creation-limit")setNotice(tr("Creation limit reached"));
   if(sessionRef.current?.running)sessionRef.current.sendControl?.("The player triggered a world action by tapping the UI. React naturally; the on-screen action has already happened. Do not duplicate the action.");
  },[zh,applyFocusAfter,announce]);
 
@@ -273,7 +273,7 @@ export function MagicPage(){
  const sculptNext=useCallback(()=>{
   const sculptKinds=["robot","fox","dragon"] as const;
   const next=sculptKinds.find(kind=>!worldRef.current.creations.some(c=>c.blueprint?.kind===kind));
-  if(worldRef.current.creations.length>=3||!next){
+  if(worldRef.current.creations.length>=MAGIC_MAX_CREATIONS||!next){
    const latest=worldRef.current.creations[worldRef.current.creations.length-1];
    if(latest)focusCreation(latest.id,latest.label);
   }else runDemo(({robot:"sculptrobot",fox:"sculptfox",dragon:"sculptdragon"} as const)[next]);
@@ -351,8 +351,8 @@ export function MagicPage(){
       <span aria-hidden="true">{world.time==="night"?"☀️":"🌙"}</span><span>{tr(world.time==="night"?"Day":"Night")}</span>
      </button>
      <button type="button" data-magic-quick="sculpt" onClick={sculptNext}
-      aria-label={world.creations.length>=3?tr("Latest creation"):tr("Sculpt")}>
-      <span aria-hidden="true">🤖</span><span>{tr(world.creations.length>=3?"Latest creation":"Sculpt")}</span>
+      aria-label={world.creations.length>=MAGIC_MAX_CREATIONS?tr("Latest creation"):tr("Sculpt")}>
+      <span aria-hidden="true">🤖</span><span>{tr(world.creations.length>=MAGIC_MAX_CREATIONS?"Latest creation":"Sculpt")}</span>
      </button>
     </div>
     <div className="magic-story">

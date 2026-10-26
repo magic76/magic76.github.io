@@ -22,3 +22,36 @@ export const MAGIC_TREES:TreeSite[]=groups.flatMap((g,group)=>
  }).filter(p=>Math.hypot(p.x/17.87,p.z/15.0)<.91 &&
    !(Math.abs(p.x)<2.6 && p.z>3.5 && p.z<12.5))
 );
+/** Island sites for persistent AI creations (world units). Each keeps >=1.45 clear
+ * of trees, district buildings, the castle, resident plots and paths, stays inside
+ * 74% of the island ellipse and is >=3.4 from every other site, so a full island
+ * of creations never overlaps. tests/magic-world asserts these invariants. */
+export const MAGIC_CREATION_SLOTS:readonly (readonly [number,number])[]=[
+ [-6,2.75],[4.25,5],[-.25,7],[7.5,0],[-3.5,-5.5],[5.25,-6.25],
+ [2.75,10.75],[-7.5,-.5],[-6,9.75],[13,-2],[6.75,-9.5],[-3.25,-9]
+];
+/** Deterministic: in creation order, each wish takes the free site nearest to
+ * where it asked to stand (a friend asks for its owner's site). */
+export function assignMagicCreationSites(wanted:readonly {x:number;z:number;owner?:number}[]):[number,number][]{
+ const used=new Set<number>(),sites:[number,number][]=[];
+ wanted.forEach((w,i)=>{
+  const o=w.owner!==undefined&&w.owner<i?sites[w.owner]:null;
+  const x=o?o[0]:w.x,z=o?o[1]:w.z;
+  let best=-1,score=Infinity;
+  MAGIC_CREATION_SLOTS.forEach((s,k)=>{const d=Math.hypot(s[0]-x,s[1]-z);if(!used.has(k)&&d<score){score=d;best=k}});
+  if(best<0){sites.push([x,z]);return}
+  used.add(best);sites.push([MAGIC_CREATION_SLOTS[best][0],MAGIC_CREATION_SLOTS[best][1]]);
+ });
+ return sites;
+}
+/** World-space ground point of every creation by id (anchor = safeMagicAnchor,
+ * passed in so this file stays import-free for the source-level tests). */
+export function magicCreationSites(creations:readonly {id:number;x:number;z:number;friendOf?:number}[],
+ anchor:(x:number,z:number)=>[number,number]):Map<number,[number,number]>{
+ const sites=assignMagicCreationSites(creations.map(c=>{
+  const owner=c.friendOf===undefined?-1:creations.findIndex(o=>o.id===c.friendOf);
+  const [x,z]=anchor(c.x,c.z);
+  return owner>=0?{x,z,owner}:{x,z};
+ }));
+ return new Map(creations.map((c,i)=>[c.id,sites[i]]));
+}

@@ -8,10 +8,10 @@ const {stripTypeScriptTypes}=require("node:module");
 const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/world.ts"),"utf8");
 const stripped=stripTypeScriptTypes(source,{mode:"strip"});
 const compiled=stripped.replace(/\bexport\s+(?=(?:function|const|class)\b)/g,"")+
- "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext};";
+ "\nmodule.exports={applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,MAGIC_MAX_CREATIONS,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext};";
 const worldModule={exports:{}};
 new Function("module","exports",compiled)(worldModule,worldModule.exports);
-const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext}=worldModule.exports;
+const {applyMagicCommand,applyMagicLiveCall,demoMagicCommand,MAGIC_INITIAL_WORLD,MAGIC_MAX_CREATIONS,latestMagicSpotlight,readMagicWorldSnapshot,safeMagicAnchor,magicCreatorContext}=worldModule.exports;
 
 test("world transformations retain summoned objects and story progress",()=>{
  const d=applyMagicCommand(MAGIC_INITIAL_WORLD,"summon_object",{kind:"dragon"});
@@ -604,7 +604,13 @@ test("creator demo cycles between distinct silhouettes and honors mobile limits"
  }
  assert.equal(new Set(names).size,3);
  assert.equal(new Set(geometry).size,3);
- assert.equal(demoMagicCommand("creator",world).ok,false);
+ for(let i=3;i<10;i++){
+  const result=demoMagicCommand("creator",world,"en");
+  assert.equal(result.ok,true,"creator #"+(i+1)+" "+result.event);
+  world=result.world;
+ }
+ assert.equal(new Set(world.creations.map(c=>c.label)).size,10);
+ assert.equal(demoMagicCommand("creator",world).event,"creation-limit");
  assert.deepEqual(readMagicWorldSnapshot(JSON.stringify(world)),world);
  const source=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreations3D.tsx"),"utf8");
  const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
@@ -898,7 +904,7 @@ test("procedural lifeform blueprints create robot fox dragon without primitive p
   world=result.world;
  }
  assert.equal(world.creations.length,3);
- assert.equal(demoMagicCommand("sculptrobot",world,"en").ok,false,"3-creation mobile limit stays intact");
+ assert.equal(demoMagicCommand("sculptrobot",world,"en").event,"duplicate-structure-try-new-geometry","one demo robot per island");
  assert.match(magicCreatorContext(world),/"kind":"dragon"/);
 });
 test("lifeform blueprint validation, structural novelty and safe evolution",()=>{
@@ -957,4 +963,52 @@ test("organic residents and semantic procedural figure renderer are wired to saf
  assert.match(tools,/name:"create_magic_lifeform"/);
  assert.match(tools,/name:"edit_magic_lifeform"/);
  for(const id of ["sculptrobot","sculptfox","sculptdragon"])assert.match(demos,new RegExp(id));
+});
+
+test("island keeps up to 10 unique creations on non-overlapping sites",()=>{
+ assert.equal(MAGIC_MAX_CREATIONS,10);
+ let world=MAGIC_INITIAL_WORLD;
+ for(const intent of ["sculptrobot","creator","sculptfox","creator","sculptdragon","creator","creator","creator","creator","creator"]){
+  const result=demoMagicCommand(intent,world,"en");
+  assert.equal(result.ok,true,intent+" #"+world.creations.length+" "+result.event);
+  world=result.world;
+ }
+ assert.equal(world.creations.length,10);
+ assert.equal(new Set(world.creations.map(c=>c.label)).size,10,"demo labels stay distinguishable");
+ assert.equal(demoMagicCommand("creator",world,"en").event,"creation-limit");
+ const blueprint={kind:"fox",style:"mystic",palette:"violet",body:1.3,head:.8,tail:1.5,wings:1};
+ assert.equal(applyMagicCommand(world,"create_magic_lifeform",{label:"Extra",idea:"one more",blueprint},"en").event,"creation-limit");
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(world)).creations.length,10);
+ const over={...world,creations:[...world.creations,{...world.creations[1],id:9999}]};
+ assert.equal(readMagicWorldSnapshot(JSON.stringify(over)),null,"snapshots above the cap are rejected");
+ const context=magicCreatorContext(world);
+ assert.ok(context.length<=3600,String(context.length));
+ const parsed=JSON.parse(context);
+ assert.equal(parsed.capacity,10);assert.equal(parsed.remaining,0);assert.equal(parsed.recentCreations.length,10);
+ assert.ok(parsed.recentCreations.at(-1).geometry,"newest creation keeps its geometry in context");
+});
+test("live tool contracts and UI copy describe the 10-creation cap",()=>{
+ const tools=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/liveTools.ts"),"utf8");
+ assert.doesNotMatch(tools,/three (persistent )?creations|Three creations/i);
+ assert.match(tools,/Ten creations max/);
+ assert.equal((tools.match(/Maximum ten persistent creations/g)||[]).length,2);
+ const list=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicCreatedList.tsx"),"utf8");
+ assert.match(list,/\/\{MAGIC_MAX_CREATIONS\}/);
+ const page=fs.readFileSync(path.join(__dirname,"../web-spa/src/magic/MagicPage.tsx"),"utf8");
+ assert.doesNotMatch(page,/creations\.length>=3/);
+ for(const locale of ["en","zh-TW","ja","ko","es","pt-BR","id","fr","de","vi","th"]){
+  const copy=JSON.parse(fs.readFileSync(path.join(__dirname,`../web-spa/src/i18n/locales/${locale}/magic.json`),"utf8"));
+  assert.ok(copy["Creation limit reached"],locale);
+ }
+});
+test("a full island of maximal 12-part creations survives a session snapshot",()=>{
+ const part=(i)=>({shape:"capsule",material:"glass",color:"violet",x:-1.234567+i*.01,y:1.234567,z:.987654,size:1.234567,
+  joint:"hinge",pivot:"right",width:1.234567,height:1.234567,depth:1.234567,yaw:-123.4567,profile:"mechanical",...(i?{connectTo:i-1}:{})});
+ const creations=Array.from({length:10},(_,k)=>({id:k+1,label:"x".repeat(34),idea:"y".repeat(60),
+  parts:Array.from({length:12},(_,i)=>({...part(i),y:.2+i*.25+k*.001})),assembly:"spiral",motion:"orbit",mood:"mischievous",
+  x:-.987654,z:.876543,seed:999999,revision:k+1}));
+ const world={...MAGIC_INITIAL_WORLD,creations,revision:10};
+ const restored=readMagicWorldSnapshot(JSON.stringify(world));
+ assert.ok(restored,"snapshot length "+JSON.stringify(world).length);
+ assert.equal(restored.creations.length,10);
 });

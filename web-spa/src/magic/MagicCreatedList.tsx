@@ -1,5 +1,5 @@
 import {useMagicT} from "./useMagicT";
-import type {MagicWorld,MagicObjectKind} from './world';
+import {MAGIC_MAX_CREATIONS,type MagicWorld,type MagicObjectKind} from './world';
 import {OBJECT_ICONS,OBJECT_LABELS,magicCreationSummary} from './magicPresentation';
 export function MagicCreatedList({world,zh,has3D,focusCreationId,onInteract,onFocus}:{
  world:MagicWorld;zh:boolean;has3D:boolean;focusCreationId:number|null;
@@ -15,7 +15,7 @@ export function MagicCreatedList({world,zh,has3D,focusCreationId,onInteract,onFo
    </button>)}</div>
   </section>}
   <section className="magic-created-list" aria-label={tr("Your magic creations")}>
-   <strong>{tr("Your creations")} · {world.creations.length}/3</strong>
+   <strong>{tr("Your creations")} · {world.creations.length}/{MAGIC_MAX_CREATIONS}</strong>
    {world.creations.length>0?<div>{world.creations.map(c=><button key={c.id} type="button"
     onClick={()=>onFocus(c.id)} aria-pressed={focusCreationId===c.id}>
     {c.label}{magicCreationSummary(c,zh,tr)}

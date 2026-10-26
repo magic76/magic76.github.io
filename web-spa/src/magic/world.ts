@@ -130,7 +130,9 @@ const CREATOR_DETAIL_SHAPES:Record<MagicCreatorDetail,readonly MagicCreatorShape
  thruster:["cone","cylinder","capsule"],
  rune:["box","sphere","cone","capsule","octahedron","leaf"]
 };
-const MAX_CREATIONS=3,MAX_CREATION_PARTS=12,MAX_CREATION_DETAILS=4;
+/** Persistent AI creations kept on the island (layout has a site for each). */
+export const MAGIC_MAX_CREATIONS=10;
+const MAX_CREATIONS=MAGIC_MAX_CREATIONS,MAX_CREATION_PARTS=12,MAX_CREATION_DETAILS=4;
 const LIFE_KINDS=["robot","fox","dragon"] as const;
 const LIFE_STYLES=["sleek","sturdy","mystic"] as const;
 export function readMagicLifeBlueprint(value:unknown):MagicLifeBlueprint|null{
@@ -205,11 +207,14 @@ function creationStructure(parts:MagicCreatorPart[]){
   Math.round((p.depth??1)*4)/4,Math.round((p.yaw??0)/15),p.profile??"smooth",p.connectTo??-1,p.detail??""]));
 }
 export function magicCreatorContext(world:MagicWorld){
- const items=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
+ const items:Record<string,unknown>[]=world.creations.map(c=>({id:c.id,name:c.label,idea:c.idea,mood:c.mood,
   assembly:c.assembly,motion:c.motion,friendOf:c.friendOf??null,blueprint:c.blueprint??null,
   geometry:c.parts.map(p=>[p.shape,p.x,p.y,p.z,p.size,p.joint??"fixed",p.pivot??"center",p.width??1,p.height??1,p.depth??1,p.yaw??0,p.profile??"smooth",p.connectTo??-1,p.detail??""]),revision:c.revision}));
- return JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,
-  recentCreations:items}).slice(0,2400);
+ // Ten creations: stay valid JSON within budget by dropping geometry from the
+ // oldest first (never the newest, which edits default to), then their ideas.
+ const json=()=>JSON.stringify({capacity:MAX_CREATIONS,remaining:MAX_CREATIONS-items.length,recentCreations:items});
+ for(const key of ["geometry","idea"])for(const item of items.slice(0,-1)){if(json().length<=3600)break;delete item[key];}
+ return json();
 }
 
 const CUES=["dragon_arrival","castle_transformation"] as const;
@@ -249,7 +254,8 @@ function copy(value:unknown,max=130){
 }
 // A tab-local adventure survives refresh without storing microphone audio,
 // transcripts, Gemini keys or arbitrary executable content.
-const MAX_WORLD_SNAPSHOT_CHARS=16000;
+// Room for MAGIC_MAX_CREATIONS creations at the 12-part maximum with every field.
+const MAX_WORLD_SNAPSHOT_CHARS=48000;
 const validId=(x:unknown)=>Number.isSafeInteger(x)&&typeof x==="number"&&x>=0&&x<=10000000;
 function snapshotObject(value:unknown):Record<string,unknown>|null{
  if(value===null||typeof value!=="object"||Array.isArray(value))return null;
@@ -744,7 +750,16 @@ export function demoMagicCommand(intent:"creator"|"sculptrobot"|"sculptfox"|"scu
       part("octahedron","glow","gold",0,2.85,0,.32)
      ]}
    ] as const;
-   const design=designs[index];
+   // Later rounds of the three keyless designs add 1-3 glowing ornaments and a
+   // new palette so every demo up to the island limit is structurally unique.
+   const variant=Math.floor(world.creations.length/3)%4;
+   const tints:readonly MagicCreatorColor[]=["gold","rose","azure","mint","violet","coral","ivory","slate"];
+   const tint=(c:MagicCreatorColor)=>variant?tints[(tints.indexOf(c)+variant*3)%tints.length]:c;
+   const ornaments=[[-.95,2.35,.2],[.95,2.35,.2],[0,.4,-.8]].slice(0,variant)
+    .map(([x,y,z])=>part("sphere","glow","gold",x,y,z,.26));
+   const base=designs[index];
+   const design={...base,label:base.label+(variant?" "+["","II","III","IV"][variant]:""),
+    parts:[...base.parts.map(p=>({...p,color:tint(p.color)})),...ornaments]};
    // Keyless examples also use the same freely composable AI part grammar.
    // Connect each subassembly to a structural predecessor, not a prefab skeleton.
    const parts=design.parts.map((p,i)=>({
