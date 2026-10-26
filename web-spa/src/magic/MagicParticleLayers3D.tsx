@@ -1,18 +1,19 @@
 import {useEffect,useMemo,useRef} from "react";
 import {useFrame} from "@react-three/fiber";
 import {AdditiveBlending,BufferAttribute,BufferGeometry,CanvasTexture,Color,DynamicDrawUsage,Points,PointsMaterial,NormalBlending} from "three";
-export const MAGIC_PARTICLE_KINDS=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"] as const;
+export const MAGIC_PARTICLE_KINDS=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal","streak"] as const;
 export type MagicParticleKind=typeof MAGIC_PARTICLE_KINDS[number];
 export type MagicParticle={x:number;y:number;z:number;size?:number;alpha?:number;color?:number;minPx?:number};
 const emitters=new Map<string,{kind:MagicParticleKind;points:MagicParticle[];count:number}>();
 export function publishMagicParticles(id:string,kind:MagicParticleKind,points:MagicParticle[],count=points.length){emitters.set(id,{kind,points,count})}
 export function removeMagicParticles(id:string){emitters.delete(id)}
-const DEFAULT_COLORS:Record<MagicParticleKind,number>={sparkle:0xffe5af,star:0xfff1a8,heart:0xff9fc7,bubble:0xa8e9ff,flame:0xffa064,flower:0xffb9d1,leaf:0x96d8b2,snow:0xe5f6ff,note:0xc9a8ff,z:0xdce8ff,glow:0xffe2a4,drop:0x6ec8ff,petal:0xff9fc7,crystal:0xbfe9ff};
+const DEFAULT_COLORS:Record<MagicParticleKind,number>={sparkle:0xffe5af,star:0xfff1a8,heart:0xff9fc7,bubble:0xa8e9ff,flame:0xffa064,flower:0xffb9d1,leaf:0x96d8b2,snow:0xe5f6ff,note:0xc9a8ff,z:0xdce8ff,glow:0xffe2a4,drop:0x6ec8ff,petal:0xff9fc7,crystal:0xbfe9ff,streak:0xffb000};
 function makeTexture(kind:MagicParticleKind){
  const canvas=document.createElement("canvas");canvas.width=128;canvas.height=128;
  const ctx=canvas.getContext("2d")!;ctx.clearRect(0,0,128,128);ctx.fillStyle="#fff";ctx.strokeStyle="#293d58";ctx.lineWidth=3;
  ctx.translate(64,64);ctx.scale(kind==="glow"?1:1.55,kind==="glow"?1:1.55);
  if(kind==="glow"){const gradient=ctx.createRadialGradient(0,0,2,0,0,58);gradient.addColorStop(0,"rgba(255,255,255,1)");gradient.addColorStop(.5,"rgba(255,255,255,.7)");gradient.addColorStop(1,"rgba(255,255,255,0)");ctx.fillStyle=gradient;ctx.beginPath();ctx.arc(0,0,58,0,Math.PI*2);ctx.fill()}
+ else if(kind==="streak"){ctx.beginPath();ctx.roundRect(-30,-8,60,16,8);ctx.fill();ctx.stroke()}
  else if(kind==="drop"){ctx.shadowColor="rgba(255,255,255,.5)";ctx.shadowBlur=1.8;ctx.beginPath();ctx.moveTo(0,-31);ctx.bezierCurveTo(-30,5,-25,30,0,32);ctx.bezierCurveTo(25,30,30,5,0,-31);ctx.fill()}
  else if(kind==="petal"){ctx.shadowColor="rgba(255,255,255,.6)";ctx.shadowBlur=1.8;ctx.beginPath();ctx.moveTo(0,30);ctx.bezierCurveTo(-40,-4,-18,-35,0,-31);ctx.bezierCurveTo(22,-32,42,-4,0,30);ctx.fill()}
  else if(kind==="crystal"){ctx.shadowColor="rgba(255,255,255,.6)";ctx.shadowBlur=1.8;ctx.beginPath();for(let i=0;i<6;i++){const a=i*Math.PI/3;ctx.lineTo(Math.cos(a)*30,Math.sin(a)*30)}ctx.closePath();ctx.fill();ctx.stroke()}

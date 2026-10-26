@@ -72,7 +72,7 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
   const age=now-r.start,slot=r.slot,pool=slotPools[slot];resetReactionPool(pool);
   renderMagicReaction(r.id,Math.min(age,4.4),r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z,islandSurfaceHeight(r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z),pool,animated,
    (()=>{const aim=Math.atan2(-r.ax,-.55-r.az);if(r.id!=="dragon_frost")return aim;
-    return dragonFrostLayout(r.ax,r.az,camera.position.x,camera.position.z).heading;})());
+    return dragonFrostLayout(r.ax,r.az,camera.position.x,camera.position.z);})());
   for(const k of allKinds)if(pool.counts[k])publishMagicParticles(`reaction:${slot}:${k}`,k,pool.points[k],pool.counts[k]);else removeMagicParticles(`reaction:${slot}:${k}`);
   const mesh=decals.current[slot];if(mesh){const special=r.id==="star_lake"||r.id==="frost_carpet"||r.id==="ripple_splash";
    const item=textures.custom[slot];drawDecal(item.ctx,r.id,age);item.tex.needsUpdate=true;

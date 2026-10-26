@@ -86,7 +86,7 @@ test("R5 signatures limit overdraw, point counts and visible glyph sizes",()=>{
  const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
  const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
  const recipes=new Function(code+"\nreturn {makeReactionPool,renderMagicReaction,REACTION_VISUALS}")();
- const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal"];
+ const kinds=["sparkle","star","heart","bubble","flame","flower","leaf","snow","note","z","glow","drop","petal","crystal","streak"];
  const limits={heart_bouquet:["heart",7],petal_swirl:["petal",18],frost_carpet:["crystal",16],star_lake:["star",14],cat_fish_chase:["bubble",14],golden_pollen:["sparkle",30],ember_whirl:["flame",24],ripple_splash:["drop",14],music_dance:["note",12]};
  for(const id of ids){const pool=recipes.makeReactionPool(kinds);recipes.renderMagicReaction(id,2.4,0,0,0,pool,true,0);
   const count=Object.values(pool.counts).reduce((a,b)=>a+b,0);
