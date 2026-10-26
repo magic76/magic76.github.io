@@ -2,10 +2,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {readFileSync} from "node:fs";
 import {stripTypeScriptTypes} from "node:module";
-function load(path,names){const code=stripTypeScriptTypes(readFileSync(path,"utf8"),{mode:"transform"}).replace(/export /g,"");return new Function(code+"\nreturn {"+names.join(",")+"}")()}
+function load(path,names){const code=stripTypeScriptTypes(readFileSync(path,"utf8"),{mode:"transform"}).replace(/^import .*;\s*$/gm,"").replace(/export /g,"");return new Function("__enabled",(path.includes("magicCodexStore")?"const MAGIC_REACTIONS_ENABLED=__enabled;\n":"")+code+"\nreturn {"+names.join(",")+"}")(globalThis.__enabled??[])}
 const base="web-spa/src/magic/";
-const r=load(base+"magicReactions.ts",["MAGIC_REACTIONS","magicCreationElements","magicFindReaction","magicFindSoloReaction","magicPickReaction"]);
+const r=load(base+"magicReactions.ts",["MAGIC_REACTIONS","MAGIC_REACTIONS_ENABLED","magicCreationElements","magicFindReaction","magicFindSoloReaction","magicPickReaction"]);
 const ids=r.MAGIC_REACTIONS.map(x=>x.id);
+globalThis.__enabled=r.MAGIC_REACTIONS_ENABLED;
 test("16 distinct reactions",()=>{assert.equal(ids.length,16);assert.equal(new Set(ids).size,16)});
 test("fire, ice, and new elemental keywords",()=>{
  const tags=s=>r.magicCreationElements({label:s,idea:"",parts:[]},{kind:s.includes("dragon")?"dragon":undefined});
@@ -97,4 +98,32 @@ test("R5 mobile decals use distinct star lake, frost and triple ripple designs",
  assert.match(scene,/function drawDecal/);assert.match(scene,/id==="star_lake"/);
  assert.match(scene,/id==="frost_carpet"/);assert.match(scene,/id==="ripple_splash"/);
  assert.match(scene,/k<3/);
+});
+
+test("R6 rollout list controls paired and solo reactions and codex persistence",()=>{
+ assert.equal(r.MAGIC_REACTIONS_ENABLED.length,16);
+ const original=r.MAGIC_REACTIONS_ENABLED;
+ original.splice(0,1);
+ assert.equal(r.magicFindReaction(["cat"],["fish"],{night:false,castleIce:false,distanceToCastle:20}),undefined);
+ original.push("cat_fish_chase");
+ // All entries are enabled by default; disabling an entry must exclude solo matches.
+ const index=original.indexOf("meteor_shower");original.splice(index,1);
+ assert.equal(r.magicFindSoloReaction(["star"],{night:true,castleIce:false,distanceToCastle:20}),undefined);
+ original.splice(index,0,"meteor_shower");
+});
+
+test("R6 camera-safe frost layout is finite and avoids deep castle penetration",()=>{
+ const source=readFileSync(base+"magicReactionRecipes.ts","utf8");
+ const code=stripTypeScriptTypes(source,{mode:"transform"}).replace(/^import type .*\n/gm,"").replace(/export /g,"");
+ const recipes=new Function(code+"\nreturn {dragonFrostLayout}")();
+ for(const [cx,cz] of [[15,20],[-20,10],[-15,-20]]){
+  const pose=recipes.dragonFrostLayout(-6.2,-7.1,cx,cz);
+  assert.ok(Number.isFinite(pose.heading)&&pose.length>=1.2&&pose.length<=3);
+  assert.ok(pose.impact.every(Number.isFinite));
+  const ux=Math.sin(pose.heading),uz=Math.cos(pose.heading);
+  for(let i=0;i<25;i++){
+   const t=(i+.5)/25,px=-6.2+ux*(.5+t*pose.length),pz=-7.1+uz*(.5+t*pose.length);
+   assert.ok(Math.hypot(px,pz+.55)>=4.5,"must stay outside castle collision cylinder");
+  }
+ }
 });

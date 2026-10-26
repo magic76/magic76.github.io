@@ -1,6 +1,7 @@
+import {MAGIC_REACTIONS_ENABLED} from "./magicReactions";
 // Persistence is intentionally independent from React and the renderer.
 export const MAGIC_CODEX_KEY="crew.magic.codex";
-const IDS=["cat_fish_chase","dragon_fireworks","forge_sparks","steam_rainbow","flower_ring","frost_carpet","golden_pollen","petal_swirl","ember_whirl","snow_fairy","ripple_splash","star_lake","heart_bouquet","meteor_shower","dragon_frost","music_dance"] as const;
+const IDS=MAGIC_REACTIONS_ENABLED;
 export type CodexEntry={id:string;at:number};
 export type MagicCodexData={v:1;found:CodexEntry[]};
 const clean=():MagicCodexData=>({v:1,found:[]});

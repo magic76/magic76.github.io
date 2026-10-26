@@ -33,6 +33,39 @@ export function makeReactionPool(kinds:readonly MagicParticleKind[]):ReactionPoo
 export function resetReactionPool(pool:ReactionPool){for(const k in pool.counts)pool.counts[k as MagicParticleKind]=0}
 // Particle positions are deterministic and allocation-free at render time.
 // Time is measured from the reaction start; all recipes have a readable 1.4–3.6s main act.
+// Camera-safe cone tracing against the castle collision cylinder.
+export function dragonFrostLayout(dragonX:number,dragonZ:number,camX:number,camZ:number){
+ const cx=0,cz=-.55,rad=4.5;
+ const ox=dragonX-cx,oz=dragonZ-cz;
+ const toX=-ox,toZ=-oz,dist=Math.hypot(toX,toZ)||1;
+ const vx=(camX-dragonX),vz=(camZ-dragonZ),cl=Math.hypot(vx,vz)||1;
+ const ux=vx/cl,uz=vz/cl;
+ const initial=Math.atan2(toX,toZ);
+ let best=initial,bestScore=-1e9;
+ for(let step=0;step<=12;step++)for(const sign of (step===0?[1]:[1,-1])){
+  const h=initial+sign*step*Math.PI/12,dx=Math.sin(h),dz=Math.cos(h);
+  const facing=dx*ux+dz*uz;
+  const minDist=Math.hypot(ox+dx*.8,oz+dz*.8);
+  const score=(facing>=-.2?100:0)+facing*.3+minDist*.08-step*.05;
+  if(score>bestScore){bestScore=score;best=h}
+ }
+ let dx=Math.sin(best),dz=Math.cos(best);
+ const B=2*(ox*dx+oz*dz),C=ox*ox+oz*oz-rad*rad;
+ const discriminant=B*B-4*C;
+ let hit=Infinity;
+ if(discriminant>=0){const root=Math.sqrt(discriminant);for(const v of [(-B-root)/2,(-B+root)/2])if(v>0&&v<hit)hit=v}
+ let length=Number.isFinite(hit)?Math.max(1.2,Math.min(3,hit-.3)):2.4;
+ // If already near the wall, sweep tangentially instead of spraying inside it.
+ if(dist-rad<1.5||Math.hypot(ox+dx*(.5+length),oz+dz*(.5+length))<rad){
+  const tangent=Math.atan2(-oz,ox);
+  const alternatives=[tangent,tangent+Math.PI];
+  best=alternatives.reduce((a,b)=>Math.sin(a)*ux+Math.cos(a)*uz>=Math.sin(b)*ux+Math.cos(b)*uz?a:b);
+  dx=Math.sin(best);dz=Math.cos(best);length=2.4;
+ }
+ const endX=dragonX+dx*(.5+length),endZ=dragonZ+dz*(.5+length);
+ return {heading:best,length,impact:[endX,endZ] as [number,number]};
+}
+
 export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:number,ground:number,pool:ReactionPool,animated=true,heading=0){
  if(!animated){renderMagicReaction(id,2.4,x,z,ground,pool,true,heading);for(const k in pool.counts){
   const kind=k as MagicParticleKind;for(let i=0;i<pool.counts[kind];i++)pool.points[kind][i].alpha=.85;
@@ -49,7 +82,7 @@ export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:numbe
  // Each recipe uses only its distinctive glyphs; no filler perimeter particles.
  switch(id){
  case "cat_fish_chase":{
-  for(let i=0;i<14;i++){const th=q*TAU*2-i*.25;
+  for(let i=0;i<14;i++){const th=q*TAU*2-i*.11;
    put("bubble",x+Math.cos(th)*2.3,ground+2.05+(i%3)*.22,z+Math.sin(th)*2.3,0x3aa0ff,16,(1-i/15)*.95);
   }for(let i=0;i<2;i++)dot("glow",i,2,2.3,.25,0xffb347,16,.45);break}
  case "dragon_fireworks":{
@@ -78,16 +111,16 @@ export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:numbe
    put("sparkle",x+Math.cos(th)*(2-u*1.4),ground+.6+u*2.7,z+Math.sin(th)*(2-u*1.4),0xffc21a,10,.9)}
   put("flower",x,ground+3.2,z,0xffa04b,26,.85);break}
  case "petal_swirl":{
-  for(let i=0;i<18;i++){const arm=i%2,u=Math.floor(i/2)/9,th=arm*PI+u*TAU*1.5+q*TAU*.45;
-   put("petal",x+Math.cos(th)*(2.2-u*1.4),ground+.6+u*2.8,z+Math.sin(th)*(2.2-u*1.4),0xff72ac,20,.95)}
+  for(let i=0;i<14;i++){const arm=i%2,u=Math.floor(i/2)/7,th=arm*PI+u*TAU*1.5+q*TAU*.45;
+   put("petal",x+Math.cos(th)*(2.2-u*1.4),ground+.45+u*3.0,z+Math.sin(th)*(2.2-u*1.4),0xff72ac,20,.95)}
   for(let i=0;i<6;i++)dot("leaf",i,6,2.5,1.8,0x3fcf8e,10,.55);break}
  case "ember_whirl":{
   for(let i=0;i<24;i++){const arm=i%2,u=Math.floor(i/2)/12,th=arm*PI+u*TAU*2+q*TAU*.5;
-   put("flame",x+Math.cos(th)*(2-u*1.3),ground+.45+u*3.2,z+Math.sin(th)*(2-u*1.3),u>.5?0xffc21a:0xff5a1f,18-u*8,.91)}
+   put("flame",x+Math.cos(th)*(2-u*1.3),ground+.45+u*3.2,z+Math.sin(th)*(2-u*1.3),u>.67?0xffc21a:u>.33?0xff9c18:0xff5a1f,18-u*8,.91)}
   put("glow",x,ground+.3,z,0xff5a1f,24,.38);break}
  case "snow_fairy":{
   for(let n=0;n<2;n++)for(let j=0;j<8;j++){const th=q*TAU*2+n*PI-j*.18;
-   put(j===0?"snow":"glow",x+Math.sin(th)*2.2,ground+2.2+.2*Math.cos(th),z+Math.sin(2*th)*.8,0x5ab4ff,j===0?26:Math.max(6,18-j*2),j===0?.95:.65-j*.06);
+   put(j===0?"snow":"glow",x+Math.sin(th)*2.2,ground+2.2+.2*Math.cos(th),z+Math.sin(2*th)*.8,0x5ab4ff,j===0?26:Math.max(6,14-j),j===0?.95:.65-j*.06);
   }break}
  case "ripple_splash":{
   for(let i=0;i<10;i++){const th=angle(i,10),u=.5+.5*Math.sin(q*PI+i*.28);
@@ -97,7 +130,7 @@ export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:numbe
    put("star",x+Math.cos(th)*r,ground+.16,z+Math.sin(th)*r,0xffd23f,18,.91)}break}
  case "heart_bouquet":{
   for(let i=0;i<7;i++){const u=(i-3)/3;
-   put("heart",x+Math.sin(u*PI/3)*1.55,ground+2.25+Math.cos(u*PI/3)*1.4+q*.22,z+.2+Math.cos(u*PI/3)*.5,0xff4f8b,26,.95)}
+   put("heart",x+Math.sin(u*PI*70/180)*1.8,ground+2.25+Math.cos(u*PI/3)*1.8+q*.22,z+.2+Math.cos(u*PI/3)*.5,0xff4f8b,24,.95)}
   for(let i=0;i<8;i++)dot("flower",i,8,2.2,.2,0xff72a9,15,.9);break}
  case "meteor_shower":{
   for(let i=0;i<6;i++){const dt=t-1.4-i*.35;if(dt<0||dt>.8)continue;
@@ -107,12 +140,15 @@ export function renderMagicReaction(id:MagicReactionId,t:number,x:number,z:numbe
   }break}
  case "dragon_frost":{
   const dx=Math.sin(heading),dz=Math.cos(heading),nx=dz,nz=-dx;
-  // The caller supplies the camera-safe outward heading. Keep the particles short of the castle wall.
+  // Castle-safe heading and length are derived by dragonFrostLayout in the scene.
+  const len=2.4;
   for(let i=0;i<28;i++){const u=(i+.5)/28,spread=((i%7)-3)/3*.7*u;
-   put("crystal",x+dx*(.5+u*2.1)+nx*spread,ground+1.4+u*.8,z+dz*(.5+u*2.1)+nz*spread,0x2f8fff,16+u*12,.9)}
-  put("glow",x+dx*.4,ground+1.7,z+dz*.4,0x5ab4ff,24,.35);break}
+   put("crystal",x+dx*(.5+u*len)+nx*spread,ground+1.4+u*.8,z+dz*(.5+u*len)+nz*spread,0x2f8fff,16+u*12,.9)}
+  for(let i=0;i<12;i++){const a=(i-5.5)/11*PI*.6;
+   put("crystal",x+dx*(.6+len)+Math.cos(a)*nx*1.05,ground+.4+(i%4)*.4,z+dz*(.6+len)+Math.cos(a)*nz*1.05,0x5ab4ff,22,.9)}
+  put("glow",x+dx*.4,ground+1.7,z+dz*.4,0x5ab4ff,30,.35);break}
  case "music_dance":{
   for(let i=0;i<12;i++){const u=(i%6)/6,side=i<6?-1:1;
-   put("note",x+side*(1.4+.3*Math.sin(u*TAU)),ground+2.0+u*1.8,z+side*.8,i<6?0x7b4dff:0xff4fa3,24,.95,1+.25*Math.abs(Math.sin(t*TAU/.625)))}break}
+   put("note",x+side*(1.8+.3*Math.sin(u*TAU)),ground+2.0+u*1.8,z+side*.8,i<6?0x7b4dff:0xff4fa3,26,.95,1+.25*Math.abs(Math.sin(t*TAU/.625)))}break}
  }
 }

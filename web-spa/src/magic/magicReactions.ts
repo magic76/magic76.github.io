@@ -1,7 +1,7 @@
 // Pure reaction vocabulary; no imports so Node can evaluate this module directly.
 export const MAGIC_ELEMENTS=["fire","ice","water","flower","star","music","wind","heart","leaf","cat","fish","dragon","bird","rabbit","fox","robot","cloud","tower"] as const;
 export type MagicElement=typeof MAGIC_ELEMENTS[number];
-export const MAGIC_REACTIONS=[
+export const MAGIC_REACTIONS_ALL=[
  {id:"cat_fish_chase",a:"cat",b:"fish"},{id:"dragon_fireworks",a:"dragon",b:"fire"},
  {id:"forge_sparks",a:"robot",b:"fire"},{id:"steam_rainbow",a:"fire",b:"ice"},
  {id:"flower_ring",a:"flower",b:"water"},{id:"frost_carpet",a:"ice",b:"water"},
@@ -11,7 +11,10 @@ export const MAGIC_REACTIONS=[
  {id:"heart_bouquet",a:"heart",b:"flower"},{id:"meteor_shower",a:"star",b:"night"},
  {id:"dragon_frost",a:"dragon",b:"castleIce"},{id:"music_dance",a:"music",b:"any"},
 ] as const;
-export type MagicReactionId=typeof MAGIC_REACTIONS[number]["id"];
+export type MagicReactionId=typeof MAGIC_REACTIONS_ALL[number]["id"];
+// Rollout gate: enable verified reactions incrementally without losing recipe definitions.
+export const MAGIC_REACTIONS_ENABLED:readonly MagicReactionId[]=MAGIC_REACTIONS_ALL.map(r=>r.id);
+export const MAGIC_REACTIONS=MAGIC_REACTIONS_ALL.filter(r=>MAGIC_REACTIONS_ENABLED.includes(r.id));
 export type MagicReactionEnvironment={night:boolean;castleIce:boolean;distanceToCastle:number};
 export function magicCreationElements(c:{label:string;idea:string;parts?:readonly {color?:string;material?:string}[]},traits:{aura?:string;kind?:string}):MagicElement[]{
  const found:MagicElement[]=[];
@@ -40,6 +43,7 @@ export function magicCreationElements(c:{label:string;idea:string;parts?:readonl
 export function magicFindReaction(a:readonly string[],b:readonly string[],env:MagicReactionEnvironment):MagicReactionId|undefined{
  const all=new Set([...a,...b]);
  for(const r of MAGIC_REACTIONS){
+  if(!MAGIC_REACTIONS_ENABLED.includes(r.id))continue;
   if(r.b==="night"){if(env.night&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
   if(r.b==="castleIce"){if(env.castleIce&&env.distanceToCastle<=8&&((a.length===1&&a.includes(r.a))||(b.length===1&&b.includes(r.a))))return r.id;continue}
   if(r.b==="any"){if((a.includes(r.a)&&b!==a)||(b.includes(r.a)&&a!==b))return r.id;continue}
@@ -47,8 +51,8 @@ export function magicFindReaction(a:readonly string[],b:readonly string[],env:Ma
  }
 }
 export function magicFindSoloReaction(tags:readonly string[],env:MagicReactionEnvironment):MagicReactionId|undefined{
- if(env.night&&tags.includes("star"))return "meteor_shower";
- if(env.castleIce&&env.distanceToCastle<=8&&tags.includes("dragon"))return "dragon_frost";
+ if(MAGIC_REACTIONS_ENABLED.includes("meteor_shower")&&env.night&&tags.includes("star"))return "meteor_shower";
+ if(MAGIC_REACTIONS_ENABLED.includes("dragon_frost")&&env.castleIce&&env.distanceToCastle<=8&&tags.includes("dragon"))return "dragon_frost";
  return undefined;
 }
 export type ReactionCandidate={id:MagicReactionId;key:string;distance:number;focused?:boolean;discovered?:boolean;asleep?:boolean};

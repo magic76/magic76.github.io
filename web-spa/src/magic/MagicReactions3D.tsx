@@ -5,7 +5,7 @@ import {islandSurfaceHeight} from "./magicNavigation";
 import {magicCreationElements,magicFindReaction,magicFindSoloReaction,magicPickReaction,type MagicReactionId,type ReactionCandidate} from "./magicReactions";
 import {magicWishTraits,magicWishKind} from "./magicWish";
 import {readMagicCodex} from "./magicCodexStore";
-import {renderMagicReaction,makeReactionPool,resetReactionPool,REACTION_VISUALS,type ReactionPool} from "./magicReactionRecipes";
+import {renderMagicReaction,makeReactionPool,resetReactionPool,REACTION_VISUALS,dragonFrostLayout,type ReactionPool} from "./magicReactionRecipes";
 import {MAGIC_PARTICLE_KINDS,publishMagicParticles,removeMagicParticles} from "./MagicParticleLayers3D";
 import type {MagicCreation} from "./world";
 type ReactPose={x:number;z:number;w:number;look:number;dance?:boolean};
@@ -36,7 +36,7 @@ function drawDecal(ctx:CanvasRenderingContext2D,id:MagicReactionId,age:number){
   }return;
  }
  if(id==="ripple_splash"){
-  ctx.strokeStyle="rgba(47,143,255,.88)";ctx.lineWidth=4;
+  ctx.strokeStyle="rgba(31,111,224,.95)";ctx.lineWidth=7;
   for(let k=0;k<3;k++){const t=(age-1.4-k*.4)/1.4;if(t<=0||t>=1)continue;
    ctx.globalAlpha=(1-t)*.9;ctx.beginPath();ctx.arc(center,center,6+54*t,0,Math.PI*2);ctx.stroke();
   }ctx.globalAlpha=1;return;
@@ -70,10 +70,9 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
   resetReactionPool(slotPools[slot]);};
  const display=(r:Active,now:number)=>{
   const age=now-r.start,slot=r.slot,pool=slotPools[slot];resetReactionPool(pool);
-  renderMagicReaction(r.id,Math.min(age,4.4),r.x,r.z,islandSurfaceHeight(r.x,r.z),pool,animated,
+  renderMagicReaction(r.id,Math.min(age,4.4),r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z,islandSurfaceHeight(r.id==="dragon_frost"?r.ax:r.x,r.id==="dragon_frost"?r.az:r.z),pool,animated,
    (()=>{const aim=Math.atan2(-r.ax,-.55-r.az);if(r.id!=="dragon_frost")return aim;
-    const vx=Math.sin(aim),vz=Math.cos(aim);const cx=camera.position.x-r.ax,cz=camera.position.z-r.az;const dot=(vx*cx+vz*cz)/Math.max(1e-4,Math.hypot(cx,cz));
-    return dot>=-.2?aim:aim+(dot<0?Math.PI/2:0);})());
+    return dragonFrostLayout(r.ax,r.az,camera.position.x,camera.position.z).heading;})());
   for(const k of allKinds)if(pool.counts[k])publishMagicParticles(`reaction:${slot}:${k}`,k,pool.points[k],pool.counts[k]);else removeMagicParticles(`reaction:${slot}:${k}`);
   const mesh=decals.current[slot];if(mesh){const special=r.id==="star_lake"||r.id==="frost_carpet"||r.id==="ripple_splash";
    const item=textures.custom[slot];drawDecal(item.ctx,r.id,age);item.tex.needsUpdate=true;
@@ -129,11 +128,11 @@ export function MagicReactions3D({creations,neighbors,animated,night,castleIce,g
    const approach=eased(age/1),returning=1-eased((age-4)/1),weight=Math.min(approach,returning);
    const pa=neighbors.get(r.a),pb=neighbors.get(r.b);if(!pa)continue;
    const set=(p:Neighbor,other:Neighbor|undefined,dir:number,originalX:number,originalZ:number)=>{
-    const d=r.id==="dragon_frost"?Math.atan2(-p.x,-.55-p.z):other?Math.atan2(other.x-p.x,other.z-p.z):Math.atan2(-p.x,-p.z);
+    const d=r.id==="dragon_frost"?dragonFrostLayout(p.x,p.z,camera.position.x,camera.position.z).heading:other?Math.atan2(other.x-p.x,other.z-p.z):Math.atan2(-p.x,-p.z);
     let tx=originalX,tz=originalZ,look=d;
     if(r.id==="cat_fish_chase"){
-     const theta=(age-1)*Math.PI*4/2.8+dir*.35;
-     tx=r.x+Math.cos(theta)*1.3;tz=r.z+Math.sin(theta)*1.3;
+     const theta=(age-1)*Math.PI*4/2.8+dir*(Math.PI+.35);
+     tx=r.x+Math.cos(theta)*2.3;tz=r.z+Math.sin(theta)*2.3;
      look=theta+Math.PI/2;
     }else if(other){
      const distance=Math.hypot(originalX-r.x,originalZ-r.z);
