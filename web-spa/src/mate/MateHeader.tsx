@@ -4,7 +4,7 @@ import type {MatePhase} from "./mateState";
 
 /** Presentation-only header. History state and permissions remain in MatePage. */
 export function MateHeader({phase,onHistory}:{phase:MatePhase;onHistory:()=>void}){
- const {t}=useTranslation("home");
+ const {t}=useTranslation(["mate","home"]);
  return <header className="mate-title">      <div><Link to="/explore" className="mate-back">← {t("mate.header.explore")}</Link>
         <p className="mate-kicker">CREW MATE</p>
         <h1>{t("mate.header.title")}</h1>

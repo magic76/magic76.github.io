@@ -43,6 +43,6 @@ test("roleplay changes only through scene setting and fresh session instead of s
  assert.match(tutor,/conversationMode==="scenario"/);
  assert.match(tutor,/\?mission=/);
  assert.match(live,/t\("live\.setMode"\)/);
- assert.match(read("web-spa/src/i18n/locales/zh-TW/teacher.json"),/設定聊天／情境模式/);
+ assert.match(read("web-spa/src/i18n/locales/zh-TW/lesson.json"),/設定聊天／情境模式/);
  assert.doesNotMatch(live,/live\.sendText\("現在進入角色扮演/);
 });

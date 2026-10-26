@@ -30,7 +30,7 @@ test("Taboo distinguishes guessing from describing and retains keyboard input",(
  assert.match(page,/onSubmit=\{handleSubmit\}/);
  assert.match(page,/setRevealed\(true\)/);
  assert.match(page,/t\("playHub\.taboo\.skip",\{n:skips\}\)/);
- assert.match(JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/home.json"),"utf8")).playHub.taboo.skip,/跳過這題/);
+ assert.match(JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/games.json"),"utf8")).playHub.taboo.skip,/跳過這題/);
 });
 
 test("Taboo semantic guesser has round scoped guards and an explicit offline fallback",()=>{

@@ -1,7 +1,9 @@
 import{Navigate,Route,Routes,useLocation,useParams}from"react-router-dom";
 import{useEffect,lazy,Suspense}from"react";
 import{useTranslation}from"react-i18next";
-import{uiLocaleFailedToLoad}from"./i18n";
+import{uiLocaleFailedToLoad,loadUiNamespace,type RouteNamespace}from"./i18n";
+// Route catalogs load with the route chunk so the page never renders raw keys.
+const withNamespace=<T,>(namespace:RouteNamespace,module:Promise<T>)=>Promise.all([module,loadUiNamespace(namespace)]).then(([m])=>m);
 import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav}from"./components/AppChrome";
 import{sectionForRoute}from"./pages/crewNavigation";
@@ -11,7 +13,7 @@ import{OnboardingGate}from"./onboarding/OnboardingGate";
 import{CrewUpdateNotice}from"./components/CrewUpdateNotice";
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
-const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>import("./teacher/PracticePage").then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>import("./teacher/CoursePage").then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>import("./teacher/PronunciationPage").then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>import("./teacher/TextbookPage").then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>import("./teacher/LivePage").then(m=>({default:m.TeacherLivePage})));
+const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>import("./teacher/PracticePage").then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>import("./teacher/CoursePage").then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>withNamespace("lesson",import("./teacher/PronunciationPage")).then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>withNamespace("lesson",import("./teacher/TextbookPage")).then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>withNamespace("lesson",import("./teacher/LivePage")).then(m=>({default:m.TeacherLivePage})));
 const TeacherBoardPage=lazy(()=>import("./teacher/TeacherBoardPage").then(m=>({default:m.TeacherBoardPage})));
 const StudentMemoryPage=lazy(()=>import("./teacher/StudentMemoryPage").then(m=>({default:m.StudentMemoryPage})));const RolesPage=lazy(()=>import("./teacher/RolesPage").then(m=>({default:m.RolesPage})));
 const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.StoryLayout})));const StoryShelfPage=lazy(()=>import("./story/ShelfPage").then(m=>({default:m.StoryShelfPage})));const StoryMyPage=lazy(()=>import("./story/MyPage").then(m=>({default:m.StoryMyPage})));const StoryCreatePage=lazy(()=>import("./story/CreatePage").then(m=>({default:m.StoryCreatePage})));const StoryReaderPage=lazy(()=>import("./story/ReaderPage").then(m=>({default:m.StoryReaderPage})));const StoryEditorPage=lazy(()=>import("./story/EditorPage").then(m=>({default:m.StoryEditorPage})));const PhysicalBookPage=lazy(()=>import("./story/PhysicalBookPage").then(m=>({default:m.PhysicalBookPage})));const StoryLivePage=lazy(()=>import("./story/LivePage").then(m=>({default:m.StoryLivePage})));
@@ -23,8 +25,8 @@ const TimelineLivePage=lazy(()=>import("./timeline/TimelineLivePage").then(m=>({
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>import("./friends/FriendLivePage").then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>import("./games/FriendGomokuPage").then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
 const CrewPlayGamePage=lazy(()=>import("./games/CrewPlayGamePage").then(m=>({default:m.CrewPlayGamePage})));
-const NumberGamePage=lazy(()=>import("./games/NumberGamePage").then(m=>({default:m.NumberGamePage})));
-const TabooGamePage=lazy(()=>import("./games/TabooGamePage").then(m=>({default:m.TabooGamePage})));
+const NumberGamePage=lazy(()=>withNamespace("games",import("./games/NumberGamePage")).then(m=>({default:m.NumberGamePage})));
+const TabooGamePage=lazy(()=>withNamespace("games",import("./games/TabooGamePage")).then(m=>({default:m.TabooGamePage})));
 const CrazyCourtPage=lazy(()=>import("./games/CrazyCourtPage").then(m=>({default:m.CrazyCourtPage})));
 const WerewolfPage=lazy(()=>import("./games/WerewolfPage").then(m=>({default:m.WerewolfPage})));
 const NonsenseChampionshipPage=lazy(()=>import("./games/NonsenseLiveNewsPage").then(m=>({default:m.NonsenseLiveNewsPage})));
@@ -32,7 +34,7 @@ const BriefingPage=lazy(()=>import("./briefing/BriefingPage").then(m=>({default:
 const BriefingDetailPage=lazy(()=>import("./briefing/BriefingDetailPage").then(m=>({default:m.BriefingDetailPage})));
 const BriefingBoardPage=lazy(()=>import("./briefing/BriefingBoardPage").then(m=>({default:m.BriefingBoardPage})));
 const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.ShortsPage})));
-const MatePage=lazy(()=>import("./mate/MatePage").then(m=>({default:m.MatePage})));
+const MatePage=lazy(()=>withNamespace("mate",import("./mate/MatePage")).then(m=>({default:m.MatePage})));
 const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
 const MagicPage=lazy(()=>import("./magic/MagicPage").then(m=>({default:m.MagicPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));

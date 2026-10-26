@@ -4,7 +4,7 @@ export function MateExternalDock({phase,onSupplement,onTakeOver,onComplete,onEnd
  phase:MatePhase;onSupplement:()=>void;onTakeOver:()=>void;
  onComplete:()=>void;onEnd:()=>void;onRestart:()=>void;
 }){
- const {t}=useTranslation("home");
+ const {t}=useTranslation(["mate","home"]);
  return <div className="mate-dock">
   {phase==="external"&&<>
    <button type="button" className="mate-secondary" onClick={onSupplement}>{t("mate.dock.privateUpdate")}</button>

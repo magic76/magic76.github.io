@@ -13,7 +13,7 @@ function keys(value,prefix=""){
 }
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
- for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic"]){
+ for(const ns of ["common","home","settings","teacher","friends","story","fortune", "magic","games","mate","lesson"]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
   for(const value of [zh,en]){
@@ -198,4 +198,14 @@ test("Chat, Learn, Me hubs and progress card translate every visible UI field in
  }
  for(const section of ["chat","learn","me"])
   assert.notEqual(load("ja","home").sectionHubs[section].title,load("zh-TW","home").sectionHubs[section].title);
+});
+
+test("route-scoped catalogs load with their route instead of the entry bundle",()=>{
+ const index=read("web-spa/src/i18n/index.ts");
+ const app=read("web-spa/src/App.tsx");
+ assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson)\.json"/);
+ assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson\}\.json"/);
+ assert.match(app,/withNamespace\("games",import\("\.\/games\/TabooGamePage"\)\)/);
+ assert.match(app,/withNamespace\("mate",import\("\.\/mate\/MatePage"\)\)/);
+ assert.match(app,/withNamespace\("lesson",import\("\.\/teacher\/LivePage"\)\)/);
 });

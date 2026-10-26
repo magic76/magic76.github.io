@@ -5,7 +5,7 @@ export type TranscriptView="bilingual"|"translated"|"original";
 export function MateTranscript({turns,target,view}:{
   turns:MateTurn[];target:string;view:TranscriptView;
 }){
-  const {t}=useTranslation("home");
+  const {t}=useTranslation(["mate","home"]);
   const scrollRef=useRef<HTMLDivElement|null>(null);
   const shouldFollow=useRef(true);
   const [showJump,setShowJump]=useState(false);

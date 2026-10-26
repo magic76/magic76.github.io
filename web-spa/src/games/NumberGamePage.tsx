@@ -32,7 +32,7 @@ function saveResultImage(t:TFunction,count:number,digits:number,name:string,won:
 }
 export function NumberGamePage(){
  const {friend,choose}=useMiniFriend();
- const {t}=useTranslation("home");
+ const {t}=useTranslation(["games","home"]);
  useEffect(()=>{trackUsageEvent("game_open","1a2b")},[]);
  const [digits,setDigits]=useState<DigitCount>(4),[mode,setMode]=useState<Mode>("guess"),[revision,setRevision]=useState(0);
  const [daily,setDaily]=useState(false);
@@ -63,7 +63,7 @@ export function NumberGamePage(){
 function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
  mode:Mode;digits:DigitCount;dailyDate:string|null;friend:ReturnType<typeof useMiniFriend>["friend"];onNew:()=>void;onLeaveDaily:()=>void;
 }){
- const {t,i18n}=useTranslation("home");
+ const {t,i18n}=useTranslation(["games","home"]);
  const [secret]=useState(()=>dailyDate?dailyNumberSecret(digits,dailyDate):secretNumber(digits));
  const [record,setRecord]=useState(()=>readNumberRecord(digits));
  const [dailyResult,setDailyResult]=useState(()=>dailyDate?readDailyResult(digits,dailyDate):null);

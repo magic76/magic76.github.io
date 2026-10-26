@@ -31,7 +31,7 @@ export function TabooGamePage(){
 }
 function TabooSession({friend,chinese}:{friend:ReturnType<typeof useMiniFriend>["friend"];chinese:boolean}){
  const tongue:"en"|"zh"=chinese?"zh":"en";
- const {t}=useTranslation("home");
+ const {t}=useTranslation(["games","home"]);
  const resultLabel=(r:RoundResult)=>t("playHub.taboo.result."+r),lang=chinese?t("playHub.taboo.langZh"):t("playHub.taboo.langEn");
  const [mode,setMode]=useState<Mode>("describe"),[level,setLevel]=useState<TabooLevel>("easy");
  const [phase,setPhase]=useState<Phase>("ready"),[deck,setDeck]=useState<TabooCard[]>([]);

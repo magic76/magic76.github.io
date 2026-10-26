@@ -3,7 +3,7 @@ import type {MateHistory} from "./mateState";
 export function MateHistoryPanel({history,onOpen,onDelete}:{
   history:MateHistory[];onOpen:(item:MateHistory)=>void;onDelete:(id:string)=>void;
 }){
-  const {t}=useTranslation("home");
+  const {t}=useTranslation(["mate","home"]);
   return <section className="mate-panel" aria-label={t("mate.header.history")}>
     <h2>{t("mate.history.title")}</h2>
     <p className="mate-hint">{t("mate.history.saved")}</p>

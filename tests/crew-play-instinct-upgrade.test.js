@@ -3,7 +3,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const {stripTypeScriptTypes}=require("node:module");
-const zhHome=()=>JSON.parse(fs.readFileSync(path.join(__dirname,"../web-spa/src/i18n/locales/zh-TW/home.json"),"utf8"));
+const zhHome=()=>JSON.parse(fs.readFileSync(path.join(__dirname,"../web-spa/src/i18n/locales/zh-TW/games.json"),"utf8"));
 const game=name=>fs.readFileSync(path.join(__dirname,"../web-spa/src/games",name),"utf8");
 const compile=source=>stripTypeScriptTypes(source.replace(/^import .*$/gm,""),{mode:"strip"}).replace(/^export /gm,"");
 const makeStorage=()=>{const data=new Map();return {getItem:key=>data.get(key)||null,setItem:(key,value)=>data.set(key,value)};};

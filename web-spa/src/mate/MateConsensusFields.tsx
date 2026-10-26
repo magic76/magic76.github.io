@@ -4,7 +4,7 @@ import {MATE_LANGUAGES} from "./mateState";
 export function MateConsensusFields({consensus,canEdit,edit,showPresets=true}:{
   consensus:MateConsensus;canEdit:boolean;edit:(field:keyof MateConsensus,value:string)=>void;showPresets?:boolean;
 }){
-  const {t}=useTranslation("home");
+  const {t}=useTranslation(["mate","home"]);
   const options=(value:string,field:"userLanguage"|"otherLanguage")=>
     <select value={value} disabled={!canEdit} onChange={event=>edit(field,event.target.value)}>
       {MATE_LANGUAGES.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}

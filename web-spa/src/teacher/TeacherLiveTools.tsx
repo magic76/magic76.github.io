@@ -20,7 +20,7 @@ type Props={
 
 /** Optional teacher settings and image input, separate from Live turn management. */
 export function TeacherLiveTools({live,store:s,profile,sessionActive,onPickTeacher}:Props){
- const {t,i18n}=useTranslation("teacher"),zh=i18n.language==="zh-TW";
+ const {t,i18n}=useTranslation(["lesson","teacher"]),zh=i18n.language==="zh-TW";
  const cameraFile=useRef<HTMLInputElement>(null);
  const galleryFile=useRef<HTMLInputElement>(null);
  return <details className="live-more"><summary>{t("live.tools.more")}</summary><div className="live-more-body">

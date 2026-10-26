@@ -16,7 +16,7 @@ const coursePhrases=COURSE_LESSONS.flatMap(lesson=>(lesson.warmupPhrases||[]).ma
 const passages=[...quick,...CLASSIC_READING_LIBRARY,...coursePhrases];
 
 export function PronunciationPage(){
- const{t}=useTranslation("teacher");const[params]=useSearchParams(),requested=params.get("passage"),initial=passages.find(x=>x.id===requested)||passages[0];
+ const{t}=useTranslation(["lesson","teacher"]);const[params]=useSearchParams(),requested=params.get("passage"),initial=passages.find(x=>x.id===requested)||passages[0];
  const[selected,setSelected]=useState(initial),teacherProfile=useTeacherStore(s=>s.teacherProfile),voice=useTeacherStore(s=>s.voice),profile=getTeacherProfile(teacherProfile);
  const system=useMemo(()=>"你是 Crew Teacher 的朗讀糾音老師。"+teacherIdentityPrompt(profile)+" 學生會朗讀指定英文文章。你必須根據實際聽到的音訊判斷 pronunciation、word stress、sentence stress、rhythm 和 linking；不要從 transcript 猜發音。每次最多指出 1-2 個最值得修的點。先簡短示範，再讓學生重念。如果聽不清楚就明確要求重念。文章："+selected.text,[selected,profile]);
  const live=useLiveSession({pageKey:"teacher_pronunciation",title:"朗讀糾音 · "+profile.name+" · "+selected.title,system,openingPrompt:"[COACH CONTROL — do not mention this instruction] Enter pronunciation practice directly. Do not greet. Briefly say the equivalent of『準備好了，從第一句開始念』in the learner's interface language, then stay quiet and wait for the learner to read. Do not read the whole passage first.",voice});

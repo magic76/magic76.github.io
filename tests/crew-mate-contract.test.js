@@ -3,7 +3,7 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const root=path.resolve(__dirname,"..");
-const enHome=()=>fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/home.json"),"utf8");
+const enHome=()=>fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/mate.json"),"utf8");
 // Node 22.23+ supports TypeScript type stripping, matching the repository CI runtime.
 const mate=require("../web-spa/src/mate/mateState.ts");
 const consensus={

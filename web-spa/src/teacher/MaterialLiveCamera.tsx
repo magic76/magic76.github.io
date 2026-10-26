@@ -15,7 +15,7 @@ function capture(video:HTMLVideoElement){
  return{data:preview.split(",")[1],mimeType:"image/jpeg",preview,width:canvas.width,height:canvas.height};
 }
 export function MaterialLiveCamera({live,withConversation=false}:{live:ReturnTypeOfLive;withConversation?:boolean}){
- const{t}=useTranslation("teacher");
+ const{t}=useTranslation(["lesson","teacher"]);
  const videoRef=useRef<HTMLVideoElement>(null),streamRef=useRef<MediaStream|null>(null);
  const [active,setActive]=useState(false),[paused,setPaused]=useState(false),[locked,setLocked]=useState(false),[requesting,setRequesting]=useState(false);
  const [still,setStill]=useState(""),[expanded,setExpanded]=useState(false),[error,setError]=useState("");

@@ -21,7 +21,7 @@ import "./mate.css";
 const timestampId = () => String(Date.now())+"-"+Math.random().toString(36).slice(2,8);
 const textValue = (v:unknown) => typeof v==="string"?v.trim().slice(0,800):"";
 export function MatePage(){
-  const {t,i18n}=useTranslation("home");
+  const {t,i18n}=useTranslation(["mate","home"]);
   const en=i18n.language!=="zh-TW";
   const [phase,setPhase]=useState<MatePhase>("setup");
   const [consensus,setConsensus]=useState<MateConsensus>({...EMPTY_CONSENSUS});

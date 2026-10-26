@@ -38,8 +38,37 @@ function initialLocale(){
 const localeImports=import.meta.glob("./locales/{ja,es,pt-BR,id,ko,fr,de,vi,th}/*.json",{import:"default"});
 const namespaceNames=["common","home","settings","teacher","friends","story","fortune","magic"] as const;
 const loadingLocales=new Map<string,Promise<void>>();
+// Route-scoped catalogs (every locale, zh-TW and en included) stay out of the
+// entry bundle. Routes await loadUiNamespace() inside their lazy() import, so
+// the strings exist before the first render and raw keys never flash.
+const routeNamespaceImports=import.meta.glob("./locales/*/{games,mate,lesson}.json",{import:"default"});
+export type RouteNamespace="games"|"mate"|"lesson";
+const wantedRouteNamespaces=new Set<RouteNamespace>();
+const loadingRouteNamespaces=new Map<string,Promise<void>>();
+function loadRouteBundle(locale:string,namespace:RouteNamespace):Promise<void>{
+ const id=locale+"/"+namespace;
+ const cached=loadingRouteNamespaces.get(id);
+ if(cached)return cached;
+ const load=routeNamespaceImports["./locales/"+id+".json"];
+ if(!load)return Promise.resolve();
+ const promise=load().then(bundle=>{i18n.addResourceBundle(locale,namespace,bundle,true,true)});
+ loadingRouteNamespaces.set(id,promise);
+ return promise.catch(error=>{loadingRouteNamespaces.delete(id);throw error});
+}
+function loadRouteNamespaces(locale:string,namespaces:Iterable<RouteNamespace>):Promise<void>{
+ // Beta locales fall back to English, so their English catalog loads too.
+ const locales=locale==="zh-TW"?["zh-TW"]:locale==="en"?["en"]:[locale,"en"];
+ return Promise.all([...namespaces].flatMap(namespace=>locales.map(l=>loadRouteBundle(l,namespace)))).then(()=>{});
+}
+export function loadUiNamespace(namespace:RouteNamespace):Promise<void>{
+ wantedRouteNamespaces.add(namespace);
+ return loadRouteNamespaces(normalizeUiLocale(i18n.language)||"zh-TW",[namespace]);
+}
 export function loadUiLocale(locale:string):Promise<void>{
  if(!UI_LOCALES.includes(locale as (typeof UI_LOCALES)[number]))return Promise.resolve();
+ return Promise.all([loadBaseLocale(locale),loadRouteNamespaces(locale,wantedRouteNamespaces)]).then(()=>{});
+}
+function loadBaseLocale(locale:string):Promise<void>{
  // Base locales are bundled eagerly; only Beta locales need dynamic JSON chunks.
  if(locale==="zh-TW"||locale==="en")return Promise.resolve();
  const match=namespaceNames.map(namespace=>{
