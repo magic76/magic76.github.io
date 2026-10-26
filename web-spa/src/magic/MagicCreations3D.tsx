@@ -107,7 +107,7 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
   const assembled=ease(Math.max(0,(completion-.82)/.18));
   const t=clock.elapsedTime+creation.seed*.0033;
   const drift=animated?Math.sin(t*.85)*.045:0;
-  const walk=animated&&creation.motion==="walk"?1.15:0;
+  const walk=animated&&creation.motion==="walk"?.45:0;
   const radius=creation.motion==="orbit"&&animated?.46:0;
   const desiredX=origin[0]+walk*Math.sin(t*.58)+radius*Math.cos(t*.7);
   const desiredZ=origin[1]+walk*Math.cos(t*.58)+radius*Math.sin(t*.7);
@@ -117,9 +117,15 @@ function Creature({creation,creations,animated,onSelect}:{creation:MagicCreation
    current.y+((islandSurfaceHeight(desiredX,desiredZ)+groundClearance*modelScale+
     (creation.motion==="hover"?.2+drift:0))-current.y)*alpha,
    current.z+(desiredZ-current.z)*alpha);
-  base.current.rotation.y=creation.motion==="spin"&&animated?t*.55:
-   creation.motion==="walk"&&animated?Math.sin(t*.3)*.18:0;
-  if(animated&&creation.motion==="still")base.current.rotation.y=Math.sin(t*.27)*.08;
+  // Chibi faces carry the charm: non-spinning creations turn (damped) to face
+  // the viewer, with a small walk/idle sway on top.
+  if(creation.motion==="spin"&&animated)base.current.rotation.y=t*.55;
+  else{
+   const face=Math.atan2(camera.position.x-current.x,camera.position.z-current.z)+
+    (!animated?0:creation.motion==="walk"?Math.sin(t*.3)*.18:creation.motion==="still"?Math.sin(t*.27)*.08:0);
+   const turn=Math.atan2(Math.sin(face-base.current.rotation.y),Math.cos(face-base.current.rotation.y));
+   base.current.rotation.y+=turn*(animated?Math.min(1,delta*2.2):1);
+  }
   // Give every finished creation a small seed/mood-driven physical signature.
   // This makes two structurally similar wishes feel alive without adding geometry
   // or per-frame React state, so the mobile GPU budget stays bounded.
