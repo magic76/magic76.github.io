@@ -266,9 +266,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
          </div>
         </div>
        </div>
-       <div className="crew-section-people-strip" ref={friendsSliderRef} onScroll={syncFriends} role="list" aria-label={t("sectionHubs.chat.meetFriends")}>
+       <div className="crew-section-people-strip" ref={friendsSliderRef} onScroll={syncFriends} role="group" aria-label={t("sectionHubs.chat.meetFriends")}>
         {CREW_FRIENDS.slice(0,6).map(friend=>
-         <Link key={friend.id} role="listitem" className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
+         <Link key={friend.id} className="crew-section-friend" to={"/friend/live?id="+encodeURIComponent(friend.id)}>
           <span className="crew-section-friend-photo" aria-hidden="true">
            <span>{friend.name.charAt(0)}</span>
            <img className="crew-friend-avatar" src={friend.avatar} alt="" loading="lazy" decoding="async" onError={event=>{event.currentTarget.style.display="none"}}/>

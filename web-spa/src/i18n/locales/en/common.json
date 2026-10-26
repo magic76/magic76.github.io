@@ -30,7 +30,8 @@
     "story": "Story creation",
     "fortune": "Fortune insights",
     "settings": "Settings",
-    "briefing": "Daily research briefing"
+    "briefing": "Daily research briefing",
+    "homeLink": "{{name}} — back to home"
   },
   "gemini": {
     "connected": "Gemini connected",
@@ -38,7 +39,8 @@
     "setup": "Set up Gemini"
   },
   "contact": {
-    "label": "Contact"
+    "label": "Contact",
+    "region": "Contact information"
   },
   "seo": {
     "home": "Crew — AI Language Learning, Stories & Fortune",

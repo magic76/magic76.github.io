@@ -60,7 +60,7 @@ export function TimelineLivePage(){
   </div></header>
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
    <section className="live-stage" aria-label={person.name+" age "+age}>
-    <div className="live-identity"><TimelinePortrait characterId={characterId} age={age} alt={person.name+" at "+age+" years old"} />
+    <div className="live-identity"><TimelinePortrait characterId={characterId} age={age} alt={t("timeline.photoAlt",{name:person.name,age})} />
      <h1>{person.name} · {age}</h1><p>{en?current.story:current.storyZh}</p><p className="timeline-life-quote">“{en?current.quoteEn:current.quoteZh}”</p><p>{t("timeline.fiction")}</p>
     </div>
     {known.length>0&&<details className="timeline-known"><summary>{t("timeline.remember",{name:person.name})} · {known.length}</summary>

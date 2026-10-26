@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import {useClientReady} from "../lib/useClientReady";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
-import { NavLink,Outlet,useLocation } from "react-router-dom";
+import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import { geminiKey,geminiVerified } from "../lib/runtime";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
@@ -27,11 +27,11 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/"))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><div className="app-brand"><span className={"app-mark "+(product==="home"||product==="settings"?"":product)}>{m[0]}</span><div className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></div></div><div className="app-header-actions"><LanguageSwitcher/>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
+  <header className="app-header"><div className="shell inner"><Link className="app-brand" to="/" aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
     ?<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?t("gemini.connected"):hasKey?t("gemini.pending"):t("gemini.setup")}</span></NavLink>
     :<span className="status crew-key-status-placeholder" aria-hidden="true"/>)} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
-  <footer className="crew-contact-footer shell" aria-label="聯絡資訊">
+  <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:crew@3sssi.com">crew@3sssi.com</a>
   </footer>

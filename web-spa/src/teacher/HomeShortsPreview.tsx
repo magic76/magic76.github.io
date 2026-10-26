@@ -110,10 +110,10 @@ export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:nu
      {en?"Ask "+followUps[0].post.friendName+" what happened next":"問 "+followUps[0].post.friendName+" 後來呢"} →
     </Link>
    </div>:null}
-   <div ref={sliderRef} onScroll={syncArrows} className="crew-home-shorts-grid" role="list" aria-label={t("practice.shortsTitle")}
+   <div ref={sliderRef} onScroll={syncArrows} className="crew-home-shorts-grid" role="group" aria-label={t("practice.shortsTitle")}
     onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
     onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}>
-    {posts.map(post=><article className="crew-home-short-card" key={post.id} role="listitem">
+    {posts.map(post=><article className="crew-home-short-card" key={post.id}>
      <Link className="crew-home-short-photo" to={"/teacher/shorts?post="+encodeURIComponent(post.id)}
       aria-label={en?"Read "+post.friendName+"\u0027s full story":"查看 "+post.friendName+" 的完整動態"}
       >
@@ -137,7 +137,7 @@ export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:nu
       </Link>
      </div>
     </article>)}
-    <div className="crew-home-short-end" role="listitem"
+    <div className="crew-home-short-end"
      style={{transform:`translateX(${-Math.min(28,pullDistance*.36)}px) scale(${1+pullDistance/600})`}}>
      <Link to="/teacher/shorts" className="crew-home-short-end-link">
       <span aria-hidden="true" className="crew-home-short-end-arrow">→</span>

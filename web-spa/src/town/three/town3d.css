@@ -1,10 +1,10 @@
 .crew-town-3d{position:relative;left:50%;transform:translateX(-50%);width:min(1400px,calc(100vw - 36px));max-width:none;margin:0 auto;padding:9px 0 65px;display:grid;gap:19px;color:#304c49}
 .crew-town-3d-heading{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:6px 3px}
 .crew-town-3d-heading>div{display:grid;gap:8px;min-width:0}
-.crew-town-3d-kicker{font-size:10px;font-weight:850;letter-spacing:.23em;color:#648d80}
+.crew-town-3d-kicker{font-size:11px;font-weight:850;letter-spacing:.23em;color:#3f6b5d}
 .crew-town-3d-heading h1{font-size:clamp(27px,4.3vw,45px);letter-spacing:-.055em;line-height:1.16;margin:0;font-weight:730}
-.crew-town-3d-heading p{color:#778982;font-size:13px;line-height:1.65;margin:0}
-.crew-town-3d-back{flex:none;border:1px solid #e0e7dc;border-radius:999px;background:#fffdf8;padding:10px 15px;text-decoration:none;color:#577e70;font-size:12px;font-weight:750}
+.crew-town-3d-heading p{color:#56675f;font-size:13px;line-height:1.65;margin:0}
+.crew-town-3d-back{flex:none;border:1px solid #e0e7dc;border-radius:999px;background:#fffdf8;padding:10px 15px;text-decoration:none;color:#44695c;font-size:12px;font-weight:750}
 .crew-town-3d-stage{height:min(78svh,820px);min-height:520px;position:relative;isolation:isolate;overflow:hidden;border:1px solid #d9e4dc;border-radius:27px;background:radial-gradient(ellipse at 50% 45%,#f5f5df,#cde5d8 80%);box-shadow:0 25px 60px #48675621}
 .crew-town-3d-stage.is-night{background:#303f56}
 .crew-town-3d-canvas{position:absolute!important;inset:0;width:100%!important;height:100%!important;touch-action:none}
@@ -33,9 +33,9 @@
 .crew-town-3d-sheet p{font-size:12px;line-height:1.55;margin:0;color:#6b847b}
 .crew-town-3d-action{display:flex;align-items:center;justify-content:space-between;border-radius:12px;background:#4a8071;color:#fff;text-decoration:none;padding:13px 15px;font-weight:800;font-size:13px;min-height:46px}
 .crew-town-3d-note{line-height:1.45;letter-spacing:0!important;font-weight:550!important}
-.crew-town-3d-caption{display:flex;align-items:start;justify-content:space-between;gap:16px;color:#82958c;font-size:11px;line-height:1.7;padding:0 5px}
+.crew-town-3d-caption{display:flex;align-items:start;justify-content:space-between;gap:16px;color:#55685f;font-size:12px;line-height:1.7;padding:0 5px}
 .crew-town-3d-caption span{max-width:780px}
-.crew-town-3d-caption button{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#688f81;white-space:nowrap;padding:0}
+.crew-town-3d-caption button{border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;color:#44695c;white-space:nowrap;padding:0;min-height:32px}
 .crew-town-3d-loading{display:grid;place-items:center;height:100%;color:#637f71;background:#e4eee4;font-size:14px}
 .crew-town-3d button:focus-visible,.crew-town-3d a:focus-visible{outline:3px solid #478b82;outline-offset:2px}
 @media(max-width:720px){
@@ -53,7 +53,7 @@
  .crew-town-3d-destinations button{padding:10px;font-size:10px}
  .crew-town-3d-friends-toggle{padding:10px;font-size:10px;min-height:38px}
  .crew-town-3d-sheet{padding:13px;border-radius:18px;bottom:max(9px,env(safe-area-inset-bottom));max-height:min(39svh,300px);overflow-y:auto;overscroll-behavior:contain}
- .crew-town-3d-caption{display:grid;gap:6px;font-size:10px}
+ .crew-town-3d-caption{display:grid;gap:6px;font-size:12px}
 }
 @media(max-width:720px) and (max-height:650px){.crew-town-3d-stage{height:max(480px,76svh)}.crew-town-3d-sheet{max-height:42svh}}
 @media(prefers-reduced-motion:reduce){.crew-town-3d *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

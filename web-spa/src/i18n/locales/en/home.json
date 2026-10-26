@@ -246,7 +246,8 @@
     "saveMemory": "Save this memory",
     "memorySaved": "Saved. Reopen this or an older age to recall it.",
     "memoryDisabled": "Memory disabled or text too short.",
-    "memoryCaption": "Only user-selected phrases become Timeline memories."
+    "memoryCaption": "Only user-selected phrases become Timeline memories.",
+    "photoAlt": "{{name}} at age {{age}}"
   },
   "shorts": {
     "heading": "What's happening with your Crew?",

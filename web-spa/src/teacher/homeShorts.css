@@ -40,7 +40,7 @@
 }
 
 .crew-home-short-series{font-size:11px;font-weight:700;color:var(--accent)}
-.crew-home-short-question{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:auto;min-height:35px;border-radius:10px;padding:8px 10px;background:var(--accent-soft);color:var(--accent);text-decoration:none;font-size:12px;font-weight:750}
+.crew-home-short-question{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:auto;min-height:35px;border-radius:10px;padding:8px 10px;background:var(--accent-soft);color:var(--crew-accent-ink,var(--accent));text-decoration:none;font-size:12px;font-weight:750}
 .crew-home-short-question:focus-visible,.crew-home-shorts-update a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .crew-home-shorts-update{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:11px 14px;margin-bottom:14px;background:var(--surface-alt);border:1px solid var(--line);border-radius:12px;font-size:12px}
 .crew-home-shorts-update span{font-weight:700}

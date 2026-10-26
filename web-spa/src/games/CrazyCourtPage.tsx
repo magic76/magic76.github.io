@@ -177,7 +177,7 @@ export function CrazyCourtPage(){
  };
  const hasKey=Boolean(geminiKey());
  const won=finalJudgment?.winner==="player";
- return <main className="crew-play-page court-page">
+ return <div className="crew-play-page court-page">
   <header className="court-header">
    <Link to="/games" className="court-back">← {choice(zh,"全部遊戲","All games")}</Link>
    <div className="court-eyebrow">CREW PLAY / CRAZY COURT</div>
@@ -327,7 +327,7 @@ export function CrazyCourtPage(){
     if(phase==="trial"&&!busyRef.current)void handleAction({kind:"statement",text:speech});
    }}/>
   </div>:null}
- </main>;
+ </div>;
 }
 function Transcript({entries,friend,language}:{entries:Entry[];friend:string;language:CourtLanguage}){
  return <ol className="court-transcript">{entries.map((entry,i)=><li key={i}>

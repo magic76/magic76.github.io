@@ -246,7 +246,8 @@
     "saveMemory": "Guardar este recuerdo",
     "memorySaved": "Guardado. Vuelve a esta edad o a una posterior para recordarlo.",
     "memoryDisabled": "La memoria está desactivada o el texto es demasiado corto.",
-    "memoryCaption": "Solo las frases que elijas guardar se convertirán en recuerdos de Timeline."
+    "memoryCaption": "Solo las frases que elijas guardar se convertirán en recuerdos de Timeline.",
+    "photoAlt": "{{name}} a los {{age}} años"
   },
   "shorts": {
     "heading": "¿Qué pasa con tus amigos Crew?",

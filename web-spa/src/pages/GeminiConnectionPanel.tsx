@@ -260,8 +260,8 @@ export function GeminiConnectionPanel(){
    {micStatus&&<p className="meta" role="status">{micStatus}</p>}
    <div className={"result settings-connection-result "+(voiceResult==="success"?"success":"")} role="status">{voiceStatus}</div>
    {micDenied&&<p className="meta settings-mic-advice" role="alert">{microphoneHelp()}</p>}
-   <div><label className="label">{t("gemini.volume")}</label><div className="range-row">
-    <input className="field" type="range" min="0" max="100" value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);localStorage.setItem("crew_live_volume",String(value))}}/>
+   <div><label className="label" htmlFor="crew-live-volume">{t("gemini.volume")}</label><div className="range-row">
+    <input id="crew-live-volume" className="field" type="range" min="0" max="100" value={volume} onChange={event=>{const value=Number(event.target.value);setVolume(value);localStorage.setItem("crew_live_volume",String(value))}}/>
     <strong>{volume}%</strong>
    </div></div>
    <details className="settings-diagnostics">

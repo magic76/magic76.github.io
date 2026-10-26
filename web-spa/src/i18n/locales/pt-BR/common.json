@@ -30,7 +30,8 @@
     "story": "Criação de histórias",
     "fortune": "Exploração do mapa astral",
     "settings": "Configurações",
-    "briefing": "Resumo diário de pesquisas em IA"
+    "briefing": "Resumo diário de pesquisas em IA",
+    "homeLink": "{{name}} — voltar ao início"
   },
   "gemini": {
     "connected": "Gemini conectado",
@@ -38,7 +39,8 @@
     "setup": "Configurar Gemini"
   },
   "contact": {
-    "label": "Contato"
+    "label": "Contato",
+    "region": "Informações de contato"
   },
   "seo": {
     "home": "Crew — Idiomas, histórias e astrologia com IA",

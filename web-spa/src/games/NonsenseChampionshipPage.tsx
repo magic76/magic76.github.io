@@ -219,7 +219,7 @@ export function NonsenseChampionshipPage(){
   }catch{cleanup();fallback();}
  };
  const hints=nonsenseHints[topic.category]?.[language]||[];
- return <main className="crew-play-page nonsense-page">
+ return <div className="crew-play-page nonsense-page">
   <header className="crew-play-game-header nonsense-header">
    <Link to="/games" className="crew-play-back">← {L(zh,"全部遊戲","All games")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · LIVE STAGE</span>
@@ -341,5 +341,5 @@ export function NonsenseChampionshipPage(){
    </section>
    <p className="nonsense-footer">{L(zh,"不用 Gemini Key 就能抽題和開口練習；AI 結算需要自己的 Key。語音辨識依瀏覽器支援情況提供，也可使用鍵盤語音輸入。","Draw topics and practice without a Gemini Key. AI scores require your own key. Voice recognition depends on browser support; keyboard dictation also works.")}</p>
   </div>
- </main>;
+ </div>;
 }

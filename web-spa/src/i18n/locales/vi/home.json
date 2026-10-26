@@ -246,7 +246,8 @@
     "saveMemory": "Lưu kỷ niệm này",
     "memorySaved": "Đã lưu. Quay lại tuổi này hoặc tuổi lớn hơn để nhớ lại.",
     "memoryDisabled": "Đã tắt bộ nhớ hoặc nội dung quá ngắn.",
-    "memoryCaption": "Chỉ những câu bạn tự chọn lưu mới trở thành kỷ niệm Timeline."
+    "memoryCaption": "Chỉ những câu bạn tự chọn lưu mới trở thành kỷ niệm Timeline.",
+    "photoAlt": "{{name}} lúc {{age}} tuổi"
   },
   "shorts": {
     "heading": "Bạn bè Crew đang có chuyện gì mới?",

@@ -30,7 +30,8 @@
     "story": "Crear historias",
     "fortune": "Interpretación de cartas",
     "settings": "Ajustes",
-    "briefing": "Informe diario de investigación en IA"
+    "briefing": "Informe diario de investigación en IA",
+    "homeLink": "{{name}}: volver al inicio"
   },
   "gemini": {
     "connected": "Gemini conectado",
@@ -38,7 +39,8 @@
     "setup": "Configurar Gemini"
   },
   "contact": {
-    "label": "Contacto"
+    "label": "Contacto",
+    "region": "Información de contacto"
   },
   "seo": {
     "home": "Crew — Idiomas, historias y astrología con IA",

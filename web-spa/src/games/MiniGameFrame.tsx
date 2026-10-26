@@ -33,7 +33,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const chinese=/(中文|華語|國語|chinese|mandarin|^zh)/i.test(targetLanguage);
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
- return <main className="crew-play-page crew-mini-page">
+ return <div className="crew-play-page crew-mini-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
    <Link to="/games" className="crew-play-back">← 全部遊戲</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
@@ -52,7 +52,7 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
    </section>
    {children}
   </div>
- </main>;
+ </div>;
 }
 
 export type VoiceCue={id:number;text:string};

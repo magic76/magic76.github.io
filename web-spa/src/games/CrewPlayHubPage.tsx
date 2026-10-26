@@ -53,7 +53,7 @@ export function CrewPlayHubPage(){
   id:game.id,title:titles[game.id],desc:t("playHub.games."+game.id+".desc")
  })),...extraGames.map(id=>({id,title:extraLabels[id][0],desc:extraLabels[id][1]}))]
   .filter(game=>visible(game.id,game.title,game.desc)).length;
- return <main className="crew-play-page">
+ return <div className="crew-play-page">
   <header className="crew-play-hero">
    <Link to="/" className="crew-play-back">← {t("playHub.back")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY</span>
@@ -108,5 +108,5 @@ export function CrewPlayHubPage(){
    <button type="button" onClick={()=>{setFilter("all");setSearch("")}}>{zh?"顯示全部遊戲":"Show all games"}</button>
   </div>:null}
   <p className="crew-play-footer-note">{t("playHub.footer")}</p>
- </main>;
+ </div>;
 }

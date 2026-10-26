@@ -30,7 +30,8 @@
     "story": "이야기 만들기",
     "fortune": "운세 분석",
     "settings": "설정",
-    "briefing": "일일 AI 연구 브리핑"
+    "briefing": "일일 AI 연구 브리핑",
+    "homeLink": "{{name}}, 홈으로 돌아가기"
   },
   "gemini": {
     "connected": "Gemini 연결됨",
@@ -38,7 +39,8 @@
     "setup": "Gemini 설정"
   },
   "contact": {
-    "label": "문의하기"
+    "label": "문의하기",
+    "region": "연락처 정보"
   },
   "seo": {
     "home": "Crew — AI 언어 학습, 스토리와 운세",
