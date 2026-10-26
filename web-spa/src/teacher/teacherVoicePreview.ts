@@ -30,7 +30,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
  if(!key){onStatus({state:"error",message:"請先到設定新增 Gemini Key，再使用試聽。"});return()=>{}}
  const AudioCtor=window.AudioContext;
  if(!AudioCtor){onStatus({state:"error",message:"瀏覽器不支援語音播放。"});return()=>{}}
- let socket:WebSocket|null=null,ctx:AudioContext|null=null;
+ let socket:WebSocket|null=null,ctx:AudioContext|null=null,playbackGain:GainNode|null=null;
  let closed=false,played=false,sent=false,deadline=0,nextTime=0;
  const players=new Set<AudioBufferSourceNode>();
  function stop(){
@@ -38,7 +38,8 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
   window.clearTimeout(deadline);
   if(socket){try{socket.close(1000,"preview-end")}catch{}socket=null}
   for(const node of players){try{node.stop()}catch{}try{node.disconnect()}catch{}}
-  players.clear();if(ctx)void ctx.close().catch(()=>{});ctx=null;
+  players.clear();if(playbackGain){try{playbackGain.disconnect()}catch{}playbackGain=null}
+  if(ctx)void ctx.close().catch(()=>{});ctx=null;
  }
  function fail(message:string){if(closed)return;stop();onStatus({state:"error",message})}
  function finish(){if(closed)return;onStatus({state:"finished"});stop()}
@@ -54,7 +55,7 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
    const n=raw.charCodeAt(i*2)|(raw.charCodeAt(i*2+1)<<8);
    channel[i]=(n>32767?n-65536:n)/32768;
   }
-  const node=ctx.createBufferSource();node.buffer=buffer;node.connect(ctx.destination);
+  const node=ctx.createBufferSource();node.buffer=buffer;node.connect(playbackGain||ctx.destination);
   node.onended=()=>{players.delete(node);try{node.disconnect()}catch{}};
   players.add(node);
   nextTime=Math.max(nextTime,ctx.currentTime+.04);
@@ -64,7 +65,21 @@ export function previewTeacherVoice(profile:TeacherProfile,targetLanguage:string
  onStatus({state:"connecting"});
  void(async()=>{
   try{
-   ctx=new AudioCtor({sampleRate:48000});await ctx.resume();
+   ctx=new AudioCtor({sampleRate:48000});
+   // Voice auditions share the same playback volume as Teacher/Friend Live.
+   // Use a peak limiter above 100% instead of amplifying the microphone path.
+   const saved=Number(localStorage.getItem("crew_live_volume")??"100");
+   const percent=Number.isFinite(saved)?Math.max(0,Math.min(300,saved)):100;
+   const gain=ctx.createGain();gain.gain.value=percent/100;
+   let destination:AudioNode=ctx.destination;
+   if(typeof ctx.createDynamicsCompressor==="function"){
+    const limiter=ctx.createDynamicsCompressor();
+    limiter.threshold.value=-3;limiter.knee.value=0;limiter.ratio.value=20;
+    limiter.attack.value=.003;limiter.release.value=.14;
+    limiter.connect(destination);destination=limiter;
+   }
+   gain.connect(destination);playbackGain=gain;
+   await ctx.resume();
    if(closed)return;
    const model=useTeacherStore.getState().liveModel;
    socket=new WebSocket("wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(key));
