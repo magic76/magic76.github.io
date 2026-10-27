@@ -1,4 +1,6 @@
 import type {ReactNode} from "react";
+import{useTranslation}from"react-i18next";
+import{formatVedicTerm}from"../fortuneTerminology";
 import {buildLocalReport} from "../report";
 import {formatFortuneValue} from "../displayNumber";
 import type {FortuneChapterId} from "../report";
@@ -50,6 +52,7 @@ export function Evidence({title,profile,mode,result,chapter}:{title:string;profi
 }
 type TimeMode="bazi"|"tarot"|"vedic";
 export function YearEvidence({mode,item}:{mode:TimeMode;item:any}){
+ const{i18n}=useTranslation("fortune");const fmt=(v:unknown)=>mode==="vedic"?formatVedicTerm(v,i18n.resolvedLanguage||i18n.language):String(v??"");
  const year=mode==="vedic"?String(item.date||item.startDate||""):String(item.year||"");
  const title=mode==="bazi"?year+" · "+(item.ganZhi||"流年"):mode==="tarot"?year+" · 流年 "+(item.personalYear||"—"):(item.planet?year+" · "+item.planet+" 換座":String(item.lord||"人生週期"));
  const summary=mode==="bazi"?item.plainSummary:mode==="tarot"?item.plainSummary||item.cardName:item.planet?String(item.fromSign||"")+" → "+String(item.toSign||""):String(item.startDate||"")+" 至 "+String(item.endDate||"");
@@ -58,9 +61,9 @@ export function YearEvidence({mode,item}:{mode:TimeMode;item:any}){
   mode==="tarot"?
   [["對應牌",item.cardName],["主題關鍵詞",item.keywords],["個人年",item.personalYear]]:
   [["星體／主週期",item.planet||item.lord],["原星座",item.fromSign],["新星座",item.toSign],["原本命宮",item.fromHouse],["新本命宮",item.toHouse],["開始日期",item.startDate],["結束日期",item.endDate]];
- return <details className="fortune-year-card fortune-year-inspect"><summary><strong>{title}</strong><span>{summary||"展開查看已計算資料"}</span><small>查看年份依據</small></summary>
+ return <details className="fortune-year-card fortune-year-inspect"><summary><strong>{fmt(title)}</strong><span>{fmt(summary||"展開查看已計算資料")}</span><small>查看年份依據</small></summary>
  <div className="fortune-year-evidence">
- {entries.filter(([,v])=>v!==undefined&&v!==null&&plain(v)!=="").map(([label,value])=><div key={label}><small>{label}</small><span>{plain(value)}</span></div>)}
+ {entries.filter(([,v])=>v!==undefined&&v!==null&&plain(v)!=="").map(([label,value])=><div key={label}><small>{label}</small><span>{fmt(plain(value))}</span></div>)}
  <p>這些是傳統命理計算的標記，不代表該年一定發生特定事件。</p>
  </div></details>;
 }

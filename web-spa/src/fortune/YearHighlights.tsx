@@ -4,16 +4,18 @@ import type {FortuneMode} from "./types";
 import {buildTimingHighlights} from "./yearHighlights";
 import type {CurrentPhase} from "./currentPhase";
 import {YearEvidence} from "./result/Common";
+import{formatVedicTerm}from"./fortuneTerminology";
 
 export function FortuneYearHighlights({mode,result,phase}:{mode:FortuneMode;result:any;phase?:CurrentPhase}){
- const{t}=useTranslation("fortune");
+ const{t,i18n}=useTranslation("fortune");
+ const display=(v:unknown)=>formatVedicTerm(v,i18n.resolvedLanguage||i18n.language);
  const items=buildTimingHighlights(mode,result,phase);
  const[selected,setSelected]=useState<number|null>(null);
  if(!items.length)return null;
  return <section className="fortune-highlight-section">
   <div className="section-head"><h3>{t("reading.topic.keyYears")}</h3><small>{t("reading.exploreHint")} · {t("reading.evidence")}</small></div>
   <div className="fortune-highlight-grid">{items.map((x,i)=><button type="button" className="fortune-highlight-card fortune-highlight-selectable" aria-pressed={selected===i} onClick={()=>setSelected(selected===i?null:i)} key={i}>
-   <span>{x.year}</span><strong>{x.label}</strong><p>{x.summary}</p><small>{x.evidence}</small>
+   <span>{x.year}</span><strong>{display(x.label)}</strong><p>{display(x.summary)}</p><small>{display(x.evidence)}</small>
   </button>)}</div>
   {selected!==null&&<div className="fortune-highlight-inspector">
    <h4>{items[selected]?.year} · {t("reading.evidence")}</h4>

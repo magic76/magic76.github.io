@@ -7,6 +7,7 @@ import type{FortuneChapter,FortuneChapterId}from"./report";
 import{parseAiReading}from"./aiReading";
 import{AiPanel}from"./result/Common";
 import{formatFortuneValue}from"./displayNumber";
+import{formatVedicTerm}from"./fortuneTerminology";
 
 const primary:FortuneChapterId[]=["overview","personality","career","wealth","relationships","currentCycle"];
 const focus:{id:FortuneChapterId;symbol:string}[]=[
@@ -28,15 +29,15 @@ function preview(text:string,max=110){
  return first.length>max?first.slice(0,max).trimEnd()+"…":first;
 }
 function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;expanded:boolean;onToggle:()=>void;onAsk?:(id:FortuneChapterId)=>void}){
- const{t}=useTranslation("fortune"),contentId="fortune-topic-content-"+chapter.id;
+ const{t,i18n}=useTranslation("fortune"),contentId="fortune-topic-content-"+chapter.id;
  return <article className="fortune-reading-chapter" id={"fortune-topic-"+chapter.id} data-expanded={expanded}>
   <button type="button" className="fortune-reading-chapter-trigger" aria-expanded={expanded} aria-controls={contentId} onClick={onToggle}>
    <span className="fortune-reading-chapter-label"><strong>{t("reading.topic."+chapter.id)}</strong><small>{t("reading.tapDetails")}</small></span>
    <span className="fortune-reading-toggle" aria-hidden="true">{expanded?"−":"+"}</span>
   </button>
   <div className="fortune-reading-chapter-content" id={contentId} hidden={!expanded}>
-   <p>{chapter.text}</p>
-   {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>{t("reading.evidence")}</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{x}</li>)}</ul></details>}
+   <p>{formatVedicTerm(chapter.text,i18n.resolvedLanguage||i18n.language)}</p>
+   {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>{t("reading.evidence")}</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{formatVedicTerm(x,i18n.resolvedLanguage||i18n.language)}</li>)}</ul></details>}
    {onAsk&&<button type="button" className="fortune-reading-ask" onClick={()=>onAsk(chapter.id)}>{t("reading.askTopic")} <span aria-hidden="true">→</span></button>}
   </div>
  </article>;
