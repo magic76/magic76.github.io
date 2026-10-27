@@ -77,10 +77,10 @@ test("印度星盤免費章節包括家庭、週期與明確時間依據",()=>{
  assert.doesNotMatch(all(report),/undefined|\[object Object\]/);
 });
 
-test("AI prompt uses Android-compatible chapter titles and raw grounded fields without 24k string slicing",()=>{
+test("AI prompt uses machine headers and raw grounded fields without 24k string slicing",()=>{
  const prompt=buildReportPrompt("bazi",{fourPillars:"甲子 乙丑 丙寅 丁卯",annualTimeline:[{year:2027,plainSummary:"合沖信號"}]},"白話");
- assert.match(prompt,/## 事業與職涯/);
- assert.match(prompt,/## 未來十年與長期節奏/);
+ assert.match(prompt,/## @work/);
+ assert.match(prompt,/## @next12/);
  assert.match(prompt,/2027/);
  assert.match(prompt,/甲子/);
  assert.doesNotMatch(prompt,/slice\(0,24000\)/);
