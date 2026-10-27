@@ -126,7 +126,8 @@
       "ascendant": "Ascendente",
       "moon": "Luna",
       "mainCycle": "Periodo principal"
-    }
+    },
+    "yearsLeft": "quedan {{count}} años"
   },
   "profile": {
     "birthdayRequired": "Elige tu fecha de nacimiento antes de guardar",
