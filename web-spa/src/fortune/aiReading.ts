@@ -30,22 +30,24 @@ function stripPrivate(value:unknown):unknown{
  if(value&&typeof value==="object"){
   const out:Record<string,unknown>={};
   for(const [key,v] of Object.entries(value)){
-   if(/latitude|longitude|coordinate|utcOffset|timeZoneId|birthTime|\blat\b|\blon\b/i.test(key))continue;
+   if(/birthDate|birthTime|latitude|longitude|coordinate|utcOffset|timeZoneId|\blat\b|\blon\b/i.test(key))continue;
    out[key]=stripPrivate(v);
   }
   return out;
  }
  return value;
 }
-export function buildFortuneQuestionPrompt(facts:unknown,summary:string,today:string,lang:string,question:string):string{
+export function buildFortuneQuestionPrompt(facts:unknown,summary:string,today:string,lang:string,question:string,history?:ReadonlyArray<{q:string;a:string}>):string{
  const present=facts!==null&&facts!==undefined&&(!(typeof facts==="object")||Object.keys(facts).length>0);
- const safe=!present?"":typeof facts==="string"?facts.replace(/"(?:latitude|longitude|utcOffset|timeZoneId|birthTime)"\s*:\s*(?:"[^"]*"|[\d.-]+)\s*,?/gi,""):JSON.stringify(stripPrivate(facts));
+ const safe=!present?"":typeof facts==="string"?facts.replace(/"(?:birthDate|birthTime|latitude|longitude|utcOffset|timeZoneId)"\s*:\s*(?:"[^"]*"|[\d.-]+)\s*,?/gi,""):JSON.stringify(stripPrivate(facts));
  const evidence=(!safe||!safe.trim()||["null","undefined","{}","[]"].includes(safe.trim())?"":safe).slice(0,16000);
  return "你是 Crew Fortune 命理解讀者。輸出語言："+lang+"。今天："+today+
   "。只能引用下列固定計算命盤事實，不可重新計算或補不存在的資料。"+
   "回答依序：先結論、一句命盤依據、一個具體做法；250 字內。不給醫療或投資指令。"+
   (evidence?"\n固定命盤事實："+evidence:"\n尚未提供命盤，請明說無法對個人命盤下結論。")+
-  (summary?"\n該命盤既有 AI 重點："+summary:"")+"\n使用者問題："+question;
+  (summary?"\n該命盤既有 AI 重點："+summary:"")+
+  (history?.length?"\n最近對話（僅供上下文參考）："+history.slice(-3).map(x=>"\n問："+String(x.q||"").slice(0,400)+"\n答："+String(x.a||"").slice(0,400)).join(""):"")+
+  "\n使用者問題："+question;
 }
 
 export function formatFortuneLocalDate(date:Date):string{
