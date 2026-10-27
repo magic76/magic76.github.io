@@ -126,7 +126,8 @@
       "ascendant": "上升",
       "moon": "月亮",
       "mainCycle": "主週期"
-    }
+    },
+    "yearsLeft": "還有 {{count}} 年"
   },
   "profile": {
     "birthdayRequired": "先選生日再儲存",
