@@ -15,7 +15,7 @@ export function parseAiReading(text:string):ParsedAiReading{
   sections[key]=text.slice(start,end).trim();
  }
  const firstLine=(sections.summary||"").split(/\r?\n/).map(line=>line.trim()).find(Boolean)||"";
- output.summary=(firstLine.match(/^.*?[。！？.!?](?=\s|$)/)?.[0]||firstLine).trim();
+ output.summary=(firstLine.match(/^.*?[。！？.!?]/)?.[0]||firstLine).trim();
  output.next12=lines(sections.next12||"");
  output.work=sections.work||"";output.love=sections.love||"";
  output.self=sections.self||"";output.turning=sections.turning||"";
