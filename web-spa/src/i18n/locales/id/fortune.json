@@ -126,7 +126,8 @@
       "ascendant": "Ascendant",
       "moon": "Bulan",
       "mainCycle": "Periode utama"
-    }
+    },
+    "yearsLeft": "sisa {{count}} tahun"
   },
   "profile": {
     "birthdayRequired": "Pilih tanggal lahir sebelum menyimpan",
