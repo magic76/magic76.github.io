@@ -37,7 +37,7 @@
     "moduleError": "Couldn't load chart calculations. Refresh the page and try again.",
     "birthdayRequired": "Choose your date of birth",
     "timeRequired": "Enter your birth time",
-    "locationRequired": "Vedic astrology requires birth coordinates and UTC offset",
+    "locationRequired": "Vedic astrology requires birth coordinates and UTC offset; format e.g. +08:00",
     "retry": "Reload",
     "yourProfile": "Your details",
     "once": "Set up once",
@@ -127,7 +127,8 @@
       "moon": "Moon",
       "mainCycle": "Main period"
     },
-    "yearsLeft": "{{count}} years left"
+    "yearsLeft": "{{count}} years left",
+    "phaseTarot": "Current pinnacle {{current}}; pinnacle {{next}} starts in {{year}}"
   },
   "profile": {
     "birthdayRequired": "Choose a birth date before saving",
