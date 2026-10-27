@@ -1,6 +1,7 @@
 import{useEffect,useState}from"react";
 import{useTranslation}from"react-i18next";
 import type{FortuneMode}from"./types";
+import type{CurrentPhase}from"./currentPhase";
 import{buildLocalReport}from"./report";
 import type{FortuneChapter,FortuneChapterId}from"./report";
 import{parseAiReading}from"./aiReading";
@@ -40,11 +41,11 @@ function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;
   </div>
  </article>;
 }
-export function FortuneReadingOverview({mode,result,ai,onAsk}:{mode:FortuneMode;result:any;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
+export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:FortuneMode;result:any;phase?:CurrentPhase;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
  const{t}=useTranslation("fortune");
  const[active,setActive]=useState<FortuneChapterId|null>(null);
  useEffect(()=>setActive(null),[mode,result]);
- const chapters=buildLocalReport(mode,result);
+ const chapters=buildLocalReport(mode,result,undefined,phase);
  if(!chapters.length)return null;
  const parsed=parseAiReading(ai||""),ready=Boolean(parsed.summary)&&!parsed.legacy;
  const aiText:Partial<Record<FortuneChapterId,string>>=ready?{

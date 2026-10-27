@@ -1,5 +1,5 @@
 import{useTranslation}from"react-i18next";
-import{buildYearHighlights}from"./yearHighlights";
+import{buildTimingHighlights}from"./yearHighlights";
 import{parseAiReading}from"./aiReading";
 import type{CurrentPhase}from"./currentPhase";
 import type{FortuneMode}from"./types";
@@ -10,7 +10,7 @@ export function FortuneSummaryCard({mode,result,phase,ai,loading}:{
  const{t}=useTranslation("fortune");
  const parsed=parseAiReading(ai||"");
  const ready=Boolean(parsed.summary)&&!parsed.legacy;
- const highlights=buildYearHighlights(mode,result).slice(0,3);
+ const highlights=buildTimingHighlights(mode,result,phase);
  return <section className="fortune-summary-card" aria-label={t("reading.summaryTitle")}>
   <div className="fortune-summary-top"><span className="kicker">{t("reading.summaryTitle")}</span>
    {loading&&<span className="fortune-summary-loading" role="status">{t("reading.aiLoading")}</span>}</div>

@@ -1,12 +1,13 @@
 import {useState} from "react";
 import {useTranslation} from "react-i18next";
 import type {FortuneMode} from "./types";
-import {buildYearHighlights} from "./yearHighlights";
+import {buildTimingHighlights} from "./yearHighlights";
+import type {CurrentPhase} from "./currentPhase";
 import {YearEvidence} from "./result/Common";
 
-export function FortuneYearHighlights({mode,result}:{mode:FortuneMode;result:any}){
+export function FortuneYearHighlights({mode,result,phase}:{mode:FortuneMode;result:any;phase?:CurrentPhase}){
  const{t}=useTranslation("fortune");
- const items=buildYearHighlights(mode,result).slice(0,3);
+ const items=buildTimingHighlights(mode,result,phase);
  const[selected,setSelected]=useState<number|null>(null);
  if(!items.length)return null;
  return <section className="fortune-highlight-section">

@@ -1,4 +1,5 @@
 import type{FortuneMode}from"./types";
+import type{CurrentPhase}from"./currentPhase";
 
 export type YearHighlight={year:number;label:string;summary:string;evidence:string};
 type ScoredHighlight=YearHighlight&{score:number};
@@ -66,4 +67,36 @@ export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]
   candidates.push({year,score:5,label:"Mahadasha · "+x.lord,summary:(x.startDate||"")+"–"+(x.endDate||""),evidence:"Vimshottari 主週期切換"});
  }
  const seen=new Set<string>();return top(candidates,6).filter(x=>{const k=x.year+"|"+x.label;if(seen.has(k))return false;seen.add(k);return true}).slice(0,4).map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
+}
+
+/** Prioritize an actual forthcoming cycle boundary, never an inferred event. */
+export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:CurrentPhase):YearHighlight[]{
+ const ordinary=buildYearHighlights(mode,result);
+ const now=new Date().getFullYear(),date=new Date().toISOString().slice(0,10);
+ let transition:YearHighlight|null=null;
+ if(mode==="bazi"){
+  const next=(result.luckPillars||[]).filter((x:any)=>Number(x.startYear)>now)
+   .sort((a:any,b:any)=>Number(a.startYear)-Number(b.startYear))[0];
+  if(next){
+   const year=Number(next.startYear),annual=(result.annualTimeline||[]).find((x:any)=>Number(x.year)===year);
+   transition={year,label:"大運轉折 · "+next.ganZhi,summary:year+" 年起進入 "+next.ganZhi+" 大運，可提前整理下一階段的優先順序。",
+    evidence:"大運 "+next.ganZhi+(annual?.stemTenGod?" · 流年十神 "+annual.stemTenGod:"")};
+  }
+ }else if(mode==="tarot"){
+  const year=phase?.transitionYear;
+  if(year&&year>now&&phase?.next)
+   transition={year,label:"巔峰期轉折 · "+phase.next,summary:year+" 年開始新的巔峰數 "+phase.next+" 階段。",
+    evidence:"巔峰數 "+phase.current+" → "+phase.next};
+ }else{
+  const next=(result.mahadashaTimeline||[]).filter((x:any)=>String(x.startDate||"")>date&&x.lord!==result.currentMahadasha?.lord)
+   .sort((a:any,b:any)=>String(a.startDate).localeCompare(String(b.startDate)))[0];
+  if(next){
+   const year=Number(String(next.startDate).slice(0,4));
+   transition={year,label:"大運期（Mahadasha）· "+next.lord,summary:String(next.startDate)+" 開始新的 "+next.lord+" 主週期。",
+    evidence:"Mahadasha "+next.lord+" · "+next.startDate};
+  }
+ }
+ const output=transition?[transition]:[];
+ for(const item of ordinary){if(output.length>=3)break;if(!output.some(x=>x.year===item.year))output.push(item)}
+ return output;
 }

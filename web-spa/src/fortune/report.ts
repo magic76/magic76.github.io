@@ -1,5 +1,6 @@
 import type {FortuneMode} from "./types";
-import {buildYearHighlights} from "./yearHighlights";
+import {buildTimingHighlights} from "./yearHighlights";
+import type {CurrentPhase} from "./currentPhase";
 import {formatFortuneValue} from "./displayNumber";
 import {formatFortuneLocalDate} from "./aiReading";
 
@@ -31,8 +32,8 @@ function chapters(parts:Partial<Record<FortuneChapterId,{text:string;evidence?:s
  }));
 }
 const fewYears=(v:unknown,n=5)=>uniq(arr(v).map(renderValue).filter(Boolean)).slice(0,n).join("、")||"尚無可對應的年份";
-function futureHighlights(mode:FortuneMode,r:any){
- return buildYearHighlights(mode,r).slice(0,4).map(y=>y.year+"（"+y.label+"；"+y.evidence+"）");
+function futureHighlights(mode:FortuneMode,r:any,phase?:CurrentPhase){
+ return buildTimingHighlights(mode,r,phase).slice(0,3).map(y=>y.year+"（"+y.label+"；"+y.evidence+"）");
 }
 
 function baziCareerAngle(ca:any):string{
@@ -53,7 +54,7 @@ function baziWealthAngle(we:any):string{
   :"偏財記號較多，傳統上可從彈性機會、人際資源與不確定性管理的角度反思自己的選擇。";
 }
 
-function bazi(r:any):FortuneChapter[]{
+function bazi(r:any,phase?:CurrentPhase):FortuneChapter[]{
  const elements=Object.entries(r.weightedFiveElements||{}).filter(([,v])=>Number(v)>0).sort((a,b)=>Number(b[1])-Number(a[1]));
  const rank=elements.slice(0,3).map(([k,v])=>k+" "+formatFortuneValue(v,true)).join("、");
  const y=arr(r.annualTimeline).find((x:any)=>Number(x.year)===new Date().getFullYear());
@@ -71,11 +72,11 @@ function bazi(r:any):FortuneChapter[]{
   relationships:{text:"命盤以日支「"+str(re.spousePalace||"—")+"」作為關係宮位的傳統觀察點，關係相關十神為 "+(renderValue(re.spousePalaceTenGods)||"尚無完整資料")+"。有互動標記的年份："+fewYears(re.annualSignalYears)+"。這些記號適合用來對照自己的溝通方式、合作界線與親密關係需求，無法推定實際伴侶或事件。",evidence:evidence(re.spousePalace,re.spousePalaceTenGods)},
   currentCycle:{text:current||"目前可查看大運和逐年流年，暫無足夠資料可作更精細的階段解讀。",evidence:evidence(luck?.ganZhi,y?.ganZhi,y?.stemTenGod,y?.natalInteractions)},
   longTerm:{text:"未來十年可先按大運分成不同背景："+(next.map((x:any)=>x.ganZhi+"（"+x.startYear+"–"+x.endYear+"）").join("；")||"大運時段資料未提供")+"。目前已計算的逐年主題包括 "+(yrs.slice(0,6).map((x:any)=>x.year+" "+arr(x.themes).join("／")).join("；")||"尚無可用的逐年資料")+"。適合將不同年份的傳統主題當作檢視人生目標和資源配置的提示，而非確定的事件日程。",evidence:evidence(next.map((x:any)=>x.ganZhi),yrs.slice(0,5).map((x:any)=>x.ganZhi))},
-  keyYears:{text:"依目前的流年十神、與本命合沖、工作／資源／關係主題訊號，優先整理 "+(futureHighlights("bazi",r).join("；")||"尚無明顯的可排序年份")+"。這是依規則挑出適合深入閱讀的時間點，不是吉凶分數或事件預測。可到「時間節奏」逐年查看。",evidence:futureHighlights("bazi",r)},
+  keyYears:{text:"依目前的流年十神、與本命合沖、工作／資源／關係主題訊號，優先整理 "+(futureHighlights("bazi",r,phase).join("；")||"尚無明顯的可排序年份")+"。這是依規則挑出適合深入閱讀的時間點，不是吉凶分數或事件預測。可到「時間節奏」逐年查看。",evidence:futureHighlights("bazi",r)},
   advice:{text:"先挑一項你真的在意的生活主題，再對照命盤的具體標記和你自己的經驗。若同一年的工作與關係訊號並存，請分開思考兩種情境，避免把不同領域混成一種運勢。重大財務、健康或家庭決定仍應依實際資訊與專業意見處理。",evidence:[]}
  });
 }
-function tarot(r:any):FortuneChapter[]{
+function tarot(r:any,phase?:CurrentPhase):FortuneChapter[]{
  const y=arr(r.personalYearTimeline).find((x:any)=>Number(x.year)===new Date().getFullYear());
  const next=arr(r.personalYearTimeline).filter((x:any)=>Number(x.year)>=new Date().getFullYear()).slice(0,9);
  const currentYear=r.personalYearCalendarYear;
@@ -89,11 +90,11 @@ function tarot(r:any):FortuneChapter[]{
   relationships:{text:"關係主題可對照人格牌「"+str(r.personalityCardName)+"」與靈魂牌「"+str(r.soulCardName)+"」是否呈現不同的自我需求，以及態度數 "+str(r.attitudeNumber)+" 所代表的傳統分類。重點是回頭觀察自己如何溝通、如何設立界線，而非預測某年一定出現關係事件。",evidence:evidence(r.relationshipProfile?.evidence)},
   currentCycle:{text:str(currentYear)+" 年個人年為 "+str(r.personalYear)+"「"+str(r.personalYearCardName)+"」，個人月為 "+str(r.personalMonth)+"。"+(y?"當年完整主題："+str(y.plainSummary)+"。":"")+"這些日期對應日曆年系統，並非每個月都必定發生事件。",evidence:evidence(r.personalYearCardName,r.personalMonth,y?.keywords)},
   longTerm:{text:"接下來數年的個人年順序："+(next.map((x:any)=>x.year+"："+x.personalYear+" "+x.cardName).join("；")||"未提供")+"。四大巔峰階段："+(pinnacle||"尚無資料")+"；挑戰數為 "+renderValue(r.challenges)+"。閱讀時同時留意人生長階段和每年短週期，但不要把數字當成事件機率。",evidence:evidence(next.slice(0,5).map((x:any)=>x.cardName),r.challenges)},
-  keyYears:{text:"依已算出的個人年與牌組關鍵詞，值得優先展開的年份："+(futureHighlights("tarot",r).join("；")||"暫無資料")+"。這些是閱讀導航，不代表特定年份會必然變好或變壞；詳細主題請至「時間節奏」查看。",evidence:futureHighlights("tarot",r)},
+  keyYears:{text:"依已算出的個人年與牌組關鍵詞，值得優先展開的年份："+(futureHighlights("tarot",r,phase).join("；")||"暫無資料")+"。這些是閱讀導航，不代表特定年份會必然變好或變壞；詳細主題請至「時間節奏」查看。",evidence:futureHighlights("tarot",r)},
   advice:{text:"把個人年當作年度自我回顧題目：今年的重要選擇是什麼，哪項習慣想保留，哪項想調整？對照個人月與長期巔峰數時，優先記錄實際事件和主觀感受，避免事後只挑符合敘述的證據。",evidence:[]}
  });
 }
-function vedic(r:any):FortuneChapter[]{
+function vedic(r:any,phase?:CurrentPhase):FortuneChapter[]{
  const md=r.currentMahadasha||{},ad=r.currentAntardasha||{};
  const hs=arr(r.houses),getHouse=(i:number)=>hs.find((x:any)=>Number(x.house)===i)||{};
  const p=arr(r.planets),getPlanet=(name:string)=>p.find((x:any)=>x.name===name)||{};
@@ -109,13 +110,13 @@ function vedic(r:any):FortuneChapter[]{
   family:{text:"家庭與子女主題參考第 4 宮、第 5 宮、各宮宮主及月亮／木星。第 4 宮："+str(getHouse(4).sign||"—")+"（"+str(getHouse(4).lord||"—")+"）；第 5 宮："+str(getHouse(5).sign||"—")+"（"+str(getHouse(5).lord||"—")+"）。這只反映星盤分類，不推測懷孕、生育或家人健康。",evidence:profile("familyChildrenProfile")},
   currentCycle:{text:"目前 Vimshottari 主週期是 "+str(md.lord||"—")+"（"+str(md.startDate||"—")+" 至 "+str(md.endDate||"—")+"），次週期是 "+str(ad.lord||"—")+"（"+str(ad.startDate||"—")+" 至 "+str(ad.endDate||"—")+"）。目前 Gochar 計算日期為 "+str(r.currentTransitDate||"未提供")+"。週期與行運需要分開閱讀，無法由此推定具體事件。",evidence:evidence(md,ad,r.currentTransitDate)},
   longTerm:{text:"已計算的主週期時間軸："+(mdFuture.map((x:any)=>x.lord+"（"+x.startDate+"–"+x.endDate+"）").join("；")||"尚無長期時段")+"。接下來三年的主要行運只涵蓋木星、土星與交點的換座事件，不包含未計算的完整未來行星每日運行。",evidence:evidence(mdFuture)},
-  keyYears:{text:"可優先閱讀的時期："+(futureHighlights("vedic",r).join("；")||"尚無資料")+"。已列出的換座事件："+(transit.map((x:any)=>x.date+" "+x.planet+" "+x.fromSign+"→"+x.toSign).join("；")||"無")+"。這些是天體與週期資料的日期，不是生活事件預言。",evidence:evidence(transit)},
+  keyYears:{text:"可優先閱讀的時期："+(futureHighlights("vedic",r,phase).join("；")||"尚無資料")+"。已列出的換座事件："+(transit.map((x:any)=>x.date+" "+x.planet+" "+x.fromSign+"→"+x.toSign).join("；")||"無")+"。這些是天體與週期資料的日期，不是生活事件預言。",evidence:evidence(transit)},
   advice:{text:"挑選一個你在意的宮位或目前 Dasha，展開「詳細資料」核對實際行星、宮主與起訖時間。每次解讀應引用已存在的盤面依據；對沒有算出的 D9、Yogas 等進階分類不自行補完。",evidence:[]}
  });
 }
-export function buildLocalReport(mode:FortuneMode,result:any):FortuneChapter[]{
+export function buildLocalReport(mode:FortuneMode,result:any,tr?:unknown,phase?:CurrentPhase):FortuneChapter[]{
  if(!result||typeof result!=="object")return [];
- return mode==="bazi"?bazi(result):mode==="tarot"?tarot(result):vedic(result);
+ return mode==="bazi"?bazi(result,phase):mode==="tarot"?tarot(result,phase):vedic(result,phase);
 }
 export function buildReportPrompt(mode:FortuneMode,result:any,style:string,options?:{today?:string;locale?:string;phase?:{age:number;promptLine:string}|string}):string{
  const fields:Record<FortuneMode,string[]>={
