@@ -124,7 +124,8 @@ export function buildReportPrompt(mode:FortuneMode,result:any,style:string,optio
  };
  const source:Record<string,unknown>={};
  for(const key of fields[mode])if(result?.[key]!==undefined)source[key]=result[key];
- const today=options?.today||new Date().toISOString().slice(0,10);
+ const now=new Date();
+ const today=options?.today||[now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
  const lang=options?.locale||"繁體中文";
  const phase=typeof options?.phase==="string"?options.phase:options?.phase?.promptLine||"未提供";
  const age=typeof options?.phase==="object"?options.phase.age:"未提供";
@@ -142,7 +143,7 @@ export function buildReportPrompt(mode:FortuneMode,result:any,style:string,optio
   "8. 不要寫出資料的欄位名或英文鍵名（例如 weightedFiveElements、annualTimeline、pinnacleTiming），改用一般人看得懂的說法。\n"+
   "9. 資料沒有提供的意義、相位、宮位關係或解釋，不要自行補上；資料中有「白話／meaning／plainSummary」時優先沿用。\n"+
   "請只輸出以下 7 個標記段落（標記行原樣保留），總長約 900–1300 個中文字（其他語言約 450–650 words）：\n"+
-  "## @summary\n（30 字內：這張盤最核心的一個特點＋現在的時機）\n"+
+  "## @summary\n（30 字內：這張盤最核心的一個特點＋現在的時機；不附依據）\n"+
   "## @next12\n（剛好 3 點，每點一行：時間 → 主題 → 可以做什麼）\n"+
   "## @work\n（工作與財務）\n"+
   "## @love\n（感情與人際）\n"+
