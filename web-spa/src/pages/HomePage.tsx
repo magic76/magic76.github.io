@@ -222,6 +222,18 @@ export function HomePage(){
    <BriefingPreview/>
   </div>
   <GuideHub/>
+  <section className="crew-home-search-summary" aria-labelledby="crew-home-search-summary-title">
+   <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Crew: AI Friends, Language Practice, Games and Stories"}</h2>
+   <p>{locale.language.startsWith("zh")
+    ?"在 Crew，你可以和不同個性的 AI 朋友自然聊天、透過 Crew Teacher 練習英文口說、在 Crew Play 玩棋盤和猜題遊戲，也能和 AI 一起創作、閱讀故事。"
+    :"Talk with AI characters, practice spoken English with Crew Teacher, play board and guessing games in Crew Play, and create or read stories together with AI."}</p>
+   <nav aria-label={t("explore")}>
+    <Link to="/teacher">{t("product.teacher")}</Link>
+    <Link to="/games">{t("product.play")}</Link>
+    <Link to="/story">{t("product.story")}</Link>
+    <Link to="/fortune">{t("product.fortune")}</Link>
+   </nav>
+  </section>
   {ready&&!isCrewAndroidShell()&&<details className="crew-home-android" open>
    <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
    <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>

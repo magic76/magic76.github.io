@@ -1,5 +1,6 @@
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
+import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -50,6 +51,13 @@ const viteManifest=JSON.parse(readFileSync(join(out,".vite","manifest.json"),"ut
 const ssgRouteEntries={
  "/":["src/pages/HomePage.tsx"],
  "/games":["src/games/CrewPlayHubPage.tsx"],
+ "/games/friend-gomoku":["src/games/FriendGomokuPage.tsx"],
+ "/games/1a2b":["src/games/NumberGamePage.tsx"],
+ "/games/taboo":["src/games/TabooGamePage.tsx"],
+ "/games/connect4":["src/games/CrewPlayGamePage.tsx"],
+ "/games/twenty-questions":["src/games/CrewPlayGamePage.tsx"],
+ "/games/reversi":["src/games/CrewPlayGamePage.tsx"],
+ "/games/mystery":["src/games/CrewPlayGamePage.tsx"],
  "/teacher":["src/teacher/PracticePage.tsx"]
 };
 function routeCssLinks(route){
@@ -167,17 +175,87 @@ for(const {code,stage} of previewLocales){
  if(!html.includes('name="robots" content="noindex,follow"'))throw Error("Preview must be noindex: "+code);
  writeFileSync(join(directory,"index.html"),html);
 }
-writeFileSync(join(out,"_redirects"),previewLocales.map(({code})=>
- "/"+code+"/* /"+code+"/index.html 200").join(newline)+newline);
+// Known interactive routes get a noindex SPA shell instead of the indexable homepage
+// snapshot (whose canonical would incorrectly point to /). Keep exact public SSG
+// routes out of these rewrites; do not use a broad wildcard over /games or /research.
+const privatePaths=[
+ "/chat","/explore","/mate","/town","/magic","/learn","/me","/orb",
+ "/settings","/privacy","/usage","/research/board",
+ "/briefing","/briefing/board","/friend/live","/teacher/live","/teacher/voice-lab","/teacher/board",
+ ...["practice","fortune","shorts","friends","roles","learn","tutor","me","vocabulary","course","pronunciation","textbook","phrasebook","reports","memory","reading-library"].map(s=>"/teacher/"+s),
+ ...["shelf","me","create","physical","live"].map(s=>"/story/"+s),
+ ...["history","reading","live"].map(s=>"/fortune/"+s),
+ ...["nonsense","crazy-court","werewolf","gomoku"].map(s=>"/games/"+s),
+ "/timeline","/timeline/compare","/timeline/live"
+];
+const privatePatterns=["/story/edit/*","/story/read/*","/story/physical/*","/briefing/*"];
+const privateShell=viteHtml.replace("<title>Crew</title>","<title>Crew · Interactive App</title>");
+if(!privateShell.includes('name="robots" content="noindex,follow"'))throw Error("Private shell must be noindex");
+writeFileSync(join(out,"_app-noindex.html"),privateShell);
+const rules=previewLocales.map(({code})=>"/"+code+"/* /"+code+"/index.html 200");
+for(const prefix of ["","/en"]){
+ for(const path of privatePaths)rules.push(prefix+path+" /_app-noindex.html 200");
+ for(const path of privatePatterns)rules.push(prefix+path+" /_app-noindex.html 200");
+}
+writeFileSync(join(out,"_redirects"),rules.join(newline)+newline);
 
-// Article documents use the *same* React detail page and public build-time data,
-// with per-article metadata. The old research template contributes only head SEO.
+
 const researchTemplate=read("research/index.html");
 const replaceMeta=(html,attr,name,value)=>{
  const matcher=new RegExp('<meta '+attr+'="'+name+'" content="[^"]*">');
  if(!matcher.test(html))throw Error("Missing meta "+name+" on research template");
  return html.replace(matcher,'<meta '+attr+'="'+name+'" content="'+escapeHtml(value)+'">');
 };
+
+// Every game declared in the sitemap must ship its own real React SSG page.
+// The head is derived from the indexed Games template, not a second UI.
+for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
+ const meta=GAME_SEO_PAGES[slug][locale],path="/games/"+slug;
+ const prefix=locale==="en"?"/en":"";
+ const canonical="https://www.3sssi.com"+prefix+path+"/";
+ const zhHref="https://www.3sssi.com"+path+"/";
+ const enHref="https://www.3sssi.com/en"+path+"/";
+ const template=read(locale==="en"?"en/games/index.html":"games/index.html");
+ let head=template.split("</head>")[0]+"</head>";
+ head=head.replace(/<title>[\s\S]*?<\/title>/,"<title>"+escapeHtml(meta.title)+"</title>");
+ head=head.replace(/<link rel="canonical" href="[^"]*">/,'<link rel="canonical" href="'+canonical+'">');
+ head=replaceMeta(head,"name","description",meta.description);
+ head=replaceMeta(head,"property","og:title",meta.title);
+ head=replaceMeta(head,"property","og:description",meta.description);
+ head=replaceMeta(head,"property","og:url",canonical);
+ head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
+ const alternates=[
+  '<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">',
+  '<link rel="alternate" hreflang="en" href="'+enHref+'">',
+  '<link rel="alternate" hreflang="x-default" href="'+zhHref+'">'
+ ].join(newline+"  ");
+ const ld={"@context":"https://schema.org","@graph":[
+  {"@type":"WebPage","@id":canonical+"#webpage",url:canonical,name:meta.title,description:meta.description,inLanguage:locale==="en"?"en":"zh-Hant"},
+  {"@type":"BreadcrumbList",itemListElement:[
+   {"@type":"ListItem",position:1,name:locale==="en"?"Home":"首頁",item:"https://www.3sssi.com"+(locale==="en"?"/en/":"/")},
+   {"@type":"ListItem",position:2,name:"Crew Play",item:"https://www.3sssi.com"+(locale==="en"?"/en/games/":"/games/")},
+   {"@type":"ListItem",position:3,name:meta.name,item:canonical}
+  ]},
+  {"@type":"SoftwareApplication",name:meta.name,applicationCategory:"GameApplication",operatingSystem:"Web",url:canonical,description:meta.description}
+ ]};
+ head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+  '<script type="application/ld+json">'+safeJson(ld)+'</script>');
+ head=head.replace("</head>",alternates+newline+"</head>");
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+routeCssLinks(path)+newline+"  "+appTags);
+ head=head.replace("</head>",dynamicGuard+newline+"</head>");
+ let page=prerendered.get((locale==="en"?"en":"zh-TW")+":"+path);
+ if(!page||!page.includes("<h1"))throw Error("Missing SSG game "+path+" "+locale);
+ page=page.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const publicPath=prefix+path;
+ const html=template.replace(/<head>[\s\S]*?<\/head>/,head)
+  .replace(/<body>[\s\S]*?<\/body>/,
+   '<body><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
+ const target=join(out,(locale==="en"?"en/":"")+"games/"+slug+"/index.html");
+ mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
+}
+
+// Article documents use the *same* React detail page and public build-time data,
+// with per-article metadata. The old research template contributes only head SEO.
 // The first five search-intent guides are genuine React SSG pages (zh-Hant + en).
 // Reuse the verified teacher template's HEAD only, never its old marketing BODY.
 const guideUrl=(slug,locale)=>"https://www.3sssi.com"+(locale==="en"?"/en":"")+"/guides/"+slug+"/";
@@ -291,4 +369,4 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 })();
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
-console.log("Prepared Cloudflare Pages: 22 public SSG routes (including "+guides.size+" language guides) and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), cacheable CSS links, no runtime SSR.");
+console.log("Prepared Cloudflare Pages: "+(12+GAME_SEO_SLUGS.length*2+guides.size)+" public SSG routes and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), private route noindex shells, no runtime SSR.");

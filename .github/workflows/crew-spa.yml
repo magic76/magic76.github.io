@@ -71,6 +71,11 @@ jobs:
           UI_I18N_BASE_SHA: ${{ github.event.pull_request.base.sha }}
       - run: npm run build:web
       - run: npm run check:bundle
+      - name: Validate Cloudflare prerender and sitemap (SEO PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'seo-')
+        run: |
+          npm run build:cloudflare
+          npm run test:cloudflare
       # Magic changes require real WebGL evidence, including the 390px sculpted
       # robot/fox/dragon close-ups produced by smoke-magic-creator-browser.mjs.
       - name: Real browser snapshot of Crew Magic 3D (Magic PRs only)

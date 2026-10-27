@@ -115,7 +115,7 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
   }).catch(()=>{if(active)setError(english?"Could not load the game engine.":"遊戲載入失敗，請重新整理頁面。")});
   return()=>{active=false};
  },[kind,english,round]);
- const api=window.CrewPlayEngine;
+ const api=typeof window === 'undefined' ? undefined : window.CrewPlayEngine;
  useEffect(()=>{
   const winner=kind==="connect4"?connect?.winner:reversi?.winner;
   if(winner&&!completedRef.current){completedRef.current=true;trackUsageEvent("game_completed",kind);onReaction?.(winner==="draw"?"challenge":kind==="connect4"?(winner==="player"?"win":"lose"):(winner==="black"?"win":"lose"))}
