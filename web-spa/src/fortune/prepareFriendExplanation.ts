@@ -1,5 +1,6 @@
 import {ensureFortuneServices} from "../lib/runtime";
 import {saveFortuneSpeakingContext} from "../teacher/fortuneSpeaking";
+import {fortuneHandoffPhase} from "./fortuneHandoffPhase";
 import type {FortuneReading} from "./types";
 
 /**
