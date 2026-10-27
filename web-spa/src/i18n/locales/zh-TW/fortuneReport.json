@@ -84,6 +84,7 @@
     "tarotSummary": "本年可留意個人年 {{number}} 的主題。",
     "vedic": "{{planet}} 換座",
     "vedicEvidence": "本命第 {{from}} 宮 → 第 {{to}} 宮",
-    "transition": "週期轉折 · {{name}}"
+    "transition": "週期轉折 · {{name}}",
+    "transitionSummary": "{{year}} 年進入 {{name}}，可預先整理下一階段的生活方向。"
   }
 }

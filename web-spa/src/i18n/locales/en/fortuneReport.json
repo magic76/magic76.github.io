@@ -84,6 +84,7 @@
     "tarotSummary": "Consider the theme of personal year {{number}}.",
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
-    "transition": "Cycle transition · {{name}}"
+    "transition": "Cycle transition · {{name}}",
+    "transitionSummary": "The {{name}} period begins in {{year}}. Review your priorities for the next phase."
   }
 }

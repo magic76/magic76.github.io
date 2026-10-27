@@ -84,6 +84,7 @@
     "tarotSummary": "Consider the theme of personal year {{number}}.",
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
-    "transition": "Cycle transition · {{name}}"
+    "transition": "Cycle transition · {{name}}",
+    "transitionSummary": "{{year}}년에 {{name}} 시기가 시작됩니다. 다음 단계의 우선순위를 정리해 보세요."
   }
 }

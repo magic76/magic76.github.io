@@ -98,7 +98,7 @@ export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:Current
  }
  const output=transition?[transition]:[];
  for(const item of ordinary){if(output.length>=3)break;if(!output.some(x=>x.year===item.year))output.push(item)}
- return !tr?output:output.map(x=>x===transition?{...x,label:tr("highlight.transition",{name:x.label.split(" · ").pop()||""}),summary:tr("highlight.baziSummary",{god:x.label, luck:x.year})}:x);
+ return !tr?output:output.map(x=>x===transition?{...x,label:tr("highlight.transition",{name:x.label.split(" · ").pop()||""}),summary:tr("highlight.transitionSummary",{name:x.label.split(" · ").pop()||"",year:x.year})}:x);
 }
 
 export type HighlightTranslate=(key:string,options?:Record<string,unknown>)=>string;
@@ -115,6 +115,6 @@ export function buildYearHighlights(mode:FortuneMode,result:any,tr?:HighlightTra
    return {...item,label:tr("highlight.vedic",{planet}),evidence:tr("highlight.vedicEvidence",{from:item.evidence.match(/H(\d+)/)?.[1]||"—",to:item.evidence.match(/→ H(\d+)/)?.[1]||"—"})};
   }
   const god=item.label.split(" · ")[0];
-  return {...item,label:tr("highlight.bazi",{god,topic:"traditional theme"}),summary:tr("highlight.baziSummary",{god,luck:item.evidence.match(/大運\s*([^\s·]+)/)?.[1]||"—"})};
+  return {...item,label:tr("highlight.bazi",{god,topic:tr("glossary.tenGods."+god)}),summary:tr("highlight.baziSummary",{god,luck:item.evidence.match(/大運\s*([^\s·]+)/)?.[1]||"—"})};
  });
 }
