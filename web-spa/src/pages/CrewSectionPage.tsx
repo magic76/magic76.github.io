@@ -230,7 +230,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
-     <div className="crew-explore-art"><div className="crew-explore-town-mini" aria-hidden="true"><span className="crew-explore-town-orbit"/><span className="crew-explore-town-world">3D</span><span className="crew-explore-town-label">CREW TOWN</span></div></div>
+     <div className="crew-explore-art"><ExploreArtwork kind="town"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Town · A living little world":"Crew Town · 朋友生活小鎮"}</strong>
       <small>{en?"Explore a 3D town with 16 AI friends.":"走進 3D 小鎮，探索街區並與 16 位 AI 朋友互動。"}</small>
@@ -238,9 +238,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
     <Link className="crew-explore-tile crew-explore-magic" data-kind="magic" onClick={()=>trackUsageEvent("explore_entry_click","magic")} to="/magic">
-     <div className="crew-explore-art">
-      <div className="crew-explore-magic-preview" aria-hidden="true"><span className="cloud-one">☁</span><span className="magic-castle-icon">🏰</span><span className="magic-star-one">✦</span><span className="magic-star-two">✧</span><span className="cloud-two">☁</span></div>
-     </div>
+     <div className="crew-explore-art"><ExploreArtwork kind="magic"/></div>
      <span className="crew-explore-text">
       <strong>{en?"Crew Magic · Speak worlds into life":"Crew Magic · 用聲音創造世界"}</strong>
       <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
