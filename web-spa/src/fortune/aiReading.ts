@@ -14,7 +14,8 @@ export function parseAiReading(text:string):ParsedAiReading{
   const end=i+1<headers.length?(headers[i+1].index||0):text.length;
   sections[key]=text.slice(start,end).trim();
  }
- output.summary=(sections.summary||"").replace(/\s+/g," ").trim();
+ const firstLine=(sections.summary||"").split(/\r?\n/).map(line=>line.trim()).find(Boolean)||"";
+ output.summary=(firstLine.match(/^.*?[。！？.!?](?=\s|$)/)?.[0]||firstLine).trim();
  output.next12=lines(sections.next12||"");
  output.work=sections.work||"";output.love=sections.love||"";
  output.self=sections.self||"";output.turning=sections.turning||"";
@@ -37,8 +38,9 @@ function stripPrivate(value:unknown):unknown{
  return value;
 }
 export function buildFortuneQuestionPrompt(facts:unknown,summary:string,today:string,lang:string,question:string):string{
- const safe=typeof facts==="string"?facts.replace(/"(?:latitude|longitude|utcOffset|timeZoneId|birthTime)"\s*:\s*(?:"[^"]*"|[\d.-]+)\s*,?/gi,""):JSON.stringify(stripPrivate(facts));
- const evidence=(safe||"").slice(0,16000);
+ const present=facts!==null&&facts!==undefined&&(!(typeof facts==="object")||Object.keys(facts).length>0);
+ const safe=!present?"":typeof facts==="string"?facts.replace(/"(?:latitude|longitude|utcOffset|timeZoneId|birthTime)"\s*:\s*(?:"[^"]*"|[\d.-]+)\s*,?/gi,""):JSON.stringify(stripPrivate(facts));
+ const evidence=(!safe||["null","undefined","{}","[]"].includes(safe.trim())?"":safe).slice(0,16000);
  return "你是 Crew Fortune 命理解讀者。輸出語言："+lang+"。今天："+today+
   "。只能引用下列固定計算命盤事實，不可重新計算或補不存在的資料。"+
   "回答依序：先結論、一句命盤依據、一個具體做法；250 字內。不給醫療或投資指令。"+
