@@ -128,7 +128,19 @@
       "mainCycle": "主周期"
     },
     "yearsLeft": "残り {{count}} 年",
-    "phaseTarot": "現在のピーク数 {{current}}；{{year}} 年からピーク数 {{next}}"
+    "phaseTarot": "現在のピーク数 {{current}}；{{year}} 年からピーク数 {{next}}",
+    "followup": {
+      "title": "文字で追加質問",
+      "question": "質問",
+      "placeholder": "この鑑定について何を知りたいですか？",
+      "quotaNote": "質問ごとに Gemini の利用枠を1回使用します。",
+      "send": "質問する",
+      "sending": "回答中…",
+      "quota": "Gemini の利用枠に達しました。後でもう一度お試しください。",
+      "key": "Gemini キーが無効です。設定を開いてください。",
+      "other": "回答できませんでした。再試行してください。",
+      "settings": "設定を開く"
+    }
   },
   "profile": {
     "birthdayRequired": "保存する前に生年月日を選んでください",

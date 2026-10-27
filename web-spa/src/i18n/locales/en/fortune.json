@@ -128,7 +128,19 @@
       "mainCycle": "Main period"
     },
     "yearsLeft": "{{count}} years left",
-    "phaseTarot": "Current pinnacle {{current}}; pinnacle {{next}} starts in {{year}}"
+    "phaseTarot": "Current pinnacle {{current}}; pinnacle {{next}} starts in {{year}}",
+    "followup": {
+      "title": "Ask a follow-up",
+      "question": "Your question",
+      "placeholder": "What would you like to know about this reading?",
+      "quotaNote": "Each question uses one Gemini request.",
+      "send": "Ask",
+      "sending": "Answering…",
+      "quota": "Gemini quota reached. Try again later.",
+      "key": "Invalid Gemini key. Open settings.",
+      "other": "Could not get a reply. Please retry.",
+      "settings": "Open settings"
+    }
   },
   "profile": {
     "birthdayRequired": "Choose a birth date before saving",
