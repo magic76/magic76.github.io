@@ -39,8 +39,44 @@ function conjunctions(transits,natal){
 function aspects(transits,natal){
  var out=[];(transits||[]).forEach(function(t){if(t.name==="Rahu"||t.name==="Ketu")return;var offsets=[6];if(t.name==="Mars")offsets.push(3,7);if(t.name==="Jupiter")offsets.push(4,8);if(t.name==="Saturn")offsets.push(2,9);offsets.sort().forEach(function(o){var target=((Number(t.natalHouse)-1+o)%12)+1;out.push({transitPlanet:t.name,fromNatalHouse:t.natalHouse,toNatalHouse:target,distance:o+1,natalPlanets:(natal||[]).filter(function(p){return Number(p.house)===target}).map(function(p){return p.name})})})});return out
 }
+// Scan at most five UTC days at a time: an outer planet may enter and leave
+// a sign within a single monthly sample during retrograde motion.
+function signAt(name,date,lagna){
+ var t=centuries(date),trop=name==="Rahu"?node(t):name==="Ketu"?norm(node(t)+180):tropical(name,date);
+ var p=pos(norm(trop-aya(t)));
+ return{signIndex:p.signIndex,sign:p.sign,natalHouse:house(lagna,p.signIndex)};
+}
+function refineIngress(name,left,right,lagna,fromIndex){
+ var lo=left.getTime(),hi=right.getTime();
+ // Stop at <= 1 hour, safely finer than the required UTC day precision.
+ while(hi-lo>3600000){
+  var mid=Math.floor((lo+hi)/2);
+  if(signAt(name,new Date(mid),lagna).signIndex===fromIndex)lo=mid;
+  else hi=mid;
+ }
+ return new Date(hi);
+}
 function majorTimeline(result,start){
- var names=["Jupiter","Saturn","Rahu","Ketu"],events=[];names.forEach(function(name){var prevDate=new Date(start),prev=planetState(name,prevDate,result.lagnaSignIndex);for(var m=1;m<=36;m++){var d=new Date(start);d.setUTCMonth(d.getUTCMonth()+m);var s=planetState(name,d,result.lagnaSignIndex);if(s.signIndex!==prev.signIndex)events.push({date:d.toISOString().slice(0,10),planet:name,fromSign:prev.sign,toSign:s.sign,fromHouse:prev.natalHouse,toHouse:s.natalHouse,retrograde:s.retrograde,direction:s.retrograde?"retrograde":"direct"});prev=s;prevDate=d}});return events.sort(function(a,b){return a.date.localeCompare(b.date)})
+ var names=["Jupiter","Saturn","Rahu","Ketu"],events=[],stepMs=5*86400000;
+ names.forEach(function(name){
+  var prevDate=new Date(start),prev=signAt(name,prevDate,result.lagnaSignIndex);
+  for(var m=1;m<=36;m++){
+   var end=new Date(start);end.setUTCMonth(end.getUTCMonth()+m);
+   for(var time=Math.min(end.getTime(),prevDate.getTime()+stepMs);time<=end.getTime();time=Math.min(end.getTime(),time+stepMs)){
+    var sampleDate=new Date(time),sample=signAt(name,sampleDate,result.lagnaSignIndex);
+    if(sample.signIndex!==prev.signIndex){
+     var exact=refineIngress(name,prevDate,sampleDate,result.lagnaSignIndex,prev.signIndex);
+     var destination=planetState(name,exact,result.lagnaSignIndex);
+     events.push({date:exact.toISOString().slice(0,10),exactAt:exact.toISOString(),planet:name,
+      fromSign:prev.sign,toSign:destination.sign,fromHouse:prev.natalHouse,toHouse:destination.natalHouse,
+      retrograde:destination.retrograde,direction:destination.retrograde?"retrograde":"direct"});
+    }
+    prevDate=sampleDate;prev=sample;
+    if(time===end.getTime())break;
+   }
+  }
+ });
+ return events.sort(function(a,b){return a.exactAt.localeCompare(b.exactAt)});
 }
 function enrich(result,profileData,now){
  var date=now||new Date(),hs=houses(result),trans=currentTransits(result,date);
