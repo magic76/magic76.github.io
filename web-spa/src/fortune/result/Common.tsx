@@ -38,15 +38,17 @@ export function profileEvidence(profile:any):string[]{
  return out;
 }
 export function Evidence({title,profile,mode,result,chapter}:{title:string;profile:any;mode:FortuneMode;result:any;chapter:FortuneChapterId}){
+ const{i18n}=useTranslation("fortune");
+ const fmt=(v:unknown)=>mode==="vedic"?formatVedicTerm(v,i18n.resolvedLanguage||i18n.language):String(v??"");
  const local=buildLocalReport(mode,result).find(x=>x.id===chapter);
  const facts=profileEvidence(profile);
  if(!local&&!facts.length)return null;
  return <section className="fortune-topic-card fortune-topic-deep">
-  <div><h3>{title}</h3><p>{local?.text||"這個主題目前沒有足夠固定資料可作完整解讀。"}</p></div>
+  <div><h3>{title}</h3><p>{fmt(local?.text||"這個主題目前沒有足夠固定資料可作完整解讀。")}</p></div>
   <details className="fortune-source-details">
    <summary>查看命盤依據（{facts.length+(local?.evidence.length||0)}）</summary>
-   {profile?.evidenceRule||profile?.rule?<p className="fortune-method-note">{profile.evidenceRule||profile.rule}</p>:null}
-   <ul>{[...new Set([...facts,...(local?.evidence||[])])].map((x,i)=><li key={i}>{x}</li>)}</ul>
+   {profile?.evidenceRule||profile?.rule?<p className="fortune-method-note">{fmt(profile.evidenceRule||profile.rule)}</p>:null}
+   <ul>{[...new Set([...facts,...(local?.evidence||[])])].map((x,i)=><li key={i}>{fmt(x)}</li>)}</ul>
   </details>
  </section>;
 }

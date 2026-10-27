@@ -81,11 +81,11 @@ function majorTimeline(result,start){
 function enrich(result,profileData,now){
  var date=now||new Date(),hs=houses(result),trans=currentTransits(result,date);
  result.houses=hs;result.houseLords=lords(hs);result.currentTransitDate=date.toISOString().slice(0,10);result.currentTransits=trans;result.transitConjunctionsToNatal=conjunctions(trans,result.planets);result.transitAspectsToNatal=aspects(trans,result.planets);result.majorTransitTimeline=majorTimeline(result,date);
- result.personalityProfile=profile("Lagna、Lagna lord、Moon 與 Sun 描述本命性格與外在／內在節奏。",["Lagna "+result.lagnaSign+" · "+result.lagnaNakshatra,lordEvidence(result,hs,1),evidencePlanet(result,"Moon"),evidencePlanet(result,"Sun")]);
- result.careerProfile=profile("工作主題以 10 宮、10 宮主、Saturn/Jupiter 與目前 Dasha 為 deterministic evidence。",[evidenceHouse(hs,10),lordEvidence(result,hs,10),evidencePlanet(result,"Saturn"),evidencePlanet(result,"Jupiter"),dasha(result)]);
- result.wealthProfile=profile("資源與財務以 2 宮、11 宮、Jupiter/Venus 與目前 Dasha 觀察；不是投資預測。",[evidenceHouse(hs,2),lordEvidence(result,hs,2),evidenceHouse(hs,11),lordEvidence(result,hs,11),evidencePlanet(result,"Jupiter"),evidencePlanet(result,"Venus"),dasha(result)]);
- result.relationshipProfile=profile("感情與關係以 7 宮、7 宮主、Venus 與目前 Dasha 為主要 evidence。",[evidenceHouse(hs,7),lordEvidence(result,hs,7),evidencePlanet(result,"Venus"),dasha(result)]);
- result.familyChildrenProfile=profile("家庭與子女只提供 4 宮／5 宮及宮主、Moon/Jupiter 的結構 evidence。",[evidenceHouse(hs,4),lordEvidence(result,hs,4),evidenceHouse(hs,5),lordEvidence(result,hs,5),evidencePlanet(result,"Moon"),evidencePlanet(result,"Jupiter")]);
+ result.personalityProfile=profile("個性主題參考上升（Lagna）、上升宮主、月亮（Moon）與太陽（Sun）的位置。",["Lagna "+result.lagnaSign+" · "+result.lagnaNakshatra,lordEvidence(result,hs,1),evidencePlanet(result,"Moon"),evidencePlanet(result,"Sun")]);
+ result.careerProfile=profile("事業主題參考第 10 宮、宮主、土星（Saturn）、木星（Jupiter）與目前人生週期。",[evidenceHouse(hs,10),lordEvidence(result,hs,10),evidencePlanet(result,"Saturn"),evidencePlanet(result,"Jupiter"),dasha(result)]);
+ result.wealthProfile=profile("資源主題參考第 2、11 宮、木星（Jupiter）、金星（Venus）與目前人生週期。",[evidenceHouse(hs,2),lordEvidence(result,hs,2),evidenceHouse(hs,11),lordEvidence(result,hs,11),evidencePlanet(result,"Jupiter"),evidencePlanet(result,"Venus"),dasha(result)]);
+ result.relationshipProfile=profile("感情與關係主題參考第 7 宮、宮主、金星（Venus）與目前人生週期。",[evidenceHouse(hs,7),lordEvidence(result,hs,7),evidencePlanet(result,"Venus"),dasha(result)]);
+ result.familyChildrenProfile=profile("家庭主題參考第 4、5 宮、宮主、月亮（Moon）與木星（Jupiter）。",[evidenceHouse(hs,4),lordEvidence(result,hs,4),evidenceHouse(hs,5),lordEvidence(result,hs,5),evidencePlanet(result,"Moon"),evidencePlanet(result,"Jupiter")]);
  return result;
 }
 global.CrewFortuneVedicEnrich={enrich:enrich};
