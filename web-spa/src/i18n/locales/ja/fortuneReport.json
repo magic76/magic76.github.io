@@ -5,16 +5,16 @@
     "vedic": "現在の大運期は {{current }}、次は {{next}} です。注目点：{{focus}}。"
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "算出した命盤の指標：{{facts}}。確定的な出来事ではなく、考えるための手がかりとして使います。",
+    "personality": "性格や習慣について、実際の経験と照らし合わせる指標：{{facts}}。",
+    "career": "仕事や責任について考える材料：{{facts}}。",
+    "wealth": "お金や資源の使い方を見直す材料：{{facts}}。",
+    "relationships": "人間関係とコミュニケーションを振り返る材料：{{facts}}。",
+    "family": "家庭や暮らしについて考える材料：{{facts}}。",
+    "currentCycle": "現在の期間を表す計算結果：{{facts}}。",
+    "longTerm": "長期的なサイクルの計算結果：{{facts}}。",
+    "keyYears": "今後の転換期と注目する年：{{facts}}。",
+    "advice": "今後見直せる具体的な行動を一つ選びましょう。参考：{{facts}}。"
   },
   "glossary": {
     "title": "命理用語ガイド",

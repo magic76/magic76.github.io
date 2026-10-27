@@ -5,16 +5,16 @@
     "vedic": "มหาทศาปัจจุบัน: {{current}} ขั้นถัดไป: {{next}} ประเด็น: {{focus}}"
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "ข้อมูลที่คำนวณจากดวงชะตา: {{facts}} ใช้เพื่อทบทวนตนเอง ไม่ใช่คำทำนายที่แน่นอน",
+    "personality": "พิจารณานิสัยและจุดแข็งเทียบกับประสบการณ์จริงโดยดู: {{facts}}",
+    "career": "ทบทวนเรื่องงานและความรับผิดชอบจาก: {{facts}}",
+    "wealth": "ทบทวนการตัดสินใจเรื่องเงินและทรัพยากรจาก: {{facts}}",
+    "relationships": "พิจารณาความสัมพันธ์และการสื่อสารจาก: {{facts}}",
+    "family": "พิจารณาชีวิตครอบครัวและบ้านจาก: {{facts}}",
+    "currentCycle": "ช่วงเวลาปัจจุบันอธิบายได้ด้วย: {{facts}}",
+    "longTerm": "วัฏจักรระยะยาวอธิบายได้ด้วย: {{facts}}",
+    "keyYears": "ช่วงเวลาและจุดเปลี่ยนที่สำคัญตามการคำนวณ: {{facts}}",
+    "advice": "เลือกการกระทำที่ตรวจสอบผลได้ในภายหลัง โดยอ้างอิง: {{facts}}"
   },
   "glossary": {
     "title": "คำศัพท์คำทำนาย",

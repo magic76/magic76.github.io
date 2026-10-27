@@ -5,16 +5,16 @@
     "vedic": "Mahadasha hiện tại: {{current}}. Tiếp theo: {{next}}. Trọng tâm: {{focus}}."
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "Các chỉ dấu được tính từ lá số: {{facts}}. Hãy xem đây là gợi ý suy ngẫm, không phải sự kiện chắc chắn.",
+    "personality": "Đối chiếu thói quen và thế mạnh với trải nghiệm thật dựa trên: {{facts}}.",
+    "career": "Để suy ngẫm về công việc và trách nhiệm: {{facts}}.",
+    "wealth": "Để xem lại quyết định về tiền bạc và nguồn lực: {{facts}}.",
+    "relationships": "Để suy ngẫm về quan hệ và giao tiếp: {{facts}}.",
+    "family": "Để cân nhắc các chủ đề gia đình và nhà cửa: {{facts}}.",
+    "currentCycle": "Giai đoạn hiện tại được mô tả qua: {{facts}}.",
+    "longTerm": "Các chu kỳ dài hạn được mô tả qua: {{facts}}.",
+    "keyYears": "Các thời điểm và chuyển tiếp nổi bật theo tính toán: {{facts}}.",
+    "advice": "Chọn một hành động cụ thể có thể đánh giá lại sau. Căn cứ: {{facts}}."
   },
   "glossary": {
     "title": "Thuật ngữ luận giải",

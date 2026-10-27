@@ -5,16 +5,16 @@
     "vedic": "Mahadasha saat ini: {{current}}. Berikutnya: {{next}}. Fokus: {{focus}}."
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "Indikator hasil perhitungan bagan: {{facts}}. Gunakan sebagai bahan refleksi, bukan kepastian kejadian.",
+    "personality": "Bandingkan kebiasaan dan kekuatan diri dengan pengalaman nyata melalui: {{facts}}.",
+    "career": "Untuk merenungkan pekerjaan dan tanggung jawab: {{facts}}.",
+    "wealth": "Untuk mengevaluasi keputusan tentang uang dan sumber daya: {{facts}}.",
+    "relationships": "Untuk merenungkan hubungan dan komunikasi: {{facts}}.",
+    "family": "Untuk memahami tema keluarga dan rumah: {{facts}}.",
+    "currentCycle": "Periode saat ini digambarkan oleh: {{facts}}.",
+    "longTerm": "Siklus jangka panjang ditunjukkan oleh: {{facts}}.",
+    "keyYears": "Periode dan perubahan penting dari hasil perhitungan: {{facts}}.",
+    "advice": "Pilih satu langkah nyata untuk ditinjau kembali berdasarkan: {{facts}}."
   },
   "glossary": {
     "title": "Glosarium bacaan",

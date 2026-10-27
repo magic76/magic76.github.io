@@ -5,16 +5,16 @@
     "vedic": "Aktuelle Mahadasha: {{current}}. Nächste: {{next}}. Fokus: {{focus}}."
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "Berechnete Merkmale des Horoskops: {{facts}}. Sie dienen der Reflexion, nicht sicheren Vorhersagen.",
+    "personality": "Vergleichen Sie Gewohnheiten und Stärken mit echten Erfahrungen anhand von: {{facts}}.",
+    "career": "Für Gedanken zu Arbeit und Verantwortung: {{facts}}.",
+    "wealth": "Zur Überprüfung von Geld- und Ressourcenentscheidungen: {{facts}}.",
+    "relationships": "Für Beziehungen und Kommunikation: {{facts}}.",
+    "family": "Für Familie und Zuhause: {{facts}}.",
+    "currentCycle": "Der aktuelle Zeitraum wird beschrieben durch: {{facts}}.",
+    "longTerm": "Langfristige Zyklen werden beschrieben durch: {{facts}}.",
+    "keyYears": "Anstehende Phasen und Übergänge aus den Berechnungen: {{facts}}.",
+    "advice": "Wählen Sie eine konkrete Handlung, die Sie später überprüfen. Bezug: {{facts}}."
   },
   "glossary": {
     "title": "Begriffe zur Deutung",

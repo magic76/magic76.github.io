@@ -5,16 +5,16 @@
     "vedic": "Mahadasha actual: {{current}}. Siguiente: {{next}}. Tema: {{focus}}."
   },
   "chapter": {
-    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
-    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
-    "career": "For work and responsibility, reflect on: {{facts}}.",
-    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
-    "relationships": "For communication and relationships, reflect on: {{facts}}.",
-    "family": "For family life and home, consider: {{facts}}.",
-    "currentCycle": "This is the current calculated period: {{facts}}.",
-    "longTerm": "The longer-term cycle is described by: {{facts}}.",
-    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
-    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+    "overview": "Indicadores calculados de tu carta: {{facts}}. Úsalos para reflexionar, no como hechos inevitables.",
+    "personality": "Para comprender hábitos y fortalezas, compara estos indicadores con tu experiencia: {{facts}}.",
+    "career": "Para reflexionar sobre el trabajo y las responsabilidades: {{facts}}.",
+    "wealth": "Para revisar decisiones de dinero y recursos: {{facts}}.",
+    "relationships": "Para reflexionar sobre vínculos y comunicación: {{facts}}.",
+    "family": "Para explorar los temas familiares y del hogar: {{facts}}.",
+    "currentCycle": "El periodo actual se representa mediante: {{facts}}.",
+    "longTerm": "Los ciclos a largo plazo se describen mediante: {{facts}}.",
+    "keyYears": "Periodos y cambios destacados según el cálculo: {{facts}}.",
+    "advice": "Elige un paso concreto que puedas revisar más tarde, tomando como referencia: {{facts}}."
   },
   "glossary": {
     "title": "Glosario de la lectura",
