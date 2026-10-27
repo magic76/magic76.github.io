@@ -37,7 +37,7 @@
     "moduleError": "命盤計算模組載入失敗，請重新整理後再試。",
     "birthdayRequired": "請選擇生日",
     "timeRequired": "請填出生時間",
-    "locationRequired": "印度星盤需要出生地經緯度與 UTC offset",
+    "locationRequired": "印度星盤需要出生地經緯度與 UTC offset；格式例如 +08:00",
     "retry": "重新載入",
     "yourProfile": "你的資料",
     "once": "只需設定一次",
@@ -127,7 +127,8 @@
       "moon": "月亮",
       "mainCycle": "主週期"
     },
-    "yearsLeft": "還有 {{count}} 年"
+    "yearsLeft": "還有 {{count}} 年",
+    "phaseTarot": "目前巔峰數 {{current}}；{{year}} 年起進入巔峰數 {{next}}"
   },
   "profile": {
     "birthdayRequired": "先選生日再儲存",
