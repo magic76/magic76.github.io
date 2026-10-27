@@ -1,6 +1,6 @@
 import {createServer} from "vite";
 import {join} from "node:path";
-import {readPublishedResearch} from "./research-seo.mjs";
+import {readPublishedResearch,hasArticleHeading,articleHeadingText} from "./research-seo.mjs";
 import {recommendPublishedResearch} from "./research-discovery.mjs";
 
 /**
@@ -65,7 +65,7 @@ export async function prerenderPublicRoutes(root){
     const path="/research/"+date+"/"+item.id;
     const seed={day,article:item,related:related[path+"/"]||[]};
     const html=await renderStaticRoute(path,"zh-TW",seed);
-    if(!html.includes("<h1>")||!html.includes(item.title.replaceAll("&","&amp;")))throw Error("Article prerender missing heading: "+path);
+    if(!hasArticleHeading(html,item.title))throw Error("Article prerender missing heading: "+path+" (actual h1: "+JSON.stringify(articleHeadingText(html)?.slice(0,120)??null)+")");
     result.set("zh-TW:"+path,html);
     articles.set(path,{day,item,seed});
    }

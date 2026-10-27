@@ -7,6 +7,31 @@ const idRe=/^[a-zA-Z0-9_-]{3,100}$/;
 export const articlePath=(day,item)=>"/research/"+day+"/"+item.id+"/";
 export const articleCanonical=(day,item)=>"https://www.3sssi.com"+articlePath(day,item);
 export const escapeHtml=value=>String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+export const decodeHtmlText=value=>String(value??"").replace(/&(?:amp|lt|gt|quot|#(?:\d+|x[0-9a-f]+));/gi,entity=>{
+ const named={"&amp;":"&","&lt;":"<","&gt;":">","&quot;":"\""};
+ const key=entity.toLowerCase();
+ if(key in named)return named[key];
+ const hex=key.startsWith("&#x");
+ const code=Number.parseInt(key.slice(hex?3:2,-1),hex?16:10);
+ return code>=0&&code<=0x10ffff&&!Number.isNaN(code)?String.fromCodePoint(code):entity;
+});
+export function articleHeadingText(html){
+ const source=String(html??"");
+ for(const article of source.matchAll(/<article\b[^>]*>/gi)){
+  const classes=article[0].match(/\sclass\s*=\s*(["'])(.*?)\1/i)?.[2]?.split(/\s+/)||[];
+  if(!classes.includes("briefing")||!classes.includes("briefing-detail"))continue;
+  const body=source.slice(article.index+article[0].length);
+  const end=body.search(/<\/article\s*>/i);
+  if(end<0)return null;
+  const heading=body.slice(0,end).match(/<h1\b[^>]*>([\s\S]*?)<\/h1\s*>/i);
+  return heading?decodeHtmlText(heading[1].replace(/<[^>]*>/g,"")):null;
+ }
+ return null;
+}
+export const hasArticleHeading=(html,title)=>{
+ const heading=articleHeadingText(html);
+ return typeof title==="string"&&title.trim()!==""&&heading!==null&&heading.trim()!==""&&heading===title;
+};
 export const safeJson=value=>JSON.stringify(value).replace(/</g,"\\u003c").replace(/>/g,"\\u003e").replace(/&/g,"\\u0026").replace(/\u2028/g,"\\u2028").replace(/\u2029/g,"\\u2029");
 
 /** Only editorial pages with enough original analysis enter search indexing. */
@@ -26,7 +51,7 @@ export function readPublishedResearch(root){
   const ids=new Set();
   for(const item of day.items){
    if(!idRe.test(item.id||"")||ids.has(item.id))throw Error("Unsafe or duplicate research id: "+date+" "+item.id);
-   if(typeof item.title!=="string"||typeof item.summary!=="string"||!Array.isArray(item.sources)||!Array.isArray(item.actions))throw Error("Invalid public article: "+date+" "+item.id);
+   if(typeof item.title!=="string"||!item.title.trim()||typeof item.summary!=="string"||!Array.isArray(item.sources)||!Array.isArray(item.actions))throw Error("Invalid public article: "+date+" "+item.id);
    ids.add(item.id);
   }
   days.set(date,day);
