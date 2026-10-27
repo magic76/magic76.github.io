@@ -1,0 +1,89 @@
+{
+  "headline": {
+    "bazi": "ช่วงปัจจุบัน: {{current}} ปี {{year}} จะเริ่ม {{next}} ประเด็น: {{focus}}",
+    "tarot": "ช่วงสูงสุดปัจจุบัน: {{current}} ปี {{year}} เริ่ม {{next}} ประเด็น: {{focus}}",
+    "vedic": "มหาทศาปัจจุบัน: {{current}} ขั้นถัดไป: {{next}} ประเด็น: {{focus}}"
+  },
+  "chapter": {
+    "overview": "Calculated chart indicators: {{facts}}. Treat these as themes to examine, not guaranteed events.",
+    "personality": "For personal strengths and habits, compare these chart indicators with your actual experiences: {{facts}}.",
+    "career": "For work and responsibility, reflect on: {{facts}}.",
+    "wealth": "For money and resources, consider your real decisions alongside: {{facts}}.",
+    "relationships": "For communication and relationships, reflect on: {{facts}}.",
+    "family": "For family life and home, consider: {{facts}}.",
+    "currentCycle": "This is the current calculated period: {{facts}}.",
+    "longTerm": "The longer-term cycle is described by: {{facts}}.",
+    "keyYears": "Upcoming periods and transitions supported by the chart: {{facts}}.",
+    "advice": "Pick a concrete step you can review later. Start with: {{facts}}."
+  },
+  "glossary": {
+    "title": "คำศัพท์คำทำนาย",
+    "tenGods": {
+      "比肩": "Peers and independence",
+      "劫財": "Competition and shared resources",
+      "食神": "Steady expression and creativity",
+      "傷官": "New ideas and challenging norms",
+      "偏財": "Flexible opportunities",
+      "正財": "Stable resources",
+      "七殺": "Pressure and decisive action",
+      "正官": "Responsibility and structure",
+      "偏印": "Research and alternative approaches",
+      "正印": "Learning and support"
+    },
+    "numbers": {
+      "1": "Initiative",
+      "2": "Partnership",
+      "3": "Expression",
+      "4": "Structure",
+      "5": "Adaptation",
+      "6": "Responsibility",
+      "7": "Inquiry",
+      "8": "Management",
+      "9": "Completion",
+      "11": "Intuition and insight",
+      "22": "Vision and execution",
+      "33": "Care and service"
+    },
+    "planets": {
+      "Sun": "Identity and vitality",
+      "Moon": "Feelings and routines",
+      "Mars": "Drive and action",
+      "Mercury": "Thinking and communication",
+      "Jupiter": "Growth and learning",
+      "Venus": "Values and connection",
+      "Saturn": "Structure and responsibility",
+      "Rahu": "North lunar node",
+      "Ketu": "South lunar node"
+    },
+    "houses": {
+      "1": "Identity and appearance",
+      "2": "Resources and values",
+      "3": "Communication and learning",
+      "4": "Home and roots",
+      "5": "Creativity and expression",
+      "6": "Habits and service",
+      "7": "Partnerships",
+      "8": "Shared resources and change",
+      "9": "Beliefs and travel",
+      "10": "Career and public role",
+      "11": "Community and goals",
+      "12": "Rest and reflection"
+    },
+    "terms": {
+      "pinnacle": "A number symbolizing a longer life phase.",
+      "challenge": "A number used to reflect on recurring challenges.",
+      "Mahadasha": "A major period in Vedic astrology.",
+      "Antardasha": "A shorter period within a Mahadasha.",
+      "Nakshatra": "A traditional lunar mansion."
+    }
+  },
+  "highlight": {
+    "bazi": "{{god}} · {{topic}}",
+    "baziSummary": "Focus on {{god}} within the {{luck}} cycle.",
+    "tarot": "Personal year {{number}}",
+    "tarotSummary": "Consider the theme of personal year {{number}}.",
+    "vedic": "{{planet}} transit",
+    "vedicEvidence": "Natal house {{from}} → house {{to}}",
+    "transition": "Cycle transition · {{name}}"
+  }
+}

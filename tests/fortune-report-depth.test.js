@@ -6,7 +6,7 @@ const {stripTypeScriptTypes} = require("node:module");
 require.extensions[".ts"] = (mod, file) => {
  const source = fs.readFileSync(file, "utf8");
  const code = stripTypeScriptTypes(source, {mode:"strip"})
-  .replace(/import \{buildYearHighlights\} from "\.\/yearHighlights";/, 'const {buildYearHighlights} = require("./yearHighlights");')
+  .replace(/import \{buildTimingHighlights\} from "\.\/yearHighlights";/, 'const {buildTimingHighlights} = require("./yearHighlights");')
   .replace(/import \{formatFortuneValue\} from "\.\/displayNumber";/, 'const {formatFortuneValue} = require("./displayNumber.ts");')
   .replace(/import \{formatFortuneLocalDate\} from "\.\/aiReading";/, 'const {formatFortuneLocalDate} = require("./aiReading.ts");')
   .replace(/export function /g, "function ")

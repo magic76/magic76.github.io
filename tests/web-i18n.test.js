@@ -221,7 +221,7 @@ test("route-scoped catalogs load with their route instead of the entry bundle",(
  const app=read("web-spa/src/App.tsx");
  assert.match(index,/react:\{useSuspense:false,nsMode:"fallback"\}/,"multi-namespace useTranslation must fall back across namespaces");
  assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice|magic)\.json"/);
- assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice,magic\}\.json"/);
+ assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice,magic,fortuneReport\}\.json"/);
  // Magic is a route namespace, not an eager entry dependency.
  assert.doesNotMatch(index,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);
  assert.doesNotMatch(app,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);
