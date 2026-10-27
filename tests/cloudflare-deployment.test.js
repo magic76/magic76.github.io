@@ -175,7 +175,7 @@ check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata an
   assert.ok(html.includes('class="app-header"'),"missing actual game shell "+path);
   assert.ok(html.includes('hreflang="en"')&&html.includes('hreflang="zh-Hant"'),"game language alternates "+path);
   assert.ok(!html.includes("/@fs/"),"Vite dev-only path "+path);
-  const match=html.match(/<script type="application\\/ld\\+json">([^<]+)<\\/script>/);
+  const match=html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/);
   assert.ok(match,"missing JSON-LD "+path);
   const graph=JSON.parse(match[1])["@graph"];
   assert.ok(graph.some(item=>item["@type"]==="BreadcrumbList"),"breadcrumbs "+path);
