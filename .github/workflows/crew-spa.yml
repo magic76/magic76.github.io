@@ -53,8 +53,7 @@ jobs:
       # The default PR lane is intentionally light. Only test-regression repair
       # branches run the full suite before the PR is merged.
       - name: Full regressions (test repair PRs only)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || github.event.pull_request.head.ref == 'fort/fortune-usefulness-b')
-        continue-on-error: ${{ github.event.pull_request.head.ref == 'fort/fortune-usefulness-b' }}
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
         run: npm test
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
