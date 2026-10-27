@@ -37,7 +37,7 @@
     "moduleError": "Não foi possível carregar os cálculos do mapa. Atualize a página e tente novamente.",
     "birthdayRequired": "Escolha sua data de nascimento",
     "timeRequired": "Informe a hora de nascimento",
-    "locationRequired": "A astrologia védica exige coordenadas de nascimento e diferença UTC",
+    "locationRequired": "A astrologia védica exige coordenadas de nascimento e diferença UTC; formato: +08:00",
     "retry": "Recarregar",
     "yourProfile": "Seus dados",
     "once": "Configure uma vez",
@@ -127,7 +127,8 @@
       "moon": "Lua",
       "mainCycle": "Período principal"
     },
-    "yearsLeft": "faltam {{count}} anos"
+    "yearsLeft": "faltam {{count}} anos",
+    "phaseTarot": "Pico atual {{current}}; pico {{next}} a partir de {{year}}"
   },
   "profile": {
     "birthdayRequired": "Escolha uma data de nascimento antes de salvar",
