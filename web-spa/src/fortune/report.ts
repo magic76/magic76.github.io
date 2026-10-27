@@ -11,7 +11,7 @@ const TITLES:Record<FortuneChapterId,string>={
 };
 const str=(v:unknown):string=>v===null||v===undefined||v===""?"":formatFortuneValue(v);
 const arr=(v:unknown):any[]=>Array.isArray(v)?v:[];
-const text=(...parts:unknown[])=>parts.map(str).filter(Boolean).join("；");
+const text=(...parts:unknown[])=>parts.filter(x=>x!==0).map(str).filter(Boolean).join("；");
 const uniq=(items:string[])=>[...new Set(items.filter(Boolean))];
 function renderValue(v:unknown):string{
  if(v===null||v===undefined||v==="")return "";
@@ -29,7 +29,7 @@ function chapters(parts:Partial<Record<FortuneChapterId,{text:string;evidence?:s
   id,title:TITLES[id],text:parts[id]!.text,evidence:uniq(parts[id]!.evidence||[])
  }));
 }
-const fewYears=(v:unknown,n=5)=>arr(v).slice(0,n).map(renderValue).filter(Boolean).join("、")||"尚無可對應的年份";
+const fewYears=(v:unknown,n=5)=>uniq(arr(v).map(renderValue).filter(Boolean)).slice(0,n).join("、")||"尚無可對應的年份";
 function futureHighlights(mode:FortuneMode,r:any){
  return buildYearHighlights(mode,r).slice(0,4).map(y=>y.year+"（"+y.label+"；"+y.evidence+"）");
 }
@@ -61,7 +61,7 @@ function bazi(r:any):FortuneChapter[]{
  const yrs=arr(r.annualTimeline).filter((x:any)=>Number(x.year)>=new Date().getFullYear()).slice(0,10);
  const curYear=new Date().getFullYear();
  const we=r.wealthProfile||{},ca=r.careerProfile||{},re=r.relationshipProfile||{};
- const current=text(luck&&"目前大運 "+luck.ganZhi+"（"+luck.startYear+"–"+luck.endYear+"）",y&&curYear+" 流年 "+y.ganZhi+"，十神 "+y.stemTenGod,y&&y.stemTenGodMeaning&&"這年的十神主題可先理解為「"+y.stemTenGodMeaning+"」",y&&arr(y.natalInteractions).length&&"與本命互動："+arr(y.natalInteractions).slice(0,2).join("、"));
+ const current=text(luck&&"目前大運 "+luck.ganZhi+"（"+luck.startYear+"–"+luck.endYear+"）",y&&curYear+" 流年 "+y.ganZhi+"，十神 "+y.stemTenGod,y&&y.stemTenGodMeaning&&"這年的十神主題可先理解為「"+y.stemTenGodMeaning+"」",y&&arr(y.natalInteractions).length&&"與本命互動："+uniq(arr(y.natalInteractions).map(String)).slice(0,2).join("、"));
  return chapters({
   overview:{text:"四柱為 "+str(r.fourPillars||"尚未提供")+"，日主 "+str(r.dayMaster||"—")+"（"+str(r.dayMasterElement||"—")+"）。簡化的旺衰指標是「"+str(r.dayMasterStrength||"未提供")+"」，加權五行以 "+(rank||"現有命盤資料")+" 為主要觀察點。這些是傳統命理計算與分類，並不能單獨判定現實中的成敗。",evidence:evidence(r.fourPillars,r.dayMasterStrength,rank)},
   personality:{text:"從日主「"+str(r.dayMasterElement)+"」、五行分布與命局互動看傳統命理所描述的行為傾向。現有結構互動為 "+(fewYears(r.natalInteractions,4)||"未見標註")+"；元素權重依序可先比較 "+rank+"。把這些線索對照自己在壓力、合作與獨立決策時的真實表現，比只貼一個性格標籤更有用。",evidence:evidence(r.dayMasterElement,rank,r.natalInteractions)},
@@ -82,7 +82,7 @@ function tarot(r:any):FortuneChapter[]{
  const pinnacle=arr(r.pinnacles).map((x:any,i:number)=>"階段 "+(i+1)+"："+x+"（"+str(arr(r.pinnacleTiming)[i])+"歲）").join("；");
  return chapters({
   overview:{text:"出生牌組為 "+str(r.birthCardDisplay||"—")+"，生命道路 "+str(r.lifePathDisplay||"—")+"，態度數 "+str(r.attitudeNumber||"—")+"。這套系統用生日數字整理反思主題，並不是抽牌占卜，也無法證明個人的命運或能力。",evidence:evidence(r.birthCardDisplay,r.lifePathDisplay,r.attitudeNumber)},
-  personality:{text:"外在人格牌「"+str(r.personalityCardName||"—")+"」與內在靈魂牌「"+str(r.soulCardName||"—")+"」提供兩種不同的自我描述角度。生命道路 "+str(r.lifePathDisplay)+"、生日數 "+str(r.birthdayNumber||"—")+" 與態度數 "+str(r.attitudeNumber||"—")+" 可以和自己的長期行為習慣對照。牌組關鍵詞："+(cards||"未提供")+"；不同牌組的說法不應當成客觀人格測驗。",evidence:evidence(cards,r.birthdayNumber,r.attitudeNumber)},
+  personality:{text:(r.personalityCardName&&r.personalityCardName===r.soulCardName?"內外一致：人格牌與靈魂牌同為「"+str(r.personalityCardName)+"」，可從同一張牌反思外在表達與內在需求。":"外在人格牌「"+str(r.personalityCardName||"—")+"」與內在靈魂牌「"+str(r.soulCardName||"—")+"」提供兩種不同的自我描述角度。")+"生命道路 "+str(r.lifePathDisplay)+"、生日數 "+str(r.birthdayNumber||"—")+" 與態度數 "+str(r.attitudeNumber||"—")+" 可以和自己的長期行為習慣對照。牌組關鍵詞："+(cards||"未提供")+"；不同牌組的說法不應當成客觀人格測驗。",evidence:evidence(cards,r.birthdayNumber,r.attitudeNumber)},
   career:{text:"工作主題可以從生命道路 "+str(r.lifePathDisplay)+"、人格牌「"+str(r.personalityCardName)+"」及目前個人年 "+str(r.personalYear)+" 三個層次來比較。階段數字依序為 "+(pinnacle||"尚無資料")+"。可用這些週期設問：你目前更在意建立基礎、嘗試變化，還是完成已有的承諾？實際職涯仍要看能力與外在條件。",evidence:evidence(r.careerProfile?.evidence,r.pinnacles)},
   wealth:{text:"財務與資源不會因某張牌而有保證結果。這套生日數字系統目前計算出個人年 "+str(r.personalYear)+"、個人月 "+str(r.personalMonth)+"，以及四項挑戰數 "+renderValue(r.challenges)+"。可把它們視為檢視時間運用、消費習慣、資源壓力的提醒，不應轉化成投資指令。",evidence:evidence(r.wealthProfile?.evidence,r.challenges)},
   relationships:{text:"關係主題可對照人格牌「"+str(r.personalityCardName)+"」與靈魂牌「"+str(r.soulCardName)+"」是否呈現不同的自我需求，以及態度數 "+str(r.attitudeNumber)+" 所代表的傳統分類。重點是回頭觀察自己如何溝通、如何設立界線，而非預測某年一定出現關係事件。",evidence:evidence(r.relationshipProfile?.evidence)},
@@ -116,7 +116,7 @@ export function buildLocalReport(mode:FortuneMode,result:any):FortuneChapter[]{
  if(!result||typeof result!=="object")return [];
  return mode==="bazi"?bazi(result):mode==="tarot"?tarot(result):vedic(result);
 }
-export function buildReportPrompt(mode:FortuneMode,result:any,style:string):string{
+export function buildReportPrompt(mode:FortuneMode,result:any,style:string,options?:{today?:string;locale?:string;phase?:{age:number;promptLine:string}|string}):string{
  const fields:Record<FortuneMode,string[]>={
   bazi:["fourPillars","dayMaster","dayMasterElement","weightedFiveElements","tenGods","dayMasterStrength","natalInteractions","luckPillars","currentLuckPillar","annualTimeline","wealthProfile","careerProfile","relationshipProfile"],
   tarot:["birthCardDisplay","birthCards","lifePathDisplay","birthdayNumber","attitudeNumber","personalityCardName","soulCardName","pinnacles","pinnacleTiming","challenges","periodCycles","personalYear","personalMonth","personalYearTimeline","personalMonthTimeline","identityProfile","careerProfile","wealthProfile","relationshipProfile"],
@@ -124,12 +124,30 @@ export function buildReportPrompt(mode:FortuneMode,result:any,style:string):stri
  };
  const source:Record<string,unknown>={};
  for(const key of fields[mode])if(result?.[key]!==undefined)source[key]=result[key];
- const headings=["命盤總覽","性格與天賦","事業與職涯","財富與資源","感情與人際",...(mode==="vedic"?["家庭與子女"]:[]),"目前人生階段","未來十年與長期節奏","重要年份與轉折","可以如何運用這份解讀"];
- return "你是 Crew Fortune 的命理解讀者，使用繁體中文。"+style+
- "你只能依據提供的固定命理計算資料寫作，不得重新計算、補造不存在的十神、宮位、牌、日期，也不能保證任何未來事件。"+
- "請以以下 Markdown 二級標題依序逐章輸出，每章應有白話結論、2–4 個具體計算依據、該資料可如何理解與限制，不要反覆寫空泛人格描述。"+
- "每章盡量 150–300 個中文字。可針對缺少足夠依據的主題直接說明不足。"+
- "逐年必須引用所給的年度資料，不要只說流年好壞；財富不是投資建議，不預測死亡、疾病、懷孕或重大災難。"+
- "只輸出以下標題與正文，不要額外開場或分享文案：\n"+headings.map(x=>"## "+x).join("\n")+
- "\n\n固定計算資料：\n"+JSON.stringify(source);
+ const today=options?.today||new Date().toISOString().slice(0,10);
+ const lang=options?.locale||"繁體中文";
+ const phase=typeof options?.phase==="string"?options.phase:options?.phase?.promptLine||"未提供";
+ const age=typeof options?.phase==="object"?options.phase.age:"未提供";
+ return "你是 Crew Fortune 的解讀者。讀者是不懂命理的一般人，想知道：我是怎樣的人、工作與錢、感情、今年和接下來 12 個月該怎麼做。\n"+
+  "輸出語言："+lang+"（標記行除外，全部用此語言）。語氣："+style+"。\n"+
+  "今天日期："+today+"；使用者目前 "+age+" 歲（實歲）；現在所在階段："+phase+"\n"+
+  "規則：\n"+
+  "1. 只能使用下方「固定計算資料」與「現在所在階段」，不得重新計算、不得補造不存在的星曜、十神、宮位、牌或日期。\n"+
+  "2. 每個專有名詞第一次出現時，用括號補一句白話（例如「七殺（壓力與硬仗）」）；同一名詞只解釋一次。\n"+
+  "3. 每個結論都要說明是哪一項資料推出的，但依據只寫一句，不要列清單。\n"+
+  "4. 不要寫「不代表／不能保證」之類的免責句，頁面已有統一說明；不預測死亡、疾病、懷孕、災難，不給投資或醫療指令。\n"+
+  "5. 不寫放之四海皆準的人格描述：如果一句話換成任何人的盤也成立，就刪掉。\n"+
+  "6. 建議要具體到「可以做／避免」與時間（年或月份）。\n"+
+  "7. 不要在輸出中提到這些規則、資料來源格式或「依據列表記錄」之類的說法。\n"+
+  "8. 不要寫出資料的欄位名或英文鍵名（例如 weightedFiveElements、annualTimeline、pinnacleTiming），改用一般人看得懂的說法。\n"+
+  "9. 資料沒有提供的意義、相位、宮位關係或解釋，不要自行補上；資料中有「白話／meaning／plainSummary」時優先沿用。\n"+
+  "請只輸出以下 7 個標記段落（標記行原樣保留），總長約 900–1300 個中文字（其他語言約 450–650 words）：\n"+
+  "## @summary\n（30 字內：這張盤最核心的一個特點＋現在的時機）\n"+
+  "## @next12\n（剛好 3 點，每點一行：時間 → 主題 → 可以做什麼）\n"+
+  "## @work\n（工作與財務）\n"+
+  "## @love\n（感情與人際）\n"+
+  "## @self\n（個性與優勢）\n"+
+  "## @turning\n（最近一次大運／主週期／巔峰期切換：何時、從什麼變成什麼、怎麼準備）\n"+
+  "## @ask\n（3 個以這張盤為依據的具體追問，每個一行）\n"+
+  "固定計算資料："+JSON.stringify(source);
 }
