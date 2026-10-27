@@ -128,7 +128,19 @@
       "mainCycle": "Periodo principal"
     },
     "yearsLeft": "quedan {{count}} años",
-    "phaseTarot": "Cumbre actual {{current}}; cumbre {{next}} desde {{year}}"
+    "phaseTarot": "Cumbre actual {{current}}; cumbre {{next}} desde {{year}}",
+    "followup": {
+      "title": "Pregunta de seguimiento",
+      "question": "Tu pregunta",
+      "placeholder": "¿Qué quieres saber sobre esta lectura?",
+      "quotaNote": "Cada pregunta utiliza una solicitud de Gemini.",
+      "send": "Preguntar",
+      "sending": "Respondiendo…",
+      "quota": "Se agotó la cuota de Gemini. Inténtalo más tarde.",
+      "key": "Clave de Gemini inválida. Abre configuración.",
+      "other": "No se pudo obtener una respuesta. Reinténtalo.",
+      "settings": "Abrir configuración"
+    }
   },
   "profile": {
     "birthdayRequired": "Elige tu fecha de nacimiento antes de guardar",

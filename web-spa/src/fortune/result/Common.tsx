@@ -1,4 +1,7 @@
 import type {ReactNode} from "react";
+import{useTranslation}from"react-i18next";
+import{formatVedicTerm}from"../fortuneTerminology";
+import{useRouteNamespace}from"../../i18n/useRouteNamespace";
 import {buildLocalReport} from "../report";
 import {formatFortuneValue} from "../displayNumber";
 import type {FortuneChapterId} from "../report";
@@ -36,32 +39,40 @@ export function profileEvidence(profile:any):string[]{
  return out;
 }
 export function Evidence({title,profile,mode,result,chapter}:{title:string;profile:any;mode:FortuneMode;result:any;chapter:FortuneChapterId}){
+ const{i18n}=useTranslation("fortune");
+ const fmt=(v:unknown)=>mode==="vedic"?formatVedicTerm(v,i18n.resolvedLanguage||i18n.language):String(v??"");
  const local=buildLocalReport(mode,result).find(x=>x.id===chapter);
  const facts=profileEvidence(profile);
  if(!local&&!facts.length)return null;
  return <section className="fortune-topic-card fortune-topic-deep">
-  <div><h3>{title}</h3><p>{local?.text||"這個主題目前沒有足夠固定資料可作完整解讀。"}</p></div>
+  <div><h3>{title}</h3><p>{fmt(local?.text||"這個主題目前沒有足夠固定資料可作完整解讀。")}</p></div>
   <details className="fortune-source-details">
    <summary>查看命盤依據（{facts.length+(local?.evidence.length||0)}）</summary>
-   {profile?.evidenceRule||profile?.rule?<p className="fortune-method-note">{profile.evidenceRule||profile.rule}</p>:null}
-   <ul>{[...new Set([...facts,...(local?.evidence||[])])].map((x,i)=><li key={i}>{x}</li>)}</ul>
+   {profile?.evidenceRule||profile?.rule?<p className="fortune-method-note">{fmt(profile.evidenceRule||profile.rule)}</p>:null}
+   <ul>{[...new Set([...facts,...(local?.evidence||[])])].map((x,i)=><li key={i}>{fmt(x)}</li>)}</ul>
   </details>
  </section>;
 }
 type TimeMode="bazi"|"tarot"|"vedic";
 export function YearEvidence({mode,item}:{mode:TimeMode;item:any}){
+ const{i18n}=useTranslation("fortune");const{t:rt}=useTranslation("fortuneReport");
+ const loaded=useRouteNamespace("fortuneReport");
+ const zh=(i18n.resolvedLanguage||i18n.language)==="zh-TW";
+ const ui=(key:string)=>loaded?String(rt("yearUi."+key)):key;
+ const god=(value:unknown)=>{const raw=String(value??"");if(zh||!loaded)return raw;return raw.replace(/比肩|劫財|食神|傷官|偏財|正財|七殺|正官|偏印|正印/g,word=>String(rt("glossary.tenGods."+word))+" ("+word+")")};
+ const fmt=(v:unknown)=>mode==="vedic"?formatVedicTerm(v,i18n.resolvedLanguage||i18n.language):mode==="bazi"?god(v):String(v??"");
  const year=mode==="vedic"?String(item.date||item.startDate||""):String(item.year||"");
- const title=mode==="bazi"?year+" · "+(item.ganZhi||"流年"):mode==="tarot"?year+" · 流年 "+(item.personalYear||"—"):(item.planet?year+" · "+item.planet+" 換座":String(item.lord||"人生週期"));
- const summary=mode==="bazi"?item.plainSummary:mode==="tarot"?item.plainSummary||item.cardName:item.planet?String(item.fromSign||"")+" → "+String(item.toSign||""):String(item.startDate||"")+" 至 "+String(item.endDate||"");
+ const title=mode==="bazi"?year+" · "+(item.ganZhi||ui("year")):mode==="tarot"?year+" · "+ui("year")+" "+(item.personalYear||"—"):(item.planet?year+" · "+item.planet+" "+ui("transit"):String(item.lord||ui("period")));
+ const summary=mode==="bazi"&&loaded&&!zh?String(rt("yearUi.baziSummary",{god:god(item.stemTenGod||"—"),luck:item.luckPillar||"—"})):mode==="bazi"?item.plainSummary:mode==="tarot"?item.plainSummary||item.cardName:item.planet?String(item.fromSign||"")+" → "+String(item.toSign||""):String(item.startDate||"")+" – "+String(item.endDate||"");
  const entries:[string,unknown][] = mode==="bazi"?
-  [["流年十神",item.stemTenGod],["十神白話",item.stemTenGodMeaning],["地支十神",item.branchTenGods],["所在大運",item.luckPillar],["主題標記",item.themes],["本命合沖",item.natalInteractions]]:
+  [[ui("stemTenGod"),item.stemTenGod],[ui("stemMeaning"),item.stemTenGodMeaning],[ui("branchTenGods"),item.branchTenGods],[ui("luckPillar"),item.luckPillar],[ui("themes"),item.themes],[ui("natalInteractions"),item.natalInteractions]]:
   mode==="tarot"?
-  [["對應牌",item.cardName],["主題關鍵詞",item.keywords],["個人年",item.personalYear]]:
-  [["星體／主週期",item.planet||item.lord],["原星座",item.fromSign],["新星座",item.toSign],["原本命宮",item.fromHouse],["新本命宮",item.toHouse],["開始日期",item.startDate],["結束日期",item.endDate]];
- return <details className="fortune-year-card fortune-year-inspect"><summary><strong>{title}</strong><span>{summary||"展開查看已計算資料"}</span><small>查看年份依據</small></summary>
+  [[ui("tarotCard"),item.cardName],[ui("keywords"),item.keywords],[ui("personalYear"),item.personalYear]]:
+  [[ui("planetPeriod"),item.planet||item.lord],[ui("fromSign"),item.fromSign],[ui("toSign"),item.toSign],[ui("fromHouse"),item.fromHouse],[ui("toHouse"),item.toHouse],[ui("startDate"),item.startDate],[ui("endDate"),item.endDate]];
+ return <details className="fortune-year-card fortune-year-inspect"><summary><strong>{fmt(title)}</strong><span>{fmt(summary||"展開查看已計算資料")}</span><small>{ui("viewEvidence")}</small></summary>
  <div className="fortune-year-evidence">
- {entries.filter(([,v])=>v!==undefined&&v!==null&&plain(v)!=="").map(([label,value])=><div key={label}><small>{label}</small><span>{plain(value)}</span></div>)}
- <p>這些是傳統命理計算的標記，不代表該年一定發生特定事件。</p>
+ {entries.filter(([,v])=>v!==undefined&&v!==null&&plain(v)!=="").map(([label,value])=><div key={label}><small>{label}</small><span>{fmt(plain(value))}</span></div>)}
+ 
  </div></details>;
 }
 function structuredAi(ai:string){
@@ -75,7 +86,7 @@ function Chapters({sections}:{sections:{title:string;text:string;id?:string}[]})
 export function AiPanel({mode,result,ai}:{mode:FortuneMode;result:any;ai:string}){
  const local=buildLocalReport(mode,result),aiParts=structuredAi(ai||"");
  return <section className="fortune-result-card fortune-full-report">
-  <h3>完整個人解讀</h3><p className="meta">每章都從已計算的命盤資料出發。這是傳統命理的娛樂及自我反思解讀，並非已驗證的預測。</p>
+  <h3>完整個人解讀</h3><p className="meta">每章均以已計算的命盤資料為依據。</p>
   {ai?<>
    <span className="fortune-report-label">AI 深入解讀</span>
    {aiParts?<Chapters sections={aiParts.map(x=>({title:x.title,text:x.body,id:String(x.key)}))}/>:<div className="fortune-ai">{ai}</div>}

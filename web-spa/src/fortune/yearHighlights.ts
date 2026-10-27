@@ -1,4 +1,5 @@
 import type{FortuneMode}from"./types";
+import type{CurrentPhase}from"./currentPhase";
 
 export type YearHighlight={year:number;label:string;summary:string;evidence:string};
 type ScoredHighlight=YearHighlight&{score:number};
@@ -25,7 +26,7 @@ function chooseDistinctYears(items:Array<ScoredHighlight&{group:string}>,count:n
  return selected.map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
 }
 
-export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]{
+function buildYearHighlightsZh(mode:FortuneMode,result:any):YearHighlight[]{
  const now=currentYear();
  if(mode==="bazi"){
   const wealth=new Set((result.wealthProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
@@ -66,4 +67,73 @@ export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]
   candidates.push({year,score:5,label:"Mahadasha · "+x.lord,summary:(x.startDate||"")+"–"+(x.endDate||""),evidence:"Vimshottari 主週期切換"});
  }
  const seen=new Set<string>();return top(candidates,6).filter(x=>{const k=x.year+"|"+x.label;if(seen.has(k))return false;seen.add(k);return true}).slice(0,4).map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
+}
+
+/** Prioritize an actual forthcoming cycle boundary, never an inferred event. */
+export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:CurrentPhase,tr?:HighlightTranslate):YearHighlight[]{
+ const ordinary=buildYearHighlights(mode,result,tr);
+ const today=new Date(),now=today.getFullYear(),date=[now,String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
+ let transition:YearHighlight|null=null;
+ if(mode==="bazi"){
+  const next=(result.luckPillars||[]).filter((x:any)=>Number(x.startYear)>now)
+   .sort((a:any,b:any)=>Number(a.startYear)-Number(b.startYear))[0];
+  if(next){
+   const year=Number(next.startYear),annual=(result.annualTimeline||[]).find((x:any)=>Number(x.year)===year);
+   transition={year,label:"大運轉折 · "+next.ganZhi,summary:year+" 年起進入 "+next.ganZhi+" 大運，可提前整理下一階段的優先順序。",
+    evidence:"大運 "+next.ganZhi+(annual?.stemTenGod?" · 流年十神 "+annual.stemTenGod:"")};
+  }
+ }else if(mode==="tarot"){
+  const year=phase?.transitionYear;
+  if(year&&year>now&&phase?.next)
+   transition={year,label:"巔峰期轉折 · "+phase.next,summary:year+" 年開始新的巔峰數 "+phase.next+" 階段。",
+    evidence:"巔峰數 "+phase.current+" → "+phase.next};
+ }else{
+  const next=(result.mahadashaTimeline||[]).filter((x:any)=>String(x.startDate||"")>date&&x.lord!==result.currentMahadasha?.lord)
+   .sort((a:any,b:any)=>String(a.startDate).localeCompare(String(b.startDate)))[0];
+  if(next){
+   const year=Number(String(next.startDate).slice(0,4));
+   transition={year,label:"Mahadasha · "+next.lord,summary:String(next.startDate)+" 開始新的 "+next.lord+" 主週期。",
+    evidence:"Mahadasha "+next.lord+" · "+next.startDate};
+  }
+ }
+ const output=transition?[transition]:[];
+ for(const item of ordinary){if(output.length>=3)break;if(!output.some(x=>x.year===item.year))output.push(item)}
+ return !tr?output:output.map(x=>{
+  if(x!==transition)return x;
+  const name=x.label.split(" · ").pop()||"";
+  if(mode==="vedic"){
+   const date=x.evidence.split(" · ").pop()||"";
+   return {...x,label:tr("highlight.dasha",{lord:name}),
+    summary:tr("highlight.dashaTransitionSummary",{lord:name,date}),
+    evidence:tr("highlight.dashaEvidence",{lord:name})};
+  }
+  return {...x,label:tr("highlight.transition",{name}),summary:tr("highlight.transitionSummary",{name,year:x.year}),evidence:tr("highlight.transitionEvidence",{name,year:x.year})};
+ });
+}
+
+export type HighlightTranslate=(key:string,options?:Record<string,unknown>)=>string;
+/** Supplying no translator retains exact traditional Chinese test snapshots. */
+export function buildYearHighlights(mode:FortuneMode,result:any,tr?:HighlightTranslate):YearHighlight[]{
+ const items=buildYearHighlightsZh(mode,result);
+ if(!tr)return items;
+ return items.map(item=>{
+  const number=String(item.label.match(/流年\s*(\d+)/)?.[1]||"");
+  if(mode==="tarot")return {...item,label:tr("highlight.tarot",{number})+(item.label.includes(" · ")?" · "+item.label.split(" · ").slice(1).join(" · "):""),
+   summary:tr("highlight.tarotSummary",{number})};
+  if(mode==="vedic"){
+   if(item.label.startsWith("Mahadasha · ")){
+    const lord=item.label.split(" · ")[1]||"",dates=item.summary.split("–");
+    return {...item,label:tr("highlight.dasha",{lord}),summary:tr("highlight.dashaSummary",{lord,start:dates[0]||"—",end:dates[1]||"—"}),evidence:tr("highlight.dashaEvidence",{lord})};
+   }
+   const planet=item.label.split(" ")[0];
+   return {...item,label:tr("highlight.vedic",{planet}),evidence:tr("highlight.vedicEvidence",{from:item.evidence.match(/H(\d+)/)?.[1]||"—",to:item.evidence.match(/→ H(\d+)/)?.[1]||"—"})};
+  }
+  const god=item.label.split(" · ")[0];
+  const meaning=tr("glossary.tenGods."+god),luck=item.evidence.match(/大運\s*([^\s·]+)/)?.[1]||"—";
+  const mark=meaning+" ("+god+")",pillar=item.evidence.split(" · ")[0]||"—";
+  return {...item,label:mark,
+   summary:tr("highlight.baziSummary",{god:mark,luck}),
+   evidence:tr("highlight.baziEvidence",{pillar,god:mark,luck})};
+
+ });
 }

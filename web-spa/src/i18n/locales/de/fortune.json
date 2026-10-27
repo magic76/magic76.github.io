@@ -128,7 +128,19 @@
       "mainCycle": "Hauptperiode"
     },
     "yearsLeft": "noch {{count}} Jahre",
-    "phaseTarot": "Aktueller Höhepunkt {{current}}; Höhepunkt {{next}} ab {{year}}"
+    "phaseTarot": "Aktueller Höhepunkt {{current}}; Höhepunkt {{next}} ab {{year}}",
+    "followup": {
+      "title": "Nachfrage",
+      "question": "Ihre Frage",
+      "placeholder": "Was möchten Sie zu dieser Deutung wissen?",
+      "quotaNote": "Jede Frage nutzt eine Gemini-Anfrage.",
+      "send": "Fragen",
+      "sending": "Antwort wird erstellt…",
+      "quota": "Gemini-Kontingent erschöpft. Bitte später erneut versuchen.",
+      "key": "Ungültiger Gemini-Schlüssel. Einstellungen öffnen.",
+      "other": "Keine Antwort erhalten. Erneut versuchen.",
+      "settings": "Einstellungen öffnen"
+    }
   },
   "profile": {
     "birthdayRequired": "Wähle vor dem Speichern ein Geburtsdatum",

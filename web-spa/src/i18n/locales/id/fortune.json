@@ -128,7 +128,19 @@
       "mainCycle": "Periode utama"
     },
     "yearsLeft": "sisa {{count}} tahun",
-    "phaseTarot": "Puncak kini {{current}}; puncak {{next}} mulai {{year}}"
+    "phaseTarot": "Puncak kini {{current}}; puncak {{next}} mulai {{year}}",
+    "followup": {
+      "title": "Pertanyaan lanjutan",
+      "question": "Pertanyaan Anda",
+      "placeholder": "Apa yang ingin Anda ketahui tentang bacaan ini?",
+      "quotaNote": "Setiap pertanyaan menggunakan satu permintaan Gemini.",
+      "send": "Tanya",
+      "sending": "Menjawab…",
+      "quota": "Kuota Gemini habis. Coba lagi nanti.",
+      "key": "Kunci Gemini tidak valid. Buka pengaturan.",
+      "other": "Tidak dapat memperoleh jawaban. Coba lagi.",
+      "settings": "Buka pengaturan"
+    }
   },
   "profile": {
     "birthdayRequired": "Pilih tanggal lahir sebelum menyimpan",

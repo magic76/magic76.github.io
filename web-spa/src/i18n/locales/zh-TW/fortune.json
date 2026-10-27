@@ -128,7 +128,19 @@
       "mainCycle": "主週期"
     },
     "yearsLeft": "還有 {{count}} 年",
-    "phaseTarot": "目前巔峰數 {{current}}；{{year}} 年起進入巔峰數 {{next}}"
+    "phaseTarot": "目前巔峰數 {{current}}；{{year}} 年起進入巔峰數 {{next}}",
+    "followup": {
+      "title": "文字追問",
+      "question": "輸入問題",
+      "placeholder": "想知道這份命盤的哪一部分？",
+      "quotaNote": "每次追問會使用 1 次 Gemini 額度。",
+      "send": "送出問題",
+      "sending": "回答中…",
+      "quota": "Gemini 額度已用完，請稍後再試。",
+      "key": "Gemini 金鑰無效，請前往設定。",
+      "other": "暫時無法取得回覆，請重試。",
+      "settings": "前往設定"
+    }
   },
   "profile": {
     "birthdayRequired": "先選生日再儲存",

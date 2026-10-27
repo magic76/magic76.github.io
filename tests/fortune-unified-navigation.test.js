@@ -23,7 +23,8 @@ test("Original Fortune now owns newest chart, full history, new reading and Frie
  assert.match(home,/\/fortune\/reading\?mode=tarot/);
  assert.match(home,/\/fortune\/reading\?mode=vedic/);
  const helper=read("web-spa/src/fortune/prepareFriendExplanation.ts");
- assert.match(helper,/saveFortuneSpeakingContext\(reading\)/);
+ assert.match(helper,/saveFortuneSpeakingContext\(reading,"overview",fortuneHandoffPhase\(reading\)\)/);
+ assert.match(helper,/fortuneHandoffPhase/);
  assert.match(home,/navigate\("\/fortune\/live\?from=hub"\)/);
  assert.match(helper,/await ensureFortuneServices\(\)/);
  assert.doesNotMatch(home,/ensureFortuneServices|window\.CrewFortuneProfile/);

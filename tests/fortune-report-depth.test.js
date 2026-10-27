@@ -6,11 +6,12 @@ const {stripTypeScriptTypes} = require("node:module");
 require.extensions[".ts"] = (mod, file) => {
  const source = fs.readFileSync(file, "utf8");
  const code = stripTypeScriptTypes(source, {mode:"strip"})
-  .replace(/import \{buildYearHighlights\} from "\.\/yearHighlights";/, 'const {buildYearHighlights} = require("./yearHighlights");')
+  .replace(/import \{buildTimingHighlights\} from "\.\/yearHighlights";/, 'const {buildTimingHighlights} = require("./yearHighlights");')
   .replace(/import \{formatFortuneValue\} from "\.\/displayNumber";/, 'const {formatFortuneValue} = require("./displayNumber.ts");')
+  .replace(/import\{localizedReportFacts\}from"\.\/localReportFacts";/, 'const {localizedReportFacts} = require("./localReportFacts.ts");')
   .replace(/import \{formatFortuneLocalDate\} from "\.\/aiReading";/, 'const {formatFortuneLocalDate} = require("./aiReading.ts");')
   .replace(/export function /g, "function ")
-  + "\nmodule.exports = {formatFortuneLocalDate: typeof formatFortuneLocalDate === 'undefined' ? undefined : formatFortuneLocalDate, buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt, formatFortuneValue: typeof formatFortuneValue === 'undefined' ? undefined : formatFortuneValue};";
+  + "\nmodule.exports = {formatFortuneLocalDate: typeof formatFortuneLocalDate === 'undefined' ? undefined : formatFortuneLocalDate, buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildTimingHighlights: typeof buildTimingHighlights === 'undefined' ? undefined : buildTimingHighlights, localizedReportFacts: typeof localizedReportFacts === 'undefined' ? undefined : localizedReportFacts, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt, formatFortuneValue: typeof formatFortuneValue === 'undefined' ? undefined : formatFortuneValue};";
  mod._compile(code, file);
 };
 

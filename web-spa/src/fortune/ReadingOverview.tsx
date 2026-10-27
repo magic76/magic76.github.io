@@ -1,11 +1,15 @@
 import{useEffect,useState}from"react";
 import{useTranslation}from"react-i18next";
 import type{FortuneMode}from"./types";
+import type{CurrentPhase}from"./currentPhase";
 import{buildLocalReport}from"./report";
 import type{FortuneChapter,FortuneChapterId}from"./report";
 import{parseAiReading}from"./aiReading";
 import{AiPanel}from"./result/Common";
 import{formatFortuneValue}from"./displayNumber";
+import{formatVedicTerm}from"./fortuneTerminology";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
+import{FortuneGlossary}from"./FortuneGlossary";
 
 const primary:FortuneChapterId[]=["overview","personality","career","wealth","relationships","currentCycle"];
 const focus:{id:FortuneChapterId;symbol:string}[]=[
@@ -27,24 +31,26 @@ function preview(text:string,max=110){
  return first.length>max?first.slice(0,max).trimEnd()+"…":first;
 }
 function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;expanded:boolean;onToggle:()=>void;onAsk?:(id:FortuneChapterId)=>void}){
- const{t}=useTranslation("fortune"),contentId="fortune-topic-content-"+chapter.id;
+ const{t,i18n}=useTranslation("fortune"),contentId="fortune-topic-content-"+chapter.id;
  return <article className="fortune-reading-chapter" id={"fortune-topic-"+chapter.id} data-expanded={expanded}>
   <button type="button" className="fortune-reading-chapter-trigger" aria-expanded={expanded} aria-controls={contentId} onClick={onToggle}>
    <span className="fortune-reading-chapter-label"><strong>{t("reading.topic."+chapter.id)}</strong><small>{t("reading.tapDetails")}</small></span>
    <span className="fortune-reading-toggle" aria-hidden="true">{expanded?"−":"+"}</span>
   </button>
   <div className="fortune-reading-chapter-content" id={contentId} hidden={!expanded}>
-   <p>{chapter.text}</p>
-   {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>{t("reading.evidence")}</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{x}</li>)}</ul></details>}
+   <p>{formatVedicTerm(chapter.text,i18n.resolvedLanguage||i18n.language)}</p>
+   {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>{t("reading.evidence")}</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{formatVedicTerm(x,i18n.resolvedLanguage||i18n.language)}</li>)}</ul></details>}
    {onAsk&&<button type="button" className="fortune-reading-ask" onClick={()=>onAsk(chapter.id)}>{t("reading.askTopic")} <span aria-hidden="true">→</span></button>}
   </div>
  </article>;
 }
-export function FortuneReadingOverview({mode,result,ai,onAsk}:{mode:FortuneMode;result:any;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
- const{t}=useTranslation("fortune");
+export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:FortuneMode;result:any;phase?:CurrentPhase;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
+ const{t,i18n}=useTranslation("fortune");
+ const{t:reportT}=useTranslation("fortuneReport");
+ const reportReady=useRouteNamespace("fortuneReport");
  const[active,setActive]=useState<FortuneChapterId|null>(null);
  useEffect(()=>setActive(null),[mode,result]);
- const chapters=buildLocalReport(mode,result);
+ const chapters=buildLocalReport(mode,result,reportReady&&i18n.resolvedLanguage!=="zh-TW"?(key,options)=>String(reportT(key,options)):undefined,phase);
  if(!chapters.length)return null;
  const parsed=parseAiReading(ai||""),ready=Boolean(parsed.summary)&&!parsed.legacy;
  const aiText:Partial<Record<FortuneChapterId,string>>=ready?{
@@ -90,6 +96,6 @@ export function FortuneReadingOverview({mode,result,ai,onAsk}:{mode:FortuneMode;
     <strong>{formatFortuneValue(item.value,true)}</strong>
    </div>)}</div>
   </div>}
-  <small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
+  <FortuneGlossary mode={mode} result={result}/><small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
  </section>;
 }

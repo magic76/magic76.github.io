@@ -1,5 +1,6 @@
 import {ensureFortuneServices} from "../lib/runtime";
 import {saveFortuneSpeakingContext} from "../teacher/fortuneSpeaking";
+import {fortuneHandoffPhase} from "./fortuneHandoffPhase";
 import type {FortuneReading} from "./types";
 
 /**
@@ -11,5 +12,5 @@ export async function prepareFriendExplanation(id:string):Promise<void>{
  const reading=window.CrewFortuneProfile.get(id) as FortuneReading|null;
  if(!reading||!reading.result||!["bazi","tarot","vedic"].includes(reading.mode))
   throw new Error("This saved reading is unavailable.");
- saveFortuneSpeakingContext(reading);
+ saveFortuneSpeakingContext(reading,"overview",fortuneHandoffPhase(reading));
 }
