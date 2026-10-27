@@ -161,17 +161,28 @@
     opt=opt||{};
     var body={systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000}};
     if(opt.json)body.generationConfig.responseMimeType="application/json";
+    if(typeof opt.thinking==="string"&&opt.thinking.trim())body.generationConfig.thinkingConfig={thinkingLevel:opt.thinking.trim()};
     var r,d,controller=typeof AbortController==="function"?new AbortController():null;
-    var limit=Number.isFinite(opt.timeoutMs)&&opt.timeoutMs>0?opt.timeoutMs:15000;
-    var timer=setTimeout(function(){if(controller)controller.abort()},limit);
+    var limit=Number.isFinite(opt.timeoutMs)&&opt.timeoutMs>0?opt.timeoutMs:15000,timer,timedOut=false;
+    var request=(async function(){
+      try{
+        r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body),signal:controller?controller.signal:undefined});
+        try{d=await r.json()}catch(_){d=null}
+      }catch(_){throw modelError("network",model+(timedOut?" request timeout":" network request failed"))}
+    })();
     try{
-      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body),signal:controller?controller.signal:undefined});
-      try{d=await r.json()}catch(_){d=null}
-    }catch(_){throw modelError("network",model+((controller&&controller.signal.aborted)?" request timeout":" network request failed"))}
-    finally{clearTimeout(timer)}
+      await Promise.race([request,new Promise(function(_,reject){
+        timer=setTimeout(function(){
+          timedOut=true;
+          if(controller)controller.abort();
+          reject(modelError("network",model+" request timeout"));
+        },limit);
+      })]);
+    }finally{clearTimeout(timer)}
     if(!r.ok){
       var reason=String(d&&d.error&&d.error.status||"");
       var msg=String(d&&d.error&&d.error.message||"");
+      if(opt.thinking&&r.status===400)throw modelError("response",model+" unsupported thinking configuration",400);
       throw modelError(classifyTextFailure(r.status,reason,msg),model+" HTTP "+r.status,r.status);
     }
     var candidate=d&&d.candidates&&d.candidates[0];
