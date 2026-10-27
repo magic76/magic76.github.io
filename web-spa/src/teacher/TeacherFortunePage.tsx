@@ -3,6 +3,7 @@ import {Link,Navigate,useNavigate,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureFortuneServices} from "../lib/runtime";
 import {FortuneProfileTools} from "../fortune/ProfileTools";
+import {resolveBirthOffset} from "../fortune/birthPlaceSearch";
 import {buildLocalReport,type FortuneChapter} from "../fortune/report";
 import {readFortuneHistoryPreviews} from "../fortune/readingHistory";
 import type {FortuneMode,FortuneProfile,FortuneReading} from "../fortune/types";
@@ -12,7 +13,7 @@ import "./fortuneHub.css";
 
 const EMPTY:FortuneProfile={
  birthDate:"",birthTime:"",gender:"1",city:"",latitude:"",longitude:"",
- utcOffset:"+08:00",timeZoneId:"",aiStyle:"normal"
+ utcOffset:"",timeZoneId:"",aiStyle:"normal"
 };
 const MODES:{id:FortuneMode;name:string;hint:string}[]=[
  {id:"bazi",name:"八字",hint:"需要生日與出生時間"},
@@ -81,21 +82,22 @@ export function TeacherFortunePage(){
   if(!profile.birthDate)return english?"Enter your birth date.":"請填寫出生日期。";
   if(mode!=="tarot"&&!profile.birthTime)return english?"Enter your birth time.":"請填寫出生時間。";
   if(mode==="vedic"&&(!profile.latitude||!profile.longitude||
-    !(profile.timeZoneId||profile.utcOffset)))return "印度星盤需要有效的出生城市與時區，請先搜尋並選擇地點。";
+    !resolveBirthOffset(profile)))return "印度星盤需要有效的出生城市與時區，請先搜尋並選擇地點。";
   return "";
  }
  function createReading(){
   const issue=validate();if(issue){setError(issue);return}
   setSaving(true);setError("");
   try{
-   const result=calculate(mode,profile);
+   const resolved={...profile,utcOffset:resolveBirthOffset(profile)};
+   const result=calculate(mode,resolved);
    if(!result||typeof result!=="object")throw Error("未取得有效的命盤結果");
    const r:any=result;
    const summary=label(mode)+" · "+String(r.fourPillars||r.birthCardDisplay||
       (r.lagnaSign?"Lagna "+r.lagnaSign:"命盤已完成"));
-   const item:FortuneReading={id:"reading_"+Date.now(),mode,profile:{...profile},
+   const item:FortuneReading={id:"reading_"+Date.now(),mode,profile:{...resolved},
     result,summary,createdAt:new Date().toISOString()};
-   window.CrewFortuneProfile.save(profile);
+   window.CrewFortuneProfile.save(resolved);
    window.CrewFortuneProfile.addHistory(item);
    setReadings(old=>[item,...old.filter(x=>x.id!==item.id)].slice(0,20));
    openReading(item);
@@ -183,9 +185,9 @@ export function TeacherFortunePage(){
    </div>
    <div className="teacher-fortune-form-fields">
      <label><span>出生日期</span><input type="date" className="field" value={profile.birthDate}
-       onChange={e=>setProfile(x=>({...x,birthDate:e.target.value}))}/></label>
+       onChange={e=>setProfile(x=>{const next={...x,birthDate:e.target.value};return {...next,utcOffset:resolveBirthOffset(next)}})}/></label>
      {mode!=="tarot"&&<label><span>出生時間</span><input type="time" className="field" value={profile.birthTime}
-       onChange={e=>setProfile(x=>({...x,birthTime:e.target.value}))}/></label>}
+       onChange={e=>setProfile(x=>{const next={...x,birthTime:e.target.value};return {...next,utcOffset:resolveBirthOffset(next)}})}/></label>}
      {mode==="bazi"&&<label><span>命盤使用的性別分類</span><select className="field" value={profile.gender}
       onChange={e=>setProfile(x=>({...x,gender:e.target.value}))}>
       <option value="1">男</option><option value="0">女</option></select></label>}
