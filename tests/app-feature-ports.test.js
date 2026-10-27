@@ -227,9 +227,9 @@ test("Fortune React exposes APK-style result tabs and deterministic evidence",()
  const tarotCalc=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
  const vedicEnrich=fs.readFileSync(path.join(root,"features/fortune/vedic/enrich.js"),"utf8");
  assert.ok(reading.includes("shareFortuneReading"));
- for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(bazi.includes(label));
- for(const label of ["先看重點","時間節奏","生活主題","完整解讀"])assert.ok(tarot.includes(label));
- for(const label of ["先看重點","生活主題","詳細資料","完整解讀"])assert.ok(vedic.includes(label));
+ for(const key of ["reading.tab.key","reading.tab.time","reading.tab.life"])assert.ok(bazi.includes(key));assert.ok(!bazi.includes('["full","完整解讀"]'));
+ for(const key of ["reading.tab.key","reading.tab.time","reading.tab.life"])assert.ok(tarot.includes(key));assert.ok(!tarot.includes('["full","完整解讀"]'));
+ for(const key of ["reading.tab.key","reading.tab.life","reading.tab.details"])assert.ok(vedic.includes(key));assert.ok(!vedic.includes('["full","完整解讀"]'));
  for(const key of ["annualTimeline","wealthProfile","careerProfile","relationshipProfile"])assert.ok(bzCalc.includes(key));
  assert.ok(tarotCalc.includes("personalMonthTimeline"));
  for(const key of ["currentTransits","majorTransitTimeline","houseLords","familyChildrenProfile"])assert.ok(vedicEnrich.includes(key));
