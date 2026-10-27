@@ -1,7 +1,7 @@
 import{useMemo,useState}from"react";import{useTranslation}from"react-i18next";
 import type{FortuneMode,FortuneProfile}from"./types";
 import{clearFortunePresets,loadFortunePresets,presetLabel,saveFortunePreset,type FortunePreset}from"./profileStore";
-import{searchBirthPlaces,utcOffsetForBirth,type BirthPlaceResult}from"./birthPlaceSearch";
+import{searchBirthPlaces,utcOffsetForBirth,resolveBirthOffset,type BirthPlaceResult}from"./birthPlaceSearch";
 
 export function FortuneProfileTools({mode,profile,onChange}:{mode:FortuneMode;profile:FortuneProfile;onChange:(p:FortuneProfile)=>void}){
  const {t}=useTranslation("fortune");
@@ -20,8 +20,8 @@ export function FortuneProfileTools({mode,profile,onChange}:{mode:FortuneMode;pr
   finally{setSearching(false)}
  }
  function choose(x:BirthPlaceResult){
-  const offset=utcOffsetForBirth(profile.birthDate,profile.birthTime||"12:00",x.timezone);
-  onChange({...profile,city:x.displayName,latitude:String(x.latitude),longitude:String(x.longitude),timeZoneId:x.timezone,utcOffset:offset||profile.utcOffset});
+  const offset=resolveBirthOffset({...profile,timeZoneId:x.timezone,utcOffset:""});
+  onChange({...profile,city:x.displayName,latitude:String(x.latitude),longitude:String(x.longitude),timeZoneId:x.timezone,utcOffset:offset});
   setQuery(x.displayName);setPlaces([]);setMessage(x.timezone+(offset?" · UTC "+offset:""));
  }
  return <div className="fortune-profile-tools">
@@ -33,7 +33,7 @@ export function FortuneProfileTools({mode,profile,onChange}:{mode:FortuneMode;pr
   {mode==="vedic"&&<div className="fortune-place-search">
    <label className="label">{t("profile.city")}</label><div className="fortune-place-search-row"><input className="field" value={query} placeholder={t("profile.cityPlaceholder")} onChange={e=>setQuery(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();void search()}}}/><button className="btn secondary small" disabled={searching} onClick={()=>void search()}>{searching?t("profile.searching"):t("profile.search")}</button></div>
    {places.length>0&&<div className="fortune-place-results">{places.map((x,i)=><button key={i} onClick={()=>choose(x)}><strong>{x.displayName}</strong><small>{x.latitude.toFixed(4)}, {x.longitude.toFixed(4)} · {x.timezone}</small></button>)}</div>}
-   {(profile.latitude&&profile.longitude)&&<div className="fortune-place-selected"><strong>{profile.city||t("profile.selectedCity")}</strong><small>{profile.latitude}, {profile.longitude} · {profile.timeZoneId||profile.utcOffset}</small></div>}
+   {(profile.latitude&&profile.longitude)&&<div className="fortune-place-selected"><strong>{profile.city||t("profile.selectedCity")}</strong><small>{profile.latitude}, {profile.longitude} · {profile.timeZoneId||profile.utcOffset}{profile.timeZoneId?" · UTC "+(resolveBirthOffset(profile)||"—"):""}</small></div>}
   </div>}
   {message&&<p className="meta">{message}</p>}
  </div>
