@@ -126,7 +126,8 @@
       "ascendant": "상승궁",
       "moon": "달",
       "mainCycle": "주요 주기"
-    }
+    },
+    "yearsLeft": "{{count}}년 남음"
   },
   "profile": {
     "birthdayRequired": "저장하기 전에 생년월일을 선택하세요",
