@@ -3,6 +3,7 @@ import{buildTimingHighlights}from"./yearHighlights";
 import{parseAiReading}from"./aiReading";
 import{formatVedicTerm}from"./fortuneTerminology";
 import{useRouteNamespace}from"../i18n/useRouteNamespace";
+import{localizedElementFocus}from"./localReportFacts";
 import type{CurrentPhase}from"./currentPhase";
 import type{FortuneMode}from"./types";
 
@@ -15,7 +16,7 @@ export function FortuneSummaryCard({mode,result,phase,ai,loading}:{
  const parsed=parseAiReading(ai||"");
  const ready=Boolean(parsed.summary)&&!parsed.legacy;
  const highlights=buildTimingHighlights(mode,result,phase,reportReady&&i18n.resolvedLanguage!=="zh-TW"?(key,options)=>String(reportT(key,options)):undefined);
- const focus=mode==="bazi"?Object.entries(result?.weightedFiveElements||{}).sort((a,b)=>Number(b[1])-Number(a[1]))[0]?.[0]||"—":mode==="tarot"?String(result?.personalYear||"—"):display(result?.currentMahadasha?.lord||"—");
+ const focus=mode==="bazi"?localizedElementFocus(result,(key,options)=>String(reportT(key,options))):mode==="tarot"?String(result?.personalYear||"—"):display(result?.currentMahadasha?.lord||"—");
  const headline=reportReady?reportT("headline."+mode,{current:display(phase.current||t("reading.phaseUnknown")),next:display(phase.next||t("reading.phaseUnknown")),year:phase.transitionYear||"—",focus}):"";
  const fallbackSummary=mode==="tarot"?t("reading.phaseTarot",{current:phase.current||t("reading.phaseUnknown"),next:phase.next||t("reading.phaseUnknown"),year:phase.transitionYear||t("reading.phaseUnknown")}):t("reading.phaseNow",{current:(phase.current||t("reading.phaseUnknown"))+(phase.remainingYears!==undefined?" · "+t("reading.yearsLeft",{count:phase.remainingYears}):""),next:(phase.transitionYear?phase.transitionYear+" · ":"")+(phase.next||t("reading.phaseUnknown"))});
  return <section className="fortune-summary-card" aria-label={t("reading.summaryTitle")}>

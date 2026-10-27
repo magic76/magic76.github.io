@@ -1,6 +1,7 @@
 import type {FortuneMode} from "./types";
 import {buildTimingHighlights} from "./yearHighlights";
 import type {CurrentPhase} from "./currentPhase";
+import{localizedReportFacts}from"./localReportFacts";
 import {formatFortuneValue} from "./displayNumber";
 import {formatFortuneLocalDate} from "./aiReading";
 
@@ -119,40 +120,7 @@ export function buildLocalReport(mode:FortuneMode,result:any,tr?:FortuneTranslat
  if(!result||typeof result!=="object")return [];
  const original=mode==="bazi"?bazi(result,phase):mode==="tarot"?tarot(result,phase):vedic(result,phase);
  if(!tr)return original; // Historical and Teacher consumers retain exact zh-TW facts.
- const r=result;
- const baziFacts:Record<string,unknown[]>={
-  overview:[r.fourPillars,r.dayMaster,r.weightedFiveElements],personality:[r.dayMaster,r.dayMasterStrength,r.dayMasterElement],
-  career:[r.careerProfile?.officerCount,r.careerProfile?.outputCount,r.careerProfile?.resourceCount],
-  wealth:[r.wealthProfile?.directWealthCount,r.wealthProfile?.indirectWealthCount,r.wealthProfile?.wealthElement],
-  relationships:[r.relationshipProfile?.spousePalace,r.relationshipProfile?.spousePalaceTenGods],
-  family:[r.natalInteractions],currentCycle:[r.currentLuckPillar?.ganZhi,r.currentLuckPillar?.startYear,r.currentLuckPillar?.endYear],
-  longTerm:[(r.luckPillars||[]).slice(0,3).map((x:any)=>x.ganZhi+" "+x.startYear+"–"+x.endYear)],
-  keyYears:[buildTimingHighlights(mode,r,phase,tr).map(x=>x.year+" "+x.label)],advice:[r.dayMaster,r.currentLuckPillar?.ganZhi]
- };
- const tarotFacts:Record<string,unknown[]>={
-  overview:[r.birthCardDisplay,r.lifePathDisplay,r.attitudeNumber],personality:[r.personalityCardName,r.soulCardName],
-  career:[r.lifePathDisplay,r.pinnacles],wealth:[r.personalYear,r.personalMonth,r.challenges],
-  relationships:[r.personalityCardName,r.soulCardName],family:[r.attitudeNumber,r.birthCards?.length],
-  currentCycle:[r.personalYearCalendarYear,r.personalYear,r.personalMonth],
-  longTerm:[r.pinnacles,r.pinnacleTiming],keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],
-  advice:[r.personalYear,r.personalityCardName]
- };
- const vedicFacts:Record<string,unknown[]>={
-  overview:[r.lagnaSign,r.moonSign,r.sunSign],personality:[r.lagnaNakshatra,r.moonNakshatra],
-  career:[r.houses?.find((x:any)=>x.house===10)?.lord,r.currentMahadasha?.lord],
-  wealth:[r.houses?.find((x:any)=>x.house===2)?.lord,r.houses?.find((x:any)=>x.house===11)?.lord],
-  relationships:[r.houses?.find((x:any)=>x.house===7)?.lord],family:[r.houses?.find((x:any)=>x.house===4)?.lord,r.houses?.find((x:any)=>x.house===5)?.lord],
-  currentCycle:[r.currentMahadasha?.lord,r.currentAntardasha?.lord,r.currentMahadasha?.endDate],
-  longTerm:[(r.mahadashaTimeline||[]).slice(0,3).map((x:any)=>x.lord+" "+x.startDate+"–"+x.endDate)],
-  keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],
-  advice:[r.lagnaSign,r.currentMahadasha?.lord]
- };
- const factsMap=mode==="bazi"?baziFacts:mode==="tarot"?tarotFacts:vedicFacts;
- return original.map(chapter=>{
-  const items=(factsMap[chapter.id]||[]).flatMap(v=>Array.isArray(v)?v:[v]).filter(v=>v!==null&&v!==undefined&&v!=="");
-  const facts=items.map(v=>typeof v==="object"?JSON.stringify(v):formatFortuneValue(v)).join(" · ").slice(0,320)||"Not calculated";
-  return {...chapter,text:tr("chapter."+chapter.id,{facts})};
- });
+ return original.map(chapter=>({...chapter,text:tr("chapter."+chapter.id,{facts:localizedReportFacts(mode,result,chapter.id,tr,phase,buildTimingHighlights(mode,result,phase,tr))})}));
 }
 export function buildReportPrompt(mode:FortuneMode,result:any,style:string,options?:{today?:string;locale?:string;phase?:{age:number;promptLine:string}|string}):string{
  const fields:Record<FortuneMode,string[]>={
