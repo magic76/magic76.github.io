@@ -58,8 +58,8 @@ export function FortuneDailyCard(){
  useEffect(()=>{
   if((kind!=="bazi"&&!/^zh/i.test(locale))||(kind==="bazi"&&!profile?.birthTime))return;
   let cancelled=false;
-  setEngineReady(Boolean(window.Solar&&(kind!=="bazi"||window.CrewFortuneBaZi)));
-  void ensureFortuneServices().then(()=>{if(!cancelled){setEngineReady(true);setLoadFailure(false);}}).catch(()=>{if(!cancelled){setEngineReady(Boolean(window.Solar));setLoadFailure(true);}});
+  setEngineReady(Boolean((window as Window & {Solar?:unknown}).Solar&&(kind!=="bazi"||window.CrewFortuneBaZi)));
+  void ensureFortuneServices().then(()=>{if(!cancelled){setEngineReady(true);setLoadFailure(false);}}).catch(()=>{if(!cancelled){setEngineReady(Boolean((window as Window & {Solar?:unknown}).Solar));setLoadFailure(true);}});
   return ()=>{cancelled=true;};
  },[kind,profileHash,locale,refresh]);
  const card=useMemo(()=>{
