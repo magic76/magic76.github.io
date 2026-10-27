@@ -37,7 +37,7 @@
     "moduleError": "Die Horoskopberechnung konnte nicht geladen werden. Aktualisiere die Seite.",
     "birthdayRequired": "Geburtsdatum auswählen",
     "timeRequired": "Geburtszeit eingeben",
-    "locationRequired": "Vedische Astrologie benötigt Geburtskoordinaten und UTC-Abweichung",
+    "locationRequired": "Vedische Astrologie benötigt Geburtskoordinaten und UTC-Abweichung; z. B. +08:00",
     "retry": "Erneut laden",
     "yourProfile": "Deine Angaben",
     "once": "Einmal einrichten",
@@ -127,7 +127,8 @@
       "moon": "Mond",
       "mainCycle": "Hauptperiode"
     },
-    "yearsLeft": "noch {{count}} Jahre"
+    "yearsLeft": "noch {{count}} Jahre",
+    "phaseTarot": "Aktueller Höhepunkt {{current}}; Höhepunkt {{next}} ab {{year}}"
   },
   "profile": {
     "birthdayRequired": "Wähle vor dem Speichern ein Geburtsdatum",
