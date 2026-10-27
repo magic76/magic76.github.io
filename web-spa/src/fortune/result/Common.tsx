@@ -66,7 +66,7 @@ export function YearEvidence({mode,item}:{mode:TimeMode;item:any}){
  return <details className="fortune-year-card fortune-year-inspect"><summary><strong>{fmt(title)}</strong><span>{fmt(summary||"展開查看已計算資料")}</span><small>查看年份依據</small></summary>
  <div className="fortune-year-evidence">
  {entries.filter(([,v])=>v!==undefined&&v!==null&&plain(v)!=="").map(([label,value])=><div key={label}><small>{label}</small><span>{fmt(plain(value))}</span></div>)}
- <p>這些是傳統命理計算的標記，不代表該年一定發生特定事件。</p>
+ 
  </div></details>;
 }
 function structuredAi(ai:string){
@@ -80,7 +80,7 @@ function Chapters({sections}:{sections:{title:string;text:string;id?:string}[]})
 export function AiPanel({mode,result,ai}:{mode:FortuneMode;result:any;ai:string}){
  const local=buildLocalReport(mode,result),aiParts=structuredAi(ai||"");
  return <section className="fortune-result-card fortune-full-report">
-  <h3>完整個人解讀</h3><p className="meta">每章都從已計算的命盤資料出發。這是傳統命理的娛樂及自我反思解讀，並非已驗證的預測。</p>
+  <h3>完整個人解讀</h3><p className="meta">每章均以已計算的命盤資料為依據。</p>
   {ai?<>
    <span className="fortune-report-label">AI 深入解讀</span>
    {aiParts?<Chapters sections={aiParts.map(x=>({title:x.title,text:x.body,id:String(x.key)}))}/>:<div className="fortune-ai">{ai}</div>}
