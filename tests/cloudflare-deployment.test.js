@@ -207,7 +207,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   assert.ok(html.includes('<meta name="robots" content="index,follow">'),"public page must remain indexable: "+pathname);
   assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"sitemap missing: "+canonical);
  }
- const {readPublishedResearch,articlePath,articleCanonical,indexableArticle}=await import("../scripts/research-seo.mjs");
+ const {readPublishedResearch,articlePath,articleCanonical,indexableArticle,hasArticleHeading,articleHeadingText}=await import("../scripts/research-seo.mjs");
  const {days}=readPublishedResearch(ROOT);
  let total=0,indexed=0;
  for(const [date,day] of days)for(const item of day.items){
@@ -217,7 +217,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
   const canonical=articleCanonical(date,item);
   assert.ok(html.includes('<div id="root" data-crew-ssg-path="'+route.slice(0,-1)+'">'),"missing article hydration marker: "+route);
   assert.ok(html.includes('<article class="briefing briefing-detail">'),"must render actual React article: "+route);
-  assert.ok(html.includes(item.title.replaceAll("&","&amp;")),"article title missing in HTML: "+route);
+  assert.ok(hasArticleHeading(html,item.title),"article title missing in HTML: "+route+" (actual h1: "+JSON.stringify(articleHeadingText(html)?.slice(0,120)??null)+")");
   assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"article canonical incorrect: "+route);
   assert.ok(html.includes('<meta property="og:url" content="'+canonical+'">'),"article og URL incorrect: "+route);
   assert.ok(html.includes('<script id="crew-research-seed" type="application/json">'),"missing hydration public seed: "+route);
