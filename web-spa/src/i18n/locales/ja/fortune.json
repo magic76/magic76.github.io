@@ -37,7 +37,7 @@
     "moduleError": "命式の計算を読み込めませんでした。ページを更新してください。",
     "birthdayRequired": "生年月日を選択してください",
     "timeRequired": "出生時刻を入力してください",
-    "locationRequired": "インド占星術には出生地の座標と UTC 時差が必要です",
+    "locationRequired": "インド占星術には出生地の座標と UTC 時差が必要です（例：+08:00）",
     "retry": "再読み込み",
     "yourProfile": "あなたの情報",
     "once": "一度だけ設定",
@@ -127,7 +127,8 @@
       "moon": "月",
       "mainCycle": "主周期"
     },
-    "yearsLeft": "残り {{count}} 年"
+    "yearsLeft": "残り {{count}} 年",
+    "phaseTarot": "現在のピーク数 {{current}}；{{year}} 年からピーク数 {{next}}"
   },
   "profile": {
     "birthdayRequired": "保存する前に生年月日を選んでください",
