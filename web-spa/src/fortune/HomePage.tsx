@@ -5,6 +5,7 @@ import {geminiKey} from "../lib/runtime";
 import {readFortuneHistoryPreviews,type FortuneHistoryPreview} from "./readingHistory";
 import {ProductDiscoverability} from "../components/ProductDiscoverability";
 import "./unifiedHome.css";
+import {FortuneDailyCard} from "./FortuneDailyCard";
 
 const MODES=["bazi","tarot","vedic"] as const;
 const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof MODES[number])
@@ -44,6 +45,7 @@ export function FortuneHomePage(){
   }finally{setOpeningId(null)}
  }
  return <>
+  <FortuneDailyCard/>
   <section className="hero fortune-journey-hero">
    <span className="kicker">CREW FORTUNE · EXPLORE</span>
    <h1>{t("landing.title")}</h1>

@@ -1,0 +1,136 @@
+import {useEffect,useMemo,useRef,useState} from "react";
+import {Link} from "react-router-dom";
+import {useTranslation} from "react-i18next";
+import {geminiKey,ensureFortuneServices} from "../lib/runtime";
+import {useRouteNamespace} from "../i18n/useRouteNamespace";
+import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
+import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,markDailySeen,readDailyStreak,findExistingAiForKind} from "./dailyStore";
+import {generateDailyAi} from "./dailyAi";
+import {shareDailyCard} from "./shareCard";
+import {loadFortunePresets} from "./profileStore";
+import type {FortuneProfile} from "./types";
+import "./dailyCard.css";
+
+function getProfile():Partial<FortuneProfile>|null{
+ try{
+  const primary=JSON.parse(localStorage.getItem("crew_fortune_profile_v2")||"null");
+  if(primary?.birthDate)return primary;
+  const saved=loadFortunePresets().find(p=>p.profile?.birthDate)?.profile;
+  if(saved)return saved;
+  const history=JSON.parse(localStorage.getItem("crew_fortune_readings_v2")||"[]");
+  return Array.isArray(history)?history.find(x=>x?.profile?.birthDate)?.profile||null:null;
+ }catch{return null;}
+}
+function useLocalDay(){
+ const [date,setDate]=useState(()=>localDateKey());
+ useEffect(()=>{
+  const check=()=>{if(document.visibilityState==="visible")setDate(localDateKey());};
+  const interval=window.setInterval(check,60000);
+  document.addEventListener("visibilitychange",check);
+  window.addEventListener("focus",check);
+  return ()=>{window.clearInterval(interval);document.removeEventListener("visibilitychange",check);window.removeEventListener("focus",check);};
+ },[]);
+ return date;
+}
+export function FortuneDailyCard(){
+ const {t,i18n}=useTranslation("fortuneDaily");
+ const ready=useRouteNamespace("fortuneDaily");
+ const date=useLocalDay();
+ const [profile,setProfile]=useState<Partial<FortuneProfile>|null>(()=>getProfile());
+ const [selected,setSelected]=useState<DailyKind>(()=>readDailyKind());
+ const [engineReady,setEngineReady]=useState(false);
+ const [loadFailure,setLoadFailure]=useState(false);
+ const [aiBusy,setAiBusy]=useState(false);
+ const [aiError,setAiError]=useState<""|"quota"|"error"|"used">("");
+ const [aiText,setAiText]=useState("");
+ const [streak,setStreak]=useState(()=>readDailyStreak());
+ const [refresh,setRefresh]=useState(0);
+ const active=useRef("");
+ const profileHash=useMemo(()=>profile?dailyProfileHash(profile):"",[profile]);
+ const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
+ const locale=i18n.resolvedLanguage||i18n.language;
+ useEffect(()=>{
+  const update=()=>{setProfile(getProfile());setRefresh(x=>x+1);};
+  window.addEventListener("focus",update);
+  window.addEventListener("storage",update);
+  return()=>{window.removeEventListener("focus",update);window.removeEventListener("storage",update);};
+ },[]);
+ useEffect(()=>{
+  if((kind!=="bazi"&&!/^zh/i.test(locale))||(kind==="bazi"&&!profile?.birthTime))return;
+  let cancelled=false;
+  setEngineReady(Boolean((window as Window & {Solar?:unknown}).Solar&&(kind!=="bazi"||window.CrewFortuneBaZi)));
+  void ensureFortuneServices().then(()=>{if(!cancelled){setEngineReady(true);setLoadFailure(false);}}).catch(()=>{if(!cancelled){setEngineReady(Boolean((window as Window & {Solar?:unknown}).Solar));setLoadFailure(true);}});
+  return ()=>{cancelled=true;};
+ },[kind,profileHash,locale,refresh]);
+ const card=useMemo(()=>{
+  if(!ready||!profile?.birthDate)return null;
+  const cached=readCachedDaily(date,kind,profileHash);
+  // Cache is a stable card, but strings must always match the active language.
+  if(cached?.card&&cached.card.kind===kind&&cached.card.date===date&&
+     cached.locale===locale&&cached.copyRevision===2&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
+  const result=buildDailyCard({kind,profile,localDate:date,lang:locale});
+  if("status" in result)return result;
+  saveCachedDaily(result,profileHash,undefined,locale);
+  return result;
+ },[ready,profileHash,profile,kind,date,locale,engineReady,refresh]);
+ const activeKey=date+":"+kind+":"+profileHash;
+ active.current=activeKey;
+ useEffect(()=>{
+  setAiError("");setAiBusy(false);
+  setAiText(profileHash?readCachedDaily(date,kind,profileHash)?.ai||"":"");
+ },[activeKey,locale]);
+ useEffect(()=>{
+  if(card&&!("status" in card)){
+   setStreak(markDailySeen(date));
+  }
+ },[card,date]);
+ if(!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
+ if(!profile?.birthDate)return <section className="fortune-daily panel">
+  <span className="kicker">CREW FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
+  <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} →</Link>
+ </section>;
+ function changeKind(next:DailyKind){if(next==="bazi"&&!profile?.birthTime)return;setSelected(saveDailyKind(next));setAiError("");}
+ async function useGemini(current:DailyCard){
+  if(aiBusy||!window.CrewAI?.call||!geminiKey())return;
+  const token=activeKey;setAiBusy(true);setAiError("");
+  const result=await generateDailyAi(current,profileHash,locale,(prompt,options)=>window.CrewAI!.call(prompt,options));
+  if(active.current!==token)return;
+  setAiBusy(false);
+  if(result.status==="ready")setAiText(result.text);
+  else setAiError(result.status);
+ }
+ const full=card&&!("status" in card)?card:null;
+ const unavailable=card&&"status" in card?card:null;
+ const seen=full?findExistingAiForKind(date,kind):null;
+ const aiUsedOther=Boolean(seen&&seen.profileHash!==profileHash);
+ return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
+  <div className="fortune-daily-top"><div><span className="kicker">CREW FORTUNE · {t("today")}</span>
+    <small>{date}</small></div>{streak.streak>0&&<span className="fortune-daily-streak">{t("streak",{count:streak.streak})}</span>}</div>
+  <div className="fortune-daily-kind" role="group" aria-label={t("selectKind")}>
+   <button type="button" className={kind==="numerology"?"active":""} aria-pressed={kind==="numerology"} onClick={()=>changeKind("numerology")}>{t("numerology")}</button>
+   <button type="button" className={kind==="bazi"?"active":""} aria-pressed={kind==="bazi"}
+    disabled={!profile.birthTime} title={!profile.birthTime?t("timeRequired"):undefined} onClick={()=>changeKind("bazi")}>{t("bazi")}</button>
+  </div>
+  {!profile.birthTime&&<small className="fortune-daily-help">{t("timeRequired")}</small>}
+  {full?<><h2>{full.headline}</h2><p className="fortune-daily-theme">{full.theme}</p>
+   <div className="fortune-daily-advice"><div><strong>{t("doLabel")}</strong><ul>{full.do.map((x,i)=><li key={i}>{x}</li>)}</ul></div>
+    <div><strong>{t("avoidLabel")}</strong><p>{full.avoid}</p></div></div>
+   <div className="fortune-daily-color"><span className="fortune-daily-swatch" style={{backgroundColor:full.luckyColor.hex}} aria-hidden="true"/>
+    <div><small>{t("luckyColor")}</small><strong>{full.luckyColor.name} · {full.luckyColor.element}</strong></div></div>
+   <details className="fortune-daily-basis"><summary>{t("basisLabel")}</summary><ul>{full.basis.map((x,i)=><li key={i}>{x}</li>)}</ul></details>
+   {/^zh/i.test(locale)&&full.almanac&&<div className="fortune-daily-almanac"><strong>{t("almanacLabel")}</strong>
+    <p>宜：{full.almanac.yi.join("、")||"—"}</p><p>忌：{full.almanac.ji.join("、")||"—"}</p>
+    {full.almanac.chong&&<p>沖：{full.almanac.chong}</p>}</div>}
+   <p className="fortune-daily-note">{t("disclaimer")}</p>
+   {aiText&&<div className="fortune-daily-ai-result" role="status">{Array.from(aiText).slice(0,120).join("")}</div>}
+   {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
+   {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
+   <div className="fortune-daily-actions">
+    <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full,{doLabel:t("doLabel"),avoidLabel:t("avoidLabel"),luckyColor:t("luckyColor"),disclaimer:t("disclaimer"),kindLabel:t(full.kind)})}>{t("share")}</button>
+    {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther}
+     onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
+    <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
+   </div>
+  </>:<p role="status" className="fortune-daily-help">{unavailable?t(unavailable.reason==="birthTime"?"timeRequired":unavailable.reason==="birthDate"?"addBirthday":"loadFailed"):t("loading")}</p>}
+ </section>;
+}

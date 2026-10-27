@@ -185,5 +185,5 @@
       note:"出生地當地民用時間；晚子時採 sect=2。Web 與 App 同樣使用 lunar 1.7.7 系列計算核心。"
     };
   }
-  global.CrewFortuneBaZi={calculate:calculate};
+  global.CrewFortuneBaZi={calculate:calculate,tenGod:tenGod,branchRelation:branchRelation};
 })(window);
