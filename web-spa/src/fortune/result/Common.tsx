@@ -12,7 +12,7 @@ export function Fact({label,children}:{label:string;children:ReactNode}){return 
 function plain(value:unknown):string{
  if(value==null||value==="")return "";
  if(typeof value==="string"||typeof value==="number")return formatFortuneValue(value);
- if(Array.isArray(value))return value.map(plain).filter(Boolean).join("、");
+ if(Array.isArray(value))return [...new Set(value.map(plain).filter(Boolean))].join("、");
  if(typeof value==="object"){
   const x=value as Record<string,unknown>;
   const parts=[x.year,x.ganZhi,x.sign,x.house&&"第"+x.house+"宮",x.lord,x.startDate&&String(x.startDate)+"–"+String(x.endDate||"")];
