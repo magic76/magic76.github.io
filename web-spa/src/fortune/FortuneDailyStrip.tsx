@@ -34,7 +34,7 @@ export function FortuneDailyStrip({reading}:{reading:FortuneReading}){
  if(!ready||!card)return null;
  return <section className="fortune-daily-strip" aria-label={t("today")}>
   <div><small>{t("today")} · {t(actualKind)}</small><strong>{card.headline}</strong>
-   <span>{t("luckyColor")}：{card.luckyColor.name}</span></div>
+   <span>{t("colorSummary",{color:card.luckyColor.name})}</span></div>
   <Link to="/fortune">{t("viewDaily")} →</Link>
  </section>;
 }

@@ -1,14 +1,14 @@
 import type {DailyCard} from "./dailyCard";
 import {findExistingAiForKind,readCachedDaily,saveCachedDaily} from "./dailyStore";
 
-export const DAILY_AI_OPTIONS={preferLive:false,maxOutputTokens:600,thinking:"low",requireComplete:true,timeoutMs:30000} as const;
+export const DAILY_AI_OPTIONS={preferLive:false,maxOutputTokens:1024,thinking:"low",requireComplete:true,timeoutMs:30000} as const;
 export type DailyAiResponse={status:"ready"|"used"|"quota"|"error";text:string};
 export function dailyAiPrompt(card:DailyCard,lang:string):string{
  // Explicit allowlist: profile, birth details, location, and chart metadata never enter this prompt.
  const facts={date:card.date,kind:card.kind,headline:card.headline,theme:card.theme,
   do:card.do,avoid:card.avoid,luckyColor:card.luckyColor.name,basis:card.basis};
  return "Crew Fortune reflection. Output language: "+lang+
-  ". Respond in plain text, at most 120 characters or words as appropriate for the language. "+
+  ". Respond in plain text, at most 120 characters in any language. "+
   "No Markdown. Be calm, non-deterministic and supportive. No medical, investing or legal advice. "+
   "Only use these daily card facts (do not infer personal data): "+JSON.stringify(facts);
 }
@@ -22,7 +22,7 @@ export async function generateDailyAi(
  // an AI reading generated for someone else's birth profile.
  if(findExistingAiForKind(card.date,card.kind))return {status:"used",text:""};
  try{
-  const output=(await call(dailyAiPrompt(card,lang),DAILY_AI_OPTIONS)).replace(/[*#]/g,"").trim();
+  const output=Array.from((await call(dailyAiPrompt(card,lang),DAILY_AI_OPTIONS)).replace(/[*#]/g,"").trim()).slice(0,120).join("");
   if(!output)return {status:"error",text:""};
   saveCachedDaily(card,profileHash,output);
   return {status:"ready",text:output};

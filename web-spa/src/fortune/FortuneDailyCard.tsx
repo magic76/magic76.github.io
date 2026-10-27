@@ -126,7 +126,7 @@ export function FortuneDailyCard(){
    {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
    {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
    <div className="fortune-daily-actions">
-    <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full)}>{t("share")}</button>
+    <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full,{doLabel:t("doLabel"),avoidLabel:t("avoidLabel"),luckyColor:t("luckyColor"),disclaimer:t("disclaimer"),kindLabel:t(full.kind)})}>{t("share")}</button>
     {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther}
      onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
     <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
