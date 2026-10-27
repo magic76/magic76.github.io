@@ -332,3 +332,12 @@
  .crew-home-content{width:calc(100% - 20px)}
  .crew-home-world-inner{width:100%}
 }
+
+/* Stable, readable public product summary for both visitors and crawlers. */
+.crew-home-search-summary{margin:24px 0 34px;padding:24px 28px;border:1px solid var(--line,#e6e8ee);border-radius:22px;background:var(--surface,#fff)}
+.crew-home-search-summary h2{font-size:clamp(18px,2vw,23px);line-height:1.4;margin:0 0 10px}
+.crew-home-search-summary p{font-size:14px;line-height:1.8;color:var(--muted,#697285);max-width:900px;margin:0}
+.crew-home-search-summary nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.crew-home-search-summary nav a{display:inline-flex;align-items:center;min-height:40px;padding:8px 14px;border:1px solid var(--line,#e6e8ee);border-radius:999px;font-size:13px;font-weight:650;text-decoration:none}
+.crew-home-search-summary nav a:hover,.crew-home-search-summary nav a:focus-visible{border-color:var(--accent,#8572c9);text-decoration:underline}
+@media(max-width:600px){.crew-home-search-summary{padding:20px 18px}.crew-home-search-summary nav{gap:8px}}
