@@ -37,7 +37,7 @@
     "moduleError": "Perhitungan bagan tidak dapat dimuat. Segarkan halaman dan coba lagi.",
     "birthdayRequired": "Pilih tanggal lahir Anda",
     "timeRequired": "Masukkan waktu lahir",
-    "locationRequired": "Astrologi Weda memerlukan koordinat kelahiran dan selisih UTC",
+    "locationRequired": "Astrologi Weda memerlukan koordinat kelahiran dan selisih UTC; contoh: +08:00",
     "retry": "Muat ulang",
     "yourProfile": "Data Anda",
     "once": "Cukup atur sekali",
@@ -127,7 +127,8 @@
       "moon": "Bulan",
       "mainCycle": "Periode utama"
     },
-    "yearsLeft": "sisa {{count}} tahun"
+    "yearsLeft": "sisa {{count}} tahun",
+    "phaseTarot": "Puncak kini {{current}}; puncak {{next}} mulai {{year}}"
   },
   "profile": {
     "birthdayRequired": "Pilih tanggal lahir sebelum menyimpan",
