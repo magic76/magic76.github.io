@@ -161,17 +161,22 @@
     opt=opt||{};
     var body={systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000}};
     if(opt.json)body.generationConfig.responseMimeType="application/json";
-    var r;
+    var r,controller=new AbortController();
+    var limit=Number.isFinite(opt.timeoutMs)&&opt.timeoutMs>0?opt.timeoutMs:15000;
+    var timer=setTimeout(function(){controller.abort()},limit);
     try{
-      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body)});
-    }catch(_){throw modelError("network",model+" network request failed")}
+      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body),signal:controller.signal});
+    }catch(_){throw modelError("network",model+(controller.signal.aborted?" request timeout":" network request failed"))}
+    finally{clearTimeout(timer)}
     var d;try{d=await r.json()}catch(_){d=null}
     if(!r.ok){
       var reason=String(d&&d.error&&d.error.status||"");
       var msg=String(d&&d.error&&d.error.message||"");
       throw modelError(classifyTextFailure(r.status,reason,msg),model+" HTTP "+r.status,r.status);
     }
-    var parts=d&&d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;
+    var candidate=d&&d.candidates&&d.candidates[0];
+    if(opt.requireComplete&&candidate&&candidate.finishReason==="MAX_TOKENS")throw modelError("response",model+" incomplete MAX_TOKENS");
+    var parts=candidate&&candidate.content&&candidate.content.parts;
     var out=(parts||[]).map(function(p){return p.text||""}).join("").trim();
     if(!out)throw modelError("response",model+" empty response");
     if(opt.json){
@@ -186,7 +191,7 @@
     if(opt.preferLive!==false){for(var i=0;i<LIVE.length;i++){try{return await liveCall(LIVE[i],prompt,opt)}catch(e){errs.push(LIVE[i]+": "+e.message)}}}
     var found=opt.strictModels?[]:await discover(),seen={},models=TEXT.concat(found).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
     for(var j=0;j<models.length;j++){
-      try{return await timeout(textCall(models[j],prompt,opt),15000,models[j])}
+      try{return await textCall(models[j],prompt,opt)}
       catch(e){
         var failure=e&&e.kind?e:modelError("network",models[j]+" request timeout");
         if(failure.kind==="key")throw failure; // A bad key is not repaired by another model.
