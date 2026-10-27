@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "{{year}}년에 {{name}} 시기가 시작됩니다. 다음 단계의 우선순위를 정리해 보세요."
+    "transitionSummary": "{{year}}년에 {{name}} 시기가 시작됩니다. 다음 단계의 우선순위를 정리해 보세요.",
+    "dasha": "대운기 · {{lord}}",
+    "dashaSummary": "{{lord}} 주기: {{start}}~{{end}}.",
+    "dashaEvidence": "Vimshottari 주기: {{lord}}",
+    "baziEvidence": "연간 간지 {{pillar}} · 십신 {{god}} · 대운 {{luck}}",
+    "transitionEvidence": "{{year}}년에 {{name}} 주기가 시작됩니다."
   },
   "factLabels": {
     "pillars": "사주",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "해당 연도",
+    "transit": "이동",
+    "period": "주기",
+    "stemTenGod": "연간 십신",
+    "stemMeaning": "상징적 의미",
+    "branchTenGods": "지지 십신",
+    "luckPillar": "10년 대운",
+    "themes": "주제",
+    "natalInteractions": "명식 상호작용",
+    "tarotCard": "관련 카드",
+    "keywords": "핵심어",
+    "personalYear": "개인 연도",
+    "planetPeriod": "행성 또는 주기",
+    "fromSign": "이전 별자리",
+    "toSign": "다음 별자리",
+    "fromHouse": "이전 본명궁",
+    "toHouse": "다음 본명궁",
+    "startDate": "시작일",
+    "endDate": "종료일",
+    "viewEvidence": "연도 근거 보기",
+    "baziSummary": "{{luck}} 대운의 {{god}} 주제."
   }
 }

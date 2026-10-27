@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "ช่วง {{name}} เริ่มในปี {{year}} ลองทบทวนสิ่งสำคัญสำหรับช่วงต่อไป"
+    "transitionSummary": "ช่วง {{name}} เริ่มในปี {{year}} ลองทบทวนสิ่งสำคัญสำหรับช่วงต่อไป",
+    "dasha": "มหาทศา · {{lord}}",
+    "dashaSummary": "ช่วงหลัก {{lord}}: {{start}} ถึง {{end}}",
+    "dashaEvidence": "ช่วงหลัก Vimshottari: {{lord}}",
+    "baziEvidence": "เสาประจำปี {{pillar}} · สิบเทพ {{god}} · วงรอบ {{luck}}",
+    "transitionEvidence": "วงรอบ {{name}} เริ่มในปี {{year}}"
   },
   "factLabels": {
     "pillars": "เสาทั้งสี่",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "ปีจร",
+    "transit": "ย้ายราศี",
+    "period": "ช่วงหลัก",
+    "stemTenGod": "สิบเทพประจำปี",
+    "stemMeaning": "ความหมายเชิงสัญลักษณ์",
+    "branchTenGods": "สิบเทพของกิ่ง",
+    "luckPillar": "วงรอบสิบปี",
+    "themes": "หัวข้อ",
+    "natalInteractions": "ความสัมพันธ์ของดวงกำเนิด",
+    "tarotCard": "ไพ่ที่เกี่ยวข้อง",
+    "keywords": "คำสำคัญ",
+    "personalYear": "ปีส่วนบุคคล",
+    "planetPeriod": "ดาวหรือช่วงเวลา",
+    "fromSign": "ราศีเดิม",
+    "toSign": "ราศีใหม่",
+    "fromHouse": "เรือนเดิม",
+    "toHouse": "เรือนใหม่",
+    "startDate": "วันเริ่มต้น",
+    "endDate": "วันสิ้นสุด",
+    "viewEvidence": "ดูหลักฐานของปี",
+    "baziSummary": "หัวข้อ {{god}} ในวงรอบ {{luck}}"
   }
 }

@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "Giai đoạn {{name}} bắt đầu năm {{year}}. Xem lại các ưu tiên cho chặng tiếp theo."
+    "transitionSummary": "Giai đoạn {{name}} bắt đầu năm {{year}}. Xem lại các ưu tiên cho chặng tiếp theo.",
+    "dasha": "Đại vận kỳ · {{lord}}",
+    "dashaSummary": "Chu kỳ chính {{lord}}: {{start}} đến {{end}}.",
+    "dashaEvidence": "Chu kỳ chính Vimshottari: {{lord}}",
+    "baziEvidence": "Can chi năm {{pillar}} · Thập thần {{god}} · Đại vận {{luck}}",
+    "transitionEvidence": "Chu kỳ {{name}} bắt đầu vào năm {{year}}."
   },
   "factLabels": {
     "pillars": "Tứ trụ",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "Lưu niên",
+    "transit": "chuyển cung",
+    "period": "Chu kỳ chính",
+    "stemTenGod": "Thập thần lưu niên",
+    "stemMeaning": "Ý nghĩa biểu tượng",
+    "branchTenGods": "Thập thần địa chi",
+    "luckPillar": "Đại vận mười năm",
+    "themes": "Chủ đề",
+    "natalInteractions": "Tương tác bản mệnh",
+    "tarotCard": "Lá bài liên quan",
+    "keywords": "Từ khóa",
+    "personalYear": "Năm cá nhân",
+    "planetPeriod": "Hành tinh hoặc chu kỳ",
+    "fromSign": "Cung ban đầu",
+    "toSign": "Cung tiếp theo",
+    "fromHouse": "Nhà bản mệnh đầu",
+    "toHouse": "Nhà bản mệnh sau",
+    "startDate": "Ngày bắt đầu",
+    "endDate": "Ngày kết thúc",
+    "viewEvidence": "Xem căn cứ theo năm",
+    "baziSummary": "Chủ đề {{god}} trong đại vận {{luck}}."
   }
 }

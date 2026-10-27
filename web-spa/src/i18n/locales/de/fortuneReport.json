@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "Die Phase {{name}} beginnt {{year}}. Überdenken Sie Ihre Prioritäten für diesen Abschnitt."
+    "transitionSummary": "Die Phase {{name}} beginnt {{year}}. Überdenken Sie Ihre Prioritäten für diesen Abschnitt.",
+    "dasha": "Mahadasha · {{lord}}",
+    "dashaSummary": "Hauptperiode {{lord}}: {{start}} bis {{end}}.",
+    "dashaEvidence": "Vimshottari-Hauptperiode: {{lord}}",
+    "baziEvidence": "Jahressäule {{pillar}} · Zehn Götter {{god}} · Zyklus {{luck}}",
+    "transitionEvidence": "Der Zyklus {{name}} beginnt {{year}}."
   },
   "factLabels": {
     "pillars": "Vier Säulen",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "Jahreszyklus",
+    "transit": "Wechsel",
+    "period": "Hauptperiode",
+    "stemTenGod": "Jährliche Zehn Götter",
+    "stemMeaning": "Symbolische Bedeutung",
+    "branchTenGods": "Zehn Götter des Zweigs",
+    "luckPillar": "Zehnjahreszyklus",
+    "themes": "Themen",
+    "natalInteractions": "Geburtskonstellation",
+    "tarotCard": "Zugeordnete Karte",
+    "keywords": "Schlagwörter",
+    "personalYear": "Persönliches Jahr",
+    "planetPeriod": "Planet oder Periode",
+    "fromSign": "Vorheriges Zeichen",
+    "toSign": "Neues Zeichen",
+    "fromHouse": "Vorheriges Geburtshaus",
+    "toHouse": "Neues Geburtshaus",
+    "startDate": "Startdatum",
+    "endDate": "Enddatum",
+    "viewEvidence": "Jahresgrundlagen anzeigen",
+    "baziSummary": "Thema {{god}} im Zyklus {{luck}}."
   }
 }
