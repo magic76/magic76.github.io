@@ -3,7 +3,6 @@
   "emptyTitle": "Tu tarjeta diaria comienza con tu fecha de nacimiento",
   "emptyDescription": "Una breve reflexión basada en reglas tradicionales.",
   "addBirthday": "Añadir fecha de nacimiento",
-  "streak": "{{count}} días seguidos",
   "selectKind": "Método",
   "numerology": "Numerología",
   "bazi": "BaZi",
@@ -62,7 +61,8 @@
     "tarot": "Carta de hoy: {{card}}",
     "baziStem": "Pilar diario {{day}} → {{god}} respecto al maestro {{master}}",
     "baziBranch": "Rama diaria {{daily}} y rama natal del día {{natal}}: {{relation}}",
-    "baziYearBranch": "Rama diaria {{daily}} y rama natal del año {{natal}}: {{relation}}"
+    "baziYearBranch": "Rama diaria {{daily}} y rama natal del año {{natal}}: {{relation}}",
+    "keyword": "Palabra clave de hoy: {{keyword}}"
   },
   "numerologyHeadline": "Día personal {{day}} · {{card}}",
   "cards": {
@@ -158,118 +158,121 @@
   "templates": {
     "peers": {
       "0": {
-        "headline": "Observa el ritmo de autonomía",
-        "theme": "Hoy puedes reflexionar sobre autonomía.",
-        "do0": "Elige una meta pequeña",
-        "do1": "Aclara tus límites",
-        "avoid": "Evita compararte"
+        "headline": "Deja espacio para tu ritmo",
+        "theme": "Escuchar a otros no significa dejar de lado tus prioridades.",
+        "do0": "Anota una meta pequeña que puedas cumplir por tu cuenta",
+        "do1": "Pregunta a un compañero si necesita apoyo",
+        "avoid": "Evita comparar tu avance con el de los demás"
       },
       "1": {
-        "headline": "Empieza con autonomía",
-        "theme": "Busca tu propio ritmo en autonomía.",
-        "do0": "Aclara tus límites",
-        "do1": "Elige una meta pequeña",
-        "avoid": "Evita compararte"
+        "headline": "Colaborar requiere límites claros",
+        "theme": "Hablar de las tareas compartidas facilita la convivencia.",
+        "do0": "Confirma quién se ocupa de una tarea",
+        "do1": "Tómate un momento antes de aceptar una invitación",
+        "avoid": "No prometas algo solo por encajar"
       },
       "2": {
-        "headline": "Haz espacio para autonomía",
-        "theme": "Baja el ritmo y observa autonomía.",
-        "do0": "Hoy puedes reflexionar sobre autonomía.",
-        "do1": "Busca tu propio ritmo en autonomía.",
-        "avoid": "Evita compararte"
+        "headline": "Aprende de otra mirada",
+        "theme": "Una conversación tranquila puede ampliar tu perspectiva.",
+        "do0": "Pregunta a alguien de confianza cómo resolvería algo",
+        "do1": "Agradece a quien te haya ayudado",
+        "avoid": "No conviertas cada desacuerdo en una disputa"
       }
     },
     "expression": {
       "0": {
-        "headline": "Observa el ritmo de expresión",
-        "theme": "Hoy puedes reflexionar sobre expresión.",
-        "do0": "Explica una idea",
-        "do1": "Dedica tiempo a crear",
-        "avoid": "Evita apresurarte"
+        "headline": "Dale voz a una idea",
+        "theme": "Un pensamiento sencillo puede abrir una buena conversación.",
+        "do0": "Escribe una idea en tres frases",
+        "do1": "Comparte una observación útil con alguien",
+        "avoid": "Evita hablar sin dejar espacio para responder"
       },
       "1": {
-        "headline": "Empieza con expresión",
-        "theme": "Busca tu propio ritmo en expresión.",
-        "do0": "Dedica tiempo a crear",
-        "do1": "Explica una idea",
-        "avoid": "Evita apresurarte"
+        "headline": "Termina algo pequeño",
+        "theme": "No hace falta crear una obra perfecta para avanzar.",
+        "do0": "Resume una nota que tengas pendiente",
+        "do1": "Dedica diez minutos a revisar un borrador",
+        "avoid": "No pospongas el inicio por buscar perfección"
       },
       "2": {
-        "headline": "Haz espacio para expresión",
-        "theme": "Baja el ritmo y observa expresión.",
-        "do0": "Hoy puedes reflexionar sobre expresión.",
-        "do1": "Busca tu propio ritmo en expresión.",
-        "avoid": "Evita apresurarte"
+        "headline": "Busca palabras más claras",
+        "theme": "Lo importante es que te entiendan, no impresionar.",
+        "do0": "Reformula una pregunta con tus palabras",
+        "do1": "Pide que te indiquen qué parte no se entendió",
+        "avoid": "Evita responder antes de escuchar hasta el final"
       }
     },
     "resources": {
       "0": {
-        "headline": "Observa el ritmo de recursos",
-        "theme": "Hoy puedes reflexionar sobre recursos.",
-        "do0": "Revisa lo que tienes",
-        "do1": "Organiza una tarea",
-        "avoid": "Evita abarcar demasiado"
+        "headline": "Mira lo que ya tienes",
+        "theme": "Antes de buscar más, puedes ordenar lo disponible.",
+        "do0": "Enumera tres recursos que puedes aprovechar",
+        "do1": "Termina una tarea que llevas aplazando",
+        "avoid": "No aceptes cada oportunidad como una obligación"
       },
       "1": {
-        "headline": "Empieza con recursos",
-        "theme": "Busca tu propio ritmo en recursos.",
-        "do0": "Organiza una tarea",
-        "do1": "Revisa lo que tienes",
-        "avoid": "Evita abarcar demasiado"
+        "headline": "Dedica energía a lo importante",
+        "theme": "No todas las peticiones necesitan la misma atención.",
+        "do0": "Revisa si un compromiso sigue siendo necesario",
+        "do1": "Reserva un espacio libre para mañana",
+        "avoid": "No te cargues de tareas por complacer a otros"
       },
       "2": {
-        "headline": "Haz espacio para recursos",
-        "theme": "Baja el ritmo y observa recursos.",
-        "do0": "Hoy puedes reflexionar sobre recursos.",
-        "do1": "Busca tu propio ritmo en recursos.",
-        "avoid": "Evita abarcar demasiado"
+        "headline": "Cuida la manera de usar tu tiempo",
+        "theme": "El tiempo también merece una elección consciente.",
+        "do0": "Pon una hora de cierre a una tarea",
+        "do1": "Simplifica un paso repetitivo de tu rutina",
+        "avoid": "No dejes que cada notificación marque tu agenda"
       }
     },
     "responsibility": {
       "0": {
-        "headline": "Observa el ritmo de responsabilidad",
-        "theme": "Hoy puedes reflexionar sobre responsabilidad.",
-        "do0": "Ordena tus prioridades",
-        "do1": "Comunica con calma",
-        "avoid": "Evita juzgarte con dureza"
+        "headline": "Da solo el siguiente paso",
+        "theme": "Con una prioridad clara, el día puede resultar más llevadero.",
+        "do0": "Elige la tarea más importante de hoy",
+        "do1": "Divide un trabajo grande en una acción breve",
+        "avoid": "No te presiones con reproches"
       },
       "1": {
-        "headline": "Empieza con responsabilidad",
-        "theme": "Busca tu propio ritmo en responsabilidad.",
-        "do0": "Comunica con calma",
-        "do1": "Ordena tus prioridades",
-        "avoid": "Evita juzgarte con dureza"
+        "headline": "Aclara lo que se espera",
+        "theme": "Poner las expectativas en palabras evita malentendidos.",
+        "do0": "Comprueba cómo debe quedar una tarea",
+        "do1": "Explica qué ayuda necesitas para avanzar",
+        "avoid": "Evita asumir en silencio responsabilidades ajenas"
       },
       "2": {
-        "headline": "Haz espacio para responsabilidad",
-        "theme": "Baja el ritmo y observa responsabilidad.",
-        "do0": "Hoy puedes reflexionar sobre responsabilidad.",
-        "do1": "Busca tu propio ritmo en responsabilidad.",
-        "avoid": "Evita juzgarte con dureza"
+        "headline": "Deja margen para los cambios",
+        "theme": "Cumplir un compromiso admite cierta flexibilidad.",
+        "do0": "Añade una pausa entre dos tareas exigentes",
+        "do1": "Revisa si tu agenda necesita tiempo extra",
+        "avoid": "No te culpes por un cambio imprevisto"
       }
     },
     "learning": {
       "0": {
-        "headline": "Observa el ritmo de aprendizaje",
-        "theme": "Hoy puedes reflexionar sobre aprendizaje.",
-        "do0": "Explora una pregunta",
-        "do1": "Pide orientación",
-        "avoid": "Evita demasiada información"
+        "headline": "Conserva la curiosidad",
+        "theme": "Una pregunta pequeña puede revelar algo interesante.",
+        "do0": "Busca el significado de un término desconocido",
+        "do1": "Apunta una idea nueva que hayas escuchado",
+        "avoid": "No acumules lecturas sin reflexionar"
       },
       "1": {
-        "headline": "Empieza con aprendizaje",
-        "theme": "Busca tu propio ritmo en aprendizaje.",
-        "do0": "Pide orientación",
-        "do1": "Explora una pregunta",
-        "avoid": "Evita demasiada información"
+        "headline": "Deja que la pregunta te guíe",
+        "theme": "Preguntar con precisión puede ser mejor que adivinar.",
+        "do0": "Plantea una pregunta concreta",
+        "do1": "Resume una explicación con tus propias palabras",
+        "avoid": "No confundas no saber con no ser capaz"
       },
       "2": {
-        "headline": "Haz espacio para aprendizaje",
-        "theme": "Baja el ritmo y observa aprendizaje.",
-        "do0": "Hoy puedes reflexionar sobre aprendizaje.",
-        "do1": "Busca tu propio ritmo en aprendizaje.",
-        "avoid": "Evita demasiada información"
+        "headline": "Convierte lo aprendido en tuyo",
+        "theme": "Aprender sin prisa también puede dar buenos frutos.",
+        "do0": "Explica una idea nueva a un amigo",
+        "do1": "Guarda un descubrimiento útil en tus notas",
+        "avoid": "No empieces demasiados temas a la vez"
       }
     }
-  }
+  },
+  "streak_one": "{{count}} día seguido",
+  "streak_other": "{{count}} días seguidos",
+  "colorSummary": "Color de la suerte: {{color}}"
 }

@@ -17,7 +17,7 @@ export async function generateDailyAi(
  call:(prompt:string,options:typeof DAILY_AI_OPTIONS)=>Promise<string>
 ):Promise<DailyAiResponse>{
  const cached=readCachedDaily(card.date,card.kind,profileHash);
- if(cached?.ai)return {status:"ready",text:cached.ai};
+ if(cached?.ai)return {status:"ready",text:Array.from(cached.ai).slice(0,120).join("")};
  // One successful generation per date and kind across profiles. Never display
  // an AI reading generated for someone else's birth profile.
  if(findExistingAiForKind(card.date,card.kind))return {status:"used",text:""};

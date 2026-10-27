@@ -3,7 +3,6 @@
   "emptyTitle": "Deine Tageskarte beginnt mit deinem Geburtsdatum",
   "emptyDescription": "Eine kurze Reflexion nach traditionellen Regeln.",
   "addBirthday": "Geburtsdatum eingeben",
-  "streak": "{{count}} Tage in Folge",
   "selectKind": "Methode",
   "numerology": "Numerologie",
   "bazi": "BaZi",
@@ -62,7 +61,8 @@
     "tarot": "Heutige Karte: {{card}}",
     "baziStem": "Tagessäule {{day}} → {{god}} für Tagesmeister {{master}}",
     "baziBranch": "Tageszweig {{daily}} und Geburts-Tageszweig {{natal}}: {{relation}}",
-    "baziYearBranch": "Tageszweig {{daily}} und Geburts-Jahreszweig {{natal}}: {{relation}}"
+    "baziYearBranch": "Tageszweig {{daily}} und Geburts-Jahreszweig {{natal}}: {{relation}}",
+    "keyword": "Schlüsselwort des Tages: {{keyword}}"
   },
   "numerologyHeadline": "Persönlicher Tag {{day}} · {{card}}",
   "cards": {
@@ -158,118 +158,121 @@
   "templates": {
     "peers": {
       "0": {
-        "headline": "Achte auf den Rhythmus von Selbstständigkeit",
-        "theme": "Denke heute über Selbstständigkeit nach.",
-        "do0": "Setze ein kleines Ziel",
-        "do1": "Kläre eine Grenze",
-        "avoid": "Vermeide Vergleiche"
+        "headline": "Finde dein eigenes Tempo",
+        "theme": "Du kannst anderen zuhören und trotzdem bei dir bleiben.",
+        "do0": "Schreibe ein kleines eigenes Ziel auf",
+        "do1": "Frage einen Kollegen, ob er Unterstützung braucht",
+        "avoid": "Vergleiche dich nicht ständig mit anderen"
       },
       "1": {
-        "headline": "Beginne mit Selbstständigkeit",
-        "theme": "Finde dein Tempo bei Selbstständigkeit.",
-        "do0": "Kläre eine Grenze",
-        "do1": "Setze ein kleines Ziel",
-        "avoid": "Vermeide Vergleiche"
+        "headline": "Gute Zusammenarbeit braucht Grenzen",
+        "theme": "Klar verteilte Aufgaben machen das Miteinander leichter.",
+        "do0": "Kläre die Zuständigkeit für eine Aufgabe",
+        "do1": "Denke kurz nach, bevor du etwas zusagst",
+        "avoid": "Sage nicht nur aus Gruppendruck zu"
       },
       "2": {
-        "headline": "Schaffe Raum für Selbstständigkeit",
-        "theme": "Nimm dir Zeit, Selbstständigkeit wahrzunehmen.",
-        "do0": "Denke heute über Selbstständigkeit nach.",
-        "do1": "Finde dein Tempo bei Selbstständigkeit.",
-        "avoid": "Vermeide Vergleiche"
+        "headline": "Lerne eine andere Sicht kennen",
+        "theme": "Ein ruhiger Austausch kann neue Ideen bringen.",
+        "do0": "Bitte eine vertraute Person um ihre Einschätzung",
+        "do1": "Bedanke dich bei jemandem für seine Hilfe",
+        "avoid": "Sieh eine andere Meinung nicht sofort als Angriff"
       }
     },
     "expression": {
       "0": {
-        "headline": "Achte auf den Rhythmus von Ausdruck",
-        "theme": "Denke heute über Ausdruck nach.",
-        "do0": "Erkläre eine Idee",
-        "do1": "Nimm dir Zeit für Kreatives",
-        "avoid": "Urteile nicht vorschnell"
+        "headline": "Gib einer Idee eine Stimme",
+        "theme": "Ein klarer Gedanke kann der Anfang von etwas sein.",
+        "do0": "Halte eine Idee in drei Sätzen fest",
+        "do1": "Teile eine hilfreiche Beobachtung mit jemandem",
+        "avoid": "Rede nicht weiter, ohne eine Antwort abzuwarten"
       },
       "1": {
-        "headline": "Beginne mit Ausdruck",
-        "theme": "Finde dein Tempo bei Ausdruck.",
-        "do0": "Nimm dir Zeit für Kreatives",
-        "do1": "Erkläre eine Idee",
-        "avoid": "Urteile nicht vorschnell"
+        "headline": "Bring etwas Kleines zu Ende",
+        "theme": "Auch kleine kreative Schritte verdienen Anerkennung.",
+        "do0": "Fasse eine alte Notiz zusammen",
+        "do1": "Überarbeite zehn Minuten lang einen Entwurf",
+        "avoid": "Warte nicht auf die perfekte erste Version"
       },
       "2": {
-        "headline": "Schaffe Raum für Ausdruck",
-        "theme": "Nimm dir Zeit, Ausdruck wahrzunehmen.",
-        "do0": "Denke heute über Ausdruck nach.",
-        "do1": "Finde dein Tempo bei Ausdruck.",
-        "avoid": "Urteile nicht vorschnell"
+        "headline": "Setze auf verständliche Worte",
+        "theme": "Verstanden zu werden ist wichtiger als zu beeindrucken.",
+        "do0": "Formuliere eine Frage mit eigenen Worten",
+        "do1": "Frage nach, welcher Teil noch unklar ist",
+        "avoid": "Unterbrich dein Gegenüber nicht vorschnell"
       }
     },
     "resources": {
       "0": {
-        "headline": "Achte auf den Rhythmus von Ressourcen",
-        "theme": "Denke heute über Ressourcen nach.",
-        "do0": "Prüfe deine Möglichkeiten",
-        "do1": "Ordne eine Aufgabe",
-        "avoid": "Übernimm nicht zu viel"
+        "headline": "Sieh dir deine Möglichkeiten an",
+        "theme": "Vielleicht brauchst du nichts Neues, sondern mehr Überblick.",
+        "do0": "Notiere drei Dinge, die dir heute helfen",
+        "do1": "Erledige eine seit Langem offene Aufgabe",
+        "avoid": "Nimm nicht jede Gelegenheit als Pflicht wahr"
       },
       "1": {
-        "headline": "Beginne mit Ressourcen",
-        "theme": "Finde dein Tempo bei Ressourcen.",
-        "do0": "Ordne eine Aufgabe",
-        "do1": "Prüfe deine Möglichkeiten",
-        "avoid": "Übernimm nicht zu viel"
+        "headline": "Nutze deine Energie bewusst",
+        "theme": "Nicht jede Anfrage braucht gleich viel Aufmerksamkeit.",
+        "do0": "Prüfe, ob eine Zusage noch sinnvoll ist",
+        "do1": "Lass morgen etwas Platz im Kalender",
+        "avoid": "Übernimm nichts allein aus Erwartungsdruck"
       },
       "2": {
-        "headline": "Schaffe Raum für Ressourcen",
-        "theme": "Nimm dir Zeit, Ressourcen wahrzunehmen.",
-        "do0": "Denke heute über Ressourcen nach.",
-        "do1": "Finde dein Tempo bei Ressourcen.",
-        "avoid": "Übernimm nicht zu viel"
+        "headline": "Geh achtsam mit Zeit um",
+        "theme": "Zeit ist eine Ressource, über die du mitentscheiden kannst.",
+        "do0": "Setze dir ein Ende für die aktuelle Aufgabe",
+        "do1": "Vereinfache einen wiederholten Arbeitsschritt",
+        "avoid": "Lass deinen Tag nicht von Benachrichtigungen bestimmen"
       }
     },
     "responsibility": {
       "0": {
-        "headline": "Achte auf den Rhythmus von Verantwortung",
-        "theme": "Denke heute über Verantwortung nach.",
-        "do0": "Setze Prioritäten",
-        "do1": "Sprich Erwartungen ruhig an",
-        "avoid": "Sei nicht zu streng mit dir"
+        "headline": "Ein nächster Schritt genügt",
+        "theme": "Eine klare Priorität kann einen vollen Tag erleichtern.",
+        "do0": "Wähle deine wichtigste Aufgabe für heute",
+        "do1": "Teile ein Projekt in eine kurze Handlung auf",
+        "avoid": "Treibe dich nicht mit Selbstvorwürfen an"
       },
       "1": {
-        "headline": "Beginne mit Verantwortung",
-        "theme": "Finde dein Tempo bei Verantwortung.",
-        "do0": "Sprich Erwartungen ruhig an",
-        "do1": "Setze Prioritäten",
-        "avoid": "Sei nicht zu streng mit dir"
+        "headline": "Mach Erwartungen deutlich",
+        "theme": "Gute Absprachen helfen, Missverständnisse zu vermeiden.",
+        "do0": "Kläre, wann eine Aufgabe als fertig gilt",
+        "do1": "Sage offen, welche Unterstützung du brauchst",
+        "avoid": "Trage fremde Aufgaben nicht stillschweigend mit"
       },
       "2": {
-        "headline": "Schaffe Raum für Verantwortung",
-        "theme": "Nimm dir Zeit, Verantwortung wahrzunehmen.",
-        "do0": "Denke heute über Verantwortung nach.",
-        "do1": "Finde dein Tempo bei Verantwortung.",
-        "avoid": "Sei nicht zu streng mit dir"
+        "headline": "Lass Raum für Änderungen",
+        "theme": "Verantwortung zu übernehmen heißt nicht, starr zu bleiben.",
+        "do0": "Plane einen kleinen Zeitpuffer ein",
+        "do1": "Gönn dir nach einer anstrengenden Aufgabe eine Pause",
+        "avoid": "Gib dir nicht für jede Überraschung die Schuld"
       }
     },
     "learning": {
       "0": {
-        "headline": "Achte auf den Rhythmus von Lernen",
-        "theme": "Denke heute über Lernen nach.",
-        "do0": "Erkunde eine Frage",
-        "do1": "Bitte um Unterstützung",
-        "avoid": "Vermeide Informationsflut"
+        "headline": "Bleib neugierig",
+        "theme": "Auch Bekanntes kann noch interessante Fragen aufwerfen.",
+        "do0": "Schlage einen unklaren Begriff nach",
+        "do1": "Notiere eine neue Erkenntnis des Tages",
+        "avoid": "Sammle nicht nur Artikel, ohne nachzudenken"
       },
       "1": {
-        "headline": "Beginne mit Lernen",
-        "theme": "Finde dein Tempo bei Lernen.",
-        "do0": "Bitte um Unterstützung",
-        "do1": "Erkunde eine Frage",
-        "avoid": "Vermeide Informationsflut"
+        "headline": "Eine gute Frage bringt dich weiter",
+        "theme": "Eine klare Frage hilft oft mehr als die schnelle Antwort.",
+        "do0": "Stelle eine präzise Frage",
+        "do1": "Erkläre einen längeren Text in eigenen Worten",
+        "avoid": "Halte Unwissen nicht für persönliches Versagen"
       },
       "2": {
-        "headline": "Schaffe Raum für Lernen",
-        "theme": "Nimm dir Zeit, Lernen wahrzunehmen.",
-        "do0": "Denke heute über Lernen nach.",
-        "do1": "Finde dein Tempo bei Lernen.",
-        "avoid": "Vermeide Informationsflut"
+        "headline": "Mach neues Wissen nutzbar",
+        "theme": "Langsam zu verstehen ist besser als nur schnell zu lesen.",
+        "do0": "Erkläre einem Freund einen neuen Gedanken",
+        "do1": "Halte eine hilfreiche Einsicht im Notizbuch fest",
+        "avoid": "Beginne nicht zu viele Lernthemen gleichzeitig"
       }
     }
-  }
+  },
+  "streak_one": "{{count}} Tag in Folge",
+  "streak_other": "{{count}} Tage in Folge",
+  "colorSummary": "Glücksfarbe: {{color}}"
 }

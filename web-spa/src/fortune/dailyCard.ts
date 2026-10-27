@@ -114,6 +114,34 @@ export function personalCycle(profile:Partial<FortuneProfile>,date:string){
 function translated(input:DailyInput,key:string,values?:Record<string,string|number>):string{
  return input.translate?input.translate(key,values):String(i18n.t(key,{ns:"fortuneDaily",...values,lng:input.lang}));
 }
+// lunar-javascript Yi/Ji/Chong strings are simplified Chinese. This small
+// table covers common almanac vocabulary without adding a dependency.
+const ALMANAC_S2T:Record<string,string>=Object.fromEntries([
+ ["车","車"],["货","貨"],["财","財"],["开","開"],["仓","倉"],["动","動"],["龙","龍"],["马","馬"],["鸡","雞"],["猪","豬"],["门","門"],
+ ["规","規"],["丧","喪"],["纳","納"],["盖","蓋"],["钟","鐘"],["针","針"],["铺","鋪"],["会","會"],["书","書"],["画","畫"],["医","醫"],
+ ["药","藥"],["庙","廟"],["坟","墳"],["迁","遷"],["启","啟"],["闭","閉"],["竖","豎"],["树","樹"],["种","種"],["礼","禮"],
+ ["坛","壇"],["斋","齋"],["祷","禱"],["订","訂"],["约","約"],["买","買"],["卖","賣"],["结","結"],["缔","締"],["缘","緣"],
+ ["亲","親"],["乔","喬"],["扫","掃"],["舍","捨"],["驿","驛"],["联","聯"],["宾","賓"],["饭","飯"],["饮","飲"],["酝","醞"],["酿","釀"],
+ ["经","經"],["络","絡"],["纺","紡"],["织","織"],["网","網"],["罗","羅"],["钓","釣"],["厕","廁"],["宫","宮"],["馆","館"],
+ ["盐","鹽"],["铁","鐵"],["铜","銅"],["复","復"],["还","還"],["转","轉"],["运","運"],["进","進"],["发","發"],["头","頭"],
+ ["杀","殺"],["兽","獸"],["鸟","鳥"],["鱼","魚"],["虾","蝦"],["鳖","鱉"],["龟","龜"],["烧","燒"],["炼","煉"],["炉","爐"],
+ ["点","點"],["灯","燈"],["损","損"],["墙","牆"],["砖","磚"],["垒","壘"],["桥","橋"],["坝","壩"],["务","務"],["农","農"],
+ ["粮","糧"],["产","產"],["业","業"],["静","靜"],["库","庫"],["帐","帳"],["帘","簾"],["张","張"],["岁","歲"],["旧","舊"],
+ ["圣","聖"],["灵","靈"],["寿","壽"],["庆","慶"],["贡","貢"],["贵","貴"],["驾","駕"],["临","臨"],["见","見"],["观","觀"],
+ ["觐","覲"],["谈","談"],["议","議"],["净","淨"],["济","濟"],["断","斷"],["绝","絕"],["谢","謝"],["请","請"],["应","應"],
+ ["兴","興"],["义","義"],["为","為"],["对","對"],["国","國"],["阳","陽"],["阴","陰"],["历","曆"],["冲","沖"],["时","時"],
+ ["节","節"],["东","東"],["风","風"],["云","雲"],["凤","鳳"],["乌","烏"],["斩","斬"],["坏","壞"],["废","廢"],["杂","雜"],
+ ["装","裝"],["饰","飾"]
+] as [string,string][]);
+export function traditionalAlmanacText(raw:string):string{
+ return Array.from(raw||"").map(char=>ALMANAC_S2T[char]||char).join("");
+}
+function localAlmanac(day:LunarDay,lang:string):DailyCard["almanac"]{
+ const format=(v:string)=>lang==="zh-TW"?traditionalAlmanacText(v):v;
+ return {yi:(day.getDayYi?.()||[]).slice(0,3).map(format),
+  ji:(day.getDayJi?.()||[]).slice(0,3).map(format),
+  chong:day.getDayChongDesc?format(day.getDayChongDesc()):undefined};
+}
 function readableBranch(code:string,lang:string){return /^zh/i.test(lang)?code:code.split("").map(x=>STEM_ROMAN[x]||BRANCH_ROMAN[x]||x).join("-")}
 function readableStem(code:string,lang:string){return /^zh/i.test(lang)?code:STEM_ROMAN[code]||code}
 function readableRelation(code:string,input:DailyInput){return code?translated(input,"relations."+code):translated(input,"relations.none")}
@@ -139,10 +167,11 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   colorElement=NUMBER_ELEMENTS[c.personalDay];
   const copy=chooseCopy(input,category,seed>>>5);
   headline=translated(input,"numerologyHeadline",{day:c.personalDay,card:translated(input,"cards."+cardIndex+".name")});
-  theme=copy.theme+" · "+translated(input,"cards."+cardIndex+".keywords");
+  theme=copy.theme;
   suggestions=copy.do;avoid=copy.avoid;
   basis=[translated(input,"basis.numeric",{year:c.personalYear,month:c.personalMonth,day:c.personalDay}),
-   translated(input,"basis.tarot",{card:translated(input,"cards."+cardIndex+".name")})];
+   translated(input,"basis.tarot",{card:translated(input,"cards."+cardIndex+".name")}),
+   translated(input,"basis.keyword",{keyword:translated(input,"cards."+cardIndex+".keywords")})];
  }else{
   let result=input.bazi;
   if(!result){
@@ -174,8 +203,7 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   ];
   colorElement=(result?.balancingElements||[])[0]||result?.dayMasterElement||"木";
   if(/^zh/i.test(lang)){
-   try{almanac={yi:(solarDay.getDayYi?.()||[]).slice(0,3),ji:(solarDay.getDayJi?.()||[]).slice(0,3),
-    chong:solarDay.getDayChongDesc?.()||undefined};}catch{/* optional calendar metadata */}
+   try{almanac=localAlmanac(solarDay,lang);}catch{/* optional calendar metadata */}
   }
  }
  if(/^zh/i.test(lang)&&!almanac){
@@ -184,7 +212,7 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   try{
    const [y,m,d]=localDate.split("-").map(Number);
    const day=engine.fromYmd(y,m,d).getLunar();
-   almanac={yi:(day.getDayYi?.()||[]).slice(0,3),ji:(day.getDayJi?.()||[]).slice(0,3),chong:day.getDayChongDesc?.()||undefined};
+   almanac=localAlmanac(day,lang);
   }catch{return {status:"loading",reason:"lunar"};}
  }
  const chosen=ELEMENT_COLOR[colorElement]||ELEMENT_COLOR["木"];

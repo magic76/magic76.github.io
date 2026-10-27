@@ -67,7 +67,7 @@ export function FortuneDailyCard(){
   const cached=readCachedDaily(date,kind,profileHash);
   // Cache is a stable card, but strings must always match the active language.
   if(cached?.card&&cached.card.kind===kind&&cached.card.date===date&&
-     cached.locale===locale&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
+     cached.locale===locale&&cached.copyRevision===2&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
   const result=buildDailyCard({kind,profile,localDate:date,lang:locale});
   if("status" in result)return result;
   saveCachedDaily(result,profileHash,undefined,locale);
@@ -122,7 +122,7 @@ export function FortuneDailyCard(){
     <p>宜：{full.almanac.yi.join("、")||"—"}</p><p>忌：{full.almanac.ji.join("、")||"—"}</p>
     {full.almanac.chong&&<p>沖：{full.almanac.chong}</p>}</div>}
    <p className="fortune-daily-note">{t("disclaimer")}</p>
-   {aiText&&<div className="fortune-daily-ai-result" role="status">{aiText}</div>}
+   {aiText&&<div className="fortune-daily-ai-result" role="status">{Array.from(aiText).slice(0,120).join("")}</div>}
    {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
    {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
    <div className="fortune-daily-actions">

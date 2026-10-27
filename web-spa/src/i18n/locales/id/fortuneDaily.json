@@ -3,7 +3,6 @@
   "emptyTitle": "Kartu harian dimulai dari tanggal lahir",
   "emptyDescription": "Refleksi singkat berdasarkan aturan tradisional.",
   "addBirthday": "Isi tanggal lahir",
-  "streak": "{{count}} hari berturut-turut",
   "selectKind": "Pilih metode",
   "numerology": "Numerologi",
   "bazi": "BaZi",
@@ -62,7 +61,8 @@
     "tarot": "Kartu hari ini: {{card}}",
     "baziStem": "Pilar harian {{day}} → {{god}} untuk master {{master}}",
     "baziBranch": "Cabang harian {{daily}} dan hari lahir {{natal}}: {{relation}}",
-    "baziYearBranch": "Cabang harian {{daily}} dan tahun lahir {{natal}}: {{relation}}"
+    "baziYearBranch": "Cabang harian {{daily}} dan tahun lahir {{natal}}: {{relation}}",
+    "keyword": "Kata kunci hari ini: {{keyword}}"
   },
   "numerologyHeadline": "Hari pribadi {{day}} · {{card}}",
   "cards": {
@@ -158,118 +158,121 @@
   "templates": {
     "peers": {
       "0": {
-        "headline": "Perhatikan ritme kemandirian",
-        "theme": "Hari ini renungkan kemandirian.",
-        "do0": "Pilih satu tujuan kecil",
-        "do1": "Jelaskan batasan",
-        "avoid": "Hindari perbandingan"
+        "headline": "Jaga langkahmu sendiri",
+        "theme": "Kamu bisa mendengar orang lain tanpa melupakan tujuanmu.",
+        "do0": "Tulis satu target kecil yang bisa kamu selesaikan sendiri",
+        "do1": "Tanyakan bantuan apa yang dibutuhkan rekanmu",
+        "avoid": "Jangan terus membandingkan kemajuanmu"
       },
       "1": {
-        "headline": "Mulailah dengan kemandirian",
-        "theme": "Temukan ritme pribadi lewat kemandirian.",
-        "do0": "Jelaskan batasan",
-        "do1": "Pilih satu tujuan kecil",
-        "avoid": "Hindari perbandingan"
+        "headline": "Kerja sama butuh batas yang jelas",
+        "theme": "Membicarakan peran membuat kerja tim lebih nyaman.",
+        "do0": "Pastikan siapa yang menangani satu tugas",
+        "do1": "Pikirkan sejenak sebelum menerima undangan",
+        "avoid": "Jangan selalu berkata ya demi diterima"
       },
       "2": {
-        "headline": "Beri ruang untuk kemandirian",
-        "theme": "Perlambat langkah dan amati kemandirian.",
-        "do0": "Hari ini renungkan kemandirian.",
-        "do1": "Temukan ritme pribadi lewat kemandirian.",
-        "avoid": "Hindari perbandingan"
+        "headline": "Belajar dari sudut pandang lain",
+        "theme": "Obrolan tenang dapat memperkaya cara berpikirmu.",
+        "do0": "Tanya orang tepercaya bagaimana mereka bertindak",
+        "do1": "Ucapkan terima kasih kepada orang yang membantumu",
+        "avoid": "Jangan menganggap perbedaan pendapat sebagai serangan"
       }
     },
     "expression": {
       "0": {
-        "headline": "Perhatikan ritme ekspresi",
-        "theme": "Hari ini renungkan ekspresi.",
-        "do0": "Jelaskan satu ide",
-        "do1": "Luangkan waktu berkarya",
-        "avoid": "Hindari kesimpulan cepat"
+        "headline": "Berikan suara pada idemu",
+        "theme": "Beberapa kalimat sederhana cukup untuk memulai.",
+        "do0": "Tulis idemu dalam tiga kalimat",
+        "do1": "Bagikan satu pengamatan yang bermanfaat",
+        "avoid": "Jangan memenuhi jeda sebelum orang lain menjawab"
       },
       "1": {
-        "headline": "Mulailah dengan ekspresi",
-        "theme": "Temukan ritme pribadi lewat ekspresi.",
-        "do0": "Luangkan waktu berkarya",
-        "do1": "Jelaskan satu ide",
-        "avoid": "Hindari kesimpulan cepat"
+        "headline": "Selesaikan karya kecil",
+        "theme": "Langkah kreatif sederhana pun patut dihargai.",
+        "do0": "Ubah catatan lama menjadi ringkasan pendek",
+        "do1": "Luangkan sepuluh menit menyunting draf",
+        "avoid": "Jangan menunggu sempurna untuk memulai"
       },
       "2": {
-        "headline": "Beri ruang untuk ekspresi",
-        "theme": "Perlambat langkah dan amati ekspresi.",
-        "do0": "Hari ini renungkan ekspresi.",
-        "do1": "Temukan ritme pribadi lewat ekspresi.",
-        "avoid": "Hindari kesimpulan cepat"
+        "headline": "Utamakan pesan yang jelas",
+        "theme": "Dipahami lebih penting daripada terdengar hebat.",
+        "do0": "Ulangi pertanyaan dengan kata-katamu sendiri",
+        "do1": "Minta masukan tentang bagian yang kurang jelas",
+        "avoid": "Jangan menyela sebelum lawan bicara selesai"
       }
     },
     "resources": {
       "0": {
-        "headline": "Perhatikan ritme sumber daya",
-        "theme": "Hari ini renungkan sumber daya.",
-        "do0": "Tinjau sumber daya",
-        "do1": "Rapikan satu tugas",
-        "avoid": "Hindari terlalu banyak janji"
+        "headline": "Periksa apa yang tersedia",
+        "theme": "Menata sumber daya kadang lebih berguna daripada menambahnya.",
+        "do0": "Catat tiga hal yang bisa kamu gunakan hari ini",
+        "do1": "Tuntaskan satu pekerjaan yang tertunda",
+        "avoid": "Jangan anggap setiap kesempatan sebagai kewajiban"
       },
       "1": {
-        "headline": "Mulailah dengan sumber daya",
-        "theme": "Temukan ritme pribadi lewat sumber daya.",
-        "do0": "Rapikan satu tugas",
-        "do1": "Tinjau sumber daya",
-        "avoid": "Hindari terlalu banyak janji"
+        "headline": "Arahkan tenaga pada yang utama",
+        "theme": "Tidak semua permintaan membutuhkan perhatian yang sama.",
+        "do0": "Tinjau apakah satu komitmen masih perlu",
+        "do1": "Sisakan waktu kosong dalam jadwal besok",
+        "avoid": "Jangan menerima tugas hanya karena tuntutan orang"
       },
       "2": {
-        "headline": "Beri ruang untuk sumber daya",
-        "theme": "Perlambat langkah dan amati sumber daya.",
-        "do0": "Hari ini renungkan sumber daya.",
-        "do1": "Temukan ritme pribadi lewat sumber daya.",
-        "avoid": "Hindari terlalu banyak janji"
+        "headline": "Atur waktu dengan lembut",
+        "theme": "Waktu juga sumber daya yang layak dijaga.",
+        "do0": "Tentukan kapan akan mengakhiri satu tugas",
+        "do1": "Sederhanakan satu langkah pekerjaan rutin",
+        "avoid": "Jangan biarkan notifikasi menguasai harimu"
       }
     },
     "responsibility": {
       "0": {
-        "headline": "Perhatikan ritme tanggung jawab",
-        "theme": "Hari ini renungkan tanggung jawab.",
-        "do0": "Susun prioritas",
-        "do1": "Sampaikan harapan dengan tenang",
-        "avoid": "Hindari terlalu keras pada diri"
+        "headline": "Mulai dari langkah terdekat",
+        "theme": "Satu prioritas bisa meringankan hari yang padat.",
+        "do0": "Pilih tugas paling penting hari ini",
+        "do1": "Pecah pekerjaan besar menjadi tindakan singkat",
+        "avoid": "Jangan memaksa diri lewat kritik yang keras"
       },
       "1": {
-        "headline": "Mulailah dengan tanggung jawab",
-        "theme": "Temukan ritme pribadi lewat tanggung jawab.",
-        "do0": "Sampaikan harapan dengan tenang",
-        "do1": "Susun prioritas",
-        "avoid": "Hindari terlalu keras pada diri"
+        "headline": "Jelaskan harapan bersama",
+        "theme": "Kesepakatan yang jelas mengurangi salah paham.",
+        "do0": "Pastikan ukuran keberhasilan satu pekerjaan",
+        "do1": "Sampaikan bantuan apa yang kamu perlukan",
+        "avoid": "Jangan diam-diam mengambil pekerjaan orang lain"
       },
       "2": {
-        "headline": "Beri ruang untuk tanggung jawab",
-        "theme": "Perlambat langkah dan amati tanggung jawab.",
-        "do0": "Hari ini renungkan tanggung jawab.",
-        "do1": "Temukan ritme pribadi lewat tanggung jawab.",
-        "avoid": "Hindari terlalu keras pada diri"
+        "headline": "Berikan ruang untuk berubah",
+        "theme": "Menepati janji tetap bisa disertai penyesuaian.",
+        "do0": "Tambahkan jeda singkat antaragenda",
+        "do1": "Rencanakan waktu istirahat setelah tugas berat",
+        "avoid": "Jangan menyalahkan diri untuk perubahan mendadak"
       }
     },
     "learning": {
       "0": {
-        "headline": "Perhatikan ritme belajar",
-        "theme": "Hari ini renungkan belajar.",
-        "do0": "Telusuri satu pertanyaan",
-        "do1": "Bertanya kepada orang tepercaya",
-        "avoid": "Hindari banjir informasi"
+        "headline": "Tetap ingin tahu",
+        "theme": "Satu pertanyaan kecil bisa membuka pengetahuan baru.",
+        "do0": "Cari arti istilah yang belum kamu pahami",
+        "do1": "Tulis perspektif baru yang kamu dengar hari ini",
+        "avoid": "Jangan hanya menumpuk bacaan tanpa merenung"
       },
       "1": {
-        "headline": "Mulailah dengan belajar",
-        "theme": "Temukan ritme pribadi lewat belajar.",
-        "do0": "Bertanya kepada orang tepercaya",
-        "do1": "Telusuri satu pertanyaan",
-        "avoid": "Hindari banjir informasi"
+        "headline": "Biarkan pertanyaan memandu",
+        "theme": "Pertanyaan tepat sering lebih berguna daripada jawaban cepat.",
+        "do0": "Ajukan satu pertanyaan yang spesifik",
+        "do1": "Rangkum penjelasan dengan bahasamu sendiri",
+        "avoid": "Jangan menganggap belum tahu sebagai kekurangan diri"
       },
       "2": {
-        "headline": "Beri ruang untuk belajar",
-        "theme": "Perlambat langkah dan amati belajar.",
-        "do0": "Hari ini renungkan belajar.",
-        "do1": "Temukan ritme pribadi lewat belajar.",
-        "avoid": "Hindari banjir informasi"
+        "headline": "Jadikan pengetahuan milikmu",
+        "theme": "Belajar perlahan juga bisa memberi pemahaman mendalam.",
+        "do0": "Jelaskan ide baru kepada seorang teman",
+        "do1": "Simpan satu hal berguna dalam catatanmu",
+        "avoid": "Jangan memulai banyak topik sekaligus"
       }
     }
-  }
+  },
+  "streak_one": "{{count}} hari berturut-turut",
+  "streak_other": "{{count}} hari berturut-turut",
+  "colorSummary": "Warna keberuntungan: {{color}}"
 }

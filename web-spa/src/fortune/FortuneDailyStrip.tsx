@@ -24,7 +24,7 @@ export function FortuneDailyStrip({reading}:{reading:FortuneReading}){
  const card=useMemo(()=>{
   if(!ready)return null;
   const stored=readCachedDaily(date,actualKind,hash);
-  if(stored?.locale===lang)return stored.card;
+  if(stored?.locale===lang&&stored.copyRevision===2)return stored.card;
   const result=buildDailyCard({kind:actualKind,profile:reading.profile,localDate:date,lang,
    bazi:reading.mode==="bazi"?reading.result:undefined});
   if("status" in result)return null;

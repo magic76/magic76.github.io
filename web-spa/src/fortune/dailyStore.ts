@@ -4,7 +4,7 @@ import {localDateKey} from "./dailyCard";
 export const DAILY_CACHE_KEY="crew_fortune_daily_v1";
 export const DAILY_KIND_KEY="crew_fortune_daily_kind_v1";
 export const DAILY_STREAK_KEY="crew_fortune_daily_streak_v1";
-export type DailyRecord={card:DailyCard;ai?:string;seenAt:string;locale?:string};
+export type DailyRecord={card:DailyCard;ai?:string;seenAt:string;locale?:string;copyRevision?:number};
 export type DailyCache=Record<string,Record<string,DailyRecord>>;
 export type DailyStreak={streak:number;best:number;lastSeen:string};
 const emptyStreak=():DailyStreak=>({streak:0,best:0,lastSeen:""});
@@ -32,7 +32,7 @@ export function readDailyCache():DailyCache{
    const v=value as Partial<DailyRecord>|null;
    if(!v||v.card?.version!==1||v.card?.date!==date||!Array.isArray(v.card?.basis))continue;
    safe[key]={card:v.card,seenAt:typeof v.seenAt==="string"?v.seenAt:date,
-    ...(typeof v.ai==="string"&&v.ai?{ai:v.ai}:{}),...(typeof v.locale==="string"?{locale:v.locale}:{})};
+    ...(typeof v.ai==="string"&&v.ai?{ai:v.ai}:{}),...(typeof v.locale==="string"?{locale:v.locale}:{}),...(v.copyRevision===2?{copyRevision:2}:{})};
   }
   if(Object.keys(safe).length)out[date]=safe;
  }
@@ -54,7 +54,7 @@ export function saveCachedDaily(card:DailyCard,profileHash:string,ai?:string,loc
  const cache=pruneDailyCache(readDailyCache(),card.date),key=cacheSlot(card.kind,profileHash);
  const previous=cache[card.date]?.[key];
  const entry:DailyRecord={card,seenAt:previous?.seenAt||card.date,
-  ...(ai?{ai}:previous?.ai?{ai:previous.ai}:{}),...(locale?{locale}:previous?.locale?{locale:previous.locale}:{})};
+  ...(ai?{ai}:previous?.ai?{ai:previous.ai}:{}),...(locale?{locale}:previous?.locale?{locale:previous.locale}:{}),copyRevision:2};
  cache[card.date]={...cache[card.date],[key]:entry};
  writeJSON(DAILY_CACHE_KEY,cache);
  return entry;

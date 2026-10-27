@@ -9,7 +9,7 @@ function loadTs(file,exports,imports={}){
  return Function(...Object.keys(imports),code+"\nreturn {"+exports.join(",")+"};")(...Object.values(imports));
 }
 const pure=loadTs("web-spa/src/fortune/dailyCard.ts",
- ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation"]);
+ ["buildDailyCard","localDateKey","dailyProfileHash","fnv1a","personalCycle","dayStemRelation","dayBranchRelation","traditionalAlmanacText"]);
 const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
@@ -21,7 +21,7 @@ const profile={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
 const onDate=(kind,date,override=profile,extra={})=>pure.buildDailyCard({kind,profile:override,localDate:date,lang:"en",translate,...extra});
 function getCard(value){assert.equal(value.version,1,JSON.stringify(value));return value;}
 const fakeSolar={fromYmd:()=>({getLunar:()=>({getDayInGanZhi:()=>"丙午",
- getDayYi:()=>["祭祀","納采","祈福","第三項"],getDayJi:()=>["動土","遠行","開市","第四項"],getDayChongDesc:()=>"沖鼠"})})};
+ getDayYi:()=>["造车器","出货财","开仓","祭祀"],getDayJi:()=>["动土","纳财","修门","祭祀"],getDayChongDesc:()=>"(戊辰)龙"})})};
 const bazi={dayMaster:"庚",dayPillar:"庚辰",yearPillar:"乙丑",balancingElements:["金"]};
 
 test("D1 deterministic daily cards and change of date/profile",()=>{
@@ -88,7 +88,10 @@ test("D1 bazi equivalence with original ten god and branch relations",()=>{
 
 test("D5 almanac only in zh locale, no non-zh UI almanac",()=>{
  const zh=getCard(onDate("bazi","2026-10-27",profile,{bazi,lunar:fakeSolar,lang:"zh-TW"}));
- assert.ok(zh.almanac);assert.equal(zh.almanac.yi.length,3);
+ assert.ok(zh.almanac);assert.deepEqual(Array.from(zh.almanac.yi),["造車器","出貨財","開倉"]);
+ assert.deepEqual(Array.from(zh.almanac.ji),["動土","納財","修門"]);
+ assert.equal(zh.almanac.chong,"(戊辰)龍");
+ assert.equal(pure.traditionalAlmanacText("马鸡猪门规丧盖钟针药"),"馬雞豬門規喪蓋鐘針藥");
  for(const lang of ["en","ja","fr","vi"]){
   const c=getCard(onDate("bazi","2026-10-27",profile,{bazi,lunar:fakeSolar,lang}));
   assert.equal(Object.hasOwn(c,"almanac"),false);
@@ -110,12 +113,16 @@ test("D6 Gemini is opt-in, quota errors do not count, uses allowlisted data",asy
  const invoke=async(p,c)=>{calls++;prompt=p;config=c;return "A gentle reflective paragraph."};
  assert.equal((await ai.generateDailyAi(card,hash,"English",invoke)).status,"ready");
  assert.equal((await ai.generateDailyAi(card,hash,"English",invoke)).status,"ready");assert.equal(calls,1);
- assert.equal(config.maxOutputTokens,600);assert.equal(config.thinking,"low");assert.equal(config.requireComplete,true);
+ assert.equal(config.maxOutputTokens,1024);assert.equal(config.thinking,"low");assert.equal(config.requireComplete,true);
  assert.equal(config.preferLive,false);assert.equal(config.timeoutMs,30000);
  assert.doesNotMatch(prompt,/birthDate|birthTime|latitude|longitude|utcOffset|timeZoneId|1985-07-06/);
  const other=getCard(onDate("numerology","2026-10-27",{...profile,birthDate:"1990-03-03"}));
  assert.equal((await ai.generateDailyAi(other,pure.dailyProfileHash({birthDate:"1990-03-03"}),"English",invoke)).status,"used");
  assert.equal(calls,1);
+ memory.clear();
+ const longResult=await ai.generateDailyAi(card,hash,"English",async()=>"# "+"a".repeat(350));
+ assert.equal(longResult.text.length,120);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).ai.length,120);
  memory.clear();
  const quota=await ai.generateDailyAi(card,hash,"English",async()=>{throw Error("429 quota exhausted")});
  assert.equal(quota.status,"quota");assert.equal(store.readCachedDaily(card.date,card.kind,hash),null);
@@ -123,10 +130,16 @@ test("D6 Gemini is opt-in, quota errors do not count, uses allowlisted data",asy
 
 test("D7 share function only accepts a DailyCard and excludes private input",()=>{
  const source=read("web-spa/src/fortune/shareCard.ts");
- const daily=source.slice(source.indexOf("export async function buildDailyShareFile"));
- assert.match(daily,/buildDailyShareFile\(card:import\("\.\/dailyCard"\)\.DailyCard\)/);
+ const daily=source.slice(source.indexOf("export type DailyShareLabels"));
+ assert.match(daily,/buildDailyShareFile\(card:import\("\.\/dailyCard"\)\.DailyCard,labels:DailyShareLabels\)/);
  assert.match(daily,/canvas\.width=1080;canvas\.height=1350/);
  assert.doesNotMatch(daily,/birthDate|birthTime|latitude|longitude|utcOffset|timeZoneId/);
+ assert.doesNotMatch(daily,/card\.basis|\.dayMaster|\.dayPillar|\.yearPillar/);
+ assert.match(daily,/labels\.doLabel/);
+ assert.match(daily,/labels\.avoidLabel/);
+ assert.match(daily,/labels\.disclaimer/);
+ assert.match(daily,/labels\.luckyColor/);
+ assert.doesNotMatch(daily,/fillText\("DO"|fillText\("NOTICE"/);
 });
 test("D8 eleven complete locale catalogs with three variants per bazi category",()=>{
  const langs=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
@@ -136,11 +149,35 @@ test("D8 eleven complete locale catalogs with three variants per bazi category",
   assert.deepEqual(keys(catalog),keys(catalogs[0]));
   for(const category of ["peers","expression","resources","responsibility","learning"]){
    assert.equal(Object.keys(catalog.templates[category]).length,3);
-   assert.equal(new Set(Object.values(catalog.templates[category]).map(x=>x.headline)).size,3);
+   const rows=Object.values(catalog.templates[category]);
+   assert.equal(new Set(rows.map(x=>x.headline)).size,3);
+   for(const field of ["headline","theme","do0","do1","avoid"]){
+    assert.equal(new Set(rows.map(x=>x[field])).size,3,category+" "+field);
+   }
+   const unique=new Set(rows.flatMap(x=>[x.headline,x.theme,x.do0,x.do1,x.avoid]));
+   assert.ok(unique.size>=12,category+" needs >=12 distinct sentences among 15");
+   assert.equal(new Set(rows.flatMap(x=>[x.do0,x.do1,x.avoid])).size,9);
   }
   assert.equal(Object.keys(catalog.cards).length,22);
+  assert.equal(typeof catalog.streak_one,"string");
+  assert.equal(typeof catalog.streak_other,"string");
+  assert.ok(catalog.streak_one.includes("{{count}}"));
+  assert.ok(catalog.streak_other.includes("{{count}}"));
+  assert.ok(catalog.colorSummary.includes("{{color}}"));
+  assert.ok(catalog.basis.keyword.includes("{{keyword}}"));
+  assert.equal("streak" in catalog,false);
   assert.doesNotMatch(JSON.stringify(catalog.templates),/成功率|運勢分數|luckyScore|大凶|必定/);
  }
+ const en=catalogs[1];
+ assert.doesNotMatch(JSON.stringify(en.templates),/resources fits|resources reveals|pace through responsibility/i);
+ assert.notEqual(en.streak_one,en.streak_other);
+ assert.equal(catalogs[0].doLabel,"試試");
+ assert.equal(catalogs[2].doLabel,"試してみる");
+ const cardSource=read("web-spa/src/fortune/dailyCard.ts");
+ assert.doesNotMatch(cardSource,/copy\.theme\s*\+\s*["'] · /);
+ const strip=read("web-spa/src/fortune/FortuneDailyStrip.tsx");
+ assert.match(strip,/t\("colorSummary",\{color:card\.luckyColor\.name\}\)/);
+ assert.doesNotMatch(strip,/luckyColor"\)}：/);
  const index=read("web-spa/src/i18n/index.ts");
  assert.match(index,/fortuneReport,fortuneDaily/);
  assert.doesNotMatch(index,/namespaceNames=\[[^\]]*fortuneDaily/);

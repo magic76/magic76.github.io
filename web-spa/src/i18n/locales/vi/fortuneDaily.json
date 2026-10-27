@@ -3,7 +3,6 @@
   "emptyTitle": "Nhập ngày sinh để xem thẻ hôm nay",
   "emptyDescription": "Gợi ý suy ngẫm ngắn theo quy tắc truyền thống.",
   "addBirthday": "Nhập ngày sinh",
-  "streak": "{{count}} ngày liên tiếp",
   "selectKind": "Chọn phương pháp",
   "numerology": "Thần số học",
   "bazi": "Bát tự",
@@ -62,7 +61,8 @@
     "tarot": "Lá bài hôm nay: {{card}}",
     "baziStem": "Trụ ngày {{day}} → {{god}} với nhật chủ {{master}}",
     "baziBranch": "Chi ngày {{daily}} và chi ngày sinh {{natal}}: {{relation}}",
-    "baziYearBranch": "Chi ngày {{daily}} và chi năm sinh {{natal}}: {{relation}}"
+    "baziYearBranch": "Chi ngày {{daily}} và chi năm sinh {{natal}}: {{relation}}",
+    "keyword": "Từ khóa hôm nay: {{keyword}}"
   },
   "numerologyHeadline": "Ngày cá nhân {{day}} · {{card}}",
   "cards": {
@@ -158,118 +158,121 @@
   "templates": {
     "peers": {
       "0": {
-        "headline": "Quan sát nhịp của tự chủ",
-        "theme": "Hôm nay hãy nghĩ về tự chủ.",
-        "do0": "Chọn một mục tiêu nhỏ",
-        "do1": "Làm rõ ranh giới",
-        "avoid": "Tránh so sánh"
+        "headline": "Giữ nhịp riêng của bạn",
+        "theme": "Bạn có thể lắng nghe người khác mà vẫn giữ điều mình coi trọng.",
+        "do0": "Viết ra một mục tiêu nhỏ có thể tự hoàn thành",
+        "do1": "Hỏi đồng đội hôm nay họ cần hỗ trợ gì",
+        "avoid": "Đừng liên tục so sánh tiến độ của mình"
       },
       "1": {
-        "headline": "Bắt đầu với tự chủ",
-        "theme": "Tìm nhịp phù hợp trong tự chủ.",
-        "do0": "Làm rõ ranh giới",
-        "do1": "Chọn một mục tiêu nhỏ",
-        "avoid": "Tránh so sánh"
+        "headline": "Hợp tác cần ranh giới rõ ràng",
+        "theme": "Nói rõ vai trò giúp mọi người dễ phối hợp hơn.",
+        "do0": "Xác nhận ai phụ trách một việc chung",
+        "do1": "Dành chút thời gian suy nghĩ trước khi nhận lời",
+        "avoid": "Đừng đồng ý mọi việc chỉ để vừa lòng người khác"
       },
       "2": {
-        "headline": "Dành không gian cho tự chủ",
-        "theme": "Chậm lại và quan sát tự chủ.",
-        "do0": "Hôm nay hãy nghĩ về tự chủ.",
-        "do1": "Tìm nhịp phù hợp trong tự chủ.",
-        "avoid": "Tránh so sánh"
+        "headline": "Đón nhận góc nhìn khác",
+        "theme": "Một cuộc trò chuyện nhẹ nhàng có thể mở rộng suy nghĩ.",
+        "do0": "Hỏi người bạn tin cậy cách họ xử lý một việc",
+        "do1": "Gửi lời cảm ơn đến người từng giúp bạn",
+        "avoid": "Đừng coi mọi ý kiến trái chiều là xung đột"
       }
     },
     "expression": {
       "0": {
-        "headline": "Quan sát nhịp của biểu đạt",
-        "theme": "Hôm nay hãy nghĩ về biểu đạt.",
-        "do0": "Diễn đạt một ý tưởng",
-        "do1": "Dành thời gian sáng tạo",
-        "avoid": "Tránh kết luận vội"
+        "headline": "Cho ý tưởng một tiếng nói",
+        "theme": "Vài câu rõ ràng là đủ để bắt đầu chia sẻ.",
+        "do0": "Ghi lại một ý tưởng bằng ba câu ngắn",
+        "do1": "Chia sẻ một quan sát hữu ích với ai đó",
+        "avoid": "Đừng nói liên tục mà quên nghe phản hồi"
       },
       "1": {
-        "headline": "Bắt đầu với biểu đạt",
-        "theme": "Tìm nhịp phù hợp trong biểu đạt.",
-        "do0": "Dành thời gian sáng tạo",
-        "do1": "Diễn đạt một ý tưởng",
-        "avoid": "Tránh kết luận vội"
+        "headline": "Hoàn thành một điều nhỏ",
+        "theme": "Mỗi bước sáng tạo đều đáng ghi nhận dù chưa hoàn hảo.",
+        "do0": "Biến ghi chú cũ thành bản tóm tắt ngắn",
+        "do1": "Dành mười phút chỉnh sửa bản nháp",
+        "avoid": "Đừng chờ hoàn hảo mới bắt đầu"
       },
       "2": {
-        "headline": "Dành không gian cho biểu đạt",
-        "theme": "Chậm lại và quan sát biểu đạt.",
-        "do0": "Hôm nay hãy nghĩ về biểu đạt.",
-        "do1": "Tìm nhịp phù hợp trong biểu đạt.",
-        "avoid": "Tránh kết luận vội"
+        "headline": "Chọn cách nói dễ hiểu",
+        "theme": "Được thấu hiểu quan trọng hơn gây ấn tượng.",
+        "do0": "Diễn đạt lại một câu hỏi bằng lời của mình",
+        "do1": "Nhờ người nghe chỉ ra phần chưa rõ",
+        "avoid": "Đừng vội đáp khi người khác chưa nói xong"
       }
     },
     "resources": {
       "0": {
-        "headline": "Quan sát nhịp của nguồn lực",
-        "theme": "Hôm nay hãy nghĩ về nguồn lực.",
-        "do0": "Xem lại nguồn lực",
-        "do1": "Sắp xếp một việc",
-        "avoid": "Tránh nhận quá nhiều"
+        "headline": "Nhìn lại những gì đang có",
+        "theme": "Sắp xếp nguồn lực đôi khi hữu ích hơn tìm thêm.",
+        "do0": "Liệt kê ba thứ bạn có thể dùng hôm nay",
+        "do1": "Hoàn tất một việc nhỏ còn dang dở",
+        "avoid": "Đừng xem mọi cơ hội là nghĩa vụ"
       },
       "1": {
-        "headline": "Bắt đầu với nguồn lực",
-        "theme": "Tìm nhịp phù hợp trong nguồn lực.",
-        "do0": "Sắp xếp một việc",
-        "do1": "Xem lại nguồn lực",
-        "avoid": "Tránh nhận quá nhiều"
+        "headline": "Dành sức cho điều quan trọng",
+        "theme": "Không phải mọi lời nhờ đều cần sự chú ý như nhau.",
+        "do0": "Xem lại một cam kết còn cần thiết không",
+        "do1": "Để trống một khoảng thời gian trong lịch ngày mai",
+        "avoid": "Đừng nhận thêm việc chỉ vì áp lực từ người khác"
       },
       "2": {
-        "headline": "Dành không gian cho nguồn lực",
-        "theme": "Chậm lại và quan sát nguồn lực.",
-        "do0": "Hôm nay hãy nghĩ về nguồn lực.",
-        "do1": "Tìm nhịp phù hợp trong nguồn lực.",
-        "avoid": "Tránh nhận quá nhiều"
+        "headline": "Quan tâm đến thời gian",
+        "theme": "Thời gian cũng là nguồn lực cần được trân trọng.",
+        "do0": "Chọn thời điểm kết thúc công việc đang làm",
+        "do1": "Đơn giản hóa một bước lặp lại mỗi ngày",
+        "avoid": "Đừng để thông báo quyết định cả lịch trình"
       }
     },
     "responsibility": {
       "0": {
-        "headline": "Quan sát nhịp của trách nhiệm",
-        "theme": "Hôm nay hãy nghĩ về trách nhiệm.",
-        "do0": "Xác định ưu tiên",
-        "do1": "Nói rõ kỳ vọng nhẹ nhàng",
-        "avoid": "Tránh tự trách"
+        "headline": "Chỉ cần bước tiếp theo",
+        "theme": "Một ưu tiên rõ ràng có thể khiến ngày bận rộn nhẹ hơn.",
+        "do0": "Chọn việc quan trọng nhất cần làm hôm nay",
+        "do1": "Chia việc lớn thành hành động mười phút",
+        "avoid": "Đừng tự trách để ép mình làm nhanh hơn"
       },
       "1": {
-        "headline": "Bắt đầu với trách nhiệm",
-        "theme": "Tìm nhịp phù hợp trong trách nhiệm.",
-        "do0": "Nói rõ kỳ vọng nhẹ nhàng",
-        "do1": "Xác định ưu tiên",
-        "avoid": "Tránh tự trách"
+        "headline": "Nói rõ điều mong đợi",
+        "theme": "Thỏa thuận cụ thể giúp giảm bớt hiểu lầm.",
+        "do0": "Xác nhận tiêu chí hoàn thành một việc",
+        "do1": "Nói rõ sự giúp đỡ bạn đang cần",
+        "avoid": "Đừng âm thầm gánh phần việc của người khác"
       },
       "2": {
-        "headline": "Dành không gian cho trách nhiệm",
-        "theme": "Chậm lại và quan sát trách nhiệm.",
-        "do0": "Hôm nay hãy nghĩ về trách nhiệm.",
-        "do1": "Tìm nhịp phù hợp trong trách nhiệm.",
-        "avoid": "Tránh tự trách"
+        "headline": "Chừa chỗ cho thay đổi",
+        "theme": "Có trách nhiệm không có nghĩa mọi kế hoạch đều cố định.",
+        "do0": "Thêm khoảng đệm giữa các lịch hẹn",
+        "do1": "Dành chút thời gian nghỉ sau việc nặng",
+        "avoid": "Đừng tự trách vì mọi thay đổi bất ngờ"
       }
     },
     "learning": {
       "0": {
-        "headline": "Quan sát nhịp của học hỏi",
-        "theme": "Hôm nay hãy nghĩ về học hỏi.",
-        "do0": "Tìm hiểu một câu hỏi",
-        "do1": "Hỏi người tin cậy",
-        "avoid": "Tránh quá tải thông tin"
+        "headline": "Giữ một chút tò mò",
+        "theme": "Câu hỏi nhỏ có thể mở ra một phát hiện thú vị.",
+        "do0": "Tra nghĩa một thuật ngữ chưa hiểu rõ",
+        "do1": "Ghi lại một góc nhìn mới nghe hôm nay",
+        "avoid": "Đừng chỉ gom tài liệu mà không suy ngẫm"
       },
       "1": {
-        "headline": "Bắt đầu với học hỏi",
-        "theme": "Tìm nhịp phù hợp trong học hỏi.",
-        "do0": "Hỏi người tin cậy",
-        "do1": "Tìm hiểu một câu hỏi",
-        "avoid": "Tránh quá tải thông tin"
+        "headline": "Để câu hỏi dẫn đường",
+        "theme": "Câu hỏi rõ ràng thường hữu ích hơn câu trả lời vội.",
+        "do0": "Đặt một câu hỏi ngắn và cụ thể",
+        "do1": "Tóm tắt lời giải thích bằng ngôn ngữ của bạn",
+        "avoid": "Đừng nghĩ chưa biết là bản thân kém cỏi"
       },
       "2": {
-        "headline": "Dành không gian cho học hỏi",
-        "theme": "Chậm lại và quan sát học hỏi.",
-        "do0": "Hôm nay hãy nghĩ về học hỏi.",
-        "do1": "Tìm nhịp phù hợp trong học hỏi.",
-        "avoid": "Tránh quá tải thông tin"
+        "headline": "Biến kiến thức thành của mình",
+        "theme": "Tìm hiểu chậm rãi cũng tạo ra hiểu biết sâu sắc.",
+        "do0": "Giải thích một ý tưởng mới cho bạn bè",
+        "do1": "Lưu lại một điều hữu ích trong ghi chú",
+        "avoid": "Đừng bắt đầu quá nhiều chủ đề cùng lúc"
       }
     }
-  }
+  },
+  "streak_one": "{{count}} ngày liên tiếp",
+  "streak_other": "{{count}} ngày liên tiếp",
+  "colorSummary": "Màu may mắn: {{color}}"
 }
