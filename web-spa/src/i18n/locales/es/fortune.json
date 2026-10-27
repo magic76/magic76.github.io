@@ -37,7 +37,7 @@
     "moduleError": "No se pudieron cargar los cálculos de la carta. Actualiza la página.",
     "birthdayRequired": "Elige tu fecha de nacimiento",
     "timeRequired": "Introduce la hora de nacimiento",
-    "locationRequired": "La astrología védica requiere coordenadas de nacimiento y diferencia horaria UTC",
+    "locationRequired": "La astrología védica requiere coordenadas de nacimiento y diferencia horaria UTC; formato: +08:00",
     "retry": "Volver a cargar",
     "yourProfile": "Tus datos",
     "once": "Configura una sola vez",
@@ -127,7 +127,8 @@
       "moon": "Luna",
       "mainCycle": "Periodo principal"
     },
-    "yearsLeft": "quedan {{count}} años"
+    "yearsLeft": "quedan {{count}} años",
+    "phaseTarot": "Cumbre actual {{current}}; cumbre {{next}} desde {{year}}"
   },
   "profile": {
     "birthdayRequired": "Elige tu fecha de nacimiento antes de guardar",
