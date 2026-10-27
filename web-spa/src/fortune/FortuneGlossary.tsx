@@ -23,7 +23,7 @@ function termsFor(mode:FortuneMode,r:any):Entry[]{
    if(planets.has(name))add("planet-"+name,name,"glossary.planets."+name);
   const houses=new Set<number>((r.planets||[]).map((x:any)=>Number(x.house)));
   for(const n of [...houses].filter(n=>n>=1&&n<=12).sort((a,b)=>a-b))
-   add("house-"+n,"House "+n,"glossary.houses."+n);
+   add("house-"+n,"H"+n,"glossary.houses."+n);
   if(r.currentMahadasha)add("md","Mahadasha","glossary.terms.Mahadasha");
   if(r.currentAntardasha)add("ad","Antardasha","glossary.terms.Antardasha");
   if(r.lagnaNakshatra||r.moonNakshatra)add("nak","Nakshatra","glossary.terms.Nakshatra");

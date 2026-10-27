@@ -92,13 +92,23 @@ export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:Current
    .sort((a:any,b:any)=>String(a.startDate).localeCompare(String(b.startDate)))[0];
   if(next){
    const year=Number(String(next.startDate).slice(0,4));
-   transition={year,label:"大運期（Mahadasha）· "+next.lord,summary:String(next.startDate)+" 開始新的 "+next.lord+" 主週期。",
+   transition={year,label:"Mahadasha · "+next.lord,summary:String(next.startDate)+" 開始新的 "+next.lord+" 主週期。",
     evidence:"Mahadasha "+next.lord+" · "+next.startDate};
   }
  }
  const output=transition?[transition]:[];
  for(const item of ordinary){if(output.length>=3)break;if(!output.some(x=>x.year===item.year))output.push(item)}
- return !tr?output:output.map(x=>x===transition?{...x,label:tr("highlight.transition",{name:x.label.split(" · ").pop()||""}),summary:tr("highlight.transitionSummary",{name:x.label.split(" · ").pop()||"",year:x.year}),evidence:tr("highlight.transitionEvidence",{name:x.label.split(" · ").pop()||"",year:x.year})}:x);
+ return !tr?output:output.map(x=>{
+  if(x!==transition)return x;
+  const name=x.label.split(" · ").pop()||"";
+  if(mode==="vedic"){
+   const date=x.evidence.split(" · ").pop()||"";
+   return {...x,label:tr("highlight.dasha",{lord:name}),
+    summary:tr("highlight.dashaTransitionSummary",{lord:name,date}),
+    evidence:tr("highlight.dashaEvidence",{lord:name})};
+  }
+  return {...x,label:tr("highlight.transition",{name}),summary:tr("highlight.transitionSummary",{name,year:x.year}),evidence:tr("highlight.transitionEvidence",{name,year:x.year})};
+ });
 }
 
 export type HighlightTranslate=(key:string,options?:Record<string,unknown>)=>string;
@@ -121,7 +131,7 @@ export function buildYearHighlights(mode:FortuneMode,result:any,tr?:HighlightTra
   const god=item.label.split(" · ")[0];
   const meaning=tr("glossary.tenGods."+god),luck=item.evidence.match(/大運\s*([^\s·]+)/)?.[1]||"—";
   const mark=meaning+" ("+god+")",pillar=item.evidence.split(" · ")[0]||"—";
-  return {...item,label:tr("highlight.bazi",{god:mark,topic:meaning}),
+  return {...item,label:mark,
    summary:tr("highlight.baziSummary",{god:mark,luck}),
    evidence:tr("highlight.baziEvidence",{pillar,god:mark,luck})};
 

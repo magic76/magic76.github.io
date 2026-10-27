@@ -20,6 +20,15 @@ export function localizedElementFocus(r:any,tr:FortuneTranslator):string{
   .filter(x=>Number.isFinite(x.n)).sort((a,b)=>b.n-a.n);
  return ranked.length?tr("elementFocus."+ranked[0].name):tr("factLabels.noData");
 }
+const PLANET_LORDS=new Set(["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Rahu","Ketu"]);
+export function localizedPlanetFocus(r:any,tr:FortuneTranslator):string{
+ const lord=String(r?.currentMahadasha?.lord||"");
+ return PLANET_LORDS.has(lord)?tr("planetFocus."+lord):lord||tr("factLabels.noData");
+}
+const STRENGTH_LABELS=new Set(["偏旺","身強","中和","身弱","偏弱","偏強","平衡"]);
+function localStrength(raw:unknown,tr:FortuneTranslator):string{
+ const v=String(raw??"");return STRENGTH_LABELS.has(v)?tr("baziUi.strengthValues."+v):v;
+}
 export function localizedReportFacts(mode:FortuneMode,r:any,id:FortuneChapterId,tr:FortuneTranslator,phase:CurrentPhase|undefined,highlights:YearHighlight[]):string{
  const parts:string[]=[];
  const add=(key:string,raw:unknown)=>{const v=value(raw);if(v)parts.push(tr("factLabels."+key)+": "+v)};
@@ -32,13 +41,13 @@ export function localizedReportFacts(mode:FortuneMode,r:any,id:FortuneChapterId,
   switch(id){
    case"overview":add("pillars",r.fourPillars);add("dayMaster",r.dayMaster);
     {const weighted=elements.filter(k=>Number.isFinite(Number(r?.weightedFiveElements?.[k]))).map(k=>elem(k)+" "+value(Number(r.weightedFiveElements[k]))).join(" / ");add("fiveElements",weighted)}
-    add("strength",r.dayMasterStrength);break;
-   case"personality":add("dayMaster",r.dayMaster);add("strength",r.dayMasterStrength);add("element",elem(r.dayMasterElement));break;
+    add("strength",localStrength(r.dayMasterStrength,tr));break;
+   case"personality":add("dayMaster",r.dayMaster);add("strength",localStrength(r.dayMasterStrength,tr));add("element",elem(r.dayMasterElement));break;
    case"career":add("officer",r.careerProfile?.officerCount);add("output",r.careerProfile?.outputCount);add("resource",r.careerProfile?.resourceCount);break;
    case"wealth":add("directWealth",r.wealthProfile?.directWealthCount);add("indirectWealth",r.wealthProfile?.indirectWealthCount);add("wealthElement",elem(r.wealthProfile?.wealthElement));break;
    case"relationships":add("spousePalace",r.relationshipProfile?.spousePalace);add("tenGods",gods(r.relationshipProfile?.spousePalaceTenGods));break;
    case"family":add("natalInteractions",listing(r.natalInteractions||[]));break;
-   case"currentCycle":add("currentLuck",r.currentLuckPillar?.ganZhi);add("cycleYears",r.currentLuckPillar?.startYear&&r.currentLuckPillar?.endYear?r.currentLuckPillar.startYear+"–"+r.currentLuckPillar.endYear:"");add("nextLuck",phase?.next);break;
+   case"currentCycle":add("currentLuck",r.currentLuckPillar?.ganZhi);add("period",r.currentLuckPillar?.startYear&&r.currentLuckPillar?.endYear?r.currentLuckPillar.startYear+"–"+r.currentLuckPillar.endYear:"");add("nextLuck",phase?.next);break;
    case"longTerm":{
     const upcoming=(r.luckPillars||[]).filter((x:any)=>Number(x.endYear)>=year).sort((a:any,b:any)=>Number(a.startYear)-Number(b.startYear)).slice(0,3);
     add("cycleYears",listing(upcoming.map((x:any)=>x.ganZhi+" ("+x.startYear+"–"+x.endYear+")")));break;

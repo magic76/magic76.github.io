@@ -102,3 +102,55 @@ test("B6 Vedic terms use shared display mapping and weighted elements are the on
  assert.match(terms,/Taurus/);
  assert.match(terms,/H\(\\d/);
 });
+
+
+test("Fix2 Vedic Dasha transition stays an untranslated raw token until display, with no duplicated title",()=>{
+ const report=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/fortuneReport.json"),"utf8"));
+ const translate=(key,options={})=>{
+  const template=key.split(".").reduce((node,part)=>node?.[part],report);
+  assert.equal(typeof template,"string","missing English translation "+key);
+  return template.replace(/\{\{(\w+)\}\}/g,(_,k)=>String(options[k]??""));
+ };
+ const now=new Date().getFullYear();
+ const next=now+2;
+ const result={currentMahadasha:{lord:"Saturn"},mahadashaTimeline:[
+  {lord:"Saturn",startDate:(now-10)+"-01-01"},{lord:"Jupiter",startDate:next+"-05-13"}]};
+ const english=buildTimingHighlights("vedic",result,undefined,translate);
+ assert.equal(english[0].label,"Mahadasha · Jupiter");
+ assert.match(english[0].summary,/Jupiter.*Mahadasha|Mahadasha.*Jupiter/);
+ assert.ok(english[0].summary.includes(next+"-05-13"));
+ assert.doesNotMatch(english[0].label+english[0].summary,/大運期|（|—/);
+ const zh=buildTimingHighlights("vedic",result);
+ assert.equal(zh[0].label,"Mahadasha · Jupiter");
+ const{formatVedicTerm}=loadPure("web-spa/src/fortune/fortuneTerminology.ts",["formatVedicTerm"]);
+ assert.equal(formatVedicTerm(zh[0].label,"zh-TW"),"大運期（Mahadasha） · 木星（Jupiter）");
+ assert.equal(formatVedicTerm("H1 / H2","zh-TW"),"第 1 宮 / 第 2 宮");
+ assert.equal(formatVedicTerm("H1 / H2","en"),"House 1 / House 2");
+ const glossary=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneGlossary.tsx"),"utf8");
+ assert.match(glossary,/add\("house-"\+n,"H"\+n/);
+});
+
+test("Fix2 localized Rahu focus, BaZi strength, non-duplicated yearly label, and cycle period",()=>{
+ const report=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/fortuneReport.json"),"utf8"));
+ const translate=(key)=>key.split(".").reduce((node,part)=>node?.[part],report);
+ const {localizedPlanetFocus,localizedReportFacts}=loadPure("web-spa/src/fortune/localReportFacts.ts",["localizedPlanetFocus","localizedReportFacts"]);
+ const focus=localizedPlanetFocus({currentMahadasha:{lord:"Rahu"}},translate);
+ assert.match(focus,/Rahu/i);
+ assert.match(focus,/desire|direction|aspiration/i);
+ assert.doesNotMatch(focus,/北交點/);
+ const year=new Date().getFullYear();
+ const result={dayMasterStrength:"偏旺",currentLuckPillar:{ganZhi:"甲子",startYear:year-9,endYear:year},
+  annualTimeline:[{year:year+1,ganZhi:"乙酉",stemTenGod:"劫財",luckPillar:"甲子"}]};
+ const chapter=localizedReportFacts("bazi",result,"currentCycle",translate,undefined,[]);
+ assert.match(chapter,/Period:/);
+ assert.doesNotMatch(chapter,/Current and upcoming cycles/);
+ const strength=localizedReportFacts("bazi",result,"personality",translate,undefined,[]);
+ assert.match(strength,/Chart strength: (strong|above|robust)/i);
+ assert.doesNotMatch(strength,/偏旺/);
+ const years=buildTimingHighlights("bazi",result,undefined,(key,opts={})=>{
+  const template=translate(key);return typeof template==="string"?template.replace(/\{\{(\w+)\}\}/g,(_,k)=>String(opts[k]??"")):key;
+ });
+ const label=years.find(x=>x.year===year+1)?.label||"";
+ assert.match(label,/Competition and shared resources \(劫財\)/);
+ assert.equal((label.match(/Competition and shared resources/g)||[]).length,1);
+});
