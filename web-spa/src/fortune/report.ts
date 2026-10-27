@@ -1,6 +1,7 @@
 import type {FortuneMode} from "./types";
 import {buildYearHighlights} from "./yearHighlights";
 import {formatFortuneValue} from "./displayNumber";
+import {formatFortuneLocalDate} from "./aiReading";
 
 export type FortuneChapterId = "overview"|"personality"|"career"|"wealth"|"relationships"|"family"|"currentCycle"|"longTerm"|"keyYears"|"advice";
 export type FortuneChapter = {id:FortuneChapterId;title:string;text:string;evidence:string[]};
@@ -96,7 +97,7 @@ function vedic(r:any):FortuneChapter[]{
  const md=r.currentMahadasha||{},ad=r.currentAntardasha||{};
  const hs=arr(r.houses),getHouse=(i:number)=>hs.find((x:any)=>Number(x.house)===i)||{};
  const p=arr(r.planets),getPlanet=(name:string)=>p.find((x:any)=>x.name===name)||{};
- const mdFuture=arr(r.mahadashaTimeline).filter((x:any)=>str(x.endDate)>=new Date().toISOString().slice(0,10)).slice(0,4);
+ const mdFuture=arr(r.mahadashaTimeline).filter((x:any)=>str(x.endDate)>=formatFortuneLocalDate(new Date())).slice(0,4);
  const transit=arr(r.majorTransitTimeline).slice(0,6);
  const profile=(key:string)=>evidence(r[key]?.evidence,r[key]?.natalEvidence);
  return chapters({

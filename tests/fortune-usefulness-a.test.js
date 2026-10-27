@@ -167,3 +167,10 @@ test("Round A fix1 UI keeps labels and dates localized",()=>{
  const {formatFortuneLocalDate}=loadPure("web-spa/src/fortune/aiReading.ts",["formatFortuneLocalDate"]);
  assert.equal(formatFortuneLocalDate(new Date(2026,9,27,0,30)),"2026-10-27");
 });
+
+test("thinking 400 with invalid API key stops before trying other models",async()=>{
+ const h=aiHarness(()=>({ok:false,status:400,json:async()=>({error:{status:"INVALID_ARGUMENT",message:"API key not valid. Please pass a valid API key."}})}));
+ await assert.rejects(h.ai.call("report",{preferLive:false,strictModels:true,thinking:"low"}),error=>error?.kind==="key"&&error.status===400);
+ assert.equal(h.calls.length,1);
+ assert.equal(h.calls[0].model,"gemini-3.6-flash");
+});

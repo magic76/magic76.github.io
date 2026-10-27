@@ -182,8 +182,12 @@
     if(!r.ok){
       var reason=String(d&&d.error&&d.error.status||"");
       var msg=String(d&&d.error&&d.error.message||"");
-      if(opt.thinking&&r.status===400)throw modelError("response",model+" unsupported thinking configuration",400);
-      throw modelError(classifyTextFailure(r.status,reason,msg),model+" HTTP "+r.status,r.status);
+      var kind=classifyTextFailure(r.status,reason,msg);
+      if(opt.thinking&&r.status===400){
+        if(kind==="key")throw modelError("key",model+" HTTP "+r.status,r.status);
+        throw modelError("response",model+" unsupported thinking configuration",400);
+      }
+      throw modelError(kind,model+" HTTP "+r.status,r.status);
     }
     var candidate=d&&d.candidates&&d.candidates[0];
     if(opt.requireComplete&&candidate&&candidate.finishReason==="MAX_TOKENS")throw modelError("response",model+" incomplete MAX_TOKENS");
