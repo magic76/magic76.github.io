@@ -1,15 +1,16 @@
-import{useState}from"react";import type{ResultTabProps}from"../types";import{AiPanel,Evidence,Fact,ResultTabs,YearEvidence}from"./Common";
+import{useTranslation}from"react-i18next";import{useState}from"react";import type{ResultTabProps}from"../types";import{Evidence,Fact,ResultTabs,YearEvidence}from"./Common";
 
 const LORD:Record<string,string>={Sun:"太陽",Moon:"月亮",Mars:"火星",Mercury:"水星",Jupiter:"木星",Venus:"金星",Saturn:"土星",Rahu:"北交點",Ketu:"南交點"};
 const lord=(x:any)=>LORD[String(x||"")]||String(x||"—");
 
 export function VedicTabs({result:r,ai}:ResultTabProps){
+ const{t}=useTranslation("fortune");
  const[tab,setTab]=useState("overview"),[selectedPlanet,setSelectedPlanet]=useState<string|null>(null),
  [selectedHouse,setSelectedHouse]=useState<number|null>(null),md=r.currentMahadasha||{},ad=r.currentAntardasha||{};
  const chosenPlanet=(r.planets||[]).find((p:any)=>p.name===selectedPlanet);
  const activeHouse=chosenPlanet?Number(chosenPlanet.house):selectedHouse;
  const houseData=(r.houses||[]).find((h:any)=>Number(h.house)===activeHouse);
- return <><ResultTabs items={[["overview","先看重點"],["topics","生活主題"],["details","詳細資料"],["full","完整解讀"]]} active={tab} onChange={setTab}/>
+ return <><ResultTabs items={[["overview",t("reading.tab.key")],["topics",t("reading.tab.life")],["details",t("reading.tab.details")]]} active={tab} onChange={setTab}/>
  {tab==="overview"&&<div className="fortune-result-stack">
   <section className="fortune-result-card"><span className="kicker">你現在走到哪一段</span><h2>{lord(md.lord)}主週期 · {lord(ad.lord)}次週期</h2><p className="meta">主週期可以理解成目前人生的大章節，次週期則是這段時間更容易被碰到的重心。</p><div className="fortune-facts"><Fact label="目前大章節">{lord(md.lord)} · {md.startDate||"—"}–{md.endDate||"—"}</Fact><Fact label="目前小段落">{lord(ad.lord)} · {ad.startDate||"—"}–{ad.endDate||"—"}</Fact></div></section>
   <section className="fortune-result-card"><h3>接下來先看什麼</h3><p className="meta">先從上面的時間重點與「生活主題」理解方向；出生星宿、行星、宮位與完整週期都保留在「詳細資料」。</p></section>
@@ -24,5 +25,5 @@ export function VedicTabs({result:r,ai}:ResultTabProps){
   <section className="fortune-result-card"><h3>目前行運 · {r.currentTransitDate}</h3><div className="fortune-planets">{(r.currentTransits||[]).map((x:any)=><div className="fortune-planet" key={x.name}><strong>{x.name}</strong><span>{x.sign} · 本命 H{x.natalHouse}</span><small>{x.retrograde?"Rx · ":""}{x.dignity||""}</small></div>)}</div></section>
   <section className="fortune-result-card"><h3>接下來 3 年的重要變化</h3><div className="fortune-timeline">{(r.majorTransitTimeline||[]).map((x:any,i:number)=><YearEvidence mode="vedic" item={x} key={i}/>)}</div></section>
  </div>}
- {tab==="full"&&<AiPanel ai={ai} mode="vedic" result={r}/>}</>
+</>
 }
