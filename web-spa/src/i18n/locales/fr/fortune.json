@@ -37,7 +37,7 @@
     "moduleError": "Impossible de charger les calculs du thème. Actualisez la page et réessayez.",
     "birthdayRequired": "Choisissez votre date de naissance",
     "timeRequired": "Indiquez votre heure de naissance",
-    "locationRequired": "L'astrologie védique nécessite les coordonnées de naissance et le décalage UTC",
+    "locationRequired": "L'astrologie védique nécessite les coordonnées de naissance et le décalage UTC ; ex. : +08:00",
     "retry": "Recharger",
     "yourProfile": "Vos informations",
     "once": "À configurer une fois",
@@ -127,7 +127,8 @@
       "moon": "Lune",
       "mainCycle": "Période principale"
     },
-    "yearsLeft": "encore {{count}} ans"
+    "yearsLeft": "encore {{count}} ans",
+    "phaseTarot": "Sommet actuel {{current}} ; sommet {{next}} dès {{year}}"
   },
   "profile": {
     "birthdayRequired": "Choisissez une date de naissance avant d'enregistrer",
