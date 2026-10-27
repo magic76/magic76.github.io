@@ -126,7 +126,8 @@
       "ascendant": "ลัคนา",
       "moon": "ดวงจันทร์",
       "mainCycle": "ช่วงหลัก"
-    }
+    },
+    "yearsLeft": "เหลือ {{count}} ปี"
   },
   "profile": {
     "birthdayRequired": "เลือกวันเกิดก่อนบันทึก",
