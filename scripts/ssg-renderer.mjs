@@ -2,6 +2,7 @@ import {createServer} from "vite";
 import {join} from "node:path";
 import {readPublishedResearch,hasArticleHeading,articleHeadingText} from "./research-seo.mjs";
 import {recommendPublishedResearch} from "./research-discovery.mjs";
+import {GAME_SEO_SLUGS} from "./game-seo.mjs";
 
 /**
  * Build-time only. No Cloudflare Worker, Node server or user data is deployed.
@@ -45,6 +46,15 @@ export async function prerenderPublicRoutes(root){
      throw Error("React SSG output missing app shell: "+locale+" "+path);
     }
     if(!html.includes("<h1"))throw Error("React SSG output missing heading: "+locale+" "+path);
+    result.set(locale+":"+path,html);
+   }
+  }
+  // A sitemap URL must have real, route-specific HTML, not the homepage SPA fallback.
+  for(const locale of ["zh-TW","en"]){
+   for(const slug of GAME_SEO_SLUGS){
+    const path="/games/"+slug;
+    const html=await renderStaticRoute(path,locale);
+    if(!html.includes('class="app-header"')||!html.includes("<h1"))throw Error("Crew Play SSG missing UI: "+locale+" "+path);
     result.set(locale+":"+path,html);
    }
   }
