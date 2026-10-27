@@ -48,7 +48,7 @@ export function FortuneReadingOverview({mode,result,ai,onAsk}:{mode:FortuneMode;
  if(!chapters.length)return null;
  const parsed=parseAiReading(ai||""),ready=Boolean(parsed.summary)&&!parsed.legacy;
  const aiText:Partial<Record<FortuneChapterId,string>>=ready?{
-  personality:parsed.self,career:parsed.work,relationships:parsed.love,currentCycle:parsed.turning
+  personality:parsed.self,career:parsed.work,wealth:parsed.work,relationships:parsed.love,currentCycle:parsed.turning
  }:{};
  const main=primary.map(id=>chapters.find(x=>x.id===id)).filter((c):c is FortuneChapter=>Boolean(c))
   .filter(chapter=>!ready||chapter.id!=="overview")
