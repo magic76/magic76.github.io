@@ -44,3 +44,30 @@ test("Illustrations reuse official timeline portraits without decorative network
  const css=read("web-spa/src/pages/crewExplore.css");
  assert.match(css,/focus-visible/);
 });
+
+test("All eight non-Timeline cards use local 3:2 Explore illustrations",()=>{
+ const page=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const art=read("web-spa/src/pages/ExploreArtwork.tsx");
+ const css=read("web-spa/src/pages/crewExplore.css");
+ const photoKinds=["fortune","games","story","research","circle","mate","town","magic"];
+ assert.match(art,/src=\{"\/assets\/explore\/"\+kind\+"\.webp"\}/);
+ for(const kind of photoKinds){
+  const url=`/assets/explore/${kind}.webp`;
+  assert.equal("/assets/explore/"+kind+".webp",url);
+  assert.ok(art.includes(`"${kind}"`),`missing kind for ${url}`);
+  if(["mate","town","magic"].includes(kind))assert.match(page,new RegExp(`data-kind="${kind}"`));
+  else assert.match(page,/data-kind=\{exploreKinds\[i\]\}/);
+ }
+ assert.match(page,/<ExploreArtwork kind="town"\/>/);
+ assert.match(page,/<ExploreArtwork kind="magic"\/>/);
+ assert.doesNotMatch(page,/crew-explore-town-mini|crew-explore-magic-preview/);
+ assert.match(art,/width=\{1200\} height=\{800\}/);
+ assert.match(art,/loading=\{kind==="fortune"\?"eager":"lazy"\}/);
+ assert.match(art,/fetchPriority:"high"/);
+ assert.match(css,/aspect-ratio:3\/2/);
+ assert.match(css,/object-fit:cover/);
+ assert.match(css,/object-position:center/);
+ assert.match(css,/crew-explore-art-arrive 440ms/);
+ assert.match(css,/scale\(1\.03\)/);
+ assert.doesNotMatch(css,/crew-explore-town-mini|crew-explore-magic-preview/);
+});

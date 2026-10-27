@@ -7,20 +7,25 @@ const artwork=fs.readFileSync(path.join(root,"web-spa/src/pages/ExploreArtwork.t
 const section=fs.readFileSync(path.join(root,"web-spa/src/pages/CrewSectionPage.tsx"),"utf8");
 const css=fs.readFileSync(path.join(root,"web-spa/src/pages/crewExplore.css"),"utf8");
 
-test("Crew Mate Explore card uses the shared scene illustration instead of stacked icons",()=>{
+test("Crew Mate keeps its original Explore entry and uses a local photo",()=>{
  assert.match(artwork,/export type ExploreKind=.*"mate"/);
- assert.match(artwork,/mate:<svg viewBox="0 0 200 126"/);
-  assert.match(section,/<Link className="crew-explore-tile crew-explore-mate"[^\n]*data-kind="mate"[^\n]*to="\/mate"/);
+ assert.match(section,/<Link className="crew-explore-tile crew-explore-mate"[^\n]*data-kind="mate"[^\n]*to="\/mate"/);
  assert.match(section,/<ExploreArtwork kind="mate"\/>/);
+ assert.match(artwork,/"\/assets\/explore\/"\+kind\+"\.webp"/);
+ assert.match(artwork,/crew-explore-illustration crew-explore-photo/);
+ assert.doesNotMatch(artwork,/<svg|<foreignObject|https?:\/\//);
  assert.doesNotMatch(section,/crew-explore-mate-art/);
  assert.doesNotMatch(css,/crew-explore-mate-art/);
 });
-test("Crew Mate drawing stays self-contained and readable at phone widths",()=>{
- const mate=artwork.split("mate:<svg")[1].split("</svg>")[0];
- assert.match(mate,/Central phone with an active two-way handoff/);
- assert.match(mate,/The person giving Mate a private brief/);
- assert.match(mate,/The other person waiting at the counter/);
- assert.doesNotMatch(mate,/<image|<foreignObject|http:|https:/);
- assert.match(css,/data-kind="mate"\] \.crew-explore-illustration/);
+test("Crew Mate's shared image is accessible, stable and cropped at phone widths",()=>{
+ assert.match(artwork,/alt=""/);
+ assert.match(artwork,/aria-hidden="true"/);
+ assert.match(artwork,/width=\{1200\} height=\{800\}/);
+ assert.match(artwork,/loading=\{kind==="fortune"\?"eager":"lazy"\}/);
+ assert.match(artwork,/decoding="async"/);
+ assert.match(artwork,/draggable="false"/);
+ assert.match(css,/\.crew-explore-photo img\s*\{/);
+ assert.match(css,/object-fit:cover/);
  assert.match(css,/@media\(max-width:420px\)/);
+ assert.match(css,/data-kind="mate"/);
 });
