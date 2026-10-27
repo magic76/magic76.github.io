@@ -14,7 +14,7 @@ export function FortuneSummaryCard({mode,result,phase,ai,loading}:{
  const display=(v:unknown)=>formatVedicTerm(v,i18n.resolvedLanguage||i18n.language);
  const parsed=parseAiReading(ai||"");
  const ready=Boolean(parsed.summary)&&!parsed.legacy;
- const highlights=buildTimingHighlights(mode,result,phase);
+ const highlights=buildTimingHighlights(mode,result,phase,reportReady&&i18n.resolvedLanguage!=="zh-TW"?(key,options)=>String(reportT(key,options)):undefined);
  const focus=mode==="bazi"?Object.entries(result?.weightedFiveElements||{}).sort((a,b)=>Number(b[1])-Number(a[1]))[0]?.[0]||"—":mode==="tarot"?String(result?.personalYear||"—"):display(result?.currentMahadasha?.lord||"—");
  const headline=reportReady?reportT("headline."+mode,{current:display(phase.current||t("reading.phaseUnknown")),next:display(phase.next||t("reading.phaseUnknown")),year:phase.transitionYear||"—",focus}):"";
  return <section className="fortune-summary-card" aria-label={t("reading.summaryTitle")}>

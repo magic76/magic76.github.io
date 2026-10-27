@@ -26,7 +26,7 @@ function chooseDistinctYears(items:Array<ScoredHighlight&{group:string}>,count:n
  return selected.map(({year,label,summary,evidence})=>({year,label,summary,evidence}));
 }
 
-export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]{
+function buildYearHighlightsZh(mode:FortuneMode,result:any):YearHighlight[]{
  const now=currentYear();
  if(mode==="bazi"){
   const wealth=new Set((result.wealthProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
@@ -70,8 +70,8 @@ export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]
 }
 
 /** Prioritize an actual forthcoming cycle boundary, never an inferred event. */
-export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:CurrentPhase):YearHighlight[]{
- const ordinary=buildYearHighlights(mode,result);
+export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:CurrentPhase,tr?:HighlightTranslate):YearHighlight[]{
+ const ordinary=buildYearHighlights(mode,result,tr);
  const now=new Date().getFullYear(),date=new Date().toISOString().slice(0,10);
  let transition:YearHighlight|null=null;
  if(mode==="bazi"){
@@ -98,5 +98,23 @@ export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:Current
  }
  const output=transition?[transition]:[];
  for(const item of ordinary){if(output.length>=3)break;if(!output.some(x=>x.year===item.year))output.push(item)}
- return output;
+ return !tr?output:output.map(x=>x===transition?{...x,label:tr("highlight.transition",{name:x.label.split(" · ").pop()||""}),summary:tr("highlight.baziSummary",{god:x.label, luck:x.year})}:x);
+}
+
+export type HighlightTranslate=(key:string,options?:Record<string,unknown>)=>string;
+/** Supplying no translator retains exact traditional Chinese test snapshots. */
+export function buildYearHighlights(mode:FortuneMode,result:any,tr?:HighlightTranslate):YearHighlight[]{
+ const items=buildYearHighlightsZh(mode,result);
+ if(!tr)return items;
+ return items.map(item=>{
+  const number=String(item.label.match(/流年\s*(\d+)/)?.[1]||"");
+  if(mode==="tarot")return {...item,label:tr("highlight.tarot",{number})+(item.label.includes(" · ")?" · "+item.label.split(" · ").slice(1).join(" · "):""),
+   summary:tr("highlight.tarotSummary",{number})};
+  if(mode==="vedic"){
+   const planet=item.label.split(" ")[0];
+   return {...item,label:tr("highlight.vedic",{planet}),evidence:tr("highlight.vedicEvidence",{from:item.evidence.match(/H(\d+)/)?.[1]||"—",to:item.evidence.match(/→ H(\d+)/)?.[1]||"—"})};
+  }
+  const god=item.label.split(" · ")[0];
+  return {...item,label:tr("highlight.bazi",{god,topic:"traditional theme"}),summary:tr("highlight.baziSummary",{god,luck:item.evidence.match(/大運\s*([^\s·]+)/)?.[1]||"—"})};
+ });
 }

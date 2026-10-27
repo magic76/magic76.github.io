@@ -5,11 +5,13 @@ import {buildTimingHighlights} from "./yearHighlights";
 import type {CurrentPhase} from "./currentPhase";
 import {YearEvidence} from "./result/Common";
 import{formatVedicTerm}from"./fortuneTerminology";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
 
 export function FortuneYearHighlights({mode,result,phase}:{mode:FortuneMode;result:any;phase?:CurrentPhase}){
- const{t,i18n}=useTranslation("fortune");
+ const{t,i18n}=useTranslation("fortune");const{t:reportT}=useTranslation("fortuneReport");
+ const reportReady=useRouteNamespace("fortuneReport");
  const display=(v:unknown)=>formatVedicTerm(v,i18n.resolvedLanguage||i18n.language);
- const items=buildTimingHighlights(mode,result,phase);
+ const items=buildTimingHighlights(mode,result,phase,reportReady&&i18n.resolvedLanguage!=="zh-TW"?(key,options)=>String(reportT(key,options)):undefined);
  const[selected,setSelected]=useState<number|null>(null);
  if(!items.length)return null;
  return <section className="fortune-highlight-section">

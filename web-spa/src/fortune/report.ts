@@ -127,7 +127,7 @@ export function buildLocalReport(mode:FortuneMode,result:any,tr?:FortuneTranslat
   relationships:[r.relationshipProfile?.spousePalace,r.relationshipProfile?.spousePalaceTenGods],
   family:[r.natalInteractions],currentCycle:[r.currentLuckPillar?.ganZhi,r.currentLuckPillar?.startYear,r.currentLuckPillar?.endYear],
   longTerm:[(r.luckPillars||[]).slice(0,3).map((x:any)=>x.ganZhi+" "+x.startYear+"–"+x.endYear)],
-  keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],advice:[r.dayMaster,r.currentLuckPillar?.ganZhi]
+  keyYears:[buildTimingHighlights(mode,r,phase,tr).map(x=>x.year+" "+x.label)],advice:[r.dayMaster,r.currentLuckPillar?.ganZhi]
  };
  const tarotFacts:Record<string,unknown[]>={
   overview:[r.birthCardDisplay,r.lifePathDisplay,r.attitudeNumber],personality:[r.personalityCardName,r.soulCardName],
