@@ -72,7 +72,7 @@ function bazi(r:any,phase?:CurrentPhase):FortuneChapter[]{
   relationships:{text:"命盤以日支「"+str(re.spousePalace||"—")+"」作為關係宮位的傳統觀察點，關係相關十神為 "+(renderValue(re.spousePalaceTenGods)||"尚無完整資料")+"。有互動標記的年份："+fewYears(re.annualSignalYears)+"。這些記號適合用來對照自己的溝通方式、合作界線與親密關係需求。",evidence:evidence(re.spousePalace,re.spousePalaceTenGods)},
   currentCycle:{text:current||"目前可查看大運和逐年流年，暫無足夠資料可作更精細的階段解讀。",evidence:evidence(luck?.ganZhi,y?.ganZhi,y?.stemTenGod,y?.natalInteractions)},
   longTerm:{text:"未來十年可先按大運分成不同背景："+(next.map((x:any)=>x.ganZhi+"（"+x.startYear+"–"+x.endYear+"）").join("；")||"大運時段資料未提供")+"。目前已計算的逐年主題包括 "+(yrs.slice(0,6).map((x:any)=>x.year+" "+arr(x.themes).join("／")).join("；")||"尚無可用的逐年資料")+"。適合將不同年份的傳統主題當作檢視人生目標和資源配置的提示。",evidence:evidence(next.map((x:any)=>x.ganZhi),yrs.slice(0,5).map((x:any)=>x.ganZhi))},
-  keyYears:{text:"依目前的流年十神、與本命合沖、工作／資源／關係主題訊號，優先整理 "+(futureHighlights("bazi",r,phase).join("；")||"尚無明顯的可排序年份")+"。可到「時間節奏」逐年查看。",evidence:futureHighlights("bazi",r)},
+  keyYears:{text:"依目前的流年十神、與本命合沖、工作／資源／關係主題訊號，優先整理 "+(futureHighlights("bazi",r,phase).join("；")||"尚無明顯的可排序年份")+"。可到「時間節奏」逐年查看。",evidence:futureHighlights("bazi",r,phase)},
   advice:{text:"先挑一項你真的在意的生活主題，再對照命盤的具體標記和你自己的經驗。若同一年的工作與關係訊號並存，請分開思考兩種情境，避免把不同領域混成一種運勢。重大財務、健康或家庭決定仍應依實際資訊與專業意見處理。",evidence:[]}
  });
 }
@@ -90,7 +90,7 @@ function tarot(r:any,phase?:CurrentPhase):FortuneChapter[]{
   relationships:{text:"關係主題可對照人格牌「"+str(r.personalityCardName)+"」與靈魂牌「"+str(r.soulCardName)+"」是否呈現不同的自我需求，以及態度數 "+str(r.attitudeNumber)+" 所代表的傳統分類。重點是回頭觀察自己如何溝通、如何設立界線。",evidence:evidence(r.relationshipProfile?.evidence)},
   currentCycle:{text:str(currentYear)+" 年個人年為 "+str(r.personalYear)+"「"+str(r.personalYearCardName)+"」，個人月為 "+str(r.personalMonth)+"。"+(y?"當年完整主題："+str(y.plainSummary)+"。":"")+"這些日期以日曆年為界。",evidence:evidence(r.personalYearCardName,r.personalMonth,y?.keywords)},
   longTerm:{text:"接下來數年的個人年順序："+(next.map((x:any)=>x.year+"："+x.personalYear+" "+x.cardName).join("；")||"未提供")+"。四大巔峰階段："+(pinnacle||"尚無資料")+"；挑戰數為 "+renderValue(r.challenges)+"。閱讀時同時留意人生長階段和每年短週期。",evidence:evidence(next.slice(0,5).map((x:any)=>x.cardName),r.challenges)},
-  keyYears:{text:"依已算出的個人年與牌組關鍵詞，值得優先展開的年份："+(futureHighlights("tarot",r,phase).join("；")||"暫無資料")+"。可至「時間節奏」查看各年的細節。",evidence:futureHighlights("tarot",r)},
+  keyYears:{text:"依已算出的個人年與牌組關鍵詞，值得優先展開的年份："+(futureHighlights("tarot",r,phase).join("；")||"暫無資料")+"。可至「時間節奏」查看各年的細節。",evidence:futureHighlights("tarot",r,phase)},
   advice:{text:"把個人年當作年度自我回顧題目：今年的重要選擇是什麼，哪項習慣想保留，哪項想調整？對照個人月與長期巔峰數時，優先記錄實際事件和主觀感受，避免事後只挑符合敘述的證據。",evidence:[]}
  });
 }
@@ -110,7 +110,7 @@ function vedic(r:any,phase?:CurrentPhase):FortuneChapter[]{
   family:{text:"家庭與子女主題參考第 4 宮、第 5 宮、各宮宮主及月亮／木星。第 4 宮："+str(getHouse(4).sign||"—")+"（"+str(getHouse(4).lord||"—")+"）；第 5 宮："+str(getHouse(5).sign||"—")+"（"+str(getHouse(5).lord||"—")+"）。",evidence:profile("familyChildrenProfile")},
   currentCycle:{text:"目前 Vimshottari 主週期是 "+str(md.lord||"—")+"（"+str(md.startDate||"—")+" 至 "+str(md.endDate||"—")+"），次週期是 "+str(ad.lord||"—")+"（"+str(ad.startDate||"—")+" 至 "+str(ad.endDate||"—")+"）。目前 Gochar 計算日期為 "+str(r.currentTransitDate||"未提供")+"。週期與行運需要分開閱讀。",evidence:evidence(md,ad,r.currentTransitDate)},
   longTerm:{text:"已計算的主週期時間軸："+(mdFuture.map((x:any)=>x.lord+"（"+x.startDate+"–"+x.endDate+"）").join("；")||"尚無長期時段")+"。接下來三年的主要行運可觀察木星、土星與交點的換座事件。",evidence:evidence(mdFuture)},
-  keyYears:{text:"可優先閱讀的時期："+(futureHighlights("vedic",r,phase).join("；")||"尚無資料")+"。已列出的換座事件："+(transit.map((x:any)=>x.date+" "+x.planet+" "+x.fromSign+"→"+x.toSign).join("；")||"無")+"。",evidence:evidence(transit)},
+  keyYears:{text:"可優先閱讀的時期："+(futureHighlights("vedic",r,phase).join("；")||"尚無資料")+"。已列出的換座事件："+(transit.map((x:any)=>x.date+" "+x.planet+" "+x.fromSign+"→"+x.toSign).join("；")||"無")+"。",evidence:uniq([...futureHighlights("vedic",r,phase),...evidence(transit)])},
   advice:{text:"挑選一個你在意的宮位或目前 Dasha，展開「詳細資料」核對實際行星、宮主與起訖時間。每次解讀應引用已存在的盤面依據。",evidence:[]}
  });
 }
