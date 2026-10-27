@@ -159,6 +159,42 @@ check("Crew Play SSG has real game cards with correct bilingual canonical and JS
  }
 });
 
+
+check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata and accessible links",()=>{
+ const games=["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"];
+ const sitemap=read("sitemap.xml");
+ for(const locale of ["","en/"])for(const game of games){
+  const path=locale+"games/"+game+"/";
+  const canonical="https://www.3sssi.com/"+path;
+  const html=read(path+"index.html");
+  assert.ok(sitemap.includes("<loc>"+canonical+"</loc>"),"missing indexed URL "+path);
+  assert.ok(html.includes('<link rel="canonical" href="'+canonical+'">'),"bad canonical "+path);
+  assert.ok(html.includes('<meta name="robots" content="index,follow">'),"not indexable "+path);
+  assert.ok(html.includes('data-crew-ssg-path="/'+path.slice(0,-1)+'"'),"hydration route missing "+path);
+  assert.ok(html.includes('<h1'),"missing semantic game heading "+path);
+  assert.ok(html.includes('class="app-header"'),"missing actual game shell "+path);
+  assert.ok(html.includes('hreflang="en"')&&html.includes('hreflang="zh-Hant"'),"game language alternates "+path);
+  assert.ok(!html.includes("/@fs/"),"Vite dev-only path "+path);
+  const match=html.match(/<script type="application\\/ld\\+json">([^<]+)<\\/script>/);
+  assert.ok(match,"missing JSON-LD "+path);
+  const graph=JSON.parse(match[1])["@graph"];
+  assert.ok(graph.some(item=>item["@type"]==="BreadcrumbList"),"breadcrumbs "+path);
+  assert.ok(graph.some(item=>item["@type"]==="SoftwareApplication"&&item.applicationCategory==="GameApplication"),"game schema "+path);
+ }
+});
+check("deep interactive routes use noindex SPA shell, not indexable homepage canonical",()=>{
+ const shell=read("_app-noindex.html");
+ const redirects=read("_redirects");
+ assert.ok(shell.includes('name="robots" content="noindex,follow"'));
+ assert.ok(!shell.includes('rel="canonical"'));
+ for(const route of ["/magic","/settings","/teacher/live","/games/nonsense","/story/read/*","/en/teacher/roles"]){
+  assert.ok(redirects.includes(route+" /_app-noindex.html 200"),"missing noindex routing "+route);
+ }
+ for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/research/*"]){
+  assert.ok(!redirects.includes(route+" /_app-noindex.html 200"),"indexable page rewritten "+route);
+ }
+});
+
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
