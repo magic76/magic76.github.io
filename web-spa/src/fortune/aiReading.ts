@@ -47,3 +47,7 @@ export function buildFortuneQuestionPrompt(facts:unknown,summary:string,today:st
   (evidence?"\n固定命盤事實："+evidence:"\n尚未提供命盤，請明說無法對個人命盤下結論。")+
   (summary?"\n該命盤既有 AI 重點："+summary:"")+"\n使用者問題："+question;
 }
+
+export function formatFortuneLocalDate(date:Date):string{
+ return [date.getFullYear(),String(date.getMonth()+1).padStart(2,"0"),String(date.getDate()).padStart(2,"0")].join("-");
+}
