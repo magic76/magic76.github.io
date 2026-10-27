@@ -200,6 +200,13 @@ for(const prefix of ["","/en"]){
 writeFileSync(join(out,"_redirects"),rules.join(newline)+newline);
 
 
+const researchTemplate=read("research/index.html");
+const replaceMeta=(html,attr,name,value)=>{
+ const matcher=new RegExp('<meta '+attr+'="'+name+'" content="[^"]*">');
+ if(!matcher.test(html))throw Error("Missing meta "+name+" on research template");
+ return html.replace(matcher,'<meta '+attr+'="'+name+'" content="'+escapeHtml(value)+'">');
+};
+
 // Every game declared in the sitemap must ship its own real React SSG page.
 // The head is derived from the indexed Games template, not a second UI.
 for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
@@ -249,12 +256,6 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
 
 // Article documents use the *same* React detail page and public build-time data,
 // with per-article metadata. The old research template contributes only head SEO.
-const researchTemplate=read("research/index.html");
-const replaceMeta=(html,attr,name,value)=>{
- const matcher=new RegExp('<meta '+attr+'="'+name+'" content="[^"]*">');
- if(!matcher.test(html))throw Error("Missing meta "+name+" on research template");
- return html.replace(matcher,'<meta '+attr+'="'+name+'" content="'+escapeHtml(value)+'">');
-};
 // The first five search-intent guides are genuine React SSG pages (zh-Hant + en).
 // Reuse the verified teacher template's HEAD only, never its old marketing BODY.
 const guideUrl=(slug,locale)=>"https://www.3sssi.com"+(locale==="en"?"/en":"")+"/guides/"+slug+"/";
