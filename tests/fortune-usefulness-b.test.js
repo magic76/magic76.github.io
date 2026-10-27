@@ -74,3 +74,31 @@ test("B2 handoff keeps legacy expiry and no raw birth coordinates in speaking mo
  assert.doesNotMatch(src,/birthDate|birthTime|latitude|longitude/);
  assert.match(src,/aiSummary/);assert.match(src,/phase/);
 });
+
+
+test("B3 lazy fortuneReport namespace has exactly the same keys across all eleven locales",()=>{
+ const langs=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
+ const obj=langs.map(lang=>JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",lang,"fortuneReport.json"),"utf8")));
+ const flatten=(v,prefix="")=>Object.entries(v).flatMap(([key,x])=>typeof x==="object"&&x!==null?flatten(x,prefix+key+"."):[prefix+key]);
+ const keys=flatten(obj[0]).sort();
+ for(let i=0;i<langs.length;i++){
+  assert.deepEqual(flatten(obj[i]).sort(),keys,"missing or extra key in "+langs[i]);
+  for(const val of Object.values(obj[i].chapter))assert.match(val,/\{\{facts\}\}/,"chapter missing fact placeholder in "+langs[i]);
+ }
+ const index=fs.readFileSync(path.join(root,"web-spa/src/i18n/index.ts"),"utf8");
+ assert.match(index,/games,mate,lesson,voice,magic,fortuneReport/);
+ assert.match(index,/\|"fortuneReport"/);
+ assert.doesNotMatch(index,/const eagerNamespaces[^\n]*fortuneReport/);
+});
+
+test("B6 Vedic terms use shared display mapping and weighted elements are the only overview group",()=>{
+ const bazi=fs.readFileSync(path.join(root,"web-spa/src/fortune/result/BaZiTabs.tsx"),"utf8");
+ const overview=fs.readFileSync(path.join(root,"web-spa/src/fortune/ReadingOverview.tsx"),"utf8");
+ const terms=fs.readFileSync(path.join(root,"web-spa/src/fortune/fortuneTerminology.ts"),"utf8");
+ assert.doesNotMatch(bazi,/Object\.entries\(r\.visibleFiveElements/);
+ assert.match(overview,/weightedFiveElements/);
+ assert.match(terms,/Mahadasha/);
+ assert.match(terms,/Jupiter/);
+ assert.match(terms,/Taurus/);
+ assert.match(terms,/H\(\\d/);
+});
