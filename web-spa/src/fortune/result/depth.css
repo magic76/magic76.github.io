@@ -161,3 +161,19 @@
  .fortune-reading-elements{padding:17px 15px}
 }
 @media(prefers-reduced-motion:reduce){.fortune-reading-focus-card{transition:none}.fortune-reading-focus-card:hover{transform:none}}
+
+/* Round A: content-first summary swaps from calculated facts to verified AI in place. */
+.fortune-summary-card{display:grid;gap:12px;padding:20px 22px;margin:0 0 15px;border-radius:20px;background:var(--surface-alt,#f7f8fa);border:1px solid var(--line,#e5e7eb);min-height:200px}
+.fortune-summary-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fortune-summary-card h3{font-size:clamp(19px,3.6vw,25px);line-height:1.45;margin:0;font-weight:750;text-wrap:balance}
+.fortune-summary-card h4{font-size:14px;margin:5px 0 0}
+.fortune-summary-card ul{padding-left:20px;margin:0;display:grid;gap:8px;line-height:1.65;font-size:13px}
+.fortune-summary-card li{padding-left:2px;overflow-wrap:anywhere}
+.fortune-summary-turning{font-size:13px;line-height:1.7;margin:3px 0 0;border-top:1px solid var(--line,#e5e7eb);padding-top:11px}
+.fortune-summary-loading{font-size:11px;color:var(--muted)}
+.fortune-summary-skeleton{display:grid;gap:5px;padding-top:4px}
+.fortune-summary-skeleton span{height:5px;width:80%;border-radius:8px;background:var(--line,#e5e7eb);opacity:.65}
+.fortune-summary-skeleton span:nth-child(2){width:65%}.fortune-summary-skeleton span:nth-child(3){width:72%}
+.fortune-reading-disclaimer{display:block;color:var(--muted);line-height:1.6;text-align:center}
+.fortune-local-collapse>.fortune-reading-chapters{margin-top:12px}
+@media(max-width:640px){.fortune-summary-card{padding:17px 16px;min-height:200px}.fortune-summary-card h3{font-size:21px}}
