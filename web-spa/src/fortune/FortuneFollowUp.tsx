@@ -7,6 +7,8 @@ import{UI_LOCALE_CATALOG}from"../i18n/localeCatalog";
 import{buildFortuneQuestionPrompt,formatFortuneLocalDate,parseAiReading}from"./aiReading";
 import type{FortuneReading}from"./types";
 
+/** Keep stored original for context but display simple text without literal Markdown markers. */
+export function plainFortuneAnswer(value:string):string{return value.replace(/\*\*([^*\n]+)\*\*/g,"$1").replace(/^\s{0,3}#{1,3}\s+/gm,"").trim()}
 const FOLLOWUP_CONFIG={preferLive:false,maxOutputTokens:2048,requireComplete:true,timeoutMs:45000,thinking:"low"} as const;
 type Props={reading:FortuneReading;isCurrent:()=>boolean;onSave:(reading:FortuneReading)=>void};
 export function FortuneFollowUp({reading,isCurrent,onSave}:Props){
@@ -41,7 +43,7 @@ export function FortuneFollowUp({reading,isCurrent,onSave}:Props){
  return <section className="fortune-result-card fortune-follow-up" aria-label={t("reading.followup.title")}>
   <h3>{t("reading.followup.title")}</h3>
   {parsed.ask.length>0&&<div className="fortune-conversation-actions">{parsed.ask.slice(0,3).map((item,i)=><button type="button" className="btn secondary small" key={i} disabled={sending||!hasKey} onClick={()=>{setQ(item);void submit(item)}}>{item}</button>)}</div>}
-  {followups.length>0&&<div className="fortune-follow-up-history" role="status" aria-live="polite">{followups.map((item,i)=><div className="fortune-follow-up-entry" key={i}><strong>{item.q}</strong><p>{item.a}</p></div>)}</div>}
+  {followups.length>0&&<div className="fortune-follow-up-history" role="status" aria-live="polite">{followups.map((item,i)=><div className="fortune-follow-up-entry" key={i}><strong>{item.q}</strong><p style={{whiteSpace:"pre-line"}}>{plainFortuneAnswer(item.a)}</p></div>)}</div>}
   <form onSubmit={e=>{e.preventDefault();void submit()}}>
    <label className="label" htmlFor="fortune-followup-question">{t("reading.followup.question")}</label>
    <textarea className="field" id="fortune-followup-question" value={q} onChange={e=>setQ(e.target.value)} rows={3} maxLength={1000} disabled={sending} placeholder={t("reading.followup.placeholder")}/>

@@ -43,7 +43,7 @@ export function buildFortuneQuestionPrompt(facts:unknown,summary:string,today:st
  const evidence=(!safe||!safe.trim()||["null","undefined","{}","[]"].includes(safe.trim())?"":safe).slice(0,16000);
  return "你是 Crew Fortune 命理解讀者。輸出語言："+lang+"。今天："+today+
   "。只能引用下列固定計算命盤事實，不可重新計算或補不存在的資料。"+
-  "回答依序：先結論、一句命盤依據、一個具體做法；250 字內。不給醫療或投資指令。"+
+  "回答依序：先結論、一句命盤依據、一個具體做法；請使用純文字小標，不使用 Markdown 的 **、# 或條列標記；250 字內。不給醫療或投資指令。"+
   (evidence?"\n固定命盤事實："+evidence:"\n尚未提供命盤，請明說無法對個人命盤下結論。")+
   (summary?"\n該命盤既有 AI 重點："+summary:"")+
   (history?.length?"\n最近對話（僅供上下文參考）："+history.slice(-3).map(x=>"\n問："+String(x.q||"").slice(0,400)+"\n答："+String(x.a||"").slice(0,400)).join(""):"")+

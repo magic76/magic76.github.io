@@ -72,7 +72,7 @@ function buildYearHighlightsZh(mode:FortuneMode,result:any):YearHighlight[]{
 /** Prioritize an actual forthcoming cycle boundary, never an inferred event. */
 export function buildTimingHighlights(mode:FortuneMode,result:any,phase?:CurrentPhase,tr?:HighlightTranslate):YearHighlight[]{
  const ordinary=buildYearHighlights(mode,result,tr);
- const now=new Date().getFullYear(),date=new Date().toISOString().slice(0,10);
+ const today=new Date(),now=today.getFullYear(),date=[now,String(today.getMonth()+1).padStart(2,"0"),String(today.getDate()).padStart(2,"0")].join("-");
  let transition:YearHighlight|null=null;
  if(mode==="bazi"){
   const next=(result.luckPillars||[]).filter((x:any)=>Number(x.startYear)>now)

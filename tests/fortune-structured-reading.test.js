@@ -6,8 +6,9 @@ const read=(file)=>fs.readFileSync(path.join(__dirname,"..",file),"utf8");
 
 test("Fortune report has a computed-fact dashboard for all three modes",()=>{
  const view=read("web-spa/src/fortune/ReadingOverview.tsx");
- assert.match(view,/buildLocalReport\(mode,result\)/);
+ assert.match(view,/buildLocalReport\(mode,result,reportReady&&.*?,phase\)/);
  assert.match(view,/mode==="bazi"/);
+ assert.match(view,/useRouteNamespace\("fortuneReport"\)/);
  assert.match(view,/mode==="tarot"/);
  assert.match(view,/r\?\.currentMahadasha\?\.lord/);
  assert.match(view,/fortune-reading-metrics/);

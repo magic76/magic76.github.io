@@ -10,7 +10,7 @@ require.extensions[".ts"] = (mod, file) => {
   .replace(/import \{formatFortuneValue\} from "\.\/displayNumber";/, 'const {formatFortuneValue} = require("./displayNumber.ts");')
   .replace(/import \{formatFortuneLocalDate\} from "\.\/aiReading";/, 'const {formatFortuneLocalDate} = require("./aiReading.ts");')
   .replace(/export function /g, "function ")
-  + "\nmodule.exports = {formatFortuneLocalDate: typeof formatFortuneLocalDate === 'undefined' ? undefined : formatFortuneLocalDate, buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt, formatFortuneValue: typeof formatFortuneValue === 'undefined' ? undefined : formatFortuneValue};";
+  + "\nmodule.exports = {formatFortuneLocalDate: typeof formatFortuneLocalDate === 'undefined' ? undefined : formatFortuneLocalDate, buildYearHighlights: typeof buildYearHighlights === 'undefined' ? undefined : buildYearHighlights, buildTimingHighlights: typeof buildTimingHighlights === 'undefined' ? undefined : buildTimingHighlights, buildLocalReport: typeof buildLocalReport === 'undefined' ? undefined : buildLocalReport, buildReportPrompt: typeof buildReportPrompt === 'undefined' ? undefined : buildReportPrompt, formatFortuneValue: typeof formatFortuneValue === 'undefined' ? undefined : formatFortuneValue};";
  mod._compile(code, file);
 };
 
