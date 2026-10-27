@@ -85,7 +85,12 @@
     "vedic": "{{planet}} 換座",
     "vedicEvidence": "本命第 {{from}} 宮 → 第 {{to}} 宮",
     "transition": "週期轉折 · {{name}}",
-    "transitionSummary": "{{year}} 年進入 {{name}}，可預先整理下一階段的生活方向。"
+    "transitionSummary": "{{year}} 年進入 {{name}}，可預先整理下一階段的生活方向。",
+    "dasha": "主週期 · {{lord}}",
+    "dashaSummary": "{{lord}} 大運期：{{start}} 至 {{end}}。",
+    "dashaEvidence": "Vimshottari 主週期：{{lord}}",
+    "baziEvidence": "流年 {{pillar}} · 十神 {{god}} · 大運 {{luck}}",
+    "transitionEvidence": "{{year}} 年開始 {{name}} 週期。"
   },
   "factLabels": {
     "pillars": "四柱",
@@ -180,5 +185,28 @@
       "身強": "身強",
       "平衡": "平衡"
     }
+  },
+  "yearUi": {
+    "year": "流年",
+    "transit": "換座",
+    "period": "人生週期",
+    "stemTenGod": "流年十神",
+    "stemMeaning": "十神白話",
+    "branchTenGods": "地支十神",
+    "luckPillar": "所在大運",
+    "themes": "主題標記",
+    "natalInteractions": "本命合沖",
+    "tarotCard": "對應牌",
+    "keywords": "主題關鍵詞",
+    "personalYear": "個人年",
+    "planetPeriod": "星體／主週期",
+    "fromSign": "原星座",
+    "toSign": "新星座",
+    "fromHouse": "原本命宮",
+    "toHouse": "新本命宮",
+    "startDate": "開始日期",
+    "endDate": "結束日期",
+    "viewEvidence": "查看年份依據",
+    "baziSummary": "以「{{god}}」觀察這一年的主題，放在「{{luck}}」大運中理解。"
   }
 }

@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "{{year}} 年に {{name}} の時期へ移ります。次の段階に向けて優先事項を整理しましょう。"
+    "transitionSummary": "{{year}} 年に {{name}} の時期へ移ります。次の段階に向けて優先事項を整理しましょう。",
+    "dasha": "主周期 · {{lord}}",
+    "dashaSummary": "{{lord}} の主周期：{{start}}〜{{end}}。",
+    "dashaEvidence": "主周期の切り替え：{{lord}}",
+    "baziEvidence": "流年の干支 {{pillar}} · 十神 {{god}} · 大運 {{luck}}",
+    "transitionEvidence": "{{year}} 年に {{name}} 周期が始まります。"
   },
   "factLabels": {
     "pillars": "四柱",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "流年",
+    "transit": "換座",
+    "period": "主周期",
+    "stemTenGod": "流年の十神",
+    "stemMeaning": "象徴的な意味",
+    "branchTenGods": "地支の十神",
+    "luckPillar": "大運",
+    "themes": "テーマ",
+    "natalInteractions": "命式の相互作用",
+    "tarotCard": "対応カード",
+    "keywords": "キーワード",
+    "personalYear": "個人年",
+    "planetPeriod": "星体・主周期",
+    "fromSign": "移動前の星座",
+    "toSign": "移動先の星座",
+    "fromHouse": "移動前の本命宮",
+    "toHouse": "移動先の本命宮",
+    "startDate": "開始日",
+    "endDate": "終了日",
+    "viewEvidence": "年の根拠を見る",
+    "baziSummary": "{{luck}} の大運における {{god}} のテーマ。"
   }
 }

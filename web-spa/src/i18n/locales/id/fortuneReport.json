@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "Periode {{name}} dimulai pada {{year}}. Tinjau prioritas untuk tahap berikutnya."
+    "transitionSummary": "Periode {{name}} dimulai pada {{year}}. Tinjau prioritas untuk tahap berikutnya.",
+    "dasha": "Mahadasha · {{lord}}",
+    "dashaSummary": "Periode utama {{lord}}: {{start}} hingga {{end}}.",
+    "dashaEvidence": "Periode utama Vimshottari: {{lord}}",
+    "baziEvidence": "Pilar tahunan {{pillar}} · Ten-God {{god}} · Siklus {{luck}}",
+    "transitionEvidence": "Siklus {{name}} dimulai pada {{year}}."
   },
   "factLabels": {
     "pillars": "Empat pilar",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "Tahun berjalan",
+    "transit": "perpindahan",
+    "period": "Periode utama",
+    "stemTenGod": "Ten-God tahunan",
+    "stemMeaning": "Makna simbolik",
+    "branchTenGods": "Ten-God cabang",
+    "luckPillar": "Siklus sepuluh tahun",
+    "themes": "Tema",
+    "natalInteractions": "Interaksi kelahiran",
+    "tarotCard": "Kartu terkait",
+    "keywords": "Kata kunci",
+    "personalYear": "Tahun pribadi",
+    "planetPeriod": "Planet atau periode",
+    "fromSign": "Zodiak awal",
+    "toSign": "Zodiak baru",
+    "fromHouse": "Rumah natal awal",
+    "toHouse": "Rumah natal baru",
+    "startDate": "Tanggal mulai",
+    "endDate": "Tanggal selesai",
+    "viewEvidence": "Lihat dasar perhitungan",
+    "baziSummary": "Tema {{god}} dalam siklus {{luck}}."
   }
 }

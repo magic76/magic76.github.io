@@ -85,7 +85,12 @@
     "vedic": "{{planet}} transit",
     "vedicEvidence": "Natal house {{from}} → house {{to}}",
     "transition": "Cycle transition · {{name}}",
-    "transitionSummary": "O período {{name}} começa em {{year}}. Reveja prioridades para a próxima fase."
+    "transitionSummary": "O período {{name}} começa em {{year}}. Reveja prioridades para a próxima fase.",
+    "dasha": "Mahadasha · {{lord}}",
+    "dashaSummary": "Período principal {{lord}}: {{start}} a {{end}}.",
+    "dashaEvidence": "Período principal Vimshottari: {{lord}}",
+    "baziEvidence": "Pilar anual {{pillar}} · Dez Deuses {{god}} · Ciclo {{luck}}",
+    "transitionEvidence": "O ciclo {{name}} começa em {{year}}."
   },
   "factLabels": {
     "pillars": "Quatro pilares",
@@ -180,5 +185,28 @@
       "身強": "strong",
       "平衡": "balanced"
     }
+  },
+  "yearUi": {
+    "year": "Ano anual",
+    "transit": "trânsito",
+    "period": "Período principal",
+    "stemTenGod": "Dez Deuses anuais",
+    "stemMeaning": "Significado simbólico",
+    "branchTenGods": "Dez Deuses do ramo",
+    "luckPillar": "Ciclo de dez anos",
+    "themes": "Temas",
+    "natalInteractions": "Interações natais",
+    "tarotCard": "Carta associada",
+    "keywords": "Palavras-chave",
+    "personalYear": "Ano pessoal",
+    "planetPeriod": "Planeta ou período",
+    "fromSign": "Signo anterior",
+    "toSign": "Novo signo",
+    "fromHouse": "Casa natal inicial",
+    "toHouse": "Casa natal final",
+    "startDate": "Data de início",
+    "endDate": "Data de término",
+    "viewEvidence": "Ver fundamentos do ano",
+    "baziSummary": "Tema {{god}} dentro do ciclo {{luck}}."
   }
 }
