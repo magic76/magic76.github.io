@@ -126,7 +126,8 @@
       "ascendant": "アセンダント",
       "moon": "月",
       "mainCycle": "主周期"
-    }
+    },
+    "yearsLeft": "残り {{count}} 年"
   },
   "profile": {
     "birthdayRequired": "保存する前に生年月日を選んでください",
