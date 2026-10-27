@@ -84,14 +84,16 @@ test("tarot master numbers preserve existing outputs",()=>{
   assert.equal(result.lifePathDisplay,display);
  }
 });
-function aiHarness(reply){
+function aiHarness(reply,withAbort=true){
  const memory=new Map([["crew_gemini_api_key","test-key"]]),calls=[];
  const window={},storage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)};
  const fetch=async(url,options)=>{
   const model=decodeURIComponent(url.split("/models/")[1].split(":")[0]);calls.push({model,options});
   return reply(model,calls.length,options);
  };
- vm.runInNewContext(fs.readFileSync(path.join(root,"crew.js"),"utf8"),{window,document:{querySelectorAll:()=>[]},localStorage:storage,sessionStorage:{getItem:()=>null},fetch,AbortController,setTimeout,clearTimeout,WebSocket:{}});
+ const sandbox={window,document:{querySelectorAll:()=>[]},localStorage:storage,sessionStorage:{getItem:()=>null},fetch,setTimeout,clearTimeout,WebSocket:{}};
+ if(withAbort)sandbox.AbortController=AbortController;
+ vm.runInNewContext(fs.readFileSync(path.join(root,"crew.js"),"utf8"),sandbox);
  return{ai:window.CrewAI,calls};
 }
 const reply=(text,finishReason="STOP")=>({ok:true,status:200,json:async()=>({candidates:[{finishReason,content:{parts:[{text}]}}]})});
@@ -110,4 +112,58 @@ test("text timeoutMs aborts stalled fetch and uses next model",async()=>{
  assert.equal(await h.ai.call("report",{preferLive:false,strictModels:true,timeoutMs:10}),"fallback");
  assert.equal(h.calls.length,2);
  assert.equal(h.calls[0].options.signal.aborted,true);
+});
+
+test("missing and empty facts never masquerade as a chart",()=>{
+ for(const facts of [null,undefined,"","  ",{},[],"null","{}","[]"]){
+  const prompt=buildFortuneQuestionPrompt(facts,"","2026-10-27","English","What now?");
+  assert.match(prompt,/尚未提供命盤/);
+  assert.doesNotMatch(prompt,/固定命盤事實：/);
+ }
+});
+test("summary shows only its first sentence or nonblank line",()=>{
+ assert.equal(parseAiReading("## @summary\n這一年適合整頓。依據為某某資料。\n第二行\n## @work\n工作").summary,"這一年適合整頓。");
+ assert.equal(parseAiReading("## @summary\nFirst sentence. Evidence follows.\n## @work\nWork").summary,"First sentence.");
+ assert.equal(parseAiReading("## @summary\n\n  Single line\nSecond line").summary,"Single line");
+});
+test("thinking config is opt-in, 400 falls back as response, default unchanged",async()=>{
+ const requests=aiHarness((model,n,options)=>{
+  const body=JSON.parse(options.body);
+  if(n===1)return{ok:false,status:400,json:async()=>({error:{status:"INVALID_ARGUMENT",message:"thinkingLevel unsupported"}})};
+  return reply("full response");
+ });
+ assert.equal(await requests.ai.call("report",{preferLive:false,strictModels:true,thinking:"low",requireComplete:true}),"full response");
+ assert.equal(requests.calls.length,2);
+ assert.equal(JSON.parse(requests.calls[0].options.body).generationConfig.thinkingConfig.thinkingLevel,"low");
+ assert.equal(JSON.parse(requests.calls[1].options.body).generationConfig.thinkingConfig.thinkingLevel,"low");
+ const legacy=aiHarness(()=>reply("legacy response"));
+ assert.equal(await legacy.ai.call("report",{preferLive:false,strictModels:true}),"legacy response");
+ assert.equal(Object.prototype.hasOwnProperty.call(JSON.parse(legacy.calls[0].options.body).generationConfig,"thinkingConfig"),false);
+});
+test("timeout rejects and falls back without AbortController",async()=>{
+ const h=aiHarness((_,n)=>n===1?new Promise(()=>{}):reply("no-abort fallback"),false);
+ assert.equal(await h.ai.call("report",{preferLive:false,strictModels:true,timeoutMs:10}),"no-abort fallback");
+ assert.equal(h.calls.length,2);
+ assert.equal(h.calls[0].options.signal,undefined);
+});
+test("Round A fix1 UI keeps labels and dates localized",()=>{
+ const file=p=>fs.readFileSync(path.join(root,p),"utf8");
+ const summary=file("web-spa/src/fortune/FortuneSummaryCard.tsx");
+ const overview=file("web-spa/src/fortune/ReadingOverview.tsx");
+ const reading=file("web-spa/src/fortune/ReadingPage.tsx");
+ const live=file("web-spa/src/fortune/LivePage.tsx");
+ const highlights=file("web-spa/src/fortune/YearHighlights.tsx");
+ const report=file("web-spa/src/fortune/report.ts");
+ const runtime=file("web-spa/src/lib/runtime.ts");
+ assert.match(summary,/reading\.phaseTarot/);
+ assert.match(summary,/reading\.topic\.keyYears/);
+ assert.match(overview,/wealth:parsed\.work/);
+ assert.match(reading,/role="alert">\{formError\}/);
+ assert.match(reading,/formatFortuneLocalDate\(today\)/);
+ assert.match(live,/formatFortuneLocalDate\(new Date\(\)\)/);
+ assert.doesNotMatch(report,/toISOString\(\)\.slice\(0,10\)/);
+ assert.match(highlights,/t\("reading\.evidence"\)/);
+ assert.match(runtime,/CrewAI\?:/);
+ const {formatFortuneLocalDate}=loadPure("web-spa/src/fortune/aiReading.ts",["formatFortuneLocalDate"]);
+ assert.equal(formatFortuneLocalDate(new Date(2026,9,27,0,30)),"2026-10-27");
 });
