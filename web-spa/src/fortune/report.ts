@@ -109,14 +109,50 @@ function vedic(r:any,phase?:CurrentPhase):FortuneChapter[]{
   relationships:{text:"關係主題主要觀察第 7 宮、其宮主與金星。第 7 宮為 "+str(getHouse(7).sign||"—")+"，宮主 "+str(getHouse(7).lord||"—")+"。可用盤面資料反思合作、情感表達與關係中的角色，但不應據此斷言婚姻或伴侶事件。",evidence:profile("relationshipProfile")},
   family:{text:"家庭與子女主題參考第 4 宮、第 5 宮、各宮宮主及月亮／木星。第 4 宮："+str(getHouse(4).sign||"—")+"（"+str(getHouse(4).lord||"—")+"）；第 5 宮："+str(getHouse(5).sign||"—")+"（"+str(getHouse(5).lord||"—")+"）。這只反映星盤分類，不推測懷孕、生育或家人健康。",evidence:profile("familyChildrenProfile")},
   currentCycle:{text:"目前 Vimshottari 主週期是 "+str(md.lord||"—")+"（"+str(md.startDate||"—")+" 至 "+str(md.endDate||"—")+"），次週期是 "+str(ad.lord||"—")+"（"+str(ad.startDate||"—")+" 至 "+str(ad.endDate||"—")+"）。目前 Gochar 計算日期為 "+str(r.currentTransitDate||"未提供")+"。週期與行運需要分開閱讀，無法由此推定具體事件。",evidence:evidence(md,ad,r.currentTransitDate)},
-  longTerm:{text:"已計算的主週期時間軸："+(mdFuture.map((x:any)=>x.lord+"（"+x.startDate+"–"+x.endDate+"）").join("；")||"尚無長期時段")+"。接下來三年的主要行運只涵蓋木星、土星與交點的換座事件，不包含未計算的完整未來行星每日運行。",evidence:evidence(mdFuture)},
+  longTerm:{text:"已計算的主週期時間軸："+(mdFuture.map((x:any)=>x.lord+"（"+x.startDate+"–"+x.endDate+"）").join("；")||"尚無長期時段")+"。接下來三年的主要行運只涵蓋木星、土星與交點的換座事件，",evidence:evidence(mdFuture)},
   keyYears:{text:"可優先閱讀的時期："+(futureHighlights("vedic",r,phase).join("；")||"尚無資料")+"。已列出的換座事件："+(transit.map((x:any)=>x.date+" "+x.planet+" "+x.fromSign+"→"+x.toSign).join("；")||"無")+"。這些是天體與週期資料的日期，不是生活事件預言。",evidence:evidence(transit)},
-  advice:{text:"挑選一個你在意的宮位或目前 Dasha，展開「詳細資料」核對實際行星、宮主與起訖時間。每次解讀應引用已存在的盤面依據；對沒有算出的 D9、Yogas 等進階分類不自行補完。",evidence:[]}
+  advice:{text:"挑選一個你在意的宮位或目前 Dasha，展開「詳細資料」核對實際行星、宮主與起訖時間。每次解讀應引用已存在的盤面依據。",evidence:[]}
  });
 }
-export function buildLocalReport(mode:FortuneMode,result:any,tr?:unknown,phase?:CurrentPhase):FortuneChapter[]{
+export type FortuneTranslator=(key:string,options?:Record<string,unknown>)=>string;
+export function buildLocalReport(mode:FortuneMode,result:any,tr?:FortuneTranslator,phase?:CurrentPhase):FortuneChapter[]{
  if(!result||typeof result!=="object")return [];
- return mode==="bazi"?bazi(result,phase):mode==="tarot"?tarot(result,phase):vedic(result,phase);
+ const original=mode==="bazi"?bazi(result,phase):mode==="tarot"?tarot(result,phase):vedic(result,phase);
+ if(!tr)return original; // Historical and Teacher consumers retain exact zh-TW facts.
+ const r=result;
+ const baziFacts:Record<string,unknown[]>={
+  overview:[r.fourPillars,r.dayMaster,r.weightedFiveElements],personality:[r.dayMaster,r.dayMasterStrength,r.dayMasterElement],
+  career:[r.careerProfile?.officerCount,r.careerProfile?.outputCount,r.careerProfile?.resourceCount],
+  wealth:[r.wealthProfile?.directWealthCount,r.wealthProfile?.indirectWealthCount,r.wealthProfile?.wealthElement],
+  relationships:[r.relationshipProfile?.spousePalace,r.relationshipProfile?.spousePalaceTenGods],
+  family:[r.natalInteractions],currentCycle:[r.currentLuckPillar?.ganZhi,r.currentLuckPillar?.startYear,r.currentLuckPillar?.endYear],
+  longTerm:[(r.luckPillars||[]).slice(0,3).map((x:any)=>x.ganZhi+" "+x.startYear+"–"+x.endYear)],
+  keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],advice:[r.dayMaster,r.currentLuckPillar?.ganZhi]
+ };
+ const tarotFacts:Record<string,unknown[]>={
+  overview:[r.birthCardDisplay,r.lifePathDisplay,r.attitudeNumber],personality:[r.personalityCardName,r.soulCardName],
+  career:[r.lifePathDisplay,r.pinnacles],wealth:[r.personalYear,r.personalMonth,r.challenges],
+  relationships:[r.personalityCardName,r.soulCardName],family:[r.attitudeNumber,r.birthCards?.length],
+  currentCycle:[r.personalYearCalendarYear,r.personalYear,r.personalMonth],
+  longTerm:[r.pinnacles,r.pinnacleTiming],keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],
+  advice:[r.personalYear,r.personalityCardName]
+ };
+ const vedicFacts:Record<string,unknown[]>={
+  overview:[r.lagnaSign,r.moonSign,r.sunSign],personality:[r.lagnaNakshatra,r.moonNakshatra],
+  career:[r.houses?.find((x:any)=>x.house===10)?.lord,r.currentMahadasha?.lord],
+  wealth:[r.houses?.find((x:any)=>x.house===2)?.lord,r.houses?.find((x:any)=>x.house===11)?.lord],
+  relationships:[r.houses?.find((x:any)=>x.house===7)?.lord],family:[r.houses?.find((x:any)=>x.house===4)?.lord,r.houses?.find((x:any)=>x.house===5)?.lord],
+  currentCycle:[r.currentMahadasha?.lord,r.currentAntardasha?.lord,r.currentMahadasha?.endDate],
+  longTerm:[(r.mahadashaTimeline||[]).slice(0,3).map((x:any)=>x.lord+" "+x.startDate+"–"+x.endDate)],
+  keyYears:[buildTimingHighlights(mode,r,phase).map(x=>x.year+" "+x.label)],
+  advice:[r.lagnaSign,r.currentMahadasha?.lord]
+ };
+ const factsMap=mode==="bazi"?baziFacts:mode==="tarot"?tarotFacts:vedicFacts;
+ return original.map(chapter=>{
+  const items=(factsMap[chapter.id]||[]).flatMap(v=>Array.isArray(v)?v:[v]).filter(v=>v!==null&&v!==undefined&&v!=="");
+  const facts=items.map(v=>typeof v==="object"?JSON.stringify(v):formatFortuneValue(v)).join(" · ").slice(0,320)||"Not calculated";
+  return {...chapter,text:tr("chapter."+chapter.id,{facts})};
+ });
 }
 export function buildReportPrompt(mode:FortuneMode,result:any,style:string,options?:{today?:string;locale?:string;phase?:{age:number;promptLine:string}|string}):string{
  const fields:Record<FortuneMode,string[]>={

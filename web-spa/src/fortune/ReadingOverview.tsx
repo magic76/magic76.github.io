@@ -8,6 +8,8 @@ import{parseAiReading}from"./aiReading";
 import{AiPanel}from"./result/Common";
 import{formatFortuneValue}from"./displayNumber";
 import{formatVedicTerm}from"./fortuneTerminology";
+import{useRouteNamespace}from"../i18n/useRouteNamespace";
+import{FortuneGlossary}from"./FortuneGlossary";
 
 const primary:FortuneChapterId[]=["overview","personality","career","wealth","relationships","currentCycle"];
 const focus:{id:FortuneChapterId;symbol:string}[]=[
@@ -43,10 +45,12 @@ function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;
  </article>;
 }
 export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:FortuneMode;result:any;phase?:CurrentPhase;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
- const{t}=useTranslation("fortune");
+ const{t,i18n}=useTranslation("fortune");
+ const{t:reportT}=useTranslation("fortuneReport");
+ const reportReady=useRouteNamespace("fortuneReport");
  const[active,setActive]=useState<FortuneChapterId|null>(null);
  useEffect(()=>setActive(null),[mode,result]);
- const chapters=buildLocalReport(mode,result,undefined,phase);
+ const chapters=buildLocalReport(mode,result,reportReady&&i18n.resolvedLanguage!=="zh-TW"?(key,options)=>String(reportT(key,options)):undefined,phase);
  if(!chapters.length)return null;
  const parsed=parseAiReading(ai||""),ready=Boolean(parsed.summary)&&!parsed.legacy;
  const aiText:Partial<Record<FortuneChapterId,string>>=ready?{
@@ -92,6 +96,6 @@ export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:Fortun
     <strong>{formatFortuneValue(item.value,true)}</strong>
    </div>)}</div>
   </div>}
-  <small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
+  <FortuneGlossary mode={mode} result={result}/><small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
  </section>;
 }
