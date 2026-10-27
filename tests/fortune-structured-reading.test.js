@@ -29,7 +29,9 @@ test("Fortune full reading stays reachable with explicit evidence and disclosure
  assert.match(overview,/chapter\.text/);
  assert.match(overview,/chapter\.evidence/);
  assert.match(overview,/fortune-reading-chapters/);
- assert.match(overview,/傳統命理適合自我反思/);
+ const tw=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/fortune.json"));
+ assert.match(overview,/t\("reading\.disclaimer"\)/);
+ assert.match(tw.reading.disclaimer,/傳統命理適合自我反思/);
  assert.match(css,/fortune-reading-chapter-content\[hidden\]/);
  assert.match(css,/prefers-reduced-motion/);
  assert.match(page,/<FortuneYearHighlights/);

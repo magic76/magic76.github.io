@@ -1,10 +1,10 @@
-import { useEffect,useLayoutEffect } from "react";
+import { useEffect,useLayoutEffect,useState } from "react";
 import {useClientReady} from "../lib/useClientReady";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
-import { geminiKey,geminiVerified } from "../lib/runtime";
+import { geminiKey,geminiVerified,GEMINI_KEY_CHANGED_EVENT } from "../lib/runtime";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
@@ -20,6 +20,8 @@ const meta={
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
  const ready=useClientReady();
+ const [,refreshGeminiStatus]=useState(0);
+ useEffect(()=>{const handler=()=>refreshGeminiStatus(x=>x+1);window.addEventListener(GEMINI_KEY_CHANGED_EVENT,handler);return()=>window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,handler)},[]);
  const m=meta[product],hasKey=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified(),location=useLocation();
  // Apply the theme class before first paint so themed chrome (e.g. the role switcher) does not shift layout.
  useLayoutEffect(()=>{document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":""},[product]);

@@ -161,17 +161,37 @@
     opt=opt||{};
     var body={systemInstruction:{parts:[{text:opt.system||"你是 Crew 的 AI 助手。"}]},contents:[{role:"user",parts:[{text:prompt}]}],generationConfig:{temperature:typeof opt.temperature==="number"?opt.temperature:.8,maxOutputTokens:opt.maxOutputTokens||1000}};
     if(opt.json)body.generationConfig.responseMimeType="application/json";
-    var r;
+    if(typeof opt.thinking==="string"&&opt.thinking.trim())body.generationConfig.thinkingConfig={thinkingLevel:opt.thinking.trim()};
+    var r,d,controller=typeof AbortController==="function"?new AbortController():null;
+    var limit=Number.isFinite(opt.timeoutMs)&&opt.timeoutMs>0?opt.timeoutMs:15000,timer,timedOut=false;
+    var request=(async function(){
+      try{
+        r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body),signal:controller?controller.signal:undefined});
+        try{d=await r.json()}catch(_){d=null}
+      }catch(_){throw modelError("network",model+(timedOut?" request timeout":" network request failed"))}
+    })();
     try{
-      r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(model)+":generateContent",{method:"POST",headers:{"Content-Type":"application/json","x-goog-api-key":key()},body:JSON.stringify(body)});
-    }catch(_){throw modelError("network",model+" network request failed")}
-    var d;try{d=await r.json()}catch(_){d=null}
+      await Promise.race([request,new Promise(function(_,reject){
+        timer=setTimeout(function(){
+          timedOut=true;
+          if(controller)controller.abort();
+          reject(modelError("network",model+" request timeout"));
+        },limit);
+      })]);
+    }finally{clearTimeout(timer)}
     if(!r.ok){
       var reason=String(d&&d.error&&d.error.status||"");
       var msg=String(d&&d.error&&d.error.message||"");
-      throw modelError(classifyTextFailure(r.status,reason,msg),model+" HTTP "+r.status,r.status);
+      var kind=classifyTextFailure(r.status,reason,msg);
+      if(opt.thinking&&r.status===400){
+        if(kind==="key")throw modelError("key",model+" HTTP "+r.status,r.status);
+        throw modelError("response",model+" unsupported thinking configuration",400);
+      }
+      throw modelError(kind,model+" HTTP "+r.status,r.status);
     }
-    var parts=d&&d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;
+    var candidate=d&&d.candidates&&d.candidates[0];
+    if(opt.requireComplete&&candidate&&candidate.finishReason==="MAX_TOKENS")throw modelError("response",model+" incomplete MAX_TOKENS");
+    var parts=candidate&&candidate.content&&candidate.content.parts;
     var out=(parts||[]).map(function(p){return p.text||""}).join("").trim();
     if(!out)throw modelError("response",model+" empty response");
     if(opt.json){
@@ -186,7 +206,7 @@
     if(opt.preferLive!==false){for(var i=0;i<LIVE.length;i++){try{return await liveCall(LIVE[i],prompt,opt)}catch(e){errs.push(LIVE[i]+": "+e.message)}}}
     var found=opt.strictModels?[]:await discover(),seen={},models=TEXT.concat(found).filter(function(m){if(!m||seen[m])return false;seen[m]=1;return true});
     for(var j=0;j<models.length;j++){
-      try{return await timeout(textCall(models[j],prompt,opt),15000,models[j])}
+      try{return await textCall(models[j],prompt,opt)}
       catch(e){
         var failure=e&&e.kind?e:modelError("network",models[j]+" request timeout");
         if(failure.kind==="key")throw failure; // A bad key is not repaired by another model.

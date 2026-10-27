@@ -27,3 +27,14 @@ export function utcOffsetForBirth(date:string,time:string,timeZone:string){
  const sign=offset<0?"-":"+",abs=Math.abs(offset),hh=String(Math.floor(abs/60)).padStart(2,"0"),mm=String(abs%60).padStart(2,"0");
  return sign+hh+":"+mm;
 }
+
+export function resolveBirthOffset(profile:{birthDate:string;birthTime:string;timeZoneId:string;utcOffset:string}):string{
+ if(profile.timeZoneId){
+  if(!profile.birthDate)return "";
+  try{return utcOffsetForBirth(profile.birthDate,profile.birthTime||"12:00",profile.timeZoneId)}catch{return ""}
+ }
+ const offset=(profile.utcOffset||"").trim();
+ if(!/^[+-]\d{2}:\d{2}$/.test(offset))return "";
+ const hours=Number(offset.slice(1,3)),minutes=Number(offset.slice(4,6));
+ return hours<=14&&minutes<=59&&(hours!==14||minutes===0)?offset:"";
+}

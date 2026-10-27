@@ -33,7 +33,7 @@ export function buildYearHighlights(mode:FortuneMode,result:any):YearHighlight[]
   const relation=new Set((result.relationshipProfile?.annualSignalYears||[]).map((x:any)=>Number(typeof x==="object"?x.year:x)));
   const candidates:Array<ScoredHighlight&{group:string}>=(result.annualTimeline||[]).filter((x:any)=>Number(x.year)>=now).map((x:any)=>{
    const year=Number(x.year),god=String(x.stemTenGod||""),focus=BA_ZI_FOCUS[god];
-   const interactions=(Array.isArray(x.natalInteractions)?x.natalInteractions:[]).map(String).filter((v:string)=>!v.includes("未偵測"));
+   const interactions=[...new Set((Array.isArray(x.natalInteractions)?x.natalInteractions:[]).map(String).filter((v:string)=>!v.includes("未偵測")))];
    const group=focus?.group||(interactions.length?"interactions":"year");
    const topic=focus?.name||(interactions.length?"命局互動與變化":String((x.themes||[])[0]||"流年節奏"));
    const score=(wealth.has(year)?3:0)+(career.has(year)?3:0)+(relation.has(year)?3:0)+Math.min(4,interactions.length*2)+(year===now?2:0)+(year<=now+3?1:0);
