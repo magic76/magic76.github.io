@@ -126,7 +126,8 @@
       "ascendant": "Cung mọc",
       "moon": "Mặt Trăng",
       "mainCycle": "Đại hạn"
-    }
+    },
+    "yearsLeft": "còn {{count}} năm"
   },
   "profile": {
     "birthdayRequired": "Chọn ngày sinh trước khi lưu",
