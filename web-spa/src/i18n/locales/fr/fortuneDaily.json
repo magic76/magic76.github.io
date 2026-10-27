@@ -1,0 +1,275 @@
+{
+  "today": "Aujourd'hui",
+  "emptyTitle": "Votre carte du jour commence par votre date de naissance",
+  "emptyDescription": "Une courte réflexion fondée sur des règles traditionnelles.",
+  "addBirthday": "Ajouter sa date de naissance",
+  "streak": "{{count}} jours consécutifs",
+  "selectKind": "Méthode",
+  "numerology": "Numérologie",
+  "bazi": "BaZi",
+  "timeRequired": "Le BaZi nécessite l'heure de naissance.",
+  "doLabel": "À essayer",
+  "avoidLabel": "À surveiller",
+  "luckyColor": "Couleur porte-bonheur",
+  "basisLabel": "Base du calcul",
+  "almanacLabel": "Almanach",
+  "disclaimer": "Ces cartes suivent des règles traditionnelles pour la réflexion personnelle.",
+  "share": "Partager",
+  "fullReading": "Lire l'interprétation complète",
+  "viewDaily": "Voir la carte du jour",
+  "loadFailed": "Calcul temporairement indisponible. Réessayez.",
+  "ai": {
+    "generate": "Écrire un texte avec Gemini",
+    "loading": "Génération…",
+    "used": "Déjà utilisé aujourd'hui",
+    "quota": "Quota Gemini atteint.",
+    "error": "Échec de génération. Réessayez."
+  },
+  "colors": {
+    "wood": "Vert",
+    "fire": "Rouge",
+    "earth": "Jaune",
+    "metal": "Blanc argent",
+    "water": "Bleu"
+  },
+  "elements": {
+    "木": "Bois",
+    "火": "Feu",
+    "土": "Terre",
+    "金": "Métal",
+    "水": "Eau"
+  },
+  "relations": {
+    "六合": "harmonie",
+    "六沖": "opposition",
+    "六害": "friction",
+    "none": "aucune interaction majeure"
+  },
+  "gods": {
+    "比肩": "Pairs",
+    "劫財": "Compétition",
+    "食神": "Expression",
+    "傷官": "Créativité",
+    "偏財": "Ressources souples",
+    "正財": "Ressources stables",
+    "七殺": "Exigence",
+    "正官": "Responsabilité",
+    "偏印": "Recherche",
+    "正印": "Apprentissage"
+  },
+  "basis": {
+    "numeric": "Année personnelle {{year}} · mois {{month}} · jour {{day}}",
+    "tarot": "Carte du jour : {{card}}",
+    "baziStem": "Pilier du jour {{day}} → {{god}} pour le maître {{master}}",
+    "baziBranch": "Branche du jour {{daily}} et branche natale du jour {{natal}} : {{relation}}",
+    "baziYearBranch": "Branche du jour {{daily}} et branche natale de l'année {{natal}} : {{relation}}"
+  },
+  "numerologyHeadline": "Jour personnel {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "Le Mat",
+      "keywords": "nouveau départ"
+    },
+    "1": {
+      "name": "Le Magicien",
+      "keywords": "action"
+    },
+    "2": {
+      "name": "La Papesse",
+      "keywords": "intuition"
+    },
+    "3": {
+      "name": "L'Impératrice",
+      "keywords": "soin"
+    },
+    "4": {
+      "name": "L'Empereur",
+      "keywords": "structure"
+    },
+    "5": {
+      "name": "Le Pape",
+      "keywords": "apprentissage"
+    },
+    "6": {
+      "name": "L'Amoureux",
+      "keywords": "choix"
+    },
+    "7": {
+      "name": "Le Chariot",
+      "keywords": "direction"
+    },
+    "8": {
+      "name": "La Force",
+      "keywords": "courage"
+    },
+    "9": {
+      "name": "L'Hermite",
+      "keywords": "réflexion"
+    },
+    "10": {
+      "name": "La Roue de Fortune",
+      "keywords": "changement"
+    },
+    "11": {
+      "name": "La Justice",
+      "keywords": "équilibre"
+    },
+    "12": {
+      "name": "Le Pendu",
+      "keywords": "nouveau regard"
+    },
+    "13": {
+      "name": "La Mort",
+      "keywords": "transformation"
+    },
+    "14": {
+      "name": "Tempérance",
+      "keywords": "harmonie"
+    },
+    "15": {
+      "name": "Le Diable",
+      "keywords": "limites"
+    },
+    "16": {
+      "name": "La Maison Dieu",
+      "keywords": "reconstruction"
+    },
+    "17": {
+      "name": "L'Étoile",
+      "keywords": "espoir"
+    },
+    "18": {
+      "name": "La Lune",
+      "keywords": "imagination"
+    },
+    "19": {
+      "name": "Le Soleil",
+      "keywords": "clarté"
+    },
+    "20": {
+      "name": "Le Jugement",
+      "keywords": "bilan"
+    },
+    "21": {
+      "name": "Le Monde",
+      "keywords": "intégration"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Observez le rythme de autonomie",
+        "theme": "Aujourd'hui, réfléchissez à autonomie.",
+        "do0": "Fixez un petit objectif",
+        "do1": "Clarifiez une limite",
+        "avoid": "Évitez les comparaisons"
+      },
+      "1": {
+        "headline": "Commencez par autonomie",
+        "theme": "Trouvez votre rythme dans autonomie.",
+        "do0": "Clarifiez une limite",
+        "do1": "Fixez un petit objectif",
+        "avoid": "Évitez les comparaisons"
+      },
+      "2": {
+        "headline": "Faites place à autonomie",
+        "theme": "Ralentissez et observez autonomie.",
+        "do0": "Aujourd'hui, réfléchissez à autonomie.",
+        "do1": "Trouvez votre rythme dans autonomie.",
+        "avoid": "Évitez les comparaisons"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Observez le rythme de expression",
+        "theme": "Aujourd'hui, réfléchissez à expression.",
+        "do0": "Exprimez une idée",
+        "do1": "Prenez du temps pour créer",
+        "avoid": "Évitez de conclure trop vite"
+      },
+      "1": {
+        "headline": "Commencez par expression",
+        "theme": "Trouvez votre rythme dans expression.",
+        "do0": "Prenez du temps pour créer",
+        "do1": "Exprimez une idée",
+        "avoid": "Évitez de conclure trop vite"
+      },
+      "2": {
+        "headline": "Faites place à expression",
+        "theme": "Ralentissez et observez expression.",
+        "do0": "Aujourd'hui, réfléchissez à expression.",
+        "do1": "Trouvez votre rythme dans expression.",
+        "avoid": "Évitez de conclure trop vite"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Observez le rythme de ressources",
+        "theme": "Aujourd'hui, réfléchissez à ressources.",
+        "do0": "Examinez vos ressources",
+        "do1": "Organisez une tâche",
+        "avoid": "Évitez de trop vous engager"
+      },
+      "1": {
+        "headline": "Commencez par ressources",
+        "theme": "Trouvez votre rythme dans ressources.",
+        "do0": "Organisez une tâche",
+        "do1": "Examinez vos ressources",
+        "avoid": "Évitez de trop vous engager"
+      },
+      "2": {
+        "headline": "Faites place à ressources",
+        "theme": "Ralentissez et observez ressources.",
+        "do0": "Aujourd'hui, réfléchissez à ressources.",
+        "do1": "Trouvez votre rythme dans ressources.",
+        "avoid": "Évitez de trop vous engager"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Observez le rythme de responsabilité",
+        "theme": "Aujourd'hui, réfléchissez à responsabilité.",
+        "do0": "Clarifiez les priorités",
+        "do1": "Exprimez vos attentes avec calme",
+        "avoid": "Évitez de vous juger durement"
+      },
+      "1": {
+        "headline": "Commencez par responsabilité",
+        "theme": "Trouvez votre rythme dans responsabilité.",
+        "do0": "Exprimez vos attentes avec calme",
+        "do1": "Clarifiez les priorités",
+        "avoid": "Évitez de vous juger durement"
+      },
+      "2": {
+        "headline": "Faites place à responsabilité",
+        "theme": "Ralentissez et observez responsabilité.",
+        "do0": "Aujourd'hui, réfléchissez à responsabilité.",
+        "do1": "Trouvez votre rythme dans responsabilité.",
+        "avoid": "Évitez de vous juger durement"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Observez le rythme de apprentissage",
+        "theme": "Aujourd'hui, réfléchissez à apprentissage.",
+        "do0": "Explorez une question",
+        "do1": "Demandez conseil",
+        "avoid": "Évitez la surcharge d'informations"
+      },
+      "1": {
+        "headline": "Commencez par apprentissage",
+        "theme": "Trouvez votre rythme dans apprentissage.",
+        "do0": "Demandez conseil",
+        "do1": "Explorez une question",
+        "avoid": "Évitez la surcharge d'informations"
+      },
+      "2": {
+        "headline": "Faites place à apprentissage",
+        "theme": "Ralentissez et observez apprentissage.",
+        "do0": "Aujourd'hui, réfléchissez à apprentissage.",
+        "do1": "Trouvez votre rythme dans apprentissage.",
+        "avoid": "Évitez la surcharge d'informations"
+      }
+    }
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "today": "Heute",
+  "emptyTitle": "Deine Tageskarte beginnt mit deinem Geburtsdatum",
+  "emptyDescription": "Eine kurze Reflexion nach traditionellen Regeln.",
+  "addBirthday": "Geburtsdatum eingeben",
+  "streak": "{{count}} Tage in Folge",
+  "selectKind": "Methode",
+  "numerology": "Numerologie",
+  "bazi": "BaZi",
+  "timeRequired": "Für BaZi wird die Geburtszeit benötigt.",
+  "doLabel": "Das kannst du tun",
+  "avoidLabel": "Achte auf",
+  "luckyColor": "Glücksfarbe",
+  "basisLabel": "Berechnungsgrundlage",
+  "almanacLabel": "Almanach",
+  "disclaimer": "Tageskarten folgen traditionellen Regeln und dienen der Selbstreflexion.",
+  "share": "Karte teilen",
+  "fullReading": "Vollständige Deutung",
+  "viewDaily": "Heutige Karte ansehen",
+  "loadFailed": "Berechnung nicht verfügbar. Bitte erneut versuchen.",
+  "ai": {
+    "generate": "Mit Gemini einen Absatz schreiben",
+    "loading": "Wird erstellt…",
+    "used": "Heute bereits verwendet",
+    "quota": "Gemini-Kontingent erreicht.",
+    "error": "Erstellung fehlgeschlagen. Erneut versuchen."
+  },
+  "colors": {
+    "wood": "Grün",
+    "fire": "Rot",
+    "earth": "Gelb",
+    "metal": "Silberweiß",
+    "water": "Blau"
+  },
+  "elements": {
+    "木": "Holz",
+    "火": "Feuer",
+    "土": "Erde",
+    "金": "Metall",
+    "水": "Wasser"
+  },
+  "relations": {
+    "六合": "Harmonie",
+    "六沖": "Konflikt",
+    "六害": "Reibung",
+    "none": "keine wesentliche Verbindung"
+  },
+  "gods": {
+    "比肩": "Gleichgesinnte",
+    "劫財": "Wettbewerb",
+    "食神": "Ausdruck",
+    "傷官": "Kreativität",
+    "偏財": "Flexible Mittel",
+    "正財": "Stabile Mittel",
+    "七殺": "Anforderung",
+    "正官": "Verantwortung",
+    "偏印": "Forschung",
+    "正印": "Lernen"
+  },
+  "basis": {
+    "numeric": "Persönliches Jahr {{year}} · Monat {{month}} · Tag {{day}}",
+    "tarot": "Heutige Karte: {{card}}",
+    "baziStem": "Tagessäule {{day}} → {{god}} für Tagesmeister {{master}}",
+    "baziBranch": "Tageszweig {{daily}} und Geburts-Tageszweig {{natal}}: {{relation}}",
+    "baziYearBranch": "Tageszweig {{daily}} und Geburts-Jahreszweig {{natal}}: {{relation}}"
+  },
+  "numerologyHeadline": "Persönlicher Tag {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "Der Narr",
+      "keywords": "Neuanfang"
+    },
+    "1": {
+      "name": "Der Magier",
+      "keywords": "Handeln"
+    },
+    "2": {
+      "name": "Die Hohepriesterin",
+      "keywords": "Intuition"
+    },
+    "3": {
+      "name": "Die Herrscherin",
+      "keywords": "Fürsorge"
+    },
+    "4": {
+      "name": "Der Herrscher",
+      "keywords": "Struktur"
+    },
+    "5": {
+      "name": "Der Hierophant",
+      "keywords": "Lernen"
+    },
+    "6": {
+      "name": "Die Liebenden",
+      "keywords": "Entscheidungen"
+    },
+    "7": {
+      "name": "Der Wagen",
+      "keywords": "Richtung"
+    },
+    "8": {
+      "name": "Die Kraft",
+      "keywords": "Mut"
+    },
+    "9": {
+      "name": "Der Eremit",
+      "keywords": "Besinnung"
+    },
+    "10": {
+      "name": "Das Rad des Schicksals",
+      "keywords": "Wandel"
+    },
+    "11": {
+      "name": "Die Gerechtigkeit",
+      "keywords": "Balance"
+    },
+    "12": {
+      "name": "Der Gehängte",
+      "keywords": "Perspektivwechsel"
+    },
+    "13": {
+      "name": "Der Tod",
+      "keywords": "Veränderung"
+    },
+    "14": {
+      "name": "Die Mäßigkeit",
+      "keywords": "Harmonie"
+    },
+    "15": {
+      "name": "Der Teufel",
+      "keywords": "Grenzen"
+    },
+    "16": {
+      "name": "Der Turm",
+      "keywords": "Neubeginn"
+    },
+    "17": {
+      "name": "Der Stern",
+      "keywords": "Hoffnung"
+    },
+    "18": {
+      "name": "Der Mond",
+      "keywords": "Vorstellungskraft"
+    },
+    "19": {
+      "name": "Die Sonne",
+      "keywords": "Klarheit"
+    },
+    "20": {
+      "name": "Das Gericht",
+      "keywords": "Rückblick"
+    },
+    "21": {
+      "name": "Die Welt",
+      "keywords": "Integration"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Achte auf den Rhythmus von Selbstständigkeit",
+        "theme": "Denke heute über Selbstständigkeit nach.",
+        "do0": "Setze ein kleines Ziel",
+        "do1": "Kläre eine Grenze",
+        "avoid": "Vermeide Vergleiche"
+      },
+      "1": {
+        "headline": "Beginne mit Selbstständigkeit",
+        "theme": "Finde dein Tempo bei Selbstständigkeit.",
+        "do0": "Kläre eine Grenze",
+        "do1": "Setze ein kleines Ziel",
+        "avoid": "Vermeide Vergleiche"
+      },
+      "2": {
+        "headline": "Schaffe Raum für Selbstständigkeit",
+        "theme": "Nimm dir Zeit, Selbstständigkeit wahrzunehmen.",
+        "do0": "Denke heute über Selbstständigkeit nach.",
+        "do1": "Finde dein Tempo bei Selbstständigkeit.",
+        "avoid": "Vermeide Vergleiche"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Achte auf den Rhythmus von Ausdruck",
+        "theme": "Denke heute über Ausdruck nach.",
+        "do0": "Erkläre eine Idee",
+        "do1": "Nimm dir Zeit für Kreatives",
+        "avoid": "Urteile nicht vorschnell"
+      },
+      "1": {
+        "headline": "Beginne mit Ausdruck",
+        "theme": "Finde dein Tempo bei Ausdruck.",
+        "do0": "Nimm dir Zeit für Kreatives",
+        "do1": "Erkläre eine Idee",
+        "avoid": "Urteile nicht vorschnell"
+      },
+      "2": {
+        "headline": "Schaffe Raum für Ausdruck",
+        "theme": "Nimm dir Zeit, Ausdruck wahrzunehmen.",
+        "do0": "Denke heute über Ausdruck nach.",
+        "do1": "Finde dein Tempo bei Ausdruck.",
+        "avoid": "Urteile nicht vorschnell"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Achte auf den Rhythmus von Ressourcen",
+        "theme": "Denke heute über Ressourcen nach.",
+        "do0": "Prüfe deine Möglichkeiten",
+        "do1": "Ordne eine Aufgabe",
+        "avoid": "Übernimm nicht zu viel"
+      },
+      "1": {
+        "headline": "Beginne mit Ressourcen",
+        "theme": "Finde dein Tempo bei Ressourcen.",
+        "do0": "Ordne eine Aufgabe",
+        "do1": "Prüfe deine Möglichkeiten",
+        "avoid": "Übernimm nicht zu viel"
+      },
+      "2": {
+        "headline": "Schaffe Raum für Ressourcen",
+        "theme": "Nimm dir Zeit, Ressourcen wahrzunehmen.",
+        "do0": "Denke heute über Ressourcen nach.",
+        "do1": "Finde dein Tempo bei Ressourcen.",
+        "avoid": "Übernimm nicht zu viel"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Achte auf den Rhythmus von Verantwortung",
+        "theme": "Denke heute über Verantwortung nach.",
+        "do0": "Setze Prioritäten",
+        "do1": "Sprich Erwartungen ruhig an",
+        "avoid": "Sei nicht zu streng mit dir"
+      },
+      "1": {
+        "headline": "Beginne mit Verantwortung",
+        "theme": "Finde dein Tempo bei Verantwortung.",
+        "do0": "Sprich Erwartungen ruhig an",
+        "do1": "Setze Prioritäten",
+        "avoid": "Sei nicht zu streng mit dir"
+      },
+      "2": {
+        "headline": "Schaffe Raum für Verantwortung",
+        "theme": "Nimm dir Zeit, Verantwortung wahrzunehmen.",
+        "do0": "Denke heute über Verantwortung nach.",
+        "do1": "Finde dein Tempo bei Verantwortung.",
+        "avoid": "Sei nicht zu streng mit dir"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Achte auf den Rhythmus von Lernen",
+        "theme": "Denke heute über Lernen nach.",
+        "do0": "Erkunde eine Frage",
+        "do1": "Bitte um Unterstützung",
+        "avoid": "Vermeide Informationsflut"
+      },
+      "1": {
+        "headline": "Beginne mit Lernen",
+        "theme": "Finde dein Tempo bei Lernen.",
+        "do0": "Bitte um Unterstützung",
+        "do1": "Erkunde eine Frage",
+        "avoid": "Vermeide Informationsflut"
+      },
+      "2": {
+        "headline": "Schaffe Raum für Lernen",
+        "theme": "Nimm dir Zeit, Lernen wahrzunehmen.",
+        "do0": "Denke heute über Lernen nach.",
+        "do1": "Finde dein Tempo bei Lernen.",
+        "avoid": "Vermeide Informationsflut"
+      }
+    }
+  }
+}

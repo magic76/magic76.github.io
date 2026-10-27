@@ -1,0 +1,275 @@
+{
+  "today": "Hôm nay",
+  "emptyTitle": "Nhập ngày sinh để xem thẻ hôm nay",
+  "emptyDescription": "Gợi ý suy ngẫm ngắn theo quy tắc truyền thống.",
+  "addBirthday": "Nhập ngày sinh",
+  "streak": "{{count}} ngày liên tiếp",
+  "selectKind": "Chọn phương pháp",
+  "numerology": "Thần số học",
+  "bazi": "Bát tự",
+  "timeRequired": "Bát tự cần giờ sinh.",
+  "doLabel": "Nên thử",
+  "avoidLabel": "Hãy lưu ý",
+  "luckyColor": "Màu may mắn",
+  "basisLabel": "Cơ sở tính toán",
+  "almanacLabel": "Lịch truyền thống",
+  "disclaimer": "Thẻ mỗi ngày dựa trên quy tắc truyền thống, chỉ để tự suy ngẫm.",
+  "share": "Chia sẻ thẻ",
+  "fullReading": "Xem giải thích đầy đủ",
+  "viewDaily": "Xem thẻ hôm nay",
+  "loadFailed": "Tạm thời không thể tính. Hãy thử lại.",
+  "ai": {
+    "generate": "Viết một đoạn với Gemini",
+    "loading": "Đang tạo…",
+    "used": "Đã dùng hôm nay",
+    "quota": "Hết hạn mức Gemini.",
+    "error": "Không thể tạo. Hãy thử lại."
+  },
+  "colors": {
+    "wood": "Xanh lá",
+    "fire": "Đỏ",
+    "earth": "Vàng",
+    "metal": "Trắng bạc",
+    "water": "Xanh dương"
+  },
+  "elements": {
+    "木": "Mộc",
+    "火": "Hỏa",
+    "土": "Thổ",
+    "金": "Kim",
+    "水": "Thủy"
+  },
+  "relations": {
+    "六合": "lục hợp",
+    "六沖": "lục xung",
+    "六害": "lục hại",
+    "none": "không có tương tác chính"
+  },
+  "gods": {
+    "比肩": "Tỷ Kiên",
+    "劫財": "Kiếp Tài",
+    "食神": "Thực Thần",
+    "傷官": "Thương Quan",
+    "偏財": "Thiên Tài",
+    "正財": "Chính Tài",
+    "七殺": "Thất Sát",
+    "正官": "Chính Quan",
+    "偏印": "Thiên Ấn",
+    "正印": "Chính Ấn"
+  },
+  "basis": {
+    "numeric": "Năm cá nhân {{year}} · tháng {{month}} · ngày {{day}}",
+    "tarot": "Lá bài hôm nay: {{card}}",
+    "baziStem": "Trụ ngày {{day}} → {{god}} với nhật chủ {{master}}",
+    "baziBranch": "Chi ngày {{daily}} và chi ngày sinh {{natal}}: {{relation}}",
+    "baziYearBranch": "Chi ngày {{daily}} và chi năm sinh {{natal}}: {{relation}}"
+  },
+  "numerologyHeadline": "Ngày cá nhân {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "Kẻ Khờ",
+      "keywords": "khởi đầu"
+    },
+    "1": {
+      "name": "Pháp Sư",
+      "keywords": "hành động"
+    },
+    "2": {
+      "name": "Nữ Tư Tế",
+      "keywords": "trực giác"
+    },
+    "3": {
+      "name": "Hoàng Hậu",
+      "keywords": "chăm sóc"
+    },
+    "4": {
+      "name": "Hoàng Đế",
+      "keywords": "trật tự"
+    },
+    "5": {
+      "name": "Giáo Hoàng",
+      "keywords": "học hỏi"
+    },
+    "6": {
+      "name": "Người Yêu",
+      "keywords": "lựa chọn"
+    },
+    "7": {
+      "name": "Cỗ Xe",
+      "keywords": "định hướng"
+    },
+    "8": {
+      "name": "Sức Mạnh",
+      "keywords": "dũng khí"
+    },
+    "9": {
+      "name": "Ẩn Sĩ",
+      "keywords": "suy ngẫm"
+    },
+    "10": {
+      "name": "Bánh Xe Số Phận",
+      "keywords": "thay đổi"
+    },
+    "11": {
+      "name": "Công Lý",
+      "keywords": "cân bằng"
+    },
+    "12": {
+      "name": "Người Treo Ngược",
+      "keywords": "góc nhìn mới"
+    },
+    "13": {
+      "name": "Cái Chết",
+      "keywords": "chuyển hóa"
+    },
+    "14": {
+      "name": "Tiết Chế",
+      "keywords": "hòa hợp"
+    },
+    "15": {
+      "name": "Ác Quỷ",
+      "keywords": "ranh giới"
+    },
+    "16": {
+      "name": "Tòa Tháp",
+      "keywords": "xây dựng lại"
+    },
+    "17": {
+      "name": "Ngôi Sao",
+      "keywords": "hy vọng"
+    },
+    "18": {
+      "name": "Mặt Trăng",
+      "keywords": "tưởng tượng"
+    },
+    "19": {
+      "name": "Mặt Trời",
+      "keywords": "rõ ràng"
+    },
+    "20": {
+      "name": "Phán Xét",
+      "keywords": "nhìn lại"
+    },
+    "21": {
+      "name": "Thế Giới",
+      "keywords": "tích hợp"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Quan sát nhịp của tự chủ",
+        "theme": "Hôm nay hãy nghĩ về tự chủ.",
+        "do0": "Chọn một mục tiêu nhỏ",
+        "do1": "Làm rõ ranh giới",
+        "avoid": "Tránh so sánh"
+      },
+      "1": {
+        "headline": "Bắt đầu với tự chủ",
+        "theme": "Tìm nhịp phù hợp trong tự chủ.",
+        "do0": "Làm rõ ranh giới",
+        "do1": "Chọn một mục tiêu nhỏ",
+        "avoid": "Tránh so sánh"
+      },
+      "2": {
+        "headline": "Dành không gian cho tự chủ",
+        "theme": "Chậm lại và quan sát tự chủ.",
+        "do0": "Hôm nay hãy nghĩ về tự chủ.",
+        "do1": "Tìm nhịp phù hợp trong tự chủ.",
+        "avoid": "Tránh so sánh"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Quan sát nhịp của biểu đạt",
+        "theme": "Hôm nay hãy nghĩ về biểu đạt.",
+        "do0": "Diễn đạt một ý tưởng",
+        "do1": "Dành thời gian sáng tạo",
+        "avoid": "Tránh kết luận vội"
+      },
+      "1": {
+        "headline": "Bắt đầu với biểu đạt",
+        "theme": "Tìm nhịp phù hợp trong biểu đạt.",
+        "do0": "Dành thời gian sáng tạo",
+        "do1": "Diễn đạt một ý tưởng",
+        "avoid": "Tránh kết luận vội"
+      },
+      "2": {
+        "headline": "Dành không gian cho biểu đạt",
+        "theme": "Chậm lại và quan sát biểu đạt.",
+        "do0": "Hôm nay hãy nghĩ về biểu đạt.",
+        "do1": "Tìm nhịp phù hợp trong biểu đạt.",
+        "avoid": "Tránh kết luận vội"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Quan sát nhịp của nguồn lực",
+        "theme": "Hôm nay hãy nghĩ về nguồn lực.",
+        "do0": "Xem lại nguồn lực",
+        "do1": "Sắp xếp một việc",
+        "avoid": "Tránh nhận quá nhiều"
+      },
+      "1": {
+        "headline": "Bắt đầu với nguồn lực",
+        "theme": "Tìm nhịp phù hợp trong nguồn lực.",
+        "do0": "Sắp xếp một việc",
+        "do1": "Xem lại nguồn lực",
+        "avoid": "Tránh nhận quá nhiều"
+      },
+      "2": {
+        "headline": "Dành không gian cho nguồn lực",
+        "theme": "Chậm lại và quan sát nguồn lực.",
+        "do0": "Hôm nay hãy nghĩ về nguồn lực.",
+        "do1": "Tìm nhịp phù hợp trong nguồn lực.",
+        "avoid": "Tránh nhận quá nhiều"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Quan sát nhịp của trách nhiệm",
+        "theme": "Hôm nay hãy nghĩ về trách nhiệm.",
+        "do0": "Xác định ưu tiên",
+        "do1": "Nói rõ kỳ vọng nhẹ nhàng",
+        "avoid": "Tránh tự trách"
+      },
+      "1": {
+        "headline": "Bắt đầu với trách nhiệm",
+        "theme": "Tìm nhịp phù hợp trong trách nhiệm.",
+        "do0": "Nói rõ kỳ vọng nhẹ nhàng",
+        "do1": "Xác định ưu tiên",
+        "avoid": "Tránh tự trách"
+      },
+      "2": {
+        "headline": "Dành không gian cho trách nhiệm",
+        "theme": "Chậm lại và quan sát trách nhiệm.",
+        "do0": "Hôm nay hãy nghĩ về trách nhiệm.",
+        "do1": "Tìm nhịp phù hợp trong trách nhiệm.",
+        "avoid": "Tránh tự trách"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Quan sát nhịp của học hỏi",
+        "theme": "Hôm nay hãy nghĩ về học hỏi.",
+        "do0": "Tìm hiểu một câu hỏi",
+        "do1": "Hỏi người tin cậy",
+        "avoid": "Tránh quá tải thông tin"
+      },
+      "1": {
+        "headline": "Bắt đầu với học hỏi",
+        "theme": "Tìm nhịp phù hợp trong học hỏi.",
+        "do0": "Hỏi người tin cậy",
+        "do1": "Tìm hiểu một câu hỏi",
+        "avoid": "Tránh quá tải thông tin"
+      },
+      "2": {
+        "headline": "Dành không gian cho học hỏi",
+        "theme": "Chậm lại và quan sát học hỏi.",
+        "do0": "Hôm nay hãy nghĩ về học hỏi.",
+        "do1": "Tìm nhịp phù hợp trong học hỏi.",
+        "avoid": "Tránh quá tải thông tin"
+      }
+    }
+  }
+}

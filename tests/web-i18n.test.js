@@ -14,7 +14,7 @@ function keys(value,prefix=""){
 
 test("i18n provides matching translation keys for all published UI locales",()=>{
  const eagerNamespaces=["common","home","settings","teacher","friends","story","fortune"];
- const routeNamespaces=["games","mate","lesson","voice","magic"];
+ const routeNamespaces=["games","mate","lesson","voice","magic","fortuneReport","fortuneDaily"];
  for(const ns of [...eagerNamespaces,...routeNamespaces]){
   const zh=load("zh-TW",ns),en=load("en",ns);
   assert.deepEqual(keys(zh),keys(en),ns+" translation keys must match");
@@ -221,7 +221,7 @@ test("route-scoped catalogs load with their route instead of the entry bundle",(
  const app=read("web-spa/src/App.tsx");
  assert.match(index,/react:\{useSuspense:false,nsMode:"fallback"\}/,"multi-namespace useTranslation must fall back across namespaces");
  assert.doesNotMatch(index,/import \w+ from "\.\/locales\/[^"]+\/(games|mate|lesson|voice|magic)\.json"/);
- assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice,magic,fortuneReport\}\.json"/);
+ assert.match(index,/import\.meta\.glob\("\.\/locales\/\*\/\{games,mate,lesson,voice,magic,fortuneReport,fortuneDaily\}\.json"/);
  // Magic is a route namespace, not an eager entry dependency.
  assert.doesNotMatch(index,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);
  assert.doesNotMatch(app,/import\s+\w+\s+from\s+["'][^"']*\/magic\.json["']/);

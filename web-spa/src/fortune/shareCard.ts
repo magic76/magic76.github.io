@@ -26,3 +26,45 @@ export async function shareFortuneReading(reading:FortuneReading){
  if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:"Crew Fortune",text:reading.summary,files:[file]});return}
  const url=URL.createObjectURL(file);const a=document.createElement("a");a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
+
+/** Public daily share payload accepts only the already-redacted DailyCard. */
+export async function buildDailyShareFile(card:import("./dailyCard").DailyCard):Promise<File>{
+ const canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;
+ const ctx=canvas.getContext("2d");
+ if(!ctx)throw new Error("Canvas is unavailable");
+ const gradient=ctx.createLinearGradient(0,0,1080,1350);
+ gradient.addColorStop(0,"#fff9f0");gradient.addColorStop(1,"#efebfc");
+ ctx.fillStyle=gradient;ctx.fillRect(0,0,1080,1350);
+ ctx.fillStyle="#23202b";ctx.font="bold 44px sans-serif";ctx.fillText("Crew Fortune",78,118);
+ ctx.font="28px sans-serif";ctx.fillStyle="#746d80";
+ ctx.fillText(card.date+"  ·  "+(card.kind==="bazi"?"BaZi":"Numerology"),78,177);
+ ctx.fillStyle="#24212d";ctx.font="bold 62px sans-serif";
+ let y=wrap(ctx,card.headline,78,299,925,82,3)+24;
+ ctx.font="30px sans-serif";ctx.fillStyle="#524e5b";
+ y=wrap(ctx,card.theme,78,y,920,45,4)+28;
+ ctx.fillStyle="#35303e";ctx.font="bold 31px sans-serif";
+ ctx.fillText("DO",78,y);y+=49;ctx.font="29px sans-serif";
+ for(const suggestion of card.do){y=wrap(ctx,"• "+suggestion,78,y,924,45,2)+12}
+ y+=20;ctx.font="bold 31px sans-serif";ctx.fillText("NOTICE",78,y);y+=46;
+ ctx.font="29px sans-serif";y=wrap(ctx,card.avoid,78,y,925,45,3)+28;
+ ctx.beginPath();ctx.arc(103,y-16,23,0,Math.PI*2);ctx.fillStyle=card.luckyColor.hex;ctx.fill();
+ ctx.strokeStyle="#85818b";ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle="#35303e";ctx.font="27px sans-serif";
+ ctx.fillText(card.luckyColor.name+" · "+card.luckyColor.element,146,y-7);y+=48;
+ ctx.font="24px sans-serif";ctx.fillStyle="#6c6573";
+ wrap(ctx,card.basis[0]||"",78,y,925,35,2);
+ ctx.fillStyle="#746d80";ctx.font="bold 27px sans-serif";ctx.fillText("3sssi.com",78,1280);
+ return new Promise<File>((resolve,reject)=>canvas.toBlob(blob=>blob?
+  resolve(new File([blob],"crew-fortune-daily.png",{type:"image/png"})):
+  reject(new Error("Could not create daily share card")),"image/png"));
+}
+export async function shareDailyCard(card:import("./dailyCard").DailyCard):Promise<void>{
+ const file=await buildDailyShareFile(card);
+ if(navigator.share&&navigator.canShare?.({files:[file]})){
+  try{await navigator.share({title:"Crew Fortune",text:card.headline,files:[file]});return;}
+  catch(error){if((error as Error)?.name==="AbortError")return;}
+ }
+ const url=URL.createObjectURL(file),link=document.createElement("a");
+ link.href=url;link.download=file.name;link.click();
+ window.setTimeout(()=>URL.revokeObjectURL(url),1000);
+}

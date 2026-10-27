@@ -1,0 +1,275 @@
+{
+  "today": "Hari ini",
+  "emptyTitle": "Kartu harian dimulai dari tanggal lahir",
+  "emptyDescription": "Refleksi singkat berdasarkan aturan tradisional.",
+  "addBirthday": "Isi tanggal lahir",
+  "streak": "{{count}} hari berturut-turut",
+  "selectKind": "Pilih metode",
+  "numerology": "Numerologi",
+  "bazi": "BaZi",
+  "timeRequired": "BaZi memerlukan jam lahir.",
+  "doLabel": "Cobalah",
+  "avoidLabel": "Perhatikan",
+  "luckyColor": "Warna keberuntungan",
+  "basisLabel": "Dasar perhitungan",
+  "almanacLabel": "Almanak",
+  "disclaimer": "Kartu harian mengikuti aturan tradisional untuk refleksi diri.",
+  "share": "Bagikan",
+  "fullReading": "Baca tafsir lengkap",
+  "viewDaily": "Lihat kartu hari ini",
+  "loadFailed": "Perhitungan belum tersedia. Coba lagi.",
+  "ai": {
+    "generate": "Tulis paragraf dengan Gemini",
+    "loading": "Membuat…",
+    "used": "Sudah dipakai hari ini",
+    "quota": "Kuota Gemini habis.",
+    "error": "Gagal membuat. Coba lagi."
+  },
+  "colors": {
+    "wood": "Hijau",
+    "fire": "Merah",
+    "earth": "Kuning",
+    "metal": "Putih perak",
+    "water": "Biru"
+  },
+  "elements": {
+    "木": "Kayu",
+    "火": "Api",
+    "土": "Tanah",
+    "金": "Logam",
+    "水": "Air"
+  },
+  "relations": {
+    "六合": "harmoni",
+    "六沖": "benturan",
+    "六害": "gesekan",
+    "none": "tanpa hubungan utama"
+  },
+  "gods": {
+    "比肩": "Rekan",
+    "劫財": "Persaingan",
+    "食神": "Ekspresi",
+    "傷官": "Kreativitas",
+    "偏財": "Sumber daya fleksibel",
+    "正財": "Sumber daya stabil",
+    "七殺": "Tantangan",
+    "正官": "Tanggung jawab",
+    "偏印": "Riset",
+    "正印": "Belajar"
+  },
+  "basis": {
+    "numeric": "Tahun pribadi {{year}} · bulan {{month}} · hari {{day}}",
+    "tarot": "Kartu hari ini: {{card}}",
+    "baziStem": "Pilar harian {{day}} → {{god}} untuk master {{master}}",
+    "baziBranch": "Cabang harian {{daily}} dan hari lahir {{natal}}: {{relation}}",
+    "baziYearBranch": "Cabang harian {{daily}} dan tahun lahir {{natal}}: {{relation}}"
+  },
+  "numerologyHeadline": "Hari pribadi {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "Si Bodoh",
+      "keywords": "awal baru"
+    },
+    "1": {
+      "name": "Pesulap",
+      "keywords": "aksi"
+    },
+    "2": {
+      "name": "Pendeta Wanita",
+      "keywords": "intuisi"
+    },
+    "3": {
+      "name": "Permaisuri",
+      "keywords": "kepedulian"
+    },
+    "4": {
+      "name": "Kaisar",
+      "keywords": "struktur"
+    },
+    "5": {
+      "name": "Hierofant",
+      "keywords": "belajar"
+    },
+    "6": {
+      "name": "Para Kekasih",
+      "keywords": "pilihan"
+    },
+    "7": {
+      "name": "Kereta Perang",
+      "keywords": "arah"
+    },
+    "8": {
+      "name": "Kekuatan",
+      "keywords": "keberanian"
+    },
+    "9": {
+      "name": "Pertapa",
+      "keywords": "refleksi"
+    },
+    "10": {
+      "name": "Roda Keberuntungan",
+      "keywords": "perubahan"
+    },
+    "11": {
+      "name": "Keadilan",
+      "keywords": "keseimbangan"
+    },
+    "12": {
+      "name": "Orang Tergantung",
+      "keywords": "sudut pandang"
+    },
+    "13": {
+      "name": "Kematian",
+      "keywords": "transformasi"
+    },
+    "14": {
+      "name": "Kesederhanaan",
+      "keywords": "harmoni"
+    },
+    "15": {
+      "name": "Iblis",
+      "keywords": "batasan"
+    },
+    "16": {
+      "name": "Menara",
+      "keywords": "membangun ulang"
+    },
+    "17": {
+      "name": "Bintang",
+      "keywords": "harapan"
+    },
+    "18": {
+      "name": "Bulan",
+      "keywords": "imajinasi"
+    },
+    "19": {
+      "name": "Matahari",
+      "keywords": "kejelasan"
+    },
+    "20": {
+      "name": "Penghakiman",
+      "keywords": "meninjau ulang"
+    },
+    "21": {
+      "name": "Dunia",
+      "keywords": "integrasi"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Perhatikan ritme kemandirian",
+        "theme": "Hari ini renungkan kemandirian.",
+        "do0": "Pilih satu tujuan kecil",
+        "do1": "Jelaskan batasan",
+        "avoid": "Hindari perbandingan"
+      },
+      "1": {
+        "headline": "Mulailah dengan kemandirian",
+        "theme": "Temukan ritme pribadi lewat kemandirian.",
+        "do0": "Jelaskan batasan",
+        "do1": "Pilih satu tujuan kecil",
+        "avoid": "Hindari perbandingan"
+      },
+      "2": {
+        "headline": "Beri ruang untuk kemandirian",
+        "theme": "Perlambat langkah dan amati kemandirian.",
+        "do0": "Hari ini renungkan kemandirian.",
+        "do1": "Temukan ritme pribadi lewat kemandirian.",
+        "avoid": "Hindari perbandingan"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Perhatikan ritme ekspresi",
+        "theme": "Hari ini renungkan ekspresi.",
+        "do0": "Jelaskan satu ide",
+        "do1": "Luangkan waktu berkarya",
+        "avoid": "Hindari kesimpulan cepat"
+      },
+      "1": {
+        "headline": "Mulailah dengan ekspresi",
+        "theme": "Temukan ritme pribadi lewat ekspresi.",
+        "do0": "Luangkan waktu berkarya",
+        "do1": "Jelaskan satu ide",
+        "avoid": "Hindari kesimpulan cepat"
+      },
+      "2": {
+        "headline": "Beri ruang untuk ekspresi",
+        "theme": "Perlambat langkah dan amati ekspresi.",
+        "do0": "Hari ini renungkan ekspresi.",
+        "do1": "Temukan ritme pribadi lewat ekspresi.",
+        "avoid": "Hindari kesimpulan cepat"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Perhatikan ritme sumber daya",
+        "theme": "Hari ini renungkan sumber daya.",
+        "do0": "Tinjau sumber daya",
+        "do1": "Rapikan satu tugas",
+        "avoid": "Hindari terlalu banyak janji"
+      },
+      "1": {
+        "headline": "Mulailah dengan sumber daya",
+        "theme": "Temukan ritme pribadi lewat sumber daya.",
+        "do0": "Rapikan satu tugas",
+        "do1": "Tinjau sumber daya",
+        "avoid": "Hindari terlalu banyak janji"
+      },
+      "2": {
+        "headline": "Beri ruang untuk sumber daya",
+        "theme": "Perlambat langkah dan amati sumber daya.",
+        "do0": "Hari ini renungkan sumber daya.",
+        "do1": "Temukan ritme pribadi lewat sumber daya.",
+        "avoid": "Hindari terlalu banyak janji"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Perhatikan ritme tanggung jawab",
+        "theme": "Hari ini renungkan tanggung jawab.",
+        "do0": "Susun prioritas",
+        "do1": "Sampaikan harapan dengan tenang",
+        "avoid": "Hindari terlalu keras pada diri"
+      },
+      "1": {
+        "headline": "Mulailah dengan tanggung jawab",
+        "theme": "Temukan ritme pribadi lewat tanggung jawab.",
+        "do0": "Sampaikan harapan dengan tenang",
+        "do1": "Susun prioritas",
+        "avoid": "Hindari terlalu keras pada diri"
+      },
+      "2": {
+        "headline": "Beri ruang untuk tanggung jawab",
+        "theme": "Perlambat langkah dan amati tanggung jawab.",
+        "do0": "Hari ini renungkan tanggung jawab.",
+        "do1": "Temukan ritme pribadi lewat tanggung jawab.",
+        "avoid": "Hindari terlalu keras pada diri"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Perhatikan ritme belajar",
+        "theme": "Hari ini renungkan belajar.",
+        "do0": "Telusuri satu pertanyaan",
+        "do1": "Bertanya kepada orang tepercaya",
+        "avoid": "Hindari banjir informasi"
+      },
+      "1": {
+        "headline": "Mulailah dengan belajar",
+        "theme": "Temukan ritme pribadi lewat belajar.",
+        "do0": "Bertanya kepada orang tepercaya",
+        "do1": "Telusuri satu pertanyaan",
+        "avoid": "Hindari banjir informasi"
+      },
+      "2": {
+        "headline": "Beri ruang untuk belajar",
+        "theme": "Perlambat langkah dan amati belajar.",
+        "do0": "Hari ini renungkan belajar.",
+        "do1": "Temukan ritme pribadi lewat belajar.",
+        "avoid": "Hindari banjir informasi"
+      }
+    }
+  }
+}

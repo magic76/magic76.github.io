@@ -1,0 +1,275 @@
+{
+  "today": "Hoy",
+  "emptyTitle": "Tu tarjeta diaria comienza con tu fecha de nacimiento",
+  "emptyDescription": "Una breve reflexión basada en reglas tradicionales.",
+  "addBirthday": "Añadir fecha de nacimiento",
+  "streak": "{{count}} días seguidos",
+  "selectKind": "Método",
+  "numerology": "Numerología",
+  "bazi": "BaZi",
+  "timeRequired": "BaZi requiere la hora de nacimiento.",
+  "doLabel": "Puedes probar",
+  "avoidLabel": "Ten en cuenta",
+  "luckyColor": "Color de la suerte",
+  "basisLabel": "Base del cálculo",
+  "almanacLabel": "Almanaque",
+  "disclaimer": "Las tarjetas diarias siguen reglas tradicionales y son para reflexionar.",
+  "share": "Compartir",
+  "fullReading": "Leer interpretación completa",
+  "viewDaily": "Ver tarjeta de hoy",
+  "loadFailed": "No se pudo calcular. Inténtalo de nuevo.",
+  "ai": {
+    "generate": "Escribir un párrafo con Gemini",
+    "loading": "Generando…",
+    "used": "Ya usado hoy",
+    "quota": "Se agotó la cuota de Gemini.",
+    "error": "No se pudo generar. Reinténtalo."
+  },
+  "colors": {
+    "wood": "Verde",
+    "fire": "Rojo",
+    "earth": "Amarillo",
+    "metal": "Blanco plata",
+    "water": "Azul"
+  },
+  "elements": {
+    "木": "Madera",
+    "火": "Fuego",
+    "土": "Tierra",
+    "金": "Metal",
+    "水": "Agua"
+  },
+  "relations": {
+    "六合": "armonía",
+    "六沖": "choque",
+    "六害": "fricción",
+    "none": "sin interacción principal"
+  },
+  "gods": {
+    "比肩": "Compañeros",
+    "劫財": "Competencia",
+    "食神": "Expresión",
+    "傷官": "Creatividad",
+    "偏財": "Recursos flexibles",
+    "正財": "Recursos estables",
+    "七殺": "Exigencia",
+    "正官": "Responsabilidad",
+    "偏印": "Investigación",
+    "正印": "Aprendizaje"
+  },
+  "basis": {
+    "numeric": "Año personal {{year}} · mes {{month}} · día {{day}}",
+    "tarot": "Carta de hoy: {{card}}",
+    "baziStem": "Pilar diario {{day}} → {{god}} respecto al maestro {{master}}",
+    "baziBranch": "Rama diaria {{daily}} y rama natal del día {{natal}}: {{relation}}",
+    "baziYearBranch": "Rama diaria {{daily}} y rama natal del año {{natal}}: {{relation}}"
+  },
+  "numerologyHeadline": "Día personal {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "El Loco",
+      "keywords": "inicios"
+    },
+    "1": {
+      "name": "El Mago",
+      "keywords": "acción"
+    },
+    "2": {
+      "name": "La Sacerdotisa",
+      "keywords": "intuición"
+    },
+    "3": {
+      "name": "La Emperatriz",
+      "keywords": "cuidado"
+    },
+    "4": {
+      "name": "El Emperador",
+      "keywords": "orden"
+    },
+    "5": {
+      "name": "El Hierofante",
+      "keywords": "aprendizaje"
+    },
+    "6": {
+      "name": "Los Enamorados",
+      "keywords": "elecciones"
+    },
+    "7": {
+      "name": "El Carro",
+      "keywords": "rumbo"
+    },
+    "8": {
+      "name": "La Fuerza",
+      "keywords": "valor"
+    },
+    "9": {
+      "name": "El Ermitaño",
+      "keywords": "reflexión"
+    },
+    "10": {
+      "name": "La Rueda de la Fortuna",
+      "keywords": "cambio"
+    },
+    "11": {
+      "name": "La Justicia",
+      "keywords": "equilibrio"
+    },
+    "12": {
+      "name": "El Colgado",
+      "keywords": "otra perspectiva"
+    },
+    "13": {
+      "name": "La Muerte",
+      "keywords": "transformación"
+    },
+    "14": {
+      "name": "La Templanza",
+      "keywords": "armonía"
+    },
+    "15": {
+      "name": "El Diablo",
+      "keywords": "límites"
+    },
+    "16": {
+      "name": "La Torre",
+      "keywords": "reconstrucción"
+    },
+    "17": {
+      "name": "La Estrella",
+      "keywords": "esperanza"
+    },
+    "18": {
+      "name": "La Luna",
+      "keywords": "imaginación"
+    },
+    "19": {
+      "name": "El Sol",
+      "keywords": "claridad"
+    },
+    "20": {
+      "name": "El Juicio",
+      "keywords": "revisión"
+    },
+    "21": {
+      "name": "El Mundo",
+      "keywords": "integración"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Observa el ritmo de autonomía",
+        "theme": "Hoy puedes reflexionar sobre autonomía.",
+        "do0": "Elige una meta pequeña",
+        "do1": "Aclara tus límites",
+        "avoid": "Evita compararte"
+      },
+      "1": {
+        "headline": "Empieza con autonomía",
+        "theme": "Busca tu propio ritmo en autonomía.",
+        "do0": "Aclara tus límites",
+        "do1": "Elige una meta pequeña",
+        "avoid": "Evita compararte"
+      },
+      "2": {
+        "headline": "Haz espacio para autonomía",
+        "theme": "Baja el ritmo y observa autonomía.",
+        "do0": "Hoy puedes reflexionar sobre autonomía.",
+        "do1": "Busca tu propio ritmo en autonomía.",
+        "avoid": "Evita compararte"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Observa el ritmo de expresión",
+        "theme": "Hoy puedes reflexionar sobre expresión.",
+        "do0": "Explica una idea",
+        "do1": "Dedica tiempo a crear",
+        "avoid": "Evita apresurarte"
+      },
+      "1": {
+        "headline": "Empieza con expresión",
+        "theme": "Busca tu propio ritmo en expresión.",
+        "do0": "Dedica tiempo a crear",
+        "do1": "Explica una idea",
+        "avoid": "Evita apresurarte"
+      },
+      "2": {
+        "headline": "Haz espacio para expresión",
+        "theme": "Baja el ritmo y observa expresión.",
+        "do0": "Hoy puedes reflexionar sobre expresión.",
+        "do1": "Busca tu propio ritmo en expresión.",
+        "avoid": "Evita apresurarte"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Observa el ritmo de recursos",
+        "theme": "Hoy puedes reflexionar sobre recursos.",
+        "do0": "Revisa lo que tienes",
+        "do1": "Organiza una tarea",
+        "avoid": "Evita abarcar demasiado"
+      },
+      "1": {
+        "headline": "Empieza con recursos",
+        "theme": "Busca tu propio ritmo en recursos.",
+        "do0": "Organiza una tarea",
+        "do1": "Revisa lo que tienes",
+        "avoid": "Evita abarcar demasiado"
+      },
+      "2": {
+        "headline": "Haz espacio para recursos",
+        "theme": "Baja el ritmo y observa recursos.",
+        "do0": "Hoy puedes reflexionar sobre recursos.",
+        "do1": "Busca tu propio ritmo en recursos.",
+        "avoid": "Evita abarcar demasiado"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Observa el ritmo de responsabilidad",
+        "theme": "Hoy puedes reflexionar sobre responsabilidad.",
+        "do0": "Ordena tus prioridades",
+        "do1": "Comunica con calma",
+        "avoid": "Evita juzgarte con dureza"
+      },
+      "1": {
+        "headline": "Empieza con responsabilidad",
+        "theme": "Busca tu propio ritmo en responsabilidad.",
+        "do0": "Comunica con calma",
+        "do1": "Ordena tus prioridades",
+        "avoid": "Evita juzgarte con dureza"
+      },
+      "2": {
+        "headline": "Haz espacio para responsabilidad",
+        "theme": "Baja el ritmo y observa responsabilidad.",
+        "do0": "Hoy puedes reflexionar sobre responsabilidad.",
+        "do1": "Busca tu propio ritmo en responsabilidad.",
+        "avoid": "Evita juzgarte con dureza"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Observa el ritmo de aprendizaje",
+        "theme": "Hoy puedes reflexionar sobre aprendizaje.",
+        "do0": "Explora una pregunta",
+        "do1": "Pide orientación",
+        "avoid": "Evita demasiada información"
+      },
+      "1": {
+        "headline": "Empieza con aprendizaje",
+        "theme": "Busca tu propio ritmo en aprendizaje.",
+        "do0": "Pide orientación",
+        "do1": "Explora una pregunta",
+        "avoid": "Evita demasiada información"
+      },
+      "2": {
+        "headline": "Haz espacio para aprendizaje",
+        "theme": "Baja el ritmo y observa aprendizaje.",
+        "do0": "Hoy puedes reflexionar sobre aprendizaje.",
+        "do1": "Busca tu propio ritmo en aprendizaje.",
+        "avoid": "Evita demasiada información"
+      }
+    }
+  }
+}

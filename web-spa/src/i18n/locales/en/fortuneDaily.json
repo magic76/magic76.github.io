@@ -1,0 +1,275 @@
+{
+  "today": "Today",
+  "emptyTitle": "Your daily card starts with a birthday",
+  "emptyDescription": "A brief reflection using traditional rules, no AI required.",
+  "addBirthday": "Add birth date",
+  "streak": "{{count}} consecutive days",
+  "selectKind": "Card method",
+  "numerology": "Numerology",
+  "bazi": "BaZi",
+  "timeRequired": "BaZi needs a birth time; numerology is available now.",
+  "doLabel": "Try",
+  "avoidLabel": "Be mindful of",
+  "luckyColor": "Lucky color",
+  "basisLabel": "Calculation basis",
+  "almanacLabel": "Almanac",
+  "disclaimer": "Daily cards use traditional rules for personal reflection only.",
+  "share": "Share card",
+  "fullReading": "Read full interpretation",
+  "viewDaily": "See today's card",
+  "loadFailed": "Calculation is temporarily unavailable. Please try again.",
+  "ai": {
+    "generate": "Write a paragraph with Gemini",
+    "loading": "Generating…",
+    "used": "Used today",
+    "quota": "Gemini quota reached. Please try later.",
+    "error": "Unable to generate. Please retry."
+  },
+  "colors": {
+    "wood": "Green",
+    "fire": "Red",
+    "earth": "Yellow",
+    "metal": "Silver white",
+    "water": "Blue"
+  },
+  "elements": {
+    "木": "Wood",
+    "火": "Fire",
+    "土": "Earth",
+    "金": "Metal",
+    "水": "Water"
+  },
+  "relations": {
+    "六合": "Six Harmony",
+    "六沖": "Six Clash",
+    "六害": "Six Harm",
+    "none": "no major interaction"
+  },
+  "gods": {
+    "比肩": "Friend",
+    "劫財": "Rob Wealth",
+    "食神": "Eating God",
+    "傷官": "Hurting Officer",
+    "偏財": "Indirect Wealth",
+    "正財": "Direct Wealth",
+    "七殺": "Seven Killings",
+    "正官": "Direct Officer",
+    "偏印": "Indirect Resource",
+    "正印": "Direct Resource"
+  },
+  "basis": {
+    "numeric": "Personal year {{year}} · month {{month}} · day {{day}}",
+    "tarot": "Today's card: {{card}}",
+    "baziStem": "Daily pillar {{day}} → {{god}} relative to day master {{master}}",
+    "baziBranch": "Daily branch {{daily}} vs natal day branch {{natal}}: {{relation}}",
+    "baziYearBranch": "Daily branch {{daily}} vs natal year branch {{natal}}: {{relation}}"
+  },
+  "numerologyHeadline": "Personal day {{day}} · {{card}}",
+  "cards": {
+    "0": {
+      "name": "The Fool",
+      "keywords": "new beginnings"
+    },
+    "1": {
+      "name": "The Magician",
+      "keywords": "initiative"
+    },
+    "2": {
+      "name": "The High Priestess",
+      "keywords": "intuition"
+    },
+    "3": {
+      "name": "The Empress",
+      "keywords": "care"
+    },
+    "4": {
+      "name": "The Emperor",
+      "keywords": "structure"
+    },
+    "5": {
+      "name": "The Hierophant",
+      "keywords": "learning"
+    },
+    "6": {
+      "name": "The Lovers",
+      "keywords": "choices"
+    },
+    "7": {
+      "name": "The Chariot",
+      "keywords": "direction"
+    },
+    "8": {
+      "name": "Strength",
+      "keywords": "courage"
+    },
+    "9": {
+      "name": "The Hermit",
+      "keywords": "reflection"
+    },
+    "10": {
+      "name": "Wheel of Fortune",
+      "keywords": "change"
+    },
+    "11": {
+      "name": "Justice",
+      "keywords": "balance"
+    },
+    "12": {
+      "name": "The Hanged Man",
+      "keywords": "new perspectives"
+    },
+    "13": {
+      "name": "Death",
+      "keywords": "transformation"
+    },
+    "14": {
+      "name": "Temperance",
+      "keywords": "harmony"
+    },
+    "15": {
+      "name": "The Devil",
+      "keywords": "boundaries"
+    },
+    "16": {
+      "name": "The Tower",
+      "keywords": "rebuilding"
+    },
+    "17": {
+      "name": "The Star",
+      "keywords": "hope"
+    },
+    "18": {
+      "name": "The Moon",
+      "keywords": "imagination"
+    },
+    "19": {
+      "name": "The Sun",
+      "keywords": "clarity"
+    },
+    "20": {
+      "name": "Judgement",
+      "keywords": "review"
+    },
+    "21": {
+      "name": "The World",
+      "keywords": "integration"
+    }
+  },
+  "templates": {
+    "peers": {
+      "0": {
+        "headline": "Notice the rhythm of independence",
+        "theme": "Today, consider how independence fits your needs.",
+        "do0": "Choose one small goal",
+        "do1": "Clarify a boundary with a peer",
+        "avoid": "Avoid unhelpful comparison"
+      },
+      "1": {
+        "headline": "Begin with independence",
+        "theme": "You could find a comfortable pace through independence.",
+        "do0": "Clarify a boundary with a peer",
+        "do1": "Choose one small goal",
+        "avoid": "Avoid unhelpful comparison"
+      },
+      "2": {
+        "headline": "Make room for independence",
+        "theme": "Slow down and notice what independence reveals.",
+        "do0": "Today, consider how independence fits your needs.",
+        "do1": "You could find a comfortable pace through independence.",
+        "avoid": "Avoid unhelpful comparison"
+      }
+    },
+    "expression": {
+      "0": {
+        "headline": "Notice the rhythm of expression",
+        "theme": "Today, consider how expression fits your needs.",
+        "do0": "Explain one idea clearly",
+        "do1": "Set aside time to create",
+        "avoid": "Avoid rushing to conclusions"
+      },
+      "1": {
+        "headline": "Begin with expression",
+        "theme": "You could find a comfortable pace through expression.",
+        "do0": "Set aside time to create",
+        "do1": "Explain one idea clearly",
+        "avoid": "Avoid rushing to conclusions"
+      },
+      "2": {
+        "headline": "Make room for expression",
+        "theme": "Slow down and notice what expression reveals.",
+        "do0": "Today, consider how expression fits your needs.",
+        "do1": "You could find a comfortable pace through expression.",
+        "avoid": "Avoid rushing to conclusions"
+      }
+    },
+    "resources": {
+      "0": {
+        "headline": "Notice the rhythm of resources",
+        "theme": "Today, consider how resources fits your needs.",
+        "do0": "Review your available resources",
+        "do1": "Organize one pending task",
+        "avoid": "Avoid overcommitting"
+      },
+      "1": {
+        "headline": "Begin with resources",
+        "theme": "You could find a comfortable pace through resources.",
+        "do0": "Organize one pending task",
+        "do1": "Review your available resources",
+        "avoid": "Avoid overcommitting"
+      },
+      "2": {
+        "headline": "Make room for resources",
+        "theme": "Slow down and notice what resources reveals.",
+        "do0": "Today, consider how resources fits your needs.",
+        "do1": "You could find a comfortable pace through resources.",
+        "avoid": "Avoid overcommitting"
+      }
+    },
+    "responsibility": {
+      "0": {
+        "headline": "Notice the rhythm of responsibility",
+        "theme": "Today, consider how responsibility fits your needs.",
+        "do0": "Clarify your priorities",
+        "do1": "Communicate expectations gently",
+        "avoid": "Avoid harsh self-judgment"
+      },
+      "1": {
+        "headline": "Begin with responsibility",
+        "theme": "You could find a comfortable pace through responsibility.",
+        "do0": "Communicate expectations gently",
+        "do1": "Clarify your priorities",
+        "avoid": "Avoid harsh self-judgment"
+      },
+      "2": {
+        "headline": "Make room for responsibility",
+        "theme": "Slow down and notice what responsibility reveals.",
+        "do0": "Today, consider how responsibility fits your needs.",
+        "do1": "You could find a comfortable pace through responsibility.",
+        "avoid": "Avoid harsh self-judgment"
+      }
+    },
+    "learning": {
+      "0": {
+        "headline": "Notice the rhythm of learning",
+        "theme": "Today, consider how learning fits your needs.",
+        "do0": "Explore a question",
+        "do1": "Ask someone you trust",
+        "avoid": "Avoid information overload"
+      },
+      "1": {
+        "headline": "Begin with learning",
+        "theme": "You could find a comfortable pace through learning.",
+        "do0": "Ask someone you trust",
+        "do1": "Explore a question",
+        "avoid": "Avoid information overload"
+      },
+      "2": {
+        "headline": "Make room for learning",
+        "theme": "Slow down and notice what learning reveals.",
+        "do0": "Today, consider how learning fits your needs.",
+        "do1": "You could find a comfortable pace through learning.",
+        "avoid": "Avoid information overload"
+      }
+    }
+  }
+}
