@@ -32,7 +32,7 @@ export function computeCurrentPhase(mode:FortuneMode,result:any,birthDate:string
   const timing=Array.isArray(r.pinnacleTiming)?r.pinnacleTiming:[];
   const numbers=Array.isArray(r.pinnacles)?r.pinnacles:[];
   const limits=timing.map((x:any)=>{const str=String(x).replace(/[–—]/g,"-");const m=str.match(/^(\d+)\s*-\s*(\d+)$/);const plus=str.match(/^(\d+)\s*\+$/);return m?{from:+m[1],to:+m[2]}:plus?{from:+plus[1],to:Infinity}:{from:0,to:-1}});
-  const index=limits.findIndex(x=>age>=x.from&&age<=x.to);
+  const index=limits.findIndex((x:{from:number;to:number})=>age>=x.from&&age<=x.to);
   const active=index>=0?index:0;
   const current=value(numbers[active]),next=value(numbers[active+1]);
   const end=limits[active]?.to;
