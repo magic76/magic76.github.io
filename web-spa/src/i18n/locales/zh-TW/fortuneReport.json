@@ -90,7 +90,8 @@
     "dashaSummary": "{{lord}} 大運期：{{start}} 至 {{end}}。",
     "dashaEvidence": "Vimshottari 主週期：{{lord}}",
     "baziEvidence": "流年 {{pillar}} · 十神 {{god}} · 大運 {{luck}}",
-    "transitionEvidence": "{{year}} 年開始 {{name}} 週期。"
+    "transitionEvidence": "{{year}} 年開始 {{name}} 週期。",
+    "dashaTransitionSummary": "{{lord}} 的 Mahadasha 主週期於 {{date}} 開始。"
   },
   "factLabels": {
     "pillars": "四柱",
@@ -136,7 +137,8 @@
     "antardasha": "次週期",
     "periodEnd": "週期結束",
     "noData": "尚無計算資料",
-    "stage": "階段 {{index}}（{{range}} 歲）：{{number}}"
+    "stage": "階段 {{index}}（{{range}} 歲）：{{number}}",
+    "period": "週期"
   },
   "elements": {
     "木": "木",
@@ -183,7 +185,8 @@
       "中和": "中和",
       "身弱": "身弱",
       "身強": "身強",
-      "平衡": "平衡"
+      "平衡": "平衡",
+      "偏旺": "偏旺"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "結束日期",
     "viewEvidence": "查看年份依據",
     "baziSummary": "以「{{god}}」觀察這一年的主題，放在「{{luck}}」大運中理解。"
+  },
+  "planetFocus": {
+    "Sun": "太陽（Sun）：自我認同與活力",
+    "Moon": "月亮（Moon）：感受、習慣與照顧",
+    "Mars": "火星（Mars）：行動、勇氣與推進",
+    "Mercury": "水星（Mercury）：思考、溝通與學習",
+    "Jupiter": "木星（Jupiter）：成長、機會與理解",
+    "Venus": "金星（Venus）：價值、人際與美感",
+    "Saturn": "土星（Saturn）：紀律、責任與耐心",
+    "Rahu": "北交點（Rahu）：新方向與渴望",
+    "Ketu": "南交點（Ketu）：放下、內省與簡化"
   }
 }

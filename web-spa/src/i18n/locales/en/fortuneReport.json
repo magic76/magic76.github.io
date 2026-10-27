@@ -90,7 +90,8 @@
     "dashaSummary": "The {{lord}} main period runs from {{start}} to {{end}}.",
     "dashaEvidence": "Vimshottari main period: {{lord}}",
     "baziEvidence": "Annual pillar {{pillar}} · Ten-God {{god}} · Cycle {{luck}}",
-    "transitionEvidence": "Next cycle {{name}} starts in {{year}}."
+    "transitionEvidence": "Next cycle {{name}} starts in {{year}}.",
+    "dashaTransitionSummary": "The {{lord}} Mahadasha begins on {{date}}. Consider how this new long-term cycle may shape your priorities."
   },
   "factLabels": {
     "pillars": "Four pillars",
@@ -136,7 +137,8 @@
     "antardasha": "Sub-period",
     "periodEnd": "Period ends",
     "noData": "Not calculated",
-    "stage": "Phase {{index}} (ages {{range}}): {{number}}"
+    "stage": "Phase {{index}} (ages {{range}}): {{number}}",
+    "period": "Period"
   },
   "elements": {
     "木": "Wood",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "stronger than average"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "End date",
     "viewEvidence": "View year evidence",
     "baziSummary": "{{god}} is active within the {{luck}} cycle."
+  },
+  "planetFocus": {
+    "Sun": "Sun: identity, vitality and confidence",
+    "Moon": "Moon: feelings, habits and care",
+    "Mars": "Mars: initiative, courage and action",
+    "Mercury": "Mercury: thinking, communication and learning",
+    "Jupiter": "Jupiter: growth, opportunity and understanding",
+    "Venus": "Venus: values, relationships and creativity",
+    "Saturn": "Saturn: discipline, responsibility and patience",
+    "Rahu": "Rahu (north lunar node): new directions and desires",
+    "Ketu": "Ketu (south lunar node): letting go, reflection and simplicity"
   }
 }

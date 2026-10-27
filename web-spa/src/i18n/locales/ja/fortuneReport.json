@@ -90,7 +90,8 @@
     "dashaSummary": "{{lord}} の主周期：{{start}}〜{{end}}。",
     "dashaEvidence": "主周期の切り替え：{{lord}}",
     "baziEvidence": "流年の干支 {{pillar}} · 十神 {{god}} · 大運 {{luck}}",
-    "transitionEvidence": "{{year}} 年に {{name}} 周期が始まります。"
+    "transitionEvidence": "{{year}} 年に {{name}} 周期が始まります。",
+    "dashaTransitionSummary": "{{lord}} のマハーダシャー主周期は {{date}} に始まります。"
   },
   "factLabels": {
     "pillars": "四柱",
@@ -136,7 +137,8 @@
     "antardasha": "副周期",
     "periodEnd": "Period ends",
     "noData": "計算データなし",
-    "stage": "段階 {{index}}（{{range}} 歳）：{{number}}"
+    "stage": "段階 {{index}}（{{range}} 歳）：{{number}}",
+    "period": "期間"
   },
   "elements": {
     "木": "木",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "やや旺盛"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "終了日",
     "viewEvidence": "年の根拠を見る",
     "baziSummary": "{{luck}} の大運における {{god}} のテーマ。"
+  },
+  "planetFocus": {
+    "Sun": "太陽：自己認識・活力・自信",
+    "Moon": "月：感情・習慣・ケア",
+    "Mars": "火星：行動力・勇気・推進",
+    "Mercury": "水星：思考・対話・学び",
+    "Jupiter": "木星：成長・機会・理解",
+    "Venus": "金星：価値観・人間関係・創造性",
+    "Saturn": "土星：規律・責任・忍耐",
+    "Rahu": "ラーフ（Rahu）：新しい方向性と欲求",
+    "Ketu": "ケートゥ（Ketu）：手放すこと・内省・簡素化"
   }
 }

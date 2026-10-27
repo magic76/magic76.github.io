@@ -90,7 +90,8 @@
     "dashaSummary": "Chu kỳ chính {{lord}}: {{start}} đến {{end}}.",
     "dashaEvidence": "Chu kỳ chính Vimshottari: {{lord}}",
     "baziEvidence": "Can chi năm {{pillar}} · Thập thần {{god}} · Đại vận {{luck}}",
-    "transitionEvidence": "Chu kỳ {{name}} bắt đầu vào năm {{year}}."
+    "transitionEvidence": "Chu kỳ {{name}} bắt đầu vào năm {{year}}.",
+    "dashaTransitionSummary": "Đại vận Mahadasha của {{lord}} bắt đầu vào {{date}}."
   },
   "factLabels": {
     "pillars": "Tứ trụ",
@@ -136,7 +137,8 @@
     "antardasha": "Chu kỳ phụ",
     "periodEnd": "Period ends",
     "noData": "Chưa có dữ liệu tính toán",
-    "stage": "Giai đoạn {{index}} (tuổi {{range}}): {{number}}"
+    "stage": "Giai đoạn {{index}} (tuổi {{range}}): {{number}}",
+    "period": "Giai đoạn"
   },
   "elements": {
     "木": "Mộc",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "vượng hơn trung bình"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "Ngày kết thúc",
     "viewEvidence": "Xem căn cứ theo năm",
     "baziSummary": "Chủ đề {{god}} trong đại vận {{luck}}."
+  },
+  "planetFocus": {
+    "Sun": "Mặt Trời: bản sắc, sức sống và tự tin",
+    "Moon": "Mặt Trăng: cảm xúc, thói quen và chăm sóc",
+    "Mars": "Sao Hỏa: chủ động, dũng cảm và hành động",
+    "Mercury": "Sao Thủy: tư duy, giao tiếp và học hỏi",
+    "Jupiter": "Sao Mộc: phát triển, cơ hội và thấu hiểu",
+    "Venus": "Sao Kim: giá trị, quan hệ và sáng tạo",
+    "Saturn": "Sao Thổ: kỷ luật, trách nhiệm và kiên nhẫn",
+    "Rahu": "Rahu: hướng đi mới và khát vọng",
+    "Ketu": "Ketu: buông bỏ, suy ngẫm và đơn giản"
   }
 }

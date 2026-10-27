@@ -90,7 +90,8 @@
     "dashaSummary": "Periode utama {{lord}}: {{start}} hingga {{end}}.",
     "dashaEvidence": "Periode utama Vimshottari: {{lord}}",
     "baziEvidence": "Pilar tahunan {{pillar}} · Ten-God {{god}} · Siklus {{luck}}",
-    "transitionEvidence": "Siklus {{name}} dimulai pada {{year}}."
+    "transitionEvidence": "Siklus {{name}} dimulai pada {{year}}.",
+    "dashaTransitionSummary": "Periode utama Mahadasha {{lord}} dimulai pada {{date}}."
   },
   "factLabels": {
     "pillars": "Empat pilar",
@@ -136,7 +137,8 @@
     "antardasha": "Subperiode",
     "periodEnd": "Period ends",
     "noData": "Belum dihitung",
-    "stage": "Tahap {{index}} (usia {{range}}): {{number}}"
+    "stage": "Tahap {{index}} (usia {{range}}): {{number}}",
+    "period": "Periode"
   },
   "elements": {
     "木": "Kayu",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "lebih kuat dari rata-rata"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "Tanggal selesai",
     "viewEvidence": "Lihat dasar perhitungan",
     "baziSummary": "Tema {{god}} dalam siklus {{luck}}."
+  },
+  "planetFocus": {
+    "Sun": "Matahari: identitas, vitalitas, dan kepercayaan diri",
+    "Moon": "Bulan: perasaan, kebiasaan, dan kepedulian",
+    "Mars": "Mars: inisiatif, keberanian, dan tindakan",
+    "Mercury": "Merkurius: pemikiran, komunikasi, dan pembelajaran",
+    "Jupiter": "Jupiter: pertumbuhan, peluang, dan pemahaman",
+    "Venus": "Venus: nilai, hubungan, dan kreativitas",
+    "Saturn": "Saturnus: disiplin, tanggung jawab, dan kesabaran",
+    "Rahu": "Rahu: arah baru dan keinginan",
+    "Ketu": "Ketu: melepaskan, refleksi, dan kesederhanaan"
   }
 }

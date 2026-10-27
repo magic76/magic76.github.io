@@ -90,7 +90,8 @@
     "dashaSummary": "Periodo principal {{lord}}: {{start}} a {{end}}.",
     "dashaEvidence": "Periodo principal Vimshottari: {{lord}}",
     "baziEvidence": "Pilar anual {{pillar}} · Ten-God {{god}} · Ciclo {{luck}}",
-    "transitionEvidence": "El ciclo {{name}} comienza en {{year}}."
+    "transitionEvidence": "El ciclo {{name}} comienza en {{year}}.",
+    "dashaTransitionSummary": "El periodo principal Mahadasha de {{lord}} comienza el {{date}}."
   },
   "factLabels": {
     "pillars": "Cuatro pilares",
@@ -136,7 +137,8 @@
     "antardasha": "Subperiodo",
     "periodEnd": "Period ends",
     "noData": "Sin datos calculados",
-    "stage": "Etapa {{index}} (edades {{range}}): {{number}}"
+    "stage": "Etapa {{index}} (edades {{range}}): {{number}}",
+    "period": "Periodo"
   },
   "elements": {
     "木": "Madera",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "más fuerte que la media"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "Fecha de fin",
     "viewEvidence": "Ver fundamentos del año",
     "baziSummary": "Tema {{god}} dentro del ciclo {{luck}}."
+  },
+  "planetFocus": {
+    "Sun": "Sol: identidad, vitalidad y confianza",
+    "Moon": "Luna: emociones, hábitos y cuidado",
+    "Mars": "Marte: iniciativa, valor y acción",
+    "Mercury": "Mercurio: pensamiento, comunicación y aprendizaje",
+    "Jupiter": "Júpiter: crecimiento, oportunidades y comprensión",
+    "Venus": "Venus: valores, relaciones y creatividad",
+    "Saturn": "Saturno: disciplina, responsabilidad y paciencia",
+    "Rahu": "Rahu: nuevos rumbos y deseos",
+    "Ketu": "Ketu: desapego, reflexión y sencillez"
   }
 }

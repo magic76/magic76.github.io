@@ -90,7 +90,8 @@
     "dashaSummary": "{{lord}} 주기: {{start}}~{{end}}.",
     "dashaEvidence": "Vimshottari 주기: {{lord}}",
     "baziEvidence": "연간 간지 {{pillar}} · 십신 {{god}} · 대운 {{luck}}",
-    "transitionEvidence": "{{year}}년에 {{name}} 주기가 시작됩니다."
+    "transitionEvidence": "{{year}}년에 {{name}} 주기가 시작됩니다.",
+    "dashaTransitionSummary": "{{lord}} 마하다샤 주요 주기가 {{date}}에 시작됩니다."
   },
   "factLabels": {
     "pillars": "사주",
@@ -136,7 +137,8 @@
     "antardasha": "하위 주기",
     "periodEnd": "Period ends",
     "noData": "계산된 정보 없음",
-    "stage": "단계 {{index}} ({{range}}세): {{number}}"
+    "stage": "단계 {{index}} ({{range}}세): {{number}}",
+    "period": "기간"
   },
   "elements": {
     "木": "목",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "상대적으로 강함"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "종료일",
     "viewEvidence": "연도 근거 보기",
     "baziSummary": "{{luck}} 대운의 {{god}} 주제."
+  },
+  "planetFocus": {
+    "Sun": "태양: 자아, 활력과 자신감",
+    "Moon": "달: 감정, 습관과 보살핌",
+    "Mars": "화성: 주도성, 용기와 행동",
+    "Mercury": "수성: 사고, 소통과 학습",
+    "Jupiter": "목성: 성장, 기회와 이해",
+    "Venus": "금성: 가치관, 관계와 창의성",
+    "Saturn": "토성: 규율, 책임과 인내",
+    "Rahu": "라후(Rahu): 새로운 방향과 욕구",
+    "Ketu": "케투(Ketu): 내려놓음, 성찰과 단순함"
   }
 }

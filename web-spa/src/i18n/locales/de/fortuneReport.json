@@ -90,7 +90,8 @@
     "dashaSummary": "Hauptperiode {{lord}}: {{start}} bis {{end}}.",
     "dashaEvidence": "Vimshottari-Hauptperiode: {{lord}}",
     "baziEvidence": "Jahressäule {{pillar}} · Zehn Götter {{god}} · Zyklus {{luck}}",
-    "transitionEvidence": "Der Zyklus {{name}} beginnt {{year}}."
+    "transitionEvidence": "Der Zyklus {{name}} beginnt {{year}}.",
+    "dashaTransitionSummary": "Die Mahadasha-Hauptperiode von {{lord}} beginnt am {{date}}."
   },
   "factLabels": {
     "pillars": "Vier Säulen",
@@ -136,7 +137,8 @@
     "antardasha": "Unterperiode",
     "periodEnd": "Period ends",
     "noData": "Keine Berechnung vorhanden",
-    "stage": "Phase {{index}} (Alter {{range}}): {{number}}"
+    "stage": "Phase {{index}} (Alter {{range}}): {{number}}",
+    "period": "Zeitraum"
   },
   "elements": {
     "木": "Holz",
@@ -183,7 +185,8 @@
       "中和": "balanced",
       "身弱": "weak",
       "身強": "strong",
-      "平衡": "balanced"
+      "平衡": "balanced",
+      "偏旺": "überdurchschnittlich stark"
     }
   },
   "yearUi": {
@@ -208,5 +211,16 @@
     "endDate": "Enddatum",
     "viewEvidence": "Jahresgrundlagen anzeigen",
     "baziSummary": "Thema {{god}} im Zyklus {{luck}}."
+  },
+  "planetFocus": {
+    "Sun": "Sonne: Identität, Vitalität und Selbstvertrauen",
+    "Moon": "Mond: Gefühle, Gewohnheiten und Fürsorge",
+    "Mars": "Mars: Initiative, Mut und Handeln",
+    "Mercury": "Merkur: Denken, Kommunikation und Lernen",
+    "Jupiter": "Jupiter: Wachstum, Chancen und Verständnis",
+    "Venus": "Venus: Werte, Beziehungen und Kreativität",
+    "Saturn": "Saturn: Disziplin, Verantwortung und Geduld",
+    "Rahu": "Rahu: neue Richtungen und Wünsche",
+    "Ketu": "Ketu: Loslassen, Reflexion und Einfachheit"
   }
 }
