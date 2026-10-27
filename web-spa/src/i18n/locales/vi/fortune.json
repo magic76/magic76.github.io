@@ -128,7 +128,19 @@
       "mainCycle": "Đại hạn"
     },
     "yearsLeft": "còn {{count}} năm",
-    "phaseTarot": "Đỉnh hiện tại {{current}}; đỉnh {{next}} từ {{year}}"
+    "phaseTarot": "Đỉnh hiện tại {{current}}; đỉnh {{next}} từ {{year}}",
+    "followup": {
+      "title": "Hỏi thêm",
+      "question": "Câu hỏi của bạn",
+      "placeholder": "Bạn muốn biết gì về phần luận giải này?",
+      "quotaNote": "Mỗi câu hỏi dùng một lượt yêu cầu Gemini.",
+      "send": "Gửi câu hỏi",
+      "sending": "Đang trả lời…",
+      "quota": "Đã hết hạn mức Gemini. Vui lòng thử lại sau.",
+      "key": "Khóa Gemini không hợp lệ. Mở cài đặt.",
+      "other": "Không nhận được câu trả lời. Vui lòng thử lại.",
+      "settings": "Mở cài đặt"
+    }
   },
   "profile": {
     "birthdayRequired": "Chọn ngày sinh trước khi lưu",
