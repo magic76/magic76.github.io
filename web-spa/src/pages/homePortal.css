@@ -21,3 +21,14 @@
 
 /* On small screens the server-rendered hero stays visually static until opted in. */
 @media(max-width:700px){.crew-portal-copy{animation:none}}
+
+/* State-owned five-second tab progress; stops when paused or reduced-motion. */
+.crew-portal-intro .crew-portal-brandline{display:block;max-width:95%;margin:0 auto;font-size:clamp(12px,1.5vw,16px);font-weight:750;line-height:1.5;letter-spacing:.03em;color:#f8edf8}
+.crew-portal-intro p{max-width:96%;margin:7px auto 0;line-height:1.5}
+.crew-portal-tabs button{position:relative;overflow:hidden}
+.crew-portal-tab-progress{position:absolute;bottom:0;left:10%;width:80%;height:2px;transform:scaleX(0);transform-origin:left center;border-radius:4px;background:var(--portal-accent);opacity:0;pointer-events:none}
+.crew-portal-tabs button[aria-selected="true"] .crew-portal-tab-progress{opacity:1;animation:crew-portal-tab-fill 5s linear both}
+.crew-home-portal[data-paused="true"] .crew-portal-tab-progress{animation:none!important;opacity:0}
+@keyframes crew-portal-tab-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:700px){.crew-portal-intro .crew-portal-brandline{font-size:12px}.crew-portal-intro p{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.crew-portal-tab-progress{display:none!important}}

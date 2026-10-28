@@ -91,7 +91,8 @@
     }
   },
   "world": {
-    "intro": "Chat, play, learn, imagine. Together with AI.",
+    "intro": "Start with a Hello, then explore stories, languages and more together.",
+    "headline": "Your AI friends for chatting, learning and play.",
     "touch": "Move or touch. Let this world respond.",
     "pause": "Pause motion",
     "resume": "Resume motion",

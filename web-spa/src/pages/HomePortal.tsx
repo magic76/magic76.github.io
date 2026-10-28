@@ -103,9 +103,9 @@ export function HomePortal(){
   else return;
   event.preventDefault();setMode(MODES[next].id);buttons.current[next]?.focus();
  };
- return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching}>
+ return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
-  <div className="crew-portal-intro"><span>A LITTLE SPARK. A WHOLE NEW WORLD.</span><p>{t("world.intro")}</p></div>
+  <div className="crew-portal-intro"><strong className="crew-portal-brandline">{t("world.headline")}</strong><p>{t("world.intro")}</p></div>
   <span className="crew-portal-edge" aria-hidden="true">MOVE A LITTLE. FEEL A CONNECTION.</span>
   <span className="crew-portal-number" aria-hidden="true">0{index+1} / 04</span>
   <div className="crew-portal-content" id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
@@ -123,7 +123,7 @@ export function HomePortal(){
     aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
     ref={el=>{buttons.current[i]=el}} disabled={launching}
     onClick={()=>setMode(item.id)} onKeyDown={event=>keyMode(event,i)}>
-    <Icon name={item.icon}/><span>{t("portal.modes."+item.id+".label")}</span>
+    <Icon name={item.icon}/><span>{t("portal.modes."+item.id+".label")}</span><i className="crew-portal-tab-progress" aria-hidden="true"/>
    </button>)}
   </div>
   <p className="crew-portal-hint">{t("world.touch")}</p>

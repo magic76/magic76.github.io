@@ -120,3 +120,14 @@
 .friends-game-entry>b{color:#596db4}
 
 .friends-life-book{width:100%;margin:12px 0 4px;padding:11px 13px;border:1px solid var(--line);border-radius:13px;text-align:left;background:var(--surface,#fff);font-size:12px}.friends-life-book summary{font-weight:700;cursor:pointer;color:var(--text)}.friends-life-book p,.friends-life-book li{line-height:1.65;color:var(--text);overflow-wrap:anywhere}.friends-life-book strong{font-size:12px}.friends-life-book ul{padding-left:19px;margin:6px 0 10px}.friends-life-book small{display:block;color:var(--muted);line-height:1.55}
+
+/* One-shot friend profile reveal; no ongoing avatar motion. */
+.friends-modal-backdrop{animation:crew-friend-backdrop-in 180ms ease-out both}
+.friends-modal{animation:crew-friend-detail-in 300ms cubic-bezier(.2,.8,.3,1.1) both}
+.friends-modal .friends-detail-avatar{animation:crew-friend-photo-in 360ms cubic-bezier(.2,.8,.3,1.1) both}
+.friends-contact .crew-friend-avatar{transition:transform 200ms ease}
+@media(hover:hover) and (pointer:fine){.friends-contact:hover .crew-friend-avatar{transform:scale(1.06)}}
+@keyframes crew-friend-backdrop-in{from{opacity:0}to{opacity:1}}
+@keyframes crew-friend-detail-in{from{opacity:.5;transform:translateY(12px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes crew-friend-photo-in{from{opacity:.5;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.friends-modal-backdrop,.friends-modal,.friends-modal .friends-detail-avatar{animation:none!important}.friends-contact .crew-friend-avatar{transition:none!important}}

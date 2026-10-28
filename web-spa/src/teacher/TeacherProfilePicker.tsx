@@ -56,7 +56,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
      <div className="teacher-picker-list teacher-gallery-grid">
       {filtered.length===0&&<p className="teacher-gallery-empty" role="status">{t("picker.empty")}</p>}
        {filtered.map(profile=><button key={profile.id} className={"teacher-profile-option teacher-gallery-card "+(profile.id===active?"active":"")} type="button" onClick={()=>{cancelPreview();transitionUI(()=>setDetail(profile))}} aria-label={t("picker.view",{name:profile.name})}>
-       <TeacherAvatar profile={profile} className="teacher-profile-image"/>
+       <span className="crew-role-portrait" style={{viewTransitionName:"crew-teacher-"+profile.id}}><TeacherAvatar profile={profile} className="teacher-profile-image"/></span>
        <strong>{profile.name}</strong><span className="teacher-gallery-type">{english?t("picker.categories."+profile.categoryId):profile.title}</span>
        <small className="teacher-gallery-tagline">{english?profile.taglineEn:profile.tagline}</small>
        {profile.id===active&&<span className="teacher-gallery-selected">{t("picker.current")}</span>}
@@ -65,7 +65,7 @@ export function TeacherProfilePicker({onClose}:{onClose:()=>void}){
     </div>
     <div className="teacher-gallery-footer"><p className="meta">{t("picker.footer")}</p><button type="button" className="btn secondary" onClick={()=>onCloseRef.current()}>{t("picker.close")}</button></div>
    </>:<div className="teacher-detail-scroll">
-    <div className="teacher-detail-portrait" data-preview={preview?.state||"idle"}><TeacherAvatar profile={detail}/></div>
+    <div className="teacher-detail-portrait" data-preview={preview?.state||"idle"} style={{viewTransitionName:"crew-teacher-"+detail.id}}><TeacherAvatar profile={detail}/></div>
     <h3>{detail.name} <span>{english?t("picker.categories."+detail.categoryId):detail.title}</span></h3>
     <p className="teacher-detail-tagline">「{english?detail.taglineEn:detail.tagline}」</p>
     <p>{english?detail.taglineEn:detail.description}</p>
