@@ -100,5 +100,19 @@
     "limit": "오늘 무료 체험 인원이 마감되었습니다.",
     "verification": "인증에 실패했습니다. 다시 시도하세요.",
     "tempUnavailable": "체험을 일시적으로 이용할 수 없습니다."
+  },
+  "auth": {
+    "account": "계정",
+    "title": "Crew 계정",
+    "intro": "Google 또는 GitHub로 로그인하세요.",
+    "choose": "로그인 방법 선택",
+    "signedIn": "로그인됨",
+    "signOut": "로그아웃",
+    "loading": "계정 확인 중…",
+    "unavailable": "아직 로그인할 수 없습니다.",
+    "failed": "로그인에 실패했어요. 다시 시도하세요.",
+    "cancelled": "로그인이 취소됐어요.",
+    "localData": "기기의 Gemini 키와 학습 데이터는 자동 동기화되지 않습니다.",
+    "backSettings": "설정으로 돌아가기"
   }
 }
