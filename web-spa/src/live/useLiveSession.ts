@@ -56,7 +56,7 @@ export function useLiveSession(config:Config){
   if(!guestModeRef.current||guestConnectedAtRef.current<=0||guestEndedReportedRef.current)return;
   guestEndedReportedRef.current=true;
   const elapsed=Math.max(0,performance.now()-guestConnectedAtRef.current);
-  trackUsageEvent("guest_trial_ended",elapsed<15000?"under_15s":elapsed<45000?"from_15_to_45s":"from_45_to_60s");
+  trackUsageEvent("guest_trial_ended",elapsed<15000?"under_15s":elapsed<45000?"from_15_to_45s":elapsed<60000?"from_45_to_60s":elapsed<120000?"from_60_to_120s":"from_120_to_180s");
  };
  const [state,setState]=useState<LiveState>("idle"),[status,setStatus]=useState("按開始後就可以直接說話。");
  const [voicePhase,setVoicePhase]=useState<FriendVoicePhase>("idle");
@@ -351,10 +351,10 @@ export function useLiveSession(config:Config){
    });
    sessionRef.current=session;
    if(grant){
-    // The server credential expires in 70s even if the browser suspends timers.
+    // The server credential expires after 190s even if the browser suspends timers.
     const lifetime=Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt);
-    const ms=Math.max(1000,Math.min(60000,Math.max(1,Math.min(60,grant.seconds||60))*1000,
-     Number.isFinite(lifetime)?Math.max(0,lifetime-1500):60000));
+    const ms=Math.max(1000,Math.min(180000,Math.max(1,Math.min(180,grant.seconds||180))*1000,
+     Number.isFinite(lifetime)?Math.max(0,lifetime-1500):180000));
     guestDeadlineRef.current=performance.now()+ms;
     guestTimerRef.current=setTimeout(()=>{
      if(sessionRef.current!==session)return;

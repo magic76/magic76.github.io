@@ -1,4 +1,4 @@
-# Phase 1 public 60-second trial, Turnstile + per-colo limit; no D1.
+# Phase 1 public 180-second trial, Turnstile + per-colo limit; no D1.
 # "wrangler secret put", NEVER here. No D1 database required in Phase 1.
 name = "crew-guest-trial"
 main = "./worker.mjs"
