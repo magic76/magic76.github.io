@@ -64,7 +64,7 @@ function req(ip="203.0.113.9",origin="https://www.3sssi.com",token="turnstile-va
  });
 }
 function mockedServices(options={}){
- let minted=0,captcha=0;
+ let minted=0,captcha=0;const usedKeys=[];
  const old=globalThis.fetch;
  globalThis.fetch=async (url,init)=>{
   if(String(url).includes("siteverify")){
@@ -77,7 +77,9 @@ function mockedServices(options={}){
    minted++;
    if(options.failMint)return new Response("unavailable",{status:503});
    const body=JSON.parse(init.body);
-   assert.equal(init.headers["x-goog-api-key"],"server-secret-never-in-client");
+   usedKeys.push(init.headers["x-goog-api-key"]);
+   if(options.allowedKeys)assert.ok(options.allowedKeys.includes(init.headers["x-goog-api-key"]));
+   else assert.equal(init.headers["x-goog-api-key"],"server-secret-never-in-client");
    assert.equal(body.uses,1);
    assert.equal(body.bidiGenerateContentSetup.model,"models/gemini-3.8-live");
    assert.deepEqual(body.bidiGenerateContentSetup.generationConfig.responseModalities,["AUDIO"]);
@@ -91,7 +93,7 @@ function mockedServices(options={}){
   }
   throw Error("Unexpected fetch "+url);
  };
- return {counts:()=>({minted,captcha}),restore:()=>{globalThis.fetch=old}};
+ return {counts:()=>({minted,captcha,usedKeys:[...usedKeys]}),restore:()=>{globalThis.fetch=old}};
 }
 
 test("disabled or unbound preview does not expose a trial",async()=>{
@@ -293,4 +295,38 @@ test("Guest mode skips BYOK-only teacher grading and friend reconnect",()=>{
  assert.match(teacher,/if\(guestStarted\|\|live\.state!=="ended"/);
  assert.match(teacher,/if\(guestStarted\)\{await live\.stop\(true\);navigate\("\/learn"\)/);
  assert.match(friend,/live\.voicePhase==="no-reply"&&!guestStarted/);
+});
+
+// Tests verify that Secret values never become a browser-visible API response.
+test("multiple Gemini keys work as one JSON Secret; single-key installations still work",async()=>{
+ const {onRequestGet,onRequestPost}=await backend;
+ const allowed=["server-key-alpha-at-least-12","server-key-beta-at-least-12"];
+ const cloudflareEnv=env(undefined,{
+  GEMINI_GUEST_API_KEYS:JSON.stringify([...allowed,allowed[0]]),
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}
+ });
+ const mock=mockedServices({allowedKeys:allowed});
+ try{
+  const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:cloudflareEnv});
+  assert.equal((await config.json()).enabled,true);
+  const result=await onRequestPost({request:req(),env:cloudflareEnv});
+  assert.equal(result.status,200);
+  const body=await result.json();
+  assert.equal(body.seconds,60);
+  assert.equal(mock.counts().minted,1);
+  assert.equal(mock.counts().usedKeys.length,1);
+  assert.ok(allowed.includes(mock.counts().usedKeys[0]));
+  assert.ok(!JSON.stringify(body).includes("server-key-"));
+ }finally{mock.restore()}
+});
+test("invalid Gemini JSON Secret fails closed, without falling back to legacy key",async()=>{
+ const {onRequestGet,onRequestPost}=await backend;
+ const base=env(undefined,{GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
+ for(const value of ['server-key-as-plain-text','{"keys":["key"]}','[]','["too-short"]','["valid-server-key",1]']){
+  const envBad={...base,GEMINI_GUEST_API_KEYS:value};
+  const r=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:envBad});
+  assert.deepEqual(await r.json(),{enabled:false});
+  const post=await onRequestPost({request:req(),env:envBad});
+  assert.equal(post.status,503);
+ }
 });

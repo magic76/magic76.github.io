@@ -13,7 +13,8 @@
 
 | Name | Type | Use |
 | --- | --- | --- |
-| GEMINI_GUEST_API_KEY | Secret | required |
+| GEMINI_GUEST_API_KEYS | Secret | preferred: JSON array of up to 20 keys |
+| GEMINI_GUEST_API_KEY | Secret | legacy: still supported if the JSON Secret does not exist |
 | TURNSTILE_SECRET_KEY | Secret | required |
 | GUEST_TURNSTILE_SITE_KEY | Public variable | required |
 | GUEST_TRIAL_RATE_LIMITER | Rate-limiting binding | required; 1/60s per edge |
@@ -22,6 +23,20 @@
 The old GUEST_QA_ENABLED, GUEST_QA_ALLOW_PRODUCTION, GUEST_QA_UNTIL, GUEST_QA_ACCESS_TOKEN and GUEST_QA_RATE_LIMITER are unused after deployment. Remove old QA secrets and variables if desired; never delete the Gemini or Turnstile secrets.
 
 Cloudflare Workers Builds should set **Root directory** to `workers/guest-trial`, leave **Build command** empty, and set **Deploy command** to `npx wrangler deploy` (or explicitly `npx wrangler deploy --config wrangler.toml`). A committed `workers/guest-trial/wrangler.toml` is provided; no manual copying is required. Confirm the two required Secrets and rate-limiter binding, and verify the API after build. If the Cloudflare Workers Build check stays red, inspect that Build's logs; GitHub CI success alone does not deploy Worker.
+
+## Multiple Gemini keys (Phase 1)
+
+Store multiple keys in **one Cloudflare Worker Secret**, `GEMINI_GUEST_API_KEYS`, as a JSON array:
+
+```json
+["first-gemini-key","second-gemini-key","third-gemini-key"]
+```
+
+- A request chooses one valid key using a cryptographic random index. **It makes only one Gemini token mint attempt per guest trial.** We do not automatically retry another key after quota/permission errors.
+- Up to 20 non-empty, unique keys are accepted. Entries must be strings. Invalid JSON/empty lists fail closed, even when the old single-key secret remains provisioned, to expose configuration mistakes.
+- Existing `GEMINI_GUEST_API_KEY` continues to work until you choose to migrate, and may be deleted **after** the JSON Secret is deployed and API smoke-tested.
+- Key values are never put into `wrangler.toml`, web code, logs or returned API payloads. The Worker Secret value must be created in Cloudflare.
+- Keys in the **same Google Cloud project share project quotas**. Multiple keys do not automatically multiply free allowance; use for legitimate key management/availability and follow Google's API usage rules.
 
 ## Phase 2 deferred
 
