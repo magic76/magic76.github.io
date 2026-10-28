@@ -53,6 +53,8 @@
   },
   "loading": "Memuat…",
   "guestTrial": {
+    "signInToTry": "Masuk untuk mencoba satu menit obrolan suara gratis.",
+    "signInAction": "Masuk untuk mencoba",
     "timeLeft": "Sisa waktu",
     "almostDone": "Hampir selesai! Ucapkan selamat tinggal kepada AI.",
     "completeTitle": "Uji coba gratis selesai!",

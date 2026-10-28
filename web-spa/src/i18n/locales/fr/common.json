@@ -53,6 +53,8 @@
   },
   "loading": "Chargement…",
   "guestTrial": {
+    "signInToTry": "Connectez-vous pour essayer une minute de conversation vocale gratuite.",
+    "signInAction": "Se connecter pour essayer",
     "timeLeft": "Temps restant",
     "almostDone": "C’est presque fini ! Dites au revoir à l’IA.",
     "completeTitle": "Essai gratuit terminé !",

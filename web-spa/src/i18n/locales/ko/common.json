@@ -53,6 +53,8 @@
   },
   "loading": "불러오는 중…",
   "guestTrial": {
+    "signInToTry": "1분 무료 음성 체험을 하려면 먼저 로그인하세요.",
+    "signInAction": "로그인하고 체험하기",
     "timeLeft": "남은 시간",
     "almostDone": "곧 종료돼요. AI에게 인사해 보세요.",
     "completeTitle": "무료 체험이 완료됐어요!",

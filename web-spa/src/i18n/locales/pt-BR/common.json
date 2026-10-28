@@ -53,6 +53,8 @@
   },
   "loading": "Carregando…",
   "guestTrial": {
+    "signInToTry": "Entre na sua conta para experimentar um minuto de voz grátis.",
+    "signInAction": "Entrar para experimentar",
     "timeLeft": "Tempo restante",
     "almostDone": "Está acabando! Despeça-se da IA.",
     "completeTitle": "Experiência gratuita concluída!",

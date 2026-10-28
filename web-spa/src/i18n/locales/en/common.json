@@ -53,6 +53,8 @@
   },
   "loading": "Loading…",
   "guestTrial": {
+    "signInToTry": "Sign in to use your one-minute free voice trial.",
+    "signInAction": "Sign in to try",
     "timeLeft": "Time left",
     "almostDone": "Almost done! Say goodbye to the AI.",
     "completeTitle": "Your free trial is complete!",

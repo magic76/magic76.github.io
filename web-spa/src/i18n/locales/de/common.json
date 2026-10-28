@@ -53,6 +53,8 @@
   },
   "loading": "Wird geladen…",
   "guestTrial": {
+    "signInToTry": "Melde dich an, um eine Minute kostenlos per Sprache zu chatten.",
+    "signInAction": "Zum Test anmelden",
     "timeLeft": "Verbleibende Zeit",
     "almostDone": "Gleich vorbei! Verabschiede dich von der KI.",
     "completeTitle": "Gratistest abgeschlossen!",

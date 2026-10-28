@@ -53,6 +53,8 @@
   },
   "loading": "載入中…",
   "guestTrial": {
+    "signInToTry": "請先登入帳號，才能使用一分鐘免費語音體驗。",
+    "signInAction": "登入後開始免費體驗",
     "timeLeft": "剩餘時間",
     "almostDone": "快結束了，跟 AI 說聲再見吧。",
     "completeTitle": "免費體驗完成了！",
