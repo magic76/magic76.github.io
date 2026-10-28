@@ -26,9 +26,18 @@ const callback=p=>ORIGIN+"/api/auth/"+p+"/callback";
 const fail=why=>go(ORIGIN+"/account?auth_error="+why);
 // Public diagnostic codes contain no credentials, account data, or provider errors.
 const authStages=new Set(["state","token","profile","account","session"]);
-const failStage=(bounce,provider,stage)=>{
- console.warn("crew_auth_callback_failure",{provider,stage});
- return bounce("failed",stage);
+// Only allow fixed, provider-neutral error identifiers. Never expose response bodies,
+// OAuth codes, access tokens, or credentials to the browser or logs.
+const oauthTokenReasons=new Set([
+ "invalid_client","invalid_grant","invalid_request","unauthorized_client",
+ "redirect_uri_mismatch","incorrect_client_credentials","bad_verification_code",
+ "expired_token","unsupported_grant_type","provider_rejected","provider_unavailable",
+ "provider_rate_limited","invalid_token_response","token_transport"
+]);
+const failStage=(bounce,provider,stage,tokenReason)=>{
+ const reason=stage==="token"&&oauthTokenReasons.has(tokenReason)?tokenReason:null;
+ console.warn("crew_auth_callback_failure",{provider,stage,...(reason?{reason}:{})});
+ return bounce("failed",stage,reason);
 };
 export async function health({request,env}){
  if(!validHost(request))return json({error:"Not found"},404);
@@ -62,8 +71,16 @@ async function exchange(provider,c,code,verifier){
  const q=new URLSearchParams({client_id:c.id,client_secret:c.secret,code,redirect_uri:callback(provider),code_verifier:verifier});
  if(provider==="google")q.set("grant_type","authorization_code");
  const url=provider==="google"?"https://oauth2.googleapis.com/token":"https://github.com/login/oauth/access_token";
- const r=await fetch(url,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:q,redirect:"error"});
- if(!r.ok)return null;const body=await r.json();return typeof body.access_token==="string"&&body.access_token?body.access_token:null;
+ let r;
+ try{
+  r=await fetch(url,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:q,redirect:"error"});
+ }catch{return {token:null,reason:"token_transport"}}
+ let body;
+ try{body=await r.json()}catch{return {token:null,reason:"invalid_token_response"}}
+ if(r.ok&&typeof body?.access_token==="string"&&body.access_token)
+  return {token:body.access_token,reason:null};
+ const known=typeof body?.error==="string"&&oauthTokenReasons.has(body.error)?body.error:null;
+ return {token:null,reason:known||(r.status===429?"provider_rate_limited":r.status>=500?"provider_unavailable":r.ok?"invalid_token_response":"provider_rejected")};
 }
 async function profile(provider,token){
  const url=provider==="google"?"https://openidconnect.googleapis.com/v1/userinfo":"https://api.github.com/user";
@@ -90,10 +107,12 @@ export async function callbackHandler({request,env},provider){
  if(!validHost(request))return json({error:"Not found"},404);
  const h=new Headers({"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});
  h.append("Set-Cookie",set(OAUTH,"",0));
- const bounce=(reason,stage)=>{
+ const bounce=(reason,stage,tokenReason)=>{
   const dest=new URL(ORIGIN+"/account");
   dest.searchParams.set("auth_error",reason);
   if(authStages.has(stage))dest.searchParams.set("auth_stage",stage);
+  if(stage==="token"&&oauthTokenReasons.has(tokenReason))
+   dest.searchParams.set("auth_reason",tokenReason);
   h.set("Location",dest.toString());
   return new Response(null,{status:302,headers:h});
  };
@@ -105,10 +124,10 @@ export async function callbackHandler({request,env},provider){
  if(!c||!env?.CREW_AUTH_DB)return bounce("unavailable");
  let stage="token";
  try{
-  const token=await exchange(provider,c,code,parts[1]);
-  if(!token)return failStage(bounce,provider,stage);
+  const exchangeResult=await exchange(provider,c,code,parts[1]);
+  if(!exchangeResult.token)return failStage(bounce,provider,stage,exchangeResult.reason);
   stage="profile";
-  const info=await profile(provider,token);
+  const info=await profile(provider,exchangeResult.token);
   if(!info)return failStage(bounce,provider,stage);
   stage="account";
   const uid=await account(env.CREW_AUTH_DB,provider,info);
