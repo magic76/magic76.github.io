@@ -1,7 +1,8 @@
 /**
  * Standalone Worker entry for the already-created crew-guest-trial Worker.
- * The public site and an explicitly allowlisted Access-protected preview are the
- * ONLY accepted browser origins. This adapter reuses the Pages handler's
+ * Public discovery remains disabled by the guest feature flag. QA is normally
+ * restricted to an Access-protected preview; a separate OFF-by-default Worker
+ * flag allows a short, secret-protected operator test on the production site. This adapter reuses the Pages handler's
  * same-origin security checks by creating a trusted internal Request.
  */
 import {onRequestGet,onRequestPost} from "../../functions/api/guest/token.js";
@@ -30,7 +31,11 @@ export default {
   const isQA=url.pathname===QA_PATH;
   if(url.hostname!==HOST||(url.pathname!==PATH&&!isQA))return response({error:"Not found"},404);
   const origin=allowedOrigin(request,env);
-  if(!origin||isQA&&origin===PRODUCTION)return response({error:"Origin rejected"},403);
+  // Production QA is an explicit operator exception, never a side effect of
+  // GUEST_QA_ENABLED. Its actual credentials, Turnstile, expiry and limiter
+  // are still checked inside the QA handler before minting any token.
+  if(!origin||(isQA&&origin===PRODUCTION&&env.GUEST_QA_ALLOW_PRODUCTION!=="1"))
+   return response({error:"Origin rejected"},403);
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:{
    "access-control-allow-origin":origin,"access-control-allow-methods":"GET, POST, OPTIONS",
    "access-control-allow-headers":"content-type,x-crew-qa-token","access-control-max-age":"600",
