@@ -3,7 +3,7 @@ import{Link,useSearchParams}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import"./account.css";
 type User={id:string;name:string;provider:"google"|"github"};
-type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null};
+type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number}};
 export function AccountPage(){
  const {t}=useTranslation("common");const [query]=useSearchParams();
  const [state,setState]=useState<Session|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
@@ -31,6 +31,7 @@ export function AccountPage(){
   <section className="panel section crew-account-panel" aria-label={t("auth.title")}>
    {loading?<p role="status">{t("auth.loading")}</p>:
    state?.user?<><div className="crew-account-identity"><div className="crew-account-avatar" aria-hidden="true">{state.user.name.slice(0,1).toUpperCase()}</div><div><strong>{state.user.name}</strong><small>{t("auth.signedIn")} · {state.user.provider==="google"?"Google":"GitHub"}</small></div></div>
+    {state.trial&&<p className="crew-account-privacy" role="status">{t("auth.trialCount",{used:state.trial.used,limit:state.trial.limit})}</p>}
     <button className="btn secondary" disabled={busy} type="button" onClick={()=>void signOut()}>{t("auth.signOut")}</button></>:
    state?.enabled?<><h2>{t("auth.choose")}</h2><div className="crew-account-buttons">
     {state.providers.google&&<a className="btn crew-account-provider" href="/api/auth/google/start">Google</a>}
