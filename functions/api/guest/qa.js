@@ -8,7 +8,7 @@
  */
 import {mintToken,verifyCaptcha} from "./token.js";
 const LIVE_MODEL="gemini-3.8-live";
-const SESSION_SECONDS=180;
+const SESSION_SECONDS=60;
 const json=(body,status=200)=>new Response(JSON.stringify(body),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
@@ -76,6 +76,6 @@ export async function onQaPost({request,env}){
   const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
   console.info(JSON.stringify({event:"guest_qa_token_issued",result:"success",at:new Date().toISOString()}));
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
-   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+200000).toISOString()});
+   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
  }catch{console.warn(JSON.stringify({event:"guest_qa_token_issued",result:"failed",at:new Date().toISOString()}));return json({error:"Trial temporarily unavailable"},503)}
 }

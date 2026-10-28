@@ -33,7 +33,7 @@ export function GuestTrialPage(){
  const [config,setConfig]=useState<TrialConfig|null>(null);
  const [challenge,setChallenge]=useState("");
  const [status,setStatus]=useState("");
- const [secondsLeft,setSecondsLeft]=useState(180);
+ const [secondsLeft,setSecondsLeft]=useState(60);
  const [input,setInput]=useState("");
  const [output,setOutput]=useState("");
  const [muted,setMuted]=useState(false);
@@ -175,8 +175,8 @@ export function GuestTrialPage(){
    session.current=current;
    // Use only server duration, never compare the server wall clock to the device clock.
    const expires=Date.parse(grant.expiresAt),issued=Date.parse(grant.issuedAt);
-   const duration=Number.isFinite(expires)&&Number.isFinite(issued)&&expires>issued?expires-issued-1500:180000;
-   const budgetMs=Math.min(180000,Math.max(0,duration),Math.max(1,Math.min(180,grant.seconds||180))*1000);
+   const duration=Number.isFinite(expires)&&Number.isFinite(issued)&&expires>issued?expires-issued-1500:60000;
+   const budgetMs=Math.min(60000,Math.max(0,duration),Math.max(1,Math.min(60,grant.seconds||60))*1000);
    deadline.current=performance.now()+budgetMs;
    const tick=()=>{
     const remaining=Math.max(0,Math.ceil((deadline.current-performance.now())/1000));
@@ -231,7 +231,7 @@ export function GuestTrialPage(){
     <button className="btn" type="button" onClick={stop}>{t("guestTrial.endChat")}</button>
    </div>}
    {(phase==="error"||phase==="ended")&&<p role="status">{status}</p>}
-   {(phase==="error"||phase==="ended")&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setSecondsLeft(180);setInput("");setOutput("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{t("guestTrial.retry")}</button>}
+   {(phase==="error"||phase==="ended")&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setSecondsLeft(60);setInput("");setOutput("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{t("guestTrial.retry")}</button>}
    {(input||output)&&<div style={{marginTop:14,padding:12,borderRadius:12,background:"var(--surface-secondary,rgba(128,128,128,.08))"}}>
     {input&&<p><strong>{t("guestTrial.you")}：</strong>{input}</p>}
     {output&&<p><strong>{role==="teacher"?t("guestTrial.teacher"):"Zoe"}：</strong>{output}</p>}

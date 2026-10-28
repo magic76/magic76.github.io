@@ -8,7 +8,7 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
 const LIVE_MODEL="gemini-3.8-live";
-const SESSION_SECONDS=180;
+const SESSION_SECONDS=60;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 function validHost(url,env){
@@ -16,10 +16,12 @@ function validHost(url,env){
  return env.GUEST_ALLOW_PREVIEW==="1"&&previewHost.test(url.hostname);
 }
 function configured(env){
- return env.GUEST_TRIAL_ENABLED==="1"&&!!env.GEMINI_GUEST_API_KEY
-  &&!!env.GUEST_TURNSTILE_SITE_KEY&&!!env.GUEST_TURNSTILE_SECRET
-  &&!!env.GUEST_HASH_SALT&&!!env.GUEST_DB
-  &&Number.isInteger(Number(env.GUEST_DAILY_SESSION_LIMIT))
+ if(env.GUEST_TRIAL_ENABLED!=="1"||!env.GEMINI_GUEST_API_KEY
+    ||!env.GUEST_TURNSTILE_SITE_KEY||!env.GUEST_TURNSTILE_SECRET)return false;
+ // Phase 1: require per-edge rate limiting even without a database.
+ if(!env.GUEST_DB)return typeof env.GUEST_QA_RATE_LIMITER?.limit==="function";
+ // Phase 2: D1 atomic daily limit and salted device/network claim.
+ return !!env.GUEST_HASH_SALT&&Number.isInteger(Number(env.GUEST_DAILY_SESSION_LIMIT))
   &&Number(env.GUEST_DAILY_SESSION_LIMIT)>0
   &&Number(env.GUEST_DAILY_SESSION_LIMIT)<=1000;
 }
@@ -50,8 +52,8 @@ async function verifyCaptcha(token,ip,secret,hostname,action="crew-guest-trial")
 async function mintToken(key,now){
  const body={
   uses:1,
-  expireTime:new Date(now+200000).toISOString(),
-  newSessionExpireTime:new Date(now+45000).toISOString(),
+  expireTime:new Date(now+70000).toISOString(),
+  newSessionExpireTime:new Date(now+30000).toISOString(),
   // Official AuthToken wire fields. Mask only these fields: client owns role, voice
   // and transcription, but cannot select a different model or paid tools.
   bidiGenerateContentSetup:{
@@ -94,6 +96,20 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
+ // Phase 1 has no globally durable per-person/session quota. Fail closed when
+ // the Cloudflare per-colo limiter is missing; never claim USD hard caps.
+ if(!env.GUEST_DB){
+  try{
+   const limit=await env.GUEST_QA_RATE_LIMITER.limit({key:"crew-public-guest"});
+   if(limit?.success!==true)return json({error:"Guest trial busy",code:"DAILY_LIMIT"},429);
+  }catch{return json({error:"Guest limiter unavailable"},503)}
+  try{
+   const issuedAt=Date.now();
+   const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
+   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
+    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
+  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
+ }
  const now=Date.now(), day=new Date(now).toISOString().slice(0,10);
  const hash=await fingerprint(ip,agent,env.GUEST_HASH_SALT);
  let claimed=false, reserved=false, minted=false;
@@ -118,7 +134,7 @@ export async function onRequestPost({request,env}){
   const issuedAt=Date.now();
   const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+200000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{

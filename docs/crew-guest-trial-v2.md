@@ -2,6 +2,15 @@
 
 This replaces the **unmerged Firebase AI Logic** experiment in PR #125. It does **not** use Firebase, does **not** copy the owner's Gemini API key into browser bundles, and does **not** change existing BYOK Teacher / Friend sessions.
 
+## Phase 1b — public 60-second trial in normal Teacher / Friend pages
+
+- A keyless visitor opens the **existing teacher or friend Live page**, sees Turnstile, grants microphone permission, and talks using the same role UI for 60 seconds.
+- The /try route redirects to teacher selection for public visitors; /try?qa=1 remains available only for private operator QA when public mode is OFF.
+- One-use Gemini token expires after 70 seconds, accepts new session for 30 seconds, no reconnect. Client auto-stops at 60 seconds; existing BYOK connections are unchanged.
+- No D1 in this release. Worker requires the existing GUEST_QA_RATE_LIMITER binding and applies a public per-edge rate limit of one token per 60s per Cloudflare location. This is NOT a unique-user quota, a globally atomic session cap, or a USD hard spending limit. Monitor usage; emergency stop: GUEST_TRIAL_ENABLED=0.
+- Guest conversations do not save memory, history, transcripts or reports. Phase 2 is deferred until after live product validation.
+- Default Worker deployment config sets GUEST_TRIAL_ENABLED=1 for this Phase 1b. The frontend only offers guest trial if the Worker reports enabled, no second Pages build flag needed. QA requires disabling public mode.
+
 ## Architecture
 
 - `/try`: isolated Teacher / Zoe 3-minute Live demo using the existing `crew-live.js` capture/playback engine.
