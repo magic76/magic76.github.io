@@ -73,8 +73,11 @@ async function exchange(provider,c,code,verifier){
  const url=provider==="google"?"https://oauth2.googleapis.com/token":"https://github.com/login/oauth/access_token";
  let r;
  try{
-  r=await fetch(url,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:q,redirect:"error"});
+  r=await fetch(url,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:q,redirect:"manual"});
  }catch{return {token:null,reason:"token_transport"}}
+ // Cloudflare supports only 'follow' and 'manual'. Never follow a provider
+ // redirect with credentials or accept a token in a 3xx response body.
+ if(r.status>=300&&r.status<400)return {token:null,reason:"provider_rejected"};
  let body;
  try{body=await r.json()}catch{return {token:null,reason:"invalid_token_response"}}
  if(r.ok&&typeof body?.access_token==="string"&&body.access_token)
@@ -84,7 +87,7 @@ async function exchange(provider,c,code,verifier){
 }
 async function profile(provider,token){
  const url=provider==="google"?"https://openidconnect.googleapis.com/v1/userinfo":"https://api.github.com/user";
- const r=await fetch(url,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json",...(provider==="github"?{"User-Agent":"Crew-Web-Auth","X-GitHub-Api-Version":"2022-11-28"}:{})},redirect:"error"});
+ const r=await fetch(url,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json",...(provider==="github"?{"User-Agent":"Crew-Web-Auth","X-GitHub-Api-Version":"2022-11-28"}:{})},redirect:"manual"});
  if(!r.ok)return null;
  const info=await r.json(),id=provider==="google"?info?.sub:info?.id;
  if(provider==="google"?(typeof id!=="string"||!id||id.length>180):(!Number.isSafeInteger(id)||id<=0))return null;
