@@ -1,5 +1,7 @@
 // Public endpoint only. The Worker must remain disabled until operator smoke QA.
 export const GUEST_TOKEN_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+// Private QA requires a separate secret entered by a tester, never persisted.
+export const GUEST_QA_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/qa";
 export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number};
 export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
  try{
