@@ -117,3 +117,12 @@
 @keyframes crew-role-detail-appear{from{opacity:.7;transform:translateY(9px) scale(.93)}to{opacity:1;transform:none}}
 @media(max-width:420px){.teacher-gallery-card .crew-role-portrait{width:72px;height:72px}}
 @media(prefers-reduced-motion:reduce){.teacher-detail-portrait{animation:none!important}}
+
+/* The illustration page turns a few degrees; full 180-degree flips hurt legibility and mobile frame time. */
+.story-player{perspective:1200px}
+.story-player .story-reader-media.story-page-motion{backface-visibility:hidden;transform-origin:10% 50%;animation:crew-story-paper-forward 320ms var(--crew-motion-ease) both}
+.story-player[data-direction="backward"] .story-reader-media.story-page-motion{transform-origin:90% 50%;animation-name:crew-story-paper-back}
+.story-player .story-dialogue.story-page-motion{animation-delay:45ms}
+@keyframes crew-story-paper-forward{from{opacity:.6;transform:perspective(1200px) rotateY(-7deg) translateX(8px)}to{opacity:1;transform:none}}
+@keyframes crew-story-paper-back{from{opacity:.6;transform:perspective(1200px) rotateY(7deg) translateX(-8px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.story-player .story-reader-media.story-page-motion{animation:none!important;transform:none!important}}
