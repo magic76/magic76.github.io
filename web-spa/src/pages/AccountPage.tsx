@@ -34,7 +34,9 @@ export function AccountPage(){
     {state.trial&&<section className="crew-account-trial" aria-label={t("guestTrial.homeTitle")}>
       <strong>{t("guestTrial.homeTitle")}</strong>
       <p role="status">{t("auth.trialCount",{used:state.trial.used,limit:state.trial.limit})}</p>
-      {state.trial.used>=state.trial.limit&&<Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>}
+      {state.trial.used<state.trial.limit
+       ?<Link className="btn secondary small" to="/teacher/roles?mode=teacher">{t("guestTrial.start")}</Link>
+       :<Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>}
      </section>}
     <button className="btn secondary" disabled={busy} type="button" onClick={()=>void signOut()}>{t("auth.signOut")}</button></>:
    state?.enabled?<><h2>{t("auth.choose")}</h2><div className="crew-account-buttons">

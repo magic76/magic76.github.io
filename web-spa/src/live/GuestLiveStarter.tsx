@@ -16,7 +16,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
- const [phase,setPhase]=useState<"checking"|"ready"|"login"|"unavailable"|"starting"|"error">("checking");
+ const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
  const host=useRef<HTMLDivElement|null>(null);
@@ -41,6 +41,11 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
      const isSignedIn=typeof session?.user?.id==="string"&&Boolean(session.user.id);
      setMemberSignedIn(isSignedIn);
      if(config.signinRequired&&!isSignedIn){setPhase("login");return}
+     // Only a hint to spare users another Turnstile. The Worker remains the
+     // authority and rejects concurrent or already-consumed account grants.
+     const quota=session?.trial as {used?:number;limit?:number}|undefined;
+     if(isSignedIn&&quota&&Number.isFinite(quota.used)&&Number.isFinite(quota.limit)
+        &&quota.limit!>0&&quota.used!>=quota.limit!){setPhase("exhausted");return}
     }catch{
      if(config.signinRequired){if(active.current)setPhase("unavailable");return}
      // Anonymous access remains allowed when metering is optional.
@@ -136,6 +141,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}
+   {phase==="exhausted"&&<><p role="status">{t("guestTrial.used")}</p>
+    <Link className="btn secondary small" to="/account">{t("auth.account")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role="status">{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setPhase("ready")}}>{t("guestTrial.retry")}</button>}
    <Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>
