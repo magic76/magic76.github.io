@@ -507,6 +507,7 @@ test("three-minute trial stays consistent across Worker grants and client hard d
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const config=fs.readFileSync(path.join(root,"web-spa/src/lib/guestTrial.ts"),"utf8");
  assert.match(backend,/const SESSION_SECONDS=180;/);
  assert.match(backend,/expireTime:new Date\(now\+190000\)/);
  assert.match(backend,/newSessionExpireTime:new Date\(now\+30000\)/);
@@ -516,4 +517,5 @@ test("three-minute trial stays consistent across Worker grants and client hard d
  assert.match(hook,/Math\.min\(180,grant\.seconds\|\|180\)/);
  assert.match(hook,/left>0&&left<=10/);
  assert.match(usage,/from_120_to_180s/);
+ assert.match(config,/Number\(value\.seconds\)===180/);
 });
