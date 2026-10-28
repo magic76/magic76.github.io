@@ -26,15 +26,21 @@ Cloudflare Workers Builds should set **Root directory** to `workers/guest-trial`
 
 ## Multiple Gemini keys (Phase 1)
 
-Store multiple keys in **one Cloudflare Worker Secret**, `GEMINI_GUEST_API_KEYS`, as a JSON array:
+Store multiple keys in **one Cloudflare Worker Secret**, `GEMINI_GUEST_API_KEYS`. The simplest format is a comma-separated list (plain text, without brackets or quotes):
+
+```text
+first-gemini-key,second-gemini-key,third-gemini-key
+```
+
+A JSON array is also supported for backwards compatibility, but is not required:
 
 ```json
 ["first-gemini-key","second-gemini-key","third-gemini-key"]
 ```
 
 - A request chooses one valid key using a cryptographic random index. **It makes only one Gemini token mint attempt per guest trial.** We do not automatically retry another key after quota/permission errors.
-- Up to 20 non-empty, unique keys are accepted. Entries must be strings. Invalid JSON/empty lists fail closed, even when the old single-key secret remains provisioned, to expose configuration mistakes.
-- Existing `GEMINI_GUEST_API_KEY` continues to work until you choose to migrate, and may be deleted **after** the JSON Secret is deployed and API smoke-tested.
+- Up to 20 keys are accepted; whitespace around commas is fine. Empty entries, extra commas, invalid characters, malformed JSON, and invalid lists fail closed even when the old single-key secret remains provisioned.
+- Existing `GEMINI_GUEST_API_KEY` continues to work until you choose to migrate, and may be deleted **after** the new multi-key Secret is deployed and API smoke-tested.
 - Key values are never put into `wrangler.toml`, web code, logs or returned API payloads. The Worker Secret value must be created in Cloudflare.
 - Keys in the **same Google Cloud project share project quotas**. Multiple keys do not automatically multiply free allowance; use for legitimate key management/availability and follow Google's API usage rules.
 

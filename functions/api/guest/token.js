@@ -7,17 +7,22 @@ const SESSION_SECONDS=60;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
-// Strictly accept only a JSON array from the Secret. A malformed new Secret must
-// fail closed instead of silently falling back to an old key.
+// Accept "key1,key2,key3" (preferred) or a JSON array in one Worker Secret.
+// Empty/malformed entries fail closed, never silently fall back to the old key.
 function guestGeminiKeys(env){
  if(Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS")){
   const raw=env.GEMINI_GUEST_API_KEYS;
   if(typeof raw!=="string"||raw.length>16000)return [];
+  const value=raw.trim();
   let parsed;
-  try{parsed=JSON.parse(raw)}catch{return []}
+  if(value.startsWith("[")||value.startsWith("{")||value.startsWith('"')){
+   try{parsed=JSON.parse(value)}catch{return []}
+  }else{
+   parsed=value.split(",").map(key=>key.trim());
+  }
   if(!Array.isArray(parsed)||parsed.length<1||parsed.length>MAX_GEMINI_KEYS
-    ||parsed.some(key=>typeof key!=="string"||key.trim().length<12||key.trim().length>512))return [];
-  return [...new Set(parsed.map(key=>key.trim()))];
+    ||parsed.some(key=>typeof key!=="string"||!^[A-Za-z0-9_-]{12,512}$/.test(key)))return [];
+  return [...new Set(parsed)];
  }
  const old=env.GEMINI_GUEST_API_KEY;
  return typeof old==="string"&&old.trim().length>=12?[old.trim()]:[];

@@ -319,14 +319,34 @@ test("multiple Gemini keys work as one JSON Secret; single-key installations sti
   assert.ok(!JSON.stringify(body).includes("server-key-"));
  }finally{mock.restore()}
 });
-test("invalid Gemini JSON Secret fails closed, without falling back to legacy key",async()=>{
+test("invalid Gemini multi-key Secret fails closed, without falling back to legacy key",async()=>{
  const {onRequestGet,onRequestPost}=await backend;
  const base=env(undefined,{GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
- for(const value of ['server-key-as-plain-text','{"keys":["key"]}','[]','["too-short"]','["valid-server-key",1]']){
+ for(const value of ['{"keys":["key"]}','[]','["too-short"]','["valid-server-key",1]','one-valid-key,,two-valid-key',',one-valid-key','one-valid-key,','one-valid-key, not a key','[malformed-json]','a,b,c',Array.from({length:21},(_,i)=>"valid-gemini-key-"+i).join(",")]){
   const envBad={...base,GEMINI_GUEST_API_KEYS:value};
   const r=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:envBad});
   assert.deepEqual(await r.json(),{enabled:false});
   const post=await onRequestPost({request:req(),env:envBad});
   assert.equal(post.status,503);
  }
+});
+test("comma-separated Gemini API keys work without JSON and accept trimmed entries",async()=>{
+ const {onRequestGet,onRequestPost}=await backend;
+ const keys=["server-key-alpha-at-least-12","server-key-beta-at-least-12","server-key-gamma-at-least-12"];
+ const settings=env(undefined,{
+  GEMINI_GUEST_API_KEYS:" "+keys.join(" , ")+" ",
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}
+ });
+ const mock=mockedServices({allowedKeys:keys});
+ try{
+  const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
+  assert.deepEqual((await config.json()).seconds,60);
+  const response=await onRequestPost({request:req(),env:settings});
+  assert.equal(response.status,200);
+  const token=await response.json();
+  assert.ok(token.token);
+  assert.equal(mock.counts().minted,1);
+  assert.ok(keys.includes(mock.counts().usedKeys[0]));
+  assert.ok(!JSON.stringify(token).includes("server-key-"));
+ }finally{mock.restore()}
 });
