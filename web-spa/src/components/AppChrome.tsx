@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
+import "./accountEntry.css";
 import { geminiKey,geminiVerified,GEMINI_KEY_CHANGED_EVENT } from "../lib/runtime";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
