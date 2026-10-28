@@ -51,3 +51,23 @@ test("Three-minute speaking entry constrains SVG and reserves readable copy widt
  assert.match(css,/\.crew-learn-three-minute-icon svg\{[^}]*width:22px;height:22px;stroke:currentColor;[^}]*fill:none/);
  assert.doesNotMatch(source,/<Link className="crew-learn-three-minute"[^>]*>\s*<Icon/);
 });
+
+test("Learn exposes the teacher gallery above the daily learning action",()=>{
+ const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
+ const picker=read("web-spa/src/teacher/CurrentTeacherCard.tsx");
+ const tutor=read("web-spa/src/teacher/TutorPage.tsx");
+ const focus=read("web-spa/src/teacher/LearningFocusCard.tsx");
+ const extras=read("web-spa/src/pages/LearnHubExtras.tsx");
+ const css=read("web-spa/src/pages/crewSections.css");
+ assert.ok(hub.indexOf("<CurrentTeacherCard/>")<hub.indexOf("<LearningFocusCard/>"));
+ assert.ok(picker.includes('to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}'));
+ assert.match(picker,/crew-learn-teacher-portrait/);
+ assert.match(picker,/crew-learn-teacher-action/);
+ assert.match(tutor,/openTeacherPicker/);
+ assert.doesNotMatch(focus,/TeacherAvatar/);
+ assert.match(focus,/TodayLearningCard compact/);
+ assert.ok(extras.includes('to="/teacher/course"'));
+ assert.ok(!extras.includes('to="/teacher"'));
+ assert.match(css,/crew-learn-teacher-pick:focus-visible/);
+ assert.match(css,/min-height:44px/);
+});
