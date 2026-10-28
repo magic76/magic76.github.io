@@ -21,6 +21,7 @@ const names:Record<string,string>={
  timeline_view:"Timeline 人生探索",
  shorts_view:"Shorts 瀏覽",shorts_chat_click:"Shorts 點擊聊天",shorts_conversation:"Shorts 有效聊天",
  game_open:"遊戲頁面開啟",game_started:"開始遊戲",game_completed:"完成遊戲",
+ game_route_loaded:"遊戲頁面載入完成",game_route_stalled:"遊戲載入超過 8 秒",game_route_asset_error:"遊戲資源載入失敗",
  vocabulary_practice:"單字作答",textbook_study:"教材語音開始",textbook_open:"教材陪讀開啟",
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
  fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",
@@ -41,7 +42,7 @@ const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
- {id:"games",label:"遊戲",events:["game_open","game_started","game_completed"]},
+ {id:"games",label:"遊戲",events:["game_open","game_started","game_completed","game_route_loaded","game_route_stalled","game_route_asset_error"]},
  {id:"learning",label:"學習",events:["vocabulary_practice","textbook_study"]},
  {id:"story",label:"故事",events:["story_reading","story_narration","story_created"]},
  {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]},
@@ -139,7 +140,7 @@ export function UsageDashboardPage(){
      <p className="usage-explain">目前篩選：{selected.label} · {num(totalMany(rows,selected.events))} 次事件。各階段的事件可能來自同一個瀏覽器，不應視為不同使用者。</p>
     </section>
     <section id="guest-trial-stats" className="panel section">
-     <div className="section-head"><h2>免費體驗（1 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
+     <div className="section-head"><h2>免費體驗（3 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
      <div className="usage-guest-overview" aria-label="免費試用成效摘要">
       {[
        {label:"看到可用入口",event:"guest_trial_entry_view",hint:"約 "+num(unique("guest_trial_entry_view"))+" 個瀏覽器"},
@@ -174,7 +175,7 @@ export function UsageDashboardPage(){
       <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>
       <div className="usage-feature"><span>其他準備失敗</span><strong>{num(total(rows,"guest_trial_setup_failed"))} 次</strong></div>
       <div className="usage-feature"><span>實際對話時長</span>
-       <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45 秒以上 {num(total(rows,"guest_trial_ended","from_45_to_60s"))}</strong>
+       <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45–60 秒 {num(total(rows,"guest_trial_ended","from_45_to_60s"))} · 1–2 分鐘 {num(total(rows,"guest_trial_ended","from_60_to_120s"))} · 2–3 分鐘 {num(total(rows,"guest_trial_ended","from_120_to_180s"))}</strong>
       </div>
      </div>
      <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，並非 Worker 實際發證總數。若停用統計、頁面突然關閉或多次重試，前後階段數量可能不一致；無法拿來限制每位使用者的試用次數。登入與每人計數留待第三階段。</p>

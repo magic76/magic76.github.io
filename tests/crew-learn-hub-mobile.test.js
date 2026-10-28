@@ -61,6 +61,13 @@ test("Learn exposes the teacher gallery above the daily learning action",()=>{
  const css=read("web-spa/src/pages/crewSections.css");
  assert.ok(hub.indexOf("<CurrentTeacherCard/>")<hub.indexOf("<LearningFocusCard/>"));
  assert.ok(picker.includes('to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}'));
+ assert.ok(picker.includes('className="crew-learn-teacher-start" to="/teacher/live"'));
+ assert.ok(picker.includes('t("tutor.start",{name:teacher.name})'));
+ assert.ok(picker.indexOf('className="crew-learn-teacher-start"')<picker.indexOf('className="crew-learn-teacher-pick"'));
+ assert.match(picker,/crew-learn-teacher-identity/);
+ assert.ok(css.includes('.crew-learn-teacher-start{display:flex'));
+ assert.ok(css.includes('min-height:48px'));
+ assert.ok(css.includes('.crew-learn-teacher-actions{display:grid;grid-template-columns:minmax(0,1fr)'));
  assert.match(picker,/crew-learn-teacher-portrait/);
  assert.match(picker,/crew-learn-teacher-action/);
  assert.match(tutor,/openTeacherPicker/);

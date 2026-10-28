@@ -136,14 +136,14 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  for(const [event,detail] of [
   ["guest_trial_entry_view","teacher"],["guest_trial_unavailable","friend"],["guest_trial_start_click","teacher"],
   ["guest_trial_token_issued","friend"],["guest_trial_connected","friend"],
-  ["guest_trial_ended","from_45_to_60s"],["guest_trial_ended","under_15s"],
+  ["guest_trial_ended","from_45_to_60s"],["guest_trial_ended","from_60_to_120s"],["guest_trial_ended","from_120_to_180s"],["guest_trial_ended","under_15s"],
   ["guest_trial_mic_denied","teacher"],["guest_trial_token_failed","friend"],
   ["guest_trial_connect_failed","friend"],["guest_trial_setup_failed","teacher"]
  ]){
   const r=await onRequestPost({request:request({...payload,event,detail}),env});
   assert.equal(r.status,204,event);
  }
- assert.equal(points.length,11);
+ assert.equal(points.length,13);
  assert.equal((await onRequestPost({request:request({...payload,event:"guest_trial_token_issued",detail:"private-token"}),env})).status,400);
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
@@ -155,7 +155,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  assert.match(starter,/guest_trial_token_issued/);
  assert.match(hook,/recordGuestConnect\(\)/);
  assert.match(hook,/recordGuestEnd\(\)/);
- assert.match(dash,/免費體驗（1 分鐘）/);
+ assert.match(dash,/免費體驗（3 分鐘）/);
  assert.match(dash,/eventRatio\(/);
  assert.match(dash,/id="guest-trial-stats"/);
  assert.match(teacher,/role="teacher"/);

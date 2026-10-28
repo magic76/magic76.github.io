@@ -15,6 +15,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const {t}=useTranslation("common");
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
+ const [memberSignedIn,setMemberSignedIn]=useState(false);
  const [phase,setPhase]=useState<"checking"|"ready"|"login"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
@@ -31,14 +32,19 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     setPhase("unavailable");return;
    }
    setSigninRequired(Boolean(config.signinRequired));
-   if(config.signinRequired){
+   if(config.memberMetering||config.signinRequired){
     try{
      const r=await fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store"});
      if(!r.ok)throw Error("Session unavailable");
      const session=await r.json();
      if(!active.current)return;
-     if(!session?.user?.id){setPhase("login");return}
-    }catch{if(active.current)setPhase("unavailable");return}
+     const isSignedIn=typeof session?.user?.id==="string"&&Boolean(session.user.id);
+     setMemberSignedIn(isSignedIn);
+     if(config.signinRequired&&!isSignedIn){setPhase("login");return}
+    }catch{
+     if(config.signinRequired){if(active.current)setPhase("unavailable");return}
+     // Anonymous access remains allowed when metering is optional.
+    }
    }
    if(!active.current)return;
    trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready");
@@ -82,13 +88,18 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    mic.getTracks().forEach(track=>track.stop());
    if(!active.current)return;
    let authTicket="";
-   if(signinRequired){
-    const ticketResponse=await fetch("/api/auth/guest-ticket",{method:"POST",credentials:"same-origin",cache:"no-store",
-     headers:{"content-type":"application/json"},body:"{}"});
+   if(signinRequired||memberSignedIn){
+    const ticketResponse=await fetch("/api/auth/guest-ticket",{
+     method:"POST",credentials:"same-origin",cache:"no-store",
+     headers:{"content-type":"application/json"},body:"{}"
+    });
     if(!ticketResponse.ok){
-     if(ticketResponse.status===401&&active.current)setPhase("login");
-     else if(active.current){setMessage(t("guestTrial.tempUnavailable"));setPhase("error")}
-     trackUsageEvent("guest_trial_token_failed",role);return;
+     trackUsageEvent("guest_trial_token_failed",role);
+     if(active.current){
+      if(ticketResponse.status===401)setPhase("login");
+      else{setMessage(t("guestTrial.tempUnavailable"));setPhase("error")}
+     }
+     return;
     }
     const proof=await ticketResponse.json() as {ticket?:string};
     if(typeof proof.ticket!=="string"||!proof.ticket)throw Error("Ticket unavailable");
@@ -96,10 +107,10 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    }
    tokenRequested=true;
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(signinRequired?{authTicket}:{})})});
+    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(authTicket?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string};
-   if(!res.ok||!data.token||!data.model||data.seconds!==60){
+   if(!res.ok||!data.token||!data.model||data.seconds!==180){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
      if(data.code==="SIGNIN_REQUIRED")setPhase("login");

@@ -11,6 +11,7 @@ export type UsageEvent=
   |"teacher_ai_replied"|"friend_ai_replied"|"timeline_ai_replied"
   |"timeline_view"|"timeline_conversation"|"timeline_session_end"
   |"game_open"|"game_started"|"game_completed"
+  |"game_route_loaded"|"game_route_stalled"|"game_route_asset_error"
   |"teacher_session_end"|"friend_session_end"
   |"vocabulary_practice"|"textbook_open"|"textbook_study"
   |"shorts_view"|"shorts_chat_click"|"shorts_conversation"|"shorts_hook_click"|"shorts_story_followup"
@@ -27,7 +28,8 @@ export type UsageEvent=
   |"circle_thread_open"|"circle_post_published"|"circle_comment_posted";
 type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"under_1m"|"from_1_to_3m"|"from_3_to_10m"|"over_10m"
-  |"teacher"|"friend"|"under_15s"|"from_15_to_45s"|"from_45_to_60s"
+  |"under_1s"|"from_1_to_3s"|"from_3_to_8s"|"over_8s"
+  |"teacher"|"friend"|"under_15s"|"from_15_to_45s"|"from_45_to_60s"|"from_60_to_120s"|"from_120_to_180s"
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
   |"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"shorts"|"circle"

@@ -3,11 +3,12 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
 const LIVE_MODEL="gemini-3.8-live";
-const SESSION_SECONDS=60;
+const SESSION_SECONDS=180;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
-const MEMBER_SIGNIN_FLAG="GUEST_REQUIRE_SIGNIN";
+const MEMBER_SIGNIN_FLAG="GUEST_REQUIRE_SIGNIN",MEMBER_METER_FLAG="GUEST_ACCOUNT_METER_ENABLED";
+const memberMeterEnabled=env=>env[MEMBER_SIGNIN_FLAG]==="1"||env[MEMBER_METER_FLAG]==="1";
 // Accept one/multiple keys as comma/newline text, JSON array/string or {keys:[...]}.
 // Fail closed on invalid multi-key settings even when the legacy secret exists.
 function parseGuestGeminiKeyList(raw){
@@ -73,9 +74,10 @@ function guestTrialConfigurationIssue(env){
   ?"gemini_keys_invalid":"gemini_key_missing";
  if(!env.GUEST_TURNSTILE_SITE_KEY)return "turnstile_site_key_missing";
  if(!env.GUEST_TURNSTILE_SECRET)return "turnstile_secret_missing";
- if(env[MEMBER_SIGNIN_FLAG]!==undefined&&!["0","1"].includes(env[MEMBER_SIGNIN_FLAG]))
-  return "signin_flag_invalid";
- if(env[MEMBER_SIGNIN_FLAG]==="1"){
+ for(const name of [MEMBER_SIGNIN_FLAG,MEMBER_METER_FLAG]){
+  if(env[name]!==undefined&&!["0","1"].includes(env[name]))return "signin_flag_invalid";
+ }
+ if(memberMeterEnabled(env)){
   if(!env.CREW_AUTH_DB||typeof env.CREW_GUEST_TICKET_SECRET!=="string"||env.CREW_GUEST_TICKET_SECRET.length<32)
    return "member_quota_binding_missing";
   return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function"?null:"rate_limiter_binding_missing";
@@ -106,7 +108,8 @@ export async function onRequestGet({request,env}){
   return disabled();
  }
  return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
-  ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{})});
+  ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{}),
+  ...(memberMeterEnabled(env)?{memberMetering:true}:{})});
 }
 async function fingerprint(ip,agent,salt){
  const bytes=new TextEncoder().encode(salt+"|"+ip+"|"+agent.slice(0,256));
@@ -125,7 +128,7 @@ async function verifyCaptcha(token,ip,secret,hostname,action="crew-guest-trial")
 async function mintToken(key,now){
  const body={
   uses:1,
-  expireTime:new Date(now+70000).toISOString(),
+  expireTime:new Date(now+190000).toISOString(),
   newSessionExpireTime:new Date(now+30000).toISOString(),
   // Official AuthToken wire fields. Mask only these fields: client owns role, voice
   // and transcription, but cannot select a different model or paid tools.
@@ -188,7 +191,7 @@ async function issueMemberTrial(input,env){
   const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
   minted=true;
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
-   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
+   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  finally{
   // If provisioning failed, release the quota, but never reuse a ticket nonce.
@@ -223,7 +226,11 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
- if(env[MEMBER_SIGNIN_FLAG]==="1")return issueMemberTrial(input,env);
+ // In meter-only mode, signed-in visitors receive one account-counted trial,
+ // while unsigned visitors retain the existing anonymous flow.
+ if(env[MEMBER_SIGNIN_FLAG]==="1"||
+    (memberMeterEnabled(env)&&Object.prototype.hasOwnProperty.call(input,"authTicket")))
+  return issueMemberTrial(input,env);
  // Phase 1 has no globally durable per-person/session quota. Fail closed when
  // the Cloudflare per-colo limiter is missing; never claim USD hard caps.
  if(!env.GUEST_DB){
@@ -235,7 +242,7 @@ export async function onRequestPost({request,env}){
    const issuedAt=Date.now();
    const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
    return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
-    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
+    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
   }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  }
  const now=Date.now(), day=new Date(now).toISOString().slice(0,10);
@@ -262,7 +269,7 @@ export async function onRequestPost({request,env}){
   const issuedAt=Date.now();
   const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{

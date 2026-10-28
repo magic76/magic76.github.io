@@ -2,7 +2,7 @@ import{Link}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import"./guestTrialExperience.css";
 
-/** Display only; the Live hook enforces the independent one-minute deadline. */
+/** Display only; the Live hook enforces the independent three-minute deadline. */
 export function GuestTrialCountdown({secondsLeft}:{secondsLeft:number}){
  const {t}=useTranslation("common");
  if(secondsLeft<=0)return null;

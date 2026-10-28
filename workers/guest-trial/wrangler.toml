@@ -1,4 +1,4 @@
-# Phase 1 public 60-second trial, Turnstile + per-colo limit; no D1.
+# Phase 1 public 180-second trial, Turnstile + per-colo limit; no D1.
 # "wrangler secret put", NEVER here. No D1 database required in Phase 1.
 name = "crew-guest-trial"
 main = "./worker.mjs"
@@ -24,10 +24,3 @@ namespace_id = "100347"
 # database_name = "crew-guest-trials"
 # database_id = "<YOUR_D1_ID>"
 # GUEST_DAILY_SESSION_LIMIT and GUEST_HASH_SALT are also Phase 2 only.
-
-# Phase 3 opt-in account quota (do not enable until Pages + Worker bindings ready):
-# - Apply migrations/crew-auth/0001.sql and 0002_guest_trials.sql to crew-auth.
-# - Bind the EXISTING crew-auth D1 as CREW_AUTH_DB on this Worker.
-# - Install identical encrypted CREW_GUEST_TICKET_SECRET on Pages and this Worker.
-# - Set GUEST_REQUIRE_SIGNIN = "1" only after both are deployed and smoke-tested.
-# - With GUEST_REQUIRE_SIGNIN = "0" or absent, Phase 1 anonymous flow remains.

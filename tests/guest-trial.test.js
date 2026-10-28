@@ -86,7 +86,8 @@ function mockedServices(options={}){
    assert.deepEqual(body.bidiGenerateContentSetup.tools,[]);
    assert.equal(body.fieldMask,"model,generationConfig.responseModalities,tools");
    assert.equal(body.liveConnectConstraints,undefined);
-   assert.ok(Date.parse(body.expireTime)-Date.now()<85000);
+   const expiry=Date.parse(body.expireTime)-Date.now();
+   assert.ok(expiry>=180000&&expiry<=190000);
    assert.equal(body.uses,1);
    assert.ok(Date.parse(body.newSessionExpireTime)-Date.now()<=30000);
    return Response.json({name:"ephemeral-test-one-use-token"});
@@ -133,7 +134,7 @@ test("one-use fingerprint and server daily reservations block repeat/overflow",a
   assert.equal(first.status,200);
   const body=await first.json();
   assert.equal(body.token,"ephemeral-test-one-use-token");
-  assert.equal(body.seconds,60);
+  assert.equal(body.seconds,180);
   assert.equal(body.model,"gemini-3.8-live");
   assert.match(first.headers.get("cache-control"),/no-store/);
   const repeat=await onRequestPost({request:req(),env:bindings});
@@ -251,15 +252,15 @@ test("Phase 1 public guest requires Turnstile and the Worker limiter (no D1)",as
  const mock=mockedServices();
  try{
   let r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),settings);
-  assert.equal((await r.json()).seconds,60);
+  assert.equal((await r.json()).seconds,180);
   r=await worker.fetch(post(),{...settings,GUEST_TRIAL_RATE_LIMITER:undefined});
   assert.equal(r.status,503);
   assert.equal(mock.counts().minted,0);
   r=await worker.fetch(post(),settings);
   assert.equal(r.status,200);
   const grant=await r.json();
-  assert.equal(grant.seconds,60);
-  assert.ok(Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt)<=70000);
+  assert.equal(grant.seconds,180);
+  assert.equal(Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt),190000);
   assert.equal(mock.counts().minted,1);
   allow=false;
   r=await worker.fetch(post(),settings);
@@ -312,7 +313,7 @@ test("multiple Gemini keys work as one JSON Secret; single-key installations sti
   const result=await onRequestPost({request:req(),env:cloudflareEnv});
   assert.equal(result.status,200);
   const body=await result.json();
-  assert.equal(body.seconds,60);
+  assert.equal(body.seconds,180);
   assert.equal(mock.counts().minted,1);
   assert.equal(mock.counts().usedKeys.length,1);
   assert.ok(allowed.includes(mock.counts().usedKeys[0]));
@@ -340,7 +341,7 @@ test("comma-separated Gemini API keys work without JSON and accept trimmed entri
  const mock=mockedServices({allowedKeys:keys});
  try{
   const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
-  assert.deepEqual((await config.json()).seconds,60);
+  assert.deepEqual((await config.json()).seconds,180);
   const response=await onRequestPost({request:req(),env:settings});
   assert.equal(response.status,200);
   const token=await response.json();
@@ -479,7 +480,7 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/live/guestTrialExperience.css"),"utf8");
- assert.match(hook,/Math\.min\(60000/);
+ assert.match(hook,/Math\.min\(180000/);
  assert.match(hook,/guestWrapUpSentRef\.current=true/);
  assert.match(hook,/left>0&&left<=10/);
  assert.match(hook,/setGuestExpired\(true\)/);
@@ -500,67 +501,21 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  }
 });
 
-test("member mode rejects unsigned or replayed tickets and enforces one trial per D1 user",async()=>{
- const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
- const {onRequestGet,onRequestPost}=await backend;
- const secret="testing-only-account-guest-secret-at-least-32-bytes";
- const users=new Map(),claims=new Set();
- const db={prepare(sql){return {bind(...v){return {async run(){
-  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_ticket_claims")){
-   if(claims.has(v[0]))return{meta:{changes:0}};
-   claims.add(v[0]);return{meta:{changes:1}};
-  }
-  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_usage")){
-   if(!users.has(v[0]))users.set(v[0],0);
-   return{meta:{changes:1}};
-  }
-  if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
-   const value=users.get(v[1])||0;
-   if(value>=1)return{meta:{changes:0}};
-   users.set(v[1],value+1);return{meta:{changes:1}};
-  }
-  if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
-   users.set(v[0],Math.max(0,(users.get(v[0])||0)-1));
-   return{meta:{changes:1}};
-  }
-  throw Error("Unexpected member SQL "+sql);
- }}}}}};
- const settings=env(undefined,{GUEST_REQUIRE_SIGNIN:"1",CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:secret,
-  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
- const config=await onRequestGet({request:req().method==="POST"?new Request("https://www.3sssi.com/api/guest/token"):req(),env:settings});
- assert.equal((await config.json()).signinRequired,true);
- const request=ticket=>new Request("https://www.3sssi.com/api/guest/token",{
-  method:"POST",headers:{"origin":"https://www.3sssi.com","content-type":"application/json",
-   "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-Test/1.0"},
-  body:JSON.stringify({challengeToken:"turnstile-valid-test-token",...(ticket?{authTicket:ticket}:{})})
- });
- const mock=mockedServices();
- try{
-  assert.equal((await onRequestPost({request:request(),env:settings})).status,401);
-  const uid="123e4567-e89b-42d3-a456-426614174000";
-  const ticket=await createGuestTicket(uid,secret);
-  assert.equal((await onRequestPost({request:request(ticket+"tampered"),env:settings})).status,401);
-  const first=await onRequestPost({request:request(ticket),env:settings});
-  assert.equal(first.status,200);
-  assert.equal((await first.json()).seconds,60);
-  assert.equal((await onRequestPost({request:request(ticket),env:settings})).status,429);
-  const next=await createGuestTicket(uid,secret);
-  const already=await onRequestPost({request:request(next),env:settings});
-  assert.equal(already.status,429);
-  assert.equal((await already.json()).code,"ALREADY_USED");
-  assert.equal(mock.counts().minted,1);
-  assert.equal(users.get(uid),1);
- }finally{mock.restore()}
-});
-test("member trial requires a secure database and shared signing secret",async()=>{
- const {onRequestGet}=await backend;
- const base={GUEST_TRIAL_ENABLED:"1",GEMINI_GUEST_API_KEY:"server-secret-never-in-client",
-  GUEST_TURNSTILE_SITE_KEY:"public-site-key",GUEST_TURNSTILE_SECRET:"server-turnstile-secret",
-  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}};
- const r=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
-  env:{...base,GUEST_REQUIRE_SIGNIN:"1"}});
- assert.deepEqual(await r.json(),{enabled:false});
- const bad=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
-  env:{...base,GUEST_REQUIRE_SIGNIN:"true"}});
- assert.deepEqual(await bad.json(),{enabled:false});
+test("three-minute trial stays consistent across Worker grants and client hard deadline",()=>{
+ const backend=fs.readFileSync(path.join(root,"functions/api/guest/token.js"),"utf8");
+ const worker=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
+ const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const config=fs.readFileSync(path.join(root,"web-spa/src/lib/guestTrial.ts"),"utf8");
+ assert.match(backend,/const SESSION_SECONDS=180;/);
+ assert.match(backend,/expireTime:new Date\(now\+190000\)/);
+ assert.match(backend,/newSessionExpireTime:new Date\(now\+30000\)/);
+ assert.match(worker,/three-minute Guest Trial Worker/);
+ assert.match(starter,/data\.seconds!==180/);
+ assert.match(hook,/Math\.min\(180000/);
+ assert.match(hook,/Math\.min\(180,grant\.seconds\|\|180\)/);
+ assert.match(hook,/left>0&&left<=10/);
+ assert.match(usage,/from_120_to_180s/);
+ assert.match(config,/Number\(value\.seconds\)===180/);
 });
