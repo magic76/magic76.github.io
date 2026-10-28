@@ -8,6 +8,8 @@ import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,ty
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
+import type {GuestTrialGrant} from "../lib/guestTrial";
+
 export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking"|"ending"|"reporting"|"ended"|"error";
 export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|"no-transcript"|"no-reply";
 export type LiveErrorKind="key"|"mic"|"network"|"generic"|null;
@@ -34,6 +36,9 @@ function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
 export function useLiveSession(config:Config){
  const configRef=useRef(config);configRef.current=config;
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
+ const guestModeRef=useRef(false),guestDeadlineRef=useRef(0),guestTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
+ const [guestSecondsLeft,setGuestSecondsLeft]=useState(0);
+ const clearGuestTimer=()=>{if(guestTimerRef.current!==null){clearTimeout(guestTimerRef.current);guestTimerRef.current=null}};
  const [state,setState]=useState<LiveState>("idle"),[status,setStatus]=useState("按開始後就可以直接說話。");
  const [voicePhase,setVoicePhase]=useState<FriendVoicePhase>("idle");
  const voicePhaseRef=useRef<FriendVoicePhase>("idle");
@@ -55,12 +60,12 @@ export function useLiveSession(config:Config){
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
   return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
  });
- useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs())},500);return()=>clearInterval(id)},[]);
+ useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());if(guestModeRef.current&&guestDeadlineRef.current>0)setGuestSecondsLeft(Math.max(0,Math.ceil((guestDeadlineRef.current-performance.now())/1000)))},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
   const text=turnsRef.current.map(t=>[t.input?"你："+t.input:"",t.output?"AI："+t.output:""].filter(Boolean).join("\n")).filter(Boolean).join("\n\n");
   const item={id:Date.now(),title:configRef.current.title,preview:text.slice(0,180),turns:turnsRef.current.slice(),durationMs:s?.getDurationMs()||0,reason,ts:new Date().toISOString()};
-  if(configRef.current.persistHistory!==false)saveLive(configRef.current.pageKey,item);
+  if(configRef.current.persistHistory!==false&&!guestModeRef.current)saveLive(configRef.current.pageKey,item);
   return item;
  },[]);
  const finish=useCallback(async(item:any)=>{
@@ -68,7 +73,7 @@ export function useLiveSession(config:Config){
   let completedReport:Record<string,unknown>|null=null;
   const personalEpoch=getPersonalMemoryEpoch();
   try{
-   if(item&&configRef.current.teacherReport){
+   if(item&&!guestModeRef.current&&configRef.current.teacherReport){
     await ensureTeacherServices();
     if(window.CrewTeacherReport?.eligible(item)){
      setState("reporting");setStatus("正在整理課後學習報告…");
@@ -87,15 +92,16 @@ export function useLiveSession(config:Config){
   }finally{
    if(!reportFailed)setStatus("已結束。");
    setState("ended");
-   configRef.current.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
+   if(!guestModeRef.current)configRef.current.onSessionFinished?.(item ? {turns:item.turns||[],durationMs:item.durationMs||0}:null);
   }
   return {turns:(item?.turns||[]) as LiveTurn[],durationMs:Number(item?.durationMs||0),report:completedReport};
  },[]);
- const start=useCallback(async()=>{
+ const start=useCallback(async(grant?:GuestTrialGrant)=>{
   if(sessionRef.current)return;
-  if(!geminiKey()){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
+  if(!geminiKey()&&!grant){trackUsageEvent("gemini_key_missing");setErrorKind("key");setState("error");setStatus("尚未設定 Gemini API key。");return}
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
+   guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
@@ -178,21 +184,22 @@ export function useLiveSession(config:Config){
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
+    guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
     // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
-    tools:configRef.current.tools,
+    tools:grant?undefined:configRef.current.tools,
      onGrounding:metadata=>{setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
      onSearchUnavailable:()=>setSearchUnavailable(true),
-     onToolCall:call=>configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"},
+     onToolCall:call=>!grant?configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"}:{ok:false,error:"guest-tools-disabled"},
     onToolsUnavailable:()=>configRef.current.onToolsUnavailable?.(),
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
-    models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
-    manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
+    models:grant?[grant.model]:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
+    manualInterruptOnly:true,maxLiveAttempts:grant?1:teacherVoiceSession?1:2,maxResumeAttempts:grant?0:2,
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
@@ -288,7 +295,7 @@ export function useLiveSession(config:Config){
        if(configRef.current.sessionKind==="friend")scheduleFriendReplyCheck();
       }else recoveryRequestRef.current=false;
     },
-    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());configRef.current.onConfirmedTranscript?.(turn)},
+    onTranscriptTurn:(turn,all)=>{cadenceRef.current.observe(turn);turnsRef.current=all.slice();setTurns(all.slice());if(!guestModeRef.current)configRef.current.onConfirmedTranscript?.(turn)},
     onTurnComplete:turn=>{
       if(turn.hasValidOutput){awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
       else if(configRef.current.sessionKind==="friend"&&awaitingTutorRef.current)scheduleFriendReplyCheck(3000);
@@ -303,16 +310,33 @@ export function useLiveSession(config:Config){
        languageRepairRef.current=false;
       }
       // Use the synchronous Live transcript ref; React state can lag behind this callback.
-      configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
+      if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
-    onError:e=>{cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
-    onTerminal:info=>{cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
+    onError:e=>{cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
+    onTerminal:info=>{clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
-   sessionRef.current=session;await session.start();if(sessionRef.current!==session||!session.running)return;session.setVolume(volume);setState("listening");
-  }catch(e){sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key")setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
+   sessionRef.current=session;
+   if(grant){
+    // The server credential expires in 70s even if the browser suspends timers.
+    const lifetime=Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt);
+    const ms=Math.max(1000,Math.min(60000,Math.max(1,Math.min(60,grant.seconds||60))*1000,
+     Number.isFinite(lifetime)?Math.max(0,lifetime-1500):60000));
+    guestDeadlineRef.current=performance.now()+ms;
+    guestTimerRef.current=setTimeout(()=>{
+     if(sessionRef.current!==session)return;
+     clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
+     const item=snapshot("guest-limit");
+     sessionRef.current=null;
+     void session.stop({reason:"guest-limit",silentStatus:true,emitTerminal:false})
+      .catch(()=>{}).then(()=>finish(item));
+    },ms);
+   }
+   await session.start();if(sessionRef.current!==session||!session.running)return;session.setVolume(volume);setState("listening");
+  }catch(e){clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
+  clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");setState("ending");setStatus("正在結束…");
   const item=snapshot("user-stop");
   try{await s.stop({reason:"user-stop",silentStatus:true,emitTerminal:false})}
@@ -356,6 +380,7 @@ export function useLiveSession(config:Config){
  const setVolume=useCallback((v:number)=>{const n=Math.max(0,Math.min(300,Number.isFinite(v)?v:100));setVolumeValue(n);localStorage.setItem("crew_live_volume",String(n));sessionRef.current?.setVolume(n)},[]);
  useEffect(()=>()=>{
   const session=sessionRef.current;
+  clearGuestTimer();guestDeadlineRef.current=0;
   cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();
   if(!session)return;
   // Preserve the final completed transcript before closing the active transport.
@@ -363,5 +388,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
