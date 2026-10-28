@@ -18,7 +18,6 @@ type Config={
  onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string;input?:string},completedTurns:LiveTurn[])=>void;
  onConfirmedTranscript?:(turn:LiveTurn)=>void; // optional board observer, read-only; no transport changes
  tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
- webSearch?:boolean;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
  onRecovered?:()=>void;
@@ -183,7 +182,9 @@ export function useLiveSession(config:Config){
      ?"\n[TABOO DIRECT GUESS] Speak "+tabooTongue+" only. For raw learner descriptions, make ONE clear, concise guess in varied natural "+tabooTongue+". No reaction before the guess, no second sentence, and never announce correctness. On verified cues follow the game result."
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
-    tools:configRef.current.webSearch?[{googleSearch:{}},...(configRef.current.tools||[])]:configRef.current.tools,
+    // Native Live Google Search is disabled: a server-side 1011 can close the audio session.
+    // Grounding is fetched separately on explicit user actions, never in WebSocket setup.
+    tools:configRef.current.tools,
      onGrounding:metadata=>{setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
      onSearchUnavailable:()=>setSearchUnavailable(true),
      onToolCall:call=>configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"},
@@ -327,6 +328,10 @@ export function useLiveSession(config:Config){
  const interrupt=useCallback(()=>{awaitingTutorRef.current=false;recoveryRequestRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");return sessionRef.current?.interrupt()??false},[]);
  const toggleMute=useCallback(()=>{const s=sessionRef.current;if(!s?.ready)return;s.toggleMic();setMuted(s.micMuted)},[]);
  const sendText=useCallback((text:string)=>sessionRef.current?.sendText(text)??false,[]);
+  const presentGrounding=useCallback((answer:{sources:GroundingSource[];searchSuggestions?:string})=>{
+   setSearchSources(previous=>mergeGroundingSources(previous,answer.sources));
+   if(answer.searchSuggestions)setSearchSuggestions(answer.searchSuggestions);
+  },[]);
  const sendControl=useCallback((text:string)=>sessionRef.current?.sendControl?.(text)??false,[]);
  const sendPreparedImage=useCallback((image:unknown,prompt:string)=>{const s=sessionRef.current;if(!s?.ready)return false;return s.sendImage(image,{prompt,statusText:"最新照片已送出"})},[]);
  const sendImageFile=useCallback(async(file:File,prompt:string)=>{
@@ -358,5 +363,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }
