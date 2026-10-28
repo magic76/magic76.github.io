@@ -10,6 +10,7 @@ import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
+import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
 import {TextChatPanel} from "../live/TextChatPanel";
 import{useTranslation}from"react-i18next";
@@ -162,9 +163,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?<TextChatPanel searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
     {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
-     :guestStarted&&(live.state==="ended"||live.state==="error")?<div className="notice" role="status"><b>{t("common:guestTrial.ended")}</b> <Link to="/settings#settings-gemini">{t("common:guestTrial.setupKey")}</Link></div>
+     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
      :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}
-    {guestStarted&&live.guestSecondsLeft>0&&<p className="meta" role="timer">{t("common:guestTrial.homeTitle")}：{live.guestSecondsLeft}s</p>}
+    {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>

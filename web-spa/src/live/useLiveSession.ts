@@ -38,6 +38,7 @@ export function useLiveSession(config:Config){
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
  const guestModeRef=useRef(false),guestDeadlineRef=useRef(0),guestTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const [guestSecondsLeft,setGuestSecondsLeft]=useState(0);
+ const [guestExpired,setGuestExpired]=useState(false),guestWrapUpSentRef=useRef(false);
  const guestConnectedAtRef=useRef(0),guestEndedReportedRef=useRef(false),guestConnectFailedReportedRef=useRef(false);
  const clearGuestTimer=()=>{if(guestTimerRef.current!==null){clearTimeout(guestTimerRef.current);guestTimerRef.current=null}};
  const guestRole=()=>configRef.current.sessionKind==="friend"?"friend":"teacher";
@@ -78,7 +79,18 @@ export function useLiveSession(config:Config){
   const stored=Number(localStorage.getItem("crew_live_volume")??"100");
   return Math.max(0,Math.min(300,Number.isFinite(stored)?stored:100));
  });
- useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());if(guestModeRef.current&&guestDeadlineRef.current>0)setGuestSecondsLeft(Math.max(0,Math.ceil((guestDeadlineRef.current-performance.now())/1000)))},500);return()=>clearInterval(id)},[]);
+ useEffect(()=>{const id=window.setInterval(()=>{
+  if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());
+  if(guestModeRef.current&&guestDeadlineRef.current>0){
+   const left=Math.max(0,Math.ceil((guestDeadlineRef.current-performance.now())/1000));
+   setGuestSecondsLeft(left);
+   // One-time, best-effort wrap-up. The hard deadline never changes.
+   if(left>0&&left<=10&&!guestWrapUpSentRef.current){
+    guestWrapUpSentRef.current=true;
+    try{sessionRef.current?.sendControl?.("[GUEST TRIAL] If you next respond, finish with one brief natural goodbye. Do not ask a new question or mention the countdown.");}catch{}
+   }
+  }
+ },500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
   recordGuestEnd();
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
@@ -121,6 +133,7 @@ export function useLiveSession(config:Config){
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
+   guestWrapUpSentRef.current=false;setGuestExpired(false);
    guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
@@ -346,7 +359,7 @@ export function useLiveSession(config:Config){
     guestTimerRef.current=setTimeout(()=>{
      if(sessionRef.current!==session)return;
      clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);
-     const item=snapshot("guest-limit");
+     setGuestExpired(true);const item=snapshot("guest-limit");
      sessionRef.current=null;
      void session.stop({reason:"guest-limit",silentStatus:true,emitTerminal:false})
       .catch(()=>{}).then(()=>finish(item));
@@ -409,5 +422,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,guestMode:guestModeRef.current,guestSecondsLeft,guestExpired,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,presentGrounding,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }

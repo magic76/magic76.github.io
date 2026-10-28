@@ -9,7 +9,7 @@ import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
 import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
-import{LiveControls}from"../live/LiveControls";import {GuestLiveStarter} from "../live/GuestLiveStarter";import{TextChatPanel}from"../live/TextChatPanel";
+import{LiveControls}from"../live/LiveControls";import {GuestLiveStarter} from "../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TextChatPanel}from"../live/TextChatPanel";
 import{PinyinHint}from"./PinyinHint";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
@@ -222,9 +222,9 @@ export function TeacherLivePage(){
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
-    :guestStarted&&(live.state==="ended"||live.state==="error")?<div className="notice" role="status"><b>{t("common:guestTrial.ended")}</b> <Link to="/settings#settings-gemini">{t("common:guestTrial.setupKey")}</Link></div>
+    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
-   {guestStarted&&live.guestSecondsLeft>0&&<p className="meta" role="timer">{t("common:guestTrial.homeTitle")}：{live.guestSecondsLeft}s</p>}
+   {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   <details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
    query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
    instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>
