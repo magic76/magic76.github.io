@@ -21,7 +21,7 @@
 
 The old GUEST_QA_ENABLED, GUEST_QA_ALLOW_PRODUCTION, GUEST_QA_UNTIL, GUEST_QA_ACCESS_TOKEN and GUEST_QA_RATE_LIMITER are unused after deployment. Remove old QA secrets and variables if desired; never delete the Gemini or Turnstile secrets.
 
-Cloudflare Workers Builds deploys `workers/guest-trial/wrangler.example.toml` from its configured root folder. Confirm required binding/secret values exist and verify the deployed API after build.
+Cloudflare Workers Builds should set **Root directory** to `workers/guest-trial`, leave **Build command** empty, and set **Deploy command** to `npx wrangler deploy` (or explicitly `npx wrangler deploy --config wrangler.toml`). A committed `workers/guest-trial/wrangler.toml` is provided; no manual copying is required. Confirm the two required Secrets and rate-limiter binding, and verify the API after build. If the Cloudflare Workers Build check stays red, inspect that Build's logs; GitHub CI success alone does not deploy Worker.
 
 ## Phase 2 deferred
 
