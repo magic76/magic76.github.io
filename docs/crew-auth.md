@@ -38,8 +38,25 @@
 - Removing sessions: `DELETE FROM crew_auth_sessions WHERE expires_at < unixepoch();` can be run periodically.
 - Signing in with a new provider creates a new account identity unless the user explicitly links it in a future secure account-linking flow.
 - This is not Cloudflare Access for administrators; the private /usage dashboard retains its separate Access policy.
-- The `CREW_AUTH_DB` binding belongs to the **Pages** project, not `crew-guest-trial` Worker.
+- The login-only `CREW_AUTH_DB` binding belongs to **Pages**. Member quota mode additionally requires the **same D1 database** bound on `crew-guest-trial` Worker.
 
 ## Cloudflare Workers OAuth redirect compatibility (2026-10-28)
 
 Cloudflare Workers/Pages Functions support only `fetch` redirect modes `follow` and `manual`, not `error`. The former `redirect:"error"` in both token exchange and profile requests threw a runtime `TypeError` before contacting Google/GitHub and surfaced as `auth_stage=token&auth_reason=token_transport` even with valid credentials. Both now use `redirect:"manual"`; token exchanges explicitly reject any 3xx response, so credentials are never auto-forwarded to another origin. This fix requires a Pages production deployment, but **no OAuth credential changes**. Source: https://developers.cloudflare.com/workers/runtime-apis/request/
+
+## Phase 3 — optional signed-in 3-minute guest-trial quota (staged, not enabled)
+
+The phase-3 code implements one successfully issued **three-minute** ephemeral token per Crew account, guarded by a one-use, 90-second HMAC assertion from Pages. It must not be confused with the anonymous trial quota or a provider-wide budget. Google and GitHub identities remain distinct accounts until a verified account-linking feature exists.
+
+### Cloudflare preparation (no change to public guest access until explicitly enabled)
+
+1. Confirm OAuth Google/GitHub login works with `GET /api/auth/session`. Execute `migrations/crew-auth/0002_guest_trials.sql` once against the **existing** `crew-auth` D1 database. The migration is idempotent and does not delete sessions.
+2. Generate a cryptographically random secret of 32+ characters (e.g. `openssl rand -hex 32`). Set **the identical** `CREW_GUEST_TICKET_SECRET` encrypted secret in **Pages Production** and **crew-guest-trial Worker**. Never commit the actual secret or put it in a `VITE_` variable.
+3. Bind the existing **crew-auth** database to the Worker under the **exact same binding name `CREW_AUTH_DB`**. Pages already has its own binding. The optional anonymous trial `GUEST_DB` is a *different* database/binding and must not be substituted.
+4. Deploy **Pages first** so `POST /api/auth/guest-ticket` exists, then deploy the separately built `crew-guest-trial` Worker. Both components retain `seconds:180`, a 190-second ephemeral token expiry and 30-second new-connection window. No account enforcement is activated by deploying code alone.
+5. To **meter signed-in members but preserve anonymous trials**, set Worker text variable `GUEST_ACCOUNT_METER_ENABLED=1`, leave `GUEST_REQUIRE_SIGNIN=0` (or absent), and redeploy Worker. GET Worker config reports `memberMetering:true` without `signinRequired:true`. A signed-in browser receives a Pages HMAC proof; Worker reserves one D1 member grant and validates one-use nonce. An unsigned browser continues the existing anonymous Turnstile + limiter/D1 flow.
+6. Verify logged-in users see `trial.used:0` before starting and `trial.used:1` afterwards via `GET /api/auth/session`; `/account` shows the quota. Replaying a ticket or requesting another signed-in trial returns 429 `ALREADY_USED`. Confirm unsigned visitors can still start under anonymous rules and cannot spoof a member ticket. Validate that a failed Gemini mint refunds the account quota.
+7. Later, and **only as a separate deliberate rollout**, set `GUEST_REQUIRE_SIGNIN=1` to require a member ticket for everyone. It also implicitly enables member metering, even if `GUEST_ACCOUNT_METER_ENABLED` is absent.
+8. Rollback: set both `GUEST_ACCOUNT_METER_ENABLED=0` and `GUEST_REQUIRE_SIGNIN=0` and redeploy Worker. The anonymous flow resumes; do not remove D1 tables or signing secrets. Per-account trials already recorded are preserved.
+
+**Limitations:** Anonymous visitors are intentionally not tied to member accounts, and signed-out users can use the existing anonymous allowance while mandatory sign-in is off. This is staged analytics and **not** full quota enforcement across all browsers/identities. Neither Cloudflare Pages nor the Worker should be described as deployed merely because GitHub Actions CI passed.

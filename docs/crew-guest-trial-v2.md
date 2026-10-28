@@ -98,3 +98,7 @@ The private `/usage` dashboard now has a shortcut to the trial summary. It disti
 - This change affects **both** Cloudflare Pages and the separately deployed `crew-guest-trial` Worker. Deploy Pages first, then the Worker: the updated frontend checks GET config for `seconds:180` **before** starting Turnstile/token issuance. While an old Worker still reports `60`, the guest entry stays unavailable (BYOK remains functional), so no one-use quota claim is consumed by a mismatched 60-second grant. The old frontend rejects 180-second grants, so avoid deploying Worker first.
 - The rate limiter's 60-second period controls token issuance frequency, **not** call length; do not increase it solely to change trial duration. Existing global/day/account trial quota semantics remain unchanged.
 - After deployment, smoke check GET `https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token` from the site origin and confirm `seconds:180`, then start a genuine trial and verify a 3-minute stop; never place long-lived credentials in browser code.
+
+## Phase 3 signed-in account metering (opt-in, 3 minutes)
+
+After the member D1 migration and matched `CREW_GUEST_TICKET_SECRET` Secrets, Worker `GUEST_ACCOUNT_METER_ENABLED=1` enables account-counted tokens for signed-in visitors **without requiring anonymous visitors to log in**. `GUEST_REQUIRE_SIGNIN=1` is a separate, stronger mode and is intentionally not enabled in Git. See `docs/crew-auth.md` for deploy ordering, D1 bindings, smoke checks and rollback. The trial length remains 180 seconds in either mode.
