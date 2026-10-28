@@ -1,10 +1,10 @@
-# Crew Web guest Live trial — one-minute Phase 1
+# Crew Web guest Live trial — three-minute Phase 1
 
 ## Public trial
 
 - Visitors without a BYOK Gemini API Key may use the original Teacher/Friend voice UI after completing Turnstile. No separate /try page, no private QA password. /try redirects to teacher selection.
 - Worker API: GET/POST /api/guest/token. Legacy /api/guest/qa is removed (404).
-- The short-lived Gemini Live token allows one use, a 30-second new-session window, and expires after 70 seconds. UI stops at 60 seconds after issuance. No reconnect, no guest chat memory/history or teacher reports.
+- The short-lived Gemini Live token allows one use, a 30-second new-session window, and expires after 190 seconds. UI stops at 180 seconds after issuance. No reconnect, no guest chat memory/history or teacher reports.
 - Existing BYOK sessions stay unchanged. Client only receives a short-lived token, not the owner's key.
 - No D1 in Phase 1. Requests are protected by Turnstile hostname/action verification and a required Cloudflare Worker per-edge limit (one request/minute/edge); not a global cap, per-person cap, or hard dollar budget.
 - A free Gemini API key may still be limited by model availability/quota; monitor usage and disable public trial with GUEST_TRIAL_ENABLED=0 when needed.
@@ -90,3 +90,11 @@ When `reason` is `gemini_keys_invalid`, the private log now also contains a non-
 ### Phase 2 reporting navigation
 
 The private `/usage` dashboard now has a shortcut to the trial summary. It distinguishes eligible entry from unavailable entry and shows event-count ratios for start, token issuance and Live connection. These are not authenticated-user conversion rates. Deploy Cloudflare Pages for this change; no changes to the isolated `crew-guest-trial` Worker or its Secrets are required.
+
+## Three-minute duration (October 28, 2026)
+
+- Guest Worker returns `seconds:180` and mints a one-use ephemeral token with `expireTime` 190 seconds after issuance; `newSessionExpireTime` stays at 30 seconds to limit token redemption.
+- Teacher/Friend Live UI enforces a hard 180-second deadline and still requests a brief farewell during the last ten seconds.
+- This change affects **both** the Cloudflare Pages frontend and the separately deployed `crew-guest-trial` Worker. Deploy them together, preferably the Worker first; an old frontend explicitly rejects the newer `seconds:180` grant, while a new frontend rejects an old `seconds:60` grant.
+- The rate limiter's 60-second period controls token issuance frequency, **not** call length; do not increase it solely to change trial duration. Existing global/day/account trial quota semantics remain unchanged.
+- After deployment, smoke check GET `https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token` from the site origin and confirm `seconds:180`, then start a genuine trial and verify a 3-minute stop; never place long-lived credentials in browser code.

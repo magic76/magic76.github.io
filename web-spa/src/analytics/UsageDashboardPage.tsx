@@ -139,7 +139,7 @@ export function UsageDashboardPage(){
      <p className="usage-explain">目前篩選：{selected.label} · {num(totalMany(rows,selected.events))} 次事件。各階段的事件可能來自同一個瀏覽器，不應視為不同使用者。</p>
     </section>
     <section id="guest-trial-stats" className="panel section">
-     <div className="section-head"><h2>免費體驗（1 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
+     <div className="section-head"><h2>免費體驗（3 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
      <div className="usage-guest-overview" aria-label="免費試用成效摘要">
       {[
        {label:"看到可用入口",event:"guest_trial_entry_view",hint:"約 "+num(unique("guest_trial_entry_view"))+" 個瀏覽器"},
@@ -174,7 +174,7 @@ export function UsageDashboardPage(){
       <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>
       <div className="usage-feature"><span>其他準備失敗</span><strong>{num(total(rows,"guest_trial_setup_failed"))} 次</strong></div>
       <div className="usage-feature"><span>實際對話時長</span>
-       <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45 秒以上 {num(total(rows,"guest_trial_ended","from_45_to_60s"))}</strong>
+       <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45–60 秒 {num(total(rows,"guest_trial_ended","from_45_to_60s"))} · 1–2 分鐘 {num(total(rows,"guest_trial_ended","from_60_to_120s"))} · 2–3 分鐘 {num(total(rows,"guest_trial_ended","from_120_to_180s"))}</strong>
       </div>
      </div>
      <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，並非 Worker 實際發證總數。若停用統計、頁面突然關閉或多次重試，前後階段數量可能不一致；無法拿來限制每位使用者的試用次數。登入與每人計數留待第三階段。</p>
