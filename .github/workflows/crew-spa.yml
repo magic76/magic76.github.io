@@ -55,7 +55,9 @@ jobs:
       - name: Full regressions (test repair PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
         run: npm test
-      - name: Validate first-party usage analytics contract
+      - name: Validate isolated guest trial backend and existing Live transport (guest PRs only)
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'guest-trial')
+        run: node --test tests/guest-trial.test.js tests/crew-live.lifecycle.test.js
         run: node --test tests/crew-usage.test.js
       - name: Validate Crew Magic world and Live tools (Magic PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')

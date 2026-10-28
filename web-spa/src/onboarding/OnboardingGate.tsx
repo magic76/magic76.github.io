@@ -3,6 +3,8 @@ import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
+import {isCrewAndroidShell} from "../lib/platform";
+import {fetchGuestTrialConfig} from "../lib/guestTrial";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getOnboardingCopy} from "./copy";
@@ -53,10 +55,18 @@ export function OnboardingGate({pathname}:{pathname:string}){
  const navigate=useNavigate();
  const dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
+ const [guestAvailable,setGuestAvailable]=useState(false);
  const [step,setStep]=useState(0);
  const [goal,setGoal]=useState<Goal>("chat");
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
+ useEffect(()=>{
+  if(pathname!=="/"||isCrewAndroidShell())return;
+  let live=true;
+  void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
+  return()=>{live=false};
+ },[pathname]);
+
 
  const openGuide=useCallback((replay:boolean)=>{
   if(replay){try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* optional */}}
@@ -140,6 +150,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><div className="crew-onboarding-preview-item" key={item.id}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong></div>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
+     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/try")}}>{i18n.language.startsWith("zh")?"免註冊免費試玩 AI 語音 3 分鐘":"Try 3 minutes of AI voice for free"} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>
