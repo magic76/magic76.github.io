@@ -252,7 +252,7 @@ test("Phase 1 public guest requires Turnstile and the Worker limiter (no D1)",as
  const mock=mockedServices();
  try{
   let r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),settings);
-  assert.equal((await r.json()).seconds,60);
+  assert.equal((await r.json()).seconds,180);
   r=await worker.fetch(post(),{...settings,GUEST_TRIAL_RATE_LIMITER:undefined});
   assert.equal(r.status,503);
   assert.equal(mock.counts().minted,0);
