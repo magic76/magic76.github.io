@@ -358,8 +358,8 @@ test("public GET reports private non-sensitive diagnostics when guest config is 
   TURNSTILE_SECRET_KEY:"sensitive-turnstile-secret",GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}};
  const cases=[
   [{...base,GUEST_TRIAL_ENABLED:"0"},"trial_disabled"],
-  [{...base,GEMINI_GUEST_API_KEYS:"a,b,c"},"gemini_keys_invalid"],
-  [{...base,GEMINI_GUEST_API_KEYS:undefined},"gemini_keys_invalid"],
+  [{...base,GEMINI_GUEST_API_KEYS:"a,b,c"},"gemini_keys_invalid","invalid_key_entry"],
+  [{...base,GEMINI_GUEST_API_KEYS:undefined},"gemini_keys_invalid","unsupported_type"],
   [{GUEST_TRIAL_ENABLED:"1",TURNSTILE_SECRET_KEY:"sensitive-turnstile-secret",
    GUEST_TRIAL_RATE_LIMITER:base.GUEST_TRIAL_RATE_LIMITER},"gemini_key_missing"],
   [{...base,TURNSTILE_SECRET_KEY:undefined},"turnstile_secret_missing"],
@@ -370,11 +370,11 @@ test("public GET reports private non-sensitive diagnostics when guest config is 
  const warnings=[],originalWarn=console.warn;
  console.warn=(...args)=>warnings.push(args);
  try{
-  for(const [settings,reason] of cases){
+  for(const [settings,reason,detail] of cases){
    const r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),settings);
    assert.equal(r.status,200);
    assert.deepEqual(await r.json(),{enabled:false});
-   assert.deepEqual(warnings.at(-1),["crew_guest_trial_configuration",{state:"unavailable",reason}]);
+   assert.deepEqual(warnings.at(-1),["crew_guest_trial_configuration",{state:"unavailable",reason,...(detail?{detail}:{})}]);
   }
   assert.equal(warnings.length,cases.length);
   const ok=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),base);
@@ -382,4 +382,52 @@ test("public GET reports private non-sensitive diagnostics when guest config is 
   assert.equal(warnings.length,cases.length);
   assert.doesNotMatch(JSON.stringify(warnings),/sensitive-turnstile-secret|server-key-alpha-at-least-12/);
  }finally{console.warn=originalWarn}
+});
+
+test("multi-key binding accepts CSV, newline, quoted JSON, JSON arrays and strict objects",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+ const first="server-key-alpha-at-least-12",second="server-key-beta-at-least-12";
+ const formats=[
+  first, first+","+second, first+"\n"+second,
+  JSON.stringify([first,second]),JSON.stringify({keys:[first,second]}),
+  JSON.stringify(JSON.stringify([first,second])),[first,second],{keys:[first,second]}
+ ];
+ for(const setting of formats){
+  const bindings={GUEST_TRIAL_ENABLED:"1",GEMINI_GUEST_API_KEYS:setting,
+   TURNSTILE_SECRET_KEY:"server-turnstile-secret",
+   GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}};
+  const r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),bindings);
+  assert.equal(r.status,200);
+  assert.equal((await r.json()).enabled,true);
+ }
+});
+test("multi-key diagnostics classify malformed formats without exposing credentials",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+ const key="secret-server-key-at-least-12";
+ const invalid=[
+  [undefined,"unsupported_type"],[42,"unsupported_type"],
+  [{keys:[key],other:"unexpected"},"unsupported_shape"],
+  ["{not-json","malformed_json"],
+  ["","empty"],["a,b,c","invalid_key_entry"],
+  [key+",","invalid_key_entry"],
+  [Array.from({length:21},(_,i)=>key+i),"invalid_count"]
+ ];
+ const original=console.warn,warnings=[];
+ console.warn=(...args)=>warnings.push(args);
+ try{
+  for(const [setting,detail] of invalid){
+   const r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),{
+    GUEST_TRIAL_ENABLED:"1",GEMINI_GUEST_API_KEYS:setting,
+    GEMINI_GUEST_API_KEY:key,TURNSTILE_SECRET_KEY:"server-turnstile-secret",
+    GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}
+   });
+   assert.deepEqual(await r.json(),{enabled:false});
+   assert.deepEqual(warnings.at(-1),["crew_guest_trial_configuration",{
+    state:"unavailable",reason:"gemini_keys_invalid",detail
+   }]);
+  }
+  assert.doesNotMatch(JSON.stringify(warnings),/secret-server-key-at-least-12/);
+ }finally{console.warn=original}
 });

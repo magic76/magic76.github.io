@@ -7,23 +7,44 @@ const SESSION_SECONDS=60;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
-// Accept "key1,key2,key3" (preferred) or a JSON array in one Worker Secret.
-// Empty/malformed entries fail closed, never silently fall back to the old key.
-function guestGeminiKeys(env){
- if(Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS")){
-  const raw=env.GEMINI_GUEST_API_KEYS;
-  if(typeof raw!=="string"||raw.length>16000)return [];
+// Accept one/multiple keys as comma/newline text, JSON array/string or {keys:[...]}.
+// Fail closed on invalid multi-key settings even when the legacy secret exists.
+function parseGuestGeminiKeyList(raw){
+ let parsed=raw;
+ if(typeof raw==="string"){
+  if(raw.length>16000)return {keys:[],problem:"too_large"};
   const value=raw.trim();
-  let parsed;
+  if(!value)return {keys:[],problem:"empty"};
   if(value.startsWith("[")||value.startsWith("{")||value.startsWith('"')){
-   try{parsed=JSON.parse(value)}catch{return []}
-  }else{
-   parsed=value.split(",").map(key=>key.trim());
-  }
-  if(!Array.isArray(parsed)||parsed.length<1||parsed.length>MAX_GEMINI_KEYS
-    ||parsed.some(key=>typeof key!=="string"||!/^[A-Za-z0-9_-]{12,512}$/.test(key)))return [];
-  return [...new Set(parsed)];
+   try{parsed=JSON.parse(value)}catch{return {keys:[],problem:"malformed_json"}}
+  }else parsed=value;
  }
+ // Cloudflare JSON bindings may be arrays/objects, not strings.
+ // Also support quoted JSON text without logging its contents.
+ if(typeof parsed==="string"){
+  const value=parsed.trim();
+  if(value.startsWith("[")||value.startsWith("{")){
+   try{parsed=JSON.parse(value)}catch{return {keys:[],problem:"malformed_json"}}
+  }else parsed=value.split(/[,\r\n]/).map(key=>key.trim());
+ }
+ if(parsed!==null&&typeof parsed==="object"&&!Array.isArray(parsed)){
+  if(Object.keys(parsed).length!==1||!Object.prototype.hasOwnProperty.call(parsed,"keys"))
+   return {keys:[],problem:"unsupported_shape"};
+  parsed=parsed.keys;
+ }
+ if(!Array.isArray(parsed))return {keys:[],problem:"unsupported_type"};
+ if(parsed.length<1||parsed.length>MAX_GEMINI_KEYS)return {keys:[],problem:"invalid_count"};
+ const keys=[];
+ for(const value of parsed){
+  if(typeof value!=="string"||!/^[A-Za-z0-9_-]{12,512}$/.test(value.trim()))
+   return {keys:[],problem:"invalid_key_entry"};
+  keys.push(value.trim());
+ }
+ return {keys:[...new Set(keys)],problem:null};
+}
+function guestGeminiKeys(env){
+ if(Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS"))
+  return parseGuestGeminiKeyList(env.GEMINI_GUEST_API_KEYS).keys;
  const old=env.GEMINI_GUEST_API_KEY;
  return typeof old==="string"&&old.trim().length>=12?[old.trim()]:[];
 }
@@ -66,7 +87,10 @@ export async function onRequestGet({request,env}){
  if(!validHost(url,env))return disabled();
  const issue=guestTrialConfigurationIssue(env);
  if(issue){
-  console.warn("crew_guest_trial_configuration",{state:"unavailable",reason:issue});
+  // Stable private diagnostic codes only: never include credential values or lengths.
+  const detail=issue==="gemini_keys_invalid"
+   ?parseGuestGeminiKeyList(env.GEMINI_GUEST_API_KEYS).problem:null;
+  console.warn("crew_guest_trial_configuration",{state:"unavailable",reason:issue,...(detail?{detail}:{})});
   return disabled();
  }
  return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS});
