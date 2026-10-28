@@ -4,13 +4,15 @@ const {readFileSync}=require("node:fs");
 const path=require("node:path");
 const read=filename=>readFileSync(path.resolve(__dirname,"..",filename),"utf8");
 
-test("Explore presents six peer destinations in a single illustrated grid",()=>{
+test("Explore preserves its illustrated destinations and hides Circle from navigation",()=>{
  const page=read("web-spa/src/pages/CrewSectionPage.tsx");
  const art=read("web-spa/src/pages/ExploreArtwork.tsx");
  const css=read("web-spa/src/pages/crewExplore.css");
  assert.match(page,/section==="explore"\?/);
  assert.match(page,/className="crew-explore-grid"/);
  assert.match(page,/\[x.hero,\.\.\.x.items\]\.map/);
+ assert.match(page,/const showCircleInExplore=false;/);
+ assert.match(page,/\.filter\(item=>showCircleInExplore\|\|item\.to!=="\/circle"\)/);
  assert.match(page,/className="crew-explore-tile"/);
  assert.match(page,/exploreKinds:readonly ExploreKind\[\]=\["fortune","timeline","games","story","research","circle"\]/);
  assert.match(page,/<ExploreArtwork kind=\{exploreKinds\[i\]\}\/>/);
@@ -26,7 +28,7 @@ test("Explore presents six peer destinations in a single illustrated grid",()=>{
   assert.ok(art.includes(kind),kind);
  }
 });
-test("Explore's six cards lead to existing features with no duplicate Fortune or Shorts",()=>{
+test("Explore keeps Circle configuration for later re-enabling without duplicate Fortune or Shorts",()=>{
  const page=read("web-spa/src/pages/CrewSectionPage.tsx");
  const zh=page.slice(page.indexOf(" explore:{"),page.indexOf(" learn:{"));
  const en=page.slice(page.indexOf(" explore:{",page.indexOf("const englishCopy")),page.indexOf(" learn:{",page.indexOf("const englishCopy")));
