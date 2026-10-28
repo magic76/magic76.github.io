@@ -14,7 +14,7 @@ This replaces the **unmerged Firebase AI Logic** experiment in PR #125. It does 
 
 ## Phase 1 — private voice QA WITHOUT D1
 
-This phase tests Gemini Live on an isolated protected preview. It is NOT a public trial
+This phase tests Gemini Live either on an isolated protected preview, or via a separate explicit, secret-gated QA exception on the production website. It is NOT a public trial
 and deliberately does NOT create persistent quotas or promise a daily USD cost ceiling.
 The public `/try` route and homepage CTAs remain disabled whenever the production
 backend says `enabled:false`.
@@ -80,6 +80,49 @@ Gemini usage. Refer to the official Worker rate-limiting documentation.
   preview hostname), rate limiting, then mint a single-use 200s token.
 - `GET /api/guest/token` stays disabled because `GUEST_TRIAL_ENABLED=0`.
   BYOK flows are unchanged.
+
+### Optional: private QA on production website (no Preview)
+
+For a short supervised test on **https://www.3sssi.com/try?qa=1**, deploy the
+standalone Worker first; simply merging a web PR is **not** enough.
+The QA endpoint normally rejects the production Origin with 403. The new
+**OFF-by-default** text variable `GUEST_QA_ALLOW_PRODUCTION=1` permits only
+the private `/api/guest/qa` endpoint from that origin, while the public
+`/api/guest/token` endpoint stays disabled (`GUEST_TRIAL_ENABLED=0`).
+
+Configure the Worker with:
+- **Secret** `GUEST_QA_ACCESS_TOKEN`: generate a NEW high-entropy 32+ character
+  random value offline; never reuse a value already pasted into a chat.
+- **Secrets** `GEMINI_GUEST_API_KEY` and `TURNSTILE_SECRET_KEY`.
+- **Text** `GUEST_QA_ENABLED=1`, `GUEST_QA_ALLOW_PRODUCTION=1`,
+  `GUEST_TRIAL_ENABLED=0`, and `GUEST_QA_UNTIL=<ISO8601 expiry>` (UTC `Z`
+  or explicit timezone offset; less than four hours in the future, ideally 1–2).
+- **Required Worker rate limit binding** `GUEST_QA_RATE_LIMITER` from
+  `wrangler.example.toml`, limited to **1 token request/minute per colo**.
+- **No D1**, **no `GUEST_ALLOW_PREVIEW`**, **no `GUEST_PREVIEW_ORIGIN`**
+  required for this production-only QA route.
+- Verify the Turnstile widget allows hostname `www.3sssi.com`.
+
+QA uses the same secret, Turnstile **`crew-guest-qa` action**, expiring window
+and Worker limiter as Preview QA. The published `/try?qa=1` page will be
+discoverable to anyone who knows the URL, but **cannot issue credentials
+without a valid secret**; the public site traffic level is not a control.
+Origin is not authentication (non-browser clients can spoof it). Use a
+dedicated Gemini key/project with budget alerts and provider quotas; the
+Worker limiter is per-Cloudflare-location and is NOT a dollar cap.
+
+After the brief test:
+1. Set `GUEST_QA_ENABLED=0` and `GUEST_QA_ALLOW_PRODUCTION=0` immediately.
+2. Rotate or delete the QA token Secret.
+3. Keep `GUEST_TRIAL_ENABLED=0` until Phase 2 public rollout.
+
+**Operator acceptance:** The GET `/api/guest/token` request with
+`Origin: https://www.3sssi.com` must report `enabled:false`, while
+`GET /api/guest/qa` returns HTTP 403 without the authorization header
+and only returns `enabled:true` with the correct header and active deadline.
+After allowing QA, verify real microphone behavior, teacher/Zoe voice,
+3-minute stop and Gemini v1beta token enforcement. No real Gemini call is
+performed by these repository tests.
 
 ## Phase 2 — D1 and public rollout (NOT enabled)
 

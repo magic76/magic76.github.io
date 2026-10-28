@@ -343,3 +343,55 @@ test("guest UI copy is localized in all 11 UI locale catalogs",()=>{
   for(const [k,v] of Object.entries(c))assert.ok(typeof v==="string"&&v.trim(),locale+" "+k);
  }
 });
+
+
+// Production-origin QA is deliberately opt-in independently of the public trial.
+// A changed Origin header alone must never bypass the private access token or CAPTCHA.
+test("production-origin QA requires a separate opt-in and all original safeguards",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/qa";
+ const publicUrl="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+ const production="https://www.3sssi.com";
+ const secret="qa-production-"+("p".repeat(44));
+ let allow=true;
+ const settings={...env(undefined),GUEST_TRIAL_ENABLED:"0",GUEST_QA_ENABLED:"1",
+  GUEST_QA_ACCESS_TOKEN:secret,GUEST_QA_UNTIL:new Date(Date.now()+3600000).toISOString(),
+  GUEST_QA_RATE_LIMITER:{limit:async()=>({success:allow})}};
+ const get=(headers={})=>new Request(url,{headers:{Origin:production,...headers}});
+ const post=()=>new Request(url,{method:"POST",headers:{
+  Origin:production,"content-type":"application/json","x-crew-qa-token":secret,
+  "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-Production-QA"
+ },body:JSON.stringify({challengeToken:"turnstile-valid-test-token"})});
+ assert.equal((await worker.fetch(get({"x-crew-qa-token":secret}),settings)).status,403);
+ const allowed={...settings,GUEST_QA_ALLOW_PRODUCTION:"1"};
+ const publicResponse=await worker.fetch(new Request(publicUrl,{headers:{Origin:production}}),allowed);
+ assert.equal(publicResponse.status,200);
+ assert.equal((await publicResponse.json()).enabled,false);
+ assert.equal((await worker.fetch(get(),allowed)).status,403);
+ assert.equal((await worker.fetch(get({"x-crew-qa-token":"not-valid"}),allowed)).status,403);
+ assert.equal((await worker.fetch(get({"x-crew-qa-token":secret}),{...allowed,GUEST_QA_ENABLED:"0"})).status,503);
+ assert.equal((await worker.fetch(get({"x-crew-qa-token":secret}),{...allowed,
+  GUEST_QA_UNTIL:new Date(Date.now()-1000).toISOString()})).status,503);
+ assert.equal((await worker.fetch(get({"x-crew-qa-token":secret}),{...allowed,
+  GUEST_QA_RATE_LIMITER:undefined})).status,503);
+ const preflight=await worker.fetch(new Request(url,{method:"OPTIONS",headers:{
+  Origin:production,"access-control-request-method":"POST",
+  "access-control-request-headers":"content-type,x-crew-qa-token"
+ }}),allowed);
+ assert.equal(preflight.status,204);
+ assert.equal(preflight.headers.get("access-control-allow-origin"),production);
+ const grantConfig=await worker.fetch(get({"x-crew-qa-token":secret}),allowed);
+ assert.equal(grantConfig.status,200);
+ assert.equal((await grantConfig.json()).qa,true);
+ const mocked=mockedServices({hostname:"www.3sssi.com",action:"crew-guest-qa"});
+ try{
+  const issued=await worker.fetch(post(),allowed);
+  assert.equal(issued.status,200);
+  assert.equal((await issued.json()).token,"ephemeral-test-one-use-token");
+  assert.equal(mocked.counts().minted,1);
+  allow=false;
+  const rateLimited=await worker.fetch(post(),allowed);
+  assert.equal(rateLimited.status,429);
+  assert.equal(mocked.counts().minted,1);
+ }finally{mocked.restore()}
+});
