@@ -519,3 +519,68 @@ test("three-minute trial stays consistent across Worker grants and client hard d
  assert.match(usage,/from_120_to_180s/);
  assert.match(config,/Number\(value\.seconds\)===180/);
 });
+
+test("member mode rejects unsigned or replayed tickets and enforces one trial per D1 user",async()=>{
+ const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
+ const {onRequestGet,onRequestPost}=await backend;
+ const secret="testing-only-account-guest-secret-at-least-32-bytes";
+ const users=new Map(),claims=new Set();
+ const db={prepare(sql){return {bind(...v){return {async run(){
+  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_ticket_claims")){
+   if(claims.has(v[0]))return{meta:{changes:0}};
+   claims.add(v[0]);return{meta:{changes:1}};
+  }
+  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_usage")){
+   if(!users.has(v[0]))users.set(v[0],0);
+   return{meta:{changes:1}};
+  }
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
+   const value=users.get(v[1])||0;
+   if(value>=1)return{meta:{changes:0}};
+   users.set(v[1],value+1);return{meta:{changes:1}};
+  }
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
+   users.set(v[0],Math.max(0,(users.get(v[0])||0)-1));
+   return{meta:{changes:1}};
+  }
+  throw Error("Unexpected member SQL "+sql);
+ }}}}}};
+ const settings=env(undefined,{GUEST_REQUIRE_SIGNIN:"1",CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:secret,
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
+ const config=await onRequestGet({request:req().method==="POST"?new Request("https://www.3sssi.com/api/guest/token"):req(),env:settings});
+ assert.equal((await config.json()).signinRequired,true);
+ const request=ticket=>new Request("https://www.3sssi.com/api/guest/token",{
+  method:"POST",headers:{"origin":"https://www.3sssi.com","content-type":"application/json",
+   "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-Test/1.0"},
+  body:JSON.stringify({challengeToken:"turnstile-valid-test-token",...(ticket?{authTicket:ticket}:{})})
+ });
+ const mock=mockedServices();
+ try{
+  assert.equal((await onRequestPost({request:request(),env:settings})).status,401);
+  const uid="123e4567-e89b-42d3-a456-426614174000";
+  const ticket=await createGuestTicket(uid,secret);
+  assert.equal((await onRequestPost({request:request(ticket+"tampered"),env:settings})).status,401);
+  const first=await onRequestPost({request:request(ticket),env:settings});
+  assert.equal(first.status,200);
+  assert.equal((await first.json()).seconds,180);
+  assert.equal((await onRequestPost({request:request(ticket),env:settings})).status,429);
+  const next=await createGuestTicket(uid,secret);
+  const already=await onRequestPost({request:request(next),env:settings});
+  assert.equal(already.status,429);
+  assert.equal((await already.json()).code,"ALREADY_USED");
+  assert.equal(mock.counts().minted,1);
+  assert.equal(users.get(uid),1);
+ }finally{mock.restore()}
+});
+test("member trial requires a secure database and shared signing secret",async()=>{
+ const {onRequestGet}=await backend;
+ const base={GUEST_TRIAL_ENABLED:"1",GEMINI_GUEST_API_KEY:"server-secret-never-in-client",
+  GUEST_TURNSTILE_SITE_KEY:"public-site-key",GUEST_TURNSTILE_SECRET:"server-turnstile-secret",
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}};
+ const r=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
+  env:{...base,GUEST_REQUIRE_SIGNIN:"1"}});
+ assert.deepEqual(await r.json(),{enabled:false});
+ const bad=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
+  env:{...base,GUEST_REQUIRE_SIGNIN:"true"}});
+ assert.deepEqual(await bad.json(),{enabled:false});
+});
