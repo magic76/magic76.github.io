@@ -8,6 +8,7 @@ import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav}from"./components/AppChrome";
 import{sectionForRoute}from"./pages/crewNavigation";
 import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
+import{GameRouteMonitor,GameRouteReady}from"./analytics/gameRouteDiagnostics";
 import{AppChrome}from"./components/AppChrome";
 import{OnboardingGate}from"./onboarding/OnboardingGate";
 import{CrewUpdateNotice}from"./components/CrewUpdateNotice";
@@ -52,7 +53,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
- },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><Suspense fallback={<div className="spa-loading" role="status">{t("loading")}</div>}><Routes>
+ },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<div className="spa-loading" role="status">{t("loading")}</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
@@ -78,16 +79,16 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>
 <Route path="/teacher" element={<TeacherLayout/>}><Route index element={<PracticePage/>}/><Route path="practice" element={<PracticePage/>}/><Route path="fortune" element={<TeacherFortunePage/>}/><Route path="shorts" element={<ShortsPage/>}/><Route path="friends" element={<Navigate to="/teacher/roles?mode=friends" replace/>}/><Route path="roles" element={<RolesPage/>}/><Route path="learn" element={<Navigate to="/learn" replace/>}/><Route path="tutor" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/><Route path="me" element={<MyPage/>}/><Route path="vocabulary" element={<VocabularyPage/>}/><Route path="course" element={<CoursePage/>}/><Route path="pronunciation" element={<PronunciationPage/>}/><Route path="textbook" element={<TextbookPage/>}/><Route path="phrasebook" element={<PhrasebookPage/>}/><Route path="reports" element={<ReportsPage/>}/><Route path="memory" element={<StudentMemoryPage/>}/><Route path="reading-library" element={<ReadingLibraryPage/>}/></Route>
 <Route path="/circle" element={<BooksPage/>}/>
-<Route path="/games" element={<AppChrome product="home"><CrewPlayHubPage/></AppChrome>}/>
-<Route path="/games/friend-gomoku" element={<AppChrome product="home"><FriendGomokuPage/></AppChrome>}/>
+<Route path="/games" element={<AppChrome product="home"><GameRouteReady/><CrewPlayHubPage/></AppChrome>}/>
+<Route path="/games/friend-gomoku" element={<AppChrome product="home"><GameRouteReady/><FriendGomokuPage/></AppChrome>}/>
 <Route path="/games/gomoku" element={<Navigate to="/games/friend-gomoku" replace/>}/>
-<Route path="/games/1a2b" element={<AppChrome product="home"><NumberGamePage/></AppChrome>}/>
-<Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
-<Route path="/games/crazy-court" element={<AppChrome product="home"><CrazyCourtPage/></AppChrome>}/>
-<Route path="/games/werewolf" element={<AppChrome product="home"><WerewolfPage/></AppChrome>}/>
-<Route path="/games/truth-news" element={<AppChrome product="home"><TruthNewsPage/></AppChrome>}/>
- <Route path="/games/nonsense" element={<AppChrome product="home"><NonsenseChampionshipPage/></AppChrome>}/>
-<Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
+<Route path="/games/1a2b" element={<AppChrome product="home"><GameRouteReady/><NumberGamePage/></AppChrome>}/>
+<Route path="/games/taboo" element={<AppChrome product="home"><GameRouteReady/><TabooGamePage/></AppChrome>}/>
+<Route path="/games/crazy-court" element={<AppChrome product="home"><GameRouteReady/><CrazyCourtPage/></AppChrome>}/>
+<Route path="/games/werewolf" element={<AppChrome product="home"><GameRouteReady/><WerewolfPage/></AppChrome>}/>
+<Route path="/games/truth-news" element={<AppChrome product="home"><GameRouteReady/><TruthNewsPage/></AppChrome>}/>
+ <Route path="/games/nonsense" element={<AppChrome product="home"><GameRouteReady/><NonsenseChampionshipPage/></AppChrome>}/>
+<Route path="/games/:gameId" element={<AppChrome product="home"><GameRouteReady/><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
 <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
 <Route path="/timeline/live" element={<TimelineLivePage/>}/>
@@ -99,4 +100,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune" element={<FortuneLayout/>}><Route index element={<FortuneHomePage/>}/><Route path="history" element={<FortuneHistoryPage/>}/><Route path="reading" element={<FortuneReadingPage/>}/></Route>
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}<OnboardingGate pathname={pathname}/><CrewUpdateNotice pathname={pathname}/></>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}<OnboardingGate pathname={pathname}/><CrewUpdateNotice pathname={pathname}/></>}

@@ -1,4 +1,5 @@
 import {Component,type ReactNode} from "react";
+import {recordGameRouteAssetError} from "../analytics/gameRouteDiagnostics";
 
 // Vite's hashed route chunks can be missing briefly when an older open tab
 // navigates after a Cloudflare Pages deployment, or when a mobile fetch fails.
@@ -40,6 +41,7 @@ export class RouteErrorBoundary extends Component<Props,State>{
 
  componentDidCatch(error:unknown){
   if(!isAssetLoadError(error))return;
+  recordGameRouteAssetError(window.location.pathname);
   // Reload once to obtain the current HTML/asset manifest, never indefinitely.
   // A persistent outage still shows the retry/home actions below.
   try{
