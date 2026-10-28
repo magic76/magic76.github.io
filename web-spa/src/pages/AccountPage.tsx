@@ -27,7 +27,7 @@ export function AccountPage(){
  }
  const authError=query.get("auth_error");
  return <div className="crew-account-page">
-  <section className="hero"><span className="kicker">CREW ACCOUNT</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
+  <section className="hero"><span className="kicker">{t("auth.account")}</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
   <section className="panel section crew-account-panel" aria-label={t("auth.title")}>
    {loading?<p role="status">{t("auth.loading")}</p>:
    state?.user?<><div className="crew-account-identity"><div className="crew-account-avatar" aria-hidden="true">{state.user.name.slice(0,1).toUpperCase()}</div><div><strong>{state.user.name}</strong><small>{t("auth.signedIn")} · {state.user.provider==="google"?"Google":"GitHub"}</small></div></div>
