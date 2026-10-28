@@ -1,8 +1,9 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import {readFileSync} from "node:fs";
+const test=require("node:test");
+const assert=require("node:assert/strict");
+const {readFileSync}=require("node:fs");
+const {join}=require("node:path");
 
-const read=path=>readFileSync(new URL("../"+path,import.meta.url),"utf8");
+const read=path=>readFileSync(join(__dirname,"..",path),"utf8");
 
 test("Live session does not attach Google Search to audio WebSocket setup",()=>{
  const live=read("web-spa/src/live/useLiveSession.ts");
