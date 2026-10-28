@@ -143,7 +143,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
   const r=await onRequestPost({request:request({...payload,event,detail}),env});
   assert.equal(r.status,204,event);
  }
- assert.equal(points.length,11);
+ assert.equal(points.length,13);
  assert.equal((await onRequestPost({request:request({...payload,event:"guest_trial_token_issued",detail:"private-token"}),env})).status,400);
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
