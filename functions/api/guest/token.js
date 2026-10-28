@@ -1,9 +1,4 @@
-/**
- * Crew guest Live trial — disabled unless explicitly provisioned.
- * Secrets, quota reservation and Turnstile verification are server-side only.
- * One three-minute Live session per salted device/network fingerprint per 30 days.
- * Budget is a conservative daily session reservation, NOT exact Gemini billing.
- */
+/** Crew guest Live trial. All long-lived credentials stay on the Worker. */
 const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
@@ -11,12 +6,41 @@ const LIVE_MODEL="gemini-3.8-live";
 const SESSION_SECONDS=60;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
+const MAX_GEMINI_KEYS=20;
+// Accept "key1,key2,key3" (preferred) or a JSON array in one Worker Secret.
+// Empty/malformed entries fail closed, never silently fall back to the old key.
+function guestGeminiKeys(env){
+ if(Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS")){
+  const raw=env.GEMINI_GUEST_API_KEYS;
+  if(typeof raw!=="string"||raw.length>16000)return [];
+  const value=raw.trim();
+  let parsed;
+  if(value.startsWith("[")||value.startsWith("{")||value.startsWith('"')){
+   try{parsed=JSON.parse(value)}catch{return []}
+  }else{
+   parsed=value.split(",").map(key=>key.trim());
+  }
+  if(!Array.isArray(parsed)||parsed.length<1||parsed.length>MAX_GEMINI_KEYS
+    ||parsed.some(key=>typeof key!=="string"||!/^[A-Za-z0-9_-]{12,512}$/.test(key)))return [];
+  return [...new Set(parsed)];
+ }
+ const old=env.GEMINI_GUEST_API_KEY;
+ return typeof old==="string"&&old.trim().length>=12?[old.trim()]:[];
+}
+function selectGuestGeminiKey(env){
+ const keys=guestGeminiKeys(env);
+ if(keys.length===1)return keys[0];
+ if(keys.length<1)throw new Error("Guest credential not configured");
+ const value=new Uint32Array(1);
+ crypto.getRandomValues(value);
+ return keys[value[0]%keys.length];
+}
 function validHost(url,env){
  if(url.hostname==="www.3sssi.com")return true;
  return env.GUEST_ALLOW_PREVIEW==="1"&&previewHost.test(url.hostname);
 }
 function configured(env){
- if(env.GUEST_TRIAL_ENABLED!=="1"||!env.GEMINI_GUEST_API_KEY
+ if(env.GUEST_TRIAL_ENABLED!=="1"||!guestGeminiKeys(env).length
     ||!env.GUEST_TURNSTILE_SITE_KEY||!env.GUEST_TURNSTILE_SECRET)return false;
  // Phase 1: require per-edge rate limiting even without a database.
  if(!env.GUEST_DB)return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function";
@@ -105,7 +129,7 @@ export async function onRequestPost({request,env}){
   }catch{return json({error:"Guest limiter unavailable"},503)}
   try{
    const issuedAt=Date.now();
-   const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
+   const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
    return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
     issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
   }catch{return json({error:"Guest trial temporarily unavailable"},503)}
@@ -132,7 +156,7 @@ export async function onRequestPost({request,env}){
   if(quota.meta?.changes!==1)return json({error:"Today's trial capacity reached",code:"DAILY_LIMIT"},429);
   reserved=true;
   const issuedAt=Date.now();
-  const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
+  const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
   minted=true;
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+70000).toISOString()});
  }catch{
