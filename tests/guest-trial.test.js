@@ -82,7 +82,8 @@ function mockedServices(options={}){
   if(String(url).includes("siteverify")){
    captcha++;
    return Response.json({success:options.badCaptcha!==true,
-    hostname:options.badHostname?"evil.example":options.hostname||"www.3sssi.com"});
+    hostname:options.badHostname?"evil.example":options.hostname||"www.3sssi.com",
+    action:options.badAction?"unexpected-action":options.action|| (options.hostname?"crew-guest-qa":"crew-guest-trial")});
   }
   if(String(url).includes("/v1beta/auth_tokens")){
    minted++;
@@ -90,9 +91,14 @@ function mockedServices(options={}){
    const body=JSON.parse(init.body);
    assert.equal(init.headers["x-goog-api-key"],"server-secret-never-in-client");
    assert.equal(body.uses,1);
-   assert.equal(body.liveConnectConstraints.model,"models/gemini-3.8-live");
-   assert.deepEqual(body.liveConnectConstraints.config.responseModalities,["AUDIO"]);
+   assert.equal(body.bidiGenerateContentSetup.model,"models/gemini-3.8-live");
+   assert.deepEqual(body.bidiGenerateContentSetup.generationConfig.responseModalities,["AUDIO"]);
+   assert.deepEqual(body.bidiGenerateContentSetup.tools,[]);
+   assert.equal(body.fieldMask,"model,generationConfig.responseModalities,tools");
+   assert.equal(body.liveConnectConstraints,undefined);
    assert.ok(Date.parse(body.expireTime)-Date.now()<210000);
+   assert.equal(body.uses,1);
+   assert.ok(Date.parse(body.newSessionExpireTime)-Date.now()<=45000);
    return Response.json({name:"ephemeral-test-one-use-token"});
   }
   throw Error("Unexpected fetch "+url);
@@ -285,4 +291,27 @@ test("private QA issues one token after Turnstile and limiter, with no DB bindin
   assert.equal((await limited.json()).code,"QA_LIMIT");
   assert.equal(mock.counts().minted,1);
  }finally{mock.restore()}
+});
+
+// Regression: QA must not leak enablement through different error responses.
+test("private QA denies bad access before revealing configuration, enforces time zone",async()=>{
+ const worker=await loadStandaloneWorker(),url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/qa";
+ const origin="https://test123.magic76-github-io.pages.dev",secret="Q".repeat(48);
+ const base={...env(undefined),GUEST_TRIAL_ENABLED:"0",GUEST_QA_ENABLED:"1",
+  GUEST_ALLOW_PREVIEW:"1",GUEST_PREVIEW_ORIGIN:origin,GUEST_QA_ACCESS_TOKEN:secret,
+  GUEST_QA_UNTIL:new Date(Date.now()+7200000).toISOString(),
+  GUEST_QA_RATE_LIMITER:{limit:async()=>({success:true})}};
+ const req=(token)=>new Request(url,{headers:{Origin:origin,"x-crew-qa-token":token}});
+ assert.equal((await worker.fetch(req("bad"),base)).status,403);
+ assert.equal((await worker.fetch(req("bad"),{...base,GUEST_QA_ENABLED:"0"})).status,403);
+ assert.equal((await worker.fetch(req(secret),{...base,GUEST_QA_UNTIL:"2026-10-28T13:00:00"})).status,503);
+ assert.equal((await worker.fetch(req(secret),{...base,GUEST_QA_UNTIL:new Date(Date.now()+18000000).toISOString()})).status,503);
+});
+test("Turnstile action mismatch blocks minted credentials",async()=>{
+ const {onRequestPost}=await backend;
+ const fake=mockedServices({badAction:true});
+ try{
+  assert.equal((await onRequestPost({request:req(),env:env(fakeDb())})).status,403);
+  assert.equal(fake.counts().minted,0);
+ }finally{fake.restore()}
 });

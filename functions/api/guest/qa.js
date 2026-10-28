@@ -13,7 +13,8 @@ const json=(body,status=200)=>new Response(JSON.stringify(body),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
 function qaConfigured(env){
- const until=Date.parse(env.GUEST_QA_UNTIL||"");
+ const untilString=env.GUEST_QA_UNTIL||"";
+ const until=/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(untilString)?Date.parse(untilString):NaN;
  const now=Date.now();
  return env.GUEST_TRIAL_ENABLED!=="1"
   &&env.GUEST_QA_ENABLED==="1"
@@ -21,7 +22,7 @@ function qaConfigured(env){
   &&typeof env.GEMINI_GUEST_API_KEY==="string"&&env.GEMINI_GUEST_API_KEY.length>10
   &&typeof env.GUEST_TURNSTILE_SECRET==="string"&&!!env.GUEST_TURNSTILE_SITE_KEY
   &&typeof env.GUEST_QA_RATE_LIMITER?.limit==="function"
-  &&Number.isFinite(until)&&until>now&&until-now<=86400000;
+  &&Number.isFinite(until)&&until>now&&until-now<=14400000;
 }
 async function authorized(request,env){
  const provided=request.headers.get("x-crew-qa-token")||"";
@@ -38,8 +39,8 @@ async function authorized(request,env){
  return difference===0;
 }
 async function gate(request,env){
+ if(typeof env.GUEST_QA_ACCESS_TOKEN!=="string"||env.GUEST_QA_ACCESS_TOKEN.length<32 || !await authorized(request,env))return json({error:"Unauthorized"},403);
  if(!qaConfigured(env))return json({enabled:false},503);
- if(!await authorized(request,env))return json({error:"Unauthorized"},403);
  return null;
 }
 export async function onQaGet({request,env}){
@@ -63,7 +64,7 @@ export async function onQaPost({request,env}){
  if(typeof input?.challengeToken!=="string"||input.challengeToken.length<10||input.challengeToken.length>2048)
   return json({error:"Verification required"},400);
  let valid=false;
- try{valid=await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,new URL(request.url).hostname)}
+ try{valid=await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,new URL(request.url).hostname,"crew-guest-qa")}
  catch{return json({error:"Verification unavailable"},503)}
  if(!valid)return json({error:"Verification failed"},403);
  try{
@@ -73,7 +74,8 @@ export async function onQaPost({request,env}){
  try{
   const issuedAt=Date.now();
   const token=await mintToken(env.GEMINI_GUEST_API_KEY,issuedAt);
+  console.info(JSON.stringify({event:"guest_qa_token_issued",result:"success",at:new Date().toISOString()}));
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+200000).toISOString()});
- }catch{return json({error:"Trial temporarily unavailable"},503)}
+ }catch{console.warn(JSON.stringify({event:"guest_qa_token_issued",result:"failed",at:new Date().toISOString()}));return json({error:"Trial temporarily unavailable"},503)}
 }

@@ -38,21 +38,28 @@ async function fingerprint(ip,agent,salt){
  const digest=await crypto.subtle.digest("SHA-256",bytes);
  return Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,"0")).join("");
 }
-async function verifyCaptcha(token,ip,secret,hostname){
+async function verifyCaptcha(token,ip,secret,hostname,action="crew-guest-trial"){
  const body=new URLSearchParams({secret,response:token,remoteip:ip});
  const response=await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify",{
   method:"POST",body,signal:AbortSignal.timeout(8000)
  });
- if(!response.ok)return false;
+ if(!response.ok)throw new Error("Turnstile service unavailable");
  const result=await response.json();
- return result.success===true&&result.hostname===hostname;
+ return result.success===true&&result.hostname===hostname&&result.action===action;
 }
 async function mintToken(key,now){
  const body={
   uses:1,
   expireTime:new Date(now+200000).toISOString(),
   newSessionExpireTime:new Date(now+45000).toISOString(),
-  liveConnectConstraints:{model:"models/"+LIVE_MODEL,config:{responseModalities:["AUDIO"]}}
+  // Official AuthToken wire fields. Mask only these fields: client owns role, voice
+  // and transcription, but cannot select a different model or paid tools.
+  bidiGenerateContentSetup:{
+   model:"models/"+LIVE_MODEL,
+   generationConfig:{responseModalities:["AUDIO"]},
+   tools:[]
+  },
+  fieldMask:"model,generationConfig.responseModalities,tools"
  };
  const response=await fetch("https://generativelanguage.googleapis.com/v1beta/auth_tokens",{
   method:"POST",headers:{"x-goog-api-key":key,"content-type":"application/json"},

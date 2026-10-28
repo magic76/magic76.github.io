@@ -45,13 +45,13 @@ backend says `enabled:false`.
    - `GUEST_ALLOW_PREVIEW=1`, `GUEST_PREVIEW_ORIGIN=<exact protected preview
      origin>` (plain Variables). QA is rejected for `www.3sssi.com` even
      when the preview is allowed.
-   - `GUEST_QA_UNTIL`: a **UTC ISO8601 timestamp** less than 24 hours in the
+   - `GUEST_QA_UNTIL`: a **UTC ISO8601 timestamp** less than 4 hours in the
      future. The Worker fails closed once this expires. Set it for each
      supervised testing session and turn `GUEST_QA_ENABLED` back to `0`
      afterward.
    - `GUEST_TURNSTILE_SITE_KEY=0x4AAAAAAFpJ8ljaQjJq_Aqy` (public variable).
    - `GUEST_QA_RATE_LIMITER` (Worker rate-limiting binding defined in the
-     Wrangler template, configured at 2 requests/60 seconds). The Worker
+     Wrangler template, configured at 1 request/60 seconds). The Worker
      refuses minting if the binding is missing or errors.
 4. Confirm `GET /api/guest/token` from the public production origin returns
    `{"enabled":false}`. Confirm `GET /api/guest/qa` from production returns
@@ -119,3 +119,7 @@ npm test
 ```
 
 A connected, real-Gemini trial cannot be verified without the owner's separate API key, D1 binding and Turnstile widget. Leave production disabled until smoke tests complete.
+
+## Token format and protocol verification
+
+AuthToken wire-format is `bidiGenerateContentSetup` with nonempty `fieldMask: "model,generationConfig.responseModalities,tools"`, not `liveConnectConstraints`. The server locks the model and AUDIO modality and clears tool access, but leaves client-provided teacher/Zoe instructions, voices and transcription settings available. These restrictions are asserted in unit tests. Google must still be tested in a real restricted-key QA session (including rejection of other models and tools). The REST mint and ephemeral WebSocket endpoint intentionally use **v1beta** based on the [Gemini ephemeral token guide](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens); BYOK's existing **v1alpha** endpoint is unchanged. Google's SDK/reference discrepancies mean real Live acceptance cannot be claimed from mocks. The QA session lifetime is now recommended 2–4 hours maximum, and minted/failed events are logged without credentials or visitor identifiers.
