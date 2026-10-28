@@ -12,7 +12,9 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   const response=await fetch(GUEST_TOKEN_ENDPOINT,{cache:"no-store"});
   if(!response.ok)return {enabled:false};
   const value=await response.json();
-  return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey
-   ?{enabled:true,siteKey:value.siteKey,seconds:Number(value.seconds)||180}:{enabled:false};
+  // Fail closed during separate Worker/Pages rollout: never burn a 60s trial claim
+  // when the updated UI promises 180s. BYOK sessions are unaffected.
+  return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===180
+   ?{enabled:true,siteKey:value.siteKey,seconds:180}:{enabled:false};
  }catch{return {enabled:false}}
 }
