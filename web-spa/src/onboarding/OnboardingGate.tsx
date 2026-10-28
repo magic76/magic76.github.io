@@ -3,8 +3,7 @@ import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
-import {isCrewAndroidShell} from "../lib/platform";
-import {fetchGuestTrialConfig} from "../lib/guestTrial";
+import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getOnboardingCopy} from "./copy";
@@ -61,7 +60,8 @@ export function OnboardingGate({pathname}:{pathname:string}){
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
  useEffect(()=>{
-  if(pathname!=="/"||isCrewAndroidShell())return;
+  if(pathname!=="/")return;
+  if(!guestTrialDiscoveryEnabled())return;
   let live=true;
   void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
   return()=>{live=false};

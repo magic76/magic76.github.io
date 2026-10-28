@@ -14,7 +14,7 @@ import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
-import {fetchGuestTrialConfig} from "../lib/guestTrial";
+import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 import "./home.css";
 import "./homePortal.css";
 import "./homeWorld.css";
@@ -132,7 +132,7 @@ export function HomePage(){
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  useEffect(()=>{
-  if(!ready||configured||isCrewAndroidShell()){setGuestAvailable(false);return}
+  if(!ready||configured||!guestTrialDiscoveryEnabled()){setGuestAvailable(false);return}
   let live=true;
   void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
   return()=>{live=false};

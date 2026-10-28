@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import {useLocation,useNavigate,useSearchParams} from "react-router-dom";
 import i18n from "../i18n";
 import {clearGeminiKey,ensureLive,geminiKey,geminiVerified,saveGeminiKey,setGeminiVerified} from "../lib/runtime";
-import {fetchGuestTrialConfig} from "../lib/guestTrial";
+import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 
 type MicPermission = PermissionState|"unknown"|"unsupported";
 type VoiceResult = "idle"|"testing"|"success"|"failed";
@@ -71,7 +71,7 @@ export function GeminiConnectionPanel(){
 
  useEffect(()=>{if(location.hash==="#settings-gemini")setShowSetup(true)},[location.hash]);
  useEffect(()=>{
-  if(initialKey)return;
+  if(initialKey||!guestTrialDiscoveryEnabled())return;
   let live=true;
   void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
   return()=>{live=false};

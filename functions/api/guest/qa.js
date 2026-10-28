@@ -14,7 +14,7 @@ const json=(body,status=200)=>new Response(JSON.stringify(body),{
 });
 function qaConfigured(env){
  const untilString=env.GUEST_QA_UNTIL||"";
- const until=/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,9})?(?:Z|[+-]\\d{2}:\\d{2})$/.test(untilString)?Date.parse(untilString):NaN;
+ const until=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,9})?(?:Z|[+-]\d{2}:\d{2})$/.test(untilString)?Date.parse(untilString):NaN;
  const now=Date.now();
  return env.GUEST_TRIAL_ENABLED!=="1"
   &&env.GUEST_QA_ENABLED==="1"

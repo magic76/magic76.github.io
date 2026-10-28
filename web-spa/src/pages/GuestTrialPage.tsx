@@ -9,7 +9,7 @@ type Phase="loading"|"unavailable"|"ready"|"connecting"|"listening"|"speaking"|"
 type TrialConfig={enabled:boolean;siteKey?:string;seconds?:number};
 type TrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 type TurnstileApi={
- render:(element:HTMLElement,options:{sitekey:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;
+ render:(element:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;
  reset:(id:string)=>void;
  remove:(id:string)=>void;
 };
@@ -58,8 +58,8 @@ export function GuestTrialPage(){
  useEffect(()=>{
   active.current=true;
   
-  if(qaMode){setPhase("unavailable");return}
-  void fetchGuestTrialConfig()
+  if(qaMode)setPhase("unavailable");
+  else void fetchGuestTrialConfig()
    .then(data=>{
     if(!active.current)return;
     setConfig(data);
@@ -80,6 +80,7 @@ export function GuestTrialPage(){
    if(!api)return;
    widget.current=api.render(container.current,{
     sitekey:config.siteKey!,
+    action:qaMode?"crew-guest-qa":"crew-guest-trial",
     callback:token=>{if(active.current)setChallenge(token)},
     "expired-callback":()=>{if(active.current)setChallenge("")},
     "error-callback":()=>{if(active.current)setChallenge("")}
@@ -106,6 +107,7 @@ export function GuestTrialPage(){
   try{
    const res=await fetch(GUEST_QA_ENDPOINT,{headers:{"x-crew-qa-token":qaKey},cache:"no-store"});
    if(!res.ok)throw new Error("Private QA is unavailable");
+   if(!res.headers.get("content-type")?.toLowerCase().includes("application/json"))throw new Error("Unexpected QA response");
    const data=await res.json() as TrialConfig;
    if(!data.enabled||!data.siteKey)throw new Error("Private QA is disabled");
    if(active.current){setConfig(data);setPhase("ready")}
@@ -113,6 +115,13 @@ export function GuestTrialPage(){
    if(active.current){setPhase("unavailable");setStatus(txt("私人測試尚未開放，或測試授權無效。","Private QA is unavailable or not authorized."))}
   }finally{if(active.current)setQaChecking(false)}
  };
+ useEffect(()=>{
+  const onHidden=()=>{if(document.visibilityState==="hidden"&&session.current)void close("ended")};
+  const onPagehide=()=>{if(session.current)void close("ended")};
+  document.addEventListener("visibilitychange",onHidden);
+  window.addEventListener("pagehide",onPagehide);
+  return()=>{document.removeEventListener("visibilitychange",onHidden);window.removeEventListener("pagehide",onPagehide)};
+ },[close]);
  const stop=()=>{void close()};
  const begin=async()=>{
   if(busy.current||phase!=="ready"||!challenge)return;
@@ -120,20 +129,24 @@ export function GuestTrialPage(){
   const challengeToken=challenge;
   setChallenge("");
   try{
+   // Load the Live runtime BEFORE provisioning the short-lived one-use token.
+   await ensureLive();
+   if(!active.current)return;
    // Ask for microphone permission BEFORE consuming a one-use trial token.
    if(!navigator.mediaDevices?.getUserMedia)throw new Error("Microphone unavailable");
    const permissionStream=await navigator.mediaDevices.getUserMedia({audio:true});
    permissionStream.getTracks().forEach(track=>track.stop());
+   if(!active.current)return;
    const res=await fetch(qaMode?GUEST_QA_ENDPOINT:GUEST_TOKEN_ENDPOINT,{
     method:"POST",headers:{"content-type":"application/json",...(qaMode?{"x-crew-qa-token":qaKey}:{})},
     body:JSON.stringify({challengeToken}),cache:"no-store"
    });
+   if(!res.headers.get("content-type")?.toLowerCase().includes("application/json"))throw new Error("Unexpected token response");
    const grant=await res.json() as TrialGrant & {error?:string;code?:string};
    if(!res.ok||!grant.token||!grant.model){
     if(active.current){setPhase("error");setStatus(trialError(res.status,grant.code||"",zh))}
     return;
    }
-   await ensureLive();
    if(!window.CrewLive||!active.current)return;
    const isTeacher=role==="teacher";
    const current=new window.CrewLive.Session({
@@ -158,26 +171,27 @@ export function GuestTrialPage(){
     onStatus:value=>{if(active.current&&session.current===current)setStatus(String(value).slice(0,160))},
     onInputTranscript:value=>{if(active.current)setInput(value.slice(-320))},
     onOutputTranscript:value=>{if(active.current)setOutput(value.slice(-320))},
-    onError:()=>{if(active.current&&session.current===current){setPhase("error");setStatus(txt("語音連線中斷。","Voice connection interrupted."))}},
+    onError:()=>{if(active.current&&session.current===current){setStatus(txt("語音連線中斷。","Voice connection interrupted."));void close("error")}},
     onTerminal:()=>{if(active.current&&session.current===current)void close("ended")}
    });
    session.current=current;
-   // Count time from token issuance, not after potentially slow audio setup.
-   const expires=Date.parse(grant.expiresAt);
-   const issued=Date.parse(grant.issuedAt);
-   const hardStop=Math.min((Number.isFinite(issued)?issued:Date.now())+Math.min(180,grant.seconds||180)*1000,
-     Number.isFinite(expires)?expires-1500:Date.now()+180000);
-   deadline.current=hardStop;
+   // Use only server duration, never compare the server wall clock to the device clock.
+   const expires=Date.parse(grant.expiresAt),issued=Date.parse(grant.issuedAt);
+   const duration=Number.isFinite(expires)&&Number.isFinite(issued)&&expires>issued?expires-issued-1500:180000;
+   const budgetMs=Math.min(180000,Math.max(0,duration),Math.max(1,Math.min(180,grant.seconds||180))*1000);
+   deadline.current=performance.now()+budgetMs;
    const tick=()=>{
-    const remaining=Math.max(0,Math.ceil((deadline.current-Date.now())/1000));
+    const remaining=Math.max(0,Math.ceil((deadline.current-performance.now())/1000));
     if(active.current)setSecondsLeft(remaining);
     if(remaining<=0)void close("ended");
    };
    tick();timer.current=setInterval(tick,1000);
    await current.start();
    if(active.current&&session.current===current&&current.ready)setPhase("listening");
-  }catch{
-   if(active.current){setPhase("error");setStatus(txt("無法連線，請檢查麥克風權限或稍後再試。","Unable to connect. Check microphone permission or try later."))}
+  }catch(error){
+   if(active.current){setPhase("error");setStatus(error instanceof DOMException&&error.name==="NotAllowedError"
+    ?txt("麥克風權限未開啟。","Microphone permission denied.")
+    :txt("連線服務暫時無法使用，請稍後再試。","Connection is temporarily unavailable. Please try later."))}
    await close("error");
   }finally{
    busy.current=false;
@@ -219,7 +233,7 @@ export function GuestTrialPage(){
     <button className="btn" type="button" onClick={stop}>{txt("結束對話","End chat")}</button>
    </div>}
    {(phase==="error"||phase==="ended")&&<p role="status">{status}</p>}
-   {phase==="error"&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{txt("重新驗證並重試","Verify and retry")}</button>}
+   {(phase==="error"||phase==="ended")&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setSecondsLeft(180);setInput("");setOutput("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{txt("重新驗證並重試","Verify and retry")}</button>}
    {(input||output)&&<div style={{marginTop:14,padding:12,borderRadius:12,background:"var(--surface-secondary,rgba(128,128,128,.08))"}}>
     {input&&<p><strong>{txt("你","You")}：</strong>{input}</p>}
     {output&&<p><strong>{role==="teacher"?txt("老師","Teacher"):"Zoe"}：</strong>{output}</p>}
