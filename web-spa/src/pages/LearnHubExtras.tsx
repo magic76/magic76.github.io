@@ -25,7 +25,7 @@ export function LearnHubExtras({tools,speakingPath}:{tools:Tool[];speakingPath:s
    <Link to="/teacher/reading-library">{tTeacher("learn.library")}</Link>
    <Link to="/teacher/reports">{t("learnToday.records")}</Link>
    <Link to="/settings#settings-learning">{t("learnToday.settings")}</Link>
-   <Link to="/teacher">{t("learnToday.teachersCourses")}</Link>
+   <Link to="/teacher/course">{tTeacher("learn.course")}</Link>
   </nav>
  </section>;
 }
