@@ -42,7 +42,7 @@ function voiceFailure(value:unknown){
 }
 
 export function GeminiConnectionPanel(){
- const {t,i18n:locale}=useTranslation("settings");
+ const {t}=useTranslation("settings");
  const navigate=useNavigate(),location=useLocation(),[params]=useSearchParams();
  const requestedReturn=params.get("returnTo")||"";
  const returnTo=requestedReturn.startsWith("/")&&!requestedReturn.startsWith("//")&&!requestedReturn.startsWith("/\\")&&!/^\/settings(?:[/?#]|$)/.test(requestedReturn)?requestedReturn:null;
@@ -239,7 +239,7 @@ export function GeminiConnectionPanel(){
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
     {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}
-    {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{locale.language.startsWith("zh")?"不想先設定？立即免費試玩":"Want to try it first?"}</strong><p><a className="btn" href="/try">{locale.language.startsWith("zh")?"免費語音試玩 3 分鐘":"Try free voice for 3 minutes"}</a></p></div>}
+    {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{t("common:guestTrial.settingsTitle")}</strong><p><a className="btn" href="/try">{t("common:guestTrial.settingsCta")}</a></p></div>}
     <div className="setup-steps">
      <div className="step"><b>1</b><span><strong>{t("gemini.step1")}</strong><small>{t("gemini.step1Desc")}</small></span></div>
      <div className="step"><b>2</b><span><strong>{t("gemini.step2")}</strong><small>{t("gemini.step2Desc")}</small></span></div>

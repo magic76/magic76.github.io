@@ -200,8 +200,8 @@ export function HomePage(){
    <div className="crew-home-primary">
     {ready&&!configured&&guestAvailable?<Link to="/try" className="crew-home-setup crew-home-setup-free">
      <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="teacher"/></span>
-     <span className="crew-home-setup-copy"><strong>{locale.language.startsWith("zh")?"免費試玩 AI 語音 3 分鐘":"Try 3 minutes of AI voice for free"}</strong><small>{locale.language.startsWith("zh")?"免註冊、不用 Gemini Key":"No sign-up or Gemini key needed"}</small></span>
-     <span className="crew-home-setup-action">{locale.language.startsWith("zh")?"開始試玩":"Try now"} <b aria-hidden="true">→</b></span>
+     <span className="crew-home-setup-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
+     <span className="crew-home-setup-action">{t("common:guestTrial.homeStart")} <b aria-hidden="true">→</b></span>
     </Link>:null}
     {ready&&!configured?
      <Link to="/settings" className="crew-home-setup crew-home-setup-free">

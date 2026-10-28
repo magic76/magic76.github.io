@@ -242,7 +242,7 @@ test("private QA is absent from production and fails closed without short-lived 
  assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_ENABLED:"0"})).status,503);
  assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_UNTIL:new Date(Date.now()-1000).toISOString()})).status,503);
  assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_RATE_LIMITER:undefined})).status,503);
- assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_ACCESS_TOKEN:"short"})).status,503);
+ assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_ACCESS_TOKEN:"short"})).status,403);
  const good=await worker.fetch(request(preview),settings);
  assert.equal(good.status,200);
  const body=await good.json();

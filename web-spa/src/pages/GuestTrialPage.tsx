@@ -16,18 +16,16 @@ type TurnstileApi={
 function challengeApi():TurnstileApi|undefined{
  return (window as Window & {turnstile?:TurnstileApi}).turnstile;
 }
-function trialError(status:number,code:string,zh:boolean){
- if(code==="ALREADY_USED")return zh?"這個裝置或網路近期已使用免費體驗。":"A trial has already been used from this device or network recently.";
- if(code==="DAILY_LIMIT")return zh?"今天的免費試玩名額已滿，請改用自己的 Gemini Key。":"Today's guest capacity has been reached. Use your own Gemini key to continue.";
- if(status===403)return zh?"驗證未通過，請重新驗證。":"Verification failed. Please try again.";
- return zh?"目前無法啟動免費試玩，請稍後再試。":"The guest trial is temporarily unavailable.";
-}
 export function GuestTrialPage(){
- const {i18n}=useTranslation();
+ const {t}=useTranslation("common");
+ const trialError=(status:number,code:string)=>{
+  if(code==="ALREADY_USED")return t("guestTrial.used");
+  if(code==="DAILY_LIMIT")return t("guestTrial.limit");
+  if(status===403)return t("guestTrial.verification");
+  return t("guestTrial.tempUnavailable");
+ };
  const [searchParams]=useSearchParams();
  const qaMode=searchParams.get("qa")==="1";
- const zh=i18n.language.toLowerCase().startsWith("zh");
- const txt=(a:string,b:string)=>zh?a:b;
  const [phase,setPhase]=useState<Phase>("loading");
  const [qaKey,setQaKey]=useState("");
  const [qaChecking,setQaChecking]=useState(false);
@@ -53,8 +51,8 @@ export function GuestTrialPage(){
   const current=session.current;
   session.current=null;
   if(current)try{await current.stop({reason:"guest-limit",silentStatus:true,emitTerminal:false})}catch{}
-  if(active.current){setPhase(next);setMuted(false);if(next==="ended")setStatus(txt("免費體驗已結束。","Your free trial has ended."))}
- },[zh]);
+  if(active.current){setPhase(next);setMuted(false);if(next==="ended")setStatus(t("guestTrial.ended"))}
+ },[t]);
  useEffect(()=>{
   active.current=true;
   
@@ -112,7 +110,7 @@ export function GuestTrialPage(){
    if(!data.enabled||!data.siteKey)throw new Error("Private QA is disabled");
    if(active.current){setConfig(data);setPhase("ready")}
   }catch{
-   if(active.current){setPhase("unavailable");setStatus(txt("私人測試尚未開放，或測試授權無效。","Private QA is unavailable or not authorized."))}
+   if(active.current){setPhase("unavailable");setStatus(t("guestTrial.qaUnavailable"))}
   }finally{if(active.current)setQaChecking(false)}
  };
  useEffect(()=>{
@@ -125,7 +123,7 @@ export function GuestTrialPage(){
  const stop=()=>{void close()};
  const begin=async()=>{
   if(busy.current||phase!=="ready"||!challenge)return;
-  busy.current=true;setPhase("connecting");setStatus(txt("正在建立語音連線…","Connecting your voice…"));
+  busy.current=true;setPhase("connecting");setStatus(t("guestTrial.connecting"));
   const challengeToken=challenge;
   setChallenge("");
   try{
@@ -144,7 +142,7 @@ export function GuestTrialPage(){
    if(!res.headers.get("content-type")?.toLowerCase().includes("application/json"))throw new Error("Unexpected token response");
    const grant=await res.json() as TrialGrant & {error?:string;code?:string};
    if(!res.ok||!grant.token||!grant.model){
-    if(active.current){setPhase("error");setStatus(trialError(res.status,grant.code||"",zh))}
+    if(active.current){setPhase("error");setStatus(trialError(res.status,grant.code||""))}
     return;
    }
    if(!window.CrewLive||!active.current)return;
@@ -171,7 +169,7 @@ export function GuestTrialPage(){
     onStatus:value=>{if(active.current&&session.current===current)setStatus(String(value).slice(0,160))},
     onInputTranscript:value=>{if(active.current)setInput(value.slice(-320))},
     onOutputTranscript:value=>{if(active.current)setOutput(value.slice(-320))},
-    onError:()=>{if(active.current&&session.current===current){setStatus(txt("語音連線中斷。","Voice connection interrupted."));void close("error")}},
+    onError:()=>{if(active.current&&session.current===current){setStatus(t("guestTrial.interrupted"));void close("error")}},
     onTerminal:()=>{if(active.current&&session.current===current)void close("ended")}
    });
    session.current=current;
@@ -190,8 +188,8 @@ export function GuestTrialPage(){
    if(active.current&&session.current===current&&current.ready)setPhase("listening");
   }catch(error){
    if(active.current){setPhase("error");setStatus(error instanceof DOMException&&error.name==="NotAllowedError"
-    ?txt("麥克風權限未開啟。","Microphone permission denied.")
-    :txt("連線服務暫時無法使用，請稍後再試。","Connection is temporarily unavailable. Please try later."))}
+    ?t("guestTrial.micDenied")
+    :t("guestTrial.serviceUnavailable"))}
    await close("error");
   }finally{
    busy.current=false;
@@ -201,45 +199,45 @@ export function GuestTrialPage(){
  return <main className="crew-guest-page" style={{maxWidth:660,margin:"0 auto",padding:"28px 16px 100px"}}>
   <header style={{marginBottom:24}}>
    <small style={{letterSpacing:2,color:"var(--muted,#718096)"}}>CREW GUEST LIVE</small>
-   <h1 style={{fontSize:"clamp(26px,6vw,36px)",margin:"10px 0"}}>{txt("免費和 AI 說說話","Try talking to AI for free")}</h1>
-   <p className="meta">{txt("免註冊、不需 Gemini Key。第一次試玩可與 AI 老師或 Zoe 語音聊天 3 分鐘。","No sign-up or Gemini key. Try a three-minute voice chat with a teacher or Zoe.")}</p>
+   <h1 style={{fontSize:"clamp(26px,6vw,36px)",margin:"10px 0"}}>{t("guestTrial.title")}</h1>
+   <p className="meta">{t("guestTrial.description")}</p>
   </header>
   <section className="section panel" style={{padding:20}}>
-   <div role="group" aria-label={txt("選擇試玩角色","Choose a character")} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:18}}>
-    {(["teacher","zoe"] as const).map(item=><button key={item} type="button" className={"btn "+(role===item?"":"secondary")} disabled={phase==="connecting"||phase==="listening"||phase==="speaking"||phase==="ended"} aria-pressed={role===item} onClick={()=>setRole(item)}>{item==="teacher"?txt("AI 老師","AI Teacher"):txt("Zoe · AI 朋友","Zoe · AI Friend")}</button>)}
+   <div role="group" aria-label={t("guestTrial.chooseCharacter")} style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:18}}>
+    {(["teacher","zoe"] as const).map(item=><button key={item} type="button" className={"btn "+(role===item?"":"secondary")} disabled={phase==="connecting"||phase==="listening"||phase==="speaking"||phase==="ended"} aria-pressed={role===item} onClick={()=>setRole(item)}>{item==="teacher"?t("guestTrial.teacherRole"):t("guestTrial.zoeRole")}</button>)}
    </div>
    <div aria-live="polite" style={{textAlign:"center",padding:"14px 6px"}}>
     <div style={{fontWeight:700,fontSize:38,fontVariantNumeric:"tabular-nums"}}>{String(Math.floor(secondsLeft/60)).padStart(2,"0")}:{String(secondsLeft%60).padStart(2,"0")}</div>
-    <p className="meta">{phase==="listening"?txt("正在聽你說話","Listening to you"):phase==="speaking"?txt("AI 正在回應","AI is speaking"):status||txt("準備開始免費試玩","Ready for your free trial")}</p>
+    <p className="meta">{phase==="listening"?t("guestTrial.listening"):phase==="speaking"?t("guestTrial.speaking"):status||t("guestTrial.ready")}</p>
    </div>
    <div style={{display:phase==="ready"?"grid":"none",justifyItems:"center",gap:12}}>
     <div ref={container} aria-label="Turnstile verification"/>
-    <button type="button" className="btn" disabled={!challenge||phase!=="ready"} onClick={()=>void begin()}>{txt("開始免費試玩","Start free trial")}</button>
+    <button type="button" className="btn" disabled={!challenge||phase!=="ready"} onClick={()=>void begin()}>{t("guestTrial.start")}</button>
    </div>
-   {phase==="loading"&&<p className="meta" role="status">{txt("正在確認試用名額…","Checking guest availability…")}</p>}
-   {phase==="unavailable"&&!qaMode&&<p role="status">{txt("目前未開放免費試用。","Guest trials are not yet available.")}</p>}
+   {phase==="loading"&&<p className="meta" role="status">{t("guestTrial.checking")}</p>}
+   {phase==="unavailable"&&!qaMode&&<p role="status">{t("guestTrial.unavailable")}</p>}
    {qaMode&&phase==="unavailable"&&<div style={{display:"grid",gap:10}}>
-    <label htmlFor="crew-guest-qa-key">{txt("私人測試授權碼","Private QA access token")}</label>
+    <label htmlFor="crew-guest-qa-key">{t("guestTrial.qaToken")}</label>
     <input id="crew-guest-qa-key" className="field" type="password" autoComplete="off"
      value={qaKey} onChange={event=>setQaKey(event.target.value)}
-     placeholder={txt("請輸入私人測試授權碼","Enter your private QA token")}/>
+     placeholder={t("guestTrial.qaPlaceholder")}/>
     <button type="button" className="btn" disabled={qaChecking||qaKey.length<32}
-     onClick={()=>void unlockQA()}>{txt("進入私人語音測試","Unlock private voice QA")}</button>
-    <p className="meta">{status||txt("需要受保護的測試站與測試授權碼，正式試用仍然關閉。","Requires a protected preview and a private QA token. Public trial remains disabled.")}</p>
+     onClick={()=>void unlockQA()}>{t("guestTrial.unlockQa")}</button>
+    <p className="meta">{status||t("guestTrial.qaInfo")}</p>
    </div>}
-   {phase==="connecting"&&<p role="status">{txt("正在啟動麥克風…","Starting microphone…")}</p>}
+   {phase==="connecting"&&<p role="status">{t("guestTrial.startingMic")}</p>}
    {(phase==="listening"||phase==="speaking")&&<div className="actions" style={{justifyContent:"center"}}>
-    <button className="btn secondary" type="button" onClick={()=>{session.current?.toggleMic();setMuted(Boolean(session.current?.micMuted))}}>{muted?txt("開啟麥克風","Unmute"):txt("靜音","Mute")}</button>
-    <button className="btn" type="button" onClick={stop}>{txt("結束對話","End chat")}</button>
+    <button className="btn secondary" type="button" onClick={()=>{session.current?.toggleMic();setMuted(Boolean(session.current?.micMuted))}}>{muted?t("guestTrial.unmute"):t("guestTrial.mute")}</button>
+    <button className="btn" type="button" onClick={stop}>{t("guestTrial.endChat")}</button>
    </div>}
    {(phase==="error"||phase==="ended")&&<p role="status">{status}</p>}
-   {(phase==="error"||phase==="ended")&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setSecondsLeft(180);setInput("");setOutput("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{txt("重新驗證並重試","Verify and retry")}</button>}
+   {(phase==="error"||phase==="ended")&&config?.enabled&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setStatus("");setSecondsLeft(180);setInput("");setOutput("");setPhase("ready");try{if(widget.current!==null)challengeApi()?.reset(widget.current)}catch{}}}>{t("guestTrial.retry")}</button>}
    {(input||output)&&<div style={{marginTop:14,padding:12,borderRadius:12,background:"var(--surface-secondary,rgba(128,128,128,.08))"}}>
-    {input&&<p><strong>{txt("你","You")}：</strong>{input}</p>}
-    {output&&<p><strong>{role==="teacher"?txt("老師","Teacher"):"Zoe"}：</strong>{output}</p>}
+    {input&&<p><strong>{t("guestTrial.you")}：</strong>{input}</p>}
+    {output&&<p><strong>{role==="teacher"?t("guestTrial.teacher"):"Zoe"}：</strong>{output}</p>}
    </div>}
   </section>
-  <p className="meta" style={{marginTop:16}}>{txt("試玩不會建立個人記憶或課後報告。體驗結束後，可設定自己的 Gemini Key 使用完整功能。","The guest demo doesn't save personal memory or lesson reports. Add your own Gemini key for all features.")}</p>
-  <Link className="btn secondary" to="/settings#settings-gemini">{txt("設定自己的 Gemini Key","Set up my Gemini key")}</Link>
+  <p className="meta" style={{marginTop:16}}>{t("guestTrial.privacy")}</p>
+  <Link className="btn secondary" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>
  </main>;
 }
