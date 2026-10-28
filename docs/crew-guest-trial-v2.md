@@ -12,20 +12,92 @@ This replaces the **unmerged Firebase AI Logic** experiment in PR #125. It does 
 - Trial claims expire in 30 days. Fingerprint is salted hash of the Cloudflare-provided IP and browser User-Agent; no raw IP, User-Agent, voice, transcript or long-term guest identifier is persisted. It is **not** proof of unique users. Changing browser/network may bypass the per-user limit.
 - Daily cap is **a count of reserved sessions**, not a precise USD billing cap. An issued token could be used outside the app until expiry. Provision a dedicated key/project, set a conservative cap, monitor Gemini billing, and keep the emergency switch available.
 
-## Worker rollout for 3sssi.com (OFF by default)
+## Phase 1 — private voice QA WITHOUT D1
 
-The UI points to the existing standalone Worker **crew-guest-trial.shanliyoung.workers.dev**. The old Pages Function implementation is reused by `workers/guest-trial/worker.mjs`; do not configure Secrets on Pages for this setup. The Worker currently deployed from Hello World must be replaced by this entrypoint before the trial endpoint exists.
+This phase tests Gemini Live on an isolated protected preview. It is NOT a public trial
+and deliberately does NOT create persistent quotas or promise a daily USD cost ceiling.
+The public `/try` route and homepage CTAs remain disabled whenever the production
+backend says `enabled:false`.
 
-1. **Deploy the new Worker code** to the existing `crew-guest-trial` Worker via Wrangler or a GitHub-connected Worker deployment. Copy `workers/guest-trial/wrangler.example.toml` to `workers/guest-trial/wrangler.toml`, replace `REPLACE_WITH_D1_DATABASE_ID` with the actual D1 ID, then run `npx wrangler deploy --config workers/guest-trial/wrangler.toml` from repository root. Entry: `workers/guest-trial/worker.mjs`. It imports `../../functions/api/guest/token.js`. Do not paste private keys into source.
-2. **Create Cloudflare D1 database** `crew-guest-trials`, run migration `migrations/guest-trial.sql` against it, then add D1 binding `GUEST_DB` to **the Worker**, not Pages.
-3. **Worker Secrets:** `GEMINI_GUEST_API_KEY` (dedicated Google key), `TURNSTILE_SECRET_KEY` (the name already configured in Dashboard), `GUEST_HASH_SALT` (stable, randomly generated 32+ characters). The original name `GUEST_TURNSTILE_SECRET` is also accepted.
-4. **Worker plain variables:** `GUEST_TRIAL_ENABLED=0` (always OFF until live smoke QA), `GUEST_DAILY_SESSION_LIMIT=20` (start conservatively). The site key `0x4AAAAAAFpJ8ljaQjJq_Aqy` is a public fallback; optionally set `GUEST_TURNSTILE_SITE_KEY` to the same value.
-5. **Turnstile widget hostname:** production host `www.3sssi.com` must be allowed by Turnstile. The frontend origin is explicitly pinned to `https://www.3sssi.com`; arbitrary origins are rejected, and the Worker supports preflight OPTIONS.
-6. **Protected Preview QA (optional):** protect Pages preview with Cloudflare Access, add its exact hostname to Turnstile, and on the Worker set `GUEST_ALLOW_PREVIEW=1` and `GUEST_PREVIEW_ORIGIN=https://<exact-preview>.magic76-github-io.pages.dev`. Never enable arbitrary preview origins. Worker rewrites only trusted browser origins to pass the shared handler's origin / hostname checks.
-7. Verify `GET /api/guest/token` with `Origin: https://www.3sssi.com` returns `enabled:false` before enabling. After D1 and all secrets exist, test authorized preview and role audio only with `GUEST_TRIAL_ENABLED=1` on an access-protected environment. On an existing single Worker, toggling `1` also enables production—avoid doing so while `www.3sssi.com` is public. Use a **separate protected QA Worker** for pre-production end-to-end testing when needed.
-8. Test one successful voice session, 180-second stop, repeat blocked by D1, global quota, failure behavior, mobile microphone release and existing BYOK Teacher/Friends flow. Merge/deploy separately; only enable public trials after billing/abuse monitoring is in place.
+### Worker deployment
 
-**Budget warning:** `GUEST_DAILY_SESSION_LIMIT` limits **issued sessions**, not actual USD billed, and a three-minute UI timer is not a hard financial cutoff. A dedicated Google project/key, conservative provider quotas and alerts are required. Disabling the Worker prevents new tokens but previously issued tokens can run until expiration.
+1. Create or choose an **Access-protected Cloudflare Pages preview** for PR #432.
+   Cloudflare Access must reject an anonymous incognito browser before you use the
+   QA feature. Identify its exact `https://<alias>.magic76-github-io.pages.dev`
+   origin and add that **preview hostname** to the Turnstile widget's allowed
+   hostnames. Avoid public preview URLs for paid API tests.
+2. Copy `workers/guest-trial/wrangler.example.toml` to
+   `workers/guest-trial/wrangler.toml`. This template deliberately has **NO D1
+   binding**. From repo root deploy via
+   `npx wrangler deploy --config workers/guest-trial/wrangler.toml`.
+   This replaces the Hello World content in your existing
+   `crew-guest-trial.shanliyoung.workers.dev` Worker. Review Wrangler's
+   configured account and binding diff BEFORE deployment.
+3. In the Worker's Variables and Secrets, keep:
+   - `GEMINI_GUEST_API_KEY` (Secret): use an isolated Gemini key.
+   - `TURNSTILE_SECRET_KEY` (Secret): the existing Turnstile secret.
+   - `GUEST_QA_ACCESS_TOKEN` (NEW Secret): **random 32+ character** private QA
+     authorization token. Generate offline, e.g. `openssl rand -hex 32`.
+     Do not commit, paste into chats, put in browser localStorage, or publish.
+   - `GUEST_TRIAL_ENABLED=0` (plain Variable): always OFF in Phase 1.
+   - `GUEST_QA_ENABLED=0` initially; set to `1` only during the supervised
+     test window.
+   - `GUEST_ALLOW_PREVIEW=1`, `GUEST_PREVIEW_ORIGIN=<exact protected preview
+     origin>` (plain Variables). QA is rejected for `www.3sssi.com` even
+     when the preview is allowed.
+   - `GUEST_QA_UNTIL`: a **UTC ISO8601 timestamp** less than 24 hours in the
+     future. The Worker fails closed once this expires. Set it for each
+     supervised testing session and turn `GUEST_QA_ENABLED` back to `0`
+     afterward.
+   - `GUEST_TURNSTILE_SITE_KEY=0x4AAAAAAFpJ8ljaQjJq_Aqy` (public variable).
+   - `GUEST_QA_RATE_LIMITER` (Worker rate-limiting binding defined in the
+     Wrangler template, configured at 2 requests/60 seconds). The Worker
+     refuses minting if the binding is missing or errors.
+4. Confirm `GET /api/guest/token` from the public production origin returns
+   `{"enabled":false}`. Confirm `GET /api/guest/qa` from production returns
+   HTTP 403. A protected preview with the QA header may access the QA endpoint.
+5. Open `https://<protected-preview>/try?qa=1`; enter
+   `GUEST_QA_ACCESS_TOKEN` in the temporary password field, verify Turnstile,
+   grant microphone permission and test Teacher / Zoe Live. The secret only
+   lives in React component memory. Only one-time Gemini ephemeral tokens are
+   sent to the browser. No long-term voice/transcript data is stored.
+6. Verify 3-minute automatic disconnect, microphone cleanup, wrong-token
+   rejection, disallowed Origin rejection, expiry, rate limiting, and normal
+   BYOK. Immediately set `GUEST_QA_ENABLED=0` after testing.
+
+**Important caveat:** Cloudflare Worker rate limiting is **approximate and
+per-edge-location**; it cannot substitute for durable quota accounting or a
+hard cost limit. A stolen QA access token can still be abused while QA is
+enabled. Minimize the QA window, use a dedicated Gemini project with tight
+provider quotas / budget alerts, keep the public trial disabled, and monitor
+Gemini usage. Refer to the official Worker rate-limiting documentation.
+
+### QA endpoints
+
+- `GET /api/guest/qa`: private preview origin + `x-crew-qa-token` header
+  required; returns `enabled`, public Turnstile site key and duration.
+- `POST /api/guest/qa`: same authorization, valid Turnstile (expected
+  preview hostname), rate limiting, then mint a single-use 200s token.
+- `GET /api/guest/token` stays disabled because `GUEST_TRIAL_ENABLED=0`.
+  BYOK flows are unchanged.
+
+## Phase 2 — D1 and public rollout (NOT enabled)
+
+1. Create a standalone D1 database named `crew-guest-trials`, apply
+   `migrations/guest-trial.sql` and bind it to the **Worker** as `GUEST_DB`.
+2. Add secret `GUEST_HASH_SALT` (stable 32+ random characters) and variable
+   `GUEST_DAILY_SESSION_LIMIT` (start with `20`). Update the Wrangler
+   config with the commented-out `[[d1_databases]]` section after the
+   actual D1 ID is known.
+3. Audit and test the original `functions/api/guest/token.js` per-visitor claim,
+   daily quota, CAPTCHA, emergency disable and failed-token refunds.
+4. Verify voice quality, UI, usage billing and browser/device behavior.
+   Only then separately consider `GUEST_TRIAL_ENABLED=1` for production and
+   hiding the QA route.
+
+**Cost warning:** Neither Phase 1 rate limits nor Phase 2 session counts
+guarantee a hard US$3 billing ceiling. Ephemeral tokens may continue briefly
+after the feature is disabled.
 
 ## Failure handling and cost controls
 
