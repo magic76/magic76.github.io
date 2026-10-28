@@ -472,3 +472,30 @@ test("multi-key parser retains structural validation without character allowlist
   assert.deepEqual(await response.json(),{enabled:false});
  }
 });
+
+test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const component=fs.readFileSync(path.join(root,"web-spa/src/live/GuestTrialExperience.tsx"),"utf8");
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/live/guestTrialExperience.css"),"utf8");
+ assert.match(hook,/Math\.min\(60000/);
+ assert.match(hook,/guestWrapUpSentRef\.current=true/);
+ assert.match(hook,/left>0&&left<=10/);
+ assert.match(hook,/setGuestExpired\(true\)/);
+ assert.match(hook,/session\.stop\(\{reason:"guest-limit"/);
+ assert.match(component,/secondsLeft<=10/);
+ assert.match(component,/role="timer"/);
+ assert.match(component,/role="status"/);
+ assert.match(component,/to="\/settings#settings-gemini"/);
+ assert.match(component,/to="\/"/);
+ assert.match(teacher,/<GuestTrialFinish expired=\{live\.guestExpired\}/);
+ assert.match(friend,/<GuestTrialFinish expired=\{live\.guestExpired\}/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ const locales=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales.map(x=>x.code);
+ for(const locale of locales){
+  const entry=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",locale,"common.json"),"utf8")).guestTrial;
+  for(const key of ["timeLeft","almostDone","completeTitle","completeBody","continueKey","exploreCrew","interruptedBody"])
+   assert.equal(typeof entry[key],"string",locale+":"+key);
+ }
+});
