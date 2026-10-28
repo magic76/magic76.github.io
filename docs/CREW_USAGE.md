@@ -120,3 +120,12 @@ The four chat funnel stages are **event counts, not a joined cohort**: connected
 A game `game_open` indicates a loaded route, `game_started` a valid actual play action or start button, and `game_completed` a finished round. Values in `detail` are fixed game kind enums only; no secret words, move positions, answer texts, player names or IDs are sent. Timeline detail is limited to the three public fictional-character codes, never age or personal notes.
 
 Web usage is strictly separate from Firebase Android GA4; never add their unique-user counts or infer cross-device identity. The GA4 web stream mirrors permitted first-party event names but its User counts may differ due to browser consent, blockers and sampling.
+
+
+## Guest Trial usage (Phase 2)
+
+Crew's existing private `/usage` dashboard shows the one-minute Teacher/Friend trial funnel, including entry, start, successful short-lived token, actual Live connection and conversation end. It also shows basic failure categories and duration buckets. The chart supports the existing 7/30-day selection.
+
+All guest trial events go through the existing consent-aware first-party `trackUsageEvent` pipeline, the same `ANALYTICS_ENGINE` binding and the existing Cloudflare Access-protected read endpoint; **no new environment variables or D1 database are needed**.
+
+These metrics are browser-side and may omit users who opt out or leave before sending the event. They are not accurate account-specific limits, authenticated user counts or billing totals. Phase 3 will implement login and server-enforced counting separately. No historic counts can be recovered.

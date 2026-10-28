@@ -129,3 +129,33 @@ test("GA4 keeps known product routes while redacting dynamic paths",()=>{
  assert.equal(safe("/research/2026-10-25/private-article"),"/research/item/item");
  assert.equal(safe("/story/read/private-book-id"),"/story/read/item");
 });
+
+test("guest trial funnel events and duration details are privacy-allowlisted",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:point=>points.push(point)}};
+ for(const [event,detail] of [
+  ["guest_trial_entry_view","teacher"],["guest_trial_start_click","teacher"],
+  ["guest_trial_token_issued","friend"],["guest_trial_connected","friend"],
+  ["guest_trial_ended","from_45_to_60s"],["guest_trial_ended","under_15s"],
+  ["guest_trial_mic_denied","teacher"],["guest_trial_token_failed","friend"],
+  ["guest_trial_connect_failed","friend"],["guest_trial_setup_failed","teacher"]
+ ]){
+  const r=await onRequestPost({request:request({...payload,event,detail}),env});
+  assert.equal(r.status,204,event);
+ }
+ assert.equal(points.length,10);
+ assert.equal((await onRequestPost({request:request({...payload,event:"guest_trial_token_issued",detail:"private-token"}),env})).status,400);
+ const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const dash=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ assert.match(starter,/guest_trial_entry_view/);
+ assert.match(starter,/guest_trial_token_issued/);
+ assert.match(hook,/recordGuestConnect\(\)/);
+ assert.match(hook,/recordGuestEnd\(\)/);
+ assert.match(dash,/免費體驗（1 分鐘）/);
+ assert.match(teacher,/role="teacher"/);
+ assert.match(friend,/role="friend"/);
+ assert.match(dash,/這是尊重隱私設定的瀏覽器端事件/);
+});
