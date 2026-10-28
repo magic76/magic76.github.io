@@ -86,3 +86,7 @@ A GET request to `https://crew-guest-trial.shanliyoung.workers.dev/api/guest/tok
 The log contains only `state: "unavailable"` and a fixed `reason` code; it never prints the Gemini keys, Turnstile secret, public site key, request URL, visitor identity or tokens. Supported codes: `trial_disabled`, `gemini_key_missing`, `gemini_keys_invalid`, `turnstile_site_key_missing`, `turnstile_secret_missing`, `rate_limiter_binding_missing`, `d1_hash_salt_missing`, `d1_daily_limit_invalid`. A missing Phase 1 rate limiter must be fixed as a **Rate Limiting Binding**, not a Text variable. No diagnostic metadata is added to the public API response. Logs are emitted only for failed configuration checks of the public GET endpoint.
 
 When `reason` is `gemini_keys_invalid`, the private log now also contains a non-sensitive `detail` code: `empty`, `too_large`, `malformed_json`, `unsupported_shape`, `unsupported_type`, `invalid_count`, or `invalid_key_entry`. This identifies the parsing issue without logging keys or their lengths. An invalid multi-key binding never silently falls back to the single-key secret.
+
+### Phase 2 reporting navigation
+
+The private `/usage` dashboard now has a shortcut to the trial summary. It distinguishes eligible entry from unavailable entry and shows event-count ratios for start, token issuance and Live connection. These are not authenticated-user conversion rates. Deploy Cloudflare Pages for this change; no changes to the isolated `crew-guest-trial` Worker or its Secrets are required.

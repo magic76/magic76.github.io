@@ -43,3 +43,12 @@
 .usage-toolbar{flex-wrap:wrap}
 @media(max-width:800px){.usage-panels{grid-template-columns:1fr}.usage-source{width:100%;margin-left:0}}
 @media(max-width:500px){.usage-funnel-step>div:first-child{font-size:12px}.usage-feature{align-items:flex-start}.usage-feature>strong{font-size:12px}}
+
+/* Phase 2 guest usage: glanceable, privacy-safe event summaries. */
+.usage-toolbar .usage-jump{border:1px solid var(--border,#d5d7df);border-radius:999px;background:var(--surface,#fff);color:inherit;padding:10px 18px;text-decoration:none;font-size:14px}
+.usage-guest-overview{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 10px}
+.usage-guest-metric{display:flex;flex-direction:column;gap:6px;min-width:0;padding:15px;border:1px solid var(--border,#e5e7ef);border-radius:14px}
+.usage-guest-metric small,.usage-guest-metric span{color:var(--text-muted,#627088);font-size:12px;line-height:1.5}
+.usage-guest-metric strong{font-size:clamp(22px,3vw,32px);font-variant-numeric:tabular-nums}
+#guest-trial-stats{scroll-margin-top:20px}
+@media(max-width:700px){.usage-guest-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.usage-guest-metric{padding:12px}}

@@ -18,7 +18,7 @@ const events=new Set([
   "story_reading","story_narration","story_created",
   "fortune_calculated","fortune_ai_interpreted",
   "gemini_key_missing","gemini_key_verified",
-  "guest_trial_entry_view","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
+  "guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
   "guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended",
   "home_entry_click","explore_entry_click",
   "town_enter","town_interaction","town_chat_click","town_3d_fallback",

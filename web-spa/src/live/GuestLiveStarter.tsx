@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
 import {trackUsageEvent} from "../analytics/usage";
-import {fetchGuestTrialConfig,GUEST_TOKEN_ENDPOINT,type GuestTrialGrant} from "../lib/guestTrial";
+import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled,GUEST_TOKEN_ENDPOINT,type GuestTrialGrant} from "../lib/guestTrial";
 
 type WidgetApi={
  render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;
@@ -26,8 +26,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
   void fetchGuestTrialConfig().then(config=>{
    if(!active.current)return;
    if(config.enabled&&config.siteKey){trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready")}
-   else setPhase("unavailable");
-  }).catch(()=>{if(active.current)setPhase("unavailable")});
+   else{if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}
+  }).catch(()=>{if(active.current){if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}});
   return()=>{active.current=false};
  },[]);
  useEffect(()=>{

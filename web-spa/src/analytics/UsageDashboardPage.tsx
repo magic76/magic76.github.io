@@ -25,7 +25,7 @@ const names:Record<string,string>={
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
  fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",
  gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功",
- guest_trial_entry_view:"免費試用入口曝光",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
+ guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
  guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
  home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
  town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
@@ -37,7 +37,7 @@ const names:Record<string,string>={
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","research_article_completed","circle_post_published","circle_comment_posted"]},
- {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
+ {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
  {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
@@ -58,6 +58,8 @@ const games:{id:string;label:string}[]=[
 const num=(n:number)=>Math.round(n).toLocaleString("zh-TW");
 const total=(rows:Row[],name:string,detail?:string)=>rows.filter(r=>r.event===name&&(detail===undefined||r.detail===detail)).reduce((sum,r)=>sum+r.count,0);
 const totalMany=(rows:Row[],events:string[])=>events.reduce((sum,event)=>sum+total(rows,event),0);
+// A ratio of event totals, not a joined cohort or a per-person conversion rate.
+const eventRatio=(value:number,previous:number)=>previous>0?(value/previous*100).toFixed(1)+"%":"—";
 const comparison=(current:number,previous:number)=>previous===0
  ? "前一期尚無可比較的使用紀錄"
  : `較前一期 ${current>=previous?"+":""}${num(current-previous)}（${current>=previous?"+":""}${Math.round((current-previous)/previous*100)}%）`;
@@ -109,6 +111,7 @@ export function UsageDashboardPage(){
    <div className="usage-toolbar" role="group" aria-label="統計期間">
     <button type="button" aria-pressed={days===7} onClick={()=>setDays(7)}>最近 7 天</button>
     <button type="button" aria-pressed={days===30} onClick={()=>setDays(30)}>最近 30 天</button>
+    <a href="#guest-trial-stats" className="usage-jump">免費試用統計</a>
     <span className="usage-source">資料來源：Web · Cloudflare（不含 Android）</span>
    </div>
   </section>
@@ -135,8 +138,17 @@ export function UsageDashboardPage(){
      </div>
      <p className="usage-explain">目前篩選：{selected.label} · {num(totalMany(rows,selected.events))} 次事件。各階段的事件可能來自同一個瀏覽器，不應視為不同使用者。</p>
     </section>
-    <section className="panel section">
+    <section id="guest-trial-stats" className="panel section">
      <div className="section-head"><h2>免費體驗（1 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
+     <div className="usage-guest-overview" aria-label="免費試用成效摘要">
+      {[
+       {label:"看到可用入口",event:"guest_trial_entry_view",hint:"約 "+num(unique("guest_trial_entry_view"))+" 個瀏覽器"},
+       {label:"按下開始",event:"guest_trial_start_click",hint:"相對入口曝光 "+eventRatio(total(rows,"guest_trial_start_click"),total(rows,"guest_trial_entry_view"))},
+       {label:"取得語音憑證",event:"guest_trial_token_issued",hint:"相對開始次數 "+eventRatio(total(rows,"guest_trial_token_issued"),total(rows,"guest_trial_start_click"))},
+       {label:"成功語音連線",event:"guest_trial_connected",hint:"相對發證次數 "+eventRatio(total(rows,"guest_trial_connected"),total(rows,"guest_trial_token_issued"))}
+      ].map(x=><article key={x.event} className="usage-guest-metric"><small>{x.label}</small><strong>{num(total(rows,x.event))}</strong><span>{x.hint}</span></article>)}
+     </div>
+     <p className="usage-explain">以上百分比只比較事件總次數，不是同一批訪客的精準轉換率；瀏覽器停用統計、重試或遺失事件都會影響結果。</p>
      <div className="usage-funnel">
       {[
        {label:"看見免費試用",event:"guest_trial_entry_view"},
@@ -156,6 +168,7 @@ export function UsageDashboardPage(){
        <span>{role==="teacher"?"AI 老師":"AI 朋友"}</span>
        <strong>曝光 {num(total(rows,"guest_trial_entry_view",role))} · 點擊 {num(total(rows,"guest_trial_start_click",role))} · 發證 {num(total(rows,"guest_trial_token_issued",role))} · 連線 {num(total(rows,"guest_trial_connected",role))}</strong>
       </div>)}
+      <div className="usage-feature"><span>試用入口不可用</span><strong>{num(total(rows,"guest_trial_unavailable"))} 次</strong></div>
       <div className="usage-feature"><span>憑證失敗</span><strong>{num(total(rows,"guest_trial_token_failed"))} 次</strong></div>
       <div className="usage-feature"><span>連線失敗</span><strong>{num(total(rows,"guest_trial_connect_failed"))} 次</strong></div>
       <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>

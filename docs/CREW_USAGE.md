@@ -129,3 +129,11 @@ Crew's existing private `/usage` dashboard shows the one-minute Teacher/Friend t
 All guest trial events go through the existing consent-aware first-party `trackUsageEvent` pipeline, the same `ANALYTICS_ENGINE` binding and the existing Cloudflare Access-protected read endpoint; **no new environment variables or D1 database are needed**.
 
 These metrics are browser-side and may omit users who opt out or leave before sending the event. They are not accurate account-specific limits, authenticated user counts or billing totals. Phase 3 will implement login and server-enforced counting separately. No historic counts can be recovered.
+
+## Guest trial Phase 2 usability update (October 28, 2026)
+
+The existing /usage dashboard now includes a prominent link to the Guest Trial section, four headline metrics (eligible entry, click start, browser-reported token issuance, Live connected), and approximate stage-to-stage **event-total ratios**. These ratios must never be represented as distinct-person conversion rates or as audited issuance totals.
+
+The new `guest_trial_unavailable` event counts failed/disabled discovery in the ordinary production Web experience. It does not capture private configuration reasons or record availability on Android where discovery is intentionally disabled. Analytics keeps the same consent/opt-out protections. Cloudflare Pages needs redeploying for the new event to be accepted by /api/usage/event; the separate guest Worker does not need redeployment.
+
+Operational checks: verify `POST /api/usage/event` returns 204 for permitted browsers, log in through Cloudflare Access to `/usage`, and select the 7/30-day view. The read-only report needs `CREW_USAGE_ACCOUNT_ID`, `CREW_USAGE_SQL_TOKEN`, `CREW_USAGE_ACCESS_ISS`, `CREW_USAGE_ACCESS_AUD`, and `CREW_USAGE_ADMIN_EMAIL` in Pages Production. Without these, the private dashboard cannot query totals.
