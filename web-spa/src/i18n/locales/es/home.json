@@ -91,6 +91,7 @@
     }
   },
   "world": {
+    "headline": "Tus amigos de IA para charlar, aprender y jugar.",
     "intro": "Habla, juega, aprende e imagina. Con IA.",
     "touch": "Muévete o toca la pantalla. Deja que este mundo responda.",
     "pause": "Pausar movimiento",
