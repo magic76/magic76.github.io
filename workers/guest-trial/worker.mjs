@@ -1,4 +1,4 @@
-/** Public one-minute Guest Trial Worker. Legacy private QA endpoint retired. */
+/** Public three-minute Guest Trial Worker. Legacy private QA endpoint retired. */
 import {onRequestGet,onRequestPost} from "../../functions/api/guest/token.js";
 const ORIGIN="https://www.3sssi.com", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token";
 function response(body,status=200,origin){

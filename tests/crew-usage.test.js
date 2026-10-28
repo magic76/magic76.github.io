@@ -136,7 +136,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  for(const [event,detail] of [
   ["guest_trial_entry_view","teacher"],["guest_trial_unavailable","friend"],["guest_trial_start_click","teacher"],
   ["guest_trial_token_issued","friend"],["guest_trial_connected","friend"],
-  ["guest_trial_ended","from_45_to_60s"],["guest_trial_ended","under_15s"],
+  ["guest_trial_ended","from_45_to_60s"],["guest_trial_ended","from_60_to_120s"],["guest_trial_ended","from_120_to_180s"],["guest_trial_ended","under_15s"],
   ["guest_trial_mic_denied","teacher"],["guest_trial_token_failed","friend"],
   ["guest_trial_connect_failed","friend"],["guest_trial_setup_failed","teacher"]
  ]){

@@ -71,7 +71,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string};
-   if(!res.ok||!data.token||!data.model||data.seconds!==60){
+   if(!res.ok||!data.token||!data.model||data.seconds!==180){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){setMessage(data.code==="DAILY_LIMIT"?t("guestTrial.limit"):t("guestTrial.tempUnavailable"));setPhase("error")}
     return;
