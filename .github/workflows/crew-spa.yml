@@ -56,7 +56,7 @@ jobs:
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
         run: npm test
       - name: Validate isolated guest trial backend and existing Live transport (guest PRs only)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'guest-trial')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-trial') || contains(github.event.pull_request.head.ref, 'guest-qa'))
         run: node --test tests/guest-trial.test.js tests/crew-live.lifecycle.test.js tests/crew-onboarding.test.js
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
