@@ -191,11 +191,25 @@ const privatePaths=[
 const privatePatterns=["/story/edit/*","/story/read/*","/story/physical/*","/briefing/*"];
 const privateShell=viteHtml.replace("<title>Crew</title>","<title>Crew · Interactive App</title>");
 if(!privateShell.includes('name="robots" content="noindex,follow"'))throw Error("Private shell must be noindex");
+// Cloudflare Pages canonicalizes *.html to extensionless URLs, even when
+// the filename is used as a 200 proxy destination. That leaked /_app-noindex
+// into the address bar and left React with an unknown (blank) route.
+// Generate an actual HTML asset for every known private route; Pages serves
+// /teacher/roles from /teacher/roles.html without changing the URL or ?mode.
+// Keep a clean-URL proxy only for parameterized routes that cannot be emitted.
 writeFileSync(join(out,"_app-noindex.html"),privateShell);
-const rules=previewLocales.map(({code})=>"/"+code+"/* /"+code+"/index.html 200");
 for(const prefix of ["","/en"]){
- for(const path of privatePaths)rules.push(prefix+path+" /_app-noindex.html 200");
- for(const path of privatePatterns)rules.push(prefix+path+" /_app-noindex.html 200");
+ for(const route of privatePaths){
+  const relative=(prefix+route).slice(1)+".html";
+  const target=join(out,relative);
+  if(existsSync(target))throw Error("Private route conflicts with published file: "+relative);
+  mkdirSync(dirname(target),{recursive:true});
+  writeFileSync(target,privateShell);
+ }
+}
+const rules=previewLocales.map(({code})=>"/"+code+"/* /"+code+"/ 200");
+for(const prefix of ["","/en"]){
+ for(const path of privatePatterns)rules.push(prefix+path+" /_app-noindex 200");
 }
 writeFileSync(join(out,"_redirects"),rules.join(newline)+newline);
 
