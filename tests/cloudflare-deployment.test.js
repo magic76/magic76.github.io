@@ -196,15 +196,15 @@ check("deep interactive routes keep their URLs and noindex SPA shell, including 
    const publicPath=prefix+route;
    const file=publicPath.slice(1)+".html";
    assert.equal(read(file),shell,"missing private SPA shell at "+publicPath);
-   assert.ok(!redirects.split("\\n").some(line=>line.startsWith(publicPath+" ")),"private route unexpectedly redirected: "+publicPath);
+   assert.ok(!redirects.split("\n").some(line=>line.startsWith(publicPath+" ")),"private route unexpectedly redirected: "+publicPath);
   }
  }
  for(const route of ["/story/read/*","/en/story/read/*","/briefing/*"]){
   assert.ok(redirects.includes(route+" /_app-noindex 200"),"missing clean-path dynamic route proxy "+route);
  }
- assert.doesNotMatch(redirects,/\\.html 200(?:\\n|$)/,"HTML rewrite targets trigger Cloudflare's clean URL redirect");
+ assert.doesNotMatch(redirects,/\.html 200(?:\n|$)/,"HTML rewrite targets trigger Cloudflare's clean URL redirect");
  for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/research/*"]){
-  assert.ok(!redirects.split("\\n").some(line=>line.startsWith(route+" ")),"indexable page incorrectly rewritten "+route);
+  assert.ok(!redirects.split("\n").some(line=>line.startsWith(route+" ")),"indexable page incorrectly rewritten "+route);
  }
 });
  
