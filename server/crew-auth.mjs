@@ -1,0 +1,99 @@
+/** Minimal server-side OAuth for Cloudflare Pages. Provider tokens are never stored. */
+const ORIGIN="https://www.3sssi.com",OAUTH="__Host-crew_oauth",SESSION="__Host-crew_session";
+const TTL=30*86400,PROVIDERS=["google","github"],COOKIE="Path=/; Secure; HttpOnly; SameSite=Lax";
+const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Referrer-Policy":"no-referrer"}});
+const go=(url,cookie)=>{const h=new Headers({"Location":url,"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});if(cookie)h.append("Set-Cookie",cookie);return new Response(null,{status:302,headers:h})};
+const set=(name,value,age)=>name+"="+value+"; Max-Age="+age+"; "+COOKIE;
+const read=(req,name)=>(req.headers.get("Cookie")||"").split(";").map(s=>s.trim()).find(s=>s.startsWith(name+"="))?.slice(name.length+1)||"";
+const validHost=req=>new URL(req.url).origin===ORIGIN;
+const b64=b=>btoa(String.fromCharCode(...b)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"");
+const random=()=>b64(crypto.getRandomValues(new Uint8Array(32)));
+const digest=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)));
+const hash=async s=>Array.from(await digest(s),b=>b.toString(16).padStart(2,"0")).join("");
+const equal=(a,b)=>typeof a==="string"&&typeof b==="string"&&a.length===b.length&&a.length>0&&Array.from(a).reduce((n,c,i)=>n|(c.charCodeAt(0)^b.charCodeAt(i)),0)===0;
+function creds(env,p){const x=p==="google"?"CREW_AUTH_GOOGLE":"CREW_AUTH_GITHUB";const id=env?.[x+"_CLIENT_ID"],secret=env?.[x+"_CLIENT_SECRET"];return typeof id==="string"&&id&&typeof secret==="string"&&secret?{id,secret}:null}
+const callback=p=>ORIGIN+"/api/auth/"+p+"/callback";
+const fail=why=>go(ORIGIN+"/account?auth_error="+why);
+export async function start({request,env},provider){
+ if(!validHost(request))return json({error:"Not found"},404);
+ const c=PROVIDERS.includes(provider)?creds(env,provider):null;
+ if(!c||!env?.CREW_AUTH_DB)return fail("unavailable");
+ const state=random(),verifier=random(),challenge=b64(await digest(verifier));
+ const q=new URLSearchParams({client_id:c.id,redirect_uri:callback(provider),state,response_type:"code",code_challenge:challenge,code_challenge_method:"S256"});
+ if(provider==="google")q.set("scope","openid email profile");
+ const url=provider==="google"?"https://accounts.google.com/o/oauth2/v2/auth":"https://github.com/login/oauth/authorize";
+ return go(url+"?"+q,set(OAUTH,state+"."+verifier+"."+provider,600));
+}
+async function exchange(provider,c,code,verifier){
+ const q=new URLSearchParams({client_id:c.id,client_secret:c.secret,code,redirect_uri:callback(provider),code_verifier:verifier});
+ if(provider==="google")q.set("grant_type","authorization_code");
+ const url=provider==="google"?"https://oauth2.googleapis.com/token":"https://github.com/login/oauth/access_token";
+ const r=await fetch(url,{method:"POST",headers:{"Accept":"application/json","Content-Type":"application/x-www-form-urlencoded"},body:q,redirect:"error"});
+ if(!r.ok)return null;const body=await r.json();return typeof body.access_token==="string"&&body.access_token?body.access_token:null;
+}
+async function profile(provider,token){
+ const url=provider==="google"?"https://openidconnect.googleapis.com/v1/userinfo":"https://api.github.com/user";
+ const r=await fetch(url,{headers:{"Authorization":"Bearer "+token,"Accept":"application/json",...(provider==="github"?{"User-Agent":"Crew-Web-Auth","X-GitHub-Api-Version":"2022-11-28"}:{})},redirect:"error"});
+ if(!r.ok)return null;
+ const info=await r.json(),id=provider==="google"?info?.sub:info?.id;
+ if(provider==="google"?(typeof id!=="string"||!id||id.length>180):(!Number.isSafeInteger(id)||id<=0))return null;
+ return {id:String(id),name:String(info.name||info.login||"Crew member").trim().slice(0,100)||"Crew member"};
+}
+async function account(db,provider,p){
+ let row=await db.prepare("SELECT user_id FROM crew_auth_identities WHERE provider=? AND provider_id=?").bind(provider,p.id).first();
+ if(!row){
+  const uid=crypto.randomUUID(),now=Math.floor(Date.now()/1000);
+  await db.batch([
+   db.prepare("INSERT INTO crew_auth_users(id,display_name,created_at) VALUES(?,?,?)").bind(uid,p.name,now),
+   db.prepare("INSERT OR IGNORE INTO crew_auth_identities(provider,provider_id,user_id,created_at) VALUES(?,?,?,?)").bind(provider,p.id,uid,now)
+  ]);
+  row=await db.prepare("SELECT user_id FROM crew_auth_identities WHERE provider=? AND provider_id=?").bind(provider,p.id).first();
+ }
+ if(typeof row?.user_id!=="string")throw Error("Account unavailable");
+ return row.user_id;
+}
+export async function callbackHandler({request,env},provider){
+ if(!validHost(request))return json({error:"Not found"},404);
+ const h=new Headers({"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});
+ h.append("Set-Cookie",set(OAUTH,"",0));
+ const bounce=reason=>{h.set("Location",ORIGIN+"/account?auth_error="+reason);return new Response(null,{status:302,headers:h})};
+ const args=new URL(request.url).searchParams,parts=read(request,OAUTH).split("."),code=args.get("code"),state=args.get("state");
+ if(parts.length!==3||parts[2]!==provider||!PROVIDERS.includes(provider)||!equal(parts[0],state)||
+    !/^[A-Za-z0-9_-]{43}$/.test(parts[1]||"")||!code||code.length>2048)return bounce(args.has("error")?"cancelled":"failed");
+ const c=creds(env,provider);
+ if(!c||!env?.CREW_AUTH_DB)return bounce("unavailable");
+ try{
+  const token=await exchange(provider,c,code,parts[1]);if(!token)return bounce("failed");
+  const info=await profile(provider,token);if(!info)return bounce("failed");
+  const uid=await account(env.CREW_AUTH_DB,provider,info);
+  const session=random(),now=Math.floor(Date.now()/1000);
+  await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)")
+   .bind(await hash(session),uid,now,now+TTL).run();
+  h.set("Location",ORIGIN+"/account");h.append("Set-Cookie",set(SESSION,session,TTL));
+  return new Response(null,{status:302,headers:h});
+ }catch{return bounce("failed")}
+}
+export async function sessionInfo({request,env}){
+ if(!validHost(request))return json({error:"Not found"},404);
+ const providers={google:Boolean(creds(env,"google")),github:Boolean(creds(env,"github"))};
+ if(!env?.CREW_AUTH_DB||(!providers.google&&!providers.github))return json({enabled:false,providers:{google:false,github:false},user:null});
+ const token=read(request,SESSION);let user=null;
+ if(/^[A-Za-z0-9_-]{43}$/.test(token)){
+  try{
+   const row=await env.CREW_AUTH_DB.prepare("SELECT u.id AS id,u.display_name AS name,i.provider AS provider FROM crew_auth_sessions s JOIN crew_auth_users u ON u.id=s.user_id JOIN crew_auth_identities i ON i.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? ORDER BY i.created_at ASC LIMIT 1")
+    .bind(await hash(token),Math.floor(Date.now()/1000)).first();
+   if(row&&typeof row.id==="string"&&typeof row.name==="string")user={id:row.id,name:row.name,provider:row.provider};
+  }catch{return json({enabled:false,providers:{google:false,github:false},user:null},503)}
+ }
+ return json({enabled:true,providers,user});
+}
+export async function logout({request,env}){
+ if(!validHost(request))return json({error:"Not found"},404);
+ if(request.headers.get("Origin")!==ORIGIN||request.headers.get("Sec-Fetch-Site")==="cross-site")return json({error:"Origin rejected"},403);
+ const token=read(request,SESSION);
+ if(env?.CREW_AUTH_DB&&/^[A-Za-z0-9_-]{43}$/.test(token)){
+  try{await env.CREW_AUTH_DB.prepare("DELETE FROM crew_auth_sessions WHERE token_hash=?").bind(await hash(token)).run()}
+  catch{return json({error:"Sign-out failed"},503)}
+ }
+ const r=json({ok:true});r.headers.append("Set-Cookie",set(SESSION,"",0));return r;
+}
