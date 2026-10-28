@@ -315,3 +315,31 @@ test("Turnstile action mismatch blocks minted credentials",async()=>{
   assert.equal(fake.counts().minted,0);
  }finally{fake.restore()}
 });
+
+test("guest QA page and discovery guard against lifecycle and opt-in regressions",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/pages/GuestTrialPage.tsx"),"utf8");
+ const gate=fs.readFileSync(path.join(root,"web-spa/src/onboarding/OnboardingGate.tsx"),"utf8");
+ const helper=fs.readFileSync(path.join(root,"web-spa/src/lib/guestTrial.ts"),"utf8");
+ assert.match(page,/if\(qaMode\)setPhase\("unavailable"\)/);
+ assert.match(page,/active\.current=false;resetTimer\(\)/);
+ assert.match(page,/guest-page-leave/);
+ assert.match(page,/document\.addEventListener\("visibilitychange"/);
+ assert.match(page,/window\.addEventListener\("pagehide"/);
+ assert.match(page,/performance\.now\(\)/);
+ assert.doesNotMatch(page,/deadline\.current-Date\.now\(\)/);
+ assert.ok(page.indexOf("await ensureLive();")<page.indexOf("getUserMedia({audio:true})"));
+ assert.match(page,/content-type"\)\?\.toLowerCase\(\)\.includes\("application\/json"\)/);
+ assert.match(page,/action:qaMode\?"crew-guest-qa":"crew-guest-trial"/);
+ assert.match(helper,/VITE_CREW_GUEST_TRIAL_ENABLED==="1"/);
+ assert.match(helper,/!isCrewAndroidShell\(\)/);
+ assert.doesNotMatch(gate,/isCrewAndroidShell\(/);
+});
+test("guest UI copy is localized in all 11 UI locale catalogs",()=>{
+ const locales=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales.map(x=>x.code);
+ const base=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/en/common.json"),"utf8")).guestTrial;
+ for(const locale of locales){
+  const c=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",locale,"common.json"),"utf8")).guestTrial;
+  assert.deepEqual(Object.keys(c).sort(),Object.keys(base).sort(),locale);
+  for(const [k,v] of Object.entries(c))assert.ok(typeof v==="string"&&v.trim(),locale+" "+k);
+ }
+});
