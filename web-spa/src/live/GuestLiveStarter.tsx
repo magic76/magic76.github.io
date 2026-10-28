@@ -43,9 +43,12 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
      if(config.signinRequired&&!isSignedIn){setPhase("login");return}
      // Only a hint to spare users another Turnstile. The Worker remains the
      // authority and rejects concurrent or already-consumed account grants.
-     const quota=session?.trial as {used?:number;limit?:number}|undefined;
-     if(isSignedIn&&quota&&Number.isFinite(quota.used)&&Number.isFinite(quota.limit)
-        &&quota.limit!>0&&quota.used!>=quota.limit!){setPhase("exhausted");return}
+     const quota=session?.trial as {used?:unknown;limit?:unknown}|undefined;
+     const used=quota?.used,limit=quota?.limit;
+     if(isSignedIn&&typeof used==="number"&&typeof limit==="number"
+        &&Number.isFinite(used)&&Number.isFinite(limit)&&limit>0&&used>=limit){
+      setPhase("exhausted");return;
+     }
     }catch{
      if(config.signinRequired){if(active.current)setPhase("unavailable");return}
      // Anonymous access remains allowed when metering is optional.

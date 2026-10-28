@@ -699,8 +699,8 @@ test("member metering fails closed when shared D1, signing secret, or config fla
 test("optional member metering checks exhausted quota before Turnstile or ticket issuance",()=>{
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const account=fs.readFileSync(path.join(root,"web-spa/src/pages/AccountPage.tsx"),"utf8");
- assert.match(starter,/Number\.isFinite\(quota\.used\)/);
- assert.match(starter,/quota\.used!>=quota\.limit!/);
+ assert.match(starter,/Number\.isFinite\(used\)/);
+ assert.match(starter,/used>=limit/);
  assert.match(starter,/setPhase\("exhausted"\);return/);
  assert.match(starter,/phase==="exhausted"/);
  assert.match(starter,/phase==="login"/);
