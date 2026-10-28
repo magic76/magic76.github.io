@@ -53,6 +53,8 @@
   },
   "loading": "กำลังโหลด…",
   "guestTrial": {
+    "signInToTry": "เข้าสู่ระบบเพื่อทดลองสนทนาด้วยเสียงฟรีสามนาที",
+    "signInAction": "เข้าสู่ระบบเพื่อทดลอง",
     "timeLeft": "เวลาที่เหลือ",
     "almostDone": "ใกล้หมดเวลาแล้ว! ลองกล่าวลา AI",
     "completeTitle": "ทดลองใช้งานฟรีเสร็จแล้ว!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "ขณะนี้ยังไม่สามารถทดลองได้"
   },
   "auth": {
+    "trialCount": "ทดลองเสียงฟรีที่ใช้ไป: {{used}} / {{limit}}",
     "account": "บัญชี",
     "title": "บัญชี Crew",
     "intro": "เข้าสู่ระบบด้วย Google หรือ GitHub",

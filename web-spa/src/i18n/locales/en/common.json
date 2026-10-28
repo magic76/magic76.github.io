@@ -53,6 +53,8 @@
   },
   "loading": "Loading…",
   "guestTrial": {
+    "signInToTry": "Sign in to use your free three-minute voice trial.",
+    "signInAction": "Sign in to try",
     "timeLeft": "Time left",
     "almostDone": "Almost done! Say goodbye to the AI.",
     "completeTitle": "Your free trial is complete!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "Guest trial is temporarily unavailable."
   },
   "auth": {
+    "trialCount": "Free voice trials used: {{used}} / {{limit}}",
     "account": "Account",
     "title": "Crew Account",
     "intro": "Sign in with Google or GitHub to manage your Crew identity.",
