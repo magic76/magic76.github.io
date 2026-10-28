@@ -205,3 +205,41 @@ test("account D1 failures are distinguished from OAuth token failures",async()=>
   assert.ok(!back.href.includes("private-token"));
  }finally{global.fetch=original}
 });
+
+test("OAuth token provider error codes remain bounded and never reveal secrets",async()=>{
+ const {start,callbackHandler}=await lib(),original=global.fetch;
+ const env={...config(),CREW_AUTH_DB:new FakeDB()};
+ const cases=[
+  {provider:"google",status:401,error:"invalid_client",reason:"invalid_client"},
+  {provider:"google",status:400,error:"invalid_grant",reason:"invalid_grant"},
+  // GitHub can return an OAuth error inside HTTP 200.
+  {provider:"github",status:200,error:"incorrect_client_credentials",reason:"incorrect_client_credentials"},
+  {provider:"github",status:401,error:"private-token-or-secret",reason:"provider_rejected"},
+  {provider:"google",status:503,error:"secret-provider-internal-failure",reason:"provider_unavailable"}
+ ];
+ try{
+  for(const item of cases){
+   const begin=await start({request:req("/api/auth/"+item.provider+"/start"),env},item.provider);
+   const authorize=new URL(begin.headers.get("Location"));
+   const cookie=begin.headers.get("Set-Cookie").split(";")[0];
+   const callback=req("/api/auth/"+item.provider+"/callback?state="+authorize.searchParams.get("state")+"&code=valid",{Cookie:cookie});
+   global.fetch=async()=>new Response(JSON.stringify({error:item.error,error_description:"PRIVATE secret=leak"}),{status:item.status});
+   const response=await callbackHandler({request:callback,env},item.provider);
+   const dest=new URL(response.headers.get("Location"));
+   assert.equal(dest.searchParams.get("auth_stage"),"token");
+   assert.equal(dest.searchParams.get("auth_reason"),item.reason);
+   assert.equal(dest.searchParams.get("auth_error"),"failed");
+   assert.ok(!dest.href.includes("PRIVATE"));
+   assert.ok(!dest.href.includes("leak"));
+   assert.ok(!dest.href.includes("google-secret"));
+  }
+  const begin=await start({request:req("/api/auth/github/start"),env},"github");
+  const authorize=new URL(begin.headers.get("Location"));
+  const cookie=begin.headers.get("Set-Cookie").split(";")[0];
+  global.fetch=async()=>{throw Error("client_secret=PRIVATE");};
+  const response=await callbackHandler({request:req("/api/auth/github/callback?state="+authorize.searchParams.get("state")+"&code=valid",{Cookie:cookie}),env},"github");
+  const back=new URL(response.headers.get("Location"));
+  assert.equal(back.searchParams.get("auth_reason"),"token_transport");
+  assert.ok(!back.href.includes("PRIVATE"));
+ }finally{global.fetch=original}
+});
