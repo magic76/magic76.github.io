@@ -24,6 +24,30 @@ function creds(env,p){
 }
 const callback=p=>ORIGIN+"/api/auth/"+p+"/callback";
 const fail=why=>go(ORIGIN+"/account?auth_error="+why);
+// Public diagnostic codes contain no credentials, account data, or provider errors.
+const authStages=new Set(["state","token","profile","account","session"]);
+const failStage=(bounce,provider,stage)=>{
+ console.warn("crew_auth_callback_failure",{provider,stage});
+ return bounce("failed",stage);
+};
+export async function health({request,env}){
+ if(!validHost(request))return json({error:"Not found"},404);
+ const providers={google:Boolean(creds(env,"google")),github:Boolean(creds(env,"github"))};
+ const result={providers,database:{binding:Boolean(env?.CREW_AUTH_DB),tables:{}}};
+ if(!env?.CREW_AUTH_DB)return json(result,503);
+ let allReady=true;
+ // Check the database actually bound to Pages, not just the D1 Console DB.
+ for(const table of ["crew_auth_users","crew_auth_identities","crew_auth_sessions"]){
+  try{
+   await env.CREW_AUTH_DB.prepare("SELECT 1 FROM "+table+" LIMIT 1").first();
+   result.database.tables[table]=true;
+  }catch{
+   result.database.tables[table]=false;
+   allReady=false;
+  }
+ }
+ return json(result,allReady?200:503);
+}
 export async function start({request,env},provider){
  if(!validHost(request))return json({error:"Not found"},404);
  const c=PROVIDERS.includes(provider)?creds(env,provider):null;
@@ -66,22 +90,35 @@ export async function callbackHandler({request,env},provider){
  if(!validHost(request))return json({error:"Not found"},404);
  const h=new Headers({"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});
  h.append("Set-Cookie",set(OAUTH,"",0));
- const bounce=reason=>{h.set("Location",ORIGIN+"/account?auth_error="+reason);return new Response(null,{status:302,headers:h})};
+ const bounce=(reason,stage)=>{
+  const dest=new URL(ORIGIN+"/account");
+  dest.searchParams.set("auth_error",reason);
+  if(authStages.has(stage))dest.searchParams.set("auth_stage",stage);
+  h.set("Location",dest.toString());
+  return new Response(null,{status:302,headers:h});
+ };
  const args=new URL(request.url).searchParams,parts=read(request,OAUTH).split("."),code=args.get("code"),state=args.get("state");
  if(parts.length!==3||parts[2]!==provider||!PROVIDERS.includes(provider)||!equal(parts[0],state)||
-    !/^[A-Za-z0-9_-]{43}$/.test(parts[1]||"")||!code||code.length>2048)return bounce(args.has("error")?"cancelled":"failed");
+    !/^[A-Za-z0-9_-]{43}$/.test(parts[1]||"")||!code||code.length>2048)
+  return args.has("error")?bounce("cancelled"):failStage(bounce,provider,"state");
  const c=creds(env,provider);
  if(!c||!env?.CREW_AUTH_DB)return bounce("unavailable");
+ let stage="token";
  try{
-  const token=await exchange(provider,c,code,parts[1]);if(!token)return bounce("failed");
-  const info=await profile(provider,token);if(!info)return bounce("failed");
+  const token=await exchange(provider,c,code,parts[1]);
+  if(!token)return failStage(bounce,provider,stage);
+  stage="profile";
+  const info=await profile(provider,token);
+  if(!info)return failStage(bounce,provider,stage);
+  stage="account";
   const uid=await account(env.CREW_AUTH_DB,provider,info);
+  stage="session";
   const session=random(),now=Math.floor(Date.now()/1000);
   await env.CREW_AUTH_DB.prepare("INSERT INTO crew_auth_sessions(token_hash,user_id,created_at,expires_at) VALUES(?,?,?,?)")
    .bind(await hash(session),uid,now,now+TTL).run();
   h.set("Location",ORIGIN+"/account");h.append("Set-Cookie",set(SESSION,session,TTL));
   return new Response(null,{status:302,headers:h});
- }catch{return bounce("failed")}
+ }catch{return failStage(bounce,provider,stage)}
 }
 export async function sessionInfo({request,env}){
  if(!validHost(request))return json({error:"Not found"},404);
