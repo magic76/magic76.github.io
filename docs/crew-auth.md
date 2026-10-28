@@ -39,3 +39,7 @@
 - Signing in with a new provider creates a new account identity unless the user explicitly links it in a future secure account-linking flow.
 - This is not Cloudflare Access for administrators; the private /usage dashboard retains its separate Access policy.
 - The `CREW_AUTH_DB` binding belongs to the **Pages** project, not `crew-guest-trial` Worker.
+
+## Cloudflare Workers OAuth redirect compatibility (2026-10-28)
+
+Cloudflare Workers/Pages Functions support only `fetch` redirect modes `follow` and `manual`, not `error`. The former `redirect:"error"` in both token exchange and profile requests threw a runtime `TypeError` before contacting Google/GitHub and surfaced as `auth_stage=token&auth_reason=token_transport` even with valid credentials. Both now use `redirect:"manual"`; token exchanges explicitly reject any 3xx response, so credentials are never auto-forwarded to another origin. This fix requires a Pages production deployment, but **no OAuth credential changes**. Source: https://developers.cloudflare.com/workers/runtime-apis/request/
