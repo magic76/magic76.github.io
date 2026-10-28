@@ -2,8 +2,11 @@
   "version": 1,
   "include": [
     "/api/usage/*",
+    "/api/auth/*",
     "/api/books",
     "/"
   ],
-  "exclude": ["/api/guest/*"]
+  "exclude": [
+    "/api/guest/*"
+  ]
 }
