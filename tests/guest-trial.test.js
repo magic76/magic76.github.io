@@ -8,6 +8,29 @@ const root=path.resolve(__dirname,"..");
 const source=fs.readFileSync(path.join(root,"functions/api/guest/token.js"),"utf8");
 const backend=import("data:text/javascript;base64,"+Buffer.from(source).toString("base64"));
 const transport=require("../crew-live.js");
+async function loadStandaloneWorker(){
+ const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
+ const qaRaw=fs.readFileSync(path.join(root,"functions/api/guest/qa.js"),"utf8");
+ const qaSource=qaRaw.replace(
+  'import {mintToken,verifyCaptcha} from "./token.js";',
+  'const {mintToken,verifyCaptcha}=await import("'+backendUrl+'");'
+ );
+ assert.notEqual(qaRaw,qaSource);
+ const qaUrl="data:text/javascript;base64,"+Buffer.from(qaSource).toString("base64");
+ const workerRaw=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
+ let workerSource=workerRaw.replace(
+  'import {onRequestGet,onRequestPost} from "../../functions/api/guest/token.js";',
+  'const {onRequestGet,onRequestPost}=await import("'+backendUrl+'");'
+ );
+ workerSource=workerSource.replace(
+  'import {onQaGet,onQaPost} from "../../functions/api/guest/qa.js";',
+  'const {onQaGet,onQaPost}=await import("'+qaUrl+'");'
+ );
+ assert.notEqual(workerRaw,workerSource);
+ assert.ok(!workerSource.includes('from "../../functions/api/guest/'));
+ return (await import("data:text/javascript;base64,"+Buffer.from(workerSource).toString("base64"))).default;
+}
+
 
 function fakeDb(){
  const claims=new Map(),quotas=new Map();
@@ -59,7 +82,7 @@ function mockedServices(options={}){
   if(String(url).includes("siteverify")){
    captcha++;
    return Response.json({success:options.badCaptcha!==true,
-    hostname:options.badHostname?"evil.example":"www.3sssi.com"});
+    hostname:options.badHostname?"evil.example":options.hostname||"www.3sssi.com"});
   }
   if(String(url).includes("/v1beta/auth_tokens")){
    minted++;
@@ -158,12 +181,7 @@ test("guest transport cannot reuse normal BYOK credential or reconnect one-use t
 });
 
 test("standalone Worker rejects unexpected origins and provides strict CORS preflight",async()=>{
- const workerSource=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
- const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
- const substituted=workerSource.replace(/import \{onRequestGet,onRequestPost\} from "[^"]+";/,
-  'const {onRequestGet,onRequestPost}=await import("'+backendUrl+'");');
- assert.notEqual(substituted,workerSource);
- const worker=(await import("data:text/javascript;base64,"+Buffer.from(substituted).toString("base64"))).default;
+ const worker=await loadStandaloneWorker();
  const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
  const bindings=env(fakeDb(),{GUEST_TURNSTILE_SECRET:undefined,TURNSTILE_SECRET_KEY:"server-turnstile-secret"});
  const evil=await worker.fetch(new Request(url,{method:"OPTIONS",headers:{"Origin":"https://evil.example","access-control-request-method":"POST"}}),bindings);
@@ -180,11 +198,7 @@ test("standalone Worker rejects unexpected origins and provides strict CORS pref
 });
 
 test("standalone Worker POST consumes one verified grant and blocks repeat without BYOK",async()=>{
- const workerSource=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
- const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
- const substitute=workerSource.replace(/import \{onRequestGet,onRequestPost\} from "[^"]+";/,
-  'const {onRequestGet,onRequestPost}=await import("'+backendUrl+'");');
- const worker=(await import("data:text/javascript;base64,"+Buffer.from(substitute).toString("base64"))).default;
+ const worker=await loadStandaloneWorker();
  const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
  const bindings=env(fakeDb(),{GUEST_TURNSTILE_SECRET:undefined,TURNSTILE_SECRET_KEY:"server-turnstile-secret"});
  const post=()=>new Request(url,{
@@ -203,4 +217,72 @@ test("standalone Worker POST consumes one verified grant and blocks repeat witho
   assert.equal((await again.json()).code,"ALREADY_USED");
   assert.equal(mocked.counts().minted,1);
  }finally{mocked.restore()}
+});
+
+test("private QA is absent from production and fails closed without short-lived gating",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/qa";
+ const preview="https://test123.magic76-github-io.pages.dev";
+ const access="q".repeat(48);
+ const settings={
+  ...env(undefined),GUEST_TRIAL_ENABLED:"0",GUEST_QA_ENABLED:"1",
+  GUEST_ALLOW_PREVIEW:"1",GUEST_PREVIEW_ORIGIN:preview,
+  GUEST_QA_ACCESS_TOKEN:access,GUEST_QA_UNTIL:new Date(Date.now()+3600000).toISOString(),
+  GUEST_QA_RATE_LIMITER:{limit:async()=>({success:true})}
+ };
+ const request=(origin=preview,token=access)=>new Request(url,{headers:{"Origin":origin,"x-crew-qa-token":token}});
+ assert.equal((await worker.fetch(request("https://www.3sssi.com"),settings)).status,403);
+ assert.equal((await worker.fetch(request(preview,"bad"),settings)).status,403);
+ assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_ENABLED:"0"})).status,503);
+ assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_UNTIL:new Date(Date.now()-1000).toISOString()})).status,503);
+ assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_RATE_LIMITER:undefined})).status,503);
+ assert.equal((await worker.fetch(request(preview),{...settings,GUEST_QA_ACCESS_TOKEN:"short"})).status,503);
+ const good=await worker.fetch(request(preview),settings);
+ assert.equal(good.status,200);
+ const body=await good.json();
+ assert.equal(body.enabled,true);
+ assert.equal(body.qa,true);
+ assert.equal(body.seconds,180);
+ assert.equal(body.token,undefined);
+ assert.equal(body.siteKey,"public-site-key");
+});
+
+test("private QA issues one token after Turnstile and limiter, with no DB binding",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/qa";
+ const preview="https://test123.magic76-github-io.pages.dev";
+ const access="qa-private-access-key-".padEnd(48,"X");
+ let allow=true;
+ const settings={
+  ...env(undefined),GUEST_TRIAL_ENABLED:"0",GUEST_QA_ENABLED:"1",
+  GUEST_ALLOW_PREVIEW:"1",GUEST_PREVIEW_ORIGIN:preview,
+  GUEST_QA_ACCESS_TOKEN:access,GUEST_QA_UNTIL:new Date(Date.now()+3600000).toISOString(),
+  GUEST_QA_RATE_LIMITER:{limit:async()=>({success:allow})}
+ };
+ const post=()=>new Request(url,{method:"POST",headers:{
+  "origin":preview,"x-crew-qa-token":access,"content-type":"application/json",
+  "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-QA-Test"
+ },body:JSON.stringify({challengeToken:"turnstile-valid-test-token"})});
+ const mock=mockedServices({hostname:"test123.magic76-github-io.pages.dev"});
+ try{
+  const preflight=await worker.fetch(new Request(url,{method:"OPTIONS",headers:{
+   origin:preview,"access-control-request-method":"POST",
+   "access-control-request-headers":"content-type,x-crew-qa-token"
+  }}),settings);
+  assert.equal(preflight.status,204);
+  assert.match(preflight.headers.get("access-control-allow-headers"),/x-crew-qa-token/);
+  const success=await worker.fetch(post(),settings);
+  assert.equal(success.status,200);
+  const grant=await success.json();
+  assert.equal(grant.model,"gemini-3.8-live");
+  assert.equal(grant.seconds,180);
+  assert.equal(grant.token,"ephemeral-test-one-use-token");
+  assert.equal(success.headers.get("access-control-allow-origin"),preview);
+  assert.equal(mock.counts().minted,1);
+  allow=false;
+  const limited=await worker.fetch(post(),settings);
+  assert.equal(limited.status,429);
+  assert.equal((await limited.json()).code,"QA_LIMIT");
+  assert.equal(mock.counts().minted,1);
+ }finally{mock.restore()}
 });
