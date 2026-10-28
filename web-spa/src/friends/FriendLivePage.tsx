@@ -168,12 +168,12 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>
-      {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
+      {live.voicePhase==="no-reply"&&!guestStarted?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button><LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>!guestStarted&&<LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
     query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
-    instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>
+    instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>}
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>

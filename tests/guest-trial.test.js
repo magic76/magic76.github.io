@@ -286,3 +286,11 @@ test("public voice uses original Teacher and Friend UI; QA endpoint is gone",asy
  assert.doesNotMatch(home,/to="\/try"/);
  assert.equal(fs.existsSync(path.join(root,"web-spa/src/pages/GuestTrialPage.tsx")),false);
 });
+
+test("Guest mode skips BYOK-only teacher grading and friend reconnect",()=>{
+ const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
+ const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
+ assert.match(teacher,/if\(guestStarted\|\|live\.state!=="ended"/);
+ assert.match(teacher,/if\(guestStarted\)\{await live\.stop\(true\);navigate\("\/learn"\)/);
+ assert.match(friend,/live\.voicePhase==="no-reply"&&!guestStarted/);
+});

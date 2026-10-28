@@ -78,7 +78,7 @@ export function TeacherLivePage(){
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("teacher_conversation_start")}},[live.state]);
  useEffect(()=>{if(live.state==="requesting-mic"){courseSavedRef.current=false;setCourseResult(null)}},[live.state]);
  useEffect(()=>{
-  if(live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
+  if(guestStarted||live.state!=="ended"||!course||courseSavedRef.current||!live.turns.length)return;
   courseSavedRef.current=true;
   setEndingCourse(true);
   let cancelled=false;setEvaluating(true);setEvaluationError("");
@@ -89,18 +89,20 @@ export function TeacherLivePage(){
   }).catch(error=>{if(!cancelled)setEvaluationError(error instanceof Error?error.message:t("live.evalFailed"))})
   .finally(()=>{if(!cancelled)setEvaluating(false)});
   return()=>{cancelled=true};
- },[course?.id,live.state,live.report,live.turns,assessmentRetry]);
+ },[course?.id,live.state,live.report,live.turns,assessmentRetry,guestStarted]);
  // The selected teacher starts when the session page opens. Deferral avoids a StrictMode double-mount call.
  useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  const tutorHistoryRecorded=useRef(false);
  useEffect(()=>{
+  if(guestStarted)return;
   if(live.state==="requesting-mic"){tutorHistoryRecorded.current=false;return}
   if(live.state!=="ended"||tutorHistoryRecorded.current)return;
   tutorHistoryRecorded.current=true;
   recordCompletedTutorSession(profile.id,s.targetLanguage,live.durationMs,
    live.turns.filter(turn=>Boolean(turn.input?.trim())).length,isRoleplay);
- },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay]);
+ },[live.state,live.durationMs,live.turns,profile.id,s.targetLanguage,isRoleplay,guestStarted]);
  const endAndReturn=async()=>{
+  if(guestStarted){await live.stop(true);navigate("/learn");return}
   if(endRequestedRef.current||endingCourse){
    if(course&&!evaluating&&(courseResult||evaluationError))navigate("/learn");
    return;
@@ -207,7 +209,7 @@ export function TeacherLivePage(){
    <h1>{fortuneKind?t("live.fortuneTitle",{name:profile.name}):course?courseTitle(course):mission?mission.title:t("live.teacherName",{name:profile.name})}</h1>
     <div className="teacher-live-entry-actions">
      <button type="button" className="teacher-live-change-action" onClick={()=>void changeTeacher()} disabled={changingTeacher||openingBoard||endingCourse}>{changingTeacher?t("live.switching"):t("live.changeTeacher")}</button>
-     {!course&&!fortuneKind&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
+     {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
     </div>
     {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
    <p>{fortuneKind?t("live.fortuneDesc"):mission?t("live.missionDesc"):profile.description}</p>
@@ -223,7 +225,7 @@ export function TeacherLivePage(){
     :guestStarted&&(live.state==="ended"||live.state==="error")?<div className="notice" role="status"><b>{t("common:guestTrial.ended")}</b> <Link to="/settings#settings-gemini">{t("common:guestTrial.setupKey")}</Link></div>
     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&live.guestSecondsLeft>0&&<p className="meta" role="timer">{t("common:guestTrial.homeTitle")}：{live.guestSecondsLeft}s</p>}
-  <details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
+  <details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
    query={"Find one interesting and verifiable recent news event relevant to "+s.targetLanguage+" language learners. Include the published date, event date, and credible source."}
    instruction={"Teach this verified news to the student in the configured target language: "+s.targetLanguage+". Choose 2-3 suitable vocabulary words and ask one practice question. Stay in the same conversation. "+languageDirective}/><button onClick={()=>live.sendText(languageDirective+"\n換一個更生活化的話題，直接問我一個短問題。不要重新打招呼。")}>{t("live.newTopic")}</button><button onClick={()=>live.sendText(languageDirective+"\n請糾正我剛剛最明顯的一個錯誤，給我自然說法後讓我重說一次。不要重新打招呼。")}>{t("live.correctMe")}</button></>}<button onClick={()=>live.sendText(languageDirective+"\n請把接下來的語速稍微放慢，但保持自然發音。直接承接目前對話。")}>{t("live.slower")}</button></div></details>
   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><div className="live-transcript"><div className={"live-line user "+(live.input?"show":"")}><small>{t("live.youSaid")}</small><span>{live.input}</span></div><div className={"live-line "+(live.output?"show":"")}><small>{profile.name}</small><span>{live.output}</span><PinyinHint text={live.output} targetLanguage={s.targetLanguage} mode={s.pronunciationAidMode} teachingMode={s.teachingMode} english={english}/></div></div>
