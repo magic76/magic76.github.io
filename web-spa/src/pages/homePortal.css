@@ -28,7 +28,7 @@
 .crew-portal-tabs button[aria-selected="true"] .crew-portal-tab-progress{opacity:1;animation:crew-portal-tab-fill 5s linear both}
 .crew-home-portal[data-paused="true"] .crew-portal-tab-progress{animation:none!important;opacity:0}
 @keyframes crew-portal-tab-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(max-width:700px){@media(prefers-reduced-motion:reduce){.crew-portal-tab-progress{display:none!important}}
+@media(prefers-reduced-motion:reduce){.crew-portal-tab-progress{display:none!important}}
 
 /* Hero headline motion: replays once per selected Chat / Play / Learn / Story tab. */
 .crew-home-portal h1 .crew-portal-title-line{display:inline-block;opacity:1}
