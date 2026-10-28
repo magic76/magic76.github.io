@@ -53,6 +53,13 @@
   },
   "loading": "กำลังโหลด…",
   "guestTrial": {
+    "timeLeft": "เวลาที่เหลือ",
+    "almostDone": "ใกล้หมดเวลาแล้ว! ลองกล่าวลา AI",
+    "completeTitle": "ทดลองใช้งานฟรีเสร็จแล้ว!",
+    "completeBody": "ชอบบทสนทนานี้ไหม? ตั้งค่า Gemini เพื่อคุยต่อ หรือสำรวจ Crew",
+    "continueKey": "ตั้งค่า Gemini เพื่อคุยต่อ",
+    "exploreCrew": "สำรวจ Crew",
+    "interruptedBody": "สายสนทนาจบก่อนเวลา คุณสามารถตั้งค่า Gemini หรือสำรวจ Crew ต่อ",
     "ended": "การทดลองฟรีสิ้นสุดแล้ว",
     "qaUnavailable": "การทดสอบส่วนตัวไม่พร้อมหรือรหัสไม่ถูกต้อง",
     "connecting": "กำลังเชื่อมต่อเสียง…",

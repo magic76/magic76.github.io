@@ -53,6 +53,13 @@
   },
   "loading": "불러오는 중…",
   "guestTrial": {
+    "timeLeft": "남은 시간",
+    "almostDone": "곧 종료돼요. AI에게 인사해 보세요.",
+    "completeTitle": "무료 체험이 완료됐어요!",
+    "completeBody": "대화가 즐거우셨나요? Gemini 키를 설정해 계속 이야기하거나 Crew를 둘러보세요.",
+    "continueKey": "Gemini 키 설정하고 계속하기",
+    "exploreCrew": "Crew 더 둘러보기",
+    "interruptedBody": "연결이 일찍 종료됐어요. Gemini를 설정하거나 Crew를 둘러보세요.",
     "ended": "무료 체험이 종료되었습니다.",
     "qaUnavailable": "비공개 테스트를 사용할 수 없거나 인증이 유효하지 않습니다.",
     "connecting": "음성 연결 중…",

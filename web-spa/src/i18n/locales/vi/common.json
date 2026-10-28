@@ -53,6 +53,13 @@
   },
   "loading": "Đang tải…",
   "guestTrial": {
+    "timeLeft": "Thời gian còn lại",
+    "almostDone": "Sắp hết giờ! Hãy chào tạm biệt AI.",
+    "completeTitle": "Đã hoàn tất trải nghiệm miễn phí!",
+    "completeBody": "Bạn thích cuộc trò chuyện chứ? Thiết lập Gemini để tiếp tục hoặc khám phá Crew.",
+    "continueKey": "Thiết lập Gemini để tiếp tục",
+    "exploreCrew": "Khám phá Crew",
+    "interruptedBody": "Cuộc gọi kết thúc sớm. Hãy thiết lập Gemini hoặc khám phá Crew.",
     "ended": "Dùng thử miễn phí đã kết thúc.",
     "qaUnavailable": "Thử nghiệm riêng không khả dụng hoặc mã không hợp lệ.",
     "connecting": "Đang kết nối giọng nói…",

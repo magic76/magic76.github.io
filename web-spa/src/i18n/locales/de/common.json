@@ -53,6 +53,13 @@
   },
   "loading": "Wird geladen…",
   "guestTrial": {
+    "timeLeft": "Verbleibende Zeit",
+    "almostDone": "Gleich vorbei! Verabschiede dich von der KI.",
+    "completeTitle": "Gratistest abgeschlossen!",
+    "completeBody": "Hat dir das Gespräch gefallen? Richte Gemini ein oder entdecke Crew.",
+    "continueKey": "Gemini einrichten und weiterreden",
+    "exploreCrew": "Crew entdecken",
+    "interruptedBody": "Der Anruf endete vorzeitig. Richte Gemini ein oder erkunde Crew.",
     "ended": "Dein Gratistest ist beendet.",
     "qaUnavailable": "Privater Test nicht verfügbar oder Zugang ungültig.",
     "connecting": "Sprachverbindung wird aufgebaut…",
