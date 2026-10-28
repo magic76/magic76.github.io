@@ -35,9 +35,9 @@ export function DiscoverPage(){
   <div className="crew-discover-actions">{suggestions.map(item=><button key={item} onClick={()=>void ask(item)} disabled={busy}>{item}</button>)}</div>
   {mode==="voice"?<section className="crew-discover-chat"><LiveControls live={live}/><p>{zh?"連線後可以直接說話，或點上面的話題。":"Speak once connected, or tap a suggested topic."}</p>
    <div className="crew-discover-dialogue">{live.turns.slice(-8).map((turn,i)=><div key={i} className="crew-discover-turn">{turn.input&&<p>{zh?"你":"You"}：{turn.input}</p>}{turn.output&&<p>Discover：{turn.output}</p>}</div>)}</div>
-   <GroundingSources sources={live.searchSources} english={!zh}/>{live.searchUnavailable&&<small role="status">{zh?"這個模型暫時無法搜尋，仍可繼續聊天。":"Search unavailable with this voice model; chat still works."}</small>}
+   <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={!zh}/>{live.searchUnavailable&&<small role="status">{zh?"這個模型暫時無法搜尋，仍可繼續聊天。":"Search unavailable with this voice model; chat still works."}</small>}
    </section>:<section className="crew-discover-chat">
-    <div className="crew-discover-dialogue" role="log">{lines.map((line,i)=><div className={"crew-discover-turn "+line.role} key={i}><strong>{line.role==="user"?(zh?"你":"You"):"Discover"}</strong><p>{line.answer.text}</p>{line.role==="assistant"&&<GroundingSources sources={line.answer.sources} english={!zh}/>}</div>)}{busy&&<p role="status">{zh?"正在搜尋與整理…":"Searching and reviewing…"}</p>}</div>
+    <div className="crew-discover-dialogue" role="log">{lines.map((line,i)=><div className={"crew-discover-turn "+line.role} key={i}><strong>{line.role==="user"?(zh?"你":"You"):"Discover"}</strong><p>{line.answer.text}</p>{line.role==="assistant"&&<GroundingSources sources={line.answer.sources} searchSuggestions={line.answer.searchSuggestions} english={!zh}/>}</div>)}{busy&&<p role="status">{zh?"正在搜尋與整理…":"Searching and reviewing…"}</p>}</div>
     <form className="crew-discover-form" onSubmit={(event:FormEvent)=>{event.preventDefault();void ask(draft)}}><input value={draft} maxLength={800} onChange={event=>setDraft(event.target.value)} placeholder={zh?"你想了解什麼？":"What are you curious about?"}/><button disabled={busy||!draft.trim()}>{zh?"探索":"Explore"}</button></form>
    </section>}
   {error&&<p role="alert">{error}</p>}

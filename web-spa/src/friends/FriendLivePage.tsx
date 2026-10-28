@@ -168,7 +168,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
-    <GroundingSources sources={live.searchSources} english={english}/><div className="live-transcript" aria-live="polite">
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{t("friendLive.youSaid")}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>{friend.name}</small><span>{live.output}</span></div>
     </div>

@@ -8,7 +8,7 @@ import type {PinyinAidMode} from "../teacher/pinyinAid";
 import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
-type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[]};
+type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
 type Props={system:string;speaker:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode};
 
 /** Text-only fallback, no mic and no persistent transcript. */
@@ -38,7 +38,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     preferLive:false,temperature:0.75,maxOutputTokens:700
    })).trim();
    if(!reply)throw new Error("Empty reply");
-   if(mounted.current)setMessages(m=>[...m,{role:"assistant",text:reply,sources:grounded?.sources}]);
+   if(mounted.current)setMessages(m=>[...m,{role:"assistant",text:reply,sources:grounded?.sources,searchSuggestions:grounded?.searchSuggestions}]);
   }catch(_){
    if(mounted.current)setError(english?"Could not get a reply. Check your API key and connection.":"暫時無法取得回覆，請檢查 Gemini Key 或網路後再試。");
   }finally{if(mounted.current)setBusy(false)}
@@ -46,7 +46,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  return <section className="crew-text-chat" aria-label={english?"Text chat":"文字聊天"}>
   <div className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} english={english}/>} {m.role==="assistant"&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}</div>)}
+   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}</div>)}
    {busy&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
    <div ref={bottom}/>
   </div>

@@ -6,7 +6,7 @@ import{turnTimingForLevel}from"./turnTiming";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {ensureLive,ensureTeacherServices,geminiKey,saveLive,setGeminiVerified,type LiveSession,type LiveTurn} from "../lib/runtime";
 import {ConversationFlowState,type ConversationFlowKind} from "./conversationFlow";
-import {extractGroundingSources,mergeGroundingSources,type GroundingSource} from "./grounding";
+import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
 export type LiveState="idle"|"requesting-mic"|"connecting"|"listening"|"speaking"|"ending"|"reporting"|"ended"|"error";
 export type FriendVoicePhase="idle"|"hearing"|"pause"|"processing"|"recovering"|"no-transcript"|"no-reply";
@@ -40,7 +40,7 @@ export function useLiveSession(config:Config){
  const voicePhaseRef=useRef<FriendVoicePhase>("idle");
  const setFriendPhase=(phase:FriendVoicePhase)=>{voicePhaseRef.current=phase;setVoicePhase(phase)};
  const [turns,setTurns]=useState<LiveTurn[]>([]),[input,setInput]=useState(""),[output,setOutput]=useState("");
- const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false);
+ const [searchSources,setSearchSources]=useState<GroundingSource[]>([]),[searchUnavailable,setSearchUnavailable]=useState(false),[searchSuggestions,setSearchSuggestions]=useState("");
  const [muted,setMuted]=useState(false),[durationMs,setDurationMs]=useState(0),[report,setReport]=useState<Record<string,unknown>|null>(null);
  const [errorKind,setErrorKind]=useState<LiveErrorKind>(null),[visionSending,setVisionSending]=useState(false),[lastImage,setLastImage]=useState<LiveImage|null>(null),[visionError,setVisionError]=useState("");
  const visionSendingRef=useRef(false),awaitingTutorRef=useRef(false),recoveryRequestRef=useRef(false);
@@ -99,7 +99,7 @@ export function useLiveSession(config:Config){
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
-   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
+   turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
    setState("requesting-mic");setStatus("正在準備麥克風…");
    // Maximum two nudges per pause; never synthesize a transcript "user" turn.
    // The timeout starts only AFTER the model has finished speaking.
@@ -184,7 +184,7 @@ export function useLiveSession(config:Config){
      :"\n[TABOO GAME SPEECH OVERRIDE] All game speech must be in "+tabooTongue+". After a verified game cue, answer once and wait for the learner. Do not generate your own clue questions or repeat the same question. Raw player speech is processed by the game engine, not by you."): ""),
     openingPrompt:configRef.current.openingPrompt,voice:configRef.current.voice,volume,
     tools:configRef.current.webSearch?[{googleSearch:{}},...(configRef.current.tools||[])]:configRef.current.tools,
-     onGrounding:metadata=>setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata))),
+     onGrounding:metadata=>{setSearchSources(previous=>mergeGroundingSources(previous,extractGroundingSources(metadata)));const html=extractSearchSuggestions(metadata);if(html)setSearchSuggestions(html)},
      onSearchUnavailable:()=>setSearchUnavailable(true),
      onToolCall:call=>configRef.current.onToolCall?.(call)||{ok:false,error:"not-handled"},
     onToolsUnavailable:()=>configRef.current.onToolsUnavailable?.(),
@@ -358,5 +358,5 @@ export function useLiveSession(config:Config){
   sessionRef.current=null;
   void session.stop({reason:"page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
  },[snapshot]);
- return{state,status,voicePhase,turns,input,output,searchSources,searchUnavailable,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
+ return{state,status,voicePhase,turns,input,output,searchSources,searchSuggestions,searchUnavailable,muted,durationMs,report,volume,errorKind,visionSending,lastImage,visionError,start,stop,interrupt,toggleMute,sendText,sendControl,sendImageFile,sendPreparedImage,sendVideoFrame,setVolume};
 }

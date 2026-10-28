@@ -23,3 +23,5 @@
 .crew-quiz-options button.is-right{border-color:#589a7b;background:#e1f5e8;opacity:1}
 .crew-quiz-explanation{padding:15px;background:#f3ecfb;border-radius:14px;line-height:1.6}
 @media(max-width:520px){.crew-discover-form{flex-direction:column}.crew-discover-form button{width:100%}}
+
+.crew-google-search-suggestions{width:100%;height:64px;border:0;display:block;background:#fff;border-radius:8px;margin:8px 0}

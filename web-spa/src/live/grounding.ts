@@ -6,6 +6,12 @@ export function safeGroundingUrl(value:unknown):string|null{
  if(typeof value!=="string")return null;
  try{const url=new URL(value);return url.protocol==="https:"&&url.hostname?url.href:null}catch{return null}
 }
+/** Search Suggestions are returned by Google for required attribution. Display in a sandboxed frame. */
+export function extractSearchSuggestions(value:unknown):string{
+ const entry=obj(obj(value).searchEntryPoint);
+ const html=entry.renderedContent||entry.rendered_content;
+ return typeof html==="string"?html.slice(0,24000):"";
+}
 export function extractGroundingSources(value:unknown):GroundingSource[]{
  const meta=obj(value),chunks=Array.isArray(meta.groundingChunks)?meta.groundingChunks:Array.isArray(meta.grounding_chunks)?meta.grounding_chunks:[];
  const seen=new Set<string>(),sources:GroundingSource[]=[];

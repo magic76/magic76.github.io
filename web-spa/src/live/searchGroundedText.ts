@@ -1,6 +1,6 @@
 import {geminiKey} from "../lib/runtime";
-import {extractGroundingSources,type GroundingSource} from "./grounding";
-export type GroundedAnswer={text:string;sources:GroundingSource[]};
+import {extractGroundingSources,extractSearchSuggestions,type GroundingSource} from "./grounding";
+export type GroundedAnswer={text:string;sources:GroundingSource[];searchSuggestions?:string};
 /** BYOK direct request; do not store queries, citations or credentials. */
 export async function searchGroundedText(prompt:string,system:string):Promise<GroundedAnswer>{
  const key=geminiKey();if(!key)throw Error("Gemini Key required");
@@ -15,6 +15,6 @@ export async function searchGroundedText(prompt:string,system:string):Promise<Gr
   const data=await response.json(),candidate=data?.candidates?.[0];
   const text=(candidate?.content?.parts||[]).map((part:{text?:unknown})=>typeof part.text==="string"?part.text:"").join("").trim();
   if(!text)throw Error("Empty response");
-  return {text,sources:extractGroundingSources(candidate?.groundingMetadata)};
+  return {text,sources:extractGroundingSources(candidate?.groundingMetadata),searchSuggestions:extractSearchSuggestions(candidate?.groundingMetadata)};
  }finally{clearTimeout(timer)}
 }
