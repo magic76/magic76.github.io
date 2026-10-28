@@ -21,7 +21,7 @@ function guestGeminiKeys(env){
    parsed=value.split(",").map(key=>key.trim());
   }
   if(!Array.isArray(parsed)||parsed.length<1||parsed.length>MAX_GEMINI_KEYS
-    ||parsed.some(key=>typeof key!=="string"||!^[A-Za-z0-9_-]{12,512}$/.test(key)))return [];
+    ||parsed.some(key=>typeof key!=="string"||!/^[A-Za-z0-9_-]{12,512}$/.test(key)))return [];
   return [...new Set(parsed)];
  }
  const old=env.GEMINI_GUEST_API_KEY;
