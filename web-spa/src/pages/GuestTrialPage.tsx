@@ -1,8 +1,8 @@
 import {useCallback,useEffect,useRef,useState} from "react";
-import {Link} from "react-router-dom";
+import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
-import {GUEST_TOKEN_ENDPOINT,fetchGuestTrialConfig} from "../lib/guestTrial";
+import {GUEST_TOKEN_ENDPOINT,GUEST_QA_ENDPOINT,fetchGuestTrialConfig} from "../lib/guestTrial";
 
 type TrialRole="teacher"|"zoe";
 type Phase="loading"|"unavailable"|"ready"|"connecting"|"listening"|"speaking"|"ended"|"error";
@@ -24,9 +24,13 @@ function trialError(status:number,code:string,zh:boolean){
 }
 export function GuestTrialPage(){
  const {i18n}=useTranslation();
+ const [searchParams]=useSearchParams();
+ const qaMode=searchParams.get("qa")==="1";
  const zh=i18n.language.toLowerCase().startsWith("zh");
  const txt=(a:string,b:string)=>zh?a:b;
  const [phase,setPhase]=useState<Phase>("loading");
+ const [qaKey,setQaKey]=useState("");
+ const [qaChecking,setQaChecking]=useState(false);
  const [role,setRole]=useState<TrialRole>("teacher");
  const [config,setConfig]=useState<TrialConfig|null>(null);
  const [challenge,setChallenge]=useState("");
@@ -54,6 +58,7 @@ export function GuestTrialPage(){
  useEffect(()=>{
   active.current=true;
   
+  if(qaMode){setPhase("unavailable");return}
   void fetchGuestTrialConfig()
    .then(data=>{
     if(!active.current)return;
@@ -65,7 +70,7 @@ export function GuestTrialPage(){
    const current=session.current;session.current=null;
    if(current)void current.stop({reason:"guest-page-leave",silentStatus:true,emitTerminal:false}).catch(()=>{});
   };
- },[]);
+ },[qaMode]);
  useEffect(()=>{
   if(!config?.siteKey||phase==="unavailable")return;
   let cancelled=false;
@@ -95,6 +100,19 @@ export function GuestTrialPage(){
    if(widget.current!==null){try{challengeApi()?.remove(widget.current)}catch{}widget.current=null}
   };
  },[config?.siteKey,phase==="unavailable"]);
+ const unlockQA=async()=>{
+  if(!qaMode||qaChecking||qaKey.length<32)return;
+  setQaChecking(true);setPhase("loading");setStatus("");
+  try{
+   const res=await fetch(GUEST_QA_ENDPOINT,{headers:{"x-crew-qa-token":qaKey},cache:"no-store"});
+   if(!res.ok)throw new Error("Private QA is unavailable");
+   const data=await res.json() as TrialConfig;
+   if(!data.enabled||!data.siteKey)throw new Error("Private QA is disabled");
+   if(active.current){setConfig(data);setPhase("ready")}
+  }catch{
+   if(active.current){setPhase("unavailable");setStatus(txt("私人測試尚未開放，或測試授權無效。","Private QA is unavailable or not authorized."))}
+  }finally{if(active.current)setQaChecking(false)}
+ };
  const stop=()=>{void close()};
  const begin=async()=>{
   if(busy.current||phase!=="ready"||!challenge)return;
@@ -106,8 +124,8 @@ export function GuestTrialPage(){
    if(!navigator.mediaDevices?.getUserMedia)throw new Error("Microphone unavailable");
    const permissionStream=await navigator.mediaDevices.getUserMedia({audio:true});
    permissionStream.getTracks().forEach(track=>track.stop());
-   const res=await fetch(GUEST_TOKEN_ENDPOINT,{
-    method:"POST",headers:{"content-type":"application/json"},
+   const res=await fetch(qaMode?GUEST_QA_ENDPOINT:GUEST_TOKEN_ENDPOINT,{
+    method:"POST",headers:{"content-type":"application/json",...(qaMode?{"x-crew-qa-token":qaKey}:{})},
     body:JSON.stringify({challengeToken}),cache:"no-store"
    });
    const grant=await res.json() as TrialGrant & {error?:string;code?:string};
@@ -185,7 +203,16 @@ export function GuestTrialPage(){
     <button type="button" className="btn" disabled={!challenge||phase!=="ready"} onClick={()=>void begin()}>{txt("開始免費試玩","Start free trial")}</button>
    </div>
    {phase==="loading"&&<p className="meta" role="status">{txt("正在確認試用名額…","Checking guest availability…")}</p>}
-   {phase==="unavailable"&&<p role="status">{txt("目前未開放免費試用。","Guest trials are not yet available.")}</p>}
+   {phase==="unavailable"&&!qaMode&&<p role="status">{txt("目前未開放免費試用。","Guest trials are not yet available.")}</p>}
+   {qaMode&&phase==="unavailable"&&<div style={{display:"grid",gap:10}}>
+    <label htmlFor="crew-guest-qa-key">{txt("私人測試授權碼","Private QA access token")}</label>
+    <input id="crew-guest-qa-key" className="field" type="password" autoComplete="off"
+     value={qaKey} onChange={event=>setQaKey(event.target.value)}
+     placeholder={txt("請輸入私人測試授權碼","Enter your private QA token")}/>
+    <button type="button" className="btn" disabled={qaChecking||qaKey.length<32}
+     onClick={()=>void unlockQA()}>{txt("進入私人語音測試","Unlock private voice QA")}</button>
+    <p className="meta">{status||txt("需要受保護的測試站與測試授權碼，正式試用仍然關閉。","Requires a protected preview and a private QA token. Public trial remains disabled.")}</p>
+   </div>}
    {phase==="connecting"&&<p role="status">{txt("正在啟動麥克風…","Starting microphone…")}</p>}
    {(phase==="listening"||phase==="speaking")&&<div className="actions" style={{justifyContent:"center"}}>
     <button className="btn secondary" type="button" onClick={()=>{session.current?.toggleMic();setMuted(Boolean(session.current?.micMuted))}}>{muted?txt("開啟麥克風","Unmute"):txt("靜音","Mute")}</button>
