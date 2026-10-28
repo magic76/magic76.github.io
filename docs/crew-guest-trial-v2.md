@@ -90,3 +90,9 @@ When `reason` is `gemini_keys_invalid`, the private log now also contains a non-
 ### Phase 2 reporting navigation
 
 The private `/usage` dashboard now has a shortcut to the trial summary. It distinguishes eligible entry from unavailable entry and shows event-count ratios for start, token issuance and Live connection. These are not authenticated-user conversion rates. Deploy Cloudflare Pages for this change; no changes to the isolated `crew-guest-trial` Worker or its Secrets are required.
+
+### Phase 3 account quota (opt-in deployment)
+
+Once both OAuth/D1 migrations are applied and Pages and the isolated Worker share the `CREW_GUEST_TICKET_SECRET` Secret, the Worker can be switched to `GUEST_REQUIRE_SIGNIN=1`. It then requires an HMAC-signed, 90-second member proof from Pages, rejects unsigned or replayed tickets, and reserves a one-use account quota in the shared `crew-auth` D1 database before minting a Gemini Live token. This is a *different* ledger from anonymous Phase 2 Analytics events.
+
+See `docs/crew-auth.md` for the full deployment ordering, Worker D1 binding, safe rollback, and smoke checks. The flag is intentionally **not** enabled by the source code; public anonymous trials stay unchanged until configured.

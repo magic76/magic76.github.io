@@ -135,3 +135,22 @@ test("existing OAuth client secret names from initial setup are supported",async
  const startPreferred=await start({request:req("/api/auth/google/start"),env:preferred},"google");
  assert.equal(new URL(startPreferred.headers.get("Location")).searchParams.get("client_id"),"preferred-google-id");
 });
+test("signed account proof endpoint requires same-origin POST and an authenticated session",async()=>{
+ const {onRequestPost}=await import("../functions/api/auth/guest-ticket.js");
+ const secret="test-only-guest-token-secret-that-is-very-long";
+ const base={...config(),CREW_AUTH_DB:new FakeDB(),CREW_GUEST_TICKET_SECRET:secret};
+ const bad=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:"https://evil.example"},"POST"),env:base});
+ assert.equal(bad.status,403);
+ const missing=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:ORIGIN},"POST"),env:base});
+ assert.equal(missing.status,401);
+ const disabled=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:ORIGIN},"POST"),env:{...base,CREW_GUEST_TICKET_SECRET:undefined}});
+ assert.equal(disabled.status,503);
+ const source=fs.readFileSync(path.join(__dirname,"../migrations/crew-auth/0002_guest_trials.sql"),"utf8");
+ for(const name of ["crew_guest_usage","crew_guest_ticket_claims"])
+  assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+name));
+ const client=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
+ const backend=fs.readFileSync(path.join(__dirname,"../functions/api/guest/token.js"),"utf8");
+ assert.match(client,/auth\/guest-ticket/);
+ assert.match(client,/phase==="login"/);
+ assert.match(backend,/GUEST_REQUIRE_SIGNIN/);
+});

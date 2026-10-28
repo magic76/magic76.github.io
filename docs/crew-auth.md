@@ -39,3 +39,24 @@
 - Signing in with a new provider creates a new account identity unless the user explicitly links it in a future secure account-linking flow.
 - This is not Cloudflare Access for administrators; the private /usage dashboard retains its separate Access policy.
 - The `CREW_AUTH_DB` binding belongs to the **Pages** project, not `crew-guest-trial` Worker.
+
+## Phase 3 signed-in trial quota (staged; disabled by default)
+
+This integration enforces **one successfully issued one-minute Gemini Live trial token per Crew account**. The existing trial stays anonymous until the separate Worker is deliberately put into account-only mode. Do not call a database table a financial or provider-wide hard quota. Google and GitHub provider identities remain separate accounts unless explicitly linked in a future flow.
+
+Complete the **login migration first**: `migrations/crew-auth/0001.sql`. Then execute `migrations/crew-auth/0002_guest_trials.sql` against the same `crew-auth` D1 database. Applying both schemas is essential; D1 creation alone does not initialize tables.
+
+### Secure production activation
+
+1. Test Google and GitHub sign-in at `https://www.3sssi.com/account`; session endpoint must show the signed-in account. No transcript, key or provider access token is uploaded by this process.
+2. Generate one new **random secret of at least 32 characters** for `CREW_GUEST_TICKET_SECRET`, for example with `openssl rand -hex 32`. Install **the identical secret** as encrypted Secret on **Cloudflare Pages Production** and **crew-guest-trial Worker**. Do not paste the secret in GitHub or frontend variables.
+3. Add a D1 binding **CREW_AUTH_DB** pointing to the existing `crew-auth` database on the **Worker** too. The existing Pages binding remains unchanged. This D1 binding is separate from the older optional `GUEST_DB` trial-fingerprint quota.
+4. Deploy **Pages first**, so `POST /api/auth/guest-ticket` is operational. It issues signed assertions only for a validated SameSite HttpOnly Crew session and a same-origin POST.
+5. Deploy the **crew-guest-trial Worker** with these bindings, without turning sign-in mode on yet; verify GET /api/guest/token still returns enabled=true.
+6. Set Worker text environment variable **GUEST_REQUIRE_SIGNIN=1**; redeploy the Worker. GET /api/guest/token now returns `signinRequired:true`. Its POST requires a valid, signed, unexpired, one-use account assertion. Missing DB / signing Secret / rate limiter fails closed.
+7. In a fresh browser, verify the Guest Trial prompts for sign-in, signs in, accepts Turnstile, and grants exactly one Live token. Signing out or changing browsers must **not** reset the account trial count. Replaying the same assertion or starting a second trial from the same account must return 429/ALREADY_USED.
+8. Open /account again: the D1-backed readout shows `1 / 1`. Directly calling the public Worker without the signed assertion returns 401, even if Turnstile passes.
+
+**Rollback:** set `GUEST_REQUIRE_SIGNIN=0` and redeploy the Worker. This restores Phase 1 anonymous operation, including its per-edge limiter. Do not remove the database tables or secrets during rollback. Only operate after verifying the quota and login flow; no auto-deploy of the isolated Worker is assumed.
+
+**Important:** the matching `CREW_GUEST_TICKET_SECRET` and Worker D1 binding are *additional* to the original Google/GitHub OAuth configuration. Until activation, account sign-in is available but trial usage tracking/limits remain anonymous as before. An unauthenticated browser cannot self-assert an account ID.
