@@ -105,13 +105,14 @@ export function HomePortal(){
  };
  return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
-  <div className="crew-portal-intro"><strong className="crew-portal-brandline">{t("world.headline")}</strong><p>{t("world.intro")}</p></div>
+  <div className="crew-portal-intro"><span>A LITTLE SPARK. A WHOLE NEW WORLD.</span><p>{t("world.intro")}</p></div>
   <span className="crew-portal-edge" aria-hidden="true">MOVE A LITTLE. FEEL A CONNECTION.</span>
   <span className="crew-portal-number" aria-hidden="true">0{index+1} / 04</span>
   <div className="crew-portal-content" id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
    <div className="crew-portal-copy" key={mode}>
     <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
-    <h1>{t("world.modes."+mode+".lead")}<br/>{t("world.modes."+mode+".before")} <em>{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</h1>
+    <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/>
+     <span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
     <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
    </div>
    <Link className="crew-portal-cta" to={current.to} onClick={launch} aria-disabled={launching||undefined}>

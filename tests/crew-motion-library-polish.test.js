@@ -1,17 +1,20 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
-test("homepage progress pauses and brand headline localizes in all 11 languages",()=>{
+test("homepage title animates on selected mode without changing brand copy",()=>{
  const hero=read("web-spa/src/pages/HomePortal.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(hero,/data-paused=\{paused\}/);
  assert.match(hero,/crew-portal-tab-progress/);
- assert.match(hero,/world\.headline/);
- assert.match(css,/data-paused="true"/);
+ assert.match(hero,/key=\{mode\}/);
+ assert.match(hero,/crew-portal-title-first/);
+ assert.match(hero,/crew-portal-title-second/);
+ assert.match(hero,/crew-portal-title-accent/);
+ assert.doesNotMatch(hero,/world\.headline/);
+ assert.match(css,/data-paused="false"/);
+ assert.match(css,/crew-portal-headline-rise/);
+ assert.match(css,/crew-portal-accent-sheen/);
  assert.match(css,/prefers-reduced-motion:reduce/);
- for(const locale of ["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"]){
-  const json=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json"));
-  assert.ok(json.world.headline.length>9,locale);
- }
+ assert.match(css,/max-width:700px/);
 });
 test("character, board, story, timeline and magic effects are state-triggered",()=>{
  const roles=read("web-spa/src/teacher/TeacherProfilePicker.tsx");
