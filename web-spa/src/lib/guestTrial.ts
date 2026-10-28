@@ -4,7 +4,7 @@ export const GUEST_TOKEN_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.
 export function guestTrialDiscoveryEnabled():boolean{
  return typeof window!=="undefined"&&!isCrewAndroidShell();
 }
-export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number};
+export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean};
 export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
  if(!guestTrialDiscoveryEnabled())return {enabled:false};
@@ -13,6 +13,6 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   if(!response.ok)return {enabled:false};
   const value=await response.json();
   return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey
-   ?{enabled:true,siteKey:value.siteKey,seconds:Number(value.seconds)||180}:{enabled:false};
+   ?{enabled:true,siteKey:value.siteKey,seconds:Number(value.seconds)||60,signinRequired:value.signinRequired===true}:{enabled:false};
  }catch{return {enabled:false}}
 }

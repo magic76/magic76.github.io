@@ -14,7 +14,8 @@ const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend"}){
  const {t}=useTranslation("common");
  const [siteKey,setSiteKey]=useState("");
- const [phase,setPhase]=useState<"checking"|"ready"|"unavailable"|"starting"|"error">("checking");
+ const [signinRequired,setSigninRequired]=useState(false);
+ const [phase,setPhase]=useState<"checking"|"ready"|"login"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
  const host=useRef<HTMLDivElement|null>(null);
@@ -23,10 +24,24 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const active=useRef(true);
  useEffect(()=>{
   active.current=true;
-  void fetchGuestTrialConfig().then(config=>{
+  void fetchGuestTrialConfig().then(async config=>{
    if(!active.current)return;
-   if(config.enabled&&config.siteKey){trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready")}
-   else{if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}
+   if(!config.enabled||!config.siteKey){
+    if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);
+    setPhase("unavailable");return;
+   }
+   setSigninRequired(Boolean(config.signinRequired));
+   if(config.signinRequired){
+    try{
+     const r=await fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store"});
+     if(!r.ok)throw Error("Session unavailable");
+     const session=await r.json();
+     if(!active.current)return;
+     if(!session?.user?.id){setPhase("login");return}
+    }catch{if(active.current)setPhase("unavailable");return}
+   }
+   if(!active.current)return;
+   trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready");
   }).catch(()=>{if(active.current){if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}});
   return()=>{active.current=false};
  },[]);
@@ -66,14 +81,30 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
    mic.getTracks().forEach(track=>track.stop());
    if(!active.current)return;
+   let authTicket="";
+   if(signinRequired){
+    const ticketResponse=await fetch("/api/auth/guest-ticket",{method:"POST",credentials:"same-origin",cache:"no-store",
+     headers:{"content-type":"application/json"},body:"{}"});
+    if(!ticketResponse.ok){
+     if(ticketResponse.status===401&&active.current)setPhase("login");
+     else if(active.current){setMessage(t("guestTrial.tempUnavailable"));setPhase("error")}
+     trackUsageEvent("guest_trial_token_failed",role);return;
+    }
+    const proof=await ticketResponse.json() as {ticket?:string};
+    if(typeof proof.ticket!=="string"||!proof.ticket)throw Error("Ticket unavailable");
+    authTicket=proof.ticket;
+   }
    tokenRequested=true;
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
-    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge})});
+    headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(signinRequired?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string};
    if(!res.ok||!data.token||!data.model||data.seconds!==60){
     trackUsageEvent("guest_trial_token_failed",role);
-    if(active.current){setMessage(data.code==="DAILY_LIMIT"?t("guestTrial.limit"):t("guestTrial.tempUnavailable"));setPhase("error")}
+    if(active.current){
+     if(data.code==="SIGNIN_REQUIRED")setPhase("login");
+     else{setMessage(data.code==="ALREADY_USED"?t("guestTrial.used"):data.code==="DAILY_LIMIT"?t("guestTrial.limit"):t("guestTrial.tempUnavailable"));setPhase("error")}
+    }
     return;
    }
    if(active.current){trackUsageEvent("guest_trial_token_issued",role);await onGrant(data)}
@@ -92,6 +123,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     <button type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
+   {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
+    <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role="status">{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setPhase("ready")}}>{t("guestTrial.retry")}</button>}
    <Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>
