@@ -1,0 +1,45 @@
+import{useEffect,useState}from"react";
+import{Link,useSearchParams}from"react-router-dom";
+import{useTranslation}from"react-i18next";
+import"./account.css";
+type User={id:string;name:string;provider:"google"|"github"};
+type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null};
+export function AccountPage(){
+ const {t}=useTranslation("common");const [query]=useSearchParams();
+ const [state,setState]=useState<Session|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ useEffect(()=>{
+  const controller=new AbortController();
+  void fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store",signal:controller.signal})
+   .then(async r=>{if(!r.ok)throw Error("unavailable");return await r.json() as Session})
+   .then(s=>{if(!controller.signal.aborted)setState(s)})
+   .catch(()=>{if(!controller.signal.aborted)setError(t("auth.unavailable"))})
+   .finally(()=>{if(!controller.signal.aborted)setLoading(false)});
+  return()=>controller.abort();
+ },[t]);
+ async function signOut(){
+  if(busy)return;setBusy(true);setError("");
+  try{
+   const r=await fetch("/api/auth/logout",{method:"POST",credentials:"same-origin"});
+   if(!r.ok)throw Error("logout");
+   setState(prev=>prev?{...prev,user:null}:prev);
+  }catch{setError(t("auth.failed"))}
+  finally{setBusy(false)}
+ }
+ const authError=query.get("auth_error");
+ return <div className="crew-account-page">
+  <section className="hero"><span className="kicker">CREW ACCOUNT</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
+  <section className="panel section crew-account-panel" aria-label={t("auth.title")}>
+   {loading?<p role="status">{t("auth.loading")}</p>:
+   state?.user?<><div className="crew-account-identity"><div className="crew-account-avatar" aria-hidden="true">{state.user.name.slice(0,1).toUpperCase()}</div><div><strong>{state.user.name}</strong><small>{t("auth.signedIn")} · {state.user.provider==="google"?"Google":"GitHub"}</small></div></div>
+    <button className="btn secondary" disabled={busy} type="button" onClick={()=>void signOut()}>{t("auth.signOut")}</button></>:
+   state?.enabled?<><h2>{t("auth.choose")}</h2><div className="crew-account-buttons">
+    {state.providers.google&&<a className="btn crew-account-provider" href="/api/auth/google/start">Google</a>}
+    {state.providers.github&&<a className="btn secondary crew-account-provider" href="/api/auth/github/start">GitHub</a>}
+   </div></>:<p role="status">{t("auth.unavailable")}</p>}
+   {authError&&<p role="alert" className="crew-account-error">{t(authError==="cancelled"?"auth.cancelled":"auth.failed")}</p>}
+   {error&&<p role="alert" className="crew-account-error">{error}</p>}
+   <p className="crew-account-privacy">{t("auth.localData")}</p>
+   <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
+  </section>
+ </div>;
+}

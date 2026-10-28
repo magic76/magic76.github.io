@@ -31,7 +31,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/"))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><Link className="app-brand" to="/" aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
+  <header className="app-header"><div className="shell inner"><Link className="app-brand" to="/" aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account">{t("auth.account")}</Link>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
     ?<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?t("gemini.connected"):hasKey?t("gemini.pending"):t("gemini.setup")}</span></NavLink>
     :<span className="status crew-key-status-placeholder" aria-hidden="true"/>)} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>

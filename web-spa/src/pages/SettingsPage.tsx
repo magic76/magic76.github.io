@@ -56,6 +56,7 @@ export function SettingsPage(){
   return()=>window.cancelAnimationFrame(frame);
  },[hash]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+  <section className="section panel"><h2>{english?"Crew account":"Crew 帳號"}</h2><p className="meta">{english?"Sign in with Google or GitHub. Local learning data stays on this device.":"使用 Google 或 GitHub 登入；原本的學習資料仍保留在此裝置。"}</p><Link className="btn secondary" to="/account">{english?"Account and sign-in":"帳號與登入"}</Link></section>
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
   <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>
