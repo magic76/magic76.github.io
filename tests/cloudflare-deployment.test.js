@@ -379,7 +379,7 @@ check("preview language routes serve noindex HTML and are excluded from the site
   assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
   assert.ok(!preview.includes('rel="canonical"'));
   assert.ok(!sitemap.includes("https://www.3sssi.com/"+code+"/"));
-  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/index.html 200"));
+  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/ 200"),"preview locale must use its canonical directory URL");;
  }
  assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
 });
