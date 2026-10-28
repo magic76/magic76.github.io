@@ -53,6 +53,13 @@
   },
   "loading": "Cargando…",
   "guestTrial": {
+    "timeLeft": "Tiempo restante",
+    "almostDone": "¡Ya casi termina! Despídete de la IA.",
+    "completeTitle": "¡Prueba gratuita completada!",
+    "completeBody": "¿Te gustó charlar? Configura Gemini para seguir o explora Crew.",
+    "continueKey": "Configurar Gemini y continuar",
+    "exploreCrew": "Explorar Crew",
+    "interruptedBody": "La llamada terminó antes. Configura Gemini o explora Crew.",
     "ended": "Tu prueba gratuita ha terminado.",
     "qaUnavailable": "La prueba privada no está disponible o el acceso es inválido.",
     "connecting": "Conectando la voz…",

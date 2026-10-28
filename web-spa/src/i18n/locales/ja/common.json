@@ -53,6 +53,13 @@
   },
   "loading": "読み込み中…",
   "guestTrial": {
+    "timeLeft": "残り時間",
+    "almostDone": "まもなく終了です。AI にお別れを。",
+    "completeTitle": "無料体験が完了しました！",
+    "completeBody": "会話はいかがでしたか？Gemini キーを設定して続けるか、Crew を探索してください。",
+    "continueKey": "Gemini キーを設定して続ける",
+    "exploreCrew": "Crew を探索",
+    "interruptedBody": "音声接続が途中で終了しました。Gemini を設定するか、Crew を探索してください。",
     "ended": "無料体験が終了しました。",
     "qaUnavailable": "非公開テストは利用できないか認証が無効です。",
     "connecting": "音声接続中…",

@@ -53,6 +53,13 @@
   },
   "loading": "Memuat…",
   "guestTrial": {
+    "timeLeft": "Sisa waktu",
+    "almostDone": "Hampir selesai! Ucapkan selamat tinggal kepada AI.",
+    "completeTitle": "Uji coba gratis selesai!",
+    "completeBody": "Suka percakapannya? Atur Gemini untuk lanjut atau jelajahi Crew.",
+    "continueKey": "Atur Gemini untuk lanjut",
+    "exploreCrew": "Jelajahi Crew",
+    "interruptedBody": "Panggilan berakhir lebih awal. Atur Gemini atau jelajahi Crew.",
     "ended": "Uji coba gratis selesai.",
     "qaUnavailable": "Uji privat tidak tersedia atau akses tidak valid.",
     "connecting": "Menghubungkan suara…",

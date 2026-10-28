@@ -53,6 +53,13 @@
   },
   "loading": "Loading…",
   "guestTrial": {
+    "timeLeft": "Time left",
+    "almostDone": "Almost done! Say goodbye to the AI.",
+    "completeTitle": "Your free trial is complete!",
+    "completeBody": "Enjoyed the conversation? Set up your Gemini key to keep talking, or explore more of Crew.",
+    "continueKey": "Set up Gemini key to continue",
+    "exploreCrew": "Explore Crew",
+    "interruptedBody": "The call ended early. Set up Gemini to keep talking, or explore Crew.",
     "ended": "Your free trial has ended.",
     "qaUnavailable": "Private QA is unavailable or not authorized.",
     "connecting": "Connecting your voice…",
