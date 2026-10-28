@@ -11,6 +11,8 @@ import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{AppChrome}from"./components/AppChrome";
 import{OnboardingGate}from"./onboarding/OnboardingGate";
 import{CrewUpdateNotice}from"./components/CrewUpdateNotice";
+const DiscoverPage=lazy(()=>import("./pages/DiscoverPage").then(m=>({default:m.DiscoverPage})));
+const TruthNewsPage=lazy(()=>import("./games/TruthNewsPage").then(m=>({default:m.TruthNewsPage})));
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 const PrivacyPage=lazy(()=>import("./pages/PrivacyPage").then(m=>({default:m.PrivacyPage})));const HomePage=lazy(()=>import("./pages/HomePage").then(m=>({default:m.HomePage})));const SettingsPage=lazy(()=>import("./pages/SettingsPage").then(m=>({default:m.SettingsPage})));
 const TeacherFortunePage=lazy(()=>import("./teacher/TeacherFortunePage").then(m=>({default:m.TeacherFortunePage})));const TeacherLayout=lazy(()=>import("./teacher/TeacherLayout").then(m=>({default:m.TeacherLayout})));const PracticePage=lazy(()=>withNamespace("lesson",import("./teacher/PracticePage")).then(m=>({default:m.PracticePage})));const TutorPage=lazy(()=>import("./teacher/TutorPage").then(m=>({default:m.TutorPage})));const MyPage=lazy(()=>import("./teacher/MyPage").then(m=>({default:m.MyPage})));const VocabularyPage=lazy(()=>import("./teacher/VocabularyPage").then(m=>({default:m.VocabularyPage})));const CoursePage=lazy(()=>import("./teacher/CoursePage").then(m=>({default:m.CoursePage})));const PronunciationPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/PronunciationPage")).then(m=>({default:m.PronunciationPage})));const TextbookPage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/TextbookPage")).then(m=>({default:m.TextbookPage})));const PhrasebookPage=lazy(()=>import("./teacher/PhrasebookPage").then(m=>({default:m.PhrasebookPage})));const ReportsPage=lazy(()=>import("./teacher/ReportsPage").then(m=>({default:m.ReportsPage})));const ReadingLibraryPage=lazy(()=>import("./teacher/ReadingLibraryPage").then(m=>({default:m.ReadingLibraryPage})));const TeacherLivePage=lazy(()=>withNamespace(["lesson","voice"],import("./teacher/LivePage")).then(m=>({default:m.TeacherLivePage})));
@@ -52,7 +54,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
-<Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
+<Route path="/discover" element={<AppChrome product="home"><DiscoverPage/></AppChrome>}/>
+ <Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
 <Route path="/town" element={<AppChrome product="home"><CrewTownPage/></AppChrome>}/>
 <Route path="/magic" element={<AppChrome product="home"><MagicPage/></AppChrome>}/>
 <Route path="/learn" element={<AppChrome product="teacher"><CrewSectionPage section="learn"/></AppChrome>}/>
@@ -78,7 +81,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/games/taboo" element={<AppChrome product="home"><TabooGamePage/></AppChrome>}/>
 <Route path="/games/crazy-court" element={<AppChrome product="home"><CrazyCourtPage/></AppChrome>}/>
 <Route path="/games/werewolf" element={<AppChrome product="home"><WerewolfPage/></AppChrome>}/>
-<Route path="/games/nonsense" element={<AppChrome product="home"><NonsenseChampionshipPage/></AppChrome>}/>
+<Route path="/games/truth-news" element={<AppChrome product="home"><TruthNewsPage/></AppChrome>}/>
+ <Route path="/games/nonsense" element={<AppChrome product="home"><NonsenseChampionshipPage/></AppChrome>}/>
 <Route path="/games/:gameId" element={<AppChrome product="home"><CrewPlayGamePage/></AppChrome>}/>
 <Route path="/timeline" element={<AppChrome product="teacher"><TimelinePage/></AppChrome>}/>
 <Route path="/timeline/compare" element={<AppChrome product="teacher"><TimelineComparePage/></AppChrome>}/>
