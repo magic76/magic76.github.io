@@ -137,6 +137,8 @@ function DeviceSettingsShortcut(){
 }
 
 const exploreKinds:readonly ExploreKind[]=["fortune","timeline","games","story","research","circle"];
+// Hide only the Explore entry during the Circle pilot; keep its route and content intact.
+const showCircleInExplore=false;
 // Translation keys are separate from the stable navigation targets.
 const sectionItemKeys={
  chat:["shorts","games","memory"],
@@ -173,6 +175,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
   ...source,title:t("sectionExplore.title"),intro:t("sectionExplore.intro"),
   hero:{...source.hero,title:t("sectionExplore.fortune.title"),desc:t("sectionExplore.fortune.desc")},
   items:source.items.map((item,i)=>({...item,title:t("sectionExplore."+kinds[i]+".title"),desc:t("sectionExplore."+kinds[i]+".desc")}))
+   .filter(item=>showCircleInExplore||item.to!=="/circle")
  }:(()=>{
   const sectionKey=section as keyof typeof sectionItemKeys;
   const prefix="sectionHubs."+sectionKey+".";
