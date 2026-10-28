@@ -103,7 +103,7 @@ export function HomePortal(){
   else return;
   event.preventDefault();setMode(MODES[next].id);buttons.current[next]?.focus();
  };
- return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching}>
+ return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
   <div className="crew-portal-intro"><span>A LITTLE SPARK. A WHOLE NEW WORLD.</span><p>{t("world.intro")}</p></div>
   <span className="crew-portal-edge" aria-hidden="true">MOVE A LITTLE. FEEL A CONNECTION.</span>
@@ -111,7 +111,8 @@ export function HomePortal(){
   <div className="crew-portal-content" id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
    <div className="crew-portal-copy" key={mode}>
     <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
-    <h1>{t("world.modes."+mode+".lead")}<br/>{t("world.modes."+mode+".before")} <em>{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</h1>
+    <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/>
+     <span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
     <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
    </div>
    <Link className="crew-portal-cta" to={current.to} onClick={launch} aria-disabled={launching||undefined}>
@@ -123,7 +124,7 @@ export function HomePortal(){
     aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
     ref={el=>{buttons.current[i]=el}} disabled={launching}
     onClick={()=>setMode(item.id)} onKeyDown={event=>keyMode(event,i)}>
-    <Icon name={item.icon}/><span>{t("portal.modes."+item.id+".label")}</span>
+    <Icon name={item.icon}/><span>{t("portal.modes."+item.id+".label")}</span><i className="crew-portal-tab-progress" aria-hidden="true"/>
    </button>)}
   </div>
   <p className="crew-portal-hint">{t("world.touch")}</p>

@@ -302,3 +302,17 @@ details.teaching-board-lesson-picker .teaching-board-lesson-options{padding:2px 
  .teaching-board-questions,.teaching-board-options button.correct,.teaching-board-options button.incorrect,.teaching-board-answer{animation:none!important}
  .teaching-board-deck-tab,.teaching-board-options button{transition:none!important}
 }
+
+/* New lesson content is staged only when the real board is following the teacher. */
+.teaching-board-stage[data-following="true"] .teaching-board-card-content>*{animation:crew-board-stagger-in 240ms var(--crew-motion-ease,ease-out) backwards}
+.teaching-board-stage[data-following="true"] .teaching-board-card-content>*:nth-child(2){animation-delay:45ms}
+.teaching-board-stage[data-following="true"] .teaching-board-card-content>*:nth-child(3){animation-delay:90ms}
+.teaching-board-stage[data-following="true"] .teaching-board-card-content>*:nth-child(n+4){animation-delay:120ms}
+@keyframes crew-board-stagger-in{from{opacity:.35;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* Only the selected truthfully graded option animates; no simulated score. */
+.teaching-board-options button.correct{animation:crew-board-confirm-spring 340ms cubic-bezier(.2,.8,.3,1.2) both}
+.teaching-board-options button.incorrect{animation:crew-board-gentle-shake 260ms ease-out both}
+@keyframes crew-board-confirm-spring{0%{transform:scale(.96)}58%{transform:scale(1.025);box-shadow:0 0 0 3px #c7e8cc}100%{transform:scale(1);box-shadow:none}}
+@keyframes crew-board-gentle-shake{0%,100%{transform:translateX(0)}30%{transform:translateX(-3px)}65%{transform:translateX(3px)}}
+@media(prefers-reduced-motion:reduce){.teaching-board-stage .teaching-board-card-content>*,
+.teaching-board-options button.correct,.teaching-board-options button.incorrect{animation:none!important}}

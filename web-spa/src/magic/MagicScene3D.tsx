@@ -38,7 +38,7 @@ const ISLAND_Z_RADIUS=4.75*ISLAND_LINEAR_SCALE;
 function SceneObject({object,position,animated,reacting,focused,peers,worldObjects,onClick}:{object:MagicObject;position:[number,number];animated:boolean;reacting:boolean;focused:boolean;peers:Map<number,[number,number]>;worldObjects:MagicObject[];onClick:(event:ThreeEvent<MouseEvent>)=>void}){
  const {kind,id}=object;
  const root=useRef<Group>(null),bob=useRef<Group>(null),arrival=useRef<number|null>(null);
- const initial=useRef<[number,number,number] | null>(null);
+ const initial=useRef<[number,number,number] | null>(null),spawn=useRef(0);
  const creature=kind==="dragon"||kind==="owl"||kind==="fox";
  const air=kind==="dragon"?1.75:kind==="owl"?.85:0;
  // Initial placement is above the island mesh, not at y=.98 where
@@ -46,6 +46,13 @@ function SceneObject({object,position,animated,reacting,focused,peers,worldObjec
  if(initial.current===null)initial.current=[position[0],islandSurfaceHeight(...position)+air,position[1]];
  useFrame(({clock},delta)=>{
   if(!root.current)return;
+  // One-time creation reveal on the model itself: no extra meshes or draw calls.
+  if(!animated)root.current.scale.setScalar(1);
+  else if(spawn.current<1.15){
+   spawn.current=Math.min(1.15,spawn.current+Math.min(delta,.1));
+   const progress=spawn.current/1.15;
+   root.current.scale.setScalar(.7+.3*(1-Math.pow(1-progress,3))+.035*Math.sin(Math.PI*progress));
+  }
   const time=clock.elapsedTime,seed=id*2.399;
   const roaming=creature&&object.x===undefined;
   const target:readonly [number,number]=roaming?

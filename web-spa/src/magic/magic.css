@@ -445,3 +445,8 @@
 .magic-codex-content progress::-webkit-progress-value{background:#79aa90;border-radius:16px}
 @media(max-width:520px){.magic-reaction-toast{top:127px}.magic-reaction-toast>div{padding:10px 12px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){.magic-reaction-toast>div{animation:none;transition:none}}
+
+/* Newly mounted creation chips reveal once without ongoing animation. */
+.magic-created-list button{animation:magic-creation-chip-in 410ms cubic-bezier(.2,.8,.3,1.1) both}
+@keyframes magic-creation-chip-in{from{opacity:.35;transform:translateY(8px) scale(.94)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.magic-created-list button{animation:none!important}}

@@ -21,3 +21,44 @@
 
 /* On small screens the server-rendered hero stays visually static until opted in. */
 @media(max-width:700px){.crew-portal-copy{animation:none}}
+
+/* State-owned five-second tab progress; stops when paused or reduced-motion. */
+.crew-portal-tabs button{position:relative;overflow:hidden}
+.crew-portal-tab-progress{position:absolute;bottom:0;left:10%;width:80%;height:2px;transform:scaleX(0);transform-origin:left center;border-radius:4px;background:var(--portal-accent);opacity:0;pointer-events:none}
+.crew-portal-tabs button[aria-selected="true"] .crew-portal-tab-progress{opacity:1;animation:crew-portal-tab-fill 5s linear both}
+.crew-home-portal[data-paused="true"] .crew-portal-tab-progress{animation:none!important;opacity:0}
+@keyframes crew-portal-tab-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.crew-portal-tab-progress{display:none!important}}
+
+/* Hero headline motion: replays once per selected Chat / Play / Learn / Story tab. */
+.crew-home-portal h1 .crew-portal-title-line{display:inline-block;opacity:1}
+.crew-home-portal[data-paused="false"] h1 .crew-portal-title-first{
+ animation:crew-portal-headline-rise 460ms cubic-bezier(.2,.75,.3,1) both;
+}
+.crew-home-portal[data-paused="false"] h1 .crew-portal-title-second{
+ animation:crew-portal-headline-rise 510ms cubic-bezier(.2,.75,.3,1) 100ms both;
+}
+@keyframes crew-portal-headline-rise{
+ from{opacity:.15;transform:translate3d(0,12px,0)}
+ to{opacity:1;transform:translate3d(0,0,0)}
+}
+.crew-home-portal h1 .crew-portal-title-accent{display:inline-block}
+@supports (-webkit-background-clip:text){
+ .crew-home-portal[data-paused="false"] h1 .crew-portal-title-accent{
+  color:transparent;-webkit-text-fill-color:transparent;
+  background-image:linear-gradient(110deg,var(--portal-accent) 0%,var(--portal-accent) 33%,#fff8e9 50%,var(--portal-accent) 67%,var(--portal-accent) 100%);
+  background-size:240% 100%;background-position:100% 50%;
+  -webkit-background-clip:text;background-clip:text;
+  animation:crew-portal-accent-sheen 820ms ease-out 230ms both;
+ }
+}
+@keyframes crew-portal-accent-sheen{from{background-position:100% 50%}to{background-position:0% 50%}}
+@media(prefers-reduced-motion:reduce){
+ .crew-home-portal h1 .crew-portal-title-line,
+ .crew-home-portal h1 .crew-portal-title-accent{animation:none!important;transform:none!important;opacity:1!important}
+ .crew-home-portal h1 .crew-portal-title-accent{background:none!important;color:var(--portal-accent)!important;-webkit-text-fill-color:currentColor!important}
+}
+@media(max-width:700px) and (prefers-reduced-motion:no-preference){
+ /* Use only the two GPU-friendly rises on phones. */
+ .crew-home-portal h1 .crew-portal-title-accent{animation:none!important;background:none!important;color:var(--portal-accent)!important;-webkit-text-fill-color:currentColor!important}
+}

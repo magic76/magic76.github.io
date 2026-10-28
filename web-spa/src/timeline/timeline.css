@@ -279,3 +279,15 @@
 .timeline-photo-slide .timeline-image-fallback span{font-size:15px;margin:0;align-self:center}
 @media(max-width:650px){.timeline-people{gap:6px}.timeline-person{flex-direction:column;gap:5px;padding:8px 3px}.timeline-person .timeline-image-frame{width:48px;height:48px}.timeline-person > span:not(.timeline-image-frame):not(.timeline-image-fallback){text-align:center}.timeline-person small{font-size:10px}}
 
+
+/* Age-to-age depth during native scroll-snap; no extra slides or requests. */
+.timeline-immersive .timeline-photo-slide{transition:opacity 230ms ease,transform 320ms cubic-bezier(.2,.75,.3,1)}
+.timeline-immersive .timeline-photo-slide[data-active="true"]{opacity:1;transform:scale(1)}
+.timeline-immersive .timeline-photo-slide[data-active="false"]{opacity:.76;transform:scale(.975)}
+.timeline-immersive .timeline-feature-copy>*{animation:timeline-motion-chapter 320ms ease-out both}
+.timeline-immersive .timeline-feature-copy>*:nth-child(2){animation-delay:35ms}
+.timeline-immersive .timeline-feature-copy>*:nth-child(3){animation-delay:65ms}
+.timeline-immersive .timeline-feature-copy>*:nth-child(n+4){animation-delay:95ms}
+@keyframes timeline-motion-chapter{from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.timeline-immersive .timeline-photo-slide{transition:none!important;transform:none!important}
+.timeline-immersive .timeline-feature-copy>*{animation:none!important}}
