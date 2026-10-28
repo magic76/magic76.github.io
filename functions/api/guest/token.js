@@ -36,17 +36,21 @@ function parseGuestGeminiKeyList(raw){
  if(parsed.length<1||parsed.length>MAX_GEMINI_KEYS)return {keys:[],problem:"invalid_count"};
  const keys=[];
  for(const value of parsed){
-  if(typeof value!=="string"||!/^[A-Za-z0-9_-]{12,512}$/.test(value.trim()))
-   return {keys:[],problem:"invalid_key_entry"};
+  // Use the same per-key validation as legacy GEMINI_GUEST_API_KEY.
+  // Gemini credentials can contain punctuation (for example, a period).
+  if(!validGuestGeminiKey(value))return {keys:[],problem:"invalid_key_entry"};
   keys.push(value.trim());
  }
  return {keys:[...new Set(keys)],problem:null};
+}
+function validGuestGeminiKey(value){
+ return typeof value==="string"&&value.trim().length>=12;
 }
 function guestGeminiKeys(env){
  if(Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS"))
   return parseGuestGeminiKeyList(env.GEMINI_GUEST_API_KEYS).keys;
  const old=env.GEMINI_GUEST_API_KEY;
- return typeof old==="string"&&old.trim().length>=12?[old.trim()]:[];
+ return validGuestGeminiKey(old)?[old.trim()]:[];
 }
 function selectGuestGeminiKey(env){
  const keys=guestGeminiKeys(env);

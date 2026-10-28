@@ -43,7 +43,7 @@ Other supported formats include a JSON array, a JSON object containing only a `k
 ```
 
 - A request chooses one valid key using a cryptographic random index. **It makes only one Gemini token mint attempt per guest trial.** We do not automatically retry another key after quota/permission errors.
-- Up to 20 keys are accepted; whitespace around commas is fine. Empty entries, extra commas, invalid characters, malformed JSON, and invalid lists fail closed even when the old single-key secret remains provisioned.
+- Up to 20 keys are accepted; whitespace around commas is fine. Both single- and multi-key modes require a trimmed key of at least 12 characters and do not reject punctuation such as `.` (Google validates actual credentials when minting). Empty entries, extra commas, short or non-string entries, malformed JSON, and invalid lists fail closed even when the old single-key secret remains provisioned.
 - Existing `GEMINI_GUEST_API_KEY` continues to work until you choose to migrate, and may be deleted **after** the new multi-key Secret is deployed and API smoke-tested.
 - Key values are never put into `wrangler.toml`, web code, logs or returned API payloads. The Worker Secret value must be created in Cloudflare.
 - Keys in the **same Google Cloud project share project quotas**. Multiple keys do not automatically multiply free allowance; use for legitimate key management/availability and follow Google's API usage rules.

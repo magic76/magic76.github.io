@@ -431,3 +431,44 @@ test("multi-key diagnostics classify malformed formats without exposing credenti
   assert.doesNotMatch(JSON.stringify(warnings),/secret-server-key-at-least-12/);
  }finally{console.warn=original}
 });
+
+test("single and multi-key secrets accept identical credential characters",async()=>{
+ const {onRequestGet,onRequestPost}=await backend;
+ const first="AQ.example_credential-123456789012",second="AQ.other.credential:abcdef123456";
+ const limiter={limit:async()=>({success:true})};
+ const common={GUEST_TRIAL_ENABLED:"1",GUEST_TURNSTILE_SITE_KEY:"public-site-key",
+  GUEST_TURNSTILE_SECRET:"server-turnstile-secret",GUEST_TRIAL_RATE_LIMITER:limiter};
+ const single={...common,GEMINI_GUEST_API_KEY:first};
+ const multi={...common,GEMINI_GUEST_API_KEYS:first+","+second};
+ for(const settings of [single,multi]){
+  const response=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
+  assert.equal((await response.json()).enabled,true);
+ }
+ const mock=mockedServices({allowedKeys:[first,second]});
+ try{
+  const grant=await onRequestPost({request:req(),env:multi});
+  assert.equal(grant.status,200);
+  assert.ok((await grant.json()).token);
+  assert.equal(mock.counts().minted,1);
+  assert.ok([first,second].includes(mock.counts().usedKeys[0]));
+ }finally{mock.restore()}
+});
+
+test("multi-key parser retains structural validation without character allowlist",async()=>{
+ const {onRequestGet}=await backend;
+ const base=env(undefined,{GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
+ const valid="AQ.period:plus+and=equals123456";
+ const accepted=[valid,JSON.stringify([valid]),{keys:[valid]}];
+ for(const value of accepted){
+  const response=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
+   env:{...base,GEMINI_GUEST_API_KEYS:value}});
+  assert.equal((await response.json()).enabled,true);
+ }
+ const invalid=[",AQ.valid.part.123456","AQ.valid.part.123456,",
+  "short",JSON.stringify([valid,"short"])];
+ for(const value of invalid){
+  const response=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),
+   env:{...base,GEMINI_GUEST_API_KEYS:value}});
+  assert.deepEqual(await response.json(),{enabled:false});
+ }
+});
