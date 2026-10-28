@@ -176,6 +176,19 @@
 .crew-section-learn .crew-learn-tool{background:var(--surface);box-shadow:none;opacity:.94}
 .crew-learn-secondary-links{display:flex;gap:9px 18px;flex-wrap:wrap;margin-top:11px;padding:4px 0}
 .crew-section-chat .crew-daily-intents{margin-top:20px}
+/* /chat uses the home theme, not body.teacher-theme. Constrain the real inline
+   SVGs and provide layout here; otherwise Chrome renders 300px solid icons. */
+.crew-section-chat .crew-daily-intents{min-width:0}
+.crew-section-chat .crew-daily-intents .section-head{flex-wrap:wrap}
+.crew-section-chat .crew-intent-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.crew-section-chat .crew-intent-card{display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-rows:auto auto;column-gap:12px;row-gap:4px;align-content:center;min-height:108px;box-sizing:border-box;min-width:0;padding:16px;border:1px solid var(--line);border-radius:18px;background:var(--surface);text-decoration:none;color:var(--text);transition:border-color .16s ease,transform .16s ease}
+.crew-section-chat .crew-intent-card>svg{display:block;grid-column:1;grid-row:1 / span 2;width:28px;height:28px;min-width:0;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;color:var(--accent)}
+.crew-section-chat .crew-intent-card strong{grid-column:2;grid-row:1;min-width:0;font-size:15px;line-height:1.4}
+.crew-section-chat .crew-intent-card small{grid-column:2;grid-row:2;min-width:0;font-size:12px;line-height:1.55;color:var(--muted)}
+.crew-section-chat .crew-intent-card:hover{border-color:var(--accent)}
+.crew-section-chat .crew-intent-card:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+@media(max-width:640px){.crew-section-chat .crew-intent-grid{grid-template-columns:minmax(0,1fr);gap:9px}.crew-section-chat .crew-intent-card{min-height:82px;padding:12px 14px}}
+@media(prefers-reduced-motion:reduce){.crew-section-chat .crew-intent-card{transition:none}}
 .crew-learn-back-small{display:inline-flex;min-height:40px;align-items:center;color:var(--accent);font-size:13px;text-decoration:none;margin-bottom:10px}
 .crew-course-track-card{gap:10px;justify-content:space-between}
 @media(max-width:600px){.crew-learn-secondary-links{gap:5px 14px}}

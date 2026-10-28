@@ -304,7 +304,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <div className="crew-section-row-title"><h2>{t("sectionHubs.more")}</h2></div>
      <div className="crew-section-grid">
       {x.items.filter(item=>section!=="chat"||item.to!=="/teacher/shorts").map(item=>
-      <Link className="crew-section-card" to={item.to} key={item.to}>
+      <Link className="crew-section-card" to={item.to} reloadDocument={item.to==="/games"} key={item.to}>
        <span className="crew-section-card-icon"><Icon name={item.icon}/></span>
        <span className="crew-section-card-copy"><strong>{item.title}</strong><small>{item.desc}</small></span>
        <span className="crew-section-arrow" aria-hidden="true">→</span>

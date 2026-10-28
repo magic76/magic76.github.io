@@ -84,6 +84,39 @@ async function captureCrewVisualQA(browser){
 }
 
 
+
+// /chat must bound inline icons and should navigate to the prerendered game
+// document rather than waiting for a first-use lazy import on mobile Chrome.
+async function verifyChatGameEntry(browser){
+ const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+ await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+ const page=await context.newPage();
+ try{
+  await page.goto(origin+"/chat/",{waitUntil:"domcontentloaded",timeout:30000});
+  await page.locator(".crew-intent-card svg").first().waitFor({state:"visible",timeout:15000});
+  const metrics=await page.locator(".crew-intent-grid").evaluate(grid=>{
+   const icons=[...grid.querySelectorAll("svg")].map(svg=>{
+    const rect=svg.getBoundingClientRect(),style=getComputedStyle(svg);
+    return {width:rect.width,height:rect.height,fill:style.fill,stroke:style.stroke};
+   });
+   return {icons,gridWidth:grid.getBoundingClientRect().width,viewport:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth};
+  });
+  assert.equal(metrics.icons.length,2,"Chat must render both conversation shortcuts");
+  assert.ok(metrics.icons.every(icon=>icon.width>=20&&icon.width<=34&&icon.height>=20&&icon.height<=34&&icon.fill==="none"&&icon.stroke!=="none"),
+   "Chat intent SVGs must be small outline icons: "+JSON.stringify(metrics));
+  assert.ok(metrics.gridWidth<=metrics.viewport&&metrics.scroll<=metrics.viewport+2,
+   "Chat cards must not overflow mobile: "+JSON.stringify(metrics));
+  let gameDocumentRequests=0;
+  page.on("request",request=>{
+   if(request.isNavigationRequest()&&new URL(request.url()).pathname.replace(/\\/$/,"")==="/games")gameDocumentRequests++;
+  });
+  await page.locator('.crew-section-discover a[href="/games"]').click();
+  await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
+  assert.ok(gameDocumentRequests>=1,"Chat to games should request the prerendered HTML document");
+  process.stdout.write("PASS Chrome chat icon geometry and game document entry\\n");
+ }finally{await context.close()}
+}
+
 // CSS collision regression: learn, vocabulary, and course all use their full width.
 async function verifyLearningResponsiveLayout(browser){
  for(const width of [390,430,1440]){
@@ -203,6 +236,7 @@ async function run(){
    process.stdout.write("PASS first-run guide, language setup, skip and replay\n");
   }finally{await onboardingContext.close();}
   await verifyLearningResponsiveLayout(browser);
+  await verifyChatGameEntry(browser);
    const context=await browser.newContext({viewport:{width:1280,height:800}});
   await context.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   for(const route of routes){
