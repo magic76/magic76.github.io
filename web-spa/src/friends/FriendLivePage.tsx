@@ -9,6 +9,8 @@ import {Link,useNavigate,useSearchParams} from "react-router-dom";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import {GuestLiveStarter} from "../live/GuestLiveStarter";
+import {geminiKey} from "../lib/runtime";
 import {TextChatPanel} from "../live/TextChatPanel";
 import{useTranslation}from"react-i18next";
 import {FriendAvatar} from "./FriendAvatar";
@@ -47,6 +49,7 @@ export function FriendLivePage(){
   postUnavailable={Boolean(postId&&!lookup?.post)}/>;
 }
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
+ const [guestStarted,setGuestStarted]=useState(false);
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
@@ -104,7 +107,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
- useEffect(()=>{if(textMode)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
+ useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const needsKey=live.state==="error"&&live.errorKind==="key";
@@ -158,7 +161,10 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?<TextChatPanel searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
-    <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>
+    {!geminiKey()&&!guestStarted?<GuestLiveStarter onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+     :guestStarted&&(live.state==="ended"||live.state==="error")?<div className="notice" role="status"><b>{t("common:guestTrial.ended")}</b> <Link to="/settings#settings-gemini">{t("common:guestTrial.setupKey")}</Link></div>
+     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}
+    {guestStarted&&live.guestSecondsLeft>0&&<p className="meta" role="timer">{t("common:guestTrial.homeTitle")}：{live.guestSecondsLeft}s</p>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
       <span>{live.voicePhase==="no-transcript"?t("friendLive.noTranscript"):t("friendLive.noReply")}</span>

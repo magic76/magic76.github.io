@@ -239,7 +239,7 @@ export function GeminiConnectionPanel(){
     <h3>{configured?t("gemini.titleEdit"):t("gemini.titleNew")}</h3>
     <p className="meta">{t("gemini.intro")}</p>
     {!configured&&<div className="settings-gemini-free"><strong>{t("gemini.freeTitle")}</strong><p>{t("gemini.freeDesc")}</p></div>}
-    {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{t("common:guestTrial.settingsTitle")}</strong><p><a className="btn" href="/try">{t("common:guestTrial.settingsCta")}</a></p></div>}
+    {!configured&&guestAvailable&&<div className="settings-gemini-free"><strong>{t("common:guestTrial.settingsTitle")}</strong><p><a className="btn" href="/teacher/roles?mode=teacher">{t("common:guestTrial.settingsCta")}</a></p></div>}
     <div className="setup-steps">
      <div className="step"><b>1</b><span><strong>{t("gemini.step1")}</strong><small>{t("gemini.step1Desc")}</small></span></div>
      <div className="step"><b>2</b><span><strong>{t("gemini.step2")}</strong><small>{t("gemini.step2Desc")}</small></span></div>
