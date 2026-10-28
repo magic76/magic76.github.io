@@ -584,3 +584,113 @@ test("member trial requires a secure database and shared signing secret",async()
   env:{...base,GUEST_REQUIRE_SIGNIN:"true"}});
  assert.deepEqual(await bad.json(),{enabled:false});
 });
+
+
+function fakeMemberQuotaDb(){
+ const used=new Map(),nonces=new Set();
+ return {used,nonces,prepare(sql){return {bind(...v){return {async run(){
+  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_ticket_claims")){
+   if(nonces.has(v[0]))return {meta:{changes:0}};
+   nonces.add(v[0]);return {meta:{changes:1}};
+  }
+  if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_usage")){
+   if(!used.has(v[0]))used.set(v[0],0);
+   return {meta:{changes:1}};
+  }
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
+   const count=used.get(v[1])||0;
+   if(count>=1)return {meta:{changes:0}};
+   used.set(v[1],count+1);return {meta:{changes:1}};
+  }
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
+   used.set(v[0],Math.max(0,(used.get(v[0])||0)-1));
+   return {meta:{changes:1}};
+  }
+  throw new Error("Unexpected member SQL: "+sql);
+ }}}}}};
+}
+const memberRequest=authTicket=>new Request("https://www.3sssi.com/api/guest/token",{
+ method:"POST",headers:{"Origin":"https://www.3sssi.com","content-type":"application/json",
+  "cf-connecting-ip":"203.0.113.10","user-agent":"Crew-Test/Member"},
+ body:JSON.stringify({challengeToken:"turnstile-valid-test-token",
+  ...(authTicket===undefined?{}:{authTicket})})
+});
+test("optional member metering counts signed-in accounts without blocking anonymous trials",async()=>{
+ const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
+ const {onRequestGet,onRequestPost}=await backend;
+ const signing="test-member-secret-at-least-thirty-two-bytes";
+ const db=fakeMemberQuotaDb();
+ const settings=env(undefined,{
+  CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:signing,
+  GUEST_ACCOUNT_METER_ENABLED:"1",GUEST_REQUIRE_SIGNIN:"0",
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}
+ });
+ const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
+ const available=await config.json();
+ assert.equal(available.enabled,true);
+ assert.equal(available.seconds,180);
+ assert.equal(available.memberMetering,true);
+ assert.equal(available.signinRequired,undefined);
+ const services=mockedServices();
+ try{
+  const anon=await onRequestPost({request:memberRequest(),env:settings});
+  assert.equal(anon.status,200);
+  assert.equal((await anon.json()).seconds,180);
+  assert.equal(db.used.size,0,"unsigned visitors retain anonymous flow without member counters");
+  const accountA="123e4567-e89b-42d3-a456-426614174001",accountB="123e4567-e89b-42d3-a456-426614174002";
+  const forged=await onRequestPost({request:memberRequest("forged"),env:settings});
+  assert.equal(forged.status,401,"supplied invalid assertion cannot fall back to anonymous");
+  const wrongType=await onRequestPost({request:memberRequest(42),env:settings});
+  assert.equal(wrongType.status,401,"malformed ticket cannot switch to anonymous");
+  const ticketA=await createGuestTicket(accountA,signing);
+  const first=await onRequestPost({request:memberRequest(ticketA),env:settings});
+  assert.equal(first.status,200);
+  const firstData=await first.json();
+  assert.equal(firstData.seconds,180);
+  assert.equal(Date.parse(firstData.expiresAt)-Date.parse(firstData.issuedAt),190000);
+  assert.equal(db.used.get(accountA),1);
+  assert.equal((await onRequestPost({request:memberRequest(ticketA),env:settings})).status,429);
+  const newA=await createGuestTicket(accountA,signing);
+  assert.equal((await onRequestPost({request:memberRequest(newA),env:settings})).status,429);
+  const ticketB=await createGuestTicket(accountB,signing);
+  assert.equal((await onRequestPost({request:memberRequest(ticketB),env:settings})).status,200);
+  assert.equal(db.used.get(accountB),1);
+  assert.equal((await onRequestPost({request:memberRequest(),env:settings})).status,200);
+  assert.equal(services.counts().minted,4,"two anonymous, one each for two signed-in accounts");
+ }finally{services.restore()}
+});
+
+test("failed Gemini provisioning refunds member trial without reusing a nonce",async()=>{
+ const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
+ const {onRequestPost}=await backend;
+ const signing="test-member-secret-at-least-thirty-two-bytes",db=fakeMemberQuotaDb();
+ const account="123e4567-e89b-42d3-a456-426614174003";
+ const settings=env(undefined,{CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:signing,
+  GUEST_ACCOUNT_METER_ENABLED:"1",GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}});
+ const ticket1=await createGuestTicket(account,signing),failed=mockedServices({failMint:true});
+ try{
+  const bad=await onRequestPost({request:memberRequest(ticket1),env:settings});
+  assert.equal(bad.status,503);
+  assert.equal(db.used.get(account),0);
+  assert.equal(db.nonces.size,1);
+ }finally{failed.restore()}
+ const success=mockedServices();
+ try{
+  assert.equal((await onRequestPost({request:memberRequest(ticket1),env:settings})).status,429,
+   "same assertion remains claimed on a failed mint");
+  const ticket2=await createGuestTicket(account,signing);
+  assert.equal((await onRequestPost({request:memberRequest(ticket2),env:settings})).status,200);
+  assert.equal(db.used.get(account),1);
+ }finally{success.restore()}
+});
+test("member metering fails closed when shared D1, signing secret, or config flag is invalid",async()=>{
+ const {onRequestGet}=await backend,valid=env(undefined,{
+  GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})},
+  GUEST_ACCOUNT_METER_ENABLED:"1"
+ });
+ for(const settings of [valid,{...valid,CREW_AUTH_DB:fakeMemberQuotaDb()},
+  {...valid,GUEST_ACCOUNT_METER_ENABLED:"yes"}, {...valid,GUEST_REQUIRE_SIGNIN:"yes"}]){
+  const response=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
+  assert.deepEqual(await response.json(),{enabled:false});
+ }
+});
