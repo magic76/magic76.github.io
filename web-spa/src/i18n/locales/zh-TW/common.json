@@ -100,5 +100,19 @@
     "limit": "今天的免費試玩名額已滿。",
     "verification": "驗證未通過，請重新驗證。",
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。"
+  },
+  "auth": {
+    "account": "帳號",
+    "title": "Crew 帳號",
+    "intro": "使用 Google 或 GitHub 登入，管理你的 Crew 身分。",
+    "choose": "選擇登入方式",
+    "signedIn": "已登入",
+    "signOut": "登出",
+    "loading": "正在查看帳號…",
+    "unavailable": "目前無法使用登入功能。",
+    "failed": "登入失敗，請重新嘗試。",
+    "cancelled": "已取消登入。",
+    "localData": "此裝置上的 Gemini Key、記憶與學習資料不會因登入而自動同步。",
+    "backSettings": "返回設定"
   }
 }

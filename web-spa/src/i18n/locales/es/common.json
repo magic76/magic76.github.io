@@ -100,5 +100,19 @@
     "limit": "Se agotaron las plazas de hoy.",
     "verification": "La verificación falló. Inténtalo de nuevo.",
     "tempUnavailable": "Prueba no disponible temporalmente."
+  },
+  "auth": {
+    "account": "Cuenta",
+    "title": "Cuenta Crew",
+    "intro": "Inicia sesión con Google o GitHub.",
+    "choose": "Elige cómo iniciar sesión",
+    "signedIn": "Sesión iniciada",
+    "signOut": "Cerrar sesión",
+    "loading": "Comprobando cuenta…",
+    "unavailable": "El inicio de sesión aún no está disponible.",
+    "failed": "Error al iniciar sesión. Inténtalo de nuevo.",
+    "cancelled": "Inicio de sesión cancelado.",
+    "localData": "Tus claves Gemini, recuerdos y datos locales no se sincronizan automáticamente.",
+    "backSettings": "Volver a ajustes"
   }
 }
