@@ -187,22 +187,26 @@
 .crew-practice-friend-links .crew-learn-focus-secondary a{min-height:40px;display:inline-flex;align-items:center}
 .crew-section-focus-card button.crew-action-primary:disabled{opacity:.65;cursor:wait;box-shadow:none;pointer-events:none}
 
-/* Selected teacher is the first, completely tappable action on /learn. */
-.crew-learn-teacher-card{display:grid;gap:10px;box-sizing:border-box;min-width:0;padding:16px 18px;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface)}
+/* Direct teacher conversation is the primary action; changing teachers stays optional. */
+.crew-learn-teacher-card{display:grid;gap:12px;box-sizing:border-box;min-width:0;padding:16px 18px;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface)}
 .crew-learn-teacher-card .kicker{font-size:12px}
-.crew-learn-teacher-pick{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:14px;align-items:center;min-width:0;min-height:68px;color:var(--text);text-decoration:none;border-radius:12px}
-.crew-learn-teacher-pick:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.crew-learn-teacher-identity{display:grid;grid-template-columns:68px minmax(0,1fr);gap:14px;align-items:center;min-width:0}
 .crew-learn-teacher-portrait{display:block;width:68px;height:68px;overflow:hidden;border-radius:15px;background:var(--accent-soft)}
 .crew-learn-teacher-portrait .teacher-avatar-image{display:block;width:100%;height:100%}
 .crew-learn-teacher-copy{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
 .crew-learn-teacher-copy strong{font-size:19px;line-height:1.3}
 .crew-learn-teacher-copy small{color:var(--muted);font-size:12px;line-height:1.5}
+.crew-learn-teacher-actions{display:flex;gap:10px;align-items:stretch;min-width:0}
+.crew-learn-teacher-start{display:flex;flex:1 1 auto;align-items:center;justify-content:center;gap:8px;min-width:0;min-height:48px;padding:10px 16px;box-sizing:border-box;border-radius:12px;background:var(--accent);color:#fff;font-size:15px;font-weight:750;line-height:1.4;text-align:center;text-decoration:none;overflow-wrap:anywhere}
+.crew-learn-teacher-pick{display:flex;flex:0 0 auto;align-items:stretch;min-width:0;color:var(--text);text-decoration:none;border-radius:12px}
+.crew-learn-teacher-start:focus-visible,.crew-learn-teacher-pick:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 .crew-learn-teacher-action{display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--accent);border-radius:12px;color:var(--accent);font-size:14px;font-weight:700;white-space:nowrap}
-@media(hover:hover){.crew-learn-teacher-pick:hover .crew-learn-teacher-action{background:var(--accent-soft)}}
+@media(hover:hover) and (pointer:fine){.crew-learn-teacher-start:hover{filter:brightness(.94)}.crew-learn-teacher-pick:hover .crew-learn-teacher-action{background:var(--accent-soft)}}
 @media(max-width:600px){
  .crew-learn-teacher-card{padding:14px 16px}
- .crew-learn-teacher-pick{grid-template-columns:64px minmax(0,1fr);gap:10px 12px}
+ .crew-learn-teacher-identity{grid-template-columns:64px minmax(0,1fr);gap:12px}
  .crew-learn-teacher-portrait{width:64px;height:64px}
- .crew-learn-teacher-action{grid-column:1/-1;box-sizing:border-box;width:100%}
+ .crew-learn-teacher-actions{display:grid;grid-template-columns:minmax(0,1fr)}
+ .crew-learn-teacher-pick,.crew-learn-teacher-action{box-sizing:border-box;width:100%}
  .crew-section-learn .crew-section-focus-card{padding:16px}
 }

@@ -5,7 +5,7 @@ import {useClientReady} from "../lib/useClientReady";
 import {getTeacherProfile} from "./teacherProfiles";
 import {TeacherAvatar} from "./TeacherAvatar";
 
-/** Current teacher and a direct, accessible entry to the existing 16-teacher gallery. */
+/** Start speaking with the selected teacher, with teacher selection as an optional action. */
 export function CurrentTeacherCard(){
  const {t,i18n}=useTranslation("teacher");
  const ready=useClientReady();
@@ -14,7 +14,7 @@ export function CurrentTeacherCard(){
  const english=i18n.resolvedLanguage?.startsWith("en");
  return <section className="crew-learn-teacher-card" aria-label={t("tutor.current")}>
   <span className="kicker">{t("tutor.current")}</span>
-  <Link className="crew-learn-teacher-pick" to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}>
+  <div className="crew-learn-teacher-identity">
    <span className="crew-learn-teacher-portrait" aria-hidden="true">
     <TeacherAvatar profile={teacher} decorative/>
    </span>
@@ -22,7 +22,14 @@ export function CurrentTeacherCard(){
     <strong>{teacher.name}</strong>
     <small>{english?teacher.taglineEn:teacher.title}</small>
    </span>
-   <span className="crew-learn-teacher-action">{t("tutor.change")} <span aria-hidden="true">→</span></span>
-  </Link>
+  </div>
+  <div className="crew-learn-teacher-actions">
+   <Link className="crew-learn-teacher-start" to="/teacher/live">
+    {t("tutor.start",{name:teacher.name})} <span aria-hidden="true">→</span>
+   </Link>
+   <Link className="crew-learn-teacher-pick" to="/teacher/roles?mode=teacher" state={{openTeacherPicker:true}}>
+    <span className="crew-learn-teacher-action">{t("tutor.change")} <span aria-hidden="true">→</span></span>
+   </Link>
+  </div>
  </section>;
 }
