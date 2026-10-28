@@ -198,8 +198,9 @@ export function useLiveSession(config:Config){
     onToolsUnavailable:()=>configRef.current.onToolsUnavailable?.(),
     // Crew Teacher/Friends only; other Crew products retain their current VAD.
     turnTiming:teacherVoiceSession?turnTimingForLevel(speakingLevel):undefined,
-    models:grant?[grant.model]:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
-    manualInterruptOnly:true,maxLiveAttempts:grant?1:teacherVoiceSession?1:2,maxResumeAttempts:grant?0:2,
+    models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
+    manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
+    ...(grant?{models:[grant.model],maxLiveAttempts:1,maxResumeAttempts:0}:{}),
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}

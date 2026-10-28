@@ -277,7 +277,7 @@ test("public voice uses original Teacher and Friend UI; QA endpoint is gone",asy
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  assert.match(starter,/crew-guest-trial/);
  assert.match(hook,/guestAccessToken:grant\?\.token/);
- assert.match(hook,/maxResumeAttempts:grant\?0:2/);
+ assert.match(hook,/\.\.\.\(grant\?\{models:\[grant\.model\],maxLiveAttempts:1,maxResumeAttempts:0\}/);
  assert.match(hook,/!guestModeRef\.current/);
  assert.match(hook,/guestDeadlineRef\.current=performance\.now\(\)\+ms/);
  assert.match(teacher,/GuestLiveStarter/);
