@@ -6,10 +6,9 @@ import {useClientReady} from "../lib/useClientReady";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyLearningPlan,type DailyLearningPlan} from "./learningCoordinator";
 import {getTeacherProfile} from "./teacherProfiles";
-import {TeacherAvatar} from "./TeacherAvatar";
 import {TodayLearningCard} from "./TodayLearningCard";
 
-/** One primary action on /learn; optional material and teacher switching are secondary. */
+/** One primary learning action; CurrentTeacherCard owns teacher selection above it. */
 export function LearningFocusCard(){
  const stringsReady=useRouteNamespace("lesson");
  const {t,i18n}=useTranslation("lesson");
@@ -42,17 +41,12 @@ export function LearningFocusCard(){
     plan?.action==="vocabulary"?t("learnToday.vocabularyNote"):
     plan?.action==="course"?t("learnToday.courseNote"):
     t("learnToday.conversationNote")}</p>
-   <div className="crew-section-focus-card-meta"><span>{teacher.name}</span></div>
-  </div>
-  <div className="crew-section-focus-card-portrait" aria-hidden="true">
-   <TeacherAvatar profile={teacher} decorative/>
   </div>
   {plan?<Link className="crew-action-primary" to={plan.to}>{t("learnToday.start")} →</Link>:
    <button className="crew-action-primary" type="button" disabled aria-disabled="true">{t("learnToday.loadingButton")}</button>}
-  <div className="crew-learn-focus-secondary">
-   <Link to="/teacher/roles?mode=teacher">{t("learnToday.changeTeacher")}</Link>
-   {plan?.textbook&&<Link to="/teacher/textbook">{t("learnToday.resumeTextbook")}</Link>}
-  </div>
+  {plan?.textbook&&<div className="crew-learn-focus-secondary">
+   <Link to="/teacher/textbook">{t("learnToday.resumeTextbook")}</Link>
+  </div>}
   <div className="crew-learn-focus-progress"><TodayLearningCard compact/></div>
  </section>;
 }

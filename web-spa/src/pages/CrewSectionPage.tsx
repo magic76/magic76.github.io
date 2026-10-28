@@ -6,6 +6,7 @@ import {Icon,type IconName} from "../components/Icon";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import type {CrewSection} from "./crewNavigation";
 import {ExploreArtwork,type ExploreKind} from "./ExploreArtwork";
+import {CurrentTeacherCard} from "../teacher/CurrentTeacherCard";
 import {LearningFocusCard} from "../teacher/LearningFocusCard";
 import {LearnHubExtras} from "./LearnHubExtras";
 import {FriendIntentCards} from "../friends/FriendIntentCards";
@@ -285,6 +286,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </>:
      section==="learn"?
       <>
+       <CurrentTeacherCard/>
        <LearningFocusCard/>
        <div className="crew-learn-tool-grid-host"><LearnHubExtras tools={learnTools} speakingPath={speakingPath}/></div>
       </>:

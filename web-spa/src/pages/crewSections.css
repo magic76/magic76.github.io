@@ -164,8 +164,9 @@
 @media(max-width:430px){.crew-section-learn{gap:16px}.crew-learn-heading-row{align-items:center}.crew-learn-language{max-width:52%;min-width:128px}.crew-section-learn .crew-learn-tool{min-height:132px}}
 @media(prefers-reduced-motion:reduce){.crew-learn-more[open]>summary span:last-child{transition:none}}
 
-/* learn-today: one prominent action, progress inside the card, quiet tools below. */
-.crew-section-learn .crew-section-focus-card{grid-template-columns:minmax(0,1fr) clamp(100px,17vw,132px);row-gap:12px}
+/* A compact current-teacher entry precedes the single daily learning action. */
+.crew-section-learn .crew-section-focus-card{display:flex;flex-direction:column;align-items:stretch;gap:12px}
+.crew-section-learn .crew-section-focus-card .crew-action-primary{align-self:stretch;display:flex;align-items:center;justify-content:center;max-width:none;min-height:46px;margin-top:0}
 .crew-learn-focus-secondary{display:flex;align-items:center;gap:16px;flex-wrap:wrap;grid-column:1/-1}
 .crew-learn-focus-secondary a,.crew-learn-secondary-links a{font-size:13px;color:var(--accent);text-decoration:none;padding:7px 0}
 .crew-learn-focus-secondary a:focus-visible,.crew-learn-secondary-links a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
@@ -177,7 +178,7 @@
 .crew-section-chat .crew-daily-intents{margin-top:20px}
 .crew-learn-back-small{display:inline-flex;min-height:40px;align-items:center;color:var(--accent);font-size:13px;text-decoration:none;margin-bottom:10px}
 .crew-course-track-card{gap:10px;justify-content:space-between}
-@media(max-width:600px){.crew-section-learn .crew-section-focus-card{grid-template-columns:minmax(0,1fr) 84px}.crew-learn-focus-progress{grid-column:1/-1}.crew-learn-secondary-links{gap:5px 14px}}
+@media(max-width:600px){.crew-learn-secondary-links{gap:5px 14px}}
 /* Contract-compatible friend shortcuts remain intentionally quiet on /teacher.
    /chat owns the full conversational entry experience. */
 .crew-practice-friend-links{padding-block:8px}
@@ -185,3 +186,23 @@
 .crew-practice-friend-links .crew-learn-focus-secondary{gap:8px 20px}
 .crew-practice-friend-links .crew-learn-focus-secondary a{min-height:40px;display:inline-flex;align-items:center}
 .crew-section-focus-card button.crew-action-primary:disabled{opacity:.65;cursor:wait;box-shadow:none;pointer-events:none}
+
+/* Selected teacher is the first, completely tappable action on /learn. */
+.crew-learn-teacher-card{display:grid;gap:10px;box-sizing:border-box;min-width:0;padding:16px 18px;border:1px solid var(--line);border-radius:var(--crew-card-radius);background:var(--surface)}
+.crew-learn-teacher-card .kicker{font-size:12px}
+.crew-learn-teacher-pick{display:grid;grid-template-columns:68px minmax(0,1fr) auto;gap:14px;align-items:center;min-width:0;min-height:68px;color:var(--text);text-decoration:none;border-radius:12px}
+.crew-learn-teacher-pick:focus-visible{outline:2px solid var(--accent);outline-offset:5px}
+.crew-learn-teacher-portrait{display:block;width:68px;height:68px;overflow:hidden;border-radius:15px;background:var(--accent-soft)}
+.crew-learn-teacher-portrait .teacher-avatar-image{display:block;width:100%;height:100%}
+.crew-learn-teacher-copy{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+.crew-learn-teacher-copy strong{font-size:19px;line-height:1.3}
+.crew-learn-teacher-copy small{color:var(--muted);font-size:12px;line-height:1.5}
+.crew-learn-teacher-action{display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border:1px solid var(--accent);border-radius:12px;color:var(--accent);font-size:14px;font-weight:700;white-space:nowrap}
+@media(hover:hover){.crew-learn-teacher-pick:hover .crew-learn-teacher-action{background:var(--accent-soft)}}
+@media(max-width:600px){
+ .crew-learn-teacher-card{padding:14px 16px}
+ .crew-learn-teacher-pick{grid-template-columns:64px minmax(0,1fr);gap:10px 12px}
+ .crew-learn-teacher-portrait{width:64px;height:64px}
+ .crew-learn-teacher-action{grid-column:1/-1;box-sizing:border-box;width:100%}
+ .crew-section-learn .crew-section-focus-card{padding:16px}
+}
