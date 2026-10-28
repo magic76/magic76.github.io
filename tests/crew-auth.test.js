@@ -117,3 +117,21 @@ test("auth functions are routed to Pages; D1 tables and account entry exist",()=
  assert.match(read("web-spa/src/pages/AccountPage.tsx"),/api\/auth\/logout/);
  assert.doesNotMatch(read("server/crew-auth.mjs"),/localStorage|sessionStorage/);
 });
+test("existing OAuth client secret names from initial setup are supported",async()=>{
+ const {start,sessionInfo}=await lib();
+ const env={
+  GOOGLE_OAUTH_CLIENT_ID:"legacy-google-id",GOOGLE_OAUTH_CLIENT_SECRET:"legacy-google-secret",
+  GITHUB_OAUTH_CLIENT_ID:"legacy-github-id",GITHUB_OAUTH_CLIENT_SECRET:"legacy-github-secret",
+  CREW_AUTH_DB:new FakeDB()
+ };
+ const session=await sessionInfo({request:req("/api/auth/session"),env});
+ assert.deepEqual((await session.json()).providers,{google:true,github:true});
+ for(const provider of ["google","github"]){
+  const begin=await start({request:req("/api/auth/"+provider+"/start"),env},provider);
+  assert.equal(begin.status,302);
+  assert.equal(new URL(begin.headers.get("Location")).searchParams.get("client_id"),"legacy-"+provider+"-id");
+ }
+ const preferred={...env,CREW_AUTH_GOOGLE_CLIENT_ID:"preferred-google-id",CREW_AUTH_GOOGLE_CLIENT_SECRET:"preferred-google-secret"};
+ const startPreferred=await start({request:req("/api/auth/google/start"),env:preferred},"google");
+ assert.equal(new URL(startPreferred.headers.get("Location")).searchParams.get("client_id"),"preferred-google-id");
+});

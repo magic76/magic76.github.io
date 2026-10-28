@@ -11,7 +11,17 @@ const random=()=>b64(crypto.getRandomValues(new Uint8Array(32)));
 const digest=async s=>new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s)));
 const hash=async s=>Array.from(await digest(s),b=>b.toString(16).padStart(2,"0")).join("");
 const equal=(a,b)=>typeof a==="string"&&typeof b==="string"&&a.length===b.length&&a.length>0&&Array.from(a).reduce((n,c,i)=>n|(c.charCodeAt(0)^b.charCodeAt(i)),0)===0;
-function creds(env,p){const x=p==="google"?"CREW_AUTH_GOOGLE":"CREW_AUTH_GITHUB";const id=env?.[x+"_CLIENT_ID"],secret=env?.[x+"_CLIENT_SECRET"];return typeof id==="string"&&id&&typeof secret==="string"&&secret?{id,secret}:null}
+function creds(env,p){
+ const provider=p==="google"?"GOOGLE":"GITHUB";
+ // Accept both the already documented Crew names and the original setup
+ // guide's GOOGLE_OAUTH_*/GITHUB_OAUTH_* secrets. Keep each pair together.
+ for(const prefix of ["CREW_AUTH_"+provider,provider+"_OAUTH"]){
+  const id=env?.[prefix+"_CLIENT_ID"],secret=env?.[prefix+"_CLIENT_SECRET"];
+  if(typeof id==="string"&&id.trim()&&typeof secret==="string"&&secret.trim())
+   return {id:id.trim(),secret:secret.trim()};
+ }
+ return null;
+}
 const callback=p=>ORIGIN+"/api/auth/"+p+"/callback";
 const fail=why=>go(ORIGIN+"/account?auth_error="+why);
 export async function start({request,env},provider){
