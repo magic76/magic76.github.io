@@ -125,3 +125,6 @@ export async function onRequestPost({request,env}){
  }
 }
 export async function onRequest(){return json({error:"Method not allowed"},405)}
+
+// Shared primitives for the isolated, secret-protected Phase 1 QA endpoint.
+export {mintToken,verifyCaptcha};
