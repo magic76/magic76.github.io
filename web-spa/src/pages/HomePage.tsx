@@ -198,7 +198,7 @@ export function HomePage(){
   <div className="crew-home-content">
    <div className="crew-home-layout">
    <div className="crew-home-primary">
-    {ready&&!configured&&guestAvailable?<Link to="/try" className="crew-home-setup crew-home-setup-free">
+    {ready&&!configured&&guestAvailable?<Link to="/teacher/roles?mode=teacher" className="crew-home-setup crew-home-setup-free">
      <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="teacher"/></span>
      <span className="crew-home-setup-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
      <span className="crew-home-setup-action">{t("common:guestTrial.homeStart")} <b aria-hidden="true">→</b></span>
