@@ -104,6 +104,7 @@
     "tempUnavailable": "Test vorübergehend nicht verfügbar."
   },
   "auth": {
+    "trialCount": "Genutzte Sprachtests: {{used}} / {{limit}}",
     "account": "Konto",
     "title": "Crew-Konto",
     "intro": "Melde dich mit Google oder GitHub an.",

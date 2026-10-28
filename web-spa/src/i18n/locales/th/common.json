@@ -104,6 +104,7 @@
     "tempUnavailable": "ขณะนี้ยังไม่สามารถทดลองได้"
   },
   "auth": {
+    "trialCount": "ทดลองเสียงฟรีที่ใช้ไป: {{used}} / {{limit}}",
     "account": "บัญชี",
     "title": "บัญชี Crew",
     "intro": "เข้าสู่ระบบด้วย Google หรือ GitHub",

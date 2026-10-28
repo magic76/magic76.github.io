@@ -104,6 +104,7 @@
     "tempUnavailable": "無料体験は一時的に利用できません。"
   },
   "auth": {
+    "trialCount": "無料音声体験：{{used}} / {{limit}} 回利用済み",
     "account": "アカウント",
     "title": "Crew アカウント",
     "intro": "Google または GitHub でログインできます。",

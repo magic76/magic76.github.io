@@ -104,6 +104,7 @@
     "tempUnavailable": "Uji coba tidak tersedia sementara."
   },
   "auth": {
+    "trialCount": "Uji coba suara digunakan: {{used}} / {{limit}}",
     "account": "Akun",
     "title": "Akun Crew",
     "intro": "Masuk dengan Google atau GitHub.",

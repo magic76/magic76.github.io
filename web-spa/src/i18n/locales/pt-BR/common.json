@@ -104,6 +104,7 @@
     "tempUnavailable": "Teste temporariamente indisponível."
   },
   "auth": {
+    "trialCount": "Testes de voz usados: {{used}} / {{limit}}",
     "account": "Conta",
     "title": "Conta Crew",
     "intro": "Entre com Google ou GitHub.",

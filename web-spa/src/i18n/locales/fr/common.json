@@ -104,6 +104,7 @@
     "tempUnavailable": "Essai temporairement indisponible."
   },
   "auth": {
+    "trialCount": "Essais vocaux utilisés : {{used}} / {{limit}}",
     "account": "Compte",
     "title": "Compte Crew",
     "intro": "Connectez-vous avec Google ou GitHub.",

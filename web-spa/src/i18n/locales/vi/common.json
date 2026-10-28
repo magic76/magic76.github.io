@@ -104,6 +104,7 @@
     "tempUnavailable": "Hiện không thể dùng thử."
   },
   "auth": {
+    "trialCount": "Lượt thử giọng nói đã dùng: {{used}} / {{limit}}",
     "account": "Tài khoản",
     "title": "Tài khoản Crew",
     "intro": "Đăng nhập bằng Google hoặc GitHub.",

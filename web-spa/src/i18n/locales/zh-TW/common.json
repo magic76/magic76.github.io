@@ -104,6 +104,7 @@
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。"
   },
   "auth": {
+    "trialCount": "免費語音試用：已使用 {{used}} / {{limit}} 次",
     "account": "帳號",
     "title": "Crew 帳號",
     "intro": "使用 Google 或 GitHub 登入，管理你的 Crew 身分。",

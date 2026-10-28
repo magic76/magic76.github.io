@@ -104,6 +104,7 @@
     "tempUnavailable": "Guest trial is temporarily unavailable."
   },
   "auth": {
+    "trialCount": "Free voice trials used: {{used}} / {{limit}}",
     "account": "Account",
     "title": "Crew Account",
     "intro": "Sign in with Google or GitHub to manage your Crew identity.",
