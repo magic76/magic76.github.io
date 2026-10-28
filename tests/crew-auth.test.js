@@ -136,3 +136,72 @@ test("existing OAuth client secret names from initial setup are supported",async
  const startPreferred=await start({request:req("/api/auth/google/start"),env:preferred},"google");
  assert.equal(new URL(startPreferred.headers.get("Location")).searchParams.get("client_id"),"preferred-google-id");
 });
+
+test("health correctly identifies D1 tables bound to the production Pages Function",async()=>{
+ const {health}=await lib();
+ const missing=await health({request:req("/api/auth/health"),env:config()});
+ assert.equal(missing.status,503);
+ assert.equal((await missing.json()).database.binding,false);
+ const actual=[];
+ const db={prepare(q){actual.push(q);return {first:async()=>q.includes("crew_auth_sessions")
+  ?Promise.reject(Error("no such table")):null}}};
+ const partial=await health({request:req("/api/auth/health"),env:{...config(),CREW_AUTH_DB:db}});
+ assert.equal(partial.status,503);
+ const info=await partial.json();
+ assert.deepEqual(info.providers,{google:true,github:true});
+ assert.equal(info.database.tables.crew_auth_users,true);
+ assert.equal(info.database.tables.crew_auth_identities,true);
+ assert.equal(info.database.tables.crew_auth_sessions,false);
+ assert.equal(actual.length,3);
+ const complete=await health({request:req("/api/auth/health"),env:{...config(),CREW_AUTH_DB:{
+  prepare:()=>({first:async()=>null})
+ }}});
+ assert.equal(complete.status,200);
+ assert.equal((await complete.json()).database.tables.crew_auth_sessions,true);
+ const preview=await health({request:new Request("https://preview.pages.dev/api/auth/health"),env:{}});
+ assert.equal(preview.status,404);
+});
+test("failed callback exposes only a stable stage, never credentials or OAuth response",async()=>{
+ const {start,callbackHandler}=await lib(),original=global.fetch;
+ const env={...config(),CREW_AUTH_DB:new FakeDB()};
+ const begin=await start({request:req("/api/auth/google/start"),env},"google");
+ const authorize=new URL(begin.headers.get("Location"));
+ const query="/api/auth/google/callback?state="+authorize.searchParams.get("state")+"&code=valid";
+ const request=req(query,{Cookie:begin.headers.get("Set-Cookie").split(";")[0]});
+ global.fetch=async()=>new Response(JSON.stringify({error:"provider_private_details"}),{status:401});
+ try{
+  const result=await callbackHandler({request,env},"google");
+  const back=new URL(result.headers.get("Location"));
+  assert.equal(back.searchParams.get("auth_error"),"failed");
+  assert.equal(back.searchParams.get("auth_stage"),"token");
+  assert.ok(!back.href.includes("provider_private_details"));
+  assert.ok(!back.href.includes("google-secret"));
+ }finally{global.fetch=original}
+});
+test("account D1 failures are distinguished from OAuth token failures",async()=>{
+ const {start,callbackHandler}=await lib(),original=global.fetch;
+ const env={...config(),CREW_AUTH_DB:{
+  prepare(q){
+   if(q.startsWith("SELECT user_id FROM crew_auth_identities"))
+    return {bind:()=>({first:async()=>null})};
+   throw Error("test DB schema not ready");
+  },
+  batch:async()=>{throw Error("test database failure")}
+ }};
+ const begin=await start({request:req("/api/auth/github/start"),env},"github");
+ const authorize=new URL(begin.headers.get("Location"));
+ const callback=req("/api/auth/github/callback?state="+authorize.searchParams.get("state")+"&code=valid",{
+  Cookie:begin.headers.get("Set-Cookie").split(";")[0]});
+ global.fetch=async url=>{
+  if(String(url).includes("github.com/login/oauth/access_token"))return Response.json({access_token:"private-token"});
+  if(String(url).includes("api.github.com/user"))return Response.json({id:123,name:"User"});
+  throw Error("Unexpected URL");
+ };
+ try{
+  const result=await callbackHandler({request:callback,env},"github");
+  const back=new URL(result.headers.get("Location"));
+  assert.equal(back.searchParams.get("auth_stage"),"account");
+  assert.equal(back.searchParams.get("auth_error"),"failed");
+  assert.ok(!back.href.includes("private-token"));
+ }finally{global.fetch=original}
+});
