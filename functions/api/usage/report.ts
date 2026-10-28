@@ -60,7 +60,7 @@ export async function onRequestGet({request,env}:Context){
  const days=period==="30"?30:7;
  // The period is fixed to 7/30, and no user-provided SQL or identifiers are accepted.
  const bound="timestamp >= NOW() - INTERVAL '"+days+"' DAY";
- const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','magic_spell','magic_challenge_answer','magic_panel_choice','magic_voice_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','research_article_completed','circle_post_published','circle_comment_posted'";
+ const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','magic_spell','magic_challenge_answer','magic_panel_choice','magic_voice_connected','guest_trial_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','research_article_completed','circle_post_published','circle_comment_posted'";
  const chatEvents="'teacher_conversation','friend_conversation','timeline_conversation'";
  const previous="timestamp >= NOW() - INTERVAL '"+(days*2)+"' DAY AND timestamp < NOW() - INTERVAL '"+days+"' DAY";
  try{

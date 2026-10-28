@@ -8,7 +8,7 @@ type Report={
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string
 };
-type Category="all"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
+type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
 
 const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
@@ -25,6 +25,8 @@ const names:Record<string,string>={
  story_reading:"故事閱讀",story_narration:"語音說故事",story_created:"故事創作",
  fortune_calculated:"命盤計算",fortune_ai_interpreted:"AI 命理解讀",
  gemini_key_missing:"缺少 Gemini Key",gemini_key_verified:"Gemini Key 驗證成功",
+ guest_trial_entry_view:"免費試用入口曝光",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
+ guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
  home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
  town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
  magic_enter:"進入 Magic",magic_spell:"Magic 施法",magic_challenge_answer:"Magic 解謎",magic_panel_choice:"Magic 互動卡選擇",
@@ -35,6 +37,7 @@ const names:Record<string,string>={
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","research_article_completed","circle_post_published","circle_comment_posted"]},
+ {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
  {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
@@ -131,6 +134,37 @@ export function UsageDashboardPage(){
       </div>)}
      </div>
      <p className="usage-explain">目前篩選：{selected.label} · {num(totalMany(rows,selected.events))} 次事件。各階段的事件可能來自同一個瀏覽器，不應視為不同使用者。</p>
+    </section>
+    <section className="panel section">
+     <div className="section-head"><h2>免費體驗（1 分鐘）</h2><small>匿名使用率統計 · 老師／朋友</small></div>
+     <div className="usage-funnel">
+      {[
+       {label:"看見免費試用",event:"guest_trial_entry_view"},
+       {label:"按下開始",event:"guest_trial_start_click"},
+       {label:"成功取得短效憑證",event:"guest_trial_token_issued"},
+       {label:"真正連上語音",event:"guest_trial_connected"},
+       {label:"對話結束",event:"guest_trial_ended"}
+      ].map((step,i)=>{
+       const value=total(rows,step.event),base=Math.max(1,total(rows,"guest_trial_entry_view"));
+       return <div key={step.event} className="usage-funnel-step"><div><span>{i+1}. {step.label}</span><strong>{num(value)} 次</strong></div>
+        <div className="usage-funnel-track"><span style={{width:Math.min(100,value/base*100)+"%"}}/></div>
+       </div>;
+      })}
+     </div>
+     <div className="usage-feature-list">
+      {(["teacher","friend"] as const).map(role=><div className="usage-feature" key={role}>
+       <span>{role==="teacher"?"AI 老師":"AI 朋友"}</span>
+       <strong>曝光 {num(total(rows,"guest_trial_entry_view",role))} · 點擊 {num(total(rows,"guest_trial_start_click",role))} · 發證 {num(total(rows,"guest_trial_token_issued",role))} · 連線 {num(total(rows,"guest_trial_connected",role))}</strong>
+      </div>)}
+      <div className="usage-feature"><span>憑證失敗</span><strong>{num(total(rows,"guest_trial_token_failed"))} 次</strong></div>
+      <div className="usage-feature"><span>連線失敗</span><strong>{num(total(rows,"guest_trial_connect_failed"))} 次</strong></div>
+      <div className="usage-feature"><span>麥克風未授權</span><strong>{num(total(rows,"guest_trial_mic_denied"))} 次</strong></div>
+      <div className="usage-feature"><span>其他準備失敗</span><strong>{num(total(rows,"guest_trial_setup_failed"))} 次</strong></div>
+      <div className="usage-feature"><span>實際對話時長</span>
+       <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45 秒以上 {num(total(rows,"guest_trial_ended","from_45_to_60s"))}</strong>
+      </div>
+     </div>
+     <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，並非 Worker 實際發證總數。若停用統計、頁面突然關閉或多次重試，前後階段數量可能不一致；無法拿來限制每位使用者的試用次數。登入與每人計數留待第三階段。</p>
     </section>
     <section className="panel section">
      <div className="section-head"><h2>聊天互動漏斗</h2><small>事件次數 · 非同一批人的精準轉換率</small></div>

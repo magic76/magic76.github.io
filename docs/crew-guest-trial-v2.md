@@ -44,6 +44,21 @@ A JSON array is also supported for backwards compatibility, but is not required:
 - Key values are never put into `wrangler.toml`, web code, logs or returned API payloads. The Worker Secret value must be created in Cloudflare.
 - Keys in the **same Google Cloud project share project quotas**. Multiple keys do not automatically multiply free allowance; use for legitimate key management/availability and follow Google's API usage rules.
 
+## Phase 2 — anonymous trial analytics (2026-10-28)
+
+The existing production-only first-party analytics system has a Guest Trial section in the private /usage dashboard with 7-day and 30-day views:
+
+- Funnel: eligible trial entry viewed, clicked start, issued ephemeral Gemini token, actually connected, ended.
+- Split funnel counts between Teacher/Friend; failure events for denied mic, setup, token mint and connection.
+- Connected-call duration buckets: under 15s, 15–45s, 45–60s.
+- Existing production web tracking is privacy-aware (GPC/DNT, opt-out, developer mode); no audio, transcript, Gemini key, token, IP, or arbitrary client detail is collected. Uses the same Analytics Engine and GA4 integrations, no new Worker Secrets, D1 binding or authentication.
+- Events are best-effort and may be sampled or blocked, so these are **not authoritative server issuance counts or unique humans**. No retroactive filling of old usage.
+- Private reporting still requires Cloudflare Access and read-only Analytics credentials per `docs/CREW_USAGE.md`.
+
+## Phase 3 — planned
+
+Add actual user sign-in and a server-side entitlement/quota ledger for one-trial-per-user counting. Design account controls, privacy/retention and anti-abuse checks before implementing. No authentication or per-account limit is part of Phase 2.
+
 ## Phase 2 deferred
 
 - D1 guest quota database, per-fingerprint/day limits, production billing observation. D1 is not required for Phase 1.

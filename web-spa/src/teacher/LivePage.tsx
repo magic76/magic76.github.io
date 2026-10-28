@@ -221,7 +221,7 @@ export function TeacherLivePage(){
   {textMode?<TextChatPanel searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
-   :!geminiKey()&&!guestStarted?<GuestLiveStarter onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+   :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
     :guestStarted&&(live.state==="ended"||live.state==="error")?<div className="notice" role="status"><b>{t("common:guestTrial.ended")}</b> <Link to="/settings#settings-gemini">{t("common:guestTrial.setupKey")}</Link></div>
     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&live.guestSecondsLeft>0&&<p className="meta" role="timer">{t("common:guestTrial.homeTitle")}：{live.guestSecondsLeft}s</p>}

@@ -18,6 +18,8 @@ const events=new Set([
   "story_reading","story_narration","story_created",
   "fortune_calculated","fortune_ai_interpreted",
   "gemini_key_missing","gemini_key_verified",
+  "guest_trial_entry_view","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
+  "guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended",
   "home_entry_click","explore_entry_click",
   "town_enter","town_interaction","town_chat_click","town_3d_fallback",
   "magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice",
@@ -28,6 +30,7 @@ const events=new Set([
 ]);
 const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
+  "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s",
   "mira","ethan","hana","learn","story","fortune","timeline","play","briefing","town","magic","mate","shorts","circle",
   "voice","demo","live","person","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);

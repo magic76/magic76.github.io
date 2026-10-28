@@ -2,6 +2,7 @@ import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {ensureLive} from "../lib/runtime";
+import {trackUsageEvent} from "../analytics/usage";
 import {fetchGuestTrialConfig,GUEST_TOKEN_ENDPOINT,type GuestTrialGrant} from "../lib/guestTrial";
 
 type WidgetApi={
@@ -10,7 +11,7 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>}){
+export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend"}){
  const {t}=useTranslation("common");
  const [siteKey,setSiteKey]=useState("");
  const [phase,setPhase]=useState<"checking"|"ready"|"unavailable"|"starting"|"error">("checking");
@@ -24,7 +25,7 @@ export function GuestLiveStarter({onGrant}:{onGrant:(grant:GuestTrialGrant)=>Pro
   active.current=true;
   void fetchGuestTrialConfig().then(config=>{
    if(!active.current)return;
-   if(config.enabled&&config.siteKey){setSiteKey(config.siteKey);setPhase("ready")}
+   if(config.enabled&&config.siteKey){trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready")}
    else setPhase("unavailable");
   }).catch(()=>{if(active.current)setPhase("unavailable")});
   return()=>{active.current=false};
@@ -57,22 +58,28 @@ export function GuestLiveStarter({onGrant}:{onGrant:(grant:GuestTrialGrant)=>Pro
  async function begin(){
   if(busy.current||phase!=="ready"||!challenge)return;
   busy.current=true;setPhase("starting");setMessage("");
+  trackUsageEvent("guest_trial_start_click",role);
+  let tokenRequested=false;
   try{
    await ensureLive();
    if(!navigator.mediaDevices?.getUserMedia)throw new Error("microphone unavailable");
    const mic=await navigator.mediaDevices.getUserMedia({audio:true});
    mic.getTracks().forEach(track=>track.stop());
    if(!active.current)return;
+   tokenRequested=true;
    const res=await fetch(GUEST_TOKEN_ENDPOINT,{method:"POST",cache:"no-store",
     headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string};
    if(!res.ok||!data.token||!data.model||data.seconds!==60){
+    trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){setMessage(data.code==="DAILY_LIMIT"?t("guestTrial.limit"):t("guestTrial.tempUnavailable"));setPhase("error")}
     return;
    }
-   if(active.current)await onGrant(data);
+   if(active.current){trackUsageEvent("guest_trial_token_issued",role);await onGrant(data)}
   }catch(error){
+   if(!tokenRequested&&error instanceof DOMException&&error.name==="NotAllowedError")trackUsageEvent("guest_trial_mic_denied",role);
+   else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
    if(active.current){setMessage(error instanceof DOMException&&error.name==="NotAllowedError"
     ?t("guestTrial.micDenied"):t("guestTrial.serviceUnavailable"));setPhase("error")}
   }finally{busy.current=false}

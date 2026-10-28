@@ -38,7 +38,25 @@ export function useLiveSession(config:Config){
  const sessionRef=useRef<LiveSession|null>(null),turnsRef=useRef<LiveTurn[]>([]),savedRef=useRef(false);
  const guestModeRef=useRef(false),guestDeadlineRef=useRef(0),guestTimerRef=useRef<ReturnType<typeof setTimeout>|null>(null);
  const [guestSecondsLeft,setGuestSecondsLeft]=useState(0);
+ const guestConnectedAtRef=useRef(0),guestEndedReportedRef=useRef(false),guestConnectFailedReportedRef=useRef(false);
  const clearGuestTimer=()=>{if(guestTimerRef.current!==null){clearTimeout(guestTimerRef.current);guestTimerRef.current=null}};
+ const guestRole=()=>configRef.current.sessionKind==="friend"?"friend":"teacher";
+ const recordGuestConnect=()=>{
+  if(!guestModeRef.current||guestConnectedAtRef.current>0)return;
+  guestConnectedAtRef.current=performance.now();
+  trackUsageEvent("guest_trial_connected",guestRole());
+ };
+ const recordGuestFailure=()=>{
+  if(!guestModeRef.current||guestConnectedAtRef.current>0||guestConnectFailedReportedRef.current)return;
+  guestConnectFailedReportedRef.current=true;
+  trackUsageEvent("guest_trial_connect_failed",guestRole());
+ };
+ const recordGuestEnd=()=>{
+  if(!guestModeRef.current||guestConnectedAtRef.current<=0||guestEndedReportedRef.current)return;
+  guestEndedReportedRef.current=true;
+  const elapsed=Math.max(0,performance.now()-guestConnectedAtRef.current);
+  trackUsageEvent("guest_trial_ended",elapsed<15000?"under_15s":elapsed<45000?"from_15_to_45s":"from_45_to_60s");
+ };
  const [state,setState]=useState<LiveState>("idle"),[status,setStatus]=useState("按開始後就可以直接說話。");
  const [voicePhase,setVoicePhase]=useState<FriendVoicePhase>("idle");
  const voicePhaseRef=useRef<FriendVoicePhase>("idle");
@@ -62,6 +80,7 @@ export function useLiveSession(config:Config){
  });
  useEffect(()=>{const id=window.setInterval(()=>{if(sessionRef.current)setDurationMs(sessionRef.current.getDurationMs());if(guestModeRef.current&&guestDeadlineRef.current>0)setGuestSecondsLeft(Math.max(0,Math.ceil((guestDeadlineRef.current-performance.now())/1000)))},500);return()=>clearInterval(id)},[]);
  const snapshot=useCallback((reason:string)=>{
+  recordGuestEnd();
   const s=sessionRef.current;if(savedRef.current||!turnsRef.current.length)return null;savedRef.current=true;
   const text=turnsRef.current.map(t=>[t.input?"你："+t.input:"",t.output?"AI："+t.output:""].filter(Boolean).join("\n")).filter(Boolean).join("\n\n");
   const item={id:Date.now(),title:configRef.current.title,preview:text.slice(0,180),turns:turnsRef.current.slice(),durationMs:s?.getDurationMs()||0,reason,ts:new Date().toISOString()};
@@ -102,6 +121,7 @@ export function useLiveSession(config:Config){
   try{
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
+   guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
@@ -206,8 +226,8 @@ export function useLiveSession(config:Config){
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
      if(v==="requesting-mic")setState("requesting-mic");
      else if(v==="connecting")setState("connecting");
-     else if(v==="ready"){setState("listening");setFriendPhase("idle")}
-     else if(v==="error")setState("error");
+     else if(v==="ready"){recordGuestConnect();setState("listening");setFriendPhase("idle")}
+     else if(v==="error"){recordGuestFailure();setState("error")}
     },
     onSpeaking:v=>{
      setState(v?"speaking":"listening");
@@ -313,8 +333,8 @@ export function useLiveSession(config:Config){
       // Use the synchronous Live transcript ref; React state can lag behind this callback.
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
-    onError:e=>{cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
-    onTerminal:info=>{clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
+    onError:e=>{recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
+    onTerminal:info=>{if(info?.state==="error")recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const item=snapshot(info?.status||"terminal");sessionRef.current=null;if(info?.state==="error"){setState("error");return}void finish(item)}
    });
    sessionRef.current=session;
    if(grant){
@@ -332,8 +352,8 @@ export function useLiveSession(config:Config){
       .catch(()=>{}).then(()=>finish(item));
     },ms);
    }
-   await session.start();if(sessionRef.current!==session||!session.running)return;session.setVolume(volume);setState("listening");
-  }catch(e){clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
+   await session.start();if(sessionRef.current!==session||!session.running)return;if(grant&&session.ready)recordGuestConnect();session.setVolume(volume);setState("listening");
+  }catch(e){recordGuestFailure();clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);sessionRef.current=null;const kind=classifyError(e instanceof Error?e.message:e);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);setErrorKind(kind);setState("error");setStatus(uiMessage(e instanceof Error?e.message:e))}
  },[finish,snapshot,volume]);
  const stop=useCallback(async(deferReport=false)=>{
   const s=sessionRef.current;if(!s)return null;
