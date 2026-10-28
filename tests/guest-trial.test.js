@@ -178,3 +178,29 @@ test("standalone Worker rejects unexpected origins and provides strict CORS pref
  const off=await worker.fetch(new Request(url,{headers:{"Origin":"https://www.3sssi.com"}}),env(fakeDb(),{GUEST_TRIAL_ENABLED:"0"}));
  assert.equal((await off.json()).enabled,false);
 });
+
+test("standalone Worker POST consumes one verified grant and blocks repeat without BYOK",async()=>{
+ const workerSource=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
+ const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
+ const substitute=workerSource.replace(/import \{onRequestGet,onRequestPost\} from "[^"]+";/,
+  'const {onRequestGet,onRequestPost}=await import("'+backendUrl+'");');
+ const worker=(await import("data:text/javascript;base64,"+Buffer.from(substitute).toString("base64"))).default;
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+ const bindings=env(fakeDb(),{GUEST_TURNSTILE_SECRET:undefined,TURNSTILE_SECRET_KEY:"server-turnstile-secret"});
+ const post=()=>new Request(url,{
+  method:"POST",headers:{"Origin":"https://www.3sssi.com","content-type":"application/json",
+   "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-Worker-Test"},
+  body:JSON.stringify({challengeToken:"turnstile-valid-test-token"})
+ });
+ const mocked=mockedServices();
+ try{
+  const first=await worker.fetch(post(),bindings);
+  assert.equal(first.status,200);
+  assert.equal(first.headers.get("access-control-allow-origin"),"https://www.3sssi.com");
+  assert.equal((await first.json()).token,"ephemeral-test-one-use-token");
+  const again=await worker.fetch(post(),bindings);
+  assert.equal(again.status,429);
+  assert.equal((await again.json()).code,"ALREADY_USED");
+  assert.equal(mocked.counts().minted,1);
+ }finally{mocked.restore()}
+});
