@@ -100,5 +100,19 @@
     "limit": "Đã hết lượt dùng thử hôm nay.",
     "verification": "Xác minh không thành công. Vui lòng thử lại.",
     "tempUnavailable": "Hiện không thể dùng thử."
+  },
+  "auth": {
+    "account": "Tài khoản",
+    "title": "Tài khoản Crew",
+    "intro": "Đăng nhập bằng Google hoặc GitHub.",
+    "choose": "Chọn cách đăng nhập",
+    "signedIn": "Đã đăng nhập",
+    "signOut": "Đăng xuất",
+    "loading": "Đang kiểm tra tài khoản…",
+    "unavailable": "Đăng nhập chưa khả dụng.",
+    "failed": "Đăng nhập thất bại. Hãy thử lại.",
+    "cancelled": "Đã hủy đăng nhập.",
+    "localData": "Khóa Gemini và dữ liệu trên thiết bị không tự động đồng bộ.",
+    "backSettings": "Quay lại cài đặt"
   }
 }

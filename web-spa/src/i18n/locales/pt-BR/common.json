@@ -100,5 +100,19 @@
     "limit": "As vagas de hoje se esgotaram.",
     "verification": "Falha na verificação. Tente de novo.",
     "tempUnavailable": "Teste temporariamente indisponível."
+  },
+  "auth": {
+    "account": "Conta",
+    "title": "Conta Crew",
+    "intro": "Entre com Google ou GitHub.",
+    "choose": "Escolha como entrar",
+    "signedIn": "Conectado",
+    "signOut": "Sair",
+    "loading": "Verificando conta…",
+    "unavailable": "O login ainda não está disponível.",
+    "failed": "Falha no login. Tente novamente.",
+    "cancelled": "Login cancelado.",
+    "localData": "Chaves Gemini e dados locais não são sincronizados automaticamente.",
+    "backSettings": "Voltar às configurações"
   }
 }

@@ -23,6 +23,7 @@ const StoryLayout=lazy(()=>import("./story/StoryLayout").then(m=>({default:m.Sto
 const FortuneLayout=lazy(()=>import("./fortune/FortuneLayout").then(m=>({default:m.FortuneLayout})));const FortuneHomePage=lazy(()=>import("./fortune/HomePage").then(m=>({default:m.FortuneHomePage})));const FortuneHistoryPage=lazy(()=>import("./fortune/HistoryPage").then(m=>({default:m.FortuneHistoryPage})));const FortuneReadingPage=lazy(()=>import("./fortune/ReadingPage").then(m=>({default:m.FortuneReadingPage})));const FortuneLivePage=lazy(()=>withNamespace("voice",import("./fortune/LivePage")).then(m=>({default:m.FortuneLivePage})));
 const VoiceLabPage=lazy(()=>import("./teacher/VoiceLabPage").then(m=>({default:m.VoiceLabPage})));
 const UsageDashboardPage=lazy(()=>import("./analytics/UsageDashboardPage").then(m=>({default:m.UsageDashboardPage})));
+const AccountPage=lazy(()=>import("./pages/AccountPage").then(m=>({default:m.AccountPage})));
 const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:m.TimelinePage})));const TimelineComparePage=lazy(()=>import("./timeline/TimelineComparePage").then(m=>({default:m.TimelineComparePage})));
 const TimelineLivePage=lazy(()=>withNamespace("voice",import("./timeline/TimelineLivePage")).then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>withNamespace("voice",import("./friends/FriendLivePage")).then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>withNamespace("voice",import("./games/FriendGomokuPage")).then(m=>({default:m.FriendGomokuPage})));
@@ -71,6 +72,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/orb" element={<AppChrome product="home"><CyberOrbPage/></AppChrome>}/>
 <Route path="/try" element={<Navigate to="/teacher/roles?mode=teacher" replace/>}/>
 <Route path="/settings" element={<AppChrome product="settings"><SettingsPage/></AppChrome>}/>
+<Route path="/account" element={<AppChrome product="settings"><AccountPage/></AppChrome>}/>
 <Route path="/privacy" element={<AppChrome product="settings"><PrivacyPage/></AppChrome>}/>
 <Route path="/guides/:slug" element={<AppChrome product="teacher"><GuidePage/></AppChrome>}/>
 <Route path="/usage" element={<AppChrome product="briefing"><UsageDashboardPage/></AppChrome>}/>

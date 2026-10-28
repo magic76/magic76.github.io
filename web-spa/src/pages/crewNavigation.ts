@@ -17,6 +17,6 @@ export function sectionForRoute(pathname:string,search=""):CrewSection{
  }
  if(root==="town"||root==="magic"||root==="discover")return "explore";
  if(["fortune","timeline","games","story","research","briefing","circle","books","mate"].includes(root))return "explore";
- if(["settings","privacy","usage"].includes(root))return "me";
+ if(["settings","account","privacy","usage"].includes(root))return "me";
  return "home";
 }

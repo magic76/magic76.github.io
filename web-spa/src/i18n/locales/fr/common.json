@@ -100,5 +100,19 @@
     "limit": "Les places du jour sont épuisées.",
     "verification": "Échec de la vérification. Réessayez.",
     "tempUnavailable": "Essai temporairement indisponible."
+  },
+  "auth": {
+    "account": "Compte",
+    "title": "Compte Crew",
+    "intro": "Connectez-vous avec Google ou GitHub.",
+    "choose": "Choisir une méthode de connexion",
+    "signedIn": "Connecté",
+    "signOut": "Se déconnecter",
+    "loading": "Vérification du compte…",
+    "unavailable": "Connexion indisponible pour le moment.",
+    "failed": "Échec de connexion. Réessayez.",
+    "cancelled": "Connexion annulée.",
+    "localData": "Vos clés Gemini et données locales ne sont pas synchronisées automatiquement.",
+    "backSettings": "Retour aux paramètres"
   }
 }

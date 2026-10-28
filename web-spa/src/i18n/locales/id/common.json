@@ -100,5 +100,19 @@
     "limit": "Kuota hari ini sudah habis.",
     "verification": "Verifikasi gagal. Coba lagi.",
     "tempUnavailable": "Uji coba tidak tersedia sementara."
+  },
+  "auth": {
+    "account": "Akun",
+    "title": "Akun Crew",
+    "intro": "Masuk dengan Google atau GitHub.",
+    "choose": "Pilih cara masuk",
+    "signedIn": "Sudah masuk",
+    "signOut": "Keluar",
+    "loading": "Memeriksa akun…",
+    "unavailable": "Login belum tersedia.",
+    "failed": "Gagal masuk. Coba lagi.",
+    "cancelled": "Login dibatalkan.",
+    "localData": "Kunci Gemini dan data lokal tidak tersinkron otomatis.",
+    "backSettings": "Kembali ke pengaturan"
   }
 }

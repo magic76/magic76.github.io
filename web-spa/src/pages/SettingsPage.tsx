@@ -56,6 +56,7 @@ export function SettingsPage(){
   return()=>window.cancelAnimationFrame(frame);
  },[hash]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
+  <section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
   <span className="crew-settings-orb-icon" aria-hidden="true">◉</span>
   <span className="crew-settings-orb-copy"><strong>{t("cyberOrb.title")}</strong><small>{t("cyberOrb.intro")}</small></span>

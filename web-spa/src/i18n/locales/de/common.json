@@ -100,5 +100,19 @@
     "limit": "Das heutige Kontingent ist aufgebraucht.",
     "verification": "Verifizierung fehlgeschlagen. Erneut versuchen.",
     "tempUnavailable": "Test vorübergehend nicht verfügbar."
+  },
+  "auth": {
+    "account": "Konto",
+    "title": "Crew-Konto",
+    "intro": "Melde dich mit Google oder GitHub an.",
+    "choose": "Anmeldemethode wählen",
+    "signedIn": "Angemeldet",
+    "signOut": "Abmelden",
+    "loading": "Konto wird geprüft…",
+    "unavailable": "Anmeldung ist noch nicht verfügbar.",
+    "failed": "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+    "cancelled": "Anmeldung abgebrochen.",
+    "localData": "Gemini-Schlüssel und lokale Daten werden nicht automatisch synchronisiert.",
+    "backSettings": "Zurück zu Einstellungen"
   }
 }

@@ -100,5 +100,19 @@
     "limit": "Today's guest capacity has been reached.",
     "verification": "Verification failed. Please try again.",
     "tempUnavailable": "Guest trial is temporarily unavailable."
+  },
+  "auth": {
+    "account": "Account",
+    "title": "Crew Account",
+    "intro": "Sign in with Google or GitHub to manage your Crew identity.",
+    "choose": "Choose how to sign in",
+    "signedIn": "Signed in",
+    "signOut": "Sign out",
+    "loading": "Checking your account…",
+    "unavailable": "Sign-in is not yet available.",
+    "failed": "Sign-in failed. Please try again.",
+    "cancelled": "Sign-in was cancelled.",
+    "localData": "Gemini keys, memories and learning data on this device do not automatically sync when you sign in.",
+    "backSettings": "Back to settings"
   }
 }
