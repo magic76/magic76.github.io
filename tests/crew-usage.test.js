@@ -155,7 +155,7 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  assert.match(starter,/guest_trial_token_issued/);
  assert.match(hook,/recordGuestConnect\(\)/);
  assert.match(hook,/recordGuestEnd\(\)/);
- assert.match(dash,/免費體驗（1 分鐘）/);
+ assert.match(dash,/免費體驗（3 分鐘）/);
  assert.match(dash,/eventRatio\(/);
  assert.match(dash,/id="guest-trial-stats"/);
  assert.match(teacher,/role="teacher"/);
