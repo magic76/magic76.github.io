@@ -1,5 +1,5 @@
-# Copy to workers/guest-trial/wrangler.toml and replace the D1 database_id.
-# Keep API keys and salt ONLY as Cloudflare Worker Secrets, never here.
+# Phase 1 PRIVATE QA only. Copy to wrangler.toml; fill secrets with
+# "wrangler secret put", NEVER here. No D1 database required in Phase 1.
 name = "crew-guest-trial"
 main = "./worker.mjs"
 compatibility_date = "2026-10-28"
@@ -7,10 +7,25 @@ workers_dev = true
 
 [vars]
 GUEST_TRIAL_ENABLED = "0"
-GUEST_DAILY_SESSION_LIMIT = "20"
+GUEST_QA_ENABLED = "0"
 GUEST_TURNSTILE_SITE_KEY = "0x4AAAAAAFpJ8ljaQjJq_Aqy"
+# For a Cloudflare-Access-protected Preview (exact host, not an open wildcard):
+# GUEST_ALLOW_PREVIEW = "1"
+# GUEST_PREVIEW_ORIGIN = "https://<actual-preview>.magic76-github-io.pages.dev"
+# GUEST_QA_UNTIL = "2026-10-28T08:00:00Z" # must be future, within 24h
 
-[[d1_databases]]
-binding = "GUEST_DB"
-database_name = "crew-guest-trials"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+# QA backend must fail closed without this limiter. Counter is per edge
+# location, approximate, NOT a global finance cap.
+[[ratelimits]]
+name = "GUEST_QA_RATE_LIMITER"
+namespace_id = "100347"
+  [ratelimits.simple]
+  limit = 2
+  period = 60
+
+# Phase 2 ONLY: create a D1 database and append:
+# [[d1_databases]]
+# binding = "GUEST_DB"
+# database_name = "crew-guest-trials"
+# database_id = "<YOUR_D1_ID>"
+# GUEST_DAILY_SESSION_LIMIT and GUEST_HASH_SALT are also Phase 2 only.
