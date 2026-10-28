@@ -1,177 +1,40 @@
-# Crew Web guest voice trial V2
+# Crew Web guest Live trial — one-minute Phase 1
 
-This replaces the **unmerged Firebase AI Logic** experiment in PR #125. It does **not** use Firebase, does **not** copy the owner's Gemini API key into browser bundles, and does **not** change existing BYOK Teacher / Friend sessions.
+## Public trial
 
-## Phase 1b — public 60-second trial in normal Teacher / Friend pages
+- Visitors without a BYOK Gemini API Key may use the original Teacher/Friend voice UI after completing Turnstile. No separate /try page, no private QA password. /try redirects to teacher selection.
+- Worker API: GET/POST /api/guest/token. Legacy /api/guest/qa is removed (404).
+- The short-lived Gemini Live token allows one use, a 30-second new-session window, and expires after 70 seconds. UI stops at 60 seconds after issuance. No reconnect, no guest chat memory/history or teacher reports.
+- Existing BYOK sessions stay unchanged. Client only receives a short-lived token, not the owner's key.
+- No D1 in Phase 1. Requests are protected by Turnstile hostname/action verification and a required Cloudflare Worker per-edge limit (one request/minute/edge); not a global cap, per-person cap, or hard dollar budget.
+- A free Gemini API key may still be limited by model availability/quota; monitor usage and disable public trial with GUEST_TRIAL_ENABLED=0 when needed.
 
-- A keyless visitor opens the **existing teacher or friend Live page**, sees Turnstile, grants microphone permission, and talks using the same role UI for 60 seconds.
-- The /try route redirects to teacher selection for public visitors; /try?qa=1 remains available only for private operator QA when public mode is OFF.
-- One-use Gemini token expires after 70 seconds, accepts new session for 30 seconds, no reconnect. Client auto-stops at 60 seconds; existing BYOK connections are unchanged.
-- No D1 in this release. Worker requires the existing GUEST_QA_RATE_LIMITER binding and applies a public per-edge rate limit of one token per 60s per Cloudflare location. This is NOT a unique-user quota, a globally atomic session cap, or a USD hard spending limit. Monitor usage; emergency stop: GUEST_TRIAL_ENABLED=0.
-- Guest conversations do not save memory, history, transcripts or reports. Phase 2 is deferred until after live product validation.
-- Default Worker deployment config sets GUEST_TRIAL_ENABLED=1 for this Phase 1b. The frontend only offers guest trial if the Worker reports enabled, no second Pages build flag needed. QA requires disabling public mode.
+## Worker settings
 
-## Architecture
+| Name | Type | Use |
+| --- | --- | --- |
+| GEMINI_GUEST_API_KEY | Secret | required |
+| TURNSTILE_SECRET_KEY | Secret | required |
+| GUEST_TURNSTILE_SITE_KEY | Public variable | required |
+| GUEST_TRIAL_RATE_LIMITER | Rate-limiting binding | required; 1/60s per edge |
+| GUEST_TRIAL_ENABLED | Text variable | 1=open, 0=off |
 
-- `/try`: isolated Teacher / Zoe 3-minute Live demo using the existing `crew-live.js` capture/playback engine.
-- `GET https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token`: returns enabled/disabled status and the public Turnstile site key (never a Gemini secret).
-- `POST https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token`: verifies Cloudflare Turnstile server-side, checks a salted fingerprint claim in D1, atomically reserves a daily session slot, and provisions a one-use Gemini Live ephemeral token.
-- Browser connects directly to Gemini Live via **v1beta BidiGenerateContentConstrained?access_token=...**. Existing BYOK remains on its unchanged v1alpha `?key=` connection.
-- Token limited to the `gemini-3.8-live` model and AUDIO, 45 seconds to begin a new session, 200 seconds total expiry. UI stops at 180 seconds, measured from token issuance. Guest transport never automatically retries a spent one-use token.
-- Trial claims expire in 30 days. Fingerprint is salted hash of the Cloudflare-provided IP and browser User-Agent; no raw IP, User-Agent, voice, transcript or long-term guest identifier is persisted. It is **not** proof of unique users. Changing browser/network may bypass the per-user limit.
-- Daily cap is **a count of reserved sessions**, not a precise USD billing cap. An issued token could be used outside the app until expiry. Provision a dedicated key/project, set a conservative cap, monitor Gemini billing, and keep the emergency switch available.
+The old GUEST_QA_ENABLED, GUEST_QA_ALLOW_PRODUCTION, GUEST_QA_UNTIL, GUEST_QA_ACCESS_TOKEN and GUEST_QA_RATE_LIMITER are unused after deployment. Remove old QA secrets and variables if desired; never delete the Gemini or Turnstile secrets.
 
-## Phase 1 — private voice QA WITHOUT D1
+Cloudflare Workers Builds deploys `workers/guest-trial/wrangler.example.toml` from its configured root folder. Confirm required binding/secret values exist and verify the deployed API after build.
 
-This phase tests Gemini Live either on an isolated protected preview, or via a separate explicit, secret-gated QA exception on the production website. It is NOT a public trial
-and deliberately does NOT create persistent quotas or promise a daily USD cost ceiling.
-The public `/try` route and homepage CTAs remain disabled whenever the production
-backend says `enabled:false`.
+## Phase 2 deferred
 
-### Worker deployment
-
-1. Create or choose an **Access-protected Cloudflare Pages preview** for PR #432.
-   Cloudflare Access must reject an anonymous incognito browser before you use the
-   QA feature. Identify its exact `https://<alias>.magic76-github-io.pages.dev`
-   origin and add that **preview hostname** to the Turnstile widget's allowed
-   hostnames. Avoid public preview URLs for paid API tests.
-2. Copy `workers/guest-trial/wrangler.example.toml` to
-   `workers/guest-trial/wrangler.toml`. This template deliberately has **NO D1
-   binding**. From repo root deploy via
-   `npx wrangler deploy --config workers/guest-trial/wrangler.toml`.
-   This replaces the Hello World content in your existing
-   `crew-guest-trial.shanliyoung.workers.dev` Worker. Review Wrangler's
-   configured account and binding diff BEFORE deployment.
-3. In the Worker's Variables and Secrets, keep:
-   - `GEMINI_GUEST_API_KEY` (Secret): use an isolated Gemini key.
-   - `TURNSTILE_SECRET_KEY` (Secret): the existing Turnstile secret.
-   - `GUEST_QA_ACCESS_TOKEN` (NEW Secret): **random 32+ character** private QA
-     authorization token. Generate offline, e.g. `openssl rand -hex 32`.
-     Do not commit, paste into chats, put in browser localStorage, or publish.
-   - `GUEST_TRIAL_ENABLED=0` (plain Variable): always OFF in Phase 1.
-   - `GUEST_QA_ENABLED=0` initially; set to `1` only during the supervised
-     test window.
-   - `GUEST_ALLOW_PREVIEW=1`, `GUEST_PREVIEW_ORIGIN=<exact protected preview
-     origin>` (plain Variables). QA is rejected for `www.3sssi.com` even
-     when the preview is allowed.
-   - `GUEST_QA_UNTIL`: a **UTC ISO8601 timestamp** less than 4 hours in the
-     future. The Worker fails closed once this expires. Set it for each
-     supervised testing session and turn `GUEST_QA_ENABLED` back to `0`
-     afterward.
-   - `GUEST_TURNSTILE_SITE_KEY=0x4AAAAAAFpJ8ljaQjJq_Aqy` (public variable).
-   - `GUEST_QA_RATE_LIMITER` (Worker rate-limiting binding defined in the
-     Wrangler template, configured at 1 request/60 seconds). The Worker
-     refuses minting if the binding is missing or errors.
-4. Confirm `GET /api/guest/token` from the public production origin returns
-   `{"enabled":false}`. Confirm `GET /api/guest/qa` from production returns
-   HTTP 403. A protected preview with the QA header may access the QA endpoint.
-5. Open `https://<protected-preview>/try?qa=1`; enter
-   `GUEST_QA_ACCESS_TOKEN` in the temporary password field, verify Turnstile,
-   grant microphone permission and test Teacher / Zoe Live. The secret only
-   lives in React component memory. Only one-time Gemini ephemeral tokens are
-   sent to the browser. No long-term voice/transcript data is stored.
-6. Verify 3-minute automatic disconnect, microphone cleanup, wrong-token
-   rejection, disallowed Origin rejection, expiry, rate limiting, and normal
-   BYOK. Immediately set `GUEST_QA_ENABLED=0` after testing.
-
-**Important caveat:** Cloudflare Worker rate limiting is **approximate and
-per-edge-location**; it cannot substitute for durable quota accounting or a
-hard cost limit. A stolen QA access token can still be abused while QA is
-enabled. Minimize the QA window, use a dedicated Gemini project with tight
-provider quotas / budget alerts, keep the public trial disabled, and monitor
-Gemini usage. Refer to the official Worker rate-limiting documentation.
-
-### QA endpoints
-
-- `GET /api/guest/qa`: private preview origin + `x-crew-qa-token` header
-  required; returns `enabled`, public Turnstile site key and duration.
-- `POST /api/guest/qa`: same authorization, valid Turnstile (expected
-  preview hostname), rate limiting, then mint a single-use 200s token.
-- `GET /api/guest/token` stays disabled because `GUEST_TRIAL_ENABLED=0`.
-  BYOK flows are unchanged.
-
-### Optional: private QA on production website (no Preview)
-
-For a short supervised test on **https://www.3sssi.com/try?qa=1**, deploy the
-standalone Worker first; simply merging a web PR is **not** enough.
-The QA endpoint normally rejects the production Origin with 403. The new
-**OFF-by-default** text variable `GUEST_QA_ALLOW_PRODUCTION=1` permits only
-the private `/api/guest/qa` endpoint from that origin, while the public
-`/api/guest/token` endpoint stays disabled (`GUEST_TRIAL_ENABLED=0`).
-
-Configure the Worker with:
-- **Secret** `GUEST_QA_ACCESS_TOKEN`: generate a NEW high-entropy 32+ character
-  random value offline; never reuse a value already pasted into a chat.
-- **Secrets** `GEMINI_GUEST_API_KEY` and `TURNSTILE_SECRET_KEY`.
-- **Text** `GUEST_QA_ENABLED=1`, `GUEST_QA_ALLOW_PRODUCTION=1`,
-  `GUEST_TRIAL_ENABLED=0`, and `GUEST_QA_UNTIL=<ISO8601 expiry>` (UTC `Z`
-  or explicit timezone offset; less than four hours in the future, ideally 1–2).
-- **Required Worker rate limit binding** `GUEST_QA_RATE_LIMITER` from
-  `wrangler.example.toml`, limited to **1 token request/minute per colo**.
-- **No D1**, **no `GUEST_ALLOW_PREVIEW`**, **no `GUEST_PREVIEW_ORIGIN`**
-  required for this production-only QA route.
-- Verify the Turnstile widget allows hostname `www.3sssi.com`.
-
-QA uses the same secret, Turnstile **`crew-guest-qa` action**, expiring window
-and Worker limiter as Preview QA. The published `/try?qa=1` page will be
-discoverable to anyone who knows the URL, but **cannot issue credentials
-without a valid secret**; the public site traffic level is not a control.
-Origin is not authentication (non-browser clients can spoof it). Use a
-dedicated Gemini key/project with budget alerts and provider quotas; the
-Worker limiter is per-Cloudflare-location and is NOT a dollar cap.
-
-After the brief test:
-1. Set `GUEST_QA_ENABLED=0` and `GUEST_QA_ALLOW_PRODUCTION=0` immediately.
-2. Rotate or delete the QA token Secret.
-3. Keep `GUEST_TRIAL_ENABLED=0` until Phase 2 public rollout.
-
-**Operator acceptance:** The GET `/api/guest/token` request with
-`Origin: https://www.3sssi.com` must report `enabled:false`, while
-`GET /api/guest/qa` returns HTTP 403 without the authorization header
-and only returns `enabled:true` with the correct header and active deadline.
-After allowing QA, verify real microphone behavior, teacher/Zoe voice,
-3-minute stop and Gemini v1beta token enforcement. No real Gemini call is
-performed by these repository tests.
-
-## Phase 2 — D1 and public rollout (NOT enabled)
-
-1. Create a standalone D1 database named `crew-guest-trials`, apply
-   `migrations/guest-trial.sql` and bind it to the **Worker** as `GUEST_DB`.
-2. Add secret `GUEST_HASH_SALT` (stable 32+ random characters) and variable
-   `GUEST_DAILY_SESSION_LIMIT` (start with `20`). Update the Wrangler
-   config with the commented-out `[[d1_databases]]` section after the
-   actual D1 ID is known.
-3. Audit and test the original `functions/api/guest/token.js` per-visitor claim,
-   daily quota, CAPTCHA, emergency disable and failed-token refunds.
-4. Verify voice quality, UI, usage billing and browser/device behavior.
-   Only then separately consider `GUEST_TRIAL_ENABLED=1` for production and
-   hiding the QA route.
-
-**Cost warning:** Neither Phase 1 rate limits nor Phase 2 session counts
-guarantee a hard US$3 billing ceiling. Ephemeral tokens may continue briefly
-after the feature is disabled.
-
-## Failure handling and cost controls
-
-- **Fail closed** if any credential, Turnstile provider, D1 binding, origin verification or quota counter is unavailable.
-- `GUEST_TRIAL_ENABLED=0` is the emergency switch. GET returns `enabled:false`; existing BYOK operates normally.
-- Claim uses a D1 unique fingerprint. Quota uses an atomic conditional UPDATE. If provisioning fails, the claim and daily reservation are refunded best-effort; database cleanup errors fail conservatively.
-- Rate limiting is intentionally strict: one claim per fingerprint per 30 days, plus a daily global cap. Shared networks may be limited. Turnstile verification includes the expected hostname.
-- The token has 200s maximum validity; this controls exposure, but the app's 180-second timer is still a client-side UX control. There is no absolute, externally enforced **dollar** cost ceiling; billing may include more than audio.
-- Any Cloudflare preview credentials / Turnstile test keys should be independent of production. **Do not** paste secrets into PR comments, screenshots, `VITE_` vars or web localStorage.
+- D1 guest quota database, per-fingerprint/day limits, production billing observation. D1 is not required for Phase 1.
+- Global abuse/cost ceilings are not guaranteed by the current limiter.
+- Phase 2 will validate duplicate claims and billing controls after reviewing usage.
 
 ## Verification
 
 ```sh
 node --test tests/guest-trial.test.js
-node --test tests/crew-live.lifecycle.test.js
 npm run check:web
+npm run check:i18n
 npm run build:web
-npm test
+npm run check:bundle
 ```
-
-A connected, real-Gemini trial cannot be verified without the owner's separate API key, D1 binding and Turnstile widget. Leave production disabled until smoke tests complete.
-
-## Token format and protocol verification
-
-AuthToken wire-format is `bidiGenerateContentSetup` with nonempty `fieldMask: "model,generationConfig.responseModalities,tools"`, not `liveConnectConstraints`. The server locks the model and AUDIO modality and clears tool access, but leaves client-provided teacher/Zoe instructions, voices and transcription settings available. These restrictions are asserted in unit tests. Google must still be tested in a real restricted-key QA session (including rejection of other models and tools). The REST mint and ephemeral WebSocket endpoint intentionally use **v1beta** based on the [Gemini ephemeral token guide](https://ai.google.dev/gemini-api/docs/live-api/ephemeral-tokens); BYOK's existing **v1alpha** endpoint is unchanged. Google's SDK/reference discrepancies mean real Live acceptance cannot be claimed from mocks. The QA session lifetime is now recommended 2–4 hours maximum, and minted/failed events are logged without credentials or visitor identifiers.

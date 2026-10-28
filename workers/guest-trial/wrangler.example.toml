@@ -1,5 +1,4 @@
 # Phase 1 public 60-second trial, Turnstile + per-colo limit; no D1.
-# Private QA requires the public switch OFF. Copy to wrangler.toml; fill secrets with
 # "wrangler secret put", NEVER here. No D1 database required in Phase 1.
 name = "crew-guest-trial"
 main = "./worker.mjs"
@@ -9,20 +8,11 @@ keep_vars = true
 
 [vars]
 GUEST_TRIAL_ENABLED = "1"
-# Keep QA disabled in production; QA requires public trial disabled first.
-# OPTIONAL: For secret-gated QA directly on www.3sssi.com, set
-# GUEST_QA_ALLOW_PRODUCTION="1" in the Worker dashboard for that window ONLY.
-# Avoid committing QA enable flags to this file.
 GUEST_TURNSTILE_SITE_KEY = "0x4AAAAAAFpJ8ljaQjJq_Aqy"
-# For a Cloudflare-Access-protected Preview (exact host, not an open wildcard):
-# GUEST_ALLOW_PREVIEW = "1"
-# GUEST_PREVIEW_ORIGIN = "https://<actual-preview>.magic76-github-io.pages.dev"
-# GUEST_QA_UNTIL = "<UTC ISO8601 timestamp within 2–4 hours>" # must include timezone
 
-# QA backend must fail closed without this limiter. Counter is per edge
 # location, approximate, NOT a global finance cap.
 [[ratelimits]]
-name = "GUEST_QA_RATE_LIMITER"
+name = "GUEST_TRIAL_RATE_LIMITER"
 namespace_id = "100347"
   [ratelimits.simple]
   limit = 1

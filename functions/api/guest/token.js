@@ -19,7 +19,7 @@ function configured(env){
  if(env.GUEST_TRIAL_ENABLED!=="1"||!env.GEMINI_GUEST_API_KEY
     ||!env.GUEST_TURNSTILE_SITE_KEY||!env.GUEST_TURNSTILE_SECRET)return false;
  // Phase 1: require per-edge rate limiting even without a database.
- if(!env.GUEST_DB)return typeof env.GUEST_QA_RATE_LIMITER?.limit==="function";
+ if(!env.GUEST_DB)return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function";
  // Phase 2: D1 atomic daily limit and salted device/network claim.
  return !!env.GUEST_HASH_SALT&&Number.isInteger(Number(env.GUEST_DAILY_SESSION_LIMIT))
   &&Number(env.GUEST_DAILY_SESSION_LIMIT)>0
@@ -100,7 +100,7 @@ export async function onRequestPost({request,env}){
  // the Cloudflare per-colo limiter is missing; never claim USD hard caps.
  if(!env.GUEST_DB){
   try{
-   const limit=await env.GUEST_QA_RATE_LIMITER.limit({key:"crew-public-guest"});
+   const limit=await env.GUEST_TRIAL_RATE_LIMITER.limit({key:"crew-public-guest"});
    if(limit?.success!==true)return json({error:"Guest trial busy",code:"DAILY_LIMIT"},429);
   }catch{return json({error:"Guest limiter unavailable"},503)}
   try{
