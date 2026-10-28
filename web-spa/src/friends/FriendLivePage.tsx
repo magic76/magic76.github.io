@@ -1,4 +1,5 @@
 import {GroundingSources} from "../live/GroundingSources";
+import {LiveSearchAction} from "../live/LiveSearchAction";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
 import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
@@ -65,7 +66,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,friendChatMode),[language,nativeLanguage,friendChatMode]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-  system:system+(!shortsPost?"\n[CURRENT FACTS] Google Search is available only for requests about current or specific verifiable facts. Verify sources and dates while remaining a natural friend, not a teacher. Keep the selected conversation language.":""),webSearch:!shortsPost,languageDirective,
+  system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":""),languageDirective,
   openingPrompt:languageDirective+"\n"+(shortsPost
    ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
@@ -164,7 +165,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button><button type="button" onClick={()=>live.sendText(languageDirective+"\nPlease use Google Search to find one interesting, recent verifiable story. Mention its date and source, and chat casually about it with me without restarting or teaching.")}>{english?"What’s new lately?":"聊聊最近發生的事"}</button>
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button><LiveSearchAction live={live} english={english} label={english?"What's new lately?":"聊聊最近發生的事"}
+    query="Find one recent, lighthearted, verifiable news or culture story with a publication date and credible source."
+    instruction={"As "+friend.name+", discuss this verified story naturally, in our selected language. No tutoring, no generic greeting, no role change. "+languageDirective}/>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
