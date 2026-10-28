@@ -1,0 +1,16 @@
+# Copy to workers/guest-trial/wrangler.toml and replace the D1 database_id.
+# Keep API keys and salt ONLY as Cloudflare Worker Secrets, never here.
+name = "crew-guest-trial"
+main = "./worker.mjs"
+compatibility_date = "2026-10-28"
+workers_dev = true
+
+[vars]
+GUEST_TRIAL_ENABLED = "0"
+GUEST_DAILY_SESSION_LIMIT = "20"
+GUEST_TURNSTILE_SITE_KEY = "0x4AAAAAAFpJ8ljaQjJq_Aqy"
+
+[[d1_databases]]
+binding = "GUEST_DB"
+database_name = "crew-guest-trials"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
