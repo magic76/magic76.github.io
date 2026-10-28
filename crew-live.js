@@ -96,8 +96,10 @@
 
   function LiveSession(options){
     this.options=options||{};
+    // Ephemeral guest credentials are never read from persistent BYOK storage.
+    this.guestMode=Boolean(this.options.guestAccessToken);
     this.models=(this.options.models||DEFAULT_MODELS).slice();
-    this.maxLiveAttempts=Math.max(1,Math.min(
+    this.maxLiveAttempts=this.guestMode?1:Math.max(1,Math.min(
       Number(this.options.maxLiveAttempts)||this.models.length,
       this.models.length
     ));
@@ -129,6 +131,7 @@
         return new global.AudioWorkletNode(ctx,name,options);
       },
       getKey:deps.getKey||function(){
+        if(options&&options.guestAccessToken)return String(options.guestAccessToken);
         return global.CrewAI&&global.CrewAI.key?global.CrewAI.key():"";
       },
       logger:deps.logger||global.console
@@ -203,7 +206,7 @@
     this.resumptionHandle="";
     this.openingSent=false;
     this.resumeAttempts=0;
-    this.maxResumeAttempts=Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
+    this.maxResumeAttempts=this.guestMode?0:Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
     this.visionSeq=0;
   }
@@ -1031,7 +1034,9 @@
 
     return new Promise(function(resolve,reject){
       var finished=false;
-      var url="wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
+      var url=self.guestMode
+        ?"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token="+encodeURIComponent(self._deps.getKey())
+        :"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
       var socket=new WSCtor(url);
       try{socket.binaryType="arraybuffer";}catch(_){}
       attempt.socket=socket;

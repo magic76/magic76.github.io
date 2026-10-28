@@ -3,6 +3,7 @@ import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
+import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getOnboardingCopy} from "./copy";
@@ -48,15 +49,24 @@ function Tile({children,selected,onClick}:{children:ReactNode;selected:boolean;o
 
 /** Shared first-run experience for browser and official Android WebView shell. */
 export function OnboardingGate({pathname}:{pathname:string}){
- const {i18n}=useTranslation();
+ const {i18n,t}=useTranslation();
  const c=getOnboardingCopy(i18n.resolvedLanguage||i18n.language);
  const navigate=useNavigate();
  const dialog=useRef<HTMLDialogElement>(null);
  const [open,setOpen]=useState(false);
+ const [guestAvailable,setGuestAvailable]=useState(false);
  const [step,setStep]=useState(0);
  const [goal,setGoal]=useState<Goal>("chat");
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
+ useEffect(()=>{
+  if(pathname!=="/")return;
+  if(!guestTrialDiscoveryEnabled())return;
+  let live=true;
+  void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
+  return()=>{live=false};
+ },[pathname]);
+
 
  const openGuide=useCallback((replay:boolean)=>{
   if(replay){try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* optional */}}
@@ -140,6 +150,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><div className="crew-onboarding-preview-item" key={item.id}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong></div>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
+     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/try")}}>{t("guestTrial.onboardingCTA")} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>
