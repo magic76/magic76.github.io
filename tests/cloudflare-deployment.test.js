@@ -182,19 +182,32 @@ check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata an
   assert.ok(graph.some(item=>item["@type"]==="SoftwareApplication"&&item.applicationCategory==="GameApplication"),"game schema "+path);
  }
 });
-check("deep interactive routes use noindex SPA shell, not indexable homepage canonical",()=>{
+check("deep interactive routes keep their URLs and noindex SPA shell, including query strings",()=>{
  const shell=read("_app-noindex.html");
  const redirects=read("_redirects");
  assert.ok(shell.includes('name="robots" content="noindex,follow"'));
  assert.ok(!shell.includes('rel="canonical"'));
- for(const route of ["/magic","/settings","/teacher/live","/games/nonsense","/story/read/*","/en/teacher/roles"]){
-  assert.ok(redirects.includes(route+" /_app-noindex.html 200"),"missing noindex routing "+route);
+ assert.ok(shell.includes('src="/assets/')&&shell.includes('id="root"'),"private shell must boot the React app");
+
+ // Physical files are served by Pages at their clean, extensionless paths.
+ // /teacher/roles?mode=friends must never become /_app-noindex?mode=friends.
+ for(const route of ["/chat","/learn","/magic","/settings","/teacher/live","/teacher/roles","/games/nonsense"]){
+  for(const prefix of ["","/en"]){
+   const publicPath=prefix+route;
+   const file=publicPath.slice(1)+".html";
+   assert.equal(read(file),shell,"missing private SPA shell at "+publicPath);
+   assert.ok(!redirects.split("\n").some(line=>line.startsWith(publicPath+" ")),"private route unexpectedly redirected: "+publicPath);
+  }
  }
+ for(const route of ["/story/read/*","/en/story/read/*","/briefing/*"]){
+  assert.ok(redirects.includes(route+" /_app-noindex 200"),"missing clean-path dynamic route proxy "+route);
+ }
+ assert.doesNotMatch(redirects,/\.html 200(?:\n|$)/,"HTML rewrite targets trigger Cloudflare's clean URL redirect");
  for(const route of ["/games/friend-gomoku","/games/connect4","/games/1a2b","/research/*"]){
-  assert.ok(!redirects.includes(route+" /_app-noindex.html 200"),"indexable page rewritten "+route);
+  assert.ok(!redirects.split("\n").some(line=>line.startsWith(route+" ")),"indexable page incorrectly rewritten "+route);
  }
 });
-
+ 
 check("existing runtime scripts, shared services and daily research feed are available from the domain root",()=>{
  for(const file of ["crew.js","crew-live.js","crew-live-ui.js","features/shared/db.js",
   "features/story/shelf/store.js","features/fortune/shared/profile.js","briefings/index.json",
@@ -366,7 +379,7 @@ check("preview language routes serve noindex HTML and are excluded from the site
   assert.ok(preview.includes('name="crew-i18n-stage" content="'+stage+'"'));
   assert.ok(!preview.includes('rel="canonical"'));
   assert.ok(!sitemap.includes("https://www.3sssi.com/"+code+"/"));
-  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/index.html 200"));
+  assert.ok(rewrites.includes("/"+code+"/* /"+code+"/ 200"),"preview locale must use its canonical directory URL");;
  }
  assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
 });
