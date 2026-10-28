@@ -1,3 +1,4 @@
+import {GroundingSources} from "../live/GroundingSources";
 import {buildAccentPrompt} from "../teacher/teacherAccent";
 import {trackUsageEvent,sessionDurationDetail} from "../analytics/usage";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
@@ -64,7 +65,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const languageDirective=useMemo(()=>friendLanguageReminder(language,nativeLanguage,friendChatMode),[language,nativeLanguage,friendChatMode]);
  const live=useLiveSession({
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
-  system,languageDirective,
+  system:system+(!shortsPost?"\n[CURRENT FACTS] Google Search is available only for requests about current or specific verifiable facts. Verify sources and dates while remaining a natural friend, not a teacher. Keep the selected conversation language.":""),webSearch:!shortsPost,languageDirective,
   openingPrompt:languageDirective+"\n"+(shortsPost
    ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
@@ -155,7 +156,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?<TextChatPanel system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
+    {textMode?<TextChatPanel searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
     <LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">
@@ -163,11 +164,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       {live.voicePhase==="no-reply"?<button type="button" className="live-btn" onClick={()=>void live.stop().then(()=>live.start())}>{t("controls.reconnect")}</button>:null}
      </div>:null}
     <div className="live-presets">
-     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button>
+     {active?<><button type="button" onClick={()=>live.sendText(languageDirective+"\nChange to a natural everyday topic and ask one brief question. Do not greet again.")}>{t("friendLive.changeTopic")}</button><button type="button" onClick={()=>live.sendText(languageDirective+"\nPlease use Google Search to find one interesting, recent verifiable story. Mention its date and source, and chat casually about it with me without restarting or teaching.")}>{english?"What’s new lately?":"聊聊最近發生的事"}</button>
       <button type="button" onClick={()=>live.sendText(languageDirective+"\nSpeak a little more slowly, then continue the same topic.")}>{t("friendLive.slower")}</button>
 </>:<Link className="live-mode-shortcut" to="/teacher/friends">{t("friendLive.otherFriends")}</Link>}
     </div>
-    <div className="live-transcript" aria-live="polite">
+    <GroundingSources sources={live.searchSources} searchSuggestions={live.searchSuggestions} english={english}/><div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{t("friendLive.youSaid")}</small><span>{live.input}</span></div>
      <div className={"live-line "+(live.output?"show":"")}><small>{friend.name}</small><span>{live.output}</span></div>
     </div>

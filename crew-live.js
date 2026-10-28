@@ -990,7 +990,11 @@
     }
 
     var server=message.serverContent||message.server_content;
-    if(server)this._handleServer(server,attempt);
+    if(server){
+      var grounding=server.groundingMetadata||server.grounding_metadata||(server.modelTurn&&server.modelTurn.groundingMetadata);
+      if(grounding&&this.options.onGrounding)this.options.onGrounding(grounding);
+      this._handleServer(server,attempt);
+    }
   };
 
   LiveSession.prototype._connectCandidate=function(model,index,connectOptions){
@@ -1300,8 +1304,12 @@
             // Retry the SAME selected model once without tools, never switch models.
             var message=String(setupError&&setupError.message||setupError);
             if(!self.options.tools||!/invalid.argument|unsupported|tool|function|\\b400\\b/i.test(message))throw setupError;
-            self.options.tools=null;
-            if(self.options.onToolsUnavailable)self.options.onToolsUnavailable();
+            var hadSearch=self.options.tools.some(function(t){return t.googleSearch||t.google_search;});
+            var onlyCustom=self.options.tools.filter(function(t){return !(t.googleSearch||t.google_search);});
+            // Search failure must not disable whiteboard, game or other custom functions.
+            self.options.tools=hadSearch&&onlyCustom.length?onlyCustom:null;
+            if(hadSearch&&self.options.onSearchUnavailable)self.options.onSearchUnavailable();
+            if(!self.options.tools&&self.options.onToolsUnavailable)self.options.onToolsUnavailable();
             attempt=await self._connectCandidate(self.models[i],i,{countAttempt:false});
           }
           self._activateAttempt(attempt);

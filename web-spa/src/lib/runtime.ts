@@ -3,7 +3,9 @@ export type LiveSessionOptions={
  system:string;openingPrompt:string;voice:string;volume:number;models?:string[];manualInterruptOnly?:boolean;
  maxLiveAttempts?:number;maxResumeAttempts?:number;connectTimeoutMs?:number;replyTimeoutMs?:number;
  turnTiming?:{silenceDurationMs:number;endOfSpeechSensitivity:"END_SENSITIVITY_LOW"|"END_SENSITIVITY_HIGH"};
- tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}>;
+ tools?:Array<{functionDeclarations:Array<Record<string,unknown>>}|{googleSearch:Record<string,never>}>;
+  onGrounding?:(metadata:unknown)=>void;
+  onSearchUnavailable?:()=>void;
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;

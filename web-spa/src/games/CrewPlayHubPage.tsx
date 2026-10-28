@@ -16,7 +16,7 @@ export const crewGames=[
 type HubFilter="all"|"no-key"|"ai";
 const recentGameKey="crew_play_recent_game_v1";
 const noKeyGames=new Set<string>(["friend-gomoku","connect4","reversi","1a2b","taboo"]);
-const extraGames=["nonsense","werewolf","crazy-court"];
+const extraGames=["nonsense","werewolf","crazy-court","truth-news"];
 const knownGames=new Set<string>([...crewGames.map(game=>game.id),...extraGames]);
 
 export function CrewPlayHubPage(){
@@ -44,7 +44,8 @@ export function CrewPlayHubPage(){
  const extraLabels={
   nonsense:zh?["荒謬新聞直播","荒謬新聞題材、AI 主播與動態新聞現場。"]:["Absurd News Live","Improvised AI news scenes."],
   werewolf:zh?["AI 狼人殺","夜晚行動、質疑、推理與投票。"]:["AI Werewolf","Debate, bluff and vote."],
-  "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."]
+  "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."],
+  "truth-news":zh?["新聞真假猜猜看","從最新新聞中猜出哪則是真的。"]:["Real or Fiction News","Find the one real news headline."]
  } as Record<string,string[]>;
  const titles:Record<string,string>={};
  for(const game of crewGames)titles[game.id]=t("playHub.games."+game.id+".title");
@@ -95,6 +96,9 @@ export function CrewPlayHubPage(){
     <div className="crew-play-game-art werewolf-hub-art" aria-hidden="true"><span>☾</span></div>
     <div className="crew-play-game-info"><strong>{zh?"AI 狼人殺":"AI Werewolf"}</strong><small>{zh?"1 真人 + 5 AI。夜晚行動、自由質疑、角色推理與投票。":"One human plus five AI suspects. Investigate, debate, bluff and vote."}</small><span className="crew-play-game-voice-tag">{zh?"免 Key 情境台詞 · Key 啟用真正 AI / Live":"Free text demo · Optional Gemini Live voice"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
+   <Link className="crew-play-game-card" to="/games/truth-news" hidden={!visible("truth-news",extraLabels["truth-news"][0],extraLabels["truth-news"][1])} onClick={()=>remember("truth-news")}>
+    <div className="crew-play-game-art" aria-hidden="true"><span>?</span></div><div className="crew-play-game-info"><strong>{extraLabels["truth-news"][0]}</strong><small>{extraLabels["truth-news"][1]}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 可查看新聞來源":"Gemini Key · verified sources"}</span></div><span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
    <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court" hidden={!visible("crazy-court",extraLabels["crazy-court"][0],extraLabels["crazy-court"][1])} onClick={()=>remember("crazy-court")}>
     <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
