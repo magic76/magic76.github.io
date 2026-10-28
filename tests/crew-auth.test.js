@@ -243,3 +243,69 @@ test("OAuth token provider error codes remain bounded and never reveal secrets",
   assert.ok(!back.href.includes("PRIVATE"));
  }finally{global.fetch=original}
 });
+
+test("Cloudflare Workers manual redirect mode enables Google and GitHub callback",async()=>{
+ const {start,callbackHandler,sessionInfo}=await lib();
+ const db=new FakeDB(),env={...config(),CREW_AUTH_DB:db},original=global.fetch;
+ let tokenCalls=0,profileCalls=0;
+ global.fetch=async (url,init)=>{
+  // Cloudflare workerd rejects redirect:'error' before it can send a request.
+  if(init?.redirect!=="manual")throw TypeError('Invalid redirect value, must be "follow" or "manual"');
+  if(String(url).includes("oauth2.googleapis.com/token")||
+     String(url).includes("github.com/login/oauth/access_token")){
+   tokenCalls++;
+   return Response.json({access_token:"never-store-this-private-token"});
+  }
+  if(String(url).includes("openidconnect.googleapis.com/v1/userinfo")){
+   profileCalls++;
+   return Response.json({sub:"test-google-id",name:"Cloudflare Google"});
+  }
+  if(String(url).includes("api.github.com/user")){
+   profileCalls++;
+   return Response.json({id:1234,name:"Cloudflare GitHub"});
+  }
+  throw Error("Unexpected URL");
+ };
+ try{
+  for(const provider of ["google","github"]){
+   const begin=await start({request:req("/api/auth/"+provider+"/start"),env},provider);
+   const authorize=new URL(begin.headers.get("Location"));
+   const callback=req("/api/auth/"+provider+"/callback?state="+authorize.searchParams.get("state")+"&code=valid",{
+    Cookie:begin.headers.get("Set-Cookie").split(";")[0]});
+   const response=await callbackHandler({request:callback,env},provider);
+   assert.equal(response.status,302);
+   assert.equal(response.headers.get("Location"),ORIGIN+"/account");
+   const cookie=response.headers.getSetCookie().find(c=>c.startsWith("__Host-crew_session="));
+   assert.ok(cookie,"Expected valid secure session after successful Cloudflare token exchange");
+   const session=await sessionInfo({request:req("/api/auth/session",{Cookie:cookie.split(";")[0]}),env});
+   assert.equal((await session.json()).user.provider,provider);
+  }
+  assert.equal(tokenCalls,2);
+  assert.equal(profileCalls,2);
+ }finally{global.fetch=original}
+});
+
+test("OAuth token exchange never follows redirects to another origin",async()=>{
+ const {start,callbackHandler}=await lib();
+ const db=new FakeDB(),env={...config(),CREW_AUTH_DB:db},original=global.fetch;
+ let calls=0;
+ global.fetch=async (_url,init)=>{
+  assert.equal(init?.redirect,"manual");
+  calls++;
+  return new Response(JSON.stringify({access_token:"should-not-accept"}),{
+   status:302,headers:{Location:"https://evil.example/collect","Content-Type":"application/json"}
+  });
+ };
+ try{
+  const begin=await start({request:req("/api/auth/google/start"),env},"google");
+  const authorize=new URL(begin.headers.get("Location"));
+  const cb=req("/api/auth/google/callback?state="+authorize.searchParams.get("state")+"&code=valid",{
+   Cookie:begin.headers.get("Set-Cookie").split(";")[0]});
+  const result=await callbackHandler({request:cb,env},"google");
+  const loc=new URL(result.headers.get("Location"));
+  assert.equal(loc.searchParams.get("auth_stage"),"token");
+  assert.equal(loc.searchParams.get("auth_reason"),"provider_rejected");
+  assert.equal(calls,1,"Must not request the redirected URL");
+  assert.equal(db.sessions.size,0);
+ }finally{global.fetch=original}
+});
