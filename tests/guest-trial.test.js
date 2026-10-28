@@ -350,3 +350,36 @@ test("comma-separated Gemini API keys work without JSON and accept trimmed entri
   assert.ok(!JSON.stringify(token).includes("server-key-"));
  }finally{mock.restore()}
 });
+
+test("public GET reports private non-sensitive diagnostics when guest config is unavailable",async()=>{
+ const worker=await loadStandaloneWorker();
+ const url="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token";
+ const base={GUEST_TRIAL_ENABLED:"1",GEMINI_GUEST_API_KEYS:"server-key-alpha-at-least-12",
+  TURNSTILE_SECRET_KEY:"sensitive-turnstile-secret",GUEST_TRIAL_RATE_LIMITER:{limit:async()=>({success:true})}};
+ const cases=[
+  [{...base,GUEST_TRIAL_ENABLED:"0"},"trial_disabled"],
+  [{...base,GEMINI_GUEST_API_KEYS:"a,b,c"},"gemini_keys_invalid"],
+  [{...base,GEMINI_GUEST_API_KEYS:undefined},"gemini_keys_invalid"],
+  [{GUEST_TRIAL_ENABLED:"1",TURNSTILE_SECRET_KEY:"sensitive-turnstile-secret",
+   GUEST_TRIAL_RATE_LIMITER:base.GUEST_TRIAL_RATE_LIMITER},"gemini_key_missing"],
+  [{...base,TURNSTILE_SECRET_KEY:undefined},"turnstile_secret_missing"],
+  [{...base,GUEST_TRIAL_RATE_LIMITER:undefined},"rate_limiter_binding_missing"],
+  [{...base,GUEST_DB:{}},"d1_hash_salt_missing"],
+  [{...base,GUEST_DB:{},GUEST_HASH_SALT:"present",GUEST_DAILY_SESSION_LIMIT:"0"},"d1_daily_limit_invalid"]
+ ];
+ const warnings=[],originalWarn=console.warn;
+ console.warn=(...args)=>warnings.push(args);
+ try{
+  for(const [settings,reason] of cases){
+   const r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),settings);
+   assert.equal(r.status,200);
+   assert.deepEqual(await r.json(),{enabled:false});
+   assert.deepEqual(warnings.at(-1),["crew_guest_trial_configuration",{state:"unavailable",reason}]);
+  }
+  assert.equal(warnings.length,cases.length);
+  const ok=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),base);
+  assert.equal((await ok.json()).enabled,true);
+  assert.equal(warnings.length,cases.length);
+  assert.doesNotMatch(JSON.stringify(warnings),/sensitive-turnstile-secret|server-key-alpha-at-least-12/);
+ }finally{console.warn=originalWarn}
+});

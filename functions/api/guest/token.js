@@ -39,16 +39,23 @@ function validHost(url,env){
  if(url.hostname==="www.3sssi.com")return true;
  return env.GUEST_ALLOW_PREVIEW==="1"&&previewHost.test(url.hostname);
 }
-function configured(env){
- if(env.GUEST_TRIAL_ENABLED!=="1"||!guestGeminiKeys(env).length
-    ||!env.GUEST_TURNSTILE_SITE_KEY||!env.GUEST_TURNSTILE_SECRET)return false;
+// Give operators a stable, non-sensitive failure reason in private Worker logs.
+// Do not expose binding state or credential metadata to browser responses.
+function guestTrialConfigurationIssue(env){
+ if(env.GUEST_TRIAL_ENABLED!=="1")return "trial_disabled";
+ if(!guestGeminiKeys(env).length)return Object.prototype.hasOwnProperty.call(env,"GEMINI_GUEST_API_KEYS")
+  ?"gemini_keys_invalid":"gemini_key_missing";
+ if(!env.GUEST_TURNSTILE_SITE_KEY)return "turnstile_site_key_missing";
+ if(!env.GUEST_TURNSTILE_SECRET)return "turnstile_secret_missing";
  // Phase 1: require per-edge rate limiting even without a database.
- if(!env.GUEST_DB)return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function";
+ if(!env.GUEST_DB)return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function"
+  ?null:"rate_limiter_binding_missing";
  // Phase 2: D1 atomic daily limit and salted device/network claim.
- return !!env.GUEST_HASH_SALT&&Number.isInteger(Number(env.GUEST_DAILY_SESSION_LIMIT))
-  &&Number(env.GUEST_DAILY_SESSION_LIMIT)>0
-  &&Number(env.GUEST_DAILY_SESSION_LIMIT)<=1000;
+ if(!env.GUEST_HASH_SALT)return "d1_hash_salt_missing";
+ const limit=Number(env.GUEST_DAILY_SESSION_LIMIT);
+ return Number.isInteger(limit)&&limit>0&&limit<=1000?null:"d1_daily_limit_invalid";
 }
+function configured(env){return guestTrialConfigurationIssue(env)===null;}
 function validOrigin(request,url){
  const origin=request.headers.get("origin");
  return origin===url.origin&&request.headers.get("sec-fetch-site")!=="cross-site";
@@ -56,7 +63,12 @@ function validOrigin(request,url){
 function disabled(){return json({enabled:false},200);}
 export async function onRequestGet({request,env}){
  const url=new URL(request.url);
- if(!validHost(url,env)||!configured(env))return disabled();
+ if(!validHost(url,env))return disabled();
+ const issue=guestTrialConfigurationIssue(env);
+ if(issue){
+  console.warn("crew_guest_trial_configuration",{state:"unavailable",reason:issue});
+  return disabled();
+ }
  return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS});
 }
 async function fingerprint(ip,agent,salt){

@@ -74,3 +74,9 @@ npm run check:i18n
 npm run build:web
 npm run check:bundle
 ```
+
+## Troubleshooting a disabled guest trial
+
+A GET request to `https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token` deliberately returns only `{"enabled":false}` when public trial configuration is unavailable. To find the cause, open **Cloudflare → Workers & Pages → crew-guest-trial → Observability → Logs** (enable logs if necessary), then reload the Teacher/Friend page on `https://www.3sssi.com`. Filter for `crew_guest_trial_configuration`.
+
+The log contains only `state: "unavailable"` and a fixed `reason` code; it never prints the Gemini keys, Turnstile secret, public site key, request URL, visitor identity or tokens. Supported codes: `trial_disabled`, `gemini_key_missing`, `gemini_keys_invalid`, `turnstile_site_key_missing`, `turnstile_secret_missing`, `rate_limiter_binding_missing`, `d1_hash_salt_missing`, `d1_daily_limit_invalid`. A missing Phase 1 rate limiter must be fixed as a **Rate Limiting Binding**, not a Text variable. No diagnostic metadata is added to the public API response. Logs are emitted only for failed configuration checks of the public GET endpoint.
