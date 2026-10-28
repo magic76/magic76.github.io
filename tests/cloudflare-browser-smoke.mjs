@@ -108,12 +108,12 @@ async function verifyChatGameEntry(browser){
    "Chat cards must not overflow mobile: "+JSON.stringify(metrics));
   let gameDocumentRequests=0;
   page.on("request",request=>{
-   if(request.isNavigationRequest()&&new URL(request.url()).pathname.replace(/\\/$/,"")==="/games")gameDocumentRequests++;
+   if(request.isNavigationRequest()&&new URL(request.url()).pathname.replace(/\/$/,"")==="/games")gameDocumentRequests++;
   });
   await page.locator('.crew-section-discover a[href="/games"]').click();
   await page.locator(".crew-play-hero h1").waitFor({state:"visible",timeout:15000});
   assert.ok(gameDocumentRequests>=1,"Chat to games should request the prerendered HTML document");
-  process.stdout.write("PASS Chrome chat icon geometry and game document entry\\n");
+  process.stdout.write("PASS Chrome chat icon geometry and game document entry\n");
  }finally{await context.close()}
 }
 
