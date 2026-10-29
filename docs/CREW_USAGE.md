@@ -1,5 +1,8 @@
 # Crew Web anonymous usage analytics
 
+> Cloudflare 金鑰與 Binding 維運手冊：[CLOUDFLARE_KEYS.md](CLOUDFLARE_KEYS.md)。此文件僅記錄變數用途，不存任何 Secret 值。
+
+
 Production: https://www.3sssi.com
 Implementation: web-spa/src/analytics/ and functions/api/usage/
 Private dashboard: https://www.3sssi.com/usage (after setup)

@@ -1,5 +1,8 @@
 # Crew Web guest Live trial — three-minute Phase 1
 
+> Cloudflare Secrets 與 Binding 完整對照：[CLOUDFLARE_KEYS.md](CLOUDFLARE_KEYS.md)。此文件僅記錄變數用途，不存任何 Secret 值。
+
+
 ## Public trial
 
 - Visitors without a BYOK Gemini API Key may use the original Teacher/Friend voice UI after completing Turnstile. No separate /try page, no private QA password. /try redirects to teacher selection.

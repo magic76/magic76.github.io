@@ -1,5 +1,8 @@
 # Crew Web Google / GitHub sign-in (Phase 3 foundation)
 
+> Cloudflare Secrets 與 Binding 完整對照：[CLOUDFLARE_KEYS.md](CLOUDFLARE_KEYS.md)。此文件僅記錄變數用途，不存任何 Secret 值。
+
+
 ## Scope
 - Public site: https://www.3sssi.com/account. Sign in or sign out, using only Google or GitHub.
 - Auth APIs run only on the production hostname via Cloudflare Pages Functions. Disabled gracefully when configuration is missing; no user secret is ever bundled into frontend code.
