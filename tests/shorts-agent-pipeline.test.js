@@ -8,7 +8,7 @@ const {pathToFileURL} = require('node:url');
 const script = path.resolve(__dirname, '../scripts/generate-shorts-daily.mjs');
 const adapterScript = path.resolve(__dirname, '../scripts/shorts-provider-adapter.mjs');
 const htmlReportScript = path.resolve(__dirname, '../scripts/shorts-html-report.mjs');
-const friends = ['zoe', 'bella', 'hugo', 'theo', 'yuna'];
+const friends = require('../content/character-identities/manifest.json').characters.filter(x => x.role === 'friend').map(x => x.id);
 
 function setup(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'crew-shorts-pipeline-'));
@@ -46,6 +46,12 @@ function setup(t) {
   };
   return {root, approved, encode};
 }
+
+test('LocalAgentProviderAdapter refuses unreviewed local photos',async()=>{
+ const {LocalAgentProviderAdapter}=await import(pathToFileURL(adapterScript));
+ const adapter=new LocalAgentProviderAdapter({imageMap:{bella:Buffer.alloc(25000)}});
+ await assert.rejects(adapter.review({friendId:'bella'},null,null,null),/explicit visual QA reviewer/);
+});
 
 test('LocalAgentProviderAdapter and retry loop recovers from a transient QA failure', async t => {
   const {root, encode} = setup(t);
@@ -192,7 +198,7 @@ test('editTextOnly updates captions without invoking image generator', async t =
   assert.equal(report.stories[0].caption, draft.caption);
 });
 
-test('full 5-character batch pipeline generates stories, photos and review report', async t => {
+test('full 16-character batch pipeline generates stories, photos and review report', async t => {
   const {root, encode} = setup(t);
   const {generateDaily, taipeiDay} = await import(pathToFileURL(script));
   const {MockProviderAdapter} = await import(pathToFileURL(adapterScript));
@@ -237,6 +243,19 @@ test('full 5-character batch pipeline generates stories, photos and review repor
     ]
   };
 
+  // The legacy five sample captions remain, while the full production batch
+  // is aligned with all canonical Crew Friends.
+  for (const friend of friends) {
+    if (mockStories.stories.some(story => story.friendId === friend)) continue;
+    mockStories.stories.push({
+      friendId: friend,
+      caption: 'A new ordinary moment gave ' + friend + ' something to smile about today.',
+      translationZh: '今天的小小新鮮事，讓生活多了一點驚喜。',
+      scene: friend + ' enjoys a quiet everyday activity in a familiar neighborhood with a clearly visible face.',
+      imageAlt: friend + ' in a natural everyday outdoor setting with a visible face and casual outfit.'
+    });
+  }
+
   const today = taipeiDay();
   const dummyImage = fs.readFileSync(path.join(__dirname, '../content/crew-shorts/approved/media/zoe-day1.webp'));
   const adapter = new MockProviderAdapter({
@@ -253,7 +272,7 @@ test('full 5-character batch pipeline generates stories, photos and review repor
   });
 
   assert.equal(report.status, 'preview-ready');
-  assert.equal(report.stories.length, 5);
+  assert.equal(report.stories.length, friends.length);
   for (const s of report.stories) {
     assert.equal(s.qa.pass, true);
     assert.ok(fs.existsSync(path.join(root, 'crew-shorts-preview', today, s.friendId + '.webp')));
@@ -261,7 +280,7 @@ test('full 5-character batch pipeline generates stories, photos and review repor
   const htmlPath = path.join(root, 'crew-shorts-preview', today, 'index.html');
   assert.ok(fs.existsSync(htmlPath));
   const html = fs.readFileSync(htmlPath, 'utf8');
-  for (const id of ['zoe', 'bella', 'hugo', 'theo', 'yuna']) {
+  for (const id of friends) {
     assert.match(html, new RegExp(id, 'i'));
   }
 });

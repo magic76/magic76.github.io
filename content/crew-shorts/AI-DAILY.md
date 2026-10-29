@@ -1,3 +1,5 @@
+> **Current operational status (2026-10-29):** This document contains historical 5-Friend AI generation designs and examples. Current approved Shorts support **16 canonical Friends**. The actual AI workflow `.github/workflows/crew-shorts-daily-generate.yml` is **manual-only** (no cron or automatic opt-in variable), and the production source/archival flow is documented in `docs/CREW_SHORTS.md`. For new Work conversations use `.agents/skills/crew-shorts/SKILL.md`. Any statements below about five-character daily batches, scheduled generation, or rolling deletion are historical; rely on the current workflow and scripts instead.
+
 # Crew Shorts — AI daily story and character photo generator
 
 ## What it does

@@ -42,7 +42,13 @@ if (!manifest.stories || manifest.stories.length === 0) {
   process.exit(1);
 }
 
-const unverified = manifest.stories.filter(s => !s.qa?.pass);
+const qaFields = ['sameFace','sameEyes','sameHair','sameSkin','faceVisible','singleCharacter','sceneMatch','photorealistic','noTextOrLogo'];
+const uniqueFriends = new Set(manifest.stories.map(s => s.friendId));
+if (manifest.stories.length !== FRIENDS.length || uniqueFriends.size !== FRIENDS.length || FRIENDS.some(id => !uniqueFriends.has(id))) {
+  console.error('[!] Submit requires exactly ' + FRIENDS.length + ' distinct canonical Friends; incomplete preview cannot publish.');
+  process.exit(1);
+}
+const unverified = manifest.stories.filter(s => s.qa?.pass !== true || qaFields.some(key => s.qa?.checks?.[key] !== true));
 if (unverified.length > 0) {
   console.error(`[!] QA not passed for: ${unverified.map(s => s.friendId).join(', ')}`);
   console.error('    Cannot submit batch with unverified QA.');
@@ -76,10 +82,10 @@ const approvedDir = resolve(root, 'content/crew-shorts/approved');
 const approvedFeedFile = join(approvedDir, 'posts.json');
 const approvedFeed = JSON.parse(readFileSync(approvedFeedFile, 'utf8'));
 
-// Check if all 5 friends are in this batch (full batch publish requirement)
+// Preserve the full canonical roster in submitted batches.
 if (manifest.stories.length !== FRIENDS.length) {
-  console.error(`[!] Batch contains only ${manifest.stories.length} stories. Full publication requires all 5 friends.`);
-  console.error('    For single-character previews, keep them in preview mode until all 5 are ready.');
+  console.error(`[!] Batch contains only ${manifest.stories.length} stories. Full publication requires all canonical Friends.`);
+  console.error('    For single-character previews, keep them in preview mode until every Friend is ready.');
   process.exit(1);
 }
 
@@ -93,7 +99,14 @@ const imageMap = Object.fromEntries(
 
 const adapter = new LocalAgentProviderAdapter({
   imageMap,
-  storyGenerator: () => ({stories: manifest.stories})
+  storyGenerator: () => ({stories: manifest.stories}),
+  // A reviewed manifest is evidence; the default local adapter must never self-approve QA.
+  qaReviewer: story => {
+    const candidate = manifest.stories.find(s => s.friendId === story.friendId);
+    if (!candidate || candidate.qa?.pass !== true || qaFields.some(key => candidate.qa?.checks?.[key] !== true))
+      throw Error('Missing approved visual QA for ' + story.friendId);
+    return candidate.qa;
+  }
 });
 
 await generateDaily({
@@ -139,7 +152,7 @@ const prBody = `## Crew Shorts Daily Update — ${date}
 ${manifest.stories.map(s => `- **${s.friendName || s.friendId}**: ${s.caption} (ZH: ${s.translationZh})`).join('\n')}
 
 ### Quality Checklist
-- [x] All 5 characters pass Character Identity v2 SHA check
+- [x] All ${FRIENDS.length} characters pass Character Identity v2 SHA check
 - [x] 3:4 portrait aspect ratio verified
 - [x] WebP size ≤ 350 KiB
 - [x] Visual QA 9/9 checks passed
