@@ -1,5 +1,9 @@
 # Crew Shorts — Cloudflare Pages first
 
+> **Operational update (2026-10-29):** Production has **16 canonical Crew Friends**, source JSON has more than 100 posts, and v2 supports complete paginated archives. AI generation is manual-only; the Pages publisher automatically releases only approved posts. Use `.agents/skills/crew-shorts/SKILL.md` for creating new Shorts and `docs/CREW_SHORTS.md` for current architecture. The original five-post seed instructions below are historical and must not constrain new batches.
+
+
+
 Crew Shorts uses the existing Git-connected Cloudflare Pages project. No R2 bucket, Cloudflare payment method, or R2 API key is needed. This job publishes only approved captions and WebP images: it does not generate AI content or call Gemini.
 
 ## Original seed (imported)
