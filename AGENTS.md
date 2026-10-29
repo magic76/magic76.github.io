@@ -19,3 +19,7 @@ Local Web parity background: `docs/APP_PARITY.md`.
 - Run `node scripts/verify-teacher-interfaces.cjs` alongside the existing behavior verifier. Shared changes need a canonical Android PR then a synchronized Web PR; update the contract and regression tests rather than improvising incompatible payloads.
 - The event envelopes are **design-level fixtures**, not a claim that current Gemini Live/WebSocket code emits them. The role and real Shorts-feed checks are enforced today.
 - For private cross-repository comparisons, configure the optional read-only `CREW_CONTRACT_READ_TOKEN` secret in the Web repository. An unauthenticated SKIP is not a parity pass.
+
+## Crew Shorts editorial and photo production
+
+For Crew Shorts images, captions, post imports, generator, review and publishing flows, read `.agents/skills/crew-shorts/SKILL.md` before working. It defines the canonical 16-Friend roster, identity verification, human review, and safe Pages publication. Do not infer that editing approved content authorizes paid image generation or automatic publishing.
