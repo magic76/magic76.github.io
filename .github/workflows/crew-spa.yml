@@ -11,6 +11,7 @@ on:
       - "**/AGENTS.md"
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - 'crew-app/**'
       - 'docs/**'
@@ -27,6 +28,7 @@ permissions:
 
 jobs:
   build:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
