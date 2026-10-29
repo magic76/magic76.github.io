@@ -520,7 +520,7 @@ test("three-minute trial stays consistent across Worker grants and client hard d
  assert.match(config,/Number\(value\.seconds\)===180/);
 });
 
-test("member mode rejects unsigned or replayed tickets and enforces one trial per D1 user",async()=>{
+test("member mode rejects unsigned or replayed tickets and enforces three trials per D1 user",async()=>{
  const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
  const {onRequestGet,onRequestPost}=await backend;
  const secret="testing-only-account-guest-secret-at-least-32-bytes";
@@ -536,7 +536,7 @@ test("member mode rejects unsigned or replayed tickets and enforces one trial pe
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
    const value=users.get(v[1])||0;
-   if(value>=1)return{meta:{changes:0}};
+   if(value>=v[2])return{meta:{changes:0}};
    users.set(v[1],value+1);return{meta:{changes:1}};
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
@@ -564,12 +564,18 @@ test("member mode rejects unsigned or replayed tickets and enforces one trial pe
   assert.equal(first.status,200);
   assert.equal((await first.json()).seconds,180);
   assert.equal((await onRequestPost({request:request(ticket),env:settings})).status,429);
-  const next=await createGuestTicket(uid,secret);
-  const already=await onRequestPost({request:request(next),env:settings});
-  assert.equal(already.status,429);
-  assert.equal((await already.json()).code,"ALREADY_USED");
-  assert.equal(mock.counts().minted,1);
-  assert.equal(users.get(uid),1);
+  for(let attempt=2;attempt<=3;attempt++){
+   const next=await createGuestTicket(uid,secret);
+   assert.equal((await onRequestPost({request:request(next),env:settings})).status,200,
+    "account must allow trial "+attempt);
+   assert.equal(users.get(uid),attempt);
+  }
+  const exhaustedTicket=await createGuestTicket(uid,secret);
+  const exhausted=await onRequestPost({request:request(exhaustedTicket),env:settings});
+  assert.equal(exhausted.status,429);
+  assert.equal((await exhausted.json()).code,"ALREADY_USED");
+  assert.equal(mock.counts().minted,3);
+  assert.equal(users.get(uid),3);
  }finally{mock.restore()}
 });
 test("member trial requires a secure database and shared signing secret",async()=>{
@@ -599,7 +605,7 @@ function fakeMemberQuotaDb(){
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
    const count=used.get(v[1])||0;
-   if(count>=1)return {meta:{changes:0}};
+   if(count>=v[2])return {meta:{changes:0}};
    used.set(v[1],count+1);return {meta:{changes:1}};
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
@@ -651,12 +657,13 @@ test("optional member metering counts signed-in accounts without blocking anonym
   assert.equal(db.used.get(accountA),1);
   assert.equal((await onRequestPost({request:memberRequest(ticketA),env:settings})).status,429);
   const newA=await createGuestTicket(accountA,signing);
-  assert.equal((await onRequestPost({request:memberRequest(newA),env:settings})).status,429);
+  assert.equal((await onRequestPost({request:memberRequest(newA),env:settings})).status,200);
+  assert.equal(db.used.get(accountA),2);
   const ticketB=await createGuestTicket(accountB,signing);
   assert.equal((await onRequestPost({request:memberRequest(ticketB),env:settings})).status,200);
   assert.equal(db.used.get(accountB),1);
   assert.equal((await onRequestPost({request:memberRequest(),env:settings})).status,200);
-  assert.equal(services.counts().minted,4,"two anonymous, one each for two signed-in accounts");
+  assert.equal(services.counts().minted,5,"two anonymous, two for account A, one for account B");
  }finally{services.restore()}
 });
 
