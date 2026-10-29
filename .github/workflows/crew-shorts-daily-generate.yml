@@ -17,7 +17,7 @@ on:
       friend:
         description: 'Preview one Friend, or all five. Single-friend mode never publishes.'
         type: choice
-        options: [all, bella, zoe, hugo, theo, yuna]
+        options: [all, ada, bella, felix, finn, hugo, iris, isla, luna, max, maya, noah, oscar, ryan, theo, yuna, zoe]
         required: true
         default: all
       use_approved_story:
@@ -42,7 +42,7 @@ concurrency:
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
         with:
@@ -115,6 +115,6 @@ jobs:
         run: |
           echo '## Crew Shorts AI generation' >> "$GITHUB_STEP_SUMMARY"
           echo 'Find Artifact `crew-shorts-daily-${{ github.run_id }}` below this Actions run.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'It contains manifest.json and either one selected Friend WebP or five independent WebPs on success.' >> "$GITHUB_STEP_SUMMARY"
-          echo 'Plan mode makes no API calls. Private preview can use one human-authored draft up to 30 days ahead, generates only that Friend (costs Gemini image and QA calls), and never commits. Publish mode requires all five to pass strict identity QA.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'It contains manifest.json and either one selected Friend WebP or 16 independent WebPs on success.' >> "$GITHUB_STEP_SUMMARY"
+          echo 'Plan mode makes no API calls. Private preview can use one human-authored draft up to 30 days ahead, generates only that Friend (costs Gemini image and QA calls), and never commits. Publish mode requires all 16 to pass strict identity QA.' >> "$GITHUB_STEP_SUMMARY"
           echo 'Published feed: https://www.3sssi.com/features/teacher/shorts/posts.json' >> "$GITHUB_STEP_SUMMARY"
