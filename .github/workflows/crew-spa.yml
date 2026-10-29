@@ -11,6 +11,7 @@ on:
       - "**/AGENTS.md"
   # Feature and fix branches are validated once when opened/updated as PRs.
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - 'crew-app/**'
       - 'docs/**'
