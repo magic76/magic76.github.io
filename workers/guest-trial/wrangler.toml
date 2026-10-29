@@ -1,5 +1,5 @@
-# Phase 1 public 180-second trial, Turnstile + per-colo limit; no D1.
-# "wrangler secret put", NEVER here. No D1 database required in Phase 1.
+# Phase 1 anonymous 180-second trial + Phase 3 optional member quota.
+# Configure secrets separately in Cloudflare, NEVER here.
 name = "crew-guest-trial"
 main = "./worker.mjs"
 compatibility_date = "2026-10-28"
@@ -18,6 +18,12 @@ namespace_id = "100347"
   limit = 1
   period = 60
 
+# Phase 3: existing OAuth member D1; distinct from optional anonymous GUEST_DB.
+[[d1_databases]]
+binding = "CREW_AUTH_DB"
+database_name = "crew-auth"
+database_id = "2ccb5252-84b9-447a-9e98-4906a7319613"
+
 # Phase 2 ONLY: create a D1 database and append:
 # [[d1_databases]]
 # binding = "GUEST_DB"
@@ -31,5 +37,5 @@ namespace_id = "100347"
 # Prerequisites before enabling either flag:
 # - Apply migrations/crew-auth/0002_guest_trials.sql to existing crew-auth D1.
 # - Set identical encrypted CREW_GUEST_TICKET_SECRET on Pages + this Worker.
-# - Bind existing crew-auth D1 as CREW_AUTH_DB on this Worker.
+# - Existing crew-auth D1 binding is configured above. Confirm the ID in Cloudflare.
 # - Deploy Pages first, then deploy Worker. Do NOT use GUEST_DB for CREW_AUTH_DB.
