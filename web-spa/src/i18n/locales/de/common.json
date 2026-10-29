@@ -53,6 +53,8 @@
   },
   "loading": "Wird geladen…",
   "guestTrial": {
+    "signInToTry": "Melde dich an, um drei Minuten kostenlos per Sprache zu chatten.",
+    "signInAction": "Zum Test anmelden",
     "timeLeft": "Verbleibende Zeit",
     "almostDone": "Gleich vorbei! Verabschiede dich von der KI.",
     "completeTitle": "Gratistest abgeschlossen!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "Test vorübergehend nicht verfügbar."
   },
   "auth": {
+    "trialCount": "Genutzte Sprachtests: {{used}} / {{limit}}",
     "account": "Konto",
     "title": "Crew-Konto",
     "intro": "Melde dich mit Google oder GitHub an.",

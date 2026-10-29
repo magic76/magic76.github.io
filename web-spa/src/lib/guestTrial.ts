@@ -4,7 +4,7 @@ export const GUEST_TOKEN_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.
 export function guestTrialDiscoveryEnabled():boolean{
  return typeof window!=="undefined"&&!isCrewAndroidShell();
 }
-export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number};
+export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean};
 export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
 export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
  if(!guestTrialDiscoveryEnabled())return {enabled:false};
@@ -15,6 +15,7 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   // Fail closed during separate Worker/Pages rollout: never burn a 60s trial claim
   // when the updated UI promises 180s. BYOK sessions are unaffected.
   return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===180
-   ?{enabled:true,siteKey:value.siteKey,seconds:180}:{enabled:false};
+   ?{enabled:true,siteKey:value.siteKey,seconds:180,signinRequired:value.signinRequired===true,
+     memberMetering:value.memberMetering===true||value.signinRequired===true}:{enabled:false};
  }catch{return {enabled:false}}
 }

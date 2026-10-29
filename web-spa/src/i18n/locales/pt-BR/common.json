@@ -53,6 +53,8 @@
   },
   "loading": "Carregando…",
   "guestTrial": {
+    "signInToTry": "Entre na sua conta para experimentar três minutos de voz grátis.",
+    "signInAction": "Entrar para experimentar",
     "timeLeft": "Tempo restante",
     "almostDone": "Está acabando! Despeça-se da IA.",
     "completeTitle": "Experiência gratuita concluída!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "Teste temporariamente indisponível."
   },
   "auth": {
+    "trialCount": "Testes de voz usados: {{used}} / {{limit}}",
     "account": "Conta",
     "title": "Conta Crew",
     "intro": "Entre com Google ou GitHub.",

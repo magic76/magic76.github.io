@@ -53,6 +53,8 @@
   },
   "loading": "Đang tải…",
   "guestTrial": {
+    "signInToTry": "Đăng nhập để dùng thử ba phút trò chuyện bằng giọng nói miễn phí.",
+    "signInAction": "Đăng nhập để thử",
     "timeLeft": "Thời gian còn lại",
     "almostDone": "Sắp hết giờ! Hãy chào tạm biệt AI.",
     "completeTitle": "Đã hoàn tất trải nghiệm miễn phí!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "Hiện không thể dùng thử."
   },
   "auth": {
+    "trialCount": "Lượt thử giọng nói đã dùng: {{used}} / {{limit}}",
     "account": "Tài khoản",
     "title": "Tài khoản Crew",
     "intro": "Đăng nhập bằng Google hoặc GitHub.",

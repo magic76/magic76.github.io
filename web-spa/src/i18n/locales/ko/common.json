@@ -53,6 +53,8 @@
   },
   "loading": "불러오는 중…",
   "guestTrial": {
+    "signInToTry": "3분 무료 음성 체험을 하려면 먼저 로그인하세요.",
+    "signInAction": "로그인하고 체험하기",
     "timeLeft": "남은 시간",
     "almostDone": "곧 종료돼요. AI에게 인사해 보세요.",
     "completeTitle": "무료 체험이 완료됐어요!",
@@ -102,6 +104,7 @@
     "tempUnavailable": "체험을 일시적으로 이용할 수 없습니다."
   },
   "auth": {
+    "trialCount": "무료 음성 체험 사용: {{used}} / {{limit}}회",
     "account": "계정",
     "title": "Crew 계정",
     "intro": "Google 또는 GitHub로 로그인하세요.",

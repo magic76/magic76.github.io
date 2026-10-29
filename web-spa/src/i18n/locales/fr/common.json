@@ -53,6 +53,8 @@
   },
   "loading": "Chargement…",
   "guestTrial": {
+    "signInToTry": "Connectez-vous pour essayer trois minutes de conversation vocale gratuite.",
+    "signInAction": "Se connecter pour essayer",
     "timeLeft": "Temps restant",
     "almostDone": "C’est presque fini ! Dites au revoir à l’IA.",
     "completeTitle": "Essai gratuit terminé !",
@@ -102,6 +104,7 @@
     "tempUnavailable": "Essai temporairement indisponible."
   },
   "auth": {
+    "trialCount": "Essais vocaux utilisés : {{used}} / {{limit}}",
     "account": "Compte",
     "title": "Compte Crew",
     "intro": "Connectez-vous avec Google ou GitHub.",

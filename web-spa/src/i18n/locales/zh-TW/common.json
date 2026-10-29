@@ -53,6 +53,8 @@
   },
   "loading": "載入中…",
   "guestTrial": {
+    "signInToTry": "請先登入帳號，才能使用 3 分鐘免費語音體驗。",
+    "signInAction": "登入後開始免費體驗",
     "timeLeft": "剩餘時間",
     "almostDone": "快結束了，跟 AI 說聲再見吧。",
     "completeTitle": "免費體驗完成了！",
@@ -102,6 +104,7 @@
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。"
   },
   "auth": {
+    "trialCount": "免費語音試用：已使用 {{used}} / {{limit}} 次",
     "account": "帳號",
     "title": "Crew 帳號",
     "intro": "使用 Google 或 GitHub 登入，管理你的 Crew 身分。",

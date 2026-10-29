@@ -7,6 +7,8 @@ const SESSION_SECONDS=180;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
+const MEMBER_SIGNIN_FLAG="GUEST_REQUIRE_SIGNIN",MEMBER_METER_FLAG="GUEST_ACCOUNT_METER_ENABLED";
+const memberMeterEnabled=env=>env[MEMBER_SIGNIN_FLAG]==="1"||env[MEMBER_METER_FLAG]==="1";
 // Accept one/multiple keys as comma/newline text, JSON array/string or {keys:[...]}.
 // Fail closed on invalid multi-key settings even when the legacy secret exists.
 function parseGuestGeminiKeyList(raw){
@@ -72,6 +74,14 @@ function guestTrialConfigurationIssue(env){
   ?"gemini_keys_invalid":"gemini_key_missing";
  if(!env.GUEST_TURNSTILE_SITE_KEY)return "turnstile_site_key_missing";
  if(!env.GUEST_TURNSTILE_SECRET)return "turnstile_secret_missing";
+ for(const name of [MEMBER_SIGNIN_FLAG,MEMBER_METER_FLAG]){
+  if(env[name]!==undefined&&!["0","1"].includes(env[name]))return "signin_flag_invalid";
+ }
+ if(memberMeterEnabled(env)){
+  if(!env.CREW_AUTH_DB||typeof env.CREW_GUEST_TICKET_SECRET!=="string"||env.CREW_GUEST_TICKET_SECRET.length<32)
+   return "member_quota_binding_missing";
+  return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function"?null:"rate_limiter_binding_missing";
+ }
  // Phase 1: require per-edge rate limiting even without a database.
  if(!env.GUEST_DB)return typeof env.GUEST_TRIAL_RATE_LIMITER?.limit==="function"
   ?null:"rate_limiter_binding_missing";
@@ -97,7 +107,9 @@ export async function onRequestGet({request,env}){
   console.warn("crew_guest_trial_configuration",{state:"unavailable",reason:issue,...(detail?{detail}:{})});
   return disabled();
  }
- return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS});
+ return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
+  ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{}),
+  ...(memberMeterEnabled(env)?{memberMetering:true}:{})});
 }
 async function fingerprint(ip,agent,salt){
  const bytes=new TextEncoder().encode(salt+"|"+ip+"|"+agent.slice(0,256));
@@ -136,6 +148,60 @@ async function mintToken(key,now){
  if(typeof result.name!=="string"||result.name.length<12)throw new Error("Gemini token missing");
  return result.name;
 }
+
+/** Only Pages can mint this HMAC assertion from a valid HttpOnly member session. */
+async function memberTicket(raw,secret){
+ if(typeof raw!=="string"||raw.length>1024)return null;
+ const parts=raw.split(".");
+ if(parts.length!==2||parts.some(p=>!/^[A-Za-z0-9_-]+$/.test(p)))return null;
+ try{
+  const dec=s=>Uint8Array.from(atob(s.replace(/-/g,"+").replace(/_/g,"/").padEnd(Math.ceil(s.length/4)*4,"=")),c=>c.charCodeAt(0));
+  const encoder=new TextEncoder();
+  const key=await crypto.subtle.importKey("raw",encoder.encode(secret),{name:"HMAC",hash:"SHA-256"},false,["verify"]);
+  if(!await crypto.subtle.verify("HMAC",key,dec(parts[1]),encoder.encode(parts[0])))return null;
+  const body=JSON.parse(new TextDecoder().decode(dec(parts[0])));
+  const now=Math.floor(Date.now()/1000);
+  if(body?.v!==1||typeof body?.sub!=="string"||!/^[0-9a-f-]{36}$/i.test(body.sub)||
+     typeof body?.nonce!=="string"||!/^[A-Za-z0-9_-]{43}$/.test(body.nonce)||
+     !Number.isInteger(body.exp)||body.exp<=now||body.exp>now+90)return null;
+  return {userId:body.sub,nonce:body.nonce};
+ }catch{return null}
+}
+async function issueMemberTrial(input,env){
+ const member=await memberTicket(input.authTicket,env.CREW_GUEST_TICKET_SECRET);
+ if(!member)return json({error:"Sign-in required",code:"SIGNIN_REQUIRED"},401);
+ try{
+  const limit=await env.GUEST_TRIAL_RATE_LIMITER.limit({key:"crew-public-guest"});
+  if(limit?.success!==true)return json({error:"Guest trial busy",code:"DAILY_LIMIT"},429);
+ }catch{return json({error:"Guest limiter unavailable"},503)}
+ const db=env.CREW_AUTH_DB,now=Math.floor(Date.now()/1000);
+ let reserved=false,minted=false;
+ try{
+  // A ticket can be claimed once, even across simultaneous browser tabs / edges.
+  const ticket=await db.prepare("INSERT OR IGNORE INTO crew_guest_ticket_claims (nonce,user_id,claimed_at) VALUES (?,?,?)")
+   .bind(member.nonce,member.userId,now).run();
+  if(ticket.meta?.changes!==1)return json({error:"Trial request already used",code:"ALREADY_USED"},429);
+  await db.prepare("INSERT OR IGNORE INTO crew_guest_usage (user_id,used,updated_at) VALUES (?,0,?)")
+   .bind(member.userId,now).run();
+  const quota=await db.prepare("UPDATE crew_guest_usage SET used=used+1,updated_at=? WHERE user_id=? AND used<1")
+   .bind(now,member.userId).run();
+  if(quota.meta?.changes!==1)return json({error:"Trial already used",code:"ALREADY_USED"},429);
+  reserved=true;
+  const issuedAt=Date.now();
+  const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
+  minted=true;
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
+   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
+ }catch{return json({error:"Guest trial temporarily unavailable"},503)}
+ finally{
+  // If provisioning failed, release the quota, but never reuse a ticket nonce.
+  if(reserved&&!minted){
+   try{await db.prepare("UPDATE crew_guest_usage SET used=MAX(0,used-1) WHERE user_id=?")
+    .bind(member.userId).run()}catch{}
+  }
+ }
+}
+
 export async function onRequestPost({request,env}){
  const url=new URL(request.url);
  if(!validHost(url,env))return json({error:"Not found"},404);
@@ -160,6 +226,11 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
+ // In meter-only mode, signed-in visitors receive one account-counted trial,
+ // while unsigned visitors retain the existing anonymous flow.
+ if(env[MEMBER_SIGNIN_FLAG]==="1"||
+    (memberMeterEnabled(env)&&Object.prototype.hasOwnProperty.call(input,"authTicket")))
+  return issueMemberTrial(input,env);
  // Phase 1 has no globally durable per-person/session quota. Fail closed when
  // the Cloudflare per-colo limiter is missing; never claim USD hard caps.
  if(!env.GUEST_DB){

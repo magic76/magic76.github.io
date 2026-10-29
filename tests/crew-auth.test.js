@@ -309,3 +309,58 @@ test("OAuth token exchange never follows redirects to another origin",async()=>{
   assert.equal(db.sessions.size,0);
  }finally{global.fetch=original}
 });
+
+test("signed account proof endpoint requires same-origin POST and an authenticated session",async()=>{
+ const {onRequestPost}=await import("../functions/api/auth/guest-ticket.js");
+ const secret="test-only-guest-token-secret-that-is-very-long";
+ const base={...config(),CREW_AUTH_DB:new FakeDB(),CREW_GUEST_TICKET_SECRET:secret};
+ const bad=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:"https://evil.example"},"POST"),env:base});
+ assert.equal(bad.status,403);
+ const missing=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:ORIGIN},"POST"),env:base});
+ assert.equal(missing.status,401);
+ const disabled=await onRequestPost({request:req("/api/auth/guest-ticket",{Origin:ORIGIN},"POST"),env:{...base,CREW_GUEST_TICKET_SECRET:undefined}});
+ assert.equal(disabled.status,503);
+ const source=fs.readFileSync(path.join(__dirname,"../migrations/crew-auth/0002_guest_trials.sql"),"utf8");
+ for(const name of ["crew_guest_usage","crew_guest_ticket_claims"])
+  assert.ok(source.includes("CREATE TABLE IF NOT EXISTS "+name));
+ const client=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
+ const backend=fs.readFileSync(path.join(__dirname,"../functions/api/guest/token.js"),"utf8");
+ assert.match(client,/auth\/guest-ticket/);
+ assert.match(client,/phase==="login"/);
+ assert.match(backend,/GUEST_REQUIRE_SIGNIN/);
+});
+
+
+test("authenticated session exposes member trial count but never leaks account or signing secrets",async()=>{
+ const {sessionInfo}=await lib();
+ const db=new FakeDB(),uid="123e4567-e89b-42d3-a456-426614174004";
+ const token="A".repeat(43);
+ const tokenHash=require("node:crypto").createHash("sha256").update(token).digest("hex");
+ db.users.set(uid,{name:"Member"});
+ db.identities.set("google:123",{user_id:uid});
+ db.sessions.set(tokenHash,{uid,expires:Math.floor(Date.now()/1000)+3600});
+ const original=db.prepare.bind(db);
+ db.prepare=q=>q.includes("SELECT used,updated_at FROM crew_guest_usage")
+  ?{bind:()=>({first:async()=>({used:1,updated_at:1760000000})})}:original(q);
+ const env={...config(),CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:"private-guest-secret-never-returned-to-browser"};
+ const res=await sessionInfo({request:req("/api/auth/session",{Cookie:"__Host-crew_session="+token}),env});
+ assert.equal(res.status,200);
+ const data=await res.json();
+ assert.equal(data.user.id,uid);
+ assert.deepEqual(data.trial,{used:1,limit:1,lastUsedAt:1760000000});
+ assert.ok(!JSON.stringify(data).includes("private-guest-secret"));
+ const anonymous=await sessionInfo({request:req("/api/auth/session"),env});
+ assert.equal((await anonymous.json()).trial,undefined);
+});
+test("session endpoint tolerates unmigrated optional member quota without breaking OAuth",async()=>{
+ const {sessionInfo}=await lib();
+ const db=new FakeDB(),uid="123e4567-e89b-42d3-a456-426614174005",token="B".repeat(43);
+ const hash=require("node:crypto").createHash("sha256").update(token).digest("hex");
+ db.users.set(uid,{name:"Member"});db.identities.set("github:77",{user_id:uid});
+ db.sessions.set(hash,{uid,expires:Math.floor(Date.now()/1000)+3600});
+ const status=await sessionInfo({request:req("/api/auth/session",{Cookie:"__Host-crew_session="+token}),env:{...config(),CREW_AUTH_DB:db}});
+ assert.equal(status.status,200);
+ const data=await status.json();
+ assert.equal(data.user.provider,"github");
+ assert.equal(data.trial,undefined,"missing optional schema must not stop sign-in");
+});

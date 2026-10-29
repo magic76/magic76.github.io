@@ -154,7 +154,16 @@ export async function sessionInfo({request,env}){
    if(row&&typeof row.id==="string"&&typeof row.name==="string")user={id:row.id,name:row.name,provider:row.provider};
   }catch{return json({enabled:false,providers:{google:false,github:false},user:null},503)}
  }
- return json({enabled:true,providers,user});
+ let trial=null;
+ if(user){
+  try{
+   const usage=await env.CREW_AUTH_DB.prepare("SELECT used,updated_at FROM crew_guest_usage WHERE user_id=?").bind(user.id).first();
+   trial={used:Math.max(0,Number(usage?.used||0)),limit:1,
+    ...(Number(usage?.used)>0&&Number.isFinite(Number(usage.updated_at))
+     ?{lastUsedAt:Number(usage.updated_at)}:{})};
+  }catch{/* Phase 3 migration is optional until rollout; never break existing login. */}
+ }
+ return json({enabled:true,providers,user,...(trial?{trial}:{})});
 }
 export async function logout({request,env}){
  if(!validHost(request))return json({error:"Not found"},404);
