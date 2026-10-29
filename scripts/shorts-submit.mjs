@@ -152,7 +152,7 @@ const prBody = `## Crew Shorts Daily Update — ${date}
 ${manifest.stories.map(s => `- **${s.friendName || s.friendId}**: ${s.caption} (ZH: ${s.translationZh})`).join('\n')}
 
 ### Quality Checklist
-- [x] All 5 characters pass Character Identity v2 SHA check
+- [x] All ${FRIENDS.length} characters pass Character Identity v2 SHA check
 - [x] 3:4 portrait aspect ratio verified
 - [x] WebP size ≤ 350 KiB
 - [x] Visual QA 9/9 checks passed
