@@ -47,12 +47,12 @@ function validateStory(item,feed,date){
  // A genuine new situation starts its own arc. Only an explicit continuation
  // inherits the old storyId, so an unrelated new day is not a fake sequel.
  const continuing=item.storyMode!=='new'&&Boolean(previous);
- return {friendId:item.friendId,caption,translationZh,scene,imageAlt,
+ return {friendId:item.friendId,storyMode:continuing?'continue':'new',caption,translationZh,scene,imageAlt,
   storyId:continuing?previous.storyId:'life-'+item.friendId+'-'+date.replaceAll('-',''),
   storyContext:continuing?history.filter(p=>p.storyId===previous.storyId).map(p=>p.caption).join(' ').slice(-650):''};
 }
 export function validateStories(raw,feed,date){
- good(raw&&Array.isArray(raw.stories)&&raw.stories.length===FRIENDS.length,'AI must return five stories');
+ good(raw&&Array.isArray(raw.stories)&&raw.stories.length===FRIENDS.length,'AI must return '+FRIENDS.length+' stories');
  const ids=new Set();
  return raw.stories.map(item=>{
   good(item&&FRIENDS.includes(item.friendId)&&!ids.has(item.friendId),'wrong or repeated friend');
@@ -192,7 +192,7 @@ export async function generateDaily({root=process.cwd(),date=taipeiDay(),mode='p
      const post={id,friendId:story.friendId,friendName:expectedTitle(story.friendId),caption:story.caption,translationZh:story.translationZh,
       image:'media/'+id+'.webp',imageAlt:story.imageAlt,publishedAt:date+'T08:00:00+08:00',language:'en',storyId:story.storyId,storyContext:story.storyContext};
      staged.push({post,from:dest});
-     report.stories.push({...post,scene:story.scene,attempts:attempt+1,qa:{pass:true,reason:cap(qa.reason,200),checks:qa.checks}});
+     report.stories.push({...post,scene:story.scene,storyMode:story.storyMode,attempts:attempt+1,qa:{pass:true,reason:cap(qa.reason,200),checks:qa.checks}});
      save(reportFile,report);
      success=true;
      break;
