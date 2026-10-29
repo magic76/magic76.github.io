@@ -1,5 +1,6 @@
 /** Minimal server-side OAuth for Cloudflare Pages. Provider tokens are never stored. */
 const ORIGIN="https://www.3sssi.com",OAUTH="__Host-crew_oauth",SESSION="__Host-crew_session";
+const MEMBER_TRIAL_LIMIT=3;
 const TTL=30*86400,PROVIDERS=["google","github"],COOKIE="Path=/; Secure; HttpOnly; SameSite=Lax";
 const json=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Referrer-Policy":"no-referrer"}});
 const go=(url,cookie)=>{const h=new Headers({"Location":url,"Cache-Control":"no-store","Referrer-Policy":"no-referrer","X-Frame-Options":"DENY"});if(cookie)h.append("Set-Cookie",cookie);return new Response(null,{status:302,headers:h})};
@@ -158,7 +159,7 @@ export async function sessionInfo({request,env}){
  if(user){
   try{
    const usage=await env.CREW_AUTH_DB.prepare("SELECT used,updated_at FROM crew_guest_usage WHERE user_id=?").bind(user.id).first();
-   trial={used:Math.max(0,Number(usage?.used||0)),limit:1,
+   trial={used:Math.max(0,Number(usage?.used||0)),limit:MEMBER_TRIAL_LIMIT,
     ...(Number(usage?.used)>0&&Number.isFinite(Number(usage.updated_at))
      ?{lastUsedAt:Number(usage.updated_at)}:{})};
   }catch{/* Phase 3 migration is optional until rollout; never break existing login. */}

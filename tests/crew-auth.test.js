@@ -347,7 +347,7 @@ test("authenticated session exposes member trial count but never leaks account o
  assert.equal(res.status,200);
  const data=await res.json();
  assert.equal(data.user.id,uid);
- assert.deepEqual(data.trial,{used:1,limit:1,lastUsedAt:1760000000});
+ assert.deepEqual(data.trial,{used:1,limit:3,lastUsedAt:1760000000});
  assert.ok(!JSON.stringify(data).includes("private-guest-secret"));
  const anonymous=await sessionInfo({request:req("/api/auth/session"),env});
  assert.equal((await anonymous.json()).trial,undefined);

@@ -4,6 +4,7 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
 });
 const LIVE_MODEL="gemini-3.8-live";
 const SESSION_SECONDS=180;
+const MEMBER_TRIAL_LIMIT=3;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
@@ -183,8 +184,8 @@ async function issueMemberTrial(input,env){
   if(ticket.meta?.changes!==1)return json({error:"Trial request already used",code:"ALREADY_USED"},429);
   await db.prepare("INSERT OR IGNORE INTO crew_guest_usage (user_id,used,updated_at) VALUES (?,0,?)")
    .bind(member.userId,now).run();
-  const quota=await db.prepare("UPDATE crew_guest_usage SET used=used+1,updated_at=? WHERE user_id=? AND used<1")
-   .bind(now,member.userId).run();
+  const quota=await db.prepare("UPDATE crew_guest_usage SET used=used+1,updated_at=? WHERE user_id=? AND used<?")
+   .bind(now,member.userId,MEMBER_TRIAL_LIMIT).run();
   if(quota.meta?.changes!==1)return json({error:"Trial already used",code:"ALREADY_USED"},429);
   reserved=true;
   const issuedAt=Date.now();
@@ -226,7 +227,7 @@ export async function onRequestPost({request,env}){
   if(!await verifyCaptcha(input.challengeToken,ip,env.GUEST_TURNSTILE_SECRET,url.hostname))
    return json({error:"Verification failed"},403);
  }catch{return json({error:"Verification temporarily unavailable"},503)}
- // In meter-only mode, signed-in visitors receive one account-counted trial,
+ // In meter-only mode, signed-in visitors receive account-counted trials,
  // while unsigned visitors retain the existing anonymous flow.
  if(env[MEMBER_SIGNIN_FLAG]==="1"||
     (memberMeterEnabled(env)&&Object.prototype.hasOwnProperty.call(input,"authTicket")))

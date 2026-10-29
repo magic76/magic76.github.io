@@ -59,9 +59,9 @@ The existing production-only first-party analytics system has a Guest Trial sect
 - Events are best-effort and may be sampled or blocked, so these are **not authoritative server issuance counts or unique humans**. No retroactive filling of old usage.
 - Private reporting still requires Cloudflare Access and read-only Analytics credentials per `docs/CREW_USAGE.md`.
 
-## Phase 3 — planned
+## Phase 3 — member-counted trial
 
-Add actual user sign-in and a server-side entitlement/quota ledger for one-trial-per-user counting. Design account controls, privacy/retention and anti-abuse checks before implementing. No authentication or per-account limit is part of Phase 2.
+Signed-in Google or GitHub accounts can use up to **3** successfully issued three-minute trials. The Worker counts successful Gemini token issuance in D1, not minutes actually spoken; ending early still uses one grant. Existing usage is retained (no migration or reset). Metering is opt-in with `GUEST_ACCOUNT_METER_ENABLED=1` while `GUEST_REQUIRE_SIGNIN=0` preserves anonymous trials. Both Google and GitHub identities are separate until securely linked.
 
 ## Phase 2 deferred
 
@@ -101,4 +101,4 @@ The private `/usage` dashboard now has a shortcut to the trial summary. It disti
 
 ## Phase 3 signed-in account metering (opt-in, 3 minutes)
 
-After the member D1 migration and matched `CREW_GUEST_TICKET_SECRET` Secrets, Worker `GUEST_ACCOUNT_METER_ENABLED=1` enables account-counted tokens for signed-in visitors **without requiring anonymous visitors to log in**. `GUEST_REQUIRE_SIGNIN=1` is a separate, stronger mode and is intentionally not enabled in Git. See `docs/crew-auth.md` for deploy ordering, D1 bindings, smoke checks and rollback. The trial length remains 180 seconds in either mode.
+After the member D1 migration and matched `CREW_GUEST_TICKET_SECRET` Secrets, Worker `GUEST_ACCOUNT_METER_ENABLED=1` enables up to three account-counted tokens for signed-in visitors **without requiring anonymous visitors to log in**. `GUEST_REQUIRE_SIGNIN=1` is a separate, stronger mode and is intentionally not enabled in Git. See `docs/crew-auth.md` for deploy ordering, D1 bindings, smoke checks and rollback. The trial length remains 180 seconds in either mode.
