@@ -47,6 +47,12 @@ function setup(t) {
   return {root, approved, encode};
 }
 
+test('LocalAgentProviderAdapter refuses unreviewed local photos',async()=>{
+ const {LocalAgentProviderAdapter}=await import(pathToFileURL(adapterScript));
+ const adapter=new LocalAgentProviderAdapter({imageMap:{bella:Buffer.alloc(25000)}});
+ await assert.rejects(adapter.review({friendId:'bella'},null,null,null),/explicit visual QA reviewer/);
+});
+
 test('LocalAgentProviderAdapter and retry loop recovers from a transient QA failure', async t => {
   const {root, encode} = setup(t);
   const {generateDaily} = await import(pathToFileURL(script));
