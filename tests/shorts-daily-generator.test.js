@@ -244,7 +244,7 @@ test('future private drafts reject wrong character, unsafe modes, invalid story 
  await assert.rejects(generateDaily({root,date:farDate,mode:'preview',friend:'zoe',previewStory:draft,client:mock(),encode}),/max 30 days/);
  await assert.rejects(generateDaily({root,date,mode:'preview',friend:'zoe',previewStory:draft,useApprovedStory:true,client:mock(),encode}),/custom story requires single-friend private preview/);
 });
-test('Actions dispatch supports private story JSON but publishing remains a separate all-five gate',()=>{
+test('Actions dispatch supports private story JSON but publishing remains a full-roster gate',()=>{
  const yaml=fs.readFileSync(path.join(__dirname,'../.github/workflows/crew-shorts-daily-generate.yml'),'utf8');
  assert.match(yaml,/preview_story_json:/);
  assert.match(yaml,/PREVIEW_STORY_JSON: \$\{\{ inputs\.preview_story_json/);
@@ -285,10 +285,11 @@ test('new daily story starts a distinct arc and continuation uses only its publi
   imageAlt:'The fictional character enjoying a relaxed afternoon with simple objects.'
  }));
  const results=validateStories({stories},feed,date);
- assert.equal(results[0].storyId,'life-zoe-20261018');
+ assert.equal(results[0].storyId,'life-'+friends[0]+'-20261018');
  assert.equal(results[0].storyContext,'');
- assert.equal(results[1].storyId,'bella-previous-arc');
- assert.match(results[1].storyContext,/Yesterday bella/);
+ assert.equal(results[0].storyMode,'new');assert.equal(results[1].storyMode,'continue');
+ assert.equal(results[1].storyId,friends[1]+'-previous-arc');
+ assert.match(results[1].storyContext,new RegExp('Yesterday '+friends[1]));
  assert.match(createPrompt(feed,date),/storyMode/);
- assert.match(createPrompt(feed,date),/not an artificial crisis/);
+ assert.match(createPrompt(feed,date),/artificial cliffhangers/);
 });
