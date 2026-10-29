@@ -8,7 +8,7 @@ const {execFileSync}=require('node:child_process');
 const script=path.resolve(__dirname,'../scripts/generate-shorts-daily.mjs');
 const imageTool=path.resolve(__dirname,'../scripts/shorts-encode-webp.py');
 const dir=path.join(__dirname,'../content/crew-shorts/approved');
-const friends=['zoe','bella','hugo','theo','yuna'];
+const friends=require('../content/character-identities/manifest.json').characters.filter(x=>x.role==='friend').map(x=>x.id);
 const today=()=>new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 async function gen(){return import(pathToFileURL(script))}
 function setup(t){
@@ -52,12 +52,12 @@ function setup(t){
 test('daily generator plan is free, nonpublishing and shows prior context',async t=>{const {root,approved}=setup(t);const {generateDaily}=await gen();
  const original=fs.readFileSync(path.join(approved,'posts.json'));
  const r=await generateDaily({root,date:today(),mode:'plan'});
- assert.equal(r.status,'plan-only');assert.equal(r.friends.length,5);assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),original);
+ assert.equal(r.status,'plan-only');assert.equal(r.friends.length,friends.length);assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),original);
 });
-test('preview makes five separately decoded WebPs and never changes approved source',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
+test('preview makes 16 separately decoded WebPs and never changes approved source',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
  const original=fs.readFileSync(path.join(approved,'posts.json'));
  const r=await generateDaily({root,date:today(),mode:'preview',client:mock(),encode});
- assert.equal(r.status,'preview-ready');assert.equal(r.stories.length,5);
+ assert.equal(r.status,'preview-ready');assert.equal(r.stories.length,friends.length);
  for(const friend of friends){const name=path.join(root,'crew-shorts-preview',today(),friend+'.webp');assert.ok(fs.statSync(name).size<350*1024)}
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),original);
 });
@@ -66,19 +66,19 @@ test('visual QA or image error refuses all source changes',async t=>{const {root
  await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({badFriend:'hugo'}),encode}),/visual QA rejected/);
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),before);
  assert.equal(JSON.parse(fs.readFileSync(path.join(root,'crew-shorts-preview',today(),'manifest.json'))).status,'failed');
- assert.equal(fs.readdirSync(path.join(approved,'media')).length,5);
+ assert.equal(fs.readdirSync(path.join(approved,'media')).length,friends.length);
  await assert.rejects(generateDaily({root,date:today(),mode:'publish',client:mock({failImage:'theo'}),encode}),/simulated image outage/);
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),before);
 });
-test('approved batch persists 5 originals and is idempotent on retry',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
+test('approved batch persists 16 originals and is idempotent on retry',async t=>{const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();
  const r=await generateDaily({root,date:today(),mode:'publish',client:mock(),encode});
  assert.equal(r.status,'approved');
  const feed=JSON.parse(fs.readFileSync(path.join(approved,'posts.json')));
- assert.equal(feed.posts.length,10);assert.equal(feed.source,'daily');
- assert.ok(feed.posts.slice(0,5).every(p=>p.id.endsWith('-first')));
+ assert.equal(feed.posts.length,friends.length*2);assert.equal(feed.source,'daily');
+ assert.ok(feed.posts.slice(0,friends.length).every(p=>p.id.endsWith('-first')));
  for(const friend of friends)assert.ok(fs.existsSync(path.join(approved,'media',friend+'-'+today()+'.webp')));
  const again=await generateDaily({root,date:today(),mode:'publish',client:{stories(){throw Error('must not run')}},encode});
- assert.equal(again.status,'already-approved');assert.equal(JSON.parse(fs.readFileSync(path.join(approved,'posts.json'))).posts.length,10);
+ assert.equal(again.status,'already-approved');assert.equal(JSON.parse(fs.readFileSync(path.join(approved,'posts.json'))).posts.length,friends.length*2);
 });
 test('complete daily batch stays complete when a Friend has multiple approved posts that day',async t=>{
  const {root,approved}=setup(t);const {generateDaily}=await gen();const date=today();
@@ -88,7 +88,20 @@ test('complete daily batch stays complete when a Friend has multiple approved po
  source.posts.push(...batch,...batch.map(p=>({...p,id:p.friendId+'-same-day-extra',publishedAt:date+'T10:45:00+08:00'})));
  fs.writeFileSync(path.join(approved,'posts.json'),JSON.stringify(source));
  const r=await generateDaily({root,date,mode:'publish',client:{stories(){throw Error('must not regenerate a complete daily batch')}}});
- assert.equal(r.status,'already-approved');assert.equal(r.existing.length,10);
+ assert.equal(r.status,'already-approved');assert.equal(r.existing.length,friends.length*2);
+});
+test('legacy five-Friend seed dates publish only missing 11 Friends without overwriting approved posts',async t=>{
+ const {root,approved,mock,encode}=setup(t);const {generateDaily}=await gen();const date=today();
+ const feed=JSON.parse(fs.readFileSync(path.join(approved,'posts.json'),'utf8'));
+ const legacy=friends.slice(0,5).map(id=>({...feed.posts.find(p=>p.friendId===id),id:id+'-legacy',publishedAt:date+'T08:00:00+08:00'}));
+ feed.posts.push(...legacy);fs.writeFileSync(path.join(approved,'posts.json'),JSON.stringify(feed));
+ const r=await generateDaily({root,date,mode:'publish',client:mock(),encode});
+ assert.equal(r.status,'approved');assert.equal(r.approved.length,friends.length-legacy.length);
+ const result=JSON.parse(fs.readFileSync(path.join(approved,'posts.json'),'utf8'));
+ assert.equal(result.posts.filter(p=>p.publishedAt.startsWith(date)).length,friends.length);
+ for(const original of legacy)assert.deepEqual(result.posts.find(p=>p.id===original.id),original);
+ const again=await generateDaily({root,date,mode:'publish',client:{stories(){throw Error('must not regenerate')}}});
+ assert.equal(again.status,'already-approved');
 });
 test('seeded days permit private preview but cannot republish, and future story spoilers stay out of context',async t=>{
  const {root,approved,mock,encode,source}=setup(t);const {generateDaily,createPrompt}=await gen();
@@ -99,7 +112,7 @@ test('seeded days permit private preview but cannot republish, and future story 
  assert.doesNotMatch(createPrompt(source,d),/FUTURE SPOILER/);
  const prior=fs.readFileSync(path.join(approved,'posts.json'));
  const preview=await generateDaily({root,date:d,mode:'preview',client:mock(),encode});
- assert.equal(preview.status,'preview-ready');assert.equal(preview.stories.length,5);
+ assert.equal(preview.status,'preview-ready');assert.equal(preview.stories.length,friends.length);
  const skipped=await generateDaily({root,date:d,mode:'publish',client:{stories(){throw Error('should skip')}}});
  assert.equal(skipped.status,'already-approved');
  assert.deepEqual(fs.readFileSync(path.join(approved,'posts.json')),prior);
