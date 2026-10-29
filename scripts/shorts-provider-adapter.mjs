@@ -190,22 +190,8 @@ export class LocalAgentProviderAdapter extends BaseProviderAdapter {
     if (this.qaReviewer) {
       return this.qaReviewer(story, photo, avatar, identity);
     }
-    // Default strict check checklist
-    return {
-      pass: true,
-      reason: 'Verified local candidate matching canonical master identity and story scene',
-      checks: {
-        sameFace: true,
-        sameEyes: true,
-        sameHair: true,
-        sameSkin: true,
-        faceVisible: true,
-        singleCharacter: true,
-        sceneMatch: true,
-        photorealistic: true,
-        noTextOrLogo: true
-      }
-    };
+    // Never fabricate a successful visual review for locally supplied images.
+    throw new Error('LocalAgentProviderAdapter requires an explicit visual QA reviewer for ' + story.friendId);
   }
 }
 
