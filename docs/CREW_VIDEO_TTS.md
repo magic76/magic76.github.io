@@ -2,12 +2,11 @@
 
 **Purpose:** A trusted coding agent can add a short `main`-branch request to the public `magic76/crew-social-agent` repository, and the existing `crew-guest-trial` Worker produces Gemini 3.8 Flash TTS without seeing or copying the API key. No GitHub Actions, no new Gemini key, no webhook, no dedicated server, no new R2 bucket.
 
-## Owner's one-time setup (no secret sharing)
+## Zero-setup authorization
 
-1. Apply the SQL migration in **Crew Web**, `migrations/crew-auth/0003_video_tts.sql`, to the **existing** Cloudflare D1 `crew-auth` database. This is separate from the guest trial data; it does not reset member usage. For a prepared Wrangler setup: `npx wrangler d1 execute crew-auth --remote --file migrations/crew-auth/0003_video_tts.sql` (from the repo root with account access), or paste its SQL into D1 Console.
-2. Deploy the modified `workers/guest-trial` Worker with the existing `CREW_AUTH_DB` binding and **existing** `GEMINI_GUEST_API_KEYS` or `GEMINI_GUEST_API_KEY` Secret unchanged. Cloudflare Worker builds/deploys are separate from GitHub Actions jobs. This appends a Cron trigger every five minutes.
-3. Enable `CREW_VIDEO_TTS_ENABLED = "1"` under the Worker **production Variables and Secrets**, and redeploy. When unset, the code defaults to OFF; no new variable is deployed until you explicitly set it to `"1"`. Don't enable before the migration and successful build. Disable by setting it back to `"0"`.
-4. Do **not** add Key values to the GitHub request JSON or to this chat.
+The existing Worker deployment must include this feature. It already has `CREW_AUTH_DB` and `GEMINI_GUEST_API_KEYS`. **No new Gemini key, additional Worker variable, GitHub Actions Secret, webhook, Cloudflare migration command, R2 bucket, or local Agent is necessary.** Every five minutes the Worker checks a small JSON file on the protected `main` branch of `magic76/crew-social-agent`. Only a committed JSON with `"enabled": true` **and** a valid short TTS job authorizes paid model calls. The Worker automatically creates its dedicated D1 table upon the first approved job, not before. The existing Guest Live flow remains unchanged. 
+
+The owner may disable further jobs at any time by setting Worker Production `CREW_VIDEO_TTS_ENABLED=0` (explicit off), or by setting the GitHub queue JSON to `"enabled": false`.
 
 ## Agent creates a new task
 
@@ -16,6 +15,7 @@ Update `content/video-tts/requests/index.json` **on main** in `magic76/crew-soci
 ```json
 {
   "version": 1,
+  "enabled": true,
   "jobs": [{
     "id": "crew-tts-permissions-101-20261030",
     "day": "2026-10-30",
@@ -44,11 +44,11 @@ Results are **public URLs**; only post scripts that may safely be spoken publicl
 ## Safety / limitations
 
 - Existing Guest Live Token endpoint (`/api/guest/token`) and its quotas, Turnstile, OAuth and browser path remain unchanged.
-- `CREW_VIDEO_TTS_ENABLED` defaults OFF; missing migration causes the isolated scheduled task to fail closed and log a stable error name without affecting the Live guest trial.
+- Worker is idle with no approved GitHub queue jobs; an explicit `CREW_VIDEO_TTS_ENABLED=0` stops further processing. New jobs auto-create their isolated D1 table; D1 errors fail closed without affecting the Live guest trial.
 - Maximum 3 new jobs/day across the Worker (not per user), and each is at most 300 characters; no API key returned to clients. This limits but does not guarantee a dollar cost cap. Set Google billing budgets/alerts as well.
 - D1 audio storage has a 2 MB row limit, so files above 1.6 MB are rejected and marked failed, not truncated. For long episodes use R2, not this proof of concept.
 - Cron itself consumes Cloudflare Worker execution and D1 read requests. It does not consume **GitHub Actions** runner minutes.
-- No generated Gemini audio exists until migration, deployment and one-time feature enablement have been confirmed. Do not claim publication or actual Gemini voice QA before validating a real WAV.
+- No generated Gemini audio exists until the Worker deploys the new code and an authorized GitHub job actually completes. Do not claim publication or actual Gemini voice QA before validating a real WAV.
 
 Gemini TTS docs: https://ai.google.dev/gemini-api/docs/speech-generation
 Cloudflare D1 limits: https://developers.cloudflare.com/d1/platform/limits/

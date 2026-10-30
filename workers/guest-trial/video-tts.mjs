@@ -11,7 +11,7 @@ const MAX_JOBS=3;
 const MAX_AUDIO_BYTES=1_600_000; // Cloudflare D1 row limit: 2MB
 const keepDays=7;
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
-const enabled=env=>env?.CREW_VIDEO_TTS_ENABLED==='1'&&env?.CREW_AUTH_DB;
+const enabled=env=>env?.CREW_VIDEO_TTS_ENABLED!=='0'&&env?.CREW_AUTH_DB;
 const today=date=>new Date(date).toISOString().slice(0,10);
 
 export function validVideoJob(job, now=Date.now()){
@@ -66,14 +66,19 @@ export async function synthesizeVideoNarration(env, text, voice='Kore', requestF
 export async function pollVideoTtsQueue(env,{requestFetch=fetch,now=Date.now(),pickKey}={}){
  if(!enabled(env))return {status:'disabled'};
  const db=env.CREW_AUTH_DB;
- // The D1 table must exist first. Fail closed; do not affect guest-token paths.
- await db.prepare('DELETE FROM crew_video_tts_jobs WHERE created_at < ?').bind(now-keepDays*86400000).run();
  const response=await requestFetch(QUEUE_URL+'?v='+Math.floor(now/300000),{headers:{'accept':'application/json'},signal:AbortSignal.timeout(8000)});
  if(!response.ok)return {status:'queue_unavailable'};
  const raw=await response.text();
  if(raw.length>32000)return {status:'queue_too_large'};
  let input;try{input=JSON.parse(raw)}catch{return {status:'invalid_queue'}}
  if(input?.version!==1||!Array.isArray(input.jobs)||input.jobs.length>20)return {status:'invalid_queue'};
+ // A main-branch commit with enabled:true is the owner's explicit spend authorization.
+ if(input.enabled!==true||!input.jobs.some(job=>validVideoJob(job,now)))return {status:'idle'};
+ // Create this isolated table only on the first authorized job. Existing guest data is untouched.
+ await db.prepare("CREATE TABLE IF NOT EXISTS crew_video_tts_jobs (id TEXT PRIMARY KEY, created_day TEXT NOT NULL, created_at INTEGER NOT NULL, status TEXT NOT NULL CHECK(status IN ('processing','ready','failed')), seconds REAL, wav BLOB, error TEXT)").run();
+ await db.prepare('CREATE INDEX IF NOT EXISTS crew_video_tts_jobs_created ON crew_video_tts_jobs (created_at)').run();
+ await db.prepare('CREATE INDEX IF NOT EXISTS crew_video_tts_jobs_daily ON crew_video_tts_jobs (created_day)').run();
+ await db.prepare('DELETE FROM crew_video_tts_jobs WHERE created_at < ?').bind(now-keepDays*86400000).run();
  // Only bounded jobs from the owner's protected public main branch are trusted.
  for(const job of input.jobs){
   if(!validVideoJob(job,now))continue;

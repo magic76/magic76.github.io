@@ -72,7 +72,7 @@ D1 建表程式：`migrations/crew-auth/0001.sql`（登入三表）、`migration
 
 ### Video Lab TTS（沿用 Crew Web 現有 Gemini Key）
 
-Crew Video Lab 使用同一個 `crew-guest-trial` Worker 的 `GEMINI_GUEST_API_KEYS` / `GEMINI_GUEST_API_KEY`；沒有新增 Gemini Secret。要啟用，先在現有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0003_video_tts.sql`，再將 Worker Production 的 `CREW_VIDEO_TTS_ENABLED` 設為文字 `1` 並部署；未設定即關閉。Worker 每 5 分鐘檢查公開 repo `magic76/crew-social-agent` 的受保護 main 分支任務，單一 UTC 日最多 3 次，一次一段最長 300 字。結果存 D1 最多 7 天，讀取路徑為 `/api/video/tts/result?id=...`。公開結果不適合私人配音內容。關閉設為 `0`；此模組不修改 Live 試用次數與介面，也不消耗 GitHub Actions。詳細請參閱 [CREW_VIDEO_TTS.md](CREW_VIDEO_TTS.md)。
+Crew Video Lab 使用同一個 `crew-guest-trial` Worker 的 `GEMINI_GUEST_API_KEYS` / `GEMINI_GUEST_API_KEY`；沒有新增 Gemini Secret。正常不需另設新變數或執行 D1 migration：只有在 `crew-social-agent` 的受保護 main 任務 JSON 明確設定 `enabled:true` 且包含合法新任務時，Worker 才自動建立該專用表並生成語音。需要緊急停用可將 Worker Production 的 `CREW_VIDEO_TTS_ENABLED` 設為文字 `0`。Worker 每 5 分鐘檢查公開 repo `magic76/crew-social-agent` 的受保護 main 分支任務，單一 UTC 日最多 3 次，一次一段最長 300 字。結果存 D1 最多 7 天，讀取路徑為 `/api/video/tts/result?id=...`。公開結果不適合私人配音內容。關閉設為 `0`；此模組不修改 Live 試用次數與介面，也不消耗 GitHub Actions。詳細請參閱 [CREW_VIDEO_TTS.md](CREW_VIDEO_TTS.md)。
 
 ## 3. Pages Production：管理員使用統計／Cloudflare Access
 

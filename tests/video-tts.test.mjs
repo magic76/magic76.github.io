@@ -9,8 +9,9 @@ function pcmWav(seconds=1){
 }
 function fakeDB(){
  const rows=new Map();
- return {rows,prepare(sql){return {bind(...params){return {
+ return {rows,prepare(sql){return {async run(){if(sql.startsWith('CREATE TABLE IF NOT EXISTS crew_video_tts_jobs')||sql.startsWith('CREATE INDEX IF NOT EXISTS crew_video_tts_jobs'))return {meta:{changes:0}};throw Error('Unexpected direct D1 run SQL: '+sql);},bind(...params){return {
   async run(){
+   if(sql.startsWith('CREATE TABLE IF NOT EXISTS crew_video_tts_jobs')||sql.startsWith('CREATE INDEX IF NOT EXISTS crew_video_tts_jobs'))return {meta:{changes:0}};
    if(sql.startsWith('DELETE FROM crew_video_tts_jobs'))return {meta:{changes:0}};
    if(sql.startsWith('INSERT OR IGNORE INTO crew_video_tts_jobs')){
     const [id,day,createdAt]=params;
@@ -38,13 +39,13 @@ test('only short same/previous-day owner queue jobs are eligible',()=>{
  assert.equal(validVideoJob({...job,voice:'unsupported'},now),false);
 });
 test('a verified queue triggers one Gemini TTS call, stores audio and serves result, never shares key',async()=>{
- const db=fakeDB(),env={CREW_VIDEO_TTS_ENABLED:'1',CREW_AUTH_DB:db,GEMINI_GUEST_API_KEY:'mock-secret'};
+ const db=fakeDB(),env={CREW_AUTH_DB:db,GEMINI_GUEST_API_KEY:'mock-secret'};
  const wav=pcmWav(3),calls=[];
  const requestFetch=async (url,init)=>{
   calls.push(String(url));
   if(String(url).startsWith('https://raw.githubusercontent.com/')){
    assert.ok(!String(url).includes('secret'));
-   return Response.json({version:1,jobs:[job]});
+   return Response.json({version:1,enabled:true,jobs:[job]});
   }
   if(String(url).endsWith('/v1beta/interactions')){
    assert.equal(init.headers['x-goog-api-key'],'mock-secret');
@@ -66,16 +67,16 @@ test('a verified queue triggers one Gemini TTS call, stores audio and serves res
  assert.equal(resBytes.toString('ascii',0,4),'RIFF');
 });
 test('feature is off by default and invalid WAV is rejected',async()=>{
- const db=fakeDB();assert.deepEqual(await pollVideoTtsQueue({CREW_AUTH_DB:db}),{status:'disabled'});
- const r=await videoTtsResult(new Request('https://crew-guest-trial.shanliyoung.workers.dev/api/video/tts/result?id='+job.id),{CREW_AUTH_DB:db});
+ const db=fakeDB();assert.deepEqual(await pollVideoTtsQueue({CREW_VIDEO_TTS_ENABLED:'0',CREW_AUTH_DB:db}),{status:'disabled'});
+ const r=await videoTtsResult(new Request('https://crew-guest-trial.shanliyoung.workers.dev/api/video/tts/result?id='+job.id),{CREW_VIDEO_TTS_ENABLED:'0',CREW_AUTH_DB:db});
  assert.equal(r.status,404);
  assert.throws(()=>parseWaveAudio('bm90IGEgV0FWIGZpbGU='));
 });
 test('daily budget only permits three unique TTS jobs',async()=>{
- const db=fakeDB(),env={CREW_VIDEO_TTS_ENABLED:'1',CREW_AUTH_DB:db};
+ const db=fakeDB(),env={CREW_AUTH_DB:db};
  const b64=pcmWav(1).toString('base64');let count=0;
  const requestFetch=async url=>String(url).startsWith('https://raw.githubusercontent.com/')
-  ?Response.json({version:1,jobs:Array.from({length:5},(_,i)=>({...job,id:'crew-tts-demo-request-'+i+'-abcde'}))})
+  ?Response.json({version:1,enabled:true,jobs:Array.from({length:5},(_,i)=>({...job,id:'crew-tts-demo-request-'+i+'-abcde'}))})
   :(count++,Response.json({steps:[{type:'model_output',content:[{type:'audio',data:b64}]}]}));
  for(let i=0;i<5;i++)await pollVideoTtsQueue(env,{requestFetch,pickKey:()=> 'key',now});
  assert.equal(count,3);

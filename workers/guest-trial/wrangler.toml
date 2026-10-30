@@ -41,7 +41,7 @@ database_id = "2ccb5252-84b9-447a-9e98-4906a7319613"
 # - Deploy Pages first, then deploy Worker. Do NOT use GUEST_DB for CREW_AUTH_DB.
 
 # Crew Video TTS: one authorized GitHub-main request every five minutes.
-# Disabled unless CREW_VIDEO_TTS_ENABLED=1 is configured in Worker production settings.
+# A protected GitHub-main queue entry with enabled:true authorizes TTS; emergency off: CREW_VIDEO_TTS_ENABLED=0.
 # This uses existing GEMINI_GUEST_API_KEYS and CREW_AUTH_DB. No GitHub Actions.
 [triggers]
 crons = ["*/5 * * * *"]
