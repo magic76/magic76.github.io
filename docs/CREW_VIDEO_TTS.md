@@ -4,7 +4,7 @@
 
 ## Zero-setup authorization
 
-The existing Worker deployment must include this feature. It already has `CREW_AUTH_DB` and `GEMINI_GUEST_API_KEYS`. **No new Gemini key, additional Worker variable, GitHub Actions Secret, webhook, Cloudflare migration command, R2 bucket, or local Agent is necessary.** Every five minutes the Worker checks a small JSON file on the protected `main` branch of `magic76/crew-social-agent`. Only a committed JSON with `"enabled": true` **and** a valid short TTS job authorizes paid model calls. The Worker automatically creates its dedicated D1 table upon the first approved job, not before. The existing Guest Live flow remains unchanged. 
+The existing Worker deployment must include this feature. It already has `CREW_AUTH_DB` and `GEMINI_GUEST_API_KEYS`. **No new Gemini key, GitHub Actions Secret, webhook, Cloudflare migration command, R2 bucket, or local Agent is necessary.** The daily cap is configurable through the non-secret Worker variable `CREW_VIDEO_TTS_MAX_JOBS_PER_DAY` (set to `"20"` in `wrangler.toml`). Every five minutes the Worker checks a small JSON file on the protected `main` branch of `magic76/crew-social-agent`. Only a committed JSON with `"enabled": true` **and** a valid short TTS job authorizes paid model calls. The Worker automatically creates its dedicated D1 table upon the first approved job, not before. The existing Guest Live flow remains unchanged. 
 
 The owner may disable further jobs at any time by setting Worker Production `CREW_VIDEO_TTS_ENABLED=0` (explicit off), or by setting the GitHub queue JSON to `"enabled": false`.
 
@@ -27,7 +27,7 @@ Update `content/video-tts/requests/index.json` **on main** in `magic76/crew-soci
 
 `day` must be today's or yesterday's **UTC** date. Add a new unique ID for each requested audio take. `text` is 10–300 characters; no API key, URLs or external files in it. Only content merged to the repo's `main` becomes eligible; the Worker never accepts arbitrary caller-supplied script text. Keep the queue index under 32 KB / 20 jobs, and prune older entries as necessary.
 
-Every five minutes, the existing Worker checks the list (if enabled), reserves a new request in the existing D1, generates **one continuous** Gemini 3.8 Flash TTS take and saves a WAV (under 1.6 MB). It runs no more than **3 new jobs per UTC day** and never retries uncertain/failed requests automatically. Failed jobs get a terminal status; to retry deliberately, create a new ID and check Gemini billing/quota first. WAVs are deleted after seven days. This is a *small-file proof of concept*; long videos should use R2 or another media store, not D1.
+Every five minutes, the existing Worker checks the list (if enabled), reserves a new request in the existing D1, generates **one continuous** Gemini 3.8 Flash TTS take and saves a WAV (under 1.6 MB). Each cron invocation reserves **at most one new job**. The Worker allows **20 new jobs per UTC day** by default; set `CREW_VIDEO_TTS_MAX_JOBS_PER_DAY` to a whole number from **1 to 50** to adjust it. Missing, non-numeric, non-integer, or out-of-range values fall back to 20 (never unlimited). This is a Worker-wide UTC-day cap, not per user. The Worker never retries uncertain/failed requests automatically. Failed jobs get a terminal status; to retry deliberately, create a new ID and check Gemini billing/quota first. WAVs are deleted after seven days. This is a *small-file proof of concept*; long videos should use R2 or another media store, not D1.
 
 ## Retrieve results (read-only, no secrets)
 
@@ -45,7 +45,7 @@ Results are **public URLs**; only post scripts that may safely be spoken publicl
 
 - Existing Guest Live Token endpoint (`/api/guest/token`) and its quotas, Turnstile, OAuth and browser path remain unchanged.
 - Worker is idle with no approved GitHub queue jobs; an explicit `CREW_VIDEO_TTS_ENABLED=0` stops further processing. New jobs auto-create their isolated D1 table; D1 errors fail closed without affecting the Live guest trial.
-- Maximum 3 new jobs/day across the Worker (not per user), and each is at most 300 characters; no API key returned to clients. This limits but does not guarantee a dollar cost cap. Set Google billing budgets/alerts as well.
+- Default maximum 20 new jobs per UTC day across the Worker (not per user); configurable to 1–50 with `CREW_VIDEO_TTS_MAX_JOBS_PER_DAY`. Each is at most 300 characters; no API key returned to clients. This limits request count but **is not a spending cap**. Set a budget and **budget alerts in Google Cloud Billing** before enabling production synthesis; alerts notify you but do not automatically stop charges.
 - D1 audio storage has a 2 MB row limit, so files above 1.6 MB are rejected and marked failed, not truncated. For long episodes use R2, not this proof of concept.
 - Cron itself consumes Cloudflare Worker execution and D1 read requests. It does not consume **GitHub Actions** runner minutes.
 - No generated Gemini audio exists until the Worker deploys the new code and an authorized GitHub job actually completes. Do not claim publication or actual Gemini voice QA before validating a real WAV.

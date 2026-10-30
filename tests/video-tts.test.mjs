@@ -14,8 +14,10 @@ function fakeDB(){
    if(sql.startsWith('CREATE TABLE IF NOT EXISTS crew_video_tts_jobs')||sql.startsWith('CREATE INDEX IF NOT EXISTS crew_video_tts_jobs'))return {meta:{changes:0}};
    if(sql.startsWith('DELETE FROM crew_video_tts_jobs'))return {meta:{changes:0}};
    if(sql.startsWith('INSERT OR IGNORE INTO crew_video_tts_jobs')){
-    const [id,day,createdAt]=params;
-    if(rows.has(id)||[...rows.values()].filter(x=>x.day===day).length>=3)return {meta:{changes:0}};
+    const [id,day,createdAt,budgetDay,limit]=params;
+    assert.equal(budgetDay,day);
+    assert.ok(Number.isInteger(limit)&&limit>=1&&limit<=50,'D1 receives a bounded daily limit');
+    if(rows.has(id)||[...rows.values()].filter(x=>x.day===day).length>=limit)return {meta:{changes:0}};
     rows.set(id,{status:'processing',day,createdAt});return {meta:{changes:1}};
    }
    if(sql.startsWith("UPDATE crew_video_tts_jobs SET status='ready'")){
@@ -72,12 +74,77 @@ test('feature is off by default and invalid WAV is rejected',async()=>{
  assert.equal(r.status,404);
  assert.throws(()=>parseWaveAudio('bm90IGEgV0FWIGZpbGU='));
 });
-test('daily budget only permits three unique TTS jobs',async()=>{
+// A mock queue can change between cron invocations (the real queue has <=20 entries).
+function ttsQueue(jobs){
+ const wav=pcmWav(1).toString('base64');
+ let calls=0;
+ const state={jobs};
+ const requestFetch=async url=>{
+  if(String(url).startsWith('https://raw.githubusercontent.com/'))return Response.json({version:1,enabled:true,jobs:state.jobs});
+  assert.ok(String(url).endsWith('/v1beta/interactions'));
+  calls++;
+  return Response.json({steps:[{type:'model_output',content:[{type:'audio',data:wav}]}]});
+ };
+ return {state,requestFetch,get calls(){return calls}};
+}
+function makeJobs(count,start=0){
+ return Array.from({length:count},(_,i)=>({...job,id:'crew-tts-demo-request-'+(start+i)+'-abcde'}));
+}
+function seedRows(db,count){
+ for(let i=0;i<count;i++)db.rows.set('old-'+i,{day:'2026-10-30',status:'ready',createdAt:now});
+}
+test('default limit is 20 per UTC day; each cron invocation reserves at most one job',async()=>{
  const db=fakeDB(),env={CREW_AUTH_DB:db};
- const b64=pcmWav(1).toString('base64');let count=0;
- const requestFetch=async url=>String(url).startsWith('https://raw.githubusercontent.com/')
-  ?Response.json({version:1,enabled:true,jobs:Array.from({length:5},(_,i)=>({...job,id:'crew-tts-demo-request-'+i+'-abcde'}))})
-  :(count++,Response.json({steps:[{type:'model_output',content:[{type:'audio',data:b64}]}]}));
- for(let i=0;i<5;i++)await pollVideoTtsQueue(env,{requestFetch,pickKey:()=> 'key',now});
- assert.equal(count,3);
+ const queue=ttsQueue(makeJobs(20)),opts={requestFetch:queue.requestFetch,pickKey:()=> 'key',now};
+ for(let i=0;i<20;i++){
+  const result=await pollVideoTtsQueue(env,opts);
+  assert.equal(result.status,'ready');
+  assert.equal(db.rows.size,i+1,'only one reservation per cron invocation');
+  assert.equal(queue.calls,i+1);
+ }
+ queue.state.jobs=makeJobs(1,20);
+ assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'idle'});
+ assert.equal(db.rows.size,20);
+ assert.equal(queue.calls,20,'limit prevents another paid synthesis');
+});
+test('custom limit from Worker variable applies to new job reservations',async()=>{
+ for(const [value,expected] of [['1',1],['2',2],['5',5],['50',50]]){
+  const db=fakeDB(),env={CREW_AUTH_DB:db,CREW_VIDEO_TTS_MAX_JOBS_PER_DAY:value};
+  const queue=ttsQueue([]),opts={requestFetch:queue.requestFetch,pickKey:()=> 'key',now};
+  for(let i=0;i<expected;i++){
+   // Queue is limited to 20 entries; a single cron never processes more than 1.
+   queue.state.jobs=makeJobs(1,i);
+   assert.equal((await pollVideoTtsQueue(env,opts)).status,'ready');
+  }
+  queue.state.jobs=makeJobs(1,expected);
+  assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'idle'});
+  assert.equal(db.rows.size,expected);
+  assert.equal(queue.calls,expected);
+ }
+});
+test('invalid/missing Worker limit falls back to 20, not unlimited',async()=>{
+ for(const invalid of [undefined,'', 'abc','0','51','-1','1.5','Infinity',' 2 ','999999999999999999999999',null,{},20.5]){
+  const db=fakeDB();seedRows(db,19);
+  const env={CREW_AUTH_DB:db,CREW_VIDEO_TTS_MAX_JOBS_PER_DAY:invalid};
+  const queue=ttsQueue(makeJobs(2)),opts={requestFetch:queue.requestFetch,pickKey:()=> 'key',now};
+  assert.equal((await pollVideoTtsQueue(env,opts)).status,'ready',String(invalid));
+  assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'idle'},String(invalid));
+  assert.equal(db.rows.size,20,String(invalid));
+  assert.equal(queue.calls,1,String(invalid));
+ }
+});
+test('failed jobs count against budget and are terminal (no automatic retry)',async()=>{
+ const db=fakeDB(),env={CREW_AUTH_DB:db,CREW_VIDEO_TTS_MAX_JOBS_PER_DAY:'1'};
+ let attempts=0;
+ const requestFetch=async url=>{
+  if(String(url).startsWith('https://raw.githubusercontent.com/'))return Response.json({version:1,enabled:true,jobs:[job]});
+  attempts++;
+  return new Response('upstream error',{status:429});
+ };
+ const opts={now,requestFetch,pickKey:()=> 'key'};
+ assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'failed',jobId:job.id});
+ assert.equal(db.rows.get(job.id).status,'failed');
+ assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'idle'});
+ assert.equal(attempts,1);
+ assert.equal(db.rows.size,1);
 });
