@@ -1,7 +1,7 @@
 {
   "private": true,
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node --test tests/*.test.js tests/*.test.mjs",
     "dev:web": "vite --config vite.web.config.ts",
     "check:web": "tsc --noEmit -p web-spa/tsconfig.json",
     "check:bundle": "node scripts/check-bundle.mjs",

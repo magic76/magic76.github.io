@@ -10,11 +10,12 @@ const backend=import("data:text/javascript;base64,"+Buffer.from(source).toString
 const transport=require("../crew-live.js");
 async function loadStandaloneWorker(){
  const backendUrl="data:text/javascript;base64,"+Buffer.from(source).toString("base64");
+ const videoSource=fs.readFileSync(path.join(root,"workers/guest-trial/video-tts.mjs"),"utf8");
+ const videoUrl="data:text/javascript;base64,"+Buffer.from(videoSource).toString("base64");
  const workerRaw=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
- const workerSource=workerRaw.replace(
-  'import {onRequestGet,onRequestPost} from "../../functions/api/guest/token.js";',
-  'const {onRequestGet,onRequestPost}=await import("'+backendUrl+'");'
- );
+ const workerSource=workerRaw
+  .replace('import {onRequestGet,onRequestPost,selectGuestGeminiKey} from "../../functions/api/guest/token.js";', 'const {onRequestGet,onRequestPost,selectGuestGeminiKey}=await import("'+backendUrl+'");')
+  .replace('import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";', 'const {pollVideoTtsQueue,videoTtsResult}=await import("'+videoUrl+'");');
  assert.notEqual(workerRaw,workerSource);
  assert.ok(!workerSource.includes('from "../../functions/api/guest/'));
  return (await import("data:text/javascript;base64,"+Buffer.from(workerSource).toString("base64"))).default;
