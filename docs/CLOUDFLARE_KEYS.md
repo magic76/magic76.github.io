@@ -70,6 +70,10 @@ D1 建表程式：`migrations/crew-auth/0001.sql`（登入三表）、`migration
 
 **程式來源：** `workers/guest-trial/worker.mjs`（`TURNSTILE_SECRET_KEY` 別名與跨網域 Origin 保護）、`functions/api/guest/token.js`（驗證／發 Token／D1 配額）、`workers/guest-trial/wrangler.toml`、[crew-guest-trial-v2.md](crew-guest-trial-v2.md)。
 
+### Video Lab TTS（沿用 Crew Web 現有 Gemini Key）
+
+Crew Video Lab 使用同一個 `crew-guest-trial` Worker 的 `GEMINI_GUEST_API_KEYS` / `GEMINI_GUEST_API_KEY`；沒有新增 Gemini Secret。要啟用，先在現有 `CREW_AUTH_DB` 執行 `migrations/crew-auth/0003_video_tts.sql`，再將 Worker Production 的 `CREW_VIDEO_TTS_ENABLED` 設為文字 `1` 並部署；未設定即關閉。Worker 每 5 分鐘檢查公開 repo `magic76/crew-social-agent` 的受保護 main 分支任務，單一 UTC 日最多 3 次，一次一段最長 300 字。結果存 D1 最多 7 天，讀取路徑為 `/api/video/tts/result?id=...`。公開結果不適合私人配音內容。關閉設為 `0`；此模組不修改 Live 試用次數與介面，也不消耗 GitHub Actions。詳細請參閱 [CREW_VIDEO_TTS.md](CREW_VIDEO_TTS.md)。
+
 ## 3. Pages Production：管理員使用統計／Cloudflare Access
 
 | 名稱 | 類型 | 用途 |

@@ -1,5 +1,6 @@
 /** Public three-minute Guest Trial Worker. Legacy private QA endpoint retired. */
-import {onRequestGet,onRequestPost} from "../../functions/api/guest/token.js";
+import {onRequestGet,onRequestPost,selectGuestGeminiKey} from "../../functions/api/guest/token.js";
+import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";
 const ORIGIN="https://www.3sssi.com", HOST="crew-guest-trial.shanliyoung.workers.dev", PATH="/api/guest/token";
 function response(body,status=200,origin){
  const headers={"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"};
@@ -9,7 +10,12 @@ function response(body,status=200,origin){
 export default {
  async fetch(request,env){
   const url=new URL(request.url);
-  if(url.hostname!==HOST||url.pathname!==PATH)return response({error:"Not found"},404);
+  if(url.hostname!==HOST)return response({error:"Not found"},404);
+  if(url.pathname==="/api/video/tts/result"){
+   if(request.method!=="GET")return response({error:"Method not allowed"},405);
+   return videoTtsResult(request,env);
+  }
+  if(url.pathname!==PATH)return response({error:"Not found"},404);
   const origin=request.headers.get("origin");
   if(origin!==ORIGIN)return response({error:"Origin rejected"},403);
   if(request.method==="OPTIONS")return new Response(null,{status:204,headers:{
@@ -32,5 +38,10 @@ export default {
   headers.set("vary","Origin");
   headers.set("cache-control","no-store");
   return new Response(result.body,{status:result.status,headers});
+ },
+ async scheduled(_controller,env){
+  // Fail closed: never interfere with existing guest Live Token requests.
+  try{await pollVideoTtsQueue(env,{pickKey:selectGuestGeminiKey})}
+  catch{console.warn("crew_video_tts_poll_unavailable")}
  }
 };
