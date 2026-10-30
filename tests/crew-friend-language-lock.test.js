@@ -45,7 +45,8 @@ test("Zoe and every Crew Friend have language anchoring in system, opening, quic
  assert.match(memory,/friendLanguageRule\(language,nativeLanguage,mode\)/);
  assert.match(memory,/friendTopicContext\(friend\.id,language\)\+"\\n"\+friendLanguageRule\(language,nativeLanguage,mode\)/);
  assert.match(live,/openingPrompt:languageDirective/);
- assert.match(live,/system,languageDirective/);
+ assert.match(live,/system:system\+/);
+ assert.match(live,/languageDirective,/);
  assert.doesNotMatch(live,/用\{language\}說/);
  assert.match(live,/sendText\(languageDirective/);
  assert.match(shared,/languageDirective\?:string/);

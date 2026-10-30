@@ -210,7 +210,7 @@ export function HomePage(){
       <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
      </Link>:
      ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
-    <details className="crew-home-products">
+    <details className="crew-home-products" open>
      <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
      <div className="crew-home-product-grid">
       <Link className="crew-home-product crew-home-teacher" onClick={()=>trackUsageEvent("home_entry_click","learn")} to="/learn">

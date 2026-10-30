@@ -1,6 +1,7 @@
 const fs=require('fs');const path=require('path');
 const src=fs.readFileSync(path.join(__dirname,'../web-spa/src/magic/creator2.ts'),'utf8');
-const assert=require('assert');
+const assert=require('node:assert/strict');
+const {describe,it}=require('node:test');
 
 describe('Crew Magic Creator 2 structure engine',()=>{
  it('supports five semantic archetypes without executable payload fields',()=>{

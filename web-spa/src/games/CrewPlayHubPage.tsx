@@ -64,7 +64,7 @@ export function CrewPlayHubPage(){
   <p className="crew-play-access-note">{t("playHub.accessNote")}</p>
   <div className="crew-play-discovery" aria-label={zh?"選擇遊戲":"Find a game"}>
    {recentId?<Link className="crew-play-resume" to={"/games/"+recentId} onClick={()=>remember(recentId)}>
-    <span aria-hidden="true">↗</span><span><small>{zh?"繼續上次遊戲":"Continue playing"}</small><strong>{titles[recentId]}</strong></span>
+    <span aria-hidden="true">↗</span><span><small>{zh?"再玩上次的遊戲":"Play last game again"}</small><strong>{titles[recentId]}</strong></span>
    </Link>:null}
    <div className="crew-play-filters" role="group" aria-label={zh?"遊戲分類":"Game categories"}>
     {([{id:"all",zh:"全部",en:"All"},{id:"no-key",zh:"免 Key 就能玩",en:"Play for free"},{id:"ai",zh:"AI 互動",en:"AI games"}] as const).map(item=>

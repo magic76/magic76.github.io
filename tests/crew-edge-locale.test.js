@@ -42,5 +42,7 @@ test("Root middleware runs only at / and language picker persists a matching coo
  assert.ok(routes.include.includes("/api/books"),"Books API route must remain active");
  const switcher=fs.readFileSync(path.join(root,"web-spa/src/i18n/LanguageSwitcher.tsx"),"utf8");
  assert.match(switcher,/document.cookie=/);
- assert.match(switcher,/crew_ui_locale_v1/);
+ assert.match(switcher,/UI_LOCALE_KEY/);
+ const catalog=fs.readFileSync(path.join(root,"web-spa/src/i18n/localeCatalog.ts"),"utf8");
+ assert.match(catalog,/UI_LOCALE_KEY\s*=\s*"crew_ui_locale_v1"/);
 });

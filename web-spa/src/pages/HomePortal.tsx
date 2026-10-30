@@ -17,6 +17,7 @@ export function HomePortal(){
  const {t}=useTranslation("home");
  const navigate=useNavigate();
  const [mode,setMode]=useState<PortalMode>("chat");
+ const [interacting,setInteracting]=useState(false);
  const [paused,setPaused]=useState(true); // Static SSR fallback; eligible devices automatically resume after mount.
  const [idleReady,setIdleReady]=useState(false);
  const [inViewport,setInViewport]=useState(false);
@@ -75,7 +76,7 @@ export function HomePortal(){
  // Pause halts both the particle field and automatic selection.
  useEffect(()=>{
   if(paused||launching||window.matchMedia("(prefers-reduced-motion: reduce)").matches||
-   (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData||!canAnimate)return;
+   (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData||!canAnimate||interacting)return;
   const id=window.setTimeout(()=>{
    setMode(previous=>{
     const currentIndex=MODES.findIndex(item=>item.id===previous);
@@ -83,7 +84,7 @@ export function HomePortal(){
    });
   },5000);
   return()=>window.clearTimeout(id);
- },[mode,paused,launching,canAnimate]);
+ },[mode,paused,launching,canAnimate,interacting]);
  const launch=(event:MouseEvent<HTMLAnchorElement>)=>{
   // Native link semantics survive modifier clicks, new tabs and script-free SSG.
   if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
@@ -119,7 +120,10 @@ export function HomePortal(){
     {t("world.modes."+mode+".cta")}<span aria-hidden="true">↗</span>
    </Link>
   </div>
-  <div className="crew-portal-tabs" role="tablist" aria-label={t("portal.choose")}>
+  <div className="crew-portal-tabs" role="tablist" aria-label={t("portal.choose")}
+    onMouseEnter={()=>setInteracting(true)} onMouseLeave={()=>setInteracting(false)}
+    onFocusCapture={()=>setInteracting(true)}
+    onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setInteracting(false)}}>
    {MODES.map((item,i)=><button key={item.id} id={"crew-portal-tab-"+item.id} type="button" role="tab"
     aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
     ref={el=>{buttons.current[i]=el}} disabled={launching}

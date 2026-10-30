@@ -7,7 +7,7 @@ import {recordGameRouteAssetError} from "../analytics/gameRouteDiagnostics";
 // same lazy route again does not reliably retry its module URL.
 function isAssetLoadError(error:unknown){
  const message=String(error instanceof Error?error.message:error);
- return /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|chunkloaderror|loading chunk [^ ]+ failed|unable to preload css/i.test(message);
+ return /failed to fetch dynamically imported module|error loading dynamically imported module|importing a module script failed|failed to load module script|expected a javascript-or-wasm module script|mime type[^\n]*text\/html|chunkloaderror|loading chunk [^ ]+ failed|unable to preload css/i.test(message);
 }
 
 const RETRY_KEY="crew_route_asset_recovery_v1";

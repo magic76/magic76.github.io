@@ -17,7 +17,7 @@ test("interactive whiteboard appears as a discoverable learning hub feature card
 
 test("teacher live exposes whiteboard action outside course and fortune contexts",()=>{
  const source=read("web-spa/src/teacher/LivePage.tsx");
- assert.match(source,/!course&&!fortuneKind&&<button type="button" className="teacher-live-change-action teacher-live-board-entry"/);
+ assert.match(source,/!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry"/);
  assert.match(source,/onClick=\{\(\)=>void openBoard\(\)\}/);
  assert.match(source,/disabled=\{changingTeacher\|\|openingBoard\|\|endingCourse\}/);
  assert.match(source,/const openBoard=async\(\)=>/);
