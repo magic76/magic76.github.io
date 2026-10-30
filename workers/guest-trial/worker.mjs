@@ -1,3 +1,4 @@
+/** Build trigger 2026-10-30: verify separate crew-guest-trial TTS Worker deployment. */
 /** Public three-minute Guest Trial Worker. Legacy private QA endpoint retired. */
 import {onRequestGet,onRequestPost,selectGuestGeminiKey} from "../../functions/api/guest/token.js";
 import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";
