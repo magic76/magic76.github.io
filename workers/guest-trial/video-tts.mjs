@@ -7,7 +7,15 @@ const QUEUE_URL='https://raw.githubusercontent.com/magic76/crew-social-agent/mai
 const MODEL='gemini-3.8-flash-tts';
 const JOB_ID=/^crew-tts-[a-z0-9-]{8,60}$/;
 const DAY=/^\d{4}-\d{2}-\d{2}$/;
-const MAX_JOBS=3;
+const DEFAULT_MAX_JOBS_PER_DAY=20;
+const maxJobsPerDay=env=>{
+ const raw=env?.CREW_VIDEO_TTS_MAX_JOBS_PER_DAY;
+ // Worker vars are strings; only a whole decimal number in 1–50 is valid.
+ if(typeof raw!=='string'&&typeof raw!=='number')return DEFAULT_MAX_JOBS_PER_DAY;
+ if(!/^\d+$/.test(String(raw)))return DEFAULT_MAX_JOBS_PER_DAY;
+ const limit=Number(raw);
+ return Number.isSafeInteger(limit)&&limit>=1&&limit<=50?limit:DEFAULT_MAX_JOBS_PER_DAY;
+};
 const MAX_AUDIO_BYTES=1_600_000; // Cloudflare D1 row limit: 2MB
 const keepDays=7;
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
@@ -83,7 +91,7 @@ export async function pollVideoTtsQueue(env,{requestFetch=fetch,now=Date.now(),p
  for(const job of input.jobs){
   if(!validVideoJob(job,now))continue;
   const reservation=await db.prepare("INSERT OR IGNORE INTO crew_video_tts_jobs (id,created_day,created_at,status) SELECT ?,?,?,'processing' WHERE (SELECT COUNT(*) FROM crew_video_tts_jobs WHERE created_day=?)<?")
-   .bind(job.id,today(now),now,today(now),MAX_JOBS).run();
+   .bind(job.id,today(now),now,today(now),maxJobsPerDay(env)).run();
   if(reservation.meta?.changes!==1)continue;
   try{
    const {bytes,seconds}=await synthesizeVideoNarration(env,job.text,job.voice||'Kore',requestFetch,pickKey);
