@@ -7,7 +7,7 @@ import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSo
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview({maxPosts=6,excludeFriendIds=[]}:{maxPosts?:number;excludeFriendIds?:string[]}={}){
+export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[]}:{maxPosts?:number;excludeFriendIds?:string[]}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
