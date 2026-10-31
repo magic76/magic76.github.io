@@ -59,7 +59,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     }
    }
    if(!active.current)return;
-   if(config.trial?.used===config.trial?.limit&&!config.signinRequired&&!config.memberMetering){setPhase("exhausted");return}
+   if(config.trial&&config.trial.used===config.trial.limit&&!config.signinRequired&&!config.memberMetering){setPhase("exhausted");return}
    trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready");
   }).catch(()=>{if(active.current){if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}});
   return()=>{active.current=false};
