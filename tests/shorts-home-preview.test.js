@@ -25,7 +25,7 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  assert.match(component,/setFeed\(\{\.\.\.value,posts:shuffleShortsPosts\(value.posts\)\}\)/);
  assert.ok(component.indexOf("shuffleShortsPosts(value.posts)")<component.indexOf("const seen=new Set<string>()"),"shuffle before friend dedupe and slicing");
  assert.match(component,/controller\.abort\(\)/);
- assert.match(component,/maxPosts=6/);
+ assert.match(component,/maxPosts=3/);
  assert.match(component,/\.slice\(0,maxPosts\)/);
  assert.match(component,/excludeFriendIds\.includes\(post\.friendId\)/);
  assert.match(component,/seen\.has\(post\.friendId\)/);
