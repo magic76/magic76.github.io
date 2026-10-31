@@ -159,7 +159,7 @@
 .crew-home-feature-row .crew-home-game-pick{margin:0;padding:16px;gap:12px}
 .crew-home-feature-row .crew-home-world-explore{margin:0;padding:0;border:0}
 .crew-home-feature-row .crew-home-world-explore-heading{margin-bottom:8px}
-.crew-home-feature-row .crew-home-world-explore-grid{gap:8px}
+.crew-home-feature-row .crew-home-world-explore-grid{grid-template-columns:1fr;gap:8px}
 .crew-home-feature-row .crew-home-world-explore-card{padding:11px 13px;min-height:66px;gap:10px}
 .crew-home-feature-row .crew-home-world-explore-card>span:nth-child(2)>span{display:none}
 .crew-home-feature-row .crew-home-world-explore-icon{width:26px}
