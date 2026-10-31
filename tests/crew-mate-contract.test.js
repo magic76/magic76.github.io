@@ -120,7 +120,7 @@ test("briefing is finalized from confirmed speech and unsent typed text before e
  assert.match(page,/privateStatements\.current\.push\(turn\.input\.trim\(\)\)/);
  assert.match(page,/const pendingSpeech=privateInputRef\.current\.trim\(\)/);
  assert.match(page,/const statements=\[\.\.\.privateStatements\.current,\.\.\.\(pendingSpeech\?\[pendingSpeech\]:\[\]\),\.\.\.\(raw\?\[raw\]:\[\]\)\]/);
- assert.match(page,/await finalizeMateBriefing\(consensusRef\.current,statements\)/);
+ assert.match(page,/await finalizeMateBriefing\(consensusRef\.current,statements,startedExternal\?"supplement":"initial"\)/);
  assert.match(briefing,/Do not guess missing fields/);
  assert.match(page,/setConfirmOwner\(false\);\s*advance\("review"/);
 });

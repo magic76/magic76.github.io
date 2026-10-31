@@ -30,7 +30,7 @@ test("legacy product routes and contextual bottom-nav selection remain reachable
  assert.match(model,/pathname\.startsWith\("\/teacher\/shorts"\)/);
  assert.match(model,/new URLSearchParams\(search\)\.get\("mode"\)==="friends"/);
  assert.match(model,/\["fortune","timeline","games","story","research"/);
- assert.match(model,/\["settings","privacy","usage"\]/);
+ assert.match(model,/\["settings","account","privacy","usage"\]/);
 });
 
 test("new sections link to existing real screens and preserve the main Shorts feed",()=>{

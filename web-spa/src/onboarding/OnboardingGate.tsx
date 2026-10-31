@@ -106,11 +106,11 @@ export function OnboardingGate({pathname}:{pathname:string}){
   if(!open&&current.open)current.close();
  },[open]);
 
- function finish(begin:boolean){
+ function finish(begin:boolean,chosenGoal:Goal=goal){
   try{localStorage.setItem(ONBOARDING_DONE_KEY,begin?"completed":"skipped")}catch{/* Optional persistence. */}
   try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* Optional persistence. */}
   dialog.current?.close();setOpen(false);
-  if(begin)navigate(destinations[goal]);
+  if(begin)navigate(destinations[chosenGoal]);
  }
  function next(){
   const value=Math.min(2,step+1);
@@ -147,7 +147,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
      <h2 id="crew-onboarding-title">{c.welcomeTitle}</h2>
      <p className="crew-onboarding-lead">{c.welcomeDesc}</p>
      <div className="crew-onboarding-preview">
-      {goalCards.map(item=><div className="crew-onboarding-preview-item" key={item.id}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong></div>)}
+      {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
      {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/teacher/roles?mode=teacher")}}>{t("guestTrial.onboardingCTA")} →</button>}

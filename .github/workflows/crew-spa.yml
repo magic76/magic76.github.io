@@ -54,7 +54,7 @@ jobs:
       # The default PR lane is intentionally light. Only test-regression repair
       # branches run the full suite before the PR is merged.
       - name: Full regressions (test repair PRs only)
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'test-regressions')
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || contains(github.event.pull_request.head.ref, 'fix/reliability-'))
         run: npm test
       # Short, offline-only fixture tests on Shorts PRs; no Gemini calls or full-suite cost.
       - name: Validate Crew Shorts generator and review pipeline (Shorts PRs only)

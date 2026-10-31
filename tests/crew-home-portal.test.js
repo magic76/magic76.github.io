@@ -53,7 +53,8 @@ test("Crew World KV rotates through four tabs every 5 seconds and can be paused"
  assert.match(portal,/setTimeout\(\(\)=>\{/);
  assert.match(portal,/\},5000\)/);
  assert.match(portal,/\(currentIndex\+1\)%MODES\.length/);
- assert.match(portal,/\[mode,paused,launching,canAnimate\]/);
+ assert.match(portal,/\[mode,paused,launching,canAnimate,interacting\]/);
+ assert.match(portal,/onFocusCapture=\{\(\)=>setInteracting\(true\)\}/);
  assert.match(portal,/if\(paused\|\|launching\|\|window\.matchMedia/);
  assert.match(portal,/return\(\)=>window\.clearTimeout\(id\)/);
  assert.match(portal,/onClick=\{\(\)=>setPaused\(value=>!value\)\}/);

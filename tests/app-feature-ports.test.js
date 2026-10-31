@@ -804,7 +804,7 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.equal(readUiLocale("voice").controls.retryMic,"重新允許麥克風");
  assert.equal(readUiLocale("voice").controls.reconnect,"重新連線");
  assert.ok(hook.includes('errorKind'));
- assert.ok(hook.includes('if(kind==="key")setGeminiVerified(false)'));
+ assert.match(hook,/if\(kind==="key"&&!guestModeRef\.current\)setGeminiVerified\(false\)/);
 });
 
 test("Tutor picker keeps provider voice IDs internal",()=>{

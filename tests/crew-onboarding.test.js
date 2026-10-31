@@ -23,7 +23,8 @@ test("first-run gate never forces existing users, persists skip or completion, a
  assert.match(gate,/sessionStorage\.getItem\(DRAFT_KEY\)/);
  assert.match(gate,/localStorage\.setItem\(ONBOARDING_DONE_KEY,begin\?"completed":"skipped"\)/);
  assert.match(gate,/onCancel=\{event=>\{event\.preventDefault\(\);finish\(false\)\}\}/);
- assert.match(gate,/if\(begin\)navigate\(destinations\[goal\]\)/);
+ assert.match(gate,/if\(begin\)navigate\(destinations\[chosenGoal\]\)/);
+ assert.match(gate,/onClick=\{\(\)=>finish\(true,item\.id\)\}/);
  assert.doesNotMatch(gate,/getUserMedia|requestPermission|fetch\(/);
 });
 
