@@ -171,9 +171,9 @@ export function HomePage(){
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
     <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore")}</h2><span aria-hidden="true">{t("world.possibilities")}</span></div>
     <div className="crew-home-world-explore-grid">
-     <Link className="crew-home-world-explore-card" to="/fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>
-      <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="fortune"/></span>
-      <span><small>CREW FORTUNE</small><strong>{t("world.fortuneTitle")}</strong><span>{t("world.fortuneDescription")}</span></span>
+     <Link className="crew-home-world-explore-card" to="/teacher/course/travel" onClick={()=>trackUsageEvent("home_entry_click","learn")}>
+      <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="teacher"/></span>
+      <span><small>CREW TEACHER</small><strong>{t("product.teacher")}</strong><span>{t("world.modes.learn.description")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
      <Link className="crew-home-world-explore-card" to="/timeline" onClick={()=>trackUsageEvent("home_entry_click","timeline")}>
