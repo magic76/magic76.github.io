@@ -3,8 +3,6 @@ import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
-import {fetchDay,fetchIndex,rankItems} from "../briefing/data";
-import type {BriefingDay,BriefingItem} from "../briefing/types";
 import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
 import {PlayStoreLink} from "../components/PlayStoreLink";
@@ -14,7 +12,7 @@ import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
-import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
+import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import "./home.css";
 import "./homePortal.css";
 import "./homeWorld.css";
@@ -30,7 +28,6 @@ const GAME_IDS=new Set(["friend-gomoku","connect4","twenty-questions","reversi",
 
 const time=(value:unknown)=>{const n=Date.parse(typeof value==="string"?value:"");return Number.isFinite(n)?n:0};
 const description=(value:unknown,fallback:string)=>typeof value==="string"&&value.trim()?value.trim():fallback;
-const latestDate=(date:string)=>new Date(date+"T12:00:00").toLocaleDateString(i18n.language,{month:"long",day:"numeric"});
 
 function activities(book:Book|null):Recent[]{
  const items:Recent[]=[];
@@ -94,36 +91,11 @@ function activities(book:Book|null):Recent[]{
  return items.slice(0,1);
 }
 
-function BriefingPreview(){
- const {t}=useTranslation("home");
- const [edition,setEdition]=useState<{day:BriefingDay;item:BriefingItem|null}|null>(null);
- const [unavailable,setUnavailable]=useState(false);
- useEffect(()=>{
-  let live=true;
-  void fetchIndex().then(x=>x.days[0]?fetchDay(x.days[0]):null)
-   .then(day=>{if(!live)return;if(!day){setUnavailable(true);return}
-    setEdition({day,item:rankItems(day.items,"","all",()=>false,false)[0]||null})})
-   .catch(()=>{if(live)setUnavailable(true)});
-  return()=>{live=false};
- },[]);
- return <section className="crew-home-briefing" aria-label="每日研發情報">
-  <div className="crew-home-section-heading"><span>CREW BRIEFING</span><span>{t("briefing.heading")}</span></div>
-  <Link className="crew-home-briefing-card" to="/research" onClick={()=>trackUsageEvent("home_entry_click","briefing")}>
-   <span className="crew-home-briefing-top"><span className="crew-home-briefing-emblem" aria-hidden="true"><Icon name="sparkles"/></span><span className="crew-home-briefing-date">{edition?latestDate(edition.day.date):unavailable?t("briefing.report"):t("briefing.loading")}</span></span>
-   <strong>{edition?.item?.title||t("briefing.today")}</strong>
-   <p>{edition?.item?.summary||t("briefing.summary")}</p>
-   {edition?.item?.projects?.length?<span className="crew-home-briefing-tags">{edition.item.projects.slice(0,2).map(tag=><span key={tag}>{tag}</span>)}</span>:null}
-   <span className="crew-home-card-cta">{t("briefing.read")} <span aria-hidden="true">↗</span></span>
-  </Link>
-  <Link className="crew-home-briefing-board" to="/research/board">{t("briefing.readingList")} <span aria-hidden="true">→</span></Link>
- </section>;
-}
-
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
- const [guestAvailable,setGuestAvailable]=useState(false);
+ const trial=useGuestTrialQuota();
  const [featuredGame,setFeaturedGame]=useState<(typeof DAILY_GAMES)[number]>("1a2b");
  useEffect(()=>{
   const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
@@ -138,12 +110,7 @@ export function HomePage(){
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
- useEffect(()=>{
-  if(!ready||configured||!guestTrialDiscoveryEnabled()){setGuestAvailable(false);return}
-  let live=true;
-  void fetchGuestTrialConfig().then(x=>{if(live)setGuestAvailable(x.enabled)});
-  return()=>{live=false};
- },[ready,configured]);
+ const guestAvailable=trial.enabled&&trial.remaining!==0;
 
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
@@ -170,14 +137,14 @@ export function HomePage(){
      {guestAvailable?<Link to="/teacher/roles?mode=teacher" className="crew-home-start-option crew-home-start-trial"
       onClick={()=>trackUsageEvent("guest_trial_start_click")}>
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="teacher"/></span>
-      <span className="crew-home-start-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
+      <span className="crew-home-start-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{trial.remaining!==null?t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit}):t("common:guestTrial.homeDesc")}</small></span>
       <b className="crew-home-start-action">{t("common:guestTrial.homeStart")} →</b>
      </Link>:null}
-     <Link to="/settings" className={"crew-home-start-option "+(guestAvailable?"crew-home-start-byok":"crew-home-start-trial")}>
+     {!guestAvailable&&<Link to="/settings" className="crew-home-start-option crew-home-start-trial">
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
       <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
       <b className="crew-home-start-action">{t("setup.cta")} →</b>
-     </Link>
+     </Link>}
     </section>:ready&&!verified?<Link to="/settings" className="crew-home-start-verify">
      <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
     </Link>:null}
@@ -220,9 +187,6 @@ export function HomePage(){
    </div>
   </div>
   <div className="crew-home-content">
-   <div className="crew-home-layout">
-   <BriefingPreview/>
-  </div>
   <section className="crew-home-search-summary" aria-labelledby="crew-home-search-summary-title">
    <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Crew: AI Friends, Language Practice, Games and Stories"}</h2>
    <p>{locale.language.startsWith("zh")
