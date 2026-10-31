@@ -567,19 +567,16 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  assert.equal(readUiLocale("home").continue,"繼續上次");
  assert.ok(home.includes('t("explore")'));
  assert.equal(readUiLocale("home").explore,"探索 Crew");
- assert.ok(home.includes('t("product.teacher")')&&home.includes('t("product.story")')&&home.includes('t("product.fortune")'));
- assert.equal(readUiLocale("home").product.teacher,"語言與口說");
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(readUiLocale("home").setup.title.includes("免費"));
- assert.ok(home.indexOf("crew-home-game-pick")<home.indexOf("crew-home-setup-free"),"Key-free play should precede Gemini onboarding");
-  assert.ok(home.indexOf("crew-home-setup-free")<home.indexOf("crew-home-products"),"onboarding should remain discoverable before product entry");
- assert.ok(home.includes("geminiKey()"));
- assert.ok(home.includes("geminiVerified()"));
- assert.ok(!home.includes("切換不再重新載入不同頁面"));
- assert.ok(css.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
- assert.ok(home.includes('t("product.play")'));
- const playEntry=home.split("\n").find(line=>line.includes('className="crew-home-product crew-home-play"'))||"";assert.ok(playEntry.includes('to="/games"')&&playEntry.includes('trackUsageEvent("home_entry_click","play")'),"Play entry must navigate and record the click");
- assert.ok(!home.includes("crew-home-game-entry"),"Avoid a duplicate secondary Play link beneath the primary grid");
+ assert.ok(home.includes('t("setup.pricing")'));
+ assert.ok(home.includes('common:guestTrial.homeTitle'));
+ assert.ok(home.indexOf('className="crew-home-start"')<home.indexOf("<HomeShortsPreview/>"),"onboarding precedes content");
+ assert.ok(home.includes('geminiKey()'));
+ assert.ok(home.includes('geminiVerified()'));
+ assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
+ assert.ok(home.includes('to={"/games/"+featuredGame}'),"daily games are directly playable");
+ assert.ok(home.includes('t("product.play")'),"SEO keeps the Play link");
  assert.equal(readUiLocale("home").product.play,"與 Crew 朋友玩遊戲");
  assert.ok(css.includes("@media(max-width:620px)"));
 });
@@ -635,13 +632,13 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  assert.ok(!player.includes("Gemini Live 阿奇負責"));
 });
 
-test("Crew home separates product entry from default-expanded Android downloads",()=>{
+test("Crew home keeps primary routes while collapsing Android downloads",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
- assert.ok(home.includes('className="crew-home-product crew-home-teacher"')&&home.includes('to="/learn"'),"Teacher entry must lead to Learn");
+ assert.ok(home.includes('to="/teacher"')&&home.includes('to="/games"'),"SEO entry keeps core destinations");
  assert.ok(home.includes('to="/story"'));
  assert.ok(home.includes('to="/fortune"'));
- assert.ok(home.includes('<details className="crew-home-android" open>'));
+ assert.ok(home.includes('<details className="crew-home-android">'));
  assert.ok(home.includes('product="fortune"'));
  assert.ok(!home.includes("一個 App 搞定"));
  assert.ok(play.includes("Google Play 準備中"));
