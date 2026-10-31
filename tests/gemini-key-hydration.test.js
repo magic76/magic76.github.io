@@ -14,8 +14,8 @@ test("SSG and initial hydration never mistake an unread client key for a missing
  assert.match(ready,/useState\(false\)/);
  assert.match(ready,/useEffect\(\(\)=>setReady\(true\),\[\]\)/);
  assert.match(home,/const configured=ready&&Boolean\(geminiKey\(\)\)/);
- assert.match(home,/\{ready&&!configured\?\s*<Link to="\/settings" className="crew-home-setup crew-home-setup-free"/);
- assert.match(home,/ready&&!verified\?<Link to="\/settings" className="crew-home-setup"/);
+ assert.match(home,/\{ready&&!configured\?<section className="crew-home-start"/);
+ assert.match(home,/ready&&!verified\?<Link to="\/settings" className="crew-home-start-verify"/);
 
  // Header has an inaccessible placeholder, not a false missing-key link.
  assert.match(chrome,/\(ready\s*\?<NavLink className=\{"status "/);
@@ -29,7 +29,7 @@ test("Gemini key setup remains actionable after client hydration when truly unco
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.match(home,/setup\.title/);
  assert.match(home,/setup\.verify/);
- assert.match(home,/crew-home-setup-free/);
+ assert.match(home,/crew-home-start-option/);
  assert.match(chrome,/to="\/settings"/);
 });
 
