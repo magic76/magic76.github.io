@@ -101,7 +101,8 @@
     "used": "Perangkat atau jaringan ini sudah mencoba.",
     "limit": "Kuota hari ini sudah habis.",
     "verification": "Verifikasi gagal. Coba lagi.",
-    "tempUnavailable": "Uji coba tidak tersedia sementara."
+    "tempUnavailable": "Uji coba tidak tersedia sementara.",
+    "remaining": "Sisa percobaan suara AI gratis: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Uji coba suara digunakan: {{used}} / {{limit}}",
