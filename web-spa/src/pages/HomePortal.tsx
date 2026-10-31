@@ -119,7 +119,7 @@ export function HomePortal(){
     <span className="crew-portal-kicker" aria-hidden="true">CREW TEACHER</span>
     <h1><span className="crew-portal-title-line crew-portal-title-first">{canTry?t("common:guestTrial.homeTitle"):t("world.modes.learn.lead")+t("world.modes.learn.before")+t("world.modes.learn.accent")}</span></h1>
     <p className="crew-portal-description">{t("world.modes.learn.description")}</p>
-    {trial.enabled&&trial.remaining!==null&&<p className="crew-portal-trial-quota" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>
+    {trial.enabled&&trial.remaining!==null&&<p className="crew-portal-trial-quota" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
    </div>
    <Link className="crew-portal-cta" to={primaryTo} onClick={launch} aria-disabled={launching||undefined}>
     {trial.remaining===0?t("common:guestTrial.continueKey"):canTry?t("common:guestTrial.homeStart"):t("world.modes.learn.cta")}<span aria-hidden="true">↗</span>
