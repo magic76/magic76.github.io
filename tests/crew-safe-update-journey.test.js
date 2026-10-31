@@ -29,16 +29,18 @@ test("New version notice does not interrupt any long-running Crew workflow",()=>
 test("Usage journey consists only of private, per-period distinct browser aggregates",()=>{
  const api=read("functions/api/usage/report.ts");
  const ui=read("web-spa/src/analytics/UsageDashboardPage.tsx");
+ const journey=read("web-spa/src/analytics/UsageJourneySection.tsx");
  assert.match(api,/verifyAccess\(request,env\)/);
  assert.match(api,/journeyClickEvents/);
  assert.match(api,/journeyStartEvents/);
  assert.match(api,/COUNT\(DISTINCT blob2\) AS users/);
  for(const stage of ["opened","clicked","started","engaged","returned"]){
   assert.match(api,new RegExp(stage+":Number\\("));
-  assert.match(ui,new RegExp('key:"'+stage+'"'));
+  assert.match(journey,new RegExp('key:"'+stage+'"'));
  }
- assert.match(ui,/不是同一批人的精準轉換漏斗或次日留存率/);
- assert.match(ui,/data\.journey\?/);
+ assert.match(journey,/不是同一批人的精準轉換漏斗或次日留存率/);
+ assert.match(ui,/<UsageJourneySection days=\{days\} journey=\{data\.journey\}\/>/);
+ assert.match(ui,/journey\?:JourneyCounts/);
  assert.doesNotMatch(api,/SELECT\s+blob2\s+AS\s+/);
  assert.doesNotMatch(api,/JOIN |INSERT INTO|CREATE TABLE/);
  const home=read("web-spa/src/pages/HomePortal.tsx");

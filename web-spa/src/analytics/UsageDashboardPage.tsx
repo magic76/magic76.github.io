@@ -1,5 +1,6 @@
 import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
+import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 
 type Row={day:string;event:string;detail?:string;count:number;users:number};
 type EventUsers={event:string;users:number};
@@ -7,7 +8,7 @@ type Report={
  days:number;activeUsers:number;chatUsers:number;
  previousActiveUsers:number;previousChatUsers:number;
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
- journey?:{opened:number;clicked:number;started:number;engaged:number;returned:number}
+ journey?:JourneyCounts
 };
 type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
 
@@ -126,26 +127,7 @@ export function UsageDashboardPage(){
      <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline，兩方都有說話</span></article>
      <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
     </section>
-    <section className="panel section" id="usage-journey">
-     <div className="section-head"><h2>匿名使用旅程</h2><small>各階段獨立去重瀏覽器 · 最近 {days} 天</small></div>
-     {data.journey?<div className="usage-funnel usage-journey" role="list" aria-label="匿名使用旅程各階段瀏覽器數">
-      {([
-       {key:"opened",label:"開啟網站",hint:"至少開過一個工作階段"},
-       {key:"clicked",label:"點擊功能入口",hint:"首頁、探索、Shorts 聊天或試用入口"},
-       {key:"started",label:"實際啟動功能",hint:"成功開始對話、遊戲、教材或互動"},
-       {key:"engaged",label:"有實際互動",hint:"有效聊天、完成遊戲或其他已記錄行為"},
-       {key:"returned",label:"跨日回訪",hint:"曾在不同 UTC 日期再次開啟"}
-      ] as const).map((stage,i)=>{
-       const value=data.journey![stage.key];
-       const maxValue=Math.max(1,...Object.values(data.journey!));
-       return <div key={stage.key} className="usage-funnel-step usage-journey-step" role="listitem">
-        <div><span>{i+1}. {stage.label}<small>{stage.hint}</small></span><strong>{num(value)} 個瀏覽器</strong></div>
-        <div className="usage-funnel-track"><span style={{width:value?Math.max(2,value/maxValue*100)+"%":"0%"}}/></div>
-       </div>;
-      })}
-     </div>:<p className="usage-explain">目前報表尚未提供使用旅程統計，請部署新版 Pages API。</p>}
-     <p className="usage-explain">這是各階段分別去重的匿名瀏覽器數，<strong>不是同一批人的精準轉換漏斗或次日留存率</strong>。訪客可能直接進入功能、跳過入口、跨裝置使用，或在觀察期間之前已開始使用，因此後段可能多於前段。回訪代表不同 UTC 日期的事件，不代表新訪客隔日必然回來；尊重統計退出設定且不記錄對話內容。</p>
-    </section>
+    <UsageJourneySection days={days} journey={data.journey}/>
     <section className="panel section">
      <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
      <div className="usage-filter" role="group" aria-label="篩選產品類別">
