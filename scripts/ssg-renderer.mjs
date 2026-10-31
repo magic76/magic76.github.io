@@ -64,7 +64,7 @@ export async function prerenderPublicRoutes(root){
     const path="/teacher/course/"+course.slug;
     const html=await renderStaticRoute(path,locale);
     if(!html.includes('class="app-header"')||!html.includes("<h1")||
-     !html.includes(locale==="en"?course.en.title.split(" | ")[0]:course.zh.title.split("｜")[0]))
+       !html.includes('class="crew-learning-focus crew-course-focus"'))
      throw Error("Course SSG missing track: "+locale+" "+path);
     result.set(locale+":"+path,html);
    }
