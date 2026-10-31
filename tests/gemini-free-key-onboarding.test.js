@@ -6,11 +6,12 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const locale=(lang,ns)=>JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/"+ns+".json"));
 
-test("home advertises free Gemini key before product cards only when missing",()=>{
+test("home provides safe first-run setup before Shorts only when the key is missing",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
- const title=home.indexOf('t("setup.title")'),products=home.indexOf('className="crew-home-products"');
- assert.ok(title>0&&title<products,"free setup prompt should appear before product choices");
- assert.ok(home.includes('!configured?')&&home.includes("crew-home-setup-free"));
+ const title=home.indexOf('t("setup.title")'),shorts=home.indexOf('<HomeShortsPreview/>');
+ assert.ok(title>0&&title<shorts,"setup must appear before home content");
+ assert.ok(home.includes('!configured?')&&home.includes("crew-home-start-option"));
+ assert.ok(home.includes('guestAvailable?')&&home.includes('t("common:guestTrial.homeTitle")'),"trial is only shown when enabled");
  assert.ok(home.includes('t("setup.pricing")'),"free tier limitations must be visible");
  assert.ok(home.includes('!verified?'),"the existing verification flow is retained");
 });

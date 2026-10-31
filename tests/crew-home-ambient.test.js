@@ -17,9 +17,9 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test("Google Play area starts expanded but stays collapsible",()=>{
+test("Google Play area starts collapsed but remains accessible",()=>{
  const page=read("web-spa/src/pages/HomePage.tsx");
- assert.match(page,/<details className="crew-home-android" open>/);
+ assert.match(page,/<details className="crew-home-android">/);
  assert.match(page,/<summary>\{t\("android"\)\}/);
  const home=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
  assert.equal(home.android,"在 Android 上使用 Crew");
