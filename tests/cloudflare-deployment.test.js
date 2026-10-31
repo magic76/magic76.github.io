@@ -312,6 +312,7 @@ check("production SEO metadata, sitemap and preview noindex are consistent",asyn
  for(const slug of ["games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"]){
   expected.push(domain+"/"+slug+"/");expected.push(domain+"/en/"+slug+"/");
  }
+ for(const slug of ["travel","business","daily","teamwork","tickets","services"]){expected.push(domain+"/teacher/course/"+slug+"/",domain+"/en/teacher/course/"+slug+"/")}
  assert.equal(urls.length,expected.length,"sitemap should enumerate all public and playable game routes");
  assert.deepEqual([...urls].sort(),expected.sort(),"sitemap URLs do not match SSG routes");
  assert.ok(headers.includes("https://magic76-github-io.pages.dev/*"),"preview host missing noindex");
