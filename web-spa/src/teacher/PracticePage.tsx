@@ -54,7 +54,7 @@ export function PracticePage(){
   <div className="section-head"><h2>{tToday("learnToday.courseTracks")}</h2></div>
   <div className="grid two-col">{COURSE_TRACKS.map(track=>{
    const done=ready?completedLessons(track.id):0,total=lessonsForTrack(track.id).length;
-   return <Link key={track.id} to="/teacher/course" className="feature-card crew-course-track-card" onClick={()=>{
+   return <Link key={track.id} to={"/teacher/course/"+track.id} className="feature-card crew-course-track-card" onClick={()=>{
     try{localStorage.setItem("crew_teacher_course_track",track.id)}catch{/* Optional preference. */}
    }}><strong>{track.emoji} {chinese?track.titleZh:track.titleEn}</strong><span>{tToday("learnToday.trackProgress",{done,total})}</span></Link>;
   })}</div>
