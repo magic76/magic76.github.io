@@ -101,7 +101,8 @@
     "used": "Thiết bị hoặc mạng này đã dùng thử gần đây.",
     "limit": "Đã hết lượt dùng thử hôm nay.",
     "verification": "Xác minh không thành công. Vui lòng thử lại.",
-    "tempUnavailable": "Hiện không thể dùng thử."
+    "tempUnavailable": "Hiện không thể dùng thử.",
+    "remaining": "Lượt dùng thử giọng nói AI miễn phí còn lại: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Lượt thử giọng nói đã dùng: {{used}} / {{limit}}",
