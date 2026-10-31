@@ -6,8 +6,16 @@ export function guestTrialDiscoveryEnabled():boolean{
 }
 export type GuestTrialConfig={enabled:boolean;siteKey?:string;seconds?:number;signinRequired?:boolean;memberMetering?:boolean};
 export type GuestTrialGrant={token:string;model:string;seconds:number;issuedAt:string;expiresAt:string};
+// Share one in-flight GET across the home guide and Live entry. No token, proof,
+ // account data or POST response is cached. Short TTL keeps operator disable responsive.
+let pendingConfig:Promise<GuestTrialConfig>|null=null;
+let cachedConfig:GuestTrialConfig|null=null;
+let cachedAt=0;
 export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
  if(!guestTrialDiscoveryEnabled())return {enabled:false};
+ if(cachedConfig&&Date.now()-cachedAt<(cachedConfig.enabled?30_000:5_000))return cachedConfig;
+ if(pendingConfig)return pendingConfig;
+ pendingConfig=(async():Promise<GuestTrialConfig>=>{
  try{
   const response=await fetch(GUEST_TOKEN_ENDPOINT,{cache:"no-store"});
   if(!response.ok)return {enabled:false};
@@ -18,4 +26,6 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
    ?{enabled:true,siteKey:value.siteKey,seconds:180,signinRequired:value.signinRequired===true,
      memberMetering:value.memberMetering===true||value.signinRequired===true}:{enabled:false};
  }catch{return {enabled:false}}
+ })().then(config=>{cachedConfig=config;cachedAt=Date.now();return config}).finally(()=>{pendingConfig=null});
+ return pendingConfig;
 }

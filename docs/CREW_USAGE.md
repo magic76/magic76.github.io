@@ -140,3 +140,17 @@ The existing /usage dashboard now includes a prominent link to the Guest Trial s
 The new `guest_trial_unavailable` event counts failed/disabled discovery in the ordinary production Web experience. It does not capture private configuration reasons or record availability on Android where discovery is intentionally disabled. Analytics keeps the same consent/opt-out protections. Cloudflare Pages needs redeploying for the new event to be accepted by /api/usage/event; the separate guest Worker does not need redeployment.
 
 Operational checks: verify `POST /api/usage/event` returns 204 for permitted browsers, log in through Cloudflare Access to `/usage`, and select the 7/30-day view. The read-only report needs `CREW_USAGE_ACCOUNT_ID`, `CREW_USAGE_SQL_TOKEN`, `CREW_USAGE_ACCESS_ISS`, `CREW_USAGE_ACCESS_AUD`, and `CREW_USAGE_ADMIN_EMAIL` in Pages Production. Without these, the private dashboard cannot query totals.
+
+## Anonymous usage journey (October 31, 2026)
+
+The owner-only `/usage` screen now displays a five-stage **non-cohort** journey for 7/30 days: site opened, clicked a recorded entry, started an activity, recorded actual engagement, and returned on a later UTC day. Stage metrics are counted independently across distinct random browser IDs for the entire selected period, using Analytics Engine SQL with `COUNT(DISTINCT blob2)`. The new entry and start union queries aggregate **inside** Cloudflare; they return only numeric counts. No per-visitor data, speech, full URLs, account records, or additional D1 tables are sent to the dashboard.
+
+- Open: `app_opened` (unique browsers with an opening event).
+- Click: union of `home_entry_click`, `explore_entry_click`, `shorts_chat_click`, `guest_trial_start_click` (now also tracks HomePortal CTA).
+- Start: union of `teacher_conversation_start`, `friend_conversation_start`, `timeline_conversation_start`, `game_started`, `textbook_study`, `mate_handoff_started`, `magic_voice_connected`, and `story_narration`.
+- Engage: existing `activeUsers` definition, including accepted story, fortune, vocabulary, game, research, world and chat activity (not strictly "completion").
+- Return: `user_returned` (the same anonymous browser identifier has opened Crew on a different UTC date; it is **not** D1 retention).
+
+**Interpretation:** These are not sequential events for the *same* visitors; do not calculate stage-to-stage conversion or next-day retention from them. Visitors can arrive directly at deep links, start an activity without clicking an instrumented CTA, or use Crew before the reporting window. Stage counts can increase between steps. Privacy opt-out / DNT / GPC remain in effect. Missing historical events cannot be backfilled. The existing Cloudflare Access JWT verification and 7/30-day bounds remain unchanged; no extra setup is required.
+
+See `tests/crew-safe-update-journey.test.js` and `tests/crew-usage.test.js`.

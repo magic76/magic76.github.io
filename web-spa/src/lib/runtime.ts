@@ -41,7 +41,10 @@ export function loadScript(src:string){
   const s=document.createElement("script");s.src=src;s.async=false;
   s.onload=()=>resolve();s.onerror=()=>reject(new Error("無法載入 "+src));document.head.appendChild(s);
  });
- loaded.set(src,p);return p;
+ loaded.set(src,p);
+ // A failed warm-up should not poison every future retry in this tab.
+ void p.catch(()=>{if(loaded.get(src)===p)loaded.delete(src)});
+ return p;
 }
 export async function ensureCore(){if(!window.CrewAI)await loadScript("/crew.js")}
 export async function ensureLive(){await ensureCore();if(!window.CrewLive)await loadScript("/crew-live.js");if(!window.CrewLiveUI)await loadScript("/crew-live-ui.js")}

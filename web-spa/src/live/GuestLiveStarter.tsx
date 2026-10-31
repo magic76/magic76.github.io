@@ -67,7 +67,13 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    const api=turnstile();if(!api)return;
    widget.current=api.render(host.current,{
     sitekey:siteKey,action:"crew-guest-trial",
-    callback:token=>{if(active.current)setChallenge(token)},
+    callback:token=>{
+     if(!active.current)return;
+     setChallenge(token);
+     // Load code only after human verification; no microphone, token or paid
+     // request runs until the visitor explicitly presses Start.
+     void ensureLive().catch(()=>{/* begin() surfaces retryable load errors. */});
+    },
     "expired-callback":()=>{if(active.current)setChallenge("")},
     "error-callback":()=>{if(active.current)setChallenge("")}
    });

@@ -1,12 +1,14 @@
 import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
+import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
 
 type Row={day:string;event:string;detail?:string;count:number;users:number};
 type EventUsers={event:string;users:number};
 type Report={
  days:number;activeUsers:number;chatUsers:number;
  previousActiveUsers:number;previousChatUsers:number;
- eventUsers:EventUsers[];rows:Row[];generatedAt:string
+ eventUsers:EventUsers[];rows:Row[];generatedAt:string;
+ journey?:JourneyCounts
 };
 type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
 
@@ -125,6 +127,7 @@ export function UsageDashboardPage(){
      <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline，兩方都有說話</span></article>
      <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
     </section>
+    <UsageJourneySection days={days} journey={data.journey}/>
     <section className="panel section">
      <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
      <div className="usage-filter" role="group" aria-label="篩選產品類別">

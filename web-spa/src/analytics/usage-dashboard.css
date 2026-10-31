@@ -52,3 +52,11 @@
 .usage-guest-metric strong{font-size:clamp(22px,3vw,32px);font-variant-numeric:tabular-nums}
 #guest-trial-stats{scroll-margin-top:20px}
 @media(max-width:700px){.usage-guest-overview{grid-template-columns:repeat(2,minmax(0,1fr))}.usage-guest-metric{padding:12px}}
+
+/* Non-cohort journey: each stage is a distinct-browser estimate, not conversion. */
+.usage-journey{margin-bottom:14px}
+.usage-journey-step>div:first-child{align-items:center}
+.usage-journey-step small{display:block;color:var(--text-muted,#627088);font-size:11px;line-height:1.5;font-weight:normal;margin-top:3px}
+.usage-journey-step strong{white-space:nowrap}
+#usage-journey{scroll-margin-top:20px}
+@media(max-width:500px){.usage-journey-step strong{font-size:12px;white-space:normal;text-align:right}}
