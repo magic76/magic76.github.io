@@ -24,6 +24,8 @@ type Recent={key:string;kind:Kind;title:string;description:string;to:string;time
 type Book={id:string;title?:string;summary?:string;updatedAt?:string;createdAt?:string;readingMode?:string;coverIndex?:number;currentPage?:number;images?:Array<{preview?:string}>};
 
 const LAST_ACTIVITY_KEY="crew_home_last_activity_v1";
+// Stable Taiwan-local daily pick. The first render stays deterministic for SSG hydration.
+const DAILY_GAMES=["1a2b","connect4","reversi"] as const;
 const GAME_IDS=new Set(["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"]);
 
 const time=(value:unknown)=>{const n=Date.parse(typeof value==="string"?value:"");return Number.isFinite(n)?n:0};
@@ -122,6 +124,11 @@ export function HomePage(){
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
  const [guestAvailable,setGuestAvailable]=useState(false);
+ const [featuredGame,setFeaturedGame]=useState<(typeof DAILY_GAMES)[number]>("1a2b");
+ useEffect(()=>{
+  const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
+  setFeaturedGame(DAILY_GAMES[taipeiDay%DAILY_GAMES.length]);
+ },[]);
  useEffect(()=>{
   if(!isCrewAndroidShell())return;
   let mounted=true;
@@ -159,6 +166,21 @@ export function HomePage(){
   <div className="crew-home-world">
    <HomePortal/>
    <div className="crew-home-world-inner">
+    {ready&&!configured?<section className="crew-home-start" aria-label={t("start")}>
+     {guestAvailable?<Link to="/teacher/roles?mode=teacher" className="crew-home-start-option crew-home-start-trial"
+      onClick={()=>trackUsageEvent("guest_trial_start_click")}>
+      <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="teacher"/></span>
+      <span className="crew-home-start-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
+      <b className="crew-home-start-action">{t("common:guestTrial.homeStart")} →</b>
+     </Link>:null}
+     <Link to="/settings" className={"crew-home-start-option "+(guestAvailable?"crew-home-start-byok":"crew-home-start-trial")}>
+      <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
+      <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
+      <b className="crew-home-start-action">{t("setup.cta")} →</b>
+     </Link>
+    </section>:ready&&!verified?<Link to="/settings" className="crew-home-start-verify">
+     <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
+    </Link>:null}
     {recent?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
      <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
@@ -169,24 +191,25 @@ export function HomePage(){
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview/>
+   <div className="crew-home-feature-row">
    <section className="crew-home-game-pick" aria-labelledby="crew-home-game-pick-title">
     <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>
     <div className="crew-home-game-pick-copy">
      <small>{t("gamePick.label")}</small>
-     <strong id="crew-home-game-pick-title">{t("gamePick.title")}</strong>
-     <p>{t("gamePick.desc")}</p>
+     <strong id="crew-home-game-pick-title">{t("playHub.games."+featuredGame+".title")}</strong>
+     <p>{featuredGame==="1a2b"?t("gamePick.desc"):t("actions.playDesc")}</p>
     </div>
-    <Link className="crew-home-game-pick-action" to="/games/1a2b" onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
+    <Link className="crew-home-game-pick-action" to={"/games/"+featuredGame} onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("gamePick.cta")} <span aria-hidden="true">→</span></Link>
    </section>
    <section className="crew-home-world-explore" aria-labelledby="crew-home-world-explore-title">
     <div className="crew-home-world-explore-heading"><h2 id="crew-home-world-explore-title">{t("world.explore")}</h2><span aria-hidden="true">{t("world.possibilities")}</span></div>
     <div className="crew-home-world-explore-grid">
-     <Link className="crew-home-world-explore-card" to="/fortune">
+     <Link className="crew-home-world-explore-card" to="/fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")}>
       <span className="crew-home-world-explore-icon" aria-hidden="true"><Icon name="fortune"/></span>
       <span><small>CREW FORTUNE</small><strong>{t("world.fortuneTitle")}</strong><span>{t("world.fortuneDescription")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
      </Link>
-     <Link className="crew-home-world-explore-card" to="/timeline">
+     <Link className="crew-home-world-explore-card" to="/timeline" onClick={()=>trackUsageEvent("home_entry_click","timeline")}>
       <span className="crew-home-world-explore-icon crew-home-world-timeline-icon" aria-hidden="true">⌁</span>
       <span><small>CREW TIMELINE</small><strong>{t("world.timelineTitle")}</strong><span>{t("world.timelineDescription")}</span></span>
       <span className="crew-home-world-explore-arrow" aria-hidden="true">↗</span>
@@ -194,48 +217,12 @@ export function HomePage(){
     </div>
    </section>
    </div>
+   </div>
   </div>
   <div className="crew-home-content">
    <div className="crew-home-layout">
-   <div className="crew-home-primary">
-    {ready&&!configured&&guestAvailable?<Link to="/teacher/roles?mode=teacher" className="crew-home-setup crew-home-setup-free">
-     <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="teacher"/></span>
-     <span className="crew-home-setup-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
-     <span className="crew-home-setup-action">{t("common:guestTrial.homeStart")} <b aria-hidden="true">→</b></span>
-    </Link>:null}
-    {ready&&!configured?
-     <Link to="/settings" className="crew-home-setup crew-home-setup-free">
-      <span className="crew-home-setup-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
-      <span className="crew-home-setup-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
-      <span className="crew-home-setup-action">{t("setup.cta")} <b aria-hidden="true">→</b></span>
-     </Link>:
-     ready&&!verified?<Link to="/settings" className="crew-home-setup"><span aria-hidden="true"><Icon name="settings"/></span><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b></Link>:null}
-    <details className="crew-home-products" open>
-     <summary className="crew-home-section-heading"><h2>{t("explore")}</h2><span>{t("start")} ↓</span></summary>
-     <div className="crew-home-product-grid">
-      <Link className="crew-home-product crew-home-teacher" onClick={()=>trackUsageEvent("home_entry_click","learn")} to="/learn">
-       <span className="crew-home-product-art crew-home-product-teacher" aria-hidden="true"><span className="crew-home-teacher-emblem"><Icon name="teacher"/></span></span>
-       <strong>Teacher</strong><small>{t("product.teacher")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
-      </Link>
-      <Link className="crew-home-product crew-home-story" onClick={()=>trackUsageEvent("home_entry_click","story")} to="/story">
-       <span className="crew-home-product-art crew-home-product-story" aria-hidden="true"><span className="crew-home-book"><Icon name="story"/><i>✦</i></span></span>
-       <strong>Story</strong><small>{t("product.story")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
-      </Link>
-      <Link className="crew-home-product crew-home-fortune" onClick={()=>trackUsageEvent("home_entry_click","fortune")} to="/fortune">
-       <span className="crew-home-product-art crew-home-product-fortune" aria-hidden="true"><span className="crew-home-orbit"><Icon name="fortune"/></span></span>
-       <strong>Fortune</strong><small>{t("product.fortune")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
-      </Link>
-      <Link className="crew-home-product crew-home-play" onClick={()=>trackUsageEvent("home_entry_click","play")} to="/games">
-       <span className="crew-home-product-art crew-home-product-play" aria-hidden="true"><span className="crew-home-play-emblem"><Icon name="play"/></span></span>
-       <strong>Play</strong><small>{t("product.play")}</small><span className="crew-home-product-arrow" aria-hidden="true">↗</span>
-      </Link>
-     </div>
-    </details>
-
-   </div>
    <BriefingPreview/>
   </div>
-  <GuideHub/>
   <section className="crew-home-search-summary" aria-labelledby="crew-home-search-summary-title">
    <h2 id="crew-home-search-summary-title">{locale.language.startsWith("zh")?"Crew：AI 朋友聊天、語言學習、互動遊戲與故事創作":"Crew: AI Friends, Language Practice, Games and Stories"}</h2>
    <p>{locale.language.startsWith("zh")
@@ -248,7 +235,8 @@ export function HomePage(){
     <Link to="/fortune">{t("product.fortune")}</Link>
    </nav>
   </section>
-  {ready&&!isCrewAndroidShell()&&<details className="crew-home-android" open>
+  <GuideHub/>
+  {ready&&!isCrewAndroidShell()&&<details className="crew-home-android">
    <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
    <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
   </details>}
