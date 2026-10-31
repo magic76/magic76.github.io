@@ -3,28 +3,29 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 
-test("Home World begins with working four-mode portal, Shorts, then free games and Key setup",()=>{
+test("Home World prioritizes first-run access before Shorts and daily games",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
- const hero=home.indexOf("<HomePortal/>"),shorts=home.indexOf("<HomeShortsPreview/>");
- const games=home.indexOf('className="crew-home-game-pick"');
- const setup=home.indexOf("{ready&&!configured?");
- assert.ok(hero>=0&&hero<shorts&&shorts<games&&games<setup);
+ const hero=home.indexOf("<HomePortal/>"),start=home.indexOf('className="crew-home-start"');
+ const shorts=home.indexOf("<HomeShortsPreview/>"),games=home.indexOf('className="crew-home-game-pick"');
+ assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
  for(const path of ["/teacher/roles?mode=friends","/games","/learn","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
- assert.match(home,/to="\/games\/1a2b"/);
+ assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
+ assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
+ assert.match(home,/taipeiDay%DAILY_GAMES\.length/);
  assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });
 
-test("Home preserves four products, particle portal, Timeline, briefing and Play Store entry",()=>{
+test("Home preserves portal, Timeline, briefing and collapsed Play Store without redundant cards",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
- for(const product of ["teacher","story","fortune","play"])assert.match(home,new RegExp("crew-home-product crew-home-"+product));
+ assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.match(home,/<BriefingPreview\/>/);
  assert.match(home,/crew-home-world-explore-card/);
  assert.match(home,/to="\/timeline"/);
  assert.doesNotMatch(home,/assets\/timeline\/mira-/);
  assert.ok(home.indexOf("<BriefingPreview/>")>home.indexOf("<HomeShortsPreview/>"));
- assert.match(home,/<details className="crew-home-android" open>/);
+ assert.match(home,/<details className="crew-home-android">/);
 });
 
 test("Recent game and friend navigation is recorded without message content",()=>{
