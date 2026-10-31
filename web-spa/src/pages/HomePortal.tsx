@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState,type KeyboardEvent,type MouseEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {trackUsageEvent} from "../analytics/usage";
 import {Icon,type IconName} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
 import type {PortalMode} from "./portalField.mjs";
@@ -88,6 +89,7 @@ export function HomePortal(){
  const launch=(event:MouseEvent<HTMLAnchorElement>)=>{
   // Native link semantics survive modifier clicks, new tabs and script-free SSG.
   if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
+  trackUsageEvent("home_entry_click",current.id==="chat"?"friend":current.id);
   if(paused||!canAnimate||window.matchMedia("(prefers-reduced-motion: reduce)").matches||
    (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData)return;
   event.preventDefault();

@@ -18,9 +18,16 @@ const labels: Record<string, [string,string,string]> = {
 };
 
 export function canOfferCrewRefresh(pathname: string) {
-  // Never prompt during a live call, game, story editor or other active work.
-  return !(/\/live(?:\/|$)/.test(pathname) ||
-    /^\/(games|story\/(edit|create|read)|teacher\/(textbook|course|practice|vocabulary))\b/.test(pathname));
+ // Suppress prompts anywhere a refresh can interrupt ongoing play, narration,
+ // writing, a call, a 3D world or a multi-step Mate handoff. The notice will
+ // reappear automatically when the visitor returns to a safe destination.
+ const path=pathname.replace(/^\/(?:en|ja|es|pt-BR|id|fr|de|ko|vi|th)(?=\/|$)/,"")||"/";
+ return !(/\/live(?:\/|$)/.test(path) ||
+  /^\/(?:games|mate|magic|town|orb)(?:\/|$)/.test(path) ||
+  /^\/teacher\/(?:board|voice-lab|textbook|course|practice|vocabulary|pronunciation)(?:\/|$)/.test(path) ||
+  /^\/story\/(?:edit|create|read|physical)(?:\/|$)/.test(path) ||
+  /^\/timeline\/compare(?:\/|$)/.test(path) ||
+  /^\/fortune\/reading(?:\/|$)/.test(path));
 }
 
 export function CrewUpdateNotice({pathname}: {pathname:string}) {

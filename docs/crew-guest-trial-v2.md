@@ -105,3 +105,9 @@ The private `/usage` dashboard now has a shortcut to the trial summary. It disti
 ## Phase 3 signed-in account metering (opt-in, 3 minutes)
 
 After the member D1 migration and matched `CREW_GUEST_TICKET_SECRET` Secrets, Worker `GUEST_ACCOUNT_METER_ENABLED=1` enables up to three account-counted tokens for signed-in visitors **without requiring anonymous visitors to log in**. `GUEST_REQUIRE_SIGNIN=1` is a separate, stronger mode and is intentionally not enabled in Git. See `docs/crew-auth.md` for deploy ordering, D1 bindings, smoke checks and rollback. The trial length remains 180 seconds in either mode.
+
+## Faster shared trial discovery (October 31, 2026)
+
+The three public components that read guest trial configuration (HomePage, OnboardingGate, GuestLiveStarter) now share a single in-flight read of the public Worker configuration. An enabled config is cached **only in JS memory** for 30 seconds, and an unavailable/disabled response for 5 seconds. No short-lived Gemini Token, Turnstile challenge, OAuth/session response, secret, or user identity is cached. A subsequent request rechecks the Worker state; any error still fails closed and does not enable guest trial.
+
+When Turnstile confirms the human challenge, the Live JS runtime is prefetched in the background. Starting the real session still requires a dedicated user click, microphone permission, a server-issued short-lived token and Worker verification. A failed script preload can be retried: the script-loader promise cache removes rejected promises. There is no new account gate, no database change, no change to the 180s limit, and no bypass of Turnstile or per-account quotas. Test: `tests/crew-guest-config-cache.test.js`.
