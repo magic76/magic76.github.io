@@ -101,7 +101,8 @@
     "used": "Este dispositivo ou rede já testou.",
     "limit": "As vagas de hoje se esgotaram.",
     "verification": "Falha na verificação. Tente de novo.",
-    "tempUnavailable": "Teste temporariamente indisponível."
+    "tempUnavailable": "Teste temporariamente indisponível.",
+    "remaining": "Testes gratuitos de voz restantes: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Testes de voz usados: {{used}} / {{limit}}",
