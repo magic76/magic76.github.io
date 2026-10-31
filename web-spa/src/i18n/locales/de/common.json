@@ -101,7 +101,8 @@
     "used": "Dieses Gerät oder Netzwerk wurde bereits genutzt.",
     "limit": "Das heutige Kontingent ist aufgebraucht.",
     "verification": "Verifizierung fehlgeschlagen. Erneut versuchen.",
-    "tempUnavailable": "Test vorübergehend nicht verfügbar."
+    "tempUnavailable": "Test vorübergehend nicht verfügbar.",
+    "remaining": "Verbleibende kostenlose Sprachtests: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Genutzte Sprachtests: {{used}} / {{limit}}",
