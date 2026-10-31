@@ -730,30 +730,18 @@ async function run(){
   // A real SPA soft navigation must not turn a page into a second marketing site.
   const home=await context.newPage();
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
-  // Secondary product directory is intentionally collapsed beneath the character-first KV.
-  const directory=home.locator(".crew-home-products");
-  await directory.locator("summary").waitFor({state:"visible",timeout:15000});
-  assert.equal(await directory.getAttribute("open"),null,"Product directory should be secondary by default");
-  await directory.locator("summary").click();
-  const productCards=home.locator(".crew-home-product-grid .crew-home-product");
-  await productCards.first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await productCards.count(),4,"Crew homepage should show Teacher, Story, Fortune and Play equally");
-  assert.equal(await home.locator('.crew-home-product-grid a[href="/games"]').count(),1,"Play must be a primary homepage product card");
-  assert.equal(await home.locator(".crew-home-game-entry").count(),0,"Do not duplicate an inferior game shortcut below the grid");
+  // Homepage entry points are intentionally small: no redundant second product directory.
+  await home.locator(".crew-home-portal").waitFor({state:"visible",timeout:15000});
+  assert.equal(await home.locator(".crew-home-products").count(),0,"Remove the redundant product grid");
+  assert.equal(await home.locator(".crew-home-world-explore-card").count(),2,"Fortune and Timeline stay discoverable");
+  assert.equal(await home.locator(".crew-home-android").getAttribute("open"),null,"Android downloads are collapsed");
   await home.setViewportSize({width:390,height:844});
-  const cardRows=await productCards.evaluateAll(nodes=>nodes.map(node=>({
-   x:Math.round(node.getBoundingClientRect().x),y:Math.round(node.getBoundingClientRect().y),
-   width:Math.round(node.getBoundingClientRect().width)
-  })));
-  assert.equal(cardRows.length,4);
-  assert.equal(cardRows[0].y,cardRows[1].y,"Mobile cards one and two should share the first row");
-  assert.equal(cardRows[2].y,cardRows[3].y,"Mobile cards three and four should share the second row");
-  assert.ok(cardRows[2].y>cardRows[0].y,"Play should be visible in a two-by-two mobile grid");
-  assert.ok(cardRows.every(row=>row.width>=130),"Mobile game and other cards must remain tappable");
-  await home.locator(".crew-home-play").click();
-  await home.waitForURL(url=>url.pathname==="/games");
-  await home.locator(".crew-play-game-card").first().waitFor({state:"visible",timeout:15000});
-  assert.equal(await home.locator(".crew-play-game-card").count(),7,"Homepage Play entry must open all seven games");
+  const dailyGame=home.locator(".crew-home-game-pick-action");
+  await dailyGame.waitFor({state:"visible",timeout:15000});
+  const route=await dailyGame.getAttribute("href");
+  assert.match(route||"",/^\/games\/(1a2b|connect4|reversi)$/,"Daily game must have a safe known destination");
+  await dailyGame.click();
+  await home.waitForURL(url=>url.pathname===route);
   await home.goto(origin+"/",{waitUntil:"domcontentloaded"});
   await home.setViewportSize({width:1280,height:800});
   // Global navigation now groups user intent instead of showing product names.
