@@ -74,7 +74,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    sections:[
     {heading:"A friend is not the same as a tutor",paragraphs:["Tutors help with specific learning goals and corrections. Conversation partners should respond naturally, talk about their preferences, and let subjects develop.","You can begin in a familiar language and gradually increase the amount of English you speak."]},
     {heading:"Three easy topics that lead somewhere",paragraphs:["Talk about one detail from today, a movie you might see, or a choice at work. A concrete moment is easier to build on than 'let's chat'."],sample:{label:"An everyday opening",text:"I might see a movie this weekend, but I haven't decided which one yet. Do you have any favorites?",note:"Your partner can share an opinion instead of turning the exchange into a quiz."}},
-    {heading:"What if the AI asks too many questions?",paragraphs:["Try saying 'Don't interview me. Share your opinion too.' Or switch to a different topic. Crew Friends supports natural conversation, light bilingual chat, and immersion modes.","Live voice on the web still requires your own Gemini API key."]}
+    {heading:"What if the AI asks too many questions?",paragraphs:["Try saying 'Don't interview me. Share your opinion too.' Or switch to a different topic. Crew Friends supports natural conversation, light bilingual chat, and immersion modes.","You can try Crew AI voice for free; after the trial, add your own Gemini API key."]}
    ],
    faq:[
     {question:"How is an AI friend different from an AI tutor?",answer:"Tutors focus on instruction and feedback. Friends focus on conversational exchange and continuity."},
@@ -172,7 +172,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    title:"How to Get a Gemini API Key for Crew Teacher Voice Practice | Crew",
    description:"Set up a Gemini API key with Google AI Studio, verify it in Crew Teacher, enable microphone permissions, and understand free tier and billing limits.",
    label:"GEMINI API KEY SETUP",headline:"Try Crew voice for free, then set up your Gemini API key",
-   intro:"Crew Web does not require a separate Crew account for voice practice. Instead, the web app connects to Gemini using an API key that you provide. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
+   intro:"Crew Web does not require a separate Crew account for voice practice. You can first try three minutes of free AI voice, then connect with your own Gemini API key after the trial. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
    bullets:["Create the key through Google AI Studio, not an unofficial seller.","Verify it once in Crew's shared settings page.","Never post the key in screenshots, chats or public code."],
    sections:[
     {heading:"Step 1: Create a key in Google AI Studio",paragraphs:["Sign in to Google AI Studio with your Google account. Select or create a project and generate a Gemini API key using the official setup flow.","Check the displayed quota and pricing before enabling billing, particularly for Gemini Live models. A free-tier option for one model does not guarantee free Live voice usage for every model."]},
