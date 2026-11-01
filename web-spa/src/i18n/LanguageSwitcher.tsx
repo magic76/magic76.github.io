@@ -18,6 +18,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
  const [failed,setFailed]=useState(false);
  const current:UiLocale=normalizeUiLocale(i18n.language)||"zh-TW";
  const currentLabel=UI_LOCALE_CATALOG.find(item=>item.code===current)?.label||current;
+ const compactLabel=current==="zh-TW"?"中文":current==="ja"?"日本語":current.split("-")[0].toUpperCase();
 
  function showPicker(){
   const dialog=dialogRef.current;
@@ -59,7 +60,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
   <button type="button" className="crew-language-trigger"
    aria-label={t("language.label")+": "+currentLabel}
    aria-haspopup="dialog" aria-expanded={open} onClick={showPicker}>
-   <span className="crew-language-trigger-name">{currentLabel}</span>
+   <span className="crew-language-trigger-name">{variant==="header"?compactLabel:currentLabel}</span>
    <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="m6 9 6 6 6-6"/></svg>
   </button>
   <dialog ref={dialogRef} className="crew-language-dialog"

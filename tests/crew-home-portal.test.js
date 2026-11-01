@@ -109,3 +109,13 @@ test("All eleven locales name the four entry tiles and retain legacy world copy"
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).world.tiles;
  assert.deepEqual(zh,{chat:{name:"聊天",sub:"和 Zoe 聊聊"},teacher:{name:"老師",sub:"練外語"},fortune:{name:"算命",sub:"今日運勢"},play:{name:"遊戲",sub:"1A2B"}});
 });
+
+
+test("Home hero balances the first screen and reserves no bottom nav on desktop",()=>{
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(css,/display:grid;place-items:center/);
+ assert.match(css,/100svh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)/);
+ assert.match(css,/@media\(min-width:1100px\)\{\.crew-home-portal\{min-height:calc\(100vh - 58px\);min-height:calc\(100svh - 58px\)\}\}/);
+ assert.match(css,/min-height:145px;padding-top:58px/);
+ assert.doesNotMatch(css,/padding-top:54px/);
+});
