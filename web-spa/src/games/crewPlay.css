@@ -2,7 +2,7 @@
 .crew-play-page{width:min(100%,1020px);margin:0 auto;padding:18px 16px max(65px,env(safe-area-inset-bottom))}
 .crew-play-hero,.crew-play-game-header{position:relative;text-align:center;margin:8px 0 25px}
 .crew-play-back{position:absolute;left:0;top:0;color:var(--muted);text-decoration:none;font-size:13px;padding:8px 0;z-index:1}
-.crew-play-eyebrow{display:inline-block;padding:6px 11px;border-radius:20px;background:#e9e7ff;color:#56539b;font-weight:800;font-size:10px;letter-spacing:.14em}
+.crew-play-eyebrow{display:inline-block;padding:6px 11px;border-radius:20px;background:#e9e7ff;color:#56539b;font-weight:800;font-size:12px;letter-spacing:.14em}
 .crew-play-hero h1,.crew-play-game-header h1{font-size:clamp(27px,5vw,38px);line-height:1.25;letter-spacing:-.035em;margin:14px 0 7px}
 .crew-play-hero p,.crew-play-game-header p{font-size:13px;color:var(--muted);line-height:1.7;margin:0 auto;max-width:560px}
 .crew-play-catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:15px}
@@ -236,7 +236,7 @@
 .crew-play-voice-paused strong{font-size:13px}
 .crew-play-voice-paused p{margin:0;font-size:11px;line-height:1.6}
 .crew-play-session--word .crew-play-voice-dock-shell .crew-voice-dock-main{width:100%}
-.crew-play-game-card .crew-play-game-voice-tag{font-size:10px;font-weight:800;letter-spacing:.02em;color:#6157aa}
+.crew-play-game-card .crew-play-game-voice-tag{font-size:12px;font-weight:800;letter-spacing:.02em;color:#6157aa}
 @media(max-width:620px){
  .crew-play-page--voice-required .crew-play-game-header{padding-top:18px;margin-bottom:8px}
  .crew-play-voice-entrance{padding:12px}
