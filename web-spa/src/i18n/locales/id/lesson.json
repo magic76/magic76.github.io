@@ -187,7 +187,7 @@
     "vocabulary": "Latihan kosakata",
     "lesson": "Pelajaran {{number}}: {{name}}",
     "conversation": "Percakapan bebas bersama {{name}}",
-    "vocabularyNote": "Mulai dengan latihan kosakata tanpa kunci API.",
+    "vocabularyNote": "Mulailah dengan latihan kosakata gratis.",
     "courseNote": "Lanjutkan pelajaran berikutnya yang terbuka.",
     "conversationNote": "Langsung mulai percakapan bersama guru.",
     "threeMinute": "Latihan berbicara 3 menit",

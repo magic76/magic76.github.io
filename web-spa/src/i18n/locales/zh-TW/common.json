@@ -97,6 +97,8 @@
     "settingsTitle": "不想先設定？立即免費試玩",
     "settingsCta": "免費語音體驗 3 分鐘",
     "used": "此裝置或網路近期已使用過免費體驗。",
+    "usedMember": "這個帳號的 {{limit}} 次免費體驗已用完。",
+    "usedMemberNoCount": "這個帳號的免費體驗已用完。",
     "limit": "今天的免費試玩名額已滿。",
     "verification": "驗證未通過，請重新驗證。",
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。",

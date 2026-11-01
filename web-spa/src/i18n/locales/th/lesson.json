@@ -187,7 +187,7 @@
     "vocabulary": "ฝึกคำศัพท์",
     "lesson": "บทที่ {{number}}: {{name}}",
     "conversation": "สนทนาอิสระกับ {{name}}",
-    "vocabularyNote": "เริ่มด้วยการฝึกคำศัพท์โดยไม่ต้องใช้คีย์ API",
+    "vocabularyNote": "เริ่มอุ่นเครื่องด้วยแบบฝึกคำศัพท์ฟรี",
     "courseNote": "เรียนบทถัดไปที่ปลดล็อกแล้ว",
     "conversationNote": "เริ่มสนทนากับครูได้ทันที",
     "threeMinute": "ฝึกพูด 3 นาที",

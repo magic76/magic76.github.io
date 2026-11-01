@@ -16,15 +16,15 @@ export function GuestTrialCountdown({secondsLeft}:{secondsLeft:number}){
 }
 
 /** Never suggest trial renewal: the three free destinations work without Live or a Key. */
-export function GuestTrialFinish({expired,failed}:{expired:boolean;failed:boolean}){
+export function GuestTrialFinish({expired,failed,name}:{expired:boolean;failed:boolean;name?:string}){
  const {t}=useTranslation("common");
  const location=useLocation();
  const friendId=new URLSearchParams(location.search).get("id");
  const isFriend=location.pathname.startsWith("/friend/live");
- const name=isFriend&&friendId?getCrewFriend(friendId).name:t("guestTrial.aiFriend");
+ const displayName=name||(isFriend&&friendId?getCrewFriend(friendId).name:t("guestTrial.aiFriend"));
  return <section className="guest-trial-finish" role="region" aria-labelledby="guest-trial-finish-title">
   <div className="guest-trial-finish-icon" aria-hidden="true">✦</div>
-  <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle",{name}):t("guestTrial.ended")}</h2>
+  <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle",{name:displayName}):t("guestTrial.ended")}</h2>
   <p>{failed?t("guestTrial.interruptedBody"):t("guestTrial.completeBody")}</p>
   <div className="guest-trial-finish-actions" aria-label={t("guestTrial.freeNextTitle")}>
    <Link className="btn" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link>

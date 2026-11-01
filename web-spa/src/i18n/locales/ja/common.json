@@ -97,6 +97,8 @@
     "settingsTitle": "設定前に試してみませんか？",
     "settingsCta": "3分間の無料音声体験",
     "used": "この端末またはネットワークでは最近体験済みです。",
+    "usedMember": "このアカウントの無料体験 {{limit}} 回分はすべて使用済みです。",
+    "usedMemberNoCount": "このアカウントの無料体験は終了しました。",
     "limit": "本日の無料枠は終了しました。",
     "verification": "認証に失敗しました。もう一度お試しください。",
     "tempUnavailable": "無料体験は一時的に利用できません。",
@@ -106,7 +108,7 @@
     "freeVocabulary": "今日の単語",
     "freeStory": "物語を読む",
     "freeNextTitle": "無料で楽しむ",
-    "aiFriend": "AI の友だち"
+    "aiFriend": "AIの友だち"
   },
   "auth": {
     "trialCount": "無料音声体験：{{used}} / {{limit}} 回利用済み",

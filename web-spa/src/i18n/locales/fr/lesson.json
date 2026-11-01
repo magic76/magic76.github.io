@@ -187,7 +187,7 @@
     "vocabulary": "Exercice de vocabulaire",
     "lesson": "Leçon {{number}} : {{name}}",
     "conversation": "Conversation libre avec {{name}}",
-    "vocabularyNote": "Commencez par le vocabulaire sans clé API.",
+    "vocabularyNote": "Commencez par des exercices de vocabulaire gratuits.",
     "courseNote": "Poursuivez avec la prochaine leçon débloquée.",
     "conversationNote": "Discutez directement avec votre professeur.",
     "threeMinute": "Expression orale en 3 minutes",

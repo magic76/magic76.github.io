@@ -97,6 +97,8 @@
     "settingsTitle": "Mau coba dulu?",
     "settingsCta": "Coba suara gratis 3 menit",
     "used": "Perangkat atau jaringan ini sudah mencoba.",
+    "usedMember": "Akun ini telah memakai seluruh {{limit}} percobaan gratis.",
+    "usedMemberNoCount": "Akun ini telah kehabisan percobaan gratis.",
     "limit": "Kuota hari ini sudah habis.",
     "verification": "Verifikasi gagal. Coba lagi.",
     "tempUnavailable": "Uji coba tidak tersedia sementara.",
@@ -106,7 +108,7 @@
     "freeVocabulary": "Kata hari ini",
     "freeStory": "Baca cerita",
     "freeNextTitle": "Lanjutkan gratis",
-    "aiFriend": "Teman AI"
+    "aiFriend": "teman AI"
   },
   "auth": {
     "trialCount": "Uji coba suara digunakan: {{used}} / {{limit}}",

@@ -185,6 +185,7 @@ const followupSelectors = {
   "features/story/styles.css": [
     ".story-book p", ".story-home-empty a", ".story-home-empty span", ".story-home-copy small", ".story-home-copy span",
   ],
+  "web-spa/src/friends/friends.css": [".friend-live-footnote"],
   "web-spa/src/teacher/learningFlow.css": [
     ".crew-learning-translation-note", ".crew-course-mission-summary span", ".crew-course-unit-title small",
     ".crew-course-lesson-copy small", ".crew-course-lesson-copy em", ".crew-course-warmup small",

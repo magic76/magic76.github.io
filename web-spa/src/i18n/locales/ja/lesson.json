@@ -187,7 +187,7 @@
     "vocabulary": "単語練習",
     "lesson": "第 {{number}} 課：{{name}}",
     "conversation": "{{name}} 先生と自由会話",
-    "vocabularyNote": "API キー不要の単語練習から始めましょう。",
+    "vocabularyNote": "まずは無料の単語練習でウォームアップしましょう。",
     "courseNote": "次の解放済みレッスンに進みましょう。",
     "conversationNote": "先生とすぐに会話を始めましょう。",
     "threeMinute": "3 分間スピーキング",

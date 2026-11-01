@@ -29,7 +29,7 @@ export function todayStep(input:TodayStepInput):DailyLearningPlan{
   const warmupVocabulary=dueVocabulary===0;
   return {...base,action:"vocabulary",warmupVocabulary,
    title:warmupVocabulary?"單字練習":"複習 "+dueVocabulary+" 個快忘的字",
-   note:warmupVocabulary?"先用免 Key 單字練習暖身。":"先複習到期的字。",to:"/teacher/vocabulary"};
+   note:warmupVocabulary?"先用免費單字練習暖身。":"先複習到期的字。",to:"/teacher/vocabulary"};
  }
  if(targetLanguage==="英文"&&nextLesson){
   const nextLessonNumber=lessonsForTrack(nextLesson.trackId).findIndex(x=>x.id===nextLesson.id)+1;

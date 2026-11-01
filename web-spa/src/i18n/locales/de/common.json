@@ -97,6 +97,8 @@
     "settingsTitle": "Erst einmal ausprobieren?",
     "settingsCta": "3 Minuten Sprachtest gratis",
     "used": "Dieses Gerät oder Netzwerk wurde bereits genutzt.",
+    "usedMember": "Dieses Konto hat alle {{limit}} Gratisversuche aufgebraucht.",
+    "usedMemberNoCount": "Dieses Konto hat seine Gratisversuche aufgebraucht.",
     "limit": "Das heutige Kontingent ist aufgebraucht.",
     "verification": "Verifizierung fehlgeschlagen. Erneut versuchen.",
     "tempUnavailable": "Test vorübergehend nicht verfügbar.",
@@ -106,7 +108,7 @@
     "freeVocabulary": "Wort des Tages",
     "freeStory": "Geschichten lesen",
     "freeNextTitle": "Kostenlos weitermachen",
-    "aiFriend": "KI-Freund"
+    "aiFriend": "einem KI-Freund"
   },
   "auth": {
     "trialCount": "Genutzte Sprachtests: {{used}} / {{limit}}",

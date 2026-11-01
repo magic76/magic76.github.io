@@ -16,7 +16,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
- const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"unavailable"|"starting"|"error">("checking");
+ const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"full"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
@@ -44,6 +44,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
      if(!active.current)return;
      const isSignedIn=typeof session?.user?.id==="string"&&Boolean(session.user.id);
      signedIn=isSignedIn;setMemberSignedIn(isSignedIn);
+     // A signed-in member must never inherit the anonymous device quota count.
+     if(isSignedIn){setRemaining(null);setQuotaLimit(null)}
      if(config.signinRequired&&!isSignedIn){setPhase("login");return}
      // Only a hint to spare users another Turnstile. The Worker remains the
      // authority and rejects concurrent or already-consumed account grants.
@@ -135,7 +137,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
      if(data.code==="SIGNIN_REQUIRED")setPhase("login");
-     else if(data.code==="ALREADY_USED"||data.code==="DAILY_LIMIT")setPhase("exhausted");
+     else if(data.code==="ALREADY_USED")setPhase("exhausted");
+     else if(data.code==="DAILY_LIMIT")setPhase("full");
      else{setMessage(t("guestTrial.tempUnavailable"));setPhase("error")}
     }
     return;
@@ -148,9 +151,9 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     ?t("guestTrial.micDenied"):t("guestTrial.serviceUnavailable"));setPhase("error")}
   }finally{busy.current=false}
  }
- return <div className="notice guest-live-entry" role="region" aria-label={phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
+ return <div className="notice guest-live-entry" role="region" aria-label={phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
   <div style={{display:"grid",gap:10,width:"100%"}}>
-   {phase!=="exhausted"&&<><strong>{t("guestTrial.homeTitle")}</strong>
+   {phase!=="exhausted"&&phase!=="full"&&<><strong>{t("guestTrial.homeTitle")}</strong>
     <p>{t("guestTrial.homeDesc")}</p>
     {remaining!==null&&<p role="status">{t("guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
@@ -159,7 +162,9 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}
-   {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{t("guestTrial.used")}</p>
+   {phase==="exhausted"&&<><strong>{t("guestTrial.usedUpTitle")}</strong><p role="status">{memberSignedIn?(quotaLimit!==null?t("guestTrial.usedMember",{limit:quotaLimit}):t("guestTrial.usedMemberNoCount")):t("guestTrial.used")}</p></>}
+   {phase==="full"&&<p role="status">{t("guestTrial.limit")}</p>}
+   {(phase==="exhausted"||phase==="full")&&<>
     <Link className="btn" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
     <Link className="btn secondary" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role="status">{message||t("guestTrial.unavailable")}</p>}

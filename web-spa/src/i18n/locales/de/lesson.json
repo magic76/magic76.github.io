@@ -187,7 +187,7 @@
     "vocabulary": "Wortschatz üben",
     "lesson": "Lektion {{number}}: {{name}}",
     "conversation": "Freies Gespräch mit {{name}}",
-    "vocabularyNote": "Beginne mit Wortschatztraining ohne API-Schlüssel.",
+    "vocabularyNote": "Wärme dich mit kostenlosen Vokabelübungen auf.",
     "courseNote": "Setze die nächste freigeschaltete Lektion fort.",
     "conversationNote": "Starte direkt ein Gespräch mit deiner Lehrkraft.",
     "threeMinute": "3 Minuten Sprechübung",
