@@ -153,7 +153,9 @@
     "modelShared": "Compartilhado por professores e amigos",
     "modelIntro": "Escolha um modelo para comparar a pronúncia",
     "memoryHeading": "Memória e dados",
-    "memoryIntro": "Gerencie memórias e registros de estudo salvos neste navegador ou WebView."
+    "memoryIntro": "Gerencie memórias e registros de estudo salvos neste navegador ou WebView.",
+    "keyInAccount": "A chave Gemini agora fica em Conta. Microfone, teste de voz e volume continuam aqui.",
+    "manageAi": "Gerenciar chave Gemini"
   },
   "deviceApp": {
     "title": "Dispositivo e app",
