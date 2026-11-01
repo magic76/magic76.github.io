@@ -359,10 +359,10 @@ check("Cloudflare build emits version metadata matching the currently shipped Ja
 });
 
 
-check("home SSG starts with neutral Gemini key status and no false setup banner",()=>{
+check("home SSG omits Gemini header status badges and false setup banners",()=>{
  for(const page of ["index.html","en/index.html"]){
   const body=read(page).split("</head>")[1]||"";
-  assert.ok(body.includes('class="status crew-key-status-placeholder"'),"missing neutral status placeholder: "+page);
+  assert.doesNotMatch(body,/crew-key-status-placeholder/,"obsolete Gemini header status placeholder in SSG body: "+page);
   assert.doesNotMatch(body,/class="[^"]*crew-home-setup(?:\s|")/,"false setup banner in SSG body: "+page);
   assert.doesNotMatch(body,/class="[^"]*status (?:connected|pending)"/,"personal connection state in public SSG: "+page);
  }
