@@ -116,6 +116,15 @@
     "failed": "Đăng nhập thất bại. Hãy thử lại.",
     "cancelled": "Đã hủy đăng nhập.",
     "localData": "Khóa Gemini và dữ liệu trên thiết bị không tự động đồng bộ.",
-    "backSettings": "Quay lại cài đặt"
+    "backSettings": "Quay lại cài đặt",
+    "accountAi": "Tài khoản và cài đặt AI",
+    "aiSettings": "Kết nối Gemini AI",
+    "aiIntro": "Sau khi dùng thử miễn phí, bạn có thể nhập khóa Gemini của mình trên thiết bị này mà không cần đăng nhập Crew.",
+    "preferences": "Tùy chọn khác",
+    "preferencesIntro": "Cài đặt học tập, giọng nói, bộ nhớ và thiết bị được quản lý riêng và không tự đồng bộ khi đăng nhập.",
+    "voiceSettings": "Giọng nói và micrô",
+    "learningSettings": "Cài đặt học tập",
+    "dataSettings": "Bộ nhớ và dữ liệu",
+    "deviceSettings": "Thiết bị và quyền"
   }
 }
