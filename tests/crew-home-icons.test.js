@@ -7,7 +7,7 @@ test("Crew home keeps icon-based entry points without duplicating product portra
  const portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.doesNotMatch(home,/crew-home-product-grid|TeacherAvatar/);
  assert.match(home,/<Icon name="teacher"\/>/);
- assert.match(home,/<Icon name="fortune"\/>/);
+ assert.match(home,/to="\/teacher\/course\/travel"/);
  assert.match(home,/<Icon name="play"\/>/);
  assert.match(portal,/icon:"teacher"/);
  assert.match(home,/to="\/fortune"/);

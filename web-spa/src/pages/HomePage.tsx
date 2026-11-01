@@ -95,7 +95,8 @@ export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
- const trial=useGuestTrialQuota();
+ const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
+ const trial=useGuestTrialQuota(!ready||configured);
  const [featuredGame,setFeaturedGame]=useState<(typeof DAILY_GAMES)[number]>("1a2b");
  useEffect(()=>{
   const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
@@ -109,7 +110,6 @@ export function HomePage(){
  },[]);
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
- const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  const guestAvailable=trial.enabled&&trial.remaining!==0;
 
  useEffect(()=>{
