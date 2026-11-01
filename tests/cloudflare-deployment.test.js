@@ -384,3 +384,44 @@ check("preview language routes serve noindex HTML and are excluded from the site
  }
  assert.ok(!rewrites.includes("/en/*"),"published English routes must retain SSG");
 });
+
+
+check("all published SSG OG images are present, 1200x630 PNG, and route-specific",async()=>{
+ const origin="https://www.3sssi.com",paths=[];
+ const push=route=>paths.push(route+"index.html");
+ for(const lang of ["","en/"]){
+  for(const slug of pages)push(lang+(slug?slug+"/":""));
+  for(const slug of ["travel","business","daily","teamwork","tickets","services"])push(lang+"teacher/course/"+slug+"/");
+  for(const slug of ["ai-english-speaking","ai-conversation-partner","travel-english-dialogues","english-pronunciation","gemini-key-for-ai-practice"])push(lang+"guides/"+slug+"/");
+  for(const slug of ["friend-gomoku","connect4","twenty-questions","reversi","mystery","1a2b","taboo"])push(lang+"games/"+slug+"/");
+ }
+ const {readPublishedResearch}=await import("../scripts/research-seo.mjs");
+ const {days}=readPublishedResearch(ROOT);
+ for(const [date,day] of days)for(const item of day.items)push("research/"+date+"/"+item.id+"/");
+ for(const page of paths){
+  const html=read(page);
+  const meta=tag=>html.match(new RegExp('<meta '+tag+' content="([^"]+)">'))?.[1];
+  const og=meta('property="og:image"'),secure=meta('property="og:image:secure_url"'),twitter=meta('name="twitter:image"');
+  assert.ok(og&&og.startsWith(origin+"/social/"),"missing OG URL: "+page);
+  assert.equal(secure,og,"OG HTTPS version must match "+page);
+  assert.equal(twitter,og,"Twitter preview must match "+page);
+  const imagePath=new URL(og).pathname.slice(1);
+  assert.ok(!imagePath.includes("..")&&imagePath.startsWith("social/"),"unsafe OG path "+page);
+  const png=fs.readFileSync(path.join(DIST,imagePath));
+  assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10],"bad PNG "+page);
+  assert.equal(png.readUInt32BE(16),1200,"wrong width "+page);
+  assert.equal(png.readUInt32BE(20),630,"wrong height "+page);
+  assert.ok(meta('property="og:image:alt"'),"missing accessible OG alt "+page);
+  if(/^en\/?$|^index\.html$/.test(page))assert.equal(og,origin+"/social/crew-shared-v2.png");
+ }
+ for(const slug of ["teacher","story","fortune","research","games"]){
+  const url=origin+"/social/og/"+slug+".png";
+  for(const lang of ["","en/"])assert.ok(read(lang+slug+"/index.html").includes('<meta property="og:image" content="'+url+'">'));
+ }
+ for(const slug of ["travel","business","daily","teamwork","tickets","services"]){
+  for(const lang of ["zh","en"]){
+   const html=read((lang==="en"?"en/":"")+"teacher/course/"+slug+"/index.html");
+   assert.ok(html.includes(origin+"/social/og/course/"+slug+"-"+lang+".png"),slug+" "+lang);
+  }
+ }
+});
