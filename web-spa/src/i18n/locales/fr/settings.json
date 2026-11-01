@@ -153,7 +153,9 @@
     "modelShared": "Commun aux professeurs et amis",
     "modelIntro": "Choisissez un modèle pour comparer la prononciation",
     "memoryHeading": "Mémoire et données",
-    "memoryIntro": "Gérez les souvenirs et les données d'apprentissage de ce navigateur ou de cette WebView."
+    "memoryIntro": "Gérez les souvenirs et les données d'apprentissage de ce navigateur ou de cette WebView.",
+    "keyInAccount": "La clé Gemini se gère désormais dans Compte. Le microphone, le test vocal et le volume restent ici.",
+    "manageAi": "Gérer la clé Gemini"
   },
   "deviceApp": {
     "title": "Appareil et appli",
