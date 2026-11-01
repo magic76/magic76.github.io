@@ -1,5 +1,6 @@
-import{Link}from"react-router-dom";
+import{Link,useLocation}from"react-router-dom";
 import{useTranslation}from"react-i18next";
+import{getCrewFriend}from"../friends/friendProfiles";
 import"./guestTrialExperience.css";
 
 /** Display only; the Live hook enforces the independent three-minute deadline. */
@@ -14,16 +15,22 @@ export function GuestTrialCountdown({secondsLeft}:{secondsLeft:number}){
  </div>;
 }
 
-/** Teacher and Friend finish without attempting to reuse the one-use token. */
+/** Never suggest trial renewal: the three free destinations work without Live or a Key. */
 export function GuestTrialFinish({expired,failed}:{expired:boolean;failed:boolean}){
  const {t}=useTranslation("common");
+ const location=useLocation();
+ const friendId=new URLSearchParams(location.search).get("id");
+ const isFriend=location.pathname.startsWith("/friend/live");
+ const name=isFriend&&friendId?getCrewFriend(friendId).name:t("guestTrial.aiFriend");
  return <section className="guest-trial-finish" role="region" aria-labelledby="guest-trial-finish-title">
   <div className="guest-trial-finish-icon" aria-hidden="true">✦</div>
-  <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle"):t("guestTrial.ended")}</h2>
+  <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle",{name}):t("guestTrial.ended")}</h2>
   <p>{failed?t("guestTrial.interruptedBody"):t("guestTrial.completeBody")}</p>
-  <div className="guest-trial-finish-actions">
-   <Link className="btn" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
-   <Link className="btn secondary" to="/">{t("guestTrial.exploreCrew")}</Link>
+  <div className="guest-trial-finish-actions" aria-label={t("guestTrial.freeNextTitle")}>
+   <Link className="btn" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link>
+   <Link className="btn secondary" to="/teacher/vocabulary">{t("guestTrial.freeVocabulary")}</Link>
+   <Link className="btn secondary" to="/story">{t("guestTrial.freeStory")}</Link>
   </div>
+  <Link className="guest-trial-finish-key" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
  </section>;
 }

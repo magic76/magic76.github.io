@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "Crea gratis una clave API de Gemini",
-    "desc": "Obtén una clave con tu cuenta de Google en aproximadamente un minuto. Funciona para Teacher, Story, Fortune y juegos de voz de Crew Play.",
     "cta": "Ver cómo configurarla gratis",
-    "pricing": "Los límites de uso gratuito dependen del modelo. Los planes de pago pueden tener costes.",
     "verify": "Clave Gemini sin verificar",
-    "verifyDesc": "Comprueba que tu clave funciona."
+    "verifyDesc": "Comprueba que tu clave funciona.",
+    "shortDesc": "Al terminar la prueba, puedes configurar tu propia clave para seguir hablando."
   },
   "android": "Descubre Crew para Android",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "Habla con amigos de IA, juega, practica un idioma o inventa una historia. Elige lo que te apetezca.",
     "start": "Empezar {{mode}}",
     "explore": "Descubre más opciones",
-    "choose": "Elige cómo interactuar con Crew",
-    "tap": "Toca para abrir",
-    "modes": {
-      "chat": {
-        "label": "Chat con IA",
-        "title": "Basta con saludar",
-        "hint": "Elige a un amigo de Crew y empieza a conversar."
-      },
-      "play": {
-        "label": "Juegos",
-        "title": "¡Vamos a jugar!",
-        "hint": "Prueba juegos de texto sin clave API."
-      },
-      "learn": {
-        "label": "Aprender",
-        "title": "Practica en voz alta",
-        "hint": "Cursos, vocabulario y conversación a tu ritmo."
-      },
-      "story": {
-        "label": "Historias",
-        "title": "Crea una historia",
-        "hint": "Lee con alguien o crea tu propia historia."
-      }
-    }
+    "tap": "Toca para abrir"
   },
   "world": {
-    "intro": "Habla, juega, aprende e imagina. Con IA.",
-    "touch": "Muévete o toca la pantalla. Deja que este mundo responda.",
-    "pause": "Pausar movimiento",
-    "resume": "Reanudar movimiento",
     "modes": {
-      "chat": {
-        "lead": "Un pequeño vínculo.",
-        "before": "Solo di",
-        "accent": "Hola.",
-        "after": "",
-        "description": "No necesitas un tema perfecto ni respuestas inmediatas.\nConoce a un amigo de IA y descubre adónde os lleva la charla.",
-        "cta": "Conoce a tu amigo de IA"
-      },
-      "play": {
-        "lead": "¿Tu siguiente jugada?",
-        "before": "Déjame",
-        "accent": "Adivinar.",
-        "after": "",
-        "description": "Elige un número. Acepta un reto.\nUn intercambio de palabras puede dar mucho juego.",
-        "cta": "Juguemos una ronda"
-      },
       "learn": {
-        "lead": "Cada conversación",
-        "before": "te lleva",
-        "accent": "Más lejos.",
-        "after": "",
-        "description": "De buscar palabras a hablar con soltura.\nPractica un nuevo idioma con un compañero de IA.",
-        "cta": "Encuentra tu voz"
-      },
-      "story": {
-        "lead": "Pasa una nueva página.",
-        "before": "Atrévete a",
-        "accent": "Imaginar.",
-        "after": "",
-        "description": "Entra en una historia o escribe un nuevo comienzo.\nCrea un mundo junto a la IA.",
-        "cta": "Abre una nueva historia"
+        "description": "De buscar palabras a hablar con soltura.\nPractica un nuevo idioma con un compañero de IA."
       }
     },
     "bridge": "Aquí nacen pequeñas historias",
@@ -135,13 +78,20 @@
     "fortuneTitle": "Mírate desde otra perspectiva",
     "fortuneDescription": "Explora tu carta con un amigo de IA.",
     "timelineTitle": "Cada vida tiene otro capítulo",
-    "timelineDescription": "Conoce a distintas personas en diferentes etapas de su vida."
+    "timelineDescription": "Conoce a distintas personas en diferentes etapas de su vida.",
+    "chatHeading": "Habla con un amigo de IA",
+    "chatSubtitle": "Sin registro. Habla gratis durante 3 minutos.",
+    "chatStart": "Empezar a hablar gratis",
+    "chatWithZoe": "Hablar con Zoe",
+    "chatExhausted": "Configura una clave gratis y sigue hablando",
+    "quickPicks": "O elige a alguien",
+    "noVoice": "¿Prefieres escribir? Juega 1A2B"
   },
   "playHub": {
     "back": "Inicio",
     "heading": "¿A qué jugamos con tus amigos Crew?",
     "intro": "Elige a un amigo Crew y jueguen juntos a juegos de mesa, retos de números, juegos de palabras o misterios por voz.",
-    "voiceRequired": "Requiere voz de Gemini",
+    "voiceRequired": "Voz de IA",
     "offlineOptional": "Sin conexión · voz opcional",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live solo gestiona la voz y las respuestas del personaje; las reglas offline deciden la puntuación y nada se guarda en el chat con tu amigo."
     },
     "eyebrow": "Crew Play",
-    "accessNote": "Los juegos de mesa, 1A2B y Taboo se juegan por texto sin clave. Las conversaciones con IA y los juegos de voz requieren una clave de Gemini; la voz también necesita micrófono.",
     "voiceDock": {
       "expand": "Ampliar el panel de voz",
       "collapse": "Contraer el panel de voz"

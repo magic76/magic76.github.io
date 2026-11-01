@@ -61,13 +61,12 @@ export function CrewPlayHubPage(){
    <h1>{t("playHub.heading")}</h1>
    <p>{t("playHub.intro")}</p>
   </header>
-  <p className="crew-play-access-note">{t("playHub.accessNote")}</p>
   <div className="crew-play-discovery" aria-label={zh?"選擇遊戲":"Find a game"}>
    {recentId?<Link className="crew-play-resume" to={"/games/"+recentId} onClick={()=>remember(recentId)}>
     <span aria-hidden="true">↗</span><span><small>{zh?"再玩上次的遊戲":"Play last game again"}</small><strong>{titles[recentId]}</strong></span>
    </Link>:null}
    <div className="crew-play-filters" role="group" aria-label={zh?"遊戲分類":"Game categories"}>
-    {([{id:"all",zh:"全部",en:"All"},{id:"no-key",zh:"免 Key 就能玩",en:"Play for free"},{id:"ai",zh:"AI 互動",en:"AI games"}] as const).map(item=>
+    {([{id:"all",zh:"全部",en:"All"},{id:"no-key",zh:"免費直接玩",en:"Play free now"},{id:"ai",zh:"AI 互動",en:"AI games"}] as const).map(item=>
      <button key={item.id} type="button" className={"crew-play-filter"+(filter===item.id?" is-active":"")}
       aria-pressed={filter===item.id} onClick={()=>setFilter(item.id)}>{zh?item.zh:item.en}</button>)}
    </div>
@@ -84,25 +83,25 @@ export function CrewPlayHubPage(){
   <div className="crew-play-catalog">
    {crewGames.map((game,index)=><Link className="crew-play-game-card" hidden={!visible(game.id,t("playHub.games."+game.id+".title"),t("playHub.games."+game.id+".desc"))} onClick={()=>remember(game.id)} to={"/games/"+game.id} key={game.id}>
     <div className={`crew-play-game-art game-${index}`} aria-hidden="true"><span>{game.icon}</span></div>
-    <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?t("playHub.voiceRequired"):game.id==="taboo"?(zh?"免 Key 練習 · Key 啟用 AI 猜詞":"Offline practice · AI guess with Key"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):t("playHub.offlineOptional")}</span></div>
+    <div className="crew-play-game-info"><strong>{t("playHub.games."+game.id+".title")}</strong><small>{t("playHub.games."+game.id+".desc")}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?t("playHub.voiceRequired"):game.id==="taboo"?(zh?"打字練習 · 可開 AI 猜詞":"Typing practice · Optional AI guessing"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):t("playHub.offlineOptional")}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>)}
    <Link className="crew-play-game-card nonsense-hub-card" to="/games/nonsense" hidden={!visible("nonsense",extraLabels.nonsense[0],extraLabels.nonsense[1])} onClick={()=>remember("nonsense")}>
     <div className="crew-play-game-art nonsense-hub-art" aria-hidden="true"><span>🎙</span></div>
-    <div className="crew-play-game-info"><strong>{zh?"荒謬新聞直播":"Absurd News Live"}</strong><small>{zh?"荒謬新聞題材、AI 主播與動態新聞現場。":"150 premises, three improvised rounds, evolving AI news scenes."}</small><span className="crew-play-game-voice-tag">{zh?"Gemini Key · Live 語音或文字互動":"Gemini Key · voice or text play"}</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"荒謬新聞直播":"Absurd News Live"}</strong><small>{zh?"荒謬新聞題材、AI 主播與動態新聞現場。":"150 premises, three improvised rounds, evolving AI news scenes."}</small><span className="crew-play-game-voice-tag">{zh?"AI 互動 · 語音或文字":"AI play · Voice or text"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
    <Link className="crew-play-game-card werewolf-hub-card" to="/games/werewolf" hidden={!visible("werewolf",extraLabels.werewolf[0],extraLabels.werewolf[1])} onClick={()=>remember("werewolf")}>
     <div className="crew-play-game-art werewolf-hub-art" aria-hidden="true"><span>☾</span></div>
-    <div className="crew-play-game-info"><strong>{zh?"AI 狼人殺":"AI Werewolf"}</strong><small>{zh?"1 真人 + 5 AI。夜晚行動、自由質疑、角色推理與投票。":"One human plus five AI suspects. Investigate, debate, bluff and vote."}</small><span className="crew-play-game-voice-tag">{zh?"免 Key 情境台詞 · Key 啟用真正 AI / Live":"Free text demo · Optional Gemini Live voice"}</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"AI 狼人殺":"AI Werewolf"}</strong><small>{zh?"1 真人 + 5 AI。夜晚行動、自由質疑、角色推理與投票。":"One human plus five AI suspects. Investigate, debate, bluff and vote."}</small><span className="crew-play-game-voice-tag">{zh?"免費情境文字 · 可用 AI 語音":"Free text demo · Optional AI voice"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
    <Link className="crew-play-game-card" to="/games/truth-news" hidden={!visible("truth-news",extraLabels["truth-news"][0],extraLabels["truth-news"][1])} onClick={()=>remember("truth-news")}>
-    <div className="crew-play-game-art" aria-hidden="true"><span>?</span></div><div className="crew-play-game-info"><strong>{extraLabels["truth-news"][0]}</strong><small>{extraLabels["truth-news"][1]}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 可查看新聞來源":"Gemini Key · verified sources"}</span></div><span className="crew-play-open" aria-hidden="true">↗</span>
+    <div className="crew-play-game-art" aria-hidden="true"><span>?</span></div><div className="crew-play-game-info"><strong>{extraLabels["truth-news"][0]}</strong><small>{extraLabels["truth-news"][1]}</small><span className="crew-play-game-voice-tag">{zh?"AI 互動 · 附新聞來源":"AI play · News sources"}</span></div><span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
    <Link className="crew-play-game-card court-hub-card" to="/games/crazy-court" hidden={!visible("crazy-court",extraLabels["crazy-court"][0],extraLabels["crazy-court"][1])} onClick={()=>remember("crazy-court")}>
     <div className="crew-play-game-art court-hub-art" aria-hidden="true"><span>⚖</span></div>
-    <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{zh?"需 Gemini Key · 語音選用":"Gemini Key required · Voice optional"}</span></div>
+    <div className="crew-play-game-info"><strong>{zh?"荒謬法庭":"Crazy Court"}</strong><small>{zh?"選擇立場、提出證據，和 AI 朋友辯論荒謬案件。":"Take a side, present evidence and debate silly cases with an AI friend."}</small><span className="crew-play-game-voice-tag">{zh?"AI 互動 · 語音選用":"AI play · Optional voice"}</span></div>
     <span className="crew-play-open" aria-hidden="true">↗</span>
    </Link>
   </div>

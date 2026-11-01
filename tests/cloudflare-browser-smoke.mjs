@@ -55,10 +55,10 @@ async function captureCrewVisualQA(browser){
    await page.locator(".crew-section-carousel-actions button").last().click();
    await page.waitForTimeout(350);
    await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:20000});
-   await page.locator(".crew-portal-tabs [role=tab]").first().waitFor({state:"visible",timeout:12000});
-   await page.locator(".crew-portal-tabs [role=tab]").nth(1).click();
+   await page.locator(".crew-portal-cta").waitFor({state:"visible",timeout:12000});
+   await page.locator(".crew-portal-picks-links a").nth(1).hover();
    await page.waitForTimeout(350);
-   await page.locator(".crew-portal-tabs [role=tab]").first().click();
+   await page.locator(".crew-portal-game-link").hover();
    await page.waitForTimeout(350);
   }catch(error){process.stdout.write("VIDEO QA partial "+setup.id+": "+String(error).slice(0,140)+"\\n");}
   finally{
@@ -242,58 +242,43 @@ async function run(){
     try{
       await page.goto(origin+setup.route,{waitUntil:"domcontentloaded",timeout:30000});
       await page.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
-      const tabs=page.locator(".crew-portal-tabs [role=tab]");
-      assert.equal(await tabs.count(),4,"Four KV modes: "+JSON.stringify(setup));
-      assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible center heading");
+      assert.equal(await page.locator(".crew-portal-cta").count(),1,"Only one primary CTA");
+      assert.equal(await page.locator(".crew-portal-tabs, .crew-portal-motion").count(),0,"No rotating tabs or pause control");
+      assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible chat heading");
       const initial=await page.locator(".crew-portal-content h1").textContent();
-      // Samsung Internet regression: mobile KV must not remain a static SVG
-      // indefinitely after hydration. Canvas starts after load + idle + visibility.
+      assert.ok(initial?.trim(),"Non-empty translated chat heading");
       if(setup.mobile){
-        await page.waitForFunction(()=>
+        await page.waitForFunction(() =>
           document.querySelector(".crew-portal-field")?.getAttribute("data-ready")==="true",
           null,{timeout:12000}
         );
         const portalState=await page.evaluate(()=>{
           const field=document.querySelector(".crew-portal-field");
           const canvas=field?.querySelector("canvas");
-          return {
-            ready:field?.getAttribute("data-ready"),
-            width:canvas?.width||0,height:canvas?.height||0,
-            paused:document.querySelector(".crew-portal-motion")?.getAttribute("aria-pressed")
-          };
+          return {ready:field?.getAttribute("data-ready"),width:canvas?.width||0,height:canvas?.height||0};
         });
         assert.equal(portalState.ready,"true","Mobile KV initializes the real Canvas");
         assert.ok(portalState.width>0&&portalState.height>0,"Mobile particle surface is sized");
-        assert.equal(portalState.paused,"false","Mobile KV automatically resumes motion");
       }
       const metric=await page.evaluate(()=>{
         const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
         return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
           heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),
-          tabs:rect(".crew-portal-tabs"),hint:rect(".crew-portal-hint"),bridge:rect(".crew-home-world-bridge"),
+          picks:rect(".crew-portal-picks"),game:rect(".crew-portal-game-link"),bridge:rect(".crew-home-world-bridge"),
           shorts:rect(".crew-home-shorts")};
       });
-      assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No page-wide horizontal overflow: "+JSON.stringify({setup,metric}));
-      assert.ok(metric.cta.bottom<metric.tabs.y-5,"CTA must not overlap mode controls: "+JSON.stringify({setup,metric}));
-      assert.ok(metric.tabs.bottom<metric.hint.y+4,"Mode controls must not cover touch hint: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No horizontal overflow: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.cta.bottom<=metric.picks.y+4,"CTA and picks do not overlap: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.picks.bottom<=metric.game.y+4,"Picks and game link do not overlap");
       assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
-      for(const choice of [
-        {mode:"play",to:"/games"},
-        {mode:"learn",to:"/teacher"},
-        {mode:"story",to:"/story"},
-        {mode:"chat",to:"/teacher/roles?mode=friends"}
-      ]){
-        await page.locator('.crew-portal-tabs button[role="tab"]').filter({hasText:setup.route==="/en/"?
-          ({chat:"AI Chat",play:"Play",learn:"Learn",story:"Stories"})[choice.mode]:
-          ({chat:"AI 聊天",play:"一起玩",learn:"學語言",story:"說故事"})[choice.mode]}).click();
-        assert.equal(await page.locator('.crew-portal-tabs [aria-selected="true"]').count(),1,"Exactly one active mode");
-        assert.equal(await page.locator(".crew-home-portal").getAttribute("data-mode"),choice.mode);
-        const href=await page.locator(".crew-portal-cta").getAttribute("href");
-        const expected=setup.route==="/en/"?"/en"+choice.to:choice.to;
-        assert.equal(href,expected,"Selected mode CTA deep link (respect language prefix)");
+      const href=await page.locator(".crew-portal-cta").getAttribute("href");
+      assert.match(href||"",/\/(?:friend\/live\?id=zoe|account#settings-gemini)$/,"CTA targets direct chat or exhausted setup");
+      for(const destination of ["zoe","noah"]){
+        assert.match(await page.locator('.crew-portal-picks-links a[href*="id='+destination+'"]') .getAttribute("href")||"",new RegExp("friend/live\\?id="+destination));
       }
-      const newCopy=await page.locator(".crew-portal-content h1").textContent();
-      assert.equal(newCopy,initial,"Returning to chat restores initial copy");
+      assert.match(await page.locator(".crew-portal-game-link").getAttribute("href")||"",/\/games\/1a2b$/);
+      await page.waitForTimeout(250);
+      assert.equal(await page.locator(".crew-portal-content h1").textContent(),initial,"Heading never auto-rotates");
       const screenshots=page.locator(".crew-home-shorts .crew-home-short-card");
       await screenshots.first().waitFor({state:"visible",timeout:18000});
       assert.ok(await screenshots.count()>=2,"Live Shorts feed should show multiple image stories");
@@ -303,9 +288,7 @@ async function run(){
       assert.match(await photo.getAttribute("href")||"",/^(?:\/en)?\/teacher\/shorts\?post=/);
       const chat=page.locator(".crew-home-short-card .crew-home-short-question").first();
       assert.ok((await chat.getAttribute("href")||"").startsWith("/"),"Shorts keeps friend chat");
-      const motion=page.locator(".crew-portal-motion");
-      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"true","Pause enabled");
-      await motion.click();assert.equal(await motion.getAttribute("aria-pressed"),"false","Resume enabled");
+      assert.equal(await page.locator(".crew-portal-motion").count(),0,"No decorative pause control");
       assert.deepEqual(errors,[],"No runtime / hydration errors");
       process.stdout.write("PASS Crew World responsive portal + Shorts "+setup.route+" "+setup.width+"px\n");
     }finally{await view.close();}
@@ -667,7 +650,7 @@ async function run(){
   assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
   assert.equal(await retryPage.getByText("頁面暫時無法載入").count(),0,"No persistent blank/error screen");
   await retryContext.close();
-  process.stdout.write("PASS recover first Home-to-Game chunk fetch failure\n");
+  process.stdout.write("PASS recover first Home-to-Game-Hub chunk fetch failure\n");
   // Version details only render within Settings, not as a fixed overlay.
   for (const route of ["/settings", "/en/settings"]) {
     const page=await context.newPage();

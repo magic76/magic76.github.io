@@ -1,7 +1,7 @@
 import {useSyncExternalStore} from "react";
 import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled,invalidateGuestTrialConfig} from "./guestTrial";
-export type GuestTrialQuota={enabled:boolean;remaining:number|null;limit:number|null;signinRequired:boolean};
-const EMPTY:GuestTrialQuota={enabled:false,remaining:null,limit:null,signinRequired:false};
+export type GuestTrialQuota={enabled:boolean;remaining:number|null;limit:number|null;signinRequired:boolean;resolved:boolean};
+const EMPTY:GuestTrialQuota={enabled:false,remaining:null,limit:null,signinRequired:false,resolved:false};
 
 // The homepage and portal share one request, snapshot and trial-used listener.
 // A skipped (SSR or BYOK) subscriber never starts discovery or session requests.
@@ -16,7 +16,7 @@ const noSubscribe=()=>()=>{};
 /** Never invent quota counts: a null means the API cannot verify the visitor's allowance. */
 async function loadQuota():Promise<GuestTrialQuota>{
  const config=await fetchGuestTrialConfig();
- if(!config.enabled)return EMPTY;
+ if(!config.enabled)return {...EMPTY,resolved:true};
  let trial=config.trial;
  if(config.memberMetering||config.signinRequired){
   try{
@@ -31,13 +31,13 @@ async function loadQuota():Promise<GuestTrialQuota>{
  const valid=Number.isInteger(trial?.used)&&Number.isInteger(trial?.limit)&&
   trial!.limit>0&&trial!.used>=0&&trial!.used<=trial!.limit;
  return {enabled:true,remaining:valid?trial!.limit-trial!.used:null,
-  limit:valid?trial!.limit:null,signinRequired:Boolean(config.signinRequired)};
+  limit:valid?trial!.limit:null,signinRequired:Boolean(config.signinRequired),resolved:true};
 }
 function refresh(force=false){
  if(!guestTrialDiscoveryEnabled())return;
  if(pending&&!force)return;
  const requestId=++revision;
- const request=loadQuota().catch(()=>EMPTY);
+ const request=loadQuota().catch(()=>({...EMPTY,resolved:true}));
  pending=request;
  void request.then(next=>{
   if(requestId!==revision||!subscribers.size)return;

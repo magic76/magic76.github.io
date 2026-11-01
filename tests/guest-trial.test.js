@@ -490,14 +490,14 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  assert.match(component,/role="timer"/);
  assert.match(component,/role="status"/);
  assert.match(component,/to="\/account#settings-gemini"/);
- assert.match(component,/to="\/"/);
+ for(const destination of ["/games/1a2b","/teacher/vocabulary","/story"])assert.ok(component.includes('to="'+destination+'"'));
  assert.match(teacher,/<GuestTrialFinish expired=\{live\.guestExpired\}/);
  assert.match(friend,/<GuestTrialFinish expired=\{live\.guestExpired\}/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  const locales=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales.map(x=>x.code);
  for(const locale of locales){
   const entry=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",locale,"common.json"),"utf8")).guestTrial;
-  for(const key of ["timeLeft","almostDone","completeTitle","completeBody","continueKey","exploreCrew","interruptedBody"])
+  for(const key of ["timeLeft","almostDone","completeTitle","completeBody","continueKey","free1a2b","freeVocabulary","freeStory","interruptedBody","usedUpTitle","aiFriend"])
    assert.equal(typeof entry[key],"string",locale+":"+key);
  }
 });

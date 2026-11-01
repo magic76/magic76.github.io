@@ -3,17 +3,19 @@ const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
 const path=require("node:path");
 const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
-test("Crew World homepage keeps interactive portal before real Shorts and functional exploration",()=>{
+test("Crew homepage keeps a single chat portal before Shorts and exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.ok(home.indexOf("<HomePortal/>")>=0);
  assert.ok(home.indexOf("<HomeShortsPreview/>")>home.indexOf("<HomePortal/>"));
  assert.ok(home.indexOf("<HomeShortsPreview/>")<home.indexOf('className="crew-home-search-summary"'));
- for(const path of ["/teacher/roles?mode=friends","/games","/learn","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
- assert.match(portal,/aria-selected=\{mode===item.id\}/);
- assert.match(portal,/role="tablist"/);
- assert.match(portal,/aria-controls="crew-portal-panel"/);
- assert.match(portal,/<PortalParticleField mode=\{mode\}/);
+ assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
+ assert.match(portal,/to=\{destination\}/);
+ assert.match(portal,/to="\/friend\/live\?id=noah"/);
+ assert.match(portal,/to="\/teacher\/live"/);
+ assert.match(portal,/to="\/games\/1a2b"/);
+ assert.doesNotMatch(portal,/role="tablist"|role="tabpanel"/);
+ assert.match(portal,/<PortalParticleField mode="chat"/);
 });
 test("Crew World Shorts still use the real feed and their story/chat paths",()=>{
  const shorts=read("web-spa/src/teacher/HomeShortsPreview.tsx");
@@ -47,18 +49,13 @@ test("Crew World does not repeat its KV tabs in a separate quick-start carousel"
  assert.match(css,/\.crew-home-world \.crew-home-continue/);
 });
 
-test("Crew World KV rotates through four tabs every 5 seconds and can be paused",()=>{
+test("Crew World hero stays on chat without rotation, tabs or a pause control",()=>{
  const portal=read("web-spa/src/pages/HomePortal.tsx");
- for(const mode of ["chat","play","learn","story"])assert.match(portal,new RegExp('id:"'+mode+'"'));
- assert.match(portal,/setTimeout\(\(\)=>\{/);
- assert.match(portal,/\},5000\)/);
- assert.match(portal,/\(currentIndex\+1\)%MODES\.length/);
- assert.match(portal,/\[mode,paused,launching,canAnimate,interacting\]/);
- assert.match(portal,/onFocusCapture=\{\(\)=>setInteracting\(true\)\}/);
- assert.match(portal,/if\(paused\|\|launching\|\|window\.matchMedia/);
- assert.match(portal,/return\(\)=>window\.clearTimeout\(id\)/);
- assert.match(portal,/onClick=\{\(\)=>setPaused\(value=>!value\)\}/);
- assert.match(portal,/onClick=\{\(\)=>setMode\(item\.id\)\}/);
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(portal,/data-mode="chat"/);
+ assert.match(portal,/trial\.resolved&&trial\.enabled&&trial\.remaining===0/);
+ assert.doesNotMatch(portal,/setMode|MODES|\},5000\)|role="tablist"|crew-portal-motion/);
+ assert.doesNotMatch(css,/crew-portal-tabs|crew-portal-tab-progress|crew-portal-hint|crew-portal-motion/);
 });
 
 test("Mobile portal delays Canvas and recurring motion until eligible",()=>{
@@ -80,5 +77,5 @@ test("Mobile portal delays Canvas and recurring motion until eligible",()=>{
  assert.match(field,/\[paused,enabled\]/);
  assert.match(field,/if\(!enabled\|\|!canvas\|\|!host\)return/);
  assert.doesNotMatch(css,/@keyframes crew-world-copy-in\{[^}]*filter:blur/);
- assert.match(css,/@media\(max-width:700px\)\{\.crew-portal-copy\{animation:none\}/);
+ assert.match(css,/@media\(max-width:700px\)/);
 });

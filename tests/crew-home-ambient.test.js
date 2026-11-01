@@ -8,9 +8,8 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  const field=read("web-spa/src/pages/PortalParticleField.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(portal,/<h1>/);
- assert.match(portal,/<Link className="crew-portal-cta" to=\{current.to\}/);
- assert.match(portal,/role="tabpanel"/);
- assert.match(portal,/role="tablist"/);
+ assert.match(portal,/<Link className="crew-portal-cta" to=\{destination\}/);
+ assert.doesNotMatch(portal,/role="tabpanel"|role="tablist"/);
  assert.match(field,/aria-hidden="true"/);
  assert.match(field,/<svg className="crew-portal-fallback"/);
  assert.match(css,/\.crew-portal-field\{[^}]*pointer-events:none/);

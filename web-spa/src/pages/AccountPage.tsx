@@ -1,12 +1,18 @@
 import{useEffect,useState}from"react";
-import{Link,useSearchParams}from"react-router-dom";
+import{Link,useLocation,useSearchParams}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import"./account.css";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 type User={id:string;name:string;provider:"google"|"github"};
 type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number;lastUsedAt?:number}};
 export function AccountPage(){
- const {t}=useTranslation("common");const [query]=useSearchParams();
+ const {t}=useTranslation("common");const [query]=useSearchParams();const location=useLocation();
+ const geminiFirst=location.hash==="#settings-gemini"||query.has("returnTo");
+ useEffect(()=>{
+  if(!geminiFirst)return;
+  const frame=requestAnimationFrame(()=>document.getElementById("settings-gemini")?.scrollIntoView({block:"start",behavior:"auto"}));
+  return()=>cancelAnimationFrame(frame);
+ },[geminiFirst,location.hash]);
  const [state,setState]=useState<Session|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
  useEffect(()=>{
   const controller=new AbortController();
@@ -27,9 +33,7 @@ export function AccountPage(){
   finally{setBusy(false)}
  }
  const authError=query.get("auth_error");
- return <div className="crew-account-page">
-  <section className="hero"><span className="kicker">{t("auth.account")}</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
-  <section className="panel section crew-account-panel" aria-label={t("auth.title")}>
+ const signInPanel=<section className="panel section crew-account-panel" aria-label={t("auth.title")}>
    {loading?<p role="status">{t("auth.loading")}</p>:
    state?.user?<><div className="crew-account-identity"><div className="crew-account-avatar" aria-hidden="true">{state.user.name.slice(0,1).toUpperCase()}</div><div><strong>{state.user.name}</strong><small>{t("auth.signedIn")} · {state.user.provider==="google"?"Google":"GitHub"}</small></div></div>
     {state.trial&&<section className="crew-account-trial" aria-label={t("guestTrial.homeTitle")}>
@@ -48,11 +52,14 @@ export function AccountPage(){
    {error&&<p role="alert" className="crew-account-error">{error}</p>}
    <p className="crew-account-privacy">{t("auth.localData")}</p>
    <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
-  </section>
-  <section className="crew-account-ai" aria-label={t("auth.aiSettings")}>
+  </section>;
+ const aiPanel=<section className="crew-account-ai" aria-label={t("auth.aiSettings")}>
    <div className="crew-account-section-heading"><h2>{t("auth.aiSettings")}</h2><p>{t("auth.aiIntro")}</p></div>
    <GeminiConnectionPanel section="key"/>
-  </section>
+  </section>;
+ return <div className="crew-account-page">
+  <section className="hero"><span className="kicker">{t("auth.account")}</span><h1>{t("auth.title")}</h1><p>{t("auth.intro")}</p></section>
+  {geminiFirst?<>{aiPanel}{signInPanel}</>:<>{signInPanel}{aiPanel}</>}
   <section className="section panel crew-account-preferences">
    <h2>{t("auth.preferences")}</h2>
    <p className="meta">{t("auth.preferencesIntro")}</p>

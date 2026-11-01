@@ -1,18 +1,14 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
-test("homepage title animates on selected mode without changing brand copy",()=>{
+test("homepage keeps one title while ambient effects respect motion preferences",()=>{
  const hero=read("web-spa/src/pages/HomePortal.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(hero,/data-paused=\{paused\}/);
- assert.match(hero,/crew-portal-tab-progress/);
- assert.match(hero,/key=\{mode\}/);
- assert.match(hero,/crew-portal-title-first/);
- assert.match(hero,/crew-portal-title-second/);
- assert.match(hero,/crew-portal-title-accent/);
- assert.doesNotMatch(hero,/world\.headline/);
- assert.match(css,/data-paused="false"/);
- assert.match(css,/crew-portal-headline-rise/);
- assert.match(css,/crew-portal-accent-sheen/);
+ assert.match(hero,/<h1>\{t\("world.chatHeading"\)\}<\/h1>/);
+ assert.match(hero,/prefers-reduced-motion: reduce/);
+ assert.match(hero,/saveData/);
+ assert.doesNotMatch(hero,/crew-portal-tab-progress|crew-portal-title-first|setMode/);
+ assert.doesNotMatch(css,/crew-portal-headline-rise|crew-portal-accent-sheen/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(css,/max-width:700px/);
 });

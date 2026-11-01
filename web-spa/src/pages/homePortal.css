@@ -1,87 +1,16 @@
-/* Crew World Portal. Scoped to the homepage; text and links never depend on Canvas. */
+/* A single chat invitation. The field is decorative and never controls focus. */
 .crew-home-portal{--portal-accent:#d9c1ff;position:relative;isolation:isolate;overflow:hidden;height:540px;color:#f7f1e8;background:#12101c;touch-action:pan-y;border:0;border-radius:0;box-shadow:none}
-.crew-home-portal[data-mode="play"]{--portal-accent:#f7c59c}.crew-home-portal[data-mode="learn"]{--portal-accent:#aee7d3}.crew-home-portal[data-mode="story"]{--portal-accent:#f2b5ce}
 .crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
 .crew-portal-field canvas{width:100%;height:100%;display:block}.crew-portal-fallback{position:absolute;inset:12% 15%;width:70%;height:76%;color:var(--portal-accent);opacity:.4}.crew-portal-field[data-ready="true"] .crew-portal-fallback{display:none}
-.crew-portal-intro{position:absolute;top:22px;left:0;width:100%;text-align:center;color:#b7a9c2;font-size:12px;letter-spacing:.22em;z-index:2}.crew-portal-intro p{font-size:12px;letter-spacing:.08em;color:#d2c6d7;margin:10px 0 0}
-.crew-portal-content{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);width:min(550px,94%);text-align:center;z-index:1}
-/* A transparent center vignette protects heading/CTA readability without hiding the morphing field. */
-.crew-portal-content::before{content:"";position:absolute;inset:-42px -22px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,#12101cbf 0%,#12101c80 42%,transparent 76%)}.crew-portal-kicker{font-size:12px;letter-spacing:.24em;color:var(--portal-accent)}
-.crew-home-portal h1{font-size:clamp(32px,4.5vw,47px);line-height:1.3;letter-spacing:-1.8px;margin:18px 0 14px;font-weight:600;color:#f7f1e8}.crew-home-portal h1 em{display:inline;font-family:Georgia,serif;font-style:italic;font-weight:400;color:var(--portal-accent);letter-spacing:-1px}
-.crew-portal-description{font-size:13px;line-height:1.9;color:#c3b7ca;margin:0 auto 23px;max-width:340px;white-space:pre-line}
-.crew-portal-cta{border:1px solid #fff4;background:#f5eee6;color:#22182c;min-height:48px;padding:0 23px;border-radius:30px;display:inline-flex;gap:28px;align-items:center;justify-content:center;font-size:13px;font-weight:650;text-decoration:none;box-shadow:0 0 35px #dfbbff12;transition:transform .2s,box-shadow .2s}.crew-portal-cta:hover{color:#22182c;transform:translateY(-2px);box-shadow:0 5px 40px #dfbbff40}.crew-portal-cta span{font-size:22px;font-weight:400}
-.crew-portal-tabs{position:absolute;bottom:48px;left:50%;transform:translateX(-50%);display:flex;gap:6px;padding:6px;border:1px solid #ffffff18;background:#17131ee8;border-radius:40px;max-width:95%;z-index:3}.crew-portal-tabs button{font:inherit;border:0;background:none;color:#b9aabe;padding:11px 17px;border-radius:28px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;min-height:44px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s}.crew-portal-tabs button svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.crew-portal-tabs button[aria-selected="true"]{background:#f2e8fc;color:#30213e}.crew-portal-tabs button:hover{background:#ffffff18;color:white}.crew-portal-tabs button[aria-selected="true"]:hover{background:white;color:#30213e}
-.crew-portal-hint{position:absolute;bottom:17px;left:0;width:100%;margin:0;text-align:center;font-size:12px;color:#a99bb2;letter-spacing:.08em}.crew-portal-motion{position:absolute;bottom:13px;right:18px;border:0;background:none;color:#b6a7c0;min-height:36px;padding:8px;font-size:12px;cursor:pointer;z-index:4}.crew-portal-number{position:absolute;right:28px;top:46%;font:italic 15px Georgia,serif;color:#b9a6c7}
-.crew-home-portal a:focus-visible,.crew-home-portal button:focus-visible{outline:2px solid #f7cb9d;outline-offset:5px}.crew-portal-copy{animation:crew-world-copy-in .5s both}.crew-home-portal[data-launching="true"] .crew-portal-content{opacity:0;transition:opacity .18s}.crew-home-portal[data-launching="true"] .crew-portal-field{opacity:.95;transition:opacity .18s}
-@keyframes crew-world-copy-in{from{opacity:.15;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:700px){.crew-home-portal{height:446px}.crew-portal-intro{top:18px;font-size:12px}.crew-portal-intro p{font-size:12px}.crew-portal-content{width:96%}.crew-home-portal h1{font-size:clamp(28px,7.5vw,36px);letter-spacing:-1.3px;margin:16px 0 12px}.crew-portal-kicker{font-size:12px}.crew-portal-description{font-size:12px;max-width:290px;margin-bottom:20px}.crew-portal-cta{min-height:44px;font-size:12px;gap:22px;padding:0 20px}.crew-portal-tabs{bottom:54px;padding:4px;gap:0;width:350px;justify-content:space-between}.crew-portal-tabs button{font-size:12px;padding:9px 11px;gap:5px}.crew-portal-tabs button svg{width:15px;height:15px}.crew-portal-hint{bottom:20px;left:14px;width:calc(100% - 104px);font-size:12px;line-height:1.5;text-align:center}.crew-portal-motion{bottom:5px;right:8px;font-size:12px;min-height:44px;min-width:81px;padding:8px 6px}.crew-portal-number{display:none}}
-@media(max-width:390px){.crew-portal-tabs{width:calc(100% - 18px);max-width:calc(100% - 18px)}.crew-portal-tabs button{flex:1 1 0;min-width:0;padding:9px 5px;gap:4px}.crew-portal-tabs button svg{width:13px;height:13px;flex:none}}
-@media(max-width:360px){.crew-home-portal{height:432px}.crew-portal-tabs button{padding-inline:8px;font-size:12px}.crew-portal-description{font-size:12px}.crew-home-portal h1{font-size:28px}.crew-portal-tabs button svg{display:none}}
-@media(prefers-reduced-motion:reduce){.crew-portal-copy{animation:none}.crew-portal-cta,.crew-portal-tabs button,.crew-home-portal[data-launching="true"] .crew-portal-content{transition:none}.crew-home-portal[data-launching="true"] .crew-portal-content{opacity:1}}
-
-/* On small screens the server-rendered hero stays visually static until opted in. */
-@media(max-width:700px){.crew-portal-copy{animation:none}}
-
-/* State-owned five-second tab progress; stops when paused or reduced-motion. */
-.crew-portal-tabs button{position:relative;overflow:hidden}
-.crew-portal-tab-progress{position:absolute;bottom:0;left:10%;width:80%;height:2px;transform:scaleX(0);transform-origin:left center;border-radius:4px;background:var(--portal-accent);opacity:0;pointer-events:none}
-.crew-portal-tabs button[aria-selected="true"] .crew-portal-tab-progress{opacity:1;animation:crew-portal-tab-fill 5s linear both}
-.crew-home-portal[data-paused="true"] .crew-portal-tab-progress{animation:none!important;opacity:0}
-@keyframes crew-portal-tab-fill{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-@media(prefers-reduced-motion:reduce){.crew-portal-tab-progress{display:none!important}}
-
-/* Hero headline motion: replays once per selected Chat / Play / Learn / Story tab. */
-.crew-home-portal h1 .crew-portal-title-line{display:inline-block;opacity:1}
-.crew-home-portal[data-paused="false"] h1 .crew-portal-title-first{
- animation:crew-portal-headline-rise 460ms cubic-bezier(.2,.75,.3,1) both;
-}
-.crew-home-portal[data-paused="false"] h1 .crew-portal-title-second{
- animation:crew-portal-headline-rise 510ms cubic-bezier(.2,.75,.3,1) 100ms both;
-}
-@keyframes crew-portal-headline-rise{
- from{opacity:.15;transform:translate3d(0,12px,0)}
- to{opacity:1;transform:translate3d(0,0,0)}
-}
-.crew-home-portal h1 .crew-portal-title-accent{display:inline-block}
-@supports (-webkit-background-clip:text){
- .crew-home-portal[data-paused="false"] h1 .crew-portal-title-accent{
-  color:transparent;-webkit-text-fill-color:transparent;
-  background-image:linear-gradient(110deg,var(--portal-accent) 0%,var(--portal-accent) 33%,#fff8e9 50%,var(--portal-accent) 67%,var(--portal-accent) 100%);
-  background-size:240% 100%;background-position:100% 50%;
-  -webkit-background-clip:text;background-clip:text;
-  animation:crew-portal-accent-sheen 820ms ease-out 230ms both;
- }
-}
-@keyframes crew-portal-accent-sheen{from{background-position:100% 50%}to{background-position:0% 50%}}
-@media(prefers-reduced-motion:reduce){
- .crew-home-portal h1 .crew-portal-title-line,
- .crew-home-portal h1 .crew-portal-title-accent{animation:none!important;transform:none!important;opacity:1!important}
- .crew-home-portal h1 .crew-portal-title-accent{background:none!important;color:var(--portal-accent)!important;-webkit-text-fill-color:currentColor!important}
-}
-@media(max-width:700px) and (prefers-reduced-motion:no-preference){
- /* Use only the two GPU-friendly rises on phones. */
- .crew-home-portal h1 .crew-portal-title-accent{animation:none!important;background:none!important;color:var(--portal-accent)!important;-webkit-text-fill-color:currentColor!important}
-}
-
-/* Secondary trial entry stays below the scene-specific CTA in document flow. */
-.crew-portal-trial-chip{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 10px;width:fit-content;max-width:100%;margin:9px auto 0;padding:5px 11px;border:1px solid #f0dbf64d;border-radius:22px;color:#f4e6fb;background:#2a2039d9;text-decoration:none;font-size:12px;line-height:1.35;letter-spacing:0;min-height:28px;box-sizing:border-box}
-.crew-portal-trial-chip:hover{color:#fff;background:#3d2b4c}
-.crew-portal-trial-chip small{font-size:12px;color:#d8c7e2;line-height:1.3}
-.crew-portal-kicker,.crew-portal-intro{letter-spacing:.08em}
-@media(max-width:700px){
- .crew-portal-content{top:43%}
- .crew-home-portal h1{line-height:1.17;margin:10px 0 9px}
- .crew-portal-description{line-height:1.5;margin-bottom:12px}
- .crew-portal-tabs{box-sizing:border-box}
- .crew-portal-tabs button{flex:1 1 0;min-width:0;font-size:12px;padding:9px 6px;gap:4px}
- .crew-portal-tabs button span:not(.crew-portal-tab-progress){min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
- .crew-portal-hint{font-size:12px;letter-spacing:0}
- .crew-portal-motion{font-size:12px}
- .crew-portal-trial-chip{margin-top:7px;min-height:27px;padding:4px 9px;gap:2px 6px}
-}
-@media(max-width:360px){
- .crew-home-portal h1{font-size:26px;line-height:1.13;margin:8px 0}
- .crew-portal-tabs button{font-size:12px;padding-inline:5px}
- .crew-portal-description{font-size:12px;line-height:1.4;margin-bottom:9px}
- .crew-portal-trial-chip{margin-top:6px}
-}
+.crew-portal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(550px,94%);text-align:center;z-index:1}
+.crew-portal-content::before{content:"";position:absolute;inset:-42px -22px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,#12101cbf 0%,#12101c80 42%,transparent 76%)}
+.crew-home-portal h1{font-size:clamp(32px,4.5vw,47px);line-height:1.25;letter-spacing:-1.5px;margin:12px 0 14px;font-weight:600;color:#f7f1e8}
+.crew-portal-description{font-size:13px;line-height:1.6;color:#c3b7ca;margin:0 auto 18px;max-width:420px}
+.crew-portal-cta{border:1px solid #fff4;background:#f5eee6;color:#22182c;min-height:48px;padding:0 23px;border-radius:30px;display:inline-flex;gap:24px;align-items:center;justify-content:center;font-size:13px;font-weight:650;text-decoration:none;box-shadow:0 0 35px #dfbbff12;transition:transform .2s,box-shadow .2s}.crew-portal-cta:hover{color:#22182c;transform:translateY(-2px);box-shadow:0 5px 40px #dfbbff40}.crew-portal-cta span{font-size:22px;font-weight:400}
+.crew-portal-remaining{font-size:12px;line-height:1.5;color:#d4c3dc;margin:6px auto 0}
+.crew-portal-picks{display:flex;align-items:center;flex-direction:column;gap:8px;margin:19px auto 0}.crew-portal-picks-label{font-size:12px;color:#c3b7ca}.crew-portal-picks-links{display:flex;justify-content:center;flex-wrap:wrap;gap:8px}.crew-portal-picks-links a{display:flex;align-items:center;gap:7px;min-height:44px;padding:5px 12px;color:#f4e6fb;border:1px solid #ffffff38;background:#251d30bd;border-radius:24px;text-decoration:none;font-size:12px}.crew-portal-picks-links a:hover{background:#3d2b4c;color:#fff}.crew-portal-pick-avatar{width:27px;height:27px;display:grid;place-items:center;flex:none;border-radius:50%;background:#e6d6ee;color:#33243f;font-weight:700;font-size:12px}
+.crew-portal-game-link{display:inline-flex;align-items:center;justify-content:center;min-height:44px;margin-top:6px;padding:6px 12px;color:#d8c8e1;font-size:12px;text-underline-offset:3px}.crew-portal-game-link:hover{color:#fff}
+.crew-home-portal a:focus-visible{outline:2px solid #f7cb9d;outline-offset:4px}.crew-home-portal[data-launching="true"] .crew-portal-content{opacity:0;transition:opacity .18s}.crew-home-portal[data-launching="true"] .crew-portal-field{opacity:.95;transition:opacity .18s}
+@media(max-width:700px){.crew-home-portal{height:446px}.crew-portal-content{width:96%}.crew-home-portal h1{font-size:clamp(28px,7.5vw,36px);letter-spacing:-1.1px;margin:10px 0 12px}.crew-portal-description{font-size:12px;line-height:1.5;margin-bottom:15px}.crew-portal-cta{min-height:44px;font-size:12px;padding:0 20px;gap:20px}.crew-portal-picks{margin-top:12px}}
+@media(max-width:360px){.crew-home-portal{height:432px}.crew-home-portal h1{font-size:28px}.crew-portal-picks-links{gap:5px}.crew-portal-picks-links a{padding:5px 9px}}
+@media(prefers-reduced-motion:reduce){.crew-portal-cta,.crew-home-portal[data-launching="true"] .crew-portal-content{transition:none}.crew-home-portal[data-launching="true"] .crew-portal-content{opacity:1}}

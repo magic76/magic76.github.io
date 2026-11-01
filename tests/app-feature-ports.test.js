@@ -555,13 +555,13 @@ test("Teacher Web uses Android HQ portrait sprite through one shared avatar comp
 });
 
 
-test("Crew home prioritizes free play while keeping Gemini onboarding accessible",()=>{
+test("Crew home prioritizes chat and preserves free play with conditional Gemini onboarding",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
  const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
  assert.ok(home.includes("<HomePortal/>"));
- assert.ok(portal.includes('t("world.modes."+mode+".lead")')&&portal.includes('t("world.modes."+mode+".accent")'));
+ assert.ok(portal.includes('t("world.chatHeading")')&&portal.includes('t(cta)'));
  assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
  assert.equal(readUiLocale("home").continue,"繼續上次");
@@ -569,8 +569,8 @@ test("Crew home prioritizes free play while keeping Gemini onboarding accessible
  assert.equal(readUiLocale("home").explore,"探索 Crew");
  assert.ok(home.includes('t("setup.title")'));
  assert.ok(readUiLocale("home").setup.title.includes("免費"));
- assert.ok(home.includes('t("setup.pricing")'));
- assert.ok(home.includes('common:guestTrial.homeTitle'));
+ assert.ok(home.includes('t("setup.shortDesc")'));
+ assert.ok(home.includes('trial.resolved&&(!trial.enabled||trial.remaining===0)'));
  assert.ok(home.indexOf('className="crew-home-start"')<home.indexOf("<HomeShortsPreview/>"),"onboarding precedes content");
  assert.ok(home.includes('geminiKey()'));
  assert.ok(home.includes('geminiVerified()'));

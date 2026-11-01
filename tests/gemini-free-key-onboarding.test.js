@@ -6,13 +6,12 @@ const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const locale=(lang,ns)=>JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/"+ns+".json"));
 
-test("home provides safe first-run setup before Shorts only when the key is missing",()=>{
+test("home defers Gemini setup until trial is disabled or exhausted",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const title=home.indexOf('t("setup.title")'),shorts=home.indexOf('<HomeShortsPreview/>');
  assert.ok(title>0&&title<shorts,"setup must appear before home content");
- assert.ok(home.includes('!configured?')&&home.includes("crew-home-start-option"));
- assert.ok(home.includes('guestAvailable?')&&home.includes('t("common:guestTrial.homeTitle")'),"trial is only shown when enabled");
- assert.ok(home.includes('t("setup.pricing")'),"free tier limitations must be visible");
+ assert.ok(home.includes('trial.resolved&&(!trial.enabled||trial.remaining===0)')&&home.includes("crew-home-start-option"),"setup is delayed until trial exhausted or disabled");
+ assert.doesNotMatch(home,/guest_trial_start_click|setup\.pricing/);
  assert.ok(home.includes('!verified?'),"the existing verification flow is retained");
 });
 
@@ -43,7 +42,7 @@ test("Teacher, Story, Fortune and Live share one key setup notice without duplic
 test("both UI locales describe free key application without claiming unlimited free usage",()=>{
  for(const lang of ["zh-TW","en"]){
   const home=locale(lang,"home").setup,settings=locale(lang,"settings").gemini,fortune=locale(lang,"fortune").reading;
-  for(const copy of [home.title,home.desc,home.pricing,settings.freeTitle,settings.freeDesc,settings.pricingNote,settings.setupNoticeTitle,fortune.needKey]){
+  for(const copy of [home.title,home.shortDesc,settings.freeTitle,settings.freeDesc,settings.pricingNote,settings.setupNoticeTitle,fortune.needKey]){
    assert.ok(copy.trim().length>0,lang+" should have onboarding copy");
   }
   assert.ok(settings.openStudio.trim());

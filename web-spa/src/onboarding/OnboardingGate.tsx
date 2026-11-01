@@ -150,7 +150,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
-     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/teacher/roles?mode=teacher")}}>{t("guestTrial.onboardingCTA")} →</button>}
+     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/friend/live?id=zoe")}}>{t("guestTrial.onboardingCTA")} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>

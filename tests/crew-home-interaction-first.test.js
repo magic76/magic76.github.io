@@ -9,7 +9,7 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
  const hero=home.indexOf("<HomePortal/>"),start=home.indexOf('className="crew-home-start"');
  const shorts=home.indexOf("<HomeShortsPreview/>"),games=home.indexOf('className="crew-home-game-pick"');
  assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
- for(const path of ["/teacher/roles?mode=friends","/games","/learn","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
+ for(const path of ["/friend/live?id=noah","/teacher/live","/games/1a2b"])assert.ok(portal.includes('to="'+path+'"'),path);
  assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
  assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
  assert.match(home,/taipeiDay%DAILY_GAMES\.length/);
@@ -19,7 +19,7 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
 test("Home preserves portal, Timeline, briefing and collapsed Play Store without redundant cards",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
- assert.match(portal,/<PortalParticleField mode=\{mode\}/);
+ assert.match(portal,/<PortalParticleField mode="chat"/);
  assert.doesNotMatch(home,/<BriefingPreview\/>/);
  assert.match(home,/crew-home-world-explore-card/);
  assert.match(home,/to="\/timeline"/);
@@ -46,7 +46,9 @@ test("Interaction-first homepage copy is translated",()=>{
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
  for(const locale of [en,zh]){
   for(const key of ["label","chat","chatDesc","play","playDesc"])assert.ok(locale.actions[key]);
-  for(const mode of ["chat","play","learn","story"])assert.ok(locale.portal.modes[mode].label&&locale.portal.modes[mode].hint);
+  for(const key of ["chatHeading","chatSubtitle","chatStart","chatWithZoe","chatExhausted","quickPicks","noVoice"])assert.ok(locale.world[key]);
+  assert.ok(locale.world.modes.learn.description);
+  assert.equal(locale.portal.modes,undefined);
   assert.ok(locale.portal.headingLead&&locale.portal.headingAccent);
   for(const key of ["label","title","desc","cta"])assert.ok(locale.gamePick[key]);
   for(const key of ["play","friend","friendDesc"])assert.ok(locale.recent[key]);

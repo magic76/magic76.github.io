@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "Tạo Gemini API Key miễn phí",
-    "desc": "Dùng tài khoản Google để lấy khóa trong khoảng một phút. Một khóa dùng chung cho Teacher, Story, Fortune và các game có giọng nói trong Crew Play.",
     "cta": "Xem cách thiết lập miễn phí",
-    "pricing": "Giới hạn sử dụng miễn phí tùy theo mô hình. Gói trả phí có thể phát sinh chi phí.",
     "verify": "Gemini Key chưa được xác minh",
-    "verifyDesc": "Kiểm tra xem khóa của bạn có hoạt động không."
+    "verifyDesc": "Kiểm tra xem khóa của bạn có hoạt động không.",
+    "shortDesc": "Sau khi dùng thử, bạn có thể dùng khóa riêng để tiếp tục trò chuyện."
   },
   "android": "Tải Crew cho Android",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "Trò chuyện với bạn AI, chơi game, luyện ngoại ngữ hoặc kể chuyện. Chọn theo tâm trạng của bạn.",
     "start": "Bắt đầu {{mode}}",
     "explore": "Xem thêm hoạt động",
-    "choose": "Chọn cách tương tác với Crew",
-    "tap": "Chạm để mở",
-    "modes": {
-      "chat": {
-        "label": "Trò chuyện AI",
-        "title": "Chỉ cần chào một tiếng",
-        "hint": "Chọn bạn Crew rồi bắt đầu trò chuyện."
-      },
-      "play": {
-        "label": "Trò chơi",
-        "title": "Cùng chơi nào",
-        "hint": "Thử các trò chơi nhập chữ không cần API Key."
-      },
-      "learn": {
-        "label": "Học tập",
-        "title": "Luyện nói thành tiếng",
-        "hint": "Khóa học, từ vựng và trò chuyện theo tốc độ riêng."
-      },
-      "story": {
-        "label": "Truyện",
-        "title": "Tạo một câu chuyện",
-        "hint": "Đọc cùng nhau hoặc sáng tác truyện của riêng bạn."
-      }
-    }
+    "tap": "Chạm để mở"
   },
   "world": {
-    "intro": "Trò chuyện, chơi, học, tưởng tượng. Cùng AI.",
-    "touch": "Di chuyển hoặc chạm vào màn hình. Xem thế giới này phản hồi.",
-    "pause": "Tạm dừng chuyển động",
-    "resume": "Tiếp tục chuyển động",
     "modes": {
-      "chat": {
-        "lead": "Một chút kết nối.",
-        "before": "Chỉ cần nói",
-        "accent": "Xin chào.",
-        "after": "",
-        "description": "Không cần chủ đề hoàn hảo hay trả lời vội.\nGặp bạn AI và để cuộc trò chuyện tự nhiên diễn ra.",
-        "cta": "Gặp người bạn AI của bạn"
-      },
-      "play": {
-        "lead": "Bước tiếp theo là gì?",
-        "before": "Để tôi",
-        "accent": "Đoán nhé.",
-        "after": "",
-        "description": "Chọn một con số. Đón nhận thử thách.\nMột chút đối đáp cũng đủ thú vị.",
-        "cta": "Chơi một ván"
-      },
       "learn": {
-        "lead": "Mỗi cuộc trò chuyện",
-        "before": "đưa bạn",
-        "accent": "Tiến xa hơn.",
-        "after": "",
-        "description": "Từ lúc tìm lời nói đến khi diễn đạt trôi chảy.\nLuyện một ngôn ngữ mới với bạn đồng hành AI.",
-        "cta": "Tìm tiếng nói của mình"
-      },
-      "story": {
-        "lead": "Lật sang trang mới.",
-        "before": "Dám",
-        "accent": "Tưởng tượng.",
-        "after": "",
-        "description": "Bước vào một câu chuyện hoặc viết một khởi đầu mới.\nCùng AI xây dựng cả thế giới.",
-        "cta": "Mở truyện mới"
+        "description": "Từ lúc tìm lời nói đến khi diễn đạt trôi chảy.\nLuyện một ngôn ngữ mới với bạn đồng hành AI."
       }
     },
     "bridge": "Những câu chuyện nhỏ đang diễn ra ở đây",
@@ -135,13 +78,20 @@
     "fortuneTitle": "Khám phá bản thân từ góc nhìn mới",
     "fortuneDescription": "Khám phá lá số cùng một người bạn AI.",
     "timelineTitle": "Mỗi cuộc đời đều có chương tiếp theo",
-    "timelineDescription": "Gặp gỡ những người ở nhiều độ tuổi và lắng nghe câu chuyện của họ."
+    "timelineDescription": "Gặp gỡ những người ở nhiều độ tuổi và lắng nghe câu chuyện của họ.",
+    "chatHeading": "Trò chuyện với bạn AI",
+    "chatSubtitle": "Không cần đăng ký. Trò chuyện miễn phí 3 phút ngay.",
+    "chatStart": "Bắt đầu trò chuyện miễn phí",
+    "chatWithZoe": "Trò chuyện với Zoe",
+    "chatExhausted": "Thiết lập khóa miễn phí để tiếp tục",
+    "quickPicks": "Hoặc chọn một người bạn",
+    "noVoice": "Không muốn nói? Chơi 1A2B"
   },
   "playHub": {
     "back": "Trang chủ",
     "heading": "Chơi gì cùng bạn bè Crew hôm nay?",
     "intro": "Chọn một người bạn Crew và cùng chơi cờ, đoán số, trò chơi chữ hoặc giải đố bằng giọng nói.",
-    "voiceRequired": "Cần giọng nói Gemini",
+    "voiceRequired": "Giọng nói AI",
     "offlineOptional": "Ngoại tuyến · có thể bật giọng nói",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live chỉ xử lý giọng nói và lời đáp của nhân vật; điểm do luật ngoại tuyến quyết định và không lưu vào lịch sử trò chuyện."
     },
     "eyebrow": "Crew Play",
-    "accessNote": "Trò bàn cờ, 1A2B và Taboo chơi bằng chữ mà không cần khóa. Trò chuyện AI và trò chơi giọng nói cần khóa Gemini; giọng nói cần thêm micrô.",
     "voiceDock": {
       "expand": "Mở rộng bảng giọng nói",
       "collapse": "Thu gọn bảng giọng nói"

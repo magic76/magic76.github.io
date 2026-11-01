@@ -48,7 +48,6 @@ export function PracticePage(){
    <span>{t("practiceEntry.continueDesc")}</span><small>{t("practice.next")} ↗</small>
   </Link>
  </section>
- {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <section className="section crew-continue-section"><div className="section-head"><h2>{t("practice.continue")}</h2><Link to="/learn">{tToday("learnToday.backToLearn")} →</Link></div><ContinueLearningCard compact/></section>
  {target==="英文"&&<section className="section crew-course-tracks" aria-label={tToday("learnToday.courseTracks")}>
   <div className="section-head"><h2>{tToday("learnToday.courseTracks")}</h2></div>
@@ -68,6 +67,7 @@ export function PracticePage(){
    <Link to={"/friend/live?id="+selectedFriend+"&intent=speak"}>{t("practiceEntry.speakTitle")}</Link>
   </div>
  </section>
+ {ready&&!geminiKey()&&<section className="section"><GeminiSetupNotice/></section>}
  <GuideHub/>
  <section className="section crew-practice-shortcuts"><div className="section-head"><h2>{t("practice.quick")}</h2><small>{t("practice.choose")}</small></div><div className="grid two-col">
   <Link className="feature-card teacher-material" to="/teacher/textbook"><span className="feature-icon"><Icon name="book"/></span><strong>{t("practice.textbook")}</strong><span>{t("practice.textbookDesc")}</span></Link>
