@@ -101,7 +101,8 @@
     "used": "Un essai a déjà été utilisé depuis cet appareil ou réseau.",
     "limit": "Les places du jour sont épuisées.",
     "verification": "Échec de la vérification. Réessayez.",
-    "tempUnavailable": "Essai temporairement indisponible."
+    "tempUnavailable": "Essai temporairement indisponible.",
+    "remaining": "Essais vocaux gratuits restants : {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Essais vocaux utilisés : {{used}} / {{limit}}",

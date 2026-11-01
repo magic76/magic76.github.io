@@ -6,6 +6,7 @@ const {execFileSync}=require("node:child_process");
 const ROOT=path.resolve(__dirname,"..");
 const ORIGIN="https://www.3sssi.com";
 const slugs=["","teacher","story","fortune","research"];
+const courses=["travel","business","daily","teamwork","tickets","services"].map(slug=>"teacher/course/"+slug);
 const read=p=>fs.readFileSync(path.join(ROOT,p),"utf8");
 const url=(slug,lang)=>ORIGIN+"/"+(lang==="en"?"en/":"")+(slug?slug+"/":"");
 
@@ -27,7 +28,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    assert.match(html,/<meta property="og:image" content="https:\/\/www\.3sssi\.com\/social\/crew-shared-v2\.png">/);
+    assert.ok(html.includes('<meta property="og:image" content="https://www.3sssi.com/social/'+(slug||"crew")+'.png">'));
     assert.match(html,/<meta name="twitter:card" content="summary_large_image">/);
     assert.match(html,/<script type="application\/ld\+json">/);
     const structured=JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);
@@ -46,8 +47,8 @@ test("sitemap enumerates public and game URLs with matching language alternates"
   const games=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
   const xml=read("sitemap.xml");
   const actual=[...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1]);
-  assert.deepEqual(actual,[...slugs,...games].flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
-  assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,(slugs.length+games.length)*2);
+  assert.deepEqual(actual,[...slugs,...games,...courses].flatMap(slug=>[url(slug,"zh"),url(slug,"en")]));
+  assert.equal((xml.match(/hreflang="x-default"/g)||[]).length,(slugs.length+games.length+courses.length)*2);
   assert.match(xml,/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/);
   assert.match(read("robots.txt"),/Sitemap: https:\/\/www\.3sssi\.com\/sitemap\.xml/);
 });
@@ -65,4 +66,15 @@ test("SPA remains noindex and continues to serve its React app",()=>{
     assert.match(html,/<meta name="robots" content="noindex,follow"\s*\/>/);
     assert.ok(html.includes('<div id="root"></div>'));
   }
+});
+
+test("client course titles stay exactly aligned with SSG course SEO titles",async()=>{
+ const {COURSE_SEO}=await import("../scripts/course-seo.mjs");
+ const client=read("web-spa/src/teacher/courseSeoTitles.ts");
+ assert.equal(COURSE_SEO.length,6);
+ for(const item of COURSE_SEO){
+  assert.ok(client.includes(JSON.stringify(item.slug)+":{zh:"),item.slug);
+  assert.ok(client.includes(JSON.stringify(item.zh.title)),item.slug+" zh");
+  assert.ok(client.includes(JSON.stringify(item.en.title)),item.slug+" en");
+ }
 });

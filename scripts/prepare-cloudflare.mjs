@@ -1,3 +1,4 @@
+import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
@@ -265,6 +266,41 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
   .replace(/<body>[\s\S]*?<\/body>/,
    '<body><div id="root" data-crew-ssg-path="'+publicPath+'">'+page+'</div></body>');
  const target=join(out,(locale==="en"?"en/":"")+"games/"+slug+"/index.html");
+ mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
+}
+
+
+for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
+ const slug=course.slug,meta=locale==="en"?course.en:course.zh;
+ const route="/teacher/course/"+slug,canonical="https://www.3sssi.com"+(locale==="en"?"/en":"")+route+"/";
+ const zhHref="https://www.3sssi.com"+route+"/",enHref="https://www.3sssi.com/en"+route+"/";
+ const template=read(locale==="en"?"en/teacher/index.html":"teacher/index.html");
+ let head=template.split("</head>")[0]+"</head>";
+ head=head.replace(/<title>[\s\S]*?<\/title>/,"<title>"+escapeHtml(meta.title)+"</title>");
+ head=head.replace(/<link rel="canonical" href="[^"]*">/,'<link rel="canonical" href="'+canonical+'">');
+ head=replaceMeta(head,"name","description",meta.description);
+ head=replaceMeta(head,"property","og:title",meta.title);
+ head=replaceMeta(head,"property","og:description",meta.description);
+ head=replaceMeta(head,"property","og:url",canonical);
+ head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
+ head=head.replace("</head>",[
+  '<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">',
+  '<link rel="alternate" hreflang="en" href="'+enHref+'">',
+  '<link rel="alternate" hreflang="x-default" href="'+zhHref+'">'
+ ].join(newline)+"</head>");
+ const ld={"@context":"https://schema.org","@type":"Course",name:meta.title,
+  description:meta.description,url:canonical,inLanguage:locale==="en"?"en":"zh-Hant"};
+ head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
+  '<script type="application/ld+json">'+safeJson(ld)+'</script>');
+ head=head.replace('<link rel="stylesheet" href="/seo.css">',linkedAppStylesheet+routeCssLinks(route)+newline+"  "+appTags);
+ head=head.replace("</head>",dynamicGuard+newline+"</head>");
+ let page=prerendered.get(locale+":"+route);
+ if(!page||!page.includes("<h1"))throw Error("Missing SSG course "+route+" "+locale);
+ page=page.replace(/\/@fs\/[^"'\s<>)]*?\/assets\/([A-Za-z0-9_.\/-]+)/g,(_match,asset)=>"/assets/"+asset);
+ const html=template.replace(/<head>[\s\S]*?<\/head>/,head)
+  .replace(/<body>[\s\S]*?<\/body>/,
+   '<body class="teacher-theme"><div id="root" data-crew-ssg-path="'+(locale==="en"?"/en":"")+route+'">'+page+'</div></body>');
+ const target=join(out,(locale==="en"?"en/":"")+"teacher/course/"+slug+"/index.html");
  mkdirSync(dirname(target),{recursive:true});writeFileSync(target,html);
 }
 

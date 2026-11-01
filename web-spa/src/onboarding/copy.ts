@@ -4,7 +4,7 @@ const en = {
  step:"Step", skip:"Skip", back:"Back", next:"Continue", start:"Start exploring",
  welcomeTitle:"Welcome to Crew",
  welcomeDesc:"Your space to talk, learn, play and discover with AI.",
- welcomeNote:"Explore free activities first. Set up a Gemini API key only when you need AI.",
+ welcomeNote:"Try free AI voice first. Add your own Gemini API key after your free trial is used.",
  chat:"Meet AI friends", chatDesc:"Find a personality you click with.",
  learn:"Practice languages", learnDesc:"Speak, read and learn with Crew teachers.",
  play:"Play games", playDesc:"Try a game together or play offline.",
@@ -23,7 +23,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  "zh-TW":{
   step:"步驟",skip:"跳過引導",back:"上一步",next:"繼續",start:"開始探索",
   welcomeTitle:"歡迎來到 Crew",welcomeDesc:"和 AI 朋友聊天、學習語言、一起玩遊戲，探索更多可能。",
-  welcomeNote:"可以先體驗免費內容，需要 AI 功能時再設定 Gemini API Key。",
+  welcomeNote:"可以先免費試用 AI 語音；試用額度用完後，再設定自己的 Gemini API Key。",
   chat:"認識 AI 朋友",chatDesc:"找到聊得來、個性不同的朋友。",
   learn:"練習外語",learnDesc:"和 Crew 老師口說、閱讀、學習。",
   play:"一起玩遊戲",playDesc:"和朋友玩，或先體驗離線遊戲。",
@@ -37,7 +37,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  ja:{
   step:"ステップ",skip:"スキップ",back:"戻る",next:"続ける",start:"始める",
   welcomeTitle:"Crew へようこそ",welcomeDesc:"AI の友達と話し、語学を学び、ゲームや新しい世界を楽しもう。",
-  welcomeNote:"無料の機能から試せます。AI が必要になったら Gemini API キーを設定してください。",
+  welcomeNote:"まず無料の AI 音声体験をお試しください。終了後は自分の Gemini API キーを設定できます。",
   chat:"AI の友達と話す",chatDesc:"気の合う個性豊かな友達を見つけよう。",
   learn:"語学を練習",learnDesc:"Crew の先生と会話・読書・学習。",
   play:"ゲームで遊ぶ",playDesc:"一緒に遊んだり、オフラインで試したり。",
@@ -51,7 +51,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  es:{
   step:"Paso",skip:"Omitir",back:"Atrás",next:"Continuar",start:"Empezar",
   welcomeTitle:"Te damos la bienvenida a Crew",welcomeDesc:"Habla con amigos de IA, aprende idiomas, juega y descubre.",
-  welcomeNote:"Empieza con actividades gratuitas. Configura tu clave de Gemini solo cuando uses IA.",
+  welcomeNote:"Prueba primero la voz con IA gratis. Al terminar, puedes configurar tu clave de Gemini.",
   chat:"Conoce amigos de IA",chatDesc:"Encuentra personalidades con las que conectar.",
   learn:"Practica idiomas",learnDesc:"Habla, lee y aprende con profesores de Crew.",
   play:"Juega",playDesc:"Juega en compañía o sin conexión.",
@@ -65,7 +65,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  "pt-BR":{
   step:"Etapa",skip:"Pular",back:"Voltar",next:"Continuar",start:"Começar",
   welcomeTitle:"Boas-vindas ao Crew",welcomeDesc:"Converse com amigos de IA, aprenda idiomas, jogue e descubra novidades.",
-  welcomeNote:"Comece com atividades gratuitas. Configure a chave Gemini apenas ao usar IA.",
+  welcomeNote:"Experimente primeiro a voz por IA gratuitamente. Depois, configure sua chave Gemini.",
   chat:"Conheça amigos de IA",chatDesc:"Encontre personalidades com quem conversar.",
   learn:"Pratique idiomas",learnDesc:"Converse, leia e aprenda com professores do Crew.",
   play:"Jogue",playDesc:"Jogue em companhia ou no modo offline.",
@@ -79,7 +79,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  id:{
   step:"Langkah",skip:"Lewati",back:"Kembali",next:"Lanjut",start:"Mulai",
   welcomeTitle:"Selamat datang di Crew",welcomeDesc:"Mengobrol dengan teman AI, belajar bahasa, bermain, dan menjelajah.",
-  welcomeNote:"Coba aktivitas gratis lebih dahulu. Atur kunci Gemini saat memerlukan AI.",
+  welcomeNote:"Coba percakapan suara AI gratis dahulu. Setelah kuota habis, atur kunci Gemini Anda.",
   chat:"Kenali teman AI",chatDesc:"Temukan teman dengan kepribadian yang cocok.",
   learn:"Latihan bahasa",learnDesc:"Berbicara, membaca, dan belajar bersama guru Crew.",
   play:"Main game",playDesc:"Bermain bersama atau mencoba game offline.",
@@ -93,7 +93,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  fr:{
   step:"Étape",skip:"Passer",back:"Retour",next:"Continuer",start:"Commencer",
   welcomeTitle:"Bienvenue dans Crew",welcomeDesc:"Discutez avec des amis IA, apprenez des langues, jouez et explorez.",
-  welcomeNote:"Essayez d'abord les activités gratuites. Ajoutez une clé Gemini seulement pour l'IA.",
+  welcomeNote:"Essayez d'abord la voix IA gratuitement. Après l'essai, ajoutez votre clé Gemini.",
   chat:"Rencontrer des amis IA",chatDesc:"Trouvez des personnalités avec qui échanger.",
   learn:"Pratiquer les langues",learnDesc:"Parlez, lisez et apprenez avec les professeurs Crew.",
   play:"Jouer",playDesc:"Jouez ensemble ou essayez un jeu hors ligne.",
@@ -107,7 +107,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  de:{
   step:"Schritt",skip:"Überspringen",back:"Zurück",next:"Weiter",start:"Loslegen",
   welcomeTitle:"Willkommen bei Crew",welcomeDesc:"Mit KI-Freunden sprechen, Sprachen lernen, spielen und Neues entdecken.",
-  welcomeNote:"Teste zuerst kostenlose Angebote. Richte den Gemini-API-Schlüssel erst bei Bedarf ein.",
+  welcomeNote:"Teste zuerst kostenlos die KI-Sprachfunktion. Danach kannst du deinen Gemini-API-Schlüssel einrichten.",
   chat:"KI-Freunde treffen",chatDesc:"Finde Persönlichkeiten, mit denen du gern redest.",
   learn:"Sprachen üben",learnDesc:"Mit Crew-Lehrern sprechen, lesen und lernen.",
   play:"Spiele spielen",playDesc:"Gemeinsam spielen oder offline ausprobieren.",
@@ -121,7 +121,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  ko:{
   step:"단계",skip:"건너뛰기",back:"이전",next:"계속",start:"시작하기",
   welcomeTitle:"Crew에 오신 것을 환영합니다",welcomeDesc:"AI 친구와 대화하고 언어를 배우며 게임과 새로운 경험을 즐겨보세요.",
-  welcomeNote:"무료 기능부터 시작하세요. AI가 필요할 때만 Gemini API 키를 설정하면 됩니다.",
+  welcomeNote:"먼저 AI 음성 무료 체험을 해보세요. 이후 자신의 Gemini API 키를 설정할 수 있습니다.",
   chat:"AI 친구 만나기",chatDesc:"잘 맞는 다양한 성격의 친구를 찾아보세요.",
   learn:"외국어 연습하기",learnDesc:"Crew 선생님과 말하고 읽으며 배워보세요.",
   play:"게임하기",playDesc:"함께하거나 오프라인 게임을 즐겨보세요.",
@@ -135,7 +135,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  vi:{
   step:"Bước",skip:"Bỏ qua",back:"Quay lại",next:"Tiếp tục",start:"Bắt đầu",
   welcomeTitle:"Chào mừng đến với Crew",welcomeDesc:"Trò chuyện với bạn AI, học ngôn ngữ, chơi game và khám phá.",
-  welcomeNote:"Hãy thử các hoạt động miễn phí trước. Chỉ cần khóa Gemini khi dùng AI.",
+  welcomeNote:"Hãy thử giọng nói AI miễn phí trước. Sau đó, bạn có thể thêm khóa Gemini của mình.",
   chat:"Gặp bạn AI",chatDesc:"Tìm người bạn có tính cách phù hợp.",
   learn:"Luyện ngoại ngữ",learnDesc:"Nói, đọc và học cùng giáo viên Crew.",
   play:"Chơi trò chơi",playDesc:"Chơi cùng nhau hoặc chơi ngoại tuyến.",
@@ -149,7 +149,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  th:{
   step:"ขั้นตอน",skip:"ข้าม",back:"ย้อนกลับ",next:"ต่อไป",start:"เริ่มใช้งาน",
   welcomeTitle:"ยินดีต้อนรับสู่ Crew",welcomeDesc:"คุยกับเพื่อน AI ฝึกภาษา เล่นเกม และสำรวจสิ่งใหม่ ๆ",
-  welcomeNote:"ลองกิจกรรมฟรีก่อน ตั้งค่า Gemini API Key เมื่อจำเป็นต้องใช้ AI",
+  welcomeNote:"ลองใช้เสียง AI ฟรีก่อน จากนั้นจึงตั้งค่า Gemini API Key ของคุณ",
   chat:"พบเพื่อน AI",chatDesc:"หาเพื่อนที่มีบุคลิกเข้ากับคุณ",
   learn:"ฝึกภาษา",learnDesc:"พูด อ่าน และเรียนกับครู Crew",
   play:"เล่นเกม",playDesc:"เล่นด้วยกันหรือลองเกมออฟไลน์",

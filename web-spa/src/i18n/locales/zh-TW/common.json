@@ -44,7 +44,7 @@
     "region": "聯絡資訊"
   },
   "seo": {
-    "home": "Crew — AI 語言學習、故事與命盤探索",
+    "home": "Crew — 免費 AI 語音試用與語言學習",
     "teacher": "Crew Teacher — AI 語言學習",
     "story": "Crew Story — AI 互動故事",
     "fortune": "Crew Fortune — 命盤探索",
@@ -101,7 +101,8 @@
     "used": "此裝置或網路近期已使用過免費體驗。",
     "limit": "今天的免費試玩名額已滿。",
     "verification": "驗證未通過，請重新驗證。",
-    "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。"
+    "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。",
+    "remaining": "剩餘免費試用：{{count}} / {{limit}} 次"
   },
   "auth": {
     "trialCount": "免費語音試用：已使用 {{used}} / {{limit}} 次",

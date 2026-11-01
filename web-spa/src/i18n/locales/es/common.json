@@ -101,7 +101,8 @@
     "used": "Ya se usó una prueba desde este dispositivo o red.",
     "limit": "Se agotaron las plazas de hoy.",
     "verification": "La verificación falló. Inténtalo de nuevo.",
-    "tempUnavailable": "Prueba no disponible temporalmente."
+    "tempUnavailable": "Prueba no disponible temporalmente.",
+    "remaining": "Pruebas de voz gratuitas restantes: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Pruebas de voz usadas: {{used}} / {{limit}}",

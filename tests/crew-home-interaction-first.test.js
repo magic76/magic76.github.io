@@ -20,11 +20,11 @@ test("Home preserves portal, Timeline, briefing and collapsed Play Store without
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
- assert.match(home,/<BriefingPreview\/>/);
+ assert.doesNotMatch(home,/<BriefingPreview\/>/);
  assert.match(home,/crew-home-world-explore-card/);
  assert.match(home,/to="\/timeline"/);
  assert.doesNotMatch(home,/assets\/timeline\/mira-/);
- assert.ok(home.indexOf("<BriefingPreview/>")>home.indexOf("<HomeShortsPreview/>"));
+ assert.ok(home.indexOf("<HomeShortsPreview/>")>home.indexOf("<HomePortal/>"));
  assert.match(home,/<details className="crew-home-android">/);
 });
 

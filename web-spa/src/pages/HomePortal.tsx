@@ -5,6 +5,9 @@ import {trackUsageEvent} from "../analytics/usage";
 import {Icon,type IconName} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
 import type {PortalMode} from "./portalField.mjs";
+import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
+import {useClientReady} from "../lib/useClientReady";
+import {geminiKey} from "../lib/runtime";
 
 const MODES:readonly {id:PortalMode;icon:IconName;to:string;name:string}[]=[
  {id:"chat",icon:"chat",to:"/teacher/roles?mode=friends",name:"THE CONNECTION / CHAT"},
@@ -17,6 +20,8 @@ const MODES:readonly {id:PortalMode;icon:IconName;to:string;name:string}[]=[
 export function HomePortal(){
  const {t}=useTranslation("home");
  const navigate=useNavigate();
+ const ready=useClientReady();
+ const trial=useGuestTrialQuota(!ready||Boolean(geminiKey()));
  const [mode,setMode]=useState<PortalMode>("chat");
  const [interacting,setInteracting]=useState(false);
  const [paused,setPaused]=useState(true); // Static SSR fallback; eligible devices automatically resume after mount.
@@ -108,19 +113,22 @@ export function HomePortal(){
  };
  return <header ref={heroRef} className="crew-home-portal" data-mode={mode} data-launching={launching} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
-  <div className="crew-portal-intro"><span>A LITTLE SPARK. A WHOLE NEW WORLD.</span><p>{t("world.intro")}</p></div>
-  <span className="crew-portal-edge" aria-hidden="true">MOVE A LITTLE. FEEL A CONNECTION.</span>
+  <div className="crew-portal-intro"><p>{t("world.intro")}</p></div>
   <span className="crew-portal-number" aria-hidden="true">0{index+1} / 04</span>
   <div className="crew-portal-content" id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
    <div className="crew-portal-copy" key={mode}>
     <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
-    <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/>
-     <span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
+    <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
     <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
    </div>
    <Link className="crew-portal-cta" to={current.to} onClick={launch} aria-disabled={launching||undefined}>
     {t("world.modes."+mode+".cta")}<span aria-hidden="true">↗</span>
    </Link>
+   {trial.enabled&&<Link className="crew-portal-trial-chip" to={trial.remaining===0?"/account#settings-gemini":"/teacher/roles?mode=teacher"}
+    onClick={()=>trackUsageEvent(trial.remaining===0?"home_entry_click":"guest_trial_start_click",trial.remaining===0?"settings":"teacher")}>
+    <span>{t(trial.remaining===0?"common:guestTrial.continueKey":"common:guestTrial.homeStart")}</span>
+    {trial.remaining!==null&&trial.limit!==null&&<small role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</small>}
+   </Link>}
   </div>
   <div className="crew-portal-tabs" role="tablist" aria-label={t("portal.choose")}
     onMouseEnter={()=>setInteracting(true)} onMouseLeave={()=>setInteracting(false)}

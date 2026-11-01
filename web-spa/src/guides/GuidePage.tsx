@@ -30,8 +30,8 @@ export function GuidePage(){
     <Link className="btn secondary" to={guide.secondaryTarget}>{guide.secondary}</Link>
    </div>
    <small className="crew-guide-requirement">{english?
-    "Live voice uses your own Gemini API key. Free allowances and prices depend on Google.":
-    "即時語音需使用自己的 Gemini API Key；免費額度與價格依 Google 規定。"}</small>
+    "Try AI voice for free. After your trial, you can add your Gemini key to continue.":
+    "AI 語音可先免費試用；用完額度後可設定自己的 Gemini API Key。"}</small>
   </header>
   <div className="crew-guide-layout">
    <div className="crew-guide-main">

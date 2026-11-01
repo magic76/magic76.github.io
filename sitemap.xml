@@ -156,4 +156,76 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/games/taboo/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/games/taboo/"/>
   </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/travel/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/travel/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/travel/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/travel/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/travel/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/travel/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/travel/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/travel/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/business/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/business/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/business/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/business/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/business/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/business/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/business/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/business/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/daily/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/daily/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/daily/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/daily/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/daily/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/daily/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/daily/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/daily/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/teamwork/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/teamwork/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/teamwork/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/teamwork/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/teamwork/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/teamwork/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/teamwork/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/teamwork/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/tickets/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/tickets/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/tickets/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/tickets/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/tickets/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/tickets/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/tickets/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/tickets/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/teacher/course/services/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/services/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/services/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/services/"/>
+  </url>
+  <url>
+    <loc>https://www.3sssi.com/en/teacher/course/services/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-Hant" href="https://www.3sssi.com/teacher/course/services/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://www.3sssi.com/en/teacher/course/services/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.3sssi.com/teacher/course/services/"/>
+  </url>
 </urlset>

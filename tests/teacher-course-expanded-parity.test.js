@@ -49,7 +49,9 @@ test("all 49 Android lessons have two or more warmup phrases, with pronunciation
 test("course map opens briefing first and briefing starts the existing roleplay Live",()=>{
  const page=read("CoursePage.tsx");
  const briefing=read("CourseBriefing.tsx");
- assert.match(page,/\/teacher\/course\?briefing=/);
+ assert.match(page,/"\/teacher\/course\/"\+track\.id\+"\?briefing="/);
+ const app=fs.readFileSync(path.resolve(__dirname,"../web-spa/src/App.tsx"),"utf8");
+ assert.match(app,/path="course\/:slug"/);
  assert.match(page,/lessonUnlocked\(briefing\.id\)/);
  assert.match(briefing,/\/teacher\/live\?mode=course&lesson=/);
  assert.match(briefing,/lesson\.missions\.map/);

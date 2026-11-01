@@ -44,7 +44,7 @@
     "region": "Contact information"
   },
   "seo": {
-    "home": "Crew — AI Language Learning, Stories & Fortune",
+    "home": "Crew — Free AI Voice Trial & Language Learning",
     "teacher": "Crew Teacher — Learn Languages with AI",
     "story": "Crew Story — Interactive AI Stories",
     "fortune": "Crew Fortune — Explore Your Chart",
@@ -101,7 +101,8 @@
     "used": "A trial has already been used from this device or network recently.",
     "limit": "Today's guest capacity has been reached.",
     "verification": "Verification failed. Please try again.",
-    "tempUnavailable": "Guest trial is temporarily unavailable."
+    "tempUnavailable": "Guest trial is temporarily unavailable.",
+    "remaining": "Free voice trials remaining: {{count}} / {{limit}}"
   },
   "auth": {
     "trialCount": "Free voice trials used: {{used}} / {{limit}}",

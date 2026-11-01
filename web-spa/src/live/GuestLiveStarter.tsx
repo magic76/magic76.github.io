@@ -19,6 +19,8 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const [phase,setPhase]=useState<"checking"|"ready"|"login"|"exhausted"|"unavailable"|"starting"|"error">("checking");
  const [challenge,setChallenge]=useState("");
  const [message,setMessage]=useState("");
+ const [remaining,setRemaining]=useState<number|null>(null);
+ const [quotaLimit,setQuotaLimit]=useState<number|null>(null);
  const host=useRef<HTMLDivElement|null>(null);
  const widget=useRef<string|null>(null);
  const busy=useRef(false);
@@ -32,6 +34,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     setPhase("unavailable");return;
    }
    setSigninRequired(Boolean(config.signinRequired));
+   if(config.trial){setRemaining(config.trial.limit-config.trial.used);setQuotaLimit(config.trial.limit)}
    if(config.memberMetering||config.signinRequired){
     try{
      const r=await fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store"});
@@ -45,6 +48,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
      // authority and rejects concurrent or already-consumed account grants.
      const quota=session?.trial as {used?:unknown;limit?:unknown}|undefined;
      const used=quota?.used,limit=quota?.limit;
+     if(isSignedIn&&typeof used==="number"&&typeof limit==="number"&&Number.isFinite(used)&&Number.isFinite(limit)&&limit>0&&used>=0&&used<=limit){setRemaining(limit-used);setQuotaLimit(limit)}
      if(isSignedIn&&typeof used==="number"&&typeof limit==="number"
         &&Number.isFinite(used)&&Number.isFinite(limit)&&limit>0&&used>=limit){
       setPhase("exhausted");return;
@@ -55,6 +59,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     }
    }
    if(!active.current)return;
+   if(config.trial&&config.trial.used===config.trial.limit&&!config.signinRequired&&!config.memberMetering){setPhase("exhausted");return}
    trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready");
   }).catch(()=>{if(active.current){if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}});
   return()=>{active.current=false};
@@ -132,7 +137,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     }
     return;
    }
-   if(active.current){trackUsageEvent("guest_trial_token_issued",role);await onGrant(data)}
+   if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await onGrant(data)}
   }catch(error){
    if(!tokenRequested&&error instanceof DOMException&&error.name==="NotAllowedError")trackUsageEvent("guest_trial_mic_denied",role);
    else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
@@ -144,6 +149,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
   <div style={{display:"grid",gap:10,width:"100%"}}>
    <strong>{t("guestTrial.homeTitle")}</strong>
    <p>{t("guestTrial.homeDesc")}</p>
+   {remaining!==null&&<p role="status">{t("guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     <button type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
@@ -151,7 +157,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}
    {phase==="exhausted"&&<><p role="status">{t("guestTrial.used")}</p>
-    <Link className="btn secondary small" to="/account">{t("auth.account")}</Link></>}
+    <Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role="status">{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setPhase("ready")}}>{t("guestTrial.retry")}</button>}
    <Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.setupKey")}</Link>

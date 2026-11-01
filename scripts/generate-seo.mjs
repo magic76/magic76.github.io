@@ -1,14 +1,15 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {COURSE_SEO} from "./course-seo.mjs";
 // Public static landing pages are separate from the Web App HashRouter.
 const ORIGIN = "https://www.3sssi.com";
 const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "Crew｜AI 語言學習、故事陪讀與命理探索",
-    "description": "探索 Crew Teacher、Crew Story、Crew Fortune 與每日 AI 研究情報。使用自己的 Gemini API Key，在 Web 上開始語音學習、說故事與個人探索。",
+    "title": "Crew｜免費 AI 語音試用與語言學習",
+    "description": "Crew Teacher 提供 AI 老師與語伴，先免費試用 3 分鐘語音口說；用完額度後可設定自己的 Gemini Key。",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "你的 AI 夥伴，從學習到探索。",
     "intro": "用 Crew 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
@@ -85,7 +86,7 @@ const PAGES = [
     "slug": "teacher",
     "nav": "Teacher",
     "title": "Crew Teacher｜AI 語言老師、口說練習與沉浸式語伴",
-    "description": "使用 Crew Teacher 的 AI 語言老師與 Crew 朋友，練習口說、單字、情境課程和教材陪讀。以自己的 Gemini API Key 開始 Web 語音體驗。",
+    "description": "Crew Teacher 提供 AI 語言老師與 AI 朋友，先免費試用語音口說，額度用完後可設定自己的 Gemini API Key。",
     "eyebrow": "CREW TEACHER",
     "heading": "讓語言練習，更像真的在對話。",
     "intro": "想認真學習時，找 Crew 老師；想自在聊天時，找有不同個性與背景的 Crew 朋友。透過語音互動，練習日常與實際情境。",
@@ -342,8 +343,8 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Crew | AI Language Learning, Stories and Self-Discovery",
-    "description": "Explore Crew Teacher, Crew Story, Crew Fortune, and daily AI research. Practice languages, create stories and explore new ideas in your browser using your own Gemini API key.",
+    "title": "Crew | Free AI Voice Trial and Language Learning",
+    "description": "Practice with AI tutors and friends. Try free AI voice for three minutes, then add your Gemini API key when your trial is used.",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "Your AI companions for learning and exploring.",
     "intro": "Practice speaking with a Crew teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
@@ -420,7 +421,7 @@ const EN_PAGES = [
     "slug": "teacher",
     "nav": "Teacher",
     "title": "Crew Teacher | AI Language Tutor and Conversation Partners",
-    "description": "Practice spoken languages with Crew Teacher's AI tutors and Crew Friends. Explore vocabulary, guided lessons, pronunciation feedback, and reading support in your browser.",
+    "description": "Practice languages with AI tutors and Crew Friends. Try a free voice conversation, then add your Gemini API key for continued use.",
     "eyebrow": "CREW TEACHER",
     "heading": "Language practice that feels like a real conversation.",
     "intro": "Choose a Crew teacher when you want guided learning and feedback. Pick a Crew Friend when you'd rather chat naturally with a character who has their own personality and background.",
@@ -695,7 +696,7 @@ const features=p.features.map(f=>`<article class="feature"><span class="feature-
 const steps=p.steps.map((s,i)=>`<li><span class="step-num">${String(i+1).padStart(2,"0")}</span><div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p></div></li>`).join("");
 const faq=p.faq.map(f=>`<details><summary>${escapeHTML(f.q)}</summary><p>${escapeHTML(f.a)}</p></details>`).join("");
 const related=(en?EN_PAGES:PAGES).filter(item=>item.slug!==p.slug).map(item=>`<a href="${pageUrl(item.slug,locale)}">${escapeHTML(item.nav)} <span aria-hidden="true">↗</span></a>`).join("");
-const url=pageUrl(p.slug,locale),zhURL=pageUrl(p.slug,"zh"),enURL=pageUrl(p.slug,"en"), ogImage=ORIGIN+"/social/crew-shared-v2.png";
+const url=pageUrl(p.slug,locale),zhURL=pageUrl(p.slug,"zh"),enURL=pageUrl(p.slug,"en"), ogImage=ORIGIN+"/social/"+(p.slug||"crew")+".png";
 return `<!doctype html>
 <html lang="${en?"en":"zh-Hant"}">
 <head>
@@ -767,7 +768,7 @@ return `<!doctype html>
 
 const GAME_SLUGS=["games","games/friend-gomoku","games/connect4","games/twenty-questions","games/reversi","games/mystery","games/1a2b","games/taboo"];
 function renderSitemap(){const xml=(slug,locale)=>`    <xhtml:link rel="alternate" hreflang="zh-Hant" href="${pageUrl(slug,"zh")}"/>\n    <xhtml:link rel="alternate" hreflang="en" href="${pageUrl(slug,"en")}"/>\n    <xhtml:link rel="alternate" hreflang="x-default" href="${pageUrl(slug,"zh")}"/>`;
-return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
+return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${PAGES.map(p=>p.slug).concat(GAME_SLUGS,COURSE_SEO.map(c=>"teacher/course/"+c.slug)).flatMap(slug=>["zh","en"].map(locale=>`  <url>\n    <loc>${pageUrl(slug,locale)}</loc>\n${xml(slug,locale)}\n  </url>`)).join("\n")}\n</urlset>\n`}
 
 function renderRobots(){return `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`}
 

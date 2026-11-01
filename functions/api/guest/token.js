@@ -108,9 +108,22 @@ export async function onRequestGet({request,env}){
   console.warn("crew_guest_trial_configuration",{state:"unavailable",reason:issue,...(detail?{detail}:{})});
   return disabled();
  }
- return json({enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
+ const config={enabled:true,siteKey:env.GUEST_TURNSTILE_SITE_KEY,seconds:SESSION_SECONDS,
   ...(env[MEMBER_SIGNIN_FLAG]==="1"?{signinRequired:true}:{}),
-  ...(memberMeterEnabled(env)?{memberMetering:true}:{})});
+  ...(memberMeterEnabled(env)?{memberMetering:true}:{})};
+ // Anonymous D1 claims are one use per rolling window. Never guess when the
+ // store is unavailable or reveal fingerprints or overall worker capacity.
+ if(env[MEMBER_SIGNIN_FLAG]!=="1"&&env.GUEST_DB&&env.GUEST_HASH_SALT){
+  const ip=request.headers.get("cf-connecting-ip"),agent=request.headers.get("user-agent");
+  if(ip&&agent){
+   try{
+    const hash=await fingerprint(ip,agent,env.GUEST_HASH_SALT);
+    const claim=await env.GUEST_DB.prepare("SELECT 1 AS used FROM guest_trial_claims WHERE fingerprint=? AND expires_at>? LIMIT 1").bind(hash,Date.now()).first();
+    return json({...config,trial:{used:claim?1:0,limit:1}});
+   }catch{/* Do not show fabricated remaining quota on D1 errors. */}
+  }
+ }
+ return json(config);
 }
 async function fingerprint(ip,agent,salt){
  const bytes=new TextEncoder().encode(salt+"|"+ip+"|"+agent.slice(0,256));
