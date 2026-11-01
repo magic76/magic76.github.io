@@ -2,6 +2,7 @@ import {COURSE_SEO} from "./course-seo.mjs";
 import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
+import {previewUrl,writePreview,writeStaticPreviews,replacePreviewMeta} from "./social-og.mjs";
 import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
@@ -108,6 +109,12 @@ cpSync(briefing,join(out,"briefings"),{recursive:true});
 // TSX/assets; we reuse the old SEO files ONLY for their head metadata (title,
 // canonical, hreflang, social images and JSON-LD). No marketing HTML is shipped.
 const {pages:prerendered,articles,research,related,guides}=await prerenderPublicRoutes(root);
+// Static 1200x630 OG PNGs, emitted at build time only.
+writeStaticPreviews(out,{
+ courseSlugs:COURSE_SEO.map(c=>c.slug),
+ guideSlugs:[...new Set([...guides.values()].map(g=>g.slug))],
+ gameSlugs:GAME_SEO_SLUGS
+});
 // Public editorial recommendations are available for client-side navigation.
 writeFileSync(join(out,"briefings","discovery.json"),JSON.stringify(related));
 // Head fragments must be separated by real whitespace. A literal backslash-n
@@ -238,6 +245,7 @@ for(const locale of ["zh","en"])for(const slug of GAME_SEO_SLUGS){
  head=replaceMeta(head,"property","og:title",meta.title);
  head=replaceMeta(head,"property","og:description",meta.description);
  head=replaceMeta(head,"property","og:url",canonical);
+ head=replacePreviewMeta(head,previewUrl("game",slug),meta.title);
  head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
  const alternates=[
   '<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">',
@@ -282,6 +290,7 @@ for(const locale of ["zh-TW","en"])for(const course of COURSE_SEO){
  head=replaceMeta(head,"property","og:title",meta.title);
  head=replaceMeta(head,"property","og:description",meta.description);
  head=replaceMeta(head,"property","og:url",canonical);
+ head=replacePreviewMeta(head,previewUrl("course",slug,locale),meta.title);
  head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
  head=head.replace("</head>",[
   '<link rel="alternate" hreflang="zh-Hant" href="'+zhHref+'">',
@@ -321,6 +330,7 @@ for(const [id,{slug,locale,content:guide}] of guides){
  head=replaceMeta(head,"property","og:title",guide.title);
  head=replaceMeta(head,"property","og:description",guide.description);
  head=replaceMeta(head,"property","og:url",canonical);
+ head=replacePreviewMeta(head,previewUrl("guide",slug,locale),guide.headline);
  head=head.replace(/<meta property="og:type" content="[^"]*">/,'<meta property="og:type" content="article">');
  head=head.replace(/<link rel="alternate"[^>]*>\s*/g,"");
  const languageLinks=[
@@ -369,6 +379,10 @@ for(const [route,{day,item,seed}] of articles){
  head=replaceMeta(head,"property","og:title",meta.title);
  head=replaceMeta(head,"property","og:description",meta.description);
  head=replaceMeta(head,"property","og:url",meta.canonical);
+ if(indexableArticle(item)){
+  const og=writePreview(out,"article",day.date+"/"+item.id,"zh",day.date);
+  head=replacePreviewMeta(head,og,item.title);
+ }
  head=head.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/,
   '<script type="application/ld+json">'+safeJson(meta.ld)+'</script>');
  // Ensure the article is the first meaningful content, not a loading spinner.
