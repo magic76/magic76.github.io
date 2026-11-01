@@ -1,37 +1,70 @@
-import {useEffect,useState} from "react";
+import {useSyncExternalStore} from "react";
 import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled,invalidateGuestTrialConfig} from "./guestTrial";
 export type GuestTrialQuota={enabled:boolean;remaining:number|null;limit:number|null;signinRequired:boolean};
 const EMPTY:GuestTrialQuota={enabled:false,remaining:null,limit:null,signinRequired:false};
+
+// The homepage and portal share one request, snapshot and trial-used listener.
+// A skipped (SSR or BYOK) subscriber never starts discovery or session requests.
+let status:GuestTrialQuota=EMPTY;
+let pending:Promise<GuestTrialQuota>|null=null;
+let revision=0;
+const subscribers=new Set<()=>void>();
+const snapshot=()=>status;
+const emptySnapshot=()=>EMPTY;
+const noSubscribe=()=>()=>{};
+
 /** Never invent quota counts: a null means the API cannot verify the visitor's allowance. */
-export function useGuestTrialQuota():GuestTrialQuota{
- const [status,setStatus]=useState<GuestTrialQuota>(EMPTY);
- useEffect(()=>{
-  if(!guestTrialDiscoveryEnabled())return;
-  let alive=true;
-  const refresh=async()=>{
-   const config=await fetchGuestTrialConfig();
-   if(!alive)return;
-   if(!config.enabled){setStatus(EMPTY);return}
-   let trial=config.trial;
-   if(config.memberMetering||config.signinRequired){
-    try{
-     const response=await fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store"});
-     if(response.ok){
-      const data=await response.json();
-      if(data?.user?.id)trial=data.trial;
-      else if(config.signinRequired)trial=undefined;
-     }else if(config.signinRequired)trial=undefined;
-    }catch{if(config.signinRequired)trial=undefined}
-   }
-   const valid=Number.isInteger(trial?.used)&&Number.isInteger(trial?.limit)&&
-    trial!.limit>0&&trial!.used>=0&&trial!.used<=trial!.limit;
-   setStatus({enabled:true,remaining:valid?trial!.limit-trial!.used:null,
-    limit:valid?trial!.limit:null,signinRequired:Boolean(config.signinRequired)});
-  };
-  const onUsed=()=>{invalidateGuestTrialConfig();void refresh()};
-  void refresh();
-  window.addEventListener("crew:guest-trial-used",onUsed);
-  return()=>{alive=false;window.removeEventListener("crew:guest-trial-used",onUsed)};
- },[]);
- return status;
+async function loadQuota():Promise<GuestTrialQuota>{
+ const config=await fetchGuestTrialConfig();
+ if(!config.enabled)return EMPTY;
+ let trial=config.trial;
+ if(config.memberMetering||config.signinRequired){
+  try{
+   const response=await fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store"});
+   if(response.ok){
+    const data=await response.json();
+    if(data?.user?.id)trial=data.trial;
+    else if(config.signinRequired)trial=undefined;
+   }else if(config.signinRequired)trial=undefined;
+  }catch{if(config.signinRequired)trial=undefined}
+ }
+ const valid=Number.isInteger(trial?.used)&&Number.isInteger(trial?.limit)&&
+  trial!.limit>0&&trial!.used>=0&&trial!.used<=trial!.limit;
+ return {enabled:true,remaining:valid?trial!.limit-trial!.used:null,
+  limit:valid?trial!.limit:null,signinRequired:Boolean(config.signinRequired)};
+}
+function refresh(force=false){
+ if(!guestTrialDiscoveryEnabled())return;
+ if(pending&&!force)return;
+ const requestId=++revision;
+ const request=loadQuota().catch(()=>EMPTY);
+ pending=request;
+ void request.then(next=>{
+  if(requestId!==revision||!subscribers.size)return;
+  status=next;
+  for(const notify of subscribers)notify();
+ }).finally(()=>{if(pending===request)pending=null});
+}
+function onTrialUsed(){
+ invalidateGuestTrialConfig();
+ refresh(true);
+}
+function subscribe(notify:()=>void){
+ const first=subscribers.size===0;
+ subscribers.add(notify);
+ if(first){
+  window.addEventListener("crew:guest-trial-used",onTrialUsed);
+  refresh();
+ }
+ return ()=>{
+  subscribers.delete(notify);
+  if(!subscribers.size){
+   window.removeEventListener("crew:guest-trial-used",onTrialUsed);
+   // Preserve an in-flight request across React StrictMode effect remounts.
+   status=EMPTY;
+  }
+ };
+}
+export function useGuestTrialQuota(skip:boolean):GuestTrialQuota{
+ return useSyncExternalStore(skip?noSubscribe:subscribe,skip?emptySnapshot:snapshot,emptySnapshot);
 }

@@ -685,20 +685,18 @@ test("Crew Web resumes a single recent activity across Live, Story Shelf and For
  assert.ok(fortune.includes('surface:"reading"'));
 });
 
-test("Crew home shows real dated Briefing content and keeps its route distinct",()=>{
+test("Crew home no longer embeds Briefing but keeps its route distinct",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
  const chrome=fs.readFileSync(path.join(root,"web-spa/src/components/AppChrome.tsx"),"utf8");
- assert.ok(home.includes("fetchIndex()"));
- assert.ok(home.includes("fetchDay(x.days[0])"));
- assert.ok(home.includes('rankItems(day.items,"","all"'));
- assert.ok(home.includes("edition?.item?.title"));
- assert.ok(home.includes("latestDate(edition.day.date)"));
- assert.ok(home.includes('to="/research/board"'));
+ assert.ok(!home.includes("BriefingPreview"));
+ assert.ok(!home.includes("fetchIndex("));
+ assert.ok(!home.includes("../briefing/data"));
+ assert.ok(app.includes('<Route path="/research"'));
+ assert.ok(app.includes('<Route path="/research/board"'));
  assert.ok(app.includes('<AppChrome product="briefing"><BriefingPage/>'));
  assert.ok(chrome.includes('briefing:["C","Crew Briefing","每日研發情報"]'));
 });
-
 
 test("Live product polish keeps one focal character and secondary tools collapsed",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");

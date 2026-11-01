@@ -67,3 +67,14 @@ test("SPA remains noindex and continues to serve its React app",()=>{
     assert.ok(html.includes('<div id="root"></div>'));
   }
 });
+
+test("client course titles stay exactly aligned with SSG course SEO titles",async()=>{
+ const {COURSE_SEO}=await import("../scripts/course-seo.mjs");
+ const client=read("web-spa/src/teacher/courseSeoTitles.ts");
+ assert.equal(COURSE_SEO.length,6);
+ for(const item of COURSE_SEO){
+  assert.ok(client.includes(JSON.stringify(item.slug)+":{zh:"),item.slug);
+  assert.ok(client.includes(JSON.stringify(item.zh.title)),item.slug+" zh");
+  assert.ok(client.includes(JSON.stringify(item.en.title)),item.slug+" en");
+ }
+});

@@ -6,6 +6,8 @@ import {Icon,type IconName} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
 import type {PortalMode} from "./portalField.mjs";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
+import {useClientReady} from "../lib/useClientReady";
+import {geminiKey} from "../lib/runtime";
 
 const MODES:readonly {id:PortalMode;icon:IconName;to:string;name:string}[]=[
  {id:"chat",icon:"chat",to:"/teacher/roles?mode=friends",name:"THE CONNECTION / CHAT"},
@@ -18,9 +20,8 @@ const MODES:readonly {id:PortalMode;icon:IconName;to:string;name:string}[]=[
 export function HomePortal(){
  const {t}=useTranslation("home");
  const navigate=useNavigate();
- const trial=useGuestTrialQuota();
- const canTry=trial.enabled&&trial.remaining!==0;
- const primaryTo=trial.remaining===0?"/settings#settings-gemini":"/teacher/roles?mode=teacher";
+ const ready=useClientReady();
+ const trial=useGuestTrialQuota(!ready||Boolean(geminiKey()));
  const [mode,setMode]=useState<PortalMode>("chat");
  const [interacting,setInteracting]=useState(false);
  const [paused,setPaused]=useState(true); // Static SSR fallback; eligible devices automatically resume after mount.
@@ -93,13 +94,13 @@ export function HomePortal(){
  const launch=(event:MouseEvent<HTMLAnchorElement>)=>{
   // Native link semantics survive modifier clicks, new tabs and script-free SSG.
   if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-  trackUsageEvent("home_entry_click",trial.remaining===0?"settings":"teacher");
+  trackUsageEvent("home_entry_click",current.id==="chat"?"friend":current.id);
   if(paused||!canAnimate||window.matchMedia("(prefers-reduced-motion: reduce)").matches||
    (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData)return;
   event.preventDefault();
   if(timer.current!==null)return;
   setLaunching(true);
-  timer.current=setTimeout(()=>{timer.current=null;navigate(primaryTo)},480);
+  timer.current=setTimeout(()=>{timer.current=null;navigate(current.to)},480);
  };
  const keyMode=(event:KeyboardEvent<HTMLButtonElement>,at:number)=>{
   let next=at;
@@ -116,14 +117,18 @@ export function HomePortal(){
   <span className="crew-portal-number" aria-hidden="true">0{index+1} / 04</span>
   <div className="crew-portal-content" id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
    <div className="crew-portal-copy" key={mode}>
-    <span className="crew-portal-kicker" aria-hidden="true">CREW TEACHER</span>
-    <h1><span className="crew-portal-title-line crew-portal-title-first">{canTry?t("common:guestTrial.homeTitle"):t("world.modes.learn.lead")+t("world.modes.learn.before")+t("world.modes.learn.accent")}</span></h1>
-    <p className="crew-portal-description">{t("world.modes.learn.description")}</p>
-    {trial.enabled&&trial.remaining!==null&&<p className="crew-portal-trial-quota" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
+    <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
+    <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
+    <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
    </div>
-   <Link className="crew-portal-cta" to={primaryTo} onClick={launch} aria-disabled={launching||undefined}>
-    {trial.remaining===0?t("common:guestTrial.continueKey"):canTry?t("common:guestTrial.homeStart"):t("world.modes.learn.cta")}<span aria-hidden="true">↗</span>
+   <Link className="crew-portal-cta" to={current.to} onClick={launch} aria-disabled={launching||undefined}>
+    {t("world.modes."+mode+".cta")}<span aria-hidden="true">↗</span>
    </Link>
+   {trial.enabled&&<Link className="crew-portal-trial-chip" to={trial.remaining===0?"/settings#settings-gemini":"/teacher/roles?mode=teacher"}
+    onClick={()=>trackUsageEvent(trial.remaining===0?"home_entry_click":"guest_trial_start_click",trial.remaining===0?"settings":"teacher")}>
+    <span>{t(trial.remaining===0?"common:guestTrial.continueKey":"common:guestTrial.homeStart")}</span>
+    {trial.remaining!==null&&trial.limit!==null&&<small role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</small>}
+   </Link>}
   </div>
   <div className="crew-portal-tabs" role="tablist" aria-label={t("portal.choose")}
     onMouseEnter={()=>setInteracting(true)} onMouseLeave={()=>setInteracting(false)}

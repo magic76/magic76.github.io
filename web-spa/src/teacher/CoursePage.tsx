@@ -1,8 +1,9 @@
 import {useEffect,useMemo,useState} from "react";
 import {useTranslation} from "react-i18next";
-import {Link,useNavigate,useParams,useSearchParams} from "react-router-dom";
+import {Link,Navigate,useLocation,useNavigate,useParams,useSearchParams} from "react-router-dom";
 import {COURSE_TRACKS,COURSE_UNITS,COURSE_LESSONS,courseLesson,lessonsForUnit,unitsForTrack} from "./courseCatalog";
 import {CourseBriefing} from "./CourseBriefing";
+import {COURSE_SEO_TITLES} from "./courseSeoTitles";
 import {bestNextLesson,completedLessons,lessonProgress,lessonUnlocked,nextUnlockedLesson,totalStars} from "./courseProgress";
 import "./learningFlow.css";
 
@@ -14,14 +15,14 @@ function storedTrack():string{
 export function CoursePage(){
  const {t,i18n}=useTranslation("teacher");
  const english=i18n.resolvedLanguage==="en";
- const [params]=useSearchParams();const {slug}=useParams();const navigate=useNavigate();
+ const [params]=useSearchParams();const {slug}=useParams();const navigate=useNavigate();const location=useLocation();
  const pathTrack=COURSE_TRACKS.find(item=>item.id===slug);
  const requested=courseLesson(params.get("lesson")||"");
  const briefing=courseLesson(params.get("briefing")||"");
  const[trackId,setTrackId]=useState(()=>requested?.trackId||briefing?.trackId||pathTrack?.id||storedTrack());
  const track=COURSE_TRACKS.find(item=>item.id===trackId)||COURSE_TRACKS[0];
- useEffect(()=>{if(pathTrack?.id&&pathTrack.id!==trackId)setTrackId(pathTrack.id)},[pathTrack?.id]);
- useEffect(()=>{if(pathTrack)document.title=(english?pathTrack.titleEn:pathTrack.titleZh)+" | Crew Teacher"},[pathTrack?.id,english]);
+ useEffect(()=>{if(pathTrack?.id)setTrackId(current=>current===pathTrack.id?current:pathTrack.id)},[pathTrack?.id]);
+ useEffect(()=>{if(pathTrack){const entry=COURSE_SEO_TITLES[pathTrack.id];document.title=entry?(english?entry.en:entry.zh):(english?pathTrack.titleEn:pathTrack.titleZh)+" | Crew Teacher"}},[pathTrack?.id,english]);
  const units=useMemo(()=>unitsForTrack(track.id),[track.id]);
  const next=nextUnlockedLesson(track.id);
  const completed=completedLessons(track.id);
@@ -53,6 +54,8 @@ export function CoursePage(){
  const title=(lesson:{titleEn:string;titleZh:string})=>english?lesson.titleEn:lesson.titleZh;
  const description=(lesson:{descEn:string;descZh:string})=>english?lesson.descEn:lesson.descZh;
  const route=(id:string)=>"/teacher/course/"+track.id+"?briefing="+encodeURIComponent(id);
+ // Unknown course URLs must not silently show a previously stored track.
+ if(slug&&!pathTrack)return <Navigate to={"/teacher/course"+location.search} replace/>;
  // Locked deep links must not bypass the Android-style sequential unlock.
  if(briefing&&lessonUnlocked(briefing.id))return <CourseBriefing lesson={briefing}/>;
 

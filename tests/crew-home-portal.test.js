@@ -8,7 +8,7 @@ test("Crew World homepage keeps interactive portal before real Shorts and functi
  const portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.ok(home.indexOf("<HomePortal/>")>=0);
  assert.ok(home.indexOf("<HomeShortsPreview/>")>home.indexOf("<HomePortal/>"));
- assert.ok(home.indexOf("<HomeShortsPreview/>")<home.indexOf('className="crew-home-layout"'));
+ assert.ok(home.indexOf("<HomeShortsPreview/>")<home.indexOf('className="crew-home-search-summary"'));
  for(const path of ["/teacher/roles?mode=friends","/games","/learn","/story"])assert.ok(portal.includes('to:"'+path+'"'),path);
  assert.match(portal,/aria-selected=\{mode===item.id\}/);
  assert.match(portal,/role="tablist"/);
