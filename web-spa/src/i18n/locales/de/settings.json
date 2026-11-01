@@ -153,7 +153,9 @@
     "modelShared": "Für Lehrkräfte und Freunde",
     "modelIntro": "Wähle ein Modell zum Vergleich der Aussprache",
     "memoryHeading": "Erinnerungen und Daten",
-    "memoryIntro": "Verwalte Erinnerungen und Lernaufzeichnungen in diesem Browser oder WebView."
+    "memoryIntro": "Verwalte Erinnerungen und Lernaufzeichnungen in diesem Browser oder WebView.",
+    "keyInAccount": "Den Gemini-Schlüssel verwaltest du jetzt im Konto. Mikrofon, Sprachtest und Lautstärke bleiben hier.",
+    "manageAi": "Gemini-Schlüssel verwalten"
   },
   "deviceApp": {
     "title": "Gerät & App",
