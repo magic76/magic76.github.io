@@ -116,6 +116,15 @@
     "failed": "Falha no login. Tente novamente.",
     "cancelled": "Login cancelado.",
     "localData": "Chaves Gemini e dados locais não são sincronizados automaticamente.",
-    "backSettings": "Voltar às configurações"
+    "backSettings": "Voltar às configurações",
+    "accountAi": "Conta e configurações de IA",
+    "aiSettings": "Conexão Gemini AI",
+    "aiIntro": "Após o teste grátis, você pode usar sua própria chave Gemini neste dispositivo. Não é preciso entrar na conta Crew.",
+    "preferences": "Outras preferências",
+    "preferencesIntro": "Aprendizado, voz, memória e dispositivo são configurados separadamente e não são sincronizados ao entrar.",
+    "voiceSettings": "Voz e microfone",
+    "learningSettings": "Aprendizado",
+    "dataSettings": "Memória e dados",
+    "deviceSettings": "Dispositivo e permissões"
   }
 }
