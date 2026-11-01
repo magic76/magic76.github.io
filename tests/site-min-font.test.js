@@ -142,13 +142,81 @@ test("readability floor is 12px, with only Fortune's original 11px rule exempt",
   assert.match(withoutFortune, /:root\s+\.books-card-meta span\{font-size:12px\}/);
 });
 
-test("mobile chrome stays compact while its labels are allowed to truncate", () => {
+test("mobile chrome keeps a one-row header and lets localized labels wrap without clipping", () => {
   const chrome = read("features/shared/design-system.css");
   const picker = read("web-spa/src/i18n/languageSwitcher.css");
   assert.match(chrome, /--nav-h:68px/);
   assert.match(chrome, /\.app-header \.inner\{height:58px;/);
-  assert.match(chrome, /\.app-title small\{[^}]*font-size:12px;[^}]*white-space:nowrap;overflow:hidden;text-overflow:ellipsis/);
-  assert.match(chrome, /\.navitem span:not\(\.nav-icon\)\{[^}]*white-space:nowrap;overflow:hidden;text-overflow:ellipsis/);
+  const subtitle = cssRules(chrome).find(rule => rule.selectors.includes(".app-title small"));
+  const navLabel = cssRules(chrome).find(rule => rule.selectors.includes(".navitem span:not(.nav-icon)"));
+  assert.ok(subtitle && navLabel, "Localized chrome selectors must remain present");
+  for (const {body, selectors} of [subtitle, navLabel]) {
+    assert.match(body, /font-size:12px|line-height:1\.1/, selectors.join(", "));
+    assert.match(body, /white-space:normal/);
+    assert.match(body, /overflow-wrap:anywhere/);
+    assert.doesNotMatch(body, /text-overflow:ellipsis|overflow:hidden|white-space:nowrap/);
+  }
+  assert.match(subtitle.body, /font-size:12px/);
+  assert.match(navLabel.body, /line-height:1\.1/);
   assert.match(chrome, /\.navitem\{[^}]*min-width:0;[^}]*font-size:12px/);
   assert.match(picker, /\.crew-language-picker-header \.crew-language-trigger\{[^}]*max-width:92px;[^}]*font-size:12px/);
+});
+
+// Source-level guard for precisely the follow-up scope. Intentionally excludes
+// Fortune internals, Magic, game boards and other deferred low-size areas.
+const followupSelectors = {
+  "web-spa/src/styles.css": [
+    ".story-player-live-status", ".practice-next-card p", ".practice-next-action", ".course-map-summary span",
+    ".teacher-current-row small", ".teacher-profile-copy strong em", ".teacher-profile-copy b",
+    ".teacher-profile-copy small", ".story-continue-card p", ".story-dialogue strong", ".story-tag-row span",
+    ".report-history-body h4", ".report-history-body p", ".report-learning-row strong",
+    ".story-interaction-history p", ".course-lesson-index", ".course-track-intro p",
+    ".story-book-open-label", ".story-book-edit", ".story-book-menu button",
+    ".teacher-gallery-type", ".teacher-gallery-tagline", ".teacher-gallery-selected",
+    ".teacher-detail-facts strong", ".teacher-gallery-footer p", ".teacher-segmented button",
+    ".story-player-placeholder small",
+  ],
+  "features/teacher/practice/styles.css": [
+    ".practice-stat", ".course-card p", ".mission", ".reading-card small", ".reading-tip", ".report-stat span",
+  ],
+  "features/teacher/textbook/styles.css": [
+    ".textbook-page-row small", ".textbook-note b", ".keyword", ".textbook-resume small",
+  ],
+  "features/story/styles.css": [
+    ".story-book p", ".story-home-empty a", ".story-home-empty span", ".story-home-copy small", ".story-home-copy span",
+  ],
+  "web-spa/src/teacher/learningFlow.css": [
+    ".crew-learning-translation-note", ".crew-course-mission-summary span", ".crew-course-unit-title small",
+    ".crew-course-lesson-copy small", ".crew-course-lesson-copy em", ".crew-course-warmup small",
+    ".crew-course-briefing-footnote", ".crew-vocab-voice-hint", ".crew-course-track-tabs small",
+  ],
+};
+
+test("follow-up teacher, story, practice, textbook and learning CSS declarations are at least 12px", () => {
+  for (const [file, selectors] of Object.entries(followupSelectors)) {
+    const rules = cssRules(read(file));
+    for (const selector of selectors) {
+      const matched = rules.filter(rule => rule.selectors.includes(selector) && fontValues(rule.body).length);
+      assert.ok(matched.length, `${file}: ${selector} must have a font-size declaration`);
+      for (const {body, line} of matched) {
+        for (const value of fontValues(body)) {
+          const px = minPx(value);
+          assert.ok(px !== null && px >= 12, `${file}:${line} ${selector}: ${value} must be >=12px`);
+        }
+      }
+    }
+  }
+});
+
+test("shared text-button preserves Fortune 10px and teacher Fortune hub 13px", () => {
+  const rules = cssRules(read("web-spa/src/styles.css"));
+  const valuesFor = selector => rules.filter(rule => rule.selectors.includes(selector)).flatMap(rule => fontValues(rule.body));
+  // The original shared base remains 10px, while non-Fortune action containers
+  // explicitly override it to 12px (without touching any Fortune selector).
+  assert.deepEqual(valuesFor(".text-button"), ["10px"]);
+  assert.deepEqual(valuesFor(".story-player-secondary-actions .text-button"), ["12px"]);
+  assert.deepEqual(valuesFor(".learning-deck-card .text-button"), ["12px"]);
+  const fortuneHub = read("web-spa/src/teacher/fortuneHub.css");
+  assert.match(fortuneHub, /text-button[^{}]*\{[^}]*font-size\s*:\s*13px/,
+    "Teacher Fortune hub must retain its existing 13px override");
 });
