@@ -173,12 +173,12 @@ export function HomePage(){
       <span className="crew-home-start-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{t("common:guestTrial.homeDesc")}</small></span>
       <b className="crew-home-start-action">{t("common:guestTrial.homeStart")} →</b>
      </Link>:null}
-     <Link to="/settings" className={"crew-home-start-option "+(guestAvailable?"crew-home-start-byok":"crew-home-start-trial")}>
+     <Link to="/account#settings-gemini" className={"crew-home-start-option "+(guestAvailable?"crew-home-start-byok":"crew-home-start-trial")}>
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
       <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
       <b className="crew-home-start-action">{t("setup.cta")} →</b>
      </Link>
-    </section>:ready&&!verified?<Link to="/settings" className="crew-home-start-verify">
+    </section>:ready&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
      <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
     </Link>:null}
     {recent?<section className="crew-home-continue" aria-label={t("continue")}>

@@ -15,13 +15,11 @@ test("SSG and initial hydration never mistake an unread client key for a missing
  assert.match(ready,/useEffect\(\(\)=>setReady\(true\),\[\]\)/);
  assert.match(home,/const configured=ready&&Boolean\(geminiKey\(\)\)/);
  assert.match(home,/\{ready&&!configured\?<section className="crew-home-start"/);
- assert.match(home,/ready&&!verified\?<Link to="\/settings" className="crew-home-start-verify"/);
+ assert.match(home,/ready&&!verified\?<Link to="\/account#settings-gemini" className="crew-home-start-verify"/);
 
- // Header has an inaccessible placeholder, not a false missing-key link.
- assert.match(chrome,/\(ready\s*\?<NavLink className=\{"status "/);
- assert.match(chrome,/:<span className="status crew-key-status-placeholder" aria-hidden="true"\/>/);
- assert.match(css,/\.crew-key-status-placeholder\{[^}]*visibility:hidden/);
- assert.match(chrome,/verified\?t\("gemini.connected"\):hasKey\?t\("gemini.pending"\):t\("gemini.setup"\)/);
+ // Header uses a stable Account link, not key-dependent connection status.
+ assert.match(chrome,/<Link className="crew-account-entry" to="\/account"/);
+ assert.doesNotMatch(chrome,/crew-key-status-placeholder|t\("gemini.pending"\)/);
 });
 
 test("Gemini key setup remains actionable after client hydration when truly unconfigured",()=>{
@@ -30,7 +28,7 @@ test("Gemini key setup remains actionable after client hydration when truly unco
  assert.match(home,/setup\.title/);
  assert.match(home,/setup\.verify/);
  assert.match(home,/crew-home-start-option/);
- assert.match(chrome,/to="\/settings"/);
+ assert.match(chrome,/to="\/account"/);
 });
 
 test("Cyber Orb refreshes its key status when the in-app Gemini setting is saved or cleared",()=>{

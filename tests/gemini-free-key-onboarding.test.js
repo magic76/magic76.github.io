@@ -16,7 +16,7 @@ test("home provides safe first-run setup before Shorts only when the key is miss
  assert.ok(home.includes('!verified?'),"the existing verification flow is retained");
 });
 
-test("settings explains free creation, links official Google pricing, and returns to the originating route",()=>{
+test("account explains free creation, links official Google pricing, and returns to the originating route",()=>{
  const panel=read("web-spa/src/pages/GeminiConnectionPanel.tsx");
  assert.ok(panel.includes('https://aistudio.google.com/apikey'));
  assert.ok(panel.includes('https://ai.google.dev/gemini-api/docs/pricing'));
@@ -30,7 +30,7 @@ test("settings explains free creation, links official Google pricing, and return
 
 test("Teacher, Story, Fortune and Live share one key setup notice without duplicating key storage",()=>{
  const notice=read("web-spa/src/components/GeminiSetupNotice.tsx");
- assert.ok(notice.includes('to={"/settings?returnTo="+encodeURIComponent(safeReturn)+"#settings-gemini"}'));
+ assert.ok(notice.includes('to={"/account?returnTo="+encodeURIComponent(safeReturn)+"#settings-gemini"}'));
  assert.ok(!notice.includes("saveGeminiKey("));
  for(const file of ["teacher/PracticePage.tsx","story/CreatePage.tsx","story/PhysicalBookPage.tsx","fortune/ReadingPage.tsx","live/LiveControls.tsx"]){
   assert.ok(read("web-spa/src/"+file).includes("GeminiSetupNotice"),file+" should use the shared notice");

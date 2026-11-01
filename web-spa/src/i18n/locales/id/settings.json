@@ -153,7 +153,9 @@
     "modelShared": "Untuk guru dan teman",
     "modelIntro": "Pilih model untuk membandingkan pelafalan",
     "memoryHeading": "Memori dan data",
-    "memoryIntro": "Kelola memori dan catatan belajar di browser atau WebView ini."
+    "memoryIntro": "Kelola memori dan catatan belajar di browser atau WebView ini.",
+    "keyInAccount": "Kunci Gemini kini diatur di Akun. Mikrofon, tes suara, dan volume tetap di sini.",
+    "manageAi": "Kelola kunci Gemini"
   },
   "deviceApp": {
     "title": "Perangkat & Aplikasi",

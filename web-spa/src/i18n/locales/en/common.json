@@ -116,6 +116,15 @@
     "failed": "Sign-in failed. Please try again.",
     "cancelled": "Sign-in was cancelled.",
     "localData": "Gemini keys, memories and learning data on this device do not automatically sync when you sign in.",
-    "backSettings": "Back to settings"
+    "backSettings": "Back to settings",
+    "accountAi": "Account & AI settings",
+    "aiSettings": "Gemini AI connection",
+    "aiIntro": "After your free trial, you can use your own Gemini key on this device. Signing in to Crew is not required.",
+    "preferences": "Other preferences",
+    "preferencesIntro": "Learning, voice, memory, and device settings stay separate and do not sync automatically when you sign in.",
+    "voiceSettings": "Voice & microphone",
+    "learningSettings": "Learning settings",
+    "dataSettings": "Memory & data",
+    "deviceSettings": "Device & permissions"
   }
 }

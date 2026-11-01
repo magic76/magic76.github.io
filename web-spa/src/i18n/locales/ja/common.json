@@ -116,6 +116,15 @@
     "failed": "ログインに失敗しました。",
     "cancelled": "ログインをキャンセルしました。",
     "localData": "この端末の Gemini キー、記憶、学習データは自動同期されません。",
-    "backSettings": "設定へ戻る"
+    "backSettings": "設定へ戻る",
+    "accountAi": "アカウントと AI 設定",
+    "aiSettings": "Gemini AI 接続",
+    "aiIntro": "無料体験後はこの端末で自分の Gemini キーを設定できます。Crew へのログインは不要です。",
+    "preferences": "その他の設定",
+    "preferencesIntro": "学習、音声、記憶、端末の設定は個別に管理され、ログインしても自動同期されません。",
+    "voiceSettings": "音声とマイク",
+    "learningSettings": "学習設定",
+    "dataSettings": "記憶とデータ",
+    "deviceSettings": "端末と権限"
   }
 }

@@ -116,6 +116,15 @@
     "failed": "Gagal masuk. Coba lagi.",
     "cancelled": "Login dibatalkan.",
     "localData": "Kunci Gemini dan data lokal tidak tersinkron otomatis.",
-    "backSettings": "Kembali ke pengaturan"
+    "backSettings": "Kembali ke pengaturan",
+    "accountAi": "Akun & pengaturan AI",
+    "aiSettings": "Koneksi Gemini AI",
+    "aiIntro": "Setelah uji coba gratis, gunakan kunci Gemini milik Anda di perangkat ini. Tidak perlu masuk ke akun Crew.",
+    "preferences": "Preferensi lainnya",
+    "preferencesIntro": "Pengaturan belajar, suara, memori, dan perangkat dikelola terpisah dan tidak otomatis tersinkron saat masuk.",
+    "voiceSettings": "Suara & mikrofon",
+    "learningSettings": "Pengaturan belajar",
+    "dataSettings": "Memori & data",
+    "deviceSettings": "Perangkat & izin"
   }
 }

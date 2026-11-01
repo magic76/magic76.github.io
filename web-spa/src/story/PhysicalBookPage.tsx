@@ -8,7 +8,7 @@ export function PhysicalBookPage(){
  useEffect(()=>{if(!id)return;void ensureStoryServices().then(async()=>{const b=await window.CrewStoryStore!.get(decodeURIComponent(id));setBook(b as StoryBook|null);setStatus(b?"翻到下一頁後拍照":"找不到這本實體書")})},[id]);
  async function prep(file:File){await ensureStoryServices();const img=await window.CrewLiveUI?.prepareImage(file,{maxSide:1600,quality:.86});if(!img)throw new Error("無法處理照片");return img as Img}
  async function startCover(file?:File){
-  if(!file)return;if(!geminiKey()){nav("/settings?returnTo="+encodeURIComponent("/story/physical"+(id?"/"+encodeURIComponent(id):"")));return}setBusy(true);setStatus("阿奇正在看封面…");
+  if(!file)return;if(!geminiKey()){nav("/account?returnTo="+encodeURIComponent("/story/physical"+(id?"/"+encodeURIComponent(id):"")));return}setBusy(true);setStatus("阿奇正在看封面…");
   try{
    const image=await prep(file),meta=await window.CrewBookAnalyzer.analyzeCover({data:image.data,mimeType:image.mimeType});
    const next:StoryBook={id:window.CrewDB.id("book"),title:String(meta.title||"我的故事書"),summary:String(meta.summary||""),coverEmoji:"📖",coverIndex:0,images:[image],pages:[],currentPage:0,sourceType:"user",readingMode:"physical",language:String(meta.language||"zh-TW"),createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
@@ -16,7 +16,7 @@ export function PhysicalBookPage(){
   }catch(e){setStatus(e instanceof Error?e.message:String(e))}finally{setBusy(false)}
  }
  async function addPage(file?:File){
-  if(!file||!book)return;if(!geminiKey()){nav("/settings?returnTo="+encodeURIComponent("/story/physical"+(id?"/"+encodeURIComponent(id):"")));return}setBusy(true);setStatus("阿奇正在辨識這一頁…");
+  if(!file||!book)return;if(!geminiKey()){nav("/account?returnTo="+encodeURIComponent("/story/physical"+(id?"/"+encodeURIComponent(id):"")));return}setBusy(true);setStatus("阿奇正在辨識這一頁…");
   try{
    const image=await prep(file),images=(book.images||[]).slice();images.push(image);
    const page=await window.CrewBookAnalyzer.analyzePage({data:image.data,mimeType:image.mimeType},book,book.pages.length);

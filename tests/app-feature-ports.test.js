@@ -791,7 +791,8 @@ test("Gemini saved and verified states stay separate with actionable Live recove
  assert.ok(settings.includes('t("gemini.initialPending")'));
  assert.ok(readUiLocale("settings").gemini.initialPending.includes("尚未驗證"));
  assert.ok(settings.includes("setGeminiVerified(true)"));
- assert.ok(chrome.includes('t("gemini.pending")'));
+ assert.ok(!chrome.includes('t("gemini.pending")'),"header no longer duplicates Gemini status");
+ assert.ok(chrome.includes('to="/account"'),"account remains accessible from header");
  assert.equal(readUiLocale("common").gemini.pending,"Gemini 待驗證");
  assert.ok(home.includes('t("setup.verify")'));
  assert.equal(readUiLocale("home").setup.verify,"Gemini Key 尚未驗證");

@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "設定",
-    "desc": "Gemini Key、語音體驗與資料備份，都在這裡統一管理。Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
+    "desc": "學習、語音體驗與資料備份都可以在這裡管理；Gemini Key 則移至「帳號」頁。Crew Teacher、Story、Fortune、Play 等需要 AI 的功能共用一組 Key；離線遊戲不需要 Key。"
   },
   "memory": {
     "title": "記憶",
@@ -153,7 +153,9 @@
     "modelShared": "老師與朋友共用",
     "modelIntro": "選擇模型，比較語音與口音表現",
     "memoryHeading": "記憶與資料",
-    "memoryIntro": "管理此瀏覽器／WebView 內的記憶與學習資料。"
+    "memoryIntro": "管理此瀏覽器／WebView 內的記憶與學習資料。",
+    "keyInAccount": "Gemini Key 現在從帳號頁設定；語音連線、麥克風和播放音量繼續在這裡調整。",
+    "manageAi": "管理 Gemini Key"
   },
   "deviceApp": {
     "title": "裝置與 App",

@@ -41,11 +41,11 @@ function voiceFailure(value:unknown){
  return i18n.t("settings:gemini.voiceError",{reason:safeDetail(value)});
 }
 
-export function GeminiConnectionPanel(){
+export function GeminiConnectionPanel({section="all"}:{section?:"key"|"voice"|"all"}){
  const {t}=useTranslation("settings");
  const navigate=useNavigate(),location=useLocation(),[params]=useSearchParams();
  const requestedReturn=params.get("returnTo")||"";
- const returnTo=requestedReturn.startsWith("/")&&!requestedReturn.startsWith("//")&&!requestedReturn.startsWith("/\\")&&!/^\/settings(?:[/?#]|$)/.test(requestedReturn)?requestedReturn:null;
+ const returnTo=requestedReturn.startsWith("/")&&!requestedReturn.startsWith("//")&&!requestedReturn.startsWith("/\\")&&!/^\/(?:settings|account)(?:[/?#]|$)/.test(requestedReturn)?requestedReturn:null;
  const initialKey=geminiKey(),initialVerified=geminiVerified();
  const [key,setKey]=useState(initialKey);
  const [remember,setRemember]=useState(Boolean(localStorage.getItem("crew_gemini_api_key")));
@@ -227,7 +227,7 @@ export function GeminiConnectionPanel(){
   ["Wake Lock",!!(navigator as any).wakeLock?.request]
  ];
  return <>
-  {!showSetup&&configured?
+  {section!=="voice"&&(!showSetup&&configured?
    <section id="settings-gemini" className={"section panel settings-connected-card "+(verified?"verified":"pending")}>
     <div className="settings-connected-main"><span className="settings-connected-mark">{verified?"✓":"!"}</span>
      <span><strong>{verified?t("gemini.configured"):t("gemini.unverified")}</strong>
@@ -257,8 +257,15 @@ export function GeminiConnectionPanel(){
     </div>
     <div className={"result settings-connection-result "+(verified?"success":"")} role="status">{keyStatus}</div>
    </section>
-  }
-  <section className="section panel settings-voice-check">
+  )}
+  {section!=="voice"&&<details className="settings-danger-zone crew-account-key-clear">
+   <summary>{t("gemini.advanced")}</summary>
+   <button className="btn secondary" disabled={voiceBusy||validating} onClick={()=>{
+    clearGeminiKey();setKey("");setRemember(false);setVerified(false);setKeyStatus(t("gemini.clearedKey"));setShowSetup(true);
+    setVoiceResult("idle");setVoiceStatus(t("gemini.initialVoice"));
+   }}>{t("gemini.clearKey")}</button>
+  </details>}
+  {section!=="key"&&<section className="section panel settings-voice-check">
    <div className="section-head"><h2>{t("gemini.voiceTitle")}</h2><small>{t("gemini.voiceTagline")}</small></div>
    <p className="meta">{t("gemini.voiceIntro")}</p>
    <div className="settings-check-list">
@@ -288,10 +295,6 @@ export function GeminiConnectionPanel(){
    <details className="settings-danger-zone">
     <summary>{t("gemini.advanced")}</summary>
     <div className="actions">
-     <button className="btn secondary" disabled={voiceBusy||validating} onClick={()=>{
-      clearGeminiKey();setKey("");setRemember(false);setVerified(false);setKeyStatus(t("gemini.clearedKey"));setShowSetup(true);
-      setVoiceResult("idle");setVoiceStatus("尚未測試語音連線");
-     }}>{t("gemini.clearKey")}</button>
      <button className="btn secondary" onClick={()=>{
       ["teacher","story","fortune","teacher_pronunciation","teacher_textbook"].forEach(name=>{
        localStorage.removeItem("crew_history_"+name);localStorage.removeItem("crew_live_last_"+name);
@@ -300,6 +303,6 @@ export function GeminiConnectionPanel(){
      }}>{t("gemini.clearRecord")}</button>
     </div>
    </details>
-  </section>
+  </section>}
  </>;
 }

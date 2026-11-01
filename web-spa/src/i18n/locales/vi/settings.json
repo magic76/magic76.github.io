@@ -153,7 +153,9 @@
     "modelShared": "Dùng chung cho giáo viên và bạn bè",
     "modelIntro": "Chọn mô hình để so sánh cách phát âm",
     "memoryHeading": "Bộ nhớ và dữ liệu",
-    "memoryIntro": "Quản lý bộ nhớ và lịch sử học tập lưu trong trình duyệt hoặc WebView này."
+    "memoryIntro": "Quản lý bộ nhớ và lịch sử học tập lưu trong trình duyệt hoặc WebView này.",
+    "keyInAccount": "Khóa Gemini hiện được quản lý trong Tài khoản. Micrô, thử giọng nói và âm lượng vẫn ở đây.",
+    "manageAi": "Quản lý khóa Gemini"
   },
   "deviceApp": {
     "title": "Thiết bị và ứng dụng",

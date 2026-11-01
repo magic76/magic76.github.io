@@ -7,7 +7,7 @@ import{friendMemoryEnabled,setFriendMemoryEnabled}from"../friends/friendMemory";
 import{downloadBackup,importBackup}from"../lib/backup";
 import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 import {BuildVersion} from "../components/BuildVersion";
-import {Link,useLocation} from "react-router-dom";
+import {Link,useLocation,useNavigate} from "react-router-dom";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {NATIVE_LANGUAGES} from "../teacher/teacherLocale";
 import {TeacherPinyinSetting} from "../teacher/TeacherPinyinSetting";
@@ -25,7 +25,7 @@ export function SettingsPage(){
  const {t,i18n}=useTranslation("settings");
  // For unlocalized legacy text, use the explicit English fallback for non-Chinese UI locales.
  const english=!i18n.language.startsWith("zh");
- const ready=useClientReady(),{hash}=useLocation();
+ const ready=useClientReady(),location=useLocation(),{hash}=location,navigate=useNavigate();
  const advancedRef=useRef<HTMLDetailsElement>(null);
  const target=useTeacherStore(s=>s.targetLanguage),setTarget=useTeacherStore(s=>s.setTargetLanguage);
  const native=useTeacherStore(s=>s.nativeLanguage),setNative=useTeacherStore(s=>s.setNativeLanguage);
@@ -46,6 +46,7 @@ export function SettingsPage(){
   return()=>{mounted=false};
  },[ready]);
  useEffect(()=>{
+  if(hash==="#settings-gemini"){navigate("/account"+location.search+"#settings-gemini",{replace:true});return}
   const id=hash.slice(1);
   if(!["#settings-learning","#settings-interface","#settings-voice","#settings-data","#memory-settings","#settings-gemini","#settings-device","#settings-advanced","#live-model-settings"].includes(hash))return;
   if(hash==="#settings-advanced"||hash==="#live-model-settings"){
@@ -54,7 +55,7 @@ export function SettingsPage(){
   // Lazy-mounted settings panels may not exist when the browser first handles the hash.
   const frame=window.requestAnimationFrame(()=>document.getElementById(id)?.scrollIntoView?.({block:"start"}));
   return()=>window.cancelAnimationFrame(frame);
- },[hash]);
+ },[hash,location.search,navigate]);
  return <><section className="hero"><span className="kicker">Crew</span><h1>{t("hero.title")}</h1><p>{t("hero.desc")}</p></section>
   <section className="section panel"><h2>{t("common:auth.title")}</h2><p className="meta">{t("common:auth.intro")}</p><Link className="btn secondary" to="/account">{t("common:auth.account")}</Link></section>
  {orbAvailable&&<Link to="/orb" className="crew-settings-orb-entry">
@@ -109,7 +110,8 @@ export function SettingsPage(){
   <header className="crew-settings-group-heading"><h2>{t("group.voiceHeading")}</h2>
    <p>{t("group.voiceIntro")}</p>
   </header>
-  <GeminiConnectionPanel/>
+  <section className="section panel crew-settings-key-link"><p className="meta">{t("group.keyInAccount")}</p><Link className="crew-settings-quick-link" to="/account#settings-gemini">{t("group.manageAi")} →</Link></section>
+  <GeminiConnectionPanel section="voice"/>
   <section className="section panel crew-settings-voice-links">
    <h3>{t("group.pronunciationHeading")}</h3>
    <p className="meta">{t("group.pronunciationIntro")}</p>

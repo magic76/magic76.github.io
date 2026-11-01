@@ -2,6 +2,7 @@ import{useEffect,useState}from"react";
 import{Link,useSearchParams}from"react-router-dom";
 import{useTranslation}from"react-i18next";
 import"./account.css";
+import{GeminiConnectionPanel}from"./GeminiConnectionPanel";
 type User={id:string;name:string;provider:"google"|"github"};
 type Session={enabled:boolean;providers:{google:boolean;github:boolean};user:User|null;trial?:{used:number;limit:number;lastUsedAt?:number}};
 export function AccountPage(){
@@ -36,7 +37,7 @@ export function AccountPage(){
       <p role="status">{t("auth.trialCount",{used:state.trial.used,limit:state.trial.limit})}</p>
       {state.trial.used<state.trial.limit
        ?<Link className="btn secondary small" to="/teacher/roles?mode=teacher">{t("guestTrial.start")}</Link>
-       :<Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>}
+       :<Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.setupKey")}</Link>}
      </section>}
     <button className="btn secondary" disabled={busy} type="button" onClick={()=>void signOut()}>{t("auth.signOut")}</button></>:
    state?.enabled?<><h2>{t("auth.choose")}</h2><div className="crew-account-buttons">
@@ -47,6 +48,20 @@ export function AccountPage(){
    {error&&<p role="alert" className="crew-account-error">{error}</p>}
    <p className="crew-account-privacy">{t("auth.localData")}</p>
    <Link className="crew-account-back" to="/settings">{t("auth.backSettings")}</Link>
+  </section>
+  <section className="crew-account-ai" aria-label={t("auth.aiSettings")}>
+   <div className="crew-account-section-heading"><h2>{t("auth.aiSettings")}</h2><p>{t("auth.aiIntro")}</p></div>
+   <GeminiConnectionPanel section="key"/>
+  </section>
+  <section className="section panel crew-account-preferences">
+   <h2>{t("auth.preferences")}</h2>
+   <p className="meta">{t("auth.preferencesIntro")}</p>
+   <div className="crew-account-settings-links">
+    <Link to="/settings#settings-voice">{t("auth.voiceSettings")}</Link>
+    <Link to="/settings#settings-learning">{t("auth.learningSettings")}</Link>
+    <Link to="/settings#settings-data">{t("auth.dataSettings")}</Link>
+    <Link to="/settings#settings-device">{t("auth.deviceSettings")}</Link>
+   </div>
   </section>
  </div>;
 }
