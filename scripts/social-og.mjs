@@ -4,7 +4,7 @@
  * Existing /social/crew-shared-v2.png remains the homepage image.
  */
 import {deflateSync} from "node:zlib";
-import {mkdirSync,writeFileSync} from "node:fs";
+import {mkdirSync,writeFileSync,readFileSync,existsSync} from "node:fs";
 import {dirname,join} from "node:path";
 
 const W=1200,H=630;
@@ -147,12 +147,13 @@ function png(p){const scan=Buffer.alloc((W*4+1)*H);for(let y=0;y<H;y++)scan.set(
 export const OG_ORIGIN="https://www.3sssi.com";
 export function previewUrl(category,slug,locale="zh"){
  if(category==="home")return OG_ORIGIN+"/social/crew-shared-v2.png";
- if(category==="feature")return OG_ORIGIN+"/social/og/"+slug+".png";
+ if(category==="feature"){if(!["teacher","story","fortune","research","games"].includes(slug))throw Error("Invalid feature OG preview");return OG_ORIGIN+"/social/og/"+slug+"-chibi-v1.png";}
  if(category==="article"){if(!/^\d{4}-\d\d-\d\d\/[a-zA-Z0-9_-]{4,100}$/.test(slug))throw Error("Invalid article image id");return OG_ORIGIN+"/social/og/research/"+slug+".png"}
  if(!/^[a-z0-9-]{1,64}$/.test(slug)||!["course","guide","game"].includes(category))throw Error("Invalid OG preview key");
  return OG_ORIGIN+"/social/og/"+category+"/"+slug+(category==="game"?"":"-"+(locale==="en"?"en":"zh"))+".png";
 }
 export function writePreview(out,category,slug,locale="zh",date=""){
+ if(category==="feature")throw Error("Feature OG art is curated; do not replace it with generated art");
  const src=previewUrl(category,slug,locale),relative=new URL(src).pathname.slice(1),file=join(out,relative);
  const kind=category==="feature"?slug:category==="course"||category==="guide"||category==="game"?slug:"research";
  const theme=THEMES[kind]||THEMES.research;
@@ -163,7 +164,22 @@ export function writePreview(out,category,slug,locale="zh",date=""){
  return src;
 }
 export function writeStaticPreviews(out,{courseSlugs,guideSlugs,gameSlugs}){
- for(const slug of ["teacher","story","fortune","research","games"])writePreview(out,"feature",slug);
+ // Published feature art is curated from original Crew chibi illustrations.
+ // The assets folder is copied into /dist before this function runs.
+ // Fail closed rather than silently replacing artwork with geometric placeholders.
+ for(const slug of ["teacher","story","fortune","research","games"]){
+  const curated=join(out,"social","og",slug+"-chibi-v1.png");
+  if(!existsSync(curated))throw Error("Missing curated Crew OG image: "+curated);
+  const data=readFileSync(curated);
+  const magic=[137,80,78,71,13,10,26,10];
+  if(data.length<20000 || magic.some((byte,i)=>data[i]!==byte) ||
+     data.readUInt32BE(16)!==W || data.readUInt32BE(20)!==H)
+   throw Error("Invalid curated Crew OG image: "+curated);
+  // Preserve the old geometric URL for previously shared links.
+  const legacy=join(out,"social","og",slug+".png");
+  mkdirSync(dirname(legacy),{recursive:true});
+  writeFileSync(legacy,render({kind:slug,tag:THEMES[slug].tag,sub:THEMES[slug].sub}));
+ }
  for(const slug of courseSlugs)for(const locale of ["zh","en"])writePreview(out,"course",slug,locale);
  for(const slug of guideSlugs)for(const locale of ["zh","en"])writePreview(out,"guide",slug,locale);
  for(const slug of gameSlugs)writePreview(out,"game",slug);

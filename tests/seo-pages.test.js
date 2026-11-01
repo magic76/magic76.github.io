@@ -28,7 +28,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    const expectedImage=ORIGIN+"/social/"+(slug?"og/"+slug:"crew-shared-v2")+".png";
+    const expectedImage=slug?ORIGIN+"/social/og/"+slug+"-chibi-v1.png":ORIGIN+"/social/crew-shared-v2.png";
     for(const tag of ['<meta property="og:image"','<meta property="og:image:secure_url"','<meta name="twitter:image"']){
       assert.ok(html.includes(tag+' content="'+expectedImage+'">'),file+" missing "+tag);
     }
@@ -87,7 +87,7 @@ test("OG PNG renderer creates deterministic, distinct full-size imagery without 
  const os=require("node:os");
  const tmp=fs.mkdtempSync(path.join(os.tmpdir(),"crew-og-"));
  try{
-  const urlA=writePreview(tmp,"feature","teacher"),urlB=writePreview(tmp,"feature","story");
+  const urlA=writePreview(tmp,"course","travel"),urlB=writePreview(tmp,"course","business");
   const pngA=fs.readFileSync(path.join(tmp,new URL(urlA).pathname.slice(1)));
   const pngB=fs.readFileSync(path.join(tmp,new URL(urlB).pathname.slice(1)));
   for(const png of [pngA,pngB]){
@@ -98,8 +98,27 @@ test("OG PNG renderer creates deterministic, distinct full-size imagery without 
   }
   assert.notDeepEqual(pngA,pngB,"different topics must not share a preview image");
   assert.equal(previewUrl("home"),ORIGIN+"/social/crew-shared-v2.png");
+  assert.equal(previewUrl("feature","teacher"),ORIGIN+"/social/og/teacher-chibi-v1.png");
+  assert.throws(()=>writePreview(tmp,"feature","teacher"),/curated/i);
   assert.equal(previewUrl("course","travel","en"),ORIGIN+"/social/og/course/travel-en.png");
   assert.equal(previewUrl("guide","ai-english-speaking","zh"),ORIGIN+"/social/og/guide/ai-english-speaking-zh.png");
   assert.throws(()=>previewUrl("article","../../secrets"));
  }finally{fs.rmSync(tmp,{recursive:true,force:true})}
+});
+
+
+test("five curated Crew Q-style OG images are real, distinct 1200x630 PNGs",()=>{
+ const crypto=require("node:crypto");
+ const sums=new Set();
+ for(const slug of ["teacher","story","fortune","research","games"]){
+  const file=path.join(ROOT,"social","og",slug+"-chibi-v1.png");
+  const image=fs.readFileSync(file);
+  assert.deepEqual([...image.subarray(0,8)],[137,80,78,71,13,10,26,10],slug);
+  assert.equal(image.readUInt32BE(16),1200,slug);
+  assert.equal(image.readUInt32BE(20),630,slug);
+  assert.ok(image.length>30000,"OG image must not be a placeholder: "+slug);
+  const hash=crypto.createHash("sha256").update(image).digest("hex");
+  assert.ok(!sums.has(hash),"image reused for another feature: "+slug);
+  sums.add(hash);
+ }
 });

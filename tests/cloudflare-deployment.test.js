@@ -415,7 +415,7 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
   if(/^en\/?$|^index\.html$/.test(page))assert.equal(og,origin+"/social/crew-shared-v2.png");
  }
  for(const slug of ["teacher","story","fortune","research","games"]){
-  const url=origin+"/social/og/"+slug+".png";
+  const url=origin+"/social/og/"+slug+"-chibi-v1.png";
   for(const lang of ["","en/"])assert.ok(read(lang+slug+"/index.html").includes('<meta property="og:image" content="'+url+'">'));
  }
  for(const slug of ["travel","business","daily","teamwork","tickets","services"]){
