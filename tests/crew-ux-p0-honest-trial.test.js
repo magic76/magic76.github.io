@@ -1,7 +1,7 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 
-test("Home is a single, SSR-safe chat CTA with optional free alternatives",()=>{
+test("Home tabs retain one SSR-safe, honest chat CTA and trial gates",()=>{
  const portal=read("web-spa/src/pages/HomePortal.tsx"),home=read("web-spa/src/pages/HomePage.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
@@ -10,12 +10,16 @@ test("Home is a single, SSR-safe chat CTA with optional free alternatives",()=>{
  assert.match(portal,/const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0/);
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":ZOE/);
  assert.match(portal,/const cta=hasKey\?"world.chatWithZoe":exhausted\?"world.chatExhausted":"world.chatStart"/);
- assert.match(portal,/to=\{ZOE\}/);
- for(const target of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to="'+target+'"'));
+ assert.match(portal,/to=\{mode==="chat"\?destination:current\.to\}/);
+ for(const target of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'));
  assert.doesNotMatch(portal,/setTeacherProfile|teacherStore|crew-portal-picks|crew-portal-game-link/);
- assert.match(portal,/<PortalParticleField mode="chat"/);
- assert.doesNotMatch(portal,/setMode|tablist|crew-portal-trial-chip|guest_trial_start_click|crew-portal-motion/);
- assert.doesNotMatch(css,/crew-portal-tabs|crew-portal-trial-chip|crew-portal-number|crew-portal-intro|crew-portal-kicker|crew-portal-motion/);
+ assert.match(portal,/<PortalParticleField mode=\{mode\}/);
+ assert.doesNotMatch(portal,/crew-portal-trial-chip|guest_trial_start_click|crew-portal-motion/);
+ assert.match(portal,/role="tablist"/);
+ assert.match(portal,/mode==="chat"&&ready&&!hasKey/);
+ assert.match(portal,/className="crew-portal-remaining" role="status"/);
+ assert.doesNotMatch(css,/crew-portal-trial-chip|crew-portal-motion/);
+ assert.match(css,/\.crew-portal-remaining\{font-size:12px/);
  assert.match(portal,/requestIdleCallback/);assert.match(portal,/IntersectionObserver/);
  assert.match(portal,/visibilitychange/);assert.match(portal,/saveData/);
  assert.match(home,/ready&&!configured&&trial.resolved&&\(!trial.enabled\|\|trial.remaining===0\)/);
@@ -83,7 +87,7 @@ test("Teacher and game hubs defer Key onboarding; 11 locales keep new text",()=>
   const common=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/common.json`));
   assert.ok(home.world.chatHeading&&home.world.chatStart&&home.world.noVoice);
   assert.ok(home.world.modes.learn.description);
-  assert.equal(home.world.modes.chat,undefined);
+  for(const mode of ["chat","learn","fortune","play"])assert.ok(home.world.modes[mode].cta);
   assert.equal(home.portal.modes,undefined);
   assert.equal(home.playHub.accessNote,undefined);
   assert.equal(common.guestTrial.homeStart,undefined);

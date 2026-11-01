@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "有些默契，",
+        "before": "從一句",
+        "accent": "Hello.",
+        "after": " 開始",
+        "description": "不必想好話題，也不用急著有答案。\n認識一位 AI 朋友，讓對話自然發生。",
+        "cta": "遇見你的 AI 朋友"
+      },
       "learn": {
-        "description": "從不敢開口，到自然聊下去。\n讓 AI 夥伴陪你練習新的語言。"
+        "lead": "讓每一句話，",
+        "before": "帶你",
+        "accent": "Further.",
+        "after": "",
+        "description": "從不敢開口，到自然聊下去。\n讓 AI 夥伴陪你練習新的語言。",
+        "cta": "開口，探索新語言"
+      },
+      "fortune": {
+        "lead": "換個角度，",
+        "before": "讓星星",
+        "accent": "Whisper.",
+        "after": "",
+        "description": "給今天一點好奇，也給自己新的視角。\n和 AI 夥伴一起，看看今日運勢。",
+        "cta": "看看今日運勢"
+      },
+      "play": {
+        "lead": "你的下一步，",
+        "before": "讓我",
+        "accent": "Guess.",
+        "after": "",
+        "description": "猜一個數字，接一個挑戰。\n有來有往，才是一起玩的樂趣。",
+        "cta": "玩一局 1A2B"
       }
     },
     "bridge": "世界裡的故事，正在發生",
@@ -104,7 +133,8 @@
         "name": "遊戲",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "聊天、學語言、算命、玩遊戲。和 AI 一起。"
   },
   "playHub": {
     "back": "首頁",

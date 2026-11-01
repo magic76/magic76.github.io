@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "Uma pequena conexão.",
+        "before": "Basta dizer",
+        "accent": "Olá.",
+        "after": "",
+        "description": "Sem assunto perfeito. Sem pressa para responder.\nConheça um amigo de IA e veja aonde a conversa vai.",
+        "cta": "Conheça seu amigo de IA"
+      },
       "learn": {
-        "description": "De encontrar as palavras a conversar com naturalidade.\nPratique outro idioma com um parceiro de IA."
+        "lead": "Cada conversa",
+        "before": "leva você",
+        "accent": "Mais longe.",
+        "after": "",
+        "description": "De encontrar as palavras a conversar com naturalidade.\nPratique outro idioma com um parceiro de IA.",
+        "cta": "Encontre sua voz"
+      },
+      "fortune": {
+        "lead": "Um novo olhar.",
+        "before": "Ouça as",
+        "accent": "Estrelas.",
+        "after": "",
+        "description": "Uma pausa para olhar seu dia de outro jeito.\nExplore seu horóscopo com um companheiro de IA.",
+        "cta": "Ver o horóscopo de hoje"
+      },
+      "play": {
+        "lead": "Qual será sua próxima jogada?",
+        "before": "Deixe-me",
+        "accent": "Adivinhar.",
+        "after": "",
+        "description": "Escolha um número. Aceite um desafio.\nUma troca de ideias pode render muito.",
+        "cta": "Jogar uma rodada de 1A2B"
       }
     },
     "bridge": "Pequenas histórias acontecem aqui",
@@ -104,7 +133,8 @@
         "name": "Jogos",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Conversas, idiomas, horóscopos e jogos. Com IA."
   },
   "playHub": {
     "back": "Início",

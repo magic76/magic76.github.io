@@ -9,8 +9,8 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
  const hero=home.indexOf("<HomePortal/>"),start=home.indexOf('className="crew-home-start"');
  const shorts=home.indexOf("<HomeShortsPreview/>"),games=home.indexOf('className="crew-home-game-pick"');
  assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
- assert.match(portal,/to=\{ZOE\}/);
- for(const path of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to="'+path+'"'),path);
+ assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
+ for(const path of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to:"'+path+'"'),path);
  assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
  assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
  assert.match(home,/taipeiDay%DAILY_GAMES\.length/);
@@ -20,7 +20,7 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
 test("Home preserves portal, Timeline, briefing and collapsed Play Store without redundant cards",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
- assert.match(portal,/<PortalParticleField mode="chat"/);
+ assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.doesNotMatch(home,/<BriefingPreview\/>/);
  assert.match(home,/crew-home-world-explore-card/);
  assert.match(home,/to="\/timeline"/);

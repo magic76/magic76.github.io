@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "Un petit lien.",
+        "before": "Dites juste",
+        "accent": "Bonjour.",
+        "after": "",
+        "description": "Pas besoin d'un sujet parfait ni de réponses immédiates.\nRencontrez un ami IA et voyez où la discussion vous mène.",
+        "cta": "Rencontrer votre ami IA"
+      },
       "learn": {
-        "description": "Des premiers mots à une parole fluide.\nPratiquez une langue avec un partenaire IA."
+        "lead": "Chaque conversation",
+        "before": "vous mène",
+        "accent": "Plus loin.",
+        "after": "",
+        "description": "Des premiers mots à une parole fluide.\nPratiquez une langue avec un partenaire IA.",
+        "cta": "Trouvez votre voix"
+      },
+      "fortune": {
+        "lead": "Un autre regard.",
+        "before": "Écoutez les",
+        "accent": "Étoiles.",
+        "after": "",
+        "description": "Une pause pour voir votre journée autrement.\nExplorez votre horoscope avec un compagnon IA.",
+        "cta": "Voir l’horoscope du jour"
+      },
+      "play": {
+        "lead": "À vous de jouer ?",
+        "before": "Laissez-moi",
+        "accent": "Deviner.",
+        "after": "",
+        "description": "Choisissez un nombre. Relevez un défi.\nQuelques échanges peuvent suffire pour s'amuser.",
+        "cta": "Faire une partie de 1A2B"
       }
     },
     "bridge": "De petites histoires prennent vie ici",
@@ -104,7 +133,8 @@
         "name": "Jeux",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Discussion, langues, horoscope et jeux. Avec l’IA."
   },
   "playHub": {
     "back": "Accueil",

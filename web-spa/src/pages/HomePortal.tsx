@@ -1,8 +1,8 @@
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type KeyboardEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
-import {Icon} from "../components/Icon";
+import {Icon,type IconName} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
 import type {PortalMode} from "./portalField.mjs";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
@@ -11,9 +11,16 @@ import {geminiKey} from "../lib/runtime";
 
 const ZOE="/friend/live?id=zoe";
 
-/** Direct links own navigation; focus selects only the decorative tile animation. */
+const MODES:readonly {id:PortalMode;icon:IconName;to:string;label:string;name:string;entry:"friend"|"teacher"|"fortune"|"play"}[]=[
+ {id:"chat",icon:"chat",to:ZOE,label:"chat",name:"THE CONNECTION / CHAT",entry:"friend"},
+ {id:"learn",icon:"teacher",to:"/teacher",label:"teacher",name:"THE RESONANCE / LEARN",entry:"teacher"},
+ {id:"fortune",icon:"fortune",to:"/fortune",label:"fortune",name:"THE STARS / FORTUNE",entry:"fortune"},
+ {id:"play",icon:"play",to:"/games/1a2b",label:"play",name:"THE PLAYGROUND / PLAY",entry:"play"}
+];
+
+/** Only a selected tab changes the invitation. Links retain immediate navigation. */
 export function HomePortal(){
- const {t}=useTranslation("home");
+ const {t,i18n}=useTranslation("home");
  const ready=useClientReady();
  const hasKey=ready&&Boolean(geminiKey());
  const trial=useGuestTrialQuota(!ready||hasKey);
@@ -28,7 +35,18 @@ export function HomePortal(){
  const heroRef=useRef<HTMLElement|null>(null);
  const fieldEligible=idleReady&&inViewport&&foreground;
  const canAnimate=fieldEligible&&!paused;
- const [focusedMode,setFocusedMode]=useState<PortalMode>("chat");
+ const [mode,setMode]=useState<PortalMode>("chat");
+ const buttons=useRef<(HTMLButtonElement|null)[]>([]);
+ const current=MODES.find(item=>item.id===mode)||MODES[0];
+ const keyMode=(event:KeyboardEvent<HTMLButtonElement>,at:number)=>{
+  let next=at;
+  if(event.key==="ArrowRight")next=(at+1)%MODES.length;
+  else if(event.key==="ArrowLeft")next=(at+MODES.length-1)%MODES.length;
+  else if(event.key==="Home")next=0;
+  else if(event.key==="End")next=MODES.length-1;
+  else return;
+  event.preventDefault();setMode(MODES[next].id);buttons.current[next]?.focus();
+ };
  // SSR and the first client render both use static frames with chat focused.
  useEffect(()=>{
   const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -65,42 +83,31 @@ export function HomePortal(){
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  useEffect(()=>{if(fieldEligible)setFieldEverEnabled(true)},[fieldEligible]);
- return <header ref={heroRef} className="crew-home-portal" data-mode="chat" data-paused={paused}>
+ return <header ref={heroRef} lang={i18n.resolvedLanguage||i18n.language} className="crew-home-portal" data-mode={mode} data-paused={paused}>
+  <PortalParticleField mode={mode} paused={!canAnimate} enabled={fieldEverEnabled||fieldEligible}/>
   <div className="crew-portal-content">
-   <div className="crew-portal-copy">
-    <h1>{t("world.chatHeading")}</h1>
+   <p className="crew-portal-intro">{t("world.intro")}</p>
+   <div id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
+    <div className="crew-portal-copy">
+     <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
+     <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
+     <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
+    </div>
+    <Link className="crew-portal-cta" to={mode==="chat"?destination:current.to}
+     onClick={()=>mode==="chat"?trackUsageEvent("home_entry_click",exhausted?"settings":"friend"):trackUsageEvent("home_entry_click",current.entry)}>
+     {mode==="chat"?t(cta):t("world.modes."+mode+".cta")}<span aria-hidden="true">↗</span>
+    </Link>
+    <div className="crew-portal-status-slot">
+     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
+    </div>
    </div>
-   <Link className="crew-portal-cta" to={destination} onClick={()=>trackUsageEvent("home_entry_click",exhausted?"settings":"friend")}>
-    {t(cta)}<span aria-hidden="true">↗</span>
-   </Link>
-   {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
-   <nav className="crew-portal-tiles" aria-label={t("world.tilesLabel")}>
-    <PortalParticleField mode="chat" focus={focusedMode} paused={!canAnimate} enabled={fieldEverEnabled||fieldEligible}/>
-    <Link className="crew-portal-tile" data-portal-tile data-mode="chat" data-focused={focusedMode==="chat"} to={ZOE}
-     onPointerEnter={()=>setFocusedMode("chat")} onPointerDown={()=>setFocusedMode("chat")} onFocus={()=>setFocusedMode("chat")}
-     onClick={()=>trackUsageEvent("home_entry_click","friend")}>
-     <span className="crew-portal-tile-icon" aria-hidden="true"><Icon name="chat"/></span>
-     <strong>{t("world.tiles.chat.name")}</strong><span>{t("world.tiles.chat.sub")}</span>
-    </Link>
-    <Link className="crew-portal-tile" data-portal-tile data-mode="learn" data-focused={focusedMode==="learn"} to="/teacher"
-     onPointerEnter={()=>setFocusedMode("learn")} onPointerDown={()=>setFocusedMode("learn")} onFocus={()=>setFocusedMode("learn")}
-     onClick={()=>trackUsageEvent("home_entry_click","teacher")}>
-     <span className="crew-portal-tile-icon" aria-hidden="true">文</span>
-     <strong>{t("world.tiles.teacher.name")}</strong><span>{t("world.tiles.teacher.sub")}</span>
-    </Link>
-    <Link className="crew-portal-tile" data-portal-tile data-mode="fortune" data-focused={focusedMode==="fortune"} to="/fortune"
-     onPointerEnter={()=>setFocusedMode("fortune")} onPointerDown={()=>setFocusedMode("fortune")} onFocus={()=>setFocusedMode("fortune")}
-     onClick={()=>trackUsageEvent("home_entry_click","fortune")}>
-     <span className="crew-portal-tile-icon" aria-hidden="true">☾</span>
-     <strong>{t("world.tiles.fortune.name")}</strong><span>{t("world.tiles.fortune.sub")}</span>
-    </Link>
-    <Link className="crew-portal-tile" data-portal-tile data-mode="play" data-focused={focusedMode==="play"} to="/games/1a2b"
-     onPointerEnter={()=>setFocusedMode("play")} onPointerDown={()=>setFocusedMode("play")} onFocus={()=>setFocusedMode("play")}
-     onClick={()=>trackUsageEvent("home_entry_click","play")}>
-     <span className="crew-portal-tile-icon" aria-hidden="true">◇</span>
-     <strong>{t("world.tiles.play.name")}</strong><span>{t("world.tiles.play.sub")}</span>
-    </Link>
-   </nav>
+   <div className="crew-portal-tabs" role="tablist" aria-label={t("world.tilesLabel")}>
+    {MODES.map((item,i)=><button className="crew-portal-tab" key={item.id} id={"crew-portal-tab-"+item.id} data-mode={item.id} type="button" role="tab"
+     aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
+     ref={el=>{buttons.current[i]=el}} onClick={()=>setMode(item.id)} onKeyDown={event=>keyMode(event,i)}>
+     <Icon name={item.icon}/><span>{t("world.tiles."+item.label+".name")}</span>
+    </button>)}
+   </div>
   </div>
  </header>;
 }

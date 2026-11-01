@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "Eine kleine Verbindung.",
+        "before": "Sag einfach",
+        "accent": "Hallo.",
+        "after": "",
+        "description": "Kein perfektes Thema. Keine Eile mit Antworten.\nLerne einen KI-Freund kennen und schau, wohin das Gespräch führt.",
+        "cta": "Deinen KI-Freund kennenlernen"
+      },
       "learn": {
-        "description": "Vom Wortfinden zum flüssigen Sprechen.\nÜbe eine neue Sprache mit einem KI-Partner."
+        "lead": "Jedes Gespräch",
+        "before": "bringt dich",
+        "accent": "Weiter.",
+        "after": "",
+        "description": "Vom Wortfinden zum flüssigen Sprechen.\nÜbe eine neue Sprache mit einem KI-Partner.",
+        "cta": "Finde deine Stimme"
+      },
+      "fortune": {
+        "lead": "Ein neuer Blick.",
+        "before": "Hör, was die Sterne",
+        "accent": "Flüstern.",
+        "after": "",
+        "description": "Ein Blick aufs Tageshoroskop, ein neuer Gedanke.\nEntdecke mit KI eine andere Sicht auf deinen Tag.",
+        "cta": "Dein Tageshoroskop"
+      },
+      "play": {
+        "lead": "Dein nächster Zug?",
+        "before": "Lass mich",
+        "accent": "Raten.",
+        "after": "",
+        "description": "Wähle eine Zahl. Stell dich einer Herausforderung.\nSchon ein kurzes Hin und Her macht Spaß.",
+        "cta": "Eine Runde 1A2B spielen"
       }
     },
     "bridge": "Hier entstehen kleine Geschichten",
@@ -104,7 +133,8 @@
         "name": "Spiele",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Chatten, Sprachen lernen, Horoskope, Spiele. Mit KI."
   },
   "playHub": {
     "back": "Startseite",

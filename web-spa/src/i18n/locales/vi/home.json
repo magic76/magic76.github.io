@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "Một chút kết nối.",
+        "before": "Chỉ cần nói",
+        "accent": "Xin chào.",
+        "after": "",
+        "description": "Không cần chủ đề hoàn hảo hay trả lời vội.\nGặp bạn AI và để cuộc trò chuyện tự nhiên diễn ra.",
+        "cta": "Gặp người bạn AI của bạn"
+      },
       "learn": {
-        "description": "Từ lúc tìm lời nói đến khi diễn đạt trôi chảy.\nLuyện một ngôn ngữ mới với bạn đồng hành AI."
+        "lead": "Mỗi cuộc trò chuyện",
+        "before": "đưa bạn",
+        "accent": "Tiến xa hơn.",
+        "after": "",
+        "description": "Từ lúc tìm lời nói đến khi diễn đạt trôi chảy.\nLuyện một ngôn ngữ mới với bạn đồng hành AI.",
+        "cta": "Tìm tiếng nói của mình"
+      },
+      "fortune": {
+        "lead": "Một góc nhìn mới.",
+        "before": "Lắng nghe",
+        "accent": "Sao trời.",
+        "after": "",
+        "description": "Dừng lại một chút để nhìn ngày mới theo cách khác.\nCùng bạn AI khám phá vận may hôm nay.",
+        "cta": "Xem vận may hôm nay"
+      },
+      "play": {
+        "lead": "Bước tiếp theo là gì?",
+        "before": "Để tôi",
+        "accent": "Đoán nhé.",
+        "after": "",
+        "description": "Chọn một con số. Đón nhận thử thách.\nMột chút đối đáp cũng đủ thú vị.",
+        "cta": "Chơi một ván 1A2B"
       }
     },
     "bridge": "Những câu chuyện nhỏ đang diễn ra ở đây",
@@ -104,7 +133,8 @@
         "name": "Trò chơi",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Trò chuyện, học ngoại ngữ, xem vận may, chơi cùng AI."
   },
   "playHub": {
     "back": "Trang chủ",

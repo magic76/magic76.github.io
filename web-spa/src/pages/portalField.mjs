@@ -1,6 +1,6 @@
-/** A bounded, dependency-free surface shared by the home tiles. */
+/** A bounded, dependency-free particle surface. All modes retain particle identity. */
 export const PORTAL_MODES = ['chat', 'play', 'learn', 'story', 'fortune'];
-const HUES = {chat: 270, play: 28, learn: 158, story: 332, fortune: 44};
+const HUES = {chat: 270, play: 350, learn: 158, story: 332, fortune: 44};
 const TAU = Math.PI * 2;
 const noise = i => { const n = Math.sin(i * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
 
@@ -46,90 +46,151 @@ export function portalShape(mode, angle, band, time) {
   return [x * breath, y * breath, z];
 }
 
-/** Exactly one RAF; each update clears and paints only the focused tile. */
+/** Owns exactly one RAF. destroy() is safe during intro and mode morphs. */
 export function createPortalField(canvas, host, initialMode = 'chat') {
   let ctx;
-  try { ctx = canvas.getContext('2d', {alpha: true}); } catch { /* Static SVG remains. */ }
+  try { ctx = canvas.getContext('2d', {alpha: true}); } catch { /* SVG remains visible. */ }
   if (!ctx) return null;
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const connection = navigator.connection;
   let mode = PORTAL_MODES.includes(initialMode) ? initialMode : 'chat';
-  let paused = false, visible = typeof IntersectionObserver === 'undefined', destroyed = false;
-  let frame = null, previous = null, width = 0, height = 0, quality = 1, slowFrames = 0;
-  let tiles = [], dirty = true;
-  const points = Array.from({length: 320}, (_, i) => ({angle: noise(i) * TAU, band: noise(i + 320) * 2 - 1, size: noise(i + 640)}));
-  const clocks = Object.fromEntries(PORTAL_MODES.map(key => [key, 0]));
+  let hue = HUES[mode], paused = false, visible = typeof IntersectionObserver === 'undefined', destroyed = false;
+  let frame = null, previous = null, clock = 0, intro = 0, morph = 1;
+  let width = 0, height = 0, points = [], quality = 1, slowFrames = 0;
+  let pointer = {x: 0, y: 0, active: false, strength: 0};
+  let waves = [];
+  // Small pre-rendered halos and a 32-color palette are reused by every point.
+  // Cache hue in 2-degree steps; morphing never allocates per-particle colors.
+  const palettes = new Map();
+  function paletteFor(colorHue) {
+    const color = Math.round(colorHue / 2) * 2;
+    const saturation = mode === 'play' ? 90 : mode === 'fortune' ? 76 : 72;
+    const key = color + ':' + saturation;
+    if (palettes.has(key)) return palettes.get(key);
+    let sprite = null;
+    try {
+      const surface = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(32, 32) : document.createElement('canvas');
+      surface.width = surface.height = 32;
+      const glow = surface.getContext('2d');
+      if (glow) {
+        const gradient = glow.createRadialGradient(16, 16, 0, 16, 16, 16);
+        gradient.addColorStop(0, `hsla(${color},${saturation}%,82%,.8)`);
+        gradient.addColorStop(.28, `hsla(${color},${saturation}%,72%,.42)`);
+        gradient.addColorStop(.58, `hsla(${color},${saturation}%,65%,.12)`);
+        gradient.addColorStop(1, `hsla(${color},${saturation}%,60%,0)`);
+        glow.fillStyle = gradient; glow.fillRect(0, 0, 32, 32); sprite = surface;
+      }
+    } catch { /* Bright core points remain when offscreen canvases are unavailable. */ }
+    const palette = {sprite, colors: Array.from({length: 32}, (_, i) =>
+      `hsl(${color + (i > 15 ? 8 : -8)},${saturation}%,${73 + (i % 16) * 1.2}%)`)};
+    palettes.set(key, palette);
+    if (palettes.size > 24) palettes.delete(palettes.keys().next().value);
+    return palette;
+  }
   const staticMode = () => paused || motion.matches || Boolean(connection?.saveData);
   const canAnimate = () => !destroyed && !staticMode() && visible && !document.hidden;
-  function stop() { if (frame !== null) window.cancelAnimationFrame(frame); frame = null; previous = null; }
-  function project(tile, x, y, z) {
-    const scale = Math.min(tile.width * .39, tile.height * .36), depth = 1 / (1 - z * .20);
-    return [tile.x + tile.width / 2 + x * scale * depth, tile.y + tile.height * .34 + y * scale * depth, depth];
-  }
-  function paint(tile, active) {
-    const time = clocks[tile.mode], hue = HUES[tile.mode], opacity = active ? 1 : .35;
-    ctx.save?.();
-    ctx.beginPath(); ctx.rect?.(tile.x, tile.y, tile.width, tile.height); ctx.clip?.();
-    ctx.clearRect(tile.x, tile.y, tile.width, tile.height);
-    // Source-over retains feature hues where particles overlap.
-    ctx.globalCompositeOperation = 'source-over';
-    const strands = tile.mode === 'fortune' ? 3 : 7;
+  const stop = () => { if (frame !== null) window.cancelAnimationFrame(frame); frame = null; previous = null; };
+  const project = (x, y, z) => {
+    const mobile = width < 600, scale = (mobile ? width * .465 : Math.min(width * .34, 375));
+    const depth = 1 / (1 - z * .20);
+    return [width / 2 + x * scale * depth + (pointer.x - width / 2) * pointer.strength * .018,
+      height * .45 + y * scale * (mobile ? 1.34 : 1) * depth + (pointer.y - height * .45) * pointer.strength * .018, depth];
+  };
+  function draw(delta) {
+    if (destroyed || !width || !height) return;
+    const still = staticMode();
+    clock += delta;
+    intro = still ? 1 : Math.min(1, intro + delta * .8);
+    const entrance = 1 - Math.pow(1 - intro, 3);
+    const ease = still ? 1 : 1 - Math.exp(-delta * 4.6);
+    morph = still ? 1 : Math.min(1, morph + delta * .8);
+    const hueDelta = ((HUES[mode] - hue + 540) % 360) - 180;
+    hue = (hue + hueDelta * ease + 360) % 360;
+    pointer.strength += ((pointer.active && !still ? 1 : 0) - pointer.strength) * Math.max(ease, .02);
+    ctx.clearRect(0, 0, width, height);
+    ctx.globalCompositeOperation = 'lighter';
+    const palette = paletteFor(hue);
+    // Fine filaments explain the surface; the points provide depth and motion.
+    const strands = quality < .8 ? 8 : 16;
     for (let strand = 0; strand < strands; strand++) {
-      const band = strands === 3 ? strand - .9 : strand / 6 * 2 - 1;
+      const band = strand / (strands - 1) * 2 - 1;
       ctx.beginPath();
       for (let step = 0; step <= 64; step++) {
-        const q = portalShape(tile.mode, step / 64 * TAU, band, time), p = project(tile, ...q);
+        const q = portalShape(mode, step / 64 * TAU, band, clock);
+        const p = project(q[0] * (1 + (1 - entrance) * 1.7), q[1] * (1 + (1 - entrance) * 1.7), q[2]);
         if (!step) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
       }
-      ctx.strokeStyle = `hsla(${hue},96%,65%,${.12 * opacity})`; ctx.lineWidth = .65; ctx.stroke();
+      const bright = strand % 5 === 0;
+      ctx.strokeStyle = `hsla(${hue + strand * 2 - 20},76%,78%,${(bright ? .64 : .16) * morph * entrance})`;
+      ctx.lineWidth = bright ? 1.25 : .75;
+      ctx.stroke();
     }
-    if (tile.mode === 'fortune') {
-      // Faint constellation polyline complements the orbiting gold stars.
+    if (mode === 'fortune') {
+      // A faint constellation joins the inclined celestial orbits.
       ctx.beginPath();
       for (let i = 0; i <= 5; i++) {
-        const angle = i / 5 * TAU - Math.PI / 2, p = project(tile, Math.cos(angle) * .70, Math.sin(angle) * .70, 0);
+        const angle = i / 5 * TAU - Math.PI / 2;
+        const p = project(Math.cos(angle) * .70, Math.sin(angle) * .70, 0);
         if (!i) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
       }
-      ctx.strokeStyle = `hsla(${hue},96%,65%,${.26 * opacity})`; ctx.lineWidth = .8; ctx.stroke();
+      ctx.strokeStyle = `hsla(${hue},85%,70%,${.20 * entrance * morph})`;
+      ctx.lineWidth = .8; ctx.stroke();
     }
-    const stride = quality < .8 && active ? 2 : 1;
+    const stride = quality < .8 ? 2 : 1;
+    const glowStride = Math.ceil(points.length / (quality < .8 ? 90 : 180));
     for (let i = 0; i < points.length; i += stride) {
       const point = points[i];
-      const speed = tile.mode === 'fortune' ? .10 : tile.mode === 'learn' ? .075 : .045;
-      const angle = point.angle + time * speed * (point.band > 0 ? 1 : -.65);
-      const q = portalShape(tile.mode, angle, point.band, time), p = project(tile, ...q);
-      const alpha = (.36 + point.size * .60) * opacity;
-      const size = (.55 + point.size * .85) * p[2];
-      ctx.fillStyle = `hsla(${hue + (point.band > 0 ? 8 : -8)},96%,${60 + point.size * 12}%,${alpha})`;
-      ctx.fillRect(p[0], p[1], size, size);
-      if (tile.mode === 'fortune' && i % 19 === 0) {
-        const radius = 2 + point.size * 2;
-        ctx.beginPath(); ctx.moveTo(p[0], p[1] - radius);
-        ctx.lineTo(p[0] + radius * .35, p[1] - radius * .35); ctx.lineTo(p[0] + radius, p[1]);
-        ctx.lineTo(p[0] + radius * .35, p[1] + radius * .35); ctx.lineTo(p[0], p[1] + radius);
-        ctx.lineTo(p[0] - radius * .35, p[1] + radius * .35); ctx.lineTo(p[0] - radius, p[1]);
-        ctx.lineTo(p[0] - radius * .35, p[1] - radius * .35); ctx.closePath?.(); ctx.fill();
+      const angle = point.angle + clock * (mode === 'fortune' ? .04 : mode === 'play' ? .014 : mode === 'learn' ? .032 : .025) * (point.band > 0 ? 1 : -.65);
+      const target = portalShape(mode, angle, point.band, clock);
+      point.x += (target[0] - point.x) * ease;
+      point.y += (target[1] - point.y) * ease;
+      point.z += (target[2] - point.z) * ease;
+      const p = project(point.x * (1 + (1 - entrance) * 1.5), point.y * (1 + (1 - entrance) * 1.5), point.z);
+      let x = p[0], y = p[1];
+      if (pointer.strength > .01) {
+       const dx = x - pointer.x, dy = y - pointer.y, distance = Math.hypot(dx, dy);
+       if (distance < 115) {
+        const force = (1 - distance / 115) * pointer.strength * 21;
+        x += dx / (distance + 1) * force; y += dy / (distance + 1) * force;
+       }
+      }
+      for (const wave of waves) {
+        const d = Math.hypot(x - wave.x, y - wave.y);
+        const offset = Math.exp(-Math.pow((d - wave.age * 310) / 30, 2)) * (1 - wave.age) * 10;
+        x += (x - wave.x) / (d + 1) * offset; y += (y - wave.y) / (d + 1) * offset;
+      }
+      const alpha = (.40 + point.size * .60) * (.65 + (point.z + .7) / 1.4 * .6) * entrance;
+      const size = (point.size > .985 ? 3.4 : 1.25 + point.size * 1.75) * p[2];
+      if (palette.sprite && i % glowStride === 0) {
+        const radius = (5 + point.size * 4) * p[2];
+        ctx.globalAlpha = Math.min(1, alpha * .9);
+        ctx.drawImage(palette.sprite, x - radius, y - radius, radius * 2, radius * 2);
+      }
+      ctx.globalAlpha = Math.min(1, alpha);
+      ctx.fillStyle = palette.colors[point.color];
+      ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      if (mode === 'fortune' && i % 29 === 0) {
+        const radius = 2.5 + point.size * 2.5;
+        ctx.beginPath(); ctx.moveTo(x, y - radius);
+        ctx.lineTo(x + radius * .3, y - radius * .3); ctx.lineTo(x + radius, y);
+        ctx.lineTo(x + radius * .3, y + radius * .3); ctx.lineTo(x, y + radius);
+        ctx.lineTo(x - radius * .3, y + radius * .3); ctx.lineTo(x - radius, y);
+        ctx.lineTo(x - radius * .3, y - radius * .3); ctx.closePath(); ctx.fill();
       }
     }
-    ctx.globalCompositeOperation = 'source-over'; ctx.restore?.();
-  }
-  function drawAll() {
-    if (destroyed || !width || !height || !visible || document.hidden) return;
-    ctx.clearRect(0, 0, width, height);
-    for (const tile of tiles) paint(tile, tile.mode === mode);
-    dirty = false;
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    waves = waves.map(wave => ({...wave, age: wave.age + delta})).filter(wave => wave.age < 1);
   }
   function tick(now) {
     frame = null;
     if (!canAnimate()) return;
-    if (previous !== null && now - previous < 1000 / 30) { start(); return; }
-    const delta = previous === null ? 1 / 30 : Math.min((now - previous) / 1000, .06);
+    // Cap updates at 30fps; rAF itself stays cheap on 90/120Hz Android screens.
+    if (previous !== null && now - previous < 1000 / 30) { frame = window.requestAnimationFrame(tick); return; }
+    const delta = previous !== null ? Math.min((now - previous) / 1000, .06) : 1 / 30;
     previous = now;
-    const began = performance.now();
-    clocks[mode] += delta;
-    if (dirty) drawAll();
-    else { const tile = tiles.find(item => item.mode === mode); if (tile) paint(tile, true); }
-    if (performance.now() - began > 20) { if (++slowFrames > 25) quality = .65; }
+    const began = performance.now(); draw(delta);
+    if (performance.now() - began > 1.5) { if (++slowFrames > 5) quality = .65; }
     else slowFrames = Math.max(0, slowFrames - 1);
     start();
   }
@@ -137,51 +198,62 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
   function refresh() {
     stop();
     if (destroyed || !visible || document.hidden) return;
-    if (dirty) drawAll();
-    start();
+    if (staticMode()) draw(0); else start();
   }
   function resize() {
     if (destroyed) return;
     const box = host.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return;
-    width = Math.round(box.width); height = Math.round(box.height);
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.6);
-    canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const links = [...(host.querySelectorAll?.('[data-portal-tile]') || [])];
-    tiles = links.map(link => {
-      const rect = link.getBoundingClientRect();
-      return {mode: link.dataset.mode, x: rect.left - box.left, y: rect.top - box.top, width: rect.width, height: rect.height};
-    }).filter(tile => PORTAL_MODES.includes(tile.mode));
-    if (!tiles.length) tiles = [{mode, x: 0, y: 0, width, height}];
-    dirty = true; refresh();
+    const w = Math.round(box.width), h = Math.round(box.height);
+    if (w !== width || h !== height) {
+      width = w; height = h;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.6);
+      canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = width < 600 ? 900 : 1500;
+      if (points.length !== count) points = Array.from({length: count}, (_, i) => {
+        const angle = noise(i) * TAU, band = noise(i + count) * 2 - 1;
+        const target = portalShape(mode, angle, band, clock);
+        return {angle, band, color: (band > 0 ? 16 : 0) + Math.min(15, Math.floor(noise(i + count * 2) * 16)), size: noise(i + count * 2), x: target[0] * (intro ? 1 : 2.7), y: target[1] * (intro ? 1 : 2.7), z: target[2]};
+      });
+      if (visible && !document.hidden) draw(staticMode() ? 0 : 1 / 30);
+    }
+    start();
   }
+  function move(event) {
+    if (staticMode()) return;
+    const box = host.getBoundingClientRect();
+    pointer.x = event.clientX - box.left; pointer.y = event.clientY - box.top; pointer.active = true;
+  }
+  const leave = () => { pointer.active = false; };
+  const release = event => { if (event.pointerType !== 'mouse') leave(); };
+  function down(event) { if (staticMode()) return; move(event); waves.push({x: pointer.x, y: pointer.y, age: 0}); waves = waves.slice(-4); }
   const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
   const intersection = typeof IntersectionObserver === 'undefined' ? null : new IntersectionObserver(entries => {
     visible = Boolean(entries[0]?.isIntersecting); refresh();
   }, {threshold: .05});
-  const visibility = () => refresh();
   observer?.observe(host); intersection?.observe(host);
-  document.addEventListener('visibilitychange', visibility);
+  host.addEventListener('pointermove', move, {passive: true});
+  host.addEventListener('pointerdown', down, {passive: true});
+  host.addEventListener('pointerup', release, {passive: true});
+  host.addEventListener('pointerleave', leave); host.addEventListener('pointercancel', leave);
+  document.addEventListener('visibilitychange', refresh);
   motion.addEventListener('change', refresh); connection?.addEventListener?.('change', refresh);
   window.addEventListener('resize', resize, {passive: true});
   resize();
   return {
-    setMode(next) {
-      if (destroyed || !PORTAL_MODES.includes(next) || next === mode) return;
-      mode = next;
-      if (tiles.length === 1 && !host.querySelectorAll?.('[data-portal-tile]').length) tiles[0].mode = next;
-      dirty = true; refresh();
-    },
-    setPaused(next) { if (destroyed || next === paused) return; paused = next; refresh(); },
-    // Navigation is immediate; retained for compatibility with existing callers.
+    setMode(next) { if (destroyed || !PORTAL_MODES.includes(next) || next === mode) return; mode = next; morph = 0; refresh(); },
+    setPaused(next) { if (destroyed || next === paused) return; paused = next; waves = []; leave(); refresh(); },
+    // Navigation is immediate; compatibility only, with no launch animation.
     setLaunching() {},
     destroy() {
       if (destroyed) return;
       destroyed = true; stop(); observer?.disconnect(); intersection?.disconnect();
-      document.removeEventListener('visibilitychange', visibility); motion.removeEventListener('change', refresh);
+      host.removeEventListener('pointermove', move); host.removeEventListener('pointerdown', down);
+      host.removeEventListener('pointerup', release); host.removeEventListener('pointerleave', leave); host.removeEventListener('pointercancel', leave);
+      document.removeEventListener('visibilitychange', refresh); motion.removeEventListener('change', refresh);
       connection?.removeEventListener?.('change', refresh); window.removeEventListener('resize', resize);
-      tiles = []; ctx.clearRect(0, 0, width, height);
+      points = []; waves = []; palettes.clear(); ctx.clearRect(0, 0, width, height);
     }
   };
 }
