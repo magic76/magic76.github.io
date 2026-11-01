@@ -11,6 +11,17 @@
 :root :is(.friends-top-actions a,.friend-gomoku-back,.crew-mini-voice .crew-mini-key-link){display:inline-flex;align-items:center;min-height:44px}
 :root .crew-mini-voice .crew-mini-key-link{display:flex;justify-content:center}
 
+/* Transparent hit areas preserve each link's line box and visible position. */
+:root :is(.crew-continue-section,.crew-practice-friend-links) .section-head>a,
+:root .crew-account-back,
+:root #settings-data>p.meta>a[href="/privacy"]{position:relative}
+:root :is(.crew-continue-section,.crew-practice-friend-links) .section-head>a::after,
+:root .crew-account-back::after{content:"";position:absolute;inset:-12px 0}
+:root #settings-data>p.meta>a[href="/privacy"]::after{content:"";position:absolute;inset:-15px 0}
+/* Preserve the 31px account pill while extending its tap area to 45px. */
+:root .app-header .crew-account-entry{position:relative}
+:root .app-header .crew-account-entry::after{content:"";position:absolute;inset:-7px 0}
+
 /* Friend live: chat-mode segmented control was 32px tall with 11px text on phones. */
 :root .friend-language-options button{min-height:40px;font-size:13px}
 :root .friend-language-switch-title,:root .friend-language-switch>small{font-size:12px}
