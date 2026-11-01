@@ -1,11 +1,9 @@
-import { useEffect,useLayoutEffect,useState } from "react";
-import {useClientReady} from "../lib/useClientReady";
+import { useEffect,useLayoutEffect } from "react";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import "./accountEntry.css";
-import { geminiKey,geminiVerified,GEMINI_KEY_CHANGED_EVENT } from "../lib/runtime";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
@@ -20,10 +18,7 @@ const meta={
 
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
- const ready=useClientReady();
- const [,refreshGeminiStatus]=useState(0);
- useEffect(()=>{const handler=()=>refreshGeminiStatus(x=>x+1);window.addEventListener(GEMINI_KEY_CHANGED_EVENT,handler);return()=>window.removeEventListener(GEMINI_KEY_CHANGED_EVENT,handler)},[]);
- const m=meta[product],hasKey=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified(),location=useLocation();
+ const m=meta[product],location=useLocation();
  // Apply the theme class before first paint so themed chrome (e.g. the role switcher) does not shift layout.
  useLayoutEffect(()=>{document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":""},[product]);
  useEffect(()=>{
@@ -32,9 +27,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account">{t("auth.account")}</Link>{headerAction}{product!=="settings"&&product!=="briefing"&&(ready
-    ?<NavLink className={"status "+(verified?"connected":hasKey?"pending":"")} to="/settings"><i className="status-dot"/><span>{verified?t("gemini.connected"):hasKey?t("gemini.pending"):t("gemini.setup")}</span></NavLink>
-    :<span className="status crew-key-status-placeholder" aria-hidden="true"/>)} </div></div></header>
+  <header className="app-header"><div className="shell inner"><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>

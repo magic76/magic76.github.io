@@ -153,7 +153,9 @@
     "modelShared": "先生と友だちで共通",
     "modelIntro": "モデルを選び、音声やアクセントを比較します",
     "memoryHeading": "記憶とデータ",
-    "memoryIntro": "このブラウザーや WebView に保存された記憶と学習データを管理します。"
+    "memoryIntro": "このブラウザーや WebView に保存された記憶と学習データを管理します。",
+    "keyInAccount": "Gemini キーはアカウントで管理します。マイクと音声テスト、音量はここで設定できます。",
+    "manageAi": "Gemini キーを管理"
   },
   "deviceApp": {
     "title": "端末とアプリ",

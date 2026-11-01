@@ -117,6 +117,15 @@
     "failed": "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
     "cancelled": "Anmeldung abgebrochen.",
     "localData": "Gemini-Schlüssel und lokale Daten werden nicht automatisch synchronisiert.",
-    "backSettings": "Zurück zu Einstellungen"
+    "backSettings": "Zurück zu Einstellungen",
+    "accountAi": "Konto & KI-Einstellungen",
+    "aiSettings": "Gemini-AI-Verbindung",
+    "aiIntro": "Nach der kostenlosen Probe kannst du deinen eigenen Gemini-Schlüssel auf diesem Gerät verwenden. Eine Crew-Anmeldung ist nicht nötig.",
+    "preferences": "Weitere Einstellungen",
+    "preferencesIntro": "Lernen, Sprache, Erinnerungen und Gerät bleiben getrennt und werden bei der Anmeldung nicht automatisch synchronisiert.",
+    "voiceSettings": "Stimme & Mikrofon",
+    "learningSettings": "Lerneinstellungen",
+    "dataSettings": "Erinnerungen & Daten",
+    "deviceSettings": "Gerät & Berechtigungen"
   }
 }

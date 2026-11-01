@@ -153,7 +153,9 @@
     "modelShared": "Para profesores y amigos",
     "modelIntro": "Elige un modelo para comparar la pronunciación",
     "memoryHeading": "Memoria y datos",
-    "memoryIntro": "Gestiona la memoria y los registros de aprendizaje de este navegador o WebView."
+    "memoryIntro": "Gestiona la memoria y los registros de aprendizaje de este navegador o WebView.",
+    "keyInAccount": "La clave Gemini se configura en Cuenta. El micrófono, la prueba de voz y el volumen siguen aquí.",
+    "manageAi": "Gestionar clave Gemini"
   },
   "deviceApp": {
     "title": "Dispositivo y app",

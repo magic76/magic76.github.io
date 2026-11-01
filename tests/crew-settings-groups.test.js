@@ -17,7 +17,8 @@ test("Crew settings has real linked learning, voice, data and device sections",(
  assert.match(page,/getDailyGoalMinutes\(\)/);
  assert.match(page,/setDailyGoalMinutes\(next\)/);
  assert.match(page,/setLiveModel\(e\.target\.value as typeof liveModel\)/);
- assert.match(page,/<GeminiConnectionPanel\/>/);
+ assert.match(page,/<GeminiConnectionPanel section="voice"\/>/);
+ assert.match(read("web-spa/src/pages/AccountPage.tsx"),/<GeminiConnectionPanel section="key"\/>/);
  assert.match(page,/setPersonalMemoryEnabled\(value\)/);
  assert.match(page,/setFriendMemoryEnabled\(value\)/);
  assert.match(page,/to="\/teacher\/pronunciation"/);

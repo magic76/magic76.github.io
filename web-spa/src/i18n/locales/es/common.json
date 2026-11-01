@@ -117,6 +117,15 @@
     "failed": "Error al iniciar sesión. Inténtalo de nuevo.",
     "cancelled": "Inicio de sesión cancelado.",
     "localData": "Tus claves Gemini, recuerdos y datos locales no se sincronizan automáticamente.",
-    "backSettings": "Volver a ajustes"
+    "backSettings": "Volver a ajustes",
+    "accountAi": "Cuenta y configuración de IA",
+    "aiSettings": "Conexión con Gemini AI",
+    "aiIntro": "Tras la prueba gratuita, puedes usar tu propia clave Gemini en este dispositivo. No hace falta iniciar sesión en Crew.",
+    "preferences": "Otras preferencias",
+    "preferencesIntro": "Los ajustes de aprendizaje, voz, memoria y dispositivo se gestionan por separado y no se sincronizan al iniciar sesión.",
+    "voiceSettings": "Voz y micrófono",
+    "learningSettings": "Aprendizaje",
+    "dataSettings": "Memoria y datos",
+    "deviceSettings": "Dispositivo y permisos"
   }
 }

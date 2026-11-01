@@ -117,6 +117,15 @@
     "failed": "Échec de connexion. Réessayez.",
     "cancelled": "Connexion annulée.",
     "localData": "Vos clés Gemini et données locales ne sont pas synchronisées automatiquement.",
-    "backSettings": "Retour aux paramètres"
+    "backSettings": "Retour aux paramètres",
+    "accountAi": "Compte et paramètres IA",
+    "aiSettings": "Connexion Gemini AI",
+    "aiIntro": "Après l'essai gratuit, configurez votre propre clé Gemini sur cet appareil. Aucune connexion à Crew n'est nécessaire.",
+    "preferences": "Autres préférences",
+    "preferencesIntro": "Les paramètres d'apprentissage, de voix, de mémoire et d'appareil restent distincts et ne se synchronisent pas automatiquement.",
+    "voiceSettings": "Voix et microphone",
+    "learningSettings": "Apprentissage",
+    "dataSettings": "Mémoire et données",
+    "deviceSettings": "Appareil et autorisations"
   }
 }

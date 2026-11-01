@@ -124,7 +124,7 @@ export function HomePortal(){
    <Link className="crew-portal-cta" to={current.to} onClick={launch} aria-disabled={launching||undefined}>
     {t("world.modes."+mode+".cta")}<span aria-hidden="true">↗</span>
    </Link>
-   {trial.enabled&&<Link className="crew-portal-trial-chip" to={trial.remaining===0?"/settings#settings-gemini":"/teacher/roles?mode=teacher"}
+   {trial.enabled&&<Link className="crew-portal-trial-chip" to={trial.remaining===0?"/account#settings-gemini":"/teacher/roles?mode=teacher"}
     onClick={()=>trackUsageEvent(trial.remaining===0?"home_entry_click":"guest_trial_start_click",trial.remaining===0?"settings":"teacher")}>
     <span>{t(trial.remaining===0?"common:guestTrial.continueKey":"common:guestTrial.homeStart")}</span>
     {trial.remaining!==null&&trial.limit!==null&&<small role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</small>}

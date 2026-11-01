@@ -3,3 +3,18 @@
 .crew-account-trial strong{font-size:15px}
 .crew-account-trial p{margin:0;color:var(--text-muted,#627088);line-height:1.5}
 .crew-account-trial .btn{align-self:flex-start}
+
+/* Account is also the optional, per-device AI connection hub. */
+.crew-account-section-heading{margin:26px 0 12px}
+.crew-account-section-heading h2,.crew-account-preferences h2{font-size:20px;margin:0 0 7px}
+.crew-account-section-heading p{font-size:13px;line-height:1.7;color:var(--text-muted,#627088);margin:0}
+.crew-account-ai .section{margin:0 0 14px}
+#settings-gemini{scroll-margin-top:84px}
+.crew-account-key-clear{margin:0 0 22px;padding:12px 16px;border:1px solid var(--line,#d6dbe5);border-radius:14px}
+.crew-account-key-clear summary{cursor:pointer;font-size:13px}
+.crew-account-key-clear button{margin-top:12px}
+.crew-account-preferences{margin:20px 0 40px}
+.crew-account-settings-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:15px}
+.crew-account-settings-links a{display:flex;align-items:center;padding:13px 15px;border:1px solid var(--line,#e2e6ed);border-radius:12px;color:var(--text,#253044);text-decoration:none;font-size:14px}
+.crew-account-settings-links a:hover,.crew-account-settings-links a:focus-visible{border-color:var(--accent,#725bc4)}
+@media(max-width:500px){.crew-account-settings-links{grid-template-columns:1fr}}

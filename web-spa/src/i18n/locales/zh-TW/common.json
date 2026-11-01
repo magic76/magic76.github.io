@@ -117,6 +117,15 @@
     "failed": "登入失敗，請重新嘗試。",
     "cancelled": "已取消登入。",
     "localData": "此裝置上的 Gemini Key、記憶與學習資料不會因登入而自動同步。",
-    "backSettings": "返回設定"
+    "backSettings": "返回設定",
+    "accountAi": "帳號與 AI 設定",
+    "aiSettings": "Gemini AI 連線",
+    "aiIntro": "免費試用後，也能在這台裝置設定自己的 Gemini Key。不需要登入 Crew 帳號。",
+    "preferences": "其他偏好設定",
+    "preferencesIntro": "學習、語音、記憶和裝置設定分開管理，不會隨登入自動同步。",
+    "voiceSettings": "語音與麥克風",
+    "learningSettings": "學習設定",
+    "dataSettings": "記憶與資料",
+    "deviceSettings": "裝置與權限"
   }
 }

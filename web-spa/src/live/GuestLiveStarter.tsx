@@ -160,7 +160,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     <Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.continueKey")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role="status">{message||t("guestTrial.unavailable")}</p>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setPhase("ready")}}>{t("guestTrial.retry")}</button>}
-   <Link className="btn secondary small" to="/settings#settings-gemini">{t("guestTrial.setupKey")}</Link>
+   <Link className="btn secondary small" to="/account#settings-gemini">{t("guestTrial.setupKey")}</Link>
   </div>
  </div>;
 }
