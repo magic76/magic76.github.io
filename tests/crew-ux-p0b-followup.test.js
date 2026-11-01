@@ -57,7 +57,7 @@ test("trial finish takes a teacher name and keeps friend ID fallback",()=>{
  for(const lang of locales)assert.ok(JSON.parse(read(`web-spa/src/i18n/locales/${lang}/common.json`)).guestTrial.aiFriend);
 });
 
-test("hero fills the viewport and replaces quick picks with large accessible tiles",()=>{
+test("hero fills the viewport with accessible manual tabs",()=>{
  const css=read("web-spa/src/pages/homePortal.css");
  const home=read("web-spa/src/pages/home.css");
  assert.match(css,/calc\(100svh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/);
@@ -66,7 +66,7 @@ test("hero fills the viewport and replaces quick picks with large accessible til
  assert.match(css,/\.crew-portal-content\{position:relative/);
  assert.doesNotMatch(css,/\.crew-portal-content\{position:absolute/);
  assert.doesNotMatch(home,/\.crew-home \.crew-home-portal\{height:clamp/);
- assert.match(css,/\.crew-portal-tile\{[^}]*min-height:(?:1[2-9][0-9]|[2-9][0-9]{2})px/);
+ assert.match(css,/\.crew-portal-tab\{[^}]*min-height:(?:4[4-9]|[5-9][0-9])px/);
  assert.match(css,/\.crew-portal-cta\{[^}]*min-height:(?:4[4-9]|[5-9][0-9])px/);
  assert.match(css,/:focus-visible/);
  assert.doesNotMatch(css,/\.crew-portal-picks-links|\.crew-portal-game-link/);

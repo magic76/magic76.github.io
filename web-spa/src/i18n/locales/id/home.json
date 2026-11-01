@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "Sedikit kedekatan.",
+        "before": "Cukup katakan",
+        "accent": "Halo.",
+        "after": "",
+        "description": "Tidak perlu topik sempurna atau terburu-buru menjawab.\nKenali teman AI dan ikuti arah percakapan.",
+        "cta": "Temui teman AI Anda"
+      },
       "learn": {
-        "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI."
+        "lead": "Setiap percakapan",
+        "before": "membawamu",
+        "accent": "Lebih jauh.",
+        "after": "",
+        "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI.",
+        "cta": "Temukan suaramu"
+      },
+      "fortune": {
+        "lead": "Lihat dari sisi lain.",
+        "before": "Dengarkan",
+        "accent": "Bintang.",
+        "after": "",
+        "description": "Sedikit rasa ingin tahu, sudut pandang baru untuk harimu.\nJelajahi ramalan hari ini bersama teman AI.",
+        "cta": "Lihat ramalan hari ini"
+      },
+      "play": {
+        "lead": "Langkah berikutnya?",
+        "before": "Biar aku",
+        "accent": "Menebak.",
+        "after": "",
+        "description": "Pilih angka. Terima tantangan.\nPercakapan singkat bisa jadi menyenangkan.",
+        "cta": "Main satu ronde 1A2B"
       }
     },
     "bridge": "Kisah-kisah kecil bermula di sini",
@@ -104,7 +133,8 @@
         "name": "Game",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Mengobrol, belajar bahasa, ramalan, bermain. Bersama AI."
   },
   "playHub": {
     "back": "Beranda",

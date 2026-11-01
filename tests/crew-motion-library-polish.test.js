@@ -4,10 +4,11 @@ test("homepage keeps one title while ambient effects respect motion preferences"
  const hero=read("web-spa/src/pages/HomePortal.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(hero,/data-paused=\{paused\}/);
- assert.match(hero,/<h1>\{t\("world.chatHeading"\)\}<\/h1>/);
+ assert.equal((hero.match(/<h1>/g)||[]).length,1);
+ assert.match(hero,/world\.modes\./);
  assert.match(hero,/prefers-reduced-motion: reduce/);
  assert.match(hero,/saveData/);
- assert.doesNotMatch(hero,/crew-portal-tab-progress|crew-portal-title-first|setMode/);
+ assert.doesNotMatch(hero,/crew-portal-tab-progress|setInterval|5000|crew-portal-motion/);
  assert.doesNotMatch(css,/crew-portal-headline-rise|crew-portal-accent-sheen/);
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(css,/max-width:700px/);

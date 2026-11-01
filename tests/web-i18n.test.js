@@ -25,7 +25,7 @@ test("i18n provides matching translation keys for all published UI locales",()=>
     assert.equal(typeof translated,"string");
     // Mode headings are assembled from semantic fragments; the trailing suffix is
     // intentionally optional for some short English/Chinese headlines.
-    if(ns==="home"&&/^world\.modes\.(chat|play|learn|story)\.after$/.test(key))continue;
+    if(ns==="home"&&/^world\.modes\.(chat|play|learn|story|fortune)\.after$/.test(key))continue;
     assert.ok(translated.trim().length,ns+":"+key+" must not be empty");
    }
   }

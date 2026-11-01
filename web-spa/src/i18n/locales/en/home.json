@@ -68,8 +68,37 @@
   },
   "world": {
     "modes": {
+      "chat": {
+        "lead": "A little connection.",
+        "before": "Just say",
+        "accent": "Hello.",
+        "after": "",
+        "description": "No perfect topic. No rush for answers.\nMeet an AI friend. See where the conversation goes.",
+        "cta": "Meet your AI friend"
+      },
       "learn": {
-        "description": "From finding your words to finding your flow.\nPractice a new language with an AI partner."
+        "lead": "Every conversation",
+        "before": "takes you",
+        "accent": "Further.",
+        "after": "",
+        "description": "From finding your words to finding your flow.\nPractice a new language with an AI partner.",
+        "cta": "Find your voice"
+      },
+      "fortune": {
+        "lead": "A fresh perspective.",
+        "before": "Let the stars",
+        "accent": "Whisper.",
+        "after": "",
+        "description": "A little curiosity. A different view of your day.\nExplore your daily fortune with an AI companion.",
+        "cta": "See today’s fortune"
+      },
+      "play": {
+        "lead": "Your next move?",
+        "before": "Let me",
+        "accent": "Guess.",
+        "after": "",
+        "description": "Pick a number. Take a challenge.\nA little back and forth goes a long way.",
+        "cta": "Play a round of 1A2B"
       }
     },
     "bridge": "Little stories are happening here",
@@ -104,7 +133,8 @@
         "name": "Games",
         "sub": "1A2B"
       }
-    }
+    },
+    "intro": "Chat, learn languages, read your fortune, play. With AI."
   },
   "playHub": {
     "back": "Home",

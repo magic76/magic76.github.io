@@ -9,9 +9,10 @@ test("Crew home keeps icon-based entry points without duplicating product portra
  assert.match(home,/<Icon name="teacher"\/>/);
  assert.match(home,/to="\/teacher\/course\/travel"/);
  assert.match(home,/<Icon name="play"\/>/);
- assert.match(portal,/to="\/teacher"/);
- assert.match(portal,/to="\/fortune"/);
- assert.equal((portal.match(/data-portal-tile/g)||[]).length,4);
+ assert.match(portal,/to:"\/teacher"/);
+ assert.match(portal,/to:"\/fortune"/);
+ for(const icon of ["chat","teacher","fortune","play"])assert.ok(portal.includes('icon:"'+icon+'"'),icon);
+ assert.match(portal,/<Icon name=\{[^}]+\}/);
  assert.match(home,/to="\/fortune"/);
  assert.match(home,/to="\/timeline"/);
 });

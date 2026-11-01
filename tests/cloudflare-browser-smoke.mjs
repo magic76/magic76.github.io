@@ -13,6 +13,34 @@ import {approvedPortrait} from "../web-spa/src/timeline/portraitAssetPolicy.mjs"
 const origin="http://127.0.0.1:4179";
 const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/","/en/teacher/","/en/story/","/en/fortune/","/en/research/","/en/games/"];
 
+// Read the actual composited screenshot, rather than the declared background:
+// a sibling copy scrim once darkened this CTA even though CSS still said #f5eee6.
+// Chromium decodes its own PNG in-browser, so no screenshot/PNG dependency is needed.
+async function assertPortalCtaPixels(page,label){
+ const button=page.locator(".crew-portal-cta");
+ await page.mouse.move(0,0); // Keep hover transforms/shadows out of this pixel check.
+ await page.waitForTimeout(220); // Let any prior 200ms hover transition finish before measuring.
+ const box=await button.boundingBox();
+ assert.ok(box&&box.width>=44&&box.height>=44,"Visible CTA for "+label);
+ const samples=[
+  {name:"left center",x:Math.ceil(box.x+12),y:Math.round(box.y+box.height/2)-1},
+  {name:"right center",x:Math.floor(box.x+box.width-15),y:Math.round(box.y+box.height/2)-1},
+  {name:"top center",x:Math.round(box.x+box.width/2)-1,y:Math.ceil(box.y+6)}
+ ];
+ for(const sample of samples){
+  const png=await page.screenshot({type:"png",clip:{x:sample.x,y:sample.y,width:3,height:3},animations:"disabled"});
+  const pixels=await page.evaluate(async encoded=>{
+   const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));
+   const image=await createImageBitmap(new Blob([bytes],{type:"image/png"}));
+   const canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext("2d");
+   ctx.drawImage(image,0,0);image.close();
+   return Array.from(ctx.getImageData(0,0,canvas.width,canvas.height).data);
+  },png.toString("base64"));
+  for(let at=0;at<pixels.length;at+=4)
+   assert.deepEqual(pixels.slice(at,at+4),[245,238,230,255],label+" CTA must paint solid #f5eee6 at "+sample.name);
+ }
+}
+
 async function captureCrewVisualQA(browser){
  const folder="artifacts/crew-visual-qa";
  await mkdir(folder,{recursive:true});
@@ -56,9 +84,9 @@ async function captureCrewVisualQA(browser){
    await page.waitForTimeout(350);
    await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:20000});
    await page.locator(".crew-portal-cta").waitFor({state:"visible",timeout:12000});
-   await page.locator('.crew-portal-tile[data-mode="learn"]').hover();
+   await page.locator('.crew-portal-tab[data-mode="learn"]').click();
    await page.waitForTimeout(350);
-   await page.locator('.crew-portal-tile[data-mode="fortune"]').hover();
+   await page.locator('.crew-portal-tab[data-mode="fortune"]').click();
    await page.waitForTimeout(350);
   }catch(error){process.stdout.write("VIDEO QA partial "+setup.id+": "+String(error).slice(0,140)+"\\n");}
   finally{
@@ -243,7 +271,8 @@ async function run(){
       await page.goto(origin+setup.route,{waitUntil:"domcontentloaded",timeout:30000});
       await page.locator(".crew-home-world .crew-home-portal").waitFor({state:"visible",timeout:15000});
       assert.equal(await page.locator(".crew-portal-cta").count(),1,"Only one primary CTA");
-      assert.equal(await page.locator(".crew-portal-tabs, .crew-portal-motion").count(),0,"No rotating tabs or pause control");
+      assert.equal(await page.locator('.crew-portal-tabs [role="tab"]').count(),4,"Four manual portal tabs");
+      assert.equal(await page.locator(".crew-portal-motion, .crew-portal-hint").count(),0,"No pause control or motion hint");
       assert.ok(await page.locator(".crew-portal-content h1").isVisible(),"Visible chat heading");
       const initial=await page.locator(".crew-portal-content h1").textContent();
       assert.ok(initial?.trim(),"Non-empty translated chat heading");
@@ -263,50 +292,68 @@ async function run(){
       const metric=await page.evaluate(()=>{
         const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
         return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
-          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),grid:rect(".crew-portal-tiles"),
-          tiles:[...document.querySelectorAll(".crew-portal-tile")].map(el=>{const r=el.getBoundingClientRect();return {y:r.top,bottom:r.bottom,height:r.height,width:r.width}}),
+          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),tabs:rect(".crew-portal-tabs"),
+          tabsButtons:[...document.querySelectorAll('.crew-portal-tabs [role="tab"]')].map(el=>{const r=el.getBoundingClientRect();return {y:r.top,bottom:r.bottom,height:r.height,width:r.width}}),
           nav:rect(".global-nav"),bridge:rect(".crew-home-world-bridge"),shorts:rect(".crew-home-shorts")};
       });
       assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No horizontal overflow: "+JSON.stringify({setup,metric}));
       assert.ok(metric.heading.bottom<=metric.cta.y,"Headline precedes CTA");
-      assert.ok(metric.cta.bottom<=metric.grid.y,"CTA and tiles do not overlap: "+JSON.stringify({setup,metric}));
-      assert.equal(metric.tiles.length,4,"Four large entry tiles");
-      for(const tile of metric.tiles){
-        assert.ok(tile.height>=120&&tile.width>=44,"Tiles keep large touch targets");
-        if(setup.mobile)assert.ok(tile.bottom<=metric.nav.y,"All tiles fit above the bottom navigation: "+JSON.stringify({setup,metric}));
+      assert.ok(metric.cta.bottom<=metric.tabs.y,"CTA and tabs do not overlap: "+JSON.stringify({setup,metric}));
+      assert.equal(metric.tabsButtons.length,4,"Four tab buttons");
+      assert.ok(metric.cta.height>=44,"CTA remains a touch target");
+      for(const tab of metric.tabsButtons){
+        assert.ok(tab.height>=44&&tab.width>=44,"Tabs retain >=44px touch targets");
+        if(setup.mobile)assert.ok(tab.bottom<=metric.nav.y,"All tabs fit above the bottom navigation: "+JSON.stringify({setup,metric}));
       }
       if(setup.mobile)assert.ok(metric.shorts.y>=metric.nav.y,"Shorts start below the first viewport");
       assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
       const href=await page.locator(".crew-portal-cta").getAttribute("href");
       assert.match(href||"",/\/(?:friend\/live\?id=zoe|account#settings-gemini)$/, "CTA targets direct chat or exhausted setup");
+      const homeUrl=page.url();
+      const headings=new Set();
+      const sample=()=>page.locator(".crew-home-portal canvas").evaluate(canvas=>{
+        const pixels=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height).data;
+        let hash=2166136261;for(const value of pixels)hash=Math.imul(hash^value,16777619)>>>0;
+        return hash;
+      });
+      assert.equal(await page.locator(".crew-home-portal canvas").count(),1,"Exactly one canvas covers the hero");
+      const canvasStates=new Set();
       for(const [mode,target] of [["chat","/friend/live?id=zoe"],["learn","/teacher"],["fortune","/fortune"],["play","/games/1a2b"]]){
-        const tile=page.locator('.crew-portal-tile[data-mode="'+mode+'"]');
-        const url=new URL(await tile.getAttribute("href"),origin);
-        assert.equal(url.pathname.replace(/^\/en(?=\/)/,"" ).replace(/\/$/,"" )+url.search,target,"Correct "+mode+" destination");
-        assert.ok((await tile.textContent())?.trim(),"Each link has an accessible text name");
+        const tab=page.locator('.crew-portal-tab[data-mode="'+mode+'"]');
+        await tab.click();
+        assert.equal(page.url(),homeUrl,"Selecting a tab does not navigate");
+        assert.equal(await tab.getAttribute("aria-selected"),"true");
+        assert.equal(await tab.getAttribute("tabindex"),"0");
+        assert.equal(await page.locator('.crew-portal-tabs [role="tab"][tabindex="0"]').count(),1,"Only selected tab enters the tab order");
+        assert.ok((await tab.textContent())?.trim(),"Every tab has a text name");
+        const panelId=await tab.getAttribute("aria-controls");
+        assert.ok(panelId,"Tab controls a named panel");
+        assert.equal(await page.locator('[role="tabpanel"]').getAttribute("id"),panelId);
+        assert.equal(await page.locator('[role="tabpanel"]').getAttribute("aria-labelledby"),await tab.getAttribute("id"));
+        const url=new URL(await page.locator(".crew-portal-cta").getAttribute("href"),origin);
+        assert.equal(url.pathname.replace(/^\/en(?=\/)/,"" ).replace(/\/$/,"" )+url.search,target,"Active CTA targets "+mode);
+        const heading=await page.locator(".crew-portal-content h1").textContent();headings.add(heading);
+        await page.waitForTimeout(150);
+        assert.equal(await page.locator(".crew-portal-content h1").textContent(),heading,"Heading stays stable between selections");
+        if(setup.width===390&&setup.route==="/"){await page.waitForTimeout(700);canvasStates.add(await sample());}
       }
-      if(setup.route==="/"&&setup.width===390){
-        assert.equal(await page.locator(".crew-portal-tiles canvas").count(),1,"Tiles share exactly one canvas");
-        const sample=()=>page.locator(".crew-portal-tiles canvas").evaluate(canvas=>{
-          const rect=canvas.getBoundingClientRect(),ctx=canvas.getContext("2d");
-          return [...document.querySelectorAll(".crew-portal-tile")].map(tile=>{
-            const r=tile.getBoundingClientRect(),sx=canvas.width/rect.width,sy=canvas.height/rect.height;
-            const left=Math.max(0,Math.ceil((r.left-rect.left)*sx)),top=Math.max(0,Math.ceil((r.top-rect.top)*sy));
-            const width=Math.min(canvas.width-left,Math.floor(r.width*sx)-1),height=Math.min(canvas.height-top,Math.floor(r.height*sy)-1);
-            const pixels=ctx.getImageData(left,top,width,height).data;
-            let hash=2166136261;for(const value of pixels)hash=Math.imul(hash^value,16777619)>>>0;
-            return hash;
-          });
-        });
-        for(const [mode,index] of [["chat",0],["fortune",2]]){
-          await page.locator('.crew-portal-tile[data-mode="'+mode+'"]').focus();
-          await page.waitForTimeout(100);
-          const before=await sample();await page.waitForTimeout(180);const after=await sample();
-          for(let i=0;i<4;i++)assert.equal(before[i]!==after[i],i===index,"Only focused "+mode+" tile changes canvas pixels (tile "+i+")");
-        }
+      assert.equal(headings.size,4,"Each tab has distinct translated copy");
+      if(setup.width===390&&setup.route==="/"){
+        assert.equal(canvasStates.size,4,"The single particle surface changes for all four selected modes");
+        const manualHeading=await page.locator(".crew-portal-content h1").textContent();
+        await page.waitForTimeout(5300);
+        assert.equal(await page.locator(".crew-portal-content h1").textContent(),manualHeading,"Heading never auto-rotates after the old 5-second interval");
       }
-      await page.waitForTimeout(250);
-      assert.equal(await page.locator(".crew-portal-content h1").textContent(),initial,"Heading never auto-rotates");
+      await page.locator('.crew-portal-tab[data-mode="chat"]').hover();
+      assert.equal(await page.locator('.crew-portal-tab[data-mode="play"]').getAttribute("aria-selected"),"true","Hover does not select a tab");
+      await page.locator('.crew-portal-tab[data-mode="play"]').press("Home");
+      assert.equal(await page.locator('.crew-portal-tab[data-mode="chat"]').getAttribute("aria-selected"),"true");
+      await page.locator('.crew-portal-tab[data-mode="chat"]').press("ArrowLeft");
+      assert.equal(await page.locator('.crew-portal-tab[data-mode="play"]').getAttribute("aria-selected"),"true","ArrowLeft wraps");
+      await page.locator('.crew-portal-tab[data-mode="play"]').press("ArrowRight");
+      assert.equal(await page.locator('.crew-portal-tab[data-mode="chat"]').getAttribute("aria-selected"),"true","ArrowRight wraps");
+      await page.locator('.crew-portal-tab[data-mode="chat"]').press("End");
+      assert.equal(await page.locator('.crew-portal-tab[data-mode="play"]').getAttribute("aria-selected"),"true");
       const screenshots=page.locator(".crew-home-shorts .crew-home-short-card");
       await screenshots.first().waitFor({state:"visible",timeout:18000});
       assert.ok(await screenshots.count()>=2,"Live Shorts feed should show multiple image stories");
@@ -322,27 +369,74 @@ async function run(){
     }finally{await view.close();}
   }
 
-  // Motion-constrained devices keep complete, stable tile frames after focus changes.
+  // Motion-constrained devices redraw a complete selected frame without scheduling RAF.
   for(const policy of ["reduced-motion","save-data"]){
     const staticContext=await browser.newContext({viewport:{width:390,height:844},reducedMotion:policy==="reduced-motion"?"reduce":"no-preference"});
     await staticContext.addInitScript(policy=>{
       localStorage.setItem("crew_onboarding_web_v1","existing");
       if(policy==="save-data")Object.defineProperty(navigator,"connection",{value:{saveData:true},configurable:true});
+      window.__portalRafCalls=0;
+      const original=window.requestAnimationFrame.bind(window);
+      window.requestAnimationFrame=callback=>{window.__portalRafCalls++;return original(callback)};
     },policy);
     const staticPage=await staticContext.newPage();
     try{
       await staticPage.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:30000});
       await staticPage.waitForFunction(()=>document.querySelector(".crew-portal-field")?.getAttribute("data-ready")==="true",null,{timeout:12000});
-      const canvas=staticPage.locator(".crew-portal-tiles canvas");
+      const canvas=staticPage.locator(".crew-home-portal canvas");
       assert.equal(await canvas.count(),1,"One static canvas for "+policy);
-      for(const mode of ["chat","fortune"]){
-        await staticPage.locator('.crew-portal-tile[data-mode="'+mode+'"]').focus();
+      const pictures=new Set();
+      for(const mode of ["chat","learn","fortune","play"]){
+        await staticPage.locator('.crew-portal-tab[data-mode="'+mode+'"]').click();
         await staticPage.waitForTimeout(80);
-        const before=await canvas.evaluate(el=>el.toDataURL());
+        const before=await canvas.evaluate(el=>el.toDataURL());pictures.add(before);
+        const rafBefore=await staticPage.evaluate(()=>window.__portalRafCalls);
         await staticPage.waitForTimeout(180);
         assert.equal(await canvas.evaluate(el=>el.toDataURL()),before,policy+" never animates "+mode+" pixels");
+        assert.equal(await staticPage.evaluate(()=>window.__portalRafCalls),rafBefore,policy+" schedules no animation frames while idle");
+        await assertPortalCtaPixels(staticPage,policy+" "+mode);
       }
+      assert.equal(pictures.size,4,policy+" redraws a distinct complete static frame for every selected tab");
     }finally{await staticContext.close();}
+  }
+
+  // Every tab label and CTA must fit above the fixed nav at all acceptance sizes.
+  for(const locale of ["zh-TW","en","de","es","fr","id","ja","ko","pt-BR","th","vi"]){
+    const view=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,reducedMotion:"reduce"});
+    await view.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
+    const page=await view.newPage(),errors=[];checkConsole(page,errors);
+    try{
+      await page.goto(origin+(locale==="zh-TW"?"/":"/"+locale+"/"),{waitUntil:"domcontentloaded",timeout:30000});
+      await page.locator('.crew-portal-tabs [role="tab"]').first().waitFor({state:"visible",timeout:15000});
+      for(const [width,height] of [[320,640],[390,844],[412,915],[1440,900]]){
+        await page.setViewportSize({width,height});
+        for(const mode of ["chat","learn","fortune","play"]){
+          await page.locator('.crew-portal-tab[data-mode="'+mode+'"]').click();
+          const metric=await page.evaluate(()=>{
+            const nav=document.querySelector(".global-nav").getBoundingClientRect();
+            const cta=document.querySelector(".crew-portal-cta").getBoundingClientRect();
+            const tabs=[...document.querySelectorAll('.crew-portal-tabs [role="tab"]')].map(el=>{
+              const r=el.getBoundingClientRect(),style=getComputedStyle(el);
+              return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,overflow:el.scrollWidth>el.clientWidth+1,
+                ellipsis:style.textOverflow==="ellipsis",wordBreak:style.wordBreak,wrap:style.overflowWrap};
+            });
+            return {scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth,navY:nav.top,
+              cta:{top:cta.top,bottom:cta.bottom,height:cta.height},tabs};
+          });
+          const label=locale+" "+width+"x"+height+" "+mode+": "+JSON.stringify(metric);
+          assert.ok(metric.scroll<=metric.viewport+2,"No horizontal overflow "+label);
+          assert.ok(metric.cta.height>=44&&metric.cta.top>=58,"CTA remains visible and touchable "+label);
+          assert.equal(metric.tabs.length,4);
+          assert.ok(Math.max(...metric.tabs.map(tab=>tab.height))-Math.min(...metric.tabs.map(tab=>tab.height))<=1,"Equal tab heights "+label);
+          for(const tab of metric.tabs){
+            assert.ok(tab.height>=44&&tab.width>=44,"Tab targets >=44px "+label);
+            assert.ok(!tab.overflow&&!tab.ellipsis&&tab.wordBreak!=="break-all"&&tab.wrap!=="anywhere","Labels fit without truncation or mid-word breaks "+label);
+            if(width<1100)assert.ok(tab.top>=58&&tab.bottom<=metric.navY&&metric.cta.bottom<=metric.navY,"CTA and tabs above bottom nav "+label);
+          }
+        }
+      }
+      assert.deepEqual(errors,[],locale+" portal runtime errors");
+    }finally{await view.close();}
   }
 
   // Validate every on-demand Beta locale in a real browser. Keep this inside
@@ -697,9 +791,10 @@ async function run(){
    else await route.continue();
   });
   await retryPage.goto(origin+"/",{waitUntil:"networkidle"});
-  await retryPage.locator('.crew-portal-tile[data-mode="play"]').waitFor({state:"visible"});
+  await retryPage.locator('.crew-portal-tab[data-mode="play"]').waitFor({state:"visible"});
+  await retryPage.locator('.crew-portal-tab[data-mode="play"]').click();
   failNextGameChunk=true;
-  await retryPage.locator('.crew-portal-tile[data-mode="play"]').click();
+  await retryPage.locator(".crew-portal-cta").click();
   await retryPage.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/games/1a2b",{timeout:20000});
   await retryPage.locator("#crew-number").waitFor({state:"visible",timeout:20000});
   assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
