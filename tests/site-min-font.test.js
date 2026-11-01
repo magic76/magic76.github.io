@@ -142,7 +142,7 @@ test("readability floor is 12px, with only Fortune's original 11px rule exempt",
   assert.match(withoutFortune, /:root\s+\.books-card-meta span\{font-size:12px\}/);
 });
 
-test("mobile chrome keeps a one-row header and lets localized labels wrap without clipping", () => {
+test("mobile chrome keeps readable header controls and fixed icon rows for localized labels", () => {
   const chrome = read("features/shared/design-system.css");
   const picker = read("web-spa/src/i18n/languageSwitcher.css");
   assert.match(chrome, /--nav-h:68px/);
@@ -160,6 +160,18 @@ test("mobile chrome keeps a one-row header and lets localized labels wrap withou
   assert.match(navLabel.body, /line-height:1\.1/);
   assert.match(chrome, /\.navitem\{[^}]*min-width:0;[^}]*font-size:12px/);
   assert.match(picker, /\.crew-language-picker-header \.crew-language-trigger\{[^}]*max-width:92px;[^}]*font-size:12px/);
+  const overrides = read("web-spa/src/styles.css");
+  const switcher = read("web-spa/src/i18n/LanguageSwitcher.tsx");
+  // The baseline remains readable; mobile overrides use normal word wrapping
+  // and fixed icon rows, including the later-loaded active-icon motion rule.
+  assert.match(overrides, /grid-template-rows:26px 27px/);
+  assert.match(overrides, /overflow-wrap:normal;word-break:normal;hyphens:none/);
+  assert.match(overrides, /:root \.global-nav \.navitem\.active \.nav-icon\{transform:none\}/);
+  assert.match(picker, /max-width:92px;min-height:44px/);
+  assert.match(picker, /\.crew-language-picker-header \.crew-language-trigger-name\{[^}]*overflow:visible;text-overflow:clip/);
+  assert.match(switcher, /variant==="header"\?compactLabel:currentLabel/);
+  assert.match(switcher, /aria-label=\{t\("language.label"\)\+": "\+currentLabel\}/);
+
 });
 
 // Source-level guard for precisely the follow-up scope. Intentionally excludes

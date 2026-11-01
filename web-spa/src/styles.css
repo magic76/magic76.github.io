@@ -655,3 +655,14 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
 .crew-play-not-found .panel{margin:32px auto;max-width:540px;padding:30px;text-align:center;display:grid;gap:15px;justify-items:center}
 .crew-play-not-found h1{font-size:28px;line-height:1.25;margin:0}.crew-play-not-found p{font-size:14px;line-height:1.6;margin:0;color:var(--muted)}
 @media(max-width:640px){.story-create-hero h1{font-size:clamp(27px,7vw,35px);line-height:1.28}.crew-play-back{min-height:44px;display:inline-flex;align-items:center;padding:10px 4px}}
+
+/* Reserve header controls; the brand copy takes the remaining width. */
+.app-header .app-brand{flex:1;min-width:0}
+.app-header .app-mark,.app-header .app-header-actions{flex-shrink:0}
+.app-header .crew-account-entry{min-height:44px}
+/* Two label rows share one fixed icon row. Keep the complete translations. */
+@media(max-width:1099px){
+ :root .global-nav .navitem{display:grid;grid-template-rows:26px 27px;align-content:center;justify-items:center;gap:3px;padding-inline:0}
+ :root .global-nav .navitem>span:not(.nav-icon){width:100%;min-width:0;align-self:start;font-size:12px;line-height:1.1;letter-spacing:-.025em;white-space:normal;overflow-wrap:normal;word-break:normal;hyphens:none}
+ :root .global-nav .navitem.active .nav-icon{transform:none}
+}
