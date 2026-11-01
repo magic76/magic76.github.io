@@ -25,7 +25,7 @@
     "me": "My Crew"
   },
   "brand": {
-    "home": "Language · Stories · Fortune",
+    "home": "Chat with AI friends",
     "teacher": "Language learning",
     "story": "Story creation",
     "fortune": "Fortune insights",
@@ -57,11 +57,10 @@
     "signInAction": "Sign in to try",
     "timeLeft": "Time left",
     "almostDone": "Almost done! Say goodbye to the AI.",
-    "completeTitle": "Your free trial is complete!",
-    "completeBody": "Enjoyed the conversation? Set up your Gemini key to keep talking, or explore more of Crew.",
+    "completeTitle": "You chatted with {{name}} for 3 minutes 🎉",
+    "completeBody": "Fresh 1A2B puzzles and a word of the day, every day. Free, no setup.",
     "continueKey": "Set up Gemini key to continue",
-    "exploreCrew": "Explore Crew",
-    "interruptedBody": "The call ended early. Set up Gemini to keep talking, or explore Crew.",
+    "interruptedBody": "This chat ended early. You can still play 1A2B, learn a daily word or read stories for free.",
     "ended": "Your free trial has ended.",
     "qaUnavailable": "Private QA is unavailable or not authorized.",
     "connecting": "Connecting your voice…",
@@ -94,7 +93,6 @@
     "setupKey": "Set up my Gemini key",
     "homeTitle": "Try 3 minutes of AI voice for free",
     "homeDesc": "No sign-up or Gemini key needed",
-    "homeStart": "Try now",
     "onboardingCTA": "Try 3 minutes of AI voice for free",
     "settingsTitle": "Want to try it first?",
     "settingsCta": "Try free voice for 3 minutes",
@@ -102,7 +100,13 @@
     "limit": "Today's guest capacity has been reached.",
     "verification": "Verification failed. Please try again.",
     "tempUnavailable": "Guest trial is temporarily unavailable.",
-    "remaining": "Free voice trials remaining: {{count}} / {{limit}}"
+    "remaining": "Free voice trials remaining: {{count}} / {{limit}}",
+    "usedUpTitle": "Your free trial is used up",
+    "free1a2b": "Play 1A2B (free)",
+    "freeVocabulary": "Word of the day",
+    "freeStory": "Read stories",
+    "freeNextTitle": "Keep exploring for free",
+    "aiFriend": "AI friend"
   },
   "auth": {
     "trialCount": "Free voice trials used: {{used}} / {{limit}}",

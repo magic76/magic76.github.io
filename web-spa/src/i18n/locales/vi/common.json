@@ -25,7 +25,7 @@
     "me": "Crew của tôi"
   },
   "brand": {
-    "home": "Ngôn ngữ · Truyện · Chiêm tinh",
+    "home": "Trò chuyện với bạn AI",
     "teacher": "Học ngoại ngữ",
     "story": "Sáng tác truyện",
     "fortune": "Khám phá lá số",
@@ -57,11 +57,10 @@
     "signInAction": "Đăng nhập để thử",
     "timeLeft": "Thời gian còn lại",
     "almostDone": "Sắp hết giờ! Hãy chào tạm biệt AI.",
-    "completeTitle": "Đã hoàn tất trải nghiệm miễn phí!",
-    "completeBody": "Bạn thích cuộc trò chuyện chứ? Thiết lập Gemini để tiếp tục hoặc khám phá Crew.",
+    "completeTitle": "Bạn đã trò chuyện với {{name}} trong 3 phút 🎉",
+    "completeBody": "Mỗi ngày đều có câu đố 1A2B mới và từ vựng hôm nay. Miễn phí, không cần thiết lập.",
     "continueKey": "Thiết lập Gemini để tiếp tục",
-    "exploreCrew": "Khám phá Crew",
-    "interruptedBody": "Cuộc gọi kết thúc sớm. Hãy thiết lập Gemini hoặc khám phá Crew.",
+    "interruptedBody": "Cuộc trò chuyện kết thúc sớm. Bạn vẫn có thể chơi 1A2B, học từ mới hoặc đọc truyện miễn phí.",
     "ended": "Dùng thử miễn phí đã kết thúc.",
     "qaUnavailable": "Thử nghiệm riêng không khả dụng hoặc mã không hợp lệ.",
     "connecting": "Đang kết nối giọng nói…",
@@ -94,7 +93,6 @@
     "setupKey": "Cài đặt khóa Gemini",
     "homeTitle": "Thử giọng nói AI 3 phút miễn phí",
     "homeDesc": "Không cần đăng ký hay khóa Gemini",
-    "homeStart": "Thử ngay",
     "onboardingCTA": "Dùng thử AI miễn phí 3 phút",
     "settingsTitle": "Muốn thử trước không?",
     "settingsCta": "Thử giọng nói miễn phí 3 phút",
@@ -102,7 +100,13 @@
     "limit": "Đã hết lượt dùng thử hôm nay.",
     "verification": "Xác minh không thành công. Vui lòng thử lại.",
     "tempUnavailable": "Hiện không thể dùng thử.",
-    "remaining": "Lượt dùng thử giọng nói AI miễn phí còn lại: {{count}} / {{limit}}"
+    "remaining": "Lượt dùng thử giọng nói AI miễn phí còn lại: {{count}} / {{limit}}",
+    "usedUpTitle": "Đã hết lượt dùng thử miễn phí",
+    "free1a2b": "Chơi 1A2B (miễn phí)",
+    "freeVocabulary": "Từ vựng hôm nay",
+    "freeStory": "Đọc truyện",
+    "freeNextTitle": "Tiếp tục miễn phí",
+    "aiFriend": "Bạn AI"
   },
   "auth": {
     "trialCount": "Lượt thử giọng nói đã dùng: {{used}} / {{limit}}",

@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "Kostenlosen Gemini-API-Schlüssel erstellen",
-    "desc": "Hol dir mit deinem Google-Konto in etwa einer Minute einen Schlüssel. Er funktioniert für Teacher, Story, Fortune und Sprachspiele in Crew Play.",
     "cta": "Kostenlose Einrichtung ansehen",
-    "pricing": "Kostenlose Nutzungslimits hängen vom Modell ab. Bei kostenpflichtigen Tarifen können Gebühren anfallen.",
     "verify": "Gemini-Schlüssel noch nicht überprüft",
-    "verifyDesc": "Prüfe, ob dein Schlüssel funktioniert."
+    "verifyDesc": "Prüfe, ob dein Schlüssel funktioniert.",
+    "shortDesc": "Nach dem Test kannst du mit einem eigenen Schlüssel weiterchatten."
   },
   "android": "Crew für Android holen",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "Chatte mit KI-Freunden, spiele, übe eine Sprache oder erzähle eine Geschichte. Wähle, worauf du Lust hast.",
     "start": "{{mode}} starten",
     "explore": "Weitere Möglichkeiten entdecken",
-    "choose": "Wähle eine Crew-Interaktion",
-    "tap": "Zum Öffnen tippen",
-    "modes": {
-      "chat": {
-        "label": "KI-Chat",
-        "title": "Sag einfach Hallo",
-        "hint": "Wähle einen Crew-Freund und beginne ein Gespräch."
-      },
-      "play": {
-        "label": "Spielen",
-        "title": "Lass uns spielen",
-        "hint": "Probier Textspiele ganz ohne API-Schlüssel."
-      },
-      "learn": {
-        "label": "Lernen",
-        "title": "Laut üben",
-        "hint": "Kurse, Vokabeln und Gespräche in deinem Tempo."
-      },
-      "story": {
-        "label": "Geschichten",
-        "title": "Erfinde eine Geschichte",
-        "hint": "Lest gemeinsam oder erstellt eure eigene Geschichte."
-      }
-    }
+    "tap": "Zum Öffnen tippen"
   },
   "world": {
-    "intro": "Reden, spielen, lernen, träumen. Gemeinsam mit KI.",
-    "touch": "Bewege dich oder tippe. Entdecke, wie diese Welt reagiert.",
-    "pause": "Bewegung pausieren",
-    "resume": "Bewegung fortsetzen",
     "modes": {
-      "chat": {
-        "lead": "Eine kleine Verbindung.",
-        "before": "Sag einfach",
-        "accent": "Hallo.",
-        "after": "",
-        "description": "Kein perfektes Thema. Keine Eile mit Antworten.\nLerne einen KI-Freund kennen und schau, wohin das Gespräch führt.",
-        "cta": "Deinen KI-Freund kennenlernen"
-      },
-      "play": {
-        "lead": "Dein nächster Zug?",
-        "before": "Lass mich",
-        "accent": "Raten.",
-        "after": "",
-        "description": "Wähle eine Zahl. Stell dich einer Herausforderung.\nSchon ein kurzes Hin und Her macht Spaß.",
-        "cta": "Eine Runde spielen"
-      },
       "learn": {
-        "lead": "Jedes Gespräch",
-        "before": "bringt dich",
-        "accent": "Weiter.",
-        "after": "",
-        "description": "Vom Wortfinden zum flüssigen Sprechen.\nÜbe eine neue Sprache mit einem KI-Partner.",
-        "cta": "Finde deine Stimme"
-      },
-      "story": {
-        "lead": "Schlag eine neue Seite auf.",
-        "before": "Trau dich zu",
-        "accent": "Träumen.",
-        "after": "",
-        "description": "Tauche in eine Geschichte ein oder schreib einen neuen Anfang.\nErschaffe mit KI eine ganze Welt.",
-        "cta": "Neue Geschichte öffnen"
+        "description": "Vom Wortfinden zum flüssigen Sprechen.\nÜbe eine neue Sprache mit einem KI-Partner."
       }
     },
     "bridge": "Hier entstehen kleine Geschichten",
@@ -135,13 +78,20 @@
     "fortuneTitle": "Entdecke dich aus einer neuen Perspektive",
     "fortuneDescription": "Erkunde dein Horoskop mit einem KI-Freund.",
     "timelineTitle": "Jedes Leben hat ein nächstes Kapitel",
-    "timelineDescription": "Triff Menschen in verschiedenen Lebensphasen und entdecke ihre Geschichten."
+    "timelineDescription": "Triff Menschen in verschiedenen Lebensphasen und entdecke ihre Geschichten.",
+    "chatHeading": "Sprich mit einem KI-Freund",
+    "chatSubtitle": "Ohne Anmeldung: Jetzt 3 Minuten kostenlos chatten.",
+    "chatStart": "Kostenlos chatten",
+    "chatWithZoe": "Mit Zoe chatten",
+    "chatExhausted": "Gratis-Schlüssel einrichten und weiterchatten",
+    "quickPicks": "Oder wähle jemanden",
+    "noVoice": "Lieber tippen? Spiele 1A2B"
   },
   "playHub": {
     "back": "Startseite",
     "heading": "Was spielen wir mit deinen Crew-Freunden?",
     "intro": "Wähle einen Crew-Freund und spielt zusammen: Brettspiele, Zahlenrätsel, Wortspiele oder Rätsel per Sprache.",
-    "voiceRequired": "Gemini-Sprache erforderlich",
+    "voiceRequired": "KI-Stimme",
     "offlineOptional": "Offline · Sprache optional",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live übernimmt nur Stimme und Rollenantworten; Offline-Regeln bestimmen die Punkte, nichts wird im Freundes-Chatverlauf gespeichert."
     },
     "eyebrow": "Crew Play",
-    "accessNote": "Brettspiele, 1A2B und Taboo funktionieren per Texteingabe ohne Schlüssel. KI-Gespräche und Sprachspiele brauchen einen Gemini-Schlüssel, Sprache zusätzlich ein Mikrofon.",
     "voiceDock": {
       "expand": "Sprachleiste aufklappen",
       "collapse": "Sprachleiste einklappen"

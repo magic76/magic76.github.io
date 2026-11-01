@@ -25,7 +25,7 @@
     "me": "Meu Crew"
   },
   "brand": {
-    "home": "Idiomas · Histórias · Astrologia",
+    "home": "Converse com amigos de IA",
     "teacher": "Aprendizado de idiomas",
     "story": "Criação de histórias",
     "fortune": "Exploração do mapa astral",
@@ -57,11 +57,10 @@
     "signInAction": "Entrar para experimentar",
     "timeLeft": "Tempo restante",
     "almostDone": "Está acabando! Despeça-se da IA.",
-    "completeTitle": "Experiência gratuita concluída!",
-    "completeBody": "Gostou da conversa? Configure o Gemini para continuar ou explore o Crew.",
+    "completeTitle": "Você conversou 3 minutos com {{name}} 🎉",
+    "completeBody": "Novos desafios 1A2B e uma palavra do dia, todos os dias. Grátis, sem configurar.",
     "continueKey": "Configurar Gemini e continuar",
-    "exploreCrew": "Explorar Crew",
-    "interruptedBody": "A chamada terminou antes. Configure o Gemini ou explore o Crew.",
+    "interruptedBody": "A conversa terminou antes. Você ainda pode jogar 1A2B, aprender palavras e ler histórias grátis.",
     "ended": "Seu teste gratuito terminou.",
     "qaUnavailable": "Teste privado indisponível ou acesso inválido.",
     "connecting": "Conectando áudio…",
@@ -94,7 +93,6 @@
     "setupKey": "Configurar minha chave Gemini",
     "homeTitle": "Teste 3 minutos de voz IA grátis",
     "homeDesc": "Sem cadastro nem chave Gemini",
-    "homeStart": "Testar agora",
     "onboardingCTA": "Teste 3 minutos de voz IA",
     "settingsTitle": "Quer experimentar antes?",
     "settingsCta": "Teste grátis de voz por 3 minutos",
@@ -102,7 +100,13 @@
     "limit": "As vagas de hoje se esgotaram.",
     "verification": "Falha na verificação. Tente de novo.",
     "tempUnavailable": "Teste temporariamente indisponível.",
-    "remaining": "Testes gratuitos de voz restantes: {{count}} / {{limit}}"
+    "remaining": "Testes gratuitos de voz restantes: {{count}} / {{limit}}",
+    "usedUpTitle": "Seu teste grátis acabou",
+    "free1a2b": "Jogar 1A2B (grátis)",
+    "freeVocabulary": "Palavra do dia",
+    "freeStory": "Ler histórias",
+    "freeNextTitle": "Continue grátis",
+    "aiFriend": "Amigo de IA"
   },
   "auth": {
     "trialCount": "Testes de voz usados: {{used}} / {{limit}}",

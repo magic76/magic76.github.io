@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "無料で Gemini API キーを作成",
-    "desc": "Google アカウントで約 1 分でキーを取得できます。Teacher、Story、Fortune、Crew Play の音声ゲームで共通して使えます。",
     "cta": "無料の設定方法を見る",
-    "pricing": "無料利用の上限はモデルによって異なります。有料プランでは料金が発生する場合があります。",
     "verify": "Gemini キーが未確認です",
-    "verifyDesc": "キーが使えるか確認してください。"
+    "verifyDesc": "キーが使えるか確認してください。",
+    "shortDesc": "無料体験の後は、自分のキーを設定して会話を続けられます。"
   },
   "android": "Android 版 Crew",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "AI の友達と話したり、ゲームをしたり、語学を練習したり、物語を作ったり。気分に合わせて選ぼう。",
     "start": "{{mode}} を始める",
     "explore": "ほかの楽しみ方を見る",
-    "choose": "Crew との交流方法を選ぼう",
-    "tap": "タップして開く",
-    "modes": {
-      "chat": {
-        "label": "AI チャット",
-        "title": "まずは、こんにちは",
-        "hint": "Crew の友達を選んで会話を始めよう。"
-      },
-      "play": {
-        "label": "ゲーム",
-        "title": "さあ、遊ぼう",
-        "hint": "API キーがなくても文字入力で遊べるゲームに挑戦。"
-      },
-      "learn": {
-        "label": "学ぶ",
-        "title": "声に出して練習",
-        "hint": "コース、単語、会話を自分のペースで。"
-      },
-      "story": {
-        "label": "物語",
-        "title": "物語を作ろう",
-        "hint": "一緒に読んだり、自分だけの物語を作ったり。"
-      }
-    }
+    "tap": "タップして開く"
   },
   "world": {
-    "intro": "話して、遊んで、学んで、想像しよう。AI と一緒に。",
-    "touch": "動かしたり触れたりして、この世界の反応を楽しもう。",
-    "pause": "動きを一時停止",
-    "resume": "動きを再開",
     "modes": {
-      "chat": {
-        "lead": "小さなつながり。",
-        "before": "まずは",
-        "accent": "こんにちは。",
-        "after": "",
-        "description": "完璧な話題も、急いだ答えもいらない。\nAI の友達に会って、会話の行方を楽しもう。",
-        "cta": "AI の友達に会う"
-      },
-      "play": {
-        "lead": "次の一手は？",
-        "before": "私に",
-        "accent": "当てさせて。",
-        "after": "",
-        "description": "数字を選んで、挑戦してみよう。\nやり取りから楽しさが広がる。",
-        "cta": "一緒に遊ぶ"
-      },
       "learn": {
-        "lead": "会話するたびに",
-        "before": "もっと",
-        "accent": "先へ。",
-        "after": "",
-        "description": "言葉を探すところから、自然に話せるようになるまで。\nAI のパートナーと新しい言語を練習しよう。",
-        "cta": "声を見つけよう"
-      },
-      "story": {
-        "lead": "新しいページを開こう。",
-        "before": "思いきり",
-        "accent": "想像しよう。",
-        "after": "",
-        "description": "物語の中に飛び込むか、新しい始まりを書こう。\nAI と一緒に世界を作ろう。",
-        "cta": "新しい物語を開く"
+        "description": "言葉を探すところから、自然に話せるようになるまで。\nAI のパートナーと新しい言語を練習しよう。"
       }
     },
     "bridge": "この世界では、小さな物語が生まれています",
@@ -135,13 +78,20 @@
     "fortuneTitle": "新しい視点で自分を知る",
     "fortuneDescription": "AI の友だちと一緒に星や運勢を読み解こう。",
     "timelineTitle": "人生には、まだ次の章がある",
-    "timelineDescription": "異なる年齢の人々に出会い、それぞれの物語を聞こう。"
+    "timelineDescription": "異なる年齢の人々に出会い、それぞれの物語を聞こう。",
+    "chatHeading": "AI の友だちと話そう",
+    "chatSubtitle": "登録不要。今すぐ3分間無料で会話できます。",
+    "chatStart": "無料で会話を始める",
+    "chatWithZoe": "Zoe と話す",
+    "chatExhausted": "無料のキーを設定して続ける",
+    "quickPicks": "または友だちを選ぶ",
+    "noVoice": "声を出さずに？1A2B を遊ぼう"
   },
   "playHub": {
     "back": "ホーム",
     "heading": "Crew の友だちと何して遊ぶ？",
     "intro": "Crew の友だちを選んで、ボードゲーム、数当て、言葉遊び、音声の謎解きを一緒に楽しもう。",
-    "voiceRequired": "Gemini 音声が必要",
+    "voiceRequired": "AI 音声",
     "offlineOptional": "オフライン対応 · 音声は任意",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live は音声とキャラクターの返答のみ担当。得点はオフラインのルールで決まり、友達との会話履歴には保存されません。"
     },
     "eyebrow": "Crew ゲーム",
-    "accessNote": "ボードゲーム、1A2B、Taboo はキーなしで文字入力で遊べます。AI との会話と音声ゲームには Gemini キーが必要で、音声にはマイクも必要です。",
     "voiceDock": {
       "expand": "音声パネルを開く",
       "collapse": "音声パネルを閉じる"

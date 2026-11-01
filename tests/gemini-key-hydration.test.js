@@ -14,8 +14,8 @@ test("SSG and initial hydration never mistake an unread client key for a missing
  assert.match(ready,/useState\(false\)/);
  assert.match(ready,/useEffect\(\(\)=>setReady\(true\),\[\]\)/);
  assert.match(home,/const configured=ready&&Boolean\(geminiKey\(\)\)/);
- assert.match(home,/\{ready&&!configured\?<section className="crew-home-start"/);
- assert.match(home,/ready&&!verified\?<Link to="\/account#settings-gemini" className="crew-home-start-verify"/);
+ assert.match(home,/\{ready&&!configured&&trial\.resolved&&\(!trial\.enabled\|\|trial\.remaining===0\)\?<section className="crew-home-start"/);
+ assert.match(home,/ready&&configured&&!verified\?<Link to="\/account#settings-gemini" className="crew-home-start-verify"/);
 
  // Header uses a stable Account link, not key-dependent connection status.
  assert.match(chrome,/<Link className="crew-account-entry" to="\/account"/);

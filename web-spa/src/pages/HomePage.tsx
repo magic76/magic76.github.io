@@ -110,7 +110,6 @@ export function HomePage(){
  },[]);
  const [book,setBook]=useState<Book|null>(null);
  const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
- const guestAvailable=trial.enabled&&trial.remaining!==0;
 
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
@@ -133,19 +132,13 @@ export function HomePage(){
   <div className="crew-home-world">
    <HomePortal/>
    <div className="crew-home-world-inner">
-    {ready&&!configured?<section className="crew-home-start" aria-label={t("start")}>
-     {guestAvailable?<Link to="/teacher/roles?mode=teacher" className="crew-home-start-option crew-home-start-trial"
-      onClick={()=>trackUsageEvent("guest_trial_start_click")}>
-      <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="teacher"/></span>
-      <span className="crew-home-start-copy"><strong>{t("common:guestTrial.homeTitle")}</strong><small>{trial.remaining!==null?t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit}):t("common:guestTrial.homeDesc")}</small></span>
-      <b className="crew-home-start-action">{t("common:guestTrial.homeStart")} →</b>
-     </Link>:null}
-     <Link to="/account#settings-gemini" className={"crew-home-start-option "+(guestAvailable?"crew-home-start-byok":"crew-home-start-trial")}>
+    {ready&&!configured&&trial.resolved&&(!trial.enabled||trial.remaining===0)?<section className="crew-home-start" aria-label={t("start")}>
+     <Link to="/account#settings-gemini" className="crew-home-start-option crew-home-start-byok" onClick={()=>trackUsageEvent("home_entry_click","settings")}>
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>
-      <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.desc")}</small><em>{t("setup.pricing")}</em></span>
+      <span className="crew-home-start-copy"><strong>{t("setup.title")}</strong><small>{t("setup.shortDesc")}</small></span>
       <b className="crew-home-start-action">{t("setup.cta")} →</b>
      </Link>
-    </section>:ready&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
+    </section>:ready&&configured&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
      <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
     </Link>:null}
     {recent?<section className="crew-home-continue" aria-label={t("continue")}>

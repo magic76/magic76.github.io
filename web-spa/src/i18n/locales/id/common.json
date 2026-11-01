@@ -25,7 +25,7 @@
     "me": "Crew Saya"
   },
   "brand": {
-    "home": "Bahasa · Cerita · Astrologi",
+    "home": "Ngobrol dengan teman AI",
     "teacher": "Belajar bahasa",
     "story": "Membuat cerita",
     "fortune": "Menjelajahi bagan astrologi",
@@ -57,11 +57,10 @@
     "signInAction": "Masuk untuk mencoba",
     "timeLeft": "Sisa waktu",
     "almostDone": "Hampir selesai! Ucapkan selamat tinggal kepada AI.",
-    "completeTitle": "Uji coba gratis selesai!",
-    "completeBody": "Suka percakapannya? Atur Gemini untuk lanjut atau jelajahi Crew.",
+    "completeTitle": "Kamu ngobrol dengan {{name}} selama 3 menit 🎉",
+    "completeBody": "Setiap hari ada teka-teki 1A2B baru dan kosakata harian. Gratis, tanpa pengaturan.",
     "continueKey": "Atur Gemini untuk lanjut",
-    "exploreCrew": "Jelajahi Crew",
-    "interruptedBody": "Panggilan berakhir lebih awal. Atur Gemini atau jelajahi Crew.",
+    "interruptedBody": "Obrolan berakhir lebih awal. Kamu tetap bisa main 1A2B, belajar kata, atau membaca cerita gratis.",
     "ended": "Uji coba gratis selesai.",
     "qaUnavailable": "Uji privat tidak tersedia atau akses tidak valid.",
     "connecting": "Menghubungkan suara…",
@@ -94,7 +93,6 @@
     "setupKey": "Atur kunci Gemini saya",
     "homeTitle": "Coba suara AI gratis 3 menit",
     "homeDesc": "Tanpa daftar atau kunci Gemini",
-    "homeStart": "Coba sekarang",
     "onboardingCTA": "Coba suara AI gratis 3 menit",
     "settingsTitle": "Mau coba dulu?",
     "settingsCta": "Coba suara gratis 3 menit",
@@ -102,7 +100,13 @@
     "limit": "Kuota hari ini sudah habis.",
     "verification": "Verifikasi gagal. Coba lagi.",
     "tempUnavailable": "Uji coba tidak tersedia sementara.",
-    "remaining": "Sisa percobaan suara AI gratis: {{count}} / {{limit}}"
+    "remaining": "Sisa percobaan suara AI gratis: {{count}} / {{limit}}",
+    "usedUpTitle": "Uji coba gratis sudah habis",
+    "free1a2b": "Main 1A2B (gratis)",
+    "freeVocabulary": "Kata hari ini",
+    "freeStory": "Baca cerita",
+    "freeNextTitle": "Lanjutkan gratis",
+    "aiFriend": "Teman AI"
   },
   "auth": {
     "trialCount": "Uji coba suara digunakan: {{used}} / {{limit}}",

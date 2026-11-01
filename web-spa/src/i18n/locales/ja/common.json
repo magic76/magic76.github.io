@@ -25,7 +25,7 @@
     "me": "マイページ"
   },
   "brand": {
-    "home": "言語・物語・占い",
+    "home": "AI の友だちと会話",
     "teacher": "語学学習",
     "story": "物語の創作",
     "fortune": "運勢と自己理解",
@@ -57,11 +57,10 @@
     "signInAction": "ログインして体験",
     "timeLeft": "残り時間",
     "almostDone": "まもなく終了です。AI にお別れを。",
-    "completeTitle": "無料体験が完了しました！",
-    "completeBody": "会話はいかがでしたか？Gemini キーを設定して続けるか、Crew を探索してください。",
+    "completeTitle": "{{name}} と3分間話しました 🎉",
+    "completeBody": "毎日新しい1A2Bの問題と今日の単語。無料で設定も不要です。",
     "continueKey": "Gemini キーを設定して続ける",
-    "exploreCrew": "Crew を探索",
-    "interruptedBody": "音声接続が途中で終了しました。Gemini を設定するか、Crew を探索してください。",
+    "interruptedBody": "会話が途中で終了しました。1A2B、今日の単語、物語は無料で楽しめます。",
     "ended": "無料体験が終了しました。",
     "qaUnavailable": "非公開テストは利用できないか認証が無効です。",
     "connecting": "音声接続中…",
@@ -94,7 +93,6 @@
     "setupKey": "Gemini キーを設定",
     "homeTitle": "AI音声を3分間無料体験",
     "homeDesc": "登録・Geminiキー不要",
-    "homeStart": "今すぐ試す",
     "onboardingCTA": "登録不要の3分間AI音声体験",
     "settingsTitle": "設定前に試してみませんか？",
     "settingsCta": "3分間の無料音声体験",
@@ -102,7 +100,13 @@
     "limit": "本日の無料枠は終了しました。",
     "verification": "認証に失敗しました。もう一度お試しください。",
     "tempUnavailable": "無料体験は一時的に利用できません。",
-    "remaining": "無料音声体験の残り：{{count}} / {{limit}} 回"
+    "remaining": "無料音声体験の残り：{{count}} / {{limit}} 回",
+    "usedUpTitle": "無料体験は終了しました",
+    "free1a2b": "1A2Bで遊ぶ（無料）",
+    "freeVocabulary": "今日の単語",
+    "freeStory": "物語を読む",
+    "freeNextTitle": "無料で楽しむ",
+    "aiFriend": "AI の友だち"
   },
   "auth": {
     "trialCount": "無料音声体験：{{used}} / {{limit}} 回利用済み",

@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "Buat Gemini API Key gratis",
-    "desc": "Gunakan akun Google Anda untuk mendapatkan kunci dalam sekitar satu menit. Satu kunci berlaku untuk Teacher, Story, Fortune, dan game suara Crew Play.",
     "cta": "Lihat cara pengaturan gratis",
-    "pricing": "Batas gratis berbeda menurut model. Paket berbayar mungkin dikenakan biaya.",
     "verify": "Gemini Key belum diverifikasi",
-    "verifyDesc": "Periksa apakah kunci Anda berfungsi."
+    "verifyDesc": "Periksa apakah kunci Anda berfungsi.",
+    "shortDesc": "Setelah uji coba, atur kunci milikmu untuk lanjut mengobrol."
   },
   "android": "Dapatkan Crew untuk Android",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "Mengobrol dengan teman AI, bermain, berlatih bahasa, atau membuat cerita. Pilih sesuai suasana hati Anda.",
     "start": "Mulai {{mode}}",
     "explore": "Lihat aktivitas lainnya",
-    "choose": "Pilih cara berinteraksi dengan Crew",
-    "tap": "Ketuk untuk membuka",
-    "modes": {
-      "chat": {
-        "label": "Obrolan AI",
-        "title": "Mulailah dengan menyapa",
-        "hint": "Pilih teman Crew dan mulailah percakapan."
-      },
-      "play": {
-        "label": "Game",
-        "title": "Ayo bermain",
-        "hint": "Coba game yang bisa dimainkan dengan teks tanpa API Key."
-      },
-      "learn": {
-        "label": "Belajar",
-        "title": "Berlatih dengan bersuara",
-        "hint": "Kursus, kosakata, dan percakapan sesuai kemampuan Anda."
-      },
-      "story": {
-        "label": "Cerita",
-        "title": "Buat cerita",
-        "hint": "Membaca bersama atau membuat cerita Anda sendiri."
-      }
-    }
+    "tap": "Ketuk untuk membuka"
   },
   "world": {
-    "intro": "Ngobrol, bermain, belajar, berimajinasi. Bersama AI.",
-    "touch": "Gerakkan atau sentuh. Lihat dunia ini merespons.",
-    "pause": "Jeda gerakan",
-    "resume": "Lanjutkan gerakan",
     "modes": {
-      "chat": {
-        "lead": "Sedikit kedekatan.",
-        "before": "Cukup katakan",
-        "accent": "Halo.",
-        "after": "",
-        "description": "Tidak perlu topik sempurna atau terburu-buru menjawab.\nKenali teman AI dan ikuti arah percakapan.",
-        "cta": "Temui teman AI Anda"
-      },
-      "play": {
-        "lead": "Langkah berikutnya?",
-        "before": "Biar aku",
-        "accent": "Menebak.",
-        "after": "",
-        "description": "Pilih angka. Terima tantangan.\nPercakapan singkat bisa jadi menyenangkan.",
-        "cta": "Ayo main satu ronde"
-      },
       "learn": {
-        "lead": "Setiap percakapan",
-        "before": "membawamu",
-        "accent": "Lebih jauh.",
-        "after": "",
-        "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI.",
-        "cta": "Temukan suaramu"
-      },
-      "story": {
-        "lead": "Buka halaman baru.",
-        "before": "Berani",
-        "accent": "Berimajinasi.",
-        "after": "",
-        "description": "Masuki cerita atau tulis awal yang baru.\nBangun dunia bersama AI.",
-        "cta": "Buka cerita baru"
+        "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI."
       }
     },
     "bridge": "Kisah-kisah kecil bermula di sini",
@@ -135,13 +78,20 @@
     "fortuneTitle": "Kenali dirimu dari sudut pandang baru",
     "fortuneDescription": "Jelajahi baganmu bersama teman AI.",
     "timelineTitle": "Setiap kehidupan punya bab berikutnya",
-    "timelineDescription": "Temui orang-orang di usia berbeda dan dengarkan kisah mereka."
+    "timelineDescription": "Temui orang-orang di usia berbeda dan dengarkan kisah mereka.",
+    "chatHeading": "Ngobrol dengan teman AI",
+    "chatSubtitle": "Tanpa daftar. Ngobrol gratis selama 3 menit sekarang.",
+    "chatStart": "Mulai ngobrol gratis",
+    "chatWithZoe": "Ngobrol dengan Zoe",
+    "chatExhausted": "Atur kunci gratis untuk lanjut ngobrol",
+    "quickPicks": "Atau pilih teman",
+    "noVoice": "Tak ingin bicara? Main 1A2B"
   },
   "playHub": {
     "back": "Beranda",
     "heading": "Mau main apa bersama teman Crew?",
     "intro": "Pilih teman Crew dan main bersama: permainan papan, tebak angka, permainan kata, atau misteri lewat suara.",
-    "voiceRequired": "Perlu suara Gemini",
+    "voiceRequired": "Suara AI",
     "offlineOptional": "Offline · suara opsional",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live hanya menangani suara dan balasan karakter; skor ditentukan aturan offline dan tidak disimpan ke riwayat obrolan teman."
     },
     "eyebrow": "Crew Play",
-    "accessNote": "Permainan papan, 1A2B, dan Taboo bisa dimainkan lewat teks tanpa kunci. Obrolan AI dan permainan suara memerlukan kunci Gemini; fitur suara juga memerlukan mikrofon.",
     "voiceDock": {
       "expand": "Buka panel suara",
       "collapse": "Ciutkan panel suara"

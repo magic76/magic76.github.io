@@ -12,3 +12,4 @@
 .guest-trial-finish-actions .btn{justify-content:center;white-space:normal;text-align:center;min-height:44px}
 @keyframes guest-trial-enter{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.guest-trial-finish{animation:none}}
+.guest-trial-finish-key{display:inline-flex;min-height:44px;align-items:center;justify-content:center;margin-top:14px;padding:6px 12px;font-size:12px;text-underline-offset:3px}

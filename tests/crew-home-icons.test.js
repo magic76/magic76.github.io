@@ -9,7 +9,7 @@ test("Crew home keeps icon-based entry points without duplicating product portra
  assert.match(home,/<Icon name="teacher"\/>/);
  assert.match(home,/to="\/teacher\/course\/travel"/);
  assert.match(home,/<Icon name="play"\/>/);
- assert.match(portal,/icon:"teacher"/);
+ assert.match(portal,/setTeacherProfile\("emma"\)/);
  assert.match(home,/to="\/fortune"/);
  assert.match(home,/to="\/timeline"/);
 });

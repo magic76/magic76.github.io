@@ -14,11 +14,10 @@
   },
   "setup": {
     "title": "Gemini API Key 可以免費建立",
-    "desc": "有 Google 帳號就能申請。約 1 分鐘完成設定，Teacher、Story、Fortune 與 Crew Play 語音遊戲共用同一組 Key。",
     "cta": "查看免費申請步驟",
-    "pricing": "免費額度依模型與用量限制而異，使用付費層級可能產生費用。",
     "verify": "Gemini Key 尚未驗證",
-    "verifyDesc": "驗證後即可確認 Key 是否正常使用。"
+    "verifyDesc": "驗證後即可確認 Key 是否正常使用。",
+    "shortDesc": "用完免費體驗後，可設定自己的 Key 繼續聊天。"
   },
   "android": "在 Android 上使用 Crew",
   "briefing": {
@@ -65,68 +64,12 @@
     "description": "和 AI 朋友聊天、一起玩遊戲、練語言、說故事。選一件想做的事，就從這裡開始。",
     "start": "開始{{mode}}",
     "explore": "看看還能做什麼",
-    "choose": "選擇 Crew 互動模式",
-    "tap": "點擊進入",
-    "modes": {
-      "chat": {
-        "label": "AI 聊天",
-        "title": "從一句話開始",
-        "hint": "挑一位 AI 朋友，隨時展開對話。"
-      },
-      "play": {
-        "label": "一起玩",
-        "title": "來玩一局",
-        "hint": "多款遊戲不用 Key 也能先玩。"
-      },
-      "learn": {
-        "label": "學語言",
-        "title": "開口練習",
-        "hint": "從課程、單字到語音對話，按你的節奏學。"
-      },
-      "story": {
-        "label": "說故事",
-        "title": "一起創作",
-        "hint": "讀故事、創作故事，讓想像力開始旅行。"
-      }
-    }
+    "tap": "點擊進入"
   },
   "world": {
-    "intro": "聊天、玩樂、學習、想像。和 AI 一起。",
-    "touch": "輕觸或移動，讓這個世界回應你",
-    "pause": "暫停動態",
-    "resume": "恢復動態",
     "modes": {
-      "chat": {
-        "lead": "有些默契，",
-        "before": "從一句",
-        "accent": "Hello.",
-        "after": " 開始",
-        "description": "不必想好話題，也不用急著有答案。\n認識一位 AI 朋友，讓對話自然發生。",
-        "cta": "遇見你的 AI 朋友"
-      },
-      "play": {
-        "lead": "你的下一步，",
-        "before": "讓我",
-        "accent": "Guess.",
-        "after": "",
-        "description": "猜一個數字，接一個挑戰。\n有來有往，才是一起玩的樂趣。",
-        "cta": "一起玩一局"
-      },
       "learn": {
-        "lead": "讓每一句話，",
-        "before": "帶你",
-        "accent": "Further.",
-        "after": "",
-        "description": "從不敢開口，到自然聊下去。\n讓 AI 夥伴陪你練習新的語言。",
-        "cta": "開口，探索新語言"
-      },
-      "story": {
-        "lead": "如果故事的下一頁，",
-        "before": "由你來",
-        "accent": "Imagine.",
-        "after": "",
-        "description": "走進一段故事，或寫下新的開頭。\n和 AI 一起，把想像變成世界。",
-        "cta": "打開一段新故事"
+        "description": "從不敢開口，到自然聊下去。\n讓 AI 夥伴陪你練習新的語言。"
       }
     },
     "bridge": "世界裡的故事，正在發生",
@@ -135,13 +78,20 @@
     "fortuneTitle": "換個角度，認識自己",
     "fortuneDescription": "探索命盤，讓 AI 朋友陪你解讀。",
     "timelineTitle": "每一段人生，都有另一頁",
-    "timelineDescription": "走進不同人物與年紀，聽見不一樣的故事。"
+    "timelineDescription": "走進不同人物與年紀，聽見不一樣的故事。",
+    "chatHeading": "用說的，和 AI 朋友聊聊",
+    "chatSubtitle": "不用註冊，現在就能免費聊 3 分鐘",
+    "chatStart": "開始免費聊天",
+    "chatWithZoe": "和 Zoe 聊聊",
+    "chatExhausted": "設定免費 Key，繼續聊",
+    "quickPicks": "或先挑一位",
+    "noVoice": "不想開口？先玩 1A2B"
   },
   "playHub": {
     "back": "首頁",
     "heading": "今天和朋友玩什麼？",
     "intro": "選一位 Crew 朋友，一起下棋、猜數字、玩文字遊戲，或用語音解謎。",
-    "voiceRequired": "需要 Gemini 語音",
+    "voiceRequired": "AI 語音",
     "offlineOptional": "離線可玩 · 語音選用",
     "games": {
       "friend-gomoku": {
@@ -206,7 +156,6 @@
       "noteLive": "Live 只處理語音與角色回覆；分數由離線規則決定，不寫入朋友聊天紀錄。"
     },
     "eyebrow": "Crew 遊戲",
-    "accessNote": "棋類、1A2B 與 Taboo 不用 Key 就能打字玩；AI 對話與語音遊戲需要 Gemini Key，語音另需麥克風。",
     "voiceDock": {
       "expand": "展開語音面板",
       "collapse": "收合語音面板"

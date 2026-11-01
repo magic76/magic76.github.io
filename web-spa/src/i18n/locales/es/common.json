@@ -25,7 +25,7 @@
     "me": "Mi Crew"
   },
   "brand": {
-    "home": "Idiomas · Historias · Astrología",
+    "home": "Habla con amigos de IA",
     "teacher": "Aprender idiomas",
     "story": "Crear historias",
     "fortune": "Interpretación de cartas",
@@ -57,11 +57,10 @@
     "signInAction": "Iniciar sesión",
     "timeLeft": "Tiempo restante",
     "almostDone": "¡Ya casi termina! Despídete de la IA.",
-    "completeTitle": "¡Prueba gratuita completada!",
-    "completeBody": "¿Te gustó charlar? Configura Gemini para seguir o explora Crew.",
+    "completeTitle": "Hablaste 3 minutos con {{name}} 🎉",
+    "completeBody": "Cada día hay nuevos retos 1A2B y una palabra del día. Gratis, sin configuración.",
     "continueKey": "Configurar Gemini y continuar",
-    "exploreCrew": "Explorar Crew",
-    "interruptedBody": "La llamada terminó antes. Configura Gemini o explora Crew.",
+    "interruptedBody": "La charla terminó antes. Puedes jugar 1A2B, aprender palabras o leer historias gratis.",
     "ended": "Tu prueba gratuita ha terminado.",
     "qaUnavailable": "La prueba privada no está disponible o el acceso es inválido.",
     "connecting": "Conectando la voz…",
@@ -94,7 +93,6 @@
     "setupKey": "Configurar mi clave Gemini",
     "homeTitle": "Prueba 3 minutos de voz IA gratis",
     "homeDesc": "Sin registro ni clave Gemini",
-    "homeStart": "Probar ahora",
     "onboardingCTA": "Prueba 3 minutos de voz IA",
     "settingsTitle": "¿Quieres probar primero?",
     "settingsCta": "Prueba de voz gratis por 3 minutos",
@@ -102,7 +100,13 @@
     "limit": "Se agotaron las plazas de hoy.",
     "verification": "La verificación falló. Inténtalo de nuevo.",
     "tempUnavailable": "Prueba no disponible temporalmente.",
-    "remaining": "Pruebas de voz gratuitas restantes: {{count}} / {{limit}}"
+    "remaining": "Pruebas de voz gratuitas restantes: {{count}} / {{limit}}",
+    "usedUpTitle": "Se acabó tu prueba gratuita",
+    "free1a2b": "Jugar 1A2B (gratis)",
+    "freeVocabulary": "Palabra del día",
+    "freeStory": "Leer historias",
+    "freeNextTitle": "Seguir gratis",
+    "aiFriend": "Amigo de IA"
   },
   "auth": {
     "trialCount": "Pruebas de voz usadas: {{used}} / {{limit}}",

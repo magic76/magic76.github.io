@@ -210,7 +210,7 @@ test("Only the two word games require active Live voice; chess remains playable 
  assert.match(hub,/playHub\.voiceRequired/);
  assert.match(hub,/playHub\.offlineOptional/);
  const home=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
- assert.match(home.playHub.voiceRequired,/Gemini/);
+ assert.equal(home.playHub.voiceRequired,"AI 語音");
  assert.match(home.playHub.offlineOptional,/語音選用/);
  assert.match(css,/\.page\.page-enter:has\(\.crew-play-page--voice-required\)\{animation:none\}/);
 });

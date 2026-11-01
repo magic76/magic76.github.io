@@ -25,7 +25,7 @@
     "me": "我的"
   },
   "brand": {
-    "home": "語言・故事・命理",
+    "home": "和 AI 朋友聊天",
     "teacher": "語言學習",
     "story": "故事創作",
     "fortune": "命盤探索",
@@ -57,11 +57,10 @@
     "signInAction": "登入後開始免費體驗",
     "timeLeft": "剩餘時間",
     "almostDone": "快結束了，跟 AI 說聲再見吧。",
-    "completeTitle": "免費體驗完成了！",
-    "completeBody": "希望你喜歡剛剛的對話。想繼續聊，可以設定自己的 Gemini Key，或先看看 Crew 其他功能。",
+    "completeTitle": "你和 {{name}} 聊了 3 分鐘 🎉",
+    "completeBody": "每天都有新的 1A2B 題目和今日單字，免費、不用設定。",
     "continueKey": "設定 Gemini Key，繼續聊天",
-    "exploreCrew": "探索 Crew 其他功能",
-    "interruptedBody": "這次連線提早結束了。可以設定 Gemini Key 繼續聊天，或先探索 Crew。",
+    "interruptedBody": "這次對話提早結束了。還能免費玩 1A2B、學今日單字或讀故事。",
     "ended": "免費體驗已結束。",
     "qaUnavailable": "私人測試尚未開放，或測試授權無效。",
     "connecting": "正在建立語音連線…",
@@ -94,7 +93,6 @@
     "setupKey": "設定自己的 Gemini Key",
     "homeTitle": "免費體驗 AI 語音 3 分鐘",
     "homeDesc": "免註冊、不用 Gemini Key",
-    "homeStart": "開始試玩",
     "onboardingCTA": "免註冊免費體驗 AI 語音 3 分鐘",
     "settingsTitle": "不想先設定？立即免費試玩",
     "settingsCta": "免費語音體驗 3 分鐘",
@@ -102,7 +100,13 @@
     "limit": "今天的免費試玩名額已滿。",
     "verification": "驗證未通過，請重新驗證。",
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。",
-    "remaining": "剩餘免費試用：{{count}} / {{limit}} 次"
+    "remaining": "剩餘免費試用：{{count}} / {{limit}} 次",
+    "usedUpTitle": "免費體驗已用完",
+    "free1a2b": "先玩 1A2B（免費）",
+    "freeVocabulary": "看今日單字",
+    "freeStory": "讀故事",
+    "freeNextTitle": "免費繼續探索",
+    "aiFriend": "AI 朋友"
   },
   "auth": {
     "trialCount": "免費語音試用：已使用 {{used}} / {{limit}} 次",
