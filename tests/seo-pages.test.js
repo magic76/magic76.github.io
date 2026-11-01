@@ -28,7 +28,7 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    const expectedImage=ORIGIN+"/social/"+(slug||"crew-shared-v2")+".png";
+    const expectedImage=ORIGIN+"/social/"+(slug?"og/"+slug:"crew-shared-v2")+".png";
     for(const tag of ['<meta property="og:image"','<meta property="og:image:secure_url"','<meta name="twitter:image"']){
       assert.ok(html.includes(tag+' content="'+expectedImage+'">'),file+" missing "+tag);
     }
@@ -80,4 +80,26 @@ test("client course titles stay exactly aligned with SSG course SEO titles",asyn
   assert.ok(client.includes(JSON.stringify(item.zh.title)),item.slug+" zh");
   assert.ok(client.includes(JSON.stringify(item.en.title)),item.slug+" en");
  }
+});
+
+test("OG PNG renderer creates deterministic, distinct full-size imagery without external dependencies",async()=>{
+ const {writePreview,previewUrl}=await import("../scripts/social-og.mjs");
+ const os=require("node:os");
+ const tmp=fs.mkdtempSync(path.join(os.tmpdir(),"crew-og-"));
+ try{
+  const urlA=writePreview(tmp,"feature","teacher"),urlB=writePreview(tmp,"feature","story");
+  const pngA=fs.readFileSync(path.join(tmp,new URL(urlA).pathname.slice(1)));
+  const pngB=fs.readFileSync(path.join(tmp,new URL(urlB).pathname.slice(1)));
+  for(const png of [pngA,pngB]){
+   assert.deepEqual([...png.subarray(0,8)],[137,80,78,71,13,10,26,10]);
+   assert.equal(png.readUInt32BE(16),1200);
+   assert.equal(png.readUInt32BE(20),630);
+   assert.ok(png.length>4000,"must have real nonempty visual content");
+  }
+  assert.notDeepEqual(pngA,pngB,"different topics must not share a preview image");
+  assert.equal(previewUrl("home"),ORIGIN+"/social/crew-shared-v2.png");
+  assert.equal(previewUrl("course","travel","en"),ORIGIN+"/social/og/course/travel-en.png");
+  assert.equal(previewUrl("guide","ai-english-speaking","zh"),ORIGIN+"/social/og/guide/ai-english-speaking-zh.png");
+  assert.throws(()=>previewUrl("article","../../secrets"));
+ }finally{fs.rmSync(tmp,{recursive:true,force:true})}
 });
