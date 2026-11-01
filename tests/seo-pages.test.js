@@ -28,7 +28,10 @@ test("each locale has crawlable content with its own canonical and reciprocal hr
     }
     assert.ok(html.includes('href="/crew-app/#/'));
     assert.ok(html.includes('<meta name="robots" content="index,follow">'));
-    assert.ok(html.includes('<meta property="og:image" content="https://www.3sssi.com/social/'+(slug||"crew")+'.png">'));
+    const expectedImage=ORIGIN+"/social/"+(slug||"crew-shared-v2")+".png";
+    for(const tag of ['<meta property="og:image"','<meta property="og:image:secure_url"','<meta name="twitter:image"']){
+      assert.ok(html.includes(tag+' content="'+expectedImage+'">'),file+" missing "+tag);
+    }
     assert.match(html,/<meta name="twitter:card" content="summary_large_image">/);
     assert.match(html,/<script type="application\/ld\+json">/);
     const structured=JSON.parse(html.match(/<script type="application\/ld\+json">([^<]+)<\/script>/)[1]);

@@ -696,7 +696,7 @@ const features=p.features.map(f=>`<article class="feature"><span class="feature-
 const steps=p.steps.map((s,i)=>`<li><span class="step-num">${String(i+1).padStart(2,"0")}</span><div><h3>${escapeHTML(s.title)}</h3><p>${escapeHTML(s.body)}</p></div></li>`).join("");
 const faq=p.faq.map(f=>`<details><summary>${escapeHTML(f.q)}</summary><p>${escapeHTML(f.a)}</p></details>`).join("");
 const related=(en?EN_PAGES:PAGES).filter(item=>item.slug!==p.slug).map(item=>`<a href="${pageUrl(item.slug,locale)}">${escapeHTML(item.nav)} <span aria-hidden="true">↗</span></a>`).join("");
-const url=pageUrl(p.slug,locale),zhURL=pageUrl(p.slug,"zh"),enURL=pageUrl(p.slug,"en"), ogImage=ORIGIN+"/social/"+(p.slug||"crew")+".png";
+const url=pageUrl(p.slug,locale),zhURL=pageUrl(p.slug,"zh"),enURL=pageUrl(p.slug,"en"), ogImage=ORIGIN+"/social/"+(p.slug||"crew-shared-v2")+".png";
 return `<!doctype html>
 <html lang="${en?"en":"zh-Hant"}">
 <head>
