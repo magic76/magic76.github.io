@@ -57,20 +57,19 @@ test("trial finish takes a teacher name and keeps friend ID fallback",()=>{
  for(const lang of locales)assert.ok(JSON.parse(read(`web-spa/src/i18n/locales/${lang}/common.json`)).guestTrial.aiFriend);
 });
 
-test("hero occupies available viewport with old floors, no JS measurements or clipping",()=>{
+test("hero fills the viewport and replaces quick picks with large accessible tiles",()=>{
  const css=read("web-spa/src/pages/homePortal.css");
  const home=read("web-spa/src/pages/home.css");
- const viewport=/calc\(100svh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/g;
- const fallback=/calc\(100vh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/g;
- assert.equal((css.match(viewport)||[]).length,3);
- assert.equal((css.match(fallback)||[]).length,3);
- for(const floor of [540,446,432])assert.match(css,new RegExp(`min-height:clamp\\(${floor}px,calc\\(100svh`));
- assert.match(css,/\.crew-home-portal\{[^}]*display:grid;place-items:center/);
- assert.match(css,/\.crew-portal-content\{position:relative;[^}]*padding:20px 0/);
+ assert.match(css,/calc\(100svh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/);
+ assert.match(css,/calc\(100vh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/);
+ assert.match(css,/\.crew-home-portal\{[^}]*display:grid/);
+ assert.match(css,/\.crew-portal-content\{position:relative/);
  assert.doesNotMatch(css,/\.crew-portal-content\{position:absolute/);
  assert.doesNotMatch(home,/\.crew-home \.crew-home-portal\{height:clamp/);
- assert.match(css,/\.crew-portal-picks-links a\{[^}]*min-height:44px/);
- assert.match(css,/\.crew-portal-game-link\{[^}]*min-height:44px/);
+ assert.match(css,/\.crew-portal-tile\{[^}]*min-height:(?:1[2-9][0-9]|[2-9][0-9]{2})px/);
+ assert.match(css,/\.crew-portal-cta\{[^}]*min-height:(?:4[4-9]|[5-9][0-9])px/);
+ assert.match(css,/:focus-visible/);
+ assert.doesNotMatch(css,/\.crew-portal-picks-links|\.crew-portal-game-link/);
 });
 
 test("vocabulary warm-up text is free, not a Key or API instruction, in all locales",()=>{

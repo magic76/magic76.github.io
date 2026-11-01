@@ -85,7 +85,26 @@
     "chatWithZoe": "คุยกับ Zoe",
     "chatExhausted": "ตั้งค่าคีย์ฟรีเพื่อคุยต่อ",
     "quickPicks": "หรือเลือกเพื่อนก่อน",
-    "noVoice": "ไม่อยากพูด? เล่น 1A2B"
+    "noVoice": "ไม่อยากพูด? เล่น 1A2B",
+    "tilesLabel": "เลือกกิจกรรม",
+    "tiles": {
+      "chat": {
+        "name": "แชต",
+        "sub": "คุยกับ Zoe"
+      },
+      "teacher": {
+        "name": "ครู",
+        "sub": "ฝึกภาษา"
+      },
+      "fortune": {
+        "name": "ดูดวง",
+        "sub": "ดวงวันนี้"
+      },
+      "play": {
+        "name": "เกม",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "หน้าแรก",

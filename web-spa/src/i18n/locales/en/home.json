@@ -85,7 +85,26 @@
     "chatWithZoe": "Chat with Zoe",
     "chatExhausted": "Set up a free key to keep chatting",
     "quickPicks": "Or pick a friend",
-    "noVoice": "Prefer typing? Try 1A2B"
+    "noVoice": "Prefer typing? Try 1A2B",
+    "tilesLabel": "Choose an activity",
+    "tiles": {
+      "chat": {
+        "name": "Chat",
+        "sub": "Chat with Zoe"
+      },
+      "teacher": {
+        "name": "Teacher",
+        "sub": "Practice a language"
+      },
+      "fortune": {
+        "name": "Fortune",
+        "sub": "Today’s fortune"
+      },
+      "play": {
+        "name": "Games",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "Home",

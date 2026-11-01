@@ -85,7 +85,26 @@
     "chatWithZoe": "Mit Zoe chatten",
     "chatExhausted": "Gratis-Schlüssel einrichten und weiterchatten",
     "quickPicks": "Oder wähle jemanden",
-    "noVoice": "Lieber tippen? Spiele 1A2B"
+    "noVoice": "Lieber tippen? Spiele 1A2B",
+    "tilesLabel": "Aktivität auswählen",
+    "tiles": {
+      "chat": {
+        "name": "Chat",
+        "sub": "Mit Zoe chatten"
+      },
+      "teacher": {
+        "name": "Lehrer",
+        "sub": "Sprachen üben"
+      },
+      "fortune": {
+        "name": "Orakel",
+        "sub": "Dein Tagesglück"
+      },
+      "play": {
+        "name": "Spiele",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "Startseite",

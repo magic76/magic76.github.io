@@ -56,9 +56,9 @@ async function captureCrewVisualQA(browser){
    await page.waitForTimeout(350);
    await page.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:20000});
    await page.locator(".crew-portal-cta").waitFor({state:"visible",timeout:12000});
-   await page.locator(".crew-portal-picks-links a").nth(1).hover();
+   await page.locator('.crew-portal-tile[data-mode="learn"]').hover();
    await page.waitForTimeout(350);
-   await page.locator(".crew-portal-game-link").hover();
+   await page.locator('.crew-portal-tile[data-mode="fortune"]').hover();
    await page.waitForTimeout(350);
   }catch(error){process.stdout.write("VIDEO QA partial "+setup.id+": "+String(error).slice(0,140)+"\\n");}
   finally{
@@ -230,8 +230,8 @@ async function run(){
   // Crew World: integrated React desktop/mobile visual geometry, bilingual copy and interactions.
   for(const setup of [
     {route:"/",width:360,height:780,mobile:true},
-    {route:"/",width:393,height:852,mobile:true},
-    {route:"/",width:1280,height:800,mobile:false},
+    {route:"/",width:390,height:844,mobile:true},
+    {route:"/",width:1440,height:900,mobile:false},
     {route:"/en/",width:393,height:852,mobile:true},
     {route:"/en/",width:1280,height:800,mobile:false}
   ]){
@@ -263,20 +263,48 @@ async function run(){
       const metric=await page.evaluate(()=>{
         const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
         return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
-          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),
-          picks:rect(".crew-portal-picks"),game:rect(".crew-portal-game-link"),bridge:rect(".crew-home-world-bridge"),
-          shorts:rect(".crew-home-shorts")};
+          heading:rect(".crew-portal-content h1"),cta:rect(".crew-portal-cta"),grid:rect(".crew-portal-tiles"),
+          tiles:[...document.querySelectorAll(".crew-portal-tile")].map(el=>{const r=el.getBoundingClientRect();return {y:r.top,bottom:r.bottom,height:r.height,width:r.width}}),
+          nav:rect(".global-nav"),bridge:rect(".crew-home-world-bridge"),shorts:rect(".crew-home-shorts")};
       });
       assert.ok(metric.scrollWidth<=metric.screenWidth+2,"No horizontal overflow: "+JSON.stringify({setup,metric}));
-      assert.ok(metric.cta.bottom<=metric.picks.y+4,"CTA and picks do not overlap: "+JSON.stringify({setup,metric}));
-      assert.ok(metric.picks.bottom<=metric.game.y+4,"Picks and game link do not overlap");
+      assert.ok(metric.heading.bottom<=metric.cta.y,"Headline precedes CTA");
+      assert.ok(metric.cta.bottom<=metric.grid.y,"CTA and tiles do not overlap: "+JSON.stringify({setup,metric}));
+      assert.equal(metric.tiles.length,4,"Four large entry tiles");
+      for(const tile of metric.tiles){
+        assert.ok(tile.height>=120&&tile.width>=44,"Tiles keep large touch targets");
+        if(setup.mobile)assert.ok(tile.bottom<=metric.nav.y,"All tiles fit above the bottom navigation: "+JSON.stringify({setup,metric}));
+      }
+      if(setup.mobile)assert.ok(metric.shorts.y>=metric.nav.y,"Shorts start below the first viewport");
       assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
       const href=await page.locator(".crew-portal-cta").getAttribute("href");
-      assert.match(href||"",/\/(?:friend\/live\?id=zoe|account#settings-gemini)$/,"CTA targets direct chat or exhausted setup");
-      for(const destination of ["zoe","noah"]){
-        assert.match(await page.locator('.crew-portal-picks-links a[href*="id='+destination+'"]') .getAttribute("href")||"",new RegExp("friend/live\\?id="+destination));
+      assert.match(href||"",/\/(?:friend\/live\?id=zoe|account#settings-gemini)$/, "CTA targets direct chat or exhausted setup");
+      for(const [mode,target] of [["chat","/friend/live?id=zoe"],["learn","/teacher"],["fortune","/fortune"],["play","/games/1a2b"]]){
+        const tile=page.locator('.crew-portal-tile[data-mode="'+mode+'"]');
+        const url=new URL(await tile.getAttribute("href"),origin);
+        assert.equal(url.pathname.replace(/^\/en(?=\/)/,"" ).replace(/\/$/,"" )+url.search,target,"Correct "+mode+" destination");
+        assert.ok((await tile.textContent())?.trim(),"Each link has an accessible text name");
       }
-      assert.match(await page.locator(".crew-portal-game-link").getAttribute("href")||"",/\/games\/1a2b$/);
+      if(setup.route==="/"&&setup.width===390){
+        assert.equal(await page.locator(".crew-portal-tiles canvas").count(),1,"Tiles share exactly one canvas");
+        const sample=()=>page.locator(".crew-portal-tiles canvas").evaluate(canvas=>{
+          const rect=canvas.getBoundingClientRect(),ctx=canvas.getContext("2d");
+          return [...document.querySelectorAll(".crew-portal-tile")].map(tile=>{
+            const r=tile.getBoundingClientRect(),sx=canvas.width/rect.width,sy=canvas.height/rect.height;
+            const left=Math.max(0,Math.ceil((r.left-rect.left)*sx)),top=Math.max(0,Math.ceil((r.top-rect.top)*sy));
+            const width=Math.min(canvas.width-left,Math.floor(r.width*sx)-1),height=Math.min(canvas.height-top,Math.floor(r.height*sy)-1);
+            const pixels=ctx.getImageData(left,top,width,height).data;
+            let hash=2166136261;for(const value of pixels)hash=Math.imul(hash^value,16777619)>>>0;
+            return hash;
+          });
+        });
+        for(const [mode,index] of [["chat",0],["fortune",2]]){
+          await page.locator('.crew-portal-tile[data-mode="'+mode+'"]').focus();
+          await page.waitForTimeout(100);
+          const before=await sample();await page.waitForTimeout(180);const after=await sample();
+          for(let i=0;i<4;i++)assert.equal(before[i]!==after[i],i===index,"Only focused "+mode+" tile changes canvas pixels (tile "+i+")");
+        }
+      }
       await page.waitForTimeout(250);
       assert.equal(await page.locator(".crew-portal-content h1").textContent(),initial,"Heading never auto-rotates");
       const screenshots=page.locator(".crew-home-shorts .crew-home-short-card");
@@ -292,6 +320,29 @@ async function run(){
       assert.deepEqual(errors,[],"No runtime / hydration errors");
       process.stdout.write("PASS Crew World responsive portal + Shorts "+setup.route+" "+setup.width+"px\n");
     }finally{await view.close();}
+  }
+
+  // Motion-constrained devices keep complete, stable tile frames after focus changes.
+  for(const policy of ["reduced-motion","save-data"]){
+    const staticContext=await browser.newContext({viewport:{width:390,height:844},reducedMotion:policy==="reduced-motion"?"reduce":"no-preference"});
+    await staticContext.addInitScript(policy=>{
+      localStorage.setItem("crew_onboarding_web_v1","existing");
+      if(policy==="save-data")Object.defineProperty(navigator,"connection",{value:{saveData:true},configurable:true});
+    },policy);
+    const staticPage=await staticContext.newPage();
+    try{
+      await staticPage.goto(origin+"/",{waitUntil:"domcontentloaded",timeout:30000});
+      await staticPage.waitForFunction(()=>document.querySelector(".crew-portal-field")?.getAttribute("data-ready")==="true",null,{timeout:12000});
+      const canvas=staticPage.locator(".crew-portal-tiles canvas");
+      assert.equal(await canvas.count(),1,"One static canvas for "+policy);
+      for(const mode of ["chat","fortune"]){
+        await staticPage.locator('.crew-portal-tile[data-mode="'+mode+'"]').focus();
+        await staticPage.waitForTimeout(80);
+        const before=await canvas.evaluate(el=>el.toDataURL());
+        await staticPage.waitForTimeout(180);
+        assert.equal(await canvas.evaluate(el=>el.toDataURL()),before,policy+" never animates "+mode+" pixels");
+      }
+    }finally{await staticContext.close();}
   }
 
   // Validate every on-demand Beta locale in a real browser. Keep this inside
@@ -636,21 +687,26 @@ async function run(){
   const retryContext=await browser.newContext({viewport:{width:390,height:844}});
   await retryContext.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
   const retryPage=await retryContext.newPage();
-  let gameChunkRequests=0;
-  await retryPage.route(/\/assets\/CrewPlayHubPage-[^/]+\.js(?:\?.*)?$/,async route=>{
+  let gameChunkRequests=0,failNextGameChunk=false,failedGameChunk="";
+  await retryPage.route(/\/assets\/[^/]+\.js(?:\?.*)?$/,async route=>{
+   const url=route.request().url();
+   if(failNextGameChunk&&!failedGameChunk)failedGameChunk=url;
+   if(url!==failedGameChunk){await route.continue();return;}
    gameChunkRequests++;
    if(gameChunkRequests===1)await route.abort("failed");
    else await route.continue();
   });
-  await retryPage.goto(origin+"/",{waitUntil:"domcontentloaded"});
-  await retryPage.locator('.crew-portal-tabs [role="tab"]').nth(1).click();
-  await retryPage.locator(".crew-portal-cta").click();
-  await retryPage.locator(".crew-play-catalog").waitFor({state:"visible",timeout:20000});
+  await retryPage.goto(origin+"/",{waitUntil:"networkidle"});
+  await retryPage.locator('.crew-portal-tile[data-mode="play"]').waitFor({state:"visible"});
+  failNextGameChunk=true;
+  await retryPage.locator('.crew-portal-tile[data-mode="play"]').click();
+  await retryPage.waitForURL(url=>url.pathname.replace(/\/$/,"")==="/games/1a2b",{timeout:20000});
+  await retryPage.locator("#crew-number").waitFor({state:"visible",timeout:20000});
   assert.ok(gameChunkRequests>=2,"A failed game chunk must recover with a fresh document");
-  assert.equal(new URL(retryPage.url()).pathname,"/games","Recovered click stays on Crew Play");
+  assert.equal(new URL(retryPage.url()).pathname.replace(/\/$/,""),"/games/1a2b","Recovered click stays on 1A2B");
   assert.equal(await retryPage.getByText("頁面暫時無法載入").count(),0,"No persistent blank/error screen");
   await retryContext.close();
-  process.stdout.write("PASS recover first Home-to-Game-Hub chunk fetch failure\n");
+  process.stdout.write("PASS recover first Home-to-1A2B chunk fetch failure\n");
   // Version details only render within Settings, not as a fixed overlay.
   for (const route of ["/settings", "/en/settings"]) {
     const page=await context.newPage();

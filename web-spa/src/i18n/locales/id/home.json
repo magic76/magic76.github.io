@@ -85,7 +85,26 @@
     "chatWithZoe": "Ngobrol dengan Zoe",
     "chatExhausted": "Atur kunci gratis untuk lanjut ngobrol",
     "quickPicks": "Atau pilih teman",
-    "noVoice": "Tak ingin bicara? Main 1A2B"
+    "noVoice": "Tak ingin bicara? Main 1A2B",
+    "tilesLabel": "Pilih aktivitas",
+    "tiles": {
+      "chat": {
+        "name": "Ngobrol",
+        "sub": "Ngobrol dengan Zoe"
+      },
+      "teacher": {
+        "name": "Guru",
+        "sub": "Latihan bahasa"
+      },
+      "fortune": {
+        "name": "Ramalan",
+        "sub": "Peruntungan hari ini"
+      },
+      "play": {
+        "name": "Game",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "Beranda",

@@ -85,7 +85,26 @@
     "chatWithZoe": "Zoe와 대화",
     "chatExhausted": "무료 키를 설정하고 계속 대화",
     "quickPicks": "또는 친구 선택",
-    "noVoice": "말하기 싫다면? 1A2B 플레이"
+    "noVoice": "말하기 싫다면? 1A2B 플레이",
+    "tilesLabel": "활동 선택",
+    "tiles": {
+      "chat": {
+        "name": "채팅",
+        "sub": "Zoe와 대화"
+      },
+      "teacher": {
+        "name": "선생님",
+        "sub": "외국어 연습"
+      },
+      "fortune": {
+        "name": "운세",
+        "sub": "오늘의 운세"
+      },
+      "play": {
+        "name": "게임",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "홈",

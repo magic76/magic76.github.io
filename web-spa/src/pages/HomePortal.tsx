@@ -1,18 +1,19 @@
-import {useEffect,useRef,useState,type MouseEvent} from "react";
-import {Link,useNavigate} from "react-router-dom";
+import {useEffect,useRef,useState} from "react";
+import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
+import {Icon} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
+import type {PortalMode} from "./portalField.mjs";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {useClientReady} from "../lib/useClientReady";
 import {geminiKey} from "../lib/runtime";
 
 const ZOE="/friend/live?id=zoe";
 
-/** A single first step; the ambient particle field never controls navigation. */
+/** Direct links own navigation; focus selects only the decorative tile animation. */
 export function HomePortal(){
  const {t}=useTranslation("home");
- const navigate=useNavigate();
  const ready=useClientReady();
  const hasKey=ready&&Boolean(geminiKey());
  const trial=useGuestTrialQuota(!ready||hasKey);
@@ -27,10 +28,8 @@ export function HomePortal(){
  const heroRef=useRef<HTMLElement|null>(null);
  const fieldEligible=idleReady&&inViewport&&foreground;
  const canAnimate=fieldEligible&&!paused;
- const [launching,setLaunching]=useState(false);
- const timer=useRef<ReturnType<typeof setTimeout>|null>(null);
- useEffect(()=>()=>{if(timer.current!==null)clearTimeout(timer.current)},[]);
- // SSR and the first client render both use a static, chat-only hero.
+ const [focusedMode,setFocusedMode]=useState<PortalMode>("chat");
+ // SSR and the first client render both use static frames with chat focused.
  useEffect(()=>{
   const reducedMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const saveData=Boolean((navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData);
@@ -66,46 +65,42 @@ export function HomePortal(){
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  useEffect(()=>{if(fieldEligible)setFieldEverEnabled(true)},[fieldEligible]);
- const selectEmma=(event:MouseEvent<HTMLAnchorElement>)=>{
-  if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-  event.preventDefault();
-  trackUsageEvent("home_entry_click","teacher");
-  // Only a deliberate click selects Emma; importing the store eagerly breaks SSG.
-  void import("../store/teacherStore").then(({useTeacherStore})=>{
-   useTeacherStore.getState().setTeacherProfile("emma");
-   navigate("/teacher/live");
-  }).catch(()=>navigate("/teacher/live"));
- };
- const launch=(event:MouseEvent<HTMLAnchorElement>)=>{
-  if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey||event.defaultPrevented)return;
-  trackUsageEvent("home_entry_click",exhausted?"settings":"friend");
-  if(paused||!canAnimate||window.matchMedia("(prefers-reduced-motion: reduce)").matches||
-   (navigator as Navigator&{connection?:{saveData?:boolean}}).connection?.saveData)return;
-  event.preventDefault();
-  if(timer.current!==null)return;
-  setLaunching(true);
-  timer.current=setTimeout(()=>{timer.current=null;navigate(destination)},480);
- };
- return <header ref={heroRef} className="crew-home-portal" data-mode="chat" data-launching={launching} data-paused={paused}>
-  <PortalParticleField mode="chat" paused={!canAnimate} launching={launching} enabled={fieldEverEnabled||fieldEligible}/>
+ return <header ref={heroRef} className="crew-home-portal" data-mode="chat" data-paused={paused}>
   <div className="crew-portal-content">
    <div className="crew-portal-copy">
     <h1>{t("world.chatHeading")}</h1>
-    {trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&!trial.signinRequired&&!hasKey&&<p className="crew-portal-description">{t("world.chatSubtitle")}</p>}
    </div>
-   <Link className="crew-portal-cta" to={destination} onClick={launch} aria-disabled={launching||undefined}>
+   <Link className="crew-portal-cta" to={destination} onClick={()=>trackUsageEvent("home_entry_click",exhausted?"settings":"friend")}>
     {t(cta)}<span aria-hidden="true">↗</span>
    </Link>
    {ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
-   <nav className="crew-portal-picks" aria-label={t("world.quickPicks")}>
-    <span className="crew-portal-picks-label">{t("world.quickPicks")}</span>
-    <div className="crew-portal-picks-links">
-     <Link to={ZOE} onClick={()=>trackUsageEvent("home_entry_click","friend")}><span className="crew-portal-pick-avatar" aria-hidden="true">Z</span>Zoe</Link>
-     <Link to="/friend/live?id=noah" onClick={()=>trackUsageEvent("home_entry_click","friend")}><span className="crew-portal-pick-avatar" aria-hidden="true">N</span>Noah</Link>
-     <Link to="/teacher/live" onClick={selectEmma}><span className="crew-portal-pick-avatar" aria-hidden="true">E</span>Emma</Link>
-    </div>
+   <nav className="crew-portal-tiles" aria-label={t("world.tilesLabel")}>
+    <PortalParticleField mode="chat" focus={focusedMode} paused={!canAnimate} enabled={fieldEverEnabled||fieldEligible}/>
+    <Link className="crew-portal-tile" data-portal-tile data-mode="chat" data-focused={focusedMode==="chat"} to={ZOE}
+     onPointerEnter={()=>setFocusedMode("chat")} onPointerDown={()=>setFocusedMode("chat")} onFocus={()=>setFocusedMode("chat")}
+     onClick={()=>trackUsageEvent("home_entry_click","friend")}>
+     <span className="crew-portal-tile-icon" aria-hidden="true"><Icon name="chat"/></span>
+     <strong>{t("world.tiles.chat.name")}</strong><span>{t("world.tiles.chat.sub")}</span>
+    </Link>
+    <Link className="crew-portal-tile" data-portal-tile data-mode="learn" data-focused={focusedMode==="learn"} to="/teacher"
+     onPointerEnter={()=>setFocusedMode("learn")} onPointerDown={()=>setFocusedMode("learn")} onFocus={()=>setFocusedMode("learn")}
+     onClick={()=>trackUsageEvent("home_entry_click","teacher")}>
+     <span className="crew-portal-tile-icon" aria-hidden="true">文</span>
+     <strong>{t("world.tiles.teacher.name")}</strong><span>{t("world.tiles.teacher.sub")}</span>
+    </Link>
+    <Link className="crew-portal-tile" data-portal-tile data-mode="fortune" data-focused={focusedMode==="fortune"} to="/fortune"
+     onPointerEnter={()=>setFocusedMode("fortune")} onPointerDown={()=>setFocusedMode("fortune")} onFocus={()=>setFocusedMode("fortune")}
+     onClick={()=>trackUsageEvent("home_entry_click","fortune")}>
+     <span className="crew-portal-tile-icon" aria-hidden="true">☾</span>
+     <strong>{t("world.tiles.fortune.name")}</strong><span>{t("world.tiles.fortune.sub")}</span>
+    </Link>
+    <Link className="crew-portal-tile" data-portal-tile data-mode="play" data-focused={focusedMode==="play"} to="/games/1a2b"
+     onPointerEnter={()=>setFocusedMode("play")} onPointerDown={()=>setFocusedMode("play")} onFocus={()=>setFocusedMode("play")}
+     onClick={()=>trackUsageEvent("home_entry_click","play")}>
+     <span className="crew-portal-tile-icon" aria-hidden="true">◇</span>
+     <strong>{t("world.tiles.play.name")}</strong><span>{t("world.tiles.play.sub")}</span>
+    </Link>
    </nav>
-   <Link className="crew-portal-game-link" to="/games/1a2b" onClick={()=>trackUsageEvent("home_entry_click","play")}>{t("world.noVoice")}</Link>
   </div>
  </header>;
 }

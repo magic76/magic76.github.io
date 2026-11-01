@@ -1,4 +1,4 @@
-export type PortalMode = 'chat' | 'play' | 'learn' | 'story';
+export type PortalMode = 'chat' | 'play' | 'learn' | 'story' | 'fortune';
 export const PORTAL_MODES: readonly PortalMode[];
 export function portalShape(mode: PortalMode, angle: number, band: number, time: number): [number, number, number];
 export interface PortalFieldController {
