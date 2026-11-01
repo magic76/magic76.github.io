@@ -22,7 +22,7 @@ export function GuestTrialFinish({expired,failed}:{expired:boolean;failed:boolea
   <h2 id="guest-trial-finish-title">{failed?t("guestTrial.interrupted"):expired?t("guestTrial.completeTitle"):t("guestTrial.ended")}</h2>
   <p>{failed?t("guestTrial.interruptedBody"):t("guestTrial.completeBody")}</p>
   <div className="guest-trial-finish-actions">
-   <Link className="btn" to="/settings#settings-gemini">{t("guestTrial.continueKey")}</Link>
+   <Link className="btn" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
    <Link className="btn secondary" to="/">{t("guestTrial.exploreCrew")}</Link>
   </div>
  </section>;
