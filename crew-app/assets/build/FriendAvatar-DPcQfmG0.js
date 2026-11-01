@@ -1,1 +1,0 @@
-import{t as e}from"./jsx-runtime-D3jfb0Ew.js";var t=e();function n({friend:e,className:n=``,decorative:r=!1}){return(0,t.jsx)(`img`,{className:`crew-friend-avatar `+n,src:e.avatar,alt:r?``:e.name,"aria-hidden":r||void 0,loading:`lazy`})}export{n as t};

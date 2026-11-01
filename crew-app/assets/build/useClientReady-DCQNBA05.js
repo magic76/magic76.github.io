@@ -1,1 +1,0 @@
-import{a as e,n as t}from"./jsx-runtime-D3jfb0Ew.js";var n=e(t());function r(){let[e,t]=(0,n.useState)(!1);return(0,n.useEffect)(()=>t(!0),[]),e}export{r as t};
