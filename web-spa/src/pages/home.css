@@ -294,9 +294,6 @@
  border-inline:0;border-radius:0;box-shadow:none;
 }
 .crew-home-world-inner{padding-bottom:4px}
-@media(min-width:1050px){
- .crew-home .crew-home-portal{height:clamp(540px,64vh,700px)}
-}
 @media(max-width:620px){
  .crew-home-content{width:calc(100% - 20px)}
  .crew-home-world-inner{width:100%}

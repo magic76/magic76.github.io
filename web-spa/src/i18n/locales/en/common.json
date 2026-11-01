@@ -97,6 +97,8 @@
     "settingsTitle": "Want to try it first?",
     "settingsCta": "Try free voice for 3 minutes",
     "used": "A trial has already been used from this device or network recently.",
+    "usedMember": "This account has used all {{limit}} free trials.",
+    "usedMemberNoCount": "This account has used all its free trials.",
     "limit": "Today's guest capacity has been reached.",
     "verification": "Verification failed. Please try again.",
     "tempUnavailable": "Guest trial is temporarily unavailable.",
@@ -106,7 +108,7 @@
     "freeVocabulary": "Word of the day",
     "freeStory": "Read stories",
     "freeNextTitle": "Keep exploring for free",
-    "aiFriend": "AI friend"
+    "aiFriend": "an AI friend"
   },
   "auth": {
     "trialCount": "Free voice trials used: {{used}} / {{limit}}",

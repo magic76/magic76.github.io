@@ -37,10 +37,13 @@ test("Exhausted Live entry hides the offer and uses no retry for consumed grants
  const render=starter.slice(starter.indexOf('return <div className="notice guest-live-entry"'));
  assert.match(starter,/!signedIn&&!config.signinRequired&&config.trial&&config.trial.used>=config.trial.limit/);
  assert.ok(starter.indexOf('config.trial.used>=config.trial.limit')<starter.indexOf('setSiteKey(config.siteKey)'));
- assert.match(starter,/data.code==="ALREADY_USED"\|\|data.code==="DAILY_LIMIT"\)setPhase\("exhausted"\)/);
+ assert.match(starter,/data.code==="ALREADY_USED"\)setPhase\("exhausted"\)/);
+ assert.match(starter,/data.code==="DAILY_LIMIT"\)setPhase\("full"\)/);
+ assert.doesNotMatch(starter,/data.code==="ALREADY_USED"\|\|data.code==="DAILY_LIMIT"/);
  assert.match(starter,/data.seconds!==180/);
- assert.match(render,/phase!=="exhausted"&&<>/);
+ assert.match(render,/phase!=="exhausted"&&phase!=="full"&&<>/);
  assert.match(render,/phase==="exhausted"&&<>/);
+ assert.match(render,/phase==="full"&&<p role="status">\{t\("guestTrial.limit"\)\}<\/p>/);
  assert.match(render,/guestTrial.usedUpTitle/);
  assert.match(render,/to="\/games\/1a2b"/);
  assert.match(render,/phase==="error"&&<button/);
@@ -58,7 +61,7 @@ test("Finish is honest across expired, early-ended and interrupted states",()=>{
  const finish=read("web-spa/src/live/GuestTrialExperience.tsx");
  assert.match(finish,/useLocation\(\)/);
  assert.match(finish,/new URLSearchParams\(location.search\).get\("id"\)/);
- assert.match(finish,/failed\?t\("guestTrial.interrupted"\):expired\?t\("guestTrial.completeTitle",\{name\}\):t\("guestTrial.ended"\)/);
+ assert.match(finish,/failed\?t\("guestTrial.interrupted"\):expired\?t\("guestTrial.completeTitle",\{name:displayName\}\):t\("guestTrial.ended"\)/);
  for(const dest of ["/games/1a2b","/teacher/vocabulary","/story","/account#settings-gemini"])assert.ok(finish.includes('to="'+dest+'"'));
  assert.ok(finish.indexOf('to="/games/1a2b"')<finish.indexOf('to="/account#settings-gemini"'));
  const zh=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/common.json"));
@@ -85,6 +88,6 @@ test("Teacher and game hubs defer Key onboarding; 11 locales keep new text",()=>
   assert.equal(home.playHub.accessNote,undefined);
   assert.equal(common.guestTrial.homeStart,undefined);
   assert.ok(common.guestTrial.completeTitle.includes("{{name}}"));
-  for(const key of ["usedUpTitle","free1a2b","freeVocabulary","freeStory","aiFriend"])assert.ok(common.guestTrial[key]);
+  for(const key of ["usedUpTitle","usedMember","usedMemberNoCount","free1a2b","freeVocabulary","freeStory","aiFriend"])assert.ok(common.guestTrial[key]);
  }
 });

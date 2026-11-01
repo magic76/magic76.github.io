@@ -187,7 +187,7 @@
     "vocabulary": "Luyện từ vựng",
     "lesson": "Bài {{number}}: {{name}}",
     "conversation": "Trò chuyện tự do với {{name}}",
-    "vocabularyNote": "Khởi động bằng bài tập từ vựng không cần khóa API.",
+    "vocabularyNote": "Khởi động với bài luyện từ vựng miễn phí.",
     "courseNote": "Tiếp tục với bài học đã mở khóa kế tiếp.",
     "conversationNote": "Bắt đầu trò chuyện ngay với giáo viên.",
     "threeMinute": "Luyện nói 3 phút",

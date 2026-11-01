@@ -187,7 +187,7 @@
     "vocabulary": "단어 연습",
     "lesson": "제{{number}}과: {{name}}",
     "conversation": "{{name}} 선생님과 자유 대화",
-    "vocabularyNote": "API 키 없이 단어 연습으로 시작하세요.",
+    "vocabularyNote": "무료 단어 연습으로 워밍업하세요.",
     "courseNote": "다음으로 열린 수업을 이어가세요.",
     "conversationNote": "선생님과 바로 대화를 시작하세요.",
     "threeMinute": "3분 말하기 연습",

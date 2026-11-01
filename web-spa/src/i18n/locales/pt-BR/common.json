@@ -97,6 +97,8 @@
     "settingsTitle": "Quer experimentar antes?",
     "settingsCta": "Teste grátis de voz por 3 minutos",
     "used": "Este dispositivo ou rede já testou.",
+    "usedMember": "Esta conta já usou suas {{limit}} experiências gratuitas.",
+    "usedMemberNoCount": "Esta conta já esgotou suas experiências gratuitas.",
     "limit": "As vagas de hoje se esgotaram.",
     "verification": "Falha na verificação. Tente de novo.",
     "tempUnavailable": "Teste temporariamente indisponível.",
@@ -106,7 +108,7 @@
     "freeVocabulary": "Palavra do dia",
     "freeStory": "Ler histórias",
     "freeNextTitle": "Continue grátis",
-    "aiFriend": "Amigo de IA"
+    "aiFriend": "um amigo de IA"
   },
   "auth": {
     "trialCount": "Testes de voz usados: {{used}} / {{limit}}",

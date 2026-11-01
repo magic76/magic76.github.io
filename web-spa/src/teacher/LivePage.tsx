@@ -222,7 +222,7 @@ export function TeacherLivePage(){
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
    :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
-    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
+    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name}/>
     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
   <details className="teacher-live-quick-actions"><summary>{t("live.shortcuts")}</summary><div className="live-presets">{!sessionActive&&<Link className="live-mode-shortcut" to="/teacher/roles?mode=teacher">{t("live.setMode")}</Link>}{!isRoleplay&&!guestStarted&&<><LiveSearchAction live={live} english={english} label={english?"Learn from news":"新聞學習"}
