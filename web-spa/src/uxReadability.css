@@ -17,8 +17,10 @@
 :root :is(.crew-explore-text small,.crew-section-card-copy small,.crew-home-setup-copy small,.crew-gemini-setup-copy small,.play-store-copy small,.section-head small,.crew-play-result-count,.briefing-score,.briefing-disclaimer,.crew-home-shorts-disclosure,.crew-today-learning-footnote,.crew-section-footnote,section.section>p.meta){
  font-size:12px
 }
-:root :is(.crew-play-game-voice-tag,.crew-play-eyebrow,.crew-section-eyebrow,.briefing-topic,.briefing-edition small,.fortune-home-mode span,.crew-town-3d-hint,.crew-town-3d-landmark,.crew-town-3d-status,.crew-town-3d-districts button){
- font-size:11px
+:root :is(.crew-play-game-voice-tag,.crew-play-eyebrow,.crew-section-eyebrow,.briefing-topic,.briefing-edition small,.crew-town-3d-hint,.crew-town-3d-landmark,.crew-town-3d-status,.crew-town-3d-districts button){
+ font-size:12px
 }
+/* Fortune remains intentionally outside the shared 12px readability floor. */
+:root .fortune-home-mode span{font-size:11px}
 :root .books-card-content p{font-size:12px}
-:root .books-card-meta span{font-size:11px}
+:root .books-card-meta span{font-size:12px}

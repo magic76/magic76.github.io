@@ -11,7 +11,7 @@
 .crew-section-hero-icon{width:58px;height:58px;display:grid;place-items:center;border-radius:17px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.04);color:var(--accent)}
 .crew-section-hero-icon svg,.crew-section-card-icon svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linejoin:round;stroke-linecap:round}
 .crew-section-hero-copy,.crew-section-card-copy{display:grid;gap:5px;min-width:0}
-.crew-section-eyebrow{font-size:10px;font-weight:800;color:var(--accent);letter-spacing:.08em}
+.crew-section-eyebrow{font-size:12px;font-weight:800;color:var(--accent);letter-spacing:.05em}
 .crew-section-hero-copy strong{font-size:19px;letter-spacing:-.02em}
 .crew-section-hero-copy small{font-size:12px;color:var(--muted);line-height:1.6}
 .crew-section-arrow{font-size:20px;color:var(--accent);justify-self:end}
@@ -24,13 +24,13 @@
 .crew-section-card-icon{height:40px;width:40px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent)}
 .crew-section-card-icon svg{width:22px;height:22px}
 .crew-section-card-copy strong{font-size:13px;line-height:1.4}
-.crew-section-card-copy small{font-size:11px;line-height:1.5;color:var(--muted)}
+.crew-section-card-copy small{font-size:12px;line-height:1.5;color:var(--muted)}
 .crew-section-people-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:11px}
 .crew-section-friend{padding:13px 8px;display:grid;gap:6px;justify-items:center;text-align:center;border-radius:16px;border:1px solid var(--line);background:var(--surface);text-decoration:none;color:var(--text);min-width:0}
 .crew-section-friend img{width:66px;height:66px;object-fit:cover;border-radius:50%}
 .crew-section-friend strong{font-size:13px}
-.crew-section-friend small{font-size:10px;line-height:1.4;color:var(--muted)}
-.crew-section-footnote{margin:0;font-size:11px;color:var(--muted);line-height:1.65}
+.crew-section-friend small{font-size:12px;line-height:1.4;color:var(--muted)}
+.crew-section-footnote{margin:0;font-size:12px;color:var(--muted);line-height:1.65}
 .crew-section-hub a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:700px){.crew-section-people-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.crew-section-grid{grid-template-columns:1fr}.crew-section-hub{gap:19px}.crew-section-hero{grid-template-columns:50px minmax(0,1fr) 16px;padding:18px 14px;gap:12px}.crew-section-hero-icon{width:50px;height:50px}.crew-section-hero-copy strong{font-size:17px}.crew-section-heading{padding-top:4px}.crew-section-friend img{width:60px;height:60px}}
 @media(prefers-reduced-motion:reduce){.crew-section-card,.crew-section-hero{transition:none}}
@@ -130,7 +130,7 @@
 .crew-learn-heading{padding-bottom:0}
 .crew-learn-heading-row{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;min-width:0}
 .crew-learn-heading-copy{min-width:0;display:grid;gap:5px}
-.crew-learn-language{display:grid;gap:5px;min-width:130px;max-width:46%;font-size:11px;font-weight:650;color:var(--muted)}
+.crew-learn-language{display:grid;gap:5px;min-width:130px;max-width:46%;font-size:12px;font-weight:650;color:var(--muted)}
 .crew-learn-language select{width:100%;min-width:0;min-height:44px;padding:8px 29px 8px 12px;font:inherit;font-size:14px;font-weight:650;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:12px}
 .crew-learn-language select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .crew-section-learn .crew-section-learning{gap:8px}
@@ -140,14 +140,14 @@
 .crew-section-learn .crew-learn-tool{min-height:145px;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:40px auto;align-content:start;align-items:start;gap:10px;padding:17px;background:var(--surface);border-radius:18px}
 .crew-learn-tool .crew-section-card-copy{gap:4px}
 .crew-learn-tool .crew-section-card-copy strong{font-size:14px;line-height:1.4}
-.crew-learn-tool .crew-section-card-copy small{font-size:11px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.crew-learn-tool .crew-section-card-copy small{font-size:12px;line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
 /* Keep the speaking entry's SVG intrinsic size out of the mobile grid layout. */
 .crew-learn-three-minute{display:grid;grid-template-columns:40px minmax(0,1fr) 20px;gap:12px;align-items:center;box-sizing:border-box;width:100%;min-width:0;padding:11px 13px;border:1px solid var(--line);border-radius:15px;text-decoration:none;color:var(--text);background:var(--surface);min-height:64px}
 .crew-learn-three-minute-icon{width:40px;height:40px;min-width:0}
 .crew-learn-three-minute-icon svg{display:block;width:22px;height:22px;stroke:currentColor;stroke-width:1.65;fill:none;stroke-linejoin:round;stroke-linecap:round}
 .crew-learn-three-minute-copy{display:grid;gap:3px;min-width:0;overflow-wrap:break-word}
 .crew-learn-three-minute-copy strong{font-size:13px;line-height:1.4}
-.crew-learn-three-minute-copy small{display:block;color:var(--muted);font-size:11px;line-height:1.4}
+.crew-learn-three-minute-copy small{display:block;color:var(--muted);font-size:12px;line-height:1.4}
 .crew-learn-three-minute-arrow{justify-self:end;color:var(--accent);font-size:20px;line-height:1}
 .crew-learn-more{border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
 .crew-learn-more>summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:51px;padding:12px 16px;font-size:14px;font-weight:700}

@@ -50,10 +50,10 @@
 .crew-language-option-name{font-size:15px;font-weight:650;overflow-wrap:anywhere}
 .crew-language-stage{
  display:inline-block;border:1px solid var(--line,#d6dbe5);border-radius:999px;
- padding:2px 7px;font-size:10px;line-height:1.3;font-weight:700;
+ padding:2px 7px;font-size:12px;line-height:1.3;font-weight:700;
  color:var(--muted,#657084);white-space:nowrap;
 }
-.crew-language-option-note{color:var(--muted,#657084);font-size:11px;line-height:1.4}
+.crew-language-option-note{color:var(--muted,#657084);font-size:12px;line-height:1.4}
 .crew-language-check{
  display:grid;place-items:center;flex:none;width:22px;height:22px;
  border:1.5px solid var(--line,#cbd5e1);border-radius:50%;color:transparent;
@@ -61,7 +61,7 @@
 }
 .crew-language-option.is-selected .crew-language-check{border-color:var(--accent,#725bc4);background:var(--accent,#725bc4);color:#fff}
 @media(max-width:600px){
- .crew-language-picker-header .crew-language-trigger{max-width:92px;min-height:34px;padding:6px 7px;gap:5px;font-size:11px}
+ .crew-language-picker-header .crew-language-trigger{max-width:92px;min-height:34px;padding:6px 7px;gap:5px;font-size:12px}
  .crew-language-dialog{
   inset:auto 0 0;width:100%;height:min(78dvh,680px);
   margin:0;border-left:0;border-right:0;border-bottom:0;
