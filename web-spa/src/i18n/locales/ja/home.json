@@ -85,7 +85,26 @@
     "chatWithZoe": "Zoe と話す",
     "chatExhausted": "無料のキーを設定して続ける",
     "quickPicks": "または友だちを選ぶ",
-    "noVoice": "声を出さずに？1A2B を遊ぼう"
+    "noVoice": "声を出さずに？1A2B を遊ぼう",
+    "tilesLabel": "やりたいことを選ぶ",
+    "tiles": {
+      "chat": {
+        "name": "チャット",
+        "sub": "Zoe と話す"
+      },
+      "teacher": {
+        "name": "先生",
+        "sub": "外国語を練習"
+      },
+      "fortune": {
+        "name": "占い",
+        "sub": "今日の運勢"
+      },
+      "play": {
+        "name": "ゲーム",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "ホーム",

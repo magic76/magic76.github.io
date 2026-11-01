@@ -85,7 +85,26 @@
     "chatWithZoe": "Trò chuyện với Zoe",
     "chatExhausted": "Thiết lập khóa miễn phí để tiếp tục",
     "quickPicks": "Hoặc chọn một người bạn",
-    "noVoice": "Không muốn nói? Chơi 1A2B"
+    "noVoice": "Không muốn nói? Chơi 1A2B",
+    "tilesLabel": "Chọn hoạt động",
+    "tiles": {
+      "chat": {
+        "name": "Trò chuyện",
+        "sub": "Trò chuyện với Zoe"
+      },
+      "teacher": {
+        "name": "Giáo viên",
+        "sub": "Luyện ngoại ngữ"
+      },
+      "fortune": {
+        "name": "Xem bói",
+        "sub": "Vận may hôm nay"
+      },
+      "play": {
+        "name": "Trò chơi",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "Trang chủ",

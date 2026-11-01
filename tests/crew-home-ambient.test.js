@@ -11,7 +11,8 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  assert.match(portal,/<Link className="crew-portal-cta" to=\{destination\}/);
  assert.doesNotMatch(portal,/role="tabpanel"|role="tablist"/);
  assert.match(field,/aria-hidden="true"/);
- assert.match(field,/<svg className="crew-portal-fallback"/);
+ assert.match(field,/<div className="crew-portal-fallback"/);
+ assert.match(field,/<svg key=\{tileMode\}/);
  assert.match(css,/\.crew-portal-field\{[^}]*pointer-events:none/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });

@@ -9,7 +9,8 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
  const hero=home.indexOf("<HomePortal/>"),start=home.indexOf('className="crew-home-start"');
  const shorts=home.indexOf("<HomeShortsPreview/>"),games=home.indexOf('className="crew-home-game-pick"');
  assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
- for(const path of ["/friend/live?id=noah","/teacher/live","/games/1a2b"])assert.ok(portal.includes('to="'+path+'"'),path);
+ assert.match(portal,/to=\{ZOE\}/);
+ for(const path of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to="'+path+'"'),path);
  assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
  assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
  assert.match(home,/taipeiDay%DAILY_GAMES\.length/);

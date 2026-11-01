@@ -85,7 +85,26 @@
     "chatWithZoe": "和 Zoe 聊聊",
     "chatExhausted": "設定免費 Key，繼續聊",
     "quickPicks": "或先挑一位",
-    "noVoice": "不想開口？先玩 1A2B"
+    "noVoice": "不想開口？先玩 1A2B",
+    "tilesLabel": "選擇想玩的體驗",
+    "tiles": {
+      "chat": {
+        "name": "聊天",
+        "sub": "和 Zoe 聊聊"
+      },
+      "teacher": {
+        "name": "老師",
+        "sub": "練外語"
+      },
+      "fortune": {
+        "name": "算命",
+        "sub": "今日運勢"
+      },
+      "play": {
+        "name": "遊戲",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "首頁",

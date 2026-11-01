@@ -85,7 +85,26 @@
     "chatWithZoe": "Hablar con Zoe",
     "chatExhausted": "Configura una clave gratis y sigue hablando",
     "quickPicks": "O elige a alguien",
-    "noVoice": "¿Prefieres escribir? Juega 1A2B"
+    "noVoice": "¿Prefieres escribir? Juega 1A2B",
+    "tilesLabel": "Elige una actividad",
+    "tiles": {
+      "chat": {
+        "name": "Charla",
+        "sub": "Habla con Zoe"
+      },
+      "teacher": {
+        "name": "Profesor",
+        "sub": "Practica idiomas"
+      },
+      "fortune": {
+        "name": "Fortuna",
+        "sub": "Tu suerte de hoy"
+      },
+      "play": {
+        "name": "Juegos",
+        "sub": "1A2B"
+      }
+    }
   },
   "playHub": {
     "back": "Inicio",

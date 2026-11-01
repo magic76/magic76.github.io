@@ -10,9 +10,9 @@ test("Home is a single, SSR-safe chat CTA with optional free alternatives",()=>{
  assert.match(portal,/const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0/);
  assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":ZOE/);
  assert.match(portal,/const cta=hasKey\?"world.chatWithZoe":exhausted\?"world.chatExhausted":"world.chatStart"/);
- for(const target of ["/friend/live?id=noah","/teacher/live","/games/1a2b"])assert.ok(portal.includes('to="'+target+'"'));
- assert.match(portal,/setTeacherProfile\("emma"\)/);
- assert.match(portal,/void import\("\.\.\/store\/teacherStore"\)/);
+ assert.match(portal,/to=\{ZOE\}/);
+ for(const target of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to="'+target+'"'));
+ assert.doesNotMatch(portal,/setTeacherProfile|teacherStore|crew-portal-picks|crew-portal-game-link/);
  assert.match(portal,/<PortalParticleField mode="chat"/);
  assert.doesNotMatch(portal,/setMode|tablist|crew-portal-trial-chip|guest_trial_start_click|crew-portal-motion/);
  assert.doesNotMatch(css,/crew-portal-tabs|crew-portal-trial-chip|crew-portal-number|crew-portal-intro|crew-portal-kicker|crew-portal-motion/);
