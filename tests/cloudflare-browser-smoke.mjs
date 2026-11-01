@@ -19,25 +19,31 @@ const routes=["/","/teacher/","/story/","/fortune/","/research/","/games/","/en/
 async function assertPortalCtaPixels(page,label){
  const button=page.locator(".crew-portal-cta");
  await page.mouse.move(0,0); // Keep hover transforms/shadows out of this pixel check.
- await page.waitForTimeout(220); // Let any prior 200ms hover transition finish before measuring.
- const box=await button.boundingBox();
- assert.ok(box&&box.width>=44&&box.height>=44,"Visible CTA for "+label);
- const samples=[
-  {name:"left center",x:Math.ceil(box.x+12),y:Math.round(box.y+box.height/2)-1},
-  {name:"right center",x:Math.floor(box.x+box.width-15),y:Math.round(box.y+box.height/2)-1},
-  {name:"top center",x:Math.round(box.x+box.width/2)-1,y:Math.ceil(box.y+6)}
- ];
- for(const sample of samples){
-  const png=await page.screenshot({type:"png",clip:{x:sample.x,y:sample.y,width:3,height:3},animations:"disabled"});
-  const pixels=await page.evaluate(async encoded=>{
-   const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));
-   const image=await createImageBitmap(new Blob([bytes],{type:"image/png"}));
-   const canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext("2d");
-   ctx.drawImage(image,0,0);image.close();
-   return Array.from(ctx.getImageData(0,0,canvas.width,canvas.height).data);
-  },png.toString("base64"));
-  for(let at=0;at<pixels.length;at+=4)
-   assert.deepEqual(pixels.slice(at,at+4),[245,238,230,255],label+" CTA must paint solid #f5eee6 at "+sample.name);
+ await page.waitForTimeout(220); // Let any prior 200ms hover transition finish before capturing.
+ await button.scrollIntoViewIfNeeded();
+ // Capture the element after Playwright settles animations/scrolling, then use PNG-local
+ // coordinates. A stale offscreen page boundingBox can no longer create an empty clip.
+ const png=await button.screenshot({type:"png",animations:"disabled",scale:"css"});
+ const picture=await page.evaluate(async encoded=>{
+  const bytes=Uint8Array.from(atob(encoded),character=>character.charCodeAt(0));
+  const image=await createImageBitmap(new Blob([bytes],{type:"image/png"}));
+  const canvas=new OffscreenCanvas(image.width,image.height),ctx=canvas.getContext("2d");
+  ctx.drawImage(image,0,0);image.close();
+  const samples=[
+   {name:"left center",x:12,y:Math.round(canvas.height/2)-1},
+   {name:"right center",x:canvas.width-15,y:Math.round(canvas.height/2)-1},
+   {name:"top center",x:Math.round(canvas.width/2)-1,y:6}
+  ];
+  return {width:canvas.width,height:canvas.height,samples:samples.map(sample=>({
+   name:sample.name,pixels:Array.from(ctx.getImageData(sample.x,sample.y,3,3).data)
+  }))};
+ },png.toString("base64"));
+ assert.ok(picture.width>=44&&picture.height>=44,"Visible CTA for "+label);
+ assert.equal(picture.samples.length,3,"Three interior CTA regions for "+label);
+ for(const sample of picture.samples){
+  assert.equal(sample.pixels.length,36,"Complete 3x3 CTA region for "+label+" at "+sample.name);
+  for(let at=0;at<sample.pixels.length;at+=4)
+   assert.deepEqual(sample.pixels.slice(at,at+4),[245,238,230,255],label+" CTA must paint solid #f5eee6 at "+sample.name);
  }
 }
 
