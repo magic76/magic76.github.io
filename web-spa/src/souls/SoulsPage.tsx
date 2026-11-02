@@ -284,16 +284,17 @@ export function SoulsPage(){
  }
  return <main className="souls-page">
   <header className="souls-header"><Link to="/explore">← {t("探索","Explore")}</Link><small>CREW SOULS · PRIVATE MVP</small>
-   <h1>{t("讓萬物，記得你。","Give objects a memory.")}</h1><p>{t("掃描一件物品，給它個性。下次再見，它還記得你們聊過什麼。","Scan an object, give it personality, and come back to a companion that remembers.")}</p>
+   <h1>{t("讓萬物，記得你。","Give objects a memory.")}</h1><p>{t("鏡頭對準物品，它就醒來跟你說話。下次再見，它還記得你們的故事。","Point your camera at an object. It wakes up, talks and remembers.")}</p>
   </header>
   <input ref={camera} className="souls-hidden" type="file" accept="image/*" capture="environment" aria-label={t("拍照","Camera")} onChange={e=>void scanFile(e)}/>
   <input ref={gallery} className="souls-hidden" type="file" accept="image/*" aria-label={t("相簿","Gallery")} onChange={e=>void scanFile(e)}/>
-  <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>camera.current?.click()}>◎ {t("拍照掃描","Scan object")}</button>
+  <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {busy&&<p role="status">{t("正在處理…","Processing…")}</p>}
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={file=>{void processFile(file).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))}} onClose={()=>setCameraOpen(false)}/>}
+   {busy&&<p role="status">{t("正在處理…","Processing…")}</p>}
   {error&&<p className="souls-error" role="alert">{error}</p>}{info&&<p className="souls-info" role="status">{info}</p>}
-  {step==="home"&&<section className="souls-panel"><h2>{t("我的靈魂收藏","My Souls")} <small>({items.length})</small></h2>
+  {!cameraOpen&&step==="home"&&<section className="souls-panel"><h2>{t("我的靈魂收藏","My Souls")} <small>({items.length})</small></h2>
    {!items.length?<div className="souls-empty">✦<p>{t("第一個靈魂等你喚醒，先拍一張照片吧。","Your first Soul is waiting. Take a picture.")}</p></div>:
     <div className="souls-grid">{items.map(s=><button key={s.id} onClick={()=>{setSelected(s);setScan(null);setStep("detail");setInfo("")}}><img src={s.photos[0]?.image} alt={s.description||s.name}/><strong>{s.name}</strong><small>{s.kind||t("神祕物品","Mystery object")} · {s.notes.length} {t("則回憶","memories")}</small></button>)}</div>}
   </section>}
