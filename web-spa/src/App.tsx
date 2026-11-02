@@ -42,6 +42,7 @@ const ShortsPage=lazy(()=>import("./teacher/ShortsPage").then(m=>({default:m.Sho
 const MatePage=lazy(()=>withNamespace("mate",import("./mate/MatePage")).then(m=>({default:m.MatePage})));
 const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town3DPage})));
 const MagicPage=lazy(()=>withNamespace("magic",import("./magic/MagicPage")).then(m=>({default:m.MagicPage})));
+const SoulsPage=lazy(()=>withNamespace("voice",import("./souls/SoulsPage")).then(m=>({default:m.SoulsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
 const CrewSectionPage=lazy(()=>withNamespace("lesson",import("./pages/CrewSectionPage")).then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
@@ -61,6 +62,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
  <Route path="/mate" element={<AppChrome product="home"><MatePage/></AppChrome>}/>
 <Route path="/town" element={<AppChrome product="home"><CrewTownPage/></AppChrome>}/>
 <Route path="/magic" element={<AppChrome product="home"><MagicPage/></AppChrome>}/>
+ <Route path="/souls" element={<AppChrome product="home"><SoulsPage/></AppChrome>}/>
 <Route path="/learn" element={<AppChrome product="teacher"><CrewSectionPage section="learn"/></AppChrome>}/>
 <Route path="/me" element={<AppChrome product="settings"><CrewSectionPage section="me"/></AppChrome>}/>
 <Route path="/research" element={<AppChrome product="briefing"><BriefingPage/></AppChrome>}/>
