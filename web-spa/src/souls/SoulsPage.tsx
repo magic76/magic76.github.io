@@ -1,7 +1,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
 import {SoulCamera,type SoulVisual} from "./SoulCamera";
 import {cutoutObject} from "./soulCutout";
-import {embedPhoto,compareEmbeddings,photoQuality} from "./soulEmbedding";
+import {embedPhoto,compareEmbeddings,photoQuality,embeddingStatus} from "./soulEmbedding";
 import {shouldAutoWake,isSafeAutomaticMemory} from "./soulRecognition";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -241,7 +241,7 @@ export function SoulsPage(){
  const [note,setNote]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[info,setInfo]=useState("");
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
  // A first-time Soul created from the live camera should wake up in that same mode.
- const returnToCameraAfterCreate=useRef(false);
+ const returnToCameraAfterCreate=useRef(false),embeddingWarningShown=useRef(false);
  async function refresh(id?:string){const all=await list();setItems(all);if(id)setSelected(all.find(s=>s.id===id)||null)}
  useEffect(()=>{void refresh().catch(()=>setError(t("本機儲存無法使用，請檢查瀏覽器模式。","Local storage is unavailable.")))},[]);
  async function processFiles(frames:File[],keepCamera=false){
@@ -298,6 +298,11 @@ export function SoulsPage(){
  async function probe(file:File){
   const useEmbedding=items.some(s=>s.photos.some(photo=>Boolean(photo.embedding?.length)));
   const p=await photoFromFile(file,useEmbedding),ranked=candidates(p,items),best=ranked[0];
+  if(useEmbedding&&embeddingStatus()==="unavailable"&&!embeddingWarningShown.current){
+   embeddingWarningShown.current=true;
+   setInfo(t("本機 AI 辨識模型暫時無法載入。為避免認錯物品，請從下方手動選擇 Soul。","On-device image model unavailable. Please select a Soul manually to avoid mistaken identity."));
+  }
+  if(embeddingStatus()==="ready")embeddingWarningShown.current=false;
   if(p.quality||!shouldAutoWake(best,ranked[1]))return null;
   return {id:best.soul.id,name:best.soul.name};
  }
