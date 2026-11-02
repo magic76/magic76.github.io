@@ -1,5 +1,5 @@
-import {useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
-import {SoulCamera} from "./SoulCamera";
+import {useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
+import {SoulCamera,type SoulVisual} from "./SoulCamera";
 import {cutoutObject} from "./soulCutout";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
@@ -133,7 +133,7 @@ async function remember(id:string,utterance:string,changed:()=>void){
  finally{pending.delete(id)}
 }
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
-function SoulChat({soul,en,onChange}:{soul:Soul;en:boolean;onChange:()=>void}){
+function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;overlay?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
@@ -157,6 +157,13 @@ function SoulChat({soul,en,onChange}:{soul:Soul;en:boolean;onChange:()=>void}){
   return()=>window.clearTimeout(timer);
  },[live.start]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
+ const lastSpeech=live.turns.slice().reverse().find(turn=>turn.output?.trim())?.output||"";
+ const caption=(live.output?.trim()||lastSpeech).slice(-130);
+ const mood:SoulVisual["mood"]=live.state==="requesting-mic"||live.state==="connecting"?"thinking":
+  /[!！?？]|哇|天啊|驚|wow|really/i.test(caption)?"surprised":
+  /哈哈|開心|喜歡|好耶|太棒|笑|great|love|haha/i.test(caption)?"happy":
+  live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
+ useEffect(()=>{onVisual?.({state:live.state,caption,mood})},[onVisual,live.state,caption,mood]);
  const ready=live.state==="listening"||live.state==="speaking";
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
@@ -166,15 +173,15 @@ function SoulChat({soul,en,onChange}:{soul:Soul;en:boolean;onChange:()=>void}){
   setTyped(messages=>[...messages,value].slice(-15));setDraft("");setError("");
   void remember(soul.id,value,onChange);
  }
- return <section className="souls-panel">
+ return <section className={"souls-panel"+(overlay?" souls-ar-chat":"")}>
   <div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small><h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>
-  <p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>
+  {!overlay&&<p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>}
   <div className="souls-voice">
    {!geminiKey()&&!guest?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuest(true);await live.start(grant)}}/>:
     guest&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>:
     <LiveControls live={live} compact={active} prominentInterrupt/>}
    {guest&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
-   <div className="souls-transcript" role="log">
+   <div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
     {live.turns.slice(-12).map((turn,i)=><div key={i}>
      {turn.input&&<p className="user"><strong>{en?"You":"你"}：</strong>{turn.input}</p>}
      {turn.output&&<p><strong>{soul.name}：</strong>{turn.output}</p>}
@@ -196,15 +203,20 @@ export function SoulsPage(){
  const [items,setItems]=useState<Soul[]>([]),[selected,setSelected]=useState<Soul|null>(null);
  const [step,setStep]=useState<"home"|"match"|"create"|"detail">("home"),[scan,setScan]=useState<Photo|null>(null),[matches,setMatches]=useState<Candidate[]>([]);
  const [cameraOpen,setCameraOpen]=useState(false),[cutoutDraft,setCutoutDraft]=useState(""),[cutting,setCutting]=useState(false);
+ const [cameraVisual,setCameraVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
+ const onVisual=useCallback((next:SoulVisual)=>{
+  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood?prev:next);
+ },[]);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
  const [note,setNote]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[info,setInfo]=useState("");
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
  async function refresh(id?:string){const all=await list();setItems(all);if(id)setSelected(all.find(s=>s.id===id)||null)}
  useEffect(()=>{void refresh().catch(()=>setError(t("本機儲存無法使用，請檢查瀏覽器模式。","Local storage is unavailable.")))},[]);
- async function processFile(file:File){
+ async function processFile(file:File,keepCamera=false){
   const p=await photoFromFile(file),all=await list();
-  setCameraOpen(false);setScan(p);setCutoutDraft("");setItems(all);setMatches(candidates(p,all));setStep("match");
+  if(!keepCamera)setCameraOpen(false);
+  setScan(p);setCutoutDraft("");setItems(all);setMatches(candidates(p,all));setStep("match");
  }
  async function scanFile(e:ChangeEvent<HTMLInputElement>){
   const file=e.target.files?.[0];e.target.value="";if(!file)return;
@@ -221,11 +233,11 @@ export function SoulsPage(){
  }
  async function wake(id:string,file:File){
   const soul=items.find(s=>s.id===id);if(!soul)return;
-  setCameraOpen(false);
   try{setScan(await photoFromFile(file));await choose(soul)}
   catch{setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."))}
  }
- function home(){setCameraOpen(false);setSelected(null);setScan(null);setStep("home");setError("");setInfo("")}
+ function home(){setCameraOpen(false);setSelected(null);setScan(null);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
+ function resetCameraSoul(){setSelected(null);setScan(null);setStep("home");setCameraVisual({state:"idle",caption:"",mood:"calm"});setError("");setInfo("")}
  async function removeBackground(event:MouseEvent<HTMLButtonElement>,existing=false){
   const original=existing?selected?.photos[0]:scan;if(!original||cutting)return;
   const rect=event.currentTarget.getBoundingClientRect();
@@ -240,7 +252,7 @@ export function SoulsPage(){
   }catch{setError(t("去背失敗，原照片保留；請檢查網路或點在物品上。","Cutout failed. Original remains; retry on the object."))}
   finally{setCutting(false)}
  }
- function createStart(){setName("");setKind("");setDescription("");setRememberEnabled(true);setPersonality("witty");setStep("create")}
+ function createStart(){setCameraOpen(false);setName("");setKind("");setDescription("");setRememberEnabled(true);setPersonality("witty");setStep("create")}
  async function aiDescribe(){
   if(!scan)return;
   if(!geminiKey()){setError(t("請先加入 Gemini Key，或自行填寫。","Add a Gemini Key or fill in the details manually."));return}
@@ -291,7 +303,10 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={file=>{void processFile(file).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))}} onClose={()=>setCameraOpen(false)}/>}
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={file=>{void processFile(file,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
+    {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onChange={()=>{void refresh(selected.id)}}/>:null}
+    {step==="home"&&items.length>0?<div className="souls-camera-quick"><strong>{t("或手動選一個靈魂","Or choose a Soul")}</strong><div>{items.slice(0,8).map(s=><button type="button" key={s.id} onClick={()=>void choose(s)}>{s.name}</button>)}</div></div>:null}
+   </SoulCamera>}
    {busy&&<p role="status">{t("正在處理…","Processing…")}</p>}
   {error&&<p className="souls-error" role="alert">{error}</p>}{info&&<p className="souls-info" role="status">{info}</p>}
   {!cameraOpen&&step==="home"&&<section className="souls-panel"><h2>{t("我的靈魂收藏","My Souls")} <small>({items.length})</small></h2>
@@ -313,7 +328,7 @@ export function SoulsPage(){
     <button className="souls-primary" disabled={!name.trim()||busy}>{t("喚醒這個靈魂 ✦","Awaken Soul ✦")}</button>
    </form>
   </section>}
-  {step==="detail"&&selected&&<><section className="souls-panel souls-profile"><div className="souls-cutout-stage"><button type="button" className="souls-cutout-target" disabled={cutting} onClick={e=>void removeBackground(e,true)} aria-label={t("點物品去背","Tap object to remove background")}><img src={selected.cutout||selected.photos[0]?.image} alt={selected.description||selected.name}/></button><small>{cutting?t("正在去背…","Removing background…"):t("點物品重新去背","Tap object to cut out again")}</small></div><div>
+  {!cameraOpen&&step==="detail"&&selected&&<><section className="souls-panel souls-profile"><div className="souls-cutout-stage"><button type="button" className="souls-cutout-target" disabled={cutting} onClick={e=>void removeBackground(e,true)} aria-label={t("點物品去背","Tap object to remove background")}><img src={selected.cutout||selected.photos[0]?.image} alt={selected.description||selected.name}/></button><small>{cutting?t("正在去背…","Removing background…"):t("點物品重新去背","Tap object to cut out again")}</small></div><div>
     <small>SOUL #{selected.id.slice(0,8)}</small><h2>{selected.name}</h2><p>{selected.kind||t("獨特物品","Unique object")}</p><p>{selected.description}</p><small>{selected.photos.length} {t("張參考照","reference photos")}</small></div>
     {scan&&<div className="souls-angle"><p>{t("已確認這次掃描是它。要加入參考照片嗎？","Confirmed match. Add this scan as a reference photo?")}</p><button onClick={()=>void addAngle()}>{t("加入角度（最多 8 張）","Add angle (max 8)")}</button></div>}
    </section>
