@@ -95,6 +95,16 @@ function similarity(a:Photo,b:Photo){
  const color=1-Math.min(1,a.color.reduce((sum,v,i)=>sum+Math.abs(v-b.color[i]),0)/2);
  return .6*(1-distance/64)+.4*color;
 }
+function distinctPhotos(photos:Photo[]):Photo[]{
+ const result:Photo[]=[];
+ for(const p of photos)if(!result.some(existing=>similarity(existing,p)>.992))result.push(p);
+ return result;
+}
+function keepReferences(photos:Photo[]):Photo[]{
+ const unique=distinctPhotos(photos);
+ // Preserve the original cover photo, even after adding newer viewpoints.
+ return unique.length<=8?unique:[unique[0],...unique.slice(-7)];
+}
 function candidates(photo:Photo,items:Soul[]):Candidate[]{
  return items.map(soul=>({soul,score:Math.max(0,...soul.photos.map(p=>similarity(p,photo)))}))
   .filter(x=>x.score>=.5).sort((a,b)=>b.score-a.score).slice(0,4);
@@ -203,6 +213,7 @@ export function SoulsPage(){
  const [items,setItems]=useState<Soul[]>([]),[selected,setSelected]=useState<Soul|null>(null);
  const [step,setStep]=useState<"home"|"match"|"create"|"detail">("home"),[scan,setScan]=useState<Photo|null>(null),[matches,setMatches]=useState<Candidate[]>([]);
  const [cameraOpen,setCameraOpen]=useState(false),[cutoutDraft,setCutoutDraft]=useState(""),[cutting,setCutting]=useState(false);
+ const [draftPhotos,setDraftPhotos]=useState<Photo[]>([]);
  const [cameraVisual,setCameraVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
  const onVisual=useCallback((next:SoulVisual)=>{
   setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood?prev:next);
@@ -215,10 +226,28 @@ export function SoulsPage(){
  const returnToCameraAfterCreate=useRef(false);
  async function refresh(id?:string){const all=await list();setItems(all);if(id)setSelected(all.find(s=>s.id===id)||null)}
  useEffect(()=>{void refresh().catch(()=>setError(t("本機儲存無法使用，請檢查瀏覽器模式。","Local storage is unavailable.")))},[]);
- async function processFile(file:File,keepCamera=false){
-  const p=await photoFromFile(file),all=await list();
+ async function processFiles(frames:File[],keepCamera=false){
+  if(!frames.length)throw Error("No camera frames");
+  const photos:Photo[]=[];
+  for(const file of frames)photos.push(await photoFromFile(file));
+  const unique=distinctPhotos(photos),all=await list();
   if(!keepCamera)setCameraOpen(false);
-  setScan(p);setCutoutDraft("");setItems(all);setMatches(candidates(p,all));setStep("match");
+  setScan(unique[0]);setDraftPhotos(unique);setCutoutDraft("");
+  setItems(all);setMatches(candidates(unique[0],all));setStep("match");
+ }
+ async function processFile(file:File,keepCamera=false){return processFiles([file],keepCamera)}
+ async function addReferences(frames:File[]){
+  if(!selected)throw Error("Select a Soul first");
+  const photos:Photo[]=[];
+  for(const file of frames)photos.push(await photoFromFile(file));
+  const currentId=selected.id;
+  const before=selected.photos.length;
+  const changed=await update(currentId,item=>({...item,photos:keepReferences([...item.photos,...photos])}));
+  await refresh(currentId);
+  const added=Math.max(0,(changed?.photos.length||0)-before);
+  setInfo(added
+   ?t("已新增 "+added+" 個不同視角，辨識時會一起比對。","Saved "+added+" extra views for recognition.")
+   :t("照片外觀太接近，沒有增加新的辨識視角；可繞物品再拍一次。","Views were nearly identical; move around the object and try again."));
  }
  async function scanFile(e:ChangeEvent<HTMLInputElement>){
   const file=e.target.files?.[0];e.target.value="";if(!file)return;
@@ -238,8 +267,8 @@ export function SoulsPage(){
   try{setScan(await photoFromFile(file));await choose(soul)}
   catch{setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."))}
  }
- function home(){returnToCameraAfterCreate.current=false;setCameraOpen(false);setSelected(null);setScan(null);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
- function resetCameraSoul(){setSelected(null);setScan(null);setStep("home");setCameraVisual({state:"idle",caption:"",mood:"calm"});setError("");setInfo("")}
+ function home(){returnToCameraAfterCreate.current=false;setCameraOpen(false);setSelected(null);setScan(null);setDraftPhotos([]);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
+ function resetCameraSoul(){setSelected(null);setScan(null);setDraftPhotos([]);setStep("home");setCameraVisual({state:"idle",caption:"",mood:"calm"});setError("");setInfo("")}
  async function removeBackground(event:MouseEvent<HTMLButtonElement>,existing=false){
   const original=existing?selected?.photos[0]:scan;if(!original||cutting)return;
   const rect=event.currentTarget.getBoundingClientRect();
@@ -273,7 +302,7 @@ export function SoulsPage(){
  async function create(e:FormEvent){e.preventDefault();if(!scan||!name.trim()||busy)return;
   setBusy(true);setError("");
   try{
-   const now=Date.now(),s:Soul={id:pid(),name:trim(name,40),kind:trim(kind,60),description:trim(description,140),personality,voice:persona[personality][2],photos:[scan],cutout:cutoutDraft||undefined,notes:[],remember:rememberEnabled,createdAt:now,lastSeenAt:now};
+   const now=Date.now(),s:Soul={id:pid(),name:trim(name,40),kind:trim(kind,60),description:trim(description,140),personality,voice:persona[personality][2],photos:keepReferences([scan,...draftPhotos]),cutout:cutoutDraft||undefined,notes:[],remember:rememberEnabled,createdAt:now,lastSeenAt:now};
    await save(s);await refresh(s.id);setScan(null);setCutoutDraft("");setStep("detail");
     if(returnToCameraAfterCreate.current){setCameraOpen(true);returnToCameraAfterCreate.current=false;}
     setInfo(t("靈魂已誕生！相機拍攝建立的 Soul 會在鏡頭中醒來。","Soul created! Camera-enrolled Souls now wake in the live view."));
@@ -288,7 +317,7 @@ export function SoulsPage(){
   if(!selected)return;try{await update(selected.id,fn);await refresh(selected.id)}catch{setError(t("本機儲存失敗。","Local save failed."))}
  }
  async function addAngle(){
-  if(!scan||!selected)return;await mutate(s=>({...s,photos:[...s.photos,scan].slice(-8)}));setScan(null);
+  if(!scan||!selected)return;await mutate(s=>({...s,photos:keepReferences([...s.photos,...(draftPhotos.length?draftPhotos:[scan])])}));setScan(null);setDraftPhotos([]);
   setInfo(t("已新增辨識角度。","Reference angle added."));
  }
  async function manual(e:FormEvent){e.preventDefault();if(!note.trim())return;
@@ -307,7 +336,7 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={file=>{void processFile(file,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))} onAddReferences={frames=>addReferences(frames).catch(()=>setError(t("補拍失敗，請重試。","Could not save extra angles.")))} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
     {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onChange={()=>{void refresh(selected.id)}}/>:null}
     {step==="home"&&items.length>0?<div className="souls-camera-quick"><strong>{t("或手動選一個靈魂","Or choose a Soul")}</strong><div>{items.slice(0,8).map(s=><button type="button" key={s.id} onClick={()=>void choose(s)}>{s.name}</button>)}</div></div>:null}
    </SoulCamera>}
@@ -323,6 +352,7 @@ export function SoulsPage(){
   </section>}
   {step==="create"&&scan&&<section className="souls-panel"><h2>{t("喚醒新靈魂","Awaken a new Soul")}</h2><div className="souls-cutout-stage"><button className="souls-cutout-target" type="button" disabled={cutting} onClick={e=>void removeBackground(e)} aria-label={t("點物品去背","Tap object to remove background")}><img className="souls-new" src={cutoutDraft||scan.image} alt={t("物品照片","Object")}/></button><small>{cutting?t("正在去背…","Removing background…"):t("✦ 點照片中的物品，可選擇去背","✦ Tap the object to cut it out")}</small></div>
    <button className="souls-full" disabled={busy} onClick={()=>void aiDescribe()}>{t("✧ 讓 Gemini 看照片並建議名字（會上傳照片）","✧ Ask Gemini to suggest a name (uploads photo)")}</button>
+   <p className="souls-views-note">{t("已收集 "+(draftPhotos.length||1)+" 個不同視角，會一起保存作為辨識依據。","Collected "+(draftPhotos.length||1)+" different views for recognition.")}</p>
    <form className="souls-form" onSubmit={e=>void create(e)}>
     <label>{t("名字 *","Name *")}<input required maxLength={40} value={name} onChange={e=>setName(e.target.value)}/></label>
     <label>{t("物品種類","Object type")}<input maxLength={60} value={kind} onChange={e=>setKind(e.target.value)}/></label>
