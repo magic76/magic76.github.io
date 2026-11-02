@@ -124,7 +124,7 @@ async function remember(id:string,utterance:string,changed:()=>void){
   if(!note||!evidence||!said.includes(evidence)||danger.test(note+" "+evidence))return;
   await update(id,current=>{
    if(!current.remember||current.notes.some(n=>n.text.toLowerCase()===note.toLowerCase()))return current;
-   return {...current,notes:[...current.notes,{id:pid(),text:note,source:"conversation"}].slice(-30)};
+   return {...current,notes:[...current.notes,{id:pid(),text:note,source:"conversation" as const}].slice(-30)};
   });
   changed();
  }catch{/* Memory capture is optional; never interrupt the conversation. */}
@@ -242,7 +242,7 @@ export function SoulsPage(){
   setInfo(t("已新增辨識角度。","Reference angle added."));
  }
  async function manual(e:FormEvent){e.preventDefault();if(!note.trim())return;
-  await mutate(s=>({...s,notes:[...s.notes,{id:pid(),text:trim(note),source:"manual"}].slice(-30)}));setNote("");
+  await mutate(s=>({...s,notes:[...s.notes,{id:pid(),text:trim(note),source:"manual" as const}].slice(-30)}));setNote("");
  }
  async function erase(){
   if(!selected||!window.confirm(t("確定刪除靈魂、照片與全部回憶？此動作無法復原。","Delete this Soul, photos and memories permanently?")))return;
