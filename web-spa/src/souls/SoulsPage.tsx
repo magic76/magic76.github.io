@@ -155,9 +155,9 @@ async function remember(id:string,utterance:string,changed:()=>void){
  finally{pending.delete(id)}
 }
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
-function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;overlay?:boolean}){
+function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
- const [typed,setTyped]=useState<string[]>([]),[audioLevel,setAudioLevel]=useState(0);
+ const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
@@ -169,7 +169,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   openingPrompt:en?"The camera has just recognized you. Wake up as this object, warmly greet your owner in one playful short sentence.":"相機剛認出你這個物品。用你的個性醒來，像老朋友一樣簡短打招呼，別解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
-  onOutputLevel:level=>setAudioLevel(previous=>Math.abs(previous-level)>.035?level:previous),
+  onOutputLevel:level=>onAudioLevel?.(level),
   onTurnComplete:(_turn,turns)=>capture(turns),
   onSessionFinished:item=>{if(item)capture(item.turns)}
  });
@@ -186,7 +186,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   /[!！?？]|哇|天啊|驚|wow|really/i.test(caption)?"surprised":
   /哈哈|開心|喜歡|好耶|太棒|笑|great|love|haha/i.test(caption)?"happy":
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
- useEffect(()=>{onVisual?.({state:live.state,caption,mood,level:live.state==="speaking"?audioLevel:0,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,audioLevel,live.voicePhase]);
+ useEffect(()=>{onVisual?.({state:live.state,caption,mood,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
@@ -228,8 +228,13 @@ export function SoulsPage(){
  const [cameraOpen,setCameraOpen]=useState(false),[cutoutDraft,setCutoutDraft]=useState(""),[cutting,setCutting]=useState(false);
  const [draftPhotos,setDraftPhotos]=useState<Photo[]>([]),[pendingForeground,setPendingForeground]=useState<File|null>(null);
  const [cameraVisual,setCameraVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
+ const mouthRef=useRef<SVGEllipseElement|null>(null);
+ const onAudioLevel=useCallback((level:number)=>{
+  // Bypass React for 15Hz playback envelope updates.
+  if(mouthRef.current)mouthRef.current.setAttribute("ry",String(Math.max(2,Math.min(20,Math.round(2+level*18)))));
+ },[]);
  const onVisual=useCallback((next:SoulVisual)=>{
-  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood&&prev.level===next.level&&prev.hearing===next.hearing?prev:next);
+  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood&&prev.hearing===next.hearing?prev:next);
  },[]);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
@@ -371,8 +376,8 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true)} onAddReferences={frames=>addReferences(frames)} onRegionCrop={file=>{setPendingForeground(file)}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
-    {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onChange={()=>{void refresh(selected.id)}}/>:null}
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true)} onAddReferences={frames=>addReferences(frames)} onRegionCrop={file=>{setPendingForeground(file)}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} mouthRef={mouthRef} paused={step==="match"}>
+    {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onAudioLevel={onAudioLevel} onChange={()=>{void refresh(selected.id)}}/>:null}
     {step==="detail"&&selected&&pendingForeground&&<div className="souls-camera-quick" role="group" aria-label={t("裁切參考照確認","Foreground reference confirmation")}>
      <strong>{t("物品輪廓已取得。要把裁切圖加入辨識照片嗎？","Object isolated. Save this crop as a recognition reference?")}</strong>
      <div><button type="button" disabled={busy} onClick={()=>void confirmForeground()}>{t("確認加入","Save reference")}</button><button type="button" onClick={()=>setPendingForeground(null)}>{t("不用，保留原照片","Not now")}</button></div>
