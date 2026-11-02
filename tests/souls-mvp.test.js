@@ -28,3 +28,29 @@ test("Soul memory is scoped to the object and can be disabled or deleted",()=>{
  assert.match(page,/notes:s\.notes\.filter/);
  assert.match(page,/Delete Soul/);
 });
+
+test("camera-first route uses repeated local recognition and asks for uncertain identities",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ assert.match(page,/onProbe=\{probe\}/);
+ assert.match(page,/onWake=\{\(id,file\)/);
+ assert.match(page,/best\.score<\.94/);
+ assert.match(page,/best\.score-\(ranked\[1\]\?\.score\|\|0\)<\.12/);
+ assert.match(camera,/stable\.current\.hits>=3/);
+ assert.match(camera,/getUserMedia\(\{video:/);
+ assert.match(camera,/getTracks\(\)\.forEach/);
+});
+test("voice and typed chat use one live session; typing has no separate model call",()=>{
+ const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage("));
+ assert.match(chat,/useLiveSession\(/);
+ assert.match(chat,/live\.sendText\(value\)/);
+ assert.match(chat,/live\.start\(\)/);
+ assert.doesNotMatch(chat,/CrewAI\.call/);
+ assert.doesNotMatch(chat,/setMode\("text"\)/);
+});
+test("cutout is optional, local, and never replaces identity reference photos",()=>{
+ const cut=fs.readFileSync(path.join(root,"web-spa/src/souls/soulCutout.ts"),"utf8");
+ assert.match(cut,/InteractiveSegmenter/);
+ assert.match(cut,/toDataURL\("image\/png"\)/);
+ assert.match(page,/photos:\[scan\],cutout:cutoutDraft/);
+ assert.match(page,/cutoutObject\(original\.image,pos\)/);
+});
