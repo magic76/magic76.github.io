@@ -116,7 +116,7 @@ export function trackMultiFrame(frame:GrayFrame,ref:MultiTracker):MultiTracker|n
  return {point,anchors,box};
 }
 export function initRegionTracker(frame:GrayFrame,box:Region,face?:Anchor):MultiTracker|null{
- const left=clamp(box.x),top=clamp(box.y),right=clamp(box.x+box.width),bottom=clamp(box.y+box.height);
+ const left=clamp(box.x,0,1),top=clamp(box.y,0,1),right=clamp(box.x+box.width,0,1),bottom=clamp(box.y+box.height,0,1);
  const w=right-left,h=bottom-top;
  if(w<.08||h<.08)return null;
  const anchors:Template[]=[];
