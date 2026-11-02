@@ -54,3 +54,42 @@ test("cutout is optional, local, and never replaces identity reference photos",(
  assert.match(page,/photos:\[scan\],cutout:cutoutDraft/);
  assert.match(page,/cutoutObject\(original\.image,pos\)/);
 });
+
+
+test("camera survives recognition and runs Live inside the live view, not a static photo",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ assert.match(camera,/souls-camera-viewport/);
+ assert.match(camera,/souls-ar-face/);
+ assert.match(camera,/data-speaking=\{speaking/);
+ assert.match(camera,/data-tracking=\{tracking\}/);
+ assert.match(camera,/souls-ar-caption/);
+ assert.match(camera,/children/);
+ const start=page.indexOf("async function wake(id:string,file:File)");
+ const end=page.indexOf("function home()",start);
+ assert.ok(start>0&&end>start);
+ assert.doesNotMatch(page.slice(start,end),/setCameraOpen\(false\)/);
+ assert.match(page,/activeSoul=\{step==="detail"&&selected/);
+ assert.match(page,/onVisual=\{onVisual\}/);
+ assert.match(page,/overlay onVisual=/);
+ assert.match(page,/onReset=\{resetCameraSoul\}/);
+});
+test("tracking is local and allows tap-to-reanchor, conservative loss detection",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
+ assert.match(camera,/onClick=\{aim\}/);
+ assert.match(camera,/initTracker\(/);
+ assert.match(camera,/trackFrame\(/);
+ assert.match(camera,/misses\.current>=3/);
+ assert.match(camera,/getImageData\(/);
+ assert.match(tracker,/deviation<10/);
+ assert.match(tracker,/bestError>28/);
+ assert.match(camera,/stream\.current\?\.getTracks\(\)\.forEach/);
+});
+test("facial expression changes with the same Live voice and text session",()=>{
+ const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage()"));
+ assert.match(chat,/live\.state==="speaking"/);
+ assert.match(chat,/live\.sendText\(value\)/);
+ assert.match(chat,/const mood:SoulVisual/);
+ assert.match(chat,/useEffect\(\(\)=>\{onVisual\?\./);
+ assert.doesNotMatch(chat,/CrewAI\.call/);
+});
