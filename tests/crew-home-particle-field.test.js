@@ -12,13 +12,14 @@ function events(extra = {}) {
   count() { return [...listeners.values()].reduce((n, s) => n + s.size, 0); }
  }, extra);
 }
-function environment(width = 390, height = 480) {
+function environment(width = 390, height = 480, stageStyles = {}) {
  const descriptors = new Map();
  const install = (name, value) => { descriptors.set(name, Object.getOwnPropertyDescriptor(globalThis, name)); Object.defineProperty(globalThis, name, {value, configurable: true, writable: true}); };
- const frames = new Map(); let id = 0, fills = 0;
+ const frames = new Map(); let id = 0, fills = 0, styleReads = 0;
  const motion = events({matches: false}), connection = events({saveData: false});
  const doc = events({hidden: false});
  const win = events({devicePixelRatio: 3, matchMedia: () => motion,
+  getComputedStyle() { styleReads++; return {getPropertyValue: name => stageStyles[name] ?? ''}; },
   requestAnimationFrame(fn) { const key = ++id; frames.set(key, fn); return key; },
   cancelAnimationFrame(key) { frames.delete(key); }
  });
@@ -42,7 +43,7 @@ function environment(width = 390, height = 480) {
  const canvas = {getContext: () => ctx, width: 0, height: 0};
  const host = events({getBoundingClientRect: () => ({width, height, left: 0, top: 0})});
  install('window', win); install('document', doc); install('navigator', {connection}); install('ResizeObserver', Observer); install('IntersectionObserver', Observer);
- return {canvas, host, motion, connection, doc, win, frames, observers, clears, painted, glows, spriteSurfaces, fills: () => fills,
+ return {canvas, host, motion, connection, doc, win, frames, observers, clears, painted, glows, spriteSurfaces, stageStyles, styleReads: () => styleReads, fills: () => fills,
   enter() { observers[1].callback([{isIntersecting: true}]); },
   tick(now) { const jobs = [...frames.values()]; frames.clear(); for (const fn of jobs) fn(now); },
   restore() { for (const [name, old] of descriptors) { if (old) Object.defineProperty(globalThis, name, old); else delete globalThis[name]; } }
@@ -230,5 +231,119 @@ test('Play color morph takes the short arc from violet toward rose without passi
   const hues=e.painted.map(point=>Number(point[2].match(/^hsl\(([-\d.]+)/)[1]));
   assert.ok(hues.every(hue=>hue>=260&&hue<=360),'violet-to-rose hues stay on the shortest arc');
   assert.equal(e.frames.size,1);
+ } finally { field?.destroy(); e.restore(); }
+});
+
+// Feed the same geometry tokens that CSS chooses; inspect actual painted cores.
+test('CSS stage geometry projects the complete static surface for desktop, portrait and compact landscape', async () => {
+ const {createPortalField, portalShape} = await modulePromise;
+ const noise = i => { const n = Math.sin(i * 127.1 + 311.7) * 43758.5453; return n - Math.floor(n); };
+ for (const [width,height,x,y,scaleW,scaleH,tall] of [
+  [1440,842,.70,.50,.25,.56,1],
+  [390,716,.50,.47,.60,10,1.62],
+  [844,262,.70,.50,.25,.62,1],
+  [768,896,.50,.50,.47,.60,1]
+ ]) {
+  const e=environment(width,height,{
+   '--portal-stage-x':String(x),'--portal-stage-y':String(y),
+   '--portal-stage-scale-w':String(scaleW),'--portal-stage-scale-h':String(scaleH),
+   '--portal-stage-tall':String(tall)
+  }); let field;
+  try {
+   e.motion.matches=true;
+   field=createPortalField(e.canvas,e.host); e.enter();
+   const count=width<600?900:1500, scale=Math.min(width*scaleW,height*scaleH);
+   assert.equal(e.painted.length,count,'larger geometry keeps the existing point count');
+   for (const index of [0,47,231,count-1]) {
+    const q=portalShape('chat',noise(index)*Math.PI*2,noise(index+count)*2-1,0);
+    const depth=1/(1-q[2]*.32), paint=e.painted[index];
+    assert.ok(Math.abs(paint[0]+paint[3]/2-(width*x+q[0]*scale*depth))<1e-8,'horizontal stage centre, scale and depth');
+    assert.ok(Math.abs(paint[1]+paint[4]/2-(height*y+q[1]*scale*tall*depth))<1e-8,'vertical stage centre, scale and tall factor');
+   }
+   assert.equal(e.frames.size,0,'new geometry is complete without RAF');
+   const picture=JSON.stringify(e.painted);
+   field.setMode('fortune'); e.painted.length=0; field.setMode('chat');
+   assert.equal(JSON.stringify(e.painted),picture,'static redraw has no drift or elapsed-time offset');
+  } finally { field?.destroy(); e.restore(); }
+ }
+});
+
+test('Stage tokens are read only on resize, accept same-size breakpoint changes and reject invalid values', async () => {
+ const {createPortalField} = await modulePromise;
+ const e=environment(1440,842,{
+  '--portal-stage-x':'NaN','--portal-stage-y':'Infinity',
+  '--portal-stage-scale-w':'-1','--portal-stage-scale-h':'0','--portal-stage-tall':'invalid'
+ }); let field;
+ try {
+  e.motion.matches=true;
+  field=createPortalField(e.canvas,e.host); e.enter();
+  assert.ok(e.painted.every(p=>p.every((v,i)=>i===2||Number.isFinite(v))),'invalid tokens fall back to finite centred defaults');
+  const original=e.painted.map(p=>[p[0],p[1]]);
+  const reads=e.styleReads();
+  e.motion.matches=false; e.motion.dispatch('change'); e.tick(100); e.tick(150);
+  field.setMode('learn'); e.tick(200);
+  assert.equal(e.styleReads(),reads+1,'only the tab geometry refresh reads style; draw never does');
+  e.motion.matches=true; e.motion.dispatch('change'); field.setMode('chat');
+  const beforeResize=e.styleReads();
+  e.stageStyles['--portal-stage-x']='.7'; e.stageStyles['--portal-stage-y']='.5';
+  e.painted.length=0; e.win.dispatch('resize');
+  assert.equal(e.styleReads(),beforeResize+1);
+  assert.equal(e.painted.length,1500,'same-size CSS geometry changes redraw a complete static frame');
+  for (const index of [0,47,231,1499]) {
+   assert.ok(Math.abs(e.painted[index][0]-original[index][0]-1440*.2)<1e-8);
+   assert.ok(Math.abs(e.painted[index][1]-original[index][1]-842*.05)<1e-8);
+  }
+  assert.equal(e.frames.size,0);
+ } finally { field?.destroy(); e.restore(); }
+});
+
+test('Ring motion now visibly breathes and undulates without changing the mode shapes', async () => {
+ const {portalShape} = await modulePromise;
+ // At a fixed chat angle the underlying ellipse is stable, so its radius records
+ // the visible combined breathing/wave envelope rather than z or orbit rotation.
+ const radii=Array.from({length:500},(_,i)=>Math.hypot(...portalShape('chat',0,0,i*.1).slice(0,2)));
+ assert.ok(Math.max(...radii)/Math.min(...radii)>1.12,'motion exceeds the former near-static 3.6% envelope');
+ const atZero=portalShape('chat',0,0,0), atWave=portalShape('chat',0,0,Math.PI/.9/2);
+ assert.ok(Math.hypot(...atWave.slice(0,2))-Math.hypot(...atZero.slice(0,2))>.06,'angle wave contributes visible radial travel');
+});
+
+
+test('Switching an animated field to a static policy removes drift and pointer/tap displacement', async () => {
+ const {createPortalField} = await modulePromise;
+ const styles={'--portal-stage-x':'.7','--portal-stage-y':'.5','--portal-stage-scale-w':'.25','--portal-stage-scale-h':'.56','--portal-stage-tall':'1'};
+ const e=environment(1440,842,styles); let field;
+ try {
+  e.motion.matches=true; field=createPortalField(e.canvas,e.host); e.enter();
+  const staticPicture=JSON.stringify(e.painted);
+  e.motion.matches=false; e.motion.dispatch('change');
+  for (let i=0;i<30;i++) e.tick(100+i*40);
+  e.host.dispatch('pointerdown',{clientX:1000,clientY:420,pointerType:'mouse'}); e.tick(1340);
+  e.painted.length=0; e.motion.matches=true; e.motion.dispatch('change');
+  assert.equal(JSON.stringify(e.painted),staticPicture,'static rendering is independent of elapsed motion and live interaction');
+  assert.equal(e.frames.size,0,'the transition cancels the one active loop');
+ } finally { field?.destroy(); e.restore(); }
+});
+
+
+test('Tab changes refresh mode-specific CSS scale with one complete static draw and no extra loop', async () => {
+ const {createPortalField,portalShape}=await modulePromise;
+ const styles={'--portal-stage-x':'.7','--portal-stage-y':'.5','--portal-stage-scale-w':'.23','--portal-stage-scale-h':'.56','--portal-stage-tall':'1'};
+ const e=environment(1440,842,styles); let field;
+ try {
+  e.motion.matches=true; field=createPortalField(e.canvas,e.host); e.enter();
+  const reads=e.styleReads();
+  // React commits data-mode before the controller effect; emulate its new CSS.
+  e.stageStyles['--portal-stage-scale-w']='.22';
+  e.painted.length=0; e.clears.length=0; field.setMode('learn');
+  assert.equal(e.styleReads(),reads+1,'tab selection resolves the current CSS geometry once via resize');
+  assert.deepEqual(e.clears,[[0,0,1440,842]],'mode selection draws exactly once');
+  assert.equal(e.painted.length,1500,'the static frame is complete');
+  const noise=i=>{const n=Math.sin(i*127.1+311.7)*43758.5453;return n-Math.floor(n);};
+  const q=portalShape('learn',noise(0)*Math.PI*2,noise(1500)*2-1,0),depth=1/(1-q[2]*.32),p=e.painted[0];
+  assert.ok(Math.abs(p[0]+p[3]/2-(1440*.7+q[0]*1440*.22*depth))<1e-8,'paint uses the selected mode scale immediately');
+  assert.equal(e.frames.size,0);
+  e.motion.matches=false; e.motion.dispatch('change');
+  e.stageStyles['--portal-stage-scale-w']='.228'; field.setMode('play');
+  assert.equal(e.frames.size,1,'animated mode changes retain exactly one loop');
  } finally { field?.destroy(); e.restore(); }
 });

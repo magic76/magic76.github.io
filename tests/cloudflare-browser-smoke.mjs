@@ -47,6 +47,90 @@ async function assertPortalCtaPixels(page,label){
  }
 }
 
+// Resizes and Playwright clicks can scroll controls into view. First-screen
+// geometry must always be measured from the same settled, top-of-page origin.
+async function restorePortalFirstScreen(page){
+ await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:"instant"}));
+ await page.waitForTimeout(50);
+ await page.waitForFunction(()=>window.scrollX===0&&window.scrollY===0,null,{timeout:1500});
+}
+
+// Check the CSS-selected stage in the real rendered page, before any scrolling.
+// Text ranges catch clipped glyphs and label collisions that element boxes miss.
+async function assertPortalStageLayout(page,width,height,label){
+ const metric=await page.evaluate(()=>{
+  const hero=document.querySelector(".crew-home-portal"),content=hero.querySelector(".crew-portal-content");
+  const heading=hero.querySelector("h1"),kickers=[...hero.querySelectorAll(".crew-portal-kicker")];
+  const rect=element=>{const r=element.getBoundingClientRect();return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,width:r.width,height:r.height}};
+  const textRects=element=>{
+   const result=[],walker=document.createTreeWalker(element,NodeFilter.SHOW_TEXT);
+   for(let node=walker.nextNode();node;node=walker.nextNode()){
+    if(!node.textContent.trim())continue;
+    const range=document.createRange();range.selectNodeContents(node);
+    for(const r of range.getClientRects())if(r.width&&r.height)result.push({left:r.left,right:r.right,top:r.top,bottom:r.bottom});
+   }
+   return result;
+  };
+  const heroRect=rect(hero),style=getComputedStyle(hero);
+  const copy=[...hero.querySelectorAll(".crew-portal-intro,h1,.crew-portal-description,.crew-portal-cta,.crew-portal-remaining")].flatMap(textRects);
+  return {hero:heroRect,content:rect(content),contentPosition:getComputedStyle(content).position,
+   locale:hero.lang||document.documentElement.lang,headingFont:Number.parseFloat(getComputedStyle(heading).fontSize),
+   heading:rect(heading),headingText:textRects(heading),headingOverflow:heading.scrollWidth>heading.clientWidth+1,
+   cta:rect(hero.querySelector(".crew-portal-cta")),ctaOverflow:hero.querySelector(".crew-portal-cta").scrollWidth>hero.querySelector(".crew-portal-cta").clientWidth+1,
+   kickerCount:kickers.length,kicker:kickers.length===1?rect(kickers[0]):null,copy,
+   stage:{split:Number(style.getPropertyValue("--portal-stage-split")),
+    x:heroRect.left+heroRect.width*Number(style.getPropertyValue("--portal-stage-x")),
+    y:heroRect.top+heroRect.height*Number(style.getPropertyValue("--portal-stage-y"))},
+   introDisplay:getComputedStyle(hero.querySelector(".crew-portal-intro")).display,
+   descriptionDisplay:getComputedStyle(hero.querySelector(".crew-portal-description")).display,
+   navTop:document.querySelector(".global-nav").getBoundingClientRect().top,
+   navHeightToken:Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--nav-h")),
+   safeBottom:Number.parseFloat(getComputedStyle(document.querySelector(".global-nav")).paddingBottom)||0,
+   shortsTop:document.querySelector(".crew-home-shorts").getBoundingClientRect().top};
+ });
+ const details=label+": "+JSON.stringify(metric);
+ assert.equal(metric.contentPosition,"relative","Content keeps a flow-based layout "+details);
+ assert.equal(metric.kickerCount,1,"One kicker element, never duplicated "+details);
+ assert.ok(!metric.headingOverflow&&!metric.ctaOverflow,"Heading and CTA fit their columns "+details);
+ assert.ok(metric.headingText.length>0,"Heading has visible glyphs "+details);
+ for(const rect of metric.headingText)
+  assert.ok(rect.left>=metric.hero.left-1&&rect.right<=metric.hero.right+1&&rect.top>=metric.hero.top-1&&rect.bottom<=metric.hero.bottom+1,"Heading glyphs are not clipped by the hero "+details);
+ const compact=width>=560&&width>height&&height<=500;
+ const split=width>=1100||(width>=760&&width>height&&height>=501)||compact;
+ if(split){
+  assert.equal(metric.stage.split,1,"Split stage selected by CSS "+details);
+  assert.ok(metric.content.left<width*.5&&metric.heading.left<width*.5,"Copy column stays on the left "+details);
+  assert.ok(metric.stage.x>width*.5&&metric.stage.x>metric.heading.right,"Stage center stays right of the copy column "+details);
+  assert.ok(Math.abs(metric.stage.x-width*.70)<=width*.02+1,"Stage uses the approved right-side center "+details);
+  assert.ok(Math.abs((metric.kicker.left+metric.kicker.right)/2-metric.stage.x)<=2&&Math.abs((metric.kicker.top+metric.kicker.bottom)/2-metric.stage.y)<=2,"Single kicker stays at the stage center "+details);
+  for(const rect of metric.copy)
+   assert.ok(rect.right<=metric.kicker.left||rect.left>=metric.kicker.right||rect.bottom<=metric.kicker.top||rect.top>=metric.kicker.bottom,"Stage label does not overlap copy glyphs "+details);
+ }
+ // Group glyph rectangles by their line tops; the Georgia accent can sit a
+ // few pixels above the surrounding font without being a separate text line.
+ if(split&&width>=1100&&!compact){
+  const lines=[];
+  for(const glyph of [...metric.headingText].sort((a,b)=>a.top-b.top)){
+   let line=lines.find(item=>Math.abs(item.top-glyph.top)<=Math.max(8,metric.headingFont*.3));
+   if(!line){line={top:glyph.top,left:glyph.left,right:glyph.right};lines.push(line)}
+   else{line.left=Math.min(line.left,glyph.left);line.right=Math.max(line.right,glyph.right)}
+  }
+  const cjk=/^(?:zh(?:-|$)|ja(?:-|$)|ko(?:-|$))/i.test(metric.locale);
+  if(cjk)assert.equal(lines.length,2,"CJK heading keeps exactly the two designed lines "+details);
+  assert.ok(lines.length<=(width>=1280?3:4),"Desktop heading line budget "+details);
+  const widest=Math.max(...lines.map(line=>line.right-line.left)),last=lines.at(-1);
+  assert.ok(last.right-last.left+1>=widest*.35,"Balanced heading has no orphan last line "+details);
+ }
+ if(compact){
+  assert.equal(metric.introDisplay,"none","Compact landscape hides the intro "+details);
+  assert.equal(metric.descriptionDisplay,"none","Compact landscape hides the description "+details);
+  assert.ok(Math.abs(metric.hero.height-(height-58-metric.navHeightToken-metric.safeBottom))<=1,"Compact hero uses the visible-area height without a portrait floor "+details);
+  assert.ok(metric.cta.top>=58&&metric.cta.bottom<=metric.navTop,"Compact CTA stays above nav "+details);
+ }
+ const firstScreenEnd=width<1100?metric.navTop:height;
+ assert.ok(metric.shortsTop>=firstScreenEnd-1,"Shorts never peek into the first screen "+details);
+}
+
 async function captureCrewVisualQA(browser){
  const folder="artifacts/crew-visual-qa";
  await mkdir(folder,{recursive:true});
@@ -295,6 +379,7 @@ async function run(){
         assert.equal(portalState.ready,"true","Mobile KV initializes the real Canvas");
         assert.ok(portalState.width>0&&portalState.height>0,"Mobile particle surface is sized");
       }
+      await restorePortalFirstScreen(page);
       const metric=await page.evaluate(()=>{
         const rect=selector=>{const r=document.querySelector(selector).getBoundingClientRect();return {x:r.left,right:r.right,y:r.top,bottom:r.bottom,width:r.width,height:r.height}};
         return {screenWidth:document.documentElement.clientWidth,scrollWidth:document.documentElement.scrollWidth,
@@ -313,6 +398,7 @@ async function run(){
       }
       if(setup.mobile)assert.ok(metric.shorts.y>=metric.nav.y,"Shorts start below the first viewport");
       assert.ok(metric.bridge.y<metric.shorts.y,"Photos follow the KV");
+      await assertPortalStageLayout(page,setup.width,setup.height,setup.route+" initial portal");
       const href=await page.locator(".crew-portal-cta").getAttribute("href");
       assert.match(href||"",/\/(?:friend\/live\?id=zoe|account#settings-gemini)$/, "CTA targets direct chat or exhausted setup");
       const homeUrl=page.url();
@@ -327,6 +413,7 @@ async function run(){
       for(const [mode,target] of [["chat","/friend/live?id=zoe"],["learn","/teacher"],["fortune","/fortune"],["play","/games/1a2b"]]){
         const tab=page.locator('.crew-portal-tab[data-mode="'+mode+'"]');
         await tab.click();
+        await restorePortalFirstScreen(page);
         assert.equal(page.url(),homeUrl,"Selecting a tab does not navigate");
         assert.equal(await tab.getAttribute("aria-selected"),"true");
         assert.equal(await tab.getAttribute("tabindex"),"0");
@@ -408,16 +495,19 @@ async function run(){
 
   // Every tab label and CTA must fit above the fixed nav at all acceptance sizes.
   for(const locale of ["zh-TW","en","de","es","fr","id","ja","ko","pt-BR","th","vi"]){
-    const view=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,reducedMotion:"reduce"});
+    const view=await browser.newContext({viewport:{width:320,height:640},isMobile:true,hasTouch:true,reducedMotion:"reduce",
+      userAgent:"Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Mobile Safari/537.36"});
     await view.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","existing"));
     const page=await view.newPage(),errors=[];checkConsole(page,errors);
     try{
       await page.goto(origin+(locale==="zh-TW"?"/":"/"+locale+"/"),{waitUntil:"domcontentloaded",timeout:30000});
       await page.locator('.crew-portal-tabs [role="tab"]').first().waitFor({state:"visible",timeout:15000});
-      for(const [width,height] of [[320,640],[390,844],[412,915],[1440,900]]){
+      for(const [width,height] of [[320,640],[390,844],[412,915],[844,390],[932,430],[740,360],[667,375],[1100,800],[1180,820],[1280,720],[1366,768],[1440,900],[1536,864],[1920,1080]]){
         await page.setViewportSize({width,height});
+        await restorePortalFirstScreen(page);
         for(const mode of ["chat","learn","fortune","play"]){
           await page.locator('.crew-portal-tab[data-mode="'+mode+'"]').click();
+          await restorePortalFirstScreen(page);
           const metric=await page.evaluate(()=>{
             const nav=document.querySelector(".global-nav").getBoundingClientRect();
             const cta=document.querySelector(".crew-portal-cta").getBoundingClientRect();
@@ -439,6 +529,7 @@ async function run(){
             assert.ok(!tab.overflow&&!tab.ellipsis&&tab.wordBreak!=="break-all"&&tab.wrap!=="anywhere","Labels fit without truncation or mid-word breaks "+label);
             if(width<1100)assert.ok(tab.top>=58&&tab.bottom<=metric.navY&&metric.cta.bottom<=metric.navY,"CTA and tabs above bottom nav "+label);
           }
+          await assertPortalStageLayout(page,width,height,label);
         }
       }
       assert.deepEqual(errors,[],locale+" portal runtime errors");
