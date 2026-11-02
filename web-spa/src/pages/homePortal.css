@@ -1,12 +1,12 @@
 /* One manually selected invitation on a single decorative particle surface. */
-.crew-home-portal{--portal-accent:#d9c1ff;position:relative;isolation:isolate;overflow:hidden;display:grid;place-items:center;box-sizing:border-box;min-height:max(540px,calc(100vh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));min-height:max(540px,calc(100svh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));color:#f7f1e8;background:#12101c;touch-action:pan-y;border:0;border-radius:0;box-shadow:none}
+.crew-home-portal{--portal-accent:#d9c1ff;--portal-stage-x:.5;--portal-stage-y:.5;--portal-stage-scale-w:.47;--portal-stage-scale-h:.60;--portal-stage-tall:1;--portal-stage-split:0;position:relative;isolation:isolate;overflow:hidden;display:grid;place-items:center;box-sizing:border-box;min-height:max(540px,calc(100vh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));min-height:max(540px,calc(100svh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));color:#f7f1e8;background:#12101c;touch-action:pan-y;border:0;border-radius:0;box-shadow:none}
 .crew-home-portal[data-mode="learn"]{--portal-accent:#aee7d3}.crew-home-portal[data-mode="fortune"]{--portal-accent:#ffdd8b}.crew-home-portal[data-mode="play"]{--portal-accent:#ff95ae}
-.crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
-.crew-portal-field canvas{width:100%;height:100%;display:block}.crew-portal-fallback{position:absolute;inset:7% 4%;width:92%;height:86%;color:var(--portal-accent);opacity:.4;pointer-events:none}.crew-portal-field[data-ready="true"] .crew-portal-fallback{display:none}
+.crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;container-type:size;background:radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
+.crew-portal-field canvas{width:100%;height:100%;display:block}.crew-portal-fallback{position:absolute;left:calc(100% * var(--portal-stage-x));top:calc(100% * var(--portal-stage-y));width:min(calc(100vw * var(--portal-stage-scale-w) * 2.6),calc(100cqh * var(--portal-stage-scale-h) * 2.6));height:auto;aspect-ratio:3 / 2;transform:translate(-50%,-50%) scaleY(var(--portal-stage-tall));color:var(--portal-accent);opacity:.4;pointer-events:none}.crew-portal-field[data-ready="true"] .crew-portal-fallback{display:none}
 .crew-portal-content{position:relative;box-sizing:border-box;width:min(1000px,100%);padding:32px 24px;text-align:center;z-index:1}
 .crew-portal-intro{font-size:13px;line-height:1.5;letter-spacing:.06em;color:#d2c6d7;margin:0 auto 38px;max-width:650px}
 /* Copy scrim stays below the positioned CTA and quota, preserving the solid cream button. */
-.crew-portal-copy{position:relative;isolation:isolate;max-width:780px;margin:auto}.crew-portal-copy::before{content:"";position:absolute;inset:-20px -22px -85px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,#12101cbf 0%,#12101c80 42%,transparent 76%)}
+.crew-portal-copy{position:relative;isolation:isolate;max-width:780px;margin:auto}.crew-portal-copy::before{content:"";position:absolute;inset:-20px -22px -85px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse at center,#12101cd9 0%,#12101c99 45%,transparent 78%)}
 .crew-portal-kicker{font-size:12px;line-height:1.5;letter-spacing:.08em;color:var(--portal-accent)}
 .crew-home-portal h1{font-size:clamp(32px,4.5vw,47px);line-height:1.3;letter-spacing:-1.4px;margin:18px 0 14px;font-weight:600;color:#f7f1e8;overflow-wrap:normal}
 .crew-home-portal h1 em{display:inline;font-family:Georgia,serif;font-style:italic;font-weight:400;color:var(--portal-accent);letter-spacing:-1px}
@@ -25,3 +25,49 @@
 @media(prefers-reduced-motion:reduce){.crew-portal-cta,.crew-portal-tabs button{transition:none}.crew-portal-cta:hover{transform:none}}
 /* The desktop nav is a side rail: keep the next section below the fold. */
 @media(min-width:1100px){.crew-home-portal{min-height:calc(100vh - 58px);min-height:calc(100svh - 58px)}}
+
+/* CSS chooses the stage before hydration; the engine reads these only on resize. */
+@media(max-width:599px){.crew-home-portal{--portal-stage-y:.47;--portal-stage-scale-w:.60;--portal-stage-scale-h:10;--portal-stage-tall:1.62}}
+/* Keep a single kicker in DOM order; its containing content is vertically centred. */
+@media(min-width:1100px),(min-width:760px) and (orientation:landscape) and (min-height:501px){
+ .crew-home-portal{--portal-stage-x:.70;--portal-stage-y:.50;--portal-stage-scale-w:.23;--portal-stage-scale-h:.56;--portal-stage-tall:1;--portal-stage-split:1;--portal-copy-offset:max(140px,7vw);place-items:center start}
+ .crew-portal-content{width:min(48vw,640px);margin-left:var(--portal-copy-offset);text-align:left;padding:32px 0}
+ .crew-portal-intro,.crew-portal-copy,.crew-portal-description{margin-inline:0}
+ .crew-portal-copy,.crew-portal-intro{max-width:min(100%,calc(42vw - var(--portal-copy-offset)))}
+ .crew-portal-copy::before{inset:-40px -80px -95px -60px}
+ .crew-home-portal h1{font-size:clamp(34px,4vw,56px);margin-top:0}
+ .crew-portal-kicker{position:absolute;left:calc(100vw * var(--portal-stage-x) - var(--portal-copy-offset));top:50%;transform:translate(-50%,-50%);width:max-content;max-width:42vw;text-align:center;font-size:13px;letter-spacing:.18em;pointer-events:none}
+ .crew-portal-tabs{width:min(520px,100%);margin:28px 0 0}
+}
+/* The teal ribbon has a wider depth/wave envelope than the ellipse. */
+@media(min-width:1100px),(min-width:760px) and (orientation:landscape) and (min-height:501px){.crew-home-portal[data-mode="learn"]{--portal-stage-scale-w:.22}.crew-home-portal[data-mode="play"]{--portal-stage-scale-w:.228}}
+/* Narrow desktop / landscape tablet: leave breathing room between copy and stage. */
+@media(min-width:760px) and (max-width:1279px) and (orientation:landscape) and (min-height:501px){
+ .crew-home-portal{--portal-stage-x:.70;--portal-stage-scale-w:.23}
+}
+/* Desktop typography shares the engine's stage radius, rather than a fixed vw cut. */
+@media(min-width:1100px){
+ .crew-home-portal{--portal-copy-offset:max(116px,7vw);--portal-copy-ring-envelope:1.02;--portal-stage-radius:min(calc(100vw * var(--portal-stage-scale-w)),calc((100svh - 58px) * var(--portal-stage-scale-h)));--portal-copy-width:min(640px,48vw,calc(100vw * var(--portal-stage-x) - var(--portal-stage-radius) * var(--portal-copy-ring-envelope) - 16px - var(--portal-copy-offset)))}
+ .crew-home-portal[data-mode="learn"]{--portal-copy-ring-envelope:1.20}
+ .crew-portal-copy,.crew-portal-intro{max-width:var(--portal-copy-width)}
+ .crew-portal-cta{max-width:var(--portal-copy-width)}
+ .crew-home-portal h1{font-size:clamp(30px,min(3.4vw,calc(var(--portal-copy-width) / 11)),56px);text-wrap:balance}
+ .crew-home-portal h1 em{white-space:nowrap}
+ .crew-home-portal:lang(zh-TW) .crew-portal-title-line,.crew-home-portal:lang(ja) .crew-portal-title-line,.crew-home-portal:lang(ko) .crew-portal-title-line{white-space:nowrap}
+}
+/* A short landscape viewport has no 540/446px floor: all controls fit above nav. */
+@media(orientation:landscape) and (max-height:500px) and (min-width:560px){
+ .crew-home-portal{--portal-stage-x:.70;--portal-stage-y:.50;--portal-stage-scale-w:.25;--portal-stage-scale-h:.62;--portal-stage-tall:1;--portal-stage-split:1;--portal-copy-offset:calc(28px + env(safe-area-inset-left));place-items:center start;min-height:calc(100vh - 58px - var(--nav-h) - env(safe-area-inset-bottom));min-height:calc(100svh - 58px - var(--nav-h) - env(safe-area-inset-bottom))}
+ .crew-portal-content{width:52vw;margin-left:var(--portal-copy-offset);text-align:left;padding:10px 0}
+ .crew-portal-intro,.crew-portal-description{display:none}
+ .crew-portal-copy{margin-inline:0;max-width:min(100%,calc(56vw - 56px))}
+ .crew-portal-copy::before{inset:-20px -40px -70px -28px}
+ .crew-home-portal h1{font-size:26px;line-height:1.25;margin:0 0 12px}
+ .crew-portal-kicker{position:absolute;left:calc(100vw * var(--portal-stage-x) - var(--portal-copy-offset));top:50%;transform:translate(-50%,-50%);width:max-content;max-width:28vw;text-align:center;font-size:12px;letter-spacing:.18em;pointer-events:none}
+ .crew-home-portal[data-mode="learn"],.crew-home-portal[data-mode="play"]{--portal-stage-scale-w:.25}
+ .crew-portal-status-slot{min-height:0}
+ .crew-portal-tabs{width:min(520px,100%);margin:10px 0 0;gap:0;padding:4px}
+ .crew-portal-tabs button{flex-direction:row;gap:8px;padding:8px 3px}
+}
+/* At the narrowest landscape width, stack icons so long French labels stay whole. */
+@media(orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:700px){.crew-portal-tabs button{flex-direction:column;gap:2px;padding:4px 2px}}

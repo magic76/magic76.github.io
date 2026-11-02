@@ -42,7 +42,7 @@ export function portalShape(mode, angle, band, time) {
     y = q * Math.sin(turn) + p * Math.cos(turn);
     z = Math.sin(angle * 2 + time * .2) * .18 + band * .24;
   }
-  const breath = 1 + Math.sin(time * .65) * .018;
+  const breath = 1 + Math.sin(time * .65) * .055 + .04 * Math.sin(angle * 3 + time * .9 + band * 5);
   return [x * breath, y * breath, z];
 }
 
@@ -57,6 +57,7 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
   let hue = HUES[mode], paused = false, visible = typeof IntersectionObserver === 'undefined', destroyed = false;
   let frame = null, previous = null, clock = 0, intro = 0, morph = 1;
   let width = 0, height = 0, points = [], quality = 1, slowFrames = 0;
+  let stage = {x: 0, y: 0, scale: 0, tall: 1}, centreX = 0, centreY = 0;
   let pointer = {x: 0, y: 0, active: false, strength: 0};
   let waves = [];
   // Small pre-rendered halos and a 32-color palette are reused by every point.
@@ -91,15 +92,18 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
   const canAnimate = () => !destroyed && !staticMode() && visible && !document.hidden;
   const stop = () => { if (frame !== null) window.cancelAnimationFrame(frame); frame = null; previous = null; };
   const project = (x, y, z) => {
-    const mobile = width < 600, scale = (mobile ? width * .465 : Math.min(width * .34, 375));
-    const depth = 1 / (1 - z * .20);
-    return [width / 2 + x * scale * depth + (pointer.x - width / 2) * pointer.strength * .018,
-      height * .45 + y * scale * (mobile ? 1.34 : 1) * depth + (pointer.y - height * .45) * pointer.strength * .018, depth];
+    const depth = 1 / (1 - z * .32);
+    return [centreX + x * stage.scale * depth + (pointer.x - stage.x) * pointer.strength * .03,
+      centreY + y * stage.scale * stage.tall * depth + (pointer.y - stage.y) * pointer.strength * .03, depth];
   };
   function draw(delta) {
     if (destroyed || !width || !height) return;
     const still = staticMode();
     clock += delta;
+    // Static policies always show the same complete geometry, even after animation.
+    const time = still ? 0 : clock;
+    centreX = stage.x + (still ? 0 : Math.sin(time * .23) * width * .018);
+    centreY = stage.y + (still ? 0 : Math.cos(time * .19) * height * .012);
     intro = still ? 1 : Math.min(1, intro + delta * .8);
     const entrance = 1 - Math.pow(1 - intro, 3);
     const ease = still ? 1 : 1 - Math.exp(-delta * 4.6);
@@ -111,12 +115,13 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
     ctx.globalCompositeOperation = 'lighter';
     const palette = paletteFor(hue);
     // Fine filaments explain the surface; the points provide depth and motion.
-    const strands = quality < .8 ? 8 : 16;
+    const lowQuality = !still && quality < .8;
+    const strands = lowQuality ? 8 : 16;
     for (let strand = 0; strand < strands; strand++) {
       const band = strand / (strands - 1) * 2 - 1;
       ctx.beginPath();
       for (let step = 0; step <= 64; step++) {
-        const q = portalShape(mode, step / 64 * TAU, band, clock);
+        const q = portalShape(mode, step / 64 * TAU, band, time);
         const p = project(q[0] * (1 + (1 - entrance) * 1.7), q[1] * (1 + (1 - entrance) * 1.7), q[2]);
         if (!step) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]);
       }
@@ -136,15 +141,15 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       ctx.strokeStyle = `hsla(${hue},85%,70%,${.20 * entrance * morph})`;
       ctx.lineWidth = .8; ctx.stroke();
     }
-    const stride = quality < .8 ? 2 : 1;
-    const glowStride = Math.ceil(points.length / (quality < .8 ? 90 : 180));
+    const stride = lowQuality ? 2 : 1;
+    const glowStride = Math.ceil(points.length / (lowQuality ? 90 : 180));
     for (let i = 0; i < points.length; i += stride) {
       const point = points[i];
-      const angle = point.angle + clock * (mode === 'fortune' ? .04 : mode === 'play' ? .014 : mode === 'learn' ? .032 : .025) * (point.band > 0 ? 1 : -.65);
-      const target = portalShape(mode, angle, point.band, clock);
-      point.x += (target[0] - point.x) * ease;
-      point.y += (target[1] - point.y) * ease;
-      point.z += (target[2] - point.z) * ease;
+      const angle = point.angle + time * (mode === 'fortune' ? .04 : mode === 'play' ? .014 : mode === 'learn' ? .032 : .025) * 1.7 * (point.band > 0 ? 1 : -.65);
+      const target = portalShape(mode, angle, point.band, time);
+      point.x = still ? target[0] : point.x + (target[0] - point.x) * ease;
+      point.y = still ? target[1] : point.y + (target[1] - point.y) * ease;
+      point.z = still ? target[2] : point.z + (target[2] - point.z) * ease;
       const p = project(point.x * (1 + (1 - entrance) * 1.5), point.y * (1 + (1 - entrance) * 1.5), point.z);
       let x = p[0], y = p[1];
       if (pointer.strength > .01) {
@@ -154,7 +159,7 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
         x += dx / (distance + 1) * force; y += dy / (distance + 1) * force;
        }
       }
-      for (const wave of waves) {
+      for (const wave of still ? [] : waves) {
         const d = Math.hypot(x - wave.x, y - wave.y);
         const offset = Math.exp(-Math.pow((d - wave.age * 310) / 30, 2)) * (1 - wave.age) * 10;
         x += (x - wave.x) / (d + 1) * offset; y += (y - wave.y) / (d + 1) * offset;
@@ -162,7 +167,7 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       const alpha = (.40 + point.size * .60) * (.65 + (point.z + .7) / 1.4 * .6) * entrance;
       const size = (point.size > .985 ? 3.4 : 1.25 + point.size * 1.75) * p[2];
       if (palette.sprite && i % glowStride === 0) {
-        const radius = (5 + point.size * 4) * p[2];
+        const radius = (7 + point.size * 6) * p[2];
         ctx.globalAlpha = Math.min(1, alpha * .9);
         ctx.drawImage(palette.sprite, x - radius, y - radius, radius * 2, radius * 2);
       }
@@ -200,12 +205,28 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
     if (destroyed || !visible || document.hidden) return;
     if (staticMode()) draw(0); else start();
   }
-  function resize() {
+  function resize(redraw = true) {
     if (destroyed) return;
     const box = host.getBoundingClientRect();
     if (box.width <= 0 || box.height <= 0) return;
     const w = Math.round(box.width), h = Math.round(box.height);
-    if (w !== width || h !== height) {
+    // CSS is the single source of truth for breakpoints. Never read style per frame.
+    const style = window.getComputedStyle?.(host);
+    const value = (name, fallback, min, max) => {
+      const n = Number.parseFloat(style?.getPropertyValue(name));
+      return Number.isFinite(n) && n >= min && n <= max ? n : fallback;
+    };
+    const mobile = w < 600;
+    const nextStage = {
+      x: w * value('--portal-stage-x', .5, 0, 1),
+      y: h * value('--portal-stage-y', .45, 0, 1),
+      scale: Math.min(w * value('--portal-stage-scale-w', mobile ? .465 : .34, .01, 10),
+        h * value('--portal-stage-scale-h', mobile ? 10 : 375 / h, .01, 10)),
+      tall: value('--portal-stage-tall', mobile ? 1.34 : 1, .1, 3)
+    };
+    const geometryChanged = Object.keys(nextStage).some(key => nextStage[key] !== stage[key]);
+    stage = nextStage;
+    if (w !== width || h !== height || geometryChanged) {
       width = w; height = h;
       const dpr = Math.min(window.devicePixelRatio || 1, 1.6);
       canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr);
@@ -216,9 +237,9 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
         const target = portalShape(mode, angle, band, clock);
         return {angle, band, color: (band > 0 ? 16 : 0) + Math.min(15, Math.floor(noise(i + count * 2) * 16)), size: noise(i + count * 2), x: target[0] * (intro ? 1 : 2.7), y: target[1] * (intro ? 1 : 2.7), z: target[2]};
       });
-      if (visible && !document.hidden) draw(staticMode() ? 0 : 1 / 30);
+      if (redraw && visible && !document.hidden) draw(staticMode() ? 0 : 1 / 30);
     }
-    start();
+    if (redraw) start();
   }
   function move(event) {
     if (staticMode()) return;
@@ -242,7 +263,7 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
   window.addEventListener('resize', resize, {passive: true});
   resize();
   return {
-    setMode(next) { if (destroyed || !PORTAL_MODES.includes(next) || next === mode) return; mode = next; morph = 0; refresh(); },
+    setMode(next) { if (destroyed || !PORTAL_MODES.includes(next) || next === mode) return; mode = next; morph = 0; resize(false); refresh(); },
     setPaused(next) { if (destroyed || next === paused) return; paused = next; waves = []; leave(); refresh(); },
     // Navigation is immediate; compatibility only, with no launch animation.
     setLaunching() {},

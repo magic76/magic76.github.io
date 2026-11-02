@@ -87,9 +87,9 @@ export function HomePortal(){
   <PortalParticleField mode={mode} paused={!canAnimate} enabled={fieldEverEnabled||fieldEligible}/>
   <div className="crew-portal-content">
    <p className="crew-portal-intro">{t("world.intro")}</p>
+   <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
    <div id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
     <div className="crew-portal-copy">
-     <span className="crew-portal-kicker" aria-hidden="true">{current.name}</span>
      <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
      <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
     </div>

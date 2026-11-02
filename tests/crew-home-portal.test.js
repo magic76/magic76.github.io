@@ -123,3 +123,31 @@ test("Home hero balances the first screen and reserves no bottom nav on desktop"
  assert.match(css,/\.crew-portal-tab\{[^}]*min-height:(?:4[4-9]|[5-9][0-9])px/);
  assert.doesNotMatch(css,/padding-top:54px/);
 });
+
+test("Home stage layout is selected by CSS before hydration without reordering the invitation",()=>{
+ const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ const order=['className="crew-portal-intro"','className="crew-portal-kicker"',"<h1>",'className="crew-portal-description"','className="crew-portal-cta"','className="crew-portal-status-slot"','className="crew-portal-tabs"'].map(token=>portal.indexOf(token));
+ assert.ok(order.every((offset,index)=>offset>=0&&(index===0||offset>order[index-1])),"Intro, one kicker, title, description, CTA, remaining slot and tabs retain DOM order");
+ assert.equal((portal.match(/className="crew-portal-kicker"/g)||[]).length,1,"Do not duplicate the stage label");
+ assert.match(css,/\.crew-portal-content\{position:relative;/);
+ assert.doesNotMatch(css,/\.crew-portal-content\{[^}]*position:absolute/);
+ assert.match(css,/@media\(min-width:1100px\),\(min-width:760px\) and \(orientation:landscape\) and \(min-height:501px\)/);
+ for(const token of ["--portal-stage-x:.70","--portal-stage-y:.50","--portal-stage-split:1","place-items:center start","width:min(48vw,640px)","text-align:left","margin:28px 0 0"])
+  assert.ok(css.includes(token),"Split layout token: "+token);
+ assert.match(css,/\.crew-portal-kicker\{[^}]*position:absolute;[^}]*var\(--portal-stage-x\)[^}]*pointer-events:none/);
+ assert.match(css,/\.crew-portal-fallback\{[^}]*var\(--portal-stage-x\)[^}]*var\(--portal-stage-y\)/,"SSR fallback uses the same stage center");
+ assert.doesNotMatch(portal,/getBoundingClientRect|window\.innerWidth/,"Hydration must not decide the copy layout");
+});
+
+test("Portrait phones enlarge the ring and short landscape removes only the height floor",()=>{
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(css,/@media\(max-width:599px\)\{\.crew-home-portal\{[^}]*--portal-stage-y:\.47;[^}]*--portal-stage-scale-w:\.60;[^}]*--portal-stage-tall:1\.62/);
+ const compact=css.slice(css.indexOf("@media(orientation:landscape) and (max-height:500px) and (min-width:560px)"));
+ assert.ok(compact.startsWith("@media(orientation:landscape) and (max-height:500px) and (min-width:560px)"));
+ assert.match(compact,/min-height:calc\(100svh - 58px - var\(--nav-h\) - env\(safe-area-inset-bottom\)\)/);
+ assert.doesNotMatch(compact,/min-height:max\(/,"Compact hero cannot retain a portrait height floor");
+ for(const token of ["--portal-stage-scale-w:.25","--portal-stage-scale-h:.62","width:52vw","padding:10px 0","font-size:26px;line-height:1.25;margin:0 0 12px",".crew-portal-intro,.crew-portal-description{display:none}",".crew-portal-status-slot{min-height:0}","margin:10px 0 0"])
+  assert.ok(compact.includes(token),"Compact layout token: "+token);
+ assert.doesNotMatch(compact,/crew-portal-remaining\{[^}]*display:none/,"Resolved remaining-trial status stays visible");
+});
