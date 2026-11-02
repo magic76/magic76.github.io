@@ -113,12 +113,47 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
   },190);
   return()=>window.clearInterval(interval);
  },[activeSoul?.id,ready]);
+ function captureVisible():string{
+  const v=video.current,host=viewport.current;
+  if(!v||!host||v.readyState<2)throw Error("Camera not ready");
+  const canvas=document.createElement("canvas");canvas.width=480;
+  canvas.height=Math.max(180,Math.round(480*host.clientHeight/Math.max(1,host.clientWidth)));
+  const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas unavailable");
+  const ratio=canvas.width/canvas.height,source=v.videoWidth/v.videoHeight;
+  if(source>ratio){
+   const sw=v.videoHeight*ratio;
+   ctx.drawImage(v,(v.videoWidth-sw)/2,0,sw,v.videoHeight,0,0,canvas.width,canvas.height);
+  }else{
+   const sh=v.videoWidth/ratio;
+   ctx.drawImage(v,0,(v.videoHeight-sh)/2,v.videoWidth,sh,0,0,canvas.width,canvas.height);
+  }
+  return canvas.toDataURL("image/jpeg",.82);
+ }
  function aim(event:MouseEvent<HTMLButtonElement>){
+  if(locating.current||!activeRef.current)return;
   const bounds=event.currentTarget.getBoundingClientRect();
   const at={x:(event.clientX-bounds.left)/bounds.width,y:(event.clientY-bounds.top)/bounds.height};
   const frame=trackCanvas();if(!frame)return;
-  const candidate=initMultiTracker(frame,at);
-  tracker.current=candidate;misses.current=0;setPoint(at);setTracking(candidate?"following":"align");
+  const fallback=initMultiTracker(frame,at);
+  tracker.current=fallback;misses.current=0;setBox(null);setPoint(at);setTracking(fallback?"following":"align");
+  // Segmentation is optional and triggered only by a deliberate tap.
+  const owner=activeRef.current;
+  let picture="";
+  try{picture=captureVisible()}catch{return}
+  locating.current=true;setLocatingRegion(true);
+  void locateSoulRegion(picture,at).then(async result=>{
+   if(activeRef.current!==owner)return;
+   const latest=trackCanvas();
+   const regionTracker=latest&&initRegionTracker(latest,result.box,at);
+   if(!regionTracker){setError(en?"The object has insufficient texture. Tap its patterned area.":"物品紋理不足，請點有圖案的位置重新定位。");return}
+   tracker.current=regionTracker;misses.current=0;setPoint(regionTracker.point);
+   setBox(result.box);setTracking("following");setError("");
+   if(callbacks.current.onRegionCrop){
+    const bytes=await (await fetch(result.crop)).blob();
+    if(activeRef.current===owner)await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+   }
+  }).catch(()=>{if(activeRef.current===owner)setError(en?"Could not isolate the object; using feature-only tracking.":"物品輪廓辨識失敗，目前改用局部特徵追蹤。")})
+   .finally(()=>{locating.current=false;setLocatingRegion(false)});
  }
  // Collect several real camera frames while the user gently changes the angle.
  // Photos remain local unless the user explicitly requests Gemini vision analysis.
@@ -148,6 +183,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    <video ref={video} autoPlay muted playsInline aria-label={en?"Live camera preview":"即時相機預覽"}/>
    {!activeSoul?<div className="souls-camera-aim" aria-hidden="true"/>:<>
     <button type="button" className="souls-ar-tap" onClick={aim} aria-label={en?"Tap the object to place its eyes":"點選物品，定位眼睛"}/>
+    {box&&tracking!=="lost"&&<div className="souls-ar-region" style={{left:(box.x*100)+"%",top:(box.y*100)+"%",width:(box.width*100)+"%",height:(box.height*100)+"%"}} aria-hidden="true"/>}
     <div className="souls-ar-face" style={{left:(point.x*100)+"%",top:(point.y*100)+"%"}} data-mood={mood} data-speaking={speaking?"true":"false"} data-hearing={visual.hearing?"true":"false"} data-tracking={tracking} aria-hidden="true">
      <svg viewBox="0 0 136 104" xmlns="http://www.w3.org/2000/svg">
       <g className="souls-ar-face-glow">
