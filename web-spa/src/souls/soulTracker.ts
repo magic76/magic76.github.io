@@ -62,7 +62,8 @@ export function trackFrame(frame:GrayFrame,ref:Template):{point:Anchor;template:
 
 /** Several local textured anchors vote on motion instead of following one patch
  * (which may be on the table behind the object). This is a 2D tracker, not object pose. */
-export type MultiTracker={point:Anchor;anchors:Template[]};
+export type Region={x:number;y:number;width:number;height:number};
+export type MultiTracker={point:Anchor;anchors:Template[];box?:Region};
 const median=(numbers:number[])=>{
  const ordered=numbers.slice().sort((a,b)=>a-b);
  const m=Math.floor(ordered.length/2);
@@ -106,5 +107,25 @@ export function trackMultiFrame(frame:GrayFrame,ref:MultiTracker):MultiTracker|n
   const values=found.template.values.map((v,i)=>v*.93+fresh.values[i]*.07);
   return {...found.template,values,mean:found.template.mean*.93+fresh.mean*.07};
  });
- return {point,anchors};
+ const box=ref.box?{
+  x:clamp(ref.box.x+shiftX/frame.width,0,1),
+  y:clamp(ref.box.y+shiftY/frame.height,0,1),
+  width:ref.box.width,height:ref.box.height
+ }:undefined;
+ // Track the segmented object bounds together with the consistent local features.
+ return {point,anchors,box};
+}
+export function initRegionTracker(frame:GrayFrame,box:Region,face?:Anchor):MultiTracker|null{
+ const left=clamp(box.x),top=clamp(box.y),right=clamp(box.x+box.width),bottom=clamp(box.y+box.height);
+ const w=right-left,h=bottom-top;
+ if(w<.08||h<.08)return null;
+ const anchors:Template[]=[];
+ for(const fx of [.2,.4,.6,.8])for(const fy of [.2,.4,.6,.8]){
+  const anchor=initTracker(frame,{x:left+w*fx,y:top+h*fy});
+  if(anchor)anchors.push(anchor);
+ }
+ if(anchors.length<3)return null;
+ const point=face&&face.x>=left&&face.x<=right&&face.y>=top&&face.y<=bottom?
+  {...face}:{x:left+w*.5,y:top+h*.35};
+ return {point,anchors,box:{x:left,y:top,width:w,height:h}};
 }
