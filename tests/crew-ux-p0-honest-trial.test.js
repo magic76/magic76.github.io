@@ -44,7 +44,7 @@ test("Exhausted Live entry hides the offer and uses no retry for consumed grants
  assert.match(starter,/data.code==="ALREADY_USED"\)setPhase\("exhausted"\)/);
  assert.match(starter,/data.code==="DAILY_LIMIT"\)setPhase\("full"\)/);
  assert.doesNotMatch(starter,/data.code==="ALREADY_USED"\|\|data.code==="DAILY_LIMIT"/);
- assert.match(starter,/data.seconds!==180/);
+ assert.match(starter,/data.seconds!==300/);
  assert.match(render,/phase!=="exhausted"&&phase!=="full"&&<>/);
  assert.match(render,/phase==="exhausted"&&<>/);
  assert.match(render,/phase==="full"&&<p role="status">\{t\("guestTrial.limit"\)\}<\/p>/);

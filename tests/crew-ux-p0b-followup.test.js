@@ -23,7 +23,7 @@ test("DAILY_LIMIT means shared capacity full, not personal consumption",()=>{
  assert.equal((render.match(/t\("guestTrial.free1a2b"\)/g)||[]).length,1);
  assert.match(render,/phase==="error"&&<button[^\n]*guestTrial.retry/);
  assert.doesNotMatch(render,/phase==="full"&&<button/);
- assert.match(src,/data\.seconds!==180/);
+ assert.match(src,/data\.seconds!==300/);
  assert.match(src.slice(src.indexOf("async function begin()")),/getUserMedia\(\{audio:true\}\)/);
  assert.match(src.slice(src.indexOf("callback:token=>"),src.indexOf("async function begin()")),/void ensureLive\(\)\.catch/);
 });

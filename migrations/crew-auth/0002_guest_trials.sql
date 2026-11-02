@@ -1,4 +1,4 @@
--- Phase 3: one successful 180-second Live guest trial per signed-in account.
+-- Phase 3: one successful 300-second Live guest trial per signed-in account.
 -- Apply to the same crew-auth D1 database used for OAuth sessions.
 PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS crew_guest_usage(
