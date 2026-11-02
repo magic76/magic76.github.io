@@ -6,13 +6,13 @@ type ActiveSoul={id:string;name:string};
 const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
 /** Hidden camera-first AR-Lite: continuous local video + 2D tracked eyes.
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
-export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
+export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,mouthRef,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
  onWake:(id:string,frame:File)=>void;
  onSnapshot:(frames:File[])=>void|Promise<void>;
  onAddReferences?:(frames:File[])=>void|Promise<void>;
  onRegionCrop?:(photo:File)=>void|Promise<void>;
- onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;paused?:boolean;en:boolean;
+ onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;mouthRef?:React.RefObject<SVGEllipseElement|null>;children?:ReactNode;paused?:boolean;en:boolean;
 }){
  const video=useRef<HTMLVideoElement|null>(null),viewport=useRef<HTMLDivElement|null>(null);
  const stream=useRef<MediaStream|null>(null);
@@ -226,7 +226,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
       </g>
       <g className="souls-ar-mouth">
        {mood==="surprised"||speaking?
-        <ellipse className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry={mood==="surprised"?10:speaking?Math.max(2,Math.round(2+(visual.level||0)*18)):7} fill="#241A38"/>:
+        <ellipse ref={mouthRef} className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry={mood==="surprised"?10:speaking?2:7} fill="#241A38"/>:
         mood==="happy"?<path d="M54 77 Q68 96 82 77" stroke="white" strokeWidth="9" strokeLinecap="round" fill="none"/>:
         <path d="M59 80 Q68 89 77 80" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>}
        {!speaking&&mood==="happy"&&<path d="M54 77 Q68 96 82 77" stroke="#241A38" strokeWidth="5" strokeLinecap="round" fill="none"/>}
