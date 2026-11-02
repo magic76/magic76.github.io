@@ -72,6 +72,11 @@ async function assertPortalStageLayout(page,width,height,label){
    return result;
   };
   const heroRect=rect(hero),style=getComputedStyle(hero);
+  const stageScaleW=Number.parseFloat(style.getPropertyValue("--portal-stage-scale-w"));
+  const stageScaleH=Number.parseFloat(style.getPropertyValue("--portal-stage-scale-h"));
+  const stageEnvelope=Number.parseFloat(style.getPropertyValue("--portal-copy-ring-envelope"));
+  const stageRadius=Math.min(heroRect.width*stageScaleW,heroRect.height*stageScaleH);
+  const stageLeft=heroRect.left+heroRect.width*Number.parseFloat(style.getPropertyValue("--portal-stage-x"))-stageRadius*stageEnvelope;
   const copy=[...hero.querySelectorAll(".crew-portal-intro,h1,.crew-portal-description,.crew-portal-cta,.crew-portal-remaining")].flatMap(textRects);
   return {hero:heroRect,content:rect(content),contentPosition:getComputedStyle(content).position,
    locale:hero.lang||document.documentElement.lang,headingFont:Number.parseFloat(getComputedStyle(heading).fontSize),
@@ -79,6 +84,7 @@ async function assertPortalStageLayout(page,width,height,label){
    cta:rect(hero.querySelector(".crew-portal-cta")),ctaOverflow:hero.querySelector(".crew-portal-cta").scrollWidth>hero.querySelector(".crew-portal-cta").clientWidth+1,
    kickerCount:kickers.length,kicker:kickers.length===1?rect(kickers[0]):null,copy,
    stage:{split:Number(style.getPropertyValue("--portal-stage-split")),
+    scaleW:stageScaleW,scaleH:stageScaleH,radius:stageRadius,envelope:stageEnvelope,left:stageLeft,
     x:heroRect.left+heroRect.width*Number(style.getPropertyValue("--portal-stage-x")),
     y:heroRect.top+heroRect.height*Number(style.getPropertyValue("--portal-stage-y"))},
    introDisplay:getComputedStyle(hero.querySelector(".crew-portal-intro")).display,
@@ -109,6 +115,8 @@ async function assertPortalStageLayout(page,width,height,label){
  // Group glyph rectangles by their line tops; the Georgia accent can sit a
  // few pixels above the surrounding font without being a separate text line.
  if(split&&width>=1100&&!compact){
+  assert.ok([metric.stage.scaleW,metric.stage.scaleH,metric.stage.radius,metric.stage.envelope,metric.stage.left].every(value=>Number.isFinite(value)&&value>0),"Desktop stage boundary requires finite positive CSS geometry "+details);
+  assert.ok(metric.heading.right<=metric.stage.left+8,"Desktop heading stays before the stage's left boundary "+details);
   const lines=[];
   for(const glyph of [...metric.headingText].sort((a,b)=>a.top-b.top)){
    let line=lines.find(item=>Math.abs(item.top-glyph.top)<=Math.max(8,metric.headingFont*.3));
@@ -511,15 +519,26 @@ async function run(){
           const metric=await page.evaluate(()=>{
             const nav=document.querySelector(".global-nav").getBoundingClientRect();
             const cta=document.querySelector(".crew-portal-cta").getBoundingClientRect();
+            const hero=document.querySelector(".crew-home-portal");
             const tabs=[...document.querySelectorAll('.crew-portal-tabs [role="tab"]')].map(el=>{
               const r=el.getBoundingClientRect(),style=getComputedStyle(el);
               return {top:r.top,bottom:r.bottom,width:r.width,height:r.height,overflow:el.scrollWidth>el.clientWidth+1,
                 ellipsis:style.textOverflow==="ellipsis",wordBreak:style.wordBreak,wrap:style.overflowWrap};
             });
             return {scroll:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth,navY:nav.top,
+              documentLang:document.documentElement.lang,heroLang:hero.lang,
+              ringEnvelope:Number.parseFloat(getComputedStyle(hero).getPropertyValue("--portal-copy-ring-envelope")),headingRight:hero.querySelector("h1").getBoundingClientRect().right,
               cta:{top:cta.top,bottom:cta.bottom,height:cta.height},tabs};
           });
           const label=locale+" "+width+"x"+height+" "+mode+": "+JSON.stringify(metric);
+          assert.equal(metric.documentLang,locale,"Document language matches the requested locale "+label);
+          assert.equal(metric.heroLang,locale,"Hero language matches the requested locale "+label);
+          if(locale==="id"&&width===1280&&height===720&&mode==="learn"){
+            assert.equal(metric.documentLang,"id","Indonesian learn route keeps document lang=id "+label);
+            assert.equal(metric.heroLang,"id","Indonesian learn hero keeps lang=id "+label);
+            assert.equal(metric.ringEnvelope,1.35,"Indonesian learn override actually applies at 1280x720 "+label);
+            assert.ok(metric.headingRight<=500,"Indonesian learn heading stays within the fixed 500px acceptance bound "+label);
+          }
           assert.ok(metric.scroll<=metric.viewport+2,"No horizontal overflow "+label);
           assert.ok(metric.cta.height>=44&&metric.cta.top>=58,"CTA remains visible and touchable "+label);
           assert.equal(metric.tabs.length,4);
