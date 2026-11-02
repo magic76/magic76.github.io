@@ -302,7 +302,7 @@ export function SoulsPage(){
    {matches.map(({soul},i)=><button className="souls-match" key={soul.id} onClick={()=>void choose(soul)}><img src={soul.photos[0]?.image} alt=""/><span><strong>{soul.name}</strong><small>{i===0?t("最相似候選","Closest candidate"):t("相似物品","Possible match")}</small></span>→</button>)}
    <button className="souls-full" onClick={createStart}>{t("不是以上物品？建立新的靈魂 ＋","Not one of these? Create a new Soul +")}</button>
   </section>}
-  {step==="create"&&scan&&<section className="souls-panel"><h2>{t("喚醒新靈魂","Awaken a new Soul")}</h2><img className="souls-new" src={scan.image} alt={t("物品照片","Object")}/>
+  {step==="create"&&scan&&<section className="souls-panel"><h2>{t("喚醒新靈魂","Awaken a new Soul")}</h2><div className="souls-cutout-stage"><button className="souls-cutout-target" type="button" disabled={cutting} onClick={e=>void removeBackground(e)} aria-label={t("點物品去背","Tap object to remove background")}><img className="souls-new" src={cutoutDraft||scan.image} alt={t("物品照片","Object")}/></button><small>{cutting?t("正在去背…","Removing background…"):t("✦ 點照片中的物品，可選擇去背","✦ Tap the object to cut it out")}</small></div>
    <button className="souls-full" disabled={busy} onClick={()=>void aiDescribe()}>{t("✧ 讓 Gemini 看照片並建議名字（會上傳照片）","✧ Ask Gemini to suggest a name (uploads photo)")}</button>
    <form className="souls-form" onSubmit={e=>void create(e)}>
     <label>{t("名字 *","Name *")}<input required maxLength={40} value={name} onChange={e=>setName(e.target.value)}/></label>
@@ -313,7 +313,7 @@ export function SoulsPage(){
     <button className="souls-primary" disabled={!name.trim()||busy}>{t("喚醒這個靈魂 ✦","Awaken Soul ✦")}</button>
    </form>
   </section>}
-  {step==="detail"&&selected&&<><section className="souls-panel souls-profile"><img src={selected.photos[0]?.image} alt={selected.description||selected.name}/><div>
+  {step==="detail"&&selected&&<><section className="souls-panel souls-profile"><div className="souls-cutout-stage"><button type="button" className="souls-cutout-target" disabled={cutting} onClick={e=>void removeBackground(e,true)} aria-label={t("點物品去背","Tap object to remove background")}><img src={selected.cutout||selected.photos[0]?.image} alt={selected.description||selected.name}/></button><small>{cutting?t("正在去背…","Removing background…"):t("點物品重新去背","Tap object to cut out again")}</small></div><div>
     <small>SOUL #{selected.id.slice(0,8)}</small><h2>{selected.name}</h2><p>{selected.kind||t("獨特物品","Unique object")}</p><p>{selected.description}</p><small>{selected.photos.length} {t("張參考照","reference photos")}</small></div>
     {scan&&<div className="souls-angle"><p>{t("已確認這次掃描是它。要加入參考照片嗎？","Confirmed match. Add this scan as a reference photo?")}</p><button onClick={()=>void addAngle()}>{t("加入角度（最多 8 張）","Add angle (max 8)")}</button></div>}
    </section>
@@ -326,6 +326,6 @@ export function SoulsPage(){
    </section>
    <div className="souls-delete"><button onClick={()=>void erase()}>{t("刪除靈魂及全部回憶","Delete Soul and memories")}</button></div>
   </>}
-  <footer className="souls-footer">{t("隱藏測試版不是存取控制。照片與回憶僅存在這台裝置的瀏覽器中，清除網站資料會遺失，也不會跨裝置同步。只有主動按 Gemini 分析時才會上傳照片。","Unlisted does not mean access-controlled. Photos and memories stay in this browser; clearing site data loses them, and there is no device sync. Photos are uploaded only when you request Gemini analysis.")}</footer>
+  <footer className="souls-footer">{t("隱藏網址不是存取控制。掃描、去背在本機處理，首次去背會下載模型。照片與回憶存在此瀏覽器，清除網站資料就會消失。主動要求 Gemini 看照片才會上傳影像；Live 對話會傳給 Gemini。","Unlisted does not mean access-controlled. Scanning and cutout run locally; cutout downloads a model. Photos and memories are stored in this browser and lost on clearing site data. Images are uploaded only when you request Gemini visual analysis; Live conversations go to Gemini.")}</footer>
  </main>;
 }
