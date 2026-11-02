@@ -33,7 +33,7 @@ test("camera-first route uses repeated local recognition and asks for uncertain 
  const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
  assert.match(page,/onProbe=\{probe\}/);
  assert.match(page,/onWake=\{\(id,file\)/);
- assert.match(page,/best\.score<\.94/);
+ assert.match(page,/best\.score<\(best\.hasEmbedding\?\.88:\.94\)/);
  assert.match(page,/best\.score-\(ranked\[1\]\?\.score\|\|0\)<\.12/);
  assert.match(camera,/stable\.current\.hits>=3/);
  assert.match(camera,/getUserMedia\(\{video:/);
@@ -132,4 +132,44 @@ test("multiple local tracker anchors must agree before moving cute face",()=>{
  assert.match(camera,/souls-ar-blush/);
  assert.match(camera,/souls-ar-cute-spark/);
  assert.match(camera,/rx="7" ry="9"/);
+});
+
+test("P0: user-guided local segmentation yields bounded object region and region-seeded tracker",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
+ assert.match(camera,/locateSoulRegion\(picture,at\)/);
+ assert.match(camera,/initRegionTracker\(latest,result\.box,at\)/);
+ assert.match(camera,/souls-ar-region/);
+ assert.match(camera,/onRegionCrop/);
+ assert.match(region,/cutoutObject\(image/);
+ assert.match(region,/maxX<0/);
+ assert.match(tracker,/export function initRegionTracker/);
+ assert.match(tracker,/ref\.box\?/);
+});
+test("P2: playback-only real RMS drives mouth without animation fake",()=>{
+ const live=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
+ assert.match(live,/typeof this\.options\.onOutputLevel==="function"/);
+ assert.match(live,/meter\.getByteTimeDomainData\(samples\)/);
+ assert.match(live,/this\.outputMeterTimer=global\.setInterval/);
+ assert.match(live,/global\.clearInterval\(this\.outputMeterTimer\)/);
+ assert.match(hook,/onOutputLevel:configRef\.current\.onOutputLevel/);
+ assert.match(page,/onOutputLevel:level=>setAudioLevel/);
+ assert.match(camera,/visual\.level\|\|0/);
+ assert.match(camera,/data-hearing=/);
+ assert.match(css,/souls-mouth-open\{animation:none!important\}/);
+});
+test("P3: quality-rejected frames, on-device embeddings and uncertain match rejection",()=>{
+ const embeddings=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
+ assert.match(embeddings,/ImageEmbedder\.createFromOptions/);
+ assert.match(embeddings,/function photoQuality/);
+ assert.match(embeddings,/cosine/i);
+ assert.match(page,/photoQuality\(ctx\.getImageData/);
+ assert.match(page,/compareEmbeddings\(reference\.embedding,photo\.embedding\)/);
+ assert.match(page,/if\(!photos\.length\)throw Error/);
+ assert.match(page,/if\(p\.quality\|\|!best/);
+ assert.match(page,/onRegionCrop=\{file=>saveForeground/);
 });
