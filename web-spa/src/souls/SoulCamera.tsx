@@ -1,24 +1,26 @@
 import {useEffect,useRef,useState,type MouseEvent,type ReactNode} from "react";
-import {initTracker,toGrayFrame,trackFrame,type Template} from "./soulTracker";
+import {initMultiTracker,toGrayFrame,trackMultiFrame,type MultiTracker} from "./soulTracker";
 export type SoulVisual={state:string;caption:string;mood:"calm"|"happy"|"surprised"|"thinking"};
 type ActiveSoul={id:string;name:string};
 const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
 /** Hidden camera-first AR-Lite: continuous local video + 2D tracked eyes.
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
-export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
+export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
  onWake:(id:string,frame:File)=>void;
- onSnapshot:(frame:File)=>void;
+ onSnapshot:(frames:File[])=>void|Promise<void>;
+ onAddReferences?:(frames:File[])=>void|Promise<void>;
  onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;paused?:boolean;en:boolean;
 }){
  const video=useRef<HTMLVideoElement|null>(null),viewport=useRef<HTMLDivElement|null>(null);
  const stream=useRef<MediaStream|null>(null);
- const callbacks=useRef({onProbe,onWake,onSnapshot});callbacks.current={onProbe,onWake,onSnapshot};
+ const callbacks=useRef({onProbe,onWake,onSnapshot,onAddReferences});callbacks.current={onProbe,onWake,onSnapshot,onAddReferences};
  const activeRef=useRef(activeSoul?.id||"");activeRef.current=activeSoul?.id||"";
  const pausedRef=useRef(paused);pausedRef.current=paused;
  const checking=useRef(false),locked=useRef(false),stable=useRef({id:"",hits:0});
- const tracker=useRef<Template|null>(null),misses=useRef(0);
+ const shooting=useRef(false),tracker=useRef<MultiTracker|null>(null),misses=useRef(0);
  const [ready,setReady]=useState(false),[error,setError]=useState(""),[hint,setHint]=useState("");
+ const [burstProgress,setBurstProgress]=useState(0);
  const [point,setPoint]=useState({x:.5,y:.43}),[tracking,setTracking]=useState<"align"|"following"|"lost">("align");
  const canvas=useRef<HTMLCanvasElement|null>(null);
  const trackCanvas=()=>{
@@ -85,7 +87,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
   locked.current=true;
   const frame=trackCanvas();
   if(frame){
-   const fresh=initTracker(frame,{x:.5,y:.43});
+   const fresh=initMultiTracker(frame,{x:.5,y:.43});
    if(fresh){tracker.current=fresh;setTracking("following")}
   }
  },[activeSoul?.id,ready,paused]);
@@ -96,13 +98,13 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
    if(document.hidden||!tracker.current)return;
    const frame=trackCanvas();
    if(!frame)return;
-   const next=trackFrame(frame,tracker.current);
+   const next=trackMultiFrame(frame,tracker.current);
    if(!next){
     misses.current++;
     if(misses.current>=3){tracker.current=null;setTracking("lost")}
     return;
    }
-   misses.current=0;tracker.current=next.template;setPoint(previous=>({
+   misses.current=0;tracker.current=next;setPoint(previous=>({
     x:.45*previous.x+.55*next.point.x,y:.45*previous.y+.55*next.point.y
    }));setTracking("following");
   },190);
@@ -112,13 +114,29 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
   const bounds=event.currentTarget.getBoundingClientRect();
   const at={x:(event.clientX-bounds.left)/bounds.width,y:(event.clientY-bounds.top)/bounds.height};
   const frame=trackCanvas();if(!frame)return;
-  const candidate=initTracker(frame,at);
+  const candidate=initMultiTracker(frame,at);
   tracker.current=candidate;misses.current=0;setPoint(at);setTracking(candidate?"following":"align");
  }
- async function snap(){
-  if(locked.current||!ready)return;locked.current=true;setError("");
-  try{callbacks.current.onSnapshot(await capture())}
-  catch{locked.current=false;setError(en?"Could not capture. Try again.":"拍攝失敗，請再試一次。")}
+ // Collect several real camera frames while the user gently changes the angle.
+ // Photos remain local unless the user explicitly requests Gemini vision analysis.
+ async function burst(mode:"enroll"|"reference"){
+  if(shooting.current||!ready||(!activeRef.current&&locked.current))return;
+  if(mode==="reference"&&!activeRef.current)return;
+  shooting.current=true;locked.current=true;setError("");setBurstProgress(0);
+  const frames:File[]=[];
+  try{
+   for(let i=0;i<4;i++){
+    if(i)await new Promise<void>(resolve=>window.setTimeout(resolve,650));
+    frames.push(await capture());
+    setBurstProgress(i+1);
+   }
+   if(mode==="reference")await callbacks.current.onAddReferences?.(frames);
+   else await callbacks.current.onSnapshot(frames);
+  }catch{
+   // Never leave a failed burst permanently locked.
+   if(!activeRef.current)locked.current=false;
+   setError(en?"Multi-angle capture failed. Retry.":"多角度拍攝失敗，請再試一次。");
+  }finally{shooting.current=false;setBurstProgress(0)}
  }
  const speaking=visual.state==="speaking",thinking=["connecting","requesting-mic","ending","reporting"].includes(visual.state);
  const mood=thinking?"thinking":visual.mood;
@@ -129,23 +147,45 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
     <button type="button" className="souls-ar-tap" onClick={aim} aria-label={en?"Tap the object to place its eyes":"點選物品，定位眼睛"}/>
     <div className="souls-ar-face" style={{left:(point.x*100)+"%",top:(point.y*100)+"%"}} data-mood={mood} data-speaking={speaking?"true":"false"} data-tracking={tracking} aria-hidden="true">
      <svg viewBox="0 0 136 104" xmlns="http://www.w3.org/2000/svg">
-      <g className="souls-ar-face-glow"><ellipse cx="68" cy="49" rx="63" ry="47" fill="rgba(255,255,255,.28)"/></g>
+      <g className="souls-ar-face-glow">
+       <ellipse cx="68" cy="48" rx="64" ry="46" fill="rgba(255,255,255,.28)"/>
+       <ellipse cx="68" cy="48" rx="59" ry="43" fill="rgba(255,249,251,.17)"/>
+      </g>
+      <g className="souls-ar-blush" fill="#FF91B5">
+       <ellipse cx="17" cy="69" rx="13" ry="8" opacity=".78"/>
+       <ellipse cx="119" cy="69" rx="13" ry="8" opacity=".78"/>
+      </g>
       <g className="souls-ar-eyes">
        {mood==="happy"?<>
-        <path d="M23 51 Q39 23 55 51 M81 51 Q97 23 113 51" stroke="#171527" strokeWidth="10" strokeLinecap="round" fill="none"/>
+        <path d="M22 52 Q38 24 54 52 M82 52 Q98 24 114 52" stroke="white" strokeWidth="15" strokeLinecap="round" fill="none"/>
+        <path d="M22 52 Q38 24 54 52 M82 52 Q98 24 114 52" stroke="#241A38" strokeWidth="9" strokeLinecap="round" fill="none"/>
        </>:<>
-        <rect x="26" y={mood==="surprised"?21:29} width="26" height={mood==="surprised"?45:38} rx="13" fill="#171527"/>
-        <rect x="84" y={mood==="surprised"?21:29} width="26" height={mood==="surprised"?45:38} rx="13" fill="#171527"/>
-        <g className="souls-ar-sparkles" fill="white"><ellipse cx={mood==="thinking"?43:37} cy="39" rx="4" ry="6"/><ellipse cx={mood==="thinking"?101:95} cy="39" rx="4" ry="6"/></g>
+        <rect x="19" y={mood==="surprised"?20:25} width="38" height={mood==="surprised"?48:44} rx="19" fill="white"/>
+        <rect x="79" y={mood==="surprised"?20:25} width="38" height={mood==="surprised"?48:44} rx="19" fill="white"/>
+        <rect x="23" y={mood==="surprised"?24:29} width="30" height={mood==="surprised"?40:36} rx="15" fill="#241A38"/>
+        <rect x="83" y={mood==="surprised"?24:29} width="30" height={mood==="surprised"?40:36} rx="15" fill="#241A38"/>
+        <g className="souls-ar-sparkles" fill="white">
+         <ellipse cx={mood==="thinking"?43:36} cy="37" rx="7" ry="9"/>
+         <ellipse cx={mood==="thinking"?103:96} cy="37" rx="7" ry="9"/>
+         <circle cx="46" cy="53" r="3.3" opacity=".85"/>
+         <circle cx="106" cy="53" r="3.3" opacity=".85"/>
+        </g>
        </>}
       </g>
       <g className="souls-ar-mouth">
-       {mood==="surprised"||speaking?<ellipse className="souls-mouth-open" cx="68" cy="82" rx="10" ry="10" fill="#171527"/>:
-        mood==="happy"?<path d="M56 78 Q68 92 80 78" stroke="#171527" strokeWidth="5" strokeLinecap="round" fill="none"/>:
-        <path d="M60 82 Q68 86 76 82" stroke="#171527" strokeWidth="4" strokeLinecap="round" fill="none"/>}
+       {mood==="surprised"||speaking?
+        <ellipse className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry="10" fill="#241A38"/>:
+        mood==="happy"?<path d="M54 77 Q68 96 82 77" stroke="white" strokeWidth="9" strokeLinecap="round" fill="none"/>:
+        <path d="M59 80 Q68 89 77 80" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>}
+       {!speaking&&mood==="happy"&&<path d="M54 77 Q68 96 82 77" stroke="#241A38" strokeWidth="5" strokeLinecap="round" fill="none"/>}
+       {!speaking&&mood!=="happy"&&mood!=="surprised"&&<path d="M59 80 Q68 89 77 80" stroke="#241A38" strokeWidth="4" strokeLinecap="round" fill="none"/>}
       </g>
-      {mood==="thinking"&&<circle cx="118" cy="14" r="7" fill="white" opacity=".85"/>}
-      {mood==="surprised"&&<path d="M19 14 L10 4 M117 14 L126 4" stroke="#fff" strokeWidth="5" strokeLinecap="round"/>}
+      <g className="souls-ar-cute-spark" fill="#FFF8FC" stroke="#FF85B2" strokeWidth="1.3">
+       <path d="M9 22 l3 -7 3 7 7 3 -7 3 -3 7 -3 -7 -7 -3z" opacity=".85"/>
+       <circle cx="125" cy="16" r="3" opacity=".8"/>
+      </g>
+      {mood==="thinking"&&<g fill="white"><circle cx="119" cy="10" r="6"/><circle cx="130" cy="2" r="3"/></g>}
+      {mood==="surprised"&&<path d="M20 13 L12 4 M116 13 L124 4" stroke="#fff" strokeWidth="5" strokeLinecap="round"/>}
      </svg>
      <span className="souls-ar-name">{activeSoul.name}</span>
     </div>
@@ -158,11 +198,12 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
    (en?"Your Soul is awake! Tap to adjust its eyes.":"它醒來了！點物品可以調整眼睛位置。"):
    (hint||(en?"Point at a saved Soul to wake it.":"對準已收藏物品，它就會在鏡頭裡醒來。")))}</p>
   {activeSoul?<div className="souls-camera-actions">
-   <button type="button" onClick={onReset}>{en?"↻ Scan another":"↻ 換個物品"}</button><button type="button" onClick={onClose}>{en?"Close camera":"關閉相機"}</button>
+   <button type="button" disabled={Boolean(burstProgress)} onClick={()=>void burst("reference")}>{en?"＋ Add 4 views":"＋ 補拍 4 視角"}</button><button type="button" onClick={onReset}>{en?"↻ Scan another":"↻ 換個物品"}</button><button type="button" onClick={onClose}>{en?"Close camera":"關閉相機"}</button>
   </div>:<div className="souls-actions">
-   <button className="souls-primary" disabled={!ready||locked.current} onClick={()=>void snap()}>{en?"◎ Snapshot / confirm":"◎ 拍攝／確認"}</button>
+   <button className="souls-primary" disabled={!ready||locked.current||Boolean(burstProgress)} onClick={()=>void burst("enroll")}>{en?"◎ Capture 4 views":"◎ 拍攝 4 個視角"}</button>
    <button onClick={onClose}>{en?"Close camera":"關閉相機"}</button>
   </div>}
+  {burstProgress>0&&<p className="souls-camera-burst" role="status">{en?`Captured ${burstProgress}/4 — move slowly around the object`:`已拍 ${burstProgress}/4 張，請緩慢改變角度`}</p>}
   {children}
  </section>;
 }

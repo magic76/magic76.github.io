@@ -58,3 +58,53 @@ export function trackFrame(frame:GrayFrame,ref:Template):{point:Anchor;template:
  if(bestError>28)return null;
  return{point:{x:clamp(bx/width,0,1),y:clamp(by/height,0,1)},template:{...ref,x:bx,y:by},error:bestError};
 }
+
+
+/** Several local textured anchors vote on motion instead of following one patch
+ * (which may be on the table behind the object). This is a 2D tracker, not object pose. */
+export type MultiTracker={point:Anchor;anchors:Template[]};
+const median=(numbers:number[])=>{
+ const ordered=numbers.slice().sort((a,b)=>a-b);
+ const m=Math.floor(ordered.length/2);
+ return ordered.length%2?ordered[m]:(ordered[m-1]+ordered[m])/2;
+};
+export function initMultiTracker(frame:GrayFrame,at:Anchor):MultiTracker|null{
+ // Stay near the user's face placement to avoid learning distant background features.
+ const offsets:[[number,number],...Array<[number,number]>]=[
+  [0,0],[-.075,0],[.075,0],[0,-.055],[0,.055],
+  [-.055,-.04],[.055,-.04],[-.055,.04],[.055,.04]
+ ];
+ const anchors:Template[]=[];
+ for(const [dx,dy] of offsets){
+  const point={x:at.x+dx,y:at.y+dy};
+  const found=initTracker(frame,point);
+  if(found)anchors.push(found);
+ }
+ // Do not pretend that a textureless/ambiguous object is being tracked.
+ return anchors.length>=2?{point:{...at},anchors}:null;
+}
+export function trackMultiFrame(frame:GrayFrame,ref:MultiTracker):MultiTracker|null{
+ const observations:Array<{original:Template;result:ReturnType<typeof trackFrame>;dx:number;dy:number}>=[];
+ for(const anchor of ref.anchors){
+  const result=trackFrame(frame,anchor);
+  if(!result||result.error>23)continue;
+  observations.push({original:anchor,result,dx:result.template.x-anchor.x,dy:result.template.y-anchor.y});
+ }
+ if(observations.length<2)return null;
+ const dx=median(observations.map(o=>o.dx)),dy=median(observations.map(o=>o.dy));
+ // Background features with a different displacement must not drag the eyes away.
+ const inliers=observations.filter(o=>Math.abs(o.dx-dx)<=5&&Math.abs(o.dy-dy)<=5);
+ if(inliers.length<2||inliers.length<Math.ceil(ref.anchors.length*.45))return null;
+ const shiftX=median(inliers.map(o=>o.dx)),shiftY=median(inliers.map(o=>o.dy));
+ const point={x:clamp(ref.point.x+shiftX/frame.width,0,1),y:clamp(ref.point.y+shiftY/frame.height,0,1)};
+ const anchors=inliers.map(o=>{
+  const found=o.result!;
+  // Adapt slowly only when the match is strong and several anchors agree.
+  if(found.error>13||inliers.length<3)return found.template;
+  const fresh=patch(frame,found.template.x,found.template.y,found.template.radius,found.template.stride);
+  if(fresh.deviation<10)return found.template;
+  const values=found.template.values.map((v,i)=>v*.93+fresh.values[i]*.07);
+  return {...found.template,values,mean:found.template.mean*.93+fresh.mean*.07};
+ });
+ return {point,anchors};
+}
