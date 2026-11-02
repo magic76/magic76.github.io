@@ -1,28 +1,52 @@
-/** Optional on-device image embeddings; installed only on demand for Souls.
- * Model files are downloaded from public CDN; no personal images leave the device. */
-const BUNDLE="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/vision_bundle.mjs";
-const WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm";
-const MODEL="https://storage.googleapis.com/mediapipe-models/image_embedder/mobilenet_v3_small/float32/1/mobilenet_v3_small.tflite";
-type Embedder={embed:(input:HTMLCanvasElement)=>{embeddings?:Array<{floatEmbedding?:ArrayLike<number>}>}};
-let model:Promise<Embedder>|undefined;
-function getModel(){
- if(!model)model=(async()=>{
-  const mod=await import(/* @vite-ignore */ BUNDLE);
-  const files=await mod.FilesetResolver.forVisionTasks(WASM);
-  return await mod.ImageEmbedder.createFromOptions(files,{baseOptions:{modelAssetPath:MODEL,delegate:"CPU"},l2Normalize:true,quantize:false}) as Embedder;
- })().catch(err=>{model=undefined;throw err});
- return model;
+/** On-device embeddings are optional; a dedicated Worker keeps the synchronous
+ * MediaPipe inference off the camera and Gemini Live UI thread. No uploaded pixels. */
+type Response={id:number;embedding?:number[];error?:string};
+type Pending={resolve:(value:number[]|null)=>void;timeout:ReturnType<typeof setTimeout>};
+const pending=new Map<number,Pending>();
+let worker:Worker|null=null,seq=0,failedAt=0;
+let status:"idle"|"loading"|"ready"|"unavailable"="idle";
+export function embeddingStatus(){return status}
+function shutdown(){
+ if(worker){worker.terminate();worker=null}
+ for(const request of pending.values()){clearTimeout(request.timeout);request.resolve(null)}
+ pending.clear();failedAt=Date.now();status="unavailable";
+}
+function ensureWorker():Worker|null{
+ if(worker)return worker;
+ if(status==="unavailable"&&Date.now()-failedAt<60000)return null;
+ if(typeof Worker==="undefined"||typeof createImageBitmap!=="function"){
+  status="unavailable";failedAt=Date.now();return null;
+ }
+ try{
+  worker=new Worker(new URL("./soulEmbedding.worker.ts",import.meta.url),{type:"module"});
+  status="loading";
+  worker.onmessage=(event:MessageEvent<Response>)=>{
+   const {id,embedding,error}=event.data,request=pending.get(id);
+   if(!request)return;
+   clearTimeout(request.timeout);pending.delete(id);
+   if(error){request.resolve(null);shutdown();return}
+   if(!embedding||embedding.length<32||embedding.some(v=>!Number.isFinite(v))){
+    request.resolve(null);shutdown();return;
+   }
+   status="ready";request.resolve(embedding);
+  };
+  worker.onerror=()=>shutdown();
+  return worker;
+ }catch{shutdown();return null}
 }
 export async function embedPhoto(canvas:HTMLCanvasElement):Promise<number[]|null>{
- try{
-  const runtime=await getModel(),v=runtime.embed(canvas).embeddings?.[0]?.floatEmbedding;
-  if(!v||v.length<32)return null;
-  const values=Array.from(v,Number);
-  if(values.some(x=>!Number.isFinite(x)))return null;
-  const norm=Math.hypot(...values);
-  return norm>1e-7?values.map(x=>x/norm):null;
- }catch{return null}
+ const target=ensureWorker();if(!target)return null;
+ let bitmap:ImageBitmap;
+ try{bitmap=await createImageBitmap(canvas)}catch{return null}
+ return new Promise(resolve=>{
+  const id=++seq;
+  const timeout=setTimeout(()=>shutdown(),22000);
+  pending.set(id,{resolve,timeout});
+  try{target.postMessage({id,bitmap},[bitmap])}
+  catch{bitmap.close();clearTimeout(timeout);pending.delete(id);resolve(null);shutdown()}
+ });
 }
+
 /** Cosine similarity (not a calibrated probability of object identity). */
 export function compareEmbeddings(a?:number[],b?:number[]):number|null{
  if(!a||!b||a.length!==b.length||a.length<32)return null;
