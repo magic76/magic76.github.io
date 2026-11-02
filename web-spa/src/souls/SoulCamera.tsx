@@ -8,7 +8,7 @@ const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
 export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,mouthRef,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
- onWake:(id:string,frame:File)=>void;
+ onWake:(id:string,frame:File)=>void|Promise<void>;
  onSnapshot:(frames:File[])=>void|Promise<void>;
  onAddReferences?:(frames:File[])=>void|Promise<void>;
  onRegionCrop?:(photo:File)=>void|Promise<void>;
@@ -74,7 +74,14 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
       if(!match){stable.current={id:"",hits:0};setHint("");return}
       if(stable.current.id===match.id)stable.current.hits++;
       else stable.current={id:match.id,hits:1};
-      if(stable.current.hits>=3){locked.current=true;callbacks.current.onWake(match.id,file)}
+      if(stable.current.hits>=3){
+        locked.current=true;
+        try{await callbacks.current.onWake(match.id,file)}
+        catch{
+         locked.current=false;stable.current={id:"",hits:0};
+         setError(en?"Could not wake that Soul. Try again or choose manually.":"喚醒失敗，請重新掃描或手動選擇。");
+        }
+       }
       else setHint(en?"Almost recognized, keep still…":"快認出來了，保持鏡頭穩定…");
      }).catch(()=>{stable.current={id:"",hits:0}}).finally(()=>{checking.current=false});
     },1350);
@@ -86,14 +93,11 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  // object to replace the center anchor; low-texture frames fail closed.
  useEffect(()=>{
   const id=activeSoul?.id||"";
-  captureEpoch.current++;tracker.current=null;misses.current=0;trackedFrames.current=0;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
   if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
-  const frame=trackCanvas();
-  if(frame){
-   const fresh=initMultiTracker(frame,{x:.5,y:.43});
-   if(fresh){tracker.current=fresh;setTracking("following")}
-  }
+  // Do not claim tracking based on an arbitrary center patch; a tap establishes
+  // the physical object and optional segmentation mask.
  },[activeSoul?.id,ready,paused]);
  // Bounded, ~5 Hz CPU tracking: a feature point, not a fake full-object box.
  useEffect(()=>{
