@@ -83,7 +83,7 @@ export function HomePortal(){
   return()=>document.removeEventListener("visibilitychange",sync);
  },[]);
  useEffect(()=>{if(fieldEligible)setFieldEverEnabled(true)},[fieldEligible]);
- return <header ref={heroRef} lang={i18n.resolvedLanguage||i18n.language} className="crew-home-portal" data-mode={mode} data-paused={paused}>
+ return <header ref={heroRef} lang={i18n.language} className="crew-home-portal" data-mode={mode} data-paused={paused}>
   <PortalParticleField mode={mode} paused={!canAnimate} enabled={fieldEverEnabled||fieldEligible}/>
   <div className="crew-portal-content">
    <p className="crew-portal-intro">{t("world.intro")}</p>

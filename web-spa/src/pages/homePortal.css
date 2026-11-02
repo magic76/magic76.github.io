@@ -55,6 +55,11 @@
  .crew-home-portal h1 em{white-space:nowrap}
  .crew-home-portal:lang(zh-TW) .crew-portal-title-line,.crew-home-portal:lang(ja) .crew-portal-title-line,.crew-home-portal:lang(ko) .crew-portal-title-line{white-space:nowrap}
 }
+/* The Indonesian Learn phrase needs room for the ribbon's moving left lobe.
+   Keep other locales, the 1920px composition and compact layouts unchanged. */
+@media(min-width:1100px) and (max-width:1799px) and (min-height:501px){
+ html[lang="id"] .crew-home-portal[data-mode="learn"]{--portal-copy-ring-envelope:1.35}
+}
 /* A short landscape viewport has no 540/446px floor: all controls fit above nav. */
 @media(orientation:landscape) and (max-height:500px) and (min-width:560px){
  .crew-home-portal{--portal-stage-x:.70;--portal-stage-y:.50;--portal-stage-scale-w:.25;--portal-stage-scale-h:.62;--portal-stage-tall:1;--portal-stage-split:1;--portal-copy-offset:calc(28px + env(safe-area-inset-left));place-items:center start;min-height:calc(100vh - 58px - var(--nav-h) - env(safe-area-inset-bottom));min-height:calc(100svh - 58px - var(--nav-h) - env(safe-area-inset-bottom))}
