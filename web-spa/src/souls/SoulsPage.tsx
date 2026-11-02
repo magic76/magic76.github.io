@@ -1,4 +1,6 @@
-import {useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent} from "react";
+import {useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
+import {SoulCamera} from "./SoulCamera";
+import {cutoutObject} from "./soulCutout";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useLiveSession} from "../live/useLiveSession";
@@ -11,7 +13,7 @@ import "./souls.css";
 
 type Photo={image:string;hash:string;color:number[]};
 type Note={id:string;text:string;source:"manual"|"conversation"};
-type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
+type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
 type Candidate={soul:Soul;score:number};
 const pid=()=>crypto.randomUUID();
 const persona={witty:["愛吐槽","Witty","Puck"],gentle:["溫柔","Gentle","Kore"],curious:["好奇","Curious","Aoede"]} as const;
@@ -193,6 +195,7 @@ export function SoulsPage(){
  const t=(zh:string,english:string)=>en?english:zh;
  const [items,setItems]=useState<Soul[]>([]),[selected,setSelected]=useState<Soul|null>(null);
  const [step,setStep]=useState<"home"|"match"|"create"|"detail">("home"),[scan,setScan]=useState<Photo|null>(null),[matches,setMatches]=useState<Candidate[]>([]);
+ const [cameraOpen,setCameraOpen]=useState(false),[cutoutDraft,setCutoutDraft]=useState(""),[cutting,setCutting]=useState(false);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
  const [note,setNote]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[info,setInfo]=useState("");
@@ -226,8 +229,8 @@ export function SoulsPage(){
  async function create(e:FormEvent){e.preventDefault();if(!scan||!name.trim()||busy)return;
   setBusy(true);setError("");
   try{
-   const now=Date.now(),s:Soul={id:pid(),name:trim(name,40),kind:trim(kind,60),description:trim(description,140),personality,voice:persona[personality][2],photos:[scan],notes:[],remember:rememberEnabled,createdAt:now,lastSeenAt:now};
-   await save(s);await refresh(s.id);setScan(null);setStep("detail");setInfo(t("靈魂已誕生！日後可補拍更多角度。","Soul created! Add more photo angles later."));
+   const now=Date.now(),s:Soul={id:pid(),name:trim(name,40),kind:trim(kind,60),description:trim(description,140),personality,voice:persona[personality][2],photos:[scan],cutout:cutoutDraft||undefined,notes:[],remember:rememberEnabled,createdAt:now,lastSeenAt:now};
+   await save(s);await refresh(s.id);setScan(null);setCutoutDraft("");setStep("detail");setInfo(t("靈魂已誕生！日後可補拍更多角度。","Soul created! Add more photo angles later."));
   }catch{setError(t("保存失敗，請檢查瀏覽器儲存空間。","Could not save. Check browser storage."))}
   finally{setBusy(false)}
  }
