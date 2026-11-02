@@ -122,3 +122,26 @@
 @media(prefers-reduced-motion:reduce){
  .souls-ar-face,.souls-ar-face svg,.souls-ar-eyes,.souls-mouth-open{animation:none!important;transition:none!important}
 }
+
+
+/* Camera capture + kawaii Soul face refinements: scoped to /souls. */
+.souls-camera-burst{margin:0 16px 12px!important;padding:10px 12px;background:#4a3559;border:1px solid #8e6bb0;border-radius:12px;color:#fff!important;font-weight:750;text-align:center;font-variant-numeric:tabular-nums}
+.souls-views-note{background:#f7f1ff;color:#6b527f;border-radius:12px;padding:10px 13px;line-height:1.65;font-size:13px;margin:12px 0}
+.souls-ar-face{width:clamp(113px,29vw,145px);height:120px;filter:drop-shadow(0 4px 13px rgba(18,10,35,.24))}
+.souls-ar-face svg{height:101px;filter:drop-shadow(0 1px 3px rgba(255,255,255,.65))}
+.souls-ar-face .souls-ar-blush{transform-origin:68px 70px;animation:souls-cheek-pop 3.4s ease-in-out infinite}
+.souls-ar-face .souls-ar-cute-spark{transform-origin:68px 50px;animation:souls-sparkle 4.5s ease-in-out infinite}
+.souls-ar-face[data-mood="happy"] .souls-ar-blush{animation-duration:1.15s}
+.souls-ar-face[data-speaking="true"] .souls-ar-blush{animation-duration:.6s}
+.souls-ar-face[data-speaking="true"] .souls-ar-mouth{transform-origin:68px 82px;animation:souls-mouth-talk .27s ease-in-out infinite alternate}
+.souls-ar-face .souls-ar-name{background:#fffafd;border:1px solid rgba(255,161,204,.62);font-size:12px;max-width:145px}
+@keyframes souls-cheek-pop{0%,100%{transform:scale(1);opacity:.84}45%{transform:scale(1.07);opacity:1}}
+@keyframes souls-sparkle{0%,100%{opacity:.4;transform:rotate(-6deg)}40%,70%{opacity:1;transform:rotate(7deg)}}
+@media(max-width:600px){
+ .souls-ar-face{width:clamp(104px,28vw,128px);height:107px}
+ .souls-ar-face svg{height:90px}
+ .souls-camera-actions button{flex:1 1 auto}
+}
+@media(prefers-reduced-motion:reduce){
+ .souls-ar-face .souls-ar-blush,.souls-ar-face .souls-ar-cute-spark,.souls-ar-face .souls-ar-mouth{animation:none!important}
+}
