@@ -2,19 +2,19 @@ const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
-const ts=require("typescript");
+const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
-function loadModule(relative){
- const input=fs.readFileSync(path.join(root,relative),"utf8");
- const compiled=ts.transpileModule(input,{compilerOptions:{
-  target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.CommonJS,strict:true
- }}).outputText;
+function loadModule(relative,names){
+ const source=fs.readFileSync(path.join(root,relative),"utf8");
+ const js=stripTypeScriptTypes(source,{mode:"strip"})
+  .replace(/\bexport\s+function\s+/g,"function ")
+  .replace(/\bexport\s+const\s+/g,"const ");
  const mod={exports:{}};
- new Function("module","exports",compiled)(mod,mod.exports);
+ new Function("module",js+"\nmodule.exports={"+names.join(",")+"};")(mod);
  return mod.exports;
 }
-const {shouldAutoWake,isSafeAutomaticMemory}=loadModule("web-spa/src/souls/soulRecognition.ts");
-const {toGrayFrame,initRegionTracker,trackMultiFrame}=loadModule("web-spa/src/souls/soulTracker.ts");
+const {shouldAutoWake,isSafeAutomaticMemory}=loadModule("web-spa/src/souls/soulRecognition.ts",["shouldAutoWake","isSafeAutomaticMemory"]);
+const {toGrayFrame,initRegionTracker,trackMultiFrame}=loadModule("web-spa/src/souls/soulTracker.ts",["toGrayFrame","initRegionTracker","trackMultiFrame"]);
 
 test("identity: no automatic wake for missing embeddings, ambiguous candidates or different objects",()=>{
  const strong={score:.95,legacy:.96,cosine:.95,hasEmbedding:true,embeddingExpected:true};
