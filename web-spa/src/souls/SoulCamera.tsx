@@ -5,16 +5,17 @@ type ActiveSoul={id:string;name:string};
 const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
 /** Hidden camera-first AR-Lite: continuous local video + 2D tracked eyes.
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
-export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul,visual=neutral,children,en}:{
+export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
  onWake:(id:string,frame:File)=>void;
  onSnapshot:(frame:File)=>void;
- onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;en:boolean;
+ onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;paused?:boolean;en:boolean;
 }){
  const video=useRef<HTMLVideoElement|null>(null),viewport=useRef<HTMLDivElement|null>(null);
  const stream=useRef<MediaStream|null>(null);
  const callbacks=useRef({onProbe,onWake,onSnapshot});callbacks.current={onProbe,onWake,onSnapshot};
  const activeRef=useRef(activeSoul?.id||"");activeRef.current=activeSoul?.id||"";
+ const pausedRef=useRef(paused);pausedRef.current=paused;
  const checking=useRef(false),locked=useRef(false),stable=useRef({id:"",hits:0});
  const tracker=useRef<Template|null>(null),misses=useRef(0);
  const [ready,setReady]=useState(false),[error,setError]=useState(""),[hint,setHint]=useState("");
@@ -59,7 +60,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
     video.current.srcObject=media;await video.current.play();if(!alive)return;
     setReady(true);
     timer=window.setInterval(()=>{
-     if(checking.current||locked.current||activeRef.current||!alive)return;
+     if(checking.current||locked.current||pausedRef.current||activeRef.current||!alive)return;
      checking.current=true;
      void capture().then(async file=>{
       const match=await callbacks.current.onProbe(file);
@@ -80,14 +81,14 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onClose,onReset,activeSoul
  useEffect(()=>{
   const id=activeSoul?.id||"";
   tracker.current=null;misses.current=0;setPoint({x:.5,y:.43});setTracking("align");
-  if(!id){locked.current=false;stable.current={id:"",hits:0};setHint("");return}
+  if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
   const frame=trackCanvas();
   if(frame){
    const fresh=initTracker(frame,{x:.5,y:.43});
    if(fresh){tracker.current=fresh;setTracking("following")}
   }
- },[activeSoul?.id,ready]);
+ },[activeSoul?.id,ready,paused]);
  // Bounded, ~5 Hz CPU tracking: a feature point, not a fake full-object box.
  useEffect(()=>{
   if(!activeSoul?.id||!ready)return;
