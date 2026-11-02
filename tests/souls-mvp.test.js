@@ -8,6 +8,7 @@ const page=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulsPage.tsx"),"ut
 const nav=fs.readFileSync(path.join(root,"web-spa/src/pages/crewNavigation.ts"),"utf8");
 const data=fs.readFileSync(path.join(root,"web-spa/src/souls/soulData.ts"),"utf8");
 const recognition=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRecognition.ts"),"utf8");
+const chat=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulChat.tsx"),"utf8");
 test("Souls is a direct-only lazy route, not a navigation entry",()=>{
  assert.match(app,/path="\/souls"/);
  assert.match(app,/withNamespace\("voice",import\("\.\/souls\/SoulsPage"\)\)/);
@@ -20,9 +21,9 @@ test("Souls recognition always requires explicit confirmation",()=>{
 });
 test("Souls uses browser storage and the Friends Live engine",()=>{
  assert.match(data,/indexedDB\.open\("crew-souls-local-v1"/);
- assert.match(page,/useLiveSession\(/);
- assert.match(page,/sessionKind:"friend"/);
- assert.match(page,/role="friend"/);
+ assert.match(chat,/useLiveSession\(/);
+ assert.match(chat,/sessionKind:"friend"/);
+ assert.match(chat,/role="friend"/);
 });
 test("Soul memory is scoped to the object and can be disabled or deleted",()=>{
  assert.match(data,/current\.remember/);
@@ -42,7 +43,7 @@ test("camera-first route uses repeated local recognition and asks for uncertain 
  assert.match(camera,/getTracks\(\)\.forEach/);
 });
 test("voice and typed chat use one live session; typing has no separate model call",()=>{
- const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage("));
+ // Live is intentionally isolated from camera UI to prevent cross-rendering.
  assert.match(chat,/useLiveSession\(/);
  assert.match(chat,/live\.sendText\(value\)/);
  assert.match(chat,/live\.start\(\)/);
@@ -88,7 +89,7 @@ test("tracking is local and allows tap-to-reanchor, conservative loss detection"
  assert.match(camera,/stream\.current\?\.getTracks\(\)\.forEach/);
 });
 test("facial expression changes with the same Live voice and text session",()=>{
- const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage()"));
+ // Test the real Live component, not a source slice.
  assert.match(chat,/live\.state==="speaking"/);
  assert.match(chat,/live\.sendText\(value\)/);
  assert.match(chat,/const mood:SoulVisual/);
@@ -159,7 +160,7 @@ test("P2: playback-only real RMS drives mouth without animation fake",()=>{
  assert.match(live,/this\.outputMeterTimer=global\.setInterval/);
  assert.match(live,/global\.clearInterval\(this\.outputMeterTimer\)/);
  assert.match(hook,/onOutputLevel:configRef\.current\.onOutputLevel/);
- assert.match(page,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
+ assert.match(chat,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
  assert.match(camera,/ref=\{mouthRef\}/);
  assert.match(camera,/data-hearing=/);
  assert.match(css,/souls-mouth-open\{animation:none!important\}/);
