@@ -242,7 +242,11 @@ export function SoulsPage(){
  async function processFiles(frames:File[],keepCamera=false){
   if(!frames.length)throw Error("No camera frames");
   const photos:Photo[]=[];
-  for(const file of frames)photos.push(await photoFromFile(file));
+  for(const file of frames){
+   const p=await photoFromFile(file,true);
+   if(!p.quality)photos.push(p);
+  }
+  if(!photos.length)throw Error(t("照片過暗、過亮或模糊，請穩定手機重新拍攝。","Photos are blurry or poorly exposed. Please retake."));
   const unique=distinctPhotos(photos),all=await list();
   if(!keepCamera)setCameraOpen(false);
   setScan(unique[0]);setDraftPhotos(unique);setCutoutDraft("");
@@ -252,7 +256,11 @@ export function SoulsPage(){
  async function addReferences(frames:File[]){
   if(!selected)throw Error("Select a Soul first");
   const photos:Photo[]=[];
-  for(const file of frames)photos.push(await photoFromFile(file));
+  for(const file of frames){
+   const p=await photoFromFile(file,true);
+   if(!p.quality)photos.push(p);
+  }
+  if(!photos.length)throw Error(t("照片品質不足，請重新補拍。","Photo quality too low; try again."));
   const currentId=selected.id;
   const before=selected.photos.length;
   const changed=await update(currentId,item=>({...item,photos:keepReferences([...item.photos,...photos])}));
@@ -261,6 +269,13 @@ export function SoulsPage(){
   setInfo(added
    ?t("已新增 "+added+" 個不同視角，辨識時會一起比對。","Saved "+added+" extra views for recognition.")
    :t("照片外觀太接近，沒有增加新的辨識視角；可繞物品再拍一次。","Views were nearly identical; move around the object and try again."));
+ }
+ async function saveForeground(file:File){
+  if(!selected)return;
+  const id=selected.id,photo=await photoFromFile(file,true);
+  if(photo.quality)return;
+  await update(id,current=>({...current,photos:keepReferences([...current.photos,photo])}));
+  await refresh(id);
  }
  async function scanFile(e:ChangeEvent<HTMLInputElement>){
   const file=e.target.files?.[0];e.target.value="";if(!file)return;
@@ -271,8 +286,9 @@ export function SoulsPage(){
  }
  // Automatic wake requires 3 consistent observations in the scanner and a clear margin.
  async function probe(file:File){
-  const p=await photoFromFile(file),ranked=candidates(p,items),best=ranked[0];
-  if(!best||best.score<.94||best.score-(ranked[1]?.score||0)<.12)return null;
+  const useEmbedding=items.some(s=>s.photos.some(photo=>Boolean(photo.embedding?.length)));
+  const p=await photoFromFile(file,useEmbedding),ranked=candidates(p,items),best=ranked[0];
+  if(p.quality||!best||best.score<(best.hasEmbedding?.88:.94)||best.score-(ranked[1]?.score||0)<.12)return null;
   return {id:best.soul.id,name:best.soul.name};
  }
  async function wake(id:string,file:File){
@@ -349,7 +365,7 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))} onAddReferences={frames=>addReferences(frames).catch(()=>setError(t("補拍失敗，請重試。","Could not save extra angles.")))} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))} onAddReferences={frames=>addReferences(frames).catch(()=>setError(t("補拍失敗，請重試。","Could not save extra angles.")))} onRegionCrop={file=>saveForeground(file).catch(()=>setError(t("物品裁切照片儲存失敗。","Could not save the object crop.")))} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
     {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onChange={()=>{void refresh(selected.id)}}/>:null}
     {step==="home"&&items.length>0?<div className="souls-camera-quick"><strong>{t("或手動選一個靈魂","Or choose a Soul")}</strong><div>{items.slice(0,8).map(s=><button type="button" key={s.id} onClick={()=>void choose(s)}>{s.name}</button>)}</div></div>:null}
    </SoulCamera>}
