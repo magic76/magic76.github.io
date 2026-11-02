@@ -93,3 +93,17 @@ test("facial expression changes with the same Live voice and text session",()=>{
  assert.match(chat,/useEffect\(\(\)=>\{onVisual\?\./);
  assert.doesNotMatch(chat,/CrewAI\.call/);
 });
+
+
+test("first-time camera enrollment returns to live camera instead of static photo",()=>{
+ const start=page.indexOf("function createStart()");
+ const end=page.indexOf("async function aiDescribe()",start);
+ assert.ok(start>0&&end>start);
+ assert.match(page.slice(start,end),/returnToCameraAfterCreate\.current=cameraOpen/);
+ const createStart=page.indexOf("async function create(e:FormEvent)");
+ const createEnd=page.indexOf("async function choose(",createStart);
+ assert.ok(createStart>0&&createEnd>createStart);
+ assert.match(page.slice(createStart,createEnd),/await refresh\(s\.id\)/);
+ assert.match(page.slice(createStart,createEnd),/if\(returnToCameraAfterCreate\.current\)\{setCameraOpen\(true\)/);
+ assert.match(page,/activeSoul=\{step==="detail"&&selected/);
+});
