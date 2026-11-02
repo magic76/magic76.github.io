@@ -211,6 +211,8 @@ export function SoulsPage(){
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
  const [note,setNote]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState(""),[info,setInfo]=useState("");
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
+ // A first-time Soul created from the live camera should wake up in that same mode.
+ const returnToCameraAfterCreate=useRef(false);
  async function refresh(id?:string){const all=await list();setItems(all);if(id)setSelected(all.find(s=>s.id===id)||null)}
  useEffect(()=>{void refresh().catch(()=>setError(t("本機儲存無法使用，請檢查瀏覽器模式。","Local storage is unavailable.")))},[]);
  async function processFile(file:File,keepCamera=false){
@@ -236,7 +238,7 @@ export function SoulsPage(){
   try{setScan(await photoFromFile(file));await choose(soul)}
   catch{setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."))}
  }
- function home(){setCameraOpen(false);setSelected(null);setScan(null);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
+ function home(){returnToCameraAfterCreate.current=false;setCameraOpen(false);setSelected(null);setScan(null);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
  function resetCameraSoul(){setSelected(null);setScan(null);setStep("home");setCameraVisual({state:"idle",caption:"",mood:"calm"});setError("");setInfo("")}
  async function removeBackground(event:MouseEvent<HTMLButtonElement>,existing=false){
   const original=existing?selected?.photos[0]:scan;if(!original||cutting)return;
@@ -252,7 +254,7 @@ export function SoulsPage(){
   }catch{setError(t("去背失敗，原照片保留；請檢查網路或點在物品上。","Cutout failed. Original remains; retry on the object."))}
   finally{setCutting(false)}
  }
- function createStart(){setCameraOpen(false);setName("");setKind("");setDescription("");setRememberEnabled(true);setPersonality("witty");setStep("create")}
+ function createStart(){returnToCameraAfterCreate.current=cameraOpen;setCameraOpen(false);setName("");setKind("");setDescription("");setRememberEnabled(true);setPersonality("witty");setStep("create")}
  async function aiDescribe(){
   if(!scan)return;
   if(!geminiKey()){setError(t("請先加入 Gemini Key，或自行填寫。","Add a Gemini Key or fill in the details manually."));return}
@@ -272,7 +274,9 @@ export function SoulsPage(){
   setBusy(true);setError("");
   try{
    const now=Date.now(),s:Soul={id:pid(),name:trim(name,40),kind:trim(kind,60),description:trim(description,140),personality,voice:persona[personality][2],photos:[scan],cutout:cutoutDraft||undefined,notes:[],remember:rememberEnabled,createdAt:now,lastSeenAt:now};
-   await save(s);await refresh(s.id);setScan(null);setCutoutDraft("");setStep("detail");setInfo(t("靈魂已誕生！日後可補拍更多角度。","Soul created! Add more photo angles later."));
+   await save(s);await refresh(s.id);setScan(null);setCutoutDraft("");setStep("detail");
+    if(returnToCameraAfterCreate.current){setCameraOpen(true);returnToCameraAfterCreate.current=false;}
+    setInfo(t("靈魂已誕生！相機拍攝建立的 Soul 會在鏡頭中醒來。","Soul created! Camera-enrolled Souls now wake in the live view."));
   }catch{setError(t("保存失敗，請檢查瀏覽器儲存空間。","Could not save. Check browser storage."))}
   finally{setBusy(false)}
  }
