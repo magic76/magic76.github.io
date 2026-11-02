@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
 import {SoulCamera,type SoulVisual} from "./SoulCamera";
 import {cutoutObject} from "./soulCutout";
+import {embedPhoto,compareEmbeddings,photoQuality} from "./soulEmbedding";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useLiveSession} from "../live/useLiveSession";
@@ -11,10 +12,10 @@ import {ensureCore,ensureVision,geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import "./souls.css";
 
-type Photo={image:string;hash:string;color:number[]};
+type Photo={image:string;hash:string;color:number[];embedding?:number[];quality?:"dark"|"bright"|"blur"|null};
 type Note={id:string;text:string;source:"manual"|"conversation"};
 type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
-type Candidate={soul:Soul;score:number};
+type Candidate={soul:Soul;score:number;hasEmbedding:boolean};
 const pid=()=>crypto.randomUUID();
 const persona={witty:["愛吐槽","Witty","Puck"],gentle:["溫柔","Gentle","Kore"],curious:["好奇","Curious","Aoede"]} as const;
 const trim=(value:unknown,n=180)=>String(value??"").replace(/[\r\n\t]+/g," ").replace(/\s+/g," ").trim().slice(0,n);
@@ -66,7 +67,7 @@ async function remove(id:string){
 function image(data:string){return new Promise<HTMLImageElement>((resolve,reject)=>{
  const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("圖片載入失敗"));img.src=data;
 })}
-async function photoFromFile(file:File):Promise<Photo>{
+async function photoFromFile(file:File,withEmbedding=false):Promise<Photo>{
  if(!file.type.startsWith("image/")||file.type==="image/svg+xml"||file.size>15*1024*1024)throw Error("請選擇 15MB 以下的照片（不支援 SVG）");
  const raw=await new Promise<string>((resolve,reject)=>{
   const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(r.error);r.readAsDataURL(file);
@@ -76,6 +77,7 @@ async function photoFromFile(file:File):Promise<Photo>{
  const side=Math.min(img.naturalWidth,img.naturalHeight);
  ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,640,640);
  const data=canvas.toDataURL("image/jpeg",.76);
+ const quality=photoQuality(ctx.getImageData(0,0,640,640).data,640,640);
  const small=document.createElement("canvas");small.width=9;small.height=8;
  const c=small.getContext("2d",{willReadFrequently:true});if(!c)throw Error("Canvas unavailable");
  c.drawImage(canvas,0,0,640,640,0,0,9,8);
@@ -86,7 +88,8 @@ async function photoFromFile(file:File):Promise<Photo>{
  }
  const p=ctx.getImageData(80,80,480,480).data,hist=Array(24).fill(0) as number[];let count=0;
  for(let i=0;i<p.length;i+=40){for(let ch=0;ch<3;ch++)hist[ch*8+Math.min(7,Math.floor(p[i+ch]/32))]++;count+=3}
- return {image:data,hash:bits.toString(16).padStart(16,"0"),color:hist.map(n=>n/count)};
+ const embedding=withEmbedding?await embedPhoto(canvas):null;
+ return {image:data,hash:bits.toString(16).padStart(16,"0"),color:hist.map(n=>n/count),quality:quality.reason,embedding:embedding||undefined};
 }
 function similarity(a:Photo,b:Photo){
  if(!/^[0-9a-f]{16}$/.test(a.hash)||!/^[0-9a-f]{16}$/.test(b.hash)||a.color.length!==24||b.color.length!==24)return 0;
@@ -106,8 +109,17 @@ function keepReferences(photos:Photo[]):Photo[]{
  return unique.length<=8?unique:[unique[0],...unique.slice(-7)];
 }
 function candidates(photo:Photo,items:Soul[]):Candidate[]{
- return items.map(soul=>({soul,score:Math.max(0,...soul.photos.map(p=>similarity(p,photo)))}))
-  .filter(x=>x.score>=.5).sort((a,b)=>b.score-a.score).slice(0,4);
+ return items.map(soul=>{
+  let score=0,hasEmbedding=false;
+  for(const reference of soul.photos){
+   const legacy=similarity(reference,photo);
+   const embedding=compareEmbeddings(reference.embedding,photo.embedding);
+   if(embedding!==null){
+    hasEmbedding=true;score=Math.max(score,.50*legacy+.50*Math.max(0,embedding));
+   }else score=Math.max(score,legacy);
+  }
+  return {soul,score,hasEmbedding};
+ }).filter(x=>x.score>=.5).sort((a,b)=>b.score-a.score).slice(0,4);
 }
 function systemFor(s:Soul,en:boolean){
  const style={witty:"playfully witty and warm",gentle:"gentle and calm",curious:"curious and imaginative"}[s.personality];
