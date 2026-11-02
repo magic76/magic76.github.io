@@ -145,7 +145,7 @@ async function remember(id:string,utterance:string,changed:()=>void){
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
 function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;overlay?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
- const [typed,setTyped]=useState<string[]>([]);
+ const [typed,setTyped]=useState<string[]>([]),[audioLevel,setAudioLevel]=useState(0);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
@@ -157,6 +157,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   openingPrompt:en?"The camera has just recognized you. Wake up as this object, warmly greet your owner in one playful short sentence.":"相機剛認出你這個物品。用你的個性醒來，像老朋友一樣簡短打招呼，別解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  onOutputLevel:level=>setAudioLevel(previous=>Math.abs(previous-level)>.035?level:previous),
   onTurnComplete:(_turn,turns)=>capture(turns),
   onSessionFinished:item=>{if(item)capture(item.turns)}
  });
@@ -173,7 +174,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   /[!！?？]|哇|天啊|驚|wow|really/i.test(caption)?"surprised":
   /哈哈|開心|喜歡|好耶|太棒|笑|great|love|haha/i.test(caption)?"happy":
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
- useEffect(()=>{onVisual?.({state:live.state,caption,mood})},[onVisual,live.state,caption,mood]);
+ useEffect(()=>{onVisual?.({state:live.state,caption,mood,level:live.state==="speaking"?audioLevel:0,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,audioLevel,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
@@ -216,7 +217,7 @@ export function SoulsPage(){
  const [draftPhotos,setDraftPhotos]=useState<Photo[]>([]);
  const [cameraVisual,setCameraVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
  const onVisual=useCallback((next:SoulVisual)=>{
-  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood?prev:next);
+  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood&&prev.level===next.level&&prev.hearing===next.hearing?prev:next);
  },[]);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
