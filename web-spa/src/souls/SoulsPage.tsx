@@ -304,7 +304,7 @@ export function SoulsPage(){
  async function wake(id:string,file:File){
   const soul=items.find(s=>s.id===id);if(!soul)return;
   try{setScan(await photoFromFile(file));await choose(soul)}
-  catch{setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."))}
+  catch(error){setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."));throw error}
  }
  function home(){setPendingForeground(null);returnToCameraAfterCreate.current=false;setCameraOpen(false);setSelected(null);setScan(null);setDraftPhotos([]);setCameraVisual({state:"idle",caption:"",mood:"calm"});setStep("home");setError("");setInfo("")}
  function resetCameraSoul(){setPendingForeground(null);setSelected(null);setScan(null);setDraftPhotos([]);setStep("home");setCameraVisual({state:"idle",caption:"",mood:"calm"});setError("");setInfo("")}
@@ -376,7 +376,7 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true)} onAddReferences={frames=>addReferences(frames)} onRegionCrop={file=>{setPendingForeground(file)}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} mouthRef={mouthRef} paused={step==="match"}>
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>wake(id,file)} onSnapshot={frames=>processFiles(frames,true)} onAddReferences={frames=>addReferences(frames)} onRegionCrop={file=>{setPendingForeground(file)}} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} mouthRef={mouthRef} paused={step==="match"}>
     {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onAudioLevel={onAudioLevel} onChange={()=>{void refresh(selected.id)}}/>:null}
     {step==="detail"&&selected&&pendingForeground&&<div className="souls-camera-quick" role="group" aria-label={t("裁切參考照確認","Foreground reference confirmation")}>
      <strong>{t("物品輪廓已取得。要把裁切圖加入辨識照片嗎？","Object isolated. Save this crop as a recognition reference?")}</strong>
