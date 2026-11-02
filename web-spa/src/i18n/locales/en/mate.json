@@ -155,6 +155,36 @@
       "aria": "Live transcript",
       "waiting": "Waiting for the other person to speak.",
       "jump": "Latest conversation ↓"
+    },
+    "validation": {
+      "missing": "Still needed:",
+      "confirm": "Please check the authorization box.",
+      "required": "This field is required.",
+      "requiredLimits": "Enter your private limits, or “none” if there are no limits.",
+      "emptyBriefing": "Enter task details or a private note before reviewing.",
+      "labels": {
+        "target": "Person",
+        "goal": "Goal",
+        "constraints": "Private limits",
+        "escalation": "Approval boundaries",
+        "userLanguage": "My language",
+        "otherLanguage": "Other person’s language"
+      }
+    },
+    "startGate": {
+      "start": "Start",
+      "description": "Hand the phone to the other person, then press Start. Mate will speak first."
+    },
+    "summary": {
+      "title": "Summary",
+      "loading": "Mate is preparing the summary…",
+      "achieved": "Achieved",
+      "notAchieved": "Not achieved",
+      "pending": "Needs confirmation",
+      "missing": "Still missing:",
+      "continue": "Return to step 2 and continue",
+      "none": "Nothing identified",
+      "unknown": "Not yet confirmed"
     }
   }
 }

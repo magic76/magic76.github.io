@@ -143,7 +143,8 @@ test("Mate local task history is always saved without a consent toggle",()=>{
  assert.match(page,/storeMateHistory\(record\)/);
  assert.match(page,/saveResult\(false,t\("mate\.outcome\.resumable"/);
  assert.match(page,/saveResult\(false,t\("mate\.outcome\.inProgress"/);
- assert.match(page,/saveResult\(completed,summary\)/);
+ assert.match(page,/saveResult\(result\.achieved===true,finalSummary\)/);
+ assert.match(page,/saveResult\(fromAi,fallback\)/);
  assert.match(panel,/t\("mate\.history\.saved"\)/);
  assert.match(enHome(),/Tasks and transcripts are saved here automatically/);
  assert.match(panel,/onDelete\(item\.id\)/);
@@ -172,4 +173,83 @@ test("private supplement keeps the task, dialogue and continuation mode instead 
  assert.match(page,/t\("mate\.continueConversation"\)/);
  assert.match(enHome(),/Continue conversation/);
  assert.match(page,/continuingSessionRef\.current\?externalContinuation\(consensusRef\.current,turnsRef\.current\.slice\(-16\)\):externalOpening\(consensusRef\.current\)/);
+});
+
+// Four Crew Mate UX changes: preserve the underlying safety and provenance contracts.
+test("review reports every missing field and keeps readiness identical",()=>{
+ assert.deepEqual(mate.mateMissingFields(consensus),[]);
+ assert.deepEqual(mate.mateMissingFields({...consensus,target:" ",goal:"",constraints:"  ",escalation:""}),
+  ["target","goal","constraints","escalation"]);
+ assert.deepEqual(mate.mateMissingFields({...consensus,otherLanguage:""}),["otherLanguage"]);
+ assert.equal(mate.mateConsensusReady({...consensus,otherLanguage:""}),false);
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const fields=fs.readFileSync(path.join(root,"web-spa/src/mate/MateConsensusFields.tsx"),"utf8");
+ const notice=fs.readFileSync(path.join(root,"web-spa/src/mate/MateMissingNotice.tsx"),"utf8");
+ assert.match(page,/onClick=\{handoffToGate\}/);
+ assert.doesNotMatch(page,/disabled=\{!ready\|\|!confirmOwner\}/);
+ assert.match(page,/focusMateField\(missing\[0\]\|\|"confirmation"\)/);
+ assert.match(page,/data-mate-confirm/);
+ assert.ok(page.indexOf('data-mate-confirm')<page.indexOf('onClick={handoffToGate}'));
+ assert.match(page,/mate\.validation\.emptyBriefing/);
+ assert.match(fields,/aria-invalid=\{invalid\("constraints"\)\}/);
+ assert.match(fields,/data-mate-field="target"/);
+ assert.match(fields,/mate-field-error/);
+ assert.match(notice,/role="alert"/);
+});
+test("external handoff is gated until a distinct user Start action",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const gate=fs.readFileSync(path.join(root,"web-spa/src/mate/MateStartGate.tsx"),"utf8");
+ const handoff=page.split('function handoffToGate()')[1].split('async function startVoice(')[0];
+ assert.match(handoff,/advance\("external","IDLE"\)/);
+ assert.doesNotMatch(handoff,/ensureLive\(|startVoice\(|CrewLive\.Session/);
+ assert.match(page,/!externalArmed\?<MateStartGate onStart=\{\(\)=>\{setExternalArmed\(true\);void startVoice\("external"\)\}\}/);
+ assert.match(page,/const continuing=mode==="external"&&startedExternal/);
+ assert.match(page,/ownerDecisionForExternal\.current=""/);
+ assert.match(gate,/mate-start-button/);
+});
+test("transcript viewport and touch targets meet Mate requirements",()=>{
+ const css=fs.readFileSync(path.join(root,"web-spa/src/mate/mate.css"),"utf8");
+ assert.match(css,/\.is-external \.mate-transcript-wrap\{[^}]*min-height:55dvh/);
+ assert.match(css,/height:max\(55dvh,calc\(100dvh - 390px\)\)/);
+ assert.match(css,/height:max\(60dvh,calc\(100dvh - 360px\)\)/);
+ assert.match(css,/\.mate-message p\{font-size:16px\}/);
+ assert.match(css,/\.mate-message strong,\.mate-message small/);
+ assert.match(css,/min-height:56px/);
+ assert.match(css,/bottom:calc\(var\(--nav-h, 0px\)/);
+});
+test("result summary is evidence-only, bounded, and allows a same-task continuation",()=>{
+ const page=fs.readFileSync(path.join(root,"web-spa/src/mate/MatePage.tsx"),"utf8");
+ const summary=fs.readFileSync(path.join(root,"web-spa/src/mate/mateSummary.ts"),"utf8");
+ const result=fs.readFileSync(path.join(root,"web-spa/src/mate/MateResultPanel.tsx"),"utf8");
+ assert.match(summary,/summarizeMateConversation\(consensus:MateConsensus,turns:MateTurn\[\]\)/);
+ assert.match(summary,/turns\.slice\(-80\)/);
+ assert.match(summary,/json:true,temperature:0,maxOutputTokens:380/);
+ assert.match(summary,/preferLive:false/);
+ assert.match(summary,/ONLY evidence/);
+ assert.match(page,/void summarizeMateConversation\(approved,recorded\)/);
+ assert.match(page,/setOutcome\(finalSummary\)/);
+ assert.match(page,/saveResult\(result\.achieved===true,finalSummary\)/);
+ assert.match(page,/closeTask\(true,result,true\)/);
+ const continuation=page.split("function continueFromResult()")[1].split("const missingFields=")[0];
+ assert.match(continuation,/advance\("review","USER_DIRECT"\)/);
+ assert.doesNotMatch(continuation,/taskId\.current=|setTurns\(\[\]\)|EMPTY_CONSENSUS/);
+ assert.match(result,/mate\.summary\.loading/);
+ assert.match(result,/onContinue/);
+ assert.match(result,/onSupplement/);
+ assert.match(result,/onRestart/);
+});
+test("Mate improvement keys exist in every locale and TSX size stays under 26000 bytes",()=>{
+ const locales=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
+ const en=JSON.parse(enHome()).mate;
+ for(const lang of locales){
+  const value=JSON.parse(fs.readFileSync(path.join(root,`web-spa/src/i18n/locales/${lang}/mate.json`),"utf8")).mate;
+  for(const group of ["validation","startGate","summary"]){
+   assert.deepEqual(Object.keys(value[group]).sort(),Object.keys(en[group]).sort(),lang+" "+group);
+  }
+  assert.equal(typeof value.validation.labels.constraints,"string");
+  assert.ok(value.summary.loading.length>0);
+ }
+ for(const name of fs.readdirSync(path.join(root,"web-spa/src/mate")).filter(x=>x.endsWith(".tsx"))){
+  assert.ok(fs.statSync(path.join(root,"web-spa/src/mate",name)).size<26000,name);
+ }
 });

@@ -155,6 +155,36 @@
       "aria": "Transkrip langsung",
       "waiting": "Menunggu lawan bicara mulai berbicara.",
       "jump": "Percakapan terbaru ↓"
+    },
+    "validation": {
+      "missing": "Masih perlu diisi:",
+      "confirm": "Centang kotak persetujuan.",
+      "required": "Kolom ini wajib diisi.",
+      "requiredLimits": "Isi batasan pribadi, atau tulis “tidak ada” jika memang tidak ada.",
+      "emptyBriefing": "Masukkan detail tugas atau catatan pribadi sebelum meninjau.",
+      "labels": {
+        "target": "Lawan bicara",
+        "goal": "Tujuan",
+        "constraints": "Batasan pribadi",
+        "escalation": "Hal yang harus ditanyakan",
+        "userLanguage": "Bahasa saya",
+        "otherLanguage": "Bahasa lawan bicara"
+      }
+    },
+    "startGate": {
+      "start": "Mulai",
+      "description": "Serahkan ponsel kepada lawan bicara, lalu tekan Mulai. Mate akan berbicara lebih dulu."
+    },
+    "summary": {
+      "title": "Ringkasan",
+      "loading": "Mate sedang menyusun ringkasan…",
+      "achieved": "Tercapai",
+      "notAchieved": "Belum tercapai",
+      "pending": "Perlu konfirmasi",
+      "missing": "Yang masih kurang:",
+      "continue": "Kembali ke langkah 2 dan lanjutkan",
+      "none": "Tidak ada yang diketahui",
+      "unknown": "Belum dikonfirmasi"
     }
   }
 }

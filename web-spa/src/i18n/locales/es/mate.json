@@ -155,6 +155,36 @@
       "aria": "Transcripción en vivo",
       "waiting": "Esperando a que hable la otra persona.",
       "jump": "Último mensaje ↓"
+    },
+    "validation": {
+      "missing": "Falta completar:",
+      "confirm": "Marca la casilla de autorización.",
+      "required": "Este campo es obligatorio.",
+      "requiredLimits": "Indica tus límites privados o escribe «ninguno» si no hay.",
+      "emptyBriefing": "Introduce los detalles de la tarea o una nota privada antes de revisar.",
+      "labels": {
+        "target": "Persona",
+        "goal": "Objetivo",
+        "constraints": "Límites privados",
+        "escalation": "Cuándo consultar",
+        "userLanguage": "Mi idioma",
+        "otherLanguage": "Idioma de la otra persona"
+      }
+    },
+    "startGate": {
+      "start": "Comenzar",
+      "description": "Entrega el teléfono a la otra persona y pulsa Comenzar. Mate hablará primero."
+    },
+    "summary": {
+      "title": "Resumen",
+      "loading": "Mate está preparando el resumen…",
+      "achieved": "Logrado",
+      "notAchieved": "No logrado",
+      "pending": "Pendiente de confirmar",
+      "missing": "Aún falta:",
+      "continue": "Volver al paso 2 y continuar",
+      "none": "Nada pendiente",
+      "unknown": "Todavía sin confirmar"
     }
   }
 }

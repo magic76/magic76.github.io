@@ -155,6 +155,36 @@
       "aria": "リアルタイム文字起こし",
       "waiting": "相手が話すのを待っています。Mate が相手の返事を勝手に作ることはありません。",
       "jump": "最新の会話 ↓"
+    },
+    "validation": {
+      "missing": "未入力の項目：",
+      "confirm": "承認のチェックを入れてください。",
+      "required": "必須項目です。",
+      "requiredLimits": "非公開の制約を入力してください。なければ「なし」と記入します。",
+      "emptyBriefing": "確認する前に依頼内容か非公開メモを入力してください。",
+      "labels": {
+        "target": "相手",
+        "goal": "目的",
+        "constraints": "非公開の制約",
+        "escalation": "事前確認が必要な事項",
+        "userLanguage": "自分の言語",
+        "otherLanguage": "相手の言語"
+      }
+    },
+    "startGate": {
+      "start": "開始",
+      "description": "相手にスマートフォンを渡してから「開始」を押してください。Mate が先に話します。"
+    },
+    "summary": {
+      "title": "要約",
+      "loading": "Mate が要約を作成中…",
+      "achieved": "達成",
+      "notAchieved": "未達成",
+      "pending": "確認が必要",
+      "missing": "不足している点：",
+      "continue": "ステップ 2 に戻って会話を続ける",
+      "none": "現時点ではなし",
+      "unknown": "まだ確認できていません"
     }
   }
 }

@@ -155,6 +155,36 @@
       "aria": "Transcrição ao vivo",
       "waiting": "Aguardando a outra pessoa falar.",
       "jump": "Mensagem mais recente ↓"
+    },
+    "validation": {
+      "missing": "Ainda falta:",
+      "confirm": "Marque a caixa de autorização.",
+      "required": "Este campo é obrigatório.",
+      "requiredLimits": "Informe seus limites privados ou escreva “nenhum” se não houver.",
+      "emptyBriefing": "Informe os detalhes da tarefa ou uma nota privada antes de revisar.",
+      "labels": {
+        "target": "Pessoa",
+        "goal": "Objetivo",
+        "constraints": "Limites privados",
+        "escalation": "Quando me consultar",
+        "userLanguage": "Meu idioma",
+        "otherLanguage": "Idioma da outra pessoa"
+      }
+    },
+    "startGate": {
+      "start": "Começar",
+      "description": "Entregue o celular à outra pessoa e toque em Começar. Mate falará primeiro."
+    },
+    "summary": {
+      "title": "Resumo",
+      "loading": "Mate está preparando o resumo…",
+      "achieved": "Alcançado",
+      "notAchieved": "Não alcançado",
+      "pending": "Pendente de confirmação",
+      "missing": "Ainda falta:",
+      "continue": "Voltar à etapa 2 e continuar",
+      "none": "Nada identificado",
+      "unknown": "Ainda não confirmado"
     }
   }
 }

@@ -8,7 +8,7 @@ export function MateHeader({phase,onHistory}:{phase:MatePhase;onHistory:()=>void
  return <header className="mate-title">      <div><Link to="/explore" className="mate-back">← {t("mate.header.explore")}</Link>
         <p className="mate-kicker">CREW MATE</p>
         <h1>{t("mate.header.title")}</h1>
-        <p>{t("mate.header.intro")}</p></div>
+        {phase!=="external"&&phase!=="decision"&&<p className="mate-intro">{t("mate.header.intro")}</p>}</div>
       {phase!=="external"&&phase!=="decision"&&<button type="button" className="mate-quiet" onClick={onHistory}>{t("mate.header.history")}</button>}
     </header>;
 }
