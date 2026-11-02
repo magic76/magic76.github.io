@@ -93,26 +93,60 @@ export function trackMultiFrame(frame:GrayFrame,ref:MultiTracker):MultiTracker|n
  }
  if(observations.length<2)return null;
  const dx=median(observations.map(o=>o.dx)),dy=median(observations.map(o=>o.dy));
- // Background features with a different displacement must not drag the eyes away.
- const inliers=observations.filter(o=>Math.abs(o.dx-dx)<=5&&Math.abs(o.dy-dy)<=5);
- if(inliers.length<2||inliers.length<Math.ceil(ref.anchors.length*.45))return null;
- const shiftX=median(inliers.map(o=>o.dx)),shiftY=median(inliers.map(o=>o.dy));
- const point={x:clamp(ref.point.x+shiftX/frame.width,0,1),y:clamp(ref.point.y+shiftY/frame.height,0,1)};
+ // Discard features that move independently of the majority.
+ let inliers=observations.filter(o=>Math.abs(o.dx-dx)<=7&&Math.abs(o.dy-dy)<=7);
+ if(inliers.length<2||inliers.length<Math.ceil(ref.anchors.length*.5))return null;
+ const originX=inliers.reduce((n,o)=>n+o.original.x,0)/inliers.length;
+ const originY=inliers.reduce((n,o)=>n+o.original.y,0)/inliers.length;
+ const targetX=inliers.reduce((n,o)=>n+o.result!.template.x,0)/inliers.length;
+ const targetY=inliers.reduce((n,o)=>n+o.result!.template.y,0)/inliers.length;
+ let a=1,b=0;
+ if(inliers.length>=3){
+  // Least-squares similarity transform: translation + uniform scale + rotation.
+  let xx=0,dot=0,cross=0;
+  for(const o of inliers){
+   const x=o.original.x-originX,y=o.original.y-originY;
+   const u=o.result!.template.x-targetX,v=o.result!.template.y-targetY;
+   xx+=x*x+y*y;dot+=x*u+y*v;cross+=x*v-y*u;
+  }
+  if(xx>15){a=dot/xx;b=cross/xx}
+  const scale=Math.hypot(a,b),rotation=Math.abs(Math.atan2(b,a));
+  // Per-frame jumps beyond these limits are more likely mismatched features.
+  if(scale<.87||scale>1.14||rotation>.29)return null;
+  inliers=inliers.filter(o=>{
+   const x=o.original.x-originX,y=o.original.y-originY;
+   const tx=targetX+a*x-b*y,ty=targetY+b*x+a*y;
+   return Math.hypot(o.result!.template.x-tx,o.result!.template.y-ty)<=5;
+  });
+  if(inliers.length<3||inliers.length<Math.ceil(ref.anchors.length*.5))return null;
+ }
+ const map=(x:number,y:number)=>{
+  const ox=x-originX,oy=y-originY;
+  return{x:targetX+a*ox-b*oy,y:targetY+b*ox+a*oy};
+ };
+ const face=map(ref.point.x*frame.width,ref.point.y*frame.height);
+ const point={x:clamp(face.x/frame.width,0,1),y:clamp(face.y/frame.height,0,1)};
  const anchors=inliers.map(o=>{
   const found=o.result!;
-  // Adapt slowly only when the match is strong and several anchors agree.
   if(found.error>13||inliers.length<3)return found.template;
   const fresh=patch(frame,found.template.x,found.template.y,found.template.radius,found.template.stride);
   if(fresh.deviation<10)return found.template;
   const values=found.template.values.map((v,i)=>v*.93+fresh.values[i]*.07);
   return {...found.template,values,mean:found.template.mean*.93+fresh.mean*.07};
  });
- const box=ref.box?{
-  x:clamp(ref.box.x+shiftX/frame.width,0,1),
-  y:clamp(ref.box.y+shiftY/frame.height,0,1),
-  width:ref.box.width,height:ref.box.height
- }:undefined;
- // Track the segmented object bounds together with the consistent local features.
+ let box:Region|undefined;
+ if(ref.box){
+  const {x,y,width,height}=ref.box;
+  const corners=[[x,y],[x+width,y],[x,y+height],[x+width,y+height]].map(([u,v])=>map(u*frame.width,v*frame.height));
+  const left=clamp(Math.min(...corners.map(c=>c.x))/frame.width,0,1);
+  const right=clamp(Math.max(...corners.map(c=>c.x))/frame.width,0,1);
+  const top=clamp(Math.min(...corners.map(c=>c.y))/frame.height,0,1);
+  const bottom=clamp(Math.max(...corners.map(c=>c.y))/frame.height,0,1);
+  if(right-left<.04||bottom-top<.04)return null;
+  box={x:left,y:top,width:right-left,height:bottom-top};
+  // Reject a face anchor that has clearly escaped the tracked object bounds.
+  if(point.x<left-.08||point.x>right+.08||point.y<top-.08||point.y>bottom+.08)return null;
+ }
  return {point,anchors,box};
 }
 export function initRegionTracker(frame:GrayFrame,box:Region,face?:Anchor):MultiTracker|null{
