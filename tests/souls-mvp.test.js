@@ -148,7 +148,7 @@ test("P0: user-guided local segmentation yields bounded object region and region
  assert.match(region,/cutoutObject\(image/);
  assert.match(region,/maxX<0/);
  assert.match(tracker,/export function initRegionTracker/);
- assert.match(tracker,/ref\.box\?/);
+ assert.match(tracker,/if\(ref\.box\)\{/);
 });
 test("P2: playback-only real RMS drives mouth without animation fake",()=>{
  const live=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
