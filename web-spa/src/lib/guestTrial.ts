@@ -22,9 +22,9 @@ export async function fetchGuestTrialConfig():Promise<GuestTrialConfig>{
   if(!response.ok)return {enabled:false};
   const value=await response.json();
   // Fail closed during separate Worker/Pages rollout: never burn a 60s trial claim
-  // when the updated UI promises 180s. BYOK sessions are unaffected.
-  return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===180
-   ?{enabled:true,siteKey:value.siteKey,seconds:180,signinRequired:value.signinRequired===true,
+  // when the updated UI promises 300s. BYOK sessions are unaffected.
+  return value?.enabled===true&&typeof value.siteKey==="string"&&value.siteKey&&Number(value.seconds)===300
+   ?{enabled:true,siteKey:value.siteKey,seconds:300,signinRequired:value.signinRequired===true,
      memberMetering:value.memberMetering===true||value.signinRequired===true,
       ...(Number.isInteger(value.trial?.used)&&Number.isInteger(value.trial?.limit)&&value.trial.limit>0&&value.trial.used>=0&&value.trial.used<=value.trial.limit
        ?{trial:{used:value.trial.used,limit:value.trial.limit}}:{})}:{enabled:false};

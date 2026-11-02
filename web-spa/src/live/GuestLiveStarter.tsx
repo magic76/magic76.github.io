@@ -133,7 +133,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     headers:{"content-type":"application/json"},body:JSON.stringify({challengeToken:challenge,...(authTicket?{authTicket}:{})})});
    if(!res.headers.get("content-type")?.includes("application/json"))throw Error("invalid response");
    const data=await res.json() as GuestTrialGrant&{code?:string};
-   if(!res.ok||!data.token||!data.model||data.seconds!==180){
+   if(!res.ok||!data.token||!data.model||data.seconds!==300){
     trackUsageEvent("guest_trial_token_failed",role);
     if(active.current){
      if(data.code==="SIGNIN_REQUIRED")setPhase("login");

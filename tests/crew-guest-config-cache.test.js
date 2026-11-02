@@ -9,7 +9,7 @@ function compile(fetch,clock){
  const js=stripTypeScriptTypes(ts,{mode:"strip"}).replace(/^export /gm,"");
  return new Function("window","isCrewAndroidShell","fetch","Date",js+"\nreturn fetchGuestTrialConfig;")({},()=>false,fetch,clock);
 }
-const enabled={enabled:true,siteKey:"public-site-key",seconds:180,signinRequired:false,memberMetering:false};
+const enabled={enabled:true,siteKey:"public-site-key",seconds:300,signinRequired:false,memberMetering:false};
 test("Guest config in-flight GET is shared across homepage, onboarding and Live",async()=>{
  let now=1_000,calls=0,release;
  const deferred=new Promise(resolve=>{release=resolve});
@@ -24,10 +24,10 @@ test("Guest config in-flight GET is shared across homepage, onboarding and Live"
  await get();assert.equal(calls,1,"fresh enabled config reuses 30s cache");
  now+=30_001;await get();assert.equal(calls,2,"expired config is rechecked");
 });
-test("Guest config rejects wrong duration, fails closed and retries a disabled response quickly",async()=>{
+test("Guest config rejects 180-second rollout mismatch, fails closed and retries a disabled response quickly",async()=>{
  let now=0,calls=0;
  const get=compile(async()=>{
-  calls++;return{ok:true,json:async()=>({...enabled,seconds:60})};
+  calls++;return{ok:true,json:async()=>({...enabled,seconds:180})};
  },{now:()=>now});
  assert.deepEqual(await get(),{enabled:false});
  now+=4_999;await get();assert.equal(calls,1);

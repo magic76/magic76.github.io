@@ -11,7 +11,7 @@
 | 位置 | 操作入口 | 主要功能 | 不要搞混 |
 | --- | --- | --- | --- |
 | **Cloudflare Pages Production**：`magic76-github-io` | Cloudflare Dashboard → Workers & Pages → Pages 專案 → Settings → Variables and Secrets／Bindings | 網站、Google／GitHub 登入、D1 Session、會員票券簽章、使用統計、Books API | Pages 的 Secret 不會自動同步到 Worker；Preview 與 Production 也可能不同 |
-| **Cloudflare Worker Production**：`crew-guest-trial` | Cloudflare Dashboard → Workers & Pages → Worker → Settings → Variables and Secrets／Bindings | 無 Key 三分鐘試用：Turnstile、Gemini 臨時 Token、速率限制、會員配額 | Worker 有獨立 Secrets；程式設定在 `workers/guest-trial/wrangler.toml` |
+| **Cloudflare Worker Production**：`crew-guest-trial` | Cloudflare Dashboard → Workers & Pages → Worker → Settings → Variables and Secrets／Bindings | 無 Key 五分鐘試用：Turnstile、Gemini 臨時 Token、速率限制、會員配額 | Worker 有獨立 Secrets；程式設定在 `workers/guest-trial/wrangler.toml` |
 | **GitHub Repository Actions Secrets／Variables** | GitHub repo → Settings → Secrets and variables → Actions | 自動產生 Briefing、Shorts（手動 AI 產生）、跨 Repo 契約驗證 | 這不是 Cloudflare Pages／Worker 的環境變數，不會自動注入 Cloudflare 執行環境 |
 
 Cloudflare 專案的正式網址是 `https://www.3sssi.com`；試用 Worker 是 `https://crew-guest-trial.shanliyoung.workers.dev`。請選擇 **Production**，不要誤填 Preview。
@@ -37,7 +37,7 @@ D1 建表程式：`migrations/crew-auth/0001.sql`（登入三表）、`migration
 
 **程式來源：** `server/crew-auth.mjs`、`functions/api/auth/**`、`server/crew-guest-ticket.mjs`；完整 OAuth 與部署流程見 [crew-auth.md](crew-auth.md)。
 
-## 2. Worker Production：三分鐘 Gemini 試用
+## 2. Worker Production：五分鐘 Gemini 試用
 
 | 名稱 | 類型／所在位置 | 用途與是否必要 |
 | --- | --- | --- |
@@ -50,11 +50,11 @@ D1 建表程式：`migrations/crew-auth/0001.sql`（登入三表）、`migration
 | `GUEST_TRIAL_ENABLED` | **Text**：`1`／`0` | `1` 開放試用；`0` 緊急關閉免費試用。已在 `wrangler.toml` 設 `1`；不影響使用者自己的 Gemini Key |
 | `CREW_AUTH_DB` | **D1 Binding** → 同一個 `crew-auth` | 會員試用扣次數、一次性票券 nonce；會員計次模式必要。不能誤綁匿名配額的 `GUEST_DB` |
 | `CREW_GUEST_TICKET_SECRET` | **Secret** | 驗證 Pages 簽發的會員 HMAC 票券；必須跟 Pages Production **完全同值**，長度至少 32 字元 |
-| `GUEST_ACCOUNT_METER_ENABLED` | **Text**：`1`／`0`／不設定 | `1` 會員每帳號最多 3 次、每次 180 秒；**匿名訪客保留原本流程**（前提是 `GUEST_REQUIRE_SIGNIN=0`） |
+| `GUEST_ACCOUNT_METER_ENABLED` | **Text**：`1`／`0`／不設定 | `1` 會員每帳號最多 3 次、每次 300 秒；**匿名訪客保留原本流程**（前提是 `GUEST_REQUIRE_SIGNIN=0`） |
 | `GUEST_REQUIRE_SIGNIN` | **Text**：`1`／`0`／不設定 | `1` 所有人試用都要登入，並且隱含啟用會員計次；**與上一項不同**，未準備好不要開 |
 | `GUEST_ALLOW_PREVIEW` | **Text**（可選，預設不設定） | 僅讓符合規則的 Pages Preview host 進入後端的主機名稱檢查；正式環境不要隨意設 `1`，並非安全驗證替代品 |
 
-**三分鐘與三次不是同一個設定：** `seconds=180`（前端硬停止）、Gemini Token 約 190 秒到期、新連線窗口 30 秒；會員最多 **3 次**由 Worker 的 D1 原子條件更新限制，Pages `/api/auth/session` 同步顯示 `trial.used / trial.limit`。**成功發出一個 Gemini Token 就計一次，即使語音 10 秒便結束也一樣**。Token 發放失敗會嘗試退回額度，而已使用過的簽章票券不可重放。
+**五分鐘與三次不是同一個設定：** `seconds=300`（前端硬停止）、Gemini Token 約 310 秒到期、新連線窗口 30 秒；會員最多 **3 次**由 Worker 的 D1 原子條件更新限制，Pages `/api/auth/session` 同步顯示 `trial.used / trial.limit`。**成功發出一個 Gemini Token 就計一次，即使語音 10 秒便結束也一樣**。Token 發放失敗會嘗試退回額度，而已使用過的簽章票券不可重放。
 
 **重要：** 配額 3 次目前寫在程式（`functions/api/guest/token.js` 的 `MEMBER_TRIAL_LIMIT` 與 `server/crew-auth.mjs` 的 `MEMBER_TRIAL_LIMIT`），**不是 Cloudflare 上可填的數字環境變數**。往後要改成 5 次，須同步修改兩處與測試、部署 Pages 和 Worker。D1 已使用次數會保留；例如 1/3 → 新上限 5，則可再用 4 次。
 
@@ -133,7 +133,7 @@ DB migration 在 `migrations/books/`。不要把 Books 邀請碼用作 Cloudflar
      'https://crew-guest-trial.shanliyoung.workers.dev/api/guest/token'
    ```
 
-   正常應回 JSON `enabled:true`、`seconds:180`。若已啟用 `GUEST_ACCOUNT_METER_ENABLED=1`，會有 `memberMetering:true`；`GUEST_REQUIRE_SIGNIN=1` 則多 `signinRequired:true`。這只是 GET 設定，不會消耗試用次數。
+   正常應回 JSON `enabled:true`、`seconds:300`。若已啟用 `GUEST_ACCOUNT_METER_ENABLED=1`，會有 `memberMetering:true`；`GUEST_REQUIRE_SIGNIN=1` 則多 `signinRequired:true`。這只是 GET 設定，不會消耗試用次數。
 4. **再測會員次數**：帳號顯示 `used:0 / limit:3` → 成功領取一個臨時 Gemini Token 後 `used:1`，最多成功三次，第四次應收到 `429 ALREADY_USED`。同一張票券再次提交永遠無效；若領取失敗，應檢查次數是否退還。受 Worker 每節點 1 次／60 秒限制，**不要把 `429 DAILY_LIMIT` 當成會員已用完**。
 5. **分階段切換與回滾**：先 `GUEST_ACCOUNT_METER_ENABLED=1`、`GUEST_REQUIRE_SIGNIN=0`（會員計數、匿名仍可）；強制所有人登入是**另一個上線決策**。若有問題，兩者改回 `0` 並重新部署 Worker。這不會重置 D1 紀錄，也不會關閉 BYOK。
 

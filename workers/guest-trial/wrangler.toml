@@ -1,4 +1,4 @@
-# Phase 1 anonymous 180-second trial + Phase 3 optional member quota.
+# Phase 1 anonymous 300-second trial + Phase 3 optional member quota.
 # Configure secrets separately in Cloudflare, NEVER here.
 name = "crew-guest-trial"
 main = "./worker.mjs"

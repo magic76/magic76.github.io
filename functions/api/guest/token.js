@@ -3,7 +3,7 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
  status,headers:{"content-type":"application/json;charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"}
 });
 const LIVE_MODEL="gemini-3.8-live";
-const SESSION_SECONDS=180;
+const SESSION_SECONDS=300;
 const MEMBER_TRIAL_LIMIT=3;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
@@ -142,7 +142,7 @@ async function verifyCaptcha(token,ip,secret,hostname,action="crew-guest-trial")
 async function mintToken(key,now){
  const body={
   uses:1,
-  expireTime:new Date(now+190000).toISOString(),
+  expireTime:new Date(now+310000).toISOString(),
   newSessionExpireTime:new Date(now+30000).toISOString(),
   // Official AuthToken wire fields. Mask only these fields: client owns role, voice
   // and transcription, but cannot select a different model or paid tools.
@@ -205,7 +205,7 @@ async function issueMemberTrial(input,env){
   const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
   minted=true;
   return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
-   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
+   issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
  }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  finally{
   // If provisioning failed, release the quota, but never reuse a ticket nonce.
@@ -256,7 +256,7 @@ export async function onRequestPost({request,env}){
    const issuedAt=Date.now();
    const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
    return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,
-    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
+    issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
   }catch{return json({error:"Guest trial temporarily unavailable"},503)}
  }
  const now=Date.now(), day=new Date(now).toISOString().slice(0,10);
@@ -283,7 +283,7 @@ export async function onRequestPost({request,env}){
   const issuedAt=Date.now();
   const token=await mintToken(selectGuestGeminiKey(env),issuedAt);
   minted=true;
-  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+190000).toISOString()});
+  return json({token,model:LIVE_MODEL,seconds:SESSION_SECONDS,issuedAt:new Date(issuedAt).toISOString(),expiresAt:new Date(issuedAt+310000).toISOString()});
  }catch{
   return json({error:"Trial temporarily unavailable"},503);
  }finally{

@@ -3,7 +3,7 @@ import{useTranslation}from"react-i18next";
 import{getCrewFriend}from"../friends/friendProfiles";
 import"./guestTrialExperience.css";
 
-/** Display only; the Live hook enforces the independent three-minute deadline. */
+/** Display only; the Live hook enforces the independent five-minute deadline. */
 export function GuestTrialCountdown({secondsLeft}:{secondsLeft:number}){
  const {t}=useTranslation("common");
  if(secondsLeft<=0)return null;

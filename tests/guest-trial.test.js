@@ -88,7 +88,7 @@ function mockedServices(options={}){
    assert.equal(body.fieldMask,"model,generationConfig.responseModalities,tools");
    assert.equal(body.liveConnectConstraints,undefined);
    const expiry=Date.parse(body.expireTime)-Date.now();
-   assert.ok(expiry>=180000&&expiry<=190000);
+   assert.ok(expiry>=300000&&expiry<=310000);
    assert.equal(body.uses,1);
    assert.ok(Date.parse(body.newSessionExpireTime)-Date.now()<=30000);
    return Response.json({name:"ephemeral-test-one-use-token"});
@@ -135,7 +135,7 @@ test("one-use fingerprint and server daily reservations block repeat/overflow",a
   assert.equal(first.status,200);
   const body=await first.json();
   assert.equal(body.token,"ephemeral-test-one-use-token");
-  assert.equal(body.seconds,180);
+  assert.equal(body.seconds,300);
   assert.equal(body.model,"gemini-3.8-live");
   assert.match(first.headers.get("cache-control"),/no-store/);
   const repeat=await onRequestPost({request:req(),env:bindings});
@@ -253,15 +253,15 @@ test("Phase 1 public guest requires Turnstile and the Worker limiter (no D1)",as
  const mock=mockedServices();
  try{
   let r=await worker.fetch(new Request(url,{headers:{Origin:"https://www.3sssi.com"}}),settings);
-  assert.equal((await r.json()).seconds,180);
+  assert.equal((await r.json()).seconds,300);
   r=await worker.fetch(post(),{...settings,GUEST_TRIAL_RATE_LIMITER:undefined});
   assert.equal(r.status,503);
   assert.equal(mock.counts().minted,0);
   r=await worker.fetch(post(),settings);
   assert.equal(r.status,200);
   const grant=await r.json();
-  assert.equal(grant.seconds,180);
-  assert.equal(Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt),190000);
+  assert.equal(grant.seconds,300);
+  assert.equal(Date.parse(grant.expiresAt)-Date.parse(grant.issuedAt),310000);
   assert.equal(mock.counts().minted,1);
   allow=false;
   r=await worker.fetch(post(),settings);
@@ -314,7 +314,7 @@ test("multiple Gemini keys work as one JSON Secret; single-key installations sti
   const result=await onRequestPost({request:req(),env:cloudflareEnv});
   assert.equal(result.status,200);
   const body=await result.json();
-  assert.equal(body.seconds,180);
+  assert.equal(body.seconds,300);
   assert.equal(mock.counts().minted,1);
   assert.equal(mock.counts().usedKeys.length,1);
   assert.ok(allowed.includes(mock.counts().usedKeys[0]));
@@ -342,7 +342,7 @@ test("comma-separated Gemini API keys work without JSON and accept trimmed entri
  const mock=mockedServices({allowedKeys:keys});
  try{
   const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
-  assert.deepEqual((await config.json()).seconds,180);
+  assert.deepEqual((await config.json()).seconds,300);
   const response=await onRequestPost({request:req(),env:settings});
   assert.equal(response.status,200);
   const token=await response.json();
@@ -481,7 +481,7 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  const teacher=fs.readFileSync(path.join(root,"web-spa/src/teacher/LivePage.tsx"),"utf8");
  const friend=fs.readFileSync(path.join(root,"web-spa/src/friends/FriendLivePage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/live/guestTrialExperience.css"),"utf8");
- assert.match(hook,/Math\.min\(180000/);
+ assert.match(hook,/Math\.min\(300000/);
  assert.match(hook,/guestWrapUpSentRef\.current=true/);
  assert.match(hook,/left>0&&left<=10/);
  assert.match(hook,/setGuestExpired\(true\)/);
@@ -502,23 +502,25 @@ test("guest trial 10-second guidance and completion UX preserve hard stop",()=>{
  }
 });
 
-test("three-minute trial stays consistent across Worker grants and client hard deadline",()=>{
+test("five-minute trial stays consistent across Worker grants and client hard deadline",()=>{
  const backend=fs.readFileSync(path.join(root,"functions/api/guest/token.js"),"utf8");
  const worker=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
  const starter=fs.readFileSync(path.join(root,"web-spa/src/live/GuestLiveStarter.tsx"),"utf8");
  const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
  const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
  const config=fs.readFileSync(path.join(root,"web-spa/src/lib/guestTrial.ts"),"utf8");
- assert.match(backend,/const SESSION_SECONDS=180;/);
- assert.match(backend,/expireTime:new Date\(now\+190000\)/);
+ assert.match(backend,/const SESSION_SECONDS=300;/);
+ assert.match(backend,/const MEMBER_TRIAL_LIMIT=3;/);
+ assert.match(backend,/expireTime:new Date\(now\+310000\)/);
  assert.match(backend,/newSessionExpireTime:new Date\(now\+30000\)/);
- assert.match(worker,/three-minute Guest Trial Worker/);
- assert.match(starter,/data\.seconds!==180/);
- assert.match(hook,/Math\.min\(180000/);
- assert.match(hook,/Math\.min\(180,grant\.seconds\|\|180\)/);
+ assert.match(worker,/five-minute Guest Trial Worker/);
+ assert.match(starter,/data\.seconds!==300/);
+ assert.match(hook,/Math\.min\(300000/);
+ assert.match(hook,/Math\.min\(300,grant\.seconds\|\|300\)/);
  assert.match(hook,/left>0&&left<=10/);
  assert.match(usage,/from_120_to_180s/);
- assert.match(config,/Number\(value\.seconds\)===180/);
+ assert.match(usage,/from_180_to_300s/);
+ assert.match(config,/Number\(value\.seconds\)===300/);
 });
 
 test("member mode rejects unsigned or replayed tickets and enforces three trials per D1 user",async()=>{
@@ -563,7 +565,7 @@ test("member mode rejects unsigned or replayed tickets and enforces three trials
   assert.equal((await onRequestPost({request:request(ticket+"tampered"),env:settings})).status,401);
   const first=await onRequestPost({request:request(ticket),env:settings});
   assert.equal(first.status,200);
-  assert.equal((await first.json()).seconds,180);
+  assert.equal((await first.json()).seconds,300);
   assert.equal((await onRequestPost({request:request(ticket),env:settings})).status,429);
   for(let attempt=2;attempt<=3;attempt++){
    const next=await createGuestTicket(uid,secret);
@@ -635,14 +637,14 @@ test("optional member metering counts signed-in accounts without blocking anonym
  const config=await onRequestGet({request:new Request("https://www.3sssi.com/api/guest/token"),env:settings});
  const available=await config.json();
  assert.equal(available.enabled,true);
- assert.equal(available.seconds,180);
+ assert.equal(available.seconds,300);
  assert.equal(available.memberMetering,true);
  assert.equal(available.signinRequired,undefined);
  const services=mockedServices();
  try{
   const anon=await onRequestPost({request:memberRequest(),env:settings});
   assert.equal(anon.status,200);
-  assert.equal((await anon.json()).seconds,180);
+  assert.equal((await anon.json()).seconds,300);
   assert.equal(db.used.size,0,"unsigned visitors retain anonymous flow without member counters");
   const accountA="123e4567-e89b-42d3-a456-426614174001",accountB="123e4567-e89b-42d3-a456-426614174002";
   const forged=await onRequestPost({request:memberRequest("forged"),env:settings});
@@ -653,8 +655,8 @@ test("optional member metering counts signed-in accounts without blocking anonym
   const first=await onRequestPost({request:memberRequest(ticketA),env:settings});
   assert.equal(first.status,200);
   const firstData=await first.json();
-  assert.equal(firstData.seconds,180);
-  assert.equal(Date.parse(firstData.expiresAt)-Date.parse(firstData.issuedAt),190000);
+  assert.equal(firstData.seconds,300);
+  assert.equal(Date.parse(firstData.expiresAt)-Date.parse(firstData.issuedAt),310000);
   assert.equal(db.used.get(accountA),1);
   assert.equal((await onRequestPost({request:memberRequest(ticketA),env:settings})).status,429);
   const newA=await createGuestTicket(accountA,signing);
@@ -714,4 +716,21 @@ test("optional member metering checks exhausted quota before Turnstile or ticket
  assert.match(starter,/phase==="login"/);
  assert.match(account,/state\.trial\.used<state\.trial\.limit/);
  assert.match(account,/\/teacher\/roles\?mode=teacher/);
+});
+
+
+test("five-minute free-trial offer is localized without changing lesson practice duration",()=>{
+ const locales=JSON.parse(fs.readFileSync(path.join(root,"config/ui-locales.json"),"utf8")).locales.map(x=>x.code);
+ const markers={"zh-TW":/5 分鐘/,"en":/(?:five[- ]minute|5 minutes?)/i,"ja":/5分/,"es":/(?:cinco|5) minutos/i,"pt-BR":/(?:cinco|5) minutos/i,"id":/(?:lima|5) menit/i,"fr":/(?:cinq|5) minutes/i,"de":/(?:fünf|5) Minuten/i,"ko":/5분/,"vi":/(?:năm|5) phút/i,"th":/(?:ห้า|5)\s*นาที/};
+ for(const locale of locales){
+  const common=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",locale,"common.json"),"utf8"));
+  const home=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales",locale,"home.json"),"utf8"));
+  for(const key of ["signInToTry","completeTitle","description","homeTitle","onboardingCTA","settingsCta"])
+   assert.match(common.guestTrial[key],markers[locale],locale+":"+key);
+  assert.match(home.world.chatSubtitle,markers[locale],locale+":chatSubtitle");
+ }
+ assert.match(fs.readFileSync(path.join(root,"scripts/generate-seo.mjs"),"utf8"),/免費試用 5 分鐘語音口說/);
+ assert.match(fs.readFileSync(path.join(root,"index.html"),"utf8"),/免費試用 5 分鐘語音口說/);
+ const lesson=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/teacher.json"),"utf8"));
+ assert.match(lesson.learn.threeMinute,/3 分鐘/);
 });
