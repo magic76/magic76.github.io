@@ -23,6 +23,7 @@ type Config={
  onToolCall?:(call:{id?:string;name:string;args?:unknown})=>Record<string,unknown>;
  onToolsUnavailable?:()=>void;
  onRecovered?:()=>void;
+ onOutputLevel?:(level:number)=>void;
  persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}

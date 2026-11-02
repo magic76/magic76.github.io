@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useMemo,useRef,useState,type ChangeEvent,type FormEvent,type MouseEvent} from "react";
 import {SoulCamera,type SoulVisual} from "./SoulCamera";
 import {cutoutObject} from "./soulCutout";
+import {embedPhoto,compareEmbeddings,photoQuality} from "./soulEmbedding";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useLiveSession} from "../live/useLiveSession";
@@ -11,10 +12,10 @@ import {ensureCore,ensureVision,geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import "./souls.css";
 
-type Photo={image:string;hash:string;color:number[]};
+type Photo={image:string;hash:string;color:number[];embedding?:number[];quality?:"dark"|"bright"|"blur"|null};
 type Note={id:string;text:string;source:"manual"|"conversation"};
 type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
-type Candidate={soul:Soul;score:number};
+type Candidate={soul:Soul;score:number;hasEmbedding:boolean};
 const pid=()=>crypto.randomUUID();
 const persona={witty:["愛吐槽","Witty","Puck"],gentle:["溫柔","Gentle","Kore"],curious:["好奇","Curious","Aoede"]} as const;
 const trim=(value:unknown,n=180)=>String(value??"").replace(/[\r\n\t]+/g," ").replace(/\s+/g," ").trim().slice(0,n);
@@ -66,7 +67,7 @@ async function remove(id:string){
 function image(data:string){return new Promise<HTMLImageElement>((resolve,reject)=>{
  const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error("圖片載入失敗"));img.src=data;
 })}
-async function photoFromFile(file:File):Promise<Photo>{
+async function photoFromFile(file:File,withEmbedding=false):Promise<Photo>{
  if(!file.type.startsWith("image/")||file.type==="image/svg+xml"||file.size>15*1024*1024)throw Error("請選擇 15MB 以下的照片（不支援 SVG）");
  const raw=await new Promise<string>((resolve,reject)=>{
   const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=()=>reject(r.error);r.readAsDataURL(file);
@@ -76,6 +77,7 @@ async function photoFromFile(file:File):Promise<Photo>{
  const side=Math.min(img.naturalWidth,img.naturalHeight);
  ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,640,640);
  const data=canvas.toDataURL("image/jpeg",.76);
+ const quality=photoQuality(ctx.getImageData(0,0,640,640).data,640,640);
  const small=document.createElement("canvas");small.width=9;small.height=8;
  const c=small.getContext("2d",{willReadFrequently:true});if(!c)throw Error("Canvas unavailable");
  c.drawImage(canvas,0,0,640,640,0,0,9,8);
@@ -86,7 +88,8 @@ async function photoFromFile(file:File):Promise<Photo>{
  }
  const p=ctx.getImageData(80,80,480,480).data,hist=Array(24).fill(0) as number[];let count=0;
  for(let i=0;i<p.length;i+=40){for(let ch=0;ch<3;ch++)hist[ch*8+Math.min(7,Math.floor(p[i+ch]/32))]++;count+=3}
- return {image:data,hash:bits.toString(16).padStart(16,"0"),color:hist.map(n=>n/count)};
+ const embedding=withEmbedding?await embedPhoto(canvas):null;
+ return {image:data,hash:bits.toString(16).padStart(16,"0"),color:hist.map(n=>n/count),quality:quality.reason,embedding:embedding||undefined};
 }
 function similarity(a:Photo,b:Photo){
  if(!/^[0-9a-f]{16}$/.test(a.hash)||!/^[0-9a-f]{16}$/.test(b.hash)||a.color.length!==24||b.color.length!==24)return 0;
@@ -106,8 +109,17 @@ function keepReferences(photos:Photo[]):Photo[]{
  return unique.length<=8?unique:[unique[0],...unique.slice(-7)];
 }
 function candidates(photo:Photo,items:Soul[]):Candidate[]{
- return items.map(soul=>({soul,score:Math.max(0,...soul.photos.map(p=>similarity(p,photo)))}))
-  .filter(x=>x.score>=.5).sort((a,b)=>b.score-a.score).slice(0,4);
+ return items.map(soul=>{
+  let score=0,hasEmbedding=false;
+  for(const reference of soul.photos){
+   const legacy=similarity(reference,photo);
+   const embedding=compareEmbeddings(reference.embedding,photo.embedding);
+   if(embedding!==null){
+    hasEmbedding=true;score=Math.max(score,.50*legacy+.50*Math.max(0,embedding));
+   }else score=Math.max(score,legacy);
+  }
+  return {soul,score,hasEmbedding};
+ }).filter(x=>x.score>=.5).sort((a,b)=>b.score-a.score).slice(0,4);
 }
 function systemFor(s:Soul,en:boolean){
  const style={witty:"playfully witty and warm",gentle:"gentle and calm",curious:"curious and imaginative"}[s.personality];
@@ -145,7 +157,7 @@ async function remember(id:string,utterance:string,changed:()=>void){
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
 function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;overlay?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
- const [typed,setTyped]=useState<string[]>([]);
+ const [typed,setTyped]=useState<string[]>([]),[audioLevel,setAudioLevel]=useState(0);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
@@ -157,6 +169,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   openingPrompt:en?"The camera has just recognized you. Wake up as this object, warmly greet your owner in one playful short sentence.":"相機剛認出你這個物品。用你的個性醒來，像老朋友一樣簡短打招呼，別解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  onOutputLevel:level=>setAudioLevel(previous=>Math.abs(previous-level)>.035?level:previous),
   onTurnComplete:(_turn,turns)=>capture(turns),
   onSessionFinished:item=>{if(item)capture(item.turns)}
  });
@@ -173,7 +186,7 @@ function SoulChat({soul,en,onChange,onVisual,overlay=false}:{soul:Soul;en:boolea
   /[!！?？]|哇|天啊|驚|wow|really/i.test(caption)?"surprised":
   /哈哈|開心|喜歡|好耶|太棒|笑|great|love|haha/i.test(caption)?"happy":
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
- useEffect(()=>{onVisual?.({state:live.state,caption,mood})},[onVisual,live.state,caption,mood]);
+ useEffect(()=>{onVisual?.({state:live.state,caption,mood,level:live.state==="speaking"?audioLevel:0,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,audioLevel,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
@@ -216,7 +229,7 @@ export function SoulsPage(){
  const [draftPhotos,setDraftPhotos]=useState<Photo[]>([]);
  const [cameraVisual,setCameraVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
  const onVisual=useCallback((next:SoulVisual)=>{
-  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood?prev:next);
+  setCameraVisual(prev=>prev.state===next.state&&prev.caption===next.caption&&prev.mood===next.mood&&prev.level===next.level&&prev.hearing===next.hearing?prev:next);
  },[]);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty"),[rememberEnabled,setRememberEnabled]=useState(true);
@@ -229,7 +242,11 @@ export function SoulsPage(){
  async function processFiles(frames:File[],keepCamera=false){
   if(!frames.length)throw Error("No camera frames");
   const photos:Photo[]=[];
-  for(const file of frames)photos.push(await photoFromFile(file));
+  for(const file of frames){
+   const p=await photoFromFile(file,true);
+   if(!p.quality)photos.push(p);
+  }
+  if(!photos.length)throw Error(t("照片過暗、過亮或模糊，請穩定手機重新拍攝。","Photos are blurry or poorly exposed. Please retake."));
   const unique=distinctPhotos(photos),all=await list();
   if(!keepCamera)setCameraOpen(false);
   setScan(unique[0]);setDraftPhotos(unique);setCutoutDraft("");
@@ -239,7 +256,11 @@ export function SoulsPage(){
  async function addReferences(frames:File[]){
   if(!selected)throw Error("Select a Soul first");
   const photos:Photo[]=[];
-  for(const file of frames)photos.push(await photoFromFile(file));
+  for(const file of frames){
+   const p=await photoFromFile(file,true);
+   if(!p.quality)photos.push(p);
+  }
+  if(!photos.length)throw Error(t("照片品質不足，請重新補拍。","Photo quality too low; try again."));
   const currentId=selected.id;
   const before=selected.photos.length;
   const changed=await update(currentId,item=>({...item,photos:keepReferences([...item.photos,...photos])}));
@@ -248,6 +269,13 @@ export function SoulsPage(){
   setInfo(added
    ?t("已新增 "+added+" 個不同視角，辨識時會一起比對。","Saved "+added+" extra views for recognition.")
    :t("照片外觀太接近，沒有增加新的辨識視角；可繞物品再拍一次。","Views were nearly identical; move around the object and try again."));
+ }
+ async function saveForeground(file:File){
+  if(!selected)return;
+  const id=selected.id,photo=await photoFromFile(file,true);
+  if(photo.quality)return;
+  await update(id,current=>({...current,photos:keepReferences([...current.photos,photo])}));
+  await refresh(id);
  }
  async function scanFile(e:ChangeEvent<HTMLInputElement>){
   const file=e.target.files?.[0];e.target.value="";if(!file)return;
@@ -258,8 +286,9 @@ export function SoulsPage(){
  }
  // Automatic wake requires 3 consistent observations in the scanner and a clear margin.
  async function probe(file:File){
-  const p=await photoFromFile(file),ranked=candidates(p,items),best=ranked[0];
-  if(!best||best.score<.94||best.score-(ranked[1]?.score||0)<.12)return null;
+  const useEmbedding=items.some(s=>s.photos.some(photo=>Boolean(photo.embedding?.length)));
+  const p=await photoFromFile(file,useEmbedding),ranked=candidates(p,items),best=ranked[0];
+  if(p.quality||!best||best.score<(best.hasEmbedding?.88:.94)||best.score-(ranked[1]?.score||0)<.12)return null;
   return {id:best.soul.id,name:best.soul.name};
  }
  async function wake(id:string,file:File){
@@ -336,7 +365,7 @@ export function SoulsPage(){
   <div className="souls-actions"><button className="souls-primary" disabled={busy} onClick={()=>{if(cameraOpen){setCameraOpen(false);return}setSelected(null);setStep("home");setCameraOpen(true);setError("");setInfo("")}}>◎ {cameraOpen?t("關閉相機","Close camera"):t("開啟相機，喚醒物品","Open camera / wake Soul")}</button>
    <button disabled={busy} onClick={()=>gallery.current?.click()}>{t("選擇照片","Choose photo")}</button>
    {step!=="home"&&<button onClick={home}>{t("我的物品","My Souls")}</button>}</div>
-  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))} onAddReferences={frames=>addReferences(frames).catch(()=>setError(t("補拍失敗，請重試。","Could not save extra angles.")))} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
+  {cameraOpen&&<SoulCamera en={en} onProbe={probe} onWake={(id,file)=>{void wake(id,file)}} onSnapshot={frames=>processFiles(frames,true).catch(()=>setError(t("拍照失敗，請重試。","Snapshot failed.")))} onAddReferences={frames=>addReferences(frames).catch(()=>setError(t("補拍失敗，請重試。","Could not save extra angles.")))} onRegionCrop={file=>saveForeground(file).catch(()=>setError(t("物品裁切照片儲存失敗。","Could not save the object crop.")))} onClose={()=>setCameraOpen(false)} onReset={resetCameraSoul} activeSoul={step==="detail"&&selected?{id:selected.id,name:selected.name}:null} visual={cameraVisual} paused={step==="match"}>
     {step==="detail"&&selected?<SoulChat key={selected.id} soul={selected} en={en} overlay onVisual={onVisual} onChange={()=>{void refresh(selected.id)}}/>:null}
     {step==="home"&&items.length>0?<div className="souls-camera-quick"><strong>{t("或手動選一個靈魂","Or choose a Soul")}</strong><div>{items.slice(0,8).map(s=><button type="button" key={s.id} onClick={()=>void choose(s)}>{s.name}</button>)}</div></div>:null}
    </SoulCamera>}

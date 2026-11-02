@@ -1,27 +1,30 @@
 import {useEffect,useRef,useState,type MouseEvent,type ReactNode} from "react";
-import {initMultiTracker,toGrayFrame,trackMultiFrame,type MultiTracker} from "./soulTracker";
-export type SoulVisual={state:string;caption:string;mood:"calm"|"happy"|"surprised"|"thinking"};
+import {initMultiTracker,initRegionTracker,toGrayFrame,trackMultiFrame,type MultiTracker,type Region} from "./soulTracker";
+import {locateSoulRegion} from "./soulRegion";
+export type SoulVisual={state:string;caption:string;mood:"calm"|"happy"|"surprised"|"thinking";level?:number;hearing?:boolean};
 type ActiveSoul={id:string;name:string};
 const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
 /** Hidden camera-first AR-Lite: continuous local video + 2D tracked eyes.
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
-export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
+export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
  onWake:(id:string,frame:File)=>void;
  onSnapshot:(frames:File[])=>void|Promise<void>;
  onAddReferences?:(frames:File[])=>void|Promise<void>;
+ onRegionCrop?:(photo:File)=>void|Promise<void>;
  onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;paused?:boolean;en:boolean;
 }){
  const video=useRef<HTMLVideoElement|null>(null),viewport=useRef<HTMLDivElement|null>(null);
  const stream=useRef<MediaStream|null>(null);
- const callbacks=useRef({onProbe,onWake,onSnapshot,onAddReferences});callbacks.current={onProbe,onWake,onSnapshot,onAddReferences};
+ const callbacks=useRef({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop});callbacks.current={onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop};
  const activeRef=useRef(activeSoul?.id||"");activeRef.current=activeSoul?.id||"";
  const pausedRef=useRef(paused);pausedRef.current=paused;
  const checking=useRef(false),locked=useRef(false),stable=useRef({id:"",hits:0});
- const shooting=useRef(false),tracker=useRef<MultiTracker|null>(null),misses=useRef(0);
+ const shooting=useRef(false),locating=useRef(false),tracker=useRef<MultiTracker|null>(null),misses=useRef(0);
  const [ready,setReady]=useState(false),[error,setError]=useState(""),[hint,setHint]=useState("");
  const [burstProgress,setBurstProgress]=useState(0);
  const [point,setPoint]=useState({x:.5,y:.43}),[tracking,setTracking]=useState<"align"|"following"|"lost">("align");
+ const [box,setBox]=useState<Region|null>(null),[locatingRegion,setLocatingRegion]=useState(false);
  const canvas=useRef<HTMLCanvasElement|null>(null);
  const trackCanvas=()=>{
   const v=video.current,host=viewport.current;
@@ -82,7 +85,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,on
  // object to replace the center anchor; low-texture frames fail closed.
  useEffect(()=>{
   const id=activeSoul?.id||"";
-  tracker.current=null;misses.current=0;setPoint({x:.5,y:.43});setTracking("align");
+  tracker.current=null;misses.current=0;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
   if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
   const frame=trackCanvas();
@@ -104,18 +107,53 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,on
     if(misses.current>=3){tracker.current=null;setTracking("lost")}
     return;
    }
-   misses.current=0;tracker.current=next;setPoint(previous=>({
+   misses.current=0;tracker.current=next;setBox(next.box||null);setPoint(previous=>({
     x:.45*previous.x+.55*next.point.x,y:.45*previous.y+.55*next.point.y
    }));setTracking("following");
   },190);
   return()=>window.clearInterval(interval);
  },[activeSoul?.id,ready]);
+ function captureVisible():string{
+  const v=video.current,host=viewport.current;
+  if(!v||!host||v.readyState<2)throw Error("Camera not ready");
+  const canvas=document.createElement("canvas");canvas.width=480;
+  canvas.height=Math.max(180,Math.round(480*host.clientHeight/Math.max(1,host.clientWidth)));
+  const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas unavailable");
+  const ratio=canvas.width/canvas.height,source=v.videoWidth/v.videoHeight;
+  if(source>ratio){
+   const sw=v.videoHeight*ratio;
+   ctx.drawImage(v,(v.videoWidth-sw)/2,0,sw,v.videoHeight,0,0,canvas.width,canvas.height);
+  }else{
+   const sh=v.videoWidth/ratio;
+   ctx.drawImage(v,0,(v.videoHeight-sh)/2,v.videoWidth,sh,0,0,canvas.width,canvas.height);
+  }
+  return canvas.toDataURL("image/jpeg",.82);
+ }
  function aim(event:MouseEvent<HTMLButtonElement>){
+  if(locating.current||!activeRef.current)return;
   const bounds=event.currentTarget.getBoundingClientRect();
   const at={x:(event.clientX-bounds.left)/bounds.width,y:(event.clientY-bounds.top)/bounds.height};
   const frame=trackCanvas();if(!frame)return;
-  const candidate=initMultiTracker(frame,at);
-  tracker.current=candidate;misses.current=0;setPoint(at);setTracking(candidate?"following":"align");
+  const fallback=initMultiTracker(frame,at);
+  tracker.current=fallback;misses.current=0;setBox(null);setPoint(at);setTracking(fallback?"following":"align");
+  // Segmentation is optional and triggered only by a deliberate tap.
+  const owner=activeRef.current;
+  let picture="";
+  try{picture=captureVisible()}catch{return}
+  locating.current=true;setLocatingRegion(true);
+  void locateSoulRegion(picture,at).then(async result=>{
+   if(activeRef.current!==owner)return;
+   const latest=trackCanvas();
+   const regionTracker=latest&&initRegionTracker(latest,result.box,at);
+   if(!regionTracker){setError(en?"The object has insufficient texture. Tap its patterned area.":"物品紋理不足，請點有圖案的位置重新定位。");return}
+   tracker.current=regionTracker;misses.current=0;setPoint(regionTracker.point);
+   setBox(result.box);setTracking("following");setError("");
+   if(callbacks.current.onRegionCrop){
+    const bytes=await (await fetch(result.crop)).blob();
+    if(activeRef.current===owner)await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+   }
+  }).catch(()=>{if(activeRef.current===owner)setError(en?"Could not isolate the object; using feature-only tracking.":"物品輪廓辨識失敗，目前改用局部特徵追蹤。")})
+   .finally(()=>{locating.current=false;setLocatingRegion(false)});
  }
  // Collect several real camera frames while the user gently changes the angle.
  // Photos remain local unless the user explicitly requests Gemini vision analysis.
@@ -145,7 +183,8 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,on
    <video ref={video} autoPlay muted playsInline aria-label={en?"Live camera preview":"即時相機預覽"}/>
    {!activeSoul?<div className="souls-camera-aim" aria-hidden="true"/>:<>
     <button type="button" className="souls-ar-tap" onClick={aim} aria-label={en?"Tap the object to place its eyes":"點選物品，定位眼睛"}/>
-    <div className="souls-ar-face" style={{left:(point.x*100)+"%",top:(point.y*100)+"%"}} data-mood={mood} data-speaking={speaking?"true":"false"} data-tracking={tracking} aria-hidden="true">
+    {box&&tracking!=="lost"&&<div className="souls-ar-region" style={{left:(box.x*100)+"%",top:(box.y*100)+"%",width:(box.width*100)+"%",height:(box.height*100)+"%"}} aria-hidden="true"/>}
+    <div className="souls-ar-face" style={{left:(point.x*100)+"%",top:(point.y*100)+"%"}} data-mood={mood} data-speaking={speaking?"true":"false"} data-hearing={visual.hearing?"true":"false"} data-tracking={tracking} aria-hidden="true">
      <svg viewBox="0 0 136 104" xmlns="http://www.w3.org/2000/svg">
       <g className="souls-ar-face-glow">
        <ellipse cx="68" cy="48" rx="64" ry="46" fill="rgba(255,255,255,.28)"/>
@@ -174,7 +213,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,on
       </g>
       <g className="souls-ar-mouth">
        {mood==="surprised"||speaking?
-        <ellipse className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry="10" fill="#241A38"/>:
+        <ellipse className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry={mood==="surprised"?10:speaking?Math.max(2,Math.round(2+(visual.level||0)*18)):7} fill="#241A38"/>:
         mood==="happy"?<path d="M54 77 Q68 96 82 77" stroke="white" strokeWidth="9" strokeLinecap="round" fill="none"/>:
         <path d="M59 80 Q68 89 77 80" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>}
        {!speaking&&mood==="happy"&&<path d="M54 77 Q68 96 82 77" stroke="#241A38" strokeWidth="5" strokeLinecap="round" fill="none"/>}
@@ -193,6 +232,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onClose,on
    </>}
   </div>
   <p className="souls-camera-status" role="status">{error||(!ready?(en?"Opening camera…":"正在開啟相機…"):activeSoul?
+   locatingRegion?(en?"Finding the object outline locally…":"正在本機找出物品輪廓…"):
    tracking==="lost"?(en?"Lost the object. Tap it to re-anchor the eyes.":"追蹤到的特徵不見了，點物品重新定位眼睛。"):
    tracking==="align"?(en?"Tap the object to position its eyes.":"點一下物品，把眼睛放到正確位置。"):
    (en?"Your Soul is awake! Tap to adjust its eyes.":"它醒來了！點物品可以調整眼睛位置。"):

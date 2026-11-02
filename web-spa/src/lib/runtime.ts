@@ -12,6 +12,7 @@ export type LiveSessionOptions={
  onStatus?:(value:string)=>void;onState?:(value:string)=>void;onSpeaking?:(value:boolean)=>void;
  onListeningPhase?:(phase:"speaking"|"waiting")=>void;onLocalUtteranceEnd?:()=>void;
  onMicHealth?:(status:{captureMode:string;trackState:string;muted:boolean;rms:number;dbfs:number;lastFrameAt:number;lastVoiceAt:number;setupBufferedMs:number})=>void;
+ onOutputLevel?:(level:number)=>void; // optional output-only PCM envelope
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
  onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
  onError?:(error:Error)=>void;onTerminal?:(info?:{status?:string;state?:string})=>void;onRecovered?:(event:{model:string;resumed:boolean})=>void;

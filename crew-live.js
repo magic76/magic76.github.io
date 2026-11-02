@@ -177,6 +177,9 @@
     this.outputContext=null;
     this.outputGain=null;
     this.outputLimiter=null;
+    this.outputMeter=null;
+    this.outputMeterSink=null;
+    this.outputMeterTimer=null;
     this.outputWorkletNode=null;
     this.outputWorkletReady=false;
     this.outputWorkletPending=false;
@@ -1457,6 +1460,36 @@
       }
     }
     this.outputGain.connect(playbackDestination);
+    // Optional, privacy-preserving *output* PCM envelope. No microphone data
+    // or audio samples leave this session. All other pages remain unchanged.
+    if(typeof this.options.onOutputLevel==="function"&&typeof this.outputContext.createAnalyser==="function"){
+      try{
+        var meter=this.outputContext.createAnalyser();
+        meter.fftSize=512;
+        meter.smoothingTimeConstant=0.45;
+        var zero=this.outputContext.createGain();
+        zero.gain.value=0;
+        this.outputGain.connect(meter);
+        meter.connect(zero);
+        zero.connect(playbackDestination);
+        this.outputMeter=meter;
+        this.outputMeterSink=zero;
+        var samples=new Uint8Array(meter.fftSize);
+        var self=this;
+        this.outputMeterTimer=global.setInterval(function(){
+          if(!self.outputMeter||self.stopping||!self.running)return;
+          meter.getByteTimeDomainData(samples);
+          var power=0;
+          for(var i=0;i<samples.length;i++){
+            var v=(samples[i]-128)/128;
+            power+=v*v;
+          }
+          var rms=Math.sqrt(power/samples.length);
+          // Normalized RMS, with a noise floor and hard cap.
+          try{self.options.onOutputLevel(Math.max(0,Math.min(1,(rms-0.008)*9)));}catch(_){}
+        },65);
+      }catch(_){ /* Playback must never depend on metering. */ }
+    }
 
     if(this.outputContext.resume)await this.outputContext.resume();
     if(!this.running||this.stopping||this._startCanceled)throw new Error("麥克風請求已取消");
@@ -1531,6 +1564,10 @@
     if(this.outputContext&&!sharedContext){
       try{if(this.outputContext.close)await this.outputContext.close();}catch(_){}
     }
+    if(this.outputMeterTimer!==null){global.clearInterval(this.outputMeterTimer);this.outputMeterTimer=null;}
+    if(this.outputMeter){try{this.outputMeter.disconnect();}catch(_){}this.outputMeter=null;}
+    if(this.outputMeterSink){try{this.outputMeterSink.disconnect();}catch(_){}this.outputMeterSink=null;}
+    if(this.options.onOutputLevel){try{this.options.onOutputLevel(0);}catch(_){}}
     if(this.outputGain){
       try{this.outputGain.disconnect();}catch(_){}
     }

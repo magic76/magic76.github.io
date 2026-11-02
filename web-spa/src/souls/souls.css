@@ -145,3 +145,14 @@
 @media(prefers-reduced-motion:reduce){
  .souls-ar-face .souls-ar-blush,.souls-ar-face .souls-ar-cute-spark,.souls-ar-face .souls-ar-mouth{animation:none!important}
 }
+
+
+/* V3: opt-in object region and actual playback envelope, scoped to /souls. */
+.souls-camera .souls-ar-region{position:absolute;z-index:1;border:2px dashed rgba(255,255,255,.78);border-radius:19px;box-shadow:0 0 0 2px rgba(130,99,194,.22),inset 0 0 25px rgba(255,255,255,.06);pointer-events:none;transition:top .16s linear,left .16s linear}
+.souls-ar-face[data-speaking="true"] .souls-mouth-open{animation:none!important}
+.souls-ar-face[data-speaking="true"] .souls-ar-mouth{animation:none!important}
+.souls-ar-face[data-hearing="true"] .souls-ar-eyes{transform:translateY(-2px)}
+.souls-ar-face[data-hearing="true"] .souls-ar-cute-spark{opacity:1}
+.souls-ar-face[data-hearing="true"] svg{animation:souls-face-listen 2s ease-in-out infinite alternate}
+@keyframes souls-face-listen{from{transform:rotate(-2deg)}to{transform:rotate(3deg)}}
+@media(prefers-reduced-motion:reduce){.souls-ar-face[data-hearing="true"] svg{animation:none!important}}
