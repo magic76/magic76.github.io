@@ -51,7 +51,7 @@ test("cutout is optional, local, and never replaces identity reference photos",(
  const cut=fs.readFileSync(path.join(root,"web-spa/src/souls/soulCutout.ts"),"utf8");
  assert.match(cut,/InteractiveSegmenter/);
  assert.match(cut,/toDataURL\("image\/png"\)/);
- assert.match(page,/photos:\[scan\],cutout:cutoutDraft/);
+ assert.match(page,/photos:keepReferences\(\[scan,\.\.\.draftPhotos\]\),cutout:cutoutDraft/);
  assert.match(page,/cutoutObject\(original\.image,pos\)/);
 });
 
@@ -77,8 +77,8 @@ test("tracking is local and allows tap-to-reanchor, conservative loss detection"
  const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
  const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
  assert.match(camera,/onClick=\{aim\}/);
- assert.match(camera,/initTracker\(/);
- assert.match(camera,/trackFrame\(/);
+ assert.match(camera,/initMultiTracker\(/);
+ assert.match(camera,/trackMultiFrame\(/);
  assert.match(camera,/misses\.current>=3/);
  assert.match(camera,/getImageData\(/);
  assert.match(tracker,/deviation<10/);
@@ -106,4 +106,30 @@ test("first-time camera enrollment returns to live camera instead of static phot
  assert.match(page.slice(createStart,createEnd),/await refresh\(s\.id\)/);
  assert.match(page.slice(createStart,createEnd),/if\(returnToCameraAfterCreate\.current\)\{setCameraOpen\(true\)/);
  assert.match(page,/activeSoul=\{step==="detail"&&selected/);
+});
+
+test("camera enrollment saves four spaced frames and keeps only distinct references",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ assert.match(camera,/for\(let i=0;i<4;i\+\+\)/);
+ assert.match(camera,/setTimeout\(resolve,650\)/);
+ assert.match(camera,/onSnapshot\(frames\)/);
+ assert.match(camera,/onAddReferences\?\.\(frames\)/);
+ assert.match(page,/async function processFiles\(frames:File\[\]/);
+ assert.match(page,/setDraftPhotos\(unique\)/);
+ assert.match(page,/function keepReferences\(/);
+ assert.match(page,/async function addReferences\(frames:File\[\]\)/);
+ assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)/);
+ assert.match(page,/photos:keepReferences\(\[scan,\.\.\.draftPhotos\]\)/);
+});
+test("multiple local tracker anchors must agree before moving cute face",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
+ assert.match(tracker,/export function initMultiTracker\(/);
+ assert.match(tracker,/export function trackMultiFrame\(/);
+ assert.match(tracker,/inliers\.length<2/);
+ assert.match(tracker,/median\(inliers\.map/);
+ assert.match(camera,/trackMultiFrame\(frame,tracker\.current\)/);
+ assert.match(camera,/souls-ar-blush/);
+ assert.match(camera,/souls-ar-cute-spark/);
+ assert.match(camera,/rx="7" ry="9"/);
 });
