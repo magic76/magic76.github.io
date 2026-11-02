@@ -33,7 +33,7 @@ test("camera-first route uses repeated local recognition and asks for uncertain 
  const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
  assert.match(page,/onProbe=\{probe\}/);
  assert.match(page,/onWake=\{\(id,file\)/);
- assert.match(page,/best\.score<\(best\.hasEmbedding\?\.88:\.94\)/);
+ assert.match(page,/shouldAutoWake\(best,ranked\[1\]\)/);
  assert.match(page,/best\.score-\(ranked\[1\]\?\.score\|\|0\)<\.12/);
  assert.match(camera,/stable\.current\.hits>=3/);
  assert.match(camera,/getUserMedia\(\{video:/);
@@ -157,8 +157,8 @@ test("P2: playback-only real RMS drives mouth without animation fake",()=>{
  assert.match(live,/this\.outputMeterTimer=global\.setInterval/);
  assert.match(live,/global\.clearInterval\(this\.outputMeterTimer\)/);
  assert.match(hook,/onOutputLevel:configRef\.current\.onOutputLevel/);
- assert.match(page,/onOutputLevel:level=>setAudioLevel/);
- assert.match(camera,/visual\.level\|\|0/);
+ assert.match(page,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
+ assert.match(camera,/ref=\{mouthRef\}/);
  assert.match(camera,/data-hearing=/);
  assert.match(css,/souls-mouth-open\{animation:none!important\}/);
 });
@@ -170,6 +170,28 @@ test("P3: quality-rejected frames, on-device embeddings and uncertain match reje
  assert.match(page,/photoQuality\(ctx\.getImageData/);
  assert.match(page,/compareEmbeddings\(reference\.embedding,photo\.embedding\)/);
  assert.match(page,/if\(!photos\.length\)throw Error/);
- assert.match(page,/if\(p\.quality\|\|!best/);
- assert.match(page,/onRegionCrop=\{file=>saveForeground/);
+ assert.match(page,/if\(p\.quality\|\|!shouldAutoWake\(best,ranked\[1\]\)\)/);
+ assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
+});
+
+test("failed burst propagates to camera and clears lock",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ assert.match(camera,/locked\.current=false;stable\.current=\{id:"",hits:0\}/);
+ assert.match(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\}/);
+ assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)\}/);
+ assert.doesNotMatch(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\.catch/);
+});
+test("foreground region only persists after explicit user confirmation",()=>{
+ assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
+ assert.match(page,/async function confirmForeground\(\)/);
+ assert.match(page,/onClick=\{\(\)=>void confirmForeground\(\)\}/);
+ assert.match(page,/onClick=\{\(\)=>setPendingForeground\(null\)\}/);
+});
+test("embedding work and audio levels avoid per-frame React updates",()=>{
+ const embed=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
+ const worker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.worker.ts"),"utf8");
+ assert.match(embed,/new Worker\(new URL\("\.\/soulEmbedding\.worker\.ts",import\.meta\.url\)/);
+ assert.match(worker,/embedder\.embed\(bitmap\)/);
+ assert.match(page,/mouthRef\.current\.setAttribute\("ry"/);
+ assert.doesNotMatch(page,/setAudioLevel/);
 });
