@@ -1,3 +1,4 @@
+export {}; // Keep the worker's Request type out of the browser global namespace.
 /** Isolated on-device inference. No user pixels are uploaded by this worker. */
 const BUNDLE="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/vision_bundle.mjs";
 const WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm";
