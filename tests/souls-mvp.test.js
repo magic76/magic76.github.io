@@ -6,25 +6,28 @@ const root=path.resolve(__dirname,"..");
 const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
 const page=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulsPage.tsx"),"utf8");
 const nav=fs.readFileSync(path.join(root,"web-spa/src/pages/crewNavigation.ts"),"utf8");
+const data=fs.readFileSync(path.join(root,"web-spa/src/souls/soulData.ts"),"utf8");
+const recognition=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRecognition.ts"),"utf8");
+const chat=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulChat.tsx"),"utf8");
 test("Souls is a direct-only lazy route, not a navigation entry",()=>{
  assert.match(app,/path="\/souls"/);
  assert.match(app,/withNamespace\("voice",import\("\.\/souls\/SoulsPage"\)\)/);
  assert.doesNotMatch(nav,/\/souls/);
 });
 test("Souls recognition always requires explicit confirmation",()=>{
- assert.match(page,/function candidates\(/);
+ assert.match(data,/function candidates\(/);
  assert.match(page,/onClick=\{\(\)=>void choose\(soul\)\}/);
  assert.match(page,/Local image matching only suggests candidates/);
 });
 test("Souls uses browser storage and the Friends Live engine",()=>{
- assert.match(page,/indexedDB\.open\("crew-souls-local-v1"/);
- assert.match(page,/useLiveSession\(/);
- assert.match(page,/sessionKind:"friend"/);
- assert.match(page,/role="friend"/);
+ assert.match(data,/indexedDB\.open\("crew-souls-local-v1"/);
+ assert.match(chat,/useLiveSession\(/);
+ assert.match(chat,/sessionKind:"friend"/);
+ assert.match(chat,/role="friend"/);
 });
 test("Soul memory is scoped to the object and can be disabled or deleted",()=>{
- assert.match(page,/current\.remember/);
- assert.match(page,/await update\(id,current=>/);
+ assert.match(data,/current\.remember/);
+ assert.match(data,/await update\(id,current=>/);
  assert.match(page,/notes:s\.notes\.filter/);
  assert.match(page,/Delete Soul/);
 });
@@ -33,14 +36,14 @@ test("camera-first route uses repeated local recognition and asks for uncertain 
  const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
  assert.match(page,/onProbe=\{probe\}/);
  assert.match(page,/onWake=\{\(id,file\)/);
- assert.match(page,/best\.score<\(best\.hasEmbedding\?\.88:\.94\)/);
- assert.match(page,/best\.score-\(ranked\[1\]\?\.score\|\|0\)<\.12/);
+ assert.match(page,/shouldAutoWake\(best,ranked\[1\]\)/);
+ assert.match(recognition,/second\?\.score/);
  assert.match(camera,/stable\.current\.hits>=3/);
  assert.match(camera,/getUserMedia\(\{video:/);
  assert.match(camera,/getTracks\(\)\.forEach/);
 });
 test("voice and typed chat use one live session; typing has no separate model call",()=>{
- const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage("));
+ // Live is intentionally isolated from camera UI to prevent cross-rendering.
  assert.match(chat,/useLiveSession\(/);
  assert.match(chat,/live\.sendText\(value\)/);
  assert.match(chat,/live\.start\(\)/);
@@ -86,7 +89,7 @@ test("tracking is local and allows tap-to-reanchor, conservative loss detection"
  assert.match(camera,/stream\.current\?\.getTracks\(\)\.forEach/);
 });
 test("facial expression changes with the same Live voice and text session",()=>{
- const chat=page.slice(page.indexOf("function SoulChat("),page.indexOf("export function SoulsPage()"));
+ // Test the real Live component, not a source slice.
  assert.match(chat,/live\.state==="speaking"/);
  assert.match(chat,/live\.sendText\(value\)/);
  assert.match(chat,/const mood:SoulVisual/);
@@ -116,7 +119,7 @@ test("camera enrollment saves four spaced frames and keeps only distinct referen
  assert.match(camera,/onAddReferences\?\.\(frames\)/);
  assert.match(page,/async function processFiles\(frames:File\[\]/);
  assert.match(page,/setDraftPhotos\(unique\)/);
- assert.match(page,/function keepReferences\(/);
+ assert.match(data,/function keepReferences\(/);
  assert.match(page,/async function addReferences\(frames:File\[\]\)/);
  assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)/);
  assert.match(page,/photos:keepReferences\(\[scan,\.\.\.draftPhotos\]\)/);
@@ -127,7 +130,7 @@ test("multiple local tracker anchors must agree before moving cute face",()=>{
  assert.match(tracker,/export function initMultiTracker\(/);
  assert.match(tracker,/export function trackMultiFrame\(/);
  assert.match(tracker,/inliers\.length<2/);
- assert.match(tracker,/median\(inliers\.map/);
+ assert.match(tracker,/median\(observations\.map/);
  assert.match(camera,/trackMultiFrame\(frame,tracker\.current\)/);
  assert.match(camera,/souls-ar-blush/);
  assert.match(camera,/souls-ar-cute-spark/);
@@ -139,13 +142,13 @@ test("P0: user-guided local segmentation yields bounded object region and region
  const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
  const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
  assert.match(camera,/locateSoulRegion\(picture,at\)/);
- assert.match(camera,/initRegionTracker\(latest,result\.box,at\)/);
+ assert.match(camera,/initRegionTracker\(latest,shifted,shiftedFace\)/);
  assert.match(camera,/souls-ar-region/);
  assert.match(camera,/onRegionCrop/);
  assert.match(region,/cutoutObject\(image/);
  assert.match(region,/maxX<0/);
  assert.match(tracker,/export function initRegionTracker/);
- assert.match(tracker,/ref\.box\?/);
+ assert.match(tracker,/if\(ref\.box\)\{/);
 });
 test("P2: playback-only real RMS drives mouth without animation fake",()=>{
  const live=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
@@ -157,19 +160,41 @@ test("P2: playback-only real RMS drives mouth without animation fake",()=>{
  assert.match(live,/this\.outputMeterTimer=global\.setInterval/);
  assert.match(live,/global\.clearInterval\(this\.outputMeterTimer\)/);
  assert.match(hook,/onOutputLevel:configRef\.current\.onOutputLevel/);
- assert.match(page,/onOutputLevel:level=>setAudioLevel/);
- assert.match(camera,/visual\.level\|\|0/);
+ assert.match(chat,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
+ assert.match(camera,/ref=\{mouthRef\}/);
  assert.match(camera,/data-hearing=/);
  assert.match(css,/souls-mouth-open\{animation:none!important\}/);
 });
 test("P3: quality-rejected frames, on-device embeddings and uncertain match rejection",()=>{
  const embeddings=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
- assert.match(embeddings,/ImageEmbedder\.createFromOptions/);
+ assert.match(fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.worker.ts"),"utf8"),/ImageEmbedder\.createFromOptions/);
  assert.match(embeddings,/function photoQuality/);
  assert.match(embeddings,/cosine/i);
- assert.match(page,/photoQuality\(ctx\.getImageData/);
- assert.match(page,/compareEmbeddings\(reference\.embedding,photo\.embedding\)/);
+ assert.match(data,/photoQuality\(ctx\.getImageData/);
+ assert.match(data,/compareEmbeddings\(reference\.embedding,photo\.embedding\)/);
  assert.match(page,/if\(!photos\.length\)throw Error/);
- assert.match(page,/if\(p\.quality\|\|!best/);
- assert.match(page,/onRegionCrop=\{file=>saveForeground/);
+ assert.match(page,/if\(p\.quality\|\|!shouldAutoWake\(best,ranked\[1\]\)\)/);
+ assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
+});
+
+test("failed burst propagates to camera and clears lock",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ assert.match(camera,/locked\.current=false;stable\.current=\{id:"",hits:0\}/);
+ assert.match(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\}/);
+ assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)\}/);
+ assert.doesNotMatch(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\.catch/);
+});
+test("foreground region only persists after explicit user confirmation",()=>{
+ assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
+ assert.match(page,/async function confirmForeground\(\)/);
+ assert.match(page,/onClick=\{\(\)=>void confirmForeground\(\)\}/);
+ assert.match(page,/onClick=\{\(\)=>setPendingForeground\(null\)\}/);
+});
+test("embedding work and audio levels avoid per-frame React updates",()=>{
+ const embed=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
+ const worker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.worker.ts"),"utf8");
+ assert.match(embed,/new Worker\(new URL\("\.\/soulEmbedding\.worker\.ts",import\.meta\.url\)/);
+ assert.match(worker,/embedder\.embed\(bitmap\)/);
+ assert.match(page,/mouthRef\.current\.setAttribute\("ry"/);
+ assert.doesNotMatch(page,/setAudioLevel/);
 });

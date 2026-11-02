@@ -6,13 +6,13 @@ type ActiveSoul={id:string;name:string};
 const neutral: SoulVisual={state:"idle",caption:"",mood:"calm"};
 /** Hidden camera-first AR-Lite: continuous local video + 2D tracked eyes.
  * No camera stream or frame is uploaded by the scanner. Video never unmounts on wake. */
-export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,children,paused=false,en}:{
+export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCrop,onClose,onReset,activeSoul,visual=neutral,mouthRef,children,paused=false,en}:{
  onProbe:(frame:File)=>Promise<{id:string;name:string}|null>;
- onWake:(id:string,frame:File)=>void;
+ onWake:(id:string,frame:File)=>void|Promise<void>;
  onSnapshot:(frames:File[])=>void|Promise<void>;
  onAddReferences?:(frames:File[])=>void|Promise<void>;
  onRegionCrop?:(photo:File)=>void|Promise<void>;
- onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;children?:ReactNode;paused?:boolean;en:boolean;
+ onClose:()=>void;onReset?:()=>void;activeSoul?:ActiveSoul|null;visual?:SoulVisual;mouthRef?:React.RefObject<SVGEllipseElement|null>;children?:ReactNode;paused?:boolean;en:boolean;
 }){
  const video=useRef<HTMLVideoElement|null>(null),viewport=useRef<HTMLDivElement|null>(null);
  const stream=useRef<MediaStream|null>(null);
@@ -21,6 +21,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  const pausedRef=useRef(paused);pausedRef.current=paused;
  const checking=useRef(false),locked=useRef(false),stable=useRef({id:"",hits:0});
  const shooting=useRef(false),locating=useRef(false),tracker=useRef<MultiTracker|null>(null),misses=useRef(0);
+ const trackedFrames=useRef(0),captureEpoch=useRef(0);
  const [ready,setReady]=useState(false),[error,setError]=useState(""),[hint,setHint]=useState("");
  const [burstProgress,setBurstProgress]=useState(0);
  const [point,setPoint]=useState({x:.5,y:.43}),[tracking,setTracking]=useState<"align"|"following"|"lost">("align");
@@ -73,7 +74,14 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
       if(!match){stable.current={id:"",hits:0};setHint("");return}
       if(stable.current.id===match.id)stable.current.hits++;
       else stable.current={id:match.id,hits:1};
-      if(stable.current.hits>=3){locked.current=true;callbacks.current.onWake(match.id,file)}
+      if(stable.current.hits>=3){
+        locked.current=true;
+        try{await callbacks.current.onWake(match.id,file)}
+        catch{
+         locked.current=false;stable.current={id:"",hits:0};
+         setError(en?"Could not wake that Soul. Try again or choose manually.":"喚醒失敗，請重新掃描或手動選擇。");
+        }
+       }
       else setHint(en?"Almost recognized, keep still…":"快認出來了，保持鏡頭穩定…");
      }).catch(()=>{stable.current={id:"",hits:0}}).finally(()=>{checking.current=false});
     },1350);
@@ -85,14 +93,11 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  // object to replace the center anchor; low-texture frames fail closed.
  useEffect(()=>{
   const id=activeSoul?.id||"";
-  tracker.current=null;misses.current=0;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
   if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
-  const frame=trackCanvas();
-  if(frame){
-   const fresh=initMultiTracker(frame,{x:.5,y:.43});
-   if(fresh){tracker.current=fresh;setTracking("following")}
-  }
+  // Do not claim tracking based on an arbitrary center patch; a tap establishes
+  // the physical object and optional segmentation mask.
  },[activeSoul?.id,ready,paused]);
  // Bounded, ~5 Hz CPU tracking: a feature point, not a fake full-object box.
  useEffect(()=>{
@@ -104,13 +109,20 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    const next=trackMultiFrame(frame,tracker.current);
    if(!next){
     misses.current++;
-    if(misses.current>=3){tracker.current=null;setTracking("lost")}
+    if(misses.current>=3){tracker.current=null;setBox(null);setTracking("lost")}
     return;
    }
    misses.current=0;tracker.current=next;setBox(next.box||null);setPoint(previous=>({
     x:.45*previous.x+.55*next.point.x,y:.45*previous.y+.55*next.point.y
    }));setTracking("following");
-  },190);
+   // Refresh descriptors within verified object bounds; never auto-reacquire
+   // after an actual lost-track event.
+   trackedFrames.current++;
+   if(next.box&&trackedFrames.current%18===0){
+    const refreshed=initRegionTracker(frame,next.box,next.point);
+    if(refreshed&&refreshed.anchors.length>=Math.max(3,next.anchors.length*.65))tracker.current=refreshed;
+   }
+  },250);
   return()=>window.clearInterval(interval);
  },[activeSoul?.id,ready]);
  function captureVisible():string{
@@ -137,23 +149,28 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
   const fallback=initMultiTracker(frame,at);
   tracker.current=fallback;misses.current=0;setBox(null);setPoint(at);setTracking(fallback?"following":"align");
   // Segmentation is optional and triggered only by a deliberate tap.
-  const owner=activeRef.current;
+  const owner=activeRef.current,epoch=++captureEpoch.current;
   let picture="";
   try{picture=captureVisible()}catch{return}
   locating.current=true;setLocatingRegion(true);
   void locateSoulRegion(picture,at).then(async result=>{
-   if(activeRef.current!==owner)return;
-   const latest=trackCanvas();
-   const regionTracker=latest&&initRegionTracker(latest,result.box,at);
+   if(activeRef.current!==owner||captureEpoch.current!==epoch)return;
+   const latest=trackCanvas(),tracked=tracker.current;
+   if(!latest||!tracked){setError(en?"Object moved during segmentation; tap again.":"擷取輪廓時已失去追蹤，請再點一次。");return}
+   const shiftX=tracked.point.x-at.x,shiftY=tracked.point.y-at.y;
+   if(Math.abs(shiftX)>.22||Math.abs(shiftY)>.22){setError(en?"Object moved too far; tap again.":"物品移動太遠，請重新點選。");return}
+   const shifted={...result.box,x:Math.max(0,Math.min(1-result.box.width,result.box.x+shiftX)),y:Math.max(0,Math.min(1-result.box.height,result.box.y+shiftY))};
+   const shiftedFace={x:Math.max(0,Math.min(1,at.x+shiftX)),y:Math.max(0,Math.min(1,at.y+shiftY))};
+   const regionTracker=initRegionTracker(latest,shifted,shiftedFace);
    if(!regionTracker){setError(en?"The object has insufficient texture. Tap its patterned area.":"物品紋理不足，請點有圖案的位置重新定位。");return}
    tracker.current=regionTracker;misses.current=0;setPoint(regionTracker.point);
-   setBox(result.box);setTracking("following");setError("");
+   setBox(shifted);setTracking("following");setError("");
    if(callbacks.current.onRegionCrop){
     const bytes=await (await fetch(result.crop)).blob();
-    if(activeRef.current===owner)await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+    if(activeRef.current===owner&&captureEpoch.current===epoch)await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
    }
   }).catch(()=>{if(activeRef.current===owner)setError(en?"Could not isolate the object; using feature-only tracking.":"物品輪廓辨識失敗，目前改用局部特徵追蹤。")})
-   .finally(()=>{locating.current=false;setLocatingRegion(false)});
+   .finally(()=>{if(captureEpoch.current===epoch){locating.current=false;setLocatingRegion(false)}});
  }
  // Collect several real camera frames while the user gently changes the angle.
  // Photos remain local unless the user explicitly requests Gemini vision analysis.
@@ -171,8 +188,8 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    if(mode==="reference")await callbacks.current.onAddReferences?.(frames);
    else await callbacks.current.onSnapshot(frames);
   }catch{
-   // Never leave a failed burst permanently locked.
-   if(!activeRef.current)locked.current=false;
+   // Failed capture, validation or persistence must never leave the camera locked.
+   locked.current=false;stable.current={id:"",hits:0};
    setError(en?"Multi-angle capture failed. Retry.":"多角度拍攝失敗，請再試一次。");
   }finally{shooting.current=false;setBurstProgress(0)}
  }
@@ -213,7 +230,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
       </g>
       <g className="souls-ar-mouth">
        {mood==="surprised"||speaking?
-        <ellipse className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry={mood==="surprised"?10:speaking?Math.max(2,Math.round(2+(visual.level||0)*18)):7} fill="#241A38"/>:
+        <ellipse ref={mouthRef} className="souls-mouth-open" cx="68" cy="84" rx={mood==="surprised"?12:10} ry={mood==="surprised"?10:speaking?2:7} fill="#241A38"/>:
         mood==="happy"?<path d="M54 77 Q68 96 82 77" stroke="white" strokeWidth="9" strokeLinecap="round" fill="none"/>:
         <path d="M59 80 Q68 89 77 80" stroke="white" strokeWidth="8" strokeLinecap="round" fill="none"/>}
        {!speaking&&mood==="happy"&&<path d="M54 77 Q68 96 82 77" stroke="#241A38" strokeWidth="5" strokeLinecap="round" fill="none"/>}

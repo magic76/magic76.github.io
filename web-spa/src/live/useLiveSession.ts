@@ -235,6 +235,7 @@ export function useLiveSession(config:Config){
     models:teacherVoiceSession?[useTeacherStore.getState().liveModel]:undefined,
     manualInterruptOnly:true,maxLiveAttempts:teacherVoiceSession?1:2,maxResumeAttempts:2,
     ...(grant?{models:[grant.model],maxLiveAttempts:1,maxResumeAttempts:0}:{}),
+    onOutputLevel:configRef.current.onOutputLevel?level=>configRef.current.onOutputLevel?.(level):undefined,
     onStatus:v=>setStatus(uiMessage(v)),
     onState:v=>{
      if(v==="connecting"||v==="error"){cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
