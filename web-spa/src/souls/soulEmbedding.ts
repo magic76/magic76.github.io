@@ -23,6 +23,7 @@ export async function embedPhoto(canvas:HTMLCanvasElement):Promise<number[]|null
   return norm>1e-7?values.map(x=>x/norm):null;
  }catch{return null}
 }
+/** Cosine similarity (not a calibrated probability of object identity). */
 export function compareEmbeddings(a?:number[],b?:number[]):number|null{
  if(!a||!b||a.length!==b.length||a.length<32)return null;
  let dot=0,aa=0,bb=0;
