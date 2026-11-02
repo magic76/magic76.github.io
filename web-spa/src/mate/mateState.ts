@@ -44,9 +44,13 @@ export const EMPTY_CONSENSUS: MateConsensus = {
   userLanguage:"zh-TW",otherLanguage:"en"
 };
 const trimmed = (v:unknown, limit=700) => typeof v==="string" ? v.trim().slice(0,limit) : "";
+/** The review UI and handoff guard share exactly the same required fields. */
+export function mateMissingFields(c:MateConsensus):(keyof MateConsensus)[] {
+  const keys:(keyof MateConsensus)[]=["target","goal","constraints","escalation","userLanguage","otherLanguage"];
+  return keys.filter(key=>!c[key]?.trim());
+}
 export function mateConsensusReady(c:MateConsensus) {
-  return Boolean(c.target.trim() && c.goal.trim() && c.constraints.trim() && c.escalation.trim()
-    && c.userLanguage && c.otherLanguage);
+  return mateMissingFields(c).length===0;
 }
 /** Tool output never controls the stage, audience, languages or approval state. */
 export function applyMateConsensusPatch(current:MateConsensus, args:Record<string,unknown>):MateConsensus {

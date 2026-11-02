@@ -155,6 +155,36 @@
       "aria": "即時對話逐字稿",
       "waiting": "等待對方開始說話，Mate 不會自行假裝對方已回覆。",
       "jump": "最新對話 ↓"
+    },
+    "validation": {
+      "missing": "還缺：",
+      "confirm": "請勾選確認授權。",
+      "required": "此欄位為必填。",
+      "requiredLimits": "請填寫私人限制；若沒有可填「無」。",
+      "emptyBriefing": "請先填寫任務內容或私人交代，再進行整理。",
+      "labels": {
+        "target": "對象",
+        "goal": "目標",
+        "constraints": "私人限制",
+        "escalation": "需先問我的事",
+        "userLanguage": "我的語言",
+        "otherLanguage": "對方語言"
+      }
+    },
+    "startGate": {
+      "start": "開始",
+      "description": "把手機交給對方後按「開始」，Mate 會先開口。"
+    },
+    "summary": {
+      "title": "總結",
+      "loading": "Mate 正在整理總結…",
+      "achieved": "已達成",
+      "notAchieved": "未達成",
+      "pending": "待確認",
+      "missing": "還缺什麼：",
+      "continue": "回到第 2 步繼續溝通",
+      "none": "目前無",
+      "unknown": "尚待確認"
     }
   }
 }

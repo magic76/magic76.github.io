@@ -155,6 +155,36 @@
       "aria": "Transcription en direct",
       "waiting": "En attente de la parole de l’interlocuteur.",
       "jump": "Derniers échanges ↓"
+    },
+    "validation": {
+      "missing": "Il manque :",
+      "confirm": "Veuillez cocher la case d’autorisation.",
+      "required": "Ce champ est obligatoire.",
+      "requiredLimits": "Indiquez vos limites privées ou « aucune » si vous n’en avez pas.",
+      "emptyBriefing": "Saisissez les détails de la tâche ou une note privée avant la vérification.",
+      "labels": {
+        "target": "Interlocuteur",
+        "goal": "Objectif",
+        "constraints": "Limites privées",
+        "escalation": "Cas nécessitant mon accord",
+        "userLanguage": "Ma langue",
+        "otherLanguage": "Langue de l’autre personne"
+      }
+    },
+    "startGate": {
+      "start": "Commencer",
+      "description": "Passez le téléphone à l’autre personne, puis appuyez sur Commencer. Mate parlera en premier."
+    },
+    "summary": {
+      "title": "Résumé",
+      "loading": "Mate prépare le résumé…",
+      "achieved": "Objectif atteint",
+      "notAchieved": "Objectif non atteint",
+      "pending": "À confirmer",
+      "missing": "Il manque encore :",
+      "continue": "Retourner à l’étape 2 et poursuivre",
+      "none": "Rien de signalé",
+      "unknown": "Pas encore confirmé"
     }
   }
 }

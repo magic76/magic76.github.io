@@ -155,6 +155,36 @@
       "aria": "Live-Transkript",
       "waiting": "Warte, bis das Gegenüber spricht.",
       "jump": "Neueste Nachricht ↓"
+    },
+    "validation": {
+      "missing": "Noch erforderlich:",
+      "confirm": "Bitte bestätigen Sie die Freigabe.",
+      "required": "Dieses Feld ist erforderlich.",
+      "requiredLimits": "Tragen Sie Ihre privaten Grenzen ein oder „keine“, falls es keine gibt.",
+      "emptyBriefing": "Geben Sie zuerst Aufgabendetails oder eine private Notiz ein.",
+      "labels": {
+        "target": "Gesprächspartner",
+        "goal": "Ziel",
+        "constraints": "Private Grenzen",
+        "escalation": "Rückfragepflicht",
+        "userLanguage": "Meine Sprache",
+        "otherLanguage": "Sprache der anderen Person"
+      }
+    },
+    "startGate": {
+      "start": "Starten",
+      "description": "Geben Sie das Telefon weiter und tippen Sie auf Starten. Mate spricht zuerst."
+    },
+    "summary": {
+      "title": "Zusammenfassung",
+      "loading": "Mate erstellt die Zusammenfassung…",
+      "achieved": "Erreicht",
+      "notAchieved": "Nicht erreicht",
+      "pending": "Noch zu bestätigen",
+      "missing": "Noch offen:",
+      "continue": "Zu Schritt 2 zurückkehren und fortfahren",
+      "none": "Nichts festgestellt",
+      "unknown": "Noch nicht bestätigt"
     }
   }
 }

@@ -155,6 +155,36 @@
       "aria": "Bản ghi trực tiếp",
       "waiting": "Đang chờ người kia nói; Mate không tự giả vờ người kia đã trả lời.",
       "jump": "Hội thoại mới nhất ↓"
+    },
+    "validation": {
+      "missing": "Còn thiếu:",
+      "confirm": "Vui lòng đánh dấu xác nhận cho phép.",
+      "required": "Trường này là bắt buộc.",
+      "requiredLimits": "Nhập giới hạn riêng tư hoặc ghi “không có” nếu không có.",
+      "emptyBriefing": "Nhập thông tin nhiệm vụ hoặc ghi chú riêng trước khi xem lại.",
+      "labels": {
+        "target": "Đối tượng",
+        "goal": "Mục tiêu",
+        "constraints": "Giới hạn riêng tư",
+        "escalation": "Khi nào cần hỏi tôi",
+        "userLanguage": "Ngôn ngữ của tôi",
+        "otherLanguage": "Ngôn ngữ của đối phương"
+      }
+    },
+    "startGate": {
+      "start": "Bắt đầu",
+      "description": "Đưa điện thoại cho người đối diện rồi nhấn Bắt đầu. Mate sẽ nói trước."
+    },
+    "summary": {
+      "title": "Tóm tắt",
+      "loading": "Mate đang chuẩn bị bản tóm tắt…",
+      "achieved": "Đã đạt",
+      "notAchieved": "Chưa đạt",
+      "pending": "Cần xác nhận",
+      "missing": "Còn thiếu:",
+      "continue": "Quay lại bước 2 và tiếp tục",
+      "none": "Chưa ghi nhận thiếu sót",
+      "unknown": "Chưa được xác nhận"
     }
   }
 }
