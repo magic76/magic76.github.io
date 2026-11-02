@@ -202,14 +202,44 @@ export function SoulsPage(){
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
  async function refresh(id?:string){const all=await list();setItems(all);if(id)setSelected(all.find(s=>s.id===id)||null)}
  useEffect(()=>{void refresh().catch(()=>setError(t("本機儲存無法使用，請檢查瀏覽器模式。","Local storage is unavailable.")))},[]);
+ async function processFile(file:File){
+  const p=await photoFromFile(file),all=await list();
+  setCameraOpen(false);setScan(p);setCutoutDraft("");setItems(all);setMatches(candidates(p,all));setStep("match");
+ }
  async function scanFile(e:ChangeEvent<HTMLInputElement>){
   const file=e.target.files?.[0];e.target.value="";if(!file)return;
   setBusy(true);setError("");setInfo("");
-  try{const p=await photoFromFile(file),all=await list();setScan(p);setItems(all);setMatches(candidates(p,all));setStep("match")}
+  try{await processFile(file)}
   catch(err){setError(err instanceof Error?err.message:String(err))}
   finally{setBusy(false)}
  }
- function home(){setSelected(null);setScan(null);setStep("home");setError("");setInfo("")}
+ // Automatic wake requires 3 consistent observations in the scanner and a clear margin.
+ async function probe(file:File){
+  const p=await photoFromFile(file),ranked=candidates(p,items),best=ranked[0];
+  if(!best||best.score<.94||best.score-(ranked[1]?.score||0)<.12)return null;
+  return {id:best.soul.id,name:best.soul.name};
+ }
+ async function wake(id:string,file:File){
+  const soul=items.find(s=>s.id===id);if(!soul)return;
+  setCameraOpen(false);
+  try{setScan(await photoFromFile(file));await choose(soul)}
+  catch{setError(t("喚醒失敗，可以從收藏重新開啟。","Could not wake this Soul; open it from your collection."))}
+ }
+ function home(){setCameraOpen(false);setSelected(null);setScan(null);setStep("home");setError("");setInfo("")}
+ async function removeBackground(event:MouseEvent<HTMLButtonElement>,existing=false){
+  const original=existing?selected?.photos[0]:scan;if(!original||cutting)return;
+  const rect=event.currentTarget.getBoundingClientRect();
+  const pos=event.clientX>0&&rect.width&&rect.height
+   ?{x:(event.clientX-rect.left)/rect.width,y:(event.clientY-rect.top)/rect.height}:{x:.5,y:.5};
+  setCutting(true);setError("");setInfo(t("正在載入本機去背模型，第一次可能比較久。","Loading on-device cutout model; first run may take longer."));
+  try{
+   const result=await cutoutObject(original.image,pos);
+   if(existing&&selected){await update(selected.id,s=>({...s,cutout:result}));await refresh(selected.id)}
+   else setCutoutDraft(result);
+   setInfo(t("去背完成，點圖片另一處可重試。","Background removed. Tap another part to retry."));
+  }catch{setError(t("去背失敗，原照片保留；請檢查網路或點在物品上。","Cutout failed. Original remains; retry on the object."))}
+  finally{setCutting(false)}
+ }
  function createStart(){setName("");setKind("");setDescription("");setRememberEnabled(true);setPersonality("witty");setStep("create")}
  async function aiDescribe(){
   if(!scan)return;
