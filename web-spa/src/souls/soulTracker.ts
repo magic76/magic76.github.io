@@ -149,13 +149,16 @@ export function trackMultiFrame(frame:GrayFrame,ref:MultiTracker):MultiTracker|n
  }
  return {point,anchors,box};
 }
-export function initRegionTracker(frame:GrayFrame,box:Region,face?:Anchor):MultiTracker|null{
+export function initRegionTracker(frame:GrayFrame,box:Region,face?:Anchor,foreground?:Anchor[]):MultiTracker|null{
  const left=clamp(box.x,0,1),top=clamp(box.y,0,1),right=clamp(box.x+box.width,0,1),bottom=clamp(box.y+box.height,0,1);
  const w=right-left,h=bottom-top;
  if(w<.08||h<.08)return null;
+ // Prefer positive-mask pixels. Never introduce background anchors on refresh.
+ const seeds=foreground||[.2,.4,.6,.8].flatMap(fx=>[.2,.4,.6,.8].map(fy=>({x:left+w*fx,y:top+h*fy})));
  const anchors:Template[]=[];
- for(const fx of [.2,.4,.6,.8])for(const fy of [.2,.4,.6,.8]){
-  const anchor=initTracker(frame,{x:left+w*fx,y:top+h*fy});
+ for(const at of seeds){
+  if(at.x<left||at.x>right||at.y<top||at.y>bottom)continue;
+  const anchor=initTracker(frame,at);
   if(anchor)anchors.push(anchor);
  }
  if(anchors.length<3)return null;
