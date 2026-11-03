@@ -146,7 +146,7 @@ test("P0: user-guided local segmentation yields bounded object region and region
  assert.match(camera,/souls-ar-region/);
  assert.match(camera,/onRegionCrop/);
  assert.match(region,/cutoutObject\(image/);
- assert.match(region,/maxX<0/);
+ assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
  assert.match(tracker,/export function initRegionTracker/);
  assert.match(tracker,/if\(ref\.box\)\{/);
 });
@@ -244,4 +244,15 @@ test("object detection failures are not conflated with optional reference photo 
  const optional=camera.slice(start,stop);
  assert.match(optional,/catch\(cause\)\{console\.warn\("\[Souls\] optional reference crop failed"/);
  assert.doesNotMatch(optional,/setTracking\("lost"\)/);
+});
+
+
+test("object outline bbox is taken from a clicked connected component",()=>{
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const mask=fs.readFileSync(path.join(root,"web-spa/src/souls/soulMaskComponent.ts"),"utf8");
+ assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
+ assert.match(mask,/export function componentFromAlpha/);
+ assert.match(mask,/const selected=new Uint8Array/);
+ assert.match(mask,/Selected point is outside the foreground/);
+ assert.match(mask,/fraction<\.002\|\|fraction>\.88/);
 });
