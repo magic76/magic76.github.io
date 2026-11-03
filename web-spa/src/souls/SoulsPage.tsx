@@ -6,7 +6,7 @@ import {SoulPortrait} from "./SoulPortrait";
 import {type SoulVisual} from "./soulVisual";
 import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
 import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
-import {cutoutObject} from "./soulCutout";
+import {cutoutObject,CutoutError} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
 import "./souls.css";
 
@@ -96,7 +96,16 @@ export function SoulsPage(){
   }catch(cause){
    if(!alive.current||job!==cutoutJob.current)return;
    console.warn("[Crew Souls] optional photo cutout failed",cause);
-   setInfo(t("這張照片暫時無法自動去背。可以保留原圖、調整眼睛，一樣建立 Soul。","Cutout could not finish. Keep the original image and position the eyes; your Soul still works."));
+   const reason=cause instanceof CutoutError?cause.kind:"unknown";
+   if(reason==="runtime"||reason==="model"){
+    setInfo(t("本機去背模型無法載入，請確認網路後點「重新點選去背主體」再試；也可以保留原圖建立 Soul。","The on-device cutout model could not load. Check your connection and retry selecting the object, or save the original image."));
+   }else if(reason==="selection"){
+    setInfo(t("去背沒選到清楚的物品，請點照片中的物品本體重試；也可以保留原圖。","Could not isolate the object. Tap the object itself to retry, or keep the original photo."));
+   }else if(reason==="inference"){
+    setInfo(t("去背模型執行失敗，請重新點選物品重試；保留原圖也能聊天。","Cutout inference failed. Select the object again, or keep the original photo."));
+   }else{
+    setInfo(t("這張照片暫時無法自動去背。可以保留原圖、調整眼睛，一樣建立 Soul。","Cutout could not finish. Keep the original image and position the eyes; your Soul still works."));
+   }
    setSelectSubject(false);
   }finally{
    if(alive.current&&job===cutoutJob.current)setCutting(false);
