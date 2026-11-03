@@ -233,7 +233,7 @@
     "now": "這個年紀正在經歷",
     "jump": "快速跳到其他年齡",
     "conversation": "對話語言",
-    "level": "年齡不影響語言難度，語音沿用既有 Gemini Key。",
+    "level": "沒有 Gemini Key 也可嘗試 5 分鐘免費語音，依試用額度與供應情況開放。",
     "scrapbook": "人生相簿",
     "memories": "你和 {{name}} 的重要回憶",
     "clearAll": "清除全部",
@@ -283,7 +283,9 @@
     "memorySaved": "回憶已保存；重新進入此年齡或較大的年齡會讀取。",
     "memoryDisabled": "記憶已關閉或內容太短。",
     "memoryCaption": "只有主動保存的話語才會成為人生回憶。",
-    "photoAlt": "{{name}} {{age}} 歲的照片"
+    "photoAlt": "{{name}} {{age}} 歲的照片",
+    "compareAction": "問一題，比較各年齡",
+    "liveContext": "探索 · 人生時光機"
   },
   "shorts": {
     "heading": "今天 Crew 朋友發生什麼事？",

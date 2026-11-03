@@ -233,7 +233,7 @@
     "now": "Das Leben gerade",
     "jump": "Zu einem anderen Kapitel",
     "conversation": "Gesprächssprache",
-    "level": "Das Alter ändert dein Sprachniveau nicht. Für Sprache wird dein Gemini-Schlüssel verwendet.",
+    "level": "Auch ohne Gemini-Schlüssel kannst du einen kostenlosen fünfminütigen Sprachchat ausprobieren, sofern verfügbar.",
     "scrapbook": "Lebensalbum",
     "memories": "Gespeicherte Erinnerungen mit {{name}}",
     "clearAll": "Alles löschen",
@@ -283,7 +283,9 @@
     "memorySaved": "Gespeichert. Besuche dieses oder ein höheres Alter erneut, um dich zu erinnern.",
     "memoryDisabled": "Erinnerung deaktiviert oder Text zu kurz.",
     "memoryCaption": "Nur bewusst gespeicherte Sätze werden zu Timeline-Erinnerungen.",
-    "photoAlt": "{{name}} mit {{age}} Jahren"
+    "photoAlt": "{{name}} mit {{age}} Jahren",
+    "compareAction": "Eine Frage, alle Lebensalter",
+    "liveContext": "Entdecken · Lebenszeitreise"
   },
   "shorts": {
     "heading": "Was gibt es Neues bei deinen Crew-Freunden?",

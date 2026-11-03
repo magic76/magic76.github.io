@@ -6,6 +6,7 @@ import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {AGES,type Age} from "./timeline";
 import {TIMELINE_IDS,timelineCharacterId,timelinePerson,timelineStage,timelineOlderNotes,timelineNotes,timelineDeleteNote,timelineClearNotes} from "./timelineCharacters";
 import {TimelinePortrait} from "./TimelinePortrait";
+import {nearestCenterIndex} from "./timelineAgeInteraction.mjs";
 import {trackUsageEvent} from "../analytics/usage";
 import {timelineEchoesAtAge,deleteTimelineEcho,clearTimelineEchoes} from "./timelineEcho";
 import "./timelineExperience.css";
@@ -27,11 +28,12 @@ export function TimelinePage(){
  const[params,setParams]=useSearchParams();
  const characterId=timelineCharacterId(params.get("character")),person=timelinePerson(characterId);
  useEffect(()=>{trackUsageEvent("timeline_view",characterId)},[characterId]);
- const chooseCharacter=(id:typeof characterId)=>{if(id===characterId)return;setAge(25);setParams(id==="mira"?{}:{character:id});};
+ const chooseCharacter=(id:typeof characterId)=>{if(id===characterId)return;programmaticTarget.current=25;railTarget.current=null;railScrubbing.current=false;setAge(25);setParams(id==="mira"?{}:{character:id});};
  const language=useTeacherStore(s=>s.targetLanguage),setLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const[age,setAge]=useState<Age>(25),[refresh,setRefresh]=useState(0);
  const rail=useRef<HTMLElement>(null),carousel=useRef<HTMLDivElement>(null);
- const programmaticTarget=useRef<Age|null>(null);
+ const programmaticTarget=useRef<Age|null>(null),railTarget=useRef<Age|null>(null);
+ const railScrubbing=useRef(false),railSettles=useRef<number|undefined>(undefined);
  const current=timelineStage(age,characterId),memory=timelineOlderNotes(age,characterId),all=timelineNotes(characterId);
  const echoes=timelineEchoesAtAge(age,memory,characterId);
  const index=AGES.indexOf(age);
@@ -39,21 +41,20 @@ export function TimelinePage(){
   if(characterId==="mira")return t("timeline.age"+a);
   return en?timelineStage(a,characterId).phase:chapterLabels[characterId][AGES.indexOf(a)];
  };
- const scrollToAge=(next:Age,behavior:ScrollBehavior="smooth")=>{
+ const motion=():ScrollBehavior=>window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth";
+ const scrollToAge=(next:Age,behavior:ScrollBehavior=motion())=>{
   const container=carousel.current;
   const target=container?.querySelector<HTMLElement>('[data-timeline-age="'+next+'"]');
-  if(container&&target){
-   container.scrollTo({left:target.offsetLeft+target.clientWidth/2-container.clientWidth/2,behavior});
-  }
+  if(container&&target)container.scrollTo({left:target.offsetLeft+target.clientWidth/2-container.clientWidth/2,behavior});
  };
  const chooseAge=(next:Age)=>{
+  // Rail tap, chapter jump and carousel arrows share one selection path.
+  railScrubbing.current=false;
   programmaticTarget.current=next;
   if(next!==age)setAge(next);
   scrollToAge(next);
  };
  const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
- // Keep the selected chapter synchronized with native touch/trackpad scrolling.
- // No artificial drag transform: the next photo is visible while the finger moves.
  const onCarouselScroll=()=>{
   const container=carousel.current;
   if(!container)return;
@@ -63,14 +64,35 @@ export function TimelinePage(){
    if(target&&Math.abs(target.offsetLeft+target.clientWidth/2-center)<3)programmaticTarget.current=null;
    return;
   }
-  let closest=0,best=Infinity;
-  Array.from(container.children).forEach((node,i)=>{
-   const slide=node as HTMLElement;
-   const distance=Math.abs(slide.offsetLeft+slide.clientWidth/2-center);
-   if(distance<best){best=distance;closest=i;}
-  });
+  const closest=nearestCenterIndex(Array.from(container.children,slide=>{
+   const element=slide as HTMLElement;return element.offsetLeft+element.clientWidth/2;
+  }),center);
   const next=AGES[closest];
   if(next!==undefined)setAge(previous=>previous===next?previous:next);
+ };
+ const onRailScroll=()=>{
+  const container=rail.current;
+  if(!container)return;
+  const center=container.scrollLeft+container.clientWidth/2;
+  if(railTarget.current!==null){
+   const target=container.querySelector<HTMLElement>('[data-timeline-stop="'+railTarget.current+'"]');
+   if(target&&Math.abs(target.offsetLeft+target.clientWidth/2-center)<3)railTarget.current=null;
+   return;
+  }
+  // Native touch/trackpad motion scrubs the age immediately; do not recenter
+  // the rail while the user is still moving it.
+  railScrubbing.current=true;
+  const closest=nearestCenterIndex(Array.from(container.children,stop=>{
+   const element=stop as HTMLElement;return element.offsetLeft+element.clientWidth/2;
+  }),center);
+  const next=AGES[closest];
+  if(next!==undefined&&next!==age){
+   programmaticTarget.current=next;
+   setAge(next);
+   scrollToAge(next,"instant");
+  }
+  if(railSettles.current!==undefined)window.clearTimeout(railSettles.current);
+  railSettles.current=window.setTimeout(()=>{railScrubbing.current=false;railSettles.current=undefined},180);
  };
  useLayoutEffect(()=>{
   programmaticTarget.current=25;
@@ -81,16 +103,19 @@ export function TimelinePage(){
   return()=>cancelAnimationFrame(frame);
  },[characterId]);
  useEffect(()=>{
-  const active=rail.current?.querySelector<HTMLElement>('[aria-pressed="true"]');
-  if(active&&rail.current){
-   rail.current.scrollTo({left:active.offsetLeft+active.offsetWidth/2-rail.current.clientWidth/2,behavior:"smooth"});
-  }
- },[age]);
+  const container=rail.current;
+  const active=container?.querySelector<HTMLElement>('[data-timeline-stop="'+age+'"]');
+  if(!container||!active||railScrubbing.current)return;
+  const distance=active.offsetLeft+active.offsetWidth/2-container.clientWidth/2;
+  if(Math.abs(container.scrollLeft-distance)<3)return;
+  railTarget.current=age;
+  container.scrollTo({left:distance,behavior:motion()});
+ },[age,characterId]);
+ useEffect(()=>()=>{if(railSettles.current!==undefined)window.clearTimeout(railSettles.current)},[]);
  return <div className="shell timeline-page timeline-immersive" data-refresh={refresh}>
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{t("timeline.title",{name:person.name})}</h1>
    <p>{t("timeline.intro")}</p>
-   <Link className="timeline-experience-link" to={"/timeline/compare?character="+characterId}>{t("timeline.compare",{name:person.name})} →</Link>
   </header>
   <nav className="timeline-people" aria-label={t("timeline.chooseLife")}>
    {TIMELINE_IDS.map(id=><button type="button" key={id} className={"timeline-person "+(characterId===id?"selected":"")}
@@ -99,8 +124,10 @@ export function TimelinePage(){
     <span><strong>{timelinePerson(id).name}</strong><small>{t(id==="mira"?"timeline.photographer":id==="ethan"?"timeline.music":"timeline.travel")}</small></span>
    </button>)}
   </nav>
-  <nav className="timeline-rail" ref={rail} aria-label={t("timeline.selectAge",{name:person.name})}>
-   {AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} key={a} aria-pressed={a===age} onClick={()=>chooseAge(a)}>
+  <nav className="timeline-rail" ref={rail} onScroll={onRailScroll}
+   onPointerDown={()=>{railTarget.current=null;railScrubbing.current=true}}
+   onWheel={()=>{railTarget.current=null}} aria-label={t("timeline.selectAge",{name:person.name})}>
+   {AGES.map(a=><button type="button" className={"timeline-stop "+(a===age?"selected":"")} data-timeline-stop={a} key={a} aria-pressed={a===age} onClick={()=>chooseAge(a)}>
     <TimelinePortrait characterId={characterId} age={a}/><strong>{a}</strong><small>{t("timeline.years")}</small>
    </button>)}
   </nav>
@@ -108,14 +135,20 @@ export function TimelinePage(){
    <div className="timeline-stage-shell">
     <div className="timeline-stage-heading">
      <strong>{t("timeline.chapter",{name:person.name})}</strong>
-     <span className="timeline-stage-count" aria-live="off">{index+1} / {AGES.length}</span>
+     <span className="timeline-stage-count" aria-live="polite">{age} {t("timeline.years")} · {index+1}/{AGES.length}</span>
     </div>
     <div className="timeline-cta-dock"><Link className="timeline-primary-cta" to={"/timeline/live?character="+characterId+"&age="+age}>
      {t("timeline.talk",{name:person.name,age})} <span aria-hidden="true">↗</span>
+    </Link><Link className="timeline-compare-cta" to={"/timeline/compare?character="+characterId}>
+     {t("timeline.compareAction",{name:person.name})} <span aria-hidden="true">↗</span>
     </Link></div>
    <div className="timeline-stage-visual">
     <div className="timeline-photo-carousel" ref={carousel} onScroll={onCarouselScroll} tabIndex={0}
       onPointerDown={()=>{programmaticTarget.current=null}}
+      onWheel={()=>{programmaticTarget.current=null}}
+      onKeyDown={event=>{if(event.key==="ArrowLeft"||event.key==="ArrowRight"){
+       event.preventDefault();changeBy(event.key==="ArrowLeft"?-1:1);
+      }}}
       role="region" aria-roledescription="carousel" aria-label={t("timeline.photos",{name:person.name})}>
      {AGES.map(a=><div className="timeline-photo-slide" data-timeline-age={a} data-active={a===age} key={a} role="group"
        aria-roledescription="slide" aria-label={a+(en?" years old":" 歲")}>
@@ -156,7 +189,7 @@ export function TimelinePage(){
   </section>
   <details className="timeline-overview section panel"><summary>{t("timeline.jump")} <span aria-hidden="true">⌄</span></summary>
    <div className="timeline-era-grid">{eras.map(era=><div className="timeline-era" key={era.label[1]}>
-    <h3>{t("timeline.era"+({Childhood:"Child",Teens:"Teens","Young adult":"Young",Adulthood:"Adult","Later life":"Later"} as Record<string,string>)[era.label[1]])}</h3><div>{era.ages.map(a=><button type="button" key={a} className={a===age?"selected":""} aria-pressed={a===age} onClick={()=>{chooseAge(a);document.getElementById("timeline-current")?.scrollIntoView({behavior:"smooth",block:"start"})}}>
+    <h3>{t("timeline.era"+({Childhood:"Child",Teens:"Teens","Young adult":"Young",Adulthood:"Adult","Later life":"Later"} as Record<string,string>)[era.label[1]])}</h3><div>{era.ages.map(a=><button type="button" key={a} className={a===age?"selected":""} aria-pressed={a===age} onClick={()=>{chooseAge(a);document.getElementById("timeline-current")?.scrollIntoView({behavior:motion(),block:"start"})}}>
      <TimelinePortrait characterId={characterId} age={a}/><span>{a} {en?"years":"歲"}</span></button>)}</div>
    </div>)}</div>
   </details>

@@ -233,7 +233,7 @@
     "now": "Life right now",
     "jump": "Jump to another chapter",
     "conversation": "Conversation language",
-    "level": "Age doesn't change your language level. Voice uses your Gemini key.",
+    "level": "Try a free five-minute voice chat without a Gemini key, subject to availability.",
     "scrapbook": "Life scrapbook",
     "memories": "Moments you've saved with {{name}}",
     "clearAll": "Clear all",
@@ -283,7 +283,9 @@
     "memorySaved": "Saved. Reopen this or an older age to recall it.",
     "memoryDisabled": "Memory disabled or text too short.",
     "memoryCaption": "Only user-selected phrases become Timeline memories.",
-    "photoAlt": "{{name}} at age {{age}}"
+    "photoAlt": "{{name}} at age {{age}}",
+    "compareAction": "One question, every age",
+    "liveContext": "Explore · Life Timeline"
   },
   "shorts": {
     "heading": "What's happening with your Crew?",

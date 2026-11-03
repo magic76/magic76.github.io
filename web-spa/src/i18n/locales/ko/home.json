@@ -233,7 +233,7 @@
     "now": "지금의 삶",
     "jump": "다른 장면으로 이동",
     "conversation": "대화 언어",
-    "level": "나이는 언어 수준을 바꾸지 않습니다. 음성은 기존 Gemini 키를 사용합니다.",
+    "level": "Gemini 키가 없어도 이용 가능한 경우 5분 무료 음성 대화를 체험할 수 있습니다.",
     "scrapbook": "인생 앨범",
     "memories": "{{name}}와 남긴 추억",
     "clearAll": "모두 지우기",
@@ -283,7 +283,9 @@
     "memorySaved": "저장했습니다. 같은 나이 또는 더 나이가 든 시점에서 다시 확인하세요.",
     "memoryDisabled": "기억 기능이 꺼져 있거나 문장이 너무 짧습니다.",
     "memoryCaption": "직접 선택해 저장한 말만 Timeline 추억이 됩니다.",
-    "photoAlt": "{{age}}세의 {{name}}"
+    "photoAlt": "{{age}}세의 {{name}}",
+    "compareAction": "하나의 질문, 나이마다 다른 답",
+    "liveContext": "탐색 · 인생 타임라인"
   },
   "shorts": {
     "heading": "Crew 친구들에게 무슨 일이 있었을까요?",

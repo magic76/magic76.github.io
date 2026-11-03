@@ -4,6 +4,9 @@ import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
+import {GuestLiveStarter} from "../live/GuestLiveStarter";
+import {GuestTrialCountdown,GuestTrialFinish} from "../live/GuestTrialExperience";
+import {geminiKey} from "../lib/runtime";
 import {DesktopLivePanel} from "../components/DesktopLivePanel";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {MIRA_LIVE_VOICE,buildTimelineAgeVoicePrompt,timelineVoiceMode} from "./timelineVoice";
@@ -22,6 +25,7 @@ export function TimelineLivePage(){
  const usageStarted=useRef(false),usageCompleted=useRef(false);
  const language=useTeacherStore(s=>s.targetLanguage),nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const[saved,setSaved]=useState<number[]>([]),[notice,setNotice]=useState("");
+ const[guestStarted,setGuestStarted]=useState(false);
  const known=useMemo(()=>timelineOlderNotes(age,characterId),[age,characterId]);
  const voiceMode=timelineVoiceMode(params.get("voiceStyle"));
  const system=useMemo(()=>timelineBuildSystem(age,language,characterId)+buildTimelineAgeVoicePrompt(age,voiceMode,characterId),[age,language,voiceMode,characterId]);
@@ -45,7 +49,9 @@ export function TimelineLivePage(){
   usageStarted.current=true;trackUsageEvent("timeline_conversation_start");
  }},[live.state]);
  const end=async()=>{if(closing.current)return;closing.current=true;try{await live.stop(true)}finally{navigate(back)}};
- useEffect(()=>{const t=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(t)},[live.start]);
+ // Keyed visitors keep automatic startup. Guests need one explicit trial grant;
+ // openingPrompt is delivered by useLiveSession.start(grant) after connection.
+ useEffect(()=>{if(!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start]);
  useEffect(()=>{document.body.className="teacher-theme session-page timeline-session-page";return()=>{document.body.className=""}},[]);
  const keep=(i:number,text:string)=>{
   if(saved.includes(i))return;
@@ -55,7 +61,7 @@ export function TimelineLivePage(){
  const active=["connecting","listening","speaking","requesting-mic","ending","reporting"].includes(live.state);
  return <><header className="app-header"><div className="shell inner">
    <div className="app-brand"><Link className="back-btn" to={back} onClick={e=>{e.preventDefault();void end()}}>‹</Link>
-    <div className="app-title"><strong>{person.name} · {age} {t("timeline.years")}</strong><small>Crew Timeline · {language}</small></div>
+    <div className="app-title"><strong>{person.name} · {age} {t("timeline.years")}</strong><small>{t("timeline.liveContext")} · {language}</small></div>
    </div><span className="status connected"><i className="status-dot"/><span>{t(active?"timeline.inConversation":"timeline.ready")}</span></span>
   </div></header>
   <main className="session-shell timeline-live"><div className="desktop-live-workspace">
@@ -66,7 +72,10 @@ export function TimelineLivePage(){
     {known.length>0&&<details className="timeline-known"><summary>{t("timeline.remember",{name:person.name})} · {known.length}</summary>
       <ul>{known.map((note,i)=><li key={i}><strong>{note.age} {t("timeline.years")}</strong> · {note.text}</li>)}</ul>
     </details>}
-    <LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={t("timeline.myTurn")}/>
+    {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish name={person.name} expired={live.guestExpired} failed={live.state==="error"}/>
+     :<LiveControls live={live} onEnd={end} prominentInterrupt interruptLabel={t("timeline.myTurn")}/>}
+    {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     <div className="live-presets">{active&&current.conversationThreads.slice(0,3).map((topic,i)=><button key={i} type="button" onClick={()=>live.sendText("[TIMELINE TOPIC — silent scene nudge] As "+person.name+" age "+age+", respond in character to this age-valid moment: "+topic+". Do not pretend the learner asked this, do not spoil the future.")}>{en?topic:current.conversationThreadsZh[i]}</button>)}</div>
     <div className="live-transcript" aria-live="polite">
      <div className={"live-line user "+(live.input?"show":"")}><small>{t("timeline.you")}</small><span>{live.input}</span></div>
