@@ -8,7 +8,7 @@ import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransfor
 import {type SoulVisual} from "./soulVisual";
 import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
 import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
-import {cutoutObject,CutoutError} from "./soulCutout";
+import {cutoutObject,CutoutError,type CutoutProgress} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
 import "./souls.css";
 
@@ -51,6 +51,7 @@ export function SoulsPage(){
  const [rememberEnabled,setRememberEnabled]=useState(true);
  const [note,setNote]=useState("");
  const [busy,setBusy]=useState(false),[cutting,setCutting]=useState(false);
+ const [cutoutPhase,setCutoutPhase]=useState<CutoutProgress>("loading");
  const [error,setError]=useState(""),[info,setInfo]=useState("");
  const [visual,setVisual]=useState<SoulVisual>({state:"idle",caption:"",mood:"calm"});
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
@@ -82,12 +83,17 @@ export function SoulsPage(){
  }
  async function runCutout(image:string,point:{x:number;y:number},existingId?:string){
   const job=++cutoutJob.current;
-  setCutting(true);setError("");
-  setInfo(t("正在本機去背。第一次需下載模型；不成功也可以直接建立。","Removing background on your device. You can continue even if it fails."));
+  setCutting(true);setCutoutPhase("loading");setError("");
+  setInfo(t("正在準備本機去背模型。第一次需要下載與初始化，執行時畫面可能暫時停頓；仍可保留原圖建立 Soul。","Preparing on-device model. First use downloads and initializes the model; segmentation may briefly pause the screen."));
   try{
    // Give React an opportunity to display the busy indicator before the synchronous inference.
    await new Promise<void>(resolve=>window.setTimeout(resolve,35));
-   const result=await cutoutObject(image,point);
+   const result=await cutoutObject(image,point,phase=>{
+    if(!alive.current||job!==cutoutJob.current)return;
+    setCutoutPhase(phase);
+    if(phase==="segmenting")setInfo(t("模型已準備，正在分析物品輪廓；手機可能短暫停頓。","Model ready. Segmenting object; the UI may briefly pause."));
+    if(phase==="compositing")setInfo(t("已取得輪廓，正在製作透明背景圖片。","Mask ready. Compositing the cutout."));
+   });
    if(!alive.current||job!==cutoutJob.current)return;
    const face=await suggestedFace(result);
    if(!alive.current||job!==cutoutJob.current)return;
@@ -282,7 +288,11 @@ export function SoulsPage(){
        {t("重新點選去背主體","Retry cutout")}
       </button>
      </div>
-     <p className="souls-muted">{cutting?t("正在嘗試去背；即使失敗也能儲存角色。","Removing background. You can still save your Soul.") :
+     <p className="souls-muted">{cutting?(cutoutPhase==="loading"?
+      t("正在下載或初始化去背模型，首次使用可能較慢。","Downloading or initializing the cutout model (first use may take longer)."):
+      cutoutPhase==="segmenting"?
+      t("正在執行物品分割，畫面可能暫時停住。","Running segmentation; the screen may briefly freeze."):
+      t("正在製作去背圖片…","Compositing the cutout…")) :
       cutoutDraft&&useCutout?t("透明背景已完成。","Transparent background ready.") :
       t("目前使用原始照片，可以直接存成 Soul。","Using the original photo. You can still create a Soul.")}</p>
     </div>
