@@ -1,6 +1,6 @@
 import {useRef,type PointerEvent,type RefObject} from "react";
 import {safeFace,type SoulFace} from "./soulFace";
-import {applyGesture,safeTransform,type PointerPosition,type SoulTransform} from "./soulTransform";
+import {applyGesture,safeTransform,stageToObjectPoint,type PointerPosition,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
 
 /** Fixed photo + face compose into a single transformable object.
@@ -25,11 +25,9 @@ export function SoulPortrait({
  function move(e:PointerEvent<HTMLDivElement>){
   const bounds=stage.current?.getBoundingClientRect();
   if(!editing||!onFaceChange||!bounds?.width||!bounds.height)return;
-  onFaceChange(safeFace({
-   ...faceRef.current,
-   x:(e.clientX-bounds.left)/bounds.width,
-   y:(e.clientY-bounds.top)/bounds.height
-  }));
+  const local=stageToObjectPoint(e.clientX-bounds.left,e.clientY-bounds.top,
+   bounds.width,bounds.height,transformRef.current);
+  onFaceChange(safeFace({...faceRef.current,...local}));
  }
  function rebase(){
   gesture.current={
