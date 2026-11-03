@@ -1,0 +1,52 @@
+name: Crew Souls Native Vision Lab APK
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "labs/crew-souls-native-tracker/**"
+      - ".github/workflows/crew-souls-native-tracker.yml"
+  push:
+    branches: [master]
+    paths:
+      - "labs/crew-souls-native-tracker/**"
+      - ".github/workflows/crew-souls-native-tracker.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  debug-apk:
+    name: Test and build isolated Android tracking lab
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+      - name: Install Android 35 SDK
+        run: sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.10.2"
+      - name: Unit tests and debug APK
+        run: gradle --no-daemon --console=plain -p labs/crew-souls-native-tracker testDebugUnitTest assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: crew-souls-native-tracker-debug-apk
+          path: labs/crew-souls-native-tracker/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crew-souls-native-tracker-junit
+          path: labs/crew-souls-native-tracker/app/build/test-results/testDebugUnitTest/*.xml
+          if-no-files-found: ignore
+          retention-days: 14
