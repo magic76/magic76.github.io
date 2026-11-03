@@ -1,0 +1,100 @@
+{
+  "schema": 2,
+  "kind": "crew-short-page",
+  "source": "daily",
+  "generatedAt": "2026-11-03T00:00:00+08:00",
+  "posts": [
+    {
+      "id": "yuna-day2",
+      "friendId": "yuna",
+      "friendName": "Yuna",
+      "caption": "A little sun finally found its way into my room.",
+      "translationZh": "陽光終於偷偷照進我的房間了。",
+      "image": "/features/teacher/shorts/media/23751a3f7c46bb207b75d4a2.webp",
+      "imageAlt": "Yuna watching sunshine return to her windowsill, next to her familiar tea mug and potted plant.",
+      "publishedAt": "2026-10-17T08:00:00+08:00",
+      "language": "en",
+      "storyId": "rainy-windowsill",
+      "storyContext": "Rainy morning, warm tea, and absolutely no plans. Perfect."
+    },
+    {
+      "id": "zoe-day2",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "Bought a coffee machine. This is either a smart move or a very expensive hobby.",
+      "translationZh": "買了一台咖啡機。不知道是明智投資，還是昂貴的新嗜好。",
+      "image": "/features/teacher/shorts/media/f63fd59ca356196a95282185.webp",
+      "imageAlt": "Zoe unpacking a home espresso machine on her cluttered kitchen counter beside a mug and instruction booklet.",
+      "publishedAt": "2026-10-17T08:00:00+08:00",
+      "language": "en",
+      "storyId": "coffee-budget",
+      "storyContext": "£7 for a coffee. I hope it comes with financial advice."
+    },
+    {
+      "id": "bella-day1",
+      "friendId": "bella",
+      "friendName": "Bella",
+      "caption": "We planned a picnic. The clouds clearly had other plans.",
+      "translationZh": "我們原本計畫野餐。看來雲另有安排。",
+      "image": "/features/teacher/shorts/media/dad98ecfd9444cbf24390a9d.webp",
+      "imageAlt": "Bella at a cloudy park picnic with sandwiches, fruit and a blanket as rain starts.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "picnic-plan",
+      "storyContext": ""
+    },
+    {
+      "id": "hugo-day1",
+      "friendId": "hugo",
+      "friendName": "Hugo",
+      "caption": "Found a tiny bakery with the best croissant I've had in ages.",
+      "translationZh": "找到一家小小的麵包店，吃到我很久以來最棒的可頌。",
+      "image": "/features/teacher/shorts/media/a1445c5b9ad7faa91f1515b2.webp",
+      "imageAlt": "Hugo admiring a flaky croissant at a tiny bakery table beside an espresso.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "croissant-experiment",
+      "storyContext": ""
+    },
+    {
+      "id": "theo-day1",
+      "friendId": "theo",
+      "friendName": "Theo",
+      "caption": "I promised myself I wouldn't touch my keyboard again. Anyway, here's a new switch.",
+      "translationZh": "我答應自己不再亂改鍵盤。總之，這是新買的軸體。",
+      "image": "/features/teacher/shorts/media/f96b7036769efa49617cd383.webp",
+      "imageAlt": "Theo inspecting a keyboard switch next to his compact mechanical keyboard at home.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "keyboard-build",
+      "storyContext": ""
+    },
+    {
+      "id": "yuna-day1",
+      "friendId": "yuna",
+      "friendName": "Yuna",
+      "caption": "Rainy morning, warm tea, and absolutely no plans. Perfect.",
+      "translationZh": "下雨的早晨、熱茶，完全沒有行程。完美。",
+      "image": "/features/teacher/shorts/media/73fcd8c30e0a4d7880d8d2e2.webp",
+      "imageAlt": "Yuna sitting by a rain-streaked window with tea and a small green houseplant.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "rainy-windowsill",
+      "storyContext": ""
+    },
+    {
+      "id": "zoe-day1",
+      "friendId": "zoe",
+      "friendName": "Zoe",
+      "caption": "£7 for a coffee. I hope it comes with financial advice.",
+      "translationZh": "一杯咖啡要 7 英鎊。希望還附贈理財建議。",
+      "image": "/features/teacher/shorts/media/9fff6f180851072ede67db09.webp",
+      "imageAlt": "Zoe reacting to the price of takeaway coffee in a cozy London café beside a rainy window and card terminal.",
+      "publishedAt": "2026-10-16T08:00:00+08:00",
+      "language": "en",
+      "storyId": "coffee-budget",
+      "storyContext": ""
+    }
+  ],
+  "nextPage": null
+}
