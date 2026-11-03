@@ -50,7 +50,7 @@ export function SoulsPage(){
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
  const cutoutJob=useRef(0),alive=useRef(true);
  const mouthRef=useRef<SVGEllipseElement|null>(null);
- useEffect(()=>()=>{alive.current=false;cutoutJob.current++},[]);
+ useEffect(()=>{alive.current=true;return()=>{alive.current=false;cutoutJob.current++}},[]);
  const onAudioLevel=useCallback((level:number)=>{
   const mouth=mouthRef.current;
   if(mouth)mouth.setAttribute("ry",String(Math.max(3,Math.min(19,Math.round(3+level*16)))));
