@@ -27,6 +27,9 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  const [burstProgress,setBurstProgress]=useState(0);
  const [point,setPoint]=useState({x:.5,y:.43}),[tracking,setTracking]=useState<"align"|"following"|"lost">("align");
  const [box,setBox]=useState<Region|null>(null),[locatingRegion,setLocatingRegion]=useState(false);
+ const [fallbackPoint,setFallbackPoint]=useState<{x:number;y:number}|null>(null);
+ const [suggestedBox,setSuggestedBox]=useState<Region|null>(null);
+ const [attachmentMode,setAttachmentMode]=useState<"none"|"segmented"|"approximate"|"fixed">("none");
  const canvas=useRef<HTMLCanvasElement|null>(null);
  const trackCanvas=()=>{
   const v=video.current,host=viewport.current;
@@ -94,7 +97,8 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  // object to replace the center anchor; low-texture frames fail closed.
  useEffect(()=>{
   const id=activeSoul?.id||"";
-  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;hadAttachment.current=false;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;hadAttachment.current=false;
+  setBox(null);setFallbackPoint(null);setSuggestedBox(null);setAttachmentMode("none");setPoint({x:.5,y:.43});setTracking("align");
   if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
   // Auto-locate the centered object on wake; users can tap if it's off-center.
@@ -106,7 +110,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  useEffect(()=>{
   if(!activeSoul?.id||!ready)return;
   const interval=window.setInterval(()=>{
-   if(document.hidden||!tracker.current)return;
+   if(document.hidden||!tracker.current||!hadAttachment.current)return;
    const frame=trackCanvas();
    if(!frame)return;
    const next=trackMultiFrame(frame,tracker.current);
@@ -147,23 +151,20 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  function locateAt(at:{x:number;y:number}){
   if(locating.current||!activeRef.current)return;
   const frame=trackCanvas();if(!frame)return;
-  const fallback=initMultiTracker(frame,at);
-  tracker.current=fallback;misses.current=0;setBox(null);setPoint(at);setTracking("align");
+  tracker.current=null;misses.current=0;setBox(null);setPoint(at);setTracking("align");setAttachmentMode("none");
+  setFallbackPoint(at);setSuggestedBox(null);
   const owner=activeRef.current,epoch=++captureEpoch.current;
   let picture="";
   try{picture=captureVisible()}catch{return}
   locating.current=true;setLocatingRegion(true);setError("");
   void locateSoulRegion(picture,at).then(async result=>{
    if(activeRef.current!==owner||captureEpoch.current!==epoch)return;
-   const latest=trackCanvas(),tracked=tracker.current;
-   if(!latest)return;
-   const shiftX=tracked?tracked.point.x-at.x:0,shiftY=tracked?tracked.point.y-at.y:0;
-   if(Math.abs(shiftX)>.22||Math.abs(shiftY)>.22){
-    setError(en?"Object moved too far. Tap it again.":"物品移動太遠，請重新點選物品。");return;
-   }
-   const shifted={...result.box,
-    x:Math.max(0,Math.min(1-result.box.width,result.box.x+shiftX)),
-    y:Math.max(0,Math.min(1-result.box.height,result.box.y+shiftY))};
+   const latest=trackCanvas();if(!latest)return;
+   // A slow model load is not evidence of pixel motion.
+   // No unverified feature drift is applied to a result from a different frame.
+   // A user can tap to refresh when the camera or object has moved.
+   const shiftX=0,shiftY=0;
+   const shifted={...result.box};
    const face={x:shifted.x+shifted.width*.5,y:shifted.y+shifted.height*.43};
    const foreground=result.anchors.map(p=>({
     x:Math.max(0,Math.min(1,p.x+shiftX)),
@@ -171,23 +172,49 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    }));
    const regionTracker=initRegionTracker(latest,shifted,face,foreground);
    if(!regionTracker){
-    setError(en?"Object is too plain to track. Tap a patterned area.":"物品紋理不足，請點選有圖案的部位。");return;
+    setSuggestedBox(shifted);
+    setError(en?"Outline found but the object is too plain to track. Use Simple placement below.":"輪廓已找到，但物品缺少可追蹤的花紋。可用下方「簡易貼附」。");
+    return;
    }
    tracker.current=regionTracker;misses.current=0;setPoint(regionTracker.point);
-   setBox(shifted);setTracking("following");setError("");
+   setBox(shifted);setTracking("following");setError("");setAttachmentMode("segmented");
+   setFallbackPoint(null);setSuggestedBox(null);
    hadAttachment.current=true;callbacks.current.onAttached?.();
    if(callbacks.current.onRegionCrop){
-    const bytes=await (await fetch(result.crop)).blob();
-    if(activeRef.current===owner&&captureEpoch.current===epoch)
-     await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+    try{
+     const bytes=await (await fetch(result.crop)).blob();
+     if(activeRef.current===owner&&captureEpoch.current===epoch)
+      await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+    }catch(cause){console.warn("[Souls] optional reference crop failed",cause)}
    }
-  }).catch(()=>{
+  }).catch((cause:unknown)=>{
    if(activeRef.current===owner&&captureEpoch.current===epoch){
-    tracker.current=null;setBox(null);
+    tracker.current=null;setBox(null);setAttachmentMode("none");
     setTracking(hadAttachment.current?"lost":"align");
-    setError(en?"Could not identify the object's outline. Tap it again.":"無法確認物品輪廓，請點物品重新定位。");
+    if(typeof console!=="undefined")console.warn("[Souls] segmentation unavailable",cause);
+    setError(en?"Outline unavailable. Tap the object and use Simple placement instead.":"物品輪廓暫時無法辨識，點選物品後可使用「簡易貼附」。");
    }
   }).finally(()=>{if(captureEpoch.current===epoch){locating.current=false;setLocatingRegion(false)}});
+ }
+ function confirmSimplePlacement(){
+  if(!fallbackPoint||!activeRef.current)return;
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);
+  const point=fallbackPoint;
+  const provisional:Region=suggestedBox||{
+   x:Math.max(0,Math.min(.74,point.x-.15)),
+   y:Math.max(0,Math.min(.74,point.y-.15)),
+   width:.30,height:.30
+  };
+  const latest=trackCanvas();
+  const feature=latest&&initMultiTracker(latest,point);
+  // The user confirms only a visual placement, not an object identity proof.
+  const canFollow=Boolean(feature);
+  tracker.current=feature?{...feature,box:provisional}:null;
+  hadAttachment.current=true;misses.current=0;
+  setPoint(point);setBox(provisional);setTracking("following");
+  setAttachmentMode(canFollow?"approximate":"fixed");
+  setFallbackPoint(null);setSuggestedBox(null);setError("");
+  callbacks.current.onAttached?.();
  }
  function aim(event:MouseEvent<HTMLButtonElement>){
   const bounds=event.currentTarget.getBoundingClientRect();
@@ -284,10 +311,16 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
   </div>
   <p className="souls-camera-status" role="status">{error||(!ready?(en?"Opening camera…":"正在開啟相機…"):activeSoul?
    locatingRegion?(en?"Finding the object outline locally…":"正在本機找出物品輪廓…"):
-   tracking==="lost"?(en?"Object lost. Tap within 2 seconds or Live will end.":"物品離開鏡頭，請在 2 秒內重新定位，否則結束 Live。"):
+   tracking==="lost"?(en?"Object lost. Tap within 2 seconds or Live will end.":"追蹤遺失，請在 2 秒內重新定位，否則結束 Live。"):
+   attachmentMode==="fixed"?(en?"Fixed placement: tap to re-position or Scan another to stop Live.":"固定貼附：可點擊重新定位；物品離開時請按「換個物品」結束 Live。"):
+   attachmentMode==="approximate"?(en?"Simple feature tracking (not verified outline).":"簡易特徵追蹤中，物品輪廓未確認。"):
    tracking==="align"?(en?"Tap the object to position its eyes.":"點一下物品，把眼睛放到正確位置。"):
    (en?"Your Soul is awake! Tap to adjust its eyes.":"它醒來了！點物品可以調整眼睛位置。"):
    (hint||(en?"Point at a saved Soul to wake it.":"對準已收藏物品，它就會在鏡頭裡醒來。")))}</p>
+  {activeSoul&&fallbackPoint&&tracking!=="following"&&<div className="souls-camera-actions souls-simple-attach">
+   <button type="button" onClick={confirmSimplePlacement}>{en?"✓ Simple placement / start talking":"✓ 簡易貼附，開始說話"}</button>
+   <span className="souls-camera-fallback-hint">{en?"Approximate position. Smooth objects might not track or auto-stop.":"這是手動確認的位置。光滑物品可能無法追蹤或自動偵測離開鏡頭。"}</span>
+  </div>}
   {activeSoul?<div className="souls-camera-actions">
    <button type="button" disabled={Boolean(burstProgress)} onClick={()=>void burst("reference")}>{en?"＋ Add 4 views":"＋ 補拍 4 視角"}</button><button type="button" onClick={onReset}>{en?"↻ Scan another":"↻ 換個物品"}</button><button type="button" onClick={onClose}>{en?"Close camera":"關閉相機"}</button>
   </div>:<div className="souls-actions">

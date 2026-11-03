@@ -146,7 +146,7 @@ test("P0: user-guided local segmentation yields bounded object region and region
  assert.match(camera,/souls-ar-region/);
  assert.match(camera,/onRegionCrop/);
  assert.match(region,/cutoutObject\(image/);
- assert.match(region,/maxX<0/);
+ assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
  assert.match(tracker,/export function initRegionTracker/);
  assert.match(tracker,/if\(ref\.box\)\{/);
 });
@@ -218,4 +218,41 @@ test("camera face attaches only to a confirmed object, scales with its mask and 
  assert.match(camera,/callbacks\.current\.onDeparted\?\.\(\)/);
  assert.match(camera,/\},2000\)/);
  assert.match(page,/onDeparted=\{\(\)=>\{resetCameraSoul\(\)/);
+});
+
+
+test("missing outline and smooth objects still have an explicit user-confirmed Live path",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
+ assert.match(camera,/function confirmSimplePlacement\(\)/);
+ assert.match(camera,/setFallbackPoint\(at\)/);
+ assert.match(camera,/onClick=\{confirmSimplePlacement\}/);
+ assert.match(camera,/captureEpoch\.current\+\+;locating\.current=false;setLocatingRegion\(false\)/);
+ assert.match(camera,/setAttachmentMode\(canFollow\?"approximate":"fixed"\)/);
+ assert.match(camera,/setTracking\("following"\)/);
+ assert.match(camera,/callbacks\.current\.onAttached\?\.\(\)/);
+ assert.match(page,/selected&&cameraAttached\?<SoulChat/);
+ assert.doesNotMatch(region,/if\(anchors\.length<3\)throw Error/);
+ assert.match(css,/\.souls-simple-attach/);
+});
+test("object detection failures are not conflated with optional reference photo errors",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const start=camera.indexOf("if(callbacks.current.onRegionCrop){");
+ const stop=camera.indexOf("}).catch((cause:unknown)",start);
+ assert.ok(start>0&&stop>start);
+ const optional=camera.slice(start,stop);
+ assert.match(optional,/catch\(cause\)\{console\.warn\("\[Souls\] optional reference crop failed"/);
+ assert.doesNotMatch(optional,/setTracking\("lost"\)/);
+});
+
+
+test("object outline bbox is taken from a clicked connected component",()=>{
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const mask=fs.readFileSync(path.join(root,"web-spa/src/souls/soulMaskComponent.ts"),"utf8");
+ assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
+ assert.match(mask,/export function componentFromAlpha/);
+ assert.match(mask,/const selected=new Uint8Array/);
+ assert.match(mask,/Selected point is outside the foreground/);
+ assert.match(mask,/fraction<\.002\|\|fraction>\.88/);
 });

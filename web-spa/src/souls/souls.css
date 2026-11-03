@@ -167,3 +167,9 @@
 @media(prefers-reduced-motion:reduce){
  .souls-camera-awake .souls-ar-face,.souls-camera-awake .souls-ar-region{transition:none!important}
 }
+
+
+/* Souls: explicit rescue path when a smooth object has no reliable mask/texture. */
+.souls-camera .souls-simple-attach{display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:#fff7ee;padding:10px 12px;border-top:1px solid #f0d8bf}
+.souls-camera .souls-simple-attach button{background:#ff9a00;color:#261b16;border:1px solid #dc8300;border-radius:13px;padding:9px 12px;font-weight:800}
+.souls-camera .souls-camera-fallback-hint{flex:1 1 180px;min-width:0;color:#76573c;font-size:12px;line-height:1.55}

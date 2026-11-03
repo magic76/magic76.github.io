@@ -93,3 +93,38 @@ test("mask-guided tracking never substitutes background-only seed points",()=>{
  const moved=trackMultiFrame(syntheticFrame(2,1),tracker);
  assert.ok(moved,"tracked foreground points should survive small coherent motion");
 });
+
+
+const {componentFromAlpha}=loadModule("web-spa/src/souls/soulMaskComponent.ts",["componentFromAlpha"]);
+function mockMask(width,height,rectangles){
+ const pixels=new Uint8ClampedArray(width*height*4);
+ for(const [left,top,right,bottom] of rectangles){
+  for(let y=top;y<bottom;y++)for(let x=left;x<right;x++){
+   pixels[(y*width+x)*4+3]=255;
+  }
+ }
+ return pixels;
+}
+test("mask component ignores distant false-positive foreground pixels",()=>{
+ const w=150,h=120;
+ const pixels=mockMask(w,h,[[40,24,99,91],[0,0,3,3],[140,108,149,119]]);
+ const component=componentFromAlpha(pixels,w,h,{x:.45,y:.46});
+ assert.ok(component.left>=37&&component.left<=44);
+ assert.ok(component.top>=21&&component.top<=27);
+ assert.ok(component.right>=95&&component.right<=102);
+ assert.ok(component.bottom>=87&&component.bottom<=93);
+ assert.ok(component.anchors.length>3);
+});
+test("mask component selects only the object touched, not the other foreground object",()=>{
+ const w=180,h=120;
+ const pixels=mockMask(w,h,[[16,20,65,90],[108,25,164,95]]);
+ const left=componentFromAlpha(pixels,w,h,{x:.2,y:.4});
+ const right=componentFromAlpha(pixels,w,h,{x:.75,y:.4});
+ assert.ok(left.right<85,"left object box must not expand to right object");
+ assert.ok(right.left>100,"right object box must not expand to left object");
+});
+test("mask component refuses ungrounded empty or distant tap",()=>{
+ const w=150,h=120;
+ assert.throws(()=>componentFromAlpha(mockMask(w,h,[]),w,h,{x:.5,y:.5}));
+ assert.throws(()=>componentFromAlpha(mockMask(w,h,[[5,5,30,30]]),w,h,{x:.8,y:.8}));
+});
