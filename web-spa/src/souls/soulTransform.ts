@@ -48,3 +48,17 @@ export function applyGesture(
   y:baseline.y+(to.y-from.y)/surfaceHeight,scale,rotation
  });
 }
+
+/** Convert a stage pointer to local 0..1 portrait coordinates after image motion. */
+export function stageToObjectPoint(
+ screenX:number,screenY:number,width:number,height:number,
+ transform:SoulTransform
+):{x:number;y:number}{
+ const t=safeTransform(transform);
+ if(width<=0||height<=0)return {x:.5,y:.5};
+ const dx=(screenX/width-.5-t.x)/t.scale;
+ const dy=(screenY/height-.5-t.y)/t.scale;
+ const radians=t.rotation*Math.PI/180;
+ const c=Math.cos(radians),s=Math.sin(radians);
+ return {x:.5+dx*c+dy*s,y:.5-dx*s+dy*c};
+}
