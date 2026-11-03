@@ -3,6 +3,8 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
+import {SoulTransformControls} from "./SoulTransformControls";
+import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
 import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
 import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
@@ -38,6 +40,10 @@ export function SoulsPage(){
  const [cutoutDraft,setCutoutDraft]=useState("");
  const [useCutout,setUseCutout]=useState(true);
  const [faceDraft,setFaceDraft]=useState<SoulFace>({...DEFAULT_FACE});
+ const [transformDraft,setTransformDraft]=useState<SoulTransform>({...DEFAULT_TRANSFORM});
+ const [editTarget,setEditTarget]=useState<"object"|"face">("object");
+ const faceWasEdited=useRef(false);
+ function changeFace(next:SoulFace){faceWasEdited.current=true;setFaceDraft(next)}
  const [selectSubject,setSelectSubject]=useState(false);
  const [editFace,setEditFace]=useState(false);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
@@ -71,6 +77,7 @@ export function SoulsPage(){
   cutoutJob.current++;setCutting(false);
   setStep("home");setSelected(null);setDraft(null);setCutoutDraft("");
   setUseCutout(true);setSelectSubject(false);setEditFace(false);
+  setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");faceWasEdited.current=false;
   setError("");setInfo("");resetVisual();
  }
  async function runCutout(image:string,point:{x:number;y:number},existingId?:string){
@@ -87,9 +94,9 @@ export function SoulsPage(){
    if(existingId){
     await update(existingId,s=>({...s,cutout:result,face}));
     if(!alive.current||job!==cutoutJob.current)return;
-    await refresh(existingId);setFaceDraft(face);setEditFace(false);
+    await refresh(existingId);if(!faceWasEdited.current)setFaceDraft(face);setEditFace(false);
    }else{
-    setCutoutDraft(result);setUseCutout(true);setFaceDraft(face);
+    setCutoutDraft(result);setUseCutout(true);if(!faceWasEdited.current)setFaceDraft(face);
    }
    setSelectSubject(false);
    setInfo(t("去背完成！可以拖曳眼睛微調位置。","Background removed. Drag the eyes to fine-tune their position."));
@@ -120,7 +127,9 @@ export function SoulsPage(){
    const p=await photoFromFile(file);
    if(!alive.current)return;
    setDraft(p);setSelected(null);setStep("edit");setCutoutDraft("");
-   setFaceDraft({...DEFAULT_FACE});setUseCutout(true);setSelectSubject(false);
+   setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
+   setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");
+   setUseCutout(true);setSelectSubject(false);
    setName("");setKind("");setDescription("");setPersonality("witty");setRememberEnabled(true);
    setBusy(false);
    if(p.quality)setInfo(t("照片可能有點模糊或曝光不足；可繼續建立，也可以換一張。","This photo may be blurry or underexposed. You may continue or choose another."));
@@ -169,7 +178,7 @@ export function SoulsPage(){
     description:trim(description,140),personality,
     voice:persona[personality][2],photos:[draft],
     cutout:useCutout&&cutoutDraft?cutoutDraft:undefined,
-    face:safeFace(faceDraft),notes:[],remember:rememberEnabled,
+    face:safeFace(faceDraft),transform:safeTransform(transformDraft),notes:[],remember:rememberEnabled,
     createdAt:now,lastSeenAt:now
    };
    await save(s);await refresh(s.id);
@@ -182,7 +191,8 @@ export function SoulsPage(){
  async function choose(s:Soul){
   cutoutJob.current++;setCutting(false);
   setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);
-  setEditFace(false);resetVisual();setError("");setInfo("");
+  setEditFace(false);setEditTarget("object");setTransformDraft(safeTransform(s.transform));
+  faceWasEdited.current=false;resetVisual();setError("");setInfo("");
   try{await update(s.id,old=>({...old,lastSeenAt:Date.now()}));await refresh(s.id)}
   catch{setError(t("無法更新本機收藏，但你仍可嘗試聊天。","Could not update local visit time."))}
  }
@@ -193,9 +203,9 @@ export function SoulsPage(){
  }
  async function saveFace(){
   if(!selected)return;
-  await mutate(s=>({...s,face:safeFace(faceDraft)}));
+  await mutate(s=>({...s,face:safeFace(faceDraft),transform:safeTransform(transformDraft)}));
   setEditFace(false);
-  setInfo(t("眼睛的位置已儲存，下次打開仍然一樣。","Face placement saved for next time."));
+  setInfo(t("物品位置、大小、角度及五官已儲存。","Object transform and face placement saved."));
  }
  async function manual(event:FormEvent<HTMLFormElement>){
   event.preventDefault();if(!note.trim())return;
@@ -240,7 +250,7 @@ export function SoulsPage(){
     <button type="button" onClick={()=>camera.current?.click()}>{t("建立第一個 Soul","Create your first Soul")}</button>
    </div>:<div className="souls-grid souls-collection">
     {items.map(s=><button key={s.id} type="button" onClick={()=>void choose(s)}>
-     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} name={s.name} caption={false}/>
+     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} name={s.name} caption={false}/>
      <small>{s.kind||t("獨特物品","Unique object")} · {s.notes.length} {t("則回憶","memories")}</small>
     </button>)}
    </div>}
@@ -256,13 +266,13 @@ export function SoulsPage(){
     </button>
     <button type="button" onClick={()=>setSelectSubject(false)}>{t("取消，回到角色預覽","Cancel")}</button>
    </div>:<div className="souls-editor-layout">
-    <SoulPortrait image={editingImage} face={faceDraft} onFaceChange={setFaceDraft} editing/>
+    <SoulPortrait image={editingImage} face={faceDraft} onFaceChange={changeFace}
+     transform={transformDraft} onTransformChange={setTransformDraft}
+     editing editTarget={editTarget}/>
     <div className="souls-editor-tools">
-     <strong>{t("用手指拖動眼睛，把它放在物品上。","Drag the eyes onto the object.")}</strong>
-     <label>{t("眼睛大小","Eye size")}
-      <input type="range" min=".55" max="1.65" step=".05" value={faceDraft.scale}
-       onChange={e=>setFaceDraft(f=>safeFace({...f,scale:Number(e.target.value)}))}/>
-     </label>
+     <SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
+      face={faceDraft} onFaceChange={changeFace}
+      transform={transformDraft} onTransformChange={setTransformDraft} en={en}/>
      <div className="souls-editor-buttons">
       {cutoutDraft&&<button type="button" aria-pressed={useCutout}
        onClick={()=>setUseCutout(v=>!v)}>
@@ -271,7 +281,6 @@ export function SoulsPage(){
       <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setSelectSubject(true)}}>
        {t("重新點選去背主體","Retry cutout")}
       </button>
-      <button type="button" onClick={()=>setFaceDraft({...DEFAULT_FACE})}>{t("重設眼睛位置","Reset eyes")}</button>
      </div>
      <p className="souls-muted">{cutting?t("正在嘗試去背；即使失敗也能儲存角色。","Removing background. You can still save your Soul.") :
       cutoutDraft&&useCutout?t("透明背景已完成。","Transparent background ready.") :
@@ -318,20 +327,23 @@ export function SoulsPage(){
    <section className="souls-panel souls-photo-profile">
     <div className="souls-profile-portrait">
      <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face}
-      editing={editFace} onFaceChange={editFace?setFaceDraft:undefined}
+      transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
+      editing={editFace} onFaceChange={editFace?changeFace:undefined}
+      onTransformChange={editFace?setTransformDraft:undefined}
       visual={visual} name={selected.name} mouthRef={mouthRef}/>
-     {editFace&&<label>{t("眼睛大小","Eye size")}<input type="range" min=".55" max="1.65"
-      step=".05" value={faceDraft.scale} onChange={e=>setFaceDraft(f=>safeFace({...f,scale:Number(e.target.value)}))}/></label>}
+     {editFace&&<SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
+      face={faceDraft} onFaceChange={changeFace} transform={transformDraft}
+      onTransformChange={setTransformDraft} en={en}/>}
     </div>
     <div className="souls-profile-copy">
      <small>{t("你的物品朋友","YOUR OBJECT FRIEND")}</small>
      <h2>{selected.name}</h2><p>{selected.kind||t("獨一無二的小東西","A one-of-a-kind object")}</p>
      {selected.description&&<p>{selected.description}</p>}
      <div className="souls-profile-buttons">
-      {editFace?<><button type="button" onClick={()=>void saveFace()}>{t("儲存眼睛位置","Save eyes")}</button>
+      {editFace?<><button type="button" onClick={()=>void saveFace()}>{t("儲存物品與五官","Save object & eyes")}</button>
        <button type="button" onClick={()=>setEditFace(false)}>{t("取消","Cancel")}</button></>:
-       <button type="button" onClick={()=>{setFaceDraft(safeFace(selected.face));setEditFace(true)}}>
-        {t("調整五官","Adjust face")}
+       <button type="button" onClick={()=>{setFaceDraft(safeFace(selected.face));setTransformDraft(safeTransform(selected.transform));setEditTarget("object");faceWasEdited.current=false;setEditFace(true)}}>
+        {t("調整物品／五官","Adjust object / eyes")}
        </button>}
      </div>
      <small>{t("這個 Soul 會保存在這台裝置的瀏覽器裡。","This Soul is stored in this browser.")}</small>
