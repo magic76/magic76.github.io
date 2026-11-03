@@ -21,6 +21,24 @@ function harness(){
   "\nreturn {GA4_MEASUREMENT_ID,safeGa4Path,setGa4Enabled,sendGa4PageView,sendGa4Event};")(window,document);
  return {scripts,window,...exports};
 }
+test("GA4 queues native gtag Arguments objects (including consent updates)",()=>{
+ const ga=harness();
+ ga.setGa4Enabled(true);
+ ga.sendGa4PageView("/teacher/vocabulary");
+ ga.sendGa4Event("vocabulary_practice","");
+ ga.setGa4Enabled(false);
+ const commands=ga.window.dataLayer;
+ assert.deepEqual(commands.map(row=>row[0]),["js","consent","config","event","event","consent"]);
+ for(const row of commands){
+  assert.equal(Object.prototype.toString.call(row),"[object Arguments]",
+   "gtag.js commands must use native Arguments, not Array");
+  assert.equal(Array.isArray(row),false);
+ }
+ assert.deepEqual(Array.from(commands[2]).slice(0,2),["config","G-563JSM2X68"]);
+ assert.equal(commands[3][1],"page_view");
+ assert.equal(commands[4][1],"crew_vocabulary_practice");
+ assert.equal(commands[5][1],"update");
+});
 test("GA4 tag is lazy, guarded by opt-out, and configured without automatic page views or ads",()=>{
  const ga=harness();
  assert.equal(ga.GA4_MEASUREMENT_ID,"G-563JSM2X68");
