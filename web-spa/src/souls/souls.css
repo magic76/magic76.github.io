@@ -156,3 +156,14 @@
 .souls-ar-face[data-hearing="true"] svg{animation:souls-face-listen 2s ease-in-out infinite alternate}
 @keyframes souls-face-listen{from{transform:rotate(-2deg)}to{transform:rotate(3deg)}}
 @media(prefers-reduced-motion:reduce){.souls-ar-face[data-hearing="true"] svg{animation:none!important}}
+
+
+/* Camera-only object attachment: size and placement follow the real region. */
+.souls-camera-awake .souls-ar-face{transform:translate(-50%,-45%);min-width:0;min-height:0;transition:left .17s linear,top .17s linear,width .17s ease,opacity .16s}
+.souls-camera-awake .souls-ar-face svg{width:100%;height:auto!important;aspect-ratio:136/104}
+.souls-camera-awake .souls-ar-face[data-attached="false"]{visibility:hidden;opacity:0!important}
+.souls-camera-awake .souls-ar-face .souls-ar-name{max-width:100%;font-size:clamp(9px,2.5vw,12px);padding:2px 6px;text-align:center}
+.souls-camera-awake .souls-ar-region{transition:top .17s linear,left .17s linear,width .17s linear,height .17s linear}
+@media(prefers-reduced-motion:reduce){
+ .souls-camera-awake .souls-ar-face,.souls-camera-awake .souls-ar-region{transition:none!important}
+}

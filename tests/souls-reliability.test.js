@@ -74,3 +74,22 @@ test("region tracking: significant similarity change does not silently produce a
  const blank={width,height,pixels:new Uint8Array(width*height)};
  assert.equal(trackMultiFrame(blank,tracker),null,"occluded object cannot continue a fake track");
 });
+
+
+test("mask-guided tracking never substitutes background-only seed points",()=>{
+ const frame=syntheticFrame();
+ const roi={x:54/width,y:39/height,width:76/width,height:61/height};
+ const face={x:93/width,y:69/height};
+ const background=[{x:.03,y:.03},{x:.92,y:.93},{x:.8,y:.03},{x:.03,y:.75}];
+ assert.equal(initRegionTracker(frame,roi,face,background),null);
+ const foreground=[
+  {x:67/width,y:55/height},{x:81/width,y:56/height},
+  {x:103/width,y:67/height},{x:115/width,y:77/height},
+  {x:76/width,y:85/height}
+ ];
+ const tracker=initRegionTracker(frame,roi,face,foreground);
+ assert.ok(tracker,"foreground textured points must initialize object tracker");
+ assert.ok(tracker.anchors.length<=foreground.length);
+ const moved=trackMultiFrame(syntheticFrame(2,1),tracker);
+ assert.ok(moved,"tracked foreground points should survive small coherent motion");
+});

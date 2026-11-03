@@ -142,7 +142,7 @@ test("P0: user-guided local segmentation yields bounded object region and region
  const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
  const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
  assert.match(camera,/locateSoulRegion\(picture,at\)/);
- assert.match(camera,/initRegionTracker\(latest,shifted,shiftedFace\)/);
+ assert.match(camera,/initRegionTracker\(latest,shifted,face,foreground\)/);
  assert.match(camera,/souls-ar-region/);
  assert.match(camera,/onRegionCrop/);
  assert.match(region,/cutoutObject\(image/);
@@ -197,4 +197,25 @@ test("embedding work and audio levels avoid per-frame React updates",()=>{
  assert.match(worker,/embedder\.embed\(bitmap\)/);
  assert.match(page,/mouthRef\.current\.setAttribute\("ry"/);
  assert.doesNotMatch(page,/setAudioLevel/);
+});
+
+test("camera face attaches only to a confirmed object, scales with its mask and ends Live after departure",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const cutout=fs.readFileSync(path.join(root,"web-spa/src/souls/soulCutout.ts"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
+ assert.match(camera,/locateAt\(\{x:\.5,y:\.45\}\)/);
+ assert.match(camera,/const face=\{x:shifted\.x\+shifted\.width\*\.5,y:shifted\.y\+shifted\.height\*\.43\}/);
+ assert.match(camera,/data-attached=\{Boolean\(box\)&&tracking==="following"/);
+ assert.match(camera,/const faceSize=box\?/);
+ assert.match(css,/\.souls-ar-face\[data-attached="false"\]/);
+ assert.match(region,/return \{box,crop:out\.toDataURL\("image\/jpeg",\.82\),anchors\}/);
+ assert.match(camera,/initRegionTracker\(latest,shifted,face,foreground\)/);
+ assert.match(camera,/initRegionTracker\(frame,next\.box,next\.point,next\.anchors\.map/);
+ assert.match(cutout,/magic_touch\/int8\/1\/interactive_segmentation\.task/);
+ assert.match(page,/cameraAttached\?<SoulChat/);
+ assert.match(camera,/hadAttachment\.current=true;callbacks\.current\.onAttached\?\.\(\)/);
+ assert.match(camera,/callbacks\.current\.onDeparted\?\.\(\)/);
+ assert.match(camera,/\},2000\)/);
+ assert.match(page,/onDeparted=\{\(\)=>\{resetCameraSoul\(\)/);
 });
