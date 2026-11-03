@@ -188,13 +188,33 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
     if(activeRef.current===owner&&captureEpoch.current===epoch)
      await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
    }
-  }).catch(()=>{
+  }).catch((cause:unknown)=>{
    if(activeRef.current===owner&&captureEpoch.current===epoch){
-    tracker.current=null;setBox(null);
+    tracker.current=null;setBox(null);setAttachmentMode("none");
     setTracking(hadAttachment.current?"lost":"align");
-    setError(en?"Could not identify the object's outline. Tap it again.":"無法確認物品輪廓，請點物品重新定位。");
+    if(typeof console!=="undefined")console.warn("[Souls] segmentation unavailable",cause);
+    setError(en?"Outline unavailable. Tap the object and use Simple placement instead.":"物品輪廓暫時無法辨識，點選物品後可使用「簡易貼附」。");
    }
   }).finally(()=>{if(captureEpoch.current===epoch){locating.current=false;setLocatingRegion(false)}});
+ }
+ function confirmSimplePlacement(){
+  if(!fallbackPoint||!activeRef.current||locating.current)return;
+  const point=fallbackPoint;
+  const provisional:Region=suggestedBox||{
+   x:Math.max(0,Math.min(.74,point.x-.15)),
+   y:Math.max(0,Math.min(.74,point.y-.15)),
+   width:.30,height:.30
+  };
+  const latest=trackCanvas();
+  const feature=latest&&initMultiTracker(latest,point);
+  // The user confirms only a visual placement, not an object identity proof.
+  const canFollow=Boolean(feature);
+  tracker.current=feature?{...feature,box:provisional}:null;
+  hadAttachment.current=true;misses.current=0;
+  setPoint(point);setBox(provisional);setTracking("following");
+  setAttachmentMode(canFollow?"approximate":"fixed");
+  setFallbackPoint(null);setSuggestedBox(null);setError("");
+  callbacks.current.onAttached?.();
  }
  function aim(event:MouseEvent<HTMLButtonElement>){
   const bounds=event.currentTarget.getBoundingClientRect();
