@@ -27,6 +27,9 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  const [burstProgress,setBurstProgress]=useState(0);
  const [point,setPoint]=useState({x:.5,y:.43}),[tracking,setTracking]=useState<"align"|"following"|"lost">("align");
  const [box,setBox]=useState<Region|null>(null),[locatingRegion,setLocatingRegion]=useState(false);
+ const [fallbackPoint,setFallbackPoint]=useState<{x:number;y:number}|null>(null);
+ const [suggestedBox,setSuggestedBox]=useState<Region|null>(null);
+ const [attachmentMode,setAttachmentMode]=useState<"none"|"segmented"|"approximate"|"fixed">("none");
  const canvas=useRef<HTMLCanvasElement|null>(null);
  const trackCanvas=()=>{
   const v=video.current,host=viewport.current;
@@ -94,7 +97,8 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  // object to replace the center anchor; low-texture frames fail closed.
  useEffect(()=>{
   const id=activeSoul?.id||"";
-  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;hadAttachment.current=false;setBox(null);setPoint({x:.5,y:.43});setTracking("align");
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);tracker.current=null;misses.current=0;trackedFrames.current=0;hadAttachment.current=false;
+  setBox(null);setFallbackPoint(null);setSuggestedBox(null);setAttachmentMode("none");setPoint({x:.5,y:.43});setTracking("align");
   if(!id){locked.current=paused;stable.current={id:"",hits:0};setHint("");return}
   locked.current=true;
   // Auto-locate the centered object on wake; users can tap if it's off-center.
@@ -106,7 +110,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  useEffect(()=>{
   if(!activeSoul?.id||!ready)return;
   const interval=window.setInterval(()=>{
-   if(document.hidden||!tracker.current)return;
+   if(document.hidden||!tracker.current||!hadAttachment.current)return;
    const frame=trackCanvas();
    if(!frame)return;
    const next=trackMultiFrame(frame,tracker.current);
@@ -147,17 +151,17 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
  function locateAt(at:{x:number;y:number}){
   if(locating.current||!activeRef.current)return;
   const frame=trackCanvas();if(!frame)return;
-  const fallback=initMultiTracker(frame,at);
-  tracker.current=fallback;misses.current=0;setBox(null);setPoint(at);setTracking("align");
+  tracker.current=null;misses.current=0;setBox(null);setPoint(at);setTracking("align");setAttachmentMode("none");
+  setFallbackPoint(at);setSuggestedBox(null);
   const owner=activeRef.current,epoch=++captureEpoch.current;
   let picture="";
   try{picture=captureVisible()}catch{return}
   locating.current=true;setLocatingRegion(true);setError("");
   void locateSoulRegion(picture,at).then(async result=>{
    if(activeRef.current!==owner||captureEpoch.current!==epoch)return;
-   const latest=trackCanvas(),tracked=tracker.current;
-   if(!latest)return;
-   const shiftX=tracked?tracked.point.x-at.x:0,shiftY=tracked?tracked.point.y-at.y:0;
+   const latest=trackCanvas();if(!latest)return;
+   // A slow model load is not evidence of pixel motion.
+   const shiftX=0,shiftY=0;
    if(Math.abs(shiftX)>.22||Math.abs(shiftY)>.22){
     setError(en?"Object moved too far. Tap it again.":"物品移動太遠，請重新點選物品。");return;
    }
@@ -171,10 +175,13 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    }));
    const regionTracker=initRegionTracker(latest,shifted,face,foreground);
    if(!regionTracker){
-    setError(en?"Object is too plain to track. Tap a patterned area.":"物品紋理不足，請點選有圖案的部位。");return;
+    setSuggestedBox(shifted);
+    setError(en?"Outline found but the object is too plain to track. Use Simple placement below.":"輪廓已找到，但物品缺少可追蹤的花紋。可用下方「簡易貼附」。");
+    return;
    }
    tracker.current=regionTracker;misses.current=0;setPoint(regionTracker.point);
-   setBox(shifted);setTracking("following");setError("");
+   setBox(shifted);setTracking("following");setError("");setAttachmentMode("segmented");
+   setFallbackPoint(null);setSuggestedBox(null);
    hadAttachment.current=true;callbacks.current.onAttached?.();
    if(callbacks.current.onRegionCrop){
     const bytes=await (await fetch(result.crop)).blob();
