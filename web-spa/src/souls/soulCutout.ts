@@ -1,7 +1,7 @@
 /** On-demand local object segmentation. Never needed for recognition or chat. */
 const TASKS="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/vision_bundle.mjs";
 const WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm";
-const MODEL="https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/latest/interactive_segmentation.task";
+const MODEL="https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task";
 type SegmentationModel={
  setImage:(source:HTMLImageElement)=>void;
  segment:(strokes:Array<{brushMode:unknown;point:Array<{x:number;y:number}>;isCompleted:boolean}>)=>{width:number;height:number;getAsFloat32Array:()=>Float32Array;close?:()=>void};
