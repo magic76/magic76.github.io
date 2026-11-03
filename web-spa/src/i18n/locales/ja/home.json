@@ -82,7 +82,7 @@
         "accent": "先へ。",
         "after": "",
         "description": "言葉を探すところから、自然に話せるようになるまで。\nAI のパートナーと新しい言語を練習しよう。",
-        "cta": "声を見つけよう"
+        "cta": "今日の会話レッスンを始める"
       },
       "fortune": {
         "lead": "見方を変えれば、",
@@ -90,7 +90,7 @@
         "accent": "ささやく。",
         "after": "",
         "description": "ひと息ついて、今日を少し違う角度から。\nAI の仲間と今日の運勢をのぞいてみよう。",
-        "cta": "今日の運勢を見る"
+        "cta": "誕生日を入力してライフパスナンバーを見る"
       },
       "play": {
         "lead": "次の一手は？",
@@ -98,7 +98,7 @@
         "accent": "当てさせて。",
         "after": "",
         "description": "数字を選んで、挑戦してみよう。\nやり取りから楽しさが広がる。",
-        "cta": "1A2B で遊ぶ"
+        "cta": "1A2Bをすぐにプレイ"
       }
     },
     "bridge": "この世界では、小さな物語が生まれています",
@@ -112,6 +112,17 @@
     "chatSubtitle": "登録不要。今すぐ5分間無料で会話できます。",
     "chatStart": "無料で会話を始める",
     "chatWithZoe": "Zoe と話す",
+    "chatNeutral": "Zoeと会話を始める",
+    "chatTrial": "Zoeと無料で5分話す",
+    "teacherTrial": "5分間の無料スピーキングレッスン",
+    "preparing": "準備中…",
+    "chatTrialWith": "{{name}} と5分間無料でおしゃべり",
+    "chatNeutralWith": "{{name}} と会話を始める",
+    "chatWithFriend": "{{name}} と話す",
+    "shortsFallback": "この写真について聞いてみる",
+    "game1a2b": "すぐに1A2Bを遊ぶ",
+    "gameConnect4": "四目並べを遊ぶ",
+    "gameReversi": "リバーシを遊ぶ",
     "chatExhausted": "無料のキーを設定して続ける",
     "quickPicks": "または友だちを選ぶ",
     "noVoice": "声を出さずに？1A2B を遊ぼう",

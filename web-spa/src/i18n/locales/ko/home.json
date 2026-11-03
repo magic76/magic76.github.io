@@ -82,7 +82,7 @@
         "accent": "더 멀리.",
         "after": "",
         "description": "할 말을 찾는 순간부터 자연스럽게 말하기까지.\nAI 파트너와 새로운 언어를 연습하세요.",
-        "cta": "내 목소리 찾기"
+        "cta": "오늘의 회화 수업 시작하기"
       },
       "fortune": {
         "lead": "다른 각도에서 보면,",
@@ -90,7 +90,7 @@
         "accent": "속삭여요.",
         "after": "",
         "description": "잠깐 쉬며 오늘을 새로운 시선으로 바라봐요.\nAI 친구와 오늘의 운세를 살펴보세요.",
-        "cta": "오늘의 운세 보기"
+        "cta": "생일을 입력하고 인생 수 알아보기"
       },
       "play": {
         "lead": "다음 수는 뭘까요?",
@@ -98,7 +98,7 @@
         "accent": "맞혀볼게요.",
         "after": "",
         "description": "숫자를 고르고 도전해 보세요.\n주고받는 한마디가 즐거움이 됩니다.",
-        "cta": "1A2B 한 판 하기"
+        "cta": "1A2B 한 판 바로 시작하기"
       }
     },
     "bridge": "이 세계에서는 작은 이야기들이 펼쳐져요",
@@ -112,6 +112,17 @@
     "chatSubtitle": "가입 없이 지금 5분간 무료로 대화하세요.",
     "chatStart": "무료 채팅 시작",
     "chatWithZoe": "Zoe와 대화",
+    "chatNeutral": "Zoe와 대화 시작하기",
+    "chatTrial": "Zoe와 5분 무료로 대화하기",
+    "teacherTrial": "5분 무료 회화 수업 받기",
+    "preparing": "준비 중…",
+    "chatTrialWith": "{{name}}와 5분 무료 대화하기",
+    "chatNeutralWith": "{{name}}와 대화 시작하기",
+    "chatWithFriend": "{{name}}와 대화하기",
+    "shortsFallback": "이 사진에 대해 물어보기",
+    "game1a2b": "바로 1A2B 시작하기",
+    "gameConnect4": "사목 놓기 시작하기",
+    "gameReversi": "리버시 시작하기",
     "chatExhausted": "무료 키를 설정하고 계속 대화",
     "quickPicks": "또는 친구 선택",
     "noVoice": "말하기 싫다면? 1A2B 플레이",

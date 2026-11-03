@@ -7,7 +7,7 @@ import {shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSo
 import "./homeShorts.css";
 
 /** Lightweight homepage preview: photo content stays in the network feed, not the JS bundle. */
-export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[]}:{maxPosts?:number;excludeFriendIds?:string[]}={}){
+export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[],sharedFeed,sharedStatus}:{maxPosts?:number;excludeFriendIds?:string[];sharedFeed?:ShortFeed|null;sharedStatus?:"loading"|"ready"|"error"}={}){
  const {t,i18n}=useTranslation("teacher");
  const en=i18n.language.startsWith("en");
  const navigate=useNavigate();
@@ -41,11 +41,14 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[]}:{maxPosts?:nu
   gesture.current=null;pullRef.current=0;setPullDistance(0);
   if(open)navigate("/teacher/shorts");
  };
- const [feed,setFeed]=useState<ShortFeed|null>(null);
+ const [ownFeed,setFeed]=useState<ShortFeed|null>(null);
+ const feed=sharedStatus===undefined?ownFeed:sharedFeed;
  const sectionRef=useRef<HTMLElement|null>(null);
  const impressionSent=useRef(false);
- const [status,setStatus]=useState<"loading"|"ready"|"error">("loading");
+ const [ownStatus,setStatus]=useState<"loading"|"ready"|"error">("loading");
+ const status=sharedStatus??ownStatus;
  useEffect(()=>{
+  if(sharedStatus!==undefined)return; // HomePage owns the single network request.
   const controller=new AbortController();
   fetchShortsFeed(controller.signal)
    .then(value=>{if(!controller.signal.aborted){
@@ -54,7 +57,7 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[]}:{maxPosts?:nu
    }})
    .catch(()=>{if(!controller.signal.aborted)setStatus("error");});
   return()=>controller.abort();
- },[]);
+ },[sharedStatus]);
  // Show up to ten distinct friends; the full Shorts page owns the complete feed.
  const seen=new Set<string>();
  const posts=feed?.posts.filter(post=>{

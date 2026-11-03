@@ -8,10 +8,11 @@ test("Home tabs retain one SSR-safe, honest chat CTA and trial gates",()=>{
  assert.equal((portal.match(/className="crew-portal-cta"/g)||[]).length,1);
  assert.match(portal,/const hasKey=ready&&Boolean\(geminiKey\(\)\)/);
  assert.match(portal,/const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0/);
- assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":ZOE/);
- assert.match(portal,/const cta=hasKey\?"world.chatWithZoe":exhausted\?"world.chatExhausted":"world.chatStart"/);
- assert.match(portal,/to=\{mode==="chat"\?destination:current\.to\}/);
- for(const target of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'));
+ assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
+ assert.match(portal,/const trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0/);
+ assert.match(portal,/const cta=hasKey\?"world.chatWithFriend":exhausted\?"world.chatExhausted":trialAvailable\?"world.chatTrialWith":"world.chatNeutralWith"/);
+ assert.match(portal,/to=\{target\}/);
+ for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'));
  assert.doesNotMatch(portal,/setTeacherProfile|teacherStore|crew-portal-picks|crew-portal-game-link/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
  assert.doesNotMatch(portal,/crew-portal-trial-chip|guest_trial_start_click|crew-portal-motion/);

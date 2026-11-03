@@ -82,7 +82,7 @@
         "accent": "Lebih jauh.",
         "after": "",
         "description": "Dari mencari kata hingga berbicara lancar.\nLatih bahasa baru bersama teman AI.",
-        "cta": "Temukan suaramu"
+        "cta": "Mulai latihan bicara hari ini"
       },
       "fortune": {
         "lead": "Lihat dari sisi lain.",
@@ -90,7 +90,7 @@
         "accent": "Bintang.",
         "after": "",
         "description": "Sedikit rasa ingin tahu, sudut pandang baru untuk harimu.\nJelajahi ramalan hari ini bersama teman AI.",
-        "cta": "Lihat ramalan hari ini"
+        "cta": "Masukkan tanggal lahir untuk melihat angka jalan hidup"
       },
       "play": {
         "lead": "Langkah berikutnya?",
@@ -98,7 +98,7 @@
         "accent": "Menebak.",
         "after": "",
         "description": "Pilih angka. Terima tantangan.\nPercakapan singkat bisa jadi menyenangkan.",
-        "cta": "Main satu ronde 1A2B"
+        "cta": "Langsung main satu ronde 1A2B"
       }
     },
     "bridge": "Kisah-kisah kecil bermula di sini",
@@ -112,6 +112,17 @@
     "chatSubtitle": "Tanpa daftar. Ngobrol gratis selama 5 menit sekarang.",
     "chatStart": "Mulai ngobrol gratis",
     "chatWithZoe": "Ngobrol dengan Zoe",
+    "chatNeutral": "Mulai mengobrol dengan Zoe",
+    "chatTrial": "Ngobrol gratis 5 menit dengan Zoe",
+    "teacherTrial": "Latihan bicara gratis 5 menit",
+    "preparing": "Menyiapkan…",
+    "chatTrialWith": "Ngobrol gratis 5 menit dengan {{name}}",
+    "chatNeutralWith": "Mulai mengobrol dengan {{name}}",
+    "chatWithFriend": "Ngobrol dengan {{name}}",
+    "shortsFallback": "Tanyakan tentang foto ini",
+    "game1a2b": "Langsung main 1A2B",
+    "gameConnect4": "Main Connect Four",
+    "gameReversi": "Main Reversi",
     "chatExhausted": "Atur kunci gratis untuk lanjut ngobrol",
     "quickPicks": "Atau pilih teman",
     "noVoice": "Tak ingin bicara? Main 1A2B",
