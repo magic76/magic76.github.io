@@ -2,9 +2,9 @@ import {useEffect,useRef,useState} from "react";
 import {Link,useSearchParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import "./shorts.css";
-import {fetchShortsFeed,fetchShortsPage,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
+import {fetchShortsFeed,fetchShortsPage,fetchShortsPost,shuffleShortsPosts,type ShortFeed} from "./shortsFeed";
 import {trackUsageEvent} from "../analytics/usage";
-import {SHORTS_HOOKS,shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
+import {SHORTS_HOOKS,shortsPhotoQuestions,shortsChatUrl,shortsStoryEpisodes,shortsStoryFollowUps} from "./shortsSocial";
 
 const LIKE_KEY="crew_shorts_demo_likes_v1";
 const PAGE_SIZE=6;
@@ -15,6 +15,26 @@ export function ShortsPage(){
  const {t}=useTranslation("home");
  const [searchParams]=useSearchParams();
  const focusPostId=searchParams.get("post");
+ // CSS scroll snap on the root can auto-jump to the first photo at hydration.
+ // Arm it only after a real scroll gesture; direct feed visits keep the hero visible.
+ const [scrollSnapReady,setScrollSnapReady]=useState(false);
+ useEffect(()=>{
+  if(focusPostId)return;
+  const arm=()=>setScrollSnapReady(true);
+  window.addEventListener("touchmove",arm,{passive:true,once:true});
+  window.addEventListener("wheel",arm,{passive:true,once:true});
+  return()=>{window.removeEventListener("touchmove",arm);window.removeEventListener("wheel",arm)};
+ },[focusPostId]);
+ // Respect the actual sticky-header height even if its layout changes across locales.
+ useEffect(()=>{
+  const update=()=>{
+   const header=document.querySelector<HTMLElement>(".app-header");
+   const height=Math.ceil(header?.getBoundingClientRect().height||0);
+   document.documentElement.style.setProperty("--crew-shorts-header-offset",height+"px");
+  };
+  update();window.addEventListener("resize",update);
+  return()=>{window.removeEventListener("resize",update);document.documentElement.style.removeProperty("--crew-shorts-header-offset")};
+ },[]);
 
  const [feed,setFeed]=useState<ShortFeed|null>(null);
  const [busy,setBusy]=useState(true);
@@ -40,7 +60,15 @@ export function ShortsPage(){
   const abort=new AbortController();
   setBusy(true);setError(false);
   fetchShortsFeed(abort.signal)
-   .then(data=>{if(!abort.signal.aborted){const ordered=shuffleShortsPosts(data.posts);
+   .then(async data=>{if(!abort.signal.aborted){const ordered=shuffleShortsPosts(data.posts);
+    // Deep links can refer to a later archive page, not just the first 50 entries.
+    if(focusPostId&&!ordered.some(post=>post.id===focusPostId)){
+     const friendId=focusPostId.split("-")[0];
+     try{const focused=await fetchShortsPost(focusPostId,friendId,abort.signal);
+      if(focused)ordered.unshift(focused);
+     }catch{/* Keep the first-page feed usable when a deep link is unavailable. */}
+    }
+    if(abort.signal.aborted)return;
     // Home photo opens its full approved story. Never interpret URL data as a story.
     if(focusPostId){const at=ordered.findIndex(post=>post.id===focusPostId);
      if(at>0)ordered.unshift(...ordered.splice(at,1));}
@@ -48,6 +76,14 @@ export function ShortsPage(){
    .catch(()=>{if(!abort.signal.aborted){setBusy(false);setError(true)}});
   return()=>abort.abort();
  },[retry,focusPostId]);
+ // On returning from a call, restore the approved post instead of the shuffled top.
+ useEffect(()=>{
+  if(!focusPostId||!feed?.posts.some(post=>post.id===focusPostId)||busy)return;
+  const frame=window.requestAnimationFrame(()=>{
+   document.getElementById("crew-short-"+focusPostId)?.scrollIntoView({block:"start",behavior:"instant"});
+  });
+  return()=>window.cancelAnimationFrame(frame);
+ },[feed,focusPostId,busy]);
  // Reveal the next batch before the reader reaches the bottom. Fallback stays accessible
  // when IntersectionObserver is unavailable; the same visit never reshuffles on scroll.
  useEffect(()=>{
@@ -104,46 +140,51 @@ export function ShortsPage(){
  const posts=feed?.posts||[];
  const followUps=shortsStoryFollowUps(posts);
  const chatClick=(detail:"shorts_feed")=>trackUsageEvent("shorts_chat_click",detail);
- return <div className="crew-shorts-page">
+ return <div className="crew-shorts-page" data-scroll-snap={focusPostId||scrollSnapReady?"ready":"off"}>
   <header className="hero crew-shorts-hero"><span className="kicker">{feed?.source==="seed"||feed?.source==="daily"?"CREW SHORTS":"CREW SHORTS · DEMO"}</span>
    <h1>{t("shorts.heading")}</h1>
    <p>{t("shorts.intro")}</p>
   </header>
-  <section className="section"><div className="crew-shorts-note" role="note">
-   {feed?.source==="seed"||feed?.source==="daily"
-    ?t("shorts.noteDaily")
-    :t("shorts.noteDemo")}
-  </div></section>
   {busy?<p className="spa-loading" role="status">{t("shorts.loading")}</p>:null}
   {error?<section className="section crew-shorts-error" role="alert"><p>{t("shorts.feedError")}</p>
    <button type="button" onClick={()=>setRetry(x=>x+1)}>{t("shorts.retry")}</button></section>:null}
   {posts.length>0?<section className="section" aria-label="Crew Shorts">
    <div className="section-head"><h2>{t("shorts.moments")}</h2><small>{feed?.total??posts.length} {t("shorts.stories")} · {feed?.source==="demo"?t("shorts.demoLabel"):posts[0]?.language?.toUpperCase()}</small></div>
-   {followUps.length?<aside className="crew-shorts-followups" aria-label={t("shorts.updates")}>
-    <div><strong>{t("shorts.updatesHeading")}</strong>
-     <p>{t("shorts.updatesIntro")}</p></div>
-    <div className="crew-shorts-followup-links">{followUps.map(({post})=>
-     <Link key={post.id} to={shortsChatUrl(post,"next")} onClick={()=>{
-      trackUsageEvent("shorts_story_followup","shorts_feed");chatClick("shorts_feed");
-     }}>{t("shorts.followUp",{name:post.friendName})} <span aria-hidden="true">→</span></Link>)}</div>
-   </aside>:null}
    <div className="crew-shorts-grid">{posts.slice(0,count).map((post,index)=>{
     const episodes=shortsStoryEpisodes(post,posts);
     const chapter=episodes.findIndex(item=>item.id===post.id);
     const previous=chapter>0?episodes[chapter-1]:null;
-    return <article className="crew-short-card" key={post.id}>
-     <Link className="crew-short-image" to={shortsChatUrl(post,"details")}
-      aria-label={t("shorts.ask",{name:post.friendName})}
-      onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
-      <img src={post.image} alt={post.imageAlt} loading={index>1?"lazy":"eager"} decoding="async"
-       onError={event=>{
-        const node=event.currentTarget;
-        if(node.dataset.fallback)return;
-        node.dataset.fallback="1";
-        node.src="/assets/friends/crew_friend_"+post.friendId+".webp";
-       }}/>
-      <span className="crew-short-image-label">{post.friendName}</span>
-     </Link>
+    const questions=shortsPhotoQuestions(post,(key,detail)=>t("shorts."+key,{detail}));
+    return <article className="crew-short-card" id={"crew-short-"+post.id} key={post.id}>
+     <div className="crew-short-media">
+      <Link className="crew-short-image" to={shortsChatUrl(post,undefined,0)}
+       aria-label={t("shorts.chatThis",{name:post.friendName})}
+       onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
+       <img src={post.image} alt={post.imageAlt} loading={index>1?"lazy":"eager"} decoding="async"
+        onError={event=>{
+         const node=event.currentTarget;
+         if(node.dataset.fallback)return;
+         node.dataset.fallback="1";
+         node.src="/assets/friends/crew_friend_"+post.friendId+".webp";
+        }}/>
+       <span className="crew-short-photo-bottom">
+        <span className="crew-short-friend"><img src={"/assets/friends/crew_friend_"+post.friendId+".webp"} alt="" loading="lazy"/><strong>{post.friendName}</strong></span>
+        <span className="crew-short-primary-cta">{t("shorts.chatThis",{name:post.friendName})} <span aria-hidden="true">↗</span></span>
+       </span>
+      </Link>
+      <div className="crew-short-actions">
+       <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")}
+        aria-label={t("shorts.like")} title={t("shorts.like")}
+        aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
+        <span className="crew-short-like-heart" aria-hidden="true">{likes.includes(post.id)?"♥":"♡"}</span>
+       </button>
+       {post.translationZh?<button type="button" className="crew-short-translate" onClick={()=>setTranslated(x=>x===post.id?null:post.id)}
+        aria-label={t("shorts.translation")} title={t("shorts.translation")}
+        aria-expanded={translated===post.id}>
+        <span aria-hidden="true">文</span>
+       </button>:null}
+      </div>
+     </div>
      <div className="crew-short-body">
       <div className="crew-short-meta"><strong>{post.friendName}</strong><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
@@ -153,20 +194,25 @@ export function ShortsPage(){
       </details>:null}
       <div className="crew-short-chat-prompts" aria-label={t("shorts.startConversation")}>
        <small>{t("shorts.curious",{name:post.friendName})}</small>
-       <div>{SHORTS_HOOKS.map(hook=><Link key={hook} to={shortsChatUrl(post,hook)}
+       <div>{questions.length?questions.map(question=><Link key={question.index} to={shortsChatUrl(post,undefined,question.index)}
+        onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
+        {question.label} <span aria-hidden="true">↗</span>
+       </Link>):SHORTS_HOOKS.map(hook=><Link key={hook} to={shortsChatUrl(post,hook)}
         onClick={()=>{trackUsageEvent("shorts_hook_click","shorts_feed");chatClick("shorts_feed")}}>
         {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <span aria-hidden="true">↗</span>
        </Link>)}</div>
       </div>
-      {post.translationZh&&translated===post.id?<p className="crew-short-translation" lang="zh-Hant">{post.translationZh}</p>:null}
-      <div className="crew-short-actions">
-       <button type="button" className={"crew-short-like"+(celebratingLike===post.id?" is-celebrating":"")} aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
-        <span className="crew-short-like-heart" aria-hidden="true">{likes.includes(post.id)?"♥":"♡"}</span> {t("shorts.like")}
-       </button>
-       {post.translationZh?<button type="button" onClick={()=>setTranslated(x=>x===post.id?null:post.id)} aria-expanded={translated===post.id}>{t("shorts.translation")}</button>:null}
-      </div>
+      {post.translationZh&&translated===post.id?<p id={"crew-short-translation-"+post.id} className="crew-short-translation" lang="zh-Hant">{post.translationZh}</p>:null}
      </div>
     </article>})}</div>
+   {followUps.length?<aside className="crew-shorts-followups" aria-label={t("shorts.updates")}>
+    <div><strong>{t("shorts.updatesHeading")}</strong>
+     <p>{t("shorts.updatesIntro")}</p></div>
+    <div className="crew-shorts-followup-links">{followUps.map(({post})=>
+     <Link key={post.id} to={shortsChatUrl(post,"next")} onClick={()=>{
+      trackUsageEvent("shorts_story_followup","shorts_feed");chatClick("shorts_feed");
+     }}>{t("shorts.followUp",{name:post.friendName})} <span aria-hidden="true">→</span></Link>)}</div>
+   </aside>:null}
    {(count<posts.length||Boolean(feed?.nextPage))?<div ref={loadMoreRef} className="crew-shorts-more-wrap">
     {typeof IntersectionObserver==="undefined"
      ?<button type="button" className="crew-shorts-more" disabled={loadingMore}
@@ -181,5 +227,10 @@ export function ShortsPage(){
      </button>:null}
    </div>:null}
   </section>:null}
+  <section className="section"><div className="crew-shorts-note" role="note">
+   {feed?.source==="seed"||feed?.source==="daily"
+    ?t("shorts.noteDaily")
+    :t("shorts.noteDemo")}
+  </div></section>
  </div>;
 }

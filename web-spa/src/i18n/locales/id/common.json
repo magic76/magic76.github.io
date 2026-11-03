@@ -133,5 +133,11 @@
     "learningSettings": "Pengaturan belajar",
     "dataSettings": "Memori & data",
     "deviceSettings": "Perangkat & izin"
+  },
+  "chrome": {
+    "shortsSection": "Obrolan",
+    "shortsTitle": "Momen teman",
+    "timelineSection": "Jelajahi",
+    "timelineTitle": "Linimasa kehidupan"
   }
 }

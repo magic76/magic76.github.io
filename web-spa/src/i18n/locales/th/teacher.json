@@ -45,7 +45,8 @@
     "shortsLoading": "กำลังโหลดเรื่องราว…",
     "shortsUnavailable": "เรื่องราวไม่พร้อมใช้งาน เปิด Crew Shorts แล้วลองอีกครั้ง",
     "shortsDisclosure": "เรื่องราวสมมติที่สร้างโดย Crew",
-    "shortsDemo": "เนื้อหาตัวอย่าง"
+    "shortsDemo": "เนื้อหาตัวอย่าง",
+    "shortsChatThis": "คุยเรื่องรูปนี้กับ {{name}}"
   },
   "learn": {
     "threeMinute": "ฝึกพูด 3 นาที",

@@ -317,7 +317,43 @@
     "retryMore": "Tải lại chuyện",
     "hooksDetails": "Kể thêm đi",
     "hooksFeelings": "Bạn cảm thấy thế nào?",
-    "hooksNext": "Sau đó thế nào?"
+    "hooksNext": "Sau đó thế nào?",
+    "chatThis": "Trò chuyện về ảnh này với {{name}}",
+    "startVoiceHint": "Nhấn Bắt đầu để gọi. {{name}} sẽ nói trước về bức ảnh này.",
+    "photoTopics": {
+      "repair": {
+        "first": "Bạn phát hiện vấn đề thế nào?",
+        "second": "Cuối cùng sửa được chứ?"
+      },
+      "home": {
+        "first": "Sao bạn nghĩ ra cách đó?",
+        "second": "Thay đổi có hiệu quả không?"
+      },
+      "craft": {
+        "first": "Làm có khó không?",
+        "second": "Bước nào khó nhất?"
+      },
+      "food": {
+        "first": "Hương vị thế nào?",
+        "second": "Bạn muốn thử lần nữa không?"
+      },
+      "travel": {
+        "first": "Trên đường có gì bất ngờ?",
+        "second": "Chuyến đi sau đó ổn chứ?"
+      },
+      "sport": {
+        "first": "Buổi tập thế nào?",
+        "second": "Động tác nào khó nhất?"
+      },
+      "nature": {
+        "first": "Sao bạn nhận ra điều đó?",
+        "second": "Lúc ấy bạn thấy thế nào?"
+      },
+      "find": {
+        "first": "Cuối cùng tìm thấy ở đâu?",
+        "second": "Lúc tìm có lo không?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "Khám phá",

@@ -133,5 +133,11 @@
     "learningSettings": "การตั้งค่าการเรียนรู้",
     "dataSettings": "ความจำและข้อมูล",
     "deviceSettings": "อุปกรณ์และสิทธิ์"
+  },
+  "chrome": {
+    "shortsSection": "แชต",
+    "shortsTitle": "เรื่องราวของเพื่อน",
+    "timelineSection": "สำรวจ",
+    "timelineTitle": "ไทม์แมชชีนชีวิต"
   }
 }

@@ -317,7 +317,43 @@
     "retryMore": "読み込みを再試行",
     "hooksDetails": "詳しく教えて",
     "hooksFeelings": "どんな気持ち？",
-    "hooksNext": "その後どうなった？"
+    "hooksNext": "その後どうなった？",
+    "chatThis": "{{name}} とこの写真について話す",
+    "startVoiceHint": "開始をタップすると、{{name}} がこの写真について先に話し始めます。",
+    "photoTopics": {
+      "repair": {
+        "first": "どうやって原因を見つけたの？",
+        "second": "最後は直せた？"
+      },
+      "home": {
+        "first": "そのアイデアはどこから？",
+        "second": "変えてよくなった？"
+      },
+      "craft": {
+        "first": "作るのは難しかった？",
+        "second": "一番大変だったのは？"
+      },
+      "food": {
+        "first": "味はどうだった？",
+        "second": "また作ってみたい？"
+      },
+      "travel": {
+        "first": "道中で驚いたことは？",
+        "second": "その後の旅は順調だった？"
+      },
+      "sport": {
+        "first": "練習はどうだった？",
+        "second": "一番難しい動きは？"
+      },
+      "nature": {
+        "first": "どうやって気づいたの？",
+        "second": "その時どんな気持ちだった？"
+      },
+      "find": {
+        "first": "どこで見つけたの？",
+        "second": "探している間は焦った？"
+      }
+    }
   },
   "sectionExplore": {
     "title": "探索する",

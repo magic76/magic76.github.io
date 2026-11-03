@@ -317,7 +317,43 @@
     "retryMore": "Coba muat lagi",
     "hooksDetails": "Ceritakan lebih lanjut",
     "hooksFeelings": "Bagaimana perasaanmu?",
-    "hooksNext": "Apa yang terjadi selanjutnya?"
+    "hooksNext": "Apa yang terjadi selanjutnya?",
+    "chatThis": "Ngobrol soal foto ini dengan {{name}}",
+    "startVoiceHint": "Ketuk Mulai untuk menelepon. {{name}} akan berbicara lebih dulu tentang foto ini.",
+    "photoTopics": {
+      "repair": {
+        "first": "Bagaimana kamu menemukan masalahnya?",
+        "second": "Akhirnya berhasil diperbaiki?"
+      },
+      "home": {
+        "first": "Dari mana idenya?",
+        "second": "Perubahannya membantu?"
+      },
+      "craft": {
+        "first": "Sulit membuatnya?",
+        "second": "Bagian tersulitnya apa?"
+      },
+      "food": {
+        "first": "Bagaimana rasanya?",
+        "second": "Mau coba lagi?"
+      },
+      "travel": {
+        "first": "Ada kejutan di perjalanan?",
+        "second": "Bagaimana akhir perjalanannya?"
+      },
+      "sport": {
+        "first": "Bagaimana latihannya?",
+        "second": "Gerakan mana yang paling sulit?"
+      },
+      "nature": {
+        "first": "Bagaimana kamu menyadarinya?",
+        "second": "Bagaimana perasaanmu saat itu?"
+      },
+      "find": {
+        "first": "Ketemu di mana?",
+        "second": "Sempat khawatir?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "Jelajahi",

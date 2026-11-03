@@ -133,5 +133,11 @@
     "learningSettings": "학습 설정",
     "dataSettings": "기억 및 데이터",
     "deviceSettings": "기기 및 권한"
+  },
+  "chrome": {
+    "shortsSection": "채팅",
+    "shortsTitle": "친구들의 소식",
+    "timelineSection": "탐색",
+    "timelineTitle": "인생 타임머신"
   }
 }

@@ -19,6 +19,10 @@ const meta={
 export function AppChrome({product,children,headerAction}:{product:Product;children?:React.ReactNode;headerAction?:React.ReactNode}){
  const {t,i18n}=useTranslation("common");
  const m=meta[product],location=useLocation();
+ const headerContext=location.pathname==="/teacher/shorts"||location.pathname==="/teacher/shorts/"
+  ?[t("chrome.shortsSection"),t("chrome.shortsTitle")]
+  :location.pathname==="/timeline"||location.pathname.startsWith("/timeline/")
+  ?[t("chrome.timelineSection"),t("chrome.timelineTitle")]:null;
  // Apply the theme class before first paint so themed chrome (e.g. the role switcher) does not shift layout.
  useLayoutEffect(()=>{document.body.className=product==="teacher"?"teacher-theme":product==="story"?"story-theme":product==="fortune"?"fortune-theme":""},[product]);
  useEffect(()=>{
@@ -27,7 +31,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{m[1]}</strong><small>{t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
+  <header className="app-header"><div className="shell inner"><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{headerContext?.[0]||m[1]}</strong><small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>

@@ -133,5 +133,11 @@
     "learningSettings": "学習設定",
     "dataSettings": "記憶とデータ",
     "deviceSettings": "端末と権限"
+  },
+  "chrome": {
+    "shortsSection": "チャット",
+    "shortsTitle": "友だちの近況",
+    "timelineSection": "探索",
+    "timelineTitle": "人生タイムマシン"
   }
 }

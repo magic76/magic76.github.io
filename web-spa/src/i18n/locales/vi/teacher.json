@@ -45,7 +45,8 @@
     "shortsLoading": "Đang tải câu chuyện…",
     "shortsUnavailable": "Không thể xem câu chuyện. Mở Crew Shorts rồi thử lại.",
     "shortsDisclosure": "Các câu chuyện hư cấu do Crew tạo.",
-    "shortsDemo": "Nội dung xem trước"
+    "shortsDemo": "Nội dung xem trước",
+    "shortsChatThis": "Trò chuyện về ảnh này với {{name}}"
   },
   "learn": {
     "threeMinute": "Luyện nói 3 phút",

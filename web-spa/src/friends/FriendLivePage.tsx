@@ -22,7 +22,7 @@ import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./f
 import {hasMeaningfulLearnerSpeech} from "../teacher/studentMemory";
 import {conversationIntent,conversationOpening} from "../teacher/conversationIntent";
 import {fetchShortsPost,buildShortsFriendContext,type ShortPost} from "../teacher/shortsFeed";
-import {isShortsHook,shortsHookLabel,shortsOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
+import {isShortsHook,shortsHookLabel,shortsOpeningHint,shortsSelectedQuestion,shortsQuestionOpeningHint,rememberShortsConversation} from "../teacher/shortsSocial";
 import "./friends.css";
 
 /**
@@ -59,6 +59,9 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
  const urlHook=params.get("hook");
  const shortsHook=shortsPost&&isShortsHook(urlHook)?urlHook:null;
+ const selectedQuestion=shortsPost?shortsSelectedQuestion(shortsPost,params.get("q"),
+  (key,detail)=>t("home:shorts."+key,{detail})):"";
+ const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
  const [friendChatMode,setActiveFriendChatMode]=useState<FriendChatLanguageMode>(()=>{const saved=useTeacherStore.getState().friendChatMode;return intent==="speak"&&saved==="natural"?"bilingual":saved});
@@ -72,7 +75,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   pageKey:"friend-"+sessionId,title:"Crew 朋友 · "+friend.name,
   system:system+(!shortsPost?"\n[CURRENT FACTS] Never claim to have live search in this audio session. Only discuss recent facts when verified context has been supplied. If none is supplied, say you cannot confirm the latest news. Stay a natural friend, not a tutor.":""),languageDirective,
   openingPrompt:languageDirective+"\n"+(shortsPost
-   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)
+   ?"[FRIEND POST REACTION] You are continuing your own Crew Shorts fictional photo story. Start with a short, casual comment about the caption from the post context (not a generic greeting). Don't say you saw a real-world photo or claim this happened to the learner. Use one language per reply."+shortsOpeningHint(shortsHook)+shortsQuestionOpeningHint(selectedQuestion)
    :"[FRIEND CONVERSATION] Begin the conversation as "+friend.name+
     " with one easy conversational observation that suits your personality. A question is optional; do not interview, teach or lecture. Use just one language throughout this reply.\n"+(lifeOpening||conversationOpening(intent,"friend"))+"\n"+conversationOpening(intent,"friend"))+"\n"+languageDirective,
   voice:normalizeLiveVoice(friend.voice),language,nativeLanguage,teacherReport:false,
@@ -104,11 +107,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;
-  try{await live.stop(true)}finally{navigate(shortsPost?"/teacher/shorts":intent==="speak"?"/learn":"/teacher/roles?mode=friends")}
+  try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
  };
  useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
- useEffect(()=>{if(textMode||!geminiKey())return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode]);
+ useEffect(()=>{if(textMode||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const needsKey=live.state==="error"&&live.errorKind==="key";
@@ -130,9 +133,17 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const alternateParams=new URLSearchParams(params);
  if(textMode)alternateParams.delete("chat");else alternateParams.set("chat","text");
  const alternateHref="/friend/live?"+alternateParams.toString();
+ // A Shorts referral puts the only required second gesture before optional mode
+ // choices. The original guest-trial gate remains responsible for eligibility.
+ const voiceStart=<>
+  {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+   :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
+   :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}><LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/></div>}
+ </>;
  return <>
   <header className="app-header"><div className="shell inner">
-   <div className="app-brand"><Link className="back-btn" to={shortsPost?"/teacher/shorts":intent==="speak"?"/learn":"/teacher/roles?mode=friends"} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
+   <div className="app-brand"><Link className="back-btn" to={shortsReturnTo||(intent==="speak"?"/learn":"/teacher/roles?mode=friends")} onClick={e=>{e.preventDefault();void endAndReturn()}} aria-label={t("friendLive.backAria")}>‹</Link>
     <div className="app-title"><strong>{friend.name}</strong><small>{t("friendLive.brand",{language:t("languages."+language,{defaultValue:language})})}</small></div>
    </div>
    <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
@@ -147,9 +158,11 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
       <img src={shortsPost.image} alt={shortsPost.imageAlt} loading="lazy" decoding="async"/>
       <div><small>CREW SHORTS · {shortsPost.publishedAt.slice(0,10)}</small>
        <p lang={shortsPost.language}>{shortsPost.caption}</p>
-       {shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
+       {selectedQuestion?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{selectedQuestion}</small>
+        :shortsHook?<small className="friend-live-post-hook">{t("friendLive.hookPrefix")}{shortsHookLabel(shortsHook,english)}</small>:null}</div>
      </section>:null}
     {postUnavailable?<p className="friend-live-post-unavailable" role="status">{t("friendLive.postUnavailable")}</p>:null}
+    {shortsPost&&!textMode?<div className="friend-shorts-first-action" aria-label={t("friendLive.stageAria",{name:friend.name})}>{voiceStart}</div>:null}
     <div className="friend-language-switch" role="group" aria-label={t("chatModeTitle")}>
      <span className="friend-language-switch-title">{t("chatModeTitle")}</span>
      <div className="friend-language-options">
@@ -162,9 +175,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?<TextChatPanel searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
-    {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
-     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
-     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/>}
+    {!shortsPost?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
      <div className="live-recovery" role="status">

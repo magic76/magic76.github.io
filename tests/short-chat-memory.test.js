@@ -120,7 +120,9 @@ test("Teacher and Friend text mode bypasses microphone auto-start and uses text-
  const panel=fs.readFileSync(path.join(root,"web-spa/src/live/TextChatPanel.tsx"),"utf8");
  for(const source of [friend,teacher]){
   assert.match(source,/\btextMode\b/);
-  assert.match(source,/if\(textMode\|\|!geminiKey\(\)\)return;const timer=/);
+  if(source===friend){
+   assert.match(source,/if\(textMode\|\|!geminiKey\(\)\|\|shortsPost\)return;const timer=/);
+  }else assert.match(source,/if\(textMode\|\|!geminiKey\(\)\)return;const timer=/);
   assert.match(source,/<TextChatPanel/);
   assert.match(source,/live\.stop\(true\)\.finally/);
  }

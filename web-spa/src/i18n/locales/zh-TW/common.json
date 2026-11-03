@@ -133,5 +133,11 @@
     "learningSettings": "學習設定",
     "dataSettings": "記憶與資料",
     "deviceSettings": "裝置與權限"
+  },
+  "chrome": {
+    "shortsSection": "聊天",
+    "shortsTitle": "朋友動態",
+    "timelineSection": "探索",
+    "timelineTitle": "人生時光機"
   }
 }

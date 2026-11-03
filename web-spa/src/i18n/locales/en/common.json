@@ -133,5 +133,11 @@
     "learningSettings": "Learning settings",
     "dataSettings": "Memory & data",
     "deviceSettings": "Device & permissions"
+  },
+  "chrome": {
+    "shortsSection": "Chat",
+    "shortsTitle": "Friends’ moments",
+    "timelineSection": "Explore",
+    "timelineTitle": "Life Timeline"
   }
 }

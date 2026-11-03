@@ -21,7 +21,7 @@ test("Crew homepage keeps one manual tab portal before Shorts and exploration",(
 test("Crew World Shorts still use the real feed and their story/chat paths",()=>{
  const shorts=read("web-spa/src/teacher/HomeShortsPreview.tsx");
  assert.match(shorts,/fetchShortsFeed\(/);
- assert.match(shorts,/shortsChatUrl\(post,"details"\)/);
+ assert.match(shorts,/shortsChatUrl\(post,/);
  assert.match(shorts,/\/teacher\/shorts\?post=/);
  assert.match(shorts,/maxPosts=3/);
  assert.match(shorts,/\.slice\(0,maxPosts\)/);

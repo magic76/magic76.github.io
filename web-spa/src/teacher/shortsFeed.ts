@@ -2,7 +2,7 @@
 export type ShortPost={
  id:string;friendId:string;friendName:string;caption:string;image:string;
  imageAlt:string;publishedAt:string;language:string;storyId:string;
- translationZh?:string;storyContext?:string;mediaCredit?:string;
+ translationZh?:string;storyContext?:string;mediaCredit?:string;openers?:string[];
 };
 export type ShortFeed={schema:1;kind:"crew-shorts";generatedAt:string;posts:ShortPost[];notes?:string;source?:"demo"|"seed"|"daily";nextPage?:string|null;total?:number};
 const PUBLIC_FEED="/features/teacher/shorts/posts.json";
@@ -14,6 +14,12 @@ const ISO_DATE=/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:\d{2})$/;
 const text=(v:unknown,max:number)=>typeof v==="string"?v.trim().slice(0,max):"";
 const safeHttpsOrPath=(value:string)=>value.startsWith("/")&&!value.startsWith("//")&&!value.includes("..")
  || /^https:\/\/[^\s/?#]+(?:[/?#][^\s]*)?$/i.test(value);
+/** Optional editor-authored opening questions; never accept executable/control text. */
+export function validShortOpeners(value:unknown):value is string[]{
+ return Array.isArray(value)&&value.length>=1&&value.length<=3&&value.every(item=>
+  typeof item==="string"&&item.trim().length>=10&&item.trim().length<=120
+  &&item.length<=120&&!/[\u0000-\u001f<>[\]{}]/.test(item));
+}
 export function validShortPost(value:unknown,source:ShortFeed["source"]="seed"):value is ShortPost{
  if(!value||typeof value!=="object")return false;
  const p=value as Partial<ShortPost>;
@@ -24,6 +30,7 @@ export function validShortPost(value:unknown,source:ShortFeed["source"]="seed"):
   && Boolean(text(p.storyId,110))
   && (source==="demo"?safeHttpsOrPath(text(p.image,1000)):FIRST_PARTY_PHOTO.test(text(p.image,1000)))
   && /^[a-z]{2}(?:-[A-Za-z]{2,5})?$/.test(text(p.language,30))
+  && (p.openers===undefined||validShortOpeners(p.openers))
   && ISO_DATE.test(text(p.publishedAt,40))
   && Number.isFinite(Date.parse(text(p.publishedAt,40)));
 }
@@ -47,7 +54,8 @@ export function normalizeShortFeed(value:unknown):ShortFeed{
    storyId:text(candidate.storyId,110),
    translationZh:text(candidate.translationZh,500)||undefined,
    storyContext:text(candidate.storyContext,650)||undefined,
-   mediaCredit:text(candidate.mediaCredit,160)||undefined
+   mediaCredit:text(candidate.mediaCredit,160)||undefined,
+   openers:candidate.openers?.map(question=>question.trim())
   });
  }
  if(!ids.size)throw Error("No valid Shorts");

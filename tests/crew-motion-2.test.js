@@ -22,7 +22,10 @@ test("Shorts likes and translation animate only after a real interaction",()=>{
  assert.match(page,/aria-pressed=\{likes\.includes\(post\.id\)\}/);
  assert.match(page,/className=\{"crew-short-like"/);
  assert.match(css,/@keyframes crew-short-heart-pop/);
- assert.match(css,/crew-short-translation\{animation:/);
+ assert.match(css,/crew-short-translation,\.crew-short-recap\[open\] p\{animation:/);
+ assert.match(css,/\.crew-short-actions\{position:absolute/);
+ assert.match(css,/min-width:44px;min-height:44px/);
+ assert.match(css,/scroll-snap-type:y proximity/);
  assert.match(css,/@media\(max-width:700px\)/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/crew-short-like\.is-celebrating::after\{display:none\}/);

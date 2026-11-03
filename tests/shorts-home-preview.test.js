@@ -42,7 +42,7 @@ test("Home preview uses network feed and preserves explicit friend chat navigati
  assert.match(component,/shorts_chat_click/);
  assert.match(component,/loading="lazy"/);
  assert.match(component,/to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
- assert.match(component,/shortsChatUrl\(post,"details"\)/);
+ assert.match(component,/shortsChatUrl\(post,undefined,0\)/);
  assert.doesNotMatch(component,/crew-home-short-chat|\/friend\/live\?id=/);
  assert.match(component,/\/teacher\/shorts/);
  assert.match(component,/status==="error"/);

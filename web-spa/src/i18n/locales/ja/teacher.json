@@ -45,7 +45,8 @@
     "shortsLoading": "近況を読み込み中…",
     "shortsUnavailable": "近況を利用できません。Crew Shorts を開いて再試行してください。",
     "shortsDisclosure": "Crew による架空の物語です。",
-    "shortsDemo": "プレビューコンテンツ"
+    "shortsDemo": "プレビューコンテンツ",
+    "shortsChatThis": "{{name}} とこの写真について話す"
   },
   "learn": {
     "threeMinute": "3 分間スピーキング",
