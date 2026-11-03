@@ -3,256 +3,101 @@ const assert=require("node:assert/strict");
 const fs=require("node:fs");
 const path=require("node:path");
 const root=path.resolve(__dirname,"..");
-const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
-const page=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulsPage.tsx"),"utf8");
-const nav=fs.readFileSync(path.join(root,"web-spa/src/pages/crewNavigation.ts"),"utf8");
-const data=fs.readFileSync(path.join(root,"web-spa/src/souls/soulData.ts"),"utf8");
-const recognition=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRecognition.ts"),"utf8");
-const chat=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulChat.tsx"),"utf8");
-test("Souls is a direct-only lazy route, not a navigation entry",()=>{
+const read=p=>fs.readFileSync(path.join(root,p),"utf8");
+const page=read("web-spa/src/souls/SoulsPage.tsx");
+const portrait=read("web-spa/src/souls/SoulPortrait.tsx");
+const face=read("web-spa/src/souls/soulFace.ts");
+const data=read("web-spa/src/souls/soulData.ts");
+const chat=read("web-spa/src/souls/SoulChat.tsx");
+const cutout=read("web-spa/src/souls/soulCutout.ts");
+const css=read("web-spa/src/souls/souls.css");
+const app=read("web-spa/src/App.tsx");
+const nav=read("web-spa/src/pages/crewNavigation.ts");
+
+test("Crew Souls remains direct-only, not accidentally added to public navigation",()=>{
  assert.match(app,/path="\/souls"/);
  assert.match(app,/withNamespace\("voice",import\("\.\/souls\/SoulsPage"\)\)/);
  assert.doesNotMatch(nav,/\/souls/);
 });
-test("Souls recognition always requires explicit confirmation",()=>{
- assert.match(data,/function candidates\(/);
- assert.match(page,/onClick=\{\(\)=>void choose\(soul\)\}/);
- assert.match(page,/Local image matching only suggests candidates/);
+test("photo-first camera/gallery inputs create exactly one new image, no live camera",()=>{
+ assert.match(page,/capture="environment"/);
+ assert.match(page,/type="file" accept="image\/\*"/);
+ assert.match(page,/async function pickPhoto\(/);
+ assert.match(page,/await photoFromFile\(file\)/);
+ assert.match(page,/photos:\[draft\]/);
+ assert.doesNotMatch(page,/SoulCamera|getUserMedia|onProbe|onWake|trackMultiFrame/);
+ assert.doesNotMatch(page,/async function processFiles\(/);
 });
-test("Souls uses browser storage and the Friends Live engine",()=>{
- assert.match(data,/indexedDB\.open\("crew-souls-local-v1"/);
+test("cutout is attempted automatically but optional; failed segmentation never blocks Save",()=>{
+ assert.match(page,/void runCutout\(p\.image,\{x:\.5,y:\.52\}\)/);
+ assert.match(page,/await cutoutObject\(image,point\)/);
+ assert.match(cutout,/InteractiveSegmenter/);
+ assert.match(cutout,/toDataURL\("image\/png"\)/);
+ assert.match(page,/setInfo\(t\("這張照片暫時無法自動去背/);
+ assert.match(page,/cutout:useCutout&&cutoutDraft\?cutoutDraft:undefined/);
+ assert.match(page,/onClick=\{e=>tapSource\(e,draft\.image\)\}/);
+ assert.match(page,/cutoutJob\.current\+\+/);
+ assert.doesNotMatch(page,/if\(!cutoutDraft\)return/);
+});
+test("face is independent from the PNG, adjustable before and after saving",()=>{
+ assert.match(data,/face\?:SoulFace/);
+ assert.match(page,/face:safeFace\(faceDraft\)/);
+ assert.match(page,/onFaceChange=\{setFaceDraft\}/);
+ assert.match(page,/setFaceDraft\(safeFace\(selected\.face\)\)/);
+ assert.match(page,/await mutate\(s=>\(\{\.\.\.s,face:safeFace\(faceDraft\)\}\)\)/);
+ assert.match(portrait,/onPointerDown=\{down\} onPointerMove=\{drag\}/);
+ assert.match(portrait,/setPointerCapture\(e\.pointerId\)/);
+ assert.match(portrait,/ref=\{mouthRef\}/);
+ assert.match(face,/export function faceFromAlpha/);
+ assert.match(face,/export function safeFace/);
+ assert.match(css,/\.souls-portrait-face/);
+});
+test("a saved cutout animates during existing Friends Gemini Live session",()=>{
+ assert.match(page,/selected\?\.cutout\|\|selected\?\.photos/);
+ assert.match(page,/<SoulChat key=\{selected\.id\}/);
+ assert.match(page,/onVisual=\{onVisual\} onAudioLevel=\{onAudioLevel\}/);
+ assert.match(page,/mouthRef\.current/);
+ assert.match(portrait,/data-speaking=\{talking\?"true":"false"\}/);
+ assert.match(portrait,/souls-portrait-eye-set/);
+ assert.match(portrait,/souls-portrait-speaking-mouth/);
  assert.match(chat,/useLiveSession\(/);
  assert.match(chat,/sessionKind:"friend"/);
- assert.match(chat,/role="friend"/);
-});
-test("Soul memory is scoped to the object and can be disabled or deleted",()=>{
- assert.match(data,/current\.remember/);
- assert.match(data,/await update\(id,current=>/);
- assert.match(page,/notes:s\.notes\.filter/);
- assert.match(page,/Delete Soul/);
-});
-
-test("camera-first route uses repeated local recognition and asks for uncertain identities",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- assert.match(page,/onProbe=\{probe\}/);
- assert.match(page,/onWake=\{\(id,file\)/);
- assert.match(page,/shouldAutoWake\(best,ranked\[1\]\)/);
- assert.match(recognition,/second\?\.score/);
- assert.match(camera,/stable\.current\.hits>=3/);
- assert.match(camera,/getUserMedia\(\{video:/);
- assert.match(camera,/getTracks\(\)\.forEach/);
-});
-test("voice and typed chat use one live session; typing has no separate model call",()=>{
- // Live is intentionally isolated from camera UI to prevent cross-rendering.
- assert.match(chat,/useLiveSession\(/);
  assert.match(chat,/live\.sendText\(value\)/);
- assert.match(chat,/live\.start\(\)/);
- assert.doesNotMatch(chat,/CrewAI\.call/);
- assert.doesNotMatch(chat,/setMode\("text"\)/);
-});
-test("cutout is optional, local, and never replaces identity reference photos",()=>{
- const cut=fs.readFileSync(path.join(root,"web-spa/src/souls/soulCutout.ts"),"utf8");
- assert.match(cut,/InteractiveSegmenter/);
- assert.match(cut,/toDataURL\("image\/png"\)/);
- assert.match(page,/photos:keepReferences\(\[scan,\.\.\.draftPhotos\]\),cutout:cutoutDraft/);
- assert.match(page,/cutoutObject\(original\.image,pos\)/);
-});
-
-
-test("camera survives recognition and runs Live inside the live view, not a static photo",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- assert.match(camera,/souls-camera-viewport/);
- assert.match(camera,/souls-ar-face/);
- assert.match(camera,/data-speaking=\{speaking/);
- assert.match(camera,/data-tracking=\{tracking\}/);
- assert.match(camera,/souls-ar-caption/);
- assert.match(camera,/children/);
- const start=page.indexOf("async function wake(id:string,file:File)");
- const end=page.indexOf("function home()",start);
- assert.ok(start>0&&end>start);
- assert.doesNotMatch(page.slice(start,end),/setCameraOpen\(false\)/);
- assert.match(page,/activeSoul=\{step==="detail"&&selected/);
- assert.match(page,/onVisual=\{onVisual\}/);
- assert.match(page,/overlay onVisual=/);
- assert.match(page,/onReset=\{resetCameraSoul\}/);
-});
-test("tracking is local and allows tap-to-reanchor, conservative loss detection",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
- assert.match(camera,/onClick=\{aim\}/);
- assert.match(camera,/initMultiTracker\(/);
- assert.match(camera,/trackMultiFrame\(/);
- assert.match(camera,/misses\.current>=3/);
- assert.match(camera,/getImageData\(/);
- assert.match(tracker,/deviation<10/);
- assert.match(tracker,/bestError>28/);
- assert.match(camera,/stream\.current\?\.getTracks\(\)\.forEach/);
-});
-test("facial expression changes with the same Live voice and text session",()=>{
- // Test the real Live component, not a source slice.
- assert.match(chat,/live\.state==="speaking"/);
- assert.match(chat,/live\.sendText\(value\)/);
- assert.match(chat,/const mood:SoulVisual/);
- assert.match(chat,/useEffect\(\(\)=>\{onVisual\?\./);
- assert.doesNotMatch(chat,/CrewAI\.call/);
-});
-
-
-test("first-time camera enrollment returns to live camera instead of static photo",()=>{
- const start=page.indexOf("function createStart()");
- const end=page.indexOf("async function aiDescribe()",start);
- assert.ok(start>0&&end>start);
- assert.match(page.slice(start,end),/returnToCameraAfterCreate\.current=cameraOpen/);
- const createStart=page.indexOf("async function create(e:FormEvent)");
- const createEnd=page.indexOf("async function choose(",createStart);
- assert.ok(createStart>0&&createEnd>createStart);
- assert.match(page.slice(createStart,createEnd),/await refresh\(s\.id\)/);
- assert.match(page.slice(createStart,createEnd),/if\(returnToCameraAfterCreate\.current\)\{setCameraOpen\(true\)/);
- assert.match(page,/activeSoul=\{step==="detail"&&selected/);
-});
-
-test("camera enrollment saves four spaced frames and keeps only distinct references",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- assert.match(camera,/for\(let i=0;i<4;i\+\+\)/);
- assert.match(camera,/setTimeout\(resolve,650\)/);
- assert.match(camera,/onSnapshot\(frames\)/);
- assert.match(camera,/onAddReferences\?\.\(frames\)/);
- assert.match(page,/async function processFiles\(frames:File\[\]/);
- assert.match(page,/setDraftPhotos\(unique\)/);
- assert.match(data,/function keepReferences\(/);
- assert.match(page,/async function addReferences\(frames:File\[\]\)/);
- assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)/);
- assert.match(page,/photos:keepReferences\(\[scan,\.\.\.draftPhotos\]\)/);
-});
-test("multiple local tracker anchors must agree before moving cute face",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
- assert.match(tracker,/export function initMultiTracker\(/);
- assert.match(tracker,/export function trackMultiFrame\(/);
- assert.match(tracker,/inliers\.length<2/);
- assert.match(tracker,/median\(observations\.map/);
- assert.match(camera,/trackMultiFrame\(frame,tracker\.current\)/);
- assert.match(camera,/souls-ar-blush/);
- assert.match(camera,/souls-ar-cute-spark/);
- assert.match(camera,/rx="7" ry="9"/);
-});
-
-test("P0: user-guided local segmentation yields bounded object region and region-seeded tracker",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
- const tracker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulTracker.ts"),"utf8");
- assert.match(camera,/locateSoulRegion\(picture,at\)/);
- assert.match(camera,/initRegionTracker\(latest,shifted,face,foreground\)/);
- assert.match(camera,/souls-ar-region/);
- assert.match(camera,/onRegionCrop/);
- assert.match(region,/cutoutObject\(image/);
- assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
- assert.match(tracker,/export function initRegionTracker/);
- assert.match(tracker,/if\(ref\.box\)\{/);
-});
-test("P2: playback-only real RMS drives mouth without animation fake",()=>{
- const live=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
- const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
- assert.match(live,/typeof this\.options\.onOutputLevel==="function"/);
- assert.match(live,/meter\.getByteTimeDomainData\(samples\)/);
- assert.match(live,/this\.outputMeterTimer=global\.setInterval/);
- assert.match(live,/global\.clearInterval\(this\.outputMeterTimer\)/);
- assert.match(hook,/onOutputLevel:configRef\.current\.onOutputLevel/);
  assert.match(chat,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
- assert.match(camera,/ref=\{mouthRef\}/);
- assert.match(camera,/data-hearing=/);
- assert.match(css,/souls-mouth-open\{animation:none!important\}/);
+ assert.match(chat,/Your owner has opened your Soul portrait/);
+ assert.doesNotMatch(chat,/SoulCamera|The camera has just recognized you/);
 });
-test("P3: quality-rejected frames, on-device embeddings and uncertain match rejection",()=>{
- const embeddings=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
- assert.match(fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.worker.ts"),"utf8"),/ImageEmbedder\.createFromOptions/);
- assert.match(embeddings,/function photoQuality/);
- assert.match(embeddings,/cosine/i);
- assert.match(data,/photoQuality\(ctx\.getImageData/);
- assert.match(data,/compareEmbeddings\(reference\.embedding,photo\.embedding\)/);
- assert.match(page,/if\(!photos\.length\)throw Error/);
- assert.match(page,/if\(p\.quality\|\|!shouldAutoWake\(best,ranked\[1\]\)\)/);
- assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
+test("existing IndexedDB Souls remain readable without migration or photo re-enrollment",()=>{
+ assert.match(data,/indexedDB\.open\("crew-souls-local-v1",1\)/);
+ assert.match(page,/await list\(\)/);
+ assert.match(page,/selected\?\.cutout\|\|selected\?\.photos/);
+ assert.match(page,/face=\{s\.face\}/);
+ assert.match(data,/face\?:SoulFace/);
+ assert.match(page,/await save\(s\)/);
+ assert.match(page,/await update\(selected\.id,fn\)/);
+ assert.match(page,/await remove\(selected\.id\)/);
 });
-
-test("failed burst propagates to camera and clears lock",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- assert.match(camera,/locked\.current=false;stable\.current=\{id:"",hits:0\}/);
- assert.match(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\}/);
- assert.match(page,/onAddReferences=\{frames=>addReferences\(frames\)\}/);
- assert.doesNotMatch(page,/onSnapshot=\{frames=>processFiles\(frames,true\)\.catch/);
+test("memory controls and privacy statement remain in photo-first workflow",()=>{
+ assert.match(data,/isSafeAutomaticMemory\(note,evidence\)/);
+ assert.match(data,/current\.remember/);
+ assert.match(page,/remember:rememberEnabled/);
+ assert.match(page,/notes:s\.notes\.filter/);
+ assert.match(page,/Delete Soul and memories/);
+ assert.match(page,/Cutout runs on-device/);
+ assert.match(page,/Only explicit Gemini photo analysis uploads an image/);
+ assert.match(page,/await ensureVision\(\)/);
+ assert.match(page,/geminiKey\(\)/);
 });
-test("foreground region only persists after explicit user confirmation",()=>{
- assert.match(page,/onRegionCrop=\{file=>\{setPendingForeground\(file\)\}\}/);
- assert.match(page,/async function confirmForeground\(\)/);
- assert.match(page,/onClick=\{\(\)=>void confirmForeground\(\)\}/);
- assert.match(page,/onClick=\{\(\)=>setPendingForeground\(null\)\}/);
+test("no new visual dependencies or tracking are necessary for static portraits",()=>{
+ assert.doesNotMatch(portrait,/navigator\.mediaDevices|requestAnimationFrame|WebGL|WebGPU|createObjectURL/);
+ assert.match(css,/souls-portrait-editing/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(page,/step==="edit"/);
+ assert.match(page,/step==="detail"/);
+ assert.doesNotMatch(page,/step==="match"|cameraAttached|setCameraOpen/);
 });
-test("embedding work and audio levels avoid per-frame React updates",()=>{
- const embed=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.ts"),"utf8");
- const worker=fs.readFileSync(path.join(root,"web-spa/src/souls/soulEmbedding.worker.ts"),"utf8");
- assert.match(embed,/new Worker\(new URL\("\.\/soulEmbedding\.worker\.ts",import\.meta\.url\)/);
- assert.match(worker,/embedder\.embed\(bitmap\)/);
- assert.match(page,/mouthRef\.current\.setAttribute\("ry"/);
- assert.doesNotMatch(page,/setAudioLevel/);
-});
-
-test("camera face attaches only to a confirmed object, scales with its mask and ends Live after departure",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
- const cutout=fs.readFileSync(path.join(root,"web-spa/src/souls/soulCutout.ts"),"utf8");
- const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
- assert.match(camera,/locateAt\(\{x:\.5,y:\.45\}\)/);
- assert.match(camera,/const face=\{x:shifted\.x\+shifted\.width\*\.5,y:shifted\.y\+shifted\.height\*\.43\}/);
- assert.match(camera,/data-attached=\{Boolean\(box\)&&tracking==="following"/);
- assert.match(camera,/const faceSize=box\?/);
- assert.match(css,/\.souls-ar-face\[data-attached="false"\]/);
- assert.match(region,/return \{box,crop:out\.toDataURL\("image\/jpeg",\.82\),anchors\}/);
- assert.match(camera,/initRegionTracker\(latest,shifted,face,foreground\)/);
- assert.match(camera,/initRegionTracker\(frame,next\.box,next\.point,next\.anchors\.map/);
- assert.match(cutout,/magic_touch\/int8\/1\/interactive_segmentation\.task/);
- assert.match(page,/cameraAttached\?<SoulChat/);
- assert.match(camera,/hadAttachment\.current=true;callbacks\.current\.onAttached\?\.\(\)/);
- assert.match(camera,/callbacks\.current\.onDeparted\?\.\(\)/);
- assert.match(camera,/\},2000\)/);
- assert.match(page,/onDeparted=\{\(\)=>\{resetCameraSoul\(\)/);
-});
-
-
-test("missing outline and smooth objects still have an explicit user-confirmed Live path",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
- const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
- assert.match(camera,/function confirmSimplePlacement\(\)/);
- assert.match(camera,/setFallbackPoint\(at\)/);
- assert.match(camera,/onClick=\{confirmSimplePlacement\}/);
- assert.match(camera,/captureEpoch\.current\+\+;locating\.current=false;setLocatingRegion\(false\)/);
- assert.match(camera,/setAttachmentMode\(canFollow\?"approximate":"fixed"\)/);
- assert.match(camera,/setTracking\("following"\)/);
- assert.match(camera,/callbacks\.current\.onAttached\?\.\(\)/);
- assert.match(page,/selected&&cameraAttached\?<SoulChat/);
- assert.doesNotMatch(region,/if\(anchors\.length<3\)throw Error/);
- assert.match(css,/\.souls-simple-attach/);
-});
-test("object detection failures are not conflated with optional reference photo errors",()=>{
- const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
- const start=camera.indexOf("if(callbacks.current.onRegionCrop){");
- const stop=camera.indexOf("}).catch((cause:unknown)",start);
- assert.ok(start>0&&stop>start);
- const optional=camera.slice(start,stop);
- assert.match(optional,/catch\(cause\)\{console\.warn\("\[Souls\] optional reference crop failed"/);
- assert.doesNotMatch(optional,/setTracking\("lost"\)/);
-});
-
-
-test("object outline bbox is taken from a clicked connected component",()=>{
- const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
- const mask=fs.readFileSync(path.join(root,"web-spa/src/souls/soulMaskComponent.ts"),"utf8");
- assert.match(region,/componentFromAlpha\(p,w,h,point\)/);
- assert.match(mask,/export function componentFromAlpha/);
- assert.match(mask,/const selected=new Uint8Array/);
- assert.match(mask,/Selected point is outside the foreground/);
- assert.match(mask,/fraction<\.002\|\|fraction>\.88/);
+test("preserve entire long or wide item when preparing reference photo",()=>{
+ assert.match(data,/const fit=Math\.min\(640\/img\.naturalWidth,640\/img\.naturalHeight\)/);
+ assert.match(data,/ctx\.drawImage\(img,\(640-outW\)\/2,\(640-outH\)\/2,outW,outH\)/);
+ assert.doesNotMatch(data,/const side=Math\.min\(img\.naturalWidth,img\.naturalHeight\)/);
 });

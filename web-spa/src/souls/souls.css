@@ -173,3 +173,79 @@
 .souls-camera .souls-simple-attach{display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:#fff7ee;padding:10px 12px;border-top:1px solid #f0d8bf}
 .souls-camera .souls-simple-attach button{background:#ff9a00;color:#261b16;border:1px solid #dc8300;border-radius:13px;padding:9px 12px;font-weight:800}
 .souls-camera .souls-camera-fallback-hint{flex:1 1 180px;min-width:0;color:#76573c;font-size:12px;line-height:1.55}
+
+
+/* Photo-first Crew Souls: no live camera or object tracker required. */
+.souls-photo-first .souls-main-actions{margin:5px 0 22px;align-items:stretch}
+.souls-photo-first .souls-main-actions button{font-size:14px;padding:12px 17px}
+.souls-photo-first .souls-section-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.souls-photo-first .souls-section-heading small{font-size:11px;font-weight:850;letter-spacing:.12em;color:#a17dbe}
+.souls-photo-first .souls-section-heading h2{margin:5px 0 0}
+.souls-photo-first .souls-empty button{border:1px solid #dacbe7;border-radius:12px;background:#faf6ff;margin-top:15px;color:#56456d}
+.souls-photo-first .souls-collection{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.souls-photo-first .souls-collection>button{padding:9px;min-width:0;overflow:hidden}
+.souls-photo-first .souls-collection>button>small{line-height:1.5;font-size:12px}
+.souls-portrait{position:relative;min-width:0;width:100%;isolation:isolate}
+.souls-portrait-stage{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:20px;background:#f2edf3;
+ background-image:linear-gradient(45deg,#eae4ed 25%,transparent 25%),linear-gradient(-45deg,#eae4ed 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#eae4ed 75%),linear-gradient(-45deg,transparent 75%,#eae4ed 75%);
+ background-size:24px 24px;background-position:0 0,0 12px,12px -12px,-12px 0}
+.souls-portrait-photo{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+.souls-portrait-face{position:absolute;pointer-events:none;z-index:1;transform:translate(-50%,-50%);filter:drop-shadow(0 3px 8px rgba(18,12,38,.18));max-width:62%;min-width:10%}
+.souls-portrait-face svg{display:block;width:100%;height:auto;overflow:visible}
+.souls-portrait-eye-set{transform-origin:75px 47px;animation:souls-photo-blink 5.2s linear infinite}
+.souls-portrait[data-mood="thinking"] .souls-portrait-face{transform:translate(-50%,-50%) rotate(-5deg)}
+.souls-portrait[data-speaking="true"] .souls-portrait-face{animation:souls-photo-bob .35s ease-in-out infinite alternate}
+.souls-portrait[data-hearing="true"] .souls-portrait-face{filter:drop-shadow(0 4px 11px rgba(117,97,194,.24))}
+.souls-portrait-speaking-mouth{display:none}
+.souls-portrait[data-speaking="true"] .souls-portrait-speaking-mouth,.souls-portrait[data-mood="surprised"] .souls-portrait-speaking-mouth{display:block}
+.souls-portrait[data-speaking="true"] .souls-portrait-smile,.souls-portrait[data-speaking="true"] .souls-portrait-smile-back,
+.souls-portrait[data-mood="surprised"] .souls-portrait-smile,.souls-portrait[data-mood="surprised"] .souls-portrait-smile-back{display:none}
+.souls-portrait-label{display:block;text-align:center;font-size:15px;margin:9px auto 2px;color:#493758;max-width:100%;overflow-wrap:anywhere}
+.souls-portrait-caption{position:absolute;bottom:42px;left:6%;right:6%;font-size:14px;line-height:1.55;
+ text-align:center;padding:9px 11px;border-radius:14px;background:rgba(255,255,255,.96);color:#2a223a;
+ box-shadow:0 3px 14px rgba(20,15,33,.13);max-height:120px;overflow:hidden}
+.souls-portrait-editing .souls-portrait-stage{touch-action:none;cursor:grab;outline:2px solid #bda1d5;outline-offset:3px}
+.souls-portrait-editing .souls-portrait-stage:active{cursor:grabbing}
+.souls-portrait-guide{position:absolute;bottom:12px;right:14px;color:#fff;background:#6b4886a6;border-radius:50%;padding:6px 10px;pointer-events:none}
+.souls-portrait-editing .souls-portrait-face{outline:2px dashed rgba(115,81,157,.6);outline-offset:4px;border-radius:32%}
+.souls-collection .souls-portrait-stage{border-radius:13px}
+.souls-collection .souls-portrait-label{font-size:15px;margin:7px 0 0}
+.souls-editor-layout{display:grid;grid-template-columns:minmax(230px,1fr) minmax(220px,.85fr);gap:20px;align-items:start;margin:8px 0 26px}
+.souls-editor-layout>.souls-portrait{width:100%;max-width:390px}
+.souls-editor-tools{display:grid;gap:16px;font-size:14px;color:#584968;line-height:1.6;padding:10px 0}
+.souls-editor-tools>strong{font-size:16px}
+.souls-editor-tools label,.souls-profile-portrait>label{display:grid;gap:9px;font-size:13px;font-weight:800;color:#5f4d73}
+.souls-photo-first input[type=range]{accent-color:#7d56ae;width:100%;min-height:26px}
+.souls-editor-buttons,.souls-profile-buttons{display:flex;gap:9px;flex-wrap:wrap}
+.souls-editor-buttons button{flex:1 1 130px}
+.souls-editor-buttons [aria-pressed=true]{background:#e4d6f0;border-color:#b392d2}
+.souls-editor-details{border-top:1px solid #eee6f1;padding-top:23px}
+.souls-photo-first .souls-ai-describe{margin:0 0 15px;max-width:100%;background:#f7f2fb;border-color:#dfd2ec}
+.souls-photo-first .souls-form{margin-top:5px}
+.souls-photo-first .souls-form>.souls-primary{font-size:15px;min-height:52px}
+.souls-subject-picker{display:grid;justify-items:center;gap:12px;text-align:center}
+.souls-subject-picker p{font-size:14px;color:#5d4c72}
+.souls-subject-picker>button:first-of-type{padding:0;overflow:hidden;border-radius:19px;max-width:390px;width:100%;background:#eee8ef}
+.souls-subject-picker img{width:100%;aspect-ratio:1;object-fit:contain;display:block}
+.souls-photo-profile{display:grid;grid-template-columns:minmax(230px,330px) 1fr;gap:25px;align-items:center}
+.souls-profile-portrait{display:grid;gap:12px;min-width:0}
+.souls-profile-copy h2{font-size:clamp(27px,4.5vw,39px);margin:9px 0 15px;letter-spacing:-.04em}
+.souls-profile-copy p{color:#665c70;font-size:14px;line-height:1.7;margin:8px 0}
+.souls-profile-copy>small{font-size:11px;color:#8f78a3;letter-spacing:.06em;line-height:1.5}
+.souls-profile-buttons{margin:16px 0}
+@keyframes souls-photo-blink{0%,37%,39%,76%,78%,100%{transform:scaleY(1)}38%,77%{transform:scaleY(.12)}}
+@keyframes souls-photo-bob{from{transform:translate(-50%,-50%) translateY(1px)}to{transform:translate(-50%,-50%) translateY(-4px)}}
+@media(max-width:650px){
+ .souls-editor-layout{grid-template-columns:1fr;gap:15px}
+ .souls-editor-layout>.souls-portrait{max-width:400px;margin:0 auto}
+ .souls-editor-tools{padding:0 3px}
+ .souls-photo-profile{grid-template-columns:1fr;gap:16px}
+ .souls-profile-portrait{max-width:400px;width:100%;margin:0 auto}
+ .souls-photo-first .souls-collection{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .souls-profile-copy{text-align:center}
+ .souls-profile-buttons{justify-content:center}
+ .souls-photo-first .souls-main-actions button{flex:1 1 155px}
+}
+@media(prefers-reduced-motion:reduce){
+ .souls-photo-first .souls-portrait-eye-set,.souls-photo-first .souls-portrait-face{animation:none!important}
+}

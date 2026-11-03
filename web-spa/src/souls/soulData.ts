@@ -1,10 +1,11 @@
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {embedPhoto,compareEmbeddings,photoQuality} from "./soulEmbedding";
 import {isSafeAutomaticMemory} from "./soulRecognition";
+import {type SoulFace} from "./soulFace";
 
 export type Photo={image:string;hash:string;color:number[];embedding?:number[];quality?:"dark"|"bright"|"blur"|null};
 export type Note={id:string;text:string;source:"manual"|"conversation"};
-export type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
+export type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;face?:SoulFace;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
 export type Candidate={soul:Soul;score:number;hasEmbedding:boolean;legacy:number;cosine:number|null;embeddingExpected:boolean};
 export const pid=()=>crypto.randomUUID();
 export const persona={witty:["愛吐槽","Witty","Puck"],gentle:["溫柔","Gentle","Kore"],curious:["好奇","Curious","Aoede"]} as const;
@@ -64,8 +65,11 @@ export async function photoFromFile(file:File,withEmbedding=false):Promise<Photo
  });
  const img=await image(raw),canvas=document.createElement("canvas");canvas.width=canvas.height=640;
  const ctx=canvas.getContext("2d",{willReadFrequently:true});if(!ctx)throw Error("Canvas unavailable");
- const side=Math.min(img.naturalWidth,img.naturalHeight);
- ctx.drawImage(img,(img.naturalWidth-side)/2,(img.naturalHeight-side)/2,side,side,0,0,640,640);
+ // Photo-first Souls must retain the entire object, including tall or wide items.
+ ctx.fillStyle="#f4f0f5";ctx.fillRect(0,0,640,640);
+ const fit=Math.min(640/img.naturalWidth,640/img.naturalHeight);
+ const outW=Math.round(img.naturalWidth*fit),outH=Math.round(img.naturalHeight*fit);
+ ctx.drawImage(img,(640-outW)/2,(640-outH)/2,outW,outH);
  const data=canvas.toDataURL("image/jpeg",.76);
  const quality=photoQuality(ctx.getImageData(0,0,640,640).data,640,640);
  const small=document.createElement("canvas");small.width=9;small.height=8;
