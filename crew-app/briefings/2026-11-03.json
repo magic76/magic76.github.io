@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-03",
+  "generatedAt": "2026-11-03T03:44:46.421Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "9cdf8fe1f265def5",
+      "title": "Autonomous Reservoir Injection-Production Optimization Through Multi-Agent Collaboration and Self-Evolving Skills",
+      "summary": "Abstract Reservoir injection-production optimization is still slowed by fragmented workflows, repeated manual intervention, long simulation cycles, and limited coordination between subsurface, well, and surface evidence. This paper presents an autonomous workflow built from a business-analysis agent, a cluster of speci",
+      "publishedAt": "2026-11-02T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Autonomous Reservoir Injection-Production Optimization Through Multi-Agent Collaboration and Self-Evolving Skills",
+          "url": "https://doi.org/10.2118/236222-ms",
+          "publishedAt": "2026-11-02T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Abstract Reservoir injection-production optimization is still slowed by fragmented workflows, repeated manual intervention, long simulation cycles, and limited coordination between subsurface, well, and surface evidence. This paper presents an autonomous workflow built from a business-analysis agent, a cluster of speci"
+    },
+    {
+      "id": "5394fa77e43d410d",
+      "title": "Kanerva: Token-Budgeted, Validity-Aware Memory for Coding Agents, Without an LLM in the Loop",
+      "summary": "Coding agents forget everything between sessions, and the memory systems built for them mostly select context by similarity top-k, ignore what items cost in tokens, and have no model of whether a stored fact is still true. We cast agent memory as online budgeted selection, show that the surveyed systems are special cas",
+      "publishedAt": "2026-11-01T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Kanerva: Token-Budgeted, Validity-Aware Memory for Coding Agents, Without an LLM in the Loop",
+          "url": "https://doi.org/10.5281/zenodo.23849911",
+          "publishedAt": "2026-11-01T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Coding agents forget everything between sessions, and the memory systems built for them mostly select context by similarity top-k, ignore what items cost in tokens, and have no model of whether a stored fact is still true. We cast agent memory as online budgeted selection, show that the surveyed systems are special cas"
+    },
+    {
+      "id": "e02dbf993c7ec3b4",
+      "title": "A Domain-Intelligent Multi-Agent AI Framework for Upstream Subsurface Data Querying",
+      "summary": "Abstract Objectives/Scope In upstream operations, professionals must make rapid decisions, yet critical data is often fragmented across complex schemas, causing delays or errors. This paper presents a GPT-5-based multi-agent AI framework that enables engineers to query enterprise data in natural language and receive va",
+      "publishedAt": "2026-11-02T00:00:00Z",
+      "topic": "Multi-Agent Systems",
+      "projects": [
+        "Crew Deck",
+        "Crew Pocket"
+      ],
+      "relevance": "這個議題涉及 Crew Deck、Crew Pocket 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "A Domain-Intelligent Multi-Agent AI Framework for Upstream Subsurface Data Querying",
+          "url": "https://doi.org/10.2118/235537-ms",
+          "publishedAt": "2026-11-02T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Abstract Objectives/Scope In upstream operations, professionals must make rapid decisions, yet critical data is often fragmented across complex schemas, causing delays or errors. This paper presents a GPT-5-based multi-agent AI framework that enables engineers to query enterprise data in natural language and receive va"
+    },
+    {
+      "id": "ec2ee481326a55b7",
+      "title": "Stayin' Aligned Over Time: Toward Longitudinal Human-LLM Alignment via Contextual Reflection and Privacy-Preserving Behavioral Data",
+      "summary": "Current human-AI alignment and evaluation methods for large language models (LLMs) often rely on preference signals collected immediately after an interaction. This practice implicitly treats preference as static, even though many LLM-mediated decisions unfold over time and may be re-evaluated differently after real-wo",
+      "publishedAt": "2026-10-31T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Stayin' Aligned Over Time: Toward Longitudinal Human-LLM Alignment via Contextual Reflection and Privacy-Preserving Behavioral Data",
+          "url": "https://doi.org/10.1145/3830398.3830543",
+          "publishedAt": "2026-10-31T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Current human-AI alignment and evaluation methods for large language models (LLMs) often rely on preference signals collected immediately after an interaction. This practice implicitly treats preference as static, even though many LLM-mediated decisions unfold over time and may be re-evaluated differently after real-wo"
+    },
+    {
+      "id": "f11014cb6224ad11",
+      "title": "Parasocial Interaction and Perceived Value as Determinants of Intention to Buy Made-in-Thailand Products through Live- Streaming Personal Shoppers",
+      "summary": "This research investigates the rising trend of live shopping and jasa titipan (jastip) in Southeast Asian digital commerce, focusing on the growing popularity of Made in Thailand products among Indonesian consumers. Livestream commerce has changed consumer behaviour by offering immediacy, interactivity, and immersive d",
+      "publishedAt": "2026-11-01T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Parasocial Interaction and Perceived Value as Determinants of Intention to Buy Made-in-Thailand Products through Live- Streaming Personal Shoppers",
+          "url": "https://doi.org/10.32479/irmm.24850",
+          "publishedAt": "2026-11-01T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "This research investigates the rising trend of live shopping and jasa titipan (jastip) in Southeast Asian digital commerce, focusing on the growing popularity of Made in Thailand products among Indonesian consumers. Livestream commerce has changed consumer behaviour by offering immediacy, interactivity, and immersive d"
+    },
+    {
+      "id": "791dcde18eeb580c",
+      "title": "A sociolinguistic analysis of automatic speech recognition bias in Newcastle English",
+      "summary": "研究論文索引：A sociolinguistic analysis of automatic speech recognition bias in Newcastle English。詳細方法及結果請閱讀原文。",
+      "publishedAt": "2026-11-01T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "A sociolinguistic analysis of automatic speech recognition bias in Newcastle English",
+          "url": "https://doi.org/10.1016/j.specom.2026.103494",
+          "publishedAt": "2026-11-01T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "研究論文索引：A sociolinguistic analysis of automatic speech recognition bias in Newcastle English。詳細方法及結果請閱讀原文。"
+    }
+  ]
+}
