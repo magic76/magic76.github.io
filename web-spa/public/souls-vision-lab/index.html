@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="theme-color" content="#111825"/>
+  <title>Crew Souls｜Web 物品追蹤實驗</title>
+  <link rel="stylesheet" href="./style.css"/>
+</head>
+<body>
+  <main class="app">
+    <header class="top">
+      <div class="eyebrow"><span class="dot"></span> CREW SOULS · VISION LAB</div>
+      <h1>讓物品長出眼睛，<br/><span>只用瀏覽器。</span></h1>
+      <p>純 Web 相機測試。以 MediaPipe 偵測物品，用方框與 Q 版眼睛觀察貼附穩定度；尚未連接 Gemini Live。</p>
+    </header>
+    <section class="camera" aria-label="即時物品偵測相機">
+      <div class="stage" id="stage">
+        <video id="camera" autoplay muted playsinline aria-label="手機後鏡頭預覽"></video>
+        <canvas id="overlay" aria-label="即時物品偵測框"></canvas>
+        <div id="empty" class="empty">
+          <div class="camera-glyph" aria-hidden="true">◎</div>
+          <strong>相機尚未啟動</strong>
+          <small>按下方按鈕即可開啟後鏡頭</small>
+        </div>
+        <div class="tag" id="modeTag">WEB · ON DEVICE</div>
+      </div>
+      <div class="toolbar">
+        <button id="start" class="primary">開啟相機</button>
+        <button id="unlock" disabled>解除鎖定</button>
+        <button id="export" disabled>匯出 CSV</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite">等待開始。首次載入需要下載模型，請保持網路連線。</div>
+    </section>
+    <section class="metrics" aria-label="效能測量">
+      <div><span>偵測結果 FPS</span><strong id="fps">—</strong></div>
+      <div><span>推論耗時</span><strong id="latency">—</strong></div>
+      <div><span>追蹤狀態</span><strong id="presence">未開始</strong></div>
+      <div><span>疑似遺失次數</span><strong id="loss">0</strong></div>
+    </section>
+    <section class="instructions">
+      <h2>測試方法</h2>
+      <ol>
+        <li>先對準杯子或玩偶，等藍色偵測框出現。</li>
+        <li>直接點框，框會轉成橘色，物品長出眼睛。</li>
+        <li>慢慢平移、靠近、旋轉物品，再移出鏡頭，觀察有沒有跑位或誤認。</li>
+        <li>匯出 CSV 比較杯子、玩偶和遙控器的追蹤結果。</li>
+      </ol>
+      <p class="disclaimer">這是 EfficientDet-Lite0 物件偵測實驗，只認識 COCO 類別，不是任意物品追蹤或持久身分辨識。眼睛框代表連續幀位置推測，不是 3D AR，也不會上傳相機影像。</p>
+    </section>
+    <footer>模型：MediaPipe Tasks Vision 1.2.0 · EfficientDet-Lite0 · <a href="https://developers.google.com/edge/mediapipe/solutions/vision/object_detector/web_js" target="_blank" rel="noopener noreferrer">官方技術文件</a></footer>
+  </main>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>
