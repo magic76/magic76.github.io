@@ -8,6 +8,7 @@ import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransfor
 import {type SoulVisual} from "./soulVisual";
 import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
 import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
+import {randomSoulVoice,soulVoiceLabel} from "./soulVoice";
 import {cutoutObject,CutoutError,type CutoutProgress} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
 import "./souls.css";
@@ -48,6 +49,7 @@ export function SoulsPage(){
  const [editFace,setEditFace]=useState(false);
  const [name,setName]=useState(""),[kind,setKind]=useState(""),[description,setDescription]=useState("");
  const [personality,setPersonality]=useState<Soul["personality"]>("witty");
+ const [draftVoice,setDraftVoice]=useState(()=>randomSoulVoice());
  const [rememberEnabled,setRememberEnabled]=useState(true);
  const [note,setNote]=useState("");
  const [busy,setBusy]=useState(false),[cutting,setCutting]=useState(false);
@@ -136,7 +138,8 @@ export function SoulsPage(){
    setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
    setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");
    setUseCutout(true);setSelectSubject(false);
-   setName("");setKind("");setDescription("");setPersonality("witty");setRememberEnabled(true);
+   setName("");setKind("");setDescription("");setPersonality("witty");
+   setDraftVoice(previous=>randomSoulVoice(previous));setRememberEnabled(true);
    setBusy(false);
    if(p.quality)setInfo(t("照片可能有點模糊或曝光不足；可繼續建立，也可以換一張。","This photo may be blurry or underexposed. You may continue or choose another."));
    void runCutout(p.image,{x:.5,y:.52});
@@ -182,7 +185,7 @@ export function SoulsPage(){
    const s:Soul={
     id:pid(),name:trim(name,40),kind:trim(kind,60),
     description:trim(description,140),personality,
-    voice:persona[personality][2],photos:[draft],
+    voice:draftVoice,photos:[draft],
     cutout:useCutout&&cutoutDraft?cutoutDraft:undefined,
     face:safeFace(faceDraft),transform:safeTransform(transformDraft),notes:[],remember:rememberEnabled,
     createdAt:now,lastSeenAt:now
@@ -206,6 +209,18 @@ export function SoulsPage(){
   if(!selected)return;
   try{await update(selected.id,fn);await refresh(selected.id)}
   catch{setError(t("本機資料儲存失敗。","Could not save local data."))}
+ }
+ async function rerollSavedVoice(){
+  if(!selected)return;
+  const id=selected.id;
+  setError("");
+  try{
+   await update(id,current=>({...current,voice:randomSoulVoice(current.voice)}));
+   await refresh(id);
+   setInfo(t("已替 Soul 換好聲線，下一次重新連接 Live 時生效。","Soul voice saved. Reconnect Gemini Live to hear the new voice."));
+  }catch{
+   setError(t("更新聲線失敗，請再試一次。","Could not update Soul voice. Please retry."));
+  }
  }
  async function saveFace(){
   if(!selected)return;
@@ -323,6 +338,13 @@ export function SoulsPage(){
         {en?persona[id][1]:persona[id][0]}</button>)}
       </div>
      </fieldset>
+     <div className="souls-voice-choice">
+      <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(draftVoice)}</strong></span>
+      <button type="button" onClick={()=>setDraftVoice(previous=>randomSoulVoice(previous))}>
+       {t("換個聲音","Shuffle voice")}
+      </button>
+      <small>{t("從 Gemini Live 聲線中隨機選一種，儲存後不會自己改變。","Randomly chosen from Gemini Live voices; stays the same after saving.")}</small>
+     </div>
      <label className="souls-checkbox"><input type="checkbox" checked={rememberEnabled}
       onChange={e=>setRememberEnabled(e.target.checked)}/>
       {t("允許聊天時擷取有依據的回憶（之後可關閉或刪除）","Remember grounded facts from chats (can disable or delete)")}
@@ -349,6 +371,13 @@ export function SoulsPage(){
      <small>{t("你的物品朋友","YOUR OBJECT FRIEND")}</small>
      <h2>{selected.name}</h2><p>{selected.kind||t("獨一無二的小東西","A one-of-a-kind object")}</p>
      {selected.description&&<p>{selected.description}</p>}
+     <div className="souls-voice-choice souls-saved-voice">
+      <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(selected.voice)}</strong></span>
+      <button type="button" onClick={()=>void rerollSavedVoice()}>
+       {t("重新抽聲線","Shuffle voice")}
+      </button>
+      <small>{t("已儲存的聲線不會自動變。換聲線後，下次重新連線 Live 才會生效。","The saved voice is stable. A change takes effect on your next Live connection.")}</small>
+     </div>
      <div className="souls-profile-buttons">
       {editFace?<><button type="button" onClick={()=>void saveFace()}>{t("儲存物品與五官","Save object & eyes")}</button>
        <button type="button" onClick={()=>setEditFace(false)}>{t("取消","Cancel")}</button></>:
