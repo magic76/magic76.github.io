@@ -184,9 +184,11 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    setFallbackPoint(null);setSuggestedBox(null);
    hadAttachment.current=true;callbacks.current.onAttached?.();
    if(callbacks.current.onRegionCrop){
-    const bytes=await (await fetch(result.crop)).blob();
-    if(activeRef.current===owner&&captureEpoch.current===epoch)
-     await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+    try{
+     const bytes=await (await fetch(result.crop)).blob();
+     if(activeRef.current===owner&&captureEpoch.current===epoch)
+      await callbacks.current.onRegionCrop(new File([bytes],"soul-foreground.jpg",{type:"image/jpeg"}));
+    }catch(cause){console.warn("[Souls] optional reference crop failed",cause)}
    }
   }).catch((cause:unknown)=>{
    if(activeRef.current===owner&&captureEpoch.current===epoch){
