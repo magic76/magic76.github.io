@@ -560,7 +560,7 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  const css=fs.readFileSync(path.join(root,"web-spa/src/pages/home.css"),"utf8");
  assert.equal(readUiLocale("home").headline,"和 Crew 朋友聊聊吧");
  const portal=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePortal.tsx"),"utf8");
- assert.ok(home.includes("<HomePortal/>"));
+ assert.match(home,/<HomePortal\b/);
  assert.ok(portal.includes('world.modes.')&&portal.includes('t(cta)'),"Manual tab headlines retain the honest chat CTA");
  assert.ok(portal.includes('className="crew-portal-cta"'),"World Portal must keep a real CTA");
  assert.ok(home.includes('t("continue")'));
@@ -571,7 +571,7 @@ test("Crew home prioritizes chat and preserves free play with conditional Gemini
  assert.ok(readUiLocale("home").setup.title.includes("免費"));
  assert.ok(home.includes('t("setup.shortDesc")'));
  assert.ok(home.includes('trial.resolved&&(!trial.enabled||trial.remaining===0)'));
- assert.ok(home.indexOf('className="crew-home-start"')<home.indexOf("<HomeShortsPreview/>"),"onboarding precedes content");
+ assert.ok(home.indexOf('className="crew-home-start"')<home.indexOf("<HomeShortsPreview"),"onboarding precedes content");
  assert.ok(home.includes('geminiKey()'));
  assert.ok(home.includes('geminiVerified()'));
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);

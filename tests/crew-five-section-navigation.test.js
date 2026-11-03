@@ -42,7 +42,7 @@ test("new sections link to existing real screens and preserve the main Shorts fe
                    "/teacher/me","/fortune/history","/story/me","/settings"]){
   assert.ok(hub.includes(url),"Missing existing route "+url);
  }
- assert.match(home,/<HomeShortsPreview\/>/);
+ assert.match(home,/<HomeShortsPreview\b/);
 });
 
 test("five global labels exist in both available interface languages",()=>{

@@ -8,7 +8,7 @@ const locale=(lang,ns)=>JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/"+ns+
 
 test("home defers Gemini setup until trial is disabled or exhausted",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
- const title=home.indexOf('t("setup.title")'),shorts=home.indexOf('<HomeShortsPreview/>');
+ const title=home.indexOf('t("setup.title")'),shorts=home.indexOf('<HomeShortsPreview');
  assert.ok(title>0&&title<shorts,"setup must appear before home content");
  assert.ok(home.includes('trial.resolved&&(!trial.enabled||trial.remaining===0)')&&home.includes("crew-home-start-option"),"setup is delayed until trial exhausted or disabled");
  assert.doesNotMatch(home,/guest_trial_start_click|setup\.pricing/);
