@@ -63,9 +63,17 @@
 .timeline-compare-age-scroll{overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .timeline-compare-age-scroll::-webkit-scrollbar{display:none}
 .timeline-compare-ages{display:flex;flex-wrap:nowrap;gap:8px;width:max-content;min-width:100%;padding:2px 0}
-.timeline-compare-ages button{flex:none;white-space:nowrap;min-height:40px}
+.timeline-compare-ages button{flex:none;white-space:nowrap;min-height:44px}
 .timeline-compare-content p{font-size:clamp(16px,2.5vw,20px);line-height:1.55;margin:0;color:#40364d}
 .timeline-compare-people button:focus-visible{outline:3px solid #a391cf;outline-offset:2px}
 @media(max-width:650px){.timeline-compare-people button{flex:1;justify-content:center;padding:7px;gap:5px;font-size:13px}
 .timeline-compare-people .timeline-image-frame{width:32px;height:32px}
 .timeline-compare-content p{font-size:15px}}
+
+/* Compare remains a tap-first destination, including mobile. */
+.timeline-compare-back,.timeline-compare-content a{display:inline-flex;align-items:center;min-height:44px}
+.timeline-compare-questions button,.timeline-compare-ages button,.timeline-compare-footer button{min-height:44px}
+.timeline-compare-people button{min-height:44px}
+.timeline-compare-people button:focus-visible,.timeline-compare-content a:focus-visible{outline:3px solid #6d57ae;outline-offset:2px}
+
+.timeline-compare-footer a{display:inline-flex;align-items:center;min-height:44px}

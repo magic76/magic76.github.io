@@ -233,7 +233,7 @@
     "now": "Cuộc sống hiện tại",
     "jump": "Chuyển đến chương khác",
     "conversation": "Ngôn ngữ hội thoại",
-    "level": "Tuổi tác không thay đổi trình độ ngôn ngữ. Giọng nói dùng khóa Gemini hiện có.",
+    "level": "Thử trò chuyện bằng giọng nói miễn phí trong 5 phút mà không cần khóa Gemini, tùy tình trạng cung cấp.",
     "scrapbook": "Album cuộc đời",
     "memories": "Kỷ niệm đã lưu cùng {{name}}",
     "clearAll": "Xóa tất cả",
@@ -283,7 +283,9 @@
     "memorySaved": "Đã lưu. Quay lại tuổi này hoặc tuổi lớn hơn để nhớ lại.",
     "memoryDisabled": "Đã tắt bộ nhớ hoặc nội dung quá ngắn.",
     "memoryCaption": "Chỉ những câu bạn tự chọn lưu mới trở thành kỷ niệm Timeline.",
-    "photoAlt": "{{name}} lúc {{age}} tuổi"
+    "photoAlt": "{{name}} lúc {{age}} tuổi",
+    "compareAction": "Một câu hỏi, mọi độ tuổi",
+    "liveContext": "Khám phá · Dòng thời gian"
   },
   "shorts": {
     "heading": "Bạn bè Crew đang có chuyện gì mới?",

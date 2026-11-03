@@ -233,7 +233,7 @@
     "now": "この時期の出来事",
     "jump": "別の章に移動",
     "conversation": "会話する言語",
-    "level": "年齢は語学レベルに影響しません。音声には設定済みの Gemini キーを使います。",
+    "level": "Gemini キーがなくても、利用可能な場合は5分間の無料音声チャットを試せます。",
     "scrapbook": "人生アルバム",
     "memories": "{{name}} と残した思い出",
     "clearAll": "すべて削除",
@@ -283,7 +283,9 @@
     "memorySaved": "保存しました。同じ年齢か、より年上の人物に再び会うと思い出せます。",
     "memoryDisabled": "記憶がオフになっているか、文が短すぎます。",
     "memoryCaption": "自分で保存した言葉だけが Timeline の思い出になります。",
-    "photoAlt": "{{age}}歳の{{name}}"
+    "photoAlt": "{{age}}歳の{{name}}",
+    "compareAction": "一つの質問、年齢ごとの答え",
+    "liveContext": "探索 · 人生タイムライン"
   },
   "shorts": {
     "heading": "Crew の友だちは今何をしている？",

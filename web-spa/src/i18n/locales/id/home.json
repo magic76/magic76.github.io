@@ -233,7 +233,7 @@
     "now": "Kehidupan saat ini",
     "jump": "Lompat ke bab lain",
     "conversation": "Bahasa percakapan",
-    "level": "Usia tidak mengubah level bahasa Anda. Suara menggunakan kunci Gemini yang sudah ada.",
+    "level": "Coba obrolan suara gratis selama lima menit tanpa kunci Gemini, jika tersedia.",
     "scrapbook": "Album kehidupan",
     "memories": "Kenangan tersimpan bersama {{name}}",
     "clearAll": "Hapus semua",
@@ -283,7 +283,9 @@
     "memorySaved": "Tersimpan. Buka lagi usia ini atau yang lebih tua untuk mengingatnya.",
     "memoryDisabled": "Memori nonaktif atau teks terlalu pendek.",
     "memoryCaption": "Hanya kalimat yang Anda pilih untuk disimpan menjadi kenangan Timeline.",
-    "photoAlt": "{{name}} pada usia {{age}}"
+    "photoAlt": "{{name}} pada usia {{age}}",
+    "compareAction": "Satu pertanyaan, setiap usia",
+    "liveContext": "Jelajahi · Linimasa Hidup"
   },
   "shorts": {
     "heading": "Apa kabar teman-teman Crew?",

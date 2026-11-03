@@ -233,7 +233,7 @@
     "now": "Su vida ahora",
     "jump": "Saltar a otro capítulo",
     "conversation": "Idioma de la conversación",
-    "level": "La edad no cambia tu nivel de idioma. La voz usa tu clave de Gemini.",
+    "level": "Prueba cinco minutos gratis de conversación por voz sin clave de Gemini, sujeto a disponibilidad.",
     "scrapbook": "Álbum de vida",
     "memories": "Recuerdos guardados con {{name}}",
     "clearAll": "Borrar todo",
@@ -283,7 +283,9 @@
     "memorySaved": "Guardado. Vuelve a esta edad o a una posterior para recordarlo.",
     "memoryDisabled": "La memoria está desactivada o el texto es demasiado corto.",
     "memoryCaption": "Solo las frases que elijas guardar se convertirán en recuerdos de Timeline.",
-    "photoAlt": "{{name}} a los {{age}} años"
+    "photoAlt": "{{name}} a los {{age}} años",
+    "compareAction": "Una pregunta, todas las edades",
+    "liveContext": "Explorar · Línea de vida"
   },
   "shorts": {
     "heading": "¿Qué pasa con tus amigos Crew?",

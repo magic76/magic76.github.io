@@ -233,7 +233,7 @@
     "now": "La vie aujourd'hui",
     "jump": "Passer à un autre chapitre",
     "conversation": "Langue de conversation",
-    "level": "L'âge ne change pas votre niveau de langue. La voix utilise votre clé Gemini.",
+    "level": "Essayez gratuitement cinq minutes de conversation vocale sans clé Gemini, selon les disponibilités.",
     "scrapbook": "Album de vie",
     "memories": "Souvenirs enregistrés avec {{name}}",
     "clearAll": "Tout effacer",
@@ -283,7 +283,9 @@
     "memorySaved": "Enregistré. Revenez à cet âge ou à un âge plus avancé pour vous en souvenir.",
     "memoryDisabled": "Mémoire désactivée ou texte trop court.",
     "memoryCaption": "Seules les phrases que vous enregistrez deviennent des souvenirs Timeline.",
-    "photoAlt": "{{name}} à {{age}} ans"
+    "photoAlt": "{{name}} à {{age}} ans",
+    "compareAction": "Une question, tous les âges",
+    "liveContext": "Explorer · Chronologie de vie"
   },
   "shorts": {
     "heading": "Quoi de neuf chez vos amis Crew ?",
