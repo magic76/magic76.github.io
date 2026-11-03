@@ -8,7 +8,8 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  const field=read("web-spa/src/pages/PortalParticleField.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  assert.match(portal,/<h1>/);
- assert.match(portal,/<Link className="crew-portal-cta" to=\{mode==="chat"\?destination:current\.to\}/);
+ assert.match(portal,/<Link className="crew-portal-cta" to=\{target\}/);
+ assert.match(portal,/mode==="chat"\?destination:mode==="learn"\?teacherDestination:/);
  assert.match(portal,/role="tabpanel"/);
  assert.match(portal,/role="tablist"/);
  assert.match(field,/aria-hidden="true"/);

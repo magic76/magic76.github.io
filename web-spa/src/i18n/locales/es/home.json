@@ -82,7 +82,7 @@
         "accent": "Más lejos.",
         "after": "",
         "description": "De buscar palabras a hablar con soltura.\nPractica un nuevo idioma con un compañero de IA.",
-        "cta": "Encuentra tu voz"
+        "cta": "Empieza la clase de conversación de hoy"
       },
       "fortune": {
         "lead": "Otra forma de mirar.",
@@ -90,7 +90,7 @@
         "accent": "Estrellas.",
         "after": "",
         "description": "Una pequeña pausa para mirar tu día de otra manera.\nExplora tu horóscopo con un compañero de IA.",
-        "cta": "Ver el horóscopo de hoy"
+        "cta": "Introduce tu fecha de nacimiento y descubre tu número de vida"
       },
       "play": {
         "lead": "¿Tu siguiente jugada?",
@@ -98,7 +98,7 @@
         "accent": "Adivinar.",
         "after": "",
         "description": "Elige un número. Acepta un reto.\nUn intercambio de palabras puede dar mucho juego.",
-        "cta": "Jugar una ronda de 1A2B"
+        "cta": "Juega una ronda de 1A2B"
       }
     },
     "bridge": "Aquí nacen pequeñas historias",
@@ -112,6 +112,17 @@
     "chatSubtitle": "Sin registro. Habla gratis durante 5 minutos.",
     "chatStart": "Empezar a hablar gratis",
     "chatWithZoe": "Hablar con Zoe",
+    "chatNeutral": "Empieza a hablar con Zoe",
+    "chatTrial": "Habla 5 minutos gratis con Zoe",
+    "teacherTrial": "Clase oral gratis de 5 minutos",
+    "preparing": "Preparando…",
+    "chatTrialWith": "Habla gratis con {{name}} durante 5 minutos",
+    "chatNeutralWith": "Empieza a hablar con {{name}}",
+    "chatWithFriend": "Habla con {{name}}",
+    "shortsFallback": "Pregunta por esta foto",
+    "game1a2b": "Jugar 1A2B ahora",
+    "gameConnect4": "Jugar Conecta 4",
+    "gameReversi": "Jugar Reversi",
     "chatExhausted": "Configura una clave gratis y sigue hablando",
     "quickPicks": "O elige a alguien",
     "noVoice": "¿Prefieres escribir? Juega 1A2B",

@@ -6,12 +6,14 @@ const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
- assert.ok(home.indexOf("<HomePortal/>")>=0);
- assert.ok(home.indexOf("<HomeShortsPreview/>")>home.indexOf("<HomePortal/>"));
- assert.ok(home.indexOf("<HomeShortsPreview/>")<home.indexOf('className="crew-home-search-summary"'));
+ assert.ok(home.indexOf("<HomePortal shortsFeed={shortsFeed}/>")>=0);
+ assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")>home.indexOf("<HomePortal shortsFeed={shortsFeed}/>"));
+ assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")<home.indexOf('className="crew-home-search-summary"'));
  assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
- for(const target of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'),target);
- assert.match(portal,/to=\{mode==="chat"\?destination:current\.to\}/);
+ for(const target of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+target+'"'),target);
+ assert.match(portal,/to=\{target\}/);
+ assert.match(portal,/const target=mode==="chat"\?destination:mode==="learn"\?teacherDestination:/);
+ assert.match(portal,/mode==="play"\?"\/games\/"\+gameId:current\.to/);
  assert.match(portal,/role="tablist"/);
  assert.match(portal,/role="tab"/);
  assert.match(portal,/role="tabpanel"/);
@@ -40,9 +42,9 @@ test("Crew World animated portal respects reduced motion",()=>{
 test("Crew World does not repeat its KV tabs in a separate quick-start carousel",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const css=read("web-spa/src/pages/homeWorld.css");
- const kv=home.indexOf("<HomePortal/>");
+ const kv=home.indexOf("<HomePortal shortsFeed={shortsFeed}/>");
  const recent=home.indexOf('className="crew-home-continue"');
- const shorts=home.indexOf("<HomeShortsPreview/>");
+ const shorts=home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>");
  assert.ok(kv>=0&&kv<recent&&recent<shorts);
  assert.doesNotMatch(home,/HomeQuickCarousel|crew-home-launchpad/);
  assert.match(home,/recent\.to/);
@@ -95,7 +97,8 @@ test("Four semantic tabs switch copy and one immediate CTA with a keyboard rovin
  for(const attribute of ["aria-selected","aria-controls","tabIndex","aria-labelledby"])assert.ok(portal.includes(attribute),attribute);
  for(const key of ["ArrowLeft","ArrowRight","Home","End"])assert.ok(portal.includes('"'+key+'"'),key);
  assert.equal((portal.match(/className="crew-portal-cta"/g)||[]).length,1);
- assert.doesNotMatch(portal,/useNavigate|aria-disabled|setTimeout\([^)]*launch/);
+ assert.match(portal,/useNavigate/);
+ assert.doesNotMatch(portal,/aria-disabled|setTimeout\([^)]*launch/);
  assert.match(portal,/world\.modes\./);
 });
 

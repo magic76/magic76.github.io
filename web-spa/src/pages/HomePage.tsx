@@ -10,6 +10,7 @@ import {isCrewAndroidShell} from "../lib/platform";
 import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
+import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "../teacher/shortsFeed";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
@@ -95,6 +96,15 @@ export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
  const [orbAvailable,setOrbAvailable]=useState(false);
+ const [shortsFeed,setShortsFeed]=useState<ShortFeed|null>(null);
+ const [shortsStatus,setShortsStatus]=useState<"loading"|"ready"|"error">("loading");
+ useEffect(()=>{
+  const controller=new AbortController();
+  fetchShortsFeed(controller.signal).then(value=>{
+   if(!controller.signal.aborted){setShortsFeed({...value,posts:shuffleShortsPosts(value.posts)});setShortsStatus("ready")}
+  }).catch(()=>{if(!controller.signal.aborted)setShortsStatus("error")});
+  return()=>controller.abort();
+ },[]);
  const configured=ready&&Boolean(geminiKey()),verified=ready&&geminiVerified();
  const trial=useGuestTrialQuota(!ready||configured);
  const [featuredGame,setFeaturedGame]=useState<(typeof DAILY_GAMES)[number]>("1a2b");
@@ -130,7 +140,7 @@ export function HomePage(){
    <span aria-hidden="true" className="crew-home-orb-chevron">→</span>
   </Link></div>}
   <div className="crew-home-world">
-   <HomePortal/>
+   <HomePortal shortsFeed={shortsFeed}/>
    <div className="crew-home-world-inner">
     {ready&&!configured&&trial.resolved&&(!trial.enabled||trial.remaining===0)?<section className="crew-home-start" aria-label={t("start")}>
      <Link to="/account#settings-gemini" className="crew-home-start-option crew-home-start-byok" onClick={()=>trackUsageEvent("home_entry_click","settings")}>
@@ -150,7 +160,7 @@ export function HomePage(){
      </Link>
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
-   <HomeShortsPreview/>
+   <HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>
    <div className="crew-home-feature-row">
    <section className="crew-home-game-pick" aria-labelledby="crew-home-game-pick-title">
     <span className="crew-home-game-pick-icon" aria-hidden="true"><Icon name="play"/></span>

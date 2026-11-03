@@ -11,7 +11,7 @@ type WidgetApi={
 };
 const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
-export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend"}){
+export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean}){
  const {t}=useTranslation("common");
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
@@ -22,6 +22,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
  const [remaining,setRemaining]=useState<number|null>(null);
  const [quotaLimit,setQuotaLimit]=useState<number|null>(null);
  const host=useRef<HTMLDivElement|null>(null);
+ const startButton=useRef<HTMLButtonElement|null>(null);
  const widget=useRef<string|null>(null);
  const busy=useRef(false);
  const active=useRef(true);
@@ -99,6 +100,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
    if(widget.current!==null){try{turnstile()?.remove(widget.current)}catch{}widget.current=null}
   };
  },[siteKey,phase]);
+ useEffect(()=>{if(focusStartOnVerified&&phase==="ready"&&challenge)startButton.current?.focus({preventScroll:true})},[focusStartOnVerified,phase,challenge]);
  async function begin(){
   if(busy.current||phase!=="ready"||!challenge)return;
   busy.current=true;setPhase("starting");setMessage("");
@@ -158,7 +160,7 @@ export function GuestLiveStarter({onGrant,role}:{onGrant:(grant:GuestTrialGrant)
     {remaining!==null&&<p role="status">{t("guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
-    <button type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
+    <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
     <Link className="btn" to="/account">{t("guestTrial.signInAction")}</Link></>}

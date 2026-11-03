@@ -76,3 +76,12 @@
 }
 /* At the narrowest landscape width, stack icons so long French labels stay whole. */
 @media(orientation:landscape) and (max-height:500px) and (min-width:560px) and (max-width:700px){.crew-portal-tabs button{flex-direction:column;gap:2px;padding:4px 2px}}
+
+/* Version B: a compact, recognisable friend invitation stays inside the copy column. */
+.crew-portal-cta{gap:12px;text-align:left;padding:8px 15px}
+.crew-portal-cta .crew-portal-cta-avatar{width:32px;height:32px;flex:none;border-radius:50%;object-fit:cover}
+.crew-portal-cta .crew-portal-cta-label{font-size:inherit;font-weight:inherit;flex:1;min-width:0;overflow-wrap:break-word;line-height:1.4}
+.crew-portal-cta .crew-portal-cta-arrow{font-size:22px;font-weight:400;flex:none;margin-left:3px}
+.crew-portal-cta[data-preparing="true"]{transform:scale(.98);box-shadow:0 0 24px #dfbbff55;cursor:progress}
+@media(max-width:360px){.crew-portal-cta{max-width:100%;min-height:48px;gap:8px;padding:8px 11px}.crew-portal-cta .crew-portal-cta-avatar{width:28px;height:28px}.crew-portal-cta .crew-portal-cta-arrow{margin-left:0}}
+@media(prefers-reduced-motion:reduce){.crew-portal-cta[data-preparing="true"]{transform:none}}

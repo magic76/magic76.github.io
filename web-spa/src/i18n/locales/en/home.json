@@ -82,7 +82,7 @@
         "accent": "Further.",
         "after": "",
         "description": "From finding your words to finding your flow.\nPractice a new language with an AI partner.",
-        "cta": "Find your voice"
+        "cta": "Start today’s speaking lesson"
       },
       "fortune": {
         "lead": "A fresh perspective.",
@@ -90,7 +90,7 @@
         "accent": "Whisper.",
         "after": "",
         "description": "A little curiosity. A different view of your day.\nExplore your daily fortune with an AI companion.",
-        "cta": "See today’s fortune"
+        "cta": "Enter your birthday, discover your life path number"
       },
       "play": {
         "lead": "Your next move?",
@@ -112,6 +112,17 @@
     "chatSubtitle": "No sign-up. Chat free for 5 minutes right now.",
     "chatStart": "Start chatting free",
     "chatWithZoe": "Chat with Zoe",
+    "chatNeutral": "Start chatting with Zoe",
+    "chatTrial": "Chat with Zoe free for 5 minutes",
+    "teacherTrial": "Try a free 5-minute speaking lesson",
+    "preparing": "Getting ready…",
+    "chatTrialWith": "Chat with {{name}} free for 5 minutes",
+    "chatNeutralWith": "Start chatting with {{name}}",
+    "chatWithFriend": "Chat with {{name}}",
+    "shortsFallback": "Ask about this photo",
+    "game1a2b": "Start 1A2B",
+    "gameConnect4": "Play Connect Four",
+    "gameReversi": "Play Reversi",
     "chatExhausted": "Set up a free key to keep chatting",
     "quickPicks": "Or pick a friend",
     "noVoice": "Prefer typing? Try 1A2B",

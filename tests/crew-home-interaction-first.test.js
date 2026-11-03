@@ -6,11 +6,11 @@ const read=p=>fs.readFileSync(path.resolve(__dirname,"..",p),"utf8");
 test("Home World prioritizes first-run access before Shorts and daily games",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
- const hero=home.indexOf("<HomePortal/>"),start=home.indexOf('className="crew-home-start"');
- const shorts=home.indexOf("<HomeShortsPreview/>"),games=home.indexOf('className="crew-home-game-pick"');
+ const hero=home.indexOf("<HomePortal shortsFeed={shortsFeed}/>"),start=home.indexOf('className="crew-home-start"');
+ const shorts=home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>"),games=home.indexOf('className="crew-home-game-pick"');
  assert.ok(hero>=0&&hero<start&&start<shorts&&shorts<games);
  assert.match(portal,/const ZOE="\/friend\/live\?id=zoe"/);
- for(const path of ["/teacher","/fortune","/games/1a2b"])assert.ok(portal.includes('to:"'+path+'"'),path);
+ for(const path of ["/teacher/live?lesson=daily_u1_l1","/fortune/reading?mode=tarot","/games/1a2b"])assert.ok(portal.includes('to:"'+path+'"'),path);
  assert.match(home,/to=\{"\/games\/"\+featuredGame\}/);
  assert.match(home,/DAILY_GAMES=\["1a2b","connect4","reversi"\]/);
  assert.match(home,/taipeiDay%DAILY_GAMES\.length/);
@@ -25,7 +25,7 @@ test("Home preserves portal, Timeline, briefing and collapsed Play Store without
  assert.match(home,/crew-home-world-explore-card/);
  assert.match(home,/to="\/timeline"/);
  assert.doesNotMatch(home,/assets\/timeline\/mira-/);
- assert.ok(home.indexOf("<HomeShortsPreview/>")>home.indexOf("<HomePortal/>"));
+ assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")>home.indexOf("<HomePortal shortsFeed={shortsFeed}/>"));
  assert.match(home,/<details className="crew-home-android">/);
 });
 

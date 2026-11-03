@@ -44,5 +44,6 @@ test("Usage journey consists only of private, per-period distinct browser aggreg
  assert.doesNotMatch(api,/SELECT\s+blob2\s+AS\s+/);
  assert.doesNotMatch(api,/JOIN |INSERT INTO|CREATE TABLE/);
  const home=read("web-spa/src/pages/HomePortal.tsx");
- assert.match(home,/trackUsageEvent\("home_entry_click",exhausted\?"settings":"friend"\)/);
+ assert.match(home,/trackUsageEvent\("home_entry_click",exhausted&&\(mode==="chat"\|\|mode==="learn"\)\?"settings":current\.entry\)/);
+ assert.match(home,/\{id:"chat"[^\n]*entry:"friend"/);
 });
