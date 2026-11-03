@@ -122,7 +122,7 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    // after an actual lost-track event.
    trackedFrames.current++;
    if(next.box&&trackedFrames.current%18===0){
-    const refreshed=initRegionTracker(frame,next.box,next.point);
+    const refreshed=initRegionTracker(frame,next.box,next.point,next.anchors.map(a=>({x:a.x/frame.width,y:a.y/frame.height})));
     if(refreshed&&refreshed.anchors.length>=Math.max(3,next.anchors.length*.65))tracker.current=refreshed;
    }
   },250);
@@ -165,7 +165,11 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
     x:Math.max(0,Math.min(1-result.box.width,result.box.x+shiftX)),
     y:Math.max(0,Math.min(1-result.box.height,result.box.y+shiftY))};
    const face={x:shifted.x+shifted.width*.5,y:shifted.y+shifted.height*.43};
-   const regionTracker=initRegionTracker(latest,shifted,face);
+   const foreground=result.anchors.map(p=>({
+    x:Math.max(0,Math.min(1,p.x+shiftX)),
+    y:Math.max(0,Math.min(1,p.y+shiftY))
+   }));
+   const regionTracker=initRegionTracker(latest,shifted,face,foreground);
    if(!regionTracker){
     setError(en?"Object is too plain to track. Tap a patterned area.":"物品紋理不足，請點選有圖案的部位。");return;
    }
