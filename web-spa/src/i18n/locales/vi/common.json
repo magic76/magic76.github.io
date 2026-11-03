@@ -133,5 +133,11 @@
     "learningSettings": "Cài đặt học tập",
     "dataSettings": "Bộ nhớ và dữ liệu",
     "deviceSettings": "Thiết bị và quyền"
+  },
+  "chrome": {
+    "shortsSection": "Trò chuyện",
+    "shortsTitle": "Khoảnh khắc bạn bè",
+    "timelineSection": "Khám phá",
+    "timelineTitle": "Cỗ máy thời gian cuộc đời"
   }
 }

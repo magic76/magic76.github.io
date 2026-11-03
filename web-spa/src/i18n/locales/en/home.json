@@ -317,7 +317,43 @@
     "retryMore": "Retry loading stories",
     "hooksDetails": "Tell me more",
     "hooksFeelings": "How do you feel?",
-    "hooksNext": "What happened next?"
+    "hooksNext": "What happened next?",
+    "chatThis": "Chat about this with {{name}}",
+    "startVoiceHint": "Tap Start to call; {{name}} will speak first about this photo.",
+    "photoTopics": {
+      "repair": {
+        "first": "How did you spot the problem?",
+        "second": "Did you manage to fix it?"
+      },
+      "home": {
+        "first": "What gave you that idea?",
+        "second": "Did the change help?"
+      },
+      "craft": {
+        "first": "Was it tricky to make?",
+        "second": "What was the hardest part?"
+      },
+      "food": {
+        "first": "How did it taste?",
+        "second": "Would you try it again?"
+      },
+      "travel": {
+        "first": "Any surprises along the way?",
+        "second": "How did the trip turn out?"
+      },
+      "sport": {
+        "first": "How did practice go?",
+        "second": "What was the hardest move?"
+      },
+      "nature": {
+        "first": "How did you notice that?",
+        "second": "How did that moment feel?"
+      },
+      "find": {
+        "first": "Where did you find it?",
+        "second": "Were you worried?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "Explore",

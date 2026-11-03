@@ -45,7 +45,8 @@
     "shortsLoading": "Memuat cerita…",
     "shortsUnavailable": "Cerita tidak tersedia. Buka Crew Shorts dan coba lagi.",
     "shortsDisclosure": "Cerita fiksi yang dibuat Crew.",
-    "shortsDemo": "Konten pratinjau"
+    "shortsDemo": "Konten pratinjau",
+    "shortsChatThis": "Ngobrol soal foto ini dengan {{name}}"
   },
   "learn": {
     "threeMinute": "Berbicara 3 menit",

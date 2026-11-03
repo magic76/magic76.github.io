@@ -45,7 +45,8 @@
     "shortsLoading": "Loading stories…",
     "shortsUnavailable": "Stories are unavailable. Open Crew Shorts to try again.",
     "shortsDisclosure": "Fictional stories created by Crew.",
-    "shortsDemo": "Preview content"
+    "shortsDemo": "Preview content",
+    "shortsChatThis": "Chat with {{name}} about this"
   },
   "learn": {
     "threeMinute": "3-minute speaking",

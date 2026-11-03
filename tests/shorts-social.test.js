@@ -64,16 +64,19 @@ test("Published Shorts UI offers story questions on home and feed, with server-s
  }
  assert.match(feed,/shortsStoryEpisodes/);
  assert.match(feed,/crew-short-recap/);
- assert.match(feed,/<Link className="crew-short-image" to=\{shortsChatUrl\(post,"details"\)\}/);
+ assert.match(feed,/<Link className="crew-short-image" to=\{shortsChatUrl\(post,undefined,0\)\}/);
+ assert.match(feed,/shortsPhotoQuestions\(post/);
+ assert.match(feed,/crew-short-primary-cta/);
  assert.match(home,/<Link className="crew-home-short-photo" to=\{"\/teacher\/shorts\?post="\+encodeURIComponent\(post.id\)\}/);
- assert.match(home,/to=\{shortsChatUrl\(post,"details"\)\}/, "Home CTA keeps a contextual Friend Live path");
- assert.match(home,/問 "\+post.friendName\+" 怎麼回事/);
+ assert.match(home,/to=\{shortsChatUrl\(post,undefined,0\)\}/, "Home CTA keeps a contextual Friend Live path");
+ assert.match(home,/practice\.shortsChatThis/);
  assert.doesNotMatch(home,/crew-home-short-chat|\/friend\/live\?id=/,"No duplicate generic homepage chat");
  assert.doesNotMatch(feed,/\/friend\/live\?id=/,"No duplicate generic feed chat");
  assert.match(feed,/SHORTS_HOOKS\.map/);
  assert.match(home,/shorts_hook_click/);
  assert.match(live,/isShortsHook\(urlHook\)/);
  assert.match(live,/shortsOpeningHint\(shortsHook\)/);
+ assert.match(live,/shortsQuestionOpeningHint\(selectedQuestion\)/);
  assert.match(live,/rememberShortsConversation\(shortsPost\)/);
  assert.match(live,/completedTurns\.some/);
  for(const event of ["shorts_hook_click","shorts_story_followup"])assert.ok(server.includes('"'+event+'"'));

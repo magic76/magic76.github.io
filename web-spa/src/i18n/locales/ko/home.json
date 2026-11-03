@@ -317,7 +317,43 @@
     "retryMore": "다시 불러오기",
     "hooksDetails": "좀 더 알려줘",
     "hooksFeelings": "기분이 어때?",
-    "hooksNext": "그다음엔 어떻게 됐어?"
+    "hooksNext": "그다음엔 어떻게 됐어?",
+    "chatThis": "{{name}}와 이 사진 이야기하기",
+    "startVoiceHint": "시작을 누르면 {{name}}가 이 사진에 대해 먼저 이야기해요.",
+    "photoTopics": {
+      "repair": {
+        "first": "문제는 어떻게 찾았어?",
+        "second": "결국 고쳤어?"
+      },
+      "home": {
+        "first": "그 생각은 어떻게 했어?",
+        "second": "바꾸니까 좀 나아졌어?"
+      },
+      "craft": {
+        "first": "만들기 어려웠어?",
+        "second": "어떤 부분이 제일 힘들었어?"
+      },
+      "food": {
+        "first": "맛은 어땠어?",
+        "second": "다시 해 보고 싶어?"
+      },
+      "travel": {
+        "first": "가는 길에 놀란 일이 있었어?",
+        "second": "그 뒤엔 잘 다녀왔어?"
+      },
+      "sport": {
+        "first": "연습은 어땠어?",
+        "second": "가장 어려운 동작은?"
+      },
+      "nature": {
+        "first": "그걸 어떻게 발견했어?",
+        "second": "그때 어떤 기분이었어?"
+      },
+      "find": {
+        "first": "어디서 찾았어?",
+        "second": "찾는 동안 걱정됐어?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "탐색하기",

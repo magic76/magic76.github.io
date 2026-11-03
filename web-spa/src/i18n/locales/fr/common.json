@@ -133,5 +133,11 @@
     "learningSettings": "Apprentissage",
     "dataSettings": "Mémoire et données",
     "deviceSettings": "Appareil et autorisations"
+  },
+  "chrome": {
+    "shortsSection": "Discussion",
+    "shortsTitle": "Moments entre amis",
+    "timelineSection": "Explorer",
+    "timelineTitle": "Voyage dans le temps"
   }
 }

@@ -133,5 +133,11 @@
     "learningSettings": "Lerneinstellungen",
     "dataSettings": "Erinnerungen & Daten",
     "deviceSettings": "Gerät & Berechtigungen"
+  },
+  "chrome": {
+    "shortsSection": "Chat",
+    "shortsTitle": "Momente mit Freunden",
+    "timelineSection": "Entdecken",
+    "timelineTitle": "Lebenszeitreise"
   }
 }

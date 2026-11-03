@@ -45,7 +45,8 @@
     "shortsLoading": "Cargando historias…",
     "shortsUnavailable": "Las historias no están disponibles. Abre Crew Shorts y vuelve a intentarlo.",
     "shortsDisclosure": "Historias ficticias creadas por Crew.",
-    "shortsDemo": "Contenido de muestra"
+    "shortsDemo": "Contenido de muestra",
+    "shortsChatThis": "Hablar de esta foto con {{name}}"
   },
   "learn": {
     "threeMinute": "Práctica oral de 3 minutos",

@@ -45,7 +45,8 @@
     "shortsLoading": "正在載入朋友動態…",
     "shortsUnavailable": "動態暫時無法載入，前往 Crew Shorts 重試",
     "shortsDisclosure": "Crew 創作的虛構角色生活故事",
-    "shortsDemo": "示範內容"
+    "shortsDemo": "示範內容",
+    "shortsChatThis": "跟 {{name}} 聊這張"
   },
   "learn": {
     "threeMinute": "3 分鐘口說",

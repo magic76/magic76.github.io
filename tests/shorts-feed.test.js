@@ -32,7 +32,7 @@ test("Crew Shorts v1 ships external feed and switchable CDN config",()=>{
  assert.match(loader,/export function shuffleShortsPosts/);
  assert.match(loader,/const shuffled=\[\.\.\.posts\]/);
  assert.match(page,/loading=\{index>1\?"lazy":"eager"\}/);
- assert.match(page,/shortsChatUrl\(post,"details"\)/);
+ assert.match(page,/shortsChatUrl\(post,undefined,0\)/);
  assert.match(loader,/fetch\(url,\{signal,cache:"no-cache"\}\)/);
  assert.match(loader,/FIRST_PARTY_PHOTO/);
  assert.match(loader,/CREW_FRIEND_IDS/);
@@ -50,7 +50,7 @@ test("Crew Shorts never plays a generic browser voice that disagrees with the ch
  assert.doesNotMatch(page,/speechSynthesis|SpeechSynthesisUtterance/);
  assert.equal(page.includes("speak(post.caption"),false);
  assert.doesNotMatch(page,/>聽發音<|>Listen</);
- assert.match(page,/shortsChatUrl\(post,"details"\)/);
+ assert.match(page,/shortsChatUrl\(post,undefined,0\)/);
  assert.match(page,/t\("shorts\.translation"\)/);
  const translations=JSON.parse(load("web-spa/src/i18n/locales/zh-TW/home.json"));
  assert.equal(translations.shorts.translation,"翻譯");

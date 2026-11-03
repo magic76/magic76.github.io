@@ -45,7 +45,8 @@
     "shortsLoading": "이야기 불러오는 중…",
     "shortsUnavailable": "소식을 이용할 수 없습니다. Crew Shorts를 열고 다시 시도하세요.",
     "shortsDisclosure": "Crew가 만든 가상의 이야기입니다.",
-    "shortsDemo": "미리보기 콘텐츠"
+    "shortsDemo": "미리보기 콘텐츠",
+    "shortsChatThis": "{{name}}와 이 사진 이야기하기"
   },
   "learn": {
     "threeMinute": "3분 말하기",

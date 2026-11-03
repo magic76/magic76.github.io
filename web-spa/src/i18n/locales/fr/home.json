@@ -317,7 +317,43 @@
     "retryMore": "Réessayer le chargement",
     "hooksDetails": "Raconte-moi",
     "hooksFeelings": "Comment te sens-tu ?",
-    "hooksNext": "Et ensuite ?"
+    "hooksNext": "Et ensuite ?",
+    "chatThis": "Parler de cette photo avec {{name}}",
+    "startVoiceHint": "Appuie sur Démarrer : {{name}} parlera d’abord de cette photo.",
+    "photoTopics": {
+      "repair": {
+        "first": "Comment as-tu repéré le problème ?",
+        "second": "Tu as réussi à réparer ?"
+      },
+      "home": {
+        "first": "D’où t’est venue cette idée ?",
+        "second": "Le changement a aidé ?"
+      },
+      "craft": {
+        "first": "C’était difficile à faire ?",
+        "second": "Le plus dur, c’était quoi ?"
+      },
+      "food": {
+        "first": "C’était bon ?",
+        "second": "Tu en referais ?"
+      },
+      "travel": {
+        "first": "Des surprises en chemin ?",
+        "second": "Comment s’est fini le trajet ?"
+      },
+      "sport": {
+        "first": "Ça s’est bien passé ?",
+        "second": "Quel geste était le plus dur ?"
+      },
+      "nature": {
+        "first": "Comment as-tu remarqué ça ?",
+        "second": "Qu’as-tu ressenti ?"
+      },
+      "find": {
+        "first": "Tu l’as trouvé où ?",
+        "second": "Tu t’inquiétais ?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "Explorer",

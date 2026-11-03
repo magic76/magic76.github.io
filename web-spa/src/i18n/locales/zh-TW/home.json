@@ -317,7 +317,43 @@
     "retryMore": "重新載入動態",
     "hooksDetails": "怎麼回事？",
     "hooksFeelings": "你現在怎麼想？",
-    "hooksNext": "後來呢？"
+    "hooksNext": "後來呢？",
+    "chatThis": "跟 {{name}} 聊這張",
+    "startVoiceHint": "點一下開始通話，{{name}} 就會先聊這張照片。",
+    "photoTopics": {
+      "repair": {
+        "first": "你怎麼找到問題的？",
+        "second": "最後修好了嗎？"
+      },
+      "home": {
+        "first": "怎麼想到這個改法？",
+        "second": "改完真的有差嗎？"
+      },
+      "craft": {
+        "first": "做的時候順利嗎？",
+        "second": "最難的是哪一步？"
+      },
+      "food": {
+        "first": "這次味道怎麼樣？",
+        "second": "下次還想再試嗎？"
+      },
+      "travel": {
+        "first": "路上最意外的是什麼？",
+        "second": "這趟後來還順利嗎？"
+      },
+      "sport": {
+        "first": "這次練得怎麼樣？",
+        "second": "哪個動作最難？"
+      },
+      "nature": {
+        "first": "怎麼注意到這一幕的？",
+        "second": "當時是什麼感覺？"
+      },
+      "find": {
+        "first": "最後在哪裡找到的？",
+        "second": "找的時候有著急嗎？"
+      }
+    }
   },
   "sectionExplore": {
     "title": "探索",

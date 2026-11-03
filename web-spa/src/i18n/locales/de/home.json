@@ -317,7 +317,43 @@
     "retryMore": "Erneut laden",
     "hooksDetails": "Erzähl mir mehr",
     "hooksFeelings": "Wie fühlst du dich?",
-    "hooksNext": "Was geschah danach?"
+    "hooksNext": "Was geschah danach?",
+    "chatThis": "Mit {{name}} über dieses Foto sprechen",
+    "startVoiceHint": "Tippe auf Start. {{name}} spricht zuerst über dieses Foto.",
+    "photoTopics": {
+      "repair": {
+        "first": "Wie hast du den Fehler entdeckt?",
+        "second": "Hast du es repariert?"
+      },
+      "home": {
+        "first": "Wie kamst du auf die Idee?",
+        "second": "Hat die Änderung geholfen?"
+      },
+      "craft": {
+        "first": "War es schwer zu machen?",
+        "second": "Was war am schwierigsten?"
+      },
+      "food": {
+        "first": "Wie hat es geschmeckt?",
+        "second": "Würdest du es wieder probieren?"
+      },
+      "travel": {
+        "first": "Gab es unterwegs Überraschungen?",
+        "second": "Wie ging die Fahrt aus?"
+      },
+      "sport": {
+        "first": "Wie lief das Training?",
+        "second": "Was war am schwierigsten?"
+      },
+      "nature": {
+        "first": "Wie ist dir das aufgefallen?",
+        "second": "Wie hat sich der Moment angefühlt?"
+      },
+      "find": {
+        "first": "Wo hast du es gefunden?",
+        "second": "Warst du besorgt?"
+      }
+    }
   },
   "sectionExplore": {
     "title": "Entdecken",

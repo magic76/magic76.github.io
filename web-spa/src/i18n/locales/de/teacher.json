@@ -45,7 +45,8 @@
     "shortsLoading": "Geschichten werden geladen…",
     "shortsUnavailable": "Geschichten sind nicht verfügbar. Öffne Crew Shorts und versuch es erneut.",
     "shortsDisclosure": "Fiktive Geschichten von Crew.",
-    "shortsDemo": "Vorschauinhalt"
+    "shortsDemo": "Vorschauinhalt",
+    "shortsChatThis": "Mit {{name}} darüber sprechen"
   },
   "learn": {
     "threeMinute": "3 Minuten sprechen",

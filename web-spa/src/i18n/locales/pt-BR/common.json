@@ -133,5 +133,11 @@
     "learningSettings": "Aprendizado",
     "dataSettings": "Memória e dados",
     "deviceSettings": "Dispositivo e permissões"
+  },
+  "chrome": {
+    "shortsSection": "Conversa",
+    "shortsTitle": "Momentos dos amigos",
+    "timelineSection": "Explorar",
+    "timelineTitle": "Linha do tempo da vida"
   }
 }

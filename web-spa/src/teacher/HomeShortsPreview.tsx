@@ -132,8 +132,8 @@ export function HomeShortsPreview({maxPosts=3,excludeFriendIds=[]}:{maxPosts?:nu
       <p lang={post.language}>{post.caption}</p>
       <Link className="crew-home-short-question" onClick={()=>{
        trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
-      }} to={shortsChatUrl(post,"details")}>
-       {en?"Ask "+post.friendName+" what happened":"問 "+post.friendName+" 怎麼回事"} <span aria-hidden="true">→</span>
+      }} to={shortsChatUrl(post,undefined,0)}>
+       {t("practice.shortsChatThis",{name:post.friendName})} <span aria-hidden="true">→</span>
       </Link>
      </div>
     </article>)}
