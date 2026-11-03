@@ -41,7 +41,8 @@ test("cutout is attempted automatically but optional; failed segmentation never 
 });
 test("face is independent from the PNG, adjustable before and after saving",()=>{
  assert.match(data,/face\?:SoulFace/);
- assert.match(page,/face:safeFace\(faceDraft\)/);\n assert.match(page,/transform:safeTransform\(transformDraft\)/);
+ assert.match(page,/face:safeFace\(faceDraft\)/);
+ assert.match(page,/transform:safeTransform\(transformDraft\)/);
  assert.match(page,/onFaceChange=\{changeFace\}/);
  assert.match(page,/setFaceDraft\(safeFace\(selected\.face\)\)/);
  assert.match(page,/await mutate\(s=>\(\{\.\.\.s,face:safeFace\(faceDraft\),transform:safeTransform\(transformDraft\)\}\)\)/);
