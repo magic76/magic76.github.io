@@ -219,3 +219,29 @@ test("camera face attaches only to a confirmed object, scales with its mask and 
  assert.match(camera,/\},2000\)/);
  assert.match(page,/onDeparted=\{\(\)=>\{resetCameraSoul\(\)/);
 });
+
+
+test("missing outline and smooth objects still have an explicit user-confirmed Live path",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const region=fs.readFileSync(path.join(root,"web-spa/src/souls/soulRegion.ts"),"utf8");
+ const css=fs.readFileSync(path.join(root,"web-spa/src/souls/souls.css"),"utf8");
+ assert.match(camera,/function confirmSimplePlacement\(\)/);
+ assert.match(camera,/setFallbackPoint\(at\)/);
+ assert.match(camera,/onClick=\{confirmSimplePlacement\}/);
+ assert.match(camera,/captureEpoch\.current\+\+;locating\.current=false;setLocatingRegion\(false\)/);
+ assert.match(camera,/setAttachmentMode\(canFollow\?"approximate":"fixed"\)/);
+ assert.match(camera,/setTracking\("following"\)/);
+ assert.match(camera,/callbacks\.current\.onAttached\?\.\(\)/);
+ assert.match(page,/selected&&cameraAttached\?<SoulChat/);
+ assert.doesNotMatch(region,/if\(anchors\.length<3\)throw Error/);
+ assert.match(css,/\.souls-simple-attach/);
+});
+test("object detection failures are not conflated with optional reference photo errors",()=>{
+ const camera=fs.readFileSync(path.join(root,"web-spa/src/souls/SoulCamera.tsx"),"utf8");
+ const start=camera.indexOf("if(callbacks.current.onRegionCrop){");
+ const stop=camera.indexOf("}).catch((cause:unknown)",start);
+ assert.ok(start>0&&stop>start);
+ const optional=camera.slice(start,stop);
+ assert.match(optional,/catch\(cause\)\{console\.warn\("\[Souls\] optional reference crop failed"/);
+ assert.doesNotMatch(optional,/setTracking\("lost"\)/);
+});
