@@ -198,7 +198,8 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
   }).finally(()=>{if(captureEpoch.current===epoch){locating.current=false;setLocatingRegion(false)}});
  }
  function confirmSimplePlacement(){
-  if(!fallbackPoint||!activeRef.current||locating.current)return;
+  if(!fallbackPoint||!activeRef.current)return;
+  captureEpoch.current++;locating.current=false;setLocatingRegion(false);
   const point=fallbackPoint;
   const provisional:Region=suggestedBox||{
    x:Math.max(0,Math.min(.74,point.x-.15)),
@@ -311,10 +312,16 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
   </div>
   <p className="souls-camera-status" role="status">{error||(!ready?(en?"Opening camera…":"正在開啟相機…"):activeSoul?
    locatingRegion?(en?"Finding the object outline locally…":"正在本機找出物品輪廓…"):
-   tracking==="lost"?(en?"Object lost. Tap within 2 seconds or Live will end.":"物品離開鏡頭，請在 2 秒內重新定位，否則結束 Live。"):
+   tracking==="lost"?(en?"Object lost. Tap within 2 seconds or Live will end.":"追蹤遺失，請在 2 秒內重新定位，否則結束 Live。"):
+   attachmentMode==="fixed"?(en?"Fixed placement: tap to re-position or Scan another to stop Live.":"固定貼附：可點擊重新定位；物品離開時請按「換個物品」結束 Live。"):
+   attachmentMode==="approximate"?(en?"Simple feature tracking (not verified outline).":"簡易特徵追蹤中，物品輪廓未確認。"):
    tracking==="align"?(en?"Tap the object to position its eyes.":"點一下物品，把眼睛放到正確位置。"):
    (en?"Your Soul is awake! Tap to adjust its eyes.":"它醒來了！點物品可以調整眼睛位置。"):
    (hint||(en?"Point at a saved Soul to wake it.":"對準已收藏物品，它就會在鏡頭裡醒來。")))}</p>
+  {activeSoul&&fallbackPoint&&tracking!=="following"&&<div className="souls-camera-actions souls-simple-attach">
+   <button type="button" onClick={confirmSimplePlacement}>{en?"✓ Simple placement / start talking":"✓ 簡易貼附，開始說話"}</button>
+   <span className="souls-camera-fallback-hint">{en?"Approximate position. Smooth objects might not track or auto-stop.":"這是手動確認的位置。光滑物品可能無法追蹤或自動偵測離開鏡頭。"}</span>
+  </div>}
   {activeSoul?<div className="souls-camera-actions">
    <button type="button" disabled={Boolean(burstProgress)} onClick={()=>void burst("reference")}>{en?"＋ Add 4 views":"＋ 補拍 4 視角"}</button><button type="button" onClick={onReset}>{en?"↻ Scan another":"↻ 換個物品"}</button><button type="button" onClick={onClose}>{en?"Close camera":"關閉相機"}</button>
   </div>:<div className="souls-actions">
