@@ -161,13 +161,10 @@ export function SoulCamera({onProbe,onWake,onSnapshot,onAddReferences,onRegionCr
    if(activeRef.current!==owner||captureEpoch.current!==epoch)return;
    const latest=trackCanvas();if(!latest)return;
    // A slow model load is not evidence of pixel motion.
+   // No unverified feature drift is applied to a result from a different frame.
+   // A user can tap to refresh when the camera or object has moved.
    const shiftX=0,shiftY=0;
-   if(Math.abs(shiftX)>.22||Math.abs(shiftY)>.22){
-    setError(en?"Object moved too far. Tap it again.":"物品移動太遠，請重新點選物品。");return;
-   }
-   const shifted={...result.box,
-    x:Math.max(0,Math.min(1-result.box.width,result.box.x+shiftX)),
-    y:Math.max(0,Math.min(1-result.box.height,result.box.y+shiftY))};
+   const shifted={...result.box};
    const face={x:shifted.x+shifted.width*.5,y:shifted.y+shifted.height*.43};
    const foreground=result.anchors.map(p=>({
     x:Math.max(0,Math.min(1,p.x+shiftX)),
