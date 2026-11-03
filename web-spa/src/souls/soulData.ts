@@ -1,10 +1,11 @@
 import {ensureCore,geminiKey} from "../lib/runtime";
 import {embedPhoto,compareEmbeddings,photoQuality} from "./soulEmbedding";
 import {isSafeAutomaticMemory} from "./soulRecognition";
+import {type SoulFace} from "./soulFace";
 
 export type Photo={image:string;hash:string;color:number[];embedding?:number[];quality?:"dark"|"bright"|"blur"|null};
 export type Note={id:string;text:string;source:"manual"|"conversation"};
-export type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
+export type Soul={id:string;name:string;kind:string;description:string;personality:"witty"|"gentle"|"curious";voice:string;photos:Photo[];cutout?:string;face?:SoulFace;notes:Note[];remember:boolean;createdAt:number;lastSeenAt:number};
 export type Candidate={soul:Soul;score:number;hasEmbedding:boolean;legacy:number;cosine:number|null;embeddingExpected:boolean};
 export const pid=()=>crypto.randomUUID();
 export const persona={witty:["愛吐槽","Witty","Puck"],gentle:["溫柔","Gentle","Kore"],curious:["好奇","Curious","Aoede"]} as const;
