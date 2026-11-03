@@ -4,7 +4,7 @@
  * Never transmit app identifiers, search params, hash, titles, speech or keys.
  */
 export const GA4_MEASUREMENT_ID="G-563JSM2X68";
-type GaWindow=Window&{dataLayer?:unknown[][]};
+type GaWindow=Window&{dataLayer?:IArguments[]};
 let initialized=false;
 let enabledState:boolean|null=null;
 let lastViewPath="";
@@ -27,7 +27,11 @@ export function safeGa4Path(pathname:string){
 }
 function command(...args:unknown[]){
  const target=window as GaWindow;
- (target.dataLayer??=[]).push(args);
+ // Match Google's gtag() snippet: gtag.js consumes the native Arguments object.
+ function enqueue(..._params:unknown[]){
+  (target.dataLayer??=[]).push(arguments);
+ }
+ enqueue(...args);
 }
 const consent=(enabled:boolean)=>({
  ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",
