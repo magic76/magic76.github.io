@@ -21,21 +21,22 @@ export async function locateSoulRegion(image:string,point:Anchor):Promise<{box:R
   minX=Math.min(minX,x);maxX=Math.max(maxX,x);
   minY=Math.min(minY,y);maxY=Math.max(maxY,y);kept++;
  }
- if(maxX<0||kept<w*h*.005/4||kept>w*h*.85/4)throw Error("Ambiguous object mask");
+ if(maxX<0||kept<w*h*.002/4||kept>w*h*.92/4)throw Error("Ambiguous object mask");
  const padX=Math.max(4,(maxX-minX)*.07),padY=Math.max(4,(maxY-minY)*.07);
  const left=Math.max(0,Math.floor(minX-padX)),top=Math.max(0,Math.floor(minY-padY));
  const right=Math.min(w,Math.ceil(maxX+padX)),bottom=Math.min(h,Math.ceil(maxY+padY));
  const box={x:left/w,y:top/h,width:(right-left)/w,height:(bottom-top)/h};
- if(box.width<.07||box.height<.07||box.width>.94||box.height>.94)throw Error("Object bounds unreliable");
+ if(box.width<.045||box.height<.045||box.width>.97||box.height>.97)throw Error("Object bounds unreliable");
  // Seed the tracker on foreground pixels, not on background inside the box.
  const anchors:Anchor[]=[];
  for(const fx of [.16,.29,.42,.55,.68,.81])for(const fy of [.18,.32,.46,.60,.74,.86]){
   const px=Math.round(left+(right-left)*fx),py=Math.round(top+(bottom-top)*fy);
   if(px<0||py<0||px>=w||py>=h)continue;
-  if(p[(py*w+px)*4+3]<210)continue;
+  if(p[(py*w+px)*4+3]<165)continue;
   anchors.push({x:px/w,y:py/h});
  }
- if(anchors.length<3)throw Error("Not enough foreground features");
+ // Blank/reflective foreground may have too few texture points for tracking.
+ // Preserve the valid outline so the user may confirm static placement instead.
  // Composite on neutral white to avoid training comparisons against transparent-black.
  const out=document.createElement("canvas");out.width=320;out.height=320;
  const ox=out.getContext("2d");if(!ox)throw Error("Canvas unavailable");
