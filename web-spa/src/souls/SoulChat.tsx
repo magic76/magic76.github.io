@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useRef,useState,type FormEvent} from "react";
 import {type Soul,systemFor,remember} from "./soulData";
-import {type SoulVisual} from "./SoulCamera";
+import {type SoulVisual} from "./soulVisual";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
 import {GuestLiveStarter} from "../live/GuestLiveStarter";
@@ -20,7 +20,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:
  };
  const live=useLiveSession({
   pageKey:"friend-soul-"+soul.id,title:"Crew Souls · "+soul.name,system,
-  openingPrompt:en?"The camera has just recognized you. Wake up as this object, warmly greet your owner in one playful short sentence.":"相機剛認出你這個物品。用你的個性醒來，像老朋友一樣簡短打招呼，別解釋系統。",
+  openingPrompt:en?"Your owner has opened your Soul portrait. Greet them warmly in one playful short sentence, in character as this object.":"主人剛打開你的物品靈魂收藏。以你的個性像老朋友一樣簡短打招呼，不要解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onOutputLevel:level=>onAudioLevel?.(level),
