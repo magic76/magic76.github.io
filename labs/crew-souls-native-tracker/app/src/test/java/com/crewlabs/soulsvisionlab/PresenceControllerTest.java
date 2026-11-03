@@ -37,6 +37,7 @@ public final class PresenceControllerTest {
         PresenceController p = new PresenceController();
         p.lock(7, 100);
         assertEquals(PresenceController.State.OCCLUDED, p.observe(11, 400));
+        assertEquals(PresenceController.State.OCCLUDED, p.observe(11, 1000));
         assertEquals(PresenceController.State.LOST, p.observe(11, 1500));
         assertEquals(Integer.valueOf(7), p.getTargetId());
         assertEquals(1, p.getForeignIdEvents());
