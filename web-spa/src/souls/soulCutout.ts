@@ -1,44 +1,63 @@
-/** On-demand local object segmentation. Never needed for recognition or chat. */
+/** On-demand, on-device object cutout. This is optional for saved Soul portraits. */
+import {resolveCutoutApi,type CutoutSegmenter} from "./soulCutoutCompat";
+
 const TASKS="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/vision_bundle.mjs";
 const WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm";
 const MODEL="https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task";
-type SegmentationModel={
- setImage:(source:HTMLImageElement)=>void;
- segment:(strokes:Array<{brushMode:unknown;point:Array<{x:number;y:number}>;isCompleted:boolean}>)=>{width:number;height:number;getAsFloat32Array:()=>Float32Array;close?:()=>void};
- close?:()=>void;
-};
-let loading:Promise<{segmenter:SegmentationModel;positive:unknown}>|undefined;
+
+export type CutoutFailureKind="image"|"runtime"|"model"|"inference"|"selection";
+export class CutoutError extends Error{
+ constructor(public readonly kind:CutoutFailureKind,message:string){
+  super(message);this.name="CutoutError";
+ }
+}
+function why(error:unknown){return error instanceof Error?error.message:String(error)}
+let loading:Promise<CutoutSegmenter>|undefined;
 async function engine(){
  if(!loading)loading=(async()=>{
-  const mod=await import(/* @vite-ignore */ TASKS);
-  if(!mod.FilesetResolver||!mod.InteractiveSegmenter||!mod.BrushMode)throw Error("Interactive segmentation unavailable");
-  const fileset=await mod.FilesetResolver.forVisionTasks(WASM);
-  const segmenter=await mod.InteractiveSegmenter.createFromOptions(fileset,{baseOptions:{modelAssetPath:MODEL,delegate:"CPU"}});
-  return {segmenter:segmenter as SegmentationModel,positive:mod.BrushMode.POSITIVE};
+  let api;
+  try{
+   // Do NOT check mod.BrushMode: the @mediapipe/tasks-vision ESM entry does not export it.
+   api=resolveCutoutApi(await import(/* @vite-ignore */ TASKS));
+  }catch(error){throw new CutoutError("runtime","MediaPipe bundle unavailable: "+why(error))}
+  try{
+   const fileset=await api.FilesetResolver.forVisionTasks(WASM);
+   return await api.InteractiveSegmenter.createFromOptions(fileset,{
+    baseOptions:{modelAssetPath:MODEL,delegate:"CPU"}
+   });
+  }catch(error){throw new CutoutError("model","MagicTouch model could not initialize: "+why(error))}
  })().catch(error=>{loading=undefined;throw error});
  return loading;
 }
 function loadPhoto(src:string):Promise<HTMLImageElement>{
  return new Promise((resolve,reject)=>{
-  const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(Error("Could not read source image"));img.src=src;
+  const img=new Image();
+  img.onload=()=>resolve(img);
+  img.onerror=()=>reject(new CutoutError("image","Cannot decode photo"));
+  img.src=src;
  });
 }
-/** Point coordinates normalized to photo width/height; no image pixels are uploaded to the segmentation service. */
+/** Normalized tap point, 0..1 in the 640x640 source photo. No pixels are uploaded. */
 export async function cutoutObject(image:string,point:{x:number;y:number}):Promise<string>{
- if(!image.startsWith("data:image/"))throw Error("Unsupported image");
+ if(!image.startsWith("data:image/"))throw new CutoutError("image","Unsupported source photo");
  const img=await loadPhoto(image);
- const {segmenter,positive}=await engine();
+ const segmenter=await engine();
  const w=img.naturalWidth,h=img.naturalHeight;
- segmenter.setImage(img);
- const mask=segmenter.segment([{brushMode:positive,point:[{
-  x:Math.min(1,Math.max(0,point.x)),y:Math.min(1,Math.max(0,point.y))
- }],isCompleted:true}]);
+ let mask;
+ try{
+  segmenter.setImage(img);
+  // BrushMode.POSITIVE === 1 in the MediaPipe SDK. The enum is not a package-root export.
+  mask=segmenter.segment([{brushMode:1,point:[{
+   x:Math.min(1,Math.max(0,point.x)),y:Math.min(1,Math.max(0,point.y))
+  }],isCompleted:true}]);
+ }catch(error){throw new CutoutError("inference","MagicTouch segmentation failed: "+why(error))}
  try{
   const pixels=mask.getAsFloat32Array(),mw=mask.width,mh=mask.height;
-  if(!mw||!mh||pixels.length!==mw*mh)throw Error("Segmentation mask invalid");
+  if(!mw||!mh||pixels.length!==mw*mh)
+   throw new CutoutError("inference","Segmentation returned an invalid mask");
   const canvas=document.createElement("canvas");canvas.width=w;canvas.height=h;
   const ctx=canvas.getContext("2d",{willReadFrequently:true});
-  if(!ctx)throw Error("Canvas unavailable");
+  if(!ctx)throw new CutoutError("image","Canvas unavailable");
   ctx.drawImage(img,0,0,w,h);
   const rgba=ctx.getImageData(0,0,w,h);
   let kept=0;
@@ -50,8 +69,12 @@ export async function cutoutObject(image:string,point:{x:number;y:number}):Promi
    rgba.data[k]=Math.round(rgba.data[k]*alpha);
    if(alpha>.5)kept++;
   }
-  if(kept<w*h*.005||kept>w*h*.96)throw Error("Please tap the object, not the background");
+  if(kept<w*h*.005||kept>w*h*.96)
+   throw new CutoutError("selection","Selected mask is almost empty or covers the whole image");
   ctx.putImageData(rgba,0,0);
   return canvas.toDataURL("image/png");
+ }catch(error){
+  if(error instanceof CutoutError)throw error;
+  throw new CutoutError("inference","Could not read segmentation mask: "+why(error));
  }finally{mask.close?.()}
 }
