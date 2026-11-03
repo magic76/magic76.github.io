@@ -53,7 +53,7 @@ test("face is independent from the PNG, adjustable before and after saving",()=>
  assert.match(css,/\.souls-portrait-face/);
 });
 test("a saved cutout animates during existing Friends Gemini Live session",()=>{
- assert.match(page,/selected\.cutout\|\|selected\?\.photos/);
+ assert.match(page,/selected\?\.cutout\|\|selected\?\.photos/);
  assert.match(page,/<SoulChat key=\{selected\.id\}/);
  assert.match(page,/onVisual=\{onVisual\} onAudioLevel=\{onAudioLevel\}/);
  assert.match(page,/mouthRef\.current/);
@@ -70,7 +70,7 @@ test("a saved cutout animates during existing Friends Gemini Live session",()=>{
 test("existing IndexedDB Souls remain readable without migration or photo re-enrollment",()=>{
  assert.match(data,/indexedDB\.open\("crew-souls-local-v1",1\)/);
  assert.match(page,/await list\(\)/);
- assert.match(page,/selected\.cutout\|\|selected\?\.photos/);
+ assert.match(page,/selected\?\.cutout\|\|selected\?\.photos/);
  assert.match(page,/face=\{s\.face\}/);
  assert.match(data,/face\?:SoulFace/);
  assert.match(page,/await save\(s\)/);
