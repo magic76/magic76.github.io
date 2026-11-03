@@ -6,6 +6,7 @@ const WASM="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@1.2.0/wasm";
 const MODEL="https://storage.googleapis.com/mediapipe-models/interactive_segmenter_v2/magic_touch/int8/1/interactive_segmentation.task";
 
 export type CutoutFailureKind="image"|"runtime"|"model"|"inference"|"selection";
+export type CutoutProgress="loading"|"segmenting"|"compositing";
 export class CutoutError extends Error{
  constructor(public readonly kind:CutoutFailureKind,message:string){
   super(message);this.name="CutoutError";
@@ -38,10 +39,15 @@ function loadPhoto(src:string):Promise<HTMLImageElement>{
  });
 }
 /** Normalized tap point, 0..1 in the 640x640 source photo. No pixels are uploaded. */
-export async function cutoutObject(image:string,point:{x:number;y:number}):Promise<string>{
+export async function cutoutObject(image:string,point:{x:number;y:number},
+ onProgress?:(phase:CutoutProgress)=>void):Promise<string>{
  if(!image.startsWith("data:image/"))throw new CutoutError("image","Unsupported source photo");
+ onProgress?.("loading");
  const img=await loadPhoto(image);
  const segmenter=await engine();
+ onProgress?.("segmenting");
+ // MediaPipe setImage is synchronous on the UI thread. Let the stage message paint.
+ if(onProgress)await new Promise<void>(resolve=>setTimeout(resolve,45));
  const w=img.naturalWidth,h=img.naturalHeight;
  let mask;
  try{
@@ -52,6 +58,7 @@ export async function cutoutObject(image:string,point:{x:number;y:number}):Promi
   }],isCompleted:true}]);
  }catch(error){throw new CutoutError("inference","MagicTouch segmentation failed: "+why(error))}
  try{
+  onProgress?.("compositing");
   const pixels=mask.getAsFloat32Array(),mw=mask.width,mh=mask.height;
   if(!mw||!mh||pixels.length!==mw*mh)
    throw new CutoutError("inference","Segmentation returned an invalid mask");

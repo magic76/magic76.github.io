@@ -30,7 +30,7 @@ test("photo-first camera/gallery inputs create exactly one new image, no live ca
 });
 test("cutout is attempted automatically but optional; failed segmentation never blocks Save",()=>{
  assert.match(page,/void runCutout\(p\.image,\{x:\.5,y:\.52\}\)/);
- assert.match(page,/await cutoutObject\(image,point\)/);
+ assert.match(page,/await cutoutObject\(image,point,phase=>/);
  assert.match(cutout,/InteractiveSegmenter/);
  assert.match(cutout,/toDataURL\("image\/png"\)/);
  assert.match(page,/setInfo\(t\("這張照片暫時無法自動去背/);
@@ -42,9 +42,10 @@ test("cutout is attempted automatically but optional; failed segmentation never 
 test("face is independent from the PNG, adjustable before and after saving",()=>{
  assert.match(data,/face\?:SoulFace/);
  assert.match(page,/face:safeFace\(faceDraft\)/);
- assert.match(page,/onFaceChange=\{setFaceDraft\}/);
+ assert.match(page,/transform:safeTransform\(transformDraft\)/);
+ assert.match(page,/onFaceChange=\{changeFace\}/);
  assert.match(page,/setFaceDraft\(safeFace\(selected\.face\)\)/);
- assert.match(page,/await mutate\(s=>\(\{\.\.\.s,face:safeFace\(faceDraft\)\}\)\)/);
+ assert.match(page,/await mutate\(s=>\(\{\.\.\.s,face:safeFace\(faceDraft\),transform:safeTransform\(transformDraft\)\}\)\)/);
  assert.match(portrait,/onPointerDown=\{down\} onPointerMove=\{drag\}/);
  assert.match(portrait,/setPointerCapture\(e\.pointerId\)/);
  assert.match(portrait,/ref=\{mouthRef\}/);
