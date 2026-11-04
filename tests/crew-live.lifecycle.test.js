@@ -1168,14 +1168,19 @@ test("input Worklet sends 16kHz frames and releases its processor after stop",as
   const socket=await waitForSocket(0);
   assert.ok(inputNode&&outputNode);
   assert.equal(session.getMicHealth().captureMode,"worklet");
-  inputNode.port.onmessage({data:{
+  // Startup audio is intentionally held until >=240ms of sustained speech.
+  // Six 40ms Worklet frames confirm a real utterance rather than a warm-up spike.
+  for(let i=0;i<6;i++)inputNode.port.onmessage({data:{
     type:"mic-frame",samples:new Float32Array(640).fill(0.25).buffer,rms:0.25
   }});
+  assert.equal(session.getMicHealth().setupBufferedMs,240);
   assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
   socket.open();
   socket.message({setupComplete:{}});
   await starting;
-  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  const audio=socket.sent.filter(item=>item.realtimeInput?.audio).map(item=>item.realtimeInput.audio);
+  assert.equal(audio.length,6);
+  assert.ok(audio.every(frame=>frame.mimeType==="audio/pcm;rate=16000"));
   await session.stop({silentStatus:true,emitTerminal:false});
   assert.equal(inputNode.disconnected,true);
   assert.equal(session.getMicHealth().captureMode,"none");
