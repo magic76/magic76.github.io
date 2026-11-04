@@ -149,9 +149,11 @@ function MemoryRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:R
  const [pairs,setPairs]=useState(6);
  const [state,setState]=useState<MemoryState>(()=>newMemory(6));
  const started=useRef(false),completed=useRef(false);
+ const [waitingCueId,setWaitingCueId]=useState<number|null>(null);
+ const resolvedNarration=useRef<{move:number;text:string;holdFriend:boolean}|null>(null);
  const restart=(count=pairs)=>{
-  started.current=false;completed.current=false;setState(newMemory(count));
-  onCue("Memory Match restarted with "+count+" pairs. No cards are visible. Invite the player to turn two cards.");
+  started.current=false;completed.current=false;resolvedNarration.current=null;
+  setWaitingCueId(null);setState(newMemory(count));
  };
  const choose=(index:number)=>{
   if(state.turn!=="player"||state.finished||state.open.length>=2||state.matched.includes(index)||state.open.includes(index))return;
@@ -166,28 +168,54 @@ function MemoryRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:R
   const timer=window.setTimeout(()=>{
    const next=resolveMemory(state);if(!next)return;
    const first=state.open[0],second=state.open[1],match=Boolean(next.lastMatch);
+   // Commit the resolved pair first: narration waits until after the DOM updates.
+   resolvedNarration.current={move:next.moves,holdFriend:state.turn==="friend"&&match&&!next.finished,
+    text:"Memory Match PAIR COMPLETED AND BOARD UPDATED. "+(state.turn==="player"?"The player":friend.name)+
+    " finished revealing card "+(first+1)+" and card "+(second+1)+
+    ". Both PUBLIC faces were "+icons[state.cards[first]]+" and "+icons[state.cards[second]]+". "+
+    (match?"The two cards match. The same player gets another turn.":"They do not match. The turn passes to the other player.")+
+    " Verified score: player "+next.playerPairs+", "+friend.name+" "+next.friendPairs+"."+
+    (next.finished?" The round is complete.":"")+" Only now say ONE brief playful sentence. Be silent during the flips."};
    setState(next);
-   onCue("Memory Match verified. "+(state.turn==="player"?"The player":friend.name)+" flipped card "+(first+1)+" and card "+(second+1)+
-    ". Both faces showed "+icons[state.cards[first]]+" and "+icons[state.cards[second]]+". "+
-    (match?"The two cards match. The same player gets another turn.":"No match. The turn passes to the other player.")+
-    " Public score: player "+next.playerPairs+", "+friend.name+" "+next.friendPairs+"."+(next.finished?" The round is complete.":"")+" React briefly.");
   },850);
   return()=>window.clearTimeout(timer);
  },[state,friend.name,onCue]);
+ // Deliver only after the resolved pair has been rendered, not on either individual flip.
  useEffect(()=>{
-  if(state.turn!=="friend"||state.finished||state.open.length>=2)return;
+  const pending=resolvedNarration.current;
+  if(!pending||pending.move!==state.moves)return;
+  resolvedNarration.current=null;
+  const timer=window.setTimeout(()=>{
+   const id=onCue(pending.text);
+   if(pending.holdFriend&&voiceActive)setWaitingCueId(id);
+  },140);
+  return()=>window.clearTimeout(timer);
+ },[state.moves,onCue,voiceActive]);
+ // As in Gomoku, a matched friend turn waits until the spoken reply is drained.
+ useEffect(()=>{
+  if(waitingCueId===null)return;
+  if(settledCueId>=waitingCueId||!voiceActive)setWaitingCueId(null);
+ },[waitingCueId,settledCueId,voiceActive]);
+ useEffect(()=>{
+  if(waitingCueId===null)return;
+  const timer=window.setTimeout(()=>setWaitingCueId(null),11500);
+  return()=>window.clearTimeout(timer);
+ },[waitingCueId]);
+ useEffect(()=>{
+  if(state.turn!=="friend"||state.finished||state.open.length>=2||waitingCueId!==null)return;
   const timer=window.setTimeout(()=>{
    const index=memoryComputerPick(state);
    if(index!==null)setState(previous=>flipMemory(previous,index)||previous);
   },480);
   return()=>window.clearTimeout(timer);
- },[state]);
+ },[state,waitingCueId]);
  useEffect(()=>{
   if(!state.finished||completed.current)return;
   completed.current=true;trackUsageEvent("game_completed","memory");
  },[state.finished]);
  const verdict=state.playerPairs===state.friendPairs?"challenge":state.playerPairs>state.friendPairs?"win":"lose";
  const status=state.finished?(zh?"這局結束！":"Round complete!"):
+  waitingCueId!==null?(zh?friend.name+" 說完再繼續翻牌…":friend.name+" is finishing a reply…"):
   state.open.length===1?(zh?"再翻一張！":"Flip one more card!"):
   state.turn==="player"?
    (state.lastMatch&&state.lastSide==="player"?(zh?"配對成功！你可以繼續翻！":"Match! You get another turn!"):(zh?"輪到你翻牌！":"Your turn!")):
