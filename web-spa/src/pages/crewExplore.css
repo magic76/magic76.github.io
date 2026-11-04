@@ -144,3 +144,68 @@
  .crew-explore-tile[data-kind="magic"] .crew-explore-text{padding:13px 34px 16px 16px}
  .crew-explore-tile[data-kind="magic"] .crew-explore-arrow{bottom:19px}
 }
+
+
+/* Crew Souls Explore card — CSS-native artwork with no external asset or runtime cost. */
+.crew-explore-tile[data-kind="souls"]{
+ --art:#eee1fa;--art-2:#e6cde9;--art-ink:#8c4f98;--art-border:#e7d6f0;
+}
+.crew-explore-souls-art{
+ position:absolute;inset:0;display:grid;place-items:center;isolation:isolate;
+ background:radial-gradient(circle at 73% 23%,#fffafaaa 0,transparent 38%),
+  linear-gradient(135deg,#f7eafb,#e6d4f3 64%,#dfd4f8);
+}
+.crew-souls-art-aura{
+ position:absolute;width:165px;height:165px;border-radius:50%;
+ background:radial-gradient(circle,#fff8ffb0,transparent 72%);
+ transform:translateY(-3px);
+}
+.crew-souls-art-character{
+ position:relative;width:100px;height:105px;
+ border-radius:31% 38% 35% 28%;
+ background:linear-gradient(145deg,#ffb56d 4%,#ff8f67 71%,#f86b85);
+ transform:rotate(-8deg) translateX(-9px);
+ box-shadow:inset 7px 7px 17px #fff8,0 16px 22px #8e548c29;
+ display:flex;align-items:center;justify-content:center;
+}
+.crew-souls-art-eyes{
+ display:flex;gap:15px;position:absolute;left:23px;top:30px;
+}
+.crew-souls-art-eyes i{
+ display:block;width:20px;height:30px;border-radius:45%;
+ background:#fff;position:relative;box-shadow:0 1px 4px #733b5440;
+}
+.crew-souls-art-eyes i::before{
+ content:"";position:absolute;left:6px;top:6px;width:12px;height:18px;
+ border-radius:45%;background:#35233f;
+}
+.crew-souls-art-eyes i::after{
+ content:"";position:absolute;left:9px;top:8px;width:5px;height:7px;
+ background:#fff;border-radius:50%;
+}
+.crew-souls-art-eyes i:last-child{transform:translateY(-4px) rotate(8deg)}
+.crew-souls-art-smile{
+ position:absolute;top:69px;left:41px;width:25px;height:11px;
+ border-bottom:4px solid #42253f;border-radius:0 0 65% 55%;
+ transform:rotate(-10deg);
+}
+.crew-souls-art-speech{
+ position:absolute;left:calc(50% + 45px);top:20%;
+ display:flex;align-items:center;justify-content:center;gap:4px;
+ padding:12px;background:#fff;border-radius:18px 18px 18px 5px;
+ box-shadow:0 7px 15px #8c548b28;
+}
+.crew-souls-art-speech span{width:6px;height:6px;background:#9266af;border-radius:50%}
+.crew-souls-art-speech span:nth-child(2){opacity:.62}
+.crew-souls-art-speech span:last-child{opacity:.3}
+.crew-souls-art-sparkle{
+ position:absolute;left:22%;top:18%;font-size:22px;color:#fff;
+ filter:drop-shadow(0 2px 3px #9260ab55);
+}
+@media(max-width:420px){
+ .crew-souls-art-character{transform:scale(.79) rotate(-8deg) translateX(-8px)}
+ .crew-souls-art-speech{transform:scale(.85);top:14%;left:calc(50% + 28px)}
+}
+@media(prefers-reduced-motion:reduce){
+ .crew-explore-souls-art *{animation:none!important;transition:none!important}
+}
