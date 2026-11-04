@@ -307,7 +307,7 @@ export function SoulsPage(){
    </div>:<div className="souls-editor-layout">
     <SoulPortrait image={editingImage} face={faceDraft} personality={personality} faceVisible={faceVisible} onFaceChange={changeFace}
      transform={transformDraft} onTransformChange={setTransformDraft}
-     editing={gestureActive} editTarget={editTarget}/>
+     editing={gestureActive} editTarget={editTarget} freezePreview/>
     <div className="souls-editor-tools">
      <label className="souls-checkbox"><input type="checkbox" checked={faceVisible}
       onChange={e=>{setFaceVisible(e.target.checked);if(!e.target.checked){setEditTarget("object");setGestureActive(false)}}}/>
@@ -352,7 +352,7 @@ export function SoulsPage(){
      <div className="souls-live-stage" data-live-state={visual.state}>
      <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality} faceVisible={soulFaceVisible(selected)}
       transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
-      editing={editFace&&gestureActive} onFaceChange={editFace?changeFace:undefined}
+      editing={editFace&&gestureActive} freezePreview={editFace} onFaceChange={editFace?changeFace:undefined}
       onTransformChange={editFace?setTransformDraft:undefined}
       visual={visual} caption={false} name={selected.name} mouthRef={mouthRef}/>
      </div>
