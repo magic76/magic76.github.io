@@ -26,7 +26,7 @@ export type FortuneAiAudit={ok:boolean;issues:string[]};
 
 function sectionOverlap(first:string,second:string):number{
  const grams=(value:string)=>{
-  const cleaned=value.toLowerCase().replace(/[\\s\\p{P}\\p{S}]/gu,"");
+  const cleaned=value.toLowerCase().replace(/[\s\p{P}\p{S}]/gu,"");
   const found=new Set<string>();
   for(let i=0;i+3<=cleaned.length;i++)found.add(cleaned.slice(i,i+3));
   return found;
