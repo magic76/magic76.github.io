@@ -107,7 +107,8 @@ test("new game and experience events survive ingestion without personal payloads
   ["town_interaction","person"],["town_3d_fallback","render_error"],
   ["magic_spell",""],["magic_panel_choice",""],["magic_voice_failed",""],
   ["mate_handoff_completed",""],["research_article_completed",""],
-  ["circle_post_published","live"],["home_entry_click","play"]
+  ["circle_post_published","live"],["home_entry_click","play"],
+   ["android_app_card_view",""],["android_app_google_play_click",""]
  ]){
   const response=await onRequestPost({request:request({...payload,event,detail}),env});
   assert.equal(response.status,204,event+":"+detail);
