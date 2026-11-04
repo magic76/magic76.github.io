@@ -149,6 +149,9 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
     <div className="crew-mini-keypad" role="group" aria-label={t("playHub.number.keypad")}>
      {([1,2,3,4,5,6,7,8,9,null,0,null] as const).map((n,i)=>n===null?<span className="crew-mini-keypad-spacer" aria-hidden="true" key={"space-"+i}/>:<button type="button" key={n} disabled={guess.length>=digits||guess.includes(String(n))||guess.length===0&&n===0} onClick={()=>setGuess(v=>v+String(n))}>{n}</button>)}
     </div>
+    {!history.length?<button className="crew-mini-primary" type="button" onClick={()=>submitGuess(digits===3?"123":digits===4?"1234":"12345")}>
+     {i18n.resolvedLanguage?.startsWith("zh")?"快速試猜 ":"Try your first guess: "}{digits===3?"123":digits===4?"1234":"12345"}
+    </button>:null}
    </form>:null}
    {!finished&&mode==="reverse"?<div className="crew-mini-reverse">
     <span className="crew-mini-label">{t("playHub.number.friendGuesses",{name:friend.name})}</span><strong className="crew-mini-big-digits">{computerGuess||"—"}</strong>

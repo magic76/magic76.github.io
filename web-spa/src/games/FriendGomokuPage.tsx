@@ -55,6 +55,8 @@ export function FriendGomokuPage(){
   const [lastEvent,setLastEvent]=useState("");
   const engineRef=useRef<GomokuEngine|null>(null);
   const gameCompletedRef=useRef(false);
+  const firstMoveRef=useRef(false);
+  const autoStartRef=useRef(false);
   const aiBusyRef=useRef(false);
   const pendingCueRef=useRef<string|null>(null);
   const waitingAiRef=useRef<WaitingAiMove|null>(null);
@@ -179,16 +181,19 @@ export function FriendGomokuPage(){
       if(!window.GomokuEngine)throw new Error("engine unavailable");
       const next=new window.GomokuEngine(15);
       clearWaitingAi();next.reset();engineRef.current=next;aiBusyRef.current=false;pendingCueRef.current=null;
-      gameCompletedRef.current=false;trackUsageEvent("game_started","gomoku");
+      gameCompletedRef.current=false;firstMoveRef.current=false;
       setGameStarted(true);setThinking(false);setLastEvent("");setRevision(value=>value+1);
       localStorage.setItem(SELECTED_FRIEND_KEY,friend.id);
     }catch{
       setEngineError(english?"The Gomoku game could not load. Please refresh and try again.":"五子棋載入失敗，請重新整理後再試。");
     }finally{setLoading(false)}
   };
+  // Prepare a playable board immediately; voice still remains optional.
+  useEffect(()=>{if(autoStartRef.current)return;autoStartRef.current=true;void startGame()},[]);
   const playAt=(x:number,y:number)=>{
     const current=engineRef.current;
     if(!current||!gameStarted||thinking||current.turn!=="black"||!current.makeMove(x,y))return;
+    if(!firstMoveRef.current){firstMoveRef.current=true;trackUsageEvent("game_started","gomoku")}
     pendingCueRef.current=null; // Retire cues from an earlier board state.
     if(current.winner){
       const cue="[GOMOKU RESULT] The learner just won the game. React naturally as their friend in one short sentence, then pause.";
@@ -201,7 +206,7 @@ export function FriendGomokuPage(){
     if(!current)return;
     clearWaitingAi();
     if(liveRef.current.state==="speaking")live.interrupt();
-    current.reset();gameCompletedRef.current=false;trackUsageEvent("game_started","gomoku");
+    current.reset();gameCompletedRef.current=false;firstMoveRef.current=false;
     aiBusyRef.current=false;pendingCueRef.current=null;setThinking(false);setLastEvent("");setRevision(value=>value+1);
     const cue="[NEW GOMOKU GAME] Begin a new round. You play white and the learner plays black. React with one short friendly line, then wait for their first move.";
     notifyVoice(cue);
@@ -268,7 +273,7 @@ export function FriendGomokuPage(){
       <Link to="/games" className="friend-gomoku-back">← <span>{t("playHub.allGames")}</span></Link>
       <span className="friend-gomoku-kicker">{t("playHub.gomoku.eyebrow")}</span>
       <h1>{gameStarted?(english?`Gomoku with ${friend.name}`:`和 ${friend.name} 下五子棋`):(english?"A game with a friend":"和朋友下一局")}</h1>
-      {!gameStarted?<p>{t("playHub.gomoku.intro")}</p>:null}
+      {!gameStarted?<p>{loading?(english?"Preparing your board…":"正在準備棋盤…"):t("playHub.gomoku.intro")}</p>:null}
     </header>
 
     {!gameStarted?<section className="friend-gomoku-setup">

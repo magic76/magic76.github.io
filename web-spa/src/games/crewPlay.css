@@ -438,3 +438,9 @@
  .crew-play-game-card,.crew-play-resume{transition:none}
  .crew-play-game-card:hover,.crew-play-game-card:focus-visible,.crew-play-game-card:active{transform:none}
 }
+
+/* One-turn instructions, shown only until the first legal move. */
+.crew-play-first-move-hint{margin:0;padding:8px 12px;border-radius:10px;background:var(--surface-secondary,#f0eff9);font-size:13px;line-height:1.6;color:var(--text);text-align:center}
+.crew-play-game-art.game-6{background:radial-gradient(circle at 25% 18%,#ffe18a,#c36f63);font-size:35px}
+.crew-play-game-art.game-7{background:radial-gradient(circle at 28% 18%,#c6a8f4,#7061b4);font-size:35px}
+.crew-play-game-art.game-8{background:radial-gradient(circle at 28% 18%,#ffbb8c,#be6177);font-size:35px}
