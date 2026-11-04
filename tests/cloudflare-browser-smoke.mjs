@@ -984,7 +984,8 @@ async function run(){
   await home.locator(".crew-home-portal").waitFor({state:"visible",timeout:15000});
   assert.equal(await home.locator(".crew-home-products").count(),0,"Remove the redundant product grid");
   assert.equal(await home.locator(".crew-home-world-explore-card").count(),2,"Fortune and Timeline stay discoverable");
-  assert.equal(await home.locator(".crew-home-android").getAttribute("open"),null,"Android downloads are collapsed");
+  assert.equal(await home.locator(".crew-home-android").count(),1,"Unified Android card is visible");
+  assert.equal(await home.locator(".crew-home-android a[href*=\"com.crewpocket.teacher\"]").count(),1,"Only the main Crew app is promoted");
   await home.setViewportSize({width:390,height:844});
   const dailyGame=home.locator(".crew-home-game-pick-action");
   await dailyGame.waitFor({state:"visible",timeout:15000});
