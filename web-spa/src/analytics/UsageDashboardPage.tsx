@@ -186,7 +186,7 @@ export function UsageDashboardPage(){
        <strong>不到 15 秒 {num(total(rows,"guest_trial_ended","under_15s"))} · 15–45 秒 {num(total(rows,"guest_trial_ended","from_15_to_45s"))} · 45–60 秒 {num(total(rows,"guest_trial_ended","from_45_to_60s"))} · 1–2 分鐘 {num(total(rows,"guest_trial_ended","from_60_to_120s"))} · 2–3 分鐘 {num(total(rows,"guest_trial_ended","from_120_to_180s"))} · 3–5 分鐘 {num(total(rows,"guest_trial_ended","from_180_to_300s"))}</strong>
       </div>
      </div>
-     <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，非 Worker 發證總數；隱私設定與重試會影響統計，不能當作試用配額。</p>
+     <p className="usage-explain">這是尊重隱私設定的瀏覽器端事件，不等同 Worker 發證數，也不能當作試用配額。</p>
     </section>
     <section className="panel section">
      <div className="section-head"><h2>聊天互動漏斗</h2><small>事件次數 · 非同一批人的精準轉換率</small></div>
