@@ -54,11 +54,11 @@ export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:Fortun
  if(!chapters.length)return null;
  const parsed=parseAiReading(ai||""),ready=Boolean(parsed.summary)&&!parsed.legacy;
  const aiText:Partial<Record<FortuneChapterId,string>>=ready?{
-  personality:parsed.self,career:parsed.work,wealth:parsed.work,relationships:parsed.love,currentCycle:parsed.turning
+  personality:parsed.self,career:parsed.work,wealth:parsed.wealth,relationships:parsed.love,currentCycle:parsed.turning
  }:{};
  const main=primary.map(id=>chapters.find(x=>x.id===id)).filter((c):c is FortuneChapter=>Boolean(c))
   .filter(chapter=>!ready||chapter.id!=="overview")
-  .map(chapter=>aiText[chapter.id]?{...chapter,text:aiText[chapter.id]!,evidence:[]}:chapter);
+  .map(chapter=>aiText[chapter.id]?{...chapter,text:aiText[chapter.id]!}:chapter);
  const more=chapters.filter(x=>!primary.includes(x.id));
  const facts=metricsFor(mode,result);
  const fiveElements=mode==="bazi"?Object.entries(result?.weightedFiveElements||{})
