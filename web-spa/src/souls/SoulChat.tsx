@@ -64,7 +64,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   wasStarting.current=starting;
   if(ready&&!wasReady.current)trackUsageEvent("souls_live_connected");
   wasReady.current=ready;
- },[ready]);
+ },[live.state,ready]);
  useEffect(()=>{
   // Count a failed Live attempt without collecting microphone errors, prompts or transcripts.
   const failed=live.state==="error";
