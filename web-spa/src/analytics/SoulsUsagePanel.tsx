@@ -5,7 +5,10 @@ const steps=[
  {event:"souls_open",label:"開啟 Souls"},
  {event:"souls_photo_ready",label:"照片準備完成"},
  {event:"souls_created",label:"成功儲存角色"},
- {event:"souls_live_connected",label:"語音連線成功"}
+ {event:"souls_live_connected",label:"語音連線成功"},
+ {event:"souls_user_spoke",label:"使用者發話"},
+ {event:"souls_ai_replied",label:"AI 已回覆"},
+ {event:"souls_conversation",label:"完成雙向對話"}
 ] as const;
 export function SoulsUsagePanel({rows,unique}:{rows:Array<Row&{detail?:string}>;unique:(event:string)=>number}){
  const count=(event:string,detail?:string)=>rows.reduce((n,r)=>n+(r.event===event&&(detail===undefined||r.detail===detail)?r.count:0),0);
