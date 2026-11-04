@@ -80,6 +80,7 @@ function NumberBombRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueI
  const pendingNarration=useRef<{move:number;text:string}|null>(null);
  const current=Math.max(state.low,Math.min(state.high,selected));
  const waitingHost=voiceActive&&waitingCueId!==null;
+ const activeVoiceRef=useRef(voiceActive);activeVoiceRef.current=voiceActive;
  const begin=()=>{
   if(!started.current){started.current=true;trackUsageEvent("game_started","number-bomb")}
  };
@@ -106,10 +107,10 @@ function NumberBombRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueI
   pendingNarration.current=null;
   const timer=window.setTimeout(()=>{
    const id=onCue(pending.text);
-   if(voiceActive)setWaitingCueId(id);
+   if(activeVoiceRef.current)setWaitingCueId(id);
   },140);
   return()=>window.clearTimeout(timer);
- },[state.history.length,onCue,voiceActive]);
+ },[state.history.length,onCue]);
  useEffect(()=>{
   if(waitingCueId!==null&&(settledCueId>=waitingCueId||!voiceActive))setWaitingCueId(null);
  },[waitingCueId,settledCueId,voiceActive]);
@@ -164,6 +165,7 @@ function MemoryRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:R
  const started=useRef(false),completed=useRef(false);
  const [waitingCueId,setWaitingCueId]=useState<number|null>(null);
  const resolvedNarration=useRef<{move:number;text:string;holdFriend:boolean}|null>(null);
+ const activeVoiceRef=useRef(voiceActive);activeVoiceRef.current=voiceActive;
  const restart=(count=pairs)=>{
   started.current=false;completed.current=false;resolvedNarration.current=null;
   setWaitingCueId(null);setState(newMemory(count));
@@ -200,10 +202,10 @@ function MemoryRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:R
   resolvedNarration.current=null;
   const timer=window.setTimeout(()=>{
    const id=onCue(pending.text);
-   if(pending.holdFriend&&voiceActive)setWaitingCueId(id);
+   if(pending.holdFriend&&activeVoiceRef.current)setWaitingCueId(id);
   },140);
   return()=>window.clearTimeout(timer);
- },[state.moves,onCue,voiceActive]);
+ },[state.moves,onCue]);
  // As in Gomoku, a matched friend turn waits until the spoken reply is drained.
  useEffect(()=>{
   if(waitingCueId===null)return;
