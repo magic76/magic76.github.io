@@ -102,9 +102,12 @@ The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mo
 - `souls_photo_ready`: selected camera/gallery image was processed successfully on-device; **not** merely clicking a picker.
 - `souls_created` with fixed detail `object` or `person`: a Soul was successfully saved locally; no identifier or label goes to analytics.
 - `souls_live_connected`: Gemini Live actually reached listening/speaking state; not a failed attempt or just page load.
+- `souls_user_spoke`: first real user transcript in a Souls Live session.
+- `souls_ai_replied`: first nonempty AI transcript **after** the user spoke; proactive greetings do not count.
+- `souls_conversation`: first confirmed turn with both user input and valid AI output per Live session, including guest sessions; duplicate turns are not counted.
 - `souls_mask_repaired`: a manual cutout repair was applied; no mask pixels sent.
 
-The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live stage panel, plus repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
+The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live → real conversation stage panel, plus repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
 
 ## Product interaction refresh (October 25, 2026)
 
@@ -169,3 +172,5 @@ The owner-only `/usage` screen now displays a five-stage **non-cohort** journey 
 **Interpretation:** These are not sequential events for the *same* visitors; do not calculate stage-to-stage conversion or next-day retention from them. Visitors can arrive directly at deep links, start an activity without clicking an instrumented CTA, or use Crew before the reporting window. Stage counts can increase between steps. Privacy opt-out / DNT / GPC remain in effect. Missing historical events cannot be backfilled. The existing Cloudflare Access JWT verification and 7/30-day bounds remain unchanged; no extra setup is required.
 
 See `tests/crew-safe-update-journey.test.js` and `tests/crew-usage.test.js`.
+
+Souls retains the established `sessionKind:"friend"` *voice transport and reply recovery*, but now passes `usageKind:"souls"` so first speech/AI-reply metrics are not falsely counted as ordinary Friends. Completed two-sided Souls conversations also count toward overall chat and active-user metrics. Guest trial reporting is still categorized by the actual trial role; no transcript contents or IDs are sent.
