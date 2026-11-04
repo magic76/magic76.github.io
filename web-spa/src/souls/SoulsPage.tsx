@@ -266,9 +266,9 @@ export function SoulsPage(){
  return <main className="souls-page souls-photo-first">
   <header className="souls-header">
    <Link to="/explore">← {t("探索","Explore")}</Link>
-   <small>CREW SOULS · OBJECT FRIENDS</small>
-   <h1>{t("讓你的物品，活過來。","Give your objects a little soul.")}</h1>
-   <p>{t("拍下生活中的小東西，讓它長出表情、擁有名字和個性，變成能聊天、會記得你的朋友。","Turn everyday objects into expressive friends with a name, personality and memories.")}</p>
+   <small>CREW SOULS · LIVING PORTRAITS</small>
+   <h1>{t("讓照片裡的角色，活過來。","Bring a portrait to life.")}</h1>
+   <p>{t("物品或人物照片都可以。去背、修補輪廓、設定個性，創造能說話的虛構角色。","Use an object or a person photo. Remove and repair the background, then create a fictional character you can talk to.")}</p>
   </header>
   <input className="souls-hidden" ref={camera} type="file" accept="image/*" capture="environment"
    aria-label={t("拍攝一張物品照片","Take object photo")} onChange={e=>void pickPhoto(e)}/>
@@ -290,19 +290,29 @@ export function SoulsPage(){
    <div className="souls-section-heading"><div><small>{t("你的生活收藏","YOUR COLLECTION")}</small>
     <h2>{t("我的 Soul","My Souls")} <small>({items.length})</small></h2></div></div>
    {!items.length?<div className="souls-empty">✦
-    <p>{t("還沒有 Soul。先拍一張杯子、玩偶或任何喜歡的小東西。","No Souls yet. Start with a cup, toy or anything you love.")}</p>
+    <p>{t("還沒有 Soul。先拍一張喜歡的物品或人物照片。","No Souls yet. Start with an object or person photo.")}</p>
     <button type="button" onClick={()=>camera.current?.click()}>{t("建立第一個 Soul","Create your first Soul")}</button>
    </div>:<div className="souls-grid souls-collection">
     {items.map(s=><button key={s.id} type="button" onClick={()=>void choose(s)}>
-     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} personality={s.personality} name={s.name} caption={false}/>
+     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} personality={s.personality} faceVisible={soulFaceVisible(s)} name={s.name} caption={false}/>
      <small>{s.kind||t("獨特物品","Unique object")} · {s.notes.length} {t("則回憶","memories")}</small>
     </button>)}
    </div>}
   </section>}
   {step==="edit"&&draft&&<section className="souls-panel souls-editor">
-   <div className="souls-section-heading"><div><small>{t("01 · 讓物品長出表情","01 · CREATE THE FACE")}</small>
-    <h2>{t("把它變成小角色","Give it a face")}</h2></div></div>
-   {selectSubject?<div className="souls-subject-picker">
+   <div className="souls-section-heading"><div><small>{t("01 · 準備角色照片","01 · PREPARE PHOTO")}</small>
+    <h2>{t("把照片變成角色","Bring the photo to life")}</h2></div></div>
+   <div className="souls-subject-toggle" role="group" aria-label={t("角色類型","Character type")}>
+    <button type="button" aria-pressed={subjectType==="object"} onClick={()=>chooseSubject("object")}>{t("物品","Object")}</button>
+    <button type="button" aria-pressed={subjectType==="person"} onClick={()=>chooseSubject("person")}>{t("人物","Person")}</button>
+    <small>{t("人物預設保留原本五官、不加卡通臉；聊天角色為虛構設定。","People keep their natural face by default; the chat persona is fictional.")}</small>
+   </div>
+   {maskEditing==="draft"?<SoulMaskEditor
+    original={draft.image} initialCutout={cutoutDraft||undefined} en={en}
+    onApply={data=>{setCutoutDraft(data);setUseCutout(true);setMaskEditing(null);
+     setInfo(t("手動修補已套用。","Manual cutout repair applied."))}}
+    onCancel={()=>setMaskEditing(null)}/>
+   :selectSubject?<div className="souls-subject-picker">
     <p>{t("點一下你要留下的物品，不必點得很準。","Tap the object you want to cut out.")}</p>
     <button type="button" disabled={cutting} onClick={e=>tapSource(e,draft.image)}
      aria-label={t("點選去背主體","Select cutout subject")}>
@@ -310,10 +320,14 @@ export function SoulsPage(){
     </button>
     <button type="button" onClick={()=>setSelectSubject(false)}>{t("取消，回到角色預覽","Cancel")}</button>
    </div>:<div className="souls-editor-layout">
-    <SoulPortrait image={editingImage} face={faceDraft} personality={personality} onFaceChange={changeFace}
+    <SoulPortrait image={editingImage} face={faceDraft} personality={personality} faceVisible={faceVisible} onFaceChange={changeFace}
      transform={transformDraft} onTransformChange={setTransformDraft}
      editing editTarget={editTarget}/>
     <div className="souls-editor-tools">
+     <label className="souls-checkbox"><input type="checkbox" checked={faceVisible}
+      onChange={e=>setFaceVisible(e.target.checked)}/>
+      {t("顯示 Q 版靈魂臉","Show cartoon Soul face")}
+     </label>
      <SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
       face={faceDraft} onFaceChange={changeFace}
       transform={transformDraft} onTransformChange={setTransformDraft} en={en}/>
@@ -324,6 +338,9 @@ export function SoulsPage(){
       </button>}
       <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setSelectSubject(true)}}>
        {t("重新點選去背主體","Retry cutout")}
+      </button>
+      <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setMaskEditing("draft")}}>
+       {t("手動修補去背","Repair cutout")}
       </button>
      </div>
      <p className="souls-muted">{cutting?(cutoutPhase==="loading"?
@@ -336,7 +353,7 @@ export function SoulsPage(){
     </div>
    </div>}
    <div className="souls-editor-details">
-    <div className="souls-section-heading"><div><small>{t("02 · 讓它有個性","02 · GIVE IT PERSONALITY")}</small>
+    <div className="souls-section-heading"><div><small>{t("02 · 設定角色個性","02 · SET PERSONALITY")}</small>
      <h2>{t("幫它取個名字","Name your Soul")}</h2></div></div>
     <button className="souls-ai-describe" type="button" disabled={busy}
      onClick={()=>void suggestDetails()}>
@@ -347,9 +364,9 @@ export function SoulsPage(){
       <input required maxLength={40} value={name} onChange={e=>setName(e.target.value)}
        placeholder={t("例如：小杯杯","e.g. Mugsy")}/>
      </label>
-     <label>{t("物品種類","Object type")}
+     <label>{t(subjectType==="person"?"角色定位":"物品種類",subjectType==="person"?"Character role":"Object type")}
       <input maxLength={60} value={kind} onChange={e=>setKind(e.target.value)}
-       placeholder={t("例如：咖啡杯","e.g. Coffee mug")}/>
+       placeholder={t(subjectType==="person"?"例如：愛旅行的虛構角色":"例如：咖啡杯",subjectType==="person"?"e.g. Fictional traveler":"e.g. Coffee mug")}/>
      </label>
      <label>{t("外觀特色（選填）","Appearance (optional)")}
       <textarea maxLength={140} value={description} onChange={e=>setDescription(e.target.value)}/>
