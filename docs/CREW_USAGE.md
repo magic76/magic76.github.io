@@ -41,7 +41,7 @@ Cloudflare Web Analytics stays installed and continues handling visits/referrals
 ## Google Analytics 4 (GA4) Web stream
 
 - Property's **Web** stream Measurement ID: `G-563JSM2X68`. Android retains its separate **Android** Firebase Analytics data stream in the GA4 property. Data streams share the GA4 reports, but no cross-device user identity is inferred.
-- `web-spa/src/analytics/ga4.ts` loads `gtag.js` only on production `www.3sssi.com` when anonymous usage analytics is enabled and GPC/DNT or Developer Test Mode are not active. It does **not** load on local/preview/GitHub Pages sites. Existing Cloudflare Analytics Engine collection remains independent.
+- `web-spa/src/analytics/ga4.ts` loads `gtag.js` only on production `www.3sssi.com` or `3sssi.com` when anonymous usage analytics is enabled and GPC/DNT or Developer Test Mode are not active. It does **not** load on local/preview/GitHub Pages sites. Existing Cloudflare Analytics Engine collection remains independent.
 - Analytics setting in `/settings` controls both first-party Cloudflare **custom usage events** and GA4. Turning it off sets the Google `ga-disable-G-563JSM2X68` flag and denies `analytics_storage`; existing Google Analytics cookies may remain until browser site data is cleared. Google's tag is not added for visitors already opted out. **Separate Cloudflare Web Analytics/RUM site-performance beacons may remain active**; they are not controlled by this app-level opt-out setting.
 - GA4 may use browser analytics cookies and pseudonymous usage/device data. No app-generated visitorId/sessionId is forwarded to Google; GA4 custom events use only the fixed `crew_<event>` name, `crew_platform=web`, optional allowlisted `crew_detail`, and safe page paths. No speech, user-supplied text, API keys, raw dynamic IDs, query strings, or fragments are sent by our custom events.
 - Google advertising data collection features are disabled (`allow_google_signals=false`, `allow_ad_personalization_signals=false`, advertising consent denied).
@@ -90,6 +90,21 @@ Review site privacy policy and consent requirements for the intended audience be
 - Unauthenticated requests to /api/usage/report must return 403, including forged Cf-Access-Jwt-Assertion values. Only signed-in owner should see /usage data. Query returns aggregate counts, not individual UUIDs.
 - Test 7/30 day filters and mobile layout. Preview /pages.dev should never emit events.
 - Queries start from deployment and first writes; the past Cloudflare visit count CANNOT be backfilled.
+
+## Crew Souls Explore launch (November 4, 2026)
+
+Crew Souls now appears in the public Explore grid at `/souls` with a local CSS illustration and a click event. It does not send photo content, fictional character names, personal portraits, memories, voice transcripts or Gemini keys to analytics.
+
+The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mode gates remain in force. The production-only client and ingestion allowlists accept both `www.3sssi.com` and `3sssi.com`; all other hosts and cross-origin posts are rejected. No extra database, third-party tracking library or analytics credential is required.
+
+- `explore_entry_click` with detail `souls`: visitor taps the Explore tile (also contributes to generic Explore entry counts).
+- `souls_open`: browser opens the Souls interface, including returning to an existing collection.
+- `souls_photo_ready`: selected camera/gallery image was processed successfully on-device; **not** merely clicking a picker.
+- `souls_created` with fixed detail `object` or `person`: a Soul was successfully saved locally; no identifier or label goes to analytics.
+- `souls_live_connected`: Gemini Live actually reached listening/speaking state; not a failed attempt or just page load.
+- `souls_mask_repaired`: a manual cutout repair was applied; no mask pixels sent.
+
+The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live stage panel, plus repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
 
 ## Product interaction refresh (October 25, 2026)
 
