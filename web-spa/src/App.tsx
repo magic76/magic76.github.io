@@ -31,6 +31,7 @@ const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.F
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
 const CrewPlayGamePage=lazy(()=>withNamespace("voice",import("./games/CrewPlayGamePage")).then(m=>({default:m.CrewPlayGamePage})));
 const NumberGamePage=lazy(()=>withNamespace(["games","voice"],import("./games/NumberGamePage")).then(m=>({default:m.NumberGamePage})));
+const QuickPlayGamePage=lazy(()=>import("./games/QuickPlayGamePage").then(m=>({default:m.QuickPlayGamePage})));
 const TabooGamePage=lazy(()=>withNamespace(["games","voice"],import("./games/TabooGamePage")).then(m=>({default:m.TabooGamePage})));
 const CrazyCourtPage=lazy(()=>withNamespace("voice",import("./games/CrazyCourtPage")).then(m=>({default:m.CrazyCourtPage})));
 const WerewolfPage=lazy(()=>import("./games/WerewolfPage").then(m=>({default:m.WerewolfPage})));
@@ -50,7 +51,7 @@ function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navi
 export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
-  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|taboo|crazy-court|werewolf)$/.test(pathname);
+  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|number-bomb|memory|taboo|crazy-court|werewolf)$/.test(pathname);
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
@@ -85,6 +86,8 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><GameRouteReady/><FriendGomokuPage/></AppChrome>}/>
 <Route path="/games/gomoku" element={<Navigate to="/games/friend-gomoku" replace/>}/>
 <Route path="/games/1a2b" element={<AppChrome product="home"><GameRouteReady/><NumberGamePage/></AppChrome>}/>
+<Route path="/games/number-bomb" element={<AppChrome product="home"><GameRouteReady/><QuickPlayGamePage kind="number-bomb"/></AppChrome>}/>
+<Route path="/games/memory" element={<AppChrome product="home"><GameRouteReady/><QuickPlayGamePage kind="memory"/></AppChrome>}/>
 <Route path="/games/taboo" element={<AppChrome product="home"><GameRouteReady/><TabooGamePage/></AppChrome>}/>
 <Route path="/games/crazy-court" element={<AppChrome product="home"><GameRouteReady/><CrazyCourtPage/></AppChrome>}/>
 <Route path="/games/werewolf" element={<AppChrome product="home"><GameRouteReady/><WerewolfPage/></AppChrome>}/>

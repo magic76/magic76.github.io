@@ -55,6 +55,7 @@ const categories:{id:Category;label:string;events:string[]}[]=[
 ];
 const games:{id:string;label:string}[]=[
  {id:"taboo",label:"Taboo 描述猜詞"},{id:"1a2b",label:"1A2B 猜數字"},
+ {id:"number-bomb",label:"終極密碼"},{id:"memory",label:"翻牌記憶"},
  {id:"gomoku",label:"五子棋"},{id:"connect4",label:"四子棋"},
  {id:"reversi",label:"黑白棋"},{id:"nonsense",label:"荒謬新聞直播 / 胡說大賽"},{id:"crazy-court",label:"荒謬法庭"},{id:"werewolf",label:"狼人殺"},{id:"twenty-questions",label:"20 Questions"},{id:"mystery",label:"海龜湯"}
 ];
