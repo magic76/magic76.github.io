@@ -336,3 +336,78 @@
  display:block;flex:1 1 100%;font-size:12px;color:#746788;line-height:1.55
 }
 .souls-photo-first .souls-saved-voice{margin:12px 0 4px}
+
+
+/* Crew Souls personality face language. Original artwork, not Grok/X brand assets.
+   Witty: half-lidded asymmetrical gaze, subtle wink, crooked smirk and conversational sway.
+   Gentle keeps the existing round eyes; curious uses wider, attentive eyes. */
+.souls-photo-first .souls-portrait[data-personality="witty"] .souls-portrait-face{
+ filter:drop-shadow(0 4px 9px rgba(25,18,39,.22))
+}
+.souls-photo-first .souls-portrait[data-personality="witty"] .souls-witty-brows{
+ transform-origin:75px 18px
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"] .souls-witty-left-eye{
+ transform-origin:40px 45px;
+ animation:souls-witty-wink 8.4s ease-in-out infinite;
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="false"][data-mood="calm"] .souls-portrait-sprite{
+ animation:souls-witty-idle 4.2s ease-in-out infinite
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="true"] .souls-portrait-sprite{
+ animation:souls-witty-talk .42s ease-in-out infinite alternate
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="false"][data-mood="happy"] .souls-portrait-sprite{
+ animation:souls-witty-pleased 1.55s ease-in-out infinite
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="false"][data-mood="thinking"] .souls-portrait-sprite{
+ animation:souls-witty-think 3.3s ease-in-out infinite alternate
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="false"][data-mood="surprised"] .souls-portrait-sprite{
+ animation:souls-witty-oh .85s cubic-bezier(.2,1.2,.35,1) both
+}
+.souls-photo-first .souls-portrait[data-animated="true"][data-personality="witty"][data-speaking="false"][data-hearing="true"] .souls-portrait-sprite{
+ animation:souls-witty-listen 2.5s ease-in-out infinite alternate
+}
+.souls-photo-first .souls-portrait[data-personality="curious"] .souls-portrait-eye-set{
+ animation-duration:4.3s
+}
+@keyframes souls-witty-wink{
+ 0%,43%,45%,100%{transform:scaleY(1)}
+ 44%{transform:scaleY(.18)}
+}
+@keyframes souls-witty-idle{
+ 0%,100%{transform:translateY(0) rotate(-1deg)}
+ 25%{transform:translateY(-5px) rotate(1.8deg)}
+ 49%{transform:translateY(-7px) rotate(0)}
+ 75%{transform:translateY(-3px) rotate(-2.2deg)}
+}
+@keyframes souls-witty-talk{
+ from{transform:translate(-2px,2px) rotate(-2deg) scale(.998)}
+ to{transform:translate(3px,-7px) rotate(2.1deg) scale(1.026)}
+}
+@keyframes souls-witty-pleased{
+ 0%,100%{transform:translateY(0) rotate(-1deg)}
+ 36%{transform:translateY(-8px) rotate(3deg) scale(1.025)}
+ 66%{transform:translateY(-2px) rotate(-1deg)}
+}
+@keyframes souls-witty-think{
+ from{transform:translateY(-1px) rotate(-5deg)}
+ to{transform:translateY(-4px) rotate(2deg)}
+}
+@keyframes souls-witty-oh{
+ 0%{transform:translateY(1px) scale(.96) rotate(0)}
+ 40%{transform:translateY(-8px) scale(1.075) rotate(2deg)}
+ 100%{transform:translateY(0) scale(1) rotate(-1deg)}
+}
+@keyframes souls-witty-listen{
+ from{transform:translateY(-1px) rotate(-3deg)}
+ to{transform:translateY(-4px) rotate(2.5deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ .souls-photo-first .souls-portrait[data-personality="witty"] .souls-witty-left-eye,
+ .souls-photo-first .souls-portrait[data-personality="witty"] .souls-portrait-sprite,
+ .souls-photo-first .souls-portrait[data-personality="curious"] .souls-portrait-eye-set{
+  animation:none!important;transition:none!important
+ }
+}
