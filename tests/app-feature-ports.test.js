@@ -302,9 +302,9 @@ test("published Android apps expose verified Google Play links while Fortune sta
  assert.ok(component.includes("id=com.crewpocket.teacher"));
  assert.ok(component.includes("id=com.crewpocket.story"));
  assert.ok(!component.includes("com.crewpocket.fortune"));
- assert.ok(home.includes('product="teacher"'));
- assert.ok(home.includes('product="story"'));
- assert.ok(home.includes('product="fortune"'));
+ assert.ok(home.includes("CREW_ANDROID_PLAY_STORE_URL"));
+ assert.ok(home.includes('className="crew-home-android"'));
+ assert.ok(!home.includes('PlayStoreLink product='));
  assert.ok(teacher.includes('product="teacher"'));
  assert.ok(story.includes('product="story"'));
  assert.ok(!fortuneHome.includes("PlayStoreLink"));
@@ -321,9 +321,8 @@ test("Teacher and Story expose Google Play links while Fortune stays unlisted",(
  const fortuneLayout=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneLayout.tsx"),"utf8");
  assert.ok(play.includes("com.crewpocket.teacher"));
  assert.ok(play.includes("com.crewpocket.story"));
- assert.ok(home.includes('PlayStoreLink product="teacher"'));
- assert.ok(home.includes('PlayStoreLink product="story"'));
- assert.ok(home.includes('PlayStoreLink product="fortune"'));
+ assert.ok(home.includes("CREW_ANDROID_PLAY_STORE_URL"));
+ assert.ok(!home.includes("PlayStoreLink product="));
  assert.ok(teacher.includes('PlayStoreLink product="teacher"'));
  assert.ok(story.includes('PlayStoreLink product="story"'));
  assert.ok(!play.includes("com.crewpocket.fortune"),"Fortune is not published on Google Play yet");
@@ -632,14 +631,15 @@ test("Crew Web hides implementation details from primary product UI",()=>{
  assert.ok(!player.includes("Gemini Live 阿奇負責"));
 });
 
-test("Crew home keeps primary routes while collapsing Android downloads",()=>{
+test("Crew home keeps primary routes while promoting one unified Android app",()=>{
  const home=fs.readFileSync(path.join(root,"web-spa/src/pages/HomePage.tsx"),"utf8");
  const play=fs.readFileSync(path.join(root,"web-spa/src/components/PlayStoreLink.tsx"),"utf8");
  assert.ok(home.includes('to="/teacher"')&&home.includes('to="/games"'),"SEO entry keeps core destinations");
  assert.ok(home.includes('to="/story"'));
  assert.ok(home.includes('to="/fortune"'));
- assert.ok(home.includes('<details className="crew-home-android">'));
- assert.ok(home.includes('product="fortune"'));
+ assert.ok(home.includes('<section className="crew-home-android"'));
+ assert.ok(home.includes('href={CREW_ANDROID_PLAY_STORE_URL}'));
+ assert.ok(!home.includes('product="fortune"'));
  assert.ok(!home.includes("一個 App 搞定"));
  assert.ok(play.includes("Google Play 準備中"));
  assert.ok(play.includes("url:null"));
