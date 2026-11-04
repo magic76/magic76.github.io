@@ -36,7 +36,7 @@ test("original witty face has distinctive asymmetric eyes, brows and a skewed sm
  assert.match(portrait,/mood==="thinking"/);
  assert.match(portrait,/mood==="surprised"/);
  assert.match(portrait,/mood==="happy"/);
- assert.match(portrait,/mood==="happy"\?<path/);
+ assert.match(portrait,/mood==="happy"\?<>/);
 });
 
 test("gentle retains existing round eyes, curious has distinct bright eyes",()=>{
