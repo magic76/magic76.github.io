@@ -157,7 +157,7 @@ test("Round A fix1 UI keeps labels and dates localized",()=>{
  const runtime=file("web-spa/src/lib/runtime.ts");
  assert.match(summary,/reading\.phaseTarot/);
  assert.match(summary,/reading\.topic\.keyYears/);
- assert.match(overview,/wealth:parsed\.work/);
+ assert.match(overview,/wealth:parsed\.wealth/);
  assert.match(reading,/role="alert">\{formError\}/);
  assert.match(reading,/formatFortuneLocalDate\(today\)/);
  assert.match(live,/formatFortuneLocalDate\(new Date\(\)\)/);
