@@ -667,3 +667,92 @@
   box-shadow:none;
  }
 }
+
+
+/* Scroll-safe Souls photo controls. No range slider can catch a vertical swipe.
+   Advanced editing is collapsed until explicitly requested; photo drag opt-in is explicit. */
+.souls-photo-first .souls-transform-controls{
+ display:block;width:100%;box-sizing:border-box;
+ border:1px solid #e9dff0;border-radius:15px;background:#fbf9fe;
+ padding:0;overflow:visible;
+}
+.souls-photo-first .souls-transform-controls>summary{
+ position:relative;cursor:pointer;list-style:none;
+ padding:15px 36px 15px 14px;
+ font-size:13px;font-weight:800;line-height:1.5;color:#59436d;
+ touch-action:pan-y;
+}
+.souls-photo-first .souls-transform-controls>summary::-webkit-details-marker{display:none}
+.souls-photo-first .souls-transform-controls>summary::after{
+ content:"⌄";position:absolute;right:16px;top:50%;font-size:19px;
+ transform:translateY(-50%);transition:transform .16s ease;
+}
+.souls-photo-first .souls-transform-controls[open]>summary::after{
+ transform:translateY(-50%) rotate(180deg);
+}
+.souls-photo-first .souls-transform-panel{
+ display:grid;gap:14px;padding:0 13px 15px;
+}
+.souls-photo-first .souls-transform-panel>.souls-muted{
+ margin:0;font-size:12px;line-height:1.65;
+}
+.souls-photo-first .souls-transform-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.souls-photo-first .souls-transform-tabs button{
+ flex:auto;min-width:0;min-height:44px;touch-action:pan-y;
+}
+.souls-photo-first .souls-gesture-toggle{
+ width:100%;min-height:48px;font-weight:800;
+ border:1px dashed #bda8d8;border-radius:13px;
+ background:#fff;color:#674e81;touch-action:pan-y;
+}
+.souls-photo-first .souls-gesture-toggle[aria-pressed="true"]{
+ border:1px solid #5a4b91;background:#e8e5fa;color:#40346d;
+}
+.souls-photo-first .souls-transform-sliders{
+ display:grid;gap:10px;
+}
+.souls-photo-first .souls-number-stepper{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:10px;padding:9px 11px;border-radius:13px;
+ background:#fff;border:1px solid #eee7f2;
+ min-width:0;
+}
+.souls-photo-first .souls-stepper-label{
+ font-size:13px;font-weight:800;color:#574468;
+ flex:1 1 auto;min-width:0;line-height:1.4;
+}
+.souls-photo-first .souls-stepper-buttons{
+ flex:none;display:grid;grid-template-columns:44px minmax(56px,auto) 44px;
+ align-items:center;gap:4px;min-width:0;
+}
+.souls-photo-first .souls-stepper-buttons button{
+ width:44px;min-width:44px;height:44px;min-height:44px;
+ display:grid;place-items:center;border-radius:11px;
+ border:1px solid #ddd2e7;background:#faf7fe;
+ color:#56416f;font-size:21px;font-weight:700;
+ padding:0;touch-action:pan-y;
+}
+.souls-photo-first .souls-stepper-buttons button:disabled{opacity:.38}
+.souls-photo-first .souls-stepper-buttons output{
+ display:block;text-align:center;white-space:nowrap;
+ min-width:56px;font-size:14px;font-weight:850;
+ font-variant-numeric:tabular-nums;color:#3c2d52;
+}
+.souls-photo-first .souls-transform-reset{
+ justify-self:start;min-height:44px;touch-action:pan-y;
+}
+.souls-photo-first .souls-mask-brush-size{display:block}
+.souls-photo-first .souls-mask-brush-size .souls-number-stepper{
+ width:100%;box-sizing:border-box;
+}
+.souls-photo-first .souls-portrait:not(.souls-portrait-editing) .souls-portrait-stage{
+ touch-action:pan-y;
+}
+@media(max-width:420px){
+ .souls-photo-first .souls-number-stepper{padding:7px 8px;gap:6px}
+ .souls-photo-first .souls-stepper-buttons{grid-template-columns:44px 53px 44px;gap:2px}
+ .souls-photo-first .souls-stepper-buttons output{min-width:0;font-size:13px}
+}
+@media(prefers-reduced-motion:reduce){
+ .souls-photo-first .souls-transform-controls>summary::after{transition:none}
+}
