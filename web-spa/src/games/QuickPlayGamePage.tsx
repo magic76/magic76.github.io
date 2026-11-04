@@ -57,8 +57,8 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
   <div className="crew-play-frame">
    <section className="crew-play-friend-bar">
     <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{zh?"免費可玩 · 開啟語音陪玩需 Gemini Key":"Free to play · Gemini Key needed for voice"}</small></div></div>
-    <GamePanel title={zh?"選擇對手":"Choose a friend"} label={t("playHub.changeFriend")}>
-     <label className="crew-play-friend-select">{zh?"對手":"Opponent"}
+    <GamePanel title={bomb?(zh?"選擇主持人":"Choose a host"):(zh?"選擇對手":"Choose a friend")} label={t("playHub.changeFriend")}>
+     <label className="crew-play-friend-select">{bomb?(zh?"主持人":"Host"):(zh?"對手":"Opponent")}
       <select value={friendId} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select>
      </label>
      <p>{zh?"更換朋友會重新開始這一局。":"Changing friends starts a new round."}</p>
