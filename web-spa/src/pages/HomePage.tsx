@@ -204,8 +204,8 @@ export function HomePage(){
   </section>
   <GuideHub/>
   {ready&&!isCrewAndroidShell()&&<details className="crew-home-android">
-   <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
-   <p>{t("androidApp.description")}</p>
+   <summary>{locale.language.startsWith("zh")?t("android"):"Take Crew with you on Android"} <span aria-hidden="true">＋</span></summary>
+   <p>{locale.language.startsWith("zh")?t("androidApp.description"):"Chat with AI friends, practice languages, play games, and explore stories—all in one app."}</p>
    <div className="play-store-grid"><PlayStoreLink product="teacher" onClick={()=>trackUsageEvent("home_entry_click","android_app_google_play")}/></div>
   </details>}
   </div>
