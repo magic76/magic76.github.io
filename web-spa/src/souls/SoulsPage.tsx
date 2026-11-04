@@ -11,29 +11,13 @@ import {SoulMemoryPanel} from "./SoulMemoryPanel";
 import {SoulTransformControls} from "./SoulTransformControls";
 import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
-import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
+import {DEFAULT_FACE,safeFace,type SoulFace} from "./soulFace";
+import {suggestedFace} from "./soulPhotoFace";
 import {type Soul,type Photo,type SoulSubjectType,type SoulSpeechStyle,persona,pid,trim,list,save,update,remove,photoFromFile,soulFaceVisible,soulSubjectType,soulSpeechStyle} from "./soulData";
 import {randomSoulVoice,soulVoiceLabel} from "./soulVoice";
 import {cutoutObject,CutoutError,type CutoutProgress} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
 import "./souls.css";
-
-function loadImage(src:string):Promise<HTMLImageElement>{
- return new Promise((resolve,reject)=>{
-  const image=new Image();
-  image.onload=()=>resolve(image);
-  image.onerror=()=>reject(new Error("Image could not be loaded"));
-  image.src=src;
- });
-}
-async function suggestedFace(src:string):Promise<SoulFace>{
- const image=await loadImage(src);
- const canvas=document.createElement("canvas");canvas.width=canvas.height=320;
- const ctx=canvas.getContext("2d",{willReadFrequently:true});
- if(!ctx)return {...DEFAULT_FACE};
- ctx.drawImage(image,0,0,320,320);
- return faceFromAlpha(ctx.getImageData(0,0,320,320).data,320,320);
-}
 
 /** Photo-first object characters. Old IndexedDB Souls are preserved without migration. */
 export function SoulsPage(){
