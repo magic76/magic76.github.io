@@ -102,9 +102,11 @@ The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mo
 - `souls_photo_ready`: selected camera/gallery image was processed successfully on-device; **not** merely clicking a picker.
 - `souls_created` with fixed detail `object` or `person`: a Soul was successfully saved locally; no identifier or label goes to analytics.
 - `souls_live_connected`: Gemini Live actually reached listening/speaking state; not a failed attempt or just page load.
+- `souls_live_failed`: Live enters an error state (without error text, technical failure details or any user content).
+- `souls_conversation`: the Soul recorded a genuine, completed two-sided user + AI exchange, at most once per mounted Soul view; mere connection and AI-only proactive greeting do not count. This is also used in effective engagement reporting.
 - `souls_mask_repaired`: a manual cutout repair was applied; no mask pixels sent.
 
-The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live stage panel, plus repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
+The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live → two-sided exchange stage panel, plus connection failure and repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
 
 ## Product interaction refresh (October 25, 2026)
 
