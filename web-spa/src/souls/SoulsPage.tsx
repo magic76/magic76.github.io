@@ -3,11 +3,12 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
+import {SoulMaskEditor} from "./SoulMaskEditor";
 import {SoulTransformControls} from "./SoulTransformControls";
 import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
 import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
-import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
+import {type Soul,type Photo,type SoulSubjectType,type SoulSpeechStyle,persona,pid,trim,list,save,update,remove,photoFromFile,soulFaceVisible,soulSubjectType,soulSpeechStyle} from "./soulData";
 import {randomSoulVoice,soulVoiceLabel} from "./soulVoice";
 import {cutoutObject,CutoutError,type CutoutProgress} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
@@ -40,6 +41,14 @@ export function SoulsPage(){
  const [draft,setDraft]=useState<Photo|null>(null);
  const [cutoutDraft,setCutoutDraft]=useState("");
  const [useCutout,setUseCutout]=useState(true);
+ const [subjectType,setSubjectType]=useState<SoulSubjectType>("object");
+ const [faceVisible,setFaceVisible]=useState(true);
+ const [speechStyle,setSpeechStyle]=useState<SoulSpeechStyle>("bubble");
+ const [maskEditing,setMaskEditing]=useState<"draft"|"saved"|null>(null);
+ function chooseSubject(kind:SoulSubjectType){
+  setSubjectType(kind);setFaceVisible(kind==="object");
+  setSpeechStyle(kind==="person"?"subtitle":"bubble");
+ }
  const [faceDraft,setFaceDraft]=useState<SoulFace>({...DEFAULT_FACE});
  const [transformDraft,setTransformDraft]=useState<SoulTransform>({...DEFAULT_TRANSFORM});
  const [editTarget,setEditTarget]=useState<"object"|"face">("object");
@@ -79,7 +88,8 @@ export function SoulsPage(){
  function home(){
   cutoutJob.current++;setCutting(false);
   setStep("home");setSelected(null);setDraft(null);setCutoutDraft("");
-  setUseCutout(true);setSelectSubject(false);setEditFace(false);
+  setUseCutout(true);setSelectSubject(false);setEditFace(false);setMaskEditing(null);
+  setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
   setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");faceWasEdited.current=false;
   setError("");setInfo("");resetVisual();
  }
@@ -137,7 +147,8 @@ export function SoulsPage(){
    setDraft(p);setSelected(null);setStep("edit");setCutoutDraft("");
    setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
    setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");
-   setUseCutout(true);setSelectSubject(false);
+   setUseCutout(true);setSelectSubject(false);setMaskEditing(null);
+   setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
    setName("");setKind("");setDescription("");setPersonality("witty");
    setDraftVoice(previous=>randomSoulVoice(previous));setRememberEnabled(true);
    setBusy(false);
@@ -165,7 +176,7 @@ export function SoulsPage(){
    await ensureVision();
    if(!window.CrewGeminiVision?.generate)throw Error("Vision unavailable");
    const result=await window.CrewGeminiVision.generate(
-    "Return JSON only: {\"kind\":\"\",\"description\":\"\",\"suggestedName\":\"\"}. Describe only the main household object visibly shown in this photo, in Traditional Chinese. No people, sensitive information or assumptions.",
+    "Return JSON only: {\"kind\":\"\",\"description\":\"\",\"suggestedName\":\"\"}. Describe the visible "+(subjectType==="person"?"portrait":"main household object")+" in Traditional Chinese. For a person, never identify them, infer age, ethnicity, health, background or private traits. No sensitive assumptions.",
     [{mimeType:"image/jpeg",data:draft.image.split(",")[1]}],
     {json:true,maxOutputTokens:350}
    ) as {kind?:unknown;description?:unknown;suggestedName?:unknown};
@@ -187,6 +198,7 @@ export function SoulsPage(){
     description:trim(description,140),personality,
     voice:draftVoice,photos:[draft],
     cutout:useCutout&&cutoutDraft?cutoutDraft:undefined,
+    subjectType,faceVisible,speechStyle,
     face:safeFace(faceDraft),transform:safeTransform(transformDraft),notes:[],remember:rememberEnabled,
     createdAt:now,lastSeenAt:now
    };
@@ -199,7 +211,7 @@ export function SoulsPage(){
  }
  async function choose(s:Soul){
   cutoutJob.current++;setCutting(false);
-  setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);
+  setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);setMaskEditing(null);
   setEditFace(false);setEditTarget("object");setTransformDraft(safeTransform(s.transform));
   faceWasEdited.current=false;resetVisual();setError("");setInfo("");
   try{await update(s.id,old=>({...old,lastSeenAt:Date.now()}));await refresh(s.id)}
@@ -209,6 +221,16 @@ export function SoulsPage(){
   if(!selected)return;
   try{await update(selected.id,fn);await refresh(selected.id)}
   catch{setError(t("本機資料儲存失敗。","Could not save local data."))}
+ }
+ async function applySavedMask(dataUrl:string){
+  if(!selected)return;
+  const id=selected.id;
+  setError("");
+  try{
+   await update(id,current=>({...current,cutout:dataUrl}));
+   await refresh(id);setMaskEditing(null);
+   setInfo(t("去背修補已儲存。","Cutout repair saved."));
+  }catch{setError(t("修補結果儲存失敗。","Could not save repaired cutout."))}
  }
  async function rerollSavedVoice(){
   if(!selected)return;
@@ -239,6 +261,7 @@ export function SoulsPage(){
   catch{setError(t("刪除失敗。","Delete failed."))}
  }
  const editingImage=cutoutDraft&&useCutout?cutoutDraft:draft?.image||"";
+ const selectedKind=selected?soulSubjectType(selected):"object";
  const selectedImage=selected?.cutout||selected?.photos[0]?.image||"";
  return <main className="souls-page souls-photo-first">
   <header className="souls-header">
