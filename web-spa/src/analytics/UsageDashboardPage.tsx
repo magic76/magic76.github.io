@@ -205,7 +205,7 @@ export function UsageDashboardPage(){
        </div>;
       })}
      </div>
-     <p className="usage-explain">漏斗並非使用者追蹤：分開統計事件，再比較數量；不同日期、重連或多角色可能影響前後段關係。新事件從更新後才有資料。</p>
+     <p className="usage-explain">漏斗是分開統計的事件，並非同一批使用者；重連也會影響數量。</p>
      <div className="usage-feature-list usage-role-list">
       {stats.map(item=><div className="usage-feature" key={item.name}><span><strong>{item.name}</strong><small>有效對話去重瀏覽器 {num(unique(item.success))}</small></span>
        <span>連線 {num(total(rows,item.start))} · 發話 {num(total(rows,item.spoke))} · 回覆 {num(total(rows,item.reply))} · <b>有效 {num(total(rows,item.success))}</b></span></div>)}
@@ -268,7 +268,7 @@ export function UsageDashboardPage(){
     <section className="panel section">
      <div className="section-head"><h2>首頁與探索入口</h2><small>入口點擊次數，不等於實際有效使用</small></div>
      <div className="usage-feature-list">
-      {["learn","story","fortune","timeline","play","briefing","town","magic","mate","shorts","circle"].map(detail=><div className="usage-feature" key={detail}><span>{detail}</span><strong>首頁 {num(total(rows,"home_entry_click",detail))} · 探索 {num(total(rows,"explore_entry_click",detail))}</strong></div>)}
+      {["learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle"].map(detail=><div className="usage-feature" key={detail}><span>{detail}</span><strong>首頁 {num(total(rows,"home_entry_click",detail))} · 探索 {num(total(rows,"explore_entry_click",detail))}</strong></div>)}
      </div>
     </section>
     <section className="panel section">
