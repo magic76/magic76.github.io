@@ -8,12 +8,24 @@ import {GuestTrialCountdown,GuestTrialFinish} from "../live/GuestTrialExperience
 import {geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {trackUsageEvent} from "../analytics/usage";
+import {hasSoulExchange,hasSoulInput,type SoulMetricTurn} from "./soulConversationMetrics";
 
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
 export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,scene=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean;scene?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
+ const usageFlags=useRef({user:false,replied:false,completed:false});
+ const recordInput=()=>{
+  if(usageFlags.current.user)return;
+  usageFlags.current.user=true;trackUsageEvent("souls_user_input");
+ };
+ const recordExchange=(turns:readonly SoulMetricTurn[])=>{
+  if(!hasSoulExchange(turns))return;
+  recordInput();
+  if(!usageFlags.current.replied){usageFlags.current.replied=true;trackUsageEvent("souls_ai_replied")}
+  if(!usageFlags.current.completed){usageFlags.current.completed=true;trackUsageEvent("souls_conversation")}
+ };
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
   if(!last?.input||captured.current.has(last.input))return;
@@ -25,8 +37,8 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onOutputLevel:level=>onAudioLevel?.(level),
-  onTurnComplete:(_turn,turns)=>capture(turns),
-  onSessionFinished:item=>{if(item)capture(item.turns)}
+  onTurnComplete:(_turn,turns)=>{recordExchange(turns);capture(turns)},
+  onSessionFinished:item=>{if(item){recordExchange(item.turns);capture(item.turns)}}
  });
  // Follow FriendLivePage: auto-start for BYOK after selection; guest uses the existing trial gate.
  useEffect(()=>{
@@ -43,16 +55,26 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
  useEffect(()=>{onVisual?.({state:live.state,caption,mood,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
- const wasReady=useRef(false);
+ const wasReady=useRef(false),wasStarting=useRef(false),wasError=useRef(false);
  useEffect(()=>{
+  const starting=live.state==="requesting-mic"||live.state==="connecting";
+  if(starting&&!wasStarting.current)trackUsageEvent("souls_live_attempt");
+  if(live.state==="error"&&!wasError.current)trackUsageEvent("souls_live_failed");
   if(ready&&!wasReady.current)trackUsageEvent("souls_live_connected");
-  wasReady.current=ready;
- },[ready]);
+  wasStarting.current=starting;wasReady.current=ready;wasError.current=live.state==="error";
+ },[ready,live.state]);
+ // Guest mode deliberately skips useLiveSession callbacks; confirmed turns are
+ // still reflected in live.turns, so both guest and BYOK are measured equally.
+ useEffect(()=>{
+  if((ready&&live.input.trim())||hasSoulInput(live.turns))recordInput();
+  recordExchange(live.turns);
+ },[ready,live.input,live.turns]);
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
   if(!ready){setError(en?"Connect Gemini Live first.":"請先連接 Gemini Live。");return}
   if(live.state==="speaking")live.interrupt();
   if(!live.sendText(value)){setError(en?"Live could not accept your message.":"Live 尚未接收這段文字，請再試。");return}
+  recordInput();
   setTyped(messages=>[...messages,value].slice(-15));setDraft("");setError("");
   void remember(soul.id,value,onChange);
  }
