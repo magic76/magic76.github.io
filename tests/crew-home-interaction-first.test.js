@@ -17,7 +17,7 @@ test("Home World prioritizes first-run access before Shorts and daily games",()=
  assert.match(home,/import \{HomeShortsPreview\} from "\.\.\/teacher\/HomeShortsPreview"/);
 });
 
-test("Home preserves portal, Timeline, briefing and collapsed Play Store without redundant cards",()=>{
+test("Home preserves portal, Timeline and a single Crew Android promotion without redundant cards",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx"),portal=read("web-spa/src/pages/HomePortal.tsx");
  assert.doesNotMatch(home,/crew-home-product-grid|crew-home-products/);
  assert.match(portal,/<PortalParticleField mode=\{mode\}/);
@@ -26,7 +26,7 @@ test("Home preserves portal, Timeline, briefing and collapsed Play Store without
  assert.match(home,/to="\/timeline"/);
  assert.doesNotMatch(home,/assets\/timeline\/mira-/);
  assert.ok(home.indexOf("<HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>")>home.indexOf("<HomePortal shortsFeed={shortsFeed}/>"));
- assert.match(home,/<details className="crew-home-android">/);
+ assert.match(home,/<section className="crew-home-android"/);
 });
 
 test("Recent game and friend navigation is recorded without message content",()=>{
