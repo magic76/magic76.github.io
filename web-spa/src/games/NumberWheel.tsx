@@ -5,17 +5,21 @@ type Props={min:number;max:number;value:number;disabled:boolean;onChange:(value:
 /** Native touch momentum + scroll snap. The center number is authoritative only on confirmation. */
 export function NumberWheel({min,max,value,disabled,onChange,zh}:Props){
  const viewport=useRef<HTMLDivElement>(null);
+ const fromScroll=useRef(false);
  const chosen=Math.max(min,Math.min(max,value));
  const numbers=Array.from({length:Math.max(0,max-min+1)},(_,index)=>min+index);
  const scrollToValue=(next:number,behavior:ScrollBehavior="smooth")=>{
   viewport.current?.scrollTo({top:(next-min)*STEP,behavior});
  };
  // Bounds change after each guess; never leave the selected number outside the valid range.
- useLayoutEffect(()=>{if(viewport.current)viewport.current.scrollTop=(chosen-min)*STEP},[min,max]);
+ useLayoutEffect(()=>{
+  if(!fromScroll.current&&viewport.current)viewport.current.scrollTop=(chosen-min)*STEP;
+  fromScroll.current=false;
+ },[min,max,chosen]);
  const onScroll=()=>{
   const node=viewport.current;if(!node||disabled)return;
   const number=Math.max(min,Math.min(max,min+Math.round(node.scrollTop/STEP)));
-  if(number!==chosen)onChange(number);
+  if(number!==chosen){fromScroll.current=true;onChange(number)}
  };
  const onKeyDown=(event:KeyboardEvent<HTMLDivElement>)=>{
   if(disabled)return;
