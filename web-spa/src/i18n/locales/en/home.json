@@ -19,7 +19,13 @@
     "verifyDesc": "Verify your key to make sure it works.",
     "shortDesc": "When your trial ends, set up your own key to keep chatting."
   },
-  "android": "Get Crew on Android",
+  "android": {
+    "title": "Take the whole Crew with you",
+    "description": "Chat with AI friends, practice languages, play games, read stories, and discover more in one app.",
+    "appName": "Crew: AI Friends & Language Chat",
+    "platform": "Android app · Google Play",
+    "download": "Get the app"
+  },
   "briefing": {
     "heading": "Daily R&D briefing",
     "today": "What's worth exploring today?",
