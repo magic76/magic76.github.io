@@ -1,7 +1,7 @@
 import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
-import {SoulsUsagePanel} from "./SoulsUsagePanel";
+import {SoulsUsagePanel,SOULS_USAGE_EVENTS,SOULS_USAGE_NAMES} from "./SoulsUsagePanel";
 
 type Row={day:string;event:string;detail?:string;count:number;users:number};
 type EventUsers={event:string;users:number};
@@ -32,7 +32,7 @@ const names:Record<string,string>={
  guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
  guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
  home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
- souls_open:"進入 Souls",souls_photo_ready:"Souls 照片已準備",souls_created:"Souls 角色建立",souls_live_connected:"Souls 語音連線成功",souls_live_failed:"Souls 語音失敗",souls_conversation:"Souls 雙向對話",souls_mask_repaired:"Souls 去背修補",
+ ...SOULS_USAGE_NAMES,
  town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
  magic_enter:"進入 Magic",magic_spell:"Magic 施法",magic_challenge_answer:"Magic 解謎",magic_panel_choice:"Magic 互動卡選擇",
  magic_voice_connected:"Magic 語音連線成功",magic_voice_failed:"Magic 語音連線失敗",magic_3d_fallback:"Magic 3D 降級",magic_world_reset:"Magic 世界重置",
@@ -41,9 +41,9 @@ const names:Record<string,string>={
  circle_thread_open:"交流圈留言展開",circle_post_published:"交流圈發布貼文",circle_comment_posted:"交流圈送出留言"
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
- {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_conversation","research_article_completed","circle_post_published","circle_comment_posted"]},
+ {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_created","souls_conversation","research_article_completed","circle_post_published","circle_comment_posted"]},
  {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
- {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
+ {id:"chat",label:"老師／朋友／Souls 聊天",events:["teacher_conversation","friend_conversation","timeline_conversation","souls_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
  {id:"shorts",label:"Shorts",events:["shorts_view","shorts_chat_click","shorts_conversation"]},
  {id:"games",label:"遊戲",events:["game_open","game_started","game_completed","game_route_loaded","game_route_stalled","game_route_asset_error"]},
@@ -52,7 +52,7 @@ const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]},
  {id:"worlds",label:"Town / Magic",events:["town_enter","town_interaction","town_chat_click","magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected"]},
  {id:"mate",label:"Mate",events:["mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed"]},
- {id:"souls",label:"Souls",events:["souls_open","souls_photo_ready","souls_created","souls_live_connected","souls_live_failed","souls_conversation","souls_mask_repaired"]},
+ {id:"souls",label:"Souls",events:SOULS_USAGE_EVENTS},
  {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]},
  {id:"circle",label:"交流圈",events:["circle_thread_open","circle_post_published","circle_comment_posted"]}
 ];
@@ -69,10 +69,10 @@ const eventRatio=(value:number,previous:number)=>previous>0?(value/previous*100)
 const comparison=(current:number,previous:number)=>previous===0
  ? "前一期尚無可比較的使用紀錄"
  : `較前一期 ${current>=previous?"+":""}${num(current-previous)}（${current>=previous?"+":""}${Math.round((current-previous)/previous*100)}%）`;
-const chatStart=["teacher_conversation_start","friend_conversation_start","timeline_conversation_start"];
-const chatSpeech=["teacher_user_spoke","friend_user_spoke","timeline_user_spoke"];
-const chatReply=["teacher_ai_replied","friend_ai_replied","timeline_ai_replied"];
-const chatEffective=["teacher_conversation","friend_conversation","timeline_conversation"];
+const chatStart=["teacher_conversation_start","friend_conversation_start","timeline_conversation_start","souls_live_connected"];
+const chatSpeech=["teacher_user_spoke","friend_user_spoke","timeline_user_spoke","souls_user_input"];
+const chatReply=["teacher_ai_replied","friend_ai_replied","timeline_ai_replied","souls_ai_replied"];
+const chatEffective=["teacher_conversation","friend_conversation","timeline_conversation","souls_conversation"];
 
 export function UsageDashboardPage(){
  const[days,setDays]=useState<7|30>(7),[category,setCategory]=useState<Category>("all");
@@ -127,7 +127,7 @@ export function UsageDashboardPage(){
     <section className="usage-cards" aria-label="主要指標">
      <article className="panel"><small>有效使用瀏覽器</small><strong>{num(data.activeUsers)}</strong><span>{comparison(data.activeUsers,data.previousActiveUsers)}</span></article>
      <article className="panel"><small>真的聊過天的瀏覽器</small><strong>{num(data.chatUsers)}</strong><span>{comparison(data.chatUsers,data.previousChatUsers)}</span></article>
-     <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline，兩方都有說話</span></article>
+     <article className="panel"><small>有效對話次數</small><strong>{num(totalMany(rows,chatEffective))}</strong><span>老師＋朋友＋Timeline＋Souls，雙方都有發言</span></article>
      <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
     </section>
     <UsageJourneySection days={days} journey={data.journey}/>
