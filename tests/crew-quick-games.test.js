@@ -6,7 +6,7 @@ const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const source=stripTypeScriptTypes(read("web-spa/src/games/quickPlayEngine.ts"),{mode:"strip"}).replace(/^export /gm,"");
-const api=new Function(source+"\nreturn {newBomb,bombGuess,bombComputerGuess,newMemory,flipMemory,resolveMemory,memoryComputerPick};")();
+const api=new Function(source+"\nreturn {newBomb,bombGuess,bombComputerGuess,newMemory,flipMemory,resolveMemory,memoryComputerPick,parseBombSpeech,parseMemorySpeech};")();
 
 test("number bomb bounds shrink without exposing secret and turns alternate",()=>{
  const initial=api.newBomb(()=>.49);
@@ -37,7 +37,7 @@ test("memory builds genuine pairs, disallows invalid flips, settles matching tur
  assert.equal(api.flipMemory(state,2),null);
  state=api.resolveMemory(state);
  assert.equal(state.playerPairs,1);assert.equal(state.matched.length,2);
- assert.equal(state.turn,"friend");assert.equal(state.moves,1);
+ assert.equal(state.turn,"player");assert.equal(state.moves,1);assert.equal(state.lastMatch,true);
 });
 test("memory AI remembers flipped cards instead of cheating with hidden answers",()=>{
  let state=api.newMemory(6,()=>.5);
@@ -60,4 +60,46 @@ test("quick play uses public routes, local engines and usage funnel",()=>{
   assert.ok(page.includes('"game_completed","'+slug+'"'));
  }
  assert.ok(page.includes('No Gemini key needed'));
+});
+
+test("matching pair grants another turn; a miss passes the turn",()=>{
+ let game=api.newMemory(6,()=>.7);
+ const first=game.cards.findIndex(x=>x===0);
+ const second=game.cards.findIndex((x,i)=>x===0&&i!==first);
+ game=api.resolveMemory(api.flipMemory(api.flipMemory(game,first),second));
+ assert.equal(game.turn,"player");
+ assert.equal(game.playerPairs,1);
+ let a=-1,b=-1;
+ for(let i=0;i<game.cards.length;i++){
+  if(game.matched.includes(i))continue;
+  if(a<0)a=i;
+  else if(game.cards[a]!==game.cards[i]){b=i;break}
+ }
+ game=api.resolveMemory(api.flipMemory(api.flipMemory(game,a),b));
+ assert.equal(game.turn,"friend");
+ assert.equal(game.lastMatch,false);
+ const f=game.cards.map((x,i)=>x===1&&!game.matched.includes(i)?i:-1).filter(i=>i>=0);
+ game=api.resolveMemory(api.flipMemory(api.flipMemory(game,f[0]),f[1]));
+ assert.equal(game.turn,"friend");
+ assert.equal(game.friendPairs,1);
+});
+test("spoken guesses accept deliberate Chinese and English commands only",()=>{
+ assert.equal(api.parseBombSpeech("我猜七十五"),75);
+ assert.equal(api.parseBombSpeech("猜 50"),50);
+ assert.equal(api.parseBombSpeech("I guess sixty four"),64);
+ assert.equal(api.parseBombSpeech("one hundred"),100);
+ assert.equal(api.parseBombSpeech("今天好像有五個人"),null);
+ assert.equal(api.parseBombSpeech("猜 101"),null);
+ assert.equal(api.parseMemorySpeech("翻第三張"),3);
+ assert.equal(api.parseMemorySpeech("flip card eight"),8);
+ assert.equal(api.parseMemorySpeech("我想聊天"),null);
+});
+test("wheel is native scroll-snapped with keyboard and clamped range",()=>{
+ const src=read("web-spa/src/games/NumberWheel.tsx");
+ const css=read("web-spa/src/games/quickPlay.css");
+ assert.match(src,/onScroll=\{onScroll\}/);
+ assert.match(src,/onKeyDown=\{onKeyDown\}/);
+ assert.match(src,/Math\.max\(min,Math\.min\(max,value\)\)/);
+ assert.match(src,/role="listbox"/);
+ assert.match(css,/scroll-snap-type:y mandatory/);
 });
