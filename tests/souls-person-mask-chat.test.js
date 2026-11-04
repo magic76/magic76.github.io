@@ -85,7 +85,8 @@ test("face visibility is separate from stored face coordinates and works for old
  assert.match(page,/faceVisible=\{soulFaceVisible\(s\)\}/);
  assert.match(page,/faceVisible=\{faceVisible\}/);
  assert.match(page,/faceVisible=\{soulFaceVisible\(selected\)\}/);
- assert.match(settings,/onChange=\{e=>onFaceChange\(e.target.checked\)\}/);\n assert.match(page,/onFaceChange=\{visible=>void mutate\(current=>/);
+ assert.match(settings,/onChange=\{e=>onFaceChange\(e.target.checked\)\}/);
+ assert.match(page,/onFaceChange=\{visible=>void mutate\(current=>/);
  assert.match(portrait,/data-face-visible=\{faceVisible\?"true":"false"\}/);
  assert.match(page,/face:safeFace\(faceDraft\),transform:safeTransform\(transformDraft\)/);
 });
