@@ -208,6 +208,10 @@
     this.turns=[];
     this.resumptionHandle="";
     this.openingSent=false;
+    this.openingDecision="pending";
+    // "received" means model PCM arrived; "started" is confirmed by the
+    // output worklet. ScriptProcessor fallback can only confirm scheduling.
+    this.firstAudioPlayback="none";
     this.resumeAttempts=0;
     this.maxResumeAttempts=this.guestMode?0:Math.max(0,Math.min(3,Number(this.options.maxResumeAttempts)==null?2:Number(this.options.maxResumeAttempts)));
     this.wakeLock=null;
@@ -244,7 +248,9 @@
       lastAudioSentAgoMs:age(this.lastAudioSentAt),
       lastServerEventAgoMs:age(this.lastServerEventAt),
       lastTranscriptAgoMs:age(this.lastInputTranscriptAt),
-      lastModelOutputAgoMs:age(this.lastModelOutputAt)
+      lastModelOutputAgoMs:age(this.lastModelOutputAt),
+      openingDecision:this.openingDecision,
+      firstAudioPlayback:this.firstAudioPlayback
     };
   };
 
@@ -450,6 +456,7 @@
         var message=event&&event.data||{};
         if(message.type==="output-started"){
           if(self.interruptPending||!self.outputWorkletPending)return;
+          self.firstAudioPlayback="started";
           if(self.options.onSpeaking)self.options.onSpeaking(true);
         }else if(message.type==="queue-state"){
           var samples=Math.max(0,Number(message.samples)||0);
@@ -514,6 +521,7 @@
           {type:"output",samples:floats.buffer,sampleRate:rate},
           [floats.buffer]
         );
+        if(this.firstAudioPlayback!=="started")this.firstAudioPlayback="queued";
         return;
       }catch(error){
         this.outputWorkletReady=false;
@@ -539,6 +547,7 @@
 
     var start=Math.max((this.outputContext.currentTime||0)+0.06,this.nextPlayTime||0);
     source.start(start);
+    if(this.firstAudioPlayback!=="started")this.firstAudioPlayback="scheduled";
     this.nextPlayTime=start+buffer.duration;
     this.sources.push(source);
 
@@ -551,7 +560,10 @@
     this.lastModelOutputAt=this._deps.now();
     this.validOutputSeen=true;
     this.currentTurnHadValidOutput=true;
-    if(isAudio)this.currentTurnHadAudio=true;
+    if(isAudio){
+      this.currentTurnHadAudio=true;
+      if(this.firstAudioPlayback==="none")this.firstAudioPlayback="received";
+    }
     if(attempt.replyTimer){
       this._deps.clearTimeout(attempt.replyTimer);
       attempt.replyTimer=null;
@@ -561,7 +573,7 @@
   LiveSession.prototype._sendOpening=function(attempt){
     if(!this._isActiveAttempt(attempt)||this.openingSent)return;
     var prompt=(this.options.openingPrompt||"").trim();
-    if(!prompt)return;
+    if(!prompt){this.openingDecision="not-requested";return;}
     try{
       attempt.socket.send(JSON.stringify({
         clientContent:{
@@ -570,7 +582,12 @@
         }
       }));
       this.openingSent=true;
+      this.openingDecision="sent";
+      if(this._deps.logger&&this._deps.logger.info){
+        this._deps.logger.info("[CrewLive opening]",{decision:"sent"});
+      }
     }catch(error){
+      this.openingDecision="send-failed";
       this._beginRecovery(attempt,"opening-send",error);
     }
   };
@@ -714,8 +731,25 @@
     var frames=this.preSetupFrames;
     this.preSetupFrames=[];
     this.preSetupSamples=0;
-    if(!frames.length||!frames.some(function(frame){return frame.voiced;}))return false;
-    for(var i=0;i<frames.length;i++)this._sendMicFrame(attempt,frames[i]);
+    // WebView's microphone can emit one loud warm-up frame or a short noise.
+    // Only established speech should override the friend's first greeting.
+    // Frames are resampled to 16 kHz; require 240 ms of voiced audio, allowing
+    // a brief (<= 80 ms) pause inside an otherwise continuous utterance.
+    var voicedSamples=0,gapSamples=0;
+    var sustained=false;
+    for(var i=0;i<frames.length;i++){
+      var samples=Math.max(0,Number(frames[i].samples)||0);
+      if(frames[i].voiced){
+        voicedSamples+=samples;
+        gapSamples=0;
+      }else{
+        gapSamples+=samples;
+        if(gapSamples>1280)voicedSamples=0;
+      }
+      if(voicedSamples>=3840){sustained=true;break;}
+    }
+    if(!sustained)return false; // Drop noise, not a synthetic learner turn.
+    for(var j=0;j<frames.length;j++)this._sendMicFrame(attempt,frames[j]);
     return true;
   };
 
@@ -1243,8 +1277,15 @@
     this._startCapture();
     // Do not overwrite the learner's first spoken sentence with a greeting.
     var hadBufferedSpeech=this._flushPreSetupAudio(attempt);
-    if(hadBufferedSpeech&&!this.openingSent)this.openingSent=true;
+    if(hadBufferedSpeech&&!this.openingSent){
+      this.openingSent=true;
+      this.openingDecision="skipped-early-speech";
+      if(this._deps.logger&&this._deps.logger.info){
+        this._deps.logger.info("[CrewLive opening]",{decision:"skipped-early-speech"});
+      }
+    }
     if(!attempt.resumed)this._sendOpening(attempt);
+    else if(this.openingDecision==="pending")this.openingDecision="resumed";
     this._armReplyTimeout(attempt);
     if(this.recoveryStarted){this.recoveryStarted=false;if(this.options.onRecovered)this.options.onRecovered({model:this.model,resumed:!!attempt.resumed});}
   };
@@ -1655,6 +1696,9 @@
     this.turns=[];
     this.resumptionHandle="";
     this.resumeAttempts=0;
+    this.openingSent=false;
+    this.openingDecision="pending";
+    this.firstAudioPlayback="none";
     this.startedAt=this._deps.now();
     this.lastAudioSentAt=0;
     this.lastServerEventAt=0;

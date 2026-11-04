@@ -1045,7 +1045,7 @@ test("sustained local speech emits one pause candidate without overriding Gemini
   await session.stop({silentStatus:true,emitTerminal:false});
 });
 
-test("early microphone speech is buffered until setup and takes priority over greeting",async()=>{
+test("one WebView warm-up spike does not suppress the AI greeting",async()=>{
   resetSockets();
   const {deps}=makeDeps([]);
   const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
@@ -1055,13 +1055,73 @@ test("early microphone speech is buffered until setup and takes priority over gr
   session.processor.onaudioprocess({
     inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
   });
-  assert.equal(socket.sent.some(item=>item.realtimeInput?.audio),false);
   socket.open();
   socket.message({setupComplete:{}});
   await starting;
-  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,1);
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,0,
+    "unconfirmed noise must not interrupt the model's greeting");
+  assert.equal(socket.sent.filter(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome").length,1);
+  assert.equal(session.getHealthSnapshot().openingDecision,"sent");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("real sustained early microphone speech still takes priority over greeting",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  for(let i=0;i<8;i++)session.processor.onaudioprocess({
+    inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(0.2)}
+  });
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,8);
   assert.equal(socket.sent.some(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome"),false);
+  assert.equal(session.getHealthSnapshot().openingDecision,"skipped-early-speech");
   assert.equal(session.getMicHealth().captureMode,"script");
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("separated short noise spikes do not add up to early speech",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  for(const loud of [true,true,true,false,false,false,true,true,true]){
+    session.processor.onaudioprocess({
+      inputBuffer:{getChannelData:()=>new Float32Array(2048).fill(loud?0.2:0)}
+    });
+  }
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(socket.sent.filter(item=>item.realtimeInput?.audio).length,0);
+  assert.equal(socket.sent.filter(item=>item.clientContent?.turns?.[0]?.parts?.[0]?.text==="Welcome").length,1);
+  await session.stop({silentStatus:true,emitTerminal:false});
+});
+
+test("health snapshot distinguishes generated audio from output scheduling",async()=>{
+  resetSockets();
+  const {deps}=makeDeps([]);
+  const session=new CrewLive.Session({models:["m1"],maxLiveAttempts:1,connectTimeoutMs:100,
+    deps,openingPrompt:"Welcome"});
+  const starting=session.start();
+  const socket=await waitForSocket(0);
+  socket.open();
+  socket.message({setupComplete:{}});
+  await starting;
+  assert.equal(session.getHealthSnapshot().firstAudioPlayback,"none");
+  const pcm=Buffer.alloc(4800).toString("base64");
+  socket.message({serverContent:{modelTurn:{parts:[{
+    inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}
+  }]}}});
+  assert.equal(session.getHealthSnapshot().firstAudioPlayback,"scheduled");
+  assert.equal(session.getHealthSnapshot().openingDecision,"sent");
   await session.stop({silentStatus:true,emitTerminal:false});
 });
 
