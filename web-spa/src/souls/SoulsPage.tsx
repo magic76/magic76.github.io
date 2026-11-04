@@ -7,6 +7,7 @@ import {SoulMaskEditor} from "./SoulMaskEditor";
 import {SoulDraftDetails} from "./SoulDraftDetails";
 import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
 import {SoulSubjectSelector} from "./SoulSubjectSelector";
+import {SoulMemoryPanel} from "./SoulMemoryPanel";
 import {SoulTransformControls} from "./SoulTransformControls";
 import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
@@ -406,24 +407,10 @@ export function SoulsPage(){
     <SoulMaskEditor original={selected.photos[0]?.image||""} initialCutout={selected.cutout}
      en={en} onApply={data=>void applySavedMask(data)} onCancel={()=>setMaskEditing(null)}/>
    </div>}
-   <section className="souls-panel">
-    <h2>{t("它記得的事","Memories")} <small>({selected.notes.length}/30)</small></h2>
-    <label className="souls-checkbox"><input type="checkbox" checked={selected.remember}
-     onChange={e=>void mutate(s=>({...s,remember:e.target.checked}))}/>
-     {t("聊天時使用並擷取回憶","Use and capture memories during chats")}
-    </label>
-    <p className="souls-muted">{t("只保存有依據的摘要，不保留逐字稿；可逐則刪除。","Only grounded notes are saved, not full transcripts. Delete any note.")}</p>
-    <form className="souls-note" onSubmit={e=>void manual(e)}>
-     <input value={note} maxLength={180} onChange={e=>setNote(e.target.value)}
-      aria-label={t("新增回憶","New memory")} placeholder={t("手動記下想讓它記得的事…","Add a memory…")}/>
-     <button disabled={!note.trim()}>{t("記住","Remember")}</button>
-    </form>
-    <ul className="souls-notes">{[...selected.notes].reverse().map(n=><li key={n.id}>
-     <span>{n.text}<small>{n.source==="manual"?t("手動","Manual"):t("聊天擷取","From chat")}</small></span>
-     <button type="button" aria-label={t("刪除回憶","Delete memory")}
-      onClick={()=>void mutate(s=>({...s,notes:s.notes.filter(item=>item.id!==n.id)}))}>×</button>
-    </li>)}</ul>
-   </section>
+   <SoulMemoryPanel soul={selected} en={en} note={note} onNoteChange={setNote}
+    onAdd={e=>void manual(e)}
+    onRememberChange={enabled=>void mutate(current=>({...current,remember:enabled}))}
+    onDelete={id=>void mutate(current=>({...current,notes:current.notes.filter(item=>item.id!==id)}))}/>
    <div className="souls-delete"><button type="button" onClick={()=>void erase()}>
     {t("刪除此 Soul 與全部回憶","Delete Soul and memories")}
    </button></div>
