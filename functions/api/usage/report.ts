@@ -60,7 +60,7 @@ export async function onRequestGet({request,env}:Context){
  const days=period==="30"?30:7;
  // The period is fixed to 7/30, and no user-provided SQL or identifiers are accepted.
  const bound="timestamp >= NOW() - INTERVAL '"+days+"' DAY";
- const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','magic_spell','magic_challenge_answer','magic_panel_choice','magic_voice_connected','guest_trial_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','souls_created','souls_live_connected','research_article_completed','circle_post_published','circle_comment_posted'";
+ const activeEvents="'teacher_conversation','friend_conversation','timeline_conversation','game_completed','vocabulary_practice','textbook_study','story_reading','story_narration','story_created','fortune_calculated','fortune_ai_interpreted','town_interaction','magic_spell','magic_challenge_answer','magic_panel_choice','magic_voice_connected','guest_trial_connected','mate_briefing_ready','mate_handoff_started','mate_handoff_completed','souls_created','souls_conversation','research_article_completed','circle_post_published','circle_comment_posted'";
  const chatEvents="'teacher_conversation','friend_conversation','timeline_conversation'";
  // Period-wide distinct browsers per stage; no joins, raw IDs or new DB.
  const journeyClickEvents="'home_entry_click','explore_entry_click','shorts_chat_click','guest_trial_start_click'";

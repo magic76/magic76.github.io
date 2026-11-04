@@ -14,9 +14,16 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
+ // A connected session is not an effective conversation; only count a true two-sided exchange.
+ const countedConversation=useRef(false);
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
-  if(!last?.input||captured.current.has(last.input))return;
+  if(!last?.input)return;
+  if(!countedConversation.current){
+   countedConversation.current=true;
+   trackUsageEvent("souls_conversation");
+  }
+  if(captured.current.has(last.input))return;
   captured.current.add(last.input);void remember(soul.id,last.input,onChange);
  };
  const live=useLiveSession({
@@ -43,11 +50,17 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
  useEffect(()=>{onVisual?.({state:live.state,caption,mood,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
- const wasReady=useRef(false);
+ const wasReady=useRef(false),wasError=useRef(false);
  useEffect(()=>{
   if(ready&&!wasReady.current)trackUsageEvent("souls_live_connected");
   wasReady.current=ready;
  },[ready]);
+ useEffect(()=>{
+  // Count a failed Live attempt without collecting microphone errors, prompts or transcripts.
+  const failed=live.state==="error";
+  if(failed&&!wasError.current)trackUsageEvent("souls_live_failed");
+  wasError.current=failed;
+ },[live.state]);
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
   if(!ready){setError(en?"Connect Gemini Live first.":"請先連接 Gemini Live。");return}

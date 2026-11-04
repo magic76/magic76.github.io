@@ -5,7 +5,8 @@ const steps=[
  {event:"souls_open",label:"開啟 Souls"},
  {event:"souls_photo_ready",label:"照片準備完成"},
  {event:"souls_created",label:"成功儲存角色"},
- {event:"souls_live_connected",label:"語音連線成功"}
+ {event:"souls_live_connected",label:"語音連線成功"},
+ {event:"souls_conversation",label:"完成雙向對話"}
 ] as const;
 export function SoulsUsagePanel({rows,unique}:{rows:Array<Row&{detail?:string}>;unique:(event:string)=>number}){
  const count=(event:string,detail?:string)=>rows.reduce((n,r)=>n+(r.event===event&&(detail===undefined||r.detail===detail)?r.count:0),0);
@@ -25,9 +26,10 @@ export function SoulsUsagePanel({rows,unique}:{rows:Array<Row&{detail?:string}>;
    <div className="usage-feature"><span>建立成功（物品／人物）</span><strong>
     {count("souls_created","object")} ／ {count("souls_created","person")} 次
    </strong></div>
+   <div className="usage-feature"><span>Live 連線失敗</span><strong>{count("souls_live_failed")} 次</strong></div>
    <div className="usage-feature"><span>去背人工修補套用</span><strong>{count("souls_mask_repaired")} 次</strong></div>
    <div className="usage-feature"><span>開啟 Souls 的匿名瀏覽器</span><strong>{unique("souls_open")} 個</strong></div>
   </div>
-  <p className="usage-explain">事件次數並非同一批使用者的精準轉換率。原本收藏再次使用、重新連線與隱私設定都會影響各階段數量；不記錄照片、名字、內容或對話。</p>
+  <p className="usage-explain">這是不同事件的總次數，不是同一批使用者的精準轉換率。重連、收藏回訪與隱私設定都可能影響數字。雙向對話代表使用者與 AI 都有文字回合；不記錄照片、名字或實際對話。</p>
  </section>;
 }

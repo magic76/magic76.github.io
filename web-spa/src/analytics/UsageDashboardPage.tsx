@@ -32,7 +32,7 @@ const names:Record<string,string>={
  guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
  guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
  home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
- souls_open:"進入 Souls",souls_photo_ready:"Souls 照片已準備",souls_created:"Souls 角色建立",souls_live_connected:"Souls 語音連線成功",souls_mask_repaired:"Souls 去背修補",
+ souls_open:"進入 Souls",souls_photo_ready:"Souls 照片已準備",souls_created:"Souls 角色建立",souls_live_connected:"Souls 語音連線成功",souls_live_failed:"Souls 語音失敗",souls_conversation:"Souls 雙向對話",souls_mask_repaired:"Souls 去背修補",
  town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
  magic_enter:"進入 Magic",magic_spell:"Magic 施法",magic_challenge_answer:"Magic 解謎",magic_panel_choice:"Magic 互動卡選擇",
  magic_voice_connected:"Magic 語音連線成功",magic_voice_failed:"Magic 語音連線失敗",magic_3d_fallback:"Magic 3D 降級",magic_world_reset:"Magic 世界重置",
@@ -41,7 +41,7 @@ const names:Record<string,string>={
  circle_thread_open:"交流圈留言展開",circle_post_published:"交流圈發布貼文",circle_comment_posted:"交流圈送出留言"
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
- {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","research_article_completed","circle_post_published","circle_comment_posted"]},
+ {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_conversation","research_article_completed","circle_post_published","circle_comment_posted"]},
  {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
  {id:"chat",label:"老師／朋友聊天",events:["teacher_conversation","friend_conversation","timeline_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
@@ -52,7 +52,7 @@ const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]},
  {id:"worlds",label:"Town / Magic",events:["town_enter","town_interaction","town_chat_click","magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected"]},
  {id:"mate",label:"Mate",events:["mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed"]},
- {id:"souls",label:"Souls",events:["souls_open","souls_photo_ready","souls_created","souls_live_connected","souls_mask_repaired"]},
+ {id:"souls",label:"Souls",events:["souls_open","souls_photo_ready","souls_created","souls_live_connected","souls_live_failed","souls_conversation","souls_mask_repaired"]},
  {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]},
  {id:"circle",label:"交流圈",events:["circle_thread_open","circle_post_published","circle_comment_posted"]}
 ];
@@ -65,7 +65,6 @@ const games:{id:string;label:string}[]=[
 const num=(n:number)=>Math.round(n).toLocaleString("zh-TW");
 const total=(rows:Row[],name:string,detail?:string)=>rows.filter(r=>r.event===name&&(detail===undefined||r.detail===detail)).reduce((sum,r)=>sum+r.count,0);
 const totalMany=(rows:Row[],events:string[])=>events.reduce((sum,event)=>sum+total(rows,event),0);
-// A ratio of event totals, not a joined cohort or a per-person conversion rate.
 const eventRatio=(value:number,previous:number)=>previous>0?(value/previous*100).toFixed(1)+"%":"—";
 const comparison=(current:number,previous:number)=>previous===0
  ? "前一期尚無可比較的使用紀錄"
