@@ -52,7 +52,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
  }
  return <section className={(scene?"souls-chat-inline":"souls-panel")+(overlay?" souls-ar-chat":"")}>
   {scene?<div className="souls-live-conversation-head">
-   <span className={"souls-live-presence"+(active?" is-active":"")} aria-hidden="true"/>
+   <span className={"souls-live-presence"+(ready?" is-active":"")} aria-hidden="true"/>
    <strong>{en?"Talk with ":"和 "}{soul.name}{en?"":" 聊天"}</strong>
    <small>{ready?"LIVE":en?"VOICE CHAT":"語音聊天"}</small>
   </div>:<div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small>
