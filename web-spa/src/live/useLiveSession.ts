@@ -1,5 +1,6 @@
 import {useTeacherStore} from "../store/teacherStore";
 import {trackUsageEvent} from "../analytics/usage";
+import {hasConfirmedTwoSidedExchange} from "./liveEngagement";
 import{ingestStudentReport,reportMemoryContext,getPersonalMemoryEpoch,personalMemoryEnabled}from"../teacher/studentMemory";
 import{recordSpeakingLevel,effectiveSpeakingLevel}from"../teacher/speakingLevelMemory";import type{NativeLanguage}from"../teacher/teacherLocale";
 import{turnTimingForLevel}from"./turnTiming";
@@ -348,9 +349,7 @@ export function useLiveSession(config:Config){
       }
       // Soul is a separate product even though it reuses Friends' voice transport.
       // A complete two-sided turn, not merely a proactive greeting, counts as engagement.
-      if(chatKind==="souls"&&!completedExchange&&turn.hasValidOutput&&
-         ((turn.input?.trim()&&turn.output?.trim())||
-          turnsRef.current.some(item=>item.input?.trim()&&item.output?.trim()))){
+      if(chatKind==="souls"&&!completedExchange&&hasConfirmedTwoSidedExchange(turn,turnsRef.current)){
        completedExchange=true;
        trackUsageEvent("souls_conversation");
       }
