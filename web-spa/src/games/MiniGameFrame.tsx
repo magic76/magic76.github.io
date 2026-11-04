@@ -17,7 +17,7 @@ import {GameVoiceDock} from "./GameVoiceDock";
 import "./crewPlay.css";
 import "./miniGames.css";
 
-export type MiniKind="1a2b"|"taboo"|"court";
+export type MiniKind="1a2b"|"taboo"|"court"|"number-bomb"|"memory";
 export type MiniFriend=ReturnType<typeof getCrewFriend>;
 const FRIEND_KEY="crew_web_selected_friend_v1";
 function initialFriend(){
@@ -74,16 +74,18 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  const chinese=/(中文|華語|國語|chinese|mandarin|^zh)/i.test(targetLanguage);
  const gameTongue=chinese?"Traditional Chinese":"English";
  const court=kind==="court";
+ const quick=kind==="number-bomb"||kind==="memory";
  const counsel=courtRole==="prosecution"?"defense attorney":"prosecutor";
  const system=buildFriendSystem(friend,targetLanguage,nativeLanguage,friendMode)+
   (directGuess
     ?"\n[CREW PLAY TABOO: DIRECT VOICE GUESSER] You are a quick, expressive friend playing Taboo, not a conversational tutor. After each description, immediately reply with ONE short, natural sentence in "+gameTongue+" containing exactly ONE concrete single-word guess. Keep your personality and vary the wording and intonation naturally. Examples (not a script): "+(chinese?"「會不會是雨傘？」、「我猜是貓咪！」、「可能是披薩？」":"Could it be a banana? Sounds like a banana! Maybe an apple?")+" Do NOT use the same opening every turn or always say 'I guess'. No acknowledgement before the guess, no paraphrase, explanation, praise, extra question, second candidate or second sentence. Do not repeat an earlier incorrect guess. You cannot see the hidden answer and must never claim verification or announce scoring. The game UI alone checks correctness and forbidden words. For a [VERIFIED GAME] cue, follow that result with a single brief natural reply. Never persist memories."
    :court?"\n[CREW PLAY CRAZY COURT] You are "+friend.name+", acting as the player\'s opposing "+counsel+" in a fictional comedy trial. Keep your personality and selected spoken language. The game UI owns evidence, legal rulings, objections, score and verdict. NEVER invent a new fact or evidence or claim to alter the outcome. When the user speaks, listen but do not offer a ruling; wait until a [VERIFIED GAME] cue. On a verified cue, deliver one short playful lawyer response, then listen. Be respectful and do not treat this as real legal advice. Do not persist conversation memory."
+   :quick?"\n[CREW PLAY QUICK GAME: "+kind+"] You are "+friend.name+", a conversational and playful friend. Chat naturally in "+gameTongue+" when the user talks to you, including non-game chat. Gameplay is controlled exclusively by the offline game UI; do not invent, claim, or execute an unverified move, score, turn, clue, or result. The UI parses spoken game instructions and only a [VERIFIED GAME] cue authorizes you to mention the resulting move. Never imply a spoken number was accepted before the UI verifies it. For Number Bomb, the secret answer is private and not visible to you. Do not guess it or claim to know it. For Memory Match, you can discuss only publicly flipped cards and scores; never claim to see hidden cards. A matching pair earns another turn for that player. When you get [VERIFIED GAME], respond briefly in character, without repetitive greetings or questions. Do not persist friend memories."
    :"\n[CREW PLAY GAME: "+kind+"] This is a self-contained game, not a normal friend conversation. Respond as "+friend.name+" with short witty remarks in "+gameTongue+". No tutoring until the final feedback. Gameplay is fully decided by the offline UI engine. Never claim an answer is correct or wrong without a [VERIFIED GAME] event. A voice input can contain digits or xAyB, or a short description in the selected learning language. If numbers are unclear, ask the player to repeat slowly in "+gameTongue+". React only to [VERIFIED GAME] updates for scoring and never reveal the secret. In Taboo guess mode, read the safe clue exactly without forbidden words. Never persist these conversations as friend memories.");
  const live=useLiveSession({
   pageKey:directGuess?"crew-play-mini-taboo-direct-"+friend.id:"crew-play-mini-"+kind+"-"+friend.id,
-  title:(kind==="1a2b"?"1A2B":court?"Crazy Court":"Taboo")+" · "+friend.name,
-  system,openingPrompt:directGuess?"Invite the player briefly to describe something in "+gameTongue+". Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":"Say one short welcome in "+gameTongue+" to the game. Do not invent a score or answer.",
+  title:(kind==="1a2b"?"1A2B":court?"Crazy Court":kind==="number-bomb"?"Number Bomb":kind==="memory"?"Memory Match":"Taboo")+" · "+friend.name,
+  system,openingPrompt:directGuess?"Invite the player briefly to describe something in "+gameTongue+". Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":quick?"Welcome the player to "+(kind==="number-bomb"?"Number Bomb: swipe the number wheel to choose a guess":"Memory Match: flip two cards to find pairs")+" in one short in-character sentence in "+gameTongue+". They may chat or speak their moves. Do not invent board results, then listen.":"Say one short welcome in "+gameTongue+" to the game. Do not invent a score or answer.",
   voice:resolveGameVoice(gameVoice,normalizeLiveVoice(friend.voice)),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
