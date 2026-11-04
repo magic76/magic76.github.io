@@ -40,17 +40,25 @@ test("Souls lifecycle events are emitted only for meaningful browser actions",()
 test("private dashboard uses Souls event totals, distinct-browser count and non-cohort caveat",()=>{
  assert.match(dashboard,/<SoulsUsagePanel rows=\{rows\} unique=\{unique\}\/>/);
  assert.match(dashboard,/\{id:"souls",label:"Souls"/);
+ assert.match(dashboard,/SOULS_USAGE_EVENTS/);
+ assert.match(dashboard,/SOULS_USAGE_NAMES/);
  assert.match(panel,/explore_entry_click/);
  assert.match(panel,/souls_open/);
  assert.match(panel,/souls_photo_ready/);
  assert.match(panel,/souls_created/);
  assert.match(panel,/souls_live_connected/);
+ assert.match(panel,/souls_live_attempt/);
+ assert.match(panel,/souls_user_input/);
+ assert.match(panel,/souls_ai_replied/);
  assert.match(panel,/souls_mask_repaired/);
  assert.match(panel,/不是同一批使用者的精準轉換率/);
  assert.match(panel,/souls_conversation/);
  assert.match(panel,/souls_live_failed/);
  assert.match(chat,/trackUsageEvent\("souls_conversation"\)/);
  assert.match(chat,/trackUsageEvent\("souls_live_failed"\)/);
+ assert.match(chat,/trackUsageEvent\("souls_user_input"\)/);
+ assert.match(chat,/trackUsageEvent\("souls_ai_replied"\)/);
+ assert.match(chat,/recordExchange\(live\.turns\)/);
  assert.match(chat,/last=\[\.\.\.turns\]\.reverse\(\)\.find\(t=>t.input\?\.trim\(\)&&t.output\?\.trim\(\)\)/);
  assert.match(chat,/countedConversation\.current=true/);
  assert.match(usage,/\|"souls_created"/);
