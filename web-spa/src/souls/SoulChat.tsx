@@ -54,13 +54,13 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   {scene?<div className="souls-live-conversation-head">
    <span className={"souls-live-presence"+(active?" is-active":"")} aria-hidden="true"/>
    <strong>{en?"Talk with ":"和 "}{soul.name}{en?"":" 聊天"}</strong>
-   <small>{active?"LIVE":en?"VOICE CHAT":"語音聊天"}</small>
+   <small>{ready?"LIVE":en?"VOICE CHAT":"語音聊天"}</small>
   </div>:<div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small>
    <h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>}
   {!overlay&&!scene&&<p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>}
   {scene&&<p className="souls-chat-hint">{soulSubjectType(soul)==="person"?
    (en?"Fictional character based on a photo, not the real person.":"以照片創作的虛構角色，不代表照片中的本人。"):
-   active?(en?"Speak naturally — your Soul can hear you.":"直接開口，Soul 就能聽見你。"):
+   ready?(en?"Speak naturally — your Soul can hear you.":"直接開口，Soul 就能聽見你。"):
    (en?"Start voice to bring your Soul to life.":"啟動語音，讓它開始跟你聊天。")}</p>}
   <div className="souls-voice">
    <div className="souls-live-console">
