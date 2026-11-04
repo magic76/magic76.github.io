@@ -1,11 +1,11 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {trackUsageEvent} from "../analytics/usage";
 import {useTranslation} from "react-i18next";
 import i18n from "../i18n";
 import {Icon} from "../components/Icon";
 import {GuideHub} from "../guides/GuideHub";
-import {PlayStoreLink} from "../components/PlayStoreLink";
+import {CREW_ANDROID_PLAY_STORE_URL} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
 import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
@@ -95,6 +95,20 @@ function activities(book:Book|null):Recent[]{
 export function HomePage(){
  const {t,i18n:locale}=useTranslation("home");
  const ready=useClientReady();
+ const androidCardRef=useRef<HTMLElement|null>(null);
+ useEffect(()=>{
+  if(!ready||isCrewAndroidShell()||typeof IntersectionObserver==="undefined")return;
+  const card=androidCardRef.current;
+  if(!card)return;
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)){
+    trackUsageEvent("android_app_card_view");
+    observer.disconnect();
+   }
+  },{threshold:0.25});
+  observer.observe(card);
+  return()=>observer.disconnect();
+ },[ready]);
  const [orbAvailable,setOrbAvailable]=useState(false);
  const [shortsFeed,setShortsFeed]=useState<ShortFeed|null>(null);
  const [shortsStatus,setShortsStatus]=useState<"loading"|"ready"|"error">("loading");
@@ -203,10 +217,21 @@ export function HomePage(){
    </nav>
   </section>
   <GuideHub/>
-  {ready&&!isCrewAndroidShell()&&<details className="crew-home-android">
-   <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
-   <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
-  </details>}
+  {ready&&!isCrewAndroidShell()&&<section className="crew-home-android" aria-labelledby="crew-home-android-title" ref={androidCardRef}>
+   <span className="crew-home-android-icon" aria-hidden="true">✳</span>
+   <div className="crew-home-android-copy">
+    <span className="crew-home-android-kicker">CREW FOR ANDROID</span>
+    <h2 id="crew-home-android-title">{t("android.title")}</h2>
+    <p>{t("android.description")}</p>
+   </div>
+   <div className="crew-home-android-download">
+    <div className="crew-home-android-product">
+     <strong>{t("android.appName")}</strong>
+     <span>{t("android.platform")}</span>
+    </div>
+    <a href={CREW_ANDROID_PLAY_STORE_URL} className="crew-home-android-cta" target="_blank" rel="noopener noreferrer" onClick={()=>trackUsageEvent("android_app_google_play_click")}>{t("android.download")} <span aria-hidden="true">↗</span></a>
+   </div>
+  </section>}
   </div>
  </div>;
 }
