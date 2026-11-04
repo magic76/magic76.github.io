@@ -4,6 +4,9 @@ import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
 import {SoulMaskEditor} from "./SoulMaskEditor";
+import {SoulDraftDetails} from "./SoulDraftDetails";
+import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
+import {SoulSubjectSelector} from "./SoulSubjectSelector";
 import {SoulTransformControls} from "./SoulTransformControls";
 import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
@@ -302,11 +305,7 @@ export function SoulsPage(){
   {step==="edit"&&draft&&<section className="souls-panel souls-editor">
    <div className="souls-section-heading"><div><small>{t("01 · 準備角色照片","01 · PREPARE PHOTO")}</small>
     <h2>{t("把照片變成角色","Bring the photo to life")}</h2></div></div>
-   <div className="souls-subject-toggle" role="group" aria-label={t("角色類型","Character type")}>
-    <button type="button" aria-pressed={subjectType==="object"} onClick={()=>chooseSubject("object")}>{t("物品","Object")}</button>
-    <button type="button" aria-pressed={subjectType==="person"} onClick={()=>chooseSubject("person")}>{t("人物","Person")}</button>
-    <small>{t("人物預設保留原本五官、不加卡通臉；聊天角色為虛構設定。","People keep their natural face by default; the chat persona is fictional.")}</small>
-   </div>
+   <SoulSubjectSelector subjectType={subjectType} onChange={chooseSubject} en={en}/>
    {maskEditing==="draft"?<SoulMaskEditor
     original={draft.image} initialCutout={cutoutDraft||undefined} en={en}
     onApply={data=>{setCutoutDraft(data);setUseCutout(true);setMaskEditing(null);
@@ -352,48 +351,13 @@ export function SoulsPage(){
       t("目前使用原始照片，可以直接存成 Soul。","Using the original photo. You can still create a Soul.")}</p>
     </div>
    </div>}
-   <div className="souls-editor-details">
-    <div className="souls-section-heading"><div><small>{t("02 · 設定角色個性","02 · SET PERSONALITY")}</small>
-     <h2>{t("幫它取個名字","Name your Soul")}</h2></div></div>
-    <button className="souls-ai-describe" type="button" disabled={busy}
-     onClick={()=>void suggestDetails()}>
-     {t("✧ 讓 Gemini 幫忙取名（會上傳照片）","✧ Gemini name suggestion (uploads photo)")}
-    </button>
-    <form className="souls-form" onSubmit={e=>void create(e)}>
-     <label>{t("名字 *","Name *")}
-      <input required maxLength={40} value={name} onChange={e=>setName(e.target.value)}
-       placeholder={t("例如：小杯杯","e.g. Mugsy")}/>
-     </label>
-     <label>{t(subjectType==="person"?"角色定位":"物品種類",subjectType==="person"?"Character role":"Object type")}
-      <input maxLength={60} value={kind} onChange={e=>setKind(e.target.value)}
-       placeholder={t(subjectType==="person"?"例如：愛旅行的虛構角色":"例如：咖啡杯",subjectType==="person"?"e.g. Fictional traveler":"e.g. Coffee mug")}/>
-     </label>
-     <label>{t("外觀特色（選填）","Appearance (optional)")}
-      <textarea maxLength={140} value={description} onChange={e=>setDescription(e.target.value)}/>
-     </label>
-     <fieldset><legend>{t("它是什麼個性？","Personality")}</legend>
-      <div className="souls-pills">
-       {(Object.keys(persona) as Soul["personality"][]).map(id=><button type="button" key={id}
-        aria-pressed={personality===id} onClick={()=>setPersonality(id)}>
-        {en?persona[id][1]:persona[id][0]}</button>)}
-      </div>
-     </fieldset>
-     <div className="souls-voice-choice">
-      <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(draftVoice)}</strong></span>
-      <button type="button" onClick={()=>setDraftVoice(previous=>randomSoulVoice(previous))}>
-       {t("換個聲音","Shuffle voice")}
-      </button>
-      <small>{t("從 Gemini Live 聲線中隨機選一種，儲存後不會自己改變。","Randomly chosen from Gemini Live voices; stays the same after saving.")}</small>
-     </div>
-     <label className="souls-checkbox"><input type="checkbox" checked={rememberEnabled}
-      onChange={e=>setRememberEnabled(e.target.checked)}/>
-      {t("允許聊天時擷取有依據的回憶（之後可關閉或刪除）","Remember grounded facts from chats (can disable or delete)")}
-     </label>
-     <button className="souls-primary" disabled={!name.trim()||busy}>
-      {t("儲存 Soul，開始聊天 ✦","Save Soul & start chatting ✦")}
-     </button>
-    </form>
-   </div>
+   <SoulDraftDetails en={en} subjectType={subjectType} busy={busy}
+    name={name} setName={setName} kind={kind} setKind={setKind}
+    description={description} setDescription={setDescription}
+    personality={personality} setPersonality={setPersonality}
+    draftVoice={draftVoice} setDraftVoice={setDraftVoice}
+    rememberEnabled={rememberEnabled} setRememberEnabled={setRememberEnabled}
+    onSuggest={()=>void suggestDetails()} onCreate={e=>void create(e)}/>
   </section>}
   {step==="detail"&&selected&&<div className="souls-details">
    <section className="souls-panel souls-photo-profile">
@@ -415,21 +379,9 @@ export function SoulsPage(){
      {selected.description&&<p>{selected.description}</p>}
      <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
       onVisual={onVisual} onAudioLevel={onAudioLevel} scene/>
-     <div className="souls-display-preferences">
-      <label className="souls-checkbox"><input type="checkbox" checked={soulFaceVisible(selected)}
-       onChange={e=>void mutate(current=>({...current,faceVisible:e.target.checked}))}/>
-       {t("顯示 Q 版靈魂臉","Show cartoon Soul face")}
-      </label>
-      <fieldset><legend>{t("對話文字顯示方式","Speech text position")}</legend>
-       <div className="souls-pills">
-        {(["bubble","subtitle"] as SoulSpeechStyle[]).map(style=><button type="button"
-         key={style} aria-pressed={soulSpeechStyle(selected)===style}
-         onClick={()=>void mutate(current=>({...current,speechStyle:style}))}>
-         {style==="bubble"?t("角色下方氣泡","Bubble under character"):t("底部字幕","Subtitle under character")}
-        </button>)}
-       </div>
-      </fieldset>
-     </div>
+     <SoulDisplayPreferences soul={selected} en={en}
+      onFaceChange={visible=>void mutate(current=>({...current,faceVisible:visible}))}
+      onSpeechStyleChange={style=>void mutate(current=>({...current,speechStyle:style}))}/>
      <div className="souls-voice-choice souls-saved-voice">
       <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(selected.voice)}</strong></span>
       <button type="button" onClick={()=>void rerollSavedVoice()}>
