@@ -14,15 +14,9 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
- // A connected session is not an effective conversation; only count a true two-sided exchange.
- const countedConversation=useRef(false);
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
   if(!last?.input)return;
-  if(!countedConversation.current){
-   countedConversation.current=true;
-   trackUsageEvent("souls_conversation");
-  }
   if(captured.current.has(last.input))return;
   captured.current.add(last.input);void remember(soul.id,last.input,onChange);
  };
@@ -30,7 +24,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   pageKey:"friend-soul-"+soul.id,title:"Crew Souls · "+soul.name,system,
   openingPrompt:en?"The user has opened your Soul portrait. Greet them warmly as the saved fictional character in one short sentence.":"使用者剛打開你的角色收藏。以你虛構角色的個性像老朋友一樣簡短打招呼，不要解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
-  teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
+  teacherReport:false,persistHistory:false,sessionKind:"friend",usageKind:"souls",conversationFlow:"friend",
   onOutputLevel:level=>onAudioLevel?.(level),
   onTurnComplete:(_turn,turns)=>capture(turns),
   onSessionFinished:item=>{if(item)capture(item.turns)}
