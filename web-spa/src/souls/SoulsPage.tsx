@@ -347,23 +347,27 @@ export function SoulsPage(){
   {step==="detail"&&selected&&<div className="souls-details">
    <section className="souls-panel souls-photo-profile">
     <div className="souls-profile-portrait">
+     <div className="souls-live-stage" data-live-state={visual.state}>
      <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality} faceVisible={soulFaceVisible(selected)}
       transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
       editing={editFace} onFaceChange={editFace?changeFace:undefined}
       onTransformChange={editFace?setTransformDraft:undefined}
       visual={visual} caption={false} name={selected.name} mouthRef={mouthRef}/>
-     {!editFace&&visual.caption.trim()&&<div className={"souls-speech-display souls-speech-"+soulSpeechStyle(selected)}
-      role="status" aria-live="polite"><span>{visual.caption.slice(-130)}</span></div>}
+     </div>
+     <div className="souls-live-caption-slot">
+      {!editFace&&visual.caption.trim()&&<div className={"souls-speech-display souls-speech-"+soulSpeechStyle(selected)}
+       role="status" aria-live="polite"><span>{visual.caption.slice(-130)}</span></div>}
+     </div>
      {editFace&&<SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
       face={faceDraft} onFaceChange={changeFace} transform={transformDraft}
       onTransformChange={setTransformDraft} en={en}/>}
+     <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
+      onVisual={onVisual} onAudioLevel={onAudioLevel} scene/>
     </div>
     <div className="souls-profile-copy">
      <small>{selectedKind==="person"?t("你的虛構人物角色","YOUR FICTIONAL CHARACTER"):t("你的物品朋友","YOUR OBJECT FRIEND")}</small>
      <h2>{selected.name}</h2><p>{selected.kind||(selectedKind==="person"?t("虛構人物角色","Fictional portrait character"):t("獨一無二的小東西","A one-of-a-kind object"))}</p>
      {selected.description&&<p>{selected.description}</p>}
-     <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
-      onVisual={onVisual} onAudioLevel={onAudioLevel} scene/>
      <SoulDisplayPreferences soul={selected} en={en}
       onFaceChange={visible=>void mutate(current=>({...current,faceVisible:visible}))}
       onSpeechStyleChange={style=>void mutate(current=>({...current,speechStyle:style}))}/>

@@ -51,17 +51,30 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   void remember(soul.id,value,onChange);
  }
  return <section className={(scene?"souls-chat-inline":"souls-panel")+(overlay?" souls-ar-chat":"")}>
-  <div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small>
-   <h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>
+  {scene?<div className="souls-live-conversation-head">
+   <span className={"souls-live-presence"+(ready?" is-active":"")} aria-hidden="true"/>
+   <strong>{en?"Talk with ":"和 "}{soul.name}{en?"":" 聊天"}</strong>
+   <small>{ready?"LIVE":en?"VOICE CHAT":"語音聊天"}</small>
+  </div>:<div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small>
+   <h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>}
   {!overlay&&!scene&&<p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>}
   {scene&&<p className="souls-chat-hint">{soulSubjectType(soul)==="person"?
-   (en?"A fictional portrait character — not the real person pictured.":"這是以照片創作的虛構角色，不代表照片中的本人。"):
-   (en?"Speak naturally — your Soul is listening.":"直接跟它說話，Soul 正在等你。")}</p>}
+   (en?"Fictional character based on a photo, not the real person.":"以照片創作的虛構角色，不代表照片中的本人。"):
+   ready?(en?"Speak naturally — your Soul can hear you.":"直接開口，Soul 就能聽見你。"):
+   (en?"Start voice to bring your Soul to life.":"啟動語音，讓它開始跟你聊天。")}</p>}
   <div className="souls-voice">
-   {!geminiKey()&&!guest?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuest(true);await live.start(grant)}}/>:
-    guest&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>:
-    <LiveControls live={live} compact={active} prominentInterrupt/>}
-   {guest&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
+   <div className="souls-live-console">
+    {!geminiKey()&&!guest?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuest(true);await live.start(grant)}}/>:
+     guest&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>:
+     <LiveControls live={live} compact={active} prominentInterrupt/>}
+    {guest&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
+   </div>
+   {scene&&<form className="souls-live-input souls-live-composer" onSubmit={send}>
+    <input value={draft} maxLength={1200} onChange={e=>setDraft(e.target.value)}
+     aria-label={en?"Live text":"Live 文字"} disabled={!ready}
+     placeholder={ready?(en?"Message "+soul.name+"…":"傳訊息給 "+soul.name+"…"):(en?"Connect voice to type…":"連線後也能用文字聊天…")}/>
+    <button disabled={!ready||!draft.trim()}>{en?"Send":"送出"}</button>
+   </form>}
    {scene?<details className="souls-chat-history">
     <summary>{en?"Conversation history":"查看對話紀錄"}</summary>
    <div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
@@ -78,10 +91,10 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
     </div>)}
     {typed.filter(value=>!live.turns.some(turn=>turn.input?.trim()===value)).map((value,i)=><p key={"typed-"+i} className="user"><strong>{en?"Typed":"打字"}：</strong>{value}</p>)}
    </div>}
-   <form className="souls-live-input" onSubmit={send}>
+   {!scene&&<form className="souls-live-input" onSubmit={send}>
     <input value={draft} maxLength={1200} onChange={e=>setDraft(e.target.value)} aria-label={en?"Live text":"Live 文字"} disabled={!ready} placeholder={ready?(en?"Type into this Live session…":"在這段 Live 對話打字…"):(en?"Connect Live to type…":"連線後即可打字…")}/>
     <button disabled={!ready||!draft.trim()}>{en?"Send":"送出"}</button>
-   </form>
+   </form>}
    {error&&<p role="alert" className="souls-error">{error}</p>}
   </div>
   {!geminiKey()&&<p className="souls-muted">{en?"Guest voice trial may be available. Auto-memory extraction requires a Gemini Key.":"可嘗試免費 Live 語音；自動擷取回憶需 Gemini Key。"}</p>}
