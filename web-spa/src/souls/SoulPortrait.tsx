@@ -9,13 +9,13 @@ import {type Soul} from "./soulData";
  */
 export function SoulPortrait({
  image,face,onFaceChange,editing=false,editTarget="face",transform,onTransformChange,
- visual,caption=true,mouthRef,name,personality="gentle"
+ visual,caption=true,mouthRef,name,personality="gentle",faceVisible=true
 }:{
  image:string;face?:SoulFace;onFaceChange?:(next:SoulFace)=>void;
  editing?:boolean;editTarget?:"face"|"object";
  transform?:SoulTransform;onTransformChange?:(next:SoulTransform)=>void;
  visual?:SoulVisual;caption?:boolean;mouthRef?:RefObject<SVGEllipseElement|null>;name?:string;
- personality?:Soul["personality"];
+ personality?:Soul["personality"];faceVisible?:boolean;
 }){
  const stage=useRef<HTMLDivElement>(null);
  const pointers=useRef(new Map<number,PointerPosition>());
@@ -73,7 +73,7 @@ export function SoulPortrait({
  }
  return <div className={"souls-portrait"+(editing?" souls-portrait-editing":"")}
    data-animated={!editing?"true":"false"}
-   data-personality={personality}
+   data-personality={personality} data-face-visible={faceVisible?"true":"false"}
    data-edit-target={editing?editTarget:"none"}
    data-speaking={talking?"true":"false"} data-mood={mood}
    data-hearing={visual?.hearing?"true":"false"}>
@@ -86,7 +86,7 @@ export function SoulPortrait({
      transform:`translate(${p.x*100}%,${p.y*100}%) rotate(${p.rotation}deg) scale(${p.scale})`
     }}>
      <img draggable={false} src={image} alt={name||"Soul object portrait"} className="souls-portrait-photo"/>
-     <div className="souls-portrait-face"
+     {faceVisible&&<div className="souls-portrait-face"
       style={{left:(f.x*100)+"%",top:(f.y*100)+"%",width:(37*f.scale)+"%"}}>
       <svg viewBox="0 0 150 105" aria-hidden="true">
        <g className="souls-portrait-eye-set">
@@ -178,7 +178,7 @@ export function SoulPortrait({
         <circle cx="130" cy="14" r="6"/><circle cx="140" cy="4" r="3"/>
        </g>}
       </svg>
-     </div>
+     </div>}
     </div>
    </div>
    {editing&&<div className="souls-portrait-guide" aria-hidden="true">✦</div>}

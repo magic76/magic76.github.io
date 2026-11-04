@@ -9,6 +9,7 @@ const portrait=read("web-spa/src/souls/SoulPortrait.tsx");
 const face=read("web-spa/src/souls/soulFace.ts");
 const data=read("web-spa/src/souls/soulData.ts");
 const chat=read("web-spa/src/souls/SoulChat.tsx");
+const memory=read("web-spa/src/souls/SoulMemoryPanel.tsx");
 const cutout=read("web-spa/src/souls/soulCutout.ts");
 const css=read("web-spa/src/souls/souls.css");
 const app=read("web-spa/src/App.tsx");
@@ -65,7 +66,7 @@ test("a saved cutout animates during existing Friends Gemini Live session",()=>{
  assert.match(chat,/sessionKind:"friend"/);
  assert.match(chat,/live\.sendText\(value\)/);
  assert.match(chat,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
- assert.match(chat,/Your owner has opened your Soul portrait/);
+ assert.match(chat,/The user has opened your Soul portrait/);
  assert.doesNotMatch(chat,/SoulCamera|The camera has just recognized you/);
 });
 test("existing IndexedDB Souls remain readable without migration or photo re-enrollment",()=>{
@@ -82,9 +83,9 @@ test("memory controls and privacy statement remain in photo-first workflow",()=>
  assert.match(data,/isSafeAutomaticMemory\(note,evidence\)/);
  assert.match(data,/current\.remember/);
  assert.match(page,/remember:rememberEnabled/);
- assert.match(page,/notes:s\.notes\.filter/);
+ assert.match(memory,/onClick=\{\(\)=>onDelete\(n\.id\)\}/);
  assert.match(page,/Delete Soul and memories/);
- assert.match(page,/Cutout runs on-device/);
+ assert.match(page,/Cutout and brush edits run on-device/);
  assert.match(page,/Only explicit Gemini photo analysis uploads an image/);
  assert.match(page,/await ensureVision\(\)/);
  assert.match(page,/geminiKey\(\)/);

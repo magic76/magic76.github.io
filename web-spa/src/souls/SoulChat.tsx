@@ -1,5 +1,5 @@
 import {useEffect,useMemo,useRef,useState,type FormEvent} from "react";
-import {type Soul,systemFor,remember} from "./soulData";
+import {type Soul,systemFor,remember,soulSubjectType} from "./soulData";
 import {type SoulVisual} from "./soulVisual";
 import {useLiveSession} from "../live/useLiveSession";
 import {LiveControls} from "../live/LiveControls";
@@ -9,7 +9,7 @@ import {geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
-export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean}){
+export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,scene=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean;scene?:boolean}){
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
@@ -20,7 +20,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:
  };
  const live=useLiveSession({
   pageKey:"friend-soul-"+soul.id,title:"Crew Souls · "+soul.name,system,
-  openingPrompt:en?"Your owner has opened your Soul portrait. Greet them warmly in one playful short sentence, in character as this object.":"主人剛打開你的物品靈魂收藏。以你的個性像老朋友一樣簡短打招呼，不要解釋系統。",
+  openingPrompt:en?"The user has opened your Soul portrait. Greet them warmly as the saved fictional character in one short sentence.":"使用者剛打開你的角色收藏。以你虛構角色的個性像老朋友一樣簡短打招呼，不要解釋系統。",
   voice:normalizeLiveVoice(soul.voice),language:en?"English":"中文",
   teacherReport:false,persistHistory:false,sessionKind:"friend",conversationFlow:"friend",
   onOutputLevel:level=>onAudioLevel?.(level),
@@ -50,14 +50,20 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:
   setTyped(messages=>[...messages,value].slice(-15));setDraft("");setError("");
   void remember(soul.id,value,onChange);
  }
- return <section className={"souls-panel"+(overlay?" souls-ar-chat":"")}>
-  <div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small><h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>
-  {!overlay&&<p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>}
+ return <section className={(scene?"souls-chat-inline":"souls-panel")+(overlay?" souls-ar-chat":"")}>
+  <div className="souls-panel-title"><div><small>CREW FRIENDS · GEMINI LIVE</small>
+   <h2>{en?"Talk to ":"和 "}{soul.name}{en?"":" 說說話"}</h2></div></div>
+  {!overlay&&!scene&&<p className="souls-muted">{en?"Speak or type: both use the same Gemini Live conversation. The first connection asks for microphone access.":"直接說話或打字，都是同一段 Gemini Live 對話；首次連線會要求麥克風權限。"}</p>}
+  {scene&&<p className="souls-chat-hint">{soulSubjectType(soul)==="person"?
+   (en?"A fictional portrait character — not the real person pictured.":"這是以照片創作的虛構角色，不代表照片中的本人。"):
+   (en?"Speak naturally — your Soul is listening.":"直接跟它說話，Soul 正在等你。")}</p>}
   <div className="souls-voice">
    {!geminiKey()&&!guest?<GuestLiveStarter role="friend" onGrant={async grant=>{setGuest(true);await live.start(grant)}}/>:
     guest&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>:
     <LiveControls live={live} compact={active} prominentInterrupt/>}
    {guest&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
+   {scene?<details className="souls-chat-history">
+    <summary>{en?"Conversation history":"查看對話紀錄"}</summary>
    <div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
     {live.turns.slice(-12).map((turn,i)=><div key={i}>
      {turn.input&&<p className="user"><strong>{en?"You":"你"}：</strong>{turn.input}</p>}
@@ -65,6 +71,13 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false}:
     </div>)}
     {typed.filter(value=>!live.turns.some(turn=>turn.input?.trim()===value)).map((value,i)=><p key={"typed-"+i} className="user"><strong>{en?"Typed":"打字"}：</strong>{value}</p>)}
    </div>
+   </details>:<div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
+    {live.turns.slice(-12).map((turn,i)=><div key={i}>
+     {turn.input&&<p className="user"><strong>{en?"You":"你"}：</strong>{turn.input}</p>}
+     {turn.output&&<p><strong>{soul.name}：</strong>{turn.output}</p>}
+    </div>)}
+    {typed.filter(value=>!live.turns.some(turn=>turn.input?.trim()===value)).map((value,i)=><p key={"typed-"+i} className="user"><strong>{en?"Typed":"打字"}：</strong>{value}</p>)}
+   </div>}
    <form className="souls-live-input" onSubmit={send}>
     <input value={draft} maxLength={1200} onChange={e=>setDraft(e.target.value)} aria-label={en?"Live text":"Live 文字"} disabled={!ready} placeholder={ready?(en?"Type into this Live session…":"在這段 Live 對話打字…"):(en?"Connect Live to type…":"連線後即可打字…")}/>
     <button disabled={!ready||!draft.trim()}>{en?"Send":"送出"}</button>

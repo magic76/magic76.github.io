@@ -9,6 +9,7 @@ const shared=src("web-spa/src/live/voiceIdentity.ts");
 const bridge=src("web-spa/src/souls/soulVoice.ts");
 const data=src("web-spa/src/souls/soulData.ts");
 const page=src("web-spa/src/souls/SoulsPage.tsx");
+const draft=src("web-spa/src/souls/SoulDraftDetails.tsx");
 const chat=src("web-spa/src/souls/SoulChat.tsx");
 const match=shared.match(/export const LIVE_VOICES=\[([\s\S]+?)\] as const/);
 assert.ok(match,"shared Gemini Live voice pool must exist");
@@ -71,5 +72,5 @@ test("existing Souls only reroll after an explicit click and persist via origina
  assert.match(page,/重新連接 Live 時生效/);
  assert.match(data,/voice:string/);
  assert.match(data,/indexedDB\.open\("crew-souls-local-v1",1\)/);
- assert.match(page,/onClick=\{\(\)=>setDraftVoice\(previous=>randomSoulVoice\(previous\)\)\}/);
+ assert.match(draft,/onClick=\{\(\)=>setDraftVoice\(previous=>randomSoulVoice\(previous\)\)\}/);
 });

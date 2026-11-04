@@ -6,6 +6,7 @@ const root=path.resolve(__dirname,"..");
 const read=relative=>fs.readFileSync(path.resolve(root,relative),"utf8");
 const portrait=read("web-spa/src/souls/SoulPortrait.tsx");
 const page=read("web-spa/src/souls/SoulsPage.tsx");
+const draft=read("web-spa/src/souls/SoulDraftDetails.tsx");
 const css=read("web-spa/src/souls/souls.css");
 const data=read("web-spa/src/souls/soulData.ts");
 
@@ -22,7 +23,7 @@ test("creation, collection and saved Live portrait use their actual Soul persona
  assert.match(portraits[0],/personality=\{s\.personality\}/);
  assert.match(portraits[1],/personality=\{personality\}/);
  assert.match(portraits[2],/personality=\{selected\.personality\}/);
- assert.match(page,/onClick=\{\(\)=>setPersonality\(id\)\}/);
+ assert.match(draft,/onClick=\{\(\)=>setPersonality\(id\)\}/);
  assert.match(page,/description:trim\(description,140\),personality/);
 });
 

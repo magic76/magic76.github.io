@@ -3,32 +3,21 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
+import {SoulMaskEditor} from "./SoulMaskEditor";
+import {SoulDraftDetails} from "./SoulDraftDetails";
+import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
+import {SoulSubjectSelector} from "./SoulSubjectSelector";
+import {SoulMemoryPanel} from "./SoulMemoryPanel";
 import {SoulTransformControls} from "./SoulTransformControls";
 import {DEFAULT_TRANSFORM,safeTransform,type SoulTransform} from "./soulTransform";
 import {type SoulVisual} from "./soulVisual";
-import {DEFAULT_FACE,faceFromAlpha,safeFace,type SoulFace} from "./soulFace";
-import {type Soul,type Photo,persona,pid,trim,list,save,update,remove,photoFromFile} from "./soulData";
+import {DEFAULT_FACE,safeFace,type SoulFace} from "./soulFace";
+import {suggestedFace} from "./soulPhotoFace";
+import {type Soul,type Photo,type SoulSubjectType,type SoulSpeechStyle,persona,pid,trim,list,save,update,remove,photoFromFile,soulFaceVisible,soulSubjectType,soulSpeechStyle} from "./soulData";
 import {randomSoulVoice,soulVoiceLabel} from "./soulVoice";
 import {cutoutObject,CutoutError,type CutoutProgress} from "./soulCutout";
 import {ensureVision,geminiKey} from "../lib/runtime";
 import "./souls.css";
-
-function loadImage(src:string):Promise<HTMLImageElement>{
- return new Promise((resolve,reject)=>{
-  const image=new Image();
-  image.onload=()=>resolve(image);
-  image.onerror=()=>reject(new Error("Image could not be loaded"));
-  image.src=src;
- });
-}
-async function suggestedFace(src:string):Promise<SoulFace>{
- const image=await loadImage(src);
- const canvas=document.createElement("canvas");canvas.width=canvas.height=320;
- const ctx=canvas.getContext("2d",{willReadFrequently:true});
- if(!ctx)return {...DEFAULT_FACE};
- ctx.drawImage(image,0,0,320,320);
- return faceFromAlpha(ctx.getImageData(0,0,320,320).data,320,320);
-}
 
 /** Photo-first object characters. Old IndexedDB Souls are preserved without migration. */
 export function SoulsPage(){
@@ -40,6 +29,14 @@ export function SoulsPage(){
  const [draft,setDraft]=useState<Photo|null>(null);
  const [cutoutDraft,setCutoutDraft]=useState("");
  const [useCutout,setUseCutout]=useState(true);
+ const [subjectType,setSubjectType]=useState<SoulSubjectType>("object");
+ const [faceVisible,setFaceVisible]=useState(true);
+ const [speechStyle,setSpeechStyle]=useState<SoulSpeechStyle>("bubble");
+ const [maskEditing,setMaskEditing]=useState<"draft"|"saved"|null>(null);
+ function chooseSubject(kind:SoulSubjectType){
+  setSubjectType(kind);setFaceVisible(kind==="object");
+  setSpeechStyle(kind==="person"?"subtitle":"bubble");
+ }
  const [faceDraft,setFaceDraft]=useState<SoulFace>({...DEFAULT_FACE});
  const [transformDraft,setTransformDraft]=useState<SoulTransform>({...DEFAULT_TRANSFORM});
  const [editTarget,setEditTarget]=useState<"object"|"face">("object");
@@ -79,7 +76,8 @@ export function SoulsPage(){
  function home(){
   cutoutJob.current++;setCutting(false);
   setStep("home");setSelected(null);setDraft(null);setCutoutDraft("");
-  setUseCutout(true);setSelectSubject(false);setEditFace(false);
+  setUseCutout(true);setSelectSubject(false);setEditFace(false);setMaskEditing(null);
+  setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
   setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");faceWasEdited.current=false;
   setError("");setInfo("");resetVisual();
  }
@@ -137,7 +135,8 @@ export function SoulsPage(){
    setDraft(p);setSelected(null);setStep("edit");setCutoutDraft("");
    setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
    setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");
-   setUseCutout(true);setSelectSubject(false);
+   setUseCutout(true);setSelectSubject(false);setMaskEditing(null);
+   setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
    setName("");setKind("");setDescription("");setPersonality("witty");
    setDraftVoice(previous=>randomSoulVoice(previous));setRememberEnabled(true);
    setBusy(false);
@@ -165,7 +164,7 @@ export function SoulsPage(){
    await ensureVision();
    if(!window.CrewGeminiVision?.generate)throw Error("Vision unavailable");
    const result=await window.CrewGeminiVision.generate(
-    "Return JSON only: {\"kind\":\"\",\"description\":\"\",\"suggestedName\":\"\"}. Describe only the main household object visibly shown in this photo, in Traditional Chinese. No people, sensitive information or assumptions.",
+    "Return JSON only: {\"kind\":\"\",\"description\":\"\",\"suggestedName\":\"\"}. Describe the visible "+(subjectType==="person"?"portrait":"main household object")+" in Traditional Chinese. For a person, never identify them, infer age, ethnicity, health, background or private traits. No sensitive assumptions.",
     [{mimeType:"image/jpeg",data:draft.image.split(",")[1]}],
     {json:true,maxOutputTokens:350}
    ) as {kind?:unknown;description?:unknown;suggestedName?:unknown};
@@ -187,6 +186,7 @@ export function SoulsPage(){
     description:trim(description,140),personality,
     voice:draftVoice,photos:[draft],
     cutout:useCutout&&cutoutDraft?cutoutDraft:undefined,
+    subjectType,faceVisible,speechStyle,
     face:safeFace(faceDraft),transform:safeTransform(transformDraft),notes:[],remember:rememberEnabled,
     createdAt:now,lastSeenAt:now
    };
@@ -199,7 +199,7 @@ export function SoulsPage(){
  }
  async function choose(s:Soul){
   cutoutJob.current++;setCutting(false);
-  setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);
+  setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);setMaskEditing(null);
   setEditFace(false);setEditTarget("object");setTransformDraft(safeTransform(s.transform));
   faceWasEdited.current=false;resetVisual();setError("");setInfo("");
   try{await update(s.id,old=>({...old,lastSeenAt:Date.now()}));await refresh(s.id)}
@@ -209,6 +209,16 @@ export function SoulsPage(){
   if(!selected)return;
   try{await update(selected.id,fn);await refresh(selected.id)}
   catch{setError(t("本機資料儲存失敗。","Could not save local data."))}
+ }
+ async function applySavedMask(dataUrl:string){
+  if(!selected)return;
+  const id=selected.id;
+  setError("");
+  try{
+   await update(id,current=>({...current,cutout:dataUrl}));
+   await refresh(id);setMaskEditing(null);
+   setInfo(t("去背修補已儲存。","Cutout repair saved."));
+  }catch{setError(t("修補結果儲存失敗。","Could not save repaired cutout."))}
  }
  async function rerollSavedVoice(){
   if(!selected)return;
@@ -239,13 +249,14 @@ export function SoulsPage(){
   catch{setError(t("刪除失敗。","Delete failed."))}
  }
  const editingImage=cutoutDraft&&useCutout?cutoutDraft:draft?.image||"";
+ const selectedKind=selected?soulSubjectType(selected):"object";
  const selectedImage=selected?.cutout||selected?.photos[0]?.image||"";
  return <main className="souls-page souls-photo-first">
   <header className="souls-header">
    <Link to="/explore">← {t("探索","Explore")}</Link>
-   <small>CREW SOULS · OBJECT FRIENDS</small>
-   <h1>{t("讓你的物品，活過來。","Give your objects a little soul.")}</h1>
-   <p>{t("拍下生活中的小東西，讓它長出表情、擁有名字和個性，變成能聊天、會記得你的朋友。","Turn everyday objects into expressive friends with a name, personality and memories.")}</p>
+   <small>CREW SOULS · LIVING PORTRAITS</small>
+   <h1>{t("讓照片裡的角色，活過來。","Bring a portrait to life.")}</h1>
+   <p>{t("物品或人物照片都可以。去背、修補輪廓、設定個性，創造能說話的虛構角色。","Use an object or a person photo. Remove and repair the background, then create a fictional character you can talk to.")}</p>
   </header>
   <input className="souls-hidden" ref={camera} type="file" accept="image/*" capture="environment"
    aria-label={t("拍攝一張物品照片","Take object photo")} onChange={e=>void pickPhoto(e)}/>
@@ -267,19 +278,25 @@ export function SoulsPage(){
    <div className="souls-section-heading"><div><small>{t("你的生活收藏","YOUR COLLECTION")}</small>
     <h2>{t("我的 Soul","My Souls")} <small>({items.length})</small></h2></div></div>
    {!items.length?<div className="souls-empty">✦
-    <p>{t("還沒有 Soul。先拍一張杯子、玩偶或任何喜歡的小東西。","No Souls yet. Start with a cup, toy or anything you love.")}</p>
+    <p>{t("還沒有 Soul。先拍一張喜歡的物品或人物照片。","No Souls yet. Start with an object or person photo.")}</p>
     <button type="button" onClick={()=>camera.current?.click()}>{t("建立第一個 Soul","Create your first Soul")}</button>
    </div>:<div className="souls-grid souls-collection">
     {items.map(s=><button key={s.id} type="button" onClick={()=>void choose(s)}>
-     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} personality={s.personality} name={s.name} caption={false}/>
+     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} personality={s.personality} faceVisible={soulFaceVisible(s)} name={s.name} caption={false}/>
      <small>{s.kind||t("獨特物品","Unique object")} · {s.notes.length} {t("則回憶","memories")}</small>
     </button>)}
    </div>}
   </section>}
   {step==="edit"&&draft&&<section className="souls-panel souls-editor">
-   <div className="souls-section-heading"><div><small>{t("01 · 讓物品長出表情","01 · CREATE THE FACE")}</small>
-    <h2>{t("把它變成小角色","Give it a face")}</h2></div></div>
-   {selectSubject?<div className="souls-subject-picker">
+   <div className="souls-section-heading"><div><small>{t("01 · 準備角色照片","01 · PREPARE PHOTO")}</small>
+    <h2>{t("把照片變成角色","Bring the photo to life")}</h2></div></div>
+   <SoulSubjectSelector subjectType={subjectType} onChange={chooseSubject} en={en}/>
+   {maskEditing==="draft"?<SoulMaskEditor
+    original={draft.image} initialCutout={cutoutDraft||undefined} en={en}
+    onApply={data=>{setCutoutDraft(data);setUseCutout(true);setMaskEditing(null);
+     setInfo(t("手動修補已套用。","Manual cutout repair applied."))}}
+    onCancel={()=>setMaskEditing(null)}/>
+   :selectSubject?<div className="souls-subject-picker">
     <p>{t("點一下你要留下的物品，不必點得很準。","Tap the object you want to cut out.")}</p>
     <button type="button" disabled={cutting} onClick={e=>tapSource(e,draft.image)}
      aria-label={t("點選去背主體","Select cutout subject")}>
@@ -287,10 +304,14 @@ export function SoulsPage(){
     </button>
     <button type="button" onClick={()=>setSelectSubject(false)}>{t("取消，回到角色預覽","Cancel")}</button>
    </div>:<div className="souls-editor-layout">
-    <SoulPortrait image={editingImage} face={faceDraft} personality={personality} onFaceChange={changeFace}
+    <SoulPortrait image={editingImage} face={faceDraft} personality={personality} faceVisible={faceVisible} onFaceChange={changeFace}
      transform={transformDraft} onTransformChange={setTransformDraft}
      editing editTarget={editTarget}/>
     <div className="souls-editor-tools">
+     <label className="souls-checkbox"><input type="checkbox" checked={faceVisible}
+      onChange={e=>setFaceVisible(e.target.checked)}/>
+      {t("顯示 Q 版靈魂臉","Show cartoon Soul face")}
+     </label>
      <SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
       face={faceDraft} onFaceChange={changeFace}
       transform={transformDraft} onTransformChange={setTransformDraft} en={en}/>
@@ -302,6 +323,9 @@ export function SoulsPage(){
       <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setSelectSubject(true)}}>
        {t("重新點選去背主體","Retry cutout")}
       </button>
+      <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setMaskEditing("draft")}}>
+       {t("手動修補去背","Repair cutout")}
+      </button>
      </div>
      <p className="souls-muted">{cutting?(cutoutPhase==="loading"?
       t("正在下載或初始化去背模型，首次使用可能較慢。","Downloading or initializing the cutout model (first use may take longer)."):
@@ -312,65 +336,37 @@ export function SoulsPage(){
       t("目前使用原始照片，可以直接存成 Soul。","Using the original photo. You can still create a Soul.")}</p>
     </div>
    </div>}
-   <div className="souls-editor-details">
-    <div className="souls-section-heading"><div><small>{t("02 · 讓它有個性","02 · GIVE IT PERSONALITY")}</small>
-     <h2>{t("幫它取個名字","Name your Soul")}</h2></div></div>
-    <button className="souls-ai-describe" type="button" disabled={busy}
-     onClick={()=>void suggestDetails()}>
-     {t("✧ 讓 Gemini 幫忙取名（會上傳照片）","✧ Gemini name suggestion (uploads photo)")}
-    </button>
-    <form className="souls-form" onSubmit={e=>void create(e)}>
-     <label>{t("名字 *","Name *")}
-      <input required maxLength={40} value={name} onChange={e=>setName(e.target.value)}
-       placeholder={t("例如：小杯杯","e.g. Mugsy")}/>
-     </label>
-     <label>{t("物品種類","Object type")}
-      <input maxLength={60} value={kind} onChange={e=>setKind(e.target.value)}
-       placeholder={t("例如：咖啡杯","e.g. Coffee mug")}/>
-     </label>
-     <label>{t("外觀特色（選填）","Appearance (optional)")}
-      <textarea maxLength={140} value={description} onChange={e=>setDescription(e.target.value)}/>
-     </label>
-     <fieldset><legend>{t("它是什麼個性？","Personality")}</legend>
-      <div className="souls-pills">
-       {(Object.keys(persona) as Soul["personality"][]).map(id=><button type="button" key={id}
-        aria-pressed={personality===id} onClick={()=>setPersonality(id)}>
-        {en?persona[id][1]:persona[id][0]}</button>)}
-      </div>
-     </fieldset>
-     <div className="souls-voice-choice">
-      <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(draftVoice)}</strong></span>
-      <button type="button" onClick={()=>setDraftVoice(previous=>randomSoulVoice(previous))}>
-       {t("換個聲音","Shuffle voice")}
-      </button>
-      <small>{t("從 Gemini Live 聲線中隨機選一種，儲存後不會自己改變。","Randomly chosen from Gemini Live voices; stays the same after saving.")}</small>
-     </div>
-     <label className="souls-checkbox"><input type="checkbox" checked={rememberEnabled}
-      onChange={e=>setRememberEnabled(e.target.checked)}/>
-      {t("允許聊天時擷取有依據的回憶（之後可關閉或刪除）","Remember grounded facts from chats (can disable or delete)")}
-     </label>
-     <button className="souls-primary" disabled={!name.trim()||busy}>
-      {t("儲存 Soul，開始聊天 ✦","Save Soul & start chatting ✦")}
-     </button>
-    </form>
-   </div>
+   <SoulDraftDetails en={en} subjectType={subjectType} busy={busy}
+    name={name} setName={setName} kind={kind} setKind={setKind}
+    description={description} setDescription={setDescription}
+    personality={personality} setPersonality={setPersonality}
+    draftVoice={draftVoice} setDraftVoice={setDraftVoice}
+    rememberEnabled={rememberEnabled} setRememberEnabled={setRememberEnabled}
+    onSuggest={()=>void suggestDetails()} onCreate={e=>void create(e)}/>
   </section>}
   {step==="detail"&&selected&&<div className="souls-details">
    <section className="souls-panel souls-photo-profile">
     <div className="souls-profile-portrait">
-     <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality}
+     <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality} faceVisible={soulFaceVisible(selected)}
       transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
       editing={editFace} onFaceChange={editFace?changeFace:undefined}
       onTransformChange={editFace?setTransformDraft:undefined}
-      visual={visual} name={selected.name} mouthRef={mouthRef}/>
+      visual={visual} caption={false} name={selected.name} mouthRef={mouthRef}/>
+     {!editFace&&visual.caption.trim()&&<div className={"souls-speech-display souls-speech-"+soulSpeechStyle(selected)}
+      role="status" aria-live="polite"><span>{visual.caption.slice(-130)}</span></div>}
      {editFace&&<SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
       face={faceDraft} onFaceChange={changeFace} transform={transformDraft}
       onTransformChange={setTransformDraft} en={en}/>}
     </div>
     <div className="souls-profile-copy">
-     <small>{t("你的物品朋友","YOUR OBJECT FRIEND")}</small>
-     <h2>{selected.name}</h2><p>{selected.kind||t("獨一無二的小東西","A one-of-a-kind object")}</p>
+     <small>{selectedKind==="person"?t("你的虛構人物角色","YOUR FICTIONAL CHARACTER"):t("你的物品朋友","YOUR OBJECT FRIEND")}</small>
+     <h2>{selected.name}</h2><p>{selected.kind||(selectedKind==="person"?t("虛構人物角色","Fictional portrait character"):t("獨一無二的小東西","A one-of-a-kind object"))}</p>
      {selected.description&&<p>{selected.description}</p>}
+     <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
+      onVisual={onVisual} onAudioLevel={onAudioLevel} scene/>
+     <SoulDisplayPreferences soul={selected} en={en}
+      onFaceChange={visible=>void mutate(current=>({...current,faceVisible:visible}))}
+      onSpeechStyleChange={style=>void mutate(current=>({...current,speechStyle:style}))}/>
      <div className="souls-voice-choice souls-saved-voice">
       <span>{t("專屬聲線","Soul voice")}：<strong>{soulVoiceLabel(selected.voice)}</strong></span>
       <button type="button" onClick={()=>void rerollSavedVoice()}>
@@ -379,42 +375,33 @@ export function SoulsPage(){
       <small>{t("已儲存的聲線不會自動變。換聲線後，下次重新連線 Live 才會生效。","The saved voice is stable. A change takes effect on your next Live connection.")}</small>
      </div>
      <div className="souls-profile-buttons">
+      <button type="button" onClick={()=>{cutoutJob.current++;setCutting(false);setMaskEditing("saved")}}>
+       {t("修補去背","Repair cutout")}
+      </button>
       {editFace?<><button type="button" onClick={()=>void saveFace()}>{t("儲存物品與五官","Save object & eyes")}</button>
        <button type="button" onClick={()=>setEditFace(false)}>{t("取消","Cancel")}</button></>:
        <button type="button" onClick={()=>{setFaceDraft(safeFace(selected.face));setTransformDraft(safeTransform(selected.transform));setEditTarget("object");faceWasEdited.current=false;setEditFace(true)}}>
         {t("調整物品／五官","Adjust object / eyes")}
        </button>}
      </div>
-     <small>{t("這個 Soul 會保存在這台裝置的瀏覽器裡。","This Soul is stored in this browser.")}</small>
+     <small>{t("角色圖片與記憶僅存於這個瀏覽器。","Portrait and memories stay in this browser.")}</small>
     </div>
    </section>
-   <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
-    onVisual={onVisual} onAudioLevel={onAudioLevel}/>
-   <section className="souls-panel">
-    <h2>{t("它記得的事","Memories")} <small>({selected.notes.length}/30)</small></h2>
-    <label className="souls-checkbox"><input type="checkbox" checked={selected.remember}
-     onChange={e=>void mutate(s=>({...s,remember:e.target.checked}))}/>
-     {t("聊天時使用並擷取回憶","Use and capture memories during chats")}
-    </label>
-    <p className="souls-muted">{t("只保存有依據的摘要，不保留逐字稿；可逐則刪除。","Only grounded notes are saved, not full transcripts. Delete any note.")}</p>
-    <form className="souls-note" onSubmit={e=>void manual(e)}>
-     <input value={note} maxLength={180} onChange={e=>setNote(e.target.value)}
-      aria-label={t("新增回憶","New memory")} placeholder={t("手動記下想讓它記得的事…","Add a memory…")}/>
-     <button disabled={!note.trim()}>{t("記住","Remember")}</button>
-    </form>
-    <ul className="souls-notes">{[...selected.notes].reverse().map(n=><li key={n.id}>
-     <span>{n.text}<small>{n.source==="manual"?t("手動","Manual"):t("聊天擷取","From chat")}</small></span>
-     <button type="button" aria-label={t("刪除回憶","Delete memory")}
-      onClick={()=>void mutate(s=>({...s,notes:s.notes.filter(item=>item.id!==n.id)}))}>×</button>
-    </li>)}</ul>
-   </section>
+   {maskEditing==="saved"&&<div className="souls-panel">
+    <SoulMaskEditor original={selected.photos[0]?.image||""} initialCutout={selected.cutout}
+     en={en} onApply={data=>void applySavedMask(data)} onCancel={()=>setMaskEditing(null)}/>
+   </div>}
+   <SoulMemoryPanel soul={selected} en={en} note={note} onNoteChange={setNote}
+    onAdd={e=>void manual(e)}
+    onRememberChange={enabled=>void mutate(current=>({...current,remember:enabled}))}
+    onDelete={id=>void mutate(current=>({...current,notes:current.notes.filter(item=>item.id!==id)}))}/>
    <div className="souls-delete"><button type="button" onClick={()=>void erase()}>
     {t("刪除此 Soul 與全部回憶","Delete Soul and memories")}
    </button></div>
   </div>}
   <footer className="souls-footer">{t(
-   "照片去背在本機處理，首次使用需下載模型；失敗仍可保留原圖。照片與回憶存在此瀏覽器，清除網站資料就會消失。只有你主動要求 Gemini 分析照片才會上傳影像；Live 對話會傳給 Gemini。",
-   "Cutout runs on-device after downloading a model; originals can be kept if it fails. Photos and memories remain in this browser unless site data is cleared. Only explicit Gemini photo analysis uploads an image; Live conversations go to Gemini."
+   "人物與物品照片都能創造虛構角色；人物不代表照片中本人。去背與筆刷修補在本機進行，照片與回憶存在此瀏覽器，清除網站資料就會消失。只有主動要求 Gemini 分析照片才會上傳影像；Live 對話會傳給 Gemini。",
+   "Create fictional object or portrait characters; a person Soul does not represent the actual photographed person. Cutout and brush edits run on-device. Photos and memories stay in this browser unless cleared. Only explicit Gemini photo analysis uploads an image; Live conversations go to Gemini."
   )}</footer>
  </main>;
 }
