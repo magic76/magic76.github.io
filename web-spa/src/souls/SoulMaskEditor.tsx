@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState,type PointerEvent} from "react";
 import {paintMaskStroke,type MaskBrushMode} from "./soulMaskBrush";
+import {SoulNumberStepper} from "./SoulNumberStepper";
 
 const SIZE=640,MAX_UNDO=8;
 function image(src:string):Promise<HTMLImageElement>{
@@ -135,10 +136,11 @@ export function SoulMaskEditor({
     {t("－ 擦背景","－ Erase")}
    </button>
   </div>
-  <label className="souls-mask-brush-size">{t("筆刷大小","Brush size")}：{radius}
-   <input type="range" min="4" max="64" step="2" value={radius}
-    onChange={e=>setRadius(Number(e.target.value))}/>
-  </label>
+  <div className="souls-mask-brush-size">
+   <SoulNumberStepper en={en} label={t("筆刷大小","Brush size")}
+    min={4} max={64} step={2} value={radius} display={String(radius)}
+    onChange={setRadius}/>
+  </div>
   <div className="souls-mask-canvas-frame">
    <canvas ref={canvasRef} width={SIZE} height={SIZE} onPointerDown={down}
     onPointerMove={move} onPointerUp={up} onPointerCancel={up}
