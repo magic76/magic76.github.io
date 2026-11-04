@@ -71,18 +71,20 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
  </div>;
 }
 
-function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
+function NumberBombRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:RoundProps){
  const [state,setState]=useState<BombState>(newBomb);
  const [selected,setSelected]=useState(50);
  const [error,setError]=useState("");
+ const [waitingCueId,setWaitingCueId]=useState<number|null>(null);
  const started=useRef(false),completed=useRef(false);
  const pendingNarration=useRef<{move:number;text:string}|null>(null);
  const current=Math.max(state.low,Math.min(state.high,selected));
+ const waitingHost=voiceActive&&waitingCueId!==null;
  const begin=()=>{
   if(!started.current){started.current=true;trackUsageEvent("game_started","number-bomb")}
  };
  const choose=(value:number)=>{
-  if(state.turn!=="player"||state.winner)return;
+  if(state.turn!=="player"||state.winner||waitingHost)return;
   const next=bombGuess(state,value,"player");
   if(!next){setError(zh?"請選目前範圍內的整數。":"Select a whole number within the range.");return}
   begin();setError("");setState(next);
@@ -102,35 +104,46 @@ function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
   const pending=pendingNarration.current;
   if(!pending||pending.move!==state.history.length)return;
   pendingNarration.current=null;
-  const timer=window.setTimeout(()=>onCue(pending.text),140);
+  const timer=window.setTimeout(()=>{
+   const id=onCue(pending.text);
+   if(voiceActive)setWaitingCueId(id);
+  },140);
   return()=>window.clearTimeout(timer);
- },[state.history.length,onCue]);
+ },[state.history.length,onCue,voiceActive]);
+ useEffect(()=>{
+  if(waitingCueId!==null&&(settledCueId>=waitingCueId||!voiceActive))setWaitingCueId(null);
+ },[waitingCueId,settledCueId,voiceActive]);
+ useEffect(()=>{
+  if(waitingCueId===null)return;
+  const timer=window.setTimeout(()=>setWaitingCueId(null),11500);
+  return()=>window.clearTimeout(timer);
+ },[waitingCueId]);
  useEffect(()=>{
   if(!state.winner||completed.current)return;
   completed.current=true;trackUsageEvent("game_completed","number-bomb");
  },[state.winner]);
  const reset=()=>{
   started.current=false;completed.current=false;setState(newBomb());setSelected(50);setError("");
-  pendingNarration.current=null;
+  pendingNarration.current=null;setWaitingCueId(null);
  };
  const last=state.history[state.history.length-1];
  const result=state.winner==="player"?"win":"lose";
  return <section className="crew-quick-stage" aria-label={zh?"終極密碼遊戲":"Number Bomb game"}>
   <div className="crew-quick-status" role="status" aria-live="polite">
-   <strong>{state.winner?(zh?"你猜中了！":"You found it!"):(zh?"你猜，"+friend.name+" 主持":"You guess · "+friend.name+" hosts")}</strong>
+   <strong>{state.winner?(zh?"你猜中了！":"You found it!"):waitingHost?(zh?friend.name+" 正在公布提示…":friend.name+" is announcing the hint…"):(zh?"你猜，"+friend.name+" 主持":"You guess · "+friend.name+" hosts")}</strong>
    <span>{zh?"已猜 "+state.history.length+" 次":state.history.length+" guesses"}</span>
   </div>
   <div className="crew-quick-range"><span>{state.low}</span><div><small>{zh?"秘密數字的範圍":"The secret is between"}</small><strong>{state.low} — {state.high}</strong></div><span>{state.high}</span></div>
   {last&&!state.winner?<p className="crew-quick-feedback" role="status"><strong>{last.side==="player"?(zh?"你":"You"):friend.name}：</strong>{last.value} · {last.hint==="higher"?(zh?"太小了，再猜大一點 ↑":"Too low ↑"):(zh?"太大了，再猜小一點 ↓":"Too high ↓")}</p>:
    !last?<p className="crew-quick-feedback">{zh?"滑動滾輪選數字，按「猜這個」就開始。":"Swipe to a number and tap Guess to start."}</p>:null}
   {!state.winner?<div className="crew-quick-guess">
-    <NumberWheel min={state.low} max={state.high} value={current} onChange={setSelected} disabled={state.turn!=="player"} zh={zh}/>
+    <NumberWheel min={state.low} max={state.high} value={current} onChange={setSelected} disabled={state.turn!=="player"||waitingHost} zh={zh}/>
     <div className="crew-number-wheel-actions">
-     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||current<=state.low} onClick={()=>setSelected(current-1)} aria-label={zh?"減一":"Decrease by one"}>−</button>
-     <button type="button" className="crew-mini-primary crew-number-wheel-submit" disabled={state.turn!=="player"} onClick={()=>choose(current)}>
+     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||waitingHost||current<=state.low} onClick={()=>setSelected(current-1)} aria-label={zh?"減一":"Decrease by one"}>−</button>
+     <button type="button" className="crew-mini-primary crew-number-wheel-submit" disabled={state.turn!=="player"||waitingHost} onClick={()=>choose(current)}>
       {zh?"猜 ":"Guess "}<strong>{current}</strong>
      </button>
-     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||current>=state.high} onClick={()=>setSelected(current+1)} aria-label={zh?"加一":"Increase by one"}>+</button>
+     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||waitingHost||current>=state.high} onClick={()=>setSelected(current+1)} aria-label={zh?"加一":"Increase by one"}>+</button>
     </div>
   </div>:null}
   {error?<p role="alert" className="crew-quick-error">{error}</p>:null}
