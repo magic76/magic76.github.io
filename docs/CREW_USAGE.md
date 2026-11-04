@@ -102,6 +102,9 @@ The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mo
 - `souls_photo_ready`: selected camera/gallery image was processed successfully on-device; **not** merely clicking a picker.
 - `souls_created` with fixed detail `object` or `person`: a Soul was successfully saved locally; no identifier or label goes to analytics.
 - `souls_live_connected`: Gemini Live actually reached listening/speaking state; not a failed attempt or just page load.
+- `souls_user_spoke`: first non-empty user transcript in a Souls Live session.
+- `souls_ai_replied`: first non-empty AI transcript after that user utterance (initial autonomous greeting excluded).
+- `souls_conversation` is counted by Live only after a confirmed two-sided turn, including guest sessions, with at most one event per session. Souls retains the Friends voice transport but never borrows Friends speech/reply counters.
 - `souls_live_failed`: Live enters an error state (without error text, technical failure details or any user content).
 - `souls_conversation`: the Soul recorded a genuine, completed two-sided user + AI exchange, at most once per mounted Soul view; mere connection and AI-only proactive greeting do not count. This is also used in effective engagement reporting.
 - `souls_mask_repaired`: a manual cutout repair was applied; no mask pixels sent.
