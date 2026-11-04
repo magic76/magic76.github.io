@@ -28,6 +28,7 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
  const friend=getCrewFriend(friendId);
  const [round,setRound]=useState(0);
  useEffect(()=>{trackUsageEvent("game_open",kind)},[kind]);
+ useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  const changeFriend=(next:string)=>{
   if(!CREW_FRIENDS.some(f=>f.id===next)||next===friendId)return;
   setFriendId(next);setRound(value=>value+1);
