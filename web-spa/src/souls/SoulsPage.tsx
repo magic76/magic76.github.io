@@ -271,7 +271,7 @@ export function SoulsPage(){
     <button type="button" onClick={()=>camera.current?.click()}>{t("建立第一個 Soul","Create your first Soul")}</button>
    </div>:<div className="souls-grid souls-collection">
     {items.map(s=><button key={s.id} type="button" onClick={()=>void choose(s)}>
-     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} name={s.name} caption={false}/>
+     <SoulPortrait image={s.cutout||s.photos[0]?.image||""} face={s.face} transform={s.transform} personality={s.personality} name={s.name} caption={false}/>
      <small>{s.kind||t("獨特物品","Unique object")} · {s.notes.length} {t("則回憶","memories")}</small>
     </button>)}
    </div>}
@@ -287,7 +287,7 @@ export function SoulsPage(){
     </button>
     <button type="button" onClick={()=>setSelectSubject(false)}>{t("取消，回到角色預覽","Cancel")}</button>
    </div>:<div className="souls-editor-layout">
-    <SoulPortrait image={editingImage} face={faceDraft} onFaceChange={changeFace}
+    <SoulPortrait image={editingImage} face={faceDraft} personality={personality} onFaceChange={changeFace}
      transform={transformDraft} onTransformChange={setTransformDraft}
      editing editTarget={editTarget}/>
     <div className="souls-editor-tools">
@@ -358,7 +358,7 @@ export function SoulsPage(){
   {step==="detail"&&selected&&<div className="souls-details">
    <section className="souls-panel souls-photo-profile">
     <div className="souls-profile-portrait">
-     <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face}
+     <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality}
       transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
       editing={editFace} onFaceChange={editFace?changeFace:undefined}
       onTransformChange={editFace?setTransformDraft:undefined}
