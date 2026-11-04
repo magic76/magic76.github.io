@@ -139,6 +139,9 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
    <p className="crew-mini-muted">{mode==="guess"?
     t("playHub.number.hintGuess"):
     t("playHub.number.hintReverse")}</p>
+   {!finished&&mode==="guess"&&!history.length?<div className="crew-mini-quick-start">{!history.length?<button className="crew-mini-primary" type="button" onClick={()=>submitGuess(digits===3?"123":digits===4?"1234":"12345")}>
+     {i18n.resolvedLanguage?.startsWith("zh")?"快速試猜 ":"Try your first guess: "}{digits===3?"123":digits===4?"1234":"12345"}
+    </button>:null}</div>:null}
    {!finished&&mode==="guess"?<form onSubmit={e=>{e.preventDefault();submitGuess(guess)}}>
     <label className="crew-mini-label" htmlFor="crew-number">{t("playHub.number.yourGuess")}</label>
     <div className="crew-mini-input-row">

@@ -198,6 +198,8 @@ export function CrewBoardGames({kind,english,friendName,onEvent,onBoardMove,onSk
  return <section className="crew-play-board-panel">
   {error?<p role="alert">{error}</p>:null}
   <div className="crew-play-board-bar"><strong role="status" aria-live="polite">{kind==="connect4"?c4Status:revStatus}</strong><div className="crew-play-board-actions">{speechPending?<button type="button" className="crew-play-skip-speech" onClick={skipSpeech}>{english?"Skip speech":"跳過語音"}</button>:null}<button type="button" onClick={restart}>{english?"New round":"重新開局"}</button></div></div>
+  {kind==="connect4"&&connect?.moves===0?<p className="crew-play-first-move-hint">{english?"Tap any column to drop your first red disc. No setup needed.":"點一下任一欄就能放下第一顆紅棋，不需要先設定。"}</p>:null}
+  {kind==="reversi"&&reversi?.moves===0?<p className="crew-play-first-move-hint">{english?"Tap a highlighted square to place your first black disc.":"點選棋盤上提示的合法位置，直接放下第一顆黑棋。"}</p>:null}
   {kind==="connect4"?<>
    <div className="crew-board-coordinate-frame crew-board-coordinate-frame--connect4">
     <div className="crew-board-column-labels" aria-hidden="true">{Array.from({length:7},(_,x)=><span key={x} className={connect?.lastMove!==null&&connect?.lastMove!==undefined&&connect.lastMove%7===x?"is-latest":""}>{x+1}</span>)}</div>

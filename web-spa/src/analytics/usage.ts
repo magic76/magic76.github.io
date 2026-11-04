@@ -34,7 +34,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"mira"|"ethan"|"hana"
   |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"shorts"|"circle"
   |"voice"|"demo"|"live"|"person"|"place"|"manual"|"render_error"|"unsupported"
-  |"taboo"|"1a2b"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
+  |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
 export function sessionDurationDetail(durationMs:number):Detail{
  if(durationMs<60000)return "under_1m";
  if(durationMs<180000)return "from_1_to_3m";
