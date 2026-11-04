@@ -182,7 +182,8 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  const steps=[
   ["explore_entry_click","souls"],["souls_open",""],
   ["souls_photo_ready",""],["souls_created","object"],["souls_created","person"],
-  ["souls_live_connected",""],["souls_live_failed",""],["souls_conversation",""],["souls_mask_repaired",""]
+  ["souls_live_attempt",""],["souls_live_connected",""],["souls_live_failed",""],
+  ["souls_user_input",""],["souls_ai_replied",""],["souls_conversation",""],["souls_mask_repaired",""]
  ];
  for(const [event,detail] of steps){
   const response=await onRequestPost({request:request({...payload,event,detail}),env});
@@ -209,4 +210,5 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  assert.match(report,/souls_created/);
  assert.match(report,/souls_live_connected/);
  assert.match(report,/souls_conversation/);
+ assert.match(report,/const chatEvents=.*souls_conversation/);
 });
