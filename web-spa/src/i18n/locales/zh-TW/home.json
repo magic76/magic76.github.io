@@ -19,7 +19,13 @@
     "verifyDesc": "驗證後即可確認 Key 是否正常使用。",
     "shortDesc": "用完免費體驗後，可設定自己的 Key 繼續聊天。"
   },
-  "android": "在 Android 上使用 Crew",
+  "android": {
+    "title": "把整個 Crew 裝進手機",
+    "description": "跟 AI 朋友聊天、練習外語、一起玩遊戲、讀故事，還有更多有趣的 AI 體驗。一個 App，隨時隨地都能玩。",
+    "appName": "Crew：AI 朋友與外語對話",
+    "platform": "Android App · Google Play",
+    "download": "前往下載"
+  },
   "briefing": {
     "heading": "每日研發情報",
     "today": "今天值得研究什麼？",
