@@ -1,8 +1,8 @@
 export type ParsedAiReading={
- summary:string;next12:string[];work:string;love:string;self:string;turning:string;ask:string[];
+ summary:string;next12:string[];work:string;wealth:string;love:string;self:string;turning:string;ask:string[];
  legacy?:boolean;
 };
-const empty=():ParsedAiReading=>({summary:"",next12:[],work:"",love:"",self:"",turning:"",ask:[]});
+const empty=():ParsedAiReading=>({summary:"",next12:[],work:"",wealth:"",love:"",self:"",turning:"",ask:[]});
 const lines=(s:string)=>s.split(/\r?\n/).map(x=>x.trim()).filter(Boolean).map(x=>x.replace(/^\s*(?:[-*•]|\d+[.)、])\s*/,"").trim()).filter(Boolean);
 export function parseAiReading(text:string):ParsedAiReading{
  const output=empty();
@@ -17,11 +17,46 @@ export function parseAiReading(text:string):ParsedAiReading{
  const firstLine=(sections.summary||"").split(/\r?\n/).map(line=>line.trim()).find(Boolean)||"";
  output.summary=(firstLine.match(/^.*?[。！？.!?]/)?.[0]||firstLine).trim();
  output.next12=lines(sections.next12||"");
- output.work=sections.work||"";output.love=sections.love||"";
+ output.work=sections.work||"";output.wealth=sections.wealth||"";output.love=sections.love||"";
  output.self=sections.self||"";output.turning=sections.turning||"";
  output.ask=lines(sections.ask||"");
  return output;
 }
+export type FortuneAiAudit={ok:boolean;issues:string[]};
+
+function sectionOverlap(first:string,second:string):number{
+ const grams=(value:string)=>{
+  const cleaned=value.toLowerCase().replace(/[\\s\\p{P}\\p{S}]/gu,"");
+  const found=new Set<string>();
+  for(let i=0;i+3<=cleaned.length;i++)found.add(cleaned.slice(i,i+3));
+  return found;
+ };
+ const a=grams(first),b=grams(second);
+ if(!a.size||!b.size)return 0;
+ let shared=0;
+ for(const part of a)if(b.has(part))shared++;
+ return shared/Math.min(a.size,b.size);
+}
+
+/** Checks the AI's actual output. Local computed facts remain the fallback on failure. */
+export function auditAiReading(text:string,facts:unknown,mode:"bazi"|"tarot"|"vedic"):FortuneAiAudit{
+ const parsed=parseAiReading(text),issues:string[]=[];
+ if(parsed.legacy||!parsed.summary)issues.push("缺少有效的 @summary 段落");
+ for(const [name,value] of [["work",parsed.work],["wealth",parsed.wealth],["love",parsed.love],["self",parsed.self]]){
+  if([...value.trim()].length<50)issues.push("@"+name+" 必須提供獨立而具體的分析");
+ }
+ if(parsed.turning.trim().length<16)issues.push("@turning 必須解釋實際週期或資料不足的理由");
+ if(parsed.next12.length!==3)issues.push("@next12 必須恰好三點");
+ if(parsed.ask.length!==3)issues.push("@ask 必須恰好三題");
+ if(parsed.work&&parsed.wealth&&sectionOverlap(parsed.work,parsed.wealth)>0.72)issues.push("工作與財務兩段高度重複");
+ if(mode==="bazi"&&facts&&typeof facts==="object"){
+  const known=JSON.stringify(facts);
+  const mentioned=new Set(String(text||"").match(/[甲乙丙丁戊己庚辛壬癸][子丑寅卯辰巳午未申酉戌亥]/g)||[]);
+  for(const pillar of mentioned)if(!known.includes(pillar))issues.push("引用了命盤未提供的干支："+pillar);
+ }
+ return{ok:issues.length===0,issues};
+}
+
 export function isCurrentRequest(expectedId:string,expectedSequence:number,currentId:string|null,currentSequence:number):boolean{
  return Boolean(expectedId)&&expectedId===currentId&&expectedSequence===currentSequence;
 }
