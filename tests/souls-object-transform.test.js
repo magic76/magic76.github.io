@@ -65,8 +65,10 @@ test("portrait nests image and eyes under the SAME saved transform",()=>{
  assert.match(portrait,/stageToObjectPoint\(/);
  assert.match(portrait,/applyGesture\(/);
  assert.match(portrait,/onPointerDown=\{down\} onPointerMove=\{drag\}/);
- assert.match(controls,/min="-180" max="180"/);
- assert.match(controls,/min="\.5" max="2\.8"/);
+ assert.match(controls,/min=\{-175\} max=\{175\} step=\{5\}/);
+ assert.match(controls,/min=\{\.5\} max=\{2\.8\} step=\{\.05\}/);
+ assert.match(controls,/SoulNumberStepper/);
+ assert.doesNotMatch(controls,/type="range"/);
  assert.match(css,/@keyframes souls-object-breathe/);
  assert.match(css,/@keyframes souls-object-talk/);
  assert.match(css,/@keyframes souls-object-happy/);
