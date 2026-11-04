@@ -113,7 +113,7 @@ test("new game and experience events survive ingestion without personal payloads
   const response=await onRequestPost({request:request({...payload,event,detail}),env});
   assert.equal(response.status,204,event+":"+detail);
  }
- assert.equal(points.length,11);
+ assert.equal(points.length,13);
  assert.equal((await onRequestPost({request:request({...payload,event:"research_article_open",detail:"private article title"}),env})).status,400);
 });
 
