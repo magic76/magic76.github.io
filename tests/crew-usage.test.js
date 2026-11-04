@@ -177,7 +177,7 @@ test("guest usage summary counts are explicitly labeled as non-cohort ratios",()
 });
 
 test("Souls anonymous funnel allows only fixed event/category combinations, including apex production",async()=>{
- const {onRequestPost}=compile("functions/api/usage/event");
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
  const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:point=>points.push(point)}};
  const steps=[
   ["explore_entry_click","souls"],["souls_open",""],
