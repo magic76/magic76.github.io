@@ -19,7 +19,13 @@
     "verifyDesc": "키가 정상 작동하는지 확인하세요.",
     "shortDesc": "체험 후 본인의 키를 설정해 대화를 이어갈 수 있어요."
   },
-  "android": "Android에서 Crew 이용하기",
+  "android": {
+    "title": "Crew를 주머니 속에 쏙",
+    "description": "AI 친구와 대화하고 외국어를 연습하며 게임과 이야기를 즐겨 보세요. 모든 경험을 앱 하나로.",
+    "appName": "Crew: AI 친구와 외국어 대화",
+    "platform": "Android 앱 · Google Play",
+    "download": "앱 다운로드"
+  },
   "briefing": {
     "heading": "일일 연구 브리핑",
     "today": "오늘 살펴볼 만한 연구는?",
