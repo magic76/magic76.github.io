@@ -37,6 +37,10 @@ export function NumberWheel({min,max,value,disabled,onChange,zh}:Props){
  return <div className="crew-number-wheel">
   <div className="crew-number-wheel-label">{zh?"上下滑動選數字":"Swipe to choose a number"}</div>
   <div className="crew-number-wheel-frame">
+   <div className="crew-number-wheel-bounds" role="status" aria-live="polite">
+    <span>{zh?"目前可猜範圍":"Allowed range"}</span>
+    <strong>{min} — {max}</strong>
+   </div>
    <div className="crew-number-wheel-focus" aria-hidden="true"/>
    <div className="crew-number-wheel-scroll" role="listbox" aria-label={zh?"選擇猜測的數字":"Choose a number"} aria-disabled={disabled}
     tabIndex={disabled?-1:0} ref={viewport} onScroll={onScroll} onKeyDown={onKeyDown}>

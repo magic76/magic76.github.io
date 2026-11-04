@@ -10,12 +10,14 @@ export function newBomb(random:()=>number=Math.random):BombState{
  return {secret:1+Math.floor(roll*100),low:1,high:100,turn:"player",winner:null,history:[]};
 }
 export function bombGuess(state:BombState,value:number,side:QuickSide):BombState|null{
- if(state.winner||side!==state.turn||!Number.isInteger(value)||value<state.low||value>state.high)return null;
+ // Host mode: only the player guesses. The Crew friend narrates verified outcomes.
+ if(state.winner||side!=="player"||state.turn!=="player"||!Number.isInteger(value)||value<state.low||value>state.high)return null;
  const hint:BombHint=value===state.secret?"correct":value<state.secret?"higher":"lower";
  return {...state,low:hint==="higher"?value+1:state.low,high:hint==="lower"?value-1:state.high,
-  turn:side==="player"?"friend":"player",winner:hint==="correct"?side:null,
+  turn:"player",winner:hint==="correct"?"player":null,
   history:[...state.history,{side,value,hint}]};
 }
+/** Midpoint for positioning the wheel, not an AI opponent move. */
 export function bombComputerGuess(state:BombState):number{
  return Math.floor((state.low+state.high)/2);
 }

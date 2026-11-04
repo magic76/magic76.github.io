@@ -8,20 +8,21 @@ const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 const source=stripTypeScriptTypes(read("web-spa/src/games/quickPlayEngine.ts"),{mode:"strip"}).replace(/^export /gm,"");
 const api=new Function(source+"\nreturn {newBomb,bombGuess,bombComputerGuess,newMemory,flipMemory,resolveMemory,memoryComputerPick,parseBombSpeech,parseMemorySpeech};")();
 
-test("number bomb bounds shrink without exposing secret and turns alternate",()=>{
+test("number bomb is hosted: only player guesses and the verified range shrinks",()=>{
  const initial=api.newBomb(()=>.49);
  assert.equal(initial.secret,50);
  assert.equal(api.bombGuess(initial,101,"player"),null);
+ assert.equal(api.bombGuess(initial,25,"friend"),null);
  let state=api.bombGuess(initial,25,"player");
- assert.equal(state.low,26);assert.equal(state.turn,"friend");assert.equal(state.history[0].hint,"higher");
- assert.equal(api.bombGuess(state,30,"player"),null);
- state=api.bombGuess(state,75,"friend");
+ assert.equal(state.low,26);assert.equal(state.turn,"player");assert.equal(state.history[0].hint,"higher");
+ assert.equal(api.bombGuess(state,30,"friend"),null);
+ state=api.bombGuess(state,75,"player");
  assert.equal(state.high,74);assert.equal(state.turn,"player");
  state=api.bombGuess(state,50,"player");
  assert.equal(state.winner,"player");assert.equal(state.history[2].hint,"correct");
- assert.equal(api.bombGuess(state,51,"friend"),null);
+ assert.equal(api.bombGuess(state,51,"player"),null);
 });
-test("number bomb AI midpoint stays in bounds",()=>{
+test("number wheel midpoint remains in the allowed range",()=>{
  const state=api.bombGuess(api.newBomb(()=>.9),25,"player");
  assert.ok(api.bombComputerGuess(state)>=state.low);
  assert.ok(api.bombComputerGuess(state)<=state.high);
@@ -110,6 +111,51 @@ test("quick games mount the existing Live voice companion without remounting on 
  assert.match(page,/<MiniGameVoice key=\{kind\+":"\+friendId\}/);
  assert.match(page,/parseBombSpeech\(text\)/);
  assert.match(page,/parseMemorySpeech\(text\)/);
- assert.match(shared,/quick\?"\\n\[CREW PLAY QUICK GAME/);
+ assert.match(shared,/quick\?"\\n\[CREW PLAY TURN-VERIFIED VOICE/);
  assert.ok(page.includes("The same player gets another turn."));
+});
+
+test("Number Bomb is hosted and announces only verified player guesses",()=>{
+ const page=read("web-spa/src/games/QuickPlayGamePage.tsx");
+ const frame=read("web-spa/src/games/MiniGameFrame.tsx");
+ assert.match(page,/Number Bomb HOST: The player CONFIRMED guess/);
+ assert.match(page,/pendingNarration\.current=\{move:next\.history\.length/);
+ assert.match(page,/\[state\.history\.length,onCue\]/);
+ assert.match(page,/activeVoiceRef\.current/);
+ assert.doesNotMatch(page,/bombGuess\(state,guess,"friend"\)/);
+ assert.match(frame,/You are the HOST of Number Bomb, NEVER a contestant/);
+ assert.match(frame,/Wait silently for the authoritative \[VERIFIED GAME\]/);
+ assert.match(page,/waitingHost/);
+});
+test("Memory Match waits for completed pair and audio drain before another AI pair",()=>{
+ const page=read("web-spa/src/games/QuickPlayGamePage.tsx");
+ const frame=read("web-spa/src/games/MiniGameFrame.tsx");
+ const resolved=page.indexOf('text:"Memory Match PAIR COMPLETED AND BOARD UPDATED.');
+ assert.ok(resolved>0);
+ assert.ok(page.indexOf("setState(next);",resolved)>resolved);
+ assert.match(page,/pending\.move!==state\.moves/);
+ assert.match(page,/waitingCueId!==null/);
+ assert.match(page,/settledCueId>=waitingCueId/);
+ assert.match(frame,/pending\.heardSpeaking=true/);
+ assert.match(frame,/live\.state==="listening"&&pending\.heardSpeaking/);
+});
+test("range stays legible within number wheel even if page header scrolls away",()=>{
+ const wheel=read("web-spa/src/games/NumberWheel.tsx");
+ const css=read("web-spa/src/games/quickPlay.css");
+ assert.match(wheel,/className="crew-number-wheel-bounds"/);
+ assert.match(wheel,/\{min\} — \{max\}/);
+ assert.match(css,/\.crew-number-wheel-bounds\{position:absolute/);
+ assert.match(css,/\.crew-quick-stage>\.crew-quick-range\{position:sticky/);
+});
+
+test("starting voice later does not narrate stale keyless round events",()=>{
+ const frame=read("web-spa/src/games/MiniGameFrame.tsx");
+ assert.match(frame,/deliveredRef\.current=Math\.max\(deliveredRef\.current,cue\.id\)/);
+});
+
+test("changing voice connection state cannot cancel a committed post-turn cue",()=>{
+ const page=read("web-spa/src/games/QuickPlayGamePage.tsx");
+ assert.match(page,/activeVoiceRef\.current=voiceActive/);
+ assert.match(page,/\[state\.history\.length,onCue\]/);
+ assert.match(page,/\[state\.moves,onCue\]/);
 });
