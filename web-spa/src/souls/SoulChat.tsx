@@ -62,7 +62,8 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
     guest&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>:
     <LiveControls live={live} compact={active} prominentInterrupt/>}
    {guest&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
-   {scene&&<details className="souls-chat-history"><summary>{en?"Conversation history":"查看對話紀錄"}</summary>}
+   {scene?<details className="souls-chat-history">
+    <summary>{en?"Conversation history":"查看對話紀錄"}</summary>
    <div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
     {live.turns.slice(-12).map((turn,i)=><div key={i}>
      {turn.input&&<p className="user"><strong>{en?"You":"你"}：</strong>{turn.input}</p>}
@@ -70,7 +71,13 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
     </div>)}
     {typed.filter(value=>!live.turns.some(turn=>turn.input?.trim()===value)).map((value,i)=><p key={"typed-"+i} className="user"><strong>{en?"Typed":"打字"}：</strong>{value}</p>)}
    </div>
-   {scene&&</details>}
+   </details>:<div className={"souls-transcript"+(overlay?" souls-ar-transcript":"")} role="log">
+    {live.turns.slice(-12).map((turn,i)=><div key={i}>
+     {turn.input&&<p className="user"><strong>{en?"You":"你"}：</strong>{turn.input}</p>}
+     {turn.output&&<p><strong>{soul.name}：</strong>{turn.output}</p>}
+    </div>)}
+    {typed.filter(value=>!live.turns.some(turn=>turn.input?.trim()===value)).map((value,i)=><p key={"typed-"+i} className="user"><strong>{en?"Typed":"打字"}：</strong>{value}</p>)}
+   </div>}
    <form className="souls-live-input" onSubmit={send}>
     <input value={draft} maxLength={1200} onChange={e=>setDraft(e.target.value)} aria-label={en?"Live text":"Live 文字"} disabled={!ready} placeholder={ready?(en?"Type into this Live session…":"在這段 Live 對話打字…"):(en?"Connect Live to type…":"連線後即可打字…")}/>
     <button disabled={!ready||!draft.trim()}>{en?"Send":"送出"}</button>
