@@ -1,4 +1,4 @@
-import{useEffect,useRef,useState}from"react";import{trackUsageEvent}from"../analytics/usage";import{GeminiSetupNotice}from"../components/GeminiSetupNotice";import{useTranslation}from"react-i18next";import{Link,useNavigate,useSearchParams}from"react-router-dom";import{addHistory,ensureFortuneServices,geminiKey,setGeminiVerified,emitGeminiKeyChanged}from"../lib/runtime";import{BaZiTabs}from"./result/BaZiTabs";import{TarotTabs}from"./result/TarotTabs";import{VedicTabs}from"./result/VedicTabs";import{shareFortuneReading}from"./shareCard";import{FortuneProfileTools}from"./ProfileTools";import{FortuneYearHighlights}from"./YearHighlights";import{FortuneReadingOverview}from"./ReadingOverview";import type{FortuneMode,FortuneProfile,FortuneReading}from"./types";import{buildReportPrompt}from"./report";import{computeCurrentPhase}from"./currentPhase";import{FortuneSummaryCard}from"./FortuneSummaryCard";import{FortuneFollowUp}from"./FortuneFollowUp";import{isCurrentRequest,formatFortuneLocalDate}from"./aiReading";import{resolveBirthOffset}from"./birthPlaceSearch";import{UI_LOCALE_CATALOG}from"../i18n/localeCatalog";import"./result/depth.css";import{FortuneDailyStrip}from"./FortuneDailyStrip";
+import{useEffect,useRef,useState}from"react";import{trackUsageEvent}from"../analytics/usage";import{GeminiSetupNotice}from"../components/GeminiSetupNotice";import{useTranslation}from"react-i18next";import{Link,useNavigate,useSearchParams}from"react-router-dom";import{addHistory,ensureFortuneServices,geminiKey,setGeminiVerified,emitGeminiKeyChanged}from"../lib/runtime";import{BaZiTabs}from"./result/BaZiTabs";import{TarotTabs}from"./result/TarotTabs";import{VedicTabs}from"./result/VedicTabs";import{shareFortuneReading}from"./shareCard";import{FortuneProfileTools}from"./ProfileTools";import{FortuneYearHighlights}from"./YearHighlights";import{FortuneReadingOverview}from"./ReadingOverview";import type{FortuneMode,FortuneProfile,FortuneReading}from"./types";import{buildReportPrompt}from"./report";import{computeCurrentPhase}from"./currentPhase";import{FortuneSummaryCard}from"./FortuneSummaryCard";import{FortuneFollowUp}from"./FortuneFollowUp";import{isCurrentRequest,formatFortuneLocalDate,auditAiReading}from"./aiReading";import{resolveBirthOffset}from"./birthPlaceSearch";import{UI_LOCALE_CATALOG}from"../i18n/localeCatalog";import"./result/depth.css";import{FortuneDailyStrip}from"./FortuneDailyStrip";
 
 const AI_REPORT_CONFIG={maxOutputTokens:6500,timeoutMs:45000,requireComplete:true,temperature:.4,thinking:"low"} as const;
 const copy:Record<FortuneMode,[string,string]>={bazi:["八字","看懂你的基本性格、做事方式，以及目前正走到哪一段。"],tarot:["塔羅生命靈數","從核心性格、人生主題與時間節奏，整理現在最值得看的重點。"],vedic:["印度星盤","從出生底盤、人生週期與目前行運，整理現在最值得看的重點。"]};
@@ -33,8 +33,18 @@ export function FortuneReadingPage(){
    const today=new Date();
    const phase=computeCurrentPhase(item.mode,item.result,item.profile.birthDate,today);
    const lang=UI_LOCALE_CATALOG.find(x=>x.code===i18n.resolvedLanguage||x.code===i18n.language)?.label||"繁體中文";
-   const text=await window.CrewAI.call(buildReportPrompt(item.mode,item.result,style,{today:formatFortuneLocalDate(today),locale:lang,phase}),{preferLive:false,temperature:AI_REPORT_CONFIG.temperature,maxOutputTokens:AI_REPORT_CONFIG.maxOutputTokens,timeoutMs:AI_REPORT_CONFIG.timeoutMs,requireComplete:AI_REPORT_CONFIG.requireComplete,thinking:AI_REPORT_CONFIG.thinking});
+   const prompt=buildReportPrompt(item.mode,item.result,style,{today:formatFortuneLocalDate(today),locale:lang,phase});
+   let text=await window.CrewAI.call(prompt,{preferLive:false,...AI_REPORT_CONFIG});
    if(!isCurrentRequest(id,seq,activeRequest.current.id,activeRequest.current.seq))return;
+   let audit=auditAiReading(text,item.result,item.mode);
+   if(!audit.ok){
+    // One bounded repair attempt. Never publish a malformed or ungrounded new report.
+    const retryPrompt=prompt+"\\n前次生成未符合報告規格，請重新輸出完整的八個標記段落；不同章節的分析必須獨立，干支只能引用固定計算資料。\\n需修正："+audit.issues.join("；");
+    text=await window.CrewAI.call(retryPrompt,{preferLive:false,...AI_REPORT_CONFIG,temperature:0.25});
+    if(!isCurrentRequest(id,seq,activeRequest.current.id,activeRequest.current.seq))return;
+    audit=auditAiReading(text,item.result,item.mode);
+    if(!audit.ok)throw new Error("AI fortune reading failed quality checks: "+audit.issues.join("; "));
+   }
    setGeminiVerified(true);emitGeminiKeyChanged();
    const updated={...(readingRef.current?.id===id?readingRef.current:item),ai:text};readingRef.current=updated;trackUsageEvent("fortune_ai_interpreted",item.mode);setReading(updated);setAiRevealId(updated.id);setAiStatus("ready");window.CrewFortuneProfile.addHistory(updated);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:t("home."+item.mode),summary:item.summary,preview:text.slice(0,180)});localStorage.setItem("crew_fortune_live_context",JSON.stringify(updated));
   }catch{if(isCurrentRequest(id,seq,activeRequest.current.id,activeRequest.current.seq)){setAiStatus("error")}}
