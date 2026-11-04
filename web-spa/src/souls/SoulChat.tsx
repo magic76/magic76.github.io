@@ -14,16 +14,22 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
  const [guest,setGuest]=useState(false),[draft,setDraft]=useState(""),[error,setError]=useState("");
  const [typed,setTyped]=useState<string[]>([]);
  const captured=useRef(new Set<string>()),system=useMemo(()=>systemFor(soul,en),[soul,en]);
- // A connected session is not an effective conversation; only count a true two-sided exchange.
- const countedConversation=useRef(false);
+ // A Live connection or unsolicited AI greeting is not an effective conversation.
+ const countedConversation=useRef(false),countedInput=useRef(false),countedReply=useRef(false);
+ const recordInput=()=>{
+  if(countedInput.current)return;
+  countedInput.current=true;trackUsageEvent("souls_user_input");
+ };
+ const recordExchange=(turns:Array<{input?:string;output?:string}>)=>{
+  if(!turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim())))return;
+  recordInput();
+  if(!countedReply.current){countedReply.current=true;trackUsageEvent("souls_ai_replied")}
+  if(!countedConversation.current){countedConversation.current=true;trackUsageEvent("souls_conversation")}
+ };
  const capture=(turns:Array<{input?:string;output?:string}>)=>{
+  recordExchange(turns);
   const last=[...turns].reverse().find(t=>t.input?.trim()&&t.output?.trim());
-  if(!last?.input)return;
-  if(!countedConversation.current){
-   countedConversation.current=true;
-   trackUsageEvent("souls_conversation");
-  }
-  if(captured.current.has(last.input))return;
+  if(!last?.input||captured.current.has(last.input))return;
   captured.current.add(last.input);void remember(soul.id,last.input,onChange);
  };
  const live=useLiveSession({
@@ -50,8 +56,11 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
  useEffect(()=>{onVisual?.({state:live.state,caption,mood,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
- const wasReady=useRef(false),wasError=useRef(false);
+ const wasReady=useRef(false),wasError=useRef(false),wasStarting=useRef(false);
  useEffect(()=>{
+  const starting=live.state==="requesting-mic"||live.state==="connecting";
+  if(starting&&!wasStarting.current)trackUsageEvent("souls_live_attempt");
+  wasStarting.current=starting;
   if(ready&&!wasReady.current)trackUsageEvent("souls_live_connected");
   wasReady.current=ready;
  },[ready]);
@@ -61,11 +70,18 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   if(failed&&!wasError.current)trackUsageEvent("souls_live_failed");
   wasError.current=failed;
  },[live.state]);
+ // Guest Live intentionally skips onTurnComplete callbacks, but still publishes
+ // confirmed transcript turns. Observe both for the same privacy-safe boolean events.
+ useEffect(()=>{
+  if(live.input.trim()||live.turns.some(turn=>Boolean(turn.input?.trim())))recordInput();
+  recordExchange(live.turns);
+ },[live.input,live.turns]);
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
   if(!ready){setError(en?"Connect Gemini Live first.":"請先連接 Gemini Live。");return}
   if(live.state==="speaking")live.interrupt();
   if(!live.sendText(value)){setError(en?"Live could not accept your message.":"Live 尚未接收這段文字，請再試。");return}
+  recordInput();
   setTyped(messages=>[...messages,value].slice(-15));setDraft("");setError("");
   void remember(soul.id,value,onChange);
  }
