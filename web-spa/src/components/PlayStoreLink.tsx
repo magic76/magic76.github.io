@@ -1,14 +1,15 @@
 import {isCrewAndroidShell} from "../lib/platform";
+import {type MouseEventHandler} from "react";
 import {useClientReady} from "../lib/useClientReady";
 type Product="teacher"|"story"|"fortune";
 
 const APPS:Record<Product,{name:string;url:string|null}>={
- teacher:{name:"Crew Teacher",url:"https://play.google.com/store/apps/details?id=com.crewpocket.teacher"},
+ teacher:{name:"Crew：AI 朋友與外語對話",url:"https://play.google.com/store/apps/details?id=com.crewpocket.teacher"},
  story:{name:"Crew Story",url:"https://play.google.com/store/apps/details?id=com.crewpocket.story"},
  fortune:{name:"Crew Fortune",url:null}
 };
 
-export function PlayStoreLink({product,compact=false}:{product:Product;compact?:boolean}){
+export function PlayStoreLink({product,compact=false,onClick}:{product:Product;compact?:boolean;onClick?:MouseEventHandler<HTMLAnchorElement>}){
  const ready=useClientReady();
  const app=APPS[product];
  // Don't promote the Play Store to people already inside the Crew app.
@@ -24,5 +25,5 @@ export function PlayStoreLink({product,compact=false}:{product:Product;compact?:
   <span className="play-store-arrow" aria-hidden="true">{app.url?"↗":"即將推出"}</span>
  </>;
  if(!app.url)return <div className={"play-store-link "+product+" unavailable"+(compact?" compact":"")} aria-label={app.name+" - Google Play 準備中"}>{content}</div>;
- return <a className={"play-store-link "+product+(compact?" compact":"")} href={app.url} target="_blank" rel="noopener noreferrer" aria-label={app.name+" - Google Play"}>{content}</a>;
+ return <a className={"play-store-link "+product+(compact?" compact":"")} href={app.url} target="_blank" rel="noopener noreferrer" onClick={onClick} aria-label={app.name+" - Google Play"}>{content}</a>;
 }
