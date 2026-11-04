@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from "react";
 import "./usage-dashboard.css";
 import {UsageJourneySection,type JourneyCounts} from "./UsageJourneySection";
+import {SoulsUsagePanel} from "./SoulsUsagePanel";
 
 type Row={day:string;event:string;detail?:string;count:number;users:number};
 type EventUsers={event:string;users:number};
@@ -10,7 +11,7 @@ type Report={
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
  journey?:JourneyCounts
 };
-type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"research"|"circle";
+type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"souls"|"research"|"circle";
 
 const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
@@ -31,6 +32,7 @@ const names:Record<string,string>={
  guest_trial_entry_view:"免費試用入口曝光",guest_trial_unavailable:"免費試用入口不可用",guest_trial_start_click:"點擊開始免費試用",guest_trial_mic_denied:"免費試用麥克風拒絕",guest_trial_setup_failed:"免費試用準備失敗",
  guest_trial_token_issued:"免費試用取得憑證",guest_trial_token_failed:"免費試用憑證失敗",guest_trial_connected:"免費試用連線成功",guest_trial_connect_failed:"免費試用連線失敗",guest_trial_ended:"免費試用結束",
  home_entry_click:"首頁入口點擊",explore_entry_click:"探索入口點擊",
+ souls_open:"進入 Souls",souls_photo_ready:"Souls 照片已準備",souls_created:"Souls 角色建立",souls_live_connected:"Souls 語音連線成功",souls_mask_repaired:"Souls 去背修補",
  town_enter:"進入 Town 3D",town_interaction:"Town 互動",town_chat_click:"Town 轉入聊天",town_3d_fallback:"Town 3D 降級",
  magic_enter:"進入 Magic",magic_spell:"Magic 施法",magic_challenge_answer:"Magic 解謎",magic_panel_choice:"Magic 互動卡選擇",
  magic_voice_connected:"Magic 語音連線成功",magic_voice_failed:"Magic 語音連線失敗",magic_3d_fallback:"Magic 3D 降級",magic_world_reset:"Magic 世界重置",
@@ -50,6 +52,7 @@ const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"fortune",label:"命理",events:["fortune_calculated","fortune_ai_interpreted"]},
  {id:"worlds",label:"Town / Magic",events:["town_enter","town_interaction","town_chat_click","magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected"]},
  {id:"mate",label:"Mate",events:["mate_open","mate_briefing_ready","mate_handoff_started","mate_handoff_completed"]},
+ {id:"souls",label:"Souls",events:["souls_open","souls_photo_ready","souls_created","souls_live_connected","souls_mask_repaired"]},
  {id:"research",label:"Briefing",events:["research_article_open","research_article_saved","research_article_completed"]},
  {id:"circle",label:"交流圈",events:["circle_thread_open","circle_post_published","circle_comment_posted"]}
 ];
@@ -129,6 +132,7 @@ export function UsageDashboardPage(){
      <article className="panel"><small>網站開啟次數</small><strong>{num(total(rows,"app_opened"))}</strong><span>每分頁工作階段最多一次，不是獨立人數</span></article>
     </section>
     <UsageJourneySection days={days} journey={data.journey}/>
+    <SoulsUsagePanel rows={rows} unique={unique}/>
     <section className="panel section">
      <div className="section-head"><h2>每天實際發生了什麼</h2><small>UTC 日期 · 下方統計的是事件次數</small></div>
      <div className="usage-filter" role="group" aria-label="篩選產品類別">

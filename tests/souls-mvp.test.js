@@ -10,15 +10,18 @@ const face=read("web-spa/src/souls/soulFace.ts");
 const data=read("web-spa/src/souls/soulData.ts");
 const chat=read("web-spa/src/souls/SoulChat.tsx");
 const memory=read("web-spa/src/souls/SoulMemoryPanel.tsx");
+const privacy=read("web-spa/src/souls/SoulPrivacyFooter.tsx");
+const explore=read("web-spa/src/pages/CrewSectionPage.tsx");
 const cutout=read("web-spa/src/souls/soulCutout.ts");
 const css=read("web-spa/src/souls/souls.css");
 const app=read("web-spa/src/App.tsx");
 const nav=read("web-spa/src/pages/crewNavigation.ts");
 
-test("Crew Souls remains direct-only, not accidentally added to public navigation",()=>{
+test("Crew Souls is a first-class Explore destination",()=>{
  assert.match(app,/path="\/souls"/);
  assert.match(app,/withNamespace\("voice",import\("\.\/souls\/SoulsPage"\)\)/);
- assert.doesNotMatch(nav,/\/souls/);
+ assert.match(explore,/to="\/souls"/);
+ assert.match(nav,/,"souls"\]/);
 });
 test("photo-first camera/gallery inputs create exactly one new image, no live camera",()=>{
  assert.match(page,/capture="environment"/);
@@ -85,8 +88,9 @@ test("memory controls and privacy statement remain in photo-first workflow",()=>
  assert.match(page,/remember:rememberEnabled/);
  assert.match(memory,/onClick=\{\(\)=>onDelete\(n\.id\)\}/);
  assert.match(page,/Delete Soul and memories/);
- assert.match(page,/Cutout and brush edits run on-device/);
- assert.match(page,/Only explicit Gemini photo analysis uploads an image/);
+ assert.match(page,/<SoulPrivacyFooter en=\{en\}\/>/);
+ assert.match(privacy,/Cutout and brush edits run on-device/);
+ assert.match(privacy,/Only explicit Gemini photo analysis uploads an image/);
  assert.match(page,/await ensureVision\(\)/);
  assert.match(page,/geminiKey\(\)/);
 });

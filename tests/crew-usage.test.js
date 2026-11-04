@@ -124,6 +124,8 @@ test("GA4 keeps known product routes while redacting dynamic paths",()=>{
  assert.equal(safe("/town"),"/town");
  assert.equal(safe("/magic"),"/magic");
  assert.equal(safe("/mate"),"/mate");
+ assert.equal(safe("/souls"),"/souls");
+ assert.equal(safe("/souls/my-personal-name"),"/souls/item");
  assert.equal(safe("/games/crazy-court"),"/games/crazy-court");
  assert.equal(safe("/games/nonsense"),"/games/nonsense");
  assert.equal(safe("/research/2026-10-25/private-article"),"/research/item/item");
@@ -172,4 +174,38 @@ test("guest usage summary counts are explicitly labeled as non-cohort ratios",()
  assert.match(dashboard,/不是同一批訪客的精準轉換率/);
  assert.match(dashboard,/guest_trial_unavailable/);
  assert.match(css,/usage-guest-overview/);
+});
+
+test("Souls anonymous funnel allows only fixed event/category combinations, including apex production",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:point=>points.push(point)}};
+ const steps=[
+  ["explore_entry_click","souls"],["souls_open",""],
+  ["souls_photo_ready",""],["souls_created","object"],["souls_created","person"],
+  ["souls_live_connected",""],["souls_mask_repaired",""]
+ ];
+ for(const [event,detail] of steps){
+  const response=await onRequestPost({request:request({...payload,event,detail}),env});
+  assert.equal(response.status,204,event+":"+detail);
+ }
+ assert.equal(points.length,steps.length);
+ const apex=new Request("https://3sssi.com/api/usage/event",{
+  method:"POST",headers:{"Content-Type":"application/json","Origin":"https://3sssi.com"},
+  body:JSON.stringify({...payload,event:"souls_open",detail:""})
+ });
+ assert.equal((await onRequestPost({request:apex,env})).status,204);
+ for(const invalid of [
+  {...payload,event:"souls_created",detail:"private-person-name"},
+  {...payload,event:"souls_camera_frame",detail:""},
+  {...payload,event:"souls_photo_ready",detail:"data:image/png;base64,PRIVATE"}
+ ]){
+  const response=await onRequestPost({request:request(invalid),env});
+  assert.equal(response.status,400);
+ }
+ assert.equal(points.length,steps.length+1);
+ const usage=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ assert.match(usage,/\["www\.3sssi\.com","3sssi\.com"\]/);
+ const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
+ assert.match(report,/souls_created/);
+ assert.match(report,/souls_live_connected/);
 });

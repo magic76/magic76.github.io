@@ -5,6 +5,8 @@ import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
 import {SoulMaskEditor} from "./SoulMaskEditor";
 import {SoulCutoutStatus} from "./SoulCutoutStatus";
+import {SoulPrivacyFooter} from "./SoulPrivacyFooter";
+import {trackUsageEvent} from "../analytics/usage";
 import {SoulDraftDetails} from "./SoulDraftDetails";
 import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
 import {SoulSubjectSelector} from "./SoulSubjectSelector";
@@ -58,7 +60,7 @@ export function SoulsPage(){
  const camera=useRef<HTMLInputElement>(null),gallery=useRef<HTMLInputElement>(null);
  const cutoutJob=useRef(0),alive=useRef(true);
  const mouthRef=useRef<SVGEllipseElement|null>(null);
- useEffect(()=>{alive.current=true;return()=>{alive.current=false;cutoutJob.current++}},[]);
+ useEffect(()=>{alive.current=true;trackUsageEvent("souls_open");return()=>{alive.current=false;cutoutJob.current++}},[]);
  const onAudioLevel=useCallback((level:number)=>{
   const mouth=mouthRef.current;
   if(mouth)mouth.setAttribute("ry",String(Math.max(3,Math.min(19,Math.round(3+level*16)))));
@@ -134,6 +136,7 @@ export function SoulsPage(){
   try{
    const p=await photoFromFile(file);
    if(!alive.current)return;
+   trackUsageEvent("souls_photo_ready");
    setDraft(p);setSelected(null);setStep("edit");setCutoutDraft("");
    setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
    setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");setGestureActive(false);
@@ -192,7 +195,7 @@ export function SoulsPage(){
     face:safeFace(faceDraft),transform:safeTransform(transformDraft),notes:[],remember:rememberEnabled,
     createdAt:now,lastSeenAt:now
    };
-   await save(s);await refresh(s.id);
+   await save(s);trackUsageEvent("souls_created",subjectType);await refresh(s.id);
    setDraft(null);setCutoutDraft("");setStep("detail");setSelectSubject(false);
    resetVisual();
    setInfo(t("你的物品已經有靈魂了！可以開始跟它說話。","Your object is now a Soul. Start talking to it!"));
@@ -219,6 +222,7 @@ export function SoulsPage(){
   try{
    await update(id,current=>({...current,cutout:dataUrl}));
    await refresh(id);setMaskEditing(null);
+   trackUsageEvent("souls_mask_repaired");
    setInfo(t("去背修補已儲存。","Cutout repair saved."));
   }catch{setError(t("修補結果儲存失敗。","Could not save repaired cutout."))}
  }
@@ -295,7 +299,7 @@ export function SoulsPage(){
    <SoulSubjectSelector subjectType={subjectType} onChange={chooseSubject} en={en}/>
    {maskEditing==="draft"?<SoulMaskEditor
     original={draft.image} initialCutout={cutoutDraft||undefined} en={en}
-    onApply={data=>{setCutoutDraft(data);setUseCutout(true);setMaskEditing(null);
+    onApply={data=>{setCutoutDraft(data);setUseCutout(true);setMaskEditing(null);trackUsageEvent("souls_mask_repaired");
      setInfo(t("手動修補已套用。","Manual cutout repair applied."))}}
     onCancel={()=>setMaskEditing(null)}/>
    :selectSubject?<div className="souls-subject-picker">
@@ -401,9 +405,6 @@ export function SoulsPage(){
     {t("刪除此 Soul 與全部回憶","Delete Soul and memories")}
    </button></div>
   </div>}
-  <footer className="souls-footer">{t(
-   "人物與物品照片都能創造虛構角色；人物不代表照片中本人。去背與筆刷修補在本機進行，照片與回憶存在此瀏覽器，清除網站資料就會消失。只有主動要求 Gemini 分析照片才會上傳影像；Live 對話會傳給 Gemini。",
-   "Create fictional object or portrait characters; a person Soul does not represent the actual photographed person. Cutout and brush edits run on-device. Photos and memories stay in this browser unless cleared. Only explicit Gemini photo analysis uploads an image; Live conversations go to Gemini."
-  )}</footer>
+  <SoulPrivacyFooter en={en}/>
  </main>;
 }

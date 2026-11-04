@@ -21,6 +21,7 @@ export type UsageEvent=
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"
   |"home_entry_click"|"explore_entry_click"
+  |"souls_open"|"souls_photo_ready"|"souls_created"|"souls_live_connected"|"souls_mask_repaired"
   |"town_enter"|"town_interaction"|"town_chat_click"|"town_3d_fallback"
   |"magic_enter"|"magic_spell"|"magic_challenge_answer"|"magic_panel_choice"|"magic_voice_connected"|"magic_voice_failed"|"magic_3d_fallback"|"magic_world_reset"
   |"mate_open"|"mate_briefing_ready"|"mate_handoff_started"|"mate_handoff_completed"|"mate_handoff_failed"
@@ -32,8 +33,8 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"teacher"|"friend"|"under_15s"|"from_15_to_45s"|"from_45_to_60s"|"from_60_to_120s"|"from_120_to_180s"|"from_180_to_300s"
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
-  |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"shorts"|"circle"
-  |"voice"|"demo"|"live"|"person"|"place"|"manual"|"render_error"|"unsupported"
+  |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"souls"|"shorts"|"circle"
+  |"voice"|"demo"|"live"|"person"|"object"|"place"|"manual"|"render_error"|"unsupported"
   |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
 export function sessionDurationDetail(durationMs:number):Detail{
  if(durationMs<60000)return "under_1m";
@@ -49,7 +50,7 @@ let recent=new Map<string,number>();
 const local=(key:string)=>{try{return localStorage.getItem(key)}catch{return null}};
 const store=(key:string,value:string)=>{try{localStorage.setItem(key,value)}catch{/* storage blocked */}};
 const id=()=>crypto.randomUUID();
-const production=()=>typeof window!=="undefined"&&location.hostname==="www.3sssi.com";
+const production=()=>typeof window!=="undefined"&&["www.3sssi.com","3sssi.com"].includes(location.hostname);
 const globalPrivacy=()=>Boolean((navigator as Navigator&{globalPrivacyControl?:boolean}).globalPrivacyControl)||navigator.doNotTrack==="1";
 export const usageDisabled=()=>local(OPT_OUT)==="1";
 export const developerUsageMode=()=>local(DEV)==="1";
