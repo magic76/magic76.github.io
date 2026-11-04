@@ -1,18 +1,21 @@
-import {useEffect,useRef,useState,type FormEvent} from "react";
+import {useCallback,useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
 import {FriendAvatar} from "../friends/FriendAvatar";
 import {GamePanel} from "./GamePanel";
+import {MiniGameVoice,type VoiceCue} from "./MiniGameFrame";
+import {NumberWheel} from "./NumberWheel";
 import {trackUsageEvent} from "../analytics/usage";
 import {friendGameReaction} from "./friendGameReaction";
-import {bombComputerGuess,bombGuess,flipMemory,memoryComputerPick,newBomb,newMemory,resolveMemory,
- type BombState,type MemoryState} from "./quickPlayEngine";
+import {bombComputerGuess,bombGuess,flipMemory,memoryComputerPick,newBomb,newMemory,
+ parseBombSpeech,parseMemorySpeech,resolveMemory,type BombState,type MemoryState} from "./quickPlayEngine";
 import "./crewPlay.css";
 import "./quickPlay.css";
 
 type Kind="number-bomb"|"memory";
 type Friend=ReturnType<typeof getCrewFriend>;
+type RoundProps={friend:Friend;zh:boolean;onCue:(text:string)=>void;registerSpeech:(handler:(text:string)=>void)=>void};
 const FRIEND_KEY="crew_web_selected_friend_v1";
 const icons=["🍎","🌙","🐱","🌻","🍓","⭐","🦋","🎈","🍕","🐼","🚀","🎵"];
 const initialFriend=()=>{
@@ -27,25 +30,30 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
  const [friendId,setFriendId]=useState(initialFriend);
  const friend=getCrewFriend(friendId);
  const [round,setRound]=useState(0);
+ const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
+ const speechRef=useRef<(text:string)=>void>(()=>{});
+ const onCue=useCallback((text:string)=>setCue(prev=>({id:prev.id+1,text})),[]);
+ const registerSpeech=useCallback((handler:(text:string)=>void)=>{speechRef.current=handler},[]);
  useEffect(()=>{trackUsageEvent("game_open",kind)},[kind]);
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  const changeFriend=(next:string)=>{
   if(!CREW_FRIENDS.some(f=>f.id===next)||next===friendId)return;
   setFriendId(next);setRound(value=>value+1);
+  onCue("New Crew friend selected. A fresh round is ready. Welcome the player briefly without claiming any moves.");
   try{localStorage.setItem(FRIEND_KEY,next)}catch{/* optional preference */}
  };
  const bomb=kind==="number-bomb";
- return <div className="crew-play-page crew-quick-page">
+ return <div className="crew-play-page crew-mini-page crew-quick-page">
   <header className="crew-play-game-header crew-play-game-header--compact">
    <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · {zh?"免費直接玩":"Play free now"}</span>
    <h1>{bomb?(zh?"終極密碼":"Number Bomb"):(zh?"翻牌記憶":"Memory Match")}</h1>
-   <p>{bomb?(zh?"輪流猜 1～100 的秘密數字，跟著提示縮小範圍。":"Take turns guessing a hidden number from 1 to 100."):
-     (zh?"翻出相同的圖案，和朋友比比誰記得更多。":"Find matching pairs and outscore your friend.")}</p>
+   <p>{bomb?(zh?"滑動數字滾輪猜秘密數字，和朋友輪流玩。":"Spin the number wheel and take turns guessing."):
+     (zh?"翻出相同圖案就繼續翻，翻錯才換朋友。":"Match two cards to earn another turn; a miss passes play.")}</p>
   </header>
   <div className="crew-play-frame">
    <section className="crew-play-friend-bar">
-    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{zh?"和你一起玩 · 不需要 Gemini Key":"Play together · No Gemini key needed"}</small></div></div>
+    <div className="crew-play-friend-name"><FriendAvatar friend={friend}/><div><strong>{friend.name}</strong><small>{zh?"免費可玩 · 開啟語音陪玩需 Gemini Key":"Free to play · Gemini Key needed for voice"}</small></div></div>
     <GamePanel title={zh?"選擇對手":"Choose a friend"} label={t("playHub.changeFriend")}>
      <label className="crew-play-friend-select">{zh?"對手":"Opponent"}
       <select value={friendId} onChange={e=>changeFriend(e.target.value)}>{CREW_FRIENDS.map(f=><option value={f.id} key={f.id}>{f.name}</option>)}</select>
@@ -53,41 +61,58 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
      <p>{zh?"更換朋友會重新開始這一局。":"Changing friends starts a new round."}</p>
     </GamePanel>
    </section>
-   {bomb?<NumberBombRound key={friendId+":"+round} friend={friend} zh={zh}/>:
-    <MemoryRound key={friendId+":"+round} friend={friend} zh={zh}/>}
+   {bomb?<NumberBombRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech}/>:
+    <MemoryRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech}/>}
+   <MiniGameVoice key={kind+":"+friendId} kind={kind} friend={friend} cue={cue} onSpeech={text=>speechRef.current(text)}/>
   </div>
  </div>;
 }
 
-function NumberBombRound({friend,zh}:{friend:Friend;zh:boolean}){
+function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
  const [state,setState]=useState<BombState>(newBomb);
- const [input,setInput]=useState("");
+ const [selected,setSelected]=useState(50);
  const [error,setError]=useState("");
  const started=useRef(false),completed=useRef(false);
+ const current=Math.max(state.low,Math.min(state.high,selected));
  const begin=()=>{
   if(!started.current){started.current=true;trackUsageEvent("game_started","number-bomb")}
  };
  const choose=(value:number)=>{
   if(state.turn!=="player"||state.winner)return;
   const next=bombGuess(state,value,"player");
-  if(!next){setError(zh?"請輸入目前範圍內的整數。":"Enter a whole number within the range.");return}
-  begin();setError("");setInput("");setState(next);
+  if(!next){setError(zh?"請選目前範圍內的整數。":"Select a whole number within the range.");return}
+  begin();setError("");setState(next);
+  const last=next.history[next.history.length-1];
+  onCue("Number Bomb verified. Player guessed "+value+". "+(last.hint==="correct"?"The player found the secret and wins.":last.hint==="higher"?"Too low.":"Too high.")+
+   (next.winner?"":" Public range: "+next.low+" to "+next.high+". Friend goes next.")+" React naturally in one short sentence.");
  };
- const submit=(e:FormEvent)=>{e.preventDefault();if(input.trim())choose(Number(input));else setError(zh?"先輸入一個數字。":"Enter a number first.")};
+ useEffect(()=>{setSelected(bombComputerGuess(state))},[state.low,state.high]);
+ useEffect(()=>{
+  registerSpeech(text=>{const guess=parseBombSpeech(text);if(guess!==null)choose(guess)});
+ },[registerSpeech,state,zh]);
  useEffect(()=>{
   if(state.turn!=="friend"||state.winner)return;
-  const timer=window.setTimeout(()=>setState(previous=>previous.turn==="friend"&&!previous.winner?
-   bombGuess(previous,bombComputerGuess(previous),"friend")||previous:previous),650);
+  const timer=window.setTimeout(()=>{
+   const guess=bombComputerGuess(state),next=bombGuess(state,guess,"friend");
+   if(!next)return;
+   setState(next);
+   const last=next.history[next.history.length-1];
+   onCue("Number Bomb verified. "+friend.name+" guessed "+guess+". "+(last.hint==="correct"?friend.name+" wins.":last.hint==="higher"?"Too low.":"Too high.")+
+    (next.winner?"":" Public range: "+next.low+" to "+next.high+". Player goes next.")+" Respond briefly in character.");
+  },650);
   return()=>window.clearTimeout(timer);
- },[state]);
+ },[state,friend.name,onCue]);
  useEffect(()=>{
   if(!state.winner||completed.current)return;
   completed.current=true;trackUsageEvent("game_completed","number-bomb");
  },[state.winner]);
- const reset=()=>{started.current=false;completed.current=false;setState(newBomb());setInput("");setError("")};
+ const reset=()=>{
+  started.current=false;completed.current=false;setState(newBomb());setSelected(50);setError("");
+  onCue("Number Bomb reset. The public range is 1 to 100. Do not claim to know the secret. Invite the player to guess.");
+ };
  const last=state.history[state.history.length-1];
  const result=state.winner==="player"?"win":"lose";
- return <section className="crew-quick-stage" aria-label={zh?"終極密碼棋盤":"Number Bomb game"}>
+ return <section className="crew-quick-stage" aria-label={zh?"終極密碼遊戲":"Number Bomb game"}>
   <div className="crew-quick-status" role="status" aria-live="polite">
    <strong>{state.winner?(state.winner==="player"?(zh?"你猜中了！":"You found it!"):(zh?friend.name+" 猜中了！":friend.name+" found it!")):
     state.turn==="player"?(zh?"輪到你猜！":"Your turn to guess!"):(zh?friend.name+" 正在猜…":friend.name+" is guessing…")}</strong>
@@ -95,18 +120,17 @@ function NumberBombRound({friend,zh}:{friend:Friend;zh:boolean}){
   </div>
   <div className="crew-quick-range"><span>{state.low}</span><div><small>{zh?"秘密數字的範圍":"The secret is between"}</small><strong>{state.low} — {state.high}</strong></div><span>{state.high}</span></div>
   {last&&!state.winner?<p className="crew-quick-feedback" role="status"><strong>{last.side==="player"?(zh?"你":"You"):friend.name}：</strong>{last.value} · {last.hint==="higher"?(zh?"太小了，再猜大一點 ↑":"Too low ↑"):(zh?"太大了，再猜小一點 ↓":"Too high ↓")}</p>:
-   !last?<p className="crew-quick-feedback">{zh?"直接選中間數開始，或輸入你想猜的數字。":"Tap the middle number or enter your own guess to start."}</p>:null}
-  {!state.winner?<form className="crew-quick-guess" onSubmit={submit}>
-   <label htmlFor="crew-bomb-guess">{zh?"你的答案":"Your guess"}</label>
-   <div className="crew-quick-guess-row">
-    <input id="crew-bomb-guess" type="number" inputMode="numeric" min={state.low} max={state.high} step="1" value={input} placeholder={String(bombComputerGuess(state))}
-     disabled={state.turn!=="player"} onChange={e=>{setInput(e.target.value);setError("")}}/>
-    <button className="crew-mini-primary" type="submit" disabled={state.turn!=="player"}>{zh?"猜這個！":"Guess"}</button>
-   </div>
-   <button type="button" className="crew-quick-shortcut" disabled={state.turn!=="player"} onClick={()=>choose(bombComputerGuess(state))}>
-    {zh?"快速猜中間數 ":"Guess the middle: "}<strong>{bombComputerGuess(state)}</strong>
-   </button>
-  </form>:null}
+   !last?<p className="crew-quick-feedback">{zh?"滑動滾輪選數字，按「猜這個」就開始。":"Swipe to a number and tap Guess to start."}</p>:null}
+  {!state.winner?<div className="crew-quick-guess">
+    <NumberWheel min={state.low} max={state.high} value={current} onChange={setSelected} disabled={state.turn!=="player"} zh={zh}/>
+    <div className="crew-number-wheel-actions">
+     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||current<=state.low} onClick={()=>setSelected(current-1)} aria-label={zh?"減一":"Decrease by one"}>−</button>
+     <button type="button" className="crew-mini-primary crew-number-wheel-submit" disabled={state.turn!=="player"} onClick={()=>choose(current)}>
+      {zh?"猜 ":"Guess "}<strong>{current}</strong>
+     </button>
+     <button type="button" className="crew-number-wheel-step" disabled={state.turn!=="player"||current>=state.high} onClick={()=>setSelected(current+1)} aria-label={zh?"加一":"Increase by one"}>+</button>
+    </div>
+  </div>:null}
   {error?<p role="alert" className="crew-quick-error">{error}</p>:null}
   <ol className="crew-quick-history" aria-label={zh?"本局猜測紀錄":"Guess history"}>
    {state.history.map((item,index)=><li key={index}><span>{item.side==="player"?(zh?"你":"You"):friend.name}</span><strong>{item.value}</strong><small>{item.hint==="correct"?"✓":item.hint==="higher"?"↑":"↓"}</small></li>)}
@@ -119,28 +143,41 @@ function NumberBombRound({friend,zh}:{friend:Friend;zh:boolean}){
  </section>;
 }
 
-function MemoryRound({friend,zh}:{friend:Friend;zh:boolean}){
+function MemoryRound({friend,zh,onCue,registerSpeech}:RoundProps){
  const [pairs,setPairs]=useState(6);
  const [state,setState]=useState<MemoryState>(()=>newMemory(6));
  const started=useRef(false),completed=useRef(false);
- const restart=(count=pairs)=>{started.current=false;completed.current=false;setState(newMemory(count))};
+ const restart=(count=pairs)=>{
+  started.current=false;completed.current=false;setState(newMemory(count));
+  onCue("Memory Match restarted with "+count+" pairs. No cards are visible. Invite the player to turn two cards.");
+ };
  const choose=(index:number)=>{
   if(state.turn!=="player"||state.finished||state.open.length>=2||state.matched.includes(index)||state.open.includes(index))return;
   if(!started.current){started.current=true;trackUsageEvent("game_started","memory")}
   setState(previous=>flipMemory(previous,index)||previous);
  };
  useEffect(()=>{
+  registerSpeech(text=>{const card=parseMemorySpeech(text);if(card!==null)choose(card-1)});
+ },[registerSpeech,state,zh]);
+ useEffect(()=>{
   if(state.open.length!==2||state.finished)return;
-  const timer=window.setTimeout(()=>setState(previous=>resolveMemory(previous)||previous),850);
+  const timer=window.setTimeout(()=>{
+   const next=resolveMemory(state);if(!next)return;
+   const first=state.open[0],second=state.open[1],match=Boolean(next.lastMatch);
+   setState(next);
+   onCue("Memory Match verified. "+(state.turn==="player"?"The player":friend.name)+" flipped card "+(first+1)+" and card "+(second+1)+
+    ". Both faces showed "+icons[state.cards[first]]+" and "+icons[state.cards[second]]+". "+
+    (match?"The two cards match. The same player gets another turn.":"No match. The turn passes to the other player.")+
+    " Public score: player "+next.playerPairs+", "+friend.name+" "+next.friendPairs+"."+(next.finished?" The round is complete.":"")+" React briefly.");
+  },850);
   return()=>window.clearTimeout(timer);
- },[state]);
+ },[state,friend.name,onCue]);
  useEffect(()=>{
   if(state.turn!=="friend"||state.finished||state.open.length>=2)return;
-  const timer=window.setTimeout(()=>setState(previous=>{
-   if(previous.turn!=="friend"||previous.finished||previous.open.length>=2)return previous;
-   const index=memoryComputerPick(previous);
-   return index===null?previous:flipMemory(previous,index)||previous;
-  }),480);
+  const timer=window.setTimeout(()=>{
+   const index=memoryComputerPick(state);
+   if(index!==null)setState(previous=>flipMemory(previous,index)||previous);
+  },480);
   return()=>window.clearTimeout(timer);
  },[state]);
  useEffect(()=>{
@@ -148,9 +185,13 @@ function MemoryRound({friend,zh}:{friend:Friend;zh:boolean}){
   completed.current=true;trackUsageEvent("game_completed","memory");
  },[state.finished]);
  const verdict=state.playerPairs===state.friendPairs?"challenge":state.playerPairs>state.friendPairs?"win":"lose";
+ const status=state.finished?(zh?"這局結束！":"Round complete!"):
+  state.open.length===1?(zh?"再翻一張！":"Flip one more card!"):
+  state.turn==="player"?
+   (state.lastMatch&&state.lastSide==="player"?(zh?"配對成功！你可以繼續翻！":"Match! You get another turn!"):(zh?"輪到你翻牌！":"Your turn!")):
+   (state.lastMatch&&state.lastSide==="friend"?(zh?friend.name+" 配對成功，繼續翻！":friend.name+" matched and goes again!"):(zh?friend.name+" 正在翻牌…":friend.name+" is flipping…"));
  return <section className="crew-quick-stage crew-memory-stage" aria-label={zh?"翻牌記憶遊戲":"Memory Match game"}>
-  <div className="crew-quick-status" role="status" aria-live="polite"><strong>{state.finished?(zh?"這局結束！":"Round complete!"):
-   state.turn==="player"?(zh?"輪到你翻牌！":"Your turn!"):(zh?friend.name+" 正在翻牌…":friend.name+" is flipping…")}</strong>
+  <div className="crew-quick-status" role="status" aria-live="polite"><strong>{status}</strong>
    <span>{zh?"第 "+(state.moves+1)+" 回合":"Turn "+(state.moves+1)}</span></div>
   <div className="crew-memory-score"><strong>{zh?"你":"You"} <span>{state.playerPairs}</span></strong><span>{zh?"配對成功":"Matched pairs"}</span><strong>{friend.name} <span>{state.friendPairs}</span></strong></div>
   <div className="crew-memory-level" role="group" aria-label={zh?"卡片難度":"Card difficulty"}>
@@ -158,13 +199,14 @@ function MemoryRound({friend,zh}:{friend:Friend;zh:boolean}){
     {count===6?(zh?"輕鬆 · 12 張":"Easy · 12 cards"):(zh?"進階 · 16 張":"Hard · 16 cards")}
    </button>)}
   </div>
-  <p className="crew-quick-feedback">{zh?"一次翻兩張，記住圖案的位置。輪到朋友時，看看誰記得更清楚！":"Flip two cards per turn. Remember their places and try to beat your friend!"}</p>
+  <p className="crew-quick-feedback">{zh?"翻中相同圖案就繼續翻；不同才換人。也可以說「翻第 3 張」。":"Match a pair to keep your turn; miss to pass. You can also say 'flip card 3'."}</p>
   <div className="crew-memory-grid" role="group" aria-label={zh?"翻牌區":"Cards"}>
    {state.cards.map((value,index)=>{
     const matched=state.matched.includes(index),faceUp=matched||state.open.includes(index);
     return <button type="button" key={index} className={"crew-memory-card"+(faceUp?" is-open":"")+(matched?" is-matched":"")}
      aria-label={zh?"第 "+(index+1)+" 張"+(faceUp?"，"+icons[value]:"，未翻開"):"Card "+(index+1)+(faceUp?", "+icons[value]:", face down")}
      aria-pressed={faceUp} disabled={state.turn!=="player"||state.finished||faceUp||state.open.length>=2} onClick={()=>choose(index)}>
+     <span className="crew-memory-card-number" aria-hidden="true">{index+1}</span>
      <span aria-hidden="true">{faceUp?icons[value]:"✦"}</span>
     </button>;
    })}
