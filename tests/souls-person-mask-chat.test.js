@@ -16,6 +16,8 @@ const portrait=read("web-spa/src/souls/SoulPortrait.tsx");
 const data=read("web-spa/src/souls/soulData.ts");
 const chat=read("web-spa/src/souls/SoulChat.tsx");
 const editor=read("web-spa/src/souls/SoulMaskEditor.tsx");
+const subject=read("web-spa/src/souls/SoulSubjectSelector.tsx");
+const settings=read("web-spa/src/souls/SoulDisplayPreferences.tsx");
 const css=read("web-spa/src/souls/souls.css");
 
 function sourcePixels(width=18,height=18){
@@ -76,14 +78,14 @@ test("person photo mode uses fictional identity, no cartoon eyes by default",()=
  assert.match(data,/You are not the real person in the photo/);
  assert.match(page,/setSubjectType\(kind\);setFaceVisible\(kind==="object"\)/);
  assert.match(page,/subjectType,faceVisible,speechStyle/);
- assert.match(page,/onClick=\{\(\)=>chooseSubject\("person"\)\}/);
+ assert.match(subject,/onClick=\{\(\)=>onChange\("person"\)\}/);
  assert.match(portrait,/faceVisible&&<div className="souls-portrait-face"/);
 });
 test("face visibility is separate from stored face coordinates and works for old Souls",()=>{
  assert.match(page,/faceVisible=\{soulFaceVisible\(s\)\}/);
  assert.match(page,/faceVisible=\{faceVisible\}/);
  assert.match(page,/faceVisible=\{soulFaceVisible\(selected\)\}/);
- assert.match(page,/onChange=\{e=>void mutate\(current=>\(\{\.\.\.current,faceVisible:e.target.checked\}\)\)\}/);
+ assert.match(settings,/onChange=\{e=>onFaceChange\(e.target.checked\)\}/);\n assert.match(page,/onFaceChange=\{visible=>void mutate\(current=>/);
  assert.match(portrait,/data-face-visible=\{faceVisible\?"true":"false"\}/);
  assert.match(page,/face:safeFace\(faceDraft\),transform:safeTransform\(transformDraft\)/);
 });
