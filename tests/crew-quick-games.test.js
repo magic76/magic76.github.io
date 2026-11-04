@@ -59,7 +59,7 @@ test("quick play uses public routes, local engines and usage funnel",()=>{
   assert.ok(page.includes('"game_started","'+slug+'"'));
   assert.ok(page.includes('"game_completed","'+slug+'"'));
  }
- assert.ok(page.includes('No Gemini key needed'));
+ assert.ok(page.includes('Free to play · Gemini Key needed for voice'));
 });
 
 test("matching pair grants another turn; a miss passes the turn",()=>{
@@ -102,4 +102,14 @@ test("wheel is native scroll-snapped with keyboard and clamped range",()=>{
  assert.match(src,/Math\.max\(min,Math\.min\(max,value\)\)/);
  assert.match(src,/role="listbox"/);
  assert.match(css,/scroll-snap-type:y mandatory/);
+});
+
+test("quick games mount the existing Live voice companion without remounting on each round",()=>{
+ const page=read("web-spa/src/games/QuickPlayGamePage.tsx");
+ const shared=read("web-spa/src/games/MiniGameFrame.tsx");
+ assert.match(page,/<MiniGameVoice key=\{kind\+":"\+friendId\}/);
+ assert.match(page,/parseBombSpeech\(text\)/);
+ assert.match(page,/parseMemorySpeech\(text\)/);
+ assert.match(shared,/quick\?"\\n\[CREW PLAY QUICK GAME/);
+ assert.ok(page.includes("The same player gets another turn."));
 });
