@@ -111,7 +111,7 @@ test("quick games mount the existing Live voice companion without remounting on 
  assert.match(page,/<MiniGameVoice key=\{kind\+":"\+friendId\}/);
  assert.match(page,/parseBombSpeech\(text\)/);
  assert.match(page,/parseMemorySpeech\(text\)/);
- assert.match(shared,/quick\?"\\n\[CREW PLAY QUICK GAME/);
+ assert.match(shared,/quick\?"\\n\[CREW PLAY TURN-VERIFIED VOICE/);
  assert.ok(page.includes("The same player gets another turn."));
 });
 
@@ -145,4 +145,9 @@ test("range stays legible within number wheel even if page header scrolls away",
  assert.match(wheel,/\{min\} — \{max\}/);
  assert.match(css,/\.crew-number-wheel-bounds\{position:absolute/);
  assert.match(css,/\.crew-quick-stage>\.crew-quick-range\{position:sticky/);
+});
+
+test("starting voice later does not narrate stale keyless round events",()=>{
+ const frame=read("web-spa/src/games/MiniGameFrame.tsx");
+ assert.match(frame,/deliveredRef\.current=Math\.max\(deliveredRef\.current,cue\.id\)/);
 });
