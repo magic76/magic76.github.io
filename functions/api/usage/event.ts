@@ -22,6 +22,7 @@ const events=new Set([
   "guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
   "guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended",
   "home_entry_click","explore_entry_click",
+  "souls_open","souls_photo_ready","souls_created","souls_live_connected","souls_mask_repaired",
   "town_enter","town_interaction","town_chat_click","town_3d_fallback",
   "magic_enter","magic_spell","magic_challenge_answer","magic_panel_choice",
   "magic_voice_connected","magic_voice_failed","magic_3d_fallback","magic_world_reset",
@@ -33,8 +34,8 @@ const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1m","from_1_to_3m","from_3_to_10m","over_10m",
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
-  "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","shorts","circle",
-  "voice","demo","live","person","place","manual","render_error","unsupported",
+  "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle",
+  "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
@@ -44,7 +45,7 @@ export async function onRequestPost({request,env}:Context):Promise<Response>{
   // Unconfigured deployments should fail closed, without affecting product workflows.
   if(!env.ANALYTICS_ENGINE)return json({error:"Analytics binding unavailable"},503);
   const url=new URL(request.url);
-  if(url.hostname!=="www.3sssi.com")return json({error:"Production only"},403);
+  if(!["www.3sssi.com","3sssi.com"].includes(url.hostname))return json({error:"Production only"},403);
   const origin=request.headers.get("origin");
   if(origin!==url.origin||request.headers.get("sec-fetch-site")==="cross-site")return json({error:"Origin rejected"},403);
   if(!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type")||""))return json({error:"JSON required"},415);
