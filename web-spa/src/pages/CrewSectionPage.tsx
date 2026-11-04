@@ -249,6 +249,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
+    <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
+     <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
+     <span className="crew-explore-text">
+      <strong>{en?"Crew Souls · Bring photos to life":"Crew Souls · 讓照片活過來"}</strong>
+      <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
+     </span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>
     <Link className="crew-explore-tile crew-explore-discover" data-kind="discover" to="/discover" onClick={()=>trackUsageEvent("explore_entry_click","briefing")}>
       <div className="crew-explore-art" aria-hidden="true" style={{display:"grid",placeItems:"center",fontSize:"clamp(48px,7vw,90px)",background:"linear-gradient(135deg,#e8d6f4,#b9d9de)"}}>✦</div>
       <span className="crew-explore-text"><strong>{en?"Crew Discover · Explore real life":"Crew Discover · 探索真實世界"}</strong><small>{en?"Search real news by text or voice.":"搜尋真實新聞、文化與新知，和 AI 用文字或語音一起探索。"}</small></span><span className="crew-explore-arrow" aria-hidden="true">↗</span>
