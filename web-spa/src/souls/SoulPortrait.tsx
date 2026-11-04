@@ -9,13 +9,13 @@ import {type Soul} from "./soulData";
  */
 export function SoulPortrait({
  image,face,onFaceChange,editing=false,editTarget="face",transform,onTransformChange,
- visual,caption=true,mouthRef,name,personality="gentle",faceVisible=true
+ visual,caption=true,mouthRef,name,personality="gentle",faceVisible=true,freezePreview=false
 }:{
  image:string;face?:SoulFace;onFaceChange?:(next:SoulFace)=>void;
  editing?:boolean;editTarget?:"face"|"object";
  transform?:SoulTransform;onTransformChange?:(next:SoulTransform)=>void;
  visual?:SoulVisual;caption?:boolean;mouthRef?:RefObject<SVGEllipseElement|null>;name?:string;
- personality?:Soul["personality"];faceVisible?:boolean;
+ personality?:Soul["personality"];faceVisible?:boolean;freezePreview?:boolean;
 }){
  const stage=useRef<HTMLDivElement>(null);
  const pointers=useRef(new Map<number,PointerPosition>());
@@ -72,7 +72,8 @@ export function SoulPortrait({
   if(editTarget==="object"&&pointers.current.size)rebase();else gesture.current=null;
  }
  return <div className={"souls-portrait"+(editing?" souls-portrait-editing":"")}
-   data-animated={!editing?"true":"false"}
+   data-animated={!editing&&!freezePreview?"true":"false"}
+   data-preview={freezePreview?"true":"false"}
    data-personality={personality} data-face-visible={faceVisible?"true":"false"}
    data-edit-target={editing?editTarget:"none"}
    data-speaking={talking?"true":"false"} data-mood={mood}

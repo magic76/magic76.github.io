@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
 import {SoulMaskEditor} from "./SoulMaskEditor";
+import {SoulCutoutStatus} from "./SoulCutoutStatus";
 import {SoulDraftDetails} from "./SoulDraftDetails";
 import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
 import {SoulSubjectSelector} from "./SoulSubjectSelector";
@@ -40,6 +41,7 @@ export function SoulsPage(){
  const [faceDraft,setFaceDraft]=useState<SoulFace>({...DEFAULT_FACE});
  const [transformDraft,setTransformDraft]=useState<SoulTransform>({...DEFAULT_TRANSFORM});
  const [editTarget,setEditTarget]=useState<"object"|"face">("object");
+ const [gestureActive,setGestureActive]=useState(false);
  const faceWasEdited=useRef(false);
  function changeFace(next:SoulFace){faceWasEdited.current=true;setFaceDraft(next)}
  const [selectSubject,setSelectSubject]=useState(false);
@@ -78,7 +80,7 @@ export function SoulsPage(){
   setStep("home");setSelected(null);setDraft(null);setCutoutDraft("");
   setUseCutout(true);setSelectSubject(false);setEditFace(false);setMaskEditing(null);
   setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
-  setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");faceWasEdited.current=false;
+  setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");setGestureActive(false);faceWasEdited.current=false;
   setError("");setInfo("");resetVisual();
  }
  async function runCutout(image:string,point:{x:number;y:number},existingId?:string){
@@ -134,7 +136,7 @@ export function SoulsPage(){
    if(!alive.current)return;
    setDraft(p);setSelected(null);setStep("edit");setCutoutDraft("");
    setFaceDraft({...DEFAULT_FACE});faceWasEdited.current=false;
-   setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");
+   setTransformDraft({...DEFAULT_TRANSFORM});setEditTarget("object");setGestureActive(false);
    setUseCutout(true);setSelectSubject(false);setMaskEditing(null);
    setSubjectType("object");setFaceVisible(true);setSpeechStyle("bubble");
    setName("");setKind("");setDescription("");setPersonality("witty");
@@ -200,7 +202,7 @@ export function SoulsPage(){
  async function choose(s:Soul){
   cutoutJob.current++;setCutting(false);
   setSelected(s);setDraft(null);setStep("detail");setSelectSubject(false);setMaskEditing(null);
-  setEditFace(false);setEditTarget("object");setTransformDraft(safeTransform(s.transform));
+  setEditFace(false);setEditTarget("object");setGestureActive(false);setTransformDraft(safeTransform(s.transform));
   faceWasEdited.current=false;resetVisual();setError("");setInfo("");
   try{await update(s.id,old=>({...old,lastSeenAt:Date.now()}));await refresh(s.id)}
   catch{setError(t("無法更新本機收藏，但你仍可嘗試聊天。","Could not update local visit time."))}
@@ -235,7 +237,7 @@ export function SoulsPage(){
  async function saveFace(){
   if(!selected)return;
   await mutate(s=>({...s,face:safeFace(faceDraft),transform:safeTransform(transformDraft)}));
-  setEditFace(false);
+  setEditFace(false);setGestureActive(false);
   setInfo(t("物品位置、大小、角度及五官已儲存。","Object transform and face placement saved."));
  }
  async function manual(event:FormEvent<HTMLFormElement>){
@@ -306,15 +308,16 @@ export function SoulsPage(){
    </div>:<div className="souls-editor-layout">
     <SoulPortrait image={editingImage} face={faceDraft} personality={personality} faceVisible={faceVisible} onFaceChange={changeFace}
      transform={transformDraft} onTransformChange={setTransformDraft}
-     editing editTarget={editTarget}/>
+     editing={gestureActive} editTarget={editTarget} freezePreview/>
     <div className="souls-editor-tools">
      <label className="souls-checkbox"><input type="checkbox" checked={faceVisible}
-      onChange={e=>setFaceVisible(e.target.checked)}/>
+      onChange={e=>{setFaceVisible(e.target.checked);if(!e.target.checked){setEditTarget("object");setGestureActive(false)}}}/>
       {t("顯示 Q 版靈魂臉","Show cartoon Soul face")}
      </label>
-     <SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
-      face={faceDraft} onFaceChange={changeFace}
-      transform={transformDraft} onTransformChange={setTransformDraft} en={en}/>
+     <SoulTransformControls key={draft.hash} mode={editTarget} onModeChange={setEditTarget}
+      face={faceDraft} onFaceChange={changeFace} faceVisible={faceVisible}
+      transform={transformDraft} onTransformChange={setTransformDraft} en={en}
+      gestureEnabled={gestureActive} onGestureEnabledChange={setGestureActive}/>
      <div className="souls-editor-buttons">
       {cutoutDraft&&<button type="button" aria-pressed={useCutout}
        onClick={()=>setUseCutout(v=>!v)}>
@@ -327,13 +330,7 @@ export function SoulsPage(){
        {t("手動修補去背","Repair cutout")}
       </button>
      </div>
-     <p className="souls-muted">{cutting?(cutoutPhase==="loading"?
-      t("正在下載或初始化去背模型，首次使用可能較慢。","Downloading or initializing the cutout model (first use may take longer)."):
-      cutoutPhase==="segmenting"?
-      t("正在執行物品分割，畫面可能暫時停住。","Running segmentation; the screen may briefly freeze."):
-      t("正在製作去背圖片…","Compositing the cutout…")) :
-      cutoutDraft&&useCutout?t("透明背景已完成。","Transparent background ready.") :
-      t("目前使用原始照片，可以直接存成 Soul。","Using the original photo. You can still create a Soul.")}</p>
+     <SoulCutoutStatus cutting={cutting} phase={cutoutPhase} hasCutout={Boolean(cutoutDraft)} useCutout={useCutout} en={en}/>
     </div>
    </div>}
    <SoulDraftDetails en={en} subjectType={subjectType} busy={busy}
@@ -350,7 +347,7 @@ export function SoulsPage(){
      <div className="souls-live-stage" data-live-state={visual.state}>
      <SoulPortrait image={selectedImage} face={editFace?faceDraft:selected.face} personality={selected.personality} faceVisible={soulFaceVisible(selected)}
       transform={editFace?transformDraft:selected.transform} editTarget={editTarget}
-      editing={editFace} onFaceChange={editFace?changeFace:undefined}
+      editing={editFace&&gestureActive} freezePreview={editFace} onFaceChange={editFace?changeFace:undefined}
       onTransformChange={editFace?setTransformDraft:undefined}
       visual={visual} caption={false} name={selected.name} mouthRef={mouthRef}/>
      </div>
@@ -358,9 +355,10 @@ export function SoulsPage(){
       {!editFace&&visual.caption.trim()&&<div className={"souls-speech-display souls-speech-"+soulSpeechStyle(selected)}
        role="status" aria-live="polite"><span>{visual.caption.slice(-130)}</span></div>}
      </div>
-     {editFace&&<SoulTransformControls mode={editTarget} onModeChange={setEditTarget}
-      face={faceDraft} onFaceChange={changeFace} transform={transformDraft}
-      onTransformChange={setTransformDraft} en={en}/>}
+     {editFace&&<SoulTransformControls key={selected.id} mode={editTarget} onModeChange={setEditTarget}
+      face={faceDraft} onFaceChange={changeFace} faceVisible={soulFaceVisible(selected)}
+      transform={transformDraft} onTransformChange={setTransformDraft} en={en}
+      gestureEnabled={gestureActive} onGestureEnabledChange={setGestureActive}/>}
      <SoulChat key={selected.id} soul={selected} en={en} onChange={()=>{void refresh(selected.id)}}
       onVisual={onVisual} onAudioLevel={onAudioLevel} scene/>
     </div>
@@ -383,8 +381,8 @@ export function SoulsPage(){
        {t("修補去背","Repair cutout")}
       </button>
       {editFace?<><button type="button" onClick={()=>void saveFace()}>{t("儲存物品與五官","Save object & eyes")}</button>
-       <button type="button" onClick={()=>setEditFace(false)}>{t("取消","Cancel")}</button></>:
-       <button type="button" onClick={()=>{setFaceDraft(safeFace(selected.face));setTransformDraft(safeTransform(selected.transform));setEditTarget("object");faceWasEdited.current=false;setEditFace(true)}}>
+       <button type="button" onClick={()=>{setEditFace(false);setGestureActive(false)}}>{t("取消","Cancel")}</button></>:
+       <button type="button" onClick={()=>{setFaceDraft(safeFace(selected.face));setTransformDraft(safeTransform(selected.transform));setEditTarget("object");setGestureActive(false);faceWasEdited.current=false;setEditFace(true)}}>
         {t("調整物品／五官","Adjust object / eyes")}
        </button>}
      </div>
