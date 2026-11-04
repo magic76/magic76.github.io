@@ -19,7 +19,13 @@
     "verifyDesc": "キーが使えるか確認してください。",
     "shortDesc": "無料体験の後は、自分のキーを設定して会話を続けられます。"
   },
-  "android": "Android 版 Crew",
+  "android": {
+    "title": "Crewをまるごとポケットに",
+    "description": "AIの友だちと話して、外国語を練習して、ゲームや物語を楽しもう。すべてひとつのアプリで。",
+    "appName": "Crew：AIフレンドと外国語会話",
+    "platform": "Androidアプリ · Google Play",
+    "download": "アプリを入手"
+  },
   "briefing": {
     "heading": "毎日の研究情報",
     "today": "今日の注目研究",
