@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState,type ReactNode} from "react";
+import {useCallback,useEffect,useRef,useState,type ReactNode} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {CREW_FRIENDS,getCrewFriend} from "../friends/friendProfiles";
@@ -60,8 +60,9 @@ export function MiniShell({kind,friend,onChange,children}:{kind:MiniKind;friend:
 }
 
 export type VoiceCue={id:number;text:string};
-export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtRole}:{
+export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtRole,onVoiceActiveChange,onCueSettled}:{
  kind:MiniKind;friend:MiniFriend;onSpeech:(text:string,liveReply?:string)=>void;onReply?:(text:string)=>void;cue:VoiceCue;tabooMode?:"describe"|"guess";courtRole?:"defense"|"prosecution";
+ onVoiceActiveChange?:(active:boolean)=>void;onCueSettled?:(id:number)=>void;
 }){
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
  const {gameVoice,setGameVoice}=useGameVoice();
@@ -80,12 +81,12 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
   (directGuess
     ?"\n[CREW PLAY TABOO: DIRECT VOICE GUESSER] You are a quick, expressive friend playing Taboo, not a conversational tutor. After each description, immediately reply with ONE short, natural sentence in "+gameTongue+" containing exactly ONE concrete single-word guess. Keep your personality and vary the wording and intonation naturally. Examples (not a script): "+(chinese?"「會不會是雨傘？」、「我猜是貓咪！」、「可能是披薩？」":"Could it be a banana? Sounds like a banana! Maybe an apple?")+" Do NOT use the same opening every turn or always say 'I guess'. No acknowledgement before the guess, no paraphrase, explanation, praise, extra question, second candidate or second sentence. Do not repeat an earlier incorrect guess. You cannot see the hidden answer and must never claim verification or announce scoring. The game UI alone checks correctness and forbidden words. For a [VERIFIED GAME] cue, follow that result with a single brief natural reply. Never persist memories."
    :court?"\n[CREW PLAY CRAZY COURT] You are "+friend.name+", acting as the player\'s opposing "+counsel+" in a fictional comedy trial. Keep your personality and selected spoken language. The game UI owns evidence, legal rulings, objections, score and verdict. NEVER invent a new fact or evidence or claim to alter the outcome. When the user speaks, listen but do not offer a ruling; wait until a [VERIFIED GAME] cue. On a verified cue, deliver one short playful lawyer response, then listen. Be respectful and do not treat this as real legal advice. Do not persist conversation memory."
-   :quick?"\n[CREW PLAY QUICK GAME: "+kind+"] You are "+friend.name+", a conversational and playful friend. Chat naturally in "+gameTongue+" when the user talks to you, including non-game chat. Gameplay is controlled exclusively by the offline game UI; do not invent, claim, or execute an unverified move, score, turn, clue, or result. The UI parses spoken game instructions and only a [VERIFIED GAME] cue authorizes you to mention the resulting move. Never imply a spoken number was accepted before the UI verifies it. For Number Bomb, the secret answer is private and not visible to you. Do not guess it or claim to know it. For Memory Match, you can discuss only publicly flipped cards and scores; never claim to see hidden cards. A matching pair earns another turn for that player. When you get [VERIFIED GAME], respond briefly in character, without repetitive greetings or questions. Do not persist friend memories."
+   :quick?"\n[CREW PLAY TURN-VERIFIED VOICE: "+kind+"] You are "+friend.name+". "+(kind==="number-bomb"?"You are the HOST of Number Bomb, NEVER a contestant. The player alone submits guesses and the offline game engine determines higher, lower, or correct; you do not choose or submit numbers.":"You are the opposing friend in Memory Match. You cannot see face-down cards and must not invent their contents. A successful pair gives that player another turn.")+" GAMEPLAY PACING IS MANDATORY: A number on the wheel, a spoken guess, a card-flip request, or a player intention is NOT a confirmed outcome. Do NOT speak, acknowledge, guess, judge, narrate or react to a gameplay intention. Wait silently for the authoritative [VERIFIED GAME] update after the player commits a number or after BOTH cards are flipped, the match resolved, and the board updated. Only THEN say ONE short natural, expressive sentence in "+gameTongue+" based exclusively on verified public results, and stop without follow-up questions. Do not speak while cards are being revealed or while the wheel is moving. For unrelated conversation you may answer normally, but never reveal an unrevealed number/card, invent results or persist friend memories."
    :"\n[CREW PLAY GAME: "+kind+"] This is a self-contained game, not a normal friend conversation. Respond as "+friend.name+" with short witty remarks in "+gameTongue+". No tutoring until the final feedback. Gameplay is fully decided by the offline UI engine. Never claim an answer is correct or wrong without a [VERIFIED GAME] event. A voice input can contain digits or xAyB, or a short description in the selected learning language. If numbers are unclear, ask the player to repeat slowly in "+gameTongue+". React only to [VERIFIED GAME] updates for scoring and never reveal the secret. In Taboo guess mode, read the safe clue exactly without forbidden words. Never persist these conversations as friend memories.");
  const live=useLiveSession({
   pageKey:directGuess?"crew-play-mini-taboo-direct-"+friend.id:"crew-play-mini-"+kind+"-"+friend.id,
   title:(kind==="1a2b"?"1A2B":court?"Crazy Court":kind==="number-bomb"?"Number Bomb":kind==="memory"?"Memory Match":"Taboo")+" · "+friend.name,
-  system,openingPrompt:directGuess?"Invite the player briefly to describe something in "+gameTongue+". Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":quick?"Welcome the player to "+(kind==="number-bomb"?"Number Bomb: swipe the number wheel to choose a guess":"Memory Match: flip two cards to find pairs")+" in one short in-character sentence in "+gameTongue+". They may chat or speak their moves. Do not invent board results, then listen.":"Say one short welcome in "+gameTongue+" to the game. Do not invent a score or answer.",
+  system,openingPrompt:directGuess?"Invite the player briefly to describe something in "+gameTongue+". Use your own friendly wording once, then listen.":court?"As opposing counsel, give a short, friendly in-character courtroom greeting. Do not claim any verdict or change the rules.":quick?"Welcome the player briefly as "+(kind==="number-bomb"?"the Number Bomb host. Only the player guesses; announce higher/lower exclusively after they CONFIRM a number":"a Memory Match friend. Wait until BOTH cards finish revealing and the pair is resolved before commenting")+" in "+gameTongue+". After the greeting, wait quietly for confirmed [VERIFIED GAME] updates and do not speak about tentative moves.":"Say one short welcome in "+gameTongue+" to the game. Do not invent a score or answer.",
   voice:resolveGameVoice(gameVoice,normalizeLiveVoice(friend.voice)),language:targetLanguage,nativeLanguage,
   sessionKind:"friend",persistHistory:false,teacherReport:false,
   onTurnComplete:(turn,completed)=>{
@@ -104,11 +105,35 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  });
  const active=["requesting-mic","connecting","listening","speaking","ending","reporting"].includes(live.state);
  const deliveredRef=useRef(0);
- // A cue may be created during playback. Send only after the transport listens again.
+ const pendingNarrationRef=useRef<{id:number;heardSpeaking:boolean;watchdog:number}|null>(null);
+ const settleNarration=useCallback(()=>{
+  const pending=pendingNarrationRef.current;
+  if(!pending)return;
+  pendingNarrationRef.current=null;
+  window.clearTimeout(pending.watchdog);
+  onCueSettled?.(pending.id);
+ },[onCueSettled]);
+ const voiceActive=["requesting-mic","connecting","listening","speaking"].includes(live.state);
+ useEffect(()=>{onVoiceActiveChange?.(voiceActive)},[voiceActive,onVoiceActiveChange]);
+ useEffect(()=>{
+  const pending=pendingNarrationRef.current;
+  if(!pending)return;
+  if(live.state==="speaking")pending.heardSpeaking=true;
+  // Unlike a complete transcript, listening after actual speech means playback drained.
+  if((live.state==="listening"&&pending.heardSpeaking)||["idle","ended","error","ending"].includes(live.state))settleNarration();
+ },[live.state,settleNarration]);
+ useEffect(()=>()=>{if(pendingNarrationRef.current)window.clearTimeout(pendingNarrationRef.current.watchdog)},[]);
+ // Verified game cues are emitted only after the UI commits a completed action.
  useEffect(()=>{
   if(!cue.id||cue.id===deliveredRef.current||live.state!=="listening")return;
-  if(live.sendText("[VERIFIED GAME] "+cue.text))deliveredRef.current=cue.id;
- },[cue,live.state,live.sendText]);
+  if(!live.sendText("[VERIFIED GAME] "+cue.text))return;
+  deliveredRef.current=cue.id;
+  if(quick&&onCueSettled){
+   // No stale utterance is allowed to keep a friend's next turn locked.
+   settleNarration();
+   pendingNarrationRef.current={id:cue.id,heardSpeaking:false,watchdog:window.setTimeout(settleNarration,11000)};
+  }
+ },[cue,live.state,live.sendText,quick,onCueSettled,settleNarration]);
  const hasKey=typeof window!=="undefined"&&Boolean(geminiKey());
  return <GameVoiceDock className="crew-mini-voice" label={t("playHub.mini.voiceRegion")}>
   <div className="crew-mini-voice-settings"><GamePanel label={t("playHub.mini.voiceSettings")} title={t("playHub.mini.voiceSettings")}><GameVoicePicker value={gameVoice} onChange={setGameVoice} defaultVoice={normalizeLiveVoice(friend.voice)} english={english} disabled={active}/></GamePanel></div>
