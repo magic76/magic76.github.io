@@ -214,7 +214,7 @@ export function useLiveSession(config:Config){
    // Content-free milestones apply only to ordinary Teacher, Friend and Timeline chat.
    // One session closure survives transport reconnects, but not a new Live start.
    const chatKind=configRef.current.pageKey==="teacher"?"teacher"
-    :configRef.current.pageKey.startsWith("friend-")&&!configRef.current.pageKey.startsWith("friend-game-")?"friend"
+    :configRef.current.pageKey.startsWith("friend-")&&!configRef.current.pageKey.startsWith("friend-game-")&&!configRef.current.pageKey.startsWith("friend-soul-")?"friend"
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
    let learnerSpoke=false,aiReplied=false;
    const session=new window.CrewLive.Session({
