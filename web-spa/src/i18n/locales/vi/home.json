@@ -19,7 +19,13 @@
     "verifyDesc": "Kiểm tra xem khóa của bạn có hoạt động không.",
     "shortDesc": "Sau khi dùng thử, bạn có thể dùng khóa riêng để tiếp tục trò chuyện."
   },
-  "android": "Tải Crew cho Android",
+  "android": {
+    "title": "Mang cả Crew theo bên mình",
+    "description": "Trò chuyện với bạn AI, luyện ngoại ngữ, chơi trò chơi và khám phá các câu chuyện—tất cả trong một ứng dụng.",
+    "appName": "Crew: Bạn AI và hội thoại ngoại ngữ",
+    "platform": "Ứng dụng Android · Google Play",
+    "download": "Tải ứng dụng"
+  },
   "briefing": {
     "heading": "Bản tin nghiên cứu hằng ngày",
     "today": "Hôm nay có gì đáng khám phá?",
