@@ -24,7 +24,7 @@ type Config={
  onToolsUnavailable?:()=>void;
  onRecovered?:()=>void;
  onOutputLevel?:(level:number)=>void;
- persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
+ persistHistory?:boolean;sessionKind?:"teacher"|"friend"|"timeline";usageKind?:"souls";conversationFlow?:ConversationFlowKind;onSessionFinished?:(item:{turns:LiveTurn[];durationMs:number}|null)=>void;
 };
 function uiMessage(value:unknown){return String(value||"語音連線發生問題").replace(/gemini-[0-9A-Za-z.-]+/gi,"語音服務")}
 function classifyError(value:unknown):Exclude<LiveErrorKind,null>{
@@ -213,10 +213,11 @@ export function useLiveSession(config:Config){
    const tabooTongue=tabooChinese?"Traditional Chinese":"English";
    // Content-free milestones apply only to ordinary Teacher, Friend and Timeline chat.
    // One session closure survives transport reconnects, but not a new Live start.
-   const chatKind=configRef.current.pageKey==="teacher"?"teacher"
+   const chatKind=configRef.current.usageKind==="souls"?"souls"
+    :configRef.current.pageKey==="teacher"?"teacher"
     :configRef.current.pageKey.startsWith("friend-")&&!configRef.current.pageKey.startsWith("friend-game-")?"friend"
     :configRef.current.pageKey.startsWith("timeline-")?"timeline":null;
-   let learnerSpoke=false,aiReplied=false;
+   let learnerSpoke=false,aiReplied=false,completedExchange=false;
    const session=new window.CrewLive.Session({
     guestAccessToken:grant?.token,
     system:configRef.current.system+(tabooSession?(tabooDirectGuess
@@ -288,7 +289,7 @@ export function useLiveSession(config:Config){
       }
       if(chatKind&&!learnerSpoke){
        learnerSpoke=true;
-       trackUsageEvent(chatKind==="teacher"?"teacher_user_spoke":chatKind==="friend"?"friend_user_spoke":"timeline_user_spoke");
+       trackUsageEvent(chatKind==="teacher"?"teacher_user_spoke":chatKind==="friend"?"friend_user_spoke":chatKind==="souls"?"souls_user_spoke":"timeline_user_spoke");
       }
      }
      setInput(v);
@@ -298,7 +299,7 @@ export function useLiveSession(config:Config){
      if(v.trim()&&configRef.current.sessionKind==="friend"){awaitingTutorRef.current=false;cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle")}
      if(chatKind&&learnerSpoke&&!aiReplied&&v.trim()){
       aiReplied=true;
-      trackUsageEvent(chatKind==="teacher"?"teacher_ai_replied":chatKind==="friend"?"friend_ai_replied":"timeline_ai_replied");
+      trackUsageEvent(chatKind==="teacher"?"teacher_ai_replied":chatKind==="friend"?"friend_ai_replied":chatKind==="souls"?"souls_ai_replied":"timeline_ai_replied");
      }
      setOutput(v);
     },
@@ -344,6 +345,14 @@ export function useLiveSession(config:Config){
        session.sendControl?.(rule+"\n[LANGUAGE RECOVERY] Your last spoken reply used an unintended language. Rephrase briefly in the selected language without changing subjects.");
       }else if(turn.hasValidOutput&&!drift){
        languageRepairRef.current=false;
+      }
+      // Soul is a separate product even though it reuses Friends' voice transport.
+      // A complete two-sided turn, not merely a proactive greeting, counts as engagement.
+      if(chatKind==="souls"&&!completedExchange&&turn.hasValidOutput&&
+         ((turn.input?.trim()&&turn.output?.trim())||
+          turnsRef.current.some(item=>item.input?.trim()&&item.output?.trim()))){
+       completedExchange=true;
+       trackUsageEvent("souls_conversation");
       }
       // Use the synchronous Live transcript ref; React state can lag behind this callback.
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
