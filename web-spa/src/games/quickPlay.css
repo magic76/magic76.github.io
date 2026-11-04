@@ -45,3 +45,30 @@
 @media(prefers-reduced-motion:reduce){.crew-memory-card{transition:none}}
 
 .crew-mini-quick-start{margin:0 0 10px}.crew-mini-quick-start .crew-mini-primary{width:100%;min-height:46px}
+
+
+/* Touch momentum + snap-scroll with a centered selection indicator. */
+.crew-number-wheel{display:grid;justify-items:center;gap:8px}
+.crew-number-wheel-label,.crew-number-wheel-selected{font-size:13px;color:var(--text)}
+.crew-number-wheel-selected strong{margin-inline-start:5px;font-size:22px;font-variant-numeric:tabular-nums;color:#594db0}
+.crew-number-wheel-frame{width:min(100%,270px);height:260px;position:relative;overflow:hidden;border:1px solid var(--line);border-radius:20px;background:var(--surface,#fff);isolation:isolate}
+.crew-number-wheel-focus{height:52px;position:absolute;left:9px;right:9px;top:50%;transform:translateY(-50%);border-radius:12px;background:linear-gradient(105deg,#eeeaff,#e4edff);border:2px solid #8376c4;pointer-events:none;z-index:1}
+.crew-number-wheel-frame:before,.crew-number-wheel-frame:after{content:"";position:absolute;left:0;right:0;height:58px;pointer-events:none;z-index:2}
+.crew-number-wheel-frame:before{top:0;background:linear-gradient(to bottom,var(--surface,#fff),transparent)}
+.crew-number-wheel-frame:after{bottom:0;background:linear-gradient(to top,var(--surface,#fff),transparent)}
+.crew-number-wheel-scroll{height:260px;box-sizing:border-box;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;padding:104px 0;scroll-snap-type:y mandatory;scrollbar-width:none;outline-offset:-3px}
+.crew-number-wheel-scroll::-webkit-scrollbar{display:none}
+.crew-number-wheel-scroll[aria-disabled="true"]{overflow-y:hidden;opacity:.65}
+.crew-number-wheel-option{display:flex;align-items:center;justify-content:center;margin:0;padding:0;width:100%;height:52px;min-height:52px;border:0;background:transparent;color:var(--text);font:inherit;font-size:22px;font-weight:550;cursor:pointer;scroll-snap-align:center;scroll-snap-stop:normal;position:relative;z-index:3;transition:font-size .12s}
+.crew-number-wheel-option.is-selected{font-size:32px;font-weight:900;color:#40378c;font-variant-numeric:tabular-nums}
+.crew-number-wheel-option:disabled{cursor:default}
+.crew-number-wheel-actions{display:grid;grid-template-columns:50px minmax(0,1fr) 50px;gap:9px;width:min(100%,320px);margin-inline:auto}
+.crew-number-wheel-actions .crew-number-wheel-step{display:grid;place-items:center;height:50px;border:1px solid var(--line);border-radius:12px;background:var(--surface,#fff);color:var(--text);font-size:24px;cursor:pointer}
+.crew-number-wheel-actions .crew-number-wheel-step:disabled{opacity:.4;cursor:default}
+.crew-number-wheel-actions .crew-number-wheel-submit{min-height:50px;font-size:17px}
+.crew-number-wheel-actions .crew-number-wheel-submit strong{margin-inline-start:4px;font-variant-numeric:tabular-nums;font-size:21px}
+.crew-quick-page .crew-mini-voice{max-width:720px;margin-inline:auto}
+.crew-memory-card{position:relative}
+.crew-memory-card-number{position:absolute;top:4px;left:8px;font-size:12px;line-height:1;font-weight:800;opacity:.9}
+.crew-memory-card.is-open .crew-memory-card-number{color:#4a4670}
+@media(prefers-reduced-motion:reduce){.crew-number-wheel-option{transition:none}}

@@ -21,7 +21,7 @@ export function bombComputerGuess(state:BombState):number{
 }
 export type MemoryState={
  cards:number[];open:number[];matched:number[];seen:Record<number,number[]>;
- turn:QuickSide;playerPairs:number;friendPairs:number;moves:number;finished:boolean;
+ turn:QuickSide;playerPairs:number;friendPairs:number;moves:number;finished:boolean;lastMatch:boolean|null;lastSide:QuickSide|null;
 };
 export function newMemory(pairs=6,random:()=>number=Math.random):MemoryState{
  if(!Number.isInteger(pairs)||pairs<2||pairs>12)throw Error("Invalid pair count");
@@ -30,7 +30,7 @@ export function newMemory(pairs=6,random:()=>number=Math.random):MemoryState{
   const r=Math.max(0,Math.min(0.999999999,random()));
   const j=Math.floor(r*(i+1));[cards[i],cards[j]]=[cards[j],cards[i]];
  }
- return {cards,open:[],matched:[],seen:{},turn:"player",playerPairs:0,friendPairs:0,moves:0,finished:false};
+ return {cards,open:[],matched:[],seen:{},turn:"player",playerPairs:0,friendPairs:0,moves:0,finished:false,lastMatch:null,lastSide:null};
 }
 export function flipMemory(state:MemoryState,index:number):MemoryState|null{
  if(state.finished||state.open.length>=2||!Number.isInteger(index)||index<0||index>=state.cards.length||
@@ -46,7 +46,8 @@ export function resolveMemory(state:MemoryState):MemoryState|null{
  return {...state,open:[],matched,moves:state.moves+1,
   playerPairs:state.playerPairs+(match&&state.turn==="player"?1:0),
   friendPairs:state.friendPairs+(match&&state.turn==="friend"?1:0),
-  turn:state.turn==="player"?"friend":"player",
+  // A successful match earns another turn for the same player, including the Crew friend.
+  turn:match?state.turn:state.turn==="player"?"friend":"player",lastMatch:match,lastSide:state.turn,
   finished:matched.length===state.cards.length};
 }
 /** The friend sees only previously revealed faces; hidden cards are never inspected for a strategic choice. */
@@ -66,4 +67,44 @@ export function memoryComputerPick(state:MemoryState,random:()=>number=Math.rand
  }
  const roll=Math.max(0,Math.min(0.999999999,random()));
  return available[Math.floor(roll*available.length)];
+}
+
+/** Voice actions are parsed locally; unrelated conversation never changes the board. */
+const zhDigit:Record<string,number>={"零":0,"〇":0,"一":1,"二":2,"兩":2,"两":2,"三":3,"四":4,"五":5,"六":6,"七":7,"八":8,"九":9};
+const enSmall:Record<string,number>={
+ zero:0,one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,
+ ten:10,eleven:11,twelve:12,thirteen:13,fourteen:14,fifteen:15,sixteen:16,
+ seventeen:17,eighteen:18,nineteen:19
+};
+const enTens:Record<string,number>={twenty:20,thirty:30,forty:40,fifty:50,sixty:60,seventy:70,eighty:80,ninety:90};
+function spokenValue(token:string):number|null{
+ const value=token.trim().toLowerCase().replace(/-/g," ").replace(/\s+/g," ");
+ if(/^\d{1,3}$/.test(value))return Number(value);
+ if(value==="one hundred")return 100;
+ const en=value.split(" ");
+ if(en.length===1&&enSmall[value]!==undefined)return enSmall[value];
+ if(en.length===1&&enTens[value]!==undefined)return enTens[value];
+ if(en.length===2&&enTens[en[0]]!==undefined&&enSmall[en[1]]>=1&&enSmall[en[1]]<=9)return enTens[en[0]]+enSmall[en[1]];
+ if(value==="一百"||value==="壹佰")return 100;
+ if(/^[零〇一二兩两三四五六七八九]$/.test(value))return zhDigit[value];
+ const zh=value.match(/^([一二兩两三四五六七八九]?)[十]([零〇一二兩两三四五六七八九]?)$/);
+ if(zh)return (zh[1]?zhDigit[zh[1]]:1)*10+(zh[2]?zhDigit[zh[2]]:0);
+ return null;
+}
+function actionNumber(source:string,pattern:RegExp,max:number):number|null{
+ const cleaned=source.normalize("NFKC").trim().replace(/[。！!？，,?.]+$/u,"");
+ const standalone=cleaned.match(/^(\d{1,3}|[零〇一二兩两三四五六七八九十百]+|[a-z]+(?:[ -][a-z]+){0,2})$/iu);
+ const first=standalone?spokenValue(standalone[1]):null;
+ if(first!==null&&first>=1&&first<=max)return first;
+ const action=cleaned.match(pattern);
+ if(!action)return null;
+ const value=spokenValue(action[1]);
+ return value!==null&&value>=1&&value<=max?value:null;
+}
+const numberPhrase="(\\d{1,3}|[零〇一二兩两三四五六七八九十百]+|[a-z]+(?:[ -][a-z]+){0,2})";
+export function parseBombSpeech(text:string):number|null{
+ return actionNumber(text,new RegExp("(?:我猜|猜|我選|選|我想猜|guess|pick|choose|try|number|i think it is)\\s*(?:數字|number|是|第)?\\s*"+numberPhrase,"iu"),100);
+}
+export function parseMemorySpeech(text:string):number|null{
+ return actionNumber(text,new RegExp("(?:翻開?|打開|選|我選|第|flip|turn over|open|choose|pick|card)\\s*(?:第|卡片|牌|card|number|no\\.?)?\\s*"+numberPhrase+"(?:\\s*張|\\s*號|\\s*card)?","iu"),24);
 }
