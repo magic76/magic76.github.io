@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {SoulChat} from "./SoulChat";
 import {SoulPortrait} from "./SoulPortrait";
 import {SoulMaskEditor} from "./SoulMaskEditor";
+import {SoulCutoutStatus} from "./SoulCutoutStatus";
 import {SoulDraftDetails} from "./SoulDraftDetails";
 import {SoulDisplayPreferences} from "./SoulDisplayPreferences";
 import {SoulSubjectSelector} from "./SoulSubjectSelector";
@@ -329,13 +330,7 @@ export function SoulsPage(){
        {t("手動修補去背","Repair cutout")}
       </button>
      </div>
-     <p className="souls-muted">{cutting?(cutoutPhase==="loading"?
-      t("正在下載或初始化去背模型，首次使用可能較慢。","Downloading or initializing the cutout model (first use may take longer)."):
-      cutoutPhase==="segmenting"?
-      t("正在執行物品分割，畫面可能暫時停住。","Running segmentation; the screen may briefly freeze."):
-      t("正在製作去背圖片…","Compositing the cutout…")) :
-      cutoutDraft&&useCutout?t("透明背景已完成。","Transparent background ready.") :
-      t("目前使用原始照片，可以直接存成 Soul。","Using the original photo. You can still create a Soul.")}</p>
+     <SoulCutoutStatus cutting={cutting} phase={cutoutPhase} hasCutout={Boolean(cutoutDraft)} useCutout={useCutout} en={en}/>
     </div>
    </div>}
    <SoulDraftDetails en={en} subjectType={subjectType} busy={busy}
