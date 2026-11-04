@@ -101,10 +101,15 @@ The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mo
 - `souls_open`: browser opens the Souls interface, including returning to an existing collection.
 - `souls_photo_ready`: selected camera/gallery image was processed successfully on-device; **not** merely clicking a picker.
 - `souls_created` with fixed detail `object` or `person`: a Soul was successfully saved locally; no identifier or label goes to analytics.
-- `souls_live_connected`: Gemini Live actually reached listening/speaking state; not a failed attempt or just page load.
+- `souls_live_attempt`: Live transport began requesting mic or connecting (an attempt, not success).
+- `souls_live_connected`: Gemini Live actually reached listening/speaking state, but this **is not** sufficient proof of a conversation.
+- `souls_live_failed`: Live entered the error state; a connection that fails before or after being connected is recorded.
+- `souls_user_input`: first recognized user speech or accepted text submission for this portrait. Guest and BYOK paths both count; only a boolean event is transmitted.
+- `souls_ai_replied`: at least one completed Live turn contains both nonempty user input and nonempty AI output. A proactive opening greeting does **not** qualify.
+- `souls_conversation`: first verified two-sided turn per portrait chat mount. This is the source of **effective Souls chatting**, independent from the connection-only event.
 - `souls_mask_repaired`: a manual cutout repair was applied; no mask pixels sent.
 
-The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live stage panel, plus repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. Category breakdown only applies to `souls_created`; no photo type, biometric data or private attributes are inferred. GA4 uses names `crew_souls_open`, `crew_souls_photo_ready`, `crew_souls_created`, `crew_souls_live_connected`, and `crew_souls_mask_repaired` with safe, static `/souls` page path. Older traffic cannot be backfilled.
+The private `/usage` dashboard has a Souls category and a dedicated Explore → photo → save → Live attempt → connection → real input → AI reply → confirmed conversation panel, plus failed connections and repair counts. These are **independent event totals**, not a user-level cohort conversion funnel. `souls_ai_replied` and `souls_conversation` are both based on the first **same-turn** verified input/output pair and may have identical counts; user input and connection counts can differ. Guest Live intentionally skips `onTurnComplete` callbacks but updates `live.turns`; Souls observes both callbacks and the confirmed turns, so guest and BYOK engagement can be counted without sending transcripts. `souls_created` alone differentiates the fixed `person` / `object` enum; no sensitive data is inferred. GA4 mirrors the allowlisted event names with the safe static `/souls` path. The report's *effective chat browsers* now includes `souls_conversation`; a connection with no exchange does not count as effective chat. Older traffic cannot be backfilled.
 
 ## Product interaction refresh (October 25, 2026)
 
