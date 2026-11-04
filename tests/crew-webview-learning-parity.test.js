@@ -13,7 +13,7 @@ test("Android Crew shell is detected by an explicit marker, not by generic Andro
  assert.match(store,/if\(!ready\|\|isCrewAndroidShell\(\)\)return null/);
  const home=read("web-spa/src/pages/HomePage.tsx");
  const my=read("web-spa/src/teacher/MyPage.tsx");
- assert.match(home,/ready&&!isCrewAndroidShell\(\)&&<details className="crew-home-android"/);
+ assert.match(home,/ready&&!isCrewAndroidShell\(\)&&<section className="crew-home-android"/);
  assert.match(my,/ready&&!isCrewAndroidShell\(\)&&<section className="section panel"/);
 });
 
