@@ -756,3 +756,9 @@
 @media(prefers-reduced-motion:reduce){
  .souls-photo-first .souls-transform-controls>summary::after{transition:none}
 }
+
+/* A portrait being prepared is stable even with gesture mode OFF. */
+.souls-photo-first .souls-portrait[data-preview="true"] .souls-portrait-eye-set,
+.souls-photo-first .souls-portrait[data-preview="true"] .souls-witty-left-eye{
+ animation:none!important;
+}
