@@ -8,6 +8,7 @@ import {GuestTrialCountdown,GuestTrialFinish} from "../live/GuestTrialExperience
 import {geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
 import {trackUsageEvent} from "../analytics/usage";
+import {hasSoulExchange} from "./soulConversationMetrics";
 
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
 export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,scene=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean;scene?:boolean}){
@@ -21,7 +22,7 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   countedInput.current=true;trackUsageEvent("souls_user_input");
  };
  const recordExchange=(turns:Array<{input?:string;output?:string}>)=>{
-  if(!turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim())))return;
+  if(!hasSoulExchange(turns))return;
   recordInput();
   if(!countedReply.current){countedReply.current=true;trackUsageEvent("souls_ai_replied")}
   if(!countedConversation.current){countedConversation.current=true;trackUsageEvent("souls_conversation")}
