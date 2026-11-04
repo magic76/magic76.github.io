@@ -15,7 +15,7 @@ import "./quickPlay.css";
 
 type Kind="number-bomb"|"memory";
 type Friend=ReturnType<typeof getCrewFriend>;
-type RoundProps={friend:Friend;zh:boolean;onCue:(text:string)=>void;registerSpeech:(handler:(text:string)=>void)=>void};
+type RoundProps={friend:Friend;zh:boolean;onCue:(text:string)=>number;registerSpeech:(handler:(text:string)=>void)=>void;voiceActive:boolean;settledCueId:number};
 const FRIEND_KEY="crew_web_selected_friend_v1";
 const icons=["🍎","🌙","🐱","🌻","🍓","⭐","🦋","🎈","🍕","🐼","🚀","🎵"];
 const initialFriend=()=>{
@@ -31,15 +31,18 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
  const friend=getCrewFriend(friendId);
  const [round,setRound]=useState(0);
  const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
+ const [voiceActive,setVoiceActive]=useState(false);
+ const [settledCueId,setSettledCueId]=useState(0);
+ const cueCounter=useRef(0);
  const speechRef=useRef<(text:string)=>void>(()=>{});
- const onCue=useCallback((text:string)=>setCue(prev=>({id:prev.id+1,text})),[]);
+ const onCue=useCallback((text:string)=>{const id=++cueCounter.current;setCue({id,text});return id},[]);
+ const onCueSettled=useCallback((id:number)=>setSettledCueId(prev=>Math.max(prev,id)),[]);
  const registerSpeech=useCallback((handler:(text:string)=>void)=>{speechRef.current=handler},[]);
  useEffect(()=>{trackUsageEvent("game_open",kind)},[kind]);
  useEffect(()=>{document.body.classList.add("teacher-theme");return()=>document.body.classList.remove("teacher-theme")},[]);
  const changeFriend=(next:string)=>{
   if(!CREW_FRIENDS.some(f=>f.id===next)||next===friendId)return;
   setFriendId(next);setRound(value=>value+1);
-  onCue("New Crew friend selected. A fresh round is ready. Welcome the player briefly without claiming any moves.");
   try{localStorage.setItem(FRIEND_KEY,next)}catch{/* optional preference */}
  };
  const bomb=kind==="number-bomb";
@@ -48,7 +51,7 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
    <Link to="/games" className="crew-play-back">← {t("playHub.allGames")}</Link>
    <span className="crew-play-eyebrow">CREW PLAY · {zh?"免費直接玩":"Play free now"}</span>
    <h1>{bomb?(zh?"終極密碼":"Number Bomb"):(zh?"翻牌記憶":"Memory Match")}</h1>
-   <p>{bomb?(zh?"滑動數字滾輪猜秘密數字，和朋友輪流玩。":"Spin the number wheel and take turns guessing."):
+   <p>{bomb?(zh?"你來猜秘密數字，AI 朋友當主持人公布高低提示。":"Choose a number and let your AI friend host the game."):
      (zh?"翻出相同圖案就繼續翻，翻錯才換朋友。":"Match two cards to earn another turn; a miss passes play.")}</p>
   </header>
   <div className="crew-play-frame">
@@ -61,9 +64,9 @@ export function QuickPlayGamePage({kind}:{kind:Kind}){
      <p>{zh?"更換朋友會重新開始這一局。":"Changing friends starts a new round."}</p>
     </GamePanel>
    </section>
-   {bomb?<NumberBombRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech}/>:
-    <MemoryRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech}/>}
-   <MiniGameVoice key={kind+":"+friendId} kind={kind} friend={friend} cue={cue} onSpeech={text=>speechRef.current(text)}/>
+   {bomb?<NumberBombRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech} voiceActive={voiceActive} settledCueId={settledCueId}/>:
+    <MemoryRound key={friendId+":"+round} friend={friend} zh={zh} onCue={onCue} registerSpeech={registerSpeech} voiceActive={voiceActive} settledCueId={settledCueId}/>}
+   <MiniGameVoice key={kind+":"+friendId} kind={kind} friend={friend} cue={cue} onSpeech={text=>speechRef.current(text)} onVoiceActiveChange={setVoiceActive} onCueSettled={onCueSettled}/>
   </div>
  </div>;
 }
@@ -73,6 +76,7 @@ function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
  const [selected,setSelected]=useState(50);
  const [error,setError]=useState("");
  const started=useRef(false),completed=useRef(false);
+ const pendingNarration=useRef<{move:number;text:string}|null>(null);
  const current=Math.max(state.low,Math.min(state.high,selected));
  const begin=()=>{
   if(!started.current){started.current=true;trackUsageEvent("game_started","number-bomb")}
@@ -83,39 +87,37 @@ function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
   if(!next){setError(zh?"請選目前範圍內的整數。":"Select a whole number within the range.");return}
   begin();setError("");setState(next);
   const last=next.history[next.history.length-1];
-  onCue("Number Bomb verified. Player guessed "+value+". "+(last.hint==="correct"?"The player found the secret and wins.":last.hint==="higher"?"Too low.":"Too high.")+
-   (next.winner?"":" Public range: "+next.low+" to "+next.high+". Friend goes next.")+" React naturally in one short sentence.");
+  pendingNarration.current={move:next.history.length,text:
+   "Number Bomb HOST: The player CONFIRMED guess "+value+". Official result: "+
+   (last.hint==="correct"?"Correct! Player wins; the secret was "+next.secret+".":last.hint==="higher"?"Too low.":"Too high.")+
+   (next.winner?"":" Updated public range: "+next.low+" to "+next.high+". The player may guess again.")+
+   " The result is already on screen. Announce this verified hint in ONE short natural sentence as the host, then stay quiet."};
  };
  useEffect(()=>{setSelected(bombComputerGuess(state))},[state.low,state.high]);
  useEffect(()=>{
   registerSpeech(text=>{const guess=parseBombSpeech(text);if(guess!==null)choose(guess)});
  },[registerSpeech,state,zh]);
+ // Speak only after the selected guess has been committed and the new range rendered.
  useEffect(()=>{
-  if(state.turn!=="friend"||state.winner)return;
-  const timer=window.setTimeout(()=>{
-   const guess=bombComputerGuess(state),next=bombGuess(state,guess,"friend");
-   if(!next)return;
-   setState(next);
-   const last=next.history[next.history.length-1];
-   onCue("Number Bomb verified. "+friend.name+" guessed "+guess+". "+(last.hint==="correct"?friend.name+" wins.":last.hint==="higher"?"Too low.":"Too high.")+
-    (next.winner?"":" Public range: "+next.low+" to "+next.high+". Player goes next.")+" Respond briefly in character.");
-  },650);
+  const pending=pendingNarration.current;
+  if(!pending||pending.move!==state.history.length)return;
+  pendingNarration.current=null;
+  const timer=window.setTimeout(()=>onCue(pending.text),140);
   return()=>window.clearTimeout(timer);
- },[state,friend.name,onCue]);
+ },[state.history.length,onCue]);
  useEffect(()=>{
   if(!state.winner||completed.current)return;
   completed.current=true;trackUsageEvent("game_completed","number-bomb");
  },[state.winner]);
  const reset=()=>{
   started.current=false;completed.current=false;setState(newBomb());setSelected(50);setError("");
-  onCue("Number Bomb reset. The public range is 1 to 100. Do not claim to know the secret. Invite the player to guess.");
+  pendingNarration.current=null;
  };
  const last=state.history[state.history.length-1];
  const result=state.winner==="player"?"win":"lose";
  return <section className="crew-quick-stage" aria-label={zh?"終極密碼遊戲":"Number Bomb game"}>
   <div className="crew-quick-status" role="status" aria-live="polite">
-   <strong>{state.winner?(state.winner==="player"?(zh?"你猜中了！":"You found it!"):(zh?friend.name+" 猜中了！":friend.name+" found it!")):
-    state.turn==="player"?(zh?"輪到你猜！":"Your turn to guess!"):(zh?friend.name+" 正在猜…":friend.name+" is guessing…")}</strong>
+   <strong>{state.winner?(zh?"你猜中了！":"You found it!"):(zh?"你猜，"+friend.name+" 主持":"You guess · "+friend.name+" hosts")}</strong>
    <span>{zh?"已猜 "+state.history.length+" 次":state.history.length+" guesses"}</span>
   </div>
   <div className="crew-quick-range"><span>{state.low}</span><div><small>{zh?"秘密數字的範圍":"The secret is between"}</small><strong>{state.low} — {state.high}</strong></div><span>{state.high}</span></div>
@@ -133,7 +135,7 @@ function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
   </div>:null}
   {error?<p role="alert" className="crew-quick-error">{error}</p>:null}
   <ol className="crew-quick-history" aria-label={zh?"本局猜測紀錄":"Guess history"}>
-   {state.history.map((item,index)=><li key={index}><span>{item.side==="player"?(zh?"你":"You"):friend.name}</span><strong>{item.value}</strong><small>{item.hint==="correct"?"✓":item.hint==="higher"?"↑":"↓"}</small></li>)}
+   {state.history.map((item,index)=><li key={index}><span>{zh?"你":"You"}</span><strong>{item.value}</strong><small>{item.hint==="correct"?"✓":item.hint==="higher"?"↑":"↓"}</small></li>)}
   </ol>
   {state.winner?<div className="crew-quick-finish" aria-live="polite"><h2>{zh?"答案是 ":"Answer: "}{state.secret}</h2>
    <p>{friendGameReaction(friend.id,result,zh?"zh":"en")}</p>
@@ -143,7 +145,7 @@ function NumberBombRound({friend,zh,onCue,registerSpeech}:RoundProps){
  </section>;
 }
 
-function MemoryRound({friend,zh,onCue,registerSpeech}:RoundProps){
+function MemoryRound({friend,zh,onCue,registerSpeech,voiceActive,settledCueId}:RoundProps){
  const [pairs,setPairs]=useState(6);
  const [state,setState]=useState<MemoryState>(()=>newMemory(6));
  const started=useRef(false),completed=useRef(false);
