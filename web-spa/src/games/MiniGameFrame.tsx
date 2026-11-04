@@ -115,6 +115,10 @@ export function MiniGameVoice({kind,friend,onSpeech,onReply,cue,tabooMode,courtR
  },[onCueSettled]);
  const voiceActive=["requesting-mic","connecting","listening","speaking"].includes(live.state);
  useEffect(()=>{onVoiceActiveChange?.(voiceActive)},[voiceActive,onVoiceActiveChange]);
+ // Gomoku-style: starting Live midway through a keyless game must not replay old turns.
+ useEffect(()=>{
+  if(!voiceActive)deliveredRef.current=Math.max(deliveredRef.current,cue.id);
+ },[voiceActive,cue.id]);
  useEffect(()=>{
   const pending=pendingNarrationRef.current;
   if(!pending)return;
