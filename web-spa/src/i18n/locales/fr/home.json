@@ -19,7 +19,13 @@
     "verifyDesc": "Vérifiez que votre clé fonctionne.",
     "shortDesc": "Après cet essai, configurez votre clé pour continuer la discussion."
   },
-  "android": "Découvrir Crew sur Android",
+  "android": {
+    "title": "Emportez tout Crew avec vous",
+    "description": "Discutez avec des amis IA, pratiquez les langues, jouez et découvrez des histoires. Tout dans une appli.",
+    "appName": "Crew : amis IA et langues",
+    "platform": "Appli Android · Google Play",
+    "download": "Télécharger l’appli"
+  },
   "briefing": {
     "heading": "Veille R&D quotidienne",
     "today": "Que découvrir aujourd'hui ?",
