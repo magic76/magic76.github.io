@@ -93,10 +93,12 @@ function spokenValue(token:string):number|null{
 }
 function actionNumber(source:string,pattern:RegExp,max:number):number|null{
  const cleaned=source.normalize("NFKC").trim().replace(/[。！!？，,?.]+$/u,"");
- let found=cleaned.match(/^(\d{1,3}|[零〇一二兩两三四五六七八九十百]+|[a-z]+(?:[ -][a-z]+){0,2})$/iu);
- if(!found)found=cleaned.match(pattern);
- if(!found)return null;
- const value=spokenValue(found[1]);
+ const standalone=cleaned.match(/^(\d{1,3}|[零〇一二兩两三四五六七八九十百]+|[a-z]+(?:[ -][a-z]+){0,2})$/iu);
+ const first=standalone?spokenValue(standalone[1]):null;
+ if(first!==null&&first>=1&&first<=max)return first;
+ const action=cleaned.match(pattern);
+ if(!action)return null;
+ const value=spokenValue(action[1]);
  return value!==null&&value>=1&&value<=max?value:null;
 }
 const numberPhrase="(\\d{1,3}|[零〇一二兩两三四五六七八九十百]+|[a-z]+(?:[ -][a-z]+){0,2})";
