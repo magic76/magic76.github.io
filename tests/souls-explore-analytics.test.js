@@ -32,6 +32,7 @@ test("Souls lifecycle events are emitted only for meaningful browser actions",()
  assert.match(page,/await save\(s\);trackUsageEvent\("souls_created",subjectType\)/);
  assert.match(page,/trackUsageEvent\("souls_mask_repaired"\)/);
  assert.match(chat,/if\(ready&&!wasReady\.current\)trackUsageEvent\("souls_live_connected"\)/);
+ assert.match(chat,/wasStarting\.current=starting;[\s\S]*?wasReady\.current=ready;\s*\},\[live\.state,ready\]\);/,"Live attempt tracking must observe the requesting-mic/connecting transitions, not only ready state");
  assert.match(chat,/wasReady\.current=ready/);
  assert.match(chat,/onOutputLevel:level=>onAudioLevel\?\.\(level\)/);
  assert.doesNotMatch(page,/trackUsageEvent\([^)]*(?:name|image|caption|description|note|voice)\b/);
