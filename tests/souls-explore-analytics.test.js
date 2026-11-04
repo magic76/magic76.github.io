@@ -46,7 +46,7 @@ test("private dashboard uses Souls event totals, distinct-browser count and non-
  assert.match(panel,/souls_created/);
  assert.match(panel,/souls_live_connected/);
  assert.match(panel,/souls_mask_repaired/);
- assert.match(panel,/不是同一批使用者的精準轉換率/);
+ assert.match(panel,/並非同一批使用者的精準轉換率/);
  assert.match(usage,/\|"souls_created"/);
  assert.match(server,/"souls_created"/);
  assert.match(usage,/\|"object"/);
