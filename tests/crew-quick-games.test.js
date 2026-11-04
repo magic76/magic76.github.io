@@ -120,7 +120,8 @@ test("Number Bomb is hosted and announces only verified player guesses",()=>{
  const frame=read("web-spa/src/games/MiniGameFrame.tsx");
  assert.match(page,/Number Bomb HOST: The player CONFIRMED guess/);
  assert.match(page,/pendingNarration\.current=\{move:next\.history\.length/);
- assert.match(page,/\[state\.history\.length,onCue,voiceActive\]/);
+ assert.match(page,/\[state\.history\.length,onCue\]/);
+ assert.match(page,/activeVoiceRef\.current/);
  assert.doesNotMatch(page,/bombGuess\(state,guess,"friend"\)/);
  assert.match(frame,/You are the HOST of Number Bomb, NEVER a contestant/);
  assert.match(frame,/Wait silently for the authoritative \[VERIFIED GAME\]/);
@@ -150,4 +151,11 @@ test("range stays legible within number wheel even if page header scrolls away",
 test("starting voice later does not narrate stale keyless round events",()=>{
  const frame=read("web-spa/src/games/MiniGameFrame.tsx");
  assert.match(frame,/deliveredRef\.current=Math\.max\(deliveredRef\.current,cue\.id\)/);
+});
+
+test("changing voice connection state cannot cancel a committed post-turn cue",()=>{
+ const page=read("web-spa/src/games/QuickPlayGamePage.tsx");
+ assert.match(page,/activeVoiceRef\.current=voiceActive/);
+ assert.match(page,/\[state\.history\.length,onCue\]/);
+ assert.match(page,/\[state\.moves,onCue\]/);
 });
