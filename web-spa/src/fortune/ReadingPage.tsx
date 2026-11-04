@@ -39,7 +39,7 @@ export function FortuneReadingPage(){
    let audit=auditAiReading(text,item.result,item.mode);
    if(!audit.ok){
     // One bounded repair attempt. Never publish a malformed or ungrounded new report.
-    const retryPrompt=prompt+"\\n前次生成未符合報告規格，請重新輸出完整的八個標記段落；不同章節的分析必須獨立，干支只能引用固定計算資料。\\n需修正："+audit.issues.join("；");
+    const retryPrompt=prompt+"\n前次生成未符合報告規格，請重新輸出完整的八個標記段落；不同章節的分析必須獨立，干支只能引用固定計算資料。\n需修正："+audit.issues.join("；");
     text=await window.CrewAI.call(retryPrompt,{preferLive:false,...AI_REPORT_CONFIG,temperature:0.25});
     if(!isCurrentRequest(id,seq,activeRequest.current.id,activeRequest.current.seq))return;
     audit=auditAiReading(text,item.result,item.mode);
