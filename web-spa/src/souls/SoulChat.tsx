@@ -7,6 +7,7 @@ import {GuestLiveStarter} from "../live/GuestLiveStarter";
 import {GuestTrialCountdown,GuestTrialFinish} from "../live/GuestTrialExperience";
 import {geminiKey} from "../lib/runtime";
 import {normalizeLiveVoice} from "../live/voiceIdentity";
+import {trackUsageEvent} from "../analytics/usage";
 
 /** Both voice and typed messages travel through the SAME Crew Friends Live session. */
 export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,scene=false}:{soul:Soul;en:boolean;onChange:()=>void;onVisual?:(visual:SoulVisual)=>void;onAudioLevel?:(level:number)=>void;overlay?:boolean;scene?:boolean}){
@@ -42,6 +43,11 @@ export function SoulChat({soul,en,onChange,onVisual,onAudioLevel,overlay=false,s
   live.voicePhase==="processing"||live.voicePhase==="recovering"?"thinking":"calm";
  useEffect(()=>{onVisual?.({state:live.state,caption,mood,hearing:live.voicePhase==="hearing"})},[onVisual,live.state,caption,mood,live.voicePhase]);
  const ready=live.state==="listening"||live.state==="speaking";
+ const wasReady=useRef(false);
+ useEffect(()=>{
+  if(ready&&!wasReady.current)trackUsageEvent("souls_live_connected");
+  wasReady.current=ready;
+ },[ready]);
  function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();const value=draft.trim().slice(0,1200);if(!value)return;
   if(!ready){setError(en?"Connect Gemini Live first.":"請先連接 Gemini Live。");return}
