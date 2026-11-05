@@ -81,6 +81,6 @@ test("friend scene reserves space and portrait sits right, never on the CTA",()=
  assert.doesNotMatch(css,/\.crew-gift-world-friend,\.crew-gift-world-game/);
  assert.match(css,/\.crew-gift-panel \.crew-gift-world\{flex:none;min-height:0\}/);
  assert.match(css,/\.crew-gift-panel \.crew-gift-visit\{position:relative;z-index:1\}/);
- assert.match(css,/@media\(max-width:359px\)\{[^}]*\.crew-gift-world-portrait/);
+ assert.match(css,/@media\(max-width:359px\)\{\.crew-gift-world\{height:136px\}\.crew-gift-world-portrait\{/);
  assert.match(css,/\.crew-gift-opening-box\{display:none\}/);
 });
