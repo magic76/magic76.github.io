@@ -22,14 +22,20 @@ test("Particle field is decorative while the invitation remains semantic HTML",(
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
 });
 
-test("Google Play area starts collapsed but remains accessible",()=>{
+test("Google Play area promotes one unified Crew app with localized copy",()=>{
  const page=read("web-spa/src/pages/HomePage.tsx");
+ const store=read("web-spa/src/components/PlayStoreLink.tsx");
  assert.match(page,/<details className="crew-home-android">/);
  assert.match(page,/<summary>\{t\("android"\)\}/);
- const home=JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json"));
- assert.equal(home.android,"在 Android 上使用 Crew");
- for(const kind of ["teacher","story","fortune"]){
-  assert.match(page,new RegExp('<PlayStoreLink product="'+kind+'"'));
+ assert.match(page,/t\("androidApp\.description"\)/);
+ assert.match(page,/<PlayStoreLink product="teacher" onClick=/);
+ assert.match(page,/trackUsageEvent\("home_entry_click","android_app_google_play"\)/);
+ assert.doesNotMatch(page,/<PlayStoreLink product="(?:story|fortune)"/);
+ assert.match(store,/t\("androidApp\.name"\)/);
+ for(const locale of ["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"]){
+  const home=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/home.json"));
+  for(const field of [home.android,home.androidApp?.name,home.androidApp?.description])
+   assert.ok(typeof field==="string"&&field.length>12,"Missing Android promotion text for "+locale);
  }
 });
 
