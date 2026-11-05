@@ -47,17 +47,6 @@ function GiftBoxArt({opened=false}:{opened?:boolean}){
  </svg>;
 }
 
-/** Crew Dot remains a standalone orange cloud, never a combined gift icon. */
-function CrewDotArt(){
- return <svg className="crew-gift-dot" viewBox="7 8 102 78" focusable="false" aria-hidden="true">
-  <path className="crew-gift-dot-cloud" d="M29 79C16 79 9 70 9 60c0-11 8-20 19-21 0-15 11-26 25-26 12 0 22 7 26 18 15-1 25 9 25 23 0 14-10 25-26 25Z" fill="#FF9A00"/>
-  <g className="crew-gift-dot-eyes" fill="#272127">
-   <rect x="59" y="39" width="7" height="17" rx="3.5"/>
-   <rect x="77" y="39" width="7" height="17" rx="3.5"/>
-  </g>
-  </svg>;
-}
-
 /** Reveal only the chosen destination; the gift appears briefly during opening.
  * Every result still links directly to its existing Crew route.
  */
@@ -67,7 +56,8 @@ function GiftWorld({gift}:{gift:Gift}){
   <span className="crew-gift-world-star is-first">✦</span>
   <span className="crew-gift-world-star is-second">✧</span>
   <span className="crew-gift-world-floor"/>
-  {gift.kind==="friend"&&gift.portrait&&<img className="crew-gift-world-friend" src={gift.portrait} alt="" loading="eager"/>}
+  {/* Do not reuse the scene's "crew-gift-world-friend" class on the portrait: it is the containing card. */}
+  {gift.kind==="friend"&&gift.portrait&&<img className="crew-gift-world-portrait" src={gift.portrait} alt="" loading="eager"/>}
   {gift.kind==="play"&&<div className="crew-gift-world-game"><span>1</span><span>2</span><span>?</span><span>4</span></div>}
   {gift.kind==="souls"&&<div className="crew-gift-world-soul"><i/><i/><b/></div>}
   {gift.kind==="learn"&&<div className="crew-gift-world-book"><i/><i/><b>✦</b></div>}
@@ -146,9 +136,9 @@ export function HomeMysteryGift(){
  const description=gift?.kind?t("gift."+gift.kind+"Description",{name:gift.name}):"";
  return portalHost?createPortal(<div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
   {minimized?<button ref={minimizedRef} type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
-   <CrewDotArt/>
+   <GiftBoxArt/>
   </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls={open?"crew-gift-result":undefined} title={gift?t("gift.reopen"):t("gift.title")}>
-   <CrewDotArt/>
+   <GiftBoxArt/>
   </button>}
   {open&&gift&&<>
    <div className="crew-gift-scrim" onClick={()=>setOpen(false)} aria-hidden="true"/>

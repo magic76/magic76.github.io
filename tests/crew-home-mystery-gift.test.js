@@ -15,7 +15,7 @@ test("home surprise is floating instead of adding a content block",()=>{
  assert.match(gift,/setPortalHost\(document\.body\)/);
  assert.match(gift,/portalHost\?createPortal\(/);
  assert.match(gift,/minimizedRef/);
- assert.match(gift,/crew-gift-world-friend/);
+ assert.match(gift,/className="crew-gift-world-portrait"/);
  assert.match(gift,/document\.body\.style\.overflow="hidden"/);
  assert.match(gift,/event.key==="Escape"/);
  assert.match(gift,/\.filter\(item=>item.id!==previous\)/);
@@ -35,15 +35,14 @@ test("all home catalogs and analytics have gift funnel keys",()=>{
 });
 
 
-test("Crew Dot opens a destination portal without adding navigation layers",()=>{
+test("mystery gift opens a destination portal without adding navigation layers",()=>{
  const gift=read("web-spa/src/pages/HomeMysteryGift.tsx");
  const css=read("web-spa/src/pages/homeMysteryGift.css");
- assert.match(gift,/function CrewDotArt\(/);
+ assert.match(gift,/function GiftBoxArt\(/);
  assert.match(gift,/function GiftWorld\(/);
  assert.match(gift,/crew-gift-world-\"\+gift\.kind/);
- assert.doesNotMatch(gift,/crew-gift-world-guide|crew-gift-dot-present|crew-gift-dot-arm/);
- assert.match(gift,/crew-gift-dot-cloud/);
- assert.match(gift,/crew-gift-dot-eyes/);
+ assert.doesNotMatch(gift,/CrewDotArt|crew-gift-dot-present|crew-gift-world-guide/);
+ assert.match(gift,/crew-gift-world-portrait/);
  assert.match(gift,/<GiftWorld gift=\{gift\}\/>/);
  assert.match(gift,/to=\{gift\.to\}/);
  assert.match(gift,/onClick=\{unwrap\}/);
@@ -59,16 +58,29 @@ test("Crew Dot opens a destination portal without adding navigation layers",()=>
  assert.match(css,/@keyframes crew-gift-box-to-portal/);
 });
 
-test("Crew Dot and the gift remain separate, with centered and clipped reveal content",()=>{
- const source=read("web-spa/src/pages/HomeMysteryGift.tsx");
- const css=read("web-spa/src/pages/homeMysteryGift.css");
- assert.equal((source.match(/<CrewDotArt\/>/g)||[]).length,2,"Dot is only in the full and minimized triggers");
- assert.equal((source.match(/<GiftBoxArt opened\/>/g)||[]).length,1,"Gift is only in the reveal transition");
- assert.match(source,/className="crew-gift-opening-box"><GiftBoxArt opened\/>/);
- assert.doesNotMatch(source,/crew-gift-dot-present|crew-gift-world-guide|CrewDotArt celebrate/);
- assert.match(css,/\.crew-gift-world\{[^}]*overflow:hidden;contain:paint/);
- assert.match(css,/\.crew-gift-world-friend,\.crew-gift-world-game,[^}]*left:50%;right:auto/);
- assert.match(css,/@keyframes crew-gift-box-to-portal/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+test("the gift FAB attracts attention without adding a mascot or blocking the bottom nav",()=>{
+ const gift=read("web-spa/src/pages/HomeMysteryGift.tsx"),css=read("web-spa/src/pages/homeMysteryGift.css");
+ assert.equal((gift.match(/<GiftBoxArt\/>/g)||[]).length,2,"gift box is shown in normal and minimized triggers");
+ assert.equal((gift.match(/<GiftBoxArt opened\/>/g)||[]).length,1,"opening art remains in the reveal transition");
+ assert.doesNotMatch(gift,/CrewDotArt/);
+ assert.match(css,/\.crew-gift-fab::before\{[^}]*animation:crew-gift-invite-glow/);
+ assert.match(css,/\.crew-gift-fab::after\{[^}]*animation:crew-gift-invite-star/);
+ assert.match(css,/\.crew-gift-fab \.crew-gift-art\{[^}]*animation:crew-gift-invite-wiggle/);
+ assert.match(css,/\.crew-gift-minimized\{[^}]*width:44px;height:44px/);
+ assert.match(css,/\.crew-gift-fab::before,\.crew-gift-fab::after,\.crew-gift-fab \.crew-gift-art,[^}]*animation:none!important/);
+ assert.match(css,/body:has\(\.crew-update-notice\) \.crew-mystery-gift:not\(:has\(\.crew-gift-panel\)\)\{display:none\}/);
+});
+test("friend scene reserves space and portrait sits right, never on the CTA",()=>{
+ const gift=read("web-spa/src/pages/HomeMysteryGift.tsx"),css=read("web-spa/src/pages/homeMysteryGift.css");
+ assert.match(gift,/className=\{"crew-gift-world crew-gift-world-"\+gift\.kind\}/);
+ assert.match(gift,/className="crew-gift-world-portrait" src=\{gift\.portrait\}/);
+ assert.doesNotMatch(gift,/className="crew-gift-world-friend" src=/);
+ assert.match(css,/\.crew-gift-world\{[^}]*position:relative;[^}]*overflow:hidden;contain:paint/);
+ assert.match(css,/\.crew-gift-world-portrait\{[^}]*right:14px;left:auto;bottom:10px/);
+ assert.match(css,/\.crew-gift-world-game,\.crew-gift-world-soul,\.crew-gift-world-book\{[^}]*left:50%;right:auto/);
+ assert.doesNotMatch(css,/\.crew-gift-world-friend,\.crew-gift-world-game/);
+ assert.match(css,/\.crew-gift-panel \.crew-gift-world\{flex:none;min-height:0\}/);
+ assert.match(css,/\.crew-gift-panel \.crew-gift-visit\{position:relative;z-index:1\}/);
+ assert.match(css,/@media\(max-width:359px\)\{\.crew-gift-world\{height:136px\}\.crew-gift-world-portrait\{/);
  assert.match(css,/\.crew-gift-opening-box\{display:none\}/);
 });
