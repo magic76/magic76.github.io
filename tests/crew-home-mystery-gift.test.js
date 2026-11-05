@@ -6,7 +6,8 @@ test("home surprise is floating instead of adding a content block",()=>{
  assert.match(home,/<HomeMysteryGift\/>/);
  assert.match(css,/\.crew-mystery-gift\{position:fixed/);
  assert.match(css,/var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom/);
- assert.match(css,/body:has\(\.crew-update-notice\) \.crew-mystery-gift\{display:none\}/);
+ assert.match(css,/body:has\(\.crew-update-notice\) \.crew-mystery-gift:not\(:has\(\.crew-gift-panel\)\)\{display:none\}/);
+ assert.match(css,/\.crew-mystery-gift:has\(\.crew-gift-panel\)\{z-index:90\}/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(gift,/role="dialog"/);
  // The app shell has a persistent transform animation; fixed children must portal to body.

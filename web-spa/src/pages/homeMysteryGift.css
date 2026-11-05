@@ -33,7 +33,9 @@
 @media(min-width:900px){.crew-mystery-gift{bottom:24px;right:24px}.crew-gift-panel{right:24px;bottom:96px;max-height:calc(100dvh - 114px)}}
 @media(max-height:560px){.crew-gift-panel{bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px) + 72px);max-height:calc(100dvh - var(--nav-h,68px) - env(safe-area-inset-bottom,0px) - 86px);padding:10px}.crew-gift-reveal .crew-gift-art{width:62px;height:62px}}
 /* The build-update prompt owns the corner until it is dismissed. */
-body:has(.crew-update-notice) .crew-mystery-gift{display:none}
+/* Keep an already-open dialog usable when an update prompt arrives. */
+.crew-mystery-gift:has(.crew-gift-panel){z-index:90}
+body:has(.crew-update-notice) .crew-mystery-gift:not(:has(.crew-gift-panel)){display:none}
 @keyframes crew-gift-portrait-pop{from{transform:translateY(12px) scale(.65);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
 @keyframes crew-gift-lid-pop{from{transform:translate(0,0) rotate(0)}to{transform:translate(-7px,-12px) rotate(-13deg)}}
 @keyframes crew-gift-once-wiggle{0%,45%,100%{transform:rotate(0)}15%{transform:rotate(-10deg)}30%{transform:rotate(8deg)}}
