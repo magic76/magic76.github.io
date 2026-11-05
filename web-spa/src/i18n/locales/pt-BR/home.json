@@ -19,7 +19,11 @@
     "verifyDesc": "Verifique se sua chave funciona.",
     "shortDesc": "Após o teste, configure sua chave para continuar a conversa."
   },
-  "android": "Conheça o Crew para Android",
+  "android": "Leve todo o Crew no seu celular",
+  "androidApp": {
+    "name": "Crew: amigos de IA e idiomas",
+    "description": "Converse com amigos de IA, pratique idiomas, jogue e descubra histórias. Tudo em um só app."
+  },
   "briefing": {
     "heading": "Resumo diário de P&D",
     "today": "O que vale a pena explorar hoje?",
