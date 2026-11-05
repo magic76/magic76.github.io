@@ -33,3 +33,28 @@ test("all home catalogs and analytics have gift funnel keys",()=>{
  assert.match(read("web-spa/src/pages/HomeMysteryGift.tsx"),/trackUsageEvent\("home_entry_click",gift.kind\)/);
  assert.match(read("web-spa/src/analytics/usage.ts"),/event\.startsWith\("home_gift_"\)\?300:2000/);
 });
+
+
+test("Crew Dot opens a destination portal without adding navigation layers",()=>{
+ const gift=read("web-spa/src/pages/HomeMysteryGift.tsx");
+ const css=read("web-spa/src/pages/homeMysteryGift.css");
+ assert.match(gift,/function CrewDotArt\(/);
+ assert.match(gift,/function GiftWorld\(/);
+ assert.match(gift,/crew-gift-world-\"\+gift\.kind/);
+ assert.match(gift,/crew-gift-world-guide/);
+ assert.match(gift,/crew-gift-dot-cloud/);
+ assert.match(gift,/crew-gift-dot-eyes/);
+ assert.match(gift,/<GiftWorld gift=\{gift\}\/>/);
+ assert.match(gift,/to=\{gift\.to\}/);
+ assert.match(gift,/onClick=\{unwrap\}/);
+ assert.match(gift,/trackUsageEvent\("home_gift_go",gift\.kind\)/);
+ for(const kind of ["friend","play","souls","learn"]){
+  assert.match(gift,new RegExp('gift.kind==="'+kind+'"'));
+  assert.match(css,new RegExp('\\.crew-gift-world-'+kind));
+ }
+ assert.match(css,/\.crew-gift-minimized\{[^}]*width:44px;height:44px/);
+ assert.match(css,/@media\(max-width:359px\)/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/\.crew-gift-opening-box\{display:none\}/);
+ assert.match(css,/@keyframes crew-gift-box-to-portal/);
+});
