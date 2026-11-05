@@ -19,7 +19,11 @@
     "verifyDesc": "Comprueba que tu clave funciona.",
     "shortDesc": "Al terminar la prueba, puedes configurar tu propia clave para seguir hablando."
   },
-  "android": "Descubre Crew para Android",
+  "android": "Lleva todo Crew en tu móvil",
+  "androidApp": {
+    "name": "Crew: amigos IA y charla de idiomas",
+    "description": "Chatea con amigos de IA, practica idiomas, juega y descubre historias. Todo en una sola app."
+  },
   "briefing": {
     "heading": "Resumen diario de I+D",
     "today": "¿Qué merece la pena explorar hoy?",
