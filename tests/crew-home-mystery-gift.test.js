@@ -41,7 +41,7 @@ test("Crew Dot opens a destination portal without adding navigation layers",()=>
  assert.match(gift,/function CrewDotArt\(/);
  assert.match(gift,/function GiftWorld\(/);
  assert.match(gift,/crew-gift-world-\"\+gift\.kind/);
- assert.match(gift,/crew-gift-world-guide/);
+ assert.doesNotMatch(gift,/crew-gift-world-guide|crew-gift-dot-present|crew-gift-dot-arm/);
  assert.match(gift,/crew-gift-dot-cloud/);
  assert.match(gift,/crew-gift-dot-eyes/);
  assert.match(gift,/<GiftWorld gift=\{gift\}\/>/);
@@ -57,4 +57,18 @@ test("Crew Dot opens a destination portal without adding navigation layers",()=>
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(css,/\.crew-gift-opening-box\{display:none\}/);
  assert.match(css,/@keyframes crew-gift-box-to-portal/);
+});
+
+test("Crew Dot and the gift remain separate, with centered and clipped reveal content",()=>{
+ const source=read("web-spa/src/pages/HomeMysteryGift.tsx");
+ const css=read("web-spa/src/pages/homeMysteryGift.css");
+ assert.equal((source.match(/<CrewDotArt\/>/g)||[]).length,2,"Dot is only in the full and minimized triggers");
+ assert.equal((source.match(/<GiftBoxArt opened\/>/g)||[]).length,1,"Gift is only in the reveal transition");
+ assert.match(source,/className="crew-gift-opening-box"><GiftBoxArt opened\/>/);
+ assert.doesNotMatch(source,/crew-gift-dot-present|crew-gift-world-guide|CrewDotArt celebrate/);
+ assert.match(css,/\.crew-gift-world\{[^}]*overflow:hidden;contain:paint/);
+ assert.match(css,/\.crew-gift-world-friend,\.crew-gift-world-game,[^}]*left:50%;right:auto/);
+ assert.match(css,/@keyframes crew-gift-box-to-portal/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(css,/\.crew-gift-opening-box\{display:none\}/);
 });
