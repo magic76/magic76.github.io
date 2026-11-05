@@ -535,5 +535,21 @@
     "words": "今日の単語",
     "lessons": "修了したレッスン",
     "footnote": "ここに表示されるのは、このブラウザやアプリの WebView に記録された学習情報だけです。以前の Android アプリの記録とはまだ同期されていません。"
+  },
+  "gift": {
+    "title": "Crew ミステリーボックス",
+    "teaser": "今日のサプライズは？",
+    "open": "開けてみる",
+    "reopen": "結果を見る",
+    "reveal": "当たったのは！",
+    "start": "体験する",
+    "again": "もう一度",
+    "close": "閉じる",
+    "minimize": "ボックスを小さくする",
+    "restore": "ボックスを表示",
+    "friendDescription": "{{name}} とおしゃべりしよう！",
+    "playDescription": "AI とゲームで勝負しよう。",
+    "soulsDescription": "身近な物をおしゃべりさせよう。",
+    "learnDescription": "外国語のひと言に挑戦しよう。"
   }
 }

@@ -9,6 +9,7 @@ import {PlayStoreLink} from "../components/PlayStoreLink";
 import {isCrewAndroidShell} from "../lib/platform";
 import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
+import {HomeMysteryGift} from "./HomeMysteryGift";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "../teacher/shortsFeed";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
@@ -209,5 +210,6 @@ export function HomePage(){
    <div className="play-store-grid"><PlayStoreLink product="teacher" onClick={()=>trackUsageEvent("home_entry_click","android_app_google_play")}/></div>
   </details>}
   </div>
+  <HomeMysteryGift/>
  </div>;
 }

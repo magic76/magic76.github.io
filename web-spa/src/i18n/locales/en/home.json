@@ -535,5 +535,21 @@
     "words": "Words today",
     "lessons": "Lessons completed",
     "footnote": "Only activity recorded in this browser or app WebView is shown. Existing native Android records are not yet synced."
+  },
+  "gift": {
+    "title": "Crew Mystery Box",
+    "teaser": "Tap for today's surprise",
+    "open": "Open surprise",
+    "reopen": "View surprise",
+    "reveal": "You got!",
+    "start": "Try it now",
+    "again": "Open another",
+    "close": "Close",
+    "minimize": "Minimize mystery box",
+    "restore": "Show mystery box",
+    "friendDescription": "Say hello to {{name}}!",
+    "playDescription": "Challenge the AI to a game.",
+    "soulsDescription": "Give an everyday object a voice.",
+    "learnDescription": "Try a fun new phrase in another language."
   }
 }

@@ -68,6 +68,9 @@ jobs:
         run: node --test tests/fortune-ai-quality.test.js tests/fortune-report-depth.test.js tests/fortune-usefulness-a.test.js tests/fortune-usefulness-b.test.js
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
+      # Quick homepage widget contract; always run for PRs and main to prevent regressions.
+      - name: Validate floating mystery gift
+        run: node --test tests/crew-home-mystery-gift.test.js
       - name: Validate OAuth sign-in security (auth PRs only)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'crew-auth') || contains(github.event.pull_request.head.ref, 'guest-auth-quota'))
         run: node --test tests/crew-auth.test.js

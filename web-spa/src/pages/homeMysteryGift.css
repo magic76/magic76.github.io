@@ -1,0 +1,45 @@
+/* Homepage-only floating discovery; no extra block or layout shift. */
+.crew-mystery-gift{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px) + 16px);z-index:60;display:flex;align-items:center;flex-direction:column;gap:5px}
+.crew-gift-fab{appearance:none;display:grid;place-items:center;width:58px;height:58px;padding:3px;border-radius:50%;border:1px solid #f9c674;background:#fff9ec;box-shadow:0 5px 19px #7d440b38;cursor:pointer;touch-action:manipulation;transition:transform .18s ease,box-shadow .18s ease}
+.crew-gift-fab:hover{transform:translateY(-3px);box-shadow:0 8px 22px #7d440b44}
+.crew-gift-fab:active{transform:scale(.95)}
+.crew-gift-art{display:block;width:52px;height:52px;overflow:visible;animation:crew-gift-once-wiggle .85s ease .75s 1 both;transform-origin:center bottom}
+.crew-gift-art.is-open{animation:none}
+.crew-gift-art.is-open .crew-gift-lid{transform-origin:36px 30px;animation:crew-gift-lid-pop .42s ease-out .07s both}
+.crew-gift-art.is-open .crew-gift-glint{opacity:1}
+.crew-gift-friend-icon{width:46px;height:46px;object-fit:cover;border-radius:50%;border:2px solid #ffc36b;box-sizing:border-box}
+.crew-gift-result-mark{display:grid;place-items:center;width:46px;height:46px;border-radius:50%;background:linear-gradient(145deg,#ffb23d,#ed8317);color:#442813;font-size:22px;font-weight:850}
+.crew-gift-hint{position:absolute;right:65px;top:15px;white-space:nowrap;pointer-events:none;background:#fff;padding:6px 10px;border-radius:12px;color:#6f4a22;border:1px solid #ffe3bc;box-shadow:0 3px 10px #62462213;font-size:12px;line-height:1.4;animation:crew-gift-hint-enter 4.2s ease .7s both}
+.crew-gift-minimized{width:32px;height:40px;transform:translateX(13px);border:1px solid #f5d6aa;border-radius:14px 0 0 14px;background:#fff8ed;box-shadow:0 3px 12px #7d440b18;padding:4px 0 4px 4px;cursor:pointer}
+.crew-gift-minimized .crew-gift-art{width:30px;height:30px;animation:none}
+.crew-gift-scrim{position:fixed;inset:0;z-index:1;background:#1812204d;touch-action:none}
+.crew-gift-panel{box-sizing:border-box;position:fixed;z-index:2;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px) + 87px);width:min(340px,calc(100vw - 28px));max-height:calc(100dvh - var(--nav-h,68px) - env(safe-area-inset-bottom,0px) - 108px);overflow-y:auto;overscroll-behavior:contain;padding:16px;border-radius:22px;border:1px solid #f5d9bc;background:#fffcf8;box-shadow:0 16px 50px #21152a45;color:#29212c;text-align:center;animation:crew-gift-popup .25s ease-out both}
+.crew-gift-topline{display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:left;font-weight:750;font-size:13px;color:#765a44}
+.crew-gift-close{border:0;background:#f5ecdf;border-radius:50%;height:38px;width:38px;font-size:24px;line-height:1;cursor:pointer;color:#53413c}
+.crew-gift-reveal{display:flex;align-items:center;flex-direction:column;gap:6px;padding:0 4px 10px}
+.crew-gift-reveal-art{position:relative;display:grid;place-items:center;width:132px;height:114px}
+.crew-gift-reveal .crew-gift-art{width:106px;height:106px;filter:drop-shadow(0 9px 12px #f5bb6c6e)}
+.crew-gift-friend-portrait{position:absolute;top:0;right:-3px;width:58px;height:58px;object-fit:cover;border-radius:50%;border:3px solid #fff8e9;box-shadow:0 3px 13px #4f261e30;animation:crew-gift-portrait-pop .38s ease-out .18s both}
+.crew-gift-sparks{color:#f6a229;font-size:20px;letter-spacing:18px;margin-top:-5px;animation:crew-gift-sparkle .45s ease-out both}
+.crew-gift-sparks span{color:#a58cf3}
+.crew-gift-overline{font-size:12px;font-weight:750;letter-spacing:.05em;color:#9a6e34}
+.crew-gift-reveal h2{margin:0;font-size:22px;line-height:1.25;overflow-wrap:anywhere}
+.crew-gift-reveal p{margin:3px 0 0;color:#705f67;line-height:1.6;font-size:13px}
+.crew-gift-visit{display:flex;justify-content:center;align-items:center;gap:12px;min-height:46px;border-radius:14px;background:#ed8c1e;color:#25180c;text-decoration:none;font-weight:800;font-size:14px}
+.crew-gift-visit:hover{background:#ffc160;color:#25180c}
+.crew-gift-actions{display:flex;justify-content:space-between;gap:12px;margin-top:9px}
+.crew-gift-actions button{border:0;background:transparent;color:#665563;padding:9px 6px;min-height:44px;font-size:12px;font-weight:700;cursor:pointer}
+.crew-mystery-gift button:focus-visible,.crew-mystery-gift a:focus-visible{outline:3px solid #7654db;outline-offset:3px}
+@media(min-width:900px){.crew-mystery-gift{bottom:24px;right:24px}.crew-gift-panel{right:24px;bottom:96px;max-height:calc(100dvh - 114px)}}
+@media(max-height:560px){.crew-gift-panel{bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px) + 72px);max-height:calc(100dvh - var(--nav-h,68px) - env(safe-area-inset-bottom,0px) - 86px);padding:10px}.crew-gift-reveal .crew-gift-art{width:62px;height:62px}}
+/* The build-update prompt owns the corner until it is dismissed. */
+/* Keep an already-open dialog usable when an update prompt arrives. */
+.crew-mystery-gift:has(.crew-gift-panel){z-index:90}
+body:has(.crew-update-notice) .crew-mystery-gift:not(:has(.crew-gift-panel)){display:none}
+@keyframes crew-gift-portrait-pop{from{transform:translateY(12px) scale(.65);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+@keyframes crew-gift-lid-pop{from{transform:translate(0,0) rotate(0)}to{transform:translate(-7px,-12px) rotate(-13deg)}}
+@keyframes crew-gift-once-wiggle{0%,45%,100%{transform:rotate(0)}15%{transform:rotate(-10deg)}30%{transform:rotate(8deg)}}
+@keyframes crew-gift-popup{from{opacity:0;transform:translateY(15px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes crew-gift-sparkle{from{opacity:0;transform:translateY(14px) scale(.6)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes crew-gift-hint-enter{0%{opacity:0;transform:translateY(5px)}12%,74%{opacity:1;transform:translateY(0)}100%{opacity:0;visibility:hidden}}
+@media(prefers-reduced-motion:reduce){.crew-gift-art,.crew-gift-panel,.crew-gift-sparks,.crew-gift-hint,.crew-gift-friend-portrait{animation:none!important}.crew-gift-art.is-open .crew-gift-lid{transform:translate(-7px,-12px) rotate(-13deg)}.crew-gift-hint{display:none}.crew-gift-fab{transition:none!important}.crew-gift-fab:hover{transform:none}}

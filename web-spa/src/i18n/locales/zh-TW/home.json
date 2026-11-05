@@ -535,5 +535,21 @@
     "words": "今日單字",
     "lessons": "已完成課程",
     "footnote": "僅顯示此瀏覽器／App WebView 已記錄的學習資料；尚未與舊 Android 原生紀錄同步。"
+  },
+  "gift": {
+    "title": "Crew 驚喜盲盒",
+    "teaser": "今天有什麼驚喜？",
+    "open": "打開驚喜",
+    "reopen": "查看驚喜",
+    "reveal": "你抽到了！",
+    "start": "開始體驗",
+    "again": "再抽一次",
+    "close": "關閉",
+    "minimize": "縮小盲盒",
+    "restore": "顯示盲盒",
+    "friendDescription": "和 {{name}} 聊點有趣的吧！",
+    "playDescription": "跟 AI 來場腦力挑戰。",
+    "soulsDescription": "讓身邊的物品開口說話。",
+    "learnDescription": "今天學一句實用的外語。"
   }
 }

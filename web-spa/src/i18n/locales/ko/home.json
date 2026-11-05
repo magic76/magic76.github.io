@@ -535,5 +535,21 @@
     "words": "오늘의 단어",
     "lessons": "완료한 수업",
     "footnote": "이 브라우저 또는 앱 WebView에 기록된 활동만 표시됩니다. 이전 Android 네이티브 앱 기록은 아직 동기화되지 않았습니다."
+  },
+  "gift": {
+    "title": "Crew 깜짝 상자",
+    "teaser": "오늘은 어떤 깜짝 선물일까요?",
+    "open": "상자 열기",
+    "reopen": "결과 보기",
+    "reveal": "당첨!",
+    "start": "바로 체험",
+    "again": "다시 열기",
+    "close": "닫기",
+    "minimize": "상자 최소화",
+    "restore": "상자 표시",
+    "friendDescription": "{{name}}와 대화해 보세요!",
+    "playDescription": "AI와 게임 대결을 해보세요.",
+    "soulsDescription": "일상 속 물건에게 목소리를 주세요.",
+    "learnDescription": "외국어 표현을 하나 배워보세요."
   }
 }

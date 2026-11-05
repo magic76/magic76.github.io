@@ -535,5 +535,21 @@
     "words": "Từ vựng hôm nay",
     "lessons": "Bài học đã hoàn thành",
     "footnote": "Chỉ hiển thị hoạt động lưu trong trình duyệt hoặc WebView này. Dữ liệu từ ứng dụng Android gốc cũ chưa được đồng bộ."
+  },
+  "gift": {
+    "title": "Hộp bí ẩn Crew",
+    "teaser": "Hôm nay có gì bất ngờ?",
+    "open": "Mở hộp",
+    "reopen": "Xem bất ngờ",
+    "reveal": "Bạn nhận được!",
+    "start": "Thử ngay",
+    "again": "Mở hộp khác",
+    "close": "Đóng",
+    "minimize": "Thu nhỏ hộp",
+    "restore": "Hiện hộp",
+    "friendDescription": "Trò chuyện cùng {{name}} nhé!",
+    "playDescription": "Thử thách AI bằng một trò chơi.",
+    "soulsDescription": "Cho đồ vật thường ngày biết nói.",
+    "learnDescription": "Học một câu ngoại ngữ mới."
   }
 }

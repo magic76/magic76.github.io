@@ -535,5 +535,21 @@
     "words": "Heutige Vokabeln",
     "lessons": "Abgeschlossene Lektionen",
     "footnote": "Angezeigt werden nur Aktivitäten aus diesem Browser oder der App-WebView. Ältere Daten aus der nativen Android-App sind noch nicht synchronisiert."
+  },
+  "gift": {
+    "title": "Crew Überraschungsbox",
+    "teaser": "Welche Überraschung wartet heute?",
+    "open": "Überraschung öffnen",
+    "reopen": "Überraschung ansehen",
+    "reveal": "Du hast gezogen!",
+    "start": "Jetzt ausprobieren",
+    "again": "Noch einmal",
+    "close": "Schließen",
+    "minimize": "Box verkleinern",
+    "restore": "Box anzeigen",
+    "friendDescription": "Sprich mit {{name}}!",
+    "playDescription": "Fordere die KI zu einem Spiel heraus.",
+    "soulsDescription": "Lass einen Alltagsgegenstand sprechen.",
+    "learnDescription": "Lerne einen neuen Satz."
   }
 }

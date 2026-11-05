@@ -535,5 +535,21 @@
     "words": "Kata hari ini",
     "lessons": "Pelajaran selesai",
     "footnote": "Hanya aktivitas yang tercatat di browser atau WebView ini yang ditampilkan. Catatan aplikasi Android lama belum disinkronkan."
+  },
+  "gift": {
+    "title": "Kotak kejutan Crew",
+    "teaser": "Kejutan apa hari ini?",
+    "open": "Buka kejutan",
+    "reopen": "Lihat kejutan",
+    "reveal": "Kamu dapat!",
+    "start": "Coba sekarang",
+    "again": "Buka lagi",
+    "close": "Tutup",
+    "minimize": "Kecilkan kotak",
+    "restore": "Tampilkan kotak",
+    "friendDescription": "Ayo ngobrol dengan {{name}}!",
+    "playDescription": "Tantang AI bermain game.",
+    "soulsDescription": "Buat benda sehari-hari bisa berbicara.",
+    "learnDescription": "Pelajari frasa bahasa baru."
   }
 }

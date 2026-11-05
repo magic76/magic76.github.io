@@ -1,0 +1,35 @@
+const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
+const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
+test("home surprise is floating instead of adding a content block",()=>{
+ const home=read("web-spa/src/pages/HomePage.tsx"),gift=read("web-spa/src/pages/HomeMysteryGift.tsx"),css=read("web-spa/src/pages/homeMysteryGift.css");
+ assert.match(home,/import \{HomeMysteryGift\} from "\.\/HomeMysteryGift"/);
+ assert.match(home,/<HomeMysteryGift\/>/);
+ assert.match(css,/\.crew-mystery-gift\{position:fixed/);
+ assert.match(css,/var\(--nav-h,68px\) \+ env\(safe-area-inset-bottom/);
+ assert.match(css,/body:has\(\.crew-update-notice\) \.crew-mystery-gift:not\(:has\(\.crew-gift-panel\)\)\{display:none\}/);
+ assert.match(css,/\.crew-mystery-gift:has\(\.crew-gift-panel\)\{z-index:90\}/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(gift,/role="dialog"/);
+ // The app shell has a persistent transform animation; fixed children must portal to body.
+ assert.match(gift,/createPortal\(/);
+ assert.match(gift,/setPortalHost\(document\.body\)/);
+ assert.match(gift,/portalHost\?createPortal\(/);
+ assert.match(gift,/minimizedRef/);
+ assert.match(gift,/crew-gift-friend-portrait/);
+ assert.match(gift,/document\.body\.style\.overflow="hidden"/);
+ assert.match(gift,/event.key==="Escape"/);
+ assert.match(gift,/\.filter\(item=>item.id!==previous\)/);
+ for(const dest of ["/friend/live?id=zoe","/games/1a2b","/games/reversi","/souls","/teacher/course/travel"])assert.ok(gift.includes(dest));
+});
+test("all home catalogs and analytics have gift funnel keys",()=>{
+ for(const lang of ["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"]){
+  const home=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json"));
+  for(const key of ["title","teaser","open","reopen","reveal","start","again","close","minimize","restore","friendDescription","playDescription","soulsDescription","learnDescription"])assert.ok(home.gift?.[key],lang+" gift."+key);
+ }
+ for(const file of ["web-spa/src/analytics/usage.ts","functions/api/usage/event.ts","web-spa/src/analytics/UsageDashboardPage.tsx"]){
+  const source=read(file);
+  for(const event of ["home_gift_view","home_gift_open","home_gift_result","home_gift_go","home_gift_minimize"])assert.ok(source.includes(event),file+" missing "+event);
+ }
+ assert.match(read("web-spa/src/pages/HomeMysteryGift.tsx"),/trackUsageEvent\("home_entry_click",gift.kind\)/);
+ assert.match(read("web-spa/src/analytics/usage.ts"),/event\.startsWith\("home_gift_"\)\?300:2000/);
+});

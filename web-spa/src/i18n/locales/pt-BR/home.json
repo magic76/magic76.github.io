@@ -535,5 +535,21 @@
     "words": "Palavras de hoje",
     "lessons": "Lições concluídas",
     "footnote": "São exibidas apenas as atividades registradas neste navegador ou WebView. Os registros do antigo app nativo para Android ainda não são sincronizados."
+  },
+  "gift": {
+    "title": "Caixa surpresa Crew",
+    "teaser": "Qual será a surpresa de hoje?",
+    "open": "Abrir surpresa",
+    "reopen": "Ver surpresa",
+    "reveal": "Você ganhou!",
+    "start": "Experimentar",
+    "again": "Abrir outra",
+    "close": "Fechar",
+    "minimize": "Minimizar caixa",
+    "restore": "Mostrar caixa",
+    "friendDescription": "Converse com {{name}}!",
+    "playDescription": "Desafie a IA em um jogo.",
+    "soulsDescription": "Dê voz a um objeto do dia a dia.",
+    "learnDescription": "Aprenda uma frase em outro idioma."
   }
 }

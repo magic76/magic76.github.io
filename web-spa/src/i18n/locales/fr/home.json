@@ -535,5 +535,21 @@
     "words": "Mots du jour",
     "lessons": "Leçons terminées",
     "footnote": "Seules les activités enregistrées dans ce navigateur ou WebView sont affichées. Les anciennes données de l'application Android native ne sont pas encore synchronisées."
+  },
+  "gift": {
+    "title": "Boîte surprise Crew",
+    "teaser": "Quelle surprise aujourd'hui ?",
+    "open": "Ouvrir la surprise",
+    "reopen": "Voir la surprise",
+    "reveal": "Vous avez obtenu !",
+    "start": "Essayer",
+    "again": "Ouvrir encore",
+    "close": "Fermer",
+    "minimize": "Réduire la boîte",
+    "restore": "Afficher la boîte",
+    "friendDescription": "Discutez avec {{name}} !",
+    "playDescription": "Défiez l'IA dans un jeu.",
+    "soulsDescription": "Donnez la parole à un objet.",
+    "learnDescription": "Apprenez une expression étrangère."
   }
 }
