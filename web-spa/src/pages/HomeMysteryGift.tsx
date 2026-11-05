@@ -47,6 +47,46 @@ function GiftBoxArt({opened=false}:{opened?:boolean}){
  </svg>;
 }
 
+/** Crew Dot: orange cloud, right-biased capsule eyes, and a little carried box.
+ * Inline vector artwork keeps the floating entry sharp without fetching an asset.
+ */
+function CrewDotArt({celebrate=false}:{celebrate?:boolean}){
+ return <svg className={"crew-gift-dot"+(celebrate?" is-celebrating":"")} viewBox="0 0 112 98" focusable="false" aria-hidden="true">
+  <path className="crew-gift-dot-arm" d="M25 63Q12 54 14 42" fill="none" stroke="#F58B00" strokeWidth="9" strokeLinecap="round"/>
+  <path className="crew-gift-dot-cloud" d="M29 79C16 79 9 70 9 60c0-11 8-20 19-21 0-15 11-26 25-26 12 0 22 7 26 18 15-1 25 9 25 23 0 14-10 25-26 25Z" fill="#FF9A00"/>
+  <g className="crew-gift-dot-eyes" fill="#272127">
+   <rect x="59" y="39" width="7" height="17" rx="3.5"/>
+   <rect x="77" y="39" width="7" height="17" rx="3.5"/>
+  </g>
+  <circle className="crew-gift-dot-mouth" cx="73" cy="63" r="4" fill="#272127"/>
+  <g className="crew-gift-dot-present">
+   <rect x="38" y="64" width="32" height="24" rx="4" fill="#FFCF67"/>
+   <rect x="34" y="59" width="40" height="11" rx="3" fill="#FFF0BE"/>
+   <path d="M51 60v28" stroke="#E57B26" strokeWidth="5"/>
+   <path d="M52 59c-16-2-13-15-6-12 4 2 6 8 6 12 3-8 9-14 14-10 5 5-2 10-14 10" fill="none" stroke="#E57B26" strokeWidth="4" strokeLinecap="round"/>
+  </g>
+  <path className="crew-gift-dot-spark" d="M18 18v10m-5-5h10M95 12v8m-4-4h8" stroke="#FFC04B" strokeWidth="3" strokeLinecap="round"/>
+ </svg>;
+}
+
+/** A small destination diorama, not another navigation level. Every card links
+ * straight to the existing Crew route supplied by GIFTS.
+ */
+function GiftWorld({gift}:{gift:Gift}){
+ return <div className={"crew-gift-world crew-gift-world-"+gift.kind} aria-hidden="true">
+  <span className="crew-gift-world-orbit"/>
+  <span className="crew-gift-world-star is-first">✦</span>
+  <span className="crew-gift-world-star is-second">✧</span>
+  <span className="crew-gift-world-floor"/>
+  {gift.kind==="friend"&&gift.portrait&&<img className="crew-gift-world-friend" src={gift.portrait} alt="" loading="eager"/>}
+  {gift.kind==="play"&&<div className="crew-gift-world-game"><span>1</span><span>2</span><span>?</span><span>4</span></div>}
+  {gift.kind==="souls"&&<div className="crew-gift-world-soul"><i/><i/><b/></div>}
+  {gift.kind==="learn"&&<div className="crew-gift-world-book"><i/><i/><b>✦</b></div>}
+  <span className="crew-gift-world-guide"><CrewDotArt celebrate/></span>
+  <span className="crew-gift-opening-box"><GiftBoxArt opened/></span>
+ </div>;
+}
+
 export function HomeMysteryGift(){
  const {t}=useTranslation("home");
  const [portalHost,setPortalHost]=useState<HTMLElement|null>(null);
@@ -118,9 +158,9 @@ export function HomeMysteryGift(){
  const description=gift?.kind?t("gift."+gift.kind+"Description",{name:gift.name}):"";
  return portalHost?createPortal(<div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
   {minimized?<button ref={minimizedRef} type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
-   <GiftBoxArt/>
+   <CrewDotArt/>
   </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls={open?"crew-gift-result":undefined} title={gift?t("gift.reopen"):t("gift.title")}>
-   {gift?.kind==="friend"&&gift.portrait?<img className="crew-gift-friend-icon" src={gift.portrait} alt="" aria-hidden="true" loading="lazy"/>:gift?<span className="crew-gift-result-mark" aria-hidden="true">{gift.kind==="play"?"★":gift.kind==="souls"?"✦":"Aa"}</span>:<GiftBoxArt/>}
+   <CrewDotArt/>
   </button>}
   {open&&gift&&<>
    <div className="crew-gift-scrim" onClick={()=>setOpen(false)} aria-hidden="true"/>
@@ -131,10 +171,7 @@ export function HomeMysteryGift(){
     </div>
     <div key={gift.id} className="crew-gift-reveal" aria-live="polite">
      <span className="crew-gift-sparks" aria-hidden="true">✦ <span>✧</span> ✦</span>
-     <div className="crew-gift-reveal-art">
-      <GiftBoxArt opened/>
-      {gift.kind==="friend"&&gift.portrait&&<img className="crew-gift-friend-portrait" src={gift.portrait} alt="" aria-hidden="true" loading="lazy"/>}
-     </div>
+     <GiftWorld gift={gift}/>
      <span className="crew-gift-overline">{t("gift.reveal")}</span>
      <h2 id="crew-gift-heading">{resultName}</h2>
      <p id="crew-gift-description">{description}</p>
