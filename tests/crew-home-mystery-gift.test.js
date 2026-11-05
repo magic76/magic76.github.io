@@ -15,7 +15,7 @@ test("home surprise is floating instead of adding a content block",()=>{
  assert.match(gift,/setPortalHost\(document\.body\)/);
  assert.match(gift,/portalHost\?createPortal\(/);
  assert.match(gift,/minimizedRef/);
- assert.match(gift,/crew-gift-friend-portrait/);
+ assert.match(gift,/crew-gift-world-friend/);
  assert.match(gift,/document\.body\.style\.overflow="hidden"/);
  assert.match(gift,/event.key==="Escape"/);
  assert.match(gift,/\.filter\(item=>item.id!==previous\)/);
