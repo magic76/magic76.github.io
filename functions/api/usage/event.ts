@@ -35,6 +35,7 @@ const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
   "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle",
+  "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
