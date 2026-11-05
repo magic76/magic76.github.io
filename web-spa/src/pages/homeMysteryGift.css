@@ -43,3 +43,64 @@ body:has(.crew-update-notice) .crew-mystery-gift:not(:has(.crew-gift-panel)){dis
 @keyframes crew-gift-sparkle{from{opacity:0;transform:translateY(14px) scale(.6)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes crew-gift-hint-enter{0%{opacity:0;transform:translateY(5px)}12%,74%{opacity:1;transform:translateY(0)}100%{opacity:0;visibility:hidden}}
 @media(prefers-reduced-motion:reduce){.crew-gift-art,.crew-gift-panel,.crew-gift-sparks,.crew-gift-hint,.crew-gift-friend-portrait{animation:none!important}.crew-gift-art.is-open .crew-gift-lid{transform:translate(-7px,-12px) rotate(-13deg)}.crew-gift-hint{display:none}.crew-gift-fab{transition:none!important}.crew-gift-fab:hover{transform:none}}
+
+
+/* Crew Dot + pocket portal: make the existing corner gift feel like a world
+   without adding another home section or hiding any direct destinations. */
+.crew-gift-fab{background:#fff7e9;isolation:isolate;overflow:visible}
+.crew-gift-fab .crew-gift-dot{width:60px;height:60px;max-width:none;filter:drop-shadow(0 3px 3px #b85d1236);animation:crew-dot-idle 8s ease-in-out 1.2s infinite}
+.crew-gift-fab.has-result{border-color:#ffce78}
+.crew-gift-minimized{box-sizing:border-box;width:44px;height:44px;transform:none;border-radius:17px;padding:2px;display:grid;place-items:center;touch-action:manipulation}
+.crew-gift-minimized .crew-gift-dot{width:43px;height:43px}
+.crew-gift-dot{display:block;overflow:visible;flex:none}
+.crew-gift-dot-eyes{transform-origin:72px 48px;animation:crew-dot-blink 8s linear infinite}
+.crew-gift-dot-mouth{opacity:0}
+.crew-gift-dot-spark{opacity:0}
+.crew-gift-dot.is-celebrating .crew-gift-dot-mouth{opacity:1}
+.crew-gift-dot.is-celebrating .crew-gift-dot-spark{opacity:1;animation:crew-dot-spark .6s .4s ease-out both}
+.crew-gift-dot.is-celebrating .crew-gift-dot-arm{transform-origin:25px 65px;animation:crew-dot-wave .55s ease .45s both}
+
+.crew-gift-reveal{gap:7px}
+.crew-gift-world{position:relative;isolation:isolate;overflow:hidden;box-sizing:border-box;width:100%;height:156px;border-radius:18px;margin:4px 0 7px;background:radial-gradient(circle at 68% 26%,#ffe6b8 0,#ffbe8b 38%,#f69b74 100%)}
+.crew-gift-world-play{background:radial-gradient(circle at 68% 23%,#b6abfb 0,#7468c9 48%,#49457d 100%)}
+.crew-gift-world-souls{background:radial-gradient(circle at 68% 25%,#d5ffdc 0,#7fc9b9 48%,#54999c 100%)}
+.crew-gift-world-learn{background:radial-gradient(circle at 68% 26%,#fff3c7 0,#9cd2f5 48%,#749fce 100%)}
+.crew-gift-world-orbit{position:absolute;left:50%;top:44%;width:115px;height:115px;margin:-57px 0 0 -25px;border:5px solid #ffffff9c;border-radius:50%;box-shadow:0 0 0 12px #ffffff24,inset 0 0 24px #ffffff60;animation:crew-gift-portal-pulse .6s ease-out both}
+.crew-gift-world-floor{position:absolute;z-index:0;left:-12%;bottom:-75px;width:124%;height:118px;background:#ffffff4a;border-radius:50%;transform:rotate(-4deg)}
+.crew-gift-world-star{position:absolute;z-index:2;color:#fff8da;text-shadow:0 2px 8px #49318c3b;font-size:21px;line-height:1}
+.crew-gift-world-star.is-first{right:26px;top:17px}
+.crew-gift-world-star.is-second{left:45%;top:16px;font-size:17px}
+.crew-gift-world-friend,.crew-gift-world-game,.crew-gift-world-soul,.crew-gift-world-book{position:absolute;z-index:2;right:30px;bottom:13px;animation:crew-gift-world-arrive .38s cubic-bezier(.2,1.25,.32,1) .33s both}
+.crew-gift-world-friend{width:104px;height:124px;object-fit:cover;object-position:center 22%;border-radius:50px 50px 18px 18px;border:3px solid #fff9e8;box-sizing:border-box;box-shadow:0 9px 18px #71412859}
+.crew-gift-world-game{width:106px;height:106px;display:grid;grid-template-columns:repeat(2,1fr);gap:5px;transform:rotate(-8deg);padding:8px;box-sizing:border-box;border-radius:16px;background:#e6dfff;box-shadow:0 10px 22px #2a21496b}
+.crew-gift-world-game span{display:grid;place-items:center;background:#fffdfa;border-radius:8px;color:#5d51a7;font-size:23px;font-weight:900}
+.crew-gift-world-game span:nth-child(3){background:#ffcf70;color:#4b326b}
+.crew-gift-world-soul{width:99px;height:105px;border-radius:30px 32px 24px 24px;background:#ffd4a6;box-shadow:inset -13px -7px 0 #f2a66e,0 12px 21px #356e6880;transform:rotate(7deg)}
+.crew-gift-world-soul i{position:absolute;top:36px;width:9px;height:21px;border-radius:100px;background:#2e292d}
+.crew-gift-world-soul i:first-child{left:51px}.crew-gift-world-soul i:nth-child(2){left:74px}
+.crew-gift-world-soul b{position:absolute;top:64px;left:62px;width:8px;height:8px;border-radius:50%;background:#2e292d}
+.crew-gift-world-book{width:111px;height:96px;filter:drop-shadow(0 11px 8px #386b925e);transform:rotate(-9deg)}
+.crew-gift-world-book i{position:absolute;top:14px;width:53px;height:78px;background:#fffdf3;border:4px solid #4f77ae;box-sizing:border-box}
+.crew-gift-world-book i:first-child{left:4px;border-radius:11px 3px 4px 9px;transform:skewY(-7deg)}
+.crew-gift-world-book i:nth-child(2){right:4px;border-radius:3px 11px 9px 4px;transform:skewY(7deg)}
+.crew-gift-world-book b{position:absolute;top:26px;right:28px;color:#ff9a00;font-size:26px}
+.crew-gift-world-guide{position:absolute;z-index:3;left:9px;bottom:-2px;width:115px;height:110px;animation:crew-gift-guide-enter .45s ease-out .4s both}
+.crew-gift-world-guide .crew-gift-dot{width:100%;height:100%;filter:drop-shadow(0 8px 8px #3b2b3850)}
+.crew-gift-opening-box{position:absolute;z-index:4;inset:0;display:grid;place-items:center;pointer-events:none;animation:crew-gift-box-to-portal .6s ease-in-out both}
+.crew-gift-opening-box .crew-gift-art{width:78px;height:78px;filter:drop-shadow(0 9px 11px #5a3c4045)}
+.crew-gift-reveal h2{font-size:21px}
+.crew-gift-reveal p{min-height:21px}
+@media(max-height:560px){.crew-gift-world{height:104px}.crew-gift-world-guide{width:81px;height:78px}.crew-gift-world-friend{width:70px;height:85px}.crew-gift-world-game{width:72px;height:72px}.crew-gift-world-soul{width:70px;height:78px}.crew-gift-world-book{transform:scale(.7);transform-origin:bottom right}}
+@media(max-width:359px){.crew-gift-world-friend,.crew-gift-world-game,.crew-gift-world-soul,.crew-gift-world-book{right:15px}.crew-gift-world-guide{left:1px}}
+@keyframes crew-dot-idle{0%,6%,17%,100%{transform:translateY(0) rotate(0)}10%{transform:translateY(-3px) rotate(-5deg)}13%{transform:translateY(0) rotate(3deg)}}
+@keyframes crew-dot-blink{0%,26%,28%,100%{transform:scaleY(1)}27%{transform:scaleY(.15)}}
+@keyframes crew-dot-wave{0%,100%{transform:rotate(0)}45%{transform:rotate(-22deg)}}
+@keyframes crew-dot-spark{0%{opacity:0;transform:scale(.5)}60%{opacity:1;transform:scale(1.15)}100%{opacity:1;transform:scale(1)}}
+@keyframes crew-gift-portal-pulse{0%{opacity:0;transform:scale(.2)}70%{opacity:.9;transform:scale(1.07)}100%{opacity:.8;transform:scale(1)}}
+@keyframes crew-gift-world-arrive{from{opacity:0;translate:0 18px;scale:.78}to{opacity:1;translate:0 0;scale:1}}
+@keyframes crew-gift-guide-enter{from{opacity:0;transform:translateX(-16px) scale(.9)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes crew-gift-box-to-portal{0%,27%{opacity:1;transform:scale(1)}65%{opacity:1;transform:scale(1.24)}100%{opacity:0;visibility:hidden;transform:scale(.2)}}
+@media(prefers-reduced-motion:reduce){
+ .crew-gift-dot,.crew-gift-dot-eyes,.crew-gift-dot-arm,.crew-gift-dot-spark,.crew-gift-world-orbit,.crew-gift-world-friend,.crew-gift-world-game,.crew-gift-world-soul,.crew-gift-world-book,.crew-gift-world-guide,.crew-gift-opening-box{animation:none!important}
+ .crew-gift-opening-box{display:none}
+}
