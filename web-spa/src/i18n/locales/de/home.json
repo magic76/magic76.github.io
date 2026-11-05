@@ -19,7 +19,11 @@
     "verifyDesc": "Prüfe, ob dein Schlüssel funktioniert.",
     "shortDesc": "Nach dem Test kannst du mit einem eigenen Schlüssel weiterchatten."
   },
-  "android": "Crew für Android holen",
+  "android": "Nimm ganz Crew auf dein Handy mit",
+  "androidApp": {
+    "name": "Crew: KI-Freunde & Sprachchats",
+    "description": "Chatte mit KI-Freunden, übe Sprachen, spiele und entdecke Geschichten. Alles in einer App."
+  },
   "briefing": {
     "heading": "Täglicher Forschungsüberblick",
     "today": "Was lohnt sich heute zu entdecken?",
