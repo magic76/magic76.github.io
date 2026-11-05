@@ -18,6 +18,18 @@ const maxJobsPerDay=env=>{
 };
 const MAX_AUDIO_BYTES=1_600_000; // Cloudflare D1 row limit: 2MB
 const keepDays=7;
+const SAFE_TTS_FAILURES=new Set([
+ 'bad_audio_payload','audio_too_large','bad_audio_format','bad_wav_chunk',
+ 'bad_pcm_format','bad_wav_length','upstream_response_too_large',
+ 'invalid_upstream_response','upstream_audio_missing','missing_key_selector'
+]);
+// Public endpoint exposes only fixed diagnostic codes, never raw provider errors, tokens or stack traces.
+function publicTtsFailureCode(raw){
+ const code=typeof raw==='string'?raw:'';
+ if(SAFE_TTS_FAILURES.has(code)||/^upstream_[45][0-9]{2}$/.test(code))return code;
+ if(/timeout|timed out/i.test(code))return 'upstream_timeout';
+ return 'internal_error';
+}
 const reply=(value,status=200)=>new Response(JSON.stringify(value),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-content-type-options':'nosniff'}});
 const enabled=env=>env?.CREW_VIDEO_TTS_ENABLED!=='0'&&env?.CREW_AUTH_DB;
 const today=date=>new Date(date).toISOString().slice(0,10);
@@ -113,9 +125,10 @@ export async function videoTtsResult(request,env){
  const url=new URL(request.url),id=url.searchParams.get('id')||'';
  if(!JOB_ID.test(id))return reply({error:'Invalid job ID'},400);
  let row;
- try{row=await env.CREW_AUTH_DB.prepare('SELECT status,seconds,wav FROM crew_video_tts_jobs WHERE id=?').bind(id).first()}
+ try{row=await env.CREW_AUTH_DB.prepare('SELECT status,seconds,wav,error FROM crew_video_tts_jobs WHERE id=?').bind(id).first()}
  catch{return reply({error:'Video TTS unavailable'},503)}
  if(!row)return reply({error:'Not found'},404);
+ if(row.status==='failed')return reply({status:'failed',error_code:publicTtsFailureCode(row.error)},202);
  if(row.status!=='ready')return reply({status:row.status},202);
  if(!Array.isArray(row.wav)||row.wav.length<1000||row.wav.length>MAX_AUDIO_BYTES)return reply({error:'Audio unavailable'},503);
  return new Response(new Uint8Array(row.wav),{headers:{'content-type':'audio/wav','content-disposition':'attachment; filename="'+id+'.wav"','cache-control':'no-store','x-content-type-options':'nosniff','x-crew-tts-seconds':String(row.seconds)}});
