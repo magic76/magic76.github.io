@@ -34,6 +34,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
   |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"souls"|"shorts"|"circle"
+  |"android_app_google_play"
   |"voice"|"demo"|"live"|"person"|"object"|"place"|"manual"|"render_error"|"unsupported"
   |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
 export function sessionDurationDetail(durationMs:number):Detail{

@@ -19,7 +19,11 @@
     "verifyDesc": "Periksa apakah kunci Anda berfungsi.",
     "shortDesc": "Setelah uji coba, atur kunci milikmu untuk lanjut mengobrol."
   },
-  "android": "Dapatkan Crew untuk Android",
+  "android": "Bawa semua fitur Crew ke ponselmu",
+  "androidApp": {
+    "name": "Crew: teman AI & obrolan bahasa",
+    "description": "Ngobrol dengan teman AI, latihan bahasa, main game, dan jelajahi cerita. Semua dalam satu aplikasi."
+  },
   "briefing": {
     "heading": "Ringkasan riset harian",
     "today": "Apa yang menarik untuk dijelajahi hari ini?",

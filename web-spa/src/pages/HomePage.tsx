@@ -205,7 +205,8 @@ export function HomePage(){
   <GuideHub/>
   {ready&&!isCrewAndroidShell()&&<details className="crew-home-android">
    <summary>{t("android")} <span aria-hidden="true">＋</span></summary>
-   <div className="play-store-grid"><PlayStoreLink product="teacher"/><PlayStoreLink product="story"/><PlayStoreLink product="fortune"/></div>
+   <p>{t("androidApp.description")}</p>
+   <div className="play-store-grid"><PlayStoreLink product="teacher" onClick={()=>trackUsageEvent("home_entry_click","android_app_google_play")}/></div>
   </details>}
   </div>
  </div>;

@@ -303,8 +303,8 @@ test("published Android apps expose verified Google Play links while Fortune sta
  assert.ok(component.includes("id=com.crewpocket.story"));
  assert.ok(!component.includes("com.crewpocket.fortune"));
  assert.ok(home.includes('product="teacher"'));
- assert.ok(home.includes('product="story"'));
- assert.ok(home.includes('product="fortune"'));
+ assert.ok(!home.includes('product="story"'));
+ assert.ok(!home.includes('product="fortune"'));
  assert.ok(teacher.includes('product="teacher"'));
  assert.ok(story.includes('product="story"'));
  assert.ok(!fortuneHome.includes("PlayStoreLink"));
@@ -322,8 +322,8 @@ test("Teacher and Story expose Google Play links while Fortune stays unlisted",(
  assert.ok(play.includes("com.crewpocket.teacher"));
  assert.ok(play.includes("com.crewpocket.story"));
  assert.ok(home.includes('PlayStoreLink product="teacher"'));
- assert.ok(home.includes('PlayStoreLink product="story"'));
- assert.ok(home.includes('PlayStoreLink product="fortune"'));
+ assert.ok(!home.includes('PlayStoreLink product="story"'));
+ assert.ok(!home.includes('PlayStoreLink product="fortune"'));
  assert.ok(teacher.includes('PlayStoreLink product="teacher"'));
  assert.ok(story.includes('PlayStoreLink product="story"'));
  assert.ok(!play.includes("com.crewpocket.fortune"),"Fortune is not published on Google Play yet");
