@@ -52,3 +52,15 @@ Results are **public URLs**; only post scripts that may safely be spoken publicl
 
 Gemini TTS docs: https://ai.google.dev/gemini-api/docs/speech-generation
 Cloudflare D1 limits: https://developers.cloudflare.com/d1/platform/limits/
+## Failed job diagnosis and controlled recovery
+
+After deploying the corresponding Worker code, HTTP 202 for a failed job returns a **sanitized** `error_code` along with `status: "failed"`. Examples: `upstream_429` (upstream rate/quota), `upstream_5xx` (provider failure), `upstream_timeout` (timeout), `bad_wav_length` (more than 31 seconds), `audio_too_large` (over 1.6 MB), or `internal_error` (unclassified; does not expose raw provider messages). No API keys, raw response bodies or stack traces are returned. Previously failed records can be diagnosed after this Worker code is deployed, while their D1 rows remain within the seven-day retention window.
+
+For the original, more specific cause, an authorized Cloudflare operator may query **only that job** from the existing remote D1 database without printing any keys:
+
+~~~sh
+npx wrangler d1 execute crew-auth --config workers/guest-trial/wrangler.toml --remote \
+  --command "SELECT id, status, error, created_day, seconds FROM crew_video_tts_jobs WHERE id='crew-tts-agile-deliberation-20261106' LIMIT 1"
+~~~
+
+Do not print the full Worker environment, request headers or secrets. One failed job ID is terminal and intentionally not retried automatically. Check the code / D1 cause and Gemini billing/quota, then deliberately authorize a **new** ID only when safe. For `bad_wav_length` / `audio_too_large`, split the narration into separately authorized short segments (ideally well below 31 seconds) and concatenate only after checking every real WAV and its timing. Do not report a video as completed until MP4 and audio/subtitle QA pass.
