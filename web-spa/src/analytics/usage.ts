@@ -21,6 +21,7 @@ export type UsageEvent=
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"
   |"home_entry_click"|"explore_entry_click"
+  |"home_gift_view"|"home_gift_open"|"home_gift_result"|"home_gift_go"|"home_gift_minimize"
   |"souls_open"|"souls_photo_ready"|"souls_created"|"souls_live_attempt"|"souls_live_connected"|"souls_live_failed"|"souls_user_input"|"souls_ai_replied"|"souls_conversation"|"souls_mask_repaired"
   |"town_enter"|"town_interaction"|"town_chat_click"|"town_3d_fallback"
   |"magic_enter"|"magic_spell"|"magic_challenge_answer"|"magic_panel_choice"|"magic_voice_connected"|"magic_voice_failed"|"magic_3d_fallback"|"magic_world_reset"
