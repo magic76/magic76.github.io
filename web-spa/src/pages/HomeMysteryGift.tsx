@@ -1,5 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
+import {createPortal} from "react-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import "./homeMysteryGift.css";
@@ -44,6 +45,7 @@ function GiftBoxArt({opened=false}:{opened?:boolean}){
 
 export function HomeMysteryGift(){
  const {t}=useTranslation("home");
+ const [portalHost,setPortalHost]=useState<HTMLElement|null>(null);
  const [gift,setGift]=useState<Gift|null>(null);
  const [open,setOpen]=useState(false);
  const [minimized,setMinimized]=useState(false);
@@ -52,6 +54,9 @@ export function HomeMysteryGift(){
  const panelRef=useRef<HTMLElement>(null);
  const rootRef=useRef<HTMLDivElement>(null);
 
+ // The animated page shell keeps a transform after entrance; portal outside it
+ // so position:fixed is relative to the viewport, not the tall home document.
+ useEffect(()=>{setPortalHost(document.body)},[]);
  useEffect(()=>{
   const node=rootRef.current;
   if(!node)return;
@@ -67,7 +72,7 @@ export function HomeMysteryGift(){
   },{threshold:.5});
   observer.observe(node);
   return()=>observer.disconnect();
- },[]);
+ },[portalHost]);
  useEffect(()=>{
   if(!open)return;
   closeRef.current?.focus();
@@ -104,10 +109,10 @@ export function HomeMysteryGift(){
  }
  const resultName=gift?.kind==="play"?t("playHub.games."+gift.id+".title"):gift?.kind==="learn"?t("product.teacher"):gift?.name;
  const description=gift?.kind?t("gift."+gift.kind+"Description",{name:gift.name}):"";
- return <div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
+ return portalHost?createPortal(<div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
   {minimized?<button type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
    <GiftBoxArt/>
-  </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls="crew-gift-result" title={gift?t("gift.reopen"):t("gift.title")}>
+  </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls={open?"crew-gift-result":undefined} title={gift?t("gift.reopen"):t("gift.title")}>
    {gift?<span className="crew-gift-result-mark" aria-hidden="true">{gift.kind==="friend"?gift.name[0]:gift.kind==="play"?"★":gift.kind==="souls"?"✦":"Aa"}</span>:<GiftBoxArt/>}
   </button>}
   {open&&gift&&<>
@@ -132,5 +137,5 @@ export function HomeMysteryGift(){
    </section>
   </>}
   {!gift&&!minimized&&<span className="crew-gift-hint" aria-hidden="true">{t("gift.teaser")}</span>}
- </div>;
+ </div>,portalHost):null;
 }
