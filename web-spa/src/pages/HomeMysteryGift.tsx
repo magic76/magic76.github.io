@@ -50,8 +50,24 @@ export function HomeMysteryGift(){
  const closeRef=useRef<HTMLButtonElement>(null);
  const triggerRef=useRef<HTMLButtonElement>(null);
  const panelRef=useRef<HTMLElement>(null);
+ const rootRef=useRef<HTMLDivElement>(null);
 
- useEffect(()=>{trackUsageEvent("home_gift_view")},[]);
+ useEffect(()=>{
+  const node=rootRef.current;
+  if(!node)return;
+  if(!("IntersectionObserver" in window)){
+   if(getComputedStyle(node).display!=="none")trackUsageEvent("home_gift_view");
+   return;
+  }
+  const observer=new IntersectionObserver(entries=>{
+   if(entries.some(entry=>entry.isIntersecting)&&getComputedStyle(node).display!=="none"){
+    trackUsageEvent("home_gift_view");
+    observer.disconnect();
+   }
+  },{threshold:.5});
+  observer.observe(node);
+  return()=>observer.disconnect();
+ },[]);
  useEffect(()=>{
   if(!open)return;
   closeRef.current?.focus();
@@ -88,7 +104,7 @@ export function HomeMysteryGift(){
  }
  const resultName=gift?.kind==="play"?t("playHub.games."+gift.id+".title"):gift?.kind==="learn"?t("product.teacher"):gift?.name;
  const description=gift?.kind?t("gift."+gift.kind+"Description",{name:gift.name}):"";
- return <div className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
+ return <div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
   {minimized?<button type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
    <GiftBoxArt/>
   </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls="crew-gift-result" title={gift?t("gift.reopen"):t("gift.title")}>
