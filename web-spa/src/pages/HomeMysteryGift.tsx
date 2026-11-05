@@ -1,19 +1,23 @@
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {createPortal} from "react-dom";
+import zoePortrait from "../../../assets/friends/crew_friend_zoe.webp";
+import irisPortrait from "../../../assets/friends/crew_friend_iris.webp";
+import noahPortrait from "../../../assets/friends/crew_friend_noah.webp";
+import yunaPortrait from "../../../assets/friends/crew_friend_yuna.webp";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import "./homeMysteryGift.css";
 
 type GiftKind="friend"|"play"|"souls"|"learn";
-type Gift={id:string;kind:GiftKind;name:string;to:string};
+type Gift={id:string;kind:GiftKind;name:string;to:string;portrait?:string};
 
 /** All outcomes open real Crew experiences; no purchase, points or prizes. */
 const GIFTS:readonly Gift[]=[
- {id:"zoe",kind:"friend",name:"Zoe",to:"/friend/live?id=zoe"},
- {id:"iris",kind:"friend",name:"Iris",to:"/friend/live?id=iris"},
- {id:"noah",kind:"friend",name:"Noah",to:"/friend/live?id=noah"},
- {id:"yuna",kind:"friend",name:"Yuna",to:"/friend/live?id=yuna"},
+ {id:"zoe",kind:"friend",name:"Zoe",to:"/friend/live?id=zoe",portrait:zoePortrait},
+ {id:"iris",kind:"friend",name:"Iris",to:"/friend/live?id=iris",portrait:irisPortrait},
+ {id:"noah",kind:"friend",name:"Noah",to:"/friend/live?id=noah",portrait:noahPortrait},
+ {id:"yuna",kind:"friend",name:"Yuna",to:"/friend/live?id=yuna",portrait:yunaPortrait},
  {id:"1a2b",kind:"play",name:"1A2B",to:"/games/1a2b"},
  {id:"connect4",kind:"play",name:"Connect 4",to:"/games/connect4"},
  {id:"reversi",kind:"play",name:"Reversi",to:"/games/reversi"},
@@ -51,6 +55,7 @@ export function HomeMysteryGift(){
  const [minimized,setMinimized]=useState(false);
  const closeRef=useRef<HTMLButtonElement>(null);
  const triggerRef=useRef<HTMLButtonElement>(null);
+ const minimizedRef=useRef<HTMLButtonElement>(null);
  const panelRef=useRef<HTMLElement>(null);
  const rootRef=useRef<HTMLDivElement>(null);
 
@@ -76,6 +81,8 @@ export function HomeMysteryGift(){
  useEffect(()=>{
   if(!open)return;
   closeRef.current?.focus();
+  const previousOverflow=document.body.style.overflow;
+  document.body.style.overflow="hidden";
   const onKeyDown=(event:KeyboardEvent)=>{
    if(event.key==="Escape"){event.preventDefault();setOpen(false)}
    if(event.key!=="Tab"||!panelRef.current)return;
@@ -85,9 +92,9 @@ export function HomeMysteryGift(){
    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus()}
   };
   window.addEventListener("keydown",onKeyDown);
-  return()=>window.removeEventListener("keydown",onKeyDown);
+  return()=>{window.removeEventListener("keydown",onKeyDown);document.body.style.overflow=previousOverflow};
  },[open]);
- useEffect(()=>{if(!open&&gift)triggerRef.current?.focus()},[open,gift]);
+ useEffect(()=>{if(!open&&gift)(minimized?minimizedRef:triggerRef).current?.focus()},[open,gift,minimized]);
 
  function unwrap(){
   const next=drawGift(gift?.id);
@@ -110,10 +117,10 @@ export function HomeMysteryGift(){
  const resultName=gift?.kind==="play"?t("playHub.games."+gift.id+".title"):gift?.kind==="learn"?t("product.teacher"):gift?.name;
  const description=gift?.kind?t("gift."+gift.kind+"Description",{name:gift.name}):"";
  return portalHost?createPortal(<div ref={rootRef} className={"crew-mystery-gift"+(minimized?" is-minimized":"")}>
-  {minimized?<button type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
+  {minimized?<button ref={minimizedRef} type="button" className="crew-gift-minimized" onClick={()=>setMinimized(false)} aria-label={t("gift.restore")} title={t("gift.restore")}>
    <GiftBoxArt/>
   </button>:<button ref={triggerRef} type="button" className={"crew-gift-fab"+(gift?" has-result":"")} onClick={()=>gift?setOpen(true):unwrap()} aria-label={gift?t("gift.reopen"):t("gift.open")} aria-expanded={open} aria-controls={open?"crew-gift-result":undefined} title={gift?t("gift.reopen"):t("gift.title")}>
-   {gift?<span className="crew-gift-result-mark" aria-hidden="true">{gift.kind==="friend"?gift.name[0]:gift.kind==="play"?"★":gift.kind==="souls"?"✦":"Aa"}</span>:<GiftBoxArt/>}
+   {gift?.kind==="friend"&&gift.portrait?<img className="crew-gift-friend-icon" src={gift.portrait} alt="" aria-hidden="true" loading="lazy"/>:gift?<span className="crew-gift-result-mark" aria-hidden="true">{gift.kind==="play"?"★":gift.kind==="souls"?"✦":"Aa"}</span>:<GiftBoxArt/>}
   </button>}
   {open&&gift&&<>
    <div className="crew-gift-scrim" onClick={()=>setOpen(false)} aria-hidden="true"/>
@@ -124,7 +131,10 @@ export function HomeMysteryGift(){
     </div>
     <div key={gift.id} className="crew-gift-reveal" aria-live="polite">
      <span className="crew-gift-sparks" aria-hidden="true">✦ <span>✧</span> ✦</span>
-     <GiftBoxArt opened/>
+     <div className="crew-gift-reveal-art">
+      <GiftBoxArt opened/>
+      {gift.kind==="friend"&&gift.portrait&&<img className="crew-gift-friend-portrait" src={gift.portrait} alt="" aria-hidden="true" loading="lazy"/>}
+     </div>
      <span className="crew-gift-overline">{t("gift.reveal")}</span>
      <h2 id="crew-gift-heading">{resultName}</h2>
      <p id="crew-gift-description">{description}</p>

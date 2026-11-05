@@ -83,7 +83,8 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
  if(!allowed())return;
  const key=event+":"+detail,now=Date.now();
  // Protect against React strict-mode effects and accidental rapid duplicate calls.
- if(now-(recent.get(key)||0)<2000)return;
+ const dedupeMs=event.startsWith("home_gift_")?300:2000;
+ if(now-(recent.get(key)||0)<dedupeMs)return;
  recent.set(key,now);
  sendGa4Event(event,detail);
  const payload={event,detail,visitorId:visitor(),sessionId:session()};
