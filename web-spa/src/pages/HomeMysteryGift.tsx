@@ -47,30 +47,19 @@ function GiftBoxArt({opened=false}:{opened?:boolean}){
  </svg>;
 }
 
-/** Crew Dot: orange cloud, right-biased capsule eyes, and a little carried box.
- * Inline vector artwork keeps the floating entry sharp without fetching an asset.
- */
-function CrewDotArt({celebrate=false}:{celebrate?:boolean}){
- return <svg className={"crew-gift-dot"+(celebrate?" is-celebrating":"")} viewBox="0 0 112 98" focusable="false" aria-hidden="true">
-  <path className="crew-gift-dot-arm" d="M25 63Q12 54 14 42" fill="none" stroke="#F58B00" strokeWidth="9" strokeLinecap="round"/>
+/** Crew Dot remains a standalone orange cloud, never a combined gift icon. */
+function CrewDotArt(){
+ return <svg className="crew-gift-dot" viewBox="7 8 102 78" focusable="false" aria-hidden="true">
   <path className="crew-gift-dot-cloud" d="M29 79C16 79 9 70 9 60c0-11 8-20 19-21 0-15 11-26 25-26 12 0 22 7 26 18 15-1 25 9 25 23 0 14-10 25-26 25Z" fill="#FF9A00"/>
   <g className="crew-gift-dot-eyes" fill="#272127">
    <rect x="59" y="39" width="7" height="17" rx="3.5"/>
    <rect x="77" y="39" width="7" height="17" rx="3.5"/>
   </g>
-  <circle className="crew-gift-dot-mouth" cx="73" cy="63" r="4" fill="#272127"/>
-  <g className="crew-gift-dot-present">
-   <rect x="38" y="64" width="32" height="24" rx="4" fill="#FFCF67"/>
-   <rect x="34" y="59" width="40" height="11" rx="3" fill="#FFF0BE"/>
-   <path d="M51 60v28" stroke="#E57B26" strokeWidth="5"/>
-   <path d="M52 59c-16-2-13-15-6-12 4 2 6 8 6 12 3-8 9-14 14-10 5 5-2 10-14 10" fill="none" stroke="#E57B26" strokeWidth="4" strokeLinecap="round"/>
-  </g>
-  <path className="crew-gift-dot-spark" d="M18 18v10m-5-5h10M95 12v8m-4-4h8" stroke="#FFC04B" strokeWidth="3" strokeLinecap="round"/>
- </svg>;
+  </svg>;
 }
 
-/** A small destination diorama, not another navigation level. Every card links
- * straight to the existing Crew route supplied by GIFTS.
+/** Reveal only the chosen destination; the gift appears briefly during opening.
+ * Every result still links directly to its existing Crew route.
  */
 function GiftWorld({gift}:{gift:Gift}){
  return <div className={"crew-gift-world crew-gift-world-"+gift.kind} aria-hidden="true">
@@ -82,7 +71,6 @@ function GiftWorld({gift}:{gift:Gift}){
   {gift.kind==="play"&&<div className="crew-gift-world-game"><span>1</span><span>2</span><span>?</span><span>4</span></div>}
   {gift.kind==="souls"&&<div className="crew-gift-world-soul"><i/><i/><b/></div>}
   {gift.kind==="learn"&&<div className="crew-gift-world-book"><i/><i/><b>✦</b></div>}
-  <span className="crew-gift-world-guide"><CrewDotArt celebrate/></span>
   <span className="crew-gift-opening-box"><GiftBoxArt opened/></span>
  </div>;
 }
