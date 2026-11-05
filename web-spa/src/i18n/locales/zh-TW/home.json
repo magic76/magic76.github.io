@@ -21,6 +21,7 @@
   },
   "android": "把整個 Crew 裝進手機",
   "androidApp": {
+    "name": "Crew：AI 朋友與外語對話",
     "description": "和 AI 朋友聊天、練習外語、一起玩遊戲、讀故事，還有更多有趣的 AI 體驗。一個 App，隨時隨地都能探索。"
   },
   "briefing": {
