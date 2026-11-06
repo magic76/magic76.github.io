@@ -35,7 +35,7 @@
 .crew-language-dialog-head h2{margin:0 0 5px;font-size:19px;line-height:1.4;color:inherit}
 .crew-language-dialog-head p{margin:0;color:var(--muted,#657084);font-size:12px;line-height:1.6}
 .crew-language-close{
- display:grid;place-items:center;flex:none;width:34px;height:34px;
+ display:grid;place-items:center;flex:none;width:44px;height:44px;
  border:1px solid var(--line,#e2e6ed);border-radius:10px;
  background:var(--surface-alt,#f7f5fd);color:inherit;font-size:23px;cursor:pointer;
 }
