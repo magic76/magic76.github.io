@@ -147,7 +147,7 @@ Web usage is strictly separate from Firebase Android GA4; never add their unique
 
 ## Guest Trial usage (Phase 2)
 
-Crew's existing private `/usage` dashboard shows the five-minute Teacher/Friend trial funnel, including entry, start, successful short-lived token, actual Live connection and conversation end. It also shows basic failure categories and duration buckets. The chart supports the existing 7/30-day selection.
+Crew's existing private `/usage` dashboard shows the five-minute Teacher/Friend trial funnel, including entry, start, successful short-lived token, actual Live connection and conversation end. It also shows basic failure categories and duration buckets. The chart supports the existing 7/30-day selection. A verified two-sided guest trial turn also emits the existing `teacher_conversation` or `friend_conversation` event once per trial session. These events contribute to period-wide distinct chat-browser counts and effective conversation event totals; `guest_trial_connected` alone does not prove a conversation. Guest mode still suppresses page callbacks and does not save personal chat history, speech text, or memory.
 
 All guest trial events go through the existing consent-aware first-party `trackUsageEvent` pipeline, the same `ANALYTICS_ENGINE` binding and the existing Cloudflare Access-protected read endpoint; **no new environment variables or D1 database are needed**.
 
