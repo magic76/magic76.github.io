@@ -152,13 +152,11 @@
     "intro": "Discussion, langues, horoscope et jeux. Avec l’IA.",
     "discovery": {
       "intro": "Découvre ce que tu peux faire avec Crew",
-      "items": [
-        "Joue aux devinettes et au gomoku avec l’IA",
-        "Prends un objet en photo et fais-le parler",
-        "Rencontre 16 amis IA",
-        "Apprends des langues en jouant",
-        "Invente tes histoires avec l’IA"
-      ]
+      "item0": "Joue aux devinettes et au gomoku avec l’IA",
+      "item1": "Prends un objet en photo et fais-le parler",
+      "item2": "Rencontre 16 amis IA",
+      "item3": "Apprends des langues en jouant",
+      "item4": "Invente tes histoires avec l’IA"
     }
   },
   "playHub": {

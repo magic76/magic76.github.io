@@ -152,13 +152,11 @@
     "intro": "Chatten, Sprachen lernen, Horoskope, Spiele. Mit KI.",
     "discovery": {
       "intro": "Was kannst du noch mit Crew machen?",
-      "items": [
-        "Spiel Zahlenrätsel oder Gomoku mit KI",
-        "Fotografiere ein Objekt und lass es sprechen",
-        "Lerne 16 KI-Freunde kennen",
-        "Übe Sprachen ganz spielerisch",
-        "Erfinde Geschichten zusammen mit KI"
-      ]
+      "item0": "Spiel Zahlenrätsel oder Gomoku mit KI",
+      "item1": "Fotografiere ein Objekt und lass es sprechen",
+      "item2": "Lerne 16 KI-Freunde kennen",
+      "item3": "Übe Sprachen ganz spielerisch",
+      "item4": "Erfinde Geschichten zusammen mit KI"
     }
   },
   "playHub": {

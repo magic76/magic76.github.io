@@ -22,7 +22,7 @@ export function HomeDiscoveryLine({animate}:{animate:boolean}){
  const [hover,setHover]=useState(false);
  const [focused,setFocused]=useState(false);
  const item=DISCOVER[index];
- const phrase=t("world.discovery.items."+index);
+ const phrase=t("world.discovery.item"+index);
  const characters=Array.from(phrase);
  const visible=!animate||count===null?phrase:characters.slice(0,count).join("");
  useEffect(()=>{

@@ -25,8 +25,10 @@ test("Discovery phrases and headline are present in each of the eleven supported
   const world=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/home.json")).world;
   assert.ok(world.modes.chat.lead&&world.modes.chat.accent,lang+":headline");
   assert.ok(world.discovery.intro,lang+":intro");
-  assert.equal(world.discovery.items.length,5,lang+":count");
-  world.discovery.items.forEach((phrase,i)=>assert.ok(typeof phrase==="string"&&phrase.trim().length>4,lang+":"+i));
+  for(let i=0;i<5;i++){
+   const phrase=world.discovery["item"+i];
+   assert.ok(typeof phrase==="string"&&phrase.trim().length>4,lang+":"+i);
+  }
  }
 });
 test("Mobile portrait keeps discovery visible without affecting compact landscape or reduced-motion",()=>{

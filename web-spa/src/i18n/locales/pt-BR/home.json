@@ -152,13 +152,11 @@
     "intro": "Conversas, idiomas, horóscopos e jogos. Com IA.",
     "discovery": {
       "intro": "O que mais você pode fazer no Crew?",
-      "items": [
-        "Jogue adivinhação e gomoku com IA",
-        "Fotografe um objeto e faça-o falar",
-        "Conheça 16 amigos de IA",
-        "Pratique idiomas enquanto joga",
-        "Crie suas próprias histórias com IA"
-      ]
+      "item0": "Jogue adivinhação e gomoku com IA",
+      "item1": "Fotografe um objeto e faça-o falar",
+      "item2": "Conheça 16 amigos de IA",
+      "item3": "Pratique idiomas enquanto joga",
+      "item4": "Crie suas próprias histórias com IA"
     }
   },
   "playHub": {

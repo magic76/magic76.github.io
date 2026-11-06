@@ -152,13 +152,11 @@
     "intro": "Chat, learn languages, read your fortune, play. With AI.",
     "discovery": {
       "intro": "Did you know Crew can do all this?",
-      "items": [
-        "Play number games or Gomoku with AI",
-        "Snap an object and let it talk",
-        "Meet 16 AI friends and hear their stories",
-        "Practice languages while playing",
-        "Create your own stories with AI"
-      ]
+      "item0": "Play number games or Gomoku with AI",
+      "item1": "Snap an object and let it talk",
+      "item2": "Meet 16 AI friends and hear their stories",
+      "item3": "Practice languages while playing",
+      "item4": "Create your own stories with AI"
     }
   },
   "playHub": {
