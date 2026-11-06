@@ -167,6 +167,24 @@ test("guest trial funnel events and duration details are privacy-allowlisted",as
  assert.match(dash,/這是尊重隱私設定的瀏覽器端事件/);
 });
 
+test("guest trial completed turns count as chat without enabling memory callbacks",()=>{
+ const hook=fs.readFileSync(path.join(root,"web-spa/src/live/useLiveSession.ts"),"utf8");
+ const report=fs.readFileSync(path.join(root,"functions/api/usage/report.ts"),"utf8");
+ // A connection alone, or an AI-only greeting, must not count as a conversation.
+ assert.match(hook,/const guestEffectiveReportedRef=useRef\(false\)/);
+ assert.match(hook,/guestEffectiveReportedRef\.current=false/);
+ assert.match(hook,/guestModeRef\.current&&!guestEffectiveReportedRef\.current/);
+ assert.match(hook,/turnsRef\.current\.some\(t=>Boolean\(t\.input\?\.trim\(\)&&t\.output\?\.trim\(\)\)\)/);
+ assert.match(hook,/guestEffectiveReportedRef\.current=true/);
+ assert.match(hook,/trackUsageEvent\(guestRole\(\)==="friend"\?"friend_conversation":"teacher_conversation"\)/);
+ // Guest pages must remain excluded from side-effectful callback/history code.
+ assert.match(hook,/if\(!guestModeRef\.current\)configRef\.current\.onTurnComplete\?\.\(turn,turnsRef\.current\.slice\(\)\)/);
+ assert.match(hook,/if\(configRef\.current\.persistHistory!==false&&!guestModeRef\.current\)saveLive/);
+ // Report counts distinct browsers for chat events, never connection-only events.
+ assert.match(report,/const chatEvents=.*'teacher_conversation','friend_conversation'/);
+ assert.doesNotMatch(report,/const chatEvents=.*'guest_trial_connected'/);
+});
+
 test("guest usage summary counts are explicitly labeled as non-cohort ratios",()=>{
  const dashboard=fs.readFileSync(path.join(root,"web-spa/src/analytics/UsageDashboardPage.tsx"),"utf8");
  const css=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage-dashboard.css"),"utf8");

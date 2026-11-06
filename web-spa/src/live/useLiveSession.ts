@@ -41,6 +41,7 @@ export function useLiveSession(config:Config){
  const [guestSecondsLeft,setGuestSecondsLeft]=useState(0);
  const [guestExpired,setGuestExpired]=useState(false),guestWrapUpSentRef=useRef(false);
  const guestConnectedAtRef=useRef(0),guestEndedReportedRef=useRef(false),guestConnectFailedReportedRef=useRef(false);
+ const guestEffectiveReportedRef=useRef(false);
  const clearGuestTimer=()=>{if(guestTimerRef.current!==null){clearTimeout(guestTimerRef.current);guestTimerRef.current=null}};
  const guestRole=()=>configRef.current.sessionKind==="friend"?"friend":"teacher";
  const recordGuestConnect=()=>{
@@ -135,7 +136,7 @@ export function useLiveSession(config:Config){
    await ensureLive();if(!window.CrewLive)throw new Error("Live runtime 未載入");
    guestModeRef.current=Boolean(grant);setGuestSecondsLeft(grant?.seconds||0);
    guestWrapUpSentRef.current=false;setGuestExpired(false);
-   guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;
+   guestConnectedAtRef.current=0;guestEndedReportedRef.current=false;guestConnectFailedReportedRef.current=false;guestEffectiveReportedRef.current=false;
    cancelRescue();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();friendReplyRescueSentRef.current=false;setFriendPhase("idle");
    cadenceRef.current=new ConversationFlowState();rescueCountRef.current=0;
    turnsRef.current=[];awaitingTutorRef.current=false;recoveryRequestRef.current=false;languageRepairRef.current=false;savedRef.current=false;setTurns([]);setInput("");setOutput("");setSearchSources([]);setSearchUnavailable(false);setSearchSuggestions("");setMuted(false);setReport(null);setDurationMs(0);setErrorKind(null);setLastImage(null);setVisionError("");
@@ -345,7 +346,14 @@ export function useLiveSession(config:Config){
       }else if(turn.hasValidOutput&&!drift){
        languageRepairRef.current=false;
       }
-      // Use the synchronous Live transcript ref; React state can lag behind this callback.
+      // Guest sessions suppress page callbacks because they can save personal memory/history.
+      // Only report one verified two-sided turn per trial, without sending any speech text.
+      // onTranscriptTurn updates the synchronous ref before onTurnComplete fires.
+      if(guestModeRef.current&&!guestEffectiveReportedRef.current&&
+       turnsRef.current.some(t=>Boolean(t.input?.trim()&&t.output?.trim()))){
+       guestEffectiveReportedRef.current=true;
+       trackUsageEvent(guestRole()==="friend"?"friend_conversation":"teacher_conversation");
+      }
       if(!guestModeRef.current)configRef.current.onTurnComplete?.(turn,turnsRef.current.slice());
      },
     onError:e=>{recordGuestFailure();cancelFriendReplyTimer();cancelUnrecognizedSpeechTimer();setFriendPhase("idle");const kind=classifyError(e.message);if(kind==="key"&&!guestModeRef.current)setGeminiVerified(false);clearGuestTimer();guestDeadlineRef.current=0;setGuestSecondsLeft(0);setErrorKind(kind);setState("error");setStatus(uiMessage(e.message))},
