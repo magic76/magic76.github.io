@@ -73,9 +73,9 @@
   "world": {
     "modes": {
       "chat": {
-        "lead": "Eine kleine Verbindung.",
-        "before": "Sag einfach",
-        "accent": "Hallo.",
+        "lead": "KI kann mehr als chatten.",
+        "before": "Lass uns",
+        "accent": "spielen!",
         "after": "",
         "description": "Kein perfektes Thema. Keine Eile mit Antworten.\nLerne einen KI-Freund kennen und schau, wohin das Gespräch führt.",
         "cta": "Deinen KI-Freund kennenlernen"
@@ -149,7 +149,15 @@
         "sub": "1A2B"
       }
     },
-    "intro": "Chatten, Sprachen lernen, Horoskope, Spiele. Mit KI."
+    "intro": "Chatten, Sprachen lernen, Horoskope, Spiele. Mit KI.",
+    "discovery": {
+      "intro": "Was kannst du noch mit Crew machen?",
+      "item0": "Spiel Zahlenrätsel oder Gomoku mit KI",
+      "item1": "Fotografiere ein Objekt und lass es sprechen",
+      "item2": "Lerne 16 KI-Freunde kennen",
+      "item3": "Übe Sprachen ganz spielerisch",
+      "item4": "Erfinde Geschichten zusammen mit KI"
+    }
   },
   "playHub": {
     "back": "Startseite",

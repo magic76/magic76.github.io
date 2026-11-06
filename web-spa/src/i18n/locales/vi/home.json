@@ -73,9 +73,9 @@
   "world": {
     "modes": {
       "chat": {
-        "lead": "Một chút kết nối.",
-        "before": "Chỉ cần nói",
-        "accent": "Xin chào.",
+        "lead": "AI không chỉ để trò chuyện.",
+        "before": "Còn có thể cùng",
+        "accent": "chơi!",
         "after": "",
         "description": "Không cần chủ đề hoàn hảo hay trả lời vội.\nGặp bạn AI và để cuộc trò chuyện tự nhiên diễn ra.",
         "cta": "Gặp người bạn AI của bạn"
@@ -149,7 +149,15 @@
         "sub": "1A2B"
       }
     },
-    "intro": "Trò chuyện, học ngoại ngữ, xem vận may, chơi cùng AI."
+    "intro": "Trò chuyện, học ngoại ngữ, xem vận may, chơi cùng AI.",
+    "discovery": {
+      "intro": "Bạn còn có thể làm gì với Crew?",
+      "item0": "Chơi đoán số hoặc cờ caro với AI",
+      "item1": "Chụp một đồ vật để nó biết nói",
+      "item2": "Làm quen với 16 người bạn AI",
+      "item3": "Luyện ngoại ngữ qua trò chơi",
+      "item4": "Tạo câu chuyện của riêng bạn cùng AI"
+    }
   },
   "playHub": {
     "back": "Trang chủ",
