@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-06",
+  "generatedAt": "2026-11-06T02:53:37.887Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "e418098d0477c84d",
+      "title": "Secure Domain Adaptation and Retrieval Augmented Generation for Compact Language Models Using Archived Cybersecurity Intelligence",
+      "summary": "Abstract Security analysts must reconcile vulnerability, exploit and malware records that are scattered across public repositories, yet it is unclear whether compact, locally deployable language models can reason over such archives. We present SecureLLM, an open framework that normalizes 161,190 records from the Nation",
+      "publishedAt": "2026-11-04T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Secure Domain Adaptation and Retrieval Augmented Generation for Compact Language Models Using Archived Cybersecurity Intelligence",
+          "url": "https://doi.org/10.21203/rs.3.rs-11209286/v1",
+          "publishedAt": "2026-11-04T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Abstract Security analysts must reconcile vulnerability, exploit and malware records that are scattered across public repositories, yet it is unclear whether compact, locally deployable language models can reason over such archives. We present SecureLLM, an open framework that normalizes 161,190 records from the Nation"
+    },
+    {
+      "id": "75d65a68ac32f522",
+      "title": "Vortex: Bridging Extreme Compression and Efficient LLM Inference",
+      "summary": "Artifact for Vortex: Bridging Extreme Compression and Efficient LLM Inference.",
+      "publishedAt": "2026-11-04T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Vortex: Bridging Extreme Compression and Efficient LLM Inference",
+          "url": "https://doi.org/10.1145/3845814.3850063",
+          "publishedAt": "2026-11-04T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Artifact for Vortex: Bridging Extreme Compression and Efficient LLM Inference."
+    },
+    {
+      "id": "030fe6d7eadaa6d9",
+      "title": "Scaling and trade-offs in multi-agent autonomous systems",
+      "summary": "Designing autonomous drone swarms is hampered by a vast design space spanning platform, algorithmic, and numerical-strength choices. We perform large-scale agent-based simulations in three canonical scenarios: swarm-on-swarm battle, cooperative area search with attrition, and pursuit of scattering targets. We demonstra",
+      "publishedAt": "2026-11-04T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Scaling and trade-offs in multi-agent autonomous systems",
+          "url": "https://doi.org/10.1103/hnsg-cm17",
+          "publishedAt": "2026-11-04T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Designing autonomous drone swarms is hampered by a vast design space spanning platform, algorithmic, and numerical-strength choices. We perform large-scale agent-based simulations in three canonical scenarios: swarm-on-swarm battle, cooperative area search with attrition, and pursuit of scattering targets. We demonstra"
+    },
+    {
+      "id": "9bd6e639dd3e39e7",
+      "title": "Developing LLM-based multi-agent systems in software engineering: a mixed-method experience report",
+      "summary": "Abstract The proliferation of Generative Artificial Intelligence (Gen AI) powered by large language models (LLMs) has transformed the software development process, introducing new paradigms for code generation, debugging, testing, and maintenance. While early applications focused on leveraging single, independent LLMs",
+      "publishedAt": "2026-11-03T00:00:00Z",
+      "topic": "Multi-Agent Systems",
+      "projects": [
+        "Crew Deck",
+        "Crew Pocket"
+      ],
+      "relevance": "這個議題涉及 Crew Deck、Crew Pocket 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Developing LLM-based multi-agent systems in software engineering: a mixed-method experience report",
+          "url": "https://doi.org/10.1007/s10664-026-10955-8",
+          "publishedAt": "2026-11-03T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 93,
+      "body": "Abstract The proliferation of Generative Artificial Intelligence (Gen AI) powered by large language models (LLMs) has transformed the software development process, introducing new paradigms for code generation, debugging, testing, and maintenance. While early applications focused on leveraging single, independent LLMs"
+    },
+    {
+      "id": "1a10f1641574155e",
+      "title": "Development and validation of a voice-based conversational artificial intelligence coaching agent to reduce competitive state anxiety in elite athletes: study protocol fo",
+      "summary": "Background Competitive state anxiety harms elite athletes’ performance and mental health, while stigma and training demands limit access to face-to-face support; voice-based conversational artificial intelligence (AI) analyzing speech in real time offers a scalable route to psychological skills training (PST). Methods",
+      "publishedAt": "2026-11-04T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Development and validation of a voice-based conversational artificial intelligence coaching agent to reduce competitive state anxiety in elite athletes: study protocol for a randomized, analyst-blinded, attention-matched active-controlled trial",
+          "url": "https://doi.org/10.3389/fdgth.2026.1962543",
+          "publishedAt": "2026-11-04T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "Background Competitive state anxiety harms elite athletes’ performance and mental health, while stigma and training demands limit access to face-to-face support; voice-based conversational artificial intelligence (AI) analyzing speech in real time offers a scalable route to psychological skills training (PST). Methods"
+    },
+    {
+      "id": "e505afd9e3807128",
+      "title": "Flawed but Memorable: Student Critical Reception of Interest-Personalized GenAI Analogies in Computing Education",
+      "summary": "Motivation: Undergraduate computing students increasingly turn to generative AI (GenAI) tools to understand abstract concepts through analogies. Analogies compare an unfamiliar concept to something familiar, but judging whether the comparison holds requires knowledge of both. GenAI may also embed assumptions about who",
+      "publishedAt": "2026-11-04T00:00:00Z",
+      "topic": "AI Learning",
+      "projects": [
+        "Crew Teacher"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Flawed but Memorable: Student Critical Reception of Interest-Personalized GenAI Analogies in Computing Education",
+          "url": "https://doi.org/10.1145/3856208.3856217",
+          "publishedAt": "2026-11-04T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 87,
+      "body": "Motivation: Undergraduate computing students increasingly turn to generative AI (GenAI) tools to understand abstract concepts through analogies. Analogies compare an unfamiliar concept to something familiar, but judging whether the comparison holds requires knowledge of both. GenAI may also embed assumptions about who"
+    }
+  ]
+}
