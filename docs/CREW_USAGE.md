@@ -93,7 +93,7 @@ Review site privacy policy and consent requirements for the intended audience be
 
 ## Crew Souls Explore launch (November 4, 2026)
 
-Crew Souls now appears in the public Explore grid at `/souls` with a local CSS illustration and a click event. It does not send photo content, fictional character names, personal portraits, memories, voice transcripts or Gemini keys to analytics.
+Crew Souls now appears in the public Explore grid at `/souls` with a local 3:2 WebP illustration matching the other Explore destinations and a click event. It does not send photo content, fictional character names, personal portraits, memories, voice transcripts or Gemini keys to analytics.
 
 The existing opt-out / Global Privacy Control / Do Not Track / Developer Test Mode gates remain in force. The production-only client and ingestion allowlists accept both `www.3sssi.com` and `3sssi.com`; all other hosts and cross-origin posts are rejected. No extra database, third-party tracking library or analytics credential is required.
 
