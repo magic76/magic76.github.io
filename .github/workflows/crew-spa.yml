@@ -66,6 +66,11 @@ jobs:
       - name: Validate Fortune report quality (Fortune PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-')
         run: node --test tests/fortune-ai-quality.test.js tests/fortune-report-depth.test.js tests/fortune-usefulness-a.test.js tests/fortune-usefulness-b.test.js
+      # TTS failure diagnostics are part of production publishing reliability.
+      # This test is offline and makes no paid Gemini calls.
+      - name: Validate Video TTS failure handling
+        if: github.event_name == 'pull_request'
+        run: node --test tests/video-tts.test.mjs
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
       # Quick homepage widget contract; always run for PRs and main to prevent regressions.

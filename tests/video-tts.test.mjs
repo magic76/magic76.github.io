@@ -148,3 +148,25 @@ test('failed jobs count against budget and are terminal (no automatic retry)',as
  assert.equal(attempts,1);
  assert.equal(db.rows.size,1);
 });
+
+test('failed TTS result exposes only allowlisted diagnostic codes, not raw errors',async()=>{
+ const db=fakeDB(),env={CREW_AUTH_DB:db};
+ const req=new Request('https://crew-guest-trial.shanliyoung.workers.dev/api/video/tts/result?id='+job.id);
+ for(const [raw,expected] of [
+  ['upstream_429','upstream_429'],
+  ['upstream_503','upstream_503'],
+  ['bad_wav_length','bad_wav_length'],
+  ['audio_too_large','audio_too_large'],
+  ['The operation was aborted due to timeout','upstream_timeout'],
+  ['api_key=do-not-leak','internal_error'],
+  [null,'internal_error']
+ ]){
+  db.rows.set(job.id,{status:'failed',error:raw});
+  const res=await videoTtsResult(req,env);
+  assert.equal(res.status,202);
+  assert.deepEqual(await res.json(),{status:'failed',error_code:expected});
+ }
+ db.rows.set(job.id,{status:'processing'});
+ const pending=await videoTtsResult(req,env);
+ assert.deepEqual(await pending.json(),{status:'processing'});
+});
