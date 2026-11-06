@@ -73,9 +73,9 @@
   "world": {
     "modes": {
       "chat": {
-        "lead": "Uma pequena conexão.",
-        "before": "Basta dizer",
-        "accent": "Olá.",
+        "lead": "IA não é só conversa.",
+        "before": "Dá para",
+        "accent": "jogar!",
         "after": "",
         "description": "Sem assunto perfeito. Sem pressa para responder.\nConheça um amigo de IA e veja aonde a conversa vai.",
         "cta": "Conheça seu amigo de IA"
@@ -149,7 +149,17 @@
         "sub": "1A2B"
       }
     },
-    "intro": "Conversas, idiomas, horóscopos e jogos. Com IA."
+    "intro": "Conversas, idiomas, horóscopos e jogos. Com IA.",
+    "discovery": {
+      "intro": "O que mais você pode fazer no Crew?",
+      "items": [
+        "Jogue adivinhação e gomoku com IA",
+        "Fotografe um objeto e faça-o falar",
+        "Conheça 16 amigos de IA",
+        "Pratique idiomas enquanto joga",
+        "Crie suas próprias histórias com IA"
+      ]
+    }
   },
   "playHub": {
     "back": "Início",

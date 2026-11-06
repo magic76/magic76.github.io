@@ -4,6 +4,7 @@ import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {Icon,type IconName} from "../components/Icon";
 import {PortalParticleField} from "./PortalParticleField";
+import {HomeDiscoveryLine} from "./HomeDiscoveryLine";
 import type {PortalMode} from "./portalField.mjs";
 import {readHomeDeepLink,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
 import {shortsChatUrl,shortsPhotoQuestions} from "../teacher/shortsSocial";
@@ -64,6 +65,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const fieldEligible=idleReady&&inViewport&&foreground;
  const canAnimate=fieldEligible&&!paused;
  const [mode,setMode]=useState<PortalMode>("chat");
+ const [manuallySelected,setManuallySelected]=useState(false);
  const buttons=useRef<(HTMLButtonElement|null)[]>([]);
  const current=MODES.find(item=>item.id===mode)||MODES[0];
  const target=mode==="chat"?destination:mode==="learn"?teacherDestination:
@@ -88,7 +90,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
   else if(event.key==="Home")next=0;
   else if(event.key==="End")next=MODES.length-1;
   else return;
-  event.preventDefault();setMode(MODES[next].id);buttons.current[next]?.focus();
+  event.preventDefault();setMode(MODES[next].id);setManuallySelected(true);buttons.current[next]?.focus();
  };
  // A query never participates in SSR or the initial hydration render.
  useEffect(()=>{
@@ -141,7 +143,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
    <div id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
     <div className="crew-portal-copy">
      <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
-     <p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>
+     <p className="crew-portal-description" data-discovery={mode==="chat"&&!selectedPost?"true":"false"}>{mode==="chat"&&!selectedPost?<HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/>:t("world.modes."+mode+".description")}</p>
     </div>
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
      onPointerDown={mode==="chat"?warmFriendStart:undefined} onTouchStart={mode==="chat"?warmFriendStart:undefined}
@@ -157,7 +159,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
    <div className="crew-portal-tabs" role="tablist" aria-label={t("world.tilesLabel")}>
     {MODES.map((item,i)=><button className="crew-portal-tab" key={item.id} id={"crew-portal-tab-"+item.id} data-mode={item.id} type="button" role="tab"
      aria-controls="crew-portal-panel" aria-selected={mode===item.id} tabIndex={mode===item.id?0:-1}
-     ref={el=>{buttons.current[i]=el}} onClick={()=>setMode(item.id)} onKeyDown={event=>keyMode(event,i)}>
+     ref={el=>{buttons.current[i]=el}} onClick={()=>{setMode(item.id);setManuallySelected(true)}} onKeyDown={event=>keyMode(event,i)}>
      <Icon name={item.icon}/><span>{t("world.tiles."+item.label+".name")}</span>
     </button>)}
    </div>

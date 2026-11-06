@@ -73,9 +73,9 @@
   "world": {
     "modes": {
       "chat": {
-        "lead": "Un petit lien.",
-        "before": "Dites juste",
-        "accent": "Bonjour.",
+        "lead": "L’IA ne fait pas que parler.",
+        "before": "On peut aussi",
+        "accent": "jouer !",
         "after": "",
         "description": "Pas besoin d'un sujet parfait ni de réponses immédiates.\nRencontrez un ami IA et voyez où la discussion vous mène.",
         "cta": "Rencontrer votre ami IA"
@@ -149,7 +149,17 @@
         "sub": "1A2B"
       }
     },
-    "intro": "Discussion, langues, horoscope et jeux. Avec l’IA."
+    "intro": "Discussion, langues, horoscope et jeux. Avec l’IA.",
+    "discovery": {
+      "intro": "Découvre ce que tu peux faire avec Crew",
+      "items": [
+        "Joue aux devinettes et au gomoku avec l’IA",
+        "Prends un objet en photo et fais-le parler",
+        "Rencontre 16 amis IA",
+        "Apprends des langues en jouant",
+        "Invente tes histoires avec l’IA"
+      ]
+    }
   },
   "playHub": {
     "back": "Accueil",

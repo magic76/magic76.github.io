@@ -73,9 +73,9 @@
   "world": {
     "modes": {
       "chat": {
-        "lead": "Sedikit kedekatan.",
-        "before": "Cukup katakan",
-        "accent": "Halo.",
+        "lead": "AI bukan cuma untuk ngobrol.",
+        "before": "Ayo ikut",
+        "accent": "bermain!",
         "after": "",
         "description": "Tidak perlu topik sempurna atau terburu-buru menjawab.\nKenali teman AI dan ikuti arah percakapan.",
         "cta": "Temui teman AI Anda"
@@ -149,7 +149,17 @@
         "sub": "1A2B"
       }
     },
-    "intro": "Mengobrol, belajar bahasa, ramalan, bermain. Bersama AI."
+    "intro": "Mengobrol, belajar bahasa, ramalan, bermain. Bersama AI.",
+    "discovery": {
+      "intro": "Apa lagi yang bisa kamu lakukan di Crew?",
+      "items": [
+        "Main tebak angka atau gomoku bersama AI",
+        "Foto benda lalu buat ia bicara",
+        "Kenali 16 teman AI dan kisah mereka",
+        "Latih bahasa sambil bermain",
+        "Ciptakan cerita bersama AI"
+      ]
+    }
   },
   "playHub": {
     "back": "Beranda",
