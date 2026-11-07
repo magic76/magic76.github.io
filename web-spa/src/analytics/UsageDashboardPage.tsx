@@ -11,17 +11,18 @@ type Report={
  eventUsers:EventUsers[];rows:Row[];generatedAt:string;
  journey?:JourneyCounts
 };
-type Category="all"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"souls"|"research"|"circle";
+type Category="all"|"onboarding"|"guest"|"chat"|"timeline"|"shorts"|"games"|"learning"|"story"|"fortune"|"worlds"|"mate"|"souls"|"research"|"circle";
 
 const names:Record<string,string>={
  app_opened:"開啟網站",visitor_first_seen:"首次造訪瀏覽器",user_returned:"跨日回訪事件",
+ onboarding_view:"新手引導曝光",onboarding_step_view:"新手引導步驟曝光",onboarding_goal_select:"選擇首次目標",onboarding_start:"從引導進入體驗",onboarding_skip:"跳過新手引導",onboarding_replay:"重新開啟新手引導",onboarding_first_action:"完成首次實際互動",
  teacher_conversation:"老師有效雙向對話",friend_conversation:"朋友有效雙向對話",
  timeline_conversation:"Timeline 有效雙向對話",
  teacher_conversation_start:"老師連線成功",friend_conversation_start:"朋友連線成功",
  timeline_conversation_start:"Timeline 連線成功",
  teacher_user_spoke:"老師 · 使用者開口",friend_user_spoke:"朋友 · 使用者開口",timeline_user_spoke:"Timeline · 使用者開口",
  teacher_ai_replied:"老師 · AI 已回覆",friend_ai_replied:"朋友 · AI 已回覆",timeline_ai_replied:"Timeline · AI 已回覆",
- timeline_view:"Timeline 人生探索",
+ timeline_view:"Timeline 人生探索",timeline_age_selected:"Timeline 切換人生階段",
  shorts_view:"Shorts 瀏覽",shorts_chat_click:"Shorts 點擊聊天",shorts_conversation:"Shorts 有效聊天",
  game_open:"遊戲頁面開啟",game_started:"開始遊戲",game_completed:"完成遊戲",
  game_route_loaded:"遊戲頁面載入完成",game_route_stalled:"遊戲載入超過 8 秒",game_route_asset_error:"遊戲資源載入失敗",
@@ -44,6 +45,7 @@ const names:Record<string,string>={
 };
 const categories:{id:Category;label:string;events:string[]}[]=[
  {id:"all",label:"所有有效互動",events:["teacher_conversation","friend_conversation","timeline_conversation","game_completed","vocabulary_practice","textbook_study","story_reading","story_narration","story_created","fortune_calculated","fortune_ai_interpreted","town_interaction","magic_spell","magic_challenge_answer","magic_panel_choice","magic_voice_connected","mate_briefing_ready","mate_handoff_started","mate_handoff_completed","souls_created","souls_conversation","research_article_completed","circle_post_published","circle_comment_posted"]},
+ {id:"onboarding",label:"新手引導",events:["onboarding_view","onboarding_step_view","onboarding_goal_select","onboarding_start","onboarding_skip","onboarding_replay","onboarding_first_action"]},
  {id:"guest",label:"免費試用",events:["guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed","guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended"]},
  {id:"chat",label:"老師／朋友／Souls 聊天",events:["teacher_conversation","friend_conversation","timeline_conversation","souls_conversation","home_live_bubble_view","home_live_bubble_click","home_live_bubble_connected","home_live_bubble_conversation"]},
  {id:"timeline",label:"Timeline",events:["timeline_view","timeline_conversation_start","timeline_conversation"]},
