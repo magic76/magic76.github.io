@@ -30,7 +30,11 @@
  .crew-feature-menu-label-short{display:none}
  .crew-feature-menu-trigger{padding:0 12px}
  .app-header .app-brand{gap:6px}
+ .app-header .app-mark{width:28px;height:28px}
  .app-header .app-title small{display:none}
+ .app-header .app-title strong{font-size:12px;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ .app-header .crew-language-picker-header .crew-language-select{max-width:66px}
+ .app-header .crew-account-entry{padding-inline:7px}
 }
 @media(max-width:480px){.crew-feature-menu-panel{width:100vw;border-radius:0}}
 @media(prefers-reduced-motion:reduce){.crew-feature-menu-card{transition:none}}
