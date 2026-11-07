@@ -21,8 +21,8 @@ test("Home discovery keeps one manual primary CTA and SSR-readable first sentenc
 });
 test("Discovery cycles faster while keeping hover and keyboard focus pauses",()=>{
  const copy=read("web-spa/src/pages/HomeDiscoveryLine.tsx");
- assert.match(copy,/const delay=phase==="hold"\\?2000:phase==="erase"\\?20:40;/);
- assert.match(copy,/if\\(!animate\\|\\|hover\\|\\|focused\\)return;/);
+ assert.match(copy,/const delay=phase==="hold"\?2000:phase==="erase"\?20:40;/);
+ assert.match(copy,/if\(!animate\|\|hover\|\|focused\)return;/);
 });
 test("Discovery phrases and headline are present in each of the eleven supported locales",()=>{
  const langs=["zh-TW","en","de","es","fr","id","ja","ko","pt-BR","th","vi"];
