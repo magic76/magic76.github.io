@@ -27,7 +27,8 @@ test("all 15 feature destinations are direct, named Crew routes",()=>{
 test("drawer is discoverable across the site while preserving the five-tab navigation",()=>{
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.ok(chrome.includes("<CrewFeatureMenu/>"),"drawer belongs to the shared header");
- assert.ok(read(menuFile).includes('lazy(()=>import("./CrewFeatureMenuPanel"))'),"initial JS must not load the full feature catalog");
+ assert.ok(read(menuFile).includes('loadUiNamespace("featureMenu")'),"feature names must be lazy-loaded");
+ assert.ok(read(menuFile).includes('import("./CrewFeatureMenuPanel")'),"full overlay must be lazy-loaded");
  for(const id of ["home","chat","explore","learn","me"])assert.ok(chrome.includes('id:"'+id+'"'),id+" tab remains");
  assert.match(menu,/aria-haspopup="dialog"/);
  assert.match(menu,/aria-expanded=\{open\}/);
@@ -47,9 +48,10 @@ test("all 11 supported interface locales provide complete menu labels and descri
  const featureIds=[...menu.matchAll(/\{id:"([a-z]+)",to:"/g)].map(match=>match[1]);
  for(const locale of locales){
   const common=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/common.json"));
-  const dict=common.featureMenu;
+  const dict=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/featureMenu.json"));
+  for(const key of ["trigger","shortTrigger"])assert.ok(common.featureMenu?.[key]?.trim(),locale+": button "+key);
   assert.ok(dict,locale+": missing feature menu");
-  for(const key of ["trigger","shortTrigger","title","subtitle","close"])assert.ok(dict[key]?.trim(),locale+":"+key);
+  for(const key of ["title","subtitle","close"])assert.ok(dict[key]?.trim(),locale+":"+key);
   for(const key of ["chat","explore","me"])assert.ok(dict.groups[key]?.trim(),locale+" group:"+key);
   assert.deepEqual(Object.keys(dict.items).sort(),featureIds.slice().sort(),locale+": feature parity");
   for(const id of featureIds)for(const field of ["title","desc"]){
