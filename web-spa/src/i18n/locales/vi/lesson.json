@@ -199,6 +199,11 @@
     "teacherIntro": "Chọn giáo viên, học tiếp khóa học hoặc luyện kỹ năng.",
     "backToLearn": "Quay lại học tập",
     "courseTracks": "Danh sách khóa học",
-    "trackProgress": "Đã hoàn thành {{done}} / {{total}} bài"
+    "trackProgress": "Đã hoàn thành {{done}} / {{total}} bài",
+    "reviewTitle": "Luyện lại cách diễn đạt còn yếu",
+    "reviewFallback": "Luyện nói trong một tình huống thường ngày. Giáo viên sẽ điều chỉnh độ khó theo câu trả lời của bạn.",
+    "reviewLink": "Ôn lại điểm cần cải thiện",
+    "retryLesson": "Thử lại bài học này",
+    "goalLabel": "Mục tiêu của tôi"
   }
 }
