@@ -1,9 +1,10 @@
-import {useEffect,useMemo,useState} from "react";
+import {useEffect,useMemo,useRef,useState} from "react";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import type {FortuneReading} from "./types";
 import {buildFortuneIdentity} from "./identity";
 import {identityInviteUrl,shareIdentityCard} from "./identityShare";
+import {identityArtworkUrl} from "./identityArtwork";
 import "./identityCard.css";
 
 type Rating="yes"|"partly"|"no";
@@ -23,9 +24,13 @@ export function FortuneIdentityCard({reading}:{reading:FortuneReading}){
  const zh=/^zh(?:-|$)/i.test(locale),labels=zh?copy.zh:copy.en;
  const card=useMemo(()=>buildFortuneIdentity(reading.mode,reading.result,locale),[reading.mode,reading.result,locale]);
  const key=card?"crew_fortune_identity_rating_"+card.version+"_"+card.rule:"";
+ const artSrc=card?identityArtworkUrl(card.id):null;
+ const[artFailed,setArtFailed]=useState(false);
+ const artRef=useRef<HTMLImageElement|null>(null);
  const[rating,setRating]=useState<Rating|null>(null);
  const[status,setStatus]=useState("");
  useEffect(()=>{setRating(key?readStored(key):null);setStatus("")},[key]);
+ useEffect(()=>{setArtFailed(false);artRef.current=null},[artSrc]);
  if(!card)return null;
  const vote=(value:Rating)=>{
   setRating(value);try{localStorage.setItem(key,value)}catch{/* optional local-only feedback */}
@@ -35,7 +40,7 @@ export function FortuneIdentityCard({reading}:{reading:FortuneReading}){
  const share=async()=>{
   setStatus("");
   try{
-   const result=await shareIdentityCard(card,locale);
+   const result=await shareIdentityCard(card,locale,artSrc&&!artFailed?artRef.current:null);
    if(result==="cancelled")return;
    if(result==="shared")trackUsageEvent("fortune_identity_shared",reading.mode);
    else {trackUsageEvent("fortune_identity_shared",reading.mode);setStatus(labels.downloaded)}
@@ -49,7 +54,10 @@ export function FortuneIdentityCard({reading}:{reading:FortuneReading}){
  return <section className="fortune-identity" aria-label={labels.title}>
   <div className="fortune-identity-card">
    <span className="fortune-identity-kicker">{labels.eyebrow}</span>
-   <div className="fortune-identity-mark" aria-hidden="true">{card.symbol.slice(0,2)}</div>
+   <div className="fortune-identity-art">
+    {artSrc&&!artFailed?<img src={artSrc} alt={zh?"「"+card.title+"」命格人物插畫":"Illustrated archetype: "+card.title} loading="eager" decoding="async" onLoad={event=>{artRef.current=event.currentTarget}} onError={()=>{artRef.current=null;setArtFailed(true)}}/>:
+     <div className="fortune-identity-mark" aria-hidden="true">{card.symbol.slice(0,2)}</div>}
+   </div>
    <h3>{card.title}</h3>
    <div className="fortune-identity-facts">
     <div><strong>{labels.core}</strong><p>{card.core}</p></div>
