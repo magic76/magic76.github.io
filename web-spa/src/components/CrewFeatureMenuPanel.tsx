@@ -44,17 +44,19 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
  const [closing,setClosing]=useState(false);
  const destinationRef=useRef<string|null>(null);
  const finishedRef=useRef(false);
+ const closingRef=useRef(false);
  const finishClose=useCallback(()=>{
   if(finishedRef.current)return;
   finishedRef.current=true;
   onClose();
   if(destinationRef.current)navigate(destinationRef.current);
  },[onClose,navigate]);
- const beginClose=(destination?:string)=>{
-  if(closing)return;
+ const beginClose=useCallback((destination?:string)=>{
+  if(closingRef.current)return;
+  closingRef.current=true;
   destinationRef.current=destination||null;
   setClosing(true);
- };
+ },[]);
  // Keep the drawer mounted for the exit animation; always settle if the
  // animation event is skipped by reduced-motion, a hidden tab, or a WebView.
  useEffect(()=>{
@@ -90,7 +92,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
    window.removeEventListener("popstate",onBack);
    triggerRef.current?.focus();
   };
- },[onClose,triggerRef,closing]);
+ },[beginClose,triggerRef]);
  return createPortal(
   <div className="crew-feature-menu-layer" data-state={closing?"closing":"open"}>
    <div className="crew-feature-menu-backdrop" onClick={()=>beginClose()} aria-hidden="true"/>
