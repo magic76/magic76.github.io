@@ -3,9 +3,11 @@
   "subtitle": "모든 기능을 한눈에",
   "close": "메뉴 닫기",
   "groups": {
-    "chat": "대화와 학습",
+    "chat": "대화와 친구",
     "explore": "창작과 탐험",
-    "me": "나의 Crew"
+    "me": "나의 Crew",
+    "learn": "외국어 학습",
+    "games": "인터랙티브 게임"
   },
   "items": {
     "friends": {
@@ -67,6 +69,75 @@
     "settings": {
       "title": "설정",
       "desc": "언어, AI, 개인정보"
+    },
+    "friendMemory": {
+      "title": "친구와의 기억",
+      "desc": "대화 기억 관리"
+    },
+    "courses": {
+      "title": "상황별 강의",
+      "desc": "여행·생활·업무 회화"
+    },
+    "vocabulary": {
+      "title": "단어 연습",
+      "desc": "유용한 어휘 익히기"
+    },
+    "pronunciation": {
+      "title": "발음 훈련",
+      "desc": "자연스럽게 말하기"
+    },
+    "textbook": {
+      "title": "사진으로 공부",
+      "desc": "내 교재로 연습"
+    },
+    "phrasebook": {
+      "title": "유용한 표현",
+      "desc": "일상 문장 익히기"
+    },
+    "reading": {
+      "title": "읽기 연습",
+      "desc": "기사와 이야기 읽기"
+    },
+    "gomoku": {
+      "title": "오목",
+      "desc": "AI와 대국"
+    },
+    "onea2b": {
+      "title": "1A2B 숫자 맞히기",
+      "desc": "추리력 시험"
+    },
+    "connect4": {
+      "title": "사목 게임",
+      "desc": "전략 대결"
+    },
+    "reversi": {
+      "title": "리버시",
+      "desc": "돌 뒤집기"
+    },
+    "numberBomb": {
+      "title": "숫자 폭탄",
+      "desc": "비밀 숫자 맞히기"
+    },
+    "memoryGame": {
+      "title": "기억력 카드",
+      "desc": "기억력 키우기"
+    },
+    "reports": {
+      "title": "학습 보고서",
+      "desc": "연습 성과 확인"
+    },
+    "personalMemory": {
+      "title": "개인 기억",
+      "desc": "학습 기억 관리"
+    },
+    "myStories": {
+      "title": "내 이야기",
+      "desc": "작품과 저장한 이야기"
+    },
+    "fortuneHistory": {
+      "title": "운세 기록",
+      "desc": "이전 명반 확인"
     }
-  }
+  },
+  "featureCount": "개 기능"
 }
