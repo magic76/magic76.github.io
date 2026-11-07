@@ -559,5 +559,10 @@
     "playDescription": "Challenge the AI to a game.",
     "soulsDescription": "Give an everyday object a voice.",
     "learnDescription": "Try a fun new phrase in another language."
+  },
+  "liveBubble": {
+    "invite": "Hey, want to chat?",
+    "start": "Chat",
+    "setup": "Set up Key"
   }
 }

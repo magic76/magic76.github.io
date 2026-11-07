@@ -559,5 +559,10 @@
     "playDescription": "Défiez l'IA dans un jeu.",
     "soulsDescription": "Donnez la parole à un objet.",
     "learnDescription": "Apprenez une expression étrangère."
+  },
+  "liveBubble": {
+    "invite": "Coucou, on discute un peu ?",
+    "start": "Discuter",
+    "setup": "Régler Key"
   }
 }

@@ -559,5 +559,10 @@
     "playDescription": "Fordere die KI zu einem Spiel heraus.",
     "soulsDescription": "Lass einen Alltagsgegenstand sprechen.",
     "learnDescription": "Lerne einen neuen Satz."
+  },
+  "liveBubble": {
+    "invite": "Hey, Lust auf ein Gespräch?",
+    "start": "Chatten",
+    "setup": "Key einrichten"
   }
 }

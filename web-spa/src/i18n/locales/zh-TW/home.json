@@ -559,5 +559,10 @@
     "playDescription": "跟 AI 來場腦力挑戰。",
     "soulsDescription": "讓身邊的物品開口說話。",
     "learnDescription": "今天學一句實用的外語。"
+  },
+  "liveBubble": {
+    "invite": "嗨，要不要聊兩句？",
+    "start": "開聊",
+    "setup": "設定 Key"
   }
 }

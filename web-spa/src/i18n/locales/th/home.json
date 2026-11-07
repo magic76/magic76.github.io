@@ -559,5 +559,10 @@
     "playDescription": "ท้า AI เล่นเกมกัน",
     "soulsDescription": "ทำให้สิ่งของรอบตัวพูดได้",
     "learnDescription": "ลองเรียนวลีภาษาต่างประเทศ"
+  },
+  "liveBubble": {
+    "invite": "สวัสดี! คุยกันสักหน่อยไหม?",
+    "start": "เริ่มคุย",
+    "setup": "ตั้งค่า Key"
   }
 }

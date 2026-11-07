@@ -559,5 +559,10 @@
     "playDescription": "AI와 게임 대결을 해보세요.",
     "soulsDescription": "일상 속 물건에게 목소리를 주세요.",
     "learnDescription": "외국어 표현을 하나 배워보세요."
+  },
+  "liveBubble": {
+    "invite": "안녕! 잠깐 이야기할래?",
+    "start": "대화",
+    "setup": "Key 설정"
   }
 }

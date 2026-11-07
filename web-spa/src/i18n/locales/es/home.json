@@ -559,5 +559,10 @@
     "playDescription": "Desafía a la IA en un juego.",
     "soulsDescription": "Haz que un objeto cotidiano hable.",
     "learnDescription": "Aprende una frase en otro idioma."
+  },
+  "liveBubble": {
+    "invite": "¡Hola! ¿Charlamos un rato?",
+    "start": "Chatear",
+    "setup": "Config. Key"
   }
 }
