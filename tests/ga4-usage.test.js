@@ -5,20 +5,21 @@ const path=require("node:path");
 const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 
-function harness(){
+function harness(options={}){
  const file=fs.readFileSync(path.join(root,"web-spa/src/analytics/ga4.ts"),"utf8");
  const source=stripTypeScriptTypes(file,{mode:"strip"}).replace(/^export /gm,"");
  const scripts=[];
  const window={
-  location:{origin:"https://www.3sssi.com",pathname:"/teacher/shorts"},
+  location:{origin:"https://www.3sssi.com",pathname:"/teacher/shorts",search:"",...options.location},
   dataLayer:[]
  };
  const document={
+  referrer:options.referrer||"",
   createElement:tag=>({tagName:tag}),
   head:{appendChild:node=>scripts.push(node)}
  };
  const exports=new Function("window","document",source+
-  "\nreturn {GA4_MEASUREMENT_ID,safeGa4Path,setGa4Enabled,sendGa4PageView,sendGa4Event};")(window,document);
+  "\nreturn {GA4_MEASUREMENT_ID,safeGa4Path,safeGa4CampaignQuery,safeGa4Referrer,setGa4Enabled,sendGa4PageView,sendGa4Event};")(window,document);
  return {scripts,window,...exports};
 }
 test("GA4 queues native gtag Arguments objects (including consent updates)",()=>{
@@ -119,4 +120,64 @@ test("Timeline and comparison routes remain public GA4 paths",()=>{
  assert.equal(ga.safeGa4Path("/timeline/private-identifier"),"/timeline/item");
  const views=ga.window.dataLayer.filter(row=>row[0]==="event"&&row[1]==="page_view");
  assert.deepEqual(views.map(row=>row[2].page_path),["/timeline","/timeline/live","/timeline/compare"]);
+});
+
+test("GA4 captures safe incoming UTM and external referral without private query text",()=>{
+ const ga=harness({
+  location:{pathname:"/teacher/",search:"?utm_source=threads&utm_medium=social&utm_campaign=english_launch&utm_content=post_a&utm_term=private+search&fbclid=TRACKING&key=SECRET#fragment"},
+  referrer:"https://l.facebook.com/private/path?token=SECRET#secret"
+ });
+ ga.sendGa4Event("app_opened","");
+ const config=ga.window.dataLayer.find(row=>row[0]==="config")[2];
+ const landing="https://www.3sssi.com/teacher?utm_source=threads&utm_medium=social&utm_campaign=english_launch&utm_content=post_a";
+ assert.equal(config.page_location,landing);
+ assert.equal(config.page_referrer,"https://l.facebook.com/");
+ const earlyEvent=ga.window.dataLayer.at(-1);
+ assert.equal(earlyEvent[2].page_location,landing,
+  "product events before the initial pageview must retain attribution");
+ assert.equal(earlyEvent[2].page_referrer,"https://l.facebook.com/");
+ ga.sendGa4PageView("/teacher/");
+ const first=ga.window.dataLayer.at(-1);
+ assert.equal(first[1],"page_view");
+ assert.equal(first[2].page_location,landing);
+ assert.equal(first[2].page_referrer,"https://l.facebook.com/");
+ ga.window.location.pathname="/games/1a2b";
+ ga.window.location.search="?key=ANOTHER_SECRET&utm_source=wrong";
+ ga.sendGa4PageView("/games/1a2b");
+ const next=ga.window.dataLayer.at(-1);
+ assert.equal(next[2].page_location,"https://www.3sssi.com/games/1a2b");
+ assert.equal(next[2].page_referrer,"https://www.3sssi.com/teacher");
+ ga.sendGa4Event("game_started","1a2b");
+ const action=ga.window.dataLayer.at(-1);
+ assert.equal(action[2].page_referrer,"https://www.3sssi.com/teacher");
+ assert.equal(action[2].page_location,"https://www.3sssi.com/games/1a2b");
+ assert.ok(!JSON.stringify(ga.window.dataLayer).includes("SECRET"));
+ assert.ok(!JSON.stringify(ga.window.dataLayer).includes("TRACKING"));
+ assert.ok(!JSON.stringify(ga.window.dataLayer).includes("private/path"));
+ assert.ok(!JSON.stringify(ga.window.dataLayer).includes("utm_term"));
+});
+
+test("GA4 rejects unsafe or duplicate campaign values and arbitrary URL parameters",()=>{
+ const ga=harness();
+ assert.equal(ga.safeGa4CampaignQuery("?utm_source=threads&utm_medium=social&utm_campaign=launch_2026"),
+  "?utm_source=threads&utm_medium=social&utm_campaign=launch_2026");
+ assert.equal(ga.safeGa4CampaignQuery("?utm_source=one&utm_source=two&auth=SECRET"),"");
+ assert.equal(ga.safeGa4CampaignQuery("?utm_source=person%40example.com&utm_campaign=hello%20world&token=SECRET"),"");
+ assert.equal(ga.safeGa4CampaignQuery("?utm_source="+("x".repeat(65))),"");
+ assert.equal(ga.safeGa4CampaignQuery("?utm_id=abc123&utm_source_platform=meta&utm_content=variant_B"),
+  "?utm_id=abc123&utm_content=variant_B&utm_source_platform=meta");
+});
+
+test("GA4 referrers are external origins only, never private paths or same-site URLs",()=>{
+ const ga=harness();
+ const safe=ga.safeGa4Referrer;
+ const own="https://www.3sssi.com";
+ assert.equal(safe("https://www.google.com/search?q=SECRET",own),"https://www.google.com/");
+ assert.equal(safe("https://m.facebook.com:8443/path?token=SECRET",own),"https://m.facebook.com/");
+ assert.equal(safe("https://3sssi.com/private?token=SECRET",own),"");
+ assert.equal(safe("https://www.3sssi.com/private?token=SECRET",own),"");
+ assert.equal(safe("https://localhost/private",own),"");
+ assert.equal(safe("http://127.0.0.1/path",own),"");
+ assert.equal(safe("javascript:alert(1)",own),"");
+ assert.equal(safe("not-a-url",own),"");
 });
