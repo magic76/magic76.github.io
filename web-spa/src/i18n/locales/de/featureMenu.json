@@ -3,9 +3,11 @@
   "subtitle": "Alle Funktionen auf einen Blick",
   "close": "Menü schließen",
   "groups": {
-    "chat": "Chatten & Lernen",
+    "chat": "Chat & Freunde",
     "explore": "Erstellen & Entdecken",
-    "me": "Mein Crew"
+    "me": "Mein Crew",
+    "learn": "Sprachen lernen",
+    "games": "Interaktive Spiele"
   },
   "items": {
     "friends": {
@@ -67,6 +69,75 @@
     "settings": {
       "title": "Einstellungen",
       "desc": "Sprache, KI und Datenschutz"
+    },
+    "friendMemory": {
+      "title": "Freund-Erinnerungen",
+      "desc": "Chat-Erinnerungen verwalten"
+    },
+    "courses": {
+      "title": "Situationskurse",
+      "desc": "Reisen, Alltag und Beruf"
+    },
+    "vocabulary": {
+      "title": "Vokabeltraining",
+      "desc": "Nützliche Wörter lernen"
+    },
+    "pronunciation": {
+      "title": "Aussprache",
+      "desc": "Natürlicher sprechen"
+    },
+    "textbook": {
+      "title": "Mit Fotos lernen",
+      "desc": "Eigene Materialien nutzen"
+    },
+    "phrasebook": {
+      "title": "Nützliche Sätze",
+      "desc": "Ausdrücke für den Alltag"
+    },
+    "reading": {
+      "title": "Leseübungen",
+      "desc": "Artikel und Geschichten lesen"
+    },
+    "gomoku": {
+      "title": "Gomoku",
+      "desc": "Gegen KI spielen"
+    },
+    "onea2b": {
+      "title": "1A2B Zahlenraten",
+      "desc": "Logik testen"
+    },
+    "connect4": {
+      "title": "Vier gewinnt",
+      "desc": "Strategie-Duell"
+    },
+    "reversi": {
+      "title": "Reversi",
+      "desc": "Steine umdrehen"
+    },
+    "numberBomb": {
+      "title": "Geheimzahl",
+      "desc": "Die Zahl erraten"
+    },
+    "memoryGame": {
+      "title": "Memory-Spiel",
+      "desc": "Gedächtnis trainieren"
+    },
+    "reports": {
+      "title": "Lernberichte",
+      "desc": "Fortschritte ansehen"
+    },
+    "personalMemory": {
+      "title": "Persönliche Erinnerung",
+      "desc": "Lernerinnerungen verwalten"
+    },
+    "myStories": {
+      "title": "Meine Geschichten",
+      "desc": "Eigene Werke und Favoriten"
+    },
+    "fortuneHistory": {
+      "title": "Horoskop-Verlauf",
+      "desc": "Frühere Diagramme ansehen"
     }
-  }
+  },
+  "featureCount": "Funktionen"
 }
