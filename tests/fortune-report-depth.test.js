@@ -120,9 +120,11 @@ test("問老師入口在命盤報告前可見，未設定 Key 導向設定提示
  const content=fs.readFileSync(require.resolve("../web-spa/src/fortune/result/depth.css"),"utf8");
  const tw=JSON.parse(fs.readFileSync(require.resolve("../web-spa/src/i18n/locales/zh-TW/fortune.json"),"utf8"));
  const en=JSON.parse(fs.readFileSync(require.resolve("../web-spa/src/i18n/locales/en/fortune.json"),"utf8"));
- assert.ok(reading.indexOf('className="fortune-teacher-invite"')<reading.indexOf('<FortuneReadingOverview'));
+ assert.ok(reading.indexOf('className="fortune-teacher-invite fortune-report-voice"')<reading.indexOf('<FortuneReadingOverview'));
  assert.match(reading,/fortune-teacher-primary-action/);
- assert.match(reading,/className="fortune-teacher-followup"/);
+ assert.match(reading,/role="tablist"/);
+ assert.doesNotMatch(reading,/className="fortune-teacher-followup"/);
+ assert.equal((reading.match(/\{teacherAction\}/g)||[]).length,1);
  assert.match(reading,/getElementById\("fortune-ai-setup"\)/);
  assert.match(reading,/nav\("\/fortune\/live\?from=reading"\)/);
  assert.match(content,/fortune-teacher-primary-action:focus-visible/);
