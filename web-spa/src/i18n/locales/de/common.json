@@ -24,6 +24,80 @@
     "learn": "Lernen",
     "me": "Mein Crew"
   },
+  "featureMenu": {
+    "trigger": "Alle Funktionen",
+    "shortTrigger": "Menü",
+    "title": "Entdecke die Crew-Welt",
+    "subtitle": "Alle Funktionen auf einen Blick",
+    "close": "Menü schließen",
+    "groups": {
+      "chat": "Chatten & Lernen",
+      "explore": "Erstellen & Entdecken",
+      "me": "Mein Crew"
+    },
+    "items": {
+      "friends": {
+        "title": "KI-Freunde",
+        "desc": "Sprich mit 16 KI-Freunden"
+      },
+      "teacher": {
+        "title": "KI-Lehrer",
+        "desc": "Übe Fremdsprachen"
+      },
+      "games": {
+        "title": "Interaktive Spiele",
+        "desc": "Spiele und sprich mit KI"
+      },
+      "shorts": {
+        "title": "Freundes-Updates",
+        "desc": "Sieh ihre Fototagebücher"
+      },
+      "souls": {
+        "title": "Crew Souls",
+        "desc": "Erwecke Fotos zum Leben"
+      },
+      "mate": {
+        "title": "Crew Mate",
+        "desc": "Sprich über Sprachgrenzen"
+      },
+      "story": {
+        "title": "Crew Story",
+        "desc": "Erstelle interaktive Geschichten"
+      },
+      "fortune": {
+        "title": "Crew Fortune",
+        "desc": "Erkunde deinen Lebensweg"
+      },
+      "timeline": {
+        "title": "Crew Timeline",
+        "desc": "Entdecke Lebensphasen"
+      },
+      "town": {
+        "title": "Crew Town",
+        "desc": "Besuche die Crew-Stadt"
+      },
+      "magic": {
+        "title": "Crew Magic",
+        "desc": "Erschaffe Welten mit Stimme"
+      },
+      "discover": {
+        "title": "Crew Discover",
+        "desc": "Erkunde Nachrichten und Ideen"
+      },
+      "research": {
+        "title": "KI-Forschung",
+        "desc": "Lies aktuelle Studien"
+      },
+      "records": {
+        "title": "Meine Einträge",
+        "desc": "Fortschritt und Gespeichertes"
+      },
+      "settings": {
+        "title": "Einstellungen",
+        "desc": "Sprache, KI und Datenschutz"
+      }
+    }
+  },
   "brand": {
     "home": "Mit KI-Freunden chatten",
     "teacher": "Sprachen lernen",
