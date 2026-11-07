@@ -21,11 +21,18 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
  const [message,setMessage]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
  const [quotaLimit,setQuotaLimit]=useState<number|null>(null);
+ const [quotaRefresh,setQuotaRefresh]=useState(0);
  const host=useRef<HTMLDivElement|null>(null);
  const startButton=useRef<HTMLButtonElement|null>(null);
  const widget=useRef<string|null>(null);
  const busy=useRef(false);
  const active=useRef(true);
+ useEffect(()=>{
+  const now=Date.now(),dayMs=86400000,offsetMs=8*3600000;
+  const next=Math.floor((now+offsetMs)/dayMs+1)*dayMs-offsetMs;
+  const timer=window.setTimeout(()=>setQuotaRefresh(count=>count+1),next-now+1000);
+  return()=>window.clearTimeout(timer);
+ },[quotaRefresh]);
  useEffect(()=>{
   active.current=true;
   void fetchGuestTrialConfig().then(async config=>{
@@ -68,7 +75,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
    trackUsageEvent("guest_trial_entry_view",role);setSiteKey(config.siteKey);setPhase("ready");
   }).catch(()=>{if(active.current){if(guestTrialDiscoveryEnabled())trackUsageEvent("guest_trial_unavailable",role);setPhase("unavailable")}});
   return()=>{active.current=false};
- },[]);
+ },[quotaRefresh]);
  useEffect(()=>{
   if(!siteKey||phase!=="ready")return;
   let cancelled=false;
@@ -157,7 +164,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
   <div style={{display:"grid",gap:10,width:"100%"}}>
    {phase!=="exhausted"&&phase!=="full"&&<><strong>{t("guestTrial.homeTitle")}</strong>
     <p>{t("guestTrial.homeDesc")}</p>
-    {remaining!==null&&<p role="status">{t("guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
+    {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}

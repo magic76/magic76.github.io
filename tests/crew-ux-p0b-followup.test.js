@@ -35,11 +35,14 @@ test("members receive account quota copy; anonymous users get device copy",()=>{
  assert.match(src,/memberSignedIn\?\(quotaLimit!==null\?t\("guestTrial.usedMember",\{limit:quotaLimit\}\):t\("guestTrial.usedMemberNoCount"\)\):t\("guestTrial.used"\)/);
  for(const lang of locales){
   const strings=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/common.json`)).guestTrial;
-  for(const k of ["used","usedMember","usedMemberNoCount","limit"]){
+  for(const k of ["used","usedMember","usedMemberNoCount","memberRemaining","limit"]){
    assert.ok(strings[k]&&typeof strings[k]==="string",`${lang}:${k}`);
   }
   assert.deepEqual([...strings.usedMember.matchAll(/\{\{([^}]+)\}\}/g)].map(m=>m[1]),["limit"],`${lang} member tokens`);
   assert.doesNotMatch(strings.usedMemberNoCount,/\{\{/);
+  assert.deepEqual([...strings.memberRemaining.matchAll(/\{\{([^}]+)\}\}/g)].map(m=>m[1]),["count","limit"],`${lang} daily remaining tokens`);
+  const auth=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/common.json`)).auth;
+  assert.deepEqual([...auth.trialCount.matchAll(/\{\{([^}]+)\}\}/g)].map(m=>m[1]),["used","limit"],`${lang} daily count tokens`);
  }
 });
 

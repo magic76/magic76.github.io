@@ -523,27 +523,28 @@ test("five-minute trial stays consistent across Worker grants and client hard de
  assert.match(config,/Number\(value\.seconds\)===300/);
 });
 
-test("member mode rejects unsigned or replayed tickets and enforces three trials per D1 user",async()=>{
+test("member mode rejects replayed tickets and enforces three trials per Taipei day",async()=>{
  const {createGuestTicket}=await import("../server/crew-guest-ticket.mjs");
  const {onRequestGet,onRequestPost}=await backend;
  const secret="testing-only-account-guest-secret-at-least-32-bytes";
- const users=new Map(),claims=new Set();
+ const users=new Map(),days=new Map(),claims=new Set();
  const db={prepare(sql){return {bind(...v){return {async run(){
   if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_ticket_claims")){
    if(claims.has(v[0]))return{meta:{changes:0}};
    claims.add(v[0]);return{meta:{changes:1}};
   }
   if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_usage")){
-   if(!users.has(v[0]))users.set(v[0],0);
+   if(!users.has(v[0])){users.set(v[0],0);days.set(v[0],v[1])}
    return{meta:{changes:1}};
   }
-  if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
-   const value=users.get(v[1])||0;
-   if(value>=v[2])return{meta:{changes:0}};
-   users.set(v[1],value+1);return{meta:{changes:1}};
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=CASE WHEN updated_at<")){
+   const [dayStart,now,uid,,limit]=v;
+   const fresh=days.get(uid)<dayStart,value=users.get(uid)||0;
+   if(!fresh&&value>=limit)return{meta:{changes:0}};
+   users.set(uid,fresh?1:value+1);days.set(uid,now);return{meta:{changes:1}};
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
-   users.set(v[0],Math.max(0,(users.get(v[0])||0)-1));
+   if(days.get(v[0])>=v[1]&&days.get(v[0])<v[2])users.set(v[0],Math.max(0,(users.get(v[0])||0)-1));
    return{meta:{changes:1}};
   }
   throw Error("Unexpected member SQL "+sql);
@@ -557,7 +558,9 @@ test("member mode rejects unsigned or replayed tickets and enforces three trials
    "cf-connecting-ip":"203.0.113.9","user-agent":"Crew-Test/1.0"},
   body:JSON.stringify({challengeToken:"turnstile-valid-test-token",...(ticket?{authTicket:ticket}:{})})
  });
- const mock=mockedServices();
+ const mock=mockedServices(),originalNow=Date.now;
+ let clock=Date.parse("2026-11-07T15:59:59.000Z"); // Taipei 23:59:59
+ Date.now=()=>clock;
  try{
   assert.equal((await onRequestPost({request:request(),env:settings})).status,401);
   const uid="123e4567-e89b-42d3-a456-426614174000";
@@ -579,7 +582,12 @@ test("member mode rejects unsigned or replayed tickets and enforces three trials
   assert.equal((await exhausted.json()).code,"ALREADY_USED");
   assert.equal(mock.counts().minted,3);
   assert.equal(users.get(uid),3);
- }finally{mock.restore()}
+  clock=Date.parse("2026-11-07T16:00:01.000Z"); // Taipei 00:00:01
+  const tomorrow=await createGuestTicket(uid,secret);
+  assert.equal((await onRequestPost({request:request(tomorrow),env:settings})).status,200);
+  assert.equal(users.get(uid),1,"a new Taipei calendar day resets member quota");
+  assert.equal(mock.counts().minted,4);
+ }finally{Date.now=originalNow;mock.restore()}
 });
 test("member trial requires a secure database and shared signing secret",async()=>{
  const {onRequestGet}=await backend;
@@ -596,23 +604,24 @@ test("member trial requires a secure database and shared signing secret",async()
 
 
 function fakeMemberQuotaDb(){
- const used=new Map(),nonces=new Set();
- return {used,nonces,prepare(sql){return {bind(...v){return {async run(){
+ const used=new Map(),days=new Map(),nonces=new Set();
+ return {used,days,nonces,prepare(sql){return {bind(...v){return {async run(){
   if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_ticket_claims")){
    if(nonces.has(v[0]))return {meta:{changes:0}};
    nonces.add(v[0]);return {meta:{changes:1}};
   }
   if(sql.startsWith("INSERT OR IGNORE INTO crew_guest_usage")){
-   if(!used.has(v[0]))used.set(v[0],0);
+   if(!used.has(v[0])){used.set(v[0],0);days.set(v[0],v[1])}
    return {meta:{changes:1}};
   }
-  if(sql.startsWith("UPDATE crew_guest_usage SET used=used+1")){
-   const count=used.get(v[1])||0;
-   if(count>=v[2])return {meta:{changes:0}};
-   used.set(v[1],count+1);return {meta:{changes:1}};
+  if(sql.startsWith("UPDATE crew_guest_usage SET used=CASE WHEN updated_at<")){
+   const [dayStart,now,uid,,limit]=v;
+   const count=used.get(uid)||0,fresh=days.get(uid)<dayStart;
+   if(!fresh&&count>=limit)return {meta:{changes:0}};
+   used.set(uid,fresh?1:count+1);days.set(uid,now);return {meta:{changes:1}};
   }
   if(sql.startsWith("UPDATE crew_guest_usage SET used=MAX")){
-   used.set(v[0],Math.max(0,(used.get(v[0])||0)-1));
+   if(days.get(v[0])>=v[1]&&days.get(v[0])<v[2])used.set(v[0],Math.max(0,(used.get(v[0])||0)-1));
    return {meta:{changes:1}};
   }
   throw new Error("Unexpected member SQL: "+sql);

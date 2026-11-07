@@ -5,6 +5,9 @@ const json=(value,status=200)=>new Response(JSON.stringify(value),{
 const LIVE_MODEL="gemini-3.8-live";
 const SESSION_SECONDS=300;
 const MEMBER_TRIAL_LIMIT=3;
+// Asia/Taipei is UTC+08:00 year-round; use server time, never browser time.
+const TAIPEI_OFFSET_SECONDS=8*3600;
+const taipeiDayStart=now=>Math.floor((now+TAIPEI_OFFSET_SECONDS)/86400)*86400-TAIPEI_OFFSET_SECONDS;
 const ROLLING_DAYS=30;
 const previewHost=/^[a-z0-9-]+\.magic76-github-io\.pages\.dev$/;
 const MAX_GEMINI_KEYS=20;
@@ -188,7 +191,7 @@ async function issueMemberTrial(input,env){
   const limit=await env.GUEST_TRIAL_RATE_LIMITER.limit({key:"crew-public-guest"});
   if(limit?.success!==true)return json({error:"Guest trial busy",code:"DAILY_LIMIT"},429);
  }catch{return json({error:"Guest limiter unavailable"},503)}
- const db=env.CREW_AUTH_DB,now=Math.floor(Date.now()/1000);
+ const db=env.CREW_AUTH_DB,now=Math.floor(Date.now()/1000),dayStart=taipeiDayStart(now);
  let reserved=false,minted=false;
  try{
   // A ticket can be claimed once, even across simultaneous browser tabs / edges.
@@ -197,8 +200,11 @@ async function issueMemberTrial(input,env){
   if(ticket.meta?.changes!==1)return json({error:"Trial request already used",code:"ALREADY_USED"},429);
   await db.prepare("INSERT OR IGNORE INTO crew_guest_usage (user_id,used,updated_at) VALUES (?,0,?)")
    .bind(member.userId,now).run();
-  const quota=await db.prepare("UPDATE crew_guest_usage SET used=used+1,updated_at=? WHERE user_id=? AND used<?")
-   .bind(now,member.userId,MEMBER_TRIAL_LIMIT).run();
+  // D1 conditional UPDATE is atomic: reset yesterday's count or increment today's.
+  // Existing lifetime rows become today's counters on first grant, without a migration.
+  const quota=await db.prepare(
+   "UPDATE crew_guest_usage SET used=CASE WHEN updated_at<? THEN 1 ELSE used+1 END,updated_at=? WHERE user_id=? AND (updated_at<? OR used<?)"
+  ).bind(dayStart,now,member.userId,dayStart,MEMBER_TRIAL_LIMIT).run();
   if(quota.meta?.changes!==1)return json({error:"Trial already used",code:"ALREADY_USED"},429);
   reserved=true;
   const issuedAt=Date.now();
@@ -210,8 +216,9 @@ async function issueMemberTrial(input,env){
  finally{
   // If provisioning failed, release the quota, but never reuse a ticket nonce.
   if(reserved&&!minted){
-   try{await db.prepare("UPDATE crew_guest_usage SET used=MAX(0,used-1) WHERE user_id=?")
-    .bind(member.userId).run()}catch{}
+   // Never refund an older failed grant against a newly reset day's allowance.
+   try{await db.prepare("UPDATE crew_guest_usage SET used=MAX(0,used-1) WHERE user_id=? AND updated_at>=? AND updated_at<?")
+    .bind(member.userId,dayStart,dayStart+86400).run()}catch{}
   }
  }
 }
