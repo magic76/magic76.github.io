@@ -26,77 +26,7 @@
   },
   "featureMenu": {
     "trigger": "Toutes les fonctions",
-    "shortTrigger": "Menu",
-    "title": "Explorez l'univers Crew",
-    "subtitle": "Toutes les fonctions au même endroit",
-    "close": "Fermer le menu",
-    "groups": {
-      "chat": "Discuter et apprendre",
-      "explore": "Créer et explorer",
-      "me": "Mon Crew"
-    },
-    "items": {
-      "friends": {
-        "title": "Amis IA",
-        "desc": "Discutez avec 16 amis IA"
-      },
-      "teacher": {
-        "title": "Professeurs IA",
-        "desc": "Pratiquez les langues"
-      },
-      "games": {
-        "title": "Jeux interactifs",
-        "desc": "Jouez et discutez avec l'IA"
-      },
-      "shorts": {
-        "title": "Actus des amis",
-        "desc": "Découvrez leurs photos"
-      },
-      "souls": {
-        "title": "Crew Souls",
-        "desc": "Donnez vie aux photos"
-      },
-      "mate": {
-        "title": "Crew Mate",
-        "desc": "Parlez dans d'autres langues"
-      },
-      "story": {
-        "title": "Crew Story",
-        "desc": "Créez des histoires"
-      },
-      "fortune": {
-        "title": "Crew Fortune",
-        "desc": "Explorez votre parcours"
-      },
-      "timeline": {
-        "title": "Crew Timeline",
-        "desc": "Parcourez les âges de la vie"
-      },
-      "town": {
-        "title": "Crew Town",
-        "desc": "Visitez la ville Crew"
-      },
-      "magic": {
-        "title": "Crew Magic",
-        "desc": "Créez des mondes à la voix"
-      },
-      "discover": {
-        "title": "Crew Discover",
-        "desc": "Explorez l'actualité"
-      },
-      "research": {
-        "title": "Recherche IA",
-        "desc": "Lisez les nouvelles études"
-      },
-      "records": {
-        "title": "Mes activités",
-        "desc": "Suivez vos progrès"
-      },
-      "settings": {
-        "title": "Paramètres",
-        "desc": "Langue, IA et vie privée"
-      }
-    }
+    "shortTrigger": "Menu"
   },
   "brand": {
     "home": "Discuter avec des amis IA",
