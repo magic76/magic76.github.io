@@ -3,6 +3,8 @@ import {createPortal} from "react-dom";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
+import {loadCrewFeatureMenuLocale} from "./crewFeatureMenuLocale";
+export {loadCrewFeatureMenuLocale};
 
 type MenuDetail=Parameters<typeof trackUsageEvent>[1];
 type MenuItem={id:string;to:string;icon:string;detail:MenuDetail};
@@ -34,7 +36,8 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
 ];
 
 export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>void;triggerRef:RefObject<HTMLButtonElement|null>}){
- const {t}=useTranslation("featureMenu");
+ const {t,i18n}=useTranslation("featureMenu");
+ useEffect(()=>{void loadCrewFeatureMenuLocale()},[i18n.language]);
  const closeRef=useRef<HTMLButtonElement>(null);
  const dialogRef=useRef<HTMLElement>(null);
  useEffect(()=>{
