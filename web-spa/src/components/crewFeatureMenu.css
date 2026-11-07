@@ -20,16 +20,32 @@
 .crew-feature-menu-heading h2{margin:0;font-size:22px;line-height:1.25;letter-spacing:-.025em}
 .crew-feature-menu-heading p{margin:7px 0 0;color:var(--muted);font-size:13px}
 .crew-feature-menu-close{flex:none;width:44px;height:44px;border:1px solid var(--line);background:var(--surface-alt);border-radius:14px;color:var(--text);font-size:27px;line-height:1}
-.crew-feature-menu-content{display:grid;gap:22px}
-.crew-feature-menu-section{min-width:0}
-.crew-feature-menu-section h3{margin:0 0 10px;font-size:13px;line-height:1.4;color:var(--muted);font-weight:850;letter-spacing:.025em}
-.crew-feature-menu-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.crew-feature-menu-card{display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-width:0;min-height:112px;padding:12px;border:1px solid var(--line);border-radius:16px;background:var(--surface-alt);text-decoration:none;color:inherit;overflow-wrap:anywhere;transition:border-color .14s ease,transform .14s ease}
-.crew-feature-menu-card:hover{border-color:var(--accent);transform:translateY(-1px)}
-.crew-feature-menu-card:active{transform:scale(.985)}
-.crew-feature-menu-icon{font-size:22px;line-height:1.2;display:block}
-.crew-feature-menu-card strong{font-size:14px;line-height:1.35}
-.crew-feature-menu-card small{font-size:12px;line-height:1.4;color:var(--muted)}
+/* Compact accordion directory: no third navigation level or oversized cards. */
+.crew-feature-menu-content{display:grid;gap:9px}
+.crew-feature-menu-section{min-width:0;border:1px solid var(--line);border-radius:16px;background:var(--surface);overflow:hidden}
+.crew-feature-menu-group-heading{margin:0}
+.crew-feature-menu-group-trigger{display:flex;align-items:center;gap:12px;width:100%;min-height:62px;padding:9px 12px;background:transparent;border:0;color:var(--text);text-align:start;font:inherit;cursor:pointer;touch-action:manipulation}
+.crew-feature-menu-group-trigger:hover,.crew-feature-menu-group-trigger[aria-expanded="true"]{background:var(--surface-alt)}
+.crew-feature-menu-group-trigger:focus-visible,.crew-feature-menu-card:focus-visible{outline:2px solid var(--accent);outline-offset:-3px}
+.crew-feature-menu-group-icon{display:grid;place-items:center;width:40px;height:40px;flex:none;background:var(--surface-alt);border-radius:12px;font-size:21px}
+.crew-feature-menu-group-label{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.crew-feature-menu-group-label strong{font-size:14px;font-weight:800;line-height:1.35}
+.crew-feature-menu-group-label small{font-size:12px;color:var(--muted);line-height:1.3}
+.crew-feature-menu-chevron{flex:none;font-size:23px;font-weight:700;color:var(--muted);line-height:1;transform:rotate(0deg);transition:transform .24s ease}
+.crew-feature-menu-group-trigger[aria-expanded="true"] .crew-feature-menu-chevron{transform:rotate(180deg)}
+.crew-feature-menu-branch{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows .26s cubic-bezier(.2,.8,.2,1),opacity .19s ease,visibility 0s linear .26s}
+.crew-feature-menu-branch[data-expanded="true"]{grid-template-rows:1fr;opacity:1;visibility:visible;transition:grid-template-rows .26s cubic-bezier(.2,.8,.2,1),opacity .19s ease,visibility 0s}
+.crew-feature-menu-branch-inner{min-height:0;overflow:hidden}
+.crew-feature-menu-list{display:grid;gap:2px;margin:0 12px 12px 32px;padding:3px 0 0 10px;border-left:1px solid var(--line)}
+.crew-feature-menu-card{display:flex;align-items:center;gap:10px;width:100%;min-width:0;min-height:58px;padding:9px 8px;border-radius:11px;background:transparent;text-decoration:none;color:inherit;overflow-wrap:anywhere;transition:background .14s ease;touch-action:manipulation}
+.crew-feature-menu-card:hover{background:var(--surface-alt)}
+.crew-feature-menu-card:active{background:var(--surface-alt)}
+.crew-feature-menu-branch-mark{font-size:15px;color:var(--muted);line-height:1;flex:none}
+.crew-feature-menu-icon{font-size:19px;line-height:1.2;display:block;flex:none;width:24px;text-align:center}
+.crew-feature-menu-card-copy{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.crew-feature-menu-card-copy strong{font-size:13px;font-weight:750;line-height:1.35}
+.crew-feature-menu-card-copy small{font-size:12px;line-height:1.35;color:var(--muted)}
+.crew-feature-menu-link-arrow{font-size:21px;color:var(--muted);flex:none;line-height:1}
 @media(max-width:600px){
  .crew-feature-menu-label-full{display:none}
  .crew-feature-menu-label-short{display:inline}
@@ -46,4 +62,4 @@
  .app-header .crew-account-entry{padding-inline:7px}
 }
 @media(max-width:480px){.crew-feature-menu-panel{width:100vw;border-radius:0}}
-@media(prefers-reduced-motion:reduce){.crew-feature-menu-card{transition:none}.crew-feature-menu-layer .crew-feature-menu-panel,.crew-feature-menu-layer .crew-feature-menu-backdrop{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.crew-feature-menu-card,.crew-feature-menu-branch,.crew-feature-menu-chevron{transition:none!important}.crew-feature-menu-layer .crew-feature-menu-panel,.crew-feature-menu-layer .crew-feature-menu-backdrop{animation:none!important}}
