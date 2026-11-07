@@ -229,3 +229,9 @@
  .crew-section-chat .crew-intent-card strong,.crew-section-chat .crew-intent-card small{min-width:0}
 }
 @media(prefers-reduced-motion:reduce){.crew-section-chat .crew-intent-card{transition:none}.crew-section-chat .crew-intent-card:hover{transform:none}}
+
+/* Teacher-guided learning: preserve existing color and layout, ensure a large retry target. */
+.crew-section-focus-card .crew-learning-goal{font-size:13px;line-height:1.55;overflow-wrap:anywhere}
+.crew-section-focus-card .crew-learning-goal strong{color:var(--text,#1d2532)}
+.crew-section-focus-card .crew-learn-review-link{grid-column:1 / -1;display:flex;align-items:center;min-height:44px;max-width:100%;padding:9px 12px;border:1px solid var(--line,#e7e5ee);border-radius:12px;color:var(--text,#1d2532);font-size:13px;line-height:1.55;text-decoration:none;overflow-wrap:anywhere}
+.crew-section-focus-card .crew-learn-review-link:hover,.crew-section-focus-card .crew-learn-review-link:focus-visible{text-decoration:underline}

@@ -199,6 +199,11 @@
     "teacherIntro": "Meet your teacher, follow courses, or choose a focused practice.",
     "backToLearn": "Back to learning",
     "courseTracks": "Course tracks",
-    "trackProgress": "{{done}} / {{total}} lessons completed"
+    "trackProgress": "{{done}} / {{total}} lessons completed",
+    "reviewTitle": "Practice a skill that needs work",
+    "reviewFallback": "Practice a useful everyday situation. Your teacher will adapt to your response.",
+    "reviewLink": "Review a skill",
+    "retryLesson": "Try this lesson again",
+    "goalLabel": "My goal"
   }
 }

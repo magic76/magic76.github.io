@@ -28,6 +28,7 @@ export function LearningFocusCard(){
  const chinese=i18n.resolvedLanguage==="zh-TW";
  const lessonName=chinese?plan?.nextLessonTitle:plan?.nextLessonTitleEn;
  const title=plan===null?t("learnToday.loading"):
+  plan?.action==="review"?t("learnToday.reviewTitle"):
   plan?.action==="vocabulary"&&targetLanguage==="英文"
   ?plan.warmupVocabulary?t("learnToday.vocabulary"):t("learnToday.due",{count:plan.dueVocabulary})
   :plan?.action==="course"?t("learnToday.lesson",{number:plan.nextLessonNumber,name:lessonName})
@@ -38,12 +39,15 @@ export function LearningFocusCard(){
    <span className="kicker">{t("learnToday.heading")}</span>
    <h2>{title}</h2>
    <p>{plan===null?t("learnToday.loadingNote"):
+    plan?.action==="review"?plan.reviewFocus||t("learnToday.reviewFallback"):
     plan?.action==="vocabulary"?t("learnToday.vocabularyNote"):
     plan?.action==="course"?t("learnToday.courseNote"):
     t("learnToday.conversationNote")}</p>
+   {plan?.learnerGoal&&<p className="crew-learning-goal" title={plan.learnerGoal}><strong>{t("learnToday.goalLabel")}</strong> {plan.learnerGoal}</p>}
   </div>
   {plan?<Link className="crew-action-primary" to={plan.to}>{t("learnToday.start")} →</Link>:
    <button className="crew-action-primary" type="button" disabled aria-disabled="true">{t("learnToday.loadingButton")}</button>}
+  {plan?.reviewFocus&&plan.action!=="review"&&<Link className="crew-learn-review-link" to="/teacher/live?intent=review">{t("learnToday.reviewLink")} · {plan.reviewFocus}</Link>}
   {plan?.textbook&&<div className="crew-learn-focus-secondary">
    <Link to="/teacher/textbook">{t("learnToday.resumeTextbook")}</Link>
   </div>}
