@@ -99,8 +99,11 @@ test("Web product analytics reuses privacy and source allowlists, and React Rout
  const app=fs.readFileSync(path.join(root,"web-spa/src/App.tsx"),"utf8");
  const settings=fs.readFileSync(path.join(root,"web-spa/src/pages/SettingsPage.tsx"),"utf8");
  assert.match(usage,/const allowed=\(\)=>production\(\)&&!globalPrivacy\(\)&&!usageDisabled\(\)&&!developerUsageMode\(\)/);
- assert.match(usage,/if\(!allowed\(\)\)return;[\s\S]*?sendGa4Event\(event,detail\)/);
- assert.match(usage,/setGa4Enabled\(allowed\(\)\)/);
+ assert.match(usage,/if\(!allowed\(\)\)return;[\s\S]*?withGa4\(ga=>ga\.sendGa4Event\(event,detail,pathname\)\)/);
+ assert.match(usage,/ga\.setGa4Enabled\(true,landing\?\?undefined\)/);
+ assert.match(usage,/ga\.setGa4Enabled\(false\)/);
+ assert.match(usage,/ga4Promise\?\?=import\("\.\/ga4"\)/);
+ assert.doesNotMatch(usage,/^import.*from["']\.\/ga4["']/m);
  assert.match(usage,/sendGa4PageView\(pathname\)/);
  assert.match(app,/useEffect\(\(\)=>\{trackPageView\(pathname\)\},\[pathname\]\)/);
  const privacy=fs.readFileSync(path.join(root,"web-spa/src/pages/PrivacyPage.tsx"),"utf8");
@@ -180,4 +183,20 @@ test("GA4 referrers are external origins only, never private paths or same-site 
  assert.equal(safe("http://127.0.0.1/path",own),"");
  assert.equal(safe("javascript:alert(1)",own),"");
  assert.equal(safe("not-a-url",own),"");
+});
+
+test("GA4 initialization may preserve the landing attribution captured before async loading",()=>{
+ const ga=harness({location:{pathname:"/games/1a2b",search:""}});
+ ga.setGa4Enabled(true,{
+  pathname:"/teacher/",search:"?utm_source=facebook&utm_medium=social&utm_campaign=friend_launch&token=SECRET",
+  referrer:"https://www.facebook.com/private/path?token=SECRET"
+ });
+ const config=ga.window.dataLayer.find(row=>row[0]==="config")[2];
+ assert.equal(config.page_location,
+  "https://www.3sssi.com/teacher?utm_source=facebook&utm_medium=social&utm_campaign=friend_launch");
+ assert.equal(config.page_referrer,"https://www.facebook.com/");
+ ga.sendGa4Event("game_started","1a2b","/teacher/");
+ const event=ga.window.dataLayer.at(-1)[2];
+ assert.equal(event.page_location,config.page_location);
+ assert.ok(!JSON.stringify(ga.window.dataLayer).includes("SECRET"));
 });
