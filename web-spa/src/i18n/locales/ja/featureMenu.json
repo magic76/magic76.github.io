@@ -1,0 +1,72 @@
+{
+  "title": "Crew の世界を探索",
+  "subtitle": "すべての機能を一覧表示",
+  "close": "メニューを閉じる",
+  "groups": {
+    "chat": "会話と学習",
+    "explore": "創作と探索",
+    "me": "マイ Crew"
+  },
+  "items": {
+    "friends": {
+      "title": "AI フレンド",
+      "desc": "16人のAI友達と会話"
+    },
+    "teacher": {
+      "title": "AI 先生",
+      "desc": "外国語の会話を練習"
+    },
+    "games": {
+      "title": "対話ゲーム",
+      "desc": "AIと話しながら遊ぶ"
+    },
+    "shorts": {
+      "title": "友達の近況",
+      "desc": "写真日記をチェック"
+    },
+    "souls": {
+      "title": "Crew Souls",
+      "desc": "写真に命を吹き込む"
+    },
+    "mate": {
+      "title": "Crew Mate",
+      "desc": "言葉の壁を越えて会話"
+    },
+    "story": {
+      "title": "Crew Story",
+      "desc": "物語を作って読む"
+    },
+    "fortune": {
+      "title": "Crew Fortune",
+      "desc": "運勢と人生を探る"
+    },
+    "timeline": {
+      "title": "Crew Timeline",
+      "desc": "人生のさまざまな時期"
+    },
+    "town": {
+      "title": "Crew Town",
+      "desc": "友達の町を訪れる"
+    },
+    "magic": {
+      "title": "Crew Magic",
+      "desc": "声で魔法の世界を作る"
+    },
+    "discover": {
+      "title": "Crew Discover",
+      "desc": "ニュースや知識を探る"
+    },
+    "research": {
+      "title": "AI 研究",
+      "desc": "最新の研究を読む"
+    },
+    "records": {
+      "title": "マイ記録",
+      "desc": "学習履歴や保存内容"
+    },
+    "settings": {
+      "title": "設定",
+      "desc": "言語・AI・プライバシー"
+    }
+  }
+}
