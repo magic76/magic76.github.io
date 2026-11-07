@@ -65,7 +65,7 @@ jobs:
         run: node --test tests/guest-trial.test.js tests/crew-guest-config-cache.test.js tests/crew-ux-p0-honest-trial.test.js tests/crew-ux-p0b-followup.test.js tests/crew-live.lifecycle.test.js tests/crew-onboarding.test.js
       - name: Validate Fortune report quality (Fortune PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-')
-        run: node --test tests/fortune-ai-quality.test.js tests/fortune-report-depth.test.js tests/fortune-usefulness-a.test.js tests/fortune-usefulness-b.test.js tests/fortune-identity.test.js
+        run: node --test tests/fortune-ai-quality.test.js tests/fortune-report-depth.test.js tests/fortune-usefulness-a.test.js tests/fortune-usefulness-b.test.js tests/fortune-identity.test.js tests/fortune-mode-covers.test.js
       # TTS failure diagnostics are part of production publishing reliability.
       # This test is offline and makes no paid Gemini calls.
       - name: Validate Video TTS failure handling

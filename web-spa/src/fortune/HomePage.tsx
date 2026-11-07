@@ -97,12 +97,24 @@ export function FortuneHomePage(){
     <small>{t("landing.choose")}</small>
    </div>
    <div className="fortune-home-grid">
-    <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi"><span className="mode-icon">八</span>
-     <strong>{t("home.bazi")}</strong><span>{t("home.baziDesc")}</span></Link>
-    <Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot"><span className="mode-icon">✦</span>
-     <strong>{t("home.tarot")}</strong><span>{t("home.tarotDesc")}</span></Link>
-    <Link className="fortune-home-mode vedic" to="/fortune/reading?mode=vedic"><span className="mode-icon">◎</span>
-     <strong>{t("home.vedic")}</strong><span>{t("home.vedicDesc")}</span></Link>
+    <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi">
+     <span className="fortune-mode-cover fortune-mode-cover-bazi" aria-hidden="true"><span className="fortune-mode-fallback-icon">八</span></span>
+     <span className="fortune-mode-copy"><strong>{t("home.bazi")}</strong><span className="fortune-mode-description">{t("home.baziDesc")}</span></span>
+    </Link>
+    <Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot">
+     <span className="fortune-mode-cover fortune-mode-cover-tarot" aria-hidden="true">
+      <span className="fortune-mode-fallback-icon">✦</span>
+      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-tarot-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
+     </span>
+     <span className="fortune-mode-copy"><strong>{t("home.tarot")}</strong><span className="fortune-mode-description">{t("home.tarotDesc")}</span></span>
+    </Link>
+    <Link className="fortune-home-mode vedic" to="/fortune/reading?mode=vedic">
+     <span className="fortune-mode-cover fortune-mode-cover-vedic" aria-hidden="true">
+      <span className="fortune-mode-fallback-icon">◎</span>
+      <img className="fortune-mode-cover-image" src="/fortune/modes/fortune-vedic-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/>
+     </span>
+     <span className="fortune-mode-copy"><strong>{t("home.vedic")}</strong><span className="fortune-mode-description">{t("home.vedicDesc")}</span></span>
+    </Link>
    </div>
   </section>
   <section className="section fortune-journey-other">
