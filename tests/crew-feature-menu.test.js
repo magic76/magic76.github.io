@@ -9,9 +9,9 @@ const menuFile="web-spa/src/components/CrewFeatureMenu.tsx";
 const menu=read(menuFile)+"\n"+read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
 const css=read("web-spa/src/components/crewFeatureMenu.css");
 
-test("all 15 feature destinations are direct, named Crew routes",()=>{
- const targets=[...menu.matchAll(/\{id:"([a-z]+)",to:"([^"]+)"/g)];
- assert.equal(targets.length,15,"the menu should expose all 15 top-level experiences");
+test("all 32 feature destinations are direct, existing Crew routes",()=>{
+ const targets=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"([^"]+)"/g)];
+ assert.equal(targets.length,32,"the directory should expose all 32 verified experiences");
  assert.equal(new Set(targets.map(item=>item[1])).size,15,"unique feature keys");
  assert.equal(new Set(targets.map(item=>item[2])).size,15,"unique deep links");
  for(const [,id,to] of targets)assert.ok(to.startsWith("/")&&!to.startsWith("//"),id+" must be an internal route");
@@ -21,7 +21,16 @@ test("all 15 feature destinations are direct, named Crew routes",()=>{
  }
  assert.ok(app.includes('path="roles"'),"teacher/friend picker exists");
  assert.ok(app.includes('path="shorts"'),"shorts feed exists");
+ const teacherRoutes=["course","vocabulary","pronunciation","textbook","phrasebook","reading-library","reports","memory"];
+ for(const route of teacherRoutes)assert.ok(app.includes('path="'+route+'"'),"teacher deep link "+route+" must exist");
+ for(const route of ["/games/gomoku","/games/1a2b","/games/number-bomb","/games/memory"]){
+  assert.ok(app.includes('path="'+route+'"'),route+" must be directly routed");
+ }
+ assert.ok(app.includes('path="/games/:gameId"'),"connect4 and reversi use the game-id route");
+ for(const route of ["me","history"])assert.ok(app.includes('path="'+route+'"'),route+" nested story/fortune route must exist");
+ assert.ok(menu.includes('/settings#memory-settings'),"friend memory settings remain accessible");
  assert.ok(!targets.some(([,id])=>id==="circle"),"hidden community pilot must stay hidden");
+ assert.deepEqual([...menu.matchAll(/\{id:"([a-z]+)",icon:"[^"]+",items:\[/g)].map(m=>m[1]),["chat","learn","games","explore","me"],"directory has five ordered categories");
 });
 
 test("drawer is discoverable across the site while preserving the five-tab navigation",()=>{
@@ -39,21 +48,25 @@ test("drawer is discoverable across the site while preserving the five-tab navig
  assert.match(menu,/document.body.style.overflow="hidden"/);
  assert.match(menu,/setOpen\(false\)/);
  assert.match(css,/min-height:44px/);
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/grid-template-rows:0fr/);
+ assert.match(css,/grid-template-rows:1fr/);
+ assert.match(css,/crew-feature-menu-group-trigger/);
+ assert.match(css,/min-height:58px/);
  assert.match(css,/@media\(max-width:410px\)/);
  assert.match(css, /prefers-reduced-motion:reduce/);
 });
 
 test("all 11 supported interface locales provide complete menu labels and descriptions",()=>{
  const locales=["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"];
- const featureIds=[...menu.matchAll(/\{id:"([a-z]+)",to:"/g)].map(match=>match[1]);
+ const featureIds=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"/g)].map(match=>match[1]);
  for(const locale of locales){
   const common=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/common.json"));
   const dict=JSON.parse(read("web-spa/src/i18n/locales/"+locale+"/featureMenu.json"));
   for(const key of ["trigger","shortTrigger"])assert.ok(common.featureMenu?.[key]?.trim(),locale+": button "+key);
   assert.ok(dict,locale+": missing feature menu");
   for(const key of ["title","subtitle","close"])assert.ok(dict[key]?.trim(),locale+":"+key);
-  for(const key of ["chat","explore","me"])assert.ok(dict.groups[key]?.trim(),locale+" group:"+key);
+  for(const key of ["chat","learn","games","explore","me"])assert.ok(dict.groups[key]?.trim(),locale+" group:"+key);
+  assert.ok(dict.featureCount?.trim(),locale+": missing feature count label");
   assert.deepEqual(Object.keys(dict.items).sort(),featureIds.slice().sort(),locale+": feature parity");
   for(const id of featureIds)for(const field of ["title","desc"]){
    assert.ok(dict.items[id]?.[field]?.trim(),locale+":"+id+"."+field);
@@ -91,5 +104,19 @@ test("feature menu opens and collapses smoothly without cutting off navigation",
  assert.match(css,/crew-menu-slide-out/);
  assert.match(css,/crew-menu-fade-in/);
  assert.match(css,/crew-menu-fade-out/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
+
+test("five-group accordion is accessible, keyboard-safe and directly navigable",()=>{
+ const panel=read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
+ assert.match(panel,/const \[expandedGroup,setExpandedGroup\]=useState<string\|null>\("chat"\)/);
+ assert.match(panel,/setExpandedGroup\(current=>current===group\.id\?null:group\.id\)/);
+ assert.match(panel,/aria-expanded=\{expanded\}/);
+ assert.match(panel,/aria-controls=\{listId\}/);
+ assert.match(panel,/aria-hidden=\{!expanded\}/);
+ assert.match(panel,/tabIndex=\{expanded\?0:-1\}/);
+ assert.match(panel,/a\[href\]:not\(\[tabindex="-1"\]\)/);
+ assert.match(panel,/beginClose\(item\.to\)/);
+ assert.match(css,/crew-feature-menu-branch\[data-expanded="true"\]/);
  assert.match(css,/prefers-reduced-motion:reduce/);
 });

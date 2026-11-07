@@ -3,9 +3,11 @@
   "subtitle": "Every feature in one place",
   "close": "Close menu",
   "groups": {
-    "chat": "Chat & learn",
+    "chat": "Chat & friends",
     "explore": "Create & explore",
-    "me": "My Crew"
+    "me": "My Crew",
+    "learn": "Language learning",
+    "games": "Interactive games"
   },
   "items": {
     "friends": {
@@ -17,8 +19,8 @@
       "desc": "Practice languages aloud"
     },
     "games": {
-      "title": "Interactive games",
-      "desc": "Play and talk with AI"
+      "title": "Game hub",
+      "desc": "Discover all interactive games"
     },
     "shorts": {
       "title": "Friends' Shorts",
@@ -67,6 +69,75 @@
     "settings": {
       "title": "Settings",
       "desc": "Language, AI and privacy"
+    },
+    "friendMemory": {
+      "title": "Friend memories",
+      "desc": "Manage chat memories"
+    },
+    "courses": {
+      "title": "Scenario courses",
+      "desc": "Travel, life and work practice"
+    },
+    "vocabulary": {
+      "title": "Vocabulary practice",
+      "desc": "Build useful vocabulary"
+    },
+    "pronunciation": {
+      "title": "Pronunciation",
+      "desc": "Speak more naturally"
+    },
+    "textbook": {
+      "title": "Study from photos",
+      "desc": "Practice with your own materials"
+    },
+    "phrasebook": {
+      "title": "Useful phrases",
+      "desc": "Everyday expressions"
+    },
+    "reading": {
+      "title": "Reading practice",
+      "desc": "Read articles and stories"
+    },
+    "gomoku": {
+      "title": "Gomoku",
+      "desc": "Play strategy with AI"
+    },
+    "onea2b": {
+      "title": "1A2B Number Guess",
+      "desc": "Test your logic"
+    },
+    "connect4": {
+      "title": "Connect Four",
+      "desc": "A strategy challenge"
+    },
+    "reversi": {
+      "title": "Reversi",
+      "desc": "Flip your opponent's pieces"
+    },
+    "numberBomb": {
+      "title": "Number Bomb",
+      "desc": "Guess the secret number"
+    },
+    "memoryGame": {
+      "title": "Memory Match",
+      "desc": "Train your memory"
+    },
+    "reports": {
+      "title": "Learning reports",
+      "desc": "Review practice results"
+    },
+    "personalMemory": {
+      "title": "Personal memory",
+      "desc": "Manage learning memories"
+    },
+    "myStories": {
+      "title": "My stories",
+      "desc": "Your creations and saved stories"
+    },
+    "fortuneHistory": {
+      "title": "Fortune history",
+      "desc": "View past charts"
     }
-  }
+  },
+  "featureCount": "features"
 }

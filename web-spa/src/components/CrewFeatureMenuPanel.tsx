@@ -8,17 +8,34 @@ export {loadCrewFeatureMenuLocale};
 
 type MenuDetail=Parameters<typeof trackUsageEvent>[1];
 type MenuItem={id:string;to:string;icon:string;detail:MenuDetail};
-type MenuGroup={id:string;items:readonly MenuItem[]};
+type MenuGroup={id:string;icon:string;items:readonly MenuItem[]};
 
-/** The feature catalog is lazy-loaded; it does not add to initial Crew JS. */
+/** Lazy-loaded catalog: every destination goes directly to a real Crew page. */
 export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
- {id:"chat",items:[
+ {id:"chat",icon:"💬",items:[
   {id:"friends",to:"/teacher/roles?mode=friends",icon:"💬",detail:"friend"},
-  {id:"teacher",to:"/teacher/roles?mode=teacher",icon:"🎓",detail:"learn"},
-  {id:"games",to:"/games",icon:"🎮",detail:"play"},
-  {id:"shorts",to:"/teacher/shorts",icon:"📸",detail:"shorts"}
+  {id:"shorts",to:"/teacher/shorts",icon:"📸",detail:"shorts"},
+  {id:"friendMemory",to:"/settings#memory-settings",icon:"🧠",detail:"settings"}
  ]},
- {id:"explore",items:[
+ {id:"learn",icon:"🎓",items:[
+  {id:"teacher",to:"/teacher/roles?mode=teacher",icon:"🎤",detail:"learn"},
+  {id:"courses",to:"/teacher/course",icon:"🗣️",detail:"learn"},
+  {id:"vocabulary",to:"/teacher/vocabulary",icon:"📝",detail:"learn"},
+  {id:"pronunciation",to:"/teacher/pronunciation",icon:"🔊",detail:"learn"},
+  {id:"textbook",to:"/teacher/textbook",icon:"📷",detail:"learn"},
+  {id:"phrasebook",to:"/teacher/phrasebook",icon:"💡",detail:"learn"},
+  {id:"reading",to:"/teacher/reading-library",icon:"📖",detail:"learn"}
+ ]},
+ {id:"games",icon:"🎮",items:[
+  {id:"games",to:"/games",icon:"🕹️",detail:"play"},
+  {id:"gomoku",to:"/games/gomoku",icon:"⚫",detail:"play"},
+  {id:"onea2b",to:"/games/1a2b",icon:"🔢",detail:"play"},
+  {id:"connect4",to:"/games/connect4",icon:"🔴",detail:"play"},
+  {id:"reversi",to:"/games/reversi",icon:"⚪",detail:"play"},
+  {id:"numberBomb",to:"/games/number-bomb",icon:"💣",detail:"play"},
+  {id:"memoryGame",to:"/games/memory",icon:"🃏",detail:"play"}
+ ]},
+ {id:"explore",icon:"✨",items:[
   {id:"souls",to:"/souls",icon:"✨",detail:"souls"},
   {id:"mate",to:"/mate",icon:"🤝",detail:"mate"},
   {id:"story",to:"/story",icon:"📖",detail:"story"},
@@ -29,8 +46,12 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
   {id:"discover",to:"/discover",icon:"🌍",detail:"discover"},
   {id:"research",to:"/research",icon:"📚",detail:"briefing"}
  ]},
- {id:"me",items:[
+ {id:"me",icon:"👤",items:[
   {id:"records",to:"/me",icon:"👤",detail:"me"},
+  {id:"reports",to:"/teacher/reports",icon:"📊",detail:"me"},
+  {id:"personalMemory",to:"/teacher/memory",icon:"🧠",detail:"me"},
+  {id:"myStories",to:"/story/me",icon:"📚",detail:"story"},
+  {id:"fortuneHistory",to:"/fortune/history",icon:"🔮",detail:"fortune"},
   {id:"settings",to:"/settings",icon:"⚙️",detail:"settings"}
  ]}
 ];
@@ -42,6 +63,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
  const dialogRef=useRef<HTMLElement>(null);
  const navigate=useNavigate();
  const [closing,setClosing]=useState(false);
+ const [expandedGroup,setExpandedGroup]=useState<string|null>("chat");
  const destinationRef=useRef<string|null>(null);
  const finishedRef=useRef(false);
  const closingRef=useRef(false);
@@ -74,7 +96,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
    if(event.key!=="Tab")return;
    const dialog=dialogRef.current;
    if(!dialog)return;
-   const focusable=[...dialog.querySelectorAll<HTMLElement>('a[href],button:not([disabled]),[tabindex]:not([tabindex="-1"])')];
+   const focusable=[...dialog.querySelectorAll<HTMLElement>('a[href]:not([tabindex="-1"]),button:not([disabled]),[tabindex]:not([tabindex="-1"])')];
    const first=focusable[0],last=focusable[focusable.length-1];
    if(!first||!last){event.preventDefault();return}
    if(event.shiftKey&&(document.activeElement===first||!dialog.contains(document.activeElement))){
@@ -106,23 +128,46 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
       onClick={()=>beginClose()} aria-label={t("close")}>×</button>
     </div>
     <nav className="crew-feature-menu-content" aria-label={t("title")}>
-     {FEATURE_MENU_GROUPS.map(group=>
-      <section key={group.id} className="crew-feature-menu-section" aria-labelledby={"crew-menu-group-"+group.id}>
-       <h3 id={"crew-menu-group-"+group.id}>{t("groups."+group.id)}</h3>
-       <div className="crew-feature-menu-grid">
-        {group.items.map(item=><Link key={item.id} to={item.to} className="crew-feature-menu-card"
-         onClick={event=>{
-          if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
-          event.preventDefault();
-          trackUsageEvent("menu_item_click",item.detail);
-          beginClose(item.to);
-         }}>
-         <span className="crew-feature-menu-icon" aria-hidden="true">{item.icon}</span>
-         <strong>{t("items."+item.id+".title")}</strong>
-         <small>{t("items."+item.id+".desc")}</small>
-        </Link>)}
+     {FEATURE_MENU_GROUPS.map(group=>{
+      const expanded=expandedGroup===group.id;
+      const listId="crew-menu-items-"+group.id;
+      return <section key={group.id} className="crew-feature-menu-section" aria-labelledby={"crew-menu-group-"+group.id}>
+       <h3 className="crew-feature-menu-group-heading">
+        <button id={"crew-menu-group-"+group.id} type="button" className="crew-feature-menu-group-trigger"
+         aria-expanded={expanded} aria-controls={listId}
+         onClick={()=>setExpandedGroup(current=>current===group.id?null:group.id)}>
+         <span className="crew-feature-menu-group-icon" aria-hidden="true">{group.icon}</span>
+         <span className="crew-feature-menu-group-label">
+          <strong>{t("groups."+group.id)}</strong>
+          <small>{group.items.length} {t("featureCount")}</small>
+         </span>
+         <span className="crew-feature-menu-chevron" aria-hidden="true">⌄</span>
+        </button>
+       </h3>
+       <div id={listId} className="crew-feature-menu-branch" data-expanded={expanded?"true":"false"} aria-hidden={!expanded}>
+        <div className="crew-feature-menu-branch-inner">
+         <div className="crew-feature-menu-list">
+          {group.items.map(item=><Link key={item.id} to={item.to} className="crew-feature-menu-card"
+           tabIndex={expanded?0:-1}
+           onClick={event=>{
+            if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+            event.preventDefault();
+            trackUsageEvent("menu_item_click",item.detail);
+            beginClose(item.to);
+           }}>
+           <span className="crew-feature-menu-branch-mark" aria-hidden="true">↳</span>
+           <span className="crew-feature-menu-icon" aria-hidden="true">{item.icon}</span>
+           <span className="crew-feature-menu-card-copy">
+            <strong>{t("items."+item.id+".title")}</strong>
+            <small>{t("items."+item.id+".desc")}</small>
+           </span>
+           <span className="crew-feature-menu-link-arrow" aria-hidden="true">›</span>
+          </Link>)}
+         </div>
+        </div>
        </div>
-      </section>)}
+      </section>;
+     })}
     </nav>
    </aside>
   </div>,document.body);
