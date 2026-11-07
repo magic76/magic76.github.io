@@ -10,6 +10,7 @@ let enabledState:boolean|null=null;
 let lastViewPath="";
 let lastViewAt=0;
 let previousPageLocation="";
+let currentPageReferrer="";
 let landingPath="";
 let landingCampaign="";
 let landingReferrer="";
@@ -113,14 +114,16 @@ export function sendGa4PageView(pathname:string){
  const pageLocation=window.location.origin+path;
  // Carry campaign tags on the initial page only, not on every SPA transition.
  const firstView=previousPageLocation==="";
+ const pageReferrer=previousPageLocation||landingReferrer;
  command("event","page_view",{
   send_to:GA4_MEASUREMENT_ID,
   page_title:"Crew Web",
-  page_referrer:previousPageLocation||landingReferrer,
+  page_referrer:pageReferrer,
   page_location:pageLocation+(firstView&&path===landingPath?landingCampaign:""),
   page_path:path
  });
  previousPageLocation=pageLocation;
+ currentPageReferrer=pageReferrer;
 }
 export function sendGa4Event(event:string,detail:string){
  if(enabledState===false||!setGa4Enabled(true))return;
@@ -130,7 +133,7 @@ export function sendGa4Event(event:string,detail:string){
   send_to:GA4_MEASUREMENT_ID,
   crew_platform:"web",
   page_title:"Crew Web",
-  page_referrer:previousPageLocation||landingReferrer,
+  page_referrer:currentPageReferrer||landingReferrer,
   // Product events can precede the first page_view in the app bootstrap.
   page_location:window.location.origin+path+
    (!previousPageLocation&&path===landingPath?landingCampaign:""),
