@@ -37,17 +37,53 @@
     {
       "name": "AI 朋友",
       "short_name": "聊天",
-      "url": "/chat"
+      "url": "/chat",
+      "icons": [
+        {
+          "src": "/icons/shortcut-chat-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/shortcut-chat-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "語言學習",
       "short_name": "學習",
-      "url": "/learn"
+      "url": "/learn",
+      "icons": [
+        {
+          "src": "/icons/shortcut-learn-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/shortcut-learn-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     },
     {
       "name": "Crew Play",
       "short_name": "遊戲",
-      "url": "/games"
+      "url": "/games",
+      "icons": [
+        {
+          "src": "/icons/shortcut-games-96.png",
+          "sizes": "96x96",
+          "type": "image/png"
+        },
+        {
+          "src": "/icons/shortcut-games-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }
