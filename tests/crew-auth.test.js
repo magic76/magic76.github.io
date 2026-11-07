@@ -340,14 +340,25 @@ test("authenticated session exposes member trial count but never leaks account o
  db.identities.set("google:123",{user_id:uid});
  db.sessions.set(tokenHash,{uid,expires:Math.floor(Date.now()/1000)+3600});
  const original=db.prepare.bind(db);
+ const latest=Math.floor(Date.now()/1000);
+ let storedAt=latest;
  db.prepare=q=>q.includes("SELECT used,updated_at FROM crew_guest_usage")
-  ?{bind:()=>({first:async()=>({used:1,updated_at:1760000000})})}:original(q);
+  ?{bind:()=>({first:async()=>({used:3,updated_at:storedAt})})}:original(q);
  const env={...config(),CREW_AUTH_DB:db,CREW_GUEST_TICKET_SECRET:"private-guest-secret-never-returned-to-browser"};
  const res=await sessionInfo({request:req("/api/auth/session",{Cookie:"__Host-crew_session="+token}),env});
  assert.equal(res.status,200);
  const data=await res.json();
  assert.equal(data.user.id,uid);
- assert.deepEqual(data.trial,{used:1,limit:3,lastUsedAt:1760000000});
+ assert.deepEqual(data.trial,{used:3,limit:3,lastUsedAt:latest});
+ // The same persisted row is reset logically when its timestamp crosses a
+ // Taipei midnight, including an old lifetime-exhausted account.
+ storedAt=Date.parse("2026-11-07T15:59:59Z")/1000;
+ const oldNow=Date.now;
+ Date.now=()=>Date.parse("2026-11-07T16:00:01Z");
+ try{
+  const reset=await sessionInfo({request:req("/api/auth/session",{Cookie:"__Host-crew_session="+token}),env});
+  assert.deepEqual((await reset.json()).trial,{used:0,limit:3});
+ }finally{Date.now=oldNow}
  assert.ok(!JSON.stringify(data).includes("private-guest-secret"));
  const anonymous=await sessionInfo({request:req("/api/auth/session"),env});
  assert.equal((await anonymous.json()).trial,undefined);
