@@ -112,6 +112,6 @@ export function FortuneReadingPage(){
   <div className="notice" id="fortune-ai-setup"><div><b>{t("reading.fixedDone")}</b><p>{t("reading.needKey")}</p><GeminiSetupNotice returnTo={"/fortune/reading?history="+encodeURIComponent(reading!.id)}/></div></div>:
   <div className="notice"><div><b>{t("reading.fixedDone")}</b><p>{t("reading.aiNotGenerated")}</p><button className="btn secondary small" onClick={()=>void interpret(reading!)}>{t("reading.generateAI")}</button></div></div>
  )}
-</section>}}
+</section>}
  {reading&&!showInput&&identityAvailable&&<FortuneIdentityRevealDialog reading={reading} open={identityOpen} onClose={()=>setIdentityOpen(false)}/>}
  </>}
