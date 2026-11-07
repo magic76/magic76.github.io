@@ -5,11 +5,12 @@ import{setGa4Enabled,sendGa4Event,sendGa4PageView}from"./ga4";
  */
 export type UsageEvent=
   |"app_opened"|"visitor_first_seen"|"user_returned"
+  |"onboarding_view"|"onboarding_step_view"|"onboarding_goal_select"|"onboarding_start"|"onboarding_skip"|"onboarding_replay"|"onboarding_first_action"
   |"teacher_conversation"|"friend_conversation"
   |"teacher_conversation_start"|"friend_conversation_start"|"timeline_conversation_start"
   |"teacher_user_spoke"|"friend_user_spoke"|"timeline_user_spoke"
   |"teacher_ai_replied"|"friend_ai_replied"|"timeline_ai_replied"
-  |"timeline_view"|"timeline_conversation"|"timeline_session_end"
+  |"timeline_view"|"timeline_age_selected"|"timeline_conversation"|"timeline_session_end"
   |"game_open"|"game_started"|"game_completed"
   |"game_route_loaded"|"game_route_stalled"|"game_route_asset_error"
   |"teacher_session_end"|"friend_session_end"
@@ -36,7 +37,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"shorts_home"|"shorts_feed"
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
   |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"souls"|"shorts"|"circle"
-  |"discover"|"me"
+  |"discover"|"me"|"welcome"|"goals"|"preferences"|"chat"|"explore"
   |"android_app_google_play"
   |"voice"|"demo"|"live"|"person"|"object"|"place"|"manual"|"render_error"|"unsupported"
   |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
@@ -50,6 +51,30 @@ export function sessionDurationDetail(durationMs:number):Detail{
 const KEY="crew_usage_visitor_v1",SESSION="crew_usage_session_v1",
       LAST="crew_usage_last_day_v1",OPT_OUT="crew_usage_opt_out_v1",
       DEV="crew_usage_dev_mode_v1";
+export type OnboardingGoal="chat"|"learn"|"play"|"explore";
+const FIRST_ACTION_KEY="crew_onboarding_first_action_v1";
+// Session-scoped, non-identifying attribution. Never persist a goal in analytics as a free-form value.
+const FIRST_ACTION_EVENTS:Record<OnboardingGoal,readonly UsageEvent[]>={
+ chat:["friend_user_spoke","friend_conversation"],
+ learn:["teacher_user_spoke","teacher_conversation","vocabulary_practice"],
+ play:["game_started"],
+ explore:["timeline_age_selected","story_reading","story_created","fortune_calculated","magic_spell","town_interaction","research_article_open"]
+};
+export function setOnboardingFirstActionPending(goal:OnboardingGoal){
+ try{sessionStorage.setItem(FIRST_ACTION_KEY,goal)}catch{/* Optional attribution. */}
+}
+export function clearOnboardingFirstActionPending(){
+ try{sessionStorage.removeItem(FIRST_ACTION_KEY)}catch{/* Optional attribution. */}
+}
+function completeOnboardingFirstAction(event:UsageEvent){
+ try{
+  const goal=sessionStorage.getItem(FIRST_ACTION_KEY) as OnboardingGoal|null;
+  if(goal&&Object.prototype.hasOwnProperty.call(FIRST_ACTION_EVENTS,goal)&&FIRST_ACTION_EVENTS[goal].includes(event)){
+   clearOnboardingFirstActionPending();
+   trackUsageEvent("onboarding_first_action",goal);
+  }
+ }catch{/* Tracking must never interrupt an activity. */}
+}
 let recent=new Map<string,number>();
 const local=(key:string)=>{try{return localStorage.getItem(key)}catch{return null}};
 const store=(key:string,value:string)=>{try{localStorage.setItem(key,value)}catch{/* storage blocked */}};
@@ -94,6 +119,7 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
    method:"POST",headers:{"Content-Type":"application/json"},
    body:JSON.stringify(payload),keepalive:true,credentials:"same-origin"
  }).catch(()=>{/* Analytics never interrupts Crew functions. */})}catch{/* best effort */}
+ completeOnboardingFirstAction(event);
 }
 export function trackAppOpen(){
  if(!allowed())return;
