@@ -27,7 +27,8 @@ test("all 15 feature destinations are direct, named Crew routes",()=>{
 test("drawer is discoverable across the site while preserving the five-tab navigation",()=>{
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.ok(chrome.includes("<CrewFeatureMenu/>"),"drawer belongs to the shared header");
- assert.ok(read(menuFile).includes('loadUiNamespace("featureMenu")'),"feature names must be lazy-loaded");
+ assert.ok(read(menuFile).includes("component.loadCrewFeatureMenuLocale()"),"feature names must be lazy-loaded");
+ assert.ok(read("web-spa/src/components/crewFeatureMenuLocale.ts").includes("import.meta.glob"),"locale catalogs stay out of the main loader");
  assert.ok(read(menuFile).includes('import("./CrewFeatureMenuPanel")'),"full overlay must be lazy-loaded");
  for(const id of ["home","chat","explore","learn","me"])assert.ok(chrome.includes('id:"'+id+'"'),id+" tab remains");
  assert.match(menu,/aria-haspopup="dialog"/);
