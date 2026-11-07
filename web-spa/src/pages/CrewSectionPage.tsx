@@ -233,6 +233,14 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>
+    <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
+     <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
+     <span className="crew-explore-text">
+      <strong>{en?"Crew Souls · Bring photos to life":"Crew Souls · 讓照片活過來"}</strong>
+      <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
+     </span>
+     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
+    </Link>
     <Link className="crew-explore-tile crew-explore-town" data-kind="town" onClick={()=>trackUsageEvent("explore_entry_click","town")} to="/town">
      <div className="crew-explore-art"><ExploreArtwork kind="town"/></div>
      <span className="crew-explore-text">
@@ -246,14 +254,6 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
      <span className="crew-explore-text">
       <strong>{en?"Crew Magic · Speak worlds into life":"Crew Magic · 用聲音創造世界"}</strong>
       <small>{en?"Summon dragons, change the sky and create live adventures with an AI guide.":"召喚飛龍、改變天空，和 AI 嚮導一起創造即時冒險。"}</small>
-     </span>
-     <span className="crew-explore-arrow" aria-hidden="true">↗</span>
-    </Link>
-    <Link className="crew-explore-tile crew-explore-souls" data-kind="souls" to="/souls" onClick={()=>trackUsageEvent("explore_entry_click","souls")}>
-     <div className="crew-explore-art"><ExploreArtwork kind="souls"/></div>
-     <span className="crew-explore-text">
-      <strong>{en?"Crew Souls · Bring photos to life":"Crew Souls · 讓照片活過來"}</strong>
-      <small>{en?"Give an object or portrait a personality, then talk to it with AI.":"拍下物品或人物，打造有個性的角色，直接用 AI 語音聊天。"}</small>
      </span>
      <span className="crew-explore-arrow" aria-hidden="true">↗</span>
     </Link>

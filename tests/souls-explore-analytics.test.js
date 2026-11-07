@@ -19,11 +19,12 @@ test("Souls is a visible Explore tile, with a working existing route and entry c
  assert.match(hub,/trackUsageEvent\("explore_entry_click","souls"\)/);
  assert.match(hub,/<ExploreArtwork kind="souls"\/>/);
  assert.match(hub,/Crew Souls · 讓照片活過來/);
- assert.match(artwork,/kind==="souls"/);
- assert.match(artwork,/crew-explore-souls-art/);
+ assert.ok(artwork.includes('src={"/assets/explore/"+kind+".webp"}'));
+ assert.doesNotMatch(artwork,/crew-explore-souls-art/);
  assert.match(css,/\.crew-explore-tile\[data-kind="souls"\]/);
  assert.match(nav,/,"souls"\]\.includes\(root\)/);
- assert.doesNotMatch(artwork,/assets\/explore\/souls\.webp/);
+ assert.ok(hub.indexOf('data-kind="mate"')<hub.indexOf('data-kind="souls"'));
+ assert.ok(hub.indexOf('data-kind="souls"')<hub.indexOf('data-kind="town"'));
 });
 
 test("Souls lifecycle events are emitted only for meaningful browser actions",()=>{
@@ -68,8 +69,14 @@ test("private dashboard uses Souls event totals, distinct-browser count and non-
  assert.match(server,/"object"/);
 });
 
-test("public Explore has no third-party image fetch or dynamic character data",()=>{
- const soulIllustration=artwork.slice(artwork.indexOf('if(kind==="souls")'),artwork.indexOf('if(kind==="timeline")'));
- assert.doesNotMatch(soulIllustration,/fetch|window\.|document\.|https?:|image|src=/);
- assert.match(css,/\.crew-explore-souls-art/);
+test("Souls uses an optimized local WebP and the shared Explore photo treatment",()=>{
+ const asset=path.join(__dirname,"..","assets/explore/souls.webp");
+ const image=readFileSync(asset);
+ assert.equal(image.toString("ascii",0,4),"RIFF");
+ assert.equal(image.toString("ascii",8,12),"WEBP");
+ assert.ok(image.byteLength<100_000);
+ assert.ok(artwork.includes('src={"/assets/explore/"+kind+".webp"}'));
+ assert.doesNotMatch(artwork,/crew-explore-souls-art/);
+ assert.doesNotMatch(css,/crew-explore-souls-art/);
+ assert.match(css,/\.crew-explore-photo img/);
 });
