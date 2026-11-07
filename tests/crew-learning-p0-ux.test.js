@@ -85,7 +85,9 @@ test("all Today entry points use the shared priority and do not invent duration"
  const course=read("web-spa/src/teacher/CoursePage.tsx");
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  assert.match(planner,/export function todayStep/);
- assert.match(planner,/targetLanguage==="英文"&&\(dueVocabulary>0\|\|\(practicedVocabularyToday===0&&unseenVocabulary>0\)\)/);
+ assert.match(planner,/targetLanguage==="英文"&&dueVocabulary>0/);
+ assert.match(planner,/if\(reviewFocus\)/);
+ assert.match(planner,/targetLanguage==="英文"&&practicedVocabularyToday===0&&unseenVocabulary>0/);
  assert.match(planner,/targetLanguage==="英文"&&nextLesson/);
  assert.match(planner,/lessonsForTrack\(nextLesson\.trackId\)\.findIndex/);
  assert.match(planner,/\/teacher\/course\?briefing=/);
