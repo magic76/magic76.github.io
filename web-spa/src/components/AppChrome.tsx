@@ -1,10 +1,10 @@
-import { useEffect,useLayoutEffect } from "react";
+import { lazy,Suspense,useEffect,useLayoutEffect } from "react";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import {CrewFeatureMenu} from "./CrewFeatureMenu";
-import {CrewInstallEntry} from "./CrewInstallEntry";
+const CrewInstallEntry=lazy(()=>import("./CrewInstallEntry").then(module=>({default:module.CrewInstallEntry})));
 import "./accountEntry.css";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
@@ -38,7 +38,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:crew@3sssi.com">crew@3sssi.com</a>
-   <CrewInstallEntry/>
+   <Suspense fallback={null}><CrewInstallEntry/></Suspense>
   </footer>
  </>;
 }
