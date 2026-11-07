@@ -23,7 +23,7 @@ function paint(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,width:
 }
 const localeZh=(locale:string)=>/^zh(?:-|$)/i.test(locale);
 /** Only the allowlisted identity DTO enters the renderer, never a FortuneReading or birth profile. */
-export function renderIdentityShareCard(identity:FortuneIdentity,locale:string):HTMLCanvasElement{
+export function renderIdentityShareCard(identity:FortuneIdentity,locale:string,art?:HTMLImageElement|null):HTMLCanvasElement{
  const zh=localeZh(locale),canvas=document.createElement("canvas");
  canvas.width=1080;canvas.height=1350;
  const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas unavailable");
@@ -31,28 +31,54 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string):
  ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1350);
  ctx.fillStyle="#4d3a79";ctx.font="700 35px system-ui,sans-serif";ctx.fillText("CREW FORTUNE",76,98);
  ctx.font="500 25px system-ui,sans-serif";ctx.fillStyle="#78698b";ctx.fillText(zh?"命格身份探索":"YOUR FORTUNE ARCHETYPE",76,147);
- ctx.fillStyle="#ffffff";ctx.beginPath();ctx.roundRect(72,194,936,1034,38);ctx.fill();
- ctx.fillStyle="#e9dffc";ctx.beginPath();ctx.arc(540,305,64,0,Math.PI*2);ctx.fill();
- ctx.textAlign="center";ctx.font="700 39px system-ui,sans-serif";ctx.fillStyle="#56418f";
- const symbol=identity.mode==="tarot"?identity.symbol.slice(0,2):identity.symbol.slice(0,2);
- ctx.fillText(symbol,540,320);ctx.textAlign="left";
- ctx.fillStyle="#261f35";ctx.font="700 57px system-ui,sans-serif";
- paint(ctx,identity.title,112,428,850,2,70);
- const blocks=[
-  [zh?"核心特質":"CORE THEME",identity.core],
-  ...(identity.behavior?[[zh?"你可能有的習慣":"HOW YOU MAY ACT",identity.behavior]]:[]),
-  ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
- ];
- let y=505;
- for(const [label,body] of blocks){
-  ctx.fillStyle="#756394";ctx.font="700 27px system-ui,sans-serif";ctx.fillText(label,113,y);
-  ctx.fillStyle="#30293a";ctx.font="29px system-ui,sans-serif";paint(ctx,body,113,y+49,852,3,42);
-  y+=177;
+ const artReady=Boolean(art?.complete&&art.naturalWidth>0&&art.naturalHeight>0);
+ ctx.fillStyle="#ffffff";ctx.beginPath();ctx.roundRect(72,artReady?145:194,936,artReady?1083:1034,38);ctx.fill();
+ if(artReady&&art){
+  // Preserve the original 16:9 artwork: letterbox rather than crop faces or props.
+  const fit=Math.min(936/art.naturalWidth,353/art.naturalHeight);
+  const width=art.naturalWidth*fit,height=art.naturalHeight*fit;
+  ctx.drawImage(art,(1080-width)/2,164+(353-height)/2,width,height);
+  ctx.fillStyle="#261f35";ctx.font="700 57px system-ui,sans-serif";
+  paint(ctx,identity.title,111,585,856,2,65);
+  const sections=[
+   [zh?"核心特質":"CORE THEME",identity.core],
+   ...(identity.behavior?[[zh?"最像你的地方":"HOW YOU MAY ACT",identity.behavior]]:[]),
+   ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
+  ];
+  let y=675;
+  for(const [label,body] of sections){
+   ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(label,113,y);
+   ctx.fillStyle="#30293a";ctx.font="27px system-ui,sans-serif";
+   paint(ctx,body,113,y+43,852,3,35);
+   y+=132;
+  }
+  ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1070);ctx.lineTo(965,1070);ctx.stroke();
+  ctx.fillStyle="#756394";ctx.font="700 24px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1111);
+  ctx.fillStyle="#4f4962";ctx.font="21px system-ui,sans-serif";
+  identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1145+i*30,849,1,28));
+ }else{
+  // Unapproved / unavailable art preserves the current entirely functional text card.
+  ctx.fillStyle="#e9dffc";ctx.beginPath();ctx.arc(540,305,64,0,Math.PI*2);ctx.fill();
+  ctx.textAlign="center";ctx.font="700 39px system-ui,sans-serif";ctx.fillStyle="#56418f";
+  ctx.fillText(identity.symbol.slice(0,2),540,320);ctx.textAlign="left";
+  ctx.fillStyle="#261f35";ctx.font="700 57px system-ui,sans-serif";
+  paint(ctx,identity.title,112,428,850,2,70);
+  const blocks=[
+   [zh?"核心特質":"CORE THEME",identity.core],
+   ...(identity.behavior?[[zh?"你可能有的習慣":"HOW YOU MAY ACT",identity.behavior]]:[]),
+   ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
+  ];
+  let y=505;
+  for(const [label,body] of blocks){
+   ctx.fillStyle="#756394";ctx.font="700 27px system-ui,sans-serif";ctx.fillText(label,113,y);
+   ctx.fillStyle="#30293a";ctx.font="29px system-ui,sans-serif";paint(ctx,body,113,y+49,852,3,42);
+   y+=177;
+  }
+  ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1032);ctx.lineTo(965,1032);ctx.stroke();
+  ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1081);
+  ctx.fillStyle="#4f4962";ctx.font="22px system-ui,sans-serif";
+  identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1121+i*32,849,1,30));
  }
- ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1032);ctx.lineTo(965,1032);ctx.stroke();
- ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1081);
- ctx.fillStyle="#4f4962";ctx.font="22px system-ui,sans-serif";
- identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1121+i*32,849,1,30));
  ctx.fillStyle="#52456f";ctx.font="24px system-ui,sans-serif";
  paint(ctx,zh?"命理象徵供自我探索，不是經驗驗證的人格判定。":"Symbolic reflection, not an evidence-based personality assessment.",78,1268,920,2,31);
  ctx.fillStyle="#503886";ctx.font="700 28px system-ui,sans-serif";ctx.fillText("3sssi.com/fortune",78,1322);
@@ -65,8 +91,9 @@ function pngFile(canvas:HTMLCanvasElement):File{
  for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
  return new File([bytes],"crew-fortune-identity.png",{type:"image/png"});
 }
-export async function shareIdentityCard(identity:FortuneIdentity,locale:string):Promise<"shared"|"downloaded"|"cancelled">{
- const canvas=renderIdentityShareCard(identity,locale),file=pngFile(canvas);
+export async function shareIdentityCard(identity:FortuneIdentity,locale:string,art?:HTMLImageElement|null):Promise<"shared"|"downloaded"|"cancelled">{
+ // Drawing and file preparation finish synchronously before navigator.share. No awaited image fetch.
+ const canvas=renderIdentityShareCard(identity,locale,art),file=pngFile(canvas);
  const {url,text}=invitation(localeZh(locale),identity.mode),message=text+"\n"+url;
  if(navigator.share&&navigator.canShare?.({files:[file]})){
   try{await navigator.share({title:"Crew Fortune",files:[file],text:message});return "shared"}
