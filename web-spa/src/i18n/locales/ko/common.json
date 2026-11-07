@@ -26,77 +26,7 @@
   },
   "featureMenu": {
     "trigger": "전체 기능",
-    "shortTrigger": "메뉴",
-    "title": "Crew 세계 탐험",
-    "subtitle": "모든 기능을 한눈에",
-    "close": "메뉴 닫기",
-    "groups": {
-      "chat": "대화와 학습",
-      "explore": "창작과 탐험",
-      "me": "나의 Crew"
-    },
-    "items": {
-      "friends": {
-        "title": "AI 친구",
-        "desc": "16명의 AI 친구와 대화"
-      },
-      "teacher": {
-        "title": "AI 선생님",
-        "desc": "외국어 회화 연습"
-      },
-      "games": {
-        "title": "대화형 게임",
-        "desc": "AI와 놀면서 대화"
-      },
-      "shorts": {
-        "title": "친구 소식",
-        "desc": "친구들의 사진 일기"
-      },
-      "souls": {
-        "title": "Crew Souls",
-        "desc": "사진에 생명 불어넣기"
-      },
-      "mate": {
-        "title": "Crew Mate",
-        "desc": "언어 장벽 없이 소통"
-      },
-      "story": {
-        "title": "Crew Story",
-        "desc": "대화형 이야기 만들기"
-      },
-      "fortune": {
-        "title": "Crew Fortune",
-        "desc": "운세와 인생 탐색"
-      },
-      "timeline": {
-        "title": "Crew Timeline",
-        "desc": "다양한 인생 단계"
-      },
-      "town": {
-        "title": "Crew Town",
-        "desc": "친구들의 마을 방문"
-      },
-      "magic": {
-        "title": "Crew Magic",
-        "desc": "목소리로 세계 만들기"
-      },
-      "discover": {
-        "title": "Crew Discover",
-        "desc": "뉴스와 지식 탐색"
-      },
-      "research": {
-        "title": "AI 연구",
-        "desc": "최신 연구 살펴보기"
-      },
-      "records": {
-        "title": "나의 기록",
-        "desc": "학습 진도와 저장 항목"
-      },
-      "settings": {
-        "title": "설정",
-        "desc": "언어, AI, 개인정보"
-      }
-    }
+    "shortTrigger": "메뉴"
   },
   "brand": {
     "home": "AI 친구와 대화",
