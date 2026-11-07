@@ -4,6 +4,7 @@ import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
 import {CrewFeatureMenu} from "./CrewFeatureMenu";
+import {CrewInstallEntry} from "./CrewInstallEntry";
 import "./accountEntry.css";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
@@ -37,6 +38,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:crew@3sssi.com">crew@3sssi.com</a>
+   <CrewInstallEntry/>
   </footer>
  </>;
 }

@@ -3,7 +3,7 @@ import {prerenderPublicRoutes} from "./ssg-renderer.mjs";
 import {articleHead,articlePath,escapeHtml,safeJson,indexableArticle} from "./research-seo.mjs";
 import {GAME_SEO_PAGES,GAME_SEO_SLUGS} from "./game-seo.mjs";
 import {previewUrl,writePreview,writeStaticPreviews,replacePreviewMeta} from "./social-og.mjs";
-import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync} from "node:fs";
+import {readFileSync, writeFileSync, cpSync, existsSync, mkdirSync, rmSync, readdirSync} from "node:fs";
 import {dirname, join, resolve} from "node:path";
 import {fileURLToPath} from "node:url";
 
@@ -434,3 +434,28 @@ writeFileSync(join(oldPath,"index.html"),`<!doctype html>
 </script></body></html>`);
 if(existsSync(join(out,"404.html")))rmSync(join(out,"404.html"));
 console.log("Prepared Cloudflare Pages: "+(12+GAME_SEO_SLUGS.length*2+guides.size)+" public SSG routes and "+articles.size+" research articles (indexed "+[...articles.values()].filter(({item})=>indexableArticle(item)).length+"), private route noindex shells, no runtime SSR.");
+
+// Crew PWA metadata for every entry point, including SSG, private deep links,
+// generated SEO articles, and non-English locale shells. This runs LAST so no
+// subsequently generated HTML page misses the manifest or iOS home-screen icon.
+const pwaHead=[
+ '<link rel="manifest" href="/site.webmanifest">',
+ '<link rel="apple-touch-icon" sizes="180x180" href="/icons/crew-180.png">',
+ '<meta name="apple-mobile-web-app-capable" content="yes">',
+ '<meta name="apple-mobile-web-app-title" content="Crew">'
+].join(newline);
+function addPwaHeadToHtml(directory){
+ for(const entry of readdirSync(directory,{withFileTypes:true})){
+  const file=join(directory,entry.name);
+  if(entry.isDirectory()){addPwaHeadToHtml(file);continue;}
+  if(!entry.isFile()||!file.endsWith(".html"))continue;
+  const original=readFileSync(file,"utf8");
+  if(!original.includes("</head>"))continue;
+  const missing=pwaHead.split(newline).filter(tag=>!original.includes(tag));
+  if(missing.length)writeFileSync(file,original.replace("</head>",missing.join(newline)+newline+"</head>"));
+ }
+}
+for(const name of ["site.webmanifest","sw.js","offline.html","icons/crew-180.png","icons/crew-192.png","icons/crew-512.png","icons/crew-maskable-512.png"]){
+ if(!existsSync(join(out,name)))throw Error("Missing Crew PWA asset: "+name);
+}
+addPwaHeadToHtml(out);

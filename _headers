@@ -25,3 +25,12 @@ https://:version.magic76-github-io.pages.dev/*
 /version.json
   Cache-Control: no-store, max-age=0, must-revalidate
 
+# Keep the SW and manifest fresh; never reuse stale install/update metadata.
+/sw.js
+  Cache-Control: no-store, max-age=0, must-revalidate
+
+/site.webmanifest
+  Cache-Control: no-cache, must-revalidate
+
+/offline.html
+  Cache-Control: no-cache, must-revalidate
