@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
 import { Link,NavLink,Outlet,useLocation } from "react-router-dom";
 import { Icon } from "./Icon";
+import {CrewFeatureMenu} from "./CrewFeatureMenu";
 import "./accountEntry.css";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
@@ -31,7 +32,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
  },[product]);
  useEffect(()=>{if(!location.pathname.startsWith("/guides/")&&!/^\/teacher\/course\/[^/]+\/?$/.test(location.pathname))document.title=t("seo."+product)},[product,t,i18n.resolvedLanguage,location.pathname]);
  return <>
-  <header className="app-header"><div className="shell inner"><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{headerContext?.[0]||m[1]}</strong><small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
+  <header className="app-header"><div className="shell inner"><CrewFeatureMenu/><Link className="app-brand" to={product==="teacher"?"/teacher":"/"} aria-label={t("brand.homeLink",{name:m[1]})}><span className={"app-mark "+(product==="home"||product==="settings"?"":product)} aria-hidden="true">{m[0]}</span><span className="app-title"><strong>{headerContext?.[0]||m[1]}</strong><small>{headerContext?.[1]||t("brand."+product)}</small></span></Link><div className="app-header-actions"><LanguageSwitcher/><Link className="crew-account-entry" to="/account" aria-label={t("auth.accountAi")}>{t("auth.account")}</Link>{headerAction} </div></div></header>
   <main key={location.pathname} className="shell page page-enter">{children||<Outlet/>}</main>
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>

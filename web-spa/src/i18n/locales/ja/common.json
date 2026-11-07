@@ -24,6 +24,10 @@
     "learn": "学ぶ",
     "me": "マイページ"
   },
+  "featureMenu": {
+    "trigger": "すべての機能",
+    "shortTrigger": "メニュー"
+  },
   "brand": {
     "home": "AI の友だちと会話",
     "teacher": "語学学習",

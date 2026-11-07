@@ -24,6 +24,10 @@
     "learn": "學習",
     "me": "我的"
   },
+  "featureMenu": {
+    "trigger": "全部功能",
+    "shortTrigger": "功能"
+  },
   "brand": {
     "home": "和 AI 朋友聊天",
     "teacher": "語言學習",

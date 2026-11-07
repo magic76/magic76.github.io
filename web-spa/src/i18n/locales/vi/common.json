@@ -24,6 +24,10 @@
     "learn": "Học",
     "me": "Crew của tôi"
   },
+  "featureMenu": {
+    "trigger": "Tất cả tính năng",
+    "shortTrigger": "Menu"
+  },
   "brand": {
     "home": "Trò chuyện với bạn AI",
     "teacher": "Học ngoại ngữ",

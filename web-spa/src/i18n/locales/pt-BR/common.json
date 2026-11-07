@@ -24,6 +24,10 @@
     "learn": "Aprender",
     "me": "Meu Crew"
   },
+  "featureMenu": {
+    "trigger": "Todos os recursos",
+    "shortTrigger": "Menu"
+  },
   "brand": {
     "home": "Converse com amigos de IA",
     "teacher": "Aprendizado de idiomas",

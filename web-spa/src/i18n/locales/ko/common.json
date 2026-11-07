@@ -24,6 +24,10 @@
     "learn": "학습",
     "me": "내 Crew"
   },
+  "featureMenu": {
+    "trigger": "전체 기능",
+    "shortTrigger": "메뉴"
+  },
   "brand": {
     "home": "AI 친구와 대화",
     "teacher": "언어 학습",

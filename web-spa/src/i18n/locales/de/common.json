@@ -24,6 +24,10 @@
     "learn": "Lernen",
     "me": "Mein Crew"
   },
+  "featureMenu": {
+    "trigger": "Alle Funktionen",
+    "shortTrigger": "Menü"
+  },
   "brand": {
     "home": "Mit KI-Freunden chatten",
     "teacher": "Sprachen lernen",

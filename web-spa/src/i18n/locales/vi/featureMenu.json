@@ -1,0 +1,72 @@
+{
+  "title": "Khám phá thế giới Crew",
+  "subtitle": "Mọi tính năng trong một nơi",
+  "close": "Đóng menu",
+  "groups": {
+    "chat": "Trò chuyện và học",
+    "explore": "Sáng tạo và khám phá",
+    "me": "Crew của tôi"
+  },
+  "items": {
+    "friends": {
+      "title": "Bạn AI",
+      "desc": "Trò chuyện với 16 bạn AI"
+    },
+    "teacher": {
+      "title": "Giáo viên AI",
+      "desc": "Luyện nói ngoại ngữ"
+    },
+    "games": {
+      "title": "Trò chơi tương tác",
+      "desc": "Chơi và trò chuyện với AI"
+    },
+    "shorts": {
+      "title": "Tin từ bạn bè",
+      "desc": "Xem nhật ký ảnh"
+    },
+    "souls": {
+      "title": "Crew Souls",
+      "desc": "Làm ảnh trở nên sống động"
+    },
+    "mate": {
+      "title": "Crew Mate",
+      "desc": "Trò chuyện đa ngôn ngữ"
+    },
+    "story": {
+      "title": "Crew Story",
+      "desc": "Tạo truyện tương tác"
+    },
+    "fortune": {
+      "title": "Crew Fortune",
+      "desc": "Khám phá hành trình đời"
+    },
+    "timeline": {
+      "title": "Crew Timeline",
+      "desc": "Khám phá các giai đoạn đời"
+    },
+    "town": {
+      "title": "Crew Town",
+      "desc": "Thăm thị trấn bạn bè"
+    },
+    "magic": {
+      "title": "Crew Magic",
+      "desc": "Tạo thế giới bằng giọng nói"
+    },
+    "discover": {
+      "title": "Crew Discover",
+      "desc": "Khám phá tin tức và ý tưởng"
+    },
+    "research": {
+      "title": "Nghiên cứu AI",
+      "desc": "Đọc nghiên cứu mới"
+    },
+    "records": {
+      "title": "Hồ sơ của tôi",
+      "desc": "Xem tiến độ và mục đã lưu"
+    },
+    "settings": {
+      "title": "Cài đặt",
+      "desc": "Ngôn ngữ, AI và riêng tư"
+    }
+  }
+}

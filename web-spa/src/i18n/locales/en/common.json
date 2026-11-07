@@ -24,6 +24,10 @@
     "learn": "Learn",
     "me": "My Crew"
   },
+  "featureMenu": {
+    "trigger": "All features",
+    "shortTrigger": "Menu"
+  },
   "brand": {
     "home": "Chat with AI friends",
     "teacher": "Language learning",

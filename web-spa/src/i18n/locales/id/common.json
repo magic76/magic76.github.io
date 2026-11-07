@@ -24,6 +24,10 @@
     "learn": "Belajar",
     "me": "Crew Saya"
   },
+  "featureMenu": {
+    "trigger": "Semua fitur",
+    "shortTrigger": "Menu"
+  },
   "brand": {
     "home": "Ngobrol dengan teman AI",
     "teacher": "Belajar bahasa",

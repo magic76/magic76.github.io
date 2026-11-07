@@ -24,6 +24,10 @@
     "learn": "Aprender",
     "me": "Mi Crew"
   },
+  "featureMenu": {
+    "trigger": "Todas las funciones",
+    "shortTrigger": "Menú"
+  },
   "brand": {
     "home": "Habla con amigos de IA",
     "teacher": "Aprender idiomas",

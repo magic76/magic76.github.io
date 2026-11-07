@@ -24,6 +24,10 @@
     "learn": "เรียนรู้",
     "me": "Crew ของฉัน"
   },
+  "featureMenu": {
+    "trigger": "ฟีเจอร์ทั้งหมด",
+    "shortTrigger": "เมนู"
+  },
   "brand": {
     "home": "คุยกับเพื่อน AI",
     "teacher": "เรียนภาษา",
