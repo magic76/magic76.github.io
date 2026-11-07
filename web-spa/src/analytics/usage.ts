@@ -1,4 +1,3 @@
-import{setGa4Enabled,sendGa4Event,sendGa4PageView}from"./ga4";
 /**
  * Minimal first-party analytics. Never send user speech, prompts, Gemini keys,
  * story titles, birth details, profile IDs, or full URLs.
@@ -61,8 +60,7 @@ export const developerUsageMode=()=>local(DEV)==="1";
 export function setUsageDisabled(value:boolean){
  if(value){store(OPT_OUT,"1");try{[KEY,SESSION,LAST].forEach(k=>localStorage.removeItem(k))}catch{/* blocked */}}
  else{try{localStorage.removeItem(OPT_OUT)}catch{/* blocked */}}
- setGa4Enabled(allowed());
- if(allowed())sendGa4PageView(location.pathname);
+ updateGa4State();
 }
 export function setDeveloperUsageMode(value:boolean){
  if(value)store(DEV,"1");
@@ -71,6 +69,31 @@ export function setDeveloperUsageMode(value:boolean){
  if(allowed())sendGa4PageView(location.pathname);
 }
 const allowed=()=>production()&&!globalPrivacy()&&!usageDisabled()&&!developerUsageMode();
+// Third-party analytics is optional: load its code only when collection is allowed.
+// Capture the original landing URL before the async chunk can finish loading.
+type Ga4Module=typeof import("./ga4");
+let ga4Promise:Promise<Ga4Module>|null=null;
+let landing:{pathname:string;search:string;referrer:string}|null=null;
+function loadGa4(){
+ landing??={pathname:location.pathname,search:location.search,referrer:document.referrer};
+ return ga4Promise??=import("./ga4");
+}
+function withGa4(send:(ga:Ga4Module)=>void){
+ if(!allowed())return;
+ void loadGa4().then(ga=>{
+  if(!allowed())return; // An opt-out during module loading must win.
+  ga.setGa4Enabled(true,landing??undefined);
+  send(ga);
+ }).catch(()=>{/* Analytics never interrupts Crew functions. */});
+}
+function updateGa4State(){
+ if(!allowed()){
+  if(ga4Promise)void ga4Promise.then(ga=>ga.setGa4Enabled(false)).catch(()=>{});
+  return;
+ }
+ const pathname=location.pathname;
+ withGa4(ga=>ga.sendGa4PageView(pathname));
+}
 function visitor(){
  let value=local(KEY);
  if(!value){value=id();store(KEY,value)}
@@ -88,7 +111,8 @@ export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
  const dedupeMs=event.startsWith("home_gift_")?300:2000;
  if(now-(recent.get(key)||0)<dedupeMs)return;
  recent.set(key,now);
- sendGa4Event(event,detail);
+ const pathname=location.pathname;
+ withGa4(ga=>ga.sendGa4Event(event,detail,pathname));
  const payload={event,detail,visitorId:visitor(),sessionId:session()};
  try{void fetch("/api/usage/event",{
    method:"POST",headers:{"Content-Type":"application/json"},
@@ -106,8 +130,7 @@ export function trackAppOpen(){
  trackUsageEvent("app_opened");
 }
 
-/** Manual GA4 pageviews for React Router navigation (no query/hash or dynamic IDs). */
+/** Manual GA4 pageviews for React Router navigation (only safe campaign labels). */
 export function trackPageView(pathname:string){
- if(!allowed())return;
- sendGa4PageView(pathname);
+ withGa4(ga=>ga.sendGa4PageView(pathname));
 }
