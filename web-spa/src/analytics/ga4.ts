@@ -9,11 +9,9 @@ let initialized=false;
 let enabledState:boolean|null=null;
 let lastViewPath="";
 let lastViewAt=0;
-let previousPageLocation="";
-let currentPageReferrer="";
 let landingPath="";
 let landingCampaign="";
-let landingReferrer="";
+let pageReferrer="";
 
 // Only explicitly named, compact campaign labels may leave the browser. Exclude
 // utm_term (free-text search terms), click IDs, and all arbitrary query values.
@@ -46,16 +44,7 @@ export function safeGa4Referrer(referrer:string,siteOrigin:string){
  }catch{return ""}
 }
 
-const reserved=new Set([
- "en","zh","zh-tw","zh-cn","ja","ko","es","fr","pt","de","vi","id","th",
- "teacher","friend","story","fortune","research","briefing","guides","settings","privacy","usage","timeline","compare",
- "practice","shorts","friends","roles","learn","tutor","me","vocabulary","course",
- "pronunciation","textbook","phrasebook","reports","memory","reading-library",
- "voice-lab","live","shelf","create","edit","physical","read","history","reading","board",
- "town","magic","mate","souls","games","nonsense","crazy-court","werewolf","taboo","gomoku","connect4","reversi",
- "1a2b","twenty-questions","mystery","circle","books","explore","chat","learn","me","orb","research",
- "friend","friends","timeline","compare","teacher","vocabulary","shorts","story","fortune"
-]);
+const reserved=new Set("en zh zh-tw zh-cn ja ko es fr pt de vi id th teacher friend story fortune research briefing guides settings privacy usage timeline compare practice shorts friends roles learn tutor me vocabulary course pronunciation textbook phrasebook reports memory reading-library voice-lab live shelf create edit physical read history reading board town magic mate souls games nonsense crazy-court werewolf taboo gomoku connect4 reversi 1a2b twenty-questions mystery circle books explore chat orb".split(" "));
 // Unknown/dynamic slugs could contain personal information; never emit them to Google.
 export function safeGa4Path(pathname:string){
  const segments=pathname.split("/").filter(Boolean);
@@ -86,7 +75,7 @@ export function setGa4Enabled(enabled:boolean){
  initialized=true;
  landingPath=safeGa4Path(window.location.pathname);
  landingCampaign=safeGa4CampaignQuery(window.location.search);
- landingReferrer=safeGa4Referrer(document.referrer||"",window.location.origin);
+ pageReferrer=safeGa4Referrer(document.referrer||"",window.location.origin);
  command("js",new Date());
  command("consent","default",consent(true));
  command("config",GA4_MEASUREMENT_ID,{
@@ -94,7 +83,7 @@ export function setGa4Enabled(enabled:boolean){
    allow_google_signals:false,
    allow_ad_personalization_signals:false,
    page_title:"Crew Web",
-   page_referrer:landingReferrer,
+   page_referrer:pageReferrer,
    page_location:window.location.origin+landingPath+landingCampaign
  });
  const script=document.createElement("script");
@@ -110,21 +99,19 @@ export function sendGa4PageView(pathname:string){
  if(!setGa4Enabled(true))return;
  // React.StrictMode may run mount effects twice; real revisits still count.
  if(path===lastViewPath&&now-lastViewAt<1200)return;
+ const initial=!lastViewPath;
+ const referral=initial?pageReferrer:window.location.origin+lastViewPath;
  lastViewPath=path;lastViewAt=now;
- const pageLocation=window.location.origin+path;
- // Carry campaign tags on the initial page only, not on every SPA transition.
- const firstView=previousPageLocation==="";
- const pageReferrer=previousPageLocation||landingReferrer;
  command("event","page_view",{
   send_to:GA4_MEASUREMENT_ID,
   page_title:"Crew Web",
-  page_referrer:pageReferrer,
-  page_location:pageLocation+(firstView&&path===landingPath?landingCampaign:""),
+  page_referrer:referral,
+  page_location:window.location.origin+path+(initial&&path===landingPath?landingCampaign:""),
   page_path:path
  });
- previousPageLocation=pageLocation;
- currentPageReferrer=pageReferrer;
+ pageReferrer=referral;
 }
+
 export function sendGa4Event(event:string,detail:string){
  if(enabledState===false||!setGa4Enabled(true))return;
  // Event and detail are fixed allowlisted enums from usage.ts.
@@ -133,10 +120,10 @@ export function sendGa4Event(event:string,detail:string){
   send_to:GA4_MEASUREMENT_ID,
   crew_platform:"web",
   page_title:"Crew Web",
-  page_referrer:currentPageReferrer||landingReferrer,
+  page_referrer:pageReferrer,
   // Product events can precede the first page_view in the app bootstrap.
   page_location:window.location.origin+path+
-   (!previousPageLocation&&path===landingPath?landingCampaign:""),
+   (!lastViewPath&&path===landingPath?landingCampaign:""),
   ...(detail?{crew_detail:detail}:{})
  });
 }
