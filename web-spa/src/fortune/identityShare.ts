@@ -43,11 +43,11 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string):
   ...(identity.behavior?[[zh?"你可能有的習慣":"HOW YOU MAY ACT",identity.behavior]]:[]),
   ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
  ];
- let y=530;
+ let y=505;
  for(const [label,body] of blocks){
   ctx.fillStyle="#756394";ctx.font="700 27px system-ui,sans-serif";ctx.fillText(label,113,y);
   ctx.fillStyle="#30293a";ctx.font="29px system-ui,sans-serif";paint(ctx,body,113,y+49,852,3,42);
-  y+=194;
+  y+=177;
  }
  ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1032);ctx.lineTo(965,1032);ctx.stroke();
  ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1081);
