@@ -53,14 +53,14 @@ test("onboarding text exists in all supported interface languages",()=>{
 });
 
 test("first-run routes are immediately usable activities instead of product indexes",()=>{
- assert.match(gate,/chat:"\\/friend\\/live\\?id=zoe&from=home"/);
- assert.match(gate,/learn:"\\/teacher\\/live\\?lesson=daily_u1_l1"/);
- assert.match(gate,/play:"\\/games\\/number-bomb"/);
- assert.match(gate,/explore:"\\/timeline"/);
- assert.match(gate,/onClick=\\{\\(\\)=>finish\\(true,"chat"\\)\\}/);
- assert.match(gate,/step===2\\?firstAction:c.next/);
+ assert.match(gate,/chat:"\/friend\/live\?id=zoe&from=home"/);
+ assert.match(gate,/learn:"\/teacher\/live\?lesson=daily_u1_l1"/);
+ assert.match(gate,/play:"\/games\/number-bomb"/);
+ assert.match(gate,/explore:"\/timeline"/);
+ assert.match(gate,/onClick=\{\(\)=>finish\(true,"chat"\)\}/);
+ assert.match(gate,/step===2\?firstAction:c.next/);
  assert.match(gate,/crew-onboarding-first-action/);
- assert.doesNotMatch(gate,/navigate\\(\\x22\\/chat\\x22\\)|navigate\\(\\x22\\/learn\\x22\\)/);
+ assert.doesNotMatch(gate,/navigate\(\x22\/chat\x22\)|navigate\(\x22\/learn\x22\)/);
 });
 test("first-run funnel has observable goal, step, skip and first-action attribution",()=>{
  const analytics=read("web-spa/src/analytics/usage.ts");
@@ -72,13 +72,13 @@ test("first-run funnel has observable goal, step, skip and first-action attribut
   assert.ok(ingestion.includes('"'+event+'"'),"ingest event "+event);
   assert.ok(dashboard.includes(event+":"),"dashboard event "+event);
  }
- assert.match(gate,/setOnboardingFirstActionPending\\(chosenGoal\\)/);
- assert.match(gate,/clearOnboardingFirstActionPending\\(\\)/);
- assert.match(analytics,/sessionStorage\\.setItem\\(FIRST_ACTION_KEY,goal\\)/);
- assert.match(analytics,/sessionStorage\\.removeItem\\(FIRST_ACTION_KEY\\)/);
- assert.match(analytics,/trackUsageEvent\\("onboarding_first_action",goal\\)/);
- assert.match(analytics,/play:\\["game_started"\\]/);
- assert.match(analytics,/explore:\\["timeline_age_selected"/);
+ assert.match(gate,/setOnboardingFirstActionPending\(chosenGoal\)/);
+ assert.match(gate,/clearOnboardingFirstActionPending\(\)/);
+ assert.match(analytics,/sessionStorage\.setItem\(FIRST_ACTION_KEY,goal\)/);
+ assert.match(analytics,/sessionStorage\.removeItem\(FIRST_ACTION_KEY\)/);
+ assert.match(analytics,/trackUsageEvent\("onboarding_first_action",goal\)/);
+ assert.match(analytics,/play:\["game_started"\]/);
+ assert.match(analytics,/explore:\["timeline_age_selected"/);
  const timeline=read("web-spa/src/timeline/TimelinePage.tsx");
- assert.match(timeline,/trackUsageEvent\\("timeline_age_selected","timeline"\\)/);
+ assert.match(timeline,/trackUsageEvent\("timeline_age_selected","timeline"\)/);
 });
