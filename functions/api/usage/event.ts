@@ -6,11 +6,12 @@ type Dataset={writeDataPoint(point:{indexes:string[];blobs:string[];doubles:numb
 type Context={request:Request;env:{ANALYTICS_ENGINE?:Dataset}};
 const events=new Set([
   "app_opened","visitor_first_seen","user_returned",
+  "onboarding_view","onboarding_step_view","onboarding_goal_select","onboarding_start","onboarding_skip","onboarding_replay","onboarding_first_action",
   "teacher_conversation","friend_conversation",
   "teacher_conversation_start","friend_conversation_start","timeline_conversation_start",
   "teacher_user_spoke","friend_user_spoke","timeline_user_spoke",
   "teacher_ai_replied","friend_ai_replied","timeline_ai_replied",
-  "timeline_view","timeline_conversation","timeline_session_end",
+  "timeline_view","timeline_age_selected","timeline_conversation","timeline_session_end",
   "game_open","game_started","game_completed",
   "game_route_loaded","game_route_stalled","game_route_asset_error",
   "teacher_session_end","friend_session_end",
@@ -37,7 +38,7 @@ const details=new Set(["","bazi","tarot","vedic","shorts_home","shorts_feed",
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
   "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle",
-  "discover","me",
+  "discover","me","welcome","goals","preferences","chat","explore",
   "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
