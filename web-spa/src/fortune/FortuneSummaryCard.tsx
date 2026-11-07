@@ -7,8 +7,8 @@ import{localizedElementFocus,localizedPlanetFocus}from"./localReportFacts";
 import type{CurrentPhase}from"./currentPhase";
 import type{FortuneMode}from"./types";
 
-export function FortuneSummaryCard({mode,result,phase,ai,loading}:{
- mode:FortuneMode;result:any;phase:CurrentPhase;ai:string;loading:boolean;
+export function FortuneSummaryCard({mode,result,phase,ai,loading,showTiming=true}:{
+ mode:FortuneMode;result:any;phase:CurrentPhase;ai:string;loading:boolean;showTiming?:boolean;
 }){
  const{t,i18n}=useTranslation("fortune");const{t:reportT}=useTranslation("fortuneReport");
  const reportReady=useRouteNamespace("fortuneReport");
@@ -23,10 +23,10 @@ export function FortuneSummaryCard({mode,result,phase,ai,loading}:{
   <div className="fortune-summary-top"><span className="kicker">{t("reading.summaryTitle")}</span>
    {loading&&<span className="fortune-summary-loading" role="status">{t("reading.aiLoading")}</span>}</div>
   <h3>{ready?parsed.summary:headline||fallbackSummary}</h3>
-  <h4>{t(ready?"reading.next12Title":"reading.topic.keyYears")}</h4>
+  {showTiming&&<><h4>{t(ready?"reading.next12Title":"reading.topic.keyYears")}</h4>
   {ready?<ul>{parsed.next12.slice(0,3).map((line,i)=><li key={i}>{line}</li>)}</ul>
    :<ul>{highlights.map((x,i)=><li key={i}><strong>{x.year}</strong> · {display(x.label)} — {display(x.summary)}</li>)}</ul>}
-  {ready&&parsed.turning&&<p className="fortune-summary-turning"><strong>{t("reading.turningTitle")}：</strong>{parsed.turning}</p>}
+  {ready&&parsed.turning&&<p className="fortune-summary-turning"><strong>{t("reading.turningTitle")}：</strong>{parsed.turning}</p>}</>}
   {loading&&<div className="fortune-summary-skeleton" aria-hidden="true"><span/><span/><span/></div>}
  </section>;
 }
