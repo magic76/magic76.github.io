@@ -23,7 +23,10 @@ test("PWA service worker is network first for navigation and never caches dynami
  assert.doesNotThrow(()=>new vm.Script(script));
  const handlers={};
  const self={location:{origin:"https://www.3sssi.com"},addEventListener:(type,fn)=>handlers[type]=fn};
- vm.runInNewContext(script,{self,URL,caches:{},fetch(){throw Error("unexpected fetch")}});
+ vm.runInNewContext(script,{self,URL,
+  caches:{open:async()=>({match:async()=>({ok:true})}),match:async()=>({ok:true})},
+  fetch:()=>Promise.resolve({ok:true,type:"basic"})
+ });
  function intercept(url,mode="cors"){
   let handled=false;
   const event={request:{method:"GET",url,mode},respondWith(){handled=true;}};
