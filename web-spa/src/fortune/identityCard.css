@@ -10,23 +10,18 @@
 .fortune-identity-facts>div{padding:13px 15px;border-radius:14px;background:#ffffffc9;min-width:0}
 .fortune-identity-facts strong{font-size:13px;color:#58477c}
 .fortune-identity-facts p{font-size:14px;line-height:1.85;color:#302b3a;margin:6px 0 0;overflow-wrap:anywhere}
-.fortune-identity-evidence{padding:10px 0 0;border-top:1px solid #d8cbe3}
+.fortune-identity-evidence{padding:8px 12px 10px;border:1px solid #e6dff0;border-radius:12px;background:#faf8fd}
 .fortune-identity-evidence summary{cursor:pointer;min-height:44px;display:flex;align-items:center;font-weight:700;font-size:13px;color:#5b487a;list-style:none}
 .fortune-identity-evidence summary::-webkit-details-marker{display:none}
 .fortune-identity-evidence summary::after{content:"＋";margin-left:auto;font-size:18px}
 .fortune-identity-evidence[open] summary::after{content:"－"}
-.fortune-identity-evidence ul{margin:6px 0 0;padding-left:20px;font-size:12px;line-height:1.8;overflow-wrap:anywhere}
+.fortune-identity-evidence ul{margin:6px 0 0;padding-left:20px;font-size:12px;line-height:1.8;overflow-wrap:anywhere;color:#4f4763}
 .fortune-identity-note{font-size:12px;line-height:1.6;color:#686074;margin:0}
 .fortune-identity-actions{display:flex;flex-wrap:wrap;gap:10px}
 .fortune-identity-actions .btn{flex:1;min-width:170px;min-height:48px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal}
-.fortune-identity-rating{padding:16px;border:1px solid var(--line,#e2e2e6);background:var(--surface,#fff);border-radius:16px;display:grid;gap:12px}
-.fortune-identity-rating>strong{font-size:14px;line-height:1.5}
-.fortune-identity-rating-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.fortune-identity-rating-choices button{min-height:44px;padding:10px 7px;border-radius:10px;border:1px solid var(--line,#d6d6df);background:var(--surface,#fff);color:var(--text,#222);font:inherit;font-size:13px;font-weight:650;cursor:pointer;overflow-wrap:anywhere}
-.fortune-identity-rating-choices button[aria-pressed="true"]{border:2px solid #715ac6;background:#f1ecff;color:#3d2a70}
-.fortune-identity-rating-choices button:focus-visible,.fortune-identity-actions button:focus-visible{outline:3px solid #9c86ed;outline-offset:2px}
-.fortune-identity-status{font-size:13px;line-height:1.6;color:var(--muted);margin:0}
-@media(max-width:430px){.fortune-identity-card{padding:16px}.fortune-identity-actions{display:grid;grid-template-columns:1fr}.fortune-identity-actions .btn{width:100%;min-width:0}.fortune-identity-rating{padding:13px}.fortune-identity-rating-choices{gap:5px}.fortune-identity-rating-choices button{font-size:12px;padding:8px 4px}}
+.fortune-identity-actions button:focus-visible{outline:3px solid #9c86ed;outline-offset:2px}
+.fortune-identity-status{flex-basis:100%;grid-column:1/-1;font-size:13px;line-height:1.6;color:#574675;text-align:center;margin:0}
+@media(max-width:430px){.fortune-identity-card{padding:16px}.fortune-identity-actions{display:grid;grid-template-columns:1fr}.fortune-identity-actions .btn{width:100%;min-width:0}}
 
 /* Identity reveal: lightweight report entry and focused, dismissible modal. */
 .fortune-identity-entry{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:16px 0;padding:16px 18px;border:1px solid #dfd3eb;border-radius:18px;background:linear-gradient(125deg,#fff9ed,#f1edfc);color:#2b2635}
@@ -42,6 +37,8 @@
 .fortune-identity-reveal-close:focus-visible,.fortune-identity-entry-button:focus-visible{outline:3px solid #9c86ed;outline-offset:2px}
 .fortune-identity-reveal-body{padding:0 18px 20px}
 .fortune-identity-reveal-dialog .fortune-identity{margin:14px 0 0}
+.fortune-identity-reveal-dialog .fortune-identity-actions{position:sticky;bottom:0;z-index:3;gap:10px;padding:12px 18px max(12px,env(safe-area-inset-bottom));margin:0 -18px -20px;background:#f9f6fb;border-top:1px solid #e6dff0;box-shadow:0 -5px 20px #21143d17}
+.fortune-identity-reveal-dialog .fortune-identity-actions .btn{min-width:0}
 .fortune-identity-reveal-dialog .fortune-identity-card{gap:9px;padding:16px}
 .fortune-identity-reveal-dialog .fortune-identity-art{max-width:none}
 .fortune-identity-core{margin:0;font-size:14px;line-height:1.75;overflow-wrap:anywhere}
@@ -60,10 +57,14 @@
  .fortune-identity-entry{align-items:stretch}
  .fortune-identity-entry-button{width:100%}
  .fortune-identity-reveal-dialog{width:100vw;max-width:none;height:100dvh;max-height:100dvh;margin:0;border-radius:0}
- .fortune-identity-reveal-header{padding-left:16px}
+ .fortune-identity-reveal-header{padding-left:16px;padding-top:max(7px,env(safe-area-inset-top))}
  .fortune-identity-reveal-body{padding:0 12px max(20px,env(safe-area-inset-bottom))}
  .fortune-identity-reveal-dialog .fortune-identity-card{padding:12px}
+ .fortune-identity-reveal-dialog .fortune-identity-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:12px 12px max(12px,env(safe-area-inset-bottom));margin:0 -12px -20px}
+ .fortune-identity-reveal-dialog .fortune-identity-actions .btn{padding:10px 7px;font-size:13px;line-height:1.35;min-height:48px}
 }
 @media(prefers-reduced-motion:reduce){
  .fortune-identity-reveal-dialog[open],.fortune-identity-reveal-dialog[open] .fortune-identity-art{animation:none}
 }
+
+@media(max-width:340px){.fortune-identity-reveal-dialog .fortune-identity-actions{grid-template-columns:1fr}}

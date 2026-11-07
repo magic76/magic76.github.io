@@ -93,8 +93,8 @@ test("integration keeps an existing detailed report share button and adds identi
  assert.match(page,/<FortuneIdentityRevealDialog reading=\{reading\}/);
  assert.match(page,/shareFortuneReading\(reading!\)/);
  assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
- assert.match(ui,/aria-pressed=\{rating===value\}/);
- assert.match(ui,/localStorage\.setItem\(key,value\)/);
+ assert.ok(!ui.includes("fortune-identity-rating"));
+ assert.ok(!ui.includes("fortune_identity_feedback"));
 });
 
 test("approved art manifest matches all ten committed BaZi WebPs",()=>{
@@ -155,4 +155,22 @@ test("identity reveal is a focus-managed dismissible dialog, not an inline repor
  assert.match(styles,/height:100dvh/);
  assert.match(styles,/prefers-reduced-motion:reduce/);
  assert.match(styles,/width:44px;height:44px/);
+});
+
+test("reveal is fully expanded on entry, without the removed likeness survey",()=>{
+ const ui=read("FortuneIdentityCard.tsx");
+ const css=read("identityCard.css");
+ assert.match(ui,/<details className="fortune-identity-more" open=\{moreOpen\} onToggle=/);
+ assert.match(ui,/<details className="fortune-identity-evidence" open=\{evidenceOpen\} onToggle=/);
+ assert.match(ui,/useState\(true\)/);
+ assert.match(ui,/setMoreOpen\(true\);setEvidenceOpen\(true\)/);
+ assert.ok(ui.indexOf('className="fortune-identity-more"')<ui.indexOf('className="fortune-identity-actions"'),"Interpretation precedes sticky action bar");
+ for(const text of ["fortune-identity-rating","fortune_identity_feedback","localStorage.setItem","readStored","setRating","How much does this sound like you?","你覺得這份描述像自己嗎？"])
+  assert.ok(!ui.includes(text),"Likeness survey must not remain: "+text);
+ assert.ok(!css.includes(".fortune-identity-rating"));
+ assert.match(css,/fortune-identity-reveal-dialog \.fortune-identity-actions\{position:sticky;bottom:0/);
+ assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
+ assert.match(css,/safe-area-inset-bottom/);
+ assert.match(css,/max-width:340px/);
+ assert.match(ui,/role="status"/);
 });
