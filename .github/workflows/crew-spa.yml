@@ -73,6 +73,8 @@ jobs:
         run: node --test tests/video-tts.test.mjs
       - name: Validate first-party usage analytics contract
         run: node --test tests/crew-usage.test.js
+      - name: Validate first-run onboarding and localized goals
+        run: node --test tests/crew-onboarding.test.js
       # Quick homepage widget contract; always run for PRs and main to prevent regressions.
       - name: Validate home Live bubble
         run: node --test tests/crew-home-live-bubble.test.js
