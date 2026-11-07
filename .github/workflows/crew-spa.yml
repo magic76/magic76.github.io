@@ -61,7 +61,7 @@ jobs:
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'shorts-')
         run: node --test tests/shorts-daily-generator.test.js tests/shorts-agent-pipeline.test.js
       - name: Validate isolated guest trial backend and existing Live transport (guest PRs only)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-trial') || contains(github.event.pull_request.head.ref, 'guest-qa') || contains(github.event.pull_request.head.ref, 'guest-native') || contains(github.event.pull_request.head.ref, 'guest-multi') || contains(github.event.pull_request.head.ref, 'guest-auth-quota') || contains(github.event.pull_request.head.ref, 'guest-live'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-trial') || contains(github.event.pull_request.head.ref, 'guest-qa') || contains(github.event.pull_request.head.ref, 'guest-native') || contains(github.event.pull_request.head.ref, 'guest-multi') || contains(github.event.pull_request.head.ref, 'guest-auth-quota') || contains(github.event.pull_request.head.ref, 'guest-live') || contains(github.event.pull_request.head.ref, 'member-daily'))
         run: node --test tests/guest-trial.test.js tests/crew-guest-config-cache.test.js tests/crew-ux-p0-honest-trial.test.js tests/crew-ux-p0b-followup.test.js tests/crew-live.lifecycle.test.js tests/crew-onboarding.test.js
       - name: Validate Fortune report quality (Fortune PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-')
@@ -77,7 +77,7 @@ jobs:
       - name: Validate home Live bubble
         run: node --test tests/crew-home-live-bubble.test.js
       - name: Validate OAuth sign-in security (auth PRs only)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'crew-auth') || contains(github.event.pull_request.head.ref, 'guest-auth-quota'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'crew-auth') || contains(github.event.pull_request.head.ref, 'guest-auth-quota') || contains(github.event.pull_request.head.ref, 'member-daily'))
         run: node --test tests/crew-auth.test.js
       - name: Validate Crew Magic world and Live tools (Magic PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'magic')
