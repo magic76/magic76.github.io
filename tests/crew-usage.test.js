@@ -230,3 +230,54 @@ test("Souls anonymous funnel allows only fixed event/category combinations, incl
  assert.match(report,/souls_conversation/);
  assert.match(report,/const chatEvents=.*souls_conversation/);
 });
+
+test("onboarding analytics accepts only fixed stage and goal values",async()=>{
+ const {onRequestPost}=compile("functions/api/usage/event.ts");
+ const points=[],env={ANALYTICS_ENGINE:{writeDataPoint:p=>points.push(p)}};
+ for(const [event,detail] of [
+  ["onboarding_view",""],["onboarding_step_view","welcome"],["onboarding_step_view","goals"],
+  ["onboarding_step_view","preferences"],["onboarding_goal_select","chat"],
+  ["onboarding_start","learn"],["onboarding_skip","preferences"],
+  ["onboarding_replay",""],["onboarding_first_action","play"],["timeline_age_selected","timeline"]
+ ]){
+  const reply=await onRequestPost({request:request({...payload,event,detail}),env});
+  assert.equal(reply.status,204,event+":"+detail);
+ }
+ assert.equal(points.length,10);
+ assert.equal((await onRequestPost({request:request({...payload,event:"onboarding_start",detail:"private name"}),env})).status,400);
+ assert.equal((await onRequestPost({request:request({...payload,event:"onboarding_first_action",detail:"arbitrary-key"}),env})).status,400);
+});
+
+test("first real action is attributed once, while visits and skipped guides are not",()=>{
+ const source=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
+ const prepared=stripTypeScriptTypes(source,{mode:"strip"})
+  .replace(/^import[^\\n]*\\n/gm,"")
+  .replace(/\\bexport\\s+(?=(?:const|function|type)\\b)/g,"");
+ const events=[];
+ const data=new Map(),sessionData=new Map();
+ const storage=map=>({
+  getItem:key=>map.has(key)?map.get(key):null,
+  setItem:(key,v)=>map.set(key,String(v)),
+  removeItem:key=>map.delete(key)
+ });
+ const id=[0,0];
+ const factory=new Function("localStorage","sessionStorage","navigator","location","crypto","fetch","sendGa4Event","sendGa4PageView","setGa4Enabled",prepared+
+  "\\nreturn {setOnboardingFirstActionPending,clearOnboardingFirstActionPending,trackUsageEvent};");
+ const usage=factory(storage(data),storage(sessionData),
+  {doNotTrack:"0",globalPrivacyControl:false},{hostname:"www.3sssi.com",pathname:"/"},
+  {randomUUID:()=>++id[0]===1?"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa":"bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"},
+  (_url,init)=>{events.push(JSON.parse(init.body));return Promise.resolve({ok:true})},
+  ()=>{},()=>{},()=>{});
+ usage.setOnboardingFirstActionPending("chat");
+ usage.trackUsageEvent("friend_conversation_start");
+ assert.deepEqual(events.map(x=>x.event),["friend_conversation_start"]);
+ usage.trackUsageEvent("friend_user_spoke");
+ assert.deepEqual(events.map(x=>x.event),["friend_conversation_start","friend_user_spoke","onboarding_first_action"]);
+ assert.equal(events[2].detail,"chat");
+ usage.trackUsageEvent("friend_conversation");
+ assert.equal(events.filter(x=>x.event==="onboarding_first_action").length,1);
+ usage.setOnboardingFirstActionPending("play");
+ usage.clearOnboardingFirstActionPending();
+ usage.trackUsageEvent("game_started","number-bomb");
+ assert.equal(events.filter(x=>x.event==="onboarding_first_action").length,1);
+});
