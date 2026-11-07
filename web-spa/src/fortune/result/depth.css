@@ -177,3 +177,34 @@
 .fortune-reading-disclaimer{display:block;color:var(--muted);line-height:1.6;text-align:center}
 .fortune-local-collapse>.fortune-reading-chapters{margin-top:12px}
 @media(max-width:640px){.fortune-summary-card{padding:17px 16px;min-height:200px}.fortune-summary-card h3{font-size:21px}}
+
+/* Fortune: distinct views, one context-aware voice action. */
+.fortune-reading-tablist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:16px 0 10px;padding:6px;background:var(--surface-alt,#f6f4f9);border:1px solid var(--line,#e6e2eb);border-radius:17px}
+.fortune-reading-tablist button{font:inherit;font-size:clamp(12px,3.2vw,15px);font-weight:700;line-height:1.4;min-height:48px;min-width:0;padding:9px 6px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--muted,#655e70);cursor:pointer;overflow-wrap:anywhere}
+.fortune-reading-tablist button.active{background:var(--surface,#fff);border-color:var(--line,#dfdbe7);color:var(--text,#302a39);box-shadow:0 3px 10px #21183b12}
+.fortune-reading-tablist button:focus-visible{outline:3px solid var(--accent,#8675d1);outline-offset:2px}
+.fortune-reading-panel{display:grid;gap:14px;min-width:0}
+.fortune-reading-panel[hidden]{display:none!important}
+.fortune-reading-panel .fortune-reading-overview{margin:0;min-width:0}
+.fortune-reading-panel .fortune-summary-card{margin:0;min-height:0}
+.fortune-reading-panel .fortune-identity-entry{margin:0}
+.fortune-report-voice{margin:8px 0 19px;padding:13px 15px;gap:14px;border-radius:15px}
+.fortune-report-voice .fortune-teacher-invite-copy strong{font-size:14px;line-height:1.4}
+.fortune-report-voice .fortune-teacher-invite-copy p{font-size:12px;line-height:1.55;margin-top:4px}
+.fortune-report-voice .fortune-conversation-actions{min-width:0}
+.fortune-report-voice .fortune-teacher-primary-action{min-height:48px;font-size:13px;min-width:160px;padding:9px 13px}
+.fortune-result-page .fortune-reading-focus-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.fortune-result-page .fortune-reading-focus-card{min-width:0;padding:14px;gap:10px}
+.fortune-result-page .fortune-reading-focus-card[aria-pressed="true"]{border-color:var(--accent,#8975bb);background:var(--surface-alt,#f7f5fb)}
+.fortune-result-page .fortune-reading-chapters:empty{display:none}
+.fortune-reading-panel .fortune-reading-head{padding:16px 18px}
+.fortune-reading-panel .fortune-reading-head h3{font-size:19px;margin:6px 0 0}
+@media(max-width:720px){
+ .fortune-result-page .fortune-reading-focus-grid{grid-template-columns:repeat(2,minmax(0,1fr));overflow:visible;padding:0}
+ .fortune-result-page .fortune-reading-focus-card{flex:none;min-width:0;min-height:112px;scroll-snap-align:none}
+ .fortune-report-voice{padding:12px;gap:9px}
+ .fortune-report-voice .fortune-teacher-invite-copy p{display:none}
+ .fortune-report-voice .fortune-teacher-primary-action{width:100%}
+}
+@media(max-width:350px){.fortune-reading-tablist{gap:3px;padding:4px}.fortune-reading-tablist button{padding:8px 2px;font-size:12px}}
+@media(prefers-reduced-motion:reduce){.fortune-reading-tablist button{transition:none}}
