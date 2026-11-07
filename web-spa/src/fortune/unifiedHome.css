@@ -23,3 +23,51 @@
 .fortune-journey-home a:focus-visible,.fortune-journey-home button:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 @media(max-width:600px){.fortune-journey-latest,.fortune-journey-empty{border-radius:18px;padding:18px}.fortune-journey-actions{flex-direction:column}.fortune-journey-actions .btn{width:100%}.fortune-journey-history .section-head{align-items:center}.fortune-journey-other-links{display:grid;grid-template-columns:minmax(0,1fr)}.fortune-journey-other-links a{min-width:0}}
 @media(prefers-reduced-motion:reduce){.fortune-journey-actions .btn{transition:none}}
+
+/* Three reading approaches share one compact visual hierarchy. */
+.fortune-journey-create .fortune-home-mode{
+ min-width:0;min-height:0;padding:10px;gap:10px;overflow:hidden;
+ display:flex;flex-direction:column;text-decoration:none;
+}
+.fortune-journey-create .fortune-home-mode .fortune-mode-cover{
+ position:relative;display:block;flex:none;width:100%;aspect-ratio:16/9;
+ margin:0;overflow:hidden;border-radius:14px;
+ background:linear-gradient(135deg,#f2eafc,#fdf1de);
+}
+.fortune-journey-create .fortune-mode-cover-bazi{
+ background:radial-gradient(circle at 72% 18%,#f7d799 0,transparent 38%),linear-gradient(135deg,#fff1dd,#f5eaf4);
+}
+.fortune-journey-create .fortune-mode-cover-bazi::before{
+ content:"";position:absolute;inset:14%;border:2px solid #c88e4d55;border-radius:50%;
+}
+.fortune-journey-create .fortune-mode-cover-tarot{background:#39276f}
+.fortune-journey-create .fortune-mode-cover-vedic{background:#123a54}
+.fortune-journey-create .fortune-home-mode .fortune-mode-fallback-icon{
+ position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+ font-size:clamp(38px,5vw,64px);line-height:1;font-weight:850;
+ margin:0;color:#986b30;
+}
+.fortune-journey-create .fortune-mode-cover-tarot .fortune-mode-fallback-icon{color:#d4b4ff}
+.fortune-journey-create .fortune-mode-cover-vedic .fortune-mode-fallback-icon{color:#e6cb88}
+.fortune-journey-create .fortune-mode-cover-image{
+ position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:cover;
+}
+.fortune-journey-create .fortune-mode-cover-image[hidden]{display:none}
+.fortune-journey-create .fortune-home-mode .fortune-mode-copy{
+ display:grid;gap:4px;padding:0 6px 7px;min-width:0;margin:0;
+}
+.fortune-journey-create .fortune-home-mode .fortune-mode-copy strong{
+ margin:0;padding:0;font-size:15px;line-height:1.4;color:var(--text);
+}
+.fortune-journey-create .fortune-home-mode .fortune-mode-description{
+ margin:0;font-size:12px;line-height:1.6;color:var(--muted);overflow-wrap:anywhere;
+}
+@media(max-width:800px){
+ .fortune-journey-create .fortune-home-mode{flex-direction:row;align-items:center;min-height:105px;gap:12px}
+ .fortune-journey-create .fortune-home-mode .fortune-mode-cover{width:clamp(108px,34vw,154px)}
+ .fortune-journey-create .fortune-home-mode .fortune-mode-copy{flex:1;padding:0}
+}
+@media(max-width:360px){
+ .fortune-journey-create .fortune-home-mode{gap:10px}
+ .fortune-journey-create .fortune-home-mode .fortune-mode-cover{width:108px}
+}
