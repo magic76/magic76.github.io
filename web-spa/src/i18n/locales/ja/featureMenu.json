@@ -3,9 +3,11 @@
   "subtitle": "すべての機能を一覧表示",
   "close": "メニューを閉じる",
   "groups": {
-    "chat": "会話と学習",
+    "chat": "友達と会話",
     "explore": "創作と探索",
-    "me": "マイ Crew"
+    "me": "マイ Crew",
+    "learn": "外国語学習",
+    "games": "対話ゲーム"
   },
   "items": {
     "friends": {
@@ -17,8 +19,8 @@
       "desc": "外国語の会話を練習"
     },
     "games": {
-      "title": "対話ゲーム",
-      "desc": "AIと話しながら遊ぶ"
+      "title": "ゲーム一覧",
+      "desc": "すべてのゲームを見る"
     },
     "shorts": {
       "title": "友達の近況",
@@ -67,6 +69,75 @@
     "settings": {
       "title": "設定",
       "desc": "言語・AI・プライバシー"
+    },
+    "friendMemory": {
+      "title": "友達との記憶",
+      "desc": "会話の記憶を管理"
+    },
+    "courses": {
+      "title": "シーン別コース",
+      "desc": "旅行・生活・仕事で会話"
+    },
+    "vocabulary": {
+      "title": "単語練習",
+      "desc": "使える語彙を増やす"
+    },
+    "pronunciation": {
+      "title": "発音練習",
+      "desc": "自然な話し方へ"
+    },
+    "textbook": {
+      "title": "教材を撮って学習",
+      "desc": "自分の教材で練習"
+    },
+    "phrasebook": {
+      "title": "便利なフレーズ",
+      "desc": "よく使う表現を学ぶ"
+    },
+    "reading": {
+      "title": "読解練習",
+      "desc": "記事や物語を読む"
+    },
+    "gomoku": {
+      "title": "五目並べ",
+      "desc": "AIと対局する"
+    },
+    "onea2b": {
+      "title": "1A2B 数当て",
+      "desc": "推理に挑戦"
+    },
+    "connect4": {
+      "title": "四目並べ",
+      "desc": "戦略ゲーム"
+    },
+    "reversi": {
+      "title": "リバーシ",
+      "desc": "石をひっくり返す"
+    },
+    "numberBomb": {
+      "title": "数字当てゲーム",
+      "desc": "秘密の数字を当てる"
+    },
+    "memoryGame": {
+      "title": "神経衰弱",
+      "desc": "記憶力を鍛える"
+    },
+    "reports": {
+      "title": "学習レポート",
+      "desc": "練習の成果を見る"
+    },
+    "personalMemory": {
+      "title": "個人メモリー",
+      "desc": "学習記憶を管理"
+    },
+    "myStories": {
+      "title": "マイストーリー",
+      "desc": "作品や保存した物語"
+    },
+    "fortuneHistory": {
+      "title": "占い履歴",
+      "desc": "過去の命盤を見る"
     }
-  }
+  },
+  "featureCount": "機能"
 }
