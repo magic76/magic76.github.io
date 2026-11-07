@@ -40,6 +40,7 @@ test("visible learning goals and feedback lead to working retry entry points",()
  assert.match(focus,/plan\?\.learnerGoal/);
  assert.match(focus,/plan\?\.reviewFocus&&plan.action!=="review"/);
  assert.match(reports,/queueReviewFocus\(targetLanguage/);
+ assert.match(reports,/const sameLanguage=!sessionLanguage\|\|sessionLanguage===targetLanguage/);
  assert.match(reports,/to="\/teacher\/live\?intent=review"/);
  assert.match(live,/reloadDocument className="btn secondary small" to=\{"\/teacher\/live\?mode=course&lesson="/);
  const css=read("web-spa/src/pages/crewSections.css");
