@@ -153,7 +153,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
      <span className="crew-portal-cta-label">{preparing?t("world.preparing"):mode==="chat"&&!exhausted&&selectedPost?(questions[0]?.label||t("world.shortsFallback")):mode==="chat"?t(cta,{name:friendName}):mode==="learn"?(exhausted?t("world.chatExhausted"):trialAvailable?t("world.teacherTrial"):t("world.modes.learn.cta")):mode==="play"?t("world.game"+(gameId==="1a2b"?"1a2b":gameId==="connect4"?"Connect4":"Reversi")):t("world.modes."+mode+".cta")}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
     </Link>
     <div className="crew-portal-status-slot">
-     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t("common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
+     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t(trial.member?"common:guestTrial.memberRemaining":"common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
     </div>
    </div>
    <div className="crew-portal-tabs" role="tablist" aria-label={t("world.tilesLabel")}>
