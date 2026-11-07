@@ -141,7 +141,13 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
           <strong>{t("groups."+group.id)}</strong>
           <small>{group.items.length} {t("featureCount")}</small>
          </span>
-         <span className="crew-feature-menu-chevron" aria-hidden="true">⌄</span>
+         <span className="crew-feature-menu-disclosure" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+           strokeLinecap="round" focusable="false">
+           <path d="M6 12h12"/>
+           <path className="crew-feature-menu-disclosure-plus" d="M12 6v12"/>
+          </svg>
+         </span>
         </button>
        </h3>
        <div id={listId} className="crew-feature-menu-branch" data-expanded={expanded?"true":"false"} aria-hidden={!expanded}>
@@ -161,7 +167,12 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
             <strong>{t("items."+item.id+".title")}</strong>
             <small>{t("items."+item.id+".desc")}</small>
            </span>
-           <span className="crew-feature-menu-link-arrow" aria-hidden="true">›</span>
+           <span className="crew-feature-menu-link-arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+             strokeLinecap="round" strokeLinejoin="round" focusable="false">
+             <path d="m9 6 6 6-6 6"/>
+            </svg>
+           </span>
           </Link>)}
          </div>
         </div>
