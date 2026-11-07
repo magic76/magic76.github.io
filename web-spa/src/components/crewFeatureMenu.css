@@ -31,9 +31,10 @@
 .crew-feature-menu-group-label{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
 .crew-feature-menu-group-label strong{font-size:14px;font-weight:800;line-height:1.35}
 .crew-feature-menu-group-label small{font-size:12px;color:var(--muted);line-height:1.3}
-.crew-feature-menu-chevron{display:grid;place-items:center;width:30px;height:30px;flex:none;color:var(--muted);transform:rotate(0deg);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
-.crew-feature-menu-chevron svg{display:block;width:19px;height:19px}
-.crew-feature-menu-group-trigger[aria-expanded="true"] .crew-feature-menu-chevron{transform:rotate(180deg)}
+.crew-feature-menu-disclosure{display:grid;place-items:center;width:28px;height:28px;flex:none;color:var(--muted);border-radius:8px;background:var(--surface-alt)}
+.crew-feature-menu-disclosure svg{display:block;width:17px;height:17px}
+.crew-feature-menu-disclosure-plus{transform-origin:12px 12px;transition:opacity .2s ease,transform .2s ease}
+.crew-feature-menu-group-trigger[aria-expanded="true"] .crew-feature-menu-disclosure-plus{opacity:0;transform:rotate(90deg)}
 .crew-feature-menu-branch{display:grid;grid-template-rows:0fr;opacity:0;visibility:hidden;transition:grid-template-rows .26s cubic-bezier(.2,.8,.2,1),opacity .19s ease,visibility 0s linear .26s}
 .crew-feature-menu-branch[data-expanded="true"]{grid-template-rows:1fr;opacity:1;visibility:visible;transition:grid-template-rows .26s cubic-bezier(.2,.8,.2,1),opacity .19s ease,visibility 0s}
 .crew-feature-menu-branch-inner{min-height:0;overflow:hidden}
@@ -64,4 +65,4 @@
  .app-header .crew-account-entry{padding-inline:7px}
 }
 @media(max-width:480px){.crew-feature-menu-panel{width:100vw;border-radius:0}}
-@media(prefers-reduced-motion:reduce){.crew-feature-menu-card,.crew-feature-menu-branch,.crew-feature-menu-chevron{transition:none!important}.crew-feature-menu-layer .crew-feature-menu-panel,.crew-feature-menu-layer .crew-feature-menu-backdrop{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.crew-feature-menu-card,.crew-feature-menu-branch,.crew-feature-menu-disclosure-plus{transition:none!important}.crew-feature-menu-layer .crew-feature-menu-panel,.crew-feature-menu-layer .crew-feature-menu-backdrop{animation:none!important}}
