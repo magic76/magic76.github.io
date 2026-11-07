@@ -21,10 +21,10 @@ import "./i18n";
 import i18n,{localeResourcesReady} from "./i18n";
 import {localeFromPublicPath,localePrefix,normalizeUiLocale,preferredPublicLocaleDestination} from "./i18n/localeCatalog";
 import { App } from "./App";
-import {registerCrewPwa} from "./runtime/pwa";
+
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
-registerCrewPwa();
+void import("./runtime/pwa").then(module=>module.registerCrewPwa()).catch(()=>{/* Optional install support. */});
 const root = document.getElementById("root");
 if (!root) throw new Error("Crew root not found");
 
