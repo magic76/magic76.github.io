@@ -24,7 +24,6 @@ import { App } from "./App";
 
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
-void import("./runtime/pwa").then(module=>module.registerCrewPwa()).catch(()=>{/* Optional install support. */});
 const root = document.getElementById("root");
 if (!root) throw new Error("Crew root not found");
 
