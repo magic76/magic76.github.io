@@ -65,8 +65,7 @@ export function setUsageDisabled(value:boolean){
 export function setDeveloperUsageMode(value:boolean){
  if(value)store(DEV,"1");
  else{try{localStorage.removeItem(DEV)}catch{/* blocked */}}
- setGa4Enabled(allowed());
- if(allowed())sendGa4PageView(location.pathname);
+ updateGa4State();
 }
 const allowed=()=>production()&&!globalPrivacy()&&!usageDisabled()&&!developerUsageMode();
 // Third-party analytics is optional: load its code only when collection is allowed.
