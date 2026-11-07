@@ -33,6 +33,9 @@
 .crew-onboarding-preview-item[type="button"]{text-align:left;cursor:pointer;font-family:inherit;min-height:58px;transition:border-color .15s,background .15s}
 .crew-onboarding-preview-item[type="button"]:hover,.crew-onboarding-preview-item[type="button"]:focus-visible{background:#f6f8ff;border-color:#8797d9}
 .crew-onboarding-preview-item .crew-onboarding-preview-arrow{margin-left:auto;width:auto;height:auto;background:none;color:#6273bf;font-size:17px}
+.crew-onboarding-first-action{display:flex;align-items:center;gap:12px;margin-top:14px;padding:14px 16px;border:1px solid #cbd8f3;border-radius:15px;background:#eef3ff;color:#273c7b;font-size:14px;line-height:1.45}
+.crew-onboarding-first-action span{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:10px;background:#dae5ff;color:#435dbc;font-size:20px}
+.crew-onboarding-first-action strong{font-weight:850}
 .crew-onboarding-note{margin:18px 0 0;padding:12px 14px;color:#54637c;background:#edf3fd;border:1px solid #e0e8f8;border-radius:14px;font-size:12px;line-height:1.6}
 .crew-onboarding-tiles{display:grid;gap:11px}
 .crew-onboarding-tile{display:flex;align-items:center;gap:13px;width:100%;min-height:78px;text-align:left;
