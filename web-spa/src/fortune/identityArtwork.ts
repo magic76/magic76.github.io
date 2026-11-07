@@ -17,7 +17,10 @@ export const IDENTITY_ARTWORK_PATHS = {
 } as const;
 
 /** Activate an identity only after its reviewed WebP is committed at the exact path. */
-export const APPROVED_IDENTITY_ARTWORK:readonly (keyof typeof IDENTITY_ARTWORK_PATHS)[] = [];
+export const APPROVED_IDENTITY_ARTWORK:readonly (keyof typeof IDENTITY_ARTWORK_PATHS)[] = [
+ "bazi-甲","bazi-乙","bazi-丙","bazi-丁","bazi-戊",
+ "bazi-己","bazi-庚","bazi-辛","bazi-壬","bazi-癸"
+];
 const approved=new Set<string>(APPROVED_IDENTITY_ARTWORK);
 export function identityArtworkUrl(id:string):string|null{
  if(!approved.has(id))return null;

@@ -32,30 +32,33 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string,a
  ctx.fillStyle="#4d3a79";ctx.font="700 35px system-ui,sans-serif";ctx.fillText("CREW FORTUNE",76,98);
  ctx.font="500 25px system-ui,sans-serif";ctx.fillStyle="#78698b";ctx.fillText(zh?"命格身份探索":"YOUR FORTUNE ARCHETYPE",76,147);
  const artReady=Boolean(art?.complete&&art.naturalWidth>0&&art.naturalHeight>0);
- ctx.fillStyle="#ffffff";ctx.beginPath();ctx.roundRect(72,artReady?145:194,936,artReady?1083:1034,38);ctx.fill();
+ ctx.fillStyle="#ffffff";ctx.beginPath();ctx.roundRect(72,artReady?145:194,936,artReady?1098:1034,38);ctx.fill();
  if(artReady&&art){
-  // Preserve the original 16:9 artwork: letterbox rather than crop faces or props.
-  const fit=Math.min(936/art.naturalWidth,353/art.naturalHeight);
-  const width=art.naturalWidth*fit,height=art.naturalHeight*fit;
-  ctx.drawImage(art,(1080-width)/2,164+(353-height)/2,width,height);
-  ctx.fillStyle="#261f35";ctx.font="700 57px system-ui,sans-serif";
-  paint(ctx,identity.title,111,585,856,2,65);
+  // Fill the card's visual area with 16:9 art without trimming its character or props.
+  const artWidth=856,artHeight=482,artX=112,artY=169;
+  ctx.save();ctx.beginPath();ctx.roundRect(artX,artY,artWidth,artHeight,20);ctx.clip();
+  const scale=Math.min(artWidth/art.naturalWidth,artHeight/art.naturalHeight);
+  const width=art.naturalWidth*scale,height=art.naturalHeight*scale;
+  ctx.drawImage(art,artX+(artWidth-width)/2,artY+(artHeight-height)/2,width,height);
+  ctx.restore();
+  ctx.fillStyle="#261f35";ctx.font="700 54px system-ui,sans-serif";
+  paint(ctx,identity.title,112,710,854,1,60);
   const sections=[
    [zh?"核心特質":"CORE THEME",identity.core],
    ...(identity.behavior?[[zh?"最像你的地方":"HOW YOU MAY ACT",identity.behavior]]:[]),
    ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
   ];
-  let y=675;
+  let y=753;
   for(const [label,body] of sections){
-   ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(label,113,y);
-   ctx.fillStyle="#30293a";ctx.font="27px system-ui,sans-serif";
-   paint(ctx,body,113,y+43,852,3,35);
-   y+=132;
+   ctx.fillStyle="#756394";ctx.font="700 24px system-ui,sans-serif";ctx.fillText(label,113,y);
+   ctx.fillStyle="#30293a";ctx.font="24px system-ui,sans-serif";
+   paint(ctx,body,113,y+37,851,3,28);
+   y+=117;
   }
-  ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1070);ctx.lineTo(965,1070);ctx.stroke();
-  ctx.fillStyle="#756394";ctx.font="700 24px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1111);
-  ctx.fillStyle="#4f4962";ctx.font="21px system-ui,sans-serif";
-  identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1145+i*30,849,1,28));
+  ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1120);ctx.lineTo(965,1120);ctx.stroke();
+  ctx.fillStyle="#756394";ctx.font="700 23px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1156);
+  ctx.fillStyle="#4f4962";ctx.font="20px system-ui,sans-serif";
+  identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1184+i*26,852,1,26));
  }else{
   // Unapproved / unavailable art preserves the current entirely functional text card.
   ctx.fillStyle="#e9dffc";ctx.beginPath();ctx.arc(540,305,64,0,Math.PI*2);ctx.fill();

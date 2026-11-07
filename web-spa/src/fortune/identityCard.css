@@ -1,8 +1,8 @@
 .fortune-identity{margin:18px 0 24px;display:grid;gap:14px;min-width:0}
 .fortune-identity-card{border:1px solid #dfd3eb;border-radius:23px;padding:clamp(18px,4vw,29px);background:linear-gradient(135deg,#fff9ed,#f1edfc);color:#2b2635;display:grid;gap:12px;min-width:0}
 .fortune-identity-kicker{font-size:12px;font-weight:750;letter-spacing:.045em;color:#655285}
-.fortune-identity-art{width:100%;max-width:936px;aspect-ratio:936/360;display:flex;align-items:center;justify-content:center;background:#f5f0fa;border-radius:17px;overflow:hidden}
-.fortune-identity-art img{display:block;width:100%;height:100%;object-fit:contain;object-position:center center}
+.fortune-identity-art{width:100%;max-width:936px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:#f5f0fa;border-radius:17px;overflow:hidden}
+.fortune-identity-art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center center}
 .fortune-identity-art .fortune-identity-mark{width:76px;height:76px}
 .fortune-identity-mark{display:grid;place-items:center;width:68px;height:68px;border-radius:999px;background:#e5d9f7;color:#543b8b;font-weight:800;font-size:26px;line-height:1}
 .fortune-identity-card h3{font-size:clamp(23px,4.5vw,31px);line-height:1.3;margin:0;overflow-wrap:anywhere}

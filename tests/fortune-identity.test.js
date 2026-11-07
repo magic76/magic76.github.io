@@ -97,7 +97,7 @@ test("integration keeps an existing detailed report share button and adds identi
  assert.match(ui,/localStorage\.setItem\(key,value\)/);
 });
 
-test("art manifest covers all ten day masters with ASCII paths and fails closed before review",()=>{
+test("approved art manifest matches all ten committed BaZi WebPs",()=>{
  const source=read("identityArtwork.ts");
  const transformed=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
  const exported={};
@@ -107,9 +107,15 @@ test("art manifest covers all ten day masters with ASCII paths and fails closed 
  for(const stem of masters){
   const id="bazi-"+stem;
   assert.match(paths[id],/^bazi-[a-z]+\.webp$/);
-  assert.equal(url(id),null,"Unapproved artwork must never be requested: "+id);
+  assert.equal(url(id),"/fortune/identity/art/"+paths[id]);
+  const fullPath=path.join(__dirname,"../web-spa/public/fortune/identity/art",paths[id]);
+  assert.ok(fs.existsSync(fullPath),id+" missing committed WebP");
+  const bytes=fs.readFileSync(fullPath);
+  assert.equal(bytes.toString("ascii",0,4),"RIFF",id);
+  assert.equal(bytes.toString("ascii",8,12),"WEBP",id);
  }
- assert.deepEqual(approved,[]);
+ assert.equal(approved.length,10);
+ assert.equal(new Set(approved).size,10);
  assert.equal(url("bazi-unknown"),null);
  assert.equal(url("tarot-22"),null);
 });
@@ -122,7 +128,7 @@ test("art is optional and both UI and PNG renderer use the same approved image",
  assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
  assert.match(share,/art\?\.complete/);
  assert.match(share,/ctx.drawImage\(art/);
- assert.match(share,/Math.min\(936\/art.naturalWidth,353\/art.naturalHeight\)/);
+ assert.match(share,/Math.min\(artWidth\/art.naturalWidth,artHeight\/art.naturalHeight\)/);
  assert.match(share,/const canvas=renderIdentityShareCard\(identity,locale,art\),file=pngFile\(canvas\)/);
  assert.ok(!share.includes("await fetch("));
 });
