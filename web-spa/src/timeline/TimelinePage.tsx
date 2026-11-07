@@ -51,7 +51,7 @@ export function TimelinePage(){
   // Rail tap, chapter jump and carousel arrows share one selection path.
   railScrubbing.current=false;
   programmaticTarget.current=next;
-  if(next!==age)setAge(next);
+  if(next!==age){setAge(next);trackUsageEvent("timeline_age_selected","timeline")}
   scrollToAge(next);
  };
  const changeBy=(offset:number)=>{const next=AGES[index+offset];if(next!==undefined)chooseAge(next)};
