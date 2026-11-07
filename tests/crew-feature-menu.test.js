@@ -75,3 +75,21 @@ test("menu analytics are accepted by the private usage endpoint without leaking 
  assert.match(menu,/trackUsageEvent\("menu_item_click",item.detail\)/);
  assert.ok(!menu.includes("window.location.href"),"tracking must not include full navigation URLs");
 });
+
+test("feature menu opens and collapses smoothly without cutting off navigation",()=>{
+ const panel=read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
+ assert.match(panel,/data-state=\{closing\?"closing":"open"\}/);
+ assert.match(panel,/const \[closing,setClosing\]=useState\(false\)/);
+ assert.match(panel,/const beginClose=useCallback/);
+ assert.match(panel,/destinationRef\.current=destination\|\|null/);
+ assert.match(panel,/event\.preventDefault\(\)/);
+ assert.match(panel,/beginClose\(item\.to\)/);
+ assert.match(panel,/onAnimationEnd=\{event=>\{if\(closing&&event\.target===event\.currentTarget\)finishClose\(\)\}\}/);
+ assert.match(panel,/setTimeout\(finishClose,reduced\?0:270\)/);
+ assert.match(panel,/finishedRef\.current/);
+ assert.match(css,/crew-menu-slide-in/);
+ assert.match(css,/crew-menu-slide-out/);
+ assert.match(css,/crew-menu-fade-in/);
+ assert.match(css,/crew-menu-fade-out/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
