@@ -199,6 +199,11 @@
     "teacherIntro": "選擇老師、接續課程或練習特定技能。",
     "backToLearn": "回到學習",
     "courseTracks": "課程清單",
-    "trackProgress": "已完成 {{done}} / {{total}} 堂"
+    "trackProgress": "已完成 {{done}} / {{total}} 堂",
+    "reviewTitle": "再練上次不熟練的表達",
+    "reviewFallback": "用一個生活情境練習表達，老師會依照你的回答調整難度。",
+    "reviewLink": "上次待加強",
+    "retryLesson": "重新挑戰這堂課",
+    "goalLabel": "我的目標"
   }
 }

@@ -199,6 +199,11 @@
     "teacherIntro": "Elige profesor, sigue tus cursos o practica una habilidad.",
     "backToLearn": "Volver a aprender",
     "courseTracks": "Cursos",
-    "trackProgress": "{{done}} de {{total}} lecciones completadas"
+    "trackProgress": "{{done}} de {{total}} lecciones completadas",
+    "reviewTitle": "Practica una expresión que necesitas reforzar",
+    "reviewFallback": "Practica una situación cotidiana. Tu profesor adaptará la dificultad según tu respuesta.",
+    "reviewLink": "Repasar un punto pendiente",
+    "retryLesson": "Repetir esta lección",
+    "goalLabel": "Mi objetivo"
   }
 }

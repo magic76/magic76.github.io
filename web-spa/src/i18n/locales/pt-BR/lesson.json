@@ -199,6 +199,11 @@
     "teacherIntro": "Escolha um professor, continue o curso ou pratique uma habilidade.",
     "backToLearn": "Voltar ao aprendizado",
     "courseTracks": "Cursos disponíveis",
-    "trackProgress": "{{done}} de {{total}} lições concluídas"
+    "trackProgress": "{{done}} de {{total}} lições concluídas",
+    "reviewTitle": "Pratique uma expressão que precisa melhorar",
+    "reviewFallback": "Pratique uma situação do dia a dia. Seu professor adaptará a dificuldade à sua resposta.",
+    "reviewLink": "Revisar um ponto de melhoria",
+    "retryLesson": "Tentar esta lição novamente",
+    "goalLabel": "Minha meta"
   }
 }

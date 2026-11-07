@@ -199,6 +199,11 @@
     "teacherIntro": "Wähle eine Lehrkraft, lerne weiter oder übe gezielt.",
     "backToLearn": "Zurück zum Lernen",
     "courseTracks": "Kursübersicht",
-    "trackProgress": "{{done}} von {{total}} Lektionen abgeschlossen"
+    "trackProgress": "{{done}} von {{total}} Lektionen abgeschlossen",
+    "reviewTitle": "Übe einen noch unsicheren Ausdruck",
+    "reviewFallback": "Übe eine Alltagssituation. Deine Lehrkraft passt die Schwierigkeit an deine Antworten an.",
+    "reviewLink": "Noch einmal üben",
+    "retryLesson": "Diese Lektion erneut versuchen",
+    "goalLabel": "Mein Lernziel"
   }
 }

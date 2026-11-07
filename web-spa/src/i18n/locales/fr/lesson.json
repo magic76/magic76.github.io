@@ -199,6 +199,11 @@
     "teacherIntro": "Choisissez votre professeur, poursuivez un cours ou entraînez-vous.",
     "backToLearn": "Retour à l’apprentissage",
     "courseTracks": "Parcours de cours",
-    "trackProgress": "{{done}} leçons sur {{total}} terminées"
+    "trackProgress": "{{done}} leçons sur {{total}} terminées",
+    "reviewTitle": "Retravailler une expression difficile",
+    "reviewFallback": "Entraînez-vous dans une situation du quotidien. Votre professeur adaptera la difficulté à vos réponses.",
+    "reviewLink": "Point à retravailler",
+    "retryLesson": "Recommencer cette leçon",
+    "goalLabel": "Mon objectif"
   }
 }

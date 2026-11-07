@@ -199,6 +199,11 @@
     "teacherIntro": "先生を選び、コースや目的別の練習を続けましょう。",
     "backToLearn": "学習に戻る",
     "courseTracks": "コース一覧",
-    "trackProgress": "{{done}} / {{total}} レッスン完了"
+    "trackProgress": "{{done}} / {{total}} レッスン完了",
+    "reviewTitle": "前回苦手だった表現をもう一度練習",
+    "reviewFallback": "身近な場面で話してみましょう。先生が答えに合わせて難易度を調整します。",
+    "reviewLink": "前回の復習ポイント",
+    "retryLesson": "このレッスンに再挑戦",
+    "goalLabel": "学習目標"
   }
 }

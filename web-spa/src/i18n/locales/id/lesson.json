@@ -199,6 +199,11 @@
     "teacherIntro": "Pilih guru, lanjutkan kursus, atau latih keterampilan tertentu.",
     "backToLearn": "Kembali ke belajar",
     "courseTracks": "Daftar kursus",
-    "trackProgress": "{{done}} dari {{total}} pelajaran selesai"
+    "trackProgress": "{{done}} dari {{total}} pelajaran selesai",
+    "reviewTitle": "Latih lagi ungkapan yang belum dikuasai",
+    "reviewFallback": "Berlatih dalam situasi sehari-hari. Guru akan menyesuaikan tingkat kesulitan dengan jawabanmu.",
+    "reviewLink": "Latihan yang perlu diulang",
+    "retryLesson": "Coba pelajaran ini lagi",
+    "goalLabel": "Tujuan belajar saya"
   }
 }

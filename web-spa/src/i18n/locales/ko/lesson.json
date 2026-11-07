@@ -199,6 +199,11 @@
     "teacherIntro": "선생님을 선택하고 과정이나 집중 연습을 이어가세요.",
     "backToLearn": "학습으로 돌아가기",
     "courseTracks": "학습 과정",
-    "trackProgress": "{{done}} / {{total}} 강의 완료"
+    "trackProgress": "{{done}} / {{total}} 강의 완료",
+    "reviewTitle": "지난번에 어려웠던 표현 다시 연습하기",
+    "reviewFallback": "일상 상황에서 말해 보세요. 선생님이 답변에 맞춰 난이도를 조절합니다.",
+    "reviewLink": "지난번 보완할 표현",
+    "retryLesson": "이 수업 다시 도전하기",
+    "goalLabel": "나의 학습 목표"
   }
 }
