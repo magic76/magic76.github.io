@@ -1,6 +1,6 @@
-import {useEffect,useRef,type RefObject} from "react";
+import {useCallback,useEffect,useRef,useState,type RefObject} from "react";
 import {createPortal} from "react-dom";
-import {Link} from "react-router-dom";
+import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {loadCrewFeatureMenuLocale} from "./crewFeatureMenuLocale";
@@ -40,12 +40,35 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
  useEffect(()=>{void loadCrewFeatureMenuLocale()},[i18n.language]);
  const closeRef=useRef<HTMLButtonElement>(null);
  const dialogRef=useRef<HTMLElement>(null);
+ const navigate=useNavigate();
+ const [closing,setClosing]=useState(false);
+ const destinationRef=useRef<string|null>(null);
+ const finishedRef=useRef(false);
+ const finishClose=useCallback(()=>{
+  if(finishedRef.current)return;
+  finishedRef.current=true;
+  onClose();
+  if(destinationRef.current)navigate(destinationRef.current);
+ },[onClose,navigate]);
+ const beginClose=(destination?:string)=>{
+  if(closing)return;
+  destinationRef.current=destination||null;
+  setClosing(true);
+ };
+ // Keep the drawer mounted for the exit animation; always settle if the
+ // animation event is skipped by reduced-motion, a hidden tab, or a WebView.
+ useEffect(()=>{
+  if(!closing)return;
+  const reduced=window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+  const timeout=window.setTimeout(finishClose,reduced?0:270);
+  return()=>window.clearTimeout(timeout);
+ },[closing,finishClose]);
  useEffect(()=>{
   const oldOverflow=document.body.style.overflow;
   document.body.style.overflow="hidden";
   closeRef.current?.focus();
   function onKeyDown(event:KeyboardEvent){
-   if(event.key==="Escape"){event.preventDefault();onClose();return}
+   if(event.key==="Escape"){event.preventDefault();beginClose();return}
    if(event.key!=="Tab")return;
    const dialog=dialogRef.current;
    if(!dialog)return;
@@ -58,7 +81,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
     event.preventDefault();first.focus();
    }
   }
-  const onBack=()=>onClose();
+  const onBack=()=>beginClose();
   document.addEventListener("keydown",onKeyDown);
   window.addEventListener("popstate",onBack);
   return()=>{
@@ -67,17 +90,18 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
    window.removeEventListener("popstate",onBack);
    triggerRef.current?.focus();
   };
- },[onClose,triggerRef]);
+ },[onClose,triggerRef,closing]);
  return createPortal(
-  <div className="crew-feature-menu-layer">
-   <div className="crew-feature-menu-backdrop" onClick={onClose} aria-hidden="true"/>
+  <div className="crew-feature-menu-layer" data-state={closing?"closing":"open"}>
+   <div className="crew-feature-menu-backdrop" onClick={()=>beginClose()} aria-hidden="true"/>
    <aside id="crew-feature-menu-dialog" className="crew-feature-menu-panel" ref={dialogRef} role="dialog"
-    aria-modal="true" aria-labelledby="crew-feature-menu-title">
+    aria-modal="true" aria-labelledby="crew-feature-menu-title"
+    onAnimationEnd={event=>{if(closing&&event.target===event.currentTarget)finishClose()}}>
     <div className="crew-feature-menu-heading">
      <div><h2 id="crew-feature-menu-title">{t("title")}</h2>
       <p>{t("subtitle")}</p></div>
      <button className="crew-feature-menu-close" type="button" ref={closeRef}
-      onClick={onClose} aria-label={t("close")}>×</button>
+      onClick={()=>beginClose()} aria-label={t("close")}>×</button>
     </div>
     <nav className="crew-feature-menu-content" aria-label={t("title")}>
      {FEATURE_MENU_GROUPS.map(group=>
@@ -85,7 +109,12 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
        <h3 id={"crew-menu-group-"+group.id}>{t("groups."+group.id)}</h3>
        <div className="crew-feature-menu-grid">
         {group.items.map(item=><Link key={item.id} to={item.to} className="crew-feature-menu-card"
-         onClick={()=>{trackUsageEvent("menu_item_click",item.detail);onClose()}}>
+         onClick={event=>{
+          if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+          event.preventDefault();
+          trackUsageEvent("menu_item_click",item.detail);
+          beginClose(item.to);
+         }}>
          <span className="crew-feature-menu-icon" aria-hidden="true">{item.icon}</span>
          <strong>{t("items."+item.id+".title")}</strong>
          <small>{t("items."+item.id+".desc")}</small>
