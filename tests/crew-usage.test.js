@@ -251,8 +251,8 @@ test("onboarding analytics accepts only fixed stage and goal values",async()=>{
 test("first real action is attributed once, while visits and skipped guides are not",()=>{
  const source=fs.readFileSync(path.join(root,"web-spa/src/analytics/usage.ts"),"utf8");
  const prepared=stripTypeScriptTypes(source,{mode:"strip"})
-  .replace(/^import[^\\n]*\\n/gm,"")
-  .replace(/\\bexport\\s+(?=(?:const|function|type)\\b)/g,"");
+  .replace(/^import[^\n]*\n/gm,"")
+  .replace(/\bexport\s+(?=(?:const|function|type)\b)/g,"");
  const events=[];
  const data=new Map(),sessionData=new Map();
  const storage=map=>({
@@ -262,7 +262,7 @@ test("first real action is attributed once, while visits and skipped guides are 
  });
  const id=[0,0];
  const factory=new Function("localStorage","sessionStorage","navigator","location","crypto","fetch","sendGa4Event","sendGa4PageView","setGa4Enabled",prepared+
-  "\\nreturn {setOnboardingFirstActionPending,clearOnboardingFirstActionPending,trackUsageEvent};");
+  "\nreturn {setOnboardingFirstActionPending,clearOnboardingFirstActionPending,trackUsageEvent};");
  const usage=factory(storage(data),storage(sessionData),
   {doNotTrack:"0",globalPrivacyControl:false},{hostname:"www.3sssi.com",pathname:"/"},
   {randomUUID:()=>++id[0]===1?"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa":"bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"},
