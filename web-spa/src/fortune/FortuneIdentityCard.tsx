@@ -20,6 +20,9 @@ export function FortuneIdentityCard({reading,onContinue}:{reading:FortuneReading
  const[artFailed,setArtFailed]=useState(false);
  const artRef=useRef<HTMLImageElement|null>(null);
  const[status,setStatus]=useState("");
+ const[moreOpen,setMoreOpen]=useState(true);
+ const[evidenceOpen,setEvidenceOpen]=useState(true);
+ useEffect(()=>{setMoreOpen(true);setEvidenceOpen(true)},[reading.id]);
  useEffect(()=>{setStatus("")},[reading.id]);
  useEffect(()=>{setArtFailed(false);artRef.current=null},[artSrc]);
  if(!card)return null;
@@ -47,14 +50,14 @@ export function FortuneIdentityCard({reading,onContinue}:{reading:FortuneReading
    <h3>{card.title}</h3>
    <p className="fortune-identity-core">{card.core}</p>
   </div>
-  <details className="fortune-identity-more" defaultOpen>
+  <details className="fortune-identity-more" open={moreOpen} onToggle={event=>setMoreOpen(event.currentTarget.open)}>
    <summary>{labels.more}</summary>
    <div className="fortune-identity-more-content">
     <div className="fortune-identity-facts">
      {card.behavior&&<div><strong>{labels.behavior}</strong><p>{card.behavior}</p></div>}
      {card.tension&&<div><strong>{labels.tension}</strong><p>{card.tension}</p></div>}
     </div>
-    <details className="fortune-identity-evidence" defaultOpen><summary>{labels.evidence}</summary><ul>{card.evidence.map(x=><li key={x}>{x}</li>)}</ul></details>
+    <details className="fortune-identity-evidence" open={evidenceOpen} onToggle={event=>setEvidenceOpen(event.currentTarget.open)}><summary>{labels.evidence}</summary><ul>{card.evidence.map(x=><li key={x}>{x}</li>)}</ul></details>
     <p className="fortune-identity-note">{labels.disclaimer}</p>
     <button className="btn secondary fortune-identity-copy-link" type="button" onClick={()=>void copyLink()}>{labels.invite}</button>
    </div>

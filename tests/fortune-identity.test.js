@@ -160,8 +160,10 @@ test("identity reveal is a focus-managed dismissible dialog, not an inline repor
 test("reveal is fully expanded on entry, without the removed likeness survey",()=>{
  const ui=read("FortuneIdentityCard.tsx");
  const css=read("identityCard.css");
- assert.match(ui,/<details className="fortune-identity-more" defaultOpen>/);
- assert.match(ui,/<details className="fortune-identity-evidence" defaultOpen>/);
+ assert.match(ui,/<details className="fortune-identity-more" open=\{moreOpen\} onToggle=/);
+ assert.match(ui,/<details className="fortune-identity-evidence" open=\{evidenceOpen\} onToggle=/);
+ assert.match(ui,/useState\(true\)/);
+ assert.match(ui,/setMoreOpen\(true\);setEvidenceOpen\(true\)/);
  assert.ok(ui.indexOf('className="fortune-identity-more"')<ui.indexOf('className="fortune-identity-actions"'),"Interpretation precedes sticky action bar");
  for(const text of ["fortune-identity-rating","fortune_identity_feedback","localStorage.setItem","readStored","setRating","How much does this sound like you?","你覺得這份描述像自己嗎？"])
   assert.ok(!ui.includes(text),"Likeness survey must not remain: "+text);
