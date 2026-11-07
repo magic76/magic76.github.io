@@ -11,9 +11,10 @@ import{formatVedicTerm}from"./fortuneTerminology";
 import{useRouteNamespace}from"../i18n/useRouteNamespace";
 import{FortuneGlossary}from"./FortuneGlossary";
 
-const primary:FortuneChapterId[]=["overview","personality","career","wealth","relationships","currentCycle"];
+const primary:FortuneChapterId[]=["personality","career","wealth","relationships"];
+const timeTopics:FortuneChapterId[]=["currentCycle","longTerm"];
 const focus:{id:FortuneChapterId;symbol:string}[]=[
- {id:"career",symbol:"◇"},{id:"wealth",symbol:"◈"},{id:"relationships",symbol:"♡"}
+ {id:"personality",symbol:"✧"},{id:"career",symbol:"◇"},{id:"wealth",symbol:"◈"},{id:"relationships",symbol:"♡"}
 ];
 type Metric={label:string;value:string};
 function metricsFor(mode:FortuneMode,r:any):Metric[]{
@@ -44,7 +45,7 @@ function TopicSection({chapter,expanded,onToggle,onAsk}:{chapter:FortuneChapter;
   </div>
  </article>;
 }
-export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:FortuneMode;result:any;phase?:CurrentPhase;ai?:string;onAsk?:(id:FortuneChapterId)=>void}){
+export function FortuneReadingOverview({mode,result,phase,ai,onAsk,variant="summary"}:{mode:FortuneMode;result:any;phase?:CurrentPhase;ai?:string;onAsk?:(id:FortuneChapterId)=>void;variant?:"summary"|"timeline"|"chart"}){
  const{t,i18n}=useTranslation("fortune");
  const{t:reportT}=useTranslation("fortuneReport");
  const reportReady=useRouteNamespace("fortuneReport");
@@ -59,43 +60,49 @@ export function FortuneReadingOverview({mode,result,phase,ai,onAsk}:{mode:Fortun
  const main=primary.map(id=>chapters.find(x=>x.id===id)).filter((c):c is FortuneChapter=>Boolean(c))
   .filter(chapter=>!ready||chapter.id!=="overview")
   .map(chapter=>aiText[chapter.id]?{...chapter,text:aiText[chapter.id]!}:chapter);
- const more=chapters.filter(x=>!primary.includes(x.id));
+ const timing=timeTopics.map(id=>chapters.find(x=>x.id===id)).filter((c):c is FortuneChapter=>Boolean(c));
+ const more=chapters.filter(x=>!primary.includes(x.id)&&!timeTopics.includes(x.id));
  const facts=metricsFor(mode,result);
  const fiveElements=mode==="bazi"?Object.entries(result?.weightedFiveElements||{})
   .filter(([,v])=>Number.isFinite(Number(v))&&Number(v)>=0)
   .map(([label,value])=>({label,value:Number(value)})):[];
  const maxElement=Math.max(0,...fiveElements.map(x=>x.value));
- const jump=(id:FortuneChapterId)=>{setActive(id);window.requestAnimationFrame(()=>document.getElementById("fortune-topic-"+id)?.scrollIntoView({behavior:"smooth",block:"start"}));};
- return <section className="fortune-reading-overview" aria-label={t("reading.reportTitle")}>
-  <header className="fortune-reading-head">
-   <span className="kicker">CREW FORTUNE · PERSONAL REPORT</span>
-   <h3>{t("reading.reportTitle")}</h3>
-  </header>
-  {facts.length>0&&<div className="fortune-reading-metrics" aria-label={t("reading.chartBasis")}>{facts.map(metric=><div key={metric.label} className="fortune-reading-metric"><small>{t("reading.metric."+metric.label)}</small><strong>{metric.value}</strong></div>)}</div>}
-  <div className="fortune-reading-focus-head"><div><span className="kicker">CREW FORTUNE</span><h4>{t("reading.exploreTitle")}</h4></div><span>{t("reading.exploreHint")}</span></div>
-  <div className="fortune-reading-focus-grid">{focus.map(item=>{
-   const chapter=main.find(x=>x.id===item.id);
-   if(!chapter)return null;
-   return <button type="button" key={item.id} className="fortune-reading-focus-card" onClick={()=>jump(item.id)}>
-    <span className="fortune-reading-focus-icon" aria-hidden="true">{item.symbol}</span>
-    <strong>{t("reading.topic."+item.id)}</strong><small>{t("reading.tapDetails")}</small>
-    <span className="fortune-reading-focus-link">{t("reading.viewReport")} <span aria-hidden="true">→</span></span>
-   </button>;
-  })}</div>
-  <div className="fortune-reading-chapters">{main.map(chapter=><TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div>
-  {ready?<details className="fortune-reading-more fortune-local-collapse"><summary>{t("reading.fixedVersion")}</summary>
-   <div className="fortune-reading-chapters">{chapters.map(chapter=><TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div></details>:
-   more.length>0&&<details className="fortune-reading-more"><summary>{t("reading.moreTopics")}</summary>
-    <div className="fortune-reading-chapters">{more.map(chapter=><TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div>
-   </details>}
-  {parsed.legacy&&<details className="fortune-reading-more"><summary>{t("reading.aiExisting")}</summary><AiPanel mode={mode} result={result} ai={ai||""}/></details>}
-  {fiveElements.length>0&&maxElement>0&&<div className="fortune-reading-elements">
-   <div className="fortune-reading-elements-heading"><div><h4>{t("reading.fiveElements")}</h4><p>{t("reading.fiveDesc")}</p></div><span>{t("reading.baziData")}</span></div>
-   <div className="fortune-reading-element-list">{fiveElements.map(item=><div className="fortune-reading-element" key={item.label}>
-    <span className="fortune-reading-element-name">{item.label}</span><div className="fortune-reading-element-track"><span style={{width:(item.value/maxElement*100)+"%"}}/></div>
-    <strong>{formatFortuneValue(item.value,true)}</strong>
-   </div>)}</div>
-  </div>}
-  <FortuneGlossary mode={mode} result={result}/><small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
+ return <section className="fortune-reading-overview" data-variant={variant} aria-label={t("reading.reportTitle")}>
+  {variant==="summary"&&<>
+   <header className="fortune-reading-head"><span className="kicker">CREW FORTUNE · PERSONAL REPORT</span><h3>{t("reading.exploreTitle")}</h3></header>
+   <div className="fortune-reading-focus-grid">{focus.map(item=>{
+    const chapter=main.find(x=>x.id===item.id);
+    if(!chapter)return null;
+    return <button type="button" key={item.id} aria-pressed={active===item.id} className="fortune-reading-focus-card" onClick={()=>setActive(active===item.id?null:item.id)}>
+     <span className="fortune-reading-focus-icon" aria-hidden="true">{item.symbol}</span>
+     <strong>{t("reading.topic."+item.id)}</strong><span className="fortune-reading-focus-link">{t("reading.viewReport")} →</span>
+    </button>;
+   })}</div>
+   <div className="fortune-reading-chapters" aria-live="polite">{main.filter(chapter=>chapter.id===active).map(chapter=>
+    <TopicSection key={chapter.id} chapter={chapter} expanded={true} onToggle={()=>setActive(null)} onAsk={onAsk}/>)}</div>
+  </>}
+  {variant==="timeline"&&<>
+   <header className="fortune-reading-head"><span className="kicker">CREW FORTUNE</span><h3>{t("reading.tab.time")}</h3></header>
+   {timing.length>0&&<div className="fortune-reading-chapters">{timing.map(chapter=>
+    <TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div>}
+  </>}
+  {variant==="chart"&&<>
+   <header className="fortune-reading-head"><span className="kicker">CREW FORTUNE</span><h3>{t("reading.chartBasis")}</h3></header>
+   {facts.length>0&&<div className="fortune-reading-metrics" aria-label={t("reading.chartBasis")}>{facts.map(metric=><div key={metric.label} className="fortune-reading-metric"><small>{t("reading.metric."+metric.label)}</small><strong>{metric.value}</strong></div>)}</div>}
+   {ready?<details className="fortune-reading-more fortune-local-collapse"><summary>{t("reading.fixedVersion")}</summary>
+    <div className="fortune-reading-chapters">{chapters.map(chapter=><TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div></details>:
+    more.length>0&&<details className="fortune-reading-more"><summary>{t("reading.moreTopics")}</summary>
+     <div className="fortune-reading-chapters">{more.map(chapter=><TopicSection key={chapter.id} chapter={chapter} expanded={active===chapter.id} onToggle={()=>setActive(active===chapter.id?null:chapter.id)} onAsk={onAsk}/>)}</div>
+    </details>}
+   {parsed.legacy&&<details className="fortune-reading-more"><summary>{t("reading.aiExisting")}</summary><AiPanel mode={mode} result={result} ai={ai||""}/></details>}
+   {fiveElements.length>0&&maxElement>0&&<div className="fortune-reading-elements">
+    <div className="fortune-reading-elements-heading"><div><h4>{t("reading.fiveElements")}</h4><p>{t("reading.fiveDesc")}</p></div><span>{t("reading.baziData")}</span></div>
+    <div className="fortune-reading-element-list">{fiveElements.map(item=><div className="fortune-reading-element" key={item.label}>
+     <span className="fortune-reading-element-name">{item.label}</span><div className="fortune-reading-element-track"><span style={{width:(item.value/maxElement*100)+"%"}}/></div>
+     <strong>{formatFortuneValue(item.value,true)}</strong>
+    </div>)}</div>
+   </div>}
+   <FortuneGlossary mode={mode} result={result}/><small className="fortune-reading-disclaimer">{t("reading.disclaimer")}</small>
+  </>}
  </section>;
 }
