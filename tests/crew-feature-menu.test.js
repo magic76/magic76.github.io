@@ -12,8 +12,8 @@ const css=read("web-spa/src/components/crewFeatureMenu.css");
 test("all 32 feature destinations are direct, existing Crew routes",()=>{
  const targets=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"([^"]+)"/g)];
  assert.equal(targets.length,32,"the directory should expose all 32 verified experiences");
- assert.equal(new Set(targets.map(item=>item[1])).size,15,"unique feature keys");
- assert.equal(new Set(targets.map(item=>item[2])).size,15,"unique deep links");
+ assert.equal(new Set(targets.map(item=>item[1])).size,32,"unique feature keys");
+ assert.equal(new Set(targets.map(item=>item[2])).size,32,"unique deep links");
  for(const [,id,to] of targets)assert.ok(to.startsWith("/")&&!to.startsWith("//"),id+" must be an internal route");
  const app=read("web-spa/src/App.tsx");
  for(const route of ["/games","/souls","/mate","/story","/fortune","/timeline","/town","/magic","/discover","/research","/me","/settings"]){
@@ -119,4 +119,17 @@ test("five-group accordion is accessible, keyboard-safe and directly navigable",
  assert.match(panel,/beginClose\(item\.to\)/);
  assert.match(css,/crew-feature-menu-branch\[data-expanded="true"\]/);
  assert.match(css,/prefers-reduced-motion:reduce/);
+});
+
+test("accordion and destination arrows are consistent vector chevrons, not font glyphs",()=>{
+ const panel=read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
+ assert.match(panel,/className="crew-feature-menu-chevron" aria-hidden="true">\s*<svg/);
+ assert.match(panel,/className="crew-feature-menu-link-arrow" aria-hidden="true">\s*<svg/);
+ assert.match(panel,/strokeLinecap="round"/);
+ assert.match(panel,/strokeLinejoin="round"/);
+ assert.doesNotMatch(panel,/crew-feature-menu-chevron" aria-hidden="true">⌄/);
+ assert.doesNotMatch(panel,/crew-feature-menu-link-arrow" aria-hidden="true">›/);
+ assert.match(css,/\.crew-feature-menu-chevron svg\{display:block;width:19px;height:19px\}/);
+ assert.match(css,/\.crew-feature-menu-link-arrow svg\{display:block;width:16px;height:16px\}/);
+ assert.match(css,/\[aria-expanded="true"\] \.crew-feature-menu-chevron\{transform:rotate\(180deg\)\}/);
 });
