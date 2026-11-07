@@ -2,7 +2,7 @@ import {useEffect,useState,useSyncExternalStore} from "react";
 import {useTranslation} from "react-i18next";
 import {
  canOfferCrewInstall,emptyCrewInstallPrompt,getCrewInstallPrompt,
- isCrewIosSafari,requestCrewInstall,subscribeCrewInstall
+ isCrewIosSafari,requestCrewInstall,registerCrewPwa,subscribeCrewInstall
 } from "../runtime/pwa";
 import "./crewInstallEntry.css";
 
@@ -28,6 +28,7 @@ export function CrewInstallEntry(){
  const [guide,setGuide]=useState(false);
  const [supported,setSupported]=useState(false);
  useEffect(()=>{
+  registerCrewPwa();
   setSupported(canOfferCrewInstall());
   setIos(isCrewIosSafari());
  },[]);
