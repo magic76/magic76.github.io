@@ -24,6 +24,80 @@
     "learn": "Aprender",
     "me": "Meu Crew"
   },
+  "featureMenu": {
+    "trigger": "Todos os recursos",
+    "shortTrigger": "Menu",
+    "title": "Explore o mundo Crew",
+    "subtitle": "Tudo em um só lugar",
+    "close": "Fechar menu",
+    "groups": {
+      "chat": "Converse e aprenda",
+      "explore": "Crie e explore",
+      "me": "Meu Crew"
+    },
+    "items": {
+      "friends": {
+        "title": "Amigos IA",
+        "desc": "Converse com 16 amigos IA"
+      },
+      "teacher": {
+        "title": "Professores IA",
+        "desc": "Pratique outros idiomas"
+      },
+      "games": {
+        "title": "Jogos interativos",
+        "desc": "Jogue e converse com IA"
+      },
+      "shorts": {
+        "title": "Novidades",
+        "desc": "Veja diários com fotos"
+      },
+      "souls": {
+        "title": "Crew Souls",
+        "desc": "Dê vida às fotos"
+      },
+      "mate": {
+        "title": "Crew Mate",
+        "desc": "Converse em outros idiomas"
+      },
+      "story": {
+        "title": "Crew Story",
+        "desc": "Crie histórias interativas"
+      },
+      "fortune": {
+        "title": "Crew Fortune",
+        "desc": "Explore seu mapa pessoal"
+      },
+      "timeline": {
+        "title": "Crew Timeline",
+        "desc": "Explore fases da vida"
+      },
+      "town": {
+        "title": "Crew Town",
+        "desc": "Visite a cidade Crew"
+      },
+      "magic": {
+        "title": "Crew Magic",
+        "desc": "Crie mundos com a voz"
+      },
+      "discover": {
+        "title": "Crew Discover",
+        "desc": "Explore notícias e ideias"
+      },
+      "research": {
+        "title": "Pesquisa em IA",
+        "desc": "Leia descobertas recentes"
+      },
+      "records": {
+        "title": "Meus registros",
+        "desc": "Veja progresso e salvos"
+      },
+      "settings": {
+        "title": "Configurações",
+        "desc": "Idioma, IA e privacidade"
+      }
+    }
+  },
   "brand": {
     "home": "Converse com amigos de IA",
     "teacher": "Aprendizado de idiomas",
