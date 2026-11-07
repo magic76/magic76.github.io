@@ -62,7 +62,7 @@ const consent=(enabled:boolean)=>({
  ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",
  analytics_storage:enabled?"granted":"denied"
 });
-export function setGa4Enabled(enabled:boolean){
+export function setGa4Enabled(enabled:boolean,landing?:{pathname:string;search:string;referrer:string}){
  if(typeof window==="undefined")return false;
  // Google's documented per-property opt-out prevents even cookieless pings.
  (window as unknown as Record<string,unknown>)["ga-disable-"+GA4_MEASUREMENT_ID]=!enabled;
@@ -73,9 +73,9 @@ export function setGa4Enabled(enabled:boolean){
  if(!enabled)return false;
  if(initialized)return true;
  initialized=true;
- landingPath=safeGa4Path(window.location.pathname);
- landingCampaign=safeGa4CampaignQuery(window.location.search);
- pageReferrer=safeGa4Referrer(document.referrer||"",window.location.origin);
+ landingPath=safeGa4Path(landing?.pathname??window.location.pathname);
+ landingCampaign=safeGa4CampaignQuery(landing?.search??window.location.search);
+ pageReferrer=safeGa4Referrer(landing?.referrer??document.referrer??"",window.location.origin);
  command("js",new Date());
  command("consent","default",consent(true));
  command("config",GA4_MEASUREMENT_ID,{
@@ -112,10 +112,10 @@ export function sendGa4PageView(pathname:string){
  pageReferrer=referral;
 }
 
-export function sendGa4Event(event:string,detail:string){
+export function sendGa4Event(event:string,detail:string,pathname=window.location.pathname){
  if(enabledState===false||!setGa4Enabled(true))return;
  // Event and detail are fixed allowlisted enums from usage.ts.
- const path=safeGa4Path(window.location.pathname);
+ const path=safeGa4Path(pathname);
  command("event","crew_"+event,{
   send_to:GA4_MEASUREMENT_ID,
   crew_platform:"web",
