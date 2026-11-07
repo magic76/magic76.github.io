@@ -90,7 +90,7 @@ test("English fallback and privacy: generated content never embeds raw private p
 test("integration keeps an existing detailed report share button and adds identity sharing",()=>{
  const page=read("ReadingPage.tsx");
  const ui=read("FortuneIdentityCard.tsx");
- assert.match(page,/<FortuneIdentityCard reading=\{reading!\}/);
+ assert.match(page,/<FortuneIdentityRevealDialog reading=\{reading\}/);
  assert.match(page,/shareFortuneReading\(reading!\)/);
  assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
  assert.match(ui,/aria-pressed=\{rating===value\}/);
@@ -131,4 +131,28 @@ test("art is optional and both UI and PNG renderer use the same approved image",
  assert.match(share,/Math.min\(artWidth\/art.naturalWidth,artHeight\/art.naturalHeight\)/);
  assert.match(share,/const canvas=renderIdentityShareCard\(identity,locale,art\),file=pngFile\(canvas\)/);
  assert.ok(!share.includes("await fetch("));
+});
+
+test("identity reveal is a focus-managed dismissible dialog, not an inline report card",()=>{
+ const page=read("ReadingPage.tsx");
+ const modal=read("FortuneIdentityRevealDialog.tsx");
+ const ui=read("FortuneIdentityCard.tsx");
+ const styles=read("identityCard.css");
+ assert.ok(!page.includes("<FortuneIdentityCard reading={reading!}/>"));
+ assert.match(page,/fortune-identity-entry-button/);
+ assert.match(page,/onClick=\{\(\)=>setIdentityOpen\(true\)\}/);
+ assert.match(page,/setReading\(item\);setIdentityOpen\(true\)/);
+ assert.match(page,/setReading\(old\);setIdentityOpen\(false\)/);
+ assert.match(page,/setShowInput\(true\)/);
+ assert.match(modal,/dialog\.showModal\(\)/);
+ assert.match(modal,/onCancel=\{event=>\{event\.preventDefault\(\);onClose\(\)\}\}/);
+ assert.match(modal,/previouslyFocused/);
+ assert.match(modal,/document\.body\.style\.overflow/);
+ assert.match(modal,/FortuneIdentityCard reading=\{reading\} onContinue=\{onClose\}/);
+ assert.match(ui,/onContinue:\(\)=>void/);
+ assert.match(ui,/labels\.continueReport/);
+ assert.match(ui,/fortune-identity-more/);
+ assert.match(styles,/height:100dvh/);
+ assert.match(styles,/prefers-reduced-motion:reduce/);
+ assert.match(styles,/width:44px;height:44px/);
 });

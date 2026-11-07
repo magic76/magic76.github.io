@@ -27,3 +27,43 @@
 .fortune-identity-rating-choices button:focus-visible,.fortune-identity-actions button:focus-visible{outline:3px solid #9c86ed;outline-offset:2px}
 .fortune-identity-status{font-size:13px;line-height:1.6;color:var(--muted);margin:0}
 @media(max-width:430px){.fortune-identity-card{padding:16px}.fortune-identity-actions{display:grid;grid-template-columns:1fr}.fortune-identity-actions .btn{width:100%;min-width:0}.fortune-identity-rating{padding:13px}.fortune-identity-rating-choices{gap:5px}.fortune-identity-rating-choices button{font-size:12px;padding:8px 4px}}
+
+/* Identity reveal: lightweight report entry and focused, dismissible modal. */
+.fortune-identity-entry{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:16px 0;padding:16px 18px;border:1px solid #dfd3eb;border-radius:18px;background:linear-gradient(125deg,#fff9ed,#f1edfc);color:#2b2635}
+.fortune-identity-entry>div{display:grid;gap:5px;min-width:0}
+.fortune-identity-entry-kicker{font-size:12px;font-weight:750;letter-spacing:.055em;color:#655285}
+.fortune-identity-entry strong{font-size:16px;line-height:1.4}
+.fortune-identity-entry-button{min-height:48px;white-space:normal}
+.fortune-identity-reveal-dialog{width:min(560px,calc(100vw - 32px));max-width:560px;max-height:min(90dvh,880px);padding:0;margin:auto;border:0;border-radius:24px;background:#f9f6fb;color:#2b2635;box-shadow:0 20px 80px #21143d58;overflow-y:auto;overscroll-behavior:contain}
+.fortune-identity-reveal-dialog::backdrop{background:#1d163bba;backdrop-filter:blur(4px)}
+.fortune-identity-reveal-header{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:58px;padding:7px 16px 7px 22px;background:#f9f6fbf2;border-bottom:1px solid #e6dff0;font-size:14px;font-weight:750;color:#584277}
+.fortune-identity-reveal-close{display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border:0;border-radius:50%;background:#ece5f5;color:#423260;cursor:pointer;font-size:27px;line-height:1}
+.fortune-identity-reveal-close:hover{background:#e2d6f0}
+.fortune-identity-reveal-close:focus-visible,.fortune-identity-entry-button:focus-visible{outline:3px solid #9c86ed;outline-offset:2px}
+.fortune-identity-reveal-body{padding:0 18px 20px}
+.fortune-identity-reveal-dialog .fortune-identity{margin:14px 0 0}
+.fortune-identity-reveal-dialog .fortune-identity-card{gap:9px;padding:16px}
+.fortune-identity-reveal-dialog .fortune-identity-art{max-width:none}
+.fortune-identity-core{margin:0;font-size:14px;line-height:1.75;overflow-wrap:anywhere}
+.fortune-identity-more{border:1px solid #dfd3eb;border-radius:14px;background:#fff;overflow:hidden}
+.fortune-identity-more>summary{display:flex;align-items:center;min-height:48px;padding:10px 16px;font-size:14px;font-weight:700;color:#5b487a;cursor:pointer;list-style:none}
+.fortune-identity-more>summary::-webkit-details-marker{display:none}
+.fortune-identity-more>summary::after{content:"＋";margin-left:auto;font-size:18px}
+.fortune-identity-more[open]>summary::after{content:"－"}
+.fortune-identity-more-content{display:grid;gap:12px;padding:0 15px 16px}
+.fortune-identity-copy-link{min-height:44px}
+.fortune-identity-reveal-dialog[open]{animation:fortune-identity-reveal-in .42s cubic-bezier(.2,.75,.2,1) both}
+.fortune-identity-reveal-dialog[open] .fortune-identity-art{animation:fortune-identity-art-in .58s ease-out both}
+@keyframes fortune-identity-reveal-in{from{opacity:0;transform:translateY(15px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes fortune-identity-art-in{from{opacity:.35;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+ .fortune-identity-entry{align-items:stretch}
+ .fortune-identity-entry-button{width:100%}
+ .fortune-identity-reveal-dialog{width:100vw;max-width:none;height:100dvh;max-height:100dvh;margin:0;border-radius:0}
+ .fortune-identity-reveal-header{padding-left:16px}
+ .fortune-identity-reveal-body{padding:0 12px max(20px,env(safe-area-inset-bottom))}
+ .fortune-identity-reveal-dialog .fortune-identity-card{padding:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ .fortune-identity-reveal-dialog[open],.fortune-identity-reveal-dialog[open] .fortune-identity-art{animation:none}
+}

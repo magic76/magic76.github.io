@@ -14,11 +14,11 @@ const feedbackDetail={
  vedic:{yes:"vedic_yes",partly:"vedic_partly",no:"vedic_no"}
 } as const;
 const copy={
- zh:{eyebrow:"CREW FORTUNE · 命格身份",title:"我的命格身份",core:"核心特質",behavior:"最像你的地方",tension:"你的另一面",evidence:"查看命盤依據",share:"分享我的命格卡",invite:"複製朋友挑戰連結",rating:"你覺得這份描述像自己嗎？",yes:"非常像",partly:"部分符合",no:"不太像",thanks:"謝謝回饋！這是你的主觀感受，不會改動命盤結果。",copied:"已複製邀請連結",downloaded:"圖片已嘗試下載，可以傳給朋友",error:"目前無法分享，請重試",disclaimer:"依傳統命理符號整理，供自我探索，不是科學人格判定。"},
- en:{eyebrow:"CREW FORTUNE · IDENTITY",title:"My fortune archetype",core:"Core theme",behavior:"How you may act",tension:"Another side",evidence:"View chart evidence",share:"Share my archetype",invite:"Copy challenge link",rating:"How much does this sound like you?",yes:"Very much",partly:"Somewhat",no:"Not really",thanks:"Thanks for the feedback! This won't change your calculated chart.",copied:"Challenge link copied",downloaded:"Image download requested; share it with friends",error:"Could not share. Please try again.",disclaimer:"Traditional symbols for reflection, not an evidence-based personality assessment."}
+ zh:{eyebrow:"CREW FORTUNE · 命格身份",title:"我的命格身份",core:"核心特質",behavior:"最像你的地方",tension:"你的另一面",evidence:"查看命盤依據",share:"分享我的命格卡",invite:"複製朋友挑戰連結",rating:"你覺得這份描述像自己嗎？",yes:"非常像",partly:"部分符合",no:"不太像",thanks:"謝謝回饋！這是你的主觀感受，不會改動命盤結果。",copied:"已複製邀請連結",downloaded:"圖片已嘗試下載，可以傳給朋友",error:"目前無法分享，請重試",continueReport:"繼續查看完整命盤",more:"進一步了解我的命格",disclaimer:"依傳統命理符號整理，供自我探索，不是科學人格判定。"},
+ en:{eyebrow:"CREW FORTUNE · IDENTITY",title:"My fortune archetype",core:"Core theme",behavior:"How you may act",tension:"Another side",evidence:"View chart evidence",share:"Share my archetype",invite:"Copy challenge link",rating:"How much does this sound like you?",yes:"Very much",partly:"Somewhat",no:"Not really",thanks:"Thanks for the feedback! This won't change your calculated chart.",copied:"Challenge link copied",downloaded:"Image download requested; share it with friends",error:"Could not share. Please try again.",continueReport:"View full chart",more:"Explore my archetype",disclaimer:"Traditional symbols for reflection, not an evidence-based personality assessment."}
 };
 const readStored=(key:string):Rating|null=>{try{const x=localStorage.getItem(key);return x==="yes"||x==="partly"||x==="no"?x:null}catch{return null}};
-export function FortuneIdentityCard({reading}:{reading:FortuneReading}){
+export function FortuneIdentityCard({reading,onContinue}:{reading:FortuneReading;onContinue:()=>void}){
  const {i18n}=useTranslation("fortune");
  const locale=i18n.resolvedLanguage||i18n.language;
  const zh=/^zh(?:-|$)/i.test(locale),labels=zh?copy.zh:copy.en;
@@ -59,18 +59,24 @@ export function FortuneIdentityCard({reading}:{reading:FortuneReading}){
      <div className="fortune-identity-mark" aria-hidden="true">{card.symbol.slice(0,2)}</div>}
    </div>
    <h3>{card.title}</h3>
-   <div className="fortune-identity-facts">
-    <div><strong>{labels.core}</strong><p>{card.core}</p></div>
-    {card.behavior&&<div><strong>{labels.behavior}</strong><p>{card.behavior}</p></div>}
-    {card.tension&&<div><strong>{labels.tension}</strong><p>{card.tension}</p></div>}
-   </div>
-   <details className="fortune-identity-evidence"><summary>{labels.evidence}</summary><ul>{card.evidence.map(x=><li key={x}>{x}</li>)}</ul></details>
-   <p className="fortune-identity-note">{labels.disclaimer}</p>
+   <p className="fortune-identity-core">{card.core}</p>
   </div>
   <div className="fortune-identity-actions">
    <button className="btn" type="button" onClick={()=>void share()}>{labels.share}</button>
-   <button className="btn secondary" type="button" onClick={()=>void copyLink()}>{labels.invite}</button>
+   <button className="btn secondary" type="button" onClick={onContinue}>{labels.continueReport}</button>
   </div>
+  <details className="fortune-identity-more">
+   <summary>{labels.more}</summary>
+   <div className="fortune-identity-more-content">
+    <div className="fortune-identity-facts">
+     {card.behavior&&<div><strong>{labels.behavior}</strong><p>{card.behavior}</p></div>}
+     {card.tension&&<div><strong>{labels.tension}</strong><p>{card.tension}</p></div>}
+    </div>
+    <details className="fortune-identity-evidence"><summary>{labels.evidence}</summary><ul>{card.evidence.map(x=><li key={x}>{x}</li>)}</ul></details>
+    <p className="fortune-identity-note">{labels.disclaimer}</p>
+    <button className="btn secondary fortune-identity-copy-link" type="button" onClick={()=>void copyLink()}>{labels.invite}</button>
+   </div>
+  </details>
   <div className="fortune-identity-rating">
    <strong>{labels.rating}</strong>
    <div role="group" aria-label={labels.rating} className="fortune-identity-rating-choices">
