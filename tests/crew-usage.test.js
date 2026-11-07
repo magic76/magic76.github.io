@@ -261,9 +261,9 @@ test("first real action is attributed once, while visits and skipped guides are 
   removeItem:key=>map.delete(key)
  });
  const id=[0,0];
- const factory=new Function("localStorage","sessionStorage","navigator","location","crypto","fetch","sendGa4Event","sendGa4PageView","setGa4Enabled",prepared+
+ const factory=new Function("window","localStorage","sessionStorage","navigator","location","crypto","fetch","sendGa4Event","sendGa4PageView","setGa4Enabled",prepared+
   "\nreturn {setOnboardingFirstActionPending,clearOnboardingFirstActionPending,trackUsageEvent};");
- const usage=factory(storage(data),storage(sessionData),
+ const usage=factory({},storage(data),storage(sessionData),
   {doNotTrack:"0",globalPrivacyControl:false},{hostname:"www.3sssi.com",pathname:"/"},
   {randomUUID:()=>++id[0]===1?"aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa":"bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"},
   (_url,init)=>{events.push(JSON.parse(init.body));return Promise.resolve({ok:true})},
