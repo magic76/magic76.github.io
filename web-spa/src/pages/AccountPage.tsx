@@ -14,6 +14,13 @@ export function AccountPage(){
   return()=>cancelAnimationFrame(frame);
  },[geminiFirst,location.hash]);
  const [state,setState]=useState<Session|null>(null),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const [quotaRefresh,setQuotaRefresh]=useState(0);
+ useEffect(()=>{
+  const now=Date.now(),dayMs=86400000,offsetMs=8*3600000;
+  const next=Math.floor((now+offsetMs)/dayMs+1)*dayMs-offsetMs;
+  const timer=window.setTimeout(()=>setQuotaRefresh(count=>count+1),next-now+1000);
+  return()=>window.clearTimeout(timer);
+ },[quotaRefresh]);
  useEffect(()=>{
   const controller=new AbortController();
   void fetch("/api/auth/session",{credentials:"same-origin",cache:"no-store",signal:controller.signal})
@@ -22,7 +29,7 @@ export function AccountPage(){
    .catch(()=>{if(!controller.signal.aborted)setError(t("auth.unavailable"))})
    .finally(()=>{if(!controller.signal.aborted)setLoading(false)});
   return()=>controller.abort();
- },[t]);
+ },[t,quotaRefresh]);
  async function signOut(){
   if(busy)return;setBusy(true);setError("");
   try{
