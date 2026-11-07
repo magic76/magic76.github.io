@@ -92,7 +92,37 @@ test("integration keeps an existing detailed report share button and adds identi
  const ui=read("FortuneIdentityCard.tsx");
  assert.match(page,/<FortuneIdentityCard reading=\{reading!\}/);
  assert.match(page,/shareFortuneReading\(reading!\)/);
- assert.match(ui,/shareIdentityCard\(card,locale\)/);
+ assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
  assert.match(ui,/aria-pressed=\{rating===value\}/);
  assert.match(ui,/localStorage\.setItem\(key,value\)/);
+});
+
+test("art manifest covers all ten day masters with ASCII paths and fails closed before review",()=>{
+ const source=read("identityArtwork.ts");
+ const transformed=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
+ const exported={};
+ new Function("exports",transformed+"\nexports.IDENTITY_ARTWORK_PATHS=IDENTITY_ARTWORK_PATHS;exports.APPROVED_IDENTITY_ARTWORK=APPROVED_IDENTITY_ARTWORK;exports.identityArtworkUrl=identityArtworkUrl;")(exported);
+ const {IDENTITY_ARTWORK_PATHS:paths,APPROVED_IDENTITY_ARTWORK:approved,identityArtworkUrl:url}=exported;
+ assert.equal(Object.keys(paths).length,10);
+ for(const stem of masters){
+  const id="bazi-"+stem;
+  assert.match(paths[id],/^bazi-[a-z]+\.webp$/);
+  assert.equal(url(id),null,"Unapproved artwork must never be requested: "+id);
+ }
+ assert.deepEqual(approved,[]);
+ assert.equal(url("bazi-unknown"),null);
+ assert.equal(url("tarot-22"),null);
+});
+test("art is optional and both UI and PNG renderer use the same approved image",()=>{
+ const ui=read("FortuneIdentityCard.tsx");
+ const share=read("identityShare.ts");
+ assert.match(ui,/identityArtworkUrl\(card.id\)/);
+ assert.match(ui,/artRef.current=event.currentTarget/);
+ assert.match(ui,/setArtFailed\(true\)/);
+ assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
+ assert.match(share,/art\?\.complete/);
+ assert.match(share,/ctx.drawImage\(art/);
+ assert.match(share,/Math.min\(936\/art.naturalWidth,353\/art.naturalHeight\)/);
+ assert.match(share,/const canvas=renderIdentityShareCard\(identity,locale,art\),file=pngFile\(canvas\)/);
+ assert.ok(!share.includes("await fetch("));
 });
