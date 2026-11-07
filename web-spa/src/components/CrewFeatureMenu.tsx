@@ -3,9 +3,10 @@ import {useLocation} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import "./crewFeatureMenu.css";
+import {loadUiNamespace} from "../i18n";
 
 // Only the compact trigger ships with Crew's initial JavaScript.
-const CrewFeatureMenuPanel=lazy(()=>import("./CrewFeatureMenuPanel"));
+const CrewFeatureMenuPanel=lazy(()=>Promise.all([loadUiNamespace("featureMenu"),import("./CrewFeatureMenuPanel")]).then(([,component])=>component));
 
 export function CrewFeatureMenu(){
  const {t}=useTranslation("common");
