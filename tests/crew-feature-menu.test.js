@@ -121,15 +121,21 @@ test("five-group accordion is accessible, keyboard-safe and directly navigable",
  assert.match(css,/prefers-reduced-motion:reduce/);
 });
 
-test("accordion and destination arrows are consistent vector chevrons, not font glyphs",()=>{
+test("accordion disclosure uses plus/minus instead of up/down arrows",()=>{
  const panel=read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
- assert.match(panel,/className="crew-feature-menu-chevron" aria-hidden="true">\s*<svg/);
- assert.match(panel,/className="crew-feature-menu-link-arrow" aria-hidden="true">\s*<svg/);
- assert.match(panel,/strokeLinecap="round"/);
- assert.match(panel,/strokeLinejoin="round"/);
+ assert.match(panel,/className="crew-feature-menu-disclosure" aria-hidden="true">\s*<svg/);
+ assert.match(panel,/className="crew-feature-menu-disclosure-plus" d="M12 6v12"/);
+ assert.match(panel,/aria-expanded=\{expanded\}/);
+ assert.doesNotMatch(panel,/className="crew-feature-menu-chevron"/);
  assert.doesNotMatch(panel,/crew-feature-menu-chevron" aria-hidden="true">⌄/);
+ assert.match(css,/\.crew-feature-menu-disclosure svg\{display:block;width:17px;height:17px\}/);
+ assert.match(css,/\.crew-feature-menu-group-trigger\[aria-expanded="true"\] \.crew-feature-menu-disclosure-plus\{opacity:0;transform:rotate\(90deg\)\}/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+});
+
+test("item navigation keeps the slim vector chevron",()=>{
+ const panel=read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
+ assert.match(panel,/className="crew-feature-menu-link-arrow" aria-hidden="true">\s*<svg/);
  assert.doesNotMatch(panel,/crew-feature-menu-link-arrow" aria-hidden="true">›/);
- assert.match(css,/\.crew-feature-menu-chevron svg\{display:block;width:19px;height:19px\}/);
  assert.match(css,/\.crew-feature-menu-link-arrow svg\{display:block;width:16px;height:16px\}/);
- assert.match(css,/\[aria-expanded="true"\] \.crew-feature-menu-chevron\{transform:rotate\(180deg\)\}/);
 });
