@@ -11,6 +11,7 @@ import {geminiKey} from "../lib/runtime";
 import "./homeLiveBubble.css";
 
 const ZOE_LIVE="/friend/live?id=zoe&from=home&entry=bubble";
+function warmLive(){void import("../friends/FriendLivePage").catch(()=>{/* Optional preload only. */})}
 
 /** An immediate Live entry, not an in-home chat or another setup flow. */
 export function HomeLiveBubble(){
@@ -78,9 +79,9 @@ export function HomeLiveBubble(){
   <aside ref={rootRef} className="crew-home-live-bubble" aria-label={t("world.chatHeading")}>
    {showInvite&&<span className="crew-live-bubble-invite" aria-hidden="true">{invite}</span>}
    <Link className="crew-live-bubble-trigger" to={target} onClick={visit}
-    onMouseEnter={()=>{if(!needsSetup)void import("../friends/FriendLivePage")}}
-    onTouchStart={()=>{if(!needsSetup)void import("../friends/FriendLivePage")}}
-    onFocus={()=>{if(!needsSetup)void import("../friends/FriendLivePage")}}
+    onMouseEnter={!needsSetup?warmLive:undefined}
+    onTouchStart={!needsSetup?warmLive:undefined}
+    onFocus={!needsSetup?warmLive:undefined}
     aria-label={needsSetup?t("world.chatExhausted"):t("world.chatWithZoe")}>
     <span className="crew-live-bubble-avatar">
      <img src={zoePortrait} alt="" width="56" height="56" decoding="async"/>

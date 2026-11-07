@@ -52,6 +52,7 @@ export function FriendLivePage(){
 }
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
+ const bubbleEffectiveRef=useRef(false);
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
@@ -86,8 +87,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
-    if(bubbleEntry)trackUsageEvent("home_live_bubble_conversation");
-     if(shortsPost){
+      if(shortsPost){
       trackUsageEvent("shorts_conversation");
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
@@ -108,6 +108,15 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
+ // Guest trials intentionally skip onTurnComplete to avoid memory side effects.
+ // Observe rendered turns instead, so BYOK and guests share the same conversion metric.
+ useEffect(()=>{
+  if(!bubbleEntry||bubbleEffectiveRef.current)return;
+  if(live.turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
+   bubbleEffectiveRef.current=true;
+   trackUsageEvent("home_live_bubble_conversation");
+  }
+ },[bubbleEntry,live.turns]);
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;

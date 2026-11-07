@@ -45,6 +45,7 @@ test("Live bubble analytics and attribution are safely allowlisted",()=>{
   }
  }
  assert.match(live,/params\.get\("entry"\)==="bubble"/);
+ assert.match(live,/live\.turns\.some\(turn=>Boolean\(turn\.input\?\.trim\(\)&&turn\.output\?\.trim\(\)\)\)/);
  assert.match(bubble,/trackUsageEvent\("home_entry_click",needsSetup\?"settings":"friend"\)/);
 });
 test("Live bubble copy is available in all 11 supported site languages",()=>{
