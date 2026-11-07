@@ -27,7 +27,7 @@ export function HomeDiscoveryLine({animate}:{animate:boolean}){
  const visible=!animate||count===null?phrase:characters.slice(0,count).join("");
  useEffect(()=>{
   if(!animate||hover||focused)return;
-  const delay=phase==="hold"?4200:phase==="erase"?35:60;
+  const delay=phase==="hold"?2000:phase==="erase"?20:40;
   const timer=window.setTimeout(()=>{
    if(phase==="hold"){setCount(characters.length);setPhase("erase");return;}
    if(phase==="erase"){
