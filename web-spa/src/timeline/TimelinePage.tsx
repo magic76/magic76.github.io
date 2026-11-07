@@ -68,7 +68,7 @@ export function TimelinePage(){
    const element=slide as HTMLElement;return element.offsetLeft+element.clientWidth/2;
   }),center);
   const next=AGES[closest];
-  if(next!==undefined)setAge(previous=>previous===next?previous:next);
+  if(next!==undefined&&next!==age){setAge(next);trackUsageEvent("timeline_age_selected","timeline")}
  };
  const onRailScroll=()=>{
   const container=rail.current;
@@ -89,6 +89,7 @@ export function TimelinePage(){
   if(next!==undefined&&next!==age){
    programmaticTarget.current=next;
    setAge(next);
+   trackUsageEvent("timeline_age_selected","timeline");
    scrollToAge(next,"instant");
   }
   if(railSettles.current!==undefined)window.clearTimeout(railSettles.current);
