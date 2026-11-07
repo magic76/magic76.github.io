@@ -32,7 +32,7 @@ export function HomeLiveBubble(){
  useEffect(()=>{
   const hero=document.querySelector<HTMLElement>(".crew-home-portal");
   if(!hero)return;
-  if(!("IntersectionObserver" in window)){
+  if(typeof IntersectionObserver==="undefined"){
    const update=()=>{const bounds=hero.getBoundingClientRect();setHeroVisible(bounds.bottom>0&&bounds.top<window.innerHeight)};
    update();
    window.addEventListener("scroll",update,{passive:true});
@@ -54,7 +54,7 @@ export function HomeLiveBubble(){
  useEffect(()=>{
   const node=rootRef.current;
   if(!node)return;
-  if(!("IntersectionObserver" in window)){
+  if(typeof IntersectionObserver==="undefined"){
    if(getComputedStyle(node).display!=="none")trackUsageEvent("home_live_bubble_view");
    return;
   }
