@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
-import {createCrewPwaIcon} from "./scripts/pwa-icons.mjs";
+import {createCrewPwaIcon,createCrewShortcutIcon} from "./scripts/pwa-icons.mjs";
 
 const isCloudflareBuild = process.env.CREW_DEPLOY_TARGET === "cloudflare";
 
@@ -67,6 +67,11 @@ export default defineConfig(({ command }) => {
       generateBundle() {
         for (const [name,size,maskable] of [["crew-180.png",180,false],["crew-192.png",192,false],["crew-512.png",512,false],["crew-maskable-512.png",512,true]] as const) {
           this.emitFile({type:"asset",fileName:"icons/"+name,source:createCrewPwaIcon(size,maskable)});
+        }
+        for (const kind of ["chat","learn","games"] as const) {
+          for (const size of [96,192] as const) {
+            this.emitFile({type:"asset",fileName:`icons/shortcut-${kind}-${size}.png`,source:createCrewShortcutIcon(kind,size)});
+          }
         }
       }
     }],

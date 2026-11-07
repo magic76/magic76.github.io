@@ -455,7 +455,10 @@ function addPwaHeadToHtml(directory){
   if(missing.length)writeFileSync(file,original.replace("</head>",missing.join(newline)+newline+"</head>"));
  }
 }
-for(const name of ["site.webmanifest","sw.js","offline.html","icons/crew-180.png","icons/crew-192.png","icons/crew-512.png","icons/crew-maskable-512.png"]){
+for(const name of ["site.webmanifest","sw.js","offline.html","icons/crew-180.png","icons/crew-192.png","icons/crew-512.png","icons/crew-maskable-512.png",
+ "icons/shortcut-chat-96.png","icons/shortcut-chat-192.png",
+ "icons/shortcut-learn-96.png","icons/shortcut-learn-192.png",
+ "icons/shortcut-games-96.png","icons/shortcut-games-192.png"]){
  if(!existsSync(join(out,name)))throw Error("Missing Crew PWA asset: "+name);
 }
 addPwaHeadToHtml(out);
