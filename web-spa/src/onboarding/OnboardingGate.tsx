@@ -3,6 +3,7 @@ import type {ReactNode} from "react";
 import {useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {LanguageSwitcher} from "../i18n/LanguageSwitcher";
+import {trackUsageEvent,setOnboardingFirstActionPending,clearOnboardingFirstActionPending} from "../analytics/usage";
 import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTrial";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
@@ -14,7 +15,9 @@ export const ONBOARDING_DONE_KEY="crew_onboarding_web_v1";
 const DRAFT_KEY="crew_onboarding_draft_v1";
 type Goal="chat"|"learn"|"play"|"explore";
 const goals:readonly Goal[]=["chat","learn","play","explore"];
-const destinations:Record<Goal,string>={chat:"/chat",learn:"/learn",play:"/games",explore:"/explore"};
+// These destinations are playable first experiences, not category indexes.
+const destinations:Record<Goal,string>={chat:"/friend/live?id=zoe&from=home",learn:"/teacher/live?lesson=daily_u1_l1",play:"/games/number-bomb",explore:"/timeline"};
+const stepDetails=["welcome","goals","preferences"] as const;
 
 function previousCrewActivity():boolean{
  // The UI locale preference is initialized even on a new visit: it is NOT a
@@ -57,6 +60,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
  const [guestAvailable,setGuestAvailable]=useState(false);
  const [step,setStep]=useState(0);
  const [goal,setGoal]=useState<Goal>("chat");
+ const firstAction={chat:c.firstChat,learn:c.firstLearn,play:c.firstPlay,explore:c.firstExplore}[goal];
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
  useEffect(()=>{
@@ -69,7 +73,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
 
 
  const openGuide=useCallback((replay:boolean)=>{
-  if(replay){try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* optional */}}
+  if(replay){try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* optional */}trackUsageEvent("onboarding_replay");}
   const draft=replay?{step:0,goal:"chat" as Goal}:readDraft();
   setStep(draft.step);setGoal(draft.goal);setOpen(true);
  },[]);
@@ -99,6 +103,9 @@ export function OnboardingGate({pathname}:{pathname:string}){
   }catch{/* Private/blocked storage: don't trap someone in repeated onboarding. */}
  },[pathname,openGuide]);
 
+ useEffect(()=>{if(open)trackUsageEvent("onboarding_view")},[open]);
+ useEffect(()=>{if(open)trackUsageEvent("onboarding_step_view",stepDetails[step])},[open,step]);
+
  useEffect(()=>{
   const current=dialog.current;
   if(!current)return;
@@ -107,6 +114,8 @@ export function OnboardingGate({pathname}:{pathname:string}){
  },[open]);
 
  function finish(begin:boolean,chosenGoal:Goal=goal){
+  if(begin){trackUsageEvent("onboarding_start",chosenGoal);setOnboardingFirstActionPending(chosenGoal)}
+  else{trackUsageEvent("onboarding_skip",stepDetails[step]);clearOnboardingFirstActionPending()}
   try{localStorage.setItem(ONBOARDING_DONE_KEY,begin?"completed":"skipped")}catch{/* Optional persistence. */}
   try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* Optional persistence. */}
   dialog.current?.close();setOpen(false);
@@ -121,7 +130,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
   setStep(value);writeDraft(value,goal);
  }
  function choose(value:Goal){
-  setGoal(value);writeDraft(step,value);
+  setGoal(value);writeDraft(step,value);trackUsageEvent("onboarding_goal_select",value);
  }
  const goalCards=[
   {id:"chat" as const,symbol:"✦",title:c.chat,description:c.chatDesc},
@@ -150,7 +159,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
-     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/friend/live?id=zoe")}}>{t("guestTrial.onboardingCTA")} →</button>}
+     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>finish(true,"chat")}>{t("guestTrial.onboardingCTA")} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>
@@ -179,6 +188,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
        </select>
       </label>:null}
      </div>
+     <div className="crew-onboarding-first-action" role="status"><span aria-hidden="true">✦</span><strong>{firstAction}</strong></div>
      <p className="crew-onboarding-note">{c.keyNote}</p>
     </section>:null}
    </div>
@@ -186,7 +196,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
     <div className="crew-onboarding-actions">
      {step>0?<button type="button" className="crew-onboarding-back" onClick={back}>{c.back}</button>:null}
      <button type="button" className="crew-onboarding-primary" onClick={()=>step===2?finish(true):next()}>
-      {step===2?c.start:c.next}<span aria-hidden="true">→</span>
+      {step===2?firstAction:c.next}<span aria-hidden="true">→</span>
      </button>
     </div>
     <button type="button" className="crew-onboarding-skip" onClick={()=>finish(false)}>{c.skip}</button>
