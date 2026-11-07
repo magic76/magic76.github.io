@@ -21,6 +21,7 @@ import "./i18n";
 import i18n,{localeResourcesReady} from "./i18n";
 import {localeFromPublicPath,localePrefix,normalizeUiLocale,preferredPublicLocaleDestination} from "./i18n/localeCatalog";
 import { App } from "./App";
+
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
 const root = document.getElementById("root");

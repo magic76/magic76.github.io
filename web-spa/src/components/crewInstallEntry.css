@@ -1,0 +1,5 @@
+.crew-install-entry{display:flex;align-items:center;gap:10px;flex-wrap:wrap;max-width:100%;font:inherit}
+.crew-install-action{background:transparent;color:inherit;border:1px solid currentColor;border-radius:12px;min-height:44px;padding:8px 13px;font:inherit;font-weight:750;font-size:12px;cursor:pointer}
+.crew-install-action:focus-visible,.crew-install-guide button:focus-visible{outline:3px solid var(--accent,#ff9a00);outline-offset:2px}
+.crew-install-guide{display:flex;align-items:center;gap:10px;width:100%;max-width:340px;font-size:13px;line-height:1.6}
+.crew-install-guide button{border:0;background:transparent;color:inherit;font:inherit;font-size:24px;min-width:44px;min-height:44px;cursor:pointer}
