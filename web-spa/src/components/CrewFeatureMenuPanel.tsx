@@ -34,7 +34,7 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
 ];
 
 export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>void;triggerRef:RefObject<HTMLButtonElement|null>}){
- const {t}=useTranslation("common");
+ const {t}=useTranslation("featureMenu");
  const closeRef=useRef<HTMLButtonElement>(null);
  const dialogRef=useRef<HTMLElement>(null);
  useEffect(()=>{
@@ -71,21 +71,21 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
    <aside id="crew-feature-menu-dialog" className="crew-feature-menu-panel" ref={dialogRef} role="dialog"
     aria-modal="true" aria-labelledby="crew-feature-menu-title">
     <div className="crew-feature-menu-heading">
-     <div><h2 id="crew-feature-menu-title">{t("featureMenu.title")}</h2>
-      <p>{t("featureMenu.subtitle")}</p></div>
+     <div><h2 id="crew-feature-menu-title">{t("title")}</h2>
+      <p>{t("subtitle")}</p></div>
      <button className="crew-feature-menu-close" type="button" ref={closeRef}
-      onClick={onClose} aria-label={t("featureMenu.close")}>×</button>
+      onClick={onClose} aria-label={t("close")}>×</button>
     </div>
-    <nav className="crew-feature-menu-content" aria-label={t("featureMenu.title")}>
+    <nav className="crew-feature-menu-content" aria-label={t("title")}>
      {FEATURE_MENU_GROUPS.map(group=>
       <section key={group.id} className="crew-feature-menu-section" aria-labelledby={"crew-menu-group-"+group.id}>
-       <h3 id={"crew-menu-group-"+group.id}>{t("featureMenu.groups."+group.id)}</h3>
+       <h3 id={"crew-menu-group-"+group.id}>{t("groups."+group.id)}</h3>
        <div className="crew-feature-menu-grid">
         {group.items.map(item=><Link key={item.id} to={item.to} className="crew-feature-menu-card"
          onClick={()=>{trackUsageEvent("menu_item_click",item.detail);onClose()}}>
          <span className="crew-feature-menu-icon" aria-hidden="true">{item.icon}</span>
-         <strong>{t("featureMenu.items."+item.id+".title")}</strong>
-         <small>{t("featureMenu.items."+item.id+".desc")}</small>
+         <strong>{t("items."+item.id+".title")}</strong>
+         <small>{t("items."+item.id+".desc")}</small>
         </Link>)}
        </div>
       </section>)}
