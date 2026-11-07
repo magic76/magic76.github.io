@@ -559,5 +559,10 @@
     "playDescription": "Thử thách AI bằng một trò chơi.",
     "soulsDescription": "Cho đồ vật thường ngày biết nói.",
     "learnDescription": "Học một câu ngoại ngữ mới."
+  },
+  "liveBubble": {
+    "invite": "Chào! Trò chuyện chút nhé?",
+    "start": "Trò chuyện",
+    "setup": "Cài Key"
   }
 }

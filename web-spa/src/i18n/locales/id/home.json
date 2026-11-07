@@ -559,5 +559,10 @@
     "playDescription": "Tantang AI bermain game.",
     "soulsDescription": "Buat benda sehari-hari bisa berbicara.",
     "learnDescription": "Pelajari frasa bahasa baru."
+  },
+  "liveBubble": {
+    "invite": "Hai, mau ngobrol sebentar?",
+    "start": "Ngobrol",
+    "setup": "Atur Key"
   }
 }

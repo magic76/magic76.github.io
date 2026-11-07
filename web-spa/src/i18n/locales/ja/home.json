@@ -559,5 +559,10 @@
     "playDescription": "AI とゲームで勝負しよう。",
     "soulsDescription": "身近な物をおしゃべりさせよう。",
     "learnDescription": "外国語のひと言に挑戦しよう。"
+  },
+  "liveBubble": {
+    "invite": "ねえ、少しおしゃべりしない？",
+    "start": "話そう",
+    "setup": "Key 設定"
   }
 }

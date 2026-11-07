@@ -52,11 +52,13 @@ export function FriendLivePage(){
 }
 function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPost|null;postUnavailable:boolean}){
  const [guestStarted,setGuestStarted]=useState(false);
+ const bubbleEffectiveRef=useRef(false);
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
+ const bubbleEntry=params.get("entry")==="bubble"&&params.get("from")==="home";
  const homeFirstAction=params.get("from")==="home"&&HOME_FRIEND_IDS.includes(params.get("id")||"")&&!shortsPost&&!textMode&&!geminiKey();
  const intent=shortsPost?null:conversationIntent(params.get("intent"),"friend");
  const urlHook=params.get("hook");
@@ -85,7 +87,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
   onTurnComplete:(_turn,completedTurns)=>{
    if(!usageSentRef.current&&completedTurns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
     usageSentRef.current=true;trackUsageEvent("friend_conversation");
-     if(shortsPost){
+      if(shortsPost){
       trackUsageEvent("shorts_conversation");
       rememberShortsConversation(shortsPost); // Only after a real two-sided exchange.
      }
@@ -106,12 +108,21 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    void rememberFriendConversation(sessionId,language,item.turns,item.durationMs);
   }
  });
+ // Guest trials intentionally skip onTurnComplete to avoid memory side effects.
+ // Observe rendered turns instead, so BYOK and guests share the same conversion metric.
+ useEffect(()=>{
+  if(!bubbleEntry||bubbleEffectiveRef.current)return;
+  if(live.turns.some(turn=>Boolean(turn.input?.trim()&&turn.output?.trim()))){
+   bubbleEffectiveRef.current=true;
+   trackUsageEvent("home_live_bubble_conversation");
+  }
+ },[bubbleEntry,live.turns]);
  const endAndReturn=async()=>{
   if(closingRef.current)return;
   closingRef.current=true;
   try{await live.stop(true)}finally{navigate(shortsReturnTo|| (intent==="speak"?"/learn":"/teacher/roles?mode=friends"))}
  };
- useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start")}},[live.state]);
+ useEffect(()=>{if((live.state==="listening"||live.state==="speaking")&&!usageStartedRef.current){usageStartedRef.current=true;trackUsageEvent("friend_conversation_start");if(bubbleEntry)trackUsageEvent("home_live_bubble_connected")}},[live.state]);
  // Start once after mounting, without double-starting under React StrictMode.
  useEffect(()=>{if(textMode||!geminiKey()||shortsPost)return;const timer=window.setTimeout(()=>{void live.start()},0);return()=>window.clearTimeout(timer)},[live.start,textMode,shortsPost]);
  useEffect(()=>{document.body.className="teacher-theme session-page friend-session-page";return()=>{document.body.className=""}},[]);

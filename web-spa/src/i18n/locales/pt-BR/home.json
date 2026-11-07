@@ -559,5 +559,10 @@
     "playDescription": "Desafie a IA em um jogo.",
     "soulsDescription": "Dê voz a um objeto do dia a dia.",
     "learnDescription": "Aprenda uma frase em outro idioma."
+  },
+  "liveBubble": {
+    "invite": "Oi! Vamos conversar?",
+    "start": "Conversar",
+    "setup": "Config. Key"
   }
 }
