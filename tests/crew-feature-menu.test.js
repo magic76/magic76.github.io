@@ -6,7 +6,7 @@ const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 
 const menuFile="web-spa/src/components/CrewFeatureMenu.tsx";
-const menu=read(menuFile);
+const menu=read(menuFile)+"\n"+read("web-spa/src/components/CrewFeatureMenuPanel.tsx");
 const css=read("web-spa/src/components/crewFeatureMenu.css");
 
 test("all 15 feature destinations are direct, named Crew routes",()=>{
@@ -27,6 +27,7 @@ test("all 15 feature destinations are direct, named Crew routes",()=>{
 test("drawer is discoverable across the site while preserving the five-tab navigation",()=>{
  const chrome=read("web-spa/src/components/AppChrome.tsx");
  assert.ok(chrome.includes("<CrewFeatureMenu/>"),"drawer belongs to the shared header");
+ assert.ok(read(menuFile).includes('lazy(()=>import("./CrewFeatureMenuPanel"))'),"initial JS must not load the full feature catalog");
  for(const id of ["home","chat","explore","learn","me"])assert.ok(chrome.includes('id:"'+id+'"'),id+" tab remains");
  assert.match(menu,/aria-haspopup="dialog"/);
  assert.match(menu,/aria-expanded=\{open\}/);
