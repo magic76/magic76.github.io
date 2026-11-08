@@ -140,7 +140,12 @@
       "key": "Kunci Gemini tidak valid. Buka pengaturan.",
       "other": "Tidak dapat memperoleh jawaban. Coba lagi.",
       "settings": "Buka pengaturan"
-    }
+    },
+    "aiCtaTitle": "Ingin memahami baganmu lebih dalam?",
+    "aiCtaDesc": "AI menjelaskan kepribadian, karier, hubungan, dan fase hidup berdasarkan bagan yang sudah dihitung.",
+    "aiCtaGenerate": "Dapatkan analisis AI saya",
+    "aiCtaRead": "Baca analisis AI saya",
+    "aiCtaSetup": "Atur Gemini untuk analisis AI"
   },
   "profile": {
     "birthdayRequired": "Pilih tanggal lahir sebelum menyimpan",
