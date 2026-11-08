@@ -177,3 +177,42 @@
 .fortune-reading-disclaimer{display:block;color:var(--muted);line-height:1.6;text-align:center}
 .fortune-local-collapse>.fortune-reading-chapters{margin-top:12px}
 @media(max-width:640px){.fortune-summary-card{padding:17px 16px;min-height:200px}.fortune-summary-card h3{font-size:21px}}
+
+/* Reading-first Fortune result: one visible AI CTA, optional reference data and follow-up. */
+.fortune-ai-entry{display:grid;gap:15px;margin:10px 0 25px;padding:22px;border:1px solid #d7cdf2;border-radius:21px;background:linear-gradient(120deg,#f1ecff,#faf7ff 78%);color:#30264f}
+.fortune-ai-entry-heading{display:flex;align-items:flex-start;gap:12px}
+.fortune-ai-entry-heading>div{min-width:0;flex:1}
+.fortune-ai-entry-icon{display:grid;place-items:center;flex:0 0 42px;width:42px;height:42px;border-radius:14px;background:#dfd3ff;color:#5e43b3;font-size:23px}
+.fortune-ai-entry h3{margin:0 0 7px;font-size:clamp(18px,3vw,21px);line-height:1.4;color:#30264f}
+.fortune-ai-entry-heading p{font-size:14px;line-height:1.75;color:#554b70;margin:0}
+.fortune-ai-entry-button{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;min-height:54px;border:0;border-radius:14px;background:#6a5ae0;color:white;box-shadow:0 7px 17px #5144a43b;font:inherit;font-size:16px;font-weight:750;line-height:1.4;cursor:pointer;transition:background-color .16s,transform .16s,box-shadow .16s}
+.fortune-ai-entry-button:not(:disabled):hover{background:#5744c5;transform:translateY(-1px);box-shadow:0 9px 18px #5144a44d}
+.fortune-ai-entry-button:focus-visible,.fortune-reading-secondary-action:focus-visible,.fortune-reading-edit:focus-visible{outline:3px solid #937bea;outline-offset:3px}
+.fortune-ai-entry-button:disabled{cursor:progress;opacity:.8}
+.fortune-ai-entry[data-state="loading"] .fortune-ai-entry-icon{animation:fortune-reading-sparkle 1.7s ease-in-out infinite}
+@keyframes fortune-reading-sparkle{50%{transform:scale(1.08);filter:brightness(1.1)}}
+.fortune-ai-entry-status,.fortune-ai-entry-error,.fortune-ai-entry-setup>p{margin:0;font-size:13px;line-height:1.7}
+.fortune-ai-entry-error{color:#963f54}
+.fortune-ai-entry-setup{min-width:0;display:grid;gap:10px}
+.fortune-reading-overview{max-width:100%}
+.fortune-reading-overview .fortune-reading-chapters{grid-template-columns:minmax(0,1fr);max-width:820px}
+.fortune-reading-chapter-content>p{font-size:16px;line-height:1.85}
+.fortune-reading-data{display:grid;gap:14px}
+.fortune-reading-data>.fortune-reading-metrics,.fortune-reading-data>.fortune-reading-elements{margin-top:13px}
+.fortune-reading-extra{margin:12px 0;border:1px solid var(--line,#e5e7eb);border-radius:16px;background:var(--surface,#fff);overflow:hidden}
+.fortune-reading-extra>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:54px;padding:15px 18px;font-size:15px;font-weight:700;cursor:pointer}
+.fortune-reading-extra>summary::-webkit-details-marker{display:none}
+.fortune-reading-extra>summary:after{content:"＋";font-size:20px;color:var(--muted)}
+.fortune-reading-extra[open]>summary:after{content:"－"}
+.fortune-reading-extra-body{padding:0 18px 18px;min-width:0}
+.fortune-reading-extra-body .fortune-identity-compact{margin:0}
+.fortune-reading-extra-body .fortune-identity-compact>.fortune-identity-more{margin:0}
+.fortune-reading-extra .fortune-follow-up{margin:0}
+.fortune-reading-end{display:grid;gap:12px;margin:22px 0 10px;padding:19px 0 10px;border-top:1px solid var(--line,#e5e7eb)}
+.fortune-reading-end-actions{display:flex;flex-wrap:wrap;gap:10px}
+.fortune-reading-secondary-action,.fortune-reading-end .fortune-teacher-primary-action{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 16px;border:1px solid var(--line,#ddd6ed);border-radius:12px;background:var(--surface,#fff);color:var(--text,#30264f);font:inherit;font-size:14px;font-weight:700;box-shadow:none;cursor:pointer}
+.fortune-reading-end .fortune-teacher-primary-action:hover{background:var(--surface-alt,#f7f5fc);box-shadow:none;transform:none}
+.fortune-reading-end .fortune-conversation-actions{min-width:0}
+.fortune-reading-edit{justify-self:start;min-height:44px;padding:9px 4px;background:transparent;border:0;color:var(--muted);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+@media(max-width:640px){.fortune-ai-entry{padding:17px;gap:13px}.fortune-ai-entry-heading{gap:10px}.fortune-reading-extra-body{padding:0 14px 15px}.fortune-reading-chapter-content>p{font-size:16px}.fortune-reading-end-actions{display:grid;grid-template-columns:1fr}.fortune-reading-end-actions>*{width:100%}.fortune-reading-end .fortune-teacher-primary-action{width:100%}}
+@media(prefers-reduced-motion:reduce){.fortune-ai-entry[data-state="loading"] .fortune-ai-entry-icon{animation:none}.fortune-ai-entry-button{transition:none}.fortune-ai-entry-button:hover{transform:none}}
