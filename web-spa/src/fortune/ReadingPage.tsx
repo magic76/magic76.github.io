@@ -12,6 +12,7 @@ export function FortuneReadingPage(){
  const activeRequest=useRef({id:null as string|null,seq:0});
  const[formError,setFormError]=useState("");
  const[shareOpen,setShareOpen]=useState(false);
+ const[showAiSetup,setShowAiSetup]=useState(false);
  const[oneLine,setOneLine]=useState("");
  const readingRef=useRef<FortuneReading|null>(null);
  const[revealId,setRevealId]=useState<string|null>(null),[aiRevealId,setAiRevealId]=useState<string|null>(null);
@@ -51,7 +52,7 @@ export function FortuneReadingPage(){
  async function interpret(item:FortuneReading){
   const seq=++activeRequest.current.seq,id=item.id;
   activeRequest.current.id=id;
-  if(!geminiKey()||!window.CrewAI){setAiStatus("idle");return}
+  if(!geminiKey()||!window.CrewAI){setAiStatus(geminiKey()?"error":"idle");return}
   setAiStatus("loading");
   const style=p.aiStyle==="strict"?"語氣嚴謹，清楚區分固定 facts 與主觀解讀。":p.aiStyle==="funny"?"可以輕鬆一點，但不要拿疾病、死亡、災難或重大損失開玩笑。":"白話、直接、有重點。";
   try{
@@ -82,7 +83,7 @@ export function FortuneReadingPage(){
    activeRequest.current.id=item.id;activeRequest.current.seq++;trackUsageEvent("fortune_calculated",mode);setRevealId(item.id);readingRef.current=item;setReading(item);setShareOpen(false);setAiStatus(geminiKey()?"loading":"idle");setShowInput(false);window.CrewFortuneProfile.addHistory(item);addHistory("fortune",{id:"fortune-reading:"+item.id,historyId:item.id,surface:"reading",title:t("home."+mode),summary:item.summary,preview:"固定計算結果已完成。"});localStorage.setItem("crew_fortune_live_context",JSON.stringify(item));void interpret(item);
   }catch{setLoadError(t("reading.calcFailed"))}finally{setBusy(false)}
  }
- function ask(topic?:string){if(!reading)return;if(!geminiKey()){document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"});return}if(topic){const topics:Record<string,string>={overview:"整體底盤",personality:"性格與天賦",career:"事業與職涯",wealth:"財富與資源",relationships:"感情與人際",family:"家庭與生活",currentCycle:"人生階段",longTerm:"長期節奏",keyYears:"重要年份",advice:"如何使用解讀"};localStorage.setItem("crew_fortune_live_prompt","請先針對這份已計算命盤的「"+(topics[topic]||topic)+"」主題做白話講解，說明實際命盤依據及傳統上的意義，不編造事件或機率。")}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
+ function ask(topic?:string){if(!reading)return;if(!geminiKey()){setShowAiSetup(true);window.requestAnimationFrame(()=>document.getElementById("fortune-ai-setup")?.scrollIntoView({behavior:"smooth",block:"center"}));return}if(topic){const topics:Record<string,string>={overview:"整體底盤",personality:"性格與天賦",career:"事業與職涯",wealth:"財富與資源",relationships:"感情與人際",family:"家庭與生活",currentCycle:"人生階段",longTerm:"長期節奏",keyYears:"重要年份",advice:"如何使用解讀"};localStorage.setItem("crew_fortune_live_prompt","請先針對這份已計算命盤的「"+(topics[topic]||topic)+"」主題做白話講解，說明實際命盤依據及傳統上的意義，不編造事件或機率。")}localStorage.setItem("crew_fortune_live_context",JSON.stringify(reading));nav("/fortune/live?from=reading")}
  const teacherReady=Boolean(geminiKey());
  const teacherAction=<button type="button" className="fortune-teacher-primary-action" onClick={()=>ask()}>{teacherReady?t("reading.askTeacherAction"):t("reading.askTeacherSetup")} <span aria-hidden="true">→</span></button>;
  const Result=reading?.mode==="bazi"?BaZiTabs:reading?.mode==="tarot"?TarotTabs:VedicTabs;
@@ -90,9 +91,15 @@ export function FortuneReadingPage(){
  const labels=fortuneCopy(locale);
  const cardView=reading?buildFortuneCardModel(reading.mode,reading.result,locale,oneLine):null;
  function goDeep(){
-  const target=document.getElementById("fortune-deep-exploration");
+  const target=document.getElementById("fortune-reading-report");
   target?.focus({preventScroll:true});
   target?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
+ }
+ function openAiReading(){
+  if(!reading)return;
+  if(reading.ai){goDeep();return}
+  if(!geminiKey()){setShowAiSetup(true);return}
+  void interpret(reading);
  }
  return <><Link className="text-button" to="/fortune">‹ Crew Fortune</Link>{showInput&&<section className="hero"><span className="kicker">Crew Fortune</span><h1>{t("home."+mode)}</h1><p>{t("reading.intro."+mode)}</p></section>}
  {loadError&&<div className="spa-error" role="alert">{loadError}<button className="btn secondary" onClick={()=>window.location.reload()}>{t("reading.retry")}</button></div>}
@@ -106,23 +113,31 @@ export function FortuneReadingPage(){
    <span className="kicker">CREW FORTUNE · {cardView?.modeLabel}</span>
    <h2>{cardView?.title}</h2><p className="fortune-collectible-tagline">{cardView?.tagline}</p>
    <div className="fortune-identity-chips">{cardView?.chips.map(chip=><span key={chip}>{chip}</span>)}</div>
-   <div className="fortune-collectible-actions">
-    <button className="btn" type="button" onClick={()=>setShareOpen(true)}>{labels.share}</button>
-    <button className="btn secondary" type="button" onClick={goDeep}>{labels.deep}</button>
-   </div>
    <small className="fortune-collectible-date">{formatFortuneShareDate(reading!.createdAt)}</small>
   </div>
  </div>
+
  <section id="fortune-deep-exploration" className="fortune-deep-exploration" tabIndex={-1}>
-  <div className="fortune-deep-heading">
-   <h3>{labels.deep}</h3><button className="btn secondary small" type="button" onClick={()=>{activeRequest.current.id=null;activeRequest.current.seq++;setRevealId(null);setShareOpen(false);setShowInput(true)}}>{t("reading.edit")}</button>
-  </div>
- <FortuneSummaryCard mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())} ai={reading!.ai||""} loading={aiStatus==="loading"} onHeadline={setOneLine}/><FortuneIdentityCard reading={reading!} onContinue={goDeep} onShare={()=>setShareOpen(true)}/><FortuneDailyStrip reading={reading!}/><section className="fortune-teacher-invite" aria-label={t("reading.askTeacherTitle")}><div className="fortune-teacher-invite-copy"><span className="fortune-teacher-eyebrow">{t("reading.askTeacherEyebrow")}</span><h3>{t("reading.askTeacherTitle")}</h3><p>{t("reading.askTeacherDesc")}</p></div><div className="fortune-conversation-actions">{teacherAction}</div></section><FortuneReadingOverview mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())} ai={reading!.ai||""} onAsk={id=>ask(id)}/><FortuneYearHighlights mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())}/>
-  {aiStatus==="loading"&&<div className="notice" role="status"><div><b>{t("reading.aiLoading")}</b><p>{t("reading.aiLoadingDesc")}</p></div></div>}
-  {aiStatus==="error"&&<div className="spa-error" role="alert"><p>{t("reading.aiFailed")}</p><button className="btn secondary small" onClick={()=>void interpret(reading!)}>{t("reading.aiRetry")}</button></div>}
-  {aiStatus==="idle"&&!reading?.ai&&(!geminiKey()?
-   <div className="notice" id="fortune-ai-setup"><div><b>{t("reading.fixedDone")}</b><p>{t("reading.needKey")}</p><GeminiSetupNotice returnTo={"/fortune/reading?history="+encodeURIComponent(reading!.id)}/></div></div>:
-   <div className="notice"><div><b>{t("reading.fixedDone")}</b><p>{t("reading.aiNotGenerated")}</p><button className="btn secondary small" onClick={()=>void interpret(reading!)}>{t("reading.generateAI")}</button></div></div>
-  )}<Result result={reading!.result} ai={reading!.ai||""}/><FortuneFollowUp reading={reading!} isCurrent={()=>activeRequest.current.id===reading!.id} onSave={updated=>{const latest=readingRef.current;if(activeRequest.current.id!==updated.id||latest?.id!==updated.id)return;const merged={...latest,followups:updated.followups};readingRef.current=merged;setReading(merged);window.CrewFortuneProfile.addHistory(merged);localStorage.setItem("crew_fortune_live_context",JSON.stringify(merged));}}/><section className="fortune-teacher-followup"><div><h3>{t("reading.askMore")}</h3><p>{t("reading.askDesc")}</p></div><div className="fortune-conversation-actions">{teacherAction}</div></section></section></section>}
+  <div className="fortune-deep-heading"><h3>{labels.deep}</h3></div>
+  <FortuneSummaryCard mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())} ai={reading!.ai||""} loading={aiStatus==="loading"} onHeadline={setOneLine}/>
+  <section className="fortune-ai-entry" aria-label={t("reading.aiCtaTitle")} data-state={reading!.ai?"ready":aiStatus}>
+   <div className="fortune-ai-entry-heading"><span className="fortune-ai-entry-icon" aria-hidden="true">✦</span><div><h3>{t("reading.aiCtaTitle")}</h3><p>{t("reading.aiCtaDesc")}</p></div></div>
+   <button className="fortune-ai-entry-button" type="button" onClick={openAiReading} disabled={aiStatus==="loading"}>
+    {aiStatus==="loading"?t("reading.aiLoading"):reading!.ai?t("reading.aiCtaRead"):aiStatus==="error"?t("reading.aiRetry"):geminiKey()?t("reading.aiCtaGenerate"):t("reading.aiCtaSetup")} <span aria-hidden="true">→</span>
+   </button>
+   {aiStatus==="loading"&&<p className="fortune-ai-entry-status" role="status">{t("reading.aiLoadingDesc")}</p>}
+   {aiStatus==="error"&&!reading!.ai&&<p className="fortune-ai-entry-error" role="alert">{t("reading.aiFailed")}</p>}
+   {showAiSetup&&!geminiKey()&&<div className="fortune-ai-entry-setup" id="fortune-ai-setup"><p>{t("reading.needKey")}</p><GeminiSetupNotice returnTo={"/fortune/reading?history="+encodeURIComponent(reading!.id)}/></div>}
+  </section>
+  <FortuneReadingOverview mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())} ai={reading!.ai||""}/>
+  <details className="fortune-reading-extra"><summary>{t("reading.topic.keyYears")}</summary><div className="fortune-reading-extra-body"><FortuneDailyStrip reading={reading!}/><FortuneYearHighlights mode={reading!.mode} result={reading!.result} phase={computeCurrentPhase(reading!.mode,reading!.result,reading!.profile.birthDate,new Date())}/></div></details>
+  <details className="fortune-reading-extra"><summary>{labels.details}</summary><div className="fortune-reading-extra-body"><FortuneIdentityCard reading={reading!} onContinue={goDeep} onShare={()=>setShareOpen(true)} compact/></div></details>
+  <details className="fortune-reading-extra"><summary>{t("reading.tab.details")}</summary><div className="fortune-reading-extra-body"><Result result={reading!.result} ai={reading!.ai||""}/></div></details>
+  <details className="fortune-reading-extra"><summary>{t("reading.followup.title")}</summary><div className="fortune-reading-extra-body"><FortuneFollowUp reading={reading!} isCurrent={()=>activeRequest.current.id===reading!.id} onSave={updated=>{const latest=readingRef.current;if(activeRequest.current.id!==updated.id||latest?.id!==updated.id)return;const merged={...latest,followups:updated.followups};readingRef.current=merged;setReading(merged);window.CrewFortuneProfile.addHistory(merged);localStorage.setItem("crew_fortune_live_context",JSON.stringify(merged));}}/></div></details>
+  <footer className="fortune-reading-end">
+   <div className="fortune-reading-end-actions"><button className="fortune-reading-secondary-action" type="button" onClick={()=>setShareOpen(true)}>{labels.share}</button><div className="fortune-conversation-actions">{teacherAction}</div></div>
+   <button className="fortune-reading-edit" type="button" onClick={()=>{activeRequest.current.id=null;activeRequest.current.seq++;setShowAiSetup(false);setShareOpen(false);setShowInput(true)}}>{t("reading.edit")}</button>
+  </footer>
+ </section></section>}
  {reading&&!showInput&&<FortuneShareDialog reading={reading} oneLine={oneLine} open={shareOpen} onClose={()=>setShareOpen(false)}/>}
  </>}
