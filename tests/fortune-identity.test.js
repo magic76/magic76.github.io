@@ -85,7 +85,8 @@ test("English fallback and privacy: generated content never embeds raw private p
  assert.ok(share.includes("identity:FortuneIdentity"));
  assert.ok(!share.includes("reading.profile"));
  assert.ok(!share.includes("birthDate"));
- assert.ok(share.includes("navigator.canShare"));
+ assert.ok(share.includes("nativeCollectibleShare"));
+ assert.match(read("fortuneCardCanvas.ts"),/navigator\.canShare/);
 });
 test("reading and detail now share a single preview, not two competing shares",()=>{
  const page=read("ReadingPage.tsx");
