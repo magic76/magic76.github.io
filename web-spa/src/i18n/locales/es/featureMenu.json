@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Historial de fortuna",
       "desc": "Consulta cartas anteriores"
+    },
+    "feedback": {
+      "title": "Comentarios",
+      "desc": "Informa problemas o sugiere mejoras"
     }
   },
   "featureCount": "funciones"

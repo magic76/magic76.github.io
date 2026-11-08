@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "聯絡我們",
-    "region": "聯絡資訊"
+    "region": "聯絡資訊",
+    "feedback": "意見回饋"
   },
   "seo": {
     "home": "Crew — 免費 AI 語音試用與語言學習",
@@ -107,7 +108,7 @@
     "verification": "驗證未通過，請重新驗證。",
     "tempUnavailable": "目前無法啟動免費試玩，請稍後再試。",
     "remaining": "剩餘免費試用：{{count}} / {{limit}} 次",
-     "memberRemaining": "今日剩餘免費體驗：{{count}} / {{limit}} 次",
+    "memberRemaining": "今日剩餘免費體驗：{{count}} / {{limit}} 次",
     "usedUpTitle": "免費體驗已用完",
     "free1a2b": "先玩 1A2B（免費）",
     "freeVocabulary": "看今日單字",

@@ -1,0 +1,30 @@
+{
+  "title": "Enviar feedback",
+  "intro": "Encontrou um problema ou teve uma ideia? Conte para nós, sem login.",
+  "typeLabel": "Tipo de feedback",
+  "types": {
+    "bug": "Relatar problema",
+    "idea": "Sugerir recurso",
+    "other": "Outro"
+  },
+  "detailsLabel": "Sua mensagem",
+  "detailsPlaceholder": "O que aconteceu? O que podemos melhorar?",
+  "detailsHelp": "10 a 1.500 caracteres. Não inclua senhas ou chaves de API.",
+  "emailLabel": "E-mail de contato (opcional)",
+  "emailPlaceholder": "you@example.com",
+  "pageLabel": "Página de origem",
+  "privacy": "Enviamos apenas a mensagem e o caminho da página para nosso rastreador privado.",
+  "send": "Enviar feedback",
+  "sending": "Enviando…",
+  "successTitle": "Obrigado por ajudar o Crew!",
+  "successBody": "Recebemos seu feedback.",
+  "reference": "Referência",
+  "error": "Não foi possível enviar. Sua mensagem permanece aqui.",
+  "unavailable": "O formulário está indisponível no momento.",
+  "emailFallback": "Enviar por e-mail",
+  "emailHint": "Seu aplicativo de e-mail abrirá. Você precisa enviar a mensagem.",
+  "captchaLoading": "Carregando verificação…",
+  "captchaNeeded": "Conclua a verificação.",
+  "required": "Digite pelo menos 10 caracteres.",
+  "back": "Voltar ao Crew"
+}

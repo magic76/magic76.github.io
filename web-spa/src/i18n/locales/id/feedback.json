@@ -1,0 +1,30 @@
+{
+  "title": "Kirim masukan",
+  "intro": "Ada masalah atau ide? Beri tahu kami tanpa perlu masuk.",
+  "typeLabel": "Jenis masukan",
+  "types": {
+    "bug": "Laporkan masalah",
+    "idea": "Sarankan fitur",
+    "other": "Lainnya"
+  },
+  "detailsLabel": "Masukan Anda",
+  "detailsPlaceholder": "Apa yang terjadi atau perlu diperbaiki?",
+  "detailsHelp": "10–1.500 karakter. Jangan tulis kata sandi atau kunci API.",
+  "emailLabel": "Email kontak (opsional)",
+  "emailPlaceholder": "you@example.com",
+  "pageLabel": "Halaman asal",
+  "privacy": "Kami hanya mengirim isi pesan dan path halaman ke pelacak privat.",
+  "send": "Kirim masukan",
+  "sending": "Mengirim…",
+  "successTitle": "Terima kasih sudah membantu Crew!",
+  "successBody": "Masukan Anda telah diterima.",
+  "reference": "Nomor referensi",
+  "error": "Gagal mengirim. Pesan Anda masih tersimpan di layar.",
+  "unavailable": "Formulir sedang tidak tersedia.",
+  "emailFallback": "Kirim lewat email",
+  "emailHint": "Aplikasi email akan dibuka. Anda perlu menekan kirim.",
+  "captchaLoading": "Memuat verifikasi…",
+  "captchaNeeded": "Selesaikan verifikasi terlebih dahulu.",
+  "required": "Tulis setidaknya 10 karakter.",
+  "back": "Kembali ke Crew"
+}

@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Contact",
-    "region": "Contact information"
+    "region": "Contact information",
+    "feedback": "Feedback"
   },
   "seo": {
     "home": "Crew — Free AI Voice Trial & Language Learning",
@@ -107,7 +108,7 @@
     "verification": "Verification failed. Please try again.",
     "tempUnavailable": "Guest trial is temporarily unavailable.",
     "remaining": "Free voice trials remaining: {{count}} / {{limit}}",
-     "memberRemaining": "Today's free trials remaining: {{count}} / {{limit}}",
+    "memberRemaining": "Today's free trials remaining: {{count}} / {{limit}}",
     "usedUpTitle": "Your free trial is used up",
     "free1a2b": "Play 1A2B (free)",
     "freeVocabulary": "Word of the day",

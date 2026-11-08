@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "占い履歴",
       "desc": "過去の命盤を見る"
+    },
+    "feedback": {
+      "title": "ご意見・ご感想",
+      "desc": "不具合の報告や改善の提案"
     }
   },
   "featureCount": "機能"

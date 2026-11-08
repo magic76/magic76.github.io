@@ -1,0 +1,30 @@
+{
+  "title": "Send feedback",
+  "intro": "Found a problem or have an idea? Tell us what happened. No account needed.",
+  "typeLabel": "What is this about?",
+  "types": {
+    "bug": "Report a problem",
+    "idea": "Suggest a feature",
+    "other": "Other feedback"
+  },
+  "detailsLabel": "Your feedback",
+  "detailsPlaceholder": "What happened? What would make Crew better?",
+  "detailsHelp": "10–1,500 characters. Please don't include passwords, API keys or private conversations.",
+  "emailLabel": "Contact email (optional)",
+  "emailPlaceholder": "you@example.com",
+  "pageLabel": "From page",
+  "privacy": "We only submit what you enter and the page path to our private issue tracker. We do not attach chats, recordings or API keys.",
+  "send": "Send feedback",
+  "sending": "Sending…",
+  "successTitle": "Thanks for helping Crew improve!",
+  "successBody": "Your feedback has been received. You can keep exploring Crew.",
+  "reference": "Reference",
+  "error": "Could not send your feedback. Your text is still here; please retry or use email.",
+  "unavailable": "The online feedback form is unavailable right now.",
+  "emailFallback": "Send by email instead",
+  "emailHint": "This opens your email app; you need to send the message there.",
+  "captchaLoading": "Loading verification…",
+  "captchaNeeded": "Complete the verification before sending.",
+  "required": "Please enter at least 10 characters.",
+  "back": "Back to Crew"
+}

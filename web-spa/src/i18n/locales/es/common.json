@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Contacto",
-    "region": "Información de contacto"
+    "region": "Información de contacto",
+    "feedback": "Comentarios"
   },
   "seo": {
     "home": "Crew — Idiomas, historias y astrología con IA",
@@ -107,7 +108,7 @@
     "verification": "La verificación falló. Inténtalo de nuevo.",
     "tempUnavailable": "Prueba no disponible temporalmente.",
     "remaining": "Pruebas de voz gratuitas restantes: {{count}} / {{limit}}",
-     "memberRemaining": "Pruebas gratis restantes hoy: {{count}} / {{limit}}",
+    "memberRemaining": "Pruebas gratis restantes hoy: {{count}} / {{limit}}",
     "usedUpTitle": "Se acabó tu prueba gratuita",
     "free1a2b": "Jugar 1A2B (gratis)",
     "freeVocabulary": "Palabra del día",

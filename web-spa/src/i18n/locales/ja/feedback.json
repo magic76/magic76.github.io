@@ -1,0 +1,30 @@
+{
+  "title": "ご意見・ご感想",
+  "intro": "不具合やアイデアをお聞かせください。ログインは不要です。",
+  "typeLabel": "内容を選択",
+  "types": {
+    "bug": "不具合を報告",
+    "idea": "機能を提案",
+    "other": "その他"
+  },
+  "detailsLabel": "ご意見",
+  "detailsPlaceholder": "何が起きましたか？改善したい点は？",
+  "detailsHelp": "10〜1,500文字。パスワードやAPIキーを記入しないでください。",
+  "emailLabel": "返信用メール（任意）",
+  "emailPlaceholder": "you@example.com",
+  "pageLabel": "対象ページ",
+  "privacy": "入力内容とページのパスだけを非公開の課題管理に送信します。",
+  "send": "送信する",
+  "sending": "送信中…",
+  "successTitle": "ご意見ありがとうございます！",
+  "successBody": "フィードバックを受け取りました。",
+  "reference": "受付番号",
+  "error": "送信できませんでした。内容は残っています。",
+  "unavailable": "現在フォームを利用できません。",
+  "emailFallback": "メールで送る",
+  "emailHint": "メールアプリが開きます。送信操作が必要です。",
+  "captchaLoading": "認証を読み込み中…",
+  "captchaNeeded": "認証を完了してください。",
+  "required": "10文字以上入力してください。",
+  "back": "Crew に戻る"
+}
