@@ -40,8 +40,9 @@ test("all 22 approved tarot characters are mapped by the runtime's actual person
 test("tarot on-screen previews and share images reuse the same mapped approved illustration",()=>{
  const card=source("FortuneIdentityCard.tsx");
  const share=source("identityShare.ts");
- assert.match(card,/identityArtworkUrl\(card.id\)/);
- assert.match(card,/shareIdentityCard\(card,locale,artSrc/);
- assert.match(share,/ctx.drawImage\(art/);
+ assert.match(card,/buildFortuneCardModel/);
+ assert.match(card,/artSrc=view.artSrc/);
+ assert.match(share,/renderCollectibleCard/);
+ assert.match(source("fortuneCardCanvas.ts"),/ctx.drawImage\(art/);
  assert.ok(!share.includes("reading.profile"));
 });
