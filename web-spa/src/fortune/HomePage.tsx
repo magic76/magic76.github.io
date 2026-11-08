@@ -6,6 +6,9 @@ import {readFortuneHistoryPreviews,type FortuneHistoryPreview} from "./readingHi
 import {ProductDiscoverability} from "../components/ProductDiscoverability";
 import "./unifiedHome.css";
 import {FortuneDailyCard} from "./FortuneDailyCard";
+import {useSearchParams} from "react-router-dom";
+import {parseFortuneInvite} from "./fortuneInvite";
+import {FortuneInviteLanding} from "./FortuneInviteLanding";
 
 const MODES=["bazi","tarot","vedic"] as const;
 const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof MODES[number])
@@ -19,6 +22,8 @@ const name=(mode:string,t:(key:string)=>string)=>MODES.includes(mode as typeof M
 export function FortuneHomePage(){
  const {t,i18n}=useTranslation("fortune");
  const navigate=useNavigate();
+ const [searchParams]=useSearchParams();
+ const invite=parseFortuneInvite(searchParams);
  const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
  const [openingId,setOpeningId]=useState<string|null>(null);
  const [error,setError]=useState("");
@@ -45,6 +50,7 @@ export function FortuneHomePage(){
   }finally{setOpeningId(null)}
  }
  return <>
+  {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
   <FortuneDailyCard/>
   <section className="hero fortune-journey-hero">
    <span className="kicker">CREW FORTUNE · EXPLORE</span>

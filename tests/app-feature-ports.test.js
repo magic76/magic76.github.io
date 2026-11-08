@@ -226,7 +226,24 @@ test("Fortune React exposes APK-style result tabs and deterministic evidence",()
  const bzCalc=fs.readFileSync(path.join(root,"features/fortune/bazi/calculator.js"),"utf8");
  const tarotCalc=fs.readFileSync(path.join(root,"features/fortune/tarot/calculator.js"),"utf8");
  const vedicEnrich=fs.readFileSync(path.join(root,"features/fortune/vedic/enrich.js"),"utf8");
- assert.ok(reading.includes("shareFortuneReading"));
+ // The reading page now opens a deliberate share-preview instead of calling the legacy helper.
+ // Protect the entire entry -> preview -> render/native/copy/download contract.
+ const dialog=fs.readFileSync(path.join(root,"web-spa/src/fortune/FortuneShareDialog.tsx"),"utf8");
+ const canvas=fs.readFileSync(path.join(root,"web-spa/src/fortune/fortuneCardCanvas.ts"),"utf8");
+ const invites=fs.readFileSync(path.join(root,"web-spa/src/fortune/fortuneInvite.ts"),"utf8");
+ assert.match(reading,/const\[shareOpen,setShareOpen\]=useState\(false\)/,"reading must own explicit dialog state");
+ assert.match(reading,/onClick=\{\(\)=>setShareOpen\(true\)\}/,"share entry must be clickable");
+ assert.match(reading,/<FortuneShareDialog reading=\{reading\} oneLine=\{oneLine\} open=\{shareOpen\} onClose=\{\(\)=>setShareOpen\(false\)\}\/>/,"current reading, summary, open and close must be wired");
+ assert.match(dialog,/renderCollectibleCard\(model,art.current,new Date\(\),locale\)/,"preview must render the real collectible model and artwork");
+ assert.match(dialog,/collectiblePngFile\(canvas\)/,"PNG preparation must be reachable");
+ assert.match(dialog,/fortuneInviteUrl\(reading.mode,model.id,locale\)/,"public URL must come from allowed identity");
+ assert.match(dialog,/nativeCollectibleShare\(file,invitation,url\)/,"native share receives file, invitation and link");
+ assert.match(dialog,/onClick=\{\(\)=>void nativeShare\(\)\}/,"native share button must invoke its handler");
+ assert.match(dialog,/onClick=\{\(\)=>void copy\(invitation\)\}/,"invitation copy must be wired");
+ assert.match(dialog,/onClick=\{\(\)=>void copy\(url\)\}/,"URL copy must be wired");
+ assert.match(dialog,/onClick=\{download\}/,"explicit PNG download must be wired");
+ assert.match(canvas,/canvas.width=1080;canvas.height=1350/,"share PNG dimensions must be preserved");
+ assert.match(invites,/new URLSearchParams\(\{m:mode,a:archetype,theme:"identity",src:"card"\}\)/,"share URL only carries public identifiers");
  for(const key of ["reading.tab.key","reading.tab.time","reading.tab.life"])assert.ok(bazi.includes(key));assert.ok(!bazi.includes('["full","完整解讀"]'));
  for(const key of ["reading.tab.key","reading.tab.time","reading.tab.life"])assert.ok(tarot.includes(key));assert.ok(!tarot.includes('["full","完整解讀"]'));
  for(const key of ["reading.tab.key","reading.tab.life","reading.tab.details"])assert.ok(vedic.includes(key));assert.ok(!vedic.includes('["full","完整解讀"]'));
