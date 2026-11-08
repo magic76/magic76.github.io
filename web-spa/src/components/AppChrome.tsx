@@ -38,6 +38,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   <footer className="crew-contact-footer shell" aria-label={t("contact.region")}>
    <span>{t("contact.label")}</span>
    <a href="mailto:crew@3sssi.com">crew@3sssi.com</a>
+   <Link className="crew-contact-feedback" to={"/feedback?from="+encodeURIComponent(location.pathname)}>{t("contact.feedback")}</Link>
    <Suspense fallback={null}><CrewInstallEntry/></Suspense>
   </footer>
  </>;

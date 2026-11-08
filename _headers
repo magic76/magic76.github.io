@@ -34,3 +34,10 @@ https://:version.magic76-github-io.pages.dev/*
 
 /offline.html
   Cache-Control: no-cache, must-revalidate
+
+/feedback*
+  X-Robots-Tag: noindex
+
+/api/feedback
+  X-Robots-Tag: noindex
+  Cache-Control: no-store

@@ -52,7 +52,8 @@ export const FEATURE_MENU_GROUPS:readonly MenuGroup[]=[
   {id:"personalMemory",to:"/teacher/memory",icon:"🧠",detail:"me"},
   {id:"myStories",to:"/story/me",icon:"📚",detail:"story"},
   {id:"fortuneHistory",to:"/fortune/history",icon:"🔮",detail:"fortune"},
-  {id:"settings",to:"/settings",icon:"⚙️",detail:"settings"}
+  {id:"settings",to:"/settings",icon:"⚙️",detail:"settings"},
+  {id:"feedback",to:"/feedback",icon:"💌",detail:"settings"}
  ]}
 ];
 
@@ -158,6 +159,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
            onClick={event=>{
             if(event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
             event.preventDefault();
+            if(item.id==="feedback")try{sessionStorage.setItem("crew_feedback_source_path",window.location.pathname)}catch{/* Optional route context. */}
             trackUsageEvent("menu_item_click",item.detail);
             beginClose(item.to);
            }}>
