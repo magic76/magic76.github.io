@@ -18,7 +18,7 @@ function catalogArray(file,name){
 function courseLocale(){
  const source=stripTypeScriptTypes(fromTeacher("courseLocale.ts"),{mode:"strip"})
   .replace(/^import type .*?;\s*/m,"").replace(/\bexport\s+(?=function|const)/g,"");
- const context={};vm.runInNewContext(source+"\nthis.course={courseDisplayTitle,courseDisplayDescription,courseDisplayMission,hasJapaneseCourseCopy};",context);
+ const context={};vm.runInNewContext(source+"\nthis.course={courseDisplayTitle,courseDisplayDescription,courseDisplayMission,courseDisplayWarmupGloss,hasJapaneseCourseCopy,hasJapaneseWarmupGloss};",context);
  return context.course;
 }
 
@@ -43,6 +43,13 @@ test("all 49 lessons, 6 tracks and 16 units have Japanese display copy with alig
   ...catalogArray("courseCatalogExpanded.ts","EXPANDED_COURSE_LESSONS")
  ];
  assert.equal(lessons.length,49);
+ for(const item of lessons){
+  assert.equal(c.hasJapaneseWarmupGloss(item),true,item.id+" warmups");
+  for(let i=0;i<(item.warmupPhrases||[]).length;i++){
+   assert.match(c.courseDisplayWarmupGloss(item,i,"ja"),/[\u3040-\u30ff]/,item.id+" Japanese phrase "+i);
+   assert.equal(c.courseDisplayWarmupGloss(item,i,"zh-TW"),item.warmupPhrases[i].zh);
+  }
+ }
  for(const item of lessons){
   assert.equal(c.hasJapaneseCourseCopy(item),true,item.id);
   const title=c.courseDisplayTitle(item,"ja"),desc=c.courseDisplayDescription(item,"ja");
@@ -75,7 +82,7 @@ test("Japanese curriculum copy is used in the course map, briefing, daily focus 
  const live=fromTeacher("LivePage.tsx"),focus=fromTeacher("LearningFocusCard.tsx");
  for(const source of [course,briefing,live])assert.match(source,/courseDisplayMission\(/);
  assert.match(course,/courseDisplayTitle\(/);
- assert.match(briefing,/chinese&&<p>\{phrase\.zh\}<\/p>/);
+ assert.match(briefing,/courseDisplayWarmupGloss\(lesson,index,locale\)/);
  assert.match(briefing,/chinese&&!!phrase\.note/);
  assert.match(briefing,/t\("briefing\.start"\)/);
  assert.match(focus,/courseDisplayTitle\(lesson,"ja"\)/);
