@@ -153,3 +153,6 @@ test("identity detail keeps explicit evidence and usable non-modal expanders",()
  assert.match(css,/prefers-reduced-motion:reduce/);
  assert.match(css,/min-height:44px/);
 });
+
+// Keep the public-invite and Web Share regressions in the Fortune PR CI gate.
+require("./fortune-card-journey.test.js");
