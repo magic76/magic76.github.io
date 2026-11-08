@@ -99,7 +99,7 @@ export function FortuneHomePage(){
       </button>
      </div>
     </div>:
-    null
+    null}
    {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
   </section>}
   <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
