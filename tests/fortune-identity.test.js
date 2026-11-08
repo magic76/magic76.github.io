@@ -97,13 +97,13 @@ test("integration keeps an existing detailed report share button and adds identi
  assert.ok(!ui.includes("fortune_identity_feedback"));
 });
 
-test("approved art manifest matches all ten committed BaZi WebPs",()=>{
+test("approved art manifest matches all ten BaZi and twelve Vedic character WebPs",()=>{
  const source=read("identityArtwork.ts");
  const transformed=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
  const exported={};
  new Function("exports",transformed+"\nexports.IDENTITY_ARTWORK_PATHS=IDENTITY_ARTWORK_PATHS;exports.APPROVED_IDENTITY_ARTWORK=APPROVED_IDENTITY_ARTWORK;exports.identityArtworkUrl=identityArtworkUrl;")(exported);
  const {IDENTITY_ARTWORK_PATHS:paths,APPROVED_IDENTITY_ARTWORK:approved,identityArtworkUrl:url}=exported;
- assert.equal(Object.keys(paths).length,10);
+ assert.equal(Object.keys(paths).length,22);
  for(const stem of masters){
   const id="bazi-"+stem;
   assert.match(paths[id],/^bazi-[a-z]+\.webp$/);
@@ -114,10 +114,25 @@ test("approved art manifest matches all ten committed BaZi WebPs",()=>{
   assert.equal(bytes.toString("ascii",0,4),"RIFF",id);
   assert.equal(bytes.toString("ascii",8,12),"WEBP",id);
  }
- assert.equal(approved.length,10);
- assert.equal(new Set(approved).size,10);
+ for(const sign of signs){
+  const id="vedic-"+sign.toLowerCase();
+  const fileName=id+".webp";
+  assert.equal(paths[id],fileName);
+  assert.equal(url(id),"/fortune/identity/art/"+fileName);
+  const fullPath=path.join(__dirname,"../web-spa/public/fortune/identity/art",fileName);
+  assert.ok(fs.existsSync(fullPath),id+" missing committed WebP");
+  const bytes=fs.readFileSync(fullPath);
+  assert.equal(bytes.toString("ascii",0,4),"RIFF",id);
+  assert.equal(bytes.toString("ascii",8,12),"WEBP",id);
+  assert.equal(bytes.toString("ascii",12,16),"VP8 ",id);
+  assert.equal(bytes.readUInt16LE(26)&0x3fff,1536,id+" width");
+  assert.equal(bytes.readUInt16LE(28)&0x3fff,864,id+" height");
+ }
+ assert.equal(approved.length,22);
+ assert.equal(new Set(approved).size,22);
  assert.equal(url("bazi-unknown"),null);
- assert.equal(url("tarot-22"),null);
+ assert.equal(url("tarot-22"),"/fortune/identity/art/tarot-22.webp");
+ assert.equal(url("tarot-99"),null);
 });
 test("art is optional and both UI and PNG renderer use the same approved image",()=>{
  const ui=read("FortuneIdentityCard.tsx");

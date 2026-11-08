@@ -5,11 +5,11 @@ const path=require("node:path");
 const root=path.join(__dirname,"..");
 const read=p=>fs.readFileSync(path.join(root,p),"utf8");
 
-test("Fortune tarot and Vedic cards use reviewed, unique, local WebP covers",()=>{
+test("Fortune Bazi, tarot and Vedic cards use reviewed local WebP covers",()=>{
  const home=read("web-spa/src/fortune/HomePage.tsx");
  assert.equal((home.match(/className="fortune-home-mode /g)||[]).length,3);
  assert.equal((home.match(/className="fortune-mode-cover /g)||[]).length,3);
- for(const mode of ["tarot","vedic"]){
+ for(const mode of ["bazi","tarot","vedic"]){
   const name="fortune-"+mode+"-cover.webp";
   const asset=path.join(root,"web-spa/public/fortune/modes",name);
   assert.ok(fs.existsSync(asset),name+" must ship in Vite public assets");
@@ -24,7 +24,7 @@ test("Fortune tarot and Vedic cards use reviewed, unique, local WebP covers",()=
   assert.ok(home.includes('src="/fortune/modes/'+name+'"'));
  }
  assert.ok(home.includes('to="/fortune/reading?mode=bazi"'));
- assert.ok(home.includes('fortune-mode-cover-bazi'),"BaZi keeps an honest generic symbol, not a misleading day-master portrait");
+ assert.ok(home.includes('fortune-mode-cover-bazi'),"BaZi cover is the system-wide visual, not a specific day-master portrait");
  assert.ok(home.includes('onError={event=>{event.currentTarget.hidden=true}}'),"Load errors preserve the pictogram fallback");
 });
 
@@ -42,6 +42,7 @@ test("mode cards stay readable at phone width and preserve meaningful accessible
  assert.match(css,/\.fortune-journey-create \.fortune-home-mode\{flex-direction:row;align-items:center/);
  assert.match(css,/\.fortune-home-mode \.fortune-mode-description\{[^}]*font-size:12px/);
  assert.match(css,/\.fortune-mode-cover-image\[hidden\]\{display:none\}/);
+ assert.ok(!home.includes('fortune-bazi-cover.png'));
  assert.ok(!home.includes('fortune-tarot-cover.png'));
  assert.ok(!home.includes('fortune-vedic-cover.png'));
 });

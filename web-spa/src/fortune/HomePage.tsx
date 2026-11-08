@@ -98,7 +98,7 @@ export function FortuneHomePage(){
    </div>
    <div className="fortune-home-grid">
     <Link className="fortune-home-mode bazi" to="/fortune/reading?mode=bazi">
-     <span className="fortune-mode-cover fortune-mode-cover-bazi" aria-hidden="true"><span className="fortune-mode-fallback-icon">八</span></span>
+     <span className="fortune-mode-cover fortune-mode-cover-bazi" aria-hidden="true"><span className="fortune-mode-fallback-icon">八</span><img className="fortune-mode-cover-image" src="/fortune/modes/fortune-bazi-cover.webp" alt="" width={1536} height={864} loading="lazy" decoding="async" onError={event=>{event.currentTarget.hidden=true}}/></span>
      <span className="fortune-mode-copy"><strong>{t("home.bazi")}</strong><span className="fortune-mode-description">{t("home.baziDesc")}</span></span>
     </Link>
     <Link className="fortune-home-mode tarot" to="/fortune/reading?mode=tarot">
