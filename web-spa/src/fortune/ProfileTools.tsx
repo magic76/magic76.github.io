@@ -4,7 +4,7 @@ import{clearFortunePresets,loadFortunePresets,presetLabel,saveFortunePreset,type
 import{searchBirthPlaces,utcOffsetForBirth,resolveBirthOffset,type BirthPlaceResult}from"./birthPlaceSearch";
 
 export function FortuneProfileTools({mode,profile,onChange}:{mode:FortuneMode;profile:FortuneProfile;onChange:(p:FortuneProfile)=>void}){
- const {t}=useTranslation("fortune");
+ const {t,i18n}=useTranslation("fortune");
  const[presets,setPresets]=useState<FortunePreset[]>(()=>loadFortunePresets()),[query,setQuery]=useState(profile.city||""),[places,setPlaces]=useState<BirthPlaceResult[]>([]),[searching,setSearching]=useState(false),[message,setMessage]=useState("");
  const compatible=useMemo(()=>presets.filter(x=>x.mode===mode),[presets,mode]);
  function save(){
@@ -15,7 +15,7 @@ export function FortuneProfileTools({mode,profile,onChange}:{mode:FortuneMode;pr
  }
  async function search(){
   if(query.trim().length<2)return;setSearching(true);setMessage("");
-  try{const r=await searchBirthPlaces(query);setPlaces(r);if(!r.length)setMessage(t("profile.noCity"))}
+  try{const r=await searchBirthPlaces(query,i18n.resolvedLanguage||i18n.language);setPlaces(r);if(!r.length)setMessage(t("profile.noCity"))}
   catch(e){setMessage(e instanceof Error?e.message:String(e))}
   finally{setSearching(false)}
  }
