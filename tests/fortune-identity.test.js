@@ -87,16 +87,21 @@ test("English fallback and privacy: generated content never embeds raw private p
  assert.ok(!share.includes("birthDate"));
  assert.ok(share.includes("navigator.canShare"));
 });
-test("integration keeps an existing detailed report share button and adds identity sharing",()=>{
+test("reading and detail now share a single preview, not two competing shares",()=>{
  const page=read("ReadingPage.tsx");
  const ui=read("FortuneIdentityCard.tsx");
- assert.match(page,/<FortuneIdentityRevealDialog reading=\{reading\}/);
- assert.match(page,/shareFortuneReading\(reading,oneLine\|\|reading\.summary,shareArtRef\.current\)/);
- assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
- assert.ok(!ui.includes("fortune-identity-rating"));
- assert.ok(!ui.includes("fortune_identity_feedback"));
+ const dialog=read("FortuneShareDialog.tsx");
+ assert.match(page,/fortune-collectible-hero/);
+ assert.match(page,/FortuneShareDialog reading=\{reading\}/);
+ assert.match(page,/FortuneIdentityCard reading=\{reading!\}/);
+ assert.ok(!page.includes("<FortuneIdentityRevealDialog"));
+ assert.match(ui,/onShare\?\:\(\)=>void/);
+ assert.match(ui,/buildFortuneCardModel/);
+ assert.match(ui,/fortune-identity-evidence/);
+ assert.match(dialog,/copy\(invitation\)/);
+ assert.match(dialog,/copy\(url\)/);
+ assert.match(dialog,/download\(\)/);
 });
-
 test("approved art manifest matches all ten BaZi and twelve Vedic character WebPs",()=>{
  const source=read("identityArtwork.ts");
  const transformed=stripTypeScriptTypes(source,{mode:"strip"}).replace(/\bexport\s+(?=(?:const|function)\b)/g,"");
@@ -134,58 +139,16 @@ test("approved art manifest matches all ten BaZi and twelve Vedic character WebP
  assert.equal(url("tarot-22"),"/fortune/identity/art/tarot-22.webp");
  assert.equal(url("tarot-99"),null);
 });
-test("art is optional and both UI and PNG renderer use the same approved image",()=>{
- const ui=read("FortuneIdentityCard.tsx");
- const share=read("identityShare.ts");
- assert.match(ui,/identityArtworkUrl\(card.id\)/);
- assert.match(ui,/artRef.current=event.currentTarget/);
- assert.match(ui,/setArtFailed\(true\)/);
- assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
- assert.match(share,/art\?\.complete/);
- assert.match(share,/ctx.drawImage\(art/);
- assert.match(share,/Math.min\(artWidth\/art.naturalWidth,artHeight\/art.naturalHeight\)/);
- assert.match(share,/const canvas=renderIdentityShareCard\(identity,locale,art\),file=pngFile\(canvas\)/);
- assert.ok(!share.includes("await fetch("));
-});
-
-test("identity reveal is a focus-managed dismissible dialog, not an inline report card",()=>{
- const page=read("ReadingPage.tsx");
- const modal=read("FortuneIdentityRevealDialog.tsx");
- const ui=read("FortuneIdentityCard.tsx");
- const styles=read("identityCard.css");
- assert.ok(!page.includes("<FortuneIdentityCard reading={reading!}/>"));
- assert.match(page,/fortune-identity-entry-button/);
- assert.match(page,/onClick=\{\(\)=>setIdentityOpen\(true\)\}/);
- assert.match(page,/setReading\(item\);setIdentityOpen\(true\)/);
- assert.match(page,/setReading\(old\);setIdentityOpen\(false\)/);
- assert.match(page,/setShowInput\(true\)/);
- assert.match(modal,/dialog\.showModal\(\)/);
- assert.match(modal,/onCancel=\{event=>\{event\.preventDefault\(\);onClose\(\)\}\}/);
- assert.match(modal,/previouslyFocused/);
- assert.match(modal,/document\.body\.style\.overflow/);
- assert.match(modal,/FortuneIdentityCard reading=\{reading\} onContinue=\{onClose\}/);
- assert.match(ui,/onContinue:\(\)=>void/);
- assert.match(ui,/labels\.continueReport/);
- assert.match(ui,/fortune-identity-more/);
- assert.match(styles,/height:100dvh/);
- assert.match(styles,/prefers-reduced-motion:reduce/);
- assert.match(styles,/width:44px;height:44px/);
-});
-
-test("reveal is fully expanded on entry, without the removed likeness survey",()=>{
- const ui=read("FortuneIdentityCard.tsx");
- const css=read("identityCard.css");
- assert.match(ui,/<details className="fortune-identity-more" open=\{moreOpen\} onToggle=/);
- assert.match(ui,/<details className="fortune-identity-evidence" open=\{evidenceOpen\} onToggle=/);
+test("identity detail keeps explicit evidence and usable non-modal expanders",()=>{
+ const ui=read("FortuneIdentityCard.tsx"),css=read("identityCard.css");
  assert.match(ui,/useState\(true\)/);
  assert.match(ui,/setMoreOpen\(true\);setEvidenceOpen\(true\)/);
- assert.ok(ui.indexOf('className="fortune-identity-more"')<ui.indexOf('className="fortune-identity-actions"'),"Interpretation precedes sticky action bar");
- for(const text of ["fortune-identity-rating","fortune_identity_feedback","localStorage.setItem","readStored","setRating","How much does this sound like you?","你覺得這份描述像自己嗎？"])
-  assert.ok(!ui.includes(text),"Likeness survey must not remain: "+text);
- assert.ok(!css.includes(".fortune-identity-rating"));
- assert.match(css,/fortune-identity-reveal-dialog \.fortune-identity-actions\{position:sticky;bottom:0/);
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);
- assert.match(css,/safe-area-inset-bottom/);
- assert.match(css,/max-width:340px/);
- assert.match(ui,/role="status"/);
+ assert.match(ui,/fortune-identity-more/);
+ assert.match(ui,/fortune-identity-evidence/);
+ assert.match(ui,/onShare\|\|onContinue/);
+ assert.ok(!ui.includes("fortune_identity_feedback"));
+ assert.ok(!ui.includes("localStorage.setItem"));
+ assert.match(css,/fortune-share-dialog/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ assert.match(css,/min-height:44px/);
 });
