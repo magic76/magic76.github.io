@@ -140,7 +140,12 @@
       "key": "Khóa Gemini không hợp lệ. Mở cài đặt.",
       "other": "Không nhận được câu trả lời. Vui lòng thử lại.",
       "settings": "Mở cài đặt"
-    }
+    },
+    "aiCtaTitle": "Muốn hiểu lá số của mình sâu hơn?",
+    "aiCtaDesc": "AI giải thích tính cách, công việc, các mối quan hệ và giai đoạn cuộc đời dựa trên lá số đã tính.",
+    "aiCtaGenerate": "Nhận phân tích AI của tôi",
+    "aiCtaRead": "Đọc phân tích AI của tôi",
+    "aiCtaSetup": "Thiết lập Gemini để xem chi tiết"
   },
   "profile": {
     "birthdayRequired": "Chọn ngày sinh trước khi lưu",
