@@ -14,7 +14,7 @@ const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
 const store=loadTs("web-spa/src/fortune/dailyStore.ts",
- ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_STREAK_KEY"],
+ ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_STREAK_KEY","isDailyCompleted","completeDailyExploration","recentDailyExplorations","readDailyCompletionStreak"],
  {localDateKey:pure.localDateKey});
 const translate=(key,values={})=>key+JSON.stringify(values);
 const profile={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
@@ -181,4 +181,36 @@ test("D8 eleven complete locale catalogs with three variants per bazi category",
  const index=read("web-spa/src/i18n/index.ts");
  assert.match(index,/fortuneReport,fortuneDaily/);
  assert.doesNotMatch(index,/namespaceNames=\[[^\]]*fortuneDaily/);
+});
+
+test("D9 daily discovery is a real daily action, not an automatic page-view streak",()=>{
+ memory.clear();
+ const hash=pure.dailyProfileHash(profile);
+ assert.equal(store.readDailyCompletionStreak().streak,0);
+ assert.equal(store.isDailyCompleted("2026-11-08","numerology",hash),false);
+ assert.equal(store.completeDailyExploration("2026-11-08","numerology",hash).streak,1);
+ assert.equal(store.isDailyCompleted("2026-11-08","numerology",hash),true);
+ assert.equal(store.completeDailyExploration("2026-11-08","numerology",hash).streak,1);
+ assert.equal(store.recentDailyExplorations("2026-11-08","numerology",hash).at(-1).completed,true);
+ assert.equal(store.recentDailyExplorations("2026-11-08","bazi",hash).at(-1).completed,false);
+ const ui=read("web-spa/src/fortune/FortuneDailyCard.tsx");
+ assert.match(ui,/setRevealed\(true\)/);
+ assert.match(ui,/completeDailyExploration\(date,kind,profileHash\)/);
+ assert.doesNotMatch(ui,/markDailySeen\(date\)/);
+});
+test("D10 daily flip and illustrated share respect assets and accessibility",()=>{
+ const css=read("web-spa/src/fortune/dailyCard.css");
+ assert.match(css,/rotateY\(180deg\)/);
+ assert.match(css,/prefers-reduced-motion:reduce/);
+ const num=getCard(onDate("numerology","2026-11-08"));
+ assert.match(num.artSrc,/^\/fortune\/identity\/art\/tarot-\d+\.webp$/);
+ const baziCard=getCard(onDate("bazi","2026-11-08",profile,{bazi,lunar:fakeSolar}));
+ assert.equal(baziCard.artSrc,"/fortune/identity/art/bazi-geng.webp");
+ const share=read("web-spa/src/fortune/shareCard.ts");
+ assert.match(share,/dailyArt\(card\.artSrc\)/);
+ const langs=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
+ for(const lang of langs){
+  const doc=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/fortuneDaily.json"));
+  for(const key of ["flipCard","markComplete","completed","moreDetails","recentDays"])assert.ok(doc[key]);
+ }
 });

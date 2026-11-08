@@ -62,24 +62,24 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
  ctx.font="28px sans-serif";ctx.fillStyle="#6b5a7e";ctx.fillText(card.date+"  ·  "+labels.kindLabel,76,158);
  // Approved Q-character illustration; same-origin source, graceful art fallback.
  const art=await dailyArt(card.artSrc);
- ctx.fillStyle="#ffffffa8";ctx.fillRect(70,189,940,543);
+ ctx.fillStyle="#ffffffa8";ctx.fillRect(70,177,940,474);
  if(art){
-  const width=924,height=520;
-  ctx.drawImage(art,78,201,width,height);
+  const width=835,height=470;
+  ctx.drawImage(art,122,179,width,height);
  }else{
-  ctx.fillStyle="#9975bb";ctx.font="225px sans-serif";ctx.textAlign="center";ctx.fillText("✦",540,555);ctx.textAlign="left";
+  ctx.fillStyle="#9975bb";ctx.font="225px sans-serif";ctx.textAlign="center";ctx.fillText("✦",540,535);ctx.textAlign="left";
  }
  ctx.fillStyle="#2b2340";ctx.font="bold 59px sans-serif";
- const end=wrap(ctx,card.headline,76,800,930,72,2);
- ctx.fillStyle="#5d516d";ctx.font="30px sans-serif";wrap(ctx,card.theme,76,end+25,930,44,2);
- ctx.fillStyle="#ffffffdd";ctx.fillRect(73,994,934,192);
- ctx.fillStyle="#634a8f";ctx.font="bold 28px sans-serif";ctx.fillText(labels.doLabel+" ✦",99,1049);
- ctx.fillStyle="#2b243e";ctx.font="bold 35px sans-serif";wrap(ctx,card.do[0],99,1108,856,44,2);
+ const end=wrap(ctx,card.headline,76,710,930,63,2);
+ ctx.fillStyle="#5d516d";ctx.font="30px sans-serif";wrap(ctx,card.theme,76,end+18,930,40,2);
+ ctx.fillStyle="#ffffffdd";ctx.fillRect(73,950,934,213);
+ ctx.fillStyle="#634a8f";ctx.font="bold 28px sans-serif";ctx.fillText(labels.doLabel+" ✦",99,1007);
+ ctx.fillStyle="#2b243e";ctx.font="bold 35px sans-serif";wrap(ctx,card.do[0],99,1072,856,44,2);
  ctx.fillStyle="#736a7c";ctx.font="24px sans-serif";
- wrap(ctx,labels.avoidLabel+" · "+card.avoid,81,1223,914,32,1);
- ctx.fillStyle=card.luckyColor.hex;ctx.beginPath();ctx.arc(91,1261,12,0,Math.PI*2);ctx.fill();
- ctx.fillStyle="#645773";ctx.font="22px sans-serif";ctx.fillText(labels.luckyColor+" · "+card.luckyColor.name,116,1269);
- ctx.font="18px sans-serif";ctx.fillStyle="#7e7387";ctx.fillText(labels.disclaimer,78,1304);
+ wrap(ctx,labels.avoidLabel+" · "+card.avoid,81,1212,914,32,1);
+ ctx.fillStyle=card.luckyColor.hex;ctx.beginPath();ctx.arc(91,1258,12,0,Math.PI*2);ctx.fill();
+ ctx.fillStyle="#645773";ctx.font="22px sans-serif";ctx.fillText(labels.luckyColor+" · "+card.luckyColor.name,116,1266);
+ ctx.font="18px sans-serif";ctx.fillStyle="#7e7387";wrap(ctx,labels.disclaimer,78,1304,580,20,1);
  ctx.font="bold 25px sans-serif";ctx.fillStyle="#554072";ctx.textAlign="right";ctx.fillText("3sssi.com/fortune",1003,1304);ctx.textAlign="left";
  return new Promise<File>((resolve,reject)=>canvas.toBlob(blob=>blob?
   resolve(new File([blob],"crew-fortune-daily.png",{type:"image/png"})):

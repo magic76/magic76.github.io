@@ -123,7 +123,7 @@ export function FortuneHomePage(){
     </Link>
    </div>
   </section>
-  {!latest&&<FortuneDailyCard/>}
+  {list!==null&&!latest&&<FortuneDailyCard/>}
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">

@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import {geminiKey,ensureFortuneServices} from "../lib/runtime";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
-import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
+import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {shareDailyCard} from "./shareCard";
 import {loadFortunePresets} from "./profileStore";
@@ -43,10 +43,14 @@ export function FortuneDailyCard(){
  const [aiBusy,setAiBusy]=useState(false);
  const [aiError,setAiError]=useState<""|"quota"|"error"|"used">("");
  const [aiText,setAiText]=useState("");
- const [streak,setStreak]=useState(()=>readDailyStreak());
+ const [streak,setStreak]=useState(()=>readDailyCompletionStreak());
  const [refresh,setRefresh]=useState(0);
  const [revealed,setRevealed]=useState(false);
  const [completed,setCompleted]=useState(false);
+ const frontButton=useRef<HTMLButtonElement|null>(null);
+ const finishButton=useRef<HTMLButtonElement|null>(null);
+ const backButton=useRef<HTMLButtonElement|null>(null);
+ const hasFlipped=useRef(false);
  const active=useRef("");
  const profileHash=useMemo(()=>profile?dailyProfileHash(profile):"",[profile]);
  const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
@@ -80,7 +84,7 @@ export function FortuneDailyCard(){
  useEffect(()=>{
   setAiError("");setAiBusy(false);setRevealed(false);
   setCompleted(Boolean(profileHash&&isDailyCompleted(date,kind,profileHash)));
-  setStreak(readDailyStreak());
+  setStreak(readDailyCompletionStreak());
   setAiText(profileHash?readCachedDaily(date,kind,profileHash)?.ai||"":"");
  },[activeKey,locale]);
  if(!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
@@ -98,6 +102,12 @@ export function FortuneDailyCard(){
   if(result.status==="ready")setAiText(result.text);
   else setAiError(result.status);
  }
+ useEffect(()=>{
+  if(revealed){
+   hasFlipped.current=true;
+   (completed?backButton:finishButton).current?.focus();
+  }else if(hasFlipped.current)frontButton.current?.focus();
+ },[revealed,completed]);
  const full=card&&!("status" in card)?card:null;
  const unavailable=card&&"status" in card?card:null;
  const seen=full?findExistingAiForKind(date,kind):null;
@@ -130,14 +140,14 @@ export function FortuneDailyCard(){
        </div>
        <div className="fortune-daily-intro"><span className="fortune-daily-eyebrow">{t("exploreLabel")}</span><h2>{full.headline}</h2><p>{full.theme}</p></div>
       </div>
-      <button type="button" className="fortune-daily-reveal" tabIndex={revealed?-1:0} onClick={()=>setRevealed(true)}>{t("flipCard")} ✦</button>
+      <button ref={frontButton} type="button" className="fortune-daily-reveal" tabIndex={revealed?-1:0} onClick={()=>setRevealed(true)}>{t("flipCard")} ✦</button>
      </div>
      <div className={"fortune-daily-face fortune-daily-face-back"+(completed?" completed":"")} aria-hidden={!revealed}>
       <div className="fortune-daily-confetti" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>
       <span className="fortune-daily-eyebrow">{t("todayAction")}</span>
       <h2>{full.do[0]}</h2><p>{t("avoidLabel")} · {full.avoid}</p>
-      <button type="button" className="fortune-daily-reveal" tabIndex={revealed?0:-1} disabled={completed} onClick={finishToday}>{completed?"✓ "+t("completed"):t("markComplete")+" ✦"}</button>
-      <button type="button" className="fortune-daily-back-button" tabIndex={revealed?0:-1} onClick={()=>setRevealed(false)}>{t("flipBack")}</button>
+      <button ref={finishButton} type="button" className="fortune-daily-reveal" tabIndex={revealed?0:-1} disabled={completed} onClick={finishToday}>{completed?"✓ "+t("completed"):t("markComplete")+" ✦"}</button>
+      <button ref={backButton} type="button" className="fortune-daily-back-button" tabIndex={revealed?0:-1} onClick={()=>setRevealed(false)}>{t("flipBack")}</button>
      </div>
     </div>
    </div>
