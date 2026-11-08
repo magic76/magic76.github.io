@@ -274,5 +274,14 @@
   },
   "streak_one": "已連續 {{count}} 天",
   "streak_other": "已連續 {{count}} 天",
-  "colorSummary": "幸運色：{{color}}"
+  "colorSummary": "幸運色：{{color}}",
+  "exploreLabel": "今日探索",
+  "flipCard": "翻開今日小卡",
+  "todayAction": "今天試試這件事",
+  "markComplete": "我做到了",
+  "completed": "今日已完成",
+  "flipBack": "再看正面",
+  "moreDetails": "更多命理細節",
+  "recentDays": "近七天探索",
+  "notCompleted": "尚未完成"
 }
