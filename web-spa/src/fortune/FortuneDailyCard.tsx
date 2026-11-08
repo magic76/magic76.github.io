@@ -4,7 +4,7 @@ import {useTranslation} from "react-i18next";
 import {geminiKey,ensureFortuneServices} from "../lib/runtime";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
-import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,markDailySeen,readDailyStreak,findExistingAiForKind} from "./dailyStore";
+import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {shareDailyCard} from "./shareCard";
 import {loadFortunePresets} from "./profileStore";
@@ -45,6 +45,8 @@ export function FortuneDailyCard(){
  const [aiText,setAiText]=useState("");
  const [streak,setStreak]=useState(()=>readDailyStreak());
  const [refresh,setRefresh]=useState(0);
+ const [revealed,setRevealed]=useState(false);
+ const [completed,setCompleted]=useState(false);
  const active=useRef("");
  const profileHash=useMemo(()=>profile?dailyProfileHash(profile):"",[profile]);
  const kind:DailyKind=selected==="bazi"&&profile?.birthTime?"bazi":"numerology";
@@ -67,7 +69,7 @@ export function FortuneDailyCard(){
   const cached=readCachedDaily(date,kind,profileHash);
   // Cache is a stable card, but strings must always match the active language.
   if(cached?.card&&cached.card.kind===kind&&cached.card.date===date&&
-     cached.locale===locale&&cached.copyRevision===2&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
+     cached.locale===locale&&cached.copyRevision===2&&cached.card.artSrc&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
   const result=buildDailyCard({kind,profile,localDate:date,lang:locale});
   if("status" in result)return result;
   saveCachedDaily(result,profileHash,undefined,locale);
@@ -76,14 +78,11 @@ export function FortuneDailyCard(){
  const activeKey=date+":"+kind+":"+profileHash;
  active.current=activeKey;
  useEffect(()=>{
-  setAiError("");setAiBusy(false);
+  setAiError("");setAiBusy(false);setRevealed(false);
+  setCompleted(Boolean(profileHash&&isDailyCompleted(date,kind,profileHash)));
+  setStreak(readDailyStreak());
   setAiText(profileHash?readCachedDaily(date,kind,profileHash)?.ai||"":"");
  },[activeKey,locale]);
- useEffect(()=>{
-  if(card&&!("status" in card)){
-   setStreak(markDailySeen(date));
-  }
- },[card,date]);
  if(!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">CREW FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
@@ -103,34 +102,65 @@ export function FortuneDailyCard(){
  const unavailable=card&&"status" in card?card:null;
  const seen=full?findExistingAiForKind(date,kind):null;
  const aiUsedOther=Boolean(seen&&seen.profileHash!==profileHash);
+
+ const days=profileHash?recentDailyExplorations(date,kind,profileHash):[];
+ function finishToday(){
+  if(!full||completed)return;
+  setStreak(completeDailyExploration(date,kind,profileHash));
+  setCompleted(true);
+ }
  return <section className="fortune-daily panel" aria-label={t("today")} data-daily-kind={kind}>
-  <div className="fortune-daily-top"><div><span className="kicker">CREW FORTUNE · {t("today")}</span>
-    <small>{date}</small></div>{streak.streak>0&&<span className="fortune-daily-streak">{t("streak",{count:streak.streak})}</span>}</div>
+  <div className="fortune-daily-top">
+   <div><span className="kicker">CREW FORTUNE · {t("today")}</span><small>{date}</small></div>
+   {streak.streak>0&&<span className="fortune-daily-streak">✦ {t("streak",{count:streak.streak})}</span>}
+  </div>
   <div className="fortune-daily-kind" role="group" aria-label={t("selectKind")}>
    <button type="button" className={kind==="numerology"?"active":""} aria-pressed={kind==="numerology"} onClick={()=>changeKind("numerology")}>{t("numerology")}</button>
-   <button type="button" className={kind==="bazi"?"active":""} aria-pressed={kind==="bazi"}
-    disabled={!profile.birthTime} title={!profile.birthTime?t("timeRequired"):undefined} onClick={()=>changeKind("bazi")}>{t("bazi")}</button>
+   <button type="button" className={kind==="bazi"?"active":""} aria-pressed={kind==="bazi"} disabled={!profile.birthTime} title={!profile.birthTime?t("timeRequired"):undefined} onClick={()=>changeKind("bazi")}>{t("bazi")}</button>
   </div>
   {!profile.birthTime&&<small className="fortune-daily-help">{t("timeRequired")}</small>}
-  {full?<><h2>{full.headline}</h2><p className="fortune-daily-theme">{full.theme}</p>
-   <div className="fortune-daily-advice"><div><strong>{t("doLabel")}</strong><ul>{full.do.map((x,i)=><li key={i}>{x}</li>)}</ul></div>
-    <div><strong>{t("avoidLabel")}</strong><p>{full.avoid}</p></div></div>
-   <div className="fortune-daily-color"><span className="fortune-daily-swatch" style={{backgroundColor:full.luckyColor.hex}} aria-hidden="true"/>
-    <div><small>{t("luckyColor")}</small><strong>{full.luckyColor.name} · {full.luckyColor.element}</strong></div></div>
-   <details className="fortune-daily-basis"><summary>{t("basisLabel")}</summary><ul>{full.basis.map((x,i)=><li key={i}>{x}</li>)}</ul></details>
-   {/^zh/i.test(locale)&&full.almanac&&<div className="fortune-daily-almanac"><strong>{t("almanacLabel")}</strong>
-    <p>宜：{full.almanac.yi.join("、")||"—"}</p><p>忌：{full.almanac.ji.join("、")||"—"}</p>
-    {full.almanac.chong&&<p>沖：{full.almanac.chong}</p>}</div>}
-   <p className="fortune-daily-note">{t("disclaimer")}</p>
-   {aiText&&<div className="fortune-daily-ai-result" role="status">{Array.from(aiText).slice(0,120).join("")}</div>}
-   {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
-   {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
-   <div className="fortune-daily-actions">
-    <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full,{doLabel:t("doLabel"),avoidLabel:t("avoidLabel"),luckyColor:t("luckyColor"),disclaimer:t("disclaimer"),kindLabel:t(full.kind)})}>{t("share")}</button>
-    {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther}
-     onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
-    <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
+  {full?<>
+   <div className="fortune-daily-scene">
+    <div className={"fortune-daily-flipper"+(revealed?" flipped":"")}>
+     <div className="fortune-daily-face fortune-daily-face-front" aria-hidden={revealed}>
+      <div className="fortune-daily-stars" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span></div>
+      <div className="fortune-daily-front-main">
+       <div className="fortune-daily-portrait"><span aria-hidden="true">✦</span>
+        {full.artSrc&&<img src={full.artSrc} alt="" loading="lazy" onError={e=>{e.currentTarget.hidden=true}}/>}
+       </div>
+       <div className="fortune-daily-intro"><span className="fortune-daily-eyebrow">{t("exploreLabel")}</span><h2>{full.headline}</h2><p>{full.theme}</p></div>
+      </div>
+      <button type="button" className="fortune-daily-reveal" tabIndex={revealed?-1:0} onClick={()=>setRevealed(true)}>{t("flipCard")} ✦</button>
+     </div>
+     <div className={"fortune-daily-face fortune-daily-face-back"+(completed?" completed":"")} aria-hidden={!revealed}>
+      <div className="fortune-daily-confetti" aria-hidden="true"><span>✦</span><span>✧</span><span>✦</span><span>✧</span></div>
+      <span className="fortune-daily-eyebrow">{t("todayAction")}</span>
+      <h2>{full.do[0]}</h2><p>{t("avoidLabel")} · {full.avoid}</p>
+      <button type="button" className="fortune-daily-reveal" tabIndex={revealed?0:-1} disabled={completed} onClick={finishToday}>{completed?"✓ "+t("completed"):t("markComplete")+" ✦"}</button>
+      <button type="button" className="fortune-daily-back-button" tabIndex={revealed?0:-1} onClick={()=>setRevealed(false)}>{t("flipBack")}</button>
+     </div>
+    </div>
    </div>
+   <div className="fortune-daily-week"><span>{t("recentDays")}</span>
+    <div className="fortune-daily-week-dots">{days.map(item=><span key={item.date} title={item.date} className={item.completed?"done":""} aria-label={item.date+" · "+t(item.completed?"completed":"notCompleted")}>{item.completed?"✦":"·"}</span>)}</div>
+   </div>
+   {revealed&&<div className="fortune-daily-extras">
+    <details className="fortune-daily-details"><summary>{t("moreDetails")}</summary>
+     <div className="fortune-daily-advice"><div><strong>{t("doLabel")}</strong><ul>{full.do.map((x,i)=><li key={i}>{x}</li>)}</ul></div><div><strong>{t("avoidLabel")}</strong><p>{full.avoid}</p></div></div>
+     <div className="fortune-daily-color"><span className="fortune-daily-swatch" style={{backgroundColor:full.luckyColor.hex}} aria-hidden="true"/><div><small>{t("luckyColor")}</small><strong>{full.luckyColor.name} · {full.luckyColor.element}</strong></div></div>
+     <details className="fortune-daily-basis"><summary>{t("basisLabel")}</summary><ul>{full.basis.map((x,i)=><li key={i}>{x}</li>)}</ul></details>
+     {/^zh/i.test(locale)&&full.almanac&&<div className="fortune-daily-almanac"><strong>{t("almanacLabel")}</strong><p>宜：{full.almanac.yi.join("、")||"—"}</p><p>忌：{full.almanac.ji.join("、")||"—"}</p>{full.almanac.chong&&<p>沖：{full.almanac.chong}</p>}</div>}
+     <p className="fortune-daily-note">{t("disclaimer")}</p>
+    </details>
+    {aiText&&<div className="fortune-daily-ai-result" role="status">{Array.from(aiText).slice(0,120).join("")}</div>}
+    {aiError&&<p role="alert" className="fortune-daily-help">{t("ai."+aiError)}</p>}
+    {loadFailure&&<p role="alert" className="fortune-daily-help">{t("loadFailed")}</p>}
+    <div className="fortune-daily-actions">
+     <button className="btn secondary small" type="button" onClick={()=>void shareDailyCard(full,{doLabel:t("doLabel"),avoidLabel:t("avoidLabel"),luckyColor:t("luckyColor"),disclaimer:t("disclaimer"),kindLabel:t(full.kind)})}>{t("share")}</button>
+     {!!geminiKey()&&<button className="btn secondary small" type="button" disabled={aiBusy||Boolean(aiText)||aiUsedOther} onClick={()=>void useGemini(full)}>{aiBusy?t("ai.loading"):aiText||aiUsedOther?t("ai.used"):t("ai.generate")}</button>}
+     <Link className="btn small" to={full.deepLink}>{t("fullReading")} →</Link>
+    </div>
+   </div>}
   </>:<p role="status" className="fortune-daily-help">{unavailable?t(unavailable.reason==="birthTime"?"timeRequired":unavailable.reason==="birthDate"?"addBirthday":"loadFailed"):t("loading")}</p>}
  </section>;
 }
