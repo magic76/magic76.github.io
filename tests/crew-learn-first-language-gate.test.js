@@ -41,7 +41,8 @@ test("a prior explicit Friend or Teacher language choice suppresses the dialog; 
 });
 test("welcome step 2 confirms language, but its early Learn shortcut still opens the one-time prompt",()=>{
  const old=read("web-spa/src/onboarding/OnboardingGate.tsx"),app=read("web-spa/src/App.tsx");
- assert.match(app,/import\{LearningLanguageGate\}from"\.\/onboarding\/LearningLanguageGate"/);
+ assert.match(app,/const LearningLanguageGate=lazy\(\(\)=>import\("\.\/onboarding\/LearningLanguageGate"\)/);
+ assert.match(app,/pathname==="\/learn"\|\|pathname==="\/teacher"\|\|pathname==="\/teacher\/practice"/);
  assert.match(app,/<LearningLanguageGate pathname=\{pathname\}\/>/);
  assert.match(old,/if\(begin&&chosenGoal==="learn"&&step===2\)markLearningLanguageConfirmed\(localStorage\)/);
  assert.match(old,/onClick=\{\(\)=>finish\(true,item\.id\)\}/);
