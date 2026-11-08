@@ -26,6 +26,19 @@ export async function shareFortuneReading(reading:FortuneReading,oneLine="",art?
  return nativeCollectibleShare(file,fortuneInvitation(locale,model.title,url),url);
 }
 
+/** Daily cards retain their bounded multi-line layout, independently of collectible cards. */
+function wrap(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number,maxLines:number){
+ const words=Array.from(text||"");let line="",lines:string[]=[];
+ for(const ch of words){
+  if(ch==="\n"){lines.push(line);line="";if(lines.length>=maxLines)break;continue}
+  const next=line+ch;
+  if(ctx.measureText(next).width>max&&line){lines.push(line);line=ch;if(lines.length>=maxLines)break}else line=next;
+ }
+ if(line&&lines.length<maxLines)lines.push(line);
+ lines.forEach((value,i)=>ctx.fillText(value,x,y+i*lineHeight));
+ return y+lines.length*lineHeight;
+}
+
 /** Daily sharing is an explicit allowlist: never read profile or any chart fields. */
 export type DailyShareLabels={
  doLabel:string;avoidLabel:string;luckyColor:string;disclaimer:string;kindLabel:string;
