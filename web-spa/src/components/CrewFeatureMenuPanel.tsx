@@ -4,6 +4,7 @@ import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
 import {loadCrewFeatureMenuLocale} from "./crewFeatureMenuLocale";
+import {CrewInstallMenuAction} from "./CrewInstallEntry";
 export {loadCrewFeatureMenuLocale};
 
 type MenuDetail=Parameters<typeof trackUsageEvent>[1];
@@ -180,6 +181,7 @@ export default function CrewFeatureMenuPanel({onClose,triggerRef}:{onClose:()=>v
       </section>;
      })}
     </nav>
+    <CrewInstallMenuAction/>
    </aside>
   </div>,document.body);
 }

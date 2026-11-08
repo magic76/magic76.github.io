@@ -20,6 +20,7 @@ export type UsageEvent=
   |"guest_trial_entry_view"|"guest_trial_unavailable"|"guest_trial_start_click"|"guest_trial_mic_denied"|"guest_trial_setup_failed"
   |"guest_trial_token_issued"|"guest_trial_token_failed"|"guest_trial_connected"|"guest_trial_connect_failed"|"guest_trial_ended"
   |"home_entry_click"|"explore_entry_click"|"menu_open"|"menu_item_click"
+  |"pwa_install_view"|"pwa_install_click"|"pwa_install_dismiss"|"pwa_install_success"
   |"home_live_bubble_view"|"home_live_bubble_click"|"home_live_bubble_connected"|"home_live_bubble_conversation"
   |"home_gift_view"|"home_gift_open"|"home_gift_result"|"home_gift_go"|"home_gift_minimize"
   |"souls_open"|"souls_photo_ready"|"souls_created"|"souls_live_attempt"|"souls_live_connected"|"souls_live_failed"|"souls_user_input"|"souls_ai_replied"|"souls_conversation"|"souls_mask_repaired"
@@ -35,7 +36,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"bazi_yes"|"bazi_partly"|"bazi_no"|"tarot_
   |"nonsense"|"crazy-court"
   |"mira"|"ethan"|"hana"
   |"settings"|"learn"|"story"|"fortune"|"timeline"|"play"|"briefing"|"town"|"magic"|"mate"|"souls"|"shorts"|"circle"
-  |"discover"|"me"
+  |"discover"|"me"|"footer"|"menu"|"nudge"|"native"
   |"android_app_google_play"
   |"voice"|"demo"|"live"|"person"|"object"|"place"|"manual"|"render_error"|"unsupported"
   |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
@@ -104,6 +105,16 @@ function session(){
  return value;
 }
 export function trackUsageEvent(event:UsageEvent,detail:Detail=""){
+ // UX eligibility is independent of analytics consent and stores no chat content.
+ if(event==="friend_conversation"||event==="teacher_conversation"||event==="game_completed"||
+    event==="story_created"||event==="fortune_calculated"||event==="mate_handoff_completed"){
+  try{
+   if(localStorage.getItem("crew_pwa_engaged_v1")!=="1"){
+    localStorage.setItem("crew_pwa_engaged_v1","1");
+    window.dispatchEvent(new Event("crew-pwa-engaged"));
+   }
+  }catch{/* Optional local-only state. */}
+ }
  if(!allowed())return;
  const key=event+":"+detail,now=Date.now();
  // Protect against React strict-mode effects and accidental rapid duplicate calls.
