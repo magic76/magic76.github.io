@@ -209,6 +209,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className={"crew-section-heading"+(section==="learn"?" crew-learn-heading":"")}>
    {section==="learn"?
+    <>
     <div className="crew-learn-heading-row">
      <div className="crew-learn-heading-copy"><span className="kicker">{x.eyebrow}</span><h1>{tCommon("nav.learn")}</h1></div>
      <label className="crew-learn-language"><span>{tSettings("group.targetLanguage")}</span>
@@ -216,8 +217,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
       </select>
      </label>
-     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
     </div>
+     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
+    </>
     :<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
   {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
