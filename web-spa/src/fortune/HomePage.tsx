@@ -51,12 +51,12 @@ export function FortuneHomePage(){
  }
  return <>
   {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
-  <FortuneDailyCard/>
   <section className="hero fortune-journey-hero">
    <span className="kicker">CREW FORTUNE · EXPLORE</span>
    <h1>{t("landing.title")}</h1>
    <p>{t("landing.intro")}</p>
   </section>
+  {latest&&<FortuneDailyCard/>}
   <section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
    {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
     <div className="fortune-journey-latest">
@@ -123,6 +123,7 @@ export function FortuneHomePage(){
     </Link>
    </div>
   </section>
+  {!latest&&<FortuneDailyCard/>}
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
