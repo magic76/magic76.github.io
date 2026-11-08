@@ -54,6 +54,9 @@ jobs:
       # The default PR lane is intentionally light. Only test-regression repair
       # branches run the full suite before the PR is merged.
       # Keep Japanese-native English learning regression coverage in the light PR lane.
+      - name: Validate first-Learn language confirmation
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'learn-language-')
+        run: node --test tests/crew-learn-first-language-gate.test.js tests/crew-onboarding.test.js tests/teacher-target-languages.test.js tests/crew-friend-language-lock.test.js
       - name: Validate Japanese English learning flow
         if: github.event_name == 'pull_request'
         run: node --test tests/teacher-japanese-english-onboarding.test.js

@@ -7,6 +7,7 @@ import {fetchGuestTrialConfig,guestTrialDiscoveryEnabled} from "../lib/guestTria
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
 import {getOnboardingCopy} from "./copy";
+import {markLearningLanguageConfirmed} from "./learningLanguagePreference";
 import "./onboarding.css";
 
 export const REOPEN_ONBOARDING_EVENT="crew:reopen-onboarding";
@@ -109,6 +110,9 @@ export function OnboardingGate({pathname}:{pathname:string}){
  function finish(begin:boolean,chosenGoal:Goal=goal){
   try{localStorage.setItem(ONBOARDING_DONE_KEY,begin?"completed":"skipped")}catch{/* Optional persistence. */}
   try{sessionStorage.removeItem(DRAFT_KEY)}catch{/* Optional persistence. */}
+  // Only the final learning-preference step counts as explicit confirmation.
+  // The welcome shortcut intentionally reaches the Learn gate for first-time visitors.
+  if(begin&&chosenGoal==="learn"&&step===2)markLearningLanguageConfirmed(localStorage);
   dialog.current?.close();setOpen(false);
   if(begin)navigate(destinations[chosenGoal]);
  }

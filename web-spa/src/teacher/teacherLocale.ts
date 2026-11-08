@@ -1,7 +1,7 @@
 /** Teacher learner-native-language preferences shared by voice prompts and learning UI. */
 export const NATIVE_LANGUAGES=[
  ["zh-TW","繁體中文"],["zh-CN","简体中文"],["en","English"],["ja","日本語"],["ko","한국어"],
- ["vi","Tiếng Việt"],["id","Bahasa Indonesia"],["es","Español"],["fr","Français"],
+ ["vi","Tiếng Việt"],["id","Bahasa Indonesia"],["es","Español"],["fr","Français"],["de","Deutsch"],["it","Italiano"],
  ["th","ภาษาไทย"],["pt","Português"]
 ] as const;
 export type NativeLanguage=typeof NATIVE_LANGUAGES[number][0];

@@ -11,7 +11,8 @@ const settings=read("web-spa/src/pages/SettingsPage.tsx");
 const copySrc=read("web-spa/src/onboarding/copy.ts");
 
 test("shared guide is mounted in the React app, including Android WebView",()=>{
- assert.match(app,/import\{OnboardingGate\}from"\.\/onboarding\/OnboardingGate"/);
+ assert.match(app,/const OnboardingGate=lazy\(\(\)=>import\("\.\/onboarding\/OnboardingGate"\)/);
+ assert.match(app,/pathname==="\/"\|\|pathname==="\/settings"/);
  assert.match(app,/<OnboardingGate pathname=\{pathname\}\/>/);
  assert.doesNotMatch(gate,/isCrewAndroidShell\(/);
  assert.match(gate,/if\(pathname!=="\/"\)return/);
