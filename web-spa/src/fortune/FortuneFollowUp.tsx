@@ -42,7 +42,6 @@ export function FortuneFollowUp({reading,isCurrent,onSave}:Props){
  }
  return <section className="fortune-result-card fortune-follow-up" aria-label={t("reading.followup.title")}>
   <h3>{t("reading.followup.title")}</h3>
-  {parsed.ask.length>0&&<div className="fortune-conversation-actions">{parsed.ask.slice(0,3).map((item,i)=><button type="button" className="btn secondary small" key={i} disabled={sending||!hasKey} onClick={()=>{setQ(item);void submit(item)}}>{item}</button>)}</div>}
   {followups.length>0&&<div className="fortune-follow-up-history" role="status" aria-live="polite">{followups.map((item,i)=><div className="fortune-follow-up-entry" key={i}><strong>{item.q}</strong><p style={{whiteSpace:"pre-line"}}>{plainFortuneAnswer(item.a)}</p></div>)}</div>}
   <form onSubmit={e=>{e.preventDefault();void submit()}}>
    <label className="label" htmlFor="fortune-followup-question">{t("reading.followup.question")}</label>
