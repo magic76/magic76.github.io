@@ -126,7 +126,15 @@
       "normal": "普通",
       "fast": "速い"
     },
-    "nativeLanguage": "母語"
+    "nativeLanguage": "母語",
+    "speakingLevel": "英会話のレベル",
+    "speakingLevelAuto": "自動 · 話す力に合わせる",
+    "levels": {
+      "A1": "初級",
+      "A2": "基礎",
+      "B1": "中級",
+      "B2": "中上級"
+    }
   },
   "picker": {
     "choose": "先生を選ぶ",
@@ -386,5 +394,17 @@
       "start": "復習を開始",
       "clear": "復習履歴を削除"
     }
+  },
+  "briefing": {
+    "back": "コースマップに戻る",
+    "kicker": "ミッションの説明",
+    "roleplay": "ロールプレイレッスン",
+    "goals": "達成する目標（{{count}} 個）",
+    "phrases": "役立つ英語フレーズ（{{count}}）",
+    "englishPhraseHint": "英語のフレーズを声に出して練習しましょう。",
+    "practice": "発音練習",
+    "practiceAria": "「{{phrase}}」の発音を練習",
+    "start": "シチュエーション会話を始める",
+    "footnote": "実際に話した内容から達成度を評価します。キーワードだけでは判定しません。"
   }
 }
