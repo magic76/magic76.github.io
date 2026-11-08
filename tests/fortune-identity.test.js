@@ -91,7 +91,7 @@ test("integration keeps an existing detailed report share button and adds identi
  const page=read("ReadingPage.tsx");
  const ui=read("FortuneIdentityCard.tsx");
  assert.match(page,/<FortuneIdentityRevealDialog reading=\{reading\}/);
- assert.match(page,/shareFortuneReading\(reading!\)/);
+ assert.match(page,/shareFortuneReading\(reading,oneLine\|\|reading\.summary,shareArtRef\.current\)/);
  assert.match(ui,/shareIdentityCard\(card,locale,artSrc/);
  assert.ok(!ui.includes("fortune-identity-rating"));
  assert.ok(!ui.includes("fortune_identity_feedback"));

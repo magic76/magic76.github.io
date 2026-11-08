@@ -425,3 +425,18 @@ check("all published SSG OG images are present, 1200x630 PNG, and route-specific
   }
  }
 });
+
+
+check("Fortune challenge URL is readable by link preview crawlers without running React",()=>{
+ for(const relative of ["fortune/reading.html","en/fortune/reading.html"]){
+  const html=read(relative),head=html.split("</head>")[0];
+  for(const name of ["og:title","og:description","og:image","og:url","twitter:card"]){
+   assert.match(head,new RegExp('(?:property|name)="'+name+'"'),relative+" missing "+name);
+  }
+  assert.ok(head.includes("我算出了自己的命格身份！換你看看，你是哪一型？"),relative);
+  assert.ok(head.includes("https://www.3sssi.com/social/og/fortune-chibi-v1.png"),relative);
+  assert.ok(head.includes('content="summary_large_image"'),relative);
+  assert.ok(!head.includes("birthDate")&&!head.includes("dayMaster"),"Never expose a personal chart in public OG");
+  assert.ok(head.includes('name="robots" content="noindex,follow"'),"Private reading must not become indexable");
+ }
+});
