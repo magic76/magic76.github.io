@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Historique des thèmes",
       "desc": "Revoir les thèmes passés"
+    },
+    "feedback": {
+      "title": "Avis et idées",
+      "desc": "Signalez un problème ou proposez une idée"
     }
   },
   "featureCount": "fonctions"

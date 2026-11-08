@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Nous contacter",
-    "region": "Coordonnées"
+    "region": "Coordonnées",
+    "feedback": "Avis et idées"
   },
   "seo": {
     "home": "Crew — Langues, histoires et astrologie avec l'IA",
@@ -107,7 +108,7 @@
     "verification": "Échec de la vérification. Réessayez.",
     "tempUnavailable": "Essai temporairement indisponible.",
     "remaining": "Essais vocaux gratuits restants : {{count}} / {{limit}}",
-     "memberRemaining": "Essais gratuits restants aujourd’hui : {{count}} / {{limit}}",
+    "memberRemaining": "Essais gratuits restants aujourd’hui : {{count}} / {{limit}}",
     "usedUpTitle": "Votre essai gratuit est épuisé",
     "free1a2b": "Jouer à 1A2B (gratuit)",
     "freeVocabulary": "Mot du jour",

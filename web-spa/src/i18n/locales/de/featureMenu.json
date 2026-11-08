@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "Horoskop-Verlauf",
       "desc": "Frühere Diagramme ansehen"
+    },
+    "feedback": {
+      "title": "Feedback",
+      "desc": "Probleme melden oder Ideen teilen"
     }
   },
   "featureCount": "Funktionen"

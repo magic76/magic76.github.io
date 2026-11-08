@@ -45,7 +45,8 @@
   },
   "contact": {
     "label": "Kontakt",
-    "region": "Kontaktinformationen"
+    "region": "Kontaktinformationen",
+    "feedback": "Feedback"
   },
   "seo": {
     "home": "Crew — KI-Sprachlernen, Geschichten und Astrologie",
@@ -107,7 +108,7 @@
     "verification": "Verifizierung fehlgeschlagen. Erneut versuchen.",
     "tempUnavailable": "Test vorübergehend nicht verfügbar.",
     "remaining": "Verbleibende kostenlose Sprachtests: {{count}} / {{limit}}",
-     "memberRemaining": "Kostenlose Tests heute übrig: {{count}} / {{limit}}",
+    "memberRemaining": "Kostenlose Tests heute übrig: {{count}} / {{limit}}",
     "usedUpTitle": "Dein Gratis-Test ist aufgebraucht",
     "free1a2b": "1A2B spielen (gratis)",
     "freeVocabulary": "Wort des Tages",

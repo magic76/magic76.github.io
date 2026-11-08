@@ -137,6 +137,10 @@
     "fortuneHistory": {
       "title": "운세 기록",
       "desc": "이전 명반 확인"
+    },
+    "feedback": {
+      "title": "의견 보내기",
+      "desc": "문제 신고 또는 기능 제안"
     }
   },
   "featureCount": "개 기능"
