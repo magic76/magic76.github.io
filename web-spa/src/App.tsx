@@ -11,7 +11,7 @@ import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
 import{GameRouteMonitor,GameRouteReady}from"./analytics/gameRouteDiagnostics";
 import{AppChrome}from"./components/AppChrome";
 import{OnboardingGate}from"./onboarding/OnboardingGate";
-import{LearningLanguageGate}from"./onboarding/LearningLanguageGate";
+
 const CrewUpdateNotice=lazy(()=>import("./components/CrewUpdateNotice").then(m=>({default:m.CrewUpdateNotice})));
 const CrewInstallNudge=lazy(()=>import("./components/CrewInstallEntry").then(m=>({default:m.CrewInstallNudge})));
 const DiscoverPage=lazy(()=>import("./pages/DiscoverPage").then(m=>({default:m.DiscoverPage})));
@@ -47,6 +47,7 @@ const CrewTownPage=lazy(()=>import("./town/Town3DPage").then(m=>({default:m.Town
 const MagicPage=lazy(()=>withNamespace("magic",import("./magic/MagicPage")).then(m=>({default:m.MagicPage})));
 const SoulsPage=lazy(()=>withNamespace("voice",import("./souls/SoulsPage")).then(m=>({default:m.SoulsPage})));
 const BooksPage=lazy(()=>import("./books/BooksPage"));
+const LearningLanguageGate=lazy(()=>import("./onboarding/LearningLanguageGate").then(m=>({default:m.LearningLanguageGate})));
 const CrewSectionPage=lazy(()=>withNamespace("lesson",import("./pages/CrewSectionPage")).then(m=>({default:m.CrewSectionPage})));
 const GuidePage=lazy(()=>import("./guides/GuidePage").then(m=>({default:m.GuidePage})));
 function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navigate to={"/research/"+encodeURIComponent(date)+"/"+encodeURIComponent(id)} replace/>}
@@ -107,4 +108,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune" element={<FortuneLayout/>}><Route index element={<FortuneHomePage/>}/><Route path="history" element={<FortuneHistoryPage/>}/><Route path="reading" element={<FortuneReadingPage/>}/></Route>
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}<OnboardingGate pathname={pathname}/><LearningLanguageGate pathname={pathname}/><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense>{pathname==="/"&&<Suspense fallback={null}><CrewInstallNudge/></Suspense>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}<OnboardingGate pathname={pathname}/>{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense>}<Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense>{pathname==="/"&&<Suspense fallback={null}><CrewInstallNudge/></Suspense>}</>}
