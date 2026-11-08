@@ -2,6 +2,7 @@ import {useEffect,useMemo,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {geminiKey,ensureFortuneServices} from "../lib/runtime";
+import {useClientReady} from "../lib/useClientReady";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
 import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
@@ -35,6 +36,8 @@ function useLocalDay(){
 export function FortuneDailyCard(){
  const {t,i18n}=useTranslation("fortuneDaily");
  const ready=useRouteNamespace("fortuneDaily");
+ // Keep the SSG and first hydration pass identical, regardless of saved profile.
+ const clientReady=useClientReady();
  const date=useLocalDay();
  const [profile,setProfile]=useState<Partial<FortuneProfile>|null>(()=>getProfile());
  const [selected,setSelected]=useState<DailyKind>(()=>readDailyKind());
@@ -69,7 +72,7 @@ export function FortuneDailyCard(){
   return ()=>{cancelled=true;};
  },[kind,profileHash,locale,refresh]);
  const card=useMemo(()=>{
-  if(!ready||!profile?.birthDate)return null;
+  if(!clientReady||!ready||!profile?.birthDate)return null;
   const cached=readCachedDaily(date,kind,profileHash);
   // Cache is a stable card, but strings must always match the active language.
   if(cached?.card&&cached.card.kind===kind&&cached.card.date===date&&
@@ -78,7 +81,7 @@ export function FortuneDailyCard(){
   if("status" in result)return result;
   saveCachedDaily(result,profileHash,undefined,locale);
   return result;
- },[ready,profileHash,profile,kind,date,locale,engineReady,refresh]);
+ },[clientReady,ready,profileHash,profile,kind,date,locale,engineReady,refresh]);
  const activeKey=date+":"+kind+":"+profileHash;
  active.current=activeKey;
  useEffect(()=>{
@@ -87,7 +90,14 @@ export function FortuneDailyCard(){
   setStreak(readDailyCompletionStreak());
   setAiText(profileHash?readCachedDaily(date,kind,profileHash)?.ai||"":"");
  },[activeKey,locale]);
- if(!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
+ useEffect(()=>{
+  if(!clientReady||!ready||!profile?.birthDate)return;
+  if(revealed){
+   hasFlipped.current=true;
+   (completed?backButton:finishButton).current?.focus();
+  }else if(hasFlipped.current)frontButton.current?.focus();
+ },[clientReady,ready,Boolean(profile?.birthDate),revealed,completed]);
+ if(!clientReady||!ready)return <section className="fortune-daily panel" aria-busy="true"><p>{t("loading")}</p></section>;
  if(!profile?.birthDate)return <section className="fortune-daily panel">
   <span className="kicker">CREW FORTUNE · {t("today")}</span><h2>{t("emptyTitle")}</h2>
   <p>{t("emptyDescription")}</p><Link className="btn" to="/fortune/reading?mode=tarot">{t("addBirthday")} →</Link>
@@ -102,12 +112,6 @@ export function FortuneDailyCard(){
   if(result.status==="ready")setAiText(result.text);
   else setAiError(result.status);
  }
- useEffect(()=>{
-  if(revealed){
-   hasFlipped.current=true;
-   (completed?backButton:finishButton).current?.focus();
-  }else if(hasFlipped.current)frontButton.current?.focus();
- },[revealed,completed]);
  const full=card&&!("status" in card)?card:null;
  const unavailable=card&&"status" in card?card:null;
  const seen=full?findExistingAiForKind(date,kind):null;

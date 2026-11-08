@@ -214,3 +214,21 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
   for(const key of ["flipCard","markComplete","completed","moreDetails","recentDays"])assert.ok(doc[key]);
  }
 });
+ 
+test("D11 direct Fortune URL keeps stable hooks across lazy locale and saved chart hydration",()=>{
+ const source=read("web-spa/src/fortune/FortuneDailyCard.tsx");
+ const component=source.slice(source.indexOf("export function FortuneDailyCard(){"));
+ const firstReturn=component.indexOf("if(!clientReady||!ready)return");
+ assert.ok(firstReturn>0,"initial Fortune SSR and client hydration need the same loading placeholder");
+ assert.match(component,/const clientReady=useClientReady\(\)/);
+ assert.match(component,/if\(!clientReady\|\|!ready\|\|!profile\?\.birthDate\)return null/,"daily chart generation must wait for hydration");
+ const hooks=[...component.matchAll(/\buse(?:Effect|Memo|Ref|State|ClientReady|RouteNamespace|LocalDay)\s*\(/g)];
+ assert.ok(hooks.length>=15,"expected daily card hook calls to be covered");
+ for(const hook of hooks){
+  assert.ok(hook.index<firstReturn,"Hook "+hook[0]+" must not be conditional on namespace/profile readiness");
+ }
+ assert.match(component,/if\(!clientReady\|\|!ready\|\|!profile\?\.birthDate\)return;\s*if\(revealed\)/,
+  "focus effect must remain mounted even when profile or locale is unavailable");
+ const home=read("web-spa/src/fortune/HomePage.tsx");
+ assert.match(home,/<FortuneDailyCard\/>/,"Fortune direct entry mounts the daily card even inside a closed details element");
+});
