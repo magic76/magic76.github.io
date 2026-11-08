@@ -666,3 +666,15 @@ button:focus-visible,.btn:focus-visible,a:focus-visible{outline:2px solid var(--
  :root .global-nav .navitem>span:not(.nav-icon){width:100%;min-width:0;align-self:start;font-size:12px;line-height:1.1;letter-spacing:-.025em;white-space:normal;overflow-wrap:normal;word-break:normal;hyphens:none}
  :root .global-nav .navitem.active .nav-icon{transform:none}
 }
+
+
+/* Fortune sharing: short mobile brand and an accessible persistent status after export. */
+.fortune-brand-compact{display:none}
+.fortune-share-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fortune-share-status{color:#51416d;font-size:12px;line-height:1.4;max-width:220px}
+@media(max-width:520px){
+ .fortune-theme .fortune-brand-wide{display:none}
+ .fortune-theme .fortune-brand-compact{display:inline}
+ .fortune-theme .app-header .app-title small{display:none}
+ .fortune-share-actions{justify-content:flex-start}
+}
