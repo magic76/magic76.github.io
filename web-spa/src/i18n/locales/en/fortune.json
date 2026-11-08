@@ -140,7 +140,12 @@
       "key": "Invalid Gemini key. Open settings.",
       "other": "Could not get a reply. Please retry.",
       "settings": "Open settings"
-    }
+    },
+    "aiCtaTitle": "Want to understand your chart more deeply?",
+    "aiCtaDesc": "Explore personality, work, relationships and life phases using your calculated chart.",
+    "aiCtaGenerate": "Get my AI reading",
+    "aiCtaRead": "Read my AI reading",
+    "aiCtaSetup": "Set up Gemini for AI insights"
   },
   "profile": {
     "birthdayRequired": "Choose a birth date before saving",

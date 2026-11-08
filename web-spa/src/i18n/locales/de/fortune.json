@@ -140,7 +140,12 @@
       "key": "Ungültiger Gemini-Schlüssel. Einstellungen öffnen.",
       "other": "Keine Antwort erhalten. Erneut versuchen.",
       "settings": "Einstellungen öffnen"
-    }
+    },
+    "aiCtaTitle": "Möchtest du dein Horoskop besser verstehen?",
+    "aiCtaDesc": "Die KI erläutert Persönlichkeit, Beruf, Beziehungen und Lebensphasen anhand deiner berechneten Daten.",
+    "aiCtaGenerate": "Meine KI-Deutung erhalten",
+    "aiCtaRead": "Meine KI-Deutung lesen",
+    "aiCtaSetup": "Gemini für die Deutung einrichten"
   },
   "profile": {
     "birthdayRequired": "Wähle vor dem Speichern ein Geburtsdatum",

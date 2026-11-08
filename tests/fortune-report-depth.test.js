@@ -115,21 +115,24 @@ test("閱讀頁在固定命盤完成後立即展示白話報告",()=>{
 });
 
 
-test("問老師入口在命盤報告前可見，未設定 Key 導向設定提示，頁尾仍可追問",()=>{
+test("AI 詳解主入口緊接摘要，語音與分享改為頁尾次要操作",()=>{
  const reading=fs.readFileSync(require.resolve("../web-spa/src/fortune/ReadingPage.tsx"),"utf8");
  const content=fs.readFileSync(require.resolve("../web-spa/src/fortune/result/depth.css"),"utf8");
  const tw=JSON.parse(fs.readFileSync(require.resolve("../web-spa/src/i18n/locales/zh-TW/fortune.json"),"utf8"));
  const en=JSON.parse(fs.readFileSync(require.resolve("../web-spa/src/i18n/locales/en/fortune.json"),"utf8"));
- assert.ok(reading.indexOf('className="fortune-teacher-invite"')<reading.indexOf('<FortuneReadingOverview'));
- assert.match(reading,/fortune-teacher-primary-action/);
- assert.match(reading,/className="fortune-teacher-followup"/);
+ assert.ok(reading.indexOf("<FortuneSummaryCard")<reading.indexOf('className="fortune-ai-entry"'));
+ assert.ok(reading.indexOf('className="fortune-ai-entry"')<reading.indexOf("<FortuneReadingOverview"));
+ assert.equal(reading.split('className="fortune-ai-entry-button"').length-1,1);
+ assert.match(reading,/className="fortune-reading-end"/);
  assert.match(reading,/getElementById\("fortune-ai-setup"\)/);
  assert.match(reading,/nav\("\/fortune\/live\?from=reading"\)/);
- assert.match(content,/fortune-teacher-primary-action:focus-visible/);
+ assert.match(content,/fortune-ai-entry-button:focus-visible/);
+ assert.match(content,/prefers-reduced-motion:reduce/);
  for(const locale of [tw,en]){
-  assert.ok(locale.reading.askTeacherTitle);
+  assert.ok(locale.reading.aiCtaGenerate);
+  assert.ok(locale.reading.aiCtaRead);
+  assert.ok(locale.reading.aiCtaSetup);
   assert.ok(locale.reading.askTeacherAction);
-  assert.ok(locale.reading.askTeacherSetup);
  }
 });
 

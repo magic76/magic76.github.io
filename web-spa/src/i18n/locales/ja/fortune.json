@@ -140,7 +140,12 @@
       "key": "Gemini キーが無効です。設定を開いてください。",
       "other": "回答できませんでした。再試行してください。",
       "settings": "設定を開く"
-    }
+    },
+    "aiCtaTitle": "自分の命盤をもっと深く知りたい？",
+    "aiCtaDesc": "計算済みの命盤をもとに、性格・仕事・人間関係・人生の流れをAIが詳しく解説します。",
+    "aiCtaGenerate": "AIによる詳しい解説を取得",
+    "aiCtaRead": "AIの詳しい解説を読む",
+    "aiCtaSetup": "Geminiを設定して詳しく見る"
   },
   "profile": {
     "birthdayRequired": "保存する前に生年月日を選んでください",

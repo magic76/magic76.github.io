@@ -140,7 +140,12 @@
       "key": "Chave Gemini inválida. Abra as configurações.",
       "other": "Não foi possível responder. Tente novamente.",
       "settings": "Abrir configurações"
-    }
+    },
+    "aiCtaTitle": "Quer entender melhor seu mapa?",
+    "aiCtaDesc": "A IA explica personalidade, trabalho, relacionamentos e fases da vida com base no mapa calculado.",
+    "aiCtaGenerate": "Obter minha análise por IA",
+    "aiCtaRead": "Ler minha análise por IA",
+    "aiCtaSetup": "Configurar Gemini para a análise"
   },
   "profile": {
     "birthdayRequired": "Escolha uma data de nascimento antes de salvar",
