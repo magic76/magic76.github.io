@@ -129,7 +129,7 @@ test("approved art manifest matches all ten BaZi and twelve Vedic character WebP
   assert.equal(bytes.readUInt16LE(28)&0x3fff,864,id+" height");
  }
  assert.equal(approved.length,22);
- assert.equal(new Set(approved).size,10);
+ assert.equal(new Set(approved).size,22);
  assert.equal(url("bazi-unknown"),null);
  assert.equal(url("tarot-22"),null);
 });
