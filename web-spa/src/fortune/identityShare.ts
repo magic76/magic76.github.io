@@ -48,12 +48,13 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string,a
    ...(identity.behavior?[[zh?"最像你的地方":"HOW YOU MAY ACT",identity.behavior]]:[]),
    ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
   ];
-  let y=753;
-  for(const [label,body] of sections){
+  // Center the actual sections inside the available vertical band.
+  const slot=(1105-753)/sections.length;
+  for(const [index,[label,body]] of sections.entries()){
+   const y=753+slot*(index+.5)-42;
    ctx.fillStyle="#756394";ctx.font="700 24px system-ui,sans-serif";ctx.fillText(label,113,y);
    ctx.fillStyle="#30293a";ctx.font="24px system-ui,sans-serif";
    paint(ctx,body,113,y+37,851,3,28);
-   y+=117;
   }
   ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1120);ctx.lineTo(965,1120);ctx.stroke();
   ctx.fillStyle="#756394";ctx.font="700 23px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1156);
@@ -71,20 +72,21 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string,a
    ...(identity.behavior?[[zh?"你可能有的習慣":"HOW YOU MAY ACT",identity.behavior]]:[]),
    ...(identity.tension?[[zh?"值得留意的另一面":"ANOTHER SIDE TO CONSIDER",identity.tension]]:[])
   ];
-  let y=505;
-  for(const [label,body] of blocks){
+  const slot=(1024-505)/blocks.length;
+  for(const [index,[label,body]] of blocks.entries()){
+   const y=505+slot*(index+.5)-67;
    ctx.fillStyle="#756394";ctx.font="700 27px system-ui,sans-serif";ctx.fillText(label,113,y);
    ctx.fillStyle="#30293a";ctx.font="29px system-ui,sans-serif";paint(ctx,body,113,y+49,852,3,42);
-   y+=177;
   }
   ctx.strokeStyle="#dcd1ed";ctx.beginPath();ctx.moveTo(112,1032);ctx.lineTo(965,1032);ctx.stroke();
   ctx.fillStyle="#756394";ctx.font="700 25px system-ui,sans-serif";ctx.fillText(zh?"命盤依據":"CHART EVIDENCE",112,1081);
   ctx.fillStyle="#4f4962";ctx.font="22px system-ui,sans-serif";
   identity.evidence.slice(0,3).forEach((line,i)=>paint(ctx,line,112,1121+i*32,849,1,30));
  }
- ctx.fillStyle="#52456f";ctx.font="24px system-ui,sans-serif";
- paint(ctx,zh?"命理象徵供自我探索，不是經驗驗證的人格判定。":"Symbolic reflection, not an evidence-based personality assessment.",78,1268,920,2,31);
- ctx.fillStyle="#503886";ctx.font="700 28px system-ui,sans-serif";ctx.fillText("3sssi.com/fortune",78,1322);
+ ctx.fillStyle="#52456f";ctx.font="22px system-ui,sans-serif";
+ paint(ctx,zh?"命理象徵供自我探索，不是經驗驗證的人格判定。":"Symbolic reflection, not an evidence-based personality assessment.",78,1269,920,2,29);
+ ctx.fillStyle="#503886";ctx.font="700 28px system-ui,sans-serif";
+ ctx.fillText(zh?"你是哪一型？3sssi.com/fortune":"Which one are you? 3sssi.com/fortune",78,1320);
  return canvas;
 }
 function pngFile(canvas:HTMLCanvasElement):File{
