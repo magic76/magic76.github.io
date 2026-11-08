@@ -140,7 +140,12 @@
       "key": "Clé Gemini invalide. Ouvrez les paramètres.",
       "other": "Impossible d'obtenir une réponse. Réessayez.",
       "settings": "Ouvrir les paramètres"
-    }
+    },
+    "aiCtaTitle": "Envie de mieux comprendre votre thème ?",
+    "aiCtaDesc": "L’IA approfondit personnalité, travail, relations et étapes de vie à partir de votre thème calculé.",
+    "aiCtaGenerate": "Obtenir mon analyse IA",
+    "aiCtaRead": "Lire mon analyse IA",
+    "aiCtaSetup": "Configurer Gemini pour l’analyse"
   },
   "profile": {
     "birthdayRequired": "Choisissez une date de naissance avant d'enregistrer",
