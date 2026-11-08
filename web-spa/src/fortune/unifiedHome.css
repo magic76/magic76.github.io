@@ -71,3 +71,14 @@
  .fortune-journey-create .fortune-home-mode{gap:10px}
  .fortune-journey-create .fortune-home-mode .fortune-mode-cover{width:108px}
 }
+
+/* Put the three reading choices first; keep daily reflection optional. */
+.fortune-journey-create{margin-top:8px}
+.fortune-journey-daily{margin:22px 0 12px;border-top:1px solid var(--line,#e2dce8)}
+.fortune-journey-daily>summary{min-height:52px;display:flex;align-items:center;font-size:14px;font-weight:700;cursor:pointer;list-style:none}
+.fortune-journey-daily>summary::-webkit-details-marker{display:none}
+.fortune-journey-daily>summary::after{content:"＋";margin-left:auto;font-size:19px}
+.fortune-journey-daily[open]>summary::after{content:"－"}
+.fortune-journey-daily>.fortune-daily{margin:6px 0 0}
+@media(max-width:600px){.fortune-journey-create .fortune-home-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}}
+@media(prefers-reduced-motion:reduce){.fortune-journey-daily>summary{scroll-behavior:auto}}
