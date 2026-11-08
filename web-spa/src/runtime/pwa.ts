@@ -1,10 +1,13 @@
 import {isCrewAndroidShell} from "../lib/platform";
+import {trackUsageEvent} from "../analytics/usage";
 
 type CrewInstallEvent=Event&{
  prompt:()=>Promise<void>;
  userChoice:Promise<{outcome:"accepted"|"dismissed"}>;
 };
 let deferred:CrewInstallEvent|null=null;
+let installed=false;
+let registrationStarted=false;
 const listeners=new Set<()=>void>();
 const notify=()=>listeners.forEach(listener=>listener());
 
@@ -17,6 +20,8 @@ if(typeof window!=="undefined"){
  });
  window.addEventListener("appinstalled",()=>{
   deferred=null;
+  installed=true;
+  trackUsageEvent("pwa_install_success","native");
   notify();
  });
 }
@@ -31,6 +36,16 @@ export function isCrewStandalone(){
  return window.matchMedia("(display-mode: standalone)").matches||
   Boolean((navigator as Navigator&{standalone?:boolean}).standalone);
 }
+export function isCrewIosDevice(){
+ if(typeof navigator==="undefined")return false;
+ return /iPhone|iPad|iPod/.test(navigator.userAgent)||
+  (navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+}
+export function isCrewEmbeddedBrowser(){
+ if(typeof navigator==="undefined")return false;
+ return /FBAN|FBAV|Instagram|Threads|Barcelona|Line\/|MicroMessenger|; wv\)|WebView/i.test(navigator.userAgent);
+}
+export function isCrewInstalled(){return installed||isCrewStandalone();}
 export function isCrewIosSafari(){
  if(typeof navigator==="undefined")return false;
  const ua=navigator.userAgent;
@@ -38,7 +53,7 @@ export function isCrewIosSafari(){
 }
 export function canOfferCrewInstall(){
  if(typeof window==="undefined")return false;
- if(window.location.pathname.startsWith("/crew-app/")||isCrewAndroidShell()||isCrewStandalone())return false;
+ if(window.location.pathname.startsWith("/crew-app/")||isCrewAndroidShell()||isCrewInstalled())return false;
  return window.location.protocol==="https:"||window.location.hostname==="localhost";
 }
 export async function requestCrewInstall(){
@@ -53,7 +68,8 @@ export async function requestCrewInstall(){
  }catch{return false;}
 }
 export function registerCrewPwa(){
- if(typeof window==="undefined"||!("serviceWorker" in navigator)||!canOfferCrewInstall())return;
+ if(typeof window==="undefined"||!("serviceWorker" in navigator)||!canOfferCrewInstall()||registrationStarted)return;
+ registrationStarted=true;
  const register=()=>{void navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"}).catch(()=>{
   // PWA is optional; failure to register must not block Crew.
  });};

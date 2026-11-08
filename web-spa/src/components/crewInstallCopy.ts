@@ -1,0 +1,112 @@
+import {normalizeUiLocale} from "../i18n";
+
+type InstallCopy={
+ install:string;add:string;menuDesc:string;inviteTitle:string;inviteDesc:string;
+ ios:string;external:string;android:string;desktop:string;
+ close:string;later:string;never:string;
+};
+// On-demand with the install UI, not the first-paint locale catalogs.
+const copies:Record<string,InstallCopy>={
+ "zh-TW":{
+  install:"安裝 Crew",add:"加入主畫面",menuDesc:"放到手機主畫面，下次直接開啟",
+  inviteTitle:"把 Crew 裝進手機",inviteDesc:"下次直接開聊、學習或玩遊戲，不用再找網址。",
+  ios:"在 Safari 點選「分享」，再選「加入主畫面」。",
+  external:"請先用瀏覽器開啟這個網頁（例如 Safari 或 Chrome），再從瀏覽器選單加入主畫面。",
+  android:"在 Chrome 的選單選擇「安裝應用程式」或「加入主畫面」。如果沒看到，請確認瀏覽器支援安裝。",
+  desktop:"在 Chrome 或 Edge 的網址列或瀏覽器選單尋找「安裝」；若沒有此選項，目前無法從這裡直接安裝。",
+  close:"關閉說明",later:"稍後再說",never:"不再提示"
+ },
+ en:{
+  install:"Install Crew",add:"Add to Home Screen",menuDesc:"Open Crew straight from your home screen",
+  inviteTitle:"Keep Crew on your phone",inviteDesc:"Jump straight into chats, learning and games next time.",
+  ios:"In Safari, tap Share, then Add to Home Screen.",
+  external:"Open this page in Safari or Chrome first, then use the browser's Add to Home Screen option.",
+  android:"In Chrome's menu, choose Install app or Add to Home screen. If missing, your browser may not support installation.",
+  desktop:"Look for Install in Chrome or Edge's address bar or menu. If absent, direct installation may be unavailable.",
+  close:"Close guide",later:"Maybe later",never:"Don't ask again"
+ },
+ ja:{
+  install:"Crew をインストール",add:"ホーム画面に追加",menuDesc:"ホーム画面からすぐに Crew を開く",
+  inviteTitle:"Crew をスマホに追加",inviteDesc:"次回はチャットや学習、ゲームにすぐアクセス。",
+  ios:"Safari で共有をタップし、「ホーム画面に追加」を選択してください。",
+  external:"Safari または Chrome でこのページを開き、ブラウザーのメニューからホーム画面に追加してください。",
+  android:"Chrome のメニューから「アプリをインストール」または「ホーム画面に追加」を選んでください。",
+  desktop:"Chrome または Edge のアドレスバーやメニューで「インストール」を探してください。",
+  close:"閉じる",later:"あとで",never:"今後表示しない"
+ },
+ ko:{
+  install:"Crew 설치",add:"홈 화면에 추가",menuDesc:"홈 화면에서 Crew 바로 실행",
+  inviteTitle:"Crew를 휴대폰에 추가",inviteDesc:"다음에는 채팅, 학습, 게임을 바로 시작하세요.",
+  ios:"Safari에서 공유를 누른 다음 홈 화면에 추가를 선택하세요.",
+  external:"Safari 또는 Chrome에서 이 페이지를 열고 브라우저 메뉴에서 홈 화면에 추가하세요.",
+  android:"Chrome 메뉴에서 앱 설치 또는 홈 화면에 추가를 선택하세요.",
+  desktop:"Chrome 또는 Edge 주소창이나 메뉴에서 설치를 찾아보세요.",
+  close:"안내 닫기",later:"나중에",never:"다시 표시하지 않기"
+ },
+ de:{
+  install:"Crew installieren",add:"Zum Startbildschirm",menuDesc:"Crew direkt vom Startbildschirm öffnen",
+  inviteTitle:"Crew auf deinem Handy",inviteDesc:"Chats, Lernen und Spiele beim nächsten Mal direkt öffnen.",
+  ios:"Tippe in Safari auf Teilen und dann auf Zum Home-Bildschirm.",
+  external:"Öffne die Seite in Safari oder Chrome und wähle im Browsermenü Zum Startbildschirm.",
+  android:"Wähle in Chrome App installieren oder Zum Startbildschirm hinzufügen.",
+  desktop:"Suche in Chrome oder Edge in der Adressleiste oder im Menü nach Installieren.",
+  close:"Hilfe schließen",later:"Später",never:"Nicht mehr fragen"
+ },
+ fr:{
+  install:"Installer Crew",add:"Ajouter à l’accueil",menuDesc:"Ouvrez Crew depuis l’écran d’accueil",
+  inviteTitle:"Gardez Crew sur votre téléphone",inviteDesc:"Retrouvez directement chats, cours et jeux.",
+  ios:"Dans Safari, touchez Partager puis Sur l’écran d’accueil.",
+  external:"Ouvrez cette page dans Safari ou Chrome, puis ajoutez-la à l’écran d’accueil depuis le navigateur.",
+  android:"Dans Chrome, choisissez Installer l’application ou Ajouter à l’écran d’accueil.",
+  desktop:"Dans Chrome ou Edge, recherchez Installer dans la barre d’adresse ou le menu.",
+  close:"Fermer l’aide",later:"Plus tard",never:"Ne plus demander"
+ },
+ es:{
+  install:"Instalar Crew",add:"Añadir a inicio",menuDesc:"Abre Crew desde la pantalla de inicio",
+  inviteTitle:"Lleva Crew en tu móvil",inviteDesc:"Accede directamente a chats, lecciones y juegos.",
+  ios:"En Safari, toca Compartir y luego Añadir a pantalla de inicio.",
+  external:"Abre esta página en Safari o Chrome y usa la opción Añadir a inicio del navegador.",
+  android:"En Chrome, elige Instalar aplicación o Añadir a pantalla de inicio.",
+  desktop:"Busca Instalar en la barra de direcciones o el menú de Chrome o Edge.",
+  close:"Cerrar guía",later:"Más tarde",never:"No volver a preguntar"
+ },
+ id:{
+  install:"Instal Crew",add:"Tambahkan ke Beranda",menuDesc:"Buka Crew langsung dari layar utama",
+  inviteTitle:"Simpan Crew di ponsel",inviteDesc:"Langsung buka obrolan, belajar, dan game lain kali.",
+  ios:"Di Safari, ketuk Bagikan lalu Tambahkan ke Layar Utama.",
+  external:"Buka halaman ini di Safari atau Chrome, lalu pilih Tambahkan ke Layar Utama di menu browser.",
+  android:"Di menu Chrome, pilih Instal aplikasi atau Tambahkan ke Layar Utama.",
+  desktop:"Cari Instal di bilah alamat atau menu Chrome atau Edge.",
+  close:"Tutup petunjuk",later:"Nanti",never:"Jangan tampilkan lagi"
+ },
+ "pt-BR":{
+  install:"Instalar Crew",add:"Adicionar à Tela Inicial",menuDesc:"Abra Crew direto pela tela inicial",
+  inviteTitle:"Leve Crew no celular",inviteDesc:"Volte direto para conversas, aulas e jogos.",
+  ios:"No Safari, toque em Compartilhar e depois Adicionar à Tela de Início.",
+  external:"Abra esta página no Safari ou Chrome e use Adicionar à Tela Inicial no menu do navegador.",
+  android:"No menu do Chrome, escolha Instalar app ou Adicionar à Tela Inicial.",
+  desktop:"Procure Instalar na barra de endereço ou no menu do Chrome ou Edge.",
+  close:"Fechar ajuda",later:"Mais tarde",never:"Não perguntar novamente"
+ },
+ th:{
+  install:"ติดตั้ง Crew",add:"เพิ่มไปยังหน้าจอหลัก",menuDesc:"เปิด Crew ได้ทันทีจากหน้าจอหลัก",
+  inviteTitle:"เก็บ Crew ไว้ในมือถือ",inviteDesc:"กลับมาแชต เรียน และเล่นเกมได้ทันที",
+  ios:"ใน Safari แตะแชร์ แล้วเลือกเพิ่มไปยังหน้าจอโฮม",
+  external:"เปิดหน้านี้ใน Safari หรือ Chrome แล้วเลือกเพิ่มไปยังหน้าจอหลักจากเมนูเบราว์เซอร์",
+  android:"ในเมนู Chrome เลือกติดตั้งแอปหรือเพิ่มไปยังหน้าจอหลัก",
+  desktop:"ค้นหาติดตั้งในแถบที่อยู่หรือเมนู Chrome หรือ Edge",
+  close:"ปิดคำแนะนำ",later:"ไว้ทีหลัง",never:"ไม่ต้องแจ้งอีก"
+ },
+ vi:{
+  install:"Cài đặt Crew",add:"Thêm vào màn hình chính",menuDesc:"Mở Crew ngay từ màn hình chính",
+  inviteTitle:"Mang Crew lên điện thoại",inviteDesc:"Lần sau mở ngay trò chuyện, học tập và trò chơi.",
+  ios:"Trong Safari, chọn Chia sẻ rồi Thêm vào màn hình chính.",
+  external:"Mở trang này trong Safari hoặc Chrome, rồi thêm vào màn hình chính bằng menu trình duyệt.",
+  android:"Trong menu Chrome, chọn Cài đặt ứng dụng hoặc Thêm vào màn hình chính.",
+  desktop:"Tìm Cài đặt trong thanh địa chỉ hoặc menu Chrome hay Edge.",
+  close:"Đóng hướng dẫn",later:"Để sau",never:"Đừng hỏi lại"
+ }
+};
+export function getCrewInstallCopy(language:string):InstallCopy{
+ return copies[normalizeUiLocale(language)||"en"]||copies.en;
+}
