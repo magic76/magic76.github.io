@@ -126,7 +126,15 @@
       "normal": "正常",
       "fast": "快"
     },
-    "nativeLanguage": "母語"
+    "nativeLanguage": "母語",
+    "speakingLevel": "我的口說程度",
+    "speakingLevelAuto": "自動 · 依口說調整",
+    "levels": {
+      "A1": "初學",
+      "A2": "基礎",
+      "B1": "中階",
+      "B2": "中高階"
+    }
   },
   "picker": {
     "choose": "選擇你的老師",
@@ -386,5 +394,17 @@
       "start": "開始複習",
       "clear": "清除複習紀錄"
     }
+  },
+  "briefing": {
+    "back": "返回課程地圖",
+    "kicker": "任務簡報",
+    "roleplay": "情境實戰",
+    "goals": "完成這 {{count}} 件事就過關",
+    "phrases": "實用句型（{{count}}）",
+    "englishPhraseHint": "跟著朗讀英語例句。",
+    "practice": "試讀",
+    "practiceAria": "練習發音：{{phrase}}",
+    "start": "開始情境對話",
+    "footnote": "依照你在情境對話中實際說出的內容評估任務，不會只看關鍵字。"
   }
 }

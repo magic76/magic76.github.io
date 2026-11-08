@@ -5,6 +5,8 @@ import {useTeacherStore} from "../store/teacherStore";
 import {useClientReady} from "../lib/useClientReady";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyLearningPlan,type DailyLearningPlan} from "./learningCoordinator";
+import {courseLesson} from "./courseCatalog";
+import {courseDisplayTitle} from "./courseLocale";
 import {getTeacherProfile} from "./teacherProfiles";
 import {TodayLearningCard} from "./TodayLearningCard";
 
@@ -26,7 +28,8 @@ export function LearningFocusCard(){
   return()=>{alive=false};
  },[ready,targetLanguage,selectedProfile]);
  const chinese=i18n.resolvedLanguage==="zh-TW";
- const lessonName=chinese?plan?.nextLessonTitle:plan?.nextLessonTitleEn;
+ const lesson=courseLesson(plan?.nextLessonId||"");
+ const lessonName=i18n.resolvedLanguage==="ja"&&lesson?courseDisplayTitle(lesson,"ja"):chinese?plan?.nextLessonTitle:plan?.nextLessonTitleEn;
  const title=plan===null?t("learnToday.loading"):
   plan?.action==="review"?t("learnToday.reviewTitle"):
   plan?.action==="vocabulary"&&targetLanguage==="英文"

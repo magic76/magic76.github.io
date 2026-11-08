@@ -126,7 +126,15 @@
       "normal": "ปกติ",
       "fast": "เร็ว"
     },
-    "nativeLanguage": "ภาษาแม่"
+    "nativeLanguage": "ภาษาแม่",
+    "speakingLevel": "My speaking level",
+    "speakingLevelAuto": "Auto · adapt to speaking",
+    "levels": {
+      "A1": "Beginner",
+      "A2": "Elementary",
+      "B1": "Intermediate",
+      "B2": "Upper intermediate"
+    }
   },
   "picker": {
     "choose": "เลือกครู",
@@ -386,5 +394,17 @@
       "start": "เริ่มทบทวน",
       "clear": "ล้างประวัติ"
     }
+  },
+  "briefing": {
+    "back": "Back to course map",
+    "kicker": "Mission briefing",
+    "roleplay": "ROLE-PLAY LESSON",
+    "goals": "Complete these {{count}} goals",
+    "phrases": "Useful English phrases ({{count}})",
+    "englishPhraseHint": "Practice these English expressions aloud.",
+    "practice": "Practice",
+    "practiceAria": "Practice pronunciation: {{phrase}}",
+    "start": "Start scenario conversation",
+    "footnote": "Progress is assessed from what you actually say, not just matching keywords."
   }
 }

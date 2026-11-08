@@ -21,8 +21,10 @@ import{teacherLanguageLiveHint}from"./teacherLanguageUx";
 import{TeacherLiveTools}from"./TeacherLiveTools";
 import{nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
-import{useTranslation}from"react-i18next";import "./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
+import{useTranslation}from"react-i18next";import "./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
+import{teacherProfileDisplay}from"./teacherProfileLocale";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
 
+const legacyMissionsJa:any={hotel_checkin:{title:"ホテルのチェックイン",scene:"ホテル",goals:["予約者名を伝える","朝食時間を確認する","チェックアウト時間を尋ねる"]},restaurant_order:{title:"レストランでの注文",scene:"レストラン",goals:["おすすめを尋ねる","食事制限を伝える","会計をお願いする"]},work_meeting:{title:"職場の会議",scene:"ビジネス",goals:["リスクを一つ伝える","代案を提案する","次の担当事項を確認する"]},transport:{title:"道案内と交通",scene:"旅行",goals:["目的地への行き方を尋ねる","乗り場を確認する","この便で合っているか確認する"]}};
 const legacyMissions:any={hotel_checkin:{title:"飯店入住",scene:"飯店",goals:["說出訂房姓名","確認早餐時間","詢問退房時間"]},restaurant_order:{title:"餐廳點餐",scene:"餐廳",goals:["詢問推薦菜色","說明飲食限制","請服務生結帳"]},work_meeting:{title:"工作會議",scene:"工作",goals:["表達一個風險","提出替代方案","確認 action item"]},transport:{title:"問路與交通",scene:"旅遊",goals:["問目的地方向","確認月台","確認這班車是否正確"]}};
 
 export function TeacherLivePage(){
@@ -32,7 +34,7 @@ export function TeacherLivePage(){
  const[p]=useSearchParams(),s=useTeacherStore(),courseSavedRef=useRef(false),[picker,setPicker]=useState(false),[assessmentRetry,setAssessmentRetry]=useState(0),[courseResult,setCourseResult]=useState<{done:number;total:number;score:number;stars:number}|null>(null),[evaluating,setEvaluating]=useState(false),[evaluationError,setEvaluationError]=useState("");
  const[endingCourse,setEndingCourse]=useState(false),[changingTeacher,setChangingTeacher]=useState(false),[openingBoard,setOpeningBoard]=useState(false),[teacherSwitchError,setTeacherSwitchError]=useState("");
  const textMode=p.get("chat")==="text";
- const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=legacyMissions[p.get("mission")||""]||null,mission=course?{title:course.titleZh,scene:course.scene,goals:course.missions.map(x=>x.titleZh),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
+ const profile=getTeacherProfile(s.teacherProfile),course=courseLesson(p.get("lesson")||""),legacyMission=(locale.resolvedLanguage==="ja"?legacyMissionsJa:legacyMissions)[p.get("mission")||""]||null,mission=course?{title:courseDisplayTitle(course,locale.resolvedLanguage||"en"),scene:course.scene,goals:course.missions.map((_,i)=>courseDisplayMission(course,i,locale.resolvedLanguage||"en")),rolePrompt:course.rolePrompt}:legacyMission,scene=p.get("scene")||mission?.scene||"",historyId=p.get("history"),previous=historyId?history("teacher").find((x:any)=>String(x.id)===historyId)||null:p.get("resume")==="1"?lastLive("teacher"):null;
  useEffect(()=>{document.body.className="teacher-theme session-page";return()=>{document.body.className=""}},[]);
  const fortuneKind:FortuneSpeakingKind|null=p.get("fortune")==="reading"?"reading":p.get("fortune")==="daily"?"daily":p.get("fortune")==="culture"?"culture":null;
  const[fortuneContext]=useState(()=>fortuneKind==="reading"?readFortuneSpeakingContext():null);
@@ -224,10 +226,10 @@ export function TeacherLivePage(){
      {!course&&!fortuneKind&&!guestStarted&&<button type="button" className="teacher-live-change-action teacher-live-board-entry" onClick={()=>void openBoard()} disabled={changingTeacher||openingBoard||endingCourse}>{openingBoard?t("board.entryOpening"):t("board.entryAction")} →</button>}
     </div>
     {teacherSwitchError&&<p className="teacher-switch-error" role="alert">{teacherSwitchError}</p>}
-   <p>{fortuneKind?t("live.fortuneDesc"):mission?t("live.missionDesc"):profile.description}</p>
+   <p>{fortuneKind?t("live.fortuneDesc"):mission?t("live.missionDesc"):teacherProfileDisplay(profile,locale.resolvedLanguage||"en").description}</p>
    {!isRoleplay&&<p className="teacher-native-help teacher-live-language-hint" role="note">{teacherLanguageLiveHint(
     s.teachingMode,effectiveLevel,nativeLanguageName(s.nativeLanguage),
-    english?friendSpokenLanguage(s.targetLanguage):s.targetLanguage,english)}</p>}
+    zh?s.targetLanguage:friendSpokenLanguage(s.targetLanguage),english,locale.resolvedLanguage||"en")}</p>}
   </div>
   <div className="crew-chat-mode-switch"><span>{textMode?t("live.textChat"):t("live.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("live.useVoice"):t("live.useText")}</Link></div>
   {textMode?<TextChatPanel searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>

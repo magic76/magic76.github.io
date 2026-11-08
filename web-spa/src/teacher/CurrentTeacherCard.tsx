@@ -3,6 +3,7 @@ import {useTranslation} from "react-i18next";
 import {useTeacherStore} from "../store/teacherStore";
 import {useClientReady} from "../lib/useClientReady";
 import {getTeacherProfile} from "./teacherProfiles";
+import {teacherProfileDisplay} from "./teacherProfileLocale";
 import {TeacherAvatar} from "./TeacherAvatar";
 
 /** Start speaking with the selected teacher, with teacher selection as an optional action. */
@@ -12,6 +13,7 @@ export function CurrentTeacherCard(){
  const selectedProfile=useTeacherStore(s=>s.teacherProfile);
  const teacher=getTeacherProfile(ready?selectedProfile:"emma");
  const english=i18n.resolvedLanguage?.startsWith("en");
+ const copy=teacherProfileDisplay(teacher,i18n.resolvedLanguage||"en");
  return <section className="crew-learn-teacher-card" aria-label={t("tutor.current")}>
   <span className="kicker">{t("tutor.current")}</span>
   <div className="crew-learn-teacher-identity">
@@ -20,7 +22,7 @@ export function CurrentTeacherCard(){
    </span>
    <span className="crew-learn-teacher-copy">
     <strong>{teacher.name}</strong>
-    <small>{english?teacher.taglineEn:teacher.title}</small>
+    <small>{english?teacher.taglineEn:copy.title}</small>
    </span>
   </div>
   <div className="crew-learn-teacher-actions">

@@ -53,6 +53,10 @@ jobs:
         run: npm run check:web
       # The default PR lane is intentionally light. Only test-regression repair
       # branches run the full suite before the PR is merged.
+      # Keep Japanese-native English learning regression coverage in the light PR lane.
+      - name: Validate Japanese English learning flow
+        if: github.event_name == 'pull_request'
+        run: node --test tests/teacher-japanese-english-onboarding.test.js
       - name: Full regressions (test repair PRs only)
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'test-regressions') || contains(github.event.pull_request.head.ref, 'fix/reliability-'))
         run: npm test

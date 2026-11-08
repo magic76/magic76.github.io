@@ -126,7 +126,15 @@
       "normal": "Bình thường",
       "fast": "Nhanh"
     },
-    "nativeLanguage": "Tiếng mẹ đẻ"
+    "nativeLanguage": "Tiếng mẹ đẻ",
+    "speakingLevel": "My speaking level",
+    "speakingLevelAuto": "Auto · adapt to speaking",
+    "levels": {
+      "A1": "Beginner",
+      "A2": "Elementary",
+      "B1": "Intermediate",
+      "B2": "Upper intermediate"
+    }
   },
   "picker": {
     "choose": "Chọn giáo viên",
@@ -386,5 +394,17 @@
       "start": "Ôn ngay",
       "clear": "Xóa lịch ôn"
     }
+  },
+  "briefing": {
+    "back": "Back to course map",
+    "kicker": "Mission briefing",
+    "roleplay": "ROLE-PLAY LESSON",
+    "goals": "Complete these {{count}} goals",
+    "phrases": "Useful English phrases ({{count}})",
+    "englishPhraseHint": "Practice these English expressions aloud.",
+    "practice": "Practice",
+    "practiceAria": "Practice pronunciation: {{phrase}}",
+    "start": "Start scenario conversation",
+    "footnote": "Progress is assessed from what you actually say, not just matching keywords."
   }
 }

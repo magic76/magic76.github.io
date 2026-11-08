@@ -15,6 +15,9 @@ import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
+import {nativeLanguageName} from "../teacher/teacherLocale";
+import {teacherLanguageHomeHint} from "../teacher/teacherLanguageUx";
+import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -165,6 +168,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const {t:tSettings}=useTranslation("settings");
  const clientReady=useClientReady();
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const teachingMode=useTeacherStore(s=>s.teachingMode);
+ const learnerSpeakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel);
  const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
@@ -203,6 +209,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  return <div className={"crew-section-hub crew-section-"+section}>
   <header className={"crew-section-heading"+(section==="learn"?" crew-learn-heading":"")}>
    {section==="learn"?
+    <>
     <div className="crew-learn-heading-row">
      <div className="crew-learn-heading-copy"><span className="kicker">{x.eyebrow}</span><h1>{tCommon("nav.learn")}</h1></div>
      <label className="crew-learn-language"><span>{tSettings("group.targetLanguage")}</span>
@@ -211,6 +218,8 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
       </select>
      </label>
     </div>
+     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
+    </>
     :<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
   {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
