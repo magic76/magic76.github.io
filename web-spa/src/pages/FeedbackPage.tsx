@@ -74,3 +74,4 @@ export function FeedbackPage(){
     {status==="sending"?t("sending"):t("send")}</button>}
   </form></section>}
  </div>;
+}
