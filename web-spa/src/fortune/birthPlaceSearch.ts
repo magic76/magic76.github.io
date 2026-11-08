@@ -1,15 +1,39 @@
+import OpenCC from "opencc-js";
+
 export type BirthPlaceResult={name:string;admin1:string;country:string;countryCode:string;latitude:number;longitude:number;timezone:string;displayName:string};
 
-export async function searchBirthPlaces(query:string):Promise<BirthPlaceResult[]>{
+// Open-Meteo's "zh" locale may return Simplified Chinese even when the Crew
+// interface is zh-TW. Convert display text locally without changing coordinates.
+const toTraditional=OpenCC.Converter({from:"cn",to:"tw"});
+function normalizePlacePart(value:unknown,traditional:boolean,taiwan:boolean):string{
+ let result=String(value||"").trim();
+ if(traditional)result=toTraditional(result);
+ if(taiwan){
+  // External geocoders can prepend "中國" or "中華台北" to Taiwanese places.
+  result=result.replace(/中[國国]|中華(?:臺|台)北/g,"").trim();
+  if(traditional)result=result.replace(/臺灣/g,"台灣");
+ }
+ return result.replace(/^[,，、\s]+|[,，、\s]+$/g,"");
+}
+
+export async function searchBirthPlaces(query:string,uiLocale?:string):Promise<BirthPlaceResult[]>{
  const clean=query.trim();if(clean.length<2)return[];
- const language=(navigator.language||"en").split("-")[0].toLowerCase();
+ const locale=uiLocale||(typeof navigator!=="undefined"?navigator.language:"zh-TW")||"zh-TW";
+ const traditional=/^zh(?:-|$)/i.test(locale);
+ const language=traditional?"zh":locale.split("-")[0].toLowerCase();
  const url="https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(clean)+"&count=8&language="+encodeURIComponent(language)+"&format=json";
  const r=await fetch(url,{headers:{Accept:"application/json"}});
  if(!r.ok)throw new Error("出生地搜尋服務暫時無法使用");
  const data=await r.json(),rows=Array.isArray(data.results)?data.results:[];
  return rows.filter((x:any)=>Number.isFinite(x.latitude)&&Number.isFinite(x.longitude)&&x.timezone).map((x:any)=>{
-  const parts=[x.name,x.admin1,x.country].filter(Boolean).filter((v:string,i:number,a:string[])=>a.indexOf(v)===i);
-  return{name:x.name||"",admin1:x.admin1||"",country:x.country||"",countryCode:x.country_code||"",latitude:Number(x.latitude),longitude:Number(x.longitude),timezone:String(x.timezone),displayName:parts.join(", ")||String(x.country_code||"")};
+  const countryCode=String(x.country_code||"").toUpperCase(),taiwan=countryCode==="TW";
+  const name=normalizePlacePart(x.name,traditional,taiwan);
+  let admin1=normalizePlacePart(x.admin1,traditional,taiwan);
+  const country=taiwan?(traditional?"台灣":"Taiwan"):normalizePlacePart(x.country,traditional,false);
+  // Don't repeat Taiwan as an administrative region and the country.
+  if(taiwan&&/^(?:台|臺)灣(?:省)?$/.test(admin1))admin1="";
+  const parts=[name,admin1,country].filter(Boolean).filter((v:string,i:number,a:string[])=>a.indexOf(v)===i);
+  return{name,admin1,country,countryCode,latitude:Number(x.latitude),longitude:Number(x.longitude),timezone:String(x.timezone),displayName:parts.join(", ")||countryCode};
  });
 }
 
