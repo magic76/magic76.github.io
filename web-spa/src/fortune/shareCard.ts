@@ -1,30 +1,92 @@
 import type{FortuneReading}from"./types";
 
+export function formatFortuneShareDate(value:string):string{
+ const date=new Date(value);
+ return Number.isNaN(date.getTime())?"":date.toLocaleString("zh-TW",{year:"numeric",month:"numeric",day:"numeric",hour:"2-digit",minute:"2-digit",hour12:false});
+}
 function wrap(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:number,lineHeight:number,maxLines:number){
  const words=Array.from(text||"");let line="",lines:string[]=[];
- for(const ch of words){const t=line+ch;if(ctx.measureText(t).width>max&&line){lines.push(line);line=ch;if(lines.length>=maxLines)break}else line=t}
+ for(const ch of words){
+  if(ch==="\n"){lines.push(line);line="";if(lines.length>=maxLines)break;continue}
+  const t=line+ch;
+  if(ctx.measureText(t).width>max&&line){lines.push(line);line=ch;if(lines.length>=maxLines)break}else line=t;
+ }
  if(line&&lines.length<maxLines)lines.push(line);
  lines.forEach((l,i)=>ctx.fillText(l,x,y+i*lineHeight));
  return y+lines.length*lineHeight;
 }
-export async function buildFortuneShareFile(reading:FortuneReading){
- const canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;const ctx=canvas.getContext("2d")!;
+/** Reading card shares its palette and approved Q-style character art with the identity card. */
+export function renderFortuneShareCard(reading:FortuneReading,oneLine:string,art?:HTMLImageElement|null):HTMLCanvasElement{
+ const canvas=document.createElement("canvas");canvas.width=1080;canvas.height=1350;
+ const ctx=canvas.getContext("2d");if(!ctx)throw Error("Canvas unavailable");
  const mode={bazi:"八字",tarot:"塔羅生命靈數",vedic:"印度星盤"}[reading.mode];
- const grad=ctx.createLinearGradient(0,0,1080,1350);grad.addColorStop(0,"#f8f5ee");grad.addColorStop(1,"#ece7dd");ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1350);
- ctx.fillStyle="#1b1b18";ctx.font="700 42px sans-serif";ctx.fillText("Crew Fortune",72,94);
- ctx.font="700 24px sans-serif";ctx.fillStyle="#7a6f61";ctx.fillText(mode,72,142);
- ctx.fillStyle="#1b1b18";ctx.font="700 58px sans-serif";let y=250;
- y=wrap(ctx,reading.summary||mode,72,y,936,72,3)+30;
- ctx.strokeStyle="#d5cec1";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(72,y);ctx.lineTo(1008,y);ctx.stroke();y+=60;
- ctx.font="600 28px sans-serif";ctx.fillStyle="#3e3a34";ctx.fillText("白話摘要",72,y);y+=48;
- ctx.font="400 28px sans-serif";ctx.fillStyle="#49453f";y=wrap(ctx,reading.ai||"固定計算結果已完成。",72,y,936,46,14)+40;
- ctx.font="400 22px sans-serif";ctx.fillStyle="#847c70";ctx.fillText(new Date(reading.createdAt).toLocaleString(),72,1270);
- return new Promise<File>((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(new File([blob],"crew-fortune.png",{type:"image/png"})):reject(new Error("無法建立分享卡")),"image/png"));
+ const grad=ctx.createLinearGradient(0,0,1080,1350);
+ grad.addColorStop(0,"#fff8e8");grad.addColorStop(1,"#f0ecff");
+ ctx.fillStyle=grad;ctx.fillRect(0,0,1080,1350);
+ ctx.fillStyle="#4d3a79";ctx.font="700 35px system-ui,sans-serif";ctx.fillText("CREW FORTUNE",76,98);
+ ctx.fillStyle="#78698b";ctx.font="500 25px system-ui,sans-serif";ctx.fillText(mode+" · 命盤探索",76,147);
+ ctx.save();ctx.shadowColor="rgba(63,39,99,.12)";ctx.shadowBlur=38;ctx.shadowOffsetY=15;
+ ctx.fillStyle="#fff";ctx.beginPath();ctx.roundRect(72,182,936,1052,38);ctx.fill();ctx.restore();
+ const imageX=112,imageY=216,imageW=856,imageH=453;
+ const artReady=Boolean(art?.complete&&art.naturalWidth>0&&art.naturalHeight>0);
+ ctx.save();ctx.beginPath();ctx.roundRect(imageX,imageY,imageW,imageH,24);ctx.clip();
+ const artworkBg=ctx.createLinearGradient(imageX,imageY,imageX+imageW,imageY+imageH);
+ artworkBg.addColorStop(0,"#f1e7ff");artworkBg.addColorStop(1,"#fff3dc");
+ ctx.fillStyle=artworkBg;ctx.fillRect(imageX,imageY,imageW,imageH);
+ if(artReady&&art){
+  const scale=Math.min(imageW/art.naturalWidth,imageH/art.naturalHeight);
+  const width=art.naturalWidth*scale,height=art.naturalHeight*scale;
+  ctx.drawImage(art,imageX+(imageW-width)/2,imageY+(imageH-height)/2,width,height);
+ }else{
+  // Keep a polished symbolic fallback if approved art is not loaded.
+  ctx.fillStyle="rgba(255,255,255,.5)";ctx.beginPath();ctx.arc(540,432,188,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#b39bda";ctx.beginPath();ctx.arc(540,432,138,0,Math.PI*2);ctx.fill();
+  ctx.textAlign="center";ctx.fillStyle="#fff";ctx.font="700 78px system-ui,sans-serif";
+  ctx.fillText(reading.mode==="bazi"?"八字":reading.mode==="tarot"?"塔羅":"星盤",540,462);
+  ctx.textAlign="left";
+ }
+ ctx.restore();
+ ctx.fillStyle="#806e9d";ctx.font="700 24px system-ui,sans-serif";ctx.fillText("MY FORTUNE READING",112,729);
+ ctx.fillStyle="#261f35";ctx.font="700 43px system-ui,sans-serif";
+ const titleEnd=wrap(ctx,reading.summary||mode,112,794,848,57,2);
+ const separatorY=Math.max(853,titleEnd+12);
+ ctx.strokeStyle="#e4dcf0";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(112,separatorY);ctx.lineTo(968,separatorY);ctx.stroke();
+ ctx.fillStyle="#756394";ctx.font="700 27px system-ui,sans-serif";
+ ctx.fillText(reading.ai?.trim()?"命盤重點":"命盤一句話",112,separatorY+52);
+ // AI reports can be long; the prominent headline is the existing one-line chart summary.
+ ctx.fillStyle="#352b46";ctx.font="29px system-ui,sans-serif";
+ const headline=(oneLine||reading.summary||mode).trim();
+ wrap(ctx,headline,112,separatorY+104,847,43,Math.max(1,Math.min(5,Math.floor((1132-separatorY-104)/43)+1)));
+ ctx.strokeStyle="#e4dcf0";ctx.beginPath();ctx.moveTo(112,1153);ctx.lineTo(968,1153);ctx.stroke();
+ ctx.fillStyle="#78698b";ctx.font="24px system-ui,sans-serif";
+ ctx.fillText(formatFortuneShareDate(reading.createdAt),112,1197);
+ ctx.fillStyle="#52456f";ctx.font="22px system-ui,sans-serif";
+ ctx.fillText("命理象徵僅供自我探索與參考",76,1272);
+ ctx.fillStyle="#503886";ctx.font="700 29px system-ui,sans-serif";
+ ctx.fillText("3sssi.com/fortune",76,1321);
+ return canvas;
 }
-export async function shareFortuneReading(reading:FortuneReading){
- const file=await buildFortuneShareFile(reading);
- if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:"Crew Fortune",text:reading.summary,files:[file]});return}
- const url=URL.createObjectURL(file);const a=document.createElement("a");a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+export async function buildFortuneShareFile(reading:FortuneReading,oneLine="",art?:HTMLImageElement|null):Promise<File>{
+ const canvas=renderFortuneShareCard(reading,oneLine,art);
+ // File construction stays synchronous before calling the native share sheet on mobile.
+ const png=canvas.toDataURL("image/png"),binary=atob(png.split(",")[1]||"");
+ const bytes=new Uint8Array(binary.length);
+ for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+ return new File([bytes],"crew-fortune.png",{type:"image/png"});
+}
+export async function shareFortuneReading(reading:FortuneReading,oneLine="",art?:HTMLImageElement|null):Promise<"shared"|"downloaded"|"cancelled">{
+ const canvas=renderFortuneShareCard(reading,oneLine,art);
+ const png=canvas.toDataURL("image/png"),binary=atob(png.split(",")[1]||"");
+ const bytes=new Uint8Array(binary.length);
+ for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+ const file=new File([bytes],"crew-fortune.png",{type:"image/png"});
+ if(navigator.share&&navigator.canShare?.({files:[file]})){
+  try{await navigator.share({title:"Crew Fortune",text:(oneLine||reading.summary)+"\nhttps://www.3sssi.com/fortune/reading?mode="+reading.mode,files:[file]});return "shared"}
+  catch(e){if((e as Error)?.name==="AbortError")return "cancelled"}
+ }
+ const link=document.createElement("a");link.href=png;link.download=file.name;
+ document.body.appendChild(link);link.click();link.remove();
+ return "downloaded";
 }
 
 /** Daily sharing is an explicit allowlist: never read profile or any chart fields. */
