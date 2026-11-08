@@ -38,7 +38,7 @@ export function FortuneReadingPage(){
   return()=>{restore.reverse().forEach(fn=>fn())};
  },[]);
  useEffect(()=>{
-  shareArtRef.current=null;setOneLine("");setShareStatus("");
+  shareArtRef.current=null;setShareStatus("");
   if(!reading)return;
   const identity=buildFortuneIdentity(reading.mode,reading.result,i18n.language);
   const src=identity?identityArtworkUrl(identity.id):null;
