@@ -43,6 +43,11 @@ test("all 49 lessons, 6 tracks and 16 units have Japanese display copy with alig
   ...catalogArray("courseCatalogExpanded.ts","EXPANDED_COURSE_LESSONS")
  ];
  assert.equal(lessons.length,49);
+ const warmupSrc=fromTeacher("courseCatalogExpanded.ts");
+ const warmupMatch=warmupSrc.match(/export const COURSE_WARMUPS:[^=]+=(\{[\s\S]*?\});/);
+ assert.ok(warmupMatch,"course warm-up mapping must exist");
+ const warmups=JSON.parse(warmupMatch[1]);
+ for(const item of lessons)item.warmupPhrases=warmups[item.id];
  for(const item of lessons){
   assert.equal(c.hasJapaneseWarmupGloss(item),true,item.id+" warmups");
   for(let i=0;i<(item.warmupPhrases||[]).length;i++){
@@ -94,7 +99,7 @@ test("teacher selection and study entry disclose Japanese native help without re
  const hub=read("web-spa/src/pages/CrewSectionPage.tsx");
  const profileSource=fromTeacher("teacherProfileLocale.ts");
  const roster="emma alex james mia sophie lina oliver victor aria ruby leo nora kai olivia ethan chloe".split(" ");
- for(const id of roster)assert.match(profileSource,new RegExp('\\b'+id+':\\s*\\['),id+" Japanese teacher description");
+ for(const id of roster)assert.match(profileSource,new RegExp('"'+id+'"\\s*:\\s*\\['),id+" Japanese teacher description");
  assert.match(picker,/teacherProfileDisplay\(/);
  assert.match(tutor,/teacherProfileDisplay\(/);
  assert.match(tutor,/t\("tutor\.speakingLevel"\)/);
