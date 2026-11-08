@@ -11,3 +11,12 @@
 - 未來若擴充塔羅 22 類和印度占星 12 類，另建立對應圖與核准規則，勿亂配八字角色。
 
 分享卡為 1080×1350 PNG，網站產生當下合成人物圖、個人命盤文案與必要依據，不直接分享 DEMO 圖卡。
+
+## 2026-11-08｜新增印度星盤十二種身份人物與八字入口
+
+- 驗收來源：使用者交付的 `crew-fortune-vedic-12-plus-bazi-cover.zip` 更新版（與已驗收的八字 v2 Q 版插畫比對）。
+- 13 張均為獨立 1536×864、16:9 WebP；已核對 SHA-256 manifest、RIFF/WEBP 檔頭、角色名稱與圖像內容。
+- 印度星盤十二張正式路徑：`web-spa/public/fortune/identity/art/vedic-*.webp`，ID `vedic-aries` 至 `vedic-pisces`；只對應實際出生星盤計算出的 Lagna 上升星座，不依太陽星座任意配圖。
+- 八字首頁插畫路徑：`web-spa/public/fortune/modes/fortune-bazi-cover.webp`，用於命理方式選擇卡；不是某一個日主的命格人物。
+- `identityArtwork.ts` 核准清單現涵蓋 10 張八字 + 12 張印度星盤；塔羅 22 張專屬人物尚未交付，仍維持文字符號備援。
+- 公開網站只部署壓縮 WebP。PNG 母版與手機 QA 圖保留在交付 ZIP，不需將大檔加入網站。
