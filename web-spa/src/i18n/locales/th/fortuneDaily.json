@@ -274,5 +274,14 @@
   },
   "streak_one": "ต่อเนื่อง {{count}} วัน",
   "streak_other": "ต่อเนื่อง {{count}} วัน",
-  "colorSummary": "สีนำโชค: {{color}}"
+  "colorSummary": "สีนำโชค: {{color}}",
+  "exploreLabel": "การค้นพบวันนี้",
+  "flipCard": "พลิกการ์ดวันนี้",
+  "todayAction": "หนึ่งสิ่งที่ลองทำวันนี้",
+  "markComplete": "ทำสำเร็จแล้ว!",
+  "completed": "สำเร็จวันนี้",
+  "flipBack": "ดูด้านหน้า",
+  "moreDetails": "รายละเอียดเพิ่มเติม",
+  "recentDays": "7 วันที่ผ่านมา",
+  "notCompleted": "ยังไม่เสร็จ"
 }

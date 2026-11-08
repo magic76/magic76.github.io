@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}} jour de suite",
   "streak_other": "{{count}} jours de suite",
-  "colorSummary": "Couleur porte-bonheur : {{color}}"
+  "colorSummary": "Couleur porte-bonheur : {{color}}",
+  "exploreLabel": "Découverte du jour",
+  "flipCard": "Retourner la carte",
+  "todayAction": "Une chose à essayer",
+  "markComplete": "Je l'ai fait !",
+  "completed": "Terminé aujourd'hui",
+  "flipBack": "Voir le recto",
+  "moreDetails": "Plus de détails",
+  "recentDays": "7 derniers jours",
+  "notCompleted": "Non terminé"
 }

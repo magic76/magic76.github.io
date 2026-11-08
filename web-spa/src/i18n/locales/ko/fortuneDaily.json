@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}}일 연속",
   "streak_other": "{{count}}일 연속",
-  "colorSummary": "행운의 색: {{color}}"
+  "colorSummary": "행운의 색: {{color}}",
+  "exploreLabel": "오늘의 발견",
+  "flipCard": "오늘의 카드 뒤집기",
+  "todayAction": "오늘 해 볼 한 가지",
+  "markComplete": "해냈어요!",
+  "completed": "오늘 완료",
+  "flipBack": "앞면 보기",
+  "moreDetails": "자세한 풀이",
+  "recentDays": "최근 7일",
+  "notCompleted": "미완료"
 }

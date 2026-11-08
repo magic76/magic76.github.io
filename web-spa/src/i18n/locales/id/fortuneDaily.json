@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}} hari berturut-turut",
   "streak_other": "{{count}} hari berturut-turut",
-  "colorSummary": "Warna keberuntungan: {{color}}"
+  "colorSummary": "Warna keberuntungan: {{color}}",
+  "exploreLabel": "Penemuan hari ini",
+  "flipCard": "Balik kartu hari ini",
+  "todayAction": "Satu hal untuk dicoba",
+  "markComplete": "Sudah kulakukan!",
+  "completed": "Selesai hari ini",
+  "flipBack": "Lihat sisi depan",
+  "moreDetails": "Detail bacaan",
+  "recentDays": "7 hari terakhir",
+  "notCompleted": "Belum selesai"
 }

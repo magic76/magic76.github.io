@@ -89,3 +89,52 @@ export function markDailySeen(today=localDateKey()):DailyStreak{
  writeJSON(DAILY_STREAK_KEY,next);
  return next;
 }
+
+/** A visit is not a completed exploration; record only explicit participation. */
+export const DAILY_COMPLETED_KEY="crew_fortune_daily_completed_v1";
+export const DAILY_COMPLETE_STREAK_KEY="crew_fortune_daily_complete_streak_v1";
+export function readDailyCompletionStreak():DailyStreak{
+ const raw=readJSON(DAILY_COMPLETE_STREAK_KEY) as Partial<DailyStreak>|null;
+ if(!raw||typeof raw!=="object")return emptyStreak();
+ return {streak:Number.isInteger(raw.streak)&&Number(raw.streak)>0?Number(raw.streak):0,
+  best:Number.isInteger(raw.best)&&Number(raw.best)>0?Number(raw.best):0,
+  lastSeen:typeof raw.lastSeen==="string"&&validDate(raw.lastSeen)?raw.lastSeen:""};
+}
+function completionKey(date:string,kind:DailyKind,hash:string){return date+":"+kind+":"+hash;}
+function completedRecords():Record<string,true>{
+ const raw=readJSON(DAILY_COMPLETED_KEY);
+ if(!raw||typeof raw!=="object"||Array.isArray(raw))return {};
+ const out:Record<string,true>={};
+ for(const [key,value] of Object.entries(raw))if(value===true&&/^\d{4}-\d{2}-\d{2}:(bazi|numerology):[a-f0-9]{64}$/.test(key))out[key]=true;
+ return out;
+}
+export function isDailyCompleted(date:string,kind:DailyKind,hash:string):boolean{
+ return Boolean(completedRecords()[completionKey(date,kind,hash)]);
+}
+export function completeDailyExploration(date:string,kind:DailyKind,hash:string):DailyStreak{
+ if(!hash||!validDate(date))return readDailyCompletionStreak();
+ if(isDailyCompleted(date,kind,hash))return readDailyCompletionStreak();
+ const old=completedRecords(),out:Record<string,true>={},today=dayNumber(date);
+ for(const [key,value] of Object.entries(old)){
+  const age=today-dayNumber(key.slice(0,10));
+  if(Number.isFinite(age)&&age>=0&&age<30)out[key]=value;
+ }
+ out[completionKey(date,kind,hash)]=true;
+ writeJSON(DAILY_COMPLETED_KEY,out);
+ const oldStreak=readDailyCompletionStreak();
+ const diff=dayNumber(date)-dayNumber(oldStreak.lastSeen);
+ if(Number.isFinite(diff)&&diff<0)return oldStreak;
+ const streak=diff===1?oldStreak.streak+1:1;
+ const next={streak,best:Math.max(oldStreak.best,streak),lastSeen:date};
+ writeJSON(DAILY_COMPLETE_STREAK_KEY,next);
+ return next;
+}
+export function recentDailyExplorations(date:string,kind:DailyKind,hash:string):Array<{date:string;completed:boolean}>{
+ if(!validDate(date))return [];
+ const [y,m,d]=date.split("-").map(Number),today=new Date(y,m-1,d,12),done=completedRecords();
+ return Array.from({length:7},(_,index)=>{
+  const current=new Date(today);current.setDate(current.getDate()-(6-index));
+  const key=localDateKey(current);
+  return {date:key,completed:Boolean(done[completionKey(key,kind,hash)])};
+ });
+}

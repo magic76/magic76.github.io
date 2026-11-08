@@ -5,7 +5,7 @@ export type DailyKind="bazi"|"numerology";
 export type DailyCard={
  version:1;date:string;kind:DailyKind;headline:string;theme:string;
  do:[string,string];avoid:string;luckyColor:{element:string;name:string;hex:string};
- basis:string[];almanac?:{yi:string[];ji:string[];chong?:string};deepLink:string;
+ basis:string[];almanac?:{yi:string[];ji:string[];chong?:string};deepLink:string;artSrc?:string;
 };
 export type DailyPending={status:"loading"|"unavailable";reason:"lunar"|"birthTime"|"birthDate"|"bazi"};
 export type DailyResult=DailyCard|DailyPending;
@@ -158,10 +158,12 @@ export function buildDailyCard(input:DailyInput):DailyResult{
  if(kind==="bazi"&&!profile.birthTime)return {status:"unavailable",reason:"birthTime"};
  const seed=fnv1a("crew-daily-v1:"+kind+":"+dailyProfileHash(profile)+":"+localDate);
  let category="",colorElement="",basis:string[]=[],almanac:DailyCard["almanac"];
- let headline="",theme="",suggestions:[string,string]=["",""],avoid="";
+ let headline="",theme="",suggestions:[string,string]=["",""],avoid="",artSrc="";
  if(kind==="numerology"){
   const c=personalCycle(profile,localDate);if(!c)return {status:"unavailable",reason:"birthDate"};
-  const cardIndex=seed%22;
+  // Illustration follows the calculated personal cycle, not random card selection.
+  const cardIndex=(c.personalYear+c.personalMonth+c.personalDay)%22;
+  artSrc="/fortune/identity/art/tarot-"+(cardIndex===0?22:cardIndex)+".webp";
   const numericCategories=["","peers","resources","expression","responsibility","learning","peers","learning","resources","expression"];
   category=numericCategories[c.personalDay];
   colorElement=NUMBER_ELEMENTS[c.personalDay];
@@ -181,6 +183,8 @@ export function buildDailyCard(input:DailyInput):DailyResult{
   }
   const dayMaster=String(result?.dayMaster||result?.dayPillar?.charAt(0)||"");
   if(!dayMaster)return {status:"unavailable",reason:"bazi"};
+  const stemFiles:Record<string,string>={"甲":"jia","乙":"yi","丙":"bing","丁":"ding","戊":"wu","己":"ji","庚":"geng","辛":"xin","壬":"ren","癸":"gui"};
+  if(stemFiles[dayMaster])artSrc="/fortune/identity/art/bazi-"+stemFiles[dayMaster]+".webp";
   const lunar=input.lunar||(typeof window!=="undefined"?(window as typeof window&{Solar?:SolarEngine}).Solar:undefined);
   if(!lunar?.fromYmd)return {status:"loading",reason:"lunar"};
   let solarDay:LunarDay,ganZhi="";
@@ -217,7 +221,7 @@ export function buildDailyCard(input:DailyInput):DailyResult{
  }
  const chosen=ELEMENT_COLOR[colorElement]||ELEMENT_COLOR["木"];
  const luckyColor={element:translated(input,"elements."+colorElement),name:translated(input,"colors."+chosen.nameKey),hex:chosen.hex};
- const card:DailyCard={version:1,date:localDate,kind,headline,theme,do:suggestions,avoid,luckyColor,basis,deepLink:"/fortune/reading?mode="+(kind==="bazi"?"bazi":"tarot")};
+ const card:DailyCard={version:1,date:localDate,kind,headline,theme,do:suggestions,avoid,luckyColor,basis,artSrc,deepLink:"/fortune/reading?mode="+(kind==="bazi"?"bazi":"tarot")};
  if(almanac&&/^zh/i.test(lang))card.almanac=almanac;
  return card;
 }

@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}} ngày liên tiếp",
   "streak_other": "{{count}} ngày liên tiếp",
-  "colorSummary": "Màu may mắn: {{color}}"
+  "colorSummary": "Màu may mắn: {{color}}",
+  "exploreLabel": "Khám phá hôm nay",
+  "flipCard": "Lật thẻ hôm nay",
+  "todayAction": "Một điều nên thử hôm nay",
+  "markComplete": "Tôi đã làm được!",
+  "completed": "Đã hoàn thành hôm nay",
+  "flipBack": "Xem mặt trước",
+  "moreDetails": "Chi tiết giải đoán",
+  "recentDays": "7 ngày gần đây",
+  "notCompleted": "Chưa hoàn thành"
 }

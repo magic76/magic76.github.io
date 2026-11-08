@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}} día seguido",
   "streak_other": "{{count}} días seguidos",
-  "colorSummary": "Color de la suerte: {{color}}"
+  "colorSummary": "Color de la suerte: {{color}}",
+  "exploreLabel": "Descubrimiento de hoy",
+  "flipCard": "Revelar la carta",
+  "todayAction": "Una cosa para hoy",
+  "markComplete": "Lo hice",
+  "completed": "Completado hoy",
+  "flipBack": "Ver el frente",
+  "moreDetails": "Más detalles",
+  "recentDays": "Últimos 7 días",
+  "notCompleted": "Sin completar"
 }

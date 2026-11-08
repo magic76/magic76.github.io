@@ -274,5 +274,14 @@
   },
   "streak_one": "{{count}}日連続",
   "streak_other": "{{count}}日連続",
-  "colorSummary": "ラッキーカラー：{{color}}"
+  "colorSummary": "ラッキーカラー：{{color}}",
+  "exploreLabel": "今日の発見",
+  "flipCard": "今日のカードをめくる",
+  "todayAction": "今日試したいこと",
+  "markComplete": "できた！",
+  "completed": "今日は達成済み",
+  "flipBack": "表面に戻る",
+  "moreDetails": "詳しい占いの内容",
+  "recentDays": "最近7日間",
+  "notCompleted": "未達成"
 }
