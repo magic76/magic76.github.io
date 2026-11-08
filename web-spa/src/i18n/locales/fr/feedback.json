@@ -13,18 +13,16 @@
   "emailLabel": "E-mail de contact (facultatif)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Page d'origine",
-  "privacy": "Seuls votre message et le chemin de la page vont dans notre suivi privé.",
+  "privacy": "Seuls votre message et le chemin de la page sont stockés dans la base privée de Crew.",
   "send": "Envoyer",
   "sending": "Envoi…",
   "successTitle": "Merci d'aider Crew !",
   "successBody": "Nous avons reçu votre retour.",
   "reference": "Référence",
-  "error": "Envoi impossible. Votre texte est conservé.",
+  "error": "Envoi impossible. Votre texte est conservé ; réessayez plus tard.",
   "unavailable": "Le formulaire est indisponible.",
-  "emailFallback": "Envoyer par e-mail",
-  "emailHint": "Votre messagerie s'ouvrira ; vous devrez envoyer le message.",
-  "captchaLoading": "Chargement de la vérification…",
-  "captchaNeeded": "Terminez la vérification.",
   "required": "Saisissez au moins 10 caractères.",
-  "back": "Retour à Crew"
+  "back": "Retour à Crew",
+  "loading": "Vérification du service…",
+  "rateLimited": "Trop d'envois. Réessayez plus tard."
 }

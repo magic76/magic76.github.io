@@ -1,13 +1,13 @@
-/** Cloudflare Pages Function: private user feedback, checked server-side. */
-const REPO="magic76/magic76.github.io";
-const TYPES={bug:"Problem report",idea:"Feature suggestion",other:"General feedback"};
+/** Cloudflare Pages Function: feedback stored privately in D1. No user-facing fallback. */
+const TYPES=new Set(["bug","idea","other"]);
 const headers={"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff"};
 const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
-const configured=env=>Boolean(typeof env?.FEEDBACK_GITHUB_TOKEN==="string"&&env.FEEDBACK_GITHUB_TOKEN.length>=20&&typeof env?.FEEDBACK_TURNSTILE_SECRET==="string"&&env.FEEDBACK_TURNSTILE_SECRET.length>=10&&typeof env?.FEEDBACK_TURNSTILE_SITE_KEY==="string"&&env.FEEDBACK_TURNSTILE_SITE_KEY.length>=10);
+const configured=env=>Boolean(env?.CREW_FEEDBACK_DB&&typeof env.CREW_FEEDBACK_DB.prepare==="function");
 const limited=(value,max)=>typeof value==="string"&&value.trim().length<=max?value.trim():null;
+const feedbackTable="CREATE TABLE IF NOT EXISTS crew_feedback (id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL, message TEXT NOT NULL, contact TEXT NOT NULL DEFAULT '', page TEXT NOT NULL DEFAULT '', created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)";
+const limitsTable="CREATE TABLE IF NOT EXISTS crew_feedback_limit (rate_key TEXT PRIMARY KEY, hour INTEGER NOT NULL, hits INTEGER NOT NULL)";
 export async function onRequestGet({env}){
- const enabled=configured(env);
- return reply({enabled,siteKey:enabled?env.FEEDBACK_TURNSTILE_SITE_KEY:null});
+ return reply({enabled:configured(env)});
 }
 export async function onRequestPost({request,env}){
  if(!configured(env))return reply({error:"NOT_CONFIGURED"},503);
@@ -23,27 +23,30 @@ export async function onRequestPost({request,env}){
  }catch{return reply({error:"INVALID_JSON"},400)}
  if(!data||typeof data!=="object"||Array.isArray(data))return reply({error:"INVALID_JSON"},400);
  if(data.website)return reply({error:"INVALID_SUBMISSION"},400);
- const kind=data.kind,message=limited(data.message,1500),contact=limited(data.contact??"",160),page=limited(data.page??"",160),captcha=limited(data.captcha,2048);
- if(!Object.hasOwn(TYPES,kind)||message===null||message.length<10||contact===null||
+ const kind=data.kind,message=limited(data.message,1500),contact=limited(data.contact??"",160),page=limited(data.page??"",160);
+ if(!TYPES.has(kind)||message===null||message.length<10||contact===null||
     (contact!==""&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact))||
-    page===null||(page!==""&&!/^\/[a-zA-Z0-9_\-/]*$/.test(page))||!captcha)return reply({error:"INVALID_SUBMISSION"},400);
+    page===null||(page!==""&&!/^\/[a-zA-Z0-9_\-/]*$/.test(page)))return reply({error:"INVALID_SUBMISSION"},400);
+ // Cloudflare injects this header. Never accept a client-supplied IP or retain a plain IP address.
+ const ip=request.headers.get("cf-connecting-ip");
+ if(!ip||ip.length>80)return reply({error:"ORIGIN_REJECTED"},403);
+ const hour=Math.floor(Date.now()/3600000);
  try{
-  const verification=await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify",{
-   method:"POST",body:new URLSearchParams({secret:env.FEEDBACK_TURNSTILE_SECRET,response:captcha}),signal:AbortSignal.timeout(10000)
-  });
-  const result=verification.ok?await verification.json():null;
-  if(!result?.success||result.hostname!==url.hostname)return reply({error:"VERIFICATION_FAILED"},403);
-  const summary=message.split(/\r?\n/).find(Boolean)?.replace(/[<>\r\n]/g," ").slice(0,75)||"Feedback";
-  const quoted=message.replace(/\r/g,"").split("\n").map(line=>"> "+line).join("\n");
-  const body=["### Feedback type",TYPES[kind],"### Submitted feedback",quoted,"### Source page",page||"(not provided)","### Contact (optional)",contact||"(not provided)","","_Submitted from the public Crew feedback form; review before routing to ux-auto._"].join("\n\n");
-  const created=await fetch("https://api.github.com/repos/"+REPO+"/issues",{
-   method:"POST",headers:{"Authorization":"Bearer "+env.FEEDBACK_GITHUB_TOKEN,"Accept":"application/vnd.github+json","Content-Type":"application/json","X-GitHub-Api-Version":"2022-11-28","User-Agent":"Crew-Web-Feedback"},
-   body:JSON.stringify({title:"[user-feedback]["+kind+"] "+summary,body}),signal:AbortSignal.timeout(12000)
-  });
-  if(!created.ok)return reply({error:"SUBMISSION_UNAVAILABLE"},503);
-  const issue=await created.json();
-  if(!Number.isSafeInteger(issue.number)||issue.number<=0)return reply({error:"SUBMISSION_UNAVAILABLE"},503);
-  return reply({ok:true,reference:"FB-"+issue.number},201);
+  const rawKey=new TextEncoder().encode("crew-feedback-hour-v1:"+hour+":"+ip);
+  const digest=await crypto.subtle.digest("SHA-256",rawKey);
+  const rateKey=Array.from(new Uint8Array(digest),byte=>byte.toString(16).padStart(2,"0")).join("");
+  const db=env.CREW_FEEDBACK_DB;
+  // Idempotent schema bootstrap: setup requires only one D1 binding, no manual SQL.
+  await db.prepare(feedbackTable).run();
+  await db.prepare(limitsTable).run();
+  await db.prepare("DELETE FROM crew_feedback_limit WHERE hour < ?").bind(hour-48).run();
+  const allowed=await db.prepare("INSERT INTO crew_feedback_limit (rate_key,hour,hits) VALUES (?, ?, 1) ON CONFLICT(rate_key) DO UPDATE SET hits=hits+1 WHERE hits < 3").bind(rateKey,hour).run();
+  if(!allowed.success)return reply({error:"SUBMISSION_UNAVAILABLE"},503);
+  if(allowed.meta?.changes!==1)return reply({error:"RATE_LIMITED"},429);
+  const result=await db.prepare("INSERT INTO crew_feedback (kind,message,contact,page) VALUES (?, ?, ?, ?)").bind(kind,message,contact,page).run();
+  const id=result?.meta?.last_row_id;
+  if(!result?.success||!Number.isSafeInteger(id)||id<=0)return reply({error:"SUBMISSION_UNAVAILABLE"},503);
+  return reply({ok:true,reference:"FB-"+id},201);
  }catch{return reply({error:"SUBMISSION_UNAVAILABLE"},503)}
 }
 export function onRequest(){return new Response(null,{status:405,headers:{...headers,Allow:"GET, POST"}})}

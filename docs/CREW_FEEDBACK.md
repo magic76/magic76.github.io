@@ -1,15 +1,35 @@
-# Crew Web user feedback
-Visitors reach `/feedback` through the global footer or hamburger menu. It supports problem reports, feature ideas and other comments. Only the submitted message, optional contact email, category, and **pathname** (not query strings, fragments, keys, chat data, recordings, or analytics IDs) are sent to the private GitHub issue tracker.
+# Crew Web Feedback (Cloudflare D1, no fallback)
 
-## Required Cloudflare Pages variables / secrets
-Set all three under Cloudflare Pages project > Variables and Secrets:
-- `FEEDBACK_GITHUB_TOKEN`: encrypted fine-grained GitHub PAT, **Issues: Read and write** only on `magic76/magic76.github.io`. No Contents permission.
-- `FEEDBACK_TURNSTILE_SITE_KEY`: public Cloudflare Turnstile site key configured for each allowed site hostname.
-- `FEEDBACK_TURNSTILE_SECRET`: encrypted matching Turnstile secret.
+Visitors can submit problem reports, feature suggestions, and general feedback at `/feedback` without signing in. The submission includes only the message, optional contact email, category, and origin **pathname** (never query strings, full URLs, chat messages, recordings, keys, or GA identifiers).
 
-The form fails closed until configured: GET returns `enabled:false` and the UI offers a clearly marked `mailto:crew@3sssi.com` fallback. The user must send that email themselves. On success, the form displays a private reference `FB-<issue-number>`, never a public link into the private repository.
+## Setup: one binding, zero secrets or external services
 
-POST verifies the same-origin request, field sizes, challenge result and hostname before creating an issue. Add a Cloudflare WAF rate-limit rule on `POST /api/feedback` for defense in depth. Issues start with `[user-feedback]` and are intentionally **not** auto-labelled `ux-auto`; manually review and confirm reports before routing them into scheduled fixes.
+1. Cloudflare Dashboard > Workers & Pages > D1 > Create database, name it `crew-feedback`.
+2. Cloudflare Dashboard > Workers & Pages > **the existing Crew Pages project** > Settings > Bindings > Add > **D1 database binding**.
+3. Variable name **`CREW_FEEDBACK_DB`** (exact spelling); choose the newly created `crew-feedback` database from the dropdown. This is a **binding**, not a text Value or Secret.
+4. Redeploy the Pages project so the new binding is active. If using Preview separately, configure its D1 binding as appropriate.
+
+No SQL console step is needed: the API creates the `crew_feedback` and `crew_feedback_limit` tables on the first POST. No GitHub PAT, Turnstile keys, or email fallback. The form is disabled before the binding is available, **not** redirected to a different submission service.
+
+## Reading submissions
+
+Open the D1 database > Console and run:
+
+```sql
+SELECT id, kind, message, contact, page, created_at
+FROM crew_feedback
+ORDER BY id DESC
+LIMIT 100;
+```
+
+Issue references shown to users are `FB-<D1 id>`. They do not reveal private database details. Only server-side Pages Functions can access D1; there is no public listing endpoint. D1 records contain **no raw IP address**. Separate, hourly SHA-256 network buckets are used only to throttle submissions to **3 per IP/hour**; buckets older than 48 hours are pruned automatically on new submissions.
+
+## Abuse defenses and operational caveats
+
+The API checks exact same-origin requests, the content type and body size, input lengths, a honeypot field, and Cloudflare's `CF-Connecting-IP` header. An **atomic D1 UPSERT** prevents straightforward concurrent submissions from bypassing the 3/hour/IP limit. This is deliberately simpler than a CAPTCHA; it is **not bot-proof**. Configure a Cloudflare WAF rate-limit rule on `POST /api/feedback` for additional protection, especially if traffic grows. Rate limiting may also affect several legitimate visitors behind the same IP (e.g. school/company NAT).
+
+When D1 is not bound or cannot write, the form retains the user's draft and shows an error; it does **not** send via email or silently claim success. D1 Free plan usage and storage quotas apply. Running the D1 schema creation dynamically adds small per-submission query overhead for simpler initial setup.
 
 ## Checks
-`node --test tests/crew-feedback.test.js`, `npm run check:web`, `npm run check:i18n`, `npm run build:cloudflare`. Live Turnstile and GitHub submission require the secret configuration; test normal flow, expiration, failure retry, 390px mobile, Android WebView, source-path privacy, and mail fallback.
+
+`node --test tests/crew-feedback.test.js`, `npm run check:web`, `npm run check:i18n`, `npm run build:cloudflare`. After deployment, test a normal submission, 4th same-IP hourly submission, missing DB binding, Android WebView, 390px mobile, and SQL console retrieval.

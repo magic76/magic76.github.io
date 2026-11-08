@@ -13,18 +13,16 @@
   "emailLabel": "Kontakt-E-Mail (optional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Ausgangsseite",
-  "privacy": "Nur deine Nachricht und der Seitenpfad gehen an unseren privaten Issue-Tracker.",
+  "privacy": "Nur deine Nachricht und der Seitenpfad werden in der privaten Crew-Datenbank gespeichert.",
   "send": "Feedback senden",
   "sending": "Wird gesendet…",
   "successTitle": "Danke, dass du Crew verbesserst!",
   "successBody": "Dein Feedback ist eingegangen.",
   "reference": "Referenz",
-  "error": "Senden fehlgeschlagen. Dein Text bleibt erhalten.",
+  "error": "Senden fehlgeschlagen. Dein Text bleibt erhalten. Bitte versuche es erneut.",
   "unavailable": "Das Formular ist derzeit nicht verfügbar.",
-  "emailFallback": "Per E-Mail senden",
-  "emailHint": "Deine E-Mail-App öffnet sich. Bitte selbst absenden.",
-  "captchaLoading": "Verifizierung wird geladen…",
-  "captchaNeeded": "Bitte Verifizierung abschließen.",
   "required": "Bitte mindestens 10 Zeichen eingeben.",
-  "back": "Zurück zu Crew"
+  "back": "Zurück zu Crew",
+  "loading": "Feedback-Dienst wird geprüft…",
+  "rateLimited": "Zu viele Einsendungen. Bitte später erneut versuchen."
 }

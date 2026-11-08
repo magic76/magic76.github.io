@@ -13,18 +13,16 @@
   "emailLabel": "E-mail de contato (opcional)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "Página de origem",
-  "privacy": "Enviamos apenas a mensagem e o caminho da página para nosso rastreador privado.",
+  "privacy": "Apenas sua mensagem e o caminho da página são armazenados no banco de dados privado do Crew.",
   "send": "Enviar feedback",
   "sending": "Enviando…",
   "successTitle": "Obrigado por ajudar o Crew!",
   "successBody": "Recebemos seu feedback.",
   "reference": "Referência",
-  "error": "Não foi possível enviar. Sua mensagem permanece aqui.",
+  "error": "Não foi possível enviar. Seu texto permanece aqui; tente novamente.",
   "unavailable": "O formulário está indisponível no momento.",
-  "emailFallback": "Enviar por e-mail",
-  "emailHint": "Seu aplicativo de e-mail abrirá. Você precisa enviar a mensagem.",
-  "captchaLoading": "Carregando verificação…",
-  "captchaNeeded": "Conclua a verificação.",
   "required": "Digite pelo menos 10 caracteres.",
-  "back": "Voltar ao Crew"
+  "back": "Voltar ao Crew",
+  "loading": "Verificando o serviço…",
+  "rateLimited": "Muitas tentativas. Tente novamente mais tarde."
 }

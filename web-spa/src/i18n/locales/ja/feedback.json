@@ -13,18 +13,16 @@
   "emailLabel": "返信用メール（任意）",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "対象ページ",
-  "privacy": "入力内容とページのパスだけを非公開の課題管理に送信します。",
+  "privacy": "入力内容とページのパスだけを Crew の非公開データベースに保存します。チャットや録音、APIキーは送信しません。",
   "send": "送信する",
   "sending": "送信中…",
   "successTitle": "ご意見ありがとうございます！",
   "successBody": "フィードバックを受け取りました。",
   "reference": "受付番号",
-  "error": "送信できませんでした。内容は残っています。",
+  "error": "送信できませんでした。入力内容は残っています。後でもう一度お試しください。",
   "unavailable": "現在フォームを利用できません。",
-  "emailFallback": "メールで送る",
-  "emailHint": "メールアプリが開きます。送信操作が必要です。",
-  "captchaLoading": "認証を読み込み中…",
-  "captchaNeeded": "認証を完了してください。",
   "required": "10文字以上入力してください。",
-  "back": "Crew に戻る"
+  "back": "Crew に戻る",
+  "loading": "送信サービスを確認中…",
+  "rateLimited": "送信回数が多すぎます。しばらくしてからお試しください。"
 }

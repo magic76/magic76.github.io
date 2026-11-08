@@ -13,18 +13,16 @@
   "emailLabel": "연락 이메일(선택)",
   "emailPlaceholder": "you@example.com",
   "pageLabel": "출처 페이지",
-  "privacy": "입력한 내용과 페이지 경로만 비공개 이슈 추적기에 전송합니다.",
+  "privacy": "입력한 내용과 페이지 경로만 Crew의 비공개 데이터베이스에 저장합니다. 채팅, 녹음 및 API 키는 전송하지 않습니다.",
   "send": "의견 보내기",
   "sending": "전송 중…",
   "successTitle": "Crew 개선에 도움을 주셔서 감사합니다!",
   "successBody": "의견이 접수되었습니다.",
   "reference": "접수 번호",
-  "error": "전송하지 못했습니다. 작성한 내용은 그대로 있습니다.",
+  "error": "전송하지 못했습니다. 작성한 내용은 유지됩니다. 다시 시도해 주세요.",
   "unavailable": "현재 온라인 양식을 사용할 수 없습니다.",
-  "emailFallback": "이메일로 보내기",
-  "emailHint": "이메일 앱이 열리며 직접 보내야 합니다.",
-  "captchaLoading": "인증 불러오는 중…",
-  "captchaNeeded": "인증을 완료해 주세요.",
   "required": "10자 이상 입력해 주세요.",
-  "back": "Crew로 돌아가기"
+  "back": "Crew로 돌아가기",
+  "loading": "의견 접수 서비스 확인 중…",
+  "rateLimited": "전송 횟수가 너무 많습니다. 잠시 후 다시 시도해 주세요."
 }
