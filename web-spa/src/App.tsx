@@ -8,6 +8,7 @@ import{trackAppOpen,trackPageView}from"./analytics/usage";
 import{GlobalNav}from"./components/AppChrome";
 import{sectionForRoute}from"./pages/crewNavigation";
 import{RouteErrorBoundary}from"./components/RouteErrorBoundary";
+import{OptionalWidgetBoundary}from"./components/OptionalWidgetBoundary";
 import{GameRouteMonitor,GameRouteReady}from"./analytics/gameRouteDiagnostics";
 import{AppChrome}from"./components/AppChrome";
 
@@ -109,4 +110,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune" element={<FortuneLayout/>}><Route index element={<FortuneHomePage/>}/><Route path="history" element={<FortuneHistoryPage/>}/><Route path="reading" element={<FortuneReadingPage/>}/></Route>
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}{(pathname==="/"||pathname==="/settings")&&<Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense>}<Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense>{pathname==="/"&&<Suspense fallback={null}><CrewInstallNudge/></Suspense>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}

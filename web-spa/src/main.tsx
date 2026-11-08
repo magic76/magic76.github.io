@@ -24,6 +24,16 @@ import { App } from "./App";
 
 import {PublicResearchProvider,type PublicResearchSeed} from "./briefing/PublicResearchContext";
 
+// Keep the installed PWA's worker current even when opened directly on a
+// Live/game route (no AppChrome footer) or in standalone display mode.
+function ensureCrewPwaUpdates(){
+ void import("./runtime/pwa").then(module=>module.registerCrewPwa()).catch(()=>{
+  // The PWA helper is optional; it must never stop React mounting.
+ });
+}
+if(document.readyState==="complete")ensureCrewPwaUpdates();
+else window.addEventListener("load",ensureCrewPwaUpdates,{once:true});
+
 const root = document.getElementById("root");
 if (!root) throw new Error("Crew root not found");
 
