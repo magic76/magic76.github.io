@@ -140,7 +140,12 @@
       "key": "Gemini 金鑰無效，請前往設定。",
       "other": "暫時無法取得回覆，請重試。",
       "settings": "前往設定"
-    }
+    },
+    "aiCtaTitle": "想更了解自己的命格？",
+    "aiCtaDesc": "AI 根據已計算的命盤，深入解析性格、事業、感情與人生階段。",
+    "aiCtaGenerate": "取得我的 AI 詳解",
+    "aiCtaRead": "閱讀 AI 詳解",
+    "aiCtaSetup": "設定 Gemini 取得詳解"
   },
   "profile": {
     "birthdayRequired": "先選生日再儲存",
