@@ -1,13 +1,15 @@
-import OpenCC from "opencc-js";
-
 export type BirthPlaceResult={name:string;admin1:string;country:string;countryCode:string;latitude:number;longitude:number;timezone:string;displayName:string};
 
 // Open-Meteo's "zh" locale may return Simplified Chinese even when the Crew
-// interface is zh-TW. Convert display text locally without changing coordinates.
-const toTraditional=OpenCC.Converter({from:"cn",to:"tw"});
-function normalizePlacePart(value:unknown,traditional:boolean,taiwan:boolean):string{
- let result=String(value||"").trim();
- if(traditional)result=toTraditional(result);
+// interface is zh-TW. Load the converter only for Chinese searches.
+let traditionalConverter:Promise<(value:string)=>string>|null=null;
+function getTraditionalConverter(){
+ return traditionalConverter??=import("opencc-js").then(m=>m.default.Converter({from:"cn",to:"tw"}));
+}
+const identity=(value:string)=>value;
+function normalizePlacePart(value:unknown,convert:(value:string)=>string,taiwan:boolean):string{
+ let result=convert(String(value||"").trim());
+ const traditional=convert!==identity;
  if(taiwan){
   // External geocoders can prepend "中國" or "中華台北" to Taiwanese places.
   result=result.replace(/中[國国]|中華(?:臺|台)北/g,"").trim();
@@ -29,12 +31,13 @@ export async function searchBirthPlaces(query:string,uiLocale?:string):Promise<B
  const r=await fetch(url,{headers:{Accept:"application/json"}});
  if(!r.ok)throw new Error("出生地搜尋服務暫時無法使用");
  const data=await r.json(),rows=Array.isArray(data.results)?data.results:[];
+ const convert=traditional?await getTraditionalConverter():identity;
  return rows.filter((x:any)=>Number.isFinite(x.latitude)&&Number.isFinite(x.longitude)&&x.timezone).map((x:any)=>{
   const rawCountryCode=String(x.country_code||"").toUpperCase(),taiwan=rawCountryCode==="TW"||x.timezone==="Asia/Taipei";
   const countryCode=taiwan?"TW":rawCountryCode;
-  const name=normalizePlacePart(x.name,traditional,taiwan);
-  let admin1=normalizePlacePart(x.admin1,traditional,taiwan);
-  const country=taiwan?(traditional?"台灣":"Taiwan"):normalizePlacePart(x.country,traditional,false);
+  const name=normalizePlacePart(x.name,convert,taiwan);
+  let admin1=normalizePlacePart(x.admin1,convert,taiwan);
+  const country=taiwan?(traditional?"台灣":"Taiwan"):normalizePlacePart(x.country,convert,false);
   // Don't repeat Taiwan as an administrative region and the country.
   if(taiwan&&/^(?:台|臺)灣(?:省)?$/.test(admin1))admin1="";
   const parts=[name,admin1,country].filter(Boolean).filter((v:string,i:number,a:string[])=>a.indexOf(v)===i);
