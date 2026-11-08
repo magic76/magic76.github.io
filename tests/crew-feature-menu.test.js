@@ -11,7 +11,7 @@ const css=read("web-spa/src/components/crewFeatureMenu.css");
 
 test("all 33 feature destinations are direct, existing Crew routes",()=>{
  const targets=[...menu.matchAll(/\{id:"([a-zA-Z0-9]+)",to:"([^"]+)"/g)];
- assert.equal(targets.length,33,"the directory should expose all 32 verified experiences");
+ assert.equal(targets.length,33,"the directory should expose all 33 verified destinations");
  assert.equal(new Set(targets.map(item=>item[1])).size,33,"unique feature keys");
  assert.equal(new Set(targets.map(item=>item[2])).size,33,"unique deep links");
  for(const [,id,to] of targets)assert.ok(to.startsWith("/")&&!to.startsWith("//"),id+" must be an internal route");
