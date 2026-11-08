@@ -117,7 +117,8 @@ test("approved art manifest matches all ten committed BaZi WebPs",()=>{
  assert.equal(approved.length,10);
  assert.equal(new Set(approved).size,10);
  assert.equal(url("bazi-unknown"),null);
- assert.equal(url("tarot-22"),null);
+ assert.equal(url("tarot-22"),"/fortune/identity/art/tarot-22.webp");
+ assert.equal(url("tarot-99"),null);
 });
 test("art is optional and both UI and PNG renderer use the same approved image",()=>{
  const ui=read("FortuneIdentityCard.tsx");
