@@ -1,7 +1,7 @@
 import {useTranslation} from "react-i18next";
 import {Link} from "react-router-dom";
 import type {CourseLesson} from "./courseCatalog";
-import {courseDisplayTitle,courseDisplayDescription,courseDisplayMission} from "./courseLocale";
+import {courseDisplayTitle,courseDisplayDescription,courseDisplayMission,courseDisplayWarmupGloss} from "./courseLocale";
 import "./learningFlow.css";
 
 /** UI language never changes the spoken practice target or mission evaluation. */
@@ -33,7 +33,7 @@ export function CourseBriefing({lesson}:{lesson:CourseLesson}){
      {!chinese&&<p className="meta">{t("briefing.englishPhraseHint")}</p>}
      {warmups.map((phrase,index)=><div className="crew-course-warmup" key={index}>
       <div><strong lang="en">{phrase.en}</strong>
-       {chinese&&<p>{phrase.zh}</p>}
+       {(chinese||locale.startsWith("ja"))&&<p>{courseDisplayWarmupGloss(lesson,index,locale)}</p>}
        {!!phrase.ipa&&<small className="crew-course-ipa">{phrase.ipa}</small>}
        {chinese&&!!phrase.note&&<small className="crew-course-warmup-note">{phrase.note}</small>}
       </div>
