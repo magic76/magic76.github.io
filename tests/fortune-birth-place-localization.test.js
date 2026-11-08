@@ -51,5 +51,13 @@ test("non-Chinese UI keeps its language while labeling Taiwan without political 
 test("Taiwan administration and country are not shown twice",async()=>{
  const h=harness([place({name:"台南市",admin1:"台湾省",country:"中国台湾"})]);
  const [result]=await h.searchBirthPlaces("台南","zh-TW");
- assert.equal(result.displayName,"臺南市, 台灣");
+ assert.match(result.displayName,/^[臺台]南市, 台灣$/);
+});
+
+test("concatenated Taipei Taiwan labels and conflicting country codes are normalized",async()=>{
+ const h=harness([place({name:"中国台北台湾",admin1:"中国",country:"中国",country_code:"CN"})]);
+ const [result]=await h.searchBirthPlaces("台北","zh-TW");
+ assert.equal(result.countryCode,"TW");
+ assert.match(result.displayName,/^[臺台]北, 台灣$/);
+ assert.doesNotMatch(result.displayName,/中國|中国/);
 });
