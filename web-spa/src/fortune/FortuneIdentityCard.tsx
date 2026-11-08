@@ -19,6 +19,17 @@ export function FortuneIdentityCard({reading,onContinue,onShare,compact=false}:{
  useEffect(()=>{setMoreOpen(true);setEvidenceOpen(true)},[reading.id]);
  useEffect(()=>{setArtFailed(false)},[artSrc]);
  if(!card)return null;
+ const identityDetails=<div className="fortune-identity-more-content">
+    <div className="fortune-identity-facts">
+     {card.behavior&&<div><strong>{zh?"最像你的地方":"How you may act"}</strong><p>{card.behavior}</p></div>}
+     {card.tension&&<div><strong>{zh?"值得留意的另一面":"Another side to consider"}</strong><p>{card.tension}</p></div>}
+    </div>
+    <details className="fortune-identity-evidence" open={evidenceOpen} onToggle={event=>setEvidenceOpen(event.currentTarget.open)}>
+     <summary>{zh?"命盤依據":"Chart evidence"}</summary>
+     <ul>{card.evidence.map(evidence=><li key={evidence}>{evidence}</li>)}</ul>
+    </details>
+    <p className="fortune-identity-note">{labels.symbolic}</p>
+   </div>;
  return <section className={"fortune-identity"+(compact?" fortune-identity-compact":"")} aria-label={labels.details}>
   {!compact&&<div className="fortune-identity-card">
    <span className="fortune-identity-kicker">CREW FORTUNE · {view.modeLabel}</span>
@@ -34,19 +45,6 @@ export function FortuneIdentityCard({reading,onContinue,onShare,compact=false}:{
    <button className="btn" type="button" onClick={onShare||onContinue}>{labels.share}</button>
    <button className="btn secondary" type="button" onClick={onContinue}>{labels.deep}</button>
   </div>}
-  <details className="fortune-identity-more" open={moreOpen} onToggle={event=>setMoreOpen(event.currentTarget.open)}>
-   <summary>{labels.details}</summary>
-   <div className="fortune-identity-more-content">
-    <div className="fortune-identity-facts">
-     {card.behavior&&<div><strong>{zh?"最像你的地方":"How you may act"}</strong><p>{card.behavior}</p></div>}
-     {card.tension&&<div><strong>{zh?"值得留意的另一面":"Another side to consider"}</strong><p>{card.tension}</p></div>}
-    </div>
-    <details className="fortune-identity-evidence" open={evidenceOpen} onToggle={event=>setEvidenceOpen(event.currentTarget.open)}>
-     <summary>{zh?"命盤依據":"Chart evidence"}</summary>
-     <ul>{card.evidence.map(evidence=><li key={evidence}>{evidence}</li>)}</ul>
-    </details>
-    <p className="fortune-identity-note">{labels.symbolic}</p>
-   </div>
-  </details>
+  {compact?identityDetails:<details className="fortune-identity-more" open={moreOpen} onToggle={event=>setMoreOpen(event.currentTarget.open)}><summary>{labels.details}</summary>{identityDetails}</details>}
  </section>;
 }
