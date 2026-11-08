@@ -21,7 +21,7 @@ const events=new Set([
   "gemini_key_missing","gemini_key_verified",
   "guest_trial_entry_view","guest_trial_unavailable","guest_trial_start_click","guest_trial_mic_denied","guest_trial_setup_failed",
   "guest_trial_token_issued","guest_trial_token_failed","guest_trial_connected","guest_trial_connect_failed","guest_trial_ended",
-  "home_entry_click","explore_entry_click","menu_open","menu_item_click",
+  "home_entry_click","explore_entry_click","menu_open","menu_item_click","route_load_error",
   "pwa_install_view","pwa_install_click","pwa_install_dismiss","pwa_install_success",
   "home_live_bubble_view","home_live_bubble_click","home_live_bubble_connected","home_live_bubble_conversation",
   "home_gift_view","home_gift_open","home_gift_result","home_gift_go","home_gift_minimize",
@@ -38,7 +38,7 @@ const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_
   "under_1s","from_1_to_3s","from_3_to_8s","over_8s",
   "teacher","friend","under_15s","from_15_to_45s","from_45_to_60s","from_60_to_120s","from_120_to_180s","from_180_to_300s",
   "mira","ethan","hana","settings","learn","story","fortune","timeline","play","briefing","town","magic","mate","souls","shorts","circle",
-  "discover","me","footer","menu","nudge","native",
+  "discover","me","footer","menu","nudge","native","asset","runtime",
   "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
   "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);

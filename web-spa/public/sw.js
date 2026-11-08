@@ -1,8 +1,17 @@
 /* Crew PWA: static hashed bundles only. No offline interception of AI, login, analytics or audio APIs. */
 "use strict";
-const STATIC_CACHE="crew-pwa-static-v1";
+const STATIC_CACHE="crew-pwa-static-v2";
 const OFFLINE_URL="/offline.html";
 const MAX_BUNDLES=72;
+// Pages may return an HTML SPA fallback (HTTP 200) for a removed hashed chunk.
+// Never cache it as .js/.css, or one failed update poisons future PWA loads.
+function isValidAssetResponse(url,response){
+ if(!response.ok||response.type!=="basic")return false;
+ const mime=(response.headers?.get("content-type")||"").toLowerCase();
+ if(url.pathname.endsWith(".js"))return /^(?:text|application)\/(?:javascript|ecmascript|x-javascript)(?:;|$)/.test(mime);
+ if(url.pathname.endsWith(".css"))return /^text\/css(?:;|$)/.test(mime);
+ return /^(?:font\/(?:woff|woff2)|application\/(?:font-woff|font-woff2|octet-stream))(?:;|$)/.test(mime);
+}
 self.addEventListener("install",event=>{
  event.waitUntil(caches.open(STATIC_CACHE).then(cache=>cache.add(OFFLINE_URL)));
  // Do not skipWaiting: an ongoing chat/game must keep its current worker.
@@ -35,7 +44,7 @@ self.addEventListener("fetch",event=>{
   const cached=await cache.match(request);
   if(cached)return cached;
   const response=await fetch(request);
-  if(response.ok&&response.type==="basic"){
+  if(isValidAssetResponse(url,response)){
    try{
     await cache.put(request,response.clone());
     const keys=await cache.keys();

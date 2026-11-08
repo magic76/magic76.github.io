@@ -67,8 +67,15 @@ export async function requestCrewInstall(){
   return choice.outcome==="accepted";
  }catch{return false;}
 }
+// Registration/update is separate from showing install UI: an already installed
+// standalone PWA must still refresh its worker on every visit.
+export function canRegisterCrewPwa(){
+ if(typeof window==="undefined")return false;
+ if(window.location.pathname.startsWith("/crew-app/")||isCrewAndroidShell())return false;
+ return window.location.protocol==="https:"||window.location.hostname==="localhost";
+}
 export function registerCrewPwa(){
- if(typeof window==="undefined"||!("serviceWorker" in navigator)||!canOfferCrewInstall()||registrationStarted)return;
+ if(typeof window==="undefined"||!("serviceWorker" in navigator)||!canRegisterCrewPwa()||registrationStarted)return;
  registrationStarted=true;
  const register=()=>{void navigator.serviceWorker.register("/sw.js",{scope:"/",updateViaCache:"none"}).catch(()=>{
   // PWA is optional; failure to register must not block Crew.
