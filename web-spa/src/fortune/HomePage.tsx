@@ -56,47 +56,6 @@ export function FortuneHomePage(){
    <h1>{t("landing.title")}</h1>
    <p>{t("landing.intro")}</p>
   </section>
-  {latest&&<FortuneDailyCard/>}
-  <section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
-   {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
-    <div className="fortune-journey-latest">
-     <span className="kicker">{t("landing.continue")}</span>
-     <div className="fortune-journey-latest-head">
-      <span className={"fortune-history-mark "+latest.mode}/>
-      <div><h2>{name(latest.mode,t)}</h2><p>{latest.summary||t("home.reading")}</p>
-       <small>{latest.createdAt?new Date(latest.createdAt).toLocaleDateString(i18n.language):""}</small>
-      </div>
-     </div>
-     <div className="fortune-journey-actions">
-      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
-      <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
-       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
-      </button>
-     </div>
-    </div>:
-    <div className="fortune-journey-empty">
-     <span className="kicker">{t("landing.first")}</span>
-     <h2>{t("landing.firstTitle")}</h2>
-     <p>{t("landing.firstIntro")}</p>
-     <a href="#fortune-new-reading" className="btn">{t("landing.create")} ↓</a>
-    </div>}
-   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
-  </section>
-  <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
-   <div className="section-head">
-    <h2>{t("landing.myCharts")}</h2>
-    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
-   </div>
-   {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
-    <div className="fortune-history-list">
-     {list.slice(0,3).map(x=><Link className="fortune-history-row" to={readingUrl(x.id)} key={x.id}>
-      <span className={"fortune-history-mark "+x.mode}/>
-      <span><strong>{name(x.mode,t)}</strong><small>{x.summary||t("home.reading")}</small></span>
-      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} ›</b>
-     </Link>)}
-    </div>:
-    <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
-  </section>
   <section className="section fortune-journey-create" id="fortune-new-reading">
    <div className="section-head">
     <h2>{t("landing.createTitle")}</h2>
@@ -123,7 +82,45 @@ export function FortuneHomePage(){
     </Link>
    </div>
   </section>
-  {list!==null&&!latest&&<FortuneDailyCard/>}
+  {(list===null||Boolean(latest)||Boolean(error))&&<section className="section fortune-journey-primary" aria-label={t("landing.latest")}>
+   {list===null?<div className="spa-loading" role="status">{t("home.loading")}</div>:latest?
+    <div className="fortune-journey-latest">
+     <span className="kicker">{t("landing.continue")}</span>
+     <div className="fortune-journey-latest-head">
+      <span className={"fortune-history-mark "+latest.mode}/>
+      <div><h2>{name(latest.mode,t)}</h2><p>{latest.summary||t("home.reading")}</p>
+       <small>{latest.createdAt?new Date(latest.createdAt).toLocaleDateString(i18n.language):""}</small>
+      </div>
+     </div>
+     <div className="fortune-journey-actions">
+      <Link className="btn" to={readingUrl(latest.id)}>{t("landing.readFull")} →</Link>
+      <button className="btn secondary" type="button" disabled={Boolean(openingId)} onClick={()=>void explain(latest.id)}>
+       {t(openingId===latest.id?"landing.opening":"landing.hearFriend")} →
+      </button>
+     </div>
+    </div>:
+    null
+   {error&&<div className="spa-error" role="alert">{error} {needsKey&&<Link to="/settings">{t("landing.openSettings")} →</Link>}</div>}
+  </section>}
+  <section className="section fortune-journey-history" aria-label={t("landing.saved")}>
+   <div className="section-head">
+    <h2>{t("landing.myCharts")}</h2>
+    <Link className="fortune-journey-all" to="/fortune/history">{t("landing.viewAll")} →</Link>
+   </div>
+   {list===null?<div className="spa-loading">{t("home.loading")}</div>:list.length?
+    <div className="fortune-history-list">
+     {list.slice(0,3).map(x=><Link className="fortune-history-row" to={readingUrl(x.id)} key={x.id}>
+      <span className={"fortune-history-mark "+x.mode}/>
+      <span><strong>{name(x.mode,t)}</strong><small>{x.summary||t("home.reading")}</small></span>
+      <b>{x.createdAt?new Date(x.createdAt).toLocaleDateString(i18n.language):""} ›</b>
+     </Link>)}
+    </div>:
+    <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
+  </section>
+  <details className="fortune-journey-daily">
+   <summary>{t("landing.todayReflection")}</summary>
+   <FortuneDailyCard/>
+  </details>
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
