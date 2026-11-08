@@ -15,6 +15,9 @@ import {threeMinuteSpeakingPath} from "../teacher/threeMinuteSpeaking";
 import {useClientReady} from "../lib/useClientReady";
 import {useTeacherStore} from "../store/teacherStore";
 import {TARGET_LANGUAGES} from "../teacher/targetLanguages";
+import {nativeLanguageName} from "../teacher/teacherLocale";
+import {teacherLanguageHomeHint} from "../teacher/teacherLanguageUx";
+import {friendSpokenLanguage} from "../friends/friendLanguage";
 import "./crewExplore.css";
 import "./crewSections.css";
 
@@ -165,6 +168,9 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
  const {t:tSettings}=useTranslation("settings");
  const clientReady=useClientReady();
  const targetLanguage=useTeacherStore(s=>s.targetLanguage);
+ const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
+ const teachingMode=useTeacherStore(s=>s.teachingMode);
+ const learnerSpeakingLevel=useTeacherStore(s=>s.learnerSpeakingLevel);
  const setTargetLanguage=useTeacherStore(s=>s.setTargetLanguage);
  const en=i18n.language!=="zh-TW";
  const source=en?englishCopy[section]:copy[section];
@@ -210,6 +216,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
        {TARGET_LANGUAGES.map(({value})=><option key={value} value={value}>{t("friends:languages."+value,{defaultValue:value})}</option>)}
       </select>
      </label>
+     <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
     </div>
     :<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
