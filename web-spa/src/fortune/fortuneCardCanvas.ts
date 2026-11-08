@@ -90,7 +90,7 @@ export async function nativeCollectibleShare(file:File,message:string,url:string
  const canFile=typeof navigator.canShare==="function"&&navigator.canShare({files:[file]});
  try{
   if(canFile)await navigator.share({title:"Crew Fortune",files:[file],text:message});
-  else await navigator.share({title:"Crew Fortune",text:message,url});
+  else await navigator.share({title:"Crew Fortune",text:message.endsWith(url)?message.slice(0,-url.length).trim():message,url});
   return "shared";
  }catch(error){
   if((error as Error)?.name==="AbortError")return "cancelled";
