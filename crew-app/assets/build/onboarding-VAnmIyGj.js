@@ -1,0 +1,1 @@
+function e(e){try{return e.getItem(`crew_learn_language_confirmed_v1`)===null&&e.getItem(`crew_teacher_lang`)===null}catch{return!1}}function t(e){try{e.setItem(`crew_learn_language_confirmed_v1`,`1`)}catch{}}function n(e){return e===`/learn`||e===`/teacher`||e===`/teacher/practice`}export{t as n,e as r,n as t};
