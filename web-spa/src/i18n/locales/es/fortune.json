@@ -140,7 +140,12 @@
       "key": "Clave de Gemini inválida. Abre configuración.",
       "other": "No se pudo obtener una respuesta. Reinténtalo.",
       "settings": "Abrir configuración"
-    }
+    },
+    "aiCtaTitle": "¿Quieres entender mejor tu carta?",
+    "aiCtaDesc": "La IA profundiza en tu personalidad, trabajo, relaciones y etapas vitales a partir de tu carta calculada.",
+    "aiCtaGenerate": "Obtener mi análisis con IA",
+    "aiCtaRead": "Leer mi análisis con IA",
+    "aiCtaSetup": "Configurar Gemini para el análisis"
   },
   "profile": {
     "birthdayRequired": "Elige tu fecha de nacimiento antes de guardar",
