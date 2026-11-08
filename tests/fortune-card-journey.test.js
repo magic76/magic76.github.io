@@ -51,6 +51,7 @@ test("identity, missing identity and missing art keep a private-data-free fallba
  const result={dayMaster:"辛",birthDate:"1990-03-04",birthTime:"14:30",name:"private"};
  const card=model.buildFortuneCardModel("bazi",result,"zh-TW","出生：1990-03-04");
  assert.equal(card.id,"bazi-辛");assert.ok(card.artSrc);
+ assert.equal(card.symbol,"✦","PNG fallback cannot reveal the raw day-master symbol");
  for(const secret of ["1990-03-04","14:30","private"])assert.ok(!JSON.stringify(card).includes(secret));
  const empty=model.buildFortuneCardModel("bazi",{},"en","A quieter and steadier approach.");
  assert.equal(empty.id,null);assert.equal(empty.artSrc,null);
@@ -129,6 +130,7 @@ test("reading flow and manual share preview remain connected without automatic r
  const dialog=read(fortune("FortuneShareDialog.tsx"));
  const home=read(fortune("HomePage.tsx"));
  assert.match(reading,/fortune-collectible-hero/);
+ assert.match(reading,/\{showInput&&<section className="hero">/,"generic top hero should not precede results");
  assert.match(reading,/fortune-deep-exploration/);
  assert.match(reading,/scrollIntoView/);
  assert.match(reading,/onHeadline=\{setOneLine\}/);
