@@ -12,8 +12,8 @@ test("Fortune report has a computed-fact dashboard for all three modes",()=>{
  assert.match(view,/mode==="tarot"/);
  assert.match(view,/r\?\.currentMahadasha\?\.lord/);
  assert.match(view,/fortune-reading-metrics/);
- assert.match(view,/fortune-reading-focus-grid/);
- for(const id of ["career","wealth","relationships"])assert.match(view,new RegExp('id:"'+id+'"'));
+ assert.doesNotMatch(view,/fortune-reading-focus-grid/);
+ assert.match(view,/const primary:FortuneChapterId\[\]=\["personality","career","wealth","relationships","currentCycle"\]/);
  assert.match(view,/weightedFiveElements/);
  assert.match(view,/Number\.isFinite/);
  assert.match(view,/formatFortuneValue\(item\.value,true\)/);
@@ -39,13 +39,13 @@ test("Fortune full reading stays reachable with explicit evidence and disclosure
  assert.match(page,/<Result result=\{reading!\.result\}/);
 });
 
-test("Fortune topic prompt enters existing Live context, preserving Key fallback",()=>{
+test("Fortune keeps one optional Friend entry and never repeats topic question buttons",()=>{
  const page=read("web-spa/src/fortune/ReadingPage.tsx");
+ const overview=read("web-spa/src/fortune/ReadingOverview.tsx");
  const live=read("web-spa/src/fortune/LivePage.tsx");
- assert.match(page,/onAsk=\{id=>ask\(id\)\}/);
+ assert.doesNotMatch(overview,/onAsk|fortune-reading-ask|fortune-reading-focus-grid/);
  assert.match(page,/function ask\(topic\?:string\)/);
- assert.match(page,/if\(!geminiKey\(\)\)/);
- assert.match(page,/crew_fortune_live_prompt/);
+ assert.match(page,/setShowAiSetup\(true\)/);
  assert.match(page,/crew_fortune_live_context/);
  assert.match(page,/nav\("\/fortune\/live\?from=reading"\)/);
  assert.match(live,/localStorage\.removeItem\("crew_fortune_live_prompt"\)/);
