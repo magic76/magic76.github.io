@@ -84,7 +84,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
    const api=turnstile();if(!api)return;
    widget.current=api.render(host.current,{
     sitekey:siteKey,action:"crew-guest-trial",
-    callback:token=>{
+    callback:(token:string)=>{
      if(!active.current)return;
      setChallenge(token);
      // Load code only after human verification; no microphone, token or paid
