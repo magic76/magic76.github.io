@@ -3,12 +3,16 @@ const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
 const path=require("node:path");
 const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
-test("Portal retains the live particle design without a cloud, adding only ambient depth",()=>{
+test("Portal keeps the cloud-free live particle design and softly lights the inner field",()=>{
  const visual=read("web-spa/src/pages/PortalParticleField.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
  const field=read("web-spa/src/pages/portalField.mjs");
  assert.doesNotMatch(visual,/crew-portal-core/);
- assert.match(css,/radial-gradient\(ellipse 37% 30%/);
+ assert.match(css,/radial-gradient\(ellipse 28% 35%/);
+ assert.match(css,/#12101c88 0%,#12101c53 48%/);
+ assert.match(field,/const inner = noise\(i \+ count \* 3\) < \.14/);
+ assert.match(field,/point\.inner \? \.55 : 1/);
+ assert.match(field,/if \(point\.inner\) \{ target\[0\] \*= point\.inset/);
  assert.match(field,/!lowQuality && i % 137 === 0 && point\.size > \.35/);
  assert.doesNotMatch(field,/THREE|new WebGLRenderingContext/);
 });
