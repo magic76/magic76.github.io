@@ -178,7 +178,12 @@ test("guest transport cannot reuse normal BYOK credential or reconnect one-use t
  assert.match(fs.readFileSync(path.join(root,"crew-live.js"),"utf8"),/BidiGenerateContentConstrained\?access_token=/);
  const byok=new transport.Session({models:["gemini-3.8-live"]});
  assert.equal(byok.guestMode,false);
- assert.match(fs.readFileSync(path.join(root,"crew-live.js"),"utf8"),/v1alpha\.GenerativeService\.BidiGenerateContent\?key=/);
+ const source=fs.readFileSync(path.join(root,"crew-live.js"),"utf8");
+ assert.match(source,/self\.textOnly\?"v1beta":"v1alpha"/);
+ assert.match(source,/\.GenerativeService\.BidiGenerateContent\?key=/);
+ const keyboard=new transport.Session({textOnly:true,models:["gemini-3.8-live"]});
+ assert.equal(keyboard.guestMode,false);
+ assert.equal(keyboard.textOnly,true);
 });
 
 test("standalone Worker rejects unexpected origins and provides strict CORS preflight",async()=>{
