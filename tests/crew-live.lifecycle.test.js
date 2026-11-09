@@ -1207,6 +1207,7 @@ test("keyboard-only Gemini 3.8 Live sends text and receives transcript without m
  socket.open();
  const setup=socket.sent[0].setup;
  assert.equal(setup.model,"models/gemini-3.8-live");
+ assert.match(socket.url,/google\.ai\.generativelanguage\.v1beta\.GenerativeService\.BidiGenerateContent\?key=/);
  assert.deepEqual(setup.generationConfig.responseModalities,["AUDIO"]);
  assert.deepEqual(setup.outputAudioTranscription,{});
  assert.equal("inputAudioTranscription" in setup,false);
@@ -1237,4 +1238,36 @@ test("keyboard-only Gemini 3.8 Live sends text and receives transcript without m
  await session.stop({silentStatus:true,emitTerminal:false});
  assert.equal(socket.sent.some(item=>Boolean(item.realtimeInput&&item.realtimeInput.audioStreamEnd)),false);
  assert.equal(micRequests,0);
+});
+
+
+test("text Live output delivers incremental transcript before final turnComplete",async()=>{
+ resetSockets();
+ let micRequests=0;
+ const partials=[],generations=[],turns=[];
+ const session=new CrewLive.Session({
+  textOnly:true,models:["gemini-3.8-live"],maxLiveAttempts:1,connectTimeoutMs:150,
+  deps:{WebSocket:MockWebSocket,getKey:()=>"test-key",
+   getUserMedia:async()=>{micRequests++;throw Error("forbidden mic")},
+   createAudioContext:()=>{throw Error("forbidden audio")},logger:{info(){}}},
+  onOutputTranscript:text=>partials.push(text),
+  onGenerationComplete:text=>generations.push(text),
+  onTurnComplete:turn=>turns.push(turn)
+ });
+ const starting=session.start(),socket=await waitForSocket(0);
+ socket.open();socket.message({setupComplete:{}});await starting;
+ assert.equal(session.sendText("Hello"),true);
+ socket.message({serverContent:{outputTranscription:{text:"Hello"}}});
+ assert.deepEqual(partials,["Hello"]);
+ assert.equal(turns.length,0);
+ socket.message({serverContent:{outputTranscription:{text:" there"}}});
+ assert.equal(partials.at(-1),"Hello there");
+ assert.equal(turns.length,0,"partial text is available before turn completion");
+ socket.message({serverContent:{generationComplete:true}});
+ assert.deepEqual(generations,["Hello there"]);
+ socket.message({serverContent:{turnComplete:true}});
+ assert.equal(turns.length,1);
+ assert.equal(turns[0].output,"Hello there");
+ assert.equal(micRequests,0);
+ await session.stop({silentStatus:true,emitTerminal:false});
 });
