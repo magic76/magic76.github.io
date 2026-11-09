@@ -1,16 +1,8 @@
 /* One manually selected invitation on a single decorative particle surface. */
 .crew-home-portal{--portal-accent:#d9c1ff;--portal-stage-x:.5;--portal-stage-y:.5;--portal-stage-scale-w:.47;--portal-stage-scale-h:.60;--portal-stage-tall:1;--portal-stage-split:0;position:relative;isolation:isolate;overflow:hidden;display:grid;place-items:center;box-sizing:border-box;min-height:max(540px,calc(100vh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));min-height:max(540px,calc(100svh - 58px - var(--nav-h) - env(safe-area-inset-bottom)));color:#f7f1e8;background:#12101c;touch-action:pan-y;border:0;border-radius:0;box-shadow:none}
 .crew-home-portal[data-mode="learn"]{--portal-accent:#aee7d3}.crew-home-portal[data-mode="fortune"]{--portal-accent:#ffdd8b}.crew-home-portal[data-mode="play"]{--portal-accent:#ff95ae}
-.crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;container-type:size;background:radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
+.crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;container-type:size;background:radial-gradient(ellipse 37% 30% at calc(100% * var(--portal-stage-x)) calc(100% * var(--portal-stage-y)),rgba(176,130,223,.15),rgba(102,67,161,.065) 42%,transparent 94%),radial-gradient(ellipse 51% 57% at 87% 17%,rgba(84,62,145,.13),transparent 83%),radial-gradient(ellipse 45% 53% at 17% 87%,rgba(121,52,129,.075),transparent 79%),radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
 .crew-portal-field canvas{width:100%;height:100%;display:block}.crew-portal-fallback{position:absolute;left:calc(100% * var(--portal-stage-x));top:calc(100% * var(--portal-stage-y));width:min(calc(100vw * var(--portal-stage-scale-w) * 2.6),calc(100cqh * var(--portal-stage-scale-h) * 2.6));height:auto;aspect-ratio:3 / 2;transform:translate(-50%,-50%) scaleY(var(--portal-stage-tall));color:var(--portal-accent);opacity:.4;pointer-events:none}.crew-portal-field[data-ready="true"] .crew-portal-fallback{display:none}
-/* Decorative SVG only: existing Canvas ring, mode transitions and layout stay unchanged. */
-.crew-portal-core{position:absolute;left:calc(100% * var(--portal-stage-x));top:calc(100% * var(--portal-stage-y));width:min(calc(100vw * var(--portal-stage-scale-w) * 1.05),calc(100cqh * var(--portal-stage-scale-h) * 1.05));height:auto;aspect-ratio:4/3;transform:translate(-50%,-50%);opacity:.78;z-index:1;pointer-events:none;will-change:transform;animation:crew-portal-core-breathe 12s ease-in-out infinite}
-.crew-portal-field canvas{position:relative;z-index:0}
-@keyframes crew-portal-core-breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.009)}}
-/* On phones, place the object above the copy rather than hiding it behind the CTA. */
-@media(max-width:700px){.crew-portal-core{top:19%;width:min(calc(100vw * var(--portal-stage-scale-w) * .78),calc(100cqh * var(--portal-stage-scale-h) * .78));opacity:.64}}
-.crew-home-portal[data-paused="true"] .crew-portal-core{animation:none;will-change:auto}
-@media(prefers-reduced-motion:reduce){.crew-portal-core{animation:none;will-change:auto}}
 .crew-portal-content{position:relative;box-sizing:border-box;width:min(1000px,100%);padding:32px 24px;text-align:center;z-index:1}
 .crew-portal-intro{font-size:13px;line-height:1.5;letter-spacing:.06em;color:#d2c6d7;margin:0 auto 38px;max-width:650px}
 /* Copy scrim stays below the positioned CTA and quota, preserving the solid cream button. */
