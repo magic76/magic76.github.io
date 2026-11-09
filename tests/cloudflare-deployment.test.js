@@ -182,6 +182,15 @@ check("indexed game URLs each ship route-specific hydrated SSG HTML, metadata an
   assert.ok(graph.some(item=>item["@type"]==="SoftwareApplication"&&item.applicationCategory==="GameApplication"),"game schema "+path);
  }
 });
+check("English research detail deep links redirect to zh articles rather than the indexable homepage fallback",()=>{
+ const lines=read("_redirects").trim().split(/\r?\n/);
+ assert.ok(lines.includes("/en/research/:date/:article/ /research/:date/:article/ 301"));
+ assert.ok(lines.includes("/en/research/:date/:article /research/:date/:article/ 301"));
+ assert.ok(!lines.some(line=>/^\/en\/research\/\s/.test(line)),"English research hub must not be redirected");
+ assert.ok(fs.existsSync(path.join(DIST,"en","research","index.html")),"English research hub must remain published");
+ assert.ok(fs.existsSync(path.join(DIST,"research","index.html")),"Chinese research hub must remain published");
+});
+
 check("deep interactive routes keep their URLs and noindex SPA shell, including query strings",()=>{
  const shell=read("_app-noindex.html");
  const redirects=read("_redirects");
