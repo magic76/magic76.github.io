@@ -85,7 +85,7 @@ function makeCanvas(){
  const calls=[],ctx={
   createLinearGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
   createRadialGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
-  fillRect(){},beginPath(){},roundRect(){},closePath(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){},save(){},restore(){},
+  fillRect(...args){calls.push(["fillRect",...args])},beginPath(){},roundRect(){},closePath(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){calls.push(["clip"])},save(){},restore(){},
   measureText(s){return {width:Array.from(s).length*16}},
   fillText(text,x,y){calls.push(["text",text,x,y])},
   drawImage(){calls.push(["image"])}
@@ -105,6 +105,16 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   const canvas=render(card,art,new Date("2026-11-08T11:00:00Z"),"zh-TW");
   assert.equal(canvas.width,1080);assert.equal(canvas.height,1350);
   assert.ok(env.calls.some(x=>x[0]==="image"));
+  // Transparent PNG: the full-canvas background can only be painted AFTER
+  // clipping to the beveled card silhouette.
+  const background=env.calls.findIndex(x=>x[0]==="fillRect"&&x[1]===0&&x[2]===0&&x[3]===1080&&x[4]===1350);
+  const firstClip=env.calls.findIndex(x=>x[0]==="clip");
+  assert.ok(firstClip>=0&&background>firstClip,"outer PNG canvas remains transparent");
+  // Date and CTA share a baseline safely INSIDE the white card (bottom y=1269),
+  // not on the outer polygon border (bottom y=1315).
+  const footer=env.calls.filter(x=>x[0]==="text"&&x[3]===1249);
+  assert.equal(footer.length,2);
+  assert.deepEqual(footer.map(x=>x[2]),[101,982]);
   assert.ok(env.calls.some(x=>x[1]==="CREW FORTUNE"));
   assert.ok(env.calls.some(x=>String(x[1]).includes("3sssi.com/fortune")));
   assert.ok(env.calls.some(x=>x[1]==="命格輪廓"));
