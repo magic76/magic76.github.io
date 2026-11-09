@@ -47,7 +47,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const hasKey=Boolean(geminiKey());
  const guestMode=useGuest||!hasKey;
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
- useEffect(()=>()=>{liveChat.current?.close();liveChat.current=null;setLiveStatus("")},[guestMode,system,searchEnabled]);
+ useEffect(()=>()=>{liveChat.current?.close();liveChat.current=null},[guestMode,system,searchEnabled]);
  useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length]);
  useEffect(()=>{
   if(!guestMode)return;
