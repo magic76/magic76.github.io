@@ -174,6 +174,14 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       ctx.globalAlpha = Math.min(1, alpha);
       ctx.fillStyle = palette.colors[point.color];
       ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      // Sparse, low-cost highlights ride the original particle field; no new renderer.
+      if (!lowQuality && i % 137 === 0 && point.size > .35) {
+        const glint = (2.5 + point.size * 2.4) * p[2];
+        const shimmer = still ? .23 : .18 + .18 * Math.sin(time * 1.2 + i * .37);
+        ctx.globalAlpha = Math.min(1, alpha * shimmer);
+        ctx.fillRect(x - glint, y - .35, glint * 2, .7);
+        ctx.fillRect(x - .35, y - glint, .7, glint * 2);
+      }
       if (mode === 'fortune' && i % 29 === 0) {
         const radius = 2.5 + point.size * 2.5;
         ctx.beginPath(); ctx.moveTo(x, y - radius);
