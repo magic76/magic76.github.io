@@ -2,6 +2,7 @@ import {normalizeUiLocale,type UiLocale} from "../i18n/localeCatalog";
 
 const en = {
  step:"Step", skip:"Skip", back:"Back", next:"Continue", start:"Start exploring",
+  firstChat:"Say hello to Zoe",firstLearn:"Start an everyday speaking lesson",firstPlay:"Play a round of Number Bomb",firstExplore:"Explore a life story",
  welcomeTitle:"Welcome to Crew",
  welcomeDesc:"Your space to talk, learn, play and discover with AI.",
  welcomeNote:"Try free AI voice first. Add your own Gemini API key after your free trial is used.",
@@ -22,6 +23,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  en,
  "zh-TW":{
   step:"步驟",skip:"跳過引導",back:"上一步",next:"繼續",start:"開始探索",
+  firstChat:"和 Zoe 說第一句話",firstLearn:"開始第一堂生活口說",firstPlay:"玩一局終極密碼",firstExplore:"探索人生時光機",
   welcomeTitle:"歡迎來到 Crew",welcomeDesc:"和 AI 朋友聊天、學習語言、一起玩遊戲，探索更多可能。",
   welcomeNote:"可以先免費試用 AI 語音；試用額度用完後，再設定自己的 Gemini API Key。",
   chat:"認識 AI 朋友",chatDesc:"找到聊得來、個性不同的朋友。",
@@ -36,6 +38,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  ja:{
   step:"ステップ",skip:"スキップ",back:"戻る",next:"続ける",start:"始める",
+  firstChat:"Zoe と話してみる",firstLearn:"日常会話のレッスンを始める",firstPlay:"ナンバーボムで遊ぶ",firstExplore:"人生の物語を探索する",
   welcomeTitle:"Crew へようこそ",welcomeDesc:"AI の友達と話し、語学を学び、ゲームや新しい世界を楽しもう。",
   welcomeNote:"まず無料の AI 音声体験をお試しください。終了後は自分の Gemini API キーを設定できます。",
   chat:"AI の友達と話す",chatDesc:"気の合う個性豊かな友達を見つけよう。",
@@ -50,6 +53,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  es:{
   step:"Paso",skip:"Omitir",back:"Atrás",next:"Continuar",start:"Empezar",
+  firstChat:"Saluda a Zoe",firstLearn:"Empieza una clase de conversación",firstPlay:"Juega a Number Bomb",firstExplore:"Explora una historia de vida",
   welcomeTitle:"Te damos la bienvenida a Crew",welcomeDesc:"Habla con amigos de IA, aprende idiomas, juega y descubre.",
   welcomeNote:"Prueba primero la voz con IA gratis. Al terminar, puedes configurar tu clave de Gemini.",
   chat:"Conoce amigos de IA",chatDesc:"Encuentra personalidades con las que conectar.",
@@ -64,6 +68,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  "pt-BR":{
   step:"Etapa",skip:"Pular",back:"Voltar",next:"Continuar",start:"Começar",
+  firstChat:"Converse com Zoe",firstLearn:"Comece uma aula de conversação",firstPlay:"Jogue Number Bomb",firstExplore:"Explore uma história de vida",
   welcomeTitle:"Boas-vindas ao Crew",welcomeDesc:"Converse com amigos de IA, aprenda idiomas, jogue e descubra novidades.",
   welcomeNote:"Experimente primeiro a voz por IA gratuitamente. Depois, configure sua chave Gemini.",
   chat:"Conheça amigos de IA",chatDesc:"Encontre personalidades com quem conversar.",
@@ -78,6 +83,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  id:{
   step:"Langkah",skip:"Lewati",back:"Kembali",next:"Lanjut",start:"Mulai",
+  firstChat:"Sapa Zoe",firstLearn:"Mulai latihan percakapan sehari-hari",firstPlay:"Main Number Bomb",firstExplore:"Jelajahi kisah kehidupan",
   welcomeTitle:"Selamat datang di Crew",welcomeDesc:"Mengobrol dengan teman AI, belajar bahasa, bermain, dan menjelajah.",
   welcomeNote:"Coba percakapan suara AI gratis dahulu. Setelah kuota habis, atur kunci Gemini Anda.",
   chat:"Kenali teman AI",chatDesc:"Temukan teman dengan kepribadian yang cocok.",
@@ -92,6 +98,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  fr:{
   step:"Étape",skip:"Passer",back:"Retour",next:"Continuer",start:"Commencer",
+  firstChat:"Dire bonjour à Zoe",firstLearn:"Commencer un cours de conversation",firstPlay:"Jouer à Number Bomb",firstExplore:"Explorer une histoire de vie",
   welcomeTitle:"Bienvenue dans Crew",welcomeDesc:"Discutez avec des amis IA, apprenez des langues, jouez et explorez.",
   welcomeNote:"Essayez d'abord la voix IA gratuitement. Après l'essai, ajoutez votre clé Gemini.",
   chat:"Rencontrer des amis IA",chatDesc:"Trouvez des personnalités avec qui échanger.",
@@ -106,6 +113,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  de:{
   step:"Schritt",skip:"Überspringen",back:"Zurück",next:"Weiter",start:"Loslegen",
+  firstChat:"Begrüße Zoe",firstLearn:"Starte eine Sprechübung",firstPlay:"Spiele Number Bomb",firstExplore:"Entdecke eine Lebensgeschichte",
   welcomeTitle:"Willkommen bei Crew",welcomeDesc:"Mit KI-Freunden sprechen, Sprachen lernen, spielen und Neues entdecken.",
   welcomeNote:"Teste zuerst kostenlos die KI-Sprachfunktion. Danach kannst du deinen Gemini-API-Schlüssel einrichten.",
   chat:"KI-Freunde treffen",chatDesc:"Finde Persönlichkeiten, mit denen du gern redest.",
@@ -120,6 +128,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  ko:{
   step:"단계",skip:"건너뛰기",back:"이전",next:"계속",start:"시작하기",
+  firstChat:"Zoe와 첫 대화 시작",firstLearn:"일상 회화 수업 시작",firstPlay:"넘버 봄 게임하기",firstExplore:"인생 이야기 탐험하기",
   welcomeTitle:"Crew에 오신 것을 환영합니다",welcomeDesc:"AI 친구와 대화하고 언어를 배우며 게임과 새로운 경험을 즐겨보세요.",
   welcomeNote:"먼저 AI 음성 무료 체험을 해보세요. 이후 자신의 Gemini API 키를 설정할 수 있습니다.",
   chat:"AI 친구 만나기",chatDesc:"잘 맞는 다양한 성격의 친구를 찾아보세요.",
@@ -134,6 +143,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  vi:{
   step:"Bước",skip:"Bỏ qua",back:"Quay lại",next:"Tiếp tục",start:"Bắt đầu",
+  firstChat:"Chào Zoe",firstLearn:"Bắt đầu bài luyện hội thoại",firstPlay:"Chơi Number Bomb",firstExplore:"Khám phá một câu chuyện cuộc đời",
   welcomeTitle:"Chào mừng đến với Crew",welcomeDesc:"Trò chuyện với bạn AI, học ngôn ngữ, chơi game và khám phá.",
   welcomeNote:"Hãy thử giọng nói AI miễn phí trước. Sau đó, bạn có thể thêm khóa Gemini của mình.",
   chat:"Gặp bạn AI",chatDesc:"Tìm người bạn có tính cách phù hợp.",
@@ -148,6 +158,7 @@ const copy:Record<UiLocale,OnboardingCopy> = {
  },
  th:{
   step:"ขั้นตอน",skip:"ข้าม",back:"ย้อนกลับ",next:"ต่อไป",start:"เริ่มใช้งาน",
+  firstChat:"ทักทาย Zoe",firstLearn:"เริ่มบทเรียนสนทนา",firstPlay:"เล่นเกม Number Bomb",firstExplore:"สำรวจเรื่องราวชีวิต",
   welcomeTitle:"ยินดีต้อนรับสู่ Crew",welcomeDesc:"คุยกับเพื่อน AI ฝึกภาษา เล่นเกม และสำรวจสิ่งใหม่ ๆ",
   welcomeNote:"ลองใช้เสียง AI ฟรีก่อน จากนั้นจึงตั้งค่า Gemini API Key ของคุณ",
   chat:"พบเพื่อน AI",chatDesc:"หาเพื่อนที่มีบุคลิกเข้ากับคุณ",

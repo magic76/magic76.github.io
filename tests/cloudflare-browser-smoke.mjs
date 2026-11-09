@@ -309,13 +309,14 @@ async function run(){
    await first.goto(origin+"/",{waitUntil:"domcontentloaded"});
    await first.locator(".crew-onboarding-dialog[open]").waitFor({state:"visible",timeout:15000});
    assert.match(await first.locator("#crew-onboarding-title").textContent()||"",/歡迎來到 Crew/);
-   await first.locator(".crew-onboarding-primary").click();
+   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
    assert.equal(await first.locator(".crew-onboarding-tile").count(),4);
    await first.locator(".crew-onboarding-tile").filter({hasText:"練習外語"}).click();
-   await first.locator(".crew-onboarding-primary").click();
+   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
    await first.locator(".crew-onboarding-setting select").selectOption("日文");
-   await first.locator(".crew-onboarding-primary").click();
-   await first.waitForURL(url=>url.pathname==="/learn");
+   assert.match(await first.locator(".crew-onboarding-footer .crew-onboarding-primary").textContent()||"",/開始第一堂生活口說/);
+   await first.locator(".crew-onboarding-footer .crew-onboarding-primary").click();
+   await first.waitForURL(url=>url.pathname==="/teacher/live"&&url.searchParams.get("lesson")==="daily_u1_l1");
    assert.equal(await first.evaluate(()=>localStorage.getItem("crew_onboarding_web_v1")),"completed");
    assert.equal(await first.evaluate(()=>localStorage.getItem("crew_teacher_lang")),"日文");
    await first.goto(origin+"/settings",{waitUntil:"domcontentloaded"});

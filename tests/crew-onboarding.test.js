@@ -29,6 +29,25 @@ test("first-run gate never forces existing users, persists skip or completion, a
  assert.doesNotMatch(gate,/getUserMedia|requestPermission|fetch\(/);
 });
 
+test("first-run destinations open real experiences, not feature indexes",()=>{
+ const routes={
+  chat:"/friend/live?id=zoe&from=home",
+  learn:"/teacher/live?lesson=daily_u1_l1",
+  play:"/games/number-bomb",
+  explore:"/timeline"
+ };
+ for(const [goal,path] of Object.entries(routes)){
+  assert.ok(gate.includes(`${goal}:"${path}"`),`${goal} must route directly to its first action`);
+ }
+ assert.match(gate,/if\(begin\)navigate\(destinations\[chosenGoal\]\)/);
+ assert.match(gate,/onClick=\{\(\)=>finish\(true,item\.id\)\}/);
+ assert.match(gate,/onClick=\{\(\)=>finish\(true,"chat"\)\}/);
+ assert.match(gate,/step===2\?firstAction:c.next/);
+ assert.match(gate,/firstAction=\{chat:c\.firstChat,learn:c\.firstLearn,play:c\.firstPlay,explore:c\.firstExplore\}\[goal\]/);
+ assert.doesNotMatch(gate,/trackUsageEvent\(|setOnboardingFirstActionPending|clearOnboardingFirstActionPending|FIRST_ACTION_KEY|onboarding_first_action/);
+ assert.doesNotMatch(gate,/navigate\("\/(chat|learn|games|explore)"\)/);
+});
+
 test("settings can reopen without resetting past progress or API key",()=>{
  assert.match(settings,/REOPEN_ONBOARDING_EVENT/);
  assert.match(settings,/window\.dispatchEvent\(new Event\(REOPEN_ONBOARDING_EVENT\)\)/);
@@ -47,6 +66,9 @@ test("onboarding text exists in all supported interface languages",()=>{
   assert.deepEqual(Object.keys(strings).sort(),reference.slice().sort(),locale+" keys");
   for(const [key,value] of Object.entries(strings)){
    assert.ok(typeof value==="string"&&value.trim(),locale+" "+key);
+  }
+  for(const key of ["firstChat","firstLearn","firstPlay","firstExplore"]){
+   assert.ok(strings[key],locale+" "+key+" must be localized");
   }
  }
  assert.equal(getOnboardingCopy("zh-TW").welcomeTitle,"歡迎來到 Crew");
