@@ -234,7 +234,15 @@ for(const prefix of ["","/en"]){
   writeFileSync(target,route==="/fortune/reading"?privateShell.replace("</head>",readingShareMeta+newline+"</head>"):privateShell);
  }
 }
-const rules=previewLocales.map(({code})=>"/"+code+"/* /"+code+"/ 200");
+// Research detail pages are currently SSG only in zh-TW. Untranslated /en/
+// detail deep links must not soft-404 to an indexable homepage snapshot.
+// Use two exact-depth placeholder rules; /en/research/ hub remains untouched.
+// Cloudflare Pages _redirects supports these dynamic placeholder 301 rules.
+const rules=[
+ "/en/research/:date/:article/ /research/:date/:article/ 301",
+ "/en/research/:date/:article /research/:date/:article/ 301",
+ ...previewLocales.map(({code})=>"/"+code+"/* /"+code+"/ 200")
+];
 for(const prefix of ["","/en"]){
  for(const path of privatePatterns)rules.push(prefix+path+" /_app-noindex 200");
 }
