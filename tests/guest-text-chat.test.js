@@ -167,7 +167,10 @@ test("saved but unverified Gemini keys default to free text, with a manual BYOK 
  assert.match(panel,/const key=guestMode\?"":geminiKey\(\)/);
  assert.match(panel,/setUseGuest\(current=>!current\)/);
  assert.match(panel,/guestMode&&<div className="crew-text-guest"/);
- assert.match(panel,/guestMode&&guestPhase!=="active"/);
+ assert.match(panel,/sendGuestTextWithRenewal\(/);
+ assert.match(panel,/acquire:startGuestText/);
+ assert.match(panel,/waitForChallenge\(\)/);
+ assert.doesNotMatch(panel,/guestMode&&guestPhase!=="active"/);
  assert.doesNotMatch(panel,/請檢查 Gemini Key 或網路後再試/);
 });
 test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{

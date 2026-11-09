@@ -153,3 +153,33 @@
  .friend-live-page:has(.friend-shorts-first-action) .friend-live-post img{width:66px;height:66px;flex-basis:66px}
  .friend-live-page:has(.friend-shorts-first-action) .friend-shorts-first-action{margin:6px auto 10px}
 }
+
+/* In text mode the composer, not the decorative identity, owns the first screen. */
+.friend-live-page:has(.friend-text-stage){padding-bottom:0}
+.friend-desktop-workspace:has(.friend-text-stage){display:block}
+.friend-desktop-workspace>.friend-text-stage{
+ width:min(100%,850px);max-width:850px;margin:0 auto;
+ height:calc(var(--crew-friend-viewport-height,100dvh) - 104px);
+ min-height:0;display:flex;flex-direction:column;gap:6px;overflow:hidden;
+}
+.friend-text-stage .live-identity{display:flex;align-items:center;justify-content:center;gap:10px;margin:0;flex:0 0 auto}
+.friend-text-stage .friend-live-avatar{width:42px;height:42px;margin:0;padding:2px}
+.friend-text-stage .live-identity h1{font-size:16px;margin:0}
+.friend-text-stage .live-identity p{display:none}
+.friend-text-stage .friend-language-switch{margin:0;padding:0;gap:3px;flex:0 0 auto}
+.friend-text-stage .friend-language-options button{min-height:44px}
+.friend-text-stage .crew-chat-mode-switch{margin:0;padding:6px 10px;flex:0 0 auto}
+.friend-text-stage .friend-live-footnote{display:none}
+.friend-text-stage .friend-language-switch>small{display:none}
+@media(min-width:1050px){
+ .desktop-live-workspace>.friend-text-stage{padding:16px 22px}
+ .desktop-live-workspace .friend-text-stage .live-identity{margin:0;gap:10px}
+}
+@media(max-width:600px){
+ .friend-desktop-workspace>.friend-text-stage{padding:10px 12px}
+ .friend-text-stage .friend-language-switch-title{display:none}
+}
+@media(min-width:1050px){
+ .desktop-live-workspace.friend-desktop-workspace>.friend-text-stage{padding:16px 22px}
+ .desktop-live-workspace .friend-text-stage .live-identity{margin:0}
+}
