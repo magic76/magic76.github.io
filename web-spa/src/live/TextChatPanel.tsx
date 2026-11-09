@@ -1,5 +1,7 @@
 import {LiveTextConversation} from "./liveTextChat";
 import {createTypingReveal} from "./typingReveal";
+import {sendGuestTextWithRenewal} from "./guestTextFlow";
+import {readSessionTranscript,writeSessionTranscript} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type FormEvent} from "react";
@@ -11,7 +13,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted";
 type TurnstileApi={render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;remove:(id:string)=>void};
 const turnstile=()=> (window as Window&{turnstile?:TurnstileApi}).turnstile;
@@ -27,9 +29,11 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system,speaker,english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual"}:Props){
+export function TextChatPanel({system,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual"}:Props){
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
+ const [historyReady,setHistoryReady]=useState(false);
+ const latestMessages=useRef<Message[]>([]);
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
  const [liveStatus,setLiveStatus]=useState("");
@@ -41,19 +45,42 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
  const [challenge,setChallenge]=useState("");
+ const challengeWaiter=useRef<{resolve:(value:string)=>void;reject:(reason:Error)=>void}|null>(null);
+ const [guestStatus,setGuestStatus]=useState("");
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
+ const history=useRef<HTMLDivElement>(null);
  const bottom=useRef<HTMLDivElement>(null);
  const host=useRef<HTMLDivElement|null>(null);
  const widget=useRef<string|null>(null);
  const hasKey=Boolean(geminiKey());
  const guestMode=useGuest||!hasKey;
- useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
+ useEffect(()=>{mounted.current=true;return()=>{
+  mounted.current=false;
+  challengeWaiter.current?.reject(Error("UNMOUNTED"));challengeWaiter.current=null;
+ }},[]);
+ // Restore only after mount: the server and first client render match.
+ useEffect(()=>{
+  const saved=readSessionTranscript(sessionScope);
+  latestMessages.current=saved;
+  setMessages(saved);setHistoryReady(true);
+ },[sessionScope]);
+ latestMessages.current=messages;
+ useEffect(()=>{
+  if(!historyReady||!sessionScope)return;
+  const timer=window.setTimeout(()=>writeSessionTranscript(sessionScope,messages),180);
+  return()=>window.clearTimeout(timer);
+ },[messages,historyReady,sessionScope]);
+ useEffect(()=>()=>{
+  if(historyReady&&sessionScope)writeSessionTranscript(sessionScope,latestMessages.current);
+ },[historyReady,sessionScope]);
  useEffect(()=>()=>{
   typingRef.current?.cancel();typingRef.current=null;
   liveChat.current?.close();liveChat.current=null;
  },[guestMode,system,searchEnabled]);
- useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length,messages.at(-1)?.text.length]);
+ useEffect(()=>{
+  if(history.current)history.current.scrollTop=history.current.scrollHeight;
+ },[messages.length,messages.at(-1)?.text.length,historyReady]);
  useEffect(()=>{
   if(!guestMode)return;
   const controller=new AbortController();
@@ -64,7 +91,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     if(!mounted.current||controller.signal.aborted)return;
     if(config.enabled!==true||typeof config.siteKey!=="string"||!config.siteKey){setGuestPhase("unavailable");return}
     setSiteKey(config.siteKey);
-    setGuestPhase(guestToken?"active":"ready");
+    setGuestPhase(current=>current==="checking"?(getSavedGuestSession()?"active":"ready"):current);
    }).catch(()=>{if(mounted.current&&!controller.signal.aborted)setGuestPhase("unavailable")});
   return()=>controller.abort();
  },[guestMode]);
@@ -75,9 +102,14 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    if(cancelled||!host.current||widget.current!==null||!turnstile())return;
    widget.current=turnstile()!.render(host.current,{
     sitekey:siteKey,action:"crew-guest-trial",
-    callback:token=>{if(!cancelled)setChallenge(token)},
+    callback:token=>{
+     if(cancelled)return;
+     const waiting=challengeWaiter.current;
+     if(waiting){challengeWaiter.current=null;setChallenge("");waiting.resolve(token)}
+     else setChallenge(token);
+    },
     "expired-callback":()=>{if(!cancelled)setChallenge("")},
-    "error-callback":()=>{if(!cancelled)setChallenge("")}
+    "error-callback":()=>{if(!cancelled){setChallenge("");setGuestPhase("error")}}
    });
   };
   let script=document.getElementById("crew-guest-turnstile");
@@ -86,38 +118,61 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    el.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
    el.async=true;el.defer=true;document.head.appendChild(el);script=el;
   }
+  const scriptError=()=>{if(!cancelled)setGuestPhase("error")};
   if(turnstile())render();else script.addEventListener("load",render);
+  script.addEventListener("error",scriptError);
   return()=>{
-   cancelled=true;script?.removeEventListener("load",render);
+   cancelled=true;script?.removeEventListener("load",render);script?.removeEventListener("error",scriptError);
    if(widget.current!==null){try{turnstile()?.remove(widget.current)}catch{}widget.current=null}
   };
  },[guestMode,guestPhase,siteKey]);
- async function startGuestText(){
-  if(!challenge||guestPhase!=="ready")return;
-  setGuestPhase("starting");setError("");
+ useEffect(()=>{
+  if(guestPhase==="unavailable"||guestPhase==="error"||guestPhase==="exhausted"){
+   challengeWaiter.current?.reject(Error(guestPhase.toUpperCase()));challengeWaiter.current=null;
+  }
+ },[guestPhase]);
+ function waitForChallenge():Promise<string>{
+  if(challenge){setChallenge("");return Promise.resolve(challenge)}
+  return new Promise((resolve,reject)=>{challengeWaiter.current={resolve,reject}});
+ }
+ function invalidateGuestGrant(){
+  try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
+  setGuestToken("");setChallenge("");setGuestPhase("ready");
+ }
+ async function startGuestText():Promise<string>{
+  setGuestStatus(english?"Complete the security check to send…":"完成安全驗證後會自動送出…");
+  const challengeToken=await waitForChallenge();
+  setGuestPhase("starting");
+  setGuestStatus(english?"Connecting free chat…":"正在建立免費連線…");
   try{
    const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
     headers:{"content-type":"application/json"},
-    body:JSON.stringify({action:"start",challengeToken:challenge})});
+    body:JSON.stringify({action:"start",challengeToken})});
    const data=await response.json() as {sessionToken?:string;expiresAt?:number;remaining?:number;code?:string};
-   if(!response.ok||!data.sessionToken||!data.expiresAt){
-    if(data.code==="DAILY_LIMIT"){setRemaining(0);setGuestPhase("exhausted");return}
-    throw Error("Unavailable");
+   if(data.code==="DAILY_LIMIT"){
+    setRemaining(0);setGuestPhase("exhausted");throw Error("DAILY_LIMIT");
    }
+   if(!response.ok||!data.sessionToken||!data.expiresAt)throw Error("GUEST_START_FAILED");
    try{sessionStorage.setItem(SESSION_STORAGE_KEY,JSON.stringify({sessionToken:data.sessionToken,expiresAt:data.expiresAt}))}catch{}
-   if(!mounted.current)return;
-   setGuestToken(data.sessionToken);setRemaining(typeof data.remaining==="number"?data.remaining:null);
-   setGuestPhase("active");
-  }catch{if(mounted.current){setChallenge("");setGuestPhase("error");setError(english?"Free text chat is temporarily unavailable.":"免費文字聊天暫時無法啟用，請重試。")}}
+   if(mounted.current){
+    setGuestToken(data.sessionToken);setRemaining(typeof data.remaining==="number"?data.remaining:null);
+    setGuestPhase("active");
+   }
+   return data.sessionToken;
+  }catch(reason){
+   if(mounted.current&&!(reason instanceof Error&&reason.message==="DAILY_LIMIT")){
+    setChallenge("");setGuestPhase("error");
+   }
+   throw reason;
+  }
  }
  async function send(event:FormEvent<HTMLFormElement>){
   event.preventDefault();
   const value=draft.trim().slice(0,1200);
   if(!value||busy)return;
   const key=guestMode?"":geminiKey();
-  if(!key&&(!guestToken||guestPhase!=="active")){
-   setError(english?"Start free text practice first.":"請先開始免費文字練習。");return;
-  }
+  if(!key&&(guestPhase==="unavailable"||guestPhase==="exhausted"))return;
+  if(!key&&guestPhase==="error")setGuestPhase("ready");
   const next:Message[]=[...messages,{role:"user",text:value}];
   const answerIndex=next.length;
   const updateLiveAnswer=(text:string)=>{
@@ -140,19 +195,29 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    }else{
     // Keep the beginning and the language directives at the end of long personas.
     const guestSystem=system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system;
-    const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
-     headers:{"content-type":"application/json"},
-     body:JSON.stringify({action:"send",sessionToken:guestToken,system:guestSystem,
-      messages:next.slice(-10).map(m=>({role:m.role,text:m.text}))})});
-    const data=await response.json() as {reply?:string;remaining?:number;code?:string};
-    if(data.code==="SESSION_EXPIRED"){
-     try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
-     setGuestToken("");setChallenge("");setGuestPhase("ready");
-     throw Error("SESSION_EXPIRED");
-    }
-    if(data.code==="DAILY_LIMIT"){setRemaining(0);setGuestPhase("exhausted");throw Error("DAILY_LIMIT")}
-    if(data.code==="TOO_FAST")throw Error("TOO_FAST");
-    if(!response.ok||typeof data.reply!=="string")throw Error("GUEST_FAILED");
+    const data=await sendGuestTextWithRenewal({
+     token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
+     acquire:startGuestText,
+     invalidate:()=>{
+      invalidateGuestGrant();
+      setGuestStatus(english?"Session changed. Verify again to send…":"連線已更新，重新驗證後自動送出…");
+     },
+     send:async token=>{
+      setGuestStatus(english?"Sending message…":"正在傳送訊息…");
+      const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
+       headers:{"content-type":"application/json"},
+       body:JSON.stringify({action:"send",sessionToken:token,system:guestSystem,
+        messages:next.slice(-10).map(m=>({role:m.role,text:m.text}))})});
+      const data=await response.json() as {reply?:string;remaining?:number;code?:string};
+      if(data.code==="DAILY_LIMIT"){
+       setRemaining(0);setGuestPhase("exhausted");throw Error("DAILY_LIMIT");
+      }
+      if(data.code==="TOO_FAST")throw Error("TOO_FAST");
+      if(data.code!=="SESSION_EXPIRED"&&(!response.ok||typeof data.reply!=="string"))throw Error("GUEST_FAILED");
+      return data;
+     }
+    });
+    if(typeof data.reply!=="string")throw Error("GUEST_FAILED");
     reply=data.reply.trim();
     if(typeof data.remaining==="number")setRemaining(data.remaining);
    }
@@ -189,11 +254,12 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
      :english?"Could not get a reply. Please try again.":"暫時無法取得回覆，請稍後重試。");
    }
   }finally{
+   if(mounted.current)setGuestStatus("");
    if(typingRef.current===reveal)typingRef.current=null;
    if(mounted.current)setBusy(false);
   }
  }
- return <section className="crew-text-chat" aria-label={english?"Text chat":"文字聊天"}>
+ return <section className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
   {hasKey&&<div className="crew-text-mode-choice">
    <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
@@ -206,7 +272,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    <p>{english?"Up to 12 messages a day, shared across teacher and friend chats. No microphone required.":"每天最多 12 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。"}</p>
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
    {guestPhase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
-    <button className="btn primary" type="button" disabled={!challenge} onClick={()=>void startGuestText()}>{english?"Start free text practice":"開始免費文字練習"}</button></>}
+    <small>{english?"Verify once, then send your message below.":"通過驗證後，直接按下方送出即可。"}</small></>}
    {guestPhase==="starting"&&<small role="status">{english?"Starting…":"正在開啟免費練習…"}</small>}
    {guestPhase==="active"&&remaining!==null&&<small role="status">{english?remaining+" free messages remaining":"今日剩餘 "+remaining+" 則免費訊息"}</small>}
    {guestPhase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setGuestPhase("ready");setError("")}}>{english?"Try again":"重新驗證"}</button>}
@@ -215,17 +281,18 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    {(guestPhase==="unavailable"||guestPhase==="exhausted")&&
     <Link className="btn secondary small" to="/account#settings-gemini">{english?"Use your Gemini API key":"用自己的 Gemini Key 繼續"}</Link>}
   </div>}
-  <div className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
+  <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
    {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
    {busy&&messages.at(-1)?.role!=="assistant"&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
    <div ref={bottom}/>
   </div>
+  {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}
   {error&&<p role="alert" className="crew-text-chat-error">{error}</p>}
   <form className="crew-text-chat-form" onSubmit={event=>void send(event)}>
-   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&guestPhase!=="active")}/>
-   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&guestPhase!=="active")}>{english?"Send":"送出"}</button>
+   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"))}/>
+   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"))}>{english?"Send":"送出"}</button>
   </form>
   <small className="crew-text-chat-notice">{hint||(english?"Text-only Live and free practice keep separate sessions. No microphone is used.":"Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。")}</small>
  </section>;

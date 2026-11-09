@@ -56,6 +56,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const {t,i18n:locale}=useTranslation(["friends","voice"]);const english=locale.language==="en";
  const [params]=useSearchParams();
  const textMode=params.get("chat")==="text";
+ const textStage=useRef<HTMLElement|null>(null);
  const navigate=useNavigate(),closingRef=useRef(false),usageSentRef=useRef(false),usageStartedRef=useRef(false),lastCheckpointTurnRef=useRef(0),checkpointCountRef=useRef(0);
  const friend=getCrewFriend(params.get("id"));
  const bubbleEntry=params.get("entry")==="bubble"&&params.get("from")==="home";
@@ -133,6 +134,14 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  const friendVoiceStatus=live.state==="speaking"?t("liveStatus.speaking")
   :live.state==="listening"?t("liveStatus."+(phaseKey[live.voicePhase]||"idle"))
   :needsKey?t("common:gemini.keyNeeded"):live.state==="error"?t("liveStatus.error"):active?t("liveStatus.preparing"):t("liveStatus.free");
+ // Android/iOS soft keyboards may resize visualViewport without changing dvh.
+ useEffect(()=>{
+  if(!textMode)return;
+  const viewport=window.visualViewport;
+  const sync=()=>textStage.current?.style.setProperty("--crew-friend-viewport-height",(viewport?.height||window.innerHeight)+"px");
+  sync();viewport?.addEventListener("resize",sync);window.addEventListener("resize",sync);
+  return()=>{viewport?.removeEventListener("resize",sync);window.removeEventListener("resize",sync)};
+ },[textMode]);
  const changeFriendChatMode=(chosen:FriendChatLanguageMode)=>{
   if(chosen===friendChatMode)return;
   const connected=["listening","speaking"].includes(live.state);
@@ -162,7 +171,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
    <span className="status connected" data-setup={needsKey||undefined} data-state={friendVisualState} role="status" aria-live="polite"><i className="status-dot"/><span>{friendVoiceStatus}</span></span>
   </div></header>
   <main className="session-shell friend-live-page">
-   <div className="desktop-live-workspace friend-desktop-workspace"><section className="live-stage friend-live-stage" data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
+   <div className="desktop-live-workspace friend-desktop-workspace"><section ref={textStage} className={"live-stage friend-live-stage"+(textMode?" friend-text-stage":"")} data-state={live.state} aria-label={t("friendLive.stageAria",{name:friend.name})}>
     <div className="live-identity">
      <div className={"friend-live-avatar "+(live.state==="speaking"?"speaking":"")} data-state={friendVisualState}><FriendAvatar friend={friend}/></div>
      <h1>{friend.name}</h1><p>{english?friend.bioEn:friend.bioZh}</p><p className="friend-live-role-promise">{t("liveRolePromise")}</p>
@@ -188,7 +197,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?<TextChatPanel searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
+    {textMode?<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:"")} searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}/>:<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}
     {live.state==="listening"&&(live.voicePhase==="no-transcript"||live.voicePhase==="no-reply")?
