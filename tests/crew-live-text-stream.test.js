@@ -49,6 +49,9 @@ test("Teacher/Friend text UI subscribes to Live chunks before turn completion",(
  const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  assert.match(panel,/createTypingReveal\(updateLiveAnswer\)/);
+ assert.doesNotMatch(panel,/key\?createTypingReveal/);
+ assert.match(panel,/await reveal\.finish\(reply\)/);
+ assert.match(panel,/body:JSON\.stringify\(\{action:"send"/);
  assert.match(panel,/\.send\(value,partial=>reveal\?\.push\(partial\)\)/);
  assert.match(panel,/await reveal\.finish\(reply\)/);
  assert.match(adapter,/onOutputTranscript:text=>/);
