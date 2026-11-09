@@ -1,3 +1,14 @@
+test("Online portal gains one quiet decorative focal object without another render loop",()=>{
+ const field=read("web-spa/src/pages/PortalParticleField.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.equal((field.match(/className="crew-portal-core"/g)||[]).length,1);
+ assert.match(field,/viewBox="0 0 320 240"/);
+ assert.match(field,/aria-hidden="true"/);
+ assert.match(css,/\.crew-portal-core\{[^}]*pointer-events:none/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.crew-portal-core\{animation:none/);
+ assert.doesNotMatch(field,/THREE|requestAnimationFrame|new WebGLRenderingContext/);
+});
+
 const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
