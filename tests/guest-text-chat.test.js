@@ -158,3 +158,27 @@ test("Teacher and Friend retain the same text component and no mic is needed in 
  assert.match(worker,/TEXT_PATH="\/api\/guest\/text"/);
  assert.match(worker,/onTextRequest\(internal,bindings/);
 });
+
+
+test("saved but unverified Gemini keys default to free text, with a manual BYOK override",()=>{
+ const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
+ assert.match(panel,/useState\(\(\)=>!geminiKey\(\)\|\|!geminiVerified\(\)\)/);
+ assert.match(panel,/const guestMode=useGuest\|\|!hasKey/);
+ assert.match(panel,/const key=guestMode\?"":geminiKey\(\)/);
+ assert.match(panel,/setUseGuest\(current=>!current\)/);
+ assert.match(panel,/guestMode&&<div className="crew-text-guest"/);
+ assert.match(panel,/guestMode&&guestPhase!=="active"/);
+ assert.doesNotMatch(panel,/請檢查 Gemini Key 或網路後再試/);
+});
+test("text search failures may fall back to standard Gemini without silently requiring Search",()=>{
+ const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
+ const search=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/searchGroundedText.ts"),"utf8");
+ assert.match(panel,/catch\(searchError\)/);
+ assert.match(panel,/if\(problem\.kind==="key"\|\|problem\.kind==="quota"/);
+ assert.match(panel,/if\(grounded\)reply=grounded\.text\.trim\(\)/);
+ assert.match(panel,/else\{\s*await ensureCore\(\)/);
+ assert.match(search,/Object\.assign\(new Error\("Search request failed/);
+ assert.match(search,/kind,status/);
+ assert.match(panel,/category==="quota"/);
+ assert.match(panel,/category==="model"/);
+});
