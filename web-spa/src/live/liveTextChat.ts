@@ -54,9 +54,12 @@ export class LiveTextConversation{
     if(!window.CrewLive?.Session)throw new Error("Gemini Live runtime unavailable");
     const session=new window.CrewLive.Session({
      textOnly:true,models:["gemini-3.8-live"],maxLiveAttempts:1,
-     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies.",
+     system:this.system+"\n[KEYBOARD CHAT] Respond naturally in the configured character and language. The user types messages. Return clear, concise conversational replies."+(this.searchEnabled?"\n[CURRENT FACTS] Do not claim live web search access in ordinary chat; ask the user to use a dedicated search action for current facts.":""),
      openingPrompt:"",voice:"Kore",volume:0,connectTimeoutMs:12000,
-     ...(this.searchEnabled?{tools:[{googleSearch:{}}]}:{}),
+     // Unlike an on-demand search, ordinary teacher/friend conversation must
+     // not automatically attach Google Search. That optional tool has separate
+     // quotas and may reject a request even while normal voice Live works.
+     // Keep typed conversation aligned with the existing voice session setup.
      onStatus:status=>{if(!this.closed)this.onStatus?.(status)},
      onOutputTranscript:text=>{
       this.transcript=text;
