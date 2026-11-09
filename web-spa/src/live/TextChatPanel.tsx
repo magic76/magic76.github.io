@@ -124,7 +124,8 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    if(!mounted.current)return;
    setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text}]);
   };
-  const reveal=key?createTypingReveal(updateLiveAnswer):null;
+  // Both Live and free REST replies reveal progressively; only Live supplies real partial chunks.
+  const reveal=createTypingReveal(updateLiveAnswer);
   typingRef.current=reveal;
   setMessages(next);setDraft("");setBusy(true);setError("");
   try{
@@ -156,11 +157,10 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     if(typeof data.remaining==="number")setRemaining(data.remaining);
    }
    if(!reply)throw Error("Empty reply");
-   if(key&&reveal){
-    // Finish the visible character animation before releasing the send form.
-    await reveal.finish(reply);
-    if(mounted.current)setMessages(m=>[...m.slice(0,answerIndex),{role:"assistant",text:reply,sources,searchSuggestions}]);
-   }else if(mounted.current)setMessages(m=>[...m,{role:"assistant",text:reply,sources,searchSuggestions}]);
+   // Live begins displaying as partial frames arrive; free REST completes first,
+   // then uses the same visual reveal (not a claim of server-side streaming).
+   await reveal.finish(reply);
+   if(mounted.current)setMessages(m=>[...m.slice(0,answerIndex),{role:"assistant",text:reply,sources,searchSuggestions}]);
   }catch(reason){
    reveal?.cancel();
    if(mounted.current){
