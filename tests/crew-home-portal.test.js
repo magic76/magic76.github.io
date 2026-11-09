@@ -3,6 +3,33 @@ const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
 const path=require("node:path");
 const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
+test("Portal keeps the cloud-free live particle design and softly lights the inner field",()=>{
+ const visual=read("web-spa/src/pages/PortalParticleField.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ const field=read("web-spa/src/pages/portalField.mjs");
+ assert.doesNotMatch(visual,/crew-portal-core/);
+ assert.match(css,/radial-gradient\(ellipse 28% 35%/);
+ assert.match(css,/#12101c88 0%,#12101c53 48%/);
+ assert.match(field,/const inner = noise\(i \+ count \* 3\) < \.14/);
+ assert.match(field,/point\.inner \? \.55 : 1/);
+ assert.match(field,/if \(point\.inner\) \{ target\[0\] \*= point\.inset/);
+ assert.match(field,/!lowQuality && i % 137 === 0 && point\.size > \.35/);
+ assert.doesNotMatch(field,/THREE|new WebGLRenderingContext/);
+});
+
+test("Hero primary CTA stays above the text scrim with a solid unshadowed label",()=>{
+ const css=read("web-spa/src/pages/homePortal.css");
+ for(const token of [
+  ".crew-portal-cta{position:relative;z-index:5;isolation:isolate;text-shadow:none;",
+  ".crew-portal-cta .crew-portal-cta-label,.crew-portal-cta .crew-portal-cta-arrow{position:relative;z-index:1;text-shadow:none}",
+  "background:#f5eee6;color:#22182c",
+  "inset:-20px -22px -10px",
+  "inset:-40px -80px -12px -60px",
+  "inset:-20px -40px -10px -28px"
+ ])assert.ok(css.includes(token),"Missing foreground/scrim rule: "+token);
+ assert.ok(!css.includes("inset:-20px -22px -85px"),"Copy scrim must not extend across the CTA");
+});
+
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");

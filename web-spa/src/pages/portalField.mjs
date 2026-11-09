@@ -147,6 +147,8 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       const point = points[i];
       const angle = point.angle + time * (mode === 'fortune' ? .04 : mode === 'play' ? .014 : mode === 'learn' ? .032 : .025) * 1.7 * (point.band > 0 ? 1 : -.65);
       const target = portalShape(mode, angle, point.band, time);
+      // A bounded subset drifts inside the original orbit instead of leaving an empty center.
+      if (point.inner) { target[0] *= point.inset; target[1] *= point.inset; target[2] *= .65; }
       point.x = still ? target[0] : point.x + (target[0] - point.x) * ease;
       point.y = still ? target[1] : point.y + (target[1] - point.y) * ease;
       point.z = still ? target[2] : point.z + (target[2] - point.z) * ease;
@@ -164,7 +166,7 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
         const offset = Math.exp(-Math.pow((d - wave.age * 310) / 30, 2)) * (1 - wave.age) * 10;
         x += (x - wave.x) / (d + 1) * offset; y += (y - wave.y) / (d + 1) * offset;
       }
-      const alpha = (.40 + point.size * .60) * (.65 + (point.z + .7) / 1.4 * .6) * entrance;
+      const alpha = (.40 + point.size * .60) * (.65 + (point.z + .7) / 1.4 * .6) * entrance * (point.inner ? .55 : 1);
       const size = (point.size > .985 ? 3.4 : 1.25 + point.size * 1.75) * p[2];
       if (palette.sprite && i % glowStride === 0) {
         const radius = (7 + point.size * 6) * p[2];
@@ -174,6 +176,14 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       ctx.globalAlpha = Math.min(1, alpha);
       ctx.fillStyle = palette.colors[point.color];
       ctx.fillRect(x - size / 2, y - size / 2, size, size);
+      // Sparse, low-cost highlights ride the original particle field; no new renderer.
+      if (!lowQuality && i % 137 === 0 && point.size > .35) {
+        const glint = (2.5 + point.size * 2.4) * p[2];
+        const shimmer = still ? .23 : .18 + .18 * Math.sin(time * 1.2 + i * .37);
+        ctx.globalAlpha = Math.min(1, alpha * shimmer);
+        ctx.fillRect(x - glint, y - .35, glint * 2, .7);
+        ctx.fillRect(x - .35, y - glint, .7, glint * 2);
+      }
       if (mode === 'fortune' && i % 29 === 0) {
         const radius = 2.5 + point.size * 2.5;
         ctx.beginPath(); ctx.moveTo(x, y - radius);
@@ -235,7 +245,10 @@ export function createPortalField(canvas, host, initialMode = 'chat') {
       if (points.length !== count) points = Array.from({length: count}, (_, i) => {
         const angle = noise(i) * TAU, band = noise(i + count) * 2 - 1;
         const target = portalShape(mode, angle, band, clock);
-        return {angle, band, color: (band > 0 ? 16 : 0) + Math.min(15, Math.floor(noise(i + count * 2) * 16)), size: noise(i + count * 2), x: target[0] * (intro ? 1 : 2.7), y: target[1] * (intro ? 1 : 2.7), z: target[2]};
+        const inner = noise(i + count * 3) < .14;
+        const inset = .22 + noise(i + count * 4) * .56;
+        if (inner) { target[0] *= inset; target[1] *= inset; target[2] *= .65; }
+        return {angle, band, inner, inset, color: (band > 0 ? 16 : 0) + Math.min(15, Math.floor(noise(i + count * 2) * 16)), size: noise(i + count * 2), x: target[0] * (intro ? 1 : 2.7), y: target[1] * (intro ? 1 : 2.7), z: target[2]};
       });
       if (redraw && visible && !document.hidden) draw(staticMode() ? 0 : 1 / 30);
     }
