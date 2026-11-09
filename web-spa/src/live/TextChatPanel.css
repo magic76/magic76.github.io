@@ -32,9 +32,9 @@
 @media(prefers-reduced-motion:reduce){.crew-text-stream-cursor{animation:none}}
 
 /* A single scrolling transcript with the composer pinned inside the viewport. */
-.friend-text-stage .crew-text-chat{display:flex;flex:1;flex-direction:column;gap:7px;min-height:0}
+.friend-text-stage .crew-text-chat{display:flex;flex:1 1 0;align-self:stretch;flex-direction:column;gap:7px;min-height:0}
 .friend-text-stage .crew-text-chat-history{flex:1;min-height:0;max-height:none;overscroll-behavior:contain}
-.friend-text-stage .crew-text-chat-form{flex:0 0 auto}
+.friend-text-stage .crew-text-chat-form{flex:0 0 auto;margin-top:auto}
 .friend-text-stage .crew-text-chat-notice{display:none}
 .friend-text-stage .crew-text-chat-progress{font-size:12px;color:var(--muted);line-height:1.4}
 .friend-text-stage .crew-text-chat.is-chatting .crew-text-guest{
@@ -48,3 +48,9 @@
 .friend-text-stage .crew-text-chat-error{flex:0 0 auto}
 .friend-text-stage .crew-text-chat-message strong{font-size:12px}
 .friend-text-stage .crew-chat-mode-switch .btn{min-height:44px}
+
+/* Place verification immediately above the composer, never above restored turns. */
+.friend-text-stage .crew-text-chat-history{order:0}
+.friend-text-stage .crew-text-guest{order:1}
+.friend-text-stage .crew-text-chat-progress,.friend-text-stage .crew-text-chat-error{order:2}
+.friend-text-stage .crew-text-chat-form{order:3}

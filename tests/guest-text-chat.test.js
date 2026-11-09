@@ -166,7 +166,7 @@ test("saved but unverified Gemini keys default to free text, with a manual BYOK 
  assert.match(panel,/const guestMode=useGuest\|\|!hasKey/);
  assert.match(panel,/const key=guestMode\?"":geminiKey\(\)/);
  assert.match(panel,/setUseGuest\(current=>!current\)/);
- assert.match(panel,/guestMode&&<div className="crew-text-guest"/);
+ assert.match(panel,/guestMode&&<div ref=\{guestBox\} className="crew-text-guest"/);
  assert.match(panel,/sendGuestTextWithRenewal\(/);
  assert.match(panel,/acquire:startGuestText/);
  assert.match(panel,/waitForChallenge\(\)/);
@@ -178,7 +178,8 @@ test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
  assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
- assert.match(panel,/liveChat\.current\.send\(value,partial=>reveal\?\.push\(partial\)\)/);
+ assert.match(panel,/liveChat\.current\.send\(value,partial=>\{/);
+ assert.match(panel,/reveal\?\.push\(partial\)/);
  assert.match(adapter,/textOnly:true,models:\["gemini-3\.8-live"\]/);
  assert.match(adapter,/outputAudioTranscription|onOutputTranscript/);
  assert.match(adapter,/onTurnComplete:turn=>/);

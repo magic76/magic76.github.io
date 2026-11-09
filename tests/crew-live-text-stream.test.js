@@ -52,7 +52,9 @@ test("Teacher/Friend text UI subscribes to Live chunks before turn completion",(
  assert.doesNotMatch(panel,/key\?createTypingReveal/);
  assert.match(panel,/await reveal\.finish\(reply\)/);
  assert.match(panel,/body:JSON\.stringify\(\{action:"send"/);
- assert.match(panel,/\.send\(value,partial=>reveal\?\.push\(partial\)\)/);
+ assert.match(panel,/\.send\(value,partial=>\{/);
+ assert.match(panel,/reveal\?\.push\(partial\)/);
+ assert.match(panel,/setRequestSent\(true\)/);
  assert.match(panel,/await reveal\.finish\(reply\)/);
  assert.match(adapter,/onOutputTranscript:text=>/);
  assert.match(adapter,/this\.pending\?\.onPartial\?\.\(text\)/);
