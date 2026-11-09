@@ -85,7 +85,7 @@ function makeCanvas(){
  const calls=[],ctx={
   createLinearGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
   createRadialGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
-  fillRect(){},beginPath(){},roundRect(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){},save(){},restore(){},
+  fillRect(){},beginPath(){},roundRect(){},closePath(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){},save(){},restore(){},
   measureText(s){return {width:Array.from(s).length*16}},
   fillText(text,x,y){calls.push(["text",text,x,y])},
   drawImage(){calls.push(["image"])}
