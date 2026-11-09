@@ -1,3 +1,8 @@
+const {test}=require("node:test");
+const assert=require("node:assert/strict");
+const {readFileSync}=require("node:fs");
+const path=require("node:path");
+const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Online portal gains one quiet decorative focal object without another render loop",()=>{
  const field=read("web-spa/src/pages/PortalParticleField.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
@@ -9,11 +14,6 @@ test("Online portal gains one quiet decorative focal object without another rend
  assert.doesNotMatch(field,/THREE|requestAnimationFrame|new WebGLRenderingContext/);
 });
 
-const {test}=require("node:test");
-const assert=require("node:assert/strict");
-const {readFileSync}=require("node:fs");
-const path=require("node:path");
-const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
