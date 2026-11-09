@@ -1,9 +1,9 @@
-import {searchGroundedText} from "./searchGroundedText";
+import {LiveTextConversation} from "./liveTextChat";
 import {GroundingSources} from "./GroundingSources";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {Link} from "react-router-dom";
-import {ensureCore,geminiKey,geminiVerified} from "../lib/runtime";
+import {geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
 import type {PinyinAidMode} from "../teacher/pinyinAid";
 import type {TeachingMode} from "../store/teacherStore";
@@ -25,12 +25,14 @@ function getSavedGuestSession(){
  try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
  return "";
 }
-/** No microphone. BYOK uses the existing text API; guests use short-lived Worker sessions. */
+/** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
 export function TextChatPanel({system,speaker,english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual"}:Props){
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ const [liveStatus,setLiveStatus]=useState("");
+ const liveChat=useRef<LiveTextConversation|null>(null);
  // A stale, unverified browser key must not silently block free practice.
  const [useGuest,setUseGuest]=useState(()=>!geminiKey()||!geminiVerified());
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
@@ -45,6 +47,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const hasKey=Boolean(geminiKey());
  const guestMode=useGuest||!hasKey;
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
+ useEffect(()=>()=>{liveChat.current?.close();liveChat.current=null},[guestMode,system,searchEnabled]);
  useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length]);
  useEffect(()=>{
   if(!guestMode)return;
@@ -115,30 +118,12 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
   try{
    let reply="",sources:GroundingSource[]|undefined,searchSuggestions:string|undefined;
    if(key){
-    if(!searchEnabled){await ensureCore();if(!window.CrewAI?.call)throw new Error("Text runtime unavailable")}
-    const history=next.slice(-12).map(m=>(m.role==="user"?"使用者":"AI")+": "+m.text).join("\n");
-    const prompt="請根據以下文字聊天紀錄，只回覆最後一則使用者訊息，不要重複過往回答。\n"+history;
-    let grounded:null|Awaited<ReturnType<typeof searchGroundedText>>=null;
-    if(searchEnabled){
-     try{
-      grounded=await searchGroundedText(prompt,system+"\nSearch only for relevant current or external facts. Preserve the original character and language.");
-     }catch(searchError){
-      // Search failures must not prevent ordinary teacher/friend conversation.
-      // Invalid credentials or exhausted quota should not trigger another paid request.
-      const problem=searchError as Error&{kind?:string;status?:number};
-      if(problem.kind==="key"||problem.kind==="quota"||[401,429].includes(Number(problem.status)))throw searchError;
-     }
-    }
-    if(grounded)reply=grounded.text.trim();
-    else{
-     await ensureCore();
-     if(!window.CrewAI?.call)throw new Error("Text runtime unavailable");
-     reply=String(await window.CrewAI.call(prompt,{
-      system:system+"\n[TEXT CHAT] Written text conversation only. Reply naturally, as the configured character. Do not claim to hear or speak.",
-      preferLive:false,temperature:0.75,maxOutputTokens:700
-     })).trim();
-    }
-    sources=grounded?.sources;searchSuggestions=grounded?.searchSuggestions;
+    // Reuse one Gemini Live WebSocket across keyboard turns. A separate
+    // microphone-free session begins when entering text mode.
+    if(!liveChat.current)liveChat.current=new LiveTextConversation(system,searchEnabled,
+     status=>{if(mounted.current)setLiveStatus(status)});
+    const answer=await liveChat.current.send(value);
+    reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
     const guestSystem=system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system;
@@ -171,7 +156,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     const byokMessage=category==="key"?(english?"This Gemini key is invalid or lacks permission.":"目前的 Gemini Key 無效或沒有存取權限。")
      :category==="quota"?(english?"Your Gemini API quota has been reached.":"目前的 Gemini API 配額已用完。")
      :category==="model"?(english?"The Gemini text model is unavailable for this key.":"目前的 Gemini Key 無法使用這個文字模型。")
-     :(english?"Gemini text connection failed. Please retry or switch to free practice.":"Gemini 文字連線失敗，請重試或改用免費文字練習。");
+     :(english?"Gemini Live text connection failed. Retry or switch to free practice.":"Gemini Live 文字連線失敗，請重試或改用免費文字練習。");
     setError(type==="SESSION_EXPIRED"
      ?english?"Session expired. Verify to resume free text practice.":"免費連線已到期，請重新驗證後繼續。"
      :type==="DAILY_LIMIT"
@@ -188,9 +173,10 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
   {hasKey&&<div className="crew-text-mode-choice">
    <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
-    setUseGuest(current=>!current);setError("");
+    setUseGuest(current=>!current);setError("");setMessages([]);setDraft("");setLiveStatus("");
    }}>{guestMode?(english?"Use my key":"使用自己的 Key"):(english?"Switch to free text":"改用免費文字")}</button>
   </div>}
+  {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
   {guestMode&&<div className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
    <strong>{english?"Free text practice — no API key needed":"免費文字練習・不需要 API Key"}</strong>
    <p>{english?"Up to 12 messages a day, shared across teacher and friend chats. No microphone required.":"每天最多 12 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。"}</p>
@@ -216,6 +202,6 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&guestPhase!=="active")}/>
    <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&guestPhase!=="active")}>{english?"Send":"送出"}</button>
   </form>
-  <small className="crew-text-chat-notice">{hint||(english?"Messages remain on this page only; switching modes starts a new session.":"文字對話只在本頁顯示；切換模式將開始新對話。")}</small>
+  <small className="crew-text-chat-notice">{hint||(english?"Text-only Live and free practice keep separate sessions. No microphone is used.":"Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。")}</small>
  </section>;
 }

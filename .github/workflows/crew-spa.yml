@@ -71,7 +71,7 @@ jobs:
         if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-trial') || contains(github.event.pull_request.head.ref, 'guest-qa') || contains(github.event.pull_request.head.ref, 'guest-native') || contains(github.event.pull_request.head.ref, 'guest-multi') || contains(github.event.pull_request.head.ref, 'guest-auth-quota') || contains(github.event.pull_request.head.ref, 'guest-live') || contains(github.event.pull_request.head.ref, 'member-daily'))
         run: node --test tests/guest-trial.test.js tests/crew-guest-config-cache.test.js tests/crew-ux-p0-honest-trial.test.js tests/crew-ux-p0b-followup.test.js tests/crew-live.lifecycle.test.js tests/crew-onboarding.test.js
       - name: Validate keyless Teacher/Friend text and legacy guest Live (guest-text PRs only)
-        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-text') || contains(github.event.pull_request.head.ref, 'text-chat-recovery'))
+        if: github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'guest-text') || contains(github.event.pull_request.head.ref, 'text-chat-recovery') || contains(github.event.pull_request.head.ref, 'live-keyboard'))
         run: node --test tests/guest-text-chat.test.js tests/guest-trial.test.js tests/short-chat-memory.test.js tests/crew-guest-config-cache.test.js tests/crew-live.lifecycle.test.js
       - name: Validate Fortune report quality (Fortune PRs only)
         if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'fortune-')

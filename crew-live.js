@@ -98,6 +98,9 @@
     this.options=options||{};
     // Ephemeral guest credentials are never read from persistent BYOK storage.
     this.guestMode=Boolean(this.options.guestAccessToken);
+    // Keyboard-only Live sessions still request audio + output transcription,
+    // but never open microphone capture or a browser audio output device.
+    this.textOnly=this.options.textOnly===true;
     this.models=(this.options.models||DEFAULT_MODELS).slice();
     this.maxLiveAttempts=this.guestMode?1:Math.max(1,Math.min(
       Number(this.options.maxLiveAttempts)||this.models.length,
@@ -155,6 +158,7 @@
     this.currentTurnHadValidOutput=false;
     this.inputTurn="";
     this.outputTurn="";
+    this.textOutputSource="";
 
     this.mediaStream=null;
     this.pendingMicRequest=null;
@@ -482,6 +486,7 @@
   };
 
   LiveSession.prototype._playPcm=function(base64,mime,attempt){
+    if(this.textOnly)return; // Browser never plays or decodes generated audio.
     if(!base64||!this.outputContext||!this._isActiveAttempt(attempt)||this.interruptPending)return;
     if(!this.modelSpeaking)this.playbackEpoch++;
     this.modelSpeaking=true;
@@ -603,6 +608,7 @@
           turnComplete:true
         }
       }));
+      if(this.textOnly)this.inputTurn=text;
       if(this.interruptPending)this.interruptInputSeen=true;
       return true;
     }catch(error){
@@ -903,6 +909,9 @@
 
     var output=server.outputTranscription||server.output_transcription;
     if(!suppressOutput&&output&&output.text){
+      // The explicit audio transcript supersedes any inline text fragments.
+      if(this.textOnly&&this.textOutputSource==="text")this.outputTurn="";
+      if(this.textOnly)this.textOutputSource="transcript";
       this.outputTurn=mergeTranscript(this.outputTurn,output.text);
       this._markValidOutput(attempt,false);
       if(this.options.onOutputTranscript)this.options.onOutputTranscript(this.outputTurn);
@@ -912,6 +921,12 @@
     var parts=turn&&turn.parts;
     if(!suppressOutput&&Array.isArray(parts)){
       parts.forEach(function(part){
+        if(self.textOnly&&part&&typeof part.text==="string"&&self.textOutputSource!=="transcript"){
+          self.textOutputSource="text";
+          self.outputTurn=mergeTranscript(self.outputTurn,part.text);
+          self._markValidOutput(attempt,false);
+          if(self.options.onOutputTranscript)self.options.onOutputTranscript(self.outputTurn);
+        }
         var inline=part&&(part.inlineData||part.inline_data);
         var mime=inline&&(inline.mimeType||inline.mime_type||"");
         if(inline&&inline.data&&String(mime).indexOf("audio/pcm")===0){
@@ -957,6 +972,7 @@
 
       this.inputTurn="";
       this.outputTurn="";
+      this.textOutputSource="";
       this.currentTurnHadAudio=false;
       this.currentTurnHadValidOutput=false;
 
@@ -965,7 +981,7 @@
         if(!self._isActiveAttempt(attempt)||self.interruptPending||self.playbackEpoch!==playbackEpoch)return;
         self.modelSpeaking=false;
         if(self.options.onSpeaking)self.options.onSpeaking(false);
-        self._status("你可以直接繼續說");
+        self._status(self.textOnly?"可以繼續輸入訊息":"你可以直接繼續說");
       });
     }
   };
@@ -1066,7 +1082,7 @@
     this.activeModelIndex=index;
     this.model=model;
     this.ready=false;
-    this._status("正在連線語音服務…");
+    this._status(this.textOnly?"正在連線 Live 文字服務…":"正在連線語音服務…");
     this._state("connecting");
 
     return new Promise(function(resolve,reject){
@@ -1126,7 +1142,7 @@
                   silenceDurationMs:self.options.turnTiming.silenceDurationMs
                 }}
               } : {}),
-              inputAudioTranscription:{},
+              ...(self.textOnly?{}:{inputAudioTranscription:{}}),
               outputAudioTranscription:{},
               systemInstruction:{
                 parts:[{text:self.options.system||"你是 Crew 的 Live 助手。自然、簡短地對話。"}]
@@ -1273,7 +1289,13 @@
     this.model=attempt.model;
     this.activeModelIndex=attempt.index;
     this._state("ready");
-    this._status("Live 已連線，可以直接說話");
+    this._status(this.textOnly?"Live 文字連線完成，可以輸入訊息":"Live 已連線，可以直接說話");
+    if(this.textOnly){
+      // No speech opening or VAD: the first turn is always the typed message.
+      this.openingDecision="not-requested";
+      if(this.recoveryStarted){this.recoveryStarted=false;if(this.options.onRecovered)this.options.onRecovered({model:this.model,resumed:!!attempt.resumed});}
+      return;
+    }
     this._startCapture();
     // Do not overwrite the learner's first spoken sentence with a greeting.
     var hadBufferedSpeech=this._flushPreSetupAudio(attempt);
@@ -1642,9 +1664,9 @@
 
       try{
         if(attempt.socket&&attempt.socket.readyState===1){
-          try{
-            attempt.socket.send(JSON.stringify({realtimeInput:{audioStreamEnd:true}}));
-          }catch(_){}
+          if(!this.textOnly){
+            try{attempt.socket.send(JSON.stringify({realtimeInput:{audioStreamEnd:true}}));}catch(_){}
+          }
           attempt.socket.close(1000,reason.slice(0,80));
         }
       }catch(_){}
@@ -1693,6 +1715,7 @@
     this.currentTurnHadValidOutput=false;
     this.inputTurn="";
     this.outputTurn="";
+    this.textOutputSource="";
     this.turns=[];
     this.resumptionHandle="";
     this.resumeAttempts=0;
@@ -1714,11 +1737,15 @@
     this.interruptInputSeen=false;
 
     try{
-      await this._requestWakeLock();
-      await this._openMedia();
-      if(!this.running||this.stopping||this._startCanceled)return this;
-      this.setVolume(this.volume);
-      this.setMicMuted(false);
+      if(!this.textOnly){
+        await this._requestWakeLock();
+        await this._openMedia();
+        if(!this.running||this.stopping||this._startCanceled)return this;
+        this.setVolume(this.volume);
+        this.setMicMuted(false);
+      }
+      // A keyboard session starts the same Live transport without asking for
+      // mic permission, even on WebViews without navigator.mediaDevices.
       await this._connectFrom(0);
       return this;
     }catch(error){
