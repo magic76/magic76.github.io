@@ -161,7 +161,7 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
  const date=new Intl.DateTimeFormat(locale,{year:"numeric",month:"short",day:"numeric"}).format(validDate);
  ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";ctx.fillText(date,95,1303);
  ctx.font="750 26px system-ui,sans-serif";ctx.textAlign="right";
- ctx.fillText("3sssi.com/fortune",984,1303);ctx.textAlign="left";
+ ctx.fillText(model.cta,984,1303);ctx.textAlign="left";
  return canvas;
 }
 export function collectiblePngFile(canvas:HTMLCanvasElement,name="crew-fortune.png"):File{
