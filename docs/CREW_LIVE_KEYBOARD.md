@@ -17,7 +17,8 @@ The `gemini-3.8-live` native audio agent uses `responseModalities:["AUDIO"]` plu
 - BYOK text: same Live model/role/language used by voice, but a fresh keyboard session when navigating modes. Text turns reuse one connected WebSocket until the user leaves, switches modes, disconnects, or times out.
 - Keyless text: existing Cloudflare `/api/guest/text` route with D1 quotas (12 messages/day), no API key in the browser, no microphone. **It is not the same voice Live grant.**
 - Keyless voice: existing 5-minute `/api/guest/token` Live route and signed-in member quotas, unchanged.
-- For BYOK Live text, optional `googleSearch` is configured on the Live socket; the existing transport already retries setup without unsupported tools when needed.
+- For BYOK Live text, **ordinary Teacher/Friend keyboard conversation never automatically attaches `googleSearch`**. Voice doesn't attach it by default either. Google's Search grounding can have separate usage/quotas and must be invoked explicitly in a dedicated search flow. The system prompt warns that unverified current facts cannot be confirmed in standard chat.
+- A provider `429 RESOURCE_EXHAUSTED` identifies a request- or model-level rate/usage limit, **not necessarily an exhausted API key**. Check model-specific limits in Google AI Studio. The app must not label every 429 as an exhausted key.
 - A 40-second per-response timeout closes a nonresponsive socket and lets the next message start a fresh session.
 - No transcript is persisted from this text panel.
 - The session's actual microphone/no-audio behavior is covered by `tests/crew-live.lifecycle.test.js`.
