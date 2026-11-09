@@ -5,7 +5,7 @@ Last verified against Crew Web master: 2026-10-29.
 ## Current state
 
 - **16** canonical Crew Friends, defined in `content/character-identities/manifest.json`. The original five-character seed remains in history; generator and client must agree on all 16.
-- Approved editorial JSON and photos are in `content/crew-shorts/approved/`. The source on 2026-11-04 has 335 posts ending 2026-11-11; do not assume this number stays constant.
+- Approved editorial JSON and photos are in `content/crew-shorts/approved/`. The source on 2026-11-09 has 415 posts ending 2026-11-16; do not assume this number stays constant.
 - **Two public contracts:** latest-100 legacy `/features/teacher/shorts/posts.json` (Android backward compatibility), and full paginated v2 `/features/teacher/shorts/v2/index.json` (50 posts per page). Web loads v2 first, then legacy as a fallback.
 - Cloudflare Pages hosts first-party fingerprinted WebPs; images and captions are **not** embedded in JavaScript or the Android APK.
 - The Pages publishing GitHub workflow is scheduled for 08:17 Asia/Taipei; it only releases already-approved, due posts and does not create new ones.
