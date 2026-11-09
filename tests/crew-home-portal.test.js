@@ -3,19 +3,14 @@ const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
 const path=require("node:path");
 const read=p=>readFileSync(path.join(__dirname,"..",p),"utf8");
-test("Online portal gains one quiet decorative focal object without another render loop",()=>{
- const field=read("web-spa/src/pages/PortalParticleField.tsx");
+test("Portal retains the live particle design without a cloud, adding only ambient depth",()=>{
+ const visual=read("web-spa/src/pages/PortalParticleField.tsx");
  const css=read("web-spa/src/pages/homePortal.css");
- assert.equal((field.match(/className="crew-portal-core"/g)||[]).length,1);
- assert.match(field,/viewBox="0 0 320 240"/);
- assert.match(field,/aria-hidden="true"/);
- assert.match(css,/\.crew-portal-core\{[^}]*pointer-events:none/);
- assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.crew-portal-core\{animation:none/);
- assert.match(field,/crew-back-orbit/);
- assert.match(field,/crew-front-orbit/);
- assert.match(css,/@media\(max-width:700px\)\{\.crew-portal-core\{top:19%;/);
- assert.match(css,/\[data-paused="true"\] \.crew-portal-core\{animation:none/);
- assert.doesNotMatch(field,/THREE|requestAnimationFrame|new WebGLRenderingContext/);
+ const field=read("web-spa/src/pages/portalField.mjs");
+ assert.doesNotMatch(visual,/crew-portal-core/);
+ assert.match(css,/radial-gradient\(ellipse 37% 30%/);
+ assert.match(field,/!lowQuality && i % 137 === 0 && point\.size > \.35/);
+ assert.doesNotMatch(field,/THREE|new WebGLRenderingContext/);
 });
 
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
