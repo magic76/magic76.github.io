@@ -19,7 +19,7 @@
 - Upstream failures are returned as temporary service errors without revealing any credential or internal diagnostics. Failed generation attempts are refunded from the two D1 counters on a best-effort basis.
 - Server-only access is required for free generation. There is no client fallback to a shared API key.
 
-## Deployment and smoke checks
+## Reply display\n\nThe free Worker REST route returns an entire generated message, not token/chunk streaming. The browser progressively reveals the returned text with the same typewriter UI used for BYOK Live; unlike BYOK Live, its first visible character starts only after REST generation completes. This is a UI presentation choice, **not a claim of real Live streaming or shared voice quota**.\n\n## Deployment and smoke checks
 
 1. Deploy the `crew-guest-trial` Worker from `workers/guest-trial/wrangler.toml`. Confirm its current `CREW_AUTH_DB`, guest API key Secret, and Turnstile Secret binding exist. Do not introduce any `VITE_` secrets or add key values to source control.
 2. Deploy Pages / the Web SPA. The web UI must show the service as temporarily unavailable until the Worker endpoint is live — no silent fallback to a hardcoded key.
