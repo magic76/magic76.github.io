@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "嗨，要不要聊兩句？",
-    "start": "文字開聊",
+    "start": "開聊",
+    "heading": "用說的，和 AI 朋友聊聊",
+    "withZoe": "和 Zoe 聊聊",
     "setup": "設定 Key"
   }
 }

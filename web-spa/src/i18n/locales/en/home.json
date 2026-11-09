@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Hey, want to chat?",
-    "start": "Text chat",
+    "start": "Chat",
+    "heading": "Talk with an AI friend",
+    "withZoe": "Chat with Zoe",
     "setup": "Set up Key"
   }
 }

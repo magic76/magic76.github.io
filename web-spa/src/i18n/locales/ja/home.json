@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "ねえ、少しおしゃべりしない？",
-    "start": "文字で話す",
+    "start": "話そう",
+    "heading": "AI の友だちと話そう",
+    "withZoe": "Zoe と話す",
     "setup": "Key 設定"
   }
 }

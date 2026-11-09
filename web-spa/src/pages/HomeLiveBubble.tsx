@@ -10,7 +10,7 @@ import {useClientReady} from "../lib/useClientReady";
 import {geminiKey} from "../lib/runtime";
 import "./homeLiveBubble.css";
 
-const ZOE_LIVE="/friend/live?id=zoe&from=home&chat=text&entry=bubble";
+const ZOE_LIVE="/friend/live?id=zoe&from=home&entry=bubble";
 function warmLive(){void import("../friends/FriendLivePage").catch(()=>{/* Optional preload only. */})}
 
 /** An immediate Live entry, not an in-home chat or another setup flow. */
@@ -76,16 +76,16 @@ export function HomeLiveBubble(){
  const label=needsSetup?t("liveBubble.setup"):t("liveBubble.start");
  const invite=needsSetup?t("world.chatExhausted"):t("liveBubble.invite");
  return portalHost?createPortal(
-  <aside ref={rootRef} className="crew-home-live-bubble" aria-label={t("world.chatHeading")}>
+  <aside ref={rootRef} className="crew-home-live-bubble" aria-label={t("liveBubble.heading")}>
    {showInvite&&<span className="crew-live-bubble-invite" aria-hidden="true">{invite}</span>}
    <Link className="crew-live-bubble-trigger" to={target} onClick={visit}
     onMouseEnter={!needsSetup?warmLive:undefined}
     onTouchStart={!needsSetup?warmLive:undefined}
     onFocus={!needsSetup?warmLive:undefined}
-    aria-label={needsSetup?t("world.chatExhausted"):t("world.chatWithZoe")}>
+    aria-label={needsSetup?t("world.chatExhausted"):t("liveBubble.withZoe")}>
     <span className="crew-live-bubble-avatar">
      <img src={zoePortrait} alt="" width="56" height="56" decoding="async"/>
-     <span className="crew-live-bubble-mic" aria-hidden="true"><Icon name={needsSetup?"settings":"chat"}/></span>
+     <span className="crew-live-bubble-mic" aria-hidden="true"><Icon name={needsSetup?"settings":"mic"}/></span>
     </span>
     <span className="crew-live-bubble-label">{label}</span>
    </Link>
