@@ -15,7 +15,8 @@ export const ONBOARDING_DONE_KEY="crew_onboarding_web_v1";
 const DRAFT_KEY="crew_onboarding_draft_v1";
 type Goal="chat"|"learn"|"play"|"explore";
 const goals:readonly Goal[]=["chat","learn","play","explore"];
-const destinations:Record<Goal,string>={chat:"/chat",learn:"/learn",play:"/games",explore:"/explore"};
+// Send the visitor to a usable first experience, not a feature index.
+const destinations:Record<Goal,string>={chat:"/friend/live?id=zoe&from=home",learn:"/teacher/live?lesson=daily_u1_l1",play:"/games/number-bomb",explore:"/timeline"};
 
 function previousCrewActivity():boolean{
  // The UI locale preference is initialized even on a new visit: it is NOT a
@@ -58,6 +59,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
  const [guestAvailable,setGuestAvailable]=useState(false);
  const [step,setStep]=useState(0);
  const [goal,setGoal]=useState<Goal>("chat");
+ const firstAction={chat:c.firstChat,learn:c.firstLearn,play:c.firstPlay,explore:c.firstExplore}[goal];
  const target=useTeacherStore(state=>state.targetLanguage);
  const setTarget=useTeacherStore(state=>state.setTargetLanguage);
  useEffect(()=>{
@@ -154,7 +156,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
       {goalCards.map(item=><button type="button" className="crew-onboarding-preview-item" key={item.id} onClick={()=>finish(true,item.id)}><span aria-hidden="true">{item.symbol}</span><strong>{item.title}</strong><span className="crew-onboarding-preview-arrow" aria-hidden="true">→</span></button>)}
      </div>
      <p className="crew-onboarding-note">{c.welcomeNote}</p>
-     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>{finish(false);navigate("/friend/live?id=zoe")}}>{t("guestTrial.onboardingCTA")} →</button>}
+     {guestAvailable&&<button type="button" className="crew-onboarding-primary" onClick={()=>finish(true,"chat")}>{t("guestTrial.onboardingCTA")} →</button>}
     </section>:null}
     {step===1?<section className="crew-onboarding-step">
      <h2 id="crew-onboarding-title">{c.goalTitle}</h2>
@@ -190,7 +192,7 @@ export function OnboardingGate({pathname}:{pathname:string}){
     <div className="crew-onboarding-actions">
      {step>0?<button type="button" className="crew-onboarding-back" onClick={back}>{c.back}</button>:null}
      <button type="button" className="crew-onboarding-primary" onClick={()=>step===2?finish(true):next()}>
-      {step===2?c.start:c.next}<span aria-hidden="true">→</span>
+      {step===2?firstAction:c.next}<span aria-hidden="true">→</span>
      </button>
     </div>
     <button type="button" className="crew-onboarding-skip" onClick={()=>finish(false)}>{c.skip}</button>
