@@ -165,7 +165,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     setMessages(messages);setDraft(value);
     const type=reason instanceof Error?reason.message:"";
     const detail=reason as Error&{kind?:string;status?:number};
-    const status=Number(detail?.status)||Number(type.match(/(?:HTTP|failed \\()\\s*(\\d{3})/)?.[1])||0;
+    const status=Number(detail?.status)||Number(type.match(/\b([45]\d{2})\b/)?.[1])||0;
     const category=detail?.kind||
      ([401,403].includes(status)?"key":status===429?"quota":[400,404].includes(status)?"model":"service");
     const byokMessage=category==="key"?(english?"This Gemini key is invalid or lacks permission.":"目前的 Gemini Key 無效或沒有存取權限。")
