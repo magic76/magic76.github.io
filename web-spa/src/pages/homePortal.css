@@ -3,6 +3,12 @@
 .crew-home-portal[data-mode="learn"]{--portal-accent:#aee7d3}.crew-home-portal[data-mode="fortune"]{--portal-accent:#ffdd8b}.crew-home-portal[data-mode="play"]{--portal-accent:#ff95ae}
 .crew-portal-field{position:absolute;inset:0;z-index:-1;pointer-events:none;container-type:size;background:radial-gradient(ellipse at 50% 45%,#49325527,transparent 65%)}
 .crew-portal-field canvas{width:100%;height:100%;display:block}.crew-portal-fallback{position:absolute;left:calc(100% * var(--portal-stage-x));top:calc(100% * var(--portal-stage-y));width:min(calc(100vw * var(--portal-stage-scale-w) * 2.6),calc(100cqh * var(--portal-stage-scale-h) * 2.6));height:auto;aspect-ratio:3 / 2;transform:translate(-50%,-50%) scaleY(var(--portal-stage-tall));color:var(--portal-accent);opacity:.4;pointer-events:none}.crew-portal-field[data-ready="true"] .crew-portal-fallback{display:none}
+/* Keep the online particle portal intact; its cloud is a low-contrast object, not a new scene. */
+.crew-portal-core{position:absolute;left:calc(100% * var(--portal-stage-x));top:calc(100% * var(--portal-stage-y));width:min(calc(100vw * var(--portal-stage-scale-w) * 1.05),calc(100cqh * var(--portal-stage-scale-h) * 1.05));height:auto;aspect-ratio:4/3;transform:translate(-50%,-50%);opacity:.55;z-index:1;pointer-events:none;will-change:transform;animation:crew-portal-core-breathe 9s ease-in-out infinite}
+.crew-portal-field canvas{position:relative;z-index:0}
+@keyframes crew-portal-core-breathe{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.018)}}
+@media(max-width:700px){.crew-portal-core{width:min(calc(100vw * var(--portal-stage-scale-w) * .75),calc(100cqh * var(--portal-stage-scale-h) * .75));opacity:.26}}
+@media(prefers-reduced-motion:reduce){.crew-portal-core{animation:none;will-change:auto}}
 .crew-portal-content{position:relative;box-sizing:border-box;width:min(1000px,100%);padding:32px 24px;text-align:center;z-index:1}
 .crew-portal-intro{font-size:13px;line-height:1.5;letter-spacing:.06em;color:#d2c6d7;margin:0 auto 38px;max-width:650px}
 /* Copy scrim stays below the positioned CTA and quota, preserving the solid cream button. */
