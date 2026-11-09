@@ -12,7 +12,7 @@ function load(file,names){
 }
 function memoryStorage(){
  const values=new Map();
- return{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,String(v))};
+ return{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)};
 }
 test("Friend transcript is recoverable after text → voice → text in one tab, scoped per friend",()=>{
  const {readSessionTranscript,writeSessionTranscript}=load("web-spa/src/live/sessionTranscript.ts",["readSessionTranscript","writeSessionTranscript"]);
@@ -27,7 +27,7 @@ test("Friend transcript is recoverable after text → voice → text in one tab,
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(friend,/sessionScope=\{"friend:"\+friend\.id/);
  assert.match(panel,/readSessionTranscript\(sessionScope\)/);
- assert.match(panel,/writeSessionTranscript\(sessionScope,latestMessages\.current\)/);
+ assert.match(panel,/writeSessionTranscript\(sessionScope,pendingSend\.current\?\.before\|\|latestMessages\.current\)/);
  assert.doesNotMatch(panel,/localStorage\./);
 });
 test("Guest can send before an active phase: wait for Turnstile, start, then send",async()=>{
@@ -78,4 +78,68 @@ test("Friend text screen pins composer while transcript alone scrolls",()=>{
  assert.match(css,/\.friend-desktop-workspace>\.friend-text-stage\{/);
  assert.match(page,/viewport\?\.height\|\|window\.innerHeight/);
  assert.match(page,/friend-text-stage/);
+});
+
+test("Interrupted verification restores a retryable draft without persisting a ghost turn",()=>{
+ const {readSessionTranscript,writeSessionTranscript,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft}=
+  load("web-spa/src/live/sessionTranscript.ts",["readSessionTranscript","writeSessionTranscript","readPendingTextDraft","writePendingTextDraft","clearPendingTextDraft"]);
+ const store=memoryStorage();
+ const scope="friend:zoe",complete=[{role:"user",text:"Hi"},{role:"assistant",text:"Hello"}];
+ writeSessionTranscript(scope,complete,store);
+ writePendingTextDraft(scope,{text:"I haven't verified yet",sent:false},store);
+ assert.equal(readPendingTextDraft(scope,store).text,"I haven't verified yet");
+ assert.equal(readPendingTextDraft(scope,store).sent,false);
+ assert.equal(readSessionTranscript(scope,store).length,2,"pending input is not a committed user turn");
+ writePendingTextDraft(scope,{text:"Actually sent",sent:true},store);
+ assert.equal(readPendingTextDraft(scope,store).sent,true,"mid-flight retries disclose possible quota usage");
+ clearPendingTextDraft(scope,store);
+ assert.equal(readPendingTextDraft(scope,store),null);
+ const panel=read("web-spa/src/live/TextChatPanel.tsx");
+ assert.match(panel,/pendingSend\.current=\{before:messages,value,sent:false\}/);
+ assert.match(panel,/writePendingTextDraft\(sessionScope,\{text:value,sent:false\}\)/);
+ assert.match(panel,/writeSessionTranscript\(sessionScope,pendingSend\.current\?\.before\|\|messages\)/);
+ assert.match(panel,/writeSessionTranscript\(sessionScope,pendingSend\.current\?\.before\|\|latestMessages\.current\)/);
+ assert.match(panel,/const dangling=saved\.at\(-1\)\?\.role==="user"\?saved\.pop\(\)\?\.text/);
+ assert.match(panel,/if\(pending\|\|dangling\)/);
+ assert.match(panel,/clearPendingTextDraft\(sessionScope\)/);
+});
+test("During Turnstile / connection, the friend must not be labelled as typing",()=>{
+ const panel=read("web-spa/src/live/TextChatPanel.tsx");
+ const text=panel.slice(panel.indexOf("return <section"));
+ assert.match(text,/busy&&requestSent&&messages\.at\(-1\)\?\.role!=="assistant"/);
+ assert.doesNotMatch(text,/\{busy&&messages\.at\(-1\)\?\.role!=="assistant"/);
+ assert.match(panel,/setRequestSent\(false\)/);
+ assert.match(panel,/setRequestSent\(true\)/);
+ assert.match(panel,/markDispatched\(\);setRequestSent\(true\);/);
+ assert.match(text,/pendingSend\.current&&!pendingSend\.current\.sent/);
+ assert.match(text,/等待驗證・尚未送出/);
+ assert.match(panel,/await waitForChallenge\(\)/);
+});
+test("Restored Turnstile layout re-scrolls history after widget resize",()=>{
+ const panel=read("web-spa/src/live/TextChatPanel.tsx");
+ const css=read("web-spa/src/live/TextChatPanel.css");
+ assert.match(panel,/new ResizeObserver\(/);
+ assert.match(panel,/observer\.observe\(log\)/);
+ assert.match(panel,/observer\.observe\(guest\)/);
+ assert.match(panel,/log\.scrollTop=log\.scrollHeight/);
+ assert.match(css,/\.friend-text-stage \.crew-text-guest\{order:1\}/);
+ assert.match(css,/\.friend-text-stage \.crew-text-chat-history\{order:0\}/);
+});
+test("390px composer uses actual viewport header/shell offset, not hardcoded 104px",()=>{
+ const css=read("web-spa/src/friends/friends.css")+read("web-spa/src/live/TextChatPanel.css");
+ const page=read("web-spa/src/friends/FriendLivePage.tsx");
+ assert.doesNotMatch(css,/viewport-height,100dvh\) - 104px/);
+ assert.match(css,/--crew-friend-stage-top/);
+ assert.match(css,/\.friend-text-stage \.crew-text-chat-form\{flex:0 0 auto;margin-top:auto\}/);
+ assert.match(css,/\.friend-live-page:has\(\.friend-text-stage\)\{padding:8px 0 0\}/);
+ assert.match(page,/getBoundingClientRect\(\)\.top-\(viewport\?\.offsetTop\|\|0\)/);
+});
+
+// Teacher parity.css keeps a large spacer for its fixed voice dock.
+// The friend text stage must out-specify that rule, not just set generic padding.
+test("Voice-dock padding cannot push the friend text composer away from viewport bottom",()=>{
+ const friend=read("web-spa/src/friends/friends.css");
+ assert.match(friend,/@media\(max-width:640px\)\{\s*body\.teacher-theme\.session-page \.friend-text-stage\.live-stage\{padding-bottom:calc\(6px \+ env\(safe-area-inset-bottom,0px\)\)\}/);
+ const paritySelector="body.teacher-theme.session-page .live-stage";
+ assert.ok("body.teacher-theme.session-page .friend-text-stage.live-stage".split(/[ .]+/).length>paritySelector.split(/[ .]+/).length);
 });

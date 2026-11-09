@@ -1,7 +1,7 @@
 import {LiveTextConversation} from "./liveTextChat";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
-import {readSessionTranscript,writeSessionTranscript} from "./sessionTranscript";
+import {readSessionTranscript,writeSessionTranscript,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type FormEvent} from "react";
@@ -35,6 +35,8 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
  const [historyReady,setHistoryReady]=useState(false);
  const latestMessages=useRef<Message[]>([]);
  const [busy,setBusy]=useState(false);
+ const [requestSent,setRequestSent]=useState(false);
+ const pendingSend=useRef<{before:Message[];value:string;sent:boolean}|null>(null);
  const [error,setError]=useState("");
  const [liveStatus,setLiveStatus]=useState("");
  const liveChat=useRef<LiveTextConversation|null>(null);
@@ -50,6 +52,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
  const [remaining,setRemaining]=useState<number|null>(null);
  const mounted=useRef(true);
  const history=useRef<HTMLDivElement>(null);
+ const guestBox=useRef<HTMLDivElement>(null);
  const bottom=useRef<HTMLDivElement>(null);
  const host=useRef<HTMLDivElement|null>(null);
  const widget=useRef<string|null>(null);
@@ -62,17 +65,27 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
  // Restore only after mount: the server and first client render match.
  useEffect(()=>{
   const saved=readSessionTranscript(sessionScope);
+  const dangling=saved.at(-1)?.role==="user"?saved.pop()?.text:"";
+  // Also recover older transcripts written by the pre-v2 unmount path.
+  if(dangling)writeSessionTranscript(sessionScope,saved);
+  const pending=readPendingTextDraft(sessionScope);
+  if(pending||dangling){
+   setDraft(pending?.text||dangling||"");
+   setError(pending?.sent
+    ?english?"The previous message may have been sent without a reply. Retrying may use another free message.":"上一則訊息可能已送出但未收到回覆，重送可能再次使用免費額度。"
+    :english?"Your previous message wasn't sent. Press Send to retry.":"上一則訊息尚未送出，按「送出」即可重試。");
+  }
   latestMessages.current=saved;
   setMessages(saved);setHistoryReady(true);
  },[sessionScope]);
  latestMessages.current=messages;
  useEffect(()=>{
   if(!historyReady||!sessionScope)return;
-  const timer=window.setTimeout(()=>writeSessionTranscript(sessionScope,messages),180);
+  const timer=window.setTimeout(()=>writeSessionTranscript(sessionScope,pendingSend.current?.before||messages),180);
   return()=>window.clearTimeout(timer);
  },[messages,historyReady,sessionScope]);
  useEffect(()=>()=>{
-  if(historyReady&&sessionScope)writeSessionTranscript(sessionScope,latestMessages.current);
+  if(historyReady&&sessionScope)writeSessionTranscript(sessionScope,pendingSend.current?.before||latestMessages.current);
  },[historyReady,sessionScope]);
  useEffect(()=>()=>{
   typingRef.current?.cancel();typingRef.current=null;
@@ -81,6 +94,20 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
  useEffect(()=>{
   if(history.current)history.current.scrollTop=history.current.scrollHeight;
  },[messages.length,messages.at(-1)?.text.length,historyReady]);
+ // A late Turnstile iframe changes the available height after transcript restore.
+ // Observe both the challenge and the scroll viewport, not just message changes.
+ useEffect(()=>{
+  const log=history.current,guest=guestBox.current;
+  if(!log||typeof ResizeObserver!=="function")return;
+  let frame=0;
+  const observer=new ResizeObserver(()=>{
+   cancelAnimationFrame(frame);
+   frame=requestAnimationFrame(()=>{log.scrollTop=log.scrollHeight});
+  });
+  observer.observe(log);
+  if(guest)observer.observe(guest);
+  return()=>{observer.disconnect();cancelAnimationFrame(frame)};
+ },[historyReady,guestMode]);
  useEffect(()=>{
   if(!guestMode)return;
   const controller=new AbortController();
@@ -137,7 +164,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
  }
  function invalidateGuestGrant(){
   try{sessionStorage.removeItem(SESSION_STORAGE_KEY)}catch{}
-  setGuestToken("");setChallenge("");setGuestPhase("ready");
+  setGuestToken("");setChallenge("");setGuestPhase("ready");setRequestSent(false);
  }
  async function startGuestText():Promise<string>{
   setGuestStatus(english?"Complete the security check to send…":"完成安全驗證後會自動送出…");
@@ -175,6 +202,14 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   if(!key&&guestPhase==="error")setGuestPhase("ready");
   const next:Message[]=[...messages,{role:"user",text:value}];
   const answerIndex=next.length;
+  pendingSend.current={before:messages,value,sent:false};
+  writePendingTextDraft(sessionScope,{text:value,sent:false});
+  const markDispatched=()=>{
+   if(!mounted.current)throw Error("UNMOUNTED");
+   if(pendingSend.current)pendingSend.current.sent=true;
+   writePendingTextDraft(sessionScope,{text:value,sent:true});
+   setMessages(next);
+  };
   const updateLiveAnswer=(text:string)=>{
    if(!mounted.current)return;
    setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text}]);
@@ -182,7 +217,10 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   // Both Live and free REST replies reveal progressively; only Live supplies real partial chunks.
   const reveal=createTypingReveal(updateLiveAnswer);
   typingRef.current=reveal;
-  setMessages(next);setDraft("");setBusy(true);setError("");
+  setDraft("");setBusy(true);setRequestSent(false);setError("");
+  setGuestStatus(guestMode
+   ?english?"Preparing to send…":"準備傳送訊息…"
+   :english?"Connecting to Gemini Live…":"正在連接 Gemini Live…");
   try{
    let reply="",sources:GroundingSource[]|undefined,searchSuggestions:string|undefined;
    if(key){
@@ -190,7 +228,11 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     // microphone-free session begins when entering text mode.
     if(!liveChat.current)liveChat.current=new LiveTextConversation(system,searchEnabled,
      status=>{if(mounted.current)setLiveStatus(status)});
-    const answer=await liveChat.current.send(value,partial=>reveal?.push(partial));
+    markDispatched();
+    const answer=await liveChat.current.send(value,partial=>{
+     if(mounted.current){setRequestSent(true);setGuestStatus("")}
+     reveal?.push(partial);
+    });
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
@@ -203,6 +245,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
       setGuestStatus(english?"Session changed. Verify again to send…":"連線已更新，重新驗證後自動送出…");
      },
      send:async token=>{
+      markDispatched();setRequestSent(true);
       setGuestStatus(english?"Sending message…":"正在傳送訊息…");
       const response=await fetch(GUEST_TEXT_ENDPOINT,{method:"POST",cache:"no-store",
        headers:{"content-type":"application/json"},
@@ -222,14 +265,24 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     if(typeof data.remaining==="number")setRemaining(data.remaining);
    }
    if(!reply)throw Error("Empty reply");
+   if(mounted.current)setGuestStatus("");
    // Live begins displaying as partial frames arrive; free REST completes first,
    // then uses the same visual reveal (not a claim of server-side streaming).
    await reveal.finish(reply);
-   if(mounted.current)setMessages(m=>[...m.slice(0,answerIndex),{role:"assistant",text:reply,sources,searchSuggestions}]);
+   if(mounted.current){
+    const complete=[...next,{role:"assistant" as const,text:reply,sources,searchSuggestions}];
+    latestMessages.current=complete;
+    writeSessionTranscript(sessionScope,complete);
+    clearPendingTextDraft(sessionScope);
+    pendingSend.current=null;
+    setMessages(complete);
+   }
   }catch(reason){
    reveal?.cancel();
    if(mounted.current){
+    latestMessages.current=messages;
     setMessages(messages);setDraft(value);
+    pendingSend.current=null;clearPendingTextDraft(sessionScope);
     const type=reason instanceof Error?reason.message:"";
     const detail=reason as Error&{kind?:string;status?:number};
     const status=Number(detail?.status)||Number(type.match(/\b([45]\d{2})\b/)?.[1])||0;
@@ -256,18 +309,19 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   }finally{
    if(mounted.current)setGuestStatus("");
    if(typingRef.current===reveal)typingRef.current=null;
-   if(mounted.current)setBusy(false);
+   if(mounted.current){setBusy(false);setRequestSent(false)}
   }
  }
  return <section className={"crew-text-chat"+(messages.length||busy||guestPhase==="active"?" is-chatting":"")} aria-label={english?"Text chat":"文字聊天"}>
   {hasKey&&<div className="crew-text-mode-choice">
    <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
    <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
+    clearPendingTextDraft(sessionScope);pendingSend.current=null;
     setUseGuest(current=>!current);setError("");setMessages([]);setDraft("");setLiveStatus("");
    }}>{guestMode?(english?"Use my key":"使用自己的 Key"):(english?"Switch to free text":"改用免費文字")}</button>
   </div>}
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
-  {guestMode&&<div className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
+  {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
    <strong>{english?"Free text practice — no API key needed":"免費文字練習・不需要 API Key"}</strong>
    <p>{english?"Up to 12 messages a day, shared across teacher and friend chats. No microphone required.":"每天最多 12 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。"}</p>
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
@@ -285,13 +339,20 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
    {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
-   {busy&&messages.at(-1)?.role!=="assistant"&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
+   {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
+    {english?"Awaiting verification · not sent yet: ":"等待驗證・尚未送出："}{pendingSend.current.value}
+   </p>}
+   {busy&&requestSent&&messages.at(-1)?.role!=="assistant"&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
    <div ref={bottom}/>
   </div>
   {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}
   {error&&<p role="alert" className="crew-text-chat-error">{error}</p>}
   <form className="crew-text-chat-form" onSubmit={event=>void send(event)}>
-   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"))}/>
+   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
+    const value=e.target.value;setDraft(value);
+    const unsent=readPendingTextDraft(sessionScope);
+    if(unsent){if(value)writePendingTextDraft(sessionScope,{text:value,sent:false});else clearPendingTextDraft(sessionScope)}
+   }} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"))}/>
    <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&(guestPhase==="unavailable"||guestPhase==="exhausted"))}>{english?"Send":"送出"}</button>
   </form>
   <small className="crew-text-chat-notice">{hint||(english?"Text-only Live and free practice keep separate sessions. No microphone is used.":"Live 文字對話與免費練習使用各自的連線，無須開啟麥克風。")}</small>
