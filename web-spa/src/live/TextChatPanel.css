@@ -14,3 +14,11 @@
 .crew-text-chat-form button{min-height:46px;flex-shrink:0}
 .crew-text-chat-notice{display:block;text-align:left}
 @media(max-width:420px){.crew-text-chat-history{padding:12px 8px}.crew-text-chat-message{max-width:96%}}
+
+/* Small in-flow free entry: never block the chat stage with a full-screen modal. */
+.crew-text-guest{display:grid;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-alt);min-width:0}
+.crew-text-guest strong{font-size:14px;line-height:1.4}
+.crew-text-guest p{margin:0;color:var(--muted);font-size:12px;line-height:1.6}
+.crew-text-guest small{font-size:12px;line-height:1.5;color:var(--muted)}
+.crew-text-guest .btn{justify-self:start;min-height:44px}
+.crew-text-guest a{display:inline-flex;align-items:center;text-decoration:none}
