@@ -22,3 +22,7 @@
 .crew-text-guest small{font-size:12px;line-height:1.5;color:var(--muted)}
 .crew-text-guest .btn{justify-self:start;min-height:44px}
 .crew-text-guest a{display:inline-flex;align-items:center;text-decoration:none}
+
+.crew-text-mode-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 2px}
+.crew-text-mode-choice>span{font-size:12px;font-weight:700;color:var(--muted)}
+.crew-text-mode-choice .btn{min-height:44px;white-space:normal;text-align:center}

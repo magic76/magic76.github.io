@@ -3,7 +3,7 @@ import {GroundingSources} from "./GroundingSources";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type FormEvent} from "react";
 import {Link} from "react-router-dom";
-import {ensureCore,geminiKey} from "../lib/runtime";
+import {ensureCore,geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
 import type {PinyinAidMode} from "../teacher/pinyinAid";
 import type {TeachingMode} from "../store/teacherStore";
@@ -31,6 +31,8 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const [draft,setDraft]=useState("");
  const [busy,setBusy]=useState(false);
  const [error,setError]=useState("");
+ // A stale, unverified browser key must not silently block free practice.
+ const [useGuest,setUseGuest]=useState(()=>!geminiKey()||!geminiVerified());
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
  const [guestToken,setGuestToken]=useState(getSavedGuestSession);
  const [siteKey,setSiteKey]=useState("");
@@ -41,10 +43,11 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const host=useRef<HTMLDivElement|null>(null);
  const widget=useRef<string|null>(null);
  const hasKey=Boolean(geminiKey());
+ const guestMode=useGuest||!hasKey;
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
  useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length]);
  useEffect(()=>{
-  if(hasKey)return;
+  if(!guestMode)return;
   const controller=new AbortController();
   void fetch(GUEST_TEXT_ENDPOINT,{cache:"no-store",signal:controller.signal})
    .then(async response=>{
@@ -56,9 +59,9 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     setGuestPhase(guestToken?"active":"ready");
    }).catch(()=>{if(mounted.current&&!controller.signal.aborted)setGuestPhase("unavailable")});
   return()=>controller.abort();
- },[hasKey]);
+ },[guestMode]);
  useEffect(()=>{
-  if(hasKey||guestPhase!=="ready"||!siteKey)return;
+  if(!guestMode||guestPhase!=="ready"||!siteKey)return;
   let cancelled=false;
   const render=()=>{
    if(cancelled||!host.current||widget.current!==null||!turnstile())return;
@@ -80,7 +83,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    cancelled=true;script?.removeEventListener("load",render);
    if(widget.current!==null){try{turnstile()?.remove(widget.current)}catch{}widget.current=null}
   };
- },[hasKey,guestPhase,siteKey]);
+ },[guestMode,guestPhase,siteKey]);
  async function startGuestText(){
   if(!challenge||guestPhase!=="ready")return;
   setGuestPhase("starting");setError("");
@@ -103,7 +106,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
   event.preventDefault();
   const value=draft.trim().slice(0,1200);
   if(!value||busy)return;
-  const key=geminiKey();
+  const key=guestMode?"":geminiKey();
   if(!key&&(!guestToken||guestPhase!=="active")){
    setError(english?"Start free text practice first.":"請先開始免費文字練習。");return;
   }
@@ -115,11 +118,26 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     if(!searchEnabled){await ensureCore();if(!window.CrewAI?.call)throw new Error("Text runtime unavailable")}
     const history=next.slice(-12).map(m=>(m.role==="user"?"使用者":"AI")+": "+m.text).join("\n");
     const prompt="請根據以下文字聊天紀錄，只回覆最後一則使用者訊息，不要重複過往回答。\n"+history;
-    const grounded=searchEnabled?await searchGroundedText(prompt,system+"\nSearch only for relevant current or external facts. Preserve the original character and language."):null;
-    reply=String(grounded?.text??await window.CrewAI!.call(prompt,{
-     system:system+"\n[TEXT CHAT] Written text conversation only. Reply naturally, as the configured character. Do not claim to hear or speak.",
-     preferLive:false,temperature:0.75,maxOutputTokens:700
-    })).trim();
+    let grounded:null|Awaited<ReturnType<typeof searchGroundedText>>=null;
+    if(searchEnabled){
+     try{
+      grounded=await searchGroundedText(prompt,system+"\nSearch only for relevant current or external facts. Preserve the original character and language.");
+     }catch(searchError){
+      // Search failures must not prevent ordinary teacher/friend conversation.
+      // Invalid credentials or exhausted quota should not trigger another paid request.
+      const problem=searchError as Error&{kind?:string;status?:number};
+      if(problem.kind==="key"||problem.kind==="quota"||[401,429].includes(Number(problem.status)))throw searchError;
+     }
+    }
+    if(grounded)reply=grounded.text.trim();
+    else{
+     await ensureCore();
+     if(!window.CrewAI?.call)throw new Error("Text runtime unavailable");
+     reply=String(await window.CrewAI.call(prompt,{
+      system:system+"\n[TEXT CHAT] Written text conversation only. Reply naturally, as the configured character. Do not claim to hear or speak.",
+      preferLive:false,temperature:0.75,maxOutputTokens:700
+     })).trim();
+    }
     sources=grounded?.sources;searchSuggestions=grounded?.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
@@ -146,6 +164,14 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    if(mounted.current){
     setMessages(messages);setDraft(value);
     const type=reason instanceof Error?reason.message:"";
+    const detail=reason as Error&{kind?:string;status?:number};
+    const status=Number(detail?.status)||Number(type.match(/\b([45]\d{2})\b/)?.[1])||0;
+    const category=detail?.kind||
+     ([401,403].includes(status)?"key":status===429?"quota":[400,404].includes(status)?"model":"service");
+    const byokMessage=category==="key"?(english?"This Gemini key is invalid or lacks permission.":"目前的 Gemini Key 無效或沒有存取權限。")
+     :category==="quota"?(english?"Your Gemini API quota has been reached.":"目前的 Gemini API 配額已用完。")
+     :category==="model"?(english?"The Gemini text model is unavailable for this key.":"目前的 Gemini Key 無法使用這個文字模型。")
+     :(english?"Gemini text connection failed. Please retry or switch to free practice.":"Gemini 文字連線失敗，請重試或改用免費文字練習。");
     setError(type==="SESSION_EXPIRED"
      ?english?"Session expired. Verify to resume free text practice.":"免費連線已到期，請重新驗證後繼續。"
      :type==="DAILY_LIMIT"
@@ -153,13 +179,19 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
      :type==="TOO_FAST"
      ?english?"Please wait a few seconds before sending again.":"請隔幾秒再傳送下一則訊息。"
      :key
-     ?english?"Could not get a reply. Check your API key and connection.":"暫時無法取得回覆，請檢查 Gemini Key 或網路後再試。"
+     ?byokMessage
      :english?"Could not get a reply. Please try again.":"暫時無法取得回覆，請稍後重試。");
    }
   }finally{if(mounted.current)setBusy(false)}
  }
  return <section className="crew-text-chat" aria-label={english?"Text chat":"文字聊天"}>
-  {!hasKey&&<div className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
+  {hasKey&&<div className="crew-text-mode-choice">
+   <span>{guestMode?(english?"Free text practice":"免費文字練習"):(english?"Using your Gemini key":"使用自己的 Gemini Key")}</span>
+   <button type="button" className="btn secondary small" disabled={busy} onClick={()=>{
+    setUseGuest(current=>!current);setError("");
+   }}>{guestMode?(english?"Use my key":"使用自己的 Key"):(english?"Switch to free text":"改用免費文字")}</button>
+  </div>}
+  {guestMode&&<div className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
    <strong>{english?"Free text practice — no API key needed":"免費文字練習・不需要 API Key"}</strong>
    <p>{english?"Up to 12 messages a day, shared across teacher and friend chats. No microphone required.":"每天最多 12 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。"}</p>
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
@@ -181,8 +213,8 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
   </div>
   {error&&<p role="alert" className="crew-text-chat-error">{error}</p>}
   <form className="crew-text-chat-form" onSubmit={event=>void send(event)}>
-   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(!hasKey&&guestPhase!=="active")}/>
-   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(!hasKey&&guestPhase!=="active")}>{english?"Send":"送出"}</button>
+   <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>setDraft(e.target.value)} placeholder={english?"Write a message…":"輸入訊息…"} disabled={busy||(guestMode&&guestPhase!=="active")}/>
+   <button className="btn primary" type="submit" disabled={busy||!draft.trim()||(guestMode&&guestPhase!=="active")}>{english?"Send":"送出"}</button>
   </form>
   <small className="crew-text-chat-notice">{hint||(english?"Messages remain on this page only; switching modes starts a new session.":"文字對話只在本頁顯示；切換模式將開始新對話。")}</small>
  </section>;
