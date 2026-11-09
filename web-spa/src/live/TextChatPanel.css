@@ -26,3 +26,7 @@
 .crew-text-mode-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:0 2px}
 .crew-text-mode-choice>span{font-size:12px;font-weight:700;color:var(--muted)}
 .crew-text-mode-choice .btn{min-height:44px;white-space:normal;text-align:center}
+
+.crew-text-stream-cursor{display:inline-block;margin-left:2px;vertical-align:baseline;opacity:.8;animation:crew-text-stream-blink .8s step-end infinite}
+@keyframes crew-text-stream-blink{50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.crew-text-stream-cursor{animation:none}}
