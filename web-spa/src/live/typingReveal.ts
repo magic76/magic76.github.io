@@ -7,16 +7,15 @@ export function createTypingReveal(onText:(visible:string)=>void,intervalMs=16){
  const halt=()=>{if(timer!==null){clearInterval(timer);timer=null}};
  const tick=()=>{
   if(stopped)return;
+  const before=visible;
   if(!target.startsWith(visible)){
    // Gemini may revise a speculative transcription; never append old words.
    let common=0;
    while(common<visible.length&&common<target.length&&visible[common]===target[common])common++;
    visible=visible.slice(0,common);
   }
-  if(visible.length<target.length){
-   visible=target.slice(0,visible.length+1);
-   onText(visible);
-  }
+  if(visible.length<target.length)visible=target.slice(0,visible.length+1);
+  if(visible!==before)onText(visible);
   if(visible===target){halt();resolveWaiting()}
  };
  const push=(value:string)=>{
