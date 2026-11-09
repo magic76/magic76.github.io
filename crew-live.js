@@ -981,7 +981,7 @@
         if(!self._isActiveAttempt(attempt)||self.interruptPending||self.playbackEpoch!==playbackEpoch)return;
         self.modelSpeaking=false;
         if(self.options.onSpeaking)self.options.onSpeaking(false);
-        self._status("你可以直接繼續說");
+        self._status(self.textOnly?"可以繼續輸入訊息":"你可以直接繼續說");
       });
     }
   };
