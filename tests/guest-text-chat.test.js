@@ -170,15 +170,18 @@ test("saved but unverified Gemini keys default to free text, with a manual BYOK 
  assert.match(panel,/guestMode&&guestPhase!=="active"/);
  assert.doesNotMatch(panel,/請檢查 Gemini Key 或網路後再試/);
 });
-test("text search failures may fall back to standard Gemini without silently requiring Search",()=>{
+test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  const panel=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/TextChatPanel.tsx"),"utf8");
- const search=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/searchGroundedText.ts"),"utf8");
- assert.match(panel,/catch\(searchError\)/);
- assert.match(panel,/if\(problem\.kind==="key"\|\|problem\.kind==="quota"/);
- assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
- assert.match(panel,/liveChat\.current\.send\(value\)/);
- assert.match(search,/Object\.assign\(new Error\("Search request failed/);
- assert.match(search,/kind,status/);
+ const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
+ const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
+ assert.match(panel,/new LiveTextConversation\\(system,searchEnabled/);
+ assert.match(panel,/liveChat\\.current\\.send\\(value\\)/);
+ assert.match(adapter,/textOnly:true,models:\\["gemini-3\\.8-live"\\]/);
+ assert.match(adapter,/outputAudioTranscription|onOutputTranscript/);
+ assert.match(adapter,/onTurnComplete:turn=>/);
+ assert.match(adapter,/googleSearch/);
+ assert.match(transport,/this\\.textOnly=this\\.options\\.textOnly===true/);
+ assert.match(transport,/if\\(this\\.textOnly\\)return/);
  assert.match(panel,/category==="quota"/);
  assert.match(panel,/category==="model"/);
 });
