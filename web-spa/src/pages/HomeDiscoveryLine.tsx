@@ -7,7 +7,7 @@ import {trackUsageEvent} from "../analytics/usage";
 const DISCOVER=[
  {to:"/games/1a2b",detail:"play"},
  {to:"/souls",detail:"souls"},
- {to:"/friend/live?id=zoe&from=home",detail:"friend"},
+ {to:"/friend/live?id=zoe&from=home&chat=text",detail:"friend"},
  {to:"/teacher/vocabulary",detail:"learn"},
  {to:"/story",detail:"story"}
 ] as const;

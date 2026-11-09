@@ -107,5 +107,11 @@
     "preparing": "Préparation de la conversation",
     "free": "Discussion libre"
   },
-  "kicker": "Amis Crew"
+  "kicker": "Amis Crew",
+  "textStarters": {
+    "heading": "Touchez une phrase pour démarrer la discussion",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }

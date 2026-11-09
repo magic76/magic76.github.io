@@ -112,17 +112,17 @@
     "fortuneDescription": "Erkunde dein Horoskop mit einem KI-Freund.",
     "timelineTitle": "Jedes Leben hat ein nächstes Kapitel",
     "timelineDescription": "Triff Menschen in verschiedenen Lebensphasen und entdecke ihre Geschichten.",
-    "chatHeading": "Sprich mit einem KI-Freund",
+    "chatHeading": "Mit AI schreiben",
     "chatSubtitle": "Ohne Anmeldung: Jetzt 5 Minuten kostenlos chatten.",
     "chatStart": "Kostenlos chatten",
-    "chatWithZoe": "Mit Zoe chatten",
-    "chatNeutral": "Mit Zoe ins Gespräch kommen",
-    "chatTrial": "5 Minuten kostenlos mit Zoe sprechen",
+    "chatWithZoe": "Textchat mit Zoe starten",
+    "chatNeutral": "Textchat mit Zoe starten",
+    "chatTrial": "Kostenlos mit Zoe schreiben",
     "teacherTrial": "5 Minuten kostenlos Sprechen üben",
     "preparing": "Wird vorbereitet…",
-    "chatTrialWith": "5 Minuten kostenlos mit {{name}} chatten",
-    "chatNeutralWith": "Chat mit {{name}} starten",
-    "chatWithFriend": "Mit {{name}} chatten",
+    "chatTrialWith": "Kostenlos mit {{name}} schreiben",
+    "chatNeutralWith": "Textchat mit {{name}} starten",
+    "chatWithFriend": "Mit {{name}} schreiben",
     "shortsFallback": "Frag nach diesem Foto",
     "game1a2b": "1A2B direkt spielen",
     "gameConnect4": "Vier gewinnt spielen",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
-    "start": "Chatten",
+    "start": "Textchat",
     "setup": "Key einrichten"
   }
 }

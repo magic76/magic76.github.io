@@ -31,7 +31,7 @@ test("first-run gate never forces existing users, persists skip or completion, a
 
 test("first-run destinations open real experiences, not feature indexes",()=>{
  const routes={
-  chat:"/friend/live?id=zoe&from=home",
+  chat:"/friend/live?id=zoe&from=home&chat=text",
   learn:"/teacher/live?lesson=daily_u1_l1",
   play:"/games/number-bomb",
   explore:"/timeline"

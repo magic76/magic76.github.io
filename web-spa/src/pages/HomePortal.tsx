@@ -14,7 +14,7 @@ import {useClientReady} from "../lib/useClientReady";
 import {geminiKey} from "../lib/runtime";
 
 const ZOE="/friend/live?id=zoe";
-const HOME_ZOE=ZOE+"&from=home";
+const HOME_ZOE=ZOE+"&from=home&chat=text";
 let friendRouteWarmup:Promise<unknown>|null=null;
 function warmFriendStart(){
  if(typeof document==="undefined")return;
@@ -26,7 +26,7 @@ function warmFriendStart(){
 }
 
 const MODES:readonly {id:PortalMode;icon:IconName;to:string;label:string;name:string;entry:"friend"|"learn"|"fortune"|"play"}[]=[
- {id:"chat",icon:"chat",to:ZOE,label:"chat",name:"THE CONNECTION / CHAT",entry:"friend"},
+ {id:"chat",icon:"chat",to:HOME_ZOE,label:"chat",name:"THE CONNECTION / CHAT",entry:"friend"},
  {id:"learn",icon:"teacher",to:"/teacher/live?lesson=daily_u1_l1",label:"teacher",name:"THE RESONANCE / LEARN",entry:"learn"},
  {id:"fortune",icon:"fortune",to:"/fortune/reading?mode=tarot",label:"fortune",name:"THE STARS / FORTUNE",entry:"fortune"},
  {id:"play",icon:"play",to:"/games/1a2b",label:"play",name:"THE PLAYGROUND / PLAY",entry:"play"}
@@ -49,7 +49,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
  const questions=selectedPost?shortsPhotoQuestions(selectedPost,(key,detail)=>t("shorts."+key,{detail})):[];
  const shortsDestination=selectedPost?shortsChatUrl(selectedPost,undefined,questions.length?0:undefined):null;
  const destination=exhausted?"/account#settings-gemini":shortsDestination||
-  (friendId==="zoe"?HOME_ZOE:"/friend/live?id="+friendId+"&from=home");
+  (friendId==="zoe"?HOME_ZOE:"/friend/live?id="+friendId+"&from=home&chat=text");
  const teacherDestination=exhausted?"/account#settings-gemini":"/teacher/live?lesson=daily_u1_l1";
  const cta=hasKey?"world.chatWithFriend":exhausted?"world.chatExhausted":trialAvailable?"world.chatTrialWith":"world.chatNeutralWith";
  const gameId=deepLink.tab==="play"&&deepLink.game?deepLink.game:"1a2b";

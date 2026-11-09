@@ -107,5 +107,11 @@
     "preparing": "Menyiapkan obrolan",
     "free": "Obrolan bebas"
   },
-  "kicker": "Teman Crew"
+  "kicker": "Teman Crew",
+  "textStarters": {
+    "heading": "Ketuk satu kalimat untuk langsung mengobrol",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }

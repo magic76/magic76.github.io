@@ -112,17 +112,17 @@
     "fortuneDescription": "Explora tu carta con un amigo de IA.",
     "timelineTitle": "Cada vida tiene otro capítulo",
     "timelineDescription": "Conoce a distintas personas en diferentes etapas de su vida.",
-    "chatHeading": "Habla con un amigo de IA",
+    "chatHeading": "Chatea por texto con AI",
     "chatSubtitle": "Sin registro. Habla gratis durante 5 minutos.",
     "chatStart": "Empezar a hablar gratis",
-    "chatWithZoe": "Hablar con Zoe",
-    "chatNeutral": "Empieza a hablar con Zoe",
-    "chatTrial": "Habla 5 minutos gratis con Zoe",
+    "chatWithZoe": "Inicia un chat de texto con Zoe",
+    "chatNeutral": "Inicia un chat de texto con Zoe",
+    "chatTrial": "Chatea gratis por texto con Zoe",
     "teacherTrial": "Clase oral gratis de 5 minutos",
     "preparing": "Preparando…",
-    "chatTrialWith": "Habla gratis con {{name}} durante 5 minutos",
-    "chatNeutralWith": "Empieza a hablar con {{name}}",
-    "chatWithFriend": "Habla con {{name}}",
+    "chatTrialWith": "Chatea gratis por texto con {{name}}",
+    "chatNeutralWith": "Inicia un chat de texto con {{name}}",
+    "chatWithFriend": "Chatea por texto con {{name}}",
     "shortsFallback": "Pregunta por esta foto",
     "game1a2b": "Jugar 1A2B ahora",
     "gameConnect4": "Jugar Conecta 4",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "¡Hola! ¿Charlamos un rato?",
-    "start": "Chatear",
+    "start": "Chat de texto",
     "setup": "Config. Key"
   }
 }

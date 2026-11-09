@@ -52,7 +52,8 @@ test("SSR renders chat, and only mount effect applies sanitized URL hints",()=>{
  assert.match(portal,/shorts_chat_click","shorts_home"/);
  assert.match(portal,/friendId==="zoe"\?HOME_ZOE/);
  assert.match(portal,/mode==="play"\?"\/games\/"\+gameId/);
- assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini"/);
+ assert.match(portal,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
+ assert.match(portal,/&from=home&chat=text/);
  assert.doesNotMatch(portal,/pushState|replaceState|setInterval|location.search.*(prompt|system)/);
  assert.match(home,/fetchShortsFeed\(controller.signal\)/);
  assert.equal((home.match(/fetchShortsFeed\(controller.signal\)/g)||[]).length,1);
@@ -75,6 +76,6 @@ test("deep-link translations are string leaves in all eleven locales",()=>{
    assert.ok(world[key].length>0);
   }
   for(const key of ["chatTrialWith","chatNeutralWith","chatWithFriend"])assert.match(world[key],/\{\{name\}\}/);
-  assert.match(world.chatTrialWith,/5/);
+  assert.doesNotMatch(world.chatTrialWith,/5/);
  }
 });

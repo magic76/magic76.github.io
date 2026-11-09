@@ -112,17 +112,17 @@
     "fortuneDescription": "Explorez votre thème avec un ami IA.",
     "timelineTitle": "Chaque vie a un nouveau chapitre",
     "timelineDescription": "Rencontrez des personnes à différents âges et découvrez leurs histoires.",
-    "chatHeading": "Parlez avec un ami IA",
+    "chatHeading": "Discute par écrit avec AI",
     "chatSubtitle": "Sans inscription. Discutez gratuitement pendant 5 minutes.",
     "chatStart": "Discuter gratuitement",
-    "chatWithZoe": "Parler avec Zoe",
-    "chatNeutral": "Commencer à parler avec Zoe",
-    "chatTrial": "Parler 5 min gratuitement avec Zoe",
+    "chatWithZoe": "Commence une discussion écrite avec Zoe",
+    "chatNeutral": "Commence une discussion écrite avec Zoe",
+    "chatTrial": "Écris gratuitement à Zoe",
     "teacherTrial": "Cours d’oral gratuit de 5 min",
     "preparing": "Préparation…",
-    "chatTrialWith": "Discute gratuitement 5 minutes avec {{name}}",
-    "chatNeutralWith": "Commencer à parler avec {{name}}",
-    "chatWithFriend": "Parler avec {{name}}",
+    "chatTrialWith": "Écris gratuitement à {{name}}",
+    "chatNeutralWith": "Commence une discussion écrite avec {{name}}",
+    "chatWithFriend": "Discute par écrit avec {{name}}",
     "shortsFallback": "Pose une question sur cette photo",
     "game1a2b": "Jouer à 1A2B",
     "gameConnect4": "Jouer à Puissance 4",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Coucou, on discute un peu ?",
-    "start": "Discuter",
+    "start": "Écrire",
     "setup": "Régler Key"
   }
 }

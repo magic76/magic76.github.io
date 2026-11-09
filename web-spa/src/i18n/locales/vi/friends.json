@@ -107,5 +107,11 @@
     "preparing": "Đang chuẩn bị cuộc trò chuyện",
     "free": "Trò chuyện tự do"
   },
-  "kicker": "Bạn Crew"
+  "kicker": "Bạn Crew",
+  "textStarters": {
+    "heading": "Chạm vào một câu để bắt đầu trò chuyện ngay",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }
