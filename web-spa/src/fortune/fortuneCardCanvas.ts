@@ -65,12 +65,16 @@ function fitTitle(ctx:CanvasRenderingContext2D,title:string,maxWidth:number){
  }
  ctx.font="800 "+size+"px system-ui,sans-serif";
 }
-function drawFrame(ctx:CanvasRenderingContext2D,paint:Palette){
- // Narrow, angular HUD border on a pale neutral field. Never add a colored outer poster.
- ctx.save();ctx.strokeStyle=paint.line;ctx.lineWidth=3;
+/** The silhouette defines the actual PNG alpha mask, not just a decorative outline. */
+function cardSilhouette(ctx:CanvasRenderingContext2D){
  ctx.beginPath();
  ctx.moveTo(83,35);ctx.lineTo(995,35);ctx.lineTo(1041,80);ctx.lineTo(1041,1260);
- ctx.lineTo(994,1315);ctx.lineTo(86,1315);ctx.lineTo(39,1267);ctx.lineTo(39,81);ctx.closePath();ctx.stroke();
+ ctx.lineTo(994,1315);ctx.lineTo(86,1315);ctx.lineTo(39,1267);ctx.lineTo(39,81);ctx.closePath();
+}
+function drawFrame(ctx:CanvasRenderingContext2D,paint:Palette){
+ // Keep all graphics inside the chamfered card. Canvas outside is transparent.
+ ctx.save();ctx.strokeStyle=paint.line;ctx.lineWidth=3;
+ cardSilhouette(ctx);ctx.stroke();
  ctx.strokeStyle="#ffffff";ctx.lineWidth=3;
  ctx.beginPath();ctx.moveTo(112,46);ctx.lineTo(348,46);ctx.moveTo(733,46);ctx.lineTo(969,46);
  ctx.moveTo(54,117);ctx.lineTo(54,275);ctx.moveTo(1026,1081);ctx.lineTo(1026,1243);ctx.stroke();
@@ -120,6 +124,9 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
  const invite=fortuneCopy(locale);
  const bg=ctx.createLinearGradient(0,0,1080,1350);
  bg.addColorStop(0,"#f9f8fc");bg.addColorStop(.55,"#f4f2f9");bg.addColorStop(1,"#eae8f5");
+ // A fresh canvas begins transparent. Clip even shadows so no flat poster remains
+ // outside the futuristic border in either preview or downloaded PNG.
+ ctx.save();cardSilhouette(ctx);ctx.clip();
  ctx.fillStyle=bg;ctx.fillRect(0,0,1080,1350);
  drawFrame(ctx,paint);
  ctx.save();ctx.shadowColor="#38314b27";ctx.shadowBlur=33;ctx.shadowOffsetY=10;
@@ -140,28 +147,43 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
  const primary=detail?.core&&(lang==="zh-TW"||lang==="en")?detail.core:model.tagline;
  const behavior=detail?.behavior&&(lang==="zh-TW"||lang==="en")?detail.behavior:copy.action;
  const tension=detail?.tension&&(lang==="zh-TW"||lang==="en")?detail.tension:copy.reminder;
- section(ctx,copy.headings[0],primary,864,paint);
- line(ctx,122,937,965,937,"#eae7f2",2);
- section(ctx,copy.headings[1],behavior,964,paint);
- line(ctx,122,1038,965,1038,"#eae7f2",2);
- section(ctx,copy.headings[2],tension,1065,paint);
- line(ctx,98,1157,982,1157,"#eae7f2",2);
- ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";ctx.fillText(copy.traits,101,1192);
+ section(ctx,copy.headings[0],primary,854,paint);
+ line(ctx,122,935,965,935,"#eae7f2",2);
+ section(ctx,copy.headings[1],behavior,956,paint);
+ line(ctx,122,1037,965,1037,"#eae7f2",2);
+ section(ctx,copy.headings[2],tension,1058,paint);
+ line(ctx,98,1139,982,1139,"#eae7f2",2);
+ ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";ctx.fillText(copy.traits,101,1162);
  let x=101;
  for(const chip of model.chips.slice(0,3)){
   ctx.font="650 24px system-ui,sans-serif";
   const width=Math.min(300,ctx.measureText(chip).width+54);
   if(x+width>974)break;
-  rounded(ctx,x,1204,width,46,23,paint.chip);
-  strokeRounded(ctx,x,1204,width,46,23,"#dcd4ee",1);
-  ctx.fillStyle=paint.accent;ctx.fillText(chip,x+27,1236);x+=width+13;
+  rounded(ctx,x,1174,width,39,20,paint.chip);
+  strokeRounded(ctx,x,1174,width,39,20,"#dcd4ee",1);
+  ctx.fillStyle=paint.accent;ctx.fillText(chip,x+27,1202);x+=width+13;
  }
  // No private birth dates or individual five-element values appear in a public invite.
  const validDate=Number.isNaN(generatedAt.getTime())?new Date():generatedAt;
  const date=new Intl.DateTimeFormat(locale,{year:"numeric",month:"short",day:"numeric"}).format(validDate);
- ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";ctx.fillText(date,95,1303);
- ctx.font="750 26px system-ui,sans-serif";ctx.textAlign="right";
- ctx.fillText(model.cta,984,1303);ctx.textAlign="left";
+ // Footer belongs INSIDE the white card, above its bottom edge (y=1269).
+ // Reserve space for the left date, then fit or shorten the invitation link.
+ line(ctx,98,1221,982,1221,"#eae7f2",2);
+ ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";
+ ctx.fillText(date,101,1249);
+ const minLinkX=101+ctx.measureText(date).width+24;
+ const available=Math.max(0,982-minLinkX);
+ let footer=model.cta;
+ let size=25;
+ while(size>18){
+  ctx.font="750 "+size+"px system-ui,sans-serif";
+  if(ctx.measureText(footer).width<=available)break;
+  size-=1;
+ }
+ if(ctx.measureText(footer).width>available)footer="3sssi.com/fortune";
+ ctx.font="750 "+size+"px system-ui,sans-serif";
+ ctx.textAlign="right";ctx.fillText(footer,982,1249);ctx.textAlign="left";
+ ctx.restore();
  return canvas;
 }
 export function collectiblePngFile(canvas:HTMLCanvasElement,name="crew-fortune.png"):File{
