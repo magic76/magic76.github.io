@@ -9,7 +9,7 @@ function mockDb(){
  const sessions=new Map(),usage=new Map(),daily=new Map();
  const key=(a,b)=>a+"|"+b;
  const db={sessions,usage,daily,prepare(sql){
-  return {bind(...args){return{
+  return {async run(){if(sql.startsWith("CREATE TABLE IF NOT EXISTS"))return {meta:{changes:0}};throw Error("Unexpected direct RUN: "+sql)},bind(...args){return{
    async first(){
     if(sql.startsWith("SELECT used FROM crew_guest_text_usage"))return usage.get(key(args[0],args[1]))||null;
     if(sql.startsWith("SELECT visitor_hash,expires_at FROM crew_guest_text_sessions"))return sessions.get(args[0])||null;
