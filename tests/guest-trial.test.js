@@ -13,8 +13,11 @@ async function loadStandaloneWorker(){
  const videoSource=fs.readFileSync(path.join(root,"workers/guest-trial/video-tts.mjs"),"utf8");
  const videoUrl="data:text/javascript;base64,"+Buffer.from(videoSource).toString("base64");
  const workerRaw=fs.readFileSync(path.join(root,"workers/guest-trial/worker.mjs"),"utf8");
+ const textSource=fs.readFileSync(path.join(root,"workers/guest-trial/text-chat.mjs"),"utf8");
+ const textUrl="data:text/javascript;base64,"+Buffer.from(textSource).toString("base64");
  const workerSource=workerRaw
-  .replace('import {onRequestGet,onRequestPost,selectGuestGeminiKey} from "../../functions/api/guest/token.js";', 'const {onRequestGet,onRequestPost,selectGuestGeminiKey}=await import("'+backendUrl+'");')
+  .replace('import {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha} from "../../functions/api/guest/token.js";', 'const {onRequestGet,onRequestPost,selectGuestGeminiKey,verifyCaptcha}=await import("'+backendUrl+'");')
+  .replace('import {onTextRequest} from "./text-chat.mjs";', 'const {onTextRequest}=await import("'+textUrl+'");')
   .replace('import {pollVideoTtsQueue,videoTtsResult} from "./video-tts.mjs";', 'const {pollVideoTtsQueue,videoTtsResult}=await import("'+videoUrl+'");');
  assert.notEqual(workerRaw,workerSource);
  assert.ok(!workerSource.includes('from "../../functions/api/guest/'));
