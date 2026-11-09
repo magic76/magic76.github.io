@@ -2,7 +2,7 @@ import {ensureLive,type LiveSession} from "../lib/runtime";
 import {extractGroundingSources,extractSearchSuggestions,mergeGroundingSources,type GroundingSource} from "./grounding";
 
 export type LiveTextAnswer={text:string;sources:GroundingSource[];searchSuggestions?:string};
-type Pending={resolve:(answer:LiveTextAnswer)=>void;reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>};
+type Pending={resolve:(answer:LiveTextAnswer)=>void;reject:(error:Error)=>void;timer:ReturnType<typeof setTimeout>;idleTimer?:ReturnType<typeof setTimeout>;onPartial?:(text:string)=>void};
 
 /** Persistent Gemini Live keyboard conversation: input text, output transcription, no microphone. */
 export class LiveTextConversation{
@@ -19,8 +19,25 @@ export class LiveTextConversation{
   const pending=this.pending;
   if(!pending)return;
   this.pending=null;clearTimeout(pending.timer);
+  if(pending.idleTimer)clearTimeout(pending.idleTimer);
   if(error)pending.reject(error);
   else if(answer)pending.resolve(answer);
+ }
+ private finishFromTranscript(){
+  if(!this.pending||!this.transcript.trim())return false;
+  this.settle(undefined,{text:this.transcript.trim(),sources:this.sources,searchSuggestions:this.suggestions||undefined});
+  // The server never confirmed turnComplete; the next typed message must use
+  // a clean socket to prevent late frames from the previous turn leaking in.
+  this.shutdown();
+  return true;
+ }
+ private scheduleTranscriptCompletion(delay=3200){
+  const pending=this.pending;
+  if(!pending||!this.transcript.trim())return;
+  if(pending.idleTimer)clearTimeout(pending.idleTimer);
+  // Some native-audio turns stream a full transcript but delay turnComplete.
+  // Use a quiet-period fallback instead of blocking the user for 40 seconds.
+  pending.idleTimer=setTimeout(()=>{if(this.pending===pending)this.finishFromTranscript()},delay);
  }
  private shutdown(){
   const session=this.session;
@@ -41,7 +58,16 @@ export class LiveTextConversation{
      openingPrompt:"",voice:"Kore",volume:0,connectTimeoutMs:12000,
      ...(this.searchEnabled?{tools:[{googleSearch:{}}]}:{}),
      onStatus:status=>{if(!this.closed)this.onStatus?.(status)},
-     onOutputTranscript:text=>{this.transcript=text},
+     onOutputTranscript:text=>{
+      this.transcript=text;
+      this.pending?.onPartial?.(text);
+      this.scheduleTranscriptCompletion();
+     },
+     onGenerationComplete:text=>{
+      if(text)this.transcript=text;
+      // generationComplete can arrive before the very last transcript frame.
+      this.scheduleTranscriptCompletion(1800);
+     },
      onGrounding:metadata=>{
       this.sources=mergeGroundingSources(this.sources,extractGroundingSources(metadata));
       const suggestions=extractSearchSuggestions(metadata);
@@ -69,13 +95,13 @@ export class LiveTextConversation{
   }
   await this.connecting;
  }
- async send(text:string):Promise<LiveTextAnswer>{
+ async send(text:string,onPartial?:(text:string)=>void):Promise<LiveTextAnswer>{
   if(this.pending)throw new Error("Gemini Live reply still pending");
   await this.connect();
   if(this.closed||!this.session?.ready)throw new Error("Gemini Live connection unavailable");
   this.transcript="";this.sources=[];this.suggestions="";
   return new Promise<LiveTextAnswer>((resolve,reject)=>{
-   const pending:Pending={resolve,reject,timer:setTimeout(()=>{
+   const pending:Pending={resolve,reject,onPartial,timer:setTimeout(()=>{
     if(this.pending!==pending)return;
     this.settle(new Error("Gemini Live text reply timeout"));
     this.shutdown();

@@ -876,6 +876,7 @@
 
     var self=this;
     var turnComplete=!!(server.turnComplete||server.turn_complete);
+    var generationComplete=!!(server.generationComplete||server.generation_complete);
     var interrupted=!!server.interrupted;
 
     if(interrupted){
@@ -935,6 +936,11 @@
       });
     }
 
+    // GenerationComplete may precede turnComplete, especially for native audio.
+    // Text sessions can consume the final transcript without waiting for audio playback.
+    if(this.textOnly&&generationComplete&&this.options.onGenerationComplete&&!suppressOutput){
+      this.options.onGenerationComplete(this.outputTurn);
+    }
     if(turnComplete){
       if(suppressOutput){
         this.outputTurn="";
@@ -1089,7 +1095,9 @@
       var finished=false;
       var url=self.guestMode
         ?"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1beta.GenerativeService.BidiGenerateContentConstrained?access_token="+encodeURIComponent(self._deps.getKey())
-        :"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
+        // Current Gemini 3.8 Live keyboard API uses v1beta. Keep the already
+        // validated voice transport on v1alpha until its migration is tested.
+        :"wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage."+(self.textOnly?"v1beta":"v1alpha")+".GenerativeService.BidiGenerateContent?key="+encodeURIComponent(self._deps.getKey());
       var socket=new WSCtor(url);
       try{socket.binaryType="arraybuffer";}catch(_){}
       attempt.socket=socket;
