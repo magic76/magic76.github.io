@@ -1185,3 +1185,56 @@ test("input Worklet sends 16kHz frames and releases its processor after stop",as
   assert.equal(inputNode.disconnected,true);
   assert.equal(session.getMicHealth().captureMode,"none");
 });
+
+
+test("keyboard-only Gemini 3.8 Live sends text and receives transcript without mic or audio playback",async()=>{
+ resetSockets();
+ let micRequests=0,audioContexts=0;
+ const turns=[],statuses=[];
+ const session=new CrewLive.Session({
+  textOnly:true,models:["gemini-3.8-live"],maxLiveAttempts:1,
+  connectTimeoutMs:150,openingPrompt:"The model must not greet before the user types",
+  deps:{
+   WebSocket:MockWebSocket,getKey:()=>"test-key",
+   getUserMedia:async()=>{micRequests++;throw Error("mic should not be requested")},
+   createAudioContext:()=>{audioContexts++;throw Error("audio should not be initialized")},
+   logger:{info(){}}
+  },
+  onStatus:s=>statuses.push(s),onTurnComplete:t=>turns.push(t)
+ });
+ const starting=session.start();
+ const socket=await waitForSocket(0);
+ socket.open();
+ const setup=socket.sent[0].setup;
+ assert.equal(setup.model,"models/gemini-3.8-live");
+ assert.deepEqual(setup.generationConfig.responseModalities,["AUDIO"]);
+ assert.deepEqual(setup.outputAudioTranscription,{});
+ assert.equal("inputAudioTranscription" in setup,false);
+ socket.message({setupComplete:{}});
+ await starting;
+ assert.equal(micRequests,0);assert.equal(audioContexts,0);
+ assert.equal(session.captureMode,"none");
+ assert.equal(session.ready,true);
+ assert.equal(socket.sent.length,1,"no microphone frames or unsolicited greeting");
+ assert.match(statuses.at(-1),/文字/);
+ assert.equal(session.sendText("Hello Live!"),true);
+ assert.deepEqual(socket.sent[1].clientContent.turns,[{role:"user",parts:[{text:"Hello Live!"}]}]);
+ const pcm=Buffer.alloc(4800).toString("base64");
+ socket.message({serverContent:{
+  outputTranscription:{text:"Hello! What would you like to practice?"},
+  modelTurn:{parts:[{inlineData:{mimeType:"audio/pcm;rate=24000",data:pcm}}]},
+  turnComplete:true
+ }});
+ assert.equal(turns.length,1);
+ assert.equal(turns[0].input,"Hello Live!");
+ assert.equal(turns[0].output,"Hello! What would you like to practice?");
+ assert.equal(session.outputContext,null);
+ assert.equal(session.sources.length,0);
+ assert.equal(session.completedTurns,1);
+ assert.equal(session.sendText("Ask another question"),true);
+ socket.message({serverContent:{modelTurn:{parts:[{text:"What did you do today?"}]},turnComplete:true}});
+ assert.equal(turns[1].output,"What did you do today?");
+ await session.stop({silentStatus:true,emitTerminal:false});
+ assert.equal(socket.sent.some(item=>Boolean(item.realtimeInput&&item.realtimeInput.audioStreamEnd)),false);
+ assert.equal(micRequests,0);
+});
