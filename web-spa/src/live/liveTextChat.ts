@@ -26,6 +26,9 @@ export class LiveTextConversation{
  private finishFromTranscript(){
   if(!this.pending||!this.transcript.trim())return false;
   this.settle(undefined,{text:this.transcript.trim(),sources:this.sources,searchSuggestions:this.suggestions||undefined});
+  // The server never confirmed turnComplete; the next typed message must use
+  // a clean socket to prevent late frames from the previous turn leaking in.
+  this.shutdown();
   return true;
  }
  private scheduleTranscriptCompletion(delay=3200){
@@ -63,7 +66,7 @@ export class LiveTextConversation{
      onGenerationComplete:text=>{
       if(text)this.transcript=text;
       // generationComplete can arrive before the very last transcript frame.
-      this.scheduleTranscriptCompletion(750);
+      this.scheduleTranscriptCompletion(1800);
      },
      onGrounding:metadata=>{
       this.sources=mergeGroundingSources(this.sources,extractGroundingSources(metadata));
