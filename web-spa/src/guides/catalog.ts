@@ -155,7 +155,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    title:"Gemini API Key 免費申請教學：Crew Teacher 語音練習設定｜Crew",
    description:"第一次使用 Crew Teacher？了解如何透過 Google AI Studio 建立 Gemini API Key、在網站驗證與允許麥克風，以及免費額度的重要限制。",
    label:"GEMINI API KEY 設定",headline:"免費試用 Crew 語音後，如何設定自己的 Gemini API Key",
-   intro:"Crew Web 可先免費試用 3 分鐘 AI 語音，用完後再設定自己的 Gemini API Key。申請 API Key 通常不需要付 Crew 費用，但 Google 是否提供免費額度、模型是否支援，以及是否需要開通計費，都以你的 Google 專案設定為準。",
+   intro:"Crew Web 可先免費試用 5 分鐘 AI 語音，用完後再設定自己的 Gemini API Key。申請 API Key 通常不需要付 Crew 費用，但 Google 是否提供免費額度、模型是否支援，以及是否需要開通計費，都以你的 Google 專案設定為準。",
    bullets:["從 Google AI Studio 建立 API Key，不要向陌生網站購買 Key。","在 Crew 的共用設定頁貼上並驗證，避免每個功能重複設定。","不要把 Key 公開貼在論壇、截圖或聊天室。"],
    sections:[
     {heading:"Step 1：在 Google AI Studio 建立 API Key",paragraphs:["前往 Google AI Studio，使用自己的 Google 帳號建立或選取專案，依畫面指引產生 Gemini API Key。部分模型和功能的免費／付費條件不同，請先確認 Google 顯示的配額。","如果介面要求啟用計費，先評估你選用的 Live 模型是否在免費額度內，無需為了進入 Crew 而盲目開通付費。"]},
@@ -172,7 +172,7 @@ export const guides:Record<GuideSlug,Record<GuideLocale,GuideContent>>={
    title:"How to Get a Gemini API Key for Crew Teacher Voice Practice | Crew",
    description:"Set up a Gemini API key with Google AI Studio, verify it in Crew Teacher, enable microphone permissions, and understand free tier and billing limits.",
    label:"GEMINI API KEY SETUP",headline:"Try Crew voice for free, then set up your Gemini API key",
-   intro:"Crew Web does not require a separate Crew account for voice practice. You can first try three minutes of free AI voice, then connect with your own Gemini API key after the trial. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
+   intro:"Crew Web does not require a separate Crew account for voice practice. You can first try five minutes of free AI voice, then connect with your own Gemini API key after the trial. Free allowances, supported models and billing requirements depend on your Google project and chosen model.",
    bullets:["Create the key through Google AI Studio, not an unofficial seller.","Verify it once in Crew's shared settings page.","Never post the key in screenshots, chats or public code."],
    sections:[
     {heading:"Step 1: Create a key in Google AI Studio",paragraphs:["Sign in to Google AI Studio with your Google account. Select or create a project and generate a Gemini API key using the official setup flow.","Check the displayed quota and pricing before enabling billing, particularly for Gemini Live models. A free-tier option for one model does not guarantee free Live voice usage for every model."]},
