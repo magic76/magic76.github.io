@@ -17,6 +17,17 @@ test("Portal keeps the cloud-free live particle design and softly lights the inn
  assert.doesNotMatch(field,/THREE|new WebGLRenderingContext/);
 });
 
+test("Hero primary CTA paints above the copy scrim, with a solid unshadowed label",()=>{
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(css,/\\.crew-portal-cta\\{position:relative;z-index:5;isolation:isolate;text-shadow:none;/);
+ assert.match(css,/\\.crew-portal-cta \\.crew-portal-cta-label,\\.crew-portal-cta \\.crew-portal-cta-arrow\\{position:relative;z-index:1;text-shadow:none\\}/);
+ assert.match(css,/background:#f5eee6;color:#22182c/);
+ assert.match(css,/\\.crew-portal-copy::before\\{[^}]*inset:-20px -22px -10px/);
+ assert.match(css,/\\.crew-portal-copy::before\\{inset:-40px -80px -12px -60px\\}/);
+ assert.match(css,/\\.crew-portal-copy::before\\{inset:-20px -40px -10px -28px\\}/);
+ assert.doesNotMatch(css,/\\.crew-portal-copy::before\\{[^}]*-85px/);
+});
+
 test("Crew homepage keeps one manual tab portal before Shorts and exploration",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const portal=read("web-spa/src/pages/HomePortal.tsx");
