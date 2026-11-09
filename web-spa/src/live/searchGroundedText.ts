@@ -11,7 +11,13 @@ export async function searchGroundedText(prompt:string,system:string):Promise<Gr
    body:JSON.stringify({systemInstruction:{parts:[{text:system}]},contents:[{role:"user",parts:[{text:prompt.slice(0,4500)}]}],
     tools:[{googleSearch:{}}],generationConfig:{temperature:0.35,maxOutputTokens:1600}})
   });
-  if(!response.ok)throw Error("Search request failed ("+response.status+")");
+  if(!response.ok){
+   // Distinguish rejected keys and quota exhaustion from unsupported Search.
+   // Never include URLs, credentials or provider response bodies in UI errors.
+   const status=response.status;
+   const kind=status===401?"key":status===429?"quota":[400,403,404].includes(status)?"model":"service";
+   throw Object.assign(new Error("Search request failed ("+status+")"),{kind,status});
+  }
   const data=await response.json(),candidate=data?.candidates?.[0];
   const text=(candidate?.content?.parts||[]).map((part:{text?:unknown})=>typeof part.text==="string"?part.text:"").join("").trim();
   if(!text)throw Error("Empty response");
