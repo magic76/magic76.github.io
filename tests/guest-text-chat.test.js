@@ -175,13 +175,13 @@ test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  const adapter=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/liveTextChat.ts"),"utf8");
  const transport=fs.readFileSync(path.join(__dirname,"../crew-live.js"),"utf8");
  assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
- assert.match(panel,/liveChat\\.current\\.send\\(value\\)/);
- assert.match(adapter,/textOnly:true,models:\\["gemini-3\\.8-live"\\]/);
+ assert.match(panel,/liveChat\.current\.send\(value\)/);
+ assert.match(adapter,/textOnly:true,models:\["gemini-3\.8-live"\]/);
  assert.match(adapter,/outputAudioTranscription|onOutputTranscript/);
  assert.match(adapter,/onTurnComplete:turn=>/);
  assert.match(adapter,/googleSearch/);
- assert.match(transport,/this\\.textOnly=this\\.options\\.textOnly===true/);
- assert.match(transport,/if\\(this\\.textOnly\\)return/);
+ assert.match(transport,/this\.textOnly=this\.options\.textOnly===true/);
+ assert.match(transport,/if\(this\.textOnly\)return/);
  assert.match(panel,/category==="quota"/);
  assert.match(panel,/category==="model"/);
 });
