@@ -180,7 +180,7 @@ test("BYOK text now uses a persistent Gemini Live keyboard session",()=>{
  assert.match(adapter,/outputAudioTranscription|onOutputTranscript/);
  assert.match(adapter,/onTurnComplete:turn=>/);
  // Standard keyboard practice must not request Search quota on every turn.
- assert.doesNotMatch(adapter,/tools:\\[\\{googleSearch:/);
+ assert.equal(adapter.includes("tools:[{googleSearch:"),false);
  assert.match(adapter,/Do not claim live web search access/);
  assert.match(transport,/this\.textOnly=this\.options\.textOnly===true/);
  assert.match(transport,/if\(this\.textOnly\)return/);
@@ -194,5 +194,5 @@ test("a Live 429 error is not presented as exhausted API key quota",()=>{
  assert.doesNotMatch(panel,/目前的 Gemini API 配額已用完/);
  assert.match(panel,/不代表整把 API Key 的額度已用完/);
  assert.match(panel,/429：速率或用量限制/);
- assert.doesNotMatch(adapter,/tools:\[\{googleSearch:/);
+ assert.equal(adapter.includes("tools:[{googleSearch:"),false);
 });
