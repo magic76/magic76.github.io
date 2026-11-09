@@ -130,6 +130,15 @@ export function buildReportPrompt(mode:FortuneMode,result:any,style:string,optio
  };
  const source:Record<string,unknown>={};
  for(const key of fields[mode])if(result?.[key]!==undefined)source[key]=result[key];
+ // Weighted elements are decimal presentation data. Normalize the AI-facing copy
+ // without mutating calculations, historical readings or unrelated coordinates.
+ if(mode==="bazi"&&source.weightedFiveElements&&typeof source.weightedFiveElements==="object"){
+  source.weightedFiveElements=Object.fromEntries(
+   Object.entries(source.weightedFiveElements as Record<string,unknown>).map(([element,value])=>
+    [element,typeof value==="number"&&Number.isFinite(value)?Math.round(value*100)/100:value]
+   )
+  );
+ }
  const now=new Date();
  const today=options?.today||[now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
  const lang=options?.locale||"繁體中文";
