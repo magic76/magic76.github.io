@@ -1,4 +1,5 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {createTypingReveal} from "./typingReveal";
 import {GroundingSources} from "./GroundingSources";
 import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState,type FormEvent} from "react";
@@ -33,6 +34,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const [error,setError]=useState("");
  const [liveStatus,setLiveStatus]=useState("");
  const liveChat=useRef<LiveTextConversation|null>(null);
+ const typingRef=useRef<ReturnType<typeof createTypingReveal>|null>(null);
  // A stale, unverified browser key must not silently block free practice.
  const [useGuest,setUseGuest]=useState(()=>!geminiKey()||!geminiVerified());
  const [guestPhase,setGuestPhase]=useState<GuestPhase>("checking");
@@ -47,8 +49,11 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
  const hasKey=Boolean(geminiKey());
  const guestMode=useGuest||!hasKey;
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false}},[]);
- useEffect(()=>()=>{liveChat.current?.close();liveChat.current=null},[guestMode,system,searchEnabled]);
- useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length]);
+ useEffect(()=>()=>{
+  typingRef.current?.cancel();typingRef.current=null;
+  liveChat.current?.close();liveChat.current=null;
+ },[guestMode,system,searchEnabled]);
+ useEffect(()=>{bottom.current?.scrollIntoView({block:"end",behavior:"auto"})},[messages.length,messages.at(-1)?.text.length]);
  useEffect(()=>{
   if(!guestMode)return;
   const controller=new AbortController();
@@ -114,6 +119,13 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
    setError(english?"Start free text practice first.":"請先開始免費文字練習。");return;
   }
   const next:Message[]=[...messages,{role:"user",text:value}];
+  const answerIndex=next.length;
+  const updateLiveAnswer=(text:string)=>{
+   if(!mounted.current)return;
+   setMessages(previous=>[...previous.slice(0,answerIndex),{role:"assistant",text}]);
+  };
+  const reveal=key?createTypingReveal(updateLiveAnswer):null;
+  typingRef.current=reveal;
   setMessages(next);setDraft("");setBusy(true);setError("");
   try{
    let reply="",sources:GroundingSource[]|undefined,searchSuggestions:string|undefined;
@@ -122,7 +134,7 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     // microphone-free session begins when entering text mode.
     if(!liveChat.current)liveChat.current=new LiveTextConversation(system,searchEnabled,
      status=>{if(mounted.current)setLiveStatus(status)});
-    const answer=await liveChat.current.send(value);
+    const answer=await liveChat.current.send(value,partial=>reveal?.push(partial));
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
@@ -144,18 +156,27 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
     if(typeof data.remaining==="number")setRemaining(data.remaining);
    }
    if(!reply)throw Error("Empty reply");
-   if(mounted.current)setMessages(m=>[...m,{role:"assistant",text:reply,sources,searchSuggestions}]);
+   if(key&&reveal){
+    // Finish the visible character animation before releasing the send form.
+    await reveal.finish(reply);
+    if(mounted.current)setMessages(m=>[...m.slice(0,answerIndex),{role:"assistant",text:reply,sources,searchSuggestions}]);
+   }else if(mounted.current)setMessages(m=>[...m,{role:"assistant",text:reply,sources,searchSuggestions}]);
   }catch(reason){
+   reveal?.cancel();
    if(mounted.current){
     setMessages(messages);setDraft(value);
     const type=reason instanceof Error?reason.message:"";
     const detail=reason as Error&{kind?:string;status?:number};
     const status=Number(detail?.status)||Number(type.match(/\b([45]\d{2})\b/)?.[1])||0;
     const category=detail?.kind||
-     ([401,403].includes(status)?"key":status===429?"quota":[400,404].includes(status)?"model":"service");
+     (/RESOURCE_EXHAUSTED|quota/i.test(type)||status===429?"quota":
+      /NOT_FOUND|unsupported model|model not found/i.test(type)||[400,404].includes(status)?"model":
+      /UNAUTHENTICATED|PERMISSION_DENIED|invalid.*key/i.test(type)||[401,403].includes(status)?"key":"service");
     const byokMessage=category==="key"?(english?"This Gemini key is invalid or lacks permission.":"目前的 Gemini Key 無效或沒有存取權限。")
      :category==="quota"?(english?"Your Gemini API quota has been reached.":"目前的 Gemini API 配額已用完。")
      :category==="model"?(english?"The Gemini text model is unavailable for this key.":"目前的 Gemini Key 無法使用這個文字模型。")
+     :/transcri|no text|no reply/i.test(type)?(english?"Gemini Live connected but returned no text transcript.":"Gemini Live 已連線，但沒有收到文字轉錄。")
+     :/1006|WebSocket|socket|setup/i.test(type)?(english?"Gemini Live WebSocket connection was interrupted or rejected. Please retry.":"Gemini Live WebSocket 連線中斷或遭拒，請重試。")
      :(english?"Gemini Live text connection failed. Retry or switch to free practice.":"Gemini Live 文字連線失敗，請重試或改用免費文字練習。");
     setError(type==="SESSION_EXPIRED"
      ?english?"Session expired. Verify to resume free text practice.":"免費連線已到期，請重新驗證後繼續。"
@@ -167,7 +188,10 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
      ?byokMessage
      :english?"Could not get a reply. Please try again.":"暫時無法取得回覆，請稍後重試。");
    }
-  }finally{if(mounted.current)setBusy(false)}
+  }finally{
+   if(typingRef.current===reveal)typingRef.current=null;
+   if(mounted.current)setBusy(false);
+  }
  }
  return <section className="crew-text-chat" aria-label={english?"Text chat":"文字聊天"}>
   {hasKey&&<div className="crew-text-mode-choice">
@@ -193,8 +217,9 @@ export function TextChatPanel({system,speaker,english=false,searchEnabled=false,
   </div>}
   <div className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
-   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}</div>)}
-   {busy&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
+   {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
+   {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
+   {busy&&messages.at(-1)?.role!=="assistant"&&<p className="crew-text-chat-pending" role="status">{speaker}{english?" is typing…":" 正在回覆…"}</p>}
    <div ref={bottom}/>
   </div>
   {error&&<p role="alert" className="crew-text-chat-error">{error}</p>}
