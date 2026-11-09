@@ -16,6 +16,7 @@ export type LiveSessionOptions={
  onOutputLevel?:(level:number)=>void; // optional output-only PCM envelope
  onMicMuted?:()=>void;onInputTranscript?:(text:string)=>void;onOutputTranscript?:(text:string)=>void;
  onTranscriptTurn?:(turn:LiveTurn,turns:LiveTurn[])=>void;onTurnComplete?:(turn:{hasValidOutput?:boolean;output?:string})=>void;
+ onGenerationComplete?:(output:string)=>void;
  onError?:(error:Error)=>void;onTerminal?:(info?:{status?:string;state?:string})=>void;onRecovered?:(event:{model:string;resumed:boolean})=>void;
 };
 export interface LiveSession{
