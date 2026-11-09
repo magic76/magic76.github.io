@@ -16,7 +16,7 @@ const DRAFT_KEY="crew_onboarding_draft_v1";
 type Goal="chat"|"learn"|"play"|"explore";
 const goals:readonly Goal[]=["chat","learn","play","explore"];
 // Send the visitor to a usable first experience, not a feature index.
-const destinations:Record<Goal,string>={chat:"/friend/live?id=zoe&from=home",learn:"/teacher/live?lesson=daily_u1_l1",play:"/games/number-bomb",explore:"/timeline"};
+const destinations:Record<Goal,string>={chat:"/friend/live?id=zoe&from=home&chat=text",learn:"/teacher/live?lesson=daily_u1_l1",play:"/games/number-bomb",explore:"/timeline"};
 
 function previousCrewActivity():boolean{
  // The UI locale preference is initialized even on a new visit: it is NOT a

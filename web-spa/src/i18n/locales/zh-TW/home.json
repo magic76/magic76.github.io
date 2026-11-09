@@ -112,17 +112,17 @@
     "fortuneDescription": "探索命盤，讓 AI 朋友陪你解讀。",
     "timelineTitle": "每一段人生，都有另一頁",
     "timelineDescription": "走進不同人物與年紀，聽見不一樣的故事。",
-    "chatHeading": "用說的，和 AI 朋友聊聊",
+    "chatHeading": "和 AI 文字聊天",
     "chatSubtitle": "不用註冊，現在就能免費聊 5 分鐘",
     "chatStart": "開始免費聊天",
-    "chatWithZoe": "和 Zoe 聊聊",
-    "chatNeutral": "和 Zoe 開始聊天",
-    "chatTrial": "免費和 Zoe 聊 5 分鐘",
+    "chatWithZoe": "打字和 Zoe 開聊",
+    "chatNeutral": "打字和 Zoe 開聊",
+    "chatTrial": "免費打字和 Zoe 聊天",
     "teacherTrial": "免費上一堂 5 分鐘口說課",
     "preparing": "準備中…",
-    "chatTrialWith": "免費和 {{name}} 聊 5 分鐘",
-    "chatNeutralWith": "和 {{name}} 開始聊天",
-    "chatWithFriend": "和 {{name}} 聊聊",
+    "chatTrialWith": "免費打字和 {{name}} 聊天",
+    "chatNeutralWith": "打字和 {{name}} 開聊",
+    "chatWithFriend": "和 {{name}} 文字聊天",
     "shortsFallback": "問問這張照片的故事",
     "game1a2b": "直接開一局 1A2B",
     "gameConnect4": "直接玩四子棋",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "嗨，要不要聊兩句？",
-    "start": "開聊",
+    "start": "文字開聊",
     "setup": "設定 Key"
   }
 }

@@ -3,8 +3,9 @@ import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {readSessionTranscript,writeSessionTranscript,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
+import {TextChatStarters} from "./TextChatStarters";
 import type {GroundingSource} from "./grounding";
-import {useEffect,useRef,useState,type FormEvent} from "react";
+import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
@@ -193,9 +194,8 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
    throw reason;
   }
  }
- async function send(event:FormEvent<HTMLFormElement>){
-  event.preventDefault();
-  const value=draft.trim().slice(0,1200);
+ async function sendMessage(text:string){
+  const value=text.trim().slice(0,1200);
   if(!value||busy)return;
   const key=guestMode?"":geminiKey();
   if(!key&&(guestPhase==="unavailable"||guestPhase==="exhausted"))return;
@@ -337,6 +337,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   </div>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
    {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
+   {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)}/>}
    {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">
@@ -347,7 +348,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   </div>
   {guestStatus&&<small className="crew-text-chat-progress" role="status">{guestStatus}</small>}
   {error&&<p role="alert" className="crew-text-chat-error">{error}</p>}
-  <form className="crew-text-chat-form" onSubmit={event=>void send(event)}>
+  <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
    <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
     const value=e.target.value;setDraft(value);
     const unsent=readPendingTextDraft(sessionScope);

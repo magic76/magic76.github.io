@@ -107,5 +107,11 @@
     "preparing": "Getting the chat ready",
     "free": "Free chat"
   },
-  "kicker": "Crew Friends"
+  "kicker": "Crew Friends",
+  "textStarters": {
+    "heading": "Tap a phrase to start chatting",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }

@@ -112,17 +112,17 @@
     "fortuneDescription": "AI の友だちと一緒に星や運勢を読み解こう。",
     "timelineTitle": "人生には、まだ次の章がある",
     "timelineDescription": "異なる年齢の人々に出会い、それぞれの物語を聞こう。",
-    "chatHeading": "AI の友だちと話そう",
+    "chatHeading": "AI と文字チャット",
     "chatSubtitle": "登録不要。今すぐ5分間無料で会話できます。",
     "chatStart": "無料で会話を始める",
-    "chatWithZoe": "Zoe と話す",
-    "chatNeutral": "Zoeと会話を始める",
-    "chatTrial": "Zoeと無料で5分話す",
+    "chatWithZoe": "Zoe と文字チャットを始める",
+    "chatNeutral": "Zoe と文字チャットを始める",
+    "chatTrial": "Zoe と無料で文字チャット",
     "teacherTrial": "5分間の無料スピーキングレッスン",
     "preparing": "準備中…",
-    "chatTrialWith": "{{name}} と5分間無料でおしゃべり",
-    "chatNeutralWith": "{{name}} と会話を始める",
-    "chatWithFriend": "{{name}} と話す",
+    "chatTrialWith": "{{name}} と無料で文字チャット",
+    "chatNeutralWith": "{{name}} と文字チャットを始める",
+    "chatWithFriend": "{{name}} と文字チャット",
     "shortsFallback": "この写真について聞いてみる",
     "game1a2b": "すぐに1A2Bを遊ぶ",
     "gameConnect4": "四目並べを遊ぶ",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "ねえ、少しおしゃべりしない？",
-    "start": "話そう",
+    "start": "文字で話す",
     "setup": "Key 設定"
   }
 }

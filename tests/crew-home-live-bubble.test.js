@@ -7,7 +7,7 @@ test("the home right corner is Zoe Live, not a mystery box",()=>{
  assert.match(home,/import \{HomeLiveBubble\} from "\.\/HomeLiveBubble"/);
  assert.match(home,/<HomeLiveBubble\/>/);
  assert.doesNotMatch(home,/HomeMysteryGift/);
- assert.match(bubble,/\/friend\/live\?id=zoe&from=home&entry=bubble/);
+ assert.match(bubble,/\/friend\/live\?id=zoe&from=home&chat=text&entry=bubble/);
  assert.match(bubble,/createPortal\(/);
  assert.match(bubble,/setPortalHost\(document\.body\)/);
  assert.match(bubble,/portalHost\?createPortal\(/);
@@ -33,6 +33,7 @@ test("only one timed invitation appears after Hero scroll, without blocking clic
  assert.match(bubble,/trial\.remaining===0/);
  assert.match(bubble,/\/account#settings-gemini/);
  assert.match(bubble,/onClick=\{visit\}/);
+ assert.match(bubble,/<Icon name=\{needsSetup\?"settings":"chat"\}\/>/);
 });
 test("Live bubble analytics and attribution are safely allowlisted",()=>{
  const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");

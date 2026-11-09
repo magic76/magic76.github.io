@@ -112,17 +112,17 @@
     "fortuneDescription": "สำรวจดวงชะตาไปกับเพื่อน AI",
     "timelineTitle": "ทุกชีวิตมีบทต่อไปเสมอ",
     "timelineDescription": "พบผู้คนต่างวัยและฟังเรื่องราวชีวิตของพวกเขา",
-    "chatHeading": "คุยกับเพื่อน AI",
+    "chatHeading": "แชตข้อความกับ AI",
     "chatSubtitle": "ไม่ต้องสมัคร คุยฟรีได้ 5 นาทีทันที",
     "chatStart": "เริ่มคุยฟรี",
-    "chatWithZoe": "คุยกับ Zoe",
-    "chatNeutral": "เริ่มคุยกับ Zoe",
-    "chatTrial": "คุยกับ Zoe ฟรี 5 นาที",
+    "chatWithZoe": "เริ่มแชตข้อความกับ Zoe",
+    "chatNeutral": "เริ่มแชตข้อความกับ Zoe",
+    "chatTrial": "แชตข้อความกับ Zoe ฟรี",
     "teacherTrial": "เรียนพูดฟรี 5 นาที",
     "preparing": "กำลังเตรียม…",
-    "chatTrialWith": "คุยกับ {{name}} ฟรี 5 นาที",
-    "chatNeutralWith": "เริ่มคุยกับ {{name}}",
-    "chatWithFriend": "คุยกับ {{name}}",
+    "chatTrialWith": "แชตข้อความกับ {{name}} ฟรี",
+    "chatNeutralWith": "เริ่มแชตข้อความกับ {{name}}",
+    "chatWithFriend": "แชตข้อความกับ {{name}}",
     "shortsFallback": "ถามเกี่ยวกับรูปนี้",
     "game1a2b": "เริ่มเล่น 1A2B",
     "gameConnect4": "เล่นเกมต่อสี่",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "สวัสดี! คุยกันสักหน่อยไหม?",
-    "start": "เริ่มคุย",
+    "start": "แชตข้อความ",
     "setup": "ตั้งค่า Key"
   }
 }

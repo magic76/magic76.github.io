@@ -107,5 +107,11 @@
     "preparing": "正在準備對話",
     "free": "自由聊天"
   },
-  "kicker": "Crew 朋友"
+  "kicker": "Crew 朋友",
+  "textStarters": {
+    "heading": "點一句直接開聊",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }

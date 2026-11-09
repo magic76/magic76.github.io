@@ -112,17 +112,17 @@
     "fortuneDescription": "AI 친구와 함께 나의 운세를 살펴보세요.",
     "timelineTitle": "모든 인생에는 다음 장이 있어요",
     "timelineDescription": "다양한 나이의 사람들을 만나 서로 다른 삶의 이야기를 들어 보세요.",
-    "chatHeading": "AI 친구와 이야기해요",
+    "chatHeading": "AI와 문자 채팅",
     "chatSubtitle": "가입 없이 지금 5분간 무료로 대화하세요.",
     "chatStart": "무료 채팅 시작",
-    "chatWithZoe": "Zoe와 대화",
-    "chatNeutral": "Zoe와 대화 시작하기",
-    "chatTrial": "Zoe와 5분 무료로 대화하기",
+    "chatWithZoe": "Zoe와 문자로 대화 시작",
+    "chatNeutral": "Zoe와 문자로 대화 시작",
+    "chatTrial": "Zoe와 무료 문자 채팅",
     "teacherTrial": "5분 무료 회화 수업 받기",
     "preparing": "준비 중…",
-    "chatTrialWith": "{{name}}와 5분 무료 대화하기",
-    "chatNeutralWith": "{{name}}와 대화 시작하기",
-    "chatWithFriend": "{{name}}와 대화하기",
+    "chatTrialWith": "{{name}}와 무료 문자 채팅",
+    "chatNeutralWith": "{{name}}와 문자로 대화 시작",
+    "chatWithFriend": "{{name}}와 문자 채팅",
     "shortsFallback": "이 사진에 대해 물어보기",
     "game1a2b": "바로 1A2B 시작하기",
     "gameConnect4": "사목 놓기 시작하기",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "안녕! 잠깐 이야기할래?",
-    "start": "대화",
+    "start": "문자 채팅",
     "setup": "Key 설정"
   }
 }

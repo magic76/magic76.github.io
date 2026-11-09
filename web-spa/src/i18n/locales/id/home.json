@@ -112,17 +112,17 @@
     "fortuneDescription": "Jelajahi baganmu bersama teman AI.",
     "timelineTitle": "Setiap kehidupan punya bab berikutnya",
     "timelineDescription": "Temui orang-orang di usia berbeda dan dengarkan kisah mereka.",
-    "chatHeading": "Ngobrol dengan teman AI",
+    "chatHeading": "Chat teks dengan AI",
     "chatSubtitle": "Tanpa daftar. Ngobrol gratis selama 5 menit sekarang.",
     "chatStart": "Mulai ngobrol gratis",
-    "chatWithZoe": "Ngobrol dengan Zoe",
-    "chatNeutral": "Mulai mengobrol dengan Zoe",
-    "chatTrial": "Ngobrol gratis 5 menit dengan Zoe",
+    "chatWithZoe": "Mulai chat teks dengan Zoe",
+    "chatNeutral": "Mulai chat teks dengan Zoe",
+    "chatTrial": "Chat teks gratis dengan Zoe",
     "teacherTrial": "Latihan bicara gratis 5 menit",
     "preparing": "Menyiapkan…",
-    "chatTrialWith": "Ngobrol gratis 5 menit dengan {{name}}",
-    "chatNeutralWith": "Mulai mengobrol dengan {{name}}",
-    "chatWithFriend": "Ngobrol dengan {{name}}",
+    "chatTrialWith": "Chat teks gratis dengan {{name}}",
+    "chatNeutralWith": "Mulai chat teks dengan {{name}}",
+    "chatWithFriend": "Chat teks dengan {{name}}",
     "shortsFallback": "Tanyakan tentang foto ini",
     "game1a2b": "Langsung main 1A2B",
     "gameConnect4": "Main Connect Four",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Hai, mau ngobrol sebentar?",
-    "start": "Ngobrol",
+    "start": "Chat teks",
     "setup": "Atur Key"
   }
 }

@@ -112,17 +112,17 @@
     "fortuneDescription": "Khám phá lá số cùng một người bạn AI.",
     "timelineTitle": "Mỗi cuộc đời đều có chương tiếp theo",
     "timelineDescription": "Gặp gỡ những người ở nhiều độ tuổi và lắng nghe câu chuyện của họ.",
-    "chatHeading": "Trò chuyện với bạn AI",
+    "chatHeading": "Nhắn tin với AI",
     "chatSubtitle": "Không cần đăng ký. Trò chuyện miễn phí 5 phút ngay.",
     "chatStart": "Bắt đầu trò chuyện miễn phí",
-    "chatWithZoe": "Trò chuyện với Zoe",
-    "chatNeutral": "Bắt đầu trò chuyện với Zoe",
-    "chatTrial": "Trò chuyện miễn phí 5 phút với Zoe",
+    "chatWithZoe": "Bắt đầu nhắn tin với Zoe",
+    "chatNeutral": "Bắt đầu nhắn tin với Zoe",
+    "chatTrial": "Nhắn tin miễn phí với Zoe",
     "teacherTrial": "Học nói miễn phí trong 5 phút",
     "preparing": "Đang chuẩn bị…",
-    "chatTrialWith": "Trò chuyện miễn phí 5 phút với {{name}}",
-    "chatNeutralWith": "Bắt đầu trò chuyện với {{name}}",
-    "chatWithFriend": "Trò chuyện với {{name}}",
+    "chatTrialWith": "Nhắn tin miễn phí với {{name}}",
+    "chatNeutralWith": "Bắt đầu nhắn tin với {{name}}",
+    "chatWithFriend": "Nhắn tin với {{name}}",
     "shortsFallback": "Hỏi về bức ảnh này",
     "game1a2b": "Chơi ngay 1A2B",
     "gameConnect4": "Chơi cờ bốn quân",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Chào! Trò chuyện chút nhé?",
-    "start": "Trò chuyện",
+    "start": "Nhắn tin",
     "setup": "Cài Key"
   }
 }

@@ -112,17 +112,17 @@
     "fortuneDescription": "Explore your chart with an AI friend.",
     "timelineTitle": "Every life has another chapter",
     "timelineDescription": "Meet different people at different ages.",
-    "chatHeading": "Talk with an AI friend",
+    "chatHeading": "Text chat with AI",
     "chatSubtitle": "No sign-up. Chat free for 5 minutes right now.",
     "chatStart": "Start chatting free",
-    "chatWithZoe": "Chat with Zoe",
-    "chatNeutral": "Start chatting with Zoe",
-    "chatTrial": "Chat with Zoe free for 5 minutes",
+    "chatWithZoe": "Start a text chat with Zoe",
+    "chatNeutral": "Start a text chat with Zoe",
+    "chatTrial": "Text chat with Zoe for free",
     "teacherTrial": "Try a free 5-minute speaking lesson",
     "preparing": "Getting ready…",
-    "chatTrialWith": "Chat with {{name}} free for 5 minutes",
-    "chatNeutralWith": "Start chatting with {{name}}",
-    "chatWithFriend": "Chat with {{name}}",
+    "chatTrialWith": "Text chat with {{name}} for free",
+    "chatNeutralWith": "Start a text chat with {{name}}",
+    "chatWithFriend": "Text chat with {{name}}",
     "shortsFallback": "Ask about this photo",
     "game1a2b": "Start 1A2B",
     "gameConnect4": "Play Connect Four",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Hey, want to chat?",
-    "start": "Chat",
+    "start": "Text chat",
     "setup": "Set up Key"
   }
 }

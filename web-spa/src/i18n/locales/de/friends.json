@@ -107,5 +107,11 @@
     "preparing": "Gespräch wird vorbereitet",
     "free": "Freies Gespräch"
   },
-  "kicker": "Crew-Freunde"
+  "kicker": "Crew-Freunde",
+  "textStarters": {
+    "heading": "Tippe auf einen Satz, um direkt zu chatten",
+    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey Zoe! How has your day been?"
+  }
 }

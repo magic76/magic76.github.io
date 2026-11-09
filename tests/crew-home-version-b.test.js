@@ -7,15 +7,16 @@ test("B: the one CTA has a Zoe portrait, honest per-role text and direct destina
  const src=read("web-spa/src/pages/HomePortal.tsx");
  assert.equal((src.match(/className="crew-portal-cta"/g)||[]).length,1);
  assert.match(src,/const ZOE="\/friend\/live\?id=zoe"/);
- assert.match(src,/const HOME_ZOE=ZOE\+"&from=home"/);
+ assert.match(src,/const HOME_ZOE=ZOE\+"&from=home&chat=text"/);
  assert.match(src,/const destination=exhausted\?"\/account#settings-gemini":shortsDestination\|\|/);
+ assert.match(src,/friendId==="zoe"\?HOME_ZOE:"\/friend\/live\?id="\+friendId\+"&from=home&chat=text"/);
  assert.match(src,/const teacherDestination=exhausted\?"\/account#settings-gemini":"\/teacher\/live\?lesson=daily_u1_l1"/);
  assert.match(src,/to:"\/fortune\/reading\?mode=tarot"/);
  assert.match(src,/to:"\/games\/1a2b"/);
  assert.match(src,/trialAvailable=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==0/);
- assert.match(src,/world.chatTrial/);assert.match(src,/world.chatNeutral/);assert.match(src,/world.teacherTrial/);
+ assert.match(src,/world.chatTrialWith/);assert.match(src,/world.teacherTrial/);
  assert.match(src,/src=\{"\/assets\/friends\/crew_friend_"\+\(selectedPost\?\.friendId\|\|friendId\)\+"\.webp"\} alt=""/);
- assert.match(src,/trackUsageEvent\("home_entry_click",exhausted/);
+ assert.match(src,/trackUsageEvent\("home_entry_click",exhausted&&\(mode==="chat"\|\|mode==="learn"\)\?"settings":current.entry\)/);
  assert.doesNotMatch(src,/guest_trial_start_click|navigator.mediaDevices|GUEST_TOKEN_ENDPOINT/);
 });
 
@@ -59,6 +60,6 @@ test("B: all eleven locales translate the new promise and first-gesture copy",()
    assert.ok(typeof world[key]==="string"&&world[key].trim(),locale+":"+key);
   for(const mode of ["learn","fortune","play"])
    assert.ok(world.modes[mode].cta.trim(),locale+":"+mode);
-  assert.match(world.chatTrial,/5/);assert.match(world.teacherTrial,/5/);
+  assert.match(world.chatTrial,/\S/);assert.doesNotMatch(world.chatTrial,/5/);assert.match(world.teacherTrial,/5/);
  }
 });

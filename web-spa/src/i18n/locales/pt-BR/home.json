@@ -112,17 +112,17 @@
     "fortuneDescription": "Explore seu mapa com um amigo de IA.",
     "timelineTitle": "Toda vida tem um novo capítulo",
     "timelineDescription": "Conheça pessoas em diferentes fases da vida e ouça suas histórias.",
-    "chatHeading": "Converse com um amigo de IA",
+    "chatHeading": "Converse por texto com AI",
     "chatSubtitle": "Sem cadastro. Converse grátis por 5 minutos agora.",
     "chatStart": "Começar a conversar grátis",
-    "chatWithZoe": "Conversar com Zoe",
-    "chatNeutral": "Começar a conversar com Zoe",
-    "chatTrial": "Converse 5 minutos grátis com Zoe",
+    "chatWithZoe": "Comece a conversar por texto com Zoe",
+    "chatNeutral": "Comece a conversar por texto com Zoe",
+    "chatTrial": "Converse de graça por texto com Zoe",
     "teacherTrial": "Aula de conversação grátis por 5 minutos",
     "preparing": "Preparando…",
-    "chatTrialWith": "Converse grátis por 5 minutos com {{name}}",
-    "chatNeutralWith": "Comece a conversar com {{name}}",
-    "chatWithFriend": "Converse com {{name}}",
+    "chatTrialWith": "Converse de graça por texto com {{name}}",
+    "chatNeutralWith": "Comece a conversar por texto com {{name}}",
+    "chatWithFriend": "Converse por texto com {{name}}",
     "shortsFallback": "Pergunte sobre esta foto",
     "game1a2b": "Jogar 1A2B agora",
     "gameConnect4": "Jogar Ligue 4",
@@ -562,7 +562,7 @@
   },
   "liveBubble": {
     "invite": "Oi! Vamos conversar?",
-    "start": "Conversar",
+    "start": "Chat por texto",
     "setup": "Config. Key"
   }
 }
