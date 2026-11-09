@@ -175,8 +175,8 @@ test("text search failures may fall back to standard Gemini without silently req
  const search=fs.readFileSync(path.join(__dirname,"../web-spa/src/live/searchGroundedText.ts"),"utf8");
  assert.match(panel,/catch\(searchError\)/);
  assert.match(panel,/if\(problem\.kind==="key"\|\|problem\.kind==="quota"/);
- assert.match(panel,/if\(grounded\)reply=grounded\.text\.trim\(\)/);
- assert.match(panel,/else\{\s*await ensureCore\(\)/);
+ assert.match(panel,/new LiveTextConversation\(system,searchEnabled/);
+ assert.match(panel,/liveChat\.current\.send\(value\)/);
  assert.match(search,/Object\.assign\(new Error\("Search request failed/);
  assert.match(search,/kind,status/);
  assert.match(panel,/category==="quota"/);
