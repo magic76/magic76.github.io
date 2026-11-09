@@ -103,7 +103,7 @@
 .fortune-share-dialog-header strong{font-size:17px}
 .fortune-share-close{display:grid;place-items:center;border:0;border-radius:50%;background:#e7e1ee;color:#39304b;cursor:pointer;min-height:44px;min-width:44px;font-size:27px}
 .fortune-share-dialog-body{display:grid;gap:13px;padding:17px 22px 24px}
-.fortune-share-preview{display:flex;justify-content:center;align-items:center;border-radius:16px;overflow:hidden;background:#ece6f3;min-height:200px}
+.fortune-share-preview{display:flex;justify-content:center;align-items:center;border-radius:16px;overflow:hidden;background:#f2f0f8;border:1px solid #ded9eb;min-height:200px}
 .fortune-share-preview img{display:block;width:auto;max-width:100%;max-height:380px;height:auto;aspect-ratio:1080/1350;object-fit:contain}
 .fortune-share-prompt{font-size:15px;font-weight:700;margin:0;overflow-wrap:anywhere}
 .fortune-share-public-link{font-size:13px;line-height:1.6;overflow-wrap:anywhere;text-decoration:underline;display:block}
@@ -124,7 +124,7 @@
  .fortune-share-dialog{width:100vw;max-width:none;max-height:100dvh;height:100dvh;border-radius:0}
  .fortune-share-dialog-header{padding-top:max(8px,env(safe-area-inset-top))}
  .fortune-share-dialog-body{padding:14px 14px max(28px,env(safe-area-inset-bottom))}
- .fortune-share-preview img{max-height:42dvh}
+ .fortune-share-preview img{max-height:52dvh}
  .fortune-share-controls{grid-template-columns:1fr}
 }
 @media(prefers-reduced-motion:reduce){.fortune-share-dialog,.fortune-collectible-hero,.fortune-invite-landing{animation:none;scroll-behavior:auto}}

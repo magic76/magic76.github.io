@@ -48,7 +48,7 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
   image.src=model.artSrc;
   if(image.complete&&image.naturalWidth>0){art.current=image;update()}
   return()=>{active=false;image.onload=null;image.onerror=null};
- },[open,model.id,model.artSrc,model.title,model.tagline,locale]);
+ },[open,model.id,model.artSrc,model.title,model.tagline,model.identity?.behavior,model.identity?.tension,model.chips.join("|"),locale]);
  async function copy(text:string){
   setStatus("");setManual(false);
   try{

@@ -86,6 +86,9 @@ test("AI prompt uses machine headers and raw grounded fields without 24k string 
  assert.match(prompt,/2027/);
  assert.match(prompt,/甲子/);
  assert.doesNotMatch(prompt,/slice\(0,24000\)/);
+ const weighted=buildReportPrompt("bazi",{weightedFiveElements:{火:3.3999999999999995,金:1.1}},"白話");
+ assert.match(weighted,/"火":3\.4/);
+ assert.doesNotMatch(weighted,/3\.3999999999999995/);
 });
 
 

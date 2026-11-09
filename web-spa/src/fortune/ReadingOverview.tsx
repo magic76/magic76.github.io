@@ -6,7 +6,7 @@ import{buildLocalReport}from"./report";
 import type{FortuneChapter,FortuneChapterId}from"./report";
 import{parseAiReading}from"./aiReading";
 import{AiPanel}from"./result/Common";
-import{formatFortuneValue}from"./displayNumber";
+import{formatFortuneValue,formatFortuneProse}from"./displayNumber";
 import{formatVedicTerm}from"./fortuneTerminology";
 import{useRouteNamespace}from"../i18n/useRouteNamespace";
 import{FortuneGlossary}from"./FortuneGlossary";
@@ -29,7 +29,7 @@ function TopicSection({chapter,expanded,onToggle}:{chapter:FortuneChapter;expand
    <span className="fortune-reading-toggle" aria-hidden="true">{expanded?"−":"+"}</span>
   </button>
   <div className="fortune-reading-chapter-content" id={contentId} hidden={!expanded}>
-   <p>{formatVedicTerm(chapter.text,i18n.resolvedLanguage||i18n.language)}</p>
+   <p>{formatFortuneProse(formatVedicTerm(chapter.text,i18n.resolvedLanguage||i18n.language))}</p>
    {chapter.evidence.length>0&&<details className="fortune-source-details"><summary>{t("reading.evidence")}</summary><ul>{chapter.evidence.map((x,i)=><li key={i}>{formatVedicTerm(x,i18n.resolvedLanguage||i18n.language)}</li>)}</ul></details>}
   </div>
  </article>;

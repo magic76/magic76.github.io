@@ -13,9 +13,12 @@ test("reading and identity exports delegate to one model and one Canvas renderer
  }
  assert.match(canvas,/canvas\.width=1080;canvas\.height=1350/);
  assert.match(canvas,/ctx\.drawImage\(art/);
- assert.match(canvas,/Math\.min\(888\/art\.naturalWidth,570\/art\.naturalHeight\)/);
+ assert.match(canvas,/Math\.min\(w\/art\.naturalWidth,h\/art\.naturalHeight\)/);
  assert.match(canvas,/model\.chips\.slice\(0,3\)/);
  assert.match(canvas,/model\.cta/);
+ assert.match(canvas,/copy\.headings\[2\]/);
+ assert.match(canvas,/drawFrame\(ctx,paint\)/);
+ assert.doesNotMatch(canvas,/#fff6e5|#f5e2c9/);
  assert.doesNotMatch(canvas,/birthDate|birthTime|reading\.profile|Gemini/);
 });
 test("public PNG excludes private reading summary and date is generation time",()=>{

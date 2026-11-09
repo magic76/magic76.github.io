@@ -25,3 +25,16 @@ export function formatFortuneValue(value:unknown,weighted=false):string{
  }
  return value===null||value===undefined?"":String(value);
 }
+
+
+/** Presentation fallback for old saved AI prose. Only shorten obvious float artifacts
+ * very close to a two-decimal number; leave coordinates, IDs and other precision intact.
+ */
+export function formatFortuneProse(value:string):string{
+ return value.replace(/(^|[^\d.])(-?\d+\.\d{9,})(?=$|[^\d.])/g,(match,prefix:string,raw:string)=>{
+  const number=Number(raw);
+  if(!Number.isFinite(number))return match;
+  const rounded=Math.round(number*100)/100;
+  return Math.abs(number-rounded)<1e-8?prefix+formatFortuneNumber(rounded,true):match;
+ });
+}

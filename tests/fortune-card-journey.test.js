@@ -84,7 +84,8 @@ test("allowlisted invitations exclude date, history and arbitrary user text",()=
 function makeCanvas(){
  const calls=[],ctx={
   createLinearGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
-  fillRect(){},beginPath(){},roundRect(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){},save(){},restore(){},
+  createRadialGradient(){return {addColorStop:(_x,v)=>calls.push(["color",v])}},
+  fillRect(){},beginPath(){},roundRect(){},closePath(){},fill(){},stroke(){},moveTo(){},lineTo(){},arc(){},clip(){},save(){},restore(){},
   measureText(s){return {width:Array.from(s).length*16}},
   fillText(text,x,y){calls.push(["text",text,x,y])},
   drawImage(){calls.push(["image"])}
@@ -96,7 +97,7 @@ function makeCanvas(){
 }
 test("shared renderer produces 1080x1350 illustrated collectible with no birth facts or article header",()=>{
  const env=makeCanvas();
- const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document}).renderCollectibleCard;
+ const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document,fortuneLocale:i18n.fortuneLocale,fortuneCopy:i18n.fortuneCopy}).renderCollectibleCard;
  for(const [mode,result] of examples){
   const card=model.buildFortuneCardModel(mode,result,"zh-TW");
   const art={complete:true,naturalWidth:1536,naturalHeight:864};
@@ -106,6 +107,9 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   assert.ok(env.calls.some(x=>x[0]==="image"));
   assert.ok(env.calls.some(x=>x[1]==="CREW FORTUNE"));
   assert.ok(env.calls.some(x=>String(x[1]).includes("3sssi.com/fortune")));
+  assert.ok(env.calls.some(x=>x[1]==="命格輪廓"));
+  assert.ok(env.calls.some(x=>x[1]==="行動線索"));
+  assert.ok(env.calls.some(x=>x[1]==="成長提醒"));
   assert.ok(!env.calls.some(x=>/命盤重點|birthDate|1985-07-06/.test(String(x[1]))));
   env.calls.length=0;
   render(card,null,new Date("2026-11-08"),"en");
