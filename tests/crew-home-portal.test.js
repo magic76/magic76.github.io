@@ -11,6 +11,10 @@ test("Online portal gains one quiet decorative focal object without another rend
  assert.match(field,/aria-hidden="true"/);
  assert.match(css,/\.crew-portal-core\{[^}]*pointer-events:none/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)\{\.crew-portal-core\{animation:none/);
+ assert.match(field,/crew-back-orbit/);
+ assert.match(field,/crew-front-orbit/);
+ assert.match(css,/@media\(max-width:700px\)\{\.crew-portal-core\{top:19%;/);
+ assert.match(css,/\[data-paused="true"\] \.crew-portal-core\{animation:none/);
  assert.doesNotMatch(field,/THREE|requestAnimationFrame|new WebGLRenderingContext/);
 });
 
