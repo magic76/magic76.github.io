@@ -97,7 +97,7 @@ function makeCanvas(){
 }
 test("shared renderer produces 1080x1350 illustrated collectible with no birth facts or article header",()=>{
  const env=makeCanvas();
- const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document}).renderCollectibleCard;
+ const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document,fortuneLocale:i18n.fortuneLocale,fortuneCopy:i18n.fortuneCopy}).renderCollectibleCard;
  for(const [mode,result] of examples){
   const card=model.buildFortuneCardModel(mode,result,"zh-TW");
   const art={complete:true,naturalWidth:1536,naturalHeight:864};
