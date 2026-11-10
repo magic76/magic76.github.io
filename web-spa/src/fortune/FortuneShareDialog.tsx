@@ -4,7 +4,7 @@ import {trackUsageEvent} from "../analytics/usage";
 import type {FortuneReading} from "./types";
 import {buildFortuneCardModel} from "./fortuneCardModel";
 import {renderCollectibleCard,collectiblePngFile,nativeCollectibleShare} from "./fortuneCardCanvas";
-import {fortuneCopy,fortuneInvitation} from "./fortuneJourneyI18n";
+import {fortuneCopy,fortuneInvitation,fortuneTextShareLabels} from "./fortuneJourneyI18n";
 import {fortuneInviteUrl} from "./fortuneInvite";
 
 /** One deliberate share surface. No automatic reveal and no surprise desktop download. */
@@ -12,7 +12,7 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
  reading:FortuneReading;oneLine:string;open:boolean;onClose:()=>void
 }){
  const {i18n}=useTranslation("fortune"),locale=i18n.resolvedLanguage||i18n.language;
- const labels=fortuneCopy(locale);
+ const labels=fortuneCopy(locale),shareLabels=fortuneTextShareLabels(locale);
  const model=useMemo(()=>buildFortuneCardModel(reading.mode,reading.result,locale,oneLine),
   [reading.mode,reading.result,locale,oneLine]);
  const url=fortuneInviteUrl(reading.mode,model.id,locale),invitation=fortuneInvitation(locale,model.title,url,model.identity?.tension);
@@ -59,6 +59,22 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
    setStatus(labels.copied);
   }catch{setManual(true);setStatus(labels.clipboardError)}
  }
+ async function shareTextOnly(){
+  if(busy)return;setBusy(true);setStatus("");setManual(false);
+  try{
+   if(!navigator.share){
+    await copy(invitation);
+    return;
+   }
+   // Text intentionally contains its own invitation URL. Sharing a file here
+   // could make social apps discard the caption or prevent adding a chosen photo.
+   await navigator.share({text:invitation});
+   trackUsageEvent("fortune_identity_shared",reading.mode);
+   setStatus(labels.shared);
+  }catch(error){
+   if((error as Error)?.name!=="AbortError")setStatus(labels.failed);
+  }finally{setBusy(false)}
+ }
  async function nativeShare(){
   if(busy)return;setBusy(true);setStatus("");
   try{
@@ -102,11 +118,13 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
    <p className="fortune-share-prompt">{invitationPreview}</p>
    <a href={url} target="_blank" rel="noopener noreferrer" className="fortune-share-public-link">{url}</a>
    <div className="fortune-share-controls">
-    <button type="button" className="btn" disabled={busy} onClick={()=>void nativeShare()}>{labels.native}</button>
-    <button type="button" className="btn secondary" disabled={busy} onClick={()=>void copy(invitation)}>{labels.copyInvite}</button>
-    <button type="button" className="btn secondary" disabled={busy} onClick={()=>void copy(url)}>{labels.copyLink}</button>
-    <button type="button" className="btn secondary" disabled={busy} onClick={download}>{labels.download}</button>
+    <button type="button" className="btn" disabled={busy} onClick={()=>void copy(invitation)}>{shareLabels.copyPost}</button>
+    <button type="button" className="btn secondary" disabled={busy} onClick={download}>{shareLabels.downloadCard}</button>
+    <button type="button" className="btn secondary" disabled={busy} onClick={()=>void shareTextOnly()}>{shareLabels.textOnly}</button>
+    <button type="button" className="btn secondary" disabled={busy} onClick={()=>void nativeShare()}>{labels.native}</button>
+    <button type="button" className="btn secondary fortune-share-copy-link" disabled={busy} onClick={()=>void copy(url)}>{labels.copyLink}</button>
    </div>
+   <p className="fortune-share-help">{shareLabels.help}</p>
    {status&&<p className="fortune-share-status" role="status">{status}</p>}
    {manual&&<label className="fortune-share-manual">{labels.manual}<textarea readOnly rows={4} value={invitation} onFocus={e=>e.target.select()}/></label>}
   </div>
