@@ -49,6 +49,12 @@
     "friendDesc": "Retoma esta conversación",
     "fortuneResume": "Seguir leyendo tu carta"
   },
+  "resume": {
+    "friend": "Seguir hablando con {{name}}",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "Continuar la partida de 1A2B",
+    "gameDesc": "{{digits}} dígitos · {{count}} intentos"
+  },
   "actions": {
     "label": "Inicio rápido",
     "chat": "Conoce a un amigo de Crew",

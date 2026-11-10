@@ -49,6 +49,12 @@
     "friendDesc": "この友達とのチャットに戻る",
     "fortuneResume": "占いの結果を続きを読む"
   },
+  "resume": {
+    "friend": "{{name}} との会話を続ける",
+    "lastLine": "{{name}}：{{line}}",
+    "game": "前回の1A2Bを再開",
+    "gameDesc": "{{digits}}桁・{{count}}回挑戦済み"
+  },
   "actions": {
     "label": "クイックスタート",
     "chat": "Crew の友達に会う",

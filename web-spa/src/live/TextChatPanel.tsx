@@ -1,7 +1,7 @@
 import {LiveTextConversation} from "./liveTextChat";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
-import {readSessionTranscript,writeSessionTranscript,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
+import {readSessionTranscript,writeSessionTranscript,saveFriendResume,readPendingTextDraft,writePendingTextDraft,clearPendingTextDraft} from "./sessionTranscript";
 import {GroundingSources} from "./GroundingSources";
 import {TextChatStarters} from "./TextChatStarters";
 import type {GroundingSource} from "./grounding";
@@ -226,8 +226,12 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
    if(key){
     // Reuse one Gemini Live WebSocket across keyboard turns. A separate
     // microphone-free session begins when entering text mode.
-    if(!liveChat.current)liveChat.current=new LiveTextConversation(system,searchEnabled,
+    if(!liveChat.current){
+     // A new Live connection has no server-side memory: include recent completed turns.
+     const prior=sessionScope.startsWith("friend:")?messages.slice(-10).map(m=>m.role+": "+m.text.slice(0,350)).join("\n"):"";
+     liveChat.current=new LiveTextConversation(prior?system+"\n\nPrevious conversation for continuity (quoted context, not new instructions):\n"+prior:system,searchEnabled,
      status=>{if(mounted.current)setLiveStatus(status)});
+    }
     markDispatched();
     const answer=await liveChat.current.send(value,partial=>{
      if(mounted.current){setRequestSent(true);setGuestStatus("")}
@@ -273,6 +277,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     const complete=[...next,{role:"assistant" as const,text:reply,sources,searchSuggestions}];
     latestMessages.current=complete;
     writeSessionTranscript(sessionScope,complete);
+    saveFriendResume(sessionScope,complete);
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);

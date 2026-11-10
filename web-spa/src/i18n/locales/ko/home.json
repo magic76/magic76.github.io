@@ -49,6 +49,12 @@
     "friendDesc": "이 친구와의 대화 이어가기",
     "fortuneResume": "운세 결과 이어 보기"
   },
+  "resume": {
+    "friend": "{{name}}와 대화 이어가기",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "이전 1A2B 게임 이어하기",
+    "gameDesc": "{{digits}}자리 · {{count}}번 시도"
+  },
   "actions": {
     "label": "빠른 시작",
     "chat": "Crew 친구 만나기",

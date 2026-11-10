@@ -49,6 +49,12 @@
     "friendDesc": "Lanjutkan obrolan dengan teman ini",
     "fortuneResume": "Lanjutkan membaca bagan"
   },
+  "resume": {
+    "friend": "Lanjutkan obrolan dengan {{name}}",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "Lanjutkan ronde 1A2B",
+    "gameDesc": "{{digits}} digit · {{count}} percobaan"
+  },
   "actions": {
     "label": "Mulai cepat",
     "chat": "Kenali teman Crew",
