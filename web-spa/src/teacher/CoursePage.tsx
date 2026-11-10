@@ -15,6 +15,7 @@ function storedTrack():string{
 
 export function CoursePage(){
  const {t,i18n}=useTranslation("teacher");
+ const {t:tLesson}=useTranslation("lesson");
  const locale=i18n.resolvedLanguage||"en";
  const english=locale==="en";
  const [params]=useSearchParams();const {slug}=useParams();const navigate=useNavigate();const location=useLocation();
@@ -74,7 +75,7 @@ export function CoursePage(){
      <h2>{next?title(next):title(track)}</h2>
      <p>{next?description(next):t("course.trackCompleteDesc")}</p>
     </div>
-    <span className="crew-course-progress-pill">{completed} / {total}</span>
+    <span className="crew-course-progress-pill">{tLesson("learnToday.trackProgress",{done:completed,total})}</span>
    </div>
    {next&&<>
     <div className="crew-course-mission-summary">
@@ -91,7 +92,7 @@ export function CoursePage(){
      className={item.id===track.id?"active":""} aria-pressed={item.id===track.id}>
      <span aria-hidden="true">{item.emoji}</span>
      <strong>{title(item)}</strong>
-     <small>{completedLessons(item.id)} / {unitsForTrack(item.id).reduce((n,u)=>n+lessonsForUnit(u.id).length,0)}</small>
+     <small>{tLesson("learnToday.trackProgress",{done:completedLessons(item.id),total:unitsForTrack(item.id).reduce((n,u)=>n+lessonsForUnit(u.id).length,0)})}</small>
     </button>)}
    </div>
   </section>
