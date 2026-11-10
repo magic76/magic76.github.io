@@ -38,8 +38,10 @@ function tick(s:Run,dt:number):"hit"|"fork"|"finish"|null{
  s.distance=Math.min(END,s.distance+dt*SPEED);
  while(s.nextSpawn<s.distance+88&&s.nextSpawn<END-12){
   const index=Math.floor(s.nextSpawn/16);
-  const kind:ItemKind=index%5===0?"star":index%4===0?"wall":index%3===0?"bar":"box";
-  const lane=((index*7+Math.floor(index/3))%3) as Lane;
+  // The player-chosen route changes subsequent obstacle patterns, not just the scenery.
+  const routeBias=s.route==="roof"?1:s.route==="tunnel"?2:0;
+  const kind:ItemKind=index%5===0?"star":((index+routeBias)%4===0?"wall":(index+routeBias)%3===0?"bar":"box");
+  const lane=((index*7+Math.floor(index/3)+routeBias)%3) as Lane;
   s.items.push({id:index,at:s.nextSpawn,lane,kind,passed:false});
   s.nextSpawn+=16;
  }
