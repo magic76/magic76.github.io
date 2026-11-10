@@ -165,7 +165,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  // choices. The original guest-trial gate remains responsible for eligibility.
  const voiceStart=<>
   {shortsPost&&geminiKey()&&live.state==="idle"?<p className="friend-shorts-start-hint" role="status">{t("home:shorts.startVoiceHint",{name:friend.name})}</p>:null}
-  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" focusStartOnVerified={homeFirstAction} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+  {!geminiKey()&&!guestStarted?<GuestLiveStarter role="friend" focusStartOnVerified={homeFirstAction} textFallback={{href:alternateHref,name:friend.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
    :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"}/>
    :<div className={shortsPost&&live.state==="idle"?"friend-shorts-controls is-ready":"friend-shorts-controls"}><LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("friendLive.interrupt")}/></div>}
  </>;
