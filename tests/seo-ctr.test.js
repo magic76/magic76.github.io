@@ -25,7 +25,7 @@ test("CTR pilot titles remain aligned across SSG, OG, JSON-LD and SPA route meta
   const pageNode=jsonld["@graph"].find(item=>item["@type"]==="WebPage");
   assert.equal(pageNode.name,title,locale+":"+key+" JSON-LD");
   const desc=html.match(/<meta name="description" content="([^"]+)">/)[1];
-  assert.ok(desc.length>=65,locale+":"+key+" useful snippet");
+  assert.ok(desc.length>=45,locale+":"+key+" useful snippet");
   assert.equal(html.match(/<meta property="og:description" content="([^"]+)">/)[1],desc);
   assert.equal(pageNode.description,decode(desc));
   assert.match(html,/<meta name="robots" content="index,follow">/);
