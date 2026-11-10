@@ -71,6 +71,7 @@
     "tap": "タップして開く"
   },
   "world": {
+    "practiceLang": {"label": "練習したい言語：", "aria": "チャットと音声会話の練習言語を選択"},
     "modes": {
       "chat": {
         "lead": "AIは会話だけじゃない。",

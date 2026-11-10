@@ -71,6 +71,7 @@
     "tap": "Tap to open"
   },
   "world": {
+    "practiceLang": {"label": "I want to practice:", "aria": "Choose the language for chat and voice"},
     "modes": {
       "chat": {
         "lead": "AI is more than chat.",

@@ -71,6 +71,7 @@
     "tap": "Ketuk untuk membuka"
   },
   "world": {
+    "practiceLang": {"label": "Saya ingin berlatih:", "aria": "Pilih bahasa latihan untuk chat dan percakapan suara"},
     "modes": {
       "chat": {
         "lead": "AI bukan cuma untuk ngobrol.",

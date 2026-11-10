@@ -71,6 +71,7 @@
     "tap": "탭해서 열기"
   },
   "world": {
+    "practiceLang": {"label": "연습할 언어:", "aria": "채팅과 음성 대화에 사용할 연습 언어 선택"},
     "modes": {
       "chat": {
         "lead": "AI는 대화 그 이상.",
