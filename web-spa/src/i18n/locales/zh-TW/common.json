@@ -102,6 +102,7 @@
     "homeTitle": "免費體驗 AI 語音 5 分鐘",
     "homeDesc": "免註冊，免費體驗 5 分鐘語音聊天",
     "chatByText": "改用文字和 {{name}} 聊",
+    "practiceByText": "改用文字和 {{name}} 練",
     "keySettingsLink": "已有自己的 API 金鑰？到設定",
     "onboardingCTA": "免註冊免費體驗 AI 語音 5 分鐘",
     "settingsTitle": "不想先設定？立即免費試玩",

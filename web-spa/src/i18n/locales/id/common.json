@@ -102,6 +102,7 @@
     "homeTitle": "Coba suara AI gratis 5 menit",
     "homeDesc": "Tanpa daftar. Coba chat suara gratis selama 5 menit.",
     "chatByText": "Chat teks dengan {{name}}",
+    "practiceByText": "Latihan lewat teks bersama {{name}}",
     "keySettingsLink": "Punya kunci API sendiri? Buka pengaturan",
     "onboardingCTA": "Coba suara AI gratis 5 menit",
     "settingsTitle": "Mau coba dulu?",

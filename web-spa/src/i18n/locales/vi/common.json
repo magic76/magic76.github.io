@@ -102,6 +102,7 @@
     "homeTitle": "Thử giọng nói AI 5 phút miễn phí",
     "homeDesc": "Không cần đăng ký. Thử chat giọng nói miễn phí 5 phút.",
     "chatByText": "Nhắn tin với {{name}}",
+    "practiceByText": "Luyện tập bằng tin nhắn với {{name}}",
     "keySettingsLink": "Đã có khóa API? Mở cài đặt",
     "onboardingCTA": "Dùng thử AI miễn phí 5 phút",
     "settingsTitle": "Muốn thử trước không?",

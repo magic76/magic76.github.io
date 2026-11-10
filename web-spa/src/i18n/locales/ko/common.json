@@ -102,6 +102,7 @@
     "homeTitle": "AI 음성 5분 무료 체험",
     "homeDesc": "가입 없이 5분간 무료 음성 채팅 체험",
     "chatByText": "{{name}}와 문자로 채팅하기",
+    "practiceByText": "{{name}} 선생님과 문자로 연습하기",
     "keySettingsLink": "내 API 키가 있나요? 설정으로 이동",
     "onboardingCTA": "가입 없이 AI 음성 5분 체험",
     "settingsTitle": "먼저 체험해 볼까요?",

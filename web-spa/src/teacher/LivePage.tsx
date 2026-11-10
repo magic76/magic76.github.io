@@ -1,27 +1,27 @@
-import {GroundingSources} from "../live/GroundingSources";
-import {LiveSearchAction} from "../live/LiveSearchAction";
-import {fortuneSpeakingOpening,fortuneSpeakingPolicy,readFortuneSpeakingContext,type FortuneSpeakingKind} from "./fortuneSpeaking";
+import{GroundingSources}from"../live/GroundingSources";
+import{LiveSearchAction}from"../live/LiveSearchAction";
+import{fortuneSpeakingOpening,fortuneSpeakingPolicy,readFortuneSpeakingContext,type FortuneSpeakingKind}from"./fortuneSpeaking";
 import{effectiveSpeakingLevel}from"./speakingLevelMemory";
 import{trackUsageEvent,sessionDurationDetail}from"../analytics/usage";
-import {conversationIntent,conversationOpening} from "./conversationIntent";
+import{conversationIntent,conversationOpening}from"./conversationIntent";
 import{personalMemoryEnabled}from"./studentMemory";
-import {voiceIdentityPrompt,normalizeLiveVoice} from "../live/voiceIdentity";
+import{voiceIdentityPrompt,normalizeLiveVoice}from"../live/voiceIdentity";
 import{hasMeaningfulLearnerSpeech,rememberTeacherConversation}from"./studentMemory";
 import{recordCompletedTutorSession}from"./teacherPracticeHistory";
 import{consumeReviewFocus,markReviewPracticed}from"./learningReview";
 import{useEffect,useMemo,useRef,useState}from"react";import{Link,useNavigate,useSearchParams}from"react-router-dom";
-import{LiveControls}from"../live/LiveControls";import {GuestLiveStarter} from "../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TextChatPanel}from"../live/TextChatPanel";
+import{LiveControls}from"../live/LiveControls";import{GuestLiveStarter}from"../live/GuestLiveStarter";import{GuestTrialCountdown,GuestTrialFinish}from"../live/GuestTrialExperience";import{TextChatPanel}from"../live/TextChatPanel";
 import{PinyinHint}from"./PinyinHint";
 import{DesktopLivePanel}from"../components/DesktopLivePanel";import{useLiveSession}from"../live/useLiveSession";
 import{history,lastLive,vocabularyLevel,geminiKey}from"../lib/runtime";import{useTeacherStore}from"../store/teacherStore";
 import{getTeacherProfile}from"./teacherProfiles";
-import {teacherLifeBookPrompt,nextTeacherLifeOpening} from "../characters/lifeBook";import{accentOptions,normalizedAccent}from"./teacherAccent";
+import{teacherLifeBookPrompt,nextTeacherLifeOpening}from"../characters/lifeBook";import{accentOptions,normalizedAccent}from"./teacherAccent";
 import{buildTeacherSessionPolicy}from"./teacherPolicy";
 import{teacherLanguageLiveHint}from"./teacherLanguageUx";
 import{TeacherLiveTools}from"./TeacherLiveTools";
 import{nativeLanguageName}from"./teacherLocale";
 import{friendSpokenLanguage}from"../friends/friendLanguage";
-import{useTranslation}from"react-i18next";import "./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
+import{useTranslation}from"react-i18next";import"./boardEntry.css";import{teacherLanguageReminder,unexpectedTeacherKorean}from"./teacherLanguage";import{TeacherAvatar}from"./TeacherAvatar";import{TeacherProfilePicker}from"./TeacherProfilePicker";import{courseLesson}from"./courseCatalog";import{courseDisplayTitle,courseDisplayMission}from"./courseLocale";
 import{teacherProfileDisplay}from"./teacherProfileLocale";import{evaluateCourseSession}from"./courseEvaluation";import{saveLessonProgress,nextUnlockedLesson}from"./courseProgress";
 
 const legacyMissionsJa:any={hotel_checkin:{title:"ホテルのチェックイン",scene:"ホテル",goals:["予約者名を伝える","朝食時間を確認する","チェックアウト時間を尋ねる"]},restaurant_order:{title:"レストランでの注文",scene:"レストラン",goals:["おすすめを尋ねる","食事制限を伝える","会計をお願いする"]},work_meeting:{title:"職場の会議",scene:"ビジネス",goals:["リスクを一つ伝える","代案を提案する","次の担当事項を確認する"]},transport:{title:"道案内と交通",scene:"旅行",goals:["目的地への行き方を尋ねる","乗り場を確認する","この便で合っているか確認する"]}};
@@ -235,7 +235,7 @@ export function TeacherLivePage(){
   {textMode?<TextChatPanel searchEnabled={!isRoleplay&&!fortuneKind} system={system+"\n"+languageDirective} speaker={profile.name} english={english} targetLanguage={s.targetLanguage} pinyinMode={s.pronunciationAidMode} teachingMode={s.teachingMode} hint={course?t("live.textHint"):undefined}/>:<>
   {endingCourse
    ?<div className="notice" role="status"><div><b>{evaluating?t("live.endingTitleBusy"):t("live.endingTitle")}</b><p>{evaluating?t("live.endingBodyBusy"):t("live.endingBody")}</p>{!evaluating&&(courseResult||evaluationError)&&<button type="button" className="btn secondary small" onClick={()=>void endAndReturn()}>{t("learnToday.backToLearn")}</button>}</div></div>
-   :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
+   :!geminiKey()&&!guestStarted?<GuestLiveStarter role="teacher" textFallback={p.has("fortune")?undefined:{href:alternateHref,name:profile.name}} onGrant={async grant=>{setGuestStarted(true);await live.start(grant)}}/>
     :guestStarted&&(live.state==="ended"||live.state==="error")?<GuestTrialFinish expired={live.guestExpired} failed={live.state==="error"} name={profile.name}/>
     :<LiveControls live={live} onEnd={endAndReturn} prominentInterrupt interruptLabel={t("live.myTurn")}/>}
    {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}

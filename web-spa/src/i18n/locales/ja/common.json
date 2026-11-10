@@ -102,6 +102,7 @@
     "homeTitle": "AI音声を5分間無料体験",
     "homeDesc": "登録不要・音声チャットを5分間無料体験",
     "chatByText": "{{name}} と文字でチャット",
+    "practiceByText": "{{name}}先生と文字で練習する",
     "keySettingsLink": "APIキーをお持ちですか？設定へ",
     "onboardingCTA": "登録不要の5分間AI音声体験",
     "settingsTitle": "設定前に試してみませんか？",

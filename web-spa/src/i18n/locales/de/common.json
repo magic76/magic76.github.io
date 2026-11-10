@@ -102,6 +102,7 @@
     "homeTitle": "5 Minuten kostenlos mit KI sprechen",
     "homeDesc": "Ohne Anmeldung: 5 Minuten kostenlos per Sprache chatten.",
     "chatByText": "Mit {{name}} schreiben",
+    "practiceByText": "Mit {{name}} per Text üben",
     "keySettingsLink": "Eigenen API-Schlüssel? Zu den Einstellungen",
     "onboardingCTA": "5 Minuten KI-Sprachtest ohne Anmeldung",
     "settingsTitle": "Erst einmal ausprobieren?",
