@@ -23,7 +23,7 @@ export async function shareFortuneReading(reading:FortuneReading,oneLine="",art?
  const model=buildFortuneCardModel(reading.mode,reading.result,locale,oneLine);
  const file=await buildFortuneShareFile(reading,oneLine,art,locale);
  const url=fortuneInviteUrl(reading.mode,model.id,locale);
- return nativeCollectibleShare(file,fortuneInvitation(locale,model.title,url),url);
+ return nativeCollectibleShare(file,fortuneInvitation(locale,model.title,url,model.identity?.tension),url);
 }
 
 
