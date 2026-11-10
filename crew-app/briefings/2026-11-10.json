@@ -1,0 +1,170 @@
+{
+  "date": "2026-11-10",
+  "generatedAt": "2026-11-10T04:23:04.890Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "730049e2c5eda044",
+      "title": "Enforcing Narrative Reliability and Epistemic Pacing in LLM-Driven Detective Games via Structured Knowledge Trees",
+      "summary": "Large Language Models (LLMs) enable open-ended dialogue in interactive games, but their non-deterministic outputs make it difficult to preserve authorial control, factual consistency, and the intended sequence of information disclosure. These challenges are particularly significant in detective games, where premature r",
+      "publishedAt": "2026-11-08T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Enforcing Narrative Reliability and Epistemic Pacing in LLM-Driven Detective Games via Structured Knowledge Trees",
+          "url": "https://doi.org/10.1609/aiide.v22i1.43574",
+          "publishedAt": "2026-11-08T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Large Language Models (LLMs) enable open-ended dialogue in interactive games, but their non-deterministic outputs make it difficult to preserve authorial control, factual consistency, and the intended sequence of information disclosure. These challenges are particularly significant in detective games, where premature r"
+    },
+    {
+      "id": "4b33cfe603184a0e",
+      "title": "Multi-agent generative AI ecosystems for cyber-physical systems in Industry 5.0",
+      "summary": "Cyber-Physical Systems (CPSs) are increasingly being implemented in critical industrial infrastructure, where complexity and interdependence are rising, posing significant cyber and operational risks. Traditional anomaly detection algorithms can be ineffective in capturing temporal dynamics, relational dependencies, an",
+      "publishedAt": "2026-11-08T00:00:00Z",
+      "topic": "Multi-Agent Systems",
+      "projects": [
+        "Crew Deck",
+        "Crew Pocket"
+      ],
+      "relevance": "這個議題涉及 Crew Deck、Crew Pocket 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Multi-agent generative AI ecosystems for cyber-physical systems in Industry 5.0",
+          "url": "https://doi.org/10.55670/fpll.futech.5.4.2",
+          "publishedAt": "2026-11-08T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Cyber-Physical Systems (CPSs) are increasingly being implemented in critical industrial infrastructure, where complexity and interdependence are rising, posing significant cyber and operational risks. Traditional anomaly detection algorithms can be ineffective in capturing temporal dynamics, relational dependencies, an"
+    },
+    {
+      "id": "a4186751cbe4ec87",
+      "title": "Evaluating Fine-Grained Authorisation Strategies for Securing AI Agents That Interact With Enterprise Applications",
+      "summary": "Autonomous artificial intelligence agents equipped with large language model cognitive cores are rapidly transitioning from passive advisory interfaces into active operational actors capable of querying enterprise databases, triggering API workflows, and modifying mission-critical enterprise state. However, granting au",
+      "publishedAt": "2026-11-07T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Evaluating Fine-Grained Authorisation Strategies for Securing AI Agents That Interact With Enterprise Applications",
+          "url": "https://doi.org/10.62643/ijerst.2026.v22.n4.4829",
+          "publishedAt": "2026-11-07T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Autonomous artificial intelligence agents equipped with large language model cognitive cores are rapidly transitioning from passive advisory interfaces into active operational actors capable of querying enterprise databases, triggering API workflows, and modifying mission-critical enterprise state. However, granting au"
+    },
+    {
+      "id": "f82ed063ee6ca6e8",
+      "title": "A long-term memory variational GAN for high-quality music generation and its application in music education",
+      "summary": "Traditional music generation models suffer from error accumulation and degraded quality in long-sequence generation, limiting their potential applications in intelligent music education. This study proposes a Long-term Memory Variational Generative Adversarial Network (LM-VGAN) by integrating long short-term memory and",
+      "publishedAt": "2026-11-07T00:00:00Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "A long-term memory variational GAN for high-quality music generation and its application in music education",
+          "url": "https://doi.org/10.1038/s41598-026-79563-2",
+          "publishedAt": "2026-11-07T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Traditional music generation models suffer from error accumulation and degraded quality in long-sequence generation, limiting their potential applications in intelligent music education. This study proposes a Long-term Memory Variational Generative Adversarial Network (LM-VGAN) by integrating long short-term memory and"
+    },
+    {
+      "id": "ace31f3b0bb1b6f0",
+      "title": "Claude Code AI agent update: - Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache rea",
+      "summary": "- Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache reads - Fixed context usage estimates overcounting tool definitions when exact token counts are unavailable - Fixed project skills, commands and agents staying missing after their folder was removed and came back mid-session, such as with `git stash`, including after enter",
+      "publishedAt": "2026-11-09T19:22:30Z",
+      "topic": "Context & Memory",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Claude Code v2.1.321",
+          "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.321",
+          "publishedAt": "2026-11-09T19:22:30Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 90,
+      "body": "- Added Claude Fable 5.2 (`claude-fable-5-2`), now the default Fable model — 1M context, $8/$40 per Mtok with $0.20/Mtok cache reads - Fixed context usage estimates overcounting tool definitions when exact token counts are unavailable - Fixed project skills, commands and agents staying missing after their folder was removed and came back mid-session, such as with `git stash`, including after entering a worktree - Fixed a large hook output pointing Claude to a file that held another hook's output from the same tool call"
+    },
+    {
+      "id": "067363fe96883686",
+      "title": "A deep learning-driven adaptive edge intelligence framework for real-time Internet of Things applications",
+      "summary": "The rise of Internet of Things (IoT) ecosystems and the New Paradigm of low-latency edge data processing. IoT ecosystems are growing exponentially, and this growth brings a new challenge: low-latency data processing at the network edge. Because cloud-based architectures cannot meet this real-time requirement due to net",
+      "publishedAt": "2026-11-08T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "A deep learning-driven adaptive edge intelligence framework for real-time Internet of Things applications",
+          "url": "https://doi.org/10.55670/fpll.futech.5.4.26",
+          "publishedAt": "2026-11-08T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "The rise of Internet of Things (IoT) ecosystems and the New Paradigm of low-latency edge data processing. IoT ecosystems are growing exponentially, and this growth brings a new challenge: low-latency data processing at the network edge. Because cloud-based architectures cannot meet this real-time requirement due to net"
+    }
+  ]
+}
