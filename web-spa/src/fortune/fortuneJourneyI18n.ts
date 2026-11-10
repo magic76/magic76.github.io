@@ -134,6 +134,24 @@ export function fortuneChallenge(locale:string):{question:string;action:string}{
  const copy=inviteCopy[fortuneLocale(locale)]||inviteCopy.en;
  return {question:copy.question,action:copy.action.replace(/\s*👇\s*$/u,"")};
 }
+/** Controls for composing a social post with text first, artwork attached by the user. */
+type TextShareLabels={textOnly:string;copyPost:string;downloadCard:string;help:string};
+const textShareCopy:Record<string,TextShareLabels>={
+ "zh-TW":{textOnly:"分享文字",copyPost:"複製貼文文字",downloadCard:"下載卡片 PNG",help:"想自己配圖？複製貼文文字、下載卡片，再到社群 App 新增貼文並附圖。"},
+ en:{textOnly:"Share text only",copyPost:"Copy post text",downloadCard:"Download card PNG",help:"Adding your own image? Copy the text and download the card, then create a post and attach it in your social app."},
+ ja:{textOnly:"文章だけ共有",copyPost:"投稿文をコピー",downloadCard:"カードPNGを保存",help:"画像を自分で添付する場合は、文章をコピーしてカードを保存し、SNSアプリで投稿を作成してください。"},
+ es:{textOnly:"Compartir solo texto",copyPost:"Copiar texto",downloadCard:"Descargar tarjeta PNG",help:"¿Prefieres añadir la imagen? Copia el texto y descarga la tarjeta; crea una publicación y adjúntala en tu red social."},
+ "pt-BR":{textOnly:"Compartilhar só texto",copyPost:"Copiar texto do post",downloadCard:"Baixar cartão PNG",help:"Quer adicionar a imagem? Copie o texto, baixe o cartão e anexe-o ao criar a publicação no app."},
+ id:{textOnly:"Bagikan teks saja",copyPost:"Salin teks postingan",downloadCard:"Unduh kartu PNG",help:"Mau tambah gambar sendiri? Salin teks dan unduh kartu, lalu buat postingan dan lampirkan gambarnya."},
+ fr:{textOnly:"Partager le texte",copyPost:"Copier le texte",downloadCard:"Télécharger la carte PNG",help:"Pour choisir une image vous-même, copiez le texte et téléchargez la carte, puis ajoutez-la dans votre appli sociale."},
+ de:{textOnly:"Nur Text teilen",copyPost:"Beitragstext kopieren",downloadCard:"Karte als PNG laden",help:"Bild selbst hinzufügen? Text kopieren, Karte herunterladen und beides im sozialen Netzwerk als Beitrag einfügen."},
+ ko:{textOnly:"텍스트만 공유",copyPost:"게시물 글 복사",downloadCard:"카드 PNG 저장",help:"이미지를 직접 넣으려면 글을 복사하고 카드를 저장한 뒤, SNS 앱에서 게시물을 작성해 첨부하세요."},
+ vi:{textOnly:"Chỉ chia sẻ văn bản",copyPost:"Sao chép bài viết",downloadCard:"Tải thẻ PNG",help:"Muốn tự chọn ảnh? Sao chép nội dung, tải thẻ rồi tạo bài viết và đính kèm ảnh trong ứng dụng."},
+ th:{textOnly:"แชร์เฉพาะข้อความ",copyPost:"คัดลอกข้อความโพสต์",downloadCard:"ดาวน์โหลดการ์ด PNG",help:"อยากแนบรูปเอง? คัดลอกข้อความ ดาวน์โหลดการ์ด แล้วสร้างโพสต์พร้อมแนบรูปในแอปโซเชียล"}
+};
+export function fortuneTextShareLabels(locale:string):TextShareLabels{
+ return textShareCopy[fortuneLocale(locale)]||textShareCopy.en;
+}
 export function fortuneInvitation(locale:string,title:string,url:string,tension=""):string{
  const lang=fortuneLocale(locale),copy=inviteCopy[lang]||inviteCopy.en;
  // Identity themes are authored in zh/en. Do not put English archetype prose into
@@ -150,5 +168,6 @@ export function fortuneInvitation(locale:string,title:string,url:string,tension=
 export function assertFortuneCopyComplete():boolean{
  return Object.keys(rows).length===11&&Object.keys(rows).every(code=>
   rows[code].split("|").length===keys.length&&traits[code].split("|").length===traitKeys.length
-  &&Boolean(inviteCopy[code]?.lead&&inviteCopy[code]?.question&&inviteCopy[code]?.action));
+  &&Boolean(inviteCopy[code]?.lead&&inviteCopy[code]?.question&&inviteCopy[code]?.action)
+  &&Boolean(textShareCopy[code]?.textOnly&&textShareCopy[code]?.copyPost&&textShareCopy[code]?.downloadCard&&textShareCopy[code]?.help));
 }
