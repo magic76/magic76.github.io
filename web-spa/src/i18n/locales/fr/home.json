@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Coucou, on discute un peu ?",
-    "start": "Écrire",
+    "start": "Discuter",
+    "heading": "Parlez avec un ami IA",
+    "withZoe": "Parler avec Zoe",
     "setup": "Régler Key"
   }
 }

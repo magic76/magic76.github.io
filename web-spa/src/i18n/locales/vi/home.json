@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Chào! Trò chuyện chút nhé?",
-    "start": "Nhắn tin",
+    "start": "Trò chuyện",
+    "heading": "Trò chuyện với bạn AI",
+    "withZoe": "Trò chuyện với Zoe",
     "setup": "Cài Key"
   }
 }

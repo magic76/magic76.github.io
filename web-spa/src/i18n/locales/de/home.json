@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
-    "start": "Textchat",
+    "start": "Chatten",
+    "heading": "Sprich mit einem KI-Freund",
+    "withZoe": "Mit Zoe chatten",
     "setup": "Key einrichten"
   }
 }

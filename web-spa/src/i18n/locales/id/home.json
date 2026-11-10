@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Hai, mau ngobrol sebentar?",
-    "start": "Chat teks",
+    "start": "Ngobrol",
+    "heading": "Ngobrol dengan teman AI",
+    "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"
   }
 }

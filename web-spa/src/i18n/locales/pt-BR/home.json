@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "Oi! Vamos conversar?",
-    "start": "Chat por texto",
+    "start": "Conversar",
+    "heading": "Converse com um amigo de IA",
+    "withZoe": "Conversar com Zoe",
     "setup": "Config. Key"
   }
 }

@@ -562,7 +562,9 @@
   },
   "liveBubble": {
     "invite": "안녕! 잠깐 이야기할래?",
-    "start": "문자 채팅",
+    "start": "대화",
+    "heading": "AI 친구와 이야기해요",
+    "withZoe": "Zoe와 대화",
     "setup": "Key 설정"
   }
 }
