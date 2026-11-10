@@ -172,7 +172,7 @@ export function CrewRunPage(){
       " Distance "+prettyDistance(s.distance)+"m, stars "+s.stars+". Congratulate or encourage in one sentence. Do not invent a different result.");
     }
    }
-   if(now-lastPaint>70){display();lastPaint=now}
+   if(event||(state.current.phase==="running"&&now-lastPaint>70)){display();lastPaint=now}
    last=now;raf=window.requestAnimationFrame(step);
   };
   raf=window.requestAnimationFrame(step);
