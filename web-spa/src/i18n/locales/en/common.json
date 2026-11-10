@@ -102,6 +102,7 @@
     "homeTitle": "Try 5 minutes of AI voice for free",
     "homeDesc": "No sign-up. Try 5 minutes of free voice chat.",
     "chatByText": "Chat with {{name}} by text",
+    "practiceByText": "Practice with {{name}} by text",
     "keySettingsLink": "Have your own API key? Go to settings",
     "onboardingCTA": "Try 5 minutes of AI voice for free",
     "settingsTitle": "Want to try it first?",

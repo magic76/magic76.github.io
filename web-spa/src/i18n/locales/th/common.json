@@ -102,6 +102,7 @@
     "homeTitle": "ทดลองเสียง AI ฟรี 5 นาที",
     "homeDesc": "ไม่ต้องสมัคร ลองแชตเสียงฟรี 5 นาที",
     "chatByText": "แชตข้อความกับ {{name}}",
+    "practiceByText": "ฝึกกับ {{name}} ผ่านข้อความ",
     "keySettingsLink": "มีคีย์ API อยู่แล้ว? ไปที่การตั้งค่า",
     "onboardingCTA": "ทดลองเสียง AI ฟรี 5 นาที",
     "settingsTitle": "อยากลองก่อนใช่ไหม",

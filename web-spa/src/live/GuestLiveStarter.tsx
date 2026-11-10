@@ -187,7 +187,7 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false,textFa
     <Link className="btn" to="/account#settings-gemini">{t("guestTrial.continueKey")}</Link>
     <Link className="btn secondary" to="/games/1a2b">{t("guestTrial.free1a2b")}</Link></>}
    {(phase==="error"||phase==="unavailable")&&<p role={phase==="error"&&micPermissionDenied?"alert":"status"}>{message||t("guestTrial.unavailable")}</p>}
-   {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href}>{t("guestTrial.chatByText",{name:textFallback.name})}</Link>}
+   {phase==="error"&&textFallback&&<Link className="btn" to={textFallback.href}>{t(role==="teacher"?"guestTrial.practiceByText":"guestTrial.chatByText",{name:textFallback.name})}</Link>}
    {phase==="error"&&<button className="btn secondary" type="button" onClick={()=>{setChallenge("");setMicPermissionDenied(false);setPhase("ready")}}>{t("guestTrial.retry")}</button>}
    {phase==="error"&&micPermissionDenied&&<p style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>{microphoneHelp()}</p>}
    {(phase==="error"||phase==="unavailable")&&<Link className="guest-live-key-link" style={{minHeight:44,display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:13,lineHeight:1.5,textDecoration:"underline"}} to="/account#settings-gemini">{t("guestTrial.keySettingsLink")}</Link>}

@@ -102,6 +102,7 @@
     "homeTitle": "Prueba 5 minutos de voz IA gratis",
     "homeDesc": "Sin registro. Prueba 5 minutos de chat de voz gratis.",
     "chatByText": "Chatear por texto con {{name}}",
+    "practiceByText": "Practica por texto con {{name}}",
     "keySettingsLink": "¿Ya tienes una clave API? Ir a ajustes",
     "onboardingCTA": "Prueba 5 minutos de voz IA",
     "settingsTitle": "¿Quieres probar primero?",
