@@ -154,7 +154,6 @@
       "intro": "Did you know Crew can do all this?",
       "item0": "Play number games or Gomoku with AI",
       "item1": "Snap an object and let it talk",
-      "item2": "Meet 16 AI friends and hear their stories",
       "item3": "Practice languages while playing",
       "item4": "Create your own stories with AI"
     }
@@ -562,7 +561,7 @@
   },
   "liveBubble": {
     "invite": "Hey, want to chat?",
-    "start": "Chat",
+    "start": "Voice",
     "heading": "Talk with an AI friend",
     "withZoe": "Chat with Zoe",
     "setup": "Set up Key"

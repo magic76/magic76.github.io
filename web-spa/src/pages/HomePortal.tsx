@@ -143,7 +143,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
    <div id="crew-portal-panel" role="tabpanel" aria-labelledby={"crew-portal-tab-"+mode}>
     <div className="crew-portal-copy">
      <h1><span className="crew-portal-title-line crew-portal-title-first">{t("world.modes."+mode+".lead")}</span><br/><span className="crew-portal-title-line crew-portal-title-second">{t("world.modes."+mode+".before")} <em className="crew-portal-title-accent">{t("world.modes."+mode+".accent")}</em>{t("world.modes."+mode+".after")}</span></h1>
-     <p className="crew-portal-description" data-discovery={mode==="chat"&&!selectedPost?"true":"false"}>{mode==="chat"&&!selectedPost?<HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/>:t("world.modes."+mode+".description")}</p>
+     {(mode!=="chat"||selectedPost)&&<p className="crew-portal-description">{t("world.modes."+mode+".description")}</p>}
     </div>
     <Link className="crew-portal-cta" to={target} data-preparing={preparing} aria-busy={preparing}
      onPointerDown={mode==="chat"?warmFriendStart:undefined} onTouchStart={mode==="chat"?warmFriendStart:undefined}
@@ -155,6 +155,7 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
     <div className="crew-portal-status-slot">
      {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t(trial.member?"common:guestTrial.memberRemaining":"common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
     </div>
+    {mode==="chat"&&!selectedPost&&<div className="crew-portal-discovery-slot"><HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/></div>}
    </div>
    <div className="crew-portal-tabs" role="tablist" aria-label={t("world.tilesLabel")}>
     {MODES.map((item,i)=><button className="crew-portal-tab" key={item.id} id={"crew-portal-tab-"+item.id} data-mode={item.id} type="button" role="tab"

@@ -20,7 +20,7 @@ test("chat destinations use text mode but retain exhausted quota redirect",()=>{
  assert.match(bubble,/trial\.remaining===0/);
  assert.match(bubble,/const target=needsSetup\?"\/account#settings-gemini":ZOE_LIVE/);
  assert.match(bubble,/trackUsageEvent\("home_entry_click",needsSetup\?"settings":"friend"\)/);
- assert.match(line,/to:"\/friend\/live\?id=zoe&from=home&chat=text"/);
+ assert.doesNotMatch(line,/to:"\/friend\/live\?id=zoe&from=home&chat=text"/);
  assert.match(onboarding,/chat:"\/friend\/live\?id=zoe&from=home&chat=text"/);
 });
 

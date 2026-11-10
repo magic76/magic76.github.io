@@ -154,7 +154,6 @@
       "intro": "Apa lagi yang bisa kamu lakukan di Crew?",
       "item0": "Main tebak angka atau gomoku bersama AI",
       "item1": "Foto benda lalu buat ia bicara",
-      "item2": "Kenali 16 teman AI dan kisah mereka",
       "item3": "Latih bahasa sambil bermain",
       "item4": "Ciptakan cerita bersama AI"
     }
@@ -562,7 +561,7 @@
   },
   "liveBubble": {
     "invite": "Hai, mau ngobrol sebentar?",
-    "start": "Ngobrol",
+    "start": "Suara",
     "heading": "Ngobrol dengan teman AI",
     "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"

@@ -5,11 +5,10 @@ import {trackUsageEvent} from "../analytics/usage";
 
 /** A small invitation, not an automatic tab/CTA switch. Keep destination and text aligned. */
 const DISCOVER=[
- {to:"/games/1a2b",detail:"play"},
- {to:"/souls",detail:"souls"},
- {to:"/friend/live?id=zoe&from=home&chat=text",detail:"friend"},
- {to:"/teacher/vocabulary",detail:"learn"},
- {to:"/story",detail:"story"}
+ {to:"/games/1a2b",detail:"play",phrase:"item0"},
+ {to:"/souls",detail:"souls",phrase:"item1"},
+ {to:"/teacher/vocabulary",detail:"learn",phrase:"item3"},
+ {to:"/story",detail:"story",phrase:"item4"}
 ] as const;
 
 type Phase="hold"|"erase"|"type";
@@ -22,7 +21,7 @@ export function HomeDiscoveryLine({animate}:{animate:boolean}){
  const [hover,setHover]=useState(false);
  const [focused,setFocused]=useState(false);
  const item=DISCOVER[index];
- const phrase=t("world.discovery.item"+index);
+ const phrase=t("world.discovery."+item.phrase);
  const characters=Array.from(phrase);
  const visible=!animate||count===null?phrase:characters.slice(0,count).join("");
  useEffect(()=>{
