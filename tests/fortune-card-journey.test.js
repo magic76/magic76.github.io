@@ -11,7 +11,7 @@ function load(file,names,bindings={}){
   .replace(/^\s*export\s+/gm,"");
  return Function(...Object.keys(bindings),code+"\nreturn {"+names.join(",")+"};")(...Object.values(bindings));
 }
-const i18n=load("fortuneJourneyI18n.ts",["fortuneCopy","fortuneLocale","fortuneTrait","fortuneInvitation","assertFortuneCopyComplete","fortuneModeLabel"]);
+const i18n=load("fortuneJourneyI18n.ts",["fortuneCopy","fortuneLocale","fortuneTrait","fortuneInvitation","fortuneChallenge","assertFortuneCopyComplete","fortuneModeLabel"]);
 const identity=load("identity.ts",["buildFortuneIdentity"]);
 const artwork=load("identityArtwork.ts",["identityArtworkUrl"]);
 const model=load("fortuneCardModel.ts",["buildFortuneCardModel","FORTUNE_ARCHETYPE_TRAITS"],{
@@ -45,6 +45,29 @@ test("all eleven locales provide complete, meaningful challenge and two sourced 
   model.buildFortuneCardModel("bazi",{dayMaster:"辛"},"en").chips[0]);
  assert.equal(model.buildFortuneCardModel("bazi",{dayMaster:"辛"},"zh-TW").title,"精準鑑賞家");
  assert.equal(model.buildFortuneCardModel("tarot",{personalityCardNumber:22},"en").title,"Free-Spirit Adventurer");
+});
+test("all eleven languages invite a comparison, not just a bare link",()=>{
+ for(const locale of ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]){
+  const title="Test archetype";
+  const url=invite.fortuneInviteUrl("bazi","bazi-丙",locale);
+  const invitation=i18n.fortuneInvitation(locale,title,url);
+  assert.ok(invitation.includes(title),locale);
+  assert.ok(invitation.length>100,locale);
+  assert.ok(invitation.trim().endsWith(url),locale);
+  assert.equal(invitation.split(url).length-1,1,locale);
+  assert.ok(invitation.split("\n").length>=4,locale);
+  const challenge=i18n.fortuneChallenge(locale);
+  assert.ok(challenge.question&&challenge.action,locale);
+ }
+ const identity=model.buildFortuneCardModel("bazi",{dayMaster:"丙",careerProfile:{officerCount:1,resourceCount:0,outputCount:3}},"zh-TW");
+ assert.ok(identity.identity?.tension);
+ const personalized=i18n.fortuneInvitation("zh-TW",identity.title,"https://www.3sssi.com/fortune",identity.identity.tension);
+ assert.match(personalized,/點子一多/);
+ assert.match(personalized,/耀眼領航者/);
+ const secret="出生：1985-07-06，姓名私人";
+ assert.doesNotMatch(i18n.fortuneInvitation("zh-TW",identity.title,"https://www.3sssi.com/fortune",secret),/1985|私人/);
+ const japanese=i18n.fortuneInvitation("ja",identity.title,"https://www.3sssi.com/fortune",identity.identity.tension);
+ assert.doesNotMatch(japanese,/點子一多/,"do not leak Chinese body into Japanese invitation");
 });
 test("identity, missing identity and missing art keep a private-data-free fallback",()=>{
  assert.equal(Object.keys(model.FORTUNE_ARCHETYPE_TRAITS).length,44);
@@ -97,7 +120,7 @@ function makeCanvas(){
 }
 test("shared renderer produces 1080x1350 illustrated collectible with no birth facts or article header",()=>{
  const env=makeCanvas();
- const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document,fortuneLocale:i18n.fortuneLocale,fortuneCopy:i18n.fortuneCopy}).renderCollectibleCard;
+ const render=load("fortuneCardCanvas.ts",["renderCollectibleCard"],{document:env.document,fortuneLocale:i18n.fortuneLocale,fortuneCopy:i18n.fortuneCopy,fortuneChallenge:i18n.fortuneChallenge}).renderCollectibleCard;
  for(const [mode,result] of examples){
   const card=model.buildFortuneCardModel(mode,result,"zh-TW");
   const art={complete:true,naturalWidth:1536,naturalHeight:864};
@@ -120,6 +143,8 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   assert.ok(env.calls.some(x=>x[1]==="命格輪廓"));
   assert.ok(env.calls.some(x=>x[1]==="行動線索"));
   assert.ok(env.calls.some(x=>x[1]==="成長提醒"));
+  assert.ok(env.calls.some(x=>String(x[1]).includes("你遇到事情是先衝")));
+  assert.ok(env.calls.some(x=>String(x[1]).includes("換你測測看")));
   assert.ok(!env.calls.some(x=>/命盤重點|birthDate|1985-07-06/.test(String(x[1]))));
   env.calls.length=0;
   render(card,null,new Date("2026-11-08"),"en");

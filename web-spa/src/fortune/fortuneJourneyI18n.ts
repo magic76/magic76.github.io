@@ -48,11 +48,107 @@ export function fortuneTrait(locale:string,key:Trait):string{
  return traits[fortuneLocale(locale)].split("|")[idx]||traits.en.split("|")[idx];
 }
 export function fortuneModeLabel(locale:string,mode:"bazi"|"tarot"|"vedic"):string{return fortuneCopy(locale)[mode]}
-export function fortuneInvitation(locale:string,title:string,url:string):string{
- const copy=fortuneCopy(locale);
- return title+" · "+copy.question+"\n"+url;
+/** Personalization is limited to curated public archetype copy; never include profile or chart details. */
+type InviteCopy={lead:string;reveal:string;fallback:string;question:string;action:string};
+const inviteCopy:Record<string,InviteCopy>={
+ "zh-TW":{
+  lead:"我測出的命格角色是「{title}」✨",
+  reveal:"有趣的是，它不只說優勢，還提醒了另一面：",
+  fallback:"卡片不只整理了特質，還寫到做事方式和成長提醒。",
+  question:"你遇到事情是先衝、先觀察，還是先想清楚每一步？",
+  action:"換你測測看，回傳結果讓我看看我們是不是同一型 👇"
+ },
+ en:{
+  lead:"My archetype turned out to be “{title}” ✨",
+  reveal:"The unexpected part? It also calls out a possible blind spot:",
+  fallback:"The card goes beyond a label: it explores habits and room to grow.",
+  question:"Do you jump in, observe first, or plan every step?",
+  action:"Find your type and show me. I wonder if we'll match 👇"
+ },
+ ja:{
+  lead:"私のタイプは「{title}」だった ✨",
+  reveal:"意外だったのは、長所だけでなく気をつけたい一面もあること。",
+  fallback:"特徴だけでなく、行動の傾向や成長のヒントも載っているよ。",
+  question:"あなたはまず動く？ 観察する？ じっくり計画する？",
+  action:"あなたのタイプも調べて、結果を見せてね 👇"
+ },
+ es:{
+  lead:"Mi arquetipo resultó ser «{title}» ✨",
+  reveal:"Lo curioso: también señala algo que podría mejorar:",
+  fallback:"La carta muestra hábitos y pistas para crecer, no solo una etiqueta.",
+  question:"¿Actúas primero, observas o prefieres planificar?",
+  action:"Descubre tu tipo y enséñame el resultado 👇"
+ },
+ "pt-BR":{
+  lead:"Meu arquétipo deu «{title}» ✨",
+  reveal:"O curioso é que também aponta um ponto de atenção:",
+  fallback:"A carta fala de hábitos e possibilidades de evolução, não só de um rótulo.",
+  question:"Você age primeiro, observa ou planeja cada passo?",
+  action:"Descubra seu tipo e me mostre o resultado 👇"
+ },
+ id:{
+  lead:"Tipe arketipeku ternyata “{title}” ✨",
+  reveal:"Menariknya, ada juga sisi yang perlu diperhatikan:",
+  fallback:"Kartu ini membahas kebiasaan dan cara berkembang, bukan hanya label.",
+  question:"Kamu langsung bertindak, mengamati, atau menyusun rencana?",
+  action:"Cari tahu tipemu, lalu tunjukkan hasilnya padaku 👇"
+ },
+ fr:{
+  lead:"Mon archétype est « {title} » ✨",
+  reveal:"Surprise : la carte évoque aussi un point à surveiller :",
+  fallback:"Elle parle de mes habitudes et de pistes pour évoluer, pas seulement d'une étiquette.",
+  question:"Tu fonces, tu observes ou tu planifies chaque étape ?",
+  action:"Découvre ton type et montre-moi le résultat 👇"
+ },
+ de:{
+  lead:"Mein Archetyp ist „{title}“ ✨",
+  reveal:"Spannend: Die Karte nennt auch eine mögliche Schattenseite:",
+  fallback:"Sie zeigt Gewohnheiten und Entwicklungsideen, nicht nur ein Etikett.",
+  question:"Legst du sofort los, beobachtest du erst oder planst du genau?",
+  action:"Finde deinen Typ heraus und zeig mir dein Ergebnis 👇"
+ },
+ ko:{
+  lead:"내 유형은 ‘{title}’였어 ✨",
+  reveal:"재미있는 건 장점뿐 아니라 주의할 점도 알려준다는 거야:",
+  fallback:"단순한 이름이 아니라 행동 습관과 성장 힌트도 담겨 있어.",
+  question:"넌 먼저 행동해, 관찰해, 아니면 차근차근 계획해?",
+  action:"너의 유형도 알아보고 결과를 보여줘 👇"
+ },
+ vi:{
+  lead:"Kiểu của mình là “{title}” ✨",
+  reveal:"Thú vị là thẻ còn nhắc đến một điểm cần lưu ý:",
+  fallback:"Thẻ nói về thói quen và cách phát triển, không chỉ gắn nhãn.",
+  question:"Bạn hành động ngay, quan sát trước hay lên kế hoạch từng bước?",
+  action:"Thử xem bạn thuộc kiểu nào rồi gửi kết quả cho mình nhé 👇"
+ },
+ th:{
+  lead:"ประเภทของฉันคือ “{title}” ✨",
+  reveal:"น่าสนใจตรงที่มีทั้งจุดเด่นและสิ่งที่ควรระวัง:",
+  fallback:"การ์ดพูดถึงนิสัยและแนวทางพัฒนา ไม่ได้มีแค่ชื่อประเภท",
+  question:"คุณลุยก่อน สังเกตก่อน หรือวางแผนทีละขั้น?",
+  action:"ลองดูว่าคุณเป็นประเภทไหน แล้วส่งผลมาให้ดูกัน 👇"
+ }
+};
+/** Short public challenge that fits the card, with no personal chart facts. */
+export function fortuneChallenge(locale:string):{question:string;action:string}{
+ const copy=inviteCopy[fortuneLocale(locale)]||inviteCopy.en;
+ return {question:copy.question,action:copy.action.replace(/\s*👇\s*$/u,"")};
+}
+export function fortuneInvitation(locale:string,title:string,url:string,tension=""):string{
+ const lang=fortuneLocale(locale),copy=inviteCopy[lang]||inviteCopy.en;
+ // Identity themes are authored in zh/en. Do not put English archetype prose into
+ // unrelated UI languages or republish arbitrary AI summaries in public shares.
+ const safeTension=(lang==="zh-TW"||lang==="en")&&tension.length<=160
+  && !/[\r\n]|https?:|www\.|@|出生|生日|姓名|birthdate|birthtime|\d{2}[-/:年]\d{1,2}/i.test(tension)
+  ?tension.trim():"";
+ return [
+  copy.lead.replace("{title}",title),
+  safeTension?copy.reveal+"\n「"+safeTension+"」":copy.fallback,
+  copy.question,copy.action,url
+ ].join("\n");
 }
 export function assertFortuneCopyComplete():boolean{
  return Object.keys(rows).length===11&&Object.keys(rows).every(code=>
-  rows[code].split("|").length===keys.length&&traits[code].split("|").length===traitKeys.length);
+  rows[code].split("|").length===keys.length&&traits[code].split("|").length===traitKeys.length
+  &&Boolean(inviteCopy[code]?.lead&&inviteCopy[code]?.question&&inviteCopy[code]?.action));
 }

@@ -15,7 +15,8 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
  const labels=fortuneCopy(locale);
  const model=useMemo(()=>buildFortuneCardModel(reading.mode,reading.result,locale,oneLine),
   [reading.mode,reading.result,locale,oneLine]);
- const url=fortuneInviteUrl(reading.mode,model.id,locale),invitation=fortuneInvitation(locale,model.title,url);
+ const url=fortuneInviteUrl(reading.mode,model.id,locale),invitation=fortuneInvitation(locale,model.title,url,model.identity?.tension);
+ const invitationPreview=invitation.endsWith(url)?invitation.slice(0,-url.length).trim():invitation;
  const dialog=useRef<HTMLDialogElement>(null),art=useRef<HTMLImageElement|null>(null);
  const[preview,setPreview]=useState(""),[status,setStatus]=useState(""),[manual,setManual]=useState(false),[busy,setBusy]=useState(false);
  function generate(){
@@ -98,7 +99,7 @@ export function FortuneShareDialog({reading,oneLine,open,onClose}:{
     {preview?<img src={preview} alt={labels.preview+" · "+model.title} width={1080} height={1350}/>:
      <div role="status">{labels.preview}</div>}
    </div>
-   <p className="fortune-share-prompt">{model.title} · {labels.question}</p>
+   <p className="fortune-share-prompt">{invitationPreview}</p>
    <a href={url} target="_blank" rel="noopener noreferrer" className="fortune-share-public-link">{url}</a>
    <div className="fortune-share-controls">
     <button type="button" className="btn" disabled={busy} onClick={()=>void nativeShare()}>{labels.native}</button>

@@ -13,7 +13,7 @@ export function renderIdentityShareCard(identity:FortuneIdentity,locale:string,a
 export async function shareIdentityCard(identity:FortuneIdentity,locale:string,art?:HTMLImageElement|null):Promise<"shared"|"cancelled"|"unsupported">{
  const canvas=renderIdentityShareCard(identity,locale,art),file=collectiblePngFile(canvas,"crew-fortune-identity.png");
  const url=fortuneInviteUrl(identity.mode,identity.id,locale);
- return nativeCollectibleShare(file,fortuneInvitation(locale,identity.title,url),url);
+ return nativeCollectibleShare(file,fortuneInvitation(locale,identity.title,url,identity.tension),url);
 }
 export function identityInviteUrl(mode:FortuneMode,id:string|null=null,locale="zh-TW"):string{
  return fortuneInviteUrl(mode,id,locale);
