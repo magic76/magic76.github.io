@@ -75,7 +75,7 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
     {changing&&<p className="crew-language-feedback" role="status">{t("language.loading")}</p>}
     {failed&&<p className="crew-language-feedback" role="alert">{t("language.loadError")}</p>}
     <div className="crew-language-options">
-     {UI_LOCALE_CATALOG.map(({code,label,stage})=><button
+     {UI_LOCALE_CATALOG.map(({code,label})=><button
       key={code} type="button" disabled={changing}
       className={"crew-language-option"+(code===current?" is-selected":"")}
       aria-pressed={code===current}
@@ -83,7 +83,6 @@ export function LanguageSwitcher({variant="header"}:{variant?:"header"|"settings
       <span className="crew-language-option-copy">
        <span className="crew-language-option-main">
         <span className="crew-language-option-name">{label}</span>
-        {stage==="priority"&&<span className="crew-language-stage crew-language-stage-priority">{t("language.beta")}</span>}
        </span>
       </span>
       <span className="crew-language-check" aria-hidden="true">{code===current?"✓":""}</span>
