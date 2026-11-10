@@ -109,6 +109,8 @@
 .fortune-share-public-link{font-size:13px;line-height:1.6;overflow-wrap:anywhere;text-decoration:underline;display:block}
 .fortune-share-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .fortune-share-controls>.btn{min-width:0;min-height:48px;line-height:1.35;white-space:normal}
+.fortune-share-copy-link{grid-column:1/-1}
+.fortune-share-help{font-size:13px;color:#51406e;line-height:1.65;margin:0}
 .fortune-share-status{font-size:13px;color:#51406e;margin:0;line-height:1.6}
 .fortune-share-manual{display:grid;gap:7px;font-size:13px;line-height:1.6}
 .fortune-share-manual textarea{width:100%;resize:vertical;font-size:14px;padding:10px;border:1px solid #b7aac9;border-radius:10px;background:#fff;color:#242133}

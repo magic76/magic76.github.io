@@ -11,7 +11,7 @@ function load(file,names,bindings={}){
   .replace(/^\s*export\s+/gm,"");
  return Function(...Object.keys(bindings),code+"\nreturn {"+names.join(",")+"};")(...Object.values(bindings));
 }
-const i18n=load("fortuneJourneyI18n.ts",["fortuneCopy","fortuneLocale","fortuneTrait","fortuneInvitation","fortuneChallenge","assertFortuneCopyComplete","fortuneModeLabel"]);
+const i18n=load("fortuneJourneyI18n.ts",["fortuneCopy","fortuneLocale","fortuneTrait","fortuneInvitation","fortuneChallenge","fortuneTextShareLabels","assertFortuneCopyComplete","fortuneModeLabel"]);
 const identity=load("identity.ts",["buildFortuneIdentity"]);
 const artwork=load("identityArtwork.ts",["identityArtworkUrl"]);
 const model=load("fortuneCardModel.ts",["buildFortuneCardModel","FORTUNE_ARCHETYPE_TRAITS"],{
@@ -150,6 +150,23 @@ test("shared renderer produces 1080x1350 illustrated collectible with no birth f
   render(card,null,new Date("2026-11-08"),"en");
   assert.ok(!env.calls.some(x=>x[0]==="image"));
  }
+});
+test("text-first sharing is localized and keeps image attachment user-controlled",()=>{
+ for(const locale of ["zh-TW","en","ja","es","pt-BR","id","fr","de","ko","vi","th"]){
+  const text=i18n.fortuneTextShareLabels(locale);
+  assert.ok(text.textOnly&&text.copyPost&&text.downloadCard&&text.help,locale);
+ }
+ const dialog=read(fortune("FortuneShareDialog.tsx"));
+ assert.match(dialog,/await navigator\.share\(\{text:invitation\}\)/);
+ assert.match(dialog,/onClick=\{\(\)=>void shareTextOnly\(\)\}/);
+ assert.match(dialog,/onClick=\{\(\)=>void copy\(invitation\)\}/);
+ assert.match(dialog,/onClick=\{download\}/);
+ assert.match(dialog,/shareLabels\.copyPost/);
+ assert.match(dialog,/shareLabels\.downloadCard/);
+ assert.match(dialog,/shareLabels\.help/);
+ assert.match(dialog,/if\(!navigator\.share\)/);
+ assert.doesNotMatch(dialog,/navigator\.share\(\{files:/);
+ assert.ok(dialog.indexOf("copy(invitation)")<dialog.indexOf("shareTextOnly()}"));
 });
 test("native sharing detects files, URL fallback, cancellation, errors and no Web Share",async()=>{
  const build=nav=>load("fortuneCardCanvas.ts",["nativeCollectibleShare"],{navigator:nav}).nativeCollectibleShare;
