@@ -17,8 +17,8 @@ export const crewGames=[
 
 type HubFilter="all"|"no-key"|"ai";
 const recentGameKey="crew_play_recent_game_v1";
-const noKeyGames=new Set<string>(["friend-gomoku","connect4","reversi","1a2b","number-bomb","memory","taboo"]);
-const extraGames=["nonsense","werewolf","crazy-court","truth-news"];
+const noKeyGames=new Set<string>(["friend-gomoku","connect4","reversi","1a2b","number-bomb","memory","taboo","arcade-lab"]);
+const extraGames=["arcade-lab","nonsense","werewolf","crazy-court","truth-news"];
 const knownGames=new Set<string>([...crewGames.map(game=>game.id),...extraGames]);
 
 export function CrewPlayHubPage(){
@@ -44,6 +44,7 @@ export function CrewPlayHubPage(){
   return !term||(title+" "+description+" "+id).toLocaleLowerCase().includes(term);
  };
  const extraLabels={
+  "arcade-lab":zh?["Arcade Lab 四款新遊戲","2D 跑酷、霓虹射擊、RPG 冒險、平台射擊一次玩。"]:["Arcade Lab: Four games","Play a 2D runner, top-down shooter, RPG quest, and platform shooter."],
   nonsense:zh?["荒謬新聞直播","荒謬新聞題材、AI 主播與動態新聞現場。"]:["Absurd News Live","Improvised AI news scenes."],
   werewolf:zh?["AI 狼人殺","夜晚行動、質疑、推理與投票。"]:["AI Werewolf","Debate, bluff and vote."],
   "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."],
@@ -86,6 +87,11 @@ export function CrewPlayHubPage(){
    </div>
   </div>
   <div className="crew-play-catalog">
+   <Link className="crew-play-game-card arcade-lab-hub-card" to="/games/arcade-lab" hidden={!visible("arcade-lab",extraLabels["arcade-lab"][0],extraLabels["arcade-lab"][1])} onClick={()=>remember("arcade-lab")}>
+    <div className="crew-play-game-art" aria-hidden="true"><span>🎮</span></div>
+    <div className="crew-play-game-info"><strong>{extraLabels["arcade-lab"][0]}</strong><small>{extraLabels["arcade-lab"][1]}</small><span className="crew-play-game-voice-tag">{zh?"四款免費玩 · 可選 Gemini Live 語音":"Four free games · Optional Gemini Live"}</span></div>
+    <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
    {crewGames.map((game,index)=><Link className="crew-play-game-card" hidden={!visible(game.id,titleFor(game.id),descFor(game.id))} onClick={()=>remember(game.id)} to={"/games/"+game.id} key={game.id}>
     <div className={`crew-play-game-art game-${index}`} aria-hidden="true"><span>{game.icon}</span></div>
     <div className="crew-play-game-info"><strong>{titleFor(game.id)}</strong><small>{descFor(game.id)}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?t("playHub.voiceRequired"):game.id==="taboo"?(zh?"打字練習 · 可開 AI 猜詞":"Typing practice · Optional AI guessing"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):game.id==="number-bomb"||game.id==="memory"?(zh?"免費玩 · 語音陪玩可選":"Free play · Optional voice"):t("playHub.offlineOptional")}</span></div>
