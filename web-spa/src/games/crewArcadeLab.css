@@ -1,0 +1,18 @@
+.crew-arcade-route{width:min(100%,1050px);margin:0 auto;padding:12px 12px max(100px,env(safe-area-inset-bottom))}
+.crew-arcade-head{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:34px;padding:0 5px 10px}
+.crew-arcade-head>a{font-size:13px;color:var(--muted,#737a8e);text-decoration:none;padding:5px}
+.crew-arcade-head span{font-size:11px;letter-spacing:.12em;font-weight:800;color:#777cac}
+.crew-arcade-iframe{display:block;width:100%;border:0;border-radius:17px;background:#0e1630;overflow:hidden;max-width:100%}
+.crew-arcade-voice{display:grid;gap:10px;margin:15px auto 0;max-width:700px;padding:15px;border-radius:18px;border:1px solid var(--line,#d6daee);background:var(--surface,#fff)}
+.crew-arcade-voice-head{display:flex;align-items:center;gap:11px}
+.crew-arcade-voice-head img{width:45px;height:45px;border-radius:50%;object-fit:cover}
+.crew-arcade-voice-head strong{font-size:14px}
+.crew-arcade-voice-head p{font-size:12px;margin:3px 0 0;color:var(--muted,#6e7488)}
+.crew-arcade-voice .crew-game-voice-picker{max-width:100%}
+.crew-arcade-voice .crew-game-voice-controls{width:100%}
+.crew-arcade-connect{min-height:46px;border:0;border-radius:12px;background:#e2e4ff;color:#43478d;font-weight:800;cursor:pointer}
+.crew-arcade-keyless{font-size:12px;line-height:1.6;margin:0}
+.crew-arcade-keyless a{color:inherit;text-decoration:underline}
+.crew-arcade-keyless button{min-height:36px;padding:6px 11px;border:1px solid #a8acd4;border-radius:9px;background:transparent}
+.crew-arcade-voice>small{font-size:11px;line-height:1.5;color:var(--muted,#6e7488)}
+@media(max-width:420px){.crew-arcade-route{padding:9px 4px max(90px,env(safe-area-inset-bottom))}.crew-arcade-head{padding:0 10px 7px}.crew-arcade-head span{font-size:10px}.crew-arcade-iframe{border-radius:10px}.crew-arcade-voice{margin:10px 6px 0;padding:12px}}
