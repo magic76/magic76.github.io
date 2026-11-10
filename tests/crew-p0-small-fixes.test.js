@@ -32,12 +32,12 @@ test('course progress is labelled by the existing lesson namespace on first rout
  }
 });
 
-test('voice permission precheck is prompt-free, localized, and denial gives settings guidance',()=>{
+test('voice permissions are requested on Start, and actual denial gives localized settings guidance',()=>{
  const src=read('web-spa/src/live/GuestLiveStarter.tsx');
  const before=src.slice(0,src.indexOf('async function begin()'));
  const after=src.slice(src.indexOf('async function begin()'));
- assert.match(before,/navigator\.permissions\?\.query/);
- assert.match(before,/query\(\{name:"microphone" as PermissionName\}\)/);
+ assert.doesNotMatch(before,/navigator\.permissions\?\.query/);
+ assert.doesNotMatch(before,/role="alert"/);
  assert.doesNotMatch(before,/navigator\.mediaDevices\.getUserMedia\(/);
  assert.match(after,/navigator\.mediaDevices\.getUserMedia\(\{audio:true\}\)/);
  // Microphone help must come from the eagerly available common namespace:
@@ -45,7 +45,9 @@ test('voice permission precheck is prompt-free, localized, and denial gives sett
  assert.doesNotMatch(src,/loadUiNamespace\("settings"\)/);
  assert.doesNotMatch(src,/settings:gemini\./);
  assert.match(src,/return t\("guestTrial\."\+key\)/);
- assert.match(src,/setMessage\(t\("guestTrial\.micDenied"\)\+" "\+microphoneHelp\(\)\)/);
+ assert.match(src,/setMessage\(t\("guestTrial\.micDenied"\)\)/);
+ assert.match(src,/phase==="error"&&micPermissionDenied&&<p/);
+ assert.match(src,/\{microphoneHelp\(\)\}<\/p>/);
  assert.match(src,/guestTrial\.microphoneNotice/);
  assert.match(src,/guestTrial\.micDenied/);
  assert.match(src,/guest_trial_mic_denied/);
