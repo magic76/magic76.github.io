@@ -181,5 +181,23 @@
     "latestAlt": "Foto terakhir yang dikirim",
     "sentTo": "Terkirim ke Archie",
     "latestPhoto": "Foto terbaru"
+  },
+  "guestText": {
+    "verifyRequired": "Verifikasi keamanan diperlukan. Verifikasi lagi, lalu tekan Kirim.",
+    "verifyFailed": "Verifikasi gagal. Selesaikan lagi sebelum mengirim.",
+    "sessionExpired": "Sesi gratis berakhir. Verifikasi lagi untuk melanjutkan.",
+    "dailyLimit": "Kamu sudah memakai 12 pesan teks gratis hari ini. Kamu bisa menggunakan kunci Gemini sendiri.",
+    "tooFast": "Pesan dikirim terlalu cepat. Tunggu beberapa detik lalu coba lagi.",
+    "capacity": "Kuota gratis seluruh situs hari ini penuh. Ini bukan berarti 12 pesan pribadimu habis. Kembali nanti atau gunakan kunci Gemini sendiri.",
+    "backend": "Server atau model chat gratis belum dapat memproses permintaan ini. Ini bukan kegagalan verifikasi keamanan. Coba lagi.",
+    "network": "Koneksi atau pembacaan respons gagal. Periksa jaringan lalu coba lagi.",
+    "badRequest": "Permintaan teks ini gagal dikirim. Periksa atau ubah pesan lalu coba lagi.",
+    "retry": "Kirim lagi",
+    "restart": "Coba sambungkan lagi",
+    "restartHint": "Sesi gratis belum berhasil dibuat. Verifikasi keamanan mungkin diperlukan lagi.",
+    "backendNext": "Beberapa percobaan tidak mendapat balasan. Coba lagi nanti atau gunakan kunci Gemini sendiri.",
+    "useKey": "Gunakan kunci Gemini sendiri",
+    "verifyAgain": "Verifikasi lagi"
   }
+
 }

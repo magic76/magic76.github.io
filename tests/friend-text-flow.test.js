@@ -47,7 +47,7 @@ test("Guest can send before an active phase: wait for Turnstile, start, then sen
  assert.match(panel,/await waitForChallenge\(\)/);
  assert.match(panel,/if\(!key&&guestPhase==="error"\)setGuestPhase\("ready"\)/);
  assert.doesNotMatch(panel,/guestMode&&guestPhase!=="active"/);
- assert.match(panel,/disabled=\{busy\|\|\(guestMode&&\(guestPhase==="unavailable"\|\|guestPhase==="exhausted"\)\)\}/);
+ assert.match(panel,/disabled=\{busy\|\|\(guestMode&&\(guestPhase==="unavailable"\|\|guestPhase==="exhausted"\|\|guestPhase==="paused"\)\)\}/);
 });
 test("SESSION_EXPIRED invalidates first grant and resends same turn only once",async()=>{
  const {sendGuestTextWithRenewal}=load("web-spa/src/live/guestTextFlow.ts",["sendGuestTextWithRenewal"]);

@@ -181,5 +181,23 @@
     "latestAlt": "Ảnh gửi gần nhất",
     "sentTo": "Đã gửi cho Archie",
     "latestPhoto": "Ảnh mới nhất"
+  },
+  "guestText": {
+    "verifyRequired": "Cần xác minh bảo mật để gửi tin nhắn. Hãy xác minh lại rồi nhấn Gửi.",
+    "verifyFailed": "Xác minh không thành công. Hãy thực hiện lại trước khi gửi.",
+    "sessionExpired": "Phiên miễn phí đã hết hạn. Xác minh lại để tiếp tục.",
+    "dailyLimit": "Bạn đã dùng hết 12 tin nhắn văn bản miễn phí hôm nay. Bạn có thể dùng khóa Gemini của mình.",
+    "tooFast": "Bạn gửi quá nhanh. Đợi vài giây rồi thử lại.",
+    "capacity": "Lượt chat văn bản miễn phí của toàn trang hôm nay đã hết. Điều đó không có nghĩa bạn đã dùng hết 12 tin riêng. Hãy quay lại sau hoặc dùng khóa Gemini của mình.",
+    "backend": "Máy chủ hoặc mô hình chat miễn phí chưa xử lý được yêu cầu. Đây không phải lỗi xác minh bảo mật. Hãy thử lại.",
+    "network": "Không thể kết nối hoặc đọc phản hồi. Kiểm tra mạng rồi thử lại.",
+    "badRequest": "Không thể gửi yêu cầu văn bản này. Hãy kiểm tra hoặc sửa nội dung rồi thử lại.",
+    "retry": "Gửi lại",
+    "restart": "Thử kết nối lại",
+    "restartHint": "Chưa tạo được phiên miễn phí. Lần kết nối tiếp theo có thể cần xác minh lại.",
+    "backendNext": "Đã thử nhiều lần mà không có phản hồi. Hãy quay lại sau hoặc dùng khóa Gemini của mình.",
+    "useKey": "Dùng khóa Gemini của tôi",
+    "verifyAgain": "Xác minh lại"
   }
+
 }
