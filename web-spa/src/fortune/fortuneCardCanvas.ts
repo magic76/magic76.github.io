@@ -1,5 +1,5 @@
 import type {FortuneCardModel} from "./fortuneCardModel";
-import {fortuneCopy,fortuneLocale} from "./fortuneJourneyI18n";
+import {fortuneCopy,fortuneLocale,fortuneChallenge} from "./fortuneJourneyI18n";
 
 /** A single public archetype card, shared by the reading and identity entry points.
  * Never pass raw chart facts or birth profiles to this Canvas renderer.
@@ -112,6 +112,18 @@ function photo(ctx:CanvasRenderingContext2D,model:FortuneCardModel,art:HTMLImage
  line(ctx,104,181,104,226,paint.line,4);line(ctx,104,181,154,181,paint.line,4);
  line(ctx,977,593,977,638,paint.line,4);line(ctx,927,638,977,638,paint.line,4);
 }
+/** Scale short social challenges to fit a single readable line. */
+function fittedChallenge(ctx:CanvasRenderingContext2D,value:string,x:number,y:number,maxWidth:number,maxSize:number){
+ let size=maxSize;
+ while(size>18){
+  ctx.font="700 "+size+"px system-ui,sans-serif";
+  if(ctx.measureText(value).width<=maxWidth)break;
+  size--;
+ }
+ let label=value;
+ while(label.length>1&&ctx.measureText(label).width>maxWidth)label=label.slice(0,-1);
+ ctx.fillText(label===value?label:label+"…",x,y);
+}
 function section(ctx:CanvasRenderingContext2D,label:string,value:string,y:number,paint:Palette){
  rounded(ctx,99,y-24,7,30,4,paint.line);
  ctx.fillStyle=paint.accent;ctx.font="750 25px system-ui,sans-serif";ctx.fillText(label,124,y);
@@ -153,16 +165,15 @@ export function renderCollectibleCard(model:FortuneCardModel,art?:HTMLImageEleme
  line(ctx,122,1037,965,1037,"#eae7f2",2);
  section(ctx,copy.headings[2],tension,1058,paint);
  line(ctx,98,1139,982,1139,"#eae7f2",2);
- ctx.fillStyle=paint.accent;ctx.font="600 20px system-ui,sans-serif";ctx.fillText(copy.traits,101,1162);
- let x=101;
- for(const chip of model.chips.slice(0,3)){
-  ctx.font="650 24px system-ui,sans-serif";
-  const width=Math.min(300,ctx.measureText(chip).width+54);
-  if(x+width>974)break;
-  rounded(ctx,x,1174,width,39,20,paint.chip);
-  strokeRounded(ctx,x,1174,width,39,20,"#dcd4ee",1);
-  ctx.fillStyle=paint.accent;ctx.fillText(chip,x+27,1202);x+=width+13;
- }
+ // Do not repeat the two trait chips already shown beside the title. End the
+ // card with a concrete invitation instead of filler or an unverifiable claim.
+ const challenge=fortuneChallenge(locale);
+ rounded(ctx,91,1148,898,65,16,paint.mist);
+ strokeRounded(ctx,91,1148,898,65,16,paint.line,1.5);
+ ctx.fillStyle=paint.accent;
+ fittedChallenge(ctx,challenge.question,113,1175,854,26);
+ ctx.fillStyle="#4b465c";
+ fittedChallenge(ctx,challenge.action,113,1203,854,22);
  // No private birth dates or individual five-element values appear in a public invite.
  const validDate=Number.isNaN(generatedAt.getTime())?new Date():generatedAt;
  const date=new Intl.DateTimeFormat(locale,{year:"numeric",month:"short",day:"numeric"}).format(validDate);
