@@ -41,7 +41,7 @@ const details=new Set(["","bazi","tarot","vedic","bazi_yes","bazi_partly","bazi_
   "discover","me","footer","menu","nudge","native","asset","runtime",
   "android_app_google_play",
   "voice","demo","live","person","object","place","manual","render_error","unsupported",
-  "nonsense","crazy-court","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
+  "nonsense","crazy-court","crew-run","taboo","1a2b","number-bomb","memory","gomoku","connect4","reversi","twenty-questions","mystery","werewolf"]);
 const identifier=/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const json=(body:unknown,status:number)=>new Response(JSON.stringify(body),{
   status,headers:{"Content-Type":"application/json","Cache-Control":"no-store"}
