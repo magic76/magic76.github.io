@@ -32,6 +32,7 @@ const TimelinePage=lazy(()=>import("./timeline/TimelinePage").then(m=>({default:
 const TimelineLivePage=lazy(()=>withNamespace("voice",import("./timeline/TimelineLivePage")).then(m=>({default:m.TimelineLivePage})));
 const FriendsPage=lazy(()=>import("./friends/FriendsPage").then(m=>({default:m.FriendsPage})));const FriendLivePage=lazy(()=>withNamespace("voice",import("./friends/FriendLivePage")).then(m=>({default:m.FriendLivePage})));const FriendGomokuPage=lazy(()=>withNamespace("voice",import("./games/FriendGomokuPage")).then(m=>({default:m.FriendGomokuPage})));
 const CrewPlayHubPage=lazy(()=>import("./games/CrewPlayHubPage").then(m=>({default:m.CrewPlayHubPage})));
+const CrewArcadeLabPage=lazy(()=>withNamespace("voice",import("./games/CrewArcadeLabPage")).then(m=>({default:m.CrewArcadeLabPage})));
 const CrewPlayGamePage=lazy(()=>withNamespace("voice",import("./games/CrewPlayGamePage")).then(m=>({default:m.CrewPlayGamePage})));
 const NumberGamePage=lazy(()=>withNamespace(["games","voice"],import("./games/NumberGamePage")).then(m=>({default:m.NumberGamePage})));
 const QuickPlayGamePage=lazy(()=>import("./games/QuickPlayGamePage").then(m=>({default:m.QuickPlayGamePage})));
@@ -62,7 +63,7 @@ function BriefingLegacyRedirect(){const {date="",id=""}=useParams();return <Navi
 export function App(){const {t}=useTranslation("common");useEffect(()=>{trackAppOpen()},[]);const {pathname,search}=useLocation();useEffect(()=>{trackPageView(pathname)},[pathname]);
  useEffect(()=>{
   // Remember the last opened play/friend destination locally; never persist speech or messages.
-  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|number-bomb|memory|taboo|crazy-court|werewolf)$/.test(pathname);
+  const game=/^\/games\/(friend-gomoku|connect4|twenty-questions|reversi|mystery|1a2b|number-bomb|memory|taboo|crazy-court|werewolf|arcade-lab)$/.test(pathname);
   const friendId=pathname==="/friend/live"?new URLSearchParams(search).get("id"):null;
   if(!game&&!(friendId&&/^[a-z0-9-]{1,32}$/.test(friendId)))return;
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
@@ -95,6 +96,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/circle" element={<BooksPage/>}/>
 <Route path="/play" element={<Navigate to="/games" replace/>}/>
 <Route path="/games" element={<AppChrome product="home"><GameRouteReady/><CrewPlayHubPage/></AppChrome>}/>
+<Route path="/games/arcade-lab" element={<AppChrome product="home"><GameRouteReady/><CrewArcadeLabPage/></AppChrome>}/>
 <Route path="/games/friend-gomoku" element={<AppChrome product="home"><GameRouteReady/><FriendGomokuPage/></AppChrome>}/>
 <Route path="/games/gomoku" element={<Navigate to="/games/friend-gomoku" replace/>}/>
 <Route path="/games/1a2b" element={<AppChrome product="home"><GameRouteReady/><NumberGamePage/></AppChrome>}/>
