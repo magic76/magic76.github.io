@@ -181,5 +181,23 @@
     "latestAlt": "Most recently sent photo",
     "sentTo": "Sent to Archie",
     "latestPhoto": "Latest photo"
+  },
+  "guestText": {
+    "verifyRequired": "Security verification is required. Verify again, then press Send.",
+    "verifyFailed": "Security verification failed. Complete it again, then send your message.",
+    "sessionExpired": "Your free session expired. Verify again to continue.",
+    "dailyLimit": "You have used today’s 12 free text messages. You can switch to your own Gemini key.",
+    "tooFast": "Messages are coming too quickly. Wait a few seconds and try again.",
+    "capacity": "The site’s free text capacity is full for today. Your personal 12 messages have not necessarily run out. Come back later or use your own Gemini key.",
+    "backend": "The free chat backend or model could not complete this request. This is not a security verification failure. Try again.",
+    "network": "The connection or response could not be read. Check your network and try again.",
+    "badRequest": "This text request could not be sent. Check or edit your message and retry.",
+    "retry": "Send again",
+    "restart": "Try connecting again",
+    "restartHint": "A free session was not established. Starting again may require a new security check.",
+    "backendNext": "Several attempts received no reply. Try again later or use your own Gemini key.",
+    "useKey": "Use my Gemini key",
+    "verifyAgain": "Verify again"
   }
+
 }

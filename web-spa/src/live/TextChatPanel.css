@@ -63,3 +63,7 @@
 .crew-text-starter:hover{border-color:#8d83d4}
 .crew-text-starter:focus-visible{outline:2px solid #7465c8;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.crew-text-starter{scroll-behavior:auto;transition:none}}
+/* Guest failure actions stay beside the error, not inside Turnstile. */
+.crew-text-chat-error{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;line-height:1.5}
+.crew-text-chat-error p{flex:0 0 100%;margin:0;overflow-wrap:anywhere;font-size:12px}
+.crew-text-chat-error .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;white-space:normal;text-align:center;text-decoration:none}

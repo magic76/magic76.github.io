@@ -181,5 +181,23 @@
     "latestAlt": "Zuletzt gesendetes Foto",
     "sentTo": "An Archie gesendet",
     "latestPhoto": "Neuestes Foto"
+  },
+  "guestText": {
+    "verifyRequired": "Zum Senden ist eine Sicherheitsprüfung nötig. Bitte erneut bestätigen und dann senden.",
+    "verifyFailed": "Die Sicherheitsprüfung ist fehlgeschlagen. Bitte erneut bestätigen und senden.",
+    "sessionExpired": "Deine kostenlose Sitzung ist abgelaufen. Bestätige dich erneut, um fortzufahren.",
+    "dailyLimit": "Deine 12 kostenlosen Textnachrichten für heute sind aufgebraucht. Du kannst deinen eigenen Gemini-Schlüssel nutzen.",
+    "tooFast": "Du sendest zu schnell. Warte ein paar Sekunden und versuche es erneut.",
+    "capacity": "Das kostenlose Kontingent der gesamten Website ist heute ausgeschöpft. Das bedeutet nicht, dass deine 12 Nachrichten verbraucht sind. Versuche es später oder nutze deinen Gemini-Schlüssel.",
+    "backend": "Der Server oder das Modell des Gratis-Chats konnte die Anfrage nicht bearbeiten. Es liegt nicht an der Sicherheitsprüfung. Bitte erneut versuchen.",
+    "network": "Die Verbindung oder das Lesen der Antwort ist fehlgeschlagen. Prüfe das Netzwerk und versuche es erneut.",
+    "badRequest": "Diese Textanfrage konnte nicht gesendet werden. Prüfe oder ändere deine Nachricht und versuche es erneut.",
+    "retry": "Erneut senden",
+    "restart": "Verbindung erneut versuchen",
+    "restartHint": "Die kostenlose Sitzung wurde nicht gestartet. Beim nächsten Versuch kann eine neue Prüfung nötig sein.",
+    "backendNext": "Mehrere Versuche blieben ohne Antwort. Versuche es später oder nutze deinen Gemini-Schlüssel.",
+    "useKey": "Eigenen Gemini-Schlüssel nutzen",
+    "verifyAgain": "Erneut bestätigen"
   }
+
 }

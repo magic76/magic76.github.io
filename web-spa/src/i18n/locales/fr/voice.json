@@ -181,5 +181,23 @@
     "latestAlt": "Dernière photo envoyée",
     "sentTo": "Envoyée à Archie",
     "latestPhoto": "Dernière photo"
+  },
+  "guestText": {
+    "verifyRequired": "Une vérification est nécessaire. Vérifiez à nouveau puis envoyez votre message.",
+    "verifyFailed": "La vérification a échoué. Recommencez avant d’envoyer.",
+    "sessionExpired": "Votre session gratuite a expiré. Vérifiez à nouveau pour continuer.",
+    "dailyLimit": "Vous avez utilisé vos 12 messages texte gratuits du jour. Vous pouvez utiliser votre propre clé Gemini.",
+    "tooFast": "Vous envoyez les messages trop vite. Attendez quelques secondes puis réessayez.",
+    "capacity": "La capacité gratuite du site est atteinte pour aujourd’hui. Cela ne signifie pas que vos 12 messages personnels sont épuisés. Revenez plus tard ou utilisez votre clé Gemini.",
+    "backend": "Le serveur ou modèle du chat gratuit n’a pas pu traiter la demande. Ce n’est pas un échec de vérification. Réessayez.",
+    "network": "Connexion ou lecture de la réponse impossible. Vérifiez le réseau et réessayez.",
+    "badRequest": "Cette demande de texte n’a pas pu être envoyée. Vérifiez ou modifiez le message et réessayez.",
+    "retry": "Renvoyer",
+    "restart": "Réessayer la connexion",
+    "restartHint": "La session gratuite n’a pas pu démarrer. Une nouvelle vérification peut être nécessaire.",
+    "backendNext": "Plusieurs essais sont restés sans réponse. Revenez plus tard ou utilisez votre clé Gemini.",
+    "useKey": "Utiliser ma clé Gemini",
+    "verifyAgain": "Vérifier à nouveau"
   }
+
 }
