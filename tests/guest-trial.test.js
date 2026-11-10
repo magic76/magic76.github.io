@@ -746,8 +746,17 @@ test("five-minute free-trial offer is localized without changing lesson practice
    assert.match(common.guestTrial[key],markers[locale],locale+":"+key);
   assert.match(home.world.chatSubtitle,markers[locale],locale+":chatSubtitle");
  }
- assert.match(fs.readFileSync(path.join(root,"scripts/generate-seo.mjs"),"utf8"),/免費試用 5 分鐘語音口說/);
- assert.match(fs.readFileSync(path.join(root,"index.html"),"utf8"),/免費試用 5 分鐘語音口說/);
+ const generator=fs.readFileSync(path.join(root,"scripts/generate-seo.mjs"),"utf8");
+ const zhHome=fs.readFileSync(path.join(root,"index.html"),"utf8");
+ const enHome=fs.readFileSync(path.join(root,"en/index.html"),"utf8");
+ assert.match(generator,/和 AI 朋友玩著學語言/);
+ assert.match(zhHome,/<title>Crew｜和 AI 朋友玩著學語言/);
+ assert.match(generator,/Learn Languages with AI Friends/);
+ assert.match(enHome,/<title>Crew \| Learn Languages with AI Friends/);
+ for(const [locale,html] of [["zh-TW",zhHome],["en",enHome]]){
+  const head=html.split(/<\/head>/i,1)[0];
+  assert.doesNotMatch(head,/\bGemini\b|\bKey\b/i,locale+": homepage head must not mention Gemini or Key");
+ }
  const lesson=JSON.parse(fs.readFileSync(path.join(root,"web-spa/src/i18n/locales/zh-TW/teacher.json"),"utf8"));
  assert.match(lesson.learn.threeMinute,/3 分鐘/);
 });
