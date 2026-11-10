@@ -39,7 +39,7 @@ type Detail=""|"bazi"|"tarot"|"vedic"|"bazi_yes"|"bazi_partly"|"bazi_no"|"tarot_
   |"discover"|"me"|"footer"|"menu"|"nudge"|"native"|"asset"|"runtime"
   |"android_app_google_play"
   |"voice"|"demo"|"live"|"person"|"object"|"place"|"manual"|"render_error"|"unsupported"
-  |"taboo"|"1a2b"|"number-bomb"|"memory"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
+  |"taboo"|"1a2b"|"number-bomb"|"memory"|"crew-run"|"gomoku"|"connect4"|"reversi"|"twenty-questions"|"mystery"|"crazy-court"|"werewolf";
 export function sessionDurationDetail(durationMs:number):Detail{
  if(durationMs<60000)return "under_1m";
  if(durationMs<180000)return "from_1_to_3m";
