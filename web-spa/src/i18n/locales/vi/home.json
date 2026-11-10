@@ -49,6 +49,12 @@
     "friendDesc": "Tiếp tục trò chuyện với người bạn này",
     "fortuneResume": "Tiếp tục xem lá số"
   },
+  "resume": {
+    "friend": "Tiếp tục trò chuyện với {{name}}",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "Chơi tiếp ván 1A2B",
+    "gameDesc": "{{digits}} chữ số · đã thử {{count}} lượt"
+  },
   "actions": {
     "label": "Bắt đầu nhanh",
     "chat": "Gặp một người bạn Crew",

@@ -49,6 +49,12 @@
     "friendDesc": "Return to this friend's chat",
     "fortuneResume": "Continue reading your chart"
   },
+  "resume": {
+    "friend": "Continue chatting with {{name}}",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "Resume your 1A2B round",
+    "gameDesc": "{{digits}} digits · {{count}} turns played"
+  },
   "actions": {
     "label": "Quick start",
     "chat": "Meet a Crew Friend",

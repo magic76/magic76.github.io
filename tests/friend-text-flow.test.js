@@ -29,6 +29,8 @@ test("Friend transcript is recoverable after text → voice → text in one tab,
  assert.match(panel,/readSessionTranscript\(sessionScope\)/);
  assert.match(panel,/writeSessionTranscript\(sessionScope,pendingSend\.current\?\.before\|\|latestMessages\.current\)/);
  assert.doesNotMatch(panel,/localStorage\./);
+ assert.match(panel,/saveFriendResume\(sessionScope,complete\)/);
+ assert.match(panel,/Previous conversation for continuity/);
 });
 test("Guest can send before an active phase: wait for Turnstile, start, then send",async()=>{
  const {sendGuestTextWithRenewal}=load("web-spa/src/live/guestTextFlow.ts",["sendGuestTextWithRenewal"]);
@@ -142,4 +144,27 @@ test("Voice-dock padding cannot push the friend text composer away from viewport
  assert.match(friend,/@media\(max-width:640px\)\{\s*body\.teacher-theme\.session-page \.friend-text-stage\.live-stage\{padding-bottom:calc\(6px \+ env\(safe-area-inset-bottom,0px\)\)\}/);
  const paritySelector="body.teacher-theme.session-page .live-stage";
  assert.ok("body.teacher-theme.session-page .friend-text-stage.live-stage".split(/[ .]+/).length>paritySelector.split(/[ .]+/).length);
+});
+
+test("Completed friend turns survive a fresh tab without writing drafts or touching last_activity",()=>{
+ const local=memoryStorage(),oldTab=memoryStorage(),newTab=memoryStorage();
+ const file="web-spa/src/live/sessionTranscript.ts";
+ const source=stripTypeScriptTypes(read(file),{mode:"strip"}).replace(/^export /gm,"");
+ const context={localStorage:local,sessionStorage:oldTab};
+ vm.runInNewContext(source+"\nObject.assign(this,{readSessionTranscript,writeSessionTranscript,saveFriendResume,readLatestFriendResume});",context);
+ const transcript=[{role:"user",text:"I like cycling"},{role:"assistant",text:"Where do you ride?"}];
+ context.writeSessionTranscript("friend:zoe",transcript);
+ assert.equal(local.getItem("crew_friend_text_resume_v1"),null,"incomplete sends must not auto-persist");
+ context.saveFriendResume("friend:zoe",transcript);
+ assert.equal(context.readLatestFriendResume().friendId,"zoe");
+ assert.match(context.readLatestFriendResume().preview,/Where do you ride/);
+ assert.equal(local.getItem("crew_home_last_activity_v1"),null,"never write message text to the route pointer");
+ context.sessionStorage=newTab;
+ assert.deepEqual(Array.from(context.readSessionTranscript("friend:zoe"),m=>m.text),["I like cycling","Where do you ride?"]);
+ assert.equal(context.readSessionTranscript("friend:ada").length,0);
+ assert.equal(context.readSessionTranscript("friend:zoe:shorts-1").length,0,"shorts-specific threads stay separate");
+ context.saveFriendResume("teacher:emma",transcript);
+ assert.equal(context.readLatestFriendResume().friendId,"zoe","teacher transcripts stay session-only");
+ context.saveFriendResume("friend:zoe",[{role:"user",text:"Unanswered"}]);
+ assert.equal(context.readLatestFriendResume().messages.length,2,"unfinished user turn never overwrites completed chat");
 });

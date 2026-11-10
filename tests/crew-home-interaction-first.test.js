@@ -38,7 +38,13 @@ test("Recent game and friend navigation is recorded without message content",()=
  const en=JSON.parse(read("web-spa/src/i18n/locales/en/home.json"));
  assert.ok(en.playHub.games["1a2b"].title);
  assert.match(home,/crew_home_last_activity_v1/);
- assert.match(home,/games start a new round/);
+ assert.match(home,/readUnfinishedNumberRound\(\)/);
+ assert.match(home,/readLatestFriendResume\(\)/);
+ assert.match(home,/&from=home&chat=text/);
+ assert.match(home,/resume-1a2b/);
+ assert.match(home,/recents\.length\?<section className="crew-home-continue"/);
+ assert.ok(home.indexOf('<HomePortal shortsFeed={shortsFeed}/>')<home.indexOf('className="crew-home-continue"'));
+ assert.doesNotMatch(home,/localStorage\.setItem\(LAST_ACTIVITY_KEY[^\n]*(transcript|messages|turns)/i);
  assert.doesNotMatch(app,/localStorage\.setItem\("crew_home_last_activity_v1"[^\n]*(transcript|messages|turns)/i);
 });
 
@@ -53,6 +59,20 @@ test("Interaction-first homepage copy is translated",()=>{
   assert.ok(locale.portal.headingLead&&locale.portal.headingAccent);
   for(const key of ["label","title","desc","cta"])assert.ok(locale.gamePick[key]);
   for(const key of ["play","friend","friendDesc"])assert.ok(locale.recent[key]);
+  for(const key of ["friend","lastLine","game","gameDesc"])assert.equal(typeof locale.resume[key],"string");
  }
 });
 
+
+test("1A2B resumes only a validated unfinished local round; finishing or restarting clears it",()=>{
+ const game=read("web-spa/src/games/NumberGamePage.tsx");
+ const helper=read("web-spa/src/games/unfinishedNumberRound.ts");
+ assert.match(game,/readUnfinishedNumberRound\(\)/);
+ assert.match(game,/resume\?\.secret/);
+ assert.match(game,/resume\?\.history/);
+ assert.match(game,/saveUnfinishedNumberRound\(\{mode,digits,dailyDate,secret,history,at:Date\.now\(\)\}\)/);
+ assert.match(game,/if\(finished\)\{clearUnfinishedNumberRound\(\);return\}/);
+ assert.match(game,/const discardResume=\(\)=>\{clearUnfinishedNumberRound\(\);setResumed\(null\)\}/);
+ assert.match(helper,/crew_1a2b_unfinished_v1/);
+ assert.doesNotMatch(helper,/crew_1a2b_record_v1_/);
+});

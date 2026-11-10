@@ -6,6 +6,7 @@ import {MiniGameVoice,MiniShell,useMiniFriend,type VoiceCue} from "./MiniGameFra
 import {GamePanel} from "./GamePanel";
 import {dailyNumberDate,dailyNumberSecret,readNumberRecord,readDailyResult,saveNumberResult} from "./dailyNumberChallenge";
 import {friendGameReaction} from "./friendGameReaction";
+import {readUnfinishedNumberRound,saveUnfinishedNumberRound,clearUnfinishedNumberRound,type UnfinishedNumberRound} from "./unfinishedNumberRound";
 import {legalNumber,secretNumber,scoreAB,parseSpokenNumber,parseSpokenAB,nextComputerGuess,candidateNumbers,type DigitCount,type GuessRow,type AB} from "./numberGameEngine";
 
 type Mode="guess"|"reverse";
@@ -36,18 +37,25 @@ export function NumberGamePage(){
  useEffect(()=>{trackUsageEvent("game_open","1a2b")},[]);
  const [digits,setDigits]=useState<DigitCount>(4),[mode,setMode]=useState<Mode>("guess"),[revision,setRevision]=useState(0);
  const [daily,setDaily]=useState(false);
+ const [resumed,setResumed]=useState<UnfinishedNumberRound|null>(null);
+ // Read browser storage after hydration; never render storage-dependent state on the server.
+ useEffect(()=>{
+  const saved=readUnfinishedNumberRound();
+  if(saved){setDigits(saved.digits);setMode(saved.mode);setDaily(Boolean(saved.dailyDate));setResumed(saved)}
+ },[]);
+ const discardResume=()=>{clearUnfinishedNumberRound();setResumed(null)};
  const day=dailyNumberDate();
  return <MiniShell kind="1a2b" friend={friend} onChange={choose}>
   <div className="crew-mini-toolbar">
-   <button type="button" className="crew-mini-daily-toggle" aria-pressed={daily} onClick={()=>{if(window.confirm(t("playHub.number.confirmDaily"))){setDaily(v=>!v);setMode("guess");setRevision(v=>v+1)}}}>{daily?t("playHub.number.daily")+" ✓":t("playHub.number.dailyChallenge")}</button>
+   <button type="button" className="crew-mini-daily-toggle" aria-pressed={daily} onClick={()=>{if(window.confirm(t("playHub.number.confirmDaily"))){discardResume();setDaily(v=>!v);setMode("guess");setRevision(v=>v+1)}}}>{daily?t("playHub.number.daily")+" ✓":t("playHub.number.dailyChallenge")}</button>
    <GamePanel label={"⚙ "+t("playHub.number.settings")} title={t("playHub.number.settingsTitle")}>
   <div className="crew-mini-config" aria-label={t("playHub.number.rulesAria")}>
    <div className="crew-mini-segments" role="group" aria-label={t("playHub.number.modeAria")}>
-    <button aria-pressed={mode==="guess"} onClick={()=>{if(mode!=="guess"&&window.confirm(t("playHub.number.confirmMode")))setMode("guess")}}>{t("playHub.number.modeGuess")}</button>
-    <button aria-pressed={mode==="reverse"} onClick={()=>{if(mode!=="reverse"&&window.confirm(t("playHub.number.confirmMode"))){setDaily(false);setMode("reverse")}}}>{t("playHub.number.modeReverse")}</button>
+    <button aria-pressed={mode==="guess"} onClick={()=>{if(mode!=="guess"&&window.confirm(t("playHub.number.confirmMode"))){discardResume();setMode("guess")}}}>{t("playHub.number.modeGuess")}</button>
+    <button aria-pressed={mode==="reverse"} onClick={()=>{if(mode!=="reverse"&&window.confirm(t("playHub.number.confirmMode"))){discardResume();setDaily(false);setMode("reverse")}}}>{t("playHub.number.modeReverse")}</button>
    </div>
    <div className="crew-mini-segments" role="group" aria-label={t("playHub.number.digitsAria")}>
-    {([3,4,5] as DigitCount[]).map(n=><button key={n} aria-pressed={digits===n} onClick={()=>{if(digits!==n&&window.confirm(t("playHub.number.confirmDigits")))setDigits(n)}}>{t("playHub.number.digits",{n})}</button>)}
+    {([3,4,5] as DigitCount[]).map(n=><button key={n} aria-pressed={digits===n} onClick={()=>{if(digits!==n&&window.confirm(t("playHub.number.confirmDigits"))){discardResume();setDigits(n)}}}>{t("playHub.number.digits",{n})}</button>)}
    </div>
   </div>
     <p>{t("playHub.number.settingsNote")}</p>
@@ -57,19 +65,22 @@ export function NumberGamePage(){
     <p>{t("playHub.number.rules2")}</p>
    </GamePanel>
   </div>
-  <NumberRound key={mode+digits+revision+friend.id+(daily?day:"normal")} mode={mode} digits={digits} dailyDate={daily?day:null} friend={friend} onNew={()=>setRevision(x=>x+1)} onLeaveDaily={()=>{setDaily(false);setRevision(x=>x+1)}}/>
+  <NumberRound key={mode+digits+revision+friend.id+(daily?day:"normal")+(resumed?":resumed:"+resumed.at:"")}
+   mode={mode} digits={digits} dailyDate={daily?day:null} friend={friend}
+   resume={resumed?.mode===mode&&resumed.digits===digits&&resumed.dailyDate===(daily?day:null)?resumed:null}
+   onNew={()=>{discardResume();setRevision(x=>x+1)}} onLeaveDaily={()=>{discardResume();setDaily(false);setRevision(x=>x+1)}}/>
  </MiniShell>;
 }
-function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
- mode:Mode;digits:DigitCount;dailyDate:string|null;friend:ReturnType<typeof useMiniFriend>["friend"];onNew:()=>void;onLeaveDaily:()=>void;
+function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate,resume}:{
+ mode:Mode;digits:DigitCount;dailyDate:string|null;resume:UnfinishedNumberRound|null;friend:ReturnType<typeof useMiniFriend>["friend"];onNew:()=>void;onLeaveDaily:()=>void;
 }){
  const {t,i18n}=useTranslation(["games","home"]);
- const [secret]=useState(()=>dailyDate?dailyNumberSecret(digits,dailyDate):secretNumber(digits));
+ const [secret]=useState(()=>resume?.secret||(dailyDate?dailyNumberSecret(digits,dailyDate):secretNumber(digits)));
  const [record,setRecord]=useState(()=>readNumberRecord(digits));
  const [dailyResult,setDailyResult]=useState(()=>dailyDate?readDailyResult(digits,dailyDate):null);
  const recordedRef=useRef(false);
  const submitLockRef=useRef(false);
- const [history,setHistory]=useState<GuessRow[]>([]);
+ const [history,setHistory]=useState<GuessRow[]>(()=>resume?.history||[]);
  const [guess,setGuess]=useState(""),[a,setA]=useState(0),[b,setB]=useState(0);
  const [error,setError]=useState("");
  const [cue,setCue]=useState<VoiceCue>({id:0,text:""});
@@ -78,7 +89,7 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
  const won=Boolean(finalRow&&finalRow.result.a===digits);
  const finished=won||history.length>=10;
  useEffect(()=>{submitLockRef.current=false},[history.length]);
- const startedRef=useRef(false),completedRef=useRef(false);
+ const startedRef=useRef(Boolean(resume?.history.length)),completedRef=useRef(false);
  useEffect(()=>{
   if(history.length>0&&!startedRef.current){
    startedRef.current=true;trackUsageEvent("game_started","1a2b");
@@ -90,6 +101,10 @@ function NumberRound({mode,digits,friend,onNew,onLeaveDaily,dailyDate}:{
    if(mode==="guess"&&!recordedRef.current){recordedRef.current=true;setRecord(saveNumberResult(digits,history.length,won,dailyDate));if(dailyDate)setDailyResult(readDailyResult(digits,dailyDate));}
   }
  },[finished,mode,digits,dailyDate,history.length,won]);
+ useEffect(()=>{
+  if(finished){clearUnfinishedNumberRound();return}
+  if(history.length>0)saveUnfinishedNumberRound({mode,digits,dailyDate,secret,history,at:Date.now()});
+ },[history,finished,mode,digits,dailyDate,secret]);
  const computerGuess=useMemo(()=>mode==="reverse"&&!finished?nextComputerGuess(digits,history):null,[mode,digits,history,finished]);
  const submitGuess=(value:string)=>{
   if(finished||submitLockRef.current)return;

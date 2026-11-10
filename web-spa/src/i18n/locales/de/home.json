@@ -49,6 +49,12 @@
     "friendDesc": "Zum Gespräch mit diesem Freund zurückkehren",
     "fortuneResume": "Horoskop weiterlesen"
   },
+  "resume": {
+    "friend": "Mit {{name}} weiterchatten",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "1A2B-Runde fortsetzen",
+    "gameDesc": "{{digits}} Stellen · {{count}} Versuche"
+  },
   "actions": {
     "label": "Schnellstart",
     "chat": "Crew-Freund kennenlernen",

@@ -49,6 +49,12 @@
     "friendDesc": "Reprendre la discussion avec cet ami",
     "fortuneResume": "Continuer la lecture du thème"
   },
+  "resume": {
+    "friend": "Reprendre avec {{name}}",
+    "lastLine": "{{name}} : {{line}}",
+    "game": "Reprendre la partie de 1A2B",
+    "gameDesc": "{{digits}} chiffres · {{count}} essais"
+  },
   "actions": {
     "label": "Démarrage rapide",
     "chat": "Rencontrer un ami Crew",

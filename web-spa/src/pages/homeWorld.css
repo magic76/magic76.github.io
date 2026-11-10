@@ -123,6 +123,15 @@
  .crew-home-world .crew-home-recent-copy strong{font-size:14px}
 }
 
+/* Return hooks stay compact and local; nothing appears without an actual prior visit. */
+.crew-home-world .crew-home-continue-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:10px}
+.crew-home-world .crew-home-continue-cards .crew-home-recent{min-height:76px;padding:11px 13px;grid-template-columns:44px minmax(0,1fr) 20px;gap:11px}
+.crew-home-world .crew-home-continue-cards .crew-home-recent-art{height:44px;width:44px;border-radius:12px}
+.crew-home-world .crew-home-continue-cards .crew-home-recent-copy{gap:2px}
+.crew-home-world .crew-home-continue-cards .crew-home-recent-copy strong{font-size:14px}
+.crew-home-world .crew-home-continue-cards .crew-home-recent-copy small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(prefers-reduced-motion:reduce){.crew-home-world .crew-home-recent,.crew-home-world .crew-home-recent-arrow{transition:none}.crew-home-world .crew-home-recent:hover,.crew-home-world .crew-home-recent:hover .crew-home-recent-arrow{transform:none}}
+
 /* Key-free game entry follows Shorts, not the four-mode KV. */
 .crew-home-game-pick{display:flex;align-items:center;gap:16px;margin:0 30px 24px;padding:16px 18px;border:1px solid #ffffff29;border-radius:16px;background:linear-gradient(120deg,#42304d99,#281f3666)}
 .crew-home-game-pick-icon{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:13px;color:#efd2ff;background:#ffffff12}

@@ -11,6 +11,8 @@ import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeLiveBubble} from "./HomeLiveBubble";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
+import {readLatestFriendResume} from "../live/sessionTranscript";
+import {readUnfinishedNumberRound} from "../games/unfinishedNumberRound";
 import {fetchShortsFeed,shuffleShortsPosts,type ShortFeed} from "../teacher/shortsFeed";
 import {geminiKey,geminiVerified,history,loadScript} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
@@ -73,7 +75,7 @@ function activities(book:Book|null):Recent[]{
    description:book.readingMode==="physical"?i18n.t("home:recent.physical"):i18n.t("home:recent.reader",{page:(Number(book.currentPage)||0)+1}),
    cover:typeof cover==="string"?cover:undefined});
  }
- // Route shortcuts only: games start a new round, not a restored unfinished game.
+ // Route shortcuts use last activity only; actual 1A2B progress is in its separate device-local snapshot.
  try{
   const saved=JSON.parse(localStorage.getItem(LAST_ACTIVITY_KEY)||"null") as {path?:string;friendId?:string;at?:number}|null;
   if(saved&&typeof saved.at==="number"&&Number.isFinite(saved.at)&&saved.at>0){
@@ -84,11 +86,27 @@ function activities(book:Book|null):Recent[]{
      title:name,description:i18n.t("home:recent.play")});
    }else if(saved.path==="/friend/live"&&typeof saved.friendId==="string"&&/^[a-z0-9-]{1,32}$/.test(saved.friendId)){
     items.push({key:"friend:"+saved.friendId,kind:"friend",
-     to:"/friend/live?id="+encodeURIComponent(saved.friendId),timestamp:saved.at,
+     to:"/friend/live?id="+encodeURIComponent(saved.friendId)+"&from=home&chat=text",timestamp:saved.at,
      title:i18n.t("home:recent.friend"),description:i18n.t("home:recent.friendDesc")});
    }
   }
  }catch{/* Local storage may be disabled or stale. */}
+ // Completed text threads (not drafts) and unfinished rounds take priority on return visits.
+ const returning:Recent[]=[];
+ const friend=readLatestFriendResume();
+ if(friend){
+  const name=friend.friendId.charAt(0).toUpperCase()+friend.friendId.slice(1);
+  returning.push({key:"resume-friend:"+friend.friendId,kind:"friend",timestamp:friend.at,
+   to:"/friend/live?id="+encodeURIComponent(friend.friendId)+"&from=home&chat=text",
+   title:i18n.t("home:resume.friend",{name}),description:friend.preview?i18n.t("home:resume.lastLine",{name,line:friend.preview}):i18n.t("home:recent.friendDesc")});
+ }else{
+  const voice=items.find(item=>item.kind==="friend");
+  if(voice)returning.push({...voice,title:i18n.t("home:recent.friend")});
+ }
+ const round=readUnfinishedNumberRound();
+ if(round)returning.push({key:"resume-1a2b",kind:"play",timestamp:round.at,to:"/games/1a2b",
+  title:i18n.t("home:resume.game"),description:i18n.t("home:resume.gameDesc",{digits:round.digits,count:round.history.length})});
+ if(returning.length)return returning.sort((a,b)=>b.timestamp-a.timestamp).slice(0,2);
  items.sort((a,b)=>b.timestamp-a.timestamp);
  return items.slice(0,1);
 }
@@ -120,7 +138,7 @@ export function HomePage(){
   return()=>{mounted=false};
  },[]);
  const [book,setBook]=useState<Book|null>(null);
- const recent=useMemo(()=>ready?(activities(book)[0]||null):null,[ready,book,locale.resolvedLanguage]);
+ const recents=useMemo(()=>ready?activities(book):[],[ready,book,locale.resolvedLanguage]);
 
  useEffect(()=>{
   if(!localStorage.getItem("crew_story_last_book_id"))return;
@@ -152,13 +170,13 @@ export function HomePage(){
     </section>:ready&&configured&&!verified?<Link to="/account#settings-gemini" className="crew-home-start-verify">
      <Icon name="settings"/><span><strong>{t("setup.verify")}</strong><small>{t("setup.verifyDesc")}</small></span><b aria-hidden="true">→</b>
     </Link>:null}
-    {recent?<section className="crew-home-continue" aria-label={t("continue")}>
+    {recents.length?<section className="crew-home-continue" aria-label={t("continue")}>
      <div className="crew-home-section-heading"><h2>{t("continue")}</h2><span>{t("localOnly")}</span></div>
-     <Link to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
+     <div className="crew-home-continue-cards">{recents.map(recent=><Link key={recent.key} to={recent.to} className={"crew-home-recent crew-home-recent-"+recent.kind}>
       <span className="crew-home-recent-art" aria-hidden="true">{recent.cover?<img src={recent.cover} alt=""/>:<Icon name={recent.kind==="friend"?"chat":recent.kind}/>}</span>
       <span className="crew-home-recent-copy"><span className="crew-home-overline">{recent.kind==="teacher"?"CREW TEACHER":recent.kind==="story"?"CREW STORY":recent.kind==="fortune"?"CREW FORTUNE":recent.kind==="play"?"CREW PLAY":"CREW FRIEND"}</span><strong>{recent.title}</strong><small>{recent.description}</small></span>
       <span className="crew-home-recent-arrow" aria-hidden="true">→</span>
-     </Link>
+     </Link>)}</div>
     </section>:null}
    <div className="crew-home-world-bridge" aria-hidden="true"><i/>{t("world.bridge")}<i/></div>
    <HomeShortsPreview sharedFeed={shortsFeed} sharedStatus={shortsStatus}/>

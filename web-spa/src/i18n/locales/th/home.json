@@ -49,6 +49,12 @@
     "friendDesc": "กลับไปคุยกับเพื่อนคนนี้",
     "fortuneResume": "อ่านผลดวงชะตาต่อ"
   },
+  "resume": {
+    "friend": "คุยต่อกับ {{name}}",
+    "lastLine": "{{name}}: {{line}}",
+    "game": "เล่น 1A2B ต่อจากครั้งก่อน",
+    "gameDesc": "{{digits}} หลัก · ลองแล้ว {{count}} ครั้ง"
+  },
   "actions": {
     "label": "เริ่มอย่างรวดเร็ว",
     "chat": "พบเพื่อน Crew",

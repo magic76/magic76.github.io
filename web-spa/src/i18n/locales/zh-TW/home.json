@@ -49,6 +49,12 @@
     "friendDesc": "回到這位朋友的對話入口",
     "fortuneResume": "繼續查看命盤結果"
   },
+  "resume": {
+    "friend": "繼續和 {{name}} 聊",
+    "lastLine": "{{name}}：{{line}}",
+    "game": "繼續上一局 1A2B",
+    "gameDesc": "{{digits}} 位數・已猜 {{count}} 次"
+  },
   "actions": {
     "label": "快速開始",
     "chat": "找朋友聊天",
