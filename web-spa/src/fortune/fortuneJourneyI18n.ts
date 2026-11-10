@@ -129,6 +129,11 @@ const inviteCopy:Record<string,InviteCopy>={
   action:"ลองดูว่าคุณเป็นประเภทไหน แล้วส่งผลมาให้ดูกัน 👇"
  }
 };
+/** Short public challenge that fits the card, with no personal chart facts. */
+export function fortuneChallenge(locale:string):{question:string;action:string}{
+ const copy=inviteCopy[fortuneLocale(locale)]||inviteCopy.en;
+ return {question:copy.question,action:copy.action.replace(/\s*👇\s*$/u,"")};
+}
 export function fortuneInvitation(locale:string,title:string,url:string,tension=""):string{
  const lang=fortuneLocale(locale),copy=inviteCopy[lang]||inviteCopy.en;
  // Identity themes are authored in zh/en. Do not put English archetype prose into
