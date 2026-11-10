@@ -9,8 +9,8 @@ const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "Crew｜和 AI 朋友玩著學語言 — 英文、日文、韓文等 12 種語言",
-    "description": "選一種語言、選一位 AI 朋友，免費聊天、練口說、玩遊戲。玩著玩著，就敢開口了。",
+    "title": "AI 朋友聊天、英文口說練習與互動遊戲｜Crew",
+    "description": "和 AI 朋友免費文字聊天，也能練英文口說、玩 1A2B 猜數字與五子棋。選一種想練的語言，開啟 Crew 就能開始探索。",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "你的 AI 夥伴，從學習到探索。",
     "intro": "用 Crew 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
@@ -86,8 +86,8 @@ const PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "Crew Teacher｜AI 語言老師、口說練習與沉浸式語伴",
-    "description": "Crew Teacher 提供 AI 語言老師與 AI 朋友，先免費試用語音口說，額度用完後可設定自己的 Gemini API Key。",
+    "title": "AI 英文口說練習｜和老師、AI 朋友自然對話｜Crew Teacher",
+    "description": "想練英文卻找不到語伴？和 Crew Teacher 的 AI 老師練習發音、日常情境，也能和不同個性的 AI 朋友自然聊天。語音提供免費試用。",
     "eyebrow": "CREW TEACHER",
     "heading": "讓語言練習，更像真的在對話。",
     "intro": "想認真學習時，找 Crew 老師；想自在聊天時，找有不同個性與背景的 Crew 朋友。透過語音互動，練習日常與實際情境。",
@@ -344,8 +344,8 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Crew | Learn Languages with AI Friends — Chat, Speak & Play",
-    "description": "Choose a language and an AI friend. Chat for free, practice speaking, and play games as you learn English, Japanese, Korean, and more.",
+    "title": "Chat with AI Friends, Practice Speaking & Play Games | Crew",
+    "description": "Start a free text chat with an AI friend, practice speaking English and other languages, and play guessing or board games in your browser with Crew.",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "Your AI companions for learning and exploring.",
     "intro": "Practice speaking with a Crew teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
@@ -421,8 +421,8 @@ const EN_PAGES = [
   {
     "slug": "teacher",
     "nav": "Teacher",
-    "title": "Crew Teacher | AI Language Tutor and Conversation Partners",
-    "description": "Practice languages with AI tutors and Crew Friends. Try a free voice conversation, then add your Gemini API key for continued use.",
+    "title": "AI English Speaking Practice with Tutors & Friends | Crew Teacher",
+    "description": "Practice spoken English with an AI tutor or talk naturally with Crew Friends. Build confidence with real-life scenarios and try a free voice session.",
     "eyebrow": "CREW TEACHER",
     "heading": "Language practice that feels like a real conversation.",
     "intro": "Choose a Crew teacher when you want guided learning and feedback. Pick a Crew Friend when you'd rather chat naturally with a character who has their own personality and background.",

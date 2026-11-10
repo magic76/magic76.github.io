@@ -121,6 +121,7 @@ jobs:
           npm run test:cloudflare
           node --test tests/seo-live.test.js
           node --test tests/seo-pages.test.js
+          node --test tests/seo-ctr.test.js
       # Magic changes require real WebGL evidence, including the 390px sculpted
       # robot/fox/dragon close-ups produced by smoke-magic-creator-browser.mjs.
       - name: Real browser snapshot of Crew Magic 3D (Magic PRs only)

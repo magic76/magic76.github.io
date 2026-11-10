@@ -749,10 +749,10 @@ test("five-minute free-trial offer is localized without changing lesson practice
  const generator=fs.readFileSync(path.join(root,"scripts/generate-seo.mjs"),"utf8");
  const zhHome=fs.readFileSync(path.join(root,"index.html"),"utf8");
  const enHome=fs.readFileSync(path.join(root,"en/index.html"),"utf8");
- assert.match(generator,/和 AI 朋友玩著學語言/);
- assert.match(zhHome,/<title>Crew｜和 AI 朋友玩著學語言/);
- assert.match(generator,/Learn Languages with AI Friends/);
- assert.match(enHome,/<title>Crew \| Learn Languages with AI Friends/);
+ assert.match(generator,/AI 朋友聊天、英文口說練習與互動遊戲/);
+ assert.match(zhHome,/<title>AI 朋友聊天、英文口說練習與互動遊戲/);
+ assert.match(generator,/Chat with AI Friends, Practice Speaking/);
+ assert.match(enHome,/<title>Chat with AI Friends, Practice Speaking/);
  for(const [locale,html] of [["zh-TW",zhHome],["en",enHome]]){
   const head=html.split(/<\/head>/i,1)[0];
   assert.doesNotMatch(head,/\bGemini\b|\bKey\b/i,locale+": homepage head must not mention Gemini or Key");
