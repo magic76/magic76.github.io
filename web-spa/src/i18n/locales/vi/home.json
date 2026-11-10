@@ -71,6 +71,7 @@
     "tap": "Chạm để mở"
   },
   "world": {
+    "practiceLang": {"label": "Tôi muốn luyện:", "aria": "Chọn ngôn ngữ luyện tập khi chat và trò chuyện bằng giọng nói"},
     "modes": {
       "chat": {
         "lead": "AI không chỉ để trò chuyện.",

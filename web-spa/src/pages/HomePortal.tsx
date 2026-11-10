@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState,type KeyboardEvent,type MouseEvent} from "react";
+import {lazy,Suspense,useEffect,useRef,useState,type KeyboardEvent,type MouseEvent} from "react";
 import {Link,useNavigate} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {trackUsageEvent} from "../analytics/usage";
@@ -12,6 +12,8 @@ import type {ShortFeed} from "../teacher/shortsFeed";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {useClientReady} from "../lib/useClientReady";
 import {geminiKey} from "../lib/runtime";
+
+const HomeTargetLanguage=lazy(()=>import("./HomeTargetLanguage"));
 
 const ZOE="/friend/live?id=zoe";
 const HOME_ZOE=ZOE+"&from=home&chat=text";
@@ -152,6 +154,10 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
      {mode==="chat"&&!exhausted?<img className="crew-portal-cta-avatar" src={"/assets/friends/crew_friend_"+(selectedPost?.friendId||friendId)+".webp"} alt="" width="32" height="32"/>:null}
      <span className="crew-portal-cta-label">{preparing?t("world.preparing"):mode==="chat"&&!exhausted&&selectedPost?(questions[0]?.label||t("world.shortsFallback")):mode==="chat"?t(cta,{name:friendName}):mode==="learn"?(exhausted?t("world.chatExhausted"):trialAvailable?t("world.teacherTrial"):t("world.modes.learn.cta")):mode==="play"?t("world.game"+(gameId==="1a2b"?"1a2b":gameId==="connect4"?"Connect4":"Reversi")):t("world.modes."+mode+".cta")}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
     </Link>
+    {mode==="chat"&&<div className="crew-portal-practice-holder">
+     {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>
+      :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
+    </div>}
     <div className="crew-portal-status-slot">
      {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t(trial.member?"common:guestTrial.memberRemaining":"common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
     </div>

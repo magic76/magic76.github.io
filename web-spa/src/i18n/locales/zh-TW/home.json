@@ -71,6 +71,7 @@
     "tap": "點擊進入"
   },
   "world": {
+    "practiceLang": {"label": "我想練：", "aria": "選擇聊天與語音的練習語言"},
     "modes": {
       "chat": {
         "lead": "AI 不只會聊天，",

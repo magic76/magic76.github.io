@@ -71,6 +71,7 @@
     "tap": "Toca para abrir"
   },
   "world": {
+    "practiceLang": {"label": "Quiero practicar:", "aria": "Elegir idioma para chat y conversación de voz"},
     "modes": {
       "chat": {
         "lead": "La IA no solo conversa.",

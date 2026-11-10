@@ -181,3 +181,40 @@ test("Portrait phones enlarge the ring and short landscape removes only the heig
   assert.ok(compact.includes(token),"Compact layout token: "+token);
  assert.doesNotMatch(compact,/crew-portal-remaining\{[^}]*display:none/,"Resolved remaining-trial status stays visible");
 });
+
+test("Homepage practice-language picker changes the existing chat and voice target language",()=>{
+ const portal=read("web-spa/src/pages/HomePortal.tsx");
+ const picker=read("web-spa/src/pages/HomeTargetLanguage.tsx");
+ const css=read("web-spa/src/pages/homePortal.css");
+ assert.match(portal,/lazy\(\(\)=>import\("\.\/HomeTargetLanguage"\)\)/);
+ const afterCta=portal.indexOf('className="crew-portal-practice-holder"');
+ assert.ok(afterCta>portal.indexOf('className="crew-portal-cta"')&&afterCta<portal.indexOf('className="crew-portal-status-slot"'));
+ assert.match(portal,/mode==="chat"&&<div className="crew-portal-practice-holder"/);
+ assert.match(picker,/useTeacherStore\(s=>s\.targetLanguage\)/);
+ assert.match(picker,/useTeacherStore\(s=>s\.setTargetLanguage\)/);
+ assert.match(picker,/value=\{targetLanguage\}/);
+ assert.match(picker,/onChange=\{event=>setTargetLanguage\(event\.currentTarget\.value\)\}/);
+ assert.match(picker,/TARGET_LANGUAGES\.map\(/);
+ assert.match(picker,/friends:languages\./);
+ assert.match(picker,/aria-label=\{t\("world\.practiceLang\.aria"\)\}/);
+ assert.match(css,/\.crew-portal-practice-control select\{[^}]*min-height:44px/);
+ assert.match(css,/@media\(max-width:700px\) and \(max-height:700px\) and \(orientation:portrait\)/);
+ for(const lang of ["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"]){
+  const copy=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).world.practiceLang;
+  assert.ok(copy&&typeof copy.label==="string"&&copy.label.trim(),lang+":label");
+  assert.ok(typeof copy.aria==="string"&&copy.aria.trim(),lang+":aria");
+ }
+});
+
+
+test("Short portrait chat tabs clear the fixed Zoe bubble without shrinking controls",()=>{
+ const css=read("web-spa/src/pages/homePortal.css");
+ const rule=css.match(/@media\(max-width:375px\) and \(max-height:680px\) and \(orientation:portrait\)\{([^}]*\{[^}]*\})\s*\}/);
+ assert.ok(rule,"Only 360/375 short portrait viewports receive a layout correction");
+ assert.match(rule[1],/\.crew-home-portal\[data-mode="chat"\] \.crew-portal-content\{top:-24px\}/);
+ // QA feedback v1 geometry: tabs' bottom vs fixed bubble's top (CSS pixels).
+ for(const [tabsBottom,bubbleTop] of [[506,492],[522,519]])
+  assert.ok(tabsBottom-24<=bubbleTop-4,"At least 4px gap on 360/375 short phones");
+ assert.match(css,/\.crew-portal-practice-control select\{[^}]*min-height:44px/);
+ assert.match(css,/\.crew-portal-tabs button\{[^}]*min-height:44px|\.crew-portal-tab\{[^}]*min-height:44px/);
+});

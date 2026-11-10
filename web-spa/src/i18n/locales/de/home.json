@@ -71,6 +71,7 @@
     "tap": "Zum Öffnen tippen"
   },
   "world": {
+    "practiceLang": {"label": "Ich übe:", "aria": "Sprache zum Üben im Chat und Gespräch wählen"},
     "modes": {
       "chat": {
         "lead": "KI kann mehr als chatten.",
