@@ -13,6 +13,30 @@ const turnstile=()=> (window as Window&{turnstile?:WidgetApi}).turnstile;
 /** Guest start gate in the normal Teacher/Friend UI. Never persists credentials. */
 export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGrant:(grant:GuestTrialGrant)=>Promise<void>;role:"teacher"|"friend";focusStartOnVerified?:boolean}){
  const {t}=useTranslation("common");
+ const [micPermissionDenied,setMicPermissionDenied]=useState(false);
+ const microphoneHelp=()=>{
+  const agent=navigator.userAgent;
+  const key=/Macintosh|Mac OS X/.test(agent)?"micHelpMac":/Windows/.test(agent)?"micHelpWindows":"micHelpGeneric";
+  return t("guestTrial."+key);
+ };
+ // A permission query never requests device access; getUserMedia stays in begin().
+ useEffect(()=>{
+  let cancelled=false;
+  let status:PermissionStatus|null=null;
+  const update=()=>{if(!cancelled&&status)setMicPermissionDenied(status.state==="denied")};
+  const inspect=async()=>{
+   if(!navigator.permissions?.query)return;
+   try{
+    const next=await navigator.permissions.query({name:"microphone" as PermissionName});
+    if(cancelled)return;
+    status?.removeEventListener("change",update);
+    status=next;update();status.addEventListener("change",update);
+   }catch{/* Unsupported permission queries should not block voice trials. */}
+  };
+  const onVisible=()=>{if(document.visibilityState==="visible")void inspect()};
+  void inspect();document.addEventListener("visibilitychange",onVisible);
+  return()=>{cancelled=true;status?.removeEventListener("change",update);document.removeEventListener("visibilitychange",onVisible)};
+ },[]);
  const [siteKey,setSiteKey]=useState("");
  const [signinRequired,setSigninRequired]=useState(false);
  const [memberSignedIn,setMemberSignedIn]=useState(false);
@@ -154,10 +178,13 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
    }
    if(active.current){trackUsageEvent("guest_trial_token_issued",role);window.dispatchEvent(new Event("crew:guest-trial-used"));await onGrant(data)}
   }catch(error){
-   if(!tokenRequested&&error instanceof DOMException&&error.name==="NotAllowedError")trackUsageEvent("guest_trial_mic_denied",role);
+   const denied=error instanceof DOMException&&error.name==="NotAllowedError";
+   if(!tokenRequested&&denied)trackUsageEvent("guest_trial_mic_denied",role);
    else trackUsageEvent(tokenRequested?"guest_trial_token_failed":"guest_trial_setup_failed",role);
-   if(active.current){setMessage(error instanceof DOMException&&error.name==="NotAllowedError"
-    ?t("guestTrial.micDenied"):t("guestTrial.serviceUnavailable"));setPhase("error")}
+   if(denied){
+    setMicPermissionDenied(true);
+    if(active.current){setMessage(t("guestTrial.micDenied")+" "+microphoneHelp());setPhase("error")}
+   }else if(active.current){setMessage(t("guestTrial.serviceUnavailable"));setPhase("error")}
   }finally{busy.current=false}
  }
  return <div className="notice guest-live-entry" role="region" aria-label={phase==="full"?t("guestTrial.limit"):phase==="exhausted"?t("guestTrial.usedUpTitle"):t("guestTrial.homeTitle")}>
@@ -167,6 +194,10 @@ export function GuestLiveStarter({onGrant,role,focusStartOnVerified=false}:{onGr
     {remaining!==null&&<p role="status">{t(memberSignedIn?"guestTrial.memberRemaining":"guestTrial.remaining",{count:remaining,limit:quotaLimit})}</p>}</>}
    {phase==="checking"&&<p role="status">{t("guestTrial.checking")}</p>}
    {phase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
+    <p style={{fontSize:13,lineHeight:1.5,margin:0}}>{t("guestTrial.microphoneNotice")}</p>
+    {micPermissionDenied&&<p role="alert" style={{fontSize:13,lineHeight:1.6,margin:0,overflowWrap:"anywhere"}}>
+     {t("guestTrial.micDenied")} {microphoneHelp()}
+    </p>}
     <button ref={startButton} type="button" className="btn" disabled={!challenge} onClick={()=>void begin()}>{t("guestTrial.start")}</button></>}
    {phase==="starting"&&<p role="status">{t("guestTrial.connecting")}</p>}
    {phase==="login"&&<><p role="status">{t("guestTrial.signInToTry")}</p>
