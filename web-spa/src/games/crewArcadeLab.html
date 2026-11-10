@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Crew Arcade Lab · 四款可玩的遊戲原型</title>
+<style>
+:root{font-family:system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#eef2ff;background:#090e20;--c:#6aeac5;--p:#a4a3ff;--a:#ffbf79}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(ellipse at 55% -8%,#25366b 0,#0d1734 47%,#090e20 95%)}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.app{width:min(100%,1000px);margin:0 auto;padding:18px 14px 36px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}.identity{display:flex;align-items:center;gap:10px}.logo{width:43px;height:43px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#ffa85e,#f46a8c);color:#20213f;font-size:23px;box-shadow:0 4px 24px #e4857655}.identity small{display:block;font-size:10px;letter-spacing:.16em;color:#a7b8ed;font-weight:750}.identity h1{font-size:21px;line-height:1.15;margin:3px 0 0;letter-spacing:-.03em}.top>.pill{border:1px solid #54678e;background:#283c633d;border-radius:100px;padding:7px 9px;font-size:10px;color:#b4cee9;white-space:nowrap}
+.lead{font-size:12px;color:#b3c0db;line-height:1.6;margin:0 0 12px}
+.game-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-bottom:12px}
+.tab{min-width:0;text-align:left;border:1px solid #354367;background:#172342b8;border-radius:14px;padding:10px 9px;display:grid;gap:5px;min-height:76px;position:relative;overflow:hidden;transition:transform .13s,border-color .13s}
+.tab.active{border-color:#86ffe7;background:linear-gradient(145deg,#1c435b,#283c68);box-shadow:inset 0 0 0 1px #8bfee01c,0 3px 20px #48dfc519}
+.tab:active{transform:scale(.97)}.tab .em{font-size:21px;line-height:1}.tab strong{display:block;font-size:12px;line-height:1.3}.tab small{font-size:10px;color:#a7b6d8;line-height:1.25}
+.main{display:grid;grid-template-columns:minmax(0,1fr) 215px;align-items:start;gap:13px}
+.console{border:1px solid #354669;background:#101932;border-radius:20px;padding:10px;box-shadow:0 20px 55px #05091570;min-width:0}
+.bar{display:flex;gap:7px;align-items:center;justify-content:space-between;padding:5px 4px 10px}.bar>div:first-child{display:grid;gap:3px}.bar strong{font-size:14px;letter-spacing:-.01em}.bar .goal{font-size:10px;color:#abc0df}.bar .stat{font-size:12px;white-space:nowrap;font-weight:750;color:#8debd6}
+.stage{position:relative;border-radius:13px;overflow:hidden;background:#10182d;isolation:isolate}
+canvas{display:block;width:100%;height:min(54dvh,505px);min-height:330px;object-fit:fill;touch-action:none;image-rendering:auto;outline:none}
+.hud{position:absolute;top:10px;left:12px;right:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;pointer-events:none;text-shadow:0 2px 5px #090d1cdd;font-weight:850;font-size:13px;font-variant-numeric:tabular-nums}.hud .health{color:#ff91a9}.hud .progress{color:#ffda90}
+.overlay{position:absolute;inset:0;background:#080d24bd;backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:11px;z-index:5}
+.overlay[hidden]{display:none}.overlay .stamp{font-size:43px;filter:drop-shadow(0 6px 20px #0009)}.overlay h2{font-size:25px;line-height:1.22;margin:0}.overlay p{max-width:330px;font-size:12px;color:#d3def4;line-height:1.65;margin:0}.primary{border:0;background:linear-gradient(135deg,#74f3d0,#6cc5e7);color:#10263d;font-weight:850;font-size:15px;padding:13px 25px;min-height:46px;border-radius:13px;box-shadow:0 6px 25px #2bdbba4a}
+.controls{display:flex;gap:7px;align-items:center;justify-content:space-between;padding:10px 1px 2px;min-height:58px;user-select:none}.control-cluster{display:flex;gap:6px;align-items:center}.control{min-width:47px;height:46px;border:1px solid #55688f;background:linear-gradient(135deg,#24385c,#1a2a4b);border-radius:11px;font-size:14px;font-weight:850;box-shadow:0 3px 0 #091126}.control.action{min-width:70px;background:linear-gradient(135deg,#5b5bc6,#3f6298);border-color:#9597de}.control.secondary{background:#15203d;min-width:41px;font-size:12px}.control:active,.control.pressed{transform:translateY(2px);box-shadow:0 1px 0 #091126;background:#347a86}.help{margin:7px 3px 0;color:#8ea7cb;font-size:11px;line-height:1.55;text-align:center}
+.zoe{display:flex;align-items:center;gap:9px;background:#213257;border:1px solid #445c87;border-radius:15px;padding:10px;margin-top:10px;min-height:64px}.avatar{flex:none;width:39px;height:39px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#ffb9d1,#e86c8e);color:#642444;font-weight:950;border:2px solid #fff6;box-shadow:0 0 0 3px #ee9db11a}.zoe-copy{min-width:0;flex:1}.zoe-copy small{display:block;color:#b7c9f1;font-size:10px;margin-bottom:3px}.zoe-copy p{font-size:12px;line-height:1.4;margin:0;color:#fff;overflow-wrap:anywhere}.voice-dot{padding:5px 7px;background:#12203d;border-radius:8px;font-size:10px;color:#abd4e9;white-space:nowrap}
+.side{border:1px solid #344669;background:#151f3b;border-radius:19px;padding:15px;display:grid;gap:11px}.side h2{font-size:15px;margin:0}.side p{font-size:12px;line-height:1.65;color:#b7c8e4;margin:0}.side .mission{background:#263556;border:1px solid #48628b;border-radius:11px;padding:10px;font-size:12px;line-height:1.6}.side h3{font-size:12px;margin:0 0 6px;color:#9cfae6}.mission strong{color:#fff0a2}.spec{display:grid;gap:7px}.spec div{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#bfd0e7;border-bottom:1px solid #39496a;padding-bottom:6px}.spec b{color:#f5f7ff}.side .note{font-size:10px;color:#95a8c8}.side .hint{background:#1d3443;padding:10px;border-radius:10px;font-size:11px}.side .hint b{color:#83f5cf}
+@media(max-width:650px){.app{padding:11px 8px 24px}.top{margin-bottom:8px}.identity h1{font-size:19px}.lead{font-size:11px;margin-bottom:10px}.game-tabs{gap:5px;margin-bottom:8px}.tab{min-height:68px;border-radius:11px;padding:8px 6px}.tab .em{font-size:17px}.tab strong{font-size:10.5px}.tab small{font-size:9px}.main{display:block}.side{display:none}.console{padding:7px;border-radius:14px}.bar{padding:5px 4px 7px}.bar strong{font-size:13px}canvas{height:clamp(330px,49dvh,475px)}.controls{gap:4px}.control-cluster{gap:4px}.control{min-width:43px;height:44px;font-size:13px}.control.action{min-width:59px}.help{font-size:10px}.zoe{margin-top:8px;min-height:58px;padding:8px}.avatar{width:36px;height:36px}.top>.pill{font-size:9px}.stage{border-radius:11px}}
+@media(max-width:358px){.tab small{display:none}.tab{min-height:52px}.control{min-width:38px}.control.action{min-width:54px}}
+@media(prefers-reduced-motion:reduce){.tab{transition:none}}
+</style>
+</head>
+<body>
+<div class="app">
+ <header class="top"><div class="identity"><div class="logo">☁</div><div><small>CREW PLAY · EXPERIMENTS</small><h1>Arcade Lab <span style="font-size:13px;color:#aee9dc">/ 4</span></h1></div></div><div class="pill">本地遊戲原型 v1</div></header>
+ <p class="lead">四種不同手感的遊戲：先玩得有趣，再讓 Zoe 在冒險中陪你聊天。</p>
+ <nav class="game-tabs" aria-label="選擇遊戲">
+  <button class="tab active" type="button" data-mode="runner"><span class="em">🏃</span><strong>Sky Sprint</strong><small>2D 橫向跑酷</small></button>
+  <button class="tab" type="button" data-mode="shooter"><span class="em">🚀</span><strong>Neon Swarm</strong><small>俯視角射擊</small></button>
+  <button class="tab" type="button" data-mode="rpg"><span class="em">🗝️</span><strong>Tiny Quest</strong><small>角色扮演 RPG</small></button>
+  <button class="tab" type="button" data-mode="blaster"><span class="em">🔫</span><strong>Robo Escape</strong><small>平台動作射擊</small></button>
+ </nav>
+ <div class="main">
+  <section class="console">
+   <div class="bar"><div><strong id="gameName">Sky Sprint · 雲端跑酷</strong><span class="goal" id="gameGoal">跳過障礙，收集能量，跑到終點</span></div><span class="stat" id="gameStatus">READY</span></div>
+   <div class="stage">
+    <canvas id="game" width="390" height="520" aria-label="遊戲畫面" tabindex="0"></canvas>
+    <div class="hud"><span class="health" id="hp">♥ ♥ ♥</span><span class="progress" id="score">0 / 600 m</span></div>
+    <div class="overlay" id="overlay"><span class="stamp" id="overlayIcon">🏃</span><h2 id="overlayTitle">跑起來！</h2><p id="overlayDescription">自動向前跑，向上跳、向下滑行，避開障礙物。</p><button class="primary" type="button" id="startButton">開始試玩</button></div>
+   </div>
+   <div class="controls" id="controls"><div class="control-cluster" id="moveButtons"></div><div class="control-cluster" id="actionButtons"></div></div>
+   <p class="help" id="helpText">手機：按跳或滑；電腦：空白鍵跳、↓ 滑行</p>
+   <div class="zoe"><div class="avatar">Z</div><div class="zoe-copy"><small id="zoeLabel">Zoe · 遊戲劇情台詞（非 AI 即時回覆）</small><p id="zoeText">準備好了嗎？這次我一定跟得上你！</p></div><span class="voice-dot" id="voiceTag">DEMO</span></div>
+  </section>
+  <aside class="side"><h2>四款原型，不同玩法</h2><p id="sideIntro">先確認操作是否好玩。畫面、角色、關卡都能再迭代成真正的 Crew 遊戲。</p><div class="mission"><h3>這局要做什麼？</h3><div id="sideMission">60 秒跑酷，躲障礙、拿星星，努力跑到 600 公尺。</div></div><div class="spec"><div><span>操作方式</span><b id="sideControls">跳躍／滑行</b></div><div><span>單局長度</span><b id="sideDuration">45–60 秒</b></div><div><span>AI 配合</span><b id="sideAi">救援與鼓勵</b></div></div><p class="hint"><b>AI 陪玩說明：</b> 這份單檔 HTML 能離線玩，台詞是預設劇情。Crew Web 內可接既有 Gemini Live，才會是自由語音聊天。</p><p class="note">不使用外部素材、不需下載遊戲引擎，也不需要帳號或 API Key 才能玩。</p></aside>
+ </div>
+</div>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
+const W=390,H=520,TAU=Math.PI*2,rand=(a,b)=>Math.random()*(b-a)+a,clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+const COLORS={runner:'#63e5c9',shooter:'#ff8da8',rpg:'#ffd78e',blaster:'#a6a0ff'};
+const profiles={
+ runner:{name:'Sky Sprint · 雲端跑酷',goal:'跳過障礙，收集能量，跑到終點',title:'跟 Zoe 衝上屋頂！',desc:'自動向前跑，按跳躍越過障礙、按滑行穿過低橋。跑到 600m 就贏。',mission:'跑到 600 公尺，撿星星並避免三次碰撞。',control:'跳躍／滑行',duration:'約 50 秒',ai:'失誤、收集、過關',hint:'手機按跳或滑；電腦空白鍵跳、↓滑行',icon:'🏃'},
+ shooter:{name:'Neon Swarm · 霓虹掃蕩',goal:'自由移動，自動瞄準，撐過 45 秒',title:'電漿風暴來了！',desc:'用方向鍵移動，武器會自動瞄準最近敵人。用「衝刺」穿過敵群，撐過 45 秒。',mission:'在不斷出現的敵人之中生存 45 秒；發射會自動鎖定。',control:'四向移動＋衝刺',duration:'45 秒',ai:'戰況播報、連殺鼓勵',hint:'觸控滑動畫面移動／方向鍵，按衝刺；電腦 WASD',icon:'🚀'},
+ rpg:{name:'Tiny Quest · 星核小鎮',goal:'找回三顆星核，開啟森林傳送門',title:'Zoe 的小鎮出事了！',desc:'探索小鎮、和 Zoe 聊天、找齊三顆星核。走到藍色傳送門完成任務。',mission:'收集 3 顆星核；靠近 Zoe 或村長可按「互動」交談，最後到傳送門。',control:'四向移動＋互動',duration:'2–3 分鐘',ai:'NPC 自然對話、解謎',hint:'方向鍵或下方按鍵移動；靠近 NPC 按互動（E）',icon:'🗝️'},
+ blaster:{name:'Robo Escape · 機械突圍',goal:'橫向探索、跳上平台、射擊機器人',title:'突破機器人封鎖！',desc:'自己控制前進、跳上平台、射擊擋路機器人，穿過陷阱抵達出口。',mission:'越過屋頂缺口，射擊巡邏機器人，抵達 1,800m 的出口。',control:'左右移動＋跳＋射擊',duration:'1–2 分鐘',ai:'戰鬥搭檔、關卡提示',hint:'A/D 或左右移動；空白鍵跳，J 射擊',icon:'🔫'}
+};
+let mode='runner',phase='ready',world=null,last=0,raf=0,hold=new Set(),touch=null;
+const particle=[],texts=[];
+function sendEvent(code,description){
+ if(window.parent===window)return;
+ try{window.parent.postMessage({type:'crew-arcade-event',game:mode,code,description},window.parent.location.origin)}catch{}
+}
+function say(message,code,description){$('zoeText').textContent=message;$('zoeLabel').textContent='Zoe · 遊戲劇情台詞（非 AI 即時回覆）';$('voiceTag').textContent='DEMO';if(code)sendEvent(code,description||message)}
+window.addEventListener('message',event=>{if(window.parent===window||event.source!==window.parent||event.origin!==window.parent.location.origin)return;const data=event.data;if(!data||typeof data!=='object')return;
+ if(data.type==='crew-arcade-ai-reply'&&typeof data.text==='string'){$('zoeText').textContent=data.text.slice(0,220);$('zoeLabel').textContent='Zoe · Gemini Live';$('voiceTag').textContent='LIVE'}
+ if(data.type==='crew-arcade-select-mode'&&profiles[data.mode])selectMode(data.mode);
+});
+function text(label,x,y,size=15,color='#fff',align='left'){ctx.fillStyle=color;ctx.font=`800 ${size}px system-ui,sans-serif`;ctx.textAlign=align;ctx.fillText(label,x,y);ctx.textAlign='left'}
+function rounded(x,y,w,h,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function circle(x,y,r,fill){ctx.fillStyle=fill;ctx.beginPath();ctx.arc(x,y,r,0,TAU);ctx.fill()}
+function line(x1,y1,x2,y2,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
+function star(x,y,r,color='#ffe390'){ctx.save();ctx.translate(x,y);ctx.fillStyle=color;ctx.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,R=i%2?r*.42:r;ctx.lineTo(Math.cos(a)*R,Math.sin(a)*R)}ctx.closePath();ctx.fill();ctx.restore()}
+function sparkle(x,y,color,n=9){for(let i=0;i<n;i++){particle.push({x,y,vx:rand(-170,170),vy:rand(-210,100),life:rand(.3,.7),max:.7,color,r:rand(2,4)})}}
+function floating(s,x,y,color='#fff'){texts.push({s,x,y,life:.9,color})}
+function updateEffects(dt){for(const p of particle){p.life-=dt;p.vy+=220*dt;p.x+=p.vx*dt;p.y+=p.vy*dt}for(let i=particle.length-1;i>=0;i--)if(particle[i].life<=0)particle.splice(i,1);for(const t of texts){t.life-=dt;t.y-=30*dt}for(let i=texts.length-1;i>=0;i--)if(texts[i].life<=0)texts.splice(i,1)}
+function drawEffects(){for(const p of particle){ctx.globalAlpha=clamp(p.life/p.max,0,1);circle(p.x,p.y,p.r,p.color)}ctx.globalAlpha=1;for(const t of texts){ctx.globalAlpha=clamp(t.life,0,1);text(t.s,t.x,t.y,16,t.color,'center')}ctx.globalAlpha=1}
+function updateHUD(){if(!world)return;let hp=world.hp||0,score='';if(mode==='runner')score=`${Math.floor(world.distance)} / 600 m · ★ ${world.coins}`;if(mode==='shooter')score=`${Math.ceil(Math.max(0,45-world.t))}s · ⚡${world.score}`;if(mode==='rpg')score=`星核 ${world.gems.length} / 3`;if(mode==='blaster')score=`${Math.floor(world.x)} / 1800m · ⚡${world.kills}`;$('hp').textContent='♥ '.repeat(Math.max(0,hp)).trim()||'♡';$('score').textContent=score;$('gameStatus').textContent=phase==='running'?'PLAYING':phase==='ready'?'READY':phase==='paused'?'PAUSED':phase==='won'?'CLEAR!':'GAME OVER'}
+function overlay(state,title,description,cta,icon){phase=state;$('overlay').hidden=false;$('overlayTitle').textContent=title;$('overlayDescription').textContent=description;$('startButton').textContent=cta;$('overlayIcon').textContent=icon||profiles[mode].icon;updateHUD()}
+function start(){if(phase==='paused'){phase='running';$('overlay').hidden=true;return}world=initial(mode);particle.length=0;texts.length=0;phase='running';$('overlay').hidden=true;say({runner:'我在旁邊跟你跑，前面有障礙！',shooter:'自動鎖定開啟！小心左邊那群。',rpg:'走過來找我！我知道星核在哪裡。',blaster:'這次我幫你盯著敵人！'}[mode],'game_start',profiles[mode].name+' started');}
+function finish(win,detail){if(phase!=='running')return;const name=profiles[mode].name,score=$('score').textContent;overlay(win?'won':'lost',win?'任務完成！ ✨':'這次差一點！',detail,win?'再玩一局':'再挑戰一次',win?'🏆':'💫');say(win?'太神啦！下次我們挑戰更難的關卡。':'沒關係，換個方法我們再試一次！',win?'game_win':'game_lose',`${name} ${win?'won':'lost'}; ${score}`)}
+function initial(id){
+ if(id==='runner')return {hp:3,distance:0,coins:0,y:454,vy:0,slide:0,inv:0,objects:[],spawn:.8,spawnIndex:0,t:0};
+ if(id==='shooter')return {hp:4,x:195,y:260,t:0,score:0,shields:0,enemies:[],shots:[],enemyShots:[],spawn:1,fire:0,inv:0,dashCD:0,combo:0,level:1};
+ if(id==='rpg')return {hp:3,x:500,y:510,t:0,gems:[],talked:[],talkCD:0,roadVisited:false};
+ return {hp:3,x:64,y:470,vy:0,t:0,camera:0,inv:0,bullets:[],enemies:[{x:380,y:470,alive:true,dir:-1},{x:855,y:470,alive:true,dir:1},{x:1150,y:470,alive:true,dir:-1},{x:1500,y:470,alive:true,dir:1}],fire:0,kills:0,checkpoint:64};
+}
+function selectMode(next){if(!profiles[next])return;mode=next;phase='ready';world=initial(mode);hold.clear();particle.length=0;texts.length=0;
+ for(const tab of document.querySelectorAll('.tab')){const a=tab.dataset.mode===mode;tab.classList.toggle('active',a);tab.setAttribute('aria-pressed',String(a))}
+ const p=profiles[mode];$('gameName').textContent=p.name;$('gameGoal').textContent=p.goal;$('helpText').textContent=p.hint;$('sideMission').textContent=p.mission;$('sideControls').textContent=p.control;$('sideDuration').textContent=p.duration;$('sideAi').textContent=p.ai;
+ say({runner:'準備好了嗎？這次我一定跟得上你！',shooter:'快看，敵機雷達已經亮了。',rpg:'歡迎回到星核小鎮！先來找我。',blaster:'門後面都是機器人。準備好就衝！'}[mode]);
+ overlay('ready',p.title,p.desc,'開始試玩',p.icon);makeButtons();draw();sendEvent('game_open',p.name+' opened');}
+function makeButtons(){const layout={runner:[[],[['跳躍','jump'],['滑行','slide'],['暫停','pause']]],shooter:[[ ['↑','up'],['←','left'],['↓','down'],['→','right'] ],[['衝刺','dash'],['暫停','pause']]],rpg:[[ ['↑','up'],['←','left'],['↓','down'],['→','right'] ],[['互動','talk'],['暫停','pause']]],blaster:[[ ['←','left'],['→','right'] ],[['跳躍','jump'],['射擊','fire'],['暫停','pause']]]}[mode];
+ for(let col=0;col<2;col++){$(col?'actionButtons':'moveButtons').replaceChildren();for(const [label,action] of layout[col]){const b=document.createElement('button');b.className='control'+(['jump','slide','dash','talk','fire'].includes(action)?' action':'')+(action==='pause'?' secondary':'');b.type='button';b.textContent=label;b.dataset.action=action;b.setAttribute('aria-label',label);
+ b.addEventListener('pointerdown',e=>{e.preventDefault();try{b.setPointerCapture(e.pointerId)}catch{};hold.add(action);b.classList.add('pressed');perform(action)});
+ const stop=e=>{hold.delete(action);b.classList.remove('pressed')};b.addEventListener('pointerup',stop);b.addEventListener('pointercancel',stop);b.addEventListener('lostpointercapture',stop);
+ $(col?'actionButtons':'moveButtons').append(b)}}}
+function perform(action){if(action==='pause'){if(phase==='running')overlay('paused','稍微休息一下','這局進度保留，準備好再繼續。','繼續遊戲','⏸');else if(phase==='paused')start();return}
+ if(phase!=='running'||!world)return;
+ if(mode==='runner'){if(action==='jump'&&world.y>=453){world.vy=-610;world.slide=0}if(action==='slide'&&world.y>=453)world.slide=.7}
+ if(mode==='shooter'&&action==='dash'&&world.dashCD<=0){world.dashCD=3.7;world.inv=.5;const dx=(hold.has('right')?1:0)-(hold.has('left')?1:0),dy=(hold.has('down')?1:0)-(hold.has('up')?1:0);world.x=clamp(world.x+((dx||1)*115),22,W-22);world.y=clamp(world.y+dy*100,40,H-25);sparkle(world.x,world.y,'#86f6f0',20)}
+ if(mode==='rpg'&&action==='talk')interact();
+ if(mode==='blaster'){if(action==='jump'&&(Math.abs(world.y-470)<3||platforms.some(p=>Math.abs(world.y-p.y)<3&&world.x>p.x-12&&world.x<p.x+p.w+12))){world.vy=-640}if(action==='fire')fireBlaster()}
+}
+function drawHero(x,y,scale=1,color='#67e9d3',slide=false){ctx.save();ctx.translate(x,y);ctx.scale(scale,slide?.65:1);circle(0,-65,13,'#f6cca9');rounded(-13,-52,26,35,8,color);line(-8,-16,-10,0,'#263453',7);line(8,-16,10,0,'#263453',7);line(-10,-48,-20,-27,'#f6cca9',6);line(10,-48,21,-28,'#f6cca9',6);ctx.restore()}
+function drawRunner(){const w=world;let d=w.distance;
+ const grad=ctx.createLinearGradient(0,0,0,H);grad.addColorStop(0,'#86b1ec');grad.addColorStop(.62,'#d5a9cb');grad.addColorStop(1,'#53678d');ctx.fillStyle=grad;ctx.fillRect(0,0,W,H);
+ circle(315,96,40,'#ffe9b4');for(let i=0;i<14;i++){const bx=i*42-((d*9)%42);const h=120+(i*43%100);rounded(bx,355-h,37,h,1,i%3?'#63749f':'#7e7eaf');for(let y=355-h+16;y<350;y+=19)for(let x=bx+9;x<bx+33;x+=15)rounded(x,y,4,7,0,'#ffe2a35c')}
+ for(let j=0;j<8;j++){const x=j*86-((d*20)%86);rounded(x,435,72,14,2,'#e9bd7e');rounded(x,449,72,71,2,'#3c566d');rounded(x+4,456,63,5,0,'#273848')}
+ for(const o of w.objects){if(o.kind==='star'){star(o.x,o.y,15)}else if(o.kind==='box'){rounded(o.x,o.y,o.w,o.h,5,'#cc795f');rounded(o.x+4,o.y+4,o.w-8,o.h-8,3,'#ffb97b');text('!',o.x+o.w/2,o.y+o.h-9,21,'#7d4059','center')}
+ else{rounded(o.x,o.y,o.w,o.h,4,'#56639f');rounded(o.x+5,o.y+4,o.w-10,9,2,'#f4c28e');text('↓',o.x+o.w/2,o.y+37,22,'#ffeec2','center')}}
+ if(w.inv<=0||Math.floor(w.t*12)%2===0)drawHero(108,w.y,1.05,'#5ad7c1',w.slide>0);drawEffects();
+ text('CITY SKYLINE · STAGE 01',16,63,11,'#f9f5ed')
+}
+function stepRunner(dt){const w=world;w.t+=dt;w.distance+=dt*12.8;w.inv=Math.max(0,w.inv-dt);w.slide=Math.max(0,w.slide-dt);w.vy+=1500*dt;w.y=clamp(w.y+w.vy*dt,0,454);if(w.y>=454)w.vy=0;w.spawn-=dt;
+ if(w.spawn<=0){const k=w.spawnIndex++;const kind=k%4===3?'star':k%3===0?'bridge':'box';const o={kind,x:420,w:kind==='star'?28:kind==='bridge'?75:38,h:kind==='box'?47:53,y:kind==='star'?405:kind==='bridge'?345:407};w.objects.push(o);w.spawn=rand(1.3,1.85)}
+ for(const o of w.objects){o.x-=240*dt;const hit=o.x<127&&o.x+o.w>94;if(!o.used&&hit){if(o.kind==='star'){w.coins++;o.used=true;sparkle(108,414,'#ffe090',12);floating('+1★',111,373,'#fff0a2');if(w.coins===4)say('太棒了！你已經收集四顆能量星了。','milestone','Collected four stars')}
+ else if(w.inv<=0&&!(o.kind==='box'&&w.y<425)&&!(o.kind==='bridge'&&w.slide>0)){w.hp--;w.inv=1.5;o.used=true;sparkle(106,435,'#ff739b');say('欸！差一點！下一個障礙我幫你注意。','hit','Runner collided, health '+w.hp);if(w.hp<=0){finish(false,'碰到三次障礙，跑酷結束。');return}}}}
+ w.objects=w.objects.filter(o=>o.x>-90);if(w.distance>=600)finish(true,'跑完 600 公尺並收集 '+w.coins+' 顆星星。')}
+function drawGrid(color='#344561'){ctx.fillStyle='#101b33';ctx.fillRect(0,0,W,H);ctx.strokeStyle=color;ctx.lineWidth=1;for(let x=0;x<W;x+=32)line(x,0,x,H,color,.7);for(let y=0;y<H;y+=32)line(0,y,W,y,color,.7)}
+function drawShip(x,y,rotation=0){ctx.save();ctx.translate(x,y);ctx.rotate(rotation);ctx.shadowColor='#80feec';ctx.shadowBlur=18;ctx.fillStyle='#73e6cf';ctx.beginPath();ctx.moveTo(21,0);ctx.lineTo(-16,-14);ctx.lineTo(-9,0);ctx.lineTo(-16,14);ctx.closePath();ctx.fill();ctx.shadowBlur=0;rounded(-10,-5,15,10,3,'#eafaff');ctx.restore()}
+function drawShooter(){const w=world;drawGrid('#203a57');for(let i=0;i<16;i++){circle((i*131+w.t*7)%W,(i*73+w.t*3)%H,1.3,'#6d9abd')}
+ for(const s of w.shots){ctx.shadowColor='#8bfaec';ctx.shadowBlur=8;circle(s.x,s.y,5,'#a7fff5');ctx.shadowBlur=0}
+ for(const e of w.enemies){ctx.shadowColor='#f382b6';ctx.shadowBlur=12;circle(e.x,e.y,e.r+2,'#e96893');circle(e.x,e.y,e.r-4,'#703153');star(e.x,e.y,8,'#ffb6d0');ctx.shadowBlur=0}
+ if(w.inv<=0||Math.floor(w.t*13)%2===0)drawShip(w.x,w.y,Math.sin(w.t*4)*.08);drawEffects();text('AUTO-TARGET ONLINE',14,65,11,'#b4ecd8');
+ if(touch) {circle(touch.x,touch.y,25,'#5deaca22');line(touch.x,touch.y,w.x,w.y,'#9bf1eb66',2)}
+}
+function stepShooter(dt){const w=world;w.t+=dt;w.inv=Math.max(0,w.inv-dt);w.dashCD=Math.max(0,w.dashCD-dt);
+ let dx=(hold.has('right')?1:0)-(hold.has('left')?1:0),dy=(hold.has('down')?1:0)-(hold.has('up')?1:0);
+ if(touch){dx=clamp((touch.x-w.x)/42,-1,1);dy=clamp((touch.y-w.y)/42,-1,1)}
+ const mag=Math.hypot(dx,dy)||1;w.x=clamp(w.x+dx/mag*220*dt,22,W-22);w.y=clamp(w.y+dy/mag*220*dt,50,H-22);
+ w.spawn-=dt;if(w.spawn<0){const side=Math.floor(rand(0,4));w.enemies.push({x:side===0? -20:side===1?410:rand(0,W),y:side===2?-20:side===3?540:rand(0,H),r:rand(12,18),hp:1+Math.floor(w.t/22),speed:rand(43,67)+w.t*.8});w.spawn=clamp(.83-w.t*.012,.3,.83)}
+ w.fire-=dt;if(w.fire<=0&&w.enemies.length){let nearest=w.enemies[0],best=Infinity;for(const e of w.enemies){const dist=Math.hypot(e.x-w.x,e.y-w.y);if(dist<best){best=dist;nearest=e}}const angle=Math.atan2(nearest.y-w.y,nearest.x-w.x);w.shots.push({x:w.x,y:w.y,vx:Math.cos(angle)*470,vy:Math.sin(angle)*470});w.fire=.22}
+ for(const s of w.shots){s.x+=s.vx*dt;s.y+=s.vy*dt;for(const e of w.enemies){if(Math.hypot(s.x-e.x,s.y-e.y)<e.r+6){e.hp--;s.dead=true;sparkle(s.x,s.y,'#ffc2e1',4);if(e.hp<=0){e.dead=true;w.score+=10;w.combo++;sparkle(e.x,e.y,'#fb86b5',10);if(w.combo===10)say('哇，十連殺！你今天是王牌飛行員！','combo','Player achieved ten consecutive kills')}break}}}
+ for(const e of w.enemies){let dx=w.x-e.x,dy=w.y-e.y,mag=Math.hypot(dx,dy)||1;e.x+=dx/mag*e.speed*dt;e.y+=dy/mag*e.speed*dt;if(Math.hypot(w.x-e.x,w.y-e.y)<e.r+13&&w.inv<=0){w.hp--;w.inv=1.1;w.combo=0;e.dead=true;sparkle(w.x,w.y,'#ff6a9e',12);say('護盾掉一格！往空曠地方移動！','hit','Shooter HP now '+w.hp);if(w.hp<=0){finish(false,'飛船被敵軍包圍了，得分 '+w.score+'。');return}}}
+ w.shots=w.shots.filter(s=>!s.dead&&s.x>-20&&s.x<410&&s.y>-20&&s.y<550);w.enemies=w.enemies.filter(e=>!e.dead);
+ if(w.t>=45)finish(true,'生存了 45 秒，分數 '+w.score+'。')}
+const trees=[];for(let x=90;x<1000;x+=95)for(let y=70;y<980;y+=103)if((x*3+y*7)%5<2)trees.push({x,y});
+const village=[{x:430,y:505,label:'Zoe',color:'#e78fb0'},{x:630,y:565,label:'村長',color:'#d6b473'}],gems=[{x:298,y:305},{x:710,y:308},{x:710,y:720}],portal={x:880,y:865};
+function drawRpg(){const w=world,cx=clamp(w.x,W/2,1000-W/2),cy=clamp(w.y,H/2,1000-H/2);ctx.save();ctx.translate(W/2-cx,H/2-cy);
+ ctx.fillStyle='#2e685b';ctx.fillRect(0,0,1000,1000);
+ for(let x=0;x<1000;x+=40)for(let y=0;y<1000;y+=40){ctx.fillStyle=(x/40+y/40)%2?'#387662':'#34725f';ctx.fillRect(x,y,40,40);if((x*13+y*7)%11<3)circle(x+22,y+24,2,'#92bf77')}
+ for(const r of [{x:200,y:470,w:650,h:90},{x:450,y:210,w:90,h:600}])rounded(r.x,r.y,r.w,r.h,9,'#a8a27b');
+ for(const [x,y] of [[245,410],[590,430],[735,560]]){rounded(x,y,104,83,5,'#d5a977');ctx.fillStyle='#8a546b';ctx.beginPath();ctx.moveTo(x-13,y);ctx.lineTo(x+52,y-45);ctx.lineTo(x+117,y);ctx.fill();rounded(x+42,y+42,24,41,2,'#64535a');}
+ for(const tr of trees){circle(tr.x,tr.y-10,22,'#1e594a');circle(tr.x-8,tr.y-18,17,'#46976c');circle(tr.x+12,tr.y-21,16,'#5aa978')}
+ for(let i=0;i<gems.length;i++){const o=gems[i];if(w.gems.includes(i))continue;circle(o.x,o.y,23,'#79baf766');star(o.x,o.y,16,'#c3edff');text('✦',o.x,o.y+7,26,'#e8ffff','center')}
+ const ready=w.gems.length===3;circle(portal.x,portal.y,32,ready?'#80f3eb':'#5a608c');circle(portal.x,portal.y,23,ready?'#244b85':'#35394e');text(ready?'✦':'✕',portal.x,portal.y+8,26,ready?'#b4fff0':'#a8b3ce','center');text('PORTAL',portal.x,portal.y+52,11,'#fff4cc','center');
+ for(const npc of village){circle(npc.x,npc.y-36,13,'#ffd1a0');rounded(npc.x-12,npc.y-22,24,26,7,npc.color);text(npc.label,npc.x,npc.y-56,13,'#fff','center');if(Math.hypot(npc.x-w.x,npc.y-w.y)<85){ctx.strokeStyle='#dfffee';ctx.lineWidth=2;ctx.strokeRect(npc.x-23,npc.y-60,46,65)}}
+ drawHero(w.x,w.y,1,'#f6d388');ctx.restore();drawEffects();text('探索 · 尋找散落的星核',14,64,11,'#f6ebc0')}
+function stepRpg(dt){const w=world;w.t+=dt;w.talkCD=Math.max(0,w.talkCD-dt);let dx=(hold.has('right')?1:0)-(hold.has('left')?1:0),dy=(hold.has('down')?1:0)-(hold.has('up')?1:0);if(touch){const rx=touch.x-W/2,ry=touch.y-H/2;dx=clamp(rx/42,-1,1);dy=clamp(ry/42,-1,1)}const mag=Math.hypot(dx,dy)||1;w.x=clamp(w.x+dx/mag*170*dt,35,965);w.y=clamp(w.y+dy/mag*170*dt,80,960);
+ for(let i=0;i<gems.length;i++){if(w.gems.includes(i))continue;const o=gems[i];if(Math.hypot(o.x-w.x,o.y-w.y)<35){w.gems.push(i);sparkle(195,260,'#b5eaff',18);floating('+1 星核',195,240,'#ffecaa');say(w.gems.length<3?`找到第 ${w.gems.length} 顆了！再找找其他角落。`:'三顆都齊了！到右下角的藍色傳送門！','collect',`Player collected gem ${w.gems.length} of 3`)}}
+ if(w.gems.length===3&&Math.hypot(portal.x-w.x,portal.y-w.y)<44)finish(true,'收集三顆星核並成功啟動傳送門。')}
+function interact(){if(mode!=='rpg'||phase!=='running')return;const w=world;if(w.talkCD>0)return;let near=null;for(const n of village)if(Math.hypot(n.x-w.x,n.y-w.y)<90){near=n;break}if(!near){say('走近有名字的村民，再按互動就能聊天。');return}
+ w.talkCD=1.6;if(near.label==='Zoe'){say(w.gems.length===0?'星核可能在小鎮外圍！往左上或右邊去看看。':w.gems.length<3?'很棒，繼續探索！我會留在這裡等你。':'都找齊了！傳送門在右下角。','talk_to_zoe',`Player talked to Zoe. Gems collected: ${w.gems.length} of 3`)}else{say('村長：森林需要三顆星核。還好你和 Zoe 來了！','talk_to_elder','The player talked to the village elder, who mentioned three crystals')}}
+const platforms=[{x:205,y:425,w:150},{x:490,y:360,w:115},{x:790,y:410,w:140},{x:1170,y:365,w:150},{x:1510,y:390,w:140}], gaps=[[630,730],[1265,1350]];
+function onFloor(x){return !gaps.some(([a,b])=>x>a&&x<b)}
+function drawBlaster(){const w=world;const cam=clamp(w.x-120,0,1800-W);ctx.fillStyle='#131839';ctx.fillRect(0,0,W,H);for(let k=0;k<18;k++){const x=k*115-(cam*.28)%115;rounded(x,220+(k*41%95),90,240,2,'#26325b');for(let y=230+(k*41%95);y<470;y+=26)rounded(x+12,y,9,12,0,'#9facff3a')}
+ ctx.save();ctx.translate(-cam,0);for(let x=0;x<1900;x+=85){rounded(x,480,75,10,2,'#374362')}
+ for(let x=0;x<1900;x+=23){if(onFloor(x))rounded(x,480,23,60,2,'#43546b')}
+ for(const [a,b] of gaps){rounded(a,490,b-a,30,2,'#d8547299');for(let j=0;j<6;j++)star(a+(j+.5)*(b-a)/6,515,5,'#fc8b98')}
+ for(const p of platforms){rounded(p.x,p.y,p.w,12,3,'#7b89bb');rounded(p.x,p.y+10,p.w,12,1,'#3a4e78');for(let j=9;j<p.w;j+=32)rounded(p.x+j,p.y+13,8,7,1,'#8eaff0')}
+ for(const enemy of w.enemies){if(!enemy.alive)continue;rounded(enemy.x-14,enemy.y-42,28,37,6,'#db719d');rounded(enemy.x-11,enemy.y-39,22,15,4,'#8b385e');circle(enemy.x-5,enemy.y-32,3,'#ffe5a5');circle(enemy.x+6,enemy.y-32,3,'#ffe5a5');line(enemy.x-8,enemy.y-4,enemy.x-8,enemy.y+2,'#3c3448',5);line(enemy.x+8,enemy.y-4,enemy.x+8,enemy.y+2,'#3c3448',5)}
+ for(const bullet of w.bullets){rounded(bullet.x,bullet.y,13,5,3,'#a2fff0')}
+ if(w.inv<=0||Math.floor(w.t*13)%2===0){drawHero(w.x,w.y,1,'#9eabff');rounded(w.x+11,w.y-39,30,10,4,'#89f0e7')}
+ rounded(1835,391,33,89,6,'#67c7a4');rounded(1841,401,20,72,4,'#25496a');star(1851,418,11,'#ffe69a');text('EXIT',1852,374,13,'#e8ffe7','center');ctx.restore();drawEffects();text('SECTOR 04 · ESCAPE',14,65,11,'#c8c8ff')}
+function fireBlaster(){const w=world;if(!w||phase!=='running'||w.fire>0)return;w.fire=.18;w.bullets.push({x:w.x+20,y:w.y-31});sparkle(240,365,'#b0fffb',3)}
+function stepBlaster(dt){const w=world;w.t+=dt;w.inv=Math.max(0,w.inv-dt);w.fire=Math.max(0,w.fire-dt);if(hold.has('fire'))fireBlaster();
+ const move=(hold.has('right')?1:0)-(hold.has('left')?1:0);w.x=clamp(w.x+move*190*dt,22,1855);
+ w.vy+=1500*dt;const py=w.y;w.y+=w.vy*dt;let foot=470;if(w.vy>=0){for(const p of platforms){if(w.x>p.x-12&&w.x<p.x+p.w+12&&py<=p.y&&w.y>=p.y)foot=Math.min(foot,p.y)}if(w.y>=foot&&foot!==470){w.y=foot;w.vy=0}else if(w.y>=470&&onFloor(w.x)){w.y=470;w.vy=0}}
+ if(w.y>580){w.hp--;w.x=w.checkpoint;w.y=470;w.vy=0;w.inv=1.3;say('踩空了！我先把你拉回安全區。','fall','Player fell into a gap. HP '+w.hp);if(w.hp<=0){finish(false,'掉進陷阱太多次。');return}}
+ for(const b of w.bullets){b.x+=480*dt;for(const e of w.enemies){if(!e.alive)continue;if(Math.abs(b.x-e.x)<18&&Math.abs(b.y-(e.y-31))<23){e.alive=false;b.dead=true;w.kills++;sparkle(200,320,'#f9a3d0',14);floating('+1',220,310,'#ffe5c3');if(w.kills===2)say('兩台機器人倒下了！我們配合得不錯。','kills','Player defeated two robots');break}}}
+ w.bullets=w.bullets.filter(b=>!b.dead&&b.x<w.x+440);
+ for(const e of w.enemies){if(!e.alive)continue;if(Math.abs(w.x-e.x)<27&&Math.abs(w.y-e.y)<50&&w.inv<=0){w.hp--;w.inv=1.2;say('小心巡邏機器人！','hit','Robot hit player, HP '+w.hp);if(w.hp<=0){finish(false,'闖關失敗，總擊破 '+w.kills+' 台機器人。');return}}}
+ if(w.x>970)w.checkpoint=1010;if(w.x>1775)finish(true,'成功抵達出口，擊破 '+w.kills+' 台機器人。')}
+function step(dt){if(!world||phase!=='running')return;updateEffects(dt);if(mode==='runner')stepRunner(dt);if(mode==='shooter')stepShooter(dt);if(mode==='rpg')stepRpg(dt);if(mode==='blaster')stepBlaster(dt);updateHUD()}
+function draw(){if(!world)return;ctx.clearRect(0,0,W,H);if(mode==='runner')drawRunner();if(mode==='shooter')drawShooter();if(mode==='rpg')drawRpg();if(mode==='blaster')drawBlaster();}
+function frame(now){if(!last)last=now;const dt=Math.min(.04,(now-last)/1000);last=now;if(phase==='running')step(dt);draw();raf=requestAnimationFrame(frame)}
+for(const tab of document.querySelectorAll('.tab'))tab.addEventListener('click',()=>selectMode(tab.dataset.mode));
+$('startButton').addEventListener('click',start);
+const keyMap={ArrowLeft:'left',a:'left',A:'left',ArrowRight:'right',d:'right',D:'right',ArrowUp:'up',w:'up',W:'up',ArrowDown:'down',s:'down',S:'down',' ':'jump',j:'fire',J:'fire',e:'talk',E:'talk',Shift:'dash',Escape:'pause'};
+window.addEventListener('keydown',e=>{if(e.repeat&&['jump','talk','dash','pause'].includes(keyMap[e.key]))return;if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;const a=keyMap[e.key];if(!a)return;e.preventDefault();if(phase==='running'&&mode==='runner'&&a==='up')perform('jump');else if(phase==='running'&&mode==='runner'&&a==='down')perform('slide');else if(phase==='running'&&mode==='blaster'&&a==='up')perform('jump');else perform(a);hold.add(a)});
+window.addEventListener('keyup',e=>{const a=keyMap[e.key];if(a)hold.delete(a)});
+canvas.addEventListener('pointerdown',e=>{if(phase!=='running')return;const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)*W/rect.width,y=(e.clientY-rect.top)*H/rect.height;touch={x,y,startX:x,startY:y};try{canvas.setPointerCapture(e.pointerId)}catch{}});
+canvas.addEventListener('pointermove',e=>{if(!touch)return;const rect=canvas.getBoundingClientRect();touch.x=clamp((e.clientX-rect.left)*W/rect.width,0,W);touch.y=clamp((e.clientY-rect.top)*H/rect.height,0,H)});
+function endTouch(){if(touch&&mode==='runner'){const dy=touch.y-touch.startY;if(dy< -25)perform('jump');else if(dy>25)perform('slide')}if(touch&&mode==='blaster'){const dx=touch.x-touch.startX;if(Math.abs(dx)>30){hold.add(dx>0?'right':'left');setTimeout(()=>hold.delete(dx>0?'right':'left'),150)}}touch=null}
+canvas.addEventListener('pointerup',endTouch);canvas.addEventListener('pointercancel',endTouch);
+window.addEventListener('blur',()=>{hold.clear();touch=null;if(phase==='running')overlay('paused','遊戲已暫停','回到頁面後按「繼續遊戲」。','繼續遊戲','⏸')});
+selectMode('runner');raf=requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
