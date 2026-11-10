@@ -9,8 +9,8 @@ const PAGES = [
   {
     "slug": "",
     "nav": "首頁",
-    "title": "Crew｜免費 AI 語音試用與語言學習",
-    "description": "Crew Teacher 提供 AI 老師與語伴，先免費試用 5 分鐘語音口說；用完額度後可設定自己的 Gemini Key。",
+    "title": "Crew｜和 AI 朋友玩著學語言 — 英文、日文、韓文等 12 種語言",
+    "description": "選一種語言、選一位 AI 朋友，免費聊天、練口說、玩遊戲。玩著玩著，就敢開口了。",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "你的 AI 夥伴，從學習到探索。",
     "intro": "用 Crew 老師與朋友練習語言、和故事角色一起閱讀、從不同角度認識自己，再透過每日研發情報發現值得研究的新方向。",
@@ -344,8 +344,8 @@ const EN_PAGES = [
   {
     "slug": "",
     "nav": "Home",
-    "title": "Crew | Free AI Voice Trial and Language Learning",
-    "description": "Practice with AI tutors and friends. Try free AI voice for five minutes, then add your Gemini API key when your trial is used.",
+    "title": "Crew | Learn Languages with AI Friends — Chat, Speak & Play",
+    "description": "Choose a language and an AI friend. Chat for free, practice speaking, and play games as you learn English, Japanese, Korean, and more.",
     "eyebrow": "ONE SPACE, MANY POSSIBILITIES",
     "heading": "Your AI companions for learning and exploring.",
     "intro": "Practice speaking with a Crew teacher or friend, read stories together, explore personal charts, and discover useful AI research—all in one place.",
