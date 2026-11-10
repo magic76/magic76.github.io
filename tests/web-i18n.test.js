@@ -140,7 +140,7 @@ test("global UI locale options and search index publication gates",()=>{
  assert.ok(routes.includes("localeFromPublicPath(window.location.pathname)"));
  assert.ok(selector.includes("localePrefix(next)"));
  assert.ok(!selector.includes("language.previewHint"));
- assert.ok(selector.includes("language.beta"));
+ assert.ok(!selector.includes("language.beta"),"language choices should not show beta badges");
  assert.ok(selector.includes('aria-haspopup="dialog"'));
  assert.ok(selector.includes("dialog.showModal()"));
  assert.ok(!selector.includes("<select"),"locale switcher must not open Android WebView's native full-height select");
@@ -150,7 +150,7 @@ test("global UI locale options and search index publication gates",()=>{
  for(const language of ["ja","es","pt-BR","id"])assert.ok(load(language,"home").headline);
 });
 
-test("locale dialog fits mobile viewports and keeps status wording separate from names",()=>{
+test("locale dialog fits mobile viewports without beta badges beside language names",()=>{
  const css=read("web-spa/src/i18n/languageSwitcher.css");
  const zh=load("zh-TW","common").language;
  const en=load("en","common").language;
@@ -159,7 +159,8 @@ test("locale dialog fits mobile viewports and keeps status wording separate from
  assert.ok(css.includes("safe-area-inset-bottom"));
  assert.equal(zh.previewHint,"部分內容將以英文顯示");
  assert.equal(en.previewHint,"Some content will appear in English");
- assert.ok(zh.beta&&en.beta);
+ assert.ok(!read("web-spa/src/i18n/LanguageSwitcher.tsx").includes("crew-language-stage"));
+ assert.ok(zh.beta&&en.beta,"translation keys are preserved for catalog parity");
  assert.ok(!read("config/ui-locales.json").includes('"preview"'));
  assert.ok(!read("web-spa/src/i18n/LanguageSwitcher.tsx").includes("crew-language-option-note"));
 });
