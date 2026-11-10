@@ -154,7 +154,6 @@
       "intro": "O que mais você pode fazer no Crew?",
       "item0": "Jogue adivinhação e gomoku com IA",
       "item1": "Fotografe um objeto e faça-o falar",
-      "item2": "Conheça 16 amigos de IA",
       "item3": "Pratique idiomas enquanto joga",
       "item4": "Crie suas próprias histórias com IA"
     }
@@ -562,7 +561,7 @@
   },
   "liveBubble": {
     "invite": "Oi! Vamos conversar?",
-    "start": "Conversar",
+    "start": "Voz",
     "heading": "Converse com um amigo de IA",
     "withZoe": "Conversar com Zoe",
     "setup": "Config. Key"

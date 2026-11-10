@@ -154,7 +154,6 @@
       "intro": "Was kannst du noch mit Crew machen?",
       "item0": "Spiel Zahlenrätsel oder Gomoku mit KI",
       "item1": "Fotografiere ein Objekt und lass es sprechen",
-      "item2": "Lerne 16 KI-Freunde kennen",
       "item3": "Übe Sprachen ganz spielerisch",
       "item4": "Erfinde Geschichten zusammen mit KI"
     }
@@ -562,7 +561,7 @@
   },
   "liveBubble": {
     "invite": "Hey, Lust auf ein Gespräch?",
-    "start": "Chatten",
+    "start": "Audio",
     "heading": "Sprich mit einem KI-Freund",
     "withZoe": "Mit Zoe chatten",
     "setup": "Key einrichten"
