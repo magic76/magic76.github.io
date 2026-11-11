@@ -17,8 +17,8 @@ export const crewGames=[
 
 type HubFilter="all"|"no-key"|"ai";
 const recentGameKey="crew_play_recent_game_v1";
-const noKeyGames=new Set<string>(["friend-gomoku","connect4","reversi","1a2b","number-bomb","memory","taboo"]);
-const extraGames=["nonsense","werewolf","crazy-court","truth-news"];
+const noKeyGames=new Set<string>(["friend-gomoku","connect4","reversi","1a2b","number-bomb","memory","taboo","life-lab"]);
+const extraGames=["nonsense","werewolf","crazy-court","truth-news","life-lab"];
 const knownGames=new Set<string>([...crewGames.map(game=>game.id),...extraGames]);
 
 export function CrewPlayHubPage(){
@@ -33,6 +33,7 @@ export function CrewPlayHubPage(){
    if(saved&&knownGames.has(saved))setRecentId(saved);
   }catch{/* Browsing stays available in private mode. */}
  },[]);
+ const gameHref=(id:string)=>id==="life-lab"?"/timeline/simulate":"/games/"+id;
  const remember=(id:string)=>{
   setRecentId(id);
   try{window.localStorage.setItem(recentGameKey,id)}catch{/* Optional convenience. */}
@@ -47,7 +48,8 @@ export function CrewPlayHubPage(){
   nonsense:zh?["荒謬新聞直播","荒謬新聞題材、AI 主播與動態新聞現場。"]:["Absurd News Live","Improvised AI news scenes."],
   werewolf:zh?["AI 狼人殺","夜晚行動、質疑、推理與投票。"]:["AI Werewolf","Debate, bluff and vote."],
   "crazy-court":zh?["荒謬法庭","和 AI 朋友辯論荒謬案件。"]:["Crazy Court","Debate silly cases with an AI friend."],
-  "truth-news":zh?["新聞真假猜猜看","從最新新聞中猜出哪則是真的。"]:["Real or Fiction News","Find the one real news headline."]
+  "truth-news":zh?["新聞真假猜猜看","從最新新聞中猜出哪則是真的。"]:["Real or Fiction News","Find the one real news headline."],
+  "life-lab":zh?["人生實驗室","從小到老做出選擇，看看同樣起點會走出什麼人生。"]:["Life Lab","Make choices from childhood to old age and see how a life changes."]
  } as Record<string,string[]>;
  const titleFor=(id:string)=>id==="number-bomb"?(zh?"終極密碼":"Number Bomb"):id==="memory"?(zh?"翻牌記憶":"Memory Match"):t("playHub.games."+id+".title");
  const descFor=(id:string)=>id==="number-bomb"?(zh?"你來猜數字，AI 朋友當主持人公布提示。":"Guess a secret number while your Crew friend hosts."):
@@ -67,7 +69,7 @@ export function CrewPlayHubPage(){
    <p>{t("playHub.intro")}</p>
   </header>
   <div className="crew-play-discovery" aria-label={zh?"選擇遊戲":"Find a game"}>
-   {recentId?<Link className="crew-play-resume" to={"/games/"+recentId} onClick={()=>remember(recentId)}>
+   {recentId?<Link className="crew-play-resume" to={gameHref(recentId)} onClick={()=>remember(recentId)}>
     <span aria-hidden="true">↗</span><span><small>{zh?"再玩上次的遊戲":"Play last game again"}</small><strong>{titles[recentId]}</strong></span>
    </Link>:null}
    <div className="crew-play-filters" role="group" aria-label={zh?"遊戲分類":"Game categories"}>
@@ -86,6 +88,11 @@ export function CrewPlayHubPage(){
    </div>
   </div>
   <div className="crew-play-catalog">
+   <Link className="crew-play-game-card life-lab-hub-card" to="/timeline/simulate" hidden={!visible("life-lab",extraLabels["life-lab"][0],extraLabels["life-lab"][1])} onClick={()=>remember("life-lab")}>
+    <div className="crew-play-game-art" aria-hidden="true"><span>🌱</span></div>
+    <div className="crew-play-game-info"><strong>{extraLabels["life-lab"][0]}</strong><small>{extraLabels["life-lab"][1]}</small><span className="crew-play-game-voice-tag">{zh?"免費單機 · 不需 AI Key":"Free solo play · No AI key"}</span></div>
+    <span className="crew-play-open" aria-hidden="true">↗</span>
+   </Link>
    {crewGames.map((game,index)=><Link className="crew-play-game-card" hidden={!visible(game.id,titleFor(game.id),descFor(game.id))} onClick={()=>remember(game.id)} to={"/games/"+game.id} key={game.id}>
     <div className={`crew-play-game-art game-${index}`} aria-hidden="true"><span>{game.icon}</span></div>
     <div className="crew-play-game-info"><strong>{titleFor(game.id)}</strong><small>{descFor(game.id)}</small><span className="crew-play-game-voice-tag">{game.id==="twenty-questions"||game.id==="mystery"?t("playHub.voiceRequired"):game.id==="taboo"?(zh?"打字練習 · 可開 AI 猜詞":"Typing practice · Optional AI guessing"):game.id==="1a2b"?(zh?"免費遊玩 · 每日同題":"Free · Daily challenge"):game.id==="number-bomb"||game.id==="memory"?(zh?"免費玩 · 語音陪玩可選":"Free play · Optional voice"):t("playHub.offlineOptional")}</span></div>
