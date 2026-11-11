@@ -5,7 +5,7 @@ import {TIMELINE_IDS,timelinePerson,type TimelineCharacterId} from "./timelineCh
 import {TimelinePortrait} from "./TimelinePortrait";
 import {LIFE_AGES,advanceLife,chooseLifeEvent,lifeEnding,lifeEventFor,lifeOutcome,newLifeRun,type LifeRun,type Traits} from "./lifeSimulation";
 import {clearLifeRun,loadLifeRun,saveLifeRun} from "./lifeSimulationStorage";
-import type {LifeTrait} from "./lifeEvents";
+import {LIFE_EVENTS as EVENT_TITLES,type LifeTrait} from "./lifeEvents";
 import "./lifeSimulation.css";
 
 const traitLabels:Record<LifeTrait,[string,string]>={
@@ -164,6 +164,5 @@ export function LifeSimulationPage(){
 function lifeEventTitle(id:string,en:boolean):string{
  // History renders titles from the approved, finite event catalog, never generated dialogue.
  const catalog=EVENT_TITLES.find(item=>item.id===id);
- return catalog?(en?catalog.en:catalog.zh):id;
+ return catalog?(en?catalog.title.en:catalog.title.zh):id;
 }
-import {LIFE_EVENTS as EVENT_TITLES} from "./lifeEvents";
