@@ -2,7 +2,7 @@
  * Never reuse .global-nav/.navitem from the old five-tab desktop rail. */
 .crew-mobile-dock{display:none}
 @media(max-width:767px){
- .global-nav.crew-desktop-nav{display:none!important}
+ .global-nav{display:none!important}
  .crew-mobile-dock{
   --crew-dock-bg:#ffffff;
   --crew-dock-idle:#8b8d9d;
