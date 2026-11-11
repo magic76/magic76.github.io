@@ -10,8 +10,8 @@ export function sectionForRoute(pathname:string,search=""):CrewSection{
  if(root==="teacher"){
   if(pathname.startsWith("/teacher/shorts")||pathname.startsWith("/teacher/friends"))return "chat";
   if(pathname.startsWith("/teacher/fortune"))return "explore";
-  if(pathname.startsWith("/teacher/me")||pathname.startsWith("/teacher/memory")||
-     pathname.startsWith("/teacher/reports")||pathname.startsWith("/teacher/phrasebook"))return "me";
+  // Personal storage stays in Mine; reports, phrasebook and practice are learning tools.
+  if(pathname.startsWith("/teacher/me")||pathname.startsWith("/teacher/memory"))return "me";
   if(pathname.startsWith("/teacher/roles")&&new URLSearchParams(search).get("mode")==="friends")return "chat";
   return "learn";
  }
