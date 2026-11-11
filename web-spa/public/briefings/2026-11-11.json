@@ -1,0 +1,169 @@
+{
+  "date": "2026-11-11",
+  "generatedAt": "2026-11-11T02:18:24.243Z",
+  "edition": "public",
+  "notes": "今日從公開研究與官方更新挑選主題，包含 0 篇繁中研究分析與 6 則來源快訊。研究分析仍需核對原文；快訊僅供選題、不可視為 Crew 已實測的結論。",
+  "items": [
+    {
+      "id": "439bc15c1bd58db9",
+      "title": "Trojan Hippo Bench: A Dynamic Benchmark for Persistent Memory Attacks and Defenses in LLM Agents",
+      "summary": "Memory systems enable otherwise-stateless LLM agents to persist user information across sessions, but also introduce a new attack surface. The Trojan Hippo attack is a class of persistent memory attacks that operates under a more realistic threat model than prior memory poisoning work. The attacker plants a dormant pay",
+      "publishedAt": "2026-11-09T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Trojan Hippo Bench: A Dynamic Benchmark for Persistent Memory Attacks and Defenses in LLM Agents",
+          "url": "https://doi.org/10.1145/3847352.3848090",
+          "publishedAt": "2026-11-09T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 97,
+      "body": "Memory systems enable otherwise-stateless LLM agents to persist user information across sessions, but also introduce a new attack surface. The Trojan Hippo attack is a class of persistent memory attacks that operates under a more realistic threat model than prior memory poisoning work. The attacker plants a dormant pay"
+    },
+    {
+      "id": "278e8c0220d7331f",
+      "title": "Evaluating the use of LLM-based multi-agent systems for internal information sharing and access within manufacturing",
+      "summary": "Abstract Internal information sharing in manufacturing remains constrained by data silos, heterogeneous systems, poor data quality, and limited interoperability across ISA-95 levels. While Large Language Models (LLMs) are increasingly proposed for manufacturing information access and for integrating information with op",
+      "publishedAt": "2026-11-06T00:00:00Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Evaluating the use of LLM-based multi-agent systems for internal information sharing and access within manufacturing",
+          "url": "https://doi.org/10.1007/s00170-026-19467-7",
+          "publishedAt": "2026-11-06T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 95,
+      "body": "Abstract Internal information sharing in manufacturing remains constrained by data silos, heterogeneous systems, poor data quality, and limited interoperability across ISA-95 levels. While Large Language Models (LLMs) are increasingly proposed for manufacturing information access and for integrating information with op"
+    },
+    {
+      "id": "9d83a3a97a94d7a7",
+      "title": "ProAct: Harnessing Streaming Motion Generation and Agentic Reasoning for Realtime Embodied Social Interaction",
+      "summary": "Real-time embodied social interaction places two equally demanding requirements on an agent: continuously generating fluent multimodal interaction behavior, and proactively reasoning over accumulated dialogue and visual context to decide when to take initiative. These requirements must both be satisfied under a strict",
+      "publishedAt": "2026-11-09T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "ProAct: Harnessing Streaming Motion Generation and Agentic Reasoning for Realtime Embodied Social Interaction",
+          "url": "https://doi.org/10.1145/3842576",
+          "publishedAt": "2026-11-09T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "Real-time embodied social interaction places two equally demanding requirements on an agent: continuously generating fluent multimodal interaction behavior, and proactively reasoning over accumulated dialogue and visual context to decide when to take initiative. These requirements must both be satisfied under a strict"
+    },
+    {
+      "id": "724d332fa6b7a410",
+      "title": "HGSQ: heatmap-guided sparse query detector for real-time aerial small object detection",
+      "summary": "研究論文索引：HGSQ: heatmap-guided sparse query detector for real-time aerial small object detection。詳細方法及結果請閱讀原文。",
+      "publishedAt": "2026-11-09T00:00:00Z",
+      "topic": "Realtime Multimodal",
+      "projects": [
+        "Crew Teacher",
+        "Crew Story"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher、Crew Story 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "HGSQ: heatmap-guided sparse query detector for real-time aerial small object detection",
+          "url": "https://doi.org/10.1007/s11760-026-05858-6",
+          "publishedAt": "2026-11-09T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 89,
+      "body": "研究論文索引：HGSQ: heatmap-guided sparse query detector for real-time aerial small object detection。詳細方法及結果請閱讀原文。"
+    },
+    {
+      "id": "aaa2082f64e50d33",
+      "title": "Interactive AI tools, personalized feedback, and EFL learners’ intention to use AI: an extended TAM study in Egyptian higher education",
+      "summary": "Introduction Despite the growing use of generative artificial intelligence (AI) in English as a Foreign Language (EFL) education, how interactive AI features and personalized learning feedback shape learners' acceptance remains insufficiently understood. This study examines their influence on Egyptian university studen",
+      "publishedAt": "2026-11-09T00:00:00Z",
+      "topic": "AI Learning",
+      "projects": [
+        "Crew Teacher"
+      ],
+      "relevance": "這個議題涉及 Crew Teacher 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Interactive AI tools, personalized feedback, and EFL learners’ intention to use AI: an extended TAM study in Egyptian higher education",
+          "url": "https://doi.org/10.3389/feduc.2026.1923377",
+          "publishedAt": "2026-11-09T00:00:00Z",
+          "kind": "研究論文索引"
+        }
+      ],
+      "score": 87,
+      "body": "Introduction Despite the growing use of generative artificial intelligence (AI) in English as a Foreign Language (EFL) education, how interactive AI features and personalized learning feedback shape learners' acceptance remains insufficiently understood. This study examines their influence on Egyptian university studen"
+    },
+    {
+      "id": "4d5c082f37b5c574",
+      "title": "Gemini CLI AI agent update: * feat(cli): add extension validation command and evaluation tests by @tadipavan in https://github.com/google-gemini/gemini-cli/pu",
+      "summary": "* feat(cli): add extension validation command and evaluation tests by @tadipavan in https://github.com/google-gemini/gemini-cli/pull/29980 * fix(vscode-ide-companion): register all extension disposables in context.subscriptions by @jvargassanchez-dot in https://github.com/google-gemini/gemini-cli/pull/29994 * fix(ci,sdk): run SDK tests in PR CI and fix AgentLoopContext mock in session.test.ts by @",
+      "publishedAt": "2026-11-10T21:17:07Z",
+      "topic": "Agent Reliability",
+      "projects": [
+        "Crew Pocket",
+        "Crew Deck"
+      ],
+      "relevance": "這個議題涉及 Crew Pocket、Crew Deck 的實作方向。可先評估現有做法，再決定是否安排小型實驗。",
+      "actions": [
+        "閱讀原文，確認它解決的問題、實驗方法及適用限制",
+        "檢查相關功能現有做法，找出可比較的差異",
+        "用小型 PoC 驗證成功率、品質、延遲和實際成本"
+      ],
+      "sources": [
+        {
+          "title": "Gemini CLI v0.68.0",
+          "url": "https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0",
+          "publishedAt": "2026-11-10T21:17:07Z",
+          "kind": "官方產品更新"
+        }
+      ],
+      "score": 90,
+      "body": "* feat(cli): add extension validation command and evaluation tests by @tadipavan in https://github.com/google-gemini/gemini-cli/pull/29980 * fix(vscode-ide-companion): register all extension disposables in context.subscriptions by @jvargassanchez-dot in https://github.com/google-gemini/gemini-cli/pull/29994 * fix(ci,sdk): run SDK tests in PR CI and fix AgentLoopContext mock in session.test.ts by @duvanka-prasad in https://github.com/google-gemini/gemini-cli/pull/30023"
+    }
+  ]
+}
