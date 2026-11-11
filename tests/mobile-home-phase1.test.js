@@ -78,17 +78,30 @@ test("the phone hero is four real one-tap slides with a stationary Zoe first slo
  assert.doesNotMatch(css,/\.cmh-featured\{/);
 });
 
-test("mobile four-tab navigation leaves desktop five-tab side rail intact",()=>{
+test("every ordinary mobile route uses one shared four-tab dock and desktop retains five",()=>{
  const nav=read("web-spa/src/components/AppChrome.tsx");
  const css=read("web-spa/src/components/mobileNavigation.css");
+ const app=read("web-spa/src/App.tsx");
+ const model=read("web-spa/src/pages/crewNavigation.ts");
  const gate=read("web-spa/src/onboarding/OnboardingGate.tsx");
- assert.match(nav,/crew-nav-desktop/);
- assert.match(nav,/crew-nav-mobile/);
+ assert.match(nav,/export function MobileBottomNav/);
+ assert.match(nav,/export function GlobalNav/);
+ assert.match(nav,/<MobileBottomNav active=\{active\} hiddenOnMobile=\{mobileImmersive\}\/>/);
  assert.match(nav,/mobileActive=active==="learn"\?"explore":active/);
  for(const section of ["home","chat","explore","learn","me"])assert.ok(nav.includes('id:"'+section+'"'));
- assert.match(nav,/to:"\/friend\/live\?id=zoe&from=nav&chat=text"/);
+ for(const path of ["/","/chat","/explore","/me"])assert.ok(nav.includes('to:"'+path+'"'));
+ assert.doesNotMatch(nav,/to:"\/friend\/live\?id=zoe&from=nav/);
+ assert.match(nav,/crew-mobile-dock-item/);
+ assert.match(nav,/aria-current=\{mobileActive===item.id\?"page":undefined\}/);
+ assert.match(css,/\.global-nav\.crew-desktop-nav\{display:none!important\}/);
+ assert.match(css,/\.crew-mobile-dock-inner\{/);
  assert.match(css,/repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/\.crew-mobile-dock-item\.active/);
  assert.match(css,/\.app-header \.crew-feature-menu-trigger\{display:none!important\}/);
+ assert.match(css,/\.crew-mobile-dock--immersive\{display:none!important\}/);
+ assert.match(app,/<GlobalNav active=\{active\} mobileImmersive=\{pathname==="\/magic"\}\/>/);
+ assert.doesNotMatch(app,/!pathname\.startsWith\("\/circle"\)/);
+ assert.match(model,/pathname==="\/story\/me"\|\|pathname==="\/fortune\/history"/);
  assert.match(gate,/pathname==="\/"&&window\.matchMedia\("\(max-width:767px\)"\)\.matches\)return/);
  assert.match(gate,/media\.addEventListener\("change",dismiss\)/);
 });
