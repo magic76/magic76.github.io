@@ -18,7 +18,8 @@ test("four illustrated slides preserve Zoe first and real destinations",()=>{
  assert.match(jsx,/cmh-game-board/);
  assert.match(jsx,/data-game=\{featured\}/);
  assert.match(jsx,/cmh-learn-portrait/);
- assert.match(jsx,/teacher-emma\.webp/);
+ assert.match(jsx,/teacher-olivia\\.jpg/);
+ assert.doesNotMatch(jsx,/teacher-(?:alex|emma|james|mia|sophie)\\.webp/);
  assert.match(jsx,/crew_friend_zoe\.webp/);
  for(const href of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
   assert.ok(jsx.includes(href),"missing genuine destination "+href);
@@ -32,6 +33,16 @@ test("four illustrated slides preserve Zoe first and real destinations",()=>{
  assert.match(jsx,/className="cmh-carousel-dots"/);
  assert.doesNotMatch(jsx,/className="cmh-featured"/);
 });
+test("homepage entry modules do not import cartoon teacher avatars",()=>{
+ for(const file of ["web-spa/src/pages/HomePage.tsx","web-spa/src/pages/HomePortal.tsx",
+  "web-spa/src/pages/MobileHomePage.tsx","web-spa/src/teacher/HomeShortsPreview.tsx"]){
+  const text=read(file);
+  assert.doesNotMatch(text,/teacher-(?:alex|emma|james|mia|sophie)\\.webp/,
+   "Cartoon teacher artwork must not appear on the homepage: "+file);
+ }
+ assert.match(read("web-spa/src/teacher/teacherProfiles.ts"),/teacher-olivia\\.jpg/);
+});
+
 test("mobile-only art has four color directions, layered motion and reduced-motion shutdown",()=>{
  const base=read("web-spa/src/pages/mobileHome.css");
  const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
@@ -49,6 +60,12 @@ test("mobile-only art has four color directions, layered motion and reduced-moti
  assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{[\s\S]*?\.cmh-carousel-track,[\s\S]*?animation:none!important;transition:none!important/);
  assert.match(base,/\.cmh-carousel-track\{display:flex/);
  assert.match(art,/min-height:46px/);
+ for(const frame of ["cmh-v4-backdrop","cmh-v4-texture","cmh-v4-copy","cmh-v4-scene","cmh-v4-cta"]){
+  assert.match(art,new RegExp("@keyframes "+frame));
+ }
+ assert.match(art,/\\.cmh-slide-copy h1,\\.cmh-slide-copy h2/);
+ assert.match(art,/\\.cmh-chat-pop-first\\{top:179px/);
+ assert.match(art,/\\.cmh-friends-art\\{width:151px/);
  const nav=read("web-spa/src/components/mobileNavigation.css");
  assert.match(nav,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
 });
