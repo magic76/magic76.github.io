@@ -203,7 +203,7 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
      {modeNote&&<small role="status">{modeNote}</small>}
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
-    {textMode?<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:"")} searchEnabled={!shortsPost} system={system+"\n"+languageDirective} speaker={friend.name} english={english}
+    {textMode?<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:"")} searchEnabled={!shortsPost} system={system+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
      firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)}
      onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>:<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
