@@ -21,6 +21,7 @@ import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import "./home.css";
 import "./homePortal.css";
 import "./homeWorld.css";
+import "./homeDesktopLayout.css";
 
 type Kind="teacher"|"story"|"fortune"|"play"|"friend";
 type Recent={key:string;kind:Kind;title:string;description:string;to:string;timestamp:number;cover?:string};
