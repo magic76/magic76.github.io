@@ -1,0 +1,114 @@
+/* Desktop home composition only. Deliberately no declarations below 768px.
+ * The mobile hero, its five-tab dock and mobile breakpoint remain untouched.
+ * Content width also drives stage math, rail alignment and fixed Live entry. */
+@media (min-width:768px){
+ body:has(.crew-home-legacy){
+  --crew-desktop-home-frame:min(1540px,calc(100vw - 48px));
+ }
+ .crew-home-legacy .crew-home .crew-home-world,
+ .crew-home-legacy .crew-home-content{
+  box-sizing:border-box;
+  width:var(--crew-desktop-home-frame);
+  margin-inline:auto;
+ }
+ .crew-home-legacy .crew-home .crew-home-world{
+  border:1px solid #30263b;
+  border-radius:24px;
+  box-shadow:0 18px 54px #21132924;
+  overflow:hidden;
+ }
+ .crew-home-legacy .crew-home-world-inner{
+  box-sizing:border-box;
+  width:100%;
+  max-width:none;
+  margin-inline:auto;
+ }
+ /* A hero is the opening chapter, not a full-screen gate:
+  * its lower edge must leave room to discover Shorts without scrolling. */
+ .crew-home-legacy .crew-home-portal{
+  min-height:clamp(474px,57svh,560px);
+  box-sizing:border-box;
+ }
+ .crew-home-legacy .crew-portal-content{
+  padding-block:15px;
+ }
+ .crew-home-legacy .crew-portal-intro{margin-bottom:16px}
+ .crew-home-legacy .crew-portal-tabs{margin-top:13px}
+ .crew-home-legacy .crew-portal-discovery-slot{min-height:50px}
+ .crew-home-legacy .crew-portal-description{margin-bottom:12px}
+ .crew-home-legacy .crew-portal-practice-holder{margin-top:4px}
+ /* Preserve all accessible controls and their 44px+ click targets. */
+ .crew-home-legacy .crew-portal-status-slot{min-height:19px}
+ .crew-home-legacy .crew-portal-cta{min-height:48px}
+}
+@media (min-width:1100px){
+ body:has(.crew-home-legacy){
+  /* Side rail is 82px; reserve 94px on each side at 1280/1440.
+   * At 1920 the frame grows to 1540 instead of stopping at 1140. */
+  --crew-desktop-home-frame:min(1540px,calc(100vw - 188px));
+ }
+ .crew-home-legacy .crew-home-portal{
+  --portal-stage-x:.72;
+  --portal-stage-y:.49;
+  --portal-stage-scale-w:.215;
+  --portal-stage-scale-h:.46;
+  --portal-copy-offset:clamp(36px,3vw,60px);
+  --portal-copy-ring-envelope:1.08;
+  --portal-stage-radius:min(calc(var(--crew-desktop-home-frame) * var(--portal-stage-scale-w)),calc(560px * var(--portal-stage-scale-h)));
+  --portal-copy-width:min(600px,calc(var(--crew-desktop-home-frame) * .46 - var(--portal-copy-offset)));
+  place-items:center start;
+ }
+ .crew-home-legacy .crew-portal-content{
+  box-sizing:border-box;
+  width:min(56%,680px);
+  min-width:0;
+  max-width:none;
+  margin-left:var(--portal-copy-offset);
+  margin-right:0;
+  padding:13px 0;
+  text-align:left;
+ }
+ .crew-home-legacy .crew-portal-intro,
+ .crew-home-legacy .crew-portal-copy,
+ .crew-home-legacy .crew-portal-description{
+  max-width:var(--portal-copy-width);
+  margin-inline:0;
+ }
+ .crew-home-legacy .crew-home-portal h1{
+  font-size:clamp(31px,2.85vw,48px);
+  line-height:1.17;
+  letter-spacing:-.035em;
+  margin:8px 0 12px;
+ }
+ /* This element lives inside the copy column, so subtract that column's
+  * offset from a position based on the CONTAINER, never viewport vw. */
+ .crew-home-legacy .crew-portal-kicker{
+  left:calc(var(--crew-desktop-home-frame) * var(--portal-stage-x) - var(--portal-copy-offset));
+  top:49%;
+  max-width:min(380px,calc(var(--crew-desktop-home-frame) * .36));
+  width:max-content;
+  white-space:normal;
+  text-wrap:balance;
+  overflow-wrap:anywhere;
+  text-align:center;
+  transform:translate(-50%,-50%);
+  letter-spacing:.13em;
+ }
+ .crew-home-legacy .crew-portal-fallback{
+  width:min(calc(var(--crew-desktop-home-frame) * var(--portal-stage-scale-w) * 2.4),calc(100cqh * var(--portal-stage-scale-h) * 2.4));
+ }
+ .crew-home-legacy .crew-portal-tabs{margin:15px 0 0}
+ .crew-home-legacy .crew-portal-discovery-slot{justify-content:flex-start;margin-inline:0}
+ .crew-home-legacy .crew-portal-discovery{align-items:flex-start;text-align:left}
+ .crew-home-legacy .crew-portal-practice-holder{justify-content:flex-start;margin-inline:0}
+ /* Only on this desktop home: align the fixed rail to its frame edge. */
+ body:has(.crew-home-legacy) .global-nav{
+  left:max(10px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 86px));
+  right:auto;
+ }
+ /* Portaled to body, hence it must share the body's frame variable. */
+ body:has(.crew-home-legacy) .crew-home-live-bubble{
+  right:calc((100vw - var(--crew-desktop-home-frame)) / 2 + 14px);
+  bottom:24px;
+ }
+}
