@@ -60,11 +60,29 @@ try{
     const image=active?.querySelector(".cmh-zoe-photo,.cmh-friend-portrait img,.cmh-learn-portrait img");
     const h=hero?.getBoundingClientRect(),s=scene?.getBoundingClientRect();
     const links=[...active.querySelectorAll("a")].map(x=>x.getAttribute("href"));
+    const title=active.querySelector("h1,h2"),subtitle=active.querySelector(".cmh-slide-copy p");
+    const portraits=[...active.querySelectorAll(".cmh-zoe-photo,.cmh-friend-portrait img,.cmh-learn-portrait img")];
+    const board=active.querySelector(".cmh-game-board");
+    const overlap=(a,b)=>{
+     if(!a||!b)return 0;
+     const x=a.getBoundingClientRect(),y=b.getBoundingClientRect();
+     return Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
+    };
+    const artTargets=board?[board]:portraits;
+    const titleArtOverlap=Math.max(0,...artTargets.map(x=>overlap(title,x)));
+    const subtitleArtOverlap=Math.max(0,...artTargets.map(x=>overlap(subtitle,x)));
+    const faceOverlaps=active.classList.contains("cmh-zoe")?
+     [...active.querySelectorAll(".cmh-chat-pop")].map(pop=>overlap(pop,portraits[0])):[];
+    const titleFits=!!title&&title.scrollWidth<=title.clientWidth+1&&title.scrollHeight<=title.clientHeight+1;
+    const subtitleFits=!subtitle||subtitle.classList.contains("cmh-zoe-preview")||
+     (subtitle.scrollWidth<=subtitle.clientWidth+1&&subtitle.scrollHeight<=subtitle.clientHeight+1&&getComputedStyle(subtitle).textOverflow!=="ellipsis");
     return {index,scene:!!scene,sceneWidth:s?.width,slideHeight:active?.getBoundingClientRect().height,
       heroHeight:h?.height,overflow:document.documentElement.scrollWidth-innerWidth,
       hidden:slides.map(x=>x.getAttribute("aria-hidden")),
       reducedAnimation:scene?getComputedStyle(scene).animationName:null,
       imageLoaded:!image||(image.complete&&image.naturalWidth>0),links,
+      actualImage:image?.currentSrc||null,title:title?.textContent,subtitle:subtitle?.textContent,
+      titleFits,subtitleFits,titleArtOverlap,subtitleArtOverlap,faceOverlaps,
       bottomNav:document.querySelectorAll("nav.crew-mobile-dock a").length};
    },i);
    if(!metrics.scene||!metrics.sceneWidth||metrics.heroHeight>422||metrics.overflow>2||metrics.bottomNav!==5)throw Error("Mobile geometry/scene regression "+state+"/"+i+": "+JSON.stringify(metrics));
@@ -73,6 +91,10 @@ try{
    if(!metrics.imageLoaded)throw Error("Active character photo failed to load "+state+"/"+i);
    await page.screenshot({path:join(output,"390-"+state+"-"+labels[i]+".png"),animations:"disabled",fullPage:false});
    await page.locator(".cmh-carousel").screenshot({path:join(output,"hero-390-"+state+"-"+labels[i]+".png"),animations:"disabled"});
+   if(!metrics.titleFits||!metrics.subtitleFits)throw Error("Hero text clipped on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
+   if(metrics.titleArtOverlap>2||metrics.subtitleArtOverlap>2)throw Error("Portrait/board covers text on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
+   if(metrics.faceOverlaps.some(area=>area>2))throw Error("Zoe bubble covers the portrait on "+state+": "+JSON.stringify(metrics));
+   if(labels[i]==="learn"&&!metrics.actualImage?.includes("teacher-olivia"))throw Error("Learn slide does not use Olivia real photo: "+metrics.actualImage);
    report.push({state,slide:labels[i],...metrics});
   }
   if(errors.length)throw Error("Browser script errors: "+errors.join("; "));
