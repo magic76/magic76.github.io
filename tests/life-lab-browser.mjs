@@ -26,7 +26,7 @@ const server=createServer((req,res)=>{
 });
 await new Promise(resolve=>server.listen(0,"127.0.0.1",resolve));
 const port=server.address().port;
-const chromeCandidates=["google-chrome","chromium","chromium-browser"];
+const chromeCandidates=["google-chrome","google-chrome-stable","chromium","chromium-browser"];
 const chrome=chromeCandidates.map(n=>spawnSync("which",[n],{encoding:"utf8"})).find(r=>r.status===0)?.stdout.trim();
 const browser=await chromium.launch({headless:true,args:["--no-sandbox","--disable-dev-shm-usage"],...(chrome?{executablePath:chrome}:{})});
 const errors=[];
