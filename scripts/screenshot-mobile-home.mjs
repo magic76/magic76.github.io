@@ -1,6 +1,6 @@
 /** Browser-only acceptance screenshots for the unmerged responsive home PR. */
 import {createServer} from "node:http";
-import {readFileSync,existsSync,mkdirSync,writeFileSync} from "node:fs";
+import {readFileSync,existsSync,mkdirSync,writeFileSync,unlinkSync,statSync} from "node:fs";
 import {resolve,join,extname,sep} from "node:path";
 import {spawnSync} from "node:child_process";
 import {chromium} from "playwright";
@@ -48,12 +48,17 @@ try{
      legacyHome:visible(".crew-home-legacy"),onboardingOpen:!!document.querySelector(".crew-onboarding-dialog[open]"),
      desktopTabCount:document.querySelectorAll(".crew-nav-desktop a").length,mobileTabCount:document.querySelectorAll(".crew-nav-mobile a").length,
      homeAppCount:document.querySelectorAll(".cmh-app").length,homeTextHref:document.querySelector(".cmh-zoe-primary")?.getAttribute("href"),
-     seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-nav-mobile")};
+     seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-nav-mobile"),
+     slideCount:document.querySelectorAll(".cmh-slide").length,dotCount:document.querySelectorAll(".cmh-carousel-dots button").length,
+     activeSlide:document.querySelector(".cmh-slide[data-active=true]")?.getAttribute("class"),
+     duplicateGameCard:!!document.querySelector(".cmh-featured")};
    });
    if(width<768){
     if(info.overflow>2)throw Error(width+"px overflow "+info.overflow);
     if(info.onboardingOpen)throw Error(width+"px mobile welcome modal blocks homepage");
     if(info.homeAppCount!==6||info.mobileTabCount!==4||!info.mobileNavVisible)throw Error("mobile navigation or apps missing");
+    if(info.slideCount!==4||info.dotCount!==4||!info.activeSlide?.includes("cmh-zoe"))throw Error("mobile hero carousel missing or not Zoe-first");
+    if(info.duplicateGameCard)throw Error("Daily recommendation duplicated below carousel");
     if(!info.seoVisible)throw Error("mobile SEO text hidden");
     if(!info.homeTextHref?.includes("id=zoe"))throw Error("Zoe chat CTA missing");
    }else if(!info.legacyHome||info.mobileHome)throw Error("Desktop legacy homepage was replaced");
@@ -63,6 +68,72 @@ try{
    await context.close();
   }
  }
+ // Verify actual user gesture, paused autoplay and reduced-motion behavior.
+ const interactionContext=await browser.newContext({
+  viewport:{width:390,height:844},locale:"zh-TW",reducedMotion:"reduce",hasTouch:true
+ });
+ await interactionContext.addInitScript(()=>{
+  localStorage.setItem("crew_friend_text_resume_v1",JSON.stringify([
+   {friendId:"noah",at:Date.now(),messages:[
+    {role:"user",text:"今天想去公園走走"},
+    {role:"assistant",text:"傍晚的公園很好，很適合慢慢走走。"}
+   ],preview:""}]));
+ });
+ const interactionPage=await interactionContext.newPage();
+ await interactionPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
+ await interactionPage.locator(".cmh-zoe-primary").waitFor();
+ await interactionPage.getByText("繼續和 Noah 聊").waitFor();
+ const otherFriendState=await interactionPage.evaluate(()=>({
+  zoeGeneric:document.querySelector(".cmh-zoe h1")?.textContent?.includes("一起聊聊吧"),
+  noahLink:document.querySelector(".cmh-other-resume-link")?.getAttribute("href")?.includes("id=noah"),
+  motionDisabled:getComputedStyle(document.querySelector(".cmh-zoe-photo")).animationName==="none"
+ }));
+ if(!otherFriendState.zoeGeneric||!otherFriendState.noahLink||!otherFriendState.motionDisabled)throw Error("Other-friend resume or reduced motion regression");
+ await interactionPage.locator(".cmh-carousel-dots button").nth(2).click();
+ await interactionPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true");
+ await interactionPage.waitForTimeout(5450);
+ if(await interactionPage.locator(".cmh-slide-game").getAttribute("data-active")!=="true")throw Error("Carousel autoplay did not pause after user interaction");
+ await interactionContext.close();
+
+ // Record the actual moving gradients, 5-second auto-advance, touch-swipe and dot controls.
+ const videoContext=await browser.newContext({
+  viewport:{width:390,height:844},deviceScaleFactor:1,locale:"zh-TW",hasTouch:true,
+  reducedMotion:"no-preference",recordVideo:{dir:output,size:{width:390,height:844}}
+ });
+ const videoPage=await videoContext.newPage();
+ await videoPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
+ await videoPage.locator(".cmh-zoe").waitFor({state:"visible"});
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-carousel-dots button:nth-child(2)")?.classList.contains("is-active"),null,{timeout:11000});
+ await videoPage.waitForTimeout(850);
+ // Synthetic TouchEvents exercise the same React touch handlers as a physical swipe.
+ await videoPage.locator(".cmh-carousel-viewport").evaluate(element=>{
+  const at=(x,y)=>new Touch({identifier:1,target:element,clientX:x,clientY:y});
+  const start=at(310,170),end=at(65,175);
+  element.dispatchEvent(new TouchEvent("touchstart",{bubbles:true,touches:[start],targetTouches:[start],changedTouches:[start]}));
+  element.dispatchEvent(new TouchEvent("touchend",{bubbles:true,touches:[],targetTouches:[],changedTouches:[end]}));
+ });
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true",null,{timeout:3000});
+ await videoPage.waitForTimeout(1600);
+ await videoPage.locator(".cmh-carousel-dots button").nth(3).click();
+ await videoPage.waitForFunction(()=>document.querySelector(".cmh-slide-learn")?.getAttribute("data-active")==="true",null,{timeout:3000});
+ await videoPage.waitForTimeout(1650);
+ await videoPage.locator(".cmh-carousel-dots button").first().click();
+ await videoPage.waitForTimeout(1450);
+ const recordedVideo=videoPage.video();
+ if(!recordedVideo)throw Error("Playwright video recording is missing");
+ await videoContext.close();
+ const webmPath=await recordedVideo.path();
+ const moviePath=join(output,"carousel-motion-demo.mp4");
+ const converted=spawnSync("ffmpeg",["-hide_banner","-loglevel","error","-y",
+  "-i",webmPath,"-vf","fps=18,scale=390:-2:flags=lanczos","-c:v","libx264",
+  "-pix_fmt","yuv420p","-crf","27","-movflags","+faststart","-an",moviePath],
+  {encoding:"utf8",timeout:90000});
+ if(converted.status!==0||!existsSync(moviePath)||statSync(moviePath).size<30000){
+  throw Error("MP4 conversion failed: "+(converted.stderr||converted.error||"no output"));
+ }
+ unlinkSync(webmPath);
+ stats.push({name:"carousel-motion-demo.mp4",kind:"video",bytes:statSync(moviePath).size,
+  interaction:"5.2s autoplay then swipe to game, dots to Learn and Zoe",otherFriendState});
  writeFileSync(join(output,"results.json"),JSON.stringify(stats,null,2)+"\n");
  console.log(JSON.stringify(stats.map(x=>({file:x.name,overflow:x.overflow,mobile:x.mobileHome,oldDesktop:x.legacyHome,modal:x.onboardingOpen,apps:x.homeAppCount})),null,2));
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
