@@ -444,3 +444,5 @@
 .crew-play-game-art.game-6{background:radial-gradient(circle at 25% 18%,#ffe18a,#c36f63);font-size:35px}
 .crew-play-game-art.game-7{background:radial-gradient(circle at 28% 18%,#c6a8f4,#7061b4);font-size:35px}
 .crew-play-game-art.game-8{background:radial-gradient(circle at 28% 18%,#ffbb8c,#be6177);font-size:35px}
+
+.neon-swarm-hub-card{border-color:#9d80e6aa!important;background:linear-gradient(120deg,#1a2043,#32193f)!important}.neon-swarm-hub-art{background:radial-gradient(circle at 35% 30%,#fd88dd,#8655b5 48%,#333c86)!important;color:#fff!important;text-shadow:0 0 20px #fff7;box-shadow:inset 0 0 21px #e885ed55}.neon-swarm-hub-art span{font-size:27px}
