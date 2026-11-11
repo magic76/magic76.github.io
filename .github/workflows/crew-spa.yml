@@ -133,7 +133,7 @@ jobs:
           npx playwright install chromium
           # Hosted images do not guarantee CJK glyphs; screenshot review must show readable zh-TW.
           sudo apt-get update -qq
-          sudo apt-get install -y -qq fonts-noto-cjk
+          sudo apt-get install -y -qq fonts-noto-cjk ffmpeg
           node --test tests/mobile-home-phase1.test.js tests/crew-home-live-bubble.test.js tests/crew-home-interaction-first.test.js tests/crew-onboarding.test.js
           npm run build:cloudflare
           npm run test:cloudflare
