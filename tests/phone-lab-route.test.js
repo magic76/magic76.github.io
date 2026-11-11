@@ -14,7 +14,7 @@ test("phone lab stays isolated from the production home navigation",()=>{
  assert.match(app,/pathname!=="\/phone"/);
  assert.match(app,/<GlobalNav active=\{active\}\/>/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=phone&chat=text"/);
- for(const route of ["/learn","/games","/story","/fortune","/teacher/shorts","/settings"]){
+ for(const route of ["/learn","/games","/story","/fortune","/teacher/shorts","/me"]){
   assert.ok(page.includes(route),"missing live feature link "+route);
  }
  assert.match(page,/meta.content="noindex,nofollow"/);
