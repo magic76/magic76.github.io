@@ -10,6 +10,8 @@
  body:has(.crew-mobile-home) .shell.page{width:100%;max-width:none;margin:0;padding:0 0 calc(var(--nav-h,68px) + 20px + env(safe-area-inset-bottom))}
  body:has(.crew-mobile-home) .crew-contact-footer{width:calc(100% - 36px);margin:0 auto;padding-bottom:calc(var(--nav-h,68px) + 16px + env(safe-area-inset-bottom))}
  .crew-home-legacy{display:none!important}
+ /* HomeLiveBubble renders through a body-level portal, outside the hidden legacy tree. */
+ body:has(.crew-mobile-home) .crew-home-live-bubble{display:none!important}
  .crew-mobile-home{display:block;max-width:540px;margin:auto;padding:5px 18px 0;font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;color:#343649}
  .crew-mobile-home *{box-sizing:border-box}
  .crew-mobile-home a{text-decoration:none}
