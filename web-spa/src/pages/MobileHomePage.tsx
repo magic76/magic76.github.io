@@ -9,7 +9,7 @@ import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscrip
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
-import emmaPhoto from "../../../assets/teacher/teacher-emma.webp";
+import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
 import "./mobileHomeHeroV3.css";
 
@@ -112,12 +112,12 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      <section className="cmh-slide cmh-zoe" data-active={activeSlide===0} aria-hidden={activeSlide!==0}
       aria-label={copy("和 Zoe 聊天","Talk to Zoe")}>
       <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
-      <div className="cmh-zoe-copy cmh-slide-copy">
+      <div className={"cmh-zoe-copy cmh-slide-copy"+(zoeResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> ZOE · AI FRIEND</span>
        <h1>{zoeResume?copy("繼續和 Zoe 聊","Continue with Zoe"):copy("一起聊聊吧！","Let's chat!")}</h1>
        {zoeResume?
         <p className="cmh-zoe-preview">{recentLine(zoeResume.preview)}</p>:
-        <p>{copy("從一句話開始，探索你的 Crew。","Your Crew starts with a hello.")}</p>}
+        <p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
       </div>
       <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
        <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
@@ -139,7 +139,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ AI FRIENDS</span>
        <h2>{copy("換個朋友聊聊？","Meet someone new")}</h2>
-       <p>{copy("Noah 安靜傾聽，Iris 點子很多。","Noah listens. Iris sparks ideas.")}</p>
+       <p>{copy("三個朋友，三種聊法。","Three friends, three vibes.")}</p>
       </div>
       <div className="cmh-scene cmh-friends-art" aria-hidden="true">
        <div className="cmh-friend-orbit cmh-friend-orbit-back"/>
@@ -162,7 +162,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ {t("gamePick.label")}</span>
        <h2>{t("playHub.games."+featured+".title")}</h2>
-       <p>{copy("今天不想找話題？玩一局就好。","No topic in mind? Let's play.")}</p>
+       <p>{copy("今天玩一局，換個心情。","One round. A fresh mood.")}</p>
       </div>
       <div className="cmh-scene cmh-game-art" aria-hidden="true">
        <div className="cmh-game-platform"/>
@@ -185,11 +185,11 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ CREW LEARN</span>
        <h2>{copy("一句話，練出自信","Speak with confidence")}</h2>
-       <p>{copy("找位老師，開口練習外語。","Practice real conversations with AI.")}</p>
+       <p>{copy("真人老師陪你開口練習。","Speak with a real-looking teacher.")}</p>
       </div>
       <div className="cmh-scene cmh-learn-art" aria-hidden="true">
        <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
-       <div className="cmh-learn-portrait"><img src={emmaPhoto} width="154" height="196" alt="" loading="lazy" decoding="async"/></div>
+       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="lazy" decoding="async"/></div>
        <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
        <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
        <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
