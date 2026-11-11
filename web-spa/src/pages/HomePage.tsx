@@ -153,7 +153,7 @@ export function HomePage(){
   })().catch(()=>{/* Book progress is optional when browser storage is unavailable. */});
   return()=>{live=false};
  },[]);
- return <><div className="crew-home crew-home-legacy">
+ return <><div className="crew-home-legacy"><div className="crew-home">
   {orbAvailable&&<div className="crew-home-content"><Link to="/orb" className="crew-home-orb-quick">
    <span className="crew-home-orb-icon" aria-hidden="true">◉</span>
    <span className="crew-home-orb-quick-copy"><strong>Cyber Orb</strong><small>{locale.language.startsWith("zh")?"選角色，開始背景語音聊天":"Choose a character for hands-free chat"}</small></span>
@@ -230,7 +230,7 @@ export function HomePage(){
   </details>}
   </div>
   <HomeLiveBubble/>
- </div>
+ </div></div>
  <MobileHomePage shortsFeed={shortsFeed} shortsStatus={shortsStatus}/>
  </>;
 }
