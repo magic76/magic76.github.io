@@ -220,7 +220,7 @@ export function CrewSectionPage({section}:{section:Exclude<CrewSection,"home">})
     </div>
      <p className="meta crew-learn-native-help" role="note">{tSettings("group.nativeLanguage")}：{nativeLanguageName(nativeLanguage)} · {tSettings("group.targetLanguage")}：{t("friends:languages."+targetLanguage,{defaultValue:friendSpokenLanguage(targetLanguage)})}。{teacherLanguageHomeHint(teachingMode,learnerSpeakingLevel,nativeLanguageName(nativeLanguage),friendSpokenLanguage(targetLanguage),i18n.resolvedLanguage==="en",i18n.resolvedLanguage||"en")}</p>
     </>
-    :<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
+    :section==="chat"?<h1>{x.title}</h1>:<><span className="kicker">{x.eyebrow}</span><h1>{x.title}</h1><p>{x.intro}</p></>}
   </header>
   {section==="me"&&<Link className="crew-section-card crew-me-language-shortcut" to="/settings#settings-learning">
    <span className="crew-section-card-icon"><Icon name="settings"/></span>
