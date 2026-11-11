@@ -79,6 +79,9 @@ test("simulator is an opt-in route and never overwrites Timeline memory",()=>{
  const ui=read("web-spa/src/timeline/LifeSimulationPage.tsx");
  assert.match(app,/path="\/timeline\/simulate"/);
  assert.match(page,/to="\/timeline\/simulate"/);
+ const games=read("web-spa/src/games/CrewPlayHubPage.tsx");
+ assert.match(games,/to="\\/timeline\\/simulate"/);
+ assert.match(games,/life-lab/);
  assert.match(storage,/crew-life-simulator-v1/);
  assert.doesNotMatch(storage,/crew_timeline_.*keepsakes/);
  assert.match(ui,/TimelinePortrait/);
