@@ -1,0 +1,31 @@
+name: Neon Swarm gameplay regression
+
+on:
+  pull_request:
+    paths:
+      - 'web-spa/public/neon-swarm-lab/**'
+      - 'tests/neon-swarm-*.test.js'
+      - '.github/workflows/neon-swarm-gameplay.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'web-spa/public/neon-swarm-lab/**'
+      - 'tests/neon-swarm-*.test.js'
+      - '.github/workflows/neon-swarm-gameplay.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gameplay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run Neon Swarm game-engine regression tests
+        run: node --test tests/neon-swarm-*.test.js

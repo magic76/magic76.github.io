@@ -53,7 +53,7 @@ test("character animation transitions through idle, running, firing, dash, hit, 
  const key=(type,k)=>{for(const cb of listeners["window:"+type]||[])cb({key:k,repeat:false,preventDefault(){}})};
  assert.equal(state().heroAction,"idle");
  el("start").onclick();tick(4);assert.equal(state().heroAction,"fire");
- key("keydown","d");tick(19);assert.equal(state().heroAction,"run");assert.ok(state().heroGait>1);
+ key("keydown","d");tick(19);assert.ok(["run","fire"].includes(state().heroAction),"moving character can also auto-fire");assert.ok(state().heroGait>1,"run-cycle must continue while firing");
  key("keydown"," ");tick(4);assert.equal(state().heroAction,"dash");
  key("keyup"," ");key("keyup","d");tick(30);
  W.__TEST__.clearInv();W.__TEST__.harm(14);tick(1);assert.equal(state().heroAction,"hit");
