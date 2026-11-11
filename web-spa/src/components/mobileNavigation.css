@@ -16,6 +16,7 @@
   background:var(--crew-dock-bg)!important;
   box-shadow:0 -4px 18px #3e354310;
   color:#3b4052!important;
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;
   -webkit-font-smoothing:antialiased;
  }
  .crew-mobile-dock-inner{
