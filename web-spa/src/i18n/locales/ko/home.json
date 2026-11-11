@@ -77,6 +77,7 @@
     "tap": "탭해서 열기"
   },
   "world": {
+    "freeAllowance": {"full": "가입 없이 매일 문자 {{count}}개·음성 {{minutes}}분, 내일 또 무료", "textOnly": "가입 없이 매일 무료 문자 {{count}}개, 내일 또 무료", "voiceUsed": "오늘 음성 체험 종료·문자 매일 {{count}}개, 내일 또 무료"},
     "practiceLang": {"label": "연습할 언어:", "aria": "채팅과 음성 대화에 사용할 연습 언어 선택"},
     "modes": {
       "chat": {

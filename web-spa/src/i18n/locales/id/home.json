@@ -77,6 +77,7 @@
     "tap": "Ketuk untuk membuka"
   },
   "world": {
+    "freeAllowance": {"full": "Tanpa daftar · {{count}} pesan + {{minutes}} menit suara per hari. Ada lagi besok", "textOnly": "Tanpa daftar · {{count}} pesan gratis per hari. Ada lagi besok", "voiceUsed": "Jatah suara hari ini habis · {{count}} pesan per hari. Besok ada lagi"},
     "practiceLang": {"label": "Saya ingin berlatih:", "aria": "Pilih bahasa latihan untuk chat dan percakapan suara"},
     "modes": {
       "chat": {

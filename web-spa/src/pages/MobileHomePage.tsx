@@ -8,6 +8,10 @@ import type {ShortFeed} from "../teacher/shortsFeed";
 import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscript";
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
+import {useClientReady} from "../lib/useClientReady";
+import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
+import {geminiKey} from "../lib/runtime";
+import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
 import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
@@ -34,6 +38,9 @@ const APPS:readonly App[]=[
 /** Mobile-only, first-party home. Client state loads after hydration; SSG has a stable first-visit card. */
 export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|null;shortsStatus:"loading"|"ready"|"error"}){
  const {i18n,t}=useTranslation("home");
+ const ready=useClientReady();
+ const hasKey=ready&&Boolean(geminiKey());
+ const trial=useGuestTrialQuota(!ready||hasKey);
  const zh=i18n.language.startsWith("zh");
  const copy=(z:string,e:string)=>zh?z:e;
  const [resume,setResume]=useState<FriendResume|null>(null);
@@ -209,6 +216,13 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      aria-label={copy("前往第 "+(index+1)+" 張："+["Zoe 聊天","AI 朋友","今日推薦","學語言"][index],
                       "Go to slide "+(index+1)+": "+["Zoe","AI friends","Today's game","Learn"][index])}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
+   </div>
+   <div className="cmh-allowance-slot">
+    {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
+     ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
+     :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
+      ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
+      :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
    </div>
   </div>
   {otherResume&&otherFriend&&<section className="cmh-other-resume" aria-label={copy("續聊","Resume chat")}>

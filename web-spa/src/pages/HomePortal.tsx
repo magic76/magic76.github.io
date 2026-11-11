@@ -10,6 +10,7 @@ import {readHomeDeepLink,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
 import {shortsChatUrl,shortsPhotoQuestions} from "../teacher/shortsSocial";
 import type {ShortFeed} from "../teacher/shortsFeed";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
+import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
 import {useClientReady} from "../lib/useClientReady";
 import {geminiKey} from "../lib/runtime";
 
@@ -154,12 +155,16 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
      {mode==="chat"&&!exhausted?<img className="crew-portal-cta-avatar" src={"/assets/friends/crew_friend_"+(selectedPost?.friendId||friendId)+".webp"} alt="" width="32" height="32"/>:null}
      <span className="crew-portal-cta-label">{preparing?t("world.preparing"):mode==="chat"&&!exhausted&&selectedPost?(questions[0]?.label||t("world.shortsFallback")):mode==="chat"?t(cta,{name:friendName}):mode==="learn"?(exhausted?t("world.chatExhausted"):trialAvailable?t("world.teacherTrial"):t("world.modes.learn.cta")):mode==="play"?t("world.game"+(gameId==="1a2b"?"1a2b":gameId==="connect4"?"Connect4":"Reversi")):t("world.modes."+mode+".cta")}</span><span className="crew-portal-cta-arrow" aria-hidden="true">↗</span>
     </Link>
+    <div className="crew-portal-invitation-meta">
     {mode==="chat"&&<div className="crew-portal-practice-holder">
      {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>
       :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
     </div>}
     <div className="crew-portal-status-slot">
-     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&<p className="crew-portal-remaining" role="status">{t(trial.member?"common:guestTrial.memberRemaining":"common:guestTrial.remaining",{count:trial.remaining,limit:trial.limit})}</p>}
+     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
+     {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+     {mode==="chat"&&ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
+    </div>
     </div>
     {mode==="chat"&&!selectedPost&&<div className="crew-portal-discovery-slot"><HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/></div>}
    </div>
