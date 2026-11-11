@@ -93,7 +93,7 @@ test("every ordinary mobile route uses one shared four-tab dock and desktop reta
  assert.doesNotMatch(nav,/to:"\/friend\/live\?id=zoe&from=nav/);
  assert.match(nav,/crew-mobile-dock-item/);
  assert.match(nav,/aria-current=\{mobileActive===item.id\?"page":undefined\}/);
- assert.match(css,/\.global-nav\.crew-desktop-nav\{display:none!important\}/);
+ assert.match(css,/\.global-nav\{display:none!important\}/);
  assert.match(css,/\.crew-mobile-dock-inner\{/);
  assert.match(css,/repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/\.crew-mobile-dock-item\.active/);
