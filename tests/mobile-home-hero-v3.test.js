@@ -69,3 +69,35 @@ test("mobile-only art has four color directions, layered motion and reduced-moti
  const nav=read("web-spa/src/components/mobileNavigation.css");
  assert.match(nav,/grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
 });
+
+test("compact phone hero keeps all four scenes and fits a 16:11 first-screen card",()=>{
+ const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
+ const jsx=read("web-spa/src/pages/MobileHomePage.tsx");
+ assert.match(art,/\.cmh-slide\{height:244px;min-height:244px/);
+ assert.match(art,/@media\(max-width:380px\)\{\s*\.cmh-slide\{height:240px;min-height:240px/);
+ assert.match(art,/\.cmh-scene\{scale:\.75;transform-origin:right top/);
+ assert.match(art,/\.cmh-zoe-actions a\{min-height:44px/);
+ assert.match(art,/\.cmh-carousel-dots\{min-height:32px/);
+ assert.match(art,/@keyframes cmh-v4-scene/);
+ assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.match(jsx,/teacher-olivia\.jpg/);
+ assert.match(jsx,/\{id:"timeline",zh:"時光機"/);
+ assert.match(jsx,/\{id:"scenarios",zh:"情境課程"/);
+});
+
+test("four tonal particle palettes and compact title breathing room preserve reduced motion",()=>{
+ const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
+ assert.match(art,/\.cmh-slide \.cmh-slide-copy\{box-sizing:border-box;padding-top:7px\}/);
+ assert.match(art,/\.cmh-slide \.cmh-slide-copy\{padding-top:6px\}/);
+ assert.match(art,/\.cmh-slide\{height:244px;min-height:244px/);
+ assert.match(art,/\.cmh-slide\{height:240px;min-height:240px/);
+ for(const card of [".cmh-slide.cmh-zoe",".cmh-slide.cmh-slide-friends",".cmh-slide.cmh-slide-game",".cmh-slide.cmh-slide-learn"]){
+  assert.ok(art.includes(card+"{--cmh-dust:"),"missing distinct particle palette: "+card);
+ }
+ assert.match(art,/\.cmh-slide \.cmh-sparks\{z-index:1;pointer-events:none;overflow:hidden\}/);
+ assert.match(art,/\.cmh-slide \.cmh-sparks::before\{[\s\S]*?radial-gradient/);
+ assert.match(art,/@keyframes cmh-dust-near/);
+ assert.match(art,/@keyframes cmh-dust-far/);
+ assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{\s*\.cmh-slide \.cmh-sparks::before,[\s\S]*?animation:none!important/);
+ assert.doesNotMatch(art,/filter:\s*blur\(/,"Particle layer should not trigger blur repaints");
+});
