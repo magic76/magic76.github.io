@@ -53,14 +53,33 @@ export function GlobalNav({active}:{active:CrewSection}){
   {id:"learn",to:"/learn",icon:"teacher"},
   {id:"me",to:"/me",icon:"settings"}
  ] as const;
+ // One shared four-destination nav on phones, including Learn and feature pages.
+ // Desktop retains its original five-item navigation, location and styling.
+ const mobileSections=[
+  {id:"home",to:"/",icon:"home",label:"home"},
+  {id:"chat",to:"/friend/live?id=zoe&from=nav&chat=text",icon:"chat",label:"chat"},
+  {id:"explore",to:"/explore",icon:"sparkles",label:"explore"},
+  {id:"me",to:"/me",icon:"settings",label:"me"}
+ ] as const;
+ const mobileActive=active==="learn"?"explore":active;
+ const mobileIndex=Math.max(0,mobileSections.findIndex(s=>s.id===mobileActive));
  return <nav className="global-nav" aria-label={t("nav.label")}>
-  <div className="inner">
+  <div className="inner crew-nav-desktop">
    <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
-     style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
+    style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
    {sections.map(item=><NavLink key={item.id} to={item.to} end
     className={"navitem "+(active===item.id?"active":"")}
     aria-current={active===item.id?"page":undefined}>
     <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.id)}</span>
+   </NavLink>)}
+  </div>
+  <div className="inner crew-nav-mobile">
+   <span className="nav-indicator" aria-hidden="true"
+    style={{"--nav-index":mobileIndex} as React.CSSProperties}/>
+   {mobileSections.map(item=><NavLink key={item.id} to={item.to} end
+    className={"navitem "+(mobileActive===item.id?"active":"")}
+    aria-current={mobileActive===item.id?"page":undefined}>
+    <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.label)}</span>
    </NavLink>)}
   </div>
  </nav>;
