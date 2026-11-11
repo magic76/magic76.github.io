@@ -421,10 +421,10 @@ function choose(v){if(phase!=='choice'||helpUsed)return;helpUsed=true;helpType=v
 function askZoe(){if(helpUsed||phase!=='run')return;phase='choice';$('choice').hidden=false;say('你要火力支援，還是量子護盾？選一個，我立刻執行！','offer');event('choice_offer','fire or shield');sound(4)}
 function bossPhase(b){return b.hp>BOSS_HP*2/3?1:b.hp>BOSS_HP/3?2:3}
 function bossDamageFloor(b){
- // Each phase has a brief visible mechanic before the next phase can be triggered.
- // Shots still hit and animate, but the core armor cannot be bypassed by a burst.
- if(b.phaseAttackDone)return 0;
- return b.stage===1?BOSS_HP*2/3+1:b.stage===2?BOSS_HP/3+1:1;
+ // Never skip a phase when several high-damage bullets land in the same frame.
+ // The next phase only begins after its predecessor has presented a readable attack.
+ const boundary=b.stage===1?BOSS_HP*2/3:b.stage===2?BOSS_HP/3:0;
+ return boundary+(b.phaseAttackDone?0:1);
 }
 function spawnBoss(){
  if(boss)return;
@@ -629,7 +629,7 @@ document.querySelectorAll('[data-ability]').forEach(b=>b.addEventListener('click
 document.querySelectorAll('[data-upgrade]').forEach(b=>b.addEventListener('click',()=>chooseUpgrade(b.dataset.upgrade)));
 window.addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(['arrowleft','arrowright','arrowup','arrowdown',' '].includes(k))e.preventDefault();if(e.repeat&&k===' ')return;keys.add(k);if(k===' '){playDash()}if(phase==='upgrade'&&['1','2','3'].includes(k))chooseUpgrade(UPGRADE_KEYS[Number(k)-1]);if(k==='1'&&phase==='choice')choose('fire');if(k==='2'&&phase==='choice')choose('shield');if(k==='escape'&&phase==='run')$('pause').click();if(k==='enter'&&['ready','win','lose','pause'].includes(phase))$('start').click()});window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));window.addEventListener('blur',()=>{keys.clear();stick.active=false;stick.x=stick.y=0;$('stick').style.transform='translate(0,0)';if(phase==='run')$('pause').click()});
 // Test-only readout is passive and does not mutate the engine. No network calls or hidden rewards.
-Object.defineProperty(window,'__NEON_STATE__',{get:()=>({phase,gameTime,kills,wave,hp:player?.hp,shield:player?.shield,helpUsed,helpType,mobs:mobs.length,bossHp:boss?.hp,canvasWidth:canvas.width,viewWidth:vw,upgrades:player?.upgrades,upgradeStage,stars:runStars(phase==='win'),record:localRecord,heroAction:animationAction(player),heroGait:player?.gait,heroMoveBlend:player?.moveBlend,legBeats:player?[footTrajectory(player.gait-.32,player.moveBlend,false,animationAction(player)==='dash'?'dash':'run').beat,footTrajectory(player.gait+Math.PI-.32,player.moveBlend,true,animationAction(player)==='dash'?'dash':'run').beat]:[],heroRecoil:player?.recoil,heroHitPose:player?.hitPose,heroDeathPose:player?.deathPose,heroVictoryPose:player?.victoryPose})});
+Object.defineProperty(window,'__NEON_STATE__',{get:()=>({phase,gameTime,kills,wave,hp:player?.hp,shield:player?.shield,helpUsed,helpType,mobs:mobs.length,bossHp:boss?.hp,bossPhase:boss?.stage,bossTelegraph:boss?.telegraph?.type||(boss?.chargeTime>0?'charging':null),canvasWidth:canvas.width,viewWidth:vw,upgrades:player?.upgrades,upgradeStage,stars:runStars(phase==='win'),record:localRecord,heroAction:animationAction(player),heroGait:player?.gait,heroMoveBlend:player?.moveBlend,legBeats:player?[footTrajectory(player.gait-.32,player.moveBlend,false,animationAction(player)==='dash'?'dash':'run').beat,footTrajectory(player.gait+Math.PI-.32,player.moveBlend,true,animationAction(player)==='dash'?'dash':'run').beat]:[],heroRecoil:player?.recoil,heroHitPose:player?.hitPose,heroDeathPose:player?.deathPose,heroVictoryPose:player?.victoryPose})});
 const avatar=document.querySelector('.zoe .zoe-portrait img'),choiceAvatar=document.querySelector('.choice-top .zoe-portrait');if(avatar&&choiceAvatar){choiceAvatar.textContent='';choiceAvatar.style.overflow='hidden';choiceAvatar.append(avatar.cloneNode(true))}
 prepareFloor();reset();last=performance.now();raf=requestAnimationFrame(frame);
 })();
