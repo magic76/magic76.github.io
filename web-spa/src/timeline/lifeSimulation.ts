@@ -1,6 +1,7 @@
 import {LIFE_EVENTS,type LifeEvent,type LifeTrait} from "./lifeEvents";
 import {LIFE_ARC_EVENTS,characterArcEvent} from "./lifeArcs";
 import {immediateLifeConsequence} from "./lifeConsequences";
+import {lifeArcConsequence} from "./lifeArcConsequences";
 import type {TimelineCharacterId} from "./timelineCharacters";
 
 export const LIFE_AGES=[7,10,13,16,19,22,25,35,40,50,55,70] as const;
@@ -78,7 +79,7 @@ export function advanceLife(run:LifeRun):LifeRun{
 export function lifeOutcome(run:LifeRun,english=false):string{
  const last=run.history.at(-1);
  if(!last)return "";
- const consequence=immediateLifeConsequence(last.eventId,last.choice,english);
+ const consequence=immediateLifeConsequence(last.eventId,last.choice,english)||lifeArcConsequence(last.eventId,last.choice,english);
  const changed=TRAITS.filter(k=>last.delta[k]!==0).map(k=>{
   const label=english?({courage:"Courage",trust:"Trust",ambition:"Ambition",empathy:"Empathy"} as Record<LifeTrait,string>)[k]:({courage:"勇氣",trust:"信任",ambition:"野心",empathy:"同理心"} as Record<LifeTrait,string>)[k];
   return label+" "+(last.delta[k]>0?"+":"")+last.delta[k];
