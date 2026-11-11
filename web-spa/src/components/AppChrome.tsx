@@ -77,7 +77,7 @@ export function GlobalNav({active,mobileImmersive=false}:{active:CrewSection;mob
   {id:"me",to:"/me",icon:"settings"}
  ] as const;
  return <>
-  <nav className="global-nav crew-desktop-nav" aria-label={t("nav.label")}>
+  <nav className="global-nav" aria-label={t("nav.label")}>
    <div className="inner">
     <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
      style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
