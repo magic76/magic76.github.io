@@ -43,7 +43,29 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   </footer>
  </>;
 }
-/** Primary product-independent navigation: user intent, not implementation names. */
+/** One stable mobile dock for every ordinary Crew route, regardless of product theme.
+ * It deliberately does not inherit .global-nav's old five-tab styling. */
+export function MobileBottomNav({active}:{active:CrewSection}){
+ const {t}=useTranslation("common");
+ const mobileSections=[
+  {id:"home",to:"/",icon:"home",label:"home"},
+  {id:"chat",to:"/chat",icon:"chat",label:"chat"},
+  {id:"explore",to:"/explore",icon:"sparkles",label:"explore"},
+  {id:"me",to:"/me",icon:"settings",label:"me"}
+ ] as const;
+ const mobileActive=active==="learn"?"explore":active;
+ return <nav className="crew-mobile-dock" aria-label={t("nav.label")} data-active={mobileActive}>
+  <div className="crew-mobile-dock-inner">
+   {mobileSections.map(item=><Link key={item.id} to={item.to}
+    className={"crew-mobile-dock-item "+(mobileActive===item.id?"active":"")}
+    aria-current={mobileActive===item.id?"page":undefined}>
+    <span className="crew-mobile-dock-icon"><Icon name={item.icon}/></span>
+    <span className="crew-mobile-dock-label">{t("nav."+item.label)}</span>
+   </Link>)}
+  </div>
+ </nav>;
+}
+/** Desktop keeps the original five-item global rail. */
 export function GlobalNav({active}:{active:CrewSection}){
  const {t}=useTranslation("common");
  const index=CREW_SECTIONS.indexOf(active);
@@ -54,34 +76,18 @@ export function GlobalNav({active}:{active:CrewSection}){
   {id:"learn",to:"/learn",icon:"teacher"},
   {id:"me",to:"/me",icon:"settings"}
  ] as const;
- // One shared four-destination nav on phones, including Learn and feature pages.
- // Desktop retains its original five-item navigation, location and styling.
- const mobileSections=[
-  {id:"home",to:"/",icon:"home",label:"home"},
-  {id:"chat",to:"/friend/live?id=zoe&from=nav&chat=text",icon:"chat",label:"chat"},
-  {id:"explore",to:"/explore",icon:"sparkles",label:"explore"},
-  {id:"me",to:"/me",icon:"settings",label:"me"}
- ] as const;
- const mobileActive=active==="learn"?"explore":active;
- const mobileIndex=Math.max(0,mobileSections.findIndex(s=>s.id===mobileActive));
- return <nav className="global-nav" aria-label={t("nav.label")}>
-  <div className="inner crew-nav-desktop">
-   <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
-    style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
-   {sections.map(item=><NavLink key={item.id} to={item.to} end
-    className={"navitem "+(active===item.id?"active":"")}
-    aria-current={active===item.id?"page":undefined}>
-    <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.id)}</span>
-   </NavLink>)}
-  </div>
-  <div className="inner crew-nav-mobile">
-   <span className="nav-indicator" aria-hidden="true"
-    style={{"--nav-index":mobileIndex} as React.CSSProperties}/>
-   {mobileSections.map(item=><NavLink key={item.id} to={item.to} end
-    className={"navitem "+(mobileActive===item.id?"active":"")}
-    aria-current={mobileActive===item.id?"page":undefined}>
-    <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.label)}</span>
-   </NavLink>)}
-  </div>
- </nav>;
+ return <>
+  <nav className="global-nav crew-desktop-nav" aria-label={t("nav.label")}>
+   <div className="inner">
+    <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
+     style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
+    {sections.map(item=><NavLink key={item.id} to={item.to} end
+     className={"navitem "+(active===item.id?"active":"")}
+     aria-current={active===item.id?"page":undefined}>
+     <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.id)}</span>
+    </NavLink>)}
+   </div>
+  </nav>
+  <MobileBottomNav active={active}/>
+ </>;
 }
