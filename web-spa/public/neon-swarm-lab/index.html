@@ -444,7 +444,7 @@ function beginBossAttack(b){
  b.shootT=b.stage===1?2.4:b.stage===2?2.2:2.05;
 }
 function fireBossAttack(b,t){
- b.phaseAttackDone=true;
+ if(t.type!=='charge')b.phaseAttackDone=true;
  if(t.type==='fan'){
   for(let i=-2;i<=2;i++){
    const a=t.aim+i*.19;
@@ -479,6 +479,7 @@ function updateBossBattle(b,dt){
  }
  if(b.chargeTime>0){
   b.chargeTime=Math.max(0,b.chargeTime-dt);
+  if(b.chargeTime===0)b.phaseAttackDone=true;
   b.x=C(b.x+b.chargeVX*dt,90,level.w-90);
   b.y=C(b.y+b.chargeVY*dt,90,level.h-90);
   if(D(b,player)<b.r+player.r+5)harm(17);
