@@ -8,15 +8,17 @@ const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 function runtime(){
  const a=stripTypeScriptTypes(read("web-spa/src/timeline/lifeEvents.ts")).replace(/^export /gm,"");
+ const c=stripTypeScriptTypes(read("web-spa/src/timeline/lifeConsequences.ts")).replace(/^export /gm,"");
  const b=stripTypeScriptTypes(read("web-spa/src/timeline/lifeSimulation.ts"))
   .replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const context={};
- vm.runInNewContext(a+"\n"+b+"\nglobalThis.sim={LIFE_EVENTS,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding};",context);
+ vm.runInNewContext(a+"\n"+c+"\n"+b+"\nglobalThis.sim={LIFE_EVENTS,LIFE_RESULT_COUNT,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding};",context);
  return context.sim;
 }
 test("life simulator has exactly 30 choice events spanning all 12 existing ages",()=>{
  const sim=runtime();
  assert.equal(sim.LIFE_EVENTS.length,30);
+ assert.equal(sim.LIFE_RESULT_COUNT,30);
  assert.deepEqual(Array.from(sim.LIFE_AGES),[7,10,13,16,19,22,25,35,40,50,55,70]);
  for(const age of sim.LIFE_AGES)assert.ok(sim.LIFE_EVENTS.some(event=>event.age===age),"Missing age "+age);
  assert.equal(new Set(sim.LIFE_EVENTS.map(x=>x.id)).size,30);
