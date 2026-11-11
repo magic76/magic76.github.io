@@ -7,7 +7,7 @@ const path=require("node:path");
 const html=fs.readFileSync(path.join(__dirname,"../web-spa/public/neon-swarm-lab/index.html"),"utf8");
 const body=html.split("<script>")[1]?.split("</script>")[0];
 
-test("Neon Swarm playtest is self-contained, uncached, unindexed and uses the original-character layered rig",()=>{
+test("Neon Swarm playtest loads only same-origin sprite assets and keeps the fallback rig",()=>{
  assert.match(html,/<meta name="robots" content="noindex, nofollow"/);
  assert.match(html,/function drawMotionLeg\(/);
  assert.match(html,/function drawHeroPose\(/);
@@ -15,7 +15,7 @@ test("Neon Swarm playtest is self-contained, uncached, unindexed and uses the or
  assert.match(html,/heroHair\.src='data:image\/webp;base64/);
  assert.match(html,/function updateHeroAnimation\(/);
  assert.match(html,/heroAction:animationAction\(player\)/);
- assert.doesNotMatch(html,/<script[^>]+src=/);
+ assert.deepEqual([...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]),["/neon-swarm-lab/hero-sprites.js"]);
  assert.doesNotMatch(html,/fetch\(|XMLHttpRequest|navigator\.sendBeacon|WebSocket\(/);
  assert.ok(body?.length>80000);
 });
