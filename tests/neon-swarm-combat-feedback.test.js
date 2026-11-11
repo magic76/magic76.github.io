@@ -64,7 +64,7 @@ function boot(){
   "spawn:(x,y,hp)=>{const m={x,y,hp,maxHp:hp,r:18,kind:'drone',hit:0,speed:0,attack:99,seed:0};mobs.push(m);return m}"+
   "};";
  vm.runInContext(body.replace(init,qa+init),globals,{timeout:10000});
- return {q:W.__FX_QA,nodes,vibrations,audio:()=>audio};
+ return {q:W.__FX_QA__,nodes,vibrations,audio:()=>audio};
 }
 
 test("WebAudio creates different layered voices, and throttles rapid gunshots",()=>{
