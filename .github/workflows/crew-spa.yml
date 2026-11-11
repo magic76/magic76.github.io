@@ -30,7 +30,7 @@ jobs:
   build:
     # The visual-only mobile-home PR needs Playwright 1.56's supported image.
     # Every other PR and master push keep their original runner.
-    runs-on: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1') && 'ubuntu-24.04' || 'ubuntu-latest' }}
+    runs-on: ${{ github.event_name == 'pull_request' && (contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1') || contains(github.event.pull_request.head.ref, 'mobile-home-hero-editorial-v3')) && 'ubuntu-24.04' || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
@@ -144,6 +144,25 @@ jobs:
           name: mobile-home-phase1-screenshots
           path: artifacts/mobile-home-qa/*
           retention-days: 7
+          if-no-files-found: warn
+      # Mobile hero v3 design-review proof. The PR is draft; never deploy/merge from this step.
+      - name: Mobile hero v3 screenshots and motion video
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-hero-editorial-v3')
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
+          npx playwright install chromium
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq fonts-noto-cjk ffmpeg
+          node --test tests/mobile-home-hero-v3.test.js tests/mobile-home-phase1.test.js
+          npm run build:cloudflare
+          npm run test:cloudflare
+          node scripts/screenshot-mobile-hero-v3.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-hero-editorial-v3')
+        with:
+          name: mobile-home-hero-v3-review
+          path: artifacts/mobile-home-hero-v3/*
+          retention-days: 14
           if-no-files-found: warn
       # Magic changes require real WebGL evidence, including the 390px sculpted
       # robot/fox/dragon close-ups produced by smoke-magic-creator-browser.mjs.

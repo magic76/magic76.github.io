@@ -9,7 +9,9 @@ import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscrip
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
+import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
+import "./mobileHomeHeroV3.css";
 
 const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
@@ -109,15 +111,22 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
     <div className="cmh-carousel-track" style={{transform:`translate3d(-${activeSlide*100}%,0,0)`}}>
      <section className="cmh-slide cmh-zoe" data-active={activeSlide===0} aria-hidden={activeSlide!==0}
       aria-label={copy("和 Zoe 聊天","Talk to Zoe")}>
-      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
-      <div className="cmh-zoe-copy cmh-slide-copy">
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className={"cmh-zoe-copy cmh-slide-copy"+(zoeResume?" cmh-zoe-copy-return":"")}>
        <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> ZOE · AI FRIEND</span>
        <h1>{zoeResume?copy("繼續和 Zoe 聊","Continue with Zoe"):copy("一起聊聊吧！","Let's chat!")}</h1>
        {zoeResume?
         <p className="cmh-zoe-preview">{recentLine(zoeResume.preview)}</p>:
-        <p>{copy("從一句話開始，探索你的 Crew。","Your Crew starts with a hello.")}</p>}
+        <p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
       </div>
-      <img className="cmh-zoe-photo" src={zoePhoto} alt="Zoe" width="100" height="116" loading="eager"/>
+      <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
+       <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
+       <span className="cmh-zoe-back-note">HELLO<span>✳</span></span>
+       <img className="cmh-zoe-photo" src={zoePhoto} alt="" width="160" height="200" loading="eager" decoding="async"/>
+       <span className="cmh-chat-pop cmh-chat-pop-first">Hey! <span aria-hidden="true">✦</span></span>
+       <span className="cmh-chat-pop cmh-chat-pop-last">{copy("聊聊？","Talk?")} <span aria-hidden="true">♥</span></span>
+       <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
+      </div>
       <div className="cmh-zoe-actions">
        <Link to={ZOE_TEXT} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{zoeResume?copy("繼續文字聊天","Continue chat"):copy("文字聊天","Text Zoe")}</Link>
        <Link to={ZOE_VOICE} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice")}</Link>
@@ -126,14 +135,21 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      </section>
      <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}
       aria-label={copy("認識其他 AI 朋友","Meet AI friends")}>
-      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ AI FRIENDS</span>
        <h2>{copy("換個朋友聊聊？","Meet someone new")}</h2>
-       <p>{copy("Noah 安靜傾聽，Iris 點子很多。","Noah listens. Iris sparks ideas.")}</p>
+       <p>{copy("三個朋友，三種聊法。","Three friends, three vibes.")}</p>
       </div>
-      <div className="cmh-friends-art" aria-hidden="true">
-       {CREW_FRIENDS.filter(friend=>friend.id==="noah"||friend.id==="iris").map(friend=><img key={friend.id} src={friend.avatar} width="72" height="84" alt="" loading="lazy"/>)}
+      <div className="cmh-scene cmh-friends-art" aria-hidden="true">
+       <div className="cmh-friend-orbit cmh-friend-orbit-back"/>
+       <div className="cmh-friend-orbit cmh-friend-orbit-front"/>
+       {CREW_FRIENDS.filter(friend=>["noah","iris","bella"].includes(friend.id)).map((friend,index)=>
+        <div key={friend.id} className={"cmh-friend-portrait cmh-friend-portrait-"+index}>
+         <img src={friend.avatar} width="94" height="108" alt="" loading="lazy" decoding="async"/>
+         <span>{friend.name}</span>
+        </div>)}
+       <span className="cmh-art-sparkle cmh-friend-star">✳</span>
       </div>
       <div className="cmh-zoe-actions">
        <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{copy("和 Noah 聊聊","Chat with Noah")}</Link>
@@ -142,13 +158,22 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      </section>
      <section className="cmh-slide cmh-slide-game" data-active={activeSlide===2} aria-hidden={activeSlide!==2}
       aria-label={copy("今日推薦遊戲","Today's game")}>
-      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ {t("gamePick.label")}</span>
        <h2>{t("playHub.games."+featured+".title")}</h2>
-       <p>{copy("今天不想找話題？玩一局就好。","No topic in mind? Let's play.")}</p>
+       <p>{copy("今天玩一局，換個心情。","One round. A fresh mood.")}</p>
       </div>
-      <div className="cmh-slide-glyph cmh-game-glyph" aria-hidden="true"><Icon name="play"/></div>
+      <div className="cmh-scene cmh-game-art" aria-hidden="true">
+       <div className="cmh-game-platform"/>
+       <div className="cmh-game-board" data-game={featured}>
+        {Array.from({length:9},(_,index)=><span key={index} className={"cmh-game-tile cmh-game-tile-"+index}>
+         {featured==="1a2b"?["1","A","2","B","4","3","7","8","9"][index]:
+          <i className={"cmh-game-piece cmh-piece-"+(index%3)}/>}
+        </span>)}
+       </div>
+       <div className="cmh-game-floating-token">✦<span>PLAY</span></div>
+      </div>
       <div className="cmh-zoe-actions">
        <Link to={todayLink} tabIndex={activeSlide===2?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","play")}><Icon name="play"/>{copy("開始玩遊戲","Play now")}</Link>
        <Link to="/games" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","play")}>{copy("更多遊戲","All games")}</Link>
@@ -156,13 +181,19 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
      </section>
      <section className="cmh-slide cmh-slide-learn" data-active={activeSlide===3} aria-hidden={activeSlide!==3}
       aria-label={copy("和 AI 學語言","Learn with AI")}>
-      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ CREW LEARN</span>
        <h2>{copy("一句話，練出自信","Speak with confidence")}</h2>
-       <p>{copy("找位老師，開口練習外語。","Practice real conversations with AI.")}</p>
+       <p>{copy("跟 AI 老師練口說。","Practice speaking with AI.")}</p>
       </div>
-      <div className="cmh-slide-glyph cmh-learn-glyph" aria-hidden="true"><Icon name="teacher"/></div>
+      <div className="cmh-scene cmh-learn-art" aria-hidden="true">
+       <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
+       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="lazy" decoding="async"/></div>
+       <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
+       <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
+       <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
+      </div>
       <div className="cmh-zoe-actions">
        <Link to="/learn" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{copy("開始學語言","Start learning")}</Link>
        <Link to="/teacher/roles?mode=teacher" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{copy("找位老師","Pick teacher")}</Link>
