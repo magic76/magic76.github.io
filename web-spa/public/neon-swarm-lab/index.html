@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Neon Swarm Lab · Crew Web 四拍跑步動作測試版</title>
+<title>Neon Swarm Lab · Crew Web 精靈圖透明修正版</title>
 <meta name="robots" content="noindex, nofollow" />
 <style>
 :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Noto Sans TC",sans-serif;color:#f6f5ff;background:#080917;--sky:#6fffe5;--pink:#f87cb4;--violet:#a78bff;--amber:#ffca7c}
@@ -39,6 +39,7 @@ body{background:radial-gradient(ellipse 1200px 520px at 52% -280px,#40255b 5%,tr
  <div class="sidecard note"><h2>ABOUT THIS BUILD</h2><p>這是強調打擊感、動態光效、戰鬥節奏的 Vertical Slice。遊戲不收集個資、不連線後端，不需要帳號或金鑰。為避免誤導，離線 Zoe 僅為寫好的劇情台詞。</p></div></aside>
  </div>
 </main>
+<script src="/neon-swarm-lab/hero-sprites.js"></script>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),canvas=$('game'),TAU=Math.PI*2;let ctx=canvas.getContext('2d',{alpha:false});
@@ -236,14 +237,51 @@ function drawHeroPose(p,alpha=1,echo=false){
  if(dead&&!echo){ctx.globalAlpha=Math.min(.8,p.deathPose);glow(-5,-15,58,'#ff5a88',.25)}
  ctx.restore();
 }
+// All 28 art frames share a fixed frame size, anatomical scale and foot baseline.
+const CREW_FRAME_W=208,CREW_FRAME_H=184;
+const heroAtlas={};
+for(const key of ['idle','run','dash','hit','death','victory']){
+ const spec=window.CREW_NEON_SPRITES?.[key];
+ if(spec){const image=new Image();image.src=spec.src;heroAtlas[key]={image,spec}}
+}
+function heroAtlasState(p,action){return action==='fire'?(p.moveBlend>.25?'run':'idle'):action}
+function heroAtlasFrame(state,p){
+ if(state==='run')return Math.floor((((p.gait||0)/TAU)%1+1)%1*8)%8;
+ if(state==='idle')return Math.floor(animClock*4)%4;
+ if(state==='dash')return Math.min(3,Math.floor(Math.max(0,.23-p.dashPose)/.23*4));
+ if(state==='hit')return Math.min(3,Math.floor(Math.max(0,.48-p.hitPose)/.48*4));
+ if(state==='death')return Math.min(3,Math.floor((p.deathPose||0)*4));
+ if(state==='victory')return Math.min(3,Math.floor((p.victoryPose||0)*4));
+ return 0;
+}
+function drawHeroAtlas(p,alpha=1,echo=false,forceState=null){
+ const state=forceState||heroAtlasState(p,animationAction(p));
+ const item=heroAtlas[state];
+ if(!item?.image.complete||!item.image.naturalWidth){drawHeroPose(p,alpha,echo);return}
+ const {image,spec}=item;
+ const frame=heroAtlasFrame(state,p);
+ const sx=frame%spec.cols*CREW_FRAME_W,sy=Math.floor(frame/spec.cols)*CREW_FRAME_H;
+ ctx.save();ctx.globalAlpha*=alpha;
+ ctx.translate(p.x,p.y);ctx.scale(p.ax<-.15?-1:1,1);
+ ctx.fillStyle='#02091995';ctx.beginPath();ctx.ellipse(0,34,29+(state==='dash'?7:0),7,0,0,TAU);ctx.fill();
+ if(!echo&&state==='dash')glow(0,0,76,'#4dfaff',.20);
+ if(!echo&&state==='hit')glow(0,0,58,'#ff658c',.17);
+ // 157px atlas foot baseline maps precisely to player.y+34, without per-frame zoom.
+ ctx.drawImage(image,sx,sy,CREW_FRAME_W,CREW_FRAME_H,-CREW_FRAME_W/2,34-spec.baseline,CREW_FRAME_W,CREW_FRAME_H);
+ ctx.restore();
+ if(!echo&&p.muzzle>0){const mx=p.x+(p.ax<-.15?-1:1)*46,my=p.y-22;
+  glow(mx,my,20,'#ffd080',Math.min(.6,.15+p.muzzle*5));circ(mx,my,4,'#fff4bf')}
+}
 function drawHero(p){
  const action=animationAction(p);
  if(action==='dash'){
-  const dx=p.dashX||1,dy=p.dashY||0;for(let i=4;i>=1;i--){ctx.save();const opacity=.09+.055*(5-i);drawHeroPose({...p,x:p.x-dx*(i*14+12),y:p.y-dy*(i*14+12)},opacity,true);ctx.restore();}
+  const dx=p.dashX||1,dy=p.dashY||0;
+  for(let i=4;i>=1;i--){const opacity=.09+.052*(5-i);
+   drawHeroAtlas({...p,x:p.x-dx*(i*14+12),y:p.y-dy*(i*14+12)},opacity,true,'dash')}
   glow(p.x,p.y,85,'#4dfaff',.23);
  }
- if(action==='hit'&&Math.floor(animClock*28)%2===0){ctx.save();ctx.globalAlpha=.65;drawHeroPose(p);ctx.restore()}
- else drawHeroPose(p);
+ if(action==='hit'&&Math.floor(animClock*28)%2===0){ctx.save();ctx.globalAlpha=.65;drawHeroAtlas(p);ctx.restore()}
+ else drawHeroAtlas(p);
  if(action==='victory'){for(let i=0;i<6;i++){const a=animClock*1.8+i*TAU/6;glow(p.x+Math.cos(a)*39,p.y+Math.sin(a)*31-28,11,'#ffe7b3',.35)}}
  if(p.shield>0){ctx.save();ctx.globalAlpha=.54+.13*Math.sin(animClock*6);circ(p.x,p.y,43,null,'#79f3ff',3);hex(p.x,p.y,49,null,'#77aaff88',1,animClock*.7);ctx.restore()}
 }
