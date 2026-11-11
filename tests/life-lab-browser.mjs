@@ -63,6 +63,7 @@ try{
   await checkOverflow(page,width+" event");
   await screenshot(page,width+"-event");
   await makeChoice(page,0);
+  await page.waitForFunction(()=>document.querySelector(".life-sim-event .life-sim-primary")?.disabled===false);
   await page.reload();
   await page.locator(".life-sim-consequence").waitFor({state:"visible"});
   assert.match(await page.locator(".life-sim-consequence").innerText(),/人格變化|Personality/);
