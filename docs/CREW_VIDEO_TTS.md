@@ -56,6 +56,8 @@ Cloudflare D1 limits: https://developers.cloudflare.com/d1/platform/limits/
 
 After deploying the corresponding Worker code, HTTP 202 for a failed job returns a **sanitized** `error_code` along with `status: "failed"`. Examples: `upstream_429` (upstream rate/quota), `upstream_5xx` (provider failure), `upstream_timeout` (timeout), `bad_wav_length` (more than 31 seconds), `audio_too_large` (over 1.6 MB), or `internal_error` (unclassified; does not expose raw provider messages). No API keys, raw response bodies or stack traces are returned. Previously failed records can be diagnosed after this Worker code is deployed, while their D1 rows remain within the seven-day retention window.
 
+For new failures after this fix is deployed, `bad_audio_payload` means the encoded data was malformed or too short; `audio_too_large` means the encoded or decoded payload exceeded the storage limit. Older `bad_audio_payload` records were produced by code that also used that label for oversized encoded input, so their exact cause remains unknown without authorized logs. Do not reclassify an older failure or request another paid take based on that code alone.
+
 For the original, more specific cause, an authorized Cloudflare operator may query **only that job** from the existing remote D1 database without printing any keys:
 
 ~~~sh

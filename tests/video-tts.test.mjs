@@ -74,6 +74,41 @@ test('feature is off by default and invalid WAV is rejected',async()=>{
  assert.equal(r.status,404);
  assert.throws(()=>parseWaveAudio('bm90IGEgV0FWIGZpbGU='));
 });
+test('TTS audio diagnostics distinguish malformed, too-small, oversized and overlong WAV payloads',()=>{
+ const badPayload={message:'bad_audio_payload'};
+ assert.throws(()=>parseWaveAudio(Buffer.alloc(100).toString('base64')),badPayload);
+ assert.throws(()=>parseWaveAudio('A'.repeat(127)+'-'),badPayload);
+ assert.throws(()=>parseWaveAudio('A'.repeat(2_133_340)+'!'),badPayload);
+ const exact=Buffer.alloc(1_600_000);
+ pcmWav(1).copy(exact,0,0,44);
+ exact.writeUInt32LE(exact.length-8,4);
+ exact.writeUInt32LE(48000,24);
+ exact.writeUInt32LE(96000,28);
+ exact.writeUInt32LE(exact.length-44,40);
+ assert.equal(parseWaveAudio(exact.toString('base64')).bytes.length,1_600_000);
+ assert.equal(parseWaveAudio(pcmWav(1).toString('base64').replace(/=+$/,'')).seconds,1);
+ // The encoded lengths for 1,600,000 and 1,600,001 bytes can be equal.
+ assert.throws(()=>parseWaveAudio(Buffer.alloc(1_600_001).toString('base64')),{message:'audio_too_large'});
+ assert.throws(()=>parseWaveAudio(Buffer.alloc(1_600_003).toString('base64')),{message:'audio_too_large'});
+ assert.throws(()=>parseWaveAudio(pcmWav(31.1).toString('base64')),{message:'bad_wav_length'});
+});
+test('an oversized upstream WAV yields the safe size code and is never retried automatically',async()=>{
+ const db=fakeDB(),env={CREW_AUTH_DB:db};
+ const audio=Buffer.alloc(1_600_003).toString('base64');
+ let attempts=0;
+ const requestFetch=async url=>{
+  if(String(url).startsWith('https://raw.githubusercontent.com/'))return Response.json({version:1,enabled:true,jobs:[job]});
+  attempts++;
+  return Response.json({steps:[{type:'model_output',content:[{type:'audio',data:audio}]}]});
+ };
+ const opts={now,requestFetch,pickKey:()=> 'key'};
+ assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'failed',jobId:job.id});
+ const result=await videoTtsResult(new Request('https://crew-guest-trial.shanliyoung.workers.dev/api/video/tts/result?id='+job.id),env);
+ assert.equal(result.status,202);
+ assert.deepEqual(await result.json(),{status:'failed',error_code:'audio_too_large'});
+ assert.deepEqual(await pollVideoTtsQueue(env,opts),{status:'idle'});
+ assert.equal(attempts,1);
+});
 // A mock queue can change between cron invocations (the real queue has <=20 entries).
 function ttsQueue(jobs){
  const wav=pcmWav(1).toString('base64');

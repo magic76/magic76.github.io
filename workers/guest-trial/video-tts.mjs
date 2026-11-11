@@ -43,9 +43,14 @@ export function validVideoJob(job, now=Date.now()){
  return job.voice===undefined||job.voice==='Kore'; // fixed voice, no user-controlled model
 }
 export function parseWaveAudio(base64){
- if(typeof base64!=='string'||base64.length<128||base64.length>Math.ceil(MAX_AUDIO_BYTES*4/3)+16||!/^[-A-Za-z0-9+/=]+$/.test(base64))throw Error('bad_audio_payload');
- const bytes=Uint8Array.from(atob(base64),char=>char.charCodeAt(0));
- if(bytes.length<1000||bytes.length>MAX_AUDIO_BYTES)throw Error('audio_too_large');
+ // Check the base64 shape before reporting size: malformed data is not evidence
+ // that a recording merely needs to be split into shorter segments.
+ if(typeof base64!=='string'||base64.length<128||!/^[A-Za-z0-9+/]*={0,2}$/.test(base64)||base64.length%4===1||(base64.endsWith('=')&&base64.length%4!==0))throw Error('bad_audio_payload');
+ if(base64.length>4*Math.ceil(MAX_AUDIO_BYTES/3))throw Error('audio_too_large');
+ let decoded;try{decoded=atob(base64)}catch{throw Error('bad_audio_payload')}
+ const bytes=Uint8Array.from(decoded,char=>char.charCodeAt(0));
+ if(bytes.length>MAX_AUDIO_BYTES)throw Error('audio_too_large');
+ if(bytes.length<1000)throw Error('bad_audio_payload');
  const view=new DataView(bytes.buffer,bytes.byteOffset,bytes.byteLength);
  const fourcc=p=>String.fromCharCode(...bytes.subarray(p,p+4));
  if(fourcc(0)!=='RIFF'||fourcc(8)!=='WAVE')throw Error('bad_audio_format');
