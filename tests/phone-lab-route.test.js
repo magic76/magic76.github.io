@@ -14,11 +14,19 @@ test("phone lab stays isolated from the production home navigation",()=>{
  assert.match(app,/pathname!=="\/phone"/);
  assert.match(app,/<GlobalNav active=\{active\}\/>/);
  assert.match(page,/const ZOE_TEXT="\/friend\/live\?id=zoe&from=phone&chat=text"/);
- for(const route of ["/learn","/games","/story","/fortune","/teacher/shorts","/settings"]){
+ for(const route of ["/learn","/games","/story","/fortune","/teacher/shorts","/me"]){
   assert.ok(page.includes(route),"missing live feature link "+route);
  }
  assert.match(page,/meta.content="noindex,nofollow"/);
+ // No fake phone status UI or extra app introduction screens.
+ assert.doesNotMatch(page,/cpl-phone-status|cpl-notch|<time>|const chat=|const detail=|const mine=/);
+ assert.match(page,/to=\\{item\\.to\\} className="cpl-app-tile"/);
+ assert.match(page,/const body=view==="home"\\?home:all/);
+ assert.match(page,/t\\.id==="chat"\\?ZOE_TEXT:"\\/me"/);
+ assert.doesNotMatch(page,/className="cpl-search-top"|className="cpl-nudge"/);
  assert.match(styles,/\.crew-phone-lab\{/);
+ assert.doesNotMatch(styles,/cpl-phone-status|cpl-notch|cpl-nudge/);
+ assert.match(styles,/cpl-dock :is\\(button,a\\)/);
  assert.match(styles,/@media\(max-width:770px\)/);
 });
 
