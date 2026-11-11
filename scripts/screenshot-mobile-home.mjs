@@ -81,7 +81,7 @@ try{
  });
  const interactionPage=await interactionContext.newPage();
  await interactionPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
- await interactionPage.locator(".cmh-zoe-primary").waitFor();
+ await interactionPage.locator(".cmh-zoe .cmh-zoe-primary").waitFor();
  await interactionPage.getByText("繼續和 Noah 聊").waitFor();
  const otherFriendState=await interactionPage.evaluate(()=>({
   zoeGeneric:document.querySelector(".cmh-zoe h1")?.textContent?.includes("一起聊聊吧"),
