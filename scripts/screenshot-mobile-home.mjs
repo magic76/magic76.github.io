@@ -14,7 +14,11 @@ const server=createServer((req,res)=>{
  let target=resolve(dist,"."+path);
  if(!target.startsWith(dist+sep)&&target!==dist){res.writeHead(403);res.end();return;}
  if(path==="/")target=join(dist,"index.html");
- else if(!existsSync(target))target=existsSync(target+".html")?target+".html":join(dist,"index.html");
+ else if(existsSync(target)&&statSync(target).isDirectory()){
+  // Public SSG routes like /games and /story can materialize as directories.
+  const nested=join(target,"index.html");
+  target=existsSync(nested)?nested:join(dist,"index.html");
+ }else if(!existsSync(target))target=existsSync(target+".html")?target+".html":join(dist,"index.html");
  try{const data=readFileSync(target);res.writeHead(200,{"Content-Type":mime[extname(target)]||"application/octet-stream","Cache-Control":"no-store"});res.end(data)}
  catch{res.writeHead(404);res.end("not found")}
 });
@@ -195,7 +199,8 @@ try{
    target==="/"? "home":target.slice(1),{timeout:15000});
  }
  for(const [id,route,active] of navCases){
-  await navPage.goto("http://127.0.0.1:"+port+route,{waitUntil:"domcontentloaded",timeout:45000});
+  const navResponse=await navPage.goto("http://127.0.0.1:"+port+route,{waitUntil:"domcontentloaded",timeout:45000});
+  if(!navResponse||navResponse.status()!==200)throw Error("Nav route HTTP failure "+route+": "+navResponse?.status());
   await navPage.waitForFunction(expected=>{
    const nav=document.querySelector("nav.crew-mobile-dock");
    return !!nav&&getComputedStyle(nav).display!=="none"&&nav.dataset.active===expected
