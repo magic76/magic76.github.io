@@ -51,7 +51,8 @@ try{
      seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-nav-mobile"),
      slideCount:document.querySelectorAll(".cmh-slide").length,dotCount:document.querySelectorAll(".cmh-carousel-dots button").length,
      activeSlide:document.querySelector(".cmh-slide[data-active=true]")?.getAttribute("class"),
-     duplicateGameCard:!!document.querySelector(".cmh-featured")};
+     duplicateGameCard:!!document.querySelector(".cmh-featured"),
+     reducedAnimationName:document.querySelector(".cmh-zoe-photo")?getComputedStyle(document.querySelector(".cmh-zoe-photo")).animationName:null};
    });
    if(width<768){
     if(info.overflow>2)throw Error(width+"px overflow "+info.overflow);
@@ -59,6 +60,7 @@ try{
     if(info.homeAppCount!==6||info.mobileTabCount!==4||!info.mobileNavVisible)throw Error("mobile navigation or apps missing");
     if(info.slideCount!==4||info.dotCount!==4||!info.activeSlide?.includes("cmh-zoe"))throw Error("mobile hero carousel missing or not Zoe-first");
     if(info.duplicateGameCard)throw Error("Daily recommendation duplicated below carousel");
+    if(info.reducedAnimationName!=="none")throw Error("Reduced-motion screenshot still animates Zoe");
     if(!info.seoVisible)throw Error("mobile SEO text hidden");
     if(!info.homeTextHref?.includes("id=zoe"))throw Error("Zoe chat CTA missing");
    }else if(!info.legacyHome||info.mobileHome)throw Error("Desktop legacy homepage was replaced");
@@ -70,7 +72,7 @@ try{
  }
  // Verify actual user gesture, paused autoplay and reduced-motion behavior.
  const interactionContext=await browser.newContext({
-  viewport:{width:390,height:844},locale:"zh-TW",reducedMotion:"reduce",hasTouch:true
+  viewport:{width:390,height:844},locale:"zh-TW",reducedMotion:"no-preference",hasTouch:true
  });
  await interactionContext.addInitScript(()=>{
   localStorage.setItem("crew_friend_text_resume_v1",JSON.stringify([
@@ -86,9 +88,9 @@ try{
  const otherFriendState=await interactionPage.evaluate(()=>({
   zoeGeneric:document.querySelector(".cmh-zoe h1")?.textContent?.includes("一起聊聊吧"),
   noahLink:document.querySelector(".cmh-other-resume-link")?.getAttribute("href")?.includes("id=noah"),
-  motionDisabled:getComputedStyle(document.querySelector(".cmh-zoe-photo")).animationName==="none"
+  motionEnabled:getComputedStyle(document.querySelector(".cmh-zoe-photo")).animationName!=="none"
  }));
- if(!otherFriendState.zoeGeneric||!otherFriendState.noahLink||!otherFriendState.motionDisabled)throw Error("Other-friend resume or reduced motion regression");
+ if(!otherFriendState.zoeGeneric||!otherFriendState.noahLink||!otherFriendState.motionEnabled)throw Error("Other-friend resume or motion-enabled regression");
  await interactionPage.locator(".cmh-carousel-dots button").nth(2).click();
  await interactionPage.waitForFunction(()=>document.querySelector(".cmh-slide-game")?.getAttribute("data-active")==="true");
  await interactionPage.waitForTimeout(5450);
