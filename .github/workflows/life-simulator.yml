@@ -47,7 +47,7 @@ jobs:
           else
             npx playwright install chromium
           fi
-      - run: npm run build:web
+      - run: CREW_DEPLOY_TARGET=cloudflare npm run build:web
       - name: Test responsive gameplay, IndexedDB and parallel-life comparison
         run: node tests/life-lab-browser.mjs
       - uses: actions/upload-artifact@v4
