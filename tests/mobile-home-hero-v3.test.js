@@ -46,7 +46,7 @@ test("mobile-only art has four color directions, layered motion and reduced-moti
   assert.ok(art.includes("@keyframes "+motion),"missing layered transition "+motion);
  }
  assert.match(art,/@media\(prefers-reduced-motion:reduce\)/);
- assert.match(art,/\.cmh-carousel-track[^{}]*animation:none!important;transition:none!important/);
+ assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{[\s\S]*?\.cmh-carousel-track,[\s\S]*?animation:none!important;transition:none!important/);
  assert.match(base,/\.cmh-carousel-track\{display:flex/);
  assert.match(art,/min-height:46px/);
  const nav=read("web-spa/src/components/mobileNavigation.css");
