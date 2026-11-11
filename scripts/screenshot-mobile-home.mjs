@@ -201,6 +201,17 @@ try{
    return !!nav&&getComputedStyle(nav).display!=="none"&&nav.dataset.active===expected
   },active,{timeout:20000});
   await navPage.waitForTimeout(360);
+  if(id==="learn"){
+   // The first Learn visit opens a real modal to choose a target language.
+   // Capture that separate experience, then exercise its Skip control before
+   // auditing the persistent navigation (modal overlays intentionally block clicks).
+   const languageGate=navPage.locator("dialog.crew-learning-language-dialog");
+   if(await languageGate.isVisible()){
+    await navPage.screenshot({path:join(output,"nav-390-learn-first-language-dialog.png"),animations:"disabled",fullPage:false});
+    await languageGate.locator("button.crew-onboarding-skip").click();
+    await navPage.waitForFunction(()=>!document.querySelector(".crew-learning-language-dialog")?.open);
+   }
+  }
   const item=await navInspect();
   if(item.dockCount!==1||!item.visible||!item.desktopHidden)throw Error("Unexpected duplicated/hidden nav on "+route+": "+JSON.stringify(item));
   if(item.labels.join(",")!=="首頁,聊天,探索,我的")throw Error("Different dock labels on "+route+": "+item.labels.join(","));
