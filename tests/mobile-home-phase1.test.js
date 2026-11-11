@@ -41,11 +41,41 @@ test("six one-tap app destinations, one Shorts strip and one daily recommendatio
  }
  assert.match(page,/className="cmh-app-grid"\>\{APPS\.map/);
  assert.match(page,/HomeShortsPreview maxPosts=\{8\} sharedFeed=\{shortsFeed\}/);
- assert.match(page,/className="cmh-featured"/);
+ assert.match(page,/className="cmh-slide cmh-slide-game"/);
+ assert.doesNotMatch(page,/className="cmh-featured"/);
  assert.match(page,/className="cmh-seo"/);
  assert.match(page,/<GuideHub\/>/);
  assert.match(page,/className="cmh-seo"[\s\S]*?to="\/learn"/);
  assert.match(css,/\.cmh-shorts \.crew-home-short-card/);
+});
+
+test("the phone hero is four real one-tap slides with a stationary Zoe first slot",()=>{
+ const page=read("web-spa/src/pages/MobileHomePage.tsx");
+ const css=read("web-spa/src/pages/mobileHome.css");
+ assert.match(page,/SLIDES=\["zoe","friends","game","learn"\]/);
+ assert.match(page,/CAROUSEL_INTERVAL_MS=5200/);
+ assert.match(page,/cmh-carousel-track/);
+ for(const className of ["cmh-slide cmh-zoe","cmh-slide cmh-slide-friends","cmh-slide cmh-slide-game","cmh-slide cmh-slide-learn"]){
+  assert.ok(page.includes(className),"missing carousel slide "+className);
+ }
+ assert.match(page,/className="cmh-carousel-dots"/);
+ assert.match(page,/onTouchStart=\{touchBegin\} onTouchEnd=\{touchFinish\}/);
+ assert.match(page,/setCarouselPaused\(true\)/);
+ assert.match(page,/document.visibilityState==="visible"/);
+ assert.match(page,/prefers-reduced-motion: reduce/);
+ assert.match(page,/Math.abs\(dx\)>45/);
+ assert.match(page,/onClickCapture=\{event=>/);
+ assert.match(page,/tabIndex=\{activeSlide===0\?0:-1\}/);
+ for(const route of ["/friend/live?id=noah&from=home&chat=text","/teacher/roles?mode=friends","/games","/learn","/teacher/roles?mode=teacher"]){
+  assert.ok(page.includes(route),"slide action missing: "+route);
+ }
+ assert.match(css,/\.cmh-carousel-track\{display:flex/);
+ assert.match(css,/@keyframes cmh-glow-drift/);
+ assert.match(css,/@keyframes cmh-spark-float/);
+ assert.match(css,/@keyframes cmh-avatar-breathe/);
+ assert.match(css,/@keyframes cmh-content-enter/);
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
+ assert.doesNotMatch(css,/\.cmh-featured\{/);
 });
 
 test("mobile four-tab navigation leaves desktop five-tab side rail intact",()=>{
