@@ -69,8 +69,19 @@ try{
      return Math.max(0,Math.min(x.right,y.right)-Math.max(x.left,y.left))*Math.max(0,Math.min(x.bottom,y.bottom)-Math.max(x.top,y.top));
     };
     const artTargets=board?[board]:portraits;
-    const titleArtOverlap=Math.max(0,...artTargets.map(x=>overlap(title,x)));
-    const subtitleArtOverlap=Math.max(0,...artTargets.map(x=>overlap(subtitle,x)));
+    // The bounding box of a block heading includes empty padding up to its
+    // allocated width. Test the rendered text ink fragments, not that empty box.
+    const inkOverlap=(label,art)=>{
+     if(!label||!art)return 0;
+     const range=document.createRange();
+     range.selectNodeContents(label);
+     const target=art.getBoundingClientRect();
+     return Math.max(0,...[...range.getClientRects()].map(ink=>
+      Math.max(0,Math.min(ink.right,target.right)-Math.max(ink.left,target.left))*
+      Math.max(0,Math.min(ink.bottom,target.bottom)-Math.max(ink.top,target.top))));
+    };
+    const titleArtOverlap=Math.max(0,...artTargets.map(x=>inkOverlap(title,x)));
+    const subtitleArtOverlap=Math.max(0,...artTargets.map(x=>inkOverlap(subtitle,x)));
     const faceOverlaps=active.classList.contains("cmh-zoe")?
      [...active.querySelectorAll(".cmh-chat-pop")].map(pop=>overlap(pop,portraits[0])):[];
     const titleFits=!!title&&title.scrollWidth<=title.clientWidth+1&&title.scrollHeight<=title.clientHeight+1;
