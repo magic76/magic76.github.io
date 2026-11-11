@@ -1,4 +1,5 @@
 import {LiveTextConversation} from "./liveTextChat";
+import {buildShortsTextSystems} from "./shortsTextContext";
 import {createTypingReveal} from "./typingReveal";
 import {sendGuestTextWithRenewal} from "./guestTextFlow";
 import {classifyGuestTextFailure,guestTextWorkerError,markGuestTextStartError,isGuestTextStartError} from "./guestTextError";
@@ -16,7 +17,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;onExchange?:()=>void};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;shortsContext?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
 type TurnstileApi={render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;remove:(id:string)=>void};
 const turnstile=()=> (window as Window&{turnstile?:TurnstileApi}).turnstile;
@@ -32,7 +33,9 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,onExchange}:Props){
+export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,shortsContext,onExchange}:Props){
+ const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
+ const system=shortsSystems?.live||baseSystem;
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [historyReady,setHistoryReady]=useState(false);
@@ -246,7 +249,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     reply=answer.text;sources=answer.sources;searchSuggestions=answer.searchSuggestions;
    }else{
     // Keep the beginning and the language directives at the end of long personas.
-    const guestSystem=system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system;
+    const guestSystem=shortsSystems?.guest??(system.length>6000?system.slice(0,4800)+"\n"+system.slice(-1100):system);
     const data=await sendGuestTextWithRenewal({
      token:guestPhase==="active"||guestPhase==="checking"?guestToken:"",
      acquire:startGuestText,
