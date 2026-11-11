@@ -78,7 +78,7 @@ test("the phone hero is four real one-tap slides with a stationary Zoe first slo
  assert.doesNotMatch(css,/\.cmh-featured\{/);
 });
 
-test("every ordinary mobile route uses one shared four-tab dock and desktop retains five",()=>{
+test("every ordinary mobile route uses one shared five-tab dock and desktop retains five",()=>{
  const nav=read("web-spa/src/components/AppChrome.tsx");
  const css=read("web-spa/src/components/mobileNavigation.css");
  const app=read("web-spa/src/App.tsx");
@@ -87,21 +87,27 @@ test("every ordinary mobile route uses one shared four-tab dock and desktop reta
  assert.match(nav,/export function MobileBottomNav/);
  assert.match(nav,/export function GlobalNav/);
  assert.match(nav,/<MobileBottomNav active=\{active\} hiddenOnMobile=\{mobileImmersive\}\/>/);
- assert.match(nav,/mobileActive=active==="learn"\?"explore":active/);
+ assert.match(nav,/const NAV_SECTIONS=\[/);
+ assert.match(nav,/data-active=\{active\}/);
+ assert.match(nav,/NAV_SECTIONS\.map/);
  for(const section of ["home","chat","explore","learn","me"])assert.ok(nav.includes('id:"'+section+'"'));
- for(const path of ["/","/chat","/explore","/me"])assert.ok(nav.includes('to:"'+path+'"'));
+ for(const path of ["/","/chat","/explore","/learn","/me"])assert.ok(nav.includes('to:"'+path+'"'));
  assert.doesNotMatch(nav,/to:"\/friend\/live\?id=zoe&from=nav/);
  assert.match(nav,/crew-mobile-dock-item/);
- assert.match(nav,/aria-current=\{mobileActive===item.id\?"page":undefined\}/);
+ assert.match(nav,/aria-current=\{active===item.id\?"page":undefined\}/);
  assert.match(css,/\.global-nav\{display:none!important\}/);
  assert.match(css,/\.crew-mobile-dock-inner\{/);
- assert.match(css,/repeat\(4,minmax\(0,1fr\)\)/);
+ assert.match(css,/repeat\(5,minmax\(0,1fr\)\)/);
  assert.match(css,/\.crew-mobile-dock-item\.active/);
  assert.match(css,/\.app-header \.crew-feature-menu-trigger\{display:none!important\}/);
  assert.match(css,/\.crew-mobile-dock--immersive\{display:none!important\}/);
  assert.match(app,/<GlobalNav active=\{active\} mobileImmersive=\{pathname==="\/magic"\}\/>/);
  assert.doesNotMatch(app,/!pathname\.startsWith\("\/circle"\)/);
  assert.match(model,/pathname==="\/story\/me"\|\|pathname==="\/fortune\/history"/);
+ assert.match(model,/if\(root==="teacher"\)/);
+ assert.match(model,/return "learn";/);
+ assert.match(model,/if\(pathname\.startsWith\("\/teacher\/me"\)\|\|pathname\.startsWith\("\/teacher\/memory"\)\)return "me"/);
+ assert.doesNotMatch(model,/pathname\.startsWith\("\/teacher\/reports"\)\|\|pathname\.startsWith\("\/teacher\/phrasebook"\)/);
  assert.match(gate,/pathname==="\/"&&window\.matchMedia\("\(max-width:767px\)"\)\.matches\)return/);
  assert.match(gate,/media\.addEventListener\("change",dismiss\)/);
 });
