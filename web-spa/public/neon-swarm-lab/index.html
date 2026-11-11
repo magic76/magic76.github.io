@@ -240,7 +240,7 @@ function drawHeroPose(p,alpha=1,echo=false){
 // All 28 art frames share a fixed frame size, anatomical scale and foot baseline.
 const CREW_FRAME_W=208,CREW_FRAME_H=184,CREW_HERO_SCALE=.74;
 // Sprite frames share the same foot pivot and a single per-character scale.
-function heroMuzzlePoint(p){const face=p.ax<-.15?-1:1;return {x:p.x+face*83*CREW_HERO_SCALE,y:p.y+34-65*CREW_HERO_SCALE}}
+function heroMuzzlePoint(p){const face=p.ax<-.15?-1:1;return {x:p.x+face*60*CREW_HERO_SCALE,y:p.y+34-70*CREW_HERO_SCALE}}
 
 const heroAtlas={};
 for(const key of ['idle','run','dash','hit','death','victory']){
