@@ -56,7 +56,7 @@ body{background:radial-gradient(ellipse 1200px 520px at 52% -280px,#40255b 5%,tr
  <div class="sidecard"><h2>MISSION OBJECTIVES</h2><div class="mission"><div class="mission-item"><span>清除機械蟲群</span><b id="missionKills">0 擊破</b></div><div class="mission-item"><span>存活時間</span><b id="missionTime">0 / 32 秒</b></div><div class="mission-item"><span>戰術支援</span><b id="missionAbility" class="muted">待解鎖</b></div><div class="mission-item"><span>巨型機甲</span><b id="missionBoss" class="muted">尚未出現</b></div><div class="mission-item"><span>戰場補給</span><b id="missionSupplies">0 已收集</b></div>
 <div class="mission-item"><span>武器強化</span><b id="missionUpgrade">0 / 2</b></div>
 <div class="mission-item"><span>通關星級</span><b id="missionStars">☆ ☆ ☆</b></div>
-<div class="mission-item"><span>本機紀錄</span><b id="missionBest">0 分</b></div></div><div class="divider"></div><h2>HOW TO PLAY</h2><ol class="steps"><li>移動躲開蟲群，武器會自動鎖定最近敵人。</li><li>看見紅色警示圈，立刻衝刺閃避。</li><li>擊破敵人可掉落醫療、護盾或短暫超頻補給，靠近即可撿起。</li><li>狙擊手有紅色瞄準線；衝鋒蟲會先標示路徑再突進。<strong>看預警側移</strong>比硬吃傷害更有效。</li><li>Boss 分三階段：扇形散彈、缺口環狀彈幕、直線突進；Zoe 會給你戰術支援。</li><li>第 8 秒與第 22 秒會暫停讓你選武器升級，效果只在本局有效。</li><li>擊敗 Boss 得 1 星；擊破 18 台、拾取 2 個補給，可再各得 1 星。</li></ol></div>
+<div class="mission-item"><span>本機紀錄</span><b id="missionBest">0 分</b></div></div><div class="divider"></div><h2>HOW TO PLAY</h2><ol class="steps"><li>移動躲開蟲群，武器會自動鎖定最近敵人。</li><li>看見紅色警示圈，立刻衝刺閃避。</li><li>擊破敵人可掉落醫療、護盾或短暫超頻補給，靠近即可撿起。</li><li>狙擊手有紅色瞄準線；衝鋒蟲會先標示路徑再突進。<strong>看預警側移</strong>比硬吃傷害更有效。</li><li>Boss 分三階段：扇形散彈、缺口環狀彈幕、直線突進。<strong>先躲過各階段第一招，才能打穿該階段核心裝甲。</strong></li><li>第 8 秒與第 22 秒會暫停讓你選武器升級，效果只在本局有效。</li><li>擊敗 Boss 得 1 星；擊破 18 台、拾取 2 個補給，可再各得 1 星。</li></ol></div>
  <div class="sidecard note"><h2>ABOUT THIS BUILD</h2><p>這是強調打擊感、動態光效、戰鬥節奏的 Vertical Slice。遊戲不收集個資、不連線後端，不需要帳號或金鑰。為避免誤導，離線 Zoe 僅為寫好的劇情台詞。</p></div></aside>
  </div>
 </main>
@@ -120,7 +120,7 @@ function end(won){if(phase!=='run')return;phase=won?'win':'lose';if(won)player.v
   `你和 Zoe 完成突圍！${'★'.repeat(stars)}${'☆'.repeat(3-stars)}｜擊破 ${kills} 台、拾取 ${pickupsCollected} 個補給。試另一套武器升級挑戰三星！`:
   `你擊破了 ${kills} 台、存活 ${Math.round(gameTime)} 秒。本機最高 ${localRecord.score} 分。換一套升級再試一次！`;$('start').textContent='↻ 再挑戰一局';say(won?'漂亮！這就是我們的默契！':'別灰心，我們再調整戰術，下一局一定更強。',won?'game_win':'game_lose');sound(won?4:3);updateHUD()}
 let bestCombo=0;
-function updateHUD(){if(!player)return;$('hp').textContent=`${Math.ceil(player.hp)} / ${player.maxHp}`;$('hpValue').style.width=(100*player.hp/player.maxHp)+'%';$('shieldValue').style.width=Math.min(100,player.shield/60*100)+'%';$('wave').textContent=boss?'BOSS FIGHT':`WAVE ${wave} / 3`;$('score').textContent=`${String(kills).padStart(2,'0')} KILLS · ${String(Math.floor(gameTime)).padStart(2,'0')}s`;$('missionKills').textContent=kills+' 擊破';$('missionTime').textContent=Math.min(duration,Math.floor(gameTime))+' / '+duration+' 秒';$('missionBoss').textContent=boss?'P'+boss.stage+' · 裝甲 '+Math.ceil(Math.max(0,boss.hp))+' / '+BOSS_HP:'尚未出現';$('missionSupplies').textContent=pickupsCollected+' 已收集';
+function updateHUD(){if(!player)return;$('hp').textContent=`${Math.ceil(player.hp)} / ${player.maxHp}`;$('hpValue').style.width=(100*player.hp/player.maxHp)+'%';$('shieldValue').style.width=Math.min(100,player.shield/60*100)+'%';$('wave').textContent=boss?'BOSS FIGHT':`WAVE ${wave} / 3`;$('score').textContent=`${String(kills).padStart(2,'0')} KILLS · ${String(Math.floor(gameTime)).padStart(2,'0')}s`;$('missionKills').textContent=kills+' 擊破';$('missionTime').textContent=Math.min(duration,Math.floor(gameTime))+' / '+duration+' 秒';$('missionBoss').textContent=boss?'P'+boss.stage+(boss.phaseAttackDone?' · HP ':' · 預警裝甲 ')+Math.ceil(Math.max(0,boss.hp))+' / '+BOSS_HP:'尚未出現';$('missionSupplies').textContent=pickupsCollected+' 已收集';
  $('missionUpgrade').textContent=upgradeStage+' / 2';
  $('missionStars').textContent=(phase==='win'?'★'.repeat(runStars(true))+'☆'.repeat(3-runStars(true)):'☆ ☆ ☆');
  $('missionBest').textContent=localRecord.score+' 分';$('dashLabel').textContent=player.dashCD>0?Math.ceil(player.dashCD)+'s':'DASH';$('dash').classList.toggle('cool',player.dashCD>0);$('foot').textContent=`${phase==='run'?'戰鬥中':phase==='pause'?'暫停中':phase==='win'?'任務完成':phase==='lose'?'戰鬥失敗':'等待出擊'} · 分數 ${score} · 最佳連擊 ${bestCombo}${player.overdrive>0?' · ⚡ 超頻 '+Math.ceil(player.overdrive)+'s':''}`;const co=$('combo');co.classList.toggle('show',combo>=3&&comboT>0);co.innerHTML=`<strong>${combo}</strong> COMBO!`}
@@ -336,7 +336,7 @@ function drawDrone(e){if(enemySprite.complete&&enemySprite.naturalWidth){ctx.sav
  if(e.charge>0)ctx.scale(1.13,.90);
  ctx.drawImage(enemySprite,-size/2,-size/2+Math.sin(stride)*2.5,size,size);if(e.kind==='elite'){hex(0,0,36,null,e.pulse>0?'#ffd6a0':'#f2a46c',2,animClock*.45);ctx.fillStyle='#1c203c';ctx.fillRect(-28,45,56,5);ctx.fillStyle='#ffba72';ctx.fillRect(-28,45,56*Math.max(0,e.hp/e.maxHp),5)}if(e.hit>0){ctx.globalAlpha=.55;ctx.globalCompositeOperation='lighter';circ(0,0,24,'#fff9be')}if(e.kind==='charger'&&e.charge>0){ctx.globalAlpha=.45;circ(0,0,35,null,'#ff6095',3)}ctx.restore();return;}ctx.save();ctx.translate(e.x,e.y);const t=gameTime+e.seed;let a=angle(e,player);ctx.rotate(a);ctx.fillStyle='#0509139a';ctx.beginPath();ctx.ellipse(0,10,e.r*1.24,e.r*.53,0,0,TAU);ctx.fill();for(let i=0;i<4;i++){const ang=i*TAU/4+t*2;const q=e.r*.87;const x=Math.cos(ang)*q,y=Math.sin(ang)*q;line(x,y,x*1.4,y*1.4,e.kind==='charger'?'#fe866e':'#887ec0',5);circ(x*1.43,y*1.43,4,e.kind==='charger'?'#ef647e':'#c09aff')}glow(0,0,e.r*2,e.kind==='charger'?'#fc527d':'#ba59fb',.18);hex(0,0,e.r,'#333255','#a98ed4',3,t*.1);hex(-4,-4,e.r*.72,'#7767a9','#c5b1ff',1);hex(4,2,e.r*.59,'#29375d','#ed86de',1);circ(e.r*.29,0,e.r*.29,e.kind==='charger'?'#ff524b':'#ff89e1');circ(e.r*.37,-2,e.r*.1,'#fff2ff');if(e.kind==='charger'&&e.charge>0){glow(e.r*.35,0,18,'#ff3b68',.6)}if(e.hit>0){ctx.globalCompositeOperation='screen';hex(0,0,e.r*1.2,'#fff8d780')}ctx.restore()}
 function drawSniper(e){ctx.save();ctx.translate(e.x,e.y);ctx.rotate(gameTime*.65+e.seed);glow(0,0,50,'#ff9b64',.15);hex(0,0,22,'#403a5f','#ffa3c5',2);for(let i=0;i<3;i++){const a=i*TAU/3;hex(Math.cos(a)*19,Math.sin(a)*19,8,'#233652','#ffbd86',1)}circ(0,0,9,'#ffa8af','#ffe9e7',3);ctx.rotate(-gameTime*.65-e.seed);if(e.hit>0)hex(0,0,20,'#fffeac77');ctx.restore()}
-function drawBoss(b){ctx.save();ctx.translate(b.x,b.y);const t=gameTime;glow(0,0,145,'#ff57ab',.17);circ(0,0,88+Math.sin(t*2)*3,null,'#ff6bad66',3);ctx.rotate(t*.18);for(let i=0;i<6;i++){const a=i*TAU/6;ctx.save();ctx.rotate(a);line(30,0,70,5,'#29294b',18);line(60,5,83,21,'#bd69ac',11);hex(83,21,11,'#513258','#fe9dc6',2);ctx.restore()}hex(0,0,63,'#393450','#c78dd6',5);hex(0,0,51,'#7f548d','#ead0ff',2);for(let i=0;i<6;i++){const a=i*TAU/6;hex(Math.cos(a)*35,Math.sin(a)*35,17,'#363553','#ed97c6',2)}hex(0,0,33,'#28274d','#ff93d4',4);circ(0,0,18,'#fb5284','#ffd9e8',5);glow(0,0,27,'#fff6fd',.4);if(b.hit>0)hex(0,0,55,'#ffffe399');ctx.restore();rr(b.x-85,b.y-112,170,9,5,'#161a36','#ad86bd');rr(b.x-84,b.y-111,168*C(b.hp/BOSS_HP,0,1),7,4,b.stage===3?'#ff7669':b.stage===2?'#ad7bff':'#ff5a9b');caption(b.x,b.y-123,'OVERMIND · PHASE '+b.stage,'#ffe5f6',12)}
+function drawBoss(b){ctx.save();ctx.translate(b.x,b.y);const t=gameTime;glow(0,0,145,'#ff57ab',.17);circ(0,0,88+Math.sin(t*2)*3,null,'#ff6bad66',3);ctx.rotate(t*.18);for(let i=0;i<6;i++){const a=i*TAU/6;ctx.save();ctx.rotate(a);line(30,0,70,5,'#29294b',18);line(60,5,83,21,'#bd69ac',11);hex(83,21,11,'#513258','#fe9dc6',2);ctx.restore()}hex(0,0,63,'#393450','#c78dd6',5);hex(0,0,51,'#7f548d','#ead0ff',2);for(let i=0;i<6;i++){const a=i*TAU/6;hex(Math.cos(a)*35,Math.sin(a)*35,17,'#363553','#ed97c6',2)}hex(0,0,33,'#28274d','#ff93d4',4);circ(0,0,18,'#fb5284','#ffd9e8',5);glow(0,0,27,'#fff6fd',.4);if(b.hit>0)hex(0,0,55,'#ffffe399');ctx.restore();rr(b.x-85,b.y-112,170,9,5,'#161a36','#ad86bd');rr(b.x-84,b.y-111,168*C(b.hp/BOSS_HP,0,1),7,4,b.stage===3?'#ff7669':b.stage===2?'#ad7bff':'#ff5a9b');caption(b.x,b.y-123,b.phaseAttackDone?'OVERMIND · PHASE '+b.stage:'OVERMIND P'+b.stage+' · ARMOR LOCK','#ffe5f6',12)}
 function spark(x,y,color,n=10,power=1){for(let i=0;i<n;i++){let a=R(0,TAU),speed=R(30,230)*power,life=R(.16,.6);particles.push({x,y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life,max:life,r:R(1.3,4)*power,color,drag:R(.84,.95)});}if(particles.length>350)particles.splice(0,particles.length-350)}
 function floatText(x,y,text,color='#fff7cf',size=16){numbers.push({x,y,life:.75,text,color,size})}
 function spawnMob(type,x,y){
@@ -420,11 +420,17 @@ function kill(m,index){kills++;score+=100+combo*25;combo++;bestCombo=Math.max(be
 function choose(v){if(phase!=='choice'||helpUsed)return;helpUsed=true;helpType=v;phase='run';$('choice').hidden=true;if(v==='fire'){player.fireBoost=22;turrets.push({x:player.x-40,y:player.y-30,shootT:0});$('skills').insertAdjacentHTML('beforeend','<div class="skill-badge fire" title="Zoe 火力支援">🔥</div>');$('missionAbility').textContent='🔥 20 秒火力'}else{player.shield=Math.min(80,player.shield+60);player.hp=Math.min(120,player.hp+20);$('skills').insertAdjacentHTML('beforeend','<div class="skill-badge shield" title="Zoe 量子護盾">🛡️</div>');$('missionAbility').textContent='🛡️ 60 護盾'}$('missionAbility').classList.remove('muted');sound(4);toast('ZOE SUPPORT',v==='fire'?'FIRESTORM!':'QUANTUM SHIELD!');say(v==='fire'?'火力支援啟動！我們把它們通通打回去！':'護盾已開！放心往前，我幫你擋著！','ability');event('choice',v);updateHUD()}
 function askZoe(){if(helpUsed||phase!=='run')return;phase='choice';$('choice').hidden=false;say('你要火力支援，還是量子護盾？選一個，我立刻執行！','offer');event('choice_offer','fire or shield');sound(4)}
 function bossPhase(b){return b.hp>BOSS_HP*2/3?1:b.hp>BOSS_HP/3?2:3}
+function bossDamageFloor(b){
+ // Each phase has a brief visible mechanic before the next phase can be triggered.
+ // Shots still hit and animate, but the core armor cannot be bypassed by a burst.
+ if(b.phaseAttackDone)return 0;
+ return b.stage===1?BOSS_HP*2/3+1:b.stage===2?BOSS_HP/3+1:1;
+}
 function spawnBoss(){
  if(boss)return;
  boss={x:C(player.x+220,125,level.w-125),y:C(player.y-160,125,level.h-125),
   hp:BOSS_HP,maxHp:BOSS_HP,r:57,hit:0,shootT:1.25,spin:0,
-  stage:1,attackCount:0,telegraph:null,chargeTime:0,chargeVX:0,chargeVY:0};
+  stage:1,attackCount:0,phaseAttackDone:false,telegraph:null,chargeTime:0,chargeVX:0,chargeVY:0};
  wave=3;toast('DANGER · OVERMIND','BOSS INCOMING');
  say('指揮機甲出現！看地上的紅色預警，別站在攻擊路徑上！','boss');
  sound(3);event('boss','boss appeared: phase 1');
@@ -438,6 +444,7 @@ function beginBossAttack(b){
  b.shootT=b.stage===1?2.4:b.stage===2?2.2:2.05;
 }
 function fireBossAttack(b,t){
+ b.phaseAttackDone=true;
  if(t.type==='fan'){
   for(let i=-2;i<=2;i++){
    const a=t.aim+i*.19;
@@ -463,7 +470,7 @@ function updateBossBattle(b,dt){
  b.hit=Math.max(0,b.hit-dt);
  const newPhase=bossPhase(b);
  if(newPhase>b.stage){
-  b.stage=newPhase;b.telegraph=null;b.chargeTime=0;b.attackCount=0;
+  b.stage=newPhase;b.telegraph=null;b.chargeTime=0;b.attackCount=0;b.phaseAttackDone=false;
   b.shootT=1.25;
   const name=newPhase===2?'散射防線':'極限衝鋒';
   toast('OVERMIND · PHASE '+newPhase,name);
@@ -584,7 +591,7 @@ function step(dt){if(phase!=='run')return;if(hitstop>0){hitstop-=dt;return}dt=Ma
   if(d<player.r+20){collectSupply(item);pickups.splice(i,1);continue}
   if(item.life<=0)pickups.splice(i,1);
  }
- for(let i=shots.length-1;i>=0;i--){const s=shots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;s.trail.push([s.x,s.y]);if(s.trail.length>6)s.trail.shift();let hit=false;for(let j=mobs.length-1;j>=0;j--){const m=mobs[j];if(!s.hitRefs?.includes(m)&&Math.hypot(s.x-m.x,s.y-m.y)<m.r+s.r){s.hitRefs?.push(m);m.hp-=s.damage;m.hit=.09;hit=s.pierce>0?false:true;if(s.pierce>0)s.pierce--;spark(s.x,s.y,'#ffe8a5',5,.65);floatText(m.x+R(-6,6),m.y-18,Math.ceil(s.damage).toString(),'#ffeab7',12);if(m.hp<=0)kill(m,j);chainArc(m);break}}if(!hit&&boss&&!s.hitRefs?.includes(boss)&&Math.hypot(s.x-boss.x,s.y-boss.y)<boss.r+s.r){s.hitRefs?.push(boss);boss.hp-=s.damage;boss.hit=.1;hit=s.pierce>0?false:true;if(s.pierce>0)s.pierce--;spark(s.x,s.y,'#ffc2ef',7,.9);shake=Math.max(shake,2);if(boss.hp<=0){spark(boss.x,boss.y,'#ffadbb',100,2.5);rings.push({x:boss.x,y:boss.y,r:0,life:1,max:1,color:'#ffedc1'});boss=null;end(true);break}}if(hit||s.life<=0||s.x<0||s.y<0||s.x>level.w||s.y>level.h)shots.splice(i,1)}
+ for(let i=shots.length-1;i>=0;i--){const s=shots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;s.trail.push([s.x,s.y]);if(s.trail.length>6)s.trail.shift();let hit=false;for(let j=mobs.length-1;j>=0;j--){const m=mobs[j];if(!s.hitRefs?.includes(m)&&Math.hypot(s.x-m.x,s.y-m.y)<m.r+s.r){s.hitRefs?.push(m);m.hp-=s.damage;m.hit=.09;hit=s.pierce>0?false:true;if(s.pierce>0)s.pierce--;spark(s.x,s.y,'#ffe8a5',5,.65);floatText(m.x+R(-6,6),m.y-18,Math.ceil(s.damage).toString(),'#ffeab7',12);if(m.hp<=0)kill(m,j);chainArc(m);break}}if(!hit&&boss&&!s.hitRefs?.includes(boss)&&Math.hypot(s.x-boss.x,s.y-boss.y)<boss.r+s.r){s.hitRefs?.push(boss);boss.hp=Math.max(bossDamageFloor(boss),boss.hp-s.damage);boss.hit=.1;hit=s.pierce>0?false:true;if(s.pierce>0)s.pierce--;spark(s.x,s.y,'#ffc2ef',7,.9);shake=Math.max(shake,2);if(boss.hp<=0){spark(boss.x,boss.y,'#ffadbb',100,2.5);rings.push({x:boss.x,y:boss.y,r:0,life:1,max:1,color:'#ffedc1'});boss=null;end(true);break}}if(hit||s.life<=0||s.x<0||s.y<0||s.x>level.w||s.y>level.h)shots.splice(i,1)}
  for(let i=enemyShots.length-1;i>=0;i--){const s=enemyShots[i];s.x+=s.vx*dt;s.y+=s.vy*dt;s.life-=dt;if(D(s,player)<s.r+player.r){harm(16);s.life=0;spark(s.x,s.y,'#ff796e',11)}if(s.life<=0)enemyShots.splice(i,1)}
  for(const turret of turrets){turret.x+=(player.x-42-turret.x)*dt*4;turret.y+=(player.y-38-turret.y)*dt*4;turret.shootT-=dt;if(turret.shootT<=0&&player.fireBoost>0){turret.shootT=.3;const nearest=[...mobs,...(boss?[boss]:[])].sort((a,b)=>D(turret,a)-D(turret,b))[0];if(nearest){const a=angle(turret,nearest);shots.push({x:turret.x,y:turret.y,vx:Math.cos(a)*710,vy:Math.sin(a)*710,life:1,damage:18,r:4,trail:[]})}}}
  for(let i=arcBeams.length-1;i>=0;i--){const b=arcBeams[i];b.life-=dt;if(b.life<=0)arcBeams.splice(i,1)}
