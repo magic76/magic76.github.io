@@ -573,5 +573,23 @@
     "heading": "Converse com um amigo de IA",
     "withZoe": "Conversar com Zoe",
     "setup": "Config. Key"
+  },
+  "dailyTopics": {
+    "title": "Assuntos de hoje",
+    "note": "Três jeitos de puxar papo",
+    "items": {
+      "photo-story": {"title": "História da foto", "hook": "O que aconteceu?"},
+      "photo-moment": {"title": "Foto de hoje", "hook": "Compartilhe um momento"},
+      "question-smalljoy": {"title": "Pequena alegria", "hook": "O que te fez sorrir?"},
+      "question-weekend": {"title": "Plano pro fim de semana", "hook": "Vamos imaginar um passeio"},
+      "role-cafe": {"title": "No café", "hook": "Vamos encenar"},
+      "role-travel": {"title": "Perdidos na cidade", "hook": "Vamos achar o caminho"},
+      "mood-heavy": {"title": "Dia difícil", "hook": "Pode me contar"},
+      "mood-grateful": {"title": "Gratidão de hoje", "hook": "Uma coisa boa"},
+      "play-rematch": {"title": "Mais uma rodada", "hook": "Conversa depois do jogo"},
+      "play-wildcard": {"title": "Surpresa no jogo", "hook": "Que reviravolta!"},
+      "fortune-lucky": {"title": "Dia de sorte", "hook": "Qual é meu sinal?"},
+      "fortune-change": {"title": "Novo capítulo", "hook": "O que pode mudar?"}
+    }
   }
 }

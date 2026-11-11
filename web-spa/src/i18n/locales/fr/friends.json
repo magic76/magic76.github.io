@@ -112,6 +112,20 @@
     "heading": "Touchez une phrase pour démarrer la discussion",
     "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
     "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",
-    "smalltalk": "Hey {{name}}! How has your day been?"
+    "smalltalk": "Hey {{name}}! How has your day been?",
+    "topics": {
+      "photo-story": "Hi {{name}}! Can we talk about a photo that tells a story?",
+      "photo-moment": "Hey {{name}}! I want to share a small moment from today. What photo would you take?",
+      "question-smalljoy": "Hi {{name}}! What little thing made you smile today?",
+      "question-weekend": "Hey {{name}}! If we could plan a perfect weekend, what would we do?",
+      "role-cafe": "Hi {{name}}! Let’s pretend we are in a café. You order first!",
+      "role-travel": "Hey {{name}}! Let’s pretend we are lost in a new city. How do we find our way?",
+      "mood-heavy": "Hi {{name}}. I had a difficult day. Can we talk for a bit?",
+      "mood-grateful": "Hey {{name}}! What is one thing you are grateful for today?",
+      "play-rematch": "Hi {{name}}! Imagine we just finished a game. Would you play again?",
+      "play-wildcard": "Hey {{name}}! Have you ever seen a surprising comeback in a game?",
+      "fortune-lucky": "Hi {{name}}! For fun, what lucky sign would you give me today?",
+      "fortune-change": "Hey {{name}}! If my next chapter could be different, what should I try?"
+    }
   }
 }

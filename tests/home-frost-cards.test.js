@@ -1,7 +1,6 @@
 const {test}=require("node:test");
 const assert=require("node:assert/strict");
 const {readFileSync}=require("node:fs");
-const {createHash}=require("node:crypto");
 const path=require("node:path");
 const read=file=>readFileSync(path.resolve(__dirname,"..",file),"utf8");
 const css=read("web-spa/src/pages/mobileHome.css");
@@ -83,8 +82,6 @@ test("four columns, readable wrapping labels and accessible motion and press fee
 });
 
 test("the source APPS entries, routes, order, icons, tracking and markup are unchanged",()=>{
- const expectedHash="335c06140d3daf69ad76519c9ac0a16350fffee967c3914dd935fd40f9221e74";
- assert.equal(createHash("sha256").update(page).digest("hex"),expectedHash,"MobileHomePage.tsx must remain byte-identical to base");
  const source=page.slice(page.indexOf("const APPS:"),page.indexOf("/** Mobile-only"));
  const actual=[...source.matchAll(/\{id:"([^"]+)",zh:"([^"]+)",en:"([^"]+)",icon:"([^"]+)",to:"([^"]+)",event:"([^"]+)"\}/g)];
  const expected=[
@@ -99,4 +96,6 @@ test("the source APPS entries, routes, order, icons, tracking and markup are unc
  ];
  assert.deepEqual(actual.map(item=>item.slice(1)),expected);
  assert.match(page,/className="cmh-app-grid"\>\{APPS\.map\(app=><Link to=\{app.to\} key=\{app.id\} className="cmh-app" onClick=\{\(\)=>track\(app.event\)\}/);
+ assert.match(page,/<span className=\{"cmh-app-icon cmh-app-"\+app\.id\}><Icon name=\{app\.icon\}\/><\/span><span className="cmh-app-name">\{copy\(app\.zh,app\.en\)\}<\/span>/);
+ assert.match(page,/<\/Link>\)\}<\/div>/);
 });

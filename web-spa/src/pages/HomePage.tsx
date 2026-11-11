@@ -11,6 +11,7 @@ import {probeNativeDeviceCapabilities} from "../lib/deviceCapabilities";
 import {HomePortal} from "./HomePortal";
 import {HomeLiveBubble} from "./HomeLiveBubble";
 import {MobileHomePage} from "./MobileHomePage";
+import {DailyTopicCards} from "./DailyTopicCards";
 import {HomeShortsPreview} from "../teacher/HomeShortsPreview";
 import {readLatestFriendResume} from "../live/sessionTranscript";
 import {readUnfinishedNumberRound} from "../games/unfinishedNumberRound";
@@ -163,6 +164,7 @@ export function HomePage(){
   <div className="crew-home-world">
    <HomePortal shortsFeed={shortsFeed}/>
    <div className="crew-home-world-inner">
+    <DailyTopicCards variant="desktop"/>
     {ready&&!configured&&trial.resolved&&(!trial.enabled||trial.remaining===0)?<section className="crew-home-start" aria-label={t("start")}>
      <Link to="/account#settings-gemini" className="crew-home-start-option crew-home-start-byok" onClick={()=>trackUsageEvent("home_entry_click","settings")}>
       <span className="crew-home-start-symbol" aria-hidden="true"><Icon name="sparkles"/></span>

@@ -573,5 +573,23 @@
     "heading": "AI 친구와 이야기해요",
     "withZoe": "Zoe와 대화",
     "setup": "Key 설정"
+  },
+  "dailyTopics": {
+    "title": "오늘의 화제",
+    "note": "매일 새롭게 · 탭해서 대화",
+    "items": {
+      "photo-story": {"title": "사진 이야기", "hook": "사진 속 사연은?"},
+      "photo-moment": {"title": "오늘의 사진", "hook": "한순간 나누기"},
+      "question-smalljoy": {"title": "작은 행복", "hook": "뭐가 웃게 했나요?"},
+      "question-weekend": {"title": "주말 계획", "hook": "함께 계획해요"},
+      "role-cafe": {"title": "카페에서", "hook": "상황극 해 봐요"},
+      "role-travel": {"title": "낯선 도시", "hook": "길을 찾아봐요"},
+      "mood-heavy": {"title": "힘든 하루", "hook": "편하게 말해요"},
+      "mood-grateful": {"title": "오늘의 감사", "hook": "좋았던 일 하나"},
+      "play-rematch": {"title": "한 판 더", "hook": "게임 후 수다"},
+      "play-wildcard": {"title": "게임 반전", "hook": "놀라운 전개!"},
+      "fortune-lucky": {"title": "오늘의 행운", "hook": "행운의 신호는?"},
+      "fortune-change": {"title": "다음 이야기", "hook": "무엇이 달라질까?"}
+    }
   }
 }
