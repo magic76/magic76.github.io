@@ -89,6 +89,9 @@ export function OnboardingGate({pathname}:{pathname:string}){
   // Always respect external deep links, including games and live conversations.
   // Settings is allowed for an explicit replay interrupted by a locale switch.
   if(pathname!=="/"&&pathname!=="/settings")return;
+  // The mobile homepage itself is the first-run introduction. Preserve the
+  // original desktop wizard and explicit Settings replay, without a mobile overlay.
+  if(pathname==="/"&&window.matchMedia("(max-width:767px)").matches)return;
   try{
    // Restore a partially completed guide after switching interface language.
    if(sessionStorage.getItem(DRAFT_KEY)){openGuide(false);return;}
@@ -101,6 +104,15 @@ export function OnboardingGate({pathname}:{pathname:string}){
    openGuide(false);
   }catch{/* Private/blocked storage: don't trap someone in repeated onboarding. */}
  },[pathname,openGuide]);
+
+ useEffect(()=>{
+  if(pathname!=="/")return;
+  const media=window.matchMedia("(max-width:767px)");
+  const dismiss=()=>{if(media.matches){dialog.current?.close();setOpen(false)}};
+  dismiss();
+  media.addEventListener("change",dismiss);
+  return()=>media.removeEventListener("change",dismiss);
+ },[pathname]);
 
  useEffect(()=>{
   const current=dialog.current;
