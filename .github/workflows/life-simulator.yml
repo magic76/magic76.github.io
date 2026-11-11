@@ -1,0 +1,26 @@
+name: Life Simulator regression
+on:
+  pull_request:
+    paths:
+      - 'web-spa/src/timeline/LifeSimulationPage.tsx'
+      - 'web-spa/src/timeline/lifeSimulation.ts'
+      - 'web-spa/src/timeline/lifeSimulationStorage.ts'
+      - 'web-spa/src/timeline/lifeEvents.ts'
+      - 'web-spa/src/timeline/lifeConsequences.ts'
+      - 'web-spa/src/timeline/lifeSimulation.css'
+      - 'tests/life-simulator.test.js'
+      - '.github/workflows/life-simulator.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  life-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deterministic life engine and integration
+        run: node --test tests/life-simulator.test.js
