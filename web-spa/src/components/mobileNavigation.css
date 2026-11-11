@@ -1,5 +1,5 @@
 /* A single, product-independent phone dock.
- * Never reuse .global-nav/.navitem from the old five-tab desktop rail. */
+ * Never reuse .global-nav/.navitem from the desktop navigation rail. */
 .crew-mobile-dock{display:none}
 @media(max-width:767px){
  .global-nav{display:none!important}
@@ -21,7 +21,7 @@
  }
  .crew-mobile-dock-inner{
   width:100%;max-width:620px;height:var(--nav-h,68px);margin:0 auto;
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;
  }
  .crew-mobile-dock-item{
   box-sizing:border-box;min-width:0;min-height:54px;
