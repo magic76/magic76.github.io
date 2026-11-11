@@ -129,6 +129,7 @@ jobs:
         run: |
           npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
           npx playwright install chromium
+          node --test tests/mobile-home-phase1.test.js tests/crew-home-live-bubble.test.js tests/crew-home-interaction-first.test.js tests/crew-onboarding.test.js
           npm run build:cloudflare
           npm run test:cloudflare
           node scripts/screenshot-mobile-home.mjs
