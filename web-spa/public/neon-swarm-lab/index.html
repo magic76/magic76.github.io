@@ -431,7 +431,7 @@ function spawnBoss(){
 }
 function beginBossAttack(b){
  if(b.telegraph||b.chargeTime>0)return;
- const type=b.stage===1?'fan':b.stage===2?(b.attackCount%2?'fan':'nova'):(b.attackCount%2?'charge':'nova');
+ const type=b.stage===1?'fan':b.stage===2?(b.attackCount%2?'fan':'nova'):(b.attackCount%2?'nova':'charge');
  const duration=type==='charge'?1.05:type==='nova'?1:.8;
  b.telegraph={type,remaining:duration,total:duration,aim:angle(b,player)};
  b.attackCount++;
@@ -463,7 +463,7 @@ function updateBossBattle(b,dt){
  b.hit=Math.max(0,b.hit-dt);
  const newPhase=bossPhase(b);
  if(newPhase>b.stage){
-  b.stage=newPhase;b.telegraph=null;b.chargeTime=0;
+  b.stage=newPhase;b.telegraph=null;b.chargeTime=0;b.attackCount=0;
   b.shootT=1.25;
   const name=newPhase===2?'散射防線':'極限衝鋒';
   toast('OVERMIND · PHASE '+newPhase,name);
