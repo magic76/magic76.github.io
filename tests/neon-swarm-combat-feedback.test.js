@@ -56,7 +56,7 @@ function boot(){
  const init="prepareFloor();reset();last=performance.now();raf=requestAnimationFrame(frame);";
  assert.ok(body?.includes(init));
  const qa="window.__FX_QA__={"+
-  "start:begin,step,shoot,kill,harm,sound,haptic,impact,draw,drawImpacts,"+
+  "start:begin,step,shoot,kill,harm,sound,haptic,impact,draw,drawImpacts,frame,"+
   "phase:()=>phase,muted:()=>muted,setMute:value=>{muted=value},"+
   "player:()=>player,shots:()=>shots,mobs:()=>mobs,impacts:()=>impacts,"+
   "hitstop:()=>hitstop,spawnBoss, boss:()=>boss,"+
@@ -143,4 +143,6 @@ test("Boss defeat has stronger burst, while player hurt uses separate feedback",
  assert.ok(q.impacts().some(i=>i.type==="bossBreak"));
  assert.ok(q.hitstop()>=.06,"boss defeat gives a stronger pause");
  assert.ok(vibrations.length>=2);
+ for(let now=1016;now<=2016;now+=16)q.frame(now);
+ assert.equal(q.impacts().length,0,"victory explosion must fade, not freeze on screen");
 });
