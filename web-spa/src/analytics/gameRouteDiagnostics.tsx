@@ -7,7 +7,7 @@ import {currentBuild} from "../runtime/buildUpdates";
 export const GAME_LOAD_DIAGNOSTICS_KEY="crew_game_load_diagnostics_v1";
 const gameRoutes=new Set(["/games","/games/friend-gomoku","/games/gomoku","/games/1a2b",
  "/games/taboo","/games/crazy-court","/games/werewolf","/games/truth-news",
- "/games/nonsense","/games/arcade-lab","/games/connect4","/games/twenty-questions","/games/reversi","/games/mystery","/games/number-bomb","/games/memory"]);
+ "/games/nonsense","/games/arcade-lab","/games/neon-swarm","/games/connect4","/games/twenty-questions","/games/reversi","/games/mystery","/games/number-bomb","/games/memory"]);
 type Status="loaded"|"stalled"|"asset_error";
 type Result={route:string;build:string;status:Status;elapsedMs:number|null;at:string};
 function safeGameRoute(path:string):string|null{
