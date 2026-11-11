@@ -46,9 +46,9 @@ try{
     const visible=selector=>{const el=document.querySelector(selector);return !!el&&getComputedStyle(el).display!=="none"&&el.getBoundingClientRect().width>0};
     return {overflow:document.documentElement.scrollWidth-innerWidth, mobileHome:visible(".crew-mobile-home"),
      legacyHome:visible(".crew-home-legacy"),onboardingOpen:!!document.querySelector(".crew-onboarding-dialog[open]"),
-     desktopTabCount:document.querySelectorAll(".crew-nav-desktop a").length,mobileTabCount:document.querySelectorAll(".crew-nav-mobile a").length,
+     desktopTabCount:document.querySelectorAll(".global-nav.crew-desktop-nav a").length,mobileTabCount:document.querySelectorAll(".crew-mobile-dock a").length,
      homeAppCount:document.querySelectorAll(".cmh-app").length,homeTextHref:document.querySelector(".cmh-zoe-primary")?.getAttribute("href"),
-     seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-nav-mobile"),
+     seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-mobile-dock"),
      slideCount:document.querySelectorAll(".cmh-slide").length,dotCount:document.querySelectorAll(".cmh-carousel-dots button").length,
      activeSlide:document.querySelector(".cmh-slide[data-active=true]")?.getAttribute("class"),
      duplicateGameCard:!!document.querySelector(".cmh-featured"),
@@ -136,6 +136,98 @@ try{
  unlinkSync(webmPath);
  stats.push({name:"carousel-motion-demo.mp4",kind:"video",bytes:statSync(moviePath).size,
   interaction:"5.2s autoplay then swipe to game, dots to Learn and Zoe",otherFriendState});
+
+ // Cross-page dock audit is run with actual browser navigation and CSS computation.
+ // The same component must look and behave identically on every general Crew page.
+ const navCases=[
+  ["home","/","home"],
+  ["chat","/chat","chat"],
+  ["explore","/explore","explore"],
+  ["mine","/me","me"],
+  ["learn","/learn","explore"],
+  ["games","/games","explore"],
+  ["story","/story","explore"],
+  ["fortune","/fortune","explore"],
+  ["moments","/teacher/shorts","chat"],
+  ["friends","/teacher/roles?mode=friends","chat"],
+  ["teachers","/teacher/roles?mode=teacher","explore"],
+  ["my-stories","/story/me","me"],
+  ["fortune-history","/fortune/history","me"],
+  ["settings","/settings","me"],
+  ["circle","/circle","explore"]
+ ];
+ const navContext=await browser.newContext({viewport:{width:390,height:844},locale:"zh-TW",
+  deviceScaleFactor:1,reducedMotion:"reduce"});
+ await navContext.addInitScript(()=>localStorage.setItem("crew_onboarding_web_v1","completed"));
+ const navPage=await navContext.newPage();
+ const navErrors=[];navPage.on("pageerror",error=>navErrors.push(error.message));
+ const navRecords=[];let baseline=null;
+ const navInspect=()=>navPage.evaluate(()=>{
+  const dock=document.querySelector("nav.crew-mobile-dock");
+  const items=[...document.querySelectorAll("nav.crew-mobile-dock a")];
+  const rect=dock?.getBoundingClientRect();
+  const style=dock&&getComputedStyle(dock);
+  return {
+   dockCount:document.querySelectorAll("nav.crew-mobile-dock").length,
+   visible:!!rect&&rect.width>0&&style?.display!=="none",
+   desktopHidden:[...document.querySelectorAll("nav.global-nav")].every(x=>getComputedStyle(x).display==="none"),
+   labels:items.map(x=>x.querySelector(".crew-mobile-dock-label")?.textContent?.trim()),
+   hrefs:items.map(x=>x.getAttribute("href")),
+   current:items.filter(x=>x.getAttribute("aria-current")==="page").map(x=>x.getAttribute("href")),
+   active:dock?.getAttribute("data-active"),
+   geometry:rect?{width:rect.width,height:rect.height,top:rect.top,bottom:rect.bottom}:null,
+   style:style?{background:style.backgroundColor,border:style.borderTopColor,
+    shadow:style.boxShadow,fontFamily:getComputedStyle(items[0]).fontFamily}:null,
+   hitTargets:items.map(x=>{
+    const b=x.getBoundingClientRect();
+    const hit=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);
+    return {width:b.width,height:b.height,hit:!!hit&&(hit===x||x.contains(hit))};
+   }),
+   overflow:document.documentElement.scrollWidth-window.innerWidth
+  };
+ });
+ // Actual tab taps from the homepage verify the shared dock stays mounted during SPA navigation.
+ await navPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
+ for(const target of ["/chat","/explore","/me","/"]){
+  await navPage.locator("nav.crew-mobile-dock a").filter({has:navPage.locator("svg")}).count();
+  await navPage.locator('nav.crew-mobile-dock a[href="'+target+'"]').click();
+  await navPage.waitForURL(url=>url.pathname===target,{timeout:15000});
+  await navPage.waitForFunction(expected=>document.querySelector("nav.crew-mobile-dock")?.getAttribute("data-active")===expected,
+   target==="/"? "home":target.slice(1),{timeout:15000});
+ }
+ for(const [id,route,active] of navCases){
+  await navPage.goto("http://127.0.0.1:"+port+route,{waitUntil:"domcontentloaded",timeout:45000});
+  await navPage.waitForFunction(expected=>{
+   const nav=document.querySelector("nav.crew-mobile-dock");
+   return !!nav&&getComputedStyle(nav).display!=="none"&&nav.dataset.active===expected
+  },active,{timeout:20000});
+  await navPage.waitForTimeout(360);
+  const item=await navInspect();
+  if(item.dockCount!==1||!item.visible||!item.desktopHidden)throw Error("Unexpected duplicated/hidden nav on "+route+": "+JSON.stringify(item));
+  if(item.labels.join(",")!=="首頁,聊天,探索,我的")throw Error("Different dock labels on "+route+": "+item.labels.join(","));
+  if(item.hrefs.join(",")!=="/,/chat,/explore,/me")throw Error("Different dock routes on "+route);
+  if(item.active!==active||item.current.length!==1||item.current[0]!==({home:"/",chat:"/chat",explore:"/explore",me:"/me"})[active])throw Error("Incorrect active tab on "+route+": "+JSON.stringify(item));
+  if(Math.abs(item.geometry.bottom-844)>1||Math.abs(item.geometry.width-390)>1)throw Error("Dock misplaced on "+route);
+  if(item.hitTargets.some(x=>!x.hit||x.height<44||x.width<44))throw Error("Dock obstructed/undersized on "+route+": "+JSON.stringify(item.hitTargets));
+  if(item.overflow>2)throw Error("Horizontal overflow on "+route+" "+item.overflow);
+  if(!baseline)baseline={height:item.geometry.height,style:item.style,labels:item.labels,hrefs:item.hrefs};
+  else if(item.geometry.height!==baseline.height||JSON.stringify(item.style)!==JSON.stringify(baseline.style))throw Error("Dock CSS changed across pages: "+route);
+  await navPage.screenshot({path:join(output,"nav-390-"+id+".png"),animations:"disabled",fullPage:false});
+  await navPage.locator("nav.crew-mobile-dock").screenshot({path:join(output,"dock-390-"+id+".png"),animations:"disabled"});
+  navRecords.push({id,route,active,geometry:item.geometry,labels:item.labels,hrefs:item.hrefs,style:item.style});
+ }
+ // Immersive Magic can hide the dock only because the page already has an Explore return link.
+ await navPage.goto("http://127.0.0.1:"+port+"/magic",{waitUntil:"domcontentloaded"});
+ await navPage.waitForFunction(()=>document.querySelector("nav.crew-mobile-dock--immersive")!==null);
+ const magicExit=await navPage.evaluate(()=>({
+  hidden:getComputedStyle(document.querySelector("nav.crew-mobile-dock")).display==="none",
+  returnLink:!!document.querySelector('a.magic-back[href="/explore"]')
+ }));
+ if(!magicExit.hidden||!magicExit.returnLink)throw Error("Magic immersive screen lacks an exit or hides nav incorrectly");
+ if(navErrors.length)throw Error("Browser page exceptions on general routes: "+navErrors.join("; "));
+ writeFileSync(join(output,"nav-results.json"),JSON.stringify({baseline,routes:navRecords,magicExit,spaTapFlow:"passed"},null,2)+"\n");
+ stats.push({name:"nav-results.json",kind:"navigationQA",routes:navRecords.length,magicExit});
+ await navContext.close();
  writeFileSync(join(output,"results.json"),JSON.stringify(stats,null,2)+"\n");
  console.log(JSON.stringify(stats.map(x=>({file:x.name,overflow:x.overflow,mobile:x.mobileHome,oldDesktop:x.legacyHome,modal:x.onboardingOpen,apps:x.homeAppCount})),null,2));
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve))}
