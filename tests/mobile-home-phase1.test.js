@@ -7,7 +7,8 @@ const read=file=>readFileSync(path.resolve(__dirname,"..",file),"utf8");
 test("mobile homepage is a separate responsive presentation; desktop keeps its portal",()=>{
  const home=read("web-spa/src/pages/HomePage.tsx");
  const css=read("web-spa/src/pages/mobileHome.css");
- assert.match(home,/className="crew-home crew-home-legacy"/);
+ assert.match(home,/className="crew-home-legacy"/);
+ assert.match(home,/className="crew-home"/);
  assert.match(home,/<HomePortal shortsFeed=\{shortsFeed\}\/>/);
  assert.match(home,/<HomeLiveBubble\/>/);
  assert.match(home,/<MobileHomePage shortsFeed=\{shortsFeed\} shortsStatus=\{shortsStatus\}\/>/);
