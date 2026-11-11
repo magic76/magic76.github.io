@@ -103,7 +103,7 @@
  .crew-home-legacy .crew-portal-practice-holder{justify-content:flex-start;margin-inline:0}
  /* Only on this desktop home: align the fixed rail to its frame edge. */
  body:has(.crew-home-legacy) .global-nav{
-  left:max(10px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 86px));
+  left:max(8px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 58px));
   right:auto;
  }
  /* Portaled to body, hence it must share the body's frame variable. */
