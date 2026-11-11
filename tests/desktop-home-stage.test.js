@@ -12,6 +12,7 @@ test("desktop-only home CSS respects 768px boundary and shared frame",()=>{
  assert.match(style,/@media \(min-width:1100px\)/);
  assert.doesNotMatch(style,/@media\s*\(max-width:/);
  assert.match(style,/--crew-desktop-home-frame:min\(1540px,calc\(100vw - 188px\)\)/);
+ assert.match(style,/\.shell\.page:has\(> \.crew-home-legacy\)/);
  assert.match(style,/\.crew-home-legacy \.crew-home \.crew-home-world,\s*\.crew-home-legacy \.crew-home-content/);
  assert.match(style,/\.crew-home-legacy \.crew-home-portal\{\s*min-height:clamp\(474px,57svh,560px\)/);
  assert.match(style,/\.crew-home-legacy \.crew-portal-kicker\{[\s\S]*?left:calc\(var\(--crew-desktop-home-frame\)/);
