@@ -714,7 +714,16 @@ function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,vw,vh);ctx.f
  // Screen-wide color grade, scanline, unobtrusive HUD-safe texture and hit flash
  const v=ctx.createRadialGradient(vw/2,vh/2,vh*.1,vw/2,vh/2,Math.max(vw,vh)*.79);v.addColorStop(0,'#03081000');v.addColorStop(1,'#02020f7f');ctx.fillStyle=v;ctx.fillRect(0,0,vw,vh);ctx.fillStyle='#0d183510';for(let y=0;y<vh;y+=4)ctx.fillRect(0,y,vw,1);if(flash>0){ctx.fillStyle=`rgba(255,98,135,${Math.min(.23,flash)})`;ctx.fillRect(0,0,vw,vh)}
 }
-function frame(now){const dt=Math.min(.035,(now-last)/1000||.016);last=now;if(phase==='run')step(dt);if(phase==='run'||phase==='ready'||phase==='lose'||phase==='win'){animClock+=dt;updateHeroAnimation(dt)}if(phase==='ready'&&player) {cam.x=C(player.x-vw/(2*zoom),0,level.w-vw/zoom);cam.y=C(player.y-vh/(2*zoom),0,level.h-vh/zoom)}draw();raf=requestAnimationFrame(frame)}
+function frame(now){const dt=Math.min(.035,(now-last)/1000||.016);last=now;if(phase==='run')step(dt);
+ else if(phase==='win'||phase==='lose'){
+  // The gameplay simulation stops, but explosion, damage and death particles must fade.
+  for(let i=impacts.length-1;i>=0;i--){impacts[i].life-=dt;if(impacts[i].life<=0)impacts.splice(i,1)}
+  for(let i=particles.length-1;i>=0;i--){const p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;if(p.life<=0)particles.splice(i,1)}
+  for(let i=rings.length-1;i>=0;i--){rings[i].r+=dt*140;rings[i].life-=dt;if(rings[i].life<=0)rings.splice(i,1)}
+  for(let i=numbers.length-1;i>=0;i--){numbers[i].life-=dt;if(numbers[i].life<=0)numbers.splice(i,1)}
+  shake=Math.max(0,shake-dt*15);flash=Math.max(0,flash-dt*2);
+ }
+ if(phase==='run'||phase==='ready'||phase==='lose'||phase==='win'){animClock+=dt;updateHeroAnimation(dt)}if(phase==='ready'&&player) {cam.x=C(player.x-vw/(2*zoom),0,level.w-vw/zoom);cam.y=C(player.y-vh/(2*zoom),0,level.h-vh/zoom)}draw();raf=requestAnimationFrame(frame)}
 function updateStick(e){const r=$('joy').getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;let dx=e.clientX-cx,dy=e.clientY-cy,k=Math.hypot(dx,dy),lim=34;dx=C(dx,-lim,lim);dy=C(dy,-lim,lim);if(k>lim){dx=dx/k*lim;dy=dy/k*lim}stick.x=dx/lim;stick.y=dy/lim;$('stick').style.transform=`translate(${dx}px,${dy}px)`}
 const joy=$('joy');joy.addEventListener('pointerdown',e=>{e.preventDefault();joy.setPointerCapture(e.pointerId);stick.active=true;stick.id=e.pointerId;updateStick(e)});joy.addEventListener('pointermove',e=>{if(stick.active&&stick.id===e.pointerId)updateStick(e)});function releaseStick(e){if(stick.id!==e.pointerId)return;stick.active=false;stick.id=null;stick.x=stick.y=0;$('stick').style.transform='translate(0,0)'}joy.addEventListener('pointerup',releaseStick);joy.addEventListener('pointercancel',releaseStick);
 $('dash').addEventListener('pointerdown',e=>{e.preventDefault();playDash()});$('start').onclick=()=>{if(phase==='pause'){phase='run';$('overlay').hidden=true;return}begin()};$('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'🔇 靜音':'🔊 音效';if(!muted)sound(4)};$('pause').onclick=()=>{if(phase==='run'){phase='pause';$('overlay').hidden=false;$('overlay').querySelector('.start-symbol').textContent='Ⅱ';$('overlay').querySelector('h1').innerHTML='GAME <span>PAUSED</span>';$('overlayDescription').textContent='暫停中。隨時可以回到戰場。';$('start').textContent='▶ 繼續戰鬥'}else if(phase==='pause'){$('overlay').hidden=true;phase='run'}};
