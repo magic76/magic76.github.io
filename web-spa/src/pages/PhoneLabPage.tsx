@@ -72,7 +72,7 @@ export function PhoneLabPage(){
   {filtered.length===0&&<p className="cpl-help">{label("找不到符合的功能。","No matching apps.")}</p>}
  </>;
  const body=view==="home"?home:all;
- return <main return <main className="crew-phone-lab">
+ return <main className="crew-phone-lab">
   <aside className="cpl-aside cpl-intro" aria-label="Prototype details"><span className="cpl-side-kicker">CREW · EXPERIENCE LAB</span><h2>{label("把所有功能，<br/>放進一個熟悉的世界。","All your experiences,<br/>in a familiar place.").split("<br/>").map((s,i)=><span key={i}>{s}{i===0&&<br/>}</span>)}</h2><p>{label("這是獨立的手機桌面實驗。先讓使用者找到 Zoe，再自然探索老師、遊戲、故事與其他功能。","An independent phone-style experiment. Start with Zoe, then explore lessons, games and stories.")}</p><Link to="/" className="cpl-original-link">← {label("返回原本首頁","Back to original home")}</Link></aside>
   <div className="cpl-device">
    <div className="cpl-screen"><div className="cpl-scroll" key={view}>{body}</div><nav className="cpl-dock" aria-label={label("手機桌面導覽","Phone navigation")}>{tabs.map(t=>
