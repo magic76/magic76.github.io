@@ -45,7 +45,7 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
 }
 /** One stable mobile dock for every ordinary Crew route, regardless of product theme.
  * It deliberately does not inherit .global-nav's old five-tab styling. */
-export function MobileBottomNav({active}:{active:CrewSection}){
+export function MobileBottomNav({active,hiddenOnMobile=false}:{active:CrewSection;hiddenOnMobile?:boolean}){
  const {t}=useTranslation("common");
  const mobileSections=[
   {id:"home",to:"/",icon:"home",label:"home"},
@@ -54,7 +54,7 @@ export function MobileBottomNav({active}:{active:CrewSection}){
   {id:"me",to:"/me",icon:"settings",label:"me"}
  ] as const;
  const mobileActive=active==="learn"?"explore":active;
- return <nav className="crew-mobile-dock" aria-label={t("nav.label")} data-active={mobileActive}>
+ return <nav className={"crew-mobile-dock"+(hiddenOnMobile?" crew-mobile-dock--immersive":"")} aria-label={t("nav.label")} data-active={mobileActive}>
   <div className="crew-mobile-dock-inner">
    {mobileSections.map(item=><Link key={item.id} to={item.to}
     className={"crew-mobile-dock-item "+(mobileActive===item.id?"active":"")}
@@ -66,7 +66,7 @@ export function MobileBottomNav({active}:{active:CrewSection}){
  </nav>;
 }
 /** Desktop keeps the original five-item global rail. */
-export function GlobalNav({active}:{active:CrewSection}){
+export function GlobalNav({active,mobileImmersive=false}:{active:CrewSection;mobileImmersive?:boolean}){
  const {t}=useTranslation("common");
  const index=CREW_SECTIONS.indexOf(active);
  const sections=[
@@ -88,6 +88,6 @@ export function GlobalNav({active}:{active:CrewSection}){
     </NavLink>)}
    </div>
   </nav>
-  <MobileBottomNav active={active}/>
+  <MobileBottomNav active={active} hiddenOnMobile={mobileImmersive}/>
  </>;
 }
