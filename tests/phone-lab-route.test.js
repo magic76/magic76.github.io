@@ -18,7 +18,15 @@ test("phone lab stays isolated from the production home navigation",()=>{
   assert.ok(page.includes(route),"missing live feature link "+route);
  }
  assert.match(page,/meta.content="noindex,nofollow"/);
+ // No fake phone status UI or extra app introduction screens.
+ assert.doesNotMatch(page,/cpl-phone-status|cpl-notch|<time>|const chat=|const detail=|const mine=/);
+ assert.match(page,/to=\\{item\\.to\\} className="cpl-app-tile"/);
+ assert.match(page,/const body=view==="home"\\?home:all/);
+ assert.match(page,/t\\.id==="chat"\\?ZOE_TEXT:"\\/me"/);
+ assert.doesNotMatch(page,/className="cpl-search-top"|className="cpl-nudge"/);
  assert.match(styles,/\.crew-phone-lab\{/);
+ assert.doesNotMatch(styles,/cpl-phone-status|cpl-notch|cpl-nudge/);
+ assert.match(styles,/cpl-dock :is\\(button,a\\)/);
  assert.match(styles,/@media\(max-width:770px\)/);
 });
 
