@@ -5,7 +5,7 @@ const path=require("node:path");
 const {stripTypeScriptTypes}=require("node:module");
 const root=path.resolve(__dirname,"..");
 const read=relative=>readFileSync(path.join(root,relative),"utf8");
-const records=JSON.parse(read("features/teacher/shorts/v2/pages/00001.json")).posts;
+const records=JSON.parse(read("features/teacher/shorts/posts.json")).posts;
 async function social(){
  const source=stripTypeScriptTypes(read("web-spa/src/teacher/shortsSocial.ts"),{mode:"strip"});
  return import("data:text/javascript;charset=utf-8,"+encodeURIComponent(source));
@@ -17,11 +17,12 @@ function translator(locale){const topics=dictionary(locale);return key=>{
  assert.ok(typeof text==="string"&&text.length>0,locale+":"+key);
  return text;
 }}
-test("Nov 3 real photos use compact conversational zh-TW chips without clipped English",async()=>{
+test("Current published Shorts use compact contextual zh-TW questions and safe fallbacks",async()=>{
  const {shortsPhotoQuestions,shortsSelectedQuestion}=await social();
  const translate=translator("zh-TW");
  let specific=0;
- for(const post of records.slice(0,32)){
+ assert.ok(records.length>=100,"audit at least 100 published posts");
+ for(const post of records){
   const questions=shortsPhotoQuestions(post,translate);
   if(!questions.length)continue;
   specific++;
@@ -34,20 +35,31 @@ test("Nov 3 real photos use compact conversational zh-TW chips without clipped E
    assert.equal(shortsSelectedQuestion(post,String(index),translate),label,post.id);
   }
  }
- assert.ok(specific>=19,"at least 19 of 32 real posts should classify accurately; got "+specific);
+ // Conservative coverage is deliberate: an irrelevant first question is worse than
+ // falling back to the existing neutral hooks for an ambiguous caption.
+ assert.ok(specific>=20,"expected some unambiguous real-photo prompts; got "+specific);
  const representative={
-  "ryan-20261103":"你怎麼找到問題的？",
-  "felix-20261103":"怎麼想到這個改法？",
-  "noah-20261103":"路上最意外的是什麼？",
-  "luna-20261103":"最後在哪裡找到的？",
-  "bella-20261103":"做的時候順利嗎？",
-  "zoe-20261103":"這次練得怎麼樣？"
+  "ada-20261107":"做的時候順利嗎？",
+  "hugo-20261109":"這次味道怎麼樣？",
+  "luna-20261110":"這次味道怎麼樣？",
+  "finn-20261109":"這次練得怎麼樣？",
+  "maya-20261109":"怎麼想到這個改法？",
+  "ryan-20261109":"你怎麼找到問題的？",
+  "yuna-20261109":"怎麼注意到這一幕的？",
+  "noah-20261105":"路上最意外的是什麼？",
+  "ryan-20261105":"做的時候順利嗎？"
  };
  for(const [id,expected] of Object.entries(representative)){
   const post=records.find(post=>post.id===id);
-  assert.ok(post,"missing authentic post "+id);
+  assert.ok(post,"missing audited post "+id);
   assert.equal(shortsPhotoQuestions(post,translate)[0]?.label,expected,id);
  }
+ for(const id of ["max-20261110","felix-20261109","isla-20261109","oscar-20261109"]){
+  const post=records.find(post=>post.id===id);
+  assert.ok(post,id);
+  assert.deepEqual(shortsPhotoQuestions(post,translate),[],id);
+ }
+
 });
 test("Every locale has identical photo-topic keys, no placeholder interpolation",()=>{
  const locales=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];

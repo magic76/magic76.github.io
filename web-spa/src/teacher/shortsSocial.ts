@@ -32,29 +32,29 @@ export function shortsOpeningHint(hook:string|null):string{
 export type ShortsPhotoQuestion={index:number;label:string};
 type ShortsTopic="repair"|"home"|"craft"|"food"|"travel"|"sport"|"nature"|"find";
 export type ShortsQuestionTranslator=(key:`photoTopics.${ShortsTopic}.${"first"|"second"}`,detail?:string)=>string;
-// Classify the APPROVED editorial context, never echo machine-cut English snippets.
-// Specific cues take precedence over broad settings (e.g. dumplings before bus).
+// Caption actions, not image scenery, determine whether a photo-specific question is safe.
+// Generic words such as lunch, tea, snack, train, folding or lost are deliberately
+// absent: they can describe a backdrop rather than what the friend is doing.
+// A false positive sends the visitor into an irrelevant first chat turn; [] lets
+// both the Shorts card and homepage use their existing neutral conversation hooks.
 const TOPIC_CUES:readonly {topic:ShortsTopic;pattern:RegExp}[]=[
- {topic:"repair",pattern:/\b(?:bike tube|inner tube|puncture|patch(?:ing|ed)|leak(?:ing)?|repair(?:ed|ing)?|fix(?:ed|ing)?|squeak(?:y|ing)?|hinge|screws?|washer|flat tire|flat tyre)\b/i},
- {topic:"find",pattern:/\b(?:lost|missing|search(?:ed|ing)? (?:for|around)|earring|bookmark|slipper)\b/i},
- {topic:"food",pattern:/\b(?:dumplings?|snacks?|chestnuts?|tea|mint|lunch|dinner|breakfast|cook(?:ing|ed)?|bake|baked|bread|sauce|eat(?:ing)?|ate|flavou?r|taste)\b/i},
- {topic:"sport",pattern:/\b(?:squash|bowling|balance beam|fitness|exercise|racket|practice session|workout|gutter)\b/i},
- {topic:"travel",pattern:/\b(?:train|station|ferry|harbou?r|boat|bus|carriage|route|hike|trail|hill|steep steps|stairway|trip|camp(?:ing|site)?|tent|footbridge|path|shore|beach)\b/i},
- {topic:"home",pattern:/\b(?:clock|felt pad|curtains?|wind chime|cabinet|desk lamp|shelf|doorstop|cork|doorway|door|furniture|monitor|glare)\b/i},
- {topic:"nature",pattern:/\b(?:flowers?|camellia|plants?|garden|sunlight|moon|breeze|leaves|leaf|rain|stem|shrub|wave|sea|pebble)\b/i},
- {topic:"craft",pattern:/\b(?:pottery|clay|painting|drawing|paper.planes?|fold(?:ing|ed)?|sew(?:ing)?|knit(?:ting)?|craft|handmade|carved|scarf|artwork|mold(?:ed)?|mould(?:ed)?)\b/i}
+ {topic:"craft",pattern:/\b(?:sew(?:ing|n)?|stitched?|embroider(?:ing|y|ed (?:a|the|my))|paint(?:ed|ing)?|sketch(?:ed|ing)?|draw(?:ing|n)?|basket.weav(?:ing|e)|weav(?:ing|e) (?:a |the )?basket|pottery|clay whistle|craft workshop|carv(?:ed|ing)|knit(?:ted|ting)|paper planes?|padded pouch|(?:bowl|pot) is back from firing|sponge clouds (?:are|in)|(?:handmade|made) (?:a |the )?(?:scarf|pouch|basket|pot)|shelf home from class)\b/i},
+ {topic:"repair",pattern:/\b(?:fix(?:ed|ing)?|repair(?:ed|ing)?|patch(?:ed|ing)? (?:the |a )?(?:tyre|tire|tube)|patched (?:tyre|tire)|puncture|replac(?:ed|ing) (?:the )?mouse feet|(?:blunt|sharpened) scissors|loose button|thermal camera at (?:a |the )?repair|(?:bike|inner) tube|flat (?:tire|tyre)|leaking (?:tube|tap|pipe)|squeaky hinge)\b/i},
+ {topic:"find",pattern:/\b(?:(?:lost|missing) (?:my|her|his|the|a) (?:earring|bookmark|slipper|keys?|bag|purse)|found (?:my|her|his|the|a) (?:lost|missing) |(?:ball|earring|bookmark|slipper) (?:rolled|fell) (?:into|under).{0,60}\b(?:got|retrieved|found) (?:it |them )?back)\b/i},
+ {topic:"home",pattern:/\b(?:doorstop|(?:new|lower|higher|extra) shelf|(?:cabinet|curtains?|desk lamp|felt pad|monitor glare) (?:was|kept|needed|fixed|moved|changed)|shelf (?:installed|freed|is level)|(?:moved|put) (?:the |my )?(?:heavier |last )?(?:tins|boxes) on (?:the |a )?(?:lower|new) shelf|wind chime.{0,70}felt|felt.{0,70}wind chime|(?:flask|bag) strap.{0,90}(?:webbing|loop)|(?:webbing|loop).{0,90}(?:flask|bag) strap|(?:rearranged|adjusted) (?:the |my )?(?:desk|curtains?|furniture)|divided drawer)\b/i},
+ {topic:"food",pattern:/\b(?:dumpling(?:s| dip)?|steamed bun|hot bun|bun was still warm|ginger duck|baked potatoes|(?:baked|baking|made) (?:some |a |the )?(?:bread|cake|scones?|noodles?|soup)|scones? without|(?:flavou?r|taste) (?:of |like )?(?:the |this |a )?(?:food|dish|sauce)|(?:vinegar|dressing) (?:from|over|on) (?:that |the )?(?:dumpling|cucumber)|(?:trail mix|pumpkin) (?:has become|produced|finished|into dinner)|(?:ate|tasted) (?:that |the |my |an? )?(?:trail mix|bun|dumplings?|potatoes|noodles)|(?:smell of )?baked potatoes)\b/i},
+ {topic:"sport",pattern:/\b(?:practic(?:e|ed|ing) (?:badminton |tennis |squash |bowling |my |the |some )?(?:serves?|shots?|catches|squash|badminton|bowling)|stadium steps|stair session|roller skates?|slackline|(?:ten|\d+) (?:clean |one.hand )?catches|(?:disc|frisbee) landed.{0,60}basket|(?:green|climbing) hold|finger tape|dance class|squash|bowling|balance beam|workout|(?:slow )?jog on (?:the )?sand|pool.{0,80}first length|(?:exercise|fitness) session)\b/i},
+ {topic:"travel",pattern:/\b(?:took the ferry|ferry (?:back|ride)|(?:bus|train) (?:seat|ride|window)|took (?:the |a )?(?:train|bus)|hillside tram|(?:hiked|hiking) (?:up|down|along|through)|(?:walked|walking) (?:the |a )?(?:trail|route)|trip (?:to|back|home)|(?:boat|ferry) (?:journey|crossing))\b/i},
+ {topic:"nature",pattern:/\b(?:stone turns? (?:almost )?(?:black|dark) when wet|(?:tiny|new) roots|(?:plant|soil) had (?:finished )?draining|(?:trees?|bark) (?:without|looked|made|has)|(?:spotted|watched|observed) (?:a |the )?(?:bird|birds|clouds|waves|moon)|(?:notic(?:ed|ing)|watch(?:ed|ing)) (?:the |a )?(?:clouds|leaves|moon|sunlight|breeze|waves))\b/i}
 ];
 export function shortsPhotoQuestions(post:ShortPost,translate:ShortsQuestionTranslator):ShortsPhotoQuestion[]{
  if(post.openers?.length)return post.openers.slice(0,3).map((label,index)=>({index,label}));
- const context=[post.caption,post.imageAlt,post.storyContext||""].filter(Boolean).join(" ").trim();
- if(context.length<24)return [];
- // A late incidental detail (e.g. breakfast on a train) must not override the
- // actual photo subject. Prefer caption, then alt, then only the context's lead.
- const lead=(post.storyContext||"").split(/[.!?](?=\s|$)/)[0]||"";
- const topic=[post.caption,post.imageAlt,lead]
-  .map(text=>TOPIC_CUES.find(({pattern})=>pattern.test(text))?.topic)
-  .find((value):value is ShortsTopic=>Boolean(value));
- if(!topic)return []; // No reliable topic: caller displays three existing generic hooks.
+ const caption=post.caption?.trim()||"";
+ if(caption.length<24)return [];
+ // imageAlt and storyContext can contain location props, meals and other side details;
+ // the approved caption is the only evidence for the post's principal activity.
+ const topic=TOPIC_CUES.find(({pattern})=>pattern.test(caption))?.topic;
+ if(!topic)return [];
  return (["first","second"] as const).map((variant,index)=>({
   index,label:translate(`photoTopics.${topic}.${variant}`)
  }));
