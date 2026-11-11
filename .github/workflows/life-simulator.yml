@@ -7,8 +7,12 @@ on:
       - 'web-spa/src/timeline/lifeSimulationStorage.ts'
       - 'web-spa/src/timeline/lifeEvents.ts'
       - 'web-spa/src/timeline/lifeConsequences.ts'
+      - 'web-spa/src/timeline/lifeArcs.ts'
+      - 'web-spa/src/timeline/lifeNarrative.ts'
+      - 'web-spa/src/timeline/lifeDialogue.ts'
       - 'web-spa/src/timeline/lifeSimulation.css'
       - 'tests/life-simulator.test.js'
+      - 'tests/life-lab-browser.mjs'
       - '.github/workflows/life-simulator.yml'
   workflow_dispatch:
 permissions:
@@ -22,5 +26,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Verify deterministic life engine and integration
+      - name: Verify deterministic simulation, causal story and compatibility
         run: node --test tests/life-simulator.test.js
+  life-browser:
+    needs: life-regression
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm install --no-save playwright@1.56.1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build:web
+      - name: Test responsive gameplay, IndexedDB and parallel-life comparison
+        run: node tests/life-lab-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: crew-life-lab-browser-qa
+          path: artifacts/life-lab-qa/
+          if-no-files-found: ignore
+          retention-days: 7
