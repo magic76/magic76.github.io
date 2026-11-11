@@ -217,13 +217,13 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
                       "Go to slide "+(index+1)+": "+["Zoe","AI friends","Today's game","Learn"][index])}
      onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
    </div>
-   <div className="cmh-allowance-slot">
+   {!hasKey&&<div className="cmh-allowance-slot">
     {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
      ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
      :trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null
       ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
       :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-   </div>
+   </div>}
   </div>
   {otherResume&&otherFriend&&<section className="cmh-other-resume" aria-label={copy("續聊","Resume chat")}>
    <img src={otherFriend.avatar} alt="" width="40" height="40" loading="lazy"/>

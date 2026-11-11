@@ -160,11 +160,11 @@ export function HomePortal({shortsFeed}:{shortsFeed?:ShortFeed|null}={}){
      {ready?<Suspense fallback={<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}><HomeTargetLanguage/></Suspense>
       :<span className="crew-portal-practice-preview" aria-hidden="true">{t("world.practiceLang.label")} {t("friends:languages.英文",{defaultValue:"English"})} <span aria-hidden="true">▾</span></span>}
     </div>}
-    <div className="crew-portal-status-slot">
+    {!hasKey&&<div className="crew-portal-status-slot">
      {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining!==null&&trial.remaining>0&&trial.seconds!==null&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})}</p>}
      {mode==="chat"&&ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
      {mode==="chat"&&ready&&!hasKey&&(!trial.resolved||!trial.enabled||trial.remaining===null||(trial.remaining>0&&trial.seconds===null))&&<p className="crew-portal-remaining" role="status">{t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
-    </div>
+    </div>}
     </div>
     {mode==="chat"&&!selectedPost&&<div className="crew-portal-discovery-slot"><HomeDiscoveryLine animate={canAnimate&&!manuallySelected}/></div>}
    </div>

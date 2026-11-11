@@ -36,6 +36,26 @@ test("desktop and mobile both show localized truthful allowance, never a second 
  assert.match(mobileCss,/\.cmh-free-allowance\{font-size:12px/);
 });
 
+test("BYOK hides allowance slots entirely; guests keep the preexisting reserved space",()=>{
+ const desktop=read("web-spa/src/pages/HomePortal.tsx");
+ const mobile=read("web-spa/src/pages/MobileHomePage.tsx");
+ const desktopCss=read("web-spa/src/pages/homePortal.css");
+ const layoutCss=read("web-spa/src/pages/homeDesktopLayout.css");
+ const mobileCss=read("web-spa/src/pages/mobileHomeHeroV3.css");
+ for(const [name,source] of [["desktop",desktop],["mobile",mobile]]){
+  assert.match(source,/const hasKey=ready&&Boolean\(geminiKey\(\)\)/,name+": key detection after hydration");
+ }
+ // The slot node, not only its status text, must disappear when BYOK is ready.
+ assert.match(mobile,/\{!hasKey&&<div className="cmh-allowance-slot">/,"BYOK has no 36px mobile slot");
+ assert.match(desktop,/\{!hasKey&&<div className="crew-portal-status-slot">/,"BYOK has no empty desktop slot");
+ // On the SSG first render hasKey is false: preserve the guest layout and quota status.
+ assert.match(mobile,/\{ready&&!hasKey&&<p className="cmh-free-allowance" role="status">/);
+ assert.match(desktop,/mode==="chat"&&ready&&!hasKey&&trial\.resolved&&trial\.enabled/);
+ assert.match(mobileCss,/\.cmh-allowance-slot\{min-height:36px/);
+ assert.match(desktopCss,/\.crew-portal-invitation-meta \.crew-portal-status-slot\{order:-1;min-height:38px/);
+ assert.match(layoutCss,/\.crew-home-legacy \.crew-portal-status-slot\{min-height:19px/);
+});
+
 test("all 11 home locales use string leaves and quota interpolation",()=>{
  for(const lang of locales){
   const allowance=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`)).world.freeAllowance;
