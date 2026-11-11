@@ -64,6 +64,7 @@ test("photo CTA, fixed-in-view return, accessible controls, no microphone autopl
  assert.match(css,/scroll-padding-top:calc\(var\(--crew-shorts-header-offset/);
  assert.match(css,/scroll-margin-top:calc\(var\(--crew-shorts-header-offset/);
  assert.match(css,/min-width:44px;min-height:44px/);
+ assert.match(css,/\.crew-short-actions\{position:absolute;[^}]*bottom:152px/);
  assert.match(css,/@media\(prefers-reduced-motion:reduce\)/);
  assert.match(live,/shortsReturnTo=shortsPost\?"\/teacher\/shorts\?post="/);
  assert.match(live,/shortsSelectedQuestion/);
