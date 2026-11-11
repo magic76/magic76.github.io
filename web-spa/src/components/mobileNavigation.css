@@ -1,0 +1,49 @@
+/* A single, product-independent phone dock.
+ * Never reuse .global-nav/.navitem from the desktop navigation rail. */
+.crew-mobile-dock{display:none}
+@media(max-width:767px){
+ .global-nav{display:none!important}
+ .crew-mobile-dock{
+  --crew-dock-bg:#ffffff;
+  --crew-dock-idle:#8b8d9d;
+  --crew-dock-active:#b87582;
+  --crew-dock-highlight:#fbe9ec;
+  display:block;
+  position:fixed;inset:auto 0 0;z-index:70;
+  width:100%;box-sizing:border-box;
+  padding:0 0 env(safe-area-inset-bottom,0px);
+  border-top:1px solid #e9e3e7;
+  background:var(--crew-dock-bg)!important;
+  box-shadow:0 -4px 18px #3e354310;
+  color:#3b4052!important;
+  font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Noto Sans TC","PingFang TC",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;
+ }
+ .crew-mobile-dock-inner{
+  width:100%;max-width:620px;height:var(--nav-h,68px);margin:0 auto;
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:stretch;
+ }
+ .crew-mobile-dock-item{
+  box-sizing:border-box;min-width:0;min-height:54px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;text-decoration:none!important;background:transparent!important;
+  color:var(--crew-dock-idle)!important;border-radius:0;
+  font-size:11px;font-weight:760;line-height:1.15;
+  touch-action:manipulation;
+ }
+ .crew-mobile-dock-icon{
+  display:grid;place-items:center;width:32px;height:28px;
+  background:transparent;border-radius:10px;
+ }
+ .crew-mobile-dock-icon svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+ .crew-mobile-dock-label{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+ .crew-mobile-dock-item.active{color:var(--crew-dock-active)!important}
+ .crew-mobile-dock-item.active .crew-mobile-dock-icon{background:var(--crew-dock-highlight)}
+ .crew-mobile-dock-item:focus-visible{outline:3px solid #6674ca;outline-offset:-4px;border-radius:12px}
+ /* Magic uses its own visible "Explore" return link. Other ordinary pages always show this dock. */
+ .crew-mobile-dock--immersive{display:none!important}
+ /* The menu duplicates the dock's destinations in regular product headers. */
+ .app-header .crew-feature-menu-trigger{display:none!important}
+ /* Circle is a separate full-width page; preserve access to the shared dock without obscuring its footer. */
+ .books-root{padding-bottom:calc(var(--nav-h,68px) + env(safe-area-inset-bottom,0px))}
+}
