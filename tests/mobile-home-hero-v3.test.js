@@ -84,3 +84,20 @@ test("compact phone hero keeps all four scenes and fits a 16:11 first-screen car
  assert.match(jsx,/\{id:"timeline",zh:"時光機"/);
  assert.match(jsx,/\{id:"scenarios",zh:"情境課程"/);
 });
+
+test("four tonal particle palettes and compact title breathing room preserve reduced motion",()=>{
+ const art=read("web-spa/src/pages/mobileHomeHeroV3.css");
+ assert.match(art,/\.cmh-slide \.cmh-slide-copy\{box-sizing:border-box;padding-top:7px\}/);
+ assert.match(art,/\.cmh-slide \.cmh-slide-copy\{padding-top:6px\}/);
+ assert.match(art,/\.cmh-slide\{height:244px;min-height:244px/);
+ assert.match(art,/\.cmh-slide\{height:240px;min-height:240px/);
+ for(const card of [".cmh-slide.cmh-zoe",".cmh-slide.cmh-slide-friends",".cmh-slide.cmh-slide-game",".cmh-slide.cmh-slide-learn"]){
+  assert.ok(art.includes(card+"{--cmh-dust:"),"missing distinct particle palette: "+card);
+ }
+ assert.match(art,/\.cmh-slide \.cmh-sparks\{z-index:1;pointer-events:none;overflow:hidden\}/);
+ assert.match(art,/\.cmh-slide \.cmh-sparks::before\{[\s\S]*?radial-gradient/);
+ assert.match(art,/@keyframes cmh-dust-near/);
+ assert.match(art,/@keyframes cmh-dust-far/);
+ assert.match(art,/@media\(prefers-reduced-motion:reduce\)\{\s*\.cmh-slide \.cmh-sparks::before,[\s\S]*?animation:none!important/);
+ assert.doesNotMatch(art,/filter:\s*blur\(/,"Particle layer should not trigger blur repaints");
+});
