@@ -6,6 +6,7 @@ import { Icon } from "./Icon";
 import {CrewFeatureMenu} from "./CrewFeatureMenu";
 const CrewInstallEntry=lazy(()=>import("./CrewInstallEntry").then(module=>({default:module.CrewInstallEntry})));
 import "./accountEntry.css";
+import "./mobileNavigation.css";
 import {CREW_SECTIONS,type CrewSection} from "../pages/crewNavigation";
 
 export type Product="home"|"teacher"|"story"|"fortune"|"settings"|"briefing";
