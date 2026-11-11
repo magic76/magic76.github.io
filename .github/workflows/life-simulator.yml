@@ -8,6 +8,7 @@ on:
       - 'web-spa/src/timeline/lifeEvents.ts'
       - 'web-spa/src/timeline/lifeConsequences.ts'
       - 'web-spa/src/timeline/lifeArcs.ts'
+      - 'web-spa/src/timeline/lifeArcConsequences.ts'
       - 'web-spa/src/timeline/lifeNarrative.ts'
       - 'web-spa/src/timeline/lifeDialogue.ts'
       - 'web-spa/src/timeline/lifeSimulation.css'
