@@ -19,14 +19,16 @@ const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
 const GAMES=["1a2b","connect4","reversi"] as const;
 const SLIDES=["zoe","friends","game","learn"] as const;
 const CAROUSEL_INTERVAL_MS=5200;
-type App={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"};
+type App={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
 const APPS:readonly App[]=[
  {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/teacher/roles?mode=friends",event:"friend"},
  {id:"teacher",zh:"學語言",en:"Learn",icon:"teacher",to:"/learn",event:"learn"},
  {id:"games",zh:"玩遊戲",en:"Games",icon:"play",to:"/games",event:"play"},
  {id:"story",zh:"故事",en:"Stories",icon:"story",to:"/story",event:"story"},
  {id:"fortune",zh:"命理",en:"Fortune",icon:"fortune",to:"/fortune",event:"fortune"},
- {id:"shorts",zh:"朋友動態",en:"Moments",icon:"image",to:"/teacher/shorts",event:"shorts"}
+ {id:"shorts",zh:"朋友動態",en:"Moments",icon:"image",to:"/teacher/shorts",event:"shorts"},
+ {id:"timeline",zh:"時光機",en:"Timeline",icon:"history",to:"/timeline",event:"timeline"},
+ {id:"scenarios",zh:"情境課程",en:"Scenarios",icon:"scene",to:"/teacher/course",event:"learn"}
 ];
 
 /** Mobile-only, first-party home. Client state loads after hydration; SSG has a stable first-visit card. */
