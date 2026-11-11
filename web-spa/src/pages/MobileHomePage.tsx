@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from "react";
+import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
@@ -68,12 +68,12 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
   return()=>{observer.disconnect();window.clearInterval(timer)};
  },[carouselPaused]);
  const manualSlide=(index:number)=>{setCarouselPaused(true);setActiveSlide((index+SLIDES.length)%SLIDES.length)};
- const touchBegin=(event:React.TouchEvent<HTMLDivElement>)=>{
+ const touchBegin=(event:TouchEvent<HTMLDivElement>)=>{
   const touch=event.touches[0];if(!touch)return;
   setCarouselPaused(true);ignoreSwipeClick.current=false;
   startTouch.current={x:touch.clientX,y:touch.clientY};
  };
- const touchFinish=(event:React.TouchEvent<HTMLDivElement>)=>{
+ const touchFinish=(event:TouchEvent<HTMLDivElement>)=>{
   const start=startTouch.current,touch=event.changedTouches[0];startTouch.current=null;
   if(!start||!touch)return;
   const dx=touch.clientX-start.x,dy=touch.clientY-start.y;
