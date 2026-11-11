@@ -46,7 +46,7 @@ try{
     const visible=selector=>{const el=document.querySelector(selector);return !!el&&getComputedStyle(el).display!=="none"&&el.getBoundingClientRect().width>0};
     return {overflow:document.documentElement.scrollWidth-innerWidth, mobileHome:visible(".crew-mobile-home"),
      legacyHome:visible(".crew-home-legacy"),onboardingOpen:!!document.querySelector(".crew-onboarding-dialog[open]"),
-     desktopTabCount:document.querySelectorAll(".global-nav.crew-desktop-nav a").length,mobileTabCount:document.querySelectorAll(".crew-mobile-dock a").length,
+     desktopTabCount:document.querySelectorAll(".global-nav a").length,mobileTabCount:document.querySelectorAll(".crew-mobile-dock a").length,
      homeAppCount:document.querySelectorAll(".cmh-app").length,homeTextHref:document.querySelector(".cmh-zoe-primary")?.getAttribute("href"),
      seoVisible:visible(".cmh-seo"),mobileNavVisible:visible(".crew-mobile-dock"),
      slideCount:document.querySelectorAll(".cmh-slide").length,dotCount:document.querySelectorAll(".cmh-carousel-dots button").length,
