@@ -43,8 +43,32 @@ export function saveLifeRun(run:LifeRun):Promise<void>{
   request.onsuccess=()=>done(undefined);
  });
 }
+/** A separate comparison slot keeps the original life intact while an alternate one is played. */
+export async function loadLifeComparison():Promise<LifeRun|null>{
+ const saved=await transaction<unknown>("readonly",(store,done)=>{
+  const request=store.get("comparison");
+  request.onsuccess=()=>done((request.result as StoredRun|undefined)?.value??null);
+ });
+ return isLifeRun(saved)?saved:null;
+}
+export function saveLifeFork(original:LifeRun,fork:LifeRun):Promise<void>{
+ if(!isLifeRun(original)||!isLifeRun(fork)||original.character!==fork.character||original.seed!==fork.seed)
+  return Promise.reject(new Error("Invalid parallel life"));
+ return transaction<void>("readwrite",(store,done)=>{
+  store.put({key:"comparison",value:original});
+  const request=store.put({key:"active",value:fork});
+  request.onsuccess=()=>done(undefined);
+ });
+}
+export function clearLifeComparison():Promise<void>{
+ return transaction<void>("readwrite",(store,done)=>{
+  const request=store.delete("comparison");
+  request.onsuccess=()=>done(undefined);
+ });
+}
 export function clearLifeRun():Promise<void>{
  return transaction<void>("readwrite",(store,done)=>{
-  const request=store.delete("active");request.onsuccess=()=>done(undefined);
+  store.delete("active");
+  const request=store.delete("comparison");request.onsuccess=()=>done(undefined);
  });
 }

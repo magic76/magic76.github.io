@@ -96,3 +96,65 @@
 }
 @media(max-width:370px){.life-sim-character .timeline-image-frame{width:54px;height:54px}.life-sim-character button{min-width:77px;padding:9px;font-size:12px}}
 @media(prefers-reduced-motion:reduce){.life-sim-page *, .life-sim-page *:before,.life-sim-page *:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* Life Lab V2: causal stories, parallel comparison, and optional dialogue. */
+.life-sim-echo{background:#f2ebfa;border-left:4px solid #7754ad;padding:12px 14px;border-radius:0 10px 10px 0;
+ color:#53436b!important;line-height:1.65!important;font-size:13px!important;margin:12px 0 16px!important;min-height:0!important}
+.life-sim-notice{background:#f0f6ff;border:1px solid #cbdcf2;color:#385374;border-radius:12px;
+ padding:12px 15px;line-height:1.5;font-size:13px}
+.life-sim-ending-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:18px}
+.life-sim-ending-card{border:1px solid #e5ddef;background:#fdfbff;border-radius:15px;padding:17px}
+.life-sim-ending-card span{font-size:11px;color:#6c5589}
+.life-sim-ending-card h3{font-size:16px;color:#302441;margin:7px 0 8px}
+.life-sim-ending-card p{font-size:14px;line-height:1.75;color:#625873;margin:0}
+.life-sim-fork-controls{border-top:1px solid #e9e0f1;margin-top:22px;padding-top:20px}
+.life-sim-fork-controls h3{font-size:16px;margin:0 0 12px}
+.life-sim-fork-row{display:flex;align-items:end;gap:12px}
+.life-sim-fork-row .life-sim-primary{margin:0;flex:1}
+.life-sim-fork-label{font-size:13px;font-weight:750;display:grid;gap:7px;flex:0 0 158px}
+.life-sim-fork-label select{border:1px solid #d5cbe1;border-radius:11px;min-height:48px;padding:8px 12px;
+ background:#fff;color:#342546;font:inherit}
+.life-sim-journal-list{padding-left:22px;display:grid;gap:12px}
+.life-sim-journal-list li{line-height:1.6;color:#5b5264;font-size:13px}
+.life-sim-journal-list li strong{display:block;color:#342746}
+.life-sim-journal-list li span{display:block}
+.life-sim-compare-actions{margin:18px 0}
+.life-sim-secondary{min-height:46px;padding:11px 17px;border-radius:12px;border:1px solid #bda9d4;
+ background:#fff;color:#5d4282;font-weight:750}
+.life-sim-compare-actions .life-sim-secondary{width:100%}
+.life-sim-compare{background:#fff;border:1px solid #e6e0ef;border-radius:22px;padding:22px;margin-bottom:18px}
+.life-sim-compare-top h2{font-size:22px;margin:0 0 9px;line-height:1.4}
+.life-sim-compare-top p{font-size:14px;color:#70647b;line-height:1.6}
+.life-sim-compare-top strong{color:#594071;font-size:13px}
+.life-sim-compare-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:17px}
+.life-sim-compare-column{min-width:0;background:#faf7fd;border:1px solid #e4daec;border-radius:16px;padding:15px}
+.life-sim-compare-column h3{font-size:18px;margin:0 0 14px}
+.life-sim-compare-traits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.life-sim-compare-traits>div{display:flex;justify-content:space-between;gap:8px;
+ background:#fff;border:1px solid #e9e2ee;padding:9px 10px;border-radius:9px;font-size:12px}
+.life-sim-compare-pivots{border-top:1px solid #e5daee;margin-top:14px;padding-top:9px}
+.life-sim-compare-pivots p{font-size:13px;line-height:1.6;margin:7px 0}
+.life-sim-compare-pivots b{color:#60458b;margin-right:6px}
+.life-sim-compare-card{background:#fff;border:1px solid #eae3f0;border-radius:10px;padding:12px;margin-top:10px}
+.life-sim-compare-card b{font-size:13px}
+.life-sim-compare-card p{font-size:12px;color:#665e71;line-height:1.75;margin:7px 0 0}
+.life-sim-chat{background:#fff;border:1px solid #e7e0ed;border-radius:20px;margin-top:22px;padding:18px;min-width:0}
+.life-sim-chat-heading{display:flex;justify-content:space-between;align-items:center;gap:18px}
+.life-sim-chat-heading>div{min-width:0;flex:1}
+.life-sim-chat-heading h2{font-size:18px;margin:0 0 7px}
+.life-sim-chat-heading p{font-size:12px;line-height:1.65;color:#685e74;margin:0}
+.life-sim-chat .life-sim-secondary{white-space:normal;flex:0 0 auto}
+.life-sim-chat .text-chat-panel{max-width:100%;min-width:0}
+.life-sim-chat input,.life-sim-chat textarea,.life-sim-chat button{max-width:100%}
+@media(max-width:680px){
+ .life-sim-ending-grid{grid-template-columns:1fr;gap:10px}
+ .life-sim-fork-row{flex-direction:column;align-items:stretch}
+ .life-sim-fork-label{flex:auto}
+ .life-sim-compare{padding:14px}
+ .life-sim-compare-columns{grid-template-columns:1fr}
+ .life-sim-chat{padding:13px}
+ .life-sim-chat-heading{flex-direction:column;align-items:stretch}
+ .life-sim-chat .life-sim-secondary{align-self:stretch}
+ .life-sim-ending-card{padding:14px}
+ .life-sim-compare-top h2{font-size:19px}
+}

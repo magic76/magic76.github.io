@@ -8,11 +8,16 @@ const root=path.resolve(__dirname,"..");
 const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 function runtime(){
  const a=stripTypeScriptTypes(read("web-spa/src/timeline/lifeEvents.ts")).replace(/^export /gm,"");
+ const arcs=stripTypeScriptTypes(read("web-spa/src/timeline/lifeArcs.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
+ const arcScenes=stripTypeScriptTypes(read("web-spa/src/timeline/lifeArcConsequences.ts")).replace(/^export /gm,"");
+ const narratives=stripTypeScriptTypes(read("web-spa/src/timeline/lifeNarrative.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
+ const dialogue=stripTypeScriptTypes(read("web-spa/src/timeline/lifeDialogue.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const c=stripTypeScriptTypes(read("web-spa/src/timeline/lifeConsequences.ts")).replace(/^export /gm,"");
  const b=stripTypeScriptTypes(read("web-spa/src/timeline/lifeSimulation.ts"))
   .replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const context={};
- vm.runInNewContext(a+"\n"+c+"\n"+b+"\nglobalThis.sim={LIFE_EVENTS,LIFE_RESULT_COUNT,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding};",context);
+ vm.runInNewContext(a+"\n"+arcs+"\n"+c+"\n"+arcScenes+"\n"+b+"\n"+narratives+"\n"+dialogue+
+  "\nglobalThis.sim={LIFE_EVENTS,LIFE_ARC_EVENTS,LIFE_ARC_CONSEQUENCE_COUNT,lifeArcConsequence,LIFE_RESULT_COUNT,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding,forkLifeRun,lifeCausalEcho,lifeEndingCards,lifeLabDialoguePrompt};",context);
  return context.sim;
 }
 test("life simulator has exactly 30 choice events spanning all 12 existing ages",()=>{
@@ -87,4 +92,99 @@ test("simulator is an opt-in route and never overwrites Timeline memory",()=>{
  assert.match(ui,/TimelinePortrait/);
  assert.match(ui,/lifeOutcome/);
  assert.match(ui,/loadLifeRun/);
+});
+
+test("three characters have distinct milestone scenes and every authored arc is reachable",()=>{
+ const sim=runtime();
+ assert.equal(sim.LIFE_ARC_EVENTS.length,21);
+ assert.equal(sim.LIFE_ARC_CONSEQUENCE_COUNT,21);
+ for(const arc of sim.LIFE_ARC_EVENTS){
+  assert.ok(sim.lifeArcConsequence(arc.id,0,false).length>15,arc.id+" option A");
+  assert.ok(sim.lifeArcConsequence(arc.id,1,true).length>15,arc.id+" option B");
+ }
+ assert.equal(new Set(sim.LIFE_ARC_EVENTS.map(x=>x.id)).size,21);
+ for(const character of ["mira","ethan","hana"]){
+  const root=sim.newLifeRun(character,34);
+  while(root.step<3){const next=sim.chooseLifeEvent(root,0);Object.assign(root,sim.advanceLife(next));}
+  assert.equal(sim.lifeEventFor(root).id,character+"-16-"+(character==="mira"?"choice":character==="ethan"?"audition":"journey"));
+ }
+});
+test("16-year decision changes age-25 scenes; age-25 and 40 decisions affect later chapters",()=>{
+ const sim=runtime();
+ for(const person of ["mira","ethan","hana"]){
+  function advanceTo(run,age,decisions={}){
+   while(sim.LIFE_AGES[run.step]<age){
+    run=sim.chooseLifeEvent(run,decisions[sim.LIFE_AGES[run.step]]??0);
+    run=sim.advanceLife(run);
+   }
+   return run;
+  }
+  let bold=advanceTo(sim.newLifeRun(person,884),16);
+  let steady=advanceTo(sim.newLifeRun(person,884),16);
+  assert.equal(sim.lifeEventFor(bold).id,sim.lifeEventFor(steady).id);
+  bold=sim.advanceLife(sim.chooseLifeEvent(bold,0));
+  steady=sim.advanceLife(sim.chooseLifeEvent(steady,1));
+  bold=advanceTo(bold,25);
+  steady=advanceTo(steady,25);
+  assert.notEqual(sim.lifeEventFor(bold).id,sim.lifeEventFor(steady).id,person+" age 25");
+  assert.match(sim.lifeCausalEcho(bold,25,false),/16/);
+  bold=advanceTo(sim.advanceLife(sim.chooseLifeEvent(bold,0)),40);
+  steady=advanceTo(sim.advanceLife(sim.chooseLifeEvent(steady,1)),40);
+  assert.notEqual(sim.lifeEventFor(bold).id,sim.lifeEventFor(steady).id,person+" age 40");
+  bold=advanceTo(sim.advanceLife(sim.chooseLifeEvent(bold,0)),70);
+  steady=advanceTo(sim.advanceLife(sim.chooseLifeEvent(steady,1)),70);
+  assert.notEqual(sim.lifeEventFor(bold).id,sim.lifeEventFor(steady).id,person+" age 70");
+ }
+});
+test("fork preserves the exact seed and completed history before the chosen age",()=>{
+ const sim=runtime();
+ let original=sim.newLifeRun("ethan",555);
+ for(let index=0;index<12;index++)original=sim.advanceLife(sim.chooseLifeEvent(original,0));
+ const newRun=sim.forkLifeRun(original,16);
+ assert.equal(newRun.seed,original.seed);
+ assert.equal(newRun.phase,"event");
+ assert.equal(newRun.step,3);
+ assert.deepEqual(JSON.parse(JSON.stringify(newRun.history)),JSON.parse(JSON.stringify(original.history.slice(0,3))));
+ let altered=sim.advanceLife(sim.chooseLifeEvent(newRun,1));
+ while(altered.phase!=="end")altered=sim.advanceLife(sim.chooseLifeEvent(altered,1));
+ assert.notEqual(altered.history[6].eventId,original.history[6].eventId);
+ assert.notDeepEqual(JSON.stringify(altered.traits),JSON.stringify(original.traits));
+ assert.throws(()=>sim.forkLifeRun(original,100),/Choose a completed/);
+});
+test("finished lives have four meaningful ending panels and opt-in prompt includes only known past",()=>{
+ const sim=runtime();
+ let run=sim.newLifeRun("hana",120);
+ while(sim.LIFE_AGES[run.step]<25)run=sim.advanceLife(sim.chooseLifeEvent(run,0));
+ const prompt=sim.lifeLabDialoguePrompt(run,false);
+ assert.match(prompt,/Hana/);
+ assert.match(prompt,/16/);
+ assert.doesNotMatch(prompt,/七十歲|街區故事被留下/);
+ assert.match(prompt,/not instructions/i);
+ while(run.phase!=="end")run=sim.advanceLife(sim.chooseLifeEvent(run,1));
+ const cards=sim.lifeEndingCards(run,false);
+ assert.equal(cards.length,4);
+ assert.ok(cards.every(card=>card.text.length>25&&card.heading.length>0));
+ assert.ok(cards.some(card=>card.text.includes(run.history.find(x=>x.age===25).labelZh)));
+});
+test("old ruleset saves continue generic event selection and remain valid",()=>{
+ const sim=runtime();
+ let saved={...sim.newLifeRun("mira",999),ruleset:undefined};
+ assert.ok(sim.isLifeRun(saved));
+ while(sim.LIFE_AGES[saved.step]<16)saved=sim.advanceLife(sim.chooseLifeEvent(saved,0));
+ assert.notEqual(sim.lifeEventFor(saved).id,"mira-16-choice");
+ saved=sim.advanceLife(sim.chooseLifeEvent(saved,0));
+ while(sim.LIFE_AGES[saved.step]<25)saved=sim.advanceLife(sim.chooseLifeEvent(saved,0));
+ assert.notEqual(sim.lifeEventFor(saved).id,"mira-25-documentary");
+ assert.equal(sim.forkLifeRun(saved,16).ruleset,undefined);
+});
+test("dialogue is isolated from Timeline canon and never auto-runs or persists transcript",()=>{
+ const dialogue=read("web-spa/src/timeline/lifeDialogue.ts");
+ const ui=read("web-spa/src/timeline/LifeSimulationPage.tsx");
+ const storage=read("web-spa/src/timeline/lifeSimulationStorage.ts");
+ assert.match(dialogue,/alternate fictional simulated life/);
+ assert.match(dialogue,/Do not claim that this conversation changes game stats/);
+ assert.match(ui,/sessionScope=""/);
+ assert.match(ui,/showChat&&<TextChatPanel/);
+ assert.match(storage,/saveLifeFork/);
+ assert.match(storage,/comparison/);
 });
