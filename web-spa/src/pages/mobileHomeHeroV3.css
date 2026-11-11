@@ -150,7 +150,6 @@
  @keyframes cmh-editorial-portrait{0%,100%{transform:rotate(5deg) translate3d(0,0,0) scale(1)}50%{transform:rotate(4deg) translate3d(0,-4px,0) scale(1.025)}}
  @keyframes cmh-editorial-friend{0%,100%{transform:rotate(13deg) translate3d(0,0,0)}50%{transform:rotate(11deg) translate3d(-2px,-5px,0)}}
  @keyframes cmh-editorial-game{0%,100%{transform:perspective(500px) rotateY(-9deg) rotateZ(9deg) translate3d(0,0,0)}50%{transform:perspective(500px) rotateY(-7deg) rotateZ(7deg) translate3d(0,-4px,0)}}
- }
  @media(prefers-reduced-motion:reduce){
   .cmh-carousel-track,.cmh-slide-copy,.cmh-scene,.cmh-art-texture,.cmh-zoe-actions,
   .cmh-zoe-photo,.cmh-learn-portrait,.cmh-friend-portrait,.cmh-game-board,
