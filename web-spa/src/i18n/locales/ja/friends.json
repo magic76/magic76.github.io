@@ -110,8 +110,8 @@
   "kicker": "Crew の友だち",
   "textStarters": {
     "heading": "一文をタップしてすぐに会話",
-    "cafe": "Hi Zoe! Can we pretend we are at a café? I would like a coffee, please.",
-    "intro": "Hi Zoe! I would like to introduce myself. Where should I start?",
-    "smalltalk": "Hey Zoe! How has your day been?"
+    "cafe": "Hi {{name}}! Can we pretend we are at a café? I would like a coffee, please.",
+    "intro": "Hi {{name}}! I would like to introduce myself. Where should I start?",
+    "smalltalk": "Hey {{name}}! How has your day been?"
   }
 }

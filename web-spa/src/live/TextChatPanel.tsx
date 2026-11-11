@@ -16,7 +16,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
 type TurnstileApi={render:(el:HTMLElement,options:{sitekey:string;action:string;callback:(token:string)=>void;"expired-callback":()=>void;"error-callback":()=>void})=>string;remove:(id:string)=>void};
 const turnstile=()=> (window as Window&{turnstile?:TurnstileApi}).turnstile;
@@ -32,7 +32,7 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual"}:Props){
+export function TextChatPanel({system,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,onExchange}:Props){
  const [messages,setMessages]=useState<Message[]>([]);
  const [draft,setDraft]=useState("");
  const [historyReady,setHistoryReady]=useState(false);
@@ -98,7 +98,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   liveChat.current?.close();liveChat.current=null;
  },[guestMode,system,searchEnabled]);
  useEffect(()=>{
-  if(history.current)history.current.scrollTop=history.current.scrollHeight;
+  if(messages.length&&history.current)history.current.scrollTop=history.current.scrollHeight;
  },[messages.length,messages.at(-1)?.text.length,historyReady]);
  // A late Turnstile iframe changes the available height after transcript restore.
  // Observe both the challenge and the scroll viewport, not just message changes.
@@ -108,7 +108,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
   let frame=0;
   const observer=new ResizeObserver(()=>{
    cancelAnimationFrame(frame);
-   frame=requestAnimationFrame(()=>{log.scrollTop=log.scrollHeight});
+   frame=requestAnimationFrame(()=>{if(latestMessages.current.length)log.scrollTop=log.scrollHeight});
   });
   observer.observe(log);
   if(guest)observer.observe(guest);
@@ -289,6 +289,7 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     clearPendingTextDraft(sessionScope);
     pendingSend.current=null;
     setMessages(complete);
+    try{onExchange?.()}catch{/* Usage tracking must not roll back a successful reply. */}
    }
   }catch(reason){
    reveal?.cancel();
@@ -350,8 +351,8 @@ export function TextChatPanel({system,speaker,sessionScope="",english=false,sear
     <Link className="btn secondary small" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
   </div>}
   <div ref={history} className="crew-text-chat-history" role="log" aria-label={english?"Conversation":"對話內容"} aria-live="polite" aria-relevant="additions">
-   {!messages.length&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
-   {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)}/>}
+   {!messages.length&&!firstStarter&&<p className="crew-text-chat-empty">{english?"Type a message to start chatting.":"輸入訊息，開始與 "+speaker+" 聊天。"}</p>}
+   {historyReady&&!messages.length&&!draft.trim()&&!busy&&sessionScope.startsWith("friend:")&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter}/>}
    {messages.map((m,i)=><div key={i} className={"crew-text-chat-message "+m.role}><strong>{m.role==="user"?(english?"You":"你"):speaker}</strong><p>{m.text}</p>{m.sources&&<GroundingSources sources={m.sources} searchSuggestions={m.searchSuggestions} english={english}/>} {m.role==="assistant"&&(!busy||i!==messages.length-1)&&<PinyinHint text={m.text} targetLanguage={targetLanguage} mode={pinyinMode} teachingMode={teachingMode} english={english}/>}
    {m.role==="assistant"&&busy&&i===messages.length-1&&<span className="crew-text-stream-cursor" aria-hidden="true">▍</span>}</div>)}
    {busy&&pendingSend.current&&!pendingSend.current.sent&&<p className="crew-text-chat-pending" role="status">

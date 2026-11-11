@@ -29,8 +29,8 @@ test("friend text empty state offers one-tap starters and preserves verification
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
  const style=read("web-spa/src/live/TextChatPanel.css");
  assert.match(panel,/historyReady&&!messages.length&&!draft.trim\(\)&&!busy&&sessionScope.startsWith\("friend:"\)/);
- assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\}\/>/);
- assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key\)\)\}/);
+ assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\}\/>/);
+ assert.match(starters,/onClick=\{\(\)=>onPick\(t\("textStarters\."\+key,\{name:speaker\}\)\)\}/);
  assert.match(starters,/type="button"/);
  assert.doesNotMatch(starters,/send\(|submit\(|fetch\(|getUserMedia\(/);
  assert.match(panel,/onSubmit=\{event=>\{event.preventDefault\(\);void sendMessage\(draft\)\}\}/);
@@ -44,7 +44,7 @@ test("starter click shares sendMessage, pending draft and Turnstile dispatch wit
  const panel=read("web-spa/src/live/TextChatPanel.tsx");
  assert.match(panel,/async function sendMessage\(text:string\)/);
  assert.match(panel,/const value=text.trim\(\).slice\(0,1200\)/);
- assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\}\/>/);
+ assert.match(panel,/<TextChatStarters onPick=\{sentence=>void sendMessage\(sentence\)\} speaker=\{speaker\} firstStarter=\{firstStarter\}\/>/);
  assert.doesNotMatch(panel,/<TextChatStarters onPick=\{setDraft\}\/>/);
  assert.match(panel,/onSubmit=\{event=>\{event.preventDefault\(\);void sendMessage\(draft\)\}\}/);
  assert.match(panel,/pendingSend.current=\{before:messages,value,sent:false\}/);
@@ -65,6 +65,7 @@ test("11 locales offer three string starters and text-first CTAs, teacher voice 
   for(const key of ["heading","cafe","intro","smalltalk"]){
    assert.equal(typeof friends.textStarters[key],"string",lang+" "+key);
    assert.ok(friends.textStarters[key].trim());
+   if(key!=="heading")assert.match(friends.textStarters[key],/\{\{name\}\}/,lang+" "+key);
   }
   assert.doesNotMatch(friends.textStarters.heading,/edit|bearbeit|modifiable|修|編集|수정|editar|แก้ไข|sửa|bisa diedit/i,lang+" heading must not imply editing");
   assert.equal(typeof home.liveBubble.start,"string");

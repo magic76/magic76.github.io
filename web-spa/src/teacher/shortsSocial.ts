@@ -74,7 +74,7 @@ export function shortsQuestionOpeningHint(question:string):string{
   "[END SELECTED PHOTO QUESTION]\n";
 }
 export function shortsChatUrl(post:ShortPost,hook?:ShortsHook,questionIndex?:number):string{
- return "/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)+
+ return "/friend/live?id="+encodeURIComponent(post.friendId)+"&post="+encodeURIComponent(post.id)+"&chat=text"+
   (hook?"&hook="+hook:"")+(questionIndex!==undefined&&Number.isInteger(questionIndex)&&questionIndex>=0&&questionIndex<=2?"&q="+questionIndex:"");
 }
 export function shortsStoryEpisodes(post:ShortPost,posts:readonly ShortPost[]):ShortPost[]{
