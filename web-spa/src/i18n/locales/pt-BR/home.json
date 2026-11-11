@@ -77,6 +77,7 @@
     "tap": "Toque para abrir"
   },
   "world": {
+    "freeAllowance": {"full": "Sem cadastro · {{count}} mensagens + {{minutes}} min de voz por dia. Mais amanhã", "textOnly": "Sem cadastro · {{count}} mensagens grátis por dia. Mais amanhã", "voiceUsed": "Voz esgotada hoje · {{count}} mensagens por dia. Mais amanhã"},
     "practiceLang": {"label": "Quero praticar:", "aria": "Escolher idioma para chat e conversa por voz"},
     "modes": {
       "chat": {

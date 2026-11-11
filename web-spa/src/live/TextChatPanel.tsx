@@ -10,6 +10,7 @@ import type {GroundingSource} from "./grounding";
 import {useEffect,useRef,useState} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {GUEST_TEXT_DAILY_TURNS} from "./guestAllowance";
 import {geminiKey,geminiVerified} from "../lib/runtime";
 import {PinyinHint} from "../teacher/PinyinHint";
 import type {PinyinAidMode} from "../teacher/pinyinAid";
@@ -340,7 +341,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
   {!guestMode&&<small role="status" className="crew-text-chat-live-status">{liveStatus||(english?"Gemini Live keyboard chat · no microphone":"Gemini Live 鍵盤對話・不需麥克風")}</small>}
   {guestMode&&<div ref={guestBox} className="crew-text-guest" role="region" aria-label={english?"Free text practice":"免費文字練習"}>
    <strong>{english?"Free text practice — no API key needed":"免費文字練習・不需要 API Key"}</strong>
-   <p>{english?"Up to 12 messages a day, shared across teacher and friend chats. No microphone required.":"每天最多 12 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。"}</p>
+   <p>{english?`Up to ${GUEST_TEXT_DAILY_TURNS} messages a day, shared across teacher and friend chats. No microphone required.`:`每天最多 ${GUEST_TEXT_DAILY_TURNS} 則訊息，老師與 AI 朋友共用，不需要開啟麥克風。`}</p>
    {guestPhase==="checking"&&<small role="status">{english?"Checking availability…":"正在確認免費額度…"}</small>}
    {guestPhase==="ready"&&<><div ref={host} aria-label="Turnstile verification"/>
     <small>{english?"Verify once, then send your message below.":"通過驗證後，直接按下方送出即可。"}</small></>}

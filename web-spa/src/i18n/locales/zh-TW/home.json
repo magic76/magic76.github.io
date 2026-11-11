@@ -77,6 +77,7 @@
     "tap": "點擊進入"
   },
   "world": {
+    "freeAllowance": {"full": "免註冊・文字每天 {{count}} 則、語音 {{minutes}} 分鐘，明天再來又有", "textOnly": "免註冊・文字每天 {{count}} 則，明天再來又有", "voiceUsed": "今天語音額度已用完・文字每天 {{count}} 則，明天再來又有"},
     "practiceLang": {"label": "我想練：", "aria": "選擇聊天與語音的練習語言"},
     "modes": {
       "chat": {

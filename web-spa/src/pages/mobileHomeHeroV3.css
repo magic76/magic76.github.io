@@ -326,3 +326,9 @@
   .cmh-zoe-actions a{min-height:44px;font-size:10.5px;padding-inline:5px}
  }
 }
+
+/* Guest caption lives below the 244px carousel, leaving portraits and 44px CTAs untouched. */
+@media(max-width:767px){
+ .cmh-allowance-slot{min-height:36px;display:grid;place-items:center;padding:0 3px}
+ .cmh-free-allowance{font-size:12px;line-height:1.45;text-align:center;font-weight:600;color:#56465d;margin:0;max-width:100%;overflow-wrap:anywhere;text-wrap:balance}
+}

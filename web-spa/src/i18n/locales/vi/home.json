@@ -77,6 +77,7 @@
     "tap": "Chạm để mở"
   },
   "world": {
+    "freeAllowance": {"full": "Không cần đăng ký · {{count}} tin nhắn + {{minutes}} phút thoại mỗi ngày. Mai lại có", "textOnly": "Không cần đăng ký · {{count}} tin nhắn miễn phí mỗi ngày. Mai lại có", "voiceUsed": "Hết lượt thoại hôm nay · {{count}} tin nhắn/ngày. Mai lại có"},
     "practiceLang": {"label": "Tôi muốn luyện:", "aria": "Chọn ngôn ngữ luyện tập khi chat và trò chuyện bằng giọng nói"},
     "modes": {
       "chat": {
