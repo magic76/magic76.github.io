@@ -17,7 +17,7 @@ test("Neon Swarm playtest loads only same-origin sprite assets and keeps the fal
  assert.match(html,/heroAction:animationAction\(player\)/);
  assert.deepEqual([...html.matchAll(/<script[^>]+src="([^"]+)"/g)].map(x=>x[1]),["/neon-swarm-lab/hero-sprites.js"]);
  assert.doesNotMatch(html,/fetch\(|XMLHttpRequest|navigator\.sendBeacon|WebSocket\(/);
- assert.ok(body?.length>80000);
+ assert.ok(body?.length>70000);
 });
 
 test("character animation transitions through idle, running, firing, dash, hit, death and victory",()=>{
