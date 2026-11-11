@@ -61,7 +61,15 @@ try{
    if(width<768){
     if(info.overflow>2)throw Error(width+"px overflow "+info.overflow);
     if(info.onboardingOpen)throw Error(width+"px mobile welcome modal blocks homepage");
-    if(info.homeAppCount!==6||info.mobileTabCount!==5||!info.mobileNavVisible)throw Error("mobile navigation or apps missing");
+    if(info.homeAppCount!==8||info.mobileTabCount!==5||!info.mobileNavVisible)throw Error("mobile navigation or apps missing");
+    const shortcuts=await page.locator(".cmh-app").evaluateAll(nodes=>nodes.map(node=>({
+     text:node.textContent?.trim(),href:node.getAttribute("href"),
+     width:node.getBoundingClientRect().width,height:node.getBoundingClientRect().height
+    })));
+    const timeline=shortcuts.find(item=>item.href==="/timeline");
+    const scenarios=shortcuts.find(item=>item.href==="/teacher/course");
+    if(!timeline||!scenarios||timeline.text!=="時光機"||scenarios.text!=="情境課程")throw Error("Timeline / Scenarios shortcut labels or links wrong");
+    if(shortcuts.some(item=>item.href==="/magic"||item.width<44||item.height<44))throw Error("Invalid shortcut target or small touch area");
     if(info.slideCount!==4||info.dotCount!==4||!info.activeSlide?.includes("cmh-zoe"))throw Error("mobile hero carousel missing or not Zoe-first");
     if(info.duplicateGameCard)throw Error("Daily recommendation duplicated below carousel");
     if(info.reducedAnimationName!=="none")throw Error("Reduced-motion screenshot still animates Zoe");
