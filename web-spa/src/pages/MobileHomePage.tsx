@@ -185,7 +185,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       <div className="cmh-slide-copy">
        <span className="cmh-zoe-eyebrow">✦ CREW LEARN</span>
        <h2>{copy("一句話，練出自信","Speak with confidence")}</h2>
-       <p>{copy("真人老師陪你開口練習。","Speak with a real-looking teacher.")}</p>
+       <p>{copy("跟 AI 老師練口說。","Practice speaking with AI.")}</p>
       </div>
       <div className="cmh-scene cmh-learn-art" aria-hidden="true">
        <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
