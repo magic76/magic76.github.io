@@ -16,6 +16,7 @@ import{AppChrome}from"./components/AppChrome";
 const CrewUpdateNotice=lazy(()=>import("./components/CrewUpdateNotice").then(m=>({default:m.CrewUpdateNotice})));
 const CrewInstallNudge=lazy(()=>import("./components/CrewInstallEntry").then(m=>({default:m.CrewInstallNudge})));
 const DiscoverPage=lazy(()=>import("./pages/DiscoverPage").then(m=>({default:m.DiscoverPage})));
+const PhoneLabPage=lazy(()=>import("./pages/PhoneLabPage").then(m=>({default:m.PhoneLabPage})));
 const TruthNewsPage=lazy(()=>import("./games/TruthNewsPage").then(m=>({default:m.TruthNewsPage})));
 const CyberOrbPage=lazy(()=>import("./pages/CyberOrbPage").then(m=>({default:m.CyberOrbPage})));
 
@@ -68,6 +69,7 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
   try{localStorage.setItem("crew_home_last_activity_v1",JSON.stringify({path:pathname,friendId:friendId||undefined,at:Date.now()}))}catch{/* Optional navigation history. */}
  },[pathname,search]);const active=sectionForRoute(pathname,search);return <>{uiLocaleFailedToLoad&&<div className="crew-locale-error" role="alert">{t("language.loadError")}</div>}<RouteErrorBoundary key={pathname}><GameRouteMonitor pathname={pathname}><Suspense fallback={<div className="spa-loading" role="status">{t("loading")}</div>}><Routes>
 <Route path="/" element={<AppChrome product="home"><HomePage/></AppChrome>}/>
+<Route path="/phone" element={<PhoneLabPage/>}/>
 <Route path="/chat" element={<AppChrome product="home"><CrewSectionPage section="chat"/></AppChrome>}/>
 <Route path="/explore" element={<AppChrome product="home"><CrewSectionPage section="explore"/></AppChrome>}/>
 <Route path="/discover" element={<AppChrome product="home"><DiscoverPage/></AppChrome>}/>
@@ -118,4 +120,4 @@ export function App(){const {t}=useTranslation("common");useEffect(()=>{trackApp
 <Route path="/fortune/live" element={<FortuneLivePage/>}/>
 <Route path="/zh-TW/*" element={<ZhTwCanonicalRedirect/>}/>
 <Route path="*" element={<Navigate to="/" replace/>}/>
-</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
+</Routes></Suspense></GameRouteMonitor></RouteErrorBoundary>{!pathname.endsWith("/live")&&pathname!=="/teacher/board"&&pathname!=="/phone"&&!pathname.startsWith("/circle")&&<GlobalNav active={active}/>}{(pathname==="/"||pathname==="/settings")&&<OptionalWidgetBoundary><Suspense fallback={null}><OnboardingGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}{(pathname==="/learn"||pathname==="/teacher"||pathname==="/teacher/practice")&&<OptionalWidgetBoundary><Suspense fallback={null}><LearningLanguageGate pathname={pathname}/></Suspense></OptionalWidgetBoundary>}<OptionalWidgetBoundary><Suspense fallback={null}><CrewUpdateNotice pathname={pathname}/></Suspense></OptionalWidgetBoundary>{pathname==="/"&&<OptionalWidgetBoundary><Suspense fallback={null}><CrewInstallNudge/></Suspense></OptionalWidgetBoundary>}</>}
