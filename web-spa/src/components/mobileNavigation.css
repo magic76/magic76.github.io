@@ -1,0 +1,13 @@
+/* Phones: one predictable four-destination dock across general Crew pages. */
+.global-nav .inner.crew-nav-mobile{display:none}
+@media(max-width:767px){
+ .global-nav .inner.crew-nav-desktop{display:none!important}
+ .global-nav .inner.crew-nav-mobile{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));width:100%;max-width:620px;height:var(--nav-h,68px);gap:0}
+ .global-nav .crew-nav-mobile .nav-indicator{display:none}
+ .global-nav .crew-nav-mobile .navitem{min-height:54px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#88899b}
+ .global-nav .crew-nav-mobile .navitem>span:not(.nav-icon){font-size:11px;font-weight:760;color:inherit}
+ .global-nav .crew-nav-mobile .navitem.active{color:#b87582}
+ .global-nav .crew-nav-mobile .navitem.active .nav-icon{background:#fbe9ec}
+ /* The hamburger exposes duplicate actions and competes with the four-tab dock. */
+ .app-header .crew-feature-menu-trigger{display:none!important}
+}
