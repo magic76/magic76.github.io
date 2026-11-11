@@ -189,7 +189,6 @@ try{
  // Actual tab taps from the homepage verify the shared dock stays mounted during SPA navigation.
  await navPage.goto("http://127.0.0.1:"+port+"/",{waitUntil:"domcontentloaded"});
  for(const target of ["/chat","/explore","/me","/"]){
-  await navPage.locator("nav.crew-mobile-dock a").filter({has:navPage.locator("svg")}).count();
   await navPage.locator('nav.crew-mobile-dock a[href="'+target+'"]').click();
   await navPage.waitForURL(url=>url.pathname===target,{timeout:15000});
   await navPage.waitForFunction(expected=>document.querySelector("nav.crew-mobile-dock")?.getAttribute("data-active")===expected,
@@ -219,6 +218,7 @@ try{
  // Immersive Magic can hide the dock only because the page already has an Explore return link.
  await navPage.goto("http://127.0.0.1:"+port+"/magic",{waitUntil:"domcontentloaded"});
  await navPage.waitForFunction(()=>document.querySelector("nav.crew-mobile-dock--immersive")!==null);
+ await navPage.locator('a.magic-back[href="/explore"]').waitFor({state:"visible",timeout:20000});
  const magicExit=await navPage.evaluate(()=>({
   hidden:getComputedStyle(document.querySelector("nav.crew-mobile-dock")).display==="none",
   returnLink:!!document.querySelector('a.magic-back[href="/explore"]')
