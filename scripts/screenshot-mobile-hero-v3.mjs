@@ -28,8 +28,10 @@ const browser=await chromium.launch({headless:true,...(executablePath?{executabl
 const labels=["zoe","friends","game","learn"];
 const report=[];
 try{
+ for(const width of [390,360]){
+ const height=width===390?844:800;
  for(const state of ["first","return"]){
-  const context=await browser.newContext({viewport:{width:390,height:844},deviceScaleFactor:1,locale:"zh-TW",reducedMotion:"reduce"});
+  const context=await browser.newContext({viewport:{width,height},deviceScaleFactor:1,locale:"zh-TW",reducedMotion:"reduce"});
   if(state==="return")await context.addInitScript(()=>{
    localStorage.setItem("crew_onboarding_web_v1","completed");
    localStorage.setItem("crew_friend_text_resume_v1",JSON.stringify([{
@@ -59,6 +61,10 @@ try{
     const scene=active?.querySelector(".cmh-scene"),hero=document.querySelector(".cmh-carousel");
     const image=active?.querySelector(".cmh-zoe-photo,.cmh-friend-portrait img,.cmh-learn-portrait img");
     const h=hero?.getBoundingClientRect(),s=scene?.getBoundingClientRect();
+    const grid=document.querySelector(".cmh-app-grid")?.getBoundingClientRect();
+    const dock=document.querySelector("nav.crew-mobile-dock")?.getBoundingClientRect();
+    const shortsHeading=document.querySelector(".cmh-shorts .crew-home-shorts-heading")?.getBoundingClientRect();
+    const shortsCard=document.querySelector(".cmh-shorts .crew-home-short-card,.cmh-shorts .crew-home-short-placeholder")?.getBoundingClientRect();
     const links=[...active.querySelectorAll("a")].map(x=>x.getAttribute("href"));
     const title=active.querySelector("h1,h2"),subtitle=active.querySelector(".cmh-slide-copy p");
     const portraits=[...active.querySelectorAll(".cmh-zoe-photo,.cmh-friend-portrait img,.cmh-learn-portrait img")];
@@ -89,6 +95,8 @@ try{
      (subtitle.scrollWidth<=subtitle.clientWidth+1&&subtitle.scrollHeight<=subtitle.clientHeight+1&&getComputedStyle(subtitle).textOverflow!=="ellipsis");
     return {index,scene:!!scene,sceneWidth:s?.width,slideHeight:active?.getBoundingClientRect().height,
       heroHeight:h?.height,overflow:document.documentElement.scrollWidth-innerWidth,
+      gridBottom:grid?.bottom,dockTop:dock?.top,shortsHeadingBottom:shortsHeading?.bottom,
+      shortsCardTop:shortsCard?.top,visibleShortsPixels:shortsCard&&dock?Math.max(0,Math.min(dock.top,innerHeight)-shortsCard.top):null,
       hidden:slides.map(x=>x.getAttribute("aria-hidden")),
       reducedAnimation:scene?getComputedStyle(scene).animationName:null,
       imageLoaded:!image||(image.complete&&image.naturalWidth>0),links,
@@ -96,20 +104,28 @@ try{
       titleFits,subtitleFits,titleArtOverlap,subtitleArtOverlap,faceOverlaps,
       bottomNav:document.querySelectorAll("nav.crew-mobile-dock a").length};
    },i);
-   if(!metrics.scene||!metrics.sceneWidth||metrics.heroHeight>422||metrics.overflow>2||metrics.bottomNav!==5)throw Error("Mobile geometry/scene regression "+state+"/"+i+": "+JSON.stringify(metrics));
+   if(!metrics.scene||!metrics.sceneWidth||metrics.heroHeight<260||metrics.heroHeight>280||metrics.overflow>2||metrics.bottomNav!==5)
+    throw Error("Compact mobile geometry failed "+width+"/"+state+"/"+i+": "+JSON.stringify(metrics));
+   if(!metrics.gridBottom||!metrics.dockTop||metrics.gridBottom>metrics.dockTop-20)
+    throw Error("Both shortcut rows must be visible above the dock: "+width+"/"+state+"/"+i+" "+JSON.stringify(metrics));
+   if(!metrics.shortsHeadingBottom||metrics.shortsHeadingBottom>=metrics.dockTop-6)
+    throw Error("Moments heading not visible on first screen: "+width+"/"+state+"/"+i+" "+JSON.stringify(metrics));
+   if(metrics.shortsCardTop!==undefined&&metrics.shortsCardTop!==null&&metrics.visibleShortsPixels<15)
+    throw Error("Moments card top must peek above dock: "+width+"/"+state+"/"+i+" "+JSON.stringify(metrics));
    if(metrics.hidden.filter(x=>x==="false").length!==1||metrics.hidden[i]!=="false")throw Error("Invalid slide aria-hidden "+i);
    if(metrics.reducedAnimation!=="none")throw Error("Reduced motion scene still animates "+i+": "+metrics.reducedAnimation);
    if(!metrics.imageLoaded)throw Error("Active character photo failed to load "+state+"/"+i);
-   await page.screenshot({path:join(output,"390-"+state+"-"+labels[i]+".png"),animations:"disabled",fullPage:false});
-   await page.locator(".cmh-carousel").screenshot({path:join(output,"hero-390-"+state+"-"+labels[i]+".png"),animations:"disabled"});
+   await page.screenshot({path:join(output,width+"-"+state+"-"+labels[i]+".png"),animations:"disabled",fullPage:false});
+   await page.locator(".cmh-carousel").screenshot({path:join(output,"hero-"+width+"-"+state+"-"+labels[i]+".png"),animations:"disabled"});
    if(!metrics.titleFits||!metrics.subtitleFits)throw Error("Hero text clipped on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
    if(metrics.titleArtOverlap>2||metrics.subtitleArtOverlap>2)throw Error("Portrait/board covers text on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
    if(metrics.faceOverlaps.some(area=>area>2))throw Error("Zoe bubble covers the portrait on "+state+": "+JSON.stringify(metrics));
    if(labels[i]==="learn"&&!metrics.actualImage?.includes("teacher-olivia"))throw Error("Learn slide does not use Olivia real photo: "+metrics.actualImage);
-   report.push({state,slide:labels[i],...metrics});
+   report.push({width,state,slide:labels[i],...metrics});
   }
   if(errors.length)throw Error("Browser script errors: "+errors.join("; "));
   await context.close();
+ }
  }
  // Desktop regression: new mobile art is invisible at 1440px.
  const desktop=await browser.newPage({viewport:{width:1440,height:900},reducedMotion:"reduce"});
@@ -168,7 +184,7 @@ try{
  await pausePage.waitForTimeout(5600);
  if(await pausePage.locator(".cmh-slide-game").getAttribute("data-active")!=="true")throw Error("Manual slide failed to pause autoplay");
  await pauseContext.close();
- const summary={screenshots:report.length,slides:labels,desktopState,autoAdvance:true,swipe:true,dots:true,manualPause:true,reducedMotion:true,videoBytes:statSync(mp4).size};
+ const summary={screenshots:report.length,widths:[390,360],slides:labels,desktopState,autoAdvance:true,swipe:true,dots:true,manualPause:true,reducedMotion:true,videoBytes:statSync(mp4).size};
  writeFileSync(join(output,"qa-results.json"),JSON.stringify({summary,report},null,2)+"\n");
  console.log("HERO V3 QA PASS "+JSON.stringify(summary));
 }finally{
