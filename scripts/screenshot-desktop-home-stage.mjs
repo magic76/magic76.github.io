@@ -100,7 +100,7 @@ try{
   if(!m.kicker||m.kicker.left<m.world.left+10||m.kicker.right>m.world.right-10
    ||m.kicker.top<m.hero.top+10||m.kicker.bottom>m.hero.bottom-10)fail("kicker clipped");
   if(!m.nav||Math.abs(m.nav.right-m.world.left)>20)fail("rail not docked to content");
-  if(!m.bubble||m.bubble.left<m.world.left||m.bubble.right>m.world.right)fail("voice bubble not inside content");
+  if(!m.bubble||m.bubble.left<m.world.right+2||m.bubble.left>m.world.right+18||m.bubble.right>width-8)fail("voice bubble must sit adjacent to frame without covering Shorts");
   if(m.copy&&m.copy.right>m.kicker.left-10)fail("copy collides with stage/kicker");
   if(!m.heading||width===1440&&m.heading.top>height-25)fail("Moments not visible on first desktop screen");
   if(m.ringVisible&&m.ring&&(m.ring.left<m.world.left-3||m.ring.right>m.world.right+3))fail("halo cut off horizontally");
