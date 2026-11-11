@@ -43,45 +43,42 @@ export function AppChrome({product,children,headerAction}:{product:Product;child
   </footer>
  </>;
 }
-/** One stable mobile dock for every ordinary Crew route, regardless of product theme.
- * It deliberately does not inherit .global-nav's old five-tab styling. */
+/** Stable destinations shared by both responsive navigations. Product pages do not
+ * supply their own bottom tabs. One data source prevents the phone and desktop
+ * destinations from drifting apart. */
+const NAV_SECTIONS=[
+ {id:"home",to:"/",icon:"home"},
+ {id:"chat",to:"/chat",icon:"chat"},
+ {id:"explore",to:"/explore",icon:"sparkles"},
+ {id:"learn",to:"/learn",icon:"teacher"},
+ {id:"me",to:"/me",icon:"settings"}
+] as const;
+
+/** Single mobile dock on every regular Crew page, independent of product themes. */
 export function MobileBottomNav({active,hiddenOnMobile=false}:{active:CrewSection;hiddenOnMobile?:boolean}){
  const {t}=useTranslation("common");
- const mobileSections=[
-  {id:"home",to:"/",icon:"home",label:"home"},
-  {id:"chat",to:"/chat",icon:"chat",label:"chat"},
-  {id:"explore",to:"/explore",icon:"sparkles",label:"explore"},
-  {id:"me",to:"/me",icon:"settings",label:"me"}
- ] as const;
- const mobileActive=active==="learn"?"explore":active;
- return <nav className={"crew-mobile-dock"+(hiddenOnMobile?" crew-mobile-dock--immersive":"")} aria-label={t("nav.label")} data-active={mobileActive}>
+ return <nav className={"crew-mobile-dock"+(hiddenOnMobile?" crew-mobile-dock--immersive":"")}
+  aria-label={t("nav.label")} data-active={active}>
   <div className="crew-mobile-dock-inner">
-   {mobileSections.map(item=><Link key={item.id} to={item.to}
-    className={"crew-mobile-dock-item "+(mobileActive===item.id?"active":"")}
-    aria-current={mobileActive===item.id?"page":undefined}>
+   {NAV_SECTIONS.map(item=><Link key={item.id} to={item.to}
+    className={"crew-mobile-dock-item "+(active===item.id?"active":"")}
+    aria-current={active===item.id?"page":undefined}>
     <span className="crew-mobile-dock-icon"><Icon name={item.icon}/></span>
-    <span className="crew-mobile-dock-label">{t("nav."+item.label)}</span>
+    <span className="crew-mobile-dock-label">{t("nav."+item.id)}</span>
    </Link>)}
   </div>
  </nav>;
 }
-/** Desktop keeps the original five-item global rail. */
+/** Desktop retains the original five-item global rail and SSG-required class. */
 export function GlobalNav({active,mobileImmersive=false}:{active:CrewSection;mobileImmersive?:boolean}){
  const {t}=useTranslation("common");
  const index=CREW_SECTIONS.indexOf(active);
- const sections=[
-  {id:"home",to:"/",icon:"home"},
-  {id:"chat",to:"/chat",icon:"chat"},
-  {id:"explore",to:"/explore",icon:"sparkles"},
-  {id:"learn",to:"/learn",icon:"teacher"},
-  {id:"me",to:"/me",icon:"settings"}
- ] as const;
  return <>
   <nav className="global-nav" aria-label={t("nav.label")}>
    <div className="inner">
     <span className="nav-indicator" aria-hidden="true" data-inactive={index<0?"true":"false"}
      style={{"--nav-index":Math.max(0,index)} as React.CSSProperties}/>
-    {sections.map(item=><NavLink key={item.id} to={item.to} end
+    {NAV_SECTIONS.map(item=><NavLink key={item.id} to={item.to} end
      className={"navitem "+(active===item.id?"active":"")}
      aria-current={active===item.id?"page":undefined}>
      <span className="nav-icon"><Icon name={item.icon}/></span><span>{t("nav."+item.id)}</span>
