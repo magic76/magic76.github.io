@@ -573,5 +573,23 @@
     "heading": "คุยกับเพื่อน AI",
     "withZoe": "คุยกับ Zoe",
     "setup": "ตั้งค่า Key"
+  },
+  "dailyTopics": {
+    "title": "หัวข้อวันนี้",
+    "note": "สามเรื่องใหม่ให้คุย",
+    "items": {
+      "photo-story": {"title": "เล่าเรื่องภาพ", "hook": "ภาพนี้มีเรื่องอะไร"},
+      "photo-moment": {"title": "ภาพวันนี้", "hook": "แชร์ช่วงเวลาหนึ่ง"},
+      "question-smalljoy": {"title": "ความสุขเล็กๆ", "hook": "อะไรทำให้ยิ้ม"},
+      "question-weekend": {"title": "แผนวันหยุด", "hook": "มาช่วยกันคิด"},
+      "role-cafe": {"title": "ที่คาเฟ่", "hook": "ลองเล่นบทบาท"},
+      "role-travel": {"title": "หลงทางในเมือง", "hook": "หาทางไปด้วยกัน"},
+      "mood-heavy": {"title": "วันที่เหนื่อย", "hook": "เล่าให้ฟังได้นะ"},
+      "mood-grateful": {"title": "ขอบคุณวันนี้", "hook": "เรื่องดีหนึ่งเรื่อง"},
+      "play-rematch": {"title": "เล่นอีกตา", "hook": "คุยกันหลังเล่น"},
+      "play-wildcard": {"title": "พลิกเกม", "hook": "หักมุมสุดๆ"},
+      "fortune-lucky": {"title": "โชคดีวันนี้", "hook": "มีลางดีอะไรบ้าง"},
+      "fortune-change": {"title": "บทต่อไป", "hook": "อะไรจะเปลี่ยนไป"}
+    }
   }
 }

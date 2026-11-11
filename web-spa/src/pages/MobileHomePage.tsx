@@ -9,6 +9,7 @@ import {readLatestFriendResume,type FriendResume} from "../live/sessionTranscrip
 import {CREW_FRIENDS} from "../friends/friendProfiles";
 import {GuideHub} from "../guides/GuideHub";
 import {useClientReady} from "../lib/useClientReady";
+import {DailyTopicCards} from "./DailyTopicCards";
 import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {geminiKey} from "../lib/runtime";
 import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
@@ -233,6 +234,7 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
    </Link>
    <button type="button" onClick={togglePreview} className="cmh-other-hide" aria-label={previewHidden?copy("顯示上一句","Show last message"):copy("隱藏上一句","Hide last message")}><Icon name="cards"/></button>
   </section>}
+  <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
    <div className="cmh-section-heading"><h2 id="cmh-apps-title">{copy("想玩什麼？","What sounds fun?")}</h2></div>
    <div className="cmh-app-grid">{APPS.map(app=><Link to={app.to} key={app.id} className="cmh-app" onClick={()=>track(app.event)}>
