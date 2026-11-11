@@ -116,9 +116,11 @@
   left:max(8px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 86px));
   right:auto;
  }
- /* Portaled to body, hence it must share the body's frame variable. */
+ /* Portaled to body. Seat it 6px outside the dark frame, in the right
+  * gutter: this keeps the Live action near content without covering Shorts
+  * carousel arrows, the 'view all' link or the rightmost card. */
  body:has(.crew-home-legacy) .crew-home-live-bubble{
-  right:calc((100vw - var(--crew-desktop-home-frame)) / 2 + 14px);
+  right:max(24px,calc((100vw - var(--crew-desktop-home-frame)) / 2 - 70px));
   bottom:24px;
  }
 }
