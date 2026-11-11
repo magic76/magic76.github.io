@@ -67,6 +67,11 @@ try{
     const shortsCard=document.querySelector(".cmh-shorts .crew-home-short-card,.cmh-shorts .crew-home-short-placeholder")?.getBoundingClientRect();
     const links=[...active.querySelectorAll("a")].map(x=>x.getAttribute("href"));
     const title=active.querySelector("h1,h2"),subtitle=active.querySelector(".cmh-slide-copy p");
+    const copyLane=active.querySelector(".cmh-slide-copy"),motes=active.querySelector(".cmh-sparks");
+    const near=motes?getComputedStyle(motes,"::before"):null,far=motes?getComputedStyle(motes,"::after"):null;
+    const copyPadding=copyLane?parseFloat(getComputedStyle(copyLane).paddingTop):0;
+    const motesBelowCopy=!!motes&&!!copyLane&&Number(getComputedStyle(motes).zIndex)<Number(getComputedStyle(copyLane).zIndex);
+    const particleTint=getComputedStyle(active).getPropertyValue("--cmh-dust").trim();
     const portraits=[...active.querySelectorAll(".cmh-zoe-photo,.cmh-friend-portrait img,.cmh-learn-portrait img")];
     const board=active.querySelector(".cmh-game-board");
     const overlap=(a,b)=>{
@@ -102,6 +107,8 @@ try{
       imageLoaded:!image||(image.complete&&image.naturalWidth>0),links,
       actualImage:image?.currentSrc||null,title:title?.textContent,subtitle:subtitle?.textContent,
       titleFits,subtitleFits,titleArtOverlap,subtitleArtOverlap,faceOverlaps,
+      copyPadding,motesBelowCopy,particleTint,nearBackground:near?.backgroundImage,
+      nearAnimation:near?.animationName,farAnimation:far?.animationName,
       bottomNav:document.querySelectorAll("nav.crew-mobile-dock a").length};
    },i);
    if(!metrics.scene||!metrics.sceneWidth||metrics.heroHeight<260||metrics.heroHeight>280||metrics.overflow>2||metrics.bottomNav!==5)
@@ -117,6 +124,9 @@ try{
    if(!metrics.imageLoaded)throw Error("Active character photo failed to load "+state+"/"+i);
    await page.screenshot({path:join(output,width+"-"+state+"-"+labels[i]+".png"),animations:"disabled",fullPage:false});
    await page.locator(".cmh-carousel").screenshot({path:join(output,"hero-"+width+"-"+state+"-"+labels[i]+".png"),animations:"disabled"});
+   if(metrics.copyPadding!==(width===360?6:7)||!metrics.motesBelowCopy||!metrics.particleTint
+    ||!metrics.nearBackground?.includes("radial-gradient")||metrics.nearAnimation!=="none"||metrics.farAnimation!=="none")
+    throw Error("Hero particle layering, breathing room, or reduced motion failed "+width+"/"+state+"/"+labels[i]+": "+JSON.stringify(metrics));
    if(!metrics.titleFits||!metrics.subtitleFits)throw Error("Hero text clipped on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
    if(metrics.titleArtOverlap>2||metrics.subtitleArtOverlap>2)throw Error("Portrait/board covers text on "+state+"/"+labels[i]+": "+JSON.stringify(metrics));
    if(metrics.faceOverlaps.some(area=>area>2))throw Error("Zoe bubble covers the portrait on "+state+": "+JSON.stringify(metrics));
@@ -150,6 +160,8 @@ try{
  await moviePage.locator(".cmh-slide.cmh-zoe").waitFor({state:"visible"});
  const firstArt=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-zoe-scene")).animationName);
  if(firstArt==="none")throw Error("Hero entrance animation absent with reduced motion off");
+ const nearDrift=await moviePage.evaluate(()=>getComputedStyle(document.querySelector(".cmh-zoe .cmh-sparks"),"::before").animationName);
+ if(!nearDrift.includes("cmh-dust-near"))throw Error("Colored motes do not drift on motion-enabled pages: "+nearDrift);
  await moviePage.waitForFunction(()=>document.querySelector(".cmh-slide-friends")?.getAttribute("data-active")==="true",null,{timeout:12500});
  await moviePage.waitForTimeout(1100);
  const movieDots=moviePage.locator(".cmh-carousel-dots button");
