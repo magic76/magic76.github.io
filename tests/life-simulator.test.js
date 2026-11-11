@@ -9,14 +9,15 @@ const read=file=>fs.readFileSync(path.join(root,file),"utf8");
 function runtime(){
  const a=stripTypeScriptTypes(read("web-spa/src/timeline/lifeEvents.ts")).replace(/^export /gm,"");
  const arcs=stripTypeScriptTypes(read("web-spa/src/timeline/lifeArcs.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
+ const arcScenes=stripTypeScriptTypes(read("web-spa/src/timeline/lifeArcConsequences.ts")).replace(/^export /gm,"");
  const narratives=stripTypeScriptTypes(read("web-spa/src/timeline/lifeNarrative.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const dialogue=stripTypeScriptTypes(read("web-spa/src/timeline/lifeDialogue.ts")).replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const c=stripTypeScriptTypes(read("web-spa/src/timeline/lifeConsequences.ts")).replace(/^export /gm,"");
  const b=stripTypeScriptTypes(read("web-spa/src/timeline/lifeSimulation.ts"))
   .replace(/^import .*;\s*$/gm,"").replace(/^export /gm,"");
  const context={};
- vm.runInNewContext(a+"\n"+arcs+"\n"+c+"\n"+b+"\n"+narratives+"\n"+dialogue+
-  "\nglobalThis.sim={LIFE_EVENTS,LIFE_ARC_EVENTS,LIFE_RESULT_COUNT,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding,forkLifeRun,lifeCausalEcho,lifeEndingCards,lifeLabDialoguePrompt};",context);
+ vm.runInNewContext(a+"\n"+arcs+"\n"+c+"\n"+arcScenes+"\n"+b+"\n"+narratives+"\n"+dialogue+
+  "\nglobalThis.sim={LIFE_EVENTS,LIFE_ARC_EVENTS,LIFE_ARC_CONSEQUENCE_COUNT,lifeArcConsequence,LIFE_RESULT_COUNT,LIFE_AGES,newLifeRun,lifeEventFor,chooseLifeEvent,advanceLife,isLifeRun,lifeEnding,forkLifeRun,lifeCausalEcho,lifeEndingCards,lifeLabDialoguePrompt};",context);
  return context.sim;
 }
 test("life simulator has exactly 30 choice events spanning all 12 existing ages",()=>{
@@ -96,6 +97,11 @@ test("simulator is an opt-in route and never overwrites Timeline memory",()=>{
 test("three characters have distinct milestone scenes and every authored arc is reachable",()=>{
  const sim=runtime();
  assert.equal(sim.LIFE_ARC_EVENTS.length,21);
+ assert.equal(sim.LIFE_ARC_CONSEQUENCE_COUNT,21);
+ for(const arc of sim.LIFE_ARC_EVENTS){
+  assert.ok(sim.lifeArcConsequence(arc.id,0,false).length>15,arc.id+" option A");
+  assert.ok(sim.lifeArcConsequence(arc.id,1,true).length>15,arc.id+" option B");
+ }
  assert.equal(new Set(sim.LIFE_ARC_EVENTS.map(x=>x.id)).size,21);
  for(const character of ["mira","ethan","hana"]){
   const root=sim.newLifeRun(character,34);
