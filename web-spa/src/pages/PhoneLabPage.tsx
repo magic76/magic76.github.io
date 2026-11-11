@@ -8,12 +8,12 @@ import "./PhoneLabPage.css";
 type AppId="friends"|"teacher"|"games"|"story"|"fortune"|"shorts"|"timeline"|"souls"|"town"|"magic"|"discover"|"research"|"mate";
 type View="home"|"all";
 type Tab=View|"chat"|"me";
-type AppEntry={id:AppId;icon:IconName;zh:string;en:string;descriptionZh:string;descriptionEn:string;to:string;shortcuts?:{zh:string;en:string;to:string}[]};
+type AppEntry={id:AppId;icon:IconName;zh:string;en:string;descriptionZh:string;descriptionEn:string;to:string};
 const APPS:AppEntry[]=[
- {id:"friends",icon:"chat",zh:"AI 朋友",en:"AI Friends",descriptionZh:"認識 16 位朋友，隨時找人聊天。",descriptionEn:"Meet 16 AI friends and start a conversation.",to:"/teacher/roles?mode=friends",shortcuts:[{zh:"找 Zoe 聊天",en:"Chat with Zoe",to:"/friend/live?id=zoe&from=phone&chat=text"},{zh:"認識其他朋友",en:"Meet other friends",to:"/teacher/roles?mode=friends"}]},
- {id:"teacher",icon:"teacher",zh:"學語言",en:"Learn",descriptionZh:"找老師練口說，也能學單字、上課。",descriptionEn:"Practice speaking, vocabulary and lessons.",to:"/learn",shortcuts:[{zh:"選一位老師",en:"Choose a teacher",to:"/teacher/roles?mode=teacher"},{zh:"學習中心",en:"Learning center",to:"/learn"},{zh:"情境課程",en:"Lessons",to:"/teacher/course"}]},
- {id:"games",icon:"play",zh:"玩遊戲",en:"Games",descriptionZh:"和 AI 玩小遊戲，邊玩邊聊天。",descriptionEn:"Play with AI and have fun together.",to:"/games",shortcuts:[{zh:"遊戲大廳",en:"Game hub",to:"/games"},{zh:"1A2B 猜數字",en:"Number guessing",to:"/games/1a2b"}]},
- {id:"story",icon:"story",zh:"故事",en:"Stories",descriptionZh:"讀故事，或創作自己的故事世界。",descriptionEn:"Read and create your own stories.",to:"/story",shortcuts:[{zh:"故事書架",en:"Story shelf",to:"/story"},{zh:"創作故事",en:"Create a story",to:"/story/create"}]},
+ {id:"friends",icon:"chat",zh:"AI 朋友",en:"AI Friends",descriptionZh:"認識 16 位朋友，隨時找人聊天。",descriptionEn:"Meet 16 AI friends and start a conversation.",to:"/teacher/roles?mode=friends"},
+ {id:"teacher",icon:"teacher",zh:"學語言",en:"Learn",descriptionZh:"找老師練口說，也能學單字、上課。",descriptionEn:"Practice speaking, vocabulary and lessons.",to:"/learn"},
+ {id:"games",icon:"play",zh:"玩遊戲",en:"Games",descriptionZh:"和 AI 玩小遊戲，邊玩邊聊天。",descriptionEn:"Play with AI and have fun together.",to:"/games"},
+ {id:"story",icon:"story",zh:"故事",en:"Stories",descriptionZh:"讀故事，或創作自己的故事世界。",descriptionEn:"Read and create your own stories.",to:"/story"},
  {id:"fortune",icon:"fortune",zh:"命理探索",en:"Fortune",descriptionZh:"從八字、塔羅與星盤探索自己。",descriptionEn:"Explore your story through fortune readings.",to:"/fortune"},
  {id:"shorts",icon:"image",zh:"朋友動態",en:"Moments",descriptionZh:"看看 AI 朋友們今天的生活片段。",descriptionEn:"See what your AI friends are up to.",to:"/teacher/shorts"},
  {id:"timeline",icon:"history",zh:"人生時間線",en:"Timeline",descriptionZh:"穿梭不同人生階段，發現新視角。",descriptionEn:"Explore different stages of life.",to:"/timeline"},
@@ -63,7 +63,6 @@ export function PhoneLabPage(){
   </section>
   <div className="cpl-section-title"><h2>{label("想玩什麼？","What sounds fun?")}</h2></div>
   <div className="cpl-app-grid">{APPS.slice(0,6).map(appTile)}</div>
-
  </>;
  const all=<>{header(label("所有 App","All Apps"))}<p className="cpl-detail-intro">{label("每個功能，都有自己的位置。","Every feature has its place.")}</p>
   <label className="cpl-search-label" htmlFor="cpl-search">{label("搜尋功能","Search apps")}</label><input id="cpl-search" type="search" className="cpl-search" placeholder={label("搜尋：聊天、遊戲、故事…","Search chat, games, stories…")} value={search} onChange={e=>setSearch(e.target.value)}/>
