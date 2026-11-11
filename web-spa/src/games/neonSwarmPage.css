@@ -1,0 +1,8 @@
+.crew-neon-route{max-width:1180px}
+.crew-neon-preflight{display:flex;align-items:center;flex-wrap:wrap;justify-content:space-between;gap:10px;margin:0 0 10px;padding:10px 14px;border-radius:14px;background:linear-gradient(110deg,#251743,#172447);color:#fff;border:1px solid #ad93f688}
+.crew-neon-preflight strong{font-size:15px}.crew-neon-preflight span{font-size:12px;color:#d3cae8}
+.crew-neon-preflight button{border:1px solid #aafef6;background:#a5ffec;color:#16253c;border-radius:11px;min-height:40px;padding:8px 13px;font-size:12px;font-weight:900;cursor:pointer}
+.crew-neon-preflight .crew-neon-voice-connected{color:#80ffdc;font-weight:850}
+.crew-neon-frame{border:1px solid #7466a0;background:#080917;box-shadow:0 14px 38px #0907193b;overflow:hidden;border-radius:17px}
+.crew-neon-status{font-size:12px;border:1px solid #9ec7ea88;border-radius:12px;padding:10px 12px;margin:0;background:#e8f4ff55}
+@media(max-width:440px){.crew-neon-route{padding-inline:4px}.crew-neon-preflight{margin-inline:4px;padding:8px 9px}.crew-neon-preflight span{font-size:10px}.crew-neon-frame{border-radius:8px}}
