@@ -122,6 +122,23 @@ jobs:
           node --test tests/seo-live.test.js
           node --test tests/seo-pages.test.js
           node --test tests/seo-ctr.test.js
+      # Manual-review visual proof for the mobile homepage phase-1 PR only.
+      # Screenshots are CI artifacts; nothing gets merged or published.
+      - name: Browser screenshots for mobile home review
+        if: github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1')
+        run: |
+          npm install --no-save --package-lock=false --no-audit --no-fund --ignore-scripts playwright@1.56.1
+          npx playwright install chromium
+          npm run build:cloudflare
+          npm run test:cloudflare
+          node scripts/screenshot-mobile-home.mjs
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1')
+        with:
+          name: mobile-home-phase1-screenshots
+          path: artifacts/mobile-home-qa/*
+          retention-days: 7
+          if-no-files-found: warn
       # Magic changes require real WebGL evidence, including the 390px sculpted
       # robot/fox/dragon close-ups produced by smoke-magic-creator-browser.mjs.
       - name: Real browser snapshot of Crew Magic 3D (Magic PRs only)
