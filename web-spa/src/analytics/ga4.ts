@@ -44,7 +44,7 @@ export function safeGa4Referrer(referrer:string,siteOrigin:string){
  }catch{return ""}
 }
 
-const reserved=new Set("en zh zh-tw zh-cn ja ko es fr pt de vi id th teacher friend story fortune research briefing guides settings privacy usage timeline compare practice shorts friends roles learn tutor me vocabulary course pronunciation textbook phrasebook reports memory reading-library voice-lab live shelf create edit physical read history reading board town magic mate souls games arcade-lab nonsense crazy-court werewolf taboo gomoku connect4 reversi 1a2b twenty-questions mystery circle books explore chat orb".split(" "));
+const reserved=new Set("en zh zh-tw zh-cn ja ko es fr pt de vi id th teacher friend story fortune research briefing guides settings privacy usage timeline compare practice shorts friends roles learn tutor me vocabulary course pronunciation textbook phrasebook reports memory reading-library voice-lab live shelf create edit physical read history reading board town magic mate souls games arcade-lab neon-swarm nonsense crazy-court werewolf taboo gomoku connect4 reversi 1a2b twenty-questions mystery circle books explore chat orb".split(" "));
 // Unknown/dynamic slugs could contain personal information; never emit them to Google.
 export function safeGa4Path(pathname:string){
  const segments=pathname.split("/").filter(Boolean);
