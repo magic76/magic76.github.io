@@ -28,7 +28,9 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # The visual-only mobile-home PR needs Playwright 1.56's supported image.
+    # Every other PR and master push keep their original runner.
+    runs-on: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.head.ref, 'mobile-home-phone-phase1') && 'ubuntu-24.04' || 'ubuntu-latest' }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
