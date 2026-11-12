@@ -21,3 +21,25 @@ button,input{font:inherit}button{cursor:pointer;touch-action:manipulation}button
 @media(max-width:670px){.app{padding:12px 9px 35px}.topbar{margin-bottom:14px}.brand strong{font-size:16px}.brand small{font-size:10px}.top-right{gap:8px}.back{font-size:11px}.offline{font-size:10px;padding:4px 8px}.heading{margin-bottom:13px}.heading h1{font-size:29px;letter-spacing:-1px}.heading p:not(.eyebrow){font-size:12px}.team{padding:7px 9px 19px;gap:4px;border-radius:13px}.mini-face{width:30px;height:30px;font-size:9px}.plus{font-size:12px}.team-caption{font-size:9px}.hud{padding:9px 11px;min-height:48px}.hud-main{gap:6px}.hud-main strong{font-size:12px}.hud-kicker{font-size:9px}.hud-right>span:first-child{font-size:13px}.co-status{font-size:9px;padding:4px 6px}.game-panel{border-radius:17px}.stage-frame{height:clamp(365px,52dvh,490px)}.zoe-caption{max-width:78%;top:9px;left:8px;font-size:11px}.mobile-controls{padding:0 13px;bottom:14px}.mobile-controls button{width:63px;height:63px;border-radius:19px}.mobile-controls .jump-btn{width:72px;height:72px}.room-footer{padding:11px 12px}.room-footer strong{font-size:12px}.room-footer span{font-size:10px}.friend-panel,.memory-panel{padding:14px;border-radius:18px}.commands{gap:6px}.commands button{padding:11px 7px;font-size:12px;flex:1 0 calc(50% - 6px)}.say-form input{font-size:12px}.say-form button{padding:9px}.memory-stats{gap:10px}.memory-stats span{font-size:10px}.memory-stats strong{font-size:15px}.start-modal{padding:14px 11px 19px}.start-modal p{font-size:12px}.emoji-scene{height:41px;margin-bottom:6px;font-size:29px}}
 @media(max-width:360px){.top-right .offline{display:none}.heading p:not(.eyebrow){max-width:205px}.team{padding-left:6px;padding-right:6px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* Side-scrolling run-and-gun upgrade: visible lives, real firing button and two-person cover. */
+.stage-frame{background:#202a4f}.action-controls{display:flex;align-items:flex-end;gap:10px}
+.mobile-controls .fire-btn{width:76px;height:76px;background:linear-gradient(135deg,#ffca83e8,#f184adcf);border-color:#fff0d4;color:#4e3044;font-weight:900;font-size:16px}
+.fire-btn small{display:block;font-size:10px;letter-spacing:1.1px}
+.mobile-controls .fire-btn:active{background:linear-gradient(135deg,#ffe4b4,#ffa2b4)}
+.combat-hud{position:absolute;right:12px;top:12px;display:flex;gap:6px;align-items:center;z-index:3;pointer-events:none}
+.health-chip,.kill-chip{display:flex;align-items:center;gap:5px;padding:5px 8px;border:1px solid #c9def34d;border-radius:9px;background:#111a37bd;color:#ffc3d3;box-shadow:0 3px 12px #15172960;backdrop-filter:blur(3px);font-size:12px;font-weight:900;white-space:nowrap}
+.zoe-health{color:#d3b4ff}.health-label{color:#d6edf5;font-size:9px;letter-spacing:.6px}.kill-chip{color:#ffe7a8}
+@media(max-width:670px){
+ .combat-hud{top:auto;bottom:100px;right:13px;gap:4px}
+ .health-chip,.kill-chip{font-size:11px;padding:4px 6px;gap:3px}
+ .health-label{font-size:8px}.action-controls{gap:7px}
+ .mobile-controls .fire-btn{width:66px;height:66px;font-size:14px}
+}
+@media(max-width:360px){
+ .combat-hud{bottom:94px}.health-chip{font-size:10px}
+ .mobile-controls button{width:56px;height:57px}
+ .mobile-controls .jump-btn{width:64px;height:66px}
+ .mobile-controls .fire-btn{width:64px;height:65px}
+ .move-controls{gap:6px}.action-controls{gap:6px}
+}
