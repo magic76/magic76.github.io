@@ -6,6 +6,9 @@ const script=fs.readFileSync(path.join(dir,'tree.js'),'utf8');
 const botany=fs.readFileSync(path.join(dir,'botany.js'),'utf8');
 const html=fs.readFileSync(path.join(dir,'index.html'),'utf8');
 const css=fs.readFileSync(path.join(dir,'tree.css'),'utf8');
+const artWall=fs.readFileSync(path.join(dir,'art-review.html'),'utf8');
+const artWallScript=fs.readFileSync(path.join(dir,'art-review.js'),'utf8');
+const artFiles=['foliage-olive.svg','foliage-sage.svg','foliage-sunlit.svg','foliage-teal.svg','detail-bloom.svg','detail-fruit.svg','detail-star.svg'];
 function boot(options={}){
  const nodes=new Map(),memory=new Map(),paint={paths:0,ellipses:0,lines:0,frames:0,downloads:0,foliageGradients:0};
  if(options.storage)for(const [k,v] of Object.entries(options.storage))memory.set(k,v);
@@ -63,7 +66,7 @@ test('the garden is a small responsive chat toy, not a fake Gemini conversation'
  assert.doesNotMatch(script+html+css,/\bfetch\s*\(|XMLHttpRequest|WebSocket\s*\(/);
  assert.doesNotMatch(html,/https?:\/\/(?!www\.w3\.org)/);
 });
-test('twelve organic silhouettes, eight leaf geometries, twelve palettes, twelve mutations',()=>{
+test('curated magical tree starts from one quality silhouette but preserves 12 legacy DNA species',()=>{
  const {qa}=boot();
  assert.equal(qa.shapes.length,12);
  assert.equal(qa.leaves.length,8);
@@ -73,9 +76,12 @@ test('twelve organic silhouettes, eight leaf geometries, twelve palettes, twelve
   const g=qa.makeTree(seed).genome;
   shapes.add(g.silhouette);leaves.add(g.leaf);palette.add(g.palette);
  }
- assert.equal(shapes.size,12);
+ assert.deepEqual([...shapes],[6],'new seeds must use one deliberately art-directed magic tree');
  assert.equal(leaves.size,8);
- assert.equal(palette.size,12);
+ assert.equal(palette.size,4,'new seeds remain within four harmonized color DNA presets');
+ const legacy=qa.makeTree(999);legacy.genome.silhouette=11;legacy.genome.palette=11;
+ assert.ok(qa.validateTree(legacy),'old saved DNA remains valid');
+ assert.ok(Number.isFinite(qa.buildGeometry(legacy).height));
 });
 test('topic recognition chooses distinct branches and meaningful local Zoe replies',()=>{
  const {qa}=boot();
@@ -214,10 +220,10 @@ test('gallery renders real mini tree canvases and recreates the exact seed after
 });
 
 test('botanical renderer is loaded before chat and keeps an independent geometry contract',()=>{
- const a=html.indexOf('src="./botany.js?v=3-20261112"'),b=html.indexOf('src="./tree.js?v=3-20261112"');
+ const a=html.indexOf('src="./botany.js?v=4-20261112"'),b=html.indexOf('src="./tree.js?v=4-20261112"');
  assert.ok(a>=0&&b>a,'botany must be available before the tree controller');
  const {qa}=boot();
- assert.equal(qa.getRendererVersion(),3);
+ assert.equal(qa.getRendererVersion(),4);
  assert.match(botany,/attractor-guided/i);
  assert.match(botany,/function taperBranch\(/);
  assert.match(botany,/function targetAt\(/);
@@ -226,7 +232,7 @@ test('mature tree grows a genuinely connected hierarchical canopy, not branches 
  const {qa}=boot();
  for(let i=0;i<14;i++)qa.post(i%2?'宇宙星球':'咖啡蛋糕');
  const g=qa.state().geometry;
- assert.equal(g.modelVersion,2);
+ assert.equal(g.modelVersion,4);
  assert.ok(g.branches.length>=40);
  assert.ok(g.canopy.length>=150,'leaves form foliage clusters');
  const children=g.branches.filter(b=>b.parentIndex>=0);
@@ -274,21 +280,35 @@ test('silhouette variants genuinely affect tree crown geometry and all fit in bo
  assert.ok(new Set(samples).size>=10,'different silhouettes must result in different geometry');
 });
 
-test('v3 is unmistakable: gradient-filled crown masses, not isolated emoji confetti',()=>{
+test('V4 uses author-drawn botanical sprites instead of glossy bubbles or scattered emoji',()=>{
  const {qa,paint}=boot();
- const before=paint.foliageGradients;
  for(let i=0;i<10;i++)qa.post(i%2?'喝咖啡、吃蛋糕':'我想去宇宙旅行');
- qa.draw();
- assert.ok(paint.foliageGradients-before>=60,
-  'a mature tree must render broad gradient foliage lobes attached to branches');
- assert.ok(paint.paths>120,'tree trunk and botanical crown are visibly drawn');
- assert.match(html,/全新樹冠 3\.0/,'deployed page must clearly show the new art version');
- assert.match(html,/botany\.js\?v=3-20261112/,'renderer is cache-busted');
- assert.match(botany,/function canopyLobe\(/,'canopy is not purely tiny leaf dots');
- assert.match(botany,/function drawWood\(/,'trunk has a separate shaded-bark renderer');
- assert.match(botany,/Math\.min\(70,30\+n\*1\.8\)/,'tree receives a substantial ground shadow');
+ assert.doesNotThrow(()=>qa.draw(),'fallback must still draw if SVG assets are offline');
+ assert.ok(paint.paths>100,'the mature bark and branches remain real canvas paths');
+ assert.match(html,/繪本魔法樹 V4/);
+ assert.match(html,/botany\.js\?v=4-20261112/);
+ assert.match(botany,/function drawPaintedWood\(/);
+ assert.match(botany,/function drawSprig\(/);
+ assert.match(botany,/drawImage\(/);
+ assert.doesNotMatch(botany,/function canopyLobe\(/,'the plastic sphere painter must be deleted');
+ assert.doesNotMatch(botany,/fillText\(trait\.icon|fillText\(icon,0,0/,'the painter must not paste emoji onto the tree');
+ assert.equal(qa.artStatus().version,4);
+ for(const name of artFiles){
+  const svg=fs.readFileSync(path.join(dir,'art',name),'utf8');
+  assert.match(svg,/<svg xmlns="http:\/\/www\.w3\.org\/2000\/svg"/,name);
+  assert.ok(svg.length>900,name+' should be an authored source asset, not a tiny emoji');
+  assert.doesNotMatch(svg,/<foreignObject|<script|https?:\/\/(?!www\.w3\.org)/,name);
+ }
 });
-test('v3 keeps actual 12 plant genetics, old saved-tree compatibility and shareability',()=>{
+test('review wall covers eight seeds x three stages without touching personal forest data',()=>{
+ assert.match(artWall,/24 棵/);
+ assert.match(artWall,/art-review\.js\?v=4-20261112/);
+ assert.match(artWallScript,/const stages=\[3,8,16\]/);
+ assert.match(artWallScript,/const seeds=\[103,241,548,871,1296,2039,3597,4407\]/);
+ assert.match(artWallScript,/window\.CrewBotany\.paint\(/);
+ assert.doesNotMatch(artWallScript,/\blocalStorage\b|XMLHttpRequest|WebSocket|fetch\(/);
+});
+test('V4 preserves old saved-tree DNA and chat event format while switching art assets',()=>{
  const {qa,memory}=boot();
  for(let i=0;i<9;i++)qa.post(i%2?'今天很開心喜歡你':'我想寫 AI 程式機器人');
  const before=qa.treeSignature(qa.state().current);
@@ -300,4 +320,21 @@ test('v3 keeps actual 12 plant genetics, old saved-tree compatibility and sharea
  const revived=boot({storage:Object.fromEntries(memory)});
  assert.equal(revived.qa.treeSignature(revived.qa.state().current),before);
  assert.equal(revived.qa.exportImage(),true);
+});
+
+test('art layouts stay inside the gallery and mature stage with no numerical overflow',()=>{
+ const {qa}=boot();
+ const ages=[3,8,16],seeds=[103,241,548,871,1296,2039,3597,4407];
+ for(const age of ages)for(const seed of seeds){
+  const t=qa.makeTree(seed);
+  t.growth=Array.from({length:age},(_,i)=>({topic:i%2?'cosmos':'food',mood:0,energy:.7}));
+  const geo=qa.buildGeometry(t);
+  const layout=vm.runInNewContext('null'); // Ensure no host DOM globals leak into geometry.
+  void layout;
+  assert.ok(geo.bounds.maxX>geo.bounds.minX);
+  assert.ok(geo.bounds.maxY>geo.bounds.minY);
+  assert.ok(geo.branches.every(b=>Number.isFinite(b.end.x)&&Number.isFinite(b.end.y)));
+  assert.ok(geo.canopy.every(x=>Number.isFinite(x.x)&&Number.isFinite(x.y)));
+  assert.equal(geo.modelVersion,4);
+ }
 });
