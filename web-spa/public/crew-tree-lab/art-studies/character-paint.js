@@ -89,7 +89,7 @@ function cascade(c,x,sy,w,index,time,staticMode,stage){
 }
 function stones(c,x,sy,w,seed,index,time,staticMode,stage){
  if(stage<8)return;
- const r=rand(seed^Math.imul(index+1,9127)),n=stage>=16?10:5;
+ const r=rand(seed^Math.imul(index+1,9127)),n=stage>=16?5:3;
  for(let i=0;i<n;i++){
   let xx=x+(r()-.5)*w*.76,yy=sy+w*(.39+r()*.38);
   const motion=staticMode?0:Math.sin(time*.0006+i+index)*2.5;
@@ -128,8 +128,9 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const cw=w*(index===0?.97:.95)*crownFactor;
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
  const top=ground-ch*.95+w*.070;
- art(c,name,x-cw*.50,top,cw,ch);
- if(index===0&&m.stage>=8)art(c,'spiral-leaf-tiers.svg',x-cw*.50,top,cw,ch);
+ if(index===0&&m.stage>=8)root.CrewFantasyV5.spiralStair(c,x-cw*.50,top,cw,ch,m.stage,
+   m.growthProgress===undefined?1:m.growthProgress,time,staticMode);
+ else art(c,name,x-cw*.50,top,cw,ch);
  if(index===0)root.CrewFantasyV3.islandHollow(c,x,ground,w,time,staticMode,m.stage,m.seed);
  // Small grounded details, not emoji pasted over crown.
  if(m.stage>=8&&index===0){
@@ -217,7 +218,7 @@ function life(c,m,time,still){
  const stage=m.stage,seed=m.seed,r=rand(seed^0x96ba2);
  c.save();
  if(m.scene==='island'){
-  const cnt=stage<=3?2:stage<=8?5:11;
+  const cnt=stage<=3?2:stage<=8?3:5;
   const target=m.units[0];
   for(let i=0;i<cnt;i++){
    const xx=target.x-155+r()*310,yy=target.y-265+r()*167;
@@ -227,7 +228,7 @@ function life(c,m,time,still){
   if(stage>=16){bird(c,610+(still?0:Math.sin(time*.00027+1)*28),112,.54,still?0:Math.sin(time*.008+2)*7);
    fish(c,596+(still?0:Math.sin(time*.00032)*18),458,.73,-1,time*.002);}
  }else{
-  const num=stage<=3?2:stage<=8?5:10;
+  const num=stage<=3?2:stage<=8?4:6;
   for(let i=0;i<num;i++){
    const x=190+r()*425,y=440+r()*256;
    if(i%3===0)firefly(c,x,y,seed,i,time,still);

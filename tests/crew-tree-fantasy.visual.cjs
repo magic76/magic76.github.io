@@ -101,6 +101,75 @@ fs.mkdirSync(OUT,{recursive:true});
      await page.locator('#silhouetteBtn').click();
     }
    }
+   // Actual Canvas2D images at 0%, 50% and 100% for both stage changes.
+   // Reduced-motion UI is static; QA forces a deterministic in-between frame.
+   for(const scene of ['island','jelly']){
+    await page.locator('[data-scene="'+scene+'"]').click();
+    for(const [from,to] of [[3,8],[8,16]]){
+     const pictures=[];
+     for(const progress of [0,.5,1]){
+      const shot=await page.evaluate(({scene,from,to,progress})=>{
+       window.__CREW_STUDIES_QA__.growthFrame(scene,from,to,progress);
+       return document.querySelector('#heroCanvas').toDataURL('image/png');
+      },{scene,from,to,progress});
+      pictures.push(shot);
+      await page.locator('#heroCanvas').screenshot({
+       path:path.join(OUT,'V5-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
+      });
+     }
+     assert.equal(new Set(pictures).size,3,'start, in-between and final morph frames must all differ '+scene);
+     if(label==='desktop'){
+      const contact=await page.evaluate(async pictures=>{
+       const out=document.createElement('canvas');out.width=930;out.height=392;
+       const c=out.getContext('2d');c.fillStyle='#f3ede1';c.fillRect(0,0,930,392);
+       for(let i=0;i<pictures.length;i++){
+        const img=new Image();img.src=pictures[i];await img.decode();
+        c.drawImage(img,310*i+2,0,306,364);
+        c.font='bold 16px system-ui';c.textAlign='center';c.fillStyle='#334841';
+        c.fillText(['start','growing 50%','mature'][i],310*i+155,385);
+       }
+       return out.toDataURL('image/jpeg',.70).split(',')[1];
+      },pictures);
+      console.log('FANTASY_V5_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
+     }
+    }
+    const reactionFrames=[];
+    for(const progress of [0,.45,.85]){
+     const image=await page.evaluate(({scene,progress})=>{
+      window.__CREW_STUDIES_QA__.touchFrame(scene,progress);
+      return document.querySelector('#heroCanvas').toDataURL('image/png');
+     },{scene,progress});
+     reactionFrames.push(image);
+     await page.locator('#heroCanvas').screenshot({
+      path:path.join(OUT,'V5-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
+     });
+    }
+    assert.equal(new Set(reactionFrames).size,3,
+     'touch must animate the character body/arms and light droplets over three moments');
+   }
+   // Reduced-motion mode keeps transitions immediate, while keyboard can still
+   // trigger the same touch response and politely announces what happened.
+   await page.locator('[data-scene="island"]').click();
+   await page.locator('[data-stage="16"]').click();
+   await page.locator('#heroCanvas').focus();
+   await page.keyboard.press('Enter');
+   assert.match(await page.locator('#reactionStatus').innerText(),/揮手/);
+   assert.equal(await page.evaluate(()=>window.__CREW_STUDIES_QA__.hitTest('jelly',16,400,294)),true);
+   await page.locator('[data-scene="jelly"]').click();
+   const touched=await page.evaluate(()=>{
+    const cv=document.querySelector('#heroCanvas'),b=cv.getBoundingClientRect();
+    const scale=Math.min(b.width/800,b.height/820),ox=(b.width-800*scale)/2,oy=(b.height-820*scale)/2;
+    cv.dispatchEvent(new PointerEvent('pointerdown',{
+     bubbles:true,clientX:b.left+ox+400*scale,clientY:b.top+oy+294*scale
+    }));
+    return document.querySelector('#reactionStatus').textContent;
+   });
+   assert.match(touched,/水母彈了一下/,'actual pointer hit must trigger medusa response');
+   await page.locator('[data-scene="island"]').click();
+   await page.locator('[data-stage="3"]').click();
+   await page.locator('#simulateChatBtn').click();
+   assert.equal(await page.evaluate(()=>window.__CREW_STUDIES_QA__.state().turns),4);
+   assert.equal(await page.evaluate(()=>window.__CREW_STUDIES_QA__.state().stage),3);
    // Four distinctly designed skies and attached biological objects, same seed.
    // Save both scene contact sheets as real browser artwork rather than synthetic diagrams.
    if(label==='desktop'){
@@ -150,6 +219,27 @@ fs.mkdirSync(OUT,{recursive:true});
    console.log('FANTASY_BROWSER_OK '+label+' 2 scenes x 3 stages; original SVG=10; overflow=0');
    await ctx.close();
   }
+  // The real button path animates when motion is allowed; reduced motion
+  // produces immediate still art instead of an unexpected tween.
+  const motion=await browser.newContext({viewport:{width:850,height:850},reducedMotion:'no-preference'});
+  const live=await motion.newPage();
+  await live.goto(URL+'?qa=1',{waitUntil:'networkidle',timeout:40000});
+  await live.waitForFunction(()=>window.__CREW_STUDIES_QA__?.assetStatus()?.loaded?.length===10);
+  await live.locator('[data-stage="3"]').click();
+  await live.locator('[data-stage="8"]').click();
+  assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.from),3);
+  await live.waitForTimeout(1400);
+  assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth),null);
+  await live.locator('[data-stage="16"]').click();
+  assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.to),16);
+  await live.waitForTimeout(1400);
+  await live.locator('[data-scene="jelly"]').click();
+  await live.locator('[data-stage="3"]').click();
+  await live.locator('[data-stage="8"]').click();
+  assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.from),3);
+  await live.waitForTimeout(1450);
+  await motion.close();
+  console.log('FANTASY_V5_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
   // External authoring tools are separately reported: a CDN outage must not
   // be mistaken for an actual successful p5.brush/Rigby2D implementation.
   const ctx=await browser.newContext({viewport:{width:1280,height:850}});
