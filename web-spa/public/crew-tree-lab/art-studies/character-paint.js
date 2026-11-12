@@ -106,32 +106,35 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  const maturity=m.stage<=3?.70:m.stage<=8?.87:1;
  const w=u.w*(index===0?maturity:1);
  const x=u.x+xDrift,y=u.y+yDrift,sy=y-w*.29;
+ // SVG plate grass sits around 17% down from its top. Paint everything from
+ // that same ground level — the old independent wash looked like a floating disk.
+ const ground=sy+w*.17;
  c.save();c.translate(x,y);c.rotate(u.lean+(staticMode?0:Math.sin(time*.00034+index)*.009));c.translate(-x,-y);
  const sh=c.createRadialGradient(x,y+w*.51,0,x,y+w*.51,w*.43);
  sh.addColorStop(0,'#476b6760');sh.addColorStop(1,'#476b6700');c.fillStyle=sh;
  c.beginPath();c.ellipse(x,y+w*.50,w*.4,w*.08,0,0,TAU);c.fill();
  // Roots and waterfalls grow behind, mineral strata are laid over the plate.
- hangingRoots(c,x,sy,w,m.seed,m.stage,index,time,staticMode);
+ hangingRoots(c,x,ground,w,m.seed,m.stage,index,time,staticMode);
  art(c,'floating-island.svg',x-w*.5,sy,w,w*.62);
- islandWash(c,x,sy,w,index,m.seed);
- cascade(c,x,sy,w,index,time,staticMode,m.stage);
- stones(c,x,sy,w,m.seed,index,time,staticMode,m.stage);
+ islandWash(c,x,ground,w,index,m.seed);
+ cascade(c,x,ground,w,index,time,staticMode,m.stage);
+ stones(c,x,ground,w,m.seed,index,time,staticMode,m.stage);
  const name=index===0?families[0]:index===1?families[1]:index===2?families[2]:families[3];
  const crownFactor=index===0?(m.stage<=3?.64:m.stage<=8?.84:1):index===1?.96:index===2?.94:.84;
  const cw=w*(index===0?.97:.95)*crownFactor;
  const ch=w*(index===0?.94:index===1?1.07:index===2?.97:.87)*crownFactor;
- const top=sy-ch*.95+w*.070;
+ const top=ground-ch*.95+w*.070;
  art(c,name,x-cw*.50,top,cw,ch);
  // Small grounded details, not emoji pasted over crown.
  if(m.stage>=8&&index===0){
   c.save();c.fillStyle='#eedcb4';c.strokeStyle='#8d7775';c.lineWidth=2;
-  const bx=x+w*.20,by=sy+w*.09;
+  const bx=x+w*.20,by=ground+w*.055;
   path(c,[[bx-w*.035,by],[bx-w*.035,by-w*.16],[bx,by-w*.23],[bx+w*.04,by-w*.16],[bx+w*.04,by]],'#f0ccab','#85747c',1.7);
   path(c,[[bx-w*.05,by-w*.15],[bx,by-w*.255],[bx+w*.06,by-w*.15]],'#715d70','#715d70',1.1);
   c.fillStyle='#fff4d1';c.fillRect(bx-w*.002,by-w*.14,w*.021,w*.036);c.restore();
  }
  if(m.stage>=16||index===0)for(let k=0;k<5;k++){
-  const px=x+(r()-.5)*w*.75,py=sy+w*(.04+r()*.10);
+  const px=x+(r()-.5)*w*.75,py=ground+w*(.02+r()*.08);
   const col=k%2?'#e7cd9e':'#bad2a7';
   c.fillStyle=col;c.beginPath();c.ellipse(px,py,2.7+r()*2,3.4+r()*3,r()*TAU,0,TAU);c.fill();
  }
