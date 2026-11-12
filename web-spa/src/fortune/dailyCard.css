@@ -66,3 +66,8 @@
 @keyframes fortune-daily-float{0%,100%{transform:translateY(0) scale(1.15)}50%{transform:translateY(-7px) scale(1.15)}}@keyframes fortune-daily-twinkle{50%{opacity:.4;transform:scale(.8)}}@keyframes fortune-daily-burst{0%{opacity:0;transform:scale(.2) translateY(25px)}60%{opacity:1;transform:scale(2) translateY(-15px)}100%{opacity:1;transform:scale(1)}}@keyframes fortune-daily-rise{from{opacity:0;transform:translateY(8px)}}
 @media(max-width:430px){.fortune-daily-flipper{height:360px}.fortune-daily-face{padding:15px;border-radius:16px}.fortune-daily-front-main{flex-direction:column;justify-content:center;text-align:center;gap:2px}.fortune-daily-portrait{flex:none;width:136px;height:136px}.fortune-daily-portrait>span{font-size:58px}.fortune-daily-intro{flex:none}.fortune-daily-intro h2{font-size:22px;margin:4px 0}.fortune-daily-intro p{font-size:14px}.fortune-daily-face-back h2{font-size:22px}}
 @media(prefers-reduced-motion:reduce){.fortune-daily-flipper{transition:none!important}.fortune-daily-stars span,.fortune-daily-confetti span,.fortune-daily-portrait img,.fortune-daily-extras{animation:none!important}}
+
+/* A quiet, accessible continuation next to the just-created chart. */
+.fortune-daily-setup-hint{font-size:13px;line-height:1.5;color:#5a476d;margin:0 0 12px}
+.fortune-daily-next-link{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;min-width:0;max-width:100%;padding:8px 14px;margin-top:12px;border:1px solid #765c94;border-radius:12px;background:#fff9ff;color:#523970;font-size:14px;font-weight:750;text-decoration:none;text-align:center;overflow-wrap:anywhere}
+.fortune-daily-next-link:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}

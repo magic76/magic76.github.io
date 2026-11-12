@@ -577,5 +577,7 @@
     "withZoe": "和 Zoe 聊聊",
     "setup": "設定 Key"
   },
-  "dailyQuote": {"title": "今日小語", "fortune": "算算我的今日運勢", "chat": "跟 Zoe 聊這句", "fortuneFull": "看完整運勢", "personalTitle": "今日運勢", "chooseChart": "選擇命盤", "me": "我自己", "markSelf": "這是我自己", "kind": {"bazi": "八字", "tarot": "生命靈數", "vedic": "印度星盤"}, "chatRead": "請 Zoe 幫我解今天的運勢", "setupChart": "設定我的命盤，每天看專屬運勢", "setupHint": "填一次生日，每天一句專屬運勢"}
+  "dailyQuote": {"title": "今日小語", "fortune": "算算我的今日運勢", "chat": "跟 Zoe 聊這句", "fortuneFull": "看完整運勢", "personalTitle": "今日運勢", "chooseChart": "選擇命盤", "me": "我自己", "markSelf": "這是我自己", "kind": {"bazi": "八字", "tarot": "生命靈數", "vedic": "印度星盤"}, "chatRead": "請 Zoe 幫我解今天的運勢", "setupChart": "設定我的命盤，每天看專屬運勢", "setupHint": "填生日和出生時間，完成後每天看專屬運勢",
+    "basisBazi": "根據你的八字命盤",
+    "basisNumerology": "根據你的生日（生命靈數）"}
 }

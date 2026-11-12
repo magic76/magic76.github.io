@@ -41,6 +41,8 @@
     "retry": "Recarregar",
     "yourProfile": "Seus dados",
     "once": "Configure uma vez",
+    "dailySetupHint": "Depois, acompanhe sua previsão pessoal todos os dias.",
+    "dailyNext": "Ver a previsão de hoje",
     "mode": "Método",
     "birthday": "Data de nascimento",
     "birthTime": "Hora de nascimento",

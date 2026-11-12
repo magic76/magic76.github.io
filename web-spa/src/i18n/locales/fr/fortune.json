@@ -41,6 +41,8 @@
     "retry": "Recharger",
     "yourProfile": "Vos informations",
     "once": "À configurer une fois",
+    "dailySetupHint": "Une fois terminé, consulte ta fortune personnelle chaque jour.",
+    "dailyNext": "Voir la fortune du jour",
     "mode": "Méthode",
     "birthday": "Date de naissance",
     "birthTime": "Heure de naissance",

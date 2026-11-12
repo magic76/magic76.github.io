@@ -41,6 +41,8 @@
     "retry": "Erneut laden",
     "yourProfile": "Deine Angaben",
     "once": "Einmal einrichten",
+    "dailySetupHint": "Danach kannst du jeden Tag dein persönliches Horoskop ansehen.",
+    "dailyNext": "Heutiges Horoskop ansehen",
     "mode": "Methode",
     "birthday": "Geburtsdatum",
     "birthTime": "Geburtszeit",

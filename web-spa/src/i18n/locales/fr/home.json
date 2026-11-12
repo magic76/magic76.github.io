@@ -577,5 +577,7 @@
     "withZoe": "Parler avec Zoe",
     "setup": "Régler Key"
   },
-  "dailyQuote": {"title": "La pensée du jour", "fortune": "Voir ma fortune du jour", "chat": "En parler avec Zoe", "fortuneFull": "Voir la lecture complète", "personalTitle": "Votre fortune du jour", "chooseChart": "Choisir un thème natal", "me": "Mon thème", "markSelf": "Définir comme mon thème", "kind": {"bazi": "BaZi", "tarot": "Numérologie", "vedic": "Thème védique"}, "chatRead": "Demander à Zoe de déchiffrer ma journée", "setupChart": "Créer mon thème pour une guidance quotidienne", "setupHint": "Une seule date de naissance, une pensée personnalisée chaque jour."}
+  "dailyQuote": {"title": "La pensée du jour", "fortune": "Voir ma fortune du jour", "chat": "En parler avec Zoe", "fortuneFull": "Voir la lecture complète", "personalTitle": "Votre fortune du jour", "chooseChart": "Choisir un thème natal", "me": "Mon thème", "markSelf": "Définir comme mon thème", "kind": {"bazi": "BaZi", "tarot": "Numérologie", "vedic": "Thème védique"}, "chatRead": "Demander à Zoe de déchiffrer ma journée", "setupChart": "Créer mon thème pour une guidance quotidienne", "setupHint": "Indique ta date et ton heure de naissance pour découvrir ta fortune du jour.",
+    "basisBazi": "Selon ton thème BaZi",
+    "basisNumerology": "Selon ta date de naissance (numérologie)"}
 }

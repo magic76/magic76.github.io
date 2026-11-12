@@ -41,6 +41,8 @@
     "retry": "Volver a cargar",
     "yourProfile": "Tus datos",
     "once": "Configura una sola vez",
+    "dailySetupHint": "Al terminar, podrás consultar tu fortuna personal cada día.",
+    "dailyNext": "Ver la fortuna de hoy",
     "mode": "Método",
     "birthday": "Fecha de nacimiento",
     "birthTime": "Hora de nacimiento",
