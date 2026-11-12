@@ -2,7 +2,7 @@
 const $=id=>document.getElementById(id);
 const seeds=[103,241,548,871,1296,2039,3597,4407];
 const stages=[3,8,16];
-const profile={name:'繪本魔法樹',height:.93,spread:1.68,wiggle:.08,lean:0,droop:.13};
+const profile={name:'繪本魔法樹',height:1.24,spread:1.12,wiggle:.21,lean:0,droop:.09};
 const palettes=[
  ['#7ad5ab','#ccf4a4','#3f9d86'],
  ['#a7dd78','#f4e79a','#5b9c72'],
