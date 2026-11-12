@@ -116,6 +116,7 @@ export function TimelinePage(){
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{t("timeline.title",{name:person.name})}</h1>
    <p>{t("timeline.intro")}</p>
+   <Link to="/timeline/observe" className="timeline-experience-link">{en?"NEW · The Life Observatory":"新玩法 · 三人命運觀察室"} ↗</Link>
    <Link to="/timeline/simulate" className="timeline-experience-link">{en?"Try the Life Lab · Make choices":"試玩人生實驗室 · 改變命運"} ↗</Link>
   </header>
   <nav className="timeline-people" aria-label={t("timeline.chooseLife")}>
