@@ -16,9 +16,9 @@ function rockPath(c,x,sy,w){
  const p=w/500;c.beginPath();
  c.moveTo(x-w*.46,sy+w*.019);c.bezierCurveTo(x-w*.29,sy-w*.050,x-w*.06,sy-w*.083,x+w*.32,sy-w*.033);
  c.bezierCurveTo(x+w*.49,sy-w*.007,x+w*.46,sy+w*.075,x+w*.38,sy+w*.113);
- c.bezierCurveTo(x+w*.26,sy+w*.21,x+w*.24,sy+w*.34,x+w*.075,sy+w*.47);
- c.bezierCurveTo(x+w*.01,sy+w*.53,x-w*.04,sy+w*.56,x-w*.09,sy+w*.49);
- c.bezierCurveTo(x-w*.22,sy+w*.36,x-w*.27,sy+w*.21,x-w*.41,sy+w*.105);c.closePath();
+ c.bezierCurveTo(x+w*.26,sy+w*.16,x+w*.24,sy+w*.25,x+w*.075,sy+w*.35);
+ c.bezierCurveTo(x+w*.01,sy+w*.38,x-w*.04,sy+w*.40,x-w*.09,sy+w*.36);
+ c.bezierCurveTo(x-w*.22,sy+w*.26,x-w*.27,sy+w*.16,x-w*.41,sy+w*.105);c.closePath();
  void p;
 }
 function watercolor(c,x,y,r,color,seed,amount=22){
@@ -51,8 +51,10 @@ function islandWash(c,x,sy,w,index,seed){
   path(c,[[xx,yy],[xx+w*(.016+r()*.027),yy-w*(.010+r()*.020)],[xx+w*.02,yy+w*.028]],null,null);
   c.fill();
  }
+ // These wash glazes must stay inside the cliff's cut edge. Leaving this
+ // clipped scope created a pale ghost triangle below every floating island.
+ watercolor(c,x,sy+w*.19,w*.32,'#f9d9c7',seed+31,24);
  c.restore();
- watercolor(c,x,sy+w*.2,w*.36,'#f9d9c7',seed+31,32);
 }
 function hangingRoots(c,x,sy,w,seed,stage,index,time,staticMode){
  const r=rand(seed^Math.imul(41+index,65599));
