@@ -141,7 +141,8 @@ try{
   assert.equal(await page.locator(".lo-compare-side").count(),2,"Second world must survive reload");
   await page.goto(address+"/timeline/simulate",{waitUntil:"domcontentloaded"});
   await page.waitForURL(/\/timeline\/observe/);
-  assert.ok(await page.locator(".lo-ending").isVisible(),"Retired V2 bookmark opens V3 instead");
+  await page.locator(".lo-ending").waitFor({state:"visible",timeout:15000});
+  assert.equal(await page.locator(".lo-ending").count(),1,"Retired V2 bookmark opens V3 after lazy load");
   await context.close();
  }
  assert.deepEqual(problems,[],"No uncaught runtime exceptions");
