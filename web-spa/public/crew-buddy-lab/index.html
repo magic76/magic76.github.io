@@ -6,48 +6,50 @@
 <meta name="theme-color" content="#141d3a"/>
 <meta name="description" content="和 Zoe 一起闖關！跳躍、雙人機關、互相救援，每局都能重新出發。"/>
 <meta name="robots" content="noindex, nofollow"/>
-<title>Crew Buddy Adventure｜和 Zoe 一起闖關</title>
+<title>Crew Buddy Ops｜和 Zoe 一起跑跳射擊</title>
 <link rel="stylesheet" href="./buddy.css"/>
+<script src="/neon-swarm-lab/hero-sprites.js" defer></script>
 <script src="./buddy.js" defer></script>
 </head>
 <body>
 <main class="app">
   <header class="topbar">
     <div class="brand"><span class="brand-icon" aria-hidden="true">✦</span><div>
-      <strong>Crew Buddy <span>Adventure</span></strong><small>和 AI 朋友一起玩的雙人小品</small>
+      <strong>Crew Buddy <span>Ops</span></strong><small>和 AI 朋友一起跑跳射擊</small>
     </div></div>
     <div class="top-right"><span class="offline"><span class="green-dot"></span>本地隊友 AI</span><a class="back" href="/">回 Crew 首頁</a></div>
   </header>
   <div class="heading">
-    <div><p class="eyebrow">A LITTLE TWO-PLAYER ADVENTURE</p><h1>這次，<em>一起過關。</em></h1><p>你走你的路，Zoe 也會走自己的路；遇到困難，試著互相幫忙。</p></div>
+    <div><p class="eyebrow">RUN · JUMP · SHOOT · SAVE YOUR BUDDY</p><h1>這次，<em>一起衝出去。</em></h1><p>橫向跑跳射擊 × AI 隊友。你負責突擊，Zoe 會掩護、救援，也需要你的幫忙。</p></div>
     <div class="team"><div class="mini-face human">你</div><span class="plus">＋</span><div class="mini-face zoe">Zoe</div><div class="team-caption">雙人搭檔</div></div>
   </div>
 
-  <section class="game-panel" aria-label="雙人合作闖關遊戲">
+  <section class="game-panel" aria-label="雙人橫向跑跳射擊遊戲">
     <div class="hud">
       <div class="hud-main"><span class="hud-kicker">ROOM <b id="roomIndex">01</b> / 05</span><strong id="roomName">小小斷橋</strong></div>
       <div class="hud-right"><span id="timer">00:00</span><span id="coStatus" class="co-status">一起出發</span></div>
     </div>
     <div class="stage-frame" id="stageFrame">
-      <canvas id="gameCanvas" role="img" aria-label="你與 Zoe 的橫向闖關場景"></canvas>
+      <canvas id="gameCanvas" role="img" aria-label="你與 Zoe 並肩作戰的橫向跑跳射擊場景"></canvas>
+      <div class="combat-hud" aria-live="off"><div class="health-chip"><span class="health-label">YOU</span><span id="playerHearts">♥ ♥ ♥ ♥</span></div><div class="health-chip zoe-health"><span class="health-label">ZOE</span><span id="zoeHearts">♥ ♥ ♥ ♥</span></div><div class="kill-chip">擊破 <strong id="killCount">0</strong></div></div>
       <div class="game-overlay" id="gameOverlay">
         <div class="start-modal">
           <div class="emoji-scene" aria-hidden="true"><span class="me-icon">●</span><span class="line-icon">⚡</span><span class="zoe-icon">●</span></div>
-          <span class="micro-label">PLAY TOGETHER · NOT ALONE</span>
-          <h2 id="overlayTitle">你和 Zoe 的第一場冒險</h2>
-          <p id="overlayText">五個小關卡：跳過斷橋、合作開門、一起找星星、救出 Zoe，最後互相接應。沒過關就重試，不會扣命。</p>
-          <button class="primary-btn" id="startBtn" type="button">開始我們的冒險 <span>›</span></button>
-          <p id="overlayFootnote" class="overlay-note">約 1～3 分鐘一輪 · 無限重玩 · 本地儲存共同回憶</p>
+          <span class="micro-label">TWO GUNS · ONE TEAM</span>
+          <h2 id="overlayTitle">和 Zoe 一起衝出重圍！</h2>
+          <p id="overlayText">五個短關卡：跳躍、射擊機械敵人、打開雙人機關、互相救援。Zoe 會自動掩護，也聽得懂你的簡單指令。</p>
+          <button class="primary-btn" id="startBtn" type="button">開始雙人出擊 <span>›</span></button>
+          <p id="overlayFootnote" class="overlay-note">每局約 2～4 分鐘 · 無限重玩 · 沿用舊版銀髮狙擊少女</p>
         </div>
       </div>
       <div class="zoe-caption" id="zoeCaption" aria-live="polite"><div class="zoe-dot">Z</div><span id="zoeLine">嗨！這次我們一起玩，好不好？</span></div>
       <div class="mobile-controls" aria-label="觸控遊戲操作">
         <div class="move-controls"><button id="leftBtn" aria-label="向左移動" type="button">◀</button><button id="rightBtn" aria-label="向右移動" type="button">▶</button></div>
-        <button class="jump-btn" id="jumpBtn" type="button" aria-label="跳躍">跳！<small>JUMP</small></button>
+        <div class="action-controls"><button class="fire-btn" id="fireBtn" type="button" aria-label="開槍">射擊<small>FIRE</small></button><button class="jump-btn" id="jumpBtn" type="button" aria-label="跳躍">跳！<small>JUMP</small></button></div>
       </div>
     </div>
     <div class="room-footer">
-      <div><strong id="objectiveLabel">一起跳過斷橋</strong><span id="objectiveHint">靠近缺口時按「跳！」。Zoe 會自己找路。</span></div>
+      <div><strong id="objectiveLabel">掩護 Zoe 跳過斷橋</strong><span id="objectiveHint">按「射擊」打倒機械敵人，靠近缺口時按「跳！」。</span></div>
       <div class="room-dots" id="roomDots" aria-label="關卡進度"><i class="active"></i><i></i><i></i><i></i><i></i></div>
     </div>
   </section>
@@ -58,10 +60,10 @@
       <button data-command="follow" type="button" class="selected"><span aria-hidden="true">👣</span> 跟著我</button>
       <button data-command="lead" type="button"><span aria-hidden="true">🚀</span> 你先走</button>
       <button data-command="wait" type="button"><span aria-hidden="true">✋</span> 等我一下</button>
-      <button data-command="help" type="button"><span aria-hidden="true">🤝</span> 幫幫我</button>
+      <button data-command="help" type="button"><span aria-hidden="true">🛡️</span> 幫我掩護</button>
     </div>
     <form id="sayForm" class="say-form"><label for="sayInput" class="visually-hidden">跟 Zoe 說話</label><input id="sayInput" autocomplete="off" maxlength="60" placeholder="也可以打字：Zoe，等我一下、你先走……"/><button type="submit">告訴 Zoe</button></form>
-    <p class="friend-hint">手機：左右移動、跳！　鍵盤：← →、A D 移動，空白鍵／↑ 跳躍。指令會真的影響 Zoe 的行動。</p>
+    <p class="friend-hint">手機：左右、射擊、跳躍。鍵盤：← → 或 A/D 移動，空白鍵／↑ 跳躍，J／K 開槍。Zoe 會自動掩護，也能指揮她等你或先走。</p>
   </section>
 
   <section class="memory-panel">
@@ -69,7 +71,7 @@
     <div class="memory-stats"><span>一起玩過 <strong id="runsTotal">0</strong> 輪</span><span>Zoe 救你 <strong id="zoeRescues">0</strong> 次</span><span>你救 Zoe <strong id="playerRescues">0</strong> 次</span></div>
     <p id="lastMemory" class="memory-line">我們的冒險故事，從這裡開始。</p>
   </section>
-  <footer class="footnote">這是 Crew Buddy Adventure 的本地互動原型。Zoe 的移動、合作與台詞由可檢驗的遊戲規則控制，目前尚未連接 Gemini Live；不會把腳本 NPC 說成真正的即時 LLM。進度只保存在這台裝置，不傳到伺服器。</footer>
+  <footer class="footnote">這是 Crew Buddy Ops 的本地跑跳射擊原型，使用 Crew 自製銀髮狙擊少女動畫，未使用其他遊戲作品的美術或音樂。Zoe 的移動、合作與台詞由可檢驗的遊戲規則控制，目前尚未連接 Gemini Live；不會把腳本 NPC 說成真正的即時 LLM。進度只保存在這台裝置，不傳到伺服器。</footer>
 </main>
 </body>
 </html>
