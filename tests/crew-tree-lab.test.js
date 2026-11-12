@@ -183,3 +183,29 @@ test('export makes an actual canvas PNG and invalid imported trees fail closed',
  assert.equal(qa.validateTree({seed:1,growth:[],genome:{silhouette:999,leaf:0,palette:0}}),null);
  assert.equal(qa.validateTree(null),null);
 });
+
+test('the same topic can grow differently from emotion and speaking intensity',()=>{
+ const {qa}=boot();
+ qa.post('今天咖啡真的好棒，我超開心');
+ const original=qa.state().current;
+ const base=JSON.parse(JSON.stringify(original));
+ const up=qa.validateTree({...base,growth:[{topic:'food',mood:1,energy:1}]});
+ const down=qa.validateTree({...base,growth:[{topic:'food',mood:-1,energy:0}]});
+ assert.notEqual(qa.treeSignature(up),qa.treeSignature(down),
+  'mood and energy must change branch geometry, not just saved metadata');
+});
+test('gallery renders real mini tree canvases and recreates the exact seed after reload',()=>{
+ const {qa,memory,get}=boot();
+ for(const sentence of ['咖啡蛋糕','宇宙旅行','好開心喜歡你'])qa.post(sentence);
+ const originalSignature=qa.treeSignature(qa.state().current);
+ assert.equal(qa.save(),true);
+ const cards=get('gallery').children;
+ assert.equal(cards.length,1);
+ assert.equal(cards[0].children[0].tagName,'CANVAS',
+  'a tree thumbnail must be rendered, not a generic emoji');
+ const restored=boot({storage:Object.fromEntries(memory)});
+ assert.equal(restored.qa.state().current.growth.length,3);
+ assert.equal(restored.qa.treeSignature(restored.qa.state().current),originalSignature);
+ assert.equal(restored.qa.state().forest.length,1);
+ assert.equal(restored.get('gallery').children.length,1);
+});
