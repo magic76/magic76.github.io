@@ -273,7 +273,11 @@ function loadArtSprites(){
   try{
    const img=new ImageClass();
    spriteBank[name]={image:img,loaded:false,failed:false};
-   img.onload=()=>{spriteBank[name].loaded=true;};
+   img.onload=()=>{
+    spriteBank[name].loaded=true;
+    if(typeof root.dispatchEvent==='function'&&typeof root.Event==='function')
+      root.dispatchEvent(new root.Event('crew-tree-art-ready'));
+   };
    img.onerror=()=>{spriteBank[name].failed=true;};
    img.src='/crew-tree-lab/art/'+name;
   }catch{spriteBank[name]={image:null,loaded:false,failed:true};}
