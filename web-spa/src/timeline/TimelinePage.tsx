@@ -116,7 +116,6 @@ export function TimelinePage(){
   <header className="timeline-intro"><span className="kicker">CREW TIMELINE</span>
    <h1>{t("timeline.title",{name:person.name})}</h1>
    <p>{t("timeline.intro")}</p>
-   <Link to="/timeline/observe" className="timeline-experience-link">{en?"Crew Life Experiment Box":"生活實驗箱 · 三個 AI 朋友會怎麼反應？"} ↗</Link>
   </header>
   <nav className="timeline-people" aria-label={t("timeline.chooseLife")}>
    {TIMELINE_IDS.map(id=><button type="button" key={id} className={"timeline-person "+(characterId===id?"selected":"")}
