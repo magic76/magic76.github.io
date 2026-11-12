@@ -72,6 +72,11 @@ test('all four original plates and explicitly named authoring tools are present'
  const bake=fs.readFileSync(path.join(ROOT,'bake.js'),'utf8');
  assert.match(bake,/p5\.brush@3\.0\.0/);assert.match(bake,/paper\.PaperScope/);
  assert.match(bake,/brush\.render\(\)/);assert.match(bake,/readSkeletonJson/);
+ assert.match(bake,/vendor\/rigby2d\/src\/core\/interop\.js/);
+ const license=fs.readFileSync(path.join(ROOT,'vendor/rigby2d/LICENSE-MIT'),'utf8');
+ assert.match(license,/MIT License/);
+ const upstream=fs.readFileSync(path.join(ROOT,'vendor/rigby2d/src/core/interop.js'),'utf8');
+ assert.match(upstream,/SPDX-License-Identifier: MIT OR Apache-2.0/);
  const rig=JSON.parse(fs.readFileSync(path.join(ROOT,'rig/jelly-tree.skeleton.json'),'utf8'));
  assert.equal(rig.bones.length,21);assert.ok(rig.animations.sway);
  const names=new Set();
