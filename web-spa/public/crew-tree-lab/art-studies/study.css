@@ -23,3 +23,35 @@
  border:1px solid #b8cba8;border-radius:12px;font-size:13px;font-weight:700}
 .reaction-status{font-size:12px;padding:8px 14px 10px;margin:0;background:#dbe2ce;color:#3b5549}
 @media(prefers-reduced-motion:reduce){.simulate-chat{transition:none}}
+
+/* V7: logical 800×820 artboard and CSS must have the SAME aspect ratio.
+   Previous mobile 4/4.6 caused the light blank letterbox at the top/bottom. */
+.frame canvas{aspect-ratio:800 / 820}
+@media(max-width:840px){.frame canvas{aspect-ratio:800 / 820}}
+@media(max-width:540px){
+ .masthead{padding:8px 0 7px;gap:9px}
+ .logo{width:36px;height:36px;border-radius:10px;font-size:20px}
+ .brand{gap:7px}
+ .brand strong{font-size:13px}
+ .brand small{font-size:9px;letter-spacing:.3px}
+ .back{min-height:44px;display:grid;place-items:center;padding:6px 9px;font-size:11px}
+ .introduction{padding:6px 3px 9px}
+ .introduction .eyebrow{display:none}
+ .introduction h1{font-size:21px;line-height:1.19;margin:0 0 4px}
+ .introduction .intro-copy{display:-webkit-box;-webkit-box-orient:vertical;
+  -webkit-line-clamp:1;overflow:hidden;font-size:11px;line-height:1.45}
+ .studio{padding:8px;border-radius:15px}
+ .studio-bar{gap:4px;padding:1px 3px}
+ .studio-bar .eyebrow{display:none}
+ .studio-bar h2{font-size:16px;line-height:1.25}
+ .studio-bar .status{font-size:10px}
+ .scenes{gap:7px;margin:7px 0}
+ .scenes button{min-height:48px;padding:5px 7px;gap:6px;border-radius:11px}
+ .scenes .num{font-size:14px}
+ .scenes small{display:none}
+ .art-head{padding:7px 10px;min-height:34px}
+ .art-head span:last-child{font-size:7px;letter-spacing:.6px}
+ .frame canvas{aspect-ratio:800 / 820}
+ .frame-stamp{bottom:8px;right:9px;font-size:7px;letter-spacing:.5px}
+ .future-hint{z-index:1}
+}

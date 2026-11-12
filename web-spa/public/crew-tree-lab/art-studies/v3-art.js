@@ -96,16 +96,17 @@ function islandHollow(c,x,ground,w,time,still,stage,seed){
  const open=still?1:(Math.cos(time*.00112+seed*.01)>.93?.10:1);
  c.save();
  c.translate(xx,yy);
- const width=stage>=16?21:14,height=stage>=16?28:18;
- c.fillStyle='#5a4c51';c.strokeStyle='#bdab8d';c.lineWidth=3.2;
+ const width=stage>=16?29:21,height=stage>=16?36:27;
+ c.fillStyle='#5a4c51';c.strokeStyle='#e0c8a4';c.lineWidth=4.1;
  c.beginPath();c.ellipse(0,0,width,height,0,0,TAU);c.fill();c.stroke();
  glow(c,0,0,width*1.8,'#f8db9e94');
  // Shy tree hollow resident: two cream eyes under a blinking leafy eyebrow.
  for(const side of [-1,1]){
-  c.fillStyle='#f9edc7';c.beginPath();c.ellipse(side*7,-2,3.4,4.8*open,0,0,TAU);c.fill();
-  if(open>.8){c.fillStyle='#44585b';c.beginPath();c.arc(side*7+1,-1,1.6,0,TAU);c.fill();}
+  c.fillStyle='#fff0c6';c.beginPath();c.ellipse(side*9,-4,4.3,6.2*open,0,0,TAU);c.fill();
+  if(open>.8){c.fillStyle='#44585b';c.beginPath();c.arc(side*9+1,-3,2.1,0,TAU);c.fill();}
  }
- c.strokeStyle='#d5baa2';c.lineWidth=1.5;c.beginPath();c.arc(0,9,5,.2,Math.PI-.2);c.stroke();
+ c.strokeStyle='#f2d2b3';c.lineWidth=2.1;c.beginPath();c.arc(0,11,7,.2,Math.PI-.2);c.stroke();
+ c.fillStyle='#ecb9a8';for(const side of [-1,1]){c.beginPath();c.arc(side*18,8,3.7,0,TAU);c.fill();}
  c.restore();
 }
 function juvenileMedusa(c,model,time,still,art){
