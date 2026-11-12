@@ -63,7 +63,11 @@ fs.mkdirSync(OUT,{recursive:true});
   await p.locator('#checkRig').click();
   await p.waitForFunction(()=>document.querySelector('#rigReport')?.textContent?.includes('成功')||
     document.querySelector('#rigReport')?.textContent?.includes('失敗'),{timeout:25000}).catch(()=>{});
-  console.log('RIGBY2D_RUNTIME_PROBE '+(await p.locator('#rigReport').innerText()).slice(0,500));
+  const rigStatus=await p.locator('#rigReport').innerText();
+  assert.match(rigStatus,/Rigby2D 實際 Runtime 驗證成功/,rigStatus);
+  assert.match(rigStatus,/bones=21/);
+  assert.match(rigStatus,/warnings=0/);
+  console.log('RIGBY2D_RUNTIME_PROBE '+rigStatus.slice(0,500));
   await p.locator('#bakeBtn').click();
   await p.waitForFunction(()=>document.querySelector('#bakeReport')?.textContent?.includes('完成')||
     document.querySelector('#bakeReport')?.textContent?.includes('失敗'),{timeout:25000}).catch(()=>{});
