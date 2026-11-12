@@ -73,6 +73,7 @@ try{
   await snapshot(page,width+"-intro");
   await page.locator(".lo-intro .lo-primary").click();
   await page.locator(".lo-scene").first().waitFor({state:"visible"});
+  assert.ok(await page.evaluate(()=>window.scrollY)<5,"Starting V3 must show the new chapter from the top");
   assert.equal(await page.locator(".lo-scene").count(),3);
   await waitForPortraits(page,width+" watch");
   await checkTapTargets(page,width+" observe");
@@ -83,6 +84,7 @@ try{
   assert.equal(await page.locator(".lo-budget strong").innerText().then(s=>s.trim().split(" ")[0]),"0");
   assert.ok(await page.locator(".lo-scene-mira .lo-option-list button").first().isDisabled(),"Intervention budget must prevent a third choice");
   await watch(page);
+  assert.ok(await page.evaluate(()=>window.scrollY)<5,"Recap must begin from the top");
   assert.match(await page.locator(".lo-ripple h3").innerText(),/沒有人去的車站/);
   await snapshot(page,width+"-recap-16");
   await page.reload();
