@@ -221,7 +221,20 @@ test("D9 daily discovery is a real daily action, not an automatic page-view stre
 test("D10 daily flip and illustrated share respect assets and accessibility",()=>{
  const css=read("web-spa/src/fortune/dailyCard.css");
  assert.match(css,/rotateY\(180deg\)/);
- assert.match(css,/prefers-reduced-motion:reduce/);
+ const portrait=/\.fortune-daily-portrait\{([^}]+)\}/.exec(css)?.[1]||"";
+ const imageCss=/\.fortune-daily-portrait img\{([^}]+)\}/.exec(css)?.[1]||"";
+ assert.match(portrait,/border-radius:50%/);
+ assert.match(portrait,/overflow:hidden/,"the square artwork must be clipped by its circular container");
+ assert.match(imageCss,/object-fit:cover/);
+ assert.match(imageCss,/transform:scale\(1\.15\)/);
+ assert.match(imageCss,/animation:fortune-daily-float/);
+ assert.doesNotMatch(imageCss,/drop-shadow/,"do not draw square artwork shadows past the circle");
+ assert.match(portrait,/box-shadow:/,"the outer circular container owns the shadow");
+ assert.match(css,/@keyframes fortune-daily-float\{0%,100%\{transform:translateY\(0\) scale\(1\.15\)\}50%\{transform:translateY\(-7px\) scale\(1\.15\)\}\}/,
+  "the animation must retain zoom at both rest and float positions");
+ assert.match(css,/@media\(max-width:430px\)[^\n]*\.fortune-daily-portrait\{[^}]*width:136px;height:136px/,
+  "mobile artwork must be circular, not 136x126 oval");
+ assert.match(css,/@media\(prefers-reduced-motion:reduce\)[^\n]*\.fortune-daily-portrait img[^}]*animation:none!important/);
  const artPattern=/^\/fortune\/daily\/art\/daily-(peers|resources|expression|responsibility|learning)-([123])\.webp$/;
  const num=getCard(onDate("numerology","2026-11-08"));
  const baziCard=getCard(onDate("bazi","2026-11-08",profile,{bazi,lunar:fakeSolar}));
@@ -248,8 +261,12 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
   "share artwork allowlist must accept exactly the daily categories and variants");
  assert.doesNotMatch(share.slice(share.indexOf("async function dailyArt"),share.indexOf("export async function buildDailyShareFile")),
   /identity\/art/,"daily sharing must not allow the previous identity images");
- assert.match(share,/Math\.min\(width\/art\.naturalWidth,height\/art\.naturalHeight\)/,
-  "shared images must be contained rather than stretched");
+ assert.match(share,/Math\.max\(height\/art\.naturalWidth,height\/art\.naturalHeight\)\*1\.15/,
+  "shared artwork must use undistorted cover with 15% overscan");
+ assert.match(share,/ctx\.arc\(cx,cy,radius,0,Math\.PI\*2\);ctx\.clip\(\)/,
+  "shared artwork must be clipped to a true circle");
+ assert.match(share,/ctx\.save\(\)/);
+ assert.match(share,/ctx\.restore\(\)/);
  const langs=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
  for(const lang of langs){
   const doc=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/fortuneDaily.json"));
@@ -257,27 +274,46 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
  }
 });
  
-test("D10b sharing allowlist and centered contain rendering use only valid daily artwork",async()=>{
+test("D10b sharing allowlist and centered circular cover rendering use only valid daily artwork",async()=>{
  const {buildDailyShareFile}=loadTs("web-spa/src/fortune/shareCard.ts",["buildDailyShareFile"]);
  const previousImage=global.Image,previousDocument=global.document;
- const requested=[],drawn=[];
- const ctx={createLinearGradient:()=>({addColorStop(){}}),fillRect(){},beginPath(){},arc(){},fill(){},fillText(){},
-  measureText:()=>({width:0}),drawImage(...args){drawn.push(args);}};
- global.Image=class{naturalWidth=1000;naturalHeight=1000;
-  set src(url){requested.push(url);this.onload();}};
+ const requested=[],drawn=[],calls=[];
+ const ctx={createLinearGradient:()=>({addColorStop(){}}),fillRect(){},
+  beginPath(){calls.push(["beginPath"]);},arc(...args){calls.push(["arc",...args]);},
+  save(){calls.push(["save"]);},clip(){calls.push(["clip"]);},restore(){calls.push(["restore"]);},
+  fill(){},fillText(){},measureText:()=>({width:0}),
+  drawImage(...args){drawn.push(args);calls.push(["drawImage"]);}};
+ global.Image=class{naturalWidth=0;naturalHeight=0;
+  set src(url){requested.push(url);
+   // Square and landscape artwork both cover the same circle without stretching.
+   [this.naturalWidth,this.naturalHeight]=requested.length===1?[1000,1000]:[1200,800];
+   this.onload();}};
  global.document={createElement:tag=>{assert.equal(tag,"canvas");return {getContext:()=>ctx,
   toBlob:callback=>callback(new Blob(["test"],{type:"image/png"}))};}};
  const labels={doLabel:"Do",avoidLabel:"Avoid",luckyColor:"Color",disclaimer:"Info",kindLabel:"Numerology"};
  try{
   const cards=[getCard(onDate("numerology","2026-11-08")),
    getCard(onDate("bazi","2026-11-08",profile,{bazi,lunar:fakeSolar}))];
-  for(const card of cards){
+  const expected=[[269.25,143.75,540.5,540.5],[134.125,143.75,810.75,540.5]];
+  for(const [i,card] of cards.entries()){
+   const from=calls.length;
    const file=await buildDailyShareFile(card,labels);
    assert.equal(file.type,"image/png");
    assert.equal(requested.at(-1),card.artSrc);
    const [image,x,y,w,h]=drawn.at(-1);
-   assert.equal(image.naturalWidth,1000);
-   assert.deepEqual([x,y,w,h],[304.5,179,470,470],"square art stays centered and undistorted in 835x470 frame");
+   for(const [index,coordinate] of [x,y,w,h].entries())
+    assert.ok(Math.abs(coordinate-expected[i][index])<1e-9,"15% overscanned art must stay centered and correctly sized");
+   assert.ok(Math.abs(w/h-image.naturalWidth/image.naturalHeight)<1e-12,"art must not stretch");
+   const operations=calls.slice(from);
+   const arc=operations.find(op=>op[0]==="arc"&&op[3]===235);
+   assert.deepEqual(arc,["arc",539.5,414,235,0,Math.PI*2],"circle centered in 835x470 frame");
+   assert.equal(operations.filter(op=>op[0]==="save").length,1);
+   assert.equal(operations.filter(op=>op[0]==="clip").length,1);
+   assert.equal(operations.filter(op=>op[0]==="restore").length,1);
+   const clip=operations.findIndex(op=>op[0]==="clip");
+   const draw=operations.findIndex(op=>op[0]==="drawImage");
+   const restore=operations.findIndex(op=>op[0]==="restore");
+   assert.ok(clip>0&&draw>clip&&restore>draw,"draw must be inside the circular clipping context");
   }
   for(const invalid of ["/fortune/identity/art/tarot-22.webp",
    "/fortune/daily/art/daily-peers-4.webp","/fortune/daily/art/daily-unknown-2.webp",
