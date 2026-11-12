@@ -115,6 +115,7 @@
     "pricingLink": "Lihat harga resmi Google",
     "setupNoticeTitle": "Belum punya Gemini Key? Buat gratis",
     "setupNoticeDesc": "Dapatkan kunci dengan akun Google dalam sekitar satu menit. Satu kunci berlaku untuk fitur AI Crew; game offline tidak memerlukan kunci. Batas gratis bergantung model.",
+    "keyCapabilities": "Tanpa Key: chat teks dengan teman AI ({{count}} pesan per hari), game tanpa Key, Shorts, dan latihan kosakata. Perlu Key: obrolan suara, kelas, membuat cerita, dan tafsir AI.",
     "setupNoticeAction": "Lihat langkah pengaturan gratis",
     "setupInvalidTitle": "Gemini Key Anda mungkin bermasalah",
     "setupInvalidDesc": "Periksa atau verifikasi ulang kunci, atau buat yang baru secara gratis. Anda akan kembali ke obrolan setelah pengaturan.",

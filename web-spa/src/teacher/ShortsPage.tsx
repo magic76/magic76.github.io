@@ -12,7 +12,8 @@ function readLikes():string[]{
  try{return JSON.parse(localStorage.getItem(LIKE_KEY)||"[]") as string[]}catch{return []}
 }
 export function ShortsPage(){
- const {t}=useTranslation("home");
+ const {t,i18n}=useTranslation("home");
+ const showZhTranslation=i18n.resolvedLanguage==="zh-TW";
  const [searchParams]=useSearchParams();
  const focusPostId=searchParams.get("post");
  // CSS scroll snap on the root can auto-jump to the first photo at hydration.
@@ -178,17 +179,20 @@ export function ShortsPage(){
         aria-pressed={likes.includes(post.id)} onClick={()=>toggleLike(post.id)}>
         <span className="crew-short-like-heart" aria-hidden="true">{likes.includes(post.id)?"♥":"♡"}</span>
        </button>
-       {post.translationZh?<button type="button" className="crew-short-translate" onClick={()=>setTranslated(x=>x===post.id?null:post.id)}
-        aria-label={t("shorts.translation")} title={t("shorts.translation")}
-        aria-expanded={translated===post.id}>
-        <span aria-hidden="true">文</span>
-       </button>:null}
       </div>
      </div>
      <div className="crew-short-body">
       <div className="crew-short-meta"><strong>{post.friendName}</strong><small>{post.publishedAt.slice(0,10)}</small></div>
       {episodes.length>1?<div className="crew-short-episode">{t("shorts.ongoing")} · {t("shorts.part",{part:chapter+1,total:episodes.length})}</div>:null}
       <p lang={post.language}>{post.caption}</p>
+      {showZhTranslation&&post.translationZh&&post.language!=="zh"?<div className="crew-short-translation-wrap">
+       <button type="button" className="crew-short-translation-toggle"
+        onClick={()=>setTranslated(x=>x===post.id?null:post.id)}
+        aria-expanded={translated===post.id} aria-controls={"crew-short-translation-"+post.id}>
+        {t(translated===post.id?"shorts.hideTranslation":"shorts.showTranslation")}
+       </button>
+       <p id={"crew-short-translation-"+post.id} className="crew-short-translation" lang="zh-Hant" hidden={translated!==post.id}>{post.translationZh}</p>
+      </div>:null}
       {previous?<details className="crew-short-recap"><summary>{t("shorts.previous")}</summary>
        <p lang={previous.language}>{previous.caption}</p>
       </details>:null}
@@ -202,7 +206,6 @@ export function ShortsPage(){
         {t("shorts.hooks"+({details:"Details",feelings:"Feelings",next:"Next"} as const)[hook])} <span aria-hidden="true">↗</span>
        </Link>)}</div>
       </div>
-      {post.translationZh&&translated===post.id?<p id={"crew-short-translation-"+post.id} className="crew-short-translation" lang="zh-Hant">{post.translationZh}</p>:null}
      </div>
     </article>})}</div>
    {followUps.length?<aside className="crew-shorts-followups" aria-label={t("shorts.updates")}>

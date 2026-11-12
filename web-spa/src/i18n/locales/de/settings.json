@@ -115,6 +115,7 @@
     "pricingLink": "Offizielle Google-Preise ansehen",
     "setupNoticeTitle": "Noch keinen Gemini-Schlüssel? Kostenlos erstellen",
     "setupNoticeDesc": "Hol dir in etwa einer Minute einen Schlüssel mit deinem Google-Konto. Ein Schlüssel funktioniert für die KI-Funktionen von Crew; Offline-Spiele brauchen keinen. Kostenlose Kontingente hängen vom Modell ab.",
+    "keyCapabilities": "Ohne Key: KI-Freunden schreiben ({{count}} Nachrichten täglich), Spiele ohne Key, Shorts und Vokabeltraining. Mit Key: Sprachchat, Unterricht, Geschichten erstellen und KI-Deutungen.",
     "setupNoticeAction": "Kostenlose Einrichtung ansehen",
     "setupInvalidTitle": "Dein Gemini-Schlüssel funktioniert möglicherweise nicht",
     "setupInvalidDesc": "Prüfe deinen Schlüssel erneut oder erstelle einen neuen kostenlos. Danach kehrst du zum Chat zurück.",

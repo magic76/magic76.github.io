@@ -115,6 +115,7 @@
     "pricingLink": "Xem giá chính thức của Google",
     "setupNoticeTitle": "Chưa có Gemini Key? Tạo miễn phí",
     "setupNoticeDesc": "Dùng tài khoản Google để lấy khóa trong khoảng một phút. Một khóa cho các tính năng AI của Crew; game ngoại tuyến không cần. Hạn mức miễn phí tùy mô hình.",
+    "keyCapabilities": "Không cần Key: nhắn tin với bạn AI ({{count}} tin/ngày), trò chơi không cần Key, Shorts và luyện từ vựng. Cần Key: trò chuyện giọng nói, lớp học, tạo truyện và luận giải AI.",
     "setupNoticeAction": "Xem hướng dẫn thiết lập miễn phí",
     "setupInvalidTitle": "Gemini Key có thể không hoạt động",
     "setupInvalidDesc": "Kiểm tra hoặc xác minh lại khóa, hoặc tạo khóa mới miễn phí. Sau khi thiết lập bạn sẽ quay lại cuộc trò chuyện.",

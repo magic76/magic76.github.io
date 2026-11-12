@@ -51,7 +51,7 @@ test("Crew Shorts never plays a generic browser voice that disagrees with the ch
  assert.equal(page.includes("speak(post.caption"),false);
  assert.doesNotMatch(page,/>聽發音<|>Listen</);
  assert.match(page,/shortsChatUrl\(post,undefined,0\)/);
- assert.match(page,/t\("shorts\.translation"\)/);
+ assert.match(page,/t\(translated===post.id\?"shorts.hideTranslation":"shorts.showTranslation"\)/);
  const translations=JSON.parse(load("web-spa/src/i18n/locales/zh-TW/home.json"));
  assert.equal(translations.shorts.translation,"翻譯");
 });
