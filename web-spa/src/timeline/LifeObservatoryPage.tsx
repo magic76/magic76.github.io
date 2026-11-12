@@ -172,11 +172,11 @@ export function LifeObservatoryPage(){
   else setStorageWarning(true);
  };
  return <main className="lo-page">
-  <header className="lo-header">
+  <header className={"lo-header"+(run?" lo-header-playing":"")}>
    <div className="lo-header-links"><Link to="/games">← {l("返回小遊戲","Back to Games")}</Link><span>CREW · LIFE OBSERVATORY</span></div>
    <div className="lo-title-area"><div>
     <span className="lo-eyebrow"><i/> CREW · THE LIFE OBSERVATORY</span>
-    <h1>{l("如果你不在，他們會過著怎樣的人生？","What happens to them when you're gone?")}</h1>
+    <h1>{run?l("三人命運觀察室","The Life Observatory"):l("如果你不在，他們會過著怎樣的人生？","What happens to them when you're gone?")}</h1>
     <p>{l("三個人，一個世界。你可以影響他們，卻無法替他們決定一切。","Three people, one world. Influence their lives, but you cannot decide everything for them.")}</p>
    </div><div className="lo-side-stamp" aria-hidden="true"><span>03</span><small>PARALLEL<br/>LIVES</small></div></div>
   </header>
@@ -192,7 +192,6 @@ export function LifeObservatoryPage(){
   </section>:<>
    <ChapterBar run={run} language={language}/>
    <SceneWorld run={run} language={language} focused={run.phase==="watch"?focusedActor:undefined} onFocus={run.phase==="watch"?focusFromPortrait:undefined}/>
-   <BondRow run={run} language={language} before={run.phase!=="watch"?history?.before:undefined}/>
    {run.phase==="watch"?<>
     <section className="lo-feed">
      <div className="lo-feed-top"><div><span className="lo-eyebrow">CURRENT SCENES · {age}</span>
@@ -258,6 +257,7 @@ export function LifeObservatoryPage(){
        {history.ripple.fromAge&&<small>{l("這次變化，與","This echoes choices from")} {history.ripple.fromAge} {l("歲時的經歷有關","years old")}</small>}
       </div>
      </div>
+     <BondRow run={run} language={language} before={history.before}/>
      <div className="lo-outcomes">{history.decisions.map(decision=><article key={decision.id} className={"lo-outcome lo-outcome-"+decision.id}>
       <div><span>{names[decision.id]}</span><small>{decision.source==="player"?l("你的介入","Your intervention"):l("他自己決定","Their own choice")}</small></div>
       <h3>{decision.decision[language]}</h3><p>{decision.outcome[language]}</p>
@@ -271,6 +271,7 @@ export function LifeObservatoryPage(){
      <span className="lo-eyebrow">THE YEARS BETWEEN · ENDING</span>
      <h2>{l("他們都長大了。","They grew up.")}</h2>
      <p className="lo-ending-lead">{observerEnding(run)[language]}</p>
+     <BondRow run={run} language={language}/>
      <div className="lo-ending-story">{run.history.map(ch=><article key={ch.age}><span>{ch.age} {l("歲","years")}</span><div><h3>{ch.ripple.title[language]}</h3><p>{ch.ripple.body[language]}</p></div></article>)}</div>
      <div className="lo-ending-actions"><button type="button" className="lo-primary" onClick={()=>start(run.seed,run)}>
       {l("從同一起點再玩一次","Replay the same starting point")} <span aria-hidden="true">↗</span></button>
