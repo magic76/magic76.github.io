@@ -7,6 +7,7 @@ const painter=fs.readFileSync(path.join(ROOT,'character-paint.js'),'utf8');
 const v3=fs.readFileSync(path.join(ROOT,'v3-art.js'),'utf8');
 const v4=fs.readFileSync(path.join(ROOT,'v4-art.js'),'utf8');
 const v5=fs.readFileSync(path.join(ROOT,'v5-art.js'),'utf8');
+const v6=fs.readFileSync(path.join(ROOT,'v6-art.js'),'utf8');
 const html=fs.readFileSync(path.join(ROOT,'index.html'),'utf8');
 function boot(){
  const nodes=new Map(),gradient=()=>({addColorStop(){}}),draw={paths:0};
@@ -28,16 +29,16 @@ function boot(){
  const win={matchMedia:()=>({matches:true,addEventListener(){}}),Image:MockImage,addEventListener(){}};
  const scope={window:win,document:doc,location:{search:'?qa=1'},Math,URLSearchParams,Number,Map,
   requestAnimationFrame(){throw Error('Reduced-motion page should be still');}};
- vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
+ vm.createContext(scope);vm.runInContext(v3,scope,{timeout:10000});vm.runInContext(v4,scope,{timeout:10000});vm.runInContext(v5,scope,{timeout:10000});vm.runInContext(v6,scope,{timeout:10000});vm.runInContext(painter,scope,{timeout:10000});vm.runInContext(source,scope,{timeout:10000});
  return {qa:win.__CREW_STUDIES_QA__,draw};
 }
 test('isolated art studies never touch current V5 storage or chat',()=>{
  assert.match(html,/data-scene="island"/);assert.match(html,/data-scene="jelly"/);
  assert.match(html,/data-stage="16"/);assert.match(html,/V5 收藏/);
- assert.match(html,/character-paint\.js\?v=5-20261113/);
- assert.match(html,/v3-art\.js\?v=5-20261113/);
- assert.match(html,/v4-art\.js\?v=5-20261113/);
- assert.match(html,/v5-art\.js\?v=5-20261113/);
+ assert.match(html,/character-paint\.js\?v=6-20261113/);
+ assert.match(html,/v3-art\.js\?v=6-20261113/);
+ assert.match(html,/v4-art\.js\?v=6-20261113/);
+ assert.match(html,/v5-art\.js\?v=6-20261113/);
  assert.match(html,/simulateChatBtn/);
  assert.match(html,/tabindex="0"/);
  assert.match(html,/silhouetteBtn/);
@@ -165,7 +166,7 @@ test('V5 morphs full-size leaf staircase instead of scribble-ring plates',()=>{
  assert.match(v5,/function emergence\(/);
  assert.match(v5,/function jellyGrowth\(/);
  assert.match(v5,/function capOcclusion\(/);
- assert.match(painter,/CrewFantasyV5\.spiralStair/);
+ assert.match(painter,/CrewFantasyV6\.rootedSpiral/);
  assert.doesNotMatch(painter,/art\(c,'spiral-leaf-tiers\.svg'/);
  const {qa}=boot();assert.equal(qa.sceneModel('island',16,103).units[0].species,'spiral');
 });
@@ -193,4 +194,51 @@ test('V5 has real transition frames and keyboard accessible hit reactions',()=>{
  assert.equal(qa.hitTest('island',16,397,450),true);
  assert.equal(qa.hitTest('jelly',16,400,294),true);
  assert.equal(qa.hitTest('island',16,50,50),false);
+});
+
+test('V6 tree is rooted: each leaf has a visible stem attachment along climbing trunk',()=>{
+ assert.match(v6,/function spiralGeometry\(/);
+ assert.match(v6,/function taperedStem\(/);
+ assert.match(v6,/function drawLeaf\(/);
+ assert.match(v6,/function rootedSpiral\(/);
+ assert.match(v6,/function paperWash\(/);
+ assert.match(painter,/CrewFantasyV6\.rootedSpiral/);
+ assert.doesNotMatch(painter,/CrewFantasyV5\.spiralStair\(/);
+ const {qa}=boot();
+ const young=qa.spiralGeometry(8),adult=qa.spiralGeometry(16);
+ assert.equal(young.count,8);assert.equal(adult.count,10);
+ assert.equal(adult.leaves.length,10);
+ assert.ok(adult.span>young.span,'mature trunk grows taller than young trunk');
+ assert.ok(adult.tip.y<adult.leaves[9].node.y,'lit top bud grows above highest leaf');
+ let prevY=Infinity,prevLen=Infinity;
+ for(const leaf of adult.leaves){
+  const node=adult.stem(leaf.t);
+  assert.ok(Math.abs(leaf.node.x-node.x)<1e-6,'branch connects exactly at trunk x');
+  assert.ok(Math.abs(leaf.node.y-node.y)<1e-6,'branch connects exactly at trunk y');
+  assert.ok(leaf.node.y<prevY,'spiral tier rises with growth');
+  assert.ok(leaf.length<prevLen,'large leaves taper to small leaves at top');
+  assert.ok(Math.hypot(leaf.center.x-leaf.node.x,leaf.center.y-leaf.node.y)>5);
+  prevY=leaf.node.y;prevLen=leaf.length;
+ }
+ for(const seed of [103,241])assert.equal(
+  JSON.stringify(qa.sceneModel('island',16,seed)),JSON.stringify(qa.sceneModel('island',16,seed)));
+});
+test('V6 medusa has botanical rim, connected coral roots, four true bell palettes',()=>{
+ assert.match(v6,/function coralRoots\(/);
+ assert.match(v6,/function bellLeaves\(/);
+ assert.match(v6,/function tintCanopy\(/);
+ assert.match(source,/CrewFantasyV6\.coralRoots/);
+ assert.match(source,/CrewFantasyV6\.bellLeaves/);
+ assert.match(source,/CrewFantasyV6\.tintCanopy/);
+ assert.match(source,/CrewFantasyV6\.paperWash/);
+ const paletteMatches=v6.match(/bell:\[/g)||[];
+ assert.equal(paletteMatches.length,4);
+ const {qa}=boot();
+ for(const scene of ['island','jelly']){
+  for(const stage of [3,8,16]){
+   assert.equal(qa.paint(scene,stage,103,'travel').stage,stage);
+   assert.equal(qa.growthFrame(scene,stage===3?3:stage===8?3:8,stage,.5).stage,stage);
+   assert.equal(qa.touchFrame(scene,.45).stage,16);
+  }
+ }
 });
