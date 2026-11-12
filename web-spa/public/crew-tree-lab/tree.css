@@ -5,3 +5,4 @@
 
 /* Each saved tree shows its real generated morphology, not a generic category icon. */
 .tree-card .tree-thumb{width:54px;height:64px;flex-shrink:0;border-radius:9px;background:#7aada1}
+\n.tree-art-version{position:absolute;right:12px;top:12px;padding:6px 9px;background:#173d35d6;color:#e4ffe3;border:1px solid #c4f0c05e;border-radius:999px;font-size:10px;letter-spacing:.2px;font-weight:800;pointer-events:none;box-shadow:0 3px 13px #183b314c}\n
