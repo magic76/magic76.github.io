@@ -149,7 +149,9 @@ export function LifeCafePage(){
  <p>{l("Mira 喜歡拍照，Ethan 總帶著吉他，Hana 今天卻一直望著窗外。他們三個從小就認識。","Mira takes pictures, Ethan plays guitar, and Hana keeps looking out the window. They've been friends since childhood.")}</p>
  <blockquote>{l("「我可能要離開了。」","“I might be leaving.”")}</blockquote>
  <p>{l("桌上突然出現一封沒有署名的信。到底是誰寫的？為什麼不敢親口說？","An unsigned letter appears on the table. Who wrote it, and why couldn't they say it aloud?")}</p>
- <strong>{l("先把這封信交給一個人，看看接下來會發生什麼。","Give the letter to one of them and watch what happens.")}</strong>
+ <button type="button" className="lc-story-start" onClick={()=>document.getElementById("lc-console")?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"})}>
+  {l("把信交給誰？開始觀察","Who gets the letter? Start watching")} <span aria-hidden="true">↓</span>
+ </button>
 </section>}
 {!opening&&world.phase==="ready"&&<div className="lc-story-progress">
  <span aria-hidden="true">✉️</span>
@@ -172,7 +174,7 @@ export function LifeCafePage(){
      <p>{reacting&&last?last.news.title[language]:finished?l("今晚的故事有了結局","Tonight's story has an ending"):opening?l("「我可能要離開了。」誰寫了這封信？","Who wrote 'I might be leaving'?"):l("信交出去了，故事還沒有結束","The letter is out, but the story is not over.")}</p>
     </div>
    </section>
-   {world.phase==="ready"&&<section className="lc-console">
+   {world.phase==="ready"&&<section className="lc-console" id="lc-console">
     <div className="lc-section-top">
      <div><span className="lc-step">{opening?l("第一幕 · 匿名信","ACT 1 · THE LETTER"):l("下一幕 · 製造轉機","NEXT ACT · A NEW TWIST")}</span>
       <h2>{opening?l("這封信，要先交給誰？","Who should read the letter first?"):l("接下來，怎麼打破沉默？","What might break the silence?")}</h2></div>
