@@ -29,7 +29,7 @@ const PALETTES=[
 const TOPICS={
  food:{label:'食物',icon:'☕',ornament:'☕',color:'#ffcd9f',
   words:['咖啡','甜點','麵包','吃','餓','美食','蛋糕','火鍋','pizza','coffee','food','巧克力','奶茶','珍珠','糖果'],
-  replies:['你說甜點，我好像聞到樹上飄出咖啡香了 ☕','等一下，這根枝條是不是準備長出點心？','如果它結出蛋糕，我要先偷吃一口！']},
+  replies:['你說甜點，我好像聞到樹上飄出咖啡香了 ☕','等一下，這根枝條是不是準備長出點心？','如果這棵樹結出蛋糕，我要先偷吃一口！']},
  cosmos:{label:'宇宙',icon:'🪐',ornament:'🪐',color:'#ddc2ff',
   words:['宇宙','星球','星星','銀河','太空','月亮','火星','外星','星際','galaxy','space','planet','星空','太陽系'],
   replies:['宇宙嗎？我想讓這根枝條直接繞著星星打轉！','好啦，這棵樹已經開始研究星際旅行了。','我們是不是不小心種出一顆小宇宙？']},
@@ -167,7 +167,8 @@ function treeSignature(tree){
  const geo=buildGeometry(tree);
  return [tree.genome.silhouette,tree.genome.leaf,tree.genome.palette,
   geo.height.toFixed(1),geo.branches.length,
-  geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)).join(';'),
+  geo.branches.slice(0,5).map(b=>b.end.x.toFixed(1)+','+b.end.y.toFixed(1)+
+  ','+b.p1.x.toFixed(1)+','+b.p1.y.toFixed(1)+','+b.topic).join(';'),
   tree.mutations.join('|'),topTopic(tree)].join(':');
 }
 function sayZoe(signal,turn){
