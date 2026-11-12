@@ -15,7 +15,7 @@ function boot(){
  const get=id=>{if(!elements.has(id))elements.set(id,element(id));return elements.get(id)};
  class FakeImage{constructor(){this.complete=true;this.naturalWidth=800}set src(s){this.uri=s}}
  const window={devicePixelRatio:2,addEventListener(){},ResizeObserver:class{observe(){}},parent:null};window.parent=window;
- const c={window,Image:FakeImage,document:{getElementById:get,querySelectorAll:()=>[]},
+ const c={window,Image:FakeImage,ResizeObserver:window.ResizeObserver,document:{getElementById:get,querySelectorAll:()=>[]},
   location:{search:'?qa=1'},URLSearchParams,performance:{now:()=>1000},
   requestAnimationFrame(){return 1},localStorage:{getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v)},
   Math,console,Number,String,Array,Set,Map};
