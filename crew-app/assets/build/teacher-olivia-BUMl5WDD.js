@@ -1,0 +1,1 @@
+var e=new URL(`teacher-olivia-BguEF1ga.jpg`,import.meta.url).href;export{e as t};
