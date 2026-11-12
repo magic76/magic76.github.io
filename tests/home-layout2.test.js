@@ -85,7 +85,7 @@ test("Resuming Zoe and other friends retains local privacy and separate continue
  assert.match(home,/className="crew-home-continue"/);
 });
 
-test("Existing daily topics, unchanged eight cards, Shorts and SEO remain",()=>{
+test("Daily thought replaces topics, unchanged eight cards, Shorts and SEO remain",()=>{
  assert.match(mobile,/<DailyTopicCards variant="mobile"\/>/);
  assert.match(home,/<DailyTopicCards variant="desktop"\/>/);
  assert.equal((mobile.match(/\{id:"/g)||[]).length,8);

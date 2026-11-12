@@ -575,22 +575,5 @@
     "withZoe": "Zoe と話す",
     "setup": "Key 設定"
   },
-  "dailyTopics": {
-    "title": "今日の話題",
-    "note": "毎日更新・タップで会話",
-    "items": {
-      "photo-story": {"title": "写真の話", "hook": "この写真の物語"},
-      "photo-moment": {"title": "今日の一枚", "hook": "一瞬をシェア"},
-      "question-smalljoy": {"title": "小さな幸せ", "hook": "笑顔になったこと"},
-      "question-weekend": {"title": "週末の予定", "hook": "一緒に考えよう"},
-      "role-cafe": {"title": "カフェにて", "hook": "会話を演じよう"},
-      "role-travel": {"title": "街で迷子", "hook": "一緒に道を探そう"},
-      "mood-heavy": {"title": "つらい日", "hook": "気軽に話して"},
-      "mood-grateful": {"title": "今日の感謝", "hook": "よかったこと一つ"},
-      "play-rematch": {"title": "もう一勝負", "hook": "遊んだ後に話そう"},
-      "play-wildcard": {"title": "ゲームの逆転", "hook": "まさかの展開！"},
-      "fortune-lucky": {"title": "今日の運勢", "hook": "幸運のヒントは？"},
-      "fortune-change": {"title": "次の章", "hook": "何が変わるかな？"}
-    }
-  }
+  "dailyQuote": {"title": "今日のひとこと", "fortune": "今日の運勢を見る", "chat": "Zoeとこの言葉を話す"}
 }

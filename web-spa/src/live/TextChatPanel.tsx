@@ -19,7 +19,7 @@ import type {TeachingMode} from "../store/teacherStore";
 import "./TextChatPanel.css";
 
 type Message={role:"user"|"assistant";text:string;sources?:GroundingSource[];searchSuggestions?:string};
-type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;shortsContext?:string;onExchange?:()=>void};
+type Props={system:string;speaker:string;sessionScope?:string;english?:boolean;searchEnabled?:boolean;hint?:string;targetLanguage?:string;pinyinMode?:PinyinAidMode;teachingMode?:TeachingMode;firstStarter?:string;showStarterWithHistory?:boolean;shortsContext?:string;onExchange?:()=>void};
 type GuestPhase="checking"|"ready"|"starting"|"active"|"unavailable"|"error"|"exhausted"|"paused";
 const GUEST_TEXT_ENDPOINT="https://crew-guest-trial.shanliyoung.workers.dev/api/guest/text";
 const SESSION_STORAGE_KEY="crew_guest_text_session_v1";
@@ -33,7 +33,7 @@ function getSavedGuestSession(){
  return "";
 }
 /** No microphone: BYOK connects to Gemini Live; guests use metered Worker text. */
-export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,shortsContext,onExchange}:Props){
+export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english=false,searchEnabled=false,hint,targetLanguage="",pinyinMode="auto",teachingMode="bilingual",firstStarter,showStarterWithHistory=false,shortsContext,onExchange}:Props){
  const shortsSystems=shortsContext?buildShortsTextSystems(baseSystem,shortsContext):null;
  const system=shortsSystems?.live||baseSystem;
  const [messages,setMessages]=useState<Message[]>([]);
@@ -328,6 +328,7 @@ export function TextChatPanel({system:baseSystem,speaker,sessionScope="",english
    {guestFailure&&!guestFailure.start&&guestFailure.retry&&<button type="button" className="btn secondary" disabled={busy} onClick={()=>void sendMessage(draft)}>{t("guestText.retry")}</button>}
    {guestFailure&&(guestFailure.kind==="capacity"||guestFailure.repeated)&&<Link className="btn secondary" to="/account#settings-gemini">{t("guestText.useKey")}</Link>}
   </div>}
+  {historyReady&&messages.length>0&&showStarterWithHistory&&firstStarter&&!draft.trim()&&!busy&&<TextChatStarters onPick={sentence=>void sendMessage(sentence)} speaker={speaker} firstStarter={firstStarter} firstOnly/>}
   <form className="crew-text-chat-form" onSubmit={event=>{event.preventDefault();void sendMessage(draft)}}>
    <input type="text" aria-label={english?"Message":"輸入訊息"} autoComplete="off" maxLength={1200} value={draft} onChange={e=>{
     const value=e.target.value;setDraft(value);

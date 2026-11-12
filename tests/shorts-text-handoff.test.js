@@ -20,7 +20,7 @@ test("Validated post question is first suggested text reply; existing composer s
  const starters=read("web-spa/src/live/TextChatStarters.tsx");
  const bubble=read("web-spa/src/pages/HomeLiveBubble.tsx");
  assert.match(friend,/shortsSelectedQuestion\(shortsPost,params\.get\("q"\)/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.match(starters,/firstStarter&&<button[^>]+onClick=\{\(\)=>onPick\(firstStarter\)\}/);
  assert.match(panel,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
  assert.match(panel,/if\(messages\.length&&history\.current\)/);

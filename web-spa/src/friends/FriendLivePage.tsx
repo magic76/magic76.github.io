@@ -18,6 +18,8 @@ import {FriendAvatar} from "./FriendAvatar";
 import {getCrewFriend} from "./friendProfiles";
 import {HOME_FRIEND_IDS} from "../pages/homeDeepLink.mjs";
 import {getDailyTopic} from "../pages/dailyTopics";
+import {getDailyQuote} from "../pages/dailyQuotes";
+import {loadQuoteText} from "../pages/quoteCatalog";
 import {nextFriendLifeOpening} from "../characters/lifeBook";
 import {friendLanguageReminder,friendLanguageTransition,type FriendChatLanguageMode} from "./friendLanguage";
 import {buildFriendSystem,recordFriendChat,rememberFriendConversation} from "./friendMemory";
@@ -70,6 +72,19 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
  // Only known IDs can resolve a starter; Shorts always retains its own priority.
  const dailyTopic=!shortsPost&&friend.id==="zoe"?getDailyTopic(params.get("topic")):undefined;
  const dailyTopicStarter=dailyTopic?t("textStarters.topics."+dailyTopic.id,{name:friend.name}):undefined;
+ const selectedQuote=!shortsPost&&friend.id==="zoe"?getDailyQuote(params.get("quote")):undefined;
+ const [quoteText,setQuoteText]=useState<{id:string;language:string;text:string}|null>(null);
+ useEffect(()=>{
+  let active=true;
+  if(selectedQuote){
+   void loadQuoteText(locale.language,selectedQuote.id).then(text=>{
+    if(active)setQuoteText(text?{id:selectedQuote.id,language:locale.language,text}:null);
+   });
+  }
+  return()=>{active=false};
+ },[selectedQuote?.id,locale.language]);
+ const dailyQuoteStarter=selectedQuote&&quoteText?.id===selectedQuote.id&&quoteText.language===locale.language
+  ?t("dailyQuoteStarter",{quote:quoteText.text}):undefined;
  const shortsReturnTo=shortsPost?"/teacher/shorts?post="+encodeURIComponent(shortsPost.id):null;
  const language=useTeacherStore(s=>s.targetLanguage);
  const nativeLanguage=useTeacherStore(s=>s.nativeLanguage);
@@ -208,7 +223,8 @@ function FriendLiveConversation({shortsPost,postUnavailable}:{shortsPost:ShortPo
     </div>
     <div className="crew-chat-mode-switch"><span>{textMode?t("friendLive.textChat"):t("friendLive.voiceChat")}</span><Link className="btn secondary small" to={alternateHref} onClick={event=>{if(textMode)return;event.preventDefault();void live.stop(true).finally(()=>navigate(alternateHref))}}>{textMode?t("friendLive.useVoice"):t("friendLive.useText")}</Link></div>
     {textMode?<TextChatPanel sessionScope={"friend:"+friend.id+(shortsPost?":"+shortsPost.id:"")} searchEnabled={!shortsPost} system={system+"\n"+languageDirective} shortsContext={shortsPost?buildShortsFriendContext(shortsPost):undefined} speaker={friend.name} english={english}
-     firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||dailyTopicStarter}
+     firstStarter={selectedQuestion||(shortsHook?shortsHookLabel(shortsHook,english):undefined)||dailyQuoteStarter||dailyTopicStarter}
+     showStarterWithHistory={Boolean(dailyQuoteStarter)}
      onExchange={shortsPost?()=>{if(usageSentRef.current)return;usageSentRef.current=true;trackUsageEvent("friend_conversation");trackUsageEvent("shorts_conversation");rememberShortsConversation(shortsPost)}:undefined}/>:<>
     {!shortsPost&&!homeFirstAction?voiceStart:null}
     {guestStarted&&live.state!=="ended"&&live.state!=="error"&&<GuestTrialCountdown secondsLeft={live.guestSecondsLeft}/>}

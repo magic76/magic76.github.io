@@ -575,22 +575,5 @@
     "withZoe": "Parler avec Zoe",
     "setup": "Régler Key"
   },
-  "dailyTopics": {
-    "title": "Sujets du jour",
-    "note": "Trois idées pour discuter",
-    "items": {
-      "photo-story": {"title": "Photo à raconter", "hook": "Quelle est son histoire ?"},
-      "photo-moment": {"title": "Photo du jour", "hook": "Un moment à partager"},
-      "question-smalljoy": {"title": "Petit bonheur", "hook": "Qu’est-ce qui t’a fait sourire ?"},
-      "question-weekend": {"title": "Plan du week-end", "hook": "Imaginons une sortie"},
-      "role-cafe": {"title": "Au café", "hook": "Jouons une scène"},
-      "role-travel": {"title": "Perdus en ville", "hook": "Retrouvons notre chemin"},
-      "mood-heavy": {"title": "Journée difficile", "hook": "Tu peux en parler"},
-      "mood-grateful": {"title": "Merci pour quoi ?", "hook": "Un beau moment du jour"},
-      "play-rematch": {"title": "Encore une partie", "hook": "On en parle après"},
-      "play-wildcard": {"title": "Surprise en jeu", "hook": "Quel retournement !"},
-      "fortune-lucky": {"title": "Porte-bonheur", "hook": "Quel signe me sourit ?"},
-      "fortune-change": {"title": "Nouveau chapitre", "hook": "Qu’est-ce qui changera ?"}
-    }
-  }
+  "dailyQuote": {"title": "La pensée du jour", "fortune": "Voir mon horoscope du jour", "chat": "En parler avec Zoe"}
 }

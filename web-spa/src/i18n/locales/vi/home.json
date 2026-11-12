@@ -575,22 +575,5 @@
     "withZoe": "Trò chuyện với Zoe",
     "setup": "Cài Key"
   },
-  "dailyTopics": {
-    "title": "Chủ đề hôm nay",
-    "note": "Ba gợi ý mới mỗi ngày",
-    "items": {
-      "photo-story": {"title": "Chuyện từ ảnh", "hook": "Ảnh này kể chuyện gì?"},
-      "photo-moment": {"title": "Ảnh hôm nay", "hook": "Chia sẻ khoảnh khắc"},
-      "question-smalljoy": {"title": "Niềm vui nhỏ", "hook": "Điều gì làm bạn cười?"},
-      "question-weekend": {"title": "Kế hoạch cuối tuần", "hook": "Cùng lên lịch nhé"},
-      "role-cafe": {"title": "Ở quán cà phê", "hook": "Thử nhập vai nhé"},
-      "role-travel": {"title": "Lạc giữa phố", "hook": "Cùng tìm đường"},
-      "mood-heavy": {"title": "Một ngày mệt", "hook": "Cứ tâm sự nhé"},
-      "mood-grateful": {"title": "Lời cảm ơn", "hook": "Một điều tốt hôm nay"},
-      "play-rematch": {"title": "Chơi ván nữa", "hook": "Trò chuyện sau chơi"},
-      "play-wildcard": {"title": "Bất ngờ khi chơi", "hook": "Cú lật kèo!"},
-      "fortune-lucky": {"title": "May mắn hôm nay", "hook": "Dấu hiệu may mắn?"},
-      "fortune-change": {"title": "Chương tiếp theo", "hook": "Điều gì sẽ thay đổi?"}
-    }
-  }
+  "dailyQuote": {"title": "Một lời nhắn hôm nay", "fortune": "Xem vận may hôm nay", "chat": "Trò chuyện với Zoe"}
 }

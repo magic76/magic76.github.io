@@ -1,50 +1,33 @@
-/* Daily topic cards share the mobile frost language; only the text/ink are themed for dark world. */
-.daily-topics{min-width:0;margin:16px 0 0}
-.daily-topics-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:0 0 11px}
-.daily-topics-heading h2{font-size:17px;font-weight:800;line-height:1.35;letter-spacing:-.025em;margin:0}
-.daily-topics-heading>span{font-size:12px;line-height:1.4;text-align:right}
-.daily-topics-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;min-width:0}
-.daily-topic-card{display:flex;flex-direction:column;align-items:flex-start;min-width:0;min-height:var(--daily-topic-min-height,160px);padding:12px 9px;gap:5px;
- border:1px solid var(--crew-frost-border);border-radius:19px;background:var(--crew-frost-bg);
- -webkit-backdrop-filter:var(--crew-frost-blur);backdrop-filter:var(--crew-frost-blur);
- box-shadow:var(--cmh-card-shadow,0 5px 16px rgba(30,36,58,.08),inset 0 1px 0 rgba(255,255,255,.85));
- color:#333649;text-decoration:none;overflow-wrap:anywhere;touch-action:manipulation;
- transition:transform 150ms ease,box-shadow 150ms ease}
-.daily-topic-card:active{transform:scale(.97)}
-.daily-topic-card:focus-visible{outline:3px solid #6469c5;outline-offset:3px}
-.daily-topic-icon{width:36px;height:36px;flex:none;display:grid;place-items:center;border-radius:12px;
- background:linear-gradient(145deg,var(--dt-tint-a,#eee4f5),var(--dt-tint-b,#ddd0eb));color:var(--dt-ink,#523b65)}
-.daily-topic-icon svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.daily-topic-card strong{font-size:14px;line-height:1.35;letter-spacing:-.02em;font-weight:780}
-.daily-topic-hook{font-size:12px;line-height:1.4;color:#4c5062}
-.daily-topic-placeholder{pointer-events:none;justify-content:flex-start}
-.daily-topic-placeholder .daily-topic-icon{background:#e9e7ee}
-.daily-topic-placeholder-line{height:12px;width:90%;max-width:96px;border-radius:6px;background:#e9e7ee;margin-top:5px}
-.daily-topic-placeholder-line.short{width:65%;margin-top:2px}
+/* Same slot as the former daily topics. A single compact frosted thought card. */
+.daily-quote{min-width:0;margin:16px 0 0}
+.daily-quote-card{display:flex;flex-direction:column;gap:4px;min-width:0;padding:8px 12px;border:1px solid var(--crew-frost-border);border-radius:20px;
+ background:var(--crew-frost-bg);-webkit-backdrop-filter:var(--crew-frost-blur);backdrop-filter:var(--crew-frost-blur);
+ box-shadow:var(--cmh-card-shadow,0 5px 16px rgba(30,36,58,.08),inset 0 1px 0 rgba(255,255,255,.85));color:#303244}
+.daily-quote-body{min-width:0;display:flex;flex-direction:column;gap:2px}
+.daily-quote-body h2{margin:0;font-size:14px;line-height:1.35;font-weight:800;letter-spacing:-.015em}
+.daily-quote-body h2 span{color:#785ba8}
+.daily-quote-text{margin:0;font-size:13px;line-height:1.35;color:#37394b;overflow-wrap:anywhere}
+.daily-quote-placeholder{width:70%;height:15px;margin:3px 0 2px;border-radius:8px;background:rgba(106,88,141,.12)}
+.daily-quote-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;min-width:0}
+.daily-quote-action{display:flex;align-items:center;justify-content:center;min-height:44px;min-width:0;padding:6px 8px;border:1px solid rgba(103,83,134,.27);border-radius:12px;
+ color:#46365c;background:rgba(255,255,255,.73);text-decoration:none;text-align:center;font-weight:750;font-size:13px;line-height:1.35;overflow-wrap:anywhere;
+ touch-action:manipulation;transition:transform 150ms ease,background 150ms ease}
+.daily-quote-action--chat{color:#fff;background:#614674;border-color:#614674}
+.daily-quote-action--pending{opacity:.6;pointer-events:none}
+.daily-quote-action:focus-visible{outline:3px solid #6d58b2;outline-offset:3px}
+.daily-quote-action:active{transform:scale(.97)}
 @supports not (backdrop-filter:blur(1px)){
- .daily-topics--mobile .daily-topic-card{background:var(--crew-frost-bg-fallback,rgba(255,255,255,.97))}
- .daily-topics--desktop .daily-topic-card{background:#262033}
+ .daily-quote--mobile .daily-quote-card{background:var(--crew-frost-bg-fallback,rgba(255,255,255,.97))}
+ .daily-quote--desktop .daily-quote-card{background:#262033}
 }
-.daily-topics--mobile .daily-topics-heading{color:#37394a}
-.daily-topics--mobile .daily-topics-heading>span{color:#535466}
-.daily-topics--desktop{margin:0 0 20px;padding:20px 24px 0;color:#f9f4fc}
-.daily-topics--desktop .daily-topics-heading>span{color:#ded5e6}
-.daily-topics--desktop .daily-topics-grid{gap:12px}
-.daily-topics--desktop .daily-topic-card{min-height:80px;display:grid;grid-template-columns:40px minmax(0,1fr);
- grid-template-rows:auto 1fr;column-gap:12px;row-gap:3px;align-items:start;padding:15px;
- background:rgba(255,255,255,.095);border-color:rgba(255,255,255,.2);box-shadow:0 6px 20px rgba(0,0,0,.15);color:#fff}
-.daily-topics--desktop .daily-topic-icon{grid-row:span 2;width:40px;height:40px}
-.daily-topics--desktop .daily-topic-card strong{font-size:16px;line-height:1.4;color:#fff}
-.daily-topics--desktop .daily-topic-hook{font-size:13px;line-height:1.4;color:#e5dfe9}
-.daily-topics--desktop .daily-topic-placeholder-line{background:rgba(255,255,255,.14)}
-.daily-topics--desktop .daily-topic-placeholder .daily-topic-icon{background:rgba(255,255,255,.14)}
-/* Reserve the same height during SSG hydration and after local-date rotation.
-   Based on widest 360px card across the 12 topics in each locale; grid stretch
-   keeps three cards equal-height without v1's 184px dead space. */
-.daily-topics--mobile{--daily-topic-min-height:160px}
-html:lang(zh) .daily-topics--mobile,html:lang(th) .daily-topics--mobile{--daily-topic-min-height:108px}
-html:lang(ja) .daily-topics--mobile,html:lang(ko) .daily-topics--mobile{--daily-topic-min-height:124px}
-html:lang(en) .daily-topics--mobile,html:lang(es) .daily-topics--mobile,html:lang(id) .daily-topics--mobile,html:lang(pt-BR) .daily-topics--mobile,html:lang(vi) .daily-topics--mobile{--daily-topic-min-height:142px}
-@media(prefers-reduced-motion:reduce){.daily-topic-card{transition:none}.daily-topic-card:active{transform:none}}
-@media(max-width:767px){.daily-topics--mobile{margin-top:16px;margin-bottom:0}}
-@media(max-width:380px){.daily-topics-grid{gap:7px}.daily-topic-card{padding:11px 8px}.daily-topics-heading{gap:5px}}
+.daily-quote--desktop{margin:0 0 14px;padding:16px 24px 0;color:#fff}
+.daily-quote--desktop .daily-quote-card{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,38%);align-items:center;gap:16px;
+ padding:12px 16px;background:rgba(255,255,255,.095);border-color:rgba(255,255,255,.2);box-shadow:0 6px 20px rgba(0,0,0,.15);color:#fff}
+.daily-quote--desktop .daily-quote-body h2{font-size:15px}
+.daily-quote--desktop .daily-quote-body h2 span{color:#ebd1ff}
+.daily-quote--desktop .daily-quote-text{color:#f2edf5;font-size:14px}
+.daily-quote--desktop .daily-quote-action--fortune{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.4);color:#fff}
+.daily-quote--desktop .daily-quote-action--chat{background:#f8e8fa;color:#33213e;border-color:#f8e8fa}
+.daily-quote--desktop .daily-quote-placeholder{background:rgba(255,255,255,.15)}
+@media(prefers-reduced-motion:reduce){.daily-quote-action{transition:none}.daily-quote-action:active{transform:none}}
+@media(max-width:380px){.daily-quote-card{padding:8px 11px}.daily-quote-actions{gap:6px}.daily-quote-action{font-size:12px;padding:6px}}

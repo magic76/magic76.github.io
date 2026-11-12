@@ -72,7 +72,7 @@ test("Shorts changes are opt-in, other chat and visible user message stay untouc
  const friend=read("web-spa/src/friends/FriendLivePage.tsx");
  const {buildShortsTextSystems}=await asModule("web-spa/src/live/shortsTextContext.ts");
  assert.match(friend,/shortsContext=\{shortsPost\?buildShortsFriendContext\(shortsPost\):undefined\}/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyTopicStarter\}/);
+ assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
  assert.match(panel,/shortsContext\?buildShortsTextSystems\(baseSystem,shortsContext\):null/);
  assert.match(panel,/const system=shortsSystems\?\.live\|\|baseSystem/);
  assert.match(panel,/const guestSystem=shortsSystems\?\.guest\?\?/);

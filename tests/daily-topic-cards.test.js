@@ -2,113 +2,109 @@ const test=require("node:test"),assert=require("node:assert/strict"),fs=require(
 const {stripTypeScriptTypes}=require("node:module");
 const read=p=>fs.readFileSync(path.join(__dirname,"..",p),"utf8");
 async function model(){
- const src=stripTypeScriptTypes(read("web-spa/src/pages/dailyTopics.ts"),{mode:"strip"});
- return import("data:text/javascript;charset=utf-8,"+encodeURIComponent(src));
+ const code=stripTypeScriptTypes(read("web-spa/src/pages/dailyQuotes.ts"),{mode:"strip"});
+ return import("data:text/javascript;charset=utf-8,"+encodeURIComponent(code));
 }
 const langs=["de","en","es","fr","id","ja","ko","pt-BR","th","vi","zh-TW"];
-const topicsPath="web-spa/src/pages/";
+const root="web-spa/src/pages/";
 
-test("12 allowlisted topics cover all six categories with unique URL-safe IDs and known icons",async()=>{
- const {DAILY_TOPICS,getDailyTopic}=await model();
- assert.ok(DAILY_TOPICS.length>=12);
- assert.deepEqual(new Set(DAILY_TOPICS.map(x=>x.category)),new Set(["shorts","question","roleplay","mood","play","fortune"]));
- assert.equal(new Set(DAILY_TOPICS.map(x=>x.id)).size,DAILY_TOPICS.length);
- const icons=new Set(["home","teacher","story","fortune","play","settings","chat","book","cards","scene","mic","sparkles","plus","history","image"]);
- for(const topic of DAILY_TOPICS){
-  assert.match(topic.id,/^[a-z0-9-]+$/);
-  assert.ok(icons.has(topic.icon),topic.icon);
-  for(const color of [topic.tintA,topic.tintB,topic.ink])assert.match(color,/^#[0-9a-fA-F]{6}$/);
-  assert.equal(getDailyTopic(topic.id),topic);
+test("30 distinct URL-safe IDs, strict allowlist (including prototype and traversal probes)",async()=>{
+ const {DAILY_QUOTE_IDS,getDailyQuote}=await model();
+ assert.ok(DAILY_QUOTE_IDS.length>=30);
+ assert.equal(new Set(DAILY_QUOTE_IDS).size,DAILY_QUOTE_IDS.length);
+ for(const id of DAILY_QUOTE_IDS){
+  assert.match(id,/^q\d{2,}$/);
+  assert.deepEqual(getDailyQuote(id),{id});
  }
- for(const invalid of ["photo story","../photo-story","<script>","",null,"__proto__","undefined"])
-  assert.equal(getDailyTopic(invalid),undefined);
+ for(const bad of [null,"","__proto__","constructor","../x","q00","q31","<script>","q01%00"," q01 ","q01/q02"])
+  assert.equal(getDailyQuote(bad),undefined,String(bad));
 });
 
-test("calendar-local picks stay deterministic, vary daily, and cover the full pool",async()=>{
- const {pickDailyTopics}=await model();
- const days=Array.from({length:14},(_,i)=>new Date(2026,10,12+i,12,0));
- const picks=days.map(d=>pickDailyTopics(d));
- for(let i=0;i<days.length;i++){
-  const ids=picks[i].map(topic=>topic.id);
-  assert.equal(ids.length,3);assert.equal(new Set(ids).size,3);
-  assert.equal(new Set(picks[i].map(x=>x.category)).size,3);
-  assert.deepEqual(pickDailyTopics(new Date(days[i].getFullYear(),days[i].getMonth(),days[i].getDate(),23,59)).map(x=>x.id),ids);
-  if(i)assert.notDeepEqual(ids,picks[i-1].map(topic=>topic.id));
+test("local calendar picks stay constant through midnight and cover 30 consecutive days",async()=>{
+ const {pickDailyQuote}=await model();
+ const picks=[];
+ for(let day=0;day<30;day++){
+  const morning=new Date(2026,10,12+day,0,1),late=new Date(2026,10,12+day,23,59);
+  assert.equal(pickDailyQuote(morning).id,pickDailyQuote(late).id);
+  picks.push(pickDailyQuote(morning).id);
+  if(day)assert.notEqual(picks[day],picks[day-1]);
  }
- assert.ok(new Set(picks.flat().map(x=>x.id)).size>=10);
+ assert.equal(new Set(picks).size,30);
 });
 
-test("all 11 locales have translated card headings, titles, hooks and English practice sentences",async()=>{
- const {DAILY_TOPICS}=await model();
- const enHome=JSON.parse(read("web-spa/src/i18n/locales/en/home.json"));
- const enFriends=JSON.parse(read("web-spa/src/i18n/locales/en/friends.json"));
- for(const locale of langs){
-  const home=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/home.json`));
-  const friends=JSON.parse(read(`web-spa/src/i18n/locales/${locale}/friends.json`));
-  assert.deepEqual(Object.keys(home.dailyTopics),Object.keys(enHome.dailyTopics));
-  assert.deepEqual(Object.keys(home.dailyTopics.items).sort(),Object.keys(enHome.dailyTopics.items).sort());
-  assert.deepEqual(Object.keys(friends.textStarters.topics).sort(),Object.keys(enFriends.textStarters.topics).sort());
-  for(const key of ["title","note"])assert.ok(typeof home.dailyTopics[key]==="string"&&home.dailyTopics[key].trim(),locale+" "+key);
-  for(const topic of DAILY_TOPICS){
-   for(const key of ["title","hook"]){
-    const value=home.dailyTopics.items[topic.id]?.[key];
-    assert.ok(typeof value==="string"&&value.trim(),locale+" "+topic.id+" "+key);
-    assert.deepEqual(Object.keys(home.dailyTopics.items[topic.id]),Object.keys(enHome.dailyTopics.items[topic.id]));
-   }
-   const starter=friends.textStarters.topics[topic.id];
-   assert.ok(typeof starter==="string"&&starter.trim());
-   assert.deepEqual(starter.match(/\{\{[^}]+\}\}/g),["{{name}}"]);
-   assert.equal(starter,enFriends.textStarters.topics[topic.id],"use existing learner-English starter convention");
+test("11 localized quote catalogs contain all 30 nonblank short thoughts; UI labels and prompt match",async()=>{
+ const {DAILY_QUOTE_IDS}=await model();
+ const en=JSON.parse(read("web-spa/src/i18n/locales/en/dailyQuote.json"));
+ for(const lang of langs){
+  const quotes=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/dailyQuote.json`));
+  const home=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/home.json`));
+  const friends=JSON.parse(read(`web-spa/src/i18n/locales/${lang}/friends.json`));
+  assert.deepEqual(Object.keys(quotes).sort(),Object.keys(en).sort(),lang);
+  assert.deepEqual(Object.keys(quotes).sort(),[...DAILY_QUOTE_IDS].sort(),lang);
+  for(const id of DAILY_QUOTE_IDS){
+   assert.ok(typeof quotes[id]==="string"&&quotes[id].trim(),lang+" "+id);
+   assert.ok(quotes[id].length<=125,lang+" "+id+" should be short");
+   assert.doesNotMatch(quotes[id],/\{\{|\}\}/,lang+" "+id);
   }
+  assert.deepEqual(Object.keys(home.dailyQuote).sort(),["chat","fortune","title"]);
+  for(const key of ["title","fortune","chat"])assert.ok(home.dailyQuote[key]?.trim(),lang+" "+key);
+  assert.ok(friends.dailyQuoteStarter?.trim(),lang);
+  assert.deepEqual(friends.dailyQuoteStarter.match(/\{\{[^}]+\}\}/g),["{{quote}}"]);
+  assert.equal(home.dailyTopics,undefined,"old homepage titles must be removed");
+  assert.ok(friends.textStarters.topics["photo-story"],"cached old topic links must still work");
  }
- assert.notEqual(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/home.json")).dailyTopics.title,enHome.dailyTopics.title);
+ assert.notEqual(JSON.parse(read("web-spa/src/i18n/locales/zh-TW/dailyQuote.json")).q01,en.q01);
 });
 
-test("SSR placeholders, client-local midnight refresh and no extra user steps",()=>{
- const cards=read(topicsPath+"DailyTopicCards.tsx");
+test("SSG placeholder, local midnight + visibility refresh; one card and both tracked links",()=>{
+ const cards=read(root+"DailyTopicCards.tsx");
+ const loader=read(root+"quoteCatalog.ts");
+ assert.match(cards,/useState<TodayQuote\|null>\(null\)/);
  assert.match(cards,/useEffect\(\(\)=>\{/);
- assert.match(cards,/useState<DailyTopic\[\]>\(\[\]\)/);
  assert.match(cards,/new Date\(now\.getFullYear\(\),now\.getMonth\(\),now\.getDate\(\)\+1\)/);
  assert.match(cards,/visibilitychange/);
- assert.match(cards,/daily-topic-placeholder/);
- assert.match(cards,/topics\.length===3\?topics\.map/);
- assert.match(cards,/<Link key=\{topic\.id\}/);
- assert.match(cards,/chat=text&topic=/);
+ assert.match(cards,/daily-quote-placeholder/);
+ assert.match(cards,/pickDailyQuote\(now\)/);
+ assert.match(cards,/to="\/fortune"/);
+ assert.match(cards,/chat=text&quote=/);
+ assert.match(cards,/trackUsageEvent\("home_entry_click","fortune"\)/);
  assert.match(cards,/trackUsageEvent\("home_entry_click","friend"\)/);
- assert.doesNotMatch(cards,/localStorage|fetch\(|<button|<input|window\.location/);
- const mobile=read(topicsPath+"MobileHomePage.tsx");
- const desktop=read(topicsPath+"HomePage.tsx");
- assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('<section className="cmh-apps"'));
+ assert.equal((cards.match(/className="daily-quote-card"/g)||[]).length,1);
+ assert.match(loader,/import\.meta\.glob\("\.\.\/i18n\/locales\/\*\/dailyQuote\.json"/);
+ assert.match(loader,/getDailyQuote\(id\)/);
+ assert.doesNotMatch(cards,/fetch\(|localStorage|window\.location/);
+ const mobile=read(root+"MobileHomePage.tsx"),desktop=read(root+"HomePage.tsx");
  assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')>mobile.indexOf('className="cmh-allowance-slot"'));
+ assert.ok(mobile.indexOf('<DailyTopicCards variant="mobile"/>')<mobile.indexOf('<section className="cmh-apps"'));
  assert.match(desktop,/className="crew-home-world-inner">\s*<DailyTopicCards variant="desktop"\/>/);
 });
 
-test("topic allowlist never passes free text, unknown leaves firstStarter undefined; Shorts priority and session intact",()=>{
+test("quote starter is allowlisted, same-language, opt-in and Shorts retains priority",()=>{
  const friend=read("web-spa/src/friends/FriendLivePage.tsx");
- assert.match(friend,/getDailyTopic\(params\.get\("topic"\)\)/);
+ const chat=read("web-spa/src/live/TextChatPanel.tsx");
+ const starters=read("web-spa/src/live/TextChatStarters.tsx");
+ assert.match(friend,/getDailyQuote\(params\.get\("quote"\)\)/);
  assert.match(friend,/!shortsPost&&friend\.id==="zoe"/);
- assert.match(friend,/dailyTopic\?t\("textStarters\.topics\."\+dailyTopic\.id,\{name:friend\.name\}\):undefined/);
- assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyTopicStarter\}/);
- assert.match(friend,/sessionScope=\{"friend:"\+friend\.id\+\(shortsPost\?":"\+shortsPost\.id:""\)\}/);
- assert.doesNotMatch(read(topicsPath+"dailyTopics.ts"),/decodeURIComponent|location\.search|eval\(/);
+ assert.match(friend,/loadQuoteText\(locale\.language,selectedQuote\.id\)/);
+ assert.match(friend,/t\("dailyQuoteStarter",\{quote:quoteText\.text\}\)/);
+ assert.match(friend,/firstStarter=\{selectedQuestion\|\|\(shortsHook\?shortsHookLabel\(shortsHook,english\):undefined\)\|\|dailyQuoteStarter\|\|dailyTopicStarter\}/);
+ assert.match(friend,/showStarterWithHistory=\{Boolean\(dailyQuoteStarter\)\}/);
+ assert.match(chat,/historyReady&&messages\.length>0&&showStarterWithHistory&&firstStarter/);
+ assert.match(chat,/firstOnly\/>/);
+ assert.match(starters,/!firstOnly&&\(\["cafe","intro","smalltalk"\]/);
+ assert.match(chat,/onPick=\{sentence=>void sendMessage\(sentence\)\}/);
+ assert.match(chat,/sessionScope\.startsWith\("friend:"\)/);
+ assert.match(friend,/getDailyTopic\(params\.get\("topic"\)\)/);
+ assert.doesNotMatch(friend,/setDraft\(dailyQuoteStarter\)|sendMessage\(dailyQuoteStarter\)/);
 });
 
-test("mobile and desktop frost, CSS accessibility and layout guards",()=>{
- const css=read(topicsPath+"dailyTopicCards.css");
- assert.match(css,/-webkit-backdrop-filter:/);
- assert.match(css,/backdrop-filter:/);
- assert.match(css,/@supports not \(backdrop-filter:/);
- assert.match(css,/--crew-frost-bg-fallback/);
- assert.match(css,/prefers-reduced-motion:reduce/);
- assert.match(css,/:focus-visible/);
- assert.match(css,/:active/);
- assert.match(css,/repeat\(3,minmax\(0,1fr\)\)/);
- assert.doesNotMatch(css,/min-height:184px|min-height:120px/);
- assert.match(css,/min-height:var\(--daily-topic-min-height,160px\)/);
- assert.match(css,/html:lang\(zh\)[^\n]*--daily-topic-min-height:108px/);
- assert.match(css,/html:lang\(ja\)[^\n]*--daily-topic-min-height:124px/);
- assert.match(css,/html:lang\(en\)[^\n]*--daily-topic-min-height:142px/);
- assert.match(css,/\.daily-topics--desktop \.daily-topic-card\{min-height:80px/);
- assert.match(css,/grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/);
- for(const match of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g))assert.ok(Number(match[1])>=12);
+test("frosted responsive styling, 44px taps, focus and reduced motion",()=>{
+ const css=read(root+"dailyTopicCards.css");
+ for(const required of ["--crew-frost-bg","--crew-frost-border","--crew-frost-blur","--crew-frost-bg-fallback","-webkit-backdrop-filter:","backdrop-filter:","@supports not (backdrop-filter:",":focus-visible",":active","prefers-reduced-motion:reduce","min-height:44px","daily-quote--desktop","daily-quote--mobile","grid-template-columns:repeat(2,minmax(0,1fr))"])
+  assert.ok(css.includes(required),required);
+ assert.doesNotMatch(css,/grid-template-columns:repeat\(3/);
+ for(const [,size] of css.matchAll(/font-size:\s*(\d+(?:\.\d+)?)px/g))assert.ok(Number(size)>=12,"under 12px font "+size);
+ const resumeCss=read("web-spa/src/live/quoteTextStarter.css");
+ assert.match(resumeCss,/\.friend-text-stage \.crew-quote-resume-starters\{order:2/);
+ assert.match(resumeCss,/min-height:44px/);
 });
