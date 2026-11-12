@@ -6,3 +6,12 @@
 .image-foot button[aria-pressed=true]{background:#4f7569;color:#fff4d2;border-color:#3d6557}
 .frame{isolation:isolate}
 @media(max-width:540px){.image-foot{padding:9px}.image-foot button{flex:1 1 105px;min-width:0}}
+
+/* V4: stage-3 promise sits in sky negative space without hiding the subject. */
+.frame .future-hint[hidden]{display:none}
+.frame .future-hint{position:absolute;left:50%;top:8%;transform:translateX(-50%);max-width:90%;
+ white-space:nowrap;font-size:clamp(11px,1.35vw,15px);font-weight:650;letter-spacing:.065em;
+ color:#f9f3d7;text-shadow:0 2px 13px #163f42aa,0 1px 3px #223d497a;
+ pointer-events:none;border:1px solid #f6edd55a;border-radius:18px;padding:7px 15px;
+ background:linear-gradient(100deg,#395a5e29,#d6e3db18,#38505927)}
+@media(max-width:540px){.frame .future-hint{top:6%;padding:6px 10px;font-size:11px;max-width:94%}}
