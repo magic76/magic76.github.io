@@ -5,7 +5,7 @@ import {geminiKey,ensureFortuneServices} from "../lib/runtime";
 import {useClientReady} from "../lib/useClientReady";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyCard,type DailyKind} from "./dailyCard";
-import {readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
+import {DAILY_COPY_REVISION,readCachedDaily,readDailyKind,saveDailyKind,saveCachedDaily,readDailyCompletionStreak,findExistingAiForKind,isDailyCompleted,completeDailyExploration,recentDailyExplorations} from "./dailyStore";
 import {generateDailyAi} from "./dailyAi";
 import {shareDailyCard} from "./shareCard";
 import {readDailyProfiles,chooseDailyProfile} from "./dailyProfileSelection";
@@ -73,7 +73,7 @@ export function FortuneDailyCard({chartHash}:{chartHash?:string}={}){
   const cached=readCachedDaily(date,kind,profileHash);
   // Cache is a stable card, but strings must always match the active language.
   if(cached?.card&&cached.card.kind===kind&&cached.card.date===date&&
-     cached.locale===locale&&cached.copyRevision===2&&cached.card.artSrc&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
+     cached.locale===locale&&cached.copyRevision===DAILY_COPY_REVISION&&cached.card.artSrc&&(!/^zh/i.test(locale)||!!cached.card.almanac))return cached.card;
   const result=buildDailyCard({kind,profile,localDate:date,lang:locale});
   if("status" in result)return result;
   saveCachedDaily(result,profileHash,undefined,locale);

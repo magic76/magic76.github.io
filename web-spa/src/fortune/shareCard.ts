@@ -41,7 +41,7 @@ function wrap(ctx:CanvasRenderingContext2D,text:string,x:number,y:number,max:num
 }
 export type DailyShareLabels={doLabel:string;avoidLabel:string;luckyColor:string;disclaimer:string;kindLabel:string;};
 async function dailyArt(src:string|undefined):Promise<HTMLImageElement|null>{
- if(!src||!/^\/fortune\/identity\/art\/(?:tarot-\d+|bazi-[a-z]+)\.webp$/.test(src))return null;
+ if(!src||!/^\/fortune\/daily\/art\/daily-(?:peers|resources|expression|responsibility|learning)-[123]\.webp$/.test(src))return null;
  const image=new Image();
  return new Promise(resolve=>{
   image.onload=()=>resolve(image);
@@ -65,7 +65,10 @@ export async function buildDailyShareFile(card:import("./dailyCard").DailyCard,l
  ctx.fillStyle="#ffffffa8";ctx.fillRect(70,177,940,474);
  if(art){
   const width=835,height=470;
-  ctx.drawImage(art,122,179,width,height);
+  // Contain square artwork in the original sharing-card frame without stretching.
+  const scale=Math.min(width/art.naturalWidth,height/art.naturalHeight);
+  const drawWidth=art.naturalWidth*scale,drawHeight=art.naturalHeight*scale;
+  ctx.drawImage(art,122+(width-drawWidth)/2,179+(height-drawHeight)/2,drawWidth,drawHeight);
  }else{
   ctx.fillStyle="#9975bb";ctx.font="225px sans-serif";ctx.textAlign="center";ctx.fillText("✦",540,535);ctx.textAlign="left";
  }

@@ -14,7 +14,7 @@ const memory=new Map();
 global.localStorage={getItem:key=>memory.get(key)??null,setItem:(key,value)=>memory.set(key,String(value)),
  removeItem:key=>memory.delete(key)};
 const store=loadTs("web-spa/src/fortune/dailyStore.ts",
- ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_STREAK_KEY","isDailyCompleted","completeDailyExploration","recentDailyExplorations","readDailyCompletionStreak"],
+ ["readDailyCache","readCachedDaily","saveCachedDaily","readDailyKind","saveDailyKind","readDailyStreak","markDailySeen","pruneDailyCache","DAILY_CACHE_KEY","DAILY_COPY_REVISION","DAILY_STREAK_KEY","isDailyCompleted","completeDailyExploration","recentDailyExplorations","readDailyCompletionStreak"],
  {localDateKey:pure.localDateKey});
 const translate=(key,values={})=>key+JSON.stringify(values);
 const profile={birthDate:"1985-07-06",birthTime:"04:10",gender:"1"};
@@ -54,6 +54,14 @@ test("D3 missing birth time, persisted kind, and cache fault tolerance",()=>{
  const card=getCard(onDate("numerology","2026-10-27")),hash=pure.dailyProfileHash(profile);
  store.saveCachedDaily(card,hash,undefined,"en");
  assert.deepEqual(store.readCachedDaily(card.date,card.kind,hash).card,card);
+ assert.equal(store.DAILY_COPY_REVISION,3);
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
+ const raw=JSON.parse(memory.get(store.DAILY_CACHE_KEY));
+ raw[card.date][card.kind+":"+hash].copyRevision=2;
+ memory.set(store.DAILY_CACHE_KEY,JSON.stringify(raw));
+ assert.notEqual(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3,"legacy artwork cache cannot match revision 3");
+ store.saveCachedDaily(card,hash,undefined,"en");
+ assert.equal(store.readCachedDaily(card.date,card.kind,hash).copyRevision,3);
  memory.set(store.DAILY_CACHE_KEY,"{bad");assert.deepEqual(store.readDailyCache(),{});
 });
 
@@ -214,12 +222,34 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
  const css=read("web-spa/src/fortune/dailyCard.css");
  assert.match(css,/rotateY\(180deg\)/);
  assert.match(css,/prefers-reduced-motion:reduce/);
+ const artPattern=/^\/fortune\/daily\/art\/daily-(peers|resources|expression|responsibility|learning)-([123])\.webp$/;
  const num=getCard(onDate("numerology","2026-11-08"));
- assert.match(num.artSrc,/^\/fortune\/identity\/art\/tarot-\d+\.webp$/);
  const baziCard=getCard(onDate("bazi","2026-11-08",profile,{bazi,lunar:fakeSolar}));
- assert.equal(baziCard.artSrc,"/fortune/identity/art/bazi-geng.webp");
+ for(const [kind,card,extra] of [["numerology",num,{}],["bazi",baziCard,{bazi,lunar:fakeSolar}]]){
+  const match=artPattern.exec(card.artSrc);
+  assert.ok(match,kind+" must use a daily themed illustration");
+  assert.deepEqual(card,getCard(onDate(kind,"2026-11-08",profile,extra)),kind+" artwork must be deterministic");
+  const seed=pure.fnv1a("crew-daily-v1:"+kind+":"+pure.dailyProfileHash(profile)+":2026-11-08");
+  assert.equal(Number(match[2]),((seed>>>5)%3)+1,"artwork variant must align with daily copy");
+ }
+ // The Bazi fixture returns the same ten-god category every day; the artwork must still rotate.
+ const week=Array.from({length:7},(_,i)=>"2026-11-"+String(i+8).padStart(2,"0"))
+  .map(date=>getCard(onDate("bazi",date,profile,{bazi,lunar:fakeSolar})).artSrc);
+ assert.equal(new Set(week.map(src=>artPattern.exec(src)[1])).size,1);
+ assert.ok(new Set(week).size>1,"same category should vary across a week");
+ for(let i=8;i<22;i++){
+  const date="2026-11-"+String(i).padStart(2,"0");
+  assert.match(getCard(onDate("numerology",date)).artSrc,artPattern);
+  assert.match(getCard(onDate("bazi",date,profile,{bazi,lunar:fakeSolar})).artSrc,artPattern);
+ }
  const share=read("web-spa/src/fortune/shareCard.ts");
  assert.match(share,/dailyArt\(card\.artSrc\)/);
+ assert.match(share,/daily-\(\?:peers\|resources\|expression\|responsibility\|learning\)-\[123\]/,
+  "share artwork allowlist must accept exactly the daily categories and variants");
+ assert.doesNotMatch(share.slice(share.indexOf("async function dailyArt"),share.indexOf("export async function buildDailyShareFile")),
+  /identity\/art/,"daily sharing must not allow the previous identity images");
+ assert.match(share,/Math\.min\(width\/art\.naturalWidth,height\/art\.naturalHeight\)/,
+  "shared images must be contained rather than stretched");
  const langs=["zh-TW","en","ja","es","pt-BR","id","ko","fr","de","vi","th"];
  for(const lang of langs){
   const doc=JSON.parse(read("web-spa/src/i18n/locales/"+lang+"/fortuneDaily.json"));
@@ -227,6 +257,38 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
  }
 });
  
+test("D10b sharing allowlist and centered contain rendering use only valid daily artwork",async()=>{
+ const {buildDailyShareFile}=loadTs("web-spa/src/fortune/shareCard.ts",["buildDailyShareFile"]);
+ const previousImage=global.Image,previousDocument=global.document;
+ const requested=[],drawn=[];
+ const ctx={createLinearGradient:()=>({addColorStop(){}}),fillRect(){},beginPath(){},arc(){},fill(){},fillText(){},
+  measureText:()=>({width:0}),drawImage(...args){drawn.push(args);}};
+ global.Image=class{naturalWidth=1000;naturalHeight=1000;
+  set src(url){requested.push(url);this.onload();}};
+ global.document={createElement:tag=>{assert.equal(tag,"canvas");return {getContext:()=>ctx,
+  toBlob:callback=>callback(new Blob(["test"],{type:"image/png"}))};}};
+ const labels={doLabel:"Do",avoidLabel:"Avoid",luckyColor:"Color",disclaimer:"Info",kindLabel:"Numerology"};
+ try{
+  const cards=[getCard(onDate("numerology","2026-11-08")),
+   getCard(onDate("bazi","2026-11-08",profile,{bazi,lunar:fakeSolar}))];
+  for(const card of cards){
+   const file=await buildDailyShareFile(card,labels);
+   assert.equal(file.type,"image/png");
+   assert.equal(requested.at(-1),card.artSrc);
+   const [image,x,y,w,h]=drawn.at(-1);
+   assert.equal(image.naturalWidth,1000);
+   assert.deepEqual([x,y,w,h],[304.5,179,470,470],"square art stays centered and undistorted in 835x470 frame");
+  }
+  for(const invalid of ["/fortune/identity/art/tarot-22.webp",
+   "/fortune/daily/art/daily-peers-4.webp","/fortune/daily/art/daily-unknown-2.webp",
+   "/fortune/daily/art/../identity/art/tarot-22.webp"]){
+   await buildDailyShareFile({...cards[0],artSrc:invalid},labels);
+  }
+  assert.equal(requested.length,2,"only allowlisted daily art URLs may be loaded");
+  assert.equal(drawn.length,2,"invalid daily art must render the existing placeholder");
+ }finally{global.Image=previousImage;global.document=previousDocument;}
+});
+
 test("D11 direct Fortune URL keeps stable hooks across lazy locale and saved chart hydration",()=>{
  const source=read("web-spa/src/fortune/FortuneDailyCard.tsx");
  const component=source.slice(source.indexOf("export function FortuneDailyCard("));
