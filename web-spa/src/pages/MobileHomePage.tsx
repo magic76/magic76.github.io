@@ -1,4 +1,4 @@
-import {useEffect,useState} from "react";
+import {useEffect,useRef,useState,type TouchEvent} from "react";
 import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {Icon,type IconName} from "../components/Icon";
@@ -14,17 +14,16 @@ import {useGuestTrialQuota} from "../lib/useGuestTrialQuota";
 import {geminiKey} from "../lib/runtime";
 import {GUEST_TEXT_DAILY_TURNS} from "../live/guestAllowance";
 import zoePhoto from "../../../assets/friends/crew_friend_zoe.webp";
-import {HomeModeRail,type HomeMode} from "./HomeModeRail";
-import {readHomeDeepLink,HOME_FRIEND_NAMES} from "./homeDeepLink.mjs";
-import {shortsChatUrl,shortsPhotoQuestions} from "../teacher/shortsSocial";
+import oliviaPhoto from "../../../assets/teacher/teacher-olivia.jpg";
 import "./mobileHome.css";
 import "./mobileHomeHeroV3.css";
-import "./homeLayout2.css";
 
 const ZOE_TEXT="/friend/live?id=zoe&from=home&chat=text";
 const ZOE_VOICE="/friend/live?id=zoe&from=home&entry=bubble";
 const PREVIEW_HIDDEN_KEY="crew_home_hide_message_preview_v1";
 const GAMES=["1a2b","connect4","reversi"] as const;
+const SLIDES=["zoe","friends","game","learn"] as const;
+const CAROUSEL_INTERVAL_MS=11000;
 type App={id:string;zh:string;en:string;icon:IconName;to:string;event:"friend"|"learn"|"play"|"story"|"fortune"|"shorts"|"timeline"};
 const APPS:readonly App[]=[
  {id:"friends",zh:"AI 朋友",en:"AI Friends",icon:"chat",to:"/teacher/roles?mode=friends",event:"friend"},
@@ -48,60 +47,177 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
  const [resume,setResume]=useState<FriendResume|null>(null);
  const [previewHidden,setPreviewHidden]=useState(false);
  const [featured,setFeatured]=useState<(typeof GAMES)[number]>("1a2b");
- const [mode,setMode]=useState<HomeMode>("chat");
- const [deepLink,setDeepLink]=useState<ReturnType<typeof readHomeDeepLink>>({tab:null,friend:null,game:null,short:null});
+ const [activeSlide,setActiveSlide]=useState(0);
+ const [carouselPaused,setCarouselPaused]=useState(false);
+ const carouselRef=useRef<HTMLDivElement>(null);
+ const startTouch=useRef<{x:number;y:number}|null>(null);
+ const ignoreSwipeClick=useRef(false);
  useEffect(()=>{
   setResume(readLatestFriendResume());
   try{setPreviewHidden(localStorage.getItem(PREVIEW_HIDDEN_KEY)==="1")}catch{/* Optional privacy choice. */}
   const taipeiDay=Math.floor((Date.now()+8*60*60*1000)/86400000);
   setFeatured(GAMES[taipeiDay%GAMES.length]);
-  const link=readHomeDeepLink(window.location.search);
-  setDeepLink(link);if(link.tab)setMode(link.tab);
  },[]);
+ // Rotate only while the mobile hero is visible. User interaction permanently pauses
+ // autoplay for this page view, and reduced-motion users never auto-advance.
+ useEffect(()=>{
+  if(carouselPaused)return;
+  const mobile=window.matchMedia("(max-width:767px)");
+  const reduced=window.matchMedia("(prefers-reduced-motion: reduce)");
+  if(!mobile.matches||reduced.matches||typeof IntersectionObserver==="undefined")return;
+  const element=carouselRef.current;
+  if(!element)return;
+  let onscreen=false;
+  const observer=new IntersectionObserver(entries=>{
+   onscreen=entries.some(entry=>entry.isIntersecting);
+  },{threshold:0.35});
+  observer.observe(element);
+  const timer=window.setInterval(()=>{
+   if(onscreen&&document.visibilityState==="visible"&&mobile.matches&&!reduced.matches){
+    setActiveSlide(previous=>(previous+1)%SLIDES.length);
+   }
+  },CAROUSEL_INTERVAL_MS);
+  return()=>{observer.disconnect();window.clearInterval(timer)};
+ },[carouselPaused]);
+ const manualSlide=(index:number)=>{setCarouselPaused(true);setActiveSlide((index+SLIDES.length)%SLIDES.length)};
+ const touchBegin=(event:TouchEvent<HTMLDivElement>)=>{
+  const touch=event.touches[0];if(!touch)return;
+  setCarouselPaused(true);ignoreSwipeClick.current=false;
+  startTouch.current={x:touch.clientX,y:touch.clientY};
+ };
+ const touchFinish=(event:TouchEvent<HTMLDivElement>)=>{
+  const start=startTouch.current,touch=event.changedTouches[0];startTouch.current=null;
+  if(!start||!touch)return;
+  const dx=touch.clientX-start.x,dy=touch.clientY-start.y;
+  if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)*1.25){
+   ignoreSwipeClick.current=true;
+   setActiveSlide(index=>(index+(dx<0?1:-1)+SLIDES.length)%SLIDES.length);
+  }
+ };
  const zoeResume=resume?.friendId==="zoe"?resume:null;
  const otherResume=resume&&resume.friendId!=="zoe"?resume:null;
  const otherFriend=otherResume?CREW_FRIENDS.find(friend=>friend.id===otherResume.friendId):null;
  const excerpt=(value:string)=>value.trim().replace(/\s+/g," ").slice(0,84);
- const recentLine=(line:string)=>previewHidden?t("layout2.previewHidden"):excerpt(line);
+ const recentLine=(line:string)=>previewHidden?copy("上一則訊息已隱藏","Previous message hidden"):excerpt(line);
  const togglePreview=()=>{
   const next=!previewHidden;setPreviewHidden(next);
   try{localStorage.setItem(PREVIEW_HIDDEN_KEY,next?"1":"0")}catch{/* Optional privacy choice. */}
  };
  const track=(detail:App["event"])=>trackUsageEvent("home_entry_click",detail);
- const exhausted=ready&&!hasKey&&trial.resolved&&trial.enabled&&trial.remaining===0;
- const friendId=deepLink.tab==="chat"&&deepLink.friend?deepLink.friend:"zoe";
- const friendName=HOME_FRIEND_NAMES[friendId]||"Zoe";
- const activeFriend=friendId==="zoe"?null:CREW_FRIENDS.find(friend=>friend.id===friendId);
- const selectedPost=deepLink.short?shortsFeed?.posts.find(post=>post.id===deepLink.short)||null:null;
- const questions=selectedPost?shortsPhotoQuestions(selectedPost,(key,detail)=>t("shorts."+key,{detail})):[];
- const shortsDestination=selectedPost?shortsChatUrl(selectedPost,undefined,questions.length?0:undefined):null;
- const destination=exhausted?"/account#settings-gemini":shortsDestination||
-  (friendId==="zoe"?ZOE_TEXT:"/friend/live?id="+encodeURIComponent(friendId)+"&from=home&chat=text");
- const canResume=Boolean(zoeResume&&friendId==="zoe"&&!selectedPost);
- const gameId=deepLink.tab==="play"&&deepLink.game?deepLink.game:featured;
- const destinations={chat:destination,learn:exhausted?"/account#settings-gemini":"/teacher/live?lesson=daily_u1_l1",
-  fortune:"/fortune/reading?mode=tarot",play:"/games/"+gameId};
- const onNavigate=(next:HomeMode)=>{
-  trackUsageEvent("home_entry_click",exhausted&&(next==="chat"||next==="learn")?"settings":next==="chat"?"friend":next);
-  if(next==="chat"&&selectedPost&&!exhausted){
-   trackUsageEvent("shorts_hook_click","shorts_home");trackUsageEvent("shorts_chat_click","shorts_home");
-  }
- };
- const headline=canResume?t("layout2.resumeTitle"):t("layout2.title",{name:friendName});
- const mainAction=exhausted?t("world.chatExhausted"):canResume?t("layout2.resumeAction"):
-  hasKey?t("world.chatWithFriend",{name:friendName}):t("layout2.action",{name:friendName});
+ const todayLink="/games/"+featured;
  return <div className="crew-mobile-home">
-  <section className="cmh-layout2-hero" aria-label={headline}>
-   <div className="cmh-layout2-heading">
-    <div className="cmh-layout2-copy"><span className="cmh-layout2-eyebrow">ZOE · AI FRIEND</span>
-     <h1>{headline}</h1>
-     <p className="cmh-layout2-description">{canResume?recentLine(zoeResume!.preview):t("layout2.description")}</p>
+  <div ref={carouselRef} className="cmh-carousel" role="region" aria-roledescription="carousel"
+   aria-label={copy("Crew 特色功能輪播","Crew highlights carousel")} tabIndex={0}
+   onPointerDown={()=>setCarouselPaused(true)} onFocusCapture={()=>setCarouselPaused(true)}
+   onKeyDown={event=>{
+    if(event.key==="ArrowRight"||event.key==="ArrowLeft"){
+     event.preventDefault();manualSlide(activeSlide+(event.key==="ArrowRight"?1:-1));
+    }
+   }}>
+   <div className="cmh-carousel-viewport" onTouchStart={touchBegin} onTouchEnd={touchFinish}
+    onTouchCancel={()=>{startTouch.current=null}} onClickCapture={event=>{
+     if(ignoreSwipeClick.current){event.preventDefault();event.stopPropagation();ignoreSwipeClick.current=false}
+    }}>
+    <div className="cmh-carousel-track" style={{transform:`translate3d(-${activeSlide*100}%,0,0)`}}>
+     <section className="cmh-slide cmh-zoe" data-active={activeSlide===0} aria-hidden={activeSlide!==0}
+      aria-label={copy("和 Zoe 聊天","Talk to Zoe")}>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className={"cmh-zoe-copy cmh-slide-copy"+(zoeResume?" cmh-zoe-copy-return":"")}>
+       <span className="cmh-zoe-eyebrow"><i aria-hidden="true"/> ZOE · AI FRIEND</span>
+       <h1>{zoeResume?copy("繼續和 Zoe 聊","Continue with Zoe"):copy("一起聊聊吧！","Let's chat!")}</h1>
+       {zoeResume?
+        <p className="cmh-zoe-preview">{recentLine(zoeResume.preview)}</p>:
+        <p>{copy("一句話，開啟好心情。","Start with a hello.")}</p>}
+      </div>
+      <div className="cmh-scene cmh-zoe-scene" aria-hidden="true">
+       <div className="cmh-scene-ring cmh-scene-ring-outer"/><div className="cmh-scene-ring cmh-scene-ring-inner"/>
+       <span className="cmh-zoe-back-note">HELLO<span>✳</span></span>
+       <img className="cmh-zoe-photo" src={zoePhoto} alt="" width="160" height="200" loading="eager" decoding="async"/>
+       <span className="cmh-chat-pop cmh-chat-pop-first">Hey! <span aria-hidden="true">✦</span></span>
+       <span className="cmh-chat-pop cmh-chat-pop-last">{copy("聊聊？","Talk?")} <span aria-hidden="true">♥</span></span>
+       <span className="cmh-art-sparkle cmh-art-sparkle-one">✦</span>
+      </div>
+      <div className="cmh-zoe-actions">
+       <Link to={ZOE_TEXT} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{zoeResume?copy("繼續文字聊天","Continue chat"):copy("文字聊天","Text Zoe")}</Link>
+       <Link to={ZOE_VOICE} tabIndex={activeSlide===0?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","voice")}><Icon name="mic"/>{copy("語音聊天","Voice")}</Link>
+      </div>
+      {zoeResume&&<button type="button" tabIndex={activeSlide===0?0:-1} className="cmh-preview-toggle" onClick={togglePreview}>{previewHidden?copy("顯示上一句","Show last message"):copy("隱藏上一句","Hide last message")}</button>}
+     </section>
+     <section className="cmh-slide cmh-slide-friends" data-active={activeSlide===1} aria-hidden={activeSlide!==1}
+      aria-label={copy("認識其他 AI 朋友","Meet AI friends")}>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-copy">
+       <span className="cmh-zoe-eyebrow">✦ AI FRIENDS</span>
+       <h2>{copy("換個朋友聊聊？","Meet someone new")}</h2>
+       <p>{copy("三個朋友，三種聊法。","Three friends, three vibes.")}</p>
+      </div>
+      <div className="cmh-scene cmh-friends-art" aria-hidden="true">
+       <div className="cmh-friend-orbit cmh-friend-orbit-back"/>
+       <div className="cmh-friend-orbit cmh-friend-orbit-front"/>
+       {CREW_FRIENDS.filter(friend=>["noah","iris","bella"].includes(friend.id)).map((friend,index)=>
+        <div key={friend.id} className={"cmh-friend-portrait cmh-friend-portrait-"+index}>
+         <img src={friend.avatar} width="94" height="108" alt="" loading="lazy" decoding="async"/>
+         <span>{friend.name}</span>
+        </div>)}
+       <span className="cmh-art-sparkle cmh-friend-star">✳</span>
+      </div>
+      <div className="cmh-zoe-actions">
+       <Link to="/friend/live?id=noah&from=home&chat=text" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","friend")}><Icon name="chat"/>{copy("和 Noah 聊聊","Chat with Noah")}</Link>
+       <Link to="/teacher/roles?mode=friends" tabIndex={activeSlide===1?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","friend")}>{copy("認識朋友","All friends")}</Link>
+      </div>
+     </section>
+     <section className="cmh-slide cmh-slide-game" data-active={activeSlide===2} aria-hidden={activeSlide!==2}
+      aria-label={copy("今日推薦遊戲","Today's game")}>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-copy">
+       <span className="cmh-zoe-eyebrow">✦ {t("gamePick.label")}</span>
+       <h2>{t("playHub.games."+featured+".title")}</h2>
+       <p>{copy("今天玩一局，換個心情。","One round. A fresh mood.")}</p>
+      </div>
+      <div className="cmh-scene cmh-game-art" aria-hidden="true">
+       <div className="cmh-game-platform"/>
+       <div className="cmh-game-board" data-game={featured}>
+        {Array.from({length:9},(_,index)=><span key={index} className={"cmh-game-tile cmh-game-tile-"+index}>
+         {featured==="1a2b"?["1","A","2","B","4","3","7","8","9"][index]:
+          <i className={"cmh-game-piece cmh-piece-"+(index%3)}/>}
+        </span>)}
+       </div>
+       <div className="cmh-game-floating-token">✦<span>PLAY</span></div>
+      </div>
+      <div className="cmh-zoe-actions">
+       <Link to={todayLink} tabIndex={activeSlide===2?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","play")}><Icon name="play"/>{copy("開始玩遊戲","Play now")}</Link>
+       <Link to="/games" tabIndex={activeSlide===2?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","play")}>{copy("更多遊戲","All games")}</Link>
+      </div>
+     </section>
+     <section className="cmh-slide cmh-slide-learn" data-active={activeSlide===3} aria-hidden={activeSlide!==3}
+      aria-label={copy("和 AI 學語言","Learn with AI")}>
+      <div className="cmh-slide-glow" aria-hidden="true"/><div className="cmh-art-texture" aria-hidden="true"/><div className="cmh-sparks" aria-hidden="true"><i/><i/><i/><i/></div>
+      <div className="cmh-slide-copy">
+       <span className="cmh-zoe-eyebrow">✦ CREW LEARN</span>
+       <h2>{copy("一句話，練出自信","Speak with confidence")}</h2>
+       <p>{copy("跟 AI 老師練口說。","Practice speaking with AI.")}</p>
+      </div>
+      <div className="cmh-scene cmh-learn-art" aria-hidden="true">
+       <span className="cmh-learn-ring cmh-learn-ring-one"/><span className="cmh-learn-ring cmh-learn-ring-two"/>
+       <div className="cmh-learn-portrait"><img src={oliviaPhoto} width="154" height="196" alt="" loading="lazy" decoding="async"/></div>
+       <span className="cmh-learn-word cmh-learn-word-hi">Hello!</span>
+       <span className="cmh-learn-word cmh-learn-word-konnichiwa">こんにちは</span>
+       <span className="cmh-learn-wave"><i/><i/><i/><i/><i/></span>
+      </div>
+      <div className="cmh-zoe-actions">
+       <Link to="/learn" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-primary" onClick={()=>trackUsageEvent("home_entry_click","learn")}><Icon name="teacher"/>{copy("開始學語言","Start learning")}</Link>
+       <Link to="/teacher/roles?mode=teacher" tabIndex={activeSlide===3?0:-1} className="cmh-zoe-secondary" onClick={()=>trackUsageEvent("home_entry_click","learn")}>{copy("找位老師","Pick teacher")}</Link>
+      </div>
+     </section>
     </div>
-    <img className="cmh-layout2-avatar" src={activeFriend?.avatar||zoePhoto} alt="" width="100" height="110" loading="eager" decoding="async"/>
    </div>
-   <Link to={destination} className="cmh-layout2-primary" onClick={()=>onNavigate("chat")}>
-    <Icon name="chat"/><span>{selectedPost&&!exhausted?(questions[0]?.label||t("world.shortsFallback")):mainAction}</span><span aria-hidden="true">↗</span>
-   </Link>
+   <div className="cmh-carousel-dots" role="group" aria-label={copy("選擇輪播項目","Choose carousel slide")}>
+    {SLIDES.map((slide,index)=><button key={slide} type="button"
+     className={index===activeSlide?"is-active":""} aria-current={index===activeSlide?"true":undefined}
+     aria-label={copy("前往第 "+(index+1)+" 張："+["Zoe 聊天","AI 朋友","今日推薦","學語言"][index],
+                      "Go to slide "+(index+1)+": "+["Zoe","AI friends","Today's game","Learn"][index])}
+     onClick={()=>manualSlide(index)}><span aria-hidden="true"/></button>)}
+   </div>
    {!hasKey&&<div className="cmh-allowance-slot">
     {ready&&!hasKey&&<p className="cmh-free-allowance" role="status">{trial.resolved&&trial.enabled&&trial.remaining===0
      ?t("world.freeAllowance.voiceUsed",{count:GUEST_TEXT_DAILY_TURNS})
@@ -109,21 +225,14 @@ export function MobileHomePage({shortsFeed,shortsStatus}:{shortsFeed:ShortFeed|n
       ?t("world.freeAllowance.full",{count:GUEST_TEXT_DAILY_TURNS,minutes:trial.seconds/60})
       :t("world.freeAllowance.textOnly",{count:GUEST_TEXT_DAILY_TURNS})}</p>}
    </div>}
-   <Link to={ZOE_VOICE} className="cmh-layout2-voice" onClick={()=>trackUsageEvent("home_entry_click","voice")}>{t("layout2.voice")} <span aria-hidden="true">↗</span></Link>
-   {canResume&&<button type="button" className="cmh-preview-toggle" onClick={togglePreview}>{previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}</button>}
-  </section>
-  <section className="cmh-layout2-other" aria-label={t("layout2.more")}>
-   <h2>{t("layout2.more")}</h2>
-   <HomeModeRail prefix="cmh-mode" mode={mode} onChange={setMode} destinations={destinations} onNavigate={onNavigate}
-    chatName={friendName} chatAction={selectedPost?(questions[0]?.label||t("world.shortsFallback")):undefined}/>
-  </section>
+  </div>
   {otherResume&&otherFriend&&<section className="cmh-other-resume" aria-label={copy("續聊","Resume chat")}>
    <img src={otherFriend.avatar} alt="" width="40" height="40" loading="lazy"/>
    <Link to={"/friend/live?id="+encodeURIComponent(otherResume.friendId)+"&from=home&chat=text"} className="cmh-other-resume-link" onClick={()=>trackUsageEvent("home_entry_click","friend")}>
     <strong>{copy("繼續和 "+otherFriend.name+" 聊","Continue with "+otherFriend.name)}</strong>
     <span>{recentLine(otherResume.preview)}</span>
    </Link>
-   <button type="button" onClick={togglePreview} className="cmh-other-hide" aria-label={previewHidden?t("layout2.showPreview"):t("layout2.hidePreview")}><Icon name="cards"/></button>
+   <button type="button" onClick={togglePreview} className="cmh-other-hide" aria-label={previewHidden?copy("顯示上一句","Show last message"):copy("隱藏上一句","Hide last message")}><Icon name="cards"/></button>
   </section>}
   <DailyTopicCards variant="mobile"/>
   <section className="cmh-apps" aria-labelledby="cmh-apps-title">
