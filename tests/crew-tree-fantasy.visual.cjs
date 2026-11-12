@@ -118,6 +118,27 @@ fs.mkdirSync(OUT,{recursive:true});
       });
      }
      assert.equal(new Set(pictures).size,3,'start, in-between and final morph frames must all differ '+scene);
+     if(scene==='jelly'&&from===3){
+      // Regression: a zero-progress 3→8 tween must not leak the next
+      // stage's dark canopy through an overridden globalAlpha.
+      const difference=await page.evaluate(()=>{
+       const qa=window.__CREW_STUDIES_QA__,cv=document.getElementById('heroCanvas'),ctx=cv.getContext('2d');
+       const read=()=>{
+        const scale=Math.min(cv.width/800,cv.height/820),ox=(cv.width-800*scale)/2,oy=(cv.height-820*scale)/2;
+        const pixels=[];
+        for(let y=620;y<=738;y+=14)for(let x=334;x<=466;x+=14){
+         const data=ctx.getImageData(Math.round(ox+x*scale),Math.round(oy+y*scale),1,1).data;
+         pixels.push(data[0],data[1],data[2]);
+        }
+        return pixels;
+       };
+       qa.paint('jelly',3,103,'cosmos');const normal=read();
+       qa.growthFrame('jelly',3,8,0,'cosmos');const transitionStart=read();
+       return normal.reduce((total,v,i)=>total+Math.abs(v-transitionStart[i]),0)/normal.length;
+      });
+      assert.ok(difference<18,'zero-progress transition must not render ghost canopy: pixel delta '+difference);
+      console.log('FANTASY_V6_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
+     }
      if(label==='desktop'){
       const contact=await page.evaluate(async pictures=>{
        const out=document.createElement('canvas');out.width=930;out.height=392;
