@@ -74,7 +74,6 @@ export function cafeFirstResponder(w:CafeWorld,item:CafeProp,target:CafeActor):C
 }
 type Reaction={beats:CafeBeat[];news:CafeNews;changes:Partial<Record<CafePair,number>>;reveals:CafeSecret[];flags:string[]};
 function react(w:CafeWorld,item:CafeProp,target:CafeActor,first:CafeActor):Reaction{
- const speaker=cafeNames[first];
  const echoes=yes(w,"heard-moving")||yes(w,"letter-misread");
  if(item==="letter"){
   if(target==="hana"){
@@ -126,7 +125,7 @@ function react(w:CafeWorld,item:CafeProp,target:CafeActor,first:CafeActor):React
    changes:{"ethan-hana":-3,"mira-hana":-2},reveals:[],flags:["date-clash","ticket-found"]};
  }
  if(item==="rain"){
-  const misread=yes(w,"letter-misread");
+  const misread=yes(w,"letter-misread")&&!yes(w,"photo-cleared")&&!yes(w,"rain-cleared");
   const conflict=misread||w.relations["mira-ethan"]<55;
   return {beats:[
    beat(null,"窗外忽然下起大雨。三個人擠到同一張小桌旁。","Rain hits the windows. All three squeeze around the same small table."),
@@ -172,7 +171,7 @@ export function useCafeProp(world:CafeWorld,item:CafeProp,target:CafeActor,guess
  const move:CafeMove={item,target,guess,first,beats:outcome.beats,news:outcome.news,
   changes:outcome.changes,reveals:outcome.reveals,correct:guess===null?null:guess===first};
  const used=[...world.used,item];
- return {...world,phase:used.length===CAFE_MAX_MOVES?"reaction":"reaction",lastSeenAt:now,
+ return {...world,phase:"reaction",lastSeenAt:now,
   used,relations,revealed:[...new Set([...world.revealed,...outcome.reveals])],
   flags:[...new Set([...world.flags,...outcome.flags])],moves:[...world.moves,move],
   correctGuesses:world.correctGuesses+(guess!==null&&guess===first?1:0),
