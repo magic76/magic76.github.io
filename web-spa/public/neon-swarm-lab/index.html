@@ -494,6 +494,9 @@ function directEnemyWaves(){
   if(next===2||next===4||next===5)
    say(next===5?'最後一波！怪越多，清場武器越有威力！':next===4?'第五波！集結敵群，準備火力爆發！':'第三波！敵人開始成群從街角湧入！','milestone');
  }
+ // The final 1.5s of each non-boss wave is a short chance to collect drops.
+ // Existing enemies continue moving; only additional spawning stops.
+ if(next<5&&gameTime>cfg.end-1.5){elapsedSinceWave=gameTime-cfg.at;return}
  const healthScale=player.hp<34?.76:player.hp<60?.9:1;
  const frameScale=perfFps<38?.76:perfFps<48?.9:1;
  const target=Math.max(6,Math.min(MAX_LIVE_MOBS,Math.round(cfg.target*healthScale*frameScale)));
