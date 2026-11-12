@@ -114,10 +114,31 @@ fs.mkdirSync(OUT,{recursive:true});
       },{scene,from,to,progress});
       pictures.push(shot);
       await page.locator('#heroCanvas').screenshot({
-       path:path.join(OUT,'V5-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
+       path:path.join(OUT,'V6-GROWTH-'+label+'-'+scene+'-'+from+'-to-'+to+'-'+Math.round(progress*100)+'.png')
       });
      }
      assert.equal(new Set(pictures).size,3,'start, in-between and final morph frames must all differ '+scene);
+     if(scene==='jelly'&&from===3){
+      // Regression: a zero-progress 3→8 tween must not leak the next
+      // stage's dark canopy through an overridden globalAlpha.
+      const difference=await page.evaluate(()=>{
+       const qa=window.__CREW_STUDIES_QA__,cv=document.getElementById('heroCanvas'),ctx=cv.getContext('2d');
+       const read=()=>{
+        const scale=Math.min(cv.width/800,cv.height/820),ox=(cv.width-800*scale)/2,oy=(cv.height-820*scale)/2;
+        const pixels=[];
+        for(let y=620;y<=738;y+=14)for(let x=334;x<=466;x+=14){
+         const data=ctx.getImageData(Math.round(ox+x*scale),Math.round(oy+y*scale),1,1).data;
+         pixels.push(data[0],data[1],data[2]);
+        }
+        return pixels;
+       };
+       qa.paint('jelly',3,103,'cosmos');const normal=read();
+       qa.growthFrame('jelly',3,8,0,'cosmos');const transitionStart=read();
+       return normal.reduce((total,v,i)=>total+Math.abs(v-transitionStart[i]),0)/normal.length;
+      });
+      assert.ok(difference<18,'zero-progress transition must not render ghost canopy: pixel delta '+difference);
+      console.log('FANTASY_V6_ZERO_MORPH_COLOR_DIFF='+difference.toFixed(2));
+     }
      if(label==='desktop'){
       const contact=await page.evaluate(async pictures=>{
        const out=document.createElement('canvas');out.width=930;out.height=392;
@@ -130,7 +151,7 @@ fs.mkdirSync(OUT,{recursive:true});
        }
        return out.toDataURL('image/jpeg',.70).split(',')[1];
       },pictures);
-      console.log('FANTASY_V5_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
+      console.log('FANTASY_V6_'+scene.toUpperCase()+'_'+from+'_TO_'+to+'='+contact);
      }
     }
     const reactionFrames=[];
@@ -141,7 +162,7 @@ fs.mkdirSync(OUT,{recursive:true});
      },{scene,progress});
      reactionFrames.push(image);
      await page.locator('#heroCanvas').screenshot({
-      path:path.join(OUT,'V5-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
+      path:path.join(OUT,'V6-TOUCH-'+label+'-'+scene+'-'+Math.round(progress*100)+'.png')
      });
     }
     assert.equal(new Set(reactionFrames).size,3,
@@ -188,6 +209,27 @@ fs.mkdirSync(OUT,{recursive:true});
       await page.locator('#heroCanvas').screenshot({path:path.join(OUT,'desktop-'+scene+'-topic-'+topic+'.png')});
      }
      assert.equal(new Set(portraits).size,4,'all storybook palettes must differ');
+     if(scene==='jelly'){
+      // Check the real bell, not only sky differences between topic screens.
+      const capColors=[];
+      for(const topic of ['cosmos','warmth','music','travel']){
+       await page.locator('[data-topic="'+topic+'"]').click();
+       const color=await page.locator('#heroCanvas').evaluate(cv=>{
+        const ctx=cv.getContext('2d'),w=cv.width,h=cv.height;
+        const scale=Math.min(w/800,h/820),ox=(w-800*scale)/2,oy=(h-820*scale)/2;
+        // Interior upper-left quadrant avoids the resident fish face.
+        const pts=[[330,233],[344,245],[354,259],[331,270]];
+        return pts.map(([x,y])=>{
+         const rgba=ctx.getImageData(Math.floor(ox+x*scale),Math.floor(oy+y*scale),1,1).data;
+         return [...rgba].slice(0,3).map(v=>Math.round(v/12)).join(':');
+        }).join('/');
+       });
+       capColors.push(color);
+      }
+      assert.equal(new Set(capColors).size,4,
+       'V6 bell pigment in the actual canopy must change across four themes: '+JSON.stringify(capColors));
+      console.log('FANTASY_V6_BELL_COLORS='+JSON.stringify(capColors));
+     }
      const contact=await page.evaluate(async(data)=>{
       const canvas=document.createElement('canvas');canvas.width=1040;canvas.height=340;
       const ctx=canvas.getContext('2d');
@@ -239,7 +281,7 @@ fs.mkdirSync(OUT,{recursive:true});
   assert.equal(await live.evaluate(()=>window.__CREW_STUDIES_QA__.state().growth?.from),3);
   await live.waitForTimeout(1450);
   await motion.close();
-  console.log('FANTASY_V5_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
+  console.log('FANTASY_V6_REAL_GROWTH_UI_OK; stage transitions, no-preference motion and reduced-motion fallbacks');
   // External authoring tools are separately reported: a CDN outage must not
   // be mistaken for an actual successful p5.brush/Rigby2D implementation.
   const ctx=await browser.newContext({viewport:{width:1280,height:850}});
