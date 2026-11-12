@@ -209,6 +209,7 @@ function jellyScene(c,m,time,staticMode){
   endpoints.push(bonePath(c,arm,time,staticMode,m.topic,m.stage));
  }
  window.CrewFantasyPaint.twistedTrunk(c,m.stage,m.seed,time,staticMode);
+ window.CrewFantasyV7.livingTrunk(c,m.stage,m.seed,m.topic,time,staticMode);
  window.CrewFantasyV6.coralRoots(c,m.stage,m.topic,m.seed,time,staticMode);
  // Fewer, grounded lanterns; delayed light follows actual tendril endpoints.
  endpoints.forEach((end,i)=>{
@@ -302,6 +303,7 @@ function paint(canvas,scene,stage,seed,topic,time=0,staticMode=true,silhouette=f
    window.CrewFantasyV5.reactionOverlay(c,scene,reaction.progress,seed,model);
   window.CrewFantasyPaint.frame(c,scene,seed);
   window.CrewFantasyV6.paperWash(c,seed,scene,stage);
+  window.CrewFantasyV7.picturebookFinish(c,seed,scene,stage);
  }
  return model;
 }

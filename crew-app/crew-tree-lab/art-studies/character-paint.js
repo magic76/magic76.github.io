@@ -135,7 +135,8 @@ function floatUnit(c,u,index,m,time,staticMode,art){
  // Small grounded details, not emoji pasted over crown.
  if(m.stage>=8&&index===0){
   c.save();c.fillStyle='#eedcb4';c.strokeStyle='#8d7775';c.lineWidth=2;
-  const bx=x+w*.20,by=ground+w*.055;
+  const bx=x+w*.23,by=ground+w*.055;
+  c.translate(bx,by);c.scale(1.38,1.38);c.translate(-bx,-by);
   path(c,[[bx-w*.035,by],[bx-w*.035,by-w*.16],[bx,by-w*.23],[bx+w*.04,by-w*.16],[bx+w*.04,by]],'#f0ccab','#85747c',1.7);
   path(c,[[bx-w*.05,by-w*.15],[bx,by-w*.255],[bx+w*.06,by-w*.15]],'#715d70','#715d70',1.1);
   c.fillStyle='#fff4d1';c.fillRect(bx-w*.002,by-w*.14,w*.021,w*.036);c.restore();
