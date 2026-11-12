@@ -20,7 +20,8 @@ const TEXT={
 let P=null,Z=null,room=null,last=0,raf=0,width=390,height=450,dpr=1,scale=1,viewW=700,viewH=700,camX=0,camY=0;
 let input={left:false,right:false,jump:false,fire:false},pressedJump=false;
 let bubble={text:'',until:0},particles=[],skyStars=[];
-const combat={shots:[],enemyShots:[],enemies:[],cover:[],flashes:[],wave:0,triggered:false,spawns:0,kills:0,roomKills:0,shotsFired:0,zoeShots:0,shake:0};
+const combat={shots:[],enemyShots:[],enemies:[],cover:[],flashes:[],wave:0,triggered:false,spawns:0,kills:0,roomKills:0,shotsFired:0,zoeShots:0,shake:0,doubleDownAt:0};
+let combatSoundEnabled=true;
 const crewSpriteImages={};
 function loadCrewSprites(){
  const bank=window.CREW_NEON_SPRITES;
@@ -33,6 +34,7 @@ function loadCrewSprites(){
  }
 }
 function soundCombat(kind){
+ if(!combatSoundEnabled)return;
  const Audio=window.AudioContext||window.webkitAudioContext;
  if(!Audio)return;
  try{
@@ -165,7 +167,7 @@ function burst(x,y,color,n=9){
 }
 function resetCombat(){
  combat.shots.length=0;combat.enemyShots.length=0;combat.enemies.length=0;combat.flashes.length=0;
- combat.triggered=false;combat.wave=0;combat.roomKills=0;combat.shake=0;combat.spawns=0;
+ combat.triggered=false;combat.wave=0;combat.roomKills=0;combat.shake=0;combat.spawns=0;combat.doubleDownAt=0;
  combat.cover=[{x:568,y:FLOOR-53,w:50,h:53},{x:752,y:FLOOR-43,w:42,h:43}];
  if(room.id==='gap')combat.cover[0].x=660;
  P.hp=P.maxHp;Z.hp=Z.maxHp;
@@ -850,6 +852,11 @@ function parseCommand(str){
 function init(){
  loadCrewSprites();readMemory();resetRoom();G.phase='ready';
  $('startBtn').addEventListener('click',startRun);
+ $('soundBtn').addEventListener('click',()=>{
+  combatSoundEnabled=!combatSoundEnabled;
+  $('soundBtn').textContent=combatSoundEnabled?'🔊':'🔇';
+  $('soundBtn').setAttribute('aria-pressed',combatSoundEnabled?'true':'false');
+ });
  for(const b of document.querySelectorAll('[data-command]'))b.addEventListener('click',()=>setCommand(b.dataset.command));
  $('sayForm').addEventListener('submit',e=>{
   e.preventDefault();const text=$('sayInput').value;const cmd=parseCommand(text);
@@ -881,6 +888,7 @@ if(params.get('qa')==='1'){
   place:(who,x,y=FLOOR)=>{const obj=who==='zoe'?Z:P;obj.x=x;obj.y=y;obj.vy=0;obj.onGround=true},
   rescue:()=>rescue(P),finish:finishRun,updatePuzzle,aiStep,
   controls:(left,right,jump,fire)=>{input.left=!!left;input.right=!!right;if(jump)input.jump=true;input.fire=!!fire},
+  render, toggleSound:()=>{combatSoundEnabled=!combatSoundEnabled;return combatSoundEnabled},
   fire:()=>fireGun(P,true),combat:()=>({wave:combat.wave,triggered:combat.triggered,kills:combat.kills,
    shotsFired:combat.shotsFired,zoeShots:combat.zoeShots,shots:combat.shots.map(x=>({...x})),
    enemyShots:combat.enemyShots.map(x=>({...x})),enemies:combat.enemies.map(x=>({...x})),
