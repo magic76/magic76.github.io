@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {useTranslation} from "react-i18next";
 import {useRouteNamespace} from "../i18n/useRouteNamespace";
 import {buildDailyCard,dailyProfileHash,localDateKey,type DailyKind} from "./dailyCard";
-import {readDailyKind,readCachedDaily,saveCachedDaily} from "./dailyStore";
+import {DAILY_COPY_REVISION,readDailyKind,readCachedDaily,saveCachedDaily} from "./dailyStore";
 import type {FortuneReading} from "./types";
 import "./dailyCard.css";
 
@@ -24,7 +24,7 @@ export function FortuneDailyStrip({reading}:{reading:FortuneReading}){
  const card=useMemo(()=>{
   if(!ready)return null;
   const stored=readCachedDaily(date,actualKind,hash);
-  if(stored?.locale===lang&&stored.copyRevision===2)return stored.card;
+  if(stored?.locale===lang&&stored.copyRevision===DAILY_COPY_REVISION)return stored.card;
   const result=buildDailyCard({kind:actualKind,profile:reading.profile,localDate:date,lang,
    bazi:reading.mode==="bazi"?reading.result:undefined});
   if("status" in result)return null;
