@@ -137,6 +137,7 @@ function coralRoots(c,stage,topic,seed,time,still){
   const forkX=x-side*(7+r()*16),forkY=y-17-r()*15;
   c.strokeStyle=pal.roots;c.lineWidth=2.9;c.beginPath();
   c.moveTo(x-side*12,y-18);c.quadraticCurveTo(x-side*18,y-23,forkX,forkY);c.stroke();
+  c.fillStyle=pal.foliage;c.beginPath();c.ellipse(forkX,forkY,3.8,6.2,side*.4,0,TAU);c.fill();
  }
  // Submerged bubble-roots are translucent pearls attached to the reef.
  for(let i=0;i<(large?13:7);i++){
@@ -163,10 +164,11 @@ function tintCanopy(c,spec,topic,stage,time,still){
  c.save();capBoundary(c,spec);c.clip();
  const g=c.createLinearGradient(400-spec.w*.38,spec.y+spec.h*.23,400+spec.w*.35,spec.y+spec.h*.76);
  g.addColorStop(0,pal.bell[0]);g.addColorStop(.55,pal.bell[1]);g.addColorStop(1,pal.bell[2]);
- c.globalAlpha=stage>=16?.47:.27;
+ const inheritedAlpha=c.globalAlpha;
+ c.globalAlpha=inheritedAlpha*(stage>=16?.47:.27);
  c.globalCompositeOperation='multiply';c.fillStyle=g;
  c.fillRect(400-spec.w*.55,spec.y,spec.w*1.1,spec.h);
- c.globalCompositeOperation='source-over';c.globalAlpha=.6;
+ c.globalCompositeOperation='source-over';c.globalAlpha=inheritedAlpha*.6;
  c.strokeStyle=pal.rim;c.lineWidth=2.3;c.beginPath();
  c.ellipse(400,spec.y+spec.h*.53,spec.w*.28,spec.h*.125,-.07,.17*Math.PI,.86*Math.PI);c.stroke();
  const sh=still?0:Math.sin(time*.00062)*4;
@@ -187,18 +189,18 @@ function bellLeaves(c,spec,topic,stage,time,still){
   const t=(i+.55)/n,x=400+(t-.5)*spec.w*.87;
   const side=(t-.5)*2,y=spec.y+spec.h*(.61+.095*Math.abs(side));
   const sway=still?0:Math.sin(time*.00072+i*1.2)*.065;
-  const leafW=(stage>=16?10:7)*(1-Math.abs(side)*.32);
+  const leafW=(stage>=16?15:9)*(1-Math.abs(side)*.32);
   c.save();c.translate(x,y);c.rotate(side*.55+sway);
   c.strokeStyle='#709d9bbb';c.lineWidth=2;c.beginPath();c.moveTo(0,8);
-  c.quadraticCurveTo(-side*7,-2,-side*2,-14);c.stroke();
+  c.quadraticCurveTo(-side*8,-4,-side*2,-19);c.stroke();
   const lg=c.createLinearGradient(-leafW,-15,leafW,8);
   lg.addColorStop(0,'#f7eac3');lg.addColorStop(.54,pal.foliage);lg.addColorStop(1,'#426f77');
   c.fillStyle=lg;c.strokeStyle='#5a9191';c.lineWidth=1.05;
   c.beginPath();c.moveTo(0,3);
-  c.bezierCurveTo(-leafW,-9,-leafW*.7,-22,0,-23);
-  c.bezierCurveTo(leafW*.93,-16,leafW,-6,0,3);c.fill();c.stroke();
+  c.bezierCurveTo(-leafW,-11,-leafW*.7,-30,0,-32);
+  c.bezierCurveTo(leafW*.93,-25,leafW,-8,0,3);c.fill();c.stroke();
   c.strokeStyle='#f2f0d2bb';c.lineWidth=1;c.beginPath();
-  c.moveTo(0,-2);c.lineTo(0,-18);c.stroke();
+  c.moveTo(0,-2);c.lineTo(0,-26);c.stroke();
   c.restore();
  }
  c.restore();
