@@ -31,3 +31,12 @@
 .daily-quote--desktop .daily-quote-placeholder{background:rgba(255,255,255,.15)}
 @media(prefers-reduced-motion:reduce){.daily-quote-action{transition:none}.daily-quote-action:active{transform:none}}
 @media(max-width:380px){.daily-quote-card{padding:8px 11px}.daily-quote-actions{gap:6px}.daily-quote-action{font-size:12px;padding:6px}}
+/* Keep profile selection in the title row, not an additional tall card section. */
+.daily-quote-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0}
+.daily-quote-heading h2{flex:0 1 auto;min-width:0}
+.daily-quote-chart{min-width:0;max-width:57%;height:44px;min-height:44px;flex:0 1 auto;padding:0 24px 0 8px;border:1px solid rgba(103,83,134,.27);border-radius:11px;
+ color:#46365c;background:rgba(255,255,255,.85);font-family:inherit;font-size:12px;font-weight:700;line-height:1.3;text-overflow:ellipsis;cursor:pointer}
+.daily-quote-chart:focus-visible{outline:3px solid #6d58b2;outline-offset:2px}
+.daily-quote--desktop .daily-quote-chart{background:#383244;color:#fff;border-color:rgba(255,255,255,.4)}
+@supports not (backdrop-filter:blur(1px)){.daily-quote-chart{background:#fff}}
+@media(max-width:380px){.daily-quote-heading{gap:4px}.daily-quote-chart{max-width:53%;padding-left:5px;padding-right:17px}}

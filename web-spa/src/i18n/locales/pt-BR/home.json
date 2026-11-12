@@ -575,5 +575,5 @@
     "withZoe": "Conversar com Zoe",
     "setup": "Config. Key"
   },
-  "dailyQuote": {"title": "Uma frase para hoje", "fortune": "Ver minha sorte de hoje", "chat": "Conversar com Zoe"}
+  "dailyQuote": {"title": "Uma frase para hoje", "fortune": "Ver minha sorte de hoje", "chat": "Conversar com Zoe", "fortuneFull": "Ver previsão completa", "personalTitle": "Sua sorte de hoje", "chooseChart": "Escolher mapa natal", "me": "Meu mapa", "markSelf": "Marcar como meu mapa", "kind": {"bazi": "BaZi", "tarot": "Numerologia", "vedic": "Mapa védico"}}
 }

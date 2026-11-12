@@ -575,5 +575,5 @@
     "withZoe": "Ngobrol dengan Zoe",
     "setup": "Atur Key"
   },
-  "dailyQuote": {"title": "Renungan kecil hari ini", "fortune": "Lihat peruntungan hari ini", "chat": "Bahas ini dengan Zoe"}
+  "dailyQuote": {"title": "Renungan kecil hari ini", "fortune": "Lihat ramalanku hari ini", "chat": "Bahas ini dengan Zoe", "fortuneFull": "Lihat ramalan lengkap", "personalTitle": "Ramalanmu hari ini", "chooseChart": "Pilih bagan lahir", "me": "Baganku", "markSelf": "Tandai sebagai milikku", "kind": {"bazi": "BaZi", "tarot": "Numerologi", "vedic": "Bagan Weda"}}
 }

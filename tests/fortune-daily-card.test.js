@@ -101,6 +101,18 @@ test("D5 almanac only in zh locale, no non-zh UI almanac",()=>{
  assert.match(ui,/\/\^zh\/i\.test\(locale\)&&full\.almanac/);
 });
 
+test("D5b optional almanac keeps zh personal theme without Solar but preserves strict Fortune default",()=>{
+ const zh=onDate("numerology","2026-11-12",profile,{lang:"zh-TW",almanac:"optional"});
+ assert.equal(zh.version,1);
+ assert.ok(zh.theme);
+ assert.equal(zh.almanac,undefined);
+ assert.deepEqual(onDate("numerology","2026-11-12",profile,{lang:"zh-TW"}),
+  {status:"loading",reason:"lunar"});
+ const full=onDate("numerology","2026-11-12",profile,{lang:"zh-TW",lunar:fakeSolar});
+ assert.ok(full.almanac&&full.almanac.yi.length);
+ assert.deepEqual(onDate("numerology","2026-11-12",profile,{lang:"zh-TW",lunar:fakeSolar,almanac:"optional"}),full);
+});
+
 test("D6 Gemini is opt-in, quota errors do not count, uses allowlisted data",async()=>{
  memory.clear();
  const ai=loadTs("web-spa/src/fortune/dailyAi.ts",["generateDailyAi","dailyAiPrompt","DAILY_AI_OPTIONS"],
@@ -217,7 +229,7 @@ test("D10 daily flip and illustrated share respect assets and accessibility",()=
  
 test("D11 direct Fortune URL keeps stable hooks across lazy locale and saved chart hydration",()=>{
  const source=read("web-spa/src/fortune/FortuneDailyCard.tsx");
- const component=source.slice(source.indexOf("export function FortuneDailyCard(){"));
+ const component=source.slice(source.indexOf("export function FortuneDailyCard("));
  const firstReturn=component.indexOf("if(!clientReady||!ready)return");
  assert.ok(firstReturn>0,"initial Fortune SSR and client hydration need the same loading placeholder");
  assert.match(component,/const clientReady=useClientReady\(\)/);
@@ -230,5 +242,7 @@ test("D11 direct Fortune URL keeps stable hooks across lazy locale and saved cha
  assert.match(component,/if\(!clientReady\|\|!ready\|\|!profile\?\.birthDate\)return;\s*if\(revealed\)/,
   "focus effect must remain mounted even when profile or locale is unavailable");
  const home=read("web-spa/src/fortune/HomePage.tsx");
- assert.match(home,/<FortuneDailyCard\/>/,"Fortune direct entry mounts the daily card even inside a closed details element");
+ assert.match(home,/<FortuneDailyCard chartHash=\{chartHash\}\/>/,"saved chart must open a prominent, matching daily card");
+ assert.match(home,/!hasDaily&&<details className="fortune-journey-daily">/,
+  "old collapsible presentation remains only for a visitor without a saved chart");
 });

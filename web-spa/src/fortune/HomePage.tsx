@@ -8,6 +8,7 @@ import "./unifiedHome.css";
 import {FortuneDailyCard} from "./FortuneDailyCard";
 import {useSearchParams} from "react-router-dom";
 import {parseFortuneInvite} from "./fortuneInvite";
+import {readDailyProfiles} from "./dailyProfileSelection";
 import {FortuneInviteLanding} from "./FortuneInviteLanding";
 
 const MODES=["bazi","tarot","vedic"] as const;
@@ -25,10 +26,16 @@ export function FortuneHomePage(){
  const [searchParams]=useSearchParams();
  const invite=parseFortuneInvite(searchParams);
  const [list,setList]=useState<FortuneHistoryPreview[]|null>(null);
+ const [hasDaily,setHasDaily]=useState(false);
+ const dailyIntent=searchParams.get("daily")==="1";
+ const chartHash=/^[a-f0-9]{64}$/.test(searchParams.get("chart")||"")?searchParams.get("chart")!:undefined;
  const [openingId,setOpeningId]=useState<string|null>(null);
  const [error,setError]=useState("");
  const [needsKey,setNeedsKey]=useState(false);
- useEffect(()=>{setList(readFortuneHistoryPreviews(30))},[]);
+ useEffect(()=>{setList(readFortuneHistoryPreviews(30));setHasDaily(readDailyProfiles().length>0)},[]);
+ const dailySection=hasDaily?<section id="fortune-today" className="section fortune-journey-today">
+  <FortuneDailyCard chartHash={chartHash}/>
+ </section>:null;
  const latest=list?.[0];
  const readingUrl=(id:string)=>"/fortune/reading?history="+encodeURIComponent(id);
  async function explain(readingId:string){
@@ -51,11 +58,13 @@ export function FortuneHomePage(){
  }
  return <>
   {invite&&<FortuneInviteLanding invite={invite} locale={i18n.resolvedLanguage||i18n.language}/>}
+  {dailyIntent?dailySection:null}
   <section className="hero fortune-journey-hero">
    <span className="kicker">CREW FORTUNE · EXPLORE</span>
    <h1>{t("landing.title")}</h1>
    <p>{t("landing.intro")}</p>
   </section>
+  {!dailyIntent?dailySection:null}
   <section className="section fortune-journey-create" id="fortune-new-reading">
    <div className="section-head">
     <h2>{t("landing.createTitle")}</h2>
@@ -117,10 +126,10 @@ export function FortuneHomePage(){
     </div>:
     <div className="fortune-home-empty"><strong>{t("home.empty")}</strong><span>{t("home.emptyDesc")}</span></div>}
   </section>
-  <details className="fortune-journey-daily">
+  {!hasDaily&&<details className="fortune-journey-daily">
    <summary>{t("landing.todayReflection")}</summary>
    <FortuneDailyCard/>
-  </details>
+  </details>}
   <section className="section fortune-journey-other">
    <div className="section-head"><h2>{t("landing.exploreOther")}</h2></div>
    <div className="fortune-journey-other-links">
